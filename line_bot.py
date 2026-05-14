@@ -450,7 +450,7 @@ def handle_message(event):
                 messages=[TextMessage(text="朝レターを生成中です。\n少々お待ちください（1〜2分）...")]
             ))
             report = generate_morning_report()
-            send_line_message(report)
+            send_line_message(report, user_id=line_user_id)
 
         elif user_text in ["登録", "資産登録", "情報登録"]:
             api.reply_message(ReplyMessageRequest(
@@ -465,10 +465,10 @@ def handle_message(event):
             ))
             user_info = get_user(line_user_id)
             if not user_info or not user_info.get("stocks_owned"):
-                send_line_message("まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊")
+                send_line_message("まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊", user_id=line_user_id)
             else:
                 analysis = analyze_portfolio(user_info)
-                send_line_message(analysis)
+                send_line_message(analysis, user_id=line_user_id)
 
         elif "：" in user_text or ":" in user_text:
             parse_and_save_user_info(line_user_id, user_text)
@@ -487,7 +487,7 @@ def handle_message(event):
             save_user(line_user_id, {"conversation_history": user_text})
             chunks = [answer[i:i+4500] for i in range(0, len(answer), 4500)]
             for chunk in chunks:
-                send_line_message(chunk)
+                send_line_message(chunk, user_id=line_user_id)
 
 @app.route("/morning", methods=["GET"])
 def morning():
