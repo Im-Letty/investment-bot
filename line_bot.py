@@ -1,11 +1,3 @@
-コードを確認しました。問題が2つあります：
-
-1. `send_line_message`が`reply_message`に変わってしまっている（LINEの`ReplyMessageRequest`と名前が衝突する）
-2. インデントがずれている箇所がある
-
-全部書き直しましょう。GitHubで全部選択して以下を貼り付けてコミットしてください：
-
-```python
 from supabase import create_client
 import os
 import anthropic
@@ -482,13 +474,13 @@ def handle_message(event):
             report = generate_morning_report()
             send_line_message(report, user_id=line_user_id)
 
-        SyntaxError: invalid non-printable character U+3000
+        elif intent == "register":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名\n\n例）\n名前：レッティ\n年収：500万円\n総資産：200万円\n毎月投資額：5万円\n目標資産：1000万円\n保有株：トヨタ 100株 2500円\nトレード銘柄：ソニー")]
             ))
 
-       SyntaxError: invalid non-printable character U+3000
+        elif intent == "analysis":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📊 資産分析中です。\n少々お待ちください...")]
@@ -500,7 +492,7 @@ def handle_message(event):
                 analysis = analyze_portfolio(user_info)
                 send_line_message(analysis, user_id=line_user_id)
 
-       SyntaxError: invalid non-printable character U+3000
+        elif intent == "save_info":
             parse_and_save_user_info(line_user_id, user_text)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
@@ -537,6 +529,3 @@ def alert():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-```
-
-貼り付けてコミットしてください😊
