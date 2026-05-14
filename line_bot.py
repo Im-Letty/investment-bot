@@ -1,3 +1,4 @@
+from supabase import create_client
 import os
 import anthropic
 import yfinance as yf
@@ -19,6 +20,9 @@ ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
 LINE_CHANNEL_TOKEN  = os.environ.get("LINE_CHANNEL_TOKEN", "")
 LINE_USER_ID        = os.environ.get("LINE_USER_ID", "")
+SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
+SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 WATCHLIST = [
     "7203.T",  # トヨタ
@@ -32,6 +36,16 @@ WATCHLIST = [
 configuration = Configuration(access_token=LINE_CHANNEL_TOKEN)
 handler       = WebhookHandler(LINE_CHANNEL_SECRET)
 
+def get_user(line_user_id):
+    res = supabase.table("users").select("*").eq("line_user_id", line_user_id).execute()
+    return res.data[0] if res.data else None
+
+def save_user(line_user_id, portfolio="", investment_style="", memo=""):
+    existing = get_user(line_user_id)
+    if existing:
+        supabase.table("users").update({"portfolio": portfolio, "investment_style": investment_style, "memo": memo}).eq("line_user_id", line_user_id).execute()
+    else:
+        supabase.table("users").insert({"line_user_id": line_user_id, "portfolio": portfolio, "investment_style": investment_style, "memo": memo}).execute()
 def send_line_message(text, user_id=None):
     uid = user_id or LINE_USER_ID
     with ApiClient(configuration) as api_client:
