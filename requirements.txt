@@ -1,0 +1,6 @@
+flask
+anthropic
+yfinance
+feedparser
+line-bot-sdk>=3.0.0
+gunicorn
