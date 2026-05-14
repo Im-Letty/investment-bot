@@ -40,12 +40,15 @@ def get_user(line_user_id):
     res = supabase.table("users").select("*").eq("line_user_id", line_user_id).execute()
     return res.data[0] if res.data else None
 
-def save_user(line_user_id, portfolio="", investment_style="", memo=""):
+def save_user(line_user_id, data={}):
     existing = get_user(line_user_id)
+    data["updated_at"] = datetime.now().isoformat()
     if existing:
-        supabase.table("users").update({"portfolio": portfolio, "investment_style": investment_style, "memo": memo}).eq("line_user_id", line_user_id).execute()
+        supabase.table("users").update(data).eq("line_user_id", line_user_id).execute()
     else:
-        supabase.table("users").insert({"line_user_id": line_user_id, "portfolio": portfolio, "investment_style": investment_style, "memo": memo}).execute()
+        data["line_user_id"] = line_user_id
+        supabase.table("users").insert(data).execute()
+
 def send_line_message(text, user_id=None):
     uid = user_id or LINE_USER_ID
     with ApiClient(configuration) as api_client:
@@ -259,21 +262,35 @@ def generate_morning_report():
     )
     return msg.content[0].text
 
-def answer_question(user_question):
+def answer_question(user_question, user_info=None):
     market      = fetch_market_data()
     market_text = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
     today       = date.today().strftime("%Y年%m月%d日")
 
+    user_context = ""
+    if user_info:
+        user_context = f"""
+【このユーザーの情報】
+・名前：{user_info.get('name', '未登録')}
+・投資スタイル：{user_info.get('investment_style', '未登録')}
+・保有株：{user_info.get('stocks_owned', '未登録')}
+・売買履歴：{user_info.get('stocks_traded', '未登録')}
+・積立：{user_info.get('savings', '未登録')}
+・目標資産：{user_info.get('target_asset', '未登録')}
+・出費：{user_info.get('expenses', '未登録')}
+・メモ：{user_info.get('memo', '')}
+このユーザーの情報に合わせて、必要な情報だけ答えること。個人情報は他人に漏らさないこと。
+"""
+
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
 あなたは投資初心者の専属アナリストです。今日は{today}です。
-
+{user_context}
 現在の市場データ：
 {market_text}
 
 ユーザーの質問：「{user_question}」
 
-以下のルールで答えてください：
 ・経済の知識がゼロの人にもわかるように
 ・専門用語は必ず（）で説明する
 ・理由・背景・原因まで丁寧に書く
@@ -402,6 +419,7 @@ def callback():
 def handle_message(event):
     user_text   = event.message.text.strip()
     reply_token = event.reply_token
+    line_user_id = event.source.user_id
 
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
@@ -417,7 +435,9 @@ def handle_message(event):
                 reply_token=reply_token,
                 messages=[TextMessage(text="確認しています。少々お待ちください...")]
             ))
-            answer = answer_question(user_text)
+            user_info = get_user(line_user_id)
+            answer = answer_question(user_text, user_info)
+            save_user(line_user_id, {"conversation_history": user_text})
             chunks = [answer[i:i+4500] for i in range(0, len(answer), 4500)]
             for chunk in chunks:
                 send_line_message(chunk)
