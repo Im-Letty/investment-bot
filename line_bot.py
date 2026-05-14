@@ -221,7 +221,7 @@ def generate_morning_report():
 """
 
     msg = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-haiku-4-5-20251001",
         max_tokens=4500,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -253,7 +253,7 @@ def answer_question(user_question):
 ・読みやすい長さ（長すぎず短すぎず）
 """
     msg = client.messages.create(
-        model="claude-sonnet-4-20250514",
+        model="claude-haiku-4-5-20251001",
         max_tokens=2000,
         messages=[{"role": "user", "content": prompt}]
     )
@@ -299,7 +299,7 @@ def check_alerts():
 質問はLINEで送ってください。
 """
         msg = client.messages.create(
-            model="claude-sonnet-4-20250514",
+            model="claude-haiku-4-5-20251001",
             max_tokens=600,
             messages=[{"role": "user", "content": prompt}]
         )
