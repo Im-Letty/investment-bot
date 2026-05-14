@@ -452,7 +452,7 @@ def handle_message(event):
             report = generate_morning_report()
             reply_message(report, user_id=line_user_id)
 
-        elif user_text in ["登録", "資産登録", "情報登録"]:
+    　elif user_text in ["登録", "資産登録", "情報登録", "とうろく", "しさんとうろく"]:
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名\n\n例）\n名前：レッティ\n年収：500万円\n総資産：200万円\n毎月投資額：5万円\n目標資産：1000万円\n保有株：トヨタ 100株 2500円\nトレード銘柄：ソニー")]
