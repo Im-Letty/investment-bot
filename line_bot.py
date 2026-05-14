@@ -343,6 +343,7 @@ def answer_question(user_question, user_info=None):
 {market_text}
 
 ユーザーの質問：「{user_question}」
+・必ずユーザーが送った言語と同じ言語で返答する
 
 ・経済の知識がゼロの人にもわかるように
 ・専門用語は必ず（）で説明する
