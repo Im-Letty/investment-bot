@@ -1,3 +1,11 @@
+コードを確認しました。問題が2つあります：
+
+1. `send_line_message`が`reply_message`に変わってしまっている（LINEの`ReplyMessageRequest`と名前が衝突する）
+2. インデントがずれている箇所がある
+
+全部書き直しましょう。GitHubで全部選択して以下を貼り付けてコミットしてください：
+
+```python
 from supabase import create_client
 import os
 import anthropic
@@ -70,6 +78,26 @@ def parse_and_save_user_info(line_user_id, text):
     if data:
         save_user(line_user_id, data)
 
+def detect_intent(text):
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=50,
+        messages=[{"role": "user", "content": f"""
+以下のメッセージの意図を判断して、以下の単語だけで答えてください：
+- morning（朝レター・今日の相場・おはようなど、どの言語でも）
+- register（登録・資産登録・registerなど、どの言語でも）
+- analysis（分析・資産分析・analyzeなど、どの言語でも）
+- save_info（名前：〇〇、保有株：〇〇など、情報を保存しようとしている）
+- other（それ以外）
+
+メッセージ：「{text}」
+
+1単語だけ答えてください。
+"""}]
+    )
+    return msg.content[0].text.strip().lower()
+
 def analyze_portfolio(user_info):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     today = date.today().strftime("%Y年%m月%d日")
@@ -112,7 +140,7 @@ def analyze_portfolio(user_info):
     )
     return msg.content[0].text
 
-def reply_message(text, user_id=None):
+def send_line_message(text, user_id=None):
     uid = user_id or LINE_USER_ID
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
@@ -392,7 +420,7 @@ def check_alerts():
                 key = f"nikkei_{today_str}_{int(pct)}"
                 if key not in state:
                     alert = make_alert("日経225", "^N225", val, pct, market_ctx)
-                    reply_message(alert)
+                    send_line_message(alert)
                     state[key] = now.isoformat()
     except Exception:
         pass
@@ -417,7 +445,7 @@ def check_alerts():
                     key = f"{symbol}_{today_str}_{int(pct)}"
                     if key not in state:
                         alert = make_alert(name, symbol, val, pct, market_ctx)
-                        reply_message(alert)
+                        send_line_message(alert)
                         state[key] = now.isoformat()
         except Exception:
             pass
@@ -444,33 +472,35 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
 
-        if user_text in ["朝レター", "おはよう", "レポート", "今日の分析", "今日"]:
+        intent = detect_intent(user_text)
+
+        if intent == "morning":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="朝レターを生成中です。\n少々お待ちください（1〜2分）...")]
             ))
             report = generate_morning_report()
-            reply_message(report, user_id=line_user_id)
+            send_line_message(report, user_id=line_user_id)
 
-    　elif user_text in ["登録", "資産登録", "情報登録", "とうろく", "しさんとうろく"]:
+        elif intent == "register":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名\n\n例）\n名前：レッティ\n年収：500万円\n総資産：200万円\n毎月投資額：5万円\n目標資産：1000万円\n保有株：トヨタ 100株 2500円\nトレード銘柄：ソニー")]
             ))
 
-        elif user_text in ["分析", "資産分析", "分析して"]:
+        elif intent == "analysis":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📊 資産分析中です。\n少々お待ちください...")]
             ))
             user_info = get_user(line_user_id)
             if not user_info or not user_info.get("stocks_owned"):
-                reply_message("まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊", user_id=line_user_id)
+                send_line_message("まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊", user_id=line_user_id)
             else:
                 analysis = analyze_portfolio(user_info)
-                reply_message(analysis, user_id=line_user_id)
+                send_line_message(analysis, user_id=line_user_id)
 
-        elif "：" in user_text or ":" in user_text:
+        elif intent == "save_info":
             parse_and_save_user_info(line_user_id, user_text)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
@@ -487,14 +517,14 @@ def handle_message(event):
             save_user(line_user_id, {"conversation_history": user_text})
             chunks = [answer[i:i+4500] for i in range(0, len(answer), 4500)]
             for chunk in chunks:
-                reply_message(chunk, user_id=line_user_id)
+                send_line_message(chunk, user_id=line_user_id)
 
 @app.route("/morning", methods=["GET"])
 def morning():
     if request.args.get("secret", "") != os.environ.get("CRON_SECRET", ""):
         abort(403)
     report = generate_morning_report()
-    reply_message(report)
+    send_line_message(report)
     return "OK"
 
 @app.route("/alert", methods=["GET"])
@@ -507,3 +537,6 @@ def alert():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
+```
+
+貼り付けてコミットしてください😊
