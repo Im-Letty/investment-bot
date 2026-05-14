@@ -482,13 +482,13 @@ def handle_message(event):
             report = generate_morning_report()
             send_line_message(report, user_id=line_user_id)
 
-        elif intent == "register":
+        SyntaxError: invalid non-printable character U+3000
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名\n\n例）\n名前：レッティ\n年収：500万円\n総資産：200万円\n毎月投資額：5万円\n目標資産：1000万円\n保有株：トヨタ 100株 2500円\nトレード銘柄：ソニー")]
             ))
 
-        elif intent == "analysis":
+       SyntaxError: invalid non-printable character U+3000
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text="📊 資産分析中です。\n少々お待ちください...")]
@@ -500,7 +500,7 @@ def handle_message(event):
                 analysis = analyze_portfolio(user_info)
                 send_line_message(analysis, user_id=line_user_id)
 
-        elif intent == "save_info":
+       SyntaxError: invalid non-printable character U+3000
             parse_and_save_user_info(line_user_id, user_text)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
