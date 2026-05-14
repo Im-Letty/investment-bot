@@ -222,7 +222,7 @@ def generate_morning_report():
 
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=4500,
+        max_tokens=1000,
         messages=[{"role": "user", "content": prompt}]
     )
     return msg.content[0].text
@@ -254,7 +254,7 @@ def answer_question(user_question):
 """
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=2000,
+        max_tokens=800,
         messages=[{"role": "user", "content": prompt}]
     )
     return msg.content[0].text
@@ -300,7 +300,7 @@ def check_alerts():
 """
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
-            max_tokens=600,
+            max_tokens=400,
             messages=[{"role": "user", "content": prompt}]
         )
         return msg.content[0].text
