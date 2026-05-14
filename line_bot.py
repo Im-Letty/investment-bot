@@ -15,7 +15,6 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 
-# ========== 設定（ここだけ変更する） ==========
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
 LINE_CHANNEL_TOKEN  = os.environ.get("LINE_CHANNEL_TOKEN", "")
@@ -31,7 +30,6 @@ WATCHLIST = [
     "6861.T",  # キーエンス
     "8306.T",  # 三菱UFJ
 ]
-# =============================================
 
 configuration = Configuration(access_token=LINE_CHANNEL_TOKEN)
 handler       = WebhookHandler(LINE_CHANNEL_SECRET)
@@ -48,6 +46,71 @@ def save_user(line_user_id, data={}):
     else:
         data["line_user_id"] = line_user_id
         supabase.table("users").insert(data).execute()
+
+def parse_and_save_user_info(line_user_id, text):
+    data = {}
+    lines = text.strip().split("\n")
+    for line in lines:
+        if "名前：" in line or "名前:" in line:
+            data["name"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "年収：" in line or "年収:" in line:
+            data["financial_info"] = line.strip()
+        elif "総資産：" in line or "総資産:" in line:
+            data["target_asset"] = line.strip()
+        elif "毎月投資額：" in line or "毎月投資額:" in line:
+            data["savings"] = line.strip()
+        elif "目標資産：" in line or "目標資産:" in line:
+            data["target_asset"] = line.strip()
+        elif "保有株：" in line or "保有株:" in line:
+            data["stocks_owned"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "トレード銘柄：" in line or "トレード銘柄:" in line:
+            data["stocks_traded"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "出費：" in line or "出費:" in line:
+            data["expenses"] = line.strip()
+    if data:
+        save_user(line_user_id, data)
+
+def analyze_portfolio(user_info):
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    today = date.today().strftime("%Y年%m月%d日")
+    market = fetch_market_data()
+    market_text = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
+    stocks_owned = user_info.get("stocks_owned", "未登録")
+    prompt = f"""
+あなたは個人資産アドバイザーです。今日は{today}です。
+
+【ユーザーの資産情報】
+・名前：{user_info.get('name', '未登録')}
+・保有株：{stocks_owned}
+・トレード銘柄：{user_info.get('stocks_traded', '未登録')}
+・積立：{user_info.get('savings', '未登録')}
+・目標資産：{user_info.get('target_asset', '未登録')}
+・出費：{user_info.get('expenses', '未登録')}
+・財務情報：{user_info.get('financial_info', '未登録')}
+
+【市場データ】
+{market_text}
+
+以下の内容で分析してください：
+1. 現在の保有株の評価と今日の動き
+2. 目標資産までの道筋と期間（具体的な数字で）
+3. 積立シミュレーション
+4. 今の状況への的確なアドバイス
+5. 改善できるポイント
+
+・##や**は使わない
+・見出しは【】で囲む
+・絵文字を適度に使う
+・具体的な数字を使う
+・スマホで読みやすく
+・個人情報は厳重に扱う
+"""
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=1000,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    return msg.content[0].text
 
 def send_line_message(text, user_id=None):
     uid = user_id or LINE_USER_ID
@@ -184,7 +247,6 @@ def generate_morning_report():
 
 ---
 以下の形式で書いてください。
-各セクションはコンパクトに。でも必要な情報は全部入れる。
 
 ☀️ {today}（{weekday}）の朝レター
 ─────────────────
@@ -193,62 +255,33 @@ def generate_morning_report():
 
 ━━ 📊 市場データ ━━
 各指標の数値と、初心者向けの一言コメント。
-「この数字が意味すること」を必ず書く。
 
 ━━ 💴 ドル円と金利：今日の影響 ━━
 ・今日のドル円と金利の状況
-・円安（ドルが円より高い状態）か円高（円がドルより高い状態）か
-・それが日本株に与える影響（具体的に・理由も）
-・金利の動きと株・積立への影響
+・円安か円高か
+・日本株への影響
 
 ━━ 📰 今日の重要ニュース（複数ソース統合） ━━
-複数ソースのニュースを比較・整理し、重要な3〜4本に絞る。
-同じテーマのニュースは1つにまとめる。
-
-各ニュース：
-▶【見出し（わかりやすい言葉で）】
-→ どういうこと？（背景・原因まで）
-→ 何が上がりやすい・下がりやすいか（具体的に）
+▶【見出し】
+→ どういうこと？
+→ 何が上がりやすい・下がりやすいか
 
 ━━ 🗓️ 今日の相場予想 ━━
-・全体の方向感（上・下・横ばい・判断難しい）と根拠
-・注意すべき場面（あれば）
+・全体の方向感と根拠
 
 ━━ 🎯 今日の取引判断材料 ━━
-
-【デイトレード（その日中に売買を終える取引）】
-・今日はデイトレに向いているか、難しいか → 理由も
-・今日注目できる銘柄・業種（セクター）があれば具体的に
-　→ 銘柄名・理由・注意点をセットで書く
-・「今日はやめた方が無難」なら正直にそう書く
-
-【スイングトレード（数日〜数週間の取引）】
-・今の相場トレンド（上昇・下降・横ばい）
-・今日・今週注目できる具体的な銘柄があれば
-　→ 銘柄名・注目理由・リスクをセットで書く
-・押し目（下がって買いやすくなるタイミング）は来ているか
-
-【積立・投資信託（長期）】
-・今の状況で積立を続けるべきか、変えるべきか → 理由も
-・もし今おすすめできる積立商品・方針があれば具体的に
-　→ 商品名・理由・リスクをセットで書く
-・長期目線での今の相場の見方
+【デイトレード】
+【スイングトレード】
+【積立・投資信託】
 
 ━━ 🔍 ウォッチリスト ━━
-各銘柄：
-▶ 銘柄名（コード）　現在値　前日比
-→ 最近の動きと理由
-→ 今日のポイントとリスク
-→ 判断：「注目」「様子見」「要警戒」
-
 {watchlist_text}
 
 ━━ 💡 今日の一語 ━━
-今日のニュースに出てきた言葉を1つ：
 【用語】
-・意味：（一文でシンプルに）
-・たとえると：（日常生活の例）
-・投資での使い方：（デイトレ・スイング・長期に絡めて）
+・意味：
+・たとえると：
+・投資での使い方：
 
 ─────────────────
 今日も正確に、自分のペースで。
@@ -293,18 +326,11 @@ def answer_question(user_question, user_info=None):
 
 ・経済の知識がゼロの人にもわかるように
 ・専門用語は必ず（）で説明する
-・理由・背景・原因まで丁寧に書く
-・不確かなことは書かない。わからなければ正直にそう言う
-・曖昧な表現は使わない。確実な事実だけを書く
-・デイトレ・スイング・長期に関係する質問はそれぞれの影響も書く
-・人前で話しても恥ずかしくない正確な内容
-・最終的な投資判断は読者自身が行う前提で書く
-・読みやすい長さ（長すぎず短すぎず）
+・不確かなことは書かない
 ・##や**などの記号は絶対に使わない
 ・見出しは【】で囲む
-・区切り線は ━━━━━━━ を使う
 ・絵文字を適度に使う
-・スマホの縦画面で読みやすいよう、1行を短めにする
+・スマホで読みやすい長さにする
 """
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -333,24 +359,18 @@ def check_alerts():
         direction = "急上昇📈" if pct > 0 else "急落📉"
         prompt = f"""
 投資初心者向けの緊急アラートを書いてください。
-
-状況：
 ・{name}（{symbol}）が本日{abs(pct):.1f}%{direction}
 ・現在値：{price:,.0f}円
 ・市場状況：{market_ctx}
 
-形式（コンパクトに、でも正確に）：
 ⚡【緊急】{name}が{direction}
-
-📍 今何が起きているか（1〜2文）
-📍 なぜ動いているか（事実ベースで。不明なら「原因は現在調査中です」）
+📍 今何が起きているか
+📍 なぜ動いているか
 📍 デイトレードへの影響
 📍 スイングトレードへの影響
-📍 注意点・リスク（必ず書く）
-
+📍 注意点・リスク
 ─────────────
 最終判断はご自身でお願いします。
-質問はLINEで送ってください。
 """
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
@@ -417,12 +437,13 @@ def callback():
 
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
-    user_text   = event.message.text.strip()
-    reply_token = event.reply_token
+    user_text    = event.message.text.strip()
+    reply_token  = event.reply_token
     line_user_id = event.source.user_id
 
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
+
         if user_text in ["朝レター", "おはよう", "レポート", "今日の分析", "今日"]:
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
@@ -430,6 +451,32 @@ def handle_message(event):
             ))
             report = generate_morning_report()
             send_line_message(report)
+
+        elif user_text in ["登録", "資産登録", "情報登録"]:
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text="📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名\n\n例）\n名前：レッティ\n年収：500万円\n総資産：200万円\n毎月投資額：5万円\n目標資産：1000万円\n保有株：トヨタ 100株 2500円\nトレード銘柄：ソニー")]
+            ))
+
+        elif user_text in ["分析", "資産分析", "分析して"]:
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text="📊 資産分析中です。\n少々お待ちください...")]
+            ))
+            user_info = get_user(line_user_id)
+            if not user_info or not user_info.get("stocks_owned"):
+                send_line_message("まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊")
+            else:
+                analysis = analyze_portfolio(user_info)
+                send_line_message(analysis)
+
+        elif "：" in user_text or ":" in user_text:
+            parse_and_save_user_info(line_user_id, user_text)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text="✅ 保存しました！\n「分析して」と送ると資産分析ができます😊")]
+            ))
+
         else:
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
