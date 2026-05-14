@@ -1,6 +1,7 @@
 from supabase import create_client
 import os
 import anthropic
+import json
 import yfinance as yf
 import feedparser
 from flask import Flask, request, abort
@@ -74,21 +75,68 @@ def detect_intent(text):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
-        max_tokens=50,
+        max_tokens=100,
         messages=[{"role": "user", "content": f"""
-以下のメッセージの意図を判断して、以下の単語だけで答えてください：
-- morning（朝レター・今日の相場・おはようなど、どの言語でも）
-- register（登録・資産登録・registerなど、どの言語でも）
-- analysis（分析・資産分析・analyzeなど、どの言語でも）
-- save_info（名前：〇〇、保有株：〇〇など、情報を保存しようとしている）
-- other（それ以外）
+以下のメッセージを分析して、JSON形式で答えてください：
+{{"intent": "morning/register/analysis/save_info/other", "language": "ja/en/ko/zh/other"}}
+
+- morning: 朝レター・今日の相場・おはよう・good morning など
+- register: 登録・資産登録・register・등록・注册 など
+- analysis: 分析・資産分析・analyze・분석・分析 など
+- save_info: 名前：〇〇、保有株：〇〇など情報を保存しようとしている
+- other: それ以外
 
 メッセージ：「{text}」
 
-1単語だけ答えてください。
+JSONのみ返してください。
 """}]
     )
-    return msg.content[0].text.strip().lower()
+    try:
+        result = json.loads(msg.content[0].text.strip())
+        return result.get("intent", "other"), result.get("language", "ja")
+    except:
+        return "other", "ja"
+
+def get_message(lang, key):
+    messages = {
+        "waiting_morning": {
+            "ja": "朝レターを生成中です。\n少々お待ちください（1〜2分）...",
+            "en": "Generating morning report.\nPlease wait (1-2 min)...",
+            "ko": "아침 레터를 생성 중입니다.\n잠시 기다려주세요（1〜2분）...",
+            "zh": "正在生成早报。\n请稍候（1〜2分钟）...",
+        },
+        "register_form": {
+            "ja": "📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名",
+            "en": "📝 Let's register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
+            "ko": "📝 자산 정보를 등록합니다！\n\n다음 형식으로 보내주세요：\n\n이름：〇〇\n연수입：〇〇만엔\n총자산：〇〇만엔\n월 투자액：〇〇만엔\n목표자산：〇〇만엔\n보유주식：종목명 주수 취득가격\n트레이드 종목：종목명",
+            "zh": "📝 注册资产信息！\n\n请按以下格式发送：\n\n姓名：〇〇\n年收入：〇〇万日元\n总资产：〇〇万日元\n每月投资额：〇〇万日元\n目标资产：〇〇万日元\n持有股票：股票名称 股数 购入价格\n交易股票：股票名称",
+        },
+        "analyzing": {
+            "ja": "📊 資産分析中です。\n少々お待ちください...",
+            "en": "📊 Analyzing your assets.\nPlease wait...",
+            "ko": "📊 자산 분석 중입니다.\n잠시 기다려주세요...",
+            "zh": "📊 正在分析您的资产。\n请稍候...",
+        },
+        "no_assets": {
+            "ja": "まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊",
+            "en": "No asset info registered yet.\nPlease send 'register' to add your info😊",
+            "ko": "아직 자산 정보가 등록되지 않았습니다.\n'등록'을 보내서 정보를 등록해주세요😊",
+            "zh": "尚未注册资产信息。\n请发送'注册'来添加您的信息😊",
+        },
+        "saved": {
+            "ja": "✅ 保存しました！\n「分析して」と送ると資産分析ができます😊",
+            "en": "✅ Saved!\nSend 'analyze' to get your asset analysis😊",
+            "ko": "✅ 저장했습니다！\n'분석'을 보내면 자산 분석을 받을 수 있습니다😊",
+            "zh": "✅ 已保存！\n发送'分析'即可获取资产分析😊",
+        },
+        "waiting": {
+            "ja": "確認しています。少々お待ちください...",
+            "en": "Checking. Please wait...",
+            "ko": "확인 중입니다. 잠시 기다려주세요...",
+            "zh": "正在确认。请稍候...",
+        },
+    }
+    return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
 
 def analyze_portfolio(user_info):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -315,7 +363,7 @@ def generate_morning_report():
     )
     return msg.content[0].text
 
-def answer_question(user_question, user_info=None):
+def answer_question(user_question, user_info=None, lang="ja"):
     market      = fetch_market_data()
     market_text = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
     today       = date.today().strftime("%Y年%m月%d日")
@@ -343,8 +391,8 @@ def answer_question(user_question, user_info=None):
 {market_text}
 
 ユーザーの質問：「{user_question}」
-・必ずユーザーが送った言語と同じ言語で返答する
 
+・必ずユーザーが送った言語（{lang}）で返答する
 ・経済の知識がゼロの人にもわかるように
 ・専門用語は必ず（）で説明する
 ・不確かなことは書かない
@@ -465,12 +513,12 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
 
-        intent = detect_intent(user_text)
+        intent, lang = detect_intent(user_text)
 
         if intent == "morning":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text="朝レターを生成中です。\n少々お待ちください（1〜2分）...")]
+                messages=[TextMessage(text=get_message(lang, "waiting_morning"))]
             ))
             report = generate_morning_report()
             send_line_message(report, user_id=line_user_id)
@@ -478,17 +526,17 @@ def handle_message(event):
         elif intent == "register":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text="📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名\n\n例）\n名前：レッティ\n年収：500万円\n総資産：200万円\n毎月投資額：5万円\n目標資産：1000万円\n保有株：トヨタ 100株 2500円\nトレード銘柄：ソニー")]
+                messages=[TextMessage(text=get_message(lang, "register_form"))]
             ))
 
         elif intent == "analysis":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text="📊 資産分析中です。\n少々お待ちください...")]
+                messages=[TextMessage(text=get_message(lang, "analyzing"))]
             ))
             user_info = get_user(line_user_id)
             if not user_info or not user_info.get("stocks_owned"):
-                send_line_message("まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊", user_id=line_user_id)
+                send_line_message(get_message(lang, "no_assets"), user_id=line_user_id)
             else:
                 analysis = analyze_portfolio(user_info)
                 send_line_message(analysis, user_id=line_user_id)
@@ -497,16 +545,16 @@ def handle_message(event):
             parse_and_save_user_info(line_user_id, user_text)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text="✅ 保存しました！\n「分析して」と送ると資産分析ができます😊")]
+                messages=[TextMessage(text=get_message(lang, "saved"))]
             ))
 
         else:
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text="確認しています。少々お待ちください...")]
+                messages=[TextMessage(text=get_message(lang, "waiting"))]
             ))
             user_info = get_user(line_user_id)
-            answer = answer_question(user_text, user_info)
+            answer = answer_question(user_text, user_info, lang)
             save_user(line_user_id, {"conversation_history": user_text})
             chunks = [answer[i:i+4500] for i in range(0, len(answer), 4500)]
             for chunk in chunks:
