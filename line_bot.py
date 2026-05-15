@@ -531,6 +531,11 @@ def alert():
     check_alerts()
     return "OK"
 
+@app.route("/simulator")
+def simulator():
+    with open("simulator.html", encoding="utf-8") as f:
+        return f.read(), 200, {"Content-Type": "text/html"}
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
