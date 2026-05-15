@@ -1,1 +1,206 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>投資シミュレーター</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; color: #333; }
+.wrap { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1.5rem; text-align: center; }
+.tabs { display: flex; gap: 8px; margin-bottom: 1.5rem; flex-wrap: wrap; }
+.tab { padding: 8px 16px; border: 1px solid #ccc; border-radius: 20px; background: white; font-size: 13px; color: #666; cursor: pointer; }
+.tab.active { background: #1e5c20; color: white; border-color: #1e5c20; }
+.card { background: white; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+.row { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
+.row label { font-size: 13px; color: #666; min-width: 110px; }
+.row input[type=range] { flex: 1; accent-color: #1e5c20; }
+.row .val { font-size: 13px; font-weight: 600; min-width: 80px; text-align: right; color: #333; }
+.result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
+.metric { background: #f0f7f0; border-radius: 8px; padding: 12px; text-align: center; }
+.metric .mlabel { font-size: 11px; color: #666; margin-bottom: 4px; }
+.metric .mval { font-size: 16px; font-weight: 600; color: #1e5c20; }
+.section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px; }
+.chart-wrap { position: relative; width: 100%; height: 260px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>💹 投資シミュレーター</h1>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('tsumitate')">積立シミュレーション</button>
+    <button class="tab" onclick="switchTab('ikkatsu')">一括投資</button>
+    <button class="tab" onclick="switchTab('gyaku')">目標逆算</button>
+  </div>
 
+  <div id="tab-tsumitate">
+    <div class="card">
+      <div class="row"><label>毎月の積立額</label><input type="range" min="1000" max="200000" step="1000" value="30000" id="t-monthly" oninput="calcTsumitate()"><span class="val" id="t-monthly-v">3万円</span></div>
+      <div class="row"><label>年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="t-rate" oninput="calcTsumitate()"><span class="val" id="t-rate-v">5.0%</span></div>
+      <div class="row"><label>積立期間</label><input type="range" min="1" max="40" step="1" value="20" id="t-years" oninput="calcTsumitate()"><span class="val" id="t-years-v">20年</span></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel">総積立額</div><div class="mval" id="t-total">720万円</div></div>
+      <div class="metric"><div class="mlabel">運用益</div><div class="mval" id="t-gain">+576万円</div></div>
+      <div class="metric"><div class="mlabel">最終資産</div><div class="mval" id="t-final">1,296万円</div></div>
+    </div>
+    <div class="card">
+      <p class="section-title">資産推移グラフ</p>
+      <div class="chart-wrap"><canvas id="chart-t"></canvas></div>
+    </div>
+  </div>
+
+  <div id="tab-ikkatsu" style="display:none">
+    <div class="card">
+      <div class="row"><label>初期投資額</label><input type="range" min="10000" max="10000000" step="10000" value="1000000" id="i-init" oninput="calcIkkatsu()"><span class="val" id="i-init-v">100万円</span></div>
+      <div class="row"><label>年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="i-rate" oninput="calcIkkatsu()"><span class="val" id="i-rate-v">5.0%</span></div>
+      <div class="row"><label>運用期間</label><input type="range" min="1" max="40" step="1" value="20" id="i-years" oninput="calcIkkatsu()"><span class="val" id="i-years-v">20年</span></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel">元本</div><div class="mval" id="i-principal">100万円</div></div>
+      <div class="metric"><div class="mlabel">運用益</div><div class="mval" id="i-gain">+165万円</div></div>
+      <div class="metric"><div class="mlabel">最終資産</div><div class="mval" id="i-final">265万円</div></div>
+    </div>
+    <div class="card">
+      <p class="section-title">資産推移グラフ</p>
+      <div class="chart-wrap"><canvas id="chart-i"></canvas></div>
+    </div>
+  </div>
+
+  <div id="tab-gyaku" style="display:none">
+    <div class="card">
+      <div class="row"><label>目標資産</label><input type="range" min="100000" max="100000000" step="100000" value="10000000" id="g-target" oninput="calcGyaku()"><span class="val" id="g-target-v">1,000万円</span></div>
+      <div class="row"><label>年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="calcGyaku()"><span class="val" id="g-rate-v">5.0%</span></div>
+      <div class="row"><label>達成期間</label><input type="range" min="1" max="40" step="1" value="20" id="g-years" oninput="calcGyaku()"><span class="val" id="g-years-v">20年</span></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel">必要毎月積立</div><div class="mval" id="g-monthly">2.4万円</div></div>
+      <div class="metric"><div class="mlabel">総積立額</div><div class="mval" id="g-total">576万円</div></div>
+      <div class="metric"><div class="mlabel">運用益</div><div class="mval" id="g-gain">+424万円</div></div>
+    </div>
+    <div class="card">
+      <p class="section-title">資産推移グラフ</p>
+      <div class="chart-wrap"><canvas id="chart-g"></canvas></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+let chartT, chartI, chartG;
+
+function fmt(n) {
+  if (n >= 100000000) return Math.round(n/100000000*10)/10 + '億円';
+  if (n >= 10000) return Math.round(n/10000) + '万円';
+  return Math.round(n).toLocaleString() + '円';
+}
+
+function switchTab(name) {
+  ['tsumitate','ikkatsu','gyaku'].forEach(t => {
+    document.getElementById('tab-'+t).style.display = t===name?'':'none';
+  });
+  document.querySelectorAll('.tab').forEach((el,i) => {
+    el.classList.toggle('active', ['tsumitate','ikkatsu','gyaku'][i]===name);
+  });
+  if (name==='tsumitate') calcTsumitate();
+  if (name==='ikkatsu') calcIkkatsu();
+  if (name==='gyaku') calcGyaku();
+}
+
+function makeChart(id, labels, principal, totals) {
+  const ctx = document.getElementById(id);
+  if (!ctx) return null;
+  return new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels,
+      datasets: [
+        { label: '元本', data: principal, borderColor: '#a5d6a7', backgroundColor: 'rgba(165,214,167,0.15)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 },
+        { label: '総資産', data: totals, borderColor: '#1e5c20', backgroundColor: 'rgba(30,92,32,0.08)', borderWidth: 2.5, pointRadius: 2, fill: true, tension: 0.3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: true, position: 'bottom', labels: { font: { size: 12 }, boxWidth: 12, padding: 12 } },
+        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
+      },
+      scales: {
+        x: { ticks: { font: { size: 11 }, autoSkip: true, maxTicksLimit: 8 } },
+        y: { ticks: { font: { size: 11 }, callback: v => v>=10000 ? Math.round(v/10000)+'万' : v } }
+      }
+    }
+  });
+}
+
+function calcTsumitate() {
+  const monthly = +document.getElementById('t-monthly').value;
+  const rate = +document.getElementById('t-rate').value / 100 / 12;
+  const years = +document.getElementById('t-years').value;
+  const months = years * 12;
+  document.getElementById('t-monthly-v').textContent = fmt(monthly);
+  document.getElementById('t-rate-v').textContent = (+document.getElementById('t-rate').value).toFixed(1) + '%';
+  document.getElementById('t-years-v').textContent = years + '年';
+  let labels=[], principal=[], totals=[];
+  for (let y=1; y<=years; y++) {
+    const m = y*12;
+    const total = rate===0 ? monthly*m : monthly * ((Math.pow(1+rate,m)-1)/rate) * (1+rate);
+    labels.push(y+'年'); principal.push(Math.round(monthly*m)); totals.push(Math.round(total));
+  }
+  const finalTotal = totals[totals.length-1];
+  const totalInvested = monthly * months;
+  document.getElementById('t-total').textContent = fmt(totalInvested);
+  document.getElementById('t-gain').textContent = '+' + fmt(finalTotal - totalInvested);
+  document.getElementById('t-final').textContent = fmt(finalTotal);
+  if (chartT) chartT.destroy();
+  chartT = makeChart('chart-t', labels, principal, totals);
+}
+
+function calcIkkatsu() {
+  const init = +document.getElementById('i-init').value;
+  const rate = +document.getElementById('i-rate').value / 100;
+  const years = +document.getElementById('i-years').value;
+  document.getElementById('i-init-v').textContent = fmt(init);
+  document.getElementById('i-rate-v').textContent = (+document.getElementById('i-rate').value).toFixed(1) + '%';
+  document.getElementById('i-years-v').textContent = years + '年';
+  let labels=[], principal=[], totals=[];
+  for (let y=1; y<=years; y++) {
+    labels.push(y+'年'); principal.push(Math.round(init)); totals.push(Math.round(init * Math.pow(1+rate, y)));
+  }
+  const final = totals[totals.length-1];
+  document.getElementById('i-principal').textContent = fmt(init);
+  document.getElementById('i-gain').textContent = '+' + fmt(final - init);
+  document.getElementById('i-final').textContent = fmt(final);
+  if (chartI) chartI.destroy();
+  chartI = makeChart('chart-i', labels, principal, totals);
+}
+
+function calcGyaku() {
+  const target = +document.getElementById('g-target').value;
+  const annualRate = +document.getElementById('g-rate').value / 100;
+  const years = +document.getElementById('g-years').value;
+  const months = years * 12;
+  const r = annualRate / 12;
+  document.getElementById('g-target-v').textContent = fmt(target);
+  document.getElementById('g-rate-v').textContent = (+document.getElementById('g-rate').value).toFixed(1) + '%';
+  document.getElementById('g-years-v').textContent = years + '年';
+  const monthly = r===0 ? target/months : target * r / ((Math.pow(1+r,months)-1) * (1+r));
+  const totalInvested = monthly * months;
+  document.getElementById('g-monthly').textContent = fmt(Math.ceil(monthly));
+  document.getElementById('g-total').textContent = fmt(totalInvested);
+  document.getElementById('g-gain').textContent = '+' + fmt(target - totalInvested);
+  let labels=[], principal=[], totals=[];
+  for (let y=1; y<=years; y++) {
+    const m = y*12;
+    const t = r===0 ? monthly*m : monthly * ((Math.pow(1+r,m)-1)/r) * (1+r);
+    labels.push(y+'年'); principal.push(Math.round(monthly*m)); totals.push(Math.round(t));
+  }
+  if (chartG) chartG.destroy();
+  chartG = makeChart('chart-g', labels, principal, totals);
+}
+
+calcTsumitate();
+</script>
+</body>
+</html>
