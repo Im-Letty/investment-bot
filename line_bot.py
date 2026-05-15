@@ -35,6 +35,24 @@ WATCHLIST = [
 configuration = Configuration(access_token=LINE_CHANNEL_TOKEN)
 handler       = WebhookHandler(LINE_CHANNEL_SECRET)
 
+MORNING_KEYWORDS = [
+    "朝レター", "おはよう", "レポート", "今日の分析", "今日",
+    "good morning", "morning report", "morning", "today",
+    "おはようございます", "朝", "굿모닝", "오늘", "早上好", "今天"
+]
+
+REGISTER_KEYWORDS = [
+    "登録", "資産登録", "情報登録", "とうろく",
+    "register", "sign up", "add info",
+    "등록", "注册", "登記"
+]
+
+ANALYSIS_KEYWORDS = [
+    "分析", "資産分析", "分析して", "ぶんせき",
+    "analyze", "analysis", "check my assets",
+    "분석", "分析", "查看"
+]
+
 def get_user(line_user_id):
     res = supabase.table("users").select("*").eq("line_user_id", line_user_id).execute()
     return res.data[0] if res.data else None
@@ -48,68 +66,28 @@ def save_user(line_user_id, data={}):
         data["line_user_id"] = line_user_id
         supabase.table("users").insert(data).execute()
 
-def parse_and_save_user_info(line_user_id, text):
-    data = {}
-    lines = text.strip().split("\n")
-    for line in lines:
-        if "名前：" in line or "名前:" in line:
-            data["name"] = line.split("：")[-1].split(":")[-1].strip()
-        elif "年収：" in line or "年収:" in line:
-            data["financial_info"] = line.strip()
-        elif "総資産：" in line or "総資産:" in line:
-            data["target_asset"] = line.strip()
-        elif "毎月投資額：" in line or "毎月投資額:" in line:
-            data["savings"] = line.strip()
-        elif "目標資産：" in line or "目標資産:" in line:
-            data["target_asset"] = line.strip()
-        elif "保有株：" in line or "保有株:" in line:
-            data["stocks_owned"] = line.split("：")[-1].split(":")[-1].strip()
-        elif "トレード銘柄：" in line or "トレード銘柄:" in line:
-            data["stocks_traded"] = line.split("：")[-1].split(":")[-1].strip()
-        elif "出費：" in line or "出費:" in line:
-            data["expenses"] = line.strip()
-    if data:
-        save_user(line_user_id, data)
-
-def detect_intent(text):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    msg = client.messages.create(
-        model="claude-haiku-4-5-20251001",
-        max_tokens=100,
-        messages=[{"role": "user", "content": f"""
-以下のメッセージを分析して、JSON形式で答えてください：
-{{"intent": "morning/register/analysis/save_info/other", "language": "ja/en/ko/zh/other"}}
-
-- morning: 朝レター・今日の相場・おはよう・good morning など
-- register: 登録・資産登録・register・등록・注册 など
-- analysis: 分析・資産分析・analyze・분석・分析 など
-- save_info: 名前：〇〇、保有株：〇〇など情報を保存しようとしている
-- other: それ以外
-
-メッセージ：「{text}」
-
-JSONのみ返してください。
-"""}]
-    )
-    try:
-        result = json.loads(msg.content[0].text.strip())
-        return result.get("intent", "other"), result.get("language", "ja")
-    except:
-        return "other", "ja"
+def detect_language(text):
+    if any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9fff' for c in text):
+        return "ja"
+    if any('\uac00' <= c <= '\ud7a3' for c in text):
+        return "ko"
+    if any('\u4e00' <= c <= '\u9fff' for c in text):
+        return "zh"
+    return "en"
 
 def get_message(lang, key):
     messages = {
         "waiting_morning": {
             "ja": "朝レターを生成中です。\n少々お待ちください（1〜2分）...",
             "en": "Generating morning report.\nPlease wait (1-2 min)...",
-            "ko": "아침 레터를 생성 중입니다.\n잠시 기다려주세요（1〜2분）...",
-            "zh": "正在生成早报。\n请稍候（1〜2分钟）...",
+            "ko": "아침 레터를 생성 중입니다.\n잠시 기다려주세요...",
+            "zh": "正在生成早报。\n请稍候...",
         },
         "register_form": {
             "ja": "📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名",
-            "en": "📝 Let's register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
-            "ko": "📝 자산 정보를 등록합니다！\n\n다음 형식으로 보내주세요：\n\n이름：〇〇\n연수입：〇〇만엔\n총자산：〇〇만엔\n월 투자액：〇〇만엔\n목표자산：〇〇만엔\n보유주식：종목명 주수 취득가격\n트레이드 종목：종목명",
-            "zh": "📝 注册资产信息！\n\n请按以下格式发送：\n\n姓名：〇〇\n年收入：〇〇万日元\n总资产：〇〇万日元\n每月投资额：〇〇万日元\n目标资产：〇〇万日元\n持有股票：股票名称 股数 购入价格\n交易股票：股票名称",
+            "en": "📝 Register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
+            "ko": "📝 자산 정보를 등록합니다！\n\n다음 형식으로 보내주세요：\n\n이름：〇〇\n연수입：〇〇\n총자산：〇〇\n월 투자액：〇〇\n목표자산：〇〇\n보유주식：종목명 주수 가격\n트레이드 종목：종목명",
+            "zh": "📝 注册资产信息！\n\n请按以下格式发送：\n\n姓名：〇〇\n年收入：〇〇\n总资产：〇〇\n每月投资额：〇〇\n目标资产：〇〇\n持有股票：股票名称 股数 价格\n交易股票：股票名称",
         },
         "analyzing": {
             "ja": "📊 資産分析中です。\n少々お待ちください...",
@@ -120,14 +98,14 @@ def get_message(lang, key):
         "no_assets": {
             "ja": "まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊",
             "en": "No asset info registered yet.\nPlease send 'register' to add your info😊",
-            "ko": "아직 자산 정보가 등록되지 않았습니다.\n'등록'을 보내서 정보를 등록해주세요😊",
-            "zh": "尚未注册资产信息。\n请发送'注册'来添加您的信息😊",
+            "ko": "아직 자산 정보가 없습니다.\n'등록'을 보내주세요😊",
+            "zh": "尚未注册资产信息。\n请发送'注册'😊",
         },
         "saved": {
             "ja": "✅ 保存しました！\n「分析して」と送ると資産分析ができます😊",
             "en": "✅ Saved!\nSend 'analyze' to get your asset analysis😊",
-            "ko": "✅ 저장했습니다！\n'분석'을 보내면 자산 분석을 받을 수 있습니다😊",
-            "zh": "✅ 已保存！\n发送'分析'即可获取资产分析😊",
+            "ko": "✅ 저장했습니다！\n'분석'을 보내주세요😊",
+            "zh": "✅ 已保存！\n发送'分析'即可😊",
         },
         "waiting": {
             "ja": "確認しています。少々お待ちください...",
@@ -138,7 +116,30 @@ def get_message(lang, key):
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
 
-def analyze_portfolio(user_info):
+def parse_and_save_user_info(line_user_id, text):
+    data = {}
+    lines = text.strip().split("\n")
+    for line in lines:
+        if "名前：" in line or "名前:" in line or "Name:" in line or "name:" in line:
+            data["name"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "年収：" in line or "年収:" in line or "income:" in line.lower():
+            data["financial_info"] = line.strip()
+        elif "総資産：" in line or "総資産:" in line or "total assets:" in line.lower():
+            data["target_asset"] = line.strip()
+        elif "毎月投資額：" in line or "毎月投資額:" in line or "monthly:" in line.lower():
+            data["savings"] = line.strip()
+        elif "目標資産：" in line or "目標資産:" in line or "target:" in line.lower():
+            data["target_asset"] = line.strip()
+        elif "保有株：" in line or "保有株:" in line or "stocks owned:" in line.lower():
+            data["stocks_owned"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "トレード銘柄：" in line or "トレード銘柄:" in line or "trading:" in line.lower():
+            data["stocks_traded"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "出費：" in line or "出費:" in line or "expenses:" in line.lower():
+            data["expenses"] = line.strip()
+    if data:
+        save_user(line_user_id, data)
+
+def analyze_portfolio(user_info, lang="ja"):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     today = date.today().strftime("%Y年%m月%d日")
     market = fetch_market_data()
@@ -146,6 +147,7 @@ def analyze_portfolio(user_info):
     stocks_owned = user_info.get("stocks_owned", "未登録")
     prompt = f"""
 あなたは個人資産アドバイザーです。今日は{today}です。
+必ず{lang}言語で返答してください。
 
 【ユーザーの資産情報】
 ・名前：{user_info.get('name', '未登録')}
@@ -161,9 +163,9 @@ def analyze_portfolio(user_info):
 
 以下の内容で分析してください：
 1. 現在の保有株の評価と今日の動き
-2. 目標資産までの道筋と期間（具体的な数字で）
+2. 目標資産までの道筋と期間
 3. 積立シミュレーション
-4. 今の状況への的確なアドバイス
+4. 的確なアドバイス
 5. 改善できるポイント
 
 ・##や**は使わない
@@ -267,40 +269,16 @@ def generate_morning_report():
     prompt = f"""
 あなたは、株の初心者に毎朝「今日の投資判断材料」を届ける、正確で親切な先生です。
 
-【読者について】
-・デイトレード・スイングトレード・投資信託・積立をすべて実施している完全な初心者
-・経済用語はほぼ知らない。でも毎日少しずつプロを目指して成長したい
-・毎朝の時間は限られている。読みやすく、続けたくなる長さにすること
-・このレター1通で「今日どう動くか」の材料が全部そろうようにすること
-・最終的な売買判断は読者自身が行う
-
 【絶対に守るルール】
-・専門用語は必ず（）で説明する　例：「金利（お金を借りるコスト）が上昇」
-・理由を必ず書く。「〇〇が動いた」だけで終わらない
-・複数のニュースソースを比較・統合してまとめる。重複は省く
-・不確かなことは書かない。わからないときは「今日は判断が難しい状況です」と正直に書く
-・曖昧な表現（「〜かもしれません」「〜の可能性があります」）は使わない
-・確実な事実と、事実から読み取れることだけを書く
-・人前で話しても恥ずかしくない正確さを保つ
-・長すぎず、でも漏れなく。「もっと読みたい」と思える絶妙な長さにすること
+・専門用語は必ず（）で説明する
+・理由を必ず書く
+・不確かなことは書かない
 ・##や**などの記号は絶対に使わない
 ・見出しは【】で囲む
 ・区切り線は ━━━━━━━ を使う
 ・絵文字を適度に使う
-・株価は必ず「円」と「％」と「前日比○円」を両方書く
 ・スマホの縦画面で読みやすいよう、1行を短めにする
-・市場の雰囲気🟢落ち着いている（20以下）🟡やや不安（20〜30）🔴パニック（30以上）のどれかで表示する
-・冒頭に株価を一覧で表示する（日経225、ドル円など）
-・「情報を持っていません」は書かない
-・最後の締めの言葉は明るく楽しい感じにする
-・市場の雰囲気は「VIX」という言葉を使わず🟢落ち着いている🟡やや不安🔴パニックのどれかだけで表示する
-・金利の数字は「平均より高い/低い/普通」も一緒に書く
-・毎日同じドル円の説明をしない。今日特有の理由を書く
-・些細なニュースでも必ず拾って簡単に説明する
-・デイトレをしている人には今日注目の銘柄とアドバイスを書く
-・長期投資については触れない。質問された時だけ答える
-・「無視して」という言葉は使わない
-・正確な事実だけを書く。推測は推測と明記する
+・市場の雰囲気🟢落ち着いている🟡やや不安🔴パニックのどれかだけで表示する
 
 今日：{today}（{weekday}曜日）
 
@@ -313,44 +291,22 @@ def generate_morning_report():
 【今日のニュース（複数ソース）】
 {news_text}
 
----
-以下の形式で書いてください。
-
 ☀️ {today}（{weekday}）の朝レター
 ─────────────────
 今日の一言：（今日の相場を一文で表す）
 ─────────────────
 
 ━━ 📊 市場データ ━━
-各指標の数値と、初心者向けの一言コメント。
-
 ━━ 💴 ドル円と金利：今日の影響 ━━
-・今日のドル円と金利の状況
-・円安か円高か
-・日本株への影響
-
-━━ 📰 今日の重要ニュース（複数ソース統合） ━━
-▶【見出し】
-→ どういうこと？
-→ 何が上がりやすい・下がりやすいか
-
+━━ 📰 今日の重要ニュース ━━
 ━━ 🗓️ 今日の相場予想 ━━
-・全体の方向感と根拠
-
 ━━ 🎯 今日の取引判断材料 ━━
 【デイトレード】
 【スイングトレード】
 【積立・投資信託】
-
 ━━ 🔍 ウォッチリスト ━━
 {watchlist_text}
-
 ━━ 💡 今日の一語 ━━
-【用語】
-・意味：
-・たとえると：
-・投資での使い方：
-
 ─────────────────
 今日も正確に、自分のペースで。
 ─────────────────
@@ -373,26 +329,23 @@ def answer_question(user_question, user_info=None, lang="ja"):
         user_context = f"""
 【このユーザーの情報】
 ・名前：{user_info.get('name', '未登録')}
-・投資スタイル：{user_info.get('investment_style', '未登録')}
 ・保有株：{user_info.get('stocks_owned', '未登録')}
-・売買履歴：{user_info.get('stocks_traded', '未登録')}
 ・積立：{user_info.get('savings', '未登録')}
 ・目標資産：{user_info.get('target_asset', '未登録')}
 ・出費：{user_info.get('expenses', '未登録')}
-・メモ：{user_info.get('memo', '')}
-このユーザーの情報に合わせて、必要な情報だけ答えること。個人情報は他人に漏らさないこと。
+このユーザーの情報に合わせて答えること。個人情報は漏らさないこと。
 """
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
 あなたは投資初心者の専属アナリストです。今日は{today}です。
+必ず{lang}言語で返答してください。
 {user_context}
 現在の市場データ：
 {market_text}
 
 ユーザーの質問：「{user_question}」
 
-・必ずユーザーが送った言語（{lang}）で返答する
 ・経済の知識がゼロの人にもわかるように
 ・専門用語は必ず（）で説明する
 ・不確かなことは書かない
@@ -409,7 +362,6 @@ def answer_question(user_question, user_info=None, lang="ja"):
     return msg.content[0].text
 
 def check_alerts():
-    import json
     state_file = "/tmp/alert_state.json"
     try:
         with open(state_file) as f:
@@ -509,13 +461,12 @@ def handle_message(event):
     user_text    = event.message.text.strip()
     reply_token  = event.reply_token
     line_user_id = event.source.user_id
+    lang         = detect_language(user_text)
 
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
 
-        intent, lang = detect_intent(user_text)
-
-        if intent == "morning":
+        if any(kw in user_text for kw in MORNING_KEYWORDS):
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "waiting_morning"))]
@@ -523,13 +474,13 @@ def handle_message(event):
             report = generate_morning_report()
             send_line_message(report, user_id=line_user_id)
 
-        elif intent == "register":
+        elif any(kw in user_text for kw in REGISTER_KEYWORDS):
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "register_form"))]
             ))
 
-        elif intent == "analysis":
+        elif any(kw in user_text for kw in ANALYSIS_KEYWORDS):
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "analyzing"))]
@@ -538,10 +489,10 @@ def handle_message(event):
             if not user_info or not user_info.get("stocks_owned"):
                 send_line_message(get_message(lang, "no_assets"), user_id=line_user_id)
             else:
-                analysis = analyze_portfolio(user_info)
+                analysis = analyze_portfolio(user_info, lang)
                 send_line_message(analysis, user_id=line_user_id)
 
-        elif intent == "save_info":
+        elif "：" in user_text or ":" in user_text:
             parse_and_save_user_info(line_user_id, user_text)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
