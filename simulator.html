@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
@@ -6,60 +7,98 @@
 <title>Investment Simulator</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f5f5f5; color: #333; }
-.wrap { max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #f0f5f0; color: #333; }
+
+#bg-canvas {
+position: fixed;
+top: 0; left: 0;
+width: 100%; height: 100%;
+pointer-events: none;
+z-index: 0;
+}
+
+.wrap {
+position: relative;
+z-index: 1;
+max-width: 680px;
+margin: 0 auto;
+padding: 1.5rem 1rem;
+}
+
 h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; text-align: center; }
+
 .lang-bar { display: flex; gap: 4px; justify-content: center; margin-bottom: 1.8rem; }
 .lang-btn { background: none; border: none; font-size: 12px; color: #aaa; padding: 4px 10px 8px; cursor: pointer; position: relative; letter-spacing: 0.3px; transition: color 0.2s; }
 .lang-btn.active { color: #1e5c20; font-weight: 700; }
-.lang-btn.active::after { content: ''; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: #1e5c20; border-radius: 50%; }
-.lang-btn + .lang-btn::before { content: '|'; position: absolute; left: -2px; color: #ddd; font-weight: 300; }
-.tabs { display: flex; justify-content: center; background: #deeede; border-radius: 14px; padding: 4px; gap: 3px; margin-bottom: 1.5rem; }
-.tab { flex: 1; max-width: 180px; padding: 9px 10px; border: none; border-radius: 10px; background: transparent; font-size: 13px; font-weight: 500; color: #5a7a5a; cursor: pointer; transition: background 0.22s, color 0.22s, box-shadow 0.22s; text-align: center; }
+.lang-btn.active::after { content: ‘’; position: absolute; bottom: 2px; left: 50%; transform: translateX(-50%); width: 5px; height: 5px; background: #1e5c20; border-radius: 50%; }
+.lang-btn + .lang-btn::before { content: ‘|’; position: absolute; left: -1px; color: #ddd; font-weight: 300; }
+
+.tabs { display: flex; justify-content: center; background: #deeede; border-radius: 14px; padding: 4px; gap: 3px; margin-bottom: 1.5rem; box-shadow: inset 0 1px 4px rgba(0,0,0,0.1); }
+.tab { flex: 1; max-width: 180px; padding: 9px 10px; border: none; border-radius: 10px; background: transparent; font-size: 13px; font-weight: 500; color: #5a7a5a; cursor: pointer; text-align: center; transition: all 0.25s; }
 .tab.active { background: white; color: #1e5c20; font-weight: 700; box-shadow: 0 1px 5px rgba(0,0,0,0.13); }
-@keyframes popPress { 0% { transform: scale(1); } 25% { transform: scale(0.86); } 65% { transform: scale(1.13); } 100% { transform: scale(1); } }
-.lang-btn.popping, .tab.popping { animation: popPress 0.38s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
-.card { background: white; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
-@keyframes fadeSlideIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+@keyframes popPress { 0%{transform:scale(1)} 25%{transform:scale(0.86)} 65%{transform:scale(1.13)} 100%{transform:scale(1)} }
+.popping { animation: popPress 0.38s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 .tab-panel { animation: fadeSlideIn 0.35s ease forwards; }
-.row { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; }
-.row label { font-size: 13px; color: #666; width: 110px; flex-shrink: 0; }
-.row input[type=range] { flex: 1; min-width: 0; accent-color: #1e5c20; }
-.row .right { width: 130px; flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; gap: 3px; }
-.val-input { font-size: 13px; font-weight: 600; text-align: right; color: #1e5c20; border: none; border-bottom: 1.5px solid #ccc; background: transparent; outline: none; padding: 2px 3px; -moz-appearance: textfield; cursor: pointer; }
+
+.card { background: rgba(255,255,255,0.93); border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 4px rgba(0,0,0,0.08); }
+
+.row {
+display: grid;
+grid-template-columns: 86px 1fr 108px;
+align-items: center;
+gap: 8px;
+margin-bottom: 1rem;
+}
+.row:last-child { margin-bottom: 0; }
+.row label { font-size: 12px; color: #666; white-space: nowrap; overflow: hidden; }
+.row input[type=range] { width: 100%; min-width: 0; accent-color: #1e5c20; }
+.row .right { display: flex; align-items: center; justify-content: flex-end; gap: 2px; overflow: hidden; }
+.val-input { font-size: 12.5px; font-weight: 600; text-align: right; color: #1e5c20; border: none; background: transparent; outline: none; padding: 2px 2px; -moz-appearance: textfield; cursor: pointer; }
 .val-input::-webkit-outer-spin-button, .val-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
-.val-input:focus { border-bottom-color: #1e5c20; cursor: text; }
-.val-input.money { width: 110px; font-size: 12.5px; }
-.val-input.rate { width: 46px; }
-.val-input.years { width: 40px; }
-.unit { font-size: 13px; font-weight: 600; color: #333; white-space: nowrap; }
-.result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
-.metric { background: #f0f7f0; border-radius: 8px; padding: 12px; text-align: center; }
+.val-input:focus { cursor: text; }
+.val-input.money { width: 100px; }
+.val-input.rate  { width: 40px; }
+.val-input.years { width: 34px; }
+.unit { font-size: 12px; font-weight: 600; color: #333; white-space: nowrap; }
+
+.result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1rem; }
+.metric { background: rgba(240,247,240,0.95); border-radius: 8px; padding: 12px; text-align: center; }
 .metric .mlabel { font-size: 11px; color: #666; margin-bottom: 4px; }
 .metric .mval { font-size: 16px; font-weight: 600; color: #1e5c20; }
 .section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px; }
 .chart-wrap { position: relative; width: 100%; height: 260px; }
 </style>
+
 </head>
 <body>
+
+<canvas id="bg-canvas"></canvas>
+
 <div class="wrap">
   <h1>💹 <span id="title">投資シミュレーター</span></h1>
+
   <div class="lang-bar">
     <button class="lang-btn active" onclick="pop(this);setLang('ja')">日本語</button>
     <button class="lang-btn" onclick="pop(this);setLang('en')">English</button>
     <button class="lang-btn" onclick="pop(this);setLang('ko')">한국어</button>
     <button class="lang-btn" onclick="pop(this);setLang('zh')">中文</button>
   </div>
+
   <div class="tabs">
     <button class="tab active" onclick="pop(this);switchTab('tsumitate')" id="tab-btn-t">積立</button>
     <button class="tab" onclick="pop(this);switchTab('ikkatsu')" id="tab-btn-i">一括投資</button>
     <button class="tab" onclick="pop(this);switchTab('gyaku')" id="tab-btn-g">目標逆算</button>
   </div>
+
+  <!-- 積立 -->
+
   <div id="tab-tsumitate" class="tab-panel">
     <div class="card">
-      <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" id="t-monthly" oninput="sliderToMoney('t-monthly','t-monthly-n');calcTsumitate()"><div class="right"><input type="text" class="val-input money" id="t-monthly-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'t-monthly',calcTsumitate)" oninput="moneyType(this,'t-monthly',calcTsumitate)"></div></div>
-      <div class="row"><label id="l-rate-t">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="t-rate" oninput="onSlider('t-rate','t-rate-n');calcTsumitate()"><div class="right"><input type="number" class="val-input rate" id="t-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('t-rate-n','t-rate');calcTsumitate()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-t">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="t-years" oninput="onSlider('t-years','t-years-n');calcTsumitate()"><div class="right"><input type="number" class="val-input years" id="t-years-n" min="1" max="100" step="1" oninput="onInput('t-years-n','t-years');calcTsumitate()"><span class="unit" id="unit-yr-t">年</span></div></div>
+      <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" id="t-monthly" oninput="sliderToMoney('t-monthly','t-monthly-n');calcT()"><div class="right"><input type="text" class="val-input money" id="t-monthly-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'t-monthly',calcT)" oninput="moneyType(this,'t-monthly',calcT)"></div></div>
+      <div class="row"><label id="l-rate-t">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="t-rate" oninput="onSlider('t-rate','t-rate-n');calcT()"><div class="right"><input type="number" class="val-input rate" id="t-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('t-rate-n','t-rate');calcT()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-t">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="t-years" oninput="onSlider('t-years','t-years-n');calcT()"><div class="right"><input type="number" class="val-input years" id="t-years-n" min="1" max="100" step="1" oninput="onInput('t-years-n','t-years');calcT()"><span class="unit" id="u-yr-t">年</span></div></div>
     </div>
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-total">総積立額</div><div class="mval" id="t-total"></div></div>
@@ -68,11 +107,14 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
     </div>
     <div class="card"><p class="section-title" id="l-chart-t">資産推移グラフ</p><div class="chart-wrap"><canvas id="chart-t"></canvas></div></div>
   </div>
+
+  <!-- 一括投資 -->
+
   <div id="tab-ikkatsu" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-init">初期投資額</label><input type="range" id="i-init" oninput="sliderToMoney('i-init','i-init-n');calcIkkatsu()"><div class="right"><input type="text" class="val-input money" id="i-init-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'i-init',calcIkkatsu)" oninput="moneyType(this,'i-init',calcIkkatsu)"></div></div>
-      <div class="row"><label id="l-rate-i">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="i-rate" oninput="onSlider('i-rate','i-rate-n');calcIkkatsu()"><div class="right"><input type="number" class="val-input rate" id="i-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('i-rate-n','i-rate');calcIkkatsu()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-i">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="i-years" oninput="onSlider('i-years','i-years-n');calcIkkatsu()"><div class="right"><input type="number" class="val-input years" id="i-years-n" min="1" max="100" step="1" oninput="onInput('i-years-n','i-years');calcIkkatsu()"><span class="unit" id="unit-yr-i">年</span></div></div>
+      <div class="row"><label id="l-init">初期投資額</label><input type="range" id="i-init" oninput="sliderToMoney('i-init','i-init-n');calcI()"><div class="right"><input type="text" class="val-input money" id="i-init-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'i-init',calcI)" oninput="moneyType(this,'i-init',calcI)"></div></div>
+      <div class="row"><label id="l-rate-i">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="i-rate" oninput="onSlider('i-rate','i-rate-n');calcI()"><div class="right"><input type="number" class="val-input rate" id="i-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('i-rate-n','i-rate');calcI()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-i">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="i-years" oninput="onSlider('i-years','i-years-n');calcI()"><div class="right"><input type="number" class="val-input years" id="i-years-n" min="1" max="100" step="1" oninput="onInput('i-years-n','i-years');calcI()"><span class="unit" id="u-yr-i">年</span></div></div>
     </div>
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-principal">元本</div><div class="mval" id="i-principal"></div></div>
@@ -81,11 +123,14 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
     </div>
     <div class="card"><p class="section-title" id="l-chart-i">資産推移グラフ</p><div class="chart-wrap"><canvas id="chart-i"></canvas></div></div>
   </div>
+
+  <!-- 目標逆算 -->
+
   <div id="tab-gyaku" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-target">目標資産</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcGyaku()"><div class="right"><input type="text" class="val-input money" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcGyaku)" oninput="moneyType(this,'g-target',calcGyaku)"></div></div>
-      <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcGyaku()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('g-rate-n','g-rate');calcGyaku()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-g">達成期間</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcGyaku()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcGyaku()"><span class="unit" id="unit-yr-g">年</span></div></div>
+      <div class="row"><label id="l-target">目標資産</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input money" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
+      <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-g">達成期間</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">年</span></div></div>
     </div>
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-need">必要毎月積立</div><div class="mval" id="g-monthly"></div></div>
@@ -95,32 +140,10 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
     <div class="card"><p class="section-title" id="l-chart-g">資産推移グラフ</p><div class="chart-wrap"><canvas id="chart-g"></canvas></div></div>
   </div>
 </div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+
 <script>
-let chartT,chartI,chartG;let currentLang='ja';const countTimers={};
-function pop(el){el.classList.remove('popping');void el.offsetWidth;el.classList.add('popping');el.addEventListener('animationend',()=>el.classList.remove('popping'),{once:true});}
-const CURRENCY={ja:{min_monthly:500,max_monthly:200000,step_monthly:500,min_init:500,max_init:10000000,step_init:500,min_target:10000,max_target:100000000,step_target:10000,default_monthly:30000,default_init:1000000,default_target:10000000},en:{min_monthly:5,max_monthly:5000,step_monthly:5,min_init:5,max_init:500000,step_init:5,min_target:100,max_target:2000000,step_target:100,default_monthly:500,default_init:10000,default_target:200000},ko:{min_monthly:1000,max_monthly:2000000,step_monthly:1000,min_init:5000,max_init:100000000,step_init:5000,min_target:100000,max_target:500000000,step_target:100000,default_monthly:300000,default_init:10000000,default_target:100000000},zh:{min_monthly:10,max_monthly:20000,step_monthly:10,min_init:50,max_init:1000000,step_init:50,min_target:500,max_target:5000000,step_target:500,default_monthly:2000,default_init:50000,default_target:500000}};
-const T={ja:{title:'投資シミュレーター',tab1:'積立',tab2:'一括投資',tab3:'目標逆算',monthly:'毎月の積立額',rate:'年利回り',years:'積立期間',yearsI:'運用期間',yearsG:'達成期間',init:'初期投資額',target:'目標資産',total:'総積立額',gain:'利益',final:'総資産',principal:'元本',need:'必要毎月積立',chart:'資産推移グラフ',yr:'年',p_label:'元本',t_label:'総資産'},en:{title:'Investment Simulator',tab1:'Monthly',tab2:'Lump Sum',tab3:'Goal Calc',monthly:'Monthly Amount',rate:'Annual Return',years:'Period',yearsI:'Period',yearsG:'Target Period',init:'Initial Amount',target:'Target Amount',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Needed',chart:'Asset Growth Chart',yr:'yr',p_label:'Principal',t_label:'Total'},ko:{title:'투자 시뮬레이터',tab1:'적립',tab2:'일괄투자',tab3:'목표 역산',monthly:'월 적립액',rate:'연 수익률',years:'적립 기간',yearsI:'운용 기간',yearsG:'달성 기간',init:'초기 투자액',target:'목표 자산',total:'총 적립액',gain:'수익',final:'총자산',principal:'원금',need:'필요 월 적립액',chart:'자산 추이 그래프',yr:'년',p_label:'원금',t_label:'총자산'},zh:{title:'投资模拟器',tab1:'定投',tab2:'一次性投资',tab3:'目标逆算',monthly:'每月金额',rate:'年收益率',years:'投资期限',yearsI:'投资期限',yearsG:'达成期限',init:'初始投资额',target:'目标金额',total:'总投入',gain:'收益',final:'总资产',principal:'本金',need:'每月所需',chart:'资产增长图',yr:'年',p_label:'本金',t_label:'总资产'}};
-function fmtInput(n){n=Math.round(n);if(currentLang==='ja'){if(n>=100000000){const o=Math.floor(n/100000000),m=Math.floor((n%100000000)/10000),y=n%10000;let s=o+'億';if(m>0)s+=m+'万';if(y>0)s+=y+'円';if(m===0&&y===0)s+='円';return s;}if(n>=10000){const m=Math.floor(n/10000),y=n%10000;return y>0?m+'万'+y+'円':m+'万円';}return n.toLocaleString()+'円';}if(currentLang==='en'){if(n>=1000000000)return '$'+(n/1000000000).toFixed(1).replace(/\.0$/,'')+'B';if(n>=1000000)return '$'+(n/1000000).toFixed(1).replace(/\.0$/,'')+'M';if(n>=1000)return '$'+(n/1000).toFixed(1).replace(/\.0$/,'')+'K';return '$'+n.toLocaleString();}if(currentLang==='ko'){if(n>=100000000){const e=Math.floor(n/100000000),m=Math.floor((n%100000000)/10000),w=n%10000;let s=e+'억';if(m>0)s+=m+'만';if(w>0)s+=w;return s+'원';}if(n>=10000){const m=Math.floor(n/10000),w=n%10000;return w>0?m+'만'+w+'원':m+'만원';}return n.toLocaleString()+'원';}if(currentLang==='zh'){if(n>=100000000){const y=Math.floor(n/100000000),w=Math.floor((n%100000000)/10000),u=n%10000;let s=y+'亿';if(w>0)s+=w+'万';if(u>0)s+=u+'元';if(w===0&&u===0)s+='元';return s;}if(n>=10000){const w=Math.floor(n/10000),u=n%10000;return u>0?w+'万'+u+'元':w+'万元';}return n.toLocaleString()+'元';}return n.toLocaleString();}
-function fmt(n){if(currentLang==='ja'){if(n>=100000000)return(Math.round(n/100000000*10)/10)+'億';if(n>=10000)return Math.round(n/10000)+'万';return Math.round(n).toLocaleString();}if(currentLang==='zh'){if(n>=100000000)return(Math.round(n/100000000*10)/10)+'亿';if(n>=10000)return Math.round(n/10000)+'万';return Math.round(n).toLocaleString();}if(currentLang==='ko'){if(n>=100000000)return(Math.round(n/100000000*10)/10)+'억';if(n>=10000)return Math.round(n/10000)+'만';return Math.round(n).toLocaleString();}if(n>=1000000000)return(n/1000000000).toFixed(1)+'B';if(n>=1000000)return(n/1000000).toFixed(1)+'M';if(n>=1000)return Math.round(n/1000)+'K';return Math.round(n).toLocaleString();}
-function fmtYr(y){return y+T[currentLang].yr;}
-function moneyFocus(el){el.value=el.dataset.raw||'';el.select();}
-function moneyBlur(el,sliderId,calcFn){const v=parseFloat(el.value.replace(/[^0-9.]/g,'')),raw=(!isNaN(v)&&v>0)?v:parseFloat(el.dataset.raw||'0');el.dataset.raw=raw;el.value=fmtInput(raw);const s=document.getElementById(sliderId);s.value=Math.min(Math.max(raw,parseFloat(s.min)),parseFloat(s.max));calcFn();}
-function moneyType(el,sliderId,calcFn){const v=parseFloat(el.value.replace(/[^0-9.]/g,''));if(!isNaN(v)&&v>0){el.dataset.raw=v;const s=document.getElementById(sliderId);s.value=Math.min(Math.max(v,parseFloat(s.min)),parseFloat(s.max));calcFn();}}
-function sliderToMoney(sId,nId){const v=parseFloat(document.getElementById(sId).value),el=document.getElementById(nId);el.dataset.raw=v;el.value=fmtInput(v);}
-function onSlider(sId,nId){document.getElementById(nId).value=parseFloat(document.getElementById(sId).value);}
-function onInput(nId,sId){const s=document.getElementById(sId),v=parseFloat(document.getElementById(nId).value);if(!isNaN(v)&&v>0)s.value=Math.min(Math.max(v,parseFloat(s.min)),parseFloat(s.max));}
-function getMoneyVal(id){const el=document.getElementById(id),raw=parseFloat(el.dataset.raw||el.value.replace(/[^0-9.]/g,''));return(isNaN(raw)||raw<=0)?0:raw;}
-function getVal(id){const v=parseFloat(document.getElementById(id).value);return(isNaN(v)||v<=0)?0:v;}
-function countUp(elId,toVal,prefix='',duration=600){const el=document.getElementById(elId);if(!el)return;if(countTimers[elId])cancelAnimationFrame(countTimers[elId]);const startTime=performance.now();function tick(now){const p=Math.min((now-startTime)/duration,1),eased=1-Math.pow(1-p,3);el.textContent=prefix+fmt(Math.round(toVal*eased));if(p<1){countTimers[elId]=requestAnimationFrame(tick);}else{el.textContent=prefix+fmt(toVal);}}countTimers[elId]=requestAnimationFrame(tick);}
-function setSliders(){const c=CURRENCY[currentLang],yr=T[currentLang].yr;const tM=document.getElementById('t-monthly');tM.min=c.min_monthly;tM.max=c.max_monthly;tM.step=c.step_monthly;tM.value=c.default_monthly;const tMn=document.getElementById('t-monthly-n');tMn.dataset.raw=c.default_monthly;tMn.value=fmtInput(c.default_monthly);document.getElementById('t-rate').value=5;document.getElementById('t-rate-n').value=5;document.getElementById('t-years').value=20;document.getElementById('t-years-n').value=20;const iI=document.getElementById('i-init');iI.min=c.min_init;iI.max=c.max_init;iI.step=c.step_init;iI.value=c.default_init;const iIn=document.getElementById('i-init-n');iIn.dataset.raw=c.default_init;iIn.value=fmtInput(c.default_init);document.getElementById('i-rate').value=5;document.getElementById('i-rate-n').value=5;document.getElementById('i-years').value=20;document.getElementById('i-years-n').value=20;const gT=document.getElementById('g-target');gT.min=c.min_target;gT.max=c.max_target;gT.step=c.step_target;gT.value=c.default_target;const gTn=document.getElementById('g-target-n');gTn.dataset.raw=c.default_target;gTn.value=fmtInput(c.default_target);document.getElementById('g-rate').value=5;document.getElementById('g-rate-n').value=5;document.getElementById('g-years').value=20;document.getElementById('g-years-n').value=20;['unit-yr-t','unit-yr-i','unit-yr-g'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=yr;});}
-function setLang(lang){currentLang=lang;document.querySelectorAll('.lang-btn').forEach((b,i)=>b.classList.toggle('active',['ja','en','ko','zh'][i]===lang));const t=T[lang];document.getElementById('title').textContent=t.title;document.getElementById('tab-btn-t').textContent=t.tab1;document.getElementById('tab-btn-i').textContent=t.tab2;document.getElementById('tab-btn-g').textContent=t.tab3;document.getElementById('l-monthly').textContent=t.monthly;document.getElementById('l-rate-t').textContent=t.rate;document.getElementById('l-years-t').textContent=t.years;document.getElementById('l-total').textContent=t.total;document.getElementById('l-gain-t').textContent=t.gain;document.getElementById('l-final-t').textContent=t.final;document.getElementById('l-chart-t').textContent=t.chart;document.getElementById('l-init').textContent=t.init;document.getElementById('l-rate-i').textContent=t.rate;document.getElementById('l-years-i').textContent=t.yearsI;document.getElementById('l-principal').textContent=t.principal;document.getElementById('l-gain-i').textContent=t.gain;document.getElementById('l-final-i').textContent=t.final;document.getElementById('l-chart-i').textContent=t.chart;document.getElementById('l-target').textContent=t.target;document.getElementById('l-rate-g').textContent=t.rate;document.getElementById('l-years-g').textContent=t.yearsG;document.getElementById('l-need').textContent=t.need;document.getElementById('l-total-g').textContent=t.total;document.getElementById('l-gain-g').textContent=t.gain;document.getElementById('l-chart-g').textContent=t.chart;setSliders();calcTsumitate();calcIkkatsu();calcGyaku();}
-function switchTab(name){['tsumitate','ikkatsu','gyaku'].forEach(t=>{const el=document.getElementById('tab-'+t);if(t===name){el.style.display='';el.classList.remove('tab-panel');void el.offsetWidth;el.classList.add('tab-panel');}else{el.style.display='none';}});document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['tsumitate','ikkatsu','gyaku'][i]===name));if(name==='tsumitate')calcTsumitate();if(name==='ikkatsu')calcIkkatsu();if(name==='gyaku')calcGyaku();}
-function makeChart(id,labels,principal,totals){const ctx=document.getElementById(id);if(!ctx)return null;const t=T[currentLang];return new Chart(ctx,{type:'line',data:{labels,datasets:[{label:t.p_label,data:principal,borderColor:'#a5d6a7',backgroundColor:'rgba(165,214,167,0.15)',borderWidth:2,pointRadius:2,fill:true,tension:0.3},{label:t.t_label,data:totals,borderColor:'#1e5c20',backgroundColor:'rgba(30,92,32,0.08)',borderWidth:2.5,pointRadius:2,fill:true,tension:0.3}]},options:{responsive:true,maintainAspectRatio:false,animation:{duration:700,easing:'easeInOutQuart'},plugins:{legend:{display:true,position:'bottom',labels:{font:{size:12},boxWidth:12,padding:12}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+fmt(c.parsed.y)}}},schools:{x:{ticks:{font:{size:11},autoSkip:true,maxTicksLimit:8}},y:{ticks:{font:{size:11},callback:v=>fmt(v)}}}}});}
-function calcTsumitate(){const monthly=getMoneyVal('t-monthly-n'),rate=getVal('t-rate-n')/100/12,years=Math.round(getVal('t-years-n')),months=years*12;let labels=[],principal=[],totals=[];for(let y=1;y<=years;y++){const m=y*12,total=rate===0?monthly*m:monthly*((Math.pow(1+rate,m)-1)/rate)*(1+rate);labels.push(fmtYr(y));principal.push(Math.round(monthly*m));totals.push(Math.round(total));}const ft=totals[totals.length-1]||0,ti=monthly*months;countUp('t-total',ti);countUp('t-gain',ft-ti,'+');countUp('t-final',ft);if(chartT)chartT.destroy();chartT=makeChart('chart-t',labels,principal,totals);}
-function calcIkkatsu(){const init=getMoneyVal('i-init-n'),rate=getVal('i-rate-n')/100,years=Math.round(getVal('i-years-n'));let labels=[],principal=[],totals=[];for(let y=1;y<=years;y++){labels.push(fmtYr(y));principal.push(Math.round(init));totals.push(Math.round(init*Math.pow(1+rate,y)));}const final=totals[totals.length-1]||0;countUp('i-principal',init);countUp('i-gain',final-init,'+');countUp('i-final',final);if(chartI)chartI.destroy();chartI=makeChart('chart-i',labels,principal,totals);}
-function calcGyaku(){const target=getMoneyVal('g-target-n'),annualRate=getVal('g-rate-n')/100,years=Math.round(getVal('g-years-n')),months=years*12,r=annualRate/12;const monthly=r===0?target/months:target*r/((Math.pow(1+r,months)-1)*(1+r)),ti=monthly*months;countUp('g-monthly',Math.ceil(monthly));countUp('g-total',ti);countUp('g-gain',target-ti,'+');let labels=[],principal=[],totals=[];for(let y=1;y<=years;y++){const m=y*12,t=r===0?monthly*m:monthly*((Math.pow(1+r,m)-1)/r)*(1+r);labels.push(fmtYr(y));principal.push(Math.round(monthly*m));totals.push(Math.round(t));}if(chartG)chartG.destroy();chartG=makeChart('chart-g',labels,principal,totals);}
-setSliders();calcTsumitate();calcIkkatsu();calcGyaku();
-</script>
-</body>
-</html>
+/* ============================================================
+   背景：ゆっくり流れる右肩上がりチャートライン
+   =============
