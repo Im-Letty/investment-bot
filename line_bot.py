@@ -141,39 +141,41 @@ def parse_and_save_user_info(line_user_id, text):
 
 def analyze_portfolio(user_info, lang="ja"):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    today = date.today().strftime("%Y年%m月%d日")
+    today = date.today().strftime("%Y-%m-%d")
     market = fetch_market_data()
-    market_text = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
-    stocks_owned = user_info.get("stocks_owned", "未登録")
+    market_text = "\n".join([f"- {k}: {v['display']}" for k, v in market.items()])
+    stocks_owned = user_info.get("stocks_owned", "not registered")
+    lang_names = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
+    lang_name = lang_names.get(lang, "English")
     prompt = f"""
-あなたは個人資産アドバイザーです。今日は{today}です。
-必ず{lang}言語で返答してください。
+You are a personal asset advisor. Today is {today}.
+You MUST respond in {lang_name} only.
 
-【ユーザーの資産情報】
-・名前：{user_info.get('name', '未登録')}
-・保有株：{stocks_owned}
-・トレード銘柄：{user_info.get('stocks_traded', '未登録')}
-・積立：{user_info.get('savings', '未登録')}
-・目標資産：{user_info.get('target_asset', '未登録')}
-・出費：{user_info.get('expenses', '未登録')}
-・財務情報：{user_info.get('financial_info', '未登録')}
+User asset information:
+- Name: {user_info.get('name', 'not registered')}
+- Stocks owned: {stocks_owned}
+- Trading stocks: {user_info.get('stocks_traded', 'not registered')}
+- Savings/Investment: {user_info.get('savings', 'not registered')}
+- Target assets: {user_info.get('target_asset', 'not registered')}
+- Expenses: {user_info.get('expenses', 'not registered')}
+- Financial info: {user_info.get('financial_info', 'not registered')}
 
-【市場データ】
+Market data:
 {market_text}
 
-以下の内容で分析してください：
-1. 現在の保有株の評価と今日の動き
-2. 目標資産までの道筋と期間
-3. 積立シミュレーション
-4. 的確なアドバイス
-5. 改善できるポイント
+Please analyze:
+1. Current stock evaluation and today's movement
+2. Path and timeline to target assets (with specific numbers)
+3. Savings simulation
+4. Accurate advice for current situation
+5. Points for improvement
 
-・##や**は使わない
-・見出しは【】で囲む
-・絵文字を適度に使う
-・具体的な数字を使う
-・スマホで読みやすく
-・個人情報は厳重に扱う
+Rules:
+- Never use ## or **
+- Use emoji moderately
+- Use specific numbers
+- Keep readable on smartphone
+- Handle personal info carefully
 """
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -321,38 +323,41 @@ def generate_morning_report():
 
 def answer_question(user_question, user_info=None, lang="ja"):
     market      = fetch_market_data()
-    market_text = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
-    today       = date.today().strftime("%Y年%m月%d日")
+    market_text = "\n".join([f"- {k}: {v['display']}" for k, v in market.items()])
+    today       = date.today().strftime("%Y-%m-%d")
 
     user_context = ""
     if user_info:
         user_context = f"""
-【このユーザーの情報】
-・名前：{user_info.get('name', '未登録')}
-・保有株：{user_info.get('stocks_owned', '未登録')}
-・積立：{user_info.get('savings', '未登録')}
-・目標資産：{user_info.get('target_asset', '未登録')}
-・出費：{user_info.get('expenses', '未登録')}
-このユーザーの情報に合わせて答えること。個人情報は漏らさないこと。
+User profile:
+- Name: {user_info.get('name', 'not registered')}
+- Stocks owned: {user_info.get('stocks_owned', 'not registered')}
+- Savings: {user_info.get('savings', 'not registered')}
+- Target assets: {user_info.get('target_asset', 'not registered')}
+- Expenses: {user_info.get('expenses', 'not registered')}
+Respond based on this user's profile. Keep personal info confidential.
 """
+
+    lang_names = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
+    lang_name = lang_names.get(lang, "English")
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
-あなたは投資初心者の専属アナリストです。今日は{today}です。
-必ず{lang}言語で返答してください。
+You are an investment analyst for beginners. Today is {today}.
+You MUST respond in {lang_name} only. Do not use any other language.
 {user_context}
-現在の市場データ：
+Current market data:
 {market_text}
 
-ユーザーの質問：「{user_question}」
+User question: "{user_question}"
 
-・経済の知識がゼロの人にもわかるように
-・専門用語は必ず（）で説明する
-・不確かなことは書かない
-・##や**などの記号は絶対に使わない
-・見出しは【】で囲む
-・絵文字を適度に使う
-・スマホで読みやすい長さにする
+Rules:
+- Explain in simple terms anyone can understand
+- Always explain financial terms in parentheses
+- Do not write uncertain information
+- Never use ## or ** symbols
+- Use emoji moderately
+- Keep response readable on smartphone
 """
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
