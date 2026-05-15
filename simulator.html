@@ -19,7 +19,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
 .row { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; }
 .row label { font-size: 13px; color: #666; min-width: 120px; }
 .row input[type=range] { flex: 1; accent-color: #1e5c20; }
-.row .val { font-size: 13px; font-weight: 600; min-width: 80px; text-align: right; color: #333; }
+.row .val { font-size: 13px; font-weight: 600; min-width: 90px; text-align: right; color: #333; }
 .result-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 1rem; }
 .metric { background: #f0f7f0; border-radius: 8px; padding: 12px; text-align: center; }
 .metric .mlabel { font-size: 11px; color: #666; margin-bottom: 4px; }
@@ -47,9 +47,9 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
 
   <div id="tab-tsumitate">
     <div class="card">
-      <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" min="1000" max="200000" step="1000" value="30000" id="t-monthly" oninput="calcTsumitate()"><span class="val" id="t-monthly-v">3万円</span></div>
+      <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" id="t-monthly" oninput="calcTsumitate()"><span class="val" id="t-monthly-v"></span></div>
       <div class="row"><label id="l-rate-t">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="t-rate" oninput="calcTsumitate()"><span class="val" id="t-rate-v">5.0%</span></div>
-      <div class="row"><label id="l-years-t">積立期間</label><input type="range" min="1" max="40" step="1" value="20" id="t-years" oninput="calcTsumitate()"><span class="val" id="t-years-v">20年</span></div>
+      <div class="row"><label id="l-years-t">積立期間</label><input type="range" min="1" max="40" step="1" value="20" id="t-years" oninput="calcTsumitate()"><span class="val" id="t-years-v"></span></div>
     </div>
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-total">総積立額</div><div class="mval" id="t-total"></div></div>
@@ -64,7 +64,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
 
   <div id="tab-ikkatsu" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-init">初期投資額</label><input type="range" min="10000" max="10000000" step="10000" value="1000000" id="i-init" oninput="calcIkkatsu()"><span class="val" id="i-init-v"></span></div>
+      <div class="row"><label id="l-init">初期投資額</label><input type="range" id="i-init" oninput="calcIkkatsu()"><span class="val" id="i-init-v"></span></div>
       <div class="row"><label id="l-rate-i">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="i-rate" oninput="calcIkkatsu()"><span class="val" id="i-rate-v">5.0%</span></div>
       <div class="row"><label id="l-years-i">運用期間</label><input type="range" min="1" max="40" step="1" value="20" id="i-years" oninput="calcIkkatsu()"><span class="val" id="i-years-v"></span></div>
     </div>
@@ -81,7 +81,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
 
   <div id="tab-gyaku" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-target">目標資産</label><input type="range" min="100000" max="100000000" step="100000" value="10000000" id="g-target" oninput="calcGyaku()"><span class="val" id="g-target-v"></span></div>
+      <div class="row"><label id="l-target">目標資産</label><input type="range" id="g-target" oninput="calcGyaku()"><span class="val" id="g-target-v"></span></div>
       <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="calcGyaku()"><span class="val" id="g-rate-v">5.0%</span></div>
       <div class="row"><label id="l-years-g">達成期間</label><input type="range" min="1" max="40" step="1" value="20" id="g-years" oninput="calcGyaku()"><span class="val" id="g-years-v"></span></div>
     </div>
@@ -102,58 +102,57 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
 let chartT, chartI, chartG;
 let currentLang = 'ja';
 
-const T = {
-  ja: {
-    title: '投資シミュレーター',
-    tab1: '積立', tab2: '一括投資', tab3: '目標逆算',
-    monthly: '毎月の積立額', rate: '年利回り', years: '積立期間',
-    yearsI: '運用期間', yearsG: '達成期間',
-    init: '初期投資額', target: '目標資産',
-    total: '総積立額', gain: '運用益', final: '最終資産',
-    principal: '元本', need: '必要毎月積立',
-    chart: '資産推移グラフ',
-    yr: '年', principal_label: '元本', total_label: '総資産',
-  },
-  en: {
-    title: 'Investment Simulator',
-    tab1: 'Monthly', tab2: 'Lump Sum', tab3: 'Goal Reverse',
-    monthly: 'Monthly Amount', rate: 'Annual Return', years: 'Period',
-    yearsI: 'Period', yearsG: 'Target Period',
-    init: 'Initial Investment', target: 'Target Amount',
-    total: 'Total Invested', gain: 'Profit', final: 'Final Value',
-    principal: 'Principal', need: 'Monthly Needed',
-    chart: 'Asset Growth Chart',
-    yr: 'yr', principal_label: 'Principal', total_label: 'Total',
-  },
-  ko: {
-    title: '투자 시뮬레이터',
-    tab1: '적립', tab2: '일괄투자', tab3: '목표 역산',
-    monthly: '월 적립액', rate: '연 수익률', years: '적립 기간',
-    yearsI: '운용 기간', yearsG: '달성 기간',
-    init: '초기 투자액', target: '목표 자산',
-    total: '총 적립액', gain: '운용 수익', final: '최종 자산',
-    principal: '원금', need: '필요 월 적립액',
-    chart: '자산 추이 그래프',
-    yr: '년', principal_label: '원금', total_label: '총자산',
-  },
-  zh: {
-    title: '投资模拟器',
-    tab1: '定投', tab2: '一次性投资', tab3: '目标逆算',
-    monthly: '每月金额', rate: '年收益率', years: '投资期限',
-    yearsI: '投资期限', yearsG: '达成期限',
-    init: '初始投资额', target: '目标金额',
-    total: '总投入', gain: '收益', final: '最终资产',
-    principal: '本金', need: '每月所需',
-    chart: '资产增长图',
-    yr: '年', principal_label: '本金', total_label: '总资产',
-  }
+const CURRENCY = {
+  ja: { symbol: '¥', unit: '円', min_monthly: 500, max_monthly: 200000, step_monthly: 500, min_init: 1000, max_init: 10000000, step_init: 1000, min_target: 10000, max_target: 100000000, step_target: 10000, default_monthly: 30000, default_init: 1000000, default_target: 10000000 },
+  en: { symbol: '$', unit: '', min_monthly: 5, max_monthly: 5000, step_monthly: 5, min_init: 10, max_init: 500000, step_init: 10, min_target: 100, max_target: 2000000, step_target: 100, default_monthly: 500, default_init: 10000, default_target: 200000 },
+  ko: { symbol: '₩', unit: '', min_monthly: 1000, max_monthly: 2000000, step_monthly: 1000, min_init: 10000, max_init: 100000000, step_init: 10000, min_target: 100000, max_target: 500000000, step_target: 100000, default_monthly: 300000, default_init: 10000000, default_target: 100000000 },
+  zh: { symbol: '元', unit: '', min_monthly: 10, max_monthly: 20000, step_monthly: 10, min_init: 50, max_init: 1000000, step_init: 50, min_target: 500, max_target: 5000000, step_target: 500, default_monthly: 2000, default_init: 50000, default_target: 500000 }
 };
+
+const T = {
+  ja: { title: '投資シミュレーター', tab1: '積立', tab2: '一括投資', tab3: '目標逆算', monthly: '毎月の積立額', rate: '年利回り', years: '積立期間', yearsI: '運用期間', yearsG: '達成期間', init: '初期投資額', target: '目標資産', total: '総積立額', gain: '運用益', final: '最終資産', principal: '元本', need: '必要毎月積立', chart: '資産推移グラフ', yr: '年', p_label: '元本', t_label: '総資産' },
+  en: { title: 'Investment Simulator', tab1: 'Monthly', tab2: 'Lump Sum', tab3: 'Goal Calc', monthly: 'Monthly Amount', rate: 'Annual Return', years: 'Period', yearsI: 'Period', yearsG: 'Target Period', init: 'Initial Amount', target: 'Target Amount', total: 'Total Invested', gain: 'Profit', final: 'Final Value', principal: 'Principal', need: 'Monthly Needed', chart: 'Asset Growth Chart', yr: 'yr', p_label: 'Principal', t_label: 'Total' },
+  ko: { title: '투자 시뮬레이터', tab1: '적립', tab2: '일괄투자', tab3: '목표 역산', monthly: '월 적립액', rate: '연 수익률', years: '적립 기간', yearsI: '운용 기간', yearsG: '달성 기간', init: '초기 투자액', target: '목표 자산', total: '총 적립액', gain: '운용 수익', final: '최종 자산', principal: '원금', need: '필요 월 적립액', chart: '자산 추이 그래프', yr: '년', p_label: '원금', t_label: '총자산' },
+  zh: { title: '投资模拟器', tab1: '定投', tab2: '一次性投资', tab3: '目标逆算', monthly: '每月金额', rate: '年收益率', years: '投资期限', yearsI: '投资期限', yearsG: '达成期限', init: '初始投资额', target: '目标金额', total: '总投入', gain: '收益', final: '最终资产', principal: '本金', need: '每月所需', chart: '资产增长图', yr: '年', p_label: '本金', t_label: '总资产' }
+};
+
+function fmt(n) {
+  const c = CURRENCY[currentLang];
+  if (currentLang === 'ja') {
+    if (n >= 100000000) return '¥' + Math.round(n/100000000*10)/10 + '億';
+    if (n >= 10000) return '¥' + Math.round(n/10000) + '万';
+    return '¥' + Math.round(n).toLocaleString();
+  }
+  if (currentLang === 'zh') {
+    if (n >= 100000000) return Math.round(n/100000000*10)/10 + '億元';
+    if (n >= 10000) return Math.round(n/10000) + '万元';
+    return Math.round(n).toLocaleString() + '元';
+  }
+  if (currentLang === 'ko') {
+    if (n >= 100000000) return '₩' + Math.round(n/100000000*10)/10 + '억';
+    if (n >= 10000) return '₩' + Math.round(n/10000) + '만';
+    return '₩' + Math.round(n).toLocaleString();
+  }
+  if (n >= 1000000) return '$' + (n/1000000).toFixed(1) + 'M';
+  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
+  return '$' + Math.round(n).toLocaleString();
+}
+
+function fmtYr(y) { return y + T[currentLang].yr; }
+
+function setSliders() {
+  const c = CURRENCY[currentLang];
+  ['t-monthly','i-init','g-target'].forEach(id => {
+    const el = document.getElementById(id);
+    if (id === 't-monthly') { el.min=c.min_monthly; el.max=c.max_monthly; el.step=c.step_monthly; el.value=c.default_monthly; }
+    if (id === 'i-init') { el.min=c.min_init; el.max=c.max_init; el.step=c.step_init; el.value=c.default_init; }
+    if (id === 'g-target') { el.min=c.min_target; el.max=c.max_target; el.step=c.step_target; el.value=c.default_target; }
+  });
+}
 
 function setLang(lang) {
   currentLang = lang;
-  document.querySelectorAll('.lang-btn').forEach((b,i) => {
-    b.classList.toggle('active', ['ja','en','ko','zh'][i]===lang);
-  });
+  document.querySelectorAll('.lang-btn').forEach((b,i) => b.classList.toggle('active', ['ja','en','ko','zh'][i]===lang));
   const t = T[lang];
   document.getElementById('title').textContent = t.title;
   document.getElementById('tab-btn-t').textContent = t.tab1;
@@ -180,30 +179,13 @@ function setLang(lang) {
   document.getElementById('l-total-g').textContent = t.total;
   document.getElementById('l-gain-g').textContent = t.gain;
   document.getElementById('l-chart-g').textContent = t.chart;
+  setSliders();
   calcTsumitate(); calcIkkatsu(); calcGyaku();
 }
 
-function fmt(n) {
-  if (currentLang === 'ja') {
-    if (n >= 100000000) return Math.round(n/100000000*10)/10 + '億円';
-    if (n >= 10000) return Math.round(n/10000) + '万円';
-    return Math.round(n).toLocaleString() + '円';
-  }
-  if (n >= 1000000000) return '$' + (n/1000000000).toFixed(1) + 'B';
-  if (n >= 1000000) return '$' + Math.round(n/1000000) + 'M';
-  if (n >= 1000) return '$' + Math.round(n/1000) + 'K';
-  return '$' + Math.round(n).toLocaleString();
-}
-
-function fmtYr(y) { return y + T[currentLang].yr; }
-
 function switchTab(name) {
-  ['tsumitate','ikkatsu','gyaku'].forEach(t => {
-    document.getElementById('tab-'+t).style.display = t===name?'':'none';
-  });
-  document.querySelectorAll('.tab').forEach((el,i) => {
-    el.classList.toggle('active', ['tsumitate','ikkatsu','gyaku'][i]===name);
-  });
+  ['tsumitate','ikkatsu','gyaku'].forEach(t => document.getElementById('tab-'+t).style.display = t===name?'':'none');
+  document.querySelectorAll('.tab').forEach((el,i) => el.classList.toggle('active', ['tsumitate','ikkatsu','gyaku'][i]===name));
   if (name==='tsumitate') calcTsumitate();
   if (name==='ikkatsu') calcIkkatsu();
   if (name==='gyaku') calcGyaku();
@@ -215,23 +197,14 @@ function makeChart(id, labels, principal, totals) {
   const t = T[currentLang];
   return new Chart(ctx, {
     type: 'line',
-    data: {
-      labels,
-      datasets: [
-        { label: t.principal_label, data: principal, borderColor: '#a5d6a7', backgroundColor: 'rgba(165,214,167,0.15)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 },
-        { label: t.total_label, data: totals, borderColor: '#1e5c20', backgroundColor: 'rgba(30,92,32,0.08)', borderWidth: 2.5, pointRadius: 2, fill: true, tension: 0.3 }
-      ]
-    },
+    data: { labels, datasets: [
+      { label: t.p_label, data: principal, borderColor: '#a5d6a7', backgroundColor: 'rgba(165,214,167,0.15)', borderWidth: 2, pointRadius: 2, fill: true, tension: 0.3 },
+      { label: t.t_label, data: totals, borderColor: '#1e5c20', backgroundColor: 'rgba(30,92,32,0.08)', borderWidth: 2.5, pointRadius: 2, fill: true, tension: 0.3 }
+    ]},
     options: {
       responsive: true, maintainAspectRatio: false,
-      plugins: {
-        legend: { display: true, position: 'bottom', labels: { font: { size: 12 }, boxWidth: 12, padding: 12 } },
-        tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } }
-      },
-      scales: {
-        x: { ticks: { font: { size: 11 }, autoSkip: true, maxTicksLimit: 8 } },
-        y: { ticks: { font: { size: 11 }, callback: v => currentLang==='ja' ? (v>=10000?Math.round(v/10000)+'万':v) : (v>=1000000?'$'+Math.round(v/1000000)+'M':v>=1000?'$'+Math.round(v/1000)+'K':'$'+v) } }
-      }
+      plugins: { legend: { display: true, position: 'bottom', labels: { font: { size: 12 }, boxWidth: 12, padding: 12 } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + fmt(ctx.parsed.y) } } },
+      scales: { x: { ticks: { font: { size: 11 }, autoSkip: true, maxTicksLimit: 8 } }, y: { ticks: { font: { size: 11 }, callback: v => fmt(v) } } }
     }
   });
 }
@@ -267,9 +240,7 @@ function calcIkkatsu() {
   document.getElementById('i-rate-v').textContent = (+document.getElementById('i-rate').value).toFixed(1) + '%';
   document.getElementById('i-years-v').textContent = fmtYr(years);
   let labels=[], principal=[], totals=[];
-  for (let y=1; y<=years; y++) {
-    labels.push(fmtYr(y)); principal.push(Math.round(init)); totals.push(Math.round(init * Math.pow(1+rate, y)));
-  }
+  for (let y=1; y<=years; y++) { labels.push(fmtYr(y)); principal.push(Math.round(init)); totals.push(Math.round(init * Math.pow(1+rate, y))); }
   const final = totals[totals.length-1];
   document.getElementById('i-principal').textContent = fmt(init);
   document.getElementById('i-gain').textContent = '+' + fmt(final - init);
@@ -302,6 +273,7 @@ function calcGyaku() {
   chartG = makeChart('chart-g', labels, principal, totals);
 }
 
+setSliders();
 calcTsumitate(); calcIkkatsu(); calcGyaku();
 </script>
 </body>
