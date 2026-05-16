@@ -101,15 +101,16 @@ def get_message(lang, key):
 def detect_intent(text, lang="ja"):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
-ユーザーのメッセージを読んで、意図を以下の5つから1つだけ選んでください。
+ユーザーのメッセージを読んで、意図を以下の6つから1つだけ選んでください。
 回答は必ずその単語1つだけ返してください。他の言葉は一切不要です。
 
 選択肢：
-- morning   … 朝レター・今日の相場・ニュースを見たい
-- register  … 情報登録・参加したい・始めたい・新規登録・使いたい
-- analyze   … 自分の資産を分析してほしい・ポートフォリオ確認
-- save      … コロン（：または:）を含む情報入力
-- question  … 上記以外の質問・雑談・その他
+- morning    … 朝レター・今日の相場・ニュースを見たい
+- register   … 情報登録・参加したい・始めたい・新規登録・使いたい
+- analyze    … 自分の資産を分析してほしい・ポートフォリオ確認
+- save       … コロン（：または:）を含む情報入力
+- simulator  … シミュレーター・投資計算・運用計算を見たい
+- question   … 上記以外の質問・雑談・その他
 
 ユーザーのメッセージ：「{text}」
 
@@ -121,7 +122,7 @@ def detect_intent(text, lang="ja"):
         messages=[{"role": "user", "content": prompt}]
     )
     intent = msg.content[0].text.strip().lower()
-    if intent not in ["morning", "register", "analyze", "save", "question"]:
+    if intent not in ["morning", "register", "analyze", "save", "simulator", "question"]:
         intent = "question"
     return intent
 
@@ -507,6 +508,12 @@ def handle_message(event):
             else:
                 analysis = analyze_portfolio(user_info, lang)
                 send_line_message(analysis, user_id=line_user_id)
+
+        elif intent == "simulator":
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text="💹 投資シミュレーターはこちら！\nhttps://miniapp.line.me/2010103957-PwR8bCWl")]
+            ))
 
         elif intent == "save":
             parse_and_save_user_info(line_user_id, user_text)
