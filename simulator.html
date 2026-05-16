@@ -25,7 +25,8 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
 
 /* ── 言語ドロップダウン ── */
 .lang-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
-.lang-select-outer { position: relative; }
+.lang-select-outer { position: relative; display: flex; align-items: center; gap: 5px; }
+.lang-globe { font-size: 12px; color: #888; opacity: 0.6; }
 .lang-select-outer select {
   appearance: none; -webkit-appearance: none;
   background: transparent;
@@ -33,13 +34,13 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
   color: #888;
   font-family: 'Noto Sans JP', sans-serif;
   font-size: 12px; font-weight: 400;
-  padding: 4px 20px 4px 4px;
+  padding: 4px 18px 4px 2px;
   cursor: pointer; outline: none;
 }
 .lang-select-outer select:focus { color: #1e5c20; }
 .lang-select-outer::after {
   content: '∨'; position: absolute; right: 2px; top: 50%; transform: translateY(-50%);
-  color: #bbb; font-size: 10px; pointer-events: none;
+  color: #aaa; font-size: 10px; pointer-events: none;
 }
 
 /* ── タブ ── */
@@ -115,6 +116,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
   <!-- 言語ドロップダウン -->
   <div class="lang-wrap">
     <div class="lang-select-outer">
+      <span class="lang-globe">🌐</span>
       <select id="lang-select" onchange="setLang(this.value)">
         <option value="ja">日本語</option>
         <option value="en">English</option>
@@ -226,18 +228,18 @@ h1 { font-size: 20px; font-weight: 600; color: #1e5c20; margin-bottom: 1rem; tex
           </div>
         </div>
         <div class="info-grid">
-          <div class="info-item"><div class="info-label">総資産</div><div class="info-value" id="mp-assets">—</div></div>
-          <div class="info-item"><div class="info-label">目標資産</div><div class="info-value" id="mp-target">—</div></div>
-          <div class="info-item"><div class="info-label">毎月投資額</div><div class="info-value" id="mp-savings">—</div></div>
-          <div class="info-item"><div class="info-label">年収</div><div class="info-value" id="mp-income">—</div></div>
-          <div class="info-item"><div class="info-label">保有株</div><div class="info-value" id="mp-stocks" style="font-size:12px;">—</div></div>
-          <div class="info-item"><div class="info-label">トレード銘柄</div><div class="info-value" id="mp-traded" style="font-size:12px;">—</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-assets">総資産</div><div class="info-value" id="mp-assets">—</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-target">目標資産</div><div class="info-value" id="mp-target">—</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-savings">毎月投資額</div><div class="info-value" id="mp-savings">—</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-income">年収</div><div class="info-value" id="mp-income">—</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-stocks">保有株</div><div class="info-value" id="mp-stocks" style="font-size:12px;">—</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-traded">トレード銘柄</div><div class="info-value" id="mp-traded" style="font-size:12px;">—</div></div>
         </div>
         <button class="btn-apply" onclick="applyToSimulator()" id="btn-apply">シミュレーターに反映する</button>
       </div>
     </div>
     <div id="mypage-nodata" style="display:none">
-      <div class="card no-data" style="text-align:center;padding:2.5rem;color:#999;font-size:13px;line-height:1.9;">
+      <div class="card no-data" style="text-align:center;padding:2.5rem;color:#999;font-size:13px;line-height:1.9;" id="nodata-msg">
         まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊
       </div>
     </div>
@@ -281,10 +283,11 @@ let userData=null;
 function pop(el){el.classList.remove('popping');void el.offsetWidth;el.classList.add('popping');el.addEventListener('animationend',()=>el.classList.remove('popping'),{once:true});}
 
 const CUR={
-  ja:{d_min:100,d_max:1e10,d_step:100,d_def:1000,m_min:500,m_max:1e10,m_step:500,m_def:30000,l_min:500,l_max:1e10,l_step:500,l_def:1000000,g_min:10000,g_max:1e10,g_step:10000,g_def:10000000},
-  en:{d_min:1,d_max:1e10,d_step:1,d_def:10,m_min:5,m_max:1e10,m_step:5,m_def:500,l_min:5,l_max:1e10,l_step:5,l_def:10000,g_min:100,g_max:1e10,g_step:100,g_def:200000},
-  ko:{d_min:100,d_max:1e10,d_step:100,d_def:1000,m_min:1000,m_max:1e10,m_step:1000,m_def:300000,l_min:5000,l_max:1e10,l_step:5000,l_def:10000000,g_min:100000,g_max:1e10,g_step:100000,g_def:100000000},
-  zh:{d_min:1,d_max:1e10,d_step:1,d_def:10,m_min:10,m_max:1e10,m_step:10,m_def:2000,l_min:50,l_max:1e10,l_step:50,l_def:50000,g_min:500,g_max:1e10,g_step:500,g_def:500000}
+  // スライダー最大はキリのいい数字。それ以上は手入力
+  ja:{d_min:1000,d_max:100000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:30000,l_min:100000,l_max:10000000,l_step:100000,l_def:1000000,g_min:1000000,g_max:100000000,g_step:1000000,g_def:10000000},
+  en:{d_min:1,d_max:1000,d_step:1,d_def:10,m_min:100,m_max:30000,m_step:100,m_def:500,l_min:1000,l_max:100000,l_step:1000,l_def:10000,g_min:10000,g_max:2000000,g_step:10000,g_def:200000},
+  ko:{d_min:1000,d_max:1000000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:300000,l_min:100000,l_max:100000000,l_step:100000,l_def:10000000,g_min:1000000,g_max:500000000,g_step:1000000,g_def:100000000},
+  zh:{d_min:10,d_max:10000,d_step:10,d_def:10,m_min:1000,m_max:200000,m_step:1000,m_def:2000,l_min:10000,l_max:1000000,l_step:10000,l_def:50000,g_min:100000,g_max:5000000,g_step:100000,g_def:500000}
 };
 
 const T={
@@ -313,11 +316,11 @@ function fmtYr(y){return y+T[window.currentLang].yr;}
 
 function moneyFocus(el){el.value=el.dataset.raw||'';el.select();}
 function moneyBlur(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,'')),r=(!isNaN(v)&&v>0)?v:parseFloat(el.dataset.raw||0);el.dataset.raw=r;el.value=fmtInput(r);const s=document.getElementById(sId);s.value=Math.min(Math.max(r,+s.min),+s.max);fn();}
-function moneyType(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,''));if(!isNaN(v)&&v>0){el.dataset.raw=v;const s=document.getElementById(sId);s.value=Math.min(Math.max(v,+s.min),+s.max);fn();}}
+function moneyType(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,''));if(!isNaN(v)&&v>0){el.dataset.raw=v;const s=document.getElementById(sId);s.value=Math.min(Math.max(Math.min(v,1e10),+s.min),+s.max);fn();}}
 function sliderToMoney(sId,nId){const v=+document.getElementById(sId).value,el=document.getElementById(nId);el.dataset.raw=v;el.value=fmtInput(v);}
 function onSlider(sId,nId){document.getElementById(nId).value=+document.getElementById(sId).value;}
 function onInput(nId,sId){const s=document.getElementById(sId),v=+document.getElementById(nId).value;if(!isNaN(v)&&v>0)s.value=Math.min(Math.max(v,+s.min),+s.max);}
-function getMoney(id){const el=document.getElementById(id),r=parseFloat(el.dataset.raw||el.value.replace(/[^0-9.]/g,''));return(isNaN(r)||r<=0)?0:r;}
+function getMoney(id){const el=document.getElementById(id),r=parseFloat(el.dataset.raw||el.value.replace(/[^0-9.]/g,''));return(isNaN(r)||r<=0)?0:Math.min(r,1e10);}
 function getV(id){const v=+document.getElementById(id).value;return(isNaN(v)||v<=0)?0:v;}
 
 function countUp(id,to,pre='',dur=600){
@@ -359,6 +362,25 @@ function setLang(lang){
   document.getElementById('l-need').textContent=t.need;document.getElementById('l-total-g').textContent=t.total;document.getElementById('l-gain-g').textContent=t.gain;document.getElementById('l-chart-g').textContent=t.chart;
   if(document.getElementById('btn-apply'))document.getElementById('btn-apply').textContent=t.apply;
   setSliders();calcD();calcM();calcL();calcG();
+  // マイページのメッセージも多言語化
+  const nodataMsg={
+    ja:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊',
+    en:'No information registered yet.<br>Send "register" on LINE to get started😊',
+    ko:'아직 정보가 등록되어 있지 않습니다.<br>LINE에서 "등록"을 보내 정보를 등록해주세요😊',
+    zh:'尚未注册信息。<br>请在LINE上发送「注册」来登录信息😊'
+  };
+  const nodataEl=document.getElementById('nodata-msg');
+  if(nodataEl)nodataEl.innerHTML=nodataMsg[lang]||nodataMsg.ja;
+  // マイページのラベルも多言語化
+  const mpLabels={
+    ja:['総資産','目標資産','毎月投資額','年収','保有株','トレード銘柄','最終更新：'],
+    en:['Total Assets','Target','Monthly Inv.','Annual Inc.','Holdings','Trading','Last Update: '],
+    ko:['총자산','목표 자산','월 투자액','연수입','보유주식','트레이드 종목','최종 업데이트: '],
+    zh:['总资产','目标资产','每月投资额','年收入','持有股票','交易股票','最终更新：']
+  };
+  const lb=mpLabels[lang]||mpLabels.ja;
+  ['mp-label-assets','mp-label-target','mp-label-savings','mp-label-income','mp-label-stocks','mp-label-traded'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=lb[i];});
+  window._mpLastUpdate=lb[6];
   if(userData)renderMyPage(userData);
 }
 
@@ -388,7 +410,8 @@ async function loadMyPage(){
 
 function renderMyPage(d){
   document.getElementById('mp-name').textContent=d.name||'—';
-  document.getElementById('mp-updated').textContent='最終更新：'+(d.updated_at?d.updated_at.slice(0,10):'—');
+  const prefix=window._mpLastUpdate||'最終更新：';
+  document.getElementById('mp-updated').textContent=prefix+(d.updated_at?d.updated_at.slice(0,10):'—');
   document.getElementById('mp-assets').textContent=d.target_asset||'—';
   document.getElementById('mp-target').textContent=d.target_asset||'—';
   document.getElementById('mp-savings').textContent=d.savings||'—';
