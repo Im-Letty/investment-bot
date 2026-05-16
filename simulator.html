@@ -86,7 +86,18 @@ margin-bottom: 1rem;
 .section-title { font-size: 14px; font-weight: 600; color: #333; margin-bottom: 12px; }
 .chart-wrap { position: relative; width: 100%; height: 260px; }
 </style>
-
+<script>
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isInLINE = /Line/i.test(navigator.userAgent);
+if (isMobile && !isInLINE) {
+  document.addEventListener('DOMContentLoaded', () => {
+    const b = document.createElement('div');
+    b.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:12px;font-size:13px;z-index:9999;';
+    b.innerHTML = '📱 LINEアプリで開くとより快適です！<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:bold;margin-left:8px;">LINEで開く →</a>';
+    document.body.appendChild(b);
+  });
+}
+</script>
 </head>
 <body>
 
