@@ -577,7 +577,8 @@ def simulator():
 
 @app.route("/")
 def index():
-    return "OK"
+    with open("index.html", encoding="utf-8") as f:
+        return f.read(), 200, {"Content-Type": "text/html"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
