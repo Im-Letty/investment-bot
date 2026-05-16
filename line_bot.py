@@ -4,7 +4,7 @@ import anthropic
 import json
 import yfinance as yf
 import feedparser
-from flask import Flask, request, abort
+from flask import Flask, request, abort, jsonify
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import (
@@ -510,10 +510,11 @@ def handle_message(event):
                 send_line_message(analysis, user_id=line_user_id)
 
         elif intent == "simulator":
-    api.reply_message(ReplyMessageRequest(
-        reply_token=reply_token,
-        messages=[TextMessage(text=f"💹 投資シミュレーターはこちら！\nhttps://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}\n\n※登録情報が自動で反映されます")]
-    ))
+            sim_url = f"https://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}"
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=f"💹 投資シミュレーターはこちら！\n{sim_url}\n\n※登録情報が自動で反映されます")]
+            ))
 
         elif intent == "save":
             parse_and_save_user_info(line_user_id, user_text)
@@ -548,6 +549,26 @@ def alert():
         abort(403)
     check_alerts()
     return "OK"
+
+@app.route("/api/user-data", methods=["GET"])
+def api_user_data():
+    uid = request.args.get("uid", "")
+    if not uid:
+        return jsonify({"error": "no uid"}), 400
+    user = get_user(uid)
+    if not user:
+        return jsonify({}), 404
+    safe = {
+        "name": user.get("name"),
+        "savings": user.get("savings"),
+        "target_asset": user.get("target_asset"),
+        "financial_info": user.get("financial_info"),
+        "stocks_owned": user.get("stocks_owned"),
+        "stocks_traded": user.get("stocks_traded"),
+        "expenses": user.get("expenses"),
+        "updated_at": user.get("updated_at"),
+    }
+    return jsonify(safe)
 
 @app.route("/simulator")
 def simulator():
