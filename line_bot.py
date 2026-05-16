@@ -35,24 +35,6 @@ WATCHLIST = [
 configuration = Configuration(access_token=LINE_CHANNEL_TOKEN)
 handler       = WebhookHandler(LINE_CHANNEL_SECRET)
 
-MORNING_KEYWORDS = [
-    "朝レター", "おはよう", "レポート", "今日の分析", "今日",
-    "good morning", "morning report", "morning", "today",
-    "おはようございます", "朝", "굿모닝", "오늘", "早上好", "今天"
-]
-
-REGISTER_KEYWORDS = [
-    "登録", "資産登録", "情報登録", "とうろく",
-    "register", "sign up", "add info",
-    "등록", "注册", "登記"
-]
-
-ANALYSIS_KEYWORDS = [
-    "分析", "資産分析", "分析して", "ぶんせき",
-    "analyze", "analysis", "check my assets",
-    "분석", "分析", "查看"
-]
-
 def get_user(line_user_id):
     res = supabase.table("users").select("*").eq("line_user_id", line_user_id).execute()
     return res.data[0] if res.data else None
@@ -115,6 +97,33 @@ def get_message(lang, key):
         },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
+
+def detect_intent(text, lang="ja"):
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    prompt = f"""
+ユーザーのメッセージを読んで、意図を以下の5つから1つだけ選んでください。
+回答は必ずその単語1つだけ返してください。他の言葉は一切不要です。
+
+選択肢：
+- morning   … 朝レター・今日の相場・ニュースを見たい
+- register  … 情報登録・参加したい・始めたい・新規登録・使いたい
+- analyze   … 自分の資産を分析してほしい・ポートフォリオ確認
+- save      … コロン（：または:）を含む情報入力
+- question  … 上記以外の質問・雑談・その他
+
+ユーザーのメッセージ：「{text}」
+
+回答（1単語のみ）："""
+
+    msg = client.messages.create(
+        model="claude-haiku-4-5-20251001",
+        max_tokens=10,
+        messages=[{"role": "user", "content": prompt}]
+    )
+    intent = msg.content[0].text.strip().lower()
+    if intent not in ["morning", "register", "analyze", "save", "question"]:
+        intent = "question"
+    return intent
 
 def parse_and_save_user_info(line_user_id, text):
     data = {}
@@ -471,7 +480,9 @@ def handle_message(event):
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
 
-        if any(kw in user_text for kw in MORNING_KEYWORDS):
+        intent = detect_intent(user_text, lang)
+
+        if intent == "morning":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "waiting_morning"))]
@@ -479,13 +490,13 @@ def handle_message(event):
             report = generate_morning_report()
             send_line_message(report, user_id=line_user_id)
 
-        elif any(kw in user_text for kw in REGISTER_KEYWORDS):
+        elif intent == "register":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "register_form"))]
             ))
 
-        elif any(kw in user_text for kw in ANALYSIS_KEYWORDS):
+        elif intent == "analyze":
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "analyzing"))]
@@ -497,7 +508,7 @@ def handle_message(event):
                 analysis = analyze_portfolio(user_info, lang)
                 send_line_message(analysis, user_id=line_user_id)
 
-        elif "：" in user_text or ":" in user_text:
+        elif intent == "save":
             parse_and_save_user_info(line_user_id, user_text)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
@@ -535,6 +546,10 @@ def alert():
 def simulator():
     with open("simulator.html", encoding="utf-8") as f:
         return f.read(), 200, {"Content-Type": "text/html"}
+
+@app.route("/")
+def index():
+    return "OK"
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
