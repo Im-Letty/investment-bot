@@ -2,6 +2,22 @@
 
 <html lang="ja">
 <head>
+  <script>
+// スマホかパソコンか判定
+const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isInLINE = /Line/i.test(navigator.userAgent);
+
+if (!isMobile) {
+  // パソコンの場合 → そのまま表示（何もしない）
+} else if (isMobile && !isInLine) {
+  // スマホだけどLINE外 → LINEで開くよう案内
+  document.addEventListener('DOMContentLoaded', () => {
+    const banner = document.createElement('div');
+    banner.style.cssText = 'position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:12px;font-size:13px;z-index:9999;';
+    banner.innerHTML = '📱 LINEアプリで開くとより快適です！<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:bold;margin-left:8px;">LINEで開く</a>';
+    document.body.appendChild(banner);
+  });
+}
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Investment Simulator</title>
