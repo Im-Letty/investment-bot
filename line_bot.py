@@ -510,10 +510,10 @@ def handle_message(event):
                 send_line_message(analysis, user_id=line_user_id)
 
         elif intent == "simulator":
-            api.reply_message(ReplyMessageRequest(
-                reply_token=reply_token,
-                messages=[TextMessage(text="💹 投資シミュレーターはこちら！\nhttps://miniapp.line.me/2010103957-PwR8bCWl")]
-            ))
+    api.reply_message(ReplyMessageRequest(
+        reply_token=reply_token,
+        messages=[TextMessage(text=f"💹 投資シミュレーターはこちら！\nhttps://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}\n\n※登録情報が自動で反映されます")]
+    ))
 
         elif intent == "save":
             parse_and_save_user_info(line_user_id, user_text)
