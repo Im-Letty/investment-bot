@@ -572,10 +572,9 @@ def api_user_data():
 
 @app.route("/simulator")
 def simulator():
-    uid = request.args.get("uid", "")
-    if uid:
-        return redirect(f"/?uid={uid}")
-    return redirect("/")
+    with open("simulator.html", encoding="utf-8") as f:
+            return f.read(), 200, {"Content-Type": "text/html"}
+            
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
