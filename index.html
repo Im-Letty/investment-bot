@@ -245,12 +245,7 @@
           drawBg();drawParticles();
           if(frame<300)requestAnimationFrame(animate);
       }
-      animate();
-      setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show');},400);
-      setTimeout(()=>{
-          splEl.classList.add('done');
-          lpEl.classList.add('show');
-      },2800);
+if(/Line/i.test(navigator.userAgent)){splEl.classList.add('done');lpEl.classList.add('show');}else{animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show');},400);setTimeout(()=>{splEl.classList.add('done');lpEl.classList.add('show');},2800);}
 
       // ===== SIMULATOR OPEN/CLOSE =====
       function openSimulator(){
