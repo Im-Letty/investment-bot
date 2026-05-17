@@ -511,10 +511,10 @@ def handle_message(event):
                 send_line_message(analysis, user_id=line_user_id)
 
         elif intent == "simulator":
-            sim_url = f"https://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}"
+            sim_url = "https://investment-bot-ta24.onrender.com"
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text=f"💹 投資シミュレーターはこちら！\n{sim_url}\n\n※登録情報が自動で反映されます")]
+                                messages=[TextMessage(text=f"📊 投資シミュレーターはこちら！\n{sim_url}")]
             ))
 
         elif intent == "save":
