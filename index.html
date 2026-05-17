@@ -1,184 +1,310 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>経済NEWS</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800;900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;background:#f7fbf7;}
-.splash{position:fixed;inset:0;z-index:1000;overflow:hidden;}
-.splash.done{display:none;}
-#cv{position:absolute;inset:0;width:100%;height:100%;}
-.txt-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:5;}
-.txt-main{font-family:'Outfit',sans-serif;font-size:clamp(32px,8vw,52px);font-weight:900;color:#ccff00;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.1;opacity:0;transform:scale(0.88);transition:opacity 1s ease,transform 1s ease;text-shadow:0 0 40px rgba(200,255,0,0.35);}
-.txt-main.show{opacity:1;transform:scale(1);}
-.txt-sub{font-family:'Outfit',sans-serif;font-size:13px;color:rgba(255,255,255,0.75);margin-top:14px;letter-spacing:4px;text-transform:uppercase;opacity:0;transition:opacity 1s ease 0.4s;}
-.txt-sub.show{opacity:1;}
-.home{opacity:0;transition:opacity 1s;min-height:100vh;pointer-events:none;background:#f7fbf7;}
-.home.show{opacity:1;pointer-events:all;}
-.header{background:white;border-bottom:1px solid #e0efe0;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,0.04);}
-.hlogo{display:flex;align-items:center;gap:10px;}
-.hli{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#66bb6a,#1e5c20);display:flex;align-items:center;justify-content:center;font-size:18px;}
-.hln{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:#1e5c20;}
-.content{max-width:680px;margin:0 auto;padding:1.2rem 1rem 3rem;}
-.hero{background:linear-gradient(135deg,#66bb6a 0%,#1e5c20 100%);border-radius:22px;padding:2rem 1.6rem;color:white;position:relative;overflow:hidden;margin-bottom:1.2rem;}
-.hero::before{content:'';position:absolute;right:-20px;bottom:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06);}
-.hero::after{content:'🐸';position:absolute;right:20px;bottom:10px;font-size:52px;opacity:0.2;}
-.hero h2{font-family:'Outfit',sans-serif;font-size:clamp(20px,5vw,26px);font-weight:800;margin-bottom:8px;line-height:1.2;}
-.hero p{font-size:13px;opacity:0.85;margin-bottom:1.4rem;line-height:1.6;}
-.hero-btns{display:flex;gap:10px;flex-wrap:wrap;}
-.btn-white{background:white;color:#1e5c20;border:none;padding:11px 22px;border-radius:30px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
-.btn-white:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.15);}
-.btn-line-sm{background:#06C755;color:white;border:none;padding:11px 22px;border-radius:30px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
-.btn-line-sm:hover{transform:translateY(-1px);}
-.section-label{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:#5a8a5c;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;margin-top:1.4rem;}
-.mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.2rem;}
-.mc{background:white;border-radius:18px;padding:1.2rem;border:1px solid #e8f2e8;cursor:pointer;transition:all 0.22s;text-decoration:none;display:block;}
-.mc:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(30,92,32,0.1);border-color:#b8d8b8;}
-.mi{font-size:28px;margin-bottom:8px;}
-.mn{font-size:13px;font-weight:600;color:#1a2e1a;margin-bottom:3px;}
-.md{font-size:11px;color:#888;line-height:1.4;}
-.ticker-wrap{background:white;border-radius:12px;padding:12px 0;margin-bottom:1.2rem;overflow:hidden;border:1px solid #e8f2e8;}
-.ticker-inner{display:flex;white-space:nowrap;animation:tickerScroll 18s linear infinite;}
-@keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
-.tick-item{display:inline-flex;gap:6px;padding:0 24px;font-size:12px;color:#555;font-family:'Outfit',sans-serif;}
-.tick-up{color:#2e7d32;font-weight:600;}
-.tick-dn{color:#c62828;font-weight:600;}
-.line-cta{background:#06C755;border-radius:18px;padding:1.6rem;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block;}
-.line-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(6,199,85,0.35);}
-.line-cta-title{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:white;margin-bottom:5px;}
-.line-cta-sub{font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;}
-.line-cta-id{font-size:11px;color:rgba(255,255,255,0.65);margin-top:10px;}
-.line-btn-big{background:white;color:#06C755;border:none;padding:13px 36px;border-radius:30px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;}
-</style>
-</head>
-<body>
-<div class="splash" id="spl">
-  <canvas id="cv"></canvas>
-  <div class="txt-layer">
-    <div class="txt-main" id="tmain">経済NEWS<br><span style="font-size:0.48em;color:rgba(255,255,255,0.85);letter-spacing:5px;font-weight:700;">INVESTMENT PARTNER</span></div>
-    <div class="txt-sub" id="tsub">あなたの資産を、もっとかしこく。</div>
-  </div>
-</div>
-<div class="home" id="home">
-  <div class="header">
-    <div class="hlogo">
-      <div class="hli">🐸</div>
-      <div class="hln">経済NEWS</div>
-    </div>
-    <div style="font-size:11px;color:#888;">@945nenkg</div>
-  </div>
-  <div class="content">
-    <div class="hero">
-      <h2>お金の未来を<br>見える化しよう</h2>
-      <p>AIが毎朝、投資のベストタイミングをお届け。<br>シミュレーターで将来の資産を今すぐ確認。</p>
-      <div class="hero-btns">
-        <a href="/simulator" class="btn-white">シミュレーターを試す →</a>
-        <a href="https://line.me/R/ti/p/@945nenkg" class="btn-line-sm">LINEで始める</a>
-      </div>
-    </div>
-    <div class="ticker-wrap">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>経済NEWS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800;900&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;background:#f7fbf7;}
+
+    /* ===== SPLASH ===== */
+    .splash{position:fixed;inset:0;z-index:1000;overflow:hidden;}
+    .splash.done{display:none;}
+    #cv{position:absolute;inset:0;width:100%;height:100%;}
+    .txt-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:5;}
+    .txt-main{font-family:'Outfit',sans-serif;font-size:clamp(32px,8vw,52px);font-weight:900;color:#ccff00;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.1;opacity:0;transform:scale(0.88);transition:opacity 1s ease,transform 1s ease;text-shadow:0 0 40px rgba(200,255,0,0.35);}
+    .txt-main.show{opacity:1;transform:scale(1);}
+    .txt-sub{font-family:'Outfit',sans-serif;font-size:13px;color:rgba(255,255,255,0.75);margin-top:14px;letter-spacing:4px;text-transform:uppercase;opacity:0;transition:opacity 1s ease 0.4s;}
+    .txt-sub.show{opacity:1;}
+
+    /* ===== LP ===== */
+    #lp-section{opacity:0;transition:opacity 1s,transform 0.7s cubic-bezier(0.77,0,0.175,1);min-height:100vh;pointer-events:none;background:#f7fbf7;}
+    #lp-section.show{opacity:1;pointer-events:all;}
+    #lp-section.slide-out{transform:translateY(-100%);opacity:0;pointer-events:none;}
+    .header{background:white;border-bottom:1px solid #e0efe0;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,0.04);}
+    .hlogo{display:flex;align-items:center;gap:10px;}
+    .hli{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#66bb6a,#1e5c20);display:flex;align-items:center;justify-content:center;font-size:18px;}
+    .hln{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:#1e5c20;}
+    .content{max-width:680px;margin:0 auto;padding:1.2rem 1rem 3rem;}
+    .hero{background:linear-gradient(135deg,#66bb6a 0%,#1e5c20 100%);border-radius:22px;padding:2rem 1.6rem;color:white;position:relative;overflow:hidden;margin-bottom:1.2rem;}
+    .hero::before{content:'';position:absolute;right:-20px;bottom:-20px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.06);}
+    .hero::after{content:'🐸';position:absolute;right:20px;bottom:10px;font-size:52px;opacity:0.2;}
+    .hero h2{font-family:'Outfit',sans-serif;font-size:clamp(20px,5vw,26px);font-weight:800;margin-bottom:8px;line-height:1.2;}
+    .hero p{font-size:13px;opacity:0.85;margin-bottom:1.4rem;line-height:1.6;}
+    .hero-btns{display:flex;gap:10px;flex-wrap:wrap;}
+    .btn-white{background:white;color:#1e5c20;border:none;padding:11px 22px;border-radius:30px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
+    .btn-white:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,0.15);}
+    .btn-line-sm{background:#06C755;color:white;border:none;padding:11px 22px;border-radius:30px;font-family:'Outfit',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;display:inline-block;}
+    .btn-line-sm:hover{transform:translateY(-1px);}
+    .section-label{font-family:'Outfit',sans-serif;font-size:12px;font-weight:600;color:#5a8a5c;letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;margin-top:1.4rem;}
+    .mgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1.2rem;}
+    .mc{background:white;border-radius:18px;padding:1.2rem;border:1px solid #e8f2e8;cursor:pointer;transition:all 0.22s;text-decoration:none;display:block;}
+    .mc:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(30,92,32,0.1);border-color:#b8d8b8;}
+    .mi{font-size:28px;margin-bottom:8px;}
+    .mn{font-size:13px;font-weight:600;color:#1a2e1a;margin-bottom:3px;}
+    .md{font-size:11px;color:#888;line-height:1.4;}
+    .ticker-wrap{background:white;border-radius:12px;padding:12px 0;margin-bottom:1.2rem;overflow:hidden;border:1px solid #e8f2e8;}
+    .ticker-inner{display:flex;white-space:nowrap;animation:tickerScroll 18s linear infinite;}
+    @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+    .tick-item{display:inline-flex;gap:6px;padding:0 24px;font-size:12px;color:#555;font-family:'Outfit',sans-serif;}
+    .tick-up{color:#2e7d32;font-weight:600;}
+    .tick-dn{color:#c62828;font-weight:600;}
+    .line-cta{background:#06C755;border-radius:18px;padding:1.6rem;text-align:center;cursor:pointer;transition:all 0.2s;text-decoration:none;display:block;}
+    .line-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(6,199,85,0.35);}
+    .line-cta-title{font-family:'Outfit',sans-serif;font-size:18px;font-weight:800;color:white;margin-bottom:5px;}
+    .line-cta-sub{font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;}
+    .line-cta-id{font-size:11px;color:rgba(255,255,255,0.65);margin-top:10px;}
+    .line-btn-big{background:white;color:#06C755;border:none;padding:13px 36px;border-radius:30px;font-family:'Outfit',sans-serif;font-size:15px;font-weight:800;cursor:pointer;}
+
+    /* ===== SIMULATOR ===== */
+    #sim-section{
+        min-height:100vh;position:fixed;top:0;left:0;right:0;bottom:0;
+        display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+        padding:60px 20px 40px;
+        background:linear-gradient(135deg,#0f172a 0%,#1e3a2f 100%);
+        transform:translateY(100%);
+        transition:transform 0.7s cubic-bezier(0.77,0,0.175,1);
+        overflow-y:auto;z-index:200;
+    }
+    #sim-section.slide-in{transform:translateY(0);}
+    .sim-back{position:fixed;top:16px;left:16px;z-index:210;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);color:#fff;padding:9px 18px;border-radius:20px;cursor:pointer;font-size:13px;font-family:'Outfit',sans-serif;font-weight:600;transition:all 0.3s;}
+    .sim-back:hover{background:rgba(255,255,255,0.2);}
+    .sim-header{text-align:center;margin-bottom:24px;margin-top:8px;}
+    .sim-title{font-family:'Outfit',sans-serif;font-size:26px;font-weight:900;color:#fff;margin-bottom:4px;}
+    .sim-sub{font-size:12px;color:rgba(255,255,255,0.5);letter-spacing:1px;}
+    .sim-wrap{width:100%;max-width:500px;}
+    .sim-card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:24px;margin-bottom:16px;}
+    .sim-tabs{display:flex;gap:8px;margin-bottom:20px;}
+    .sim-tab{flex:1;padding:10px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:transparent;color:rgba(255,255,255,0.5);font-family:'Outfit',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all 0.2s;}
+    .sim-tab.active{background:linear-gradient(135deg,#22c55e,#16a34a);border-color:transparent;color:#fff;}
+    .sim-label{font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:6px;}
+    .sim-input{width:100%;background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.15);color:#fff;padding:13px 16px;border-radius:12px;font-size:16px;outline:none;transition:border 0.3s;margin-bottom:16px;font-family:'Noto Sans JP',sans-serif;}
+    .sim-input:focus{border-color:#22c55e;}
+    .sim-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+    .sim-calc-btn{width:100%;background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;border:none;padding:16px;border-radius:14px;font-size:16px;font-weight:800;cursor:pointer;font-family:'Outfit',sans-serif;letter-spacing:1px;transition:all 0.3s;box-shadow:0 0 30px rgba(34,197,94,0.3);}
+    .sim-calc-btn:hover{transform:translateY(-2px);box-shadow:0 0 50px rgba(34,197,94,0.5);}
+    .sim-result{background:linear-gradient(135deg,rgba(34,197,94,0.15),rgba(22,163,74,0.1));border:1px solid rgba(34,197,94,0.3);border-radius:16px;padding:20px;text-align:center;display:none;margin-top:16px;}
+    .sim-result.show{display:block;}
+    .res-label{font-size:11px;color:rgba(255,255,255,0.45);letter-spacing:1px;margin-bottom:6px;}
+    .res-amount{font-size:36px;font-weight:900;color:#4ade80;font-family:'Outfit',sans-serif;}
+    .res-detail{font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;line-height:1.8;}
+    .res-vs{margin-top:12px;background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;font-size:12px;color:rgba(255,255,255,0.6);}
+    </style>
+  </head>
+  <body>
+
+    <!-- SPLASH -->
+    <div class="splash" id="spl">
+      <canvas id="cv"></canvas>canvas>
+      <div class="txt-layer">
+        <div class="txt-main" id="tmain">経済NEWS<br><span style="font-size:0.48em;color:rgba(255,255,255,0.85);letter-spacing:5px;font-weight:700;">INVESTMENT PARTNER</span>span></div>div>
+        <div class="txt-sub" id="tsub">あなたの資産を、もっとかしこく。</div>div>
+      </div>div>
+    </div>div>
+
+    <!-- LP -->
+    <div id="lp-section">
+      <div class="header">
+        <div class="hlogo">
+          <div class="hli">🐸</div>div>
+          <div class="hln">経済NEWS</div>div>
+        </div>div>
+        <div style="font-size:11px;color:#888;">@945nenkg</div>div>
+      </div>div>
+      <div class="content">
+        <div class="hero">
+          <h2>お金の未来を<br>見える化しよう</h2>
+        <p>AIが毎朝、投資のベストタイミングをお届け。<br>シミュレーターで将来の資産を今すぐ確認。</p>
+        <div class="hero-btns">
+        <button class="btn-white" onclick="openSimulator()">シミュレーターを試す →</button>button>
+        <a href="https://line.me/R/ti/p/@945nenkg" class="btn-line-sm">LINEで始める</a>a>
+        </div>div>
+        </div>div>
+      <div class="ticker-wrap">
       <div class="ticker-inner">
-        <span class="tick-item">日経225　38,420 <span class="tick-up">▲+0.8%</span></span>
-        <span class="tick-item">ドル円　153.2円 <span class="tick-dn">▼-0.3%</span></span>
-        <span class="tick-item">S&amp;P500　5,180 <span class="tick-up">▲+0.5%</span></span>
-        <span class="tick-item">NYダウ　39,200 <span class="tick-up">▲+0.2%</span></span>
-        <span class="tick-item">VIX　14.3 <span class="tick-dn">▼-1.2%</span></span>
-        <span class="tick-item">日経225　38,420 <span class="tick-up">▲+0.8%</span></span>
-        <span class="tick-item">ドル円　153.2円 <span class="tick-dn">▼-0.3%</span></span>
-        <span class="tick-item">S&amp;P500　5,180 <span class="tick-up">▲+0.5%</span></span>
-        <span class="tick-item">NYダウ　39,200 <span class="tick-up">▲+0.2%</span></span>
-        <span class="tick-item">VIX　14.3 <span class="tick-dn">▼-1.2%</span></span>
+      <span class="tick-item">日経225 38,420 <span class="tick-up">▲+0.8%</span>span></span>span>
+      <span class="tick-item">ドル円 153.2円 <span class="tick-dn">▼-0.3%</span>span></span>span>
+      <span class="tick-item">S&amp;P500 5,180 <span class="tick-up">▲+0.5%</span>span></span>span>
+      <span class="tick-item">NYダウ 39,200 <span class="tick-up">▲+0.2%</span>span></span>span>
+      <span class="tick-item">VIX 14.3 <span class="tick-dn">▼-1.2%</span>span></span>span>
+      <span class="tick-item">日経225 38,420 <span class="tick-up">▲+0.8%</span>span></span>span>
+      <span class="tick-item">ドル円 153.2円 <span class="tick-dn">▼-0.3%</span>span></span>span>
+      <span class="tick-item">S&amp;P500 5,180 <span class="tick-up">▲+0.5%</span>span></span>span>
+      <span class="tick-item">NYダウ 39,200 <span class="tick-up">▲+0.2%</span>span></span>span>
+      <span class="tick-item">VIX 14.3 <span class="tick-dn">▼-1.2%</span>span></span>span>
+      </div>div>
+      </div>div>
+      <div class="section-label">機能</div>div>
+      <div class="mgrid">
+      <div class="mc" onclick="openSimulator()"><div class="mi">📊</div>div><div class="mn">シミュレーター</div>div><div class="md">毎日・毎月積立で将来資産を計算</div>div></div>div>
+      <a href="#" class="mc"><div class="mi">☀️</div>div><div class="mn">朝の相場レター</div>div><div class="md">毎朝8時にAIが市場を分析</div>div></a>a>
+      <a href="#" class="mc"><div class="mi">💼</div>div><div class="mn">資産分析</div>div><div class="md">保有株をAIがポートフォリオ診断</div>div></a>a>
+      <a href="#" class="mc"><div class="mi">⚡</div>div><div class="mn">急騰・急落アラート</div>div><div class="md">ウォッチリスト銘柄を自動監視</div>div></a>a>
+      </div>div>
+      <a href="https://line.me/R/ti/p/@945nenkg" class="line-cta">
+      <div class="line-cta-title">LINEで友達追加する</div>div>
+      <div class="line-cta-sub">無料・登録30秒・毎朝届くだけ</div>div>
+      <button class="line-btn-big">友達追加 →</button>button>
+      <div class="line-cta-id">@945nenkg</div>div>
+      </a>a>
+      </div>div>
+    </div>div>
+  
+  <!-- SIMULATOR -->
+  <div id="sim-section">
+  <button class="sim-back" onclick="closeSimulator()">← 戻る</button>button>
+  <div class="sim-header">
+  <div class="sim-title">📊 資産シミュレーター</div>div>
+  <div class="sim-sub">将来の資産をかんたん計算</div>div>
+  </div>div>
+  <div class="sim-wrap">
+  <div class="sim-card">
+  <div class="sim-tabs">
+  <button class="sim-tab active" onclick="switchTab('monthly',this)">毎月積立</button>button>
+  <button class="sim-tab" onclick="switchTab('lump',this)">一括投資</button>button>
+  </div>div>
+  <div id="monthly-form">
+  <div class="sim-label">毎月の積立額（円）</div>div>
+  <input type="number" class="sim-input" id="m-monthly" value="30000" placeholder="30000">
+  <div class="sim-row">
+  <div>
+    <div class="sim-label">年利（%）</div>
+    <input type="number" class="sim-input" id="m-rate" value="5" step="0.1" placeholder="5">
+  </div>
+    <div>
+      <div class="sim-label">積立期間（年）</div>
+      <input type="number" class="sim-input" id="m-years" value="20" placeholder="20">
+    </div>
+  </div>
+  </div>
+    <div id="lump-form" style="display:none;">
+      <div class="sim-label">一括投資額（円）</div>
+      <input type="number" class="sim-input" id="l-amount" value="1000000" placeholder="1000000">
+      <div class="sim-row">
+        <div>
+          <div class="sim-label">年利（%）</div>
+          <input type="number" class="sim-input" id="l-rate" value="5" step="0.1" placeholder="5">
+        </div>
+        <div>
+          <div class="sim-label">運用期間（年）</div>
+          <input type="number" class="sim-input" id="l-years" value="20" placeholder="20">
+        </div>
       </div>
     </div>
-    <div class="section-label">機能</div>
-    <div class="mgrid">
-      <a href="/simulator" class="mc"><div class="mi">📊</div><div class="mn">シミュレーター</div><div class="md">毎日・毎月積立で将来資産を計算</div></a>
-      <a href="#" class="mc"><div class="mi">☀️</div><div class="mn">朝の相場レター</div><div class="md">毎朝8時にAIが市場を分析</div></a>
-      <a href="#" class="mc"><div class="mi">💼</div><div class="mn">資産分析</div><div class="md">保有株をAIがポートフォリオ診断</div></a>
-      <a href="#" class="mc"><div class="mi">⚡</div><div class="mn">急騰・急落アラート</div><div class="md">ウォッチリスト銘柄を自動監視</div></a>
+    <button class="sim-calc-btn" onclick="calculate()">計算する</button>button>
+    <div class="sim-result" id="sim-result">
+      <div class="res-label">資産総額</div>
+      <div class="res-amount" id="res-amount">¥0</div>
+      <div class="res-detail" id="res-detail"></div>
+      <div class="res-vs" id="res-vs"></div>
     </div>
-    <a href="https://line.me/R/ti/p/@945nenkg" class="line-cta">
-      <div class="line-cta-title">LINEで友達追加する</div>
-      <div class="line-cta-sub">無料・登録30秒・毎朝届くだけ</div>
-      <button class="line-btn-big">友達追加 →</button>
-      <div class="line-cta-id">@945nenkg</div>
-    </a>
   </div>
-</div>
-<script>
-const cv=document.getElementById('cv');
-const c=cv.getContext('2d');
-const splEl=document.getElementById('spl');
-const tmain=document.getElementById('tmain');
-const tsub=document.getElementById('tsub');
-const homeEl=document.getElementById('home');
-function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
-window.addEventListener('resize',resize);resize();
-const W=()=>cv.width,H=()=>cv.height,CX=()=>cv.width/2,CY=()=>cv.height/2;
-let t=0,phase='grid',phaseT=0,titleShown=false,expandR=0;
-function easeInOut(t){return t<0.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1;}
-function drawBg(){
-  const g=c.createLinearGradient(0,0,W(),H());
-  g.addColorStop(0,'#b2ebf2');
-  g.addColorStop(0.4,'#e8f5e9');
-  g.addColorStop(0.7,'#fff9c4');
-  g.addColorStop(1,'#ffe082');
-  c.fillStyle=g;c.fillRect(0,0,W(),H());
-}
-function drawGrid(){
-  c.save();c.strokeStyle='rgba(120,200,120,0.2)';c.lineWidth=0.8;
-  const rows=10,cols=14,cx=CX(),cy=CY();
-  for(let r=0;r<=rows;r++){
-    const vy=(r/rows-.5)*2;c.beginPath();
-    for(let ci=0;ci<=cols*2;ci++){
-      const vx=(ci/(cols*2)-.5)*2,len=Math.sqrt(vx*vx+vy*vy);
-      const f=len===0?1:Math.sin(len*Math.PI*.38)/(len*Math.PI*.38+.001);
-      const px=cx+vx*f*W()*.6+Math.sin(t*.28+vy*2)*7;
-      const py=cy+vy*f*H()*.6+Math.cos(t*.22+vx*2)*5;
-      ci===0?c.moveTo(px,py):c.lineTo(px,py);
-    }
-    c.stroke();
-  }
-  for(let ci=0;ci<=cols;ci++){
-    const vx=(ci/cols-.5)*2;c.beginPath();
-    for(let r=0;r<=rows*2;r++){
-      const vy=(r/(rows*2)-.5)*2,len=Math.sqrt(vx*vx+vy*vy);
-      const f=len===0?1:Math.sin(len*Math.PI*.38)/(len*Math.PI*.38+.001);
-      const px=CX()+vx*f*W()*.6+Math.sin(t*.28+vy*2)*7;
-      const py=CY()+vy*f*H()*.6+Math.cos(t*.22+vx*2)*5;
-      r===0?c.moveTo(px,py):c.lineTo(px,py);
-    }
-    c.stroke();
-  }
-  c.restore();
-}
-function frame(){
-  t+=0.022; phaseT+=0.008;
-  c.clearRect(0,0,W(),H());
-  drawBg();
-  drawGrid();
-  if(phase==='grid'){
-    if(phaseT>0.1&&!titleShown){titleShown=true;tmain.classList.add('show');tsub.classList.add('show');}
-    if(phaseT>0.1){phase='expand';phaseT=0;}
-  } else if(phase==='expand'){
-    const prog=Math.min(phaseT*0.5,1);
-    const ep=easeInOut(prog);
-    expandR=ep*(Math.sqrt(CX()*CX()+CY()*CY())+20);
-    const g=c.createRadialGradient(CX(),CY(),0,CX(),CY(),expandR);
-    g.addColorStop(0,'rgba(255,241,118,0.45)');
-    g.addColorStop(0.3,'rgba(174,213,129,0.52)');
-    g.addColorStop(0.65,'rgba(67,160,71,0.62)');
-    g.addColorStop(1,'rgba(27,94,32,0.72)');
-    c.beginPath();c.arc(CX(),CY(),expandR,0,Math.PI*2);c.fillStyle=g;c.fill();
-    if(prog>=1){phase='done';setTimeout(()=>{splEl.classList.add('done');homeEl.classList.add('show');},200);}
-  }
-  if(phase!=='done') requestAnimationFrame(frame);
-}
-requestAnimationFrame(frame);
-</script>
-</body>
-</html>
+  </div>
+  </div>
+
+    <script>
+      // ===== SPLASH =====
+      const cv=document.getElementById('cv');
+      const c=cv.getContext('2d');
+      const splEl=document.getElementById('spl');
+      const tmain=document.getElementById('tmain');
+      const tsub=document.getElementById('tsub');
+      const lpEl=document.getElementById('lp-section');
+      function resize(){cv.width=window.innerWidth;cv.height=window.innerHeight;}
+      window.addEventListener('resize',resize);resize();
+      let particles=[];
+      function initParticles(){
+          particles=[];
+          for(let i=0;i<80;i++){
+                particles.push({x:Math.random()*cv.width,y:Math.random()*cv.height,vx:(Math.random()-0.5)*0.8,vy:(Math.random()-0.5)*0.8,r:Math.random()*2+0.5,a:Math.random()});
+          }
+      }
+      initParticles();
+      let hue=120;
+      function drawBg(){
+          const g=c.createLinearGradient(0,0,cv.width,cv.height);
+          g.addColorStop(0,`hsl(${hue},60%,4%)`);
+          g.addColorStop(1,`hsl(${(hue+40)%360},50%,8%)`);
+          c.fillStyle=g;c.fillRect(0,0,cv.width,cv.height);
+      }
+      function drawParticles(){
+          particles.forEach(p=>{
+                p.x+=p.vx;p.y+=p.vy;
+                if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
+                if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
+                c.beginPath();c.arc(p.x,p.y,p.r,0,Math.PI*2);
+                c.fillStyle=`hsla(${hue},80%,70%,${p.a*0.6})`;c.fill();
+          });
+      }
+      let frame=0;
+      function animate(){
+          frame++;hue=(120+frame*0.03)%360;
+          drawBg();drawParticles();
+          if(frame<300)requestAnimationFrame(animate);
+      }
+      animate();
+      setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show');},400);
+      setTimeout(()=>{
+          splEl.classList.add('done');
+          lpEl.classList.add('show');
+      },2800);
+
+      // ===== SIMULATOR OPEN/CLOSE =====
+      function openSimulator(){
+          lpEl.classList.add('slide-out');
+          setTimeout(()=>{document.getElementById('sim-section').classList.add('slide-in');},100);
+      }
+      function closeSimulator(){
+          document.getElementById('sim-section').classList.remove('slide-in');
+          setTimeout(()=>{lpEl.classList.remove('slide-out');},500);
+      }
+
+      // ===== TAB SWITCH =====
+      let currentTab='monthly';
+      function switchTab(tab,btn){
+          currentTab=tab;
+          document.querySelectorAll('.sim-tab').forEach(t=>t.classList.remove('active'));
+          btn.classList.add('active');
+          document.getElementById('monthly-form').style.display=tab==='monthly'?'block':'none';
+          document.getElementById('lump-form').style.display=tab==='lump'?'block':'none';
+          document.getElementById('sim-result').classList.remove('show');
+      }
+
+      // ===== CALCULATE =====
+      function calculate(){
+          let total,invested,rate,years;
+          if(currentTab==='monthly'){
+                const monthly=parseFloat(document.getElementById('m-monthly').value)||0;
+                rate=parseFloat(document.getElementById('m-rate').value)/100/12||0;
+                years=parseFloat(document.getElementById('m-years').value)||0;
+                const months=years*12;
+                invested=monthly*months;
+                total=rate===0?invested:monthly*((Math.pow(1+rate,months)-1)/rate);
+          } else {
+                const amount=parseFloat(document.getElementById('l-amount').value)||0;
+                rate=parseFloat(document.getElementById('l-rate').value)/100||0;
+                years=parseFloat(document.getElementById('l-years').value)||0;
+                invested=amount;
+                total=amount*Math.pow(1+rate,years);
+          }
+          const profit=total-invested;
+          const multiplier=(total/invested).toFixed(2);
+          document.getElementById('res-amount').textContent='¥'+Math.round(total).toLocaleString();
+          document.getElementById('res-detail').innerHTML=
+                '元本 ¥'+invested.toLocaleString()+'&nbsp;&nbsp;運用益 ¥'+Math.round(profit).toLocaleString();
+          document.getElementById('res-vs').innerHTML=
+                '📈 元本が <strong style="color:#4ade80">'+multiplier+'倍</strong> に増えました';
+          document.getElementById('sim-result').classList.add('show');
+      }
+    </script>
+  </body>
+</html>html>
+    </script>
+    </div>
+  </div></p></h2>
+  </body>
+  </style></title>
+  </head>
