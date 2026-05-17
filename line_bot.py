@@ -4,7 +4,7 @@ import anthropic
 import json
 import yfinance as yf
 import feedparser
-from flask import Flask, request, abort, jsonify
+from flask import Flask, request, abort, jsonify, redirect
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import (
@@ -572,9 +572,10 @@ def api_user_data():
 
 @app.route("/simulator")
 def simulator():
-    with open("simulator.html", encoding="utf-8") as f:
-        return f.read(), 200, {"Content-Type": "text/html"}
-
+    uid = request.args.get("uid", "")
+    if uid:
+        return redirect(f"/?uid={uid}")
+    return redirect("/")
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
