@@ -1,4 +1,4 @@
-# v5 - dark forest splash
+# v7 - green yellow bright
 from supabase import create_client
 import os
 import anthropic
