@@ -15,9 +15,9 @@
     .splash.done{display:none;}
     #cv{position:absolute;inset:0;width:100%;height:100%;}
     .txt-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:5;}
-    .txt-main{font-family:'Outfit',sans-serif;font-size:clamp(32px,8vw,52px);font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.1;opacity:0;transform:scale(0.88);transition:opacity 1s ease,transform 1s ease;text-shadow:0 0 20px rgba(255,255,255,0.8),0 0 60px rgba(80,255,160,0.5);}
+    .txt-main{font-family:'Outfit',sans-serif;font-size:clamp(32px,8vw,52px);font-weight:900;color:#1a4a2e;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.1;opacity:0;transform:scale(0.88);transition:opacity 1s ease,transform 1s ease;text-shadow:0 2px 20px rgba(255,255,255,0.7),0 0 40px rgba(150,220,180,0.6);}
     .txt-main.show{opacity:1;transform:scale(1) translateY(0);animation:floatUp 3s ease-in-out infinite;}
-    .txt-sub{font-family:'Outfit',sans-serif;font-size:13px;color:rgba(255,255,255,0.75);margin-top:14px;letter-spacing:4px;text-transform:uppercase;opacity:0;transition:opacity 1s ease 0.4s;}
+    .txt-sub{font-family:'Outfit',sans-serif;font-size:13px;color:rgba(30,70,45,0.85);margin-top:14px;letter-spacing:4px;text-transform:uppercase;opacity:0;transition:opacity 1s ease 0.4s;}
     .txt-sub.show{opacity:1;animation:floatUp 3s ease-in-out 0.5s infinite;}
 
             @keyframes floatUp{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
@@ -224,27 +224,39 @@
           }
       }
       initParticles();
-      let hue=100;
+      let t=0;
       function drawBg(){
-          const g=c.createLinearGradient(0,0,cv.width,cv.height);
-          g.addColorStop(0,`hsl(${hue},70%,10%)`);
-          g.addColorStop(1,`hsl(${(hue-50+360)%360},80%,6%)`);
+          // Soft flowing gradient: blue -> pale mint green -> near white
+          const a=Math.sin(t*0.008)*0.5+0.5; // 0..1 oscillator
+          const hue1=155+Math.sin(t*0.006)*25; // 130..180 mint-green range
+          const hue2=190+Math.sin(t*0.004)*30; // 160..220 blue-green range
+          const l1=62+Math.sin(t*0.007)*12;    // 50..74% lightness (light!)
+          const l2=38+Math.sin(t*0.005)*10;    // 28..48% lightness
+          const g=c.createLinearGradient(cv.width*0.1,0,cv.width*0.9,cv.height);
+          g.addColorStop(0,`hsl(${hue2},45%,${l1}%)`);
+          g.addColorStop(0.5,`hsl(${hue1},40%,${(l1+20).toFixed(0)}%)`);
+          g.addColorStop(1,`hsl(${hue2-20},50%,${l2}%)`);
           c.fillStyle=g;c.fillRect(0,0,cv.width,cv.height);
       }
       function drawParticles(){
           particles.forEach(p=>{
-                p.x+=p.vx;p.y+=p.vy;
-                if(p.x<0)p.x=cv.width;if(p.x>cv.width)p.x=0;
-                if(p.y<0)p.y=cv.height;if(p.y>cv.height)p.y=0;
-                c.beginPath();c.arc(p.x,p.y,p.r,0,Math.PI*2);
-                c.fillStyle=`hsla(${hue},80%,70%,${p.a*0.6})`;c.fill();
+              p.x+=p.vx;p.y+=p.vy;
+              if(p.x<0||p.x>cv.width)p.vx*=-1;
+              if(p.y<0||p.y>cv.height)p.vy*=-1;
+              p.a+=0.008;
+              const ph=155+Math.sin(t*0.003+p.x*0.01)*40;
+              c.beginPath();
+              c.arc(p.x,p.y,p.r,0,Math.PI*2);
+              c.fillStyle=`hsla(${ph},50%,85%,${Math.sin(p.a)*0.4+0.1})`;
+              c.fill();
           });
       }
-      let frame=0;
       function animate(){
-          frame++;hue=(120+frame*0.03)%360;
-          drawBg();drawParticles();
-          if(frame<300)requestAnimationFrame(animate);
+          t++;
+          c.clearRect(0,0,cv.width,cv.height);
+          drawBg();
+          drawParticles();
+          requestAnimationFrame(animate);
       }
 if(/Line/i.test(navigator.userAgent)){splEl.classList.add('done');lpEl.classList.add('show');}else{animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show');},400);setTimeout(()=>{splEl.classList.add('done');lpEl.classList.add('show');},2800);}
 
