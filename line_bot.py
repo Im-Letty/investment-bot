@@ -1,4 +1,4 @@
-# v3 - fix html
+# v4 - splash update
 from supabase import create_client
 import os
 import anthropic
