@@ -227,11 +227,11 @@
       let t=0;
       function drawBg(){
           // Soft flowing gradient: blue -> pale mint green -> near white
-          const a=Math.sin(t*0.008)*0.5+0.5; // 0..1 oscillator
-          const hue1=155+Math.sin(t*0.006)*25; // 130..180 mint-green range
-          const hue2=190+Math.sin(t*0.004)*30; // 160..220 blue-green range
-          const l1=62+Math.sin(t*0.007)*12;    // 50..74% lightness (light!)
-          const l2=38+Math.sin(t*0.005)*10;    // 28..48% lightness
+          const a=Math.sin(t*0.025)*0.5+0.5; // 0..1 oscillator
+          const hue1=155+Math.sin(t*0.020)*25; // 130..180 mint-green range
+          const hue2=190+Math.sin(t*0.015)*30; // 160..220 blue-green range
+          const l1=62+Math.sin(t*0.022)*12;    // 50..74% lightness (light!)
+          const l2=38+Math.sin(t*0.018)*10;    // 28..48% lightness
           const g=c.createLinearGradient(cv.width*0.1,0,cv.width*0.9,cv.height);
           g.addColorStop(0,`hsl(${hue2},45%,${l1}%)`);
           g.addColorStop(0.5,`hsl(${hue1},40%,${(l1+20).toFixed(0)}%)`);
@@ -244,7 +244,7 @@
               if(p.x<0||p.x>cv.width)p.vx*=-1;
               if(p.y<0||p.y>cv.height)p.vy*=-1;
               p.a+=0.008;
-              const ph=155+Math.sin(t*0.003+p.x*0.01)*40;
+              const ph=155+Math.sin(t*0.010+p.x*0.01)*40;
               c.beginPath();
               c.arc(p.x,p.y,p.r,0,Math.PI*2);
               c.fillStyle=`hsla(${ph},50%,85%,${Math.sin(p.a)*0.4+0.1})`;
