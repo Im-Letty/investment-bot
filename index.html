@@ -224,11 +224,11 @@
           }
       }
       initParticles();
-      let hue=120;
+      let hue=150;
       function drawBg(){
           const g=c.createLinearGradient(0,0,cv.width,cv.height);
-          g.addColorStop(0,`hsl(${hue},60%,20%)`);
-          g.addColorStop(1,`hsl(${(hue+40)%360},50%,25%)`);
+          g.addColorStop(0,`hsl(${hue},65%,8%)`);
+          g.addColorStop(1,`hsl(${(hue+40)%360},55%,4%)`);
           c.fillStyle=g;c.fillRect(0,0,cv.width,cv.height);
       }
       function drawParticles(){
