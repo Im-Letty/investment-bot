@@ -1,4 +1,4 @@
-# v4 - splash update
+# v5 - dark forest splash
 from supabase import create_client
 import os
 import anthropic
