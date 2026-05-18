@@ -578,7 +578,7 @@ def simulator():
             
 @app.route("/")
 def index():
-    with open("index.html", encoding="utf-8") as f:
+    with open("simulator.html", encoding="utf-8") as f:
         return f.read(), 200, {"Content-Type": "text/html"}
 
 if __name__ == "__main__":
