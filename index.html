@@ -292,8 +292,8 @@ if(/Line/i.test(navigator.userAgent)){splEl.classList.add('done');lpEl.classList
 
       // ===== SIMULATOR OPEN/CLOSE =====
       function openSimulator(){
-          lpEl.classList.add('slide-out');
-          setTimeout(()=>{document.getElementById('sim-section').classList.add('slide-in');},100);
+          window.location.href = '/simulator';
+        },100);
       }
       function closeSimulator(){
           document.getElementById('sim-section').classList.remove('slide-in');
