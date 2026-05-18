@@ -11,16 +11,17 @@
     body{font-family:'Noto Sans JP',sans-serif;overflow-x:hidden;background:#f7fbf7;}
 
     /* ===== SPLASH ===== */
-    .splash{position:fixed;inset:0;z-index:1000;overflow:hidden;}
+    .splash{position:fixed;inset:0;z-index:1000;overflow:hidden;
     .splash.done{display:none;}
     #cv{position:absolute;inset:0;width:100%;height:100%;}
     .txt-layer{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none;z-index:5;}
-    .txt-main{font-family:'Outfit',sans-serif;font-size:clamp(32px,8vw,52px);font-weight:900;color:#ccff00;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.1;opacity:0;transform:scale(0.88);transition:opacity 1s ease,transform 1s ease;text-shadow:0 0 40px rgba(200,255,0,0.35);}
-    .txt-main.show{opacity:1;transform:scale(1);}
+    .txt-main{font-family:'Outfit',sans-serif;font-size:clamp(32px,8vw,52px);font-weight:900;color:#ffffff;letter-spacing:2px;text-transform:uppercase;text-align:center;line-height:1.1;opacity:0;transform:scale(0.88);transition:opacity 1s ease,transform 1s ease;text-shadow:0 0 20px rgba(255,255,255,0.8),0 0 60px rgba(80,255,160,0.5);}
+    .txt-main.show{opacity:1;transform:scale(1) translateY(0);animation:floatUp 3s ease-in-out infinite;}
     .txt-sub{font-family:'Outfit',sans-serif;font-size:13px;color:rgba(255,255,255,0.75);margin-top:14px;letter-spacing:4px;text-transform:uppercase;opacity:0;transition:opacity 1s ease 0.4s;}
-    .txt-sub.show{opacity:1;}
+    .txt-sub.show{opacity:1;animation:floatUp 3s ease-in-out 0.5s infinite;}
 
-    /* ===== LP ===== */
+            @keyframes floatUp{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+        /* ===== LP ===== */
     #lp-section{opacity:0;transition:opacity 1s,transform 0.7s cubic-bezier(0.77,0,0.175,1);min-height:100vh;pointer-events:none;background:#f7fbf7;}
     #lp-section.show{opacity:1;pointer-events:all;}
     #lp-section.slide-out{transform:translateY(-100%);opacity:0;pointer-events:none;}
@@ -150,7 +151,7 @@
       <button class="line-btn-big">友達追加 →</button>
       <div class="line-cta-id">@945nenkg</div>
       </a>
-      </div>
+      </div
     </div>
   
   <!-- SIMULATOR -->
@@ -226,8 +227,8 @@
       let hue=120;
       function drawBg(){
           const g=c.createLinearGradient(0,0,cv.width,cv.height);
-          g.addColorStop(0,`hsl(${hue},60%,4%)`);
-          g.addColorStop(1,`hsl(${(hue+40)%360},50%,8%)`);
+          g.addColorStop(0,`hsl(${hue},60%,20%)`);
+          g.addColorStop(1,`hsl(${(hue+40)%360},50%,25%)`);
           c.fillStyle=g;c.fillRect(0,0,cv.width,cv.height);
       }
       function drawParticles(){
