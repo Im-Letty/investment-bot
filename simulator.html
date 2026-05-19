@@ -98,7 +98,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
   <div id="tab-daily" class="tab-panel">
     <div class="card">
       <div class="row"><label id="l-daily">毎日の積立額</label><input type="range" id="d-amount" oninput="sliderToMoney('d-amount','d-amount-n');calcD()"><div class="right"><input type="text" class="val-input" id="d-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'d-amount',calcD)" oninput="moneyType(this,'d-amount',calcD)"></div></div>
-      <div class="row"><label id="l-rate-d">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-rate-d">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
       <div class="row"><label id="l-years-d">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">年</span></div></div>
     </div>
     <div class="result-grid">
@@ -118,7 +118,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
   <div id="tab-monthly" class="tab-panel" style="display:none">
     <div class="card">
       <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" id="m-amount" oninput="sliderToMoney('m-amount','m-amount-n');calcM()"><div class="right"><input type="text" class="val-input" id="m-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'m-amount',calcM)" oninput="moneyType(this,'m-amount',calcM)"></div></div>
-      <div class="row"><label id="l-rate-m">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-rate-m">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
       <div class="row"><label id="l-years-m">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">年</span></div></div>
     </div>
     <div class="result-grid">
@@ -138,7 +138,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
   <div id="tab-lump" class="tab-panel" style="display:none">
     <div class="card">
       <div class="row"><label id="l-lump">初期投資額</label><input type="range" id="lp-amount" oninput="sliderToMoney('lp-amount','lp-amount-n');calcL()"><div class="right"><input type="text" class="val-input" id="lp-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'lp-amount',calcL)" oninput="moneyType(this,'lp-amount',calcL)"></div></div>
-      <div class="row"><label id="l-rate-l">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-rate-l">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
       <div class="row"><label id="l-years-l">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">年</span></div></div>
     </div>
     <div class="result-grid">
@@ -158,7 +158,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
   <div id="tab-goal" class="tab-panel" style="display:none">
     <div class="card">
       <div class="row"><label id="l-goal">目標資産</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
-      <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
       <div class="row"><label id="l-years-g">達成期間</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">年</span></div></div>
     </div>
     <div class="result-grid">
@@ -243,7 +243,7 @@ function pop(el){el.classList.remove('popping');void el.offsetWidth;el.classList
 
 const CUR={
   // スライダー最大はキリのいい数字。それ以上は手入力
-  ja:{d_min:1000,d_max:100000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:30000,l_min:100000,l_max:10000000,l_step:100000,l_def:1000000,g_min:1000000,g_max:100000000,g_step:1000000,g_def:10000000},
+  ja:{d_min:500,d_max:100000,d_step:500,d_def:500,m_min:500,m_max:3000000,m_step:500,m_def:500,l_min:500,l_max:10000000,l_step:500,l_def:500,g_min:1000000,g_max:100000000,g_step:1000000,g_def:10000000},
   en:{d_min:1,d_max:1000,d_step:1,d_def:10,m_min:100,m_max:30000,m_step:100,m_def:500,l_min:1000,l_max:100000,l_step:1000,l_def:10000,g_min:10000,g_max:2000000,g_step:10000,g_def:200000},
   ko:{d_min:1000,d_max:1000000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:300000,l_min:100000,l_max:100000000,l_step:100000,l_def:10000000,g_min:1000000,g_max:500000000,g_step:1000000,g_def:100000000},
   zh:{d_min:10,d_max:10000,d_step:10,d_def:10,m_min:1000,m_max:200000,m_step:1000,m_def:2000,l_min:10000,l_max:1000000,l_step:10000,l_def:50000,g_min:100000,g_max:5000000,g_step:100000,g_def:500000}
