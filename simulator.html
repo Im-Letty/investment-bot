@@ -3,104 +3,104 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>æè³ã·ãã¥ã¬ã¼ã¿ã¼</title>
+<title>Ã¦ÂÂÃ¨Â³ÂÃ£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
 <script>
 const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const isInLINE=/Line/i.test(navigator.userAgent)||navigator.userAgent.includes('LIFF');
-if(isMobile&&!isInLINE){document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:11px;font-size:12px;z-index:9999;font-family:Outfit,sans-serif;';b.innerHTML='LINEã¢ããªã§éãã¨ããå¿«é©ã§ãã<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:700;margin-left:6px;">LINEã§éã â</a>';document.body.appendChild(b);});}
+if(isMobile&&!isInLINE){document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:11px;font-size:12px;z-index:9999;font-family:Outfit,sans-serif;';b.innerHTML='LINEÃ£ÂÂ¢Ã£ÂÂÃ£ÂÂªÃ£ÂÂ§Ã©ÂÂÃ£ÂÂÃ£ÂÂ¨Ã£ÂÂÃ£ÂÂÃ¥Â¿Â«Ã©ÂÂ©Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:700;margin-left:6px;">LINEÃ£ÂÂ§Ã©ÂÂÃ£ÂÂ Ã¢ÂÂ</a>';document.body.appendChild(b);});}
 const urlParams=new URLSearchParams(window.location.search);
 const UID=urlParams.get('uid')||'';
 </script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Noto Sans JP', sans-serif; background: linear-gradient(135deg, #e0f7f4 0%, #b2ede6 50%, #d4f5f0 100%); min-height: 100vh; color: #1a4a45; }
-#bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:0.15; }
+body { font-family: 'Noto Sans JP', sans-serif; background: linear-gradient(160deg, #0a1f15 0%, #0f2d1e 50%, #0d2419 100%); min-height: 100vh; color: #e8f5ee; }
+#bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; z-index:0; pointer-events:none; opacity:0.12; }
 .wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 20px 16px 40px; }
-h1 { font-size: 20px; font-weight: 700; color: #0d7a6e; margin-bottom: 4px; text-align: center; letter-spacing: 0.5px; text-shadow: 0 1px 3px rgba(13,122,110,0.15); }
+h1 { font-size: 20px; font-weight: 700; color: #c9a84c; margin-bottom: 4px; text-align: center; letter-spacing: 1px; text-shadow: 0 0 20px rgba(201,168,76,0.4); }
 .lang-wrap { display: flex; justify-content: center; margin-bottom: 16px; }
-.lang-select-outer { position: relative; display: flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.6); border: 1.5px solid #5fc9bc; border-radius: 20px; padding: 4px 12px; backdrop-filter: blur(6px); }
-.lang-globe { font-size: 12px; color: #2aab99; opacity: 0.8; }
-.lang-select-outer select { appearance: none; -webkit-appearance: none; background: transparent; border: none; font-size: 13px; color: #0d7a6e; font-weight: 600; cursor: pointer; padding-right: 14px; outline: none; }
-.lang-select-outer select:focus { color: #0d7a6e; }
-.lang-select-outer::after { content: '∨'; position: absolute; right: 10px; top: 50%; transform: translateY(-55%); font-size: 10px; color: #2aab99; pointer-events: none; }
+.lang-select-outer { position: relative; display: flex; align-items: center; gap: 4px; background: rgba(201,168,76,0.08); border: 1px solid rgba(201,168,76,0.3); border-radius: 20px; padding: 4px 12px; }
+.lang-globe { font-size: 12px; color: #c9a84c; opacity: 0.7; }
+.lang-select-outer select { appearance: none; -webkit-appearance: none; background: transparent; border: none; font-size: 13px; color: #c9a84c; font-weight: 600; cursor: pointer; padding-right: 14px; outline: none; }
+.lang-select-outer select:focus { color: #c9a84c; }
+.lang-select-outer::after { content: '∨'; position: absolute; right: 10px; top: 50%; transform: translateY(-55%); font-size: 10px; color: #c9a84c; pointer-events: none; }
 
 /* バナー */
-.line-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, #00b09b, #16c9a8); color: white; padding: 10px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 13px; box-shadow: 0 4px 14px rgba(0,176,155,0.35); }
-.line-banner a { color: white; font-weight: 700; text-decoration: none; background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 12px; border: 1.5px solid rgba(255,255,255,0.5); }
+.line-banner { display: flex; align-items: center; justify-content: space-between; background: linear-gradient(90deg, #1a3d27, #1f4a2f); color: #c9a84c; padding: 10px 16px; border-radius: 12px; margin-bottom: 16px; font-size: 13px; border: 1px solid rgba(201,168,76,0.25); box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
+.line-banner a { color: #0f2d1e; font-weight: 700; text-decoration: none; background: linear-gradient(135deg, #c9a84c, #e8c96a); padding: 4px 12px; border-radius: 20px; font-size: 12px; }
 
 /* タブ */
-.tabs { display: flex; gap: 6px; background: rgba(255,255,255,0.5); border-radius: 16px; padding: 6px; margin-bottom: 18px; overflow-x: auto; backdrop-filter: blur(8px); border: 1.5px solid rgba(95,201,188,0.4); }
+.tabs { display: flex; gap: 4px; background: rgba(0,0,0,0.3); border-radius: 14px; padding: 5px; margin-bottom: 18px; overflow-x: auto; border: 1px solid rgba(201,168,76,0.15); }
 .tabs::-webkit-scrollbar { display: none; }
-.tab { flex: 0 0 auto; padding: 8px 14px; border-radius: 12px; font-size: 13px; font-weight: 600; color: #5a9e97; background: transparent; border: none; cursor: pointer; white-space: nowrap; transition: all 0.25s; }
-.tab:hover { background: rgba(95,201,188,0.2); color: #0d7a6e; }
-.tab.active { background: linear-gradient(135deg, #00b09b, #16c9a8); color: white; box-shadow: 0 3px 10px rgba(0,176,155,0.4); }
+.tab { flex: 0 0 auto; padding: 8px 14px; border-radius: 10px; font-size: 13px; font-weight: 600; color: #7aaa8a; background: transparent; border: none; cursor: pointer; white-space: nowrap; transition: all 0.25s; }
+.tab:hover { background: rgba(201,168,76,0.1); color: #c9a84c; }
+.tab.active { background: linear-gradient(135deg, #c9a84c, #a8862e); color: #0a1f15; box-shadow: 0 3px 12px rgba(201,168,76,0.35); }
 
 /* カード */
-.card { background: rgba(255,255,255,0.75); border-radius: 18px; padding: 20px; margin-bottom: 14px; border: 1.5px solid rgba(95,201,188,0.35); backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,176,155,0.1); }
+.card { background: rgba(15,45,30,0.7); border-radius: 18px; padding: 20px; margin-bottom: 14px; border: 1px solid rgba(201,168,76,0.2); box-shadow: 0 6px 24px rgba(0,0,0,0.35), inset 0 1px 0 rgba(201,168,76,0.1); backdrop-filter: blur(10px); }
 
 /* スライダー */
 .slider-row { display: flex; align-items: center; margin-bottom: 16px; }
 .slider-row:last-child { margin-bottom: 0; }
-.slider-label { font-size: 14px; color: #3a8a82; width: 90px; flex-shrink: 0; font-weight: 500; }
+.slider-label { font-size: 14px; color: #7aaa8a; width: 90px; flex-shrink: 0; font-weight: 500; }
 .slider-wrap { flex: 1; margin: 0 12px; }
-input[type=range] { -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px; background: rgba(95,201,188,0.3); outline: none; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #00b09b, #16c9a8); cursor: pointer; box-shadow: 0 2px 8px rgba(0,176,155,0.5); border: 2px solid white; }
-.slider-value { font-size: 15px; font-weight: 700; color: #0d7a6e; min-width: 70px; text-align: right; }
+input[type=range] { -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px; background: rgba(201,168,76,0.2); outline: none; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, #c9a84c, #e8c96a); cursor: pointer; box-shadow: 0 2px 8px rgba(201,168,76,0.5); border: 2px solid #0a1f15; }
+.slider-value { font-size: 15px; font-weight: 700; color: #c9a84c; min-width: 70px; text-align: right; }
 
 /* 結果カード */
 .result-cards { display: flex; gap: 10px; margin-bottom: 14px; }
-.result-card { flex: 1; background: rgba(255,255,255,0.8); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1.5px solid rgba(95,201,188,0.35); backdrop-filter: blur(8px); box-shadow: 0 3px 12px rgba(0,176,155,0.08); }
-.result-label { font-size: 11px; color: #5a9e97; margin-bottom: 6px; font-weight: 500; letter-spacing: 0.3px; }
-.result-value { font-size: 22px; font-weight: 800; color: #0d7a6e; line-height: 1; }
-.result-value.profit { color: #00b09b; }
+.result-card { flex: 1; background: rgba(10,31,21,0.8); border-radius: 16px; padding: 14px 10px; text-align: center; border: 1px solid rgba(201,168,76,0.2); box-shadow: 0 4px 16px rgba(0,0,0,0.3), inset 0 1px 0 rgba(201,168,76,0.08); }
+.result-label { font-size: 11px; color: #7aaa8a; margin-bottom: 6px; font-weight: 500; letter-spacing: 0.5px; }
+.result-value { font-size: 22px; font-weight: 800; color: #e8f5ee; line-height: 1; }
+.result-value.profit { color: #c9a84c; text-shadow: 0 0 12px rgba(201,168,76,0.4); }
 
 /* グラフ */
-.chart-title { font-size: 16px; font-weight: 700; color: #1a4a45; margin-bottom: 14px; }
+.chart-title { font-size: 16px; font-weight: 700; color: #c9a84c; margin-bottom: 14px; letter-spacing: 0.5px; }
 .chart-container { position: relative; width: 100%; height: 220px; }
 
 /* テーブル */
 .table-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { background: rgba(0,176,155,0.15); color: #0d7a6e; padding: 10px 8px; text-align: right; font-weight: 700; border-bottom: 2px solid rgba(95,201,188,0.4); }
+th { background: rgba(201,168,76,0.12); color: #c9a84c; padding: 10px 8px; text-align: right; font-weight: 700; border-bottom: 1px solid rgba(201,168,76,0.25); letter-spacing: 0.3px; }
 th:first-child { text-align: left; }
-td { padding: 9px 8px; text-align: right; border-bottom: 1px solid rgba(95,201,188,0.15); color: #2a6a64; }
-td:first-child { text-align: left; color: #0d7a6e; font-weight: 600; }
-tr:hover td { background: rgba(95,201,188,0.08); }
+td { padding: 9px 8px; text-align: right; border-bottom: 1px solid rgba(201,168,76,0.08); color: #a8c8b0; }
+td:first-child { text-align: left; color: #c9a84c; font-weight: 600; }
+tr:hover td { background: rgba(201,168,76,0.05); }
 
 /* マイページ */
 .mypage-section { display: none; }
 .mypage-section.active { display: block; }
-.login-prompt { text-align: center; padding: 40px 20px; color: #5a9e97; }
+.login-prompt { text-align: center; padding: 40px 20px; color: #7aaa8a; }
 .login-prompt p { margin-bottom: 16px; font-size: 15px; }
-.login-btn { background: linear-gradient(135deg, #00b09b, #16c9a8); color: white; border: none; padding: 12px 32px; border-radius: 25px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(0,176,155,0.4); }
+.login-btn { background: linear-gradient(135deg, #c9a84c, #a8862e); color: #0a1f15; border: none; padding: 12px 32px; border-radius: 25px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 14px rgba(201,168,76,0.35); }
 
 /* 目標資産 */
 .goal-form { display: flex; flex-direction: column; gap: 14px; }
 .goal-input-row { display: flex; flex-direction: column; gap: 6px; }
-.goal-input-row label { font-size: 13px; color: #3a8a82; font-weight: 500; }
-.goal-input-row input { border: 1.5px solid rgba(95,201,188,0.5); border-radius: 12px; padding: 11px 14px; font-size: 15px; background: rgba(255,255,255,0.7); color: #1a4a45; outline: none; transition: border-color 0.2s; }
-.goal-input-row input:focus { border-color: #00b09b; background: white; }
-.calc-btn { background: linear-gradient(135deg, #00b09b, #16c9a8); color: white; border: none; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(0,176,155,0.4); transition: transform 0.15s, box-shadow 0.15s; }
-.calc-btn:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0,176,155,0.3); }
-.goal-result { background: linear-gradient(135deg, rgba(0,176,155,0.12), rgba(22,201,168,0.08)); border-radius: 14px; padding: 16px; border: 1.5px solid rgba(0,176,155,0.3); }
-.goal-result-title { font-size: 13px; color: #3a8a82; margin-bottom: 8px; }
-.goal-result-value { font-size: 26px; font-weight: 800; color: #0d7a6e; }
+.goal-input-row label { font-size: 13px; color: #7aaa8a; font-weight: 500; }
+.goal-input-row input { border: 1px solid rgba(201,168,76,0.3); border-radius: 12px; padding: 11px 14px; font-size: 15px; background: rgba(10,31,21,0.6); color: #e8f5ee; outline: none; transition: border-color 0.2s; }
+.goal-input-row input:focus { border-color: #c9a84c; background: rgba(10,31,21,0.9); }
+.calc-btn { background: linear-gradient(135deg, #c9a84c, #a8862e); color: #0a1f15; border: none; padding: 14px; border-radius: 14px; font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.5px; box-shadow: 0 4px 14px rgba(201,168,76,0.35); transition: transform 0.15s, box-shadow 0.15s; }
+.calc-btn:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(201,168,76,0.25); }
+.goal-result { background: rgba(201,168,76,0.08); border-radius: 14px; padding: 16px; border: 1px solid rgba(201,168,76,0.25); }
+.goal-result-title { font-size: 13px; color: #7aaa8a; margin-bottom: 8px; }
+.goal-result-value { font-size: 26px; font-weight: 800; color: #c9a84c; text-shadow: 0 0 12px rgba(201,168,76,0.3); }
 
 /* セクション */
-.section-title { font-size: 13px; font-weight: 700; color: #3a8a82; letter-spacing: 0.5px; margin-bottom: 12px; text-transform: uppercase; }
+.section-title { font-size: 13px; font-weight: 700; color: #c9a84c; letter-spacing: 1px; margin-bottom: 12px; text-transform: uppercase; }
 
 /* ヘッダー */
 .header-wrap { text-align: center; padding: 20px 0 14px; }
-.header-sub { font-size: 12px; color: #5a9e97; margin-top: 4px; letter-spacing: 0.5px; }
+.header-sub { font-size: 12px; color: #7aaa8a; margin-top: 4px; letter-spacing: 0.5px; }
 
-/* フォーム入力（初期投資・毎月積立） */
+/* フォーム入力 */
 .input-group { display: flex; flex-direction: column; gap: 14px; }
 .input-row { display: flex; flex-direction: column; gap: 6px; }
-.input-row label { font-size: 13px; color: #3a8a82; font-weight: 500; }
-.input-row input { border: 1.5px solid rgba(95,201,188,0.5); border-radius: 12px; padding: 11px 14px; font-size: 16px; background: rgba(255,255,255,0.7); color: #1a4a45; outline: none; transition: border-color 0.2s; width: 100%; }
-.input-row input:focus { border-color: #00b09b; background: white; }
+.input-row label { font-size: 13px; color: #7aaa8a; font-weight: 500; }
+.input-row input { border: 1px solid rgba(201,168,76,0.3); border-radius: 12px; padding: 11px 14px; font-size: 16px; background: rgba(10,31,21,0.6); color: #e8f5ee; outline: none; transition: border-color 0.2s; width: 100%; }
+.input-row input:focus { border-color: #c9a84c; background: rgba(10,31,21,0.9); }
 .two-col { display: flex; gap: 10px; }
 .two-col .input-row { flex: 1; }
 </style>
@@ -109,136 +109,136 @@ tr:hover td { background: rgba(95,201,188,0.08); }
 <canvas id="bg-canvas"></canvas>
 
 <div class="wrap">
-  <h1><span id="title">æè³ã·ãã¥ã¬ã¼ã¿ã¼</span></h1>
+  <h1><span id="title">Ã¦ÂÂÃ¨Â³ÂÃ£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼</span></h1>
 
-  <!-- è¨èªãã­ãããã¦ã³ -->
+  <!-- Ã¨Â¨ÂÃ¨ÂªÂÃ£ÂÂÃ£ÂÂ­Ã£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂ³ -->
   <div class="lang-wrap">
     <div class="lang-select-outer">
-      <span class="lang-globe">ð</span>
+      <span class="lang-globe">Ã°ÂÂÂ</span>
       <select id="lang-select" onchange="setLang(this.value)">
-        <option value="ja">æ¥æ¬èª</option>
+        <option value="ja">Ã¦ÂÂ¥Ã¦ÂÂ¬Ã¨ÂªÂ</option>
         <option value="en">English</option>
-        <option value="ko">íêµ­ì´</option>
-        <option value="zh">ä¸­æ</option>
+        <option value="ko">Ã­ÂÂÃªÂµÂ­Ã¬ÂÂ´</option>
+        <option value="zh">Ã¤Â¸Â­Ã¦ÂÂ</option>
       </select>
     </div>
   </div>
 
-  <!-- ã¿ã -->
+  <!-- Ã£ÂÂ¿Ã£ÂÂ -->
   <div class="tabs">
-    <button class="tab active" onclick="pop(this);switchTab('daily')"   id="tab-btn-d">æ¯æ¥ç©ç«</button>
-    <button class="tab"        onclick="pop(this);switchTab('monthly')" id="tab-btn-m">æ¯æç©ç«</button>
-    <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">åææè³</button>
-    <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">ç®æ¨è³ç£</button>
-    <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">ãã¤ãã¼ã¸</button>
+    <button class="tab active" onclick="pop(this);switchTab('daily')"   id="tab-btn-d">Ã¦Â¯ÂÃ¦ÂÂ¥Ã§Â©ÂÃ§Â«Â</button>
+    <button class="tab"        onclick="pop(this);switchTab('monthly')" id="tab-btn-m">Ã¦Â¯ÂÃ¦ÂÂÃ§Â©ÂÃ§Â«Â</button>
+    <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">Ã¥ÂÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³Â</button>
+    <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£</button>
+    <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">Ã£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸</button>
   </div>
 
-  <!-- æ¯æ¥ç©ç« -->
+  <!-- Ã¦Â¯ÂÃ¦ÂÂ¥Ã§Â©ÂÃ§Â«Â -->
   <div id="tab-daily" class="tab-panel">
     <div class="card">
-      <div class="row"><label id="l-daily">æ¯æ¥ã®ç©ç«é¡</label><input type="range" id="d-amount" oninput="sliderToMoney('d-amount','d-amount-n');calcD()"><div class="right"><input type="text" class="val-input" id="d-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'d-amount',calcD)" oninput="moneyType(this,'d-amount',calcD)"></div></div>
-      <div class="row"><label id="l-rate-d">å¹´å©åã</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-d">ç©ç«æé</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">å¹´</span></div></div>
+      <div class="row"><label id="l-daily">Ã¦Â¯ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã§Â©ÂÃ§Â«ÂÃ©Â¡Â</label><input type="range" id="d-amount" oninput="sliderToMoney('d-amount','d-amount-n');calcD()"><div class="right"><input type="text" class="val-input" id="d-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'d-amount',calcD)" oninput="moneyType(this,'d-amount',calcD)"></div></div>
+      <div class="row"><label id="l-rate-d">Ã¥Â¹Â´Ã¥ÂÂ©Ã¥ÂÂÃ£ÂÂ</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-d">Ã§Â©ÂÃ§Â«ÂÃ¦ÂÂÃ©ÂÂ</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">Ã¥Â¹Â´</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-total-d">ç·ç©ç«é¡</div><div class="mval" id="d-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-d">å©ç</div><div class="mval" id="d-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-d">ç·è³ç£</div><div class="mval" id="d-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-d">Ã§Â·ÂÃ§Â©ÂÃ§Â«ÂÃ©Â¡Â</div><div class="mval" id="d-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-d">Ã¥ÂÂ©Ã§ÂÂ</div><div class="mval" id="d-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-d">Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£</div><div class="mval" id="d-final"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-d">è³ç£æ¨ç§»ã°ã©ã</p>
+      <p class="section-title" id="l-chart-d">Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂ¨Ã§Â§Â»Ã£ÂÂ°Ã£ÂÂ©Ã£ÂÂ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-d"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- æ¯æç©ç« -->
+  <!-- Ã¦Â¯ÂÃ¦ÂÂÃ§Â©ÂÃ§Â«Â -->
   <div id="tab-monthly" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-monthly">æ¯æã®ç©ç«é¡</label><input type="range" id="m-amount" oninput="sliderToMoney('m-amount','m-amount-n');calcM()"><div class="right"><input type="text" class="val-input" id="m-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'m-amount',calcM)" oninput="moneyType(this,'m-amount',calcM)"></div></div>
-      <div class="row"><label id="l-rate-m">å¹´å©åã</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-m">ç©ç«æé</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">å¹´</span></div></div>
+      <div class="row"><label id="l-monthly">Ã¦Â¯ÂÃ¦ÂÂÃ£ÂÂ®Ã§Â©ÂÃ§Â«ÂÃ©Â¡Â</label><input type="range" id="m-amount" oninput="sliderToMoney('m-amount','m-amount-n');calcM()"><div class="right"><input type="text" class="val-input" id="m-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'m-amount',calcM)" oninput="moneyType(this,'m-amount',calcM)"></div></div>
+      <div class="row"><label id="l-rate-m">Ã¥Â¹Â´Ã¥ÂÂ©Ã¥ÂÂÃ£ÂÂ</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-m">Ã§Â©ÂÃ§Â«ÂÃ¦ÂÂÃ©ÂÂ</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">Ã¥Â¹Â´</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-total-m">ç·ç©ç«é¡</div><div class="mval" id="m-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-m">å©ç</div><div class="mval" id="m-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-m">ç·è³ç£</div><div class="mval" id="m-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-m">Ã§Â·ÂÃ§Â©ÂÃ§Â«ÂÃ©Â¡Â</div><div class="mval" id="m-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-m">Ã¥ÂÂ©Ã§ÂÂ</div><div class="mval" id="m-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-m">Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£</div><div class="mval" id="m-final"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-m">è³ç£æ¨ç§»ã°ã©ã</p>
+      <p class="section-title" id="l-chart-m">Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂ¨Ã§Â§Â»Ã£ÂÂ°Ã£ÂÂ©Ã£ÂÂ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-m"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- åææè³ -->
+  <!-- Ã¥ÂÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³Â -->
   <div id="tab-lump" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-lump">åææè³é¡</label><input type="range" id="lp-amount" oninput="sliderToMoney('lp-amount','lp-amount-n');calcL()"><div class="right"><input type="text" class="val-input" id="lp-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'lp-amount',calcL)" oninput="moneyType(this,'lp-amount',calcL)"></div></div>
-      <div class="row"><label id="l-rate-l">å¹´å©åã</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-l">éç¨æé</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">å¹´</span></div></div>
+      <div class="row"><label id="l-lump">Ã¥ÂÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡Â</label><input type="range" id="lp-amount" oninput="sliderToMoney('lp-amount','lp-amount-n');calcL()"><div class="right"><input type="text" class="val-input" id="lp-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'lp-amount',calcL)" oninput="moneyType(this,'lp-amount',calcL)"></div></div>
+      <div class="row"><label id="l-rate-l">Ã¥Â¹Â´Ã¥ÂÂ©Ã¥ÂÂÃ£ÂÂ</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-l">Ã©ÂÂÃ§ÂÂ¨Ã¦ÂÂÃ©ÂÂ</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">Ã¥Â¹Â´</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-principal">åæ¬</div><div class="mval" id="lp-principal"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-l">å©ç</div><div class="mval" id="lp-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-l">ç·è³ç£</div><div class="mval" id="lp-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-principal">Ã¥ÂÂÃ¦ÂÂ¬</div><div class="mval" id="lp-principal"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-l">Ã¥ÂÂ©Ã§ÂÂ</div><div class="mval" id="lp-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-l">Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£</div><div class="mval" id="lp-final"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-l">è³ç£æ¨ç§»ã°ã©ã</p>
+      <p class="section-title" id="l-chart-l">Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂ¨Ã§Â§Â»Ã£ÂÂ°Ã£ÂÂ©Ã£ÂÂ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-l"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- ç®æ¨è³ç£ -->
+  <!-- Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£ -->
   <div id="tab-goal" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-goal">ç®æ¨è³ç£</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
-      <div class="row"><label id="l-rate-g">å¹´å©åã</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-g">éææé</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">å¹´</span></div></div>
+      <div class="row"><label id="l-goal">Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
+      <div class="row"><label id="l-rate-g">Ã¥Â¹Â´Ã¥ÂÂ©Ã¥ÂÂÃ£ÂÂ</label><input type="range" min="0.1" max="20" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="20" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-g">Ã©ÂÂÃ¦ÂÂÃ¦ÂÂÃ©ÂÂ</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">Ã¥Â¹Â´</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-need">å¿è¦æé¡</div><div class="mval" id="g-monthly"></div></div>
-      <div class="metric"><div class="mlabel" id="l-total-g">ç·ç©ç«é¡</div><div class="mval" id="g-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-g">å©ç</div><div class="mval" id="g-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-need">Ã¥Â¿ÂÃ¨Â¦ÂÃ¦ÂÂÃ©Â¡Â</div><div class="mval" id="g-monthly"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-g">Ã§Â·ÂÃ§Â©ÂÃ§Â«ÂÃ©Â¡Â</div><div class="mval" id="g-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-g">Ã¥ÂÂ©Ã§ÂÂ</div><div class="mval" id="g-gain"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-g">è³ç£æ¨ç§»ã°ã©ã</p>
+      <p class="section-title" id="l-chart-g">Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂ¨Ã§Â§Â»Ã£ÂÂ°Ã£ÂÂ©Ã£ÂÂ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-g"></canvas></div>
       </div>
     </div>
   </div>
 
-  <!-- ãã¤ãã¼ã¸ -->
+  <!-- Ã£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸ -->
   <div id="tab-mypage" class="tab-panel" style="display:none">
-    <div id="mypage-loading" class="card" style="text-align:center;padding:2rem;color:#999;font-size:13px;">èª­ã¿è¾¼ã¿ä¸­...</div>
+    <div id="mypage-loading" class="card" style="text-align:center;padding:2rem;color:#999;font-size:13px;">Ã¨ÂªÂ­Ã£ÂÂ¿Ã¨Â¾Â¼Ã£ÂÂ¿Ã¤Â¸Â­...</div>
     <div id="mypage-content" style="display:none">
       <div class="card">
         <div class="mp-header">
-          <div class="mp-avatar">ð¤</div>
+          <div class="mp-avatar">Ã°ÂÂÂ¤</div>
           <div>
-            <div class="mp-name" id="mp-name">â</div>
-            <div class="mp-updated" id="mp-updated">æçµæ´æ°ï¼â</div>
+            <div class="mp-name" id="mp-name">Ã¢ÂÂ</div>
+            <div class="mp-updated" id="mp-updated">Ã¦ÂÂÃ§ÂµÂÃ¦ÂÂ´Ã¦ÂÂ°Ã¯Â¼ÂÃ¢ÂÂ</div>
           </div>
         </div>
         <div class="info-grid">
-          <div class="info-item"><div class="info-label" id="mp-label-assets">ç·è³ç£</div><div class="info-value" id="mp-assets">â</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-target">ç®æ¨è³ç£</div><div class="info-value" id="mp-target">â</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-savings">æ¯ææè³é¡</div><div class="info-value" id="mp-savings">â</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-income">å¹´å</div><div class="info-value" id="mp-income">â</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-stocks">ä¿ææ ª</div><div class="info-value" id="mp-stocks" style="font-size:12px;">â</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-traded">ãã¬ã¼ãéæ</div><div class="info-value" id="mp-traded" style="font-size:12px;">â</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-assets">Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£</div><div class="info-value" id="mp-assets">Ã¢ÂÂ</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-target">Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£</div><div class="info-value" id="mp-target">Ã¢ÂÂ</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-savings">Ã¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡Â</div><div class="info-value" id="mp-savings">Ã¢ÂÂ</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-income">Ã¥Â¹Â´Ã¥ÂÂ</div><div class="info-value" id="mp-income">Ã¢ÂÂ</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-stocks">Ã¤Â¿ÂÃ¦ÂÂÃ¦Â Âª</div><div class="info-value" id="mp-stocks" style="font-size:12px;">Ã¢ÂÂ</div></div>
+          <div class="info-item"><div class="info-label" id="mp-label-traded">Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ©ÂÂÃ¦ÂÂ</div><div class="info-value" id="mp-traded" style="font-size:12px;">Ã¢ÂÂ</div></div>
         </div>
-        <button class="btn-apply" onclick="applyToSimulator()" id="btn-apply">ã·ãã¥ã¬ã¼ã¿ã¼ã«åæ ãã</button>
+        <button class="btn-apply" onclick="applyToSimulator()" id="btn-apply">Ã£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼Ã£ÂÂ«Ã¥ÂÂÃ¦ÂÂ Ã£ÂÂÃ£ÂÂ</button>
       </div>
     </div>
     <div id="mypage-nodata" style="display:none">
       <div class="card no-data" style="text-align:center;padding:2.5rem;color:#999;font-size:13px;line-height:1.9;" id="nodata-msg">
-        ã¾ã æå ±ãç»é²ããã¦ãã¾ããã<br>LINEã§ãç»é²ãã¨éã£ã¦æå ±ãç»é²ãã¦ãã ããð
+        Ã£ÂÂ¾Ã£ÂÂ Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂÃ£ÂÂ<br>LINEÃ£ÂÂ§Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¨Ã©ÂÂÃ£ÂÂ£Ã£ÂÂ¦Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ°ÂÂÂ
       </div>
     </div>
   </div>
@@ -246,13 +246,13 @@ tr:hover td { background: rgba(95,201,188,0.08); }
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script>
-/* èæ¯ãã¼ãã£ã¯ã« */
+/* Ã¨ÂÂÃ¦ÂÂ¯Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂÃ£ÂÂ£Ã£ÂÂ¯Ã£ÂÂ« */
 (function(){
   const canvas=document.getElementById('bg-canvas');
   const ctx=canvas.getContext('2d');
   function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
   window.addEventListener('resize',resize);resize();
-  const SYMS={'ja':'Â¥','en':'$','ko':'â©','zh':'å'};
+  const SYMS={'ja':'ÃÂ¥','en':'$','ko':'Ã¢ÂÂ©','zh':'Ã¥ÂÂ'};
   function rand(a,b){return a+Math.random()*(b-a);}
   const bubbles=[];
   function mkB(){const r=rand(14,50);return{x:rand(0,canvas.width),y:canvas.height+r,r,speed:rand(0.2,0.55),drift:rand(-0.1,0.1),opacity:rand(0.015,0.038),wobble:rand(0,Math.PI*2),ws:rand(0.004,0.012)};}
@@ -281,7 +281,7 @@ let userData=null;
 function pop(el){el.classList.remove('popping');void el.offsetWidth;el.classList.add('popping');el.addEventListener('animationend',()=>el.classList.remove('popping'),{once:true});}
 
 const CUR={
-  // ã¹ã©ã¤ãã¼æå¤§ã¯ã­ãªã®ããæ°å­ãããä»¥ä¸ã¯æå¥å
+  // Ã£ÂÂ¹Ã£ÂÂ©Ã£ÂÂ¤Ã£ÂÂÃ£ÂÂ¼Ã¦ÂÂÃ¥Â¤Â§Ã£ÂÂ¯Ã£ÂÂ­Ã£ÂÂªÃ£ÂÂ®Ã£ÂÂÃ£ÂÂÃ¦ÂÂ°Ã¥Â­ÂÃ£ÂÂÃ£ÂÂÃ£ÂÂÃ¤Â»Â¥Ã¤Â¸ÂÃ£ÂÂ¯Ã¦ÂÂÃ¥ÂÂ¥Ã¥ÂÂ
   ja:{d_min:1000,d_max:100000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:30000,l_min:100000,l_max:10000000,l_step:100000,l_def:1000000,g_min:1000000,g_max:100000000,g_step:1000000,g_def:10000000},
   en:{d_min:1,d_max:1000,d_step:1,d_def:10,m_min:100,m_max:30000,m_step:100,m_def:500,l_min:1000,l_max:100000,l_step:1000,l_def:10000,g_min:10000,g_max:2000000,g_step:10000,g_def:200000},
   ko:{d_min:1000,d_max:1000000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:300000,l_min:100000,l_max:100000000,l_step:100000,l_def:10000000,g_min:1000000,g_max:500000000,g_step:1000000,g_def:100000000},
@@ -289,25 +289,25 @@ const CUR={
 };
 
 const T={
-  ja:{title:'æè³ã·ãã¥ã¬ã¼ã¿ã¼',tab1:'æ¯æ¥ç©ç«',tab2:'æ¯æç©ç«',tab3:'åææè³',tab4:'ç®æ¨è³ç£',tab5:'ãã¤ãã¼ã¸',daily:'æ¯æ¥ã®ç©ç«é¡',monthly:'æ¯æã®ç©ç«é¡',lump:'åææè³é¡',goal:'ç®æ¨è³ç£',rate:'å¹´å©åã',yearsD:'ç©ç«æé',yearsM:'ç©ç«æé',yearsL:'éç¨æé',yearsG:'éææé',total:'ç·ç©ç«é¡',gain:'å©ç',final:'ç·è³ç£',principal:'åæ¬',need:'å¿è¦æé¡',chart:'è³ç£æ¨ç§»ã°ã©ã',yr:'å¹´',p_label:'åæ¬',t_label:'ç·è³ç£',apply:'ã·ãã¥ã¬ã¼ã¿ã¼ã«åæ ãã'},
+  ja:{title:'Ã¦ÂÂÃ¨Â³ÂÃ£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼',tab1:'Ã¦Â¯ÂÃ¦ÂÂ¥Ã§Â©ÂÃ§Â«Â',tab2:'Ã¦Â¯ÂÃ¦ÂÂÃ§Â©ÂÃ§Â«Â',tab3:'Ã¥ÂÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³Â',tab4:'Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£',tab5:'Ã£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸',daily:'Ã¦Â¯ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã§Â©ÂÃ§Â«ÂÃ©Â¡Â',monthly:'Ã¦Â¯ÂÃ¦ÂÂÃ£ÂÂ®Ã§Â©ÂÃ§Â«ÂÃ©Â¡Â',lump:'Ã¥ÂÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡Â',goal:'Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£',rate:'Ã¥Â¹Â´Ã¥ÂÂ©Ã¥ÂÂÃ£ÂÂ',yearsD:'Ã§Â©ÂÃ§Â«ÂÃ¦ÂÂÃ©ÂÂ',yearsM:'Ã§Â©ÂÃ§Â«ÂÃ¦ÂÂÃ©ÂÂ',yearsL:'Ã©ÂÂÃ§ÂÂ¨Ã¦ÂÂÃ©ÂÂ',yearsG:'Ã©ÂÂÃ¦ÂÂÃ¦ÂÂÃ©ÂÂ',total:'Ã§Â·ÂÃ§Â©ÂÃ§Â«ÂÃ©Â¡Â',gain:'Ã¥ÂÂ©Ã§ÂÂ',final:'Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£',principal:'Ã¥ÂÂÃ¦ÂÂ¬',need:'Ã¥Â¿ÂÃ¨Â¦ÂÃ¦ÂÂÃ©Â¡Â',chart:'Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂ¨Ã§Â§Â»Ã£ÂÂ°Ã£ÂÂ©Ã£ÂÂ',yr:'Ã¥Â¹Â´',p_label:'Ã¥ÂÂÃ¦ÂÂ¬',t_label:'Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£',apply:'Ã£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼Ã£ÂÂ«Ã¥ÂÂÃ¦ÂÂ Ã£ÂÂÃ£ÂÂ'},
   en:{title:'Investment Simulator',tab1:'Daily',tab2:'Monthly',tab3:'Lump Sum',tab4:'Goal',tab5:'My Page',daily:'Daily Amount',monthly:'Monthly Amount',lump:'Initial Amount',goal:'Target Amount',rate:'Annual Return',yearsD:'Period',yearsM:'Period',yearsL:'Period',yearsG:'Target Period',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Need',chart:'Asset Growth',yr:'yr',p_label:'Principal',t_label:'Total',apply:'Apply to Simulator'},
-  ko:{title:'í¬ì ìë®¬ë ì´í°',tab1:'ë§¤ì¼ ì ë¦½',tab2:'ë§¤ì ì ë¦½',tab3:'ì¼ê´í¬ì',tab4:'ëª©í ìì°',tab5:'ë§ì´íì´ì§',daily:'ë§¤ì¼ ì ë¦½ì¡',monthly:'ì ì ë¦½ì¡',lump:'ì´ê¸° í¬ìì¡',goal:'ëª©í ìì°',rate:'ì° ììµë¥ ',yearsD:'ì ë¦½ ê¸°ê°',yearsM:'ì ë¦½ ê¸°ê°',yearsL:'ì´ì© ê¸°ê°',yearsG:'ë¬ì± ê¸°ê°',total:'ì´ ì ë¦½ì¡',gain:'ììµ',final:'ì´ìì°',principal:'ìê¸',need:'íì ìì¡',chart:'ìì° ì¶ì´',yr:'ë',p_label:'ìê¸',t_label:'ì´ìì°',apply:'ìë®¬ë ì´í°ì ë°ì'},
-  zh:{title:'æèµæ¨¡æå¨',tab1:'æ¯æ¥å®æ',tab2:'æ¯æå®æ',tab3:'ä¸æ¬¡æ§æèµ',tab4:'ç®æ èµäº§',tab5:'æçé¡µé¢',daily:'æ¯æ¥éé¢',monthly:'æ¯æéé¢',lump:'åå§æèµé¢',goal:'ç®æ éé¢',rate:'å¹´æ¶çç',yearsD:'æèµæé',yearsM:'æèµæé',yearsL:'æèµæé',yearsG:'è¾¾ææé',total:'æ»æå¥',gain:'æ¶ç',final:'æ»èµäº§',principal:'æ¬é',need:'æ¯ææé',chart:'èµäº§å¢é¿',yr:'å¹´',p_label:'æ¬é',t_label:'æ»èµäº§',apply:'åºç¨å°æ¨¡æå¨'}
+  ko:{title:'Ã­ÂÂ¬Ã¬ÂÂ Ã¬ÂÂÃ«Â®Â¬Ã«Â ÂÃ¬ÂÂ´Ã­ÂÂ°',tab1:'Ã«Â§Â¤Ã¬ÂÂ¼ Ã¬Â ÂÃ«Â¦Â½',tab2:'Ã«Â§Â¤Ã¬ÂÂ Ã¬Â ÂÃ«Â¦Â½',tab3:'Ã¬ÂÂ¼ÃªÂ´ÂÃ­ÂÂ¬Ã¬ÂÂ',tab4:'Ã«ÂªÂ©Ã­ÂÂ Ã¬ÂÂÃ¬ÂÂ°',tab5:'Ã«Â§ÂÃ¬ÂÂ´Ã­ÂÂÃ¬ÂÂ´Ã¬Â§Â',daily:'Ã«Â§Â¤Ã¬ÂÂ¼ Ã¬Â ÂÃ«Â¦Â½Ã¬ÂÂ¡',monthly:'Ã¬ÂÂ Ã¬Â ÂÃ«Â¦Â½Ã¬ÂÂ¡',lump:'Ã¬Â´ÂÃªÂ¸Â° Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¡',goal:'Ã«ÂªÂ©Ã­ÂÂ Ã¬ÂÂÃ¬ÂÂ°',rate:'Ã¬ÂÂ° Ã¬ÂÂÃ¬ÂÂµÃ«Â¥Â ',yearsD:'Ã¬Â ÂÃ«Â¦Â½ ÃªÂ¸Â°ÃªÂ°Â',yearsM:'Ã¬Â ÂÃ«Â¦Â½ ÃªÂ¸Â°ÃªÂ°Â',yearsL:'Ã¬ÂÂ´Ã¬ÂÂ© ÃªÂ¸Â°ÃªÂ°Â',yearsG:'Ã«ÂÂ¬Ã¬ÂÂ± ÃªÂ¸Â°ÃªÂ°Â',total:'Ã¬Â´Â Ã¬Â ÂÃ«Â¦Â½Ã¬ÂÂ¡',gain:'Ã¬ÂÂÃ¬ÂÂµ',final:'Ã¬Â´ÂÃ¬ÂÂÃ¬ÂÂ°',principal:'Ã¬ÂÂÃªÂ¸Â',need:'Ã­ÂÂÃ¬ÂÂ Ã¬ÂÂÃ¬ÂÂ¡',chart:'Ã¬ÂÂÃ¬ÂÂ° Ã¬Â¶ÂÃ¬ÂÂ´',yr:'Ã«ÂÂ',p_label:'Ã¬ÂÂÃªÂ¸Â',t_label:'Ã¬Â´ÂÃ¬ÂÂÃ¬ÂÂ°',apply:'Ã¬ÂÂÃ«Â®Â¬Ã«Â ÂÃ¬ÂÂ´Ã­ÂÂ°Ã¬ÂÂ Ã«Â°ÂÃ¬ÂÂ'},
+  zh:{title:'Ã¦ÂÂÃ¨ÂµÂÃ¦Â¨Â¡Ã¦ÂÂÃ¥ÂÂ¨',tab1:'Ã¦Â¯ÂÃ¦ÂÂ¥Ã¥Â®ÂÃ¦ÂÂ',tab2:'Ã¦Â¯ÂÃ¦ÂÂÃ¥Â®ÂÃ¦ÂÂ',tab3:'Ã¤Â¸ÂÃ¦Â¬Â¡Ã¦ÂÂ§Ã¦ÂÂÃ¨ÂµÂ',tab4:'Ã§ÂÂ®Ã¦Â ÂÃ¨ÂµÂÃ¤ÂºÂ§',tab5:'Ã¦ÂÂÃ§ÂÂÃ©Â¡ÂµÃ©ÂÂ¢',daily:'Ã¦Â¯ÂÃ¦ÂÂ¥Ã©ÂÂÃ©Â¢Â',monthly:'Ã¦Â¯ÂÃ¦ÂÂÃ©ÂÂÃ©Â¢Â',lump:'Ã¥ÂÂÃ¥Â§ÂÃ¦ÂÂÃ¨ÂµÂÃ©Â¢Â',goal:'Ã§ÂÂ®Ã¦Â ÂÃ©ÂÂÃ©Â¢Â',rate:'Ã¥Â¹Â´Ã¦ÂÂ¶Ã§ÂÂÃ§ÂÂ',yearsD:'Ã¦ÂÂÃ¨ÂµÂÃ¦ÂÂÃ©ÂÂ',yearsM:'Ã¦ÂÂÃ¨ÂµÂÃ¦ÂÂÃ©ÂÂ',yearsL:'Ã¦ÂÂÃ¨ÂµÂÃ¦ÂÂÃ©ÂÂ',yearsG:'Ã¨Â¾Â¾Ã¦ÂÂÃ¦ÂÂÃ©ÂÂ',total:'Ã¦ÂÂ»Ã¦ÂÂÃ¥ÂÂ¥',gain:'Ã¦ÂÂ¶Ã§ÂÂ',final:'Ã¦ÂÂ»Ã¨ÂµÂÃ¤ÂºÂ§',principal:'Ã¦ÂÂ¬Ã©ÂÂ',need:'Ã¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ©ÂÂ',chart:'Ã¨ÂµÂÃ¤ÂºÂ§Ã¥Â¢ÂÃ©ÂÂ¿',yr:'Ã¥Â¹Â´',p_label:'Ã¦ÂÂ¬Ã©ÂÂ',t_label:'Ã¦ÂÂ»Ã¨ÂµÂÃ¤ÂºÂ§',apply:'Ã¥ÂºÂÃ§ÂÂ¨Ã¥ÂÂ°Ã¦Â¨Â¡Ã¦ÂÂÃ¥ÂÂ¨'}
 };
 
 function fmtInput(n){
   n=Math.round(n);const L=window.currentLang;
-  if(L==='ja'){if(n>=1e8){const o=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),y=n%1e4;let s=o+'å';if(m)s+=m+'ä¸';if(y)s+=y+'å';if(!m&&!y)s+='å';return s;}if(n>=1e4){const m=Math.floor(n/1e4),y=n%1e4;return y?m+'ä¸'+y+'å':m+'ä¸å';}return n.toLocaleString()+'å';}
+  if(L==='ja'){if(n>=1e8){const o=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),y=n%1e4;let s=o+'Ã¥ÂÂ';if(m)s+=m+'Ã¤Â¸Â';if(y)s+=y+'Ã¥ÂÂ';if(!m&&!y)s+='Ã¥ÂÂ';return s;}if(n>=1e4){const m=Math.floor(n/1e4),y=n%1e4;return y?m+'Ã¤Â¸Â'+y+'Ã¥ÂÂ':m+'Ã¤Â¸ÂÃ¥ÂÂ';}return n.toLocaleString()+'Ã¥ÂÂ';}
   if(L==='en'){if(n>=1e9)return '$'+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(n>=1e6)return '$'+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(n>=1e3)return '$'+(n/1e3).toFixed(1).replace(/\.0$/,'')+'K';return '$'+n.toLocaleString();}
-  if(L==='ko'){if(n>=1e8){const e=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),w=n%1e4;let s=e+'ìµ';if(m)s+=m+'ë§';if(w)s+=w;return s+'ì';}if(n>=1e4){const m=Math.floor(n/1e4),w=n%1e4;return w?m+'ë§'+w+'ì':m+'ë§ì';}return n.toLocaleString()+'ì';}
-  if(L==='zh'){if(n>=1e8){const y=Math.floor(n/1e8),w=Math.floor((n%1e8)/1e4),u=n%1e4;let s=y+'äº¿';if(w)s+=w+'ä¸';if(u)s+=u+'å';if(!w&&!u)s+='å';return s;}if(n>=1e4){const w=Math.floor(n/1e4),u=n%1e4;return u?w+'ä¸'+u+'å':w+'ä¸å';}return n.toLocaleString()+'å';}
+  if(L==='ko'){if(n>=1e8){const e=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),w=n%1e4;let s=e+'Ã¬ÂÂµ';if(m)s+=m+'Ã«Â§Â';if(w)s+=w;return s+'Ã¬ÂÂ';}if(n>=1e4){const m=Math.floor(n/1e4),w=n%1e4;return w?m+'Ã«Â§Â'+w+'Ã¬ÂÂ':m+'Ã«Â§ÂÃ¬ÂÂ';}return n.toLocaleString()+'Ã¬ÂÂ';}
+  if(L==='zh'){if(n>=1e8){const y=Math.floor(n/1e8),w=Math.floor((n%1e8)/1e4),u=n%1e4;let s=y+'Ã¤ÂºÂ¿';if(w)s+=w+'Ã¤Â¸Â';if(u)s+=u+'Ã¥ÂÂ';if(!w&&!u)s+='Ã¥ÂÂ';return s;}if(n>=1e4){const w=Math.floor(n/1e4),u=n%1e4;return u?w+'Ã¤Â¸Â'+u+'Ã¥ÂÂ':w+'Ã¤Â¸ÂÃ¥ÂÂ';}return n.toLocaleString()+'Ã¥ÂÂ';}
   return n.toLocaleString();
 }
 function fmt(n){
   const L=window.currentLang;
-  if(L==='ja'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'å';if(n>=1e4)return Math.round(n/1e4)+'ä¸';return Math.round(n).toLocaleString();}
-  if(L==='zh'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'äº¿';if(n>=1e4)return Math.round(n/1e4)+'ä¸';return Math.round(n).toLocaleString();}
-  if(L==='ko'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'ìµ';if(n>=1e4)return Math.round(n/1e4)+'ë§';return Math.round(n).toLocaleString();}
+  if(L==='ja'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'Ã¥ÂÂ';if(n>=1e4)return Math.round(n/1e4)+'Ã¤Â¸Â';return Math.round(n).toLocaleString();}
+  if(L==='zh'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'Ã¤ÂºÂ¿';if(n>=1e4)return Math.round(n/1e4)+'Ã¤Â¸Â';return Math.round(n).toLocaleString();}
+  if(L==='ko'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'Ã¬ÂÂµ';if(n>=1e4)return Math.round(n/1e4)+'Ã«Â§Â';return Math.round(n).toLocaleString();}
   if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return Math.round(n/1e3)+'K';return Math.round(n).toLocaleString();
 }
 function fmtYr(y){return y+T[window.currentLang].yr;}
@@ -360,21 +360,21 @@ function setLang(lang){
   document.getElementById('l-need').textContent=t.need;document.getElementById('l-total-g').textContent=t.total;document.getElementById('l-gain-g').textContent=t.gain;document.getElementById('l-chart-g').textContent=t.chart;
   if(document.getElementById('btn-apply'))document.getElementById('btn-apply').textContent=t.apply;
   setSliders();calcD();calcM();calcL();calcG();
-  // ãã¤ãã¼ã¸ã®ã¡ãã»ã¼ã¸ãå¤è¨èªå
+  // Ã£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸Ã£ÂÂ®Ã£ÂÂ¡Ã£ÂÂÃ£ÂÂ»Ã£ÂÂ¼Ã£ÂÂ¸Ã£ÂÂÃ¥Â¤ÂÃ¨Â¨ÂÃ¨ÂªÂÃ¥ÂÂ
   const nodataMsg={
-    ja:'ã¾ã æå ±ãç»é²ããã¦ãã¾ããã<br>LINEã§ãç»é²ãã¨éã£ã¦æå ±ãç»é²ãã¦ãã ããð',
-    en:'No information registered yet.<br>Send "register" on LINE to get startedð',
-    ko:'ìì§ ì ë³´ê° ë±ë¡ëì´ ìì§ ììµëë¤.<br>LINEìì "ë±ë¡"ì ë³´ë´ ì ë³´ë¥¼ ë±ë¡í´ì£¼ì¸ìð',
-    zh:'å°æªæ³¨åä¿¡æ¯ã<br>è¯·å¨LINEä¸åéãæ³¨åãæ¥ç»å½ä¿¡æ¯ð'
+    ja:'Ã£ÂÂ¾Ã£ÂÂ Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂÃ£ÂÂ<br>LINEÃ£ÂÂ§Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¨Ã©ÂÂÃ£ÂÂ£Ã£ÂÂ¦Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ°ÂÂÂ',
+    en:'No information registered yet.<br>Send "register" on LINE to get startedÃ°ÂÂÂ',
+    ko:'Ã¬ÂÂÃ¬Â§Â Ã¬Â ÂÃ«Â³Â´ÃªÂ°Â Ã«ÂÂ±Ã«Â¡ÂÃ«ÂÂÃ¬ÂÂ´ Ã¬ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.<br>LINEÃ¬ÂÂÃ¬ÂÂ "Ã«ÂÂ±Ã«Â¡Â"Ã¬ÂÂ Ã«Â³Â´Ã«ÂÂ´ Ã¬Â ÂÃ«Â³Â´Ã«Â¥Â¼ Ã«ÂÂ±Ã«Â¡ÂÃ­ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂÃ°ÂÂÂ',
+    zh:'Ã¥Â°ÂÃ¦ÂÂªÃ¦Â³Â¨Ã¥ÂÂÃ¤Â¿Â¡Ã¦ÂÂ¯Ã£ÂÂ<br>Ã¨Â¯Â·Ã¥ÂÂ¨LINEÃ¤Â¸ÂÃ¥ÂÂÃ©ÂÂÃ£ÂÂÃ¦Â³Â¨Ã¥ÂÂÃ£ÂÂÃ¦ÂÂ¥Ã§ÂÂ»Ã¥Â½ÂÃ¤Â¿Â¡Ã¦ÂÂ¯Ã°ÂÂÂ'
   };
   const nodataEl=document.getElementById('nodata-msg');
   if(nodataEl)nodataEl.innerHTML=nodataMsg[lang]||nodataMsg.ja;
-  // ãã¤ãã¼ã¸ã®ã©ãã«ãå¤è¨èªå
+  // Ã£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¸Ã£ÂÂ®Ã£ÂÂ©Ã£ÂÂÃ£ÂÂ«Ã£ÂÂÃ¥Â¤ÂÃ¨Â¨ÂÃ¨ÂªÂÃ¥ÂÂ
   const mpLabels={
-    ja:['ç·è³ç£','ç®æ¨è³ç£','æ¯ææè³é¡','å¹´å','ä¿ææ ª','ãã¬ã¼ãéæ','æçµæ´æ°ï¼'],
+    ja:['Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£','Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£','Ã¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡Â','Ã¥Â¹Â´Ã¥ÂÂ','Ã¤Â¿ÂÃ¦ÂÂÃ¦Â Âª','Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ©ÂÂÃ¦ÂÂ','Ã¦ÂÂÃ§ÂµÂÃ¦ÂÂ´Ã¦ÂÂ°Ã¯Â¼Â'],
     en:['Total Assets','Target','Monthly Inv.','Annual Inc.','Holdings','Trading','Last Update: '],
-    ko:['ì´ìì°','ëª©í ìì°','ì í¬ìì¡','ì°ìì','ë³´ì ì£¼ì','í¸ë ì´ë ì¢ëª©','ìµì¢ ìë°ì´í¸: '],
-    zh:['æ»èµäº§','ç®æ èµäº§','æ¯ææèµé¢','å¹´æ¶å¥','ææè¡ç¥¨','äº¤æè¡ç¥¨','æç»æ´æ°ï¼']
+    ko:['Ã¬Â´ÂÃ¬ÂÂÃ¬ÂÂ°','Ã«ÂªÂ©Ã­ÂÂ Ã¬ÂÂÃ¬ÂÂ°','Ã¬ÂÂ Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¡','Ã¬ÂÂ°Ã¬ÂÂÃ¬ÂÂ','Ã«Â³Â´Ã¬ÂÂ Ã¬Â£Â¼Ã¬ÂÂ','Ã­ÂÂ¸Ã«Â ÂÃ¬ÂÂ´Ã«ÂÂ Ã¬Â¢ÂÃ«ÂªÂ©','Ã¬ÂµÂÃ¬Â¢Â Ã¬ÂÂÃ«ÂÂ°Ã¬ÂÂ´Ã­ÂÂ¸: '],
+    zh:['Ã¦ÂÂ»Ã¨ÂµÂÃ¤ÂºÂ§','Ã§ÂÂ®Ã¦Â ÂÃ¨ÂµÂÃ¤ÂºÂ§','Ã¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨ÂµÂÃ©Â¢Â','Ã¥Â¹Â´Ã¦ÂÂ¶Ã¥ÂÂ¥','Ã¦ÂÂÃ¦ÂÂÃ¨ÂÂ¡Ã§Â¥Â¨','Ã¤ÂºÂ¤Ã¦ÂÂÃ¨ÂÂ¡Ã§Â¥Â¨','Ã¦ÂÂÃ§Â»ÂÃ¦ÂÂ´Ã¦ÂÂ°Ã¯Â¼Â']
   };
   const lb=mpLabels[lang]||mpLabels.ja;
   ['mp-label-assets','mp-label-target','mp-label-savings','mp-label-income','mp-label-stocks','mp-label-traded'].forEach((id,i)=>{const el=document.getElementById(id);if(el)el.textContent=lb[i];});
@@ -407,15 +407,15 @@ async function loadMyPage(){
 }
 
 function renderMyPage(d){
-  document.getElementById('mp-name').textContent=d.name||'â';
-  const prefix=window._mpLastUpdate||'æçµæ´æ°ï¼';
-  document.getElementById('mp-updated').textContent=prefix+(d.updated_at?d.updated_at.slice(0,10):'â');
-  document.getElementById('mp-assets').textContent=d.target_asset||'â';
-  document.getElementById('mp-target').textContent=d.target_asset||'â';
-  document.getElementById('mp-savings').textContent=d.savings||'â';
-  document.getElementById('mp-income').textContent=d.financial_info||'â';
-  document.getElementById('mp-stocks').textContent=d.stocks_owned||'â';
-  document.getElementById('mp-traded').textContent=d.stocks_traded||'â';
+  document.getElementById('mp-name').textContent=d.name||'Ã¢ÂÂ';
+  const prefix=window._mpLastUpdate||'Ã¦ÂÂÃ§ÂµÂÃ¦ÂÂ´Ã¦ÂÂ°Ã¯Â¼Â';
+  document.getElementById('mp-updated').textContent=prefix+(d.updated_at?d.updated_at.slice(0,10):'Ã¢ÂÂ');
+  document.getElementById('mp-assets').textContent=d.target_asset||'Ã¢ÂÂ';
+  document.getElementById('mp-target').textContent=d.target_asset||'Ã¢ÂÂ';
+  document.getElementById('mp-savings').textContent=d.savings||'Ã¢ÂÂ';
+  document.getElementById('mp-income').textContent=d.financial_info||'Ã¢ÂÂ';
+  document.getElementById('mp-stocks').textContent=d.stocks_owned||'Ã¢ÂÂ';
+  document.getElementById('mp-traded').textContent=d.stocks_traded||'Ã¢ÂÂ';
 }
 
 function applyToSimulator(){
@@ -450,8 +450,8 @@ function makeChart(id,labels,p,tot){
         padding:14,cornerRadius:6,
         titleColor:'#4dbb52',bodyColor:'#c8e8c8',
         callbacks:{
-          title:items=>items[0].label+'ç®',
-          label:c=>'  '+c.dataset.label+'ï¼'+fmt(c.parsed.y)
+          title:items=>items[0].label+'Ã§ÂÂ®',
+          label:c=>'  '+c.dataset.label+'Ã¯Â¼Â'+fmt(c.parsed.y)
         }
       }
     },
