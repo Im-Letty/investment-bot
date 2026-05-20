@@ -332,7 +332,7 @@ function setLang(lang){
   document.getElementById('l-goal').textContent=t.goal;document.getElementById('l-rate-g').textContent=t.rate;document.getElementById('l-years-g').textContent=t.yearsG;
   document.getElementById('l-need').textContent=t.need;document.getElementById('l-total-g').textContent=t.total;document.getElementById('l-gain-g').textContent=t.gain;document.getElementById('l-chart-g').textContent=t.chart;
   if(document.getElementById('btn-apply'))document.getElementById('btn-apply').textContent=t.apply;
-  setSliders();calcD();calcM();calcL();calcG();setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(function(r){updateFill(r);r.addEventListener('input',function(){updateFill(this);});});},50);
+  setSliders();calcD();calcM();calcL();calcG();setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(function(r){updateFill(r);r.addEventListener('input',function(){updateFill(this);});});},200);
   // マイページのメッセージも多言語化
   const nodataMsg={
     ja:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊',
