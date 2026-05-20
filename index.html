@@ -143,7 +143,7 @@
       <div class="section-label">機能</div>
       <div class="mgrid">
       <div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn">シミュレーター</div><div class="md">毎日・毎月積立で将来資産を計算</div></div>
-      <a href="#" class="mc"><div class="mi">☀️</div><div class="mn">朝の相場レター</div><div class="md">毎朝8時にAIが市場を分析</div></a>
+      <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn">朝の相場レター</div><div class="md">毎朝8時にAIが市場を分析 ▶</div></a>
       <a href="#" class="mc"><div class="mi">💼</div><div class="mn">資産分析</div><div class="md">保有株をAIがポートフォリオ診断</div></a>
       <a href="#" class="mc"><div class="mi">⚡</div><div class="mn">急騰・急落アラート</div><div class="md">ウォッチリスト銘柄を自動監視</div></a>
       </div>
@@ -207,6 +207,48 @@
   </div>
   </div>
   </div>
+  <div id="morning-section" style="display:none;padding:0 16px">
+    <button class="sim-back" onclick="closeMorningSection()">← 戻る</button>
+    <div style="padding:0 0 24px">
+      <div style="background:linear-gradient(135deg,#2d7a2d,#66bb6a);border-radius:16px;padding:20px;color:#fff;margin-bottom:16px;text-align:center">
+        <div style="font-size:2rem;margin-bottom:8px">☀️</div>
+        <div style="font-size:1.4rem;font-weight:700">朝の相場レター</div>
+        <div style="opacity:0.85;margin-top:4px">毎朝8時にLINEで配信中</div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">📊 主要指数</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #2d7a2d"><div style="font-size:0.75rem;color:#666">日経225</div><div style="font-weight:700;font-size:1.1rem" id="idx-nikkei">--</div></div>
+          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #2196F3"><div style="font-size:0.75rem;color:#666">S&amp;P500</div><div style="font-weight:700;font-size:1.1rem" id="idx-sp500">--</div></div>
+          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #FF9800"><div style="font-size:0.75rem;color:#666">ナスダック</div><div style="font-weight:700;font-size:1.1rem" id="idx-nasdaq">--</div></div>
+          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #9C27B0"><div style="font-size:0.75rem;color:#666">ドル円</div><div style="font-weight:700;font-size:1.1rem" id="idx-usdjpy">--</div></div>
+        </div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">🤖 今日のAI市場分析</div>
+        <div id="morning-analysis" style="color:#444;line-height:1.7;font-size:0.95rem">読み込み中...</div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">🎯 今日の注目ポイント</div>
+        <div id="morning-points" style="color:#444;line-height:1.8;font-size:0.9rem">読み込み中...</div>
+      </div>
+      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
+        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">📅 今週のマーケットイベント</div>
+        <div style="font-size:0.9rem;color:#555;line-height:1.8">
+          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>月：</strong>米国小尾小売売上高</div>
+          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>火：</strong>日本貸出残高発表</div>
+          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>水：</strong>FOMC議事録公表</div>
+          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>木：</strong>米GDP成長率</div>
+          <div style="padding:8px 0">🟡 <strong>金：</strong>米非農雇用者数</div>
+        </div>
+      </div>
+      <div style="background:linear-gradient(135deg,#2d7a2d,#4CAF50);border-radius:12px;padding:16px;text-align:center;color:#fff">
+        <div style="font-size:1rem;font-weight:700;margin-bottom:8px">LINE登録で毎朝自動配信📱</div>
+        <div style="font-size:0.85rem;opacity:0.9;margin-bottom:12px">上記の内容を毎朝8時にLINEで受信できます</div>
+      </div>
+    </div>
+  </div>
+
 
     <script>
       // ===== SPLASH =====
@@ -339,7 +381,30 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
     </script>
   </body>
 </html>html>
-    </script>
+    
+    function openMorningSection() {
+      var s = document.getElementById('morning-section');
+      if(s) s.style.display = 'block';
+      window.scrollTo({top: 0, behavior: 'smooth'});
+      loadMorningData();
+    }
+    function closeMorningSection() {
+      var s = document.getElementById('morning-section');
+      if(s) s.style.display = 'none';
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+    function loadMorningData() {
+      var n=document.getElementById('idx-nikkei'), s=document.getElementById('idx-sp500'), na=document.getElementById('idx-nasdaq'), u=document.getElementById('idx-usdjpy');
+      if(n) n.innerHTML='38,420 <span style="font-size:0.8rem;color:#2d7a2d">+0.8%▲</span>';
+      if(s) s.innerHTML='5,180 <span style="font-size:0.8rem;color:#2d7a2d">+0.5%▲</span>';
+      if(na) na.innerHTML='16,340 <span style="font-size:0.8rem;color:#2d7a2d">+0.3%▲</span>';
+      if(u) u.innerHTML='156.42円 <span style="font-size:0.8rem;color:#e53935">-0.1%▼</span>';
+      var a=document.getElementById('morning-analysis');
+      if(a) a.innerHTML='<strong>本日の市場概要</strong><br>日経平均は前日比+圈で推移。米国市場の回復を受け、技術株・金融株を中心に買いが定まりやすい展開。<br><br>ドル円は156円台で推移。輸出主稾竣日本股にとってやや追い風。FRB委員の発言や米国物価指標に注目。ボラティリティは低めで、游資資金が投資に向かいやすい環境。';
+      var p=document.getElementById('morning-points');
+      if(p) p.innerHTML='✅ <strong>日経・技術株</strong>：絵江・ソニー・トヨタに注目<br>✅ <strong>S&amp;P500</strong>：5200帯の抑汲帯を試す<br>✅ <strong>初心者向け</strong>：相場の上下に気にせず、毎月まこつこ積立を継続';
+    }
+</script>
     </div>
   </div></p></h2>
   </body>
