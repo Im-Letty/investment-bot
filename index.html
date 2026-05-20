@@ -242,10 +242,6 @@
           <div style="padding:8px 0">🟡 <strong>金：</strong>米非農雇用者数</div>
         </div>
       </div>
-      <div style="background:linear-gradient(135deg,#2d7a2d,#4CAF50);border-radius:12px;padding:16px;text-align:center;color:#fff">
-        <div style="font-size:1rem;font-weight:700;margin-bottom:8px">LINE登録で毎朝自動配信📱</div>
-        <div style="font-size:0.85rem;opacity:0.9;margin-bottom:12px">上記の内容を毎朝8時にLINEで受信できます</div>
-      </div>
     </div>
   </div>
 
@@ -378,9 +374,6 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
                 '📈 元本が <strong style="color:#4ade80">'+multiplier+'倍</strong> に増えました';
           document.getElementById('sim-result').classList.add('show');
       }
-    </script>
-  </body>
-</html>html>
     
     function openMorningSection() {
       var s = document.getElementById('morning-section');
@@ -394,17 +387,20 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
     function loadMorningData() {
-      var n=document.getElementById('idx-nikkei'), s=document.getElementById('idx-sp500'), na=document.getElementById('idx-nasdaq'), u=document.getElementById('idx-usdjpy');
+      var n=document.getElementById('idx-nikkei'),s2=document.getElementById('idx-sp500'),na=document.getElementById('idx-nasdaq'),u=document.getElementById('idx-usdjpy');
       if(n) n.innerHTML='38,420 <span style="font-size:0.8rem;color:#2d7a2d">+0.8%▲</span>';
-      if(s) s.innerHTML='5,180 <span style="font-size:0.8rem;color:#2d7a2d">+0.5%▲</span>';
+      if(s2) s2.innerHTML='5,180 <span style="font-size:0.8rem;color:#2d7a2d">+0.5%▲</span>';
       if(na) na.innerHTML='16,340 <span style="font-size:0.8rem;color:#2d7a2d">+0.3%▲</span>';
       if(u) u.innerHTML='156.42円 <span style="font-size:0.8rem;color:#e53935">-0.1%▼</span>';
       var a=document.getElementById('morning-analysis');
-      if(a) a.innerHTML='<strong>本日の市場概要</strong><br>日経平均は前日比+圈で推移。米国市場の回復を受け、技術株・金融株を中心に買いが定まりやすい展開。<br><br>ドル円は156円台で推移。輸出主稾竣日本股にとってやや追い風。FRB委員の発言や米国物価指標に注目。ボラティリティは低めで、游資資金が投資に向かいやすい環境。';
+      if(a) a.innerHTML='<strong>本日の市場概要</strong><br>日経平均は前日比+圈で推移。米国市場の回復を受け、技術株・金融株を中心に買いが定まりやすい展開。<br><br>ドル円は156円台で推移。輸出主稾竣日本股にとってやや追い風。FRB委員の発言や米国物価指標に注目。';
       var p=document.getElementById('morning-points');
       if(p) p.innerHTML='✅ <strong>日経・技術株</strong>：絵江・ソニー・トヨタに注目<br>✅ <strong>S&amp;P500</strong>：5200帯の抑汲帯を試す<br>✅ <strong>初心者向け</strong>：相場の上下に気にせず、毎月まこつこ積立を継続';
     }
 </script>
+  </body>
+</html>html>
+    </script>
     </div>
   </div></p></h2>
   </body>
