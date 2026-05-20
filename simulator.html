@@ -76,7 +76,54 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
 .reg-label { font-size:12px; color:#555; font-weight:600; }
 .reg-input { width:100%; padding:0.55rem 0.75rem; border:1.5px solid #ddd; border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; }
 .reg-input:focus { border-color:#2d7a2d; }
-</style>
+
+    /* ===== マイページ改善CSS ===== */
+    .mp-profile-card { display:flex; align-items:center; gap:16px; padding:20px; background:linear-gradient(135deg,#2d7a2d,#4CAF50); border-radius:16px; margin-bottom:12px; color:#fff; }
+    .mp-avatar-wrap { flex-shrink:0; }
+    .mp-avatar { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:2rem; border:3px solid rgba(255,255,255,0.5); }
+    .mp-profile-info { flex:1; }
+    .mp-name { font-size:1.4rem; font-weight:700; }
+    .mp-updated { font-size:0.8rem; opacity:0.8; margin-top:4px; }
+    .mp-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .mp-summary-card { border-radius:12px; padding:14px 16px; color:#fff; }
+    .mp-card-green { background:linear-gradient(135deg,#2d7a2d,#66bb6a); }
+    .mp-card-blue { background:linear-gradient(135deg,#1565c0,#42a5f5); }
+    .mp-card-orange { background:linear-gradient(135deg,#e65100,#ff9800); }
+    .mp-card-purple { background:linear-gradient(135deg,#6a1b9a,#ab47bc); }
+    .mp-card-red { background:linear-gradient(135deg,#c62828,#ef5350); }
+    .mp-card-label { font-size:0.75rem; opacity:0.9; margin-bottom:4px; }
+    .mp-card-value { font-size:1.15rem; font-weight:700; }
+    .mp-section-title { font-size:1rem; font-weight:700; color:#2d7a2d; margin-bottom:12px; }
+    .mp-progress-label { display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem; }
+    .mp-progress-bar-bg { background:#e8f5e9; border-radius:20px; height:12px; overflow:hidden; }
+    .mp-progress-bar-fill { background:linear-gradient(to right,#2d7a2d,#66bb6a); height:100%; border-radius:20px; transition:width 0.5s ease; }
+    .mp-stocks-list { display:flex; flex-direction:column; gap:8px; }
+    .mp-stock-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#f8fdf8; border-radius:8px; border-left:3px solid #2d7a2d; }
+    .mp-stock-name { font-weight:600; color:#1a1a1a; }
+    .mp-traded-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .mp-chip { background:#e8f5e9; color:#2d7a2d; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:500; }
+    .stock-row { display:flex; gap:6px; align-items:center; margin-bottom:8px; }
+    .btn-icon { background:none; border:none; color:#e53935; font-size:1.1rem; cursor:pointer; padding:4px 8px; flex-shrink:0; }
+    .btn-add { background:none; border:1.5px dashed #2d7a2d; color:#2d7a2d; border-radius:8px; padding:8px; width:100%; font-size:0.9rem; cursor:pointer; margin-top:4px; }
+    .btn-add:hover { background:#e8f5e9; }
+    .btn-sm { padding:6px 14px; font-size:0.85rem; }
+    .btn-secondary { background:#fff; color:#2d7a2d; border:1.5px solid #2d7a2d; }
+    .btn-secondary:hover { background:#e8f5e9; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block; font-size:0.85rem; font-weight:600; color:#444; margin-bottom:6px; }
+    .form-input { width:100%; padding:10px 12px; border:1.5px solid #ddd; border-radius:8px; font-size:0.9rem; box-sizing:border-box; }
+    .form-input:focus { border-color:#2d7a2d; outline:none; box-shadow:0 0 0 3px rgba(45,122,45,0.1); }
+    .spinner { width:36px; height:36px; border:4px solid #e8f5e9; border-top-color:#2d7a2d; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .kakeibo-entry { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #f0f0f0; }
+    .kakeibo-entry:last-child { border-bottom:none; }
+    .kakeibo-entry-income .ke-amount { color:#2d7a2d; font-weight:700; }
+    .kakeibo-entry-expense .ke-amount { color:#e53935; font-weight:700; }
+    .ke-cat { font-size:0.75rem; background:#f5f5f5; padding:2px 8px; border-radius:10px; color:#666; }
+    .ke-del { background:none; border:none; color:#ccc; cursor:pointer; font-size:1.1rem; }
+    .ke-del:hover { color:#e53935; }
+
+  </style>
 
 <script>
 function updateFill(el){
@@ -112,7 +159,9 @@ function updateFill(el){
     <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">初期投資</button>
     <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">目標資産</button>
     <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">マイページ</button>
-  </div>
+  
+  <button onclick="pop(this);switchTab('kakeibo')" id="tab-btn-k">家計管理</button>
+</div>
 
   <!-- 毎日積立 -->
   <div id="tab-daily" class="tab-panel">
@@ -195,59 +244,174 @@ function updateFill(el){
   </div>
 
   <!-- マイページ -->
-  <div id="tab-mypage" class="tab-panel" style="display:none">
-    <div id="mypage-loading" class="card" style="text-align:center;padding:2rem;color:#999;font-size:13px;">読み込み中...</div>
+    <div id="tab-mypage" class="tab-panel" style="display:none">
+    <div id="mypage-loading" class="card" style="text-align:center;padding:2rem">
+      <div class="spinner"></div>
+    </div>
+
     <div id="mypage-content" style="display:none">
+      <div class="mp-profile-card">
+        <div class="mp-avatar-wrap"><div class="mp-avatar">💼</div></div>
+        <div class="mp-profile-info">
+          <div class="mp-name" id="mp-name">-</div>
+          <div class="mp-updated" id="mp-updated"></div>
+        </div>
+      </div>
+      <div class="mp-summary-grid">
+        <div class="mp-summary-card mp-card-green">
+          <div class="mp-card-label" id="mp-label-assets">総資産</div>
+          <div class="mp-card-value" id="mp-assets">-</div>
+        </div>
+        <div class="mp-summary-card mp-card-blue">
+          <div class="mp-card-label" id="mp-label-target">目標資産</div>
+          <div class="mp-card-value" id="mp-target">-</div>
+        </div>
+        <div class="mp-summary-card mp-card-orange">
+          <div class="mp-card-label" id="mp-label-savings">毎月投資額</div>
+          <div class="mp-card-value" id="mp-savings">-</div>
+        </div>
+        <div class="mp-summary-card mp-card-purple">
+          <div class="mp-card-label" id="mp-label-income">年収</div>
+          <div class="mp-card-value" id="mp-income">-</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="mp-progress-label">
+          <span>目標達成率</span>
+          <span id="mp-progress-pct" style="font-weight:700;color:#2d7a2d">0%</span>
+        </div>
+        <div class="mp-progress-bar-bg">
+          <div class="mp-progress-bar-fill" id="mp-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="mp-section-title">📈 保有株・投信</div>
+        <div id="mp-stocks-list" class="mp-stocks-list"></div>
+        <div id="mp-stocks" style="display:none"></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="mp-section-title">🔄 ウォッチリスト</div>
+        <div id="mp-traded" class="mp-traded-chips"></div>
+      </div>
+      <button class="btn" onclick="document.getElementById('mypage-edit').style.display='block';document.getElementById('mypage-content').style.display='none'" style="width:100%;margin-bottom:8px">✏️ 情報を編集</button>
+      <button class="btn btn-secondary" id="btn-apply" onclick="applyToSimulator()" style="width:100%">📊 シミュレーターに適用</button>
+    </div>
+
+    <div id="mypage-edit" style="display:none">
       <div class="card">
-        <div class="mp-header">
-          <div class="mp-avatar">👤</div>
-          <div>
-            <div class="mp-name" id="mp-name">—</div>
-            <div class="mp-updated" id="mp-updated">最終更新：—</div>
+        <div class="mp-section-title">✏️ 資産情報を編集</div>
+        <div class="form-group"><label class="form-label">名前（ハンネ）</label><input type="text" id="edit-name" class="form-input" placeholder="例：ユーコ"></div>
+        <div class="form-group"><label class="form-label">年収</label><input type="text" id="edit-income" class="form-input" placeholder="例：500万円"></div>
+        <div class="form-group"><label class="form-label">総資産</label><input type="text" id="edit-assets" class="form-input" placeholder="例：300万円"></div>
+        <div class="form-group"><label class="form-label">毎月投資額</label><input type="text" id="edit-savings" class="form-input" placeholder="例：3万円"></div>
+        <div class="form-group"><label class="form-label">目標資産</label><input type="text" id="edit-target" class="form-input" placeholder="例：3000万円"></div>
+        <div class="form-group">
+          <label class="form-label">保有株・投信（複数入力可）</label>
+          <div id="edit-stocks-list">
+            <div class="stock-row">
+              <input type="text" class="form-input stock-name" placeholder="銀柄名" style="flex:2">
+              <input type="text" class="form-input stock-qty" placeholder="株数" style="flex:1">
+              <input type="text" class="form-input stock-price" placeholder="取得価格" style="flex:1">
+              <button onclick="removeStockRow(this)" class="btn-icon">✕</button>
+            </div>
           </div>
+          <button onclick="addStockRow('edit-stocks-list')" class="btn-add">＋ 銀柄を追加</button>
+          <input type="hidden" id="edit-stocks">
         </div>
-        <div class="info-grid">
-          <div class="info-item"><div class="info-label" id="mp-label-assets">総資産</div><div class="info-value" id="mp-assets">—</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-target">目標資産</div><div class="info-value" id="mp-target">—</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-savings">毎月投資額</div><div class="info-value" id="mp-savings">—</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-income">年収</div><div class="info-value" id="mp-income">—</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-stocks">保有株</div><div class="info-value" id="mp-stocks" style="font-size:12px;">—</div></div>
-          <div class="info-item"><div class="info-label" id="mp-label-traded">トレード銘柄</div><div class="info-value" id="mp-traded" style="font-size:12px;">—</div></div>
-        </div>
-        <button class="btn-apply" onclick="applyToSimulator()" id="btn-apply">シミュレーターに反映する</button>
-        <details style="margin-top:0.8rem;">
-          <summary style="font-size:13px;color:#555;cursor:pointer;text-align:center;padding:0.4rem;">情報を更新する</summary>
-          <div class="reg-form" style="margin-top:0.8rem;">
-            <div class="reg-row"><label class="reg-label">名前（ハンネ）</label><input type="text" id="edit-name" class="reg-input" placeholder="例：ユーコ"></div>
-            <div class="reg-row"><label class="reg-label">年収</label><input type="text" id="edit-income" class="reg-input" placeholder="例：500万円"></div>
-            <div class="reg-row"><label class="reg-label">総資産</label><input type="text" id="edit-assets" class="reg-input" placeholder="例：300万円"></div>
-            <div class="reg-row"><label class="reg-label">毎月投資額</label><input type="text" id="edit-savings" class="reg-input" placeholder="例：3万円"></div>
-            <div class="reg-row"><label class="reg-label">目標資産</label><input type="text" id="edit-target" class="reg-input" placeholder="例：3000万円"></div>
-            <div class="reg-row"><label class="reg-label">保有株</label><input type="text" id="edit-stocks" class="reg-input" placeholder="例：アップル 10株"></div>
-            <div class="reg-row"><label class="reg-label">トレード銘柄</label><input type="text" id="edit-traded" class="reg-input" placeholder="例：TOPIX投信"></div>
-            <div id="edit-msg" style="text-align:center;font-size:13px;min-height:1.4em;color:#2d7a2d;margin-top:0.5rem;"></div>
-            <button class="btn-apply" onclick="submitEdit()" id="edit-btn" style="width:100%;margin-top:0.8rem;">更新する</button>
-          </div>
-        </details>
+        <div class="form-group"><label class="form-label">ウォッチリスト（カンマ区切り）</label><input type="text" id="edit-traded" class="form-input" placeholder="例：TOPIX投信, S&amp;P500"></div>
+        <div id="edit-msg" style="text-align:center;margin-bottom:8px;color:#2d7a2d;font-weight:600"></div>
+        <button id="edit-btn" class="btn" onclick="submitEdit()" style="width:100%;margin-bottom:8px">💾 保存する</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('mypage-edit').style.display='none';document.getElementById('mypage-content').style.display='block'" style="width:100%">← 戻る</button>
       </div>
     </div>
+
     <div id="mypage-nodata" style="display:none">
-      <div class="card" style="padding:1.5rem;">
-        <p style="text-align:center;color:#999;font-size:13px;margin-bottom:1.2rem;" id="nodata-msg">まだ情報が登録されていません。<br>下のフォームから登録できます！</p>
-        <div class="reg-form">
-          <div class="reg-row"><label class="reg-label">名前（ハンネ）</label><input type="text" id="reg-name" class="reg-input" placeholder="例：ユーコ"></div>
-          <div class="reg-row"><label class="reg-label">年収</label><input type="text" id="reg-income" class="reg-input" placeholder="例：500万円"></div>
-          <div class="reg-row"><label class="reg-label">総資産</label><input type="text" id="reg-assets" class="reg-input" placeholder="例：300万円"></div>
-          <div class="reg-row"><label class="reg-label">毎月投資額</label><input type="text" id="reg-savings" class="reg-input" placeholder="例：3万円"></div>
-          <div class="reg-row"><label class="reg-label">目標資産</label><input type="text" id="reg-target" class="reg-input" placeholder="例：3000万円"></div>
-          <div class="reg-row"><label class="reg-label">保有株</label><input type="text" id="reg-stocks" class="reg-input" placeholder="例：アップル 10株"></div>
-          <div class="reg-row"><label class="reg-label">トレード銘柄</label><input type="text" id="reg-traded" class="reg-input" placeholder="例：TOPIX投信"></div>
-          <div id="reg-msg" style="text-align:center;font-size:13px;min-height:1.4em;color:#2d7a2d;margin-top:0.5rem;"></div>
-          <button class="btn-apply" onclick="submitRegistration()" id="reg-btn" style="width:100%;margin-top:0.8rem;">登録する</button>
+      <div class="card" style="text-align:center;padding:1.5rem">
+        <div style="font-size:3rem;margin-bottom:1rem">📝</div>
+        <p id="nodata-msg" style="margin-bottom:1.5rem">まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊</p>
+      </div>
+      <div class="card">
+        <div class="mp-section-title">📝 ここから直接登録</div>
+        <div class="form-group"><label class="form-label">名前（ハンネ）</label><input type="text" id="reg-name" class="form-input" placeholder="例：ユーコ"></div>
+        <div class="form-group"><label class="form-label">年収</label><input type="text" id="reg-income" class="form-input" placeholder="例：500万円"></div>
+        <div class="form-group"><label class="form-label">総資産</label><input type="text" id="reg-assets" class="form-input" placeholder="例：300万円"></div>
+        <div class="form-group"><label class="form-label">毎月投資額</label><input type="text" id="reg-savings" class="form-input" placeholder="例：3万円"></div>
+        <div class="form-group"><label class="form-label">目標資産</label><input type="text" id="reg-target" class="form-input" placeholder="例：3000万円"></div>
+        <div class="form-group">
+          <label class="form-label">保有株・投信（複数入力可）</label>
+          <div id="reg-stocks-list">
+            <div class="stock-row">
+              <input type="text" class="form-input stock-name" placeholder="銀柄名" style="flex:2">
+              <input type="text" class="form-input stock-qty" placeholder="株数" style="flex:1">
+              <input type="text" class="form-input stock-price" placeholder="取得価格" style="flex:1">
+              <button onclick="removeStockRow(this)" class="btn-icon">✕</button>
+            </div>
+          </div>
+          <button onclick="addStockRow('reg-stocks-list')" class="btn-add">＋ 銀柄を追加</button>
+          <input type="hidden" id="reg-stocks">
         </div>
+        <div class="form-group"><label class="form-label">ウォッチリスト（カンマ区切り）</label><input type="text" id="reg-traded" class="form-input" placeholder="例：TOPIX投信, S&amp;P500"></div>
+        <div id="reg-msg" style="text-align:center;margin-bottom:8px;color:#2d7a2d;font-weight:600"></div>
+        <button id="reg-btn" class="btn" onclick="submitRegistration()" style="width:100%">登録する</button>
       </div>
     </div>
   </div>
+  <!-- 家計管理タブ -->
+  <div id="tab-kakeibo" class="tab-panel" style="display:none">
+    <div class="card" style="margin-bottom:12px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
+        <button class="btn btn-secondary btn-sm" onclick="changeKakeiboMonth(-1)">◄</button>
+        <div id="kakeibo-month-label" style="font-weight:700;font-size:1.1rem;color:#2d7a2d">2024年1月</div>
+        <button class="btn btn-secondary btn-sm" onclick="changeKakeiboMonth(1)">►</button>
+      </div>
+    </div>
+    <div class="mp-summary-grid" style="margin-bottom:12px">
+      <div class="mp-summary-card mp-card-green"><div class="mp-card-label">収入合計</div><div class="mp-card-value" id="kakeibo-income-total">¥0</div></div>
+      <div class="mp-summary-card mp-card-red"><div class="mp-card-label">支出合計</div><div class="mp-card-value" id="kakeibo-expense-total">¥0</div></div>
+      <div class="mp-summary-card mp-card-blue"><div class="mp-card-label">残り（谪蓄）</div><div class="mp-card-value" id="kakeibo-saving-total">¥0</div></div>
+      <div class="mp-summary-card mp-card-orange"><div class="mp-card-label">投資額</div><div class="mp-card-value" id="kakeibo-invest-total">¥0</div></div>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="mp-section-title">📊 支出カテゴリ</div>
+      <canvas id="kakeibo-chart" style="max-height:250px"></canvas>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="mp-section-title">💰 収入を記録</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <input type="text" id="kakeibo-income-desc" class="form-input" placeholder="内容（例：給与）">
+        <input type="number" id="kakeibo-income-amount" class="form-input" placeholder="金額（円）">
+      </div>
+      <button class="btn" onclick="addKakeiboEntry('income')" style="width:100%">＋ 収入を追加</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="mp-section-title">💸 支出を記録</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
+        <input type="text" id="kakeibo-expense-desc" class="form-input" placeholder="内容">
+        <select id="kakeibo-expense-cat" class="form-input">
+          <option value="食費">食費</option>
+          <option value="住居費">住居費</option>
+          <option value="光熱費">光熱費</option>
+          <option value="通信費">通信費</option>
+          <option value="交通費">交通費</option>
+          <option value="日用品">日用品</option>
+          <option value="娯楽・外食">娯楽・外食</option>
+          <option value="衣服・美容">衣服・美容</option>
+          <option value="医療・健康">医療・健康</option>
+          <option value="教育">教育</option>
+          <option value="投資">投資</option>
+          <option value="その他">その他</option>
+        </select>
+        <input type="number" id="kakeibo-expense-amount" class="form-input" placeholder="金額（円）">
+      </div>
+      <button class="btn" onclick="addKakeiboEntry('expense')" style="width:100%">＋ 支出を追加</button>
+    </div>
+    <div class="card" style="margin-bottom:12px">
+      <div class="mp-section-title">📋 今月の記録</div>
+      <div id="kakeibo-list" style="max-height:350px;overflow-y:auto"></div>
+    </div>
+  </div>
+
+
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
@@ -437,6 +601,10 @@ function applyToSimulator(){
 }
 
 async function submitRegistration(){
+      // 複数株入力を集約
+      const regStocksEl = document.getElementById('reg-stocks');
+      if(regStocksEl) regStocksEl.value = getStocksFromList('reg-stocks-list');
+
   const uid = (typeof UID !== 'undefined' ? UID : '') || new URLSearchParams(location.search).get('uid') || '';
   if(!uid){ document.getElementById('reg-msg').textContent='UIDが取得できません。LINEからシミュレーターを開いてください。'; document.getElementById('reg-msg').style.color='#e53e3e'; return; }
   const name = document.getElementById('reg-name').value.trim();
@@ -452,6 +620,10 @@ async function submitRegistration(){
   } catch(e){document.getElementById('reg-msg').textContent='エラー：'+e.message;document.getElementById('reg-msg').style.color='#e53e3e';btn.disabled=false;btn.textContent='登録する';}
 }
 async function submitEdit(){
+      // 複数株入力を集約
+      const editStocksEl = document.getElementById('edit-stocks');
+      if(editStocksEl) editStocksEl.value = getStocksFromList('edit-stocks-list');
+
   const uid=(typeof UID!=='undefined'?UID:'')||new URLSearchParams(location.search).get('uid')||'';
   if(!uid){document.getElementById('edit-msg').textContent='UIDが取得できません。';document.getElementById('edit-msg').style.color='#e53e3e';return;}
   const name=document.getElementById('edit-name').value.trim();
@@ -542,6 +714,154 @@ async function init(){
 }
 init();
 setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(function(r){updateFill(r);r.addEventListener('input',function(){updateFill(this);});});},300);
+
+    // ===== 複数株入力 =====
+    function addStockRow(listId) {
+      const list = document.getElementById(listId);
+      const row = document.createElement('div');
+      row.className = 'stock-row';
+      row.innerHTML = '<input type="text" class="form-input stock-name" placeholder="銀柄名" style="flex:2"><input type="text" class="form-input stock-qty" placeholder="株数" style="flex:1"><input type="text" class="form-input stock-price" placeholder="取得価格" style="flex:1"><button onclick="removeStockRow(this)" class="btn-icon">✕</button>';
+      list.appendChild(row);
+    }
+    function removeStockRow(btn) {
+      const row = btn.closest('.stock-row');
+      const list = row.parentElement;
+      if (list.querySelectorAll('.stock-row').length > 1) row.remove();
+    }
+    function getStocksFromList(listId) {
+      const rows = document.querySelectorAll('#' + listId + ' .stock-row');
+      const stocks = [];
+      rows.forEach(row => {
+        const name = row.querySelector('.stock-name').value.trim();
+        const qty = row.querySelector('.stock-qty').value.trim();
+        const price = row.querySelector('.stock-price').value.trim();
+        if (name) stocks.push(name + (qty?' '+qty+'株':'') + (price?' 取得価格'+price+'円':''));
+      });
+      return stocks.join('\n');
+    }
+    function renderMpStocks(stocksStr) {
+      const list = document.getElementById('mp-stocks-list');
+      if (!list) return;
+      if (!stocksStr) { list.innerHTML = '<div style="color:#aaa;text-align:center;padding:10px">未登録</div>'; return; }
+      const lines = stocksStr.split(/[\n,，]/).filter(l => l.trim());
+      list.innerHTML = lines.map(l => '<div class="mp-stock-item"><span class="mp-stock-name">📊 ' + l.trim() + '</span></div>').join('');
+    }
+    function renderMpTraded(tradedStr) {
+      const el = document.getElementById('mp-traded');
+      if (!el) return;
+      if (!tradedStr) { el.innerHTML = '<div style="color:#aaa">未登録</div>'; return; }
+      const chips = tradedStr.split(/[,，\n]/).filter(t => t.trim());
+      el.innerHTML = chips.map(t => '<span class="mp-chip">🔍 ' + t.trim() + '</span>').join('');
+    }
+    function updateProgressBar(assets, target) {
+      const assetsNum = parseFloat((assets||'').replace(/[^0-9.]/g,''));
+      const targetNum = parseFloat((target||'').replace(/[^0-9.]/g,''));
+      const pct = (assetsNum && targetNum) ? Math.min(100, Math.round(assetsNum/targetNum*100)) : 0;
+      const fill = document.getElementById('mp-progress-fill');
+      const pctEl = document.getElementById('mp-progress-pct');
+      if (fill) fill.style.width = pct + '%';
+      if (pctEl) pctEl.textContent = pct + '%';
+    }
+    
+    // ===== 家計管理 =====
+    let kakeiboYear = new Date().getFullYear(), kakeiboMonth = new Date().getMonth() + 1;
+    function updateKakeiboMonthLabel() {
+      const el = document.getElementById('kakeibo-month-label');
+      if(el) el.textContent = kakeiboYear + '年' + kakeiboMonth + '月';
+      renderKakeiboList();
+    }
+    function changeKakeiboMonth(d) {
+      kakeiboMonth += d;
+      if(kakeiboMonth > 12) { kakeiboMonth = 1; kakeiboYear++; }
+      if(kakeiboMonth < 1) { kakeiboMonth = 12; kakeiboYear--; }
+      updateKakeiboMonthLabel();
+    }
+    function getKakeiboKey() { return 'kb_' + kakeiboYear + '_' + String(kakeiboMonth).padStart(2,'0'); }
+    function getKakeiboData() { try { return JSON.parse(localStorage.getItem(getKakeiboKey()) || '[]'); } catch(e) { return []; } }
+    function saveKakeiboData(data) { localStorage.setItem(getKakeiboKey(), JSON.stringify(data)); }
+    function addKakeiboEntry(type) {
+      if(type === 'income') {
+        const desc = (document.getElementById('kakeibo-income-desc')||{}).value||'';
+        const amount = parseInt((document.getElementById('kakeibo-income-amount')||{}).value||0)||0;
+        if(!desc.trim()||!amount){alert('内容と金額を入力してください');return;}
+        const data = getKakeiboData();
+        data.push({id:Date.now(),type:'income',desc:desc.trim(),amount,cat:'収入',date:new Date().toLocaleDateString('ja-JP')});
+        saveKakeiboData(data);
+        document.getElementById('kakeibo-income-desc').value='';
+        document.getElementById('kakeibo-income-amount').value='';
+      } else {
+        const desc = (document.getElementById('kakeibo-expense-desc')||{}).value||'';
+        const cat = (document.getElementById('kakeibo-expense-cat')||{}).value||'その他';
+        const amount = parseInt((document.getElementById('kakeibo-expense-amount')||{}).value||0)||0;
+        if(!desc.trim()||!amount){alert('内容と金額を入力してください');return;}
+        const data = getKakeiboData();
+        data.push({id:Date.now(),type:'expense',desc:desc.trim(),amount,cat,date:new Date().toLocaleDateString('ja-JP')});
+        saveKakeiboData(data);
+        document.getElementById('kakeibo-expense-desc').value='';
+        document.getElementById('kakeibo-expense-amount').value='';
+      }
+      renderKakeiboList();
+    }
+    function deleteKakeiboEntry(id) { saveKakeiboData(getKakeiboData().filter(e=>e.id!==id)); renderKakeiboList(); }
+    let _kkChart = null;
+    function renderKakeiboList() {
+      const data = getKakeiboData();
+      const list = document.getElementById('kakeibo-list');
+      if(!list) return;
+      let inc=0,exp=0,inv=0;
+      const cats = {};
+      data.forEach(e => {
+        if(e.type==='income') inc+=e.amount;
+        else { exp+=e.amount; cats[e.cat]=(cats[e.cat]||0)+e.amount; if(e.cat==='投資') inv+=e.amount; }
+      });
+      const setV = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
+      setV('kakeibo-income-total','¥'+inc.toLocaleString());
+      setV('kakeibo-expense-total','¥'+exp.toLocaleString());
+      const sav = inc-exp;
+      setV('kakeibo-saving-total',(sav>=0?'+':'')+'¥'+sav.toLocaleString());
+      setV('kakeibo-invest-total','¥'+inv.toLocaleString());
+      // グラフ
+      const canvas = document.getElementById('kakeibo-chart');
+      if(canvas && typeof Chart !== 'undefined') {
+        const labels = Object.keys(cats), vals = Object.values(cats);
+        if(labels.length > 0) {
+          if(_kkChart) _kkChart.destroy();
+          const colors=['#4CAF50','#2196F3','#FF9800','#9C27B0','#F44336','#00BCD4','#FF5722','#607D8B','#E91E63','#3F51B5','#009688','#795548'];
+          _kkChart = new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:colors.slice(0,labels.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});
+        }
+      }
+      // リスト
+      if(data.length===0){list.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">まだ記録がありません</div>';return;}
+      list.innerHTML=[...data].sort((a,b)=>b.id-a.id).map(e=>
+        '<div class="kakeibo-entry kakeibo-entry-'+e.type+'"><div><div style="font-weight:500">'+e.desc+'</div><div style="display:flex;gap:6px;margin-top:4px"><span class="ke-cat">'+e.cat+'</span><span style="font-size:0.75rem;color:#aaa">'+e.date+'</span></div></div><div style="display:flex;align-items:center;gap:8px"><span class="ke-amount">'+(e.type==='income'?'+':'-')+'¥'+e.amount.toLocaleString()+'</span><button class="ke-del" onclick="deleteKakeiboEntry('+e.id+')">✕</button></div></div>'
+      ).join('');
+    }
+    
+    // renderMyPage 新UI対応
+    const _origRenderMyPage = typeof renderMyPage === 'function' ? renderMyPage : null;
+    renderMyPage = function(d) {
+      const setEl = (id, val) => { const el=document.getElementById(id); if(el) el.textContent=val||''; };
+      setEl('mp-name', d.name);
+      const mpUpdEl = document.getElementById('mp-updated');
+      if(mpUpdEl) mpUpdEl.textContent = (window._mpLastUpdate||'最終更新：') + (d.updated_at ? d.updated_at.slice(0,10) : '-');
+      setEl('mp-assets', d.savings || d.financial_info || '-');
+      setEl('mp-target', d.target_asset || '-');
+      setEl('mp-savings', d.savings || '-');
+      setEl('mp-income', d.financial_info || '-');
+      updateProgressBar(d.savings, d.target_asset);
+      renderMpStocks(d.stocks_owned);
+      renderMpTraded(d.stocks_traded);
+    };
+    
+    // タブ切り替え時に家計管理初期化
+    const _origSwitchTab = typeof switchTab === 'function' ? switchTab : function(){};
+    switchTab = function(tab) {
+      _origSwitchTab(tab);
+      if(tab==='kakeibo') { updateKakeiboMonthLabel(); }
+    };
+    
+    // 初期化
+    updateKakeiboMonthLabel();
 </script>
 </body>
 </html>
