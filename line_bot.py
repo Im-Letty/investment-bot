@@ -511,7 +511,7 @@ def handle_message(event):
                 send_line_message(analysis, user_id=line_user_id)
 
         elif intent == "simulator":
-            sim_url = "https://investment-bot-ta24.onrender.com"
+            sim_url = f"https://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}"
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                                 messages=[TextMessage(text=f"📊 投資シミュレーターはこちら！\n{sim_url}")]
