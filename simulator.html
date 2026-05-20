@@ -34,10 +34,10 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
 @keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 .tab-panel { animation: fadeSlideIn 0.35s ease forwards; }
 .card { background: #ffffff; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 6px rgba(0,100,0,0.08); border: 1px solid rgba(0,120,0,0.12); }
-.row { display: grid; grid-template-columns: 86px 1fr 130px; align-items: center; gap: 8px; margin-bottom: 1rem; }
+.row { display: grid; grid-template-columns: 80px 1fr 90px; align-items: center; gap: 6px; margin-bottom: 1rem; }
 .row:last-child { margin-bottom: 0; }
 .row label { font-size: 13px; color: #9ab09a; white-space: nowrap; overflow: hidden; }
-.row input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; height: 3px; border-radius: 2px; outline: none; cursor: pointer; background: linear-gradient(to right, #2d7a2d 0%, #d8d8d8 0%); }
+.row input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; height: 3px; border-radius: 2px; outline: none; cursor: pointer; background: linear-gradient(to right, #2d7a2d 0%, #d8d8d8 0%); overflow: visible; }
 .row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 14px; border-radius: 8px; background: #ffffff; border: 1.5px solid #cccccc; box-shadow: 0 1px 4px rgba(0,0,0,0.15); cursor: pointer; margin-top: -5.5px; }
 .row input[type=range]::-moz-range-thumb { width: 26px; height: 14px; border-radius: 8px; background: #ffffff; border: 1.5px solid #cccccc; cursor: pointer; }
 .row input[type=range]::-moz-range-progress { background: #2d7a2d; height: 3px; }
