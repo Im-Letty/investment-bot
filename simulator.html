@@ -553,12 +553,12 @@ function setLang(lang){
 }
 
 function switchTab(name){
-  ['daily','monthly','lump','goal','mypage'].forEach(n=>{
+  ['daily','monthly','lump','goal','mypage','kakeibo'].forEach(n=>{
     const el=document.getElementById('tab-'+n);
     if(n===name){el.style.display='';el.classList.remove('tab-panel');void el.offsetWidth;el.classList.add('tab-panel');}
     else el.style.display='none';
   });
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['daily','monthly','lump','goal','mypage'][i]===name));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['daily','monthly','lump','goal','mypage','kakeibo'][i]===name));
   if(name==='daily')calcD();if(name==='monthly')calcM();if(name==='lump')calcL();if(name==='goal')calcG();if(name==='mypage')loadMyPage();
 }
 
@@ -854,11 +854,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     };
     
     // タブ切り替え時に家計管理初期化
-    const _origSwitchTab = typeof switchTab === 'function' ? switchTab : function(){};
-    switchTab = function(tab) {
-      _origSwitchTab(tab);
-      if(tab==='kakeibo') { updateKakeiboMonthLabel(); }
-    };
+    
     
     // 初期化
     updateKakeiboMonthLabel();
