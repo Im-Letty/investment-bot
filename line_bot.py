@@ -26,11 +26,11 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 WATCHLIST = [
-    "7203.T",  # トヨタ
-    "6758.T",  # ソニー
-    "9984.T",  # ソフトバンクグループ
-    "6861.T",  # キーエンス
-    "8306.T",  # 三菱UFJ
+    "7203.T",  # ãã¨ã¿
+    "6758.T",  # ã½ãã¼
+    "9984.T",  # ã½ãããã³ã¯ã°ã«ã¼ã
+    "6861.T",  # ã­ã¼ã¨ã³ã¹
+    "8306.T",  # ä¸è±UFJ
 ]
 
 configuration = Configuration(access_token=LINE_CHANNEL_TOKEN)
@@ -61,40 +61,40 @@ def detect_language(text):
 def get_message(lang, key):
     messages = {
         "waiting_morning": {
-            "ja": "朝レターを生成中です。\n少々お待ちください（1〜2分）...",
+            "ja": "æã¬ã¿ã¼ãçæä¸­ã§ãã\nå°ããå¾ã¡ãã ããï¼1ã2åï¼...",
             "en": "Generating morning report.\nPlease wait (1-2 min)...",
-            "ko": "아침 레터를 생성 중입니다.\n잠시 기다려주세요...",
-            "zh": "正在生成早报。\n请稍候...",
+            "ko": "ìì¹¨ ë í°ë¥¼ ìì± ì¤ìëë¤.\nì ì ê¸°ë¤ë ¤ì£¼ì¸ì...",
+            "zh": "æ­£å¨çææ©æ¥ã\nè¯·ç¨å...",
         },
         "register_form": {
-            "ja": "📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名",
-            "en": "📝 Register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
-            "ko": "📝 자산 정보를 등록합니다！\n\n다음 형식으로 보내주세요：\n\n이름：〇〇\n연수입：〇〇\n총자산：〇〇\n월 투자액：〇〇\n목표자산：〇〇\n보유주식：종목명 주수 가격\n트레이드 종목：종목명",
-            "zh": "📝 注册资产信息！\n\n请按以下格式发送：\n\n姓名：〇〇\n年收入：〇〇\n总资产：〇〇\n每月投资额：〇〇\n目标资产：〇〇\n持有股票：股票名称 股数 价格\n交易股票：股票名称",
+            "ja": "ð è³ç£æå ±ãç»é²ãã¾ãï¼\n\nä»¥ä¸ã®å½¢å¼ã§éã£ã¦ãã ããï¼\n\nååï¼ãã\nå¹´åï¼ããä¸å\nç·è³ç£ï¼ããä¸å\næ¯ææè³é¡ï¼ããä¸å\nç®æ¨è³ç£ï¼ããä¸å\nä¿ææ ªï¼éæå æ ªæ° åå¾ä¾¡æ ¼å\nãã¬ã¼ãéæï¼éæå",
+            "en": "ð Register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
+            "ko": "ð ìì° ì ë³´ë¥¼ ë±ë¡í©ëë¤ï¼\n\në¤ì íìì¼ë¡ ë³´ë´ì£¼ì¸ìï¼\n\nì´ë¦ï¼ãã\nì°ììï¼ãã\nì´ìì°ï¼ãã\nì í¬ìì¡ï¼ãã\nëª©íìì°ï¼ãã\në³´ì ì£¼ìï¼ì¢ëª©ëª ì£¼ì ê°ê²©\ní¸ë ì´ë ì¢ëª©ï¼ì¢ëª©ëª",
+            "zh": "ð æ³¨åèµäº§ä¿¡æ¯ï¼\n\nè¯·æä»¥ä¸æ ¼å¼åéï¼\n\nå§åï¼ãã\nå¹´æ¶å¥ï¼ãã\næ»èµäº§ï¼ãã\næ¯ææèµé¢ï¼ãã\nç®æ èµäº§ï¼ãã\nææè¡ç¥¨ï¼è¡ç¥¨åç§° è¡æ° ä»·æ ¼\näº¤æè¡ç¥¨ï¼è¡ç¥¨åç§°",
         },
         "analyzing": {
-            "ja": "📊 資産分析中です。\n少々お待ちください...",
-            "en": "📊 Analyzing your assets.\nPlease wait...",
-            "ko": "📊 자산 분석 중입니다.\n잠시 기다려주세요...",
-            "zh": "📊 正在分析您的资产。\n请稍候...",
+            "ja": "ð è³ç£åæä¸­ã§ãã\nå°ããå¾ã¡ãã ãã...",
+            "en": "ð Analyzing your assets.\nPlease wait...",
+            "ko": "ð ìì° ë¶ì ì¤ìëë¤.\nì ì ê¸°ë¤ë ¤ì£¼ì¸ì...",
+            "zh": "ð æ­£å¨åææ¨çèµäº§ã\nè¯·ç¨å...",
         },
         "no_assets": {
-            "ja": "まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊",
-            "en": "No asset info registered yet.\nPlease send 'register' to add your info😊",
-            "ko": "아직 자산 정보가 없습니다.\n'등록'을 보내주세요😊",
-            "zh": "尚未注册资产信息。\n请发送'注册'😊",
+            "ja": "ã¾ã è³ç£æå ±ãç»é²ããã¦ãã¾ããã\nãç»é²ãã¨éã£ã¦æå ±ãç»é²ãã¦ãã ããð",
+            "en": "No asset info registered yet.\nPlease send 'register' to add your infoð",
+            "ko": "ìì§ ìì° ì ë³´ê° ììµëë¤.\n'ë±ë¡'ì ë³´ë´ì£¼ì¸ìð",
+            "zh": "å°æªæ³¨åèµäº§ä¿¡æ¯ã\nè¯·åé'æ³¨å'ð",
         },
         "saved": {
-            "ja": "✅ 保存しました！\n「分析して」と送ると資産分析ができます😊",
-            "en": "✅ Saved!\nSend 'analyze' to get your asset analysis😊",
-            "ko": "✅ 저장했습니다！\n'분석'을 보내주세요😊",
-            "zh": "✅ 已保存！\n发送'分析'即可😊",
+            "ja": "â ä¿å­ãã¾ããï¼\nãåæãã¦ãã¨éãã¨è³ç£åæãã§ãã¾ãð",
+            "en": "â Saved!\nSend 'analyze' to get your asset analysisð",
+            "ko": "â ì ì¥íìµëë¤ï¼\n'ë¶ì'ì ë³´ë´ì£¼ì¸ìð",
+            "zh": "â å·²ä¿å­ï¼\nåé'åæ'å³å¯ð",
         },
         "waiting": {
-            "ja": "確認しています。少々お待ちください...",
+            "ja": "ç¢ºèªãã¦ãã¾ããå°ããå¾ã¡ãã ãã...",
             "en": "Checking. Please wait...",
-            "ko": "확인 중입니다. 잠시 기다려주세요...",
-            "zh": "正在确认。请稍候...",
+            "ko": "íì¸ ì¤ìëë¤. ì ì ê¸°ë¤ë ¤ì£¼ì¸ì...",
+            "zh": "æ­£å¨ç¡®è®¤ãè¯·ç¨å...",
         },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
@@ -102,20 +102,20 @@ def get_message(lang, key):
 def detect_intent(text, lang="ja"):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
-ユーザーのメッセージを読んで、意図を以下の6つから1つだけ選んでください。
-回答は必ずその単語1つだけ返してください。他の言葉は一切不要です。
+ã¦ã¼ã¶ã¼ã®ã¡ãã»ã¼ã¸ãèª­ãã§ãæå³ãä»¥ä¸ã®6ã¤ãã1ã¤ã ãé¸ãã§ãã ããã
+åç­ã¯å¿ããã®åèª1ã¤ã ãè¿ãã¦ãã ãããä»ã®è¨èã¯ä¸åä¸è¦ã§ãã
 
-選択肢：
-- morning    … 朝レター・今日の相場・ニュースを見たい
-- register   … 情報登録・参加したい・始めたい・新規登録・使いたい
-- analyze    … 自分の資産を分析してほしい・ポートフォリオ確認
-- save       … コロン（：または:）を含む情報入力
-- simulator  … シミュレーター・投資計算・運用計算を見たい
-- question   … 上記以外の質問・雑談・その他
+é¸æè¢ï¼
+- morning    â¦ æã¬ã¿ã¼ã»ä»æ¥ã®ç¸å ´ã»ãã¥ã¼ã¹ãè¦ãã
+- register   â¦ æå ±ç»é²ã»åå ãããã»å§ãããã»æ°è¦ç»é²ã»ä½¿ããã
+- analyze    â¦ èªåã®è³ç£ãåæãã¦ã»ããã»ãã¼ããã©ãªãªç¢ºèª
+- save       â¦ ã³ã­ã³ï¼ï¼ã¾ãã¯:ï¼ãå«ãæå ±å¥å
+- simulator  â¦ ã·ãã¥ã¬ã¼ã¿ã¼ã»æè³è¨ç®ã»éç¨è¨ç®ãè¦ãã
+- question   â¦ ä¸è¨ä»¥å¤ã®è³ªåã»éè«ã»ãã®ä»
 
-ユーザーのメッセージ：「{text}」
+ã¦ã¼ã¶ã¼ã®ã¡ãã»ã¼ã¸ï¼ã{text}ã
 
-回答（1単語のみ）："""
+åç­ï¼1åèªã®ã¿ï¼ï¼"""
 
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -131,21 +131,21 @@ def parse_and_save_user_info(line_user_id, text):
     data = {}
     lines = text.strip().split("\n")
     for line in lines:
-        if "名前：" in line or "名前:" in line or "Name:" in line or "name:" in line:
-            data["name"] = line.split("：")[-1].split(":")[-1].strip()
-        elif "年収：" in line or "年収:" in line or "income:" in line.lower():
+        if "ååï¼" in line or "åå:" in line or "Name:" in line or "name:" in line:
+            data["name"] = line.split("ï¼")[-1].split(":")[-1].strip()
+        elif "å¹´åï¼" in line or "å¹´å:" in line or "income:" in line.lower():
             data["financial_info"] = line.strip()
-        elif "総資産：" in line or "総資産:" in line or "total assets:" in line.lower():
+        elif "ç·è³ç£ï¼" in line or "ç·è³ç£:" in line or "total assets:" in line.lower():
             data["target_asset"] = line.strip()
-        elif "毎月投資額：" in line or "毎月投資額:" in line or "monthly:" in line.lower():
+        elif "æ¯ææè³é¡ï¼" in line or "æ¯ææè³é¡:" in line or "monthly:" in line.lower():
             data["savings"] = line.strip()
-        elif "目標資産：" in line or "目標資産:" in line or "target:" in line.lower():
+        elif "ç®æ¨è³ç£ï¼" in line or "ç®æ¨è³ç£:" in line or "target:" in line.lower():
             data["target_asset"] = line.strip()
-        elif "保有株：" in line or "保有株:" in line or "stocks owned:" in line.lower():
-            data["stocks_owned"] = line.split("：")[-1].split(":")[-1].strip()
-        elif "トレード銘柄：" in line or "トレード銘柄:" in line or "trading:" in line.lower():
-            data["stocks_traded"] = line.split("：")[-1].split(":")[-1].strip()
-        elif "出費：" in line or "出費:" in line or "expenses:" in line.lower():
+        elif "ä¿ææ ªï¼" in line or "ä¿ææ ª:" in line or "stocks owned:" in line.lower():
+            data["stocks_owned"] = line.split("ï¼")[-1].split(":")[-1].strip()
+        elif "ãã¬ã¼ãéæï¼" in line or "ãã¬ã¼ãéæ:" in line or "trading:" in line.lower():
+            data["stocks_traded"] = line.split("ï¼")[-1].split(":")[-1].strip()
+        elif "åºè²»ï¼" in line or "åºè²»:" in line or "expenses:" in line.lower():
             data["expenses"] = line.strip()
     if data:
         save_user(line_user_id, data)
@@ -208,12 +208,12 @@ def send_line_message(text, user_id=None):
 
 def fetch_market_data():
     tickers = {
-        "日経225":    "^N225",
-        "ドル円":     "JPY=X",
-        "米10年金利": "^TNX",
+        "æ¥çµ225":    "^N225",
+        "ãã«å":     "JPY=X",
+        "ç±³10å¹´éå©": "^TNX",
         "S&P500":    "^GSPC",
-        "NYダウ":     "^DJI",
-        "VIX恐怖指数":"^VIX",
+        "NYãã¦":     "^DJI",
+        "VIXææææ°":"^VIX",
     }
     results = {}
     for label, symbol in tickers.items():
@@ -223,9 +223,9 @@ def fetch_market_data():
                 val   = hist["Close"].iloc[-1]
                 prev  = hist["Close"].iloc[-2]
                 pct   = (val - prev) / prev * 100
-                arrow = "▲" if pct >= 0 else "▼"
+                arrow = "â²" if pct >= 0 else "â¼"
                 results[label] = {
-                    "display": f"{val:,.2f}　{arrow}{abs(pct):.2f}%",
+                    "display": f"{val:,.2f}ã{arrow}{abs(pct):.2f}%",
                     "pct": pct,
                     "value": val
                 }
@@ -244,11 +244,11 @@ def fetch_watchlist():
                 val   = hist["Close"].iloc[-1]
                 prev  = hist["Close"].iloc[-2]
                 pct   = (val - prev) / prev * 100
-                arrow = "▲" if pct >= 0 else "▼"
+                arrow = "â²" if pct >= 0 else "â¼"
                 results.append({
                     "symbol": symbol,
                     "name": name,
-                    "display": f"{name}（{symbol}）　{val:,.0f}円　{arrow}{abs(pct):.2f}%"
+                    "display": f"{name}ï¼{symbol}ï¼ã{val:,.0f}åã{arrow}{abs(pct):.2f}%"
                 })
         except Exception:
             pass
@@ -256,73 +256,73 @@ def fetch_watchlist():
 
 def fetch_news():
     rss = {
-        "NHK経済":      "https://www.nhk.or.jp/rss/news/cat5.xml",
-        "NHK株・企業":  "https://www.nhk.or.jp/rss/news/cat4.xml",
-        "ロイター経済":  "https://feeds.reuters.com/reuters/businessNews",
-        "ロイター米国株":"https://feeds.reuters.com/reuters/companyNews",
+        "NHKçµæ¸":      "https://www.nhk.or.jp/rss/news/cat5.xml",
+        "NHKæ ªã»ä¼æ¥­":  "https://www.nhk.or.jp/rss/news/cat4.xml",
+        "ã­ã¤ã¿ã¼çµæ¸":  "https://feeds.reuters.com/reuters/businessNews",
+        "ã­ã¤ã¿ã¼ç±³å½æ ª":"https://feeds.reuters.com/reuters/companyNews",
     }
     all_news = {}
     for label, url in rss.items():
         feed = feedparser.parse(url)
-        all_news[label] = "\n".join([f"・{e.title}" for e in feed.entries[:7]])
+        all_news[label] = "\n".join([f"ã»{e.title}" for e in feed.entries[:7]])
     return all_news
 
 def generate_morning_report():
     market    = fetch_market_data()
     watchlist = fetch_watchlist()
     news      = fetch_news()
-    today     = date.today().strftime("%Y年%m月%d日")
-    weekday   = ["月","火","水","木","金","土","日"][date.today().weekday()]
+    today     = date.today().strftime("%Yå¹´%mæ%dæ¥")
+    weekday   = ["æ","ç«","æ°´","æ¨","é","å","æ¥"][date.today().weekday()]
 
-    market_text    = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
+    market_text    = "\n".join([f"ã»{k}ï¼{v['display']}" for k, v in market.items()])
     watchlist_text = "\n".join([s["display"] for s in watchlist])
-    news_text      = "\n".join([f"【{k}】\n{v}" for k, v in news.items()])
+    news_text      = "\n".join([f"ã{k}ã\n{v}" for k, v in news.items()])
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
-あなたは、株の初心者に毎朝「今日の投資判断材料」を届ける、正確で親切な先生です。
+ããªãã¯ãæ ªã®åå¿èã«æ¯æãä»æ¥ã®æè³å¤æ­ææããå±ãããæ­£ç¢ºã§è¦ªåãªåçã§ãã
 
-【絶対に守るルール】
-・専門用語は必ず（）で説明する
-・理由を必ず書く
-・不確かなことは書かない
-・##や**などの記号は絶対に使わない
-・見出しは【】で囲む
-・区切り線は ━━━━━━━ を使う
-・絵文字を適度に使う
-・スマホの縦画面で読みやすいよう、1行を短めにする
-・市場の雰囲気🟢落ち着いている🟡やや不安🔴パニックのどれかだけで表示する
+ãçµ¶å¯¾ã«å®ãã«ã¼ã«ã
+ã»å°éç¨èªã¯å¿ãï¼ï¼ã§èª¬æãã
+ã»çç±ãå¿ãæ¸ã
+ã»ä¸ç¢ºããªãã¨ã¯æ¸ããªã
+ã»##ã**ãªã©ã®è¨å·ã¯çµ¶å¯¾ã«ä½¿ããªã
+ã»è¦åºãã¯ããã§å²ã
+ã»åºåãç·ã¯ âââââââ ãä½¿ã
+ã»çµµæå­ãé©åº¦ã«ä½¿ã
+ã»ã¹ããã®ç¸¦ç»é¢ã§èª­ã¿ãããããã1è¡ãç­ãã«ãã
+ã»å¸å ´ã®é°å²æ°ð¢è½ã¡çãã¦ããð¡ããä¸å®ð´ãããã¯ã®ã©ããã ãã§è¡¨ç¤ºãã
 
-今日：{today}（{weekday}曜日）
+ä»æ¥ï¼{today}ï¼{weekday}ææ¥ï¼
 
-【市場データ（前日終値）】
+ãå¸å ´ãã¼ã¿ï¼åæ¥çµå¤ï¼ã
 {market_text}
 
-【ウォッチリスト銘柄】
+ãã¦ã©ãããªã¹ãéæã
 {watchlist_text}
 
-【今日のニュース（複数ソース）】
+ãä»æ¥ã®ãã¥ã¼ã¹ï¼è¤æ°ã½ã¼ã¹ï¼ã
 {news_text}
 
-☀️ {today}（{weekday}）の朝レター
-─────────────────
-今日の一言：（今日の相場を一文で表す）
-─────────────────
+âï¸ {today}ï¼{weekday}ï¼ã®æã¬ã¿ã¼
+âââââââââââââââââ
+ä»æ¥ã®ä¸è¨ï¼ï¼ä»æ¥ã®ç¸å ´ãä¸æã§è¡¨ãï¼
+âââââââââââââââââ
 
-━━ 📊 市場データ ━━
-━━ 💴 ドル円と金利：今日の影響 ━━
-━━ 📰 今日の重要ニュース ━━
-━━ 🗓️ 今日の相場予想 ━━
-━━ 🎯 今日の取引判断材料 ━━
-【デイトレード】
-【スイングトレード】
-【積立・投資信託】
-━━ 🔍 ウォッチリスト ━━
+ââ ð å¸å ´ãã¼ã¿ ââ
+ââ ð´ ãã«åã¨éå©ï¼ä»æ¥ã®å½±é¿ ââ
+ââ ð° ä»æ¥ã®éè¦ãã¥ã¼ã¹ ââ
+ââ ðï¸ ä»æ¥ã®ç¸å ´äºæ³ ââ
+ââ ð¯ ä»æ¥ã®åå¼å¤æ­ææ ââ
+ããã¤ãã¬ã¼ãã
+ãã¹ã¤ã³ã°ãã¬ã¼ãã
+ãç©ç«ã»æè³ä¿¡è¨ã
+ââ ð ã¦ã©ãããªã¹ã ââ
 {watchlist_text}
-━━ 💡 今日の一語 ━━
-─────────────────
-今日も正確に、自分のペースで。
-─────────────────
+ââ ð¡ ä»æ¥ã®ä¸èª ââ
+âââââââââââââââââ
+ä»æ¥ãæ­£ç¢ºã«ãèªåã®ãã¼ã¹ã§ã
+âââââââââââââââââ
 """
 
     msg = client.messages.create(
@@ -393,21 +393,21 @@ def check_alerts():
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     def make_alert(name, symbol, price, pct, market_ctx):
-        direction = "急上昇📈" if pct > 0 else "急落📉"
+        direction = "æ¥ä¸æð" if pct > 0 else "æ¥è½ð"
         prompt = f"""
-投資初心者向けの緊急アラートを書いてください。
-・{name}（{symbol}）が本日{abs(pct):.1f}%{direction}
-・現在値：{price:,.0f}円
-・市場状況：{market_ctx}
+æè³åå¿èåãã®ç·æ¥ã¢ã©ã¼ããæ¸ãã¦ãã ããã
+ã»{name}ï¼{symbol}ï¼ãæ¬æ¥{abs(pct):.1f}%{direction}
+ã»ç¾å¨å¤ï¼{price:,.0f}å
+ã»å¸å ´ç¶æ³ï¼{market_ctx}
 
-⚡【緊急】{name}が{direction}
-📍 今何が起きているか
-📍 なぜ動いているか
-📍 デイトレードへの影響
-📍 スイングトレードへの影響
-📍 注意点・リスク
-─────────────
-最終判断はご自身でお願いします。
+â¡ãç·æ¥ã{name}ã{direction}
+ð ä»ä½ãèµ·ãã¦ããã
+ð ãªãåãã¦ããã
+ð ãã¤ãã¬ã¼ãã¸ã®å½±é¿
+ð ã¹ã¤ã³ã°ãã¬ã¼ãã¸ã®å½±é¿
+ð æ³¨æç¹ã»ãªã¹ã¯
+âââââââââââââ
+æçµå¤æ­ã¯ãèªèº«ã§ãé¡ããã¾ãã
 """
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
@@ -423,12 +423,12 @@ def check_alerts():
             val  = n225["Close"].iloc[-1]
             opn  = n225["Open"].iloc[0]
             pct  = (val - opn) / opn * 100
-            arrow = "▲" if pct >= 0 else "▼"
-            market_ctx = f"日経225：{val:,.0f}円（{arrow}{abs(pct):.1f}%）"
+            arrow = "â²" if pct >= 0 else "â¼"
+            market_ctx = f"æ¥çµ225ï¼{val:,.0f}åï¼{arrow}{abs(pct):.1f}%ï¼"
             if abs(pct) >= 1.5:
                 key = f"nikkei_{today_str}_{int(pct)}"
                 if key not in state:
-                    alert = make_alert("日経225", "^N225", val, pct, market_ctx)
+                    alert = make_alert("æ¥çµ225", "^N225", val, pct, market_ctx)
                     send_line_message(alert)
                     state[key] = now.isoformat()
     except Exception:
@@ -437,7 +437,7 @@ def check_alerts():
     try:
         usdjpy = yf.Ticker("JPY=X").history(period="2d")
         if len(usdjpy) >= 2:
-            market_ctx += f"　ドル円：{usdjpy['Close'].iloc[-1]:.2f}円"
+            market_ctx += f"ããã«åï¼{usdjpy['Close'].iloc[-1]:.2f}å"
     except Exception:
         pass
 
@@ -514,7 +514,7 @@ def handle_message(event):
             sim_url = f"https://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}"
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                                messages=[TextMessage(text=f"📊 投資シミュレーターはこちら！\n{sim_url}")]
+                                messages=[TextMessage(text=f"ð æè³ã·ãã¥ã¬ã¼ã¿ã¼ã¯ãã¡ãï¼\n{sim_url}")]
             ))
 
         elif intent == "save":
@@ -577,6 +577,26 @@ def api_user_data():
         "updated_at": user.get("updated_at"),
     }
     return jsonify(safe)
+
+@app.route("/api/save-user-data", methods=["POST"])
+def api_save_user_data():
+    try:
+        body = request.get_json(force=True) or {}
+        uid = body.get("uid", "")
+        if not uid:
+            return jsonify({"error": "no uid"}), 400
+        data = {}
+        if body.get("name"): data["name"] = body["name"]
+        if body.get("savings"): data["savings"] = body["savings"]
+        if body.get("target_asset"): data["target_asset"] = body["target_asset"]
+        if body.get("financial_info"): data["financial_info"] = body["financial_info"]
+        if body.get("stocks_owned"): data["stocks_owned"] = body["stocks_owned"]
+        if body.get("stocks_traded"): data["stocks_traded"] = body["stocks_traded"]
+        if body.get("expenses"): data["expenses"] = body["expenses"]
+        save_user(uid, data)
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 @app.route("/simulator")
 def simulator():
