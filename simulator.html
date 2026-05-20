@@ -37,7 +37,8 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
 .row { display: grid; grid-template-columns: 64px 1fr 68px; align-items: center; gap: 6px; margin-bottom: 1rem; }
 .row:last-child { margin-bottom: 0; }
 .row label { font-size: 11px; color: #9ab09a; white-space: nowrap; overflow: hidden; }
-.row input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; height: 3px; border-radius: 2px; outline: none; cursor: pointer; background: linear-gradient(to right, #2d7a2d 0%, #d8d8d8 0%); overflow: visible; }
+.row input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; height: 14px; border-radius: 2px; outline: none; cursor: pointer; background: transparent; overflow: visible; }
+.row input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: var(--fill, linear-gradient(to right, #d8d8d8 0%, #d8d8d8 0%)); }
 .row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 14px; border-radius: 8px; background: #ffffff; border: 1.5px solid #cccccc; box-shadow: 0 1px 4px rgba(0,0,0,0.15); cursor: pointer; margin-top: -5.5px; }
 .row input[type=range]::-moz-range-thumb { width: 26px; height: 14px; border-radius: 8px; background: #ffffff; border: 1.5px solid #cccccc; cursor: pointer; }
 .row input[type=range]::-moz-range-progress { background: #2d7a2d; height: 3px; }
@@ -81,7 +82,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
 function updateFill(el){
   const min=parseFloat(el.min)||0, max=parseFloat(el.max)||100, val=parseFloat(el.value)||0;
   const pct=((val-min)/(max-min)*100).toFixed(1);
-  el.style.background='linear-gradient(to right,#2d7a2d '+pct+'%,#d8d8d8 '+pct+'%)';
+  el.style.setProperty('--fill','linear-gradient(to right,#2d7a2d '+pct+'%,#d8d8d8 '+pct+'%)');
 }
 </script>
 </head>
