@@ -26,11 +26,11 @@ SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 WATCHLIST = [
-    "7203.T",  # Ã£ÂÂÃ£ÂÂ¨Ã£ÂÂ¿
-    "6758.T",  # Ã£ÂÂ½Ã£ÂÂÃ£ÂÂ¼
-    "9984.T",  # Ã£ÂÂ½Ã£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ³Ã£ÂÂ¯Ã£ÂÂ°Ã£ÂÂ«Ã£ÂÂ¼Ã£ÂÂ
-    "6861.T",  # Ã£ÂÂ­Ã£ÂÂ¼Ã£ÂÂ¨Ã£ÂÂ³Ã£ÂÂ¹
-    "8306.T",  # Ã¤Â¸ÂÃ¨ÂÂ±UFJ
+    "7203.T",  # トヨタ
+    "6758.T",  # ソニー
+    "9984.T",  # ソフトバンクグループ
+    "6861.T",  # キーエンス
+    "8306.T",  # 三菱UFJ
 ]
 
 configuration = Configuration(access_token=LINE_CHANNEL_TOKEN)
@@ -61,40 +61,40 @@ def detect_language(text):
 def get_message(lang, key):
     messages = {
         "waiting_morning": {
-            "ja": "Ã¦ÂÂÃ£ÂÂ¬Ã£ÂÂ¿Ã£ÂÂ¼Ã£ÂÂÃ§ÂÂÃ¦ÂÂÃ¤Â¸Â­Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ\nÃ¥Â°ÂÃ£ÂÂÃ£ÂÂÃ¥Â¾ÂÃ£ÂÂ¡Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ¯Â¼Â1Ã£ÂÂ2Ã¥ÂÂÃ¯Â¼Â...",
+            "ja": "朝レターを生成中です。\n少々お待ちください（1〜2分）...",
             "en": "Generating morning report.\nPlease wait (1-2 min)...",
-            "ko": "Ã¬ÂÂÃ¬Â¹Â¨ Ã«Â ÂÃ­ÂÂ°Ã«Â¥Â¼ Ã¬ÂÂÃ¬ÂÂ± Ã¬Â¤ÂÃ¬ÂÂÃ«ÂÂÃ«ÂÂ¤.\nÃ¬ÂÂ Ã¬ÂÂ ÃªÂ¸Â°Ã«ÂÂ¤Ã«Â Â¤Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ...",
-            "zh": "Ã¦Â­Â£Ã¥ÂÂ¨Ã§ÂÂÃ¦ÂÂÃ¦ÂÂ©Ã¦ÂÂ¥Ã£ÂÂ\nÃ¨Â¯Â·Ã§Â¨ÂÃ¥ÂÂ...",
+            "ko": "아침 레터를 생성 중입니다.\n잠시 기다려주세요...",
+            "zh": "正在生成早报。\n请稍候...",
         },
         "register_form": {
-            "ja": "Ã°ÂÂÂ Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ¯Â¼Â\n\nÃ¤Â»Â¥Ã¤Â¸ÂÃ£ÂÂ®Ã¥Â½Â¢Ã¥Â¼ÂÃ£ÂÂ§Ã©ÂÂÃ£ÂÂ£Ã£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ¯Â¼Â\n\nÃ¥ÂÂÃ¥ÂÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¥Â¹Â´Ã¥ÂÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂÃ¤Â¸ÂÃ¥ÂÂ\nÃ§Â·ÂÃ¨Â³ÂÃ§ÂÂ£Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂÃ¤Â¸ÂÃ¥ÂÂ\nÃ¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡ÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂÃ¤Â¸ÂÃ¥ÂÂ\nÃ§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂÃ¤Â¸ÂÃ¥ÂÂ\nÃ¤Â¿ÂÃ¦ÂÂÃ¦Â ÂªÃ¯Â¼ÂÃ©ÂÂÃ¦ÂÂÃ¥ÂÂ Ã¦Â ÂªÃ¦ÂÂ° Ã¥ÂÂÃ¥Â¾ÂÃ¤Â¾Â¡Ã¦Â Â¼Ã¥ÂÂ\nÃ£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ©ÂÂÃ¦ÂÂÃ¯Â¼ÂÃ©ÂÂÃ¦ÂÂÃ¥ÂÂ",
-            "en": "Ã°ÂÂÂ Register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
-            "ko": "Ã°ÂÂÂ Ã¬ÂÂÃ¬ÂÂ° Ã¬Â ÂÃ«Â³Â´Ã«Â¥Â¼ Ã«ÂÂ±Ã«Â¡ÂÃ­ÂÂ©Ã«ÂÂÃ«ÂÂ¤Ã¯Â¼Â\n\nÃ«ÂÂ¤Ã¬ÂÂ Ã­ÂÂÃ¬ÂÂÃ¬ÂÂ¼Ã«Â¡Â Ã«Â³Â´Ã«ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂÃ¯Â¼Â\n\nÃ¬ÂÂ´Ã«Â¦ÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¬ÂÂ°Ã¬ÂÂÃ¬ÂÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¬Â´ÂÃ¬ÂÂÃ¬ÂÂ°Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¬ÂÂ Ã­ÂÂ¬Ã¬ÂÂÃ¬ÂÂ¡Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ«ÂªÂ©Ã­ÂÂÃ¬ÂÂÃ¬ÂÂ°Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ«Â³Â´Ã¬ÂÂ Ã¬Â£Â¼Ã¬ÂÂÃ¯Â¼ÂÃ¬Â¢ÂÃ«ÂªÂ©Ã«ÂªÂ Ã¬Â£Â¼Ã¬ÂÂ ÃªÂ°ÂÃªÂ²Â©\nÃ­ÂÂ¸Ã«Â ÂÃ¬ÂÂ´Ã«ÂÂ Ã¬Â¢ÂÃ«ÂªÂ©Ã¯Â¼ÂÃ¬Â¢ÂÃ«ÂªÂ©Ã«ÂªÂ",
-            "zh": "Ã°ÂÂÂ Ã¦Â³Â¨Ã¥ÂÂÃ¨ÂµÂÃ¤ÂºÂ§Ã¤Â¿Â¡Ã¦ÂÂ¯Ã¯Â¼Â\n\nÃ¨Â¯Â·Ã¦ÂÂÃ¤Â»Â¥Ã¤Â¸ÂÃ¦Â Â¼Ã¥Â¼ÂÃ¥ÂÂÃ©ÂÂÃ¯Â¼Â\n\nÃ¥Â§ÂÃ¥ÂÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¥Â¹Â´Ã¦ÂÂ¶Ã¥ÂÂ¥Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¦ÂÂ»Ã¨ÂµÂÃ¤ÂºÂ§Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨ÂµÂÃ©Â¢ÂÃ¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ§ÂÂ®Ã¦Â ÂÃ¨ÂµÂÃ¤ÂºÂ§Ã¯Â¼ÂÃ£ÂÂÃ£ÂÂ\nÃ¦ÂÂÃ¦ÂÂÃ¨ÂÂ¡Ã§Â¥Â¨Ã¯Â¼ÂÃ¨ÂÂ¡Ã§Â¥Â¨Ã¥ÂÂÃ§Â§Â° Ã¨ÂÂ¡Ã¦ÂÂ° Ã¤Â»Â·Ã¦Â Â¼\nÃ¤ÂºÂ¤Ã¦ÂÂÃ¨ÂÂ¡Ã§Â¥Â¨Ã¯Â¼ÂÃ¨ÂÂ¡Ã§Â¥Â¨Ã¥ÂÂÃ§Â§Â°",
+            "ja": "📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名",
+            "en": "📝 Register your asset info!\n\nPlease send in this format:\n\nName: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
+            "ko": "📝 자산 정보를 등록합니다！\n\n다음 형식으로 보내주세요：\n\n이름：〇〇\n연수입：〇〇\n총자산：〇〇\n월 투자액：〇〇\n목표자산：〇〇\n보유주식：종목명 주수 가격\n트레이드 종목：종목명",
+            "zh": "📝 注册资产信息！\n\n请按以下格式发送：\n\n姓名：〇〇\n年收入：〇〇\n总资产：〇〇\n每月投资额：〇〇\n目标资产：〇〇\n持有股票：股票名称 股数 价格\n交易股票：股票名称",
         },
         "analyzing": {
-            "ja": "Ã°ÂÂÂ Ã¨Â³ÂÃ§ÂÂ£Ã¥ÂÂÃ¦ÂÂÃ¤Â¸Â­Ã£ÂÂ§Ã£ÂÂÃ£ÂÂ\nÃ¥Â°ÂÃ£ÂÂÃ£ÂÂÃ¥Â¾ÂÃ£ÂÂ¡Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂ...",
-            "en": "Ã°ÂÂÂ Analyzing your assets.\nPlease wait...",
-            "ko": "Ã°ÂÂÂ Ã¬ÂÂÃ¬ÂÂ° Ã«Â¶ÂÃ¬ÂÂ Ã¬Â¤ÂÃ¬ÂÂÃ«ÂÂÃ«ÂÂ¤.\nÃ¬ÂÂ Ã¬ÂÂ ÃªÂ¸Â°Ã«ÂÂ¤Ã«Â Â¤Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ...",
-            "zh": "Ã°ÂÂÂ Ã¦Â­Â£Ã¥ÂÂ¨Ã¥ÂÂÃ¦ÂÂÃ¦ÂÂ¨Ã§ÂÂÃ¨ÂµÂÃ¤ÂºÂ§Ã£ÂÂ\nÃ¨Â¯Â·Ã§Â¨ÂÃ¥ÂÂ...",
+            "ja": "📊 資産分析中です。\n少々お待ちください...",
+            "en": "📊 Analyzing your assets.\nPlease wait...",
+            "ko": "📊 자산 분석 중입니다.\n잠시 기다려주세요...",
+            "zh": "📊 正在分析您的资产。\n请稍候...",
         },
         "no_assets": {
-            "ja": "Ã£ÂÂ¾Ã£ÂÂ Ã¨Â³ÂÃ§ÂÂ£Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂÃ£ÂÂ\nÃ£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¨Ã©ÂÂÃ£ÂÂ£Ã£ÂÂ¦Ã¦ÂÂÃ¥Â Â±Ã£ÂÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ°ÂÂÂ",
-            "en": "No asset info registered yet.\nPlease send 'register' to add your infoÃ°ÂÂÂ",
-            "ko": "Ã¬ÂÂÃ¬Â§Â Ã¬ÂÂÃ¬ÂÂ° Ã¬Â ÂÃ«Â³Â´ÃªÂ°Â Ã¬ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤.\n'Ã«ÂÂ±Ã«Â¡Â'Ã¬ÂÂ Ã«Â³Â´Ã«ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂÃ°ÂÂÂ",
-            "zh": "Ã¥Â°ÂÃ¦ÂÂªÃ¦Â³Â¨Ã¥ÂÂÃ¨ÂµÂÃ¤ÂºÂ§Ã¤Â¿Â¡Ã¦ÂÂ¯Ã£ÂÂ\nÃ¨Â¯Â·Ã¥ÂÂÃ©ÂÂ'Ã¦Â³Â¨Ã¥ÂÂ'Ã°ÂÂÂ",
+            "ja": "まだ資産情報が登録されていません。\n「登録」と送って情報を登録してください😊",
+            "en": "No asset info registered yet.\nPlease send 'register' to add your info😊",
+            "ko": "아직 자산 정보가 없습니다.\n'등록'을 보내주세요😊",
+            "zh": "尚未注册资产信息。\n请发送'注册'😊",
         },
         "saved": {
-            "ja": "Ã¢ÂÂ Ã¤Â¿ÂÃ¥Â­ÂÃ£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂÃ¯Â¼Â\nÃ£ÂÂÃ¥ÂÂÃ¦ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ¨Ã©ÂÂÃ£ÂÂÃ£ÂÂ¨Ã¨Â³ÂÃ§ÂÂ£Ã¥ÂÂÃ¦ÂÂÃ£ÂÂÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ°ÂÂÂ",
-            "en": "Ã¢ÂÂ Saved!\nSend 'analyze' to get your asset analysisÃ°ÂÂÂ",
-            "ko": "Ã¢ÂÂ Ã¬Â ÂÃ¬ÂÂ¥Ã­ÂÂÃ¬ÂÂµÃ«ÂÂÃ«ÂÂ¤Ã¯Â¼Â\n'Ã«Â¶ÂÃ¬ÂÂ'Ã¬ÂÂ Ã«Â³Â´Ã«ÂÂ´Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂÃ°ÂÂÂ",
-            "zh": "Ã¢ÂÂ Ã¥Â·Â²Ã¤Â¿ÂÃ¥Â­ÂÃ¯Â¼Â\nÃ¥ÂÂÃ©ÂÂ'Ã¥ÂÂÃ¦ÂÂ'Ã¥ÂÂ³Ã¥ÂÂ¯Ã°ÂÂÂ",
+            "ja": "✅ 保存しました！\n「分析して」と送ると資産分析ができます😊",
+            "en": "✅ Saved!\nSend 'analyze' to get your asset analysis😊",
+            "ko": "✅ 저장했습니다！\n'분석'을 보내주세요😊",
+            "zh": "✅ 已保存！\n发送'分析'即可😊",
         },
         "waiting": {
-            "ja": "Ã§Â¢ÂºÃ¨ÂªÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂÃ¥Â°ÂÃ£ÂÂÃ£ÂÂÃ¥Â¾ÂÃ£ÂÂ¡Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂ...",
+            "ja": "確認しています。少々お待ちください...",
             "en": "Checking. Please wait...",
-            "ko": "Ã­ÂÂÃ¬ÂÂ¸ Ã¬Â¤ÂÃ¬ÂÂÃ«ÂÂÃ«ÂÂ¤. Ã¬ÂÂ Ã¬ÂÂ ÃªÂ¸Â°Ã«ÂÂ¤Ã«Â Â¤Ã¬Â£Â¼Ã¬ÂÂ¸Ã¬ÂÂ...",
-            "zh": "Ã¦Â­Â£Ã¥ÂÂ¨Ã§Â¡Â®Ã¨Â®Â¤Ã£ÂÂÃ¨Â¯Â·Ã§Â¨ÂÃ¥ÂÂ...",
+            "ko": "확인 중입니다. 잠시 기다려주세요...",
+            "zh": "正在确认。请稍候...",
         },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
@@ -102,20 +102,20 @@ def get_message(lang, key):
 def detect_intent(text, lang="ja"):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
-Ã£ÂÂ¦Ã£ÂÂ¼Ã£ÂÂ¶Ã£ÂÂ¼Ã£ÂÂ®Ã£ÂÂ¡Ã£ÂÂÃ£ÂÂ»Ã£ÂÂ¼Ã£ÂÂ¸Ã£ÂÂÃ¨ÂªÂ­Ã£ÂÂÃ£ÂÂ§Ã£ÂÂÃ¦ÂÂÃ¥ÂÂ³Ã£ÂÂÃ¤Â»Â¥Ã¤Â¸ÂÃ£ÂÂ®6Ã£ÂÂ¤Ã£ÂÂÃ£ÂÂ1Ã£ÂÂ¤Ã£ÂÂ Ã£ÂÂÃ©ÂÂ¸Ã£ÂÂÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ£ÂÂ
-Ã¥ÂÂÃ§Â­ÂÃ£ÂÂ¯Ã¥Â¿ÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ®Ã¥ÂÂÃ¨ÂªÂ1Ã£ÂÂ¤Ã£ÂÂ Ã£ÂÂÃ¨Â¿ÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ£ÂÂÃ¤Â»ÂÃ£ÂÂ®Ã¨Â¨ÂÃ¨ÂÂÃ£ÂÂ¯Ã¤Â¸ÂÃ¥ÂÂÃ¤Â¸ÂÃ¨Â¦ÂÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ
+ユーザーのメッセージを読んで、意図を以下の6つから1つだけ選んでください。
+回答は必ずその単語1つだけ返してください。他の言葉は一切不要です。
 
-Ã©ÂÂ¸Ã¦ÂÂÃ¨ÂÂ¢Ã¯Â¼Â
-- morning    Ã¢ÂÂ¦ Ã¦ÂÂÃ£ÂÂ¬Ã£ÂÂ¿Ã£ÂÂ¼Ã£ÂÂ»Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã§ÂÂ¸Ã¥Â Â´Ã£ÂÂ»Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¼Ã£ÂÂ¹Ã£ÂÂÃ¨Â¦ÂÃ£ÂÂÃ£ÂÂ
-- register   Ã¢ÂÂ¦ Ã¦ÂÂÃ¥Â Â±Ã§ÂÂ»Ã©ÂÂ²Ã£ÂÂ»Ã¥ÂÂÃ¥ÂÂ Ã£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ»Ã¥Â§ÂÃ£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ»Ã¦ÂÂ°Ã¨Â¦ÂÃ§ÂÂ»Ã©ÂÂ²Ã£ÂÂ»Ã¤Â½Â¿Ã£ÂÂÃ£ÂÂÃ£ÂÂ
-- analyze    Ã¢ÂÂ¦ Ã¨ÂÂªÃ¥ÂÂÃ£ÂÂ®Ã¨Â³ÂÃ§ÂÂ£Ã£ÂÂÃ¥ÂÂÃ¦ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂ»Ã£ÂÂÃ£ÂÂÃ£ÂÂ»Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂÃ£ÂÂÃ£ÂÂ©Ã£ÂÂªÃ£ÂÂªÃ§Â¢ÂºÃ¨ÂªÂ
-- save       Ã¢ÂÂ¦ Ã£ÂÂ³Ã£ÂÂ­Ã£ÂÂ³Ã¯Â¼ÂÃ¯Â¼ÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂ¯:Ã¯Â¼ÂÃ£ÂÂÃ¥ÂÂ«Ã£ÂÂÃ¦ÂÂÃ¥Â Â±Ã¥ÂÂ¥Ã¥ÂÂ
-- simulator  Ã¢ÂÂ¦ Ã£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼Ã£ÂÂ»Ã¦ÂÂÃ¨Â³ÂÃ¨Â¨ÂÃ§Â®ÂÃ£ÂÂ»Ã©ÂÂÃ§ÂÂ¨Ã¨Â¨ÂÃ§Â®ÂÃ£ÂÂÃ¨Â¦ÂÃ£ÂÂÃ£ÂÂ
-- question   Ã¢ÂÂ¦ Ã¤Â¸ÂÃ¨Â¨ÂÃ¤Â»Â¥Ã¥Â¤ÂÃ£ÂÂ®Ã¨Â³ÂªÃ¥ÂÂÃ£ÂÂ»Ã©ÂÂÃ¨Â«ÂÃ£ÂÂ»Ã£ÂÂÃ£ÂÂ®Ã¤Â»Â
+選択肢：
+- morning    … 朝レター・今日の相場・ニュースを見たい
+- register   … 情報登録・参加したい・始めたい・新規登録・使いたい
+- analyze    … 自分の資産を分析してほしい・ポートフォリオ確認
+- save       … コロン（：または:）を含む情報入力
+- simulator  … シミュレーター・投資計算・運用計算を見たい
+- question   … 上記以外の質問・雑談・その他
 
-Ã£ÂÂ¦Ã£ÂÂ¼Ã£ÂÂ¶Ã£ÂÂ¼Ã£ÂÂ®Ã£ÂÂ¡Ã£ÂÂÃ£ÂÂ»Ã£ÂÂ¼Ã£ÂÂ¸Ã¯Â¼ÂÃ£ÂÂ{text}Ã£ÂÂ
+ユーザーのメッセージ：「{text}」
 
-Ã¥ÂÂÃ§Â­ÂÃ¯Â¼Â1Ã¥ÂÂÃ¨ÂªÂÃ£ÂÂ®Ã£ÂÂ¿Ã¯Â¼ÂÃ¯Â¼Â"""
+回答（1単語のみ）："""
 
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
@@ -131,21 +131,21 @@ def parse_and_save_user_info(line_user_id, text):
     data = {}
     lines = text.strip().split("\n")
     for line in lines:
-        if "Ã¥ÂÂÃ¥ÂÂÃ¯Â¼Â" in line or "Ã¥ÂÂÃ¥ÂÂ:" in line or "Name:" in line or "name:" in line:
-            data["name"] = line.split("Ã¯Â¼Â")[-1].split(":")[-1].strip()
-        elif "Ã¥Â¹Â´Ã¥ÂÂÃ¯Â¼Â" in line or "Ã¥Â¹Â´Ã¥ÂÂ:" in line or "income:" in line.lower():
+        if "名前：" in line or "名前:" in line or "Name:" in line or "name:" in line:
+            data["name"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "年収：" in line or "年収:" in line or "income:" in line.lower():
             data["financial_info"] = line.strip()
-        elif "Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£Ã¯Â¼Â" in line or "Ã§Â·ÂÃ¨Â³ÂÃ§ÂÂ£:" in line or "total assets:" in line.lower():
+        elif "総資産：" in line or "総資産:" in line or "total assets:" in line.lower():
             data["target_asset"] = line.strip()
-        elif "Ã¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡ÂÃ¯Â¼Â" in line or "Ã¦Â¯ÂÃ¦ÂÂÃ¦ÂÂÃ¨Â³ÂÃ©Â¡Â:" in line or "monthly:" in line.lower():
+        elif "毎月投資額：" in line or "毎月投資額:" in line or "monthly:" in line.lower():
             data["savings"] = line.strip()
-        elif "Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£Ã¯Â¼Â" in line or "Ã§ÂÂ®Ã¦Â¨ÂÃ¨Â³ÂÃ§ÂÂ£:" in line or "target:" in line.lower():
+        elif "目標資産：" in line or "目標資産:" in line or "target:" in line.lower():
             data["target_asset"] = line.strip()
-        elif "Ã¤Â¿ÂÃ¦ÂÂÃ¦Â ÂªÃ¯Â¼Â" in line or "Ã¤Â¿ÂÃ¦ÂÂÃ¦Â Âª:" in line or "stocks owned:" in line.lower():
-            data["stocks_owned"] = line.split("Ã¯Â¼Â")[-1].split(":")[-1].strip()
-        elif "Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ©ÂÂÃ¦ÂÂÃ¯Â¼Â" in line or "Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ©ÂÂÃ¦ÂÂ:" in line or "trading:" in line.lower():
-            data["stocks_traded"] = line.split("Ã¯Â¼Â")[-1].split(":")[-1].strip()
-        elif "Ã¥ÂÂºÃ¨Â²Â»Ã¯Â¼Â" in line or "Ã¥ÂÂºÃ¨Â²Â»:" in line or "expenses:" in line.lower():
+        elif "保有株：" in line or "保有株:" in line or "stocks owned:" in line.lower():
+            data["stocks_owned"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "トレード銘柄：" in line or "トレード銘柄:" in line or "trading:" in line.lower():
+            data["stocks_traded"] = line.split("：")[-1].split(":")[-1].strip()
+        elif "出費：" in line or "出費:" in line or "expenses:" in line.lower():
             data["expenses"] = line.strip()
     if data:
         save_user(line_user_id, data)
@@ -208,12 +208,12 @@ def send_line_message(text, user_id=None):
 
 def fetch_market_data():
     tickers = {
-        "Ã¦ÂÂ¥Ã§ÂµÂ225":    "^N225",
-        "Ã£ÂÂÃ£ÂÂ«Ã¥ÂÂ":     "JPY=X",
-        "Ã§Â±Â³10Ã¥Â¹Â´Ã©ÂÂÃ¥ÂÂ©": "^TNX",
+        "日経225":    "^N225",
+        "ドル円":     "JPY=X",
+        "米10年金利": "^TNX",
         "S&P500":    "^GSPC",
-        "NYÃ£ÂÂÃ£ÂÂ¦":     "^DJI",
-        "VIXÃ¦ÂÂÃ¦ÂÂÃ¦ÂÂÃ¦ÂÂ°":"^VIX",
+        "NYダウ":     "^DJI",
+        "VIX恐怖指数":"^VIX",
     }
     results = {}
     for label, symbol in tickers.items():
@@ -223,9 +223,9 @@ def fetch_market_data():
                 val   = hist["Close"].iloc[-1]
                 prev  = hist["Close"].iloc[-2]
                 pct   = (val - prev) / prev * 100
-                arrow = "Ã¢ÂÂ²" if pct >= 0 else "Ã¢ÂÂ¼"
+                arrow = "▲" if pct >= 0 else "▼"
                 results[label] = {
-                    "display": f"{val:,.2f}Ã£ÂÂ{arrow}{abs(pct):.2f}%",
+                    "display": f"{val:,.2f}　{arrow}{abs(pct):.2f}%",
                     "pct": pct,
                     "value": val
                 }
@@ -244,11 +244,11 @@ def fetch_watchlist():
                 val   = hist["Close"].iloc[-1]
                 prev  = hist["Close"].iloc[-2]
                 pct   = (val - prev) / prev * 100
-                arrow = "Ã¢ÂÂ²" if pct >= 0 else "Ã¢ÂÂ¼"
+                arrow = "▲" if pct >= 0 else "▼"
                 results.append({
                     "symbol": symbol,
                     "name": name,
-                    "display": f"{name}Ã¯Â¼Â{symbol}Ã¯Â¼ÂÃ£ÂÂ{val:,.0f}Ã¥ÂÂÃ£ÂÂ{arrow}{abs(pct):.2f}%"
+                    "display": f"{name}（{symbol}）　{val:,.0f}円　{arrow}{abs(pct):.2f}%"
                 })
         except Exception:
             pass
@@ -256,73 +256,73 @@ def fetch_watchlist():
 
 def fetch_news():
     rss = {
-        "NHKÃ§ÂµÂÃ¦Â¸Â":      "https://www.nhk.or.jp/rss/news/cat5.xml",
-        "NHKÃ¦Â ÂªÃ£ÂÂ»Ã¤Â¼ÂÃ¦Â¥Â­":  "https://www.nhk.or.jp/rss/news/cat4.xml",
-        "Ã£ÂÂ­Ã£ÂÂ¤Ã£ÂÂ¿Ã£ÂÂ¼Ã§ÂµÂÃ¦Â¸Â":  "https://feeds.reuters.com/reuters/businessNews",
-        "Ã£ÂÂ­Ã£ÂÂ¤Ã£ÂÂ¿Ã£ÂÂ¼Ã§Â±Â³Ã¥ÂÂ½Ã¦Â Âª":"https://feeds.reuters.com/reuters/companyNews",
+        "NHK経済":      "https://www.nhk.or.jp/rss/news/cat5.xml",
+        "NHK株・企業":  "https://www.nhk.or.jp/rss/news/cat4.xml",
+        "ロイター経済":  "https://feeds.reuters.com/reuters/businessNews",
+        "ロイター米国株":"https://feeds.reuters.com/reuters/companyNews",
     }
     all_news = {}
     for label, url in rss.items():
         feed = feedparser.parse(url)
-        all_news[label] = "\n".join([f"Ã£ÂÂ»{e.title}" for e in feed.entries[:7]])
+        all_news[label] = "\n".join([f"・{e.title}" for e in feed.entries[:7]])
     return all_news
 
 def generate_morning_report():
     market    = fetch_market_data()
     watchlist = fetch_watchlist()
     news      = fetch_news()
-    today     = date.today().strftime("%YÃ¥Â¹Â´%mÃ¦ÂÂ%dÃ¦ÂÂ¥")
-    weekday   = ["Ã¦ÂÂ","Ã§ÂÂ«","Ã¦Â°Â´","Ã¦ÂÂ¨","Ã©ÂÂ","Ã¥ÂÂ","Ã¦ÂÂ¥"][date.today().weekday()]
+    today     = date.today().strftime("%Y年%m月%d日")
+    weekday   = ["月","火","水","木","金","土","日"][date.today().weekday()]
 
-    market_text    = "\n".join([f"Ã£ÂÂ»{k}Ã¯Â¼Â{v['display']}" for k, v in market.items()])
+    market_text    = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
     watchlist_text = "\n".join([s["display"] for s in watchlist])
-    news_text      = "\n".join([f"Ã£ÂÂ{k}Ã£ÂÂ\n{v}" for k, v in news.items()])
+    news_text      = "\n".join([f"【{k}】\n{v}" for k, v in news.items()])
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     prompt = f"""
-Ã£ÂÂÃ£ÂÂªÃ£ÂÂÃ£ÂÂ¯Ã£ÂÂÃ¦Â ÂªÃ£ÂÂ®Ã¥ÂÂÃ¥Â¿ÂÃ¨ÂÂÃ£ÂÂ«Ã¦Â¯ÂÃ¦ÂÂÃ£ÂÂÃ¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã¦ÂÂÃ¨Â³ÂÃ¥ÂÂ¤Ã¦ÂÂ­Ã¦ÂÂÃ¦ÂÂÃ£ÂÂÃ£ÂÂÃ¥Â±ÂÃ£ÂÂÃ£ÂÂÃ£ÂÂÃ¦Â­Â£Ã§Â¢ÂºÃ£ÂÂ§Ã¨Â¦ÂªÃ¥ÂÂÃ£ÂÂªÃ¥ÂÂÃ§ÂÂÃ£ÂÂ§Ã£ÂÂÃ£ÂÂ
+あなたは、株の初心者に毎朝「今日の投資判断材料」を届ける、正確で親切な先生です。
 
-Ã£ÂÂÃ§ÂµÂ¶Ã¥Â¯Â¾Ã£ÂÂ«Ã¥Â®ÂÃ£ÂÂÃ£ÂÂ«Ã£ÂÂ¼Ã£ÂÂ«Ã£ÂÂ
-Ã£ÂÂ»Ã¥Â°ÂÃ©ÂÂÃ§ÂÂ¨Ã¨ÂªÂÃ£ÂÂ¯Ã¥Â¿ÂÃ£ÂÂÃ¯Â¼ÂÃ¯Â¼ÂÃ£ÂÂ§Ã¨ÂªÂ¬Ã¦ÂÂÃ£ÂÂÃ£ÂÂ
-Ã£ÂÂ»Ã§ÂÂÃ§ÂÂ±Ã£ÂÂÃ¥Â¿ÂÃ£ÂÂÃ¦ÂÂ¸Ã£ÂÂ
-Ã£ÂÂ»Ã¤Â¸ÂÃ§Â¢ÂºÃ£ÂÂÃ£ÂÂªÃ£ÂÂÃ£ÂÂ¨Ã£ÂÂ¯Ã¦ÂÂ¸Ã£ÂÂÃ£ÂÂªÃ£ÂÂ
-Ã£ÂÂ»##Ã£ÂÂ**Ã£ÂÂªÃ£ÂÂ©Ã£ÂÂ®Ã¨Â¨ÂÃ¥ÂÂ·Ã£ÂÂ¯Ã§ÂµÂ¶Ã¥Â¯Â¾Ã£ÂÂ«Ã¤Â½Â¿Ã£ÂÂÃ£ÂÂªÃ£ÂÂ
-Ã£ÂÂ»Ã¨Â¦ÂÃ¥ÂÂºÃ£ÂÂÃ£ÂÂ¯Ã£ÂÂÃ£ÂÂÃ£ÂÂ§Ã¥ÂÂ²Ã£ÂÂ
-Ã£ÂÂ»Ã¥ÂÂºÃ¥ÂÂÃ£ÂÂÃ§Â·ÂÃ£ÂÂ¯ Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ Ã£ÂÂÃ¤Â½Â¿Ã£ÂÂ
-Ã£ÂÂ»Ã§ÂµÂµÃ¦ÂÂÃ¥Â­ÂÃ£ÂÂÃ©ÂÂ©Ã¥ÂºÂ¦Ã£ÂÂ«Ã¤Â½Â¿Ã£ÂÂ
-Ã£ÂÂ»Ã£ÂÂ¹Ã£ÂÂÃ£ÂÂÃ£ÂÂ®Ã§Â¸Â¦Ã§ÂÂ»Ã©ÂÂ¢Ã£ÂÂ§Ã¨ÂªÂ­Ã£ÂÂ¿Ã£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ1Ã¨Â¡ÂÃ£ÂÂÃ§ÂÂ­Ã£ÂÂÃ£ÂÂ«Ã£ÂÂÃ£ÂÂ
-Ã£ÂÂ»Ã¥Â¸ÂÃ¥Â Â´Ã£ÂÂ®Ã©ÂÂ°Ã¥ÂÂ²Ã¦Â°ÂÃ°ÂÂÂ¢Ã¨ÂÂ½Ã£ÂÂ¡Ã§ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂÃ°ÂÂÂ¡Ã£ÂÂÃ£ÂÂÃ¤Â¸ÂÃ¥Â®ÂÃ°ÂÂÂ´Ã£ÂÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ¯Ã£ÂÂ®Ã£ÂÂ©Ã£ÂÂÃ£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂ§Ã¨Â¡Â¨Ã§Â¤ÂºÃ£ÂÂÃ£ÂÂ
+【絶対に守るルール】
+・専門用語は必ず（）で説明する
+・理由を必ず書く
+・不確かなことは書かない
+・##や**などの記号は絶対に使わない
+・見出しは【】で囲む
+・区切り線は ━━━━━━━ を使う
+・絵文字を適度に使う
+・スマホの縦画面で読みやすいよう、1行を短めにする
+・市場の雰囲気🟢落ち着いている🟡やや不安🔴パニックのどれかだけで表示する
 
-Ã¤Â»ÂÃ¦ÂÂ¥Ã¯Â¼Â{today}Ã¯Â¼Â{weekday}Ã¦ÂÂÃ¦ÂÂ¥Ã¯Â¼Â
+今日：{today}（{weekday}曜日）
 
-Ã£ÂÂÃ¥Â¸ÂÃ¥Â Â´Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¿Ã¯Â¼ÂÃ¥ÂÂÃ¦ÂÂ¥Ã§ÂµÂÃ¥ÂÂ¤Ã¯Â¼ÂÃ£ÂÂ
+【市場データ（前日終値）】
 {market_text}
 
-Ã£ÂÂÃ£ÂÂ¦Ã£ÂÂ©Ã£ÂÂÃ£ÂÂÃ£ÂÂªÃ£ÂÂ¹Ã£ÂÂÃ©ÂÂÃ¦ÂÂÃ£ÂÂ
+【ウォッチリスト銘柄】
 {watchlist_text}
 
-Ã£ÂÂÃ¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¼Ã£ÂÂ¹Ã¯Â¼ÂÃ¨Â¤ÂÃ¦ÂÂ°Ã£ÂÂ½Ã£ÂÂ¼Ã£ÂÂ¹Ã¯Â¼ÂÃ£ÂÂ
+【今日のニュース（複数ソース）】
 {news_text}
 
-Ã¢ÂÂÃ¯Â¸Â {today}Ã¯Â¼Â{weekday}Ã¯Â¼ÂÃ£ÂÂ®Ã¦ÂÂÃ£ÂÂ¬Ã£ÂÂ¿Ã£ÂÂ¼
-Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã¤Â¸ÂÃ¨Â¨ÂÃ¯Â¼ÂÃ¯Â¼ÂÃ¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã§ÂÂ¸Ã¥Â Â´Ã£ÂÂÃ¤Â¸ÂÃ¦ÂÂÃ£ÂÂ§Ã¨Â¡Â¨Ã£ÂÂÃ¯Â¼Â
-Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+☀️ {today}（{weekday}）の朝レター
+─────────────────
+今日の一言：（今日の相場を一文で表す）
+─────────────────
 
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂ Ã¥Â¸ÂÃ¥Â Â´Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¿ Ã¢ÂÂÃ¢ÂÂ
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂ´ Ã£ÂÂÃ£ÂÂ«Ã¥ÂÂÃ£ÂÂ¨Ã©ÂÂÃ¥ÂÂ©Ã¯Â¼ÂÃ¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã¥Â½Â±Ã©ÂÂ¿ Ã¢ÂÂÃ¢ÂÂ
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂ° Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã©ÂÂÃ¨Â¦ÂÃ£ÂÂÃ£ÂÂ¥Ã£ÂÂ¼Ã£ÂÂ¹ Ã¢ÂÂÃ¢ÂÂ
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂÃ¯Â¸Â Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã§ÂÂ¸Ã¥Â Â´Ã¤ÂºÂÃ¦ÂÂ³ Ã¢ÂÂÃ¢ÂÂ
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂ¯ Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã¥ÂÂÃ¥Â¼ÂÃ¥ÂÂ¤Ã¦ÂÂ­Ã¦ÂÂÃ¦ÂÂ Ã¢ÂÂÃ¢ÂÂ
-Ã£ÂÂÃ£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ£ÂÂ
-Ã£ÂÂÃ£ÂÂ¹Ã£ÂÂ¤Ã£ÂÂ³Ã£ÂÂ°Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ£ÂÂ
-Ã£ÂÂÃ§Â©ÂÃ§Â«ÂÃ£ÂÂ»Ã¦ÂÂÃ¨Â³ÂÃ¤Â¿Â¡Ã¨Â¨ÂÃ£ÂÂ
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂ Ã£ÂÂ¦Ã£ÂÂ©Ã£ÂÂÃ£ÂÂÃ£ÂÂªÃ£ÂÂ¹Ã£ÂÂ Ã¢ÂÂÃ¢ÂÂ
+━━ 📊 市場データ ━━
+━━ 💴 ドル円と金利：今日の影響 ━━
+━━ 📰 今日の重要ニュース ━━
+━━ 🗓️ 今日の相場予想 ━━
+━━ 🎯 今日の取引判断材料 ━━
+【デイトレード】
+【スイングトレード】
+【積立・投資信託】
+━━ 🔍 ウォッチリスト ━━
 {watchlist_text}
-Ã¢ÂÂÃ¢ÂÂ Ã°ÂÂÂ¡ Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂ®Ã¤Â¸ÂÃ¨ÂªÂ Ã¢ÂÂÃ¢ÂÂ
-Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-Ã¤Â»ÂÃ¦ÂÂ¥Ã£ÂÂÃ¦Â­Â£Ã§Â¢ÂºÃ£ÂÂ«Ã£ÂÂÃ¨ÂÂªÃ¥ÂÂÃ£ÂÂ®Ã£ÂÂÃ£ÂÂ¼Ã£ÂÂ¹Ã£ÂÂ§Ã£ÂÂ
-Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
+━━ 💡 今日の一語 ━━
+─────────────────
+今日も正確に、自分のペースで。
+─────────────────
 """
 
     msg = client.messages.create(
@@ -393,21 +393,21 @@ def check_alerts():
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
     def make_alert(name, symbol, price, pct, market_ctx):
-        direction = "Ã¦ÂÂ¥Ã¤Â¸ÂÃ¦ÂÂÃ°ÂÂÂ" if pct > 0 else "Ã¦ÂÂ¥Ã¨ÂÂ½Ã°ÂÂÂ"
+        direction = "急上昇📈" if pct > 0 else "急落📉"
         prompt = f"""
-Ã¦ÂÂÃ¨Â³ÂÃ¥ÂÂÃ¥Â¿ÂÃ¨ÂÂÃ¥ÂÂÃ£ÂÂÃ£ÂÂ®Ã§Â·ÂÃ¦ÂÂ¥Ã£ÂÂ¢Ã£ÂÂ©Ã£ÂÂ¼Ã£ÂÂÃ£ÂÂÃ¦ÂÂ¸Ã£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂ Ã£ÂÂÃ£ÂÂÃ£ÂÂ
-Ã£ÂÂ»{name}Ã¯Â¼Â{symbol}Ã¯Â¼ÂÃ£ÂÂÃ¦ÂÂ¬Ã¦ÂÂ¥{abs(pct):.1f}%{direction}
-Ã£ÂÂ»Ã§ÂÂ¾Ã¥ÂÂ¨Ã¥ÂÂ¤Ã¯Â¼Â{price:,.0f}Ã¥ÂÂ
-Ã£ÂÂ»Ã¥Â¸ÂÃ¥Â Â´Ã§ÂÂ¶Ã¦Â³ÂÃ¯Â¼Â{market_ctx}
+投資初心者向けの緊急アラートを書いてください。
+・{name}（{symbol}）が本日{abs(pct):.1f}%{direction}
+・現在値：{price:,.0f}円
+・市場状況：{market_ctx}
 
-Ã¢ÂÂ¡Ã£ÂÂÃ§Â·ÂÃ¦ÂÂ¥Ã£ÂÂ{name}Ã£ÂÂ{direction}
-Ã°ÂÂÂ Ã¤Â»ÂÃ¤Â½ÂÃ£ÂÂÃ¨ÂµÂ·Ã£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂÃ£ÂÂ
-Ã°ÂÂÂ Ã£ÂÂªÃ£ÂÂÃ¥ÂÂÃ£ÂÂÃ£ÂÂ¦Ã£ÂÂÃ£ÂÂÃ£ÂÂ
-Ã°ÂÂÂ Ã£ÂÂÃ£ÂÂ¤Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ£ÂÂ¸Ã£ÂÂ®Ã¥Â½Â±Ã©ÂÂ¿
-Ã°ÂÂÂ Ã£ÂÂ¹Ã£ÂÂ¤Ã£ÂÂ³Ã£ÂÂ°Ã£ÂÂÃ£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂÃ£ÂÂ¸Ã£ÂÂ®Ã¥Â½Â±Ã©ÂÂ¿
-Ã°ÂÂÂ Ã¦Â³Â¨Ã¦ÂÂÃ§ÂÂ¹Ã£ÂÂ»Ã£ÂÂªÃ£ÂÂ¹Ã£ÂÂ¯
-Ã¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂÃ¢ÂÂ
-Ã¦ÂÂÃ§ÂµÂÃ¥ÂÂ¤Ã¦ÂÂ­Ã£ÂÂ¯Ã£ÂÂÃ¨ÂÂªÃ¨ÂºÂ«Ã£ÂÂ§Ã£ÂÂÃ©Â¡ÂÃ£ÂÂÃ£ÂÂÃ£ÂÂ¾Ã£ÂÂÃ£ÂÂ
+⚡【緊急】{name}が{direction}
+📍 今何が起きているか
+📍 なぜ動いているか
+📍 デイトレードへの影響
+📍 スイングトレードへの影響
+📍 注意点・リスク
+─────────────
+最終判断はご自身でお願いします。
 """
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",
@@ -423,12 +423,12 @@ def check_alerts():
             val  = n225["Close"].iloc[-1]
             opn  = n225["Open"].iloc[0]
             pct  = (val - opn) / opn * 100
-            arrow = "Ã¢ÂÂ²" if pct >= 0 else "Ã¢ÂÂ¼"
-            market_ctx = f"Ã¦ÂÂ¥Ã§ÂµÂ225Ã¯Â¼Â{val:,.0f}Ã¥ÂÂÃ¯Â¼Â{arrow}{abs(pct):.1f}%Ã¯Â¼Â"
+            arrow = "▲" if pct >= 0 else "▼"
+            market_ctx = f"日経225：{val:,.0f}円（{arrow}{abs(pct):.1f}%）"
             if abs(pct) >= 1.5:
                 key = f"nikkei_{today_str}_{int(pct)}"
                 if key not in state:
-                    alert = make_alert("Ã¦ÂÂ¥Ã§ÂµÂ225", "^N225", val, pct, market_ctx)
+                    alert = make_alert("日経225", "^N225", val, pct, market_ctx)
                     send_line_message(alert)
                     state[key] = now.isoformat()
     except Exception:
@@ -437,7 +437,7 @@ def check_alerts():
     try:
         usdjpy = yf.Ticker("JPY=X").history(period="2d")
         if len(usdjpy) >= 2:
-            market_ctx += f"Ã£ÂÂÃ£ÂÂÃ£ÂÂ«Ã¥ÂÂÃ¯Â¼Â{usdjpy['Close'].iloc[-1]:.2f}Ã¥ÂÂ"
+            market_ctx += f"　ドル円：{usdjpy['Close'].iloc[-1]:.2f}円"
     except Exception:
         pass
 
@@ -511,10 +511,10 @@ def handle_message(event):
                 send_line_message(analysis, user_id=line_user_id)
 
         elif intent == "simulator":
-            sim_url = f"https://investment-bot-ta24.onrender.com/simulator?uid={line_user_id}"
+            sim_url = "https://investment-bot-ta24.onrender.com"
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                                messages=[TextMessage(text=f"Ã°ÂÂÂ Ã¦ÂÂÃ¨Â³ÂÃ£ÂÂ·Ã£ÂÂÃ£ÂÂ¥Ã£ÂÂ¬Ã£ÂÂ¼Ã£ÂÂ¿Ã£ÂÂ¼Ã£ÂÂ¯Ã£ÂÂÃ£ÂÂ¡Ã£ÂÂÃ¯Â¼Â\n{sim_url}")]
+                                messages=[TextMessage(text=f"📊 投資シミュレーターはこちら！\n{sim_url}")]
             ))
 
         elif intent == "save":
@@ -541,14 +541,7 @@ def morning():
     if request.args.get("secret", "") != os.environ.get("CRON_SECRET", ""):
         abort(403)
     report = generate_morning_report()
-    try:
-        all_users = supabase.table("users").select("line_user_id").execute()
-        for u in all_users.data:
-            uid = u.get("line_user_id")
-            if uid:
-                send_line_message(report, user_id=uid)
-    except Exception:
-        send_line_message(report)
+    send_line_message(report)
     return "OK"
 
 @app.route("/alert", methods=["GET"])
@@ -557,26 +550,6 @@ def alert():
         abort(403)
     check_alerts()
     return "OK"
-
-@app.route("/api/user-data", methods=["GET"])
-def api_user_data():
-    uid = request.args.get("uid", "")
-    if not uid:
-        return jsonify({"error": "no uid"}), 400
-    user = get_user(uid)
-    if not user:
-        return jsonify({}), 404
-    safe = {
-        "name": user.get("name"),
-        "savings": user.get("savings"),
-        "target_asset": user.get("target_asset"),
-        "financial_info": user.get("financial_info"),
-        "stocks_owned": user.get("stocks_owned"),
-        "stocks_traded": user.get("stocks_traded"),
-        "expenses": user.get("expenses"),
-        "updated_at": user.get("updated_at"),
-    }
-    return jsonify(safe)
 
 @app.route("/api/save-user-data", methods=["POST"])
 def api_save_user_data():
@@ -598,6 +571,26 @@ def api_save_user_data():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/user-data", methods=["GET"])
+def api_user_data():
+    uid = request.args.get("uid", "")
+    if not uid:
+        return jsonify({"error": "no uid"}), 400
+    user = get_user(uid)
+    if not user:
+        return jsonify({}), 404
+    safe = {
+        "name": user.get("name"),
+        "savings": user.get("savings"),
+        "target_asset": user.get("target_asset"),
+        "financial_info": user.get("financial_info"),
+        "stocks_owned": user.get("stocks_owned"),
+        "stocks_traded": user.get("stocks_traded"),
+        "expenses": user.get("expenses"),
+        "updated_at": user.get("updated_at"),
+    }
+    return jsonify(safe)
+
 @app.route("/simulator")
 def simulator():
     with open("simulator.html", encoding="utf-8") as f:
@@ -606,7 +599,7 @@ def simulator():
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
-        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+        return f.read(), 200, {"Content-Type": "text/html"}
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
