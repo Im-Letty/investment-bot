@@ -392,16 +392,29 @@ function renderMyPage(d){
   document.getElementById('mp-traded').textContent=d.stocks_traded||'—';
 }
 
-function applyToSimulator(){
-  if(!userData)return;
-  const c=CUR[window.currentLang];
-  const savNum=parseFloat((userData.savings||'').replace(/[^0-9]/g,''))*10000||30000;
-  const mEl=document.getElementById('m-amount');mEl.value=Math.min(Math.max(savNum,c.m_min),c.m_max);
-  const mN=document.getElementById('m-amount-n');mN.dataset.raw=mEl.value;mN.value=fmtInput(+mEl.value);
-  const tarNum=parseFloat((userData.target_asset||'').replace(/[^0-9]/g,''))*10000||10000000;
-  const gEl=document.getElementById('g-target');gEl.value=Math.min(Math.max(tarNum,c.g_min),c.g_max);
-  const gN=document.getElementById('g-target-n');gN.dataset.raw=gEl.value;gN.value=fmtInput(+gEl.value);
-  calcM();calcG();switchTab('monthly');
+function applyToSimulator(userData){
+if(!userData)return;
+const c=CUR[window.currentLang]||CUR['ja'];
+const savNum=parseFloat((userData.savings||'').replace(/[^0-9]/g,''))*10000||30000;
+const mEl=document.getElementById('m-amount');
+if(mEl){mEl.value=Math.min(Math.max(savNum,c.m_min),c.m_max);const mN=document.getElementById('m-amount-n');if(mN){mN.dataset.raw=mEl.value;mN.value=fmtInput(+mEl.value);}updateFill(mEl);calcM();}
+const dEl=document.getElementById('d-amount');
+if(dEl){const dVal=Math.round(savNum/30/100)*100||500;dEl.value=Math.min(Math.max(dVal,c.d_min||100),c.d_max||100000);const dN=document.getElementById('d-amount-n');if(dN){dN.dataset.raw=dEl.value;dN.value=fmtInput(+dEl.value);}updateFill(dEl);calcD();}
+const tNum=parseFloat((userData.target_asset||'').replace(/[^0-9]/g,''))*10000||10000000;
+const gEl=document.getElementById('g-target');
+if(gEl){gEl.value=Math.min(Math.max(tNum,c.g_min||100000),c.g_max||100000000);const gN=document.getElementById('g-target-n');if(gN){gN.dataset.raw=gEl.value;gN.value=fmtInput(+gEl.value);}updateFill(gEl);calcG();}
+const nameEl=document.getElementById('mp-name');
+if(nameEl)nameEl.textContent=userData.name||'—';
+const updEl=document.getElementById('mp-updated');
+if(updEl&&userData.updated_at){const dt=new Date(userData.updated_at);updEl.textContent='最終更新：'+dt.getFullYear()+'/'+(dt.getMonth()+1)+'/'+dt.getDate();}
+const savEl=document.getElementById('mp-savings');
+if(savEl)savEl.textContent=userData.savings||'—';
+const tgtEl=document.getElementById('mp-target');
+if(tgtEl)tgtEl.textContent=userData.target_asset||'—';
+const incEl=document.getElementById('mp-income');
+if(incEl)incEl.textContent=userData.financial_info||'—';
+const stEl=document.getElementById('mp-stocks');
+if(stEl)stEl.textContent=userData.stocks_owned||'—';
 }
 
 function makeChart(id,labels,p,tot){
