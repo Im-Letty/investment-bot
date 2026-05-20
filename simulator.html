@@ -304,7 +304,7 @@ function setSliders(){
   ['d-years','m-years','lp-years','g-years'].forEach(id=>{document.getElementById(id).value=20;document.getElementById(id+'-n').value=20;});
   ['u-yr-d','u-yr-m','u-yr-l','u-yr-g'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=yr;});
 
-  const _u=c.currency_unit||'';['d-amt-unit','m-amt-unit','lp-amt-unit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=_u;});
+  const _u=(T[window.currentLang]&&T[window.currentLang].currency_unit)||'';['d-amt-unit','m-amt-unit','lp-amt-unit'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=_u;});
 }
 
 function setLang(lang){
