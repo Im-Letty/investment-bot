@@ -541,7 +541,14 @@ def morning():
     if request.args.get("secret", "") != os.environ.get("CRON_SECRET", ""):
         abort(403)
     report = generate_morning_report()
-    send_line_message(report)
+    try:
+        all_users = supabase.table("users").select("line_user_id").execute()
+        for u in all_users.data:
+            uid = u.get("line_user_id")
+            if uid:
+                send_line_message(report, user_id=uid)
+    except Exception:
+        send_line_message(report)
     return "OK"
 
 @app.route("/alert", methods=["GET"])
