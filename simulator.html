@@ -478,6 +478,7 @@ async function init(){
   }
 }
 init();
+setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(function(r){updateFill(r);r.addEventListener('input',function(){updateFill(this);});});},300);
 </script>
 </body>
 </html>
