@@ -102,10 +102,234 @@
     .type-tab.sel-inc{background:linear-gradient(135deg,#3da060,#5db87a);border-color:#3da060;color:#fff;}
     .type-tab.sel-exp{background:linear-gradient(135deg,#e05050,#f07070);border-color:#e05050;color:#fff;}
     .type-tab.sel-inv{background:linear-gradient(135deg,#2ba888,#3dc8a8);border-color:#2ba888;color:#fff;}
-  </style>
+  
+/* ===== HAMBURGER & SIDE DRAWER ===== */
+.hamburger-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 9999;
+  background: rgba(255,255,255,0.25);
+  border: none;
+  border-radius: 10px;
+  width: 42px;
+  height: 42px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 2px 12px rgba(60,160,80,0.18);
+  transition: background 0.2s;
+}
+.hamburger-btn:hover { background: rgba(255,255,255,0.45); }
+.hamburger-btn span {
+  display: block;
+  width: 20px;
+  height: 2.5px;
+  background: #fff;
+  border-radius: 2px;
+  transition: all 0.3s;
+}
+.hamburger-btn.open span:nth-child(1) { transform: translateY(7.5px) rotate(45deg); }
+.hamburger-btn.open span:nth-child(2) { opacity: 0; }
+.hamburger-btn.open span:nth-child(3) { transform: translateY(-7.5px) rotate(-45deg); }
+.drawer-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 9990;
+  backdrop-filter: blur(2px);
+}
+.drawer-overlay.open { display: block; }
+.side-drawer {
+  position: fixed;
+  top: 0;
+  left: -280px;
+  width: 260px;
+  height: 100%;
+  background: linear-gradient(180deg, #2d7a4f 0%, #3da060 40%, #5db87a 100%);
+  z-index: 9995;
+  transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+  box-shadow: 4px 0 24px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+.side-drawer.open { left: 0; }
+.drawer-header {
+  padding: 56px 24px 24px;
+  border-bottom: 1px solid rgba(255,255,255,0.2);
+}
+.drawer-app-icon { font-size: 2.4rem; margin-bottom: 8px; }
+.drawer-app-name { color: #fff; font-size: 1.2rem; font-weight: 700; margin: 0; }
+.drawer-app-sub { color: rgba(255,255,255,0.75); font-size: 0.78rem; margin: 4px 0 0; }
+.drawer-nav { flex: 1; padding: 16px 0; }
+.drawer-section-label {
+  color: rgba(255,255,255,0.55);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 24px 4px;
+}
+.drawer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 13px 24px;
+  color: rgba(255,255,255,0.88);
+  cursor: pointer;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  font-size: 0.95rem;
+  border-radius: 0;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.drawer-item:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.drawer-item.active { background: rgba(255,255,255,0.2); color: #fff; font-weight: 600; }
+.drawer-item-icon { font-size: 1.15rem; width: 22px; text-align: center; flex-shrink: 0; }
+.drawer-footer {
+  padding: 16px 24px 32px;
+  border-top: 1px solid rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.55);
+  font-size: 0.72rem;
+  text-align: center;
+}
+.settings-panel {
+  display: none;
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
+  background: rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+}
+.settings-panel.open { display: flex; }
+.settings-box {
+  background: #fff;
+  border-radius: 20px;
+  width: min(90vw, 380px);
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+}
+.settings-box-header {
+  background: linear-gradient(135deg, #3da060, #5db87a);
+  padding: 20px 24px;
+  border-radius: 20px 20px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.settings-box-header h3 { color: #fff; margin: 0; font-size: 1.1rem; }
+.settings-close-btn {
+  background: rgba(255,255,255,0.25);
+  border: none;
+  color: #fff;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.settings-body { padding: 20px 24px; }
+.settings-section { margin-bottom: 24px; }
+.settings-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #3da060;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+}
+.settings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row-label { font-size: 0.9rem; color: #333; }
+.settings-row-sub { font-size: 0.75rem; color: #999; }
+.settings-danger-btn {
+  background: #fff0f0;
+  color: #e53e3e;
+  border: 1px solid #fca5a5;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 0.82rem;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.settings-danger-btn:hover { background: #fee2e2; }
+.settings-info-badge {
+  background: #f0f7f2;
+  color: #3da060;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+</style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
+<button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()" aria-label="menu">
+  <span></span><span></span><span></span>
+</button>
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="side-drawer" id="sideDrawer">
+  <div class="drawer-header">
+    <div class="drawer-app-icon">&#x1F4B0;</div>
+    <p class="drawer-app-name">&#x5BB6;&#x8A08;&#x7C3F;&#x30FB;&#x8CC7;&#x7523;&#x7BA1;&#x7406;</p>
+    <p class="drawer-app-sub">Investment Bot</p>
+  </div>
+  <nav class="drawer-nav">
+    <div class="drawer-section-label">&#x30E1;&#x30CB;&#x30E5;&#x30FC;</div>
+    <button class="drawer-item" onclick="drawerTab('tab-dashboard')"><span class="drawer-item-icon">&#x1F4CA;</span> &#x30C0;&#x30C3;&#x30B7;&#x30E5;&#x30DC;&#x30FC;&#x30C9;</button>
+    <button class="drawer-item" onclick="drawerTab('tab-income')"><span class="drawer-item-icon">&#x1F4B4;</span> &#x53CE;&#x652F;&#x7BA1;&#x7406;</button>
+    <button class="drawer-item" onclick="drawerTab('tab-asset')"><span class="drawer-item-icon">&#x1F3E6;</span> &#x8CC7;&#x7523;&#x7BA1;&#x7406;</button>
+    <button class="drawer-item" onclick="drawerTab('tab-records')"><span class="drawer-item-icon">&#x1F4CB;</span> &#x8A18;&#x9332;&#x4E00;&#x89A7;</button>
+    <button class="drawer-item" onclick="drawerTab('tab-calendar')"><span class="drawer-item-icon">&#x1F4C5;</span> &#x30AB;&#x30EC;&#x30F3;&#x30C0;&#x30FC;</button>
+    <div class="drawer-section-label">&#x305D;&#x306E;&#x4ED6;</div>
+    <button class="drawer-item" onclick="openSettings()"><span class="drawer-item-icon">&#x2699;&#xFE0F;</span> &#x8A2D;&#x5B9A;</button>
+    <a class="drawer-item" href="/" ><span class="drawer-item-icon">&#x1F3E0;</span> &#x30DB;&#x30FC;&#x30E0;&#x3078;&#x623B;&#x308B;</a>
+  </nav>
+  <div class="drawer-footer">&#xA9; 2026 Investment Bot</div>
+</div>
+<div class="settings-panel" id="settingsPanel">
+  <div class="settings-box">
+    <div class="settings-box-header">
+      <h3>&#x2699;&#xFE0F; &#x8A2D;&#x5B9A;</h3>
+      <button class="settings-close-btn" onclick="closeSettings()">&#x2715;</button>
+    </div>
+    <div class="settings-body">
+      <div class="settings-section">
+        <div class="settings-section-title">&#x30A2;&#x30D7;&#x30EA;&#x60C5;&#x5831;</div>
+        <div class="settings-row"><div><div class="settings-row-label">&#x30D0;&#x30FC;&#x30B8;&#x30E7;&#x30F3;</div></div><span class="settings-info-badge">v1.0.0</span></div>
+        <div class="settings-row"><div><div class="settings-row-label">&#x30C7;&#x30FC;&#x30BF;&#x4FDD;&#x5B58;</div><div class="settings-row-sub">&#x30D6;&#x30E9;&#x30A6;&#x30B6;&#x306E;&#x30ED;&#x30FC;&#x30AB;&#x30EB;&#x30B9;&#x30C8;&#x30EC;&#x30FC;&#x30B8;</div></div><span class="settings-info-badge">Local</span></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">&#x8868;&#x793A;&#x8A2D;&#x5B9A;</div>
+        <div class="settings-row"><div><div class="settings-row-label">&#x901A;&#x8CA8;&#x5358;&#x4F4D;</div></div><span class="settings-info-badge">&#xA5; &#x5186;</span></div>
+      </div>
+      <div class="settings-section">
+        <div class="settings-section-title">&#x30C7;&#x30FC;&#x30BF;&#x7BA1;&#x7406;</div>
+        <div class="settings-row"><div><div class="settings-row-label">&#x30C7;&#x30FC;&#x30BF;&#x3092;&#x30EA;&#x30BB;&#x30C3;&#x30C8;</div><div class="settings-row-sub">&#x5168;&#x3066;&#x306E;&#x8A18;&#x9332;&#x3092;&#x524A;&#x9664;&#x3057;&#x307E;&#x3059;</div></div><button class="settings-danger-btn" onclick="resetAllData()">&#x30EA;&#x30BB;&#x30C3;&#x30C8;</button></div>
+      </div>
+    </div>
+  </div>
+</div>
 <div class="header">
   <div class="header-top">
     <a href="/" class="back-btn">← ホーム</a>
@@ -308,6 +532,14 @@ function renderAll(){
 }
 renderAll();
 renderCalendar();
+
+
+function toggleDrawer(){var b=document.getElementById('hamburgerBtn'),d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay');if(d.classList.contains('open')){closeDrawer();}else{d.classList.add('open');o.classList.add('open');b.classList.add('open');}}
+function closeDrawer(){document.getElementById('sideDrawer').classList.remove('open');document.getElementById('drawerOverlay').classList.remove('open');document.getElementById('hamburgerBtn').classList.remove('open');}
+function drawerTab(t){closeDrawer();setTimeout(function(){switchTab(t);},300);}
+function openSettings(){closeDrawer();setTimeout(function(){document.getElementById('settingsPanel').classList.add('open');},300);}
+function closeSettings(){document.getElementById('settingsPanel').classList.remove('open');}
+function resetAllData(){if(confirm('全てのデータを削除しますか？この操作は取り消せません。')){localStorage.removeItem('kakeibo_records');localStorage.removeItem('kakeibo_assets');localStorage.removeItem('kakeibo_day_records');alert('データをリセットしました。');closeSettings();location.reload();}}
 </script>
 </body>
 </html>
