@@ -159,9 +159,7 @@ function updateFill(el){
     <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">初期投資</button>
     <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">目標資産</button>
     <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">マイページ</button>
-  
-  <button onclick="pop(this);switchTab('kakeibo')" id="tab-btn-k">家計管理</button>
-</div>
+  </div>
 
   <!-- 毎日積立 -->
   <div id="tab-daily" class="tab-panel">
@@ -356,60 +354,6 @@ function updateFill(el){
       </div>
     </div>
   </div>
-  <!-- 家計管理タブ -->
-  <div id="tab-kakeibo" class="tab-panel" style="display:none">
-    <div class="card" style="margin-bottom:12px">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px">
-        <button class="btn btn-secondary btn-sm" onclick="changeKakeiboMonth(-1)">◄</button>
-        <div id="kakeibo-month-label" style="font-weight:700;font-size:1.1rem;color:#2d7a2d">2024年1月</div>
-        <button class="btn btn-secondary btn-sm" onclick="changeKakeiboMonth(1)">►</button>
-      </div>
-    </div>
-    <div class="mp-summary-grid" style="margin-bottom:12px">
-      <div class="mp-summary-card mp-card-green"><div class="mp-card-label">収入合計</div><div class="mp-card-value" id="kakeibo-income-total">¥0</div></div>
-      <div class="mp-summary-card mp-card-red"><div class="mp-card-label">支出合計</div><div class="mp-card-value" id="kakeibo-expense-total">¥0</div></div>
-      <div class="mp-summary-card mp-card-blue"><div class="mp-card-label">残り（谪蓄）</div><div class="mp-card-value" id="kakeibo-saving-total">¥0</div></div>
-      <div class="mp-summary-card mp-card-orange"><div class="mp-card-label">投資額</div><div class="mp-card-value" id="kakeibo-invest-total">¥0</div></div>
-    </div>
-    <div class="card" style="margin-bottom:12px">
-      <div class="mp-section-title">📊 支出カテゴリ</div>
-      <canvas id="kakeibo-chart" style="max-height:250px"></canvas>
-    </div>
-    <div class="card" style="margin-bottom:12px">
-      <div class="mp-section-title">💰 収入を記録</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-        <input type="text" id="kakeibo-income-desc" class="form-input" placeholder="内容（例：給与）">
-        <input type="number" id="kakeibo-income-amount" class="form-input" placeholder="金額（円）">
-      </div>
-      <button class="btn" onclick="addKakeiboEntry('income')" style="width:100%">＋ 収入を追加</button>
-    </div>
-    <div class="card" style="margin-bottom:12px">
-      <div class="mp-section-title">💸 支出を記録</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:8px">
-        <input type="text" id="kakeibo-expense-desc" class="form-input" placeholder="内容">
-        <select id="kakeibo-expense-cat" class="form-input">
-          <option value="食費">食費</option>
-          <option value="住居費">住居費</option>
-          <option value="光熱費">光熱費</option>
-          <option value="通信費">通信費</option>
-          <option value="交通費">交通費</option>
-          <option value="日用品">日用品</option>
-          <option value="娯楽・外食">娯楽・外食</option>
-          <option value="衣服・美容">衣服・美容</option>
-          <option value="医療・健康">医療・健康</option>
-          <option value="教育">教育</option>
-          <option value="投資">投資</option>
-          <option value="その他">その他</option>
-        </select>
-        <input type="number" id="kakeibo-expense-amount" class="form-input" placeholder="金額（円）">
-      </div>
-      <button class="btn" onclick="addKakeiboEntry('expense')" style="width:100%">＋ 支出を追加</button>
-    </div>
-    <div class="card" style="margin-bottom:12px">
-      <div class="mp-section-title">📋 今月の記録</div>
-      <div id="kakeibo-list" style="max-height:350px;overflow-y:auto"></div>
-    </div>
-  </div>
 
 
 </div>
@@ -553,12 +497,12 @@ function setLang(lang){
 }
 
 function switchTab(name){
-  ['daily','monthly','lump','goal','mypage','kakeibo'].forEach(n=>{
+  ['daily','monthly','lump','goal','mypage'].forEach(n=>{
     const el=document.getElementById('tab-'+n);
     if(n===name){el.style.display='';el.classList.remove('tab-panel');void el.offsetWidth;el.classList.add('tab-panel');}
     else el.style.display='none';
   });
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['daily','monthly','lump','goal','mypage','kakeibo'][i]===name));
+  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['daily','monthly','lump','goal','mypage'][i]===name));
   if(name==='daily')calcD();if(name==='monthly')calcM();if(name==='lump')calcL();if(name==='goal')calcG();if(name==='mypage')loadMyPage();
 }
 
@@ -761,80 +705,6 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
       const pctEl = document.getElementById('mp-progress-pct');
       if (fill) fill.style.width = pct + '%';
       if (pctEl) pctEl.textContent = pct + '%';
-    }
-    
-    // ===== 家計管理 =====
-    let kakeiboYear = new Date().getFullYear(), kakeiboMonth = new Date().getMonth() + 1;
-    function updateKakeiboMonthLabel() {
-      const el = document.getElementById('kakeibo-month-label');
-      if(el) el.textContent = kakeiboYear + '年' + kakeiboMonth + '月';
-      renderKakeiboList();
-    }
-    function changeKakeiboMonth(d) {
-      kakeiboMonth += d;
-      if(kakeiboMonth > 12) { kakeiboMonth = 1; kakeiboYear++; }
-      if(kakeiboMonth < 1) { kakeiboMonth = 12; kakeiboYear--; }
-      updateKakeiboMonthLabel();
-    }
-    function getKakeiboKey() { return 'kb_' + kakeiboYear + '_' + String(kakeiboMonth).padStart(2,'0'); }
-    function getKakeiboData() { try { return JSON.parse(localStorage.getItem(getKakeiboKey()) || '[]'); } catch(e) { return []; } }
-    function saveKakeiboData(data) { localStorage.setItem(getKakeiboKey(), JSON.stringify(data)); }
-    function addKakeiboEntry(type) {
-      if(type === 'income') {
-        const desc = (document.getElementById('kakeibo-income-desc')||{}).value||'';
-        const amount = parseInt((document.getElementById('kakeibo-income-amount')||{}).value||0)||0;
-        if(!desc.trim()||!amount){alert('内容と金額を入力してください');return;}
-        const data = getKakeiboData();
-        data.push({id:Date.now(),type:'income',desc:desc.trim(),amount,cat:'収入',date:new Date().toLocaleDateString('ja-JP')});
-        saveKakeiboData(data);
-        document.getElementById('kakeibo-income-desc').value='';
-        document.getElementById('kakeibo-income-amount').value='';
-      } else {
-        const desc = (document.getElementById('kakeibo-expense-desc')||{}).value||'';
-        const cat = (document.getElementById('kakeibo-expense-cat')||{}).value||'その他';
-        const amount = parseInt((document.getElementById('kakeibo-expense-amount')||{}).value||0)||0;
-        if(!desc.trim()||!amount){alert('内容と金額を入力してください');return;}
-        const data = getKakeiboData();
-        data.push({id:Date.now(),type:'expense',desc:desc.trim(),amount,cat,date:new Date().toLocaleDateString('ja-JP')});
-        saveKakeiboData(data);
-        document.getElementById('kakeibo-expense-desc').value='';
-        document.getElementById('kakeibo-expense-amount').value='';
-      }
-      renderKakeiboList();
-    }
-    function deleteKakeiboEntry(id) { saveKakeiboData(getKakeiboData().filter(e=>e.id!==id)); renderKakeiboList(); }
-    let _kkChart = null;
-    function renderKakeiboList() {
-      const data = getKakeiboData();
-      const list = document.getElementById('kakeibo-list');
-      if(!list) return;
-      let inc=0,exp=0,inv=0;
-      const cats = {};
-      data.forEach(e => {
-        if(e.type==='income') inc+=e.amount;
-        else { exp+=e.amount; cats[e.cat]=(cats[e.cat]||0)+e.amount; if(e.cat==='投資') inv+=e.amount; }
-      });
-      const setV = (id,v) => { const el=document.getElementById(id); if(el) el.textContent=v; };
-      setV('kakeibo-income-total','¥'+inc.toLocaleString());
-      setV('kakeibo-expense-total','¥'+exp.toLocaleString());
-      const sav = inc-exp;
-      setV('kakeibo-saving-total',(sav>=0?'+':'')+'¥'+sav.toLocaleString());
-      setV('kakeibo-invest-total','¥'+inv.toLocaleString());
-      // グラフ
-      const canvas = document.getElementById('kakeibo-chart');
-      if(canvas && typeof Chart !== 'undefined') {
-        const labels = Object.keys(cats), vals = Object.values(cats);
-        if(labels.length > 0) {
-          if(_kkChart) _kkChart.destroy();
-          const colors=['#4CAF50','#2196F3','#FF9800','#9C27B0','#F44336','#00BCD4','#FF5722','#607D8B','#E91E63','#3F51B5','#009688','#795548'];
-          _kkChart = new Chart(canvas,{type:'doughnut',data:{labels,datasets:[{data:vals,backgroundColor:colors.slice(0,labels.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:11}}}}}});
-        }
-      }
-      // リスト
-      if(data.length===0){list.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">まだ記録がありません</div>';return;}
-      list.innerHTML=[...data].sort((a,b)=>b.id-a.id).map(e=>
-        '<div class="kakeibo-entry kakeibo-entry-'+e.type+'"><div><div style="font-weight:500">'+e.desc+'</div><div style="display:flex;gap:6px;margin-top:4px"><span class="ke-cat">'+e.cat+'</span><span style="font-size:0.75rem;color:#aaa">'+e.date+'</span></div></div><div style="display:flex;align-items:center;gap:8px"><span class="ke-amount">'+(e.type==='income'?'+':'-')+'¥'+e.amount.toLocaleString()+'</span><button class="ke-del" onclick="deleteKakeiboEntry('+e.id+')">✕</button></div></div>'
-      ).join('');
     }
     
     // renderMyPage 新UI対応
