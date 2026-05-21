@@ -595,6 +595,11 @@ def api_user_data():
 def simulator():
     with open("simulator.html", encoding="utf-8") as f:
             return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+
+@app.route("/kakeibo")
+def kakeibo():
+    with open("kakeibo.html", encoding="utf-8") as f:
+        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
             
 @app.route("/")
 def index():
