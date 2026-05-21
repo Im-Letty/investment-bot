@@ -6,8 +6,7 @@
   <title>資産分析・家計簿</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <style>
+    <style>
     *{box-sizing:border-box;margin:0;padding:0;}
     body{font-family:'Noto Sans JP',sans-serif;background:#f0f7f2;color:#1a3325;min-height:100vh;}
     .header{background:linear-gradient(160deg,#c8efc8 0%,#8fcf8f 30%,#5db87a 60%,#3da060 100%);color:#fff;padding:16px 16px 28px;position:relative;overflow:hidden;}
@@ -267,7 +266,9 @@ function renderAll(){
   var recEl=document.getElementById('rec-list-el');
   if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">この月の記録はありません</div>':sorted.map(function(e){var sub=e.cat||(e.type==='inc'?'収入':'支出');return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+e.name+'</div><div class="rec-meta">'+sub+'</div></div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord('+e.id+')">✕</button></div>';}).join('');}
 }
-if(typeof Chart!=="undefined"){renderAll();}else{var _chartJsScript=document.querySelector('script[src*="chart.js"]');if(_chartJsScript){_chartJsScript.addEventListener("load",function(){renderAll();});}else{window.addEventListener("load",function(){renderAll();});}}
+if(typeof Chart!=="undefined"){renderAll();}else{var _chartJsScript=document.querySelector('script[src*="chart.js"]');if(_chartJsScript){_chartJsScript.addEventListener("load",function(){renderAll();});}else{window.addEventListener("load",function(){
+(function(){var s=document.createElement("script");s.src="https://cdn.jsdelivr.net/npm/chart.js";s.onload=function(){renderAll();if(document.getElementById("tab-calendar").classList.contains("active"))renderCalendar();};document.head.appendChild(s);})();
+;});}}
 </script>
 </body>
 </html>
