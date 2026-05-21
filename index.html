@@ -439,16 +439,19 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
         .then(function(r){ return r.json(); })
         .then(function(d){
           var m = d.market || {};
-          var vals = Object.values(m);
-          var nk = m['日経225'] || vals[0];
-          var sp = m['S&P500'] || vals[1];
-          var nsdq = m['ナスダック'] || vals[2];
-          var usd = m['ドル円'] || vals[3];
+          var nk = m['日経225'];
+          var sp = m['S&P500'];
+          var ny = m['NYダウ'];
+          var usd = m['ドル円'];
+          var vix = m['VIX恐怖指数'];
+          var bond = m['米10年金利'];
           if(nk && n) n.textContent = nk.display || '--';
           if(sp && s) s.textContent = sp.display || '--';
-          if(nsdq && nd) nd.textContent = nsdq.display || '--';
+          if(ny && nd) nd.textContent = ny.display || '--';
           if(usd && fx) fx.textContent = usd.display || '--';
-          if(a) a.innerHTML = '<strong>データ更新: ' + (d.updated||'--') + '</strong><br>最新相場データを表示中。詳細分析は毎朝8時のLINEで配信。';
+          if(a) a.innerHTML = '<strong>データ更新: ' + (d.updated||'--') + '</strong><br>'
+            + (vix ? 'VIX: ' + vix.display + '&nbsp;&nbsp;' : '')
+            + (bond ? '米金利: ' + bond.display : '');
           if(p) p.innerHTML = '✅ <strong>最新相場データ表示中</strong><br>✅ 毎朝8時にLINEで詳細分析を配信';
         })
         .catch(function(){
