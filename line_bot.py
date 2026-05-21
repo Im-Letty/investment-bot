@@ -624,6 +624,47 @@ def api_morning_data():
     except Exception as e:
         return jsonify({"error": str(e), "date": date.today().strftime("%Y/%m/%d"), "market": {}}), 200
 
+@app.route("/api/quote", methods=["GET"])
+def api_quote():
+    symbol = request.args.get("symbol", "").strip().upper()
+    if not symbol:
+        return jsonify({"error": "symbol is required"}), 400
+    try:
+        t = yf.Ticker(symbol)
+        hist = t.history(period="5d")
+        info = t.info
+        name = info.get("shortName") or info.get("longName") or symbol
+        currency = info.get("currency") or ""
+        if len(hist) >= 2:
+            val = hist["Close"].iloc[-1]
+            prev = hist["Close"].iloc[-2]
+            pct = (val - prev) / prev * 100
+            arrow = "▲" if pct >= 0 else "▼"
+            return jsonify({
+                "symbol": symbol,
+                "name": name,
+                "currency": currency,
+                "price": round(val, 4),
+                "pct": round(pct, 2),
+                "display": f"{val:,.2f} {arrow}{abs(pct):.2f}%",
+                "change": arrow + str(round(abs(pct), 2)) + "%"
+            })
+        elif len(hist) == 1:
+            val = hist["Close"].iloc[-1]
+            return jsonify({
+                "symbol": symbol,
+                "name": name,
+                "currency": currency,
+                "price": round(val, 4),
+                "pct": 0,
+                "display": f"{val:,.2f}",
+                "change": "--"
+            })
+        else:
+            return jsonify({"error": "No data found for: " + symbol}), 404
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
