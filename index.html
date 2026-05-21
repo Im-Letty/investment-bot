@@ -424,10 +424,10 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
     function loadMorningData() {
-      var n=document.getElementById('nikkei225');
-      var s=document.getElementById('sp500');
-      var nd=document.getElementById('nasdaq');
-      var fx=document.getElementById('usdjpy');
+      var n=document.getElementById('idx-nikkei');
+      var s=document.getElementById('idx-sp500');
+      var nd=document.getElementById('idx-nasdaq');
+      var fx=document.getElementById('idx-usdjpy');
       var a=document.getElementById('morning-analysis');
       var p=document.getElementById('morning-points');
       if(n) n.textContent='--';
