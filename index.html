@@ -95,10 +95,50 @@
     .res-amount{font-size:36px;font-weight:900;color:#4ade80;font-family:'Outfit',sans-serif;}
     .res-detail{font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;line-height:1.8;}
     .res-vs{margin-top:12px;background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;font-size:12px;color:rgba(255,255,255,0.6);}
-    </style>
+    
+.hamburger-btn{position:fixed;top:14px;left:14px;z-index:9999;background:rgba(255,255,255,0.22);border:none;border-radius:10px;width:40px;height:40px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;backdrop-filter:blur(8px);box-shadow:0 2px 10px rgba(60,160,80,0.18);transition:background 0.2s;}
+.hamburger-btn:hover{background:rgba(255,255,255,0.42);}
+.hamburger-btn span{display:block;width:20px;height:2.5px;background:#fff;border-radius:2px;transition:all 0.3s;}
+.hamburger-btn.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg);}
+.hamburger-btn.open span:nth-child(2){opacity:0;}
+.hamburger-btn.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg);}
+.drawer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.35);z-index:9990;backdrop-filter:blur(2px);}
+.drawer-overlay.open{display:block;}
+.side-drawer{position:fixed;top:0;left:-280px;width:260px;height:100%;background:linear-gradient(180deg,#2d7a4f 0%,#3da060 40%,#5db87a 100%);z-index:9995;transition:left 0.3s cubic-bezier(0.4,0,0.2,1);box-shadow:4px 0 24px rgba(0,0,0,0.18);display:flex;flex-direction:column;overflow-y:auto;}
+.side-drawer.open{left:0;}
+.drawer-header{padding:54px 24px 20px;border-bottom:1px solid rgba(255,255,255,0.2);}
+.drawer-app-icon{font-size:2.2rem;margin-bottom:6px;}
+.drawer-app-name{color:#fff;font-size:1.15rem;font-weight:700;margin:0;}
+.drawer-app-sub{color:rgba(255,255,255,0.72);font-size:0.76rem;margin:3px 0 0;}
+.drawer-nav{flex:1;padding:14px 0;}
+.drawer-section-label{color:rgba(255,255,255,0.52);font-size:0.66rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px 24px 4px;}
+.drawer-item{display:flex;align-items:center;gap:14px;padding:12px 24px;color:rgba(255,255,255,0.88);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-size:0.93rem;transition:background 0.15s;text-decoration:none;font-family:inherit;}
+.drawer-item:hover{background:rgba(255,255,255,0.12);color:#fff;}
+.drawer-item-icon{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0;}
+.drawer-footer{padding:14px 24px 28px;border-top:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.52);font-size:0.7rem;text-align:center;}
+</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
   <body>
+<button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
+<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+<div class="side-drawer" id="sideDrawer">
+  <div class="drawer-header">
+    <div class="drawer-app-icon">&#x1F4C8;</div>
+    <p class="drawer-app-name">Investment Bot</p>
+    <p class="drawer-app-sub">&#x6295;&#x8CC7;&#x30B7;&#x30DF;&#x30E5;&#x30EC;&#x30FC;&#x30BF;&#x30FC;</p>
+  </div>
+  <nav class="drawer-nav">
+    <div class="drawer-section-label">&#x6A5F;&#x80FD;</div>
+    <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon">&#x1F3E0;</span> &#x30DB;&#x30FC;&#x30E0;</button>
+    <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon">&#x1F4CA;</span> &#x30B7;&#x30DF;&#x30E5;&#x30EC;&#x30FC;&#x30BF;&#x30FC;</button>
+    <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">&#x2600;&#xFE0F;</span> &#x671D;&#x306E;&#x76F8;&#x5834;&#x30EC;&#x30BF;&#x30FC;</button>
+    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">&#x1F4BC;</span> &#x8CC7;&#x7523;&#x5206;&#x6790;</a>
+    <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">&#x26A1;</span> &#x6025;&#x9A30;&#x30A2;&#x30E9;&#x30FC;&#x30C8;</button>
+  </nav>
+  <div class="drawer-footer">&#xA9; 2026 Investment Bot</div>
+</div>
+
 
     <!-- SPLASH -->
     <div class="splash" id="spl">
@@ -395,12 +435,10 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if(p) p.innerHTML='✅ <strong>日経・技術株</strong>：絵江・ソニー・トヨタに注目<br>✅ <strong>S&amp;P500</strong>：5200帯の抑汲帯を試す<br>✅ <strong>初心者向け</strong>：相場の上下に気にせず、毎月まこつこ積立を継続';
     }
 
-    </script>
+    
+
+function toggleDrawer(){var b=document.getElementById('hamburgerBtn'),d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay');if(d.classList.contains('open')){closeDrawer();}else{d.classList.add('open');o.classList.add('open');b.classList.add('open');}}
+function closeDrawer(){var d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');if(d)d.classList.remove('open');if(o)o.classList.remove('open');if(b)b.classList.remove('open');}
+</script>
   </body>
-</html>html>
-    </script>
-    </div>
-  </div></p></h2>
-  </body>
-  </style></title>
-  </head>
+</html>
