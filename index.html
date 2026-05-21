@@ -145,7 +145,7 @@
       <div class="mgrid">
       <div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn">シミュレーター</div><div class="md">毎日・毎月積立で将来資産を計算</div></div>
       <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn">朝の相場レター</div><div class="md">毎朝8時にAIが市場を分析 ▶</div></a>
-      <a href="#" class="mc" onclick="openShiasanSection();return false;"><div class="mi">💼</div><div class="mn">資産分析</div><div class="md">家計簿・資産管理 ▶</div></a>
+      <a href="/kakeibo" class="mc" target="_blank"><div class="mi">💼</div><div class="mn">資産分析</div><div class="md">家計簿・資産管理 ▶</div></a>
       <a href="#" class="mc"><div class="mi">⚡</div><div class="mn">急騰・急落アラート</div><div class="md">ウォッチリスト銘柄を自動監視</div></a>
       </div>
       
@@ -240,56 +240,7 @@
       </div>
     </div>
   </div>
-  <div id="shiasan-section" style="display:none;padding:0 16px">
-    <button class="sim-back" onclick="closeShiasanSection()">← 戻る</button>
-    <div style="padding:0 0 24px">
-      <div style="background:linear-gradient(135deg,#1565c0,#42a5f5);border-radius:16px;padding:20px;color:#fff;margin-bottom:16px;text-align:center">
-        <div style="font-size:2rem;margin-bottom:8px">💼</div>
-        <div style="font-size:1.4rem;font-weight:700">家計簿・資産分析</div>
-        <div style="opacity:0.85;margin-top:4px">毎月の収支を記録・分析</div>
-      </div>
-      <div style="background:#fff;border-radius:12px;padding:12px 16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;justify-content:space-between;align-items:center">
-        <button onclick="changeShiasanMonth(-1)" style="background:#e3f2fd;border:none;border-radius:8px;padding:8px 16px;font-size:1rem;cursor:pointer;color:#1565c0;font-weight:600">◄</button>
-        <div id="shiasan-month-label" style="font-weight:700;font-size:1.1rem;color:#1565c0">--</div>
-        <button onclick="changeShiasanMonth(1)" style="background:#e3f2fd;border:none;border-radius:8px;padding:8px 16px;font-size:1rem;cursor:pointer;color:#1565c0;font-weight:600">►</button>
-      </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
-        <div style="background:linear-gradient(135deg,#2d7a2d,#66bb6a);border-radius:12px;padding:14px 16px;color:#fff"><div style="font-size:0.75rem;opacity:0.9;margin-bottom:4px">収入合計</div><div style="font-size:1.2rem;font-weight:700" id="sh-income-total">¥0</div></div>
-        <div style="background:linear-gradient(135deg,#c62828,#ef5350);border-radius:12px;padding:14px 16px;color:#fff"><div style="font-size:0.75rem;opacity:0.9;margin-bottom:4px">支出合計</div><div style="font-size:1.2rem;font-weight:700" id="sh-expense-total">¥0</div></div>
-        <div style="background:linear-gradient(135deg,#1565c0,#42a5f5);border-radius:12px;padding:14px 16px;color:#fff"><div style="font-size:0.75rem;opacity:0.9;margin-bottom:4px">残り（谪蓄）</div><div style="font-size:1.2rem;font-weight:700" id="sh-saving-total">+¥0</div></div>
-        <div style="background:linear-gradient(135deg,#e65100,#ff9800);border-radius:12px;padding:14px 16px;color:#fff"><div style="font-size:0.75rem;opacity:0.9;margin-bottom:4px">投資額</div><div style="font-size:1.2rem;font-weight:700" id="sh-invest-total">¥0</div></div>
-      </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#1565c0;margin-bottom:12px">📊 支出内訳</div>
-        <canvas id="sh-chart" style="max-height:220px;display:none"></canvas>
-        <div id="sh-chart-empty" style="text-align:center;color:#aaa;padding:20px">記録がありません</div>
-      </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">💰 収入を記録</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <input type="text" id="sh-income-desc" style="padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;box-sizing:border-box" placeholder="内容（例：給与）">
-          <input type="number" id="sh-income-amount" style="padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;box-sizing:border-box" placeholder="金額（円）">
-        </div>
-        <button onclick="addShiasanEntry('income')" style="background:linear-gradient(135deg,#2d7a2d,#4CAF50);color:#fff;border:none;border-radius:8px;padding:10px;width:100%;font-size:0.95rem;cursor:pointer;font-weight:600">＋ 収入を追加</button>
-      </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#c62828;margin-bottom:12px">💸 支出を記録</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-          <input type="text" id="sh-expense-desc" style="padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;box-sizing:border-box" placeholder="内容">
-          <input type="number" id="sh-expense-amount" style="padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;box-sizing:border-box" placeholder="金額（円）">
-        </div>
-        <select id="sh-expense-cat" style="width:100%;padding:10px 12px;border:1.5px solid #ddd;border-radius:8px;font-size:0.9rem;margin-bottom:8px;box-sizing:border-box">
-          <option value="食費">🍚 食費</option><option value="住居費">🏠 住居費</option><option value="光熱費">💡 光熱費</option><option value="通信費">📱 通信費</option><option value="交通費">🚗 交通費</option><option value="日用品">🛍️ 日用品</option><option value="娯楽・外食">🎶 娯楽・外食</option><option value="衣服・美容">👗 衣服・美容</option><option value="医療・健康">🏥 医療・健康</option><option value="教育">📚 教育</option><option value="投資">📈 投資</option><option value="その他">📦 その他</option>
-        </select>
-        <button onclick="addShiasanEntry('expense')" style="background:linear-gradient(135deg,#c62828,#ef5350);color:#fff;border:none;border-radius:8px;padding:10px;width:100%;font-size:0.95rem;cursor:pointer;font-weight:600">＋ 支出を追加</button>
-      </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#1565c0;margin-bottom:12px">📋 今月の記録</div>
-        <div id="sh-list" style="max-height:400px;overflow-y:auto"><div style="text-align:center;color:#aaa;padding:20px">まだ記録がありません</div></div>
-      </div>
-    </div>
-  </div>
-
+  
 
 
     <script>
@@ -444,57 +395,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if(p) p.innerHTML='✅ <strong>日経・技術株</strong>：絵江・ソニー・トヨタに注目<br>✅ <strong>S&amp;P500</strong>：5200帯の抑汲帯を試す<br>✅ <strong>初心者向け</strong>：相場の上下に気にせず、毎月まこつこ積立を継続';
     }
 
-    var _shYear=new Date().getFullYear(),_shMonth=new Date().getMonth()+1;
-    function openShiasanSection(){var s=document.getElementById('shiasan-section');if(s)s.style.display='block';window.scrollTo({top:0,behavior:'smooth'});updateShiasanMonthLabel();}
-    function closeShiasanSection(){var s=document.getElementById('shiasan-section');if(s)s.style.display='none';window.scrollTo({top:0,behavior:'smooth'});}
-    function updateShiasanMonthLabel(){var el=document.getElementById('shiasan-month-label');if(el)el.textContent=_shYear+'年'+_shMonth+'月';renderShiasanList();}
-    function changeShiasanMonth(d){_shMonth+=d;if(_shMonth>12){_shMonth=1;_shYear++;}if(_shMonth<1){_shMonth=12;_shYear--;}updateShiasanMonthLabel();}
-    function _getShKey(){return 'sh_'+_shYear+'_'+String(_shMonth).padStart(2,'0');}
-    function _getShData(){try{return JSON.parse(localStorage.getItem(_getShKey())||'[]');}catch(e){return[];}}
-    function _saveShData(d){localStorage.setItem(_getShKey(),JSON.stringify(d));}
-    function addShiasanEntry(type){
-      if(type==='income'){
-        var d=(document.getElementById('sh-income-desc')||{}).value||'',a=parseInt((document.getElementById('sh-income-amount')||{}).value||0)||0;
-        if(!d.trim()||!a){alert('内容と金額を入力してください');return;}
-        var data=_getShData();data.push({id:Date.now(),type:'income',desc:d.trim(),amount:a,cat:'収入',date:new Date().toLocaleDateString('ja-JP')});
-        _saveShData(data);document.getElementById('sh-income-desc').value='';document.getElementById('sh-income-amount').value='';
-      } else {
-        var d=(document.getElementById('sh-expense-desc')||{}).value||'',cat=(document.getElementById('sh-expense-cat')||{}).value||'その他',a=parseInt((document.getElementById('sh-expense-amount')||{}).value||0)||0;
-        if(!d.trim()||!a){alert('内容と金額を入力してください');return;}
-        var data=_getShData();data.push({id:Date.now(),type:'expense',desc:d.trim(),amount:a,cat:cat,date:new Date().toLocaleDateString('ja-JP')});
-        _saveShData(data);document.getElementById('sh-expense-desc').value='';document.getElementById('sh-expense-amount').value='';
-      }
-      renderShiasanList();
-    }
-    function deleteShiasanEntry(id){_saveShData(_getShData().filter(function(e){return e.id!==id;}));renderShiasanList();}
-    var _shChart=null;
-    function renderShiasanList(){
-      var data=_getShData(),list=document.getElementById('sh-list');
-      if(!list)return;
-      var inc=0,exp=0,inv=0,cats={};
-      data.forEach(function(e){if(e.type==='income')inc+=e.amount;else{exp+=e.amount;cats[e.cat]=(cats[e.cat]||0)+e.amount;if(e.cat==='投資')inv+=e.amount;}});
-      var sav=inc-exp;
-      var setV=function(id,v){var el=document.getElementById(id);if(el)el.textContent=v;};
-      setV('sh-income-total','¥'+inc.toLocaleString());setV('sh-expense-total','¥'+exp.toLocaleString());
-      setV('sh-saving-total',(sav>=0?'+':'')+'¥'+sav.toLocaleString());setV('sh-invest-total','¥'+inv.toLocaleString());
-      var canvas=document.getElementById('sh-chart'),empty=document.getElementById('sh-chart-empty');
-      var labels=Object.keys(cats),vals=Object.values(cats);
-      if(canvas&&typeof Chart!=='undefined'){
-        if(labels.length>0){if(empty)empty.style.display='none';canvas.style.display='block';if(_shChart)_shChart.destroy();
-          var colors=['#4CAF50','#2196F3','#FF9800','#9C27B0','#F44336','#00BCD4','#FF5722','#607D8B'];
-          _shChart=new Chart(canvas,{type:'doughnut',data:{labels:labels,datasets:[{data:vals,backgroundColor:colors.slice(0,labels.length),borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{position:'right',labels:{font:{size:11},boxWidth:12}}}}});
-        } else {canvas.style.display='none';if(empty)empty.style.display='block';}
-      }
-      if(data.length===0){list.innerHTML='<div style="text-align:center;color:#aaa;padding:20px">まだ記録がありません</div>';return;}
-      list.innerHTML=data.slice().sort(function(a,b){return b.id-a.id;}).map(function(e){
-        var isI=e.type==='income';
-        return '<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f0f0f0">'
-          +'<div><div style="font-weight:500;font-size:0.9rem">'+e.desc+'</div><div style="display:flex;gap:6px;margin-top:3px"><span style="font-size:0.75rem;background:#f5f5f5;padding:2px 8px;border-radius:10px;color:#666">'+e.cat+'</span><span style="font-size:0.75rem;color:#aaa">'+e.date+'</span></div></div>'
-          +'<div style="display:flex;align-items:center;gap:8px"><span style="font-weight:700;color:'+(isI?'#2d7a2d':'#c62828')+'">'+(isI?'+':'-')+'¥'+e.amount.toLocaleString()+'</span>'
-          +'<button onclick="deleteShiasanEntry('+e.id+')" style="background:none;border:none;color:#ccc;cursor:pointer;font-size:1.1rem">✕</button></div></div>';
-      }).join('');
-    }
-</script>
+    </script>
   </body>
 </html>html>
     </script>
