@@ -148,6 +148,27 @@
 .idx-checkbox-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;font-size:0.85rem;}
 .idx-checkbox-item.selected{border-color:#3da060;background:#f0f9f3;color:#2d7a4f;font-weight:600;}
 .idx-checkbox-item input{display:none;}
+
+.idx-custom-section{margin-top:16px;padding-top:16px;border-top:1px solid #eee;}
+.idx-custom-title{font-size:0.85rem;font-weight:700;color:#333;margin-bottom:6px;}
+.idx-custom-hint{font-size:0.72rem;color:#999;margin-bottom:8px;}
+.idx-custom-input-row{display:flex;gap:8px;margin-bottom:8px;}
+.idx-custom-input{flex:1;border:1.5px solid #ddd;border-radius:8px;padding:8px 12px;font-size:0.85rem;outline:none;transition:border-color 0.2s;}
+.idx-custom-input:focus{border-color:#3da060;}
+.idx-custom-search-btn{background:#3da060;color:#fff;border:none;border-radius:8px;padding:8px 14px;font-size:0.85rem;cursor:pointer;font-weight:700;white-space:nowrap;}
+.idx-custom-search-btn:disabled{background:#aaa;cursor:not-allowed;}
+.idx-custom-result-box{border:1.5px solid #e0f5e9;border-radius:10px;padding:10px 12px;background:#f8fff9;margin-bottom:8px;}
+.idx-custom-result-name{font-weight:700;color:#222;font-size:0.85rem;}
+.idx-custom-result-price{font-size:0.8rem;color:#3da060;margin-top:2px;}
+.idx-custom-result-error{color:#e53e3e;font-size:0.82rem;padding:6px 0;}
+.idx-custom-result-row{display:flex;align-items:center;justify-content:space-between;}
+.idx-custom-add-btn{background:#3da060;color:#fff;border:none;border-radius:6px;padding:6px 12px;font-size:0.78rem;cursor:pointer;font-weight:700;white-space:nowrap;}
+.idx-custom-added-label{color:#3da060;font-size:0.78rem;font-weight:700;}
+.idx-custom-list-wrap{margin-top:8px;}
+.idx-custom-list-label{font-size:0.75rem;color:#888;margin-bottom:5px;}
+.idx-custom-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.idx-custom-chip{background:#e8f8f0;border:1px solid #b2e8cc;border-radius:16px;padding:4px 10px 4px 12px;font-size:0.75rem;color:#2d7a50;display:flex;align-items:center;gap:5px;}
+.idx-custom-chip-del{cursor:pointer;color:#888;font-size:0.85rem;line-height:1;background:none;border:none;padding:0;}
 .idx-customizer-footer{padding:12px 20px 24px;}
 .idx-apply-btn{width:100%;background:linear-gradient(135deg,#3da060,#5db87a);color:#fff;border:none;border-radius:12px;padding:13px;font-size:0.95rem;font-weight:700;cursor:pointer;}
 </style>
@@ -296,7 +317,19 @@
       <div id="idx-customizer-overlay" class="idx-customizer-overlay" onclick="closeIndexCustomizer()"></div>
       <div id="idx-customizer-modal" class="idx-customizer-modal">
         <div class="idx-customizer-header"><span>&#x2699;&#xFE0F; &#x8868;&#x793A;&#x6307;&#x6570;&#x9078;&#x629E;</span><button onclick="closeIndexCustomizer()" class="idx-customizer-close">&#x2715;</button></div>
-        <div class="idx-customizer-body"><div class="idx-customizer-note">&#x6700;&#x59274&#x3064;&#x307E;&#x3067;&#x9078;&#x629E;&#x53EF;&#x80FD;</div><div id="idx-checkboxes" class="idx-checkboxes"></div></div>
+        <div class="idx-customizer-body"><div class="idx-customizer-note">&#x6700;&#x59274&#x3064;&#x307E;&#x3067;&#x9078;&#x629E;&#x53EF;&#x80FD;</div><div id="idx-checkboxes" class="idx-checkboxes"></div><div class="idx-custom-section">
+  <div class="idx-custom-title">&#x2795; &#x9298;&#x67C4;&#x3092;&#x81EA;&#x5206;&#x3067;&#x8FFD;&#x52A0;</div>
+  <div class="idx-custom-hint">&#x682A;&#x5F0F;&#x30FB;ETF&#x30FB;&#x70BA;&#x66FF;&#x306A;&#x3069;&#xFF08;&#x4F8B;&#xFF1AAAPL, 7203.T, BTC-USD&#xFF09;</div>
+  <div class="idx-custom-input-row">
+    <input class="idx-custom-input" id="customSymInput" type="text" placeholder="&#x9298;&#x67C4;&#x30B3;&#x30FC;&#x30C9;..." oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){searchCustomSym();}">
+    <button class="idx-custom-search-btn" id="customSymBtn" onclick="searchCustomSym()">&#x691C;&#x7D22;</button>
+  </div>
+  <div id="customSymResult"></div>
+  <div id="customSymListWrap" class="idx-custom-list-wrap" style="display:none;">
+    <div class="idx-custom-list-label">&#x8FFD;&#x52A0;&#x6E08;&#x307F;&#xFF1A;</div>
+    <div class="idx-custom-chips" id="customSymChips"></div>
+  </div>
+</div></div>
         <div class="idx-customizer-footer"><button onclick="applyIndexSelection()" class="idx-apply-btn">&#x9069;&#x7528;</button></div>
       </div>
     </div>
@@ -456,10 +489,20 @@ var _allIndices=[
 ];
 var _selIndices=null;
 function getSelIndices(){if(_selIndices)return _selIndices;try{var s=localStorage.getItem('morn_sel');if(s)return JSON.parse(s);}catch(e){}return['日経225','S&P500','NYダウ','ドル円'];}
-function renderMorningGrid(m){var sel=getSelIndices();var g=document.getElementById('morning-idx-grid');if(!g)return;var h='';sel.forEach(function(k){var info=_allIndices.find(function(x){return x.key===k;});var label=info?info.label:k;var icon=info?info.icon:'📊';var d=m&&m[k];var disp=d?d.display||'--':'--';var parts=disp.split('　');var price=parts[0]||disp;var change=parts[1]||'';var cls=change.includes('▲')||change.includes('+')?'up':change.includes('▼')||change.includes('-')?'down':'';h+='<div class="morning-idx-card"><div class="morning-idx-name">'+icon+' '+label+'</div><div class="morning-idx-value">'+price+'</div>'+(change?'<div class="morning-idx-change '+cls+'">'+change+'</div>':'')+'</div>';});g.innerHTML=h;}
+function renderMorningGrid(m){var sel=getSelIndices();var g=document.getElementById('morning-idx-grid');if(!g)return;var h='';sel.forEach(function(k){var info=_allIndices.find(function(x){return x.key===k;});var label=info?info.label:k;var icon=info?info.icon:'📊';var custInfo=_allIndices.find(function(x){return x.key===k&&x.isCustom;});var d=m&&m[k];var disp=custInfo?(custInfo.customDisplay||'--'):(d?d.display||'--':'--');var parts=disp.split('　');var price=parts[0]||disp;var change=parts[1]||'';var cls=change.includes('▲')||change.includes('+')?'up':change.includes('▼')||change.includes('-')?'down':'';h+='<div class="morning-idx-card"><div class="morning-idx-name">'+icon+' '+label+'</div><div class="morning-idx-value">'+price+'</div>'+(change?'<div class="morning-idx-change '+cls+'">'+change+'</div>':'')+'</div>';});g.innerHTML=h;}
 function loadMorningData(){var now=Date.now();if(_mktCache&&(now-_mktLastFetch)<(_mktFetchSec*1000)){renderMorningGrid(_mktCache);return;}fetch('/api/morning-data').then(function(r){return r.json();}).then(function(d){_mktCache=d.market||{};_mktLastFetch=Date.now();_mktCountdown=_mktFetchSec;renderMorningGrid(_mktCache);var t=document.getElementById('morning-update-time');if(t)t.textContent=d.updated||'--';var a=document.getElementById('morning-analysis');if(a)a.innerHTML='<strong>データ更新: '+(d.updated||'--')+'</strong>'+(d.market&&d.market['VIX恐怖指数']?'<br>VIX: '+d.market['VIX恐怖指数'].display:'')+(d.market&&d.market['米10年金利']?'&nbsp;&nbsp;米金利: '+d.market['米10年金利'].display:'');var p=document.getElementById('morning-points');if(p)p.innerHTML='✅ <strong>最新相場データ表示中</strong><br>✅ 毎朝8時にLINEで詳細分析を配信';}).catch(function(){if(_mktCache)renderMorningGrid(_mktCache);});}
 function startMorningInterval(){if(_mktInterval)clearInterval(_mktInterval);loadMorningData();_mktInterval=setInterval(function(){_mktCountdown--;var c=document.getElementById('morning-countdown');if(c)c.textContent=Math.max(0,_mktCountdown);if(_mktCountdown<=0){_mktCountdown=_mktFetchSec;loadMorningData();}},1000);}
-function openIndexCustomizer(){var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');var cb=document.getElementById('idx-checkboxes');if(!ov||!md||!cb)return;var sel=getSelIndices();_selIndices=sel.slice();var h='';_allIndices.forEach(function(idx){var isSel=sel.indexOf(idx.key)>=0;h+='<div class="idx-checkbox-item'+(isSel?' selected':'')+'" data-key="'+idx.key+'" onclick="toggleIdx(this,this.dataset.key)"><span>'+idx.icon+'</span><span>'+idx.label+'</span></div>';});cb.innerHTML=h;ov.classList.add('open');md.classList.add('open');}
+
+// ===== CUSTOM SYMBOL SEARCH =====
+var _customSymbols=[];
+function loadCustomSymbols(){try{var s=localStorage.getItem('custom_symbols');if(s)_customSymbols=JSON.parse(s);}catch(e){_customSymbols=[];}}
+function saveCustomSymbols(){try{localStorage.setItem('custom_symbols',JSON.stringify(_customSymbols));}catch(e){}}
+function renderCustomChips(){var wrap=document.getElementById('customSymListWrap');var chips=document.getElementById('customSymChips');if(!wrap||!chips)return;if(_customSymbols.length===0){wrap.style.display='none';return;}wrap.style.display='block';var h='';_customSymbols.forEach(function(s,i){h+='<div class="idx-custom-chip"><span>'+s.icon+' '+s.label+'</span><button class="idx-custom-chip-del" onclick="removeCustomSym('+i+')" title="\u524A\u9664">&#x2715;</button></div>';});chips.innerHTML=h;}
+function removeCustomSym(i){_customSymbols.splice(i,1);saveCustomSymbols();renderCustomChips();updateAllIndicesWithCustom();renderMorningGrid(_mktCache||{});}
+function updateAllIndicesWithCustom(){_allIndices=_allIndices.filter(function(x){return !x.isCustom;});_customSymbols.forEach(function(s){_allIndices.push({key:s.key,label:s.label,icon:s.icon,isCustom:true,customPrice:s.price,customDisplay:s.display,customPct:s.pct});});}
+function searchCustomSym(){var inp=document.getElementById('customSymInput');var btn=document.getElementById('customSymBtn');var res=document.getElementById('customSymResult');if(!inp||!btn||!res)return;var sym=inp.value.trim().toUpperCase();if(!sym){res.innerHTML='<div class="idx-custom-result-error">\u9298\u67c4\u30b3\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044</div>';return;}btn.disabled=true;btn.textContent='\u691c\u7d22\u4e2d...';res.innerHTML='<div style="color:#888;font-size:0.82rem;padding:6px 0;">\u53d6\u5f97\u4e2d...</div>';fetch('/api/quote?symbol='+encodeURIComponent(sym)).then(function(r){return r.json();}).then(function(data){btn.disabled=false;btn.textContent='\u691c\u7d22';if(data.error){res.innerHTML='<div class="idx-custom-result-error">\u2716 '+data.error+'</div>';return;}var alreadyAdded=_customSymbols.some(function(x){return x.key===data.symbol;});var pctColor=data.pct>=0?'#3da060':'#e53e3e';var pctStr=data.pct>=0?('&#x25B2;'+data.pct.toFixed(2)+'%'):('&#x25BC;'+Math.abs(data.pct).toFixed(2)+'%');var addBtnHtml=alreadyAdded?'<span class="idx-custom-added-label">&#x2714; \u8FFD\u52A0\u6E08</span>':'<button class="idx-custom-add-btn" data-sym="'+data.symbol+'" data-name="'+data.name.replace(/"/g,'')+'" data-price="'+data.price+'" data-pct="'+data.pct+'" data-disp="'+data.display.replace(/"/g,'')+'" onclick="addCustomSymFromBtn(this)">\u8FFD\u52A0</button>';res.innerHTML='<div class="idx-custom-result-box"><div class="idx-custom-result-row"><div><div class="idx-custom-result-name">'+data.name+'\uff08'+data.symbol+'\uff09</div><div class="idx-custom-result-price" style="color:'+pctColor+'">'+data.price.toLocaleString()+' '+pctStr+'</div></div>'+addBtnHtml+'</div></div>';}).catch(function(){btn.disabled=false;btn.textContent='\u691c\u7d22';res.innerHTML='<div class="idx-custom-result-error">\u901a\u4fe1\u30a8\u30e9\u30fc</div>';});}
+function addCustomSymFromBtn(btn){var sym=btn.dataset.sym;var name=btn.dataset.name;var price=parseFloat(btn.dataset.price);var pct=parseFloat(btn.dataset.pct);var disp=btn.dataset.disp;if(_customSymbols.some(function(x){return x.key===sym;}))return;_customSymbols.push({key:sym,label:name+'('+sym+')',icon:'\ud83d\udcc8',price:price,pct:pct,display:disp});saveCustomSymbols();renderCustomChips();updateAllIndicesWithCustom();btn.outerHTML='<span class="idx-custom-added-label">&#x2714; \u8FFD\u52A0\u6E08</span>';var inp=document.getElementById('customSymInput');if(inp)inp.value='';}
+function openIndexCustomizer(){loadCustomSymbols();updateAllIndicesWithCustom();renderCustomChips();var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');var cb=document.getElementById('idx-checkboxes');if(!ov||!md||!cb)return;var sel=getSelIndices();_selIndices=sel.slice();var h='';_allIndices.forEach(function(idx){var isSel=sel.indexOf(idx.key)>=0;h+='<div class="idx-checkbox-item'+(isSel?' selected':'')+'" data-key="'+idx.key+'" onclick="toggleIdx(this,this.dataset.key)"><span>'+idx.icon+'</span><span>'+idx.label+'</span></div>';});cb.innerHTML=h;ov.classList.add('open');md.classList.add('open');}
 function closeIndexCustomizer(){var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');if(ov)ov.classList.remove('open');if(md)md.classList.remove('open');}
 function toggleIdx(el,key){var sel=getSelIndices();var i=sel.indexOf(key);if(i>=0){sel.splice(i,1);el.classList.remove('selected');}else{if(sel.length>=4){alert('最大4つまで');return;}sel.push(key);el.classList.add('selected');}_selIndices=sel;}
 function applyIndexSelection(){var sel=getSelIndices();if(sel.length===0){alert('少なくも1つ選択してください');return;}try{localStorage.setItem('morn_sel',JSON.stringify(sel));}catch(e){}closeIndexCustomizer();renderMorningGrid(_mktCache||{});}
