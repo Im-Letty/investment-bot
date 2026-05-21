@@ -116,10 +116,44 @@
 .drawer-item:hover{background:rgba(255,255,255,0.12);color:#fff;}
 .drawer-item-icon{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0;}
 .drawer-footer{padding:14px 24px 28px;border-top:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.52);font-size:0.7rem;text-align:center;}
+
+.morning-banner{background:linear-gradient(135deg,#3da060,#5db87a);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px;}
+.morning-icon{font-size:2rem;margin-bottom:4px;}
+.morning-title{color:#fff;font-size:1.3rem;font-weight:700;}
+.morning-sub{color:rgba(255,255,255,0.8);font-size:0.8rem;margin-top:4px;}
+.morning-controls{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:0 4px;}
+.morning-update-info{font-size:0.75rem;color:#666;}
+.morning-custom-btn{background:linear-gradient(135deg,#3da060,#5db87a);color:#fff;border:none;border-radius:20px;padding:6px 14px;font-size:0.78rem;cursor:pointer;font-weight:600;}
+.morning-custom-btn:hover{opacity:0.88;}
+.morning-idx-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+.morning-idx-card{background:#fff;border-radius:12px;padding:14px 12px;box-shadow:0 2px 8px rgba(60,160,80,0.1);border:1px solid #e8f5ec;}
+.morning-idx-name{font-size:0.72rem;color:#666;margin-bottom:4px;}
+.morning-idx-value{font-size:1.1rem;font-weight:700;color:#222;}
+.morning-idx-change{font-size:0.75rem;margin-top:2px;}
+.morning-idx-change.up{color:#16a34a;}
+.morning-idx-change.down{color:#dc2626;}
+.morning-extra{background:#fff;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(60,160,80,0.08);}
+.morning-section-label{font-size:0.8rem;font-weight:700;color:#3da060;margin-bottom:8px;}
+.morning-analysis-text{font-size:0.85rem;color:#333;line-height:1.5;}
+.morning-points-text{font-size:0.82rem;color:#444;margin-top:8px;line-height:1.6;}
+.idx-customizer-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:8000;}
+.idx-customizer-overlay.open{display:block;}
+.idx-customizer-modal{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:8001;max-height:70vh;overflow-y:auto;}
+.idx-customizer-modal.open{display:block;}
+.idx-customizer-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #eee;font-size:1rem;font-weight:700;color:#333;}
+.idx-customizer-close{background:none;border:none;font-size:1.2rem;cursor:pointer;color:#666;}
+.idx-customizer-body{padding:16px 20px;}
+.idx-customizer-note{font-size:0.76rem;color:#999;margin-bottom:12px;}
+.idx-checkboxes{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.idx-checkbox-item{display:flex;align-items:center;gap:8px;padding:10px 12px;border:2px solid #e0e0e0;border-radius:10px;cursor:pointer;font-size:0.85rem;}
+.idx-checkbox-item.selected{border-color:#3da060;background:#f0f9f3;color:#2d7a4f;font-weight:600;}
+.idx-checkbox-item input{display:none;}
+.idx-customizer-footer{padding:12px 20px 24px;}
+.idx-apply-btn{width:100%;background:linear-gradient(135deg,#3da060,#5db87a);color:#fff;border:none;border-radius:12px;padding:13px;font-size:0.95rem;font-weight:700;cursor:pointer;}
 </style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
-  <body onload="setTimeout(loadMorningData,300)">
+  <body onload="startMorningInterval()">
 <button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 <div class="side-drawer" id="sideDrawer">
@@ -243,43 +277,29 @@
   </div>
   </div>
   </div>
-  <div id="morning-section" style="display:block;padding:0 16px">
-    <button class="sim-back" onclick="closeMorningSection()">← 戻る</button>
-    <div style="padding:0 0 24px">
-      <div style="background:linear-gradient(135deg,#2d7a2d,#66bb6a);border-radius:16px;padding:20px;color:#fff;margin-bottom:16px;text-align:center">
-        <div style="font-size:2rem;margin-bottom:8px">☀️</div>
-        <div style="font-size:1.4rem;font-weight:700">朝の相場レター</div>
-        <div style="opacity:0.85;margin-top:4px">毎朝8時にLINEで配信中</div>
+  <div id="morning-section" style="display:block">
+      <div class="morning-banner">
+        <div class="morning-icon">&#x2600;&#xFE0F;</div>
+        <div class="morning-title">&#x671D;&#x306E;&#x76F8;&#x5834;&#x30EC;&#x30BF;&#x30FC;</div>
+        <div class="morning-sub">&#x6BCE;&#x671D;8&#x6642;&#x306BLINE&#x3067;&#x914D;&#x4FE1;&#x4E2D;</div>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">📊 主要指数</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
-          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #2d7a2d"><div style="font-size:0.75rem;color:#666">日経225</div><div style="font-weight:700;font-size:1.1rem" id="idx-nikkei">--</div></div>
-          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #2196F3"><div style="font-size:0.75rem;color:#666">S&amp;P500</div><div style="font-weight:700;font-size:1.1rem" id="idx-sp500">--</div></div>
-          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #FF9800"><div style="font-size:0.75rem;color:#666">ナスダック</div><div style="font-weight:700;font-size:1.1rem" id="idx-nasdaq">--</div></div>
-          <div style="background:#f8fdf8;border-radius:8px;padding:12px;border-left:3px solid #9C27B0"><div style="font-size:0.75rem;color:#666">ドル円</div><div style="font-weight:700;font-size:1.1rem" id="idx-usdjpy">--</div></div>
-        </div>
+      <div class="morning-controls">
+        <div class="morning-update-info">&#x66F4;&#x65B0;: <span id="morning-update-time">--</span> &nbsp;|&nbsp; &#x6B21;&#x56DE;: <span id="morning-countdown">30</span>&#x79D2;</div>
+        <button class="morning-custom-btn" onclick="openIndexCustomizer()">&#x2699;&#xFE0F; &#x6307;&#x6570;&#x9078;&#x629E;</button>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">🤖 今日のAI市場分析</div>
-        <div id="morning-analysis" style="color:#444;line-height:1.7;font-size:0.95rem">読み込み中...</div>
+      <div class="morning-idx-grid" id="morning-idx-grid"></div>
+      <div class="morning-extra">
+        <div class="morning-section-label">&#x1F4CA; AI&#x5E02;&#x5834;&#x5206;&#x6790;</div>
+        <div id="morning-analysis" class="morning-analysis-text">&#x8AAD;&#x307F;&#x8FBC;&#x307F;&#x4E2D;...</div>
+        <div id="morning-points" class="morning-points-text"></div>
       </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">🎯 今日の注目ポイント</div>
-        <div id="morning-points" style="color:#444;line-height:1.8;font-size:0.9rem">読み込み中...</div>
-      </div>
-      <div style="background:#fff;border-radius:12px;padding:16px;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06)">
-        <div style="font-weight:700;color:#2d7a2d;margin-bottom:12px">📅 今週のマーケットイベント</div>
-        <div style="font-size:0.9rem;color:#555;line-height:1.8">
-          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>月：</strong>米国小尾小売売上高</div>
-          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>火：</strong>日本貸出残高発表</div>
-          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>水：</strong>FOMC議事録公表</div>
-          <div style="padding:8px 0;border-bottom:1px solid #f0f0f0">🟡 <strong>木：</strong>米GDP成長率</div>
-          <div style="padding:8px 0">🟡 <strong>金：</strong>米非農雇用者数</div>
-        </div>
+      <div id="idx-customizer-overlay" class="idx-customizer-overlay" onclick="closeIndexCustomizer()"></div>
+      <div id="idx-customizer-modal" class="idx-customizer-modal">
+        <div class="idx-customizer-header"><span>&#x2699;&#xFE0F; &#x8868;&#x793A;&#x6307;&#x6570;&#x9078;&#x629E;</span><button onclick="closeIndexCustomizer()" class="idx-customizer-close">&#x2715;</button></div>
+        <div class="idx-customizer-body"><div class="idx-customizer-note">&#x6700;&#x59274&#x3064;&#x307E;&#x3067;&#x9078;&#x629E;&#x53EF;&#x80FD;</div><div id="idx-checkboxes" class="idx-checkboxes"></div></div>
+        <div class="idx-customizer-footer"><button onclick="applyIndexSelection()" class="idx-apply-btn">&#x9069;&#x7528;</button></div>
       </div>
     </div>
-  </div>
   
 
 
@@ -423,42 +443,26 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if(s) s.style.display = 'none';
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
-    function loadMorningData() {
-      var n=document.getElementById('idx-nikkei');
-      var s=document.getElementById('idx-sp500');
-      var nd=document.getElementById('idx-nasdaq');
-      var fx=document.getElementById('idx-usdjpy');
-      var a=document.getElementById('morning-analysis');
-      var p=document.getElementById('morning-points');
-      if(n) n.textContent='--';
-      if(s) s.textContent='--';
-      if(nd) nd.textContent='--';
-      if(fx) fx.textContent='--';
-      if(a) a.innerHTML='<em>読み込み中...</em>';
-      fetch('/api/morning-data')
-        .then(function(r){ return r.json(); })
-        .then(function(d){
-          var m = d.market || {};
-          var nk = m['日経225'];
-          var sp = m['S&P500'];
-          var ny = m['NYダウ'];
-          var usd = m['ドル円'];
-          var vix = m['VIX恐怖指数'];
-          var bond = m['米10年金利'];
-          if(nk && n) n.textContent = nk.display || '--';
-          if(sp && s) s.textContent = sp.display || '--';
-          if(ny && nd) nd.textContent = ny.display || '--';
-          if(usd && fx) fx.textContent = usd.display || '--';
-          if(a) a.innerHTML = '<strong>データ更新: ' + (d.updated||'--') + '</strong><br>'
-            + (vix ? 'VIX: ' + vix.display + '&nbsp;&nbsp;' : '')
-            + (bond ? '米金利: ' + bond.display : '');
-          if(p) p.innerHTML = '✅ <strong>最新相場データ表示中</strong><br>✅ 毎朝8時にLINEで詳細分析を配信';
-        })
-        .catch(function(){
-          if(a) a.innerHTML='<strong>本日の市場概要</strong><br>日経平均は前日比＋圧で推移。米国市場の回復を受け、技術株・金融株を中心に買いが定まりやすい展開。';
-          if(p) p.innerHTML='✅ <strong>日経・技術株</strong>：絵江・ソニー・トヨタに注目<br>✅ <strong>S&P500</strong>：5200帯の抑汲帯を試す<br>✅ <strong>初心者向け</strong>：相場の上下に気にせず、毎月まこつこ積立を継続';
-        });
-    }
+    
+var _mktCache=null,_mktLastFetch=0,_mktInterval=null,_mktCountdown=30,_mktFetchSec=30;
+var _allIndices=[
+  {key:'日経225',label:'日経225',icon:'🇯🇵'},
+  {key:'NYダウ',label:'NYダウ',icon:'🇺🇸'},
+  {key:'S&P500',label:'S&P500',icon:'📈'},
+  {key:'ナスダック',label:'ナスダック',icon:'💻'},
+  {key:'ドル円',label:'ドル円',icon:'💹'},
+  {key:'VIX恐怖指数',label:'VIX',icon:'⚠️'},
+  {key:'米10年金利',label:'米金利',icon:'🏦'}
+];
+var _selIndices=null;
+function getSelIndices(){if(_selIndices)return _selIndices;try{var s=localStorage.getItem('morn_sel');if(s)return JSON.parse(s);}catch(e){}return['日経225','S&P500','NYダウ','ドル円'];}
+function renderMorningGrid(m){var sel=getSelIndices();var g=document.getElementById('morning-idx-grid');if(!g)return;var h='';sel.forEach(function(k){var info=_allIndices.find(function(x){return x.key===k;});var label=info?info.label:k;var icon=info?info.icon:'📊';var d=m&&m[k];var disp=d?d.display||'--':'--';var parts=disp.split('　');var price=parts[0]||disp;var change=parts[1]||'';var cls=change.includes('▲')||change.includes('+')?'up':change.includes('▼')||change.includes('-')?'down':'';h+='<div class="morning-idx-card"><div class="morning-idx-name">'+icon+' '+label+'</div><div class="morning-idx-value">'+price+'</div>'+(change?'<div class="morning-idx-change '+cls+'">'+change+'</div>':'')+'</div>';});g.innerHTML=h;}
+function loadMorningData(){var now=Date.now();if(_mktCache&&(now-_mktLastFetch)<(_mktFetchSec*1000)){renderMorningGrid(_mktCache);return;}fetch('/api/morning-data').then(function(r){return r.json();}).then(function(d){_mktCache=d.market||{};_mktLastFetch=Date.now();_mktCountdown=_mktFetchSec;renderMorningGrid(_mktCache);var t=document.getElementById('morning-update-time');if(t)t.textContent=d.updated||'--';var a=document.getElementById('morning-analysis');if(a)a.innerHTML='<strong>データ更新: '+(d.updated||'--')+'</strong>'+(d.market&&d.market['VIX恐怖指数']?'<br>VIX: '+d.market['VIX恐怖指数'].display:'')+(d.market&&d.market['米10年金利']?'&nbsp;&nbsp;米金利: '+d.market['米10年金利'].display:'');var p=document.getElementById('morning-points');if(p)p.innerHTML='✅ <strong>最新相場データ表示中</strong><br>✅ 毎朝8時にLINEで詳細分析を配信';}).catch(function(){if(_mktCache)renderMorningGrid(_mktCache);});}
+function startMorningInterval(){if(_mktInterval)clearInterval(_mktInterval);loadMorningData();_mktInterval=setInterval(function(){_mktCountdown--;var c=document.getElementById('morning-countdown');if(c)c.textContent=Math.max(0,_mktCountdown);if(_mktCountdown<=0){_mktCountdown=_mktFetchSec;loadMorningData();}},1000);}
+function openIndexCustomizer(){var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');var cb=document.getElementById('idx-checkboxes');if(!ov||!md||!cb)return;var sel=getSelIndices();_selIndices=sel.slice();var h='';_allIndices.forEach(function(idx){var isSel=sel.indexOf(idx.key)>=0;h+='<div class="idx-checkbox-item'+(isSel?' selected':'')+'" onclick="toggleIdx(this,''+idx.key+'')"><span>'+idx.icon+'</span><span>'+idx.label+'</span></div>';});cb.innerHTML=h;ov.classList.add('open');md.classList.add('open');}
+function closeIndexCustomizer(){var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');if(ov)ov.classList.remove('open');if(md)md.classList.remove('open');}
+function toggleIdx(el,key){var sel=getSelIndices();var i=sel.indexOf(key);if(i>=0){sel.splice(i,1);el.classList.remove('selected');}else{if(sel.length>=4){alert('最大4つまで');return;}sel.push(key);el.classList.add('selected');}_selIndices=sel;}
+function applyIndexSelection(){var sel=getSelIndices();if(sel.length===0){alert('少なくも1つ選択してください');return;}try{localStorage.setItem('morn_sel',JSON.stringify(sel));}catch(e){}closeIndexCustomizer();renderMorningGrid(_mktCache||{});}
 
     
 
