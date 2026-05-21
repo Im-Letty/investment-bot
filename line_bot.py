@@ -601,6 +601,29 @@ def kakeibo():
     with open("kakeibo.html", encoding="utf-8") as f:
         return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
             
+
+@app.route("/api/morning-data", methods=["GET"])
+def api_morning_data():
+    try:
+        market = fetch_market_data()
+        today = date.today().strftime("%Y/%m/%d")
+        weekdays = ["月","火","水","木","金","土","日"]
+        weekday = weekdays[date.today().weekday()]
+        result = {
+            "date": today + "(" + weekday + ")",
+            "market": {},
+            "updated": datetime.now().strftime("%H:%M")
+        }
+        for k, v in market.items():
+            result["market"][k] = {
+                "price": v.get("price", "--"),
+                "change": v.get("change", "--"),
+                "display": v.get("display", "--")
+            }
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e), "date": date.today().strftime("%Y/%m/%d"), "market": {}}), 200
+
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
