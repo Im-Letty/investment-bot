@@ -176,6 +176,7 @@
 </div>
 
 <script>
+function _safeChart(id){try{var ex=Chart.getChart(id);if(ex)ex.destroy();}catch(e){}}
 var _year=new Date().getFullYear(),_month=new Date().getMonth()+1,_charts={},_currentForm='inc';
 var CAT_COLORS={'食費':'#e8856a','住居':'#6ab88a','交通':'#5ab8a0','光熱費':'#f0b86a','通信費':'#8aaa7a','娯楽':'#7ab0d8','医療':'#d8808a','衣類':'#a89870','教育':'#90a878','その他':'#b0c8b8','現金':'#5db87a','国内株':'#e8856a','米国株':'#6ab88a','投資信託':'#f0b86a','ETF':'#8aaa7a','債券':'#7ab0d8','不動産':'#a89870','仮想通貨':'#c8b86a'};
 function getKey(y,m){return 'kb2_'+(y||_year)+'_'+((m||_month)<10?'0'+(m||_month):(m||_month));}
@@ -246,20 +247,20 @@ function renderAll(){
   var tc=document.getElementById('totalAssetChange');if(tc)tc.textContent=totalAst>0?'登録資産 '+assets.length+'件 ｜ 今月収支 '+fmt(balance):'資産を登録してください';
   var months=[],incArr=[],expArr=[],invArr=[];
   for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+'月');var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(a);expArr.push(b);invArr.push(c);}
-  if(_charts.bar){_charts.bar.destroy();}
+  _safeChart("barChart");_charts.bar=null;
   var bc=document.getElementById('barChart');
   if(bc){_charts.bar=new Chart(bc.getContext('2d'),{type:'bar',data:{labels:months,datasets:[{label:'収入',data:incArr,backgroundColor:'rgba(93,184,122,0.75)',borderRadius:6},{label:'支出',data:expArr,backgroundColor:'rgba(224,80,80,0.7)',borderRadius:6},{label:'投資',data:invArr,backgroundColor:'rgba(43,168,136,0.7)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'#edf5f0'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+'万':'¥'+v;},font:{size:10},color:'#7aaa8a'}}}}});}
-  if(_charts.line){_charts.line.destroy();}
+  _safeChart("lineChart");_charts.line=null;
   var lc=document.getElementById('lineChart');
   if(lc){_charts.line=new Chart(lc.getContext('2d'),{type:'line',data:{labels:months,datasets:[{label:'収入',data:incArr,borderColor:'#3da060',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#3da060',borderWidth:2.5},{label:'支出',data:expArr,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'#edf5f0'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+'万':'¥'+v;},font:{size:10},color:'#7aaa8a'}}}}});}
   var catMap={};data.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catMap[c]=(catMap[c]||0)+e.amount;});
   var dLabels=Object.keys(catMap),dVals=dLabels.map(function(c){return catMap[c];}),dColors=dLabels.map(function(c){return CAT_COLORS[c]||'#b0c8b8';});
-  if(_charts.donut){_charts.donut.destroy();}
+  _safeChart("donutChart");_charts.donut=null;
   var dc=document.getElementById('donutChart');
   if(dc){if(dVals.length>0){_charts.donut=new Chart(dc.getContext('2d'),{type:'doughnut',data:{labels:dLabels,datasets:[{data:dVals,backgroundColor:dColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'65%'}});var dl=document.getElementById('donut-legend');if(dl){var total=dVals.reduce(function(a,b){return a+b;},0);dl.innerHTML=dLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+dColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+c+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(dVals[i]/total*100)+'%</span></div>';}).join('');}}else{var dp=dc.parentElement;if(dp)dp.innerHTML='<div class="empty-state">支出を入力するとグラフが表示されます</div>';}}
   var astCatMap={};assets.forEach(function(a){var c=a.cat||'その他';astCatMap[c]=(astCatMap[c]||0)+a.amount;});
   var aLabels=Object.keys(astCatMap),aVals=aLabels.map(function(c){return astCatMap[c];}),aColors=aLabels.map(function(c){return CAT_COLORS[c]||'#b0c8b8';});
-  if(_charts.pie){_charts.pie.destroy();}
+  _safeChart("assetPieChart");_charts.pie=null;
   var pc=document.getElementById('assetPieChart');
   if(pc){if(aVals.length>0){_charts.pie=new Chart(pc.getContext('2d'),{type:'doughnut',data:{labels:aLabels,datasets:[{data:aVals,backgroundColor:aColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'60%'}});var al=document.getElementById('asset-legend');if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+c+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(aVals[i]/total2*100)+'%</span></div>';}).join('');}}else{var al2=document.getElementById('asset-legend');if(al2)al2.innerHTML='<div class="empty-state">資産を登録するとグラフが表示されます</div>';}}
   var astEl=document.getElementById('asset-list-el');
@@ -267,7 +268,7 @@ function renderAll(){
   var recEl=document.getElementById('rec-list-el');
   if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">この月の記録はありません</div>':sorted.map(function(e){var sub=e.cat||(e.type==='inc'?'収入':'支出');return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+e.name+'</div><div class="rec-meta">'+sub+'</div></div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord('+e.id+')">✕</button></div>';}).join('');}
 }
-renderAll();
+try{renderAll();}catch(e){console.warn("renderAll:",e.message);}
 </script>
 </body>
 </html>
