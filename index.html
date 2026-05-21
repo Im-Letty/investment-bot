@@ -96,9 +96,9 @@
     .res-detail{font-size:11px;color:rgba(255,255,255,0.4);margin-top:8px;line-height:1.8;}
     .res-vs{margin-top:12px;background:rgba(0,0,0,0.2);border-radius:10px;padding:12px;font-size:12px;color:rgba(255,255,255,0.6);}
     
-.hamburger-btn{position:fixed;top:77px;left:14px;z-index:9999;background:rgba(255,255,255,0.22);border:none;border-radius:10px;width:40px;height:40px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;backdrop-filter:blur(8px);box-shadow:0 2px 10px rgba(60,160,80,0.18);transition:background 0.2s;}
+.hamburger-btn{background:none;border:none;border-radius:8px;width:36px;height:36px;cursor:pointer;display:flex;flex-direction:column;justify-content:center;align-items:center;gap:5px;padding:6px;margin-right:8px;flex-shrink:0;}
 .hamburger-btn:hover{background:rgba(255,255,255,0.42);}
-.hamburger-btn span{display:block;width:20px;height:2.5px;background:#fff;border-radius:2px;transition:all 0.3s;}
+.hamburger-btn span{display:block;width:20px;height:2.5px;background:#3da060;border-radius:2px;transition:all 0.3s;}
 .hamburger-btn.open span:nth-child(1){transform:translateY(7.5px) rotate(45deg);}
 .hamburger-btn.open span:nth-child(2){opacity:0;}
 .hamburger-btn.open span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg);}
@@ -183,8 +183,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 </head>
   <body onload="startMorningInterval()">
-<button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button>
-<div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
 <div class="side-drawer" id="sideDrawer">
   <div class="drawer-header">
     <div class="drawer-app-icon">&#x1F4C8;</div>
@@ -215,12 +214,13 @@
     <!-- LP -->
     <div id="lp-section">
       <div class="header">
-        <div class="hlogo">
+        <div style="display:flex;align-items:center;gap:4px;"><button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button><div class="hlogo">
           <div class="hli">🐸</div>
           <div class="hln">経済NEWS</div>
-        </div>
+        </div></div>
         <div style="font-size:11px;color:#888;">@945nenkg</div>
       </div>
+      <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
       <div class="content">
         <div class="hero">
           <h2>お金の未来を<br>見える化しよう</h2>
