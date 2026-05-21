@@ -464,6 +464,8 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
 
 function toggleDrawer(){var b=document.getElementById('hamburgerBtn'),d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay');if(d.classList.contains('open')){closeDrawer();}else{d.classList.add('open');o.classList.add('open');b.classList.add('open');}}
 function closeDrawer(){var d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');if(d)d.classList.remove('open');if(o)o.classList.remove('open');if(b)b.classList.remove('open');}
-</script>
+
+    document.addEventListener("DOMContentLoaded", function(){ setTimeout(loadMorningData, 500); });
+    </script>
   </body>
 </html>
