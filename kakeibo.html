@@ -3,300 +3,278 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>家計簿・資産分析</title>
+  <title>資産分析・家計簿</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     *{box-sizing:border-box;margin:0;padding:0;}
-    body{font-family:'Noto Sans JP',sans-serif;background:#f5f7fa;color:#333;min-height:100vh;}
-    .header{background:linear-gradient(135deg,#1a6b3a 0%,#2e9e5b 100%);color:#fff;padding:20px 16px 24px;text-align:center;}
-    .header-back{display:flex;align-items:center;gap:8px;color:#fff;text-decoration:none;font-size:14px;margin-bottom:12px;opacity:0.85;}
-    .header-back:hover{opacity:1;}
-    .header h1{font-size:22px;font-weight:700;margin-bottom:4px;}
-    .header p{font-size:13px;opacity:0.85;}
-    .month-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin:16px 16px 0;}
-    .month-btn{background:rgba(255,255,255,0.25);border:none;color:#fff;width:36px;height:36px;border-radius:50%;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
-    .month-btn:hover{background:rgba(255,255,255,0.4);}
-    .month-label{font-size:17px;font-weight:700;color:#fff;min-width:120px;text-align:center;}
-    .summary-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;}
-    .sum-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);text-align:center;}
-    .sum-label{font-size:12px;color:#888;margin-bottom:6px;}
-    .sum-val{font-size:20px;font-weight:700;}
-    .sum-val.income{color:#2e9e5b;}
-    .sum-val.expense{color:#e53935;}
-    .sum-val.balance{color:#1976d2;}
-    .sum-val.invest{color:#7b1fa2;}
-    .section{padding:0 16px 20px;}
-    .section-title{font-size:15px;font-weight:700;color:#333;margin-bottom:12px;padding-bottom:6px;border-bottom:2px solid #e0e0e0;}
-    .chart-wrap{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:16px;}
-    .chart-wrap canvas{max-height:220px;}
-    .form-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);margin-bottom:12px;}
-    .form-card h3{font-size:14px;font-weight:700;margin-bottom:12px;color:#555;}
-    .form-row{display:flex;gap:8px;margin-bottom:8px;}
-    .form-row input,.form-row select{flex:1;padding:10px 12px;border:1.5px solid #e0e0e0;border-radius:10px;font-size:14px;font-family:inherit;outline:none;}
-    .form-row input:focus,.form-row select:focus{border-color:#2e9e5b;}
-    .btn-add{width:100%;padding:12px;background:linear-gradient(135deg,#1a6b3a,#2e9e5b);color:#fff;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px;}
-    .btn-add:hover{opacity:0.9;}
-    .btn-add.expense-btn{background:linear-gradient(135deg,#c62828,#e53935);}
-    .list-card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 8px rgba(0,0,0,0.07);}
-    .list-item{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f0f0f0;}
-    .list-item:last-child{border-bottom:none;}
-    .item-left{display:flex;align-items:center;gap:10px;}
-    .item-icon{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;}
-    .item-icon.inc{background:#e8f5e9;}
-    .item-icon.exp{background:#ffebee;}
-    .item-name{font-size:14px;font-weight:600;}
-    .item-cat{font-size:11px;color:#aaa;margin-top:2px;}
-    .item-right{text-align:right;}
-    .item-amount{font-size:15px;font-weight:700;}
-    .item-amount.inc{color:#2e9e5b;}
-    .item-amount.exp{color:#e53935;}
-    .item-del{background:none;border:none;color:#ccc;font-size:18px;cursor:pointer;padding:4px;margin-left:8px;}
-    .item-del:hover{color:#e53935;}
-    .empty-msg{text-align:center;color:#bbb;padding:24px 0;font-size:14px;}
-    .tab-row{display:flex;gap:8px;margin-bottom:16px;}
-    .tab-pill{flex:1;padding:10px;border:2px solid #e0e0e0;border-radius:20px;background:#fff;font-size:14px;font-weight:600;cursor:pointer;color:#888;}
-    .tab-pill.active{background:#2e9e5b;border-color:#2e9e5b;color:#fff;}
-    .tab-pill.exp-active{background:#e53935;border-color:#e53935;color:#fff;}
+    body{font-family:'Noto Sans JP',sans-serif;background:#f0f4f8;color:#1a2332;min-height:100vh;}
+    .header{background:linear-gradient(135deg,#0d2137 0%,#1a4a7a 60%,#1e6fba 100%);color:#fff;padding:16px 16px 24px;}
+    .header-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .back-btn{color:#fff;text-decoration:none;font-size:13px;opacity:0.8;}
+    .back-btn:hover{opacity:1;}
+    .header-title{font-size:15px;font-weight:700;opacity:0.9;}
+    .total-asset-label{font-size:12px;opacity:0.7;margin-bottom:4px;}
+    .total-asset-val{font-size:36px;font-weight:800;font-family:'Outfit',sans-serif;letter-spacing:-1px;}
+    .total-asset-change{font-size:13px;margin-top:4px;opacity:0.85;color:#4ade80;}
+    .tab-nav{display:flex;background:#fff;border-bottom:1px solid #e8ecf0;overflow-x:auto;}
+    .tab-nav::-webkit-scrollbar{display:none;}
+    .tn-item{flex:none;padding:14px 20px;font-size:13px;font-weight:600;color:#888;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;}
+    .tn-item.active{color:#1a4a7a;border-bottom-color:#1a4a7a;}
+    .tab-content{display:none;padding:16px;}
+    .tab-content.active{display:block;}
+    .card{background:#fff;border-radius:16px;padding:16px;box-shadow:0 2px 12px rgba(0,0,0,0.06);margin-bottom:14px;}
+    .card-title{font-size:13px;font-weight:700;color:#555;margin-bottom:14px;}
+    .sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
+    .sum-item{background:#fff;border-radius:14px;padding:14px;box-shadow:0 2px 10px rgba(0,0,0,0.06);}
+    .sum-lbl{font-size:11px;color:#999;margin-bottom:6px;}
+    .sum-num{font-size:22px;font-weight:800;font-family:'Outfit',sans-serif;}
+    .sum-num.blue{color:#1a4a7a;} .sum-num.red{color:#e53935;} .sum-num.green{color:#2e7d32;} .sum-num.purple{color:#7b1fa2;}
+    .chart-area{position:relative;height:200px;}
+    .asset-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f5f5f5;}
+    .asset-item:last-child{border-bottom:none;}
+    .asset-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+    .asset-name{flex:1;font-size:14px;font-weight:500;}
+    .asset-val{font-size:14px;font-weight:700;font-family:'Outfit',sans-serif;}
+    .asset-pct{font-size:11px;color:#999;min-width:36px;text-align:right;}
+    .form-tabs{display:flex;gap:8px;margin-bottom:14px;}
+    .ftab{flex:1;padding:10px 6px;border:2px solid #e0e0e0;border-radius:20px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#888;text-align:center;}
+    .ftab.active-inc{background:#1a4a7a;border-color:#1a4a7a;color:#fff;}
+    .ftab.active-exp{background:#e53935;border-color:#e53935;color:#fff;}
+    .ftab.active-inv{background:#7b1fa2;border-color:#7b1fa2;color:#fff;}
+    .inp{width:100%;padding:12px 14px;border:1.5px solid #e8ecf0;border-radius:12px;font-size:14px;font-family:inherit;margin-bottom:10px;outline:none;background:#fafbfc;}
+    .inp:focus{border-color:#1a4a7a;background:#fff;}
+    .submit-btn{width:100%;padding:14px;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;}
+    .submit-btn.inc{background:linear-gradient(135deg,#1a4a7a,#2196f3);}
+    .submit-btn.exp{background:linear-gradient(135deg,#b71c1c,#e53935);}
+    .submit-btn.inv{background:linear-gradient(135deg,#4a148c,#9c27b0);}
+    .submit-btn.ast{background:linear-gradient(135deg,#1b5e20,#4caf50);}
+    .rec-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #f5f5f5;}
+    .rec-item:last-child{border-bottom:none;}
+    .rec-icon{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+    .rec-icon.inc{background:#e3f2fd;} .rec-icon.exp{background:#ffebee;} .rec-icon.inv{background:#f3e5f5;} .rec-icon.ast{background:#e8f5e9;}
+    .rec-body{flex:1;}
+    .rec-name{font-size:14px;font-weight:600;}
+    .rec-meta{font-size:11px;color:#aaa;margin-top:2px;}
+    .rec-amt{font-size:15px;font-weight:800;font-family:'Outfit',sans-serif;}
+    .rec-amt.inc{color:#1976d2;} .rec-amt.exp{color:#e53935;} .rec-amt.inv{color:#9c27b0;} .rec-amt.ast{color:#2e7d32;}
+    .rec-del{background:none;border:none;color:#ddd;font-size:16px;cursor:pointer;padding:4px;}
+    .rec-del:hover{color:#e53935;}
+    .empty-state{text-align:center;padding:32px 16px;color:#ccc;font-size:14px;}
+    .month-nav{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+    .mnav-btn{background:#f0f4f8;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#555;}
+    .mnav-lbl{font-size:16px;font-weight:700;color:#1a2332;}
   </style>
 </head>
 <body>
 <div class="header">
-  <a href="/" class="header-back">← ホームに戻る</a>
-  <h1>💼 家計簿・資産分析</h1>
-  <p>収入・支出を記録して毎月の家計を管理</p>
+  <div class="header-top">
+    <a href="/" class="back-btn">← ホーム</a>
+    <span class="header-title">💼 資産分析</span>
+    <div style="width:60px"></div>
+  </div>
+  <div class="total-asset-label">総資産</div>
+  <div class="total-asset-val" id="totalAssetVal">¥0</div>
+  <div class="total-asset-change" id="totalAssetChange">資産を登録してください</div>
+</div>
+<div class="tab-nav">
+  <div class="tn-item active" onclick="switchTab('dashboard')">ダッシュボード</div>
+  <div class="tn-item" onclick="switchTab('cashflow')">収支管理</div>
+  <div class="tn-item" onclick="switchTab('assets')">資産管理</div>
+  <div class="tn-item" onclick="switchTab('records')">記録一覧</div>
+</div>
+<div class="tab-content active" id="tab-dashboard">
   <div class="month-nav">
-    <button class="month-btn" onclick="changeMonth(-1)">◀</button>
-    <div class="month-label" id="monthLabel"></div>
-    <button class="month-btn" onclick="changeMonth(1)">▶</button>
+    <button class="mnav-btn" onclick="changeMonth(-1)">◀</button>
+    <div class="mnav-lbl" id="monthLabel2"></div>
+    <button class="mnav-btn" onclick="changeMonth(1)">▶</button>
+  </div>
+  <div class="sum-grid">
+    <div class="sum-item"><div class="sum-lbl">💰 今月収入</div><div class="sum-num blue" id="d-income">¥0</div></div>
+    <div class="sum-item"><div class="sum-lbl">💸 今月支出</div><div class="sum-num red" id="d-expense">¥0</div></div>
+    <div class="sum-item"><div class="sum-lbl">📊 収支残</div><div class="sum-num green" id="d-balance">¥0</div></div>
+    <div class="sum-item"><div class="sum-lbl">📈 今月投資</div><div class="sum-num purple" id="d-invest">¥0</div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📊 月別収支グラフ（過去6ヶ月）</div>
+    <div class="chart-area"><canvas id="barChart"></canvas></div>
+  </div>
+  <div class="card">
+    <div class="card-title">🥧 今月の支出内訳</div>
+    <div style="display:flex;gap:16px;align-items:center">
+      <div style="flex:1;max-width:160px"><canvas id="donutChart"></canvas></div>
+      <div id="donut-legend" style="flex:1;font-size:12px"></div>
+    </div>
   </div>
 </div>
-
-<div class="summary-grid">
-  <div class="sum-card">
-    <div class="sum-label">💰 収入合計</div>
-    <div class="sum-val income" id="sumIncome">¥0</div>
+<div class="tab-content" id="tab-cashflow">
+  <div class="month-nav">
+    <button class="mnav-btn" onclick="changeMonth(-1)">◀</button>
+    <div class="mnav-lbl" id="monthLabel3"></div>
+    <button class="mnav-btn" onclick="changeMonth(1)">▶</button>
   </div>
-  <div class="sum-card">
-    <div class="sum-label">💸 支出合計</div>
-    <div class="sum-val expense" id="sumExpense">¥0</div>
-  </div>
-  <div class="sum-card">
-    <div class="sum-label">📊 残り</div>
-    <div class="sum-val balance" id="sumBalance">¥0</div>
-  </div>
-  <div class="sum-card">
-    <div class="sum-label">📈 投資額</div>
-    <div class="sum-val invest" id="sumInvest">¥0</div>
-  </div>
-</div>
-
-<div class="section">
-  <div class="section-title">📊 支出内訳</div>
-  <div class="chart-wrap">
-    <canvas id="expenseChart"></canvas>
-  </div>
-</div>
-
-<div class="section">
-  <div class="section-title">➕ 記録を追加</div>
-  <div class="tab-row">
-    <button class="tab-pill active" id="tabInc" onclick="switchFormTab('income')">💰 収入</button>
-    <button class="tab-pill" id="tabExp" onclick="switchFormTab('expense')">💸 支出</button>
-    <button class="tab-pill" id="tabInv" onclick="switchFormTab('invest')">📈 投資</button>
-  </div>
-
-  <!-- 収入フォーム -->
-  <div class="form-card" id="formIncome">
-    <h3>💰 収入を記録</h3>
-    <div class="form-row">
-      <input type="text" id="incName" placeholder="項目名（例：給与）">
+  <div class="card">
+    <div class="form-tabs">
+      <button class="ftab active-inc" id="ft-inc" onclick="switchForm('inc')">💰 収入</button>
+      <button class="ftab" id="ft-exp" onclick="switchForm('exp')">💸 支出</button>
+      <button class="ftab" id="ft-inv" onclick="switchForm('inv')">📈 投資</button>
     </div>
-    <div class="form-row">
-      <input type="number" id="incAmount" placeholder="金額（円）">
+    <div id="form-inc">
+      <input class="inp" id="inc-name" type="text" placeholder="項目名（例：給与）">
+      <input class="inp" id="inc-amount" type="number" placeholder="金額（円）">
+      <button class="submit-btn inc" onclick="addRecord('inc')">＋ 収入を追加</button>
     </div>
-    <button class="btn-add" onclick="addEntry('income')">＋ 追加</button>
-  </div>
-
-  <!-- 支出フォーム -->
-  <div class="form-card" id="formExpense" style="display:none">
-    <h3>💸 支出を記録</h3>
-    <div class="form-row">
-      <input type="text" id="expName" placeholder="項目名（例：食費）">
-    </div>
-    <div class="form-row">
-      <select id="expCat">
-        <option value="食費">🍱 食費</option>
-        <option value="住居">🏠 住居</option>
-        <option value="交通">🚃 交通</option>
-        <option value="光熱費">💡 光熱費</option>
-        <option value="通信費">📱 通信費</option>
-        <option value="娯楽">🎮 娯楽</option>
-        <option value="医療">🏥 医療</option>
-        <option value="衣類">👕 衣類</option>
-        <option value="その他">📦 その他</option>
+    <div id="form-exp" style="display:none">
+      <input class="inp" id="exp-name" type="text" placeholder="項目名（例：食費）">
+      <select class="inp" id="exp-cat">
+        <option value="食費">🍱 食費</option><option value="住居">🏠 住居費</option>
+        <option value="交通">🚃 交通費</option><option value="光熱費">💡 光熱費</option>
+        <option value="通信費">📱 通信費</option><option value="娯楽">🎮 娯楽</option>
+        <option value="医療">🏥 医療</option><option value="衣類">👕 衣類</option>
+        <option value="教育">📚 教育</option><option value="その他">📦 その他</option>
       </select>
-      <input type="number" id="expAmount" placeholder="金額（円）">
+      <input class="inp" id="exp-amount" type="number" placeholder="金額（円）">
+      <button class="submit-btn exp" onclick="addRecord('exp')">＋ 支出を追加</button>
     </div>
-    <button class="btn-add expense-btn" onclick="addEntry('expense')">＋ 追加</button>
+    <div id="form-inv" style="display:none">
+      <input class="inp" id="inv-name" type="text" placeholder="銘柄・ファンド名">
+      <select class="inp" id="inv-cat">
+        <option value="国内株">🇯🇵 国内株</option><option value="米国株">🇺🇸 米国株</option>
+        <option value="投資信託">📦 投資信託</option><option value="ETF">📊 ETF</option>
+        <option value="債券">📄 債券</option><option value="仮想通貨">🪙 仮想通貨</option>
+        <option value="その他">💡 その他</option>
+      </select>
+      <input class="inp" id="inv-amount" type="number" placeholder="金額（円）">
+      <button class="submit-btn inv" onclick="addRecord('inv')">＋ 投資を追加</button>
+    </div>
   </div>
-
-  <!-- 投資フォーム -->
-  <div class="form-card" id="formInvest" style="display:none">
-    <h3>📈 投資を記録</h3>
-    <div class="form-row">
-      <input type="text" id="invName" placeholder="銘柄名（例：S&P500）">
-    </div>
-    <div class="form-row">
-      <input type="number" id="invAmount" placeholder="金額（円）">
-    </div>
-    <button class="btn-add" style="background:linear-gradient(135deg,#6a1b9a,#9c27b0)" onclick="addEntry('invest')">＋ 追加</button>
-  </div>
-</div>
-
-<div class="section">
-  <div class="section-title">📋 今月の記録</div>
-  <div class="list-card">
-    <div id="entryList"><div class="empty-msg">まだ記録がありません</div></div>
+  <div class="card">
+    <div class="card-title">📈 収支推移（折れ線グラフ）</div>
+    <div class="chart-area"><canvas id="lineChart"></canvas></div>
   </div>
 </div>
-
+<div class="tab-content" id="tab-assets">
+  <div class="card">
+    <div class="card-title">🏦 資産を登録</div>
+    <input class="inp" id="ast-name" type="text" placeholder="資産名（例：現金、日本株）">
+    <select class="inp" id="ast-cat">
+      <option value="現金">💴 現金・預金</option><option value="国内株">🇯🇵 国内株</option>
+      <option value="米国株">🇺🇸 米国株</option><option value="投資信託">📦 投資信託</option>
+      <option value="ETF">📊 ETF</option><option value="債券">📄 債券</option>
+      <option value="不動産">🏠 不動産</option><option value="仮想通貨">🪙 仮想通貨</option>
+      <option value="その他">💡 その他</option>
+    </select>
+    <input class="inp" id="ast-amount" type="number" placeholder="評価額（円）">
+    <button class="submit-btn ast" onclick="addRecord('ast')">＋ 資産を登録</button>
+  </div>
+  <div class="card">
+    <div class="card-title">🥧 資産配分グラフ</div>
+    <div style="display:flex;gap:16px;align-items:center">
+      <div style="flex:1;max-width:160px"><canvas id="assetPieChart"></canvas></div>
+      <div id="asset-legend" style="flex:1;font-size:12px"></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 資産一覧</div>
+    <div id="asset-list-el"><div class="empty-state">資産を登録してください</div></div>
+  </div>
+</div>
+<div class="tab-content" id="tab-records">
+  <div class="month-nav">
+    <button class="mnav-btn" onclick="changeMonth(-1)">◀</button>
+    <div class="mnav-lbl" id="monthLabel4"></div>
+    <button class="mnav-btn" onclick="changeMonth(1)">▶</button>
+  </div>
+  <div class="card">
+    <div id="rec-list-el"><div class="empty-state">記録がありません</div></div>
+  </div>
+</div>
 <script>
-  var _year = new Date().getFullYear();
-  var _month = new Date().getMonth() + 1;
-  var _chart = null;
-  var _currentForm = 'income';
-
-  function getKey() { return 'kb_' + _year + '_' + (_month < 10 ? '0' + _month : _month); }
-  function getData() { return JSON.parse(localStorage.getItem(getKey()) || '[]'); }
-  function saveData(d) { localStorage.setItem(getKey(), JSON.stringify(d)); }
-
-  function formatYen(n) { return '¥' + Number(n).toLocaleString(); }
-
-  function changeMonth(d) {
-    _month += d;
-    if (_month > 12) { _month = 1; _year++; }
-    if (_month < 1) { _month = 12; _year--; }
-    render();
+var _year=new Date().getFullYear(),_month=new Date().getMonth()+1,_charts={},_currentForm='inc';
+var CAT_COLORS={'食費':'#ef5350','住居':'#42a5f5','交通':'#66bb6a','光熱費':'#ffa726','通信費':'#ab47bc','娯楽':'#26c6da','医療':'#ec407a','衣類':'#8d6e63','教育':'#78909c','その他':'#bdbdbd','現金':'#42a5f5','国内株':'#ef5350','米国株':'#66bb6a','投資信託':'#ffa726','ETF':'#ab47bc','債券':'#26c6da','不動産':'#8d6e63','仮想通貨':'#ffd54f'};
+function getKey(y,m){return 'kb2_'+(y||_year)+'_'+((m||_month)<10?'0'+(m||_month):(m||_month));}
+function getData(y,m){return JSON.parse(localStorage.getItem(getKey(y,m))||'[]');}
+function saveData(d,y,m){localStorage.setItem(getKey(y,m),JSON.stringify(d));}
+function getAssets(){return JSON.parse(localStorage.getItem('kb2_assets')||'[]');}
+function saveAssets(d){localStorage.setItem('kb2_assets',JSON.stringify(d));}
+function fmt(n){return '¥'+Number(n||0).toLocaleString();}
+function changeMonth(d){_month+=d;if(_month>12){_month=1;_year++;}if(_month<1){_month=12;_year--;}renderAll();}
+function switchTab(tab){
+  document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records'][i]===tab);});
+  document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});
+  var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');
+  renderAll();
+}
+function switchForm(f){
+  _currentForm=f;
+  ['inc','exp','inv'].forEach(function(t){
+    document.getElementById('form-'+t).style.display=t===f?'':'none';
+    var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');
+  });
+}
+function addRecord(type){
+  var name,amount,cat='';
+  if(type==='inc'){name=document.getElementById('inc-name').value.trim();amount=parseInt(document.getElementById('inc-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('inc-name').value='';document.getElementById('inc-amount').value='';}
+  else if(type==='exp'){name=document.getElementById('exp-name').value.trim();cat=document.getElementById('exp-cat').value;amount=parseInt(document.getElementById('exp-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('exp-name').value='';document.getElementById('exp-amount').value='';}
+  else if(type==='inv'){name=document.getElementById('inv-name').value.trim();cat=document.getElementById('inv-cat').value;amount=parseInt(document.getElementById('inv-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('inv-name').value='';document.getElementById('inv-amount').value='';}
+  else if(type==='ast'){name=document.getElementById('ast-name').value.trim();cat=document.getElementById('ast-cat').value;amount=parseInt(document.getElementById('ast-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('ast-name').value='';document.getElementById('ast-amount').value='';var assets=getAssets();assets.push({id:Date.now(),name:name,cat:cat,amount:amount});saveAssets(assets);renderAll();return;}
+  var data=getData();data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveData(data);renderAll();
+}
+function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
+function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!==id;}));renderAll();}
+function renderAll(){
+  var data=getData(),assets=getAssets();
+  var lbl=_year+'年'+_month+'月';
+  ['monthLabel2','monthLabel3','monthLabel4'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
+  var totalInc=0,totalExp=0,totalInv=0;
+  data.forEach(function(e){if(e.type==='inc')totalInc+=e.amount;else if(e.type==='exp')totalExp+=e.amount;else if(e.type==='inv')totalInv+=e.amount;});
+  var balance=totalInc-totalExp-totalInv;
+  var di=document.getElementById('d-income');if(di)di.textContent=fmt(totalInc);
+  var de=document.getElementById('d-expense');if(de)de.textContent=fmt(totalExp);
+  var db=document.getElementById('d-balance');if(db){db.textContent=fmt(balance);db.className='sum-num '+(balance>=0?'green':'red');}
+  var dv=document.getElementById('d-invest');if(dv)dv.textContent=fmt(totalInv);
+  var totalAst=assets.reduce(function(s,e){return s+e.amount;},0);
+  var tv=document.getElementById('totalAssetVal');if(tv)tv.textContent=fmt(totalAst);
+  var tc=document.getElementById('totalAssetChange');if(tc){tc.textContent=totalAst>0?'登録資産 '+assets.length+'件 | 今月収支 '+fmt(balance):'資産を登録してください';}
+  // 棒グラフ（過去6ヶ月）
+  var months=[],incArr=[],expArr=[],invArr=[];
+  for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+'月');var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(a);expArr.push(b);invArr.push(c);}
+  if(_charts.bar){_charts.bar.destroy();}
+  var bc=document.getElementById('barChart');
+  if(bc){_charts.bar=new Chart(bc.getContext('2d'),{type:'bar',data:{labels:months,datasets:[{label:'収入',data:incArr,backgroundColor:'rgba(33,150,243,0.75)',borderRadius:5},{label:'支出',data:expArr,backgroundColor:'rgba(229,57,53,0.75)',borderRadius:5},{label:'投資',data:invArr,backgroundColor:'rgba(156,39,176,0.75)',borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f0f0'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+'万':'¥'+v;},font:{size:10}}}}}});}
+  // 折れ線グラフ
+  if(_charts.line){_charts.line.destroy();}
+  var lc=document.getElementById('lineChart');
+  if(lc){_charts.line=new Chart(lc.getContext('2d'),{type:'line',data:{labels:months,datasets:[{label:'収入',data:incArr,borderColor:'#2196f3',backgroundColor:'rgba(33,150,243,0.08)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#2196f3'},{label:'支出',data:expArr,borderColor:'#e53935',backgroundColor:'rgba(229,57,53,0.08)',fill:true,tension:0.4,pointRadius:4,pointBackgroundColor:'#e53935'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10}}},scales:{x:{grid:{display:false},ticks:{font:{size:11}}},y:{grid:{color:'#f0f0f0'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+'万':'¥'+v;},font:{size:10}}}}}});}
+  // ドーナツ（支出内訳）
+  var catMap={};data.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catMap[c]=(catMap[c]||0)+e.amount;});
+  var dLabels=Object.keys(catMap),dVals=dLabels.map(function(c){return catMap[c];}),dColors=dLabels.map(function(c){return CAT_COLORS[c]||'#bdbdbd';});
+  if(_charts.donut){_charts.donut.destroy();}
+  var dc=document.getElementById('donutChart');
+  if(dc){
+    if(dVals.length>0){_charts.donut=new Chart(dc.getContext('2d'),{type:'doughnut',data:{labels:dLabels,datasets:[{data:dVals,backgroundColor:dColors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'65%'}});
+    var dl=document.getElementById('donut-legend');if(dl){var total=dVals.reduce(function(a,b){return a+b;},0);dl.innerHTML=dLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px"><span style="width:8px;height:8px;border-radius:50%;background:'+dColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1">'+c+'</span><span style="font-weight:700">'+Math.round(dVals[i]/total*100)+'%</span></div>';}).join('');}}
+    else{var dp=dc.parentElement;if(dp)dp.innerHTML='<div class="empty-state">支出を入力するとグラフが表示されます</div>';}
   }
-
-  function switchFormTab(tab) {
-    _currentForm = tab;
-    document.getElementById('formIncome').style.display = tab === 'income' ? '' : 'none';
-    document.getElementById('formExpense').style.display = tab === 'expense' ? '' : 'none';
-    document.getElementById('formInvest').style.display = tab === 'invest' ? '' : 'none';
-    document.getElementById('tabInc').className = 'tab-pill' + (tab === 'income' ? ' active' : '');
-    document.getElementById('tabExp').className = 'tab-pill' + (tab === 'expense' ? ' exp-active' : '');
-    document.getElementById('tabInv').className = 'tab-pill' + (tab === 'invest' ? ' active' : '');
+  // 資産円グラフ
+  var astCatMap={};assets.forEach(function(a){var c=a.cat||'その他';astCatMap[c]=(astCatMap[c]||0)+a.amount;});
+  var aLabels=Object.keys(astCatMap),aVals=aLabels.map(function(c){return astCatMap[c];}),aColors=aLabels.map(function(c){return CAT_COLORS[c]||'#bdbdbd';});
+  if(_charts.pie){_charts.pie.destroy();}
+  var pc=document.getElementById('assetPieChart');
+  if(pc){
+    if(aVals.length>0){_charts.pie=new Chart(pc.getContext('2d'),{type:'doughnut',data:{labels:aLabels,datasets:[{data:aVals,backgroundColor:aColors,borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'60%'}});
+    var al=document.getElementById('asset-legend');if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:6px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1">'+c+'</span><span style="font-weight:700">'+Math.round(aVals[i]/total2*100)+'%</span></div>';}).join('');}}
+    else{var ap=document.getElementById('asset-legend');if(ap)ap.innerHTML='<div class="empty-state">資産を登録するとグラフが表示されます</div>';}
   }
-
-  function addEntry(type) {
-    var name, amount, cat = '';
-    if (type === 'income') {
-      name = document.getElementById('incName').value.trim();
-      amount = parseInt(document.getElementById('incAmount').value);
-      if (!name || !amount) { alert('項目名と金額を入力してください'); return; }
-      document.getElementById('incName').value = '';
-      document.getElementById('incAmount').value = '';
-    } else if (type === 'expense') {
-      name = document.getElementById('expName').value.trim();
-      cat = document.getElementById('expCat').value;
-      amount = parseInt(document.getElementById('expAmount').value);
-      if (!name || !amount) { alert('項目名と金額を入力してください'); return; }
-      document.getElementById('expName').value = '';
-      document.getElementById('expAmount').value = '';
-    } else {
-      name = document.getElementById('invName').value.trim();
-      amount = parseInt(document.getElementById('invAmount').value);
-      if (!name || !amount) { alert('項目名と金額を入力してください'); return; }
-      document.getElementById('invName').value = '';
-      document.getElementById('invAmount').value = '';
-    }
-    var data = getData();
-    data.push({ id: Date.now(), type: type, name: name, cat: cat, amount: amount });
-    saveData(data);
-    render();
-  }
-
-  function deleteEntry(id) {
-    var data = getData().filter(function(e) { return e.id !== id; });
-    saveData(data);
-    render();
-  }
-
-  function render() {
-    var data = getData();
-    var ml = document.getElementById('monthLabel');
-    ml.textContent = _year + '年' + _month + '月';
-
-    var totalIncome = 0, totalExpense = 0, totalInvest = 0;
-    data.forEach(function(e) {
-      if (e.type === 'income') totalIncome += e.amount;
-      else if (e.type === 'expense') totalExpense += e.amount;
-      else if (e.type === 'invest') totalInvest += e.amount;
-    });
-
-    document.getElementById('sumIncome').textContent = formatYen(totalIncome);
-    document.getElementById('sumExpense').textContent = formatYen(totalExpense);
-    document.getElementById('sumBalance').textContent = formatYen(totalIncome - totalExpense - totalInvest);
-    document.getElementById('sumInvest').textContent = formatYen(totalInvest);
-
-    // チャート
-    var catMap = {};
-    data.filter(function(e) { return e.type === 'expense'; }).forEach(function(e) {
-      catMap[e.cat || 'その他'] = (catMap[e.cat || 'その他'] || 0) + e.amount;
-    });
-    var cats = Object.keys(catMap);
-    var vals = cats.map(function(c) { return catMap[c]; });
-    var colors = ['#e53935','#fb8c00','#fdd835','#43a047','#00acc1','#1e88e5','#8e24aa','#f06292','#90a4ae'];
-
-    if (_chart) _chart.destroy();
-    if (vals.length > 0) {
-      var ctx = document.getElementById('expenseChart').getContext('2d');
-      _chart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: cats,
-          datasets: [{ data: vals, backgroundColor: colors.slice(0, cats.length), borderWidth: 2 }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { position: 'bottom', labels: { font: { family: 'Noto Sans JP' } } }
-          }
-        }
-      });
-    }
-
-    // リスト
-    var listEl = document.getElementById('entryList');
-    if (data.length === 0) {
-      listEl.innerHTML = '<div class="empty-msg">まだ記録がありません</div>';
-      return;
-    }
-    var sorted = data.slice().reverse();
-    listEl.innerHTML = sorted.map(function(e) {
-      var isInc = e.type === 'income';
-      var isInv = e.type === 'invest';
-      var icon = isInc ? '💰' : isInv ? '📈' : '💸';
-      var cls = isInc || isInv ? 'inc' : 'exp';
-      var sign = isInc || isInv ? '+' : '-';
-      var sub = e.cat ? e.cat : (isInv ? '投資' : '収入');
-      return '<div class="list-item">' +
-        '<div class="item-left">' +
-          '<div class="item-icon ' + cls + '">' + icon + '</div>' +
-          '<div><div class="item-name">' + e.name + '</div><div class="item-cat">' + sub + '</div></div>' +
-        '</div>' +
-        '<div class="item-right" style="display:flex;align-items:center;gap:4px">' +
-          '<div class="item-amount ' + cls + '">' + sign + formatYen(e.amount) + '</div>' +
-          '<button class="item-del" onclick="deleteEntry(' + e.id + ')">✕</button>' +
-        '</div>' +
-      '</div>';
-    }).join('');
-  }
-
-  render();
+  // 資産リスト
+  var astEl=document.getElementById('asset-list-el');
+  if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'<div class="empty-state">資産を登録してください</div>':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'#bdbdbd';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+a.name+'<br><span style="font-size:11px;color:#aaa">'+a.cat+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+a.id+')">✕</button></div>';}).join('');}
+  // 記録リスト
+  var recEl=document.getElementById('rec-list-el');
+  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">この月の記録はありません</div>':sorted.map(function(e){var sub=e.cat||(e.type==='inc'?'収入':'支出');return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+e.name+'</div><div class="rec-meta">'+sub+'</div></div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord('+e.id+')">✕</button></div>';}).join('');}
+}
+renderAll();
 </script>
 </body>
 </html>
