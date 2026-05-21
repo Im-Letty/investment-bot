@@ -665,6 +665,20 @@ def api_quote():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/api/morning-news", methods=["GET"])
+def api_morning_news():
+    try:
+        news = fetch_news()
+        items = []
+        for source, content in news.items():
+            for line in content.split("\n"):
+                title = line.strip().lstrip("・").strip()
+                if title:
+                    items.append({"source": source, "title": title})
+        return jsonify({"news": items, "updated": datetime.now().strftime("%H:%M")})
+    except Exception as e:
+        return jsonify({"error": str(e), "news": []}), 200
+
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
