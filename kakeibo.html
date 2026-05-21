@@ -68,6 +68,41 @@
     .mnav-btn{background:#e8f5ee;border:none;width:34px;height:34px;border-radius:50%;font-size:16px;cursor:pointer;color:#3da060;display:flex;align-items:center;justify-content:center;}
     .mnav-btn:hover{background:#d0ecd8;}
     .mnav-lbl{font-size:16px;font-weight:700;color:#1a3325;}
+  
+    .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:14px;}
+    .cal-head{text-align:center;font-size:11px;font-weight:700;color:#8aaa95;padding:6px 0;}
+    .cal-head.sun{color:#e05050;}.cal-head.sat{color:#3da060;}
+    .cal-day{text-align:center;padding:6px 2px;border-radius:10px;cursor:pointer;min-height:44px;position:relative;background:#fff;border:1px solid #edf5f0;transition:all 0.15s;}
+    .cal-day:hover{background:#e8f5ee;}
+    .cal-day.empty{background:transparent;border:none;cursor:default;}
+    .cal-day.today{background:#3da060;color:#fff;font-weight:700;}
+    .cal-day.today .cal-day-num{color:#fff;}
+    .cal-day.has-data::after{content:'';position:absolute;bottom:4px;left:50%;transform:translateX(-50%);width:5px;height:5px;border-radius:50%;background:#f0b86a;}
+    .cal-day.today.has-data::after{background:#fff;}
+    .cal-day-num{font-size:13px;font-weight:600;color:#1a3325;}
+    .cal-day.sun .cal-day-num{color:#e05050;}
+    .cal-day.sat .cal-day-num{color:#3da060;}
+    .cal-day.today .cal-day-num{color:#fff;}
+    .cal-day-total{font-size:9px;color:#e05050;margin-top:1px;}
+    .cal-day.today .cal-day-total{color:rgba(255,255,255,0.85);}
+    .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:1000;align-items:flex-end;}
+    .modal-overlay.open{display:flex;}
+    .modal-box{background:#fff;border-radius:24px 24px 0 0;padding:20px 16px 32px;width:100%;max-height:85vh;overflow-y:auto;}
+    .modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+    .modal-title{font-size:16px;font-weight:700;color:#1a3325;}
+    .modal-close{background:#f0f7f2;border:none;width:32px;height:32px;border-radius:50%;font-size:18px;cursor:pointer;color:#4a7c5f;display:flex;align-items:center;justify-content:center;}
+    .modal-close:hover{background:#d0ecd8;}
+    .day-rec-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f0f7f2;}
+    .day-rec-item:last-child{border-bottom:none;}
+    .day-rec-cat{font-size:11px;color:#9ab5a5;margin-top:2px;}
+    .day-rec-del{background:none;border:none;color:#c8ddd0;font-size:15px;cursor:pointer;}
+    .day-rec-del:hover{color:#e05050;}
+    .modal-form-title{font-size:13px;font-weight:700;color:#4a7c5f;margin-bottom:10px;}
+    .type-tabs{display:flex;gap:6px;margin-bottom:12px;}
+    .type-tab{flex:1;padding:8px 4px;border:1.5px solid #d0e8d8;border-radius:16px;background:#f5fbf7;font-size:12px;font-weight:600;cursor:pointer;color:#7aaa8a;text-align:center;}
+    .type-tab.sel-inc{background:linear-gradient(135deg,#3da060,#5db87a);border-color:#3da060;color:#fff;}
+    .type-tab.sel-exp{background:linear-gradient(135deg,#e05050,#f07070);border-color:#e05050;color:#fff;}
+    .type-tab.sel-inv{background:linear-gradient(135deg,#2ba888,#3dc8a8);border-color:#2ba888;color:#fff;}
   </style>
 </head>
 <body>
@@ -86,6 +121,7 @@
   <div class="tn-item" onclick="switchTab('cashflow')">収支管理</div>
   <div class="tn-item" onclick="switchTab('assets')">資産管理</div>
   <div class="tn-item" onclick="switchTab('records')">記録一覧</div>
+  <div class="tn-item" onclick="switchTab('calendar')">📅 カレンダー</div>
 </div>
 <div class="tab-content active" id="tab-dashboard">
   <div class="month-nav"><button class="mnav-btn" onclick="changeMonth(-1)">◀</button><div class="mnav-lbl" id="monthLabel2"></div><button class="mnav-btn" onclick="changeMonth(1)">▶</button></div>
@@ -121,6 +157,24 @@
   <div class="month-nav"><button class="mnav-btn" onclick="changeMonth(-1)">◀</button><div class="mnav-lbl" id="monthLabel4"></div><button class="mnav-btn" onclick="changeMonth(1)">▶</button></div>
   <div class="card"><div id="rec-list-el"><div class="empty-state">記録がありません</div></div></div>
 </div>
+
+<div class="tab-content" id="tab-calendar">
+  <div class="month-nav"><button class="mnav-btn" onclick="calChangeMonth(-1)">◀</button><div class="mnav-lbl" id="calMonthLabel"></div><button class="mnav-btn" onclick="calChangeMonth(1)">▶</button></div>
+  <div class="card" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
+  <div class="card"><div class="card-title">📊 今月のカテゴリ別支出</div><div id="calCatSummary"><div class="empty-state">支出を入力するとここに表示されます</div></div></div>
+</div>
+<div class="modal-overlay" id="dayModal" onclick="closeDayModal(event)">
+  <div class="modal-box">
+    <div class="modal-header"><div class="modal-title" id="modalDateTitle"></div><button class="modal-close" onclick="closeDayModalBtn()">✕</button></div>
+    <div id="dayRecList"></div>
+    <div class="modal-form-title" style="margin-top:12px">＋ 記録を追加</div>
+    <div class="type-tabs"><button class="type-tab sel-inc" id="mft-inc" onclick="switchModalForm('inc')">💰 収入</button><button class="type-tab" id="mft-exp" onclick="switchModalForm('exp')">💸 支出</button><button class="type-tab" id="mft-inv" onclick="switchModalForm('inv')">📈 投資</button></div>
+    <div id="modal-form-inc"><input class="inp" id="m-inc-name" type="text" placeholder="項目名（例：給与）"><input class="inp" id="m-inc-amount" type="number" placeholder="金額（円）"><button class="submit-btn inc" onclick="addDayRecord('inc')">＋ 収入を追加</button></div>
+    <div id="modal-form-exp" style="display:none"><input class="inp" id="m-exp-name" type="text" placeholder="項目名（例：ランチ代）"><select class="inp" id="m-exp-cat"><option value="食費">🍱 食費</option><option value="住居">🏠 住居費</option><option value="交通">🚃 交通費</option><option value="光熱費">💡 光熱費</option><option value="通信費">📱 通信費</option><option value="娯楽">🎮 娯楽</option><option value="医療">🏥 医療</option><option value="衣類">👕 衣類</option><option value="教育">📚 教育</option><option value="その他">📦 その他</option></select><input class="inp" id="m-exp-amount" type="number" placeholder="金額（円）"><button class="submit-btn exp" onclick="addDayRecord('exp')">＋ 支出を追加</button></div>
+    <div id="modal-form-inv" style="display:none"><input class="inp" id="m-inv-name" type="text" placeholder="銘柄・ファンド名"><select class="inp" id="m-inv-cat"><option value="国内株">🇯🇵 国内株</option><option value="米国株">🇺🇸 米国株</option><option value="投資信託">📦 投資信託</option><option value="ETF">📊 ETF</option><option value="仮想通貨">🪙 仮想通貨</option><option value="その他">💡 その他</option></select><input class="inp" id="m-inv-amount" type="number" placeholder="金額（円）"><button class="submit-btn inv" onclick="addDayRecord('inv')">＋ 投資を追加</button></div>
+  </div>
+</div>
+
 <script>
 var _year=new Date().getFullYear(),_month=new Date().getMonth()+1,_charts={},_currentForm='inc';
 var CAT_COLORS={'食費':'#e8856a','住居':'#6ab88a','交通':'#5ab8a0','光熱費':'#f0b86a','通信費':'#8aaa7a','娯楽':'#7ab0d8','医療':'#d8808a','衣類':'#a89870','教育':'#90a878','その他':'#b0c8b8','現金':'#5db87a','国内株':'#e8856a','米国株':'#6ab88a','投資信託':'#f0b86a','ETF':'#8aaa7a','債券':'#7ab0d8','不動産':'#a89870','仮想通貨':'#c8b86a'};
@@ -130,8 +184,48 @@ function saveData(d,y,m){localStorage.setItem(getKey(y,m),JSON.stringify(d));}
 function getAssets(){return JSON.parse(localStorage.getItem('kb2_assets')||'[]');}
 function saveAssets(d){localStorage.setItem('kb2_assets',JSON.stringify(d));}
 function fmt(n){return '¥'+Number(n||0).toLocaleString();}
-function changeMonth(d){_month+=d;if(_month>12){_month=1;_year++;}if(_month<1){_month=12;_year--;}renderAll();}
-function switchTab(tab){document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();}
+function changeMonth(d){_month+=d;if(_month>12){_month=1;_year++;}if(_month<1){_month=12;_year--;}
+var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth()+1,_modalDate=null,_modalForm='inc';
+function calChangeMonth(d){_calMonth+=d;if(_calMonth>12){_calMonth=1;_calYear++;}if(_calMonth<1){_calMonth=12;_calYear--;}renderCalendar();}
+function getDayKey(y,m,day){return 'kbday_'+y+'_'+(m<10?'0'+m:m)+'_'+(day<10?'0'+day:day);}
+function getDayData(y,m,day){return JSON.parse(localStorage.getItem(getDayKey(y,m,day))||'[]');}
+function saveDayData(y,m,day,d){localStorage.setItem(getDayKey(y,m,day),JSON.stringify(d));}
+function renderCalendar(){
+  var lbl=_calYear+'年'+_calMonth+'月';
+  var cl=document.getElementById('calMonthLabel');if(cl)cl.textContent=lbl;
+  var grid=document.getElementById('calGrid');if(!grid)return;
+  var dnames=['日','月','火','水','木','金','土'];
+  var heads=dnames.map(function(d,i){return '<div class="cal-head'+(i===0?' sun':i===6?' sat':'')+'">'+ d+'</div>';}).join('');
+  var firstDay=new Date(_calYear,_calMonth-1,1).getDay();
+  var lastDate=new Date(_calYear,_calMonth,0).getDate();
+  var today=new Date();
+  var cells='';
+  for(var i=0;i<firstDay;i++) cells+='<div class="cal-day empty"></div>';
+  for(var dd=1;dd<=lastDate;dd++){
+    var dayData=getDayData(_calYear,_calMonth,dd);
+    var isToday=today.getFullYear()===_calYear&&today.getMonth()+1===_calMonth&&today.getDate()===dd;
+    var hasData=dayData.length>0;
+    var totalExp=dayData.filter(function(e){return e.type==='exp';}).reduce(function(s,e){return s+e.amount;},0);
+    var dow=(firstDay+dd-1)%7;
+    var cls='cal-day'+(isToday?' today':'')+(hasData?' has-data':'')+(dow===0?' sun':dow===6?' sat':'');
+    cells+='<div class="'+cls+'" onclick="openDayModal('+_calYear+','+_calMonth+','+dd+')"><div class="cal-day-num">'+dd+'</div>'+(totalExp>0?'<div class="cal-day-total">-'+(totalExp>=10000?Math.floor(totalExp/10000)+'万':totalExp)+'</div>':'')+'</div>';
+  }
+  grid.innerHTML=heads+cells;
+  var catTotals={};
+  for(var d2=1;d2<=lastDate;d2++){getDayData(_calYear,_calMonth,d2).filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catTotals[c]=(catTotals[c]||0)+e.amount;});}
+  var catEl=document.getElementById('calCatSummary');
+  if(catEl){var cats=Object.keys(catTotals);var total=cats.reduce(function(s,c){return s+catTotals[c];},0);catEl.innerHTML=cats.length===0?'<div class="empty-state">支出を入力するとここに表示されます</div>':'<div style="margin-bottom:12px;font-size:13px;font-weight:700;color:#1a3325">合計: '+fmt(total)+'</div>'+cats.sort(function(a,b){return catTotals[b]-catTotals[a];}).map(function(c){var pct=Math.round(catTotals[c]/total*100);var col=CAT_COLORS[c]||'#b0c8b8';return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:#1a3325">'+c+'</span><span style="font-size:13px;font-weight:700;color:#e05050">'+fmt(catTotals[c])+'</span></div><div style="height:8px;background:#f0f7f2;border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width 0.4s"></div></div><div style="font-size:11px;color:#9ab5a5;margin-top:2px">'+pct+'%</div></div>';}).join('');}
+}
+function openDayModal(y,m,day){_modalDate={y:y,m:m,day:day};var tEl=document.getElementById('modalDateTitle');if(tEl)tEl.textContent=y+'年'+m+'月'+day+'日';renderDayModal();var modal=document.getElementById('dayModal');if(modal)modal.classList.add('open');}
+function closeDayModal(e){if(e.target===document.getElementById('dayModal'))closeDayModalBtn();}
+function closeDayModalBtn(){var modal=document.getElementById('dayModal');if(modal)modal.classList.remove('open');renderCalendar();}
+function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t){var form=document.getElementById('modal-form-'+t);if(form)form.style.display=t===f?'':'none';var btn=document.getElementById('mft-'+t);if(btn)btn.className='type-tab'+(t===f?' sel-'+t:'');});}
+function addDayRecord(type){if(!_modalDate)return;var name,amount,cat='';if(type==='inc'){name=document.getElementById('m-inc-name').value.trim();amount=parseInt(document.getElementById('m-inc-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('m-inc-name').value='';document.getElementById('m-inc-amount').value='';}else if(type==='exp'){name=document.getElementById('m-exp-name').value.trim();cat=document.getElementById('m-exp-cat').value;amount=parseInt(document.getElementById('m-exp-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('m-exp-name').value='';document.getElementById('m-exp-amount').value='';}else if(type==='inv'){name=document.getElementById('m-inv-name').value.trim();cat=document.getElementById('m-inv-cat').value;amount=parseInt(document.getElementById('m-inv-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('m-inv-name').value='';document.getElementById('m-inv-amount').value='';}var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
+function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
+function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:#3da060',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">まだ記録がありません</div>':data.map(function(e){var sub=e.cat||(e.type==='inc'?'収入':'支出');return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+sub+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
+
+renderAll();}
+function switchTab(tab){document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');});}
 function addRecord(type){var name,amount,cat='';if(type==='inc'){name=document.getElementById('inc-name').value.trim();amount=parseInt(document.getElementById('inc-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('inc-name').value='';document.getElementById('inc-amount').value='';}else if(type==='exp'){name=document.getElementById('exp-name').value.trim();cat=document.getElementById('exp-cat').value;amount=parseInt(document.getElementById('exp-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('exp-name').value='';document.getElementById('exp-amount').value='';}else if(type==='inv'){name=document.getElementById('inv-name').value.trim();cat=document.getElementById('inv-cat').value;amount=parseInt(document.getElementById('inv-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('inv-name').value='';document.getElementById('inv-amount').value='';}else if(type==='ast'){name=document.getElementById('ast-name').value.trim();cat=document.getElementById('ast-cat').value;amount=parseInt(document.getElementById('ast-amount').value)||0;if(!name||!amount){alert('入力してください');return;}document.getElementById('ast-name').value='';document.getElementById('ast-amount').value='';var assets=getAssets();assets.push({id:Date.now(),name:name,cat:cat,amount:amount});saveAssets(assets);renderAll();return;}var data=getData();data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveData(data);renderAll();}
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
