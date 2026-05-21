@@ -115,6 +115,24 @@
 .drawer-item{display:flex;align-items:center;gap:14px;padding:12px 24px;color:rgba(255,255,255,0.88);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-size:0.93rem;transition:background 0.15s;text-decoration:none;font-family:inherit;}
 .drawer-item:hover{background:rgba(255,255,255,0.12);color:#fff;}
 .drawer-item-icon{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0;}
+
+.drawer-search-wrap{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.15);}
+.drawer-search-box{position:relative;display:flex;align-items:center;background:rgba(255,255,255,0.18);border-radius:10px;padding:6px 10px;backdrop-filter:blur(4px);}
+.drawer-search-icon{font-size:0.95rem;color:#fff;margin-right:6px;opacity:0.9;}
+.drawer-search-input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:0.85rem;padding:4px 0;width:100%;}
+.drawer-search-input::placeholder{color:rgba(255,255,255,0.65);}
+.drawer-search-clear{background:none;border:none;color:rgba(255,255,255,0.7);font-size:0.95rem;cursor:pointer;padding:0 4px;display:none;}
+.drawer-search-clear.show{display:block;}
+.drawer-search-results{padding:8px 12px;max-height:50vh;overflow-y:auto;display:none;}
+.drawer-search-results.show{display:block;}
+.drawer-search-result-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;cursor:pointer;color:#fff;background:rgba(255,255,255,0.08);margin-bottom:6px;transition:background 0.15s;border:none;width:100%;text-align:left;text-decoration:none;}
+.drawer-search-result-item:hover{background:rgba(255,255,255,0.18);}
+.drawer-search-result-icon{font-size:1.05rem;flex-shrink:0;}
+.drawer-search-result-info{flex:1;min-width:0;}
+.drawer-search-result-title{font-size:0.85rem;font-weight:600;}
+.drawer-search-result-desc{font-size:0.72rem;opacity:0.75;margin-top:2px;}
+.drawer-search-empty{padding:18px 12px;text-align:center;color:rgba(255,255,255,0.7);font-size:0.82rem;}
+.drawer-search-highlight{background:rgba(255,235,100,0.3);color:#fff;border-radius:2px;padding:0 1px;font-weight:700;}
 .drawer-footer{padding:14px 24px 28px;border-top:1px solid rgba(255,255,255,0.2);color:rgba(255,255,255,0.52);font-size:0.7rem;text-align:center;}
 
 .morning-banner{background:linear-gradient(135deg,#3da060,#5db87a);border-radius:16px;padding:20px;text-align:center;margin-bottom:12px;}
@@ -190,7 +208,15 @@
     <p class="drawer-app-name">Investment Bot</p>
     <p class="drawer-app-sub">&#x6295;&#x8CC7;&#x30B7;&#x30DF;&#x30E5;&#x30EC;&#x30FC;&#x30BF;&#x30FC;</p>
   </div>
-  <nav class="drawer-nav">
+  <div class="drawer-search-wrap">
+    <div class="drawer-search-box">
+      <span class="drawer-search-icon">&#x1F50D;</span>
+      <input type="text" class="drawer-search-input" id="drawerSearchInput" placeholder="&#x6A5F;&#x80FD;&#x30FB;&#x9298;&#x67C4;&#x3092;&#x691C;&#x7D22;..." oninput="onDrawerSearch(this.value)">
+      <button type="button" class="drawer-search-clear" id="drawerSearchClear" onclick="clearDrawerSearch()">&#x2715;</button>
+    </div>
+  </div>
+  <div class="drawer-search-results" id="drawerSearchResults"></div>
+  <nav class="drawer-nav" id="drawerNav">
     <div class="drawer-section-label">&#x6A5F;&#x80FD;</div>
     <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon">&#x1F3E0;</span> &#x30DB;&#x30FC;&#x30E0;</button>
     <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon">&#x1F4CA;</span> &#x30B7;&#x30DF;&#x30E5;&#x30EC;&#x30FC;&#x30BF;&#x30FC;</button>
@@ -522,8 +548,63 @@ function applyIndexSelection(){var sel=getSelIndices();if(sel.length===0){alert(
 
     
 
+
+// ===== DRAWER SEARCH =====
+var _searchItems = [
+  {title:'\u30db\u30fc\u30e0',desc:'\u30c8\u30c3\u30d7\u30da\u30fc\u30b8',icon:'\ud83c\udfe0',keywords:'\u30db\u30fc\u30e0 home top \u30c8\u30c3\u30d7',action:"window.scrollTo({top:0,behavior:'smooth'})"},
+  {title:'\u30b7\u30df\u30e5\u30ec\u30fc\u30bf\u30fc',desc:'\u6bce\u65e5\u30fb\u6bce\u6708\u7a4d\u7acb\u3067\u5c06\u6765\u8cc7\u7523\u3092\u8a08\u7b97',icon:'\ud83d\udcca',keywords:'\u30b7\u30df\u30e5\u30ec\u30fc\u30bf\u30fc \u7a4d\u7acb \u8cc7\u7523 \u8a08\u7b97 \u30b7\u30df\u30e5 simulator',action:'openSimulatorSection()'},
+  {title:'\u671d\u306e\u76f8\u5834\u30ec\u30bf\u30fc',desc:'\u30ea\u30a2\u30eb\u30bf\u30a4\u30e0\u76f8\u5834\u30c7\u30fc\u30bf\u30fb\u4eca\u65e5\u306e\u30cb\u30e5\u30fc\u30b9',icon:'\u2600\ufe0f',keywords:'\u671d \u76f8\u5834 \u30ec\u30bf\u30fc \u30cb\u30e5\u30fc\u30b9 \u30de\u30fc\u30b1\u30c3\u30c8 \u80a1\u4fa1 morning news',action:'openMorningSection()'},
+  {title:'\u8cc7\u7523\u5206\u6790\u30fb\u5bb6\u8a08\u7c3f',desc:'\u53ce\u652f\u7ba1\u7406\u30fb\u8cc7\u7523\u7ba1\u7406\u30fb\u30ab\u30ec\u30f3\u30c0\u30fc',icon:'\ud83d\udcbc',keywords:'\u8cc7\u7523 \u5206\u6790 \u5bb6\u8a08\u7c3f \u53ce\u652f \u30ab\u30ec\u30f3\u30c0\u30fc \u8a18\u9332 kakeibo',action:"window.open('/kakeibo','_blank')"},
+  {title:'\u6025\u9a30\u30a2\u30e9\u30fc\u30c8',desc:'\u30a6\u30a9\u30c3\u30c1\u30ea\u30b9\u30c8\u9298\u67c4\u3092\u81ea\u52d5\u76e3\u8996',icon:'\u26a1',keywords:'\u6025\u9a30 \u6025\u843d \u30a2\u30e9\u30fc\u30c8 \u30a6\u30a9\u30c3\u30c1 \u9298\u67c4 alert',action:'openAlertSection()'},
+  {title:'\u6307\u6570\u9078\u629e',desc:'\u8868\u793a\u3059\u308b\u76f8\u5834\u6307\u6570\u3092\u30ab\u30b9\u30bf\u30de\u30a4\u30ba',icon:'\u2699\ufe0f',keywords:'\u6307\u6570 \u9078\u629e \u30ab\u30b9\u30bf\u30de\u30a4\u30ba \u9298\u67c4 \u8ffd\u52a0 \u65e5\u7d4c sp500 nasdaq',action:'openMorningSection();setTimeout(openIndexCustomizer,400)'},
+  {title:'LINE\u3067\u59cb\u3081\u308b',desc:'LINE\u516c\u5f0f\u30a2\u30ab\u30a6\u30f3\u30c8\u3092\u53cb\u9054\u8ffd\u52a0',icon:'\ud83d\udcac',keywords:'LINE \u59cb\u3081\u308b \u53cb\u9054 \u767b\u9332',action:"document.querySelector('.btn-green').click()"}
+];
+function escapeHtml(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function highlightText(text,query){if(!query)return escapeHtml(text);var q=query.toLowerCase();var lc=text.toLowerCase();var i=lc.indexOf(q);if(i<0)return escapeHtml(text);return escapeHtml(text.slice(0,i))+'<span class="drawer-search-highlight">'+escapeHtml(text.slice(i,i+query.length))+'</span>'+escapeHtml(text.slice(i+query.length));}
+function onDrawerSearch(q){
+  q=(q||'').trim().toLowerCase();
+  var clear=document.getElementById('drawerSearchClear');
+  var results=document.getElementById('drawerSearchResults');
+  var nav=document.getElementById('drawerNav');
+  if(clear)clear.classList.toggle('show',q.length>0);
+  if(!q){if(results)results.classList.remove('show');if(nav)nav.style.display='';return;}
+  if(nav)nav.style.display='none';
+  if(!results)return;
+  results.classList.add('show');
+  var matched=_searchItems.filter(function(item){
+    var hay=(item.title+' '+item.desc+' '+item.keywords).toLowerCase();
+    return hay.indexOf(q)>=0;
+  });
+  if(matched.length===0){results.innerHTML='<div class="drawer-search-empty">&#x1F50E; \u300C'+escapeHtml(q)+'\u300D\u306b\u4e00\u81f4\u3059\u308b\u9805\u76ee\u306f\u3042\u308a\u307e\u305b\u3093</div>';return;}
+  var h='';
+  matched.forEach(function(item,i){
+    var titleH=highlightText(item.title,q);
+    var descH=highlightText(item.desc,q);
+    h+='<button class="drawer-search-result-item" data-idx="'+i+'" onclick="runSearchResult('+i+')"><span class="drawer-search-result-icon">'+item.icon+'</span><div class="drawer-search-result-info"><div class="drawer-search-result-title">'+titleH+'</div><div class="drawer-search-result-desc">'+descH+'</div></div></button>';
+  });
+  // Store filtered list for action lookup
+  window._filteredSearch=matched;
+  results.innerHTML=h;
+}
+function runSearchResult(i){
+  if(!window._filteredSearch||!window._filteredSearch[i])return;
+  var item=window._filteredSearch[i];
+  closeDrawer();
+  clearDrawerSearch();
+  try{setTimeout(function(){eval(item.action);},200);}catch(e){console.error(e);}
+}
+function clearDrawerSearch(){
+  var inp=document.getElementById('drawerSearchInput');
+  var clear=document.getElementById('drawerSearchClear');
+  var results=document.getElementById('drawerSearchResults');
+  var nav=document.getElementById('drawerNav');
+  if(inp)inp.value='';
+  if(clear)clear.classList.remove('show');
+  if(results){results.classList.remove('show');results.innerHTML='';}
+  if(nav)nav.style.display='';
+}
 function toggleDrawer(){var b=document.getElementById('hamburgerBtn'),d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay');if(d.classList.contains('open')){closeDrawer();}else{d.classList.add('open');o.classList.add('open');b.classList.add('open');}}
-function closeDrawer(){var d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');if(d)d.classList.remove('open');if(o)o.classList.remove('open');if(b)b.classList.remove('open');}
+function closeDrawer(){var d=document.getElementById('sideDrawer'),o=document.getElementById('drawerOverlay'),b=document.getElementById('hamburgerBtn');if(d)d.classList.remove('open');if(o)o.classList.remove('open');if(b)b.classList.remove('open');clearDrawerSearch();}
 
     document.addEventListener("DOMContentLoaded", function(){ setTimeout(loadMorningData, 500); });
     </script>
