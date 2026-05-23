@@ -228,27 +228,27 @@
 
 <div class="side-drawer" id="sideDrawer">
   <div class="drawer-header">
-    <div class="drawer-app-icon">&#x1F4C8;</div>
+    <div class="drawer-app-icon"></div>
     <p class="drawer-app-name">Investment Bot</p>
-    <p class="drawer-app-sub">&#x6295;&#x8CC7;&#x30B7;&#x30DF;&#x30E5;&#x30EC;&#x30FC;&#x30BF;&#x30FC;</p>
+    <p class="drawer-app-sub" data-i18n="drawer_app_sub">投資シミュレーター</p>
   </div>
   <div class="drawer-search-wrap">
     <div class="drawer-search-box">
-      <span class="drawer-search-icon">&#x1F50D;</span>
-      <input type="text" class="drawer-search-input" id="drawerSearchInput" placeholder="&#x6A5F;&#x80FD;&#x30FB;&#x9298;&#x67C4;&#x3092;&#x691C;&#x7D22;..." oninput="onDrawerSearch(this.value)">
-      <button type="button" class="drawer-search-clear" id="drawerSearchClear" onclick="clearDrawerSearch()">&#x2715;</button>
+      <span class="drawer-search-icon"></span>
+      <input type="text" class="drawer-search-input" id="drawerSearchInput" placeholder="機能・銘柄を検索..." data-i18n-placeholder="drawer_search_ph" oninput="onDrawerSearch(this.value)">
+      <button type="button" class="drawer-search-clear" id="drawerSearchClear" onclick="clearDrawerSearch()">✕</button>
     </div>
   </div>
   <div class="drawer-search-results" id="drawerSearchResults"></div>
   <nav class="drawer-nav" id="drawerNav">
-    <div class="drawer-section-label">&#x6A5F;&#x80FD;</div>
-    <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon">&#x1F3E0;</span> &#x30DB;&#x30FC;&#x30E0;</button>
-    <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon">&#x1F4CA;</span> &#x30B7;&#x30DF;&#x30E5;&#x30EC;&#x30FC;&#x30BF;&#x30FC;</button>
-    <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">&#x2600;&#xFE0F;</span> &#x671D;&#x306E;&#x76F8;&#x5834;&#x30EC;&#x30BF;&#x30FC;</button>
-    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">&#x1F4BC;</span> &#x8CC7;&#x7523;&#x5206;&#x6790;</a>
-    <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">&#x26A1;</span> &#x6025;&#x9A30;&#x30A2;&#x30E9;&#x30FC;&#x30C8;</button>
+    <div class="drawer-section-label" data-i18n="drawer_sect_features">機能</div>
+    <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon"></span> <span data-i18n="drawer_home">ホーム</span></button>
+    <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon"></span> <span data-i18n="drawer_simulator">シミュレーター</span></button>
+    <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">☀️</span> <span data-i18n="drawer_morning">朝の相場レター</span></button>
+    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon"></span> <span data-i18n="drawer_assets">資産分析</span></a>
+    <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">⚡</span> <span data-i18n="drawer_alert">急騰アラート</span></button>
   </nav>
-  <div class="drawer-section-label">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button><button class="drawer-color-preset" data-color="#9c27b0" style="background:#9c27b0" title="パープル"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#ff9800" style="background:#ff9800" title="オレンジ"></button><button class="drawer-color-preset" data-color="#f44336" style="background:#f44336" title="レッド"></button><button class="drawer-color-preset" data-color="#009688" style="background:#009688" title="ティール"></button><button class="drawer-color-preset" data-color="#607d8b" style="background:#607d8b" title="グレー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset">リセット</button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">&#xA9; 2026 Investment Bot</div>
+  <div class="drawer-section-label">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button><button class="drawer-color-preset" data-color="#9c27b0" style="background:#9c27b0" title="パープル"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#ff9800" style="background:#ff9800" title="オレンジ"></button><button class="drawer-color-preset" data-color="#f44336" style="background:#f44336" title="レッド"></button><button class="drawer-color-preset" data-color="#009688" style="background:#009688" title="ティール"></button><button class="drawer-color-preset" data-color="#607d8b" style="background:#607d8b" title="グレー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset">リセット</button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
 </div>
 
 
@@ -358,41 +358,41 @@
   </div>
   <div id="morning-section" style="display:block">
       <div class="morning-banner">
-        <div class="morning-icon">&#x2600;&#xFE0F;</div>
-        <div class="morning-title">&#x671D;&#x306E;&#x76F8;&#x5834;&#x30EC;&#x30BF;&#x30FC;</div>
-        <div class="morning-sub">&#x6BCE;&#x671D;8&#x6642;&#x306BLINE&#x3067;&#x914D;&#x4FE1;&#x4E2D;</div>
+        <div class="morning-icon">☀️</div>
+        <div class="morning-title" data-i18n="morning_title">朝の相場レター</div>
+        <div class="morning-sub" data-i18n="morning_sub">毎朝8時にLINEで配信中</div>
       </div>
       <div class="morning-controls">
-        <div class="morning-update-info">&#x66F4;&#x65B0;: <span id="morning-update-time">--</span> &nbsp;|&nbsp; &#x6B21;&#x56DE;: <span id="morning-countdown">30</span>&#x79D2;</div>
-        <button class="morning-custom-btn" onclick="openIndexCustomizer()">&#x2699;&#xFE0F; &#x6307;&#x6570;&#x9078;&#x629E;</button>
+        <div class="morning-update-info"><span data-i18n="morning_updated">更新</span>: <span id="morning-update-time">--</span> &nbsp;|&nbsp; <span data-i18n="morning_next">次回</span>: <span id="morning-countdown">30</span><span data-i18n="morning_sec">秒</span></div>
+        <button class="morning-custom-btn" onclick="openIndexCustomizer()">⚙️ <span data-i18n="morning_idx_select">指数選択</span></button>
       </div>
       <div class="morning-idx-grid" id="morning-idx-grid"></div>
       <div class="morning-extra">
-        <div class="morning-section-label">&#x1F4CA; AI&#x5E02;&#x5834;&#x5206;&#x6790;</div>
-        <div id="morning-analysis" class="morning-analysis-text">&#x8AAD;&#x307F;&#x8FBC;&#x307F;&#x4E2D;...</div>
+        <div class="morning-section-label"> <span data-i18n="morning_sect_analysis">AI市場分析</span></div>
+        <div id="morning-analysis" class="morning-analysis-text" data-i18n="morning_loading">読み込み中...</div>
         <div id="morning-points" class="morning-points-text"></div>
       <div class="morning-news-section" id="morning-news-section">
-        <div class="morning-news-title">&#x1F4F0; &#x4ECA;&#x65E5;&#x306E;&#x30CB;&#x30E5;&#x30FC;&#x30B9;</div>
-        <div id="morning-news-content"><div class="morning-news-loading">&#x8AAD;&#x307F;&#x8FBC;&#x307F;&#x4E2D;...</div></div>
+        <div class="morning-news-title"> <span data-i18n="morning_sect_news">今日のニュース</span></div>
+        <div id="morning-news-content"><div class="morning-news-loading" data-i18n="morning_loading">読み込み中...</div></div>
       </div>
       </div>
       <div id="idx-customizer-overlay" class="idx-customizer-overlay" onclick="closeIndexCustomizer()"></div>
       <div id="idx-customizer-modal" class="idx-customizer-modal">
-        <div class="idx-customizer-header"><span>&#x2699;&#xFE0F; &#x8868;&#x793A;&#x6307;&#x6570;&#x9078;&#x629E;</span><button onclick="closeIndexCustomizer()" class="idx-customizer-close">&#x2715;</button></div>
-        <div class="idx-customizer-body"><div class="idx-customizer-note">&#x6700;&#x59274&#x3064;&#x307E;&#x3067;&#x9078;&#x629E;&#x53EF;&#x80FD;</div><div id="idx-checkboxes" class="idx-checkboxes"></div><div class="idx-custom-section">
-  <div class="idx-custom-title">&#x2795; &#x9298;&#x67C4;&#x3092;&#x81EA;&#x5206;&#x3067;&#x8FFD;&#x52A0;</div>
-  <div class="idx-custom-hint">&#x682A;&#x5F0F;&#x30FB;ETF&#x30FB;&#x70BA;&#x66FF;&#x306A;&#x3069;&#xFF08;&#x4F8B;&#xFF1AAAPL, 7203.T, BTC-USD&#xFF09;</div>
+        <div class="idx-customizer-header"><span>⚙️ <span data-i18n="idx_cust_title">表示指数選択</span></span><button onclick="closeIndexCustomizer()" class="idx-customizer-close">✕</button></div>
+        <div class="idx-customizer-body"><div class="idx-customizer-note" data-i18n="idx_cust_note">最大4つまで選択可能</div><div id="idx-checkboxes" class="idx-checkboxes"></div><div class="idx-custom-section">
+  <div class="idx-custom-title">➕ <span data-i18n="idx_cust_add_title">銘柄を自分で追加</span></div>
+  <div class="idx-custom-hint" data-i18n="idx_cust_hint">株式・ETF・為替など（例：AAPL, 7203.T, BTC-USD）</div>
   <div class="idx-custom-input-row">
-    <input class="idx-custom-input" id="customSymInput" type="text" placeholder="&#x9298;&#x67C4;&#x30B3;&#x30FC;&#x30C9;..." oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){searchCustomSym();}">
-    <button class="idx-custom-search-btn" id="customSymBtn" onclick="searchCustomSym()">&#x691C;&#x7D22;</button>
+    <input class="idx-custom-input" id="customSymInput" type="text" placeholder="銘柄コード..." data-i18n-placeholder="idx_cust_input_ph" oninput="this.value=this.value.toUpperCase()" onkeydown="if(event.key==='Enter'){searchCustomSym();}">
+    <button class="idx-custom-search-btn" id="customSymBtn" onclick="searchCustomSym()" data-i18n="idx_cust_search">検索</button>
   </div>
   <div id="customSymResult"></div>
   <div id="customSymListWrap" class="idx-custom-list-wrap" style="display:none;">
-    <div class="idx-custom-list-label">&#x8FFD;&#x52A0;&#x6E08;&#x307F;&#xFF1A;</div>
+    <div class="idx-custom-list-label" data-i18n="idx_cust_added_label">追加済み：</div>
     <div class="idx-custom-chips" id="customSymChips"></div>
   </div>
 </div></div>
-        <div class="idx-customizer-footer"><button onclick="applyIndexSelection()" class="idx-apply-btn">&#x9069;&#x7528;</button></div>
+        <div class="idx-customizer-footer"><button onclick="applyIndexSelection()" class="idx-apply-btn" data-i18n="idx_apply">適用</button></div>
       </div>
     </div>
   
@@ -581,11 +581,11 @@ function startMorningInterval(){if(_mktInterval)clearInterval(_mktInterval);load
 var _customSymbols=[];
 function loadCustomSymbols(){try{var s=localStorage.getItem('custom_symbols');if(s)_customSymbols=JSON.parse(s);}catch(e){_customSymbols=[];}}
 function saveCustomSymbols(){try{localStorage.setItem('custom_symbols',JSON.stringify(_customSymbols));}catch(e){}}
-function renderCustomChips(){var wrap=document.getElementById('customSymListWrap');var chips=document.getElementById('customSymChips');if(!wrap||!chips)return;if(_customSymbols.length===0){wrap.style.display='none';return;}wrap.style.display='block';var h='';_customSymbols.forEach(function(s,i){h+='<div class="idx-custom-chip"><span>'+s.icon+' '+s.label+'</span><button class="idx-custom-chip-del" onclick="removeCustomSym('+i+')" title="\u524A\u9664">&#x2715;</button></div>';});chips.innerHTML=h;}
+function renderCustomChips(){var wrap=document.getElementById('customSymListWrap');var chips=document.getElementById('customSymChips');if(!wrap||!chips)return;if(_customSymbols.length===0){wrap.style.display='none';return;}wrap.style.display='block';var h='';_customSymbols.forEach(function(s,i){h+='<div class="idx-custom-chip"><span>'+s.icon+' '+s.label+'</span><button class="idx-custom-chip-del" onclick="removeCustomSym('+i+')" title="\u524A\u9664">✕</button></div>';});chips.innerHTML=h;}
 function removeCustomSym(i){_customSymbols.splice(i,1);saveCustomSymbols();renderCustomChips();updateAllIndicesWithCustom();renderMorningGrid(_mktCache||{});}
 function updateAllIndicesWithCustom(){_allIndices=_allIndices.filter(function(x){return !x.isCustom;});_customSymbols.forEach(function(s){_allIndices.push({key:s.key,label:s.label,icon:s.icon,isCustom:true,customPrice:s.price,customDisplay:s.display,customPct:s.pct});});}
-function searchCustomSym(){var inp=document.getElementById('customSymInput');var btn=document.getElementById('customSymBtn');var res=document.getElementById('customSymResult');if(!inp||!btn||!res)return;var sym=inp.value.trim().toUpperCase();if(!sym){res.innerHTML='<div class="idx-custom-result-error">\u9298\u67c4\u30b3\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044</div>';return;}btn.disabled=true;btn.textContent='\u691c\u7d22\u4e2d...';res.innerHTML='<div style="color:#888;font-size:0.82rem;padding:6px 0;">\u53d6\u5f97\u4e2d...</div>';fetch('/api/quote?symbol='+encodeURIComponent(sym)).then(function(r){return r.json();}).then(function(data){btn.disabled=false;btn.textContent='\u691c\u7d22';if(data.error){res.innerHTML='<div class="idx-custom-result-error">\u2716 '+data.error+'</div>';return;}var alreadyAdded=_customSymbols.some(function(x){return x.key===data.symbol;});var pctColor=data.pct>=0?'var(--brand-color)':'#e53e3e';var pctStr=data.pct>=0?('&#x25B2;'+data.pct.toFixed(2)+'%'):('&#x25BC;'+Math.abs(data.pct).toFixed(2)+'%');var addBtnHtml=alreadyAdded?'<span class="idx-custom-added-label">&#x2714; \u8FFD\u52A0\u6E08</span>':'<button class="idx-custom-add-btn" data-sym="'+data.symbol+'" data-name="'+data.name.replace(/"/g,'')+'" data-price="'+data.price+'" data-pct="'+data.pct+'" data-disp="'+data.display.replace(/"/g,'')+'" onclick="addCustomSymFromBtn(this)">\u8FFD\u52A0</button>';res.innerHTML='<div class="idx-custom-result-box"><div class="idx-custom-result-row"><div><div class="idx-custom-result-name">'+data.name+'\uff08'+data.symbol+'\uff09</div><div class="idx-custom-result-price" style="color:'+pctColor+'">'+data.price.toLocaleString()+' '+pctStr+'</div></div>'+addBtnHtml+'</div></div>';}).catch(function(){btn.disabled=false;btn.textContent='\u691c\u7d22';res.innerHTML='<div class="idx-custom-result-error">\u901a\u4fe1\u30a8\u30e9\u30fc</div>';});}
-function addCustomSymFromBtn(btn){var sym=btn.dataset.sym;var name=btn.dataset.name;var price=parseFloat(btn.dataset.price);var pct=parseFloat(btn.dataset.pct);var disp=btn.dataset.disp;if(_customSymbols.some(function(x){return x.key===sym;}))return;_customSymbols.push({key:sym,label:name+'('+sym+')',icon:'\ud83d\udcc8',price:price,pct:pct,display:disp});saveCustomSymbols();renderCustomChips();updateAllIndicesWithCustom();btn.outerHTML='<span class="idx-custom-added-label">&#x2714; \u8FFD\u52A0\u6E08</span>';var inp=document.getElementById('customSymInput');if(inp)inp.value='';}
+function searchCustomSym(){var inp=document.getElementById('customSymInput');var btn=document.getElementById('customSymBtn');var res=document.getElementById('customSymResult');if(!inp||!btn||!res)return;var sym=inp.value.trim().toUpperCase();if(!sym){res.innerHTML='<div class="idx-custom-result-error">\u9298\u67c4\u30b3\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044</div>';return;}btn.disabled=true;btn.textContent='\u691c\u7d22\u4e2d...';res.innerHTML='<div style="color:#888;font-size:0.82rem;padding:6px 0;">\u53d6\u5f97\u4e2d...</div>';fetch('/api/quote?symbol='+encodeURIComponent(sym)).then(function(r){return r.json();}).then(function(data){btn.disabled=false;btn.textContent='\u691c\u7d22';if(data.error){res.innerHTML='<div class="idx-custom-result-error">\u2716 '+data.error+'</div>';return;}var alreadyAdded=_customSymbols.some(function(x){return x.key===data.symbol;});var pctColor=data.pct>=0?'var(--brand-color)':'#e53e3e';var pctStr=data.pct>=0?('▲'+data.pct.toFixed(2)+'%'):('▼'+Math.abs(data.pct).toFixed(2)+'%');var addBtnHtml=alreadyAdded?'<span class="idx-custom-added-label">✔ \u8FFD\u52A0\u6E08</span>':'<button class="idx-custom-add-btn" data-sym="'+data.symbol+'" data-name="'+data.name.replace(/"/g,'')+'" data-price="'+data.price+'" data-pct="'+data.pct+'" data-disp="'+data.display.replace(/"/g,'')+'" onclick="addCustomSymFromBtn(this)">\u8FFD\u52A0</button>';res.innerHTML='<div class="idx-custom-result-box"><div class="idx-custom-result-row"><div><div class="idx-custom-result-name">'+data.name+'\uff08'+data.symbol+'\uff09</div><div class="idx-custom-result-price" style="color:'+pctColor+'">'+data.price.toLocaleString()+' '+pctStr+'</div></div>'+addBtnHtml+'</div></div>';}).catch(function(){btn.disabled=false;btn.textContent='\u691c\u7d22';res.innerHTML='<div class="idx-custom-result-error">\u901a\u4fe1\u30a8\u30e9\u30fc</div>';});}
+function addCustomSymFromBtn(btn){var sym=btn.dataset.sym;var name=btn.dataset.name;var price=parseFloat(btn.dataset.price);var pct=parseFloat(btn.dataset.pct);var disp=btn.dataset.disp;if(_customSymbols.some(function(x){return x.key===sym;}))return;_customSymbols.push({key:sym,label:name+'('+sym+')',icon:'\ud83d\udcc8',price:price,pct:pct,display:disp});saveCustomSymbols();renderCustomChips();updateAllIndicesWithCustom();btn.outerHTML='<span class="idx-custom-added-label">✔ \u8FFD\u52A0\u6E08</span>';var inp=document.getElementById('customSymInput');if(inp)inp.value='';}
 function openIndexCustomizer(){loadCustomSymbols();updateAllIndicesWithCustom();renderCustomChips();var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');var cb=document.getElementById('idx-checkboxes');if(!ov||!md||!cb)return;var sel=getSelIndices();_selIndices=sel.slice();var h='';_allIndices.forEach(function(idx){var isSel=sel.indexOf(idx.key)>=0;h+='<div class="idx-checkbox-item'+(isSel?' selected':'')+'" data-key="'+idx.key+'" onclick="toggleIdx(this,this.dataset.key)"><span>'+idx.icon+'</span><span>'+idx.label+'</span></div>';});cb.innerHTML=h;ov.classList.add('open');md.classList.add('open');}
 function closeIndexCustomizer(){var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');if(ov)ov.classList.remove('open');if(md)md.classList.remove('open');}
 function toggleIdx(el,key){var sel=getSelIndices();var i=sel.indexOf(key);if(i>=0){sel.splice(i,1);el.classList.remove('selected');}else{if(sel.length>=4){alert('最大4つまで');return;}sel.push(key);el.classList.add('selected');}_selIndices=sel;}
@@ -620,7 +620,7 @@ function onDrawerSearch(q){
     var hay=(item.title+' '+item.desc+' '+item.keywords).toLowerCase();
     return hay.indexOf(q)>=0;
   });
-  if(matched.length===0){results.innerHTML='<div class="drawer-search-empty">&#x1F50E; \u300C'+escapeHtml(q)+'\u300D\u306b\u4e00\u81f4\u3059\u308b\u9805\u76ee\u306f\u3042\u308a\u307e\u305b\u3093</div>';return;}
+  if(matched.length===0){results.innerHTML='<div class="drawer-search-empty"> \u300C'+escapeHtml(q)+'\u300D\u306b\u4e00\u81f4\u3059\u308b\u9805\u76ee\u306f\u3042\u308a\u307e\u305b\u3093</div>';return;}
   var h='';
   matched.forEach(function(item,i){
     var titleH=highlightText(item.title,q);
@@ -1269,6 +1269,131 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     // 初期適用
     if(typeof _lang !== 'undefined') window.applyLang(_lang);
   })();
+
+  // === Step 2: Drawer / Morning / Index Customizer translations ===
+  Object.assign(I18N.ja, {
+    drawer_app_sub: "投資シミュレーター",
+    drawer_search_ph: "機能・銘柄を検索...",
+    drawer_sect_features: "機能",
+    drawer_home: "ホーム",
+    drawer_simulator: "シミュレーター",
+    drawer_morning: "朝の相場レター",
+    drawer_assets: "資産分析",
+    drawer_alert: "急騰アラート",
+    morning_title: "朝の相場レター",
+    morning_sub: "毎朝8時にLINEで配信中",
+    morning_idx_select: "指数選択",
+    morning_sect_analysis: "AI市場分析",
+    morning_sect_news: "今日のニュース",
+    morning_updated: "更新",
+    morning_next: "次回",
+    morning_sec: "秒",
+    morning_loading: "読み込み中...",
+    idx_cust_title: "表示指数選択",
+    idx_cust_note: "最大4つまで選択可能",
+    idx_cust_add_title: "銘柄を自分で追加",
+    idx_cust_hint: "株式・ETF・為替など(例:AAPL, 7203.T, BTC-USD)",
+    idx_cust_input_ph: "銘柄コード...",
+    idx_cust_search: "検索",
+    idx_cust_added_label: "追加済み:",
+    idx_apply: "適用"
+  });
+  Object.assign(I18N.en, {
+    drawer_app_sub: "Investment Simulator",
+    drawer_search_ph: "Search features & symbols...",
+    drawer_sect_features: "Features",
+    drawer_home: "Home",
+    drawer_simulator: "Simulator",
+    drawer_morning: "Morning Brief",
+    drawer_assets: "Asset Analysis",
+    drawer_alert: "Surge Alert",
+    morning_title: "Morning Market Brief",
+    morning_sub: "Delivered daily at 8 AM via LINE",
+    morning_idx_select: "Select Indices",
+    morning_sect_analysis: "AI Market Analysis",
+    morning_sect_news: "Today's News",
+    morning_updated: "Updated",
+    morning_next: "Next",
+    morning_sec: "sec",
+    morning_loading: "Loading...",
+    idx_cust_title: "Choose Indices to Display",
+    idx_cust_note: "Select up to 4",
+    idx_cust_add_title: "Add Your Own Symbol",
+    idx_cust_hint: "Stocks, ETFs, FX, etc. (e.g. AAPL, 7203.T, BTC-USD)",
+    idx_cust_input_ph: "Symbol code...",
+    idx_cust_search: "Search",
+    idx_cust_added_label: "Added:",
+    idx_apply: "Apply"
+  });
+  Object.assign(I18N.ko, {
+    drawer_app_sub: "투자 시뮬레이터",
+    drawer_search_ph: "기능·종목 검색...",
+    drawer_sect_features: "기능",
+    drawer_home: "홈",
+    drawer_simulator: "시뮬레이터",
+    drawer_morning: "아침 시황 레터",
+    drawer_assets: "자산 분석",
+    drawer_alert: "급등 알림",
+    morning_title: "아침 시황 레터",
+    morning_sub: "매일 아침 8시 LINE으로 발송",
+    morning_idx_select: "지수 선택",
+    morning_sect_analysis: "AI 시장 분석",
+    morning_sect_news: "오늘의 뉴스",
+    morning_updated: "업데이트",
+    morning_next: "다음",
+    morning_sec: "초",
+    morning_loading: "로딩 중...",
+    idx_cust_title: "표시 지수 선택",
+    idx_cust_note: "최대 4개까지 선택 가능",
+    idx_cust_add_title: "직접 종목 추가",
+    idx_cust_hint: "주식·ETF·환율 등 (예: AAPL, 7203.T, BTC-USD)",
+    idx_cust_input_ph: "종목 코드...",
+    idx_cust_search: "검색",
+    idx_cust_added_label: "추가됨:",
+    idx_apply: "적용"
+  });
+  Object.assign(I18N.zh, {
+    drawer_app_sub: "投资模拟器",
+    drawer_search_ph: "搜索功能·标的...",
+    drawer_sect_features: "功能",
+    drawer_home: "首页",
+    drawer_simulator: "模拟器",
+    drawer_morning: "晨间市场简报",
+    drawer_assets: "资产分析",
+    drawer_alert: "暴涨提醒",
+    morning_title: "晨间市场简报",
+    morning_sub: "每天上午8点通过LINE推送",
+    morning_idx_select: "选择指数",
+    morning_sect_analysis: "AI市场分析",
+    morning_sect_news: "今日新闻",
+    morning_updated: "更新",
+    morning_next: "下次",
+    morning_sec: "秒",
+    morning_loading: "加载中...",
+    idx_cust_title: "选择显示指数",
+    idx_cust_note: "最多可选4个",
+    idx_cust_add_title: "手动添加标的",
+    idx_cust_hint: "股票·ETF·汇率等 (例: AAPL, 7203.T, BTC-USD)",
+    idx_cust_input_ph: "标的代码...",
+    idx_cust_search: "搜索",
+    idx_cust_added_label: "已添加:",
+    idx_apply: "应用"
+  });
+
+  // placeholder属性対応 (data-i18n-placeholder)
+  (function(){
+    var prevApply = window.applyLang || applyLang;
+    window.applyLang = function(lang){
+      if(!I18N[lang]) lang = 'ja';
+      prevApply(lang);
+      document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el){
+        var k = el.getAttribute('data-i18n-placeholder');
+        if(I18N[lang][k] !== undefined) el.placeholder = I18N[lang][k];
+      });
+    };
+    if(typeof _lang !== 'undefined') window.applyLang(_lang);
+  })();
+
 
   // 初期化
   function initLang(){
