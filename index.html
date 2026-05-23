@@ -1394,6 +1394,17 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     if(typeof _lang !== 'undefined') window.applyLang(_lang);
   })();
 
+  // 言語ボタンクリック時に拡張 applyLang も実行 (placeholder, title対応)
+  document.addEventListener('click', function(e){
+    var btn = e.target.closest('[data-lang]');
+    if (btn) {
+      var l = btn.getAttribute('data-lang');
+      // 直後に拡張版を呼ぶ
+      setTimeout(function(){ if(window.applyLang) window.applyLang(l); }, 0);
+    }
+  });
+
+
 
   // 初期化
   function initLang(){
