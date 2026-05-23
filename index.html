@@ -562,17 +562,17 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
     
 var _mktCache=null,_mktLastFetch=0,_mktInterval=null,_mktCountdown=30,_mktFetchSec=30;
 var _allIndices=[
-  {key:'日経225',label:'日経225',icon:'🇯🇵'},
-  {key:'NYダウ',label:'NYダウ',icon:'🇺🇸'},
-  {key:'S&P500',label:'S&P500',icon:'📈'},
-  {key:'ナスダック',label:'ナスダック',icon:'💻'},
-  {key:'ドル円',label:'ドル円',icon:'💹'},
-  {key:'VIX恐怖指数',label:'VIX',icon:'⚠️'},
-  {key:'米10年金利',label:'米金利',icon:'🏦'}
+  {key:'日経225',label:'日経225',i18nKey:'idx_n225',icon:'🇯🇵'},
+  {key:'NYダウ',label:'NYダウ',i18nKey:'idx_dow',icon:'🇺🇸'},
+  {key:'S&P500',label:'S&P500',i18nKey:'idx_sp500',icon:'📈'},
+  {key:'ナスダック',label:'ナスダック',i18nKey:'idx_nasdaq',icon:'💻'},
+  {key:'ドル円',label:'ドル円',i18nKey:'idx_usdjpy',icon:'💹'},
+  {key:'VIX恐怖指数',label:'VIX',i18nKey:'idx_vix',icon:'⚠️'},
+  {key:'米10年金利',label:'米金利',i18nKey:'idx_us10y',icon:'🏦'}
 ];
 var _selIndices=null;
 function getSelIndices(){if(_selIndices)return _selIndices;try{var s=localStorage.getItem('morn_sel');if(s)return JSON.parse(s);}catch(e){}return['日経225','S&P500','NYダウ','ドル円'];}
-function renderMorningGrid(m){var sel=getSelIndices();var g=document.getElementById('morning-idx-grid');if(!g)return;var h='';sel.forEach(function(k){var info=_allIndices.find(function(x){return x.key===k;});var label=info?info.label:k;var icon=info?info.icon:'📊';var custInfo=_allIndices.find(function(x){return x.key===k&&x.isCustom;});var d=m&&m[k];var disp=custInfo?(custInfo.customDisplay||'--'):(d?d.display||'--':'--');var parts=disp.split('　');var price=parts[0]||disp;var change=parts[1]||'';var cls=change.includes('▲')||change.includes('+')?'up':change.includes('▼')||change.includes('-')?'down':'';h+='<div class="morning-idx-card"><div class="morning-idx-name">'+icon+' '+label+'</div><div class="morning-idx-value">'+price+'</div>'+(change?'<div class="morning-idx-change '+cls+'">'+change+'</div>':'')+'</div>';});g.innerHTML=h;}
+function renderMorningGrid(m){var sel=getSelIndices();var g=document.getElementById('morning-idx-grid');if(!g)return;var h='';sel.forEach(function(k){var info=_allIndices.find(function(x){return x.key===k;});var label=info?((info.i18nKey&&window.t)?window.t(info.i18nKey):info.label):k;var icon=info?info.icon:'📊';var custInfo=_allIndices.find(function(x){return x.key===k&&x.isCustom;});var d=m&&m[k];var disp=custInfo?(custInfo.customDisplay||'--'):(d?d.display||'--':'--');var parts=disp.split('　');var price=parts[0]||disp;var change=parts[1]||'';var cls=change.includes('▲')||change.includes('+')?'up':change.includes('▼')||change.includes('-')?'down':'';h+='<div class="morning-idx-card"><div class="morning-idx-name">'+icon+' '+label+'</div><div class="morning-idx-value">'+price+'</div>'+(change?'<div class="morning-idx-change '+cls+'">'+change+'</div>':'')+'</div>';});g.innerHTML=h;}
 function loadMorningNews(){var nc=document.getElementById('morning-news-content');if(!nc)return;fetch('/api/morning-news').then(function(r){return r.json();}).then(function(d){if(!d.news||d.news.length===0){nc.innerHTML='<div class="morning-news-error">\u30cb\u30e5\u30fc\u30b9\u306a\u3057</div>';return;}var groups={};d.news.forEach(function(item){if(!groups[item.source])groups[item.source]=[];groups[item.source].push(item.title);});var h='';Object.keys(groups).forEach(function(src){h+='<div class="morning-news-source-block"><span class="morning-news-source-label">'+src+'</span>';groups[src].forEach(function(title){h+='<div class="morning-news-item">'+title+'</div>';});h+='</div>';});nc.innerHTML=h;}).catch(function(){nc.innerHTML='<div class="morning-news-error">\u53d6\u5f97\u5931\u6557</div>';});}
 function loadMorningData(){var now=Date.now();if(_mktCache&&(now-_mktLastFetch)<(_mktFetchSec*1000)){renderMorningGrid(_mktCache);return;}fetch('/api/morning-data').then(function(r){return r.json();}).then(function(d){_mktCache=d.market||{};_mktLastFetch=Date.now();_mktCountdown=_mktFetchSec;renderMorningGrid(_mktCache);loadMorningNews();var t=document.getElementById('morning-update-time');if(t)t.textContent=d.updated||'--';var a=document.getElementById('morning-analysis');if(a)a.innerHTML='<strong>'+window.t('data_updated')+': '+(d.updated||'--')+'</strong>'+(d.market&&d.market['VIX恐怖指数']?'<br>VIX: '+d.market['VIX恐怖指数'].display:'')+(d.market&&d.market['米10年金利']?'&nbsp;&nbsp;米金利: '+d.market['米10年金利'].display:'');var p=document.getElementById('morning-points');if(p)p.innerHTML='✅ <strong>最新相場データ表示中</strong><br>✅ 毎朝8時にLINEで詳細分析を配信';}).catch(function(){if(_mktCache)renderMorningGrid(_mktCache);});}
 function startMorningInterval(){if(_mktInterval)clearInterval(_mktInterval);loadMorningData();_mktInterval=setInterval(function(){_mktCountdown--;var c=document.getElementById('morning-countdown');if(c)c.textContent=Math.max(0,_mktCountdown);if(_mktCountdown<=0){_mktCountdown=_mktFetchSec;loadMorningData();}},1000);}
@@ -586,7 +586,7 @@ function removeCustomSym(i){_customSymbols.splice(i,1);saveCustomSymbols();rende
 function updateAllIndicesWithCustom(){_allIndices=_allIndices.filter(function(x){return !x.isCustom;});_customSymbols.forEach(function(s){_allIndices.push({key:s.key,label:s.label,icon:s.icon,isCustom:true,customPrice:s.price,customDisplay:s.display,customPct:s.pct});});}
 function searchCustomSym(){var inp=document.getElementById('customSymInput');var btn=document.getElementById('customSymBtn');var res=document.getElementById('customSymResult');if(!inp||!btn||!res)return;var sym=inp.value.trim().toUpperCase();if(!sym){res.innerHTML='<div class="idx-custom-result-error">\u9298\u67c4\u30b3\u30fc\u30c9\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044</div>';return;}btn.disabled=true;btn.textContent='\u691c\u7d22\u4e2d...';res.innerHTML='<div style="color:#888;font-size:0.82rem;padding:6px 0;">\u53d6\u5f97\u4e2d...</div>';fetch('/api/quote?symbol='+encodeURIComponent(sym)).then(function(r){return r.json();}).then(function(data){btn.disabled=false;btn.textContent='\u691c\u7d22';if(data.error){res.innerHTML='<div class="idx-custom-result-error">\u2716 '+data.error+'</div>';return;}var alreadyAdded=_customSymbols.some(function(x){return x.key===data.symbol;});var pctColor=data.pct>=0?'var(--brand-color)':'#e53e3e';var pctStr=data.pct>=0?('▲'+data.pct.toFixed(2)+'%'):('▼'+Math.abs(data.pct).toFixed(2)+'%');var addBtnHtml=alreadyAdded?'<span class="idx-custom-added-label">✔ \u8FFD\u52A0\u6E08</span>':'<button class="idx-custom-add-btn" data-sym="'+data.symbol+'" data-name="'+data.name.replace(/"/g,'')+'" data-price="'+data.price+'" data-pct="'+data.pct+'" data-disp="'+data.display.replace(/"/g,'')+'" onclick="addCustomSymFromBtn(this)">\u8FFD\u52A0</button>';res.innerHTML='<div class="idx-custom-result-box"><div class="idx-custom-result-row"><div><div class="idx-custom-result-name">'+data.name+'\uff08'+data.symbol+'\uff09</div><div class="idx-custom-result-price" style="color:'+pctColor+'">'+data.price.toLocaleString()+' '+pctStr+'</div></div>'+addBtnHtml+'</div></div>';}).catch(function(){btn.disabled=false;btn.textContent='\u691c\u7d22';res.innerHTML='<div class="idx-custom-result-error">\u901a\u4fe1\u30a8\u30e9\u30fc</div>';});}
 function addCustomSymFromBtn(btn){var sym=btn.dataset.sym;var name=btn.dataset.name;var price=parseFloat(btn.dataset.price);var pct=parseFloat(btn.dataset.pct);var disp=btn.dataset.disp;if(_customSymbols.some(function(x){return x.key===sym;}))return;_customSymbols.push({key:sym,label:name+'('+sym+')',icon:'\ud83d\udcc8',price:price,pct:pct,display:disp});saveCustomSymbols();renderCustomChips();updateAllIndicesWithCustom();btn.outerHTML='<span class="idx-custom-added-label">✔ \u8FFD\u52A0\u6E08</span>';var inp=document.getElementById('customSymInput');if(inp)inp.value='';}
-function openIndexCustomizer(){loadCustomSymbols();updateAllIndicesWithCustom();renderCustomChips();var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');var cb=document.getElementById('idx-checkboxes');if(!ov||!md||!cb)return;var sel=getSelIndices();_selIndices=sel.slice();var h='';_allIndices.forEach(function(idx){var isSel=sel.indexOf(idx.key)>=0;h+='<div class="idx-checkbox-item'+(isSel?' selected':'')+'" data-key="'+idx.key+'" onclick="toggleIdx(this,this.dataset.key)"><span>'+idx.icon+'</span><span>'+idx.label+'</span></div>';});cb.innerHTML=h;ov.classList.add('open');md.classList.add('open');}
+function openIndexCustomizer(){loadCustomSymbols();updateAllIndicesWithCustom();renderCustomChips();var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');var cb=document.getElementById('idx-checkboxes');if(!ov||!md||!cb)return;var sel=getSelIndices();_selIndices=sel.slice();var h='';_allIndices.forEach(function(idx){var isSel=sel.indexOf(idx.key)>=0;h+='<div class="idx-checkbox-item'+(isSel?' selected':'')+'" data-key="'+idx.key+'" onclick="toggleIdx(this,this.dataset.key)"><span>'+idx.icon+'</span><span>'+((idx.i18nKey&&window.t)?window.t(idx.i18nKey):idx.label)+'</span></div>';});cb.innerHTML=h;ov.classList.add('open');md.classList.add('open');}
 function closeIndexCustomizer(){var ov=document.getElementById('idx-customizer-overlay');var md=document.getElementById('idx-customizer-modal');if(ov)ov.classList.remove('open');if(md)md.classList.remove('open');}
 function toggleIdx(el,key){var sel=getSelIndices();var i=sel.indexOf(key);if(i>=0){sel.splice(i,1);el.classList.remove('selected');}else{if(sel.length>=4){alert(window.t('alert_max4'));return;}sel.push(key);el.classList.add('selected');}_selIndices=sel;}
 function applyIndexSelection(){var sel=getSelIndices();if(sel.length===0){alert(window.t('alert_min1'));return;}try{localStorage.setItem('morn_sel',JSON.stringify(sel));}catch(e){}closeIndexCustomizer();renderMorningGrid(_mktCache||{});}
@@ -1517,6 +1517,13 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     menu_morning: "朝の相場レター",
     menu_assets: "資産分析",
     menu_alert: "急騰・急落アラート",
+    idx_n225: "日経225",
+    idx_dow: "NYダウ",
+    idx_sp500: "S&P500",
+    idx_nasdaq: "ナスダック",
+    idx_usdjpy: "ドル円",
+    idx_vix: "VIX",
+    idx_us10y: "米金利",
     sect_language: "言語 / Language"
   });
   Object.assign(I18N.en, {
@@ -1524,6 +1531,13 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     menu_morning: "Morning Brief",
     menu_assets: "Asset Analysis",
     menu_alert: "Surge/Drop Alert",
+    idx_n225: "Nikkei 225",
+    idx_dow: "Dow Jones",
+    idx_sp500: "S&P 500",
+    idx_nasdaq: "Nasdaq",
+    idx_usdjpy: "USD/JPY",
+    idx_vix: "VIX",
+    idx_us10y: "US 10Y Yield",
     sect_language: "Language"
   });
   Object.assign(I18N.ko, {
@@ -1531,6 +1545,13 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     menu_morning: "아침 시황 레터",
     menu_assets: "자산 분석",
     menu_alert: "급등·급락 알림",
+    idx_n225: "닛케이 225",
+    idx_dow: "다우존스",
+    idx_sp500: "S&P 500",
+    idx_nasdaq: "나스닥",
+    idx_usdjpy: "달러/엔",
+    idx_vix: "VIX",
+    idx_us10y: "미국 10년 금리",
     sect_language: "언어 / Language"
   });
   Object.assign(I18N.zh, {
@@ -1538,6 +1559,13 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     menu_morning: "晨间市场简报",
     menu_assets: "资产分析",
     menu_alert: "暴涨·暴跌警报",
+    idx_n225: "日经225",
+    idx_dow: "道琼斯",
+    idx_sp500: "标普500",
+    idx_nasdaq: "纳斯达克",
+    idx_usdjpy: "美元/日元",
+    idx_vix: "VIX",
+    idx_us10y: "美10年利率",
     sect_language: "语言 / Language"
   });
   if(document.readyState === 'loading'){
@@ -1546,5 +1574,28 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     initLang();
   }
 })();
-</script></body>
+</script>
+<script>
+(function(){
+  if(typeof window.applyLang === 'function'){
+    var _origApplyLang = window.applyLang;
+    window.applyLang = function(lang){
+      var result = _origApplyLang.apply(this, arguments);
+      try {
+        // Re-render morning grid if cached
+        if(typeof renderMorningGrid === 'function' && typeof _mktCache !== 'undefined' && _mktCache){
+          renderMorningGrid(_mktCache);
+        }
+        // Re-render index customizer checkboxes if modal is open
+        var md = document.getElementById('idx-customizer-modal');
+        if(md && md.classList.contains('open') && typeof openIndexCustomizer === 'function'){
+          openIndexCustomizer();
+        }
+      } catch(e){ /* silent */ }
+      return result;
+    };
+  }
+})();
+</script>
+</body>
 </html>
