@@ -6,6 +6,8 @@ import json
 import yfinance as yf
 import feedparser
 import requests
+import threading
+import time
 from flask import Flask, request, abort, jsonify, redirect
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -296,6 +298,34 @@ def translate_news_items(items, target_lang):
         translated_title = translate_text(it.get("title", ""), target_lang)
         out.append({"source": it.get("source", ""), "title": translated_title})
     return out
+
+def preload_translations():
+    """Preload en/ko/zh translations of current news on server startup.
+    Runs in a background thread so it does not block Flask startup.
+    """
+    try:
+        time.sleep(3)  # small delay to let Flask fully initialize
+        news = fetch_news()
+        # Collect all titles
+        titles = []
+        for source, content in news.items():
+            for line in content.split("\n"):
+                title = line.strip().lstrip("・").strip()
+                if title:
+                    titles.append(title)
+        # Translate to each target language one by one (avoid rate limit)
+        for lang in ["en", "ko", "zh"]:
+            for title in titles:
+                try:
+                    translate_text(title, lang)
+                    time.sleep(0.2)  # ~5 req/s to be polite
+                except Exception:
+                    pass
+            time.sleep(1)  # small pause between languages
+        print("[preload] Translation cache warmed up:", len(_translation_cache), "entries")
+    except Exception as e:
+        print("[preload] Failed:", e)
+
 
 def fetch_news():
     rss = {
@@ -728,6 +758,13 @@ def api_morning_news():
 def index():
     with open("index.html", encoding="utf-8") as f:
         return f.read(), 200, {"Content-Type": "text/html"}
+
+# Start translation preload in background (works for both gunicorn and direct run)
+try:
+    _preload_thread = threading.Thread(target=preload_translations, daemon=True)
+    _preload_thread.start()
+except Exception as _e:
+    print("[preload] Could not start thread:", _e)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
