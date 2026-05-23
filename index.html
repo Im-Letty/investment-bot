@@ -1189,6 +1189,36 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     applyLang(lang);
   }
 
+
+  // === エイリアスキー（既存のdata-i18n属性との互換性） ===
+  Object.assign(I18N.ja, {
+    menu_simulator: "シミュレーター",
+    menu_morning: "朝の相場レター",
+    menu_assets: "資産分析",
+    menu_alert: "急騰・急落アラート",
+    sect_language: "言語 / Language"
+  });
+  Object.assign(I18N.en, {
+    menu_simulator: "Simulator",
+    menu_morning: "Morning Brief",
+    menu_assets: "Asset Analysis",
+    menu_alert: "Surge/Drop Alert",
+    sect_language: "Language"
+  });
+  Object.assign(I18N.ko, {
+    menu_simulator: "시뮬레이터",
+    menu_morning: "아침 시황 레터",
+    menu_assets: "자산 분석",
+    menu_alert: "급등·급락 알림",
+    sect_language: "언어 / Language"
+  });
+  Object.assign(I18N.zh, {
+    menu_simulator: "模拟器",
+    menu_morning: "晨间市场简报",
+    menu_assets: "资产分析",
+    menu_alert: "暴涨·暴跌警报",
+    sect_language: "语言 / Language"
+  });
   if(document.readyState === 'loading'){
     document.addEventListener('DOMContentLoaded', initLang);
   } else {
