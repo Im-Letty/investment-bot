@@ -248,7 +248,7 @@
     <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">💼</span> <span data-i18n="drawer_assets">資産分析</span></a>
     <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">⚡</span> <span data-i18n="drawer_alert">急騰アラート</span></button>
   </nav>
-  <div class="drawer-section-label">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button><button class="drawer-color-preset" data-color="#9c27b0" style="background:#9c27b0" title="パープル"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#ff9800" style="background:#ff9800" title="オレンジ"></button><button class="drawer-color-preset" data-color="#f44336" style="background:#f44336" title="レッド"></button><button class="drawer-color-preset" data-color="#009688" style="background:#009688" title="ティール"></button><button class="drawer-color-preset" data-color="#607d8b" style="background:#607d8b" title="グレー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset">リセット</button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
+  <div class="drawer-section-label" data-i18n="sidebar_color_custom">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button><button class="drawer-color-preset" data-color="#9c27b0" style="background:#9c27b0" title="パープル"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#ff9800" style="background:#ff9800" title="オレンジ"></button><button class="drawer-color-preset" data-color="#f44336" style="background:#f44336" title="レッド"></button><button class="drawer-color-preset" data-color="#009688" style="background:#009688" title="ティール"></button><button class="drawer-color-preset" data-color="#607d8b" style="background:#607d8b" title="グレー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label" data-i18n="sidebar_color_picker">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset" data-i18n="sidebar_color_reset">リセット</button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
 </div>
 
 
@@ -1310,6 +1310,10 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     sim_label_lump_years: '運用期間（年）',
     sim_calc_btn: '計算する',
     sim_res_label: '資産総額'
+  ,
+    sidebar_color_custom: 'カラーカスタム',
+    sidebar_color_picker: '自由に選ぶ',
+    sidebar_color_reset: 'リセット'
   });
   Object.assign(I18N.en, {
     drawer_app_sub: "Investment Simulator",
@@ -1350,6 +1354,10 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     sim_label_lump_years: 'Holding period (years)',
     sim_calc_btn: 'Calculate',
     sim_res_label: 'Total assets'
+  ,
+    sidebar_color_custom: 'Color theme',
+    sidebar_color_picker: 'Pick a color',
+    sidebar_color_reset: 'Reset'
   });
   Object.assign(I18N.ko, {
     drawer_app_sub: "투자 시뮬레이터",
@@ -1390,6 +1398,10 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     sim_label_lump_years: '운용 기간(년)',
     sim_calc_btn: '계산하기',
     sim_res_label: '총 자산'
+  ,
+    sidebar_color_custom: '컬러 커스텀',
+    sidebar_color_picker: '자유롭게 선택',
+    sidebar_color_reset: '초기화'
   });
   Object.assign(I18N.zh, {
     drawer_app_sub: "投资模拟器",
@@ -1430,6 +1442,10 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     sim_label_lump_years: '投资期间(年)',
     sim_calc_btn: '计算',
     sim_res_label: '资产总额'
+  ,
+    sidebar_color_custom: '颜色定制',
+    sidebar_color_picker: '自由选择',
+    sidebar_color_reset: '重置'
   });
 
   // placeholder属性対応 (data-i18n-placeholder)
