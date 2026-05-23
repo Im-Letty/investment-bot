@@ -542,9 +542,9 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           const multiplier=(total/invested).toFixed(2);
           document.getElementById('res-amount').textContent='¥'+Math.round(total).toLocaleString();
           document.getElementById('res-detail').innerHTML=
-                '元本 ¥'+invested.toLocaleString()+'&nbsp;&nbsp;運用益 ¥'+Math.round(profit).toLocaleString();
+                window.t('sim_principal_label')+invested.toLocaleString()+window.t('sim_profit_label')+Math.round(profit).toLocaleString();
           document.getElementById('res-vs').innerHTML=
-                '📈 元本が <strong style="color:#4ade80">'+multiplier+'倍</strong> に増えました';
+                window.t('sim_grew_prefix')+'<strong style="color:#4ade80">'+multiplier+window.t('sim_grew_suffix')+'</strong>'+window.t('sim_grew_tail');
           document.getElementById('sim-result').classList.add('show');
       }
     
@@ -574,7 +574,7 @@ var _selIndices=null;
 function getSelIndices(){if(_selIndices)return _selIndices;try{var s=localStorage.getItem('morn_sel');if(s)return JSON.parse(s);}catch(e){}return['日経225','S&P500','NYダウ','ドル円'];}
 function renderMorningGrid(m){var sel=getSelIndices();var g=document.getElementById('morning-idx-grid');if(!g)return;var h='';sel.forEach(function(k){var info=_allIndices.find(function(x){return x.key===k;});var label=info?((info.i18nKey&&window.t)?window.t(info.i18nKey):info.label):k;var icon=info?info.icon:'📊';var custInfo=_allIndices.find(function(x){return x.key===k&&x.isCustom;});var d=m&&m[k];var disp=custInfo?(custInfo.customDisplay||'--'):(d?d.display||'--':'--');var parts=disp.split('　');var price=parts[0]||disp;var change=parts[1]||'';var cls=change.includes('▲')||change.includes('+')?'up':change.includes('▼')||change.includes('-')?'down':'';h+='<div class="morning-idx-card"><div class="morning-idx-name">'+icon+' '+label+'</div><div class="morning-idx-value">'+price+'</div>'+(change?'<div class="morning-idx-change '+cls+'">'+change+'</div>':'')+'</div>';});g.innerHTML=h;}
 function loadMorningNews(){var nc=document.getElementById('morning-news-content');if(!nc)return;fetch('/api/morning-news').then(function(r){return r.json();}).then(function(d){if(!d.news||d.news.length===0){nc.innerHTML='<div class="morning-news-error">\u30cb\u30e5\u30fc\u30b9\u306a\u3057</div>';return;}var groups={};d.news.forEach(function(item){if(!groups[item.source])groups[item.source]=[];groups[item.source].push(item.title);});var h='';Object.keys(groups).forEach(function(src){h+='<div class="morning-news-source-block"><span class="morning-news-source-label">'+src+'</span>';groups[src].forEach(function(title){h+='<div class="morning-news-item">'+title+'</div>';});h+='</div>';});nc.innerHTML=h;}).catch(function(){nc.innerHTML='<div class="morning-news-error">\u53d6\u5f97\u5931\u6557</div>';});}
-function loadMorningData(){var now=Date.now();if(_mktCache&&(now-_mktLastFetch)<(_mktFetchSec*1000)){renderMorningGrid(_mktCache);return;}fetch('/api/morning-data').then(function(r){return r.json();}).then(function(d){_mktCache=d.market||{};_mktLastFetch=Date.now();_mktCountdown=_mktFetchSec;renderMorningGrid(_mktCache);loadMorningNews();var t=document.getElementById('morning-update-time');if(t)t.textContent=d.updated||'--';var a=document.getElementById('morning-analysis');if(a)a.innerHTML='<strong>'+window.t('data_updated')+': '+(d.updated||'--')+'</strong>'+(d.market&&d.market['VIX恐怖指数']?'<br>VIX: '+d.market['VIX恐怖指数'].display:'')+(d.market&&d.market['米10年金利']?'&nbsp;&nbsp;米金利: '+d.market['米10年金利'].display:'');var p=document.getElementById('morning-points');if(p)p.innerHTML='✅ <strong>最新相場データ表示中</strong><br>✅ 毎朝8時にLINEで詳細分析を配信';}).catch(function(){if(_mktCache)renderMorningGrid(_mktCache);});}
+function loadMorningData(){var now=Date.now();if(_mktCache&&(now-_mktLastFetch)<(_mktFetchSec*1000)){renderMorningGrid(_mktCache);return;}fetch('/api/morning-data').then(function(r){return r.json();}).then(function(d){_mktCache=d.market||{};_mktLastFetch=Date.now();_mktCountdown=_mktFetchSec;renderMorningGrid(_mktCache);loadMorningNews();var t=document.getElementById('morning-update-time');if(t)t.textContent=d.updated||'--';var a=document.getElementById('morning-analysis');if(a)a.innerHTML='<strong>'+window.t('data_updated')+': '+(d.updated||'--')+'</strong>'+(d.market&&d.market['VIX恐怖指数']?'<br>VIX: '+d.market['VIX恐怖指数'].display:'')+(d.market&&d.market['米10年金利']?window.t('mkt_us_rate_label')+d.market['米10年金利'].display:'');var p=document.getElementById('morning-points');if(p)p.innerHTML='✅ <strong>'+window.t('mp_latest')+'</strong><br>✅ '+window.t('mp_morning_line');}).catch(function(){if(_mktCache)renderMorningGrid(_mktCache);});}
 function startMorningInterval(){if(_mktInterval)clearInterval(_mktInterval);loadMorningData();_mktInterval=setInterval(function(){_mktCountdown--;var c=document.getElementById('morning-countdown');if(c)c.textContent=Math.max(0,_mktCountdown);if(_mktCountdown<=0){_mktCountdown=_mktFetchSec;loadMorningData();}},1000);}
 
 // ===== CUSTOM SYMBOL SEARCH =====
@@ -821,7 +821,16 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       morn_delivery: "毎朝8時にLINEで配信中",
 
       // === フッター ===
-      footer_copy: "© 2026 Investment Bot"
+      footer_copy: "© 2026 Investment Bot",
+      // === JS動的テキスト（他ページと重複せず追加）===
+      sim_principal_label: "元本 ¥",
+      sim_profit_label: "&nbsp;&nbsp;運用益 ¥",
+      sim_grew_prefix: "📈 元本が ",
+      sim_grew_suffix: "倍",
+      sim_grew_tail: " に増えました",
+      mkt_us_rate_label: "&nbsp;&nbsp;米金利: ",
+      mp_latest: "最新相場データ表示中",
+      mp_morning_line: "毎朝8時にLINEで詳細分析を配信"
     },
     en: {
       splash_main: "INVESTMENT PARTNER",
@@ -916,7 +925,16 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       idx_err_max: "Up to 4 can be selected",
       idx_err_min: "Please select at least 1",
       morn_delivery: "Delivered on LINE at 8 AM every morning",
-      footer_copy: "© 2026 Investment Bot"
+      footer_copy: "© 2026 Investment Bot",
+      // === JS dynamic texts (added without duplicating other pages) ===
+      sim_principal_label: "Principal ¥",
+      sim_profit_label: "&nbsp;&nbsp;Gains ¥",
+      sim_grew_prefix: "📈 Principal grew ",
+      sim_grew_suffix: "x",
+      sim_grew_tail: " times",
+      mkt_us_rate_label: "&nbsp;&nbsp;US Yield: ",
+      mp_latest: "Showing latest market data",
+      mp_morning_line: "Daily detailed analysis at 8 AM via LINE"
     },
     ko: {
       splash_main: "INVESTMENT PARTNER",
@@ -1011,7 +1029,16 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       idx_err_max: "최대 4개까지 선택할 수 있습니다",
       idx_err_min: "최소 1개를 선택해 주세요",
       morn_delivery: "매일 아침 8시에 LINE으로 전송 중",
-      footer_copy: "© 2026 Investment Bot"
+      footer_copy: "© 2026 Investment Bot",
+      // === JS 동적 텍스트 (다른 페이지와 중복 없이 추가) ===
+      sim_principal_label: "원금 ¥",
+      sim_profit_label: "&nbsp;&nbsp;수익 ¥",
+      sim_grew_prefix: "📈 원금이 ",
+      sim_grew_suffix: "배",
+      sim_grew_tail: "로 늘었습니다",
+      mkt_us_rate_label: "&nbsp;&nbsp;미 금리: ",
+      mp_latest: "최신 시세 데이터 표시 중",
+      mp_morning_line: "매일 아침 8시 LINE으로 상세 분석 전송"
     },
     zh: {
       splash_main: "INVESTMENT PARTNER",
@@ -1106,7 +1133,16 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       idx_err_max: "最多可选择4个",
       idx_err_min: "请至少选择1个",
       morn_delivery: "每天早上8点在LINE推送中",
-      footer_copy: "© 2026 Investment Bot"
+      footer_copy: "© 2026 Investment Bot",
+      // === JS 动态文本（与其他页面不重复添加）===
+      sim_principal_label: "本金 ¥",
+      sim_profit_label: "&nbsp;&nbsp;收益 ¥",
+      sim_grew_prefix: "📈 本金增长了 ",
+      sim_grew_suffix: "倍",
+      sim_grew_tail: "",
+      mkt_us_rate_label: "&nbsp;&nbsp;美利率: ",
+      mp_latest: "正在显示最新行情数据",
+      mp_morning_line: "每天早上8点通过LINE推送详细分析"
     }
   };
 
