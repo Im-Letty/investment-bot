@@ -5,6 +5,7 @@ import anthropic
 import json
 import yfinance as yf
 import feedparser
+import requests
 from flask import Flask, request, abort, jsonify, redirect
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -253,6 +254,48 @@ def fetch_watchlist():
         except Exception:
             pass
     return results
+
+# ===== Translation helpers (MyMemory API) =====
+_translation_cache = {}  # {(text, target_lang): translated}
+
+def translate_text(text, target_lang):
+    """Translate Japanese text to target_lang (en/ko/zh) via MyMemory API.
+    Returns original text on failure. Caches results in memory.
+    """
+    if not text or not target_lang or target_lang == "ja":
+        return text
+    key = (text, target_lang)
+    if key in _translation_cache:
+        return _translation_cache[key]
+    lang_map = {"en": "en", "ko": "ko", "zh": "zh-CN"}
+    tgt = lang_map.get(target_lang)
+    if not tgt:
+        return text
+    try:
+        resp = requests.get(
+            "https://api.mymemory.translated.net/get",
+            params={"q": text, "langpair": "ja|" + tgt},
+            timeout=8
+        )
+        j = resp.json()
+        translated = (j.get("responseData") or {}).get("translatedText") or text
+        # MyMemory sometimes returns error messages in translatedText
+        if translated and "MYMEMORY WARNING" not in translated.upper():
+            _translation_cache[key] = translated
+            return translated
+    except Exception:
+        pass
+    return text
+
+def translate_news_items(items, target_lang):
+    """Translate list of {source, title} dicts. Source labels are handled on the frontend."""
+    if not target_lang or target_lang == "ja":
+        return items
+    out = []
+    for it in items:
+        translated_title = translate_text(it.get("title", ""), target_lang)
+        out.append({"source": it.get("source", ""), "title": translated_title})
+    return out
 
 def fetch_news():
     rss = {
@@ -668,6 +711,7 @@ def api_quote():
 @app.route("/api/morning-news", methods=["GET"])
 def api_morning_news():
     try:
+        lang = (request.args.get("lang") or "ja").lower()
         news = fetch_news()
         items = []
         for source, content in news.items():
@@ -675,7 +719,8 @@ def api_morning_news():
                 title = line.strip().lstrip("・").strip()
                 if title:
                     items.append({"source": source, "title": title})
-        return jsonify({"news": items, "updated": datetime.now().strftime("%H:%M")})
+        items = translate_news_items(items, lang)
+        return jsonify({"news": items, "updated": datetime.now().strftime("%H:%M"), "lang": lang})
     except Exception as e:
         return jsonify({"error": str(e), "news": []}), 200
 
