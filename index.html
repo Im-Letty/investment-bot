@@ -257,7 +257,7 @@
       <canvas id="cv"></canvas>
       <div class="txt-layer">
         <div class="txt-main" id="tmain">経済NEWS<br><span style="font-size:0.48em;color:rgba(255,255,255,0.85);letter-spacing:5px;font-weight:700;">INVESTMENT PARTNER</span></div>
-        <div class="txt-sub" id="tsub">あなたの資産を、もっとかしこく。</div>
+        <div class="txt-sub" id="tsub" data-i18n="splash_sub">あなたの資産を、もっとかしこく。</div>
       </div>
     </div>
 
@@ -266,40 +266,40 @@
       <div class="header">
         <div style="display:flex;align-items:center;gap:4px;"><button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button><div class="hlogo">
           <div class="hli">🐸</div>
-          <div class="hln">経済NEWS</div>
+          <div class="hln" data-i18n="brand_name">経済NEWS</div>
         </div></div>
         <div style="font-size:11px;color:#888;">@945nenkg</div>
       </div>
       <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
       <div class="content">
         <div class="hero">
-          <h2>お金の未来を<br>見える化しよう</h2>
-        <p>AIが毎朝、投資のベストタイミングをお届け。<br>シミュレーターで将来の資産を今すぐ確認。</p>
+          <h2 data-i18n-html="hero_h2">お金の未来を<br>見える化しよう</h2>
+        <p data-i18n-html="hero_p">AIが毎朝、投資のベストタイミングをお届け。<br>シミュレーターで将来の資産を今すぐ確認。</p>
         <div class="hero-btns">
-        <button class="btn-white" onclick="openSimulator()">シミュレーターを試す →</button>
-        <a href="https://line.me/R/ti/p/@945nenkg" class="btn-line-sm">LINEで始める</a>
+        <button class="btn-white" onclick="openSimulator()" data-i18n="hero_cta_sim">シミュレーターを試す →</button>
+        <a href="https://line.me/R/ti/p/@945nenkg" class="btn-line-sm" data-i18n="hero_cta_line">LINEで始める</a>
         </div>
         </div>
       <div class="ticker-wrap">
       <div class="ticker-inner">
-      <span class="tick-item">日経225 38,420 <span class="tick-up">▲+0.8%</span></span>
-      <span class="tick-item">ドル円 153.2円 <span class="tick-dn">▼-0.3%</span></span>
-      <span class="tick-item">S&amp;P500 5,180 <span class="tick-up">▲+0.5%</span></span>
-      <span class="tick-item">NYダウ 39,200 <span class="tick-up">▲+0.2%</span></span>
-      <span class="tick-item">VIX 14.3 <span class="tick-dn">▼-1.2%</span></span>
-      <span class="tick-item">日経225 38,420 <span class="tick-up">▲+0.8%</span></span>
-      <span class="tick-item">ドル円 153.2円 <span class="tick-dn">▼-0.3%</span></span>
-      <span class="tick-item">S&amp;P500 5,180 <span class="tick-up">▲+0.5%</span></span>
-      <span class="tick-item">NYダウ 39,200 <span class="tick-up">▲+0.2%</span></span>
+      <span class="tick-item"><span data-i18n="ti_n225">日経225</span> 38,420 <span class="tick-up">▲+0.8%</span></span>
+      <span class="tick-item"><span data-i18n="ti_usdjpy">ドル円</span> 153.2円 <span class="tick-dn">▼-0.3%</span></span>
+      <span class="tick-item"><span data-i18n="ti_sp500">S&amp;P500</span> 5,180 <span class="tick-up">▲+0.5%</span></span>
+      <span class="tick-item"><span data-i18n="ti_dow">NYダウ</span> 39,200 <span class="tick-up">▲+0.2%</span></span>
+      <span class="tick-item"><span data-i18n="ti_vix">VIX</span> 14.3 <span class="tick-dn">▼-1.2%</span></span>
+      <span class="tick-item"><span data-i18n="ti_n225">日経225</span> 38,420 <span class="tick-up">▲+0.8%</span></span>
+      <span class="tick-item"><span data-i18n="ti_usdjpy">ドル円</span> 153.2円 <span class="tick-dn">▼-0.3%</span></span>
+      <span class="tick-item"><span data-i18n="ti_sp500">S&amp;P500</span> 5,180 <span class="tick-up">▲+0.5%</span></span>
+      <span class="tick-item"><span data-i18n="ti_dow">NYダウ</span> 39,200 <span class="tick-up">▲+0.2%</span></span>
       <span class="tick-item">VIX 14.3 <span class="tick-dn">▼-1.2%</span></span>
       </div>
       </div>
-      <div class="section-label">機能</div>
+      <div class="section-label" data-i18n="sect_features">機能</div>
       <div class="mgrid">
-      <div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn" data-i18n="menu_simulator">シミュレーター</div><div class="md">毎日・毎月積立で将来資産を計算</div></div>
-      <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn" data-i18n="menu_morning">朝の相場レター</div><div class="md">毎朝8時にAIが市場を分析 ▶</div></a>
-      <a href="/kakeibo" class="mc" target="_blank"><div class="mi">💼</div><div class="mn" data-i18n="menu_assets">資産分析</div><div class="md">家計簿・資産管理 ▶</div></a>
-      <a href="#" class="mc"><div class="mi">⚡</div><div class="mn" data-i18n="menu_alert">急騰・急落アラート</div><div class="md">ウォッチリスト銘柄を自動監視</div></a>
+      <div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn" data-i18n="menu_simulator">シミュレーター</div><div class="md" data-i18n="card_sim_desc">毎日・毎月積立で将来資産を計算</div></div>
+      <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn" data-i18n="menu_morning">朝の相場レター</div><div class="md" data-i18n="card_morn_desc">毎朝8時にAIが市場を分析 ▶</div></a>
+      <a href="/kakeibo" class="mc" target="_blank"><div class="mi">💼</div><div class="mn" data-i18n="menu_assets">資産分析</div><div class="md" data-i18n="card_assets_desc">家計簿・資産管理 ▶</div></a>
+      <a href="#" class="mc"><div class="mi">⚡</div><div class="mn" data-i18n="menu_alert">急騰・急落アラート</div><div class="md" data-i18n="card_alert_desc">ウォッチリスト銘柄を自動監視</div></a>
       </div>
       
       </div>
@@ -1172,6 +1172,103 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       });
     });
   }
+
+
+  // === Step 1: New translation keys & enhanced applyLang ===
+  Object.assign(I18N.ja, {
+    splash_sub: 'あなたの資産を、もっとかしこく。',
+    brand_name: '経済NEWS',
+    page_title: '経済NEWS',
+    hero_h2: 'お金の未来を<br>見える化しよう',
+    hero_p: 'AIが毎朝、投資のベストタイミングをお届け。<br>シミュレーターで将来の資産を今すぐ確認。',
+    hero_cta_sim: 'シミュレーターを試す →',
+    hero_cta_line: 'LINEで始める',
+    sect_features: '機能',
+    card_sim_desc: '毎日・毎月積立で将来資産を計算',
+    card_morn_desc: '毎朝8時にAIが市場を分析 ▶',
+    card_assets_desc: '家計簿・資産管理 ▶',
+    card_alert_desc: 'ウォッチリスト銘柄を自動監視',
+    ti_n225: '日経225',
+    ti_usdjpy: 'ドル円',
+    ti_sp500: 'S&P500',
+    ti_dow: 'NYダウ',
+    ti_vix: 'VIX'
+  });
+  Object.assign(I18N.en, {
+    splash_sub: 'Make your money smarter.',
+    brand_name: 'Keizai NEWS',
+    page_title: 'Keizai NEWS - Smart Investment',
+    hero_h2: 'Visualize your<br>financial future',
+    hero_p: 'AI delivers the best investment timing every morning.<br>Check your future assets now with our simulator.',
+    hero_cta_sim: 'Try the Simulator →',
+    hero_cta_line: 'Start with LINE',
+    sect_features: 'Features',
+    card_sim_desc: 'Calculate future assets with daily/monthly contributions',
+    card_morn_desc: 'AI analyzes the market every morning at 8 AM ▶',
+    card_assets_desc: 'Budget & asset management ▶',
+    card_alert_desc: 'Auto-monitor your watchlist',
+    ti_n225: 'Nikkei 225',
+    ti_usdjpy: 'USD/JPY',
+    ti_sp500: 'S&P 500',
+    ti_dow: 'Dow Jones',
+    ti_vix: 'VIX'
+  });
+  Object.assign(I18N.ko, {
+    splash_sub: '당신의 자산을 더 스마트하게.',
+    brand_name: '경제NEWS',
+    page_title: '경제NEWS - 스마트 투자',
+    hero_h2: '돈의 미래를<br>시각화하세요',
+    hero_p: 'AI가 매일 아침 최적의 투자 타이밍을 알려드립니다.<br>시뮬레이터로 미래 자산을 지금 확인하세요.',
+    hero_cta_sim: '시뮬레이터 체험하기 →',
+    hero_cta_line: 'LINE으로 시작하기',
+    sect_features: '기능',
+    card_sim_desc: '매일·매월 적립으로 미래 자산 계산',
+    card_morn_desc: '매일 아침 8시 AI가 시장 분석 ▶',
+    card_assets_desc: '가계부·자산 관리 ▶',
+    card_alert_desc: '관심종목 자동 모니터링',
+    ti_n225: '닛케이 225',
+    ti_usdjpy: '달러/엔',
+    ti_sp500: 'S&P 500',
+    ti_dow: '다우존스',
+    ti_vix: 'VIX'
+  });
+  Object.assign(I18N.zh, {
+    splash_sub: '让您的资产更聪明。',
+    brand_name: '经济NEWS',
+    page_title: '经济NEWS - 智能投资',
+    hero_h2: '让财富的未来<br>清晰可见',
+    hero_p: 'AI每天清晨为您送达最佳投资时机。<br>用模拟器即刻预见未来资产。',
+    hero_cta_sim: '试用模拟器 →',
+    hero_cta_line: '从LINE开始',
+    sect_features: '功能',
+    card_sim_desc: '按日·按月定投，预测未来资产',
+    card_morn_desc: '每天上午8点AI市场分析 ▶',
+    card_assets_desc: '家庭账簿·资产管理 ▶',
+    card_alert_desc: '自动监控您的关注列表',
+    ti_n225: '日经225',
+    ti_usdjpy: '美元/日元',
+    ti_sp500: '标普500',
+    ti_dow: '道琼斯',
+    ti_vix: 'VIX'
+  });
+
+  // applyLang 拡張: data-i18n-html属性 & document.title 対応
+  (function(){
+    var origApply = window.applyLang || applyLang;
+    window.applyLang = function(lang){
+      if(!I18N[lang]) lang = 'ja';
+      origApply(lang);
+      // HTML対応キー (innerHTML)
+      document.querySelectorAll('[data-i18n-html]').forEach(function(el){
+        var k = el.getAttribute('data-i18n-html');
+        if(I18N[lang][k] !== undefined) el.innerHTML = I18N[lang][k];
+      });
+      // ページタイトル
+      if(I18N[lang].page_title) document.title = I18N[lang].page_title;
+    };
+    // 初期適用
+    if(typeof _lang !== 'undefined') window.applyLang(_lang);
+  })();
 
   // 初期化
   function initLang(){
