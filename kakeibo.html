@@ -604,7 +604,7 @@ function getDayKey(y,m,day){return 'kbday_'+y+'_'+(m<10?'0'+m:m)+'_'+(day<10?'0'
 function getDayData(y,m,day){return JSON.parse(localStorage.getItem(getDayKey(y,m,day))||'[]');}
 function saveDayData(y,m,day,d){localStorage.setItem(getDayKey(y,m,day),JSON.stringify(d));}
 function renderCalendar(){
-  var lbl=_calYear+kkT("kk_js_year")+_calMonth+'月';
+  var lbl=_calYear+kkT("kk_js_year")+_calMonth+kkT("kk_js_month");
   var cl=document.getElementById('calMonthLabel');if(cl)cl.textContent=lbl;
   var grid=document.getElementById('calGrid');if(!grid)return;
   var dnames=[kkT("kk_js_dow_sun"),kkT("kk_js_dow_mon"),kkT("kk_js_dow_tue"),kkT("kk_js_dow_wed"),kkT("kk_js_dow_thu"),kkT("kk_js_dow_fri"),kkT("kk_js_dow_sat")];
@@ -643,7 +643,7 @@ function getDayData(y,m,day){return JSON.parse(localStorage.getItem(getDayKey(y,
 function saveDayData(y,m,day,d){localStorage.setItem(getDayKey(y,m,day),JSON.stringify(d));}
 function calChangeMonth(d){_calMonth+=d;if(_calMonth>12){_calMonth=1;_calYear++;}if(_calMonth<1){_calMonth=12;_calYear--;}renderCalendar();}
 function renderCalendar(){
-  var lbl=_calYear+kkT("kk_js_year")+_calMonth+'月';
+  var lbl=_calYear+kkT("kk_js_year")+_calMonth+kkT("kk_js_month");
   var cl=document.getElementById('calMonthLabel');if(cl)cl.textContent=lbl;
   var grid=document.getElementById('calGrid');if(!grid)return;
   var dnames=[kkT("kk_js_dow_sun"),kkT("kk_js_dow_mon"),kkT("kk_js_dow_tue"),kkT("kk_js_dow_wed"),kkT("kk_js_dow_thu"),kkT("kk_js_dow_fri"),kkT("kk_js_dow_sat")];
@@ -682,7 +682,7 @@ function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id
 function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!==id;}));renderAll();}
 function renderAll(){
   var data=getData(),assets=getAssets();
-  var lbl=_year+kkT("kk_js_year")+_month+'月';
+  var lbl=_year+kkT("kk_js_year")+_month+kkT("kk_js_month");
   ['monthLabel2','monthLabel3','monthLabel4'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
   var totalInc=0,totalExp=0,totalInv=0;
   data.forEach(function(e){if(e.type==='inc')totalInc+=e.amount;else if(e.type==='exp')totalExp+=e.amount;else if(e.type==='inv')totalInv+=e.amount;});
