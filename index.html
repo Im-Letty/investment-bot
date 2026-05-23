@@ -242,10 +242,10 @@
   <div class="drawer-search-results" id="drawerSearchResults"></div>
   <nav class="drawer-nav" id="drawerNav">
     <div class="drawer-section-label" data-i18n="drawer_sect_features">機能</div>
-    <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon"></span> <span data-i18n="drawer_home">ホーム</span></button>
-    <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon"></span> <span data-i18n="drawer_simulator">シミュレーター</span></button>
+    <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon">🏠</span> <span data-i18n="drawer_home">ホーム</span></button>
+    <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon">📊</span> <span data-i18n="drawer_simulator">シミュレーター</span></button>
     <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">☀️</span> <span data-i18n="drawer_morning">朝の相場レター</span></button>
-    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon"></span> <span data-i18n="drawer_assets">資産分析</span></a>
+    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">💼</span> <span data-i18n="drawer_assets">資産分析</span></a>
     <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">⚡</span> <span data-i18n="drawer_alert">急騰アラート</span></button>
   </nav>
   <div class="drawer-section-label">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button><button class="drawer-color-preset" data-color="#9c27b0" style="background:#9c27b0" title="パープル"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#ff9800" style="background:#ff9800" title="オレンジ"></button><button class="drawer-color-preset" data-color="#f44336" style="background:#f44336" title="レッド"></button><button class="drawer-color-preset" data-color="#009688" style="background:#009688" title="ティール"></button><button class="drawer-color-preset" data-color="#607d8b" style="background:#607d8b" title="グレー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset">リセット</button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
@@ -368,7 +368,7 @@
       </div>
       <div class="morning-idx-grid" id="morning-idx-grid"></div>
       <div class="morning-extra">
-        <div class="morning-section-label"> <span data-i18n="morning_sect_analysis">AI市場分析</span></div>
+        <div class="morning-section-label">📊 <span data-i18n="morning_sect_analysis">AI市場分析</span></div>
         <div id="morning-analysis" class="morning-analysis-text" data-i18n="morning_loading">読み込み中...</div>
         <div id="morning-points" class="morning-points-text"></div>
       <div class="morning-news-section" id="morning-news-section">
