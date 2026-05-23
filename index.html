@@ -1139,7 +1139,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       sim_profit_label: "&nbsp;&nbsp;收益 ¥",
       sim_grew_prefix: "📈 本金增长了 ",
       sim_grew_suffix: "倍",
-      sim_grew_tail: "",
+      sim_grew_tail: "。",
       mkt_us_rate_label: "&nbsp;&nbsp;美利率: ",
       mp_latest: "正在显示最新行情数据",
       mp_morning_line: "每天早上8点通过LINE推送详细分析"
@@ -1621,6 +1621,10 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
         // Re-render morning grid if cached
         if(typeof renderMorningGrid === 'function' && typeof _mktCache !== 'undefined' && _mktCache){
           renderMorningGrid(_mktCache);
+          var _mpEl = document.getElementById('morning-points');
+          if(_mpEl && _mpEl.innerHTML){
+            _mpEl.innerHTML = '✅ <strong>'+window.t('mp_latest')+'</strong><br>✅ '+window.t('mp_morning_line');
+          }
         }
         // Re-render index customizer checkboxes if modal is open
         var md = document.getElementById('idx-customizer-modal');
