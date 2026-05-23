@@ -307,48 +307,48 @@
   
   <!-- SIMULATOR -->
   <div id="sim-section">
-  <button class="sim-back" onclick="closeSimulator()">← 戻る</button>
+  <button class="sim-back" onclick="closeSimulator()" data-i18n-html="sim_back">← 戻る</button>
   <div class="sim-header">
-  <div class="sim-title">📊 資産シミュレーター</div>
-  <div class="sim-sub">将来の資産をかんたん計算</div>
+  <div class="sim-title" data-i18n-html="sim_title">📊 資産シミュレーター</div>
+  <div class="sim-sub" data-i18n="sim_sub">将来の資産をかんたん計算</div>
   </div>
   <div class="sim-wrap">
   <div class="sim-card">
   <div class="sim-tabs">
-  <button class="sim-tab active" onclick="switchTab('monthly',this)">毎月積立</button>
-  <button class="sim-tab" onclick="switchTab('lump',this)">一括投資</button>
+  <button class="sim-tab active" onclick="switchTab('monthly',this)" data-i18n="sim_tab_monthly">毎月積立</button>
+  <button class="sim-tab" onclick="switchTab('lump',this)" data-i18n="sim_tab_lump">一括投資</button>
   </div>
   <div id="monthly-form">
-  <div class="sim-label">毎月の積立額（円）</div>
+  <div class="sim-label" data-i18n="sim_label_monthly_amount">毎月の積立額（円）</div>
   <input type="number" class="sim-input" id="m-monthly" value="30000" placeholder="30000">
   <div class="sim-row">
   <div>
-    <div class="sim-label">年利（%）</div>
+    <div class="sim-label" data-i18n="sim_label_rate">年利（%）</div>
     <input type="number" class="sim-input" id="m-rate" value="5" step="0.1" placeholder="5">
   </div>
     <div>
-      <div class="sim-label">積立期間（年）</div>
+      <div class="sim-label" data-i18n="sim_label_months_years">積立期間（年）</div>
       <input type="number" class="sim-input" id="m-years" value="20" placeholder="20">
     </div>
   </div>
   </div>
     <div id="lump-form" style="display:none;">
-      <div class="sim-label">一括投資額（円）</div>
+      <div class="sim-label" data-i18n="sim_label_lump_amount">一括投資額（円）</div>
       <input type="number" class="sim-input" id="l-amount" value="1000000" placeholder="1000000">
       <div class="sim-row">
         <div>
-          <div class="sim-label">年利（%）</div>
+          <div class="sim-label" data-i18n="sim_label_rate">年利（%）</div>
           <input type="number" class="sim-input" id="l-rate" value="5" step="0.1" placeholder="5">
         </div>
         <div>
-          <div class="sim-label">運用期間（年）</div>
+          <div class="sim-label" data-i18n="sim_label_lump_years">運用期間（年）</div>
           <input type="number" class="sim-input" id="l-years" value="20" placeholder="20">
         </div>
       </div>
     </div>
-    <button class="sim-calc-btn" onclick="calculate()">計算する</button>
+    <button class="sim-calc-btn" onclick="calculate()" data-i18n="sim_calc_btn">計算する</button>
     <div class="sim-result" id="sim-result">
-      <div class="res-label">資産総額</div>
+      <div class="res-label" data-i18n="sim_res_label">資産総額</div>
       <div class="res-amount" id="res-amount">¥0</div>
       <div class="res-detail" id="res-detail"></div>
       <div class="res-vs" id="res-vs"></div>
@@ -1297,6 +1297,19 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     idx_cust_search: "検索",
     idx_cust_added_label: "追加済み:",
     idx_apply: "適用"
+  ,
+    sim_back: '\u2190 戻る',
+    sim_title: '\ud83d\udcca 資産シミュレーター',
+    sim_sub: '将来の資産をかんたん計算',
+    sim_tab_monthly: '毎月積立',
+    sim_tab_lump: '一括投資',
+    sim_label_monthly_amount: '毎月の積立額（円）',
+    sim_label_rate: '年利（%）',
+    sim_label_months_years: '積立期間（年）',
+    sim_label_lump_amount: '一括投資額（円）',
+    sim_label_lump_years: '運用期間（年）',
+    sim_calc_btn: '計算する',
+    sim_res_label: '資産総額'
   });
   Object.assign(I18N.en, {
     drawer_app_sub: "Investment Simulator",
@@ -1324,6 +1337,19 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     idx_cust_search: "Search",
     idx_cust_added_label: "Added:",
     idx_apply: "Apply"
+  ,
+    sim_back: '\u2190 Back',
+    sim_title: '\ud83d\udcca Asset Simulator',
+    sim_sub: 'Estimate your future assets easily',
+    sim_tab_monthly: 'Monthly SIP',
+    sim_tab_lump: 'Lump Sum',
+    sim_label_monthly_amount: 'Monthly contribution (JPY)',
+    sim_label_rate: 'Annual return (%)',
+    sim_label_months_years: 'Investment period (years)',
+    sim_label_lump_amount: 'Lump-sum amount (JPY)',
+    sim_label_lump_years: 'Holding period (years)',
+    sim_calc_btn: 'Calculate',
+    sim_res_label: 'Total assets'
   });
   Object.assign(I18N.ko, {
     drawer_app_sub: "투자 시뮬레이터",
@@ -1351,6 +1377,19 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     idx_cust_search: "검색",
     idx_cust_added_label: "추가됨:",
     idx_apply: "적용"
+  ,
+    sim_back: '\u2190 뒤로',
+    sim_title: '\ud83d\udcca 자산 시뮬레이터',
+    sim_sub: '미래의 자산을 간단히 계산',
+    sim_tab_monthly: '매월 적립',
+    sim_tab_lump: '일시 투자',
+    sim_label_monthly_amount: '매월 적립액(엔)',
+    sim_label_rate: '연이율(%)',
+    sim_label_months_years: '적립 기간(년)',
+    sim_label_lump_amount: '일시 투자액(엔)',
+    sim_label_lump_years: '운용 기간(년)',
+    sim_calc_btn: '계산하기',
+    sim_res_label: '총 자산'
   });
   Object.assign(I18N.zh, {
     drawer_app_sub: "投资模拟器",
@@ -1378,6 +1417,19 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     idx_cust_search: "搜索",
     idx_cust_added_label: "已添加:",
     idx_apply: "应用"
+  ,
+    sim_back: '\u2190 返回',
+    sim_title: '\ud83d\udcca 资产模拟器',
+    sim_sub: '轻松计算未来资产',
+    sim_tab_monthly: '每月定投',
+    sim_tab_lump: '一次性投资',
+    sim_label_monthly_amount: '每月定投金额(日元)',
+    sim_label_rate: '年化收益率(%)',
+    sim_label_months_years: '定投期间(年)',
+    sim_label_lump_amount: '一次性投资金额(日元)',
+    sim_label_lump_years: '投资期间(年)',
+    sim_calc_btn: '计算',
+    sim_res_label: '资产总额'
   });
 
   // placeholder属性対応 (data-i18n-placeholder)
