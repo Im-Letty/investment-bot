@@ -701,5 +701,499 @@ function initColorCustomizer(){
 loadBrandColor();
 document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); initColorCustomizer(); });
 </script>
-  <script>(function(){var I18N={menu_simulator:{ja:'シミュレーター',en:'Simulator',ko:'시뮬레이터',zh:'模拟器'},menu_morning:{ja:'朝の相場レター',en:'Morning Market Letter',ko:'아침 시장 레터',zh:'早盘市场信'},menu_assets:{ja:'資産分析',en:'Asset Analysis',ko:'자산 분석',zh:'资产分析'},menu_alert:{ja:'急騰・急落アラート',en:'Surge/Drop Alert',ko:'급등·급락 알림',zh:'急涨·急跌提醒'},sect_language:{ja:'言語 / Language',en:'Language',ko:'언어',zh:'语言'}};function applyLang(lang){document.documentElement.lang=lang;document.querySelectorAll('[data-i18n]').forEach(function(el){var k=el.getAttribute('data-i18n');if(I18N[k]&&I18N[k][lang]){el.textContent=I18N[k][lang];}});document.querySelectorAll('.lang-btn').forEach(function(b){if(b.getAttribute('data-lang')===lang){b.style.background='rgba(255,255,255,0.4)';b.style.fontWeight='700';}else{b.style.background='rgba(255,255,255,0.15)';b.style.fontWeight='400';}});}function initLang(){var saved=localStorage.getItem('siteLang')||'ja';applyLang(saved);document.querySelectorAll('.lang-btn').forEach(function(b){b.addEventListener('click',function(){var l=b.getAttribute('data-lang');localStorage.setItem('siteLang',l);applyLang(l);});});}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',initLang);}else{initLang();}})();</script><script>(function(){var RAW={'ホーム':{en:'Home',ko:'홈',zh:'首页'},'シミュレーター':{en:'Simulator',ko:'시뮬레이터',zh:'模拟器'},'朝の相場レター':{en:'Morning Market Letter',ko:'아침 시장 레터',zh:'早盘市场信'},'資産分析':{en:'Asset Analysis',ko:'자산 분석',zh:'资产分析'},'急騰アラート':{en:'Surge Alert',ko:'급등 알림',zh:'急涨提醒'},'急騰・急落アラート':{en:'Surge/Drop Alert',ko:'급등·급락 알림',zh:'急涨·急跌提醒'},'機能':{en:'Features',ko:'기능',zh:'功能'},'カラーカスタム':{en:'Color Theme',ko:'색상 사용자 지정',zh:'颜色自定义'},'自由に選ぶ':{en:'Choose freely',ko:'자유롭게 선택',zh:'自由选择'},'リセット':{en:'Reset',ko:'리셋',zh:'重置'},'投資シミュレーター':{en:'Investment Simulator',ko:'투자 시뮬레이터',zh:'投资模拟器'},'言語 / Language':{en:'Language',ko:'언어',zh:'语言'},'お金の未来を':{en:'Visualize your',ko:'자산의 미래를',zh:'让你看见'},'見える化しよう':{en:'financial future',ko:'보이게 하자',zh:'财富未来'},'シミュレーターを試す →':{en:'Try Simulator →',ko:'시뮬레이터 체험 →',zh:'试试模拟器 →'},'LINEで始める':{en:'Start with LINE',ko:'LINE으로 시작',zh:'以LINE开始'},'毎日・毎月積立で将来資産を計算':{en:'Daily/monthly investment forecast',ko:'매일·매월 적립으로 자산 계산',zh:'以每日·每月定投计算未来资产'},'毎朝8時にAIが市場を分析':{en:'AI analyzes markets every 8 AM',ko:'매일 아침 8시 AI가 시장 분석',zh:'每日8点AI分析市场'},'家計簿・資産管理':{en:'Budget & Asset Management',ko:'가계부·자산 관리',zh:'家计簿·资产管理'},'ウォッチリスト銘柄を自動監視':{en:'Auto-monitor watchlist stocks',ko:'워치리스트 종목 자동 감시',zh:'自动监控自选股'},'機能・銘柄を検索...':{en:'Search features/stocks...',ko:'기능·종목 검색...',zh:'搜索功能·股票...'},'あなたの資産を、もっとかしこく。':{en:'Make your assets smarter.',ko:'자산을 더 스마트하게.',zh:'让你的资产更聪明'},'経済NEWS':{en:'Economy NEWS',ko:'경제·NEWS',zh:'经济·NEWS'},'AIが毎朝、投資のベストタイミングをお届け。':{en:'AI delivers the best investment timing every morning.',ko:'AI가 매일 아침 최적의 투자 타이밍을 전해드립니다.',zh:'AI每早为您推送最佳投资时机。'},'シミュレーターで将来の資産を今すぐ確認。':{en:'Check your future assets with the simulator instantly.',ko:'시뮬레이터로 미래 자산을 바로 확인하세요.',zh:'使用模拟器立即查看未来资产。'}};function translateAll(lang){if(lang==='ja'){document.querySelectorAll('[data-orig-text]').forEach(function(el){el.textContent=el.getAttribute('data-orig-text');});return;}var SELECTORS=['.drawer-item','.drawer-section-label','.drawer-color-label','.drawer-color-reset','.drawer-app-sub','.drawer-app-name','.txt-main','.txt-sub','h1','h2','h3','p','button','a','span','div.section-label','div.mn','div.md','title'];var nodes=document.querySelectorAll(SELECTORS.join(','));nodes.forEach(function(el){if(el.querySelector('*')&&el.children.length>0&&el.childNodes.length>1){return;}var txt=el.textContent.trim();if(!txt)return;if(!el.getAttribute('data-orig-text')){el.setAttribute('data-orig-text',el.textContent);}for(var key in RAW){if(txt===key||txt.indexOf(key)>=0){if(RAW[key][lang]){el.textContent=el.textContent.replace(key,RAW[key][lang]);}}}});var ph=document.querySelectorAll('input[placeholder]');ph.forEach(function(inp){var p=inp.placeholder;if(!inp.getAttribute('data-orig-ph')){inp.setAttribute('data-orig-ph',p);}for(var key in RAW){if(p===key){if(RAW[key][lang])inp.placeholder=RAW[key][lang];}}if(lang==='ja')inp.placeholder=inp.getAttribute('data-orig-ph');});var t=document.querySelector('title');if(t){if(!t.getAttribute('data-orig-text'))t.setAttribute('data-orig-text',t.textContent);if(lang==='ja')t.textContent=t.getAttribute('data-orig-text');else for(var key in RAW){if(t.textContent.trim()===key&&RAW[key][lang]){t.textContent=RAW[key][lang];}}}}function refresh(){var lang=localStorage.getItem('siteLang')||'ja';translateAll(lang);}document.querySelectorAll('.lang-btn').forEach(function(b){b.addEventListener('click',function(){setTimeout(refresh,50);});});if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(refresh,200);});else setTimeout(refresh,200);})();</script><script>(function(){var D={ホーム:{en:'Home',ko:'홈',zh:'首页'},シミュレーター:{en:'Simulator',ko:'시뮬레이터',zh:'模拟器'},'朝の相場レター':{en:'Morning Market Letter',ko:'아침 시장 레터',zh:'早盘市场信'},'資産分析':{en:'Asset Analysis',ko:'자산 분석',zh:'资产分析'},'急騰アラート':{en:'Surge Alert',ko:'급등 알림',zh:'急涨提醒'},'急騰・急落アラート':{en:'Surge/Drop Alert',ko:'급등·급락 알림',zh:'急涨·急跌提醒'},'機能':{en:'Features',ko:'기능',zh:'功能'},'カラーカスタム':{en:'Color Theme',ko:'색상 설정',zh:'颜色主题'},'自由に選ぶ':{en:'Choose freely',ko:'자유롭게 선택',zh:'自由选择'},'リセット':{en:'Reset',ko:'리셋',zh:'重置'},'言語 / Language':{en:'Language',ko:'언어',zh:'语言'},'投資シミュレーター':{en:'Investment Simulator',ko:'투자 시뮬레이터',zh:'投资模拟器'},'経済NEWS':{en:'Economy NEWS',ko:'경제 NEWS',zh:'经济NEWS'},'お金の未来を':{en:'Visualize your',ko:'돈의 미래를',zh:'让你看见'},'見える化しよう':{en:'Money Future',ko:'보이게 하자',zh:'财富未来'},'AIが毎朝、投資のベストタイミングをお届け。':{en:'AI delivers the best investment timing every morning.',ko:'AI가 매일 아침 최적의 투자 타이밍을 전해드립니다.',zh:'AI每早为您推送最佳投资时机。'},'シミュレーターで将来の資産を今すぐ確認。':{en:'Check your future assets with the simulator instantly.',ko:'시뮬레이터로 미래 자산을 바로 확인하세요.',zh:'使用模拟器立即查看未来资产。'},'シミュレーターを試す →':{en:'Try Simulator →',ko:'시뮬레이터 체험 →',zh:'试试模拟器 →'},'LINEで始める':{en:'Start with LINE',ko:'LINE으로 시작',zh:'以LINE开始'},'毎日・毎月積立で将来資産を計算':{en:'Daily/monthly investment forecast',ko:'매일·매월 적립자산 계산',zh:'每日·每月定投计算'},'毎朝8時にAIが市場を分析':{en:'AI analyzes markets every 8 AM',ko:'매일 아침 8시 AI가 시장 분석',zh:'每日8点AI分析市场'},'家計簿・資産管理':{en:'Budget & Asset Management',ko:'가계부·자산 관리',zh:'家计簿·资产管理'},'ウォッチリスト銘柄を自動監視':{en:'Auto-monitor watchlist stocks',ko:'워치리스트 자동 감시',zh:'自动监控自选股'},'機能・銘柄を検索...':{en:'Search features/stocks...',ko:'기능·종목 검색...',zh:'搜索功能·股票...'},'あなたの資産を、もっとかしこく。':{en:'Make your assets smarter.',ko:'자산을 더 스마트하게.',zh:'让你的资产更聪明'}};function apply(lang){var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,null);var nodes=[];var n;while(n=w.nextNode())nodes.push(n);nodes.forEach(function(node){if(!node.parentElement)return;var tag=node.parentElement.tagName;if(tag==='SCRIPT'||tag==='STYLE')return;if(node.parentElement.closest('.lang-btn'))return;var key=node.__origText;if(!key){key=node.textContent;node.__origText=key;}var trimmed=key.trim();if(lang==='ja'){node.textContent=key;return;}if(D[trimmed]&&D[trimmed][lang]){node.textContent=key.replace(trimmed,D[trimmed][lang]);}else{node.textContent=key;}});var phs=document.querySelectorAll('input[placeholder],textarea[placeholder]');phs.forEach(function(inp){var k=inp.__origPh;if(!k){k=inp.placeholder;inp.__origPh=k;}var tr=k.trim();if(lang==='ja'){inp.placeholder=k;return;}if(D[tr]&&D[tr][lang])inp.placeholder=D[tr][lang];else inp.placeholder=k;});var t=document.querySelector('title');if(t){var k=t.__origText||t.textContent;t.__origText=k;var tr=k.trim();if(lang==='ja')t.textContent=k;else if(D[tr]&&D[tr][lang])t.textContent=D[tr][lang];}document.querySelectorAll('.lang-btn').forEach(function(b){var sel=b.getAttribute('data-lang')===lang;b.style.background=sel?'rgba(255,255,255,0.4)':'rgba(255,255,255,0.15)';b.style.fontWeight=sel?'700':'400';});document.documentElement.lang=lang;}function init(){var lang=localStorage.getItem('siteLang')||'ja';apply(lang);document.querySelectorAll('.lang-btn').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();var l=b.getAttribute('data-lang');localStorage.setItem('siteLang',l);apply(l);},true);});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});else setTimeout(init,300);})();</script></body>
+  <script>
+/* === 経済NEWS 統一 i18n 辞書（4言語：日本語 / English / 한국어 / 中文） === */
+(function(){
+  const I18N = {
+    ja: {
+      // === スプラッシュ ===
+      splash_main: "INVESTMENT PARTNER",
+      splash_sub: "経済NEWS",
+      splash_tag: "あなたの資産を、もっとかしこく。",
+
+      // === ヘッダー ===
+      header_logo: "経済NEWS",
+
+      // === ヒーロー ===
+      hero_h1_a: "お金の未来を",
+      hero_h1_b: "見える化しよう",
+      hero_p_a: "AIが毎朝、投資のベストタイミングをお届け。",
+      hero_p_b: "シミュレーターで将来の資産を今すぐ確認。",
+      hero_btn_sim: "シミュレーターを試す →",
+      hero_btn_line: "LINEで始める",
+
+      // === マーケットティッカー（固定表示の例） ===
+      ticker_n225: "日経225",
+      ticker_dow: "NYダウ",
+      ticker_nasdaq: "ナスダック",
+      ticker_usdjpy: "ドル円",
+      ticker_sp500: "S&P500",
+      ticker_vix: "VIX恐怖指数",
+      ticker_us10y: "米10年金利",
+      ticker_us10y_short: "米金利",
+
+      // === ドロワー（左メニュー） ===
+      drawer_app_name: "投資シミュレーター",
+      drawer_app_sub: "Investment Bot",
+      drawer_search_ph: "機能・銘柄を検索...",
+      drawer_sect_features: "機能",
+      drawer_sect_color: "カラーカスタム",
+      drawer_sect_language: "言語 / Language",
+      drawer_menu_home: "ホーム",
+      drawer_menu_sim: "シミュレーター",
+      drawer_menu_morning: "朝の相場レター",
+      drawer_menu_assets: "資産分析",
+      drawer_menu_alert: "急騰アラート",
+
+      // === カラーパレット ===
+      color_free: "自由に選ぶ",
+      color_reset: "リセット",
+      color_green: "グリーン",
+      color_blue: "ブルー",
+      color_purple: "パープル",
+      color_pink: "ピンク",
+      color_orange: "オレンジ",
+      color_red: "レッド",
+      color_teal: "ティール",
+      color_gray: "グレー",
+
+      // === 機能カード ===
+      sect_features: "機能",
+      card_sim_name: "シミュレーター",
+      card_sim_desc: "毎日・毎月積立で将来資産を計算",
+      card_morn_name: "朝の相場レター",
+      card_morn_desc: "毎朝8時にAIが市場を分析 ▶",
+      card_asset_name: "資産分析",
+      card_asset_desc: "家計簿・資産管理 ▶",
+      card_alert_name: "急騰・急落アラート",
+      card_alert_desc: "ウォッチリスト銘柄を自動監視",
+
+      // === シミュレーター画面 ===
+      sim_back: "← 戻る",
+      sim_title: "📊 資産シミュレーター",
+      sim_sub: "将来の資産をかんたん計算",
+      sim_tab_month: "毎月積立",
+      sim_tab_lump: "一括投資",
+      sim_lbl_monthly: "毎月の積立額（円）",
+      sim_lbl_rate: "年利（%）",
+      sim_lbl_years: "積立期間（年）",
+      sim_lbl_lump: "一括投資額（円）",
+      sim_lbl_rate2: "年利（%）",
+      sim_lbl_period: "運用期間（年）",
+      sim_btn_calc: "計算する",
+      sim_res_total: "資産総額",
+      sim_res_principal: "元本 ¥",
+      sim_res_profit: "　　運用益 ¥",
+      sim_res_multi_a: "📈 元本が ",
+      sim_res_multi_b: " 倍に増えました",
+
+      // === 朝の相場レター ===
+      morn_title: "📊 AI市場分析",
+      morn_updated: "更新:",
+      morn_next: "次回:",
+      morn_sec: "秒",
+      morn_loading: "読み込み中...",
+      morn_news_title: "📰 今日のニュース",
+      morn_settings: "⚙️ 指数選択",
+      morn_data_updated: "データ更新: ",
+      morn_vix_label: "VIX: ",
+      morn_us10y_label: "　　米金利: ",
+      morn_status_ok: "✅ 最新相場データ表示中",
+      morn_status_line: "✅ 毎朝8時にLINEで詳細分析を配信",
+
+      // === 指数カスタマイザー ===
+      idx_header: "⚙️ 表示指数選択",
+      idx_note: "最大4つまで選択可能",
+      idx_add_title: "➕ 銘柄を自分で追加",
+      idx_add_ph: "銘柄コード...",
+      idx_hint: "株式・ETF・為替など（例：AAPL, 7203.T, BTC-USD）",
+      idx_search: "検索",
+      idx_added: "追加済み：",
+      idx_apply: "適用",
+      idx_added_check: "✔ 追加済",
+      idx_no_match_a: "🔎 「",
+      idx_no_match_b: "」に一致する銘柄が見つかりませんでした",
+      idx_remove: "削除",
+      idx_err_max: "最大4つまで選択できます",
+      idx_err_min: "少なくとも1つ選択してください",
+
+      // === 末尾配信案内 ===
+      morn_delivery: "毎朝8時にLINEで配信中",
+
+      // === フッター ===
+      footer_copy: "© 2026 Investment Bot"
+    },
+    en: {
+      splash_main: "INVESTMENT PARTNER",
+      splash_sub: "Keizai NEWS",
+      splash_tag: "Make your money smarter.",
+      header_logo: "Keizai NEWS",
+      hero_h1_a: "Visualize",
+      hero_h1_b: "your money's future",
+      hero_p_a: "AI delivers the best investment timing every morning.",
+      hero_p_b: "Check your future assets right now with the simulator.",
+      hero_btn_sim: "Try the Simulator →",
+      hero_btn_line: "Start on LINE",
+      ticker_n225: "Nikkei 225",
+      ticker_dow: "Dow Jones",
+      ticker_nasdaq: "NASDAQ",
+      ticker_usdjpy: "USD/JPY",
+      ticker_sp500: "S&P 500",
+      ticker_vix: "VIX",
+      ticker_us10y: "US 10Y Yield",
+      ticker_us10y_short: "US Yield",
+      drawer_app_name: "Investment Simulator",
+      drawer_app_sub: "Investment Bot",
+      drawer_search_ph: "Search features and tickers...",
+      drawer_sect_features: "Features",
+      drawer_sect_color: "Color Custom",
+      drawer_sect_language: "Language",
+      drawer_menu_home: "Home",
+      drawer_menu_sim: "Simulator",
+      drawer_menu_morning: "Morning Brief",
+      drawer_menu_assets: "Assets",
+      drawer_menu_alert: "Alerts",
+      color_free: "Pick freely",
+      color_reset: "Reset",
+      color_green: "Green",
+      color_blue: "Blue",
+      color_purple: "Purple",
+      color_pink: "Pink",
+      color_orange: "Orange",
+      color_red: "Red",
+      color_teal: "Teal",
+      color_gray: "Gray",
+      sect_features: "Features",
+      card_sim_name: "Simulator",
+      card_sim_desc: "Calculate your future assets with daily/monthly contributions",
+      card_morn_name: "Morning Brief",
+      card_morn_desc: "AI analyzes the market at 8 AM every morning ▶",
+      card_asset_name: "Asset Analysis",
+      card_asset_desc: "Household budget & asset management ▶",
+      card_alert_name: "Surge/Plunge Alerts",
+      card_alert_desc: "Automatically monitor your watchlist",
+      sim_back: "← Back",
+      sim_title: "📊 Asset Simulator",
+      sim_sub: "Easily calculate your future assets",
+      sim_tab_month: "Monthly",
+      sim_tab_lump: "Lump Sum",
+      sim_lbl_monthly: "Monthly Contribution (¥)",
+      sim_lbl_rate: "Annual Rate (%)",
+      sim_lbl_years: "Period (Years)",
+      sim_lbl_lump: "Lump Sum Amount (¥)",
+      sim_lbl_rate2: "Annual Rate (%)",
+      sim_lbl_period: "Investment Period (Years)",
+      sim_btn_calc: "Calculate",
+      sim_res_total: "Total Assets",
+      sim_res_principal: "Principal ¥",
+      sim_res_profit: "　　Profit ¥",
+      sim_res_multi_a: "📈 Your principal grew ",
+      sim_res_multi_b: "x",
+      morn_title: "📊 AI Market Analysis",
+      morn_updated: "Updated:",
+      morn_next: "Next:",
+      morn_sec: "s",
+      morn_loading: "Loading...",
+      morn_news_title: "📰 Today's News",
+      morn_settings: "⚙️ Select Indices",
+      morn_data_updated: "Data updated: ",
+      morn_vix_label: "VIX: ",
+      morn_us10y_label: "　　US Yield: ",
+      morn_status_ok: "✅ Showing the latest market data",
+      morn_status_line: "✅ Detailed analysis delivered on LINE at 8 AM daily",
+      idx_header: "⚙️ Select Displayed Indices",
+      idx_note: "Up to 4 can be selected",
+      idx_add_title: "➕ Add your own ticker",
+      idx_add_ph: "Ticker symbol...",
+      idx_hint: "Stocks, ETFs, FX, etc. (e.g., AAPL, 7203.T, BTC-USD)",
+      idx_search: "Search",
+      idx_added: "Added: ",
+      idx_apply: "Apply",
+      idx_added_check: "✔ Added",
+      idx_no_match_a: "🔎 No matches for \"",
+      idx_no_match_b: "\"",
+      idx_remove: "Remove",
+      idx_err_max: "Up to 4 can be selected",
+      idx_err_min: "Please select at least 1",
+      morn_delivery: "Delivered on LINE at 8 AM every morning",
+      footer_copy: "© 2026 Investment Bot"
+    },
+    ko: {
+      splash_main: "INVESTMENT PARTNER",
+      splash_sub: "경제 NEWS",
+      splash_tag: "당신의 자산을, 더 똑똑하게.",
+      header_logo: "경제 NEWS",
+      hero_h1_a: "돈의 미래를",
+      hero_h1_b: "한눈에 보세요",
+      hero_p_a: "AI가 매일 아침, 투자의 베스트 타이밍을 알려드립니다.",
+      hero_p_b: "시뮬레이터로 미래의 자산을 지금 바로 확인하세요.",
+      hero_btn_sim: "시뮬레이터 사용하기 →",
+      hero_btn_line: "LINE으로 시작",
+      ticker_n225: "니케이225",
+      ticker_dow: "다우",
+      ticker_nasdaq: "나스닥",
+      ticker_usdjpy: "달러/엔",
+      ticker_sp500: "S&P500",
+      ticker_vix: "VIX 공포지수",
+      ticker_us10y: "미국 10년 금리",
+      ticker_us10y_short: "미국 금리",
+      drawer_app_name: "투자 시뮬레이터",
+      drawer_app_sub: "Investment Bot",
+      drawer_search_ph: "기능·종목 검색...",
+      drawer_sect_features: "기능",
+      drawer_sect_color: "컬러 커스텀",
+      drawer_sect_language: "언어 / Language",
+      drawer_menu_home: "홈",
+      drawer_menu_sim: "시뮬레이터",
+      drawer_menu_morning: "아침 시황 레터",
+      drawer_menu_assets: "자산 분석",
+      drawer_menu_alert: "급등 알림",
+      color_free: "자유 선택",
+      color_reset: "리셋",
+      color_green: "그린",
+      color_blue: "블루",
+      color_purple: "퍼플",
+      color_pink: "핑크",
+      color_orange: "오렌지",
+      color_red: "레드",
+      color_teal: "틸",
+      color_gray: "그레이",
+      sect_features: "기능",
+      card_sim_name: "시뮬레이터",
+      card_sim_desc: "매일·매월 적립으로 미래 자산 계산",
+      card_morn_name: "아침 시황 레터",
+      card_morn_desc: "매일 아침 8시에 AI가 시장 분석 ▶",
+      card_asset_name: "자산 분석",
+      card_asset_desc: "가계부·자산 관리 ▶",
+      card_alert_name: "급등·급락 알림",
+      card_alert_desc: "관심 종목을 자동 감시",
+      sim_back: "← 뒤로",
+      sim_title: "📊 자산 시뮬레이터",
+      sim_sub: "미래 자산을 간단히 계산",
+      sim_tab_month: "매월 적립",
+      sim_tab_lump: "일괄 투자",
+      sim_lbl_monthly: "매월 적립액 (원)",
+      sim_lbl_rate: "연이율 (%)",
+      sim_lbl_years: "적립 기간 (년)",
+      sim_lbl_lump: "일괄 투자액 (원)",
+      sim_lbl_rate2: "연이율 (%)",
+      sim_lbl_period: "운용 기간 (년)",
+      sim_btn_calc: "계산하기",
+      sim_res_total: "자산 총액",
+      sim_res_principal: "원금 ₩",
+      sim_res_profit: "　　수익 ₩",
+      sim_res_multi_a: "📈 원금이 ",
+      sim_res_multi_b: " 배로 늘었습니다",
+      morn_title: "📊 AI 시장 분석",
+      morn_updated: "업데이트:",
+      morn_next: "다음:",
+      morn_sec: "초",
+      morn_loading: "로딩 중...",
+      morn_news_title: "📰 오늘의 뉴스",
+      morn_settings: "⚙️ 지수 선택",
+      morn_data_updated: "데이터 업데이트: ",
+      morn_vix_label: "VIX: ",
+      morn_us10y_label: "　　미국 금리: ",
+      morn_status_ok: "✅ 최신 시장 데이터 표시 중",
+      morn_status_line: "✅ 매일 아침 8시에 LINE으로 상세 분석 전송",
+      idx_header: "⚙️ 표시 지수 선택",
+      idx_note: "최대 4개까지 선택 가능",
+      idx_add_title: "➕ 직접 종목 추가",
+      idx_add_ph: "종목 코드...",
+      idx_hint: "주식·ETF·환율 등 (예: AAPL, 7203.T, BTC-USD)",
+      idx_search: "검색",
+      idx_added: "추가됨: ",
+      idx_apply: "적용",
+      idx_added_check: "✔ 추가됨",
+      idx_no_match_a: "🔎 \"",
+      idx_no_match_b: "\"에 일치하는 종목이 없습니다",
+      idx_remove: "삭제",
+      idx_err_max: "최대 4개까지 선택할 수 있습니다",
+      idx_err_min: "최소 1개를 선택해 주세요",
+      morn_delivery: "매일 아침 8시에 LINE으로 전송 중",
+      footer_copy: "© 2026 Investment Bot"
+    },
+    zh: {
+      splash_main: "INVESTMENT PARTNER",
+      splash_sub: "经济 NEWS",
+      splash_tag: "让您的资产，更聪明。",
+      header_logo: "经济 NEWS",
+      hero_h1_a: "让金钱的未来",
+      hero_h1_b: "一目了然",
+      hero_p_a: "AI 每天早晨，为您送上最佳投资时机。",
+      hero_p_b: "用模拟器立即查看未来的资产。",
+      hero_btn_sim: "试用模拟器 →",
+      hero_btn_line: "在 LINE 开始",
+      ticker_n225: "日经225",
+      ticker_dow: "道琼斯",
+      ticker_nasdaq: "纳斯达克",
+      ticker_usdjpy: "美元/日元",
+      ticker_sp500: "S&P500",
+      ticker_vix: "VIX 恐慌指数",
+      ticker_us10y: "美10年期国债",
+      ticker_us10y_short: "美债收益",
+      drawer_app_name: "投资模拟器",
+      drawer_app_sub: "Investment Bot",
+      drawer_search_ph: "搜索功能/标的...",
+      drawer_sect_features: "功能",
+      drawer_sect_color: "颜色定制",
+      drawer_sect_language: "语言 / Language",
+      drawer_menu_home: "首页",
+      drawer_menu_sim: "模拟器",
+      drawer_menu_morning: "晨间市场简报",
+      drawer_menu_assets: "资产分析",
+      drawer_menu_alert: "暴涨警报",
+      color_free: "自由选择",
+      color_reset: "重置",
+      color_green: "绿色",
+      color_blue: "蓝色",
+      color_purple: "紫色",
+      color_pink: "粉色",
+      color_orange: "橙色",
+      color_red: "红色",
+      color_teal: "青绿",
+      color_gray: "灰色",
+      sect_features: "功能",
+      card_sim_name: "模拟器",
+      card_sim_desc: "用每日/每月定投计算未来资产",
+      card_morn_name: "晨间市场简报",
+      card_morn_desc: "每天早上8点AI分析市场 ▶",
+      card_asset_name: "资产分析",
+      card_asset_desc: "家庭账本·资产管理 ▶",
+      card_alert_name: "暴涨·暴跌警报",
+      card_alert_desc: "自动监控您的观察列表",
+      sim_back: "← 返回",
+      sim_title: "📊 资产模拟器",
+      sim_sub: "轻松计算未来资产",
+      sim_tab_month: "每月定投",
+      sim_tab_lump: "一次性投资",
+      sim_lbl_monthly: "每月定投额（元）",
+      sim_lbl_rate: "年利率（%）",
+      sim_lbl_years: "定投期间（年）",
+      sim_lbl_lump: "一次性投资额（元）",
+      sim_lbl_rate2: "年利率（%）",
+      sim_lbl_period: "投资期间（年）",
+      sim_btn_calc: "计算",
+      sim_res_total: "资产总额",
+      sim_res_principal: "本金 ¥",
+      sim_res_profit: "　　收益 ¥",
+      sim_res_multi_a: "📈 本金增加了 ",
+      sim_res_multi_b: " 倍",
+      morn_title: "📊 AI市场分析",
+      morn_updated: "更新:",
+      morn_next: "下次:",
+      morn_sec: "秒",
+      morn_loading: "加载中...",
+      morn_news_title: "📰 今日新闻",
+      morn_settings: "⚙️ 指数选择",
+      morn_data_updated: "数据更新: ",
+      morn_vix_label: "VIX: ",
+      morn_us10y_label: "　　美债收益: ",
+      morn_status_ok: "✅ 正在显示最新市场数据",
+      morn_status_line: "✅ 每天早上8点在LINE推送详细分析",
+      idx_header: "⚙️ 显示指数选择",
+      idx_note: "最多可选4个",
+      idx_add_title: "➕ 自行添加标的",
+      idx_add_ph: "标的代码...",
+      idx_hint: "股票·ETF·外汇等（例：AAPL, 7203.T, BTC-USD）",
+      idx_search: "搜索",
+      idx_added: "已添加：",
+      idx_apply: "应用",
+      idx_added_check: "✔ 已添加",
+      idx_no_match_a: "🔎 未找到与「",
+      idx_no_match_b: "」匹配的标的",
+      idx_remove: "删除",
+      idx_err_max: "最多可选择4个",
+      idx_err_min: "请至少选择1个",
+      morn_delivery: "每天早上8点在LINE推送中",
+      footer_copy: "© 2026 Investment Bot"
+    }
+  };
+
+  // 現在の言語を保持
+  let _lang = 'ja';
+
+  // 翻訳取得関数（JS内動的テキスト用）
+  function t(key){
+    return (I18N[_lang] && I18N[_lang][key]) || (I18N.ja[key]) || key;
+  }
+  window.t = t;
+
+  // 言語適用関数
+  function applyLang(lang){
+    if(!I18N[lang]) lang = 'ja';
+    _lang = lang;
+    document.documentElement.setAttribute('lang', lang);
+    try { localStorage.setItem('app_lang', lang); } catch(e){}
+
+    // data-i18n（テキスト）
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const k = el.getAttribute('data-i18n');
+      const v = t(k);
+      if(v != null) el.textContent = v;
+    });
+    // data-i18n-ph（placeholder）
+    document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+      const k = el.getAttribute('data-i18n-ph');
+      const v = t(k);
+      if(v != null) el.setAttribute('placeholder', v);
+    });
+    // data-i18n-title（title属性）
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const k = el.getAttribute('data-i18n-title');
+      const v = t(k);
+      if(v != null) el.setAttribute('title', v);
+    });
+    // data-i18n-html（HTMLとして挿入したい場合）
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const k = el.getAttribute('data-i18n-html');
+      const v = t(k);
+      if(v != null) el.innerHTML = v;
+    });
+
+    // 言語ボタンのアクティブ状態
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang') === lang);
+    });
+
+    // カスタムイベント発火（他のコードがJS動的テキストを再描画できるように）
+    document.dispatchEvent(new CustomEvent('langChanged', { detail: { lang } }));
+  }
+  window.applyLang = applyLang;
+
+  // 言語ボタンクリック設定
+  function bindLangButtons(){
+    document.querySelectorAll('[data-lang]').forEach(btn => {
+      if(btn.__i18nBound) return;
+      btn.__i18nBound = true;
+      btn.addEventListener('click', () => {
+        const l = btn.getAttribute('data-lang');
+        applyLang(l);
+      });
+    });
+  }
+
+  // 初期化
+  function initLang(){
+    let saved = null;
+    try { saved = localStorage.getItem('app_lang'); } catch(e){}
+    let lang = saved;
+    if(!lang){
+      const browser = (navigator.language || 'ja').toLowerCase();
+      if(browser.startsWith('en')) lang = 'en';
+      else if(browser.startsWith('ko')) lang = 'ko';
+      else if(browser.startsWith('zh')) lang = 'zh';
+      else lang = 'ja';
+    }
+    bindLangButtons();
+    applyLang(lang);
+  }
+
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', initLang);
+  } else {
+    initLang();
+  }
+})();
+</script></body>
 </html>
