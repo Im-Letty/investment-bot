@@ -20,7 +20,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v32"
+APP_VERSION = "v33"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -199,6 +199,30 @@ def get_message(lang, key):
             "ko": "👋 친구 추가 감사합니다！\n\n📊 경제NEWS에 오신 것을 환영합니다\n매일 아침 투자·돈 뉴스를 전해드립니다.\n\n[처음 시도해보세요]\n• '아침레터' → 오늘의 시장 레터\n• '시장' → 주요 지표 요약\n• '뉴스' → 최신 시장 뉴스\n• '도움말' → 전체 명령어\n\n🌐 다른 언어:\nlang ja / lang en / lang zh",
             "zh": "👋 感谢添加好友！\n\n📊 欢迎来到经济NEWS\n每天早上为您送上投资·金钱新闻。\n\n【请先尝试】\n• '早报' → 今日市场早报\n• '行情' → 主要指标摘要\n• '新闻' → 最新市场新闻\n• '帮助' → 全部命令\n\n🌐 其他语言：\nlang ja / lang en / lang ko",
         },
+        "calc_usage": {
+            "ja": "💡 複利計算の使い方：\n複利 元本(万円) 年利(%) 年数 [毎月積立(万円)]\n\n例：\n複利 100 5 10\n複利 100 5 10 3\n（元本100万、年利5%、10年、毎月3万円積立）",
+            "en": "💡 Compound Calc Usage:\ncalc principal rate% years [monthly]\n\nExample:\ncalc 10000 5 10\ncalc 10000 5 10 300\n(principal $10k, 5%/yr, 10yr, monthly $300)",
+            "ko": "💡 복리 계산 사용법:\ncalc 원금 연이율% 년수 [매월적립]\n\n예:\ncalc 1000 5 10\ncalc 1000 5 10 30",
+            "zh": "💡 复利计算用法：\ncalc 本金 年利率% 年数 [每月定投]\n\n例：\ncalc 100 5 10\ncalc 100 5 10 3",
+        },
+        "calc_error": {
+            "ja": "⚠️ 数値を正しく入力してください。\n例：複利 100 5 10",
+            "en": "⚠️ Please enter valid numbers.\nExample: calc 10000 5 10",
+            "ko": "⚠️ 숫자를 올바르게 입력해주세요.\n예: calc 1000 5 10",
+            "zh": "⚠️ 请输入正确的数字。\n例：calc 100 5 10",
+        },
+        "sim_usage": {
+            "ja": "💡 クイック試算の使い方：\nいくら必要 目標額(万円) 年数 年利(%)\n\n例：\nいくら必要 10000 30 5\n（30年後に1億円、年利5%で運用したい時の毎月積立額）",
+            "en": "💡 Quick Simulation Usage:\nhowmuch target years rate%\n\nExample:\nhowmuch 1000000 30 5\n(Monthly savings needed to reach $1M in 30yr at 5%/yr)",
+            "ko": "💡 빠른 시뮬레이션 사용법:\nhowmuch 목표액 년수 연이율%\n\n예:\nhowmuch 100000 30 5",
+            "zh": "💡 快速试算用法：\nhowmuch 目标额 年数 年利率%\n\n例：\nhowmuch 10000 30 5",
+        },
+        "sim_error": {
+            "ja": "⚠️ 数値を正しく入力してください。\n例：いくら必要 10000 30 5",
+            "en": "⚠️ Please enter valid numbers.\nExample: howmuch 1000000 30 5",
+            "ko": "⚠️ 숫자를 올바르게 입력해주세요.\n예: howmuch 100000 30 5",
+            "zh": "⚠️ 请输入正确的数字。\n例：howmuch 10000 30 5",
+        },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
 
@@ -275,6 +299,76 @@ def get_news_summary(lang="ja", limit=5):
         print(f"[get_news_summary] error: {e}")
         return get_message(lang, "news_error")
 
+
+def get_compound_calc(args, lang="ja"):
+    """複利計算: 元本(万円) 年利(%) 年数 [毎月積立(万円)]"""
+    try:
+        parts = args.strip().split()
+        if len(parts) < 3:
+            return get_message(lang, "calc_usage")
+        principal = float(parts[0])
+        rate = float(parts[1]) / 100.0
+        years = int(float(parts[2]))
+        monthly = float(parts[3]) if len(parts) >= 4 else 0.0
+        if years <= 0 or years > 100:
+            return get_message(lang, "calc_error")
+        # 年複利 + 毎月積立（年単位で簡略化: 毎月積立 -> 年間積立として複利乗せ）
+        annual_add = monthly * 12.0
+        balance = principal
+        for _ in range(years):
+            balance = balance * (1.0 + rate) + annual_add
+        total_invested = principal + annual_add * years
+        gain = balance - total_invested
+        labels = {
+            "ja": ("📈 複利計算結果", "元本", "年利", "年数", "毎月積立", "総投資額", "最終残高", "うち運用益"),
+            "en": ("📈 Compound Calc Result", "Principal", "Annual rate", "Years", "Monthly", "Total invested", "Final balance", "Gain"),
+            "ko": ("📈 복리 계산 결과", "원금", "연이율", "년수", "월적립", "총투자액", "최종잔액", "수익"),
+            "zh": ("📈 复利计算结果", "本金", "年利率", "年数", "月定投", "总投资额", "最终余额", "收益"),
+        }
+        l = labels.get(lang, labels["ja"])
+        unit = {"ja":"万円","en":"","ko":"","zh":"万"}.get(lang, "")
+        msg = f"{l[0]}\n\n{l[1]}: {principal:,.1f}{unit}\n{l[2]}: {rate*100:.2f}%\n{l[3]}: {years}\n{l[4]}: {monthly:,.1f}{unit}\n\n{l[5]}: {total_invested:,.1f}{unit}\n{l[6]}: {balance:,.1f}{unit}\n{l[7]}: {gain:,.1f}{unit}"
+        return msg
+    except Exception as e:
+        print(f"[get_compound_calc] error: {e}")
+        return get_message(lang, "calc_error")
+
+def get_savings_calc(args, lang="ja"):
+    """クイック試算: 目標額(万円) 年数 年利(%) -> 必要な毎月積立額"""
+    try:
+        parts = args.strip().split()
+        if len(parts) < 3:
+            return get_message(lang, "sim_usage")
+        target = float(parts[0])
+        years = int(float(parts[1]))
+        rate_annual = float(parts[2]) / 100.0
+        if years <= 0 or years > 100:
+            return get_message(lang, "sim_error")
+        n = years * 12
+        r = rate_annual / 12.0
+        # 毎月積立FV式: FV = PMT * ((1+r)^n - 1) / r
+        if r == 0:
+            pmt = target / n
+        else:
+            factor = ((1.0 + r) ** n - 1.0) / r
+            if factor == 0:
+                return get_message(lang, "sim_error")
+            pmt = target / factor
+        total_paid = pmt * n
+        gain = target - total_paid
+        labels = {
+            "ja": ("🎯 クイック試算結果", "目標額", "年数", "年利", "毎月積立必要額", "総積立額", "うち運用益"),
+            "en": ("🎯 Quick Simulation Result", "Target", "Years", "Annual rate", "Monthly needed", "Total paid", "Gain"),
+            "ko": ("🎯 빠른 시뮬레이션 결과", "목표액", "년수", "연이율", "월 필요액", "총 납입액", "수익"),
+            "zh": ("🎯 快速试算结果", "目标额", "年数", "年利率", "月需金额", "总投入", "收益"),
+        }
+        l = labels.get(lang, labels["ja"])
+        unit = {"ja":"万円","en":"","ko":"","zh":"万"}.get(lang, "")
+        msg = f"{l[0]}\n\n{l[1]}: {target:,.1f}{unit}\n{l[2]}: {years}\n{l[3]}: {rate_annual*100:.2f}%\n\n{l[4]}: {pmt:,.2f}{unit}\n{l[5]}: {total_paid:,.1f}{unit}\n{l[6]}: {gain:,.1f}{unit}"
+        return msg
+    except Exception as e:
+        print(f"[get_savings_calc] error: {e}")
+        return get_message(lang, "sim_error")
 
 def get_fx_summary(lang="ja"):
     """主要通貨ペア（USD/JPY, EUR/JPY, GBP/JPY, EUR/USD, GBP/USD）の現在値を取得"""
@@ -1156,6 +1250,58 @@ def handle_message(event):
             ))
             report = generate_morning_report(cmd_lang)
             send_line_message(report, user_id=line_user_id)
+            return
+
+        # 複利計算コマンド: "複利 100 5 10" / "calc 10000 5 10"
+        calc_prefixes = {
+            "複利 ": "ja", "ふくり ": "ja",
+            "calc ": "en", "compound ": "en",
+            "복리 ": "ko",
+            "复利 ": "zh", "複利 ": "zh",
+        }
+        matched_calc = None
+        for pfx, pfx_lang in calc_prefixes.items():
+            if text_lower.startswith(pfx.lower()) or user_text.strip().startswith(pfx):
+                matched_calc = (pfx, pfx_lang)
+                break
+        if matched_calc:
+            pfx, cmd_lang = matched_calc
+            stripped = user_text.strip()
+            if stripped.lower().startswith(pfx.lower()):
+                args_part = stripped[len(pfx):].strip()
+            else:
+                args_part = stripped[len(pfx):].strip()
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_compound_calc(args_part, cmd_lang))]
+            ))
+            return
+
+        # クイック試算コマンド: "いくら必要 10000 30 5" / "howmuch 1000000 30 5"
+        sim_prefixes = {
+            "いくら必要 ": "ja", "いくらひつよう ": "ja", "試算 ": "ja",
+            "howmuch ": "en", "sim ": "en", "simulate ": "en",
+            "얼마필요 ": "ko",
+            "需要多少 ": "zh", "试算 ": "zh",
+        }
+        matched_sim = None
+        for pfx, pfx_lang in sim_prefixes.items():
+            if text_lower.startswith(pfx.lower()) or user_text.strip().startswith(pfx):
+                matched_sim = (pfx, pfx_lang)
+                break
+        if matched_sim:
+            pfx, cmd_lang = matched_sim
+            stripped = user_text.strip()
+            if stripped.lower().startswith(pfx.lower()):
+                args_part = stripped[len(pfx):].strip()
+            else:
+                args_part = stripped[len(pfx):].strip()
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_savings_calc(args_part, cmd_lang))]
+            ))
             return
 
         # 株価コマンド: "株価 7203" / "price AAPL" / "주가 005930" / "股价 600519"
