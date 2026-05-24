@@ -52,6 +52,23 @@ def save_user(line_user_id, data={}):
         data["line_user_id"] = line_user_id
         supabase.table("users").insert(data).execute()
 
+def get_user_lang(line_user_id):
+    """Supabaseのusers.lang列から保存済み言語を取得。なければNone"""
+    try:
+        user = get_user(line_user_id)
+        if user and user.get("lang"):
+            return user["lang"]
+    except Exception as e:
+        print(f"[get_user_lang] error: {e}")
+    return None
+
+def set_user_lang(line_user_id, lang):
+    """Supabaseのusers.lang列に言語を保存"""
+    try:
+        save_user(line_user_id, {"lang": lang})
+    except Exception as e:
+        print(f"[set_user_lang] error: {e}")
+
 def detect_language(text):
     if any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9fff' for c in text):
         return "ja"
@@ -98,6 +115,12 @@ def get_message(lang, key):
             "en": "Checking. Please wait...",
             "ko": "확인 중입니다. 잠시 기다려주세요...",
             "zh": "正在确认。请稍候...",
+        },
+        "simulator_url": {
+            "ja": "📊 投資シミュレーターはこちら！\n{url}",
+            "en": "📊 Investment Simulator is here!\n{url}",
+            "ko": "📊 투자 시뮬레이터는 여기에서!\n{url}",
+            "zh": "📊 投资模拟器在这里！\n{url}",
         },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
@@ -550,7 +573,21 @@ def handle_message(event):
     user_text    = event.message.text.strip()
     reply_token  = event.reply_token
     line_user_id = event.source.user_id
-    lang         = detect_language(user_text)
+
+    # 言語判定：保存済みがあればそれを優先、なければメッセージから判定して保存
+    stored_lang = get_user_lang(line_user_id)
+    detected = detect_language(user_text)
+    if stored_lang:
+        # 既存ユーザー：保存済み言語を使用。ただし明確に違う言語で送ってきたら更新
+        if detected != stored_lang and len(user_text) >= 4:
+            set_user_lang(line_user_id, detected)
+            lang = detected
+        else:
+            lang = stored_lang
+    else:
+        # 新規ユーザー：検出した言語を保存
+        lang = detected
+        set_user_lang(line_user_id, lang)
 
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
@@ -587,7 +624,7 @@ def handle_message(event):
             sim_url = "https://investment-bot-ta24.onrender.com"
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                                messages=[TextMessage(text=f"📊 投資シミュレーターはこちら！\n{sim_url}")]
+                                messages=[TextMessage(text=get_message(lang, "simulator_url").replace("{url}", sim_url))]
             ))
 
         elif intent == "save":
