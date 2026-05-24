@@ -19,6 +19,8 @@ from linebot.v3.webhooks import MessageEvent, TextMessageContent
 from datetime import date, datetime
 
 app = Flask(__name__)
+APP_START_TIME = datetime.now()
+APP_VERSION = "v30"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -143,8 +145,56 @@ def get_message(lang, key):
             "ko": "✅ 언어를 한국어로 변경했습니다 🇰🇷",
             "zh": "✅ 已将语言切换为中文 🇨🇳",
         },
+        "market_header": {
+            "ja": "📊 今日の相場",
+            "en": "📊 Today's Market",
+            "ko": "📊 오늘의 시장",
+            "zh": "📊 今日市场",
+        },
+        "market_error": {
+            "ja": "⚠️ 相場データを取得できませんでした。少し時間をおいて再度お試しください。",
+            "en": "⚠️ Unable to fetch market data. Please try again in a moment.",
+            "ko": "⚠️ 시장 데이터를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.",
+            "zh": "⚠️ 无法获取市场数据。请稍后再试。",
+        },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
+
+def get_market_summary(lang="ja"):
+    """日経・S&P500・ドル円・VIXの現在値を取得して文字列で返す"""
+    try:
+        symbols = [
+            ("^N225",   {"ja": "日経225", "en": "Nikkei 225", "ko": "닛케이 225", "zh": "日经225"}),
+            ("^GSPC",   {"ja": "S&P500", "en": "S&P 500",   "ko": "S&P 500",   "zh": "标普500"}),
+            ("JPY=X",   {"ja": "ドル円", "en": "USD/JPY",   "ko": "달러/엔",   "zh": "美元/日元"}),
+            ("^VIX",    {"ja": "VIX",    "en": "VIX",        "ko": "VIX",        "zh": "VIX"}),
+        ]
+        lines_out = [get_message(lang, "market_header"), ""]
+        for sym, names in symbols:
+            try:
+                tk = yf.Ticker(sym)
+                hist = tk.history(period="2d")
+                if hist is None or hist.empty or len(hist) < 1:
+                    continue
+                price = float(hist["Close"].iloc[-1])
+                if len(hist) >= 2:
+                    prev = float(hist["Close"].iloc[-2])
+                    diff = price - prev
+                    pct = (diff / prev * 100.0) if prev else 0.0
+                    arrow = "▲" if diff >= 0 else "▼"
+                    lines_out.append(f"{names.get(lang, names['ja'])}  {price:,.2f}  {arrow}{abs(pct):.2f}%")
+                else:
+                    lines_out.append(f"{names.get(lang, names['ja'])}  {price:,.2f}")
+            except Exception as e:
+                print(f"[market] {sym} error: {e}")
+                continue
+        if len(lines_out) <= 2:
+            return get_message(lang, "market_error")
+        return "\n".join(lines_out)
+    except Exception as e:
+        print(f"[get_market_summary] error: {e}")
+        return get_message(lang, "market_error")
+
 
 def detect_intent(text, lang="ja"):
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
@@ -866,6 +916,23 @@ def handle_message(event):
             ))
             return
 
+        # 相場コマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        market_map = {
+            "相場": "ja", "そうば": "ja",
+            "market": "en",
+            "시장": "ko",
+            "行情": "zh", "市场": "zh",
+        }
+        msg_key3 = text_lower if text_lower in market_map else user_text.strip()
+        if msg_key3 in market_map:
+            cmd_lang = market_map[msg_key3]
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_market_summary(cmd_lang))]
+            ))
+            return
+
         intent = detect_intent(user_text, lang)
 
         if intent == "morning":
@@ -1101,6 +1168,29 @@ def api_morning_news():
         return jsonify({"news": items, "updated": datetime.now().strftime("%H:%M"), "lang": lang})
     except Exception as e:
         return jsonify({"error": str(e), "news": []}), 200
+
+@app.route("/health")
+def health():
+    """サーバ稼働状態を JSON で返す"""
+    try:
+        uptime_sec = int((datetime.now() - APP_START_TIME).total_seconds())
+        supabase_ok = False
+        try:
+            r = supabase.table("users").select("line_user_id", count="exact").limit(1).execute()
+            supabase_ok = True
+        except Exception as e:
+            print(f"[health] supabase check error: {e}")
+        return jsonify({
+            "status": "ok",
+            "version": APP_VERSION,
+            "uptime_sec": uptime_sec,
+            "uptime_human": f"{uptime_sec // 3600}h{(uptime_sec % 3600) // 60}m{uptime_sec % 60}s",
+            "supabase": "ok" if supabase_ok else "error",
+            "started_at": APP_START_TIME.isoformat(),
+        })
+    except Exception as e:
+        return jsonify({"status": "error", "error": str(e)}), 500
+
 
 @app.route("/")
 def index():
