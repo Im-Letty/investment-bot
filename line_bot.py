@@ -20,7 +20,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v34"
+APP_VERSION = "v35"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -199,6 +199,24 @@ def get_message(lang, key):
             "en": "👋 Thanks for adding me!\n\n📊 Welcome to Keizai NEWS\nDaily investment & money news every morning.\n\n[Try these first]\n• 'morning' → Today's market report\n• 'market' → Key index summary\n• 'news' → Latest market news\n• 'help' → All commands\n\n🌐 Other languages:\nlang ja / lang ko / lang zh",
             "ko": "👋 친구 추가 감사합니다！\n\n📊 경제NEWS에 오신 것을 환영합니다\n매일 아침 투자·돈 뉴스를 전해드립니다.\n\n[처음 시도해보세요]\n• '아침레터' → 오늘의 시장 레터\n• '시장' → 주요 지표 요약\n• '뉴스' → 최신 시장 뉴스\n• '도움말' → 전체 명령어\n\n🌐 다른 언어:\nlang ja / lang en / lang zh",
             "zh": "👋 感谢添加好友！\n\n📊 欢迎来到经济NEWS\n每天早上为您送上投资·金钱新闻。\n\n【请先尝试】\n• '早报' → 今日市场早报\n• '行情' → 主要指标摘要\n• '新闻' → 最新市场新闻\n• '帮助' → 全部命令\n\n🌐 其他语言：\nlang ja / lang en / lang ko",
+        },
+        "delivery_set": {
+            "ja": "✅ 朝レターの配信時刻を {h}時 に設定しました 🕗\n（毎日この時刻にお届けします）",
+            "en": "✅ Morning report delivery time set to {h}:00 🕗\n(Delivered daily at this time)",
+            "ko": "✅ 아침 레터 배달 시각을 {h}시로 설정했습니다 🕗\n(매일 이 시간에 배달)",
+            "zh": "✅ 早报推送时间已设定为 {h}:00 🕗\n（每天此时间送达）",
+        },
+        "delivery_usage": {
+            "ja": "📌 使い方:\n「配信時刻 8」のように 0〜23 の数字を送ってください。\n例: 配信時刻 7 / 配信時刻 21",
+            "en": "📌 Usage:\nSend a number 0–23, e.g.\n\"delivery 8\" or \"delivery 21\"",
+            "ko": "📌 사용법:\n0〜23 사이의 숫자를 보내주세요. 예: 배달시각 7",
+            "zh": "📌 使用方法:\n请发送 0〜23 之间的数字。例: 推送时间 8",
+        },
+        "delivery_error": {
+            "ja": "❌ 時刻は 0〜23 の数字で指定してください。\n例: 配信時刻 8",
+            "en": "❌ Please specify hour as 0–23.\nExample: delivery 8",
+            "ko": "❌ 시각은 0〜23 사이의 숫자로 지정해주세요.\n예: 배달시각 8",
+            "zh": "❌ 请用 0〜23 之间的数字指定时间。\n例: 推送时间 8",
         },
         "calc_usage": {
             "ja": "💡 複利計算の使い方：\n複利 元本(万円) 年利(%) 年数 [毎月積立(万円)]\n\n例：\n複利 100 5 10\n複利 100 5 10 3\n（元本100万、年利5%、10年、毎月3万円積立）",
@@ -546,6 +564,62 @@ def send_line_message(text, user_id=None):
                 to=uid,
                 messages=[TextMessage(text=chunk)]
             ))
+
+
+def get_user_delivery_hour(line_user_id):
+    """ユーザーの配信時刻を取得（未設定なら 7）"""
+    try:
+        res = supabase.table("users").select("delivery_hour").eq("line_user_id", line_user_id).execute()
+        if res.data and len(res.data) > 0:
+            dh = res.data[0].get("delivery_hour")
+            if dh is None:
+                return 7
+            return int(dh)
+    except Exception as e:
+        print(f"[get_user_delivery_hour] error: {e}")
+    return 7
+
+
+def set_user_delivery_hour(line_user_id, hour):
+    """ユーザーの配信時刻を保存"""
+    try:
+        h = int(hour)
+        if h < 0 or h > 23:
+            return False
+        supabase.table("users").upsert({"line_user_id": line_user_id, "delivery_hour": h}, on_conflict="line_user_id").execute()
+        return True
+    except Exception as e:
+        print(f"[set_user_delivery_hour] error: {e}")
+        return False
+
+
+def build_settings_text(lang, delivery_hour):
+    """配信時刻入りの設定テキストを生成（4言語対応）"""
+    lang_label = {"ja": "日本語 🇯🇵", "en": "English 🇬🇧", "ko": "한국어 🇰🇷", "zh": "中文 🇨🇳"}.get(lang, "日本語 🇯🇵")
+    if lang == "en":
+        return (f"⚙️ Current Settings\n\n"
+                f"• Language: {lang_label}\n"
+                f"• Morning Report: Delivered daily at {delivery_hour}:00\n\n"
+                f"To change language, send:\nlang ja / lang ko / lang zh\n\n"
+                f"To change delivery time, send:\ndelivery 8 (any hour 0–23)")
+    elif lang == "ko":
+        return (f"⚙️ 현재 설정\n\n"
+                f"• 언어: {lang_label}\n"
+                f"• 아침 레터: 매일 {delivery_hour}시 배달\n\n"
+                f"언어 변경:\nlang ja / lang en / lang zh\n\n"
+                f"배달 시각 변경:\n배달시각 8 (0–23)")
+    elif lang == "zh":
+        return (f"⚙️ 当前设置\n\n"
+                f"• 语言：{lang_label}\n"
+                f"• 早报：每天{delivery_hour}:00送达\n\n"
+                f"更改语言：\nlang ja / lang en / lang ko\n\n"
+                f"更改推送时间：\n推送时间 8 (0–23)")
+    else:
+        return (f"⚙️ 現在の設定\n\n"
+                f"• 言語：{lang_label}\n"
+                f"• 朝レター：毎日 {delivery_hour}時 に配信\n\n"
+                f"言語を変えたい場合は\nlang en / lang ko / lang zh\n\n"
+                f"配信時刻を変えたい場合は\n「配信時刻 8」のように 0〜23 を送ってください")
 
 
 def notify_admin(message, error=None):
@@ -1205,9 +1279,10 @@ def handle_message(event):
         if msg_key2 in settings_map:
             cmd_lang = settings_map[msg_key2]
             set_user_lang(line_user_id, cmd_lang)
+            dh = get_user_delivery_hour(line_user_id)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text=get_message(cmd_lang, "settings_text"))]
+                messages=[TextMessage(text=build_settings_text(cmd_lang, dh))]
             ))
             return
 
@@ -1333,6 +1408,60 @@ def handle_message(event):
             ))
             return
 
+        # 配信時刻コマンド: "配信時刻 8" / "delivery 8" / "배달시각 8" / "推送时间 8"
+        delivery_prefixes = {
+            "配信時刻 ": "ja", "配信時間 ": "ja", "はいしんじこく ": "ja",
+            "delivery ": "en", "deliver ": "en", "delivery time ": "en",
+            "배달시각 ": "ko", "배달시간 ": "ko",
+            "推送时间 ": "zh", "推送時間 ": "zh", "配送时间 ": "zh",
+        }
+        matched_delivery = None
+        for pfx, pfx_lang in delivery_prefixes.items():
+            if text_lower.startswith(pfx.lower()) or user_text.strip().startswith(pfx):
+                matched_delivery = (pfx, pfx_lang)
+                break
+        if matched_delivery:
+            pfx, cmd_lang = matched_delivery
+            stripped = user_text.strip()
+            if stripped.lower().startswith(pfx.lower()):
+                args_part = stripped[len(pfx):].strip()
+            else:
+                args_part = stripped[len(pfx):].strip()
+            set_user_lang(line_user_id, cmd_lang)
+            if not args_part:
+                api.reply_message(ReplyMessageRequest(
+                    reply_token=reply_token,
+                    messages=[TextMessage(text=get_message(cmd_lang, "delivery_usage"))]
+                ))
+                return
+            try:
+                hour = int(args_part.split()[0])
+            except Exception:
+                api.reply_message(ReplyMessageRequest(
+                    reply_token=reply_token,
+                    messages=[TextMessage(text=get_message(cmd_lang, "delivery_error"))]
+                ))
+                return
+            if hour < 0 or hour > 23:
+                api.reply_message(ReplyMessageRequest(
+                    reply_token=reply_token,
+                    messages=[TextMessage(text=get_message(cmd_lang, "delivery_error"))]
+                ))
+                return
+            ok = set_user_delivery_hour(line_user_id, hour)
+            if ok:
+                msg = get_message(cmd_lang, "delivery_set").replace("{h}", str(hour))
+                api.reply_message(ReplyMessageRequest(
+                    reply_token=reply_token,
+                    messages=[TextMessage(text=msg)]
+                ))
+            else:
+                api.reply_message(ReplyMessageRequest(
+                    reply_token=reply_token,
+                    messages=[TextMessage(text=get_message(cmd_lang, "delivery_error"))]
+                ))
+            return
+
         # 株価コマンド: "株価 7203" / "price AAPL" / "주가 005930" / "股价 600519"
         price_prefixes = {
             "株価 ": "ja", "かぶか ": "ja",
@@ -1421,8 +1550,12 @@ def morning():
     # 全ユーザーをループし、各自の保存済み言語でレポート生成・送信
     sent = 0
     errors = 0
+    from datetime import timezone, timedelta
+    jst_now = datetime.now(timezone.utc) + timedelta(hours=9)
+    cur_hour = jst_now.hour
+    force = request.args.get("force", "") == "1"
     try:
-        res = supabase.table("users").select("line_user_id, lang").execute()
+        res = supabase.table("users").select("line_user_id, lang, delivery_hour").execute()
         users = res.data or []
     except Exception as e:
         users = []
@@ -1446,6 +1579,14 @@ def morning():
         if not uid or not (isinstance(uid, str) and len(uid) == 33 and uid.startswith("U")):
             skipped += 1
             print(f"[morning] skip invalid line_user_id: {uid!r}")
+            continue
+        # 配信時刻チェック（force=1 なら全員に送る）
+        try:
+            dh = int(u.get("delivery_hour")) if u.get("delivery_hour") is not None else 7
+        except Exception:
+            dh = 7
+        if not force and dh != cur_hour:
+            skipped += 1
             continue
         try:
             if lang not in cache:
