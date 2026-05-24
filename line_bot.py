@@ -363,19 +363,31 @@ def fetch_news():
         all_news[label] = "\n".join([f"・{e.title}" for e in feed.entries[:7]])
     return all_news
 
-def generate_morning_report():
+def generate_morning_report(lang="ja"):
     market    = fetch_market_data()
     watchlist = fetch_watchlist()
     news      = fetch_news()
-    today     = date.today().strftime("%Y年%m月%d日")
-    weekday   = ["月","火","水","木","金","土","日"][date.today().weekday()]
+
+    # 日付フォーマットを言語別に
+    if lang == "en":
+        today   = date.today().strftime("%B %d, %Y")
+        weekday = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][date.today().weekday()]
+    elif lang == "ko":
+        today   = date.today().strftime("%Y년 %m월 %d일")
+        weekday = ["월","화","수","목","금","토","일"][date.today().weekday()]
+    elif lang == "zh":
+        today   = date.today().strftime("%Y年%m月%d日")
+        weekday = ["周一","周二","周三","周四","周五","周六","周日"][date.today().weekday()]
+    else:
+        today   = date.today().strftime("%Y年%m月%d日")
+        weekday = ["月","火","水","木","金","土","日"][date.today().weekday()]
 
     market_text    = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
     watchlist_text = "\n".join([s["display"] for s in watchlist])
     news_text      = "\n".join([f"【{k}】\n{v}" for k, v in news.items()])
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-    prompt = f"""
+    prompts = {
+        "ja": f"""
 あなたは、株の初心者に毎朝「今日の投資判断材料」を届ける、正確で親切な先生です。
 
 【絶対に守るルール】
@@ -419,8 +431,152 @@ def generate_morning_report():
 ─────────────────
 今日も正確に、自分のペースで。
 ─────────────────
-"""
+""",
+        "en": f"""
+You are a precise, kind teacher delivering today's investment insights to beginner stock investors every morning.
 
+[Strict Rules]
+- Always explain technical terms in parentheses
+- Always state reasons
+- Do not write anything uncertain
+- Never use ## or ** symbols
+- Wrap headings with 【】
+- Use ━━━━━━━ as divider
+- Use emojis moderately
+- Keep lines short for mobile portrait reading
+- Show market mood as 🟢calm / 🟡slightly anxious / 🔴panic only
+
+Today: {today} ({weekday})
+
+[Market data (previous close)]
+{market_text}
+
+[Watchlist stocks]
+{watchlist_text}
+
+[Today's news (multiple sources)]
+{news_text}
+
+Please write the entire morning report in ENGLISH.
+
+☀️ Morning Report for {today} ({weekday})
+─────────────────
+Today's one-liner: (express today's market in one sentence)
+─────────────────
+
+━━ 📊 Market Data ━━
+━━ 💴 USD/JPY and Rates: Today's Impact ━━
+━━ 📰 Today's Key News ━━
+━━ 🗓️ Today's Market Outlook ━━
+━━ 🎯 Today's Trading Decision Materials ━━
+【Day Trade】
+【Swing Trade】
+【Accumulation & Mutual Funds】
+━━ 🔍 Watchlist ━━
+{watchlist_text}
+━━ 💡 Word of the Day ━━
+─────────────────
+Stay accurate, at your own pace.
+─────────────────
+""",
+        "ko": f"""
+당신은 주식 초보자에게 매일 아침 '오늘의 투자 판단 자료'를 전하는 정확하고 친절한 선생님입니다.
+
+【반드시 지킬 규칙】
+・전문 용어는 반드시 ()로 설명한다
+・이유를 반드시 쓴다
+・불확실한 것은 쓰지 않는다
+・##나 ** 같은 기호는 절대 사용하지 않는다
+・제목은 【】로 감싼다
+・구분선은 ━━━━━━━ 을 사용한다
+・이모지를 적절히 사용한다
+・스마트폰 세로 화면에서 읽기 좋게 한 줄을 짧게 한다
+・시장 분위기는 🟢안정 🟡약간 불안 🔴패닉 중 하나로만 표시한다
+
+오늘：{today} ({weekday})
+
+【시장 데이터(전일 종가)】
+{market_text}
+
+【워치리스트 종목】
+{watchlist_text}
+
+【오늘의 뉴스(여러 출처)】
+{news_text}
+
+전체 리포트를 한국어로 작성해 주세요.
+
+☀️ {today} ({weekday}) 아침 레터
+─────────────────
+오늘의 한 마디: (오늘의 시장을 한 문장으로 표현)
+─────────────────
+
+━━ 📊 시장 데이터 ━━
+━━ 💴 달러/엔과 금리: 오늘의 영향 ━━
+━━ 📰 오늘의 주요 뉴스 ━━
+━━ 🗓️ 오늘의 시장 전망 ━━
+━━ 🎯 오늘의 거래 판단 자료 ━━
+【데이 트레이드】
+【스윙 트레이드】
+【적립·투자신탁】
+━━ 🔍 워치리스트 ━━
+{watchlist_text}
+━━ 💡 오늘의 한 단어 ━━
+─────────────────
+오늘도 정확하게, 자신의 페이스로.
+─────────────────
+""",
+        "zh": f"""
+你是一位准确而亲切的老师，每天早上为股票初学者送上"今日投资判断材料"。
+
+【必须遵守的规则】
+・专业术语必须用()进行说明
+・必须写明理由
+・不确定的事情不写
+・绝对不使用##或**等符号
+・标题用【】括起来
+・分隔线使用 ━━━━━━━
+・适度使用表情符号
+・为了在手机竖屏方便阅读，每行尽量短
+・市场气氛只显示🟢平静🟡略有不安🔴恐慌之一
+
+今天：{today} ({weekday})
+
+【市场数据（前日收盘）】
+{market_text}
+
+【关注列表】
+{watchlist_text}
+
+【今日新闻（多个来源）】
+{news_text}
+
+请用中文撰写整篇早报。
+
+☀️ {today} ({weekday}) 早报
+─────────────────
+今日一句话：(用一句话表达今日行情)
+─────────────────
+
+━━ 📊 市场数据 ━━
+━━ 💴 美元/日元与利率：今日影响 ━━
+━━ 📰 今日重要新闻 ━━
+━━ 🗓️ 今日市场预测 ━━
+━━ 🎯 今日交易判断材料 ━━
+【日内交易】
+【波段交易】
+【定投·基金】
+━━ 🔍 关注列表 ━━
+{watchlist_text}
+━━ 💡 今日一词 ━━
+─────────────────
+今天也以准确、自己的节奏。
+─────────────────
+""",
+    }
+    prompt = prompts.get(lang, prompts["ja"])
+
+    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=1000,
@@ -488,9 +644,58 @@ def check_alerts():
 
     client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
 
-    def make_alert(name, symbol, price, pct, market_ctx):
-        direction = "急上昇📈" if pct > 0 else "急落📉"
-        prompt = f"""
+    def make_alert(name, symbol, price, pct, market_ctx, lang="ja"):
+        if lang == "en":
+            direction = "Surging📈" if pct > 0 else "Plunging📉"
+            prompt = f"""Write an emergency alert for beginner investors in ENGLISH.
+- {name} ({symbol}) is {direction} {abs(pct):.1f}% today
+- Current price: {price:,.0f}
+- Market context: {market_ctx}
+
+⚡[URGENT] {name} is {direction}
+📍 What is happening now
+📍 Why it is moving
+📍 Impact on day trading
+📍 Impact on swing trading
+📍 Cautions & risks
+─────────────
+Final decision is yours.
+"""
+        elif lang == "ko":
+            direction = "급등📈" if pct > 0 else "급락📉"
+            prompt = f"""투자 초보자를 위한 긴급 알림을 한국어로 작성해 주세요.
+・{name} ({symbol})이(가) 오늘 {abs(pct):.1f}% {direction}
+・현재가: {price:,.0f}
+・시장 상황: {market_ctx}
+
+⚡【긴급】{name}이(가) {direction}
+📍 지금 무슨 일이 일어나고 있는가
+📍 왜 움직이고 있는가
+📍 데이트레이드에의 영향
+📍 스윙트레이드에의 영향
+📍 주의점·리스크
+─────────────
+최종 판단은 본인이 하시기 바랍니다.
+"""
+        elif lang == "zh":
+            direction = "急涨📈" if pct > 0 else "急跌📉"
+            prompt = f"""请用中文为投资初学者撰写紧急提醒。
+・{name}（{symbol}）今日{abs(pct):.1f}%{direction}
+・当前价：{price:,.0f}
+・市场情况：{market_ctx}
+
+⚡【紧急】{name}{direction}
+📍 现在发生了什么
+📍 为什么在波动
+📍 对日内交易的影响
+📍 对波段交易的影响
+📍 注意事项·风险
+─────────────
+最终判断请自行决定。
+"""
+        else:
+            direction = "急上昇📈" if pct > 0 else "急落📉"
+            prompt = f"""
 投資初心者向けの緊急アラートを書いてください。
 ・{name}（{symbol}）が本日{abs(pct):.1f}%{direction}
 ・現在値：{price:,.0f}円
@@ -650,9 +855,42 @@ def handle_message(event):
 def morning():
     if request.args.get("secret", "") != os.environ.get("CRON_SECRET", ""):
         abort(403)
-    report = generate_morning_report()
-    send_line_message(report)
-    return "OK"
+
+    # 全ユーザーをループし、各自の保存済み言語でレポート生成・送信
+    sent = 0
+    errors = 0
+    try:
+        res = supabase.table("users").select("line_user_id, lang").execute()
+        users = res.data or []
+    except Exception as e:
+        users = []
+        print(f"[morning] users fetch error: {e}")
+
+    # ユーザーがいない場合はオーナー(LINE_USER_ID)にだけ日本語で送る（後方互換）
+    if not users:
+        report = generate_morning_report("ja")
+        send_line_message(report)
+        return "OK (fallback: owner only)"
+
+    # 言語ごとにレポートをキャッシュ（同じ言語のユーザーには同じレポート → APIコスト節約）
+    cache = {}
+    for u in users:
+        uid  = u.get("line_user_id")
+        lang = (u.get("lang") or "ja").lower()
+        if lang not in ("ja", "en", "ko", "zh"):
+            lang = "ja"
+        if not uid:
+            continue
+        try:
+            if lang not in cache:
+                cache[lang] = generate_morning_report(lang)
+            send_line_message(cache[lang], user_id=uid)
+            sent += 1
+        except Exception as e:
+            errors += 1
+            print(f"[morning] send error to {uid}: {e}")
+
+    return f"OK sent={sent} errors={errors} langs={list(cache.keys())}"
 
 @app.route("/alert", methods=["GET"])
 def alert():
