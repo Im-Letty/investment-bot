@@ -15,12 +15,12 @@ from linebot.v3.messaging import (
     Configuration, ApiClient, MessagingApi,
     ReplyMessageRequest, TextMessage, PushMessageRequest
 )
-from linebot.v3.webhooks import MessageEvent, TextMessageContent
+from linebot.v3.webhooks import MessageEvent, TextMessageContent, FollowEvent
 from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v31"
+APP_VERSION = "v32"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -181,6 +181,24 @@ def get_message(lang, key):
             "ko": "💡 사용법:\nprice AAPL → Apple\nprice MSFT → Microsoft\nprice 7203.T → Toyota",
             "zh": "💡 用法：\nprice AAPL → Apple\nprice MSFT → Microsoft\nprice 7203.T → 丰田",
         },
+        "fx_header": {
+            "ja": "💱 為替レート",
+            "en": "💱 FX Rates",
+            "ko": "💱 환율",
+            "zh": "💱 汇率",
+        },
+        "fx_error": {
+            "ja": "⚠️ 為替データを取得できませんでした。少し時間をおいて再度お試しください。",
+            "en": "⚠️ Unable to fetch FX data. Please try again in a moment.",
+            "ko": "⚠️ 환율 데이터를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.",
+            "zh": "⚠️ 无法获取汇率数据。请稍后再试。",
+        },
+        "welcome_text": {
+            "ja": "👋 友だち追加ありがとうございます！\n\n📊 経済NEWSへようこそ\n投資・お金のニュースを毎朝お届けします。\n\n【最初に試してほしいこと】\n• 「朝レター」→ 今日の相場レター\n• 「相場」→ 主要指標サマリー\n• 「ニュース」→ 最新の市場ニュース\n• 「ヘルプ」→ 全コマンド一覧\n\n🌐 English / 한국어 / 中文 対応：\nlang en / lang ko / lang zh を送ってください。",
+            "en": "👋 Thanks for adding me!\n\n📊 Welcome to Keizai NEWS\nDaily investment & money news every morning.\n\n[Try these first]\n• 'morning' → Today's market report\n• 'market' → Key index summary\n• 'news' → Latest market news\n• 'help' → All commands\n\n🌐 Other languages:\nlang ja / lang ko / lang zh",
+            "ko": "👋 친구 추가 감사합니다！\n\n📊 경제NEWS에 오신 것을 환영합니다\n매일 아침 투자·돈 뉴스를 전해드립니다.\n\n[처음 시도해보세요]\n• '아침레터' → 오늘의 시장 레터\n• '시장' → 주요 지표 요약\n• '뉴스' → 최신 시장 뉴스\n• '도움말' → 전체 명령어\n\n🌐 다른 언어:\nlang ja / lang en / lang zh",
+            "zh": "👋 感谢添加好友！\n\n📊 欢迎来到经济NEWS\n每天早上为您送上投资·金钱新闻。\n\n【请先尝试】\n• '早报' → 今日市场早报\n• '行情' → 主要指标摘要\n• '新闻' → 最新市场新闻\n• '帮助' → 全部命令\n\n🌐 其他语言：\nlang ja / lang en / lang ko",
+        },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
 
@@ -257,6 +275,42 @@ def get_news_summary(lang="ja", limit=5):
         print(f"[get_news_summary] error: {e}")
         return get_message(lang, "news_error")
 
+
+def get_fx_summary(lang="ja"):
+    """主要通貨ペア（USD/JPY, EUR/JPY, GBP/JPY, EUR/USD, GBP/USD）の現在値を取得"""
+    try:
+        pairs = [
+            ("JPY=X", {"ja": "ドル円 (USD/JPY)", "en": "USD/JPY", "ko": "달러/엔 (USD/JPY)", "zh": "美元/日元 (USD/JPY)"}),
+            ("EURJPY=X", {"ja": "ユーロ円 (EUR/JPY)", "en": "EUR/JPY", "ko": "유로/엔 (EUR/JPY)", "zh": "欧元/日元 (EUR/JPY)"}),
+            ("GBPJPY=X", {"ja": "ポンド円 (GBP/JPY)", "en": "GBP/JPY", "ko": "파운드/엔 (GBP/JPY)", "zh": "英镑/日元 (GBP/JPY)"}),
+            ("EURUSD=X", {"ja": "ユーロドル (EUR/USD)", "en": "EUR/USD", "ko": "유로/달러 (EUR/USD)", "zh": "欧元/美元 (EUR/USD)"}),
+            ("GBPUSD=X", {"ja": "ポンドドル (GBP/USD)", "en": "GBP/USD", "ko": "파운드/달러 (GBP/USD)", "zh": "英镑/美元 (GBP/USD)"}),
+        ]
+        lines_out = [get_message(lang, "fx_header"), ""]
+        for sym, names in pairs:
+            try:
+                tk = yf.Ticker(sym)
+                hist = tk.history(period="2d")
+                if hist is None or hist.empty or len(hist) < 1:
+                    continue
+                price = float(hist["Close"].iloc[-1])
+                if len(hist) >= 2:
+                    prev = float(hist["Close"].iloc[-2])
+                    diff = price - prev
+                    pct = (diff / prev * 100.0) if prev else 0.0
+                    arrow = "▲" if diff >= 0 else "▼"
+                    lines_out.append(f"{names.get(lang, names['ja'])} {price:,.4f} {arrow}{abs(pct):.2f}%")
+                else:
+                    lines_out.append(f"{names.get(lang, names['ja'])} {price:,.4f}")
+            except Exception as e:
+                print(f"[fx] {sym} error: {e}")
+                continue
+        if len(lines_out) <= 2:
+            return get_message(lang, "fx_error")
+        return "\n".join(lines_out)
+    except Exception as e:
+        print(f"[get_fx_summary] error: {e}")
+        return get_message(lang, "fx_error")
 
 def get_stock_price(symbol, lang="ja"):
     """個別銘柄の現在値・前日比を取得して文字列で返す"""
@@ -939,6 +993,29 @@ def callback():
         abort(400)
     return "OK"
 
+@handler.add(FollowEvent)
+def handle_follow(event):
+    """友だち追加時に4言語の歓迎メッセージを送信"""
+    line_user_id = event.source.user_id
+    reply_token = event.reply_token
+    try:
+        existing = get_user(line_user_id)
+        if not existing:
+            set_user_lang(line_user_id, "ja")
+        lang = get_user_lang(line_user_id) or "ja"
+    except Exception as e:
+        print(f"[follow] user setup error: {e}")
+        lang = "ja"
+    try:
+        with ApiClient(configuration) as api_client:
+            api = MessagingApi(api_client)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_message(lang, "welcome_text"))]
+            ))
+    except Exception as e:
+        print(f"[follow] reply error: {e}")
+
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
     user_text    = event.message.text.strip()
@@ -1043,6 +1120,42 @@ def handle_message(event):
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_news_summary(cmd_lang))]
             ))
+            return
+
+        # 為替コマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        fx_map = {
+            "為替": "ja", "かわせ": "ja",
+            "fx": "en", "forex": "en",
+            "환율": "ko",
+            "汇率": "zh", "匯率": "zh",
+        }
+        msg_key5 = text_lower if text_lower in fx_map else user_text.strip()
+        if msg_key5 in fx_map:
+            cmd_lang = fx_map[msg_key5]
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_fx_summary(cmd_lang))]
+            ))
+            return
+
+        # 朝レター手動再送コマンド
+        morning_map = {
+            "朝レター": "ja", "あさレター": "ja", "朝レポート": "ja",
+            "morning": "en", "morning report": "en",
+            "아침레터": "ko", "조간": "ko",
+            "早报": "zh", "早報": "zh",
+        }
+        msg_key6 = text_lower if text_lower in morning_map else user_text.strip()
+        if msg_key6 in morning_map:
+            cmd_lang = morning_map[msg_key6]
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_message(cmd_lang, "waiting_morning"))]
+            ))
+            report = generate_morning_report(cmd_lang)
+            send_line_message(report, user_id=line_user_id)
             return
 
         # 株価コマンド: "株価 7203" / "price AAPL" / "주가 005930" / "股价 600519"
