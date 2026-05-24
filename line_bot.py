@@ -70,10 +70,13 @@ def set_user_lang(line_user_id, lang):
         print(f"[set_user_lang] error: {e}")
 
 def detect_language(text):
-    if any('\u3040' <= c <= '\u30ff' or '\u4e00' <= c <= '\u9fff' for c in text):
-        return "ja"
+    # ハングルがあれば韓国語
     if any('\uac00' <= c <= '\ud7a3' for c in text):
         return "ko"
+    # ひらがな or カタカナがあれば日本語（日本語特有）
+    if any('\u3040' <= c <= '\u309f' or '\u30a0' <= c <= '\u30ff' for c in text):
+        return "ja"
+    # 漢字のみなら中国語
     if any('\u4e00' <= c <= '\u9fff' for c in text):
         return "zh"
     return "en"
