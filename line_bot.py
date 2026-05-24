@@ -832,21 +832,37 @@ def handle_message(event):
                 ))
                 return
 
-        # ヘルプコマンド
-        help_keywords = ("ヘルプ", "へるぷ", "help", "도움말", "도움", "帮助", "幫助")
-        if text_lower in [k.lower() for k in help_keywords] or user_text.strip() in help_keywords:
+        # ヘルプコマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        help_map = {
+            "ヘルプ": "ja", "へるぷ": "ja",
+            "help": "en",
+            "도움말": "ko", "도움": "ko",
+            "帮助": "zh", "幫助": "zh",
+        }
+        msg_key = text_lower if text_lower in help_map else user_text.strip()
+        if msg_key in help_map:
+            cmd_lang = help_map[msg_key]
+            set_user_lang(line_user_id, cmd_lang)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text=get_message(lang, "help_text"))]
+                messages=[TextMessage(text=get_message(cmd_lang, "help_text"))]
             ))
             return
 
-        # 設定確認コマンド
-        settings_keywords = ("設定", "せってい", "settings", "setting", "설정", "设置", "設置")
-        if text_lower in [k.lower() for k in settings_keywords] or user_text.strip() in settings_keywords:
+        # 設定確認コマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        settings_map = {
+            "設定": "ja", "せってい": "ja",
+            "settings": "en", "setting": "en",
+            "설정": "ko",
+            "设置": "zh", "設置": "zh",
+        }
+        msg_key2 = text_lower if text_lower in settings_map else user_text.strip()
+        if msg_key2 in settings_map:
+            cmd_lang = settings_map[msg_key2]
+            set_user_lang(line_user_id, cmd_lang)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
-                messages=[TextMessage(text=get_message(lang, "settings_text"))]
+                messages=[TextMessage(text=get_message(cmd_lang, "settings_text"))]
             ))
             return
 
