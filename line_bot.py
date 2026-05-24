@@ -874,12 +874,16 @@ def morning():
 
     # 言語ごとにレポートをキャッシュ（同じ言語のユーザーには同じレポート → APIコスト節約）
     cache = {}
+    skipped = 0
     for u in users:
         uid  = u.get("line_user_id")
         lang = (u.get("lang") or "ja").lower()
         if lang not in ("ja", "en", "ko", "zh"):
             lang = "ja"
-        if not uid:
+        # LINEの正規ユーザーIDは "U" で始まる33文字。それ以外（test123等のダミー）はスキップ
+        if not uid or not (isinstance(uid, str) and len(uid) == 33 and uid.startswith("U")):
+            skipped += 1
+            print(f"[morning] skip invalid line_user_id: {uid!r}")
             continue
         try:
             if lang not in cache:
@@ -890,7 +894,7 @@ def morning():
             errors += 1
             print(f"[morning] send error to {uid}: {e}")
 
-    return f"OK sent={sent} errors={errors} langs={list(cache.keys())}"
+    return f"OK sent={sent} errors={errors} skipped={skipped} langs={list(cache.keys())}"
 
 @app.route("/alert", methods=["GET"])
 def alert():
