@@ -20,7 +20,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v30"
+APP_VERSION = "v31"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -157,6 +157,30 @@ def get_message(lang, key):
             "ko": "⚠️ 시장 데이터를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.",
             "zh": "⚠️ 无法获取市场数据。请稍后再试。",
         },
+        "news_header": {
+            "ja": "📰 最新の市場ニュース",
+            "en": "📰 Latest Market News",
+            "ko": "📰 최신 시장 뉴스",
+            "zh": "📰 最新市场新闻",
+        },
+        "news_error": {
+            "ja": "⚠️ ニュースを取得できませんでした。少し時間をおいて再度お試しください。",
+            "en": "⚠️ Unable to fetch news. Please try again in a moment.",
+            "ko": "⚠️ 뉴스를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.",
+            "zh": "⚠️ 无法获取新闻。请稍后再试。",
+        },
+        "price_error": {
+            "ja": "⚠️ 銘柄情報を取得できませんでした。銘柄コードをご確認ください（例：株価 7203 / price AAPL）",
+            "en": "⚠️ Unable to fetch stock info. Please check the ticker symbol (e.g., price AAPL / 株価 7203)",
+            "ko": "⚠️ 종목 정보를 가져올 수 없습니다. 종목 코드를 확인해주세요 (예: price AAPL)",
+            "zh": "⚠️ 无法获取股票信息。请检查股票代码（例：price AAPL）",
+        },
+        "price_usage": {
+            "ja": "💡 使い方：\n株価 7203 → トヨタ自動車\n株価 AAPL → Apple\nprice MSFT → Microsoft",
+            "en": "💡 Usage:\nprice AAPL → Apple\nprice MSFT → Microsoft\nprice 7203.T → Toyota",
+            "ko": "💡 사용법:\nprice AAPL → Apple\nprice MSFT → Microsoft\nprice 7203.T → Toyota",
+            "zh": "💡 用法：\nprice AAPL → Apple\nprice MSFT → Microsoft\nprice 7203.T → 丰田",
+        },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
 
@@ -194,6 +218,77 @@ def get_market_summary(lang="ja"):
     except Exception as e:
         print(f"[get_market_summary] error: {e}")
         return get_message(lang, "market_error")
+
+
+def get_news_summary(lang="ja", limit=5):
+    """最新の市場ニュースを取得して要約形式で返す（4言語対応）"""
+    try:
+        rss_sources = [
+            ("https://www.nhk.or.jp/rss/news/cat5.xml",          "NHK"),
+            ("https://feeds.reuters.com/reuters/businessNews",   "Reuters"),
+            ("https://www.nhk.or.jp/rss/news/cat4.xml",          "NHK"),
+        ]
+        items = []
+        for url, src in rss_sources:
+            try:
+                feed = feedparser.parse(url)
+                for e in feed.entries[:3]:
+                    items.append({"source": src, "title": e.title})
+                    if len(items) >= limit:
+                        break
+                if len(items) >= limit:
+                    break
+            except Exception as e:
+                print(f"[news] feed error {url}: {e}")
+                continue
+        if not items:
+            return get_message(lang, "news_error")
+        try:
+            items = translate_news_items(items, lang)
+        except Exception as e:
+            print(f"[news] translate error: {e}")
+        lines_out = [get_message(lang, "news_header"), ""]
+        for it in items[:limit]:
+            src = it.get("source", "")
+            title = it.get("title", "")
+            lines_out.append(f"[{src}] {title}")
+        return "\n".join(lines_out)
+    except Exception as e:
+        print(f"[get_news_summary] error: {e}")
+        return get_message(lang, "news_error")
+
+
+def get_stock_price(symbol, lang="ja"):
+    """個別銘柄の現在値・前日比を取得して文字列で返す"""
+    try:
+        symbol = (symbol or "").strip().upper()
+        if not symbol:
+            return get_message(lang, "price_usage")
+        if symbol.isdigit() and len(symbol) == 4:
+            symbol = symbol + ".T"
+        tk = yf.Ticker(symbol)
+        hist = tk.history(period="5d")
+        if hist is None or hist.empty:
+            return get_message(lang, "price_error")
+        try:
+            info = tk.info
+            name = info.get("shortName") or info.get("longName") or symbol
+            currency = info.get("currency") or ""
+        except Exception:
+            name = symbol
+            currency = ""
+        price = float(hist["Close"].iloc[-1])
+        if len(hist) >= 2:
+            prev = float(hist["Close"].iloc[-2])
+            diff = price - prev
+            pct = (diff / prev * 100.0) if prev else 0.0
+            arrow = "▲" if diff >= 0 else "▼"
+            return f"💹 {name} ({symbol})\n{price:,.2f} {currency}  {arrow}{abs(pct):.2f}%"
+        else:
+            return f"💹 {name} ({symbol})\n{price:,.2f} {currency}"
+    except Exception as e:
+        print(f"[get_stock_price] error: {e}")
+        return get_message(lang, "price_error")
 
 
 def detect_intent(text, lang="ja"):
@@ -930,6 +1025,49 @@ def handle_message(event):
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_market_summary(cmd_lang))]
+            ))
+            return
+
+        # ニュースコマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        news_map = {
+            "ニュース": "ja", "にゅーす": "ja",
+            "news": "en",
+            "뉴스": "ko",
+            "新闻": "zh", "新聞": "zh",
+        }
+        msg_key4 = text_lower if text_lower in news_map else user_text.strip()
+        if msg_key4 in news_map:
+            cmd_lang = news_map[msg_key4]
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_news_summary(cmd_lang))]
+            ))
+            return
+
+        # 株価コマンド: "株価 7203" / "price AAPL" / "주가 005930" / "股价 600519"
+        price_prefixes = {
+            "株価 ": "ja", "かぶか ": "ja",
+            "price ": "en",
+            "주가 ": "ko",
+            "股价 ": "zh", "股價 ": "zh",
+        }
+        matched_prefix = None
+        for pfx, pfx_lang in price_prefixes.items():
+            if text_lower.startswith(pfx.lower()) or user_text.strip().startswith(pfx):
+                matched_prefix = (pfx, pfx_lang)
+                break
+        if matched_prefix:
+            pfx, cmd_lang = matched_prefix
+            stripped = user_text.strip()
+            if stripped.lower().startswith(pfx.lower()):
+                symbol_part = stripped[len(pfx):].strip()
+            else:
+                symbol_part = stripped[len(pfx):].strip()
+            set_user_lang(line_user_id, cmd_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_stock_price(symbol_part, cmd_lang))]
             ))
             return
 
