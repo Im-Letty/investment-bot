@@ -132,56 +132,12 @@ function updateFill(el){
   el.style.setProperty('--fill','linear-gradient(to right,#2d7a2d '+pct+'%,#d8d8d8 '+pct+'%)');
 }
 </script>
-
-<script>
-/* ===== Simulator i18n ===== */
-window.SIM_I18N = {"ja":{"page_title":"投資シミュレーター","tab_daily":"毎日積立","tab_monthly":"毎月積立","tab_lump":"初期投資","tab_goal":"目標資産","tab_mypage":"マイページ","lbl_daily_amount":"毎日の積立額","lbl_monthly_amount":"毎月の積立額","lbl_lump_amount":"初期投資額","lbl_goal_amount":"目標資産","lbl_rate":"年利回り","lbl_period":"積立期間","lbl_period_goal":"達成期間","lbl_total_invested":"総積立額","lbl_principal":"元本","lbl_profit":"利益","lbl_final_assets":"総資産","lbl_monthly_need":"毎月必要額","lbl_chart":"資産推移グラフ","lbl_chart_legend_principal":"元本","lbl_chart_legend_total":"総資産","mypage_name":"名前（ハンネ）","mypage_income":"年収","mypage_assets":"総資産","mypage_monthly_inv":"毎月投資額","mypage_goal":"目標資産","mypage_stocks":"保有株・投信（複数入力可）","mypage_watchlist":"ウォッチリスト（カンマ区切り）","mypage_edit":"✏️ 資産情報を編集","btn_save":"💾 保存する","btn_register":"登録する","mypage_nodata":"まだ情報が登録されていません"},"en":{"page_title":"Investment Simulator","tab_daily":"Daily","tab_monthly":"Monthly","tab_lump":"Lump Sum","tab_goal":"Goal","tab_mypage":"My Page","lbl_daily_amount":"Daily Amount","lbl_monthly_amount":"Monthly Amount","lbl_lump_amount":"Initial Amount","lbl_goal_amount":"Target Amount","lbl_rate":"Annual Return","lbl_period":"Period","lbl_period_goal":"Target Period","lbl_total_invested":"Total Invested","lbl_principal":"Principal","lbl_profit":"Profit","lbl_final_assets":"Total Assets","lbl_monthly_need":"Monthly Need","lbl_chart":"Asset Growth Chart","lbl_chart_legend_principal":"Principal","lbl_chart_legend_total":"Total Assets","mypage_name":"Name (Nickname)","mypage_income":"Annual Income","mypage_assets":"Total Assets","mypage_monthly_inv":"Monthly Investment","mypage_goal":"Target Assets","mypage_stocks":"Stocks & Funds (multiple OK)","mypage_watchlist":"Watchlist (comma-separated)","mypage_edit":"✏️ Edit Asset Info","btn_save":"💾 Save","btn_register":"Register","mypage_nodata":"No information registered yet"},"ko":{"page_title":"투자 시뮬레이터","tab_daily":"매일 적립","tab_monthly":"매월 적립","tab_lump":"초기 투자","tab_goal":"목표 자산","tab_mypage":"마이페이지","lbl_daily_amount":"매일 적립액","lbl_monthly_amount":"매월 적립액","lbl_lump_amount":"초기 투자액","lbl_goal_amount":"목표 자산","lbl_rate":"연이율","lbl_period":"적립 기간","lbl_period_goal":"달성 기간","lbl_total_invested":"총 적립액","lbl_principal":"원금","lbl_profit":"수익","lbl_final_assets":"총 자산","lbl_monthly_need":"월 필요액","lbl_chart":"자산 추이 그래프","lbl_chart_legend_principal":"원금","lbl_chart_legend_total":"총 자산","mypage_name":"이름(닉네임)","mypage_income":"연소득","mypage_assets":"총 자산","mypage_monthly_inv":"월 투자액","mypage_goal":"목표 자산","mypage_stocks":"보유 주식·펀드(복수 입력 가능)","mypage_watchlist":"관심목록(쉬표로 구분)","mypage_edit":"✏️ 자산 정보 편집","btn_save":"💾 저장","btn_register":"등록하기","mypage_nodata":"아직 등록된 정보가 없습니다"},"zh":{"page_title":"投资模拟器","tab_daily":"每日定投","tab_monthly":"每月定投","tab_lump":"初始投资","tab_goal":"目标资产","tab_mypage":"个人中心","lbl_daily_amount":"每日定投额","lbl_monthly_amount":"每月定投额","lbl_lump_amount":"初始投资额","lbl_goal_amount":"目标资产","lbl_rate":"年化收益","lbl_period":"定投期限","lbl_period_goal":"达成期限","lbl_total_invested":"累计投入","lbl_principal":"本金","lbl_profit":"收益","lbl_final_assets":"总资产","lbl_monthly_need":"每月需要额","lbl_chart":"资产增长图","lbl_chart_legend_principal":"本金","lbl_chart_legend_total":"总资产","mypage_name":"姓名（昵称）","mypage_income":"年收入","mypage_assets":"总资产","mypage_monthly_inv":"每月投资额","mypage_goal":"目标资产","mypage_stocks":"持有股票·基金（可多个输入）","mypage_watchlist":"关注列表（逗号分隔）","mypage_edit":"✏️ 编辑资产信息","btn_save":"💾 保存","btn_register":"注册","mypage_nodata":"还未登记任何信息"}};
-window.t = function(key){
-  var lang = (window.SIM_CURRENT_LANG)||(localStorage.getItem('siteLang'))||'ja';
-  var dict = window.SIM_I18N[lang] || window.SIM_I18N.ja;
-  return (dict && dict[key]) || (window.SIM_I18N.ja[key]) || key;
-};
-window.applyLang = function(lang){
-  if(!window.SIM_I18N[lang]) lang = 'ja';
-  window.SIM_CURRENT_LANG = lang;
-  try{ localStorage.setItem('siteLang', lang); }catch(e){}
-  document.documentElement.lang = lang;
-  // タイトル
-  var t1 = document.getElementById('title'); if(t1) t1.textContent = window.t('page_title');
-  document.title = window.t('page_title');
-  // すべての data-i18n 属性を持つ要素を一括更新
-  document.querySelectorAll('[data-i18n]').forEach(function(el){
-    var k = el.getAttribute('data-i18n');
-    var v = window.t(k);
-    if(v) el.textContent = v;
-  });
-  // セレクトの選択値を同期
-  var sel = document.getElementById('lang-select');
-  if(sel && sel.value !== lang) sel.value = lang;
-  // 言語切替後に計算結果を再描画 (関数が存在すれば)
-  try{
-    if(typeof window.refreshAllResults === 'function') window.refreshAllResults();
-    else if(typeof recalc === 'function') recalc();
-    else if(typeof recalcAll === 'function') recalcAll();
-    else if(typeof updateAll === 'function') updateAll();
-  }catch(e){}
-};
-document.addEventListener('DOMContentLoaded', function(){
-  var sel = document.getElementById('lang-select');
-  if(sel){
-    sel.addEventListener('change', function(){ window.applyLang(this.value); });
-  }
-  // 起動時に保存済み言語を適用
-  var saved = localStorage.getItem('siteLang') || 'ja';
-  window.applyLang(saved);
-});
-</script>
 </head>
 <body>
 <canvas id="bg-canvas"></canvas>
 
 <div class="wrap">
-  <h1><span id="title" data-i18n="page_title">投資シミュレーター</span></h1>
+  <h1><span id="title">投資シミュレーター</span></h1>
 
   <!-- 言語ドロップダウン -->
   <div class="lang-wrap">
@@ -198,27 +154,27 @@ document.addEventListener('DOMContentLoaded', function(){
 
   <!-- タブ -->
   <div class="tabs">
-    <button class="tab active" onclick="pop(this);switchTab('daily')"   id="tab-btn-d" data-i18n="tab_daily">毎日積立</button>
-    <button class="tab"        onclick="pop(this);switchTab('monthly')" id="tab-btn-m" data-i18n="tab_monthly">毎月積立</button>
-    <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l" data-i18n="tab_lump">初期投資</button>
-    <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g" data-i18n="tab_goal">目標資産</button>
-    <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p" data-i18n="tab_mypage">マイページ</button>
+    <button class="tab active" onclick="pop(this);switchTab('daily')"   id="tab-btn-d">毎日積立</button>
+    <button class="tab"        onclick="pop(this);switchTab('monthly')" id="tab-btn-m">毎月積立</button>
+    <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">初期投資</button>
+    <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">目標資産</button>
+    <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">マイページ</button>
   </div>
 
   <!-- 毎日積立 -->
   <div id="tab-daily" class="tab-panel">
     <div class="card">
-      <div class="row"><label id="l-daily" data-i18n="lbl_daily_amount">毎日の積立額</label><input type="range" id="d-amount" oninput="sliderToMoney('d-amount','d-amount-n');calcD()"><div class="right"><input type="text" class="val-input" id="d-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'d-amount',calcD)" oninput="moneyType(this,'d-amount',calcD)"></div></div>
-      <div class="row"><label id="l-rate-d" data-i18n="lbl_rate">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-d" data-i18n="lbl_period">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">年</span></div></div>
+      <div class="row"><label id="l-daily">毎日の積立額</label><input type="range" id="d-amount" oninput="sliderToMoney('d-amount','d-amount-n');calcD()"><div class="right"><input type="text" class="val-input" id="d-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'d-amount',calcD)" oninput="moneyType(this,'d-amount',calcD)"></div></div>
+      <div class="row"><label id="l-rate-d">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-d">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-total-d" data-i18n="lbl_total_invested">総積立額</div><div class="mval" id="d-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-d" data-i18n="lbl_profit">利益</div><div class="mval" id="d-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-d" data-i18n="lbl_final_assets">総資産</div><div class="mval" id="d-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-d">総積立額</div><div class="mval" id="d-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-d">利益</div><div class="mval" id="d-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-d">総資産</div><div class="mval" id="d-final"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-d" data-i18n="lbl_chart">資産推移グラフ</p>
+      <p class="section-title" id="l-chart-d">資産推移グラフ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-d"></canvas></div>
       </div>
@@ -228,17 +184,17 @@ document.addEventListener('DOMContentLoaded', function(){
   <!-- 毎月積立 -->
   <div id="tab-monthly" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-monthly" data-i18n="lbl_monthly_amount">毎月の積立額</label><input type="range" id="m-amount" oninput="sliderToMoney('m-amount','m-amount-n');calcM()"><div class="right"><input type="text" class="val-input" id="m-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'m-amount',calcM)" oninput="moneyType(this,'m-amount',calcM)"></div></div>
-      <div class="row"><label id="l-rate-m" data-i18n="lbl_rate">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-m" data-i18n="lbl_period">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">年</span></div></div>
+      <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" id="m-amount" oninput="sliderToMoney('m-amount','m-amount-n');calcM()"><div class="right"><input type="text" class="val-input" id="m-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'m-amount',calcM)" oninput="moneyType(this,'m-amount',calcM)"></div></div>
+      <div class="row"><label id="l-rate-m">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-m">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-total-m" data-i18n="lbl_total_invested">総積立額</div><div class="mval" id="m-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-m" data-i18n="lbl_profit">利益</div><div class="mval" id="m-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-m" data-i18n="lbl_final_assets">総資産</div><div class="mval" id="m-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-m">総積立額</div><div class="mval" id="m-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-m">利益</div><div class="mval" id="m-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-m">総資産</div><div class="mval" id="m-final"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-m" data-i18n="lbl_chart">資産推移グラフ</p>
+      <p class="section-title" id="l-chart-m">資産推移グラフ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-m"></canvas></div>
       </div>
@@ -248,17 +204,17 @@ document.addEventListener('DOMContentLoaded', function(){
   <!-- 初期投資 -->
   <div id="tab-lump" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-lump" data-i18n="lbl_lump_amount">初期投資額</label><input type="range" id="lp-amount" oninput="sliderToMoney('lp-amount','lp-amount-n');calcL()"><div class="right"><input type="text" class="val-input" id="lp-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'lp-amount',calcL)" oninput="moneyType(this,'lp-amount',calcL)"></div></div>
-      <div class="row"><label id="l-rate-l" data-i18n="lbl_rate">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-l" data-i18n="lbl_period">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">年</span></div></div>
+      <div class="row"><label id="l-lump">初期投資額</label><input type="range" id="lp-amount" oninput="sliderToMoney('lp-amount','lp-amount-n');calcL()"><div class="right"><input type="text" class="val-input" id="lp-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'lp-amount',calcL)" oninput="moneyType(this,'lp-amount',calcL)"></div></div>
+      <div class="row"><label id="l-rate-l">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-l">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-principal" data-i18n="lbl_principal">元本</div><div class="mval" id="lp-principal"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-l" data-i18n="lbl_profit">利益</div><div class="mval" id="lp-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-l" data-i18n="lbl_final_assets">総資産</div><div class="mval" id="lp-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-principal">元本</div><div class="mval" id="lp-principal"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-l">利益</div><div class="mval" id="lp-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-l">総資産</div><div class="mval" id="lp-final"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-l" data-i18n="lbl_chart">資産推移グラフ</p>
+      <p class="section-title" id="l-chart-l">資産推移グラフ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-l"></canvas></div>
       </div>
@@ -268,17 +224,17 @@ document.addEventListener('DOMContentLoaded', function(){
   <!-- 目標資産 -->
   <div id="tab-goal" class="tab-panel" style="display:none">
     <div class="card">
-      <div class="row"><label id="l-goal" data-i18n="lbl_goal_amount">目標資産</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
-      <div class="row"><label id="l-rate-g" data-i18n="lbl_rate">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
-      <div class="row"><label id="l-years-g" data-i18n="lbl_period_goal">達成期間</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">年</span></div></div>
+      <div class="row"><label id="l-goal">目標資産</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
+      <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-g">達成期間</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-need" data-i18n="lbl_monthly_need">必要月額</div><div class="mval" id="g-monthly"></div></div>
-      <div class="metric"><div class="mlabel" id="l-total-g" data-i18n="lbl_total_invested">総積立額</div><div class="mval" id="g-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-g" data-i18n="lbl_profit">利益</div><div class="mval" id="g-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-need">必要月額</div><div class="mval" id="g-monthly"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-g">総積立額</div><div class="mval" id="g-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-g">利益</div><div class="mval" id="g-gain"></div></div>
     </div>
     <div class="card">
-      <p class="section-title" id="l-chart-g" data-i18n="lbl_chart">資産推移グラフ</p>
+      <p class="section-title" id="l-chart-g">資産推移グラフ</p>
       <div class="chart-outer">
         <div class="chart-wrap"><canvas id="chart-g"></canvas></div>
       </div>
@@ -447,10 +403,10 @@ const CUR={
 };
 
 const T={
-  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'総積立額',gain:'利益',final:'総資産',principal:'元本',need:'必要月額',chart:'資産推移グラフ',yr:'年',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する'},
-  en:{title:'Investment Simulator',tab1:'Daily',tab2:'Monthly',tab3:'Lump Sum',tab4:'Goal',tab5:'My Page',daily:'Daily Amount',monthly:'Monthly Amount',lump:'Initial Amount',goal:'Target Amount',rate:'Annual Return',yearsD:'Period',yearsM:'Period',yearsL:'Period',yearsG:'Target Period',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Need',chart:'Asset Growth',yr:'yr',p_label:'Principal',t_label:'Total',apply:'Apply to Simulator'},
-  ko:{title:'투자 시뮬레이터',tab1:'매일 적립',tab2:'매월 적립',tab3:'일괄투자',tab4:'목표 자산',tab5:'마이페이지',daily:'매일 적립액',monthly:'월 적립액',lump:'초기 투자액',goal:'목표 자산',rate:'연 수익률',yearsD:'적립 기간',yearsM:'적립 기간',yearsL:'운용 기간',yearsG:'달성 기간',total:'총 적립액',gain:'수익',final:'총자산',principal:'원금',need:'필요 월액',chart:'자산 추이',yr:'년',p_label:'원금',t_label:'총자산',apply:'시뮬레이터에 반영'},
-  zh:{title:'投资模拟器',tab1:'每日定投',tab2:'每月定投',tab3:'一次性投资',tab4:'目标资产',tab5:'我的页面',daily:'每日金额',monthly:'每月金额',lump:'初始投资额',goal:'目标金额',rate:'年收益率',yearsD:'投资期限',yearsM:'投资期限',yearsL:'投资期限',yearsG:'达成期限',total:'总投入',gain:'收益',final:'总资产',principal:'本金',need:'每月所需',chart:'资产增长',yr:'年',p_label:'本金',t_label:'总资产',apply:'应用到模拟器'}
+  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'総積立額',gain:'利益',final:'総資産',principal:'元本',need:'必要月額',chart:'資産推移グラフ',yr:'年',yr_suffix:'目',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する',edit_btn:'更新する',edit_btn_loading:'更新中...',edit_err:'エラー：',no_data_title:'',mypage_loading:'読み込み中...',mp_name:'お名前',mp_target:'目標資産',mp_savings:'毎月投資額',mp_income:'年収',mp_stocks:'保有株',mp_traded:'トレード銘柄',mp_lastupdate:'最終更新：',nodata:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊'},
+  en:{currency_unit:'$',title:'Investment Simulator',tab1:'Daily',tab2:'Monthly',tab3:'Lump Sum',tab4:'Goal',tab5:'My Page',daily:'Daily Amount',monthly:'Monthly Amount',lump:'Initial Amount',goal:'Target Amount',rate:'Annual Return',yearsD:'Period',yearsM:'Period',yearsL:'Period',yearsG:'Target Period',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Need',chart:'Asset Growth Chart',yr:'y',yr_suffix:'',p_label:'Principal',t_label:'Total Assets',apply:'Apply to Simulator',edit_btn:'Update',edit_btn_loading:'Updating...',edit_err:'Error: ',no_data_title:'',mypage_loading:'Loading...',mp_name:'Name',mp_target:'Target',mp_savings:'Monthly Inv.',mp_income:'Annual Inc.',mp_stocks:'Holdings',mp_traded:'Trading',mp_lastupdate:'Last Update: ',nodata:'No information registered yet.<br>Send "register" on LINE to get started😊'},
+  ko:{currency_unit:'₩',title:'투자 시뮬레이터',tab1:'매일 적립',tab2:'매월 적립',tab3:'일괄투자',tab4:'목표 자산',tab5:'마이페이지',daily:'매일 적립액',monthly:'월 적립액',lump:'초기 투자액',goal:'목표 자산',rate:'연 수익률',yearsD:'적립 기간',yearsM:'적립 기간',yearsL:'운용 기간',yearsG:'달성 기간',total:'총 적립액',gain:'수익',final:'총자산',principal:'원금',need:'필요 월액',chart:'자산 추이 차트',yr:'년',yr_suffix:'년차',p_label:'원금',t_label:'총자산',apply:'시뮬레이터에 반영',edit_btn:'업데이트',edit_btn_loading:'업데이트 중...',edit_err:'오류: ',no_data_title:'',mypage_loading:'불러오는 중...',mp_name:'이름',mp_target:'목표 자산',mp_savings:'월 투자액',mp_income:'연수입',mp_stocks:'보유 주식',mp_traded:'트레이드 종목',mp_lastupdate:'최종 업데이트: ',nodata:'아직 정보가 등록되어 있지 않습니다.<br>LINE에서 "등록"을 보내 정보를 등록해주세요😊'},
+  zh:{currency_unit:'元',title:'投资模拟器',tab1:'每日定投',tab2:'每月定投',tab3:'一次性投资',tab4:'目标资产',tab5:'我的页面',daily:'每日金额',monthly:'每月金额',lump:'初始投资额',goal:'目标金额',rate:'年收益率',yearsD:'投资期限',yearsM:'投资期限',yearsL:'投资期限',yearsG:'达成期限',total:'累计投资额',gain:'收益',final:'总资产',principal:'本金',need:'每月所需',chart:'资产走势图',yr:'年',yr_suffix:'年',p_label:'本金',t_label:'总资产',apply:'应用到模拟器',edit_btn:'更新',edit_btn_loading:'更新中...',edit_err:'错误: ',no_data_title:'',mypage_loading:'加载中...',mp_name:'姓名',mp_target:'目标资产',mp_savings:'每月投资额',mp_income:'年收入',mp_stocks:'持有股票',mp_traded:'交易股票',mp_lastupdate:'最终更新: ',nodata:'尚未注册信息。<br>请在LINE上发送「注册」来登录信息😊'}
 };
 
 function fmtInput(n){
@@ -504,6 +460,8 @@ function setSliders(){
 
 function setLang(lang){
   window.currentLang=lang;
+  try{localStorage.setItem('siteLang',lang);}catch(e){}
+  document.documentElement.lang=lang;
   const sel=document.getElementById('lang-select');if(sel)sel.value=lang;
   const t=T[lang];
   document.getElementById('title').textContent=t.title;
@@ -646,7 +604,7 @@ function makeChart(id,labels,p,tot){
         padding:14,cornerRadius:6,
         titleColor:'#4dbb52',bodyColor:'#c8e8c8',
         callbacks:{
-          title:items=>items[0].label+'目',
+          title:items=>items[0].label+(T[window.currentLang]&&T[window.currentLang].yr_suffix||''),
           label:c=>'  '+c.dataset.label+'：'+fmt(c.parsed.y)
         }
       }
@@ -691,7 +649,9 @@ function calcG(){
 }
 
 async function init(){
-  setSliders();calcD();calcM();calcL();calcG();
+  var savedLang='ja';try{savedLang=localStorage.getItem('siteLang')||'ja';}catch(e){}
+  if(!T[savedLang])savedLang='ja';
+  setLang(savedLang);
   if(UID){
     try{
       const res=await fetch(`/api/user-data?uid=${encodeURIComponent(UID)}`);
