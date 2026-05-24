@@ -20,12 +20,13 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v33"
+APP_VERSION = "v34"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
 LINE_CHANNEL_TOKEN  = os.environ.get("LINE_CHANNEL_TOKEN", "")
 LINE_USER_ID        = os.environ.get("LINE_USER_ID", "")
+ADMIN_USER_ID       = os.environ.get("ADMIN_USER_ID", "") or os.environ.get("LINE_USER_ID", "")
 SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
@@ -545,6 +546,28 @@ def send_line_message(text, user_id=None):
                 to=uid,
                 messages=[TextMessage(text=chunk)]
             ))
+
+
+def notify_admin(message, error=None):
+    """エラーや重要イベントを管理者LINEに通知する。失敗してもメイン処理は止めない。"""
+    try:
+        if not ADMIN_USER_ID:
+            return
+        body = f"⚠️ [Keizai NEWS] {message}"
+        if error:
+            err_text = str(error)
+            if len(err_text) > 500:
+                err_text = err_text[:500] + "..."
+            body += f"\n\nError: {err_text}"
+        body += f"\n\nTime: {datetime.now().isoformat()}\nVersion: {APP_VERSION}"
+        with ApiClient(configuration) as api_client:
+            api = MessagingApi(api_client)
+            api.push_message(PushMessageRequest(
+                to=ADMIN_USER_ID,
+                messages=[TextMessage(text=body[:4500])]
+            ))
+    except Exception as e:
+        print(f"[notify_admin] failed to send: {e}")
 
 def fetch_market_data():
     tickers = {
@@ -1085,6 +1108,12 @@ def callback():
         handler.handle(body, signature)
     except InvalidSignatureError:
         abort(400)
+    except Exception as e:
+        print(f"[callback] handler error: {e}")
+        try:
+            notify_admin("callback handler error", e)
+        except Exception:
+            pass
     return "OK"
 
 @handler.add(FollowEvent)
@@ -1426,6 +1455,10 @@ def morning():
         except Exception as e:
             errors += 1
             print(f"[morning] send error to {uid}: {e}")
+            try:
+                notify_admin(f"morning send error to {uid}", e)
+            except Exception:
+                pass
 
     return f"OK sent={sent} errors={errors} skipped={skipped} langs={list(cache.keys())}"
 
@@ -1584,6 +1617,7 @@ def health():
             "uptime_human": f"{uptime_sec // 3600}h{(uptime_sec % 3600) // 60}m{uptime_sec % 60}s",
             "supabase": "ok" if supabase_ok else "error",
             "started_at": APP_START_TIME.isoformat(),
+            "admin_configured": bool(ADMIN_USER_ID),
         })
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
