@@ -8,6 +8,7 @@ import feedparser
 import requests
 import threading
 import time
+import gc
 from flask import Flask, request, abort, jsonify, redirect
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -20,7 +21,15 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v36"
+APP_VERSION = "v37"
+
+# === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
+_anthropic_client = None
+def get_anthropic_client():
+    global _anthropic_client
+    if _anthropic_client is None:
+        _anthropic_client = anthropic.Anthropic(api_key=os.environ.get("ANTHROPIC_API_KEY", ""))
+    return _anthropic_client
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -459,7 +468,7 @@ def get_stock_price(symbol, lang="ja"):
 
 
 def detect_intent(text, lang="ja"):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = get_anthropic_client()
     prompt = f"""
 ユーザーのメッセージを読んで、意図を以下の6つから1つだけ選んでください。
 回答は必ずその単語1つだけ返してください。他の言葉は一切不要です。
@@ -510,7 +519,7 @@ def parse_and_save_user_info(line_user_id, text):
         save_user(line_user_id, data)
 
 def analyze_portfolio(user_info, lang="ja"):
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = get_anthropic_client()
     today = date.today().strftime("%Y-%m-%d")
     market = fetch_market_data()
     market_text = "\n".join([f"- {k}: {v['display']}" for k, v in market.items()])
@@ -991,7 +1000,7 @@ Stay accurate, at your own pace.
     }
     prompt = prompts.get(lang, prompts["ja"])
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = get_anthropic_client()
     msg = client.messages.create(
         model="claude-haiku-4-5-20251001",
         max_tokens=1000,
@@ -1019,7 +1028,7 @@ Respond based on this user's profile. Keep personal info confidential.
     lang_names = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
     lang_name = lang_names.get(lang, "English")
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = get_anthropic_client()
     prompt = f"""
 You are an investment analyst for beginners. Today is {today}.
 You MUST respond in {lang_name} only. Do not use any other language.
@@ -1057,7 +1066,7 @@ def check_alerts():
     if not (9 <= now.hour < 15 or (now.hour == 15 and now.minute <= 30)):
         return
 
-    client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+    client = get_anthropic_client()
 
     def make_alert(name, symbol, price, pct, market_ctx, lang="ja"):
         if lang == "en":
@@ -1597,6 +1606,9 @@ def morning():
                 cache[lang] = generate_morning_report(lang)
             send_line_message(cache[lang], user_id=uid)
             sent += 1
+            # 3ユーザーごとに gc を走らせてメモリ解放
+            if sent % 3 == 0:
+                gc.collect()
         except Exception as e:
             errors += 1
             print(f"[morning] send error to {uid}: {e}")
@@ -1774,11 +1786,15 @@ def index():
         return f.read(), 200, {"Content-Type": "text/html"}
 
 # Start translation preload in background (works for both gunicorn and direct run)
-try:
-    _preload_thread = threading.Thread(target=preload_translations, daemon=True)
-    _preload_thread.start()
-except Exception as _e:
-    print("[preload] Could not start thread:", _e)
+# PRELOAD_TRANSLATIONS=0 で無効化可能（メモリ節約）
+if os.environ.get("PRELOAD_TRANSLATIONS", "1") != "0":
+    try:
+        _preload_thread = threading.Thread(target=preload_translations, daemon=True)
+        _preload_thread.start()
+    except Exception as _e:
+        print("[preload] Could not start thread:", _e)
+else:
+    print("[preload] Skipped (PRELOAD_TRANSLATIONS=0)")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
