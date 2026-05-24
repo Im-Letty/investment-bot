@@ -125,6 +125,24 @@ def get_message(lang, key):
             "ko": "📊 투자 시뮬레이터는 여기에서!\n{url}",
             "zh": "📊 投资模拟器在这里！\n{url}",
         },
+        "help_text": {
+            "ja": "📚 使い方ガイド\n\n【コマンド】\n• 朝レター / ニュース → 今日の相場レター\n• 登録 → 資産情報を登録\n• 分析 / ポートフォリオ → 資産分析\n• シミュレーター → 投資シミュレーター\n• 設定 → 現在の設定を確認\n• ヘルプ → このメッセージを表示\n\n【言語切替】\n• lang ja → 日本語\n• lang en → English\n• lang ko → 한국어\n• lang zh → 中文",
+            "en": "📚 How to Use\n\n[Commands]\n• morning / news → Today's market report\n• register → Register asset info\n• analyze / portfolio → Asset analysis\n• simulator → Investment simulator\n• settings → Check current settings\n• help → Show this message\n\n[Change Language]\n• lang ja → 日本語\n• lang en → English\n• lang ko → 한국어\n• lang zh → 中文",
+            "ko": "📚 사용 안내\n\n[명령어]\n• 아침레터 / 뉴스 → 오늘의 시장 레터\n• 등록 → 자산 정보 등록\n• 분석 / 포트폴리오 → 자산 분석\n• 시뮬레이터 → 투자 시뮬레이터\n• 설정 → 현재 설정 확인\n• 도움말 → 이 메시지 표시\n\n[언어 변경]\n• lang ja → 日本語\n• lang en → English\n• lang ko → 한국어\n• lang zh → 中文",
+            "zh": "📚 使用指南\n\n【命令】\n• 早报 / 新闻 → 今日市场早报\n• 注册 → 注册资产信息\n• 分析 / 投资组合 → 资产分析\n• 模拟器 → 投资模拟器\n• 设置 → 查看当前设置\n• 帮助 → 显示此消息\n\n【切换语言】\n• lang ja → 日本語\n• lang en → English\n• lang ko → 한국어\n• lang zh → 中文",
+        },
+        "settings_text": {
+            "ja": "⚙️ 現在の設定\n\n• 言語：日本語 🇯🇵\n• 朝レター：毎朝8時に配信\n\n言語を変えたい場合は\nlang en / lang ko / lang zh\nのいずれかを送ってください。",
+            "en": "⚙️ Current Settings\n\n• Language: English 🇬🇧\n• Morning Report: Delivered daily at 8 AM\n\nTo change language, send:\nlang ja / lang ko / lang zh",
+            "ko": "⚙️ 현재 설정\n\n• 언어: 한국어 🇰🇷\n• 아침 레터: 매일 오전 8시 배달\n\n언어를 변경하려면:\nlang ja / lang en / lang zh\n중 하나를 보내주세요.",
+            "zh": "⚙️ 当前设置\n\n• 语言：中文 🇨🇳\n• 早报：每天早上8点送达\n\n如需更改语言，请发送：\nlang ja / lang en / lang ko",
+        },
+        "lang_changed": {
+            "ja": "✅ 言語を日本語に変更しました 🇯🇵",
+            "en": "✅ Language changed to English 🇬🇧",
+            "ko": "✅ 언어를 한국어로 변경했습니다 🇰🇷",
+            "zh": "✅ 已将语言切换为中文 🇨🇳",
+        },
     }
     return messages.get(key, {}).get(lang, messages.get(key, {}).get("ja", ""))
 
@@ -799,6 +817,38 @@ def handle_message(event):
 
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
+
+        # ===== 軽量コマンド判定（API呼び出し前の早期処理） =====
+        text_lower = user_text.lower().strip()
+
+        # 言語切替コマンド: "lang ja" / "lang en" / "lang ko" / "lang zh"
+        if text_lower.startswith("lang "):
+            target = text_lower[5:].strip()
+            if target in ("ja", "en", "ko", "zh"):
+                set_user_lang(line_user_id, target)
+                api.reply_message(ReplyMessageRequest(
+                    reply_token=reply_token,
+                    messages=[TextMessage(text=get_message(target, "lang_changed"))]
+                ))
+                return
+
+        # ヘルプコマンド
+        help_keywords = ("ヘルプ", "へるぷ", "help", "도움말", "도움", "帮助", "幫助")
+        if text_lower in [k.lower() for k in help_keywords] or user_text.strip() in help_keywords:
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_message(lang, "help_text"))]
+            ))
+            return
+
+        # 設定確認コマンド
+        settings_keywords = ("設定", "せってい", "settings", "setting", "설정", "设置", "設置")
+        if text_lower in [k.lower() for k in settings_keywords] or user_text.strip() in settings_keywords:
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_message(lang, "settings_text"))]
+            ))
+            return
 
         intent = detect_intent(user_text, lang)
 
