@@ -448,8 +448,8 @@
   } catch(e){}
   const hue1=baseHue+Math.sin(t*0.020)*25;
   const hue2=(baseHue+35)+Math.sin(t*0.015)*30;
-  const l1=62+Math.sin(t*0.022)*12;
-  const l2=38+Math.sin(t*0.018)*10;
+  const l1=62+Math.sin(t*0.022)*12+Math.min(t/120,1)*8;
+  const l2=38+Math.sin(t*0.018)*10+Math.min(t/120,1)*8;
   const g=c.createLinearGradient(cv.width*0.1,0,cv.width*0.9,cv.height);
   g.addColorStop(0,`hsl(${hue2},45%,${l1}%)`);
   g.addColorStop(0.5,`hsl(${hue1},40%,${(l1+20).toFixed(0)}%)`);
