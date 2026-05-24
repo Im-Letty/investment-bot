@@ -20,7 +20,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v35"
+APP_VERSION = "v36"
 
 ANTHROPIC_API_KEY   = os.environ.get("ANTHROPIC_API_KEY", "")
 LINE_CHANNEL_SECRET = os.environ.get("LINE_CHANNEL_SECRET", "")
@@ -581,12 +581,16 @@ def get_user_delivery_hour(line_user_id):
 
 
 def set_user_delivery_hour(line_user_id, hour):
-    """ユーザーの配信時刻を保存"""
+    """ユーザーの配信時刻を保存（既存ユーザー前提でupdate、なければinsert）"""
     try:
         h = int(hour)
         if h < 0 or h > 23:
             return False
-        supabase.table("users").upsert({"line_user_id": line_user_id, "delivery_hour": h}, on_conflict="line_user_id").execute()
+        # まず update を試みる
+        res = supabase.table("users").update({"delivery_hour": h}).eq("line_user_id", line_user_id).execute()
+        # 該当行がない場合は insert
+        if not res.data:
+            supabase.table("users").insert({"line_user_id": line_user_id, "delivery_hour": h, "lang": "ja"}).execute()
         return True
     except Exception as e:
         print(f"[set_user_delivery_hour] error: {e}")
