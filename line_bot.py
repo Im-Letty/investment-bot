@@ -504,7 +504,7 @@ def parse_and_save_user_info(line_user_id, text):
         elif "年収：" in line or "年収:" in line or "income:" in line.lower():
             data["financial_info"] = line.strip()
         elif "総資産：" in line or "総資産:" in line or "total assets:" in line.lower():
-            data["target_asset"] = line.strip()
+            data["total_assets"] = line.strip()
         elif "毎月投資額：" in line or "毎月投資額:" in line or "monthly:" in line.lower():
             data["savings"] = line.strip()
         elif "目標資産：" in line or "目標資産:" in line or "target:" in line.lower():
