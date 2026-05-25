@@ -713,7 +713,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           }
           _renderDivList(list, d.items,
             function(it){ return (it.yield_pct||0).toFixed(2) + '%'; },
-            function(it){ return _divT('div_yen','円') + (it.annual_dividend||0).toFixed(0); });
+            function(it){ return _divT('div_annual','年間配当') + ' ' + (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円'); });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
@@ -738,7 +738,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           }
           _renderDivList(list, d.items,
             function(it){ return (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円'); },
-            function(it){ return (it.yield_pct||0).toFixed(2) + '%'; });
+            function(it){ return _divT('div_yield','利回り') + ' ' + (it.yield_pct||0).toFixed(2) + '%'; });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
@@ -1643,7 +1643,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_alert: "急騰アラート",
     drawer_dividend: "配当金",
     div_tab_top: "高配当",
-    div_tab_yearly: "年間総額",
+    div_tab_yearly: "年間配当",
     div_tab_cal: "カレンダー",
     div_tab_search: "検索",
     div_search_ph: "会社名 または ティッカーを入力",
@@ -1710,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_alert: "Surge Alert",
     drawer_dividend: "Dividends",
     div_tab_top: "Top Yield",
-    div_tab_yearly: "Annual Total",
+    div_tab_yearly: "Annual Dividend",
     div_tab_cal: "Ex-Div Calendar",
     div_tab_search: "Search",
     div_search_ph: "Enter company name or ticker",
@@ -1777,7 +1777,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_alert: "급등 알림",
     drawer_dividend: "배당금",
     div_tab_top: "고배당",
-    div_tab_yearly: "연간 총액",
+    div_tab_yearly: "연간 배당",
     div_tab_cal: "캘린더",
     div_tab_search: "검색",
     div_search_ph: "회사명 또는 티커 입력",
@@ -1844,7 +1844,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_alert: "暴涨提醒",
     drawer_dividend: "股息",
     div_tab_top: "高股息",
-    div_tab_yearly: "年度总额",
+    div_tab_yearly: "年度股息",
     div_tab_cal: "日历",
     div_tab_search: "搜索",
     div_search_ph: "输入公司名或代码",
