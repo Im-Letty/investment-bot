@@ -2185,10 +2185,14 @@ def _get_dividend_info(ticker, name):
             except Exception as _e:
                 pass
         price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
-        yield_pct = (annual / price * 100) if price and annual else (info.get("dividendYield") or 0)
-        # dividendYield は yfinance で小数(0.03) or % 両方ある
-        if yield_pct and yield_pct < 1 and info.get("dividendYield"):
-            yield_pct = info.get("dividendYield") * 100
+        # 配当利回り計算: annual_dividend / price * 100 を優先（最も信頼できる）
+        # yfinance の dividendYield はスケール不安定（%だったり小数だったり）なのでフォールバックのみ
+        if price and annual and price > 0:
+            yield_pct = (annual / price) * 100
+        else:
+            dy = info.get("dividendYield") or 0
+            # dividendYield が >1 なら既に%表示、≤1 なら小数表示と判定
+            yield_pct = dy if dy > 1 else dy * 100
         # 次期配当見込み日
         ex_div_ts = info.get("exDividendDate")
         ex_div_date = None
