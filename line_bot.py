@@ -21,7 +21,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v39"
+APP_VERSION = "v40"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -1790,6 +1790,16 @@ def api_chat():
         {"reply": "..."}  / エラー時は {"error": "..."}
     """
     try:
+        # Rate limit check
+        _rl_ok, _rl_reason = _rl_check_and_consume()
+        if not _rl_ok:
+            if _rl_reason == "global_daily":
+                _msg = "本日の AI チャット利用上限に達しました。明日また試してね！"
+            elif _rl_reason == "ip_daily":
+                _msg = "本日のあなたの利用回数（1日" + str(RL_IP_PER_DAY) + "回）に達しました。明日また試してね！"
+            else:
+                _msg = "少し間をあけてからもう一度送信してね（1分あたり" + str(RL_IP_PER_MIN) + "回まで）。"
+            return jsonify({"reply": _msg, "rate_limited": True})
         data = request.get_json(silent=True) or {}
         msgs = data.get("messages") or []
         # サニタイズ: role と content(文字列) のみを残し、直近 20 件に制限
@@ -1828,12 +1838,63 @@ def api_chat():
         return jsonify({"error": str(e)}), 500
 
 
+# ---- Rate limiter (in-memory, per-day) ----
+# グローバル上限: 1日200リクエスト、IP単位: 1分5回 / 1日10回
+RL_GLOBAL_PER_DAY = 200
+RL_IP_PER_DAY = 10
+RL_IP_PER_MIN = 5
+_RL_STATE = {"day": None, "global": 0, "ip_day": {}, "ip_min": {}}
+
+def _client_ip():
+    try:
+        xff = request.headers.get("X-Forwarded-For", "")
+        if xff:
+            return xff.split(",")[0].strip()
+        return request.remote_addr or "unknown"
+    except Exception:
+        return "unknown"
+
+def _rl_check_and_consume():
+    """Returns (allowed: bool, reason: str). Consumes a slot on True."""
+    try:
+        today = date.today().isoformat()
+        now_min = int(time.time() // 60)
+        if _RL_STATE.get("day") != today:
+            _RL_STATE["day"] = today
+            _RL_STATE["global"] = 0
+            _RL_STATE["ip_day"] = {}
+            _RL_STATE["ip_min"] = {}
+        if _RL_STATE["global"] >= RL_GLOBAL_PER_DAY:
+            return False, "global_daily"
+        ip = _client_ip()
+        if _RL_STATE["ip_day"].get(ip, 0) >= RL_IP_PER_DAY:
+            return False, "ip_daily"
+        mkey = (ip, now_min)
+        if _RL_STATE["ip_min"].get(mkey, 0) >= RL_IP_PER_MIN:
+            return False, "ip_minute"
+        # consume
+        _RL_STATE["global"] += 1
+        _RL_STATE["ip_day"][ip] = _RL_STATE["ip_day"].get(ip, 0) + 1
+        _RL_STATE["ip_min"][mkey] = _RL_STATE["ip_min"].get(mkey, 0) + 1
+        # prune ip_min if too big
+        if len(_RL_STATE["ip_min"]) > 500:
+            cutoff = now_min - 2
+            _RL_STATE["ip_min"] = {k: v for k, v in _RL_STATE["ip_min"].items() if k[1] >= cutoff}
+        return True, "ok"
+    except Exception:
+        return True, "ok"
+
+
 _CHAT_SUGG_CACHE = {}
 
 @app.route("/api/chat-suggestions", methods=["POST"])
 def api_chat_suggestions():
     """\u30c1\u30e3\u30c3\u30c8\u753b\u9762\u306b\u8868\u793a\u3059\u308b\u30b5\u30b8\u30a7\u30b9\u30c8\u30c1\u30c3\u30d7\u3092\u751f\u6210\u3002"""
     try:
+        # Rate limit check (suggestions): on block, fall back to defaults
+        _rl_ok, _rl_reason = _rl_check_and_consume()
+        if not _rl_ok:
+            return jsonify({"chips": ["NISAって何？", "PERって何？", "ドルコスト平均法って？", "インフレって何？"], "fallback": True})
         data = request.get_json(silent=True) or {}
         interests = data.get("interests") or []
         safe_interests = []
