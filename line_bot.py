@@ -2236,48 +2236,51 @@ def api_dividend_search():
 
 @app.route("/api/dividend/top", methods=["GET"])
 def api_dividend_top():
-    """全銘柄をスキャンして利回りりランキングを返す"""
+    """高配当利回りランキングを返す（並列fetch・有効データのみ集計）"""
     cached = _div_cache_get("top_yield")
-    if cached:
-        try:
-            limit = int(request.args.get("limit", 30))
-        except:
-            limit = 30
-        return jsonify({"items": cached[:limit], "cached": True})
-    results = []
-    for code, name in JP_STOCKS.items():
-        info = _get_dividend_info(f"{code}.T", name)
-        if info and info.get("yield_pct", 0) > 0:
-            results.append(info)
-    results.sort(key=lambda x: x.get("yield_pct", 0), reverse=True)
-    _div_cache_set("top_yield", results)
     try:
         limit = int(request.args.get("limit", 30))
     except:
         limit = 30
+    if cached:
+        return jsonify({"items": cached[:limit], "cached": True})
+    from concurrent.futures import ThreadPoolExecutor
+    results = []
+    def _fetch_one(item):
+        code, name = item
+        return _get_dividend_info(f"{code}.T", name)
+    with ThreadPoolExecutor(max_workers=20) as ex:
+        for info in ex.map(_fetch_one, list(JP_STOCKS.items())):
+            if info and info.get("yield_pct", 0) > 0:
+                results.append(info)
+    results.sort(key=lambda x: x.get("yield_pct", 0), reverse=True)
+    _div_cache_set("top_yield", results)
+    _div_cache_set("yearly", results)  # 収集したデータは yearlyと共有
     return jsonify({"items": results[:limit], "cached": False})
 
 @app.route("/api/dividend/calendar", methods=["GET"])
 def api_dividend_calendar():
-    """記載銘柄の次回権利落ち日をカレンダー形式で返す"""
-    month = request.args.get("month", "")  # YYYY-MM
+    """記載銘柄の次回権利落ち日をカレンダー形式で返す（並列）"""
+    month = request.args.get("month", "")
     cached = _div_cache_get(f"cal_{month}")
     if cached:
         return jsonify({"days": cached, "cached": True})
-    # 全銘柄のex_dividend_dateを集める
+    from concurrent.futures import ThreadPoolExecutor
     by_day = {}
-    for code, name in JP_STOCKS.items():
-        info = _get_dividend_info(f"{code}.T", name)
-        if info and info.get("ex_dividend_date"):
-            d = info["ex_dividend_date"]
-            if month and not d.startswith(month):
-                continue
-            by_day.setdefault(d, []).append({
-                "code": code, "name": name,
-                "yield_pct": info.get("yield_pct", 0),
-                "annual_dividend": info.get("annual_dividend", 0),
-            })
-    # ソート
+    def _fetch_one(item):
+        code, name = item
+        return (code, name, _get_dividend_info(f"{code}.T", name))
+    with ThreadPoolExecutor(max_workers=20) as ex:
+        for code, name, info in ex.map(_fetch_one, list(JP_STOCKS.items())):
+            if info and info.get("ex_dividend_date"):
+                d = info["ex_dividend_date"]
+                if month and not d.startswith(month):
+                    continue
+                by_day.setdefault(d, []).append({
+                    "code": code, "name": name,
+                    "yield_pct": info.get("yield_pct", 0),
+                    "annual_dividend": info.get("annual_dividend", 0),
+                })
     days = sorted(by_day.items())
     out = [{"date": d, "items": items} for d, items in days]
     _div_cache_set(f"cal_{month}", out)
@@ -2285,26 +2288,30 @@ def api_dividend_calendar():
 
 @app.route("/api/dividend/yearly", methods=["GET"])
 def api_dividend_yearly():
-    """年間配当金総額ランキング"""
-    cached = _div_cache_get("yearly")
-    if cached:
-        try:
-            limit = int(request.args.get("limit", 30))
-        except:
-            limit = 30
-        return jsonify({"items": cached[:limit], "cached": True})
-    results = []
-    for code, name in JP_STOCKS.items():
-        info = _get_dividend_info(f"{code}.T", name)
-        if info and info.get("annual_dividend", 0) > 0:
-            results.append(info)
-    results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
-    _div_cache_set("yearly", results)
+    """年間配当金総額ランキング（top_yieldと共有データを使う）"""
     try:
         limit = int(request.args.get("limit", 30))
     except:
         limit = 30
+    cached = _div_cache_get("yearly")
+    if cached:
+        sorted_items = sorted(cached, key=lambda x: x.get("annual_dividend", 0), reverse=True)
+        return jsonify({"items": sorted_items[:limit], "cached": True})
+    # キャッシュがない場合は並列で収集
+    from concurrent.futures import ThreadPoolExecutor
+    results = []
+    def _fetch_one(item):
+        code, name = item
+        return _get_dividend_info(f"{code}.T", name)
+    with ThreadPoolExecutor(max_workers=20) as ex:
+        for info in ex.map(_fetch_one, list(JP_STOCKS.items())):
+            if info and info.get("annual_dividend", 0) > 0:
+                results.append(info)
+    results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
+    _div_cache_set("yearly", results)
+    _div_cache_set("top_yield", sorted(results, key=lambda x: x.get("yield_pct", 0), reverse=True))
     return jsonify({"items": results[:limit], "cached": False})
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
