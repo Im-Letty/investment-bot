@@ -21,7 +21,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v37"
+APP_VERSION = "v38"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -1778,6 +1778,54 @@ def health():
         })
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
+
+
+@app.route("/api/chat", methods=["POST"])
+def api_chat():
+    """ページ内 AI チャットウィジェット用エンドポイント。
+
+    リクエスト JSON:
+        {"messages": [{"role": "user"|"assistant", "content": "..."}, ...]}
+    レスポンス JSON:
+        {"reply": "..."}  / エラー時は {"error": "..."}
+    """
+    try:
+        data = request.get_json(silent=True) or {}
+        msgs = data.get("messages") or []
+        # サニタイズ: role と content(文字列) のみを残し、直近 20 件に制限
+        safe_msgs = []
+        for m in msgs[-20:]:
+            if not isinstance(m, dict):
+                continue
+            role = m.get("role")
+            content = m.get("content")
+            if role in ("user", "assistant") and isinstance(content, str) and content.strip():
+                safe_msgs.append({"role": role, "content": content.strip()[:2000]})
+        if not safe_msgs or safe_msgs[-1]["role"] != "user":
+            return jsonify({"error": "no user message"}), 400
+
+        system_prompt = (
+            "あなたは「経済NEWS」サイトの AI アシスタントです。"
+            "投資、相場、資産運用、家計簿、経済ニュースについて、"
+            "初心者にも分かりやすく丁寧に日本語で回答してください。"
+            "回答は簡潔に、必要に応じて箇条書きも使い、"
+            "300文字程度を目安にしてください。"
+            "金融商品の勧誘や断定的な投資助言は避け、"
+            "最終的な判断は本人が行うよう促してください。"
+        )
+
+        client = get_anthropic_client()
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=512,
+            system=system_prompt,
+            messages=safe_msgs,
+        )
+        reply = msg.content[0].text if msg.content else ""
+        return jsonify({"reply": reply})
+    except Exception as e:
+        print(f"[api_chat] error: {e}")
+        return jsonify({"error": str(e)}), 500
 
 
 @app.route("/")
