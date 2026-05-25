@@ -2303,30 +2303,48 @@ def api_dividend_yearly():
 
 # === 配当データ並列スキャン ヘルパー ===
 def _div_cache_set_short(key, value):
-    """部分結果は短期キャッシュ（5分）。warmer完了で上書きされる"""
+    """部分結果は短期キャッシュ（5分）。warmerが完了したら上書きされる"""
     _dividend_cache[key] = (time.time() - _DIV_CACHE_TTL + 300, value)
 
-def _scan_dividends_partial(n):
-    """JP_STOCKS の先頭 n 銘柄を並列でスキャン（タイムアウト保護付き）"""
-    from concurrent.futures import ThreadPoolExecutor, as_completed
+def _scan_dividends_partial(n, hard_timeout=18):
+    """JP_STOCKSの先頭n銘柄を並列スキャン。タイムアウト時は未完了タスクをキャンセル"""
+    from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
     items = list(JP_STOCKS.items())[:n]
-    results = []
+    if not items:
+        return []
     def _one(item):
         code, name = item
-        return _get_dividend_info(f"{code}.T", name)
-    with ThreadPoolExecutor(max_workers=40) as ex:
-        futs = {ex.submit(_one, it): it for it in items}
         try:
-            for fut in as_completed(futs, timeout=22):
+            return _get_dividend_info(f"{code}.T", name)
+        except Exception:
+            return None
+    ex = ThreadPoolExecutor(max_workers=30)
+    try:
+        futs = [ex.submit(_one, it) for it in items]
+        deadline = time.time() + hard_timeout
+        results = []
+        remaining = set(futs)
+        while remaining and time.time() < deadline:
+            timeout_left = max(0.1, deadline - time.time())
+            done, remaining = wait(remaining, timeout=timeout_left, return_when=FIRST_COMPLETED)
+            for fut in done:
                 try:
-                    info = fut.result(timeout=2)
+                    info = fut.result(timeout=0.01)
                     if info:
                         results.append(info)
                 except Exception:
                     pass
-        except Exception as e:
-            print(f"[dividend] partial scan timeout: {e}")
-    return results
+        # 未完了タスクはキャンセル（実行中のものは止められないが、待たない）
+        for fut in remaining:
+            fut.cancel()
+        return results
+    finally:
+        # wait=Falseで未完了スレッドを置き去りにする（プロセス終了時に消える）
+        try:
+            ex.shutdown(wait=False, cancel_futures=True)
+        except TypeError:
+            # Python<3.9
+            ex.shutdown(wait=False)
 
 # === バックグラウンドwarmer（全213銘柄をゆっくり収集してキャッシュ） ===
 _DIV_WARMER_STARTED = False
@@ -2344,34 +2362,53 @@ def _ensure_dividend_warmer():
         print("[dividend] warmer thread started")
     except Exception as e:
         print(f"[dividend] warmer start failed: {e}")
+        with _DIV_WARMER_LOCK:
+            _DIV_WARMER_STARTED = False
 
 def _dividend_warmer_run():
-    """全銘柄をバックグラウンドで収集してキャッシュ"""
+    """全銘柄をバックグラウンドで収集してキャッシュ。小バッチで実行してメモリ圧迫を避ける"""
     try:
         from concurrent.futures import ThreadPoolExecutor
         all_items = list(JP_STOCKS.items())
+        batch = 20
         results = []
-        def _one(item):
-            code, name = item
-            return _get_dividend_info(f"{code}.T", name)
-        with ThreadPoolExecutor(max_workers=15) as ex:
-            for info in ex.map(_one, all_items):
-                if info:
-                    results.append(info)
-        if results:
-            # top_yield: yield_pct>0のみ
-            top = sorted([r for r in results if r.get("yield_pct", 0) > 0],
-                         key=lambda x: x.get("yield_pct", 0), reverse=True)
-            _div_cache_set("top_yield", top)
-            # yearly: annual_dividend>0のみ
-            yearly = sorted([r for r in results if r.get("annual_dividend", 0) > 0],
-                            key=lambda x: x.get("annual_dividend", 0), reverse=True)
-            _div_cache_set("yearly", yearly)
-            print(f"[dividend] warmer done: {len(results)} stocks, top={len(top)}, yearly={len(yearly)}")
+        for i in range(0, len(all_items), batch):
+            chunk = all_items[i:i+batch]
+            ex = ThreadPoolExecutor(max_workers=10)
+            try:
+                def _one(item):
+                    code, name = item
+                    try:
+                        return _get_dividend_info(f"{code}.T", name)
+                    except Exception:
+                        return None
+                for info in ex.map(_one, chunk, timeout=60):
+                    if info:
+                        results.append(info)
+            except Exception as e:
+                print(f"[dividend] warmer batch {i} error: {e}")
+            finally:
+                try:
+                    ex.shutdown(wait=False, cancel_futures=True)
+                except TypeError:
+                    ex.shutdown(wait=False)
+            # 各バッチ後にキャッシュを更新（部分的に利用可能に）
+            if results:
+                top = sorted([r for r in results if r.get("yield_pct", 0) > 0],
+                             key=lambda x: x.get("yield_pct", 0), reverse=True)
+                yearly = sorted([r for r in results if r.get("annual_dividend", 0) > 0],
+                                key=lambda x: x.get("annual_dividend", 0), reverse=True)
+                _div_cache_set("top_yield", top)
+                _div_cache_set("yearly", yearly)
+            time.sleep(0.5)  # Yahoo へのレート緩和
+        print(f"[dividend] warmer done: {len(results)} stocks total")
     except Exception as e:
         print(f"[dividend] warmer error: {e}")
+    finally:
+        # 次回再起動時に再度走らせるためフラグを残す（成功でも保持）
+        pass
 
-# サーバー起動時に warmer を自動キック（任意で無効化可能）
+# 起動時にwarmerを kick (DIVIDEND_WARMER=0 で無効化可能)
 if os.environ.get("DIVIDEND_WARMER", "1") != "0":
     try:
         _ensure_dividend_warmer()
