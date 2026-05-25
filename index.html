@@ -247,6 +247,7 @@
     <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">☀️</span> <span data-i18n="drawer_morning">朝の相場レター</span></button>
     <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">💼</span> <span data-i18n="drawer_assets">資産分析</span></a>
     <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">⚡</span> <span data-i18n="drawer_alert">急騰アラート</span></button>
+    <button class="drawer-item" onclick="closeDrawer();openDividendSection()"><span class="drawer-item-icon">💴</span> <span data-i18n="drawer_dividend">配当金</span></button>
   </nav>
   <div class="drawer-section-label" data-i18n="sidebar_color_custom">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button><button class="drawer-color-preset" data-color="#9c27b0" style="background:#9c27b0" title="パープル"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#ff9800" style="background:#ff9800" title="オレンジ"></button><button class="drawer-color-preset" data-color="#f44336" style="background:#f44336" title="レッド"></button><button class="drawer-color-preset" data-color="#009688" style="background:#009688" title="ティール"></button><button class="drawer-color-preset" data-color="#607d8b" style="background:#607d8b" title="グレー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label" data-i18n="sidebar_color_picker">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset" data-i18n="sidebar_color_reset">リセット</button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
 </div>
@@ -396,6 +397,79 @@
     </div>
   
 
+
+
+  <!-- 配当金モーダル -->
+  <div id="dividend-modal" class="dividend-modal" style="display:none">
+    <div class="dividend-modal-bg" onclick="closeDividendSection()"></div>
+    <div class="dividend-modal-body">
+      <div class="dividend-modal-head">
+        <div class="dividend-modal-title">💴 <span data-i18n="drawer_dividend">配当金</span></div>
+        <button class="dividend-modal-close" onclick="closeDividendSection()">✕</button>
+      </div>
+      <div class="dividend-tabs">
+        <button class="dividend-tab active" data-tab="top" onclick="switchDividendTab('top')">🏆 高配当</button>
+        <button class="dividend-tab" data-tab="cal" onclick="switchDividendTab('cal')">📅 カレンダー</button>
+        <button class="dividend-tab" data-tab="search" onclick="switchDividendTab('search')">🔍 検索</button>
+      </div>
+      <div class="dividend-tab-body">
+        <div class="dividend-pane active" data-pane="top">
+          <div class="dividend-loading">読み込み中...</div>
+          <div class="dividend-list" id="dividend-top-list"></div>
+        </div>
+        <div class="dividend-pane" data-pane="cal" style="display:none">
+          <div class="dividend-cal-controls">
+            <input type="month" id="dividend-cal-month" onchange="loadDividendCalendar()">
+          </div>
+          <div class="dividend-loading">読み込み中...</div>
+          <div class="dividend-cal" id="dividend-cal-body"></div>
+        </div>
+        <div class="dividend-pane" data-pane="search" style="display:none">
+          <div class="dividend-search-wrap">
+            <input type="text" id="dividend-search-input" placeholder="トヨタ or 7203" onkeypress="if(event.key==='Enter')doDividendSearch()">
+            <button onclick="doDividendSearch()">検索</button>
+          </div>
+          <div class="dividend-search-result" id="dividend-search-result"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <style>
+  .dividend-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center}
+  .dividend-modal-bg{position:absolute;inset:0;background:rgba(0,0,0,0.5)}
+  .dividend-modal-body{position:relative;background:#fff;border-radius:14px;width:min(680px,92vw);max-height:88vh;display:flex;flex-direction:column;box-shadow:0 12px 40px rgba(0,0,0,0.25);overflow:hidden}
+  .dividend-modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;background:linear-gradient(135deg,var(--brand-dark,#0e1730),var(--brand-color,#06994a));color:#fff}
+  .dividend-modal-title{font-weight:700;font-size:16px}
+  .dividend-modal-close{background:transparent;border:none;color:#fff;font-size:20px;cursor:pointer}
+  .dividend-tabs{display:flex;border-bottom:1px solid #e5e7eb;background:#f9fafb}
+  .dividend-tab{flex:1;background:none;border:none;padding:12px 8px;cursor:pointer;font-size:13px;font-weight:600;color:#6b7280;border-bottom:2px solid transparent}
+  .dividend-tab.active{color:var(--brand-color,#06994a);border-bottom-color:var(--brand-color,#06994a)}
+  .dividend-tab-body{flex:1;overflow-y:auto;padding:14px}
+  .dividend-pane{}
+  .dividend-loading{text-align:center;padding:24px;color:#9ca3af;font-size:13px}
+  .dividend-list .div-item{display:grid;grid-template-columns:32px 1fr auto;gap:10px;padding:10px;border-bottom:1px solid #f1f5f9;align-items:center}
+  .dividend-list .div-rank{font-weight:700;color:var(--brand-color,#06994a);font-size:14px}
+  .dividend-list .div-name{font-size:13px;font-weight:600;color:#111}
+  .dividend-list .div-code{font-size:11px;color:#6b7280;margin-top:2px}
+  .dividend-list .div-yield{font-weight:700;font-size:15px;color:#dc2626}
+  .dividend-list .div-meta{font-size:11px;color:#6b7280;text-align:right;margin-top:2px}
+  .dividend-cal-controls{margin-bottom:12px}
+  .dividend-cal-controls input{padding:8px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+  .dividend-cal .cal-day{margin-bottom:14px;border-left:3px solid var(--brand-color,#06994a);padding-left:10px}
+  .dividend-cal .cal-date{font-weight:700;color:#111;margin-bottom:6px;font-size:14px}
+  .dividend-cal .cal-item{font-size:12px;color:#374151;padding:3px 0}
+  .dividend-search-wrap{display:flex;gap:8px;margin-bottom:14px}
+  .dividend-search-wrap input{flex:1;padding:10px;border:1px solid #d1d5db;border-radius:8px;font-size:14px}
+  .dividend-search-wrap button{padding:10px 18px;background:var(--brand-color,#06994a);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+  .dividend-search-result{font-size:13px}
+  .dividend-search-result .res-card{padding:12px;background:#f9fafb;border-radius:10px;margin-bottom:10px}
+  .dividend-search-result .res-name{font-size:16px;font-weight:700;color:#111}
+  .dividend-search-result .res-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid #e5e7eb;font-size:13px}
+  .dividend-search-result .res-row:last-child{border-bottom:none}
+  .dividend-search-result .res-label{color:#6b7280}
+  .dividend-search-result .res-val{font-weight:600;color:#111}
+  .dividend-search-result .hist-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:#374151}
+  </style>
 
     <script>
       // ===== SPLASH =====
@@ -558,6 +632,132 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if(s) s.style.display = 'none';
       window.scrollTo({top: 0, behavior: 'smooth'});
     }
+
+    function openDividendSection() {
+      var m = document.getElementById('dividend-modal');
+      if (m) {
+        m.style.display = 'flex';
+        loadDividendTop();
+      }
+    }
+    function closeDividendSection() {
+      var m = document.getElementById('dividend-modal');
+      if (m) m.style.display = 'none';
+    }
+    function switchDividendTab(tab) {
+      document.querySelectorAll('.dividend-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab === tab); });
+      document.querySelectorAll('.dividend-pane').forEach(function(p){
+        var match = p.dataset.pane === tab;
+        p.style.display = match ? 'block' : 'none';
+        p.classList.toggle('active', match);
+      });
+      if (tab === 'top') loadDividendTop();
+      else if (tab === 'cal') {
+        var inp = document.getElementById('dividend-cal-month');
+        if (!inp.value) {
+          var now = new Date();
+          inp.value = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
+        }
+        loadDividendCalendar();
+      }
+    }
+    function loadDividendTop() {
+      var pane = document.querySelector('.dividend-pane[data-pane="top"]');
+      var loading = pane.querySelector('.dividend-loading');
+      var list = document.getElementById('dividend-top-list');
+      if (list.dataset.loaded === '1') return;
+      loading.style.display = 'block';
+      list.innerHTML = '';
+      fetch('/api/dividend/top?limit=30')
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          loading.style.display = 'none';
+          if (!d.items || d.items.length === 0) {
+            list.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">データを取得できませんでした</div>';
+            return;
+          }
+          d.items.forEach(function(it, idx){
+            var div = document.createElement('div');
+            div.className = 'div-item';
+            div.innerHTML = '<div class="div-rank">' + (idx+1) + '</div>' +
+              '<div><div class="div-name">' + it.name + '</div><div class="div-code">' + it.code + '</div></div>' +
+              '<div style="text-align:right"><div class="div-yield">' + (it.yield_pct||0).toFixed(2) + '%</div>' +
+              '<div class="div-meta">年' + (it.annual_dividend||0).toFixed(0) + '円</div></div>';
+            list.appendChild(div);
+          });
+          list.dataset.loaded = '1';
+        })
+        .catch(function(e){
+          loading.style.display = 'none';
+          list.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">エラー: ' + e.message + '</div>';
+        });
+    }
+    function loadDividendCalendar() {
+      var pane = document.querySelector('.dividend-pane[data-pane="cal"]');
+      var loading = pane.querySelector('.dividend-loading');
+      var body = document.getElementById('dividend-cal-body');
+      var month = document.getElementById('dividend-cal-month').value || '';
+      loading.style.display = 'block';
+      body.innerHTML = '';
+      fetch('/api/dividend/calendar?month=' + encodeURIComponent(month))
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          loading.style.display = 'none';
+          if (!d.days || d.days.length === 0) {
+            body.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">この月の権利落ち銘柄はありません</div>';
+            return;
+          }
+          d.days.forEach(function(day){
+            var dd = document.createElement('div');
+            dd.className = 'cal-day';
+            var html = '<div class="cal-date">' + day.date + ' (' + day.items.length + '銘柄)</div>';
+            day.items.forEach(function(it){
+              html += '<div class="cal-item">' + it.code + ' ' + it.name + ' — ' + (it.yield_pct||0).toFixed(2) + '%</div>';
+            });
+            dd.innerHTML = html;
+            body.appendChild(dd);
+          });
+        })
+        .catch(function(e){
+          loading.style.display = 'none';
+          body.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">エラー: ' + e.message + '</div>';
+        });
+    }
+    function doDividendSearch() {
+      var q = document.getElementById('dividend-search-input').value.trim();
+      var box = document.getElementById('dividend-search-result');
+      if (!q) { box.innerHTML = ''; return; }
+      box.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">検索中...</div>';
+      fetch('/api/dividend/search?q=' + encodeURIComponent(q))
+        .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
+        .then(function(res){
+          if (!res.ok) {
+            box.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + (res.d.error || '見つかりません') + '</div>';
+            return;
+          }
+          var d = res.d;
+          var html = '<div class="res-card">' +
+            '<div class="res-name">' + d.name + ' <span style="font-size:12px;color:#6b7280">(' + d.code + ')</span></div>' +
+            '<div class="res-row"><span class="res-label">現在価</span><span class="res-val">' + (d.price||0).toLocaleString() + '円</span></div>' +
+            '<div class="res-row"><span class="res-label">配当利回り</span><span class="res-val" style="color:#dc2626">' + (d.yield_pct||0).toFixed(2) + '%</span></div>' +
+            '<div class="res-row"><span class="res-label">年間配当金</span><span class="res-val">' + (d.annual_dividend||0).toFixed(0) + '円</span></div>' +
+            '<div class="res-row"><span class="res-label">配当性向</span><span class="res-val">' + (d.payout_ratio||0).toFixed(1) + '%</span></div>' +
+            '<div class="res-row"><span class="res-label">次回権利落ち日</span><span class="res-val">' + (d.ex_dividend_date || '不明') + '</span></div>' +
+            '</div>';
+          if (d.history && d.history.length > 0) {
+            html += '<div class="res-card"><div style="font-weight:700;margin-bottom:6px">過去5年の配当推移</div>';
+            d.history.forEach(function(h){
+              html += '<div class="hist-row"><span>' + h.year + '</span><span>' + h.total.toFixed(0) + '円</span></div>';
+            });
+            html += '</div>';
+          }
+          box.innerHTML = html;
+        })
+        .catch(function(e){
+          box.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">エラー: ' + e.message + '</div>';
+        });
+    }
+
     
 var _mktCache=null,_mktLastFetch=0,_mktInterval=null,_mktCountdown=30,_mktFetchSec=30;
 var _allIndices=[
@@ -1341,6 +1541,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_morning: "朝の相場レター",
     drawer_assets: "資産分析",
     drawer_alert: "急騰アラート",
+    drawer_dividend: "配当金",
     morning_title: "朝の相場レター",
     morning_sub: "毎朝8時にLINEで配信中",
     morning_idx_select: "指数選択",
@@ -1389,6 +1590,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_morning: "Morning Brief",
     drawer_assets: "Asset Analysis",
     drawer_alert: "Surge Alert",
+    drawer_dividend: "Dividends",
     morning_title: "Morning Market Brief",
     morning_sub: "Delivered daily at 8 AM via LINE",
     morning_idx_select: "Select Indices",
@@ -1437,6 +1639,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_morning: "아침 시황 레터",
     drawer_assets: "자산 분석",
     drawer_alert: "급등 알림",
+    drawer_dividend: "배당금",
     morning_title: "아침 시황 레터",
     morning_sub: "매일 아침 8시 LINE으로 발송",
     morning_idx_select: "지수 선택",
@@ -1485,6 +1688,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_morning: "晨间市场简报",
     drawer_assets: "资产分析",
     drawer_alert: "暴涨提醒",
+    drawer_dividend: "股息",
     morning_title: "晨间市场简报",
     morning_sub: "每天上午8点通过LINE推送",
     morning_idx_select: "选择指数",
