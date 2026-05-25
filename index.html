@@ -782,7 +782,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
     var _divAcTimer = null;
     function _ensureAcCache() {
       if (_divAcCache) return Promise.resolve(_divAcCache);
-      return fetch('/api/dividend/top?limit=300')
+      return fetch('/api/dividend/list')
         .then(function(r){ return r.json(); })
         .then(function(d){ _divAcCache = d.items || []; return _divAcCache; });
     }
