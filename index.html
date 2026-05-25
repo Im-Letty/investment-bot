@@ -408,14 +408,19 @@
         <button class="dividend-modal-close" onclick="closeDividendSection()">✕</button>
       </div>
       <div class="dividend-tabs">
-        <button class="dividend-tab active" data-tab="top" onclick="switchDividendTab('top')">🏆 高配当</button>
-        <button class="dividend-tab" data-tab="cal" onclick="switchDividendTab('cal')">📅 カレンダー</button>
-        <button class="dividend-tab" data-tab="search" onclick="switchDividendTab('search')">🔍 検索</button>
+        <button class="dividend-tab active" data-tab="top" onclick="switchDividendTab('top')">🏆 <span data-i18n="div_tab_top">高配当</span></button>
+        <button class="dividend-tab" data-tab="yearly" onclick="switchDividendTab('yearly')">💰 <span data-i18n="div_tab_yearly">年間総額</span></button>
+        <button class="dividend-tab" data-tab="cal" onclick="switchDividendTab('cal')">📅 <span data-i18n="div_tab_cal">カレンダー</span></button>
+        <button class="dividend-tab" data-tab="search" onclick="switchDividendTab('search')">🔍 <span data-i18n="div_tab_search">検索</span></button>
       </div>
       <div class="dividend-tab-body">
         <div class="dividend-pane active" data-pane="top">
-          <div class="dividend-loading">読み込み中...</div>
+          <div class="dividend-loading" data-i18n="div_loading">読み込み中...</div>
           <div class="dividend-list" id="dividend-top-list"></div>
+        </div>
+        <div class="dividend-pane" data-pane="yearly" style="display:none">
+          <div class="dividend-loading" data-i18n="div_loading">読み込み中...</div>
+          <div class="dividend-list" id="dividend-yearly-list"></div>
         </div>
         <div class="dividend-pane" data-pane="cal" style="display:none">
           <div class="dividend-cal-controls">
@@ -426,8 +431,11 @@
         </div>
         <div class="dividend-pane" data-pane="search" style="display:none">
           <div class="dividend-search-wrap">
-            <input type="text" id="dividend-search-input" placeholder="トヨタ or 7203" onkeypress="if(event.key==='Enter')doDividendSearch()">
-            <button onclick="doDividendSearch()">検索</button>
+            <div class="dividend-search-ac-wrap">
+              <input type="text" id="dividend-search-input" data-i18n-ph="div_search_ph" placeholder="会社名 または ティッカーを入力" oninput="onDividendSearchInput()" onkeypress="if(event.key==='Enter'){closeDividendAC();doDividendSearch();}" autocomplete="off">
+              <div class="dividend-ac-list" id="dividend-ac-list" style="display:none"></div>
+            </div>
+            <button onclick="doDividendSearch()" data-i18n="div_search_btn">検索</button>
           </div>
           <div class="dividend-search-result" id="dividend-search-result"></div>
         </div>
@@ -469,6 +477,13 @@
   .dividend-search-result .res-label{color:#6b7280}
   .dividend-search-result .res-val{font-weight:600;color:#111}
   .dividend-search-result .hist-row{display:flex;justify-content:space-between;font-size:12px;padding:2px 0;color:#374151}
+  .dividend-search-ac-wrap{position:relative;flex:1}
+  .dividend-search-ac-wrap input{width:100%}
+  .dividend-ac-list{position:absolute;top:100%;left:0;right:0;background:#fff;border:1px solid #d1d5db;border-radius:8px;margin-top:4px;max-height:240px;overflow-y:auto;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.1)}
+  .dividend-ac-item{padding:10px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #f1f5f9}
+  .dividend-ac-item:last-child{border-bottom:none}
+  .dividend-ac-item:hover,.dividend-ac-item.active{background:#f3f4f6}
+  .dividend-ac-item .ac-code{color:#6b7280;font-size:11px;margin-left:6px}
   </style>
 
     <script>
@@ -644,6 +659,13 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       var m = document.getElementById('dividend-modal');
       if (m) m.style.display = 'none';
     }
+    function _divT(key, fb) {
+      try {
+        var lang = window.currentLang || (document.documentElement.lang || 'ja');
+        var pack = (window.I18N && window.I18N[lang]) || (window.I18N && window.I18N.ja) || {};
+        return pack[key] || fb;
+      } catch(e) { return fb; }
+    }
     function switchDividendTab(tab) {
       document.querySelectorAll('.dividend-tab').forEach(function(t){ t.classList.toggle('active', t.dataset.tab === tab); });
       document.querySelectorAll('.dividend-pane').forEach(function(p){
@@ -652,14 +674,27 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
         p.classList.toggle('active', match);
       });
       if (tab === 'top') loadDividendTop();
+      else if (tab === 'yearly') loadDividendYearly();
       else if (tab === 'cal') {
         var inp = document.getElementById('dividend-cal-month');
-        if (!inp.value) {
+        if (inp && !inp.value) {
           var now = new Date();
           inp.value = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
         }
         loadDividendCalendar();
       }
+    }
+    function _renderDivList(listEl, items, valueFn, suffix) {
+      listEl.innerHTML = '';
+      items.forEach(function(it, idx){
+        var div = document.createElement('div');
+        div.className = 'div-item';
+        div.innerHTML = '<div class="div-rank">' + (idx+1) + '</div>' +
+          '<div><div class="div-name">' + it.name + '</div><div class="div-code">' + it.code + '</div></div>' +
+          '<div style="text-align:right"><div class="div-yield">' + valueFn(it) + '</div>' +
+          '<div class="div-meta">' + suffix(it) + '</div></div>';
+        listEl.appendChild(div);
+      });
     }
     function loadDividendTop() {
       var pane = document.querySelector('.dividend-pane[data-pane="top"]');
@@ -668,28 +703,47 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if (list.dataset.loaded === '1') return;
       loading.style.display = 'block';
       list.innerHTML = '';
-      fetch('/api/dividend/top?limit=30')
+      fetch('/api/dividend/top?limit=50')
         .then(function(r){ return r.json(); })
         .then(function(d){
           loading.style.display = 'none';
           if (!d.items || d.items.length === 0) {
-            list.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">データを取得できませんでした</div>';
+            list.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">' + _divT('div_no_data','No data') + '</div>';
             return;
           }
-          d.items.forEach(function(it, idx){
-            var div = document.createElement('div');
-            div.className = 'div-item';
-            div.innerHTML = '<div class="div-rank">' + (idx+1) + '</div>' +
-              '<div><div class="div-name">' + it.name + '</div><div class="div-code">' + it.code + '</div></div>' +
-              '<div style="text-align:right"><div class="div-yield">' + (it.yield_pct||0).toFixed(2) + '%</div>' +
-              '<div class="div-meta">年' + (it.annual_dividend||0).toFixed(0) + '円</div></div>';
-            list.appendChild(div);
-          });
+          _renderDivList(list, d.items,
+            function(it){ return (it.yield_pct||0).toFixed(2) + '%'; },
+            function(it){ return _divT('div_yen','円') + (it.annual_dividend||0).toFixed(0); });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
           loading.style.display = 'none';
-          list.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">エラー: ' + e.message + '</div>';
+          list.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + _divT('div_error','Error') + ': ' + e.message + '</div>';
+        });
+    }
+    function loadDividendYearly() {
+      var pane = document.querySelector('.dividend-pane[data-pane="yearly"]');
+      var loading = pane.querySelector('.dividend-loading');
+      var list = document.getElementById('dividend-yearly-list');
+      if (list.dataset.loaded === '1') return;
+      loading.style.display = 'block';
+      list.innerHTML = '';
+      fetch('/api/dividend/yearly?limit=50')
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          loading.style.display = 'none';
+          if (!d.items || d.items.length === 0) {
+            list.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">' + _divT('div_no_data','No data') + '</div>';
+            return;
+          }
+          _renderDivList(list, d.items,
+            function(it){ return (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円'); },
+            function(it){ return (it.yield_pct||0).toFixed(2) + '%'; });
+          list.dataset.loaded = '1';
+        })
+        .catch(function(e){
+          loading.style.display = 'none';
+          list.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + _divT('div_error','Error') + ': ' + e.message + '</div>';
         });
     }
     function loadDividendCalendar() {
@@ -704,13 +758,13 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
         .then(function(d){
           loading.style.display = 'none';
           if (!d.days || d.days.length === 0) {
-            body.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">この月の権利落ち銘柄はありません</div>';
+            body.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">' + _divT('div_no_month','No data') + '</div>';
             return;
           }
           d.days.forEach(function(day){
             var dd = document.createElement('div');
             dd.className = 'cal-day';
-            var html = '<div class="cal-date">' + day.date + ' (' + day.items.length + '銘柄)</div>';
+            var html = '<div class="cal-date">' + day.date + ' (' + day.items.length + ' ' + _divT('div_stocks','stocks') + ')</div>';
             day.items.forEach(function(it){
               html += '<div class="cal-item">' + it.code + ' ' + it.name + ' — ' + (it.yield_pct||0).toFixed(2) + '%</div>';
             });
@@ -720,41 +774,87 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
         })
         .catch(function(e){
           loading.style.display = 'none';
-          body.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">エラー: ' + e.message + '</div>';
+          body.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + _divT('div_error','Error') + ': ' + e.message + '</div>';
         });
     }
+    // === オートコンプリート ===
+    var _divAcCache = null;
+    var _divAcTimer = null;
+    function _ensureAcCache() {
+      if (_divAcCache) return Promise.resolve(_divAcCache);
+      return fetch('/api/dividend/top?limit=300')
+        .then(function(r){ return r.json(); })
+        .then(function(d){ _divAcCache = d.items || []; return _divAcCache; });
+    }
+    function onDividendSearchInput() {
+      var inp = document.getElementById('dividend-search-input');
+      var q = (inp.value || '').trim().toLowerCase();
+      var list = document.getElementById('dividend-ac-list');
+      if (!q || q.length < 1) { list.style.display = 'none'; return; }
+      clearTimeout(_divAcTimer);
+      _divAcTimer = setTimeout(function(){
+        _ensureAcCache().then(function(items){
+          var matches = items.filter(function(it){
+            return (it.code && it.code.toLowerCase().indexOf(q) !== -1) || (it.name && it.name.toLowerCase().indexOf(q) !== -1);
+          }).slice(0, 8);
+          if (matches.length === 0) { list.style.display = 'none'; return; }
+          list.innerHTML = matches.map(function(it){
+            return '<div class="dividend-ac-item" onclick="selectAcItem(\'' + it.code + '\')">' + it.name + '<span class="ac-code">' + it.code + '</span></div>';
+          }).join('');
+          list.style.display = 'block';
+        });
+      }, 100);
+    }
+    function selectAcItem(code) {
+      var inp = document.getElementById('dividend-search-input');
+      inp.value = code;
+      closeDividendAC();
+      doDividendSearch();
+    }
+    function closeDividendAC() {
+      var list = document.getElementById('dividend-ac-list');
+      if (list) list.style.display = 'none';
+    }
+    document.addEventListener('click', function(e){
+      var inp = document.getElementById('dividend-search-input');
+      var list = document.getElementById('dividend-ac-list');
+      if (inp && list && !inp.contains(e.target) && !list.contains(e.target)) {
+        list.style.display = 'none';
+      }
+    });
     function doDividendSearch() {
       var q = document.getElementById('dividend-search-input').value.trim();
       var box = document.getElementById('dividend-search-result');
       if (!q) { box.innerHTML = ''; return; }
-      box.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">検索中...</div>';
+      box.innerHTML = '<div style="text-align:center;color:#9ca3af;padding:20px">' + _divT('div_loading','Loading...') + '</div>';
       fetch('/api/dividend/search?q=' + encodeURIComponent(q))
         .then(function(r){ return r.json().then(function(d){ return {ok:r.ok, d:d}; }); })
         .then(function(res){
           if (!res.ok) {
-            box.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + (res.d.error || '見つかりません') + '</div>';
+            box.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + (res.d.error || _divT('div_no_data','Not found')) + '</div>';
             return;
           }
           var d = res.d;
+          var yen = _divT('div_yen','円');
           var html = '<div class="res-card">' +
             '<div class="res-name">' + d.name + ' <span style="font-size:12px;color:#6b7280">(' + d.code + ')</span></div>' +
-            '<div class="res-row"><span class="res-label">現在価</span><span class="res-val">' + (d.price||0).toLocaleString() + '円</span></div>' +
-            '<div class="res-row"><span class="res-label">配当利回り</span><span class="res-val" style="color:#dc2626">' + (d.yield_pct||0).toFixed(2) + '%</span></div>' +
-            '<div class="res-row"><span class="res-label">年間配当金</span><span class="res-val">' + (d.annual_dividend||0).toFixed(0) + '円</span></div>' +
-            '<div class="res-row"><span class="res-label">配当性向</span><span class="res-val">' + (d.payout_ratio||0).toFixed(1) + '%</span></div>' +
-            '<div class="res-row"><span class="res-label">次回権利落ち日</span><span class="res-val">' + (d.ex_dividend_date || '不明') + '</span></div>' +
+            '<div class="res-row"><span class="res-label">' + _divT('div_price','Price') + '</span><span class="res-val">' + (d.price||0).toLocaleString() + yen + '</span></div>' +
+            '<div class="res-row"><span class="res-label">' + _divT('div_yield','Yield') + '</span><span class="res-val" style="color:#dc2626">' + (d.yield_pct||0).toFixed(2) + '%</span></div>' +
+            '<div class="res-row"><span class="res-label">' + _divT('div_annual','Annual') + '</span><span class="res-val">' + (d.annual_dividend||0).toFixed(0) + yen + '</span></div>' +
+            '<div class="res-row"><span class="res-label">' + _divT('div_payout','Payout') + '</span><span class="res-val">' + (d.payout_ratio||0).toFixed(1) + '%</span></div>' +
+            '<div class="res-row"><span class="res-label">' + _divT('div_ex_date','Ex-Div') + '</span><span class="res-val">' + (d.ex_dividend_date || '-') + '</span></div>' +
             '</div>';
           if (d.history && d.history.length > 0) {
-            html += '<div class="res-card"><div style="font-weight:700;margin-bottom:6px">過去5年の配当推移</div>';
+            html += '<div class="res-card"><div style="font-weight:700;margin-bottom:6px">' + _divT('div_history','History') + '</div>';
             d.history.forEach(function(h){
-              html += '<div class="hist-row"><span>' + h.year + '</span><span>' + h.total.toFixed(0) + '円</span></div>';
+              html += '<div class="hist-row"><span>' + h.year + '</span><span>' + h.total.toFixed(0) + yen + '</span></div>';
             });
             html += '</div>';
           }
           box.innerHTML = html;
         })
         .catch(function(e){
-          box.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">エラー: ' + e.message + '</div>';
+          box.innerHTML = '<div style="text-align:center;color:#dc2626;padding:20px">' + _divT('div_error','Error') + ': ' + e.message + '</div>';
         });
     }
 
@@ -1542,6 +1642,24 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_assets: "資産分析",
     drawer_alert: "急騰アラート",
     drawer_dividend: "配当金",
+    div_tab_top: "高配当",
+    div_tab_yearly: "年間総額",
+    div_tab_cal: "カレンダー",
+    div_tab_search: "検索",
+    div_search_ph: "会社名 または ティッカーを入力",
+    div_search_btn: "検索",
+    div_loading: "読み込み中...",
+    div_no_data: "データがありません",
+    div_price: "現在価",
+    div_yield: "配当利回り",
+    div_annual: "年間配当金",
+    div_payout: "配当性向",
+    div_ex_date: "次回権利落ち日",
+    div_history: "過去5年の配当推移",
+    div_stocks: "銘柄",
+    div_yen: "円",
+    div_error: "エラー",
+    div_no_month: "この月の権利落ち銘柄はありません",
     morning_title: "朝の相場レター",
     morning_sub: "毎朝8時にLINEで配信中",
     morning_idx_select: "指数選択",
@@ -1591,6 +1709,24 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_assets: "Asset Analysis",
     drawer_alert: "Surge Alert",
     drawer_dividend: "Dividends",
+    div_tab_top: "Top Yield",
+    div_tab_yearly: "Annual Total",
+    div_tab_cal: "Ex-Div Calendar",
+    div_tab_search: "Search",
+    div_search_ph: "Enter company name or ticker",
+    div_search_btn: "Search",
+    div_loading: "Loading...",
+    div_no_data: "No data available",
+    div_price: "Current Price",
+    div_yield: "Dividend Yield",
+    div_annual: "Annual Dividend",
+    div_payout: "Payout Ratio",
+    div_ex_date: "Next Ex-Div Date",
+    div_history: "Dividend History (Last 5Y)",
+    div_stocks: "stocks",
+    div_yen: "JPY",
+    div_error: "Error",
+    div_no_month: "No ex-dividend stocks this month",
     morning_title: "Morning Market Brief",
     morning_sub: "Delivered daily at 8 AM via LINE",
     morning_idx_select: "Select Indices",
@@ -1640,6 +1776,24 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_assets: "자산 분석",
     drawer_alert: "급등 알림",
     drawer_dividend: "배당금",
+    div_tab_top: "고배당",
+    div_tab_yearly: "연간 총액",
+    div_tab_cal: "캘린더",
+    div_tab_search: "검색",
+    div_search_ph: "회사명 또는 티커 입력",
+    div_search_btn: "검색",
+    div_loading: "로딩 중...",
+    div_no_data: "데이터가 없습니다",
+    div_price: "현재가",
+    div_yield: "배당 수익률",
+    div_annual: "연간 배당금",
+    div_payout: "배당 성향",
+    div_ex_date: "다음 권리락 일",
+    div_history: "과거 5년간 배당 추이",
+    div_stocks: "종목",
+    div_yen: "엔",
+    div_error: "오류",
+    div_no_month: "이달 권리락 종목이 없습니다",
     morning_title: "아침 시황 레터",
     morning_sub: "매일 아침 8시 LINE으로 발송",
     morning_idx_select: "지수 선택",
@@ -1689,6 +1843,24 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_assets: "资产分析",
     drawer_alert: "暴涨提醒",
     drawer_dividend: "股息",
+    div_tab_top: "高股息",
+    div_tab_yearly: "年度总额",
+    div_tab_cal: "日历",
+    div_tab_search: "搜索",
+    div_search_ph: "输入公司名或代码",
+    div_search_btn: "搜索",
+    div_loading: "加载中...",
+    div_no_data: "无数据",
+    div_price: "当前价",
+    div_yield: "股息率",
+    div_annual: "年股息",
+    div_payout: "派息率",
+    div_ex_date: "下次除息日",
+    div_history: "过去5年股息",
+    div_stocks: "只",
+    div_yen: "元",
+    div_error: "错误",
+    div_no_month: "本月无除息股票",
     morning_title: "晨间市场简报",
     morning_sub: "每天上午8点通过LINE推送",
     morning_idx_select: "选择指数",
