@@ -2215,6 +2215,12 @@ def _get_dividend_info(ticker, name):
         print(f"[dividend] error for {ticker}: {e}")
         return None
 
+@app.route("/api/dividend/list", methods=["GET"])
+def api_dividend_list():
+    """軽量な銘柄リスト (yfinanceを呼ばず、JP_STOCKSのマッピングだけ返す)"""
+    items = [{"code": code, "name": name} for code, name in JP_STOCKS.items()]
+    return jsonify({"items": items, "count": len(items)})
+
 @app.route("/api/dividend/search", methods=["GET"])
 def api_dividend_search():
     q = request.args.get("q", "").strip()
