@@ -21,7 +21,7 @@ from datetime import date, datetime
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v38"
+APP_VERSION = "v39"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -1826,6 +1826,92 @@ def api_chat():
     except Exception as e:
         print(f"[api_chat] error: {e}")
         return jsonify({"error": str(e)}), 500
+
+
+_CHAT_SUGG_CACHE = {}
+
+@app.route("/api/chat-suggestions", methods=["POST"])
+def api_chat_suggestions():
+    """\u30c1\u30e3\u30c3\u30c8\u753b\u9762\u306b\u8868\u793a\u3059\u308b\u30b5\u30b8\u30a7\u30b9\u30c8\u30c1\u30c3\u30d7\u3092\u751f\u6210\u3002"""
+    try:
+        data = request.get_json(silent=True) or {}
+        interests = data.get("interests") or []
+        safe_interests = []
+        if isinstance(interests, list):
+            for it in interests[:10]:
+                if isinstance(it, str):
+                    s = it.strip()[:60]
+                    if s:
+                        safe_interests.append(s)
+
+        today_key = date.today().isoformat()
+        interests_key = ",".join(sorted(safe_interests))
+        cache_key = f"{today_key}|{interests_key}"
+
+        cached = _CHAT_SUGG_CACHE.get(cache_key)
+        if cached is not None:
+            return jsonify({"chips": cached, "cached": True})
+
+        try:
+            news_dict = fetch_news()
+            news_lines = []
+            for source, content in news_dict.items():
+                for line in content.split("\n"):
+                    title = line.strip().lstrip("\u30fb").strip()
+                    if title:
+                        news_lines.append(title)
+            news_text = "\n".join(news_lines[:24])
+        except Exception as ne:
+            news_text = ""
+            print(f"[chat-suggestions] news fetch err: {ne}")
+
+        interests_text = ", ".join(safe_interests) if safe_interests else "\u7121\u3057"
+
+        prompt = (
+            "\u4ee5\u4e0b\u306f\u65e5\u672c\u306e\u7d4c\u6e08\u30cb\u30e5\u30fc\u30b9\u306e\u898b\u51fa\u3057\u4e00\u89a7\u3060\u3002\u3053\u308c\u3092\u898b\u3066\u300c\u7d4c\u6e08\u30fb\u6295\u8cc7\u30fb\u76f8\u5834\u30fb\u5bb6\u8a08\u7c3f\u306b\u95a2\u308f\u308b\u3088\u304f\u554f\u308f\u308c\u305d\u3046\u306a\u30ad\u30fc\u30ef\u30fc\u30c9\u30924\u3064\u300d\u9078\u3093\u3067\u304f\u3060\u3055\u3044\u3002\u30ad\u30fc\u30ef\u30fc\u306f\u300c\u3063\u3066\u4f55\uff1f\u300d\u3064\u304d\u306e\u77ed\u3044\u8cea\u554f\u5f62\u5f0f\u3067\u3001\u521d\u5fc3\u8005\u304c\u30af\u30ea\u30c3\u30af\u3057\u305f\u304f\u306a\u308b\u3088\u3046\u306b\u3002\n\n"
+            "\u30e6\u30fc\u30b6\u30fc\u306e\u6700\u8fd1\u306e\u95a2\u5fc3\u30c8\u30d4\u30c3\u30af\uff1a" + interests_text + "\n\n"
+            "\u30cb\u30e5\u30fc\u30b9\u898b\u51fa\u3057\uff1a\n" + news_text + "\n\n"
+            "\u9019\u5408\u7387\uff1a\u7d4c\u6e08\u30fb\u96e5\u520a\u7528\u8a9e\u3092\u512a\u5148\u3001\u7121\u95a2\u4fc2\u306a\u836f\u7576\u30fb\u30b9\u30dd\u30fc\u30c4\u30fb\u826e\u80fd\u756a\u7d44\u306f\u9664\u304f\u30024\u500b\u3001\u5404\u77ed\u3044\u30b7\u30e9\u30d6\u3084\u8cea\u554f\u5f62\u5f0f\u3001\uff18\u304b\u3089\uff11\uff14\u6587\u5b57\u7a0b\u5ea6\u3002\u4ed8\u9811\u3001\u89e3\u8aac\u3001\u524d\u7f6e\u304d\u306f\u4e0d\u8981\u3002\n"
+            "\u51fa\u529b\u5f62\u5f0f\uff1a\u9811\u756a\u7528\u5217\u3001\u4e8b\u524d\u30fb\u4e8b\u5f8c\u30fb\u8b73\u89e3\u306f\u4e00\u5207\u4e0d\u8981\u3002\u5217\u306e\u4e2d\u306f\u5404\u8981\u7d20\u3092\u30c0\u30d6\u30eb\u30af\u30aa\u30fc\u30c8\u3067\u5305\u3093\u3067\u304f\u3060\u3055\u3044\u3002"
+        )
+
+        client = get_anthropic_client()
+        msg = client.messages.create(
+            model="claude-haiku-4-5-20251001",
+            max_tokens=200,
+            messages=[{"role": "user", "content": prompt}],
+        )
+        reply = msg.content[0].text if msg.content else "[]"
+        chips = []
+        try:
+            s_i = reply.find("[")
+            e_i = reply.rfind("]")
+            if s_i != -1 and e_i != -1 and e_i > s_i:
+                chips = json.loads(reply[s_i:e_i+1])
+        except Exception:
+            chips = []
+        clean = []
+        if isinstance(chips, list):
+            for c in chips:
+                if isinstance(c, str):
+                    s = c.strip()
+                    if s and len(s) <= 36:
+                        clean.append(s)
+                if len(clean) >= 4:
+                    break
+        if not clean:
+            clean = ["NISA\u3063\u3066\u4f55\uff1f", "PER\u3063\u3066\u4f55\uff1f", "\u30c9\u30eb\u30b3\u30b9\u30c8\u5e73\u5747\u6cd5\u3063\u3066\uff1f", "\u30a4\u30f3\u30d5\u30ec\u3063\u3066\u4f55\uff1f"]
+
+        if len(_CHAT_SUGG_CACHE) > 50:
+            _CHAT_SUGG_CACHE.clear()
+        _CHAT_SUGG_CACHE[cache_key] = clean
+        return jsonify({"chips": clean, "cached": False})
+    except Exception as e:
+        print(f"[api_chat_suggestions] error: {e}")
+        return jsonify({
+            "chips": ["NISA\u3063\u3066\u4f55\uff1f", "PER\u3063\u3066\u4f55\uff1f", "\u30c9\u30eb\u30b3\u30b9\u30c8\u5e73\u5747\u6cd5\u3063\u3066\uff1f", "\u30a4\u30f3\u30d5\u30ec\u3063\u3066\u4f55\uff1f"],
+            "error": str(e)
+        }), 200
 
 
 @app.route("/")
