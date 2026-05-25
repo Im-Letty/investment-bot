@@ -2020,6 +2020,224 @@ if os.environ.get("PRELOAD_TRANSLATIONS", "1") != "0":
 else:
     print("[preload] Skipped (PRELOAD_TRANSLATIONS=0)")
 
+
+# === 配当金機能 (yfinance) ===
+# 日本株マッピング: ティッカー↔会社名 (代表的な高配当銘柄 + 主要銘柄)
+JP_STOCKS = {
+    "1605": "INPEX", "1928": "積水ハウス", "2002": "日清製粉G",
+    "2412": "ベネフィットOne", "2503": "キリンHD", "2587": "サントリーHD",
+    "2613": "Jオイルミルズ", "2768": "双日", "2784": "アルフレッサHD",
+    "2914": "JT", "3003": "ヒューリック", "3289": "東急不動産HD",
+    "3382": "セブン＆アイHD", "3407": "旭化成", "4063": "信越化学",
+    "4188": "三菱ケミカルグループス", "4452": "花王", "4502": "武田薬品",
+    "4503": "アステラス製薬", "4507": "塩野義製薬", "4519": "中外製薬",
+    "4528": "小野薬品", "4543": "テルモ", "4568": "第一三共",
+    "4661": "OLC", "4901": "富士フイルムHD", "4911": "資生堂",
+    "5020": "ENEOS", "5108": "ブリジストン", "5301": "東海カーボン",
+    "5332": "TOTO", "5401": "日本製鉄", "5411": "JFE", "5713": "住友金属鉱山",
+    "5802": "住友電気工業", "6098": "リクルートHD",
+    "6178": "日本郵便", "6273": "SMC", "6301": "コマツ", "6326": "クボタ",
+    "6367": "ダイキン工業", "6501": "日立製作所", "6502": "東芝",
+    "6503": "三菱電機", "6594": "ニデック", "6701": "NEC",
+    "6702": "富士通", "6752": "パナソニックHD", "6758": "ソニーG",
+    "6762": "TDK", "6857": "アドバンテスト", "6861": "キーエンス",
+    "6869": "シスメックス", "6902": "デンソー", "6920": "レーザーテック",
+    "6954": "ファナック", "6971": "京セラ", "6981": "村田製作所",
+    "7011": "三菱重工業", "7201": "日産自動車", "7203": "トヨタ自動車",
+    "7267": "ホンダ", "7269": "スズキ", "7270": "SUBARU", "7309": "シマノ",
+    "7532": "パンパシフィックスHD", "7733": "オリンパス",
+    "7741": "HOYA", "7751": "キヤノン", "7832": "バンダイナムHD",
+    "7974": "任天堂", "8001": "伊藤忠商事", "8002": "丸紅",
+    "8031": "三井物産", "8053": "住友商事", "8058": "三菱商事",
+    "8113": "ユニ・チャーム", "8267": "イオン", "8306": "三菱UFJ FG",
+    "8316": "三井住友FG", "8411": "みずほFG", "8473": "SBI HD",
+    "8591": "オリックスG", "8593": "三菱HCキャピタル",
+    "8604": "野村HD", "8630": "SOMPO HD", "8697": "JPX", "8725": "MS＆AD",
+    "8750": "第四生命HD", "8766": "東京海上", "8801": "三井不動産",
+    "8802": "三菱地所", "8830": "住友不動産", "9020": "JR東日本",
+    "9021": "JR西日本", "9022": "JR東海", "9101": "日本郵船",
+    "9104": "商船三井", "9107": "川崎汽船", "9201": "JAL", "9202": "ANA HD",
+    "9432": "NTT", "9433": "KDDI", "9434": "ソフトバンク", "9501": "東電",
+    "9502": "中部電力", "9503": "関西電力", "9531": "東京ガス",
+    "9532": "大阪ガス", "9613": "NTTデータ", "9983": "ファーストリテ",
+    "9984": "ソフトバンクG",
+}
+
+# メモリキャッシュ (1時間TTL)
+_dividend_cache = {}
+_DIV_CACHE_TTL = 3600  # 1h
+
+def _div_cache_get(key):
+    v = _dividend_cache.get(key)
+    if not v: return None
+    if time.time() - v[0] > _DIV_CACHE_TTL:
+        _dividend_cache.pop(key, None)
+        return None
+    return v[1]
+
+def _div_cache_set(key, value):
+    _dividend_cache[key] = (time.time(), value)
+
+def _resolve_jp_ticker(q):
+    """ティッカー(7203)や会社名(トヨタ)から 7203.T 形式に解決"""
+    if not q: return None, None
+    q = q.strip()
+    # 数字のみならティッカー
+    if q.isdigit() and q in JP_STOCKS:
+        return f"{q}.T", JP_STOCKS[q]
+    # .T 付き
+    if q.endswith(".T") and q[:-2].isdigit() and q[:-2] in JP_STOCKS:
+        return q, JP_STOCKS[q[:-2]]
+    # 会社名部分一致
+    ql = q.lower()
+    for code, name in JP_STOCKS.items():
+        if ql in name.lower() or ql == code:
+            return f"{code}.T", name
+    return None, None
+
+def _get_dividend_info(ticker, name):
+    """yfinanceで配当情報を取得 (キャッシュ付き)"""
+    cached = _div_cache_get(f"div_{ticker}")
+    if cached is not None:
+        return cached
+    try:
+        t = yf.Ticker(ticker)
+        info = t.info or {}
+        divs = t.dividends  # pandas Series
+        annual = 0.0
+        history = []
+        if divs is not None and len(divs) > 0:
+            try:
+                # 過去5年分を集計
+                from datetime import datetime as _dt, timedelta as _td
+                cutoff = _dt.now(divs.index.tz) - _td(days=365*5) if hasattr(divs.index, 'tz') and divs.index.tz else None
+                # 年間合計
+                by_year = divs.groupby(divs.index.year).sum()
+                history = [{"year": int(y), "total": round(float(v), 2)} for y, v in by_year.tail(5).items()]
+                # 直近年1年間の配当
+                if len(history) > 0:
+                    annual = history[-1]["total"]
+                # トライリング配当もinfoから取りる
+                td = info.get("trailingAnnualDividendRate")
+                if td: annual = float(td)
+            except Exception as _e:
+                pass
+        price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
+        yield_pct = (annual / price * 100) if price and annual else (info.get("dividendYield") or 0)
+        # dividendYield は yfinance で小数(0.03) or % 両方ある
+        if yield_pct and yield_pct < 1 and info.get("dividendYield"):
+            yield_pct = info.get("dividendYield") * 100
+        # 次期配当見込み日
+        ex_div_ts = info.get("exDividendDate")
+        ex_div_date = None
+        if ex_div_ts:
+            try:
+                ex_div_date = datetime.fromtimestamp(ex_div_ts).strftime("%Y-%m-%d")
+            except Exception:
+                ex_div_date = None
+        result = {
+            "ticker": ticker,
+            "code": ticker.replace(".T", ""),
+            "name": name,
+            "price": round(float(price), 2) if price else None,
+            "annual_dividend": round(float(annual), 2) if annual else 0,
+            "yield_pct": round(float(yield_pct), 2) if yield_pct else 0,
+            "payout_ratio": round(float(info.get("payoutRatio") or 0) * 100, 1),
+            "ex_dividend_date": ex_div_date,
+            "history": history,
+            "currency": info.get("currency", "JPY"),
+        }
+        _div_cache_set(f"div_{ticker}", result)
+        return result
+    except Exception as e:
+        print(f"[dividend] error for {ticker}: {e}")
+        return None
+
+@app.route("/api/dividend/search", methods=["GET"])
+def api_dividend_search():
+    q = request.args.get("q", "").strip()
+    if not q:
+        return jsonify({"error": "q required"}), 400
+    ticker, name = _resolve_jp_ticker(q)
+    if not ticker:
+        return jsonify({"error": "not found", "query": q}), 404
+    info = _get_dividend_info(ticker, name)
+    if not info:
+        return jsonify({"error": "fetch failed", "ticker": ticker}), 500
+    return jsonify(info)
+
+@app.route("/api/dividend/top", methods=["GET"])
+def api_dividend_top():
+    """全銘柄をスキャンして利回りりランキングを返す"""
+    cached = _div_cache_get("top_yield")
+    if cached:
+        try:
+            limit = int(request.args.get("limit", 30))
+        except:
+            limit = 30
+        return jsonify({"items": cached[:limit], "cached": True})
+    results = []
+    for code, name in JP_STOCKS.items():
+        info = _get_dividend_info(f"{code}.T", name)
+        if info and info.get("yield_pct", 0) > 0:
+            results.append(info)
+    results.sort(key=lambda x: x.get("yield_pct", 0), reverse=True)
+    _div_cache_set("top_yield", results)
+    try:
+        limit = int(request.args.get("limit", 30))
+    except:
+        limit = 30
+    return jsonify({"items": results[:limit], "cached": False})
+
+@app.route("/api/dividend/calendar", methods=["GET"])
+def api_dividend_calendar():
+    """記載銘柄の次回権利落ち日をカレンダー形式で返す"""
+    month = request.args.get("month", "")  # YYYY-MM
+    cached = _div_cache_get(f"cal_{month}")
+    if cached:
+        return jsonify({"days": cached, "cached": True})
+    # 全銘柄のex_dividend_dateを集める
+    by_day = {}
+    for code, name in JP_STOCKS.items():
+        info = _get_dividend_info(f"{code}.T", name)
+        if info and info.get("ex_dividend_date"):
+            d = info["ex_dividend_date"]
+            if month and not d.startswith(month):
+                continue
+            by_day.setdefault(d, []).append({
+                "code": code, "name": name,
+                "yield_pct": info.get("yield_pct", 0),
+                "annual_dividend": info.get("annual_dividend", 0),
+            })
+    # ソート
+    days = sorted(by_day.items())
+    out = [{"date": d, "items": items} for d, items in days]
+    _div_cache_set(f"cal_{month}", out)
+    return jsonify({"days": out, "cached": False})
+
+@app.route("/api/dividend/yearly", methods=["GET"])
+def api_dividend_yearly():
+    """年間配当金総額ランキング"""
+    cached = _div_cache_get("yearly")
+    if cached:
+        try:
+            limit = int(request.args.get("limit", 30))
+        except:
+            limit = 30
+        return jsonify({"items": cached[:limit], "cached": True})
+    results = []
+    for code, name in JP_STOCKS.items():
+        info = _get_dividend_info(f"{code}.T", name)
+        if info and info.get("annual_dividend", 0) > 0:
+            results.append(info)
+    results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
+    _div_cache_set("yearly", results)
+    try:
+        limit = int(request.args.get("limit", 30))
+    except:
+        limit = 30
+    return jsonify({"items": results[:limit], "cached": False})
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
