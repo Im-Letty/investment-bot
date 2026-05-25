@@ -2236,59 +2236,51 @@ def api_dividend_search():
 
 @app.route("/api/dividend/top", methods=["GET"])
 def api_dividend_top():
-    """高配当利回りランキングを返す（並列fetch・有効データのみ集計）"""
-    cached = _div_cache_get("top_yield")
+    """高配当利回りランキング（部分スキャン+バックグラウンド警告）"""
     try:
         limit = int(request.args.get("limit", 30))
     except:
         limit = 30
+    cached = _div_cache_get("top_yield")
     if cached:
         return jsonify({"items": cached[:limit], "cached": True})
-    from concurrent.futures import ThreadPoolExecutor
-    results = []
-    def _fetch_one(item):
-        code, name = item
-        return _get_dividend_info(f"{code}.T", name)
-    with ThreadPoolExecutor(max_workers=20) as ex:
-        for info in ex.map(_fetch_one, list(JP_STOCKS.items())):
-            if info and info.get("yield_pct", 0) > 0:
-                results.append(info)
+    # キャッシュなし→限定スキャン（Renderワーカータイムアウト回避）
+    results = _scan_dividends_partial(min(limit * 3, 60))
     results.sort(key=lambda x: x.get("yield_pct", 0), reverse=True)
-    _div_cache_set("top_yield", results)
-    _div_cache_set("yearly", results)  # 収集したデータは yearlyと共有
-    return jsonify({"items": results[:limit], "cached": False})
+    # 部分結果は短時間キャッシュ。全件はバックグラウンド warmer が後で上書き
+    _div_cache_set_short("top_yield_partial", results)
+    _ensure_dividend_warmer()
+    return jsonify({"items": results[:limit], "cached": False, "partial": True})
 
 @app.route("/api/dividend/calendar", methods=["GET"])
 def api_dividend_calendar():
-    """記載銘柄の次回権利落ち日をカレンダー形式で返す（並列）"""
+    """権利落ち日カレンダー（部分スキャン+バックグラウンド警告）"""
     month = request.args.get("month", "")
     cached = _div_cache_get(f"cal_{month}")
     if cached:
         return jsonify({"days": cached, "cached": True})
-    from concurrent.futures import ThreadPoolExecutor
+    # 限定スキャン
+    results = _scan_dividends_partial(80)
     by_day = {}
-    def _fetch_one(item):
-        code, name = item
-        return (code, name, _get_dividend_info(f"{code}.T", name))
-    with ThreadPoolExecutor(max_workers=20) as ex:
-        for code, name, info in ex.map(_fetch_one, list(JP_STOCKS.items())):
-            if info and info.get("ex_dividend_date"):
-                d = info["ex_dividend_date"]
-                if month and not d.startswith(month):
-                    continue
-                by_day.setdefault(d, []).append({
-                    "code": code, "name": name,
-                    "yield_pct": info.get("yield_pct", 0),
-                    "annual_dividend": info.get("annual_dividend", 0),
-                })
+    for info in results:
+        if info and info.get("ex_dividend_date"):
+            d = info["ex_dividend_date"]
+            if month and not d.startswith(month):
+                continue
+            by_day.setdefault(d, []).append({
+                "code": info.get("code"), "name": info.get("name"),
+                "yield_pct": info.get("yield_pct", 0),
+                "annual_dividend": info.get("annual_dividend", 0),
+            })
     days = sorted(by_day.items())
     out = [{"date": d, "items": items} for d, items in days]
-    _div_cache_set(f"cal_{month}", out)
-    return jsonify({"days": out, "cached": False})
+    _div_cache_set_short(f"cal_{month}_partial", out)
+    _ensure_dividend_warmer()
+    return jsonify({"days": out, "cached": False, "partial": True})
 
 @app.route("/api/dividend/yearly", methods=["GET"])
 def api_dividend_yearly():
-    """年間配当金総額ランキング（top_yieldと共有データを使う）"""
+    """年間配当総額ランキング（共有キャッシュ+部分スキャン）"""
     try:
         limit = int(request.args.get("limit", 30))
     except:
@@ -2297,20 +2289,94 @@ def api_dividend_yearly():
     if cached:
         sorted_items = sorted(cached, key=lambda x: x.get("annual_dividend", 0), reverse=True)
         return jsonify({"items": sorted_items[:limit], "cached": True})
-    # キャッシュがない場合は並列で収集
-    from concurrent.futures import ThreadPoolExecutor
+    # top_yieldのキャッシュも使う
+    cached_top = _div_cache_get("top_yield")
+    if cached_top:
+        sorted_items = sorted(cached_top, key=lambda x: x.get("annual_dividend", 0), reverse=True)
+        return jsonify({"items": sorted_items[:limit], "cached": True, "source": "top_yield"})
+    # 限定スキャン
+    results = _scan_dividends_partial(min(limit * 3, 60))
+    results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
+    _div_cache_set_short("yearly_partial", results)
+    _ensure_dividend_warmer()
+    return jsonify({"items": results[:limit], "cached": False, "partial": True})
+
+# === 配当データ並列スキャン ヘルパー ===
+def _div_cache_set_short(key, value):
+    """部分結果は短期キャッシュ（5分）。warmer完了で上書きされる"""
+    _dividend_cache[key] = (time.time() - _DIV_CACHE_TTL + 300, value)
+
+def _scan_dividends_partial(n):
+    """JP_STOCKS の先頭 n 銘柄を並列でスキャン（タイムアウト保護付き）"""
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+    items = list(JP_STOCKS.items())[:n]
     results = []
-    def _fetch_one(item):
+    def _one(item):
         code, name = item
         return _get_dividend_info(f"{code}.T", name)
-    with ThreadPoolExecutor(max_workers=20) as ex:
-        for info in ex.map(_fetch_one, list(JP_STOCKS.items())):
-            if info and info.get("annual_dividend", 0) > 0:
-                results.append(info)
-    results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
-    _div_cache_set("yearly", results)
-    _div_cache_set("top_yield", sorted(results, key=lambda x: x.get("yield_pct", 0), reverse=True))
-    return jsonify({"items": results[:limit], "cached": False})
+    with ThreadPoolExecutor(max_workers=40) as ex:
+        futs = {ex.submit(_one, it): it for it in items}
+        try:
+            for fut in as_completed(futs, timeout=22):
+                try:
+                    info = fut.result(timeout=2)
+                    if info:
+                        results.append(info)
+                except Exception:
+                    pass
+        except Exception as e:
+            print(f"[dividend] partial scan timeout: {e}")
+    return results
+
+# === バックグラウンドwarmer（全213銘柄をゆっくり収集してキャッシュ） ===
+_DIV_WARMER_STARTED = False
+_DIV_WARMER_LOCK = threading.Lock()
+
+def _ensure_dividend_warmer():
+    global _DIV_WARMER_STARTED
+    with _DIV_WARMER_LOCK:
+        if _DIV_WARMER_STARTED:
+            return
+        _DIV_WARMER_STARTED = True
+    try:
+        t = threading.Thread(target=_dividend_warmer_run, daemon=True)
+        t.start()
+        print("[dividend] warmer thread started")
+    except Exception as e:
+        print(f"[dividend] warmer start failed: {e}")
+
+def _dividend_warmer_run():
+    """全銘柄をバックグラウンドで収集してキャッシュ"""
+    try:
+        from concurrent.futures import ThreadPoolExecutor
+        all_items = list(JP_STOCKS.items())
+        results = []
+        def _one(item):
+            code, name = item
+            return _get_dividend_info(f"{code}.T", name)
+        with ThreadPoolExecutor(max_workers=15) as ex:
+            for info in ex.map(_one, all_items):
+                if info:
+                    results.append(info)
+        if results:
+            # top_yield: yield_pct>0のみ
+            top = sorted([r for r in results if r.get("yield_pct", 0) > 0],
+                         key=lambda x: x.get("yield_pct", 0), reverse=True)
+            _div_cache_set("top_yield", top)
+            # yearly: annual_dividend>0のみ
+            yearly = sorted([r for r in results if r.get("annual_dividend", 0) > 0],
+                            key=lambda x: x.get("annual_dividend", 0), reverse=True)
+            _div_cache_set("yearly", yearly)
+            print(f"[dividend] warmer done: {len(results)} stocks, top={len(top)}, yearly={len(yearly)}")
+    except Exception as e:
+        print(f"[dividend] warmer error: {e}")
+
+# サーバー起動時に warmer を自動キック（任意で無効化可能）
+if os.environ.get("DIVIDEND_WARMER", "1") != "0":
+    try:
+        _ensure_dividend_warmer()
+    except Exception as _e:
+        print(f"[dividend] auto-warmer failed: {_e}")
 
 
 if __name__ == "__main__":
