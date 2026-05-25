@@ -39,7 +39,7 @@
     #lp-section.show{opacity:1;pointer-events:all;}
     #lp-section.slide-out{transform:translateY(-100%);opacity:0;pointer-events:none;}
     .header{background:white;border-bottom:1px solid #e0efe0;padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 1px 6px rgba(0,0,0,0.04);}
-    .hlogo{display:flex;align-items:center;gap:10px;}
+    .hlogo{display:flex;align-items:center;gap:0;}
     .hli{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--brand-lighter),var(--brand-darker));display:flex;align-items:center;justify-content:center;font-size:18px;}
     .hln{font-family:'Outfit',sans-serif;font-size:17px;font-weight:700;color:var(--brand-darker);}
     .content{max-width:680px;margin:0 auto;padding:1.2rem 1rem 3rem;}
@@ -265,7 +265,6 @@
     <div id="lp-section">
       <div class="header">
         <div style="display:flex;align-items:center;gap:4px;"><button class="hamburger-btn" id="hamburgerBtn" onclick="toggleDrawer()"><span></span><span></span><span></span></button><div class="hlogo">
-          <div class="hli">🐸</div>
           <div class="hln" data-i18n="brand_name">経済NEWS</div>
         </div></div>
         <div style="font-size:11px;color:#888;">@945nenkg</div>
