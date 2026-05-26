@@ -37,7 +37,7 @@
   }
 
   function findHost(){
-    return document.getElementById('alertSection')
+    return document.getElementById('alert-section') || document.getElementById('alertSection')
       || document.querySelector('[data-section="alert"]')
       || document.querySelector('.alert-section')
       || document.getElementById('alertPanel');
