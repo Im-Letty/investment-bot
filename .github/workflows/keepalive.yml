@@ -1,0 +1,21 @@
+name: Keepalive Ping
+
+on:
+  schedule:
+    - cron: '*/14 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render /health
+        run: |
+          for i in 1 2 3; do
+            code=$(curl -o /dev/null -s -w '%{http_code}' --max-time 60 https://investment-bot-ta24.onrender.com/health)
+            echo "Attempt $i: HTTP $code"
+            if [ "$code" = "200" ]; then exit 0; fi
+            sleep 10
+          done
+          echo 'Failed after 3 attempts (instance may be spinning up)'
+          exit 0
