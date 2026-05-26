@@ -408,10 +408,10 @@
         <button class="dividend-modal-close" onclick="closeDividendSection()">✕</button>
       </div>
       <div class="dividend-tabs">
-        <button class="dividend-tab active" data-tab="top" onclick="switchDividendTab('top')">🏆 <span data-i18n="div_tab_top">高配当</span></button>
-        <button class="dividend-tab" data-tab="yearly" onclick="switchDividendTab('yearly')">💰 <span data-i18n="div_tab_yearly">年間総額</span></button>
-        <button class="dividend-tab" data-tab="cal" onclick="switchDividendTab('cal')">📅 <span data-i18n="div_tab_cal">カレンダー</span></button>
-        <button class="dividend-tab" data-tab="search" onclick="switchDividendTab('search')">🔍 <span data-i18n="div_tab_search">検索</span></button>
+        <button class="dividend-tab active" data-tab="top" onclick="switchDividendTab('top')">🏆 <span data-i18n="div_tab_top" data-help-key="div_tab_top">高配当</span></button>
+        <button class="dividend-tab" data-tab="yearly" onclick="switchDividendTab('yearly')">💰 <span data-i18n="div_tab_yearly" data-help-key="div_tab_yearly">年間総額</span></button>
+        <button class="dividend-tab" data-tab="cal" onclick="switchDividendTab('cal')">📅 <span data-i18n="div_tab_cal" data-help-key="div_tab_cal">カレンダー</span></button>
+        <button class="dividend-tab" data-tab="search" onclick="switchDividendTab('search')">🔍 <span data-i18n="div_tab_search" data-help-key="div_tab_search">検索</span></button>
       </div>
       <div class="dividend-tab-body">
         <div class="dividend-pane active" data-pane="top">
@@ -424,7 +424,7 @@
         </div>
         <div class="dividend-pane" data-pane="cal" style="display:none">
           <div class="dividend-cal-controls">
-            <div class="dividend-cal-nav-flex"><button class="cal-nav-btn" onclick="shiftDividendCalMonth(-1)" data-i18n-title="div_prev_mo" title="前の月">‹</button><span id="dividend-cal-label" class="cal-nav-label"></span><button class="cal-nav-btn" onclick="shiftDividendCalMonth(1)" data-i18n-title="div_next_mo" title="次の月">›</button><button class="cal-nav-today" onclick="goDividendCalToday()" data-i18n-title="div_today_title" title="今月へ" data-i18n="div_today">今月</button></div><input type="month" id="dividend-cal-month" onchange="loadDividendCalendar()" style="display:none"><div class="mystock-section"><div class="mystock-header" data-i18n-html="div_my_label">⭐ マイ株（保有銘柄）</div><div class="mystock-input-row"><input type="text" id="mystock-input" data-i18n-placeholder="div_my_ph" placeholder="例: 7261 マツダ"><button onclick="addMyStock()" data-i18n="div_add_btn">＋追加</button></div><div id="mystock-list" class="mystock-list"></div><div class="mystock-legend"><span class="cal-tag tag-top" data-i18n-html="div_chip_top_html">🔴高配当TOP20</span><span class="cal-tag tag-yr" data-i18n-html="div_chip_yr_html">🟢年間TOP20</span><span class="cal-tag tag-my" data-i18n-html="div_chip_my_html">⭐マイ株</span></div></div>
+            <div class="dividend-cal-nav-flex"><button class="cal-nav-btn" onclick="shiftDividendCalMonth(-1)" data-i18n-title="div_prev_mo" title="前の月">‹</button><span id="dividend-cal-label" class="cal-nav-label"></span><button class="cal-nav-btn" onclick="shiftDividendCalMonth(1)" data-i18n-title="div_next_mo" title="次の月">›</button><button class="cal-nav-today" onclick="goDividendCalToday()" data-i18n-title="div_today_title" title="今月へ" data-i18n="div_today">今月</button></div><input type="month" id="dividend-cal-month" onchange="loadDividendCalendar()" style="display:none"><div class="mystock-section"><div class="mystock-header" data-i18n-html="div_my_label" data-help-key="div_my_label">⭐ マイ株（保有銘柄）</div><div class="mystock-input-row"><input type="text" id="mystock-input" data-i18n-placeholder="div_my_ph" placeholder="例: 7261 マツダ"><button onclick="addMyStock()" data-i18n="div_add_btn">＋追加</button></div><div id="mystock-list" class="mystock-list"></div><div class="mystock-legend"><span class="cal-tag tag-top" data-i18n-html="div_chip_top_html">🔴高配当TOP20</span><span class="cal-tag tag-yr" data-i18n-html="div_chip_yr_html">🟢年間TOP20</span><span class="cal-tag tag-my" data-i18n-html="div_chip_my_html">⭐マイ株</span></div></div>
           </div>
           <div class="dividend-loading">読み込み中...</div>
           <div class="dividend-cal" id="dividend-cal-body"></div><div id="dividend-detail-modal" class="dividend-detail-modal" onclick="if(event.target===this)this.style.display='none'"><div class="dividend-detail-content"><button class="dividend-detail-close" onclick="document.getElementById('dividend-detail-modal').style.display='none'">×</button><div id="dividend-detail-body"></div></div></div>
@@ -1519,7 +1519,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
 
 
   // === Step 1: New translation keys & enhanced applyLang ===
-  Object.assign(I18N.ja, {    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    splash_sub: 'あなたの資産を、もっとかしこく。',
+  Object.assign(I18N.ja, {    div_tab_top_help: '\u914d\u5f53\u304c\u591a\u3044\u4eba\u6c17\u9298\u67c4',    div_tab_yearly_help: '1\u5e74\u3067\u305f\u304f\u3055\u3093\u914d\u5f53\u3092\u51fa\u3059\u4f1a\u793e',    div_tab_cal_help: '\u914d\u5f53\u3092\u3082\u3089\u3048\u308b\u65e5\u306e\u30ab\u30ec\u30f3\u30c0\u30fc',    div_tab_search_help: '\u4f1a\u793e\u3092\u63a2\u3059',    div_my_label_help: '\u304a\u6c17\u306b\u5165\u308a\u306e\u4f1a\u793e\u3092\u767b\u9332',    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    splash_sub: 'あなたの資産を、もっとかしこく。',
     brand_name: '経済NEWS',
     page_title: '経済NEWS',
     hero_h2: 'お金の未来を<br>見える化しよう',
@@ -1538,7 +1538,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     ti_dow: 'NYダウ',
     ti_vix: 'VIX'
   });
-  Object.assign(I18N.en, {    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    splash_sub: 'Make your money smarter.',
+  Object.assign(I18N.en, {    div_tab_top_help: 'Popular stocks with high dividends',    div_tab_yearly_help: 'Companies paying lots of dividends per year',    div_tab_cal_help: 'Calendar of upcoming dividend dates',    div_tab_search_help: 'Search for a company',    div_my_label_help: 'Register your favorite companies',    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    splash_sub: 'Make your money smarter.',
     brand_name: 'Keizai NEWS',
     page_title: 'Keizai NEWS - Smart Investment',
     hero_h2: 'Visualize your<br>financial future',
@@ -1557,7 +1557,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     ti_dow: 'Dow Jones',
     ti_vix: 'VIX'
   });
-  Object.assign(I18N.ko, {    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    splash_sub: '당신의 자산을 더 스마트하게.',
+  Object.assign(I18N.ko, {    div_tab_top_help: '\ubc30\ub2f9\uc774 \ub9ce\uc740 \uc778\uae30 \uc885\ubaa9',    div_tab_yearly_help: '1\ub144\uc5d0 \ubc30\ub2f9\uc774 \ub9ce\uc740 \ud68c\uc0ac',    div_tab_cal_help: '\ubc30\ub2f9\ubc1b\ub294 \ub0a0 \uce98\ub9b0\ub354',    div_tab_search_help: '\ud68c\uc0ac \ucc3e\uae30',    div_my_label_help: '\uc990\uaca8\ucc3e\uae30 \ud68c\uc0ac \ub4f1\ub85d',    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    splash_sub: '당신의 자산을 더 스마트하게.',
     brand_name: '경제NEWS',
     page_title: '경제NEWS - 스마트 투자',
     hero_h2: '돈의 미래를<br>시각화하세요',
@@ -1576,7 +1576,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     ti_dow: '다우존스',
     ti_vix: 'VIX'
   });
-  Object.assign(I18N.zh, {    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    splash_sub: '让您的资产更聪明。',
+  Object.assign(I18N.zh, {    div_tab_top_help: '\u5206\u7ea2\u591a\u7684\u70ed\u95e8\u80a1\u7968',    div_tab_yearly_help: '\u5e74\u5206\u7ea2\u603b\u989d\u9ad8\u7684\u516c\u53f8',    div_tab_cal_help: '\u5206\u7ea2\u65e5\u5386',    div_tab_search_help: '\u67e5\u627e\u516c\u53f8',    div_my_label_help: '\u767b\u8bb0\u60a8\u559c\u6b22\u7684\u516c\u53f8',    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    splash_sub: '让您的资产更聪明。',
     brand_name: '经济NEWS',
     page_title: '经济NEWS - 智能投资',
     hero_h2: '让财富的未来<br>清晰可见',
@@ -1615,7 +1615,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   })();
 
   // === Step 2: Drawer / Morning / Index Customizer translations ===
-  Object.assign(I18N.ja, {    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    drawer_app_sub: "投資シミュレーター",
+  Object.assign(I18N.ja, {    div_tab_top_help: '\u914d\u5f53\u304c\u591a\u3044\u4eba\u6c17\u9298\u67c4',    div_tab_yearly_help: '1\u5e74\u3067\u305f\u304f\u3055\u3093\u914d\u5f53\u3092\u51fa\u3059\u4f1a\u793e',    div_tab_cal_help: '\u914d\u5f53\u3092\u3082\u3089\u3048\u308b\u65e5\u306e\u30ab\u30ec\u30f3\u30c0\u30fc',    div_tab_search_help: '\u4f1a\u793e\u3092\u63a2\u3059',    div_my_label_help: '\u304a\u6c17\u306b\u5165\u308a\u306e\u4f1a\u793e\u3092\u767b\u9332',    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    drawer_app_sub: "投資シミュレーター",
     drawer_search_ph: "機能・銘柄を検索...",
     drawer_sect_features: "機能",
     drawer_home: "ホーム",
@@ -1681,7 +1681,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     alert_min1: '少なくとも1つ選択してください',
     data_updated: 'データ更新'
   });
-  Object.assign(I18N.en, {    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    drawer_app_sub: "Investment Simulator",
+  Object.assign(I18N.en, {    div_tab_top_help: 'Popular stocks with high dividends',    div_tab_yearly_help: 'Companies paying lots of dividends per year',    div_tab_cal_help: 'Calendar of upcoming dividend dates',    div_tab_search_help: 'Search for a company',    div_my_label_help: 'Register your favorite companies',    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    drawer_app_sub: "Investment Simulator",
     drawer_search_ph: "Search features & symbols...",
     drawer_sect_features: "Features",
     drawer_home: "Home",
@@ -1747,7 +1747,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     alert_min1: 'Please select at least one',
     data_updated: 'Last update'
   });
-  Object.assign(I18N.ko, {    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    drawer_app_sub: "투자 시뮬레이터",
+  Object.assign(I18N.ko, {    div_tab_top_help: '\ubc30\ub2f9\uc774 \ub9ce\uc740 \uc778\uae30 \uc885\ubaa9',    div_tab_yearly_help: '1\ub144\uc5d0 \ubc30\ub2f9\uc774 \ub9ce\uc740 \ud68c\uc0ac',    div_tab_cal_help: '\ubc30\ub2f9\ubc1b\ub294 \ub0a0 \uce98\ub9b0\ub354',    div_tab_search_help: '\ud68c\uc0ac \ucc3e\uae30',    div_my_label_help: '\uc990\uaca8\ucc3e\uae30 \ud68c\uc0ac \ub4f1\ub85d',    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    drawer_app_sub: "투자 시뮬레이터",
     drawer_search_ph: "기능·종목 검색...",
     drawer_sect_features: "기능",
     drawer_home: "홈",
@@ -1813,7 +1813,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     alert_min1: '최소 1개 이상 선택해 주세요',
     data_updated: '데이터 업데이트'
   });
-  Object.assign(I18N.zh, {    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    drawer_app_sub: "投资模拟器",
+  Object.assign(I18N.zh, {    div_tab_top_help: '\u5206\u7ea2\u591a\u7684\u70ed\u95e8\u80a1\u7968',    div_tab_yearly_help: '\u5e74\u5206\u7ea2\u603b\u989d\u9ad8\u7684\u516c\u53f8',    div_tab_cal_help: '\u5206\u7ea2\u65e5\u5386',    div_tab_search_help: '\u67e5\u627e\u516c\u53f8',    div_my_label_help: '\u767b\u8bb0\u60a8\u559c\u6b22\u7684\u516c\u53f8',    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    drawer_app_sub: "投资模拟器",
     drawer_search_ph: "搜索功能·标的...",
     drawer_sect_features: "功能",
     drawer_home: "首页",
@@ -1924,7 +1924,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
 
 
   // === エイリアスキー（既存のdata-i18n属性との互換性） ===
-  Object.assign(I18N.ja, {    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    menu_simulator: "シミュレーター",
+  Object.assign(I18N.ja, {    div_tab_top_help: '\u914d\u5f53\u304c\u591a\u3044\u4eba\u6c17\u9298\u67c4',    div_tab_yearly_help: '1\u5e74\u3067\u305f\u304f\u3055\u3093\u914d\u5f53\u3092\u51fa\u3059\u4f1a\u793e',    div_tab_cal_help: '\u914d\u5f53\u3092\u3082\u3089\u3048\u308b\u65e5\u306e\u30ab\u30ec\u30f3\u30c0\u30fc',    div_tab_search_help: '\u4f1a\u793e\u3092\u63a2\u3059',    div_my_label_help: '\u304a\u6c17\u306b\u5165\u308a\u306e\u4f1a\u793e\u3092\u767b\u9332',    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    menu_simulator: "シミュレーター",
     menu_morning: "朝の相場レター",
     menu_assets: "資産分析",
     menu_alert: "急騰・急落アラート",
@@ -1937,7 +1937,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     idx_us10y: "米金利",
     sect_language: "言語 / Language"
   });
-  Object.assign(I18N.en, {    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    menu_simulator: "Simulator",
+  Object.assign(I18N.en, {    div_tab_top_help: 'Popular stocks with high dividends',    div_tab_yearly_help: 'Companies paying lots of dividends per year',    div_tab_cal_help: 'Calendar of upcoming dividend dates',    div_tab_search_help: 'Search for a company',    div_my_label_help: 'Register your favorite companies',    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    menu_simulator: "Simulator",
     menu_morning: "Morning Brief",
     menu_assets: "Asset Analysis",
     menu_alert: "Surge/Drop Alert",
@@ -1965,7 +1965,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     chat_error: "Sorry, an error occurred. ",
     chat_neterr: "Network error: "
   });
-  Object.assign(I18N.ko, {    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    menu_simulator: "시뮬레이터",
+  Object.assign(I18N.ko, {    div_tab_top_help: '\ubc30\ub2f9\uc774 \ub9ce\uc740 \uc778\uae30 \uc885\ubaa9',    div_tab_yearly_help: '1\ub144\uc5d0 \ubc30\ub2f9\uc774 \ub9ce\uc740 \ud68c\uc0ac',    div_tab_cal_help: '\ubc30\ub2f9\ubc1b\ub294 \ub0a0 \uce98\ub9b0\ub354',    div_tab_search_help: '\ud68c\uc0ac \ucc3e\uae30',    div_my_label_help: '\uc990\uaca8\ucc3e\uae30 \ud68c\uc0ac \ub4f1\ub85d',    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    menu_simulator: "시뮬레이터",
     menu_morning: "아침 시황 레터",
     menu_assets: "자산 분석",
     menu_alert: "급등·급락 알림",
@@ -1978,7 +1978,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     idx_us10y: "미국 10년 금리",
     sect_language: "언어 / Language"
   });
-  Object.assign(I18N.zh, {    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    menu_simulator: "模拟器",
+  Object.assign(I18N.zh, {    div_tab_top_help: '\u5206\u7ea2\u591a\u7684\u70ed\u95e8\u80a1\u7968',    div_tab_yearly_help: '\u5e74\u5206\u7ea2\u603b\u989d\u9ad8\u7684\u516c\u53f8',    div_tab_cal_help: '\u5206\u7ea2\u65e5\u5386',    div_tab_search_help: '\u67e5\u627e\u516c\u53f8',    div_my_label_help: '\u767b\u8bb0\u60a8\u559c\u6b22\u7684\u516c\u53f8',    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    menu_simulator: "模拟器",
     menu_morning: "晨间市场简报",
     menu_assets: "资产分析",
     menu_alert: "暴涨·暴跌警报",
