@@ -2020,6 +2020,38 @@ if os.environ.get("PRELOAD_TRANSLATIONS", "1") != "0":
 else:
     print("[preload] Skipped (PRELOAD_TRANSLATIONS=0)")
 
+# === KEEP-ALIVE (self-ping & cache warmer) ===
+# KEEPALIVE=0 で無効化
+if os.environ.get("KEEPALIVE", "1") != "0":
+    def _keep_alive_loop():
+        time.sleep(60)
+        base = os.environ.get("RENDER_EXTERNAL_URL") or f"http://127.0.0.1:{int(os.environ.get('PORT', 5000))}"
+        last_warm = 0
+        while True:
+            try:
+                requests.get(f"{base}/health", timeout=15)
+            except Exception as _e:
+                print(f"[keepalive] ping error: {_e}")
+            now = time.time()
+            if now - last_warm > 18000:
+                try:
+                    requests.get(f"{base}/api/dividend/top?limit=20", timeout=30)
+                    cur_month = datetime.now().strftime("%Y-%m")
+                    requests.get(f"{base}/api/dividend/calendar?month={cur_month}", timeout=30)
+                    last_warm = now
+                    print("[keepalive] dividend caches warmed")
+                except Exception as _e:
+                    print(f"[keepalive] warmup error: {_e}")
+            time.sleep(600)
+    try:
+        _keepalive_thread = threading.Thread(target=_keep_alive_loop, daemon=True)
+        _keepalive_thread.start()
+        print("[keepalive] thread started")
+    except Exception as _e:
+        print("[keepalive] Could not start thread:", _e)
+else:
+    print("[keepalive] Skipped (KEEPALIVE=0)")
+
 
 # === 配当金機能 (yfinance) ===
 # 日本株マッピング: ティッカー↔会社名 (代表的な高配当銘柄 + 主要銘柄)
