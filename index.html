@@ -713,7 +713,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           }
           _renderDivList(list, d.items,
             function(it){ return (it.yield_pct||0).toFixed(2) + '%'; },
-            function(it){ return _divT('div_annual','年間配当') + ' ' + (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円'); });
+            function(it){ return _divT('div_annual','年間配当') + ' ' + (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円') + ' ・ 株価 ' + (it.price||0).toFixed(0) + '円'; });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
@@ -738,7 +738,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           }
           _renderDivList(list, d.items,
             function(it){ return (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円'); },
-            function(it){ return _divT('div_yield','利回り') + ' ' + (it.yield_pct||0).toFixed(2) + '%'; });
+            function(it){ return _divT('div_yield','利回り') + ' ' + (it.yield_pct||0).toFixed(2) + '% ・ 株価 ' + (it.price||0).toFixed(0) + '円'; });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
