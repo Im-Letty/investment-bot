@@ -2448,6 +2448,107 @@ def _dividend_warmer_run():
 # auto-kick disabled to avoid OOM on Render free tier
 
 
+_SCANNER_CACHE = {"ts": 0, "data": None}
+_SCANNER_TTL = 600
+
+_SCANNER_TICKERS_JP = [
+    "7203.T","6758.T","9984.T","6861.T","8035.T","6098.T","8306.T","9433.T",
+    "9432.T","7974.T","6367.T","6594.T","4063.T","8316.T","6902.T","7741.T",
+    "9983.T","4502.T","6981.T","6273.T","6857.T","6501.T","6502.T","6503.T",
+    "7011.T","7267.T","7269.T","7270.T","8001.T","8002.T","8031.T","8053.T",
+    "8058.T","8411.T","8591.T","8604.T","8725.T","8766.T","8801.T","8802.T",
+    "8830.T","9020.T","9021.T","9022.T","9101.T","9104.T","9201.T","9202.T",
+    "9501.T","9502.T"
+]
+
+_SCANNER_TICKERS_US = [
+    "AAPL","MSFT","GOOGL","AMZN","META","TSLA","NVDA","BRK-B","JPM","V",
+    "JNJ","WMT","PG","XOM","MA","UNH","HD","CVX","LLY","ABBV",
+    "MRK","PFE","BAC","KO","PEP","ADBE","CSCO","TMO","ABT","COST",
+    "AVGO","ACN","MCD","DHR","CRM","NFLX","NKE","WFC","ORCL","DIS",
+    "INTC","AMD","QCOM","TXN","INTU","IBM","UPS","CAT","BA","GS"
+]
+
+
+def _build_scanner_data():
+    syms = _SCANNER_TICKERS_JP + _SCANNER_TICKERS_US
+    results = []
+    try:
+        data = yf.download(syms, period="3d", group_by="ticker", threads=True, progress=False, auto_adjust=False)
+        for s in syms:
+            try:
+                df = data[s]
+                closes = df["Close"].dropna()
+                if len(closes) >= 2:
+                    val = float(closes.iloc[-1])
+                    prev = float(closes.iloc[-2])
+                    if prev > 0:
+                        pct = (val - prev) / prev * 100.0
+                        results.append({
+                            "symbol": s,
+                            "price": round(val, 4),
+                            "prev": round(prev, 4),
+                            "pct": round(pct, 2)
+                        })
+            except Exception:
+                continue
+    except Exception:
+        for s in syms:
+            try:
+                t = yf.Ticker(s)
+                hist = t.history(period="3d")
+                if len(hist) >= 2:
+                    val = float(hist["Close"].iloc[-1])
+                    prev = float(hist["Close"].iloc[-2])
+                    if prev > 0:
+                        pct = (val - prev) / prev * 100.0
+                        results.append({
+                            "symbol": s,
+                            "price": round(val, 4),
+                            "prev": round(prev, 4),
+                            "pct": round(pct, 2)
+                        })
+            except Exception:
+                continue
+    results.sort(key=lambda r: r["pct"], reverse=True)
+    return results
+
+
+@app.route("/api/scanner", methods=["GET"])
+def api_scanner():
+    try:
+        threshold = float(request.args.get("threshold", "3"))
+    except Exception:
+        threshold = 3.0
+    threshold = abs(threshold)
+    try:
+        limit = int(request.args.get("limit", "10"))
+    except Exception:
+        limit = 10
+    limit = max(1, min(20, limit))
+    now = time.time()
+    cached = _SCANNER_CACHE.get("data")
+    cache_age = now - _SCANNER_CACHE.get("ts", 0)
+    if not cached or cache_age >= _SCANNER_TTL:
+        try:
+            cached = _build_scanner_data()
+            _SCANNER_CACHE["ts"] = now
+            _SCANNER_CACHE["data"] = cached
+        except Exception as e:
+            return jsonify({"error": str(e), "surges": [], "drops": []}), 200
+    surges = [r for r in cached if r["pct"] >= threshold][:limit]
+    drops_all = sorted([r for r in cached if r["pct"] <= -threshold], key=lambda r: r["pct"])
+    drops = drops_all[:limit]
+    return jsonify({
+        "threshold": threshold,
+        "updated_at": _SCANNER_CACHE.get("ts", 0),
+        "cache_age_sec": int(now - _SCANNER_CACHE.get("ts", now)),
+        "total_scanned": len(cached),
+        "surges": surges,
+        "drops": drops
+    })
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
