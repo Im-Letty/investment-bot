@@ -2127,7 +2127,7 @@ JP_STOCKS = {
 
 # メモリキャッシュ (1時間TTL)
 _dividend_cache = {}
-_DIV_CACHE_TTL = 3600  # 1h
+_DIV_CACHE_TTL = 21600  # 1h
 
 def _div_cache_get(key):
     v = _dividend_cache.get(key)
@@ -2252,7 +2252,7 @@ def api_dividend_top():
     results = _scan_dividends_partial(min(limit * 3, 60))
     results.sort(key=lambda x: x.get("yield_pct", 0), reverse=True)
     # 部分結果は短時間キャッシュ。全件はバックグラウンド warmer が後で上書き
-    _div_cache_set_short("top_yield_partial", results)
+    _div_cache_set("top_yield", results)
     # warmer disabled (RAM-bound on Render free tier)
     return jsonify({"items": results[:limit], "cached": False, "partial": True})
 
@@ -2278,7 +2278,7 @@ def api_dividend_calendar():
             })
     days = sorted(by_day.items())
     out = [{"date": d, "items": items} for d, items in days]
-    _div_cache_set_short(f"cal_{month}_partial", out)
+    _div_cache_set(f"cal_{month}", out)
     # warmer disabled (RAM-bound on Render free tier)
     return jsonify({"days": out, "cached": False, "partial": True})
 
@@ -2301,7 +2301,7 @@ def api_dividend_yearly():
     # 限定スキャン
     results = _scan_dividends_partial(min(limit * 3, 60))
     results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
-    _div_cache_set_short("yearly_partial", results)
+    _div_cache_set("yearly", results)
     # warmer disabled (RAM-bound on Render free tier)
     return jsonify({"items": results[:limit], "cached": False, "partial": True})
 
