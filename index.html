@@ -690,7 +690,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
         var div = document.createElement('div');
         div.className = 'div-item';
         div.innerHTML = '<div class="div-rank">' + (idx+1) + '</div>' +
-          '<div><div class="div-name">' + it.name + '</div><div class="div-code">' + it.code + '</div></div>' +
+          '<div><div class="div-name">' + _stockName(it.code, it.name) + '</div><div class="div-code">' + it.code + '</div></div>' +
           '<div style="text-align:right"><div class="div-yield">' + valueFn(it) + '</div>' +
           '<div class="div-meta">' + suffix(it) + '</div></div>';
         listEl.appendChild(div);
@@ -1449,7 +1449,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   };
 
   // 現在の言語を保持
-  window.I18N = I18N; let _lang = 'ja';
+  window.I18N = I18N; window.STOCK_NAMES = {'7261':{en:'Mazda',ko:'마쓰다',zh:'马自达'},'7267':{en:'Honda',ko:'혼다',zh:'本田'},'7270':{en:'Subaru',ko:'스바루',zh:'斯巴鲁'},'7202':{en:'Isuzu Motors',ko:'이스즈 자동차',zh:'五十铃汽车'},'7201':{en:'Nissan Motor',ko:'닛산 자동차',zh:'日产汽车'},'7205':{en:'Hino Motors',ko:'히노 자동차',zh:'日野汽车'},'7203':{en:'Toyota Motor',ko:'도요타 자동차',zh:'丰田汽车'},'7282':{en:'Toyoda Gosei',ko:'도요다 고세이',zh:'丰田合成'},'7272':{en:'Yamaha Motor',ko:'야마하 모터',zh:'雅马哈发动机'},'7211':{en:'Mitsubishi Motors',ko:'미쓰비시 자동차',zh:'三菱汽车'},'7269':{en:'Suzuki',ko:'스즈키',zh:'铃木'},'7309':{en:'Shimano',ko:'시마노',zh:'禧玛诺'},'7276':{en:'Komori',ko:'코모리',zh:'小森'},'6098':{en:'Recruit HD',ko:'리크루트 홀딩스',zh:'瑞可利HD'},'7732':{en:'Topcon',ko:'톱콘',zh:'拓普康'}}; window._stockName = function(code, fb){ try{ var lang=window.currentLang||(document.documentElement.lang||'ja'); if(lang==='ja') return fb; var k=String(code||'').replace(/\.T$/,''); var m=window.STOCK_NAMES&&window.STOCK_NAMES[k]; return (m&&m[lang])||fb; }catch(e){return fb;} }; let _lang = 'ja';
 
   // 翻訳取得関数（JS内動的テキスト用）
   function t(key){
@@ -1778,7 +1778,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "다음 권리락 일",
     div_history: "과거 5년간 배당 추이",
     div_stocks: "종목",
-    div_yen: "엔",
+    div_yen: "엔", div_kabuka: "주가",
     div_error: "오류",
     div_no_month: "이달 권리락 종목이 없습니다",
     morning_title: "아침 시황 레터",
