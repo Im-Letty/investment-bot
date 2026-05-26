@@ -2033,7 +2033,7 @@ if os.environ.get("KEEPALIVE", "1") != "0":
             except Exception as _e:
                 print(f"[keepalive] ping error: {_e}")
             now = time.time()
-            if now - last_warm > 18000:
+            if now - last_warm > 3000:
                 try:
                     requests.get(f"{base}/api/dividend/top?limit=20", timeout=30)
                     cur_month = datetime.now().strftime("%Y-%m")
