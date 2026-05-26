@@ -713,7 +713,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           }
           _renderDivList(list, d.items,
             function(it){ return (it.yield_pct||0).toFixed(2) + '%'; },
-            function(it){ return _divT('div_annual','年間配当') + ' ' + (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円') + ' ・ 株価 ' + (it.price||0).toFixed(0) + '円'; });
+            function(it){ return _divT('div_annual','年間配当') + ' ' + (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円') + ' ・ ' + _divT('div_kabuka','株価') + ' ' + (it.price||0).toFixed(0) + _divT('div_yen','円'); });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
@@ -738,7 +738,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
           }
           _renderDivList(list, d.items,
             function(it){ return (it.annual_dividend||0).toFixed(0) + _divT('div_yen','円'); },
-            function(it){ return _divT('div_yield','利回り') + ' ' + (it.yield_pct||0).toFixed(2) + '% ・ 株価 ' + (it.price||0).toFixed(0) + '円'; });
+            function(it){ return _divT('div_yield','利回り') + ' ' + (it.yield_pct||0).toFixed(2) + '%' + ' ・ ' + _divT('div_kabuka','株価') + ' ' + (it.price||0).toFixed(0) + _divT('div_yen','円'); });
           list.dataset.loaded = '1';
         })
         .catch(function(e){
@@ -1644,7 +1644,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "次回権利落ち日",
     div_history: "過去5年の配当推移",
     div_stocks: "銘柄",
-    div_yen: "円",
+    div_yen: "円", div_kabuka: "株価",
     div_error: "エラー",
     div_no_month: "この月の権利落ち銘柄はありません",
     morning_title: "朝の相場レター",
@@ -1711,7 +1711,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "Next Ex-Div Date",
     div_history: "Dividend History (Last 5Y)",
     div_stocks: "stocks",
-    div_yen: "JPY",
+    div_yen: "JPY", div_kabuka: "Price",
     div_error: "Error",
     div_no_month: "No ex-dividend stocks this month",
     morning_title: "Morning Market Brief",
@@ -1845,7 +1845,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "下次除息日",
     div_history: "过去5年股息",
     div_stocks: "只",
-    div_yen: "元",
+    div_yen: "元", div_kabuka: "股价",
     div_error: "错误",
     div_no_month: "本月无除息股票",
     morning_title: "晨间市场简报",
