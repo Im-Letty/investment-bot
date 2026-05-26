@@ -703,7 +703,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if (list.dataset.loaded === '1') return;
       loading.style.display = 'block';
       list.innerHTML = '';
-      fetch('/api/dividend/top?limit=50')
+      fetch('/api/dividend/top?limit=10')
         .then(function(r){ return r.json(); })
         .then(function(d){
           loading.style.display = 'none';
@@ -728,7 +728,7 @@ animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show')
       if (list.dataset.loaded === '1') return;
       loading.style.display = 'block';
       list.innerHTML = '';
-      fetch('/api/dividend/yearly?limit=50')
+      fetch('/api/dividend/yearly?limit=10')
         .then(function(r){ return r.json(); })
         .then(function(d){
           loading.style.display = 'none';
