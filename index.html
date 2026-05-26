@@ -1449,7 +1449,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   };
 
   // 現在の言語を保持
-  let _lang = 'ja';
+  window.I18N = I18N; let _lang = 'ja';
 
   // 翻訳取得関数（JS内動的テキスト用）
   function t(key){
