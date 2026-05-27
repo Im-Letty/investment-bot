@@ -1729,6 +1729,8 @@ def api_ocr_receipt():
         _e=str(e); _l=locals().get("lang","ja"); _m={"ja":{"429":"AIの利用上限に達しました。明日もう一度お試しください。","404":"AIモデルが見つかりません。管理者に連絡してください。","default":"エラーが発生しました。しばらくしてからお試しください。"},"en":{"429":"AI quota exceeded. Try again tomorrow.","404":"AI model not found.","default":"An error occurred. Try again later."},"ko":{"429":"AI 사용 한도에 도달했습니다.","404":"AI 모델을 찾을 수 없습니다.","default":"오류가 발생했습니다."},"zh":{"429":"AI使用配额已用完。","404":"找不到AI模型。","default":"发生错误。"}}; _c="429" if "429" in _e else ("404" if "404" in _e else "default"); return jsonify({"error": _m.get(_l,_m["ja"]).get(_c), "code": _c}), 500
 AI_ADVICE_MONTHLY_LIMIT = int(os.environ.get("AI_ADVICE_MONTHLY_LIMIT", "20"))
 _ai_advice_usage = {}
+_ai_advice_cache = {}  # cache: {key: {"ts": epoch, "data": dict}}
+ADVICE_CACHE_TTL_SEC = int(os.environ.get("ADVICE_CACHE_TTL_SEC", 21600))
 @app.route("/api/ai-advice", methods=["POST"])
 def api_ai_advice():
     try:
@@ -1737,6 +1739,9 @@ def api_ai_advice():
         lang = (body.get("lang") or "ja").lower()
         if lang not in ("ja","en","ko","zh"): lang = "ja"
         summary = body.get("summary") or {}
+        _cache_key = (user_key, lang, json.dumps(summary, sort_keys=True, ensure_ascii=False))
+        _cached = _ai_advice_cache.get(_cache_key)
+        if _cached and (time.time() - _cached.get("ts", 0)) < ADVICE_CACHE_TTL_SEC: return jsonify({"ok": True, "data": _cached["data"], "cached": True})
         now_month = datetime.now().strftime("%Y-%m")
         rec = _ai_advice_usage.get(user_key, {"count": 0, "month": now_month})
         if rec.get("month") != now_month: rec = {"count": 0, "month": now_month}
@@ -1755,6 +1760,7 @@ def api_ai_advice():
             t = t.strip("`")
             if t.lower().startswith("json"): t = t[4:].strip()
         data = json.loads(t)
+        _ai_advice_cache[_cache_key] = {"ts": time.time(), "data": data}
         rec["count"] = rec.get("count", 0) + 1
         _ai_advice_usage[user_key] = rec
         gc.collect()
