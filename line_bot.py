@@ -2004,6 +2004,16 @@ def api_chat_suggestions():
         }), 200
 
 
+@app.route("/sw.js")
+def service_worker():
+    try:
+        with open("static/sw.js", encoding="utf-8") as f:
+            body = f.read()
+    except Exception:
+        return "", 404
+    return body, 200, {"Content-Type": "application/javascript", "Service-Worker-Allowed": "/", "Cache-Control": "no-cache"}
+
+
 @app.route("/")
 def index():
     with open("index.html", encoding="utf-8") as f:
