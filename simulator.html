@@ -738,5 +738,74 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     // 初期化
     updateKakeiboMonthLabel();
 </script>
+<script id="simulator-pro-enhance">(function(){
+  var TAX_RATE=0.20315;
+  var NISA_YEARLY_LIMIT=3600000;
+  var NISA_LIFETIME_LIMIT=18000000;
+  function fmtJPY(n){return '¥'+Math.round(n).toLocaleString();}
+  function getLang(){try{return localStorage.getItem('kk_lang')||localStorage.getItem('lang')||document.documentElement.lang||'ja';}catch(e){return 'ja';}}
+  var L={
+    ja:{title:'📈 詳細分析',gain:'運用益',taxed:'税引き後（特定口座 20.315%）',nisa:'NISA口座（非課税）',advantage:'NISAメリット',yearly_limit:'新NISA年間上限（360万円）',lifetime_limit:'生涯上限（1800万円）',within:'内で収まる',exceeds:'を超える',monthly_eq:'月積立換算'},
+    en:{title:'📈 Detailed analysis',gain:'Investment gain',taxed:'After-tax (taxable account 20.315%)',nisa:'NISA account (tax-free)',advantage:'NISA advantage',yearly_limit:'New NISA yearly limit (¥3.6M)',lifetime_limit:'Lifetime limit (¥18M)',within:'Within',exceeds:'Exceeds',monthly_eq:'Monthly equivalent'},
+    ko:{title:'📈 세부 분석',gain:'수익',taxed:'세후(과세계좌 20.315%)',nisa:'NISA 계좌(비과세)',advantage:'NISA 메릿',yearly_limit:'신NISA 연간 한도(¥360만)',lifetime_limit:'생애 한도(¥1800만)',within:'내 수용',exceeds:'초과',monthly_eq:'월 적립 환산'},
+    zh:{title:'📈 详细分析',gain:'收益',taxed:'税后（课税帐户 20.315%）',nisa:'NISA账户（免税）',advantage:'NISA优势',yearly_limit:'新NISA年度上限（¥360万）',lifetime_limit:'终身上限（¥1800万）',within:'以内',exceeds:'超过',monthly_eq:'月定投换算'}
+  };
+  function tt(k){var d=L[getLang()]||L.ja;return d[k]||L.ja[k]||k;}
+  function buildAnalysisBox(principal,finalAmount,years){
+    var gain=Math.max(0,finalAmount-principal);
+    var tax=gain*TAX_RATE;
+    var afterTax=finalAmount-tax;
+    var nisaAdvantage=tax;
+    var withinYearly=principal<=NISA_YEARLY_LIMIT;
+    var withinLifetime=principal<=NISA_LIFETIME_LIMIT;
+    var monthlyEq=years>0?(principal/(years*12)):0;
+    return '<div style="margin-top:14px;padding:14px;background:linear-gradient(135deg,rgba(61,160,96,.08),rgba(52,152,219,.08));border-radius:12px;border:1px solid rgba(61,160,96,.25);font-size:13px;line-height:1.7;">'+
+      '<div style="font-weight:700;color:#2d4a2d;margin-bottom:8px;font-size:14px;">'+tt('title')+'</div>'+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
+      '<div>💰 '+tt('gain')+':<br><b style="color:#3da060;">'+fmtJPY(gain)+'</b></div>'+
+      '<div>🏦 '+tt('taxed')+':<br><b style="color:#e67e22;">'+fmtJPY(afterTax)+'</b></div>'+
+      '<div>🌸 '+tt('nisa')+':<br><b style="color:#3498db;">'+fmtJPY(finalAmount)+'</b></div>'+
+      '<div>✨ '+tt('advantage')+':<br><b style="color:#9b59b6;">+'+fmtJPY(nisaAdvantage)+'</b></div>'+
+      '</div>'+
+      '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,.1);font-size:12px;color:#555;">'+
+      '<div>'+tt('yearly_limit')+': '+(withinYearly?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
+      '<div>'+tt('lifetime_limit')+': '+(withinLifetime?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
+      (monthlyEq>0?'<div>'+tt('monthly_eq')+': '+fmtJPY(monthlyEq)+'/m</div>':'')+
+      '</div></div>';
+  }
+  function injectAnalysis(){
+    try{
+      var charts=['d','m','l','g'];
+      charts.forEach(function(k){
+        var canvas=document.getElementById('chart-'+k);
+        if(!canvas)return;
+        var chart=canvas.parentElement;
+        var existingBox=chart.parentElement.querySelector('.sim-pro-box-'+k);
+        var inputs=chart.parentElement.querySelectorAll('input[type="number"]');
+        var values=[];inputs.forEach(function(inp){var v=parseFloat(inp.value);if(!isNaN(v))values.push(v);});
+        if(values.length<2)return;
+        var principal=values[0]||0;
+        var rate=(values[1]||0)/100;
+        var years=values[2]||1;
+        if(principal<=0||years<=0)return;
+        var finalAmt=principal*Math.pow(1+rate,years);
+        if(k==='m'||k==='d'){var monthly=values[0]||0;var periods=(k==='m'?years*12:years*365);var rp=(k==='m'?rate/12:rate/365);finalAmt=monthly*((Math.pow(1+rp,periods)-1)/rp);principal=monthly*periods;}
+        var html=buildAnalysisBox(principal,finalAmt,years);
+        if(existingBox){existingBox.innerHTML=html;}else{var box=document.createElement('div');box.className='sim-pro-box-'+k;box.innerHTML=html;chart.parentElement.appendChild(box);}
+      });
+    }catch(e){console.warn('sim-pro err',e);}
+  }
+  function hookCalc(){
+    ['calcD','calcM','calcL','calcG'].forEach(function(fn){
+      if(typeof window[fn]==='function' && !window['_orig_'+fn]){
+        window['_orig_'+fn]=window[fn];
+        window[fn]=function(){try{window['_orig_'+fn].apply(this,arguments);}catch(e){}setTimeout(injectAnalysis,200);};
+      }
+    });
+    setTimeout(injectAnalysis,500);
+  }
+  function init(){if(typeof window.calcD==='function'){hookCalc();}else{setTimeout(init,500);}}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,300);}
+})();</script>
 </body>
 </html>
