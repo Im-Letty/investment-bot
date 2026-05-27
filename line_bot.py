@@ -1703,7 +1703,7 @@ def api_ocr_receipt():
         buf.seek(0)
         img_for_api = Image.open(buf)
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         prompt = ("Extract receipt data as JSON only. No markdown, no commentary. "
                   "Schema: {\"date\":\"YYYY-MM-DD\",\"store\":\"...\",\"items\":[{\"name\":\"...\",\"price\":123,\"category\":\"food|daily|hobby|transport|medical|other\"}],\"total\":1234}. "
                   "Prices are integers in yen. If unreadable, use null for that field.")
@@ -1747,7 +1747,7 @@ def api_ai_advice():
         genai.configure(api_key=api_key)
         lang_names = {"ja":"Japanese","en":"English","ko":"Korean","zh":"Chinese"}
         prompt = "You are a friendly personal finance advisor. Based on the user's household budget summary below, give SHORT actionable advice. Respond ONLY in " + lang_names[lang] + ". Return strict JSON: {\"summary\":string,\"trend\":string,\"savings_tips\":[string,string,string],\"investment_advice\":string,\"score\":number}. score is 0-100. Each string max 120 chars. No markdown.\n\nData:\n" + json.dumps(summary, ensure_ascii=False)[:6000]
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         resp = model.generate_content(prompt)
         raw = (getattr(resp, "text", "") or "").strip()
         t = raw
