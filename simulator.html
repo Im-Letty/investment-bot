@@ -773,10 +773,11 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
       (monthlyEq>0?'<div>'+tt('monthly_eq')+': '+fmtJPY(monthlyEq)+'/m</div>':'')+
       '</div></div>';
   }
+  function getTabValues(tabId){var tab=document.getElementById(tabId);if(!tab)return null;var ranges=tab.querySelectorAll('input[type="range"]');var vals=[];ranges.forEach(function(r){vals.push(parseFloat(r.value)||0);});return vals;}
   function injectAnalysis(){
     try{
-      var charts=['d','m','l','g'];
-      charts.forEach(function(k){
+      var charts=[{k:'d',tab:'tab-daily',mode:'daily'},{k:'m',tab:'tab-monthly',mode:'monthly'},{k:'l',tab:'tab-lump',mode:'lump'},{k:'g',tab:'tab-goal',mode:'goal'}];
+      charts.forEach(function(item){var k=item.k;
         var canvas=document.getElementById('chart-'+k);
         if(!canvas)return;
         var chart=canvas.parentElement;
