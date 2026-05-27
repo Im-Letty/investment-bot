@@ -169,6 +169,7 @@
     <div class="top">
       <label style="font-size:12px;"><span data-i18n="kk_ocr_date">日付</span><input id="ocr-date" type="date"></label>
       <label style="font-size:12px;"><span data-i18n="kk_ocr_store">店</span><input id="ocr-store" type="text"></label>
+      <label style="font-size:12px;grid-column:1/-1;"><span data-i18n="kk_ocr_link_asset">💳 連動する資産 (任意)</span><select id="ocr-asset"><option value="" data-i18n="kk_ocr_no_asset">連動しない</option></select></label>
     </div>
     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
       <strong style="font-size:14px;" data-i18n="kk_ocr_items">商品</strong>
@@ -249,6 +250,8 @@ var KK_I18N = {
     kk_currency_symbol: "¥",
     kk_back_home: "← ホーム",
     kk_btn_scan_receipt: "📷 レシート撮影",
+    kk_ocr_link_asset: "💳 連動する資産 (任意)",
+    kk_ocr_no_asset: "連動しない",
     kk_ocr_processing: "解析中...",
     kk_ocr_review: "レシート内容を確認",
     kk_ocr_date: "日付",
@@ -351,6 +354,8 @@ var KK_I18N = {
     kk_currency_symbol: "$",
     kk_back_home: "← Home",
     kk_btn_scan_receipt: "📷 Scan Receipt",
+    kk_ocr_link_asset: "💳 Link to asset (optional)",
+    kk_ocr_no_asset: "Don't link",
     kk_ocr_processing: "Processing...",
     kk_ocr_review: "Review receipt",
     kk_ocr_date: "Date",
@@ -453,6 +458,8 @@ var KK_I18N = {
     kk_currency_symbol: "₩",
     kk_back_home: "← 홈",
     kk_btn_scan_receipt: "📷 영수증 스캔",
+    kk_ocr_link_asset: "💳 연동할 자산 (선택)",
+    kk_ocr_no_asset: "연동하지 않음",
     kk_ocr_processing: "분석 중...",
     kk_ocr_review: "영수증 확인",
     kk_ocr_date: "날짜",
@@ -555,6 +562,8 @@ var KK_I18N = {
     kk_currency_symbol: "元",
     kk_back_home: "← 首页",
     kk_btn_scan_receipt: "📷 扫描小票",
+    kk_ocr_link_asset: "💳 关联资产（可选）",
+    kk_ocr_no_asset: "不关联",
     kk_ocr_processing: "解析中...",
     kk_ocr_review: "确认小票内容",
     kk_ocr_date: "日期",
@@ -904,7 +913,24 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
     }).catch(function(e){if(sp)sp.style.display='none';alertI('kk_ocr_failed','\u30a8\u30e9\u30fc: '+e.message);});
     var inp=document.getElementById('ocr-file');if(inp)inp.value='';
   };
+  function kkPopulateAssetSelect(){
+    try{
+      var sel=document.getElementById('ocr-asset');
+      if(!sel)return;
+      var assets=(typeof getAssets==='function')?getAssets():[];
+      var noLabel=(typeof kkT==='function')?(kkT('kk_ocr_no_asset')||'連動しない'):'連動しない';
+      sel.innerHTML='<option value="">'+noLabel+'</option>';
+      for(var i=0;i<assets.length;i++){
+        var a=assets[i];
+        var opt=document.createElement('option');
+        opt.value=a.id;
+        opt.textContent=(a.name||'?')+' (¥'+Number(a.amount||0).toLocaleString()+')';
+        sel.appendChild(opt);
+      }
+    }catch(e){}
+  }
   window.kkOcrShowModal=function(){
+    try{ kkPopulateAssetSelect(); }catch(e){}
     var d=_ocrData||{};var today=new Date().toISOString().slice(0,10);
     document.getElementById('ocr-date').value=d.date||today;
     document.getElementById('ocr-store').value=d.store||'';
@@ -939,6 +965,19 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
     var data=getDayData(y,m,day)||[];
     for(var i=0;i<items.length;i++){var it=items[i];var price=parseInt(it.price)||0;if(price<=0)continue;var nm=(it.name||'').trim();if(!nm)continue;var fullName=store?(nm+' ('+store+')'):nm;var cat=catLabel(it.category||'other');data.push({id:'ocr_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,6),type:'exp',name:fullName,amount:price,cat:cat,t:Date.now()});added++;}
     saveDayData(y,m,day,data);
+    try{
+      var assetSel=document.getElementById('ocr-asset');
+      var assetId=assetSel?assetSel.value:'';
+      if(assetId && typeof getAssets==='function' && typeof saveAssets==='function'){
+        var totalDeducted=0;
+        for(var k=0;k<items.length;k++){var p=parseInt(items[k].price)||0;if(p>0&&items[k].name&&items[k].name.trim())totalDeducted+=p;}
+        if(totalDeducted>0){
+          var assetsArr=getAssets();
+          for(var j=0;j<assetsArr.length;j++){if(assetsArr[j].id===assetId){assetsArr[j].amount=(Number(assetsArr[j].amount)||0)-totalDeducted;break;}}
+          saveAssets(assetsArr);
+        }
+      }
+    }catch(e){}
     try{if(typeof renderCalendar==='function')renderCalendar();if(typeof renderDashboard==='function')renderDashboard();if(typeof renderAll==='function')renderAll();}catch(e){}
     kkOcrClose();
     alert(tt('kk_ocr_saved','\u4fdd\u5b58\u3057\u307e\u3057\u305f: ')+added+tt('kk_ocr_items_unit','\u4ef6'));
