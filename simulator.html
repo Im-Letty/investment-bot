@@ -782,8 +782,8 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
         if(!canvas)return;
         var chart=canvas.parentElement;
         var existingBox=chart.parentElement.querySelector('.sim-pro-box-'+k);
-        var inputs=chart.parentElement.querySelectorAll('input[type="number"]');
-        var values=[];inputs.forEach(function(inp){var v=parseFloat(inp.value);if(!isNaN(v))values.push(v);});
+        var inputs=[];
+        var values=getTabValues(item.tab)||[];
         if(values.length<2)return;
         var principal=values[0]||0;
         var rate=(values[1]||0)/100;
