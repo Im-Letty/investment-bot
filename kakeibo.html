@@ -199,6 +199,7 @@
     <div class="sum-item"><div class="sum-lbl" data-i18n="kk_sum_invest">📈 今月投資</div><div class="sum-num sage" id="d-invest">¥0</div></div>
   </div>
   <div class="card"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>
+  <div class="card"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_pie_expense">🥧 今月の支出内訳</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="donutChart"></canvas></div><div id="donut-legend" style="flex:1;font-size:12px"></div></div></div>
 </div>
 <div class="tab-content" id="tab-cashflow">
@@ -251,6 +252,7 @@ var KK_I18N = {
     kk_back_home: "← ホーム",
     kk_btn_scan_receipt: "📷 レシート撮影",
     kk_ocr_link_asset: "💳 連動する資産 (任意)",
+    kk_card_cat_stack: "📊 カテゴリ別月間推移（過去6ヶ月）",
     kk_ocr_no_asset: "連動しない",
     kk_ocr_processing: "解析中...",
     kk_ocr_review: "レシート内容を確認",
@@ -355,6 +357,7 @@ var KK_I18N = {
     kk_back_home: "← Home",
     kk_btn_scan_receipt: "📷 Scan Receipt",
     kk_ocr_link_asset: "💳 Link to asset (optional)",
+    kk_card_cat_stack: "📊 Category trend (last 6 months)",
     kk_ocr_no_asset: "Don't link",
     kk_ocr_processing: "Processing...",
     kk_ocr_review: "Review receipt",
@@ -459,6 +462,7 @@ var KK_I18N = {
     kk_back_home: "← 홈",
     kk_btn_scan_receipt: "📷 영수증 스캔",
     kk_ocr_link_asset: "💳 연동할 자산 (선택)",
+    kk_card_cat_stack: "📊 카테고리별 월간 추이(최근 6개월)",
     kk_ocr_no_asset: "연동하지 않음",
     kk_ocr_processing: "분석 중...",
     kk_ocr_review: "영수증 확인",
@@ -563,6 +567,7 @@ var KK_I18N = {
     kk_back_home: "← 首页",
     kk_btn_scan_receipt: "📷 扫描小票",
     kk_ocr_link_asset: "💳 关联资产（可选）",
+    kk_card_cat_stack: "📊 分类月间趋势（近6个月）",
     kk_ocr_no_asset: "不关联",
     kk_ocr_processing: "解析中...",
     kk_ocr_review: "确认小票内容",
@@ -984,5 +989,41 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
   };
 })();
 </script>
+<script id="cat-stack-chart">(function(){
+  var _catStackChart=null;
+  var CAT_KEYS=['food','daily','hobby','transport','medical','other'];
+  var CAT_COLORS={food:'#e74c3c',daily:'#f39c12',hobby:'#9b59b6',transport:'#3498db',medical:'#1abc9c',other:'#95a5a6'};
+  function catLabel(c){try{return (typeof kkCat==='function')?kkCat(c):c;}catch(e){return c;}}
+  function renderCatStack(){
+    try{
+      var canvas=document.getElementById('catStackChart');
+      if(!canvas||typeof Chart==='undefined')return;
+      var now=new Date();var months=[];var labels=[];
+      for(var i=5;i>=0;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth()+1});labels.push(d.getFullYear()+'/'+(d.getMonth()+1));}
+      var perCat={};CAT_KEYS.forEach(function(k){perCat[k]=new Array(6).fill(0);});
+      months.forEach(function(ym,idx){
+        var daysIn=new Date(ym.y,ym.m,0).getDate();
+        for(var dd=1;dd<=daysIn;dd++){
+          var key='kbday_'+ym.y+'_'+(ym.m<10?'0'+ym.m:ym.m)+'_'+(dd<10?'0'+dd:dd);
+          var raw=localStorage.getItem(key);if(!raw)continue;
+          try{var arr=JSON.parse(raw)||[];arr.forEach(function(e){if(e.type==='exp'){var c=e.cat;if(CAT_KEYS.indexOf(c)<0)c='other';perCat[c][idx]+=(Number(e.amount)||0);}});}catch(e){}
+        }
+      });
+      var datasets=CAT_KEYS.map(function(k){return {label:catLabel(k),data:perCat[k],backgroundColor:CAT_COLORS[k]};});
+      var hasData=datasets.some(function(d){return d.data.some(function(v){return v>0;});});
+      if(_catStackChart){try{_catStackChart.destroy();}catch(e){}_catStackChart=null;}
+      if(!hasData)return;
+      _catStackChart=new Chart(canvas.getContext('2d'),{type:'bar',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom'}}}});
+    }catch(e){console.warn('catStack err',e);}
+  }
+  function hookRender(){
+    if(typeof window.renderAll==='function' && !window._origRenderAll){
+      window._origRenderAll=window.renderAll;
+      window.renderAll=function(){try{window._origRenderAll.apply(this,arguments);}catch(e){}renderCatStack();};
+      try{renderCatStack();}catch(e){}
+    }else{setTimeout(hookRender,500);}
+  }
+  if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(hookRender,300);}else{document.addEventListener('DOMContentLoaded',function(){setTimeout(hookRender,300);});}
+})();</script>
 </body>
 </html>
