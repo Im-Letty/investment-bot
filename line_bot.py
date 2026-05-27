@@ -1671,6 +1671,63 @@ def simulator():
     with open("simulator.html", encoding="utf-8") as f:
             return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
 
+# === Receipt OCR (Gemini 1.5 Flash) ===
+_ocr_usage = {}
+OCR_MONTHLY_LIMIT = int(os.environ.get("OCR_MONTHLY_LIMIT", "50"))
+
+@app.route("/api/ocr-receipt", methods=["POST"])
+def api_ocr_receipt():
+    raw_text = ""
+    try:
+        if "image" not in request.files:
+            return jsonify({"error": "image required"}), 400
+        user_key = request.form.get("user_id") or request.remote_addr or "anon"
+        now_month = datetime.now().strftime("%Y-%m")
+        rec = _ocr_usage.get(user_key, {"count": 0, "month": now_month})
+        if rec.get("month") != now_month:
+            rec = {"count": 0, "month": now_month}
+        if rec["count"] >= OCR_MONTHLY_LIMIT:
+            return jsonify({"error": "monthly_limit", "limit": OCR_MONTHLY_LIMIT, "used": rec["count"]}), 429
+        api_key = os.environ.get("GEMINI_API_KEY", "")
+        if not api_key:
+            return jsonify({"error": "GEMINI_API_KEY not set"}), 500
+        from PIL import Image
+        import google.generativeai as genai
+        import io as _io
+        img = Image.open(request.files["image"].stream)
+        img.thumbnail((1024, 1024))
+        if img.mode != "RGB":
+            img = img.convert("RGB")
+        buf = _io.BytesIO()
+        img.save(buf, format="JPEG", quality=85)
+        buf.seek(0)
+        img_for_api = Image.open(buf)
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        prompt = ("Extract receipt data as JSON only. No markdown, no commentary. "
+                  "Schema: {\"date\":\"YYYY-MM-DD\",\"store\":\"...\",\"items\":[{\"name\":\"...\",\"price\":123,\"category\":\"food|daily|hobby|transport|medical|other\"}],\"total\":1234}. "
+                  "Prices are integers in yen. If unreadable, use null for that field.")
+        resp = model.generate_content([prompt, img_for_api])
+        raw_text = (getattr(resp, "text", "") or "").strip()
+        t = raw_text
+        if t.startswith("```"):
+            t = t.strip("`")
+            if t.lower().startswith("json"):
+                t = t[4:].strip()
+        data = json.loads(t)
+        rec["count"] = rec.get("count", 0) + 1
+        _ocr_usage[user_key] = rec
+        try:
+            img.close(); img_for_api.close(); buf.close()
+        except Exception:
+            pass
+        gc.collect()
+        return jsonify({"ok": True, "data": data, "usage": rec["count"], "limit": OCR_MONTHLY_LIMIT})
+    except json.JSONDecodeError:
+        return jsonify({"error": "ai_response_not_json", "raw": raw_text[:500]}), 502
+    except Exception as e:
+        return jsonify({"error": str(e)[:200]}), 500
+
 @app.route("/kakeibo")
 def kakeibo():
     with open("kakeibo.html", encoding="utf-8") as f:
