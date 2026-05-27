@@ -1726,7 +1726,7 @@ def api_ocr_receipt():
     except json.JSONDecodeError:
         return jsonify({"error": "ai_response_not_json", "raw": raw_text[:500]}), 502
     except Exception as e:
-        return jsonify({"error": str(e)[:200]}), 500
+        _e=str(e); _l=locals().get("lang","ja"); _m={"ja":{"429":"AIの利用上限に達しました。明日もう一度お試しください。","404":"AIモデルが見つかりません。管理者に連絡してください。","default":"エラーが発生しました。しばらくしてからお試しください。"},"en":{"429":"AI quota exceeded. Try again tomorrow.","404":"AI model not found.","default":"An error occurred. Try again later."},"ko":{"429":"AI 사용 한도에 도달했습니다.","404":"AI 모델을 찾을 수 없습니다.","default":"오류가 발생했습니다."},"zh":{"429":"AI使用配额已用完。","404":"找不到AI模型。","default":"发生错误。"}}; _c="429" if "429" in _e else ("404" if "404" in _e else "default"); return jsonify({"error": _m.get(_l,_m["ja"]).get(_c), "code": _c}), 500
 AI_ADVICE_MONTHLY_LIMIT = int(os.environ.get("AI_ADVICE_MONTHLY_LIMIT", "20"))
 _ai_advice_usage = {}
 @app.route("/api/ai-advice", methods=["POST"])
@@ -1762,7 +1762,7 @@ def api_ai_advice():
     except json.JSONDecodeError:
         return jsonify({"error": "ai_response_not_json"}), 502
     except Exception as e:
-        return jsonify({"error": str(e)[:200]}), 500
+        _e=str(e); _l=locals().get("lang","ja"); _m={"ja":{"429":"AIの利用上限に達しました。明日もう一度お試しください。","404":"AIモデルが見つかりません。管理者に連絡してください。","default":"エラーが発生しました。しばらくしてからお試しください。"},"en":{"429":"AI quota exceeded. Try again tomorrow.","404":"AI model not found.","default":"An error occurred. Try again later."},"ko":{"429":"AI 사용 한도에 도달했습니다.","404":"AI 모델을 찾을 수 없습니다.","default":"오류가 발생했습니다."},"zh":{"429":"AI使用配额已用完。","404":"找不到AI模型。","default":"发生错误。"}}; _c="429" if "429" in _e else ("404" if "404" in _e else "default"); return jsonify({"error": _m.get(_l,_m["ja"]).get(_c), "code": _c}), 500
         
 @app.route("/kakeibo")
 def kakeibo():
