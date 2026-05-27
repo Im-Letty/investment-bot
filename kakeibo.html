@@ -138,6 +138,50 @@
   <div class="total-asset-val" id="totalAssetVal">¥0</div>
   <div class="total-asset-change" id="totalAssetChange" data-i18n="kk_pls_register_asset">資産を登録してください</div>
 </div>
+<div id="ocr-bar" style="padding:10px 12px 0;display:flex;justify-content:center;">
+  <button id="ocr-btn" onclick="document.getElementById('ocr-file').click()" style="background:linear-gradient(135deg,#3da060,#2d7a4f);color:#fff;border:none;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(45,122,79,.35);display:flex;align-items:center;gap:8px;">
+    <span style="font-size:20px;">📷</span><span data-i18n="kk_btn_scan_receipt">レシート撮影</span>
+  </button>
+  <input id="ocr-file" type="file" accept="image/*" capture="environment" style="display:none" onchange="kkOcrUpload(this.files[0])">
+</div>
+<div id="ocr-spinner" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center;flex-direction:column;color:#fff;">
+  <div style="width:48px;height:48px;border:4px solid #fff;border-top-color:#3da060;border-radius:50%;animation:ocrspin 1s linear infinite;"></div>
+  <div data-i18n="kk_ocr_processing" style="margin-top:14px;font-size:14px;">解析中...</div>
+</div>
+<style>@keyframes ocrspin{to{transform:rotate(360deg)}}
+#ocr-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9999;align-items:center;justify-content:center;padding:12px;}
+#ocr-modal.open{display:flex;}
+#ocr-modal .box{background:#fff;border-radius:16px;width:100%;max-width:520px;max-height:90vh;overflow:auto;padding:18px;color:#1a3325;}
+#ocr-modal h3{margin:0 0 12px;font-size:18px;}
+#ocr-modal .row{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center;}
+#ocr-modal input,#ocr-modal select{padding:6px;border:1px solid #ccc;border-radius:8px;font-size:13px;width:100%;box-sizing:border-box;}
+#ocr-modal .delx{background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:12px;}
+#ocr-modal .top{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px;}
+#ocr-modal .actions{display:flex;gap:8px;margin-top:12px;}
+#ocr-modal .actions button{flex:1;padding:11px;border:none;border-radius:10px;font-weight:700;cursor:pointer;}
+#ocr-modal .save-btn{background:#3da060;color:#fff;}
+#ocr-modal .cancel-btn{background:#ccc;color:#333;}
+#ocr-modal .add-btn{background:#5db87a;color:#fff;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:12px;margin-bottom:8px;}
+</style>
+<div id="ocr-modal" onclick="if(event.target.id==='ocr-modal')kkOcrClose()">
+  <div class="box">
+    <h3 data-i18n="kk_ocr_review">レシート内容を確認</h3>
+    <div class="top">
+      <label style="font-size:12px;"><span data-i18n="kk_ocr_date">日付</span><input id="ocr-date" type="date"></label>
+      <label style="font-size:12px;"><span data-i18n="kk_ocr_store">店</span><input id="ocr-store" type="text"></label>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+      <strong style="font-size:14px;" data-i18n="kk_ocr_items">商品</strong>
+      <button class="add-btn" onclick="kkOcrAddItem()" data-i18n="kk_ocr_add_item">+ 追加</button>
+    </div>
+    <div id="ocr-items"></div>
+    <div style="text-align:right;margin-top:8px;font-size:13px;color:#666;"><span data-i18n="kk_ocr_total">合計</span>: <span id="ocr-total">0</span> <span data-i18n="kk_currency_yen">円</span></div>
+    <div class="actions">
+      <button class="cancel-btn" onclick="kkOcrClose()" data-i18n="kk_ocr_cancel">キャンセル</button>
+      <button class="save-btn" onclick="kkOcrSave()" data-i18n="kk_ocr_save_all">全て保存</button>
+    </div>
+  </div>
+</div>
 <div class="tab-nav">
   <div class="tn-item active" onclick="switchTab('dashboard')" data-i18n="kk_tab_dashboard">ダッシュボード</div>
   <div class="tn-item" onclick="switchTab('cashflow')" data-i18n="kk_tab_cashflow">収支管理</div>
@@ -765,6 +809,69 @@ function loadBrandColorK(){
 }
 loadBrandColorK();
 document.addEventListener('DOMContentLoaded', loadBrandColorK);
+</script>
+<script id="ocr-js">
+(function(){
+  var _ocrData=null;
+  var CAT_MAP={food:{ja:'\u98df\u8cbb',en:'Food',ko:'\uc2dd\ube44',zh:'\u996e\u98df'},daily:{ja:'\u65e5\u7528\u54c1',en:'Daily',ko:'\uc0dd\ud65c\uc6a9\ud488',zh:'\u65e5\u7528\u54c1'},hobby:{ja:'\u5a2f\u697d',en:'Hobby',ko:'\uc624\ub77d',zh:'\u5a31\u4e50'},transport:{ja:'\u4ea4\u901a',en:'Transport',ko:'\uad50\ud1b5',zh:'\u4ea4\u901a'},medical:{ja:'\u533b\u7642',en:'Medical',ko:'\uc758\ub8cc',zh:'\u533b\u7597'},other:{ja:'\u305d\u306e\u4ed6',en:'Other',ko:'\uae30\ud0c0',zh:'\u5176\u4ed6'}};
+  function getLang(){try{return localStorage.getItem('kk_lang')||localStorage.getItem('siteLang')||'ja';}catch(e){return 'ja';}}
+  function catLabel(k){var L=getLang();var m=CAT_MAP[k]||CAT_MAP.other;return m[L]||m.ja;}
+  function tt(key,fb){try{return (typeof kkT==='function')?(kkT(key)||fb):fb;}catch(e){return fb;}}
+  function alertI(key,fb){try{var msg=(typeof kkT==='function')?(kkT(key)||fb):fb;alert(msg);}catch(e){alert(fb);}}
+  window.kkOcrUpload=function(file){
+    if(!file)return;
+    if(file.size>10*1024*1024){alertI('kk_ocr_too_large','\u753b\u50cf\u304c\u5927\u304d\u3059\u304e\u307e\u3059 (10MB\u4ee5\u5185)');return;}
+    var fd=new FormData();fd.append('image',file);
+    try{var uid=localStorage.getItem('kk_user_id');if(!uid){uid='u_'+Math.random().toString(36).slice(2,10);localStorage.setItem('kk_user_id',uid);}fd.append('user_id',uid);}catch(e){}
+    var sp=document.getElementById('ocr-spinner');if(sp){sp.style.display='flex';}
+    fetch('/api/ocr-receipt',{method:'POST',body:fd}).then(function(r){return r.json().then(function(j){return{status:r.status,j:j};});}).then(function(res){
+      if(sp)sp.style.display='none';
+      if(res.status===429){alertI('kk_ocr_limit_exceeded','\u4eca\u6708\u306e\u4e0a\u9650\u306b\u9054\u3057\u307e\u3057\u305f ('+(res.j.limit||50)+'\u679a)');return;}
+      if(res.status!==200||!res.j.ok){alertI('kk_ocr_failed','\u8aad\u307f\u53d6\u308a\u306b\u5931\u6557\u3057\u307e\u3057\u305f: '+((res.j&&res.j.error)||'unknown'));return;}
+      _ocrData=res.j.data||{};kkOcrShowModal();
+    }).catch(function(e){if(sp)sp.style.display='none';alertI('kk_ocr_failed','\u30a8\u30e9\u30fc: '+e.message);});
+    var inp=document.getElementById('ocr-file');if(inp)inp.value='';
+  };
+  window.kkOcrShowModal=function(){
+    var d=_ocrData||{};var today=new Date().toISOString().slice(0,10);
+    document.getElementById('ocr-date').value=d.date||today;
+    document.getElementById('ocr-store').value=d.store||'';
+    var items=Array.isArray(d.items)?d.items:[];
+    _ocrData={date:d.date||today,store:d.store||'',items:items.slice(),total:d.total||0};
+    renderItems();
+    document.getElementById('ocr-modal').classList.add('open');
+  };
+  function renderItems(){
+    var box=document.getElementById('ocr-items');if(!box)return;
+    var items=_ocrData.items;var html='';var cats=['food','daily','hobby','transport','medical','other'];
+    for(var i=0;i<items.length;i++){var it=items[i];var opts='';for(var c=0;c<cats.length;c++){opts+='<option value="'+cats[c]+'"'+(it.category===cats[c]?' selected':'')+'>'+catLabel(cats[c])+'</option>';}
+      html+='<div class="row"><input type="text" value="'+(it.name||'').replace(/"/g,'&quot;')+'" oninput="kkOcrEdit('+i+',\'name\',this.value)"><input type="number" value="'+(it.price||0)+'" oninput="kkOcrEdit('+i+',\'price\',parseInt(this.value)||0)"><select onchange="kkOcrEdit('+i+',\'category\',this.value)">'+opts+'</select><button class="delx" onclick="kkOcrDel('+i+')">\u00d7</button></div>';
+    }
+    box.innerHTML=html;
+    var tot=0;for(var k=0;k<items.length;k++){tot+=(parseInt(items[k].price)||0);}
+    var te=document.getElementById('ocr-total');if(te)te.textContent=tot.toLocaleString();
+  }
+  window.kkOcrEdit=function(idx,field,val){if(!_ocrData||!_ocrData.items[idx])return;_ocrData.items[idx][field]=val;if(field==='price'){renderItems();}};
+  window.kkOcrDel=function(idx){if(!_ocrData)return;_ocrData.items.splice(idx,1);renderItems();};
+  window.kkOcrAddItem=function(){if(!_ocrData)return;_ocrData.items.push({name:'',price:0,category:'food'});renderItems();};
+  window.kkOcrClose=function(){var m=document.getElementById('ocr-modal');if(m)m.classList.remove('open');_ocrData=null;};
+  window.kkOcrSave=function(){
+    if(!_ocrData)return;
+    var dateStr=document.getElementById('ocr-date').value;
+    if(!dateStr){alertI('kk_ocr_need_date','\u65e5\u4ed8\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044');return;}
+    var parts=dateStr.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]),day=parseInt(parts[2]);
+    if(!y||!m||!day){alertI('kk_ocr_bad_date','\u65e5\u4ed8\u304c\u4e0d\u6b63\u3067\u3059');return;}
+    var store=(document.getElementById('ocr-store').value||'').trim();
+    var items=_ocrData.items||[];var added=0;
+    if(typeof getDayData!=='function'||typeof saveDayData!=='function'){alert('saveDayData not available');return;}
+    var data=getDayData(y,m,day)||[];
+    for(var i=0;i<items.length;i++){var it=items[i];var price=parseInt(it.price)||0;if(price<=0)continue;var nm=(it.name||'').trim();if(!nm)continue;var fullName=store?(nm+' ('+store+')'):nm;var cat=catLabel(it.category||'other');data.push({id:'ocr_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,6),type:'exp',name:fullName,amount:price,cat:cat,t:Date.now()});added++;}
+    saveDayData(y,m,day,data);
+    try{if(typeof renderCalendar==='function')renderCalendar();if(typeof renderDashboard==='function')renderDashboard();if(typeof renderAll==='function')renderAll();}catch(e){}
+    kkOcrClose();
+    alert(tt('kk_ocr_saved','\u4fdd\u5b58\u3057\u307e\u3057\u305f: ')+added+tt('kk_ocr_items_unit','\u4ef6'));
+  };
+})();
 </script>
 </body>
 </html>
