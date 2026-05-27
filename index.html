@@ -129,7 +129,7 @@
 
 .drawer-search-wrap{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.15);}
 .drawer-search-box{position:relative;display:flex;align-items:center;background:rgba(255,255,255,0.18);border-radius:10px;padding:6px 10px;backdrop-filter:blur(4px);}
-.drawer-search-icon{font-size:0.95rem;color:#fff;margin-right:6px;opacity:0.9;}
+.drawer-search-icon{display:inline-flex;align-items:center;justify-content:center;width:18px;height:18px;margin-right:6px;opacity:0.9;}.drawer-search-icon::before{content:"🔍";font-size:0.95rem;line-height:1;}
 .drawer-search-input{flex:1;background:transparent;border:none;outline:none;color:#fff;font-size:0.85rem;padding:4px 0;width:100%;}
 .drawer-search-input::placeholder{color:rgba(255,255,255,0.65);}
 .drawer-search-clear{background:none;border:none;color:rgba(255,255,255,0.7);font-size:0.95rem;cursor:pointer;padding:0 4px;display:none;}
@@ -1321,8 +1321,8 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       idx_add_title: "➕ 직접 종목 추가",
       idx_add_ph: "종목 코드...",
       idx_hint: "주식·ETF·환율 등 (예: AAPL, 7203.T, BTC-USD)",
-최신 시세 데이터 표시 중",
-          mp_morning_line: "매일 아침 8시 LINE으로 상세 분석 전송",chat_title: "어시스트봇",chat_open: "어시스트봇 열기",chat_close: "닫기",chat_hello: "안녕하세요! 투자·시세·가계부·경제 뉴스에 대해 편하게 질문해주세요.",chat_welcome_back: "다시 만나서 반갑습니다! 질문해주세요.",chip_nisa: "NISA가 뭐예요?",chip_per: "PER이 뭐예요?",chip_dca: "적립식 투자란?",chip_kakeibo: "가계부 팁은?",chat_placeholder: "예: 주식이란?",chat_send: "전송",chat_disclaimer: "AI 답변은 참고용입니다. 투자 결정은 본인이.",chat_thinking: "생각 중...",chat_error: "죄송합니다, 오류가 발생했습니다.",chat_neterr: "통신 오류: "idx_added: "추가됨: ",
+      idx_search: "검색",
+          mp_morning_line: "매일 아침 8시 LINE으로 상세 분석 전송",chat_title: "어시스트봇",chat_open: "어시스트봇 열기",chat_close: "닫기",chat_hello: "안녕하세요! 투자·시세·가계부·경제 뉴스에 대해 편하게 질문해주세요.",chat_welcome_back: "다시 만나서 반갑습니다! 질문해주세요.",chip_nisa: "NISA가 뭐예요?",chip_per: "PER이 뭐예요?",chip_dca: "적립식 투자란?",chip_kakeibo: "가계부 팁은?",chat_placeholder: "예: 주식이란?",chat_send: "전송",chat_disclaimer: "AI 답변은 참고용입니다. 투자 결정은 본인이.",chat_thinking: "생각 중...",chat_error: "죄송합니다, 오류가 발생했습니다.",chat_neterr: "통신 오류: ",idx_added: "추가됨: ",
       idx_apply: "적용",
       idx_added_check: "✔ 추가됨",
       idx_no_match_a: "🔎 \"",
