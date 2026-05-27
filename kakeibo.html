@@ -148,7 +148,7 @@
     <span style="font-size:20px;">📷</span><span data-i18n="kk_btn_scan_receipt">レシート撮影</span>
   </button>
   <button type="button" onclick="kkExportData('json')" style="background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;border-radius:10px;padding:8px 12px;margin-left:8px;cursor:pointer;font-weight:600;font-size:13px;"><span data-i18n="kk_btn_export_json">📄 JSON</span></button>
-  <button type="button" onclick="kkExportData('csv')" style="background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;border:none;border-radius:10px;padding:8px 12px;margin-left:8px;cursor:pointer;font-weight:600;font-size:13px;"><span data-i18n="kk_btn_export_csv">📊 CSV</span></button>
+  <button type="button" onclick="kkExportData('csv')" style="background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;border:none;border-radius:10px;padding:8px 12px;margin-left:8px;cursor:pointer;font-weight:600;font-size:13px;"><span data-i18n="kk_btn_export_csv">📊 CSV</span></button>  <button type="button" onclick="kkAiAdvice()" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(155,89,182,0.3);margin:8px 4px;"><span data-i18n="kk_btn_ai_advice">🤖 AI</span></button>
   <input id="ocr-file" type="file" accept="image/*" capture="environment" style="display:none" onchange="kkOcrUpload(this.files[0])">
 </div>
 <div id="ocr-spinner" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center;flex-direction:column;color:#fff;">
@@ -261,7 +261,7 @@ var KK_I18N = {
     kk_ocr_link_asset: "💳 連動する資産 (任意)",
     kk_card_cat_stack: "📊 カテゴリ別月間推移（過去6ヶ月）",
     kk_btn_export_json: "📄 JSON",
-    kk_btn_export_csv: "📊 CSV",
+    kk_btn_export_csv: "📊 CSV",    kk_btn_ai_advice: "🤖 AIアドバイス",    kk_ai_title: "🤖 AI家計アドバイス",    kk_ai_loading: "分析中...",    kk_ai_summary: "概要",    kk_ai_trend: "収支傾向",    kk_ai_tips: "節約アドバイス",    kk_ai_invest: "投資提案",    kk_ai_score: "健全度スコア",    kk_ai_close: "閉じる",    kk_ai_no_data: "データが不足しています。まず収支を記録してください。",    kk_ai_limit: "今月の利用上限に達しました (20回/月)",
     kk_ocr_no_asset: "連動しない",
     kk_ocr_processing: "解析中...",
     kk_ocr_review: "レシート内容を確認",
@@ -368,7 +368,7 @@ var KK_I18N = {
     kk_ocr_link_asset: "💳 Link to asset (optional)",
     kk_card_cat_stack: "📊 Category trend (last 6 months)",
     kk_btn_export_json: "📄 JSON",
-    kk_btn_export_csv: "📊 CSV",
+    kk_btn_export_csv: "📊 CSV",    kk_btn_ai_advice: "🤖 AIアドバイス",    kk_ai_title: "🤖 AI家計アドバイス",    kk_ai_loading: "分析中...",    kk_ai_summary: "概要",    kk_ai_trend: "収支傾向",    kk_ai_tips: "節約アドバイス",    kk_ai_invest: "投資提案",    kk_ai_score: "健全度スコア",    kk_ai_close: "閉じる",    kk_ai_no_data: "データが不足しています。まず収支を記録してください。",    kk_ai_limit: "今月の利用上限に達しました (20回/月)",
     kk_ocr_no_asset: "Don't link",
     kk_ocr_processing: "Processing...",
     kk_ocr_review: "Review receipt",
@@ -475,7 +475,7 @@ var KK_I18N = {
     kk_ocr_link_asset: "💳 연동할 자산 (선택)",
     kk_card_cat_stack: "📊 카테고리별 월간 추이(최근 6개월)",
     kk_btn_export_json: "📄 JSON",
-    kk_btn_export_csv: "📊 CSV",
+    kk_btn_export_csv: "📊 CSV",    kk_btn_ai_advice: "🤖 AIアドバイス",    kk_ai_title: "🤖 AI家計アドバイス",    kk_ai_loading: "分析中...",    kk_ai_summary: "概要",    kk_ai_trend: "収支傾向",    kk_ai_tips: "節約アドバイス",    kk_ai_invest: "投資提案",    kk_ai_score: "健全度スコア",    kk_ai_close: "閉じる",    kk_ai_no_data: "データが不足しています。まず収支を記録してください。",    kk_ai_limit: "今月の利用上限に達しました (20回/月)",
     kk_ocr_no_asset: "연동하지 않음",
     kk_ocr_processing: "분석 중...",
     kk_ocr_review: "영수증 확인",
@@ -582,7 +582,7 @@ var KK_I18N = {
     kk_ocr_link_asset: "💳 关联资产（可选）",
     kk_card_cat_stack: "📊 分类月间趋势（近6个月）",
     kk_btn_export_json: "📄 JSON",
-    kk_btn_export_csv: "📊 CSV",
+    kk_btn_export_csv: "📊 CSV",    kk_btn_ai_advice: "🤖 AIアドバイス",    kk_ai_title: "🤖 AI家計アドバイス",    kk_ai_loading: "分析中...",    kk_ai_summary: "概要",    kk_ai_trend: "収支傾向",    kk_ai_tips: "節約アドバイス",    kk_ai_invest: "投資提案",    kk_ai_score: "健全度スコア",    kk_ai_close: "閉じる",    kk_ai_no_data: "データが不足しています。まず収支を記録してください。",    kk_ai_limit: "今月の利用上限に達しました (20回/月)",
     kk_ocr_no_asset: "不关联",
     kk_ocr_processing: "解析中...",
     kk_ocr_review: "确认小票内容",
