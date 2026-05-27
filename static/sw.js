@@ -1,0 +1,6 @@
+// Service Worker for offline support / v2 cache
+var CACHE_NAME = "keizai-news-v2";
+var SHELL = ["/", "/static/manifest.json"];
+self.addEventListener("install", function(e){ e.waitUntil(caches.open(CACHE_NAME).then(function(c){ return c.addAll(SHELL).catch(function(){}); })); self.skipWaiting(); });
+self.addEventListener("activate", function(e){ e.waitUntil(caches.keys().then(function(ns){ return Promise.all(ns.map(function(n){ if(n!==CACHE_NAME) return caches.delete(n); })); })); self.clients.claim(); });
+self.addEventListener("fetch", function(e){ var req=e.request; if(req.method!=="GET") return; var u=new URL(req.url); if(u.origin!==self.location.origin) return; if(u.pathname.indexOf("/api/")===0 || u.pathname.indexOf("/health")===0){ e.respondWith(fetch(req).catch(function(){ return new Response(JSON.stringify({error:"offline"}),{headers:{"Content-Type":"application/json"},status:503}); })); return; } e.respondWith(fetch(req).then(function(r){ if(r&&r.status===200&&r.type==="basic"){ var cl=r.clone(); caches.open(CACHE_NAME).then(function(c){ c.put(req,cl).catch(function(){}); }); } return r; }).catch(function(){ return caches.match(req).then(function(c){ return c || caches.match("/"); }); })); });
