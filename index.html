@@ -245,7 +245,7 @@
     <button class="drawer-item" onclick="closeDrawer();window.scrollTo({top:0,behavior:'smooth'})"><span class="drawer-item-icon">🏠</span> <span data-i18n="drawer_home">ホーム</span></button>
     <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon">📊</span> <span data-i18n="drawer_simulator">シミュレーター</span></button>
     <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">☀️</span> <span data-i18n="drawer_morning">朝の相場レター</span></button>
-    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">💼</span> <span data-i18n="drawer_assets">資産分析</span></a>
+    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">💼</span> <span data-i18n="drawer_assets">家計簿・資産管理</span></a>
     <button class="drawer-item" onclick="closeDrawer();openAlertSection()"><span class="drawer-item-icon">⚡</span> <span data-i18n="drawer_alert">急騰アラート</span></button>
     <button class="drawer-item" onclick="closeDrawer();openDividendSection()"><span class="drawer-item-icon">💴</span> <span data-i18n="drawer_dividend">配当金</span></button>
   </nav>
@@ -298,7 +298,7 @@
       <div class="mgrid">
       <div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn" data-i18n="menu_simulator" data-help-key="menu_simulator" data-help-subtitle="1">シミュレーター</div><div class="md" data-i18n="card_sim_desc">毎日・毎月積立で将来資産を計算</div></div>
       <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn" data-i18n="menu_morning" data-help-key="menu_morning" data-help-subtitle="1">朝の相場レター</div><div class="md" data-i18n="card_morn_desc">毎朝8時にAIが市場を分析 ▶</div></a>
-      <a href="/kakeibo" class="mc" target="_blank"><div class="mi">💼</div><div class="mn" data-i18n="menu_assets" data-help-key="menu_assets" data-help-subtitle="1">資産分析</div><div class="md" data-i18n="card_assets_desc">家計簿・資産管理 ▶</div></a>
+      <a href="/kakeibo" class="mc" target="_blank"><div class="mi">💼</div><div class="mn" data-i18n="menu_assets" data-help-key="menu_assets" data-help-subtitle="1">家計簿・資産管理</div><div class="md" data-i18n="card_assets_desc">家計簿・資産管理 ▶</div></a>
       <a href="#" class="mc" onclick="event.preventDefault();window.openAlertSection&&window.openAlertSection();return false;"><div class="mi">⚡</div><div class="mn" data-i18n="menu_alert" data-help-key="menu_alert" data-help-subtitle="1">急騰・急落アラート</div><div class="md" data-i18n="card_alert_desc">ウォッチリスト銘柄を自動監視</div></a>
       </div>
       
@@ -1029,7 +1029,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       drawer_menu_home: "ホーム",
       drawer_menu_sim: "シミュレーター",
       drawer_menu_morning: "朝の相場レター",
-      drawer_menu_assets: "資産分析",
+      drawer_menu_assets: "家計簿・資産管理",
       drawer_menu_alert: "急騰アラート",
 
       // === カラーパレット ===
@@ -1050,7 +1050,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       card_sim_desc: "毎日・毎月積立で将来資産を計算",
       card_morn_name: "朝の相場レター",
       card_morn_desc: "毎朝8時にAIが市場を分析 ▶",
-      card_asset_name: "資産分析",
+      card_asset_name: "家計簿・資産管理",
       card_asset_desc: "家計簿・資産管理 ▶",
       card_alert_name: "急騰・急落アラート",
       card_alert_desc: "ウォッチリスト銘柄を自動監視",
@@ -1162,7 +1162,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       drawer_menu_home: "Home",
       drawer_menu_sim: "Simulator",
       drawer_menu_morning: "Morning Brief",
-      drawer_menu_assets: "Assets",
+      drawer_menu_assets: "Budget & Assets",
       drawer_menu_alert: "Alerts",
       color_free: "Pick freely",
       color_reset: "Reset",
@@ -1179,7 +1179,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       card_sim_desc: "Calculate your future assets with daily/monthly contributions",
       card_morn_name: "Morning Brief",
       card_morn_desc: "AI analyzes the market at 8 AM every morning ▶",
-      card_asset_name: "Asset Analysis",
+      card_asset_name: "Budget & Asset Mgmt",
       card_asset_desc: "Household budget & asset management ▶",
       card_alert_name: "Surge/Plunge Alerts",
       card_alert_desc: "Automatically monitor your watchlist",
@@ -1266,7 +1266,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       drawer_menu_home: "홈",
       drawer_menu_sim: "시뮬레이터",
       drawer_menu_morning: "아침 시황 레터",
-      drawer_menu_assets: "자산 분석",
+      drawer_menu_assets: "가계부·자산관리",
       drawer_menu_alert: "급등 알림",
       color_free: "자유 선택",
       color_reset: "리셋",
@@ -1283,7 +1283,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       card_sim_desc: "매일·매월 적립으로 미래 자산 계산",
       card_morn_name: "아침 시황 레터",
       card_morn_desc: "매일 아침 8시에 AI가 시장 분석 ▶",
-      card_asset_name: "자산 분석",
+      card_asset_name: "가계부·자산관리",
       card_asset_desc: "가계부·자산 관리 ▶",
       card_alert_name: "급등·급락 알림",
       card_alert_desc: "관심 종목을 자동 감시",
@@ -1370,7 +1370,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       drawer_menu_home: "首页",
       drawer_menu_sim: "模拟器",
       drawer_menu_morning: "晨间市场简报",
-      drawer_menu_assets: "资产分析",
+      drawer_menu_assets: "家计簿·资产管理",
       drawer_menu_alert: "暴涨警报",
       color_free: "自由选择",
       color_reset: "重置",
@@ -1387,7 +1387,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
       card_sim_desc: "用每日/每月定投计算未来资产",
       card_morn_name: "晨间市场简报",
       card_morn_desc: "每天早上8点AI分析市场 ▶",
-      card_asset_name: "资产分析",
+      card_asset_name: "家计簿·资产管理",
       card_asset_desc: "家庭账本·资产管理 ▶",
       card_alert_name: "暴涨·暴跌警报",
       card_alert_desc: "自动监控您的观察列表",
@@ -1621,7 +1621,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_home: "ホーム",
     drawer_simulator: "シミュレーター",
     drawer_morning: "朝の相場レター",
-    drawer_assets: "資産分析",
+    drawer_assets: "家計簿・資産管理",
     drawer_alert: "急騰アラート",
     drawer_dividend: "配当金",
     div_tab_top: "高配当",
@@ -1687,7 +1687,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_home: "Home",
     drawer_simulator: "Simulator",
     drawer_morning: "Morning Brief",
-    drawer_assets: "Asset Analysis",
+    drawer_assets: "Budget & Asset Mgmt",
     drawer_alert: "Surge Alert",
     drawer_dividend: "Dividends",
     div_tab_top: "Top Yield",
@@ -1753,7 +1753,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_home: "홈",
     drawer_simulator: "시뮬레이터",
     drawer_morning: "아침 시황 레터",
-    drawer_assets: "자산 분석",
+    drawer_assets: "가계부·자산관리",
     drawer_alert: "급등 알림",
     drawer_dividend: "배당금",
     div_tab_top: "고배당",
@@ -1819,7 +1819,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     drawer_home: "首页",
     drawer_simulator: "模拟器",
     drawer_morning: "晨间市场简报",
-    drawer_assets: "资产分析",
+    drawer_assets: "家计簿·资产管理",
     drawer_alert: "暴涨提醒",
     drawer_dividend: "股息",
     div_tab_top: "高股息",
@@ -1926,7 +1926,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   // === エイリアスキー（既存のdata-i18n属性との互換性） ===
   Object.assign(I18N.ja, {    alert_title: "\u6025\u9a30\u30fb\u6025\u843d\u30a2\u30e9\u30fc\u30c8",    alert_title_help: "\u4fa1\u683c\u304c\u5927\u304d\u304f\u4e0a\u4e0b\u3057\u305f\u9298\u67c4\u3092\u898b\u5b88\u308b\u753b\u9762",    alert_sub: "\u6c17\u306b\u306a\u308b\u9298\u67c4\u3092\u767b\u9332\u3057\u3066\u4fa1\u683c\u5909\u52d5\u3092\u898b\u5b88\u308b",    alert_input_ph: "\u30c6\u30a3\u30c3\u30ab\u30fc\u3092\u5165\u529b (\u4f8b: AAPL, 7203.T)",    alert_add_btn: "\u8ffd\u52a0",    alert_threshold_label: "\u30a2\u30e9\u30fc\u30c8\u95be\u5024 (%)",    alert_threshold_label_help: "\u3053\u306e%\u4ee5\u4e0a\u52d5\u3044\u305f\u3089\u8d64\u8272\u3067\u8b66\u544a\u8868\u793a", alert_scanner_title: "\u4eca\u65e5\u306e\u52d5\u304d", alert_scanner_refresh: "\u66f4\u65b0", alert_scanner_threshold: "\u30b9\u30ad\u30e3\u30ca\u30fc\u3057\u304d\u3044\u5024 (%)", alert_scanner_surges: "\u6025\u9a30TOP", alert_scanner_drops: "\u6025\u843dTOP", alert_scanner_updated: "\u66f4\u65b0", alert_scanner_scanned: "\u30b9\u30ad\u30e3\u30f3\u6e08\u307f",    alert_empty: "\u307e\u3060\u767b\u9332\u3055\u308c\u305f\u9298\u67c4\u304c\u3042\u308a\u307e\u305b\u3093",    alert_loading: "\u8aad\u307f\u8fbc\u307f\u4e2d...",    alert_remove: "\u524a\u9664",    alert_refresh: "\u66f4\u65b0",    alert_invalid: "\u7121\u52b9\u306a\u30c6\u30a3\u30c3\u30ab\u30fc\u3067\u3059",    alert_duplicate: "\u3059\u3067\u306b\u767b\u9332\u3055\u308c\u3066\u3044\u307e\u3059",    menu_simulator_help: "\u5c06\u6765\u304a\u91d1\u304c\u3044\u304f\u3089\u306b\u306a\u308b\u304b\u8a66\u7b97\u3059\u308b\u9053\u5177",    menu_morning_help: "\u6bce\u671d\u306e\u5e02\u5834\u307e\u3068\u3081",    menu_assets_help: "\u81ea\u5206\u306e\u304a\u91d1\u306e\u51fa\u5165\u308a\u3092\u898b\u3048\u308b\u5316",    menu_alert_help: "\u6c17\u306b\u306a\u308b\u682a\u304c\u5927\u304d\u304f\u52d5\u3044\u305f\u3068\u304d\u901a\u77e5",    sim_tab_monthly_help: "\u6bce\u6708\u4e00\u5b9a\u984d\u3092\u6295\u8cc7\u3059\u308b\u65b9\u6cd5",    sim_tab_lump_help: "\u6700\u521d\u306b\u307e\u3068\u3081\u3066\u6295\u8cc7\u3059\u308b\u65b9\u6cd5",    sim_label_monthly_amount_help: "\u6bce\u6708\u3044\u304f\u3089\u6295\u8cc7\u3059\u308b\u304b",    sim_label_rate_help: "1\u5e74\u3067\u304a\u91d1\u304c\u4f55%\u5897\u3048\u308b\u304b",    sim_label_months_years_help: "\u4f55\u5e74\u9593\u7a4d\u307f\u7acb\u3066\u7d9a\u3051\u308b\u304b",    sim_label_lump_amount_help: "\u6700\u521d\u306b\u6295\u8cc7\u3059\u308b\u91d1\u984d",    sim_label_lump_years_help: "\u4f55\u5e74\u9593\u904b\u7528\u3059\u308b\u304b",    sim_res_label_help: "\u6700\u7d42\u7684\u306b\u3044\u304f\u3089\u306b\u306a\u308b\u304b",    morning_title_help: "\u6bce\u671d\u306e\u5e02\u5834\u306e\u72b6\u6cc1\u3092\u307e\u3068\u3081\u305f\u30ec\u30bf\u30fc",    morning_idx_select_help: "\u8868\u793a\u3059\u308b\u6307\u6a19\u3092\u9078\u3076",    morning_sect_analysis_help: "AI\u304c\u4eca\u65e5\u306e\u5e02\u5834\u3092\u89e3\u8aac",    morning_sect_news_help: "\u4eca\u65e5\u306e\u7d4c\u6e08\u95a2\u9023\u306e\u30cb\u30e5\u30fc\u30b9",    idx_cust_title_help: "\u30c6\u30a3\u30c3\u30ab\u30fc\u306b\u8868\u793a\u3059\u308b\u6307\u6570\u3092\u9078\u3076",    div_tab_top_help: '\u914d\u5f53\u304c\u591a\u3044\u4eba\u6c17\u9298\u67c4',    div_tab_yearly_help: '1\u5e74\u3067\u305f\u304f\u3055\u3093\u914d\u5f53\u3092\u51fa\u3059\u4f1a\u793e',    div_tab_cal_help: '\u914d\u5f53\u3092\u3082\u3089\u3048\u308b\u65e5\u306e\u30ab\u30ec\u30f3\u30c0\u30fc',    div_tab_search_help: '\u4f1a\u793e\u3092\u63a2\u3059',    div_my_label_help: '\u304a\u6c17\u306b\u5165\u308a\u306e\u4f1a\u793e\u3092\u767b\u9332',    setting_open: '\u8a2d\u5b9a',    setting_title: '\u8a2d\u5b9a',    setting_sect_style: '\u4f7f\u7528\u30b9\u30bf\u30a4\u30eb',    style_beginner: '\u521d\u5fc3\u8005',    style_beginner_sub: '\u3084\u3055\u3057\u3044\u8a00\u8449',    style_pro: '\u30d7\u30ed',    style_pro_sub: '\u5c02\u9580\u7528\u8a9e',    menu_simulator: "シミュレーター",
     menu_morning: "朝の相場レター",
-    menu_assets: "資産分析",
+    menu_assets: "家計簿・資産管理",
     menu_alert: "急騰・急落アラート",
     idx_n225: "日経225",
     idx_dow: "NYダウ",
@@ -1939,7 +1939,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   });
   Object.assign(I18N.en, {    alert_title: "Surge/Crash Alerts",    alert_title_help: "Watch tickers for big price moves",    alert_sub: "Register tickers and watch big price moves",    alert_input_ph: "Enter ticker (e.g. AAPL, 7203.T)",    alert_add_btn: "Add",    alert_threshold_label: "Alert threshold (%)",    alert_threshold_label_help: "Highlight rows that move more than this %", alert_scanner_title: "Today\u0027s Movers", alert_scanner_refresh: "Refresh", alert_scanner_threshold: "Scanner threshold (%)", alert_scanner_surges: "Surges TOP", alert_scanner_drops: "Drops TOP", alert_scanner_updated: "Updated", alert_scanner_scanned: "Scanned",    alert_empty: "No tickers registered yet",    alert_loading: "Loading...",    alert_remove: "Remove",    alert_refresh: "Refresh",    alert_invalid: "Invalid ticker",    alert_duplicate: "Already registered",    menu_simulator_help: "Calculate your future asset value",    menu_morning_help: "Daily market summary",    menu_assets_help: "Visualize money in and out",    menu_alert_help: "Notify on big stock price moves",    sim_tab_monthly_help: "Invest a fixed amount each month",    sim_tab_lump_help: "Invest a lump sum upfront",    sim_label_monthly_amount_help: "How much to invest each month",    sim_label_rate_help: "Annual percent return",    sim_label_months_years_help: "Years to keep adding",    sim_label_lump_amount_help: "Initial lump sum amount",    sim_label_lump_years_help: "Years to keep invested",    sim_res_label_help: "Final asset value",    morning_title_help: "Daily market summary letter",    morning_idx_select_help: "Choose which indices to show",    morning_sect_analysis_help: "AI explains today's market",    morning_sect_news_help: "Today's economic news",    idx_cust_title_help: "Choose indices to show in the ticker",    div_tab_top_help: 'Popular stocks with high dividends',    div_tab_yearly_help: 'Companies paying lots of dividends per year',    div_tab_cal_help: 'Calendar of upcoming dividend dates',    div_tab_search_help: 'Search for a company',    div_my_label_help: 'Register your favorite companies',    setting_open: 'Settings',    setting_title: 'Settings',    setting_sect_style: 'USAGE STYLE',    style_beginner: 'Beginner',    style_beginner_sub: 'Easier wording',    style_pro: 'Pro',    style_pro_sub: 'Default terms',    menu_simulator: "Simulator",
     menu_morning: "Morning Brief",
-    menu_assets: "Asset Analysis",
+    menu_assets: "Budget & Asset Mgmt",
     menu_alert: "Surge/Drop Alert",
     idx_n225: "Nikkei 225",
     idx_dow: "Dow Jones",
@@ -1967,7 +1967,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   });
   Object.assign(I18N.ko, {    alert_title: "\uae09\ub4f1/\uae09\ub77d \uc54c\ub9bc",    alert_title_help: "\uac00\uaca9\uc774 \ud06c\uac8c \uc6c0\uc9c1\uc778 \uc885\ubaa9\uc744 \uac10\uc2dc",    alert_sub: "\uad00\uc2ec \uc885\ubaa9\uc744 \ub4f1\ub85d\ud558\uace0 \uac00\uaca9 \ubcc0\ub3d9\uc744 \uc9c0\ucf1c\ubcf4\uae30",    alert_input_ph: "\ud2f0\ucee4 \uc785\ub825 (\uc608: AAPL, 7203.T)",    alert_add_btn: "\ucd94\uac00",    alert_threshold_label: "\uc54c\ub9bc \uc784\uacc4\uac12 (%)",    alert_threshold_label_help: "\uc774 % \uc774\uc0c1 \uc6c0\uc9c1\uc774\uba74 \ube68\uac15\uc73c\ub85c \ud45c\uc2dc", alert_scanner_title: "\uc624\ub298\uc758 \ubcc0\ub3d9", alert_scanner_refresh: "\uc0c8\ub85c\uace0\uce68", alert_scanner_threshold: "\uc2a4\uce90\ub108 \uc784\uacc4\uac12 (%)", alert_scanner_surges: "\uae09\ub4f1 TOP", alert_scanner_drops: "\uae09\ub77d TOP", alert_scanner_updated: "\uc5c5\ub370\uc774\ud2b8", alert_scanner_scanned: "\uc2a4\uce94\ub428",    alert_empty: "\ub4f1\ub85d\ub41c \uc885\ubaa9\uc774 \uc5c6\uc2b5\ub2c8\ub2e4",    alert_loading: "\ub85c\ub529 \uc911...",    alert_remove: "\uc0ad\uc81c",    alert_refresh: "\uc0c8\ub85c\uace0\uce68",    alert_invalid: "\uc798\ubabb\ub41c \ud2f0\ucee4",    alert_duplicate: "\uc774\ubbf8 \ub4f1\ub85d\ub428",    menu_simulator_help: "\ubbf8\ub798 \uc790\uc0b0\uc744 \uacc4\uc0b0\ud558\ub294 \ub3c4\uad6c",    menu_morning_help: "\ub9e4\uc77c \uc544\uce68 \uc2dc\uc7a5 \uc694\uc57d",    menu_assets_help: "\uc790\uc2e0\uc758 \ub3c8 \ucd9c\uc785\uc744 \uc2dc\uac01\ud654",    menu_alert_help: "\uad00\uc2ec \uc885\ubaa9\uc774 \ud06c\uac8c \uc6c0\uc9c1\uc774\uba74 \uc54c\ub9bc",    sim_tab_monthly_help: "\ub9e4\uc6d4 \uc77c\uc815\uc561 \ud22c\uc790",    sim_tab_lump_help: "\ucd5c\ucd08\uc5d0 \ubaa9\ub3c8 \ud22c\uc790",    sim_label_monthly_amount_help: "\ub9e4\uc6d4 \ud22c\uc790 \uae08\uc561",    sim_label_rate_help: "1\ub144 \uc218\uc775\ub960 %",    sim_label_months_years_help: "\uc801\ub9bd \uae30\uac04 \ub144",    sim_label_lump_amount_help: "\ucd08\uae30 \ud22c\uc790 \uae08\uc561",    sim_label_lump_years_help: "\uc6b4\uc6a9 \uae30\uac04 \ub144",    sim_res_label_help: "\ucd5c\uc885 \uc790\uc0b0\uc561",    morning_title_help: "\ub9e4\uc77c \uc544\uce68 \uc2dc\uc7a5 \uc0c1\ud669 \uc694\uc57d",    morning_idx_select_help: "\ud45c\uc2dc\ud560 \uc9c0\uc218\ub97c \uc120\ud0dd",    morning_sect_analysis_help: "AI\uac00 \uc624\ub298\uc758 \uc2dc\uc7a5\uc744 \ud574\uc124",    morning_sect_news_help: "\uc624\ub298\uc758 \uacbd\uc81c \ub274\uc2a4",    idx_cust_title_help: "\ud2f0\ucee4\uc5d0 \ud45c\uc2dc\ud560 \uc9c0\uc218 \uc120\ud0dd",    div_tab_top_help: '\ubc30\ub2f9\uc774 \ub9ce\uc740 \uc778\uae30 \uc885\ubaa9',    div_tab_yearly_help: '1\ub144\uc5d0 \ubc30\ub2f9\uc774 \ub9ce\uc740 \ud68c\uc0ac',    div_tab_cal_help: '\ubc30\ub2f9\ubc1b\ub294 \ub0a0 \uce98\ub9b0\ub354',    div_tab_search_help: '\ud68c\uc0ac \ucc3e\uae30',    div_my_label_help: '\uc990\uaca8\ucc3e\uae30 \ud68c\uc0ac \ub4f1\ub85d',    setting_open: '\uc124\uc815',    setting_title: '\uc124\uc815',    setting_sect_style: '\uc0ac\uc6a9 \uc2a4\ud0c0\uc77c',    style_beginner: '\ucd08\ubcf4\uc790',    style_beginner_sub: '\uc26c\uc6b4 \uc6a9\uc5b4',    style_pro: '\ud504\ub85c',    style_pro_sub: '\uc804\ubb38 \uc6a9\uc5b4',    menu_simulator: "시뮬레이터",
     menu_morning: "아침 시황 레터",
-    menu_assets: "자산 분석",
+    menu_assets: "가계부·자산관리",
     menu_alert: "급등·급락 알림",
     idx_n225: "닛케이 225",
     idx_dow: "다우존스",
@@ -1980,7 +1980,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
   });
   Object.assign(I18N.zh, {    alert_title: "\u6025\u6da8/\u6025\u8dcc\u8b66\u62a5",    alert_title_help: "\u76d1\u63a7\u80a1\u4ef7\u5927\u5e45\u53d8\u52a8\u7684\u80a1\u7968",    alert_sub: "\u6dfb\u52a0\u5173\u6ce8\u80a1\u7968\u5e76\u76d1\u63a7\u4ef7\u683c\u53d8\u52a8",    alert_input_ph: "\u8f93\u5165\u80a1\u7968\u4ee3\u7801 (\u4f8b: AAPL, 7203.T)",    alert_add_btn: "\u6dfb\u52a0",    alert_threshold_label: "\u8b66\u62a5\u9608\u503c (%)",    alert_threshold_label_help: "\u8d85\u8fc7\u6b64%\u5219\u4ee5\u7ea2\u8272\u9ad8\u4eae", alert_scanner_title: "\u4eca\u65e5\u52a8\u6001", alert_scanner_refresh: "\u5237\u65b0", alert_scanner_threshold: "\u626b\u63cf\u9608\u503c (%)", alert_scanner_surges: "\u6025\u6da8 TOP", alert_scanner_drops: "\u6025\u8dcc TOP", alert_scanner_updated: "\u66f4\u65b0", alert_scanner_scanned: "\u5df2\u626b\u63cf",    alert_empty: "\u5c1a\u672a\u6dfb\u52a0\u80a1\u7968",    alert_loading: "\u52a0\u8f7d\u4e2d...",    alert_remove: "\u5220\u9664",    alert_refresh: "\u5237\u65b0",    alert_invalid: "\u65e0\u6548\u4ee3\u7801",    alert_duplicate: "\u5df2\u6dfb\u52a0",    menu_simulator_help: "\u8ba1\u7b97\u672a\u6765\u8d44\u4ea7\u7684\u5de5\u5177",    menu_morning_help: "\u6bcf\u65e5\u5e02\u573a\u6458\u8981",    menu_assets_help: "\u53ef\u89c6\u5316\u8d44\u91d1\u51fa\u5165",    menu_alert_help: "\u80a1\u4ef7\u5927\u5e45\u53d8\u52a8\u65f6\u901a\u77e5",    sim_tab_monthly_help: "\u6bcf\u6708\u5b9a\u989d\u6295\u8d44",    sim_tab_lump_help: "\u6700\u521d\u4e00\u6b21\u6027\u6295\u5165",    sim_label_monthly_amount_help: "\u6bcf\u6708\u6295\u8d44\u91d1\u989d",    sim_label_rate_help: "\u5e74\u6536\u76ca\u7387 %",    sim_label_months_years_help: "\u5b9a\u671f\u5b9a\u989d\u5e74\u6570",    sim_label_lump_amount_help: "\u521d\u59cb\u6295\u8d44\u91d1\u989d",    sim_label_lump_years_help: "\u8fd0\u8425\u5e74\u6570",    sim_res_label_help: "\u6700\u7ec8\u8d44\u4ea7\u989d",    morning_title_help: "\u6bcf\u5929\u65e9\u4e0a\u7684\u5e02\u573a\u6458\u8981",    morning_idx_select_help: "\u9009\u62e9\u8981\u663e\u793a\u7684\u6307\u6570",    morning_sect_analysis_help: "AI\u89e3\u8bfb\u4eca\u65e5\u5e02\u573a",    morning_sect_news_help: "\u4eca\u65e5\u7ecf\u6d4e\u65b0\u95fb",    idx_cust_title_help: "\u9009\u62e9\u8981\u5728\u884c\u60c5\u6761\u663e\u793a\u7684\u6307\u6570",    div_tab_top_help: '\u5206\u7ea2\u591a\u7684\u70ed\u95e8\u80a1\u7968',    div_tab_yearly_help: '\u5e74\u5206\u7ea2\u603b\u989d\u9ad8\u7684\u516c\u53f8',    div_tab_cal_help: '\u5206\u7ea2\u65e5\u5386',    div_tab_search_help: '\u67e5\u627e\u516c\u53f8',    div_my_label_help: '\u767b\u8bb0\u60a8\u559c\u6b22\u7684\u516c\u53f8',    setting_open: '\u8bbe\u7f6e',    setting_title: '\u8bbe\u7f6e',    setting_sect_style: '\u4f7f\u7528\u98ce\u683c',    style_beginner: '\u521d\u5b66\u8005',    style_beginner_sub: '\u7b80\u5355\u672f\u8bed',    style_pro: '\u4e13\u4e1a',    style_pro_sub: '\u4e13\u4e1a\u672f\u8bed',    menu_simulator: "模拟器",
     menu_morning: "晨间市场简报",
-    menu_assets: "资产分析",
+    menu_assets: "家计簿·资产管理",
     menu_alert: "暴涨·暴跌警报",
     idx_n225: "日经225",
     idx_dow: "道琼斯",
