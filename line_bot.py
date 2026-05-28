@@ -2683,7 +2683,7 @@ def api_scanner():
 GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
 GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
-GMAIL_REDIRECT_URI = os.environ.get("GMAIL_REDIRECT_URI", "")
+GMAIL_REDIRECT_URI = os.environ.get("GMAIL_REDIRECT_URI", "").strip()
 TOKEN_ENCRYPTION_KEY = os.environ.get("TOKEN_ENCRYPTION_KEY", "")
 
 # OAuth state を一時保存（プロセス内メモリ。短時間なのでOK）
