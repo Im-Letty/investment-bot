@@ -18,6 +18,23 @@ from linebot.v3.messaging import (
 )
 from linebot.v3.webhooks import MessageEvent, TextMessageContent, FollowEvent
 from datetime import date, datetime
+from datetime import timedelta
+import base64
+import re
+import secrets as _secrets_mod
+from urllib.parse import urlencode
+try:
+    from cryptography.fernet import Fernet
+except Exception as _e_fernet:
+    Fernet = None
+try:
+    from google_auth_oauthlib.flow import Flow
+    from google.oauth2.credentials import Credentials
+    from googleapiclient.discovery import build
+except Exception as _e_google:
+    Flow = None
+    Credentials = None
+    build = None
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
@@ -2656,6 +2673,389 @@ def api_scanner():
         "surges": surges,
         "drops": drops
     })
+
+
+
+# ============================================================
+# Gmail 連携 (家計簿 - メールから出費自動取り込み)
+# ============================================================
+
+GMAIL_SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GMAIL_REDIRECT_URI = os.environ.get("GMAIL_REDIRECT_URI", "")
+TOKEN_ENCRYPTION_KEY = os.environ.get("TOKEN_ENCRYPTION_KEY", "")
+
+# OAuth state を一時保存（プロセス内メモリ。短時間なのでOK）
+_gmail_oauth_states = {}
+
+def _get_fernet():
+    """Fernet 暗号化オブジェクト。キーが無い/不正な場合はNoneを返す"""
+    if not Fernet or not TOKEN_ENCRYPTION_KEY:
+        return None
+    try:
+        return Fernet(TOKEN_ENCRYPTION_KEY.encode() if isinstance(TOKEN_ENCRYPTION_KEY, str) else TOKEN_ENCRYPTION_KEY)
+    except Exception as e:
+        print(f"[gmail] Fernet init error: {e}")
+        return None
+
+def _encrypt_token(plain_text):
+    if not plain_text:
+        return ""
+    f = _get_fernet()
+    if not f:
+        return ""
+    try:
+        return f.encrypt(plain_text.encode()).decode()
+    except Exception as e:
+        print(f"[gmail] encrypt error: {e}")
+        return ""
+
+def _decrypt_token(cipher_text):
+    if not cipher_text:
+        return ""
+    f = _get_fernet()
+    if not f:
+        return ""
+    try:
+        return f.decrypt(cipher_text.encode()).decode()
+    except Exception as e:
+        print(f"[gmail] decrypt error: {e}")
+        return ""
+
+def _build_gmail_flow(state=None):
+    """Google OAuth Flow を生成"""
+    if not Flow:
+        return None
+    client_config = {
+        "web": {
+            "client_id": GOOGLE_CLIENT_ID,
+            "client_secret": GOOGLE_CLIENT_SECRET,
+            "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+            "token_uri": "https://oauth2.googleapis.com/token",
+            "redirect_uris": [GMAIL_REDIRECT_URI],
+        }
+    }
+    flow = Flow.from_client_config(client_config, scopes=GMAIL_SCOPES, state=state)
+    flow.redirect_uri = GMAIL_REDIRECT_URI
+    return flow
+
+@app.route("/gmail/connect", methods=["GET"])
+def gmail_connect():
+    """ユーザーが家計簿UIから「Gmail連携」を押したら、ここでGoogle認証画面に飛ばす"""
+    line_user_id = request.args.get("line_user_id", "").strip()
+    if not line_user_id:
+        return "missing line_user_id", 400
+    if not (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET and GMAIL_REDIRECT_URI):
+        return "Gmail integration is not configured", 503
+    flow = _build_gmail_flow()
+    if not flow:
+        return "Gmail libraries not available", 503
+    state = _secrets_mod.token_urlsafe(24)
+    _gmail_oauth_states[state] = {
+        "line_user_id": line_user_id,
+        "ts": time.time(),
+    }
+    # 古いstateを掃除
+    cutoff = time.time() - 600
+    for k in list(_gmail_oauth_states.keys()):
+        if _gmail_oauth_states[k].get("ts", 0) < cutoff:
+            _gmail_oauth_states.pop(k, None)
+    auth_url, _ = flow.authorization_url(
+        access_type="offline",
+        include_granted_scopes="true",
+        prompt="consent",
+        state=state,
+    )
+    return redirect(auth_url)
+
+@app.route("/oauth/gmail/callback", methods=["GET"])
+def gmail_oauth_callback():
+    """Googleからリダイレクトで戻ってくる先"""
+    state = request.args.get("state", "")
+    code = request.args.get("code", "")
+    error = request.args.get("error", "")
+    if error:
+        return f"Authorization error: {error}", 400
+    if not state or state not in _gmail_oauth_states:
+        return "Invalid or expired state", 400
+    info = _gmail_oauth_states.pop(state)
+    line_user_id = info.get("line_user_id")
+    if not line_user_id:
+        return "Invalid session", 400
+    flow = _build_gmail_flow(state=state)
+    if not flow:
+        return "Gmail libraries not available", 503
+    try:
+        flow.fetch_token(code=code)
+    except Exception as e:
+        print(f"[gmail] token fetch error: {e}")
+        return "Failed to exchange token", 400
+    creds = flow.credentials
+    enc_access = _encrypt_token(creds.token or "")
+    enc_refresh = _encrypt_token(creds.refresh_token or "")
+    expiry_iso = creds.expiry.isoformat() if creds.expiry else None
+    gmail_addr = ""
+    try:
+        if build:
+            svc = build("gmail", "v1", credentials=creds, cache_discovery=False)
+            profile = svc.users().getProfile(userId="me").execute()
+            gmail_addr = profile.get("emailAddress", "")
+    except Exception as e:
+        print(f"[gmail] profile fetch error: {e}")
+    try:
+        record = {
+            "line_user_id": line_user_id,
+            "encrypted_access_token": enc_access,
+            "encrypted_refresh_token": enc_refresh,
+            "token_expiry": expiry_iso,
+            "gmail_address": gmail_addr,
+            "scope": " ".join(GMAIL_SCOPES),
+            "is_active": True,
+            "updated_at": datetime.now().isoformat(),
+        }
+        existing = supabase.table("user_gmail_tokens").select("id").eq("line_user_id", line_user_id).execute()
+        if existing.data:
+            supabase.table("user_gmail_tokens").update(record).eq("line_user_id", line_user_id).execute()
+        else:
+            supabase.table("user_gmail_tokens").insert(record).execute()
+    except Exception as e:
+        print(f"[gmail] supabase save error: {e}")
+        return "Failed to save credentials", 500
+    return """<!doctype html><html><head><meta charset='utf-8'><title>Gmail連携完了</title>
+    <meta name='viewport' content='width=device-width,initial-scale=1'>
+    <style>body{font-family:sans-serif;text-align:center;padding:40px 20px;background:#f7f9fc}
+    .card{background:#fff;border-radius:12px;padding:32px;max-width:420px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.06)}
+    h1{color:#1a8a3a}p{color:#555;line-height:1.6}</style></head>
+    <body><div class='card'><h1>✅ Gmail連携が完了しました</h1>
+    <p>このウィンドウを閉じて、家計簿の画面に戻ってください。</p></div></body></html>"""
+
+def _get_gmail_credentials(line_user_id):
+    try:
+        res = supabase.table("user_gmail_tokens").select("*").eq("line_user_id", line_user_id).eq("is_active", True).execute()
+        if not res.data:
+            return None
+        row = res.data[0]
+        access = _decrypt_token(row.get("encrypted_access_token", ""))
+        refresh = _decrypt_token(row.get("encrypted_refresh_token", ""))
+        if not access and not refresh:
+            return None
+        if not Credentials:
+            return None
+        creds = Credentials(
+            token=access or None,
+            refresh_token=refresh or None,
+            token_uri="https://oauth2.googleapis.com/token",
+            client_id=GOOGLE_CLIENT_ID,
+            client_secret=GOOGLE_CLIENT_SECRET,
+            scopes=GMAIL_SCOPES,
+        )
+        return creds
+    except Exception as e:
+        print(f"[gmail] get creds error: {e}")
+        return None
+
+_EXPENSE_AMOUNT_PATTERNS = [
+    re.compile(r"(?:利用金額|ご利用金額|金額|合計|請求金額|お支払金額|ご請求金額)[\s\S]{0,12}?([0-9,]+)\s*円"),
+    re.compile(r"([0-9,]+)\s*円(?:のお支払|のご利用|をご利用|を承りました|の決済)"),
+    re.compile(r"¥\s*([0-9,]+)"),
+    re.compile(r"JPY\s*([0-9,]+)"),
+]
+_EXPENSE_MERCHANT_PATTERNS = [
+    re.compile(r"(?:ご利用先|利用先|店舗名|加盟店|ご利用店舗)[\s\S]{0,4}?[:：]\s*([^\n\r]+)"),
+]
+
+def _parse_expense_from_text(text):
+    if not text:
+        return None
+    amount = None
+    for pat in _EXPENSE_AMOUNT_PATTERNS:
+        m = pat.search(text)
+        if m:
+            try:
+                amount = float(m.group(1).replace(",", ""))
+                break
+            except Exception:
+                continue
+    if amount is None or amount <= 0:
+        return None
+    merchant = None
+    for pat in _EXPENSE_MERCHANT_PATTERNS:
+        m = pat.search(text)
+        if m:
+            merchant = m.group(1).strip()[:80]
+            break
+    return {"amount": amount, "merchant": merchant or ""}
+
+def _extract_message_body(payload):
+    """Gmail API のメッセージ payload からテキスト本文を抽出"""
+    def _walk(p):
+        if not p:
+            return ""
+        mime = p.get("mimeType", "")
+        body = p.get("body", {})
+        data = body.get("data")
+        if data and mime.startswith("text/"):
+            try:
+                return base64.urlsafe_b64decode(data.encode()).decode("utf-8", errors="ignore")
+            except Exception:
+                return ""
+        parts = p.get("parts") or []
+        chunks = []
+        for sub in parts:
+            chunks.append(_walk(sub))
+        return "\n".join([c for c in chunks if c])
+    return _walk(payload)
+
+def sync_gmail_for_user(line_user_id, max_messages=20):
+    """ユーザーのGmailから決済通知メールを取り込んでSupabaseに保存"""
+    creds = _get_gmail_credentials(line_user_id)
+    if not creds or not build:
+        return {"ok": False, "reason": "not_connected"}
+    try:
+        svc = build("gmail", "v1", credentials=creds, cache_discovery=False)
+        q = "(利用 OR 決済 OR お支払い OR ご請求 OR 引き落とし) newer_than:30d"
+        resp = svc.users().messages().list(userId="me", q=q, maxResults=max_messages).execute()
+        msgs = resp.get("messages", []) or []
+        imported = 0
+        skipped = 0
+        for m in msgs:
+            mid = m.get("id")
+            if not mid:
+                continue
+            try:
+                existing = supabase.table("gmail_imported_expenses").select("id").eq("gmail_message_id", mid).execute()
+                if existing.data:
+                    skipped += 1
+                    continue
+            except Exception:
+                pass
+            try:
+                full = svc.users().messages().get(userId="me", id=mid, format="full").execute()
+            except Exception as e:
+                print(f"[gmail] fetch msg error: {e}")
+                continue
+            payload = full.get("payload", {})
+            headers = {h.get("name", "").lower(): h.get("value", "") for h in payload.get("headers", [])}
+            subject = headers.get("subject", "")
+            email_from = headers.get("from", "")
+            date_hdr = headers.get("date", "")
+            body_text = _extract_message_body(payload)
+            snippet = (full.get("snippet") or "")[:300]
+            text_for_parse = (subject + "\n" + body_text + "\n" + snippet)
+            parsed = _parse_expense_from_text(text_for_parse)
+            if not parsed:
+                continue
+            try:
+                received_at = None
+                try:
+                    from email.utils import parsedate_to_datetime
+                    if date_hdr:
+                        received_at = parsedate_to_datetime(date_hdr).isoformat()
+                except Exception:
+                    received_at = None
+                supabase.table("gmail_imported_expenses").insert({
+                    "line_user_id": line_user_id,
+                    "gmail_message_id": mid,
+                    "email_from": email_from[:200],
+                    "email_subject": subject[:300],
+                    "email_received_at": received_at,
+                    "amount": parsed["amount"],
+                    "merchant": parsed["merchant"][:120],
+                    "category": None,
+                    "currency": "JPY",
+                    "raw_snippet": snippet,
+                    "status": "imported",
+                }).execute()
+                imported += 1
+            except Exception as e:
+                print(f"[gmail] insert error: {e}")
+        try:
+            supabase.table("user_gmail_tokens").update({
+                "last_synced_at": datetime.now().isoformat()
+            }).eq("line_user_id", line_user_id).execute()
+        except Exception:
+            pass
+        return {"ok": True, "imported": imported, "skipped": skipped, "scanned": len(msgs)}
+    except Exception as e:
+        print(f"[gmail] sync error: {e}")
+        return {"ok": False, "reason": "sync_error", "error": str(e)}
+
+@app.route("/api/gmail/status", methods=["GET"])
+def api_gmail_status():
+    line_user_id = request.args.get("line_user_id", "").strip()
+    if not line_user_id:
+        return jsonify({"connected": False, "reason": "missing_user"}), 400
+    try:
+        res = supabase.table("user_gmail_tokens").select("gmail_address,is_active,last_synced_at,updated_at").eq("line_user_id", line_user_id).execute()
+        if not res.data:
+            return jsonify({"connected": False})
+        row = res.data[0]
+        return jsonify({
+            "connected": bool(row.get("is_active")),
+            "gmail_address": row.get("gmail_address", ""),
+            "last_synced_at": row.get("last_synced_at"),
+            "updated_at": row.get("updated_at"),
+        })
+    except Exception as e:
+        return jsonify({"connected": False, "error": str(e)}), 500
+
+@app.route("/api/gmail/sync_now", methods=["POST"])
+def api_gmail_sync_now():
+    data = request.get_json(silent=True) or {}
+    line_user_id = (data.get("line_user_id") or "").strip()
+    if not line_user_id:
+        return jsonify({"ok": False, "reason": "missing_user"}), 400
+    result = sync_gmail_for_user(line_user_id, max_messages=30)
+    return jsonify(result)
+
+@app.route("/api/gmail/disconnect", methods=["POST"])
+def api_gmail_disconnect():
+    data = request.get_json(silent=True) or {}
+    line_user_id = (data.get("line_user_id") or "").strip()
+    if not line_user_id:
+        return jsonify({"ok": False, "reason": "missing_user"}), 400
+    try:
+        supabase.table("user_gmail_tokens").update({"is_active": False}).eq("line_user_id", line_user_id).execute()
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+
+@app.route("/api/gmail/imported", methods=["GET"])
+def api_gmail_imported():
+    line_user_id = request.args.get("line_user_id", "").strip()
+    limit = int(request.args.get("limit", "50"))
+    if not line_user_id:
+        return jsonify({"items": [], "reason": "missing_user"}), 400
+    try:
+        res = supabase.table("gmail_imported_expenses").select("*").eq("line_user_id", line_user_id).order("email_received_at", desc=True).limit(limit).execute()
+        return jsonify({"items": res.data or []})
+    except Exception as e:
+        return jsonify({"items": [], "error": str(e)}), 500
+
+@app.route("/gmail/sync_all", methods=["GET"])
+def gmail_sync_all():
+    """全アクティブユーザーのGmailを定期同期 (cron用)"""
+    if request.args.get("secret", "") != os.environ.get("CRON_SECRET", ""):
+        abort(403)
+    try:
+        res = supabase.table("user_gmail_tokens").select("line_user_id").eq("is_active", True).execute()
+        users = [r["line_user_id"] for r in (res.data or []) if r.get("line_user_id")]
+    except Exception as e:
+        return jsonify({"ok": False, "error": str(e)}), 500
+    total_imported = 0
+    for uid in users:
+        try:
+            r = sync_gmail_for_user(uid, max_messages=20)
+            if r.get("ok"):
+                total_imported += r.get("imported", 0)
+        except Exception as e:
+            print(f"[gmail cron] error for {uid}: {e}")
+    return jsonify({"ok": True, "users": len(users), "imported": total_imported})
+
+# ============================================================
+# Gmail 連携 ここまで
+# ============================================================
 
 
 if __name__ == "__main__":
