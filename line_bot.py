@@ -2767,6 +2767,7 @@ def gmail_connect():
         prompt="consent",
         state=state,
     )
+    _gmail_oauth_states[state]["code_verifier"] = flow.code_verifier
     return redirect(auth_url)
 
 @app.route("/oauth/gmail/callback", methods=["GET"])
@@ -2787,6 +2788,7 @@ def gmail_oauth_callback():
     if not flow:
         return "Gmail libraries not available", 503
     try:
+        flow.code_verifier = info.get("code_verifier")
         flow.fetch_token(code=code)
     except Exception as e:
         print(f"[gmail] token fetch error: {e}")
