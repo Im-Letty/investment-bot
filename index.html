@@ -2212,7 +2212,7 @@ function mhAddSettingsBtn(){
   sec.appendChild(title);sec.appendChild(btn);modal.appendChild(sec);return true;
 }
 function mhHookSettings(){
-  try{var ob=new MutationObserver(function(){if(document.querySelector('.settings-modal'))mhAddSettingsBtn();});ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
+  try{var __obBusy=false,__obTimer=0;function __obRun(){__obBusy=true;ob.disconnect();try{if(document.querySelector('.settings-modal'))mhAddSettingsBtn();}catch(e){}ob.observe(document.body,{childList:true,subtree:true});__obBusy=false;}var ob=new MutationObserver(function(){if(__obBusy)return;if(__obTimer)return;__obTimer=setTimeout(function(){__obTimer=0;__obRun();},250);});ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
   if(typeof window._openSettings==='function'){var _o=window._openSettings;window._openSettings=function(){var r=_o.apply(this,arguments);setTimeout(mhAddSettingsBtn,30);return r;};}
   mhAddSettingsBtn();
 }
