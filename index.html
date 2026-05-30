@@ -2260,7 +2260,7 @@ if(document.readyState==='complete'||document.readyState==='interactive'){setTim
       if(id==='el_label'){row.style.display='none';return;}
       if(hasCard&&id){buildGrip(row,id);}
     });}
-  var __mhBusy=false,__mhRaf=0;function __mhRun(){__mhBusy=true;mo.disconnect();try{enhanceEditor();applyHome();}catch(e){}mo.observe(document.body,{childList:true,subtree:true});__mhBusy=false;}var mo=new MutationObserver(function(){if(__mhBusy)return;if(__mhRaf)return;__mhRaf=requestAnimationFrame(function(){__mhRaf=0;__mhRun();});});
+  var __mhBusy=false,__mhTimer=0;function __mhRun(){__mhBusy=true;mo.disconnect();try{enhanceEditor();applyHome();}catch(e){}mo.observe(document.body,{childList:true,subtree:true});__mhBusy=false;}function __mhSchedule(){if(__mhBusy)return;if(__mhTimer)return;__mhTimer=setTimeout(function(){__mhTimer=0;__mhRun();},250);}var mo=new MutationObserver(__mhSchedule);
   mo.observe(document.body,{childList:true,subtree:true});
   document.addEventListener('DOMContentLoaded',applyHome);applyHome();setTimeout(applyHome,800);setTimeout(enhanceEditor,300);
 })();
