@@ -2225,39 +2225,40 @@ if(document.readyState==='complete'||document.readyState==='interactive'){setTim
 (function(){
   window.__mhFreeSize=true;
   var KEY=String.fromCharCode(104,111,109,101,95,108,97,121,111,117,116,95,118,49);
-  var MINH=120,MAXH=420,STEP=20,DEF=166;
+  var MINH=120,MAXH=460,STEP=20,DEF=166;
   function load(){try{return JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch(e){return {};}}
   function save(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
   function snap(v){v=Math.round(v/STEP)*STEP;if(v<MINH)v=MINH;if(v>MAXH)v=MAXH;return v;}
+  function clampRaw(v){if(v<MINH)v=MINH;if(v>MAXH)v=MAXH;return v;}
   function numSize(s,id){var sz=(s.size||{})[id];if(typeof sz==='number')return snap(sz);if(sz==='s')return 140;if(sz==='m')return 200;if(sz==='l')return 300;return DEF;}
   function setSize(id,v){var s=load();s.size=s.size||{};s.size[id]=snap(v);save(s);return s.size[id];}
   function homeCards(){var c=document.querySelector('.content');if(!c)return [];return Array.prototype.filter.call(c.querySelectorAll('.mc'),function(x){return x.id!=='mhAiPreview';});}
   function cardId(el){var oc=(el.getAttribute&&el.getAttribute('onclick'))||'';if(/Simulator|シミュ/i.test(oc))return 'simulator';if(/Morning|朝の相場/i.test(oc))return 'morning';if(/Alert|アラート/i.test(oc))return 'alert';var t=(el.innerText||'');if(/資産管理|家計簿/.test(t))return 'assets';if(/配当/.test(t))return 'dividend';if(/シミュ/.test(t))return 'simulator';if(/朝の相場/.test(t))return 'morning';if(/アラート/.test(t))return 'alert';return '';}
   function applyHome(){var s=load();homeCards().forEach(function(el){var id=cardId(el);if(!id)return;var h=numSize(s,id);el.style.minHeight=h+'px';el.style.height='auto';el.style.marginTop='8px';el.style.marginBottom='8px';});Array.prototype.forEach.call(document.querySelectorAll('.content .section-label'),function(l){l.style.display='none';});}
   function pillId(row){return row.getAttribute('data-id')||'';}
-  function buildSlider(row,id){
-    var old=row.querySelector('.mhSize');if(old&&old.dataset.fs)return;if(old)old.remove();
+  function buildGrip(row,id){
+    var old=row.querySelector('.mhSize');if(old)old.remove();
+    if(row.querySelector('.mhGrip'))return;
+    var card=row.querySelector('.mc');if(!card)return;
     var s=load();var cur=numSize(s,id);
-    var box=document.createElement('div');box.className='mhSize';box.dataset.fs='1';
-    box.style.cssText='position:absolute;right:42px;bottom:8px;display:flex;align-items:center;gap:6px;background:rgba(255,255,255,.92);border:1px solid #d0d7de;border-radius:18px;padding:3px 8px;box-shadow:0 1px 4px rgba(0,0,0,.12);z-index:5;';
-    var minus=document.createElement('button');minus.textContent='−';minus.style.cssText='border:none;background:#eef1f4;width:22px;height:22px;border-radius:50%;font-size:15px;cursor:pointer;line-height:1;';
-    var rng=document.createElement('input');rng.type='range';rng.min=MINH;rng.max=MAXH;rng.step=STEP;rng.value=cur;rng.style.cssText='width:90px;accent-color:#16a34a;';
-    var plus=document.createElement('button');plus.textContent='+';plus.style.cssText='border:none;background:#eef1f4;width:22px;height:22px;border-radius:50%;font-size:15px;cursor:pointer;line-height:1;';
-    var lab=document.createElement('span');lab.style.cssText='font-size:11px;color:#555;min-width:30px;text-align:right;';lab.textContent=cur+'px';
-    box.appendChild(minus);box.appendChild(rng);box.appendChild(plus);box.appendChild(lab);
-    function commit(v){v=setSize(id,v);rng.value=v;lab.textContent=v+'px';var card=row.querySelector('.mc');if(card){card.style.minHeight=v+'px';card.style.height='auto';}applyHome();}
-    rng.addEventListener('input',function(){commit(+rng.value);});
-    minus.addEventListener('click',function(e){e.stopPropagation();commit(numSize(load(),id)-STEP);});
-    plus.addEventListener('click',function(e){e.stopPropagation();commit(numSize(load(),id)+STEP);});
-    box.addEventListener('click',function(e){e.stopPropagation();});
-    row.appendChild(box);
-    var card=row.querySelector('.mc');if(card){card.style.minHeight=cur+'px';card.style.height='auto';}
+    card.style.minHeight=cur+'px';card.style.height='auto';card.style.position='relative';card.style.overflow='hidden';
+    var grip=document.createElement('div');grip.className='mhGrip';
+    grip.style.cssText='position:absolute;right:6px;bottom:6px;width:32px;height:32px;border-radius:8px;background:rgba(22,163,74,.92);box-shadow:0 1px 4px rgba(0,0,0,.25);cursor:ns-resize;touch-action:none;z-index:6;display:flex;align-items:center;justify-content:center;';
+    grip.innerHTML='<svg width="17" height="17" viewBox="0 0 16 16" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M4 10l6 0M7 13l3 0M10 4l0 6"/></svg>';
+    var badge=document.createElement('div');badge.className='mhPxBadge';badge.textContent=cur+'px';
+    badge.style.cssText='position:absolute;right:44px;bottom:11px;background:rgba(0,0,0,.7);color:#fff;font-size:11px;padding:2px 7px;border-radius:10px;z-index:6;opacity:0;transition:opacity .15s;pointer-events:none;';
+    var dragging=false,startY=0,startH=cur;
+    function onMove(e){if(!dragging)return;var cy=(e.touches?e.touches[0].clientY:e.clientY);var nh=clampRaw(startH+(cy-startY));card.style.minHeight=nh+'px';badge.textContent=Math.round(nh)+'px';e.preventDefault();}
+    function onUp(){if(!dragging)return;dragging=false;var h=parseInt(card.style.minHeight,10)||cur;var sv=setSize(id,h);card.style.minHeight=sv+'px';badge.textContent=sv+'px';startH=sv;badge.style.opacity='0';applyHome();window.removeEventListener('pointermove',onMove);window.removeEventListener('pointerup',onUp);}
+    grip.addEventListener('pointerdown',function(e){e.stopPropagation();e.preventDefault();dragging=true;startY=e.clientY;startH=parseInt(card.style.minHeight,10)||cur;badge.style.opacity='1';window.addEventListener('pointermove',onMove);window.addEventListener('pointerup',onUp);});
+    grip.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();});
+    card.appendChild(badge);card.appendChild(grip);
   }
-  function fixHint(){var h=document.querySelector('.mhHint');if(h&&!h.dataset.fs){h.dataset.fs='1';h.textContent='ドラッグで並べ替え ・ −で外す ・ スライダーで大きさを自由に調整。外したパーツは下の「＋ パーツを追加」から戻せます。';}}
+  function fixHint(){var h=document.querySelector('.mhHint');if(h){h.textContent='ドラッグで並べ替え ・ −で外す ・ 右下の緑のツマミを上下にドラッグして大きさを調整。外したパーツは下の「＋ パーツを追加」から戻せます。';}}
   function enhanceEditor(){var col=document.querySelector('.mhCol');if(!col)return;fixHint();
     Array.prototype.forEach.call(col.querySelectorAll('.mhRow'),function(row){var id=pillId(row);var hasCard=!!row.querySelector('.mc');
       if(id==='el_label'){row.style.display='none';return;}
-      if(hasCard&&id){buildSlider(row,id);}
+      if(hasCard&&id){buildGrip(row,id);}
     });}
   var mo=new MutationObserver(function(){enhanceEditor();applyHome();});
   mo.observe(document.body,{childList:true,subtree:true});
