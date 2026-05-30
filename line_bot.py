@@ -3058,6 +3058,101 @@ def gmail_sync_all():
 # ============================================================
 # Gmail 連携 ここまで
 # ============================================================
+# ============================================================
+# メール転送方式（Cloudflare Email Worker から受信）
+# ============================================================
+
+INBOUND_MAIL_DOMAIN = os.environ.get("INBOUND_MAIL_DOMAIN", "").strip()
+INBOUND_MAIL_SECRET = os.environ.get("INBOUND_MAIL_SECRET", "").strip()
+
+def _get_or_create_mail_code(line_user_id):
+    """ユーザーごとの転送用コードを取得（無ければ生成して users テーブルに保存）"""
+    try:
+        res = supabase.table("users").select("mail_code").eq("line_user_id", line_user_id).execute()
+        if res.data and res.data[0].get("mail_code"):
+            return res.data[0]["mail_code"]
+    except Exception as e:
+        print(f"[mail] get code error: {e}")
+    code = _secrets_mod.token_hex(5)
+    try:
+        upd = supabase.table("users").update({"mail_code": code}).eq("line_user_id", line_user_id).execute()
+        if not upd.data:
+            supabase.table("users").insert({"line_user_id": line_user_id, "mail_code": code, "lang": "ja"}).execute()
+    except Exception as e:
+        print(f"[mail] set code error: {e}")
+    return code
+
+def _find_user_by_mail_code(code):
+    if not code:
+        return None
+    try:
+        res = supabase.table("users").select("line_user_id").eq("mail_code", code).execute()
+        if res.data:
+            return res.data[0].get("line_user_id")
+    except Exception as e:
+        print(f"[mail] find user error: {e}")
+    return None
+
+@app.route("/api/mail/address", methods=["GET"])
+def api_mail_address():
+    """家計簿画面に表示する、ユーザー専用の転送先アドレスを返す"""
+    line_user_id = request.args.get("user_id", "").strip()
+    if not line_user_id:
+        return jsonify({"ok": False, "reason": "missing_user"}), 400
+    if not INBOUND_MAIL_DOMAIN:
+        return jsonify({"ok": False, "reason": "not_configured"}), 200
+    code = _get_or_create_mail_code(line_user_id)
+    address = f"receipt+{code}@{INBOUND_MAIL_DOMAIN}"
+    return jsonify({"ok": True, "address": address})
+
+@app.route("/inbound/mail", methods=["POST"])
+def inbound_mail():
+    """Cloudflare Email Worker から転送メールを受信して家計簿に保存"""
+    if INBOUND_MAIL_SECRET:
+        if request.headers.get("X-Inbound-Secret", "") != INBOUND_MAIL_SECRET:
+            abort(403)
+    data = request.get_json(force=True, silent=True) or {}
+    to_addr = (data.get("to") or "").strip()
+    subject = (data.get("subject") or "")
+    body_text = (data.get("text") or data.get("body") or "")
+    email_from = (data.get("from") or "")
+    mid = (data.get("message_id") or _secrets_mod.token_hex(8))
+    code = None
+    m = re.search(r"receipt\+([0-9a-fA-F]+)@", to_addr)
+    if m:
+        code = m.group(1)
+    line_user_id = _find_user_by_mail_code(code)
+    if not line_user_id:
+        return jsonify({"ok": False, "reason": "unknown_recipient"}), 200
+    text_for_parse = (subject + "\n" + body_text)
+    parsed = _parse_expense_from_text(text_for_parse)
+    if not parsed:
+        return jsonify({"ok": False, "reason": "no_expense_found"}), 200
+    try:
+        existing = supabase.table("gmail_imported_expenses").select("id").eq("gmail_message_id", mid).execute()
+        if existing.data:
+            return jsonify({"ok": True, "skipped": True})
+    except Exception:
+        pass
+    try:
+        supabase.table("gmail_imported_expenses").insert({
+            "line_user_id": line_user_id,
+            "gmail_message_id": mid,
+            "email_from": email_from[:200],
+            "email_subject": subject[:300],
+            "email_received_at": datetime.now().isoformat(),
+            "amount": parsed["amount"],
+            "merchant": parsed["merchant"][:120],
+            "category": None,
+            "currency": "JPY",
+            "raw_snippet": body_text[:300],
+            "status": "imported",
+        }).execute()
+    except Exception as e:
+        print(f"[mail] insert error: {e}")
+        return jsonify({"ok": False, "reason": "db_error"}), 500
+    return jsonify({"ok": True, "imported": 1, "amount": parsed["amount"], "merchant": parsed["merchant"]})
+
 
 
 if __name__ == "__main__":
