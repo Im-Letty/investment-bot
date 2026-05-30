@@ -1079,6 +1079,58 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
   };
 })();</script>
 <script id="ai-advice-feature">window.kkAiAdvice=function(){try{var lang=(localStorage.getItem('kk_lang')||'ja').toLowerCase();var assets=[];try{assets=JSON.parse(localStorage.getItem('kb2_assets')||'[]');}catch(e){}var today=new Date();var byCat={};var byType={income:0,expense:0};var daysWithData=0;var recordCount=0;var monthly={};for(var i=0;i<30;i++){var d=new Date(today.getTime()-i*86400000);var key='kbday_'+d.getFullYear()+'_'+String(d.getMonth()+1).padStart(2,'0')+'_'+String(d.getDate()).padStart(2,'0');var raw=localStorage.getItem(key);if(!raw)continue;try{var data=JSON.parse(raw);if(data&&data.items&&data.items.length){daysWithData++;var ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(!monthly[ym])monthly[ym]={income:0,expense:0};data.items.forEach(function(it){var amt=Number(it.amount)||0;var typ=it.type||'expense';byType[typ]=(byType[typ]||0)+amt;monthly[ym][typ]=(monthly[ym][typ]||0)+amt;recordCount++;if(typ==='expense'){var cat=it.category||'その他';byCat[cat]=(byCat[cat]||0)+amt;}});}}catch(e){}}var totalAssets=0;assets.forEach(function(a){totalAssets+=(Number(a.amount)||0);});var summary={lang:lang,period_days:30,days_with_data:daysWithData,record_count:recordCount,total_income:byType.income,total_expense:byType.expense,balance:byType.income-byType.expense,monthly:monthly,categories:byCat,total_assets:totalAssets,assets_count:assets.length,currency:lang==='en'?'USD':lang==='zh'?'CNY':lang==='ko'?'KRW':'JPY'};if(recordCount<3){alert(window.I18N&&window.I18N[lang]&&window.I18N[lang].kk_ai_no_data||'データ不足');return;}var modal=document.createElement('div');modal.id='kk-ai-modal';modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';var L=(window.I18N&&window.I18N[lang])||{};modal.innerHTML='<div style="background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.3);"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h2 style="margin:0;font-size:20px;color:#2d7a4f;">'+(L.kk_ai_title||'🤖 AI家計アドバイス')+'</h2><button onclick="document.getElementById(\'kk-ai-modal\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888;">×</button></div><div id="kk-ai-body" style="text-align:center;padding:40px 20px;color:#666;">⏳ '+(L.kk_ai_loading||'分析中...')+'</div></div>';document.body.appendChild(modal);fetch('/api/ai-advice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lang:lang,summary:summary})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(res){var body=document.getElementById('kk-ai-body');if(!body)return;if(!res.ok||!res.j||!res.j.ok){if(res.j&&res.j.error==='monthly_limit'){body.innerHTML='<div style="padding:20px;color:#e74c3c;">'+(L.kk_ai_limit||'利用上限')+'</div>';return;}body.innerHTML='<div style="padding:20px;color:#e74c3c;">Error: '+((res.j&&res.j.error)||'unknown')+'</div>';return;}var d=res.j.data||{};var score=Math.max(0,Math.min(100,Number(d.score)||50));var scoreColor=score>=70?'#27ae60':score>=40?'#f39c12':'#e74c3c';var tipsHtml=(d.savings_tips||[]).map(function(t){return '<li style="margin:6px 0;">'+String(t).replace(/[<>]/g,'')+'</li>';}).join('');body.style.textAlign='left';body.style.padding='0';body.innerHTML='<div style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:16px;border-radius:12px;margin-bottom:14px;text-align:center;"><div style="font-size:13px;opacity:0.9;">'+(L.kk_ai_score||'スコア')+'</div><div style="font-size:42px;font-weight:800;color:'+scoreColor+';background:#fff;border-radius:50%;width:90px;height:90px;line-height:90px;margin:8px auto;">'+score+'</div></div><div style="margin:14px 0;"><div style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📝 '+(L.kk_ai_summary||'概要')+'</div><div style="color:#444;font-size:14px;line-height:1.6;">'+String(d.summary||'').replace(/[<>]/g,'')+'</div></div><div style="margin:14px 0;"><div style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📈 '+(L.kk_ai_trend||'傾向')+'</div><div style="color:#444;font-size:14px;line-height:1.6;">'+String(d.trend||'').replace(/[<>]/g,'')+'</div></div><div style="margin:14px 0;"><div style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">💡 '+(L.kk_ai_tips||'アドバイス')+'</div><ul style="color:#444;font-size:14px;line-height:1.6;padding-left:20px;margin:0;">'+tipsHtml+'</ul></div><div style="margin:14px 0;background:#f0f8f4;padding:12px;border-radius:10px;border-left:4px solid #2d7a4f;"><div style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📈 '+(L.kk_ai_invest||'投資')+'</div><div style="color:#444;font-size:14px;line-height:1.6;">'+String(d.investment_advice||'').replace(/[<>]/g,'')+'</div></div><div style="text-align:center;margin-top:16px;font-size:12px;color:#888;">'+(res.j.usage||0)+' / '+(res.j.limit||20)+'</div><div style="text-align:center;margin-top:12px;"><button onclick="document.getElementById(\'kk-ai-modal\').remove()" style="background:#2d7a4f;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-weight:700;cursor:pointer;">'+(L.kk_ai_close||'閉じる')+'</button></div>';}).catch(function(err){var body=document.getElementById('kk-ai-body');if(body){body.innerHTML='<div style="padding:20px;color:#e74c3c;">Network error</div>';}});}catch(err){console.error('kkAiAdvice error',err);alert('Error: '+err.message);}};</script>
+  <!-- メール転送連携 -->
+  <section id="mailSection" style="max-width:680px;margin:24px auto;padding:18px;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);font-family:system-ui,-apple-system,sans-serif">
+    <h2 style="margin:0 0 12px;font-size:18px;color:#222">📨 メール転送で出費を自動取り込み</h2>
+    <p style="color:#666;font-size:13px;line-height:1.6;margin:0 0 14px">カード利用通知メールを専用アドレスに転送すると、金額とお店が自動で家計簿に記録されます。下のボタンであなた専用の転送先アドレスを表示できます。</p>
+    <div style="margin:0 0 14px">
+      <button id="mailAddrBtn" style="background:#3da060;color:#fff;border:0;padding:10px 18px;border-radius:8px;font-weight:600;cursor:pointer">転送先アドレスを表示</button>
+    </div>
+    <div id="mailAddrBox" style="display:none;margin:0 0 12px;padding:12px;background:#f5f7f5;border-radius:8px;font-size:13px;word-break:break-all">
+      <div style="color:#666;margin:0 0 6px">あなた専用の転送先アドレス：</div>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <code id="mailAddrText" style="font-size:14px;color:#222;font-weight:600"></code>
+        <button id="mailCopyBtn" style="background:#eee;border:0;padding:6px 12px;border-radius:6px;font-size:12px;cursor:pointer">コピー</button>
+      </div>
+      <p style="color:#888;font-size:12px;line-height:1.6;margin:10px 0 0">Gmailの「設定 → フィルタとブロック中のアドレス → 新しいフィルタを作成」で、カード会社のメールをこのアドレスへ自動転送する設定にすると全自動になります。</p>
+    </div>
+    <p id="mailAddrMsg" style="display:none;color:#999;font-size:13px;margin:0"></p>
+  </section>
+  <script>
+  (function(){
+    var btn=document.getElementById('mailAddrBtn');
+    if(!btn) return;
+    btn.addEventListener('click', function(){
+      var uid=localStorage.getItem('lineUserId')||'';
+      var box=document.getElementById('mailAddrBox');
+      var msg=document.getElementById('mailAddrMsg');
+      msg.style.display='none';
+      if(!uid){ msg.style.display='block'; msg.textContent='LINEログイン情報が見つかりません。LINEからこの画面を開いてください。'; return; }
+      btn.textContent='読み込み中...'; btn.disabled=true;
+      fetch('/api/mail/address?user_id='+encodeURIComponent(uid))
+        .then(function(r){return r.json();})
+        .then(function(j){
+          btn.textContent='転送先アドレスを表示'; btn.disabled=false;
+          if(j.ok && j.address){
+            document.getElementById('mailAddrText').textContent=j.address;
+            box.style.display='block';
+          } else if(j.reason==='not_configured'){
+            msg.style.display='block'; msg.textContent='この機能は現在準備中です。もうしばらくお待ちください。';
+          } else {
+            msg.style.display='block'; msg.textContent='アドレスの取得に失敗しました。時間をおいて再度お試しください。';
+          }
+        })
+        .catch(function(){ btn.textContent='転送先アドレスを表示'; btn.disabled=false; msg.style.display='block'; msg.textContent='通信エラーが発生しました。'; });
+    });
+    var copyBtn=document.getElementById('mailCopyBtn');
+    if(copyBtn){
+      copyBtn.addEventListener('click', function(){
+        var txt=document.getElementById('mailAddrText').textContent;
+        navigator.clipboard.writeText(txt).then(function(){ copyBtn.textContent='コピー済み'; setTimeout(function(){copyBtn.textContent='コピー';},1500); });
+      });
+    }
+  })();
+  </script>
 <!-- Gmail integration -->
 <section id="gmailSection" style="max-width:680px;margin:24px auto;padding:18px;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);font-family:system-ui,-apple-system,sans-serif">
   <h2 style="margin:0 0 12px;font-size:18px;color:#222">📧 Gmail 連携で出費を自動取り込み</h2>
