@@ -2173,8 +2173,24 @@ function bindDrag(gs,stage){var dragging=null;
   });}
 function commitOrder(gs){var ord=[].slice.call(gs.querySelectorAll('.mhWrap[draggable]')).map(function(w){return w.getAttribute('data-id');}).filter(function(x){return x&&x!=='ai_preview';});if(ord.length)DRAFT.order=ord;}
 function finish(ov){save(DRAFT);applyToHome();if(ov&&ov.remove)ov.remove();else{var o=document.getElementById('mhOverlay');if(o)o.remove();}}
+function mhAddSettingsBtn(){
+  var modal=document.querySelector('.settings-modal');
+  if(!modal)return false;
+  if(modal.querySelector('#mhEditSettingsRow'))return true;
+  var sec=document.createElement('div');sec.className='settings-section';sec.id='mhEditSettingsRow';
+  var title=document.createElement('div');title.className='settings-section-title';title.textContent='\u30db\u30fc\u30e0\u753b\u9762';
+  var btn=document.createElement('button');btn.className='style-btn';btn.style.width='100%';btn.style.justifyContent='center';
+  btn.innerHTML='<span>\u270e \u30de\u30a4\u30db\u30fc\u30e0\u3092\u7de8\u96c6</span>';
+  btn.addEventListener('click',function(){if(window._closeSettings)window._closeSettings();openEditor();});
+  sec.appendChild(title);sec.appendChild(btn);modal.appendChild(sec);return true;
+}
+function mhHookSettings(){
+  try{var ob=new MutationObserver(function(){if(document.querySelector('.settings-modal'))mhAddSettingsBtn();});ob.observe(document.body,{childList:true,subtree:true});}catch(e){}
+  if(typeof window._openSettings==='function'){var _o=window._openSettings;window._openSettings=function(){var r=_o.apply(this,arguments);setTimeout(mhAddSettingsBtn,30);return r;};}
+  mhAddSettingsBtn();
+}
 window.openLayoutCustomizer=openEditor;
-function init(){try{applyToHome();}catch(e){}}
+function init(){try{applyToHome();}catch(e){}try{mhHookSettings();}catch(e){}}
 if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(init,300);}else{document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});}
 })();
 </script></body></html>
