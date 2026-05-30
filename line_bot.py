@@ -3118,7 +3118,7 @@ def inbound_mail():
     email_from = (data.get("from") or "")
     mid = (data.get("message_id") or _secrets_mod.token_hex(8))
     code = None
-    m = re.search(r"receipt\+([0-9a-fA-F]+)@", to_addr)
+    m = re.search(r"receipt\+([0-9a-zA-Z]+)@", to_addr)
     if m:
         code = m.group(1)
     line_user_id = _find_user_by_mail_code(code)
