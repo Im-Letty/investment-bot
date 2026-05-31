@@ -2230,7 +2230,7 @@ if(document.readyState==='complete'||document.readyState==='interactive'){setTim
   function save(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
   function snap(v){v=Math.round(v/STEP)*STEP;if(v<MINH)v=MINH;if(v>MAXH)v=MAXH;return v;}
   function clampRaw(v){if(v<MINH)v=MINH;if(v>MAXH)v=MAXH;return v;}
-  function numSize(s,id){var sz=(s.size||{})[id];if(typeof sz==='number')return clampRaw(sz);if(sz==='s')return 140;if(sz==='m')return 200;if(sz==='l')return 300;if(sz==='xl')return 400;return DEF;}
+  function numSize(s,id){var sz=(s.size||{})[id];if(typeof sz==='number')return clampRaw(sz);if(sz==='s')return 140;if(sz==='m')return 200;if(sz==='l')return 300;if(sz==='xl')return 400;return 300;}
   function setSize(id,v){var s=load();s.size=s.size||{};s.size[id]=snap(v);save(s);return s.size[id];}
   function homeCards(){var c=document.querySelector('.content');if(!c)return [];return Array.prototype.filter.call(c.querySelectorAll('.mc'),function(x){return x.id!=='mhAiPreview';});}
   function cardId(el){var oc=(el.getAttribute&&el.getAttribute('onclick'))||'';if(/Simulator|シミュ/i.test(oc))return 'simulator';if(/Morning|朝の相場/i.test(oc))return 'morning';if(/Alert|アラート/i.test(oc))return 'alert';var t=(el.innerText||'');if(/資産管理|家計簿/.test(t))return 'assets';if(/配当/.test(t))return 'dividend';if(/シミュ/.test(t))return 'simulator';if(/朝の相場/.test(t))return 'morning';if(/アラート/.test(t))return 'alert';return '';}
