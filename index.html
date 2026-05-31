@@ -2230,7 +2230,7 @@ if(document.readyState==='complete'||document.readyState==='interactive'){setTim
   function save(s){try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}}
   function snap(v){v=Math.round(v/STEP)*STEP;if(v<MINH)v=MINH;if(v>MAXH)v=MAXH;return v;}
   function clampRaw(v){if(v<MINH)v=MINH;if(v>MAXH)v=MAXH;return v;}
-  function numSize(s,id){var sz=(s.size||{})[id];if(typeof sz==='number')return clampRaw(sz);if(sz==='s')return 140;if(sz==='m')return 200;if(sz==='l')return 300;return DEF;}
+  function numSize(s,id){var sz=(s.size||{})[id];if(typeof sz==='number')return clampRaw(sz);if(sz==='s')return 140;if(sz==='m')return 200;if(sz==='l')return 300;if(sz==='xl')return 400;return DEF;}
   function setSize(id,v){var s=load();s.size=s.size||{};s.size[id]=snap(v);save(s);return s.size[id];}
   function homeCards(){var c=document.querySelector('.content');if(!c)return [];return Array.prototype.filter.call(c.querySelectorAll('.mc'),function(x){return x.id!=='mhAiPreview';});}
   function cardId(el){var oc=(el.getAttribute&&el.getAttribute('onclick'))||'';if(/Simulator|シミュ/i.test(oc))return 'simulator';if(/Morning|朝の相場/i.test(oc))return 'morning';if(/Alert|アラート/i.test(oc))return 'alert';var t=(el.innerText||'');if(/資産管理|家計簿/.test(t))return 'assets';if(/配当/.test(t))return 'dividend';if(/シミュ/.test(t))return 'simulator';if(/朝の相場/.test(t))return 'morning';if(/アラート/.test(t))return 'alert';return '';}
@@ -2239,7 +2239,7 @@ if(document.readyState==='complete'||document.readyState==='interactive'){setTim
   function buildGrip(row,id){
     var old=row.querySelector('.mhSize');if(old)old.remove();
     if(row.querySelector('.mhGrip'))return;
-    var card=row.querySelector('.mc');if(!card)return;
+    var card=row.querySelector('.mc');if(!card)return;var __ps=load();var __pc=numSize(__ps,id);var __cur4=[140,200,300,400].reduce(function(a,b){return Math.abs(b-__pc)<Math.abs(a-__pc)?b:a;});card.style.minHeight=__cur4+'px';card.style.height='auto';card.style.position='relative';card.style.overflow='hidden';var __box=document.createElement('div');__box.className='mhSize';[['小',140],['中',200],['大',300],['特大',400]].forEach(function(st){var __b=document.createElement('button');__b.textContent=st[0];__b.setAttribute('data-px',st[1]);if(__cur4===st[1])__b.classList.add('on');__b.addEventListener('click',function(e){e.stopPropagation();var __s2=load();__s2.size=__s2.size||{};__s2.size[id]=st[1];save(__s2);card.style.minHeight=st[1]+'px';[].slice.call(__box.children).forEach(function(x){x.classList.toggle('on',x.getAttribute('data-px')===String(st[1]));});applyHome();});__box.appendChild(__b);});card.appendChild(__box);return;
     var s=load();var cur=numSize(s,id);
     card.style.minHeight=cur+'px';card.style.height='auto';card.style.position='relative';card.style.overflow='hidden';
     var grip=document.createElement('div');grip.className='mhGrip';
