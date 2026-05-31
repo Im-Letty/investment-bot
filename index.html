@@ -2062,7 +2062,7 @@ function buildAiPreview(){
 }
 function mhHomeCSS(){
   if(document.getElementById('mhHomeCSS'))return;
-  var st=document.createElement('style');st.id='mhHomeCSS';var c=[];
+  var st=document.createElement('style');st.id='mhHomeCSS';var c=[];c.push('#lp-section .content{display:flex!important;flex-wrap:wrap!important;align-items:flex-start!important;column-gap:10px!important;}');
   c.push('#lp-section .content .mc.mh-stacked{width:100%!important;max-width:100%!important;margin:10px 0!important;box-sizing:border-box;}');
   c.push('#lp-section .content .mh-stacked{margin:10px 0!important;}');
   st.textContent=c.join('\n');document.head.appendChild(st);
@@ -2087,7 +2087,7 @@ function applyToHome(){
   var order=(s.order&&s.order.length)?s.order.slice():[];
   def.forEach(function(id){if(order.indexOf(id)<0)order.push(id);});
   if(!content)return;
-  Object.keys(blocks).forEach(function(id){var el=blocks[id];if(['simulator','morning','assets','alert','dividend'].indexOf(id)>=0){var sz=s.size[id];el.classList.remove('mh-s','mh-m','mh-l');if(sz==='s')el.classList.add('mh-s');else if(sz==='l')el.classList.add('mh-l');else el.classList.add('mh-m');}});
+  Object.keys(blocks).forEach(function(id){var el=blocks[id];if(['simulator','morning','assets','alert','dividend'].indexOf(id)>=0){var sz=s.size[id];el.classList.remove('mh-s','mh-m','mh-l');if(sz==='s')el.classList.add('mh-s');else if(sz==='l')el.classList.add('mh-l');else el.classList.add('mh-m');if(typeof sz==='number'&&sz>0){el.style.setProperty('min-height',sz+'px','important');}else{el.style.removeProperty('min-height');}var __pl=(s.place||{})[id];if(__pl==='side'){el.classList.add('mh-side');el.classList.remove('mh-stacked');el.style.setProperty('flex','0 0 auto','important');el.style.setProperty('width','calc(50% - 5px)','important');el.style.setProperty('max-width','calc(50% - 5px)','important');}else{el.classList.remove('mh-side');el.classList.add('mh-stacked');el.style.removeProperty('flex');el.style.removeProperty('width');el.style.removeProperty('max-width');}}});
   order.forEach(function(id){var el=blocks[id];if(!el)return;if(s.hidden[id]&&id!=='ai_preview')return;content.appendChild(el);el.classList.add('mh-stacked');});
   if(g&&g.querySelectorAll('.mc').length===0){g.style.display='none';}
 }
