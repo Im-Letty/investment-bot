@@ -2199,7 +2199,7 @@ function bindDrag(col,stage){
   });
 }
 function commitOrder(col){var ord=[].slice.call(col.querySelectorAll('.mhRow[draggable]')).map(function(w){return w.getAttribute('data-id');}).filter(function(x){return x;});if(ord.length)DRAFT.order=ord;DRAFT.place=DRAFT.place||{};[].slice.call(col.querySelectorAll('.mhRow[draggable]')).forEach(function(w){var pid=w.getAttribute('data-id');if(pid)DRAFT.place[pid]=w.getAttribute('data-place')==='side'?'side':'stack';});}
-function finish(ov){save(DRAFT);applyToHome();if(ov&&ov.remove)ov.remove();else{var o=document.getElementById('mhOverlay');if(o)o.remove();}}
+function finish(ov){try{var __cur=load();if(__cur){if(__cur.size){DRAFT.size=Object.assign(DRAFT.size||{},__cur.size);}if(__cur.sizeW){DRAFT.sizeW=Object.assign(DRAFT.sizeW||{},__cur.sizeW);}if(__cur.place){DRAFT.place=Object.assign(DRAFT.place||{},__cur.place);}}}catch(e){}save(DRAFT);applyToHome();if(ov&&ov.remove)ov.remove();else{var o=document.getElementById('mhOverlay');if(o)o.remove();}}
 function mhAddSettingsBtn(){
   var modal=document.querySelector('.settings-modal');
   if(!modal)return false;
