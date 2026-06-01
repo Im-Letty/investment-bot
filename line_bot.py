@@ -1615,7 +1615,7 @@ def morning():
             dh = int(u.get("delivery_hour")) if u.get("delivery_hour") is not None else 7
         except Exception:
             dh = 7
-        if not force and dh != cur_hour:
+        if False and not force and dh != cur_hour:
             skipped += 1
             continue
         try:
