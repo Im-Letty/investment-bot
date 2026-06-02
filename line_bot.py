@@ -673,6 +673,13 @@ def notify_admin(message, error=None):
     except Exception as e:
         print(f"[notify_admin] failed to send: {e}")
 
+def _rtp(sym, fb):
+    try:
+        lp = yf.Ticker(sym).fast_info["last_price"]
+        return float(lp) if lp else fb
+    except Exception:
+        return fb
+
 def fetch_market_data():
     tickers = {
         "日経225":    "^N225",
@@ -687,7 +694,7 @@ def fetch_market_data():
         try:
             hist = yf.Ticker(symbol).history(period="5d")
             if len(hist) >= 2:
-                val   = hist["Close"].iloc[-1]
+                val   = _rtp(symbol, hist["Close"].iloc[-1])
                 prev  = hist["Close"].iloc[-2]
                 pct   = (val - prev) / prev * 100
                 arrow = "▲" if pct >= 0 else "▼"
@@ -708,7 +715,7 @@ def fetch_watchlist():
             hist = t.history(period="5d")
             name = t.info.get("shortName") or symbol
             if len(hist) >= 2:
-                val   = hist["Close"].iloc[-1]
+                val   = _rtp(symbol, hist["Close"].iloc[-1])
                 prev  = hist["Close"].iloc[-2]
                 pct   = (val - prev) / prev * 100
                 arrow = "▲" if pct >= 0 else "▼"
@@ -1827,7 +1834,7 @@ def api_quote():
         name = info.get("shortName") or info.get("longName") or symbol
         currency = info.get("currency") or ""
         if len(hist) >= 2:
-            val = hist["Close"].iloc[-1]
+            val = _rtp(symbol, hist["Close"].iloc[-1])
             prev = hist["Close"].iloc[-2]
             pct = (val - prev) / prev * 100
             arrow = "▲" if pct >= 0 else "▼"
@@ -1841,7 +1848,7 @@ def api_quote():
                 "change": arrow + str(round(abs(pct), 2)) + "%"
             })
         elif len(hist) == 1:
-            val = hist["Close"].iloc[-1]
+            val = _rtp(symbol, hist["Close"].iloc[-1])
             return jsonify({
                 "symbol": symbol,
                 "name": name,
