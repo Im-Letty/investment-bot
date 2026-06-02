@@ -1276,6 +1276,7 @@ def handle_message(event):
 
         # ===== 軽量コマンド判定（API呼び出し前の早期処理） =====
         text_lower = user_text.lower().strip()
+        if _line_admin_command(api, line_user_id, reply_token, text_lower): return
 
         # 言語切替コマンド: "lang ja" / "lang en" / "lang ko" / "lang zh"
         if text_lower.startswith("lang "):
@@ -3217,6 +3218,54 @@ def admin_stats():
     except Exception as e:
         print(f"[admin] messages count error: {e}")
     return jsonify(out)
+
+
+def _line_admin_command(api, line_user_id, reply_token, text_lower):
+    """Letty本人や許可した人からの管理コマンドに反応。処理したらTrue。"""
+    try:
+        allowed = set()
+        if ADMIN_USER_ID:
+            allowed.add(ADMIN_USER_ID)
+        _extra = os.environ.get("ADMIN_LINE_IDS", "")
+        for _x in _extra.split(","):
+            _x = _x.strip()
+            if _x:
+                allowed.add(_x)
+        if line_user_id not in allowed:
+            return False
+        if text_lower not in ("統計", "管理", "状況", "stats", "admin"):
+            return False
+        a_users = a_msgs = a_today = 0
+        try:
+            _u = supabase.table("users").select("*", count="exact").limit(1).execute()
+            a_users = _u.count or 0
+        except Exception as e:
+            print(f"[admin-line] users err: {e}")
+        try:
+            _m = supabase.table("messages").select("*", count="exact").limit(1).execute()
+            a_msgs = _m.count or 0
+            _today = date.today().isoformat()
+            _tm = supabase.table("messages").select("*", count="exact").gte("created_at", _today).limit(1).execute()
+            a_today = _tm.count or 0
+        except Exception as e:
+            print(f"[admin-line] msgs err: {e}")
+        txt = (
+            "📊 管理ダッシュボード\n"
+            "────────────\n"
+            f"👥 利用者数: {a_users}人\n"
+            f"💬 コミュニティ投稿: {a_msgs}件\n"
+            f"📝 今日の投稿: {a_today}件\n"
+            "────────────\n"
+            "「統計」と送ればいつでも確認できます。"
+        )
+        api.reply_message(ReplyMessageRequest(
+            reply_token=reply_token,
+            messages=[TextMessage(text=txt)]
+        ))
+        return True
+    except Exception as e:
+        print(f"[admin-line] error: {e}")
+        return False
 
 
 if __name__ == "__main__":
