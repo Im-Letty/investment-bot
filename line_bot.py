@@ -3187,6 +3187,38 @@ def api_messages():
     return jsonify({"ok": True})
 
 
+ADMIN_PASS = os.environ.get("ADMIN_PASS", "")
+
+def check_admin(req):
+    pw = req.headers.get("X-Admin-Pass")
+    if not pw:
+        body = req.get_json(silent=True) or {}
+        pw = body.get("pass") or req.args.get("pass")
+    return bool(ADMIN_PASS) and pw == ADMIN_PASS
+
+@app.route("/api/admin/stats", methods=["GET", "POST"])
+def admin_stats():
+    if not ADMIN_PASS:
+        return jsonify({"ok": False, "reason": "not_configured"}), 503
+    if not check_admin(request):
+        return jsonify({"ok": False, "reason": "auth"}), 401
+    out = {"ok": True, "users": 0, "messages": 0, "today_messages": 0}
+    try:
+        u = supabase.table("users").select("*", count="exact").limit(1).execute()
+        out["users"] = u.count or 0
+    except Exception as e:
+        print(f"[admin] users count error: {e}")
+    try:
+        m = supabase.table("messages").select("*", count="exact").limit(1).execute()
+        out["messages"] = m.count or 0
+        today = date.today().isoformat()
+        tm = supabase.table("messages").select("*", count="exact").gte("created_at", today).limit(1).execute()
+        out["today_messages"] = tm.count or 0
+    except Exception as e:
+        print(f"[admin] messages count error: {e}")
+    return jsonify(out)
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
