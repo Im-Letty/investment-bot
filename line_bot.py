@@ -3162,6 +3162,31 @@ def inbound_mail():
 
 
 
+@app.route("/api/messages", methods=["GET", "POST"])
+def api_messages():
+    if request.method == "GET":
+        res = supabase.table("messages").select("*").order("id", desc=True).limit(100).execute()
+        rows = list(reversed(res.data or []))
+        return jsonify({"ok": True, "messages": rows})
+    data = request.get_json(silent=True) or {}
+    name = (data.get("name") or "").strip()[:20] or "名無しさん"
+    body = (data.get("body") or "").strip()
+    if not body:
+        return jsonify({"ok": False, "reason": "empty"}), 400
+    if len(body) > 200:
+        return jsonify({"ok": False, "reason": "too_long"}), 400
+    ng_words = ["振込", "儲かります", "必ず儲", "lineで検索", "@で検索", "稼げる"]
+    low = body.lower()
+    if any(w.lower() in low for w in ng_words):
+        return jsonify({"ok": False, "reason": "ng_word"}), 400
+    try:
+        supabase.table("messages").insert({"name": name, "body": body}).execute()
+    except Exception as e:
+        print(f"[messages] insert error: {e}")
+        return jsonify({"ok": False, "reason": "db_error"}), 500
+    return jsonify({"ok": True})
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
