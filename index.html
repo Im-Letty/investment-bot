@@ -2344,7 +2344,7 @@ EMAP[String.fromCharCode(9728)]='morning';
 EMAP[String.fromCharCode(55357,56508)]='assets';
 EMAP[String.fromCharCode(9889)]='alert';
 EMAP[String.fromCharCode(55357,56500)]='dividend';
-var NONCARD=[
+var NONCARD=[{id:'teacher',sel:'#teachCard',label:'投資の先生に相談する',icon:'📚'},{id:'mypage',sel:'#myPageCard',label:'マイページ',icon:'📋'},{id:'talkboard',sel:'#talkCard',label:'みんなの銘柄トーク',icon:'💬'},{id:'guidegrid',sel:'.mgrid',label:'はじめてガイド・積立プラン',icon:'🧭'},
   {id:'el_banner', sel:'.hero', label:'メインバナー', icon:'🏞️'},
   {id:'el_ticker', sel:'.ticker-wrap', label:'相場ティッカー(4つ)', icon:'📈'},
   {id:'el_label', sel:'.section-label', label:'「機能」見出し', icon:'🏷️'},
@@ -2391,7 +2391,7 @@ function applyToHome(){
   var chat=findEl('#knChatFab');
   if(chat){ if(s.hidden['el_chat'])chat.style.display='none'; else chat.style.removeProperty('display'); }
   Object.keys(blocks).forEach(function(id){var el=blocks[id];if(s.hidden[id]&&id!=='ai_preview'){el.style.display='none';}else{el.style.removeProperty('display');}});
-  var def=['el_banner','el_ticker','el_label','ai_preview','simulator','morning','assets','alert','dividend'];
+  var def=['el_banner','el_ticker','el_label','ai_preview','simulator','morning','assets','teacher','mypage','talkboard','guidegrid','alert','dividend'];
   var order=(s.order&&s.order.length)?s.order.slice():[];
   def.forEach(function(id){if(order.indexOf(id)<0)order.push(id);});
   if(!content)return;
@@ -2455,7 +2455,7 @@ function openEditor(){
 function buildStage(stage){
   stage.innerHTML='';
   var col=document.createElement('div');col.className='mhCol';stage.appendChild(col);
-  var def=['el_banner','el_ticker','el_label','ai_preview','simulator','morning','assets','alert','dividend'];
+  var def=['el_banner','el_ticker','el_label','ai_preview','simulator','morning','assets','teacher','mypage','talkboard','guidegrid','alert','dividend'];
   var order=(DRAFT.order&&DRAFT.order.length)?DRAFT.order.slice():[];
   def.forEach(function(id){if(order.indexOf(id)<0)order.push(id);});
   DRAFT.order=order;
@@ -2468,7 +2468,7 @@ function buildStage(stage){
     else if(id==='el_ticker'){node=clone('.ticker-wrap');}
     else if(id==='el_label'){node=clone('.section-label');}
     else if(id==='ai_preview'){var ai=buildAiPreview();if(ai){ai.style.pointerEvents='none';node=ai;}}
-    else if(cardById[id]){var cl=cardById[id].cloneNode(true);cl.removeAttribute('id');cl.style.pointerEvents='none';node=cl;isCard=true;}
+    else if(cardById[id]){var cl=cardById[id].cloneNode(true);cl.removeAttribute('id');cl.style.pointerEvents='none';node=cl;isCard=true;} else { var __nc=NONCARD.filter(function(n){return n.id===id;})[0]; if(__nc){var __cn=clone(__nc.sel); if(__cn){node=__cn;}} }
     if(!node)return;
     var w=wrapEl(node,id);w.setAttribute('draggable','true');w.classList.add('mhRow');
     w.appendChild(mkMinus(function(){DRAFT.hidden[id]=true;buildStage(stage);}));
@@ -2639,9 +2639,17 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 })();
 </script>
 <script>
-/* Move 5 cards (teach/myPage/talk + mgrid) to right after the 家計簿 card. Colorful look kept. */
+/* Default placement of teach/myPage/talk/mgrid after the 家計簿 card. Defers to My-Home customizer when user has saved a custom order. */
 (function(){
+  function customized(){
+    try{var s=JSON.parse(localStorage.getItem("home_layout_v1")||"{}");
+      if(s&&s.order&&s.order.length)return true;
+      if(s&&s.hidden){var H=s.hidden;if(H.teacher||H.mypage||H.talkboard||H.guidegrid||H.assets)return true;}
+    }catch(e){}
+    return false;
+  }
   function relocate(){
+    if(customized())return false;
     var content=document.querySelector("#lp-section .content")||document.querySelector(".content");
     if(!content)return false;
     var kak=null, ch=content.children, i;
