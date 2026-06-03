@@ -2638,4 +2638,33 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   setInterval(run, 1200);
 })();
 </script>
+<script>
+/* Move 5 cards (teach/myPage/talk + mgrid) to right after the 家計簿 card. Colorful look kept. */
+(function(){
+  function relocate(){
+    var content=document.querySelector("#lp-section .content")||document.querySelector(".content");
+    if(!content)return false;
+    var kak=null, ch=content.children, i;
+    for(i=0;i<ch.length;i++){var c=ch[i];if(c.tagName==="A"&&c.getAttribute("href")==="/kakeibo"){kak=c;break;}}
+    if(!kak)return false;
+    var teach=document.getElementById("teachCard");
+    var myp=document.getElementById("myPageCard");
+    var talk=document.getElementById("talkCard");
+    var grid=null;
+    for(i=0;i<ch.length;i++){if(ch[i].className&&(""+ch[i].className).indexOf("mgrid")>=0){grid=ch[i];break;}}
+    var anchor=kak;
+    [teach,myp,talk,grid].forEach(function(el){
+      if(el && el.parentNode===content){
+        if(anchor.nextSibling!==el){content.insertBefore(el,anchor.nextSibling);}
+        anchor=el;
+      }
+    });
+    return !!(teach&&grid);
+  }
+  function run(){ try{relocate();}catch(e){} }
+  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",run);}else{run();}
+  [400,900,1500,2500,3500].forEach(function(d){setTimeout(run,d);});
+  try{var mo=new MutationObserver(function(){run();});mo.observe(document.querySelector(".content")||document.body,{childList:true});}catch(e){}
+}());
+</script>
 </body></html>
