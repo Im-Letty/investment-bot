@@ -2658,7 +2658,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     var teach=document.getElementById("teachCard");
     
     var myp=document.getElementById("myPageCard");
-    var talk=document.getElementById("talkCard");
+    var talk=document.getElementById("talkCard");if(window.knLineLogin){window.knLineLogin();}return false;
     var grid=null;
     for(i=0;i<ch.length;i++){if(ch[i].className&&(""+ch[i].className).indexOf("mgrid")>=0){grid=ch[i];break;}}
     var anchor=kak;
