@@ -120,7 +120,7 @@ def get_message(lang, key):
         },
         "register_form": {
             "ja": "📝 資産情報を登録します！\n\n以下の形式で送ってください：\n\n名前：〇〇\n年収：〇〇万円\n総資産：〇〇万円\n毎月投資額：〇〇万円\n目標資産：〇〇万円\n保有株：銘柄名 株数 取得価格円\nトレード銘柄：銘柄名",
-            "en": "📝 Register your asset info!\n\nPlease send in this format:\n\n__name__: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock __name__ Shares Price\nTrading stocks: Stock __name__",
+            "en": "📝 Register your asset info!\n\nPlease send in this format:\n\nname: XX\nAnnual income: XX\nTotal assets: XX\nMonthly investment: XX\nTarget assets: XX\nStocks owned: Stock name Shares Price\nTrading stocks: Stock name",
             "ko": "📝 자산 정보를 등록합니다！\n\n다음 형식으로 보내주세요：\n\n이름：〇〇\n연수입：〇〇\n총자산：〇〇\n월 투자액：〇〇\n목표자산：〇〇\n보유주식：종목명 주수 가격\n트레이드 종목：종목명",
             "zh": "📝 注册资产信息！\n\n请按以下格式发送：\n\n姓名：〇〇\n年收入：〇〇\n总资产：〇〇\n每月投资额：〇〇\n目标资产：〇〇\n持有股票：股票名称 股数 价格\n交易股票：股票名称",
         },
@@ -281,7 +281,7 @@ def get_market_summary(lang="ja"):
             ("^VIX",    {"ja": "VIX",    "en": "VIX",        "ko": "VIX",        "zh": "VIX"}),
         ]
         lines_out = [get_message(lang, "market_header"), ""]
-        for sym, __name__s in symbols:
+        for sym, names in symbols:
             try:
                 tk = yf.Ticker(sym)
                 hist = tk.history(period="2d")
@@ -293,9 +293,9 @@ def get_market_summary(lang="ja"):
                     diff = price - prev
                     pct = (diff / prev * 100.0) if prev else 0.0
                     arrow = "▲" if diff >= 0 else "▼"
-                    lines_out.append(f"{__name__s.get(lang, __name__s['ja'])}  {price:,.2f}  {arrow}{abs(pct):.2f}%")
+                    lines_out.append(f"{names.get(lang, names['ja'])}  {price:,.2f}  {arrow}{abs(pct):.2f}%")
                 else:
-                    lines_out.append(f"{__name__s.get(lang, __name__s['ja'])}  {price:,.2f}")
+                    lines_out.append(f"{names.get(lang, names['ja'])}  {price:,.2f}")
             except Exception as e:
                 print(f"[market] {sym} error: {e}")
                 continue
@@ -426,7 +426,7 @@ def get_fx_summary(lang="ja"):
             ("GBPUSD=X", {"ja": "ポンドドル (GBP/USD)", "en": "GBP/USD", "ko": "파운드/달러 (GBP/USD)", "zh": "英镑/美元 (GBP/USD)"}),
         ]
         lines_out = [get_message(lang, "fx_header"), ""]
-        for sym, __name__s in pairs:
+        for sym, names in pairs:
             try:
                 tk = yf.Ticker(sym)
                 hist = tk.history(period="2d")
@@ -438,9 +438,9 @@ def get_fx_summary(lang="ja"):
                     diff = price - prev
                     pct = (diff / prev * 100.0) if prev else 0.0
                     arrow = "▲" if diff >= 0 else "▼"
-                    lines_out.append(f"{__name__s.get(lang, __name__s['ja'])} {price:,.4f} {arrow}{abs(pct):.2f}%")
+                    lines_out.append(f"{names.get(lang, names['ja'])} {price:,.4f} {arrow}{abs(pct):.2f}%")
                 else:
-                    lines_out.append(f"{__name__s.get(lang, __name__s['ja'])} {price:,.4f}")
+                    lines_out.append(f"{names.get(lang, names['ja'])} {price:,.4f}")
             except Exception as e:
                 print(f"[fx] {sym} error: {e}")
                 continue
@@ -465,10 +465,10 @@ def get_stock_price(symbol, lang="ja"):
             return get_message(lang, "price_error")
         try:
             info = tk.info
-            __name__ = info.get("short__name__") or info.get("long__name__") or symbol
+            name = info.get("shortName") or info.get("longName") or symbol
             currency = info.get("currency") or ""
         except Exception:
-            __name__ = symbol
+            name = symbol
             currency = ""
         price = float(hist["Close"].iloc[-1])
         if len(hist) >= 2:
@@ -476,9 +476,9 @@ def get_stock_price(symbol, lang="ja"):
             diff = price - prev
             pct = (diff / prev * 100.0) if prev else 0.0
             arrow = "▲" if diff >= 0 else "▼"
-            return f"💹 {__name__} ({symbol})\n{price:,.2f} {currency}  {arrow}{abs(pct):.2f}%"
+            return f"💹 {name} ({symbol})\n{price:,.2f} {currency}  {arrow}{abs(pct):.2f}%"
         else:
-            return f"💹 {__name__} ({symbol})\n{price:,.2f} {currency}"
+            return f"💹 {name} ({symbol})\n{price:,.2f} {currency}"
     except Exception as e:
         print(f"[get_stock_price] error: {e}")
         return get_message(lang, "price_error")
@@ -516,8 +516,8 @@ def parse_and_save_user_info(line_user_id, text):
     data = {}
     lines = text.strip().split("\n")
     for line in lines:
-        if "名前：" in line or "名前:" in line or "__name__:" in line or "__name__:" in line:
-            data["__name__"] = line.split("：")[-1].split(":")[-1].strip()
+        if "名前：" in line or "名前:" in line or "name:" in line or "name:" in line:
+            data["name"] = line.split("：")[-1].split(":")[-1].strip()
         elif "年収：" in line or "年収:" in line or "income:" in line.lower():
             data["financial_info"] = line.strip()
         elif "総資産：" in line or "総資産:" in line or "total assets:" in line.lower():
@@ -541,14 +541,14 @@ def analyze_portfolio(user_info, lang="ja"):
     market = fetch_market_data()
     market_text = "\n".join([f"- {k}: {v['display']}" for k, v in market.items()])
     stocks_owned = user_info.get("stocks_owned", "not registered")
-    lang___name__s = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
-    lang___name__ = lang___name__s.get(lang, "English")
+    lang_names = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
+    lang_name = lang_names.get(lang, "English")
     prompt = f"""
 You are a personal asset advisor. Today is {today}.
-You MUST respond in {lang___name__} only.
+You MUST respond in {lang_name} only.
 
 User asset information:
-- __name__: {user_info.get('__name__', 'not registered')}
+- name: {user_info.get('name', 'not registered')}
 - Stocks owned: {stocks_owned}
 - Trading stocks: {user_info.get('stocks_traded', 'not registered')}
 - Savings/Investment: {user_info.get('savings', 'not registered')}
@@ -713,7 +713,7 @@ def fetch_watchlist():
         try:
             t    = yf.Ticker(symbol)
             hist = t.history(period="5d")
-            __name__ = t.info.get("short__name__") or symbol
+            name = t.info.get("shortName") or symbol
             if len(hist) >= 2:
                 val   = _rtp(symbol, hist["Close"].iloc[-1])
                 prev  = hist["Close"].iloc[-2]
@@ -721,8 +721,8 @@ def fetch_watchlist():
                 arrow = "▲" if pct >= 0 else "▼"
                 results.append({
                     "symbol": symbol,
-                    "__name__": __name__,
-                    "display": f"{__name__}（{symbol}）　{val:,.0f}円　{arrow}{abs(pct):.2f}%"
+                    "name": name,
+                    "display": f"{name}（{symbol}）　{val:,.0f}円　{arrow}{abs(pct):.2f}%"
                 })
         except Exception:
             pass
@@ -1041,7 +1041,7 @@ def answer_question(user_question, user_info=None, lang="ja"):
     if user_info:
         user_context = f"""
 User profile:
-- __name__: {user_info.get('__name__', 'not registered')}
+- name: {user_info.get('name', 'not registered')}
 - Stocks owned: {user_info.get('stocks_owned', 'not registered')}
 - Savings: {user_info.get('savings', 'not registered')}
 - Target assets: {user_info.get('target_asset', 'not registered')}
@@ -1049,13 +1049,13 @@ User profile:
 Respond based on this user's profile. Keep personal info confidential.
 """
 
-    lang___name__s = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
-    lang___name__ = lang___name__s.get(lang, "English")
+    lang_names = {"ja": "Japanese", "en": "English", "ko": "Korean", "zh": "Chinese"}
+    lang_name = lang_names.get(lang, "English")
 
     client = get_anthropic_client()
     prompt = f"""
 You are an investment analyst for beginners. Today is {today}.
-You MUST respond in {lang___name__} only. Do not use any other language.
+You MUST respond in {lang_name} only. Do not use any other language.
 {user_context}
 Current market data:
 {market_text}
@@ -1092,15 +1092,15 @@ def check_alerts():
 
     client = get_anthropic_client()
 
-    def make_alert(__name__, symbol, price, pct, market_ctx, lang="ja"):
+    def make_alert(name, symbol, price, pct, market_ctx, lang="ja"):
         if lang == "en":
             direction = "Surging📈" if pct > 0 else "Plunging📉"
             prompt = f"""Write an emergency alert for beginner investors in ENGLISH.
-- {__name__} ({symbol}) is {direction} {abs(pct):.1f}% today
+- {name} ({symbol}) is {direction} {abs(pct):.1f}% today
 - Current price: {price:,.0f}
 - Market context: {market_ctx}
 
-⚡[URGENT] {__name__} is {direction}
+⚡[URGENT] {name} is {direction}
 📍 What is happening now
 📍 Why it is moving
 📍 Impact on day trading
@@ -1112,11 +1112,11 @@ Final decision is yours.
         elif lang == "ko":
             direction = "급등📈" if pct > 0 else "급락📉"
             prompt = f"""투자 초보자를 위한 긴급 알림을 한국어로 작성해 주세요.
-・{__name__} ({symbol})이(가) 오늘 {abs(pct):.1f}% {direction}
+・{name} ({symbol})이(가) 오늘 {abs(pct):.1f}% {direction}
 ・현재가: {price:,.0f}
 ・시장 상황: {market_ctx}
 
-⚡【긴급】{__name__}이(가) {direction}
+⚡【긴급】{name}이(가) {direction}
 📍 지금 무슨 일이 일어나고 있는가
 📍 왜 움직이고 있는가
 📍 데이트레이드에의 영향
@@ -1128,11 +1128,11 @@ Final decision is yours.
         elif lang == "zh":
             direction = "急涨📈" if pct > 0 else "急跌📉"
             prompt = f"""请用中文为投资初学者撰写紧急提醒。
-・{__name__}（{symbol}）今日{abs(pct):.1f}%{direction}
+・{name}（{symbol}）今日{abs(pct):.1f}%{direction}
 ・当前价：{price:,.0f}
 ・市场情况：{market_ctx}
 
-⚡【紧急】{__name__}{direction}
+⚡【紧急】{name}{direction}
 📍 现在发生了什么
 📍 为什么在波动
 📍 对日内交易的影响
@@ -1145,11 +1145,11 @@ Final decision is yours.
             direction = "急上昇📈" if pct > 0 else "急落📉"
             prompt = f"""
 投資初心者向けの緊急アラートを書いてください。
-・{__name__}（{symbol}）が本日{abs(pct):.1f}%{direction}
+・{name}（{symbol}）が本日{abs(pct):.1f}%{direction}
 ・現在値：{price:,.0f}円
 ・市場状況：{market_ctx}
 
-⚡【緊急】{__name__}が{direction}
+⚡【緊急】{name}が{direction}
 📍 今何が起きているか
 📍 なぜ動いているか
 📍 デイトレードへの影響
@@ -1194,7 +1194,7 @@ Final decision is yours.
         try:
             t    = yf.Ticker(symbol)
             hist = t.history(period="2d")
-            __name__ = t.info.get("short__name__") or symbol
+            name = t.info.get("shortName") or symbol
             if len(hist) >= 2:
                 val  = hist["Close"].iloc[-1]
                 opn  = hist["Open"].iloc[0]
@@ -1202,7 +1202,7 @@ Final decision is yours.
                 if abs(pct) >= 3.0:
                     key = f"{symbol}_{today_str}_{int(pct)}"
                     if key not in state:
-                        alert = make_alert(__name__, symbol, val, pct, market_ctx)
+                        alert = make_alert(name, symbol, val, pct, market_ctx)
                         send_line_message(alert)
                         state[key] = now.isoformat()
         except Exception:
@@ -1659,7 +1659,7 @@ def api_save_user_data():
         if not uid:
             return jsonify({"error": "no uid"}), 400
         data = {}
-        if body.get("__name__"): data["__name__"] = body["__name__"]
+        if body.get("name"): data["name"] = body["name"]
         if body.get("savings"): data["savings"] = body["savings"]
         if body.get("target_asset"): data["target_asset"] = body["target_asset"]
         if body.get("financial_info"): data["financial_info"] = body["financial_info"]
@@ -1680,7 +1680,7 @@ def api_user_data():
     if not user:
         return jsonify({}), 404
     safe = {
-        "__name__": user.get("__name__"),
+        "name": user.get("name"),
         "savings": user.get("savings"),
         "target_asset": user.get("target_asset"),
         "financial_info": user.get("financial_info"),
@@ -1730,7 +1730,7 @@ def api_ocr_receipt():
         genai.configure(api_key=api_key)
         model = genai.GenerativeModel("gemini-2.5-flash")
         prompt = ("Extract receipt data as JSON only. No markdown, no commentary. "
-                  "Schema: {\"date\":\"YYYY-MM-DD\",\"store\":\"...\",\"items\":[{\"__name__\":\"...\",\"price\":123,\"category\":\"food|daily|hobby|transport|medical|other\"}],\"total\":1234}. "
+                  "Schema: {\"date\":\"YYYY-MM-DD\",\"store\":\"...\",\"items\":[{\"name\":\"...\",\"price\":123,\"category\":\"food|daily|hobby|transport|medical|other\"}],\"total\":1234}. "
                   "Prices are integers in yen. If unreadable, use null for that field.")
         resp = model.generate_content([prompt, img_for_api])
         raw_text = (getattr(resp, "text", "") or "").strip()
@@ -1775,8 +1775,8 @@ def api_ai_advice():
         if not api_key: return jsonify({"error": "GEMINI_API_KEY not set"}), 500
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        lang___name__s = {"ja":"Japanese","en":"English","ko":"Korean","zh":"Chinese"}
-        prompt = "Analyze the budget below. Respond ONLY in " + lang___name__s[lang] + ". Return strict JSON: {\"summary\":string,\"trend\":string,\"savings_tips\":[string,string,string],\"investment_advice\":string,\"score\":number}. score is 0-100. Each string max 120 chars. No markdown.\n\nData:\n" + json.dumps(summary, ensure_ascii=False)[:6000]
+        lang_names = {"ja":"Japanese","en":"English","ko":"Korean","zh":"Chinese"}
+        prompt = "Analyze the budget below. Respond ONLY in " + lang_names[lang] + ". Return strict JSON: {\"summary\":string,\"trend\":string,\"savings_tips\":[string,string,string],\"investment_advice\":string,\"score\":number}. score is 0-100. Each string max 120 chars. No markdown.\n\nData:\n" + json.dumps(summary, ensure_ascii=False)[:6000]
         model = genai.GenerativeModel("gemini-2.5-flash")
         resp = model.generate_content(prompt)
         raw = (getattr(resp, "text", "") or "").strip()
@@ -1832,7 +1832,7 @@ def api_quote():
         t = yf.Ticker(symbol)
         hist = t.history(period="5d")
         info = t.info
-        __name__ = info.get("short__name__") or info.get("long__name__") or symbol
+        name = info.get("shortName") or info.get("longName") or symbol
         currency = info.get("currency") or ""
         if len(hist) >= 2:
             val = _rtp(symbol, hist["Close"].iloc[-1])
@@ -1841,7 +1841,7 @@ def api_quote():
             arrow = "▲" if pct >= 0 else "▼"
             return jsonify({
                 "symbol": symbol,
-                "__name__": __name__,
+                "name": name,
                 "currency": currency,
                 "price": round(val, 4),
                 "pct": round(pct, 2),
@@ -1852,7 +1852,7 @@ def api_quote():
             val = _rtp(symbol, hist["Close"].iloc[-1])
             return jsonify({
                 "symbol": symbol,
-                "__name__": __name__,
+                "name": name,
                 "currency": currency,
                 "price": round(val, 4),
                 "pct": 0,
@@ -2320,12 +2320,12 @@ def _resolve_jp_ticker(q):
         return q, JP_STOCKS[q[:-2]]
     # 会社名部分一致
     ql = q.lower()
-    for code, __name__ in JP_STOCKS.items():
-        if ql in __name__.lower() or ql == code:
-            return f"{code}.T", __name__
+    for code, name in JP_STOCKS.items():
+        if ql in name.lower() or ql == code:
+            return f"{code}.T", name
     return None, None
 
-def _get_dividend_info(ticker, __name__):
+def _get_dividend_info(ticker, name):
     """yfinanceで配当情報を取得 (キャッシュ付き)"""
     cached = _div_cache_get(f"div_{ticker}")
     if cached is not None:
@@ -2372,7 +2372,7 @@ def _get_dividend_info(ticker, __name__):
         result = {
             "ticker": ticker,
             "code": ticker.replace(".T", ""),
-            "__name__": __name__,
+            "name": name,
             "price": round(float(price), 2) if price else None,
             "annual_dividend": round(float(annual), 2) if annual else 0,
             "yield_pct": round(float(yield_pct), 2) if yield_pct else 0,
@@ -2390,7 +2390,7 @@ def _get_dividend_info(ticker, __name__):
 @app.route("/api/dividend/list", methods=["GET"])
 def api_dividend_list():
     """軽量な銘柄リスト (yfinanceを呼ばず、JP_STOCKSのマッピングだけ返す)"""
-    items = [{"code": code, "__name__": __name__} for code, __name__ in JP_STOCKS.items()]
+    items = [{"code": code, "name": name} for code, name in JP_STOCKS.items()]
     return jsonify({"items": items, "count": len(items)})
 
 @app.route("/api/dividend/search", methods=["GET"])
@@ -2398,10 +2398,10 @@ def api_dividend_search():
     q = request.args.get("q", "").strip()
     if not q:
         return jsonify({"error": "q required"}), 400
-    ticker, __name__ = _resolve_jp_ticker(q)
+    ticker, name = _resolve_jp_ticker(q)
     if not ticker:
         return jsonify({"error": "not found", "query": q}), 404
-    info = _get_dividend_info(ticker, __name__)
+    info = _get_dividend_info(ticker, name)
     if not info:
         return jsonify({"error": "fetch failed", "ticker": ticker}), 500
     return jsonify(info)
@@ -2440,7 +2440,7 @@ def api_dividend_calendar():
             if month and not d.startswith(month):
                 continue
             by_day.setdefault(d, []).append({
-                "code": info.get("code"), "__name__": info.get("__name__"),
+                "code": info.get("code"), "name": info.get("name"),
                 "yield_pct": info.get("yield_pct", 0),
                 "annual_dividend": info.get("annual_dividend", 0),
             })
@@ -2485,9 +2485,9 @@ def _scan_dividends_partial(n, hard_timeout=15):
     if not items:
         return []
     def _one(item):
-        code, __name__ = item
+        code, name = item
         try:
-            return _get_dividend_info(f"{code}.T", __name__)
+            return _get_dividend_info(f"{code}.T", name)
         except Exception:
             return None
     ex = ThreadPoolExecutor(max_workers=12)
@@ -2549,9 +2549,9 @@ def _dividend_warmer_run():
             ex = ThreadPoolExecutor(max_workers=6)
             try:
                 def _one(item):
-                    code, __name__ = item
+                    code, name = item
                     try:
-                        return _get_dividend_info(f"{code}.T", __name__)
+                        return _get_dividend_info(f"{code}.T", name)
                     except Exception:
                         return None
                 for info in ex.map(_one, chunk, timeout=60):
@@ -2835,7 +2835,7 @@ def gmail_oauth_callback():
         print(f"[gmail] supabase save error: {e}")
         return "Failed to save credentials", 500
     return """<!doctype html><html><head><meta charset='utf-8'><title>Gmail連携完了</title>
-    <meta __name__='viewport' content='width=device-width,initial-scale=1'>
+    <meta name='viewport' content='width=device-width,initial-scale=1'>
     <style>body{font-family:sans-serif;text-align:center;padding:40px 20px;background:#f7f9fc}
     .card{background:#fff;border-radius:12px;padding:32px;max-width:420px;margin:0 auto;box-shadow:0 4px 16px rgba(0,0,0,.06)}
     h1{color:#1a8a3a}p{color:#555;line-height:1.6}</style></head>
@@ -2948,7 +2948,7 @@ def sync_gmail_for_user(line_user_id, max_messages=20):
                 print(f"[gmail] fetch msg error: {e}")
                 continue
             payload = full.get("payload", {})
-            headers = {h.get("__name__", "").lower(): h.get("value", "") for h in payload.get("headers", [])}
+            headers = {h.get("name", "").lower(): h.get("value", "") for h in payload.get("headers", [])}
             subject = headers.get("subject", "")
             email_from = headers.get("from", "")
             date_hdr = headers.get("date", "")
@@ -3172,7 +3172,7 @@ def api_messages():
         rows = list(reversed(res.data or []))
         return jsonify({"ok": True, "messages": rows})
     data = request.get_json(silent=True) or {}
-    __name__ = (data.get("__name__") or "").strip()[:20] or "名無しさん"
+    name = (data.get("name") or "").strip()[:20] or "名無しさん"
     body = (data.get("body") or "").strip()
     if not body:
         return jsonify({"ok": False, "reason": "empty"}), 400
@@ -3183,7 +3183,7 @@ def api_messages():
     if any(w.lower() in low for w in ng_words):
         return jsonify({"ok": False, "reason": "ng_word"}), 400
     try:
-        supabase.table("messages").insert({"__name__": __name__, "body": body}).execute()
+        supabase.table("messages").insert({"name": name, "body": body}).execute()
     except Exception as e:
         print(f"[messages] insert error: {e}")
         return jsonify({"ok": False, "reason": "db_error"}), 500
@@ -3218,7 +3218,7 @@ def api_stock_comments():
     symbol = (data.get("symbol") or "").strip()
     if symbol not in ALLOWED_SYMBOLS:
         return jsonify({"ok": False, "reason": "bad_symbol"}), 400
-    __name__ = (data.get("__name__") or "").strip()[:20] or "名無しさん"
+    name = (data.get("name") or "").strip()[:20] or "名無しさん"
     body = (data.get("body") or "").strip()
     if not body:
         return jsonify({"ok": False, "reason": "empty"}), 400
@@ -3229,7 +3229,7 @@ def api_stock_comments():
     if any(w.lower() in low for w in ng_words):
         return jsonify({"ok": False, "reason": "ng_word"}), 400
     try:
-        supabase.table("stock_comments").insert({"symbol": symbol, "__name__": __name__, "body": body}).execute()
+        supabase.table("stock_comments").insert({"symbol": symbol, "name": name, "body": body}).execute()
     except Exception as e:
         print(f"[stock_comments] insert error: {e}")
         return jsonify({"ok": False, "reason": "db_error"}), 500
@@ -3329,6 +3329,6 @@ TEACHER_PROMPT = (
 )
 
 
-if ____name____ == "__main__":
+if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
