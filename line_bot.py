@@ -36,7 +36,7 @@ except Exception as _e_google:
     Credentials = None
     build = None
 
-app = Flask(______name______)
+app = Flask(__name__)
 APP_START_TIME = datetime.now()
 APP_VERSION = "v41"
 
