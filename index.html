@@ -2764,12 +2764,41 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       .catch(function(){ window.__faRegOpts=null; })
       .finally(function(){ window.__faRegInflight=false; });
   };
-  function wire(){
-    var isLineInApp = /Line\//i.test(navigator.userAgent) || (typeof window.liff !== 'undefined' && !!window.liff);
+  async function faceIdUsable(){
+    if(typeof window.PublicKeyCredential === 'undefined') return false;
+    try{ return await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable(); }
+    catch(_){ return false; }
+  }
+  function showDiag(uvpaa){
+    try{
+      var qs = new URLSearchParams(location.search);
+      if(qs.get('diag') !== '1') return;
+      var box = document.getElementById('faDiagBox');
+      if(!box){
+        box = document.createElement('div');
+        box.id = 'faDiagBox';
+        box.style.cssText = 'position:fixed;left:8px;right:8px;bottom:8px;z-index:99999;background:#111;color:#0f0;font:12px/1.5 monospace;padding:10px 12px;border-radius:8px;white-space:pre-wrap;word-break:break-all;max-height:40vh;overflow:auto;';
+        document.body.appendChild(box);
+      }
+      box.textContent =
+        'navigator.userAgent:\n' + navigator.userAgent + '\n\n' +
+        "('PublicKeyCredential' in window): " + ('PublicKeyCredential' in window) + '\n' +
+        'isUVPAA: ' + uvpaa + '\n' +
+        'window.liff: ' + (typeof window.liff !== 'undefined' && !!window.liff);
+    }catch(e){}
+  }
+  async function wire(){
     var loginBtns = document.querySelectorAll('button[onclick*="knFaceLogin"], a[onclick*="knFaceLogin"]');
     var regBtns = document.querySelectorAll('button[onclick*="knFaceRegister"], a[onclick*="knFaceRegister"]');
     var fallback = document.getElementById('faLineFallback');
-    if(isLineInApp){
+
+    var isLineInApp = /Line\//i.test(navigator.userAgent) || !!window.liff;
+    var uvpaa = await faceIdUsable();
+    var usable = uvpaa && !isLineInApp;
+    showDiag(uvpaa);
+
+    if(!usable){
+      // LINE WebView やパスキー非対応環境：Face IDボタンを非表示にして誘導ブロックを表示
       loginBtns.forEach(function(b){ b.style.display='none'; b.disabled=true; });
       regBtns.forEach(function(b){ b.style.display='none'; b.disabled=true; });
       if(fallback){
@@ -2790,13 +2819,16 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       }
       return;
     }
+    // 通常（Safari等 / パスキー利用可）：Face IDボタンを表示し誘導ブロックは非表示
     if(fallback) fallback.style.display='none';
     loginBtns.forEach(function(b){
+      b.style.display=''; b.disabled=false;
       b.addEventListener('pointerdown', window.__faPrefetchLogin, {passive:true});
       b.addEventListener('focus', window.__faPrefetchLogin);
       b.addEventListener('mouseenter', window.__faPrefetchLogin, {passive:true});
     });
     regBtns.forEach(function(b){
+      b.style.display=''; b.disabled=false;
       b.addEventListener('pointerdown', window.__faPrefetchRegister, {passive:true});
       b.addEventListener('focus', window.__faPrefetchRegister);
       b.addEventListener('mouseenter', window.__faPrefetchRegister, {passive:true});
