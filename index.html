@@ -278,9 +278,9 @@
         <div class="hero-btns">
         <button class="btn-white" onclick="openSimulator()" data-i18n="hero_cta_sim">シミュレーターを試す →</button>
         <a href="#" class="btn-line-sm" data-i18n="hero_cta_line" onclick="knLineLogin(); return false;">LINEで始める</a><button class="btn-white" onclick="knFaceRegister(); return false;" data-i18n="hero_cta_face_reg">Face IDを登録</button><button class="btn-line-sm" onclick="knFaceLogin(); return false;" data-i18n="hero_cta_face_login">Face IDでログイン</button><div id="faLineFallback" style="display:none;margin:12px 0;padding:14px 16px;border:1px solid #e0c000;background:#fffbe6;border-radius:10px;font-size:14px;line-height:1.6;color:#5a4b00;text-align:left;">
-  <div style="font-weight:600;margin-bottom:8px;">⚠️ Face IDはこのアプリ内では使えません</div>
-  <div style="margin-bottom:10px;">下のボタンからSafariで開いてご利用ください。</div>
-  <a id="faOpenSafari" href="#" style="display:inline-block;padding:10px 18px;background:#06c755;color:#fff;font-weight:600;border-radius:8px;text-decoration:none;">Safariで開く</a>
+  <div style="font-weight:600;margin-bottom:10px;">このアプリ内ではFace IDが使えません</div>
+  <a href="#" onclick="knLineLogin(); return false;" style="display:block;text-align:center;padding:13px 18px;background:#06c755;color:#fff;font-weight:700;border-radius:10px;text-decoration:none;margin-bottom:10px;">LINEでログイン</a>
+  <div style="font-size:12px;color:#7a6a00;">Face IDを使う場合は <a id="faOpenSafari" href="#" style="color:#2d7a4f;font-weight:600;">Safariで開く</a></div>
 </div>
         </div>
         </div>
@@ -2714,7 +2714,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(/AbortError|abort signal|ceremony was sent an abort/i.test(_m)){
       console.warn("[FaceID] register ceremony aborted (ignored):", _m);
     } else {
-      alert("Face ID登録エラー: "+error); if(window.__faPrefetchRegister) window.__faPrefetchRegister();
+      if(/NotAllowedError|SecurityError/i.test(_m)){ console.warn("[FaceID] register not allowed/security -> Safari fallback:", _m); document.querySelectorAll('button[onclick*="knFaceLogin"],a[onclick*="knFaceLogin"],button[onclick*="knFaceRegister"],a[onclick*="knFaceRegister"]').forEach(function(b){ b.style.display='none'; b.disabled=true; }); if(window.__faShowLineFallback) window.__faShowLineFallback(); } else { alert("Face ID登録エラー: "+error); if(window.__faPrefetchRegister) window.__faPrefetchRegister(); }
     }
   }finally{ window.__faInProgress = false; }
 }; window.knFaceLogin = async function(){
@@ -2741,7 +2741,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(/AbortError|abort signal|ceremony was sent an abort/i.test(_m)){
       console.warn("[FaceID] login ceremony aborted (ignored):", _m);   // 先行セレモニーが成功している可能性があるためアラートしない
     } else {
-      alert("Face IDログインエラー: "+error); if(window.__faPrefetchLogin) window.__faPrefetchLogin();
+      if(/NotAllowedError|SecurityError/i.test(_m)){ console.warn("[FaceID] login not allowed/security -> Safari fallback:", _m); document.querySelectorAll('button[onclick*="knFaceLogin"],a[onclick*="knFaceLogin"],button[onclick*="knFaceRegister"],a[onclick*="knFaceRegister"]').forEach(function(b){ b.style.display='none'; b.disabled=true; }); if(window.__faShowLineFallback) window.__faShowLineFallback(); } else { alert("Face IDログインエラー: "+error); if(window.__faPrefetchLogin) window.__faPrefetchLogin(); }
     }
   }finally{ window.__faInProgress = false; }
 };</script><script>(function(){function showLockScreen(){if(document.getElementById('appLockScreen'))return;var ov=document.createElement('div');ov.id='appLockScreen';ov.style.cssText='position:fixed;inset:0;z-index:99999;background:#0d1f17;color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;font-family:sans-serif;';ov.innerHTML='<div style="font-size:46px">\u{1F512}</div><div style="font-size:18px;font-weight:700">\u30ed\u30c3\u30af\u3055\u308c\u3066\u3044\u307e\u3059</div><div style="font-size:13px;opacity:.8">\u7d9a\u3051\u308b\u306b\u306f\u8a8d\u8a3c\u3057\u3066\u304f\u3060\u3055\u3044</div><button id="alFace" style="background:#3da060;color:#fff;border:0;border-radius:24px;padding:14px 28px;font-size:15px;font-weight:700">Face ID\u3067\u89e3\u9664</button><button id="alLine" style="background:#06c755;color:#fff;border:0;border-radius:24px;padding:14px 28px;font-size:15px;font-weight:700">LINE\u3067\u89e3\u9664</button>';document.body.appendChild(ov);document.getElementById('alFace').onclick=async function(){try{if(typeof window.knFaceLogin==='function'){await window.knFaceLogin();}if(localStorage.getItem('faceIdVerifiedAt'))unlock();}catch(e){alert('Face ID\u89e3\u9664\u30a8\u30e9\u30fc: '+(e&&e.message||e));}};document.getElementById('alLine').onclick=function(){if(typeof window.knLineLogin==='function'){window.knLineLogin();}};}function unlock(){var s=document.getElementById('appLockScreen');if(s)s.remove();}window.__appUnlock=unlock;function maybeLock(){if(localStorage.getItem('appLockEnabled')==='1'){var v=parseInt(localStorage.getItem('faceIdVerifiedAt')||'0',10);var fresh=v&&(Date.now()-v<5*60*1000);if(sessionStorage.getItem('appUnlocked')==='1')return;if(fresh){sessionStorage.setItem('appUnlocked','1');return;}showLockScreen();}}if(localStorage.getItem('appLockEnabled')==='1'){document.addEventListener('DOMContentLoaded',maybeLock);if(document.readyState!=='loading')maybeLock();}function injectLockSetting(){var sheet=document.querySelector('.ds-sheet');if(!sheet||document.getElementById('alSettingRow'))return;var reset=sheet.querySelector('.ds-reset');var label=document.createElement('div');label.className='ds-label';label.textContent='\u{1F512} \u30a2\u30d7\u30ea\u30ed\u30c3\u30af';var row=document.createElement('div');row.className='ds-row';row.id='alSettingRow';function mkBtn(txt,on){var b=document.createElement('button');b.className='ds-opt';b.textContent=txt;b.onclick=async function(){if(on){var uid=localStorage.getItem('lineUserId');if(!uid){alert('\u5148\u306bLINE\u3067\u30ed\u30b0\u30a4\u30f3\u3057\u3066\u304f\u3060\u3055\u3044');return;}try{if(typeof window.knFaceRegister==='function'){await window.knFaceRegister();}if(localStorage.getItem('faceIdEnabled')==='1'){localStorage.setItem('appLockEnabled','1');sessionStorage.setItem('appUnlocked','1');alert('\u30a2\u30d7\u30ea\u30ed\u30c3\u30af\u3092\u30aa\u30f3\u306b\u3057\u307e\u3057\u305f\u3002\u6b21\u56de\u304b\u3089Face ID\u304c\u5fc5\u8981\u3067\u3059');mark();}else{alert('Face ID\u306e\u767b\u9332\u304c\u5b8c\u4e86\u3057\u306a\u304b\u3063\u305f\u305f\u3081\u3001\u30aa\u30f3\u306b\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f');}}catch(e){alert('\u8a2d\u5b9a\u30a8\u30e9\u30fc: '+(e&&e.message||e));}}else{localStorage.removeItem('appLockEnabled');alert('\u30a2\u30d7\u30ea\u30ed\u30c3\u30af\u3092\u30aa\u30d5\u306b\u3057\u307e\u3057\u305f');mark();}};return b;}var onB=mkBtn('\u30aa\u30f3',true),offB=mkBtn('\u30aa\u30d5',false);function mark(){var en=localStorage.getItem('appLockEnabled')==='1';onB.style.fontWeight=en?'700':'';onB.style.opacity=en?'1':'.6';offB.style.fontWeight=en?'':'700';offB.style.opacity=en?'.6':'1';}row.appendChild(onB);row.appendChild(offB);mark();if(reset){sheet.insertBefore(label,reset);sheet.insertBefore(row,reset);}else{sheet.appendChild(label);sheet.appendChild(row);}}document.addEventListener('click',function(){setTimeout(injectLockSetting,60);},true);document.addEventListener('DOMContentLoaded',injectLockSetting);if(document.readyState!=='loading')setTimeout(injectLockSetting,500);})();</script><script>/* knFaceUXEnhance: Face ID(WebAuthn) registration UX */ (function(){ var HELPER_TXT="※ボタンを押したら、画面に出るFace IDの案内にそのまま顔を向けて完了してください"; var JP_CANCEL="Face IDの確認がキャンセルされました。もう一度ボタンを押して、表示されるFace IDの案内にそのまま顔を向けて完了してください。"; function isNotAllowedMsg(m){ if(!m) return false; m=(''+m).toLowerCase(); return m.indexOf('not allowed')!==-1||m.indexOf('notallowederror')!==-1||m.indexOf('the operation either timed out or was not allowed')!==-1; } function findRegBtn(){ var bs=document.querySelectorAll('button'); for(var i=0;i<bs.length;i++){ var oc=bs[i].getAttribute('onclick')||''; if(oc.indexOf('knFaceRegister')!==-1) return bs[i]; } return null; } function addHelperNote(){ var b=findRegBtn(); if(!b) return false; if(document.getElementById('knFaceRegHint')) return true; var note=document.createElement('div'); note.id='knFaceRegHint'; note.textContent=HELPER_TXT; note.style.cssText='font-size:11px;line-height:1.5;color:#666;margin:6px 0 2px;max-width:320px;'; if(b.parentNode) b.parentNode.insertBefore(note,b.nextSibling); return true; } function showCancelUI(){ var b=findRegBtn(); var old=document.getElementById('knFaceRegErr'); if(old&&old.parentNode) old.parentNode.removeChild(old); var box=document.createElement('div'); box.id='knFaceRegErr'; box.setAttribute('role','alert'); box.style.cssText='margin:8px 0;padding:10px 12px;border:1px solid #f0c36d;background:#fff8e6;border-radius:8px;font-size:13px;line-height:1.6;color:#7a5b00;max-width:340px;'; var msg=document.createElement('div'); msg.textContent=JP_CANCEL; box.appendChild(msg); var retry=document.createElement('button'); retry.type='button'; retry.textContent='もう一度試す'; retry.style.cssText='margin-top:8px;padding:7px 14px;border:none;border-radius:6px;background:#3da060;color:#fff;font-size:13px;font-weight:700;cursor:pointer;'; retry.onclick=function(){ if(box.parentNode) box.parentNode.removeChild(box); if(typeof window.knFaceRegister==='function') window.knFaceRegister(); }; box.appendChild(retry); if(b&&b.parentNode) b.parentNode.insertBefore(box,b.nextSibling); else document.body.appendChild(box); } function wrapReg(){ var orig=window.knFaceRegister; if(typeof orig!=='function'||orig.__knWrapped) return false; var wrapped=function(){ var self=this,args=arguments; var realAlert=window.alert; window.alert=function(m){ if(isNotAllowedMsg(m)){ try{ showCancelUI(); }catch(_){} return; } return realAlert.apply(window,arguments); }; var restore=function(){ window.alert=realAlert; }; var ret; try{ ret=orig.apply(self,args); }catch(e){ restore(); if(e&&(e.name==='NotAllowedError'||isNotAllowedMsg(e&&e.message))){ showCancelUI(); return; } throw e; } if(ret&&typeof ret.then==='function'){ return ret.then(function(v){ restore(); return v; },function(e){ restore(); if(e&&(e.name==='NotAllowedError'||isNotAllowedMsg(e&&e.message))){ showCancelUI(); return; } throw e; }); } restore(); return ret; }; wrapped.__knWrapped=true; window.knFaceRegister=wrapped; return true; } function boot(){ try{ addHelperNote(); }catch(_){} try{ wrapReg(); }catch(_){} } if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',boot); else boot(); var tries=0; var iv=setInterval(function(){ tries++; if(!document.getElementById('knFaceRegHint')){ try{ addHelperNote(); }catch(_){} } if(!(window.knFaceRegister&&window.knFaceRegister.__knWrapped)){ try{ wrapReg(); }catch(_){} } if((document.getElementById('knFaceRegHint')&&window.knFaceRegister&&window.knFaceRegister.__knWrapped)||tries>40) clearInterval(iv); },300); })();</script>
@@ -2787,6 +2787,27 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
         'window.liff: ' + (typeof window.liff !== 'undefined' && !!window.liff);
     }catch(e){}
   }
+  window.__faShowLineFallback = function(){
+    var fallback = document.getElementById("faLineFallback");
+    if(!fallback) return;
+    fallback.style.display = "block";
+    var link = document.getElementById("faOpenSafari");
+    if(link){
+      var href = location.href.split("#")[0];
+      if(/[?&]openExternalBrowser=1\b/.test(href)){ link.href = href; }
+      else { link.href = href + (href.indexOf("?")>-1 ? "&" : "?") + "openExternalBrowser=1"; }
+      if(!link.__faBound){
+        link.__faBound = true;
+        link.addEventListener("click", function(ev){
+          if(typeof window.liff !== "undefined" && window.liff && typeof window.liff.openWindow === "function"){
+            ev.preventDefault();
+            try{ window.liff.openWindow({ url: location.href.split("?")[0].split("#")[0], external: true }); }
+            catch(e){ location.href = link.href; }
+          }
+        });
+      }
+    }
+  };
   async function wire(){
     var loginBtns = document.querySelectorAll('button[onclick*="knFaceLogin"], a[onclick*="knFaceLogin"]');
     var regBtns = document.querySelectorAll('button[onclick*="knFaceRegister"], a[onclick*="knFaceRegister"]');
@@ -2801,22 +2822,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       // LINE WebView やパスキー非対応環境：Face IDボタンを非表示にして誘導ブロックを表示
       loginBtns.forEach(function(b){ b.style.display='none'; b.disabled=true; });
       regBtns.forEach(function(b){ b.style.display='none'; b.disabled=true; });
-      if(fallback){
-        fallback.style.display='block';
-        var link=document.getElementById('faOpenSafari');
-        if(link){
-          var href=location.href.split('#')[0];
-          if(/[?&]openExternalBrowser=1\b/.test(href)){ link.href=href; }
-          else { link.href=href + (href.indexOf('?')>-1 ? '&' : '?') + 'openExternalBrowser=1'; }
-          link.addEventListener('click', function(ev){
-            if(typeof window.liff !== 'undefined' && window.liff && typeof window.liff.openWindow==='function'){
-              ev.preventDefault();
-              try{ window.liff.openWindow({ url: location.href.split('?')[0].split('#')[0], external: true }); }
-              catch(e){ location.href = link.href; }
-            }
-          });
-        }
-      }
+      window.__faShowLineFallback();
       return;
     }
     // 通常（Safari等 / パスキー利用可）：Face IDボタンを表示し誘導ブロックは非表示
