@@ -277,7 +277,11 @@
         <p data-i18n-html="hero_p">AIが毎朝、投資のベストタイミングをお届け。<br>シミュレーターで将来の資産を今すぐ確認。</p>
         <div class="hero-btns">
         <button class="btn-white" onclick="openSimulator()" data-i18n="hero_cta_sim">シミュレーターを試す →</button>
-        <a href="#" class="btn-line-sm" data-i18n="hero_cta_line" onclick="knLineLogin(); return false;">LINEで始める</a><button class="btn-white" onclick="knFaceRegister(); return false;" data-i18n="hero_cta_face_reg">Face IDを登録</button><button class="btn-line-sm" onclick="knFaceLogin(); return false;" data-i18n="hero_cta_face_login">Face IDでログイン</button>
+        <a href="#" class="btn-line-sm" data-i18n="hero_cta_line" onclick="knLineLogin(); return false;">LINEで始める</a><button class="btn-white" onclick="knFaceRegister(); return false;" data-i18n="hero_cta_face_reg">Face IDを登録</button><button class="btn-line-sm" onclick="knFaceLogin(); return false;" data-i18n="hero_cta_face_login">Face IDでログイン</button><div id="faLineFallback" style="display:none;margin:12px 0;padding:14px 16px;border:1px solid #e0c000;background:#fffbe6;border-radius:10px;font-size:14px;line-height:1.6;color:#5a4b00;text-align:left;">
+  <div style="font-weight:600;margin-bottom:8px;">⚠️ Face IDはこのアプリ内では使えません</div>
+  <div style="margin-bottom:10px;">下のボタンからSafariで開いてご利用ください。</div>
+  <a id="faOpenSafari" href="#" style="display:inline-block;padding:10px 18px;background:#06c755;color:#fff;font-weight:600;border-radius:8px;text-decoration:none;">Safariで開く</a>
+</div>
         </div>
         </div>
       <div class="ticker-wrap">
@@ -2761,12 +2765,38 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       .finally(function(){ window.__faRegInflight=false; });
   };
   function wire(){
-    document.querySelectorAll('button[onclick*="knFaceLogin"]').forEach(function(b){
+    var isLineInApp = /Line\//i.test(navigator.userAgent) || (typeof window.liff !== 'undefined' && !!window.liff);
+    var loginBtns = document.querySelectorAll('button[onclick*="knFaceLogin"], a[onclick*="knFaceLogin"]');
+    var regBtns = document.querySelectorAll('button[onclick*="knFaceRegister"], a[onclick*="knFaceRegister"]');
+    var fallback = document.getElementById('faLineFallback');
+    if(isLineInApp){
+      loginBtns.forEach(function(b){ b.style.display='none'; b.disabled=true; });
+      regBtns.forEach(function(b){ b.style.display='none'; b.disabled=true; });
+      if(fallback){
+        fallback.style.display='block';
+        var link=document.getElementById('faOpenSafari');
+        if(link){
+          var href=location.href.split('#')[0];
+          if(/[?&]openExternalBrowser=1\b/.test(href)){ link.href=href; }
+          else { link.href=href + (href.indexOf('?')>-1 ? '&' : '?') + 'openExternalBrowser=1'; }
+          link.addEventListener('click', function(ev){
+            if(typeof window.liff !== 'undefined' && window.liff && typeof window.liff.openWindow==='function'){
+              ev.preventDefault();
+              try{ window.liff.openWindow({ url: location.href.split('?')[0].split('#')[0], external: true }); }
+              catch(e){ location.href = link.href; }
+            }
+          });
+        }
+      }
+      return;
+    }
+    if(fallback) fallback.style.display='none';
+    loginBtns.forEach(function(b){
       b.addEventListener('pointerdown', window.__faPrefetchLogin, {passive:true});
       b.addEventListener('focus', window.__faPrefetchLogin);
       b.addEventListener('mouseenter', window.__faPrefetchLogin, {passive:true});
     });
-    document.querySelectorAll('button[onclick*="knFaceRegister"]').forEach(function(b){
+    regBtns.forEach(function(b){
       b.addEventListener('pointerdown', window.__faPrefetchRegister, {passive:true});
       b.addEventListener('focus', window.__faPrefetchRegister);
       b.addEventListener('mouseenter', window.__faPrefetchRegister, {passive:true});
