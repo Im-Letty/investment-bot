@@ -1834,6 +1834,24 @@ def api_quote():
         info = t.info
         name = info.get("shortName") or info.get("longName") or symbol
         currency = info.get("currency") or ""
+        _sym_u = symbol.upper()
+        _is_index = _sym_u.startswith("^")
+        _is_fx = _sym_u.endswith("=X")
+        _is_stock = (not _is_index) and (not _is_fx)
+        details = None
+        if _is_stock:
+            try:
+                details = {
+                    "marketCap": info.get("marketCap"),
+                    "per": info.get("trailingPE"),
+                    "volume": info.get("volume") or info.get("regularMarketVolume"),
+                    "high52": info.get("fiftyTwoWeekHigh"),
+                    "low52": info.get("fiftyTwoWeekLow"),
+                    "sector": info.get("sector"),
+                    "dividendYield": info.get("dividendYield"),
+                }
+            except Exception:
+                details = None
         if len(hist) >= 2:
             val = _rtp(symbol, hist["Close"].iloc[-1])
             prev = hist["Close"].iloc[-2]
@@ -1843,6 +1861,7 @@ def api_quote():
             arrow = "▲" if pct >= 0 else "▼"
             return jsonify({
                 "symbol": symbol,
+                "details": details,
                 "name": name,
                 "currency": currency,
                 "price": round(val, 4),
@@ -1854,6 +1873,7 @@ def api_quote():
             val = _rtp(symbol, hist["Close"].iloc[-1])
             return jsonify({
                 "symbol": symbol,
+                "details": details,
                 "name": name,
                 "currency": currency,
                 "price": round(val, 4),
