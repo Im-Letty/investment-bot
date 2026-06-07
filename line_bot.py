@@ -2587,7 +2587,7 @@ def _dividend_warmer_run():
 
 
 _SCANNER_CACHE = {"ts": 0, "data": None}
-_SCANNER_TTL = 600
+_SCANNER_TTL = 1800
 
 _SCANNER_TICKERS_JP = [
     "7203.T","6758.T","9984.T","6861.T","8035.T","6098.T","8306.T","9433.T",
