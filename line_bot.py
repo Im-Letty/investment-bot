@@ -2694,8 +2694,13 @@ def api_scanner():
             _SCANNER_CACHE["data"] = cached
         except Exception as e:
             return jsonify({"error": str(e), "surges": [], "drops": []}), 200
-    surges = [r for r in cached if r["pct"] >= threshold][:limit]
-    drops_all = sorted([r for r in cached if r["pct"] <= -threshold], key=lambda r: r["pct"])
+    pro = request.args.get("pro") == "1"
+    if pro:
+        pool = cached
+    else:
+        pool = [r for r in cached if str(r.get("symbol", "")).endswith(".T")]
+    surges = [r for r in pool if r["pct"] >= threshold][:limit]
+    drops_all = sorted([r for r in pool if r["pct"] <= -threshold], key=lambda r: r["pct"])
     drops = drops_all[:limit]
     return jsonify({
         "threshold": threshold,
