@@ -1886,6 +1886,43 @@ def api_quote():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
+_LOOKUP_CACHE = {}
+_LOOKUP_TTL = 300
+
+@app.route("/api/lookup", methods=["GET"])
+def api_lookup():
+    q = (request.args.get("q") or "").strip()
+    if not q:
+        return jsonify({"results": []})
+    key = q.lower()
+    now = time.time()
+    cached = _LOOKUP_CACHE.get(key)
+    if cached and (now - cached["ts"]) < _LOOKUP_TTL:
+        return jsonify({"results": cached["data"]})
+    try:
+        resp = requests.get(
+            "https://query1.finance.yahoo.com/v1/finance/search",
+            params={"q": q, "quotesCount": 8, "newsCount": 0},
+            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
+            timeout=8,
+        )
+        j = resp.json()
+        quotes = j.get("quotes") or []
+        results = []
+        for it in quotes:
+            sym = (it.get("symbol") or "")
+            if not sym:
+                continue
+            name = (it.get("shortname") or it.get("longname") or sym)
+            exch = (it.get("exchDisp") or it.get("exchange") or "")
+            qtype = (it.get("quoteType") or "")
+            results.append({"symbol": sym, "name": name, "exchange": exch, "type": qtype})
+        _LOOKUP_CACHE[key] = {"ts": now, "data": results}
+        return jsonify({"results": results})
+    except Exception as e:
+        return jsonify({"results": [], "error": str(e)}), 200
+
 @app.route("/api/morning-news", methods=["GET"])
 def api_morning_news():
     try:
