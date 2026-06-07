@@ -1903,7 +1903,7 @@ def api_lookup():
     try:
         resp = requests.get(
             "https://query1.finance.yahoo.com/v1/finance/search",
-            params={"q": q, "quotesCount": 8, "newsCount": 0},
+            params={"q": q, "quotesCount": 8, "newsCount": 0, "lang": "ja-JP", "region": "JP"},
             headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
             timeout=8,
         )
