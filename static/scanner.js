@@ -148,6 +148,7 @@
     if(!force && !isVisible()) return;
     var th = getThreshold();
     var url = '/api/scanner?threshold=' + encodeURIComponent(th) + '&limit=' + LIMIT;
+    if (localStorage.getItem('ui_style') === 'pro') url += '&pro=1';
     var meta = document.getElementById('alertScannerMeta');
     if(meta) meta.textContent = t('alert_scanner_loading','読み込み中...');
     fetch(url, {credentials:'same-origin'})
