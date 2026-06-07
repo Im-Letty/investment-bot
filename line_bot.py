@@ -1890,12 +1890,83 @@ def api_quote():
 _LOOKUP_CACHE = {}
 _LOOKUP_TTL = 300
 
+
+# === JPX 上場銘柄辞書（日本語名→コード） ===
+_JPX_DICT = {}
+_JPX_DICT_TS = 0
+_JPX_BASE = "https://www.jpx.co.jp"
+_JPX_PAGE = "/markets/statistics-equities/misc/01.html"
+
+def _load_jpx_dict():
+    """JPXの上場銘柄一覧(Excel)を取得して {コード: 社名} を返す。取得失敗時は空の辞書。"""
+    try:
+        import re as _re
+        import pandas as _pd
+        _ua = {"User-Agent": "Mozilla/5.0"}
+        _page = requests.get(_JPX_BASE + _JPX_PAGE, headers=_ua, timeout=20)
+        _m = _re.search(r"href=\"([^\"]*data_j\.xls)", _page.text)
+        if not _m:
+            return {}
+        _href = _m.group(1)
+        if _href.startswith("http"):
+            _xls_url = _href
+        else:
+            _xls_url = _JPX_BASE + _href
+        _resp = requests.get(_xls_url, headers=_ua, timeout=30)
+        import io as _io
+        _df = _pd.read_excel(_io.BytesIO(_resp.content), dtype=str)
+        _out = {}
+        for _, _row in _df.iterrows():
+            _code = str(_row.get("コード", "")).strip()
+            _name = str(_row.get("銘柄名", "")).strip()
+            _mkt = str(_row.get("市場・商品区分", ""))
+            if not _code or not _name:
+                continue
+            if "内国株式" not in _mkt:
+                continue
+            if len(_code) != 4:
+                continue
+            _out[_code] = _name
+        return _out
+    except Exception as _e:
+        print("[jpx] load error: " + str(_e))
+        return {}
+
+def _jpx_refresh():
+    global _JPX_DICT, _JPX_DICT_TS
+    _d = _load_jpx_dict()
+    if _d:
+        _JPX_DICT = _d
+        _JPX_DICT_TS = time.time()
+        print("[jpx] loaded " + str(len(_d)) + " stocks")
+
+def _jpx_loop():
+    time.sleep(20)
+    _jpx_refresh()
+    while True:
+        time.sleep(86400)
+        _jpx_refresh()
+
+try:
+    threading.Thread(target=_jpx_loop, daemon=True).start()
+except Exception as _e:
+    print("[jpx] thread start error: " + str(_e))
+
 @app.route("/api/lookup", methods=["GET"])
 def api_lookup():
     q = (request.args.get("q") or "").strip()
     if not q:
         return jsonify({"results": []})
     key = q.lower()
+    # 日本語（かな/漢字）を含む場合は JPX 辞書を部分一致検索
+    if _JPX_DICT and any(("ぁ" <= _c <= "ん") or ("ァ" <= _c <= "ヶ") or ("一" <= _c <= "鿿") for _c in q):
+        _jres = []
+        for _code, _nm in _JPX_DICT.items():
+            if q in _nm:
+                _jres.append({"symbol": _code + ".T", "name": _nm, "exchange": "Tokyo", "type": "EQUITY"})
+        if _jres:
+            _LOOKUP_CACHE[key] = {"ts": time.time(), "data": _jres}
+            return jsonify({"results": _jres})
     now = time.time()
     cached = _LOOKUP_CACHE.get(key)
     if cached and (now - cached["ts"]) < _LOOKUP_TTL:
