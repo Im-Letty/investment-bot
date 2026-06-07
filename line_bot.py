@@ -1838,6 +1838,8 @@ def api_quote():
             val = _rtp(symbol, hist["Close"].iloc[-1])
             prev = hist["Close"].iloc[-2]
             pct = (val - prev) / prev * 100
+            if (val is None) or (val != val) or (val in (float("inf"), float("-inf"))) or (val <= 0) or (abs(pct) > 50):
+                return jsonify({"error": "invalid data", "symbol": symbol}), 422
             arrow = "▲" if pct >= 0 else "▼"
             return jsonify({
                 "symbol": symbol,
