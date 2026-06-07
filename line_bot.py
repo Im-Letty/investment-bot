@@ -1986,6 +1986,12 @@ def api_lookup():
     if not q:
         return jsonify({"results": []})
     key = q.lower()
+    # 日本語クエリで辞書が未ロードなら遅延ロード
+    if (not _JPX_DICT) and any(("ぁ" <= _c <= "ん") or ("ァ" <= _c <= "ヶ") or ("一" <= _c <= "鿿") for _c in q):
+        try:
+            _jpx_refresh()
+        except Exception:
+            pass
     # 日本語（かな/漢字）を含む場合は JPX 辞書を部分一致検索
     if _JPX_DICT and any(("ぁ" <= _c <= "ん") or ("ァ" <= _c <= "ヶ") or ("一" <= _c <= "鿿") for _c in q):
         _jres = []
