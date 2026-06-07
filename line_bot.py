@@ -2000,6 +2000,18 @@ def api_lookup():
     except Exception as e:
         return jsonify({"results": [], "error": str(e)}), 200
 
+@app.route("/api/lookup_all", methods=["GET"])
+def api_lookup_all():
+    if (not _JPX_DICT):
+        try:
+            _jpx_refresh()
+        except Exception:
+            pass
+    items = []
+    for _code, _nm in _JPX_DICT.items():
+        items.append({"code": _code, "name": _nm})
+    return jsonify({"count": len(items), "items": items})
+
 @app.route("/api/morning-news", methods=["GET"])
 def api_morning_news():
     try:
