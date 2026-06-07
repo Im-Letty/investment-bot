@@ -1952,34 +1952,6 @@ try:
 except Exception as _e:
     print("[jpx] thread start error: " + str(_e))
 
-@app.route("/api/jpx_debug", methods=["GET"])
-def api_jpx_debug():
-    _info = {"dict_size": len(_JPX_DICT), "ts": _JPX_DICT_TS}
-    if request.args.get("reload") == "1":
-        try:
-            import re as _re
-            import pandas as _pd
-            import io as _io
-            _ua = {"User-Agent": "Mozilla/5.0"}
-            _page = requests.get(_JPX_BASE + _JPX_PAGE, headers=_ua, timeout=20)
-            _info["page_status"] = _page.status_code
-            _m = _re.search(r"href=\"([^\"]*data_j\.xls)", _page.text)
-            _info["href_found"] = bool(_m)
-            if _m:
-                _href = _m.group(1)
-                _xls_url = _href if _href.startswith("http") else (_JPX_BASE + _href)
-                _resp = requests.get(_xls_url, headers=_ua, timeout=30)
-                _info["xls_status"] = _resp.status_code
-                _info["xls_bytes"] = len(_resp.content)
-                _df = _pd.read_excel(_io.BytesIO(_resp.content), dtype=str)
-                _info["df_rows"] = int(len(_df))
-                _info["df_cols"] = list(_df.columns)
-                _d = _load_jpx_dict()
-                _info["loaded_size"] = len(_d)
-        except Exception as _e:
-            _info["error"] = str(_e)
-    return jsonify(_info)
-
 @app.route("/api/lookup", methods=["GET"])
 def api_lookup():
     q = (request.args.get("q") or "").strip()
