@@ -1894,6 +1894,7 @@ _LOOKUP_TTL = 300
 # === JPX 上場銘柄辞書（日本語名→コード） ===
 _JPX_DICT = {}
 _JPX_DICT_TS = 0
+_ALIAS = {"アストロステーション": "186A"}
 _JPX_BASE = "https://www.jpx.co.jp"
 _JPX_PAGE = "/markets/statistics-equities/misc/01.html"
 
@@ -1970,6 +1971,11 @@ def api_lookup():
         for _code, _nm in _JPX_DICT.items():
             if q in _nm:
                 _jres.append({"symbol": _code + ".T", "name": _nm, "exchange": "Tokyo", "type": "EQUITY"})
+        for _al, _cd in _ALIAS.items():
+            if (_al in q or q in _al) and _cd in _JPX_DICT:
+                _sym = _cd + ".T"
+                if not any(r["symbol"] == _sym for r in _jres):
+                    _jres.append({"symbol": _sym, "name": _JPX_DICT[_cd], "exchange": "Tokyo", "type": "EQUITY"})
         if _jres:
             _LOOKUP_CACHE[key] = {"ts": time.time(), "data": _jres}
             return jsonify({"results": _jres})
@@ -2010,6 +2016,9 @@ def api_lookup_all():
     items = []
     for _code, _nm in _JPX_DICT.items():
         items.append({"code": _code, "name": _nm})
+    for _al, _cd in _ALIAS.items():
+        if _cd in _JPX_DICT:
+            items.append({"code": _cd, "name": _al})
     return jsonify({"count": len(items), "items": items})
 
 @app.route("/api/morning-news", methods=["GET"])
