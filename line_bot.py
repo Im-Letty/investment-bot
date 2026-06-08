@@ -1826,20 +1826,26 @@ def api_morning_data():
 @app.route("/api/quote", methods=["GET"])
 def api_quote():
     symbol = request.args.get("symbol", "").strip().upper()
+    light = request.args.get("light", "") == "1"
     if not symbol:
         return jsonify({"error": "symbol is required"}), 400
     try:
         t = yf.Ticker(symbol)
         hist = t.history(period="5d")
-        info = t.info
-        name = info.get("shortName") or info.get("longName") or symbol
-        currency = info.get("currency") or ""
+        if light:
+            info = {}
+            name = symbol
+            currency = ""
+        else:
+            info = t.info
+            name = info.get("shortName") or info.get("longName") or symbol
+            currency = info.get("currency") or ""
         _sym_u = symbol.upper()
         _is_index = _sym_u.startswith("^")
         _is_fx = _sym_u.endswith("=X")
         _is_stock = (not _is_index) and (not _is_fx)
         details = None
-        if _is_stock:
+        if _is_stock and not light:
             try:
                 details = {
                     "marketCap": info.get("marketCap"),
