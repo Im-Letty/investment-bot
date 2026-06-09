@@ -1,6 +1,45 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
+<script>
+/* knGate: encrypted localStorage gate (runs early). Whitelisted keys are stored encrypted via AES-GCM; reads/writes go through an in-memory cache so existing code is unchanged. */
+(function(){
+  if(window.__knGate) return;
+  var WL=["tk_name","cm_nick","mp_todos","myDividendStocks"];
+  var ENC="knenc:", PFX="knv1:", KEY_NAME="knVaultKeyV1";
+  var realGet=localStorage.getItem.bind(localStorage);
+  var realSet=localStorage.setItem.bind(localStorage);
+  var realRemove=localStorage.removeItem.bind(localStorage);
+  var cache=Object.create(null);
+  function isWL(k){return WL.indexOf(k)>=0;}
+  function b64e(buf){var b=new Uint8Array(buf),s="";for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s);}
+  function b64d(str){var s=atob(str),b=new Uint8Array(s.length);for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b;}
+  var _key=null;
+  async function getKey(){
+    if(_key) return _key;
+    var raw=realGet(KEY_NAME);
+    if(raw){ _key=await crypto.subtle.importKey("raw",b64d(raw),{name:"AES-GCM"},false,["encrypt","decrypt"]); return _key; }
+    var k=await crypto.subtle.generateKey({name:"AES-GCM",length:256},true,["encrypt","decrypt"]);
+    realSet(KEY_NAME,b64e(await crypto.subtle.exportKey("raw",k))); _key=k; return _key;
+  }
+  async function enc(v){ var iv=crypto.getRandomValues(new Uint8Array(12)); var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},await getKey(),new TextEncoder().encode(v)); return PFX+b64e(iv)+"."+b64e(ct); }
+  async function dec(s){ try{ var b=s.slice(PFX.length).split("."); var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(b[0])},await getKey(),b64d(b[1])); return new TextDecoder().decode(pt); }catch(e){ return null; } }
+  /* sync-seed from legacy plaintext so early reads work */
+  for(var i=0;i<WL.length;i++){ var k=WL[i]; if(realGet(ENC+k)===null){ var lp=realGet(k); if(lp!==null) cache[k]=lp; } }
+  localStorage.getItem=function(k){ return isWL(k)?((k in cache)?cache[k]:null):realGet(k); };
+  localStorage.setItem=function(k,v){ if(isWL(k)){ cache[k]=String(v); enc(String(v)).then(function(c){ realSet(ENC+k,c); }); return; } return realSet(k,v); };
+  localStorage.removeItem=function(k){ if(isWL(k)){ delete cache[k]; realRemove(ENC+k); realRemove(k); return; } return realRemove(k); };
+  window.__knGateReady=(async function(){
+    for(var i=0;i<WL.length;i++){ var k=WL[i];
+      var st=realGet(ENC+k);
+      if(st!==null){ var d=await dec(st); if(d!==null) cache[k]=d; }
+      else { var lp=realGet(k); if(lp!==null){ cache[k]=lp; realSet(ENC+k, await enc(lp)); realRemove(k); } }
+    }
+    return true;
+  })();
+  window.__knGate={whitelist:WL};
+})();
+</script>
 <style id="knNavEarlyHide">#knBottomNav{display:none!important}body.kn-home-visible #knBottomNav{display:flex!important}</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
