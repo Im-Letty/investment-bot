@@ -263,6 +263,8 @@
 .drawer-color-reset:hover{background:rgba(255,255,255,0.25);}
 .morning-news-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:var(--brand-color);font-size:0.95rem;font-weight:600;}.morning-news-loading::before{content:"";width:16px;height:16px;border:2.5px solid var(--brand-color);border-right-color:transparent;border-radius:50%;display:inline-block;animation:mn-spin 0.8s linear infinite;}@keyframes mn-spin{to{transform:rotate(360deg);}}.hero,.mc,.sim-card,#teachCard,.morning-banner,#skBanner{box-shadow:0 10px 30px -12px rgba(20,83,45,0.18),0 2px 6px rgba(20,83,45,0.05);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform;}.hero:hover,.mc:hover,.sim-card:hover,#teachCard:hover,.morning-banner:hover,#skBanner:hover{transform:translateY(-6px);box-shadow:0 22px 44px -14px rgba(20,83,45,0.28),0 4px 10px rgba(20,83,45,0.08);}#myPageCard,#talkCard,#safeBadge{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform;}#myPageCard:hover,#talkCard:hover,#safeBadge:hover{transform:translateY(-6px);}</style>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style id="knHideHomeTicker">/* Hide the home-screen ticker bar (keep #tickerInner2 for existing JS). Morning-letter bar is unaffected. */
+#lp-section .ticker-wrap{display:none !important;}</style>
 </head>
   <body onload="startMorningInterval()">
 
@@ -392,7 +394,7 @@
         <div class="morning-title" data-i18n="morning_title" data-help-key="morning_title">朝の相場レター</div>
         <div class="morning-sub" data-i18n="morning_sub">毎朝8時にLINEで配信中</div>
       </div>
-            <div class="ticker-wrap" style="display:none">
+            <div class="ticker-wrap">
       <div class="ticker-inner" id="tickerInner2" style="visibility:hidden">
       <span class="tick-item"><span data-i18n="ti_n225">日経225</span> 38,420 <span class="tick-up">▲+0.8%</span></span>
       <span class="tick-item"><span data-i18n="ti_usdjpy">ドル円</span> <span data-i18n="ti_usdjpy_val">153.2円</span> <span class="tick-dn">▼-0.3%</span></span>
