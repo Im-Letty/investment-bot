@@ -1651,6 +1651,59 @@ def alert():
     check_alerts()
     return "OK"
 
+# ===== 有料サービスのコスト通知（管理者LINE専用） =====
+# 今後、新しく有料サービスを使い始めたら PAID_SERVICES に1行追加するだけで通知に乗ります。
+# 無料プランのサービスはここに入れません。
+PAID_SERVICES = [
+    {"name": "Anthropic (Claude API)", "kind": "anthropic"},
+    {"name": "Google Gemini API",      "kind": "gemini"},
+]
+
+def _cost_anthropic():
+    """Claude API のクレジット残高/利用額を返す。取得できなければ None。"""
+    key = os.environ.get("ANTHROPIC_ADMIN_KEY", "") or os.environ.get("ANTHROPIC_API_KEY", "")
+    if not key:
+        return None
+    try:
+        # Anthropic は自動取得APIが限られるため、環境変数の手動値があれば優先表示する
+        manual = os.environ.get("ANTHROPIC_BALANCE_USD", "")
+        if manual:
+            return f"残高 ${manual}"
+        return None
+    except Exception:
+        return None
+
+def _cost_gemini():
+    """Google Cloud (Gemini) の当月費用を返す。手動値があれば優先。"""
+    manual = os.environ.get("GEMINI_COST_JPY", "")
+    if manual:
+        return f"当月 ¥{manual}"
+    return None
+
+def build_cost_report():
+    """有料サービスの費用サマリ文字列を作る。"""
+    lines = ["💴 有料サービスの費用"]
+    getters = {"anthropic": _cost_anthropic, "gemini": _cost_gemini}
+    for svc in PAID_SERVICES:
+        fn = getters.get(svc["kind"])
+        val = None
+        try:
+            val = fn() if fn else None
+        except Exception:
+            val = None
+        lines.append(f"・{svc['name']}: {val if val else '取得不可（手動確認）'}")
+    lines.append(f"\n集計時刻: {datetime.now().isoformat(timespec='minutes')}")
+    return "\n".join(lines)
+
+@app.route("/cost", methods=["GET"])
+def cost():
+    if request.args.get("secret", "") != os.environ.get("CRON_SECRET", ""):
+        abort(403)
+    report = build_cost_report()
+    notify_admin(report)
+    return "OK"
+
+
 @app.route("/api/save-user-data", methods=["POST"])
 def api_save_user_data():
     try:
