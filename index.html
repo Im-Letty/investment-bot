@@ -3310,4 +3310,41 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',injectUI); } else { setTimeout(injectUI,0); }
 })();
 </script>
+<script>
+/* knMorningTicker: replace morning-letter index cards with the home-style flowing ticker bar */
+(function(){
+  function buildBar(){
+    var grid=document.getElementById('morning-idx-grid');
+    if(!grid || !window._mktCache) return;
+    var mc=window._mktCache;
+    var keys=['\u65E5\u7D4C225','\u30C9\u30EB\u5186','S&P500','NY\u30C0\u30A6','VIX\u6050\u6016\u6307\u6570','\u7C7310\u5E74\u91D1\u5229'];
+    function item(k){
+      var d=mc[k]; if(!d||!d.display) return '';
+      var label=(k==='VIX\u6050\u6016\u6307\u6570')?'VIX':(k==='\u7C7310\u5E74\u91D1\u5229')?'\u7C73\u91D1\u5229':k;
+      var parts=String(d.display).split('\u3000');
+      var num=parts[0]||''; var chg=parts[1]||'';
+      var dn=/\u25BC/.test(chg);
+      return '<span class="tick-item"><span>'+label+'</span> '+num+' <span class="'+(dn?'tick-dn':'tick-up')+'">'+chg+'</span></span>';
+    }
+    var h=keys.map(item).join('');
+    if(!h) return;
+    var inner=document.getElementById('morningTickerInner');
+    if(!inner){
+      grid.insertAdjacentHTML('beforebegin','<div class="ticker-wrap" id="morningTickerWrap"><div class="ticker-inner" id="morningTickerInner"></div></div>');
+      inner=document.getElementById('morningTickerInner');
+    }
+    inner.innerHTML=h+h;
+    grid.style.display='none';
+  }
+  function hook(){
+    if(typeof window.renderMorningGrid!=='function'){ setTimeout(hook,300); return; }
+    if(window.renderMorningGrid.__barHooked) return;
+    var orig=window.renderMorningGrid;
+    window.renderMorningGrid=function(){ var rv=orig.apply(this,arguments); try{ buildBar(); }catch(e){} return rv; };
+    window.renderMorningGrid.__barHooked=true;
+    buildBar();
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hook); } else { setTimeout(hook,0); }
+})();
+</script>
 </body></html>
