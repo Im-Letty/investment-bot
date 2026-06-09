@@ -3350,29 +3350,42 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 })();
 </script>
 <script>
-/* knWatchSection: show user's watchlist on the morning letter (stage 1: empty-state + register button). Read-only; uses existing alert feature. */
+/* knWatchSection v2: show user's watchlist with today's move on the morning letter. Read-only; reuses alert_watchlist_v1 + /api/quote. No backend changes. */
 (function(){
   if(window.__knWatchSection) return; window.__knWatchSection=true;
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];}); }
   function build(){
     var grid=document.getElementById("morning-idx-grid");
     if(!grid) return;
     var old=document.getElementById("knWatchSec"); if(old) old.remove();
     var sec=document.createElement("div");
-    sec.id="knWatchSec";
-    sec.className="morning-extra";
+    sec.id="knWatchSec"; sec.className="morning-extra";
     var list=[];
     try{ list=JSON.parse(localStorage.getItem("alert_watchlist_v1")||"[]"); }catch(e){ list=[]; }
-    var html='<div style="font-weight:700;margin-bottom:8px;">\u2b50 \u3042\u306a\u305f\u306e\u30a6\u30a9\u30c3\u30c1\u9298\u67c4</div>';
-    if(!list || !list.length){
-      html+='<div style="color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;">\u6c17\u306b\u306a\u308b\u9298\u67c4\u3092\u767b\u9332\u3059\u308b\u3068\u3001\u6bce\u671d\u3053\u3053\u3067\u52d5\u304d\u3092\u30c1\u30a7\u30c3\u30af\u3067\u304d\u307e\u3059\u3002</div>'+
-      '<button id="knWatchAddBtn" type="button" style="background:#2e9e6b;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;">\uff0b \u9298\u67c4\u3092\u767b\u9332\u3059\u308b</button>';
-    } else {
-      html+='<div id="knWatchList"></div>';
+    if(!Array.isArray(list)) list=[];
+    var head='<div style="font-weight:700;margin-bottom:8px;">\u2b50 \u3042\u306a\u305f\u306e\u30a6\u30a9\u30c3\u30c1\u9298\u67c4</div>';
+    if(!list.length){
+      sec.innerHTML=head+'<div style="color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;">\u6c17\u306b\u306a\u308b\u9298\u67c4\u3092\u767b\u9332\u3059\u308b\u3068\u3001\u6bce\u671d\u3053\u3053\u3067\u52d5\u304d\u3092\u30c1\u30a7\u30c3\u30af\u3067\u304d\u307e\u3059\u3002</div>'+'<button id="knWatchAddBtn" type="button" style="background:#2e9e6b;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;">\uff0b \u9298\u67c4\u3092\u767b\u9332\u3059\u308b</button>';
+      grid.insertAdjacentElement("afterend",sec);
+      var b=document.getElementById("knWatchAddBtn");
+      if(b) b.addEventListener("click",function(){ try{ if(typeof closeDrawer==="function")closeDrawer(); }catch(e){} if(typeof openAlertSection==="function"){ openAlertSection(); } });
+      return;
     }
-    sec.innerHTML=html;
-    grid.insertAdjacentElement("afterend", sec);
-    var b=document.getElementById("knWatchAddBtn");
-    if(b) b.addEventListener("click", function(){ try{ if(typeof closeDrawer==="function")closeDrawer(); }catch(e){} if(typeof openAlertSection==="function"){ openAlertSection(); } });
+    sec.innerHTML=head+'<div id="knWatchList"><div style="color:#999;font-size:13px;">\u8aad\u307f\u8fbc\u307f\u4e2d...</div></div>';
+    grid.insertAdjacentElement("afterend",sec);
+    var token=Date.now(); sec.dataset.knToken=String(token);
+    var box=document.getElementById("knWatchList");
+    var rows=new Array(list.length).fill("");
+    list.slice(0,20).forEach(function(sym,i){
+      fetch("/api/quote?symbol="+encodeURIComponent(sym)+"&_t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
+        var pct=(typeof j.pct==="number")?j.pct:0; var up=pct>=0;
+        var color=up?"#1a9e54":"#d23b3b"; var arrow=up?"\u25b2":"\u25bc"; var nm=j.name||sym;
+        rows[i]='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;"><div><div style="font-weight:600;">'+esc(sym)+'</div><div style="font-size:12px;color:#888;">'+esc(nm)+'</div></div><div style="text-align:right;"><div style="font-weight:700;">'+esc(j.price!=null?j.price:"-")+'</div><div style="color:'+color+';font-size:13px;font-weight:700;">'+arrow+Math.abs(pct).toFixed(2)+'%</div></div></div>';
+      }).catch(function(){ rows[i]='<div style="padding:8px 0;color:#999;">'+esc(sym)+'\uff08\u53d6\u5f97\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\uff09</div>'; }).then(function(){
+        var cur=document.getElementById("knWatchSec"); if(!cur||cur.dataset.knToken!==String(token)) return;
+        var bx=document.getElementById("knWatchList"); if(bx) bx.innerHTML=rows.join("");
+      });
+    });
   }
   function hook(){
     if(typeof window.renderMorningGrid==="function" && !window.renderMorningGrid.__knWatched){
