@@ -3204,4 +3204,34 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.knVault={save:save,load:load,_getKey:getKey,prefix:PFX};
 })();
 </script>
-</body></html>
+
+<script>
+/* knPasskey: synced-passkey key derivation (PRF). DEFINED ONLY - not wired to the vault yet, so existing behaviour is unchanged. */
+(function(){
+  if(window.knPasskey) return;
+  var RP_NAME="経済NEWS", PRF_SALT_STR="kn-vault-prf-v1";
+  function b64uToBuf(s){ s=s.replace(/-/g,"+").replace(/_/g,"/"); var pad=s.length%4; if(pad) s+="====".slice(pad); var bin=atob(s),b=new Uint8Array(bin.length); for(var i=0;i<bin.length;i++)b[i]=bin.charCodeAt(i); return b.buffer; }
+  function bufToB64u(buf){ var b=new Uint8Array(buf),s=""; for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]); return btoa(s).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); }
+  function prfSalt(){ return new TextEncoder().encode(PRF_SALT_STR); }
+  function randBuf(n){ return crypto.getRandomValues(new Uint8Array(n)); }
+  async function register(userName){
+    var userId=randBuf(16);
+    var pub={ challenge: randBuf(32), rp:{ name:RP_NAME, id:location.hostname }, user:{ id:userId, name:(userName||"user"), displayName:(userName||"user") }, pubKeyCredParams:[{type:"public-key",alg:-7},{type:"public-key",alg:-257}], authenticatorSelection:{ residentKey:"required", userVerification:"required" }, extensions:{ prf:{} } };
+    var cred=await navigator.credentials.create({publicKey:pub});
+    var ext=cred.getClientExtensionResults();
+    return { credentialId: bufToB64u(cred.rawId), prfSupported: !!(ext && ext.prf && ext.prf.enabled) };
+  }
+  async function deriveKey(credentialIdB64u){
+    var allow=credentialIdB64u?[{type:"public-key", id:b64uToBuf(credentialIdB64u)}]:[];
+    var pub={ challenge: randBuf(32), rpId: location.hostname, allowCredentials: allow, userVerification:"required", extensions:{ prf:{ eval:{ first: prfSalt() } } } };
+    var assertion=await navigator.credentials.get({publicKey:pub});
+    var ext=assertion.getClientExtensionResults();
+    if(!ext || !ext.prf || !ext.prf.results || !ext.prf.results.first){ throw new Error("PRF not available"); }
+    var ikm=await crypto.subtle.importKey("raw", ext.prf.results.first, "HKDF", false, ["deriveKey"]);
+    var key=await crypto.subtle.deriveKey({ name:"HKDF", hash:"SHA-256", salt:prfSalt(), info:new TextEncoder().encode("kn-vault-aes") }, ikm, { name:"AES-GCM", length:256 }, true, ["encrypt","decrypt"]);
+    return { key:key, credentialId: bufToB64u(assertion.rawId) };
+  }
+  async function isSupported(){ try{ if(!window.PublicKeyCredential) return false; if(PublicKeyCredential.getClientCapabilities){ var c=await PublicKeyCredential.getClientCapabilities(); return !!c["extension:prf"]; } return false; }catch(e){ return false; } }
+  window.knPasskey={ register:register, deriveKey:deriveKey, isSupported:isSupported };
+})();
+</script></body></html>
