@@ -3349,4 +3349,40 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',hook); } else { setTimeout(hook,0); }
 })();
 </script>
+<script>
+/* knWatchSection: show user's watchlist on the morning letter (stage 1: empty-state + register button). Read-only; uses existing alert feature. */
+(function(){
+  if(window.__knWatchSection) return; window.__knWatchSection=true;
+  function build(){
+    var grid=document.getElementById("morning-idx-grid");
+    if(!grid) return;
+    var old=document.getElementById("knWatchSec"); if(old) old.remove();
+    var sec=document.createElement("div");
+    sec.id="knWatchSec";
+    sec.className="morning-extra";
+    var list=[];
+    try{ list=JSON.parse(localStorage.getItem("alert_watchlist_v1")||"[]"); }catch(e){ list=[]; }
+    var html='<div style="font-weight:700;margin-bottom:8px;">\u2b50 \u3042\u306a\u305f\u306e\u30a6\u30a9\u30c3\u30c1\u9298\u67c4</div>';
+    if(!list || !list.length){
+      html+='<div style="color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;">\u6c17\u306b\u306a\u308b\u9298\u67c4\u3092\u767b\u9332\u3059\u308b\u3068\u3001\u6bce\u671d\u3053\u3053\u3067\u52d5\u304d\u3092\u30c1\u30a7\u30c3\u30af\u3067\u304d\u307e\u3059\u3002</div>'+
+      '<button id="knWatchAddBtn" type="button" style="background:#2e9e6b;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;">\uff0b \u9298\u67c4\u3092\u767b\u9332\u3059\u308b</button>';
+    } else {
+      html+='<div id="knWatchList"></div>';
+    }
+    sec.innerHTML=html;
+    grid.insertAdjacentElement("afterend", sec);
+    var b=document.getElementById("knWatchAddBtn");
+    if(b) b.addEventListener("click", function(){ try{ if(typeof closeDrawer==="function")closeDrawer(); }catch(e){} if(typeof openAlertSection==="function"){ openAlertSection(); } });
+  }
+  function hook(){
+    if(typeof window.renderMorningGrid==="function" && !window.renderMorningGrid.__knWatched){
+      var orig=window.renderMorningGrid;
+      window.renderMorningGrid=function(){ var r=orig.apply(this,arguments); try{ build(); }catch(e){} return r; };
+      window.renderMorningGrid.__knWatched=true;
+    }
+  }
+  if(document.readyState!=="loading") hook(); else document.addEventListener("DOMContentLoaded",hook);
+  setTimeout(hook,1500); setTimeout(function(){ try{build();}catch(e){} },2000);
+})();
+</script>
 </body></html>
