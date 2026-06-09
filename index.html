@@ -3234,4 +3234,32 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   async function isSupported(){ try{ if(!window.PublicKeyCredential) return false; if(PublicKeyCredential.getClientCapabilities){ var c=await PublicKeyCredential.getClientCapabilities(); return !!c["extension:prf"]; } return false; }catch(e){ return false; } }
   window.knPasskey={ register:register, deriveKey:deriveKey, isSupported:isSupported };
 })();
-</script></body></html>
+</script><script>
+/* knKeyWrap: wrap/unwrap the vault key (knVaultKeyV1) with a passkey-derived key.
+   DEFINED ONLY. Never auto-called. No biometric prompt happens at load.
+   Stage 1 of reversible key migration: the old device key stays untouched. */
+(function(){
+  var KEY_NAME = 'knVaultKeyV1';
+  var WRAP_NAME = 'knVaultKeyWrappedV1';
+  var b64 = {
+    enc: function(buf){ var b=new Uint8Array(buf),s=''; for(var i=0;i<b.length;i++) s+=String.fromCharCode(b[i]); return btoa(s); },
+    dec: function(str){ var s=atob(str),b=new Uint8Array(s.length); for(var i=0;i<s.length;i++) b[i]=s.charCodeAt(i); return b.buffer; }
+  };
+  async function wrapVaultKey(passkeyAesKey){
+    var raw = localStorage.getItem(KEY_NAME);
+    if(!raw) throw new Error('no vault key to wrap');
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    var data = new TextEncoder().encode(raw);
+    var ct = await crypto.subtle.encrypt({name:'AES-GCM', iv:iv}, passkeyAesKey, data);
+    return JSON.stringify({ v:1, iv:b64.enc(iv), ct:b64.enc(ct) });
+  }
+  async function unwrapVaultKey(passkeyAesKey, blob){
+    var o = JSON.parse(blob);
+    var pt = await crypto.subtle.decrypt({name:'AES-GCM', iv:new Uint8Array(b64.dec(o.iv))}, passkeyAesKey, b64.dec(o.ct));
+    return new TextDecoder().decode(pt);
+  }
+  function hasWrapped(){ return localStorage.getItem(WRAP_NAME)!==null; }
+  window.knKeyWrap = { wrapVaultKey:wrapVaultKey, unwrapVaultKey:unwrapVaultKey, hasWrapped:hasWrapped, WRAP_NAME:WRAP_NAME };
+})();
+</script>
+</body></html>
