@@ -3262,4 +3262,52 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   window.knKeyWrap = { wrapVaultKey:wrapVaultKey, unwrapVaultKey:unwrapVaultKey, hasWrapped:hasWrapped, WRAP_NAME:WRAP_NAME };
 })();
 </script>
+<script>
+/* knBackup UI: Stage 2 - prepare cross-device backup. Button-triggered only; biometric prompt only on click. */
+(function(){
+  var WRAP_NAME='knVaultKeyWrappedV1';
+  var CRED_NAME='knBackupCredIdV1';
+  async function prepareBackup(){
+    if(!window.knPasskey || !window.knKeyWrap) throw new Error('parts missing');
+    var sup = await window.knPasskey.isSupported();
+    if(!sup) throw new Error('passkey not supported');
+    var reg = await window.knPasskey.register('keizai-news');
+    if(!reg || !reg.credentialId) throw new Error('register failed');
+    if(!reg.prfSupported) throw new Error('prf not available');
+    var aesKey = await window.knPasskey.deriveKey(reg.credentialId);
+    var blob = await window.knKeyWrap.wrapVaultKey(aesKey);
+    localStorage.setItem(WRAP_NAME, blob);
+    localStorage.setItem(CRED_NAME, reg.credentialId);
+    return true;
+  }
+  function isBackedUp(){ return localStorage.getItem(WRAP_NAME)!==null; }
+  window.knKeyWrap.prepareBackup=prepareBackup;
+  window.knKeyWrap.isBackedUp=isBackedUp;
+  function injectUI(){
+    var modal=document.querySelector('.settings-modal');
+    if(!modal || document.getElementById('knBackupSection')) return;
+    var sec=document.createElement('div');
+    sec.className='settings-section'; sec.id='knBackupSection';
+    var done=isBackedUp();
+    sec.innerHTML='<div class="settings-section-title">\uD83D\uDD10 \u6A5F\u7A2E\u5909\u66F4\u306B\u305D\u306A\u3048\u308B</div>'+
+      '<div style="font-size:13px;color:#666;margin-bottom:8px;line-height:1.5;">\u30B9\u30DE\u30DB\u3092\u5909\u3048\u3066\u3082\u30C7\u30FC\u30BF\u3092\u5F15\u304D\u7D99\u3052\u308B\u3088\u3046\u306B\u3057\u307E\u3059\u3002\u30DC\u30BF\u30F3\u3092\u62BC\u3059\u3068\u8A8D\u8A3C\u304C\u4E00\u5EA6\u51FA\u307E\u3059\u3002</div>'+
+      '<button id="knBackupBtn" class="style-btn" style="width:100%;">'+(done?'\u2705 \u6E96\u5099\u6E08\u307F\uFF08\u3084\u308A\u76F4\u3059\uFF09':'\u5F15\u304D\u7D99\u304E\u3092\u6E96\u5099\u3059\u308B')+'</button>'+
+      '<div id="knBackupMsg" style="font-size:12px;margin-top:6px;min-height:16px;"></div>';
+    modal.appendChild(sec);
+    var btn=sec.querySelector('#knBackupBtn');
+    var msg=sec.querySelector('#knBackupMsg');
+    btn.addEventListener('click', async function(){
+      btn.disabled=true; msg.style.color='#666'; msg.textContent='\u6E96\u5099\u4E2D\u2026\u8A8D\u8A3C\u3092\u3057\u3066\u304F\u3060\u3055\u3044';
+      try{
+        await prepareBackup();
+        msg.style.color='#1a7f37'; msg.textContent='\u2705 \u6E96\u5099\u3067\u304D\u307E\u3057\u305F';
+        btn.textContent='\u2705 \u6E96\u5099\u6E08\u307F\uFF08\u3084\u308A\u76F4\u3059\uFF09';
+      }catch(e){
+        msg.style.color='#cf222e'; msg.textContent='\u3084\u308A\u76F4\u305B\u307E\u3059\uFF08\u4F55\u3082\u5909\u308F\u3063\u3066\u3044\u307E\u305B\u3093\uFF09';
+      }finally{ btn.disabled=false; }
+    });
+  }
+  if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded',injectUI); } else { setTimeout(injectUI,0); }
+})();
+</script>
 </body></html>
