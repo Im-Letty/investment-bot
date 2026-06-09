@@ -3122,4 +3122,47 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(document.readyState==='loading'){ document.addEventListener('DOMContentLoaded', bind); } else { bind(); }
 })();
 </script>
+
+<script>
+/* knVault: client-side encrypted localStorage helper (Stage 1 - defined only, not yet wired to existing features) */
+(function(){
+  if(window.knVault) return;
+  var KEY_NAME="knVaultKeyV1", PFX="knv1:";
+  var _key=null;
+  function b64e(buf){var b=new Uint8Array(buf),s="";for(var i=0;i<b.length;i++)s+=String.fromCharCode(b[i]);return btoa(s);}
+  function b64d(str){var s=atob(str),b=new Uint8Array(s.length);for(var i=0;i<s.length;i++)b[i]=s.charCodeAt(i);return b;}
+  async function getKey(){
+    if(_key) return _key;
+    var raw=localStorage.getItem(KEY_NAME);
+    if(raw){ _key=await crypto.subtle.importKey("raw",b64d(raw),{name:"AES-GCM"},false,["encrypt","decrypt"]); return _key; }
+    var k=await crypto.subtle.generateKey({name:"AES-GCM",length:256},true,["encrypt","decrypt"]);
+    var ex=await crypto.subtle.exportKey("raw",k);
+    localStorage.setItem(KEY_NAME,b64e(ex));
+    _key=k; return _key;
+  }
+  async function save(key,value){
+    try{
+      var enc=new TextEncoder().encode(typeof value==="string"?value:JSON.stringify(value));
+      var iv=crypto.getRandomValues(new Uint8Array(12));
+      var k=await getKey();
+      var ct=await crypto.subtle.encrypt({name:"AES-GCM",iv:iv},k,enc);
+      localStorage.setItem(key,PFX+b64e(iv)+"."+b64e(ct));
+      return true;
+    }catch(e){ localStorage.setItem(key,typeof value==="string"?value:JSON.stringify(value)); return false; }
+  }
+  async function load(key){
+    var raw=localStorage.getItem(key);
+    if(raw===null) return null;
+    if(raw.indexOf(PFX)!==0) return raw;
+    try{
+      var body=raw.slice(PFX.length), parts=body.split(".");
+      var iv=b64d(parts[0]), ct=b64d(parts[1]);
+      var k=await getKey();
+      var pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:iv},k,ct);
+      return new TextDecoder().decode(pt);
+    }catch(e){ return raw; }
+  }
+  window.knVault={save:save,load:load,_getKey:getKey,prefix:PFX};
+})();
+</script>
 </body></html>
