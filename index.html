@@ -5,7 +5,7 @@
 /* knGate: encrypted localStorage gate (runs early). Whitelisted keys are stored encrypted via AES-GCM; reads/writes go through an in-memory cache so existing code is unchanged. */
 (function(){
   if(window.__knGate) return;
-  var WL=["tk_name","cm_nick","mp_todos","myDividendStocks"];
+  var WL=["tk_name","cm_nick","mp_todos","myDividendStocks","custom_symbols","alert_watchlist_v1","scannerAlertHistory","ksPool","ksWeights","sk_streak","sk_last","sk_total","sk_badges","home_layout_v1"];
   var ENC="knenc:", PFX="knv1:", KEY_NAME="knVaultKeyV1";
   var realGet=localStorage.getItem.bind(localStorage);
   var realSet=localStorage.setItem.bind(localStorage);
