@@ -3522,7 +3522,27 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
         var secs=[].slice.call(modal.querySelectorAll('.settings-section'));
         secs.forEach(function(s){ holder.appendChild(s); });
         if(modalBg){ modalBg.style.display='none'; modalBg.classList.remove('open'); }
-        built = secs.length>0;
+        // --- also move 表示設定 button + カラーカスタム section into the accordion ---
+        try{
+          var sd=document.getElementById('sideDrawer');
+          if(sd){
+            var dispBtn=[].slice.call(sd.querySelectorAll('button')).filter(function(b){return /openDisplaySettings/.test(b.getAttribute('onclick')||'');})[0];
+            if(dispBtn && !holder.contains(dispBtn)){
+              var dsec=document.createElement('div'); dsec.className='settings-section';
+              var dt=document.createElement('div'); dt.className='settings-section-title'; dt.textContent='表示設定';
+              dsec.appendChild(dt); dsec.appendChild(dispBtn); holder.appendChild(dsec);
+            }
+            var colorLabel=[].slice.call(sd.querySelectorAll('.drawer-section-label')).filter(function(l){return /sidebar_color_custom/.test(l.getAttribute('data-i18n')||'')||/カラーカスタム/.test(l.textContent);})[0];
+            var colorWrap=sd.querySelector('.drawer-color-wrap');
+            if(colorLabel && colorWrap && !holder.contains(colorWrap)){
+              var csec=document.createElement('div'); csec.className='settings-section';
+              var ct=document.createElement('div'); ct.className='settings-section-title'; ct.textContent=(colorLabel.textContent||'カラーカスタム').trim();
+              csec.appendChild(ct); csec.appendChild(colorWrap); holder.appendChild(csec);
+              if(colorLabel.parentElement) colorLabel.parentElement.removeChild(colorLabel);
+            }
+          }
+        }catch(e){}
+        built = true;
       }
       function setOpen(o){
         open=o;
