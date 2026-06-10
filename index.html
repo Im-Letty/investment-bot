@@ -3583,14 +3583,14 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
       if(!labelSpan) return;
       var badge=document.createElement('span');
       badge.id='alertStateBadge';
-      badge.style.cssText='margin-left:8px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:10px;line-height:1.5;vertical-align:middle;';
+      badge.style.cssText='margin-left:8px;font-size:11px;font-weight:700;line-height:1.5;vertical-align:middle;';
       labelSpan.insertAdjacentElement('afterend', badge);
       function refresh(){
         var on;
         try{ on = localStorage.getItem('alertEnabled_v1') !== '0'; }catch(e){ on=true; }
         badge.textContent = on ? 'オン' : 'オフ';
-        badge.style.background = on ? '#e6f4ea' : '#f0f0f0';
-        badge.style.color = on ? '#1e7e34' : '#999';
+        badge.style.background = 'transparent';
+        badge.style.color = on ? '#bdf5cc' : '#cdd8d0';
       }
       refresh();
       try{
