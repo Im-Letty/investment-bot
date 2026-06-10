@@ -3596,3 +3596,70 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 </script>
 <!-- tamagotchi pet start --><div id="pet-card" style="margin:14px 0;padding:16px;border-radius:18px;background:linear-gradient(135deg,#fef9e7,#e8f6f3);box-shadow:0 4px 14px rgba(0,0,0,.08);text-align:center;font-family:inherit;"><div id="pet-face" style="font-size:64px;line-height:1;transition:transform .2s;">x</div><div id="pet-name" style="font-weight:700;margin-top:6px;color:#2c3e50;">tamago</div><div id="pet-mood" style="font-size:13px;color:#7f8c8d;margin-top:2px;"></div><div style="margin:12px 4px 4px;"><div style="height:10px;background:#e0e0e0;border-radius:6px;overflow:hidden;"><div id="pet-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f6c343,#3bb78f);transition:width .4s;"></div></div><div id="pet-exp" style="font-size:11px;color:#95a5a6;margin-top:4px;">EXP 0</div></div></div><script>(function(){var STAGES=[{min:0,face:"\uD83E\uDD5A",name:"\u305F\u307E\u3054",ok:"\u3046\u307E\u308C\u308B\u307E\u3048\u2026"},{min:10,face:"\uD83D\uDC24",name:"\u3072\u306A",ok:"\u3074\u3088\u3074\u3088\u266A"},{min:30,face:"\uD83D\uDC25",name:"\u308F\u304B\u3069\u308A",ok:"\u3052\u3093\u304D\uFF01"},{min:60,face:"\uD83D\uDC14",name:"\u305B\u3044\u3061\u3087\u3046",ok:"\u308A\u3063\u3071\uFF01"},{min:100,face:"\uD83E\uDD85",name:"\u304A\u3084\u3069\u308A",ok:"\u30AB\u30F3\u30ED\u30AF\u6E80\u70B9\uFF01"}];function gi(k,d){try{var v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}}function todayStr(){return new Date().toDateString();}function dayDiff(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}function calcExp(){var total=parseInt(gi("sk_total","0"),10)||0;var streak=parseInt(gi("sk_streak","0"),10)||0;var bonus=streak>=7?Math.floor(streak/7)*10:0;var exp=total*10+bonus;var last=gi("sk_last","");if(last){var gap=dayDiff(last,todayStr());if(gap>=2){exp=Math.max(0,exp-(gap-1)*5);}}return exp;}function moodOf(){var last=gi("sk_last","");if(!last)return"ok";var gap=dayDiff(last,todayStr());if(gap>=7)return"starving";if(gap>=2)return"hungry";return"ok";}function render(){var exp=calcExp();var mood=moodOf();var s=STAGES[0];for(var i=0;i<STAGES.length;i++){if(exp>=STAGES[i].min)s=STAGES[i];}var face=s.face,msg=s.ok;if(mood==="hungry"){face="\uD83D\uDE22";msg="\u304A\u306A\u304B\u3059\u3044\u305F\u2026\u6BCE\u65E5\u304D\u3066\u306D";}if(mood==="starving"){face="\uD83D\uDE23";msg="\u3072\u3082\u3058\u3044\u2026\uFF01\u4F1A\u3044\u306B\u304D\u3066\u301C";}var ef=document.getElementById("pet-face");var en=document.getElementById("pet-name");var em=document.getElementById("pet-mood");var ex=document.getElementById("pet-exp");var eb=document.getElementById("pet-bar");if(!ef||!en||!em||!ex||!eb)return;ef.textContent=face;en.textContent=s.name;em.textContent=msg;ex.textContent="EXP "+exp;var next=null;for(var j=0;j<STAGES.length;j++){if(STAGES[j].min>exp){next=STAGES[j];break;}}var lo=s.min,hi=next?next.min:s.min+1;var pct=next?Math.min(100,Math.round((exp-lo)/(hi-lo)*100)):100;eb.style.width=pct+"%";ef.style.transform="scale(1.25)";setTimeout(function(){ef.style.transform="scale(1)";},200);}if(document.readyState!=="loading")render();else document.addEventListener("DOMContentLoaded",render);})();</script>
   </script><style id="guideBeginnerOnly">body.uistyle-pro .mgrid:has(.mc[onclick^="openBeginnerGuide"]){display:none !important;}</style></body></html>
+<script>(function(){function go(){try{(function(){
+  function gi(k,d){try{var v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}}
+  function todayStr(){return new Date().toDateString();}
+  function dayDiff(a,b){return Math.round((new Date(b)-new Date(a))/86400000);}
+  function calcExp(){var total=parseInt(gi('sk_total','0'),10)||0;var streak=parseInt(gi('sk_streak','0'),10)||0;var bonus=streak>=7?Math.floor(streak/7)*10:0;var exp=total*10+bonus;var last=gi('sk_last','');if(last){var gap=dayDiff(last,todayStr());if(gap>=2){exp=Math.max(0,exp-(gap-1)*5);}}return exp;}
+  function moodOf(){var last=gi('sk_last','');if(!last)return'ok';var gap=dayDiff(last,todayStr());if(gap>=7)return'starving';if(gap>=2)return'hungry';return'ok';}
+  var STAGES=[
+    {min:0,name:'たまご',g:['#fff7e0','#ffeebf','#f5d98f'],cheek:'#ffc0d0',belly:'#fffdf2'},
+    {min:10,name:'幼体',g:['#eafaff','#b9e6ff','#8fd0f5'],cheek:'#ff9fc0',belly:'#ffffff'},
+    {min:30,name:'成長体',g:['#eafff0','#bff0c8','#8fd99f'],cheek:'#ff9fc0',belly:'#f4fff6'},
+    {min:60,name:'成熟体',g:['#fffae0','#ffe89a','#ffcf5c'],cheek:'#ff9fc0',belly:'#fffdf0'},
+    {min:100,name:'最終形',g:['#fdeaff','#f3c4ff','#d79bf0'],cheek:'#ff8fc4',belly:'#fff4ff'}
+  ];
+  var NS='http://www.w3.org/2000/svg';
+  function E(tag,attrs){var e=document.createElementNS(NS,tag);for(var k in attrs)e.setAttribute(k,attrs[k]);return e;}
+  function grad(defs,id,cx,cy,r,stops){var g=E('radialGradient',{id:id,cx:cx,cy:cy,r:r});stops.forEach(function(s){var st=E('stop',{offset:s[0],'stop-color':s[1]});if(s[2]!=null)st.setAttribute('stop-opacity',s[2]);g.appendChild(st);});defs.appendChild(g);}
+  function buildSvg(stage,th){
+    var g=th.g;
+    var svg=E('svg',{width:120,height:130,viewBox:'0 0 100 120',style:'overflow:visible'});
+    var defs=E('defs',{}); svg.appendChild(defs);
+    grad(defs,'bgP','42%','32%','80%',[['0%',g[0]],['60%',g[1]],['100%',g[2]]]);
+    grad(defs,'ckP','50%','50%','50%',[['0%',th.cheek],['100%',th.cheek,0]]);
+    grad(defs,'blP','50%','40%','60%',[['0%','#ffffff'],['100%',th.belly]]);
+    var all=E('g',{id:'allP'}); svg.appendChild(all);
+    if(stage===0){
+      all.appendChild(E('ellipse',{cx:50,cy:64,rx:30,ry:36,fill:'url(#bgP)'}));
+      all.appendChild(E('polyline',{points:'30,60 40,54 34,66 46,60 40,72 52,64',fill:'none',stroke:'#d9b96e','stroke-width':2,opacity:0.7}));
+      all.appendChild(E('ellipse',{cx:40,cy:48,rx:6,ry:4,fill:'#fff',opacity:0.5}));
+      return svg;
+    }
+    var headR=26-stage*1.5, earH=14+stage*5;
+    var legs=E('g',{}); legs.appendChild(E('ellipse',{cx:40,cy:106,rx:8,ry:6,fill:g[2]})); legs.appendChild(E('ellipse',{cx:60,cy:106,rx:8,ry:6,fill:g[2]})); all.appendChild(legs);
+    var body=E('g',{id:'bodyP'}); all.appendChild(body);
+    if(stage>=3) body.appendChild(E('path',{d:'M76 92 Q92 88 88 74 Q84 84 74 86 Z',fill:'url(#bgP)'}));
+    body.appendChild(E('ellipse',{cx:24,cy:74,rx:7,ry:10+stage*1.5,fill:'url(#bgP)',id:'aLP'}));
+    body.appendChild(E('ellipse',{cx:76,cy:74,rx:7,ry:10+stage*1.5,fill:'url(#bgP)',id:'aRP'}));
+    body.appendChild(E('ellipse',{cx:50,cy:80,rx:24,ry:24+stage,fill:'url(#bgP)'}));
+    body.appendChild(E('ellipse',{cx:50,cy:84,rx:14,ry:16,fill:'url(#blP)'}));
+    if(stage>=3){ body.appendChild(E('ellipse',{cx:50,cy:84,rx:4,ry:4,fill:'#fff',opacity:0.7})); body.appendChild(E('ellipse',{cx:42,cy:78,rx:2.5,ry:2.5,fill:'#fff',opacity:0.6})); body.appendChild(E('ellipse',{cx:58,cy:78,rx:2.5,ry:2.5,fill:'#fff',opacity:0.6})); }
+    var head=E('g',{id:'headP'}); body.appendChild(head);
+    if(stage>=4) head.appendChild(E('path',{d:'M40 14 L44 4 L50 12 L56 4 L60 14 Z',fill:'#ffd34d',stroke:'#e8b62f','stroke-width':1}));
+    head.appendChild(E('path',{d:'M36 30 Q33 '+(30-earH)+' 42 '+(30-earH+8)+' Q43 26 45 30 Z',fill:'url(#bgP)'}));
+    head.appendChild(E('path',{d:'M64 30 Q67 '+(30-earH)+' 58 '+(30-earH+8)+' Q57 26 55 30 Z',fill:'url(#bgP)'}));
+    head.appendChild(E('ellipse',{cx:50,cy:42,rx:headR,ry:headR-1,fill:'url(#bgP)'}));
+    head.appendChild(E('ellipse',{cx:33,cy:48,rx:6,ry:4.5,fill:'url(#ckP)'}));
+    head.appendChild(E('ellipse',{cx:67,cy:48,rx:6,ry:4.5,fill:'url(#ckP)'}));
+    var eyes=E('g',{id:'eyesP'}); head.appendChild(eyes);
+    eyes.appendChild(E('ellipse',{cx:41,cy:40,rx:5,ry:6.5,fill:'#33303a'}));
+    eyes.appendChild(E('ellipse',{cx:59,cy:40,rx:5,ry:6.5,fill:'#33303a'}));
+    eyes.appendChild(E('circle',{cx:43,cy:37,r:1.8,fill:'#fff'}));
+    eyes.appendChild(E('circle',{cx:61,cy:37,r:1.8,fill:'#fff'}));
+    head.appendChild(E('path',{d:'M46 49 Q50 53 54 49',stroke:'#7a6a78','stroke-width':2,fill:'none','stroke-linecap':'round'}));
+    return svg;
+  }
+  var card=document.getElementById('pet-card'); if(!card) return 'no-card';
+  var exp=calcExp(),mood=moodOf();
+  var s=STAGES[0],si=0; for(var i=0;i<STAGES.length;i++){if(exp>=STAGES[i].min){s=STAGES[i];si=i;}}
+  var face=document.getElementById('pet-face'); if(face){face.textContent='';face.style.fontSize='0';face.appendChild(buildSvg(si,s));}
+  var nm=document.getElementById('pet-name'); if(nm)nm.textContent=s.name;
+  var md=document.getElementById('pet-mood'); if(md)md.textContent=mood==='hungry'?'おなかすいた…毎日きてね':mood==='starving'?'ひもじい…！会いにきて〜':'げんき！';
+  var ex=document.getElementById('pet-exp'); if(ex)ex.textContent='EXP '+exp;
+  var bar=document.getElementById('pet-bar'); if(bar){var nx=null;for(var j=0;j<STAGES.length;j++){if(STAGES[j].min>exp){nx=STAGES[j];break;}}var lo=s.min,hi=nx?nx.min:s.min+1;bar.style.width=Math.min(100,Math.round((exp-lo)/(hi-lo)*100))+'%';}
+  if(window.__petAnim)clearInterval(window.__petAnim);
+  var t=0;
+  window.__petAnim=setInterval(function(){t++;var all=document.getElementById('allP');if(!all)return;all.setAttribute('transform','translate(0,'+(Math.sin(t/7)*2.5).toFixed(2)+')');var head=document.getElementById('headP');if(head)head.setAttribute('transform','rotate('+(Math.sin(t/10)*3).toFixed(2)+' 50 42)');var eyes=document.getElementById('eyesP');if(eyes){if(t%28<2)eyes.setAttribute('transform','scale(1,0.12) translate(0,360)');else eyes.removeAttribute('transform');}var aL=document.getElementById('aLP'),aR=document.getElementById('aRP');if(aL&&aR){var aw=Math.sin(t/5)*5;aL.setAttribute('transform','rotate('+aw.toFixed(2)+' 24 68)');aR.setAttribute('transform','rotate('+(-aw).toFixed(2)+' 76 68)');}},65);
+  return 'dom-render stage='+si+' exp='+exp;
+})();}catch(e){}}if(document.readyState!=="loading")setTimeout(go,300);else document.addEventListener("DOMContentLoaded",function(){setTimeout(go,300);});})();</script>
