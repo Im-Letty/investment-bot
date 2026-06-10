@@ -3368,7 +3368,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       sec.innerHTML=head+'<div style="color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;">\u6c17\u306b\u306a\u308b\u9298\u67c4\u3092\u767b\u9332\u3059\u308b\u3068\u3001\u6bce\u671d\u3053\u3053\u3067\u52d5\u304d\u3092\u30c1\u30a7\u30c3\u30af\u3067\u304d\u307e\u3059\u3002</div>'+'<button id="knWatchAddBtn" type="button" style="background:#2e9e6b;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-size:14px;font-weight:700;cursor:pointer;">\uff0b \u9298\u67c4\u3092\u767b\u9332\u3059\u308b</button>';
       grid.insertAdjacentElement("afterend",sec);
       var b=document.getElementById("knWatchAddBtn");
-      if(b) b.addEventListener("click",function(){ try{ if(typeof closeDrawer==="function")closeDrawer(); }catch(e){} if(typeof openAlertSection==="function"){ openAlertSection(); } });<script>/* 急騰・急落アラートを朝レター内に統合（カード化・折りたたみ・オンオフ保存） */(function(){var KEY='alertEnabled_v1';function init(){var as=document.getElementById('alert-section');var ms=document.getElementById('morning-section');var kn=document.getElementById('knWatchSec');if(!as||!ms||as.dataset.letterDone)return;as.dataset.letterDone='1';as.style.display='block';as.style.background='#fff';as.style.borderRadius='12px';as.style.boxShadow='rgba(60,160,80,0.08) 0px 2px 8px 0px';as.style.padding='16px';as.style.margin='12px';as.style.maxWidth='none';if(kn){kn.insertAdjacentElement('afterend',as);}else{ms.appendChild(as);}var h2=as.querySelector('h2');if(h2){h2.style.fontSize='17px';h2.style.margin='0';h2.style.flex='1';}var sub=as.querySelector('.alert-sub');var msg=document.getElementById('alert-msg');var inp=as.querySelector('.alert-input-row');var th=as.querySelector('.alert-threshold-row');var wl=document.getElementById('alert-watchlist');var rf=document.getElementById('alert-refresh-btn');var help=as.querySelector('.help-tip');var wrap=document.createElement('div');wrap.id='alert-collapse-wrap';[sub,msg,inp,th,wl,rf].forEach(function(e){if(e)wrap.appendChild(e);});var header=document.createElement('div');header.style.cssText='display:flex;align-items:center;gap:10px;cursor:pointer;';if(h2)header.appendChild(h2);if(help)header.appendChild(help);var tg=document.createElement('button');tg.type='button';function paint(on){tg.dataset.on=on?'1':'0';tg.style.cssText='width:44px;height:24px;border-radius:12px;border:none;cursor:pointer;position:relative;flex:none;background:'+(on?'#3da060':'#ccc')+';';tg.innerHTML='<span style="position:absolute;top:2px;left:'+(on?'22px':'2px')+';width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.3)"></span>';}var sv=null;try{sv=localStorage.getItem(KEY);}catch(e){}paint(sv===null?true:sv==='1');tg.onclick=function(e){e.stopPropagation();var n=tg.dataset.on!=='1';paint(n);try{localStorage.setItem(KEY,n?'1':'0');}catch(e){}};var ch=document.createElement('span');ch.innerHTML='&#9662;';ch.style.cssText='font-size:22px;line-height:1;color:#3da060;flex:none;';header.appendChild(tg);header.appendChild(ch);wrap.style.cssText='overflow:hidden;transition:max-height .25s ease;max-height:0;';var open=false;function setOpen(o){open=o;wrap.style.maxHeight=o?(wrap.scrollHeight+60)+'px':'0';wrap.style.marginTop=o?'12px':'0';ch.style.transform=o?'rotate(180deg)':'';}header.onclick=function(){setOpen(!open);};as.insertBefore(header,as.firstChild);as.appendChild(wrap);setOpen(false);}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}setTimeout(init,1500);})();</script></body></html>
+      if(b) b.addEventListener("click",function(){ try{ if(typeof closeDrawer==="function")closeDrawer(); }catch(e){} if(typeof openAlertSection==="function"){ openAlertSection(); } });
       return;
     }
     sec.innerHTML=head+'<div id="knWatchList"><div style="color:#999;font-size:13px;">\u8aad\u307f\u8fbc\u307f\u4e2d...</div></div>';
@@ -3398,4 +3398,96 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   setTimeout(hook,1500); setTimeout(function(){ try{build();}catch(e){} },2000);
 })();
 </script>
-<script>/* Move 急騰・急落アラート into 朝レター(morning-section) */(function(){function mv(){var a=document.getElementById('alert-section'),m=document.getElementById('morning-section');if(a&&m&&a.parentElement!==m){a.style.display='block';m.appendChild(a);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',mv);}else{mv();}setTimeout(mv,1500);})();</script></body></html>
+<script>/* Move 急騰・急落アラート into 朝レター(morning-section) */(function(){function mv(){var a=document.getElementById('alert-section'),m=document.getElementById('morning-section');if(a&&m&&a.parentElement!==m){a.style.display='block';m.appendChild(a);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',mv);}else{mv();}setTimeout(mv,1500);})();</script><script>/* AlertToggle v3: on/off + collapsible details for #alert-section (clean rebuild) */
+(function(){
+  var KEY="alertEnabled_v1";
+  function $(id){return document.getElementById(id);}
+  function init(){
+    var as=$("alert-section");
+    if(!as) return;
+    if(as.dataset.toggleDone==="1") return;
+    var h2=as.querySelector("h2");
+    if(!h2) return;
+    as.dataset.toggleDone="1";
+    as.style.background="#fff";
+    as.style.borderRadius="12px";
+    as.style.boxShadow="rgba(60,160,80,0.08) 0px 2px 8px 0px";
+    as.style.padding="16px";
+    as.style.margin="12px";
+    as.style.maxWidth="none";
+    var wrap=document.createElement("div");
+    wrap.id="alert-collapse-wrap";
+    wrap.style.overflow="hidden";
+    wrap.style.transition="max-height 0.25s ease";
+    var nodes=[];
+    Array.prototype.forEach.call(as.children,function(c){
+      var cls=c.className||"";var cid=c.id||"";
+      if(cid==="alert-msg"||cid==="alert-watchlist"||cid==="alert-refresh-btn"||/alert-sub|alert-input-row|alert-threshold-row/.test(cls)){nodes.push(c);}
+    });
+    nodes.forEach(function(n){wrap.appendChild(n);});
+    var header=document.createElement("div");
+    header.style.display="flex";
+    header.style.alignItems="center";
+    header.style.gap="8px";
+    header.style.cursor="pointer";
+    h2.style.fontSize="17px";
+    h2.style.margin="0";
+    h2.style.flex="1";
+    var sw=document.createElement("button");
+    sw.type="button";
+    sw.setAttribute("role","switch");
+    sw.style.position="relative";
+    sw.style.width="44px";
+    sw.style.height="24px";
+    sw.style.borderRadius="12px";
+    sw.style.border="none";
+    sw.style.cursor="pointer";
+    sw.style.flex="0 0 auto";
+    sw.style.padding="0";
+    var knob=document.createElement("span");
+    knob.style.position="absolute";
+    knob.style.top="2px";
+    knob.style.width="20px";
+    knob.style.height="20px";
+    knob.style.borderRadius="50%";
+    knob.style.background="#fff";
+    knob.style.transition="left 0.2s ease";
+    sw.appendChild(knob);
+    var chev=document.createElement("span");
+    chev.innerHTML="&#9662;";
+    chev.style.fontSize="14px";
+    chev.style.transition="transform 0.2s ease";
+    chev.style.flex="0 0 auto";
+    chev.style.color="#666";
+    var open=true;
+    function setOpen(o){
+      open=o;
+      wrap.style.maxHeight=o?(wrap.scrollHeight+40)+"px":"0px";
+      chev.style.transform=o?"rotate(0deg)":"rotate(-90deg)";
+    }
+    function paint(on){
+      sw.setAttribute("aria-checked",on?"true":"false");
+      sw.style.background=on?"#3da060":"#ccc";
+      knob.style.left=on?"22px":"2px";
+    }
+    var enabled=localStorage.getItem(KEY)!=="0";
+    paint(enabled);
+    sw.addEventListener("click",function(e){
+      e.stopPropagation();
+      enabled=!enabled;
+      localStorage.setItem(KEY,enabled?"1":"0");
+      paint(enabled);
+    });
+    header.addEventListener("click",function(){setOpen(!open);});
+    header.appendChild(h2);
+    header.appendChild(sw);
+    header.appendChild(chev);
+    as.insertBefore(header,as.firstChild);
+    as.appendChild(wrap);
+    setOpen(true);
+  }
+  if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}else{init();}
+  setTimeout(init,1500);
+  setTimeout(init,3000);
+})();</script>
+</body></html>
