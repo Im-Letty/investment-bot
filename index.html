@@ -3567,4 +3567,41 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
 
 <style id="hideNavOnDrawer">/* hide bottom nav while hamburger drawer is open */
 body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
+<script>
+/* AlertBadge v1 — show ON/OFF state next to 急騰アラート in the drawer */
+(function(){
+  function init(){
+    try{
+      var sd=document.getElementById('sideDrawer');
+      if(!sd) return;
+      var alertBtn=[].slice.call(sd.querySelectorAll('button, a')).filter(function(b){
+        return /openAlertSection/.test(b.getAttribute('onclick')||'') || /急騰アラート/.test(b.textContent);
+      })[0];
+      if(!alertBtn) return;
+      if(document.getElementById('alertStateBadge')) return;
+      var labelSpan=alertBtn.querySelector('span[data-i18n="drawer_alert"]') || alertBtn.querySelector('span:last-child');
+      if(!labelSpan) return;
+      var badge=document.createElement('span');
+      badge.id='alertStateBadge';
+      badge.style.cssText='margin-left:8px;font-size:11px;font-weight:700;padding:1px 8px;border-radius:10px;line-height:1.5;vertical-align:middle;';
+      labelSpan.insertAdjacentElement('afterend', badge);
+      function refresh(){
+        var on;
+        try{ on = localStorage.getItem('alertEnabled_v1') !== '0'; }catch(e){ on=true; }
+        badge.textContent = on ? 'オン' : 'オフ';
+        badge.style.background = on ? '#e6f4ea' : '#f0f0f0';
+        badge.style.color = on ? '#1e7e34' : '#999';
+      }
+      refresh();
+      try{
+        var mo=new MutationObserver(function(){ if(sd.classList.contains('open')) refresh(); });
+        mo.observe(sd, {attributes:true, attributeFilter:['class']});
+      }catch(e){}
+      window.addEventListener('storage', function(ev){ if(!ev || ev.key==='alertEnabled_v1') refresh(); });
+    }catch(e){}
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', function(){ setTimeout(init,400); });
+  else setTimeout(init,400);
+})();
+</script>
 </body></html>
