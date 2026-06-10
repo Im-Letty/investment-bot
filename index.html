@@ -3481,4 +3481,68 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}else{init();}
   setTimeout(init,1500);setTimeout(init,3000);
 })();</script>
+
+<script>
+/* SettingsDrawer v1 — moves the 設定(Settings) modal items into the hamburger drawer as an inline accordion */
+(function(){
+  function init(){
+    try{
+      var btn=document.getElementById('drawerSettingsBtn');
+      if(!btn) return;
+      if(document.getElementById('settingsAccPanel')) return; // already initialised
+
+      // accordion panel inserted right after the settings button's wrapper
+      var panel=document.createElement('div');
+      panel.id='settingsAccPanel';
+      panel.style.cssText='overflow:hidden;max-height:0px;opacity:0;flex:none;flex-shrink:0;transition:max-height .28s ease,opacity .2s ease;padding:0 8px;';
+      var holder=document.createElement('div');
+      holder.id='settingsAccHolder';
+      holder.style.cssText='padding:6px 4px 10px;';
+      panel.appendChild(holder);
+      var wrap=btn.closest('div');
+      wrap.parentElement.insertBefore(panel, wrap.nextSibling);
+
+      // chevron indicator on the button
+      var chev=document.createElement('span');
+      chev.textContent='\u25BE';
+      chev.style.cssText='margin-left:auto;transition:transform .2s ease;transform:rotate(-90deg);font-size:12px;';
+
+      // replace the button to drop its original modal-opening click handler
+      var newBtn=btn.cloneNode(true);
+      newBtn.appendChild(chev);
+      btn.parentElement.replaceChild(newBtn, btn);
+
+      var built=false, open=false;
+      function buildOnce(){
+        if(built) return;
+        if(window._openSettings) window._openSettings();
+        var modal=document.querySelector('.settings-modal');
+        if(!modal) return;
+        var modalBg=document.getElementById('settingsModalBg');
+        var secs=[].slice.call(modal.querySelectorAll('.settings-section'));
+        secs.forEach(function(s){ holder.appendChild(s); });
+        if(modalBg){ modalBg.style.display='none'; modalBg.classList.remove('open'); }
+        built = secs.length>0;
+      }
+      function setOpen(o){
+        open=o;
+        if(o){
+          buildOnce();
+          panel.style.maxHeight='none';
+          panel.style.opacity='1';
+          chev.style.transform='rotate(0deg)';
+        }else{
+          panel.style.maxHeight='0px';
+          panel.style.opacity='0';
+          chev.style.transform='rotate(-90deg)';
+        }
+      }
+      newBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); setOpen(!open); }, true);
+    }catch(err){ /* no-op */ }
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});
+  else setTimeout(init,300);
+})();
+</script>
+
 </body></html>
