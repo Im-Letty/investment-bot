@@ -331,7 +331,7 @@
       <div class="mc" onclick="openBeginnerGuide()"><div class="mi">🧭</div><div class="mn">はじめてガイド</div><div class="md">何から始める？最初の一歩を案内 ▶</div></div><div class="mc" onclick="openTsumitate()"><div class="mi">🐷</div><div class="mn">積立プラン提案</div><div class="md">何に積立てる？毎月いくらで将来は？ ▶</div></div><div class="mc" onclick="openDividendSection()"><div class="mi">💴</div><div class="mn">今の高配当ランキング</div><div class="md">配当利回りの高い銘柄をチェック ▶</div></div><div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn" data-i18n="menu_simulator" data-help-key="menu_simulator" data-help-subtitle="1">シミュレーター</div><div class="md" data-i18n="card_sim_desc">毎日・毎月積立で将来資産を計算</div></div>
       <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn" data-i18n="menu_morning" data-help-key="menu_morning" data-help-subtitle="1">朝の相場レター</div><div class="md" data-i18n="card_morn_desc">毎朝8時にAIが市場を分析 ▶</div></a>
       <a href="/kakeibo" class="mc" target="_blank"><div class="mi">💼</div><div class="mn" data-i18n="menu_assets" data-help-key="menu_assets" data-help-subtitle="1">家計簿・資産管理</div><div class="md" data-i18n="card_assets_desc">家計簿・資産管理 ▶</div></a>
-      <a href="#" class="mc" onclick="event.preventDefault();window.openAlertSection&&window.openAlertSection();return false;"><div class="mi">⚡</div><div class="mn" data-i18n="menu_alert" data-help-key="menu_alert" data-help-subtitle="1">急騰・急落アラート</div><div class="md" data-i18n="card_alert_desc">ウォッチリスト銘柄を自動監視</div></a>
+      
       </div>
       
       </div>
@@ -3398,4 +3398,4 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   setTimeout(hook,1500); setTimeout(function(){ try{build();}catch(e){} },2000);
 })();
 </script>
-</body></html>
+<script>/* Move 急騰・急落アラート into 朝レター(morning-section) */(function(){function mv(){var a=document.getElementById('alert-section'),m=document.getElementById('morning-section');if(a&&m&&a.parentElement!==m){a.style.display='block';m.appendChild(a);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',mv);}else{mv();}setTimeout(mv,1500);})();</script></body></html>
