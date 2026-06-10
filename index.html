@@ -3398,12 +3398,11 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   setTimeout(hook,1500); setTimeout(function(){ try{build();}catch(e){} },2000);
 })();
 </script>
-<script>/* Move 急騰・急落アラート into 朝レター(morning-section) */(function(){function mv(){var a=document.getElementById('alert-section'),m=document.getElementById('morning-section');if(a&&m&&a.parentElement!==m){a.style.display='block';m.appendChild(a);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',mv);}else{mv();}setTimeout(mv,1500);})();</script><script>/* AlertToggle v3: on/off + collapsible details for #alert-section (clean rebuild) */
+<script>/* Move 急騰・急落アラート into 朝レター(morning-section) */(function(){function mv(){var a=document.getElementById('alert-section'),m=document.getElementById('morning-section');if(a&&m&&a.parentElement!==m){a.style.display='block';m.appendChild(a);}}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',mv);}else{mv();}setTimeout(mv,1500);})();</script><script>/* AlertToggle v4: on/off + collapsible details for #alert-section (clean, no-clip) */
 (function(){
   var KEY="alertEnabled_v1";
-  function $(id){return document.getElementById(id);}
   function init(){
-    var as=$("alert-section");
+    var as=document.getElementById("alert-section");
     if(!as) return;
     if(as.dataset.toggleDone==="1") return;
     var h2=as.querySelector("h2");
@@ -3462,7 +3461,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     var open=true;
     function setOpen(o){
       open=o;
-      wrap.style.maxHeight=o?(wrap.scrollHeight+40)+"px":"0px";
+      if(o){wrap.style.maxHeight="none";wrap.style.opacity="1";}
+      else{wrap.style.maxHeight="0px";wrap.style.opacity="0";}
       chev.style.transform=o?"rotate(0deg)":"rotate(-90deg)";
     }
     function paint(on){
@@ -3472,22 +3472,13 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     }
     var enabled=localStorage.getItem(KEY)!=="0";
     paint(enabled);
-    sw.addEventListener("click",function(e){
-      e.stopPropagation();
-      enabled=!enabled;
-      localStorage.setItem(KEY,enabled?"1":"0");
-      paint(enabled);
-    });
+    sw.addEventListener("click",function(e){e.stopPropagation();enabled=!enabled;localStorage.setItem(KEY,enabled?"1":"0");paint(enabled);});
     header.addEventListener("click",function(){setOpen(!open);});
-    header.appendChild(h2);
-    header.appendChild(sw);
-    header.appendChild(chev);
-    as.insertBefore(header,as.firstChild);
-    as.appendChild(wrap);
+    header.appendChild(h2);header.appendChild(sw);header.appendChild(chev);
+    as.insertBefore(header,as.firstChild);as.appendChild(wrap);
     setOpen(true);
   }
   if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}else{init();}
-  setTimeout(init,1500);
-  setTimeout(init,3000);
+  setTimeout(init,1500);setTimeout(init,3000);
 })();</script>
 </body></html>
