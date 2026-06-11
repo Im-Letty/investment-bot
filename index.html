@@ -4516,3 +4516,133 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
   boot();
 })();
 </script>
+<script>
+/* ===== Release #6.1: いちば fix — robust bar/host detection (additive, independent boot) ===== */
+(function(){
+  if(window.__PG_MKT2_BOOTED) return;
+  function boot(){
+    var PG=window.__PG;
+    if(!PG||!PG.S){ return setTimeout(boot,600); }
+    if(window.__PG_MKT2_BOOTED) return;
+    window.__PG_MKT2_BOOTED=true;
+    if(window.__MKT_IV){ try{clearInterval(window.__MKT_IV);}catch(e){} }
+    var S=PG.S;
+    var STOCKS=[
+      {id:'apl',emoji:'🍎',name:'りんご商事',base:40,vol:0.18,trend:0.02},
+      {id:'rkt',emoji:'🚀',name:'ロケット技研',base:80,vol:0.32,trend:0.04},
+      {id:'grn',emoji:'🌱',name:'みどり農園',base:25,vol:0.10,trend:0.01},
+      {id:'gam',emoji:'🎮',name:'あそびゲームズ',base:55,vol:0.24,trend:0.0}
+    ];
+    function avgBase(){var s=0;STOCKS.forEach(function(x){s+=x.base;});return s/STOCKS.length;}
+    function initMkt(){
+      if(!S._mkt){S._mkt={day:1,price:{},prev:{},hold:{},cost:{},hist:[]};}
+      var m=S._mkt;
+      STOCKS.forEach(function(x){
+        if(m.price[x.id]==null)m.price[x.id]=x.base;
+        if(m.hold[x.id]==null)m.hold[x.id]=0;
+        if(m.cost[x.id]==null)m.cost[x.id]=0;
+      });
+      if(!m.hist||!m.hist.length)m.hist=[avgPrice()];
+      return m;
+    }
+    function avgPrice(){var m=S._mkt;if(!m)return avgBase();var s=0;STOCKS.forEach(function(x){s+=(m.price[x.id]||x.base);});return s/STOCKS.length;}
+    function indexVal(){return Math.round((avgPrice()/avgBase())*1000);}
+    function clamp(v,a,b){return Math.max(a,Math.min(b,v));}
+    function advance(){
+      var m=initMkt();
+      STOCKS.forEach(function(x){
+        m.prev[x.id]=m.price[x.id];
+        var r=(Math.random()*2-1);
+        m.price[x.id]=Math.round(clamp(m.price[x.id]*(1+x.trend+r*x.vol),3,999));
+      });
+      m.day+=7;m.hist.push(avgPrice());if(m.hist.length>16)m.hist=m.hist.slice(-16);
+      PG.persist&&PG.persist();render();
+    }
+    function buy(id){var m=initMkt();var p=Math.round(m.price[id]);if((S.coins||0)>=p){S.coins-=p;m.hold[id]++;m.cost[id]+=p;PG.persist&&PG.persist();render();}}
+    function sell(id){var m=initMkt();var p=Math.round(m.price[id]);if(m.hold[id]>0){var a=m.cost[id]/m.hold[id];S.coins=(S.coins||0)+p;m.hold[id]--;m.cost[id]-=a;if(m.hold[id]===0)m.cost[id]=0;PG.persist&&PG.persist();render();}}
+    function spark(hist){
+      var w=120,h=28,n=hist.length;if(n<2)return '';
+      var mn=Math.min.apply(null,hist),mx=Math.max.apply(null,hist),rg=(mx-mn)||1;
+      var pts=hist.map(function(v,i){return ((i/(n-1))*w).toFixed(1)+','+(h-((v-mn)/rg)*h).toFixed(1);}).join(' ');
+      return '<svg width="'+w+'" height="'+h+'" style="vertical-align:middle"><polyline fill="none" stroke="#4a90d9" stroke-width="2" points="'+pts+'"/></svg>';
+    }
+    function findBar(){
+      var cand=null;
+      document.querySelectorAll('div').forEach(function(d){
+        var kids=Array.prototype.filter.call(d.children,function(c){return c.tagName==='BUTTON';});
+        if(kids.length>=4){
+          var txt=kids.map(function(k){return k.innerText;}).join('');
+          if(txt.indexOf('そだてる')>=0&&txt.indexOf('ショップ')>=0&&txt.indexOf('ずかん')>=0)cand=d;
+        }
+      });
+      return cand;
+    }
+    var PANEL_ID='mktPanel';
+    function hidePanel(){var p=document.getElementById(PANEL_ID);if(p)p.style.display='none';}
+    function showPanel(){render();var p=document.getElementById(PANEL_ID);if(p)p.style.display='block';}
+    function ensureTab(){
+      var bar=findBar();if(!bar)return;
+      if(bar.querySelector('#mktTabBtn'))return;
+      var btns=Array.prototype.filter.call(bar.children,function(c){return c.tagName==='BUTTON';});
+      if(!btns.length)return;
+      var last=btns[btns.length-1];
+      var b=last.cloneNode(true);
+      b.id='mktTabBtn';b.innerHTML='📈<br>いちば';
+      b.onclick=function(){S._mktTab=true;showPanel();};
+      bar.appendChild(b);
+      btns.forEach(function(ob){ob.addEventListener('click',function(){S._mktTab=false;hidePanel();});});
+    }
+    function render(){
+      if(!S._mktTab)return;
+      initMkt();
+      var bar=findBar();if(!bar)return;
+      var host=bar.parentElement;if(!host)return;
+      var p=document.getElementById(PANEL_ID);
+      if(!p){
+        p=document.createElement('div');p.id=PANEL_ID;
+        p.style.cssText='position:absolute;left:0;top:0;right:0;bottom:0;overflow:auto;background:#f3f8ff;z-index:5;padding:16px 16px 110px;box-sizing:border-box;font-family:inherit';
+        if(getComputedStyle(host).position==='static')host.style.position='relative';
+        host.appendChild(p);
+      }
+      var m=S._mkt;
+      var iv=indexVal();var pv=m.hist.length>1?Math.round((m.hist[m.hist.length-2]/avgBase())*1000):iv;
+      var up=iv>=pv;
+      var html='';
+      html+='<div style="max-width:560px;margin:0 auto">';
+      html+='<div style="font-size:20px;font-weight:bold;color:#2c5f8a;margin-bottom:4px">📈 いちば</div>';
+      html+='<div style="font-size:13px;color:#666;margin-bottom:2px">'+m.day+'日め ・ やすく かって たかく うろう</div>';
+      html+='<div style="display:inline-block;background:#fff;border-radius:12px;padding:4px 12px;font-size:13px;color:#444;margin-bottom:10px">さいふ: '+(S.coins||0)+' 🌑</div>';
+      html+='<div style="background:#fff;border-radius:14px;padding:12px;margin-bottom:12px;box-shadow:0 2px 6px rgba(0,0,0,0.06)">';
+      html+='<div style="font-size:13px;color:#888">いちば へいきん（しすう）</div>';
+      html+='<div style="font-size:26px;font-weight:bold;color:'+(up?'#e0533d':'#3aa657')+'">'+iv+' <span style="font-size:16px">'+(up?'▲':'▼')+'</span></div>';
+      html+='<div>'+spark(m.hist.map(function(v){return (v/avgBase())*1000;}))+'</div></div>';
+      STOCKS.forEach(function(x){
+        var pr=Math.round(m.price[x.id]);var pp=Math.round(m.prev[x.id]||pr);
+        var chg=pp?Math.round(((pr-pp)/pp)*100):0;var cu=chg>=0;
+        var hold=m.hold[x.id]||0;var cost=m.cost[x.id]||0;var pl=hold>0?Math.round(pr*hold-cost):0;
+        html+='<div style="background:#fff;border-radius:14px;padding:12px;margin-bottom:10px;box-shadow:0 2px 6px rgba(0,0,0,0.06)">';
+        html+='<div style="display:flex;justify-content:space-between;align-items:center">';
+        html+='<div style="font-size:15px;font-weight:bold">'+x.emoji+' '+x.name+'</div>';
+        html+='<div style="text-align:right"><span style="font-size:18px;font-weight:bold">'+pr+'🌑</span> <span style="font-size:12px;color:'+(cu?'#e0533d':'#3aa657')+'">'+(cu?'↑':'↓')+Math.abs(chg)+'%</span></div></div>';
+        html+='<div style="font-size:12px;color:#777;margin:4px 0">もってる: '+hold+'かぶ ・ そんえき: '+(pl>=0?'+':'')+pl+'🌑</div>';
+        html+='<div style="display:flex;gap:8px"><button data-buy="'+x.id+'" style="flex:1;border:none;border-radius:10px;padding:8px;background:#5b9bd5;color:#fff;font-size:14px;font-weight:bold">かう</button>';
+        html+='<button data-sell="'+x.id+'" style="flex:1;border:none;border-radius:10px;padding:8px;background:#f0a04b;color:#fff;font-size:14px;font-weight:bold">うる</button></div></div>';
+      });
+      html+='<button id="mktAdv" style="width:100%;border:none;border-radius:12px;padding:12px;background:#7c5fc4;color:#fff;font-size:15px;font-weight:bold;margin:6px 0 12px">⏩ 1しゅうかん すすめる</button>';
+      html+='<div style="font-size:12px;color:#888;line-height:1.6;background:#fff;border-radius:12px;padding:12px">やすい ときに かって、たかい ときに うると おかねが ふえる。ひとつに あつめず わけると あんしん。あがりつづける とは かぎらない（リスク）。</div>';
+      html+='</div>';
+      p.innerHTML=html;
+      p.querySelectorAll('[data-buy]').forEach(function(b){b.onclick=function(){buy(b.getAttribute('data-buy'));};});
+      p.querySelectorAll('[data-sell]').forEach(function(b){b.onclick=function(){sell(b.getAttribute('data-sell'));};});
+      var adv=p.querySelector('#mktAdv');if(adv)adv.onclick=advance;
+    }
+    initMkt();
+    window.__MKT_IV=setInterval(function(){
+      if(!window.__PG_MKT2_BOOTED)return;
+      ensureTab();
+      if(S._mktTab){var p=document.getElementById(PANEL_ID);if(!p||p.style.display==='none')showPanel();}
+    },500);
+  }
+  boot();
+})();
+</script>
