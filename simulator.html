@@ -965,5 +965,43 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 })();
 </script>
 
+<script id="simLangSync">
+(function(){
+  if (window.__simLangSyncInit) return;
+  window.__simLangSyncInit = true;
+  var KEY = 'siteLang';
+  function hideSelector(){
+    try{
+      var sel = document.getElementById('lang-select');
+      if(!sel) return;
+      var outer = sel.closest ? sel.closest('.lang-select-outer') : null;
+      var target = outer || sel;
+      target.style.display = 'none';
+    }catch(e){}
+  }
+  function syncLang(){
+    try{
+      var ls = localStorage.getItem(KEY);
+      if(!ls) return;
+      if(typeof window.setLang === 'function' && ls !== window.currentLang){
+        window.setLang(ls);
+      }
+    }catch(e){}
+  }
+  function tick(){ hideSelector(); syncLang(); }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', tick);
+  } else { tick(); }
+  window.addEventListener('storage', function(e){
+    if(!e || e.key === KEY || e.key === null){ syncLang(); }
+  });
+  window.addEventListener('focus', tick);
+  document.addEventListener('visibilitychange', function(){
+    if(!document.hidden){ tick(); }
+  });
+  setInterval(tick, 1000);
+})();
+</script>
+
 </body>
 </html>
