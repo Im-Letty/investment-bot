@@ -895,7 +895,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 })();
 </script>
 <script>
-/* simBrandSyncText: recolor remaining green TEXT (tabs/labels/units/legend) + chart tooltip; detail-box labels & legend set to neutral black. Additive, idempotent. */
+/* simBrandSyncText: recolor remaining green TEXT (tabs/labels/units/legend) + chart tooltip; detail-box labels, legend & chart legend set to neutral black. Additive, idempotent. */
 (function(){
   function h2r(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c;}).join('');var n=parseInt(h,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   function dk(rgb,a){return rgb.map(function(c){return Math.round(c*(1-a));});}
@@ -925,7 +925,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     var css=buildCss(hex);
     if(st.textContent!==css)st.textContent=css;
     fixHeading();
-    applyTooltip(hex);
+    applyChart(hex);
   }
   function fixHeading(){
     try{
@@ -936,17 +936,22 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
       }
     }catch(e){}
   }
-  function applyTooltip(hex){
+  function applyChart(hex){
     try{
       if(typeof Chart==='undefined'||!Chart.instances)return;
       var b=h2r(hex);
       var title=S(dk(b,0.30)), body=S(dk(b,0.55)), border=S(dk(b,0.18));
       Object.keys(Chart.instances).forEach(function(k){
         var inst=Chart.instances[k];
-        if(!inst||!inst.options||!inst.options.plugins||!inst.options.plugins.tooltip)return;
+        if(!inst||!inst.options||!inst.options.plugins)return;
+        var changed=false;
         var tt=inst.options.plugins.tooltip;
-        var changed=(tt.titleColor!==title||tt.bodyColor!==body||tt.borderColor!==border);
-        tt.titleColor=title;tt.bodyColor=body;tt.borderColor=border;
+        if(tt){
+          if(tt.titleColor!==title||tt.bodyColor!==body||tt.borderColor!==border)changed=true;
+          tt.titleColor=title;tt.bodyColor=body;tt.borderColor=border;
+        }
+        var lg=inst.options.plugins.legend;
+        if(lg&&lg.labels){ if(lg.labels.color!==BLACK)changed=true; lg.labels.color=BLACK; }
         if(changed&&typeof inst.update==='function')inst.update('none');
       });
     }catch(e){}
