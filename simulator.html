@@ -821,7 +821,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   h1, .sim-title{ color: var(--brand-deep, #225835) !important; }
 </style>
 
-<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + metric values (.mval) + sliders + boxes + advice (bg AND text) + detail box gradient bg + detail green text (incl 運用益 #3da060) + chart (lines/fills/area bg/legend) across ALL tabs without needing a tab click, and survives chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
+<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + metric values (.mval) + sliders + boxes + advice (bg/border/text) + detail box gradient bg + detail green text (incl 運用益) + chart (lines/fills/area bg/legend) across ALL tabs without a tab click, on live color change (storage event) AND on reload, idempotently (re-applies even after a previous brand color), surviving chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
 <style id="simBrandSync"></style>
 <style id="simBrandSyncDetail"></style>
 <script>
@@ -836,13 +836,13 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   function rgba(hex,a){var c=hexToRgb(hex);return "rgba("+clamp(c.r)+","+clamp(c.g)+","+clamp(c.b)+","+a+")";}
   function getBrand(){try{var v=localStorage.getItem("userBrandColor");return (v&&/^#?[0-9a-fA-F]{3,6}$/.test(v))?(v[0]==="#"?v:"#"+v):DEFAULT_BRAND;}catch(e){return DEFAULT_BRAND;}}
   function buildVars(brand){return {
-    brand:brand, light:tint(brand,0.15), lighter:tint(brand,0.25), dark:darken(brand,0.18), darker:darken(brand,0.45),
-    deep:darken(brand,0.30), bg:tint(brand,0.95), tabsBg:tint(brand,0.88), activeTab:tint(brand,0.78), text:darken(brand,0.55),
-    accent:darken(brand,0.18), noteBg:rgba(brand,0.10), noteBorder:rgba(brand,0.25), chartBg:tint(brand,0.93),
-    softBorder:rgba(brand,0.18), areaBg:tint(brand,0.93), lineMain:darken(brand,0.30), linePrincipal:tint(brand,0.55),
-    fillMain:rgba(brand,0.12), fillPrincipal:rgba(brand,0.15),
+    brand:brand, deep:darken(brand,0.30), bg:tint(brand,0.95), tabsBg:tint(brand,0.88), activeTab:tint(brand,0.78),
+    text:darken(brand,0.55), accent:darken(brand,0.18), noteBg:rgba(brand,0.10), noteBorder:rgba(brand,0.25),
+    chartBg:tint(brand,0.93), softBorder:rgba(brand,0.18), areaBg:tint(brand,0.93), lineMain:darken(brand,0.30),
+    linePrincipal:tint(brand,0.55), fillMain:rgba(brand,0.12), fillPrincipal:rgba(brand,0.15),
     detailGrad:"linear-gradient(135deg,"+rgba(brand,0.10)+","+rgba(brand,0.05)+")"
   };}
+  function isGreen(c){var m=c&&c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);if(!m)return false;var r=+m[1],g=+m[2],b=+m[3];return (g>r+15&&g>b+15);}
   function applyCss(v){
     var css="body{background:"+v.bg+" !important;}"+
     ".tabs{background:"+v.tabsBg+" !important;}"+
@@ -856,21 +856,18 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   }
   function applyInline(v){
     var els=document.querySelectorAll("[style]");
-    for(var i=0;i<els.length;i++){var el=els[i];var st=el.getAttribute("style");if(!st)continue;var o=st;
-      st=st.replace(/linear-gradient\(135deg,\s*rgba\(61,\s*160,\s*96,[^)]*\),\s*rgba\(52,\s*152,\s*219,[^)]*\)\)/gi, v.detailGrad);
-      st=st.replace(/color:\s*#2f5d33/gi,"color:"+v.text);
-      st=st.replace(/color:\s*#2d4a2d/gi,"color:"+v.text);
-      st=st.replace(/color:\s*#2d7a2d/gi,"color:"+v.deep);
-      st=st.replace(/color:\s*#3da060/gi,"color:"+v.deep);
-      st=st.replace(/#f1f8f1/gi, v.noteBg);
-      st=st.replace(/#d7ebd7/gi, v.noteBorder);
+    for(var i=0;i<els.length;i++){var el=els[i];var st=el.getAttribute("style");if(!st)continue;var o=st;var t=el.textContent||"";
+      if(/💡/.test(t)&&/background:/.test(st)){st=st.replace(/background:[^;]+/,"background:"+v.noteBg);st=st.replace(/border:1px solid [^;]+/,"border:1px solid "+v.noteBorder);st=st.replace(/(^|;)\s*color:[^;]+/,"$1color:"+v.text);}
+      if(/詳細分析/.test(t)&&/linear-gradient/.test(st)){st=st.replace(/background:\s*linear-gradient[^;]+/i,"background:"+v.detailGrad);}
+      if(el.tagName==="B"&&/^¥/.test(t.trim())){var cs=getComputedStyle(el).color;if(isGreen(cs)||/#3da060/i.test(st)){st=st.replace(/color:[^;]+/,"color:"+v.deep);}}
+      if(el.tagName==="DIV"&&/font-weight:700;color:/.test(st)&&/詳細分析/.test(t)){st=st.replace(/color:[^;]+/,"color:"+v.text);}
       if(st!==o)el.setAttribute("style",st);
     }
   }
   function applySliders(v){
     var rs=document.querySelectorAll(".row input[type=range]");
     for(var i=0;i<rs.length;i++){var r=rs[i];var st=r.getAttribute("style");if(!st)continue;
-      var st2=st.replace(/(--fill:[^;]*?)(#[0-9a-fA-F]{6})/,"$1"+v.accent);
+      var st2=st.replace(/(--fill:\s*linear-gradient\([^,]+,\s*)(#[0-9a-fA-F]{6}|rgba?\([^)]*\))/,"$1"+v.accent);
       if(st2!==st)r.setAttribute("style",st2);}
   }
   var areaPlugin={id:"simBrandAreaBg",beforeDraw:function(chart){try{var a=chart.chartArea;if(!a)return;var ctx=chart.ctx;ctx.save();ctx.fillStyle=window.__simAreaBg||"#f0f7f0";ctx.fillRect(a.left,a.top,a.right-a.left,a.bottom-a.top);ctx.restore();}catch(e){}}};
