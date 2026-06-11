@@ -821,7 +821,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   h1, .sim-title{ color: var(--brand-deep, #225835) !important; }
 </style>
 
-<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + sliders + boxes + advice (bg AND text) + detail box gradient bg + detail green text + chart (lines/fills/area bg/legend) across ALL tabs without needing a tab click, and survives chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
+<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + sliders + boxes + advice (bg AND text) + detail box gradient bg + detail green text (incl 運用益 #3da060) + chart (lines/fills/area bg/legend) across ALL tabs without needing a tab click, and survives chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
 <style id="simBrandSync"></style>
 <style id="simBrandSyncDetail"></style>
 <script>
@@ -861,6 +861,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
       st=st.replace(/color:\s*#2f5d33/gi,"color:"+v.text);
       st=st.replace(/color:\s*#2d4a2d/gi,"color:"+v.text);
       st=st.replace(/color:\s*#2d7a2d/gi,"color:"+v.deep);
+      st=st.replace(/color:\s*#3da060/gi,"color:"+v.deep);
       st=st.replace(/#f1f8f1/gi, v.noteBg);
       st=st.replace(/#d7ebd7/gi, v.noteBorder);
       if(st!==o)el.setAttribute("style",st);
