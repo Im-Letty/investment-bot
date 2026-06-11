@@ -894,6 +894,59 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   window.addEventListener("storage",function(e){if(e.key==="userBrandColor")applyAll();});
 })();
 </script>
+<script>
+/* simBrandSyncText: recolor remaining green TEXT (tabs/labels/units/legend) + chart tooltip. Additive, idempotent. */
+(function(){
+  function h2r(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c;}).join('');var n=parseInt(h,16);return [(n>>16)&255,(n>>8)&255,n&255];}
+  function dk(rgb,a){return rgb.map(function(c){return Math.round(c*(1-a));});}
+  function tn(rgb,a){return rgb.map(function(c){return Math.round(c+(255-c)*a);});}
+  function S(rgb){return 'rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';}
+  function getColor(){return localStorage.getItem('userBrandColor')||'#3da060';}
+  function buildCss(hex){
+    var b=h2r(hex);
+    var text=S(dk(b,0.55));
+    var mid=S(tn(dk(b,0.30),0.30));
+    return [
+      '.tabs{color:'+text+' !important}',
+      '.tab{color:'+mid+' !important}',
+      '.tab.active{color:'+text+' !important}',
+      '.mlabel{color:'+mid+' !important}',
+      'label{color:'+mid+' !important}',
+      '.unit{color:'+mid+' !important}',
+      '.right{color:'+text+' !important}'
+    ].join('');
+  }
+  function applyText(){
+    var hex=getColor();
+    var st=document.getElementById('simBrandSyncText');
+    if(!st){st=document.createElement('style');st.id='simBrandSyncText';document.head.appendChild(st);}
+    var css=buildCss(hex);
+    if(st.textContent!==css)st.textContent=css;
+    applyTooltip(hex);
+  }
+  function applyTooltip(hex){
+    try{
+      if(typeof Chart==='undefined'||!Chart.instances)return;
+      var b=h2r(hex);
+      var title=S(dk(b,0.30)), body=S(dk(b,0.55)), border=S(dk(b,0.18));
+      Object.keys(Chart.instances).forEach(function(k){
+        var inst=Chart.instances[k];
+        if(!inst||!inst.options||!inst.options.plugins||!inst.options.plugins.tooltip)return;
+        var tt=inst.options.plugins.tooltip;
+        var changed=(tt.titleColor!==title||tt.bodyColor!==body||tt.borderColor!==border);
+        tt.titleColor=title;tt.bodyColor=body;tt.borderColor=border;
+        if(changed&&typeof inst.update==='function')inst.update('none');
+      });
+    }catch(e){}
+  }
+  function init(){applyText();}
+  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+  window.addEventListener('storage',function(e){if(!e||e.key==='userBrandColor'||e.key===null)applyText();});
+  var n=0;var iv=setInterval(function(){applyText();if(++n>40)clearInterval(iv);},500);
+  document.addEventListener('click',function(){setTimeout(applyText,60);},true);
+  document.addEventListener('input',function(){setTimeout(applyText,60);},true);
+})();
+</script>
 
 </body>
 </html>
