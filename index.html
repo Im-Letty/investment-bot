@@ -4012,3 +4012,212 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
   boot();
 })();
 </script>
+
+<script>
+(function(){
+  window.__PG_FEAT3_BOOTED = true;
+  if(window.__PG_ENH_BOOTED) return;
+  function boot(){
+    var PG=window.__PG;
+    if(!PG||!PG.S||typeof PG.persist!=="function"){ return setTimeout(boot,400); }
+    if(window.__PG_ENH_BOOTED) return;
+    window.__PG_ENH_BOOTED=true;
+    var S=PG.S, FOODS=PG.FOODS, DECOS=PG.DECOS;
+    function save(){ try{PG.persist();}catch(e){} }
+    function seasonItem(){
+      var m=new Date().getMonth()+1;
+      if(m>=3&&m<=5) return {e:"🌷",buy:22,sell:11,kind:"decos",label:"はる げんてい"};
+      if(m>=6&&m<=8) return {e:"🍉",buy:14,sell:7,exp:5,kind:"foods",label:"なつ げんてい"};
+      if(m>=9&&m<=11) return {e:"🍁",buy:20,sell:10,kind:"decos",label:"あき げんてい"};
+      return {e:"☃️",buy:24,sell:12,kind:"decos",label:"ふゆ げんてい"};
+    }
+    var ALL_SEASON=["🌷","🍉","🍁","☃️"];
+    function barEl(){
+      var bar=null;
+      document.querySelectorAll("div").forEach(function(d){
+        var btns=Array.prototype.filter.call(d.children,function(c){return c.tagName==="BUTTON";});
+        if(btns.length>=4 && /そだてる/.test(d.textContent) && /ショップ/.test(d.textContent)){ bar=d; }
+      });
+      return bar;
+    }
+    function contentEl(){
+      var bar=barEl(); if(!bar||!bar.parentElement) return null;
+      var pa=bar.parentElement, content=null;
+      Array.prototype.forEach.call(pa.children,function(ch){ if(ch!==bar&&(!content||ch.offsetHeight>content.offsetHeight)) content=ch; });
+      return content;
+    }
+    function activeTab(){
+      var bar=barEl(); if(!bar) return "";
+      var c=contentEl();
+      if(c && /あつめると|ぜんぶ あつ/.test(c.textContent||"")) return "zukan";
+      var btns=Array.prototype.filter.call(bar.children,function(x){return x.tagName==="BUTTON";});
+      var names=["sodateru","shop","item","money"];
+      for(var i=0;i<btns.length&&i<4;i++){ if(/43, 154, 219/.test(getComputedStyle(btns[i]).color)) return names[i]; }
+      return "zukan";
+    }
+    function evoStage(exp){
+      if(exp>=5000) return {name:"ユニコーン",emo:"🦄",dream:true};
+      if(exp>=3500) return {name:"ドラゴン",emo:"🐉",dream:true};
+      if(exp>=2200) return {name:"でんせつ",emo:"🌟"};
+      if(exp>=1300) return {name:"けんじゃ",emo:"🔮"};
+      if(exp>=700)  return {name:"たつじん",emo:"⚔️"};
+      if(exp>=350)  return {name:"ベテラン",emo:"🎖️"};
+      return null;
+    }
+    function applyEvoTitle(){
+      var c=contentEl(); if(!c) return;
+      var line=null;
+      c.querySelectorAll("div").forEach(function(d){ if(d.children.length===0){ var t=(d.textContent||""); if(/Lv\.\d/.test(t)&&/EXP/.test(t)) line=d; } });
+      if(!line) return;
+      var st=evoStage(S.exp||0);
+      if(!st){ return; }
+      var newTxt=line.textContent.replace(/(EXP\s*\d+\s*・\s*).*/, "$1"+st.name+" "+st.emo);
+      if(line.textContent!==newTxt){ line.textContent=newTxt; }
+      if(st.dream && !document.getElementById("enhDream")){
+        var b=document.createElement("div"); b.id="enhDream";
+        b.style.cssText="margin:4px auto 0;text-align:center;font-size:12px;color:#b06;font-weight:700";
+        b.textContent="✨ ゆめを かなえた！"+st.emo+" ✨";
+        line.parentElement.insertBefore(b, line.nextSibling);
+      }
+    }
+    function seasonInfo(){
+      var m=new Date().getMonth()+1;
+      if(m>=3&&m<=5) return {emo:"🌸",name:"はるの おはなみ",col:"#ffd9e6",bonus:"はるは あたたかい！"};
+      if(m>=6&&m<=8) return {emo:"🎆",name:"なつの おまつり",col:"#cdeffd",bonus:"なつの あそびは コイン2ばい！"};
+      if(m>=9&&m<=11) return {emo:"🍁",name:"あきの みのり",col:"#ffe6c7",bonus:"あきは そうばが よく うごく！"};
+      return {emo:"⛄",name:"ふゆの ゆきまつり",col:"#e3f0ff",bonus:"ふゆは なかよしが あがりやすい！"};
+    }
+    function injectSeason(){
+      var c=contentEl(); if(!c||c.querySelector("#pgSeason")) return;
+      var s=seasonInfo(), si=seasonItem();
+      var b=document.createElement("div"); b.id="pgSeason";
+      b.style.cssText="margin:8px 10px;padding:10px 12px;border-radius:14px;background:"+s.col+";font-size:13px;color:#444;display:flex;align-items:center;gap:8px;box-shadow:0 2px 6px rgba(0,0,0,.06)";
+      b.innerHTML="<span style='font-size:22px'>"+s.emo+"</span><span><b>"+s.name+" "+s.emo+"</b><br><span style='font-size:11px;opacity:.8'>"+s.bonus+" げんてい:"+si.e+"</span></span>";
+      c.insertBefore(b,c.firstChild);
+    }
+    function injectPlayBtn(){
+      var c=contentEl(); if(!c||c.querySelector("#pgPlayBtn")) return;
+      var b=document.createElement("button"); b.id="pgPlayBtn"; b.textContent="🎮 あそぶ";
+      b.style.cssText="display:block;margin:6px auto;padding:10px 28px;border:none;border-radius:22px;background:linear-gradient(#9be1ff,#5cc4ff);color:#fff;font-weight:700;font-size:15px;box-shadow:0 3px 8px rgba(0,0,0,.15)";
+      b.onclick=playGame; c.appendChild(b);
+    }
+    function dayNum(){ return Math.floor(Date.now()/86400000); }
+    function priceMul(emoji){
+      var seed=dayNum()*131+emoji.codePointAt(0);
+      var mul=0.45+Math.abs(Math.sin(seed))*1.30;
+      var swing=Math.abs(Math.sin(seed*7.3));
+      if(swing>0.88){ mul=mul<1?mul*0.7:mul*1.25; }
+      return Math.max(0.4,Math.min(2.0,mul));
+    }
+    function tagFor(mul){
+      if(mul<0.7) return "<span style='color:#0a9;font-weight:700'>⬇ おおやすい</span>";
+      if(mul<0.88) return "<span style='color:#3aa;font-weight:700'>↓やすい</span>";
+      if(mul>1.45) return "<span style='color:#d33;font-weight:700'>⬆ おおだか</span>";
+      if(mul>1.2) return "<span style='color:#e55;font-weight:700'>↑たかい</span>";
+      return "<span style='color:#aaa'>→ふつう</span>";
+    }
+    function marketItems(){
+      var all=FOODS.map(function(f){return {e:f.e,base:f.buy,sellb:f.sell,kind:"foods"};}).concat(DECOS.map(function(d){return {e:d.e,base:d.buy,sellb:d.sell,kind:"decos"};}));
+      var si=seasonItem(); all.push({e:si.e,base:si.buy,sellb:si.sell,kind:si.kind,limited:si.label});
+      return all;
+    }
+    function injectMarket(){
+      var c=contentEl(); if(!c||c.querySelector("#pgMarket")) return;
+      var box=document.createElement("div"); box.id="pgMarket";
+      box.style.cssText="margin:10px;padding:12px;border-radius:16px;background:#fff7ec;box-shadow:0 2px 8px rgba(0,0,0,.07)";
+      box.innerHTML="<div style='font-weight:700;color:#c47a00;font-size:14px;margin-bottom:8px'>📈 きょうの そうば</div><div style='font-size:11px;color:#999;margin-bottom:8px'>ねだんは まいにち かわるよ。おおやすい日に かって、おおだか日に うろう！</div><div id='pgMktList'></div>";
+      c.insertBefore(box,c.firstChild); renderMarket();
+    }
+    function renderMarket(){
+      var list=document.getElementById("pgMktList"); if(!list) return;
+      var html="";
+      marketItems().forEach(function(it){
+        var mul=priceMul(it.e), buy=Math.max(1,Math.round(it.base*mul)), sell=Math.max(1,Math.round(it.sellb*mul));
+        var own=(S[it.kind]&&S[it.kind][it.e])||0;
+        var lim=it.limited?"<span style='color:#c0a;font-weight:700'> ["+it.limited+"]</span>":"";
+        html+="<div style='display:flex;align-items:center;gap:6px;padding:6px 0;border-top:1px solid #f0e3cc'><span style='font-size:22px;width:30px'>"+it.e+"</span><span style='flex:1;font-size:11px;color:#888'>"+tagFor(mul)+lim+" もってる:"+own+"</span><button data-buy='"+it.e+"' data-kind='"+it.kind+"' data-price='"+buy+"' style='padding:5px 9px;border:none;border-radius:12px;background:#ffd089;font-size:11px;font-weight:700'>かう "+buy+"🪙</button><button data-sell='"+it.e+"' data-kind='"+it.kind+"' data-price='"+sell+"' style='padding:5px 9px;border:none;border-radius:12px;background:#cfe8d8;font-size:11px;font-weight:700'>うる "+sell+"🪙</button></div>";
+      });
+      list.innerHTML=html;
+      list.querySelectorAll("[data-buy]").forEach(function(btn){ btn.onclick=function(){ var e=btn.getAttribute("data-buy"),k=btn.getAttribute("data-kind"),p=parseInt(btn.getAttribute("data-price")); if((S.coins||0)<p){flashB(btn,"たりない");return;} S.coins-=p; S[k]=S[k]||{}; S[k][e]=(S[k][e]||0)+1; S.seen=S.seen||{}; S.seen[e]=true; save(); renderMarket(); }; });
+      list.querySelectorAll("[data-sell]").forEach(function(btn){ btn.onclick=function(){ var e=btn.getAttribute("data-sell"),k=btn.getAttribute("data-kind"),p=parseInt(btn.getAttribute("data-price")); if(!S[k]||!S[k][e]){flashB(btn,"ない");return;} S[k][e]--; if(S[k][e]<=0)delete S[k][e]; S.coins=(S.coins||0)+p; save(); renderMarket(); }; });
+    }
+    function flashB(btn,m){ var o=btn.textContent; btn.textContent=m; setTimeout(function(){btn.textContent=o;},800); }
+    function injectZukanSeason(){
+      var c=contentEl(); if(!c||c.querySelector("#pgZukanSeason")) return;
+      var seen=S.seen||{}; var got=0; ALL_SEASON.forEach(function(e){ if(seen[e])got++; });
+      var cells="";
+      ALL_SEASON.forEach(function(e){ var has=!!seen[e]; cells+="<span style='display:inline-flex;align-items:center;justify-content:center;width:46px;height:46px;margin:3px;border-radius:10px;background:"+(has?"#fff0f6":"#f3f3f3")+";font-size:24px;filter:"+(has?"none":"grayscale(1) opacity(.45)")+"'>"+(has?e:"❔")+"</span>"; });
+      var box=document.createElement("div"); box.id="pgZukanSeason";
+      box.style.cssText="margin:6px 10px 14px";
+      box.innerHTML="<div style='font-size:13px;color:#b06;font-weight:700;margin-bottom:4px'>きせつ ("+got+"/4)</div><div>"+cells+"</div>";
+      c.appendChild(box);
+    }
+    function playGame(){
+      if(document.getElementById("pgMiniWrap")) return;
+      var summerX2=(new Date().getMonth()+1>=6&&new Date().getMonth()+1<=8);
+      var wrap=document.createElement("div"); wrap.id="pgMiniWrap";
+      wrap.style.cssText="position:fixed;inset:0;z-index:2147483640;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;";
+      var box=document.createElement("div");
+      box.style.cssText="width:300px;max-width:88vw;height:420px;background:linear-gradient(#eafaff,#fff);border-radius:20px;position:relative;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.3)";
+      wrap.appendChild(box);
+      var hud=document.createElement("div");
+      hud.style.cssText="position:absolute;top:0;left:0;right:0;padding:8px 12px;display:flex;justify-content:space-between;font-size:14px;font-weight:700;color:#555;z-index:3";
+      hud.innerHTML="<span id='pgScore'>🍎 0</span><span id='pgLv'>Lv1</span><span id='pgTime'>15</span>";
+      box.appendChild(hud);
+      var bowl=document.createElement("div"); bowl.textContent="🧺";
+      bowl.style.cssText="position:absolute;bottom:10px;font-size:40px;transform:translateX(-50%);left:50%;z-index:2"; box.appendChild(bowl);
+      var score=0,tleft=15,items=[],running=true,bx=150,elapsed=0;
+      function setS(){var e=box.querySelector("#pgScore");if(e)e.textContent="🍎 "+score;}
+      function setT(){var e=box.querySelector("#pgTime");if(e)e.textContent=tleft;}
+      function setL(){var e=box.querySelector("#pgLv");if(e)e.textContent="Lv"+diffLevel();}
+      function diffLevel(){ return Math.min(5,1+Math.floor(elapsed/3)); }
+      function moveTo(cx){var r=box.getBoundingClientRect();bx=cx-r.left;bowl.style.left=Math.max(20,Math.min(280,bx))+"px";}
+      box.addEventListener("mousemove",function(e){moveTo(e.clientX);});
+      box.addEventListener("touchmove",function(e){moveTo(e.touches[0].clientX);},{passive:true});
+      box.addEventListener("click",function(e){moveTo(e.clientX);});
+      var foods=["🍎","🍰","🍓","🍙","⭐"];
+      var spawnTimer=null;
+      function scheduleSpawn(){ var lv=diffLevel(); var interval=Math.max(220,560-lv*70);
+        spawnTimer=setTimeout(function(){ if(!running)return;
+          var isBomb=lv>=3&&Math.random()<0.15;
+          var el=document.createElement("div"); el.textContent=isBomb?"💣":foods[Math.floor(Math.random()*foods.length)];
+          var x=20+Math.random()*250; el.style.cssText="position:absolute;top:-30px;left:"+x+"px;font-size:26px;z-index:1";
+          box.appendChild(el); items.push({el:el,x:x,y:-30,bomb:isBomb,speed:6+lv*1.2}); scheduleSpawn();
+        },interval); }
+      scheduleSpawn();
+      var loop=setInterval(function(){ if(!running)return;
+        for(var i=items.length-1;i>=0;i--){ var it=items[i]; it.y+=it.speed; it.el.style.top=it.y+"px";
+          if(it.y>350&&it.y<395&&Math.abs(it.x-bx)<40){ if(it.bomb){score=Math.max(0,score-3);setS();it.el.textContent="💥";var be=it.el;setTimeout(function(){be.remove();},150);}else{score++;setS();it.el.remove();} items.splice(i,1); }
+          else if(it.y>430){it.el.remove();items.splice(i,1);} }
+      },40);
+      var timer=setInterval(function(){ tleft--;elapsed++;setT();setL(); if(tleft<=0)end(); },1000);
+      function end(){ running=false;clearTimeout(spawnTimer);clearInterval(loop);clearInterval(timer);
+        var reward=score*2; if(summerX2)reward*=2; S.coins=(S.coins||0)+reward; S.bond=Math.min(100,(S.bond||0)+Math.min(25,score)); save();
+        box.innerHTML="<div style='display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:14px;padding:20px;text-align:center'><div style='font-size:50px'>🎉</div><div style='font-size:18px;font-weight:700;color:#555'>あそんだ！</div><div style='font-size:14px;color:#777'>キャッチ "+score+"こ</div><div style='font-size:16px;font-weight:700;color:#e8820c'>＋"+reward+"🪙"+(summerX2?' (なつ2ばい!)':'')+"</div><div style='font-size:13px;color:#9a7'>なかよし も あがった 💗</div><div style='font-size:11px;color:#bbb'>💣に きをつけて！はやさが あがるよ</div><button id='pgMiniClose' style='margin-top:6px;padding:10px 24px;border:none;border-radius:20px;background:#ffb84d;color:#fff;font-weight:700;font-size:15px'>とじる</button></div>";
+        box.querySelector("#pgMiniClose").onclick=function(){ wrap.remove(); rerender(); };
+      }
+      document.body.appendChild(wrap);
+    }
+    function clean(kS,kP,kM){
+      if(!kS){var s=document.getElementById("pgSeason");if(s)s.remove();}
+      if(!kP){var p=document.getElementById("pgPlayBtn");if(p)p.remove();}
+      if(!kM){var m=document.getElementById("pgMarket");if(m)m.remove();}
+    }
+    function rerender(){
+      var t=activeTab();
+      if(t==="sodateru"){ clean(true,true,false); injectSeason(); injectPlayBtn(); applyEvoTitle(); }
+      else if(t==="shop"){ clean(false,false,true); injectMarket(); }
+      else if(t==="zukan"){ clean(false,false,false); var d=document.getElementById("enhDream"); if(d)d.remove(); injectZukanSeason(); }
+      else { clean(false,false,false); var d2=document.getElementById("enhDream"); if(d2)d2.remove(); }
+    }
+    function wireBar(){
+      var bar=barEl(); if(!bar) return false;
+      Array.prototype.forEach.call(bar.children,function(b){ if(b.tagName==="BUTTON"&&!b.__enh){ b.__enh=true; b.addEventListener("click",function(){ setTimeout(rerender,80); setTimeout(rerender,250); }); } });
+      return true;
+    }
+    setInterval(function(){ if(wireBar()){ rerender(); } },700);
+    rerender();
+  }
+  boot();
+})();
+</script>
