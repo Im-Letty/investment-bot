@@ -821,94 +821,78 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   h1, .sim-title{ color: var(--brand-deep, #225835) !important; }
 </style>
 
-<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Reflects main colors + pale bg + readable text + sliders + boxes + advice text + detail green text + chart (lines/fills/area bg/legend) across all tabs. Meaningful color-codes (tax/account/merit) kept. Default brand #3da060. -->
+<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + sliders + boxes + advice (bg AND text) + detail box gradient bg + detail green text + chart (lines/fills/area bg/legend) across ALL tabs without needing a tab click, and survives chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
 <style id="simBrandSync"></style>
 <style id="simBrandSyncDetail"></style>
 <script>
 (function(){
-  if (window.__SIM_BRANDSYNC_BOOTED) return; window.__SIM_BRANDSYNC_BOOTED = true;
-  var DEFAULT_BRAND = "#3da060";
-  function hexToRgb(h){h=(h||"").replace("#","");if(h.length!==6)return null;var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);if(isNaN(r)||isNaN(g)||isNaN(b))return null;return {r:r,g:g,b:b};}
+  if(window.__SIM_BRANDSYNC_BOOTED)return; window.__SIM_BRANDSYNC_BOOTED=true;
+  var DEFAULT_BRAND="#3da060";
+  function hexToRgb(h){h=(h||"").replace("#","");if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];var n=parseInt(h,16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
   function clamp(x){return Math.max(0,Math.min(255,Math.round(x)));}
-  function toHex(r,g,b){return "#"+[r,g,b].map(function(x){var s=clamp(x).toString(16);return s.length<2?"0"+s:s;}).join("");}
-  function tint(hex,amt){var c=hexToRgb(hex);if(!c)return hex;return toHex(c.r+(255-c.r)*amt,c.g+(255-c.g)*amt,c.b+(255-c.b)*amt);}
-  function darken(hex,amt){var c=hexToRgb(hex);if(!c)return hex;return toHex(c.r*(1-amt),c.g*(1-amt),c.b*(1-amt));}
-  function rgba(hex,a){var c=hexToRgb(hex);if(!c)return hex;return "rgba("+c.r+","+c.g+","+c.b+","+a+")";}
-  function getBrand(){var v=localStorage.getItem("userBrandColor");return hexToRgb(v)?v:DEFAULT_BRAND;}
-
-  function buildVars(brand){
-    return {
-      brand: brand, light: tint(brand,0.15), lighter: tint(brand,0.25),
-      dark: darken(brand,0.18), darker: darken(brand,0.45), deep: darken(brand,0.30),
-      bg: tint(brand,0.95), tabsBg: tint(brand,0.88), activeTab: tint(brand,0.78),
-      text: darken(brand,0.55), accent: darken(brand,0.18),
-      noteBg: tint(brand,0.90), noteBorder: tint(brand,0.75),
-      chartBg: tint(brand,0.93), softBorder: rgba(brand,0.18),
-      areaBg: tint(brand,0.93),
-      lineMain: darken(brand,0.30), linePrincipal: tint(brand,0.55),
-      fillMain: rgba(brand,0.12), fillPrincipal: rgba(brand,0.15)
-    };
-  }
-
+  function toHex(c){return "#"+[c.r,c.g,c.b].map(function(x){var s=clamp(x).toString(16);return s.length<2?"0"+s:s;}).join("");}
+  function tint(hex,a){var c=hexToRgb(hex);return toHex({r:c.r+(255-c.r)*a,g:c.g+(255-c.g)*a,b:c.b+(255-c.b)*a});}
+  function darken(hex,a){var c=hexToRgb(hex);return toHex({r:c.r*(1-a),g:c.g*(1-a),b:c.b*(1-a)});}
+  function rgba(hex,a){var c=hexToRgb(hex);return "rgba("+clamp(c.r)+","+clamp(c.g)+","+clamp(c.b)+","+a+")";}
+  function getBrand(){try{var v=localStorage.getItem("userBrandColor");return (v&&/^#?[0-9a-fA-F]{3,6}$/.test(v))?(v[0]==="#"?v:"#"+v):DEFAULT_BRAND;}catch(e){return DEFAULT_BRAND;}}
+  function buildVars(brand){return {
+    brand:brand, light:tint(brand,0.15), lighter:tint(brand,0.25), dark:darken(brand,0.18), darker:darken(brand,0.45),
+    deep:darken(brand,0.30), bg:tint(brand,0.95), tabsBg:tint(brand,0.88), activeTab:tint(brand,0.78), text:darken(brand,0.55),
+    accent:darken(brand,0.18), noteBg:rgba(brand,0.10), noteBorder:rgba(brand,0.25), chartBg:tint(brand,0.93),
+    softBorder:rgba(brand,0.18), areaBg:tint(brand,0.93), lineMain:darken(brand,0.30), linePrincipal:tint(brand,0.55),
+    fillMain:rgba(brand,0.12), fillPrincipal:rgba(brand,0.15),
+    detailGrad:"linear-gradient(135deg,"+rgba(brand,0.10)+","+rgba(brand,0.05)+")"
+  };}
   function applyCss(v){
-    var css = ":root{--brand-color:"+v.brand+";--brand-light:"+v.light+";--brand-lighter:"+v.lighter+";--brand-dark:"+v.dark+";--brand-darker:"+v.darker+";--brand-deep:"+v.deep+";}"
-      + "body{background:"+v.bg+" !important;}"
-      + ".tabs{background:"+v.tabsBg+" !important;}"
-      + ".tab.active{background:"+v.activeTab+" !important;color:"+v.text+" !important;}"
-      + ".metric .mval,.metric .mlabel{color:"+v.text+" !important;}"
-      + ".val-input,.section-title,h1,h2{color:"+v.text+" !important;}"
-      + "input[type=range]{accent-color:"+v.accent+" !important;}"
-      + ".chart-outer{background:"+v.chartBg+" !important;border-color:"+v.softBorder+" !important;}"
-      + ".card,.metric{border-color:"+v.softBorder+" !important;}"
-      + "[class^=sim-pro-box],[class*=\" sim-pro-box\"]{border-color:"+v.softBorder+" !important;}"
-      + "[style*=\"#f1f8f1\"]{background:"+v.noteBg+" !important;border-color:"+v.noteBorder+" !important;}";
-    var el=document.getElementById("simBrandSync"); if(el) el.textContent=css;
-    // green text inside advice/detail boxes -> brand (meaningful tax/account/merit colors are left as-is)
-    var dcss = "[style*=\"color:#2f5d33\"],[style*=\"color: #2f5d33\"]{color:"+v.text+" !important;}"
-      + "[style*=\"color:#2d4a2d\"],[style*=\"color: #2d4a2d\"]{color:"+v.text+" !important;}"
-      + "[style*=\"color:#3da060\"],[style*=\"color: #3da060\"]{color:"+v.deep+" !important;}"
-      + "[style*=\"color:#2d7a2d\"],[style*=\"color: #2d7a2d\"]{color:"+v.deep+" !important;}";
-    var del=document.getElementById("simBrandSyncDetail"); if(del) del.textContent=dcss;
+    var css="body{background:"+v.bg+" !important;}"+
+    ".tabs{background:"+v.tabsBg+" !important;}"+
+    ".tab.active{background:"+v.activeTab+" !important;color:"+v.text+" !important;}"+
+    ".metric .val,.val-input,.section-title,h1,h2{color:"+v.text+" !important;}"+
+    ".row input[type=range]{accent-color:"+v.accent+" !important;}"+
+    ".chart-outer{background:"+v.chartBg+" !important;border-color:"+v.softBorder+" !important;}"+
+    ".card,.metric{border-color:"+v.softBorder+" !important;}"+
+    ".sim-pro-box-d,.sim-pro-box-m,.sim-pro-box-l,.sim-pro-box-g{border-color:"+v.softBorder+" !important;}";
+    var s=document.getElementById("simBrandSync"); if(s)s.textContent=css;
   }
-
+  function applyInline(v){
+    var els=document.querySelectorAll("[style]");
+    for(var i=0;i<els.length;i++){var el=els[i];var st=el.getAttribute("style");if(!st)continue;var o=st;
+      st=st.replace(/linear-gradient\(135deg,\s*rgba\(61,\s*160,\s*96,[^)]*\),\s*rgba\(52,\s*152,\s*219,[^)]*\)\)/gi, v.detailGrad);
+      st=st.replace(/color:\s*#2f5d33/gi,"color:"+v.text);
+      st=st.replace(/color:\s*#2d4a2d/gi,"color:"+v.text);
+      st=st.replace(/color:\s*#2d7a2d/gi,"color:"+v.deep);
+      st=st.replace(/#f1f8f1/gi, v.noteBg);
+      st=st.replace(/#d7ebd7/gi, v.noteBorder);
+      if(st!==o)el.setAttribute("style",st);
+    }
+  }
   function applySliders(v){
-    document.querySelectorAll(".row input[type=range]").forEach(function(r){
-      var f=r.style.getPropertyValue("--fill");
-      if(f && f.indexOf("#")>-1){ var fixed=f.replace(/#[0-9a-fA-F]{6}/, v.accent); if(fixed!==f) r.style.setProperty("--fill", fixed); }
-    });
+    var rs=document.querySelectorAll(".row input[type=range]");
+    for(var i=0;i<rs.length;i++){var r=rs[i];var st=r.getAttribute("style");if(!st)continue;
+      var st2=st.replace(/(--fill:[^;]*?)(#[0-9a-fA-F]{6})/,"$1"+v.accent);
+      if(st2!==st)r.setAttribute("style",st2);}
   }
-
-  var areaColor = "#f1f8f4";
-  if (window.Chart && Chart.register){
-    var plugin={id:"simBrandAreaBg",beforeDraw:function(chart){var ctx=chart.ctx,ca=chart.chartArea;if(!ca)return;ctx.save();ctx.fillStyle=areaColor;ctx.fillRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.restore();}};
-    try{Chart.register(plugin);}catch(e){}
-  }
-
+  var areaPlugin={id:"simBrandAreaBg",beforeDraw:function(chart){try{var a=chart.chartArea;if(!a)return;var ctx=chart.ctx;ctx.save();ctx.fillStyle=window.__simAreaBg||"#f0f7f0";ctx.fillRect(a.left,a.top,a.right-a.left,a.bottom-a.top);ctx.restore();}catch(e){}}};
+  try{if(window.Chart&&Chart.register)Chart.register(areaPlugin);}catch(e){}
   function applyCharts(v){
-    areaColor = v.areaBg;
-    if(!(window.Chart && Chart.getChart))return;
-    try{ if(Chart.defaults) Chart.defaults.color = v.text; }catch(e){}
-    document.querySelectorAll("canvas").forEach(function(cv){
-      var ch=Chart.getChart(cv); if(!ch)return;
-      ch.data.datasets.forEach(function(d){
-        if(d.label==="総資産"){d.borderColor=v.lineMain;d.backgroundColor=v.fillMain;}
-        if(d.label==="元本"){d.borderColor=v.linePrincipal;d.backgroundColor=v.fillPrincipal;}
-      });
-      try{ch.update("none");}catch(e){}
-    });
+    window.__simAreaBg=v.areaBg;
+    try{if(window.Chart)Chart.defaults.color=v.text;}catch(e){}
+    try{document.querySelectorAll("canvas").forEach(function(cv){var ch=window.Chart&&Chart.getChart?Chart.getChart(cv):null;if(!ch)return;
+      (ch.data.datasets||[]).forEach(function(ds){var lbl=(ds.label||"");
+        if(/総資産/.test(lbl)){ds.borderColor=v.lineMain;ds.backgroundColor=v.fillMain;}
+        else if(/元本/.test(lbl)){ds.borderColor=v.linePrincipal;ds.backgroundColor=v.fillPrincipal;}
+        else{ds.borderColor=v.lineMain;ds.backgroundColor=v.fillMain;}});
+      ch.update("none");});}catch(e){}
   }
-
-  var curV = buildVars(getBrand());
-  function applyAll(){curV=buildVars(getBrand());applyCss(curV);applySliders(curV);applyCharts(curV);}
-
+  function applyAll(){var v=buildVars(getBrand());applyCss(v);applyInline(v);applySliders(v);applyCharts(v);}
   applyAll();
-  var tries=0; var iv=setInterval(function(){applyAll();if(++tries>=10)clearInterval(iv);},600);
-  // slider input rewrites slider fill AND chart to green -> re-fix
-  document.addEventListener("input",function(e){if(e.target&&e.target.matches&&e.target.matches(".row input[type=range]"))setTimeout(function(){applySliders(curV);applyCharts(curV);},0);},true);
-  // switching tabs re-creates charts (green) -> re-apply on tab click
-  document.addEventListener("click",function(e){var t=e.target&&e.target.closest?e.target.closest(".tab"):null;if(t){setTimeout(function(){applySliders(curV);applyCharts(curV);},60);setTimeout(function(){applySliders(curV);applyCharts(curV);},250);setTimeout(function(){applySliders(curV);applyCharts(curV);},600);}},true);
-  setInterval(function(){applySliders(curV);},500);
-
+  var tries=0;var iv=setInterval(function(){applyAll();if(++tries>=10)clearInterval(iv);},300);
+  var mt=null;
+  var obs=new MutationObserver(function(){clearTimeout(mt);mt=setTimeout(function(){var v=buildVars(getBrand());applyInline(v);applySliders(v);},40);});
+  try{obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});}catch(e){}
+  document.addEventListener("input",function(e){if(e.target&&e.target.type==="range"){var v=buildVars(getBrand());applySliders(v);applyInline(v);setTimeout(function(){applyCharts(v);},30);}},true);
+  document.addEventListener("click",function(e){if(e.target&&e.target.closest&&e.target.closest(".tab")){var v=buildVars(getBrand());[60,250,600].forEach(function(d){setTimeout(function(){applyInline(v);applySliders(v);applyCharts(v);},d);});}},true);
+  setInterval(function(){var v=buildVars(getBrand());applySliders(v);},700);
   window.addEventListener("storage",function(e){if(e.key==="userBrandColor")applyAll();});
 })();
 </script>
