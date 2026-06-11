@@ -5149,3 +5149,31 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
   window.tsGo = function(rate){ openSimInPage(rate); };
 })();
 </script>
+
+<!-- ===== Release #10: open real /simulator design in-page via iframe (URL stays "/") — additive module ===== -->
+<script>
+(function(){
+  if(window.__PG_SIM_IFRAME_BOOTED) return;
+  window.__PG_SIM_IFRAME_BOOTED = true;
+  function openSimFrame(){
+    var old=document.getElementById("simFrameWrap"); if(old) old.remove();
+    var wrap=document.createElement("div");
+    wrap.id="simFrameWrap";
+    wrap.style.cssText="position:fixed;inset:0;z-index:5000;background:#fff;display:flex;flex-direction:column;";
+    var bar=document.createElement("div");
+    bar.style.cssText="flex:0 0 auto;padding:8px 12px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;";
+    var back=document.createElement("button");
+    back.textContent="← もどる";
+    back.style.cssText="font-size:15px;padding:8px 16px;border-radius:999px;border:none;background:#374151;color:#fff;cursor:pointer;";
+    back.onclick=function(){ wrap.remove(); };
+    bar.appendChild(back);
+    var frame=document.createElement("iframe");
+    frame.src="/simulator";
+    frame.style.cssText="flex:1 1 auto;width:100%;border:none;";
+    wrap.appendChild(bar); wrap.appendChild(frame);
+    document.body.appendChild(wrap);
+  }
+  window.openSimulator = function(){ openSimFrame(); };
+  window.tsGo = function(){ openSimFrame(); };
+})();
+</script>
