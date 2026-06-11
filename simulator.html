@@ -384,9 +384,9 @@ function updateFill(el){
       b.wobble+=b.ws;b.x+=Math.sin(b.wobble)*0.35+b.drift;b.y-=b.speed;
       if(b.y<-b.r*2)Object.assign(b,mkB());
       ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
-      ctx.strokeStyle=`rgba(30,92,32,${b.opacity*1.5})`;ctx.lineWidth=1;ctx.stroke();
-      ctx.fillStyle=`rgba(30,92,32,${b.opacity})`;ctx.fill();
-      if(b.r>=18){ctx.save();ctx.globalAlpha=b.opacity*2.5;ctx.fillStyle='rgba(30,92,32,1)';ctx.font=`700 ${Math.round(b.r*0.6)}px Outfit,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sym,b.x,b.y);ctx.restore();}
+      ctx.strokeStyle=`rgba(${window.__coinRGB||'30,92,32'},${b.opacity*1.5})`;ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=`rgba(${window.__coinRGB||'30,92,32'},${b.opacity})`;ctx.fill();
+      if(b.r>=18){ctx.save();ctx.globalAlpha=b.opacity*2.5;ctx.fillStyle=`rgba(${window.__coinRGB||'30,92,32'},1)`;ctx.font=`700 ${Math.round(b.r*0.6)}px Outfit,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sym,b.x,b.y);ctx.restore();}
     });
     requestAnimationFrame(draw);
   }
@@ -1000,6 +1000,45 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     if(!document.hidden){ tick(); }
   });
   setInterval(tick, 1000);
+})();
+</script>
+
+<script id="simCoinColor">
+(function(){
+  if (window.__simCoinColorInit) return;
+  window.__simCoinColorInit = true;
+  function hexToRgb(h){
+    if(!h) return null;
+    h = String(h).trim();
+    var m = h.replace('#','');
+    if(m.length===3){ m = m[0]+m[0]+m[1]+m[1]+m[2]+m[2]; }
+    if(!/^[0-9a-fA-F]{6}$/.test(m)) return null;
+    var r = parseInt(m.slice(0,2),16);
+    var g = parseInt(m.slice(2,4),16);
+    var bl = parseInt(m.slice(4,6),16);
+    return [r,g,bl];
+  }
+  function darken(rgb,f){
+    return [Math.round(rgb[0]*(1-f)), Math.round(rgb[1]*(1-f)), Math.round(rgb[2]*(1-f))];
+  }
+  function update(){
+    try{
+      var c = localStorage.getItem('userBrandColor');
+      var rgb = hexToRgb(c);
+      if(rgb){
+        var d = darken(rgb,0.45);
+        window.__coinRGB = d[0]+','+d[1]+','+d[2];
+      } else {
+        window.__coinRGB = '30,92,32';
+      }
+    }catch(e){ window.__coinRGB = '30,92,32'; }
+  }
+  update();
+  window.addEventListener('storage', function(e){
+    if(!e || e.key === 'userBrandColor' || e.key === null){ update(); }
+  });
+  window.addEventListener('focus', update);
+  setInterval(update, 1000);
 })();
 </script>
 
