@@ -809,5 +809,109 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   function init(){if(typeof window.calcD==='function'){hookCalc();}else{setTimeout(init,500);}}
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,300);}
 })();</script>
+    
+<!-- ===== Brand color sync: read userBrandColor (shared with home) & apply to simulator ===== -->
+<style id="simBrandSync">
+  .tab.active{ color: var(--brand-dark, #2d7a2d) !important; }
+  .tab.active{ background: var(--brand-lighter, #d0ead0) !important; }
+  .val-input, .metric .mval, .mp-name, .info-value, .mp-section-title{ color: var(--brand-dark, #2d7a2d) !important; }
+  .row input[type=range]::-moz-range-progress{ background: var(--brand-dark, #2d7a2d) !important; }
+  .row input[type=range]{ accent-color: var(--brand-color, #3da060) !important; }
+  .reg-input:focus{ border-color: var(--brand-dark, #2d7a2d) !important; }
+  h1, .sim-title{ color: var(--brand-deep, #225835) !important; }
+</style>
+
+<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Reflects main colors + pale bg + readable text + sliders + boxes + advice text + detail green text + chart (lines/fills/area bg/legend) across all tabs. Meaningful color-codes (tax/account/merit) kept. Default brand #3da060. -->
+<style id="simBrandSync"></style>
+<style id="simBrandSyncDetail"></style>
+<script>
+(function(){
+  if (window.__SIM_BRANDSYNC_BOOTED) return; window.__SIM_BRANDSYNC_BOOTED = true;
+  var DEFAULT_BRAND = "#3da060";
+  function hexToRgb(h){h=(h||"").replace("#","");if(h.length!==6)return null;var r=parseInt(h.substr(0,2),16),g=parseInt(h.substr(2,2),16),b=parseInt(h.substr(4,2),16);if(isNaN(r)||isNaN(g)||isNaN(b))return null;return {r:r,g:g,b:b};}
+  function clamp(x){return Math.max(0,Math.min(255,Math.round(x)));}
+  function toHex(r,g,b){return "#"+[r,g,b].map(function(x){var s=clamp(x).toString(16);return s.length<2?"0"+s:s;}).join("");}
+  function tint(hex,amt){var c=hexToRgb(hex);if(!c)return hex;return toHex(c.r+(255-c.r)*amt,c.g+(255-c.g)*amt,c.b+(255-c.b)*amt);}
+  function darken(hex,amt){var c=hexToRgb(hex);if(!c)return hex;return toHex(c.r*(1-amt),c.g*(1-amt),c.b*(1-amt));}
+  function rgba(hex,a){var c=hexToRgb(hex);if(!c)return hex;return "rgba("+c.r+","+c.g+","+c.b+","+a+")";}
+  function getBrand(){var v=localStorage.getItem("userBrandColor");return hexToRgb(v)?v:DEFAULT_BRAND;}
+
+  function buildVars(brand){
+    return {
+      brand: brand, light: tint(brand,0.15), lighter: tint(brand,0.25),
+      dark: darken(brand,0.18), darker: darken(brand,0.45), deep: darken(brand,0.30),
+      bg: tint(brand,0.95), tabsBg: tint(brand,0.88), activeTab: tint(brand,0.78),
+      text: darken(brand,0.55), accent: darken(brand,0.18),
+      noteBg: tint(brand,0.90), noteBorder: tint(brand,0.75),
+      chartBg: tint(brand,0.93), softBorder: rgba(brand,0.18),
+      areaBg: tint(brand,0.93),
+      lineMain: darken(brand,0.30), linePrincipal: tint(brand,0.55),
+      fillMain: rgba(brand,0.12), fillPrincipal: rgba(brand,0.15)
+    };
+  }
+
+  function applyCss(v){
+    var css = ":root{--brand-color:"+v.brand+";--brand-light:"+v.light+";--brand-lighter:"+v.lighter+";--brand-dark:"+v.dark+";--brand-darker:"+v.darker+";--brand-deep:"+v.deep+";}"
+      + "body{background:"+v.bg+" !important;}"
+      + ".tabs{background:"+v.tabsBg+" !important;}"
+      + ".tab.active{background:"+v.activeTab+" !important;color:"+v.text+" !important;}"
+      + ".metric .mval,.metric .mlabel{color:"+v.text+" !important;}"
+      + ".val-input,.section-title,h1,h2{color:"+v.text+" !important;}"
+      + "input[type=range]{accent-color:"+v.accent+" !important;}"
+      + ".chart-outer{background:"+v.chartBg+" !important;border-color:"+v.softBorder+" !important;}"
+      + ".card,.metric{border-color:"+v.softBorder+" !important;}"
+      + "[class^=sim-pro-box],[class*=\" sim-pro-box\"]{border-color:"+v.softBorder+" !important;}"
+      + "[style*=\"#f1f8f1\"]{background:"+v.noteBg+" !important;border-color:"+v.noteBorder+" !important;}";
+    var el=document.getElementById("simBrandSync"); if(el) el.textContent=css;
+    // green text inside advice/detail boxes -> brand (meaningful tax/account/merit colors are left as-is)
+    var dcss = "[style*=\"color:#2f5d33\"],[style*=\"color: #2f5d33\"]{color:"+v.text+" !important;}"
+      + "[style*=\"color:#2d4a2d\"],[style*=\"color: #2d4a2d\"]{color:"+v.text+" !important;}"
+      + "[style*=\"color:#3da060\"],[style*=\"color: #3da060\"]{color:"+v.deep+" !important;}"
+      + "[style*=\"color:#2d7a2d\"],[style*=\"color: #2d7a2d\"]{color:"+v.deep+" !important;}";
+    var del=document.getElementById("simBrandSyncDetail"); if(del) del.textContent=dcss;
+  }
+
+  function applySliders(v){
+    document.querySelectorAll(".row input[type=range]").forEach(function(r){
+      var f=r.style.getPropertyValue("--fill");
+      if(f && f.indexOf("#")>-1){ var fixed=f.replace(/#[0-9a-fA-F]{6}/, v.accent); if(fixed!==f) r.style.setProperty("--fill", fixed); }
+    });
+  }
+
+  var areaColor = "#f1f8f4";
+  if (window.Chart && Chart.register){
+    var plugin={id:"simBrandAreaBg",beforeDraw:function(chart){var ctx=chart.ctx,ca=chart.chartArea;if(!ca)return;ctx.save();ctx.fillStyle=areaColor;ctx.fillRect(ca.left,ca.top,ca.right-ca.left,ca.bottom-ca.top);ctx.restore();}};
+    try{Chart.register(plugin);}catch(e){}
+  }
+
+  function applyCharts(v){
+    areaColor = v.areaBg;
+    if(!(window.Chart && Chart.getChart))return;
+    try{ if(Chart.defaults) Chart.defaults.color = v.text; }catch(e){}
+    document.querySelectorAll("canvas").forEach(function(cv){
+      var ch=Chart.getChart(cv); if(!ch)return;
+      ch.data.datasets.forEach(function(d){
+        if(d.label==="総資産"){d.borderColor=v.lineMain;d.backgroundColor=v.fillMain;}
+        if(d.label==="元本"){d.borderColor=v.linePrincipal;d.backgroundColor=v.fillPrincipal;}
+      });
+      try{ch.update("none");}catch(e){}
+    });
+  }
+
+  var curV = buildVars(getBrand());
+  function applyAll(){curV=buildVars(getBrand());applyCss(curV);applySliders(curV);applyCharts(curV);}
+
+  applyAll();
+  var tries=0; var iv=setInterval(function(){applyAll();if(++tries>=10)clearInterval(iv);},600);
+  // slider input rewrites slider fill AND chart to green -> re-fix
+  document.addEventListener("input",function(e){if(e.target&&e.target.matches&&e.target.matches(".row input[type=range]"))setTimeout(function(){applySliders(curV);applyCharts(curV);},0);},true);
+  // switching tabs re-creates charts (green) -> re-apply on tab click
+  document.addEventListener("click",function(e){var t=e.target&&e.target.closest?e.target.closest(".tab"):null;if(t){setTimeout(function(){applySliders(curV);applyCharts(curV);},60);setTimeout(function(){applySliders(curV);applyCharts(curV);},250);setTimeout(function(){applySliders(curV);applyCharts(curV);},600);}},true);
+  setInterval(function(){applySliders(curV);},500);
+
+  window.addEventListener("storage",function(e){if(e.key==="userBrandColor")applyAll();});
+})();
+</script>
+
 </body>
 </html>
