@@ -1056,7 +1056,8 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     if(!e || e.key === 'userBrandColor' || e.key === null){ update(); }
   });
   window.addEventListener('focus', update);
-  setInterval(update, 1000);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ update(); } });
+  setInterval(update, 400);
 })();
 </script>
 
