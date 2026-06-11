@@ -3760,3 +3760,73 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
 
 })();
 </script>
+
+<script>
+/* ===== そだてる ゲーム 追加モジュール v2: おなか/なかよし メーター + ごはん + ずかんタブ ===== */
+(function(){
+  if(window.__PG_ZUKAN_BOOTED) return; window.__PG_ZUKAN_BOOTED=true;
+  function start(){
+    var PG=window.__PG; if(!PG||!PG.S){ return false; }
+    var S=PG.S, app=document.getElementById('pgApp'); if(!app) return false;
+    var FOOD_EMOJI=(PG.FOODS||[]).map(function(f){return f.e;});
+    var DECO_EMOJI=(PG.DECOS||[]).map(function(d){return d.e;});
+    var zukanMode=false;
+    function ensure(){ if(S.fedAt===undefined)S.fedAt=Date.now(); if(S.bond===undefined)S.bond=0; if(!S.seen)S.seen={}; var k; for(k in (S.foods||{}))if(S.foods[k]>0)S.seen[k]=1; for(k in (S.decos||{}))if(S.decos[k]>0)S.seen[k]=1; }
+    ensure();
+    function hunger(){ var h=(Date.now()-(S.fedAt||Date.now()))/3600000; return Math.max(0,Math.min(100,Math.round(100-h*(100/30)))); }
+    function bondPct(){ return Math.min(100,Math.round((S.bond||0)/50*100)); }
+    function toast(m){ var t=document.getElementById('pgToastX'); if(!t){t=document.createElement('div');t.id='pgToastX';document.body.appendChild(t);} t.style.cssText='position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#3a7;color:#fff;padding:10px 18px;border-radius:20px;font-weight:700;z-index:2147483647;box-shadow:0 4px 12px rgba(0,0,0,.2);transition:opacity .3s;opacity:1';t.textContent=m;clearTimeout(t._h);t._h=setTimeout(function(){t.style.opacity='0';},1400); }
+    function barEl(){ return Array.prototype.slice.call(app.children).filter(function(c){return c.children.length>=4 && /そだてる/.test(c.textContent) && /おかね/.test(c.textContent);})[0]; }
+    function contentEl(){ var bar=barEl(); return Array.prototype.slice.call(app.children).filter(function(c){return c.id!=='pgToast' && c.tagName==='DIV' && c!==bar && /やること|ショップ|もちもの|おさいふ|ずかん|なまえを入力/.test(c.textContent);})[0]; }
+    function meter(emoji,label,pct,col){ return '<div style="margin:6px 0"><div style="display:flex;font-size:13px;color:#555"><span>'+emoji+' '+label+'</span><span style="margin-left:auto;font-weight:700">'+pct+'%</span></div><div style="height:11px;background:#eee;border-radius:7px;overflow:hidden;margin-top:2px"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:7px;transition:width .4s"></div></div></div>'; }
+    function makeCareBox(){
+      var h=hunger(),bp=bondPct();
+      var mood=h<25?'おなかすいた…🥺':h<60?'まあまあ 😊':'まんぷく！😋';
+      var box=document.createElement('div'); box.className='pgCareBox';
+      box.style.cssText='background:#fff;border-radius:18px;padding:16px;box-shadow:0 3px 12px rgba(0,0,0,.05);margin:12px auto;max-width:430px';
+      box.innerHTML=meter('🍽️','おなか',h,h<25?'#ff6b6b':'#ffa94d')+meter('💛','なかよし',bp,'#ffd43b')+'<div style="text-align:center;font-size:13px;color:#666;margin:6px 0 12px">'+mood+'</div><div style="font-weight:800;font-size:14px;margin-bottom:8px">🍽️ ごはんをあげる</div><div class="pgFeedRow" style="display:flex;gap:8px;flex-wrap:wrap"></div>';
+      var row=box.querySelector('.pgFeedRow');
+      var items=Object.keys(S.foods||{}).filter(function(k){return S.foods[k]>0;});
+      if(!items.length){ row.innerHTML='<div style="color:#aaa;font-size:13px">ごはんが ないよ。クエストや ショップで ゲットしてね</div>'; }
+      else items.forEach(function(k){ var b=document.createElement('button'); b.style.cssText='border:2px solid #ffe3c2;background:#fff8f0;border-radius:14px;padding:8px 10px;font-size:22px;position:relative;cursor:pointer'; b.innerHTML=k+'<span style="position:absolute;bottom:-4px;right:-4px;background:#ffa94d;color:#fff;font-size:11px;border-radius:8px;padding:1px 5px">'+S.foods[k]+'</span>'; b.onclick=function(){ S.foods[k]--; if(S.foods[k]<=0)delete S.foods[k]; S.fedAt=Date.now(); S.bond=(S.bond||0)+3; S.seen[k]=1; var fd=(PG.FOODS||[]).filter(function(f){return f.e===k;})[0]; if(fd&&fd.exp)S.exp=(S.exp||0)+fd.exp; if(PG.persist)PG.persist(); toast(k+' をあげた！ なかよし +3 💛'); refreshCare(); }; row.appendChild(b); });
+      return box;
+    }
+    function refreshCare(){ var c=contentEl(); if(!c||zukanMode) return; Array.prototype.slice.call(c.querySelectorAll('.pgCareBox')).forEach(function(x){x.remove();}); if(/やること|なまえを入力|つぎのLv/.test(c.textContent)){ c.appendChild(makeCareBox()); } }
+    function renderZukan(){
+      var c=contentEl(); if(!c) return; c.innerHTML='';
+      var seen=S.seen||{};
+      var fGot=FOOD_EMOJI.filter(function(e){return seen[e];}).length, dGot=DECO_EMOJI.filter(function(e){return seen[e];}).length;
+      var total=FOOD_EMOJI.length+DECO_EMOJI.length, got=fGot+dGot;
+      var head=document.createElement('div'); head.style.cssText='max-width:430px;margin:8px auto 0;padding:8px 4px 0';
+      head.innerHTML='<div style="display:flex;align-items:center;margin-bottom:6px"><div style="font-weight:800;font-size:17px">📖 ずかん</div><div style="margin-left:auto;font-weight:800;color:#3a7">'+got+' / '+total+'</div></div><div style="height:10px;background:#eee;border-radius:6px;overflow:hidden"><div style="height:100%;width:'+Math.round(got/total*100)+'%;background:#3a7"></div></div><div style="font-size:12px;color:#888;margin-top:6px">あつめると ここに ならぶよ。コンプリート めざそう！</div>';
+      c.appendChild(head);
+      function sec(title,list){ var w=document.createElement('div'); w.style.cssText='max-width:430px;margin:14px auto 0;padding:0 4px'; w.innerHTML='<div style="font-size:13px;color:#888;margin-bottom:8px">'+title+'</div>'; var g=document.createElement('div'); g.style.cssText='display:grid;grid-template-columns:repeat(5,1fr);gap:8px'; list.forEach(function(e){ var got2=!!seen[e]; var cell=document.createElement('div'); cell.style.cssText='aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:26px;border-radius:12px;background:'+(got2?'#f0fff4':'#f4f4f4')+';border:2px solid '+(got2?'#b2f2bb':'#e9e9e9')+';filter:'+(got2?'none':'grayscale(1) opacity(.35)'); cell.textContent=got2?e:'❔'; g.appendChild(cell); }); w.appendChild(g); c.appendChild(w); }
+      sec('ごはん ('+fGot+'/'+FOOD_EMOJI.length+')',FOOD_EMOJI);
+      sec('かざり ('+dGot+'/'+DECO_EMOJI.length+')',DECO_EMOJI);
+      var sp=document.createElement('div'); sp.style.height='90px'; c.appendChild(sp);
+    }
+    function wire(){
+      var bar=barEl(); if(!bar) return false;
+      if(bar.__zukanWired) return true;
+      Array.prototype.slice.call(bar.children).filter(function(x){return x.__isZukan;}).forEach(function(x){x.remove();});
+      var btns=Array.prototype.slice.call(bar.children);
+      btns.forEach(function(btn){ if(btn.__careW)return; btn.__careW=true; btn.addEventListener('click',function(){ zukanMode=false; setTimeout(refreshCare,50); }); });
+      var ref=btns[0];
+      var zBtn=document.createElement('button'); zBtn.__isZukan=true; zBtn.setAttribute('style',ref.getAttribute('style')||'');
+      var a=document.createElement('div'); a.style.cssText='font-size:18px'; a.textContent='📖';
+      var t=document.createElement('div'); t.style.cssText='font-size:11px'; t.textContent='ずかん';
+      zBtn.appendChild(a); zBtn.appendChild(t);
+      zBtn.onclick=function(){ zukanMode=true; renderZukan(); };
+      bar.appendChild(zBtn);
+      bar.__zukanWired=true;
+      zukanMode=false; refreshCare();
+      return true;
+    }
+    var iv=setInterval(function(){ try{ if(document.getElementById('pgApp')){ wire(); } }catch(e){} },800);
+    window.__pgZukanWire=wire;
+    return true;
+  }
+  function boot(){ if(!start()){ var n=0; var iv=setInterval(function(){ n++; if(start()||n>60){ clearInterval(iv); } },800); } }
+  if(document.readyState!=='loading') setTimeout(boot,500); else document.addEventListener('DOMContentLoaded',function(){setTimeout(boot,500);});
+})();
+</script>
