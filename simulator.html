@@ -365,6 +365,24 @@ function updateFill(el){
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script id="simCoinColorEarly">
+(function(){
+  function hexToRgb(h){
+    if(!h) return null;
+    var m = String(h).trim().replace('#','');
+    if(m.length===3){ m = m[0]+m[0]+m[1]+m[1]+m[2]+m[2]; }
+    if(!/^[0-9a-fA-F]{6}$/.test(m)) return null;
+    return [parseInt(m.slice(0,2),16), parseInt(m.slice(2,4),16), parseInt(m.slice(4,6),16)];
+  }
+  try{
+    var rgb = hexToRgb(localStorage.getItem('userBrandColor'));
+    if(rgb){
+      var f = 0.45;
+      window.__coinRGB = Math.round(rgb[0]*(1-f))+','+Math.round(rgb[1]*(1-f))+','+Math.round(rgb[2]*(1-f));
+    }
+  }catch(e){}
+})();
+</script>
 <script>
 /* 背景パーティクル */
 (function(){
