@@ -5128,3 +5128,24 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
   boot();
 })();
 </script>
+
+<!-- ===== Release #9: simulator in-page (no URL change) — additive module ===== -->
+<script>
+(function(){
+  if(window.__PG_SPA_BOOTED) return;
+  window.__PG_SPA_BOOTED = true;
+  function openSimInPage(rate){
+    var s = document.getElementById("sim-section");
+    if(!s) return false;
+    if(rate!=null && !isNaN(parseFloat(rate))){
+      var mr=document.getElementById("m-rate"); if(mr) mr.value=rate;
+      var lr=document.getElementById("l-rate"); if(lr) lr.value=rate;
+    }
+    s.classList.remove("slide-out");
+    s.classList.add("slide-in");
+    return true;
+  }
+  window.openSimulator = function(){ openSimInPage(); };
+  window.tsGo = function(rate){ openSimInPage(rate); };
+})();
+</script>
