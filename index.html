@@ -4221,3 +4221,148 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
   boot();
 })();
 </script>
+
+<script>
+/* === PET GAME ENH v2 (Release #5): okane pot graph + zukan complete reward + evolution celebration === */
+(function(){
+  if(window.__PG_ENH2_BOOTED) return;
+  function boot(){
+    var P=window.__PG; if(!P||!P.S){ return setTimeout(boot,400); }
+    if(window.__PG_ENH2_BOOTED) return; window.__PG_ENH2_BOOTED=true;
+    var S=P.S;
+    function modalRoot(){
+      var cand=[].slice.call(document.querySelectorAll('div')).filter(function(d){
+        var t=d.textContent;
+        return /そだてる ゲーム/.test(t)&&/ショップ/.test(t)&&/おかね/.test(t)&&/ずかん/.test(t);
+      });
+      if(!cand.length) return null;
+      return cand.reduce(function(a,b){return a.textContent.length<=b.textContent.length?a:b;},cand[0]);
+    }
+    function activeTab(root){
+      var t=root.textContent;
+      if(/うんようポット|おさいふ/.test(t)) return 'okane';
+      if(/あつめると|コンプリート めざそう/.test(t)) return 'zukan';
+      if(/きょうの そうば/.test(t)) return 'shop';
+      return 'sodateru';
+    }
+    // ---- evolution celebration css ----
+    if(!document.getElementById('pgEnh2Css')){
+      var stx=document.createElement('style'); stx.id='pgEnh2Css';
+      stx.textContent='@keyframes pgFade{from{opacity:0}to{opacity:1}}@keyframes pgPop{to{transform:scale(1)}}@keyframes pgFall{to{transform:translateY(110vh) rotate(360deg);opacity:.15}}@keyframes pgBarGrow{from{height:0}}';
+      document.head.appendChild(stx);
+    }
+    function celebrate(title){
+      if(document.getElementById('pgEvoCele')) return;
+      var ov=document.createElement('div'); ov.id='pgEvoCele';
+      ov.style.cssText='position:fixed;inset:0;z-index:2147483647;display:flex;align-items:center;justify-content:center;background:rgba(255,250,230,0.6);animation:pgFade .4s';
+      var box=document.createElement('div');
+      box.style.cssText='text-align:center;font-family:sans-serif;transform:scale(.6);animation:pgPop .6s forwards cubic-bezier(.2,1.4,.5,1);background:#fff;padding:26px 34px;border-radius:20px;box-shadow:0 8px 30px rgba(0,0,0,.18)';
+      box.innerHTML='<div style="font-size:54px">✨🎉✨</div><div style="font-size:26px;font-weight:800;color:#e08600;margin:6px 0">しんか した！</div><div style="font-size:20px;font-weight:700;color:#2b8a3e">'+title+'</div><div style="font-size:13px;color:#aaa;margin-top:12px">タップで とじる</div>';
+      ov.appendChild(box);
+      for(var i=0;i<26;i++){
+        var c=document.createElement('div');
+        c.textContent=['🌟','✨','🎊','💫','⭐','🎉'][i%6];
+        c.style.cssText='position:absolute;left:'+(Math.random()*100)+'%;top:-40px;font-size:'+(14+Math.random()*18)+'px;animation:pgFall '+(1.6+Math.random()*1.6)+'s linear forwards;animation-delay:'+(Math.random()*0.6)+'s';
+        ov.appendChild(c);
+      }
+      ov.onclick=function(){ ov.remove(); };
+      document.body.appendChild(ov);
+      setTimeout(function(){ if(ov.parentNode) ov.remove(); },4500);
+    }
+    var prevLv=null;
+    function curLv(){ try{ return P.lvFor(S.exp); }catch(e){ return null; } }
+
+    // ---- okane: pot graph + profit ----
+    function enhOkane(root){
+      var cards=[].slice.call(root.querySelectorAll('div')).filter(function(d){
+        return /うんようポット/.test(d.textContent)&&/あずける/.test(d.textContent)&&d.querySelector('button');
+      });
+      if(!cards.length) return;
+      var card=cards.reduce(function(a,b){return a.textContent.length<=b.textContent.length?a:b;});
+      [].slice.call(document.querySelectorAll('#pgPotGraph')).forEach(function(e){ if(!card.contains(e)) e.remove(); });
+      if(card.querySelector('#pgPotGraph')) return;
+      var hist=S._potHist||[];
+      var profit=(S.pot||0)-(S.potBasis||0);
+      var pcol=profit>0?'#2b8a3e':(profit<0?'#d9534f':'#999');
+      var psign=profit>0?'+':'';
+      var wrap=document.createElement('div'); wrap.id='pgPotGraph'; wrap.style.cssText='margin-top:14px';
+      var html='<div style="font-size:13px;color:#666;margin-bottom:6px">📊 ポットの きろく</div>';
+      html+='<div style="font-size:13px;margin-bottom:8px">いまの そんとく：<b style="color:'+pcol+'">'+psign+profit+' 🌑</b> <span style="color:#bbb;font-size:11px">（あずけた:'+(S.potBasis||0)+'）</span></div>';
+      var h=hist.slice(-8);
+      var maxv=Math.max(1,Math.max.apply(null,h.map(function(x){return Math.abs(x.pot||0);}).concat([S.pot||1])));
+      html+='<div style="display:flex;align-items:flex-end;gap:5px;height:56px;padding:5px 6px;background:#f6fbf7;border-radius:8px">';
+      if(!h.length){ html+='<div style="font-size:11px;color:#bbb;align-self:center;margin:auto">まだ きろくが ないよ。あずけて「7日 すごす」と たまるよ📈</div>'; }
+      h.forEach(function(x){
+        var hh=Math.max(5,Math.round((Math.abs(x.pot||0)/maxv)*44));
+        var up=(x.delta||0)>=0;
+        html+='<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%">'
+          +'<div style="font-size:9px;color:'+(up?'#3a9d4f':'#d77')+'">'+(up?'▲':'▼')+'</div>'
+          +'<div style="width:100%;height:'+hh+'px;border-radius:4px 4px 0 0;background:'+(up?'#69c47f':'#e89090')+';animation:pgBarGrow .5s"></div></div>';
+      });
+      html+='</div>';
+      wrap.innerHTML=html;
+      card.appendChild(wrap);
+    }
+
+    // ---- zukan: complete reward ----
+    function totalCol(){ var f=(P.FOODS?P.FOODS.length:4),d=(P.DECOS?P.DECOS.length:6); return f+d+4; }
+    function seenCnt(){ return Object.keys(S.seen||{}).length; }
+    function enhZukan(root){
+      var conts=[].slice.call(root.querySelectorAll('div')).filter(function(d){return /あつめると/.test(d.textContent);});
+      if(!conts.length) return;
+      var c=conts.reduce(function(a,b){return a.textContent.length<=b.textContent.length?a:b;});
+      [].slice.call(document.querySelectorAll('#pgZukanReward')).forEach(function(e){ if(!c.contains(e)) e.remove(); });
+      if(c.querySelector('#pgZukanReward')) return;
+      var seen=seenCnt(), tot=totalCol(), done=seen>=tot;
+      var box=document.createElement('div'); box.id='pgZukanReward';
+      box.style.cssText='margin-top:22px;padding:14px;border-radius:12px;text-align:center;'+(done?'background:linear-gradient(135deg,#fff3c4,#ffe08a);box-shadow:0 2px 12px rgba(230,160,0,.28)':'background:#f3f4f6');
+      if(done){
+        var has=S.decos&&S.decos['🏆'];
+        if(has){
+          box.innerHTML='<div style="font-size:30px">🏆👑</div><div style="font-size:14px;font-weight:800;color:#b8860b">コンプリート マスター！</div><div style="font-size:12px;color:#7a5c00">ぜんぶ あつめた すごい こだよ✨</div>';
+        }else{
+          box.innerHTML='<div style="font-size:30px">🏆✨</div><div style="font-size:15px;font-weight:800;color:#b8860b;margin:4px 0">コンプリート おめでとう！</div><div style="font-size:12px;color:#7a5c00">ぜんぶ あつめた しょうこに とくべつな かんむり 👑 と しょうごうを プレゼント！</div>';
+          var b=document.createElement('button');
+          b.textContent='🎁 ごほうびを うけとる';
+          b.style.cssText='margin-top:10px;padding:8px 18px;border:0;border-radius:20px;background:#e0a800;color:#fff;font-weight:700;font-size:14px;cursor:pointer';
+          b.onclick=function(){
+            if(!S.decos) S.decos={}; S.decos['👑']=(S.decos['👑']||0)+1; S.decos['🏆']=1; S._title='コンプリート マスター';
+            if(P.persist) P.persist(); celebrate('🏆 コンプリート マスター 👑');
+            box.innerHTML='<div style="font-size:30px">🏆👑</div><div style="font-size:14px;font-weight:800;color:#b8860b">ごほうびを うけとったよ！</div>';
+          };
+          box.appendChild(b);
+        }
+      }else{
+        box.innerHTML='<div style="font-size:13px;color:#666">🏆 ぜんぶ あつめると とくべつな ごほうび！</div><div style="font-size:12px;color:#999;margin-top:4px">あと <b style="color:#e0a800">'+(tot-seen)+'こ</b>（'+seen+' / '+tot+'）</div>';
+      }
+      c.appendChild(box);
+    }
+
+    var iv=setInterval(function(){
+      try{
+        var lv=curLv();
+        if(prevLv===null) prevLv=lv;
+        else if(lv!==null&&lv>prevLv){ prevLv=lv; var ti=''; try{ti=P.titleFor(S.exp);}catch(e){} celebrate(ti||'つぎの すがた'); }
+        else if(lv!==null) prevLv=lv;
+        var m=modalRoot(); if(!m) return;
+        var tab=activeTab(m);
+        if(tab==='okane') enhOkane(m);
+        else if(tab==='zukan') enhZukan(m);
+      }catch(e){}
+    },600);
+    window.__ENH2_PREVIEW=iv;
+    var lastPot=S.pot||0,lastBasis=S.potBasis||0;
+    window.__ENH2_POTIV=setInterval(function(){
+      var p=S.pot||0,b=S.potBasis||0;
+      if(p!==lastPot&&b===lastBasis&&b>0){
+        if(!S._potHist) S._potHist=[];
+        S._potHist.push({pot:p,delta:p-lastPot,t:Date.now()});
+        if(S._potHist.length>20) S._potHist=S._potHist.slice(-20);
+        if(P.persist) P.persist();
+      }
+      lastPot=p;lastBasis=b;
+    },500);
+  }
+  boot();
+})();
+</script>
