@@ -436,6 +436,443 @@ function moneyFocus(el){el.value=el.dataset.raw||'';el.select();}
 function moneyBlur(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,'')),r=(!isNaN(v)&&v>0)?v:parseFloat(el.dataset.raw||0);el.dataset.raw=r;el.value=fmtInput(r);const s=document.getElementById(sId);s.value=Math.min(Math.max(r,+s.min),+s.max);fn();}
 function moneyType(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,''));if(!isNaN(v)&&v>0){el.dataset.raw=v;const s=document.getElementById(sId);s.value=Math.min(Math.max(Math.min(v,1e10),+s.min),+s.max);fn();}}
 function sliderToMoney(sId,nId){const v=+document.getElementById(sId).value,el=document.getElementById(nId);el.dataset.raw=v;el.value=fmtInput(v);}
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="manifest" href="/static/manifest.json">
+    <meta name="theme-color" content="#3da060">
+    <link rel="icon" type="image/png" href="/static/favicon.png">
+    <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+    <script id="sw-register">if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(){});});}</script>
+<title>投資シミュレーター</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<script>
+const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isInLINE=/Line/i.test(navigator.userAgent)||navigator.userAgent.includes('LIFF');
+if(isMobile&&!isInLINE){document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:11px;font-size:12px;z-index:9999;font-family:Outfit,sans-serif;';b.innerHTML='LINEアプリで開くとより快適です　<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:700;margin-left:6px;">LINEで開く →</a>';document.body.appendChild(b);});}
+const urlParams=new URLSearchParams(window.location.search);
+const UID=urlParams.get('uid')||''; try{var _t=urlParams.get('tab'),_r=urlParams.get('rate'),_a=urlParams.get('amount'),_y=urlParams.get('years');if(_t||_r||_a||_y){function _setSim(id,v){var el=document.getElementById(id);if(el&&v!=null&&v!==''){el.value=v;try{el.dataset.raw=String(v).replace(/[^0-9.]/g,'');}catch(e){}}}var _n=0;function _apply(){_n++;if(typeof switchTab==='function'&&_t){try{switchTab(_t);}catch(e){}}if(_a)_setSim('m-amount-n',_a);if(_r)_setSim('m-rate-n',_r);if(_y)_setSim('m-years-n',_y);if(typeof calcM==='function'){try{calcM();}catch(e){}}if(_n<10)setTimeout(_apply,200);}if(document.readyState==='complete'){setTimeout(_apply,400);}else{window.addEventListener('load',function(){setTimeout(_apply,400);});}}}catch(e){}
+</script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Noto Sans JP', sans-serif; background: #f9fdf9; color: #2d4a2d; }
+#bg-canvas { position: fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; }
+.wrap { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 1.5rem 1rem; }
+h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; text-align: center; }
+.lang-wrap { display: flex; justify-content: center; margin-bottom: 1.5rem; }
+.lang-select-outer { position: relative; display: flex; align-items: center; gap: 5px; }
+.lang-globe { font-size: 12px; color: #aaa; opacity: 0.7; }
+.lang-select-outer select { appearance: none; -webkit-appearance: none; background: transparent; border: none; color: #aaa; font-family: 'Noto Sans JP', sans-serif; font-size: 12px; font-weight: 400; padding: 4px 18px 4px 2px; cursor: pointer; outline: none; }
+.lang-select-outer select:focus { color: #2d7a2d; }
+.lang-select-outer::after { content: '∨'; position: absolute; right: 2px; top: 50%; transform: translateY(-50%); color: #888; font-size: 10px; pointer-events: none; }
+.tabs { display: flex; justify-content: center; background: #e8f5e8; border-radius: 14px; padding: 4px; gap: 3px; margin-bottom: 1.5rem; box-shadow: inset 0 1px 4px rgba(0,100,0,0.08); overflow-x: auto; scrollbar-width: none; }
+.tabs::-webkit-scrollbar { display: none; }
+.tab { flex: 1; min-width: 0; padding: 9px 8px; border: none; border-radius: 10px; background: transparent; font-size: 12px; font-weight: 500; color: #5a7a5a; cursor: pointer; text-align: center; transition: all 0.25s; white-space: nowrap; font-family: 'Noto Sans JP', sans-serif; }
+.tab.active { background: #d0ead0; color: #2d7a2d; font-weight: 700; box-shadow: 0 1px 5px rgba(0,100,0,0.08); }
+@keyframes popPress { 0%{transform:scale(1)} 25%{transform:scale(0.86)} 65%{transform:scale(1.13)} 100%{transform:scale(1)} }
+.popping { animation: popPress 0.38s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+@keyframes fadeSlideIn { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.tab-panel { animation: fadeSlideIn 0.35s ease forwards; }
+.card { background: #ffffff; border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem; box-shadow: 0 1px 6px rgba(0,100,0,0.08); border: 1px solid rgba(0,120,0,0.12); }
+.row { display: grid; grid-template-columns: 64px 1fr 68px; align-items: center; gap: 6px; margin-bottom: 1rem; }
+.row:last-child { margin-bottom: 0; }
+.row label { font-size: 11px; color: #9ab09a; white-space: nowrap; overflow: hidden; }
+.row input[type=range] { width: 100%; -webkit-appearance: none; appearance: none; height: 14px; border-radius: 2px; outline: none; cursor: pointer; background: transparent; overflow: visible; }
+.row input[type=range]::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: var(--fill, linear-gradient(to right, #d8d8d8 0%, #d8d8d8 0%)); }
+.row input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 26px; height: 14px; border-radius: 8px; background: #ffffff; border: 1.5px solid #cccccc; box-shadow: 0 1px 4px rgba(0,0,0,0.15); cursor: pointer; margin-top: -2.5px; }
+.row input[type=range]::-moz-range-thumb { width: 26px; height: 14px; border-radius: 8px; background: #ffffff; border: 1.5px solid #cccccc; cursor: pointer; }
+.row input[type=range]::-moz-range-progress { background: #2d7a2d; height: 3px; }
+.row input[type=range]::-moz-range-track { height: 3px; background: #d8d8d8; }
+.row .right { display: flex; align-items: center; justify-content: flex-end; gap: 2px; overflow: hidden; }
+.val-input { font-family: 'Outfit', sans-serif; font-size: 13px; font-weight: 700; text-align: right; color: #2d7a2d; border: none; background: transparent; outline: none; padding: 2px; -moz-appearance: textfield; cursor: pointer; max-width: 56px; }
+.val-input::-webkit-outer-spin-button, .val-input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+.val-input:focus { cursor: text; }
+.val-input.rate { max-width: 42px; }
+.val-input.years { max-width: 36px; }
+.unit { font-size: 13px; font-weight: 600; color: #5a7a5a; white-space: nowrap; margin-left: 2px; }
+.result-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-bottom: 1rem; }
+.metric { background: #ffffff; border-radius: 12px; padding: 14px 10px; text-align: center; box-shadow: 0 1px 6px rgba(0,100,0,0.08); border: 1px solid rgba(0,120,0,0.12); }
+.metric-icon { font-size: 20px; margin-bottom: 5px; }
+.metric .mlabel { font-size: 11px; color: #9ab09a; margin-bottom: 4px; }
+.metric .mval { font-family: 'Outfit', sans-serif; font-size: 18px; font-weight: 800; color: #2d7a2d; letter-spacing: -0.3px; }
+.section-title { font-size: 14px; font-weight: 600; color: #ccc; margin-bottom: 12px; }
+.chart-outer { position: relative; background: #f0f8f0; border-radius: 6px; padding: 12px 10px 10px; border: 1px solid rgba(77,187,82,0.2); }
+.chart-wrap { position: relative; width: 100%; height: 240px; }
+.mp-header { display:flex; align-items:center; gap:10px; margin-bottom:1.2rem; }
+.mp-avatar { width:48px; height:48px; border-radius:50%; background:#e8f5e8; display:flex; align-items:center; justify-content:center; font-size:22px; }
+.mp-name { font-family:'Outfit',sans-serif; font-size:18px; font-weight:700; color:#2d7a2d; }
+.mp-updated { font-size:11px; color:#666; }
+.info-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1rem; }
+.info-item { background:rgba(240,248,240,0.95); border-radius:12px; padding:14px; box-shadow:0 1px 6px rgba(0,100,0,0.08); border: 1px solid rgba(0,120,0,0.12); }
+.info-label { font-size:10px; color:#666; font-weight:600; margin-bottom:4px; letter-spacing:0.3px; text-transform:uppercase; }
+.info-value { font-family:'Outfit',sans-serif; font-size:15px; font-weight:700; color:#2d7a2d; }
+.btn-apply { width:100%; padding:13px; background:#2a7d2e; color:white; border:none; border-radius:10px; font-family:'Outfit',sans-serif; font-size:14px; font-weight:700; cursor:pointer; margin-top:8px; letter-spacing:0.5px; box-shadow:0 4px 14px rgba(30,92,32,0.4); }
+.btn-apply:active { opacity:0.85; }
+.no-data { text-align:center; padding:2.5rem 1rem; color:#666; font-size:13px; line-height:1.9; }
+
+/* 登録フォーム */
+.reg-form { display:flex; flex-direction:column; gap:0.7rem; }
+.reg-row { display:flex; flex-direction:column; gap:0.25rem; }
+.reg-label { font-size:12px; color:#555; font-weight:600; }
+.reg-input { width:100%; padding:0.55rem 0.75rem; border:1.5px solid #ddd; border-radius:10px; font-size:14px; outline:none; box-sizing:border-box; }
+.reg-input:focus { border-color:#2d7a2d; }
+
+    /* ===== マイページ改善CSS ===== */
+    .mp-profile-card { display:flex; align-items:center; gap:16px; padding:20px; background:linear-gradient(135deg,#2d7a2d,#4CAF50); border-radius:16px; margin-bottom:12px; color:#fff; }
+    .mp-avatar-wrap { flex-shrink:0; }
+    .mp-avatar { width:64px; height:64px; border-radius:50%; background:rgba(255,255,255,0.2); display:flex; align-items:center; justify-content:center; font-size:2rem; border:3px solid rgba(255,255,255,0.5); }
+    .mp-profile-info { flex:1; }
+    .mp-name { font-size:1.4rem; font-weight:700; }
+    .mp-updated { font-size:0.8rem; opacity:0.8; margin-top:4px; }
+    .mp-summary-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+    .mp-summary-card { border-radius:12px; padding:14px 16px; color:#fff; }
+    .mp-card-green { background:linear-gradient(135deg,#2d7a2d,#66bb6a); }
+    .mp-card-blue { background:linear-gradient(135deg,#1565c0,#42a5f5); }
+    .mp-card-orange { background:linear-gradient(135deg,#e65100,#ff9800); }
+    .mp-card-purple { background:linear-gradient(135deg,#6a1b9a,#ab47bc); }
+    .mp-card-red { background:linear-gradient(135deg,#c62828,#ef5350); }
+    .mp-card-label { font-size:0.75rem; opacity:0.9; margin-bottom:4px; }
+    .mp-card-value { font-size:1.15rem; font-weight:700; }
+    .mp-section-title { font-size:1rem; font-weight:700; color:#2d7a2d; margin-bottom:12px; }
+    .mp-progress-label { display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem; }
+    .mp-progress-bar-bg { background:#e8f5e9; border-radius:20px; height:12px; overflow:hidden; }
+    .mp-progress-bar-fill { background:linear-gradient(to right,#2d7a2d,#66bb6a); height:100%; border-radius:20px; transition:width 0.5s ease; }
+    .mp-stocks-list { display:flex; flex-direction:column; gap:8px; }
+    .mp-stock-item { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; background:#f8fdf8; border-radius:8px; border-left:3px solid #2d7a2d; }
+    .mp-stock-name { font-weight:600; color:#1a1a1a; }
+    .mp-traded-chips { display:flex; flex-wrap:wrap; gap:8px; }
+    .mp-chip { background:#e8f5e9; color:#2d7a2d; padding:6px 14px; border-radius:20px; font-size:0.85rem; font-weight:500; }
+    .stock-row { display:flex; gap:6px; align-items:center; margin-bottom:8px; }
+    .btn-icon { background:none; border:none; color:#e53935; font-size:1.1rem; cursor:pointer; padding:4px 8px; flex-shrink:0; }
+    .btn-add { background:none; border:1.5px dashed #2d7a2d; color:#2d7a2d; border-radius:8px; padding:8px; width:100%; font-size:0.9rem; cursor:pointer; margin-top:4px; }
+    .btn-add:hover { background:#e8f5e9; }
+    .btn-sm { padding:6px 14px; font-size:0.85rem; }
+    .btn-secondary { background:#fff; color:#2d7a2d; border:1.5px solid #2d7a2d; }
+    .btn-secondary:hover { background:#e8f5e9; }
+    .form-group { margin-bottom:14px; }
+    .form-label { display:block; font-size:0.85rem; font-weight:600; color:#444; margin-bottom:6px; }
+    .form-input { width:100%; padding:10px 12px; border:1.5px solid #ddd; border-radius:8px; font-size:0.9rem; box-sizing:border-box; }
+    .form-input:focus { border-color:#2d7a2d; outline:none; box-shadow:0 0 0 3px rgba(45,122,45,0.1); }
+    .spinner { width:36px; height:36px; border:4px solid #e8f5e9; border-top-color:#2d7a2d; border-radius:50%; animation:spin 0.8s linear infinite; margin:0 auto; }
+    @keyframes spin { to { transform:rotate(360deg); } }
+    .kakeibo-entry { display:flex; justify-content:space-between; align-items:center; padding:10px 12px; border-bottom:1px solid #f0f0f0; }
+    .kakeibo-entry:last-child { border-bottom:none; }
+    .kakeibo-entry-income .ke-amount { color:#2d7a2d; font-weight:700; }
+    .kakeibo-entry-expense .ke-amount { color:#e53935; font-weight:700; }
+    .ke-cat { font-size:0.75rem; background:#f5f5f5; padding:2px 8px; border-radius:10px; color:#666; }
+    .ke-del { background:none; border:none; color:#ccc; cursor:pointer; font-size:1.1rem; }
+    .ke-del:hover { color:#e53935; }
+
+  </style>
+
+<script>
+function updateFill(el){
+  const min=parseFloat(el.min)||0, max=parseFloat(el.max)||100, val=parseFloat(el.value)||0;
+  const pct=((val-min)/(max-min)*100).toFixed(1);
+  el.style.setProperty('--fill','linear-gradient(to right,#2d7a2d '+pct+'%,#d8d8d8 '+pct+'%)');
+}
+</script>
+</head>
+<body>
+<canvas id="bg-canvas"></canvas>
+
+<div class="wrap">
+  <h1><span id="title">投資シミュレーター</span></h1>
+
+  <!-- 言語ドロップダウン -->
+  <div class="lang-wrap">
+    <div class="lang-select-outer">
+      <span class="lang-globe">🌐</span>
+      <select id="lang-select" onchange="setLang(this.value)">
+        <option value="ja">日本語</option>
+        <option value="en">English</option>
+        <option value="ko">한국어</option>
+        <option value="zh">中文</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- タブ -->
+  <div class="tabs">
+    <button class="tab active" onclick="pop(this);switchTab('daily')"   id="tab-btn-d">毎日積立</button>
+    <button class="tab"        onclick="pop(this);switchTab('monthly')" id="tab-btn-m">毎月積立</button>
+    <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">初期投資</button>
+    <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">目標資産</button>
+    <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">マイページ</button>
+  </div>
+
+  <!-- 毎日積立 -->
+  <div id="tab-daily" class="tab-panel">
+    <div class="card">
+      <div class="row"><label id="l-daily">毎日の積立額</label><input type="range" id="d-amount" oninput="sliderToMoney('d-amount','d-amount-n');calcD()"><div class="right"><input type="text" class="val-input" id="d-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'d-amount',calcD)" oninput="moneyType(this,'d-amount',calcD)"></div></div>
+      <div class="row"><label id="l-rate-d">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="d-rate" oninput="onSlider('d-rate','d-rate-n');calcD()"><div class="right"><input type="number" class="val-input rate" id="d-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('d-rate-n','d-rate');calcD()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-d">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">年</span></div></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel" id="l-total-d">総積立額</div><div class="mval" id="d-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-d">利益</div><div class="mval" id="d-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-d">総資産</div><div class="mval" id="d-final"></div></div>
+    </div>
+    <div class="card">
+      <div id="g2sim-note" style="margin:8px 0 16px;padding:12px 14px;background:#f1f8f1;border:1px solid #d7ebd7;border-radius:12px;color:#2f5d33;font-size:13px;line-height:1.7;">💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。</div>
+      <p class="section-title" id="l-chart-d">資産推移グラフ</p>
+      <div class="chart-outer">
+        <div class="chart-wrap"><canvas id="chart-d"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 毎月積立 -->
+  <div id="tab-monthly" class="tab-panel" style="display:none">
+    <div class="card">
+      <div class="row"><label id="l-monthly">毎月の積立額</label><input type="range" id="m-amount" oninput="sliderToMoney('m-amount','m-amount-n');calcM()"><div class="right"><input type="text" class="val-input" id="m-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'m-amount',calcM)" oninput="moneyType(this,'m-amount',calcM)"></div></div>
+      <div class="row"><label id="l-rate-m">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="m-rate" oninput="onSlider('m-rate','m-rate-n');calcM()"><div class="right"><input type="number" class="val-input rate" id="m-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('m-rate-n','m-rate');calcM()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-m">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">年</span></div></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel" id="l-total-m">総積立額</div><div class="mval" id="m-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-m">利益</div><div class="mval" id="m-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-m">総資産</div><div class="mval" id="m-final"></div></div>
+    </div>
+    <div class="card">
+      <p class="section-title" id="l-chart-m">資産推移グラフ</p>
+      <div class="chart-outer">
+        <div class="chart-wrap"><canvas id="chart-m"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 初期投資 -->
+  <div id="tab-lump" class="tab-panel" style="display:none">
+    <div class="card">
+      <div class="row"><label id="l-lump">初期投資額</label><input type="range" id="lp-amount" oninput="sliderToMoney('lp-amount','lp-amount-n');calcL()"><div class="right"><input type="text" class="val-input" id="lp-amount-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'lp-amount',calcL)" oninput="moneyType(this,'lp-amount',calcL)"></div></div>
+      <div class="row"><label id="l-rate-l">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="lp-rate" oninput="onSlider('lp-rate','lp-rate-n');calcL()"><div class="right"><input type="number" class="val-input rate" id="lp-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('lp-rate-n','lp-rate');calcL()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-l">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">年</span></div></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel" id="l-principal">元本</div><div class="mval" id="lp-principal"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-l">利益</div><div class="mval" id="lp-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-l">総資産</div><div class="mval" id="lp-final"></div></div>
+    </div>
+    <div class="card">
+      <p class="section-title" id="l-chart-l">資産推移グラフ</p>
+      <div class="chart-outer">
+        <div class="chart-wrap"><canvas id="chart-l"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 目標資産 -->
+  <div id="tab-goal" class="tab-panel" style="display:none">
+    <div class="card">
+      <div class="row"><label id="l-goal">目標資産</label><input type="range" id="g-target" oninput="sliderToMoney('g-target','g-target-n');calcG()"><div class="right"><input type="text" class="val-input" id="g-target-n" onfocus="moneyFocus(this)" onblur="moneyBlur(this,'g-target',calcG)" oninput="moneyType(this,'g-target',calcG)"></div></div>
+      <div class="row"><label id="l-rate-g">年利回り</label><input type="range" min="0.1" max="30" step="0.1" value="5" id="g-rate" oninput="onSlider('g-rate','g-rate-n');calcG()"><div class="right"><input type="number" class="val-input rate" id="g-rate-n" min="0.1" max="30" step="0.1" oninput="onInput('g-rate-n','g-rate');calcG()"><span class="unit">%</span></div></div>
+      <div class="row"><label id="l-years-g">達成期間</label><input type="range" min="1" max="100" step="1" value="20" id="g-years" oninput="onSlider('g-years','g-years-n');calcG()"><div class="right"><input type="number" class="val-input years" id="g-years-n" min="1" max="100" step="1" oninput="onInput('g-years-n','g-years');calcG()"><span class="unit" id="u-yr-g">年</span></div></div>
+    </div>
+    <div class="result-grid">
+      <div class="metric"><div class="mlabel" id="l-need">必要月額</div><div class="mval" id="g-monthly"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-g">総積立額</div><div class="mval" id="g-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-g">利益</div><div class="mval" id="g-gain"></div></div>
+    </div>
+    <div class="card">
+      <p class="section-title" id="l-chart-g">資産推移グラフ</p>
+      <div class="chart-outer">
+        <div class="chart-wrap"><canvas id="chart-g"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- マイページ -->
+    <div id="tab-mypage" class="tab-panel" style="display:none">
+    <div id="mypage-loading" class="card" style="text-align:center;padding:2rem">
+      <div class="spinner"></div>
+    </div>
+
+    <div id="mypage-content" style="display:none">
+      <div class="mp-profile-card">
+        <div class="mp-avatar-wrap"><div class="mp-avatar">💼</div></div>
+        <div class="mp-profile-info">
+          <div class="mp-name" id="mp-name">-</div>
+          <div class="mp-updated" id="mp-updated"></div>
+        </div>
+      </div>
+      <div class="mp-summary-grid">
+        <div class="mp-summary-card mp-card-green">
+          <div class="mp-card-label" id="mp-label-assets">総資産</div>
+          <div class="mp-card-value" id="mp-assets">-</div>
+        </div>
+        <div class="mp-summary-card mp-card-blue">
+          <div class="mp-card-label" id="mp-label-target">目標資産</div>
+          <div class="mp-card-value" id="mp-target">-</div>
+        </div>
+        <div class="mp-summary-card mp-card-orange">
+          <div class="mp-card-label" id="mp-label-savings">毎月投資額</div>
+          <div class="mp-card-value" id="mp-savings">-</div>
+        </div>
+        <div class="mp-summary-card mp-card-purple">
+          <div class="mp-card-label" id="mp-label-income">年収</div>
+          <div class="mp-card-value" id="mp-income">-</div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="mp-progress-label">
+          <span>目標達成率</span>
+          <span id="mp-progress-pct" style="font-weight:700;color:#2d7a2d">0%</span>
+        </div>
+        <div class="mp-progress-bar-bg">
+          <div class="mp-progress-bar-fill" id="mp-progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="mp-section-title">📈 保有株・投信</div>
+        <div id="mp-stocks-list" class="mp-stocks-list"></div>
+        <div id="mp-stocks" style="display:none"></div>
+      </div>
+      <div class="card" style="margin-bottom:12px">
+        <div class="mp-section-title">🔄 ウォッチリスト</div>
+        <div id="mp-traded" class="mp-traded-chips"></div>
+      </div>
+      <button class="btn" onclick="document.getElementById('mypage-edit').style.display='block';document.getElementById('mypage-content').style.display='none'" style="width:100%;margin-bottom:8px">✏️ 情報を編集</button>
+      <button class="btn btn-secondary" id="btn-apply" onclick="applyToSimulator()" style="width:100%">📊 シミュレーターに適用</button>
+    </div>
+
+    <div id="mypage-edit" style="display:none">
+      <div class="card">
+        <div class="mp-section-title">✏️ 資産情報を編集</div>
+        <div class="form-group"><label class="form-label">名前（ハンネ）</label><input type="text" id="edit-name" class="form-input" placeholder="例：ユーコ"></div>
+        <div class="form-group"><label class="form-label">年収</label><input type="text" id="edit-income" class="form-input" placeholder="例：500万円"></div>
+        <div class="form-group"><label class="form-label">総資産</label><input type="text" id="edit-assets" class="form-input" placeholder="例：300万円"></div>
+        <div class="form-group"><label class="form-label">毎月投資額</label><input type="text" id="edit-savings" class="form-input" placeholder="例：3万円"></div>
+        <div class="form-group"><label class="form-label">目標資産</label><input type="text" id="edit-target" class="form-input" placeholder="例：3000万円"></div>
+        <div class="form-group">
+          <label class="form-label">保有株・投信（複数入力可）</label>
+          <div id="edit-stocks-list">
+            <div class="stock-row">
+              <input type="text" class="form-input stock-name" placeholder="銀柄名" style="flex:2">
+              <input type="text" class="form-input stock-qty" placeholder="株数" style="flex:1">
+              <input type="text" class="form-input stock-price" placeholder="取得価格" style="flex:1">
+              <button onclick="removeStockRow(this)" class="btn-icon">✕</button>
+            </div>
+          </div>
+          <button onclick="addStockRow('edit-stocks-list')" class="btn-add">＋ 銀柄を追加</button>
+          <input type="hidden" id="edit-stocks">
+        </div>
+        <div class="form-group"><label class="form-label">ウォッチリスト（カンマ区切り）</label><input type="text" id="edit-traded" class="form-input" placeholder="例：TOPIX投信, S&amp;P500"></div>
+        <div id="edit-msg" style="text-align:center;margin-bottom:8px;color:#2d7a2d;font-weight:600"></div>
+        <button id="edit-btn" class="btn" onclick="submitEdit()" style="width:100%;margin-bottom:8px">💾 保存する</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('mypage-edit').style.display='none';document.getElementById('mypage-content').style.display='block'" style="width:100%">← 戻る</button>
+      </div>
+    </div>
+
+    <div id="mypage-nodata" style="display:none">
+      <div class="card" style="text-align:center;padding:1.5rem">
+        <div style="font-size:3rem;margin-bottom:1rem">📝</div>
+        <p id="nodata-msg" style="margin-bottom:1.5rem">まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊</p>
+      </div>
+      <div class="card">
+        <div class="mp-section-title">📝 ここから直接登録</div>
+        <div class="form-group"><label class="form-label">名前（ハンネ）</label><input type="text" id="reg-name" class="form-input" placeholder="例：ユーコ"></div>
+        <div class="form-group"><label class="form-label">年収</label><input type="text" id="reg-income" class="form-input" placeholder="例：500万円"></div>
+        <div class="form-group"><label class="form-label">総資産</label><input type="text" id="reg-assets" class="form-input" placeholder="例：300万円"></div>
+        <div class="form-group"><label class="form-label">毎月投資額</label><input type="text" id="reg-savings" class="form-input" placeholder="例：3万円"></div>
+        <div class="form-group"><label class="form-label">目標資産</label><input type="text" id="reg-target" class="form-input" placeholder="例：3000万円"></div>
+        <div class="form-group">
+          <label class="form-label">保有株・投信（複数入力可）</label>
+          <div id="reg-stocks-list">
+            <div class="stock-row">
+              <input type="text" class="form-input stock-name" placeholder="銀柄名" style="flex:2">
+              <input type="text" class="form-input stock-qty" placeholder="株数" style="flex:1">
+              <input type="text" class="form-input stock-price" placeholder="取得価格" style="flex:1">
+              <button onclick="removeStockRow(this)" class="btn-icon">✕</button>
+            </div>
+          </div>
+          <button onclick="addStockRow('reg-stocks-list')" class="btn-add">＋ 銀柄を追加</button>
+          <input type="hidden" id="reg-stocks">
+        </div>
+        <div class="form-group"><label class="form-label">ウォッチリスト（カンマ区切り）</label><input type="text" id="reg-traded" class="form-input" placeholder="例：TOPIX投信, S&amp;P500"></div>
+        <div id="reg-msg" style="text-align:center;margin-bottom:8px;color:#2d7a2d;font-weight:600"></div>
+        <button id="reg-btn" class="btn" onclick="submitRegistration()" style="width:100%">登録する</button>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+/* 背景パーティクル */
+(function(){
+  const canvas=document.getElementById('bg-canvas');
+  const ctx=canvas.getContext('2d');
+  function resize(){canvas.width=window.innerWidth;canvas.height=window.innerHeight;}
+  window.addEventListener('resize',resize);resize();
+  const SYMS={'ja':'¥','en':'$','ko':'₩','zh':'元'};
+  function rand(a,b){return a+Math.random()*(b-a);}
+  const bubbles=[];
+  function mkB(){const r=rand(14,50);return{x:rand(0,canvas.width),y:canvas.height+r,r,speed:rand(0.2,0.55),drift:rand(-0.1,0.1),opacity:rand(0.015,0.038),wobble:rand(0,Math.PI*2),ws:rand(0.004,0.012)};}
+  for(let i=0;i<16;i++){const b=mkB();b.y=rand(0,canvas.height);bubbles.push(b);}
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    const sym=SYMS[window.currentLang||'ja'];
+    bubbles.forEach(b=>{
+      b.wobble+=b.ws;b.x+=Math.sin(b.wobble)*0.35+b.drift;b.y-=b.speed;
+      if(b.y<-b.r*2)Object.assign(b,mkB());
+      ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+      ctx.strokeStyle=`rgba(30,92,32,${b.opacity*1.5})`;ctx.lineWidth=1;ctx.stroke();
+      ctx.fillStyle=`rgba(30,92,32,${b.opacity})`;ctx.fill();
+      if(b.r>=18){ctx.save();ctx.globalAlpha=b.opacity*2.5;ctx.fillStyle='rgba(30,92,32,1)';ctx.font=`700 ${Math.round(b.r*0.6)}px Outfit,sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(sym,b.x,b.y);ctx.restore();}
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+let chartD,chartM,chartL,chartG;
+window.currentLang='ja';
+const timers={};
+let userData=null;
+
+function pop(el){el.classList.remove('popping');void el.offsetWidth;el.classList.add('popping');el.addEventListener('animationend',()=>el.classList.remove('popping'),{once:true});}
+
+const CUR={
+  // スライダー最大はキリのいい数字。それ以上は手入力
+  ja:{d_min:500,d_max:100000,d_step:500,d_def:500,m_min:100000,m_max:3000000,m_step:100000,m_def:100000,l_min:100000,l_max:10000000,l_step:100000,l_def:1000000,g_min:1000000,g_max:100000000,g_step:1000000,g_def:10000000},
+  en:{currency_unit:'USD',d_min:1,d_max:1000,d_step:1,d_def:10,m_min:100,m_max:30000,m_step:100,m_def:500,l_min:1000,l_max:100000,l_step:1000,l_def:10000,g_min:10000,g_max:2000000,g_step:10000,g_def:200000},
+  ko:{currency_unit:'원',d_min:1000,d_max:1000000,d_step:1000,d_def:1000,m_min:10000,m_max:3000000,m_step:10000,m_def:300000,l_min:100000,l_max:100000000,l_step:100000,l_def:10000000,g_min:1000000,g_max:500000000,g_step:1000000,g_def:100000000},
+  zh:{currency_unit:'元',d_min:10,d_max:10000,d_step:10,d_def:10,m_min:1000,m_max:200000,m_step:1000,m_def:2000,l_min:10000,l_max:1000000,l_step:10000,l_def:50000,g_min:100000,g_max:5000000,g_step:100000,g_def:500000}
+};
+
+const T={
+  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'総積立額',gain:'利益',final:'総資産',principal:'元本',need:'必要月額',chart:'資産推移グラフ',longnote:'💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。',yr:'年',yr_suffix:'目',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する',edit_btn:'更新する',edit_btn_loading:'更新中...',edit_err:'エラー：',no_data_title:'',mypage_loading:'読み込み中...',mp_name:'お名前',mp_target:'目標資産',mp_savings:'毎月投資額',mp_income:'年収',mp_stocks:'保有株',mp_traded:'トレード銘柄',mp_lastupdate:'最終更新：',nodata:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊'},
+  en:{currency_unit:'$',title:'Investment Simulator',tab1:'Daily',tab2:'Monthly',tab3:'Lump Sum',tab4:'Goal',tab5:'My Page',daily:'Daily Amount',monthly:'Monthly Amount',lump:'Initial Amount',goal:'Target Amount',rate:'Annual Return',yearsD:'Period',yearsM:'Period',yearsL:'Period',yearsG:'Target Period',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Need',chart:'Asset Growth Chart',longnote:'💡 Even small daily contributions add up to a big difference over many years. Take your time — staying the course for the long run is the surest path.',yr:'y',yr_suffix:'',p_label:'Principal',t_label:'Total Assets',apply:'Apply to Simulator',edit_btn:'Update',edit_btn_loading:'Updating...',edit_err:'Error: ',no_data_title:'',mypage_loading:'Loading...',mp_name:'Name',mp_target:'Target',mp_savings:'Monthly Inv.',mp_income:'Annual Inc.',mp_stocks:'Holdings',mp_traded:'Trading',mp_lastupdate:'Last Update: ',nodata:'No information registered yet.<br>Send "register" on LINE to get started😊'},
+  ko:{currency_unit:'₩',title:'투자 시뮬레이터',tab1:'매일 적립',tab2:'매월 적립',tab3:'일괄투자',tab4:'목표 자산',tab5:'마이페이지',daily:'매일 적립액',monthly:'월 적립액',lump:'초기 투자액',goal:'목표 자산',rate:'연 수익률',yearsD:'적립 기간',yearsM:'적립 기간',yearsL:'운용 기간',yearsG:'달성 기간',total:'총 적립액',gain:'수익',final:'총자산',principal:'원금',need:'필요 월액',chart:'자산 추이 차트',longnote:'💡 매일 조금씩 적립해도 긴 세월로 보면 이만큼 차이가 납니다. 서두르지 말고 길게 이어가는 것이 가장 빠른 길입니다.',yr:'년',yr_suffix:'년차',p_label:'원금',t_label:'총자산',apply:'시뮬레이터에 반영',edit_btn:'업데이트',edit_btn_loading:'업데이트 중...',edit_err:'오류: ',no_data_title:'',mypage_loading:'불러오는 중...',mp_name:'이름',mp_target:'목표 자산',mp_savings:'월 투자액',mp_income:'연수입',mp_stocks:'보유 주식',mp_traded:'트레이드 종목',mp_lastupdate:'최종 업데이트: ',nodata:'아직 정보가 등록되어 있지 않습니다.<br>LINE에서 "등록"을 보내 정보를 등록해주세요😊'},
+  zh:{currency_unit:'元',title:'投资模拟器',tab1:'每日定投',tab2:'每月定投',tab3:'一次性投资',tab4:'目标资产',tab5:'我的页面',daily:'每日金额',monthly:'每月金额',lump:'初始投资额',goal:'目标金额',rate:'年收益率',yearsD:'投资期限',yearsM:'投资期限',yearsL:'投资期限',yearsG:'达成期限',total:'累计投资额',gain:'收益',final:'总资产',principal:'本金',need:'每月所需',chart:'资产走势图',longnote:'💡 即使每天小额定投，放眼长远也会有这么大的差距。不必着急，长期坚持才是最稳妥的捷径。',yr:'年',yr_suffix:'年',p_label:'本金',t_label:'总资产',apply:'应用到模拟器',edit_btn:'更新',edit_btn_loading:'更新中...',edit_err:'错误: ',no_data_title:'',mypage_loading:'加载中...',mp_name:'姓名',mp_target:'目标资产',mp_savings:'每月投资额',mp_income:'年收入',mp_stocks:'持有股票',mp_traded:'交易股票',mp_lastupdate:'最终更新: ',nodata:'尚未注册信息。<br>请在LINE上发送「注册」来登录信息😊'}
+};
+
+function fmtInput(n){
+  n=Math.round(n);const L=window.currentLang;
+  if(L==='ja'){if(n>=1e8){const o=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),y=n%1e4;let s=o+'億';if(m)s+=m+'万';if(y)s+=y+'円';if(!m&&!y)s+='円';return s;}if(n>=1e4){const m=Math.floor(n/1e4),y=n%1e4;return y?m+'万'+y+'円':m+'万円';}return n.toLocaleString()+'円';}
+  if(L==='en'){if(n>=1e9)return '$'+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(n>=1e6)return '$'+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(n>=1e3)return '$'+(n/1e3).toFixed(1).replace(/\.0$/,'')+'K';return '$'+n.toLocaleString();}
+  if(L==='ko'){if(n>=1e8){const e=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),w=n%1e4;let s=e+'억';if(m)s+=m+'만';if(w)s+=w;return s+'원';}if(n>=1e4){const m=Math.floor(n/1e4),w=n%1e4;return w?m+'만'+w+'원':m+'만원';}return n.toLocaleString()+'원';}
+  if(L==='zh'){if(n>=1e8){const y=Math.floor(n/1e8),w=Math.floor((n%1e8)/1e4),u=n%1e4;let s=y+'亿';if(w)s+=w+'万';if(u)s+=u+'元';if(!w&&!u)s+='元';return s;}if(n>=1e4){const w=Math.floor(n/1e4),u=n%1e4;return u?w+'万'+u+'元':w+'万元';}return n.toLocaleString()+'元';}
+  return n.toLocaleString();
+}
+function fmt(n){
+  const L=window.currentLang;
+  if(L==='ja'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'億';if(n>=1e4)return Math.round(n/1e4)+'万';return Math.round(n).toLocaleString();}
+  if(L==='zh'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'亿';if(n>=1e4)return Math.round(n/1e4)+'万';return Math.round(n).toLocaleString();}
+  if(L==='ko'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'억';if(n>=1e4)return Math.round(n/1e4)+'만';return Math.round(n).toLocaleString();}
+  if(n>=1e9)return(n/1e9).toFixed(1)+'B';if(n>=1e6)return(n/1e6).toFixed(1)+'M';if(n>=1e3)return Math.round(n/1e3)+'K';return Math.round(n).toLocaleString();
+}
+function fmtYr(y){return y+T[window.currentLang].yr;}
+
+function moneyFocus(el){el.value=el.dataset.raw||'';el.select();}
+function moneyBlur(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,'')),r=(!isNaN(v)&&v>0)?v:parseFloat(el.dataset.raw||0);el.dataset.raw=r;el.value=fmtInput(r);const s=document.getElementById(sId);s.value=Math.min(Math.max(r,+s.min),+s.max);fn();}
+function moneyType(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,''));if(!isNaN(v)&&v>0){el.dataset.raw=v;const s=document.getElementById(sId);s.value=Math.min(Math.max(Math.min(v,1e10),+s.min),+s.max);fn();}}
+function sliderToMoney(sId,nId){const v=+document.getElementById(sId).value,el=document.getElementById(nId);el.dataset.raw=v;el.value=fmtInput(v);}
 function onSlider(sId,nId){document.getElementById(nId).value=+document.getElementById(sId).value;}
 function onInput(nId,sId){const s=document.getElementById(sId),v=+document.getElementById(nId).value;if(!isNaN(v)&&v>0)s.value=Math.min(Math.max(v,+s.min),+s.max);}
 function getMoney(id){const el=document.getElementById(id),r=parseFloat(el.dataset.raw||el.value.replace(/[^0-9.]/g,''));return(isNaN(r)||r<=0)?0:Math.min(r,1e10);}
@@ -895,13 +1332,14 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 })();
 </script>
 <script>
-/* simBrandSyncText: recolor remaining green TEXT (tabs/labels/units/legend) + chart tooltip. Additive, idempotent. */
+/* simBrandSyncText: recolor remaining green TEXT (tabs/labels/units/legend) + chart tooltip; detail-box labels & legend set to neutral black. Additive, idempotent. */
 (function(){
   function h2r(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c;}).join('');var n=parseInt(h,16);return [(n>>16)&255,(n>>8)&255,n&255];}
   function dk(rgb,a){return rgb.map(function(c){return Math.round(c*(1-a));});}
   function tn(rgb,a){return rgb.map(function(c){return Math.round(c+(255-c)*a);});}
   function S(rgb){return 'rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';}
   function getColor(){return localStorage.getItem('userBrandColor')||'#3da060';}
+  var BLACK='#222';
   function buildCss(hex){
     var b=h2r(hex);
     var text=S(dk(b,0.55));
@@ -910,10 +1348,11 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
       '.tabs{color:'+text+' !important}',
       '.tab{color:'+mid+' !important}',
       '.tab.active{color:'+text+' !important}',
-      '.mlabel{color:'+mid+' !important}',
       'label{color:'+mid+' !important}',
       '.unit{color:'+mid+' !important}',
-      '.right{color:'+text+' !important}'
+      '.right{color:'+text+' !important}',
+      '.mlabel{color:'+BLACK+' !important}',
+      '.sim-pro-box-d,.sim-pro-box-m,.sim-pro-box-l,.sim-pro-box-g{color:'+BLACK+' !important}'
     ].join('');
   }
   function applyText(){
@@ -922,7 +1361,17 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     if(!st){st=document.createElement('style');st.id='simBrandSyncText';document.head.appendChild(st);}
     var css=buildCss(hex);
     if(st.textContent!==css)st.textContent=css;
+    fixHeading();
     applyTooltip(hex);
+  }
+  function fixHeading(){
+    try{
+      var divs=document.querySelectorAll('.sim-pro-box-d *,.sim-pro-box-m *,.sim-pro-box-l *,.sim-pro-box-g *');
+      for(var i=0;i<divs.length;i++){
+        var d=divs[i];var s=d.getAttribute('style')||'';
+        if(/詳細分析/.test(d.textContent)&&d.children.length===0&&/color:/i.test(s)){d.style.color=BLACK;}
+      }
+    }catch(e){}
   }
   function applyTooltip(hex){
     try{
