@@ -821,7 +821,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   h1, .sim-title{ color: var(--brand-deep, #225835) !important; }
 </style>
 
-<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + sliders + boxes + advice (bg AND text) + detail box gradient bg + detail green text (incl 運用益 #3da060) + chart (lines/fills/area bg/legend) across ALL tabs without needing a tab click, and survives chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
+<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + metric values (.mval) + sliders + boxes + advice (bg AND text) + detail box gradient bg + detail green text (incl 運用益 #3da060) + chart (lines/fills/area bg/legend) across ALL tabs without needing a tab click, and survives chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
 <style id="simBrandSync"></style>
 <style id="simBrandSyncDetail"></style>
 <script>
@@ -847,7 +847,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     var css="body{background:"+v.bg+" !important;}"+
     ".tabs{background:"+v.tabsBg+" !important;}"+
     ".tab.active{background:"+v.activeTab+" !important;color:"+v.text+" !important;}"+
-    ".metric .val,.val-input,.section-title,h1,h2{color:"+v.text+" !important;}"+
+    ".metric .val,.mval,.val-input,.section-title,h1,h2{color:"+v.text+" !important;}"+
     ".row input[type=range]{accent-color:"+v.accent+" !important;}"+
     ".chart-outer{background:"+v.chartBg+" !important;border-color:"+v.softBorder+" !important;}"+
     ".card,.metric{border-color:"+v.softBorder+" !important;}"+
