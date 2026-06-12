@@ -3702,7 +3702,7 @@ var STAGES=[{min:0,key:"egg",name:"？？？のたまご",msg:"なにかが ね�
 {min:45,key:"child",name:"こどもドラゴン",msg:"げんき いっぱい！",label:"だい2しんか"},
 {min:110,key:"final",name:"ドラゴン",msg:"りっぱに そだったよ！",label:"さいしゅうしんか"}];
 var TITLES=[[0,"たまごのおせわがかり"],[15,"かけだしそだてや"],[45,"いちにんまえそだてや"],[110,"でんせつのそだてや"]];
-var DECO={house:{nm:"おうち",e:"🏠",price:40,css:"left:10%;bottom:62px;font-size:56px"},tree:{nm:"き",e:"🌳",price:25,css:"right:9%;bottom:68px;font-size:50px"},flower:{nm:"はな",e:"🌷",price:15,css:"left:27%;bottom:52px;font-size:26px"}};
+var DECO={house:{nm:"おうち",e:"🏠",price:40,x:10,y:62,fs:56},tree:{nm:"き",e:"🌳",price:25,x:86,y:68,fs:50},flower:{nm:"はな",e:"🌷",price:15,x:27,y:52,fs:26},fountain:{nm:"ふんすい",e:"⛲",price:60,x:70,y:58,fs:44},sunflower:{nm:"ひまわり",e:"🌻",price:20,x:38,y:54,fs:28},mushroom:{nm:"きのこ",e:"🍄",price:18,x:58,y:48,fs:24},lantern:{nm:"とうろう",e:"🏮",price:30,x:18,y:88,fs:30}};
 var BGS={meadow:{nm:"そうげん",price:0},beach:{nm:"うみべ",price:40},snow:{nm:"ゆきやま",price:40},room:{nm:"おへや",price:40}};
 var FEED_MAX=3,PET_MAX=8,PLAY_MAX=3,FEED_EXP=8,PET_EXP=3;
 function gi(k,d){try{var v=localStorage.getItem(k);return v==null?d:v;}catch(e){return d;}}
@@ -3713,7 +3713,8 @@ function baseExp(){var t=parseInt(gi("sk_total","0"),10)||0;var st=parseInt(gi("
 function totalExp(){return baseExp()+(parseInt(gi("pg_exp","0"),10)||0);}
 function coins(){return parseInt(gi("pg_coins","0"),10)||0;}
 function addCoins(n){si("pg_coins",Math.max(0,coins()+n));}
-function ownedDeco(){try{var a=JSON.parse(gi("pg_deco","[]"));return Array.isArray(a)?a:[];}catch(e){return [];}}
+function ownedDeco(){try{var a=JSON.parse(gi("pg_deco","{}"));if(Array.isArray(a)){var o={};a.forEach(function(k){if(DECO[k])o[k]={x:DECO[k].x};});si("pg_deco",JSON.stringify(o));return o;}return (a&&typeof a==="object")?a:{};}catch(e){return {};}}
+var placeMode=null;
 function ownedBgs(){try{var a=JSON.parse(gi("pg_bgs",'["meadow"]'));return Array.isArray(a)?a:["meadow"];}catch(e){return ["meadow"];}}
 function checkDay(){if(gi("pg_day","")!==today()){si("pg_day",today());si("pg_feed","0");si("pg_pet","0");si("pg_play","0");}}
 function stageOf(exp){var s=STAGES[0];for(var i=0;i<STAGES.length;i++){if(exp>=STAGES[i].min)s=STAGES[i];}return s;}
@@ -3734,7 +3735,7 @@ var g=document.createElement("div");g.id="pgGround";
 if(bg==="beach"){var sea=document.createElement("div");sea.id="pgSea";env.appendChild(sea);g.style.background="radial-gradient(120% 100% at 50% 100%,#eed9a4,#f5e3b0 70%)";}
 else if(bg==="snow"){g.style.background="radial-gradient(120% 100% at 50% 100%,#eef4f8,#ffffff 70%)";for(var i=0;i<10;i++){var sn=document.createElement("div");sn.className="pgSnow";sn.textContent="❄";sn.style.left=(Math.random()*96)+"%";sn.style.animationDuration=(4+Math.random()*5)+"s";sn.style.animationDelay=(Math.random()*4)+"s";sn.style.opacity=0.5+Math.random()*0.5;env.appendChild(sn);}}
 else{g.style.background=GROUND[ph];}
-env.appendChild(g);if(bg!=="room"){ownedDeco().forEach(function(k){var dd=DECO[k];if(!dd)return;var sp=document.createElement("div");sp.style.cssText="position:absolute;"+dd.css+";filter:drop-shadow(0 3px 4px rgba(30,60,30,.25));pointer-events:none";sp.textContent=dd.e;env.appendChild(sp);});}}
+env.appendChild(g);if(bg!=="room"){var od2=ownedDeco();for(var dk in od2){var dd=DECO[dk];if(!dd)continue;var px=(od2[dk]&&typeof od2[dk].x==="number")?od2[dk].x:dd.x;var sp=document.createElement("div");sp.style.cssText="position:absolute;left:"+px+"%;bottom:"+dd.y+"px;font-size:"+dd.fs+"px;transform:translateX(-50%);filter:drop-shadow(0 3px 4px rgba(30,60,30,.25));pointer-events:none";sp.textContent=dd.e;env.appendChild(sp);}}}
 var charX=50;
 function setCharX(pct,instant){charX=Math.max(14,Math.min(86,pct));var w=el("pgCharW");if(!w)return;if(instant)w.style.transition="none";else w.style.transition="left 2.8s ease-in-out";w.style.left=charX+"%";var sh=el("pgShadow");if(sh){sh.style.transition=instant?"none":"left 2.8s ease-in-out";sh.style.left=charX+"%";}requestAnimationFrame(function(){if(instant){w.style.transition="left 2.8s ease-in-out";if(sh)sh.style.transition="left 2.8s ease-in-out";}});}
 function face(dir){var w=el("pgCharW");if(w)w.style.transform="scaleX("+(dir<0?-1:1)+")";}
@@ -3799,12 +3800,13 @@ else if(owned)btn='<button class="own" data-use="'+k+'">つかう</button>';
 else btn='<button data-buy="'+k+'" '+(coins()<b.price?"disabled":"")+'>🪙'+b.price+'でかう</button>';
 h+='<div class="pgItem"><div class="nm">はいけい：'+b.nm+'<small>'+(k==="meadow"?"さいしょから もってるよ":"きせかえで きぶんてんかん")+'</small></div>'+btn+'</div>';}
 h+='<div style="font-size:12px;font-weight:700;color:#7a4ea0;margin:10px 0 6px">🏘️ おにわのかざり（かうと おにわに かざられるよ）</div>';
-var od=ownedDeco();for(var dk in DECO){var dd=DECO[dk];var has=od.indexOf(dk)>=0;h+='<div class="pgItem"><div class="nm">'+dd.e+' '+dd.nm+'<small>おにわが にぎやかになる</small></div>'+(has?'<button class="sel" disabled>おいてあるよ</button>':'<button data-deco="'+dk+'" '+(coins()<dd.price?'disabled':'')+'>🪙'+dd.price+'でかう</button>')+'</div>';}
+var od=ownedDeco();for(var dk in DECO){var dd=DECO[dk];var has=(dk in od);h+='<div class="pgItem"><div class="nm">'+dd.e+' '+dd.nm+'<small>'+(has?'タップしたばしょに ひっこしできる':'おにわが にぎやかになる')+'</small></div>'+(has?'<button class="own" data-move="'+dk+'">うごかす</button>':'<button data-deco="'+dk+'" '+(coins()<dd.price?'disabled':'')+'>🪙'+dd.price+'でかう</button>')+'</div>';}
 h+='<div class="pgItem"><div class="nm">🍗 ごちそう<small>たべると EXPが +20 ふえる</small></div><button data-feast="1" '+(coins()<15?"disabled":"")+'>🪙15でかう</button></div>';
 sh.innerHTML=h;
 sh.querySelectorAll("[data-buy]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-buy");if(coins()<BGS[k].price)return;addCoins(-BGS[k].price);var o=ownedBgs();o.push(k);si("pg_bgs",JSON.stringify(o));si("pg_bg",k);toast("「"+BGS[k].nm+"」をかった！");render(false);});});
 sh.querySelectorAll("[data-use]").forEach(function(b){b.addEventListener("click",function(){si("pg_bg",b.getAttribute("data-use"));render(false);});});
-sh.querySelectorAll("[data-deco]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-deco");if(coins()<DECO[k].price)return;addCoins(-DECO[k].price);var o=ownedDeco();o.push(k);si("pg_deco",JSON.stringify(o));toast(DECO[k].e+"「"+DECO[k].nm+"」を おにわに かざった！");render(false);});});
+sh.querySelectorAll("[data-deco]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-deco");if(coins()<DECO[k].price)return;addCoins(-DECO[k].price);var o=ownedDeco();o[k]={x:DECO[k].x};si("pg_deco",JSON.stringify(o));toast(DECO[k].e+"「"+DECO[k].nm+"」を おにわに かざった！");render(false);});});
+sh.querySelectorAll("[data-move]").forEach(function(b){b.addEventListener("click",function(){placeMode=b.getAttribute("data-move");var sc=el("pgScene");if(!sc)return;toast(DECO[placeMode].e+" おきたいばしょを タップしてね");var ov=document.createElement("div");ov.id="pgPlaceOv";ov.style.cssText="position:absolute;inset:0;z-index:9;cursor:crosshair";sc.appendChild(ov);ov.addEventListener("pointerdown",function(ev){var r=sc.getBoundingClientRect();var px=Math.max(6,Math.min(94,Math.round((ev.clientX-r.left)/r.width*100)));var o=ownedDeco();o[placeMode]={x:px};si("pg_deco",JSON.stringify(o));var nm=DECO[placeMode].nm;placeMode=null;ov.remove();toast(nm+"を ひっこしさせた！");render(false);},{once:true});el("pgScene").scrollIntoView({behavior:"smooth",block:"center"});});});
 sh.querySelectorAll("[data-feast]").forEach(function(b){b.addEventListener("click",function(){if(coins()<15)return;addCoins(-15);bounce();hearts(3,"🍗");setTimeout(function(){hearts(3,"💗");},450);gain(20);toast("ごちそうに おおよろこび！");});});}
 function dailyLogin(){if(gi("pg_login_day","")!==today()){si("pg_login_day",today());addCoins(10);setTimeout(function(){toast("🪙 ログインボーナス +10コイン！");},900);}}
 function morningBonus(){if(gi("pg_morning_day","")===today())return;si("pg_morning_day",today());addCoins(5);si("pg_exp",(parseInt(gi("pg_exp","0"),10)||0)+5);try{render(false);}catch(e){}}
