@@ -327,10 +327,6 @@
       </div>
     </div>
   
-<div id="homeMoversCard" class="mc" style="margin:0 14px 16px;cursor:default">
-  <div class="mn">📈 今日の注目（急騰・急落）</div>
-  <div id="homeMoversList" style="font-size:13px;margin-top:8px;text-align:left;color:#999">読み込み中...</div>
-</div>
 <script>(function(){
 function esc(t){return String(t==null?"":t).replace(/[&<>"]/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c];});}
 function row(x,up){var p=(x.pct==null||isNaN(x.pct))?"":((x.pct>=0?"+":"")+Number(x.pct).toFixed(2)+"%");var col=up?"#1e7d22":"#c62828";var mk=up?"\u25b2":"\u25bc";return '<div style="display:flex;justify-content:space-between;gap:8px;padding:7px 2px;border-bottom:1px solid #f0f0f0"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#333">'+esc(__jpName(x.symbol))+'</span><span style="font-weight:700;color:'+col+';flex:0 0 auto">'+mk+" "+p+"</span></div>";}
@@ -422,7 +418,11 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
       <div class="morning-idx-grid" id="morning-idx-grid"></div>
       <div class="morning-extra">
         <div class="morning-section-label">📊 <span data-i18n="morning_sect_analysis" data-help-key="morning_sect_analysis">AI市場分析</span></div>
-        <div id="morning-analysis" class="morning-analysis-text" data-i18n="morning_loading">読み込み中...</div>
+        <div id="homeMoversCard" class="mc" style="margin:12px 0;cursor:default">
+  <div class="mn">📈 今日の注目（急騰・急落）</div>
+  <div id="homeMoversList" style="font-size:13px;margin-top:8px;text-align:left;color:#999">読み込み中...</div>
+</div>
+<div id="morning-analysis" class="morning-analysis-text" data-i18n="morning_loading">読み込み中...</div>
         <div id="morning-points" class="morning-points-text"></div>
       <div class="morning-news-section" id="morning-news-section">
         <div class="morning-news-title"> <span data-i18n="morning_sect_news" data-help-key="morning_sect_news">今日のニュース</span></div>
