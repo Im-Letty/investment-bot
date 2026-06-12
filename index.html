@@ -3638,12 +3638,12 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 @keyframes pgJump{0%{transform:translateY(0) scale(1)}30%{transform:translateY(-34px) scale(1.06)}55%{transform:translateY(0) scale(.95,.9)}75%{transform:translateY(-10px) scale(1.02)}100%{transform:translateY(0) scale(1)}}@keyframes pgWalkA{0%{transform:translateY(0) rotate(3deg)}25%{transform:translateY(-6px) rotate(0deg)}50%{transform:translateY(0) rotate(-3deg)}75%{transform:translateY(-6px) rotate(0deg)}100%{transform:translateY(0) rotate(3deg)}}@keyframes pgFloatWob{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-8px) rotate(3deg)}}
 .pgHeart{position:absolute;font-size:22px;pointer-events:none;animation:pgRise 1.3s ease-out forwards;z-index:5}
 @keyframes pgRise{0%{opacity:0;transform:translateY(0) scale(.6)}15%{opacity:1}100%{opacity:0;transform:translateY(-110px) scale(1.25)}}
-.pgConf{position:absolute;top:-12px;width:9px;height:13px;border-radius:3px;pointer-events:none;animation:pgFall 1.7s ease-in forwards;z-index:6}
-@keyframes pgFall{to{transform:translateY(360px) rotate(540deg);opacity:.2}}
+.pgConf{position:absolute;top:-12px;width:9px;height:13px;border-radius:3px;pointer-events:none;animation:pgConfFall 1.7s ease-in forwards;z-index:6}
+@keyframes pgConfFall{to{transform:translateY(360px) rotate(540deg);opacity:.2}}
 .pgOni{position:absolute;font-size:26px;pointer-events:none;z-index:4}
 #pgFlash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .5s;z-index:7}
 #pgMsg{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.95);border-radius:14px;padding:7px 16px;font-size:13px;font-weight:700;color:#3a6a45;box-shadow:0 2px 8px rgba(0,0,0,.1);white-space:nowrap;max-width:92%;overflow:hidden;text-overflow:ellipsis;z-index:8;transition:opacity .8s}
-#pgScore{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.95);border-radius:12px;padding:6px 12px;font-size:14px;font-weight:800;color:#e8762a;display:none;z-index:8}
+#pgMgScore{position:absolute;top:12px;left:12px;background:rgba(255,255,255,.95);border-radius:12px;padding:6px 12px;font-size:14px;font-weight:800;color:#e8762a;display:none;z-index:8}
 #pgPanel{padding:12px 14px 16px;background:#fffef8}
 #pgTopRow{display:flex;align-items:center;justify-content:space-between;margin-bottom:2px}
 #pgName{font-size:16px;font-weight:800;color:#2c3e50;cursor:pointer;text-align:left}
@@ -3659,7 +3659,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 #pgBtns{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 #pgFeedBtn{background:linear-gradient(135deg,#ff9d5c,#f4783b)}
 #pgPetBtn{background:linear-gradient(135deg,#5ec48f,#3da060)}
-#pgPlayBtn{background:linear-gradient(135deg,#6aa9f0,#3d77c9)}
+#pgGameBtn{background:linear-gradient(135deg,#6aa9f0,#3d77c9)}
 #pgShopBtn{background:linear-gradient(135deg,#c98ae0,#9a5ec4)}
 #pgNote{font-size:10.5px;color:#b6beb6;margin-top:9px;line-height:1.5}
 #pgShop{display:none;background:#fbf6ff;border-top:2px dashed #e0d0ee;padding:12px 14px 16px}
@@ -3677,7 +3677,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   <div id="pgEnv"></div>
   <div id="pgShadow"></div>
   <div id="pgCharW"><div id="pgCharFlip"><img id="pgChar" alt="pet" draggable="false"><div id="pgLids"></div></div></div>
-  <div id="pgMsg"></div><div id="pgScore"></div><div id="pgFlash"></div>
+  <div id="pgMsg"></div><div id="pgMgScore"></div><div id="pgFlash"></div>
  </div>
  <div id="pgPanel">
   <div id="pgTopRow"><div id="pgName"></div><div id="pgCoins"></div></div>
@@ -3687,7 +3687,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   <div id="pgBtns">
    <button class="pgBtn" id="pgFeedBtn"></button>
    <button class="pgBtn" id="pgPetBtn"></button>
-   <button class="pgBtn" id="pgPlayBtn"></button>
+   <button class="pgBtn" id="pgGameBtn"></button>
    <button class="pgBtn" id="pgShopBtn">🛒 ショップ</button>
   </div>
   <div id="pgNote">なでる・ごはん・ミニゲームでそだつよ。コインは毎日ログインとミニゲームでたまる！</div>
@@ -3761,8 +3761,8 @@ el("pgExp").textContent=next?("EXP "+exp+"　つぎのしんかまで あと"+(n
 var fc=parseInt(gi("pg_feed","0"),10),pc=parseInt(gi("pg_pet","0"),10),pl=parseInt(gi("pg_play","0"),10);
 el("pgFeedBtn").textContent="🍙 ごはん（のこり"+Math.max(0,FEED_MAX-fc)+"）";
 el("pgPetBtn").textContent="🤍 なでる（のこり"+Math.max(0,PET_MAX-pc)+"）";
-el("pgPlayBtn").textContent="🎮 あそぶ（のこり"+Math.max(0,PLAY_MAX-pl)+"）";
-el("pgFeedBtn").disabled=fc>=FEED_MAX;el("pgPetBtn").disabled=pc>=PET_MAX;el("pgPlayBtn").disabled=pl>=PLAY_MAX||gameOn;
+el("pgGameBtn").textContent="🎮 あそぶ（のこり"+Math.max(0,PLAY_MAX-pl)+"）";
+el("pgFeedBtn").disabled=fc>=FEED_MAX;el("pgPetBtn").disabled=pc>=PET_MAX;el("pgGameBtn").disabled=pl>=PLAY_MAX||gameOn;
 if(!gameOn){var last=gi("sk_last","");var gap=last?dayDiff(last,new Date().toDateString()):0;var m=el("pgMsg");m.textContent=(gap>=2)?"さみしかったよ…まいにち きてね":s.msg;m.style.opacity="1";}
 if(evolved){var f=el("pgFlash");f.style.opacity="1";setTimeout(function(){f.style.opacity="0";},420);confetti();bounce();toast("✨おめでとう！ "+s.name+" に しんかした！✨");}
 renderShop();}
@@ -3772,7 +3772,7 @@ function doFeed(){if(gameOn)return;checkDay();var fc=parseInt(gi("pg_feed","0"),
 function rename(){var v=prompt("なまえを つけてあげよう（10文字まで）",gi("pg_name",""));if(v==null)return;si("pg_name",(""+v).trim().slice(0,10));render(false);}
 var gameOn=false;
 function startGame(){if(gameOn)return;checkDay();var pl=parseInt(gi("pg_play","0"),10);if(pl>=PLAY_MAX)return;si("pg_play",pl+1);gameOn=true;render(false);
-var sc=el("pgScene"),score=0,items=[],tleft=25;var sb=el("pgScore");sb.style.display="block";
+var sc=el("pgScene"),score=0,items=[],tleft=25;var sb=el("pgMgScore");sb.style.display="block";
 toast("🍙をキャッチしよう！がめんをタップでいどう");
 function upd(){sb.textContent="🍙 "+score+"　⏱ "+tleft;}upd();
 var target=charX;
@@ -3809,7 +3809,7 @@ setCharX(50,true);
 c.addEventListener("click",function(){if(!gameOn)doPet();});
 el("pgPetBtn").addEventListener("click",doPet);
 el("pgFeedBtn").addEventListener("click",doFeed);
-el("pgPlayBtn").addEventListener("click",startGame);
+el("pgGameBtn").addEventListener("click",startGame);
 el("pgShopBtn").addEventListener("click",function(){var sh=el("pgShop");sh.style.display=(sh.style.display==="block")?"none":"block";renderShop();});
 el("pgName").addEventListener("click",rename);
 render(false);dailyLogin();startStroll();startBlink();setTimeout(stroll,1700);hookMorning();
