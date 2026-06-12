@@ -1174,5 +1174,10 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
   refresh();
 })();
 </script>
+<script>(function(){
+function pgMark(){try{var d=new Date();localStorage.setItem("pg_kakeibo_day",d.getFullYear()+"-"+(d.getMonth()+1)+"-"+d.getDate());}catch(e){}}
+["addDayRecord","saveDayData","saveData","kkOcrSave"].forEach(function(n){
+var f=window[n];if(typeof f==="function"){window[n]=function(){var r=f.apply(this,arguments);pgMark();return r;};}});
+})();</script>
 </body>
 </html>

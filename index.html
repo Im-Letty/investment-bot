@@ -3800,9 +3800,10 @@ h+='<div class="pgItem"><div class="nm">🍗 ごちそう<small>たべると EXP
 sh.innerHTML=h;
 sh.querySelectorAll("[data-buy]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-buy");if(coins()<BGS[k].price)return;addCoins(-BGS[k].price);var o=ownedBgs();o.push(k);si("pg_bgs",JSON.stringify(o));si("pg_bg",k);toast("「"+BGS[k].nm+"」をかった！");render(false);});});
 sh.querySelectorAll("[data-use]").forEach(function(b){b.addEventListener("click",function(){si("pg_bg",b.getAttribute("data-use"));render(false);});});
-sh.querySelectorAll("[data-feast]").forEach(function(b){b.addEventListener("click",function(){if(coins()<15)return;addCoins(-15);bounce();hearts(3,"🍗");setTimeout(function(){hearts(3,"💗");},450);toast("ごちそうに おおよろこび！");gain(20);});});}
+sh.querySelectorAll("[data-feast]").forEach(function(b){b.addEventListener("click",function(){if(coins()<15)return;addCoins(-15);bounce();hearts(3,"🍗");setTimeout(function(){hearts(3,"💗");},450);gain(20);toast("ごちそうに おおよろこび！");});});}
 function dailyLogin(){if(gi("pg_login_day","")!==today()){si("pg_login_day",today());addCoins(10);setTimeout(function(){toast("🪙 ログインボーナス +10コイン！");},900);}}
 function morningBonus(){if(gi("pg_morning_day","")===today())return;si("pg_morning_day",today());addCoins(5);si("pg_exp",(parseInt(gi("pg_exp","0"),10)||0)+5);try{render(false);}catch(e){}}
+function kakeiboBonus(){if(gi("pg_kakeibo_day","")!==today())return;if(gi("pg_kakeibo_rwd","")===today())return;si("pg_kakeibo_rwd",today());bounce();hearts(3,"🍗");setTimeout(function(){hearts(3,"💗");},450);gain(20);toast("📒 かけいぼ ごほうび！ごちそうで EXP+20！");}
 function hookMorning(){var b=document.querySelector('.bn-item[data-act=morning]');if(!b){setTimeout(hookMorning,600);return;}if(b.__pgM)return;b.__pgM=true;b.addEventListener("click",morningBonus);}
 function init(){var c=el("pgChar");if(!c){setTimeout(init,400);return;}
 setCharX(50,true);
@@ -3812,7 +3813,7 @@ el("pgFeedBtn").addEventListener("click",doFeed);
 el("pgGameBtn").addEventListener("click",startGame);
 el("pgShopBtn").addEventListener("click",function(){var sh=el("pgShop");sh.style.display=(sh.style.display==="block")?"none":"block";renderShop();});
 el("pgName").addEventListener("click",rename);
-render(false);dailyLogin();startStroll();startBlink();setTimeout(stroll,1700);hookMorning();
+render(false);dailyLogin();startStroll();startBlink();setTimeout(stroll,1700);hookMorning();kakeiboBonus();window.addEventListener("focus",kakeiboBonus);
 setInterval(function(){if(!gameOn)applyEnv();},300000);}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}else{init();}
 })();</script>
