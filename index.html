@@ -3671,6 +3671,9 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 .pgItem button.own{background:#5ec48f}
 .pgItem button.sel{background:#bcd;cursor:default}
 .pgItem button:disabled{background:#ccc}
+.pgDrop{position:absolute;width:2px;height:14px;background:linear-gradient(rgba(160,200,240,0),rgba(120,170,230,.85));border-radius:2px;animation:pgRainF linear infinite;pointer-events:none}
+@keyframes pgRainF{from{transform:translateY(-24px)}to{transform:translateY(360px)}}
+#pgRainbow{position:absolute;top:84px;left:50%;transform:translateX(-50%);width:240px;height:120px;border-radius:240px 240px 0 0;border:9px solid #ff8d8d;border-bottom:none;box-shadow:0 0 0 9px #ffd24d inset,0 0 0 18px #8fd58f inset,0 0 0 27px #8fb8ff inset;opacity:.55;pointer-events:none}
 </style>
 <div id="pet-card">
  <div id="pgScene">
@@ -3701,6 +3704,12 @@ var STAGES=[{min:0,key:"egg",name:"？？？のたまご",msg:"なにかが ね�
 {min:15,key:"baby",name:"うまれたて",msg:"ぴゃっ！ はじめまして！",label:"だい1しんか"},
 {min:45,key:"child",name:"こどもドラゴン",msg:"げんき いっぱい！",label:"だい2しんか"},
 {min:110,key:"final",name:"ドラゴン",msg:"りっぱに そだったよ！",label:"さいしゅうしんか"}];
+var SPEAK={egg:["…ことん","なかで なにかが うごいた！","あたためてくれて ありがとう"],baby:["ぴゃっ！","あそぼー！","おなか すいたかも","きょうも きてくれた！"],child:["ぼく つよくなるよ！","おにわ すてきだね","おにぎり だいすき！","いっしょに いると たのしい！"],final:["ここまで そだててくれて ありがとう","そらを とべそうな きぶん！","きみの ドラゴンだよ、ずっと","おにわが じまんなんだ"]};var SPEAK_N=["…すやすや","ほしが きれいだね","おやすみの じかんだよ"];var SPEAK_M=["おはよう！","あさごはん まだかな？"];
+var ACH=[{id:"pet50",nm:"なでなでマスター",d:"50回なでた",f:function(){return cnt("pg_cnt_pet")>=50;}},{id:"feed20",nm:"まんぷくしょくどう",d:"ごはんを20回あげた",f:function(){return cnt("pg_cnt_feed")>=20;}},{id:"mg15",nm:"おにぎりハンター",d:"ミニゲームで1回に15こキャッチ",f:function(){return cnt("pg_mg_best")>=15;}},{id:"deco3",nm:"おにわデビュー",d:"かざりを3しゅるい おいた",f:function(){return Object.keys(ownedDeco()).length>=3;}},{id:"deco7",nm:"まちづくりめいじん",d:"かざりを ぜんぶ あつめた",f:function(){return Object.keys(ownedDeco()).length>=7;}},{id:"final",nm:"でんせつのきずな",d:"さいしゅうしんかに とうたつ",f:function(){return stageOf(totalExp()).key==="final";}},{id:"rich",nm:"こつこつちょきん",d:"コインを100まい もった",f:function(){return coins()>=100;}},{id:"letter",nm:"けいざいはかせのたまご",d:"あさレターを よんだ",f:function(){return gi("pg_morning_day","")!=="";}}];
+function cnt(k){return parseInt(gi(k,"0"),10)||0;}function addCnt(k){si(k,cnt(k)+1);}
+function unlocked(){try{var a=JSON.parse(gi("pg_ach","[]"));return Array.isArray(a)?a:[];}catch(e){return [];}}
+function checkAch(){var u=unlocked();var added=false;ACH.forEach(function(a){if(u.indexOf(a.id)<0&&a.f()){u.push(a.id);added=true;setTimeout(function(){toast("🏅 じっせきかいじょ！「"+a.nm+"」");},600);confetti();}});if(added)si("pg_ach",JSON.stringify(u));}
+function weather(){var d=new Date();var seed=(d.getFullYear()*372+(d.getMonth()+1)*31+d.getDate());var r=seed%10;return r<7?"sunny":(r<9?"rain":"rainbow");}
 var TITLES=[[0,"たまごのおせわがかり"],[15,"かけだしそだてや"],[45,"いちにんまえそだてや"],[110,"でんせつのそだてや"]];
 var DECO={house:{nm:"おうち",e:"🏠",price:40,x:10,y:62,fs:56},tree:{nm:"き",e:"🌳",price:25,x:86,y:68,fs:50},flower:{nm:"はな",e:"🌷",price:15,x:27,y:52,fs:26},fountain:{nm:"ふんすい",e:"⛲",price:60,x:70,y:58,fs:44},sunflower:{nm:"ひまわり",e:"🌻",price:20,x:38,y:54,fs:28},mushroom:{nm:"きのこ",e:"🍄",price:18,x:58,y:48,fs:24},lantern:{nm:"とうろう",e:"🏮",price:30,x:18,y:88,fs:30}};
 var BGS={meadow:{nm:"そうげん",price:0},beach:{nm:"うみべ",price:40},snow:{nm:"ゆきやま",price:40},room:{nm:"おへや",price:40}};
@@ -3731,6 +3740,7 @@ if(ph==="night"){var mo=document.createElement("div");mo.id="pgMoon";env.appendC
 else{var su=document.createElement("div");su.id="pgSun";if(ph==="sunset"){su.style.top="120px";su.style.right="40px";}env.appendChild(su);
 var c1=document.createElement("div");c1.className="pgCloud";c1.style.cssText+="top:34px;left:30px;width:74px;height:26px";env.appendChild(c1);
 var c2=document.createElement("div");c2.className="pgCloud";c2.style.cssText+="top:78px;left:160px;width:56px;height:20px;animation-duration:52s";env.appendChild(c2);}
+var w=weather();if(w==="rain"){for(var ri=0;ri<14;ri++){var dr=document.createElement("div");dr.className="pgDrop";dr.style.left=(Math.random()*98)+"%";dr.style.animationDuration=(0.7+Math.random()*0.6)+"s";dr.style.animationDelay=(Math.random()*0.8)+"s";env.appendChild(dr);}var dim=document.createElement("div");dim.style.cssText="position:absolute;inset:0;background:rgba(80,100,140,.13);pointer-events:none";env.appendChild(dim);}else if(w==="rainbow"&&ph!=="night"){var rb=document.createElement("div");rb.id="pgRainbow";env.appendChild(rb);}
 var g=document.createElement("div");g.id="pgGround";
 if(bg==="beach"){var sea=document.createElement("div");sea.id="pgSea";env.appendChild(sea);g.style.background="radial-gradient(120% 100% at 50% 100%,#eed9a4,#f5e3b0 70%)";}
 else if(bg==="snow"){g.style.background="radial-gradient(120% 100% at 50% 100%,#eef4f8,#ffffff 70%)";for(var i=0;i<10;i++){var sn=document.createElement("div");sn.className="pgSnow";sn.textContent="❄";sn.style.left=(Math.random()*96)+"%";sn.style.animationDuration=(4+Math.random()*5)+"s";sn.style.animationDelay=(Math.random()*4)+"s";sn.style.opacity=0.5+Math.random()*0.5;env.appendChild(sn);}}
@@ -3751,7 +3761,8 @@ function lids(on){var L=el("pgLids");if(!L)return;for(var k=0;k<L.children.lengt
 function blink(){lids(true);setTimeout(function(){lids(false);if(Math.random()<0.25){setTimeout(function(){lids(true);setTimeout(function(){lids(false);},110);},140);}},130);}
 var blinkT=null;function startBlink(){if(blinkT)clearTimeout(blinkT);(function loop(){blinkT=setTimeout(function(){if(!gameOn)blink();loop();},2600+Math.random()*2600);})();}
 function happy(){lids(true);setTimeout(function(){lids(false);},750);}
-function toast(t){var m=el("pgMsg");if(!m)return;m.textContent=t;m.style.opacity="1";clearTimeout(toast._t);toast._t=setTimeout(function(){m.style.opacity="0";},2600);}
+function toast(t){var m=el("pgMsg");if(!m)return;toast._on=true;m.textContent=t;m.style.opacity="1";clearTimeout(toast._t);toast._t=setTimeout(function(){m.style.opacity="0";toast._on=false;},2600);}
+function speak(){if(gameOn||toast._on)return;var m=el("pgMsg");if(!m)return;var key=stageOf(totalExp()).key;var ph=phase();var pool=(SPEAK[key]||[]).slice();if(ph==="night")pool=pool.concat(SPEAK_N);if(ph==="morning")pool=pool.concat(SPEAK_M);if(!pool.length)return;m.textContent=pool[Math.floor(Math.random()*pool.length)];m.style.opacity="1";}
 function render(evolved){checkDay();applyEnv();var exp=totalExp();var s=stageOf(exp);var c=el("pgChar");if(!c)return;
 if(c.getAttribute("data-k")!==s.key){c.src=IMG[s.key];c.setAttribute("data-k",s.key);buildLids(s.key);}
 var nm=gi("pg_name","");el("pgName").innerHTML=(nm?nm:"なまえをつける")+"<small>タップでへんこう</small>";
@@ -3770,8 +3781,8 @@ if(!gameOn){var last=gi("sk_last","");var gap=last?dayDiff(last,new Date().toDat
 if(evolved){var f=el("pgFlash");f.style.opacity="1";setTimeout(function(){f.style.opacity="0";},420);confetti();bounce();toast("✨おめでとう！ "+s.name+" に しんかした！✨");}
 renderShop();}
 function gain(n){var before=stageOf(totalExp()).key;si("pg_exp",(parseInt(gi("pg_exp","0"),10)||0)+n);var after=stageOf(totalExp()).key;render(after!==before);}
-function doPet(){if(gameOn)return;checkDay();var pc=parseInt(gi("pg_pet","0"),10);if(pc>=PET_MAX){bounce();hearts(1,"💤");return;}si("pg_pet",pc+1);bounce();happy();hearts(4,"💗");gain(PET_EXP);}
-function doFeed(){if(gameOn)return;checkDay();var fc=parseInt(gi("pg_feed","0"),10);if(fc>=FEED_MAX)return;si("pg_feed",fc+1);bounce();happy();hearts(3,"🍙");setTimeout(function(){hearts(2,"💗");},500);gain(FEED_EXP);}
+function doPet(){if(gameOn)return;checkDay();var pc=parseInt(gi("pg_pet","0"),10);if(pc>=PET_MAX){bounce();hearts(1,"💤");return;}si("pg_pet",pc+1);addCnt("pg_cnt_pet");bounce();happy();hearts(4,"💗");gain(PET_EXP);checkAch();}
+function doFeed(){if(gameOn)return;checkDay();var fc=parseInt(gi("pg_feed","0"),10);if(fc>=FEED_MAX)return;si("pg_feed",fc+1);addCnt("pg_cnt_feed");bounce();happy();hearts(3,"🍙");setTimeout(function(){hearts(2,"💗");},500);gain(FEED_EXP);}
 function rename(){var v=prompt("なまえを つけてあげよう（10文字まで）",gi("pg_name",""));if(v==null)return;si("pg_name",(""+v).trim().slice(0,10));render(false);}
 var gameOn=false;
 function startGame(){if(gameOn)return;checkDay();var pl=parseInt(gi("pg_play","0"),10);if(pl>=PLAY_MAX)return;si("pg_play",pl+1);gameOn=true;render(false);
@@ -3791,7 +3802,7 @@ if(it.y>H-170&&it.y<H-80&&Math.abs(it.x-charX)<11){score++;upd();fx("✨",it.x,i
 if(it.y>H){it.el.remove();items.splice(k,1);}}
 },33);
 function end(){clearInterval(spawn);clearInterval(clk);clearInterval(loop);items.forEach(function(it){it.el.remove();});items=[];sb.style.display="none";sc.removeEventListener("pointerdown",onPt);gameOn=false;
-var earn=Math.min(30,score);addCoins(earn);bounce();confetti();toast("🎉 "+score+"こキャッチ！ +"+earn+"コイン");gain(Math.min(10,Math.ceil(score/2)));}
+var earn=Math.min(30,score);addCoins(earn);if(score>cnt("pg_mg_best"))si("pg_mg_best",score);bounce();confetti();toast("🎉 "+score+"こキャッチ！ +"+earn+"コイン");gain(Math.min(10,Math.ceil(score/2)));checkAch();}
 }
 function renderShop(){var sh=el("pgShop");if(!sh)return;var own=ownedBgs();var cur=gi("pg_bg","meadow");var h='<h4>🛒 ショップ　もちもの：🪙 '+coins()+'</h4>';
 for(var k in BGS){var b=BGS[k];var owned=own.indexOf(k)>=0;var btn;
@@ -3801,11 +3812,12 @@ else btn='<button data-buy="'+k+'" '+(coins()<b.price?"disabled":"")+'>🪙'+b.p
 h+='<div class="pgItem"><div class="nm">はいけい：'+b.nm+'<small>'+(k==="meadow"?"さいしょから もってるよ":"きせかえで きぶんてんかん")+'</small></div>'+btn+'</div>';}
 h+='<div style="font-size:12px;font-weight:700;color:#7a4ea0;margin:10px 0 6px">🏘️ おにわのかざり（かうと おにわに かざられるよ）</div>';
 var od=ownedDeco();for(var dk in DECO){var dd=DECO[dk];var has=(dk in od);h+='<div class="pgItem"><div class="nm">'+dd.e+' '+dd.nm+'<small>'+(has?'タップしたばしょに ひっこしできる':'おにわが にぎやかになる')+'</small></div>'+(has?'<button class="own" data-move="'+dk+'">うごかす</button>':'<button data-deco="'+dk+'" '+(coins()<dd.price?'disabled':'')+'>🪙'+dd.price+'でかう</button>')+'</div>';}
+var ua=unlocked();h+='<div style="font-size:12px;font-weight:700;color:#7a4ea0;margin:10px 0 6px">🏅 じっせき（'+ua.length+'/'+ACH.length+'）</div>';ACH.forEach(function(a){var has=ua.indexOf(a.id)>=0;h+='<div class="pgItem" style="opacity:'+(has?1:.55)+'"><div class="nm">'+(has?'🏅 ':'🔒 ')+(has?a.nm:'？？？')+'<small>'+a.d+'</small></div></div>';});
 h+='<div class="pgItem"><div class="nm">🍗 ごちそう<small>たべると EXPが +20 ふえる</small></div><button data-feast="1" '+(coins()<15?"disabled":"")+'>🪙15でかう</button></div>';
 sh.innerHTML=h;
 sh.querySelectorAll("[data-buy]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-buy");if(coins()<BGS[k].price)return;addCoins(-BGS[k].price);var o=ownedBgs();o.push(k);si("pg_bgs",JSON.stringify(o));si("pg_bg",k);toast("「"+BGS[k].nm+"」をかった！");render(false);});});
 sh.querySelectorAll("[data-use]").forEach(function(b){b.addEventListener("click",function(){si("pg_bg",b.getAttribute("data-use"));render(false);});});
-sh.querySelectorAll("[data-deco]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-deco");if(coins()<DECO[k].price)return;addCoins(-DECO[k].price);var o=ownedDeco();o[k]={x:DECO[k].x};si("pg_deco",JSON.stringify(o));toast(DECO[k].e+"「"+DECO[k].nm+"」を おにわに かざった！");render(false);});});
+sh.querySelectorAll("[data-deco]").forEach(function(b){b.addEventListener("click",function(){var k=b.getAttribute("data-deco");if(coins()<DECO[k].price)return;addCoins(-DECO[k].price);var o=ownedDeco();o[k]={x:DECO[k].x};si("pg_deco",JSON.stringify(o));toast(DECO[k].e+"「"+DECO[k].nm+"」を おにわに かざった！");render(false);checkAch();});});
 sh.querySelectorAll("[data-move]").forEach(function(b){b.addEventListener("click",function(){placeMode=b.getAttribute("data-move");var sc=el("pgScene");if(!sc)return;toast(DECO[placeMode].e+" おきたいばしょを タップしてね");var ov=document.createElement("div");ov.id="pgPlaceOv";ov.style.cssText="position:absolute;inset:0;z-index:9;cursor:crosshair";sc.appendChild(ov);ov.addEventListener("pointerdown",function(ev){var r=sc.getBoundingClientRect();var px=Math.max(6,Math.min(94,Math.round((ev.clientX-r.left)/r.width*100)));var o=ownedDeco();o[placeMode]={x:px};si("pg_deco",JSON.stringify(o));var nm=DECO[placeMode].nm;placeMode=null;ov.remove();toast(nm+"を ひっこしさせた！");render(false);},{once:true});el("pgScene").scrollIntoView({behavior:"smooth",block:"center"});});});
 sh.querySelectorAll("[data-feast]").forEach(function(b){b.addEventListener("click",function(){if(coins()<15)return;addCoins(-15);bounce();hearts(3,"🍗");setTimeout(function(){hearts(3,"💗");},450);gain(20);toast("ごちそうに おおよろこび！");});});}
 function dailyLogin(){if(gi("pg_login_day","")!==today()){si("pg_login_day",today());addCoins(10);setTimeout(function(){toast("🪙 ログインボーナス +10コイン！");},900);}}
@@ -3820,7 +3832,7 @@ el("pgFeedBtn").addEventListener("click",doFeed);
 el("pgGameBtn").addEventListener("click",startGame);
 el("pgShopBtn").addEventListener("click",function(){var sh=el("pgShop");sh.style.display=(sh.style.display==="block")?"none":"block";renderShop();});
 el("pgName").addEventListener("click",rename);
-render(false);dailyLogin();startStroll();startBlink();setTimeout(stroll,1700);hookMorning();kakeiboBonus();window.addEventListener("focus",kakeiboBonus);
+render(false);dailyLogin();startStroll();startBlink();setTimeout(stroll,1700);hookMorning();kakeiboBonus();window.addEventListener("focus",kakeiboBonus);setInterval(speak,9000);checkAch();
 setInterval(function(){if(!gameOn)applyEnv();},300000);}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",init);}else{init();}
 })();</script>
