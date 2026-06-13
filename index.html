@@ -4864,25 +4864,55 @@ hookCard();setTimeout(hookCard,1500);setInterval(hookCard,4000);
 (function(){
   if(window.__PG_SIM_IFRAME_BOOTED) return;
   window.__PG_SIM_IFRAME_BOOTED = true;
+  var MAX_RETRY = 5;
+  var TIMEOUT = 15000;
   function openSimFrame(){
-    var old=document.getElementById("simFrameWrap"); if(old) old.remove();
-    var wrap=document.createElement("div");
-    wrap.id="simFrameWrap";
-    wrap.style.cssText="position:fixed;inset:0;z-index:5000;background:#fff;display:flex;flex-direction:column;";
-    var bar=document.createElement("div");
-    bar.style.cssText="flex:0 0 auto;padding:8px 12px;background:#f3f4f6;border-bottom:1px solid #e5e7eb;";
-    var back=document.createElement("button");
-    back.textContent="← もどる";
-    back.style.cssText="font-size:15px;padding:8px 16px;border-radius:999px;border:none;background:#374151;color:#fff;cursor:pointer;";
-    back.onclick=function(){ wrap.remove(); };
-    bar.appendChild(back);
-    var frame=document.createElement("iframe");
-    frame.src="/simulator";
-    frame.style.cssText="flex:1 1 auto;width:100%;border:none;";
-    wrap.appendChild(bar); wrap.appendChild(frame);
+    var old = document.getElementById('simFrameWrap');
+    if(old && old.parentNode) old.parentNode.removeChild(old);
+    var wrap = document.createElement('div');
+    wrap.id = 'simFrameWrap';
+    wrap.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#fff';
+    var stage = document.createElement('div');
+    stage.style.cssText = 'position:absolute;inset:0';
+    wrap.appendChild(stage);
+    var loading = document.createElement('div');
+    loading.style.cssText = 'position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;background:#fff;font-family:-apple-system,sans-serif';
+    var sp = document.createElement('div');
+    sp.style.cssText = 'width:48px;height:48px;border:5px solid #eee;border-top-color:#888;border-radius:50%;animation:simspin 1s linear infinite';
+    var msg = document.createElement('div');
+    msg.style.cssText = 'color:#555;font-size:15px';
+    msg.textContent = '\u8aad\u307f\u8fbc\u307f\u4e2d\u2026';
+    var btn = document.createElement('button');
+    btn.style.cssText = 'display:none;margin-top:8px;padding:10px 20px;font-size:15px;border:none;border-radius:8px;background:#4caf50;color:#fff';
+    btn.textContent = '\u3082\u3046\u4e00\u5ea6\u8a66\u3059';
+    loading.appendChild(sp); loading.appendChild(msg); loading.appendChild(btn);
+    var st = document.createElement('style');
+    st.textContent = '@keyframes simspin{to{transform:rotate(360deg)}}';
+    wrap.appendChild(st);
+    stage.appendChild(loading);
     document.body.appendChild(wrap);
+    var attempt = 0, timer = null, frame = null, done = false;
+    function cleanup(){ if(timer){ clearTimeout(timer); timer=null; } }
+    function showFailed(){ msg.textContent = '\u8aad\u307f\u8fbc\u307f\u306b\u5931\u6557\u3057\u307e\u3057\u305f'; sp.style.display='none'; btn.style.display='inline-block'; }
+    function buildFrame(){
+      cleanup(); done=false;
+      if(frame && frame.parentNode) frame.parentNode.removeChild(frame);
+      frame = document.createElement('iframe');
+      frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:0';
+      frame.onload = function(){ if(done) return; done=true; cleanup(); loading.style.display='none'; };
+      stage.appendChild(frame);
+      frame.src = '/simulator';
+      timer = setTimeout(onTimeout, TIMEOUT);
+    }
+    function onTimeout(){
+      if(done) return;
+      attempt++;
+      if(attempt < MAX_RETRY){ buildFrame(); } else { showFailed(); }
+    }
+    btn.onclick = function(){ btn.style.display='none'; sp.style.display='block'; msg.textContent='\u8aad\u307f\u8fbc\u307f\u4e2d\u2026'; loading.style.display='flex'; attempt=0; buildFrame(); };
+    buildFrame();
   }
-  window.openSimulator = function(){ openSimFrame(); };
+  window.openSimFrame = function(){ openSimFrame(); };
   window.tsGo = function(){ openSimFrame(); };
 })();
 </script>
