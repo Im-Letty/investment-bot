@@ -5120,7 +5120,7 @@ setInterval(apply,500);
 #knSimEmbedOv{position:fixed;top:0;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom,0px));z-index:9000;background:#f9fdf9;display:none}
 #knSimEmbedOv.show{display:block}
 #knSimEmbedFrame{width:100%;height:100%;border:0;display:block}
-#knFloatHam{display:none;position:fixed;top:8px;left:8px;z-index:9600;width:42px;height:42px;border:none;background:none;box-shadow:none;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:0}
+#knFloatHam{display:flex;position:fixed;top:8px;left:8px;z-index:9600;width:42px;height:42px;border:none;background:none;box-shadow:none;cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:0}
 #knFloatHam.show{display:flex}
 #knFloatHam span{display:block;width:22px;height:3px;background:var(--brand-color);border-radius:2px;box-shadow:0 1px 1.5px rgba(0,0,0,.22)}
 </style>
@@ -5170,4 +5170,43 @@ setInterval(apply,500);
   }
   if(document.readyState!=="loading"){boot();}else{document.addEventListener("DOMContentLoaded",boot);}
 })();
+</script>
+
+<!-- ===== Release #13: メニュー並べ替え（貯める増やす/見る学ぶ/設定サポート・ホーム削除） ===== -->
+<script>
+(function(){
+  if(window.__KN_MENU_REORG_BOOTED) return; window.__KN_MENU_REORG_BOOTED=true;
+  function insertAfter(n,ref){ref.parentNode.insertBefore(n,ref.nextSibling);}
+  function reorg(){
+    var nav=document.getElementById("drawerNav");
+    if(!nav){return setTimeout(reorg,400);}
+    var labels=nav.querySelectorAll(".drawer-section-label");
+    var funcLabel=null;
+    labels.forEach(function(l){if((l.textContent||"").indexOf("機能")>-1)funcLabel=l;});
+    if(!funcLabel||funcLabel.__reorged)return;
+    funcLabel.__reorged=true;
+    function pick(sig){return nav.querySelector('.drawer-item[onclick*="'+sig+'"]');}
+    var home=pick("window.scrollTo");
+    var sim=pick("openSimulatorSection");
+    var div=pick("openDividendSection");
+    var morning=pick("openMorningSection");
+    var guide=pick("openBeginnerGuide");
+    var community=pick("openCommunity");
+    var alertI=pick("openAlertSection");
+    var safe=pick("openSafe");
+    var disp=pick("openDisplaySettings");
+    var contact=pick("openContact");
+    if(home&&home.parentNode){home.parentNode.removeChild(home);}
+    funcLabel.removeAttribute("data-i18n");
+    funcLabel.textContent="貯める・増やす";
+    function mkLabel(t){var l=funcLabel.cloneNode(false);l.removeAttribute("data-i18n");l.textContent=t;return l;}
+    var labMid=mkLabel("見る・学ぶ");
+    var labSet=mkLabel("設定・サポート");
+    var seq=[sim,div,labMid,morning,guide,community,labSet,alertI,safe,disp,contact].filter(Boolean);
+    var anchor=funcLabel;
+    seq.forEach(function(el){insertAfter(el,anchor);anchor=el;});
+  }
+  if(document.readyState!=="loading"){setTimeout(reorg,600);}else{document.addEventListener("DOMContentLoaded",function(){setTimeout(reorg,600);});}
+})();
+
 </script>
