@@ -5094,3 +5094,23 @@ setInterval(apply,500);
   document.addEventListener("DOMContentLoaded",fix);
 })();
 </script>
+
+<!-- ===== Release #11: シミュレーター入口を /simulator(薄緑4モード) に統一 ===== -->
+<style id="kn-sim-unify-css">#sim-section{display:none !important;}</style>
+<script>
+(function(){
+  if(window.__PG_SIM_UNIFY_BOOTED) return;
+  window.__PG_SIM_UNIFY_BOOTED = true;
+  function goSim(rate){
+    var u='/simulator';
+    var r=parseFloat(rate);
+    if(!isNaN(r) && r>0){ u='/simulator?tab=monthly&rate='+encodeURIComponent(r)+'&amount=30000&years=20'; }
+    window.location.href=u;
+  }
+  window.openSimulator = function(){ goSim(); };
+  window.openSimulatorSection = function(){ goSim(); };
+  window.openSimFrame = function(){ goSim(); };
+  window.openSimInPage = function(){ goSim(); return true; };
+  window.tsGo = function(rate){ goSim(rate); };
+})();
+</script>
