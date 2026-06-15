@@ -2348,12 +2348,15 @@ def api_chat_suggestions():
 
 @app.route("/sw.js")
 def service_worker():
-    try:
-        with open("static/sw.js", encoding="utf-8") as f:
-            body = f.read()
-    except Exception:
-        return "", 404
-    return body, 200, {"Content-Type": "application/javascript", "Service-Worker-Allowed": "/", "Cache-Control": "no-cache"}
+    # 自己消去型サービスワーカー：古いキャッシュを全消去し、自分自身を登録解除して最新を読み込ませる
+    body = """self.addEventListener('install',function(e){self.skipWaiting();});
+self.addEventListener('activate',function(e){e.waitUntil((async function(){
+try{var ks=await caches.keys();await Promise.all(ks.map(function(k){return caches.delete(k);}));}catch(err){}
+try{await self.registration.unregister();}catch(err){}
+try{var cs=await self.clients.matchAll({type:'window'});cs.forEach(function(c){c.navigate(c.url);});}catch(err){}
+})());});
+"""
+    return body, 200, {"Content-Type": "application/javascript", "Service-Worker-Allowed": "/", "Cache-Control": "no-cache, no-store, must-revalidate"}
 
 
 @app.route("/")
