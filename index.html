@@ -167,7 +167,7 @@
 .drawer-section-label{color:rgba(255,255,255,0.52);font-size:0.66rem;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px 24px 4px;}
 .drawer-item{display:flex;align-items:center;gap:14px;padding:12px 24px;color:rgba(255,255,255,0.88);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-size:0.93rem;transition:background 0.15s;text-decoration:none;font-family:inherit;}
 .drawer-item:hover{background:rgba(255,255,255,0.12);color:#fff;}
-.drawer-item-icon{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0;}
+.{font-size:1.1rem;width:22px;text-align:center;flex-shrink:0;}
 
 .drawer-search-wrap{padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.15);}
 .drawer-search-box{position:relative;display:flex;align-items:center;background:rgba(255,255,255,0.18);border-radius:10px;padding:6px 10px;backdrop-filter:blur(4px);}
@@ -5198,7 +5198,7 @@ setInterval(apply,500);
         morning=pick("openMorningSection"),alertI=pick("openAlertSection"),guide=pick("openBeginnerGuide"),
         community=pick("openCommunity"),disp=pick("openDisplaySettings"),safe=pick("openSafe"),contact=pick("openContact");
     // 不要な項目を削除（ホーム / 表示設定 / 設定・サポートの中身=安心ポイント・お問い合わせ）
-    var assetsDup=nav.querySelector('[data-i18n="drawer_assets"]');[home,disp,safe,contact,assetsDup].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
+    var assetsDup=nav.querySelector('[data-i18n="drawer_assets"]');[home,disp,safe,contact].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
     function CD(){try{if(window.closeDrawer)window.closeDrawer();}catch(e){}}
     function mkItem(html,handler){var b=sample.cloneNode(false);b.removeAttribute("onclick");b.removeAttribute("data-i18n");b.innerHTML=html;b.addEventListener("click",function(){handler();});return b;}
     var kakeibo=mkItem("📒 家計簿",function(){CD();if(window.openMy)window.openMy();setTimeout(function(){var o=document.getElementById("myPageOv");if(o){o.querySelectorAll("button,a,[role=tab],.tab,.seg-btn,.mp-tab,.tab-btn").forEach(function(x){if((x.textContent||"").replace(/\s/g,"").indexOf("家計簿")>-1)x.click();});}},420);});
