@@ -5172,12 +5172,12 @@ setInterval(apply,500);
 })();
 </script>
 
-<!-- ===== Release #14d: 「メニュー ▶」開閉式（1つの項目をタップで全部開く） ===== -->
+<!-- ===== Release #14e: ジャンル別アコーディオン(各▼で開閉・設定サポート削除) ===== -->
 <script>
 (function(){
-  if(window.__KN_MENU_ACC_BOOTED) return; window.__KN_MENU_ACC_BOOTED=true;
+  if(window.__KN_MENU_GACC_BOOTED) return; window.__KN_MENU_GACC_BOOTED=true;
   var st=document.createElement("style");
-  st.textContent="#knMenuToggle{cursor:pointer;-webkit-user-select:none;user-select:none;display:flex;align-items:center}#knMenuToggle .knChev{margin-left:auto;transition:transform .25s;font-size:11px;opacity:.85}#knMenuToggle.open .knChev{transform:rotate(180deg)}#knMenuPanel{overflow:hidden;max-height:0;transition:max-height .32s ease}#knMenuPanel.open{max-height:1400px}";
+  st.textContent=".knAccHead{cursor:pointer;-webkit-user-select:none;user-select:none;display:flex;align-items:center}.knAccHead .knChev{margin-left:auto;transition:transform .25s;font-size:11px;opacity:.85}.knAccHead.open .knChev{transform:rotate(180deg)}.knAccPanel{overflow:hidden;max-height:0;transition:max-height .3s ease}.knAccPanel.open{max-height:800px}";
   document.head.appendChild(st);
   function insertAfter(n,ref){ref.parentNode.insertBefore(n,ref.nextSibling);}
   function reorg(){
@@ -5195,8 +5195,8 @@ setInterval(apply,500);
     var home=pick("window.scrollTo"),sim=pick("openSimulatorSection"),dividend=pick("openDividendSection"),
         morning=pick("openMorningSection"),alertI=pick("openAlertSection"),guide=pick("openBeginnerGuide"),
         community=pick("openCommunity"),disp=pick("openDisplaySettings"),safe=pick("openSafe"),contact=pick("openContact");
-    if(home&&home.parentNode){home.parentNode.removeChild(home);}
-    if(disp&&disp.parentNode){disp.parentNode.removeChild(disp);}
+    // 不要な項目を削除（ホーム / 表示設定 / 設定・サポートの中身=安心ポイント・お問い合わせ）
+    [home,disp,safe,contact].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
     function CD(){try{if(window.closeDrawer)window.closeDrawer();}catch(e){}}
     function mkItem(html,handler){var b=sample.cloneNode(false);b.removeAttribute("onclick");b.removeAttribute("data-i18n");b.innerHTML=html;b.addEventListener("click",function(){handler();});return b;}
     var kakeibo=mkItem("📒 家計簿",function(){CD();if(window.openMy)window.openMy();setTimeout(function(){var o=document.getElementById("myPageOv");if(o){o.querySelectorAll("button,a,[role=tab],.tab,.seg-btn,.mp-tab,.tab-btn").forEach(function(x){if((x.textContent||"").replace(/\s/g,"").indexOf("家計簿")>-1)x.click();});}},420);});
@@ -5205,15 +5205,26 @@ setInterval(apply,500);
     var pet=mkItem("🐣 育成ゲーム",function(){CD();var b=document.querySelector('.bn-item[data-act="pet"]');if(b)b.click();});
     var shorts=mkItem("🎬 ショート",function(){CD();var b=document.querySelector('.bn-item[data-act="shorts"]');if(b)b.click();});
     var talk=mkItem("💬 トーク",function(){CD();if(window.openTalk)window.openTalk();else{var b=document.querySelector('.bn-item[data-act="talk"]');if(b)b.click();}});
-    funcLabel.removeAttribute("data-i18n");
-    funcLabel.id="knMenuToggle";
-    funcLabel.innerHTML='メニュー<span class="knChev">▼</span>';
-    var panel=document.createElement("div");
-    panel.id="knMenuPanel";
-    var seq=[sim,dividend,kakeibo,assets,morning,news,alertI,guide,pet,shorts,talk,community,safe,contact].filter(Boolean);
-    seq.forEach(function(el){panel.appendChild(el);});
-    insertAfter(panel,funcLabel);
-    funcLabel.addEventListener("click",function(){funcLabel.classList.toggle("open");panel.classList.toggle("open");});
+    // アコーディオン群を作る
+    var groups=[
+      {t:"情報・ニュース",items:[morning,news,alertI,guide]},
+      {t:"ためる・ふやす",items:[sim,dividend]},
+      {t:"わたしの記録",items:[kakeibo,assets]},
+      {t:"たのしむ・つながる",items:[pet,shorts,talk,community]}
+    ];
+    var anchor=funcLabel;
+    groups.forEach(function(g,i){
+      var head=(i===0)?funcLabel:funcLabel.cloneNode(false);
+      head.removeAttribute("data-i18n");
+      head.classList.add("knAccHead");
+      head.innerHTML=g.t+'<span class="knChev">▼</span>';
+      var panel=document.createElement("div");
+      panel.className="knAccPanel";
+      g.items.filter(Boolean).forEach(function(it){panel.appendChild(it);});
+      head.addEventListener("click",function(){head.classList.toggle("open");panel.classList.toggle("open");});
+      if(i===0){ insertAfter(panel,head); anchor=panel; }
+      else { insertAfter(head,anchor); insertAfter(panel,head); anchor=panel; }
+    });
   }
   if(document.readyState!=="loading"){setTimeout(reorg,600);}else{document.addEventListener("DOMContentLoaded",function(){setTimeout(reorg,600);});}
 })();
