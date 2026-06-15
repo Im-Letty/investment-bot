@@ -5232,3 +5232,58 @@ setInterval(apply,500);
 })();
 
 </script>
+
+<script>
+  /* KN MENU REBUILD: simplify drawer into single accordion with genre + correct destinations */
+  (function(){
+      if(window.__KN_MENU_REBUILD) return; window.__KN_MENU_REBUILD=true;
+      var U=String.fromCharCode;
+      function J(){ return Array.prototype.map.call(arguments,function(c){return U(c);}).join(''); }
+      function CD(){ try{ if(window.closeDrawer) window.closeDrawer(); }catch(e){} }
+      function bn(act){ var b=document.querySelector('.bn-item[data-act="'+act+'"]'); if(b){ b.click(); return true; } return false; }
+      function callFn(fn){ CD(); setTimeout(function(){ try{ if(window[fn]) window[fn](); }catch(e){} }, 320); }
+      function openMP(cb){ CD(); setTimeout(function(){ bn('mypage'); setTimeout(function(){ var ov=document.querySelector('#myPageOv'); if(ov&&cb) cb(ov); }, 300); }, 250); }
+      var DEST={
+            morning: function(){ CD(); setTimeout(function(){ bn('morning'); },250); },
+            sim:     function(){ callFn('openSimulatorSection'); },
+            shorts:  function(){ CD(); setTimeout(function(){ bn('shorts'); },250); },
+            saved:   function(){ CD(); setTimeout(function(){ try{ if(window.openSaved) window.openSaved(); }catch(e){} },320); },
+            talk:    function(){ CD(); setTimeout(function(){ bn('talk'); },250); },
+            kakeibo: function(){ openMP(function(ov){ var t=ov.querySelectorAll('.mp-toptab'); if(t[1]) t[1].click(); }); },
+            memo:    function(){ openMP(function(ov){ var t=ov.querySelectorAll('.mp-toptab'); if(t[0]) t[0].click(); var m=ov.querySelector('.mo-tab[data-i18n="g2_mp_tab_memo"]'); if(m) m.click(); }); },
+            alert:   function(){ callFn('openAlertSection'); },
+            guide:   function(){ callFn('openBeginnerGuide'); }
+      };
+      function rebuild(){
+            var nav=document.getElementById('drawerNav'); if(!nav) return false;
+            var sample=nav.querySelector('.drawer-item'); if(!sample) return false;
+            function mk(html,h){ var b=sample.cloneNode(false); b.removeAttribute('onclick'); b.removeAttribute('data-i18n'); b.removeAttribute('href'); b.className='drawer-item'; b.innerHTML=html; b.addEventListener('click',h); return b; }
+            var LBL={
+                    morning: U(9728,65039)+' '+J(26397,12398,30456,22580,12524,12479,12540),
+                    sim:     U(55357,56522)+' '+J(12471,12511,12517,12524,12540,12479,12540),
+                    shorts:  U(55356,57260)+' '+J(12471,12519,12540,12488),
+                    saved:   U(55357,56598)+' '+J(20445,23384,12375,12383,21205,30011),
+                    talk:    U(55357,56492)+' '+J(12488,12540,12463),
+                    kakeibo: U(55357,56530)+' '+J(23478,35336,31807),
+                    memo:    U(55357,56541)+' '+J(12513,12514),
+                    alert:   U(9889)+' '+J(24613,39378,12450,12521,12540,12488),
+                    guide:   U(55358,56813)+' '+J(12399,12376,12417,12390,12460,12452,12489)
+            };
+            var order=['morning','sim','shorts','saved','talk','kakeibo','memo','alert','guide'];
+            var head=document.createElement('div'); head.className='drawer-section-label knAccHead';
+            head.innerHTML=J(12513,12491,12517,12540)+'<span class="knChev">'+U(9660)+'</span>';
+            var panel=document.createElement('div'); panel.className='knAccPanel';
+            order.forEach(function(k){ panel.appendChild(mk(LBL[k], DEST[k])); });
+            head.addEventListener('click', function(){ var open=panel.style.maxHeight&&panel.style.maxHeight!=='0px'; if(open){ panel.style.maxHeight='0px'; head.classList.remove('open'); } else { panel.style.maxHeight='none'; head.classList.add('open'); } });
+            nav.innerHTML=''; head.style.setProperty('display','flex','important'); panel.style.maxHeight='none';
+            nav.appendChild(head); nav.appendChild(panel);
+            var icon=document.querySelector('.drawer-app-icon'); if(icon) icon.style.setProperty('display','none','important');
+            return true;
+      }
+      function tryRebuild(n){ if(rebuild()) return; if(n>0) setTimeout(function(){ tryRebuild(n-1); }, 400); }
+      if(document.readyState!=='loading'){ setTimeout(function(){ tryRebuild(12); }, 900); }
+      else { document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ tryRebuild(12); }, 900); }); }
+  })();
+</script>
+
+</script>
