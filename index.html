@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
+<script>/* KN: 古いキャッシュ(Service Worker)を自動で無効化して、常に最新を表示 */
+(function(){try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});navigator.serviceWorker.register=function(){return new Promise(function(){});};}if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){});}}catch(e){}})();</script>
 <script>
 /* knGate: encrypted localStorage gate (runs early). Whitelisted keys are stored encrypted via AES-GCM; reads/writes go through an in-memory cache so existing code is unchanged. */
 (function(){
@@ -5196,7 +5198,7 @@ setInterval(apply,500);
         morning=pick("openMorningSection"),alertI=pick("openAlertSection"),guide=pick("openBeginnerGuide"),
         community=pick("openCommunity"),disp=pick("openDisplaySettings"),safe=pick("openSafe"),contact=pick("openContact");
     // 不要な項目を削除（ホーム / 表示設定 / 設定・サポートの中身=安心ポイント・お問い合わせ）
-    [home,disp,safe,contact].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
+    var assetsDup=nav.querySelector('[data-i18n="drawer_assets"]');[home,disp,safe,contact,assetsDup].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
     function CD(){try{if(window.closeDrawer)window.closeDrawer();}catch(e){}}
     function mkItem(html,handler){var b=sample.cloneNode(false);b.removeAttribute("onclick");b.removeAttribute("data-i18n");b.innerHTML=html;b.addEventListener("click",function(){handler();});return b;}
     var kakeibo=mkItem("📒 家計簿",function(){CD();if(window.openMy)window.openMy();setTimeout(function(){var o=document.getElementById("myPageOv");if(o){o.querySelectorAll("button,a,[role=tab],.tab,.seg-btn,.mp-tab,.tab-btn").forEach(function(x){if((x.textContent||"").replace(/\s/g,"").indexOf("家計簿")>-1)x.click();});}},420);});
