@@ -5172,10 +5172,10 @@ setInterval(apply,500);
 })();
 </script>
 
-<!-- ===== Release #14: ハンバーガー全機能・ジャンル別メニュー ===== -->
+<!-- ===== Release #14c: 1列フラットメニュー（表示設定は除外） ===== -->
 <script>
 (function(){
-  if(window.__KN_MENU_FULL_BOOTED) return; window.__KN_MENU_FULL_BOOTED=true;
+  if(window.__KN_MENU_FLAT_BOOTED) return; window.__KN_MENU_FLAT_BOOTED=true;
   function insertAfter(n,ref){ref.parentNode.insertBefore(n,ref.nextSibling);}
   function reorg(){
     var nav=document.getElementById("drawerNav");
@@ -5192,7 +5192,9 @@ setInterval(apply,500);
     var home=pick("window.scrollTo"),sim=pick("openSimulatorSection"),dividend=pick("openDividendSection"),
         morning=pick("openMorningSection"),alertI=pick("openAlertSection"),guide=pick("openBeginnerGuide"),
         community=pick("openCommunity"),disp=pick("openDisplaySettings"),safe=pick("openSafe"),contact=pick("openContact");
+    // ホーム と 表示設定 はメニューから外す
     if(home&&home.parentNode){home.parentNode.removeChild(home);}
+    if(disp&&disp.parentNode){disp.parentNode.removeChild(disp);}
     function CD(){try{if(window.closeDrawer)window.closeDrawer();}catch(e){}}
     function mkItem(html,handler){
       var b=sample.cloneNode(false);
@@ -5207,11 +5209,11 @@ setInterval(apply,500);
     var pet=mkItem("🐣 育成ゲーム",function(){CD();var b=document.querySelector('.bn-item[data-act="pet"]');if(b)b.click();});
     var shorts=mkItem("🎬 ショート",function(){CD();var b=document.querySelector('.bn-item[data-act="shorts"]');if(b)b.click();});
     var talk=mkItem("💬 トーク",function(){CD();if(window.openTalk)window.openTalk();else{var b=document.querySelector('.bn-item[data-act="talk"]');if(b)b.click();}});
+    // 見出しは「メニュー」1つだけ（ジャンル分けなし）
     funcLabel.removeAttribute("data-i18n");
-    funcLabel.textContent="貯める・増やす";
-    function mkLabel(t){var l=funcLabel.cloneNode(false);l.removeAttribute("data-i18n");l.textContent=t;return l;}
-    var labLearn=mkLabel("見る・学ぶ"),labFun=mkLabel("たのしむ・つながる"),labSet=mkLabel("設定・サポート");
-    var seq=[sim,dividend,kakeibo,assets, labLearn, morning,news,alertI,guide, labFun, pet,shorts,talk,community, labSet, disp,safe,contact].filter(Boolean);
+    funcLabel.textContent="メニュー";
+    // 全項目を1列に（表示設定は除外）
+    var seq=[sim,dividend,kakeibo,assets,morning,news,alertI,guide,pet,shorts,talk,community,safe,contact].filter(Boolean);
     var anchor=funcLabel;
     seq.forEach(function(el){insertAfter(el,anchor);anchor=el;});
   }
