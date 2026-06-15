@@ -5172,10 +5172,13 @@ setInterval(apply,500);
 })();
 </script>
 
-<!-- ===== Release #14c: 1列フラットメニュー（表示設定は除外） ===== -->
+<!-- ===== Release #14d: 「メニュー ▶」開閉式（1つの項目をタップで全部開く） ===== -->
 <script>
 (function(){
-  if(window.__KN_MENU_FLAT_BOOTED) return; window.__KN_MENU_FLAT_BOOTED=true;
+  if(window.__KN_MENU_ACC_BOOTED) return; window.__KN_MENU_ACC_BOOTED=true;
+  var st=document.createElement("style");
+  st.textContent="#knMenuToggle{cursor:pointer;-webkit-user-select:none;user-select:none;display:flex;align-items:center}#knMenuToggle .knChev{margin-left:auto;transition:transform .25s;font-size:11px;opacity:.85}#knMenuToggle.open .knChev{transform:rotate(180deg)}#knMenuPanel{overflow:hidden;max-height:0;transition:max-height .32s ease}#knMenuPanel.open{max-height:1400px}";
+  document.head.appendChild(st);
   function insertAfter(n,ref){ref.parentNode.insertBefore(n,ref.nextSibling);}
   function reorg(){
     var nav=document.getElementById("drawerNav");
@@ -5192,30 +5195,25 @@ setInterval(apply,500);
     var home=pick("window.scrollTo"),sim=pick("openSimulatorSection"),dividend=pick("openDividendSection"),
         morning=pick("openMorningSection"),alertI=pick("openAlertSection"),guide=pick("openBeginnerGuide"),
         community=pick("openCommunity"),disp=pick("openDisplaySettings"),safe=pick("openSafe"),contact=pick("openContact");
-    // ホーム と 表示設定 はメニューから外す
     if(home&&home.parentNode){home.parentNode.removeChild(home);}
     if(disp&&disp.parentNode){disp.parentNode.removeChild(disp);}
     function CD(){try{if(window.closeDrawer)window.closeDrawer();}catch(e){}}
-    function mkItem(html,handler){
-      var b=sample.cloneNode(false);
-      b.removeAttribute("onclick");b.removeAttribute("data-i18n");
-      b.innerHTML=html;
-      b.addEventListener("click",function(){handler();});
-      return b;
-    }
+    function mkItem(html,handler){var b=sample.cloneNode(false);b.removeAttribute("onclick");b.removeAttribute("data-i18n");b.innerHTML=html;b.addEventListener("click",function(){handler();});return b;}
     var kakeibo=mkItem("📒 家計簿",function(){CD();if(window.openMy)window.openMy();setTimeout(function(){var o=document.getElementById("myPageOv");if(o){o.querySelectorAll("button,a,[role=tab],.tab,.seg-btn,.mp-tab,.tab-btn").forEach(function(x){if((x.textContent||"").replace(/\s/g,"").indexOf("家計簿")>-1)x.click();});}},420);});
     var assets=mkItem("📈 資産管理",function(){CD();if(window.openMy)window.openMy();});
     var news=mkItem("📰 経済ニュース配信",function(){CD();setTimeout(function(){var n=document.getElementById("news-section");if(n)n.scrollIntoView({behavior:"smooth"});},180);});
     var pet=mkItem("🐣 育成ゲーム",function(){CD();var b=document.querySelector('.bn-item[data-act="pet"]');if(b)b.click();});
     var shorts=mkItem("🎬 ショート",function(){CD();var b=document.querySelector('.bn-item[data-act="shorts"]');if(b)b.click();});
     var talk=mkItem("💬 トーク",function(){CD();if(window.openTalk)window.openTalk();else{var b=document.querySelector('.bn-item[data-act="talk"]');if(b)b.click();}});
-    // 見出しは「メニュー」1つだけ（ジャンル分けなし）
     funcLabel.removeAttribute("data-i18n");
-    funcLabel.textContent="メニュー";
-    // 全項目を1列に（表示設定は除外）
+    funcLabel.id="knMenuToggle";
+    funcLabel.innerHTML='メニュー<span class="knChev">▼</span>';
+    var panel=document.createElement("div");
+    panel.id="knMenuPanel";
     var seq=[sim,dividend,kakeibo,assets,morning,news,alertI,guide,pet,shorts,talk,community,safe,contact].filter(Boolean);
-    var anchor=funcLabel;
-    seq.forEach(function(el){insertAfter(el,anchor);anchor=el;});
+    seq.forEach(function(el){panel.appendChild(el);});
+    insertAfter(panel,funcLabel);
+    funcLabel.addEventListener("click",function(){funcLabel.classList.toggle("open");panel.classList.toggle("open");});
   }
   if(document.readyState!=="loading"){setTimeout(reorg,600);}else{document.addEventListener("DOMContentLoaded",function(){setTimeout(reorg,600);});}
 })();
