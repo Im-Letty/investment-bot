@@ -5088,7 +5088,7 @@ setInterval(apply,500);
     items.forEach(function(e){
       var tx=e.textContent||"";
       if(/\u5bb6\u8a08\u7c3f/.test(tx)){ e.style.setProperty("display","flex","important"); }
-      else if(/\u30b3\u30df\u30e5\u30cb\u30c6\u30a3/.test(tx) || /\u4fdd\u5b58\u3057\u305f\u52d5\u753b/.test(tx)){ e.style.setProperty("display","none","important"); }
+      else if(/\u30b3\u30df\u30e5\u30cb\u30c6\u30a3/.test(tx) || /\u4fdd\u5b58\u3057\u305f\u52d5\u753b/.test(tx)){ e.style.setProperty("display","flex","important"); }
     });
   }
   setInterval(fix,500);
