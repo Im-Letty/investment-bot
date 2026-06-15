@@ -5052,7 +5052,7 @@ setInterval(apply,500);
       nav.appendChild(h);
       g.match.forEach(function(re){ var el=find(re)[0]; if(el) nav.appendChild(el); });
     });
-    find(/\u30b3\u30df\u30e5\u30cb\u30c6\u30a3/).concat(find(/\u4fdd\u5b58\u3057\u305f\u52d5\u753b/)).forEach(function(e){ e.style.display="none"; nav.appendChild(e); });
+    find(/\u30b3\u30df\u30e5\u30cb\u30c6\u30a3/).concat(find(/\u4fdd\u5b58\u3057\u305f\u52d5\u753b/)).forEach(function(e){ e.style.display=""; nav.appendChild(e); });
     nav.setAttribute("data-kg","1");
     return true;
   }
