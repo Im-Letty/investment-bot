@@ -5577,3 +5577,38 @@ setInterval(apply,500);
     document.addEventListener("DOMContentLoaded",enhance);
   })();
   </script>
+
+<script>
+  /* __KN_DRAWER_ICONS : move orbiting icons into drawer menu, tuck rings to orb edge (approved preview) */
+  (function(){
+      function tone(c){ return c; }
+      function fin(){
+            try{
+                    // 1) hide orbiting menu icon ring
+                    var ring=document.getElementById("knMenuRing");
+                    if(!ring) return; // wait until enhance built it
+                    // 2) tuck the two rings closer to orb edge
+                    var all=document.querySelectorAll("div");
+                    var i,cs;
+                    for(i=0;i<all.length;i++){ cs=getComputedStyle(all[i]); if(cs.borderStyle && cs.borderStyle.indexOf("dashed")>-1 && cs.borderRadius==="50%" && parseInt(cs.width)>=120){ all[i].style.width="140px"; all[i].style.height="140px"; break; } }
+                    var tring=null;
+                    for(i=0;i<all.length;i++){ if((getComputedStyle(all[i]).animationName||"")==="knTextSpin"){ tring=all[i]; break; } }
+                    if(tring){ var kids=tring.children; for(var j=0;j<kids.length;j++){ var inl=kids[j].style.transform||""; if(/translateY\(-?[0-9.]+px\)/.test(inl)){ kids[j].style.transform=inl.replace(/translateY\(-?[0-9.]+px\)/,"translateY(-74px)"); } } }
+                    // 3) swap drawer icons from menu ring svgs (matched by title)
+                    var nav=document.getElementById("drawerNav");
+                    if(nav){
+                              var map={}; var rk=ring.children;
+                              for(i=0;i<rk.length;i++){ var t=rk[i].getAttribute("title")||""; var sv=rk[i].querySelector("svg"); if(t&&sv) map[t]=sv; }
+                              var btns=nav.querySelectorAll("button,a");
+                              for(var b=0;b<btns.length;b++){ var btn=btns[b]; if(btn.dataset.knIco) continue; var raw=(btn.textContent||"").trim(); var label=raw.replace(/^[^\u3040-\u30ff\u4e00-\u9faf]+/,"").trim(); var svg=null,key; for(key in map){ if(key===label||label.indexOf(key)>-1||key.indexOf(label)>-1){ svg=map[key]; break; } } if(!svg && map[Object.keys(map)[b]]){ svg=map[Object.keys(map)[b]]; } if(!svg) continue; var clone=svg.cloneNode(true); clone.removeAttribute("width"); clone.removeAttribute("height"); clone.setAttribute("width","20"); clone.setAttribute("height","20"); clone.style.cssText="width:20px;height:20px;margin-right:8px;flex:0 0 auto;"; clone.querySelectorAll("*").forEach(function(el){ if(el.getAttribute("stroke")&&el.getAttribute("stroke")!=="none") el.setAttribute("stroke","currentColor"); if(el.getAttribute("fill")&&el.getAttribute("fill")!=="none") el.setAttribute("fill","currentColor"); }); clone.setAttribute("stroke","currentColor"); clone.style.color="color-mix(in srgb, var(--brand-lighter) 55%, #ffffff 45%)"; btn.innerHTML=""; btn.style.display="flex"; btn.style.alignItems="center"; var sp=document.createElement("span"); sp.textContent=label; btn.appendChild(clone); btn.appendChild(sp); btn.dataset.knIco="1"; }
+                    }
+                    // 4) now hide the orbiting ring (after svgs copied)
+                    ring.style.display="none";
+            }catch(e){}
+      }
+      setInterval(fin,400);
+      if(document.readyState!=="loading") fin();
+      document.addEventListener("DOMContentLoaded",fin);
+  })();
+</script>
+</script>
