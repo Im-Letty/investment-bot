@@ -5327,3 +5327,42 @@ setInterval(apply,500);
   })();
 </script>
 </script>
+
+<script>
+  /* __KN_SIM_DIRECT: hide simulator launcher card, open simulator body directly from left tab */
+  (function(){
+      function hideSimCard(){
+            try{
+                    var lp = document.getElementById('lp-section');
+                    if(!lp) return;
+                    var nodes = lp.querySelectorAll('[onclick]');
+                    for(var i=0;i<nodes.length;i++){
+                              if((nodes[i].getAttribute('onclick')||'').indexOf('openSimulator')>-1){
+                                          nodes[i].style.setProperty('display','none','important');
+                              }
+                    }
+            }catch(e){}
+      }
+      function openSimBody(){
+            try{ if(typeof window.openSimulator==='function') window.openSimulator(); }catch(e){}
+      }
+      function bindHome(){
+            try{
+                    var home = document.querySelector('.bn-item[data-act="home"]');
+                    if(home && !home.__knSimBound){
+                              home.__knSimBound = true;
+                              home.addEventListener('click', function(){
+                                          setTimeout(openSimBody, 60);
+                                          setTimeout(openSimBody, 200);
+                              });
+                    }
+            }catch(e){}
+      }
+      function run(){ hideSimCard(); bindHome(); }
+      function loop(n){ run(); if(n>0) setTimeout(function(){ loop(n-1); }, 500); }
+      if(document.readyState!=='loading'){ loop(20); openSimBody(); }
+      else { document.addEventListener('DOMContentLoaded', function(){ loop(20); openSimBody(); }); }
+      try{ var mo=new MutationObserver(function(){ run(); }); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  })();
+</script>
+</script>
