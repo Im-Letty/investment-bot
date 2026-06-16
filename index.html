@@ -5553,7 +5553,7 @@ setInterval(apply,500);
       if(N && disc){ N.style.fontSize="76px"; var oc=disc.getBoundingClientRect(); var ocy=oc.top+oc.height/2; var nr=N.getBoundingClientRect(); var ncy=nr.top+nr.height/2; var cur=parseFloat(N.style.top||"0")||0; N.style.top=(cur+(ocy-ncy)).toFixed(1)+"px"; }
       [].forEach.call(deco.querySelectorAll("div"),function(d){ var an=getComputedStyle(d).animationName; if(an==="knDeco1"||an==="knDeco2") d.style.display="none"; });
       [].forEach.call(title.querySelectorAll("span"),function(s){ if(s.childElementCount===0){var tx=(s.textContent||"").trim(); if((tx==="E"||tx==="W"||tx==="S") && parseFloat(getComputedStyle(s).fontSize)>=15) s.style.display="none";} });
-      var ht=document.querySelector(".help-tip"); if(ht) ht.style.display="none";
+      var bn=document.querySelector(".morning-banner"); if(bn){ [].forEach.call(bn.querySelectorAll(".help-tip"),function(t){ t.style.display="none"; }); }
       var mi=document.querySelector(".morning-icon"); if(mi) mi.style.display="none";
       var sub=document.querySelector(".morning-sub"); if(sub) sub.style.display="none";
       if(!document.getElementById("knMenuSpinKf")){ var st=document.createElement("style"); st.id="knMenuSpinKf"; st.textContent="@keyframes knMenuSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes knMenuSpinCounter{from{transform:rotate(0)}to{transform:rotate(-360deg)}}"; document.head.appendChild(st); }
