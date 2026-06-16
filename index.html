@@ -5287,3 +5287,43 @@ setInterval(apply,500);
 </script>
 
 </script>
+
+<script>
+  /* __KN_TEACH_MERGE: remove 投資の先生 card from talk, add chips to assist robot */
+  (function(){
+      function S(){ return String.fromCharCode.apply(null, arguments); }
+      var CHIP1 = S(25237,36039,12387,12390,12394,12395,65311);
+      var CHIP2 = S(27598,26376,12356,12367,12425,12363,12425,22987,12417,12427,65311);
+      var CHIP3 = S(20803,26412,21106,12428,12364,12371,12431,12356);
+      function tidyTeach(){
+            try{
+                    var tts = document.querySelectorAll('.thb-tt[data-i18n="g2_teach_t"]');
+                    for(var i=0;i<tts.length;i++){
+                              var card = tts[i].closest('.thb-card');
+                              if(card){ card.style.setProperty('display','none','important'); }
+                    }
+            }catch(e){}
+            try{
+                    var row = document.getElementById('knChipRow');
+                    if(row){
+                              var want=[CHIP1,CHIP2,CHIP3];
+                              var have={};
+                              var ex=row.querySelectorAll('button.kn-chip');
+                              for(var j=0;j<ex.length;j++){ have[(ex[j].textContent||'').trim()]=1; }
+                              for(var w=0;w<want.length;w++){
+                                          if(!have[want[w]]){
+                                                        var b=document.createElement('button');
+                                                        b.type='button'; b.className='kn-chip'; b.textContent=want[w];
+                                                        row.appendChild(b);
+                                          }
+                              }
+                    }
+            }catch(e){}
+      }
+      function loop(n){ tidyTeach(); if(n>0) setTimeout(function(){ loop(n-1); }, 500); }
+      if(document.readyState!=='loading'){ loop(20); }
+      else { document.addEventListener('DOMContentLoaded', function(){ loop(20); }); }
+      try{ var mo=new MutationObserver(function(){ tidyTeach(); }); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
+  })();
+</script>
+</script>
