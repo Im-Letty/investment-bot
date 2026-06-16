@@ -5505,3 +5505,32 @@ setInterval(apply,500);
   })();
 </script>
 </script>
+<script>
+  /* __KN_N_TONE : soften the center N presence */
+  (function(){
+    function findN(){
+      var t=document.querySelector('.morning-title');
+      if(!t) return null;
+      var n=null;
+      t.querySelectorAll('span,div,b').forEach(function(s){
+        if(s.children.length>0) return;
+        if(s.textContent.trim()==='N'){
+          var fs=parseFloat(getComputedStyle(s).fontSize)||0;
+          if(fs>40) n=s;
+        }
+      });
+      return n;
+    }
+    function tone(){
+      var n=findN();
+      if(!n) return;
+      n.style.fontSize='76px';
+      n.style.fontWeight='600';
+      n.style.opacity='0.92';
+      n.style.textShadow='0 1px 0 rgba(13,120,110,0.35), 0 3px 6px rgba(8,90,80,0.30), 0 6px 12px rgba(8,90,80,0.18)';
+    }
+    setInterval(tone,700);
+    tone();
+  })();
+</script>
+</script>
