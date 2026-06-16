@@ -5488,3 +5488,20 @@ setInterval(apply,500);
   })();
 </script>
 </script>
+<script>
+  /* __KN_NEWS_WATCHDOG : keep NEWS header alive if app re-renders the title */
+  (function(){
+    function ok(){
+      var t=document.querySelector('.morning-title');
+      if(!t) return true;
+      if(document.getElementById('knWater')&&t.querySelector('span')&&(t.textContent||'').indexOf('NEWS')>-1) return true;
+      return false;
+    }
+    setInterval(function(){
+      var b=document.querySelector('.morning-banner');
+      if(!b) return;
+      if(!ok()){ b.removeAttribute('data-knnews'); }
+    },700);
+  })();
+</script>
+</script>
