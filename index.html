@@ -5366,3 +5366,39 @@ setInterval(apply,500);
   })();
 </script>
 </script>
+
+<script>
+  /* __KN_NEWS_FIRST: swap morning/home tabs order, show morning letter on startup */
+  (function(){
+      function swapTabs(){
+            try{
+                    var nav = document.getElementById('knBottomNav');
+                    if(!nav) return false;
+                    var home = nav.querySelector('.bn-item[data-act="home"]');
+                    var morning = nav.querySelector('.bn-item[data-act="morning"]');
+                    if(home && morning && nav.children[0]!==morning){
+                              nav.insertBefore(morning, home);
+                    }
+                    return !!(home && morning);
+            }catch(e){ return false; }
+      }
+      function showMorning(){
+            try{
+                    var m = document.querySelector('.bn-item[data-act="morning"]');
+                    if(m) m.click();
+            }catch(e){}
+      }
+      function loopSwap(n){ swapTabs(); if(n>0) setTimeout(function(){ loopSwap(n-1); }, 500); }
+      // keep order corrected
+      loopSwap(20);
+      try{ var mo=new MutationObserver(function(){ swapTabs(); }); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
+      // show morning letter on startup (after other startup scripts), only once
+      if(!window.__knNewsShown){
+            window.__knNewsShown = true;
+            setTimeout(showMorning, 350);
+            setTimeout(showMorning, 700);
+            setTimeout(showMorning, 1200);
+      }
+  })();
+</script>
+</script>
