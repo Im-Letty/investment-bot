@@ -5436,7 +5436,7 @@ setInterval(apply,500);
       var chart='<svg viewBox="0 0 48 48" width="100%" height="100%"><rect x="6" y="6" width="36" height="36" rx="6" fill="#fff"/><polyline points="11,32 19,24 26,28 37,14" fill="none" stroke="#ff7a59" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><circle cx="37" cy="14" r="3" fill="#ff7a59"/></svg>';
       var paper='<svg viewBox="0 0 48 48" width="100%" height="100%"><rect x="8" y="8" width="32" height="32" rx="4" fill="#fff"/><rect x="13" y="14" width="14" height="10" rx="2" fill="#a6d8ff"/><rect x="13" y="28" width="23" height="3" rx="1.5" fill="#e3eefb"/><rect x="13" y="33" width="18" height="3" rx="1.5" fill="#e3eefb"/></svg>';
       var coin='<svg viewBox="0 0 48 48" width="100%" height="100%"><circle cx="24" cy="24" r="16" fill="#ffd86b" stroke="#f4b942" stroke-width="3"/><text x="24" y="31" font-size="18" font-weight="800" text-anchor="middle" fill="#fff">$</text></svg>';
-      ic('9%','27%',34,0.95,'knDeco1',6,-8,mag);ic('84%','62%',32,0.9,'knDeco2',7,10,gear);ic('86%','20%',30,0.95,'knDeco1',5.5,6,plant);ic('13%','66%',32,0.9,'knDeco2',6.5,-6,chart);ic('70%','11%',28,0.85,'knDeco1',8,8,paper);ic('6%','49%',26,0.8,'knDeco2',9,-10,coin);
+      
       banner.insertBefore(deco, banner.firstChild);
       t.style.cssText='position:relative;z-index:2;display:flex;align-items:center;justify-content:center;min-height:160px;gap:0;';
       while(t.firstChild) t.removeChild(t.firstChild);
@@ -5444,7 +5444,7 @@ setInterval(apply,500);
       n.style.cssText='position:relative;z-index:4;display:inline-block;font-family:Arial Narrow, Helvetica Neue, sans-serif;font-weight:700;font-size:88px;color:#fff;text-shadow:0 1px 0 rgba(70,130,125,0.55),0 2px 0 rgba(70,130,125,0.55),0 3px 0 rgba(70,130,125,0.55),0 4px 0 rgba(70,130,125,0.55),0 5px 0 rgba(70,130,125,0.55),0 6px 0 rgba(70,130,125,0.55),0 7px 0 rgba(70,130,125,0.55),0 12px 20px rgba(0,40,40,0.40);';
       t.appendChild(n);
       var moverEls=[];
-      ['E','W','S'].forEach(function(ch){var w=document.createElement('span');w.style.cssText='position:absolute;left:0;top:0;z-index:2;will-change:transform;';var s=document.createElement('span');s.textContent=ch;s.style.cssText='font-family:Arial Narrow, Helvetica Neue, sans-serif;font-weight:700;font-size:24px;color:rgba(255,255,255,0.6);display:inline-block;';w.appendChild(s);t.appendChild(w);moverEls.push(w);});
+      [].forEach(function(ch){var w=document.createElement('span');w.style.cssText='position:absolute;left:0;top:0;z-index:2;will-change:transform;';var s=document.createElement('span');s.textContent=ch;s.style.cssText='font-family:Arial Narrow, Helvetica Neue, sans-serif;font-weight:700;font-size:24px;color:rgba(255,255,255,0.6);display:inline-block;';w.appendChild(s);t.appendChild(w);moverEls.push(w);});
       var ring=document.createElement('div');
       ring.style.cssText='position:absolute;left:50%;top:50%;width:0;height:0;z-index:1;animation:knTextSpin 16s linear infinite;';
       var rtxt='MARKET \u00B7 DAILY NEWS \u00B7 '.split(''); var rstep=360/rtxt.length;
@@ -5534,3 +5534,46 @@ setInterval(apply,500);
   })();
 </script>
 </script>
+
+  <script>
+  /* __KN_NEWS_ENHANCE : menu-linked icon ring, sizing, centering (baked from approved preview) */
+  (function(){
+    var SVGS=["<circle cx=\"12\" cy=\"12\" r=\"4\"></circle><line x1=\"12\" y1=\"3\" x2=\"12\" y2=\"5\"></line><line x1=\"12\" y1=\"19\" x2=\"12\" y2=\"21\"></line><line x1=\"3\" y1=\"12\" x2=\"5\" y2=\"12\"></line><line x1=\"19\" y1=\"12\" x2=\"21\" y2=\"12\"></line><line x1=\"5.6\" y1=\"5.6\" x2=\"7\" y2=\"7\"></line><line x1=\"17\" y1=\"17\" x2=\"18.4\" y2=\"18.4\"></line><line x1=\"18.4\" y1=\"5.6\" x2=\"17\" y2=\"7\"></line><line x1=\"7\" y1=\"17\" x2=\"5.6\" y2=\"18.4\"></line>","<rect x=\"4\" y=\"4\" width=\"16\" height=\"16\" rx=\"4\"></rect><polyline points=\"7,15 10,11 13,13 17,8\"></polyline>","<rect x=\"4\" y=\"5\" width=\"16\" height=\"14\" rx=\"4\"></rect><path d=\"M10 9.5 L15 12 L10 14.5 Z\" fill=\"#7a8a82\" stroke=\"none\"></path>","<path d=\"M7 4 h10 a1 1 0 0 1 1 1 v15 l-6-4 -6 4 V5 a1 1 0 0 1 1-1 Z\"></path>","<path d=\"M5 6 h14 a1 1 0 0 1 1 1 v8 a1 1 0 0 1 -1 1 H10 l-4 4 v-4 H5 a1 1 0 0 1 -1 -1 V7 a1 1 0 0 1 1 -1 Z\"></path>","<rect x=\"5\" y=\"5\" width=\"14\" height=\"14\" rx=\"2\"></rect><line x1=\"9\" y1=\"5\" x2=\"9\" y2=\"19\"></line><line x1=\"13\" y1=\"9\" x2=\"16\" y2=\"9\"></line>","<path d=\"M7 4 h7 l4 4 v12 a1 1 0 0 1 -1 1 H7 a1 1 0 0 1 -1 -1 V5 a1 1 0 0 1 1 -1 Z\"></path><polyline points=\"9,11 15,11\"></polyline><polyline points=\"9,14 14,14\"></polyline>","<path d=\"M13 3 L6 13 h5 l-1 8 7-11 h-5 Z\"></path>","<circle cx=\"12\" cy=\"12\" r=\"8\"></circle><path d=\"M15 9 L11 11 L9 15 L13 13 Z\" fill=\"#7a8a82\" stroke=\"none\"></path>"];
+    var TITLES=["朝の相場レター","シミュレーター","ショート","保存した動画","トーク","家計簿","メモ","急騰アラート","はじめてガイド"];
+    function enhance(){
+      var deco=document.getElementById("knNewsDeco"); if(!deco) return;
+      var title=document.querySelector(".morning-title"); if(!title) return;
+      var disc=null,acc=null,spin=null,N=null;
+      [].forEach.call(deco.querySelectorAll("div"),function(d){ if((getComputedStyle(d).backgroundImage||"").indexOf("radial-gradient(circle at 39%")>-1) disc=d; });
+      [].forEach.call(title.querySelectorAll("div"),function(d){ var an=getComputedStyle(d).animationName; if(an==="knDiscSpin") acc=d; if(an==="knTextSpin") spin=d; });
+      [].forEach.call(title.querySelectorAll("span"),function(s){ if(s.childElementCount===0 && (s.textContent||"").trim()==="N" && parseFloat(getComputedStyle(s).fontSize)>40) N=s; });
+      if(disc){ disc.style.width="124px"; disc.style.height="124px"; }
+      if(acc){ acc.style.width="144px"; acc.style.height="144px"; }
+      if(spin){ spin.style.marginTop="0px"; }
+      if(N && disc){ N.style.fontSize="76px"; var oc=disc.getBoundingClientRect(); var ocy=oc.top+oc.height/2; var nr=N.getBoundingClientRect(); var ncy=nr.top+nr.height/2; var cur=parseFloat(N.style.top||"0")||0; N.style.top=(cur+(ocy-ncy)).toFixed(1)+"px"; }
+      [].forEach.call(deco.querySelectorAll("div"),function(d){ var an=getComputedStyle(d).animationName; if(an==="knDeco1"||an==="knDeco2") d.style.display="none"; });
+      [].forEach.call(title.querySelectorAll("span"),function(s){ if(s.childElementCount===0){var tx=(s.textContent||"").trim(); if((tx==="E"||tx==="W"||tx==="S") && parseFloat(getComputedStyle(s).fontSize)>=15) s.style.display="none";} });
+      var ht=document.querySelector(".help-tip"); if(ht) ht.style.display="none";
+      var mi=document.querySelector(".morning-icon"); if(mi) mi.style.display="none";
+      var sub=document.querySelector(".morning-sub"); if(sub) sub.style.display="none";
+      if(!document.getElementById("knMenuSpinKf")){ var st=document.createElement("style"); st.id="knMenuSpinKf"; st.textContent="@keyframes knMenuSpin{from{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}@keyframes knMenuSpinCounter{from{transform:rotate(0)}to{transform:rotate(-360deg)}}"; document.head.appendChild(st); }
+      if(!document.getElementById("knMenuRing")){
+        var ring=document.createElement("div"); ring.id="knMenuRing";
+        ring.style.cssText="position:absolute;left:50%;top:50%;width:0;height:0;z-index:1;animation:knMenuSpin 26s linear infinite;";
+        var R=72; var drawer=document.getElementById("drawerNav"); var btns=drawer?drawer.querySelectorAll("button,a"):[];
+        for(var i=0;i<9;i++){ (function(i){
+          var ang=(i/9)*2*Math.PI - Math.PI/2; var x=Math.cos(ang)*R, y=Math.sin(ang)*R;
+          var w=document.createElement("div"); w.title=TITLES[i];
+          w.style.cssText="position:absolute;left:0;top:0;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#7a8a82;transform:translate(calc(-50% + "+x.toFixed(1)+"px),calc(-50% + "+y.toFixed(1)+"px));";
+          w.innerHTML='<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#7a8a82" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" style="filter:drop-shadow(0 1px 1px rgba(0,0,0,0.08));animation:knMenuSpinCounter 26s linear infinite">'+SVGS[i]+'</svg>';
+          w.addEventListener("click",function(e){ e.stopPropagation(); if(btns[i]) btns[i].click(); });
+          ring.appendChild(w);
+        })(i); }
+        deco.appendChild(ring);
+      }
+    }
+    setInterval(enhance,400);
+    if(document.readyState!=="loading") enhance();
+    document.addEventListener("DOMContentLoaded",enhance);
+  })();
+  </script>
