@@ -2528,20 +2528,40 @@ def _div_cache_set(key, value):
     _dividend_cache[key] = (time.time(), value)
 
 def _resolve_jp_ticker(q):
-    """ティッカー(7203)や会社名(トヨタ)から 7203.T 形式に解決"""
+    """ティッカー(7203)や会社名(トヨタ)から 7203.T 形式に解決。
+    JP_STOCKSに無ければyfinance検索でフォローする。"""
     if not q: return None, None
     q = q.strip()
     # 数字のみならティッカー
     if q.isdigit() and q in JP_STOCKS:
         return f"{q}.T", JP_STOCKS[q]
+    # 4桁数字だがリスト外 → そのまま .T として扱う（全上場コード対応）
+    if q.isdigit() and len(q) == 4:
+        return f"{q}.T", q
     # .T 付き
-    if q.endswith(".T") and q[:-2].isdigit() and q[:-2] in JP_STOCKS:
-        return q, JP_STOCKS[q[:-2]]
-    # 会社名部分一致
+    if q.endswith(".T") and q[:-2].isdigit():
+        code = q[:-2]
+        return q, JP_STOCKS.get(code, code)
+    # 会社名 完全一致を優先
     ql = q.lower()
     for code, name in JP_STOCKS.items():
-        if ql in name.lower() or ql == code:
+        if ql == name.lower():
             return f"{code}.T", name
+    # 会社名 部分一致
+    for code, name in JP_STOCKS.items():
+        if ql in name.lower() or name.lower() in ql or ql == code:
+            return f"{code}.T", name
+    # ここまでで見つからない → yfinanceの検索でフォロー（マイナー銘柄対応）
+    try:
+        from yfinance import Search
+        res = Search(q, max_results=10).quotes or []
+        for item in res:
+            sym = item.get("symbol", "")
+            if sym.endswith(".T"):
+                nm = item.get("shortname") or item.get("longname") or q
+                return sym, nm
+    except Exception as e:
+        print(f"[_resolve_jp_ticker] yf search error: {e}")
     return None, None
 
 def _get_dividend_info(ticker, name):
