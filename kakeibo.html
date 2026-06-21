@@ -121,6 +121,14 @@
     .type-tab.sel-exp{background:linear-gradient(135deg,#e05050,#f07070);border-color:#e05050;color:#fff;}
     .type-tab.sel-inv{background:linear-gradient(135deg,#2ba888,#3dc8a8);border-color:#2ba888;color:#fff;}
   
+
+.kkb{position:relative;display:inline-flex;align-items:center;gap:13px;border:none;cursor:pointer;padding:15px 24px;border-radius:18px;transition:transform .25s cubic-bezier(.34,1.56,.64,1),box-shadow .25s ease;overflow:hidden;background:rgba(255,255,255,.9);border:1px solid rgba(16,185,129,.22);box-shadow:0 6px 18px rgba(16,185,129,.12);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);margin:6px 5px;}
+.kkb:hover{transform:translateY(-3px);box-shadow:0 12px 26px rgba(16,185,129,.2);}
+.kkb:active{transform:translateY(-1px) scale(.99);}
+.kkb-icon{display:flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:50%;font-size:21px;flex:none;background:rgba(16,185,129,.1);}
+.kkb-label{display:flex;flex-direction:column;align-items:flex-start;line-height:1.2;}
+.kkb-title{font-size:15px;font-weight:800;letter-spacing:.02em;color:#065f46;white-space:nowrap;}
+.kkb-sub{font-size:10.5px;font-weight:600;margin-top:2px;color:#10b981;white-space:nowrap;}
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
@@ -144,8 +152,12 @@
   <div class="total-asset-change" id="totalAssetChange" data-i18n="kk_pls_register_asset">資産を登録してください</div>
 </div>
 <div id="ocr-bar" style="padding:10px 12px 0;display:flex;justify-content:center;">
-  <button id="ocr-btn" onclick="document.getElementById('ocr-file').click()" style="background:linear-gradient(135deg,#3da060,#2d7a4f);color:#fff;border:none;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(45,122,79,.35);display:flex;align-items:center;gap:8px;">
-    <span style="font-size:20px;">📷</span><span data-i18n="kk_btn_scan_receipt">レシート撮影</span>
+  <button onclick="document.getElementById('ocr-file').click()" class="kkb">
+    <span class="kkb-icon">📷</span>
+    <span class="kkb-label"><span class="kkb-title" data-i18n="kk_btn_scan_receipt">レシート撮影</span><span class="kkb-sub">タップして読み取り</span></span>
+  </button><button onclick="switchTab('cashflow')" class="kkb">
+    <span class="kkb-icon">✏️</span>
+    <span class="kkb-label"><span class="kkb-title">手入力</span><span class="kkb-sub">自分で入力する</span></span>
   </button>
   
     <button type="button" onclick="kkAiAdvice()" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(155,89,182,0.3);margin:8px 4px;"><span data-i18n="kk_btn_ai_advice">🤖 AI</span></button>
