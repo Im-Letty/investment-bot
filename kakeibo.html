@@ -147,7 +147,7 @@
   <button id="ocr-btn" onclick="document.getElementById('ocr-file').click()" style="background:linear-gradient(135deg,#3da060,#2d7a4f);color:#fff;border:none;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(45,122,79,.35);display:flex;align-items:center;gap:8px;">
     <span style="font-size:20px;">📷</span><span data-i18n="kk_btn_scan_receipt">レシート撮影</span>
   </button>
-  <button type="button" onclick="kkExportData('json')" style="background:linear-gradient(135deg,#3498db,#2980b9);color:#fff;border:none;border-radius:10px;padding:8px 12px;margin-left:8px;cursor:pointer;font-weight:600;font-size:13px;"><span data-i18n="kk_btn_export_json">📄 JSON</span></button>
+  
   <button type="button" onclick="kkExportData('csv')" style="background:linear-gradient(135deg,#16a085,#1abc9c);color:#fff;border:none;border-radius:10px;padding:8px 12px;margin-left:8px;cursor:pointer;font-weight:600;font-size:13px;"><span data-i18n="kk_btn_export_csv">📊 CSV</span></button>  <button type="button" onclick="kkAiAdvice()" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;border:none;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 4px 12px rgba(155,89,182,0.3);margin:8px 4px;"><span data-i18n="kk_btn_ai_advice">🤖 AI</span></button>
   <input id="ocr-file" type="file" accept="image/*" capture="environment" style="display:none" onchange="kkOcrUpload(this.files[0])">
 </div>
