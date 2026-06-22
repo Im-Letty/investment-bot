@@ -154,10 +154,10 @@ body{padding-bottom:24px;}
 
 
 
-<div class="header" style="display:none">
-  <div class="header-top">
-    <a href="/" class="back-btn" data-i18n="kk_back_home">←</a>
-    <span class="header-title" data-i18n="kk_title">💼 資産分析</span>
+<div class="header" style="background:none;background-color:transparent;padding:10px 12px;overflow:visible">
+  <div class="header-top" style="margin-bottom:0">
+    <a href="/" class="back-btn" data-i18n="kk_back_home" style="color:#5a5a5a;background:rgba(0,0,0,0.06)">←</a>
+    <span class="header-title" data-i18n="kk_title" style="display:none">💼 資産分析</span>
     <select id="kk-lang-select" onchange="kkSetLang(this.value)" style="background:rgba(255,255,255,0.25);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:4px 8px;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:72px;;display:none">
       <option value="ja" style="color:#1a3325;">日本語</option>
       <option value="en" style="color:#1a3325;">English</option>
@@ -165,9 +165,9 @@ body{padding-bottom:24px;}
       <option value="zh" style="color:#1a3325;">中文</option>
     </select>
   </div>
-  <div class="total-asset-label" data-i18n="kk_total_asset">総資産</div>
-  <div class="total-asset-val" id="totalAssetVal">¥0</div>
-  <div class="total-asset-change" id="totalAssetChange" data-i18n="kk_pls_register_asset">資産を登録してください</div>
+  <div class="total-asset-label" data-i18n="kk_total_asset" style="display:none">総資産</div>
+  <div class="total-asset-val" id="totalAssetVal" style="display:none">¥0</div>
+  <div class="total-asset-change" id="totalAssetChange" data-i18n="kk_pls_register_asset" style="display:none">資産を登録してください</div>
 </div>
 <div id="ocr-bar" style="padding:10px 12px 0;display:flex;justify-content:center;">
   
