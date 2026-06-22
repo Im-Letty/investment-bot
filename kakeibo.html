@@ -266,7 +266,7 @@ body{padding-bottom:24px;}
       <button class="ftab" id="ft-inv" onclick="switchForm('inv')" data-i18n="kk_btn_investment">📈 投資</button>
     </div>
     <div id="form-inc"><input class="inp" id="inc-name" type="text" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><input class="inp" id="inc-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
-    <div id="form-exp" style="display:none"><input class="inp" id="exp-name" type="text" data-i18n-placeholder="kk_ph_item_food" placeholder="項目名（例：食費）"><select class="inp" id="exp-cat"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option></select><input class="inp" id="exp-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
+    <div id="form-exp" style="display:none"><input class="inp" id="exp-name" type="text" data-i18n-placeholder="kk_ph_item_food" placeholder="項目名（例：食費）"><select class="inp" id="exp-cat" onchange="kkExpCatChange(this)"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option><option value="__kkadd__">➕ 新しいカテゴリ</option></select><input class="inp" id="exp-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
     <div id="form-inv" style="display:none"><input class="inp" id="inv-name" type="text" placeholder="銘柄・ファンド名"><select class="inp" id="inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="inv-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
   <div class="card"><div class="card-title" data-i18n="kk_card_line_trend">📈 収支推移（折れ線グラフ）</div><div class="chart-area"><canvas id="lineChart"></canvas></div></div>
@@ -1254,4 +1254,35 @@ function kkNavGo(tab, el){
 
 
 
+
+<script>
+(function(){
+  function kkGetCustomCats(){ try{ return JSON.parse(localStorage.getItem('kk_custom_cats')||'[]'); }catch(e){ return []; } }
+  function kkSaveCustomCats(a){ try{ localStorage.setItem('kk_custom_cats', JSON.stringify(a)); }catch(e){} }
+  window.kkRenderCustomCats=function(){
+    var sel=document.getElementById('exp-cat'); if(!sel) return;
+    var addOpt=sel.querySelector('option[value="__kkadd__"]');
+    var cats=kkGetCustomCats();
+    cats.forEach(function(c){
+      if(!sel.querySelector('option[value="'+c.replace(/"/g,'')+'"]')){
+        var o=document.createElement('option'); o.value=c; o.textContent='🏷️ '+c;
+        if(addOpt) sel.insertBefore(o, addOpt); else sel.appendChild(o);
+      }
+    });
+  };
+  window.kkExpCatChange=function(sel){
+    if(sel.value!=='__kkadd__') return;
+    var name=window.prompt('新しいカテゴリの名前を入力してください');
+    if(name){ name=name.trim(); }
+    if(!name){ sel.selectedIndex=0; return; }
+    var cats=kkGetCustomCats();
+    if(cats.indexOf(name)===-1){ cats.push(name); kkSaveCustomCats(cats); }
+    var addOpt=sel.querySelector('option[value="__kkadd__"]');
+    var existing=sel.querySelector('option[value="'+name.replace(/"/g,'')+'"]');
+    if(!existing){ var o=document.createElement('option'); o.value=name; o.textContent='🏷️ '+name; if(addOpt) sel.insertBefore(o, addOpt); else sel.appendChild(o); existing=o; }
+    sel.value=name;
+  };
+  if(document.readyState!=='loading'){ kkRenderCustomCats(); } else { document.addEventListener('DOMContentLoaded', kkRenderCustomCats); }
+})();
+</script>
 </body></html>
