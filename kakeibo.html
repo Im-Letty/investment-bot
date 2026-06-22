@@ -214,7 +214,7 @@ body{padding-bottom:24px;}
     </div>
   </div>
 </div>
-<div class="tab-nav">
+<div class="tab-nav" style="display:none">
   <div class="tn-item active" onclick="switchTab('dashboard')" data-i18n="kk_tab_dashboard">ダッシュボード</div>
   <div class="tn-item" onclick="switchTab('cashflow')" data-i18n="kk_tab_cashflow">収支管理</div>
   <div class="tn-item" onclick="switchTab('assets')" data-i18n="kk_tab_assets" style="display:none">資産管理</div>
@@ -234,7 +234,7 @@ body{padding-bottom:24px;}
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
     グラフ
   </button>
-  <button type="button" class="kk-nav-item" data-kknav="settings" onclick="event.preventDefault();">
+  <button type="button" class="kk-nav-item" data-kknav="settings" onclick="event.preventDefault();" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     設定
   </button>
@@ -1250,6 +1250,7 @@ function kkNavGo(tab, el){
   if(el) el.classList.add('active');
 }
 </script>
+
 
 
 </body></html>
