@@ -280,8 +280,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
     }else{ if(onWait)onWait(-1,MAX); }
   });
 };
-</script>
-</head>
+</script><style id="kn-settings-fix">div:has(> #drawerSettingsBtn){padding:0 !important;}#drawerSettingsBtn{display:flex !important;align-items:center !important;justify-content:space-between !important;width:100% !important;box-sizing:border-box !important;padding:10px 24px 4px !important;gap:0 !important;background:transparent !important;border:none !important;color:rgba(255,255,255,0.52) !important;font-weight:700 !important;font-size:10.56px !important;letter-spacing:0.8px !important;text-align:left !important;}#drawerSettingsBtn>span:first-child{display:none !important;}#drawerSettingsBtn>span:last-child{font-size:0 !important;transform:none !important;margin-left:auto !important;}#drawerSettingsBtn>span:last-child::after{content:"▼";font-size:11px;color:rgba(255,255,255,0.52);opacity:0.85;display:inline-block;}</style></head>
   <body onload="startMorningInterval()">
 
 <div class="side-drawer" id="sideDrawer">
