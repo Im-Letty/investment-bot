@@ -340,7 +340,7 @@ var sg=(d&&d.surges)||[],dr=(d&&d.drops)||[];
 if(!sg.length&&!dr.length){el.innerHTML="今日の注目銘柄は見つかりませんでした";return;}
 var h="";sg.slice(0,3).forEach(function(x){h+=row(x,true);});dr.slice(0,3).forEach(function(x){h+=row(x,false);});
 el.innerHTML=h;el.style.color="";
-},function(n){el.style.color="#999";el.innerHTML=(n<0)?"いま情報を取得できませんでした。画面を下に引っぱって更新してね🔄":"サーバーを起こしています…少し待ってね🔄（"+n+"/8）";});}
+},function(n){el.style.color="#999";el.innerHTML=(n<0)?"いま情報を取得できませんでした。画面を下に引っぱって更新してね🔄":"読み込み中...";});}
 if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",load);}else{load();}
 })();</script>
   <!-- SIMULATOR -->
