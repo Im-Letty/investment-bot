@@ -5442,10 +5442,10 @@ setInterval(apply,500);
       var moverEls=[];
       [].forEach(function(ch){var w=document.createElement('span');w.style.cssText='position:absolute;left:0;top:0;z-index:2;will-change:transform;';var s=document.createElement('span');s.textContent=ch;s.style.cssText='font-family:Arial Narrow, Helvetica Neue, sans-serif;font-weight:700;font-size:24px;color:rgba(255,255,255,0.6);display:inline-block;';w.appendChild(s);t.appendChild(w);moverEls.push(w);});
       var ring=document.createElement('div');
-      ring.style.cssText='position:absolute;left:50%;top:50%;width:0;height:0;z-index:1;animation:knTextSpin 16s linear infinite;';
+      ring.style.cssText='position:absolute;left:50%;top:50%;width:0;height:0;z-index:1;will-change:transform;animation:knTextSpin 16s linear infinite;';
       var rtxt='MARKET \u00B7 DAILY NEWS \u00B7 '.split(''); var rstep=360/rtxt.length;
       rtxt.forEach(function(c,i){var sp=document.createElement('span');sp.textContent=c;sp.style.cssText='position:absolute;left:0;top:0;font-size:10px;font-weight:700;letter-spacing:0.05em;color:var(--brand-color);transform-origin:0 0;transform:rotate('+(i*rstep)+'deg) translateY(-106px);text-shadow:0 2px 6px rgba(0,0,0,0.25);';ring.appendChild(sp);});
-      t.appendChild(ring);
+      deco.appendChild(ring);
       var sub=document.querySelector('.morning-sub');
       if(sub){sub.style.cssText='position:relative;z-index:2;text-align:center;';while(sub.firstChild)sub.removeChild(sub.firstChild);var bd=document.createElement('span');bd.style.cssText='display:inline-block;margin:0 auto;padding:3px 11px;border-radius:999px;background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.45);color:#fff;font-size:9px;font-weight:700;letter-spacing:0.08em;font-family:Hiragino Maru Gothic ProN, Zen Maru Gothic, M PLUS Rounded 1c, sans-serif;';bd.textContent='\u6BCE\u671D8\u6642\u306BLINE\u3067\u914D\u4FE1\u4E2D';sub.appendChild(bd);}
       var st=document.getElementById('knNewsKf');
