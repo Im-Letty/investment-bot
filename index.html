@@ -3939,7 +3939,7 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
     m.setAttribute('d','M '+(cx-5)+' '+(baseY-4)+' q 5 4 10 0');
     m.setAttribute('fill','none');m.setAttribute('stroke',sunCol);m.setAttribute('stroke-width','1.5');m.setAttribute('stroke-linecap','round');
     svg.appendChild(m);
-    return svg;
+    var _kd=new Date();var _dw=['日曜日','月曜日','火曜日','水曜日','木曜日','金曜日','土曜日'];var _md=(_kd.getMonth()+1)+'月'+_kd.getDate()+'日';var _dow=_dw[_kd.getDay()];function _DT(x,s){var e=document.createElementNS(NS,'text');e.setAttribute('x',x);e.setAttribute('y','31');e.setAttribute('text-anchor','middle');e.setAttribute('font-size','10');e.setAttribute('font-weight','700');e.setAttribute('fill','#222222');e.setAttribute('font-family','sans-serif');e.textContent=s;svg.appendChild(e);}_DT('40',_md);_DT('150',_dow);return svg;
   }
   function apply(){
     var title=document.querySelector('.morning-news-title');
