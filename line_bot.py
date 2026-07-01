@@ -1744,6 +1744,38 @@ def api_user_data():
     }
     return jsonify(safe)
 
+@app.route("/api/kakeibo/save", methods=["POST"])
+def api_kakeibo_save():
+    try:
+        body = request.get_json(force=True) or {}
+        uid = body.get("uid", "")
+        if not uid:
+            return jsonify({"error": "uid required"}), 400
+        payload = body.get("data")
+        if payload is None:
+            return jsonify({"error": "data required"}), 400
+        save_user(uid, {"kakeibo_data": json.dumps(payload, ensure_ascii=False)})
+        return jsonify({"ok": True})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+@app.route("/api/kakeibo/load", methods=["GET"])
+def api_kakeibo_load():
+    try:
+        uid = request.args.get("uid", "")
+        if not uid:
+            return jsonify({"error": "uid required"}), 400
+        user = get_user(uid)
+        raw = (user or {}).get("kakeibo_data")
+        if not raw:
+            return jsonify({"data": None})
+        try:
+            return jsonify({"data": json.loads(raw)})
+        except Exception:
+            return jsonify({"data": None})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 @app.route("/simulator")
 def simulator():
     with open("simulator.html", encoding="utf-8") as f:
