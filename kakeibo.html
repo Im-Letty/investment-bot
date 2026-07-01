@@ -1285,6 +1285,34 @@ function kkNavGo(tab, el){
   if(document.readyState!=='loading'){ kkRenderCustomCats(); } else { document.addEventListener('DOMContentLoaded', kkRenderCustomCats); }
 })();
 </script>
+<script>
+/* ==== Kakeibo <-> Supabase sync (auto-added) ==== */
+(function(){
+  var KK_RE=/^(kb2|kbday_|kk_custom_cats|pg_kakeibo_day)/;
+  function kkUid(){ try{ if(typeof getUid==="function"){var u=getUid(); if(u) return u;} }catch(e){}
+    return localStorage.getItem("lineUserId")||localStorage.getItem("line_user_id")||localStorage.getItem("userId")||localStorage.getItem("kk_user_id")||""; }
+  function kkSnapshot(){ var o={}; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(KK_RE.test(k)) o[k]=localStorage.getItem(k); } return o; }
+  var _t=null;
+  function kkPush(){ var uid=kkUid(); if(!uid) return; var snap=kkSnapshot();
+    fetch("/api/kakeibo/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({uid:uid,data:snap})}).catch(function(){}); }
+  function kkPushDebounced(){ if(_t) clearTimeout(_t); _t=setTimeout(kkPush,1500); }
+  var _origSet=localStorage.setItem.bind(localStorage);
+  localStorage.setItem=function(k,v){ _origSet(k,v); try{ if(KK_RE.test(k)) kkPushDebounced(); }catch(e){} };
+  var _origRem=localStorage.removeItem.bind(localStorage);
+  localStorage.removeItem=function(k){ _origRem(k); try{ if(KK_RE.test(k)) kkPushDebounced(); }catch(e){} };
+  function kkPull(){ var uid=kkUid(); if(!uid){ setTimeout(kkPull,1200); return; }
+    fetch("/api/kakeibo/load?uid="+encodeURIComponent(uid)).then(function(r){return r.json();}).then(function(j){
+      if(!j||!j.data) return; var remote=j.data; var hasLocal=false;
+      for(var i=0;i<localStorage.length;i++){ if(KK_RE.test(localStorage.key(i))){ hasLocal=true; break; } }
+      var changed=false;
+      Object.keys(remote).forEach(function(k){ if(!KK_RE.test(k)) return; if(localStorage.getItem(k)!==remote[k]){ _origSet(k,remote[k]); changed=true; } });
+      if(changed){ try{ location.reload(); }catch(e){} }
+    }).catch(function(){}); }
+  if(document.readyState==="complete"||document.readyState==="interactive"){ setTimeout(kkPull,300); }
+  else { window.addEventListener("DOMContentLoaded",function(){ setTimeout(kkPull,300); }); }
+})();
+</script>
+
 <style id="kkHomeBarCSS">
 #kkHomeBar{position:fixed;left:0;right:0;bottom:0;z-index:9997;display:flex;justify-content:space-around;align-items:center;background:rgba(255,255,255,.92);-webkit-backdrop-filter:saturate(180%) blur(14px);backdrop-filter:saturate(180%) blur(14px);border-top:1px solid rgba(20,83,45,.10);padding:6px 4px calc(6px + env(safe-area-inset-bottom,0px));box-shadow:0 -4px 18px -10px rgba(20,83,45,.25)}
 #kkHomeBar .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:none;border:none;cursor:pointer;color:#6b7280;font:600 10px/1 system-ui,sans-serif;padding:4px 0;text-decoration:none;transition:color .2s,transform .2s;-webkit-tap-highlight-color:transparent}
