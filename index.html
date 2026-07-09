@@ -643,7 +643,7 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
           drawBg();
           drawLines();
           drawParticles();
-          requestAnimationFrame(animate);
+          if(!splEl.classList.contains('done'))requestAnimationFrame(animate);
       }
 animate();setTimeout(()=>{tmain.classList.add('show');tsub.classList.add('show');},400);setTimeout(()=>{splEl.classList.add('done');lpEl.classList.add('show');},2800);
 
