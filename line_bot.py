@@ -680,7 +680,11 @@ def _rtp(sym, fb):
     except Exception:
         return fb
 
+_MKT_CACHE = {"ts": 0.0, "data": None}  # 60秒使い回し
+
 def fetch_market_data():
+    if _MKT_CACHE["data"] is not None and (time.time() - _MKT_CACHE["ts"]) < 60:
+        return _MKT_CACHE["data"]
     tickers = {
         "日経225":    "^N225",
         "ドル円":     "JPY=X",
@@ -705,6 +709,9 @@ def fetch_market_data():
                 }
         except Exception:
             pass
+    if results:
+        _MKT_CACHE["ts"] = time.time()
+        _MKT_CACHE["data"] = results
     return results
 
 def fetch_watchlist():
@@ -1908,12 +1915,19 @@ def api_morning_data():
     except Exception as e:
         return jsonify({"error": str(e), "date": date.today().strftime("%Y/%m/%d"), "market": {}}), 200
 
+_QUOTE_CACHE = {}  # {(symbol, light): (epoch, payload)} 60秒使い回しでyfinance連打を防ぐ
+_QUOTE_TTL = 60
+
 @app.route("/api/quote", methods=["GET"])
 def api_quote():
     symbol = request.args.get("symbol", "").strip().upper()
     light = request.args.get("light", "") == "1"
     if not symbol:
         return jsonify({"error": "symbol is required"}), 400
+    _qk = (symbol, light)
+    _qc = _QUOTE_CACHE.get(_qk)
+    if _qc and (time.time() - _qc[0]) < _QUOTE_TTL:
+        return jsonify(_qc[1])
     try:
         t = yf.Ticker(symbol)
         hist = t.history(period="5d")
@@ -1950,7 +1964,7 @@ def api_quote():
             if (val is None) or (val != val) or (val in (float("inf"), float("-inf"))) or (val <= 0) or (abs(pct) > 50):
                 return jsonify({"error": "invalid data", "symbol": symbol}), 422
             arrow = "▲" if pct >= 0 else "▼"
-            return jsonify({
+            _qp = {
                 "symbol": symbol,
                 "details": details,
                 "name": name,
@@ -1959,10 +1973,14 @@ def api_quote():
                 "pct": round(pct, 2),
                 "display": f"{val:,.2f} {arrow}{abs(pct):.2f}%",
                 "change": arrow + str(round(abs(pct), 2)) + "%"
-            })
+            }
+            if len(_QUOTE_CACHE) > 300:
+                _QUOTE_CACHE.clear()
+            _QUOTE_CACHE[_qk] = (time.time(), _qp)
+            return jsonify(_qp)
         elif len(hist) == 1:
             val = _rtp(symbol, hist["Close"].iloc[-1])
-            return jsonify({
+            _qp = {
                 "symbol": symbol,
                 "details": details,
                 "name": name,
@@ -1971,7 +1989,11 @@ def api_quote():
                 "pct": 0,
                 "display": f"{val:,.2f}",
                 "change": "--"
-            })
+            }
+            if len(_QUOTE_CACHE) > 300:
+                _QUOTE_CACHE.clear()
+            _QUOTE_CACHE[_qk] = (time.time(), _qp)
+            return jsonify(_qp)
         else:
             return jsonify({"error": "No data found for: " + symbol}), 404
     except Exception as e:
