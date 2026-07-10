@@ -2913,24 +2913,31 @@ def _build_scanner_data():
     syms = _SCANNER_TICKERS_JP + _SCANNER_TICKERS_US
     results = []
     try:
-        data = yf.download(syms, period="3d", group_by="ticker", threads=True, progress=False, auto_adjust=False)
-        for s in syms:
-            try:
-                df = data[s]
-                closes = df["Close"].dropna()
-                if len(closes) >= 2:
-                    val = float(closes.iloc[-1])
-                    prev = float(closes.iloc[-2])
-                    if prev > 0:
-                        pct = (val - prev) / prev * 100.0
-                        results.append({
-                            "symbol": s,
-                            "price": round(val, 4),
-                            "prev": round(prev, 4),
-                            "pct": round(pct, 2)
-                        })
-            except Exception:
-                continue
+        # メモリ節約: 100銘柄を一度に取らず、20銘柄ずつ順番に取得する(瞬間最大メモリを大幅に抑える)
+        CHUNK = 20
+        for ci in range(0, len(syms), CHUNK):
+            chunk = syms[ci:ci + CHUNK]
+            data = yf.download(chunk, period="3d", group_by="ticker", threads=False, progress=False, auto_adjust=False)
+            for s in chunk:
+                try:
+                    df = data[s] if len(chunk) > 1 else data
+                    closes = df["Close"].dropna()
+                    if len(closes) >= 2:
+                        val = float(closes.iloc[-1])
+                        prev = float(closes.iloc[-2])
+                        if prev > 0:
+                            pct = (val - prev) / prev * 100.0
+                            results.append({
+                                "symbol": s,
+                                "price": round(val, 4),
+                                "prev": round(prev, 4),
+                                "pct": round(pct, 2)
+                            })
+                except Exception:
+                    continue
+            del data
+        import gc
+        gc.collect()
     except Exception:
         for s in syms:
             try:
