@@ -108,7 +108,7 @@ document.addEventListener('DOMContentLoaded',function(){try{var g=document.getEl
     .mn{font-size:13px;font-weight:600;color:#1a2e1a;margin-bottom:3px;}
     .md{font-size:11px;color:#888;line-height:1.4;}
     .ticker-wrap{background:white;border-radius:12px;padding:12px 0;margin-bottom:1.2rem;overflow:hidden;border:1px solid #e8f2e8;}
-    .ticker-inner{display:flex;width:max-content;white-space:nowrap;will-change:transform;animation:tickerScroll 36s linear infinite;} .morning-banner .morning-sub{display:none !important;} .morning-banner .morning-icon{display:none !important;} [style*="knTextSpin"]{animation:knTextSpin 20s linear infinite !important;animation-direction:normal !important;animation-play-state:running !important;} [style*="knDiscSpin"]{animation:knDiscSpin 26s linear infinite !important;animation-direction:normal !important;animation-play-state:running !important;} [style*="knTextSpin"] > span{font-size:10px !important;display:inline !important;} .morning-title > span{font-size:64px !important;}
+    .ticker-inner{display:flex;width:max-content;white-space:nowrap;will-change:transform;animation:tickerScroll 36s linear infinite;} .morning-banner .morning-sub{display:none !important;} .morning-banner .morning-icon{display:none !important;} [style*="knTextSpin"]{animation:knTextSpin 20s linear infinite !important;animation-direction:normal !important;animation-play-state:running !important;} [style*="knDiscSpin"]{animation:knDiscSpin 26s linear infinite !important;animation-direction:normal !important;animation-play-state:running !important;} [style*="knTextSpin"] > span{font-size:10px !important;display:inline !important;} .morning-title > span{font-size:64px !important;} #morning-idx-grid{display:none !important;}
     @keyframes tickerScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
     .tick-item{display:inline-flex;gap:6px;padding:0 24px;font-size:12px;color:#555;font-family:'Outfit',sans-serif;}
     .tick-up{color:var(--brand-deep);font-weight:600;}
@@ -3354,7 +3354,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     var grid=document.getElementById('morning-idx-grid');
     if(!grid || !window._mktCache) return;
     var mc=window._mktCache;
-    var keys=['\u65E5\u7D4C225','\u30C9\u30EB\u5186','S&P500','NY\u30C0\u30A6','VIX\u6050\u6016\u6307\u6570','\u7C7310\u5E74\u91D1\u5229'];
+    var keys=(typeof getSelIndices==='function'&&getSelIndices().length)?getSelIndices():['\u65E5\u7D4C225','\u30C9\u30EB\u5186','S&P500','NY\u30C0\u30A6','VIX\u6050\u6016\u6307\u6570','\u7C7310\u5E74\u91D1\u5229'];
     function item(k){
       var d=mc[k]; if(!d||!d.display) return '';
       var label=(k==='VIX\u6050\u6016\u6307\u6570')?'VIX':(k==='\u7C7310\u5E74\u91D1\u5229')?'\u7C73\u91D1\u5229':k;
