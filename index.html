@@ -400,7 +400,7 @@ if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded"
   <div id="morning-section" style="display:block">
       <div class="morning-banner">
         <div class="morning-icon">☀️</div>
-        <div class="morning-title" data-i18n="morning_title" data-help-key="morning_title">朝の相場レター</div>
+        <div class="morning-title" data-help-key="morning_title">朝の相場レター</div>
         <div class="morning-sub" data-i18n="morning_sub">毎朝8時にLINEで配信中</div>
       </div>
             <div class="ticker-wrap">
@@ -5568,7 +5568,7 @@ setInterval(apply,500);
     setInterval(function(){
       var b=document.querySelector('.morning-banner');
       if(!b) return;
-      if(false){ b.removeAttribute('data-knnews'); }
+      if(!ok()){ b.removeAttribute('data-knnews'); }
     },700);
   })();
 </script>
