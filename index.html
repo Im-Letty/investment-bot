@@ -3,6 +3,8 @@
   <head>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
+/* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
+document.addEventListener('DOMContentLoaded',function(){try{var g=document.getElementById('morning-idx-grid');if(g&&!document.getElementById('morningTickerInner')){var c=localStorage.getItem('knMTickCache');if(c){g.insertAdjacentHTML('beforebegin','<div class="ticker-wrap" id="morningTickerWrap"><div class="ticker-inner" id="morningTickerInner"></div></div>');var el=document.getElementById('morningTickerInner');el.__knLast=c;el.innerHTML=c+c;}}}catch(e){}});
 </script>
 <script>/* KN: 古いキャッシュ(Service Worker)を自動で無効化して、常に最新を表示 */
 (function(){try{if('serviceWorker' in navigator){navigator.serviceWorker.getRegistrations().then(function(rs){rs.forEach(function(r){r.unregister();});}).catch(function(){});navigator.serviceWorker.register=function(){return new Promise(function(){});};}if(window.caches&&caches.keys){caches.keys().then(function(ks){ks.forEach(function(k){caches.delete(k);});}).catch(function(){});}}catch(e){}})();</script>
@@ -3368,7 +3370,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
       grid.insertAdjacentHTML('beforebegin','<div class="ticker-wrap" id="morningTickerWrap"><div class="ticker-inner" id="morningTickerInner"></div></div>');
       inner=document.getElementById('morningTickerInner');
     }
-    if(inner.__knLast!==h){inner.__knLast=h;inner.innerHTML=h+h;}
+    if(inner.__knLast!==h){inner.__knLast=h;inner.innerHTML=h+h;try{localStorage.setItem('knMTickCache',h)}catch(e){}}
     
   }
   function hook(){
