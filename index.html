@@ -5564,7 +5564,7 @@ setInterval(apply,500);
     function ok(){
       var t=document.querySelector('.morning-title');
       if(!t) return true;
-      if(t.querySelector('span')&&(t.textContent||'').indexOf('NEWS')>-1) return true;
+      if(document.getElementById('knNewsDeco')) return true;
       return false;
     }
     setInterval(function(){
