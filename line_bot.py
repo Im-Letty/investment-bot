@@ -822,20 +822,21 @@ def generate_morning_report(lang="ja"):
     market    = fetch_market_data()
     watchlist = fetch_watchlist()
     news      = fetch_news()
+    jst_today = (datetime.utcnow() + timedelta(hours=9)).date()
 
     # 日付フォーマットを言語別に
     if lang == "en":
-        today   = date.today().strftime("%B %d, %Y")
-        weekday = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][date.today().weekday()]
+        today   = jst_today.strftime("%B %d, %Y")
+        weekday = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"][jst_today.weekday()]
     elif lang == "ko":
-        today   = date.today().strftime("%Y년 %m월 %d일")
-        weekday = ["월","화","수","목","금","토","일"][date.today().weekday()]
+        today   = jst_today.strftime("%Y년 %m월 %d일")
+        weekday = ["월","화","수","목","금","토","일"][jst_today.weekday()]
     elif lang == "zh":
-        today   = date.today().strftime("%Y年%m月%d日")
-        weekday = ["周一","周二","周三","周四","周五","周六","周日"][date.today().weekday()]
+        today   = jst_today.strftime("%Y年%m月%d日")
+        weekday = ["周一","周二","周三","周四","周五","周六","周日"][jst_today.weekday()]
     else:
-        today   = date.today().strftime("%Y年%m月%d日")
-        weekday = ["月","火","水","木","金","土","日"][date.today().weekday()]
+        today   = jst_today.strftime("%Y年%m月%d日")
+        weekday = ["月","火","水","木","金","土","日"][jst_today.weekday()]
 
     market_text    = "\n".join([f"・{k}：{v['display']}" for k, v in market.items()])
     watchlist_text = "\n".join([s["display"] for s in watchlist])
