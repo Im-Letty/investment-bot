@@ -1020,6 +1020,10 @@ function adjustBrightness(hex, factor){
   return rgbToHex(r*f, g*f, b*f);
 }
 function applyBrandColor(hex){
+  // Keep the welcome palette on the same saved color path as the drawer.
+  if(typeof hex !== 'string' || !/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) hex = '#3da060';
+  const welcomeRgb = hexToRgb(hex);
+  hex = rgbToHex(welcomeRgb.r, welcomeRgb.g, welcomeRgb.b);
   const root = document.documentElement;
   root.style.setProperty('--brand-color', hex);
   root.style.setProperty('--brand-light', adjustBrightness(hex, 0.15));
@@ -1027,6 +1031,27 @@ function applyBrandColor(hex){
   root.style.setProperty('--brand-dark', adjustBrightness(hex, -0.18));
   root.style.setProperty('--brand-darker', adjustBrightness(hex, -0.45));
   root.style.setProperty('--brand-deep', adjustBrightness(hex, -0.3));
+  // Dark, restrained surfaces and pale accents retain the selected hue,
+  // including bright custom colors such as yellow, and neutral gray colors.
+  const channels = [welcomeRgb.r, welcomeRgb.g, welcomeRgb.b].map(v=>v/255);
+  const hi = Math.max(...channels), lo = Math.min(...channels), delta = hi-lo;
+  let hue = 0;
+  if(delta){
+    if(hi===channels[0]) hue = ((channels[1]-channels[2])/delta)%6;
+    else if(hi===channels[1]) hue = (channels[2]-channels[0])/delta+2;
+    else hue = (channels[0]-channels[1])/delta+4;
+    hue = (hue*60+360)%360;
+  }
+  const lightness = (hi+lo)/2;
+  const saturation = delta ? delta/(1-Math.abs(2*lightness-1))*100 : 0;
+  const tone = Math.min(42, saturation*0.65);
+  const hsl = (s,l)=>'hsl('+hue.toFixed(2)+', '+s.toFixed(2)+'%, '+l+'%)';
+  root.style.setProperty('--knw-bg', hsl(tone, 11));
+  root.style.setProperty('--knw-glow', hsl(tone, 23));
+  root.style.setProperty('--knw-text', hsl(tone*0.45, 94));
+  root.style.setProperty('--knw-muted', hsl(tone*0.35, 77));
+  root.style.setProperty('--knw-line', hsl(tone*0.4, 53));
+  root.style.setProperty('--knw-accent', hex==='#3da060' ? '#e2d2a6' : hsl(Math.min(68,saturation*0.7), 79));
   try { localStorage.setItem('userBrandColor', hex); } catch(e){}
   document.querySelectorAll('.drawer-color-preset').forEach(b=>{
     b.classList.toggle('active', b.getAttribute('data-color').toLowerCase()===hex.toLowerCase());
@@ -3039,18 +3064,51 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
   function addCss(){
     if(document.getElementById('knWelCss'))return;
     var st=document.createElement('style');st.id='knWelCss';
-    st.textContent='#knWelcomeOv{position:fixed;inset:0;z-index:155000;background:linear-gradient(135deg,#5db87a 0%,#1e5c20 100%);display:none;flex-direction:column;align-items:center;justify-content:center;padding:30px;text-align:center;color:#fff;}#knWelcomeOv.open{display:flex;}.knw-logo{font-size:30px;font-weight:900;margin-bottom:8px;letter-spacing:1px;}.knw-sub{font-size:14px;opacity:.9;margin-bottom:30px;line-height:1.7;max-width:300px;}.knw-btn{width:100%;max-width:300px;box-sizing:border-box;border:none;border-radius:30px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:12px;}.knw-primary{background:#fff;color:#1e5c20;}.knw-secondary{background:rgba(255,255,255,.18);color:#fff;border:1.5px solid rgba(255,255,255,.5);}.knw-skip{background:none;border:none;color:rgba(255,255,255,.8);font-size:13px;text-decoration:underline;cursor:pointer;margin-top:10px;}';
+    st.textContent=`
+      #knWelcomeOv{position:fixed;inset:0;z-index:155000;display:none;overflow-y:auto;overscroll-behavior:contain;background:radial-gradient(ellipse at 75% 15%,var(--knw-glow,#254c44),var(--knw-bg,#102c28) 68%);color:var(--knw-text,#f3f0df);text-align:left;color-scheme:dark;}
+      #knWelcomeOv.open{display:flex;}
+      #knWelcomeOv .knw-shell{box-sizing:border-box;width:100%;max-width:440px;margin:auto;padding:32px 28px 24px;padding-top:max(32px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom));}
+      #knWelcomeOv .knw-brand{display:flex;align-items:center;gap:12px;color:var(--knw-accent,#e2d2a6);}
+      #knWelcomeOv .knw-mark{font:400 36px/1 Georgia,serif;letter-spacing:-4px;}
+      #knWelcomeOv .knw-logo{font-size:16px;font-weight:500;letter-spacing:2px;}
+      #knWelcomeOv .knw-orbit{position:relative;height:190px;margin:24px 0 20px;color:var(--knw-accent,#e2d2a6);}
+      #knWelcomeOv .knw-ring{position:absolute;top:5px;left:calc(50% - 80px);width:160px;height:160px;border:1px solid var(--knw-line,#728478);border-radius:50%;opacity:.65;}
+      #knWelcomeOv .knw-ring:nth-child(2){transform:rotate(-35deg) scaleX(.48);}
+      #knWelcomeOv .knw-ring:nth-child(3){transform:rotate(35deg) scaleX(.48);}
+      #knWelcomeOv .knw-star{position:absolute;left:0;right:0;top:62px;text-align:center;font:400 40px/1 Georgia,serif;}
+      #knWelcomeOv .knw-orbit-label{position:absolute;bottom:0;left:0;right:0;text-align:center;font:400 12px/1.5 'Outfit',sans-serif;letter-spacing:3px;}
+      #knWelcomeOv .knw-eyebrow{color:var(--knw-accent,#e2d2a6);font:400 12px/1.8 'Outfit',sans-serif;letter-spacing:2px;}
+      #knWelcomeOv .knw-title{font-family:'Shippori Mincho','Yu Mincho',serif;font-size:clamp(28px,7.8vw,36px)!important;font-weight:400;line-height:1.75;letter-spacing:1px;margin:12px 0 14px;}
+      #knWelcomeOv .knw-sub{font-size:14px;line-height:1.9;color:var(--knw-muted,#bdccc3);margin:0;}
+      #knWelcomeOv .knw-actions{display:flex;flex-direction:column;gap:12px;margin-top:30px;}
+      #knWelcomeOv .knw-btn{box-sizing:border-box;width:100%;min-height:52px;border-radius:5px;padding:14px 18px;font:500 16px/1.5 'Noto Sans JP',sans-serif;cursor:pointer;}
+      #knWelcomeOv .knw-primary{display:flex;align-items:center;justify-content:space-between;background:var(--knw-accent,#e2d2a6);color:var(--knw-bg,#102c28);border:1px solid transparent;}
+      #knWelcomeOv .knw-primary::before{content:'';width:16px;}
+      #knWelcomeOv .knw-secondary{background:transparent;color:var(--knw-text,#f3f0df);border:1px solid var(--knw-line,#728478);}
+      #knWelcomeOv .knw-skip{align-self:center;min-height:44px;background:transparent;border:none;padding:10px 16px;color:var(--knw-muted,#bdccc3);font:400 14px/1.5 'Noto Sans JP',sans-serif;cursor:pointer;}
+      #knWelcomeOv button:focus-visible{outline:3px solid var(--knw-accent,#e2d2a6);outline-offset:4px;}
+      #knWelcomeOv .knw-btn:hover{filter:brightness(1.08);}
+      #knWelcomeOv .knw-footer{margin-top:16px;text-align:center;font:400 12px/1.8 'Outfit',sans-serif;letter-spacing:1.5px;color:var(--knw-muted,#bdccc3);}
+      @media(max-height:740px){#knWelcomeOv .knw-orbit{height:136px;margin:16px 0;}#knWelcomeOv .knw-ring{width:110px;height:110px;left:calc(50% - 55px);top:0;}#knWelcomeOv .knw-star{top:36px;font-size:34px;}#knWelcomeOv .knw-actions{margin-top:22px;}}
+    `;
     document.head.appendChild(st);
   }
   function build(){
     if(document.getElementById('knWelcomeOv'))return;
     addCss();
     var ov=document.createElement('div');ov.id='knWelcomeOv';
-    ov.innerHTML='<div class="knw-logo">経済NEWS</div>'
-      +'<div class="knw-sub">AIが毎朝の相場を分析してお届け。まずは登録して、すべての機能を無料で。</div>'
-      +'<button type="button" class="knw-btn knw-primary" onclick="knWelcomeSignup()">新規登録</button>'
+    ov.setAttribute('aria-label','経済NEWSへようこそ');
+    ov.innerHTML='<div class="knw-shell">'
+      +'<div class="knw-brand"><span class="knw-mark" aria-hidden="true">N·</span><span class="knw-logo">経済NEWS</span></div>'
+      +'<div class="knw-orbit" aria-hidden="true"><span class="knw-ring"></span><span class="knw-ring"></span><span class="knw-ring"></span><span class="knw-star">✦</span><span class="knw-orbit-label">PERSPECTIVE</span></div>'
+      +'<div class="knw-eyebrow">YOUR INVESTMENT PARTNER</div>'
+      +'<h1 class="knw-title">知るほどに、<br>未来は広がる。</h1>'
+      +'<p class="knw-sub">日々の経済を、確かな視点に。<br>自分らしい資産づくりをここから。</p>'
+      +'<div class="knw-actions">'
+      +'<button type="button" class="knw-btn knw-primary" onclick="knWelcomeSignup()">無料で新規登録<span aria-hidden="true">↗</span></button>'
       +'<button type="button" class="knw-btn knw-secondary" onclick="knWelcomeLogin()">ログイン</button>'
-      +'<button type="button" class="knw-skip" onclick="knWelcomeSkip()">スキップ・あとで登録</button>';
+      +'<button type="button" class="knw-skip" onclick="knWelcomeSkip()">まずは見てみる <span aria-hidden="true">→</span></button></div>'
+      +'<div class="knw-footer">NEWS / INSIGHT / SIMULATION</div></div>';
     document.body.appendChild(ov);
   }
   window.knWelcomeSignup=function(){ if(window.openAuth) window.openAuth('signup'); };
