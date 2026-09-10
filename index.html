@@ -3020,8 +3020,6 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     var fbEn = flag(window.KN_FACEBOOK_ENABLED);
     var html='';
     html+='<button class="kna-close" type="button" aria-label="閉じる" onclick="closeAuth()">×</button>';
-    html+='<div class="kna-eyebrow">ECONOMIC INSIGHT</div>';
-    html+='<div class="kna-logo">経済NEWS</div>';
     html+='<div class="kna-sub">'+(mode==='signup'?'アカウントを作成':'おかえりなさい')+'</div>';
     html+='<div class="kna-card"><div class="kna-msg" id="knaMsg"></div>';
     function lineBtn(){ return btnRow({cls:'kna-line',label:'LINEで'+verb,onclick:'knLineLogin()',enabled:true}); }
