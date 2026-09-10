@@ -21,7 +21,10 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   const button=document.getElementById('passkeyStart');
   const message=document.getElementById('passkeyMessage');
   const csrf=document.querySelector('meta[name="csrf-token"]').content;
-  let options=null,preparedAt=0,busy=false;
+  let options=null,preparedAt=0,busy=false,preparing=null;
+  // Leave time for the 60-second ceremony and verification within the server's
+  // five-minute challenge lifetime.
+  const maxOptionsAge=180000;
   const initialLabel=button.textContent;
   function say(text,error){message.textContent=text;message.className='kna-msg'+(error?' kna-err':'');}
   function decode(value){
@@ -62,18 +65,38 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
     if(!response.ok)throw new Error(result.error||'接続を確認して、もう一度お試しください。');
     return result;
   }
-  async function prepare(){
-    button.disabled=true;options=null;
-    try{options=browserOptions(await post('options',{}));preparedAt=Date.now();button.disabled=false;say('');}
-    catch(error){say(error.message,true);button.textContent='もう一度準備する';button.disabled=false;}
+  function prepare(keepMessage=false){
+    if(preparing)return preparing;
+    button.disabled=true;button.textContent='準備しています…';options=null;
+    preparing=(async()=>{
+      try{
+        options=browserOptions(await post('options',{}));preparedAt=Date.now();
+        if(!keepMessage)say('');
+        return true;
+      }catch(error){say(error.message,true);return false;}
+      finally{
+        preparing=null;
+        button.textContent=options?initialLabel:'もう一度試す';
+        button.disabled=busy;
+      }
+    })();
+    return preparing;
   }
   button.addEventListener('click',async()=>{
     if(busy)return;
-    if(!options||Date.now()-preparedAt>240000){button.textContent=initialLabel;say('準備しています…');await prepare();return;}
+    let leaving=false;
     busy=true;button.disabled=true;
     try{
-      // Start WebAuthn synchronously from the click to preserve Safari user activation.
+      if(!options||Date.now()-preparedAt>maxOptionsAge){
+        say('準備しています…');
+        // Continue this click after fetching instead of consuming a click only
+        // to prepare. WebKit supports user activation through a fetch response.
+        if(!await prepare())return;
+      }
+      // Usually options are already prepared, so native authentication starts
+      // synchronously from the click, including the first retry after cancel.
       const pending=signup?navigator.credentials.create({publicKey:options}):navigator.credentials.get({publicKey:options});
+      options=null;
       say('端末の案内に沿って操作してください。');
       const credential=await pending;
       if(!credential)throw new Error('認証を完了できませんでした。もう一度お試しください。');
@@ -82,9 +105,15 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       const destination=new URL(result.redirect_url);
       if(destination.origin!=='https://bvfndgjiahjqdlnyygnx.supabase.co'||destination.pathname!=='/auth/v1/callback')throw new Error('接続先を確認できませんでした。');
       location.assign(destination.href);
+      leaving=true;
     }catch(error){
       const text=error.name==='NotAllowedError'?'認証が完了しませんでした。もう一度お試しいただけます。':error.name==='InvalidStateError'?'このパスキーは登録済みです。ログインをお試しください。':error.name==='NotSupportedError'?'この環境ではパスキーを利用できません。SafariやChromeでお試しください。':error.message;
-      options=null;button.textContent='もう一度試す';button.disabled=false;say(text,true);busy=false;
+      options=null;say(text,true);
+      // Prepare the retry now; never replace a challenge while the native
+      // ceremony or verification is still in progress.
+      await prepare(true);
+    }finally{
+      if(!leaving){busy=false;button.disabled=false;}
     }
   });
   if(!window.PublicKeyCredential||!navigator.credentials){say('この環境ではパスキーを利用できません。SafariやChromeでお試しください。',true);return;}
