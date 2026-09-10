@@ -10,6 +10,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 const source = fs.readFileSync(path.join(__dirname, '../static/passkey-auth.js'), 'utf8');
+const SITE = 'https://investment-bot-ta24.onrender.com';
 const CALLBACK = 'https://bvfndgjiahjqdlnyygnx.supabase.co/auth/v1/callback?code=test-code&state=test-state';
 
 function deferred() {
@@ -66,6 +67,8 @@ function credential(mode) {
 
 function harness(mode = 'login') {
   let now = 1_000_000;
+  let nextTimer = 1;
+  const timers = new Map();
   const listeners = new Map();
   const requests = [], nativeCalls = [], redirects = [];
   const initialLabel = mode === 'signup' ? 'パスキーを作成して無料登録' : 'パスキーでログイン';
@@ -93,31 +96,68 @@ function harness(mode = 'login') {
     return pending.promise;
   }
   const context = {
-    document, Uint8Array, URL, console,
+    document, Uint8Array, URL, console, AbortController,
     Date: class extends Date { static now() { return now; } },
+    setTimeout(callback, delay, ...args) {
+      const id = nextTimer++;
+      timers.set(id, { at: now + delay, delay, callback: () => callback(...args) });
+      return id;
+    },
+    clearTimeout(id) { timers.delete(id); },
     localStorage: { getItem() { return null; } },
     PublicKeyCredential: function PublicKeyCredential() {},
     navigator: { credentials: { create: options => native('create', options), get: options => native('get', options) } },
-    location: { assign(url) { redirects.push(url); } },
+    location: { origin: SITE, href: SITE + '/auth/passkey/authorize', assign(url) { redirects.push(url); } },
     atob: value => Buffer.from(value, 'base64').toString('binary'),
     btoa: value => Buffer.from(value, 'binary').toString('base64'),
     fetch(url, init) {
       const pending = deferred();
-      requests.push({ url, init, ...pending });
+      const request = { url, init, ...pending, jsonPending: null, jsonReadStarted: false };
+      if (init.signal) {
+        const abort = () => {
+          const error = new Error('Test request aborted');
+          error.name = 'AbortError';
+          pending.reject(error);
+          if (request.jsonPending) request.jsonPending.reject(error);
+        };
+        if (init.signal.aborted) abort();
+        else init.signal.addEventListener('abort', abort, { once: true });
+      }
+      requests.push(request);
       return pending.promise;
     },
   };
   context.window = context;
   vm.runInNewContext(source, context, { filename: 'passkey-auth.js' });
   return {
-    mode, button, message, requests, nativeCalls, redirects, initialLabel,
+    mode, button, message, requests, nativeCalls, redirects, initialLabel, timers,
     advanceIdleHour() { now += 60 * 60 * 1000; },
+    expireNextTimer() {
+      assert.ok(timers.size > 0, 'Expected a pending request deadline');
+      const [id, timer] = [...timers].sort((left, right) => left[1].at - right[1].at)[0];
+      now = timer.at;
+      timers.delete(id);
+      timer.callback();
+    },
     // Direct dispatch also models an already-queued duplicate event. This makes
     // the busy guard observable independently of disabled-button DOM behavior.
     click() { return listeners.get('click')({ type: 'click' }); },
     respond(index, data, status = 200) {
       assert.ok(requests[index], 'Expected request ' + index);
-      requests[index].resolve({ ok: status >= 200 && status < 300, status, json: async () => data });
+      requests[index].resolve({ ok: status >= 200 && status < 300, status, json: async () => {
+        requests[index].jsonReadStarted = true;
+        return data;
+      } });
+    },
+    respondWithPendingJSON(index, status = 200) {
+      const request = requests[index];
+      assert.ok(request, 'Expected request ' + index);
+      request.jsonPending = deferred();
+      request.resolve({ ok: status >= 200 && status < 300, status, json: () => {
+        request.jsonReadStarted = true;
+        return request.jsonPending.promise;
+      } });
+      return request.jsonPending;
     },
     respondOptions(index) {
       assert.match(requests[index].url, /\/options$/);
@@ -128,6 +168,7 @@ function harness(mode = 'login') {
       this.respondOptions(0);
       await until(() => !button.disabled, 'initial options ready');
       assert.equal(button.textContent, initialLabel);
+      assert.equal(timers.size, 0, 'Preparation must release its deadline when ready');
     },
     async completeNative(index, callback = CALLBACK) {
       const before = requests.length;
@@ -321,5 +362,214 @@ for (const callback of [
     await click;
     assert.deepEqual(app.redirects, []);
     assert.equal(app.button.disabled, false);
+  });
+}
+
+async function assertRestartOnNextClick(app, {
+  destinationMode = app.mode, label, messagePattern = /開き直|期限|最初/,
+} = {}) {
+  assert.equal(app.button.disabled, false);
+  assert.equal(app.button.textContent, label || (destinationMode === 'signup' ? '登録画面を開き直す' : 'ログイン画面を開き直す'));
+  assert.match(app.message.textContent, messagePattern);
+  assert.equal(app.timers.size, 0, 'An expired flow must leave no preparation deadline running');
+  const requestCount = app.requests.length;
+  const nativeCount = app.nativeCalls.length;
+  await app.click();
+  assert.equal(app.redirects.length, 1);
+  const destination = new URL(app.redirects[0], SITE);
+  assert.equal(destination.origin, SITE);
+  assert.equal(destination.pathname, '/');
+  assert.equal(destination.searchParams.get('auth'), destinationMode);
+  assert.ok(destination.searchParams.get('v'), 'Recovery must request a fresh entry page');
+  assert.equal(app.requests.length, requestCount, 'Restart navigates instead of retrying the expired API flow');
+  assert.equal(app.nativeCalls.length, nativeCount, 'Restart must not open another native ceremony');
+  assert.equal(app.button.disabled, true, 'Keep the button disabled while the entry page opens');
+  await app.click();
+  assert.equal(app.redirects.length, 1, 'Queued duplicate clicks must not repeat the restart');
+}
+
+for (const mode of ['login', 'signup']) {
+  test(mode + ': initial options 403 offers a fresh entry flow instead of another POST', async () => {
+    const app = harness(mode);
+    app.respond(0, { error: '認証を完了できませんでした' }, 403);
+    await until(() => !app.button.disabled, 'initial expired-flow response settled');
+    assert.equal(app.requests.length, 1);
+    assert.equal(app.nativeCalls.length, 0);
+    await assertRestartOnNextClick(app);
+  });
+
+  test(mode + ': stale options returning 403 stop before native authentication', async () => {
+    const app = harness(mode);
+    await app.ready();
+    app.advanceIdleHour();
+    const click = app.click();
+    assert.equal(app.requests.length, 2);
+    app.respond(1, { error: '認証を完了できませんでした' }, 403);
+    await click;
+    assert.equal(app.nativeCalls.length, 0);
+    assert.equal(app.requests.length, 2);
+    await assertRestartOnNextClick(app);
+  });
+
+  test(mode + ': verification 403 skips futile preparation and opens a fresh entry flow', async () => {
+    const app = harness(mode);
+    await app.ready();
+    const click = app.click();
+    app.nativeCalls[0].resolve(credential(mode));
+    await until(() => app.requests.length === 2, 'verification request before 403');
+    app.respond(1, { error: '認証を完了できませんでした' }, 403);
+    await click;
+    assert.equal(app.requests.length, 2, 'Do not automatically prepare against an invalid flow');
+    assert.equal(app.requests.filter(request => request.url.endsWith('/options')).length, 1);
+    assert.equal(app.nativeCalls.length, 1);
+    await assertRestartOnNextClick(app);
+  });
+
+  test(mode + ': cancellation followed by options 403 preserves the fresh-flow recovery', async () => {
+    const app = harness(mode);
+    await app.ready();
+    const click = app.click();
+    const cancelled = new Error('test cancellation');
+    cancelled.name = 'NotAllowedError';
+    app.nativeCalls[0].reject(cancelled);
+    await until(() => app.requests.length === 2, 'post-cancellation options request');
+    app.respond(1, { error: '認証を完了できませんでした' }, 403);
+    await click;
+    assert.ok(app.requests.every(request => request.url.endsWith('/options')));
+    assert.equal(app.requests.length, 2);
+    await assertRestartOnNextClick(app);
+  });
+}
+
+test('a hung options fetch aborts and the next click opens a fresh flow without retrying its challenge', async () => {
+  const app = harness();
+  assert.equal(app.button.disabled, true);
+  assert.equal(app.timers.size, 1);
+  const deadline = [...app.timers.values()][0];
+  assert.ok(deadline.delay > 0 && deadline.delay <= 20_000, 'Preparation must have a bounded 20-second deadline');
+  assert.ok(app.requests[0].init.signal);
+  assert.equal(app.requests[0].init.signal.aborted, false);
+  app.expireNextTimer();
+  await until(() => !app.button.disabled, 'preparation deadline handled');
+  assert.equal(app.requests[0].init.signal.aborted, true);
+  assert.equal(app.timers.size, 0);
+  assert.equal(app.nativeCalls.length, 0);
+  assert.deepEqual(app.redirects, []);
+  assert.match(app.message.textContent, /時間|接続|応答/);
+  await assertRestartOnNextClick(app);
+  assert.equal(app.requests.length, 1, 'A late server response must be isolated by starting a new flow');
+});
+
+test('preparation deadline remains active until JSON finishes and is then cleared', async () => {
+  const app = harness();
+  const json = app.respondWithPendingJSON(0);
+  await until(() => app.requests[0].jsonReadStarted, 'response JSON reading started');
+  assert.equal(app.button.disabled, true);
+  assert.equal(app.timers.size, 1, 'Response headers alone must not clear the request deadline');
+  json.resolve(publicOptions('login', 0));
+  await until(() => !app.button.disabled, 'JSON parsing completed');
+  assert.equal(app.timers.size, 0);
+  assert.equal(app.requests[0].init.signal.aborted, false);
+  const click = app.click();
+  app.nativeCalls[0].resolve(credential('login'));
+  await until(() => app.requests.length === 2, 'verification begins');
+  assert.equal(app.timers.size, 0, 'The verification request has no preparation timeout');
+  assert.ok(app.requests[1].init.signal == null, 'Verification must not inherit the preparation AbortController');
+  app.respond(1, { redirect_url: CALLBACK });
+  await click;
+});
+
+test('a hung options JSON body times out and offers a fresh signup flow', async () => {
+  const app = harness('signup');
+  app.respondWithPendingJSON(0);
+  await until(() => app.requests[0].jsonReadStarted, 'stalled JSON reading started');
+  app.expireNextTimer();
+  await until(() => !app.button.disabled, 'JSON deadline handled');
+  assert.equal(app.timers.size, 0);
+  assert.equal(app.requests[0].init.signal.aborted, true);
+  assert.match(app.message.textContent, /時間|接続|応答/);
+  assert.equal(app.nativeCalls.length, 0);
+  await assertRestartOnNextClick(app);
+  assert.equal(app.requests.length, 1);
+});
+
+for (const outcome of ['network failure', 'HTTP 503', 'HTTP 200 without redirect']) {
+  test('signup: uncertain verification (' + outcome + ') recovers through login without registering again', async () => {
+    const app = harness('signup');
+    await app.ready();
+    const click = app.click();
+    app.nativeCalls[0].resolve(credential('signup'));
+    await until(() => app.requests.length === 2, 'signup verification request sent');
+    if (outcome === 'network failure') {
+      app.requests[1].reject(new Error('Simulated connection loss after request submission'));
+    } else if (outcome === 'HTTP 503') {
+      app.respond(1, { error: '一時的に確認できませんでした' }, 503);
+    } else {
+      app.respond(1, { verified: true });
+    }
+    await click;
+    assert.equal(app.requests.length, 2, 'An ambiguous committed registration must never auto-prepare or replay');
+    assert.equal(app.nativeCalls.length, 1);
+    assert.deepEqual(app.redirects, []);
+    await assertRestartOnNextClick(app, {
+      destinationMode: 'login', label: '保存したパスキーでログイン', messagePattern: /確認|結果/,
+    });
+  });
+}
+
+test('signup: definitive HTTP 400 still prepares for another registration attempt', async () => {
+  const app = harness('signup');
+  await app.ready();
+  const click = app.click();
+  app.nativeCalls[0].resolve(credential('signup'));
+  await until(() => app.requests.length === 2, 'signup verification request');
+  app.respond(1, { error: '署名を確認できませんでした' }, 400);
+  await until(() => app.requests.length === 3, 'fresh registration options after definitive rejection');
+  assert.equal(app.requests[2].url, '/auth/passkey/registration/options');
+  app.respondOptions(2);
+  await click;
+  assert.equal(app.button.textContent, app.initialLabel);
+  assert.equal(app.button.disabled, false);
+  assert.deepEqual(app.redirects, []);
+  const retry = app.click();
+  assert.equal(app.nativeCalls.length, 2);
+  assert.equal(app.nativeCalls[1].method, 'create');
+  await app.completeNative(1);
+  await retry;
+  assert.deepEqual(app.redirects, [CALLBACK]);
+});
+
+test('signup: a serialization failure before verification does not suggest an account was created', async () => {
+  const app = harness('signup');
+  await app.ready();
+  const click = app.click();
+  const invalid = credential('signup');
+  invalid.getClientExtensionResults = () => { throw new Error('Test serialization failure'); };
+  app.nativeCalls[0].resolve(invalid);
+  await until(() => app.requests.length === 2, 'preparation after local serialization failure');
+  assert.ok(app.requests.every(request => request.url.endsWith('/registration/options')));
+  app.respondOptions(1);
+  await click;
+  assert.equal(app.button.disabled, false);
+  assert.equal(app.button.textContent, app.initialLabel);
+  assert.deepEqual(app.redirects, []);
+});
+
+for (const outcome of ['network failure', 'HTTP 503']) {
+  test('login: verification ' + outcome + ' keeps the existing authentication retry behavior', async () => {
+    const app = harness('login');
+    await app.ready();
+    const click = app.click();
+    app.nativeCalls[0].resolve(credential('login'));
+    await until(() => app.requests.length === 2, 'login verification request');
+    if (outcome === 'network failure') app.requests[1].reject(new Error('Simulated connection loss'));
+    else app.respond(1, { error: '一時的に確認できませんでした' }, 503);
+    await until(() => app.requests.length === 3, 'fresh authentication options after login failure');
+    assert.equal(app.requests[2].url, '/auth/passkey/authentication/options');
+    app.respondOptions(2);
+    await click;
+    assert.equal(app.button.disabled, false);
+    assert.equal(app.button.textContent, app.initialLabel);
+    assert.deepEqual(app.redirects, []);
   });
 }
