@@ -517,7 +517,7 @@ root.drawOuterOrbit=draw;draw(3000);
  content:"";position:absolute;inset:-12%;z-index:4;pointer-events:none;
  background:radial-gradient(ellipse at 76% 17%,color-mix(in srgb,var(--mm-cool) 82%,white) 0%,color-mix(in srgb,var(--mm-cool) 65%,transparent) 24%,transparent 67%);
  opacity:0;transform-origin:76% 17%;
- animation:kn-welcome-light-arrival 1.6s cubic-bezier(.22,.61,.36,1) both;
+ animation:kn-welcome-light-arrival 1.6s cubic-bezier(.4,0,.2,1) both;
 }
 #news-mint-welcome.entry-arriving .screen>header,
 #news-mint-welcome.entry-arriving .screen>.welcome-art,
@@ -531,8 +531,7 @@ root.drawOuterOrbit=draw;draw(3000);
 #knWelcomeOv #news-mint-welcome.entry-arriving .screen::after{content:none;display:none;animation:none}
 @keyframes kn-welcome-light-arrival{
  0%{opacity:0;transform:translate(8%,-6%) scale(.84)}
- 32%{opacity:.85}
- 60%{opacity:.38}
+ 32%{opacity:.65}
  100%{opacity:0;transform:translate(-6%,7%) scale(1.35)}
 }
 @keyframes kn-welcome-content-arrival{
