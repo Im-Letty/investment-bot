@@ -558,6 +558,8 @@ root.drawOuterOrbit=draw;draw(3000);
 #spl #news-pastel-palettes .brand{top:calc(50% + 60px)}
 #knWelcomeOv{position:fixed;inset:0;z-index:155000;display:none;overflow-y:auto;overscroll-behavior:contain;background:var(--entry-surface,linear-gradient(155deg,#e5f7eb,#a2d6bf 53%,#d4efdf));text-align:left;color-scheme:light}
 #knWelcomeOv.open{display:flex}
+#knEntryExitShield{position:fixed;inset:0;z-index:160010;background:transparent;pointer-events:auto;touch-action:none}
+#knWelcomeOv.kn-entry-leaving,#knAuthOv.kn-entry-leaving{will-change:opacity}
 #knWelcomeOv #news-mint-welcome{width:100%;margin:auto}
 #knWelcomeOv #news-mint-welcome .gallery{display:block;max-width:430px;margin:auto}
 #knWelcomeOv #news-mint-welcome .screen{background:transparent;border-radius:0;height:auto;min-height:680px;padding-top:max(30px,env(safe-area-inset-top));padding-bottom:max(24px,env(safe-area-inset-bottom))}
@@ -3059,8 +3061,8 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(typeof window.__faWire==='function'){ try{ window.__faWire(); }catch(e){} }
   }
   window.knaMode='login';
-  window.openAuth=function(mode){ window.knaMode=(mode==='signup')?'signup':'login'; mount(); var o=document.getElementById('knAuthOv'); if(o)o.classList.add('open'); };
-  window.closeAuth=function(){ var o=document.getElementById('knAuthOv'); if(o)o.classList.remove('open'); };
+  window.openAuth=function(mode){ if(window.knEntryExitInProgress)return; window.knaMode=(mode==='signup')?'signup':'login'; mount(); var o=document.getElementById('knAuthOv'); if(o)o.classList.add('open'); };
+  window.closeAuth=function(){ if(window.knEntryExitInProgress)return; var o=document.getElementById('knAuthOv'); if(o)o.classList.remove('open'); };
   window.knaToggleFn=function(){ window.knaMode=(window.knaMode==='login')?'signup':'login'; mount(); };
   function knaMsg(txt,isErr){ var m=document.getElementById('knaMsg'); if(m){ m.className='kna-msg '+(isErr?'kna-err':'kna-ok'); m.textContent=txt; } }
   window.knaOAuth=function(provider){
@@ -3090,7 +3092,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(!tok){ knaMsg('確認コードを入力してください',true); return; }
     window.sb.auth.verifyOtp({ email:em, token:tok, type:'email' }).then(function(r){
       if(r&&r.error){ knaMsg(r.error.message,true); }
-      else{ knaMsg('ログインしました',false); setTimeout(closeAuth,700); }
+      else{ knaMsg('ログインしました',false); if(window.knEnterHome)window.knEnterHome();else closeAuth(); }
     });
   };
   window.knaSoon=function(){ knaMsg('この方法は準備中です',true); };
@@ -3140,7 +3142,12 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     if(res && res.verified){
       alert("Face IDでログインしました");
       localStorage.setItem('faceIdVerifiedAt', String(Date.now()));
-      location.reload();
+      var authEntry=document.getElementById('knAuthOv');
+      if(authEntry&&authEntry.classList.contains('open')&&window.knEnterHome){
+        if(localStorage.getItem('appLockEnabled')==='1')sessionStorage.setItem('appUnlocked','1');
+        if(window.__appUnlock)window.__appUnlock();
+        await window.knEnterHome();
+      }else{location.reload();}
     } else {
       alert("認証に失敗しました"); if(window.__faPrefetchLogin) window.__faPrefetchLogin();
     }
@@ -3336,15 +3343,53 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
   window.knPrepareWelcome=function(){if(!seen()&&!window.knUser)build();};
   window.knWelcomeSignup=function(){ if(window.openAuth) window.openAuth('signup'); };
   window.knWelcomeLogin=function(){ if(window.openAuth) window.openAuth('login'); };
-  window.knWelcomeSkip=function(){ setSeen(); var o=document.getElementById('knWelcomeOv'); if(o){o.classList.remove('open');document.getElementById('news-mint-welcome')?.pauseOrbit?.();} };
-  window.knHideWelcome=function(){ var o=document.getElementById('knWelcomeOv'); if(o){o.classList.remove('open');document.getElementById('news-mint-welcome')?.pauseOrbit?.();} };
+  // Keep both entry layers visible until the home underneath is ready to reveal.
+  var homeExitPromise=null;
+  window.knEnterHome=function(){
+    if(homeExitPromise)return homeExitPromise;
+    setSeen();
+    var layers=['knWelcomeOv','knAuthOv'].map(function(id){return document.getElementById(id);}).filter(function(el){return el&&el.classList.contains('open');});
+    if(!layers.length){window.knNavScreenSync?.();return Promise.resolve();}
+    var resolveExit;
+    homeExitPromise=new Promise(function(resolve){resolveExit=resolve;});
+    var result=homeExitPromise;
+    var duration=matchMedia('(prefers-reduced-motion: reduce)').matches?0:700;
+    var animations=[],finished=false,timer;
+    var shield=document.createElement('div');shield.id='knEntryExitShield';shield.setAttribute('aria-hidden','true');
+    document.body.appendChild(shield);
+    window.knEntryExitInProgress=true;
+    layers.forEach(function(el){el.classList.add('kn-entry-leaving');el.inert=true;});
+    function holdKeys(event){event.preventDefault();event.stopImmediatePropagation();}
+    document.addEventListener('keydown',holdKeys,true);
+    window.knHeroAuthSync?.();
+    window.knNavScreenSync?.();
+    function finish(){
+      if(finished)return;finished=true;clearTimeout(timer);
+      layers.forEach(function(el){el.classList.remove('open','kn-entry-leaving');el.inert=false;});
+      animations.forEach(function(animation){animation.cancel();});
+      document.getElementById('news-mint-welcome')?.pauseOrbit?.();
+      shield.remove();document.removeEventListener('keydown',holdKeys,true);
+      window.knEntryExitInProgress=false;homeExitPromise=null;
+      window.knNavScreenSync?.();
+      resolveExit();
+    }
+    if(!duration){finish();return result;}
+    try{
+      animations=layers.map(function(el){return el.animate([{opacity:1},{opacity:0}],{duration:duration,easing:'cubic-bezier(.4,0,.2,1)',fill:'forwards'});});
+      Promise.allSettled(animations.map(function(animation){return animation.finished;})).then(finish);
+      timer=setTimeout(finish,duration+120);
+    }catch(error){finish();}
+    return result;
+  };
+  window.knWelcomeSkip=function(){return window.knEnterHome();};
+  window.knHideWelcome=function(){return window.knEnterHome();};
   function maybeShow(){
     if(seen()) return;
     if(window.knUser) return;
     build();
     var o=document.getElementById('knWelcomeOv'); if(o){o.classList.add('open');const welcome=document.getElementById('news-mint-welcome');welcome?.resumeOrbit?.();welcome?.classList.add('entry-arriving');}
   }
-  document.addEventListener('knAuthChange',function(){ if(window.knUser){ setSeen(); window.knHideWelcome&&window.knHideWelcome(); if(window.closeAuth)window.closeAuth(); } });
+  document.addEventListener('knAuthChange',function(){if(window.knUser)window.knEnterHome();});
   function start(){document.addEventListener('knIntroComplete',maybeShow,{once:true});if(window.knIntroComplete)maybeShow();}
   if(document.readyState!=='loading') start(); else document.addEventListener('DOMContentLoaded', start);
   window.knRequireAuth=function(){
@@ -3378,7 +3423,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
       var splashUp = spl && !spl.classList.contains('done') && getComputedStyle(spl).display!=='none';
       if(splashUp) return false;
       var wel=document.getElementById('knWelcomeOv');
-      if(wel && wel.classList.contains('open')) return false;
+      if(wel && wel.classList.contains('open') && !wel.classList.contains('kn-entry-leaving')) return false;
       return true;
     }catch(e){ return true; }
   }
