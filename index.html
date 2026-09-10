@@ -511,7 +511,44 @@ root.drawOuterOrbit=draw;draw(3000);
 
 </script>
 </div>
-<style>/* Approved mint glass entry. Intro motion remains 3000ms; exit is 700ms. */
+<style>/* A single wash of theme-colored light bridges the two entry screens. */
+#knWelcomeOv.open::after,
+#news-mint-welcome.entry-arriving .screen::after{
+ content:"";position:absolute;inset:-12%;z-index:4;pointer-events:none;
+ background:radial-gradient(ellipse at 76% 17%,color-mix(in srgb,var(--mm-cool) 82%,white) 0%,color-mix(in srgb,var(--mm-cool) 65%,transparent) 24%,transparent 67%);
+ opacity:0;transform-origin:76% 17%;
+ animation:kn-welcome-light-arrival 1.6s cubic-bezier(.22,.61,.36,1) both;
+}
+#news-mint-welcome.entry-arriving .screen>header,
+#news-mint-welcome.entry-arriving .screen>.hero,
+#news-mint-welcome.entry-arriving .screen>.welcome-copy,
+#news-mint-welcome.entry-arriving .screen>.actions{
+ animation:kn-welcome-content-arrival 1.15s cubic-bezier(.22,.61,.36,1) both;
+}
+#news-mint-welcome.entry-arriving .screen>.welcome-copy{animation-delay:.08s}
+#news-mint-welcome.entry-arriving .screen>.actions{animation-delay:.16s}
+#knWelcomeOv.open::after{position:fixed}
+#knWelcomeOv #news-mint-welcome.entry-arriving .screen::after{content:none;display:none;animation:none}
+@keyframes kn-welcome-light-arrival{
+ 0%{opacity:0;transform:translate(8%,-6%) scale(.84)}
+ 32%{opacity:.85}
+ 60%{opacity:.38}
+ 100%{opacity:0;transform:translate(-6%,7%) scale(1.35)}
+}
+@keyframes kn-welcome-content-arrival{
+ from{opacity:.25;filter:blur(2px)}
+ to{opacity:1;filter:blur(0)}
+}
+@media(prefers-reduced-motion:reduce){
+ #knWelcomeOv.open::after,
+ #news-mint-welcome.entry-arriving .screen::after{display:none;animation:none}
+ #news-mint-welcome.entry-arriving .screen>header,
+ #news-mint-welcome.entry-arriving .screen>.hero,
+ #news-mint-welcome.entry-arriving .screen>.welcome-copy,
+ #news-mint-welcome.entry-arriving .screen>.actions{animation:none}
+}
+
+/* Approved mint glass entry. Intro motion remains 3000ms; exit is 700ms. */
 #spl{position:fixed;inset:0;z-index:156000;overflow:hidden;background:var(--entry-surface,linear-gradient(155deg,#e5f7eb,#a2d6bf 53%,#d4efdf));opacity:1;transition:opacity .7s cubic-bezier(.4,0,.2,1);color-scheme:light}
 #spl.leaving{opacity:0;pointer-events:none}
 #spl.done{display:none}
@@ -3274,7 +3311,7 @@ requestAnimationFrame(draw);
     if(seen()) return;
     if(window.knUser) return;
     build();
-    var o=document.getElementById('knWelcomeOv'); if(o){o.classList.add('open');document.getElementById('news-mint-welcome')?.resumeOrbit?.();}
+    var o=document.getElementById('knWelcomeOv'); if(o){o.classList.add('open');const welcome=document.getElementById('news-mint-welcome');welcome?.resumeOrbit?.();welcome?.classList.add('entry-arriving');}
   }
   document.addEventListener('knAuthChange',function(){ if(window.knUser){ setSeen(); window.knHideWelcome&&window.knHideWelcome(); if(window.closeAuth)window.closeAuth(); } });
   function start(){document.addEventListener('knIntroComplete',maybeShow,{once:true});if(window.knIntroComplete)maybeShow();}
