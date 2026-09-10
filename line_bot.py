@@ -57,6 +57,12 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+from passkey_auth import create_passkey_blueprint
+from passkey_provision import ensure_passkey_provider
+app.register_blueprint(create_passkey_blueprint(supabase))
+ensure_passkey_provider(supabase, SUPABASE_URL, SUPABASE_KEY)
+
+
 WATCHLIST = [
     "7203.T",  # トヨタ
     "6758.T",  # ソニー

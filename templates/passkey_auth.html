@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="csrf-token" content="{{ csrf_token }}"><title>パスキー | 経済NEWS</title><link rel="stylesheet" href="/static/passkey-auth.css"><script src="/static/passkey-auth.js" defer></script></head>
+<body data-mode="{{ mode }}"><main id="knAuthOv" class="open"><section class="kna-box" aria-labelledby="knaTitle">
+<div class="kna-ornaments" aria-hidden="true"><svg class="arch-vines" viewBox="0 0 400 132" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+    <g class="arch-vine-left" transform="translate(70 40) scale(.99) translate(-70 -40)">
+      <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M25 72C43 42 79 20 118 12" stroke-width="2.1"/>
+        <path d="M40 53C22 37 36 20 50 26C65 33 54 49 44 42C38 38 43 31 48 34"/>
+        <path d="M59 36C54 11 77 7 84 17C91 27 77 35 72 26C70 22 74 19 78 22"/>
+        <path d="M81 24C92 38 112 36 114 24C116 12 99 8 96 18C94 24 102 27 104 21"/>
+        <path d="M33 62C47 65 55 54 48 49M112 14C126 3 139 10 134 20C130 28 120 21 125 18"/>
+        <path d="M48 46C65 47 70 57 63 64C53 62 51 55 48 46ZM89 21C96 5 109 2 119 5C113 15 104 20 89 21Z"/>
+      </g>
+      <g fill="currentColor"><path d="M35 60C36 39 46 40 52 33C50 46 43 52 35 60ZM69 31C77 31 83 39 82 47C78 41 74 36 69 31Z"/></g>
+    </g>
+    <g class="arch-vine-right" transform="translate(400 0) scale(-1 1) translate(70 40) scale(.99) translate(-70 -40)">
+      <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M25 72C43 42 79 20 118 12" stroke-width="2.1"/>
+        <path d="M40 53C22 37 36 20 50 26C65 33 54 49 44 42C38 38 43 31 48 34"/>
+        <path d="M59 36C54 11 77 7 84 17C91 27 77 35 72 26C70 22 74 19 78 22"/>
+        <path d="M81 24C92 38 112 36 114 24C116 12 99 8 96 18C94 24 102 27 104 21"/>
+        <path d="M33 62C47 65 55 54 48 49M112 14C126 3 139 10 134 20C130 28 120 21 125 18"/>
+        <path d="M48 46C65 47 70 57 63 64C53 62 51 55 48 46ZM89 21C96 5 109 2 119 5C113 15 104 20 89 21Z"/>
+      </g>
+      <g fill="currentColor"><path d="M35 60C36 39 46 40 52 33C50 46 43 52 35 60ZM69 31C77 31 83 39 82 47C78 41 74 36 69 31Z"/></g>
+    </g>
+  </svg><svg class="botanical-corner corner-lower-left" viewBox="0 0 190 190" aria-hidden="true" focusable="false">
+    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 178C41 142 12 96 42 59C76 18 135 42 178 17" stroke-width="2.1"/>
+      <path d="M25 130C49 104 22 79 39 55C55 32 85 40 86 59C87 79 60 82 54 68C48 55 65 45 71 56C75 63 65 69 62 62"/>
+      <path d="M39 66C66 53 69 23 95 20C116 18 121 41 107 47C94 53 88 37 96 33C102 29 110 36 104 39"/>
+      <path d="M68 48C99 48 107 76 128 66C146 57 128 40 118 48C112 53 116 62 123 58"/>
+      <path d="M102 31C121 10 142 10 145 28C148 44 124 46 127 32C129 25 137 26 137 31"/>
+      <path d="M138 31C163 52 183 39 176 25C170 14 154 22 158 31C161 36 168 34 167 30"/>
+      <path d="M51 51C24 35 34 14 52 17C69 21 60 41 48 35C42 32 46 24 51 27"/>
+      <path d="M28 86C4 81 8 56 24 60C38 64 32 80 23 75C19 72 20 67 24 67"/>
+      <path d="M27 103C53 84 72 103 61 118C51 130 34 119 42 109C46 103 55 108 50 112"/>
+      <path d="M27 135C4 128 1 104 16 101C30 98 36 117 24 120C18 121 13 114 19 111"/>
+      <path d="M25 148C48 133 63 147 52 162C40 178 25 165 35 157C40 153 46 158 42 161"/>
+      <path d="M21 164C1 163 5 185 21 180C29 177 26 169 21 172"/>
+      <path d="M41 62C11 47 5 31 18 27C30 23 35 37 25 41C19 44 16 35 21 34"/>
+      <path d="M72 36C69 8 86 1 90 13C92 20 84 23 82 18M117 30C119 50 145 64 152 52"/>
+      <path d="M38 76C46 84 57 82 60 74M30 117C38 132 53 136 62 130M83 41C98 52 100 67 93 73"/>
+    </g>
+    <g fill="currentColor">
+      <path d="M30 135C46 124 46 110 38 101C43 117 36 121 30 135ZM28 100C44 91 51 86 57 68C57 89 46 96 28 100Z"/>
+      <path d="M42 62C62 45 62 30 72 21C67 42 67 49 42 62ZM72 42C86 48 92 64 86 76C88 62 80 52 72 42Z"/>
+      <path d="M105 31C126 31 136 23 140 11C143 25 132 36 105 31ZM140 31C149 37 154 48 152 57C147 45 143 40 140 31Z"/>
+      <path d="M25 151C14 142 10 132 13 127C13 139 22 142 25 151ZM39 71C27 63 25 49 30 43C29 59 36 60 39 71Z"/>
+      <circle cx="59" cy="135" r="2.3"/><circle cx="98" cy="77" r="2"/><circle cx="159" cy="15" r="2.2"/>
+    </g>
+  </svg><svg class="botanical-corner corner-lower-right" viewBox="0 0 190 190" aria-hidden="true" focusable="false">
+    <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 178C41 142 12 96 42 59C76 18 135 42 178 17" stroke-width="2.1"/>
+      <path d="M25 130C49 104 22 79 39 55C55 32 85 40 86 59C87 79 60 82 54 68C48 55 65 45 71 56C75 63 65 69 62 62"/>
+      <path d="M39 66C66 53 69 23 95 20C116 18 121 41 107 47C94 53 88 37 96 33C102 29 110 36 104 39"/>
+      <path d="M68 48C99 48 107 76 128 66C146 57 128 40 118 48C112 53 116 62 123 58"/>
+      <path d="M102 31C121 10 142 10 145 28C148 44 124 46 127 32C129 25 137 26 137 31"/>
+      <path d="M138 31C163 52 183 39 176 25C170 14 154 22 158 31C161 36 168 34 167 30"/>
+      <path d="M51 51C24 35 34 14 52 17C69 21 60 41 48 35C42 32 46 24 51 27"/>
+      <path d="M28 86C4 81 8 56 24 60C38 64 32 80 23 75C19 72 20 67 24 67"/>
+      <path d="M27 103C53 84 72 103 61 118C51 130 34 119 42 109C46 103 55 108 50 112"/>
+      <path d="M27 135C4 128 1 104 16 101C30 98 36 117 24 120C18 121 13 114 19 111"/>
+      <path d="M25 148C48 133 63 147 52 162C40 178 25 165 35 157C40 153 46 158 42 161"/>
+      <path d="M21 164C1 163 5 185 21 180C29 177 26 169 21 172"/>
+      <path d="M41 62C11 47 5 31 18 27C30 23 35 37 25 41C19 44 16 35 21 34"/>
+      <path d="M72 36C69 8 86 1 90 13C92 20 84 23 82 18M117 30C119 50 145 64 152 52"/>
+      <path d="M38 76C46 84 57 82 60 74M30 117C38 132 53 136 62 130M83 41C98 52 100 67 93 73"/>
+    </g>
+    <g fill="currentColor">
+      <path d="M30 135C46 124 46 110 38 101C43 117 36 121 30 135ZM28 100C44 91 51 86 57 68C57 89 46 96 28 100Z"/>
+      <path d="M42 62C62 45 62 30 72 21C67 42 67 49 42 62ZM72 42C86 48 92 64 86 76C88 62 80 52 72 42Z"/>
+      <path d="M105 31C126 31 136 23 140 11C143 25 132 36 105 31ZM140 31C149 37 154 48 152 57C147 45 143 40 140 31Z"/>
+      <path d="M25 151C14 142 10 132 13 127C13 139 22 142 25 151ZM39 71C27 63 25 49 30 43C29 59 36 60 39 71Z"/>
+      <circle cx="59" cy="135" r="2.3"/><circle cx="98" cy="77" r="2"/><circle cx="159" cy="15" r="2.2"/>
+    </g>
+  </svg></div>
+<a class="kna-close" href="/?auth={{ mode }}" aria-label="登録方法の選択に戻る"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></a>
+<header class="kna-header"><h1 class="kna-sub" id="knaTitle">{% if mode == 'signup' %}アカウントを作成{% else %}おかえりなさい{% endif %}</h1><p class="kna-intro">{% if mode == 'signup' %}顔認証・指紋認証などで、はじめましょう。{% else %}保存したパスキーでログインできます。{% endif %}</p></header>
+<div class="kna-card"><p class="kna-msg" id="passkeyMessage" role="status" aria-live="polite">準備しています…</p><button type="button" class="kna-btn kna-pk" id="passkeyStart" disabled>{% if mode == 'signup' %}パスキーを作成して無料登録{% else %}パスキーでログイン{% endif %}</button><p class="kna-privacy">顔や指紋の情報を、こちらでお預かりすることはありません。</p><details class="kna-help"><summary>パスキーの保存について</summary><p>パスキーは、お使いの端末やパスワード管理アプリに保存されます。端末を替えるときは、同期・引き継ぎをご確認ください。</p></details></div>
+<footer class="kna-footer"><a class="kna-switch" href="/?auth={% if mode == 'signup' %}login{% else %}signup{% endif %}">{% if mode == 'signup' %}登録済みの方はログイン{% else %}初めての方は新規登録{% endif %}</a></footer>
+</section></main></body></html>
