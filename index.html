@@ -3032,7 +3032,7 @@ if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",
     else if(!line) html+=pkBtn();
     html+='<p class="kna-privacy">顔や指紋の情報を、こちらでお預かりすることはありません。</p>';
     html+='<details class="kna-alternatives" open><summary>LINE・Google・メールで'+verb+'</summary><div class="kna-alternative-body">';
-    html+='<p class="kna-alternative-copy">'+(mode==='signup'?'LINE・Googleで、新しくアカウントを作成できます。':'登録したときと同じ方法を選んでください。')+'</p>';
+    if(mode==='login') html+='<p class="kna-alternative-copy">登録したときと同じ方法を選んでください。</p>';
     html+=lineBtn();
     html+=googleBtn();
     html+=mailBtn();
