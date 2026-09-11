@@ -11,7 +11,14 @@ const html = fs.readFileSync(path.join(__dirname, '../index.html'), 'utf8');
 const start = html.indexOf('var passkeyEntryBusy=false;');
 const end = html.indexOf("fetch('/auth/passkey/status'", start);
 assert.ok(start >= 0 && end > start, 'Expected the shipped main entry handler');
-const source = html.slice(start, end);
+const renderStart = html.indexOf('  function render(){');
+const renderEnd = html.indexOf('  function mount(){', renderStart);
+const controlsStart = html.indexOf('  window.openAuth=function(mode)', end);
+const controlsEnd = html.indexOf('  var requestedAuth=', controlsStart);
+const homeListener = html.split('\n').find(line => line.includes("document.addEventListener('knAuthChange'") && line.includes('knHoldSignupNotice'));
+assert.ok(renderStart >= 0 && renderEnd > renderStart && controlsEnd > controlsStart && homeListener);
+const source = html.slice(renderStart, renderEnd) + html.slice(start, end) + html.slice(controlsStart, controlsEnd) + homeListener;
+const foundCopy = '登録済みのアカウントが見つかりました。<br>元のアカウントでログインしてください。';
 
 function deferred() {
   let resolve, reject;
@@ -28,11 +35,24 @@ async function until(predicate) {
 }
 
 function harness({ mode = 'signup', user = null, enabled = true } = {}) {
-  const primary = { disabled: false };
-  const checks = [], oauth = [], messages = [], entries = [];
+  let primary = { disabled: false }, markup = '';
+  const checks = [], oauth = [], messages = [], entries = [], listeners = {};
+  const classes = new Set(['open']);
+  const overlay = { classList: { contains: name => classes.has(name), add: name => classes.add(name), remove: name => classes.delete(name) } };
+  function mount() {
+    markup = context.render();
+    primary = { disabled: context.passkeyEntryBusy || !context.KN_PASSKEY_ENABLED };
+  }
   const context = {
     KN_PASSKEY_ENABLED: enabled, knaMode: mode, knUser: user,
-    document: { querySelector(selector) { assert.equal(selector, '#knAuthOv .kna-pk'); return primary; } },
+    isLineInApp() { return false; }, flag(value) { return !!value; },
+    btnRow(options) { return '<button class="' + options.cls + '">' + options.label + '</button>'; },
+    mount,
+    document: {
+      querySelector(selector) { assert.equal(selector, '#knAuthOv .kna-pk'); return primary; },
+      getElementById(id) { assert.equal(id, 'knAuthOv'); return overlay; },
+      addEventListener(type, listener) { (listeners[type] ||= []).push(listener); },
+    },
     knaMsg(message, error) { messages.push({ message, error }); },
     async knEnterHome() { entries.push(context.knUser && context.knUser.id); },
     sb: { auth: {
@@ -42,7 +62,11 @@ function harness({ mode = 'signup', user = null, enabled = true } = {}) {
   };
   context.window = context;
   vm.runInNewContext(source, context, { filename: 'index-passkey-entry.js' });
-  return { context, primary, checks, oauth, messages, entries, click: () => context.knaPasskey() };
+  mount();
+  return { context, get primary() { return primary; }, get markup() { return markup; }, checks, oauth, messages, entries,
+    click: () => context.knaPasskey(), mount,
+    authChange() { for (const listener of listeners.knAuthChange || []) listener(); },
+  };
 }
 
 function assertOAuth(app, mode) {
@@ -68,10 +92,11 @@ for (const mode of ['signup', 'login']) {
     assert.equal(app.oauth.length, 1, 'Do not repeat OAuth while leaving');
     assert.equal(app.primary.disabled, true);
     assert.deepEqual(app.entries, []);
+    assert.ok(!app.markup.includes(foundCopy));
   });
 }
 
-test('signup preserves the current account only after getUser validates the same identity', async () => {
+test('signup shows the notice only after getUser proof, then waits for deliberate login with the same account', async () => {
   const app = harness({ user: { id: 'account-a' } });
   const click = app.click();
   await app.click();
@@ -79,25 +104,44 @@ test('signup preserves the current account only after getUser validates the same
   assert.equal(app.oauth.length, 0);
   assert.deepEqual(app.entries, []);
   assert.equal(app.primary.disabled, true);
+  assert.ok(!app.markup.includes(foundCopy));
+  app.authChange(); // Session refresh during getUser must not dismiss signup.
+  assert.deepEqual(app.entries, []);
   app.checks[0].resolve({ data: { user: { id: 'account-a' } }, error: null });
   await click;
-  assert.deepEqual(app.entries, ['account-a']);
+  assert.deepEqual(app.entries, []);
+  assert.ok(app.markup.includes(foundCopy));
+  assert.ok(app.markup.includes('元のアカウントでログイン</button>'));
+  assert.ok(!app.markup.includes('<details class="kna-alternatives"'));
   assert.equal(app.oauth.length, 0);
   assert.equal(app.context.knUser.id, 'account-a');
   assert.equal(app.primary.disabled, false);
+  app.mount(); // The late status fetch may remount the dialog.
+  app.authChange();
+  assert.ok(app.markup.includes(foundCopy));
+  assert.deepEqual(app.entries, []);
+  const login = app.click();
+  assert.equal(app.checks.length, 2);
+  assert.deepEqual(app.entries, []);
+  app.checks[1].resolve({ data: { user: { id: 'account-a' } }, error: null });
+  await login;
+  assert.deepEqual(app.entries, ['account-a']);
+  assert.equal(app.oauth.length, 0);
 });
 
-for (const change of ['invalid session', 'signed out', 'different account']) {
+for (const change of ['invalid session', 'signed out', 'different account', 'anonymous session', 'replaced response']) {
   test('signup never enters a stale account after ' + change + ' during getUser', async () => {
     const app = harness({ user: { id: 'account-a' } });
     const click = app.click();
     if (change === 'signed out') app.context.knUser = null;
     if (change === 'different account') app.context.knUser = { id: 'account-b' };
+    if (change === 'replaced response') app.context.knUser = { id: 'account-b' };
     app.checks[0].resolve(change === 'invalid session'
       ? { data: { user: null }, error: { message: 'Expired session' } }
-      : { data: { user: { id: 'account-a' } }, error: null });
+      : { data: { user: { id: change === 'replaced response' ? 'account-b' : 'account-a', is_anonymous: change === 'anonymous session' } }, error: null });
     await until(() => app.oauth.length === 1);
     assert.deepEqual(app.entries, []);
+    assert.ok(!app.markup.includes(foundCopy));
     assertOAuth(app, 'signup');
     if (change === 'signed out') assert.equal(app.context.knUser, null);
     if (change === 'different account') assert.equal(app.context.knUser.id, 'account-b');
@@ -120,7 +164,8 @@ test('a rejected session check preserves the account and permits a deliberate re
   assert.equal(app.checks.length, 2);
   app.checks[1].resolve({ data: { user: { id: 'account-a' } }, error: null });
   await retry;
-  assert.deepEqual(app.entries, ['account-a']);
+  assert.deepEqual(app.entries, []);
+  assert.ok(app.markup.includes(foundCopy));
 });
 
 for (const outcome of ['error response', 'network rejection']) {
@@ -148,5 +193,55 @@ test('disabled backend does not validate a session or initiate OAuth', async () 
   assert.equal(app.checks.length, 0);
   assert.equal(app.oauth.length, 0);
   assert.deepEqual(app.entries, []);
-  assert.equal(app.primary.disabled, false);
+  assert.equal(app.primary.disabled, true);
 });
+
+for (const action of ['close', 'close and reopen', 'toggle']) {
+  test('a pending signup check cannot change the dialog after ' + action, async () => {
+    const app = harness({ user: { id: 'account-a' } });
+    const click = app.click();
+    if (action === 'toggle') app.context.knaToggleFn();
+    else app.context.closeAuth();
+    if (action === 'close and reopen') app.context.openAuth('signup');
+    app.checks[0].resolve({ data: { user: { id: 'account-a' } }, error: null });
+    await click;
+    assert.ok(!app.markup.includes(foundCopy));
+    assert.equal(app.oauth.length, 0);
+    assert.deepEqual(app.entries, []);
+    assert.equal(app.context.passkeyEntryBusy, false);
+  });
+}
+
+for (const change of ['signed out', 'different account', 'anonymous session']) {
+  test('a confirmed notice is removed on auth change: ' + change, async () => {
+    const app = harness({ user: { id: 'account-a' } });
+    const first = app.click();
+    app.checks[0].resolve({ data: { user: { id: 'account-a' } }, error: null });
+    await first;
+    app.context.knUser = change === 'signed out' ? null : { id: change === 'different account' ? 'account-b' : 'account-a', is_anonymous: change === 'anonymous session' };
+    app.authChange();
+    assert.ok(!app.markup.includes(foundCopy));
+    assert.equal(app.context.passkeyConfirmedUserId, null);
+  });
+}
+
+for (const outcome of ['expired', 'anonymous', 'changed identity', 'network error']) {
+  test('confirmed login recheck cannot enter home or start OAuth on ' + outcome, async () => {
+    const app = harness({ user: { id: 'account-a' } });
+    const first = app.click();
+    app.checks[0].resolve({ data: { user: { id: 'account-a' } }, error: null });
+    await first;
+    const login = app.click();
+    if (outcome === 'network error') app.checks[1].reject(new Error('Offline'));
+    else app.checks[1].resolve(outcome === 'expired' ? { data: { user: null }, error: {} }
+      : { data: { user: { id: outcome === 'changed identity' ? 'account-b' : 'account-a', is_anonymous: outcome === 'anonymous' } }, error: null });
+    await login;
+    assert.deepEqual(app.entries, []);
+    assert.equal(app.oauth.length, 0);
+    assert.equal(app.messages.length, 1);
+    if (outcome !== 'network error') {
+      assert.equal(app.context.knaMode, 'login');
+      assert.ok(!app.markup.includes(foundCopy));
+    }
+  });
+}
