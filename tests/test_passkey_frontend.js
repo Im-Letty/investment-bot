@@ -84,7 +84,7 @@ function harness(mode = 'login', intent = mode, config = {}) {
     get textContent() { return messageHistory.at(-1); },
     set textContent(value) { messageHistory.push(value); },
   };
-  const title = { textContent: intent === 'signup' ? 'はじめましょう' : 'おかえりなさい' };
+  const title = { textContent: mode === 'signup' || intent === 'signup' ? 'アカウント作成' : 'ログイン' };
   const introHistory = ['保存済みのパスキーで続きから再開できます。'];
   const intro = {
     style: {},

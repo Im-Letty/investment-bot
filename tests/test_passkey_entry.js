@@ -93,6 +93,8 @@ for (const mode of ['signup', 'login']) {
     assert.equal(app.primary.disabled, true);
     assert.deepEqual(app.entries, []);
     assert.ok(!app.markup.includes(foundCopy));
+    assert.ok(app.markup.includes('id="knaTitle">' + (mode === 'signup' ? 'アカウント作成' : 'ログイン・新規登録') + '</h2>'));
+    assert.ok(!app.markup.includes('おかえりなさい'));
   });
 }
 
@@ -111,6 +113,7 @@ test('signup shows the notice only after getUser proof, then waits for deliberat
   await click;
   assert.deepEqual(app.entries, []);
   assert.ok(app.markup.includes(foundCopy));
+  assert.ok(app.markup.includes('id="knaTitle">おかえりなさい</h2>'));
   assert.ok(app.markup.includes('元のアカウントでログイン</button>'));
   assert.ok(!app.markup.includes('<details class="kna-alternatives"'));
   assert.equal(app.oauth.length, 0);
