@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="csrf-token" content="{{ csrf_token }}"><title>パスキー | 経済NEWS</title><link rel="stylesheet" href="/static/passkey-auth.css?v=20260912-registration-first"><script src="/static/passkey-auth.js?v=20260912-registration-first" defer></script></head>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="referrer" content="no-referrer"><meta name="csrf-token" content="{{ csrf_token }}"><title>パスキー | 経済NEWS</title><link rel="stylesheet" href="/static/passkey-auth.css?v=20260912-registration-only"><script src="/static/passkey-auth.js?v=20260912-registration-only" defer></script></head>
 <body data-mode="{{ mode }}" data-intent="{{ intent }}"><main id="knAuthOv" class="open"><section class="kna-box" aria-labelledby="knaTitle">
 <div class="kna-ornaments" aria-hidden="true"><svg class="arch-vines" viewBox="0 0 400 132" preserveAspectRatio="none" aria-hidden="true" focusable="false">
     <g class="arch-vine-left" transform="translate(70 40) scale(.99) translate(-70 -40)">
@@ -88,7 +88,7 @@
 <p class="kna-alternative-copy">新しい会員として登録します。以前のアカウントのデータは引き継がれません。</p>
 </div>
 {% endif %}
-<button type="button" class="kna-btn{% if mode != 'login' or intent != 'signup' %} kna-pk{% endif %}" id="passkeyStart" disabled>{% if mode == 'signup' %}パスキーを作成して無料登録{% elif intent == 'signup' %}保存したパスキーでログイン{% else %}パスキーでログイン{% endif %}</button>
+<button type="button" class="kna-btn{% if mode != 'login' or intent != 'signup' %} kna-pk{% endif %}" id="passkeyStart"{% if mode == 'login' and intent == 'signup' %} hidden{% endif %} disabled>{% if mode == 'signup' %}パスキーを作成して無料登録{% elif intent == 'signup' %}保存したパスキーでログイン{% else %}パスキーでログイン{% endif %}</button>
 <p class="kna-privacy">顔や指紋の情報を、こちらでお預かりすることはありません。</p>
 <details class="kna-help" id="passkeyHelp"><summary>パスキーが見つからないとき</summary><p>以前登録した端末やパスワード管理アプリをご確認ください。端末の案内から別の端末のパスキーを使うこともできます。LINE・Googleなどで登録した方は、同じ方法でログインしてください。</p><a class="kna-switch" href="/?auth=login">ほかの方法でログイン</a></details>
 </div>

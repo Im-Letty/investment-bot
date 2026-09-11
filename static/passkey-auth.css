@@ -10,6 +10,7 @@
 #knAuthOv .kna-intro{font:400 12px/2 'Noto Sans JP',-apple-system,sans-serif;letter-spacing:.12px;margin:0;color:var(--mm-muted,#365d50);text-wrap:pretty}
 #knAuthOv .kna-card{display:block;padding:0 29px}
 #knAuthOv .kna-btn{width:100%;min-height:46px;margin:10px 0 0;padding:12px 10px;border:1px solid #a4b4a6;border-radius:22px;font:400 12px/1.75 'Noto Sans JP',-apple-system,BlinkMacSystemFont,sans-serif;letter-spacing:.35px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;background:#fffdf6;color:var(--mm-ink,#184b3c);transition:background-color .18s ease,box-shadow .18s ease}
+#knAuthOv .kna-btn[hidden]{display:none}
 #knAuthOv .kna-pk{min-height:52px;margin:0;border-radius:26px;font-size:13px;background:var(--entry-button,#205c49);border-color:var(--entry-button,#205c49);color:#fffdf0}
 #knAuthOv .kna-line{background:var(--entry-button,#205c49);border-color:var(--entry-button,#205c49);color:#fffdf0}
 #knAuthOv .kna-btn[disabled]{opacity:1;background:#f2efe5;color:#687064;border-color:#d6d5c7;cursor:not-allowed}

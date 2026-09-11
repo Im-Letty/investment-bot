@@ -34,7 +34,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   const initialLabel=button.textContent;
   function say(text,error){message.textContent=text;message.className='kna-msg'+(error?' kna-err':'');}
   function lockButtons(){button.disabled=true;if(newButton)newButton.disabled=true;}
-  function unlockButtons(){button.disabled=busy;if(newButton)newButton.disabled=busy||needsRestart||accountConfirmed;}
+  function unlockButtons(){button.disabled=busy;button.hidden=checkExisting&&!needsRestart&&!accountConfirmed;if(newButton)newButton.disabled=busy||needsRestart||accountConfirmed;}
   function readyLabel(){return accountConfirmed?'元のアカウントでログイン':registrationUncertain?'保存したパスキーでログイン':needsRestart?(restartMode==='signup'?'登録画面を開き直す':'ログイン画面を開き直す'):(options?initialLabel:'もう一度試す');}
   function showFailure(error){
     if(error.restartRequired){

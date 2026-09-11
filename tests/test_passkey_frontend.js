@@ -76,6 +76,7 @@ function harness(mode = 'login', intent = mode, config = {}) {
   const initialLabel = mode === 'signup' ? 'パスキーを作成して無料登録' : intent === 'signup' ? '保存したパスキーでログイン' : 'パスキーでログイン';
   const button = {
     textContent: initialLabel, disabled: true,
+    hidden: mode === 'login' && intent === 'signup',
     addEventListener(name, callback) { listeners.set(name, callback); },
   };
   const messageHistory = ['準備しています…'];
@@ -419,6 +420,7 @@ async function assertRestartOnNextClick(app, {
   destinationMode = app.mode, label, messagePattern = /開き直|期限|最初/,
 } = {}) {
   assert.equal(app.button.disabled, false);
+  assert.equal(app.button.hidden, false, 'The restart action must stay visible');
   assert.equal(app.button.textContent, label || (destinationMode === 'signup' ? '登録画面を開き直す' : 'ログイン画面を開き直す'));
   assert.match(app.message.textContent, messagePattern);
   assert.equal(app.timers.size, 0, 'An expired flow must leave no preparation deadline running');
@@ -628,6 +630,7 @@ test('signup entry keeps the exact notice in the central intro after server veri
   const app = harness('login', 'signup');
   assert.equal(app.requests[0].url, '/auth/passkey/authentication/options');
   await app.ready();
+  assert.equal(app.button.hidden, true);
   const click = app.click();
   assert.equal(app.nativeCalls[0].method, 'get');
   assert.ok(app.introHistory.every(text => !text.includes('アカウントが見つかりました')));
@@ -643,6 +646,7 @@ test('signup entry keeps the exact notice in the central intro after server veri
   assert.equal(app.button.className, 'kna-btn kna-pk');
   assert.equal(app.message.textContent, '');
   assert.equal(app.button.textContent, '元のアカウントでログイン');
+  assert.equal(app.button.hidden, false);
   assert.equal(app.button.disabled, false);
   assert.equal(app.newButton.disabled, true);
   assert.ok(Object.values(app.sections).every(element => element.hidden));
