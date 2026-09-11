@@ -46,7 +46,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       return;
     }
     if(checkExisting&&error.name==='NotAllowedError'){
-      say('パスキーを確認できませんでした。登録済みの方はもう一度お試しください。別の端末や、登録時のログイン方法も使えます。初めての方は下の「初めて利用する方」から進めます。',true);
+      say('パスキーを確認できませんでした。登録済みの方はもう一度お試しください。別の端末や、登録時のログイン方法も使えます。初めての方は「パスキーで登録」から進めます。',true);
       return;
     }
     const text=error.name==='NotAllowedError'?'認証が完了しませんでした。もう一度お試しいただけます。':error.name==='InvalidStateError'?'このパスキーは登録済みです。ログインをお試しください。':error.name==='NotSupportedError'?'この環境ではパスキーを利用できません。SafariやChromeでお試しください。':error.message;
@@ -178,7 +178,9 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
         accountConfirmed=true;confirmedRedirect=destination.href;confirmedUntil=verifyStartedAt+45000;
         title.textContent='おかえりなさい';
         intro.textContent='登録済みのアカウントが見つかりました。\n元のアカウントでログインしてください。';
+        intro.hidden=false;
         intro.style.whiteSpace='pre-line';
+        button.className='kna-btn kna-pk';
         for(const id of ['passkeyNewSection','passkeyHelp','passkeyFooter']){
           const element=document.getElementById(id);if(element)element.hidden=true;
         }

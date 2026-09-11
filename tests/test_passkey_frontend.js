@@ -73,7 +73,7 @@ function harness(mode = 'login', intent = mode, config = {}) {
   const newListeners = new Map();
   const documentListeners = new Map();
   const requests = [], nativeCalls = [], redirects = [];
-  const initialLabel = mode === 'signup' ? 'パスキーを作成して無料登録' : intent === 'signup' ? '保存したパスキーで続ける' : 'パスキーでログイン';
+  const initialLabel = mode === 'signup' ? 'パスキーを作成して無料登録' : intent === 'signup' ? '保存したパスキーでログイン' : 'パスキーでログイン';
   const button = {
     textContent: initialLabel, disabled: true,
     addEventListener(name, callback) { listeners.set(name, callback); },
@@ -87,6 +87,7 @@ function harness(mode = 'login', intent = mode, config = {}) {
   const title = { textContent: mode === 'signup' || intent === 'signup' ? 'アカウント作成' : 'おかえりなさい' };
   const introHistory = ['保存済みのパスキーで続きから再開できます。'];
   const intro = {
+    hidden: mode === 'login' && intent === 'signup',
     style: {},
     get textContent() { return introHistory.at(-1); },
     set textContent(value) { introHistory.push(value); },
@@ -638,6 +639,8 @@ test('signup entry keeps the exact notice in the central intro after server veri
   await click;
   assert.equal(app.title.textContent, 'おかえりなさい');
   assert.equal(app.intro.textContent.replace(/\s+/g, ''), '登録済みのアカウントが見つかりました。元のアカウントでログインしてください。');
+  assert.equal(app.intro.hidden, false);
+  assert.equal(app.button.className, 'kna-btn kna-pk');
   assert.equal(app.message.textContent, '');
   assert.equal(app.button.textContent, '元のアカウントでログイン');
   assert.equal(app.button.disabled, false);

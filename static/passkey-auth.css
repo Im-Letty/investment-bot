@@ -19,6 +19,7 @@
 #knAuthOv .kna-alternatives summary{min-height:48px;list-style-position:inside;cursor:pointer;padding:15px 0;font:400 12px/1.65 'Noto Sans JP',-apple-system,sans-serif;color:var(--mm-muted,#365d50)}
 #knAuthOv .kna-alternative-body{padding:0 0 15px}
 #knAuthOv .kna-alternative-copy{font:400 12px/1.9 'Noto Sans JP',-apple-system,sans-serif;color:var(--mm-muted,#365d50);margin:1px 0 15px}
+#knAuthOv .kna-new-registration .kna-alternative-copy{margin:16px 0 20px}
 #knAuthOv .kna-footer{padding:12px 29px 94px}
 #knAuthOv .kna-toggle{display:block;width:100%;min-height:44px;margin:0;padding:9px 0;font:400 12px/1.8 'Noto Sans JP',sans-serif;letter-spacing:.2px;text-align:center;color:var(--mm-muted,#365d50);background:none;border:none;cursor:pointer}
 #knAuthOv .kna-msg{font:400 13px/1.6 'Noto Sans JP',sans-serif;text-align:left;margin-bottom:14px;overflow-wrap:anywhere}
