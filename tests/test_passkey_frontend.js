@@ -65,20 +65,26 @@ function credential(mode) {
   };
 }
 
-function harness(mode = 'login') {
+function harness(mode = 'login', intent = mode, config = {}) {
   let now = 1_000_000;
   let nextTimer = 1;
   const timers = new Map();
   const listeners = new Map();
+  const newListeners = new Map();
   const requests = [], nativeCalls = [], redirects = [];
-  const initialLabel = mode === 'signup' ? 'パスキーを作成して無料登録' : 'パスキーでログイン';
+  const initialLabel = mode === 'signup' ? 'パスキーを作成して無料登録' : intent === 'signup' ? '保存したパスキーで続ける' : 'パスキーでログイン';
   const button = {
     textContent: initialLabel, disabled: true,
     addEventListener(name, callback) { listeners.set(name, callback); },
   };
   const message = { textContent: '準備しています…', className: 'kna-msg' };
+  const newButton = mode === 'login' && intent === 'signup' ? {
+    disabled: true,
+    dataset: { url: config.newURL || '/auth/passkey/authorize?screen_hint=signup_new&state=active-state&code_challenge=active-challenge' },
+    addEventListener(name, callback) { newListeners.set(name, callback); },
+  } : null;
   const document = {
-    body: { dataset: { mode } }, documentElement: { style: { setProperty() {} } },
+    body: { dataset: { mode, intent } }, documentElement: { style: { setProperty() {} } },
     querySelectorAll() { return []; },
     querySelector(selector) {
       assert.equal(selector, 'meta[name="csrf-token"]');
@@ -87,6 +93,7 @@ function harness(mode = 'login') {
     getElementById(id) {
       if (id === 'passkeyStart') return button;
       if (id === 'passkeyMessage') return message;
+      if (id === 'passkeyNew') return newButton;
       assert.fail('Unexpected DOM lookup: ' + id);
     },
   };
@@ -105,7 +112,7 @@ function harness(mode = 'login') {
     },
     clearTimeout(id) { timers.delete(id); },
     localStorage: { getItem() { return null; } },
-    PublicKeyCredential: function PublicKeyCredential() {},
+    PublicKeyCredential: config.supported === false ? undefined : function PublicKeyCredential() {},
     navigator: { credentials: { create: options => native('create', options), get: options => native('get', options) } },
     location: { origin: SITE, href: SITE + '/auth/passkey/authorize', assign(url) { redirects.push(url); } },
     atob: value => Buffer.from(value, 'base64').toString('binary'),
@@ -130,7 +137,7 @@ function harness(mode = 'login') {
   context.window = context;
   vm.runInNewContext(source, context, { filename: 'passkey-auth.js' });
   return {
-    mode, button, message, requests, nativeCalls, redirects, initialLabel, timers,
+    mode, intent, button, newButton, message, requests, nativeCalls, redirects, initialLabel, timers,
     advanceIdleHour() { now += 60 * 60 * 1000; },
     expireNextTimer() {
       assert.ok(timers.size > 0, 'Expected a pending request deadline');
@@ -142,6 +149,7 @@ function harness(mode = 'login') {
     // Direct dispatch also models an already-queued duplicate event. This makes
     // the busy guard observable independently of disabled-button DOM behavior.
     click() { return listeners.get('click')({ type: 'click' }); },
+    clickNew() { assert.ok(newButton); return newListeners.get('click')({ type: 'click' }); },
     respond(index, data, status = 200) {
       assert.ok(requests[index], 'Expected request ' + index);
       requests[index].resolve({ ok: status >= 200 && status < 300, status, json: async () => {
@@ -573,3 +581,133 @@ for (const outcome of ['network failure', 'HTTP 503']) {
     assert.deepEqual(app.redirects, []);
   });
 }
+
+test('signup entry checks an existing key with authentication, without creating a credential', async () => {
+  const app = harness('login', 'signup');
+  assert.equal(app.requests[0].url, '/auth/passkey/authentication/options');
+  await app.ready();
+  assert.equal(app.newButton.disabled, false);
+  const click = app.click();
+  assert.equal(app.nativeCalls[0].method, 'get');
+  const verification = await app.completeNative(0);
+  assert.equal(verification.url, '/auth/passkey/authentication/verify');
+  await click;
+  assert.deepEqual(app.redirects, [CALLBACK]);
+  assert.ok(app.nativeCalls.every(call => call.method === 'get'));
+  assert.equal(app.newButton.disabled, true);
+});
+
+test('only an explicit new-account action navigates to registration, once', async () => {
+  const app = harness('login', 'signup');
+  await app.ready();
+  assert.deepEqual(app.redirects, []);
+  app.clickNew();
+  app.clickNew();
+  await app.click();
+  assert.equal(app.redirects.length, 1);
+  const destination = new URL(app.redirects[0]);
+  assert.equal(destination.origin, SITE);
+  assert.equal(destination.pathname, '/auth/passkey/authorize');
+  assert.equal(destination.searchParams.get('screen_hint'), 'signup_new');
+  assert.equal(destination.searchParams.get('state'), 'active-state');
+  assert.equal(destination.searchParams.get('code_challenge'), 'active-challenge');
+  assert.equal(app.nativeCalls.length, 0, 'Navigation must not create a credential in the check page');
+  assert.equal(app.requests.length, 1);
+  assert.equal(app.button.disabled, true);
+  assert.equal(app.newButton.disabled, true);
+});
+
+test('new-account action cannot replace the flow during preparation, native login, verification or redirect', async () => {
+  const app = harness('login', 'signup');
+  app.clickNew();
+  assert.deepEqual(app.redirects, []);
+  await app.ready();
+  const click = app.click();
+  assert.equal(app.newButton.disabled, true);
+  app.clickNew();
+  assert.deepEqual(app.redirects, []);
+  app.nativeCalls[0].resolve(credential('login'));
+  await until(() => app.requests.length === 2, 'existing-account verification');
+  app.clickNew();
+  assert.deepEqual(app.redirects, []);
+  app.respond(1, { redirect_url: CALLBACK });
+  await click;
+  app.clickNew();
+  assert.deepEqual(app.redirects, [CALLBACK]);
+  assert.equal(app.nativeCalls.length, 1);
+  assert.equal(app.requests.length, 2);
+});
+
+for (const outcome of ['cancel', 'verification rejection']) {
+  test('signup entry ' + outcome + ' never automatically registers a new account', async () => {
+    const app = harness('login', 'signup');
+    await app.ready();
+    const click = app.click();
+    let optionsIndex;
+    if (outcome === 'cancel') {
+      const error = new Error('Cancelled');
+      error.name = 'NotAllowedError';
+      app.nativeCalls[0].reject(error);
+      optionsIndex = 1;
+    } else {
+      app.nativeCalls[0].resolve(credential('login'));
+      await until(() => app.requests.length === 2, 'existing credential verification');
+      app.respond(1, { error: '認証を確認できませんでした' }, 400);
+      optionsIndex = 2;
+    }
+    await until(() => app.requests.length === optionsIndex + 1, 'authentication retry preparation');
+    app.clickNew();
+    assert.deepEqual(app.redirects, []);
+    assert.equal(app.newButton.disabled, true);
+    app.respondOptions(optionsIndex);
+    await click;
+    assert.equal(app.newButton.disabled, false);
+    assert.ok(app.requests.every(request => request.url.includes('/authentication/')));
+    assert.ok(app.nativeCalls.every(call => call.method === 'get'));
+    assert.deepEqual(app.redirects, []);
+    if (outcome === 'cancel') assert.match(app.message.textContent, /登録済み|登録時/);
+    app.clickNew();
+    assert.equal(new URL(app.redirects[0]).searchParams.get('screen_hint'), 'signup_new');
+  });
+}
+
+for (const outcome of ['403', 'timeout']) {
+  test('signup entry ' + outcome + ' disables new registration until a fresh entry flow', async () => {
+    const app = harness('login', 'signup');
+    if (outcome === '403') app.respond(0, { error: '期限切れ' }, 403);
+    else app.expireNextTimer();
+    await until(() => !app.button.disabled, 'fresh entry recovery ready');
+    assert.equal(app.newButton.disabled, true);
+    app.clickNew();
+    assert.deepEqual(app.redirects, []);
+    await assertRestartOnNextClick(app, { destinationMode: 'signup' });
+    assert.equal(app.nativeCalls.length, 0);
+  });
+}
+
+for (const newURL of [
+  'https://attacker.example/auth/passkey/authorize?screen_hint=signup_new',
+  '/other-path?screen_hint=signup_new',
+  '/auth/passkey/authorize?screen_hint=signup',
+  'javascript:alert(1)',
+]) {
+  test('explicit registration rejects an invalid destination: ' + newURL, async () => {
+    const app = harness('login', 'signup', { newURL });
+    await app.ready();
+    app.clickNew();
+    assert.deepEqual(app.redirects, []);
+    assert.equal(app.nativeCalls.length, 0);
+    assert.equal(app.button.disabled, false);
+    assert.equal(app.newButton.disabled, false);
+    assert.match(app.message.textContent, /開けません/);
+  });
+}
+
+test('unsupported WebAuthn keeps both existing-key and new-account buttons disabled', () => {
+  const app = harness('login', 'signup', { supported: false });
+  assert.equal(app.button.disabled, true);
+  assert.equal(app.newButton.disabled, true);
+  assert.equal(app.requests.length, 0);
+  assert.equal(app.nativeCalls.length, 0);
+  assert.match(app.message.textContent, /この環境ではパスキーを利用できません/);
+});

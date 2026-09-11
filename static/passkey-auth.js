@@ -17,17 +17,21 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
 
 (function(){
   const signup=document.body.dataset.mode==='signup';
+  const checkExisting=!signup&&document.body.dataset.intent==='signup';
   const kind=signup?'registration':'authentication';
   const button=document.getElementById('passkeyStart');
+  const newButton=document.getElementById('passkeyNew');
   const message=document.getElementById('passkeyMessage');
   const csrf=document.querySelector('meta[name="csrf-token"]').content;
   let options=null,preparedAt=0,busy=false,preparing=null,needsRestart=false;
-  let restartMode=signup?'signup':'login',registrationUncertain=false;
+  let restartMode=(signup||checkExisting)?'signup':'login',registrationUncertain=false;
   // Leave time for the 60-second ceremony and verification within the server's
   // five-minute challenge lifetime.
   const maxOptionsAge=180000;
   const initialLabel=button.textContent;
   function say(text,error){message.textContent=text;message.className='kna-msg'+(error?' kna-err':'');}
+  function lockButtons(){button.disabled=true;if(newButton)newButton.disabled=true;}
+  function unlockButtons(){button.disabled=busy;if(newButton)newButton.disabled=busy||needsRestart;}
   function readyLabel(){return registrationUncertain?'保存したパスキーでログイン':needsRestart?(restartMode==='signup'?'登録画面を開き直す':'ログイン画面を開き直す'):(options?initialLabel:'もう一度試す');}
   function showFailure(error){
     if(error.restartRequired){
@@ -35,7 +39,11 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
     }
     if(error.status===403){
       needsRestart=true;
-      say('この画面から認証を続けられません。'+(signup?'登録':'ログイン')+'画面を開き直してください。',true);
+      say('この画面から認証を続けられません。'+(restartMode==='signup'?'登録':'ログイン')+'画面を開き直してください。',true);
+      return;
+    }
+    if(checkExisting&&error.name==='NotAllowedError'){
+      say('パスキーを確認できませんでした。登録済みの方はもう一度お試しください。別の端末や、登録時のログイン方法も使えます。初めての方は下の「初めて利用する方」から進めます。',true);
       return;
     }
     const text=error.name==='NotAllowedError'?'認証が完了しませんでした。もう一度お試しいただけます。':error.name==='InvalidStateError'?'このパスキーは登録済みです。ログインをお試しください。':error.name==='NotSupportedError'?'この環境ではパスキーを利用できません。SafariやChromeでお試しください。':error.message;
@@ -79,7 +87,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
     const controller=endpoint==='options'?new AbortController():null;
     let timedOut=false;
     function timeoutError(){
-      const error=new Error('接続に時間がかかっています。'+(signup?'登録':'ログイン')+'画面を開き直して、もう一度お試しください。');
+      const error=new Error('接続に時間がかかっています。'+(restartMode==='signup'?'登録':'ログイン')+'画面を開き直して、もう一度お試しください。');
       // An aborted request can still finish on the server. Use a new flow so
       // a late challenge update cannot invalidate the next attempt.
       error.restartRequired=true;
@@ -104,7 +112,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   }
   function prepare(keepMessage=false){
     if(preparing)return preparing;
-    button.disabled=true;button.textContent='準備しています…';options=null;
+    lockButtons();button.textContent='準備しています…';options=null;
     preparing=(async()=>{
       try{
         options=browserOptions(await post('options',{}));preparedAt=Date.now();
@@ -114,7 +122,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       finally{
         preparing=null;
         button.textContent=readyLabel();
-        button.disabled=busy;
+        unlockButtons();
       }
     })();
     return preparing;
@@ -122,13 +130,13 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   button.addEventListener('click',async()=>{
     if(busy)return;
     let leaving=false,verificationStarted=false;
-    busy=true;button.disabled=true;
+    busy=true;lockButtons();
     try{
       if(needsRestart){
         // Restart through the application's login/signup entry. Reloading this
         // authorize URL would reuse an OAuth state that may already be expired.
         say((restartMode==='signup'?'登録':'ログイン')+'画面を開いています…');
-        location.assign('/?auth='+restartMode+'&v=20260911-recovery2');
+        location.assign('/?auth='+restartMode+'&v=20260912-existing');
         leaving=true;
         return;
       }
@@ -165,8 +173,19 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       // ceremony or verification is still in progress.
       if(!needsRestart)await prepare(true);
     }finally{
-      if(!leaving){busy=false;button.textContent=readyLabel();button.disabled=false;}
+      if(!leaving){busy=false;button.textContent=readyLabel();unlockButtons();}
     }
+  });
+  if(newButton)newButton.addEventListener('click',()=>{
+    // Only this explicit action may leave the existing-account check for new
+    // registration. A native failure never implies that this is a new person.
+    if(busy||preparing||needsRestart)return;
+    busy=true;lockButtons();
+    try{
+      const destination=new URL(newButton.dataset.url,location.origin);
+      if(destination.origin!==location.origin||destination.pathname!=='/auth/passkey/authorize'||destination.searchParams.get('screen_hint')!=='signup_new')throw new Error('登録画面を開けませんでした。もう一度お試しください。');
+      location.assign(destination.href);
+    }catch(error){busy=false;showFailure(error);unlockButtons();}
   });
   if(!window.PublicKeyCredential||!navigator.credentials){say('この環境ではパスキーを利用できません。SafariやChromeでお試しください。',true);return;}
   prepare();

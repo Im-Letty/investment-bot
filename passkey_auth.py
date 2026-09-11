@@ -211,7 +211,20 @@ def create_passkey_blueprint(supabase, *, repository=None):
         if len(_decode(code_challenge)) != 32:
             raise AuthenticationError()
         hint = _field(request.args, "screen_hint", 32, required=False)
-        mode = "signup" if hint == "signup" else "login"
+        # The normal signup entry first discovers an existing account. Only the
+        # explicit create-new action starts a registration ceremony.
+        mode = "signup" if hint == "signup_new" else "login"
+        intent = "signup" if hint in ("signup", "signup_new") else "login"
+        new_registration_url = None
+        if intent == "signup":
+            # Reuse only the validated upstream OAuth binding. Never copy raw
+            # query parameters, hosts or return URLs into this navigation.
+            new_registration_url = PREFIX + "/authorize?" + urlencode({
+                "client_id": CLIENT_ID, "redirect_uri": REDIRECT_URI,
+                "response_type": "code", "code_challenge_method": "S256",
+                "state": state, "code_challenge": code_challenge,
+                "screen_hint": "signup_new",
+            })
         rate_limit("authorize", 60, 600)
         flow_token, csrf_token = secrets.token_urlsafe(32), secrets.token_urlsafe(32)
         if repo.call("create_flow", {
@@ -220,7 +233,10 @@ def create_passkey_blueprint(supabase, *, repository=None):
             "redirect_uri": redirect_uri, "state": state, "code_challenge": code_challenge,
         }) is not True:
             raise AuthenticationError(503, "temporarily_unavailable")
-        response = make_response(render_template("passkey_auth.html", csrf_token=csrf_token, mode=mode))
+        response = make_response(render_template(
+            "passkey_auth.html", csrf_token=csrf_token, mode=mode, intent=intent,
+            new_registration_url=new_registration_url,
+        ))
         response.set_cookie(COOKIE_NAME, flow_token, max_age=600, secure=True, httponly=True,
                             samesite="Lax", path="/")
         return response

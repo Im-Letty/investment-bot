@@ -7,6 +7,7 @@ locking or the configured Supabase OAuth provider.
 
 import base64
 import copy
+from contextlib import contextmanager
 import hashlib
 import json
 import re
@@ -20,7 +21,7 @@ import cbor2
 import pytest
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import ec
-from flask import Flask
+from flask import Flask, template_rendered
 from jinja2 import DictLoader
 from werkzeug.datastructures import MultiDict
 
@@ -173,12 +174,25 @@ def begin(client, mode="signup", **overrides):
     verifier = secrets.token_urlsafe(32)
     params = {"client_id": CLIENT_ID, "redirect_uri": REDIRECT_URI, "response_type": "code",
               "state": "state-with&escaped=value", "code_challenge_method": "S256",
-              "code_challenge": b64(hashlib.sha256(verifier.encode()).digest()), "screen_hint": mode}
+              "code_challenge": b64(hashlib.sha256(verifier.encode()).digest()),
+              "screen_hint": "signup_new" if mode == "signup" else mode}
     params.update(overrides)
     response = client.get(PREFIX + "/authorize", query_string=params, base_url=ORIGIN)
     assert response.status_code == 200, response.json
     csrf = re.search(r'content="([^"]+)"', response.text).group(1)
     return csrf, verifier, response
+
+
+@contextmanager
+def rendered_auth_context(app):
+    contexts = []
+
+    def capture(_sender, template, context, **_extra):
+        if template.name == "passkey_auth.html":
+            contexts.append({key: context[key] for key in ("mode", "intent", "new_registration_url")})
+
+    with template_rendered.connected_to(capture, app):
+        yield contexts
 
 
 def post(client, route, csrf, data=None, **kwargs):
@@ -465,3 +479,96 @@ def test_challenge_survives_worker_restart_with_shared_repository(issuer):
     other_client.set_cookie(COOKIE_NAME, saved_cookie, domain=RP_ID, secure=True, httponly=True)
     response = post(other_client, "/registration/verify", csrf, {"credential": Authenticator().registration(options)})
     assert response.status_code == 200 and len(repo.accounts) == 1
+
+
+def test_normal_signup_entry_discovers_existing_credentials_without_creating_an_account(issuer):
+    app, client, repo = issuer
+    with rendered_auth_context(app) as contexts:
+        csrf, _verifier, _response = begin(client, screen_hint="signup")
+    assert contexts[0]["mode"] == "login"
+    assert contexts[0]["intent"] == "signup"
+    assert contexts[0]["new_registration_url"].startswith(PREFIX + "/authorize?")
+    assert next(iter(repo.flows.values()))["mode"] == "login"
+    assert post(client, "/registration/options", csrf).status_code == 403
+    options = post(client, "/authentication/options", csrf)
+    assert options.status_code == 200
+    assert not options.json.get("allowCredentials")
+    assert options.json["userVerification"] == "required"
+    assert not repo.accounts and not repo.credentials and not repo.tokens
+
+
+def test_signup_entry_with_existing_passkey_returns_the_same_subject_without_duplicate_account(issuer):
+    _app, client, repo = issuer
+    authenticator, verifier, registered = register(client)
+    original_token = exchange(client, code_from(registered), verifier).json["access_token"]
+    original_user = client.get(PREFIX + "/userinfo", headers={"Authorization": "Bearer " + original_token}, base_url=ORIGIN)
+    assert original_user.status_code == 200
+    original_accounts = set(repo.accounts)
+    csrf, verifier, _response = begin(client, screen_hint="signup")
+    options = post(client, "/authentication/options", csrf).json
+    verified = post(client, "/authentication/verify", csrf, {"credential": authenticator.authentication(options)})
+    assert verified.status_code == 200
+    token = exchange(client, code_from(verified), verifier)
+    assert token.status_code == 200
+    current_user = client.get(PREFIX + "/userinfo", headers={"Authorization": "Bearer " + token.json["access_token"]}, base_url=ORIGIN)
+    assert current_user.status_code == 200 and current_user.json == original_user.json
+    assert repo.accounts == original_accounts
+    assert len(repo.accounts) == len(repo.credentials) == 1
+
+
+def test_explicit_new_registration_link_preserves_only_validated_oauth_binding_and_creates_a_fresh_flow(issuer):
+    app, client, repo = issuer
+    with rendered_auth_context(app) as contexts:
+        old_csrf, verifier, _response = begin(
+            client, screen_hint="signup", return_to="https://attacker.example/return",
+            next="https://attacker.example/next", redirect="https://attacker.example/redirect",
+            scope="unexpected-scope", extra="untrusted-extra",
+        )
+    old_cookie = client.get_cookie(COOKIE_NAME, domain=RP_ID).value
+    old_flow = copy.deepcopy(repo.flows[sha(old_cookie)])
+    create_url = contexts[0]["new_registration_url"]
+    parsed = urlsplit(create_url)
+    assert not parsed.scheme and not parsed.netloc and not parsed.fragment
+    assert parsed.path == PREFIX + "/authorize"
+    assert parse_qs(parsed.query) == {
+        "client_id": [CLIENT_ID], "redirect_uri": [REDIRECT_URI], "response_type": ["code"],
+        "code_challenge_method": ["S256"], "screen_hint": ["signup_new"],
+        "state": [old_flow["state"]], "code_challenge": [old_flow["code_challenge"]],
+    }
+    assert "attacker.example" not in create_url and "untrusted-extra" not in create_url
+    with rendered_auth_context(app) as new_contexts:
+        response = client.get(create_url, base_url=ORIGIN)
+    assert response.status_code == 200
+    assert new_contexts[0]["mode"] == "signup" and new_contexts[0]["intent"] == "signup"
+    new_cookie = client.get_cookie(COOKIE_NAME, domain=RP_ID).value
+    assert new_cookie != old_cookie
+    new_flow = repo.flows[sha(new_cookie)]
+    assert new_flow["account_id"] != old_flow["account_id"]
+    assert new_flow["mode"] == "signup" and old_flow["mode"] == "login"
+    assert new_flow["state"] == old_flow["state"] and new_flow["code_challenge"] == old_flow["code_challenge"]
+    csrf = re.search(r'content="([^"]+)"', response.text).group(1)
+    assert csrf != old_csrf
+    assert post(client, "/registration/options", old_csrf).status_code == 403
+    assert post(client, "/authentication/options", csrf).status_code == 403
+    options_response = post(client, "/registration/options", csrf)
+    assert options_response.status_code == 200
+    assert not repo.accounts and not repo.credentials
+    authenticator = Authenticator()
+    verified = post(client, "/registration/verify", csrf, {"credential": authenticator.registration(options_response.json)})
+    assert verified.status_code == 200
+    # The original upstream verifier still exchanges the eventual authorization
+    # code, proving the explicit-create navigation retained its PKCE binding.
+    token = exchange(client, code_from(verified), verifier)
+    assert token.status_code == 200
+    assert repo.accounts == {new_flow["account_id"]} and len(repo.credentials) == 1
+
+
+@pytest.mark.parametrize("hint", ["login", "unknown", "SIGNUP_NEW", "signup_new_extra"])
+def test_only_exact_signup_hints_offer_the_explicit_registration_path(issuer, hint):
+    app, client, repo = issuer
+    with rendered_auth_context(app) as contexts:
+        csrf, _verifier, _response = begin(client, screen_hint=hint)
+    assert contexts == [{"mode": "login", "intent": "login", "new_registration_url": None}]
+    assert post(client, "/registration/options", csrf).status_code == 403
+    assert post(client, "/authentication/options", csrf).status_code == 200
+    assert not repo.accounts and not repo.credentials
