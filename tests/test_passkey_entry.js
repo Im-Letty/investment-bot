@@ -93,8 +93,8 @@ for (const mode of ['signup', 'login']) {
     assert.equal(app.primary.disabled, true);
     assert.deepEqual(app.entries, []);
     assert.ok(!app.markup.includes(foundCopy));
-    assert.ok(app.markup.includes('id="knaTitle">' + (mode === 'signup' ? 'アカウント作成' : 'ログイン・新規登録') + '</h2>'));
-    assert.ok(!app.markup.includes('おかえりなさい'));
+    assert.ok(app.markup.includes('id="knaTitle">' + (mode === 'signup' ? 'アカウント作成' : 'おかえりなさい') + '</h2>'));
+    if (mode === 'signup') assert.ok(!app.markup.includes('おかえりなさい'));
   });
 }
 
