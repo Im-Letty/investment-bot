@@ -22,26 +22,20 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   const button=document.getElementById('passkeyStart');
   const newButton=document.getElementById('passkeyNew');
   const message=document.getElementById('passkeyMessage');
+  const title=document.getElementById('knaTitle');
+  const intro=document.getElementById('passkeyIntro');
   const csrf=document.querySelector('meta[name="csrf-token"]').content;
   let options=null,preparedAt=0,busy=false,preparing=null,needsRestart=false;
   let restartMode=(signup||checkExisting)?'signup':'login',registrationUncertain=false;
+  let accountConfirmed=false,confirmedRedirect=null,confirmedUntil=0;
   // Leave time for the 60-second ceremony and verification within the server's
   // five-minute challenge lifetime.
   const maxOptionsAge=180000;
   const initialLabel=button.textContent;
   function say(text,error){message.textContent=text;message.className='kna-msg'+(error?' kna-err':'');}
-  function pauseForLoginNotice(){
-    if(document.visibilityState==='hidden')return Promise.resolve();
-    return new Promise(resolve=>{
-      const timer=setTimeout(finish,900);
-      function finish(){clearTimeout(timer);document.removeEventListener('visibilitychange',onVisibility);resolve();}
-      function onVisibility(){if(document.visibilityState==='hidden')finish();}
-      document.addEventListener('visibilitychange',onVisibility);
-    });
-  }
   function lockButtons(){button.disabled=true;if(newButton)newButton.disabled=true;}
-  function unlockButtons(){button.disabled=busy;if(newButton)newButton.disabled=busy||needsRestart;}
-  function readyLabel(){return registrationUncertain?'保存したパスキーでログイン':needsRestart?(restartMode==='signup'?'登録画面を開き直す':'ログイン画面を開き直す'):(options?initialLabel:'もう一度試す');}
+  function unlockButtons(){button.disabled=busy;if(newButton)newButton.disabled=busy||needsRestart||accountConfirmed;}
+  function readyLabel(){return accountConfirmed?'元のアカウントでログイン':registrationUncertain?'保存したパスキーでログイン':needsRestart?(restartMode==='signup'?'登録画面を開き直す':'ログイン画面を開き直す'):(options?initialLabel:'もう一度試す');}
   function showFailure(error){
     if(error.restartRequired){
       needsRestart=true;say(error.message,true);return;
@@ -141,11 +135,20 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
     let leaving=false,verificationStarted=false;
     busy=true;lockButtons();
     try{
+      if(accountConfirmed){
+        // The code lasts 60 seconds. Start the shorter local window before
+        // verification, and never send an old code after a long reading pause.
+        const destination=Date.now()<confirmedUntil?confirmedRedirect:'/?auth=login&v=20260912-confirmed';
+        button.textContent='ログイン画面へ進んでいます…';
+        location.assign(destination);
+        leaving=true;
+        return;
+      }
       if(needsRestart){
         // Restart through the application's login/signup entry. Reloading this
         // authorize URL would reuse an OAuth state that may already be expired.
         say((restartMode==='signup'?'登録':'ログイン')+'画面を開いています…');
-        location.assign('/?auth='+restartMode+'&v=20260912-existing-notice');
+        location.assign('/?auth='+restartMode+'&v=20260912-confirmed');
         leaving=true;
         return;
       }
@@ -165,15 +168,22 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       say('確認しています…');
       const payload={credential:serialize(credential)};
       verificationStarted=true;
+      const verifyStartedAt=Date.now();
       const result=await post('verify',payload);
       const destination=new URL(result.redirect_url);
       if(destination.origin!=='https://bvfndgjiahjqdlnyygnx.supabase.co'||destination.pathname!=='/auth/v1/callback')throw new Error('接続先を確認できませんでした。');
       if(checkExisting){
-        // Account existence is confirmed by the server, not by a local hint or
-        // by the native picker alone. Keep both actions locked during handoff.
-        say('登録済みのアカウントが見つかりました。元のアカウントでログインしてください。');
-        button.textContent='ログインしています…';
-        await pauseForLoginNotice();
+        // Show the notice in the central explanation only after server proof.
+        // Leave it visible until the member chooses to continue with this account.
+        accountConfirmed=true;confirmedRedirect=destination.href;confirmedUntil=verifyStartedAt+45000;
+        title.textContent='おかえりなさい';
+        intro.textContent='登録済みのアカウントが見つかりました。\n元のアカウントでログインしてください。';
+        intro.style.whiteSpace='pre-line';
+        for(const id of ['passkeyNewSection','passkeyHelp','passkeyFooter']){
+          const element=document.getElementById(id);if(element)element.hidden=true;
+        }
+        say('');
+        return;
       }
       location.assign(destination.href);
       leaving=true;
@@ -187,7 +197,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       }else showFailure(error);
       // Prepare the retry now; never replace a challenge while the native
       // ceremony or verification is still in progress.
-      if(!needsRestart)await prepare(true);
+      if(!needsRestart&&!accountConfirmed)await prepare(true);
     }finally{
       if(!leaving){busy=false;button.textContent=readyLabel();unlockButtons();}
     }
@@ -195,7 +205,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   if(newButton)newButton.addEventListener('click',()=>{
     // Only this explicit action may leave the existing-account check for new
     // registration. A native failure never implies that this is a new person.
-    if(busy||preparing||needsRestart)return;
+    if(busy||preparing||needsRestart||accountConfirmed)return;
     busy=true;lockButtons();
     try{
       const destination=new URL(newButton.dataset.url,location.origin);

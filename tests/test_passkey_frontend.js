@@ -84,6 +84,15 @@ function harness(mode = 'login', intent = mode, config = {}) {
     get textContent() { return messageHistory.at(-1); },
     set textContent(value) { messageHistory.push(value); },
   };
+  const title = { textContent: intent === 'signup' ? 'はじめましょう' : 'おかえりなさい' };
+  const introHistory = ['保存済みのパスキーで続きから再開できます。'];
+  const intro = {
+    style: {},
+    get textContent() { return introHistory.at(-1); },
+    set textContent(value) { introHistory.push(value); },
+  };
+  const sections = Object.fromEntries(['passkeyNewSection', 'passkeyHelp', 'passkeyFooter'].map(id => [id, { hidden: false }]));
+  let navigationFailures = config.navigationFailures || 0;
   const newButton = mode === 'login' && intent === 'signup' ? {
     disabled: true,
     dataset: { url: config.newURL || '/auth/passkey/authorize?screen_hint=signup_new&state=active-state&code_challenge=active-challenge' },
@@ -106,6 +115,9 @@ function harness(mode = 'login', intent = mode, config = {}) {
       if (id === 'passkeyStart') return button;
       if (id === 'passkeyMessage') return message;
       if (id === 'passkeyNew') return newButton;
+      if (id === 'knaTitle') return title;
+      if (id === 'passkeyIntro') return intro;
+      if (sections[id]) return sections[id];
       assert.fail('Unexpected DOM lookup: ' + id);
     },
   };
@@ -126,7 +138,10 @@ function harness(mode = 'login', intent = mode, config = {}) {
     localStorage: { getItem() { return null; } },
     PublicKeyCredential: config.supported === false ? undefined : function PublicKeyCredential() {},
     navigator: { credentials: { create: options => native('create', options), get: options => native('get', options) } },
-    location: { origin: SITE, href: SITE + '/auth/passkey/authorize', assign(url) { redirects.push(url); } },
+    location: { origin: SITE, href: SITE + '/auth/passkey/authorize', assign(url) {
+      if (navigationFailures-- > 0) throw new Error('Navigation interrupted');
+      redirects.push(url);
+    } },
     atob: value => Buffer.from(value, 'base64').toString('binary'),
     btoa: value => Buffer.from(value, 'binary').toString('base64'),
     fetch(url, init) {
@@ -149,7 +164,7 @@ function harness(mode = 'login', intent = mode, config = {}) {
   context.window = context;
   vm.runInNewContext(source, context, { filename: 'passkey-auth.js' });
   return {
-    mode, intent, button, newButton, message, messageHistory, requests, nativeCalls, redirects, initialLabel, timers, documentListeners,
+    mode, intent, button, newButton, message, messageHistory, title, intro, introHistory, sections, requests, nativeCalls, redirects, initialLabel, timers, documentListeners,
     advanceIdleHour() { now += 60 * 60 * 1000; },
     setVisibility(value) {
       document.visibilityState = value;
@@ -242,7 +257,7 @@ for (const mode of ['login', 'signup']) {
     await click;
     assert.deepEqual(app.redirects, [CALLBACK]);
     assert.equal(app.timers.size, 0, 'Ordinary login and explicit signup have no extra announcement delay');
-    assert.ok(app.messageHistory.every(text => !text.includes('アカウントが見つかりました')));
+    assert.ok(app.introHistory.every(text => !text.includes('アカウントが見つかりました')));
     assert.equal(app.button.disabled, true, 'Keep the button disabled while navigation is leaving');
     await app.click();
     assert.equal(app.nativeCalls.length, 1, 'A queued click during redirect must not create another ceremony');
@@ -608,80 +623,107 @@ for (const outcome of ['network failure', 'HTTP 503']) {
   });
 }
 
-test('signup entry announces an existing account only after verification and waits before one redirect', async () => {
+test('signup entry keeps the exact notice in the central intro after server verification until login is chosen', async () => {
   const app = harness('login', 'signup');
   assert.equal(app.requests[0].url, '/auth/passkey/authentication/options');
   await app.ready();
-  assert.equal(app.newButton.disabled, false);
   const click = app.click();
   assert.equal(app.nativeCalls[0].method, 'get');
-  assert.ok(app.messageHistory.every(text => !text.includes('アカウントが見つかりました')));
+  assert.ok(app.introHistory.every(text => !text.includes('アカウントが見つかりました')));
   app.nativeCalls[0].resolve(credential('login'));
   await until(() => app.requests.length === 2, 'verification before existing-account announcement');
   assert.equal(app.requests[1].url, '/auth/passkey/authentication/verify');
-  assert.ok(app.messageHistory.every(text => !text.includes('アカウントが見つかりました')));
-  assert.equal(app.timers.size, 0);
+  assert.ok(app.introHistory.every(text => !text.includes('アカウントが見つかりました')));
   app.respond(1, { redirect_url: CALLBACK });
-  await until(() => app.message.textContent.includes('アカウントが見つかりました'), 'verified existing-account announcement');
-  assert.equal(app.message.textContent, '登録済みのアカウントが見つかりました。元のアカウントでログインしてください。');
-  assert.equal(app.button.textContent, 'ログインしています…');
-  assert.equal(app.button.disabled, true);
+  await click;
+  assert.equal(app.title.textContent, 'おかえりなさい');
+  assert.equal(app.intro.textContent.replace(/\s+/g, ''), '登録済みのアカウントが見つかりました。元のアカウントでログインしてください。');
+  assert.equal(app.message.textContent, '');
+  assert.equal(app.button.textContent, '元のアカウントでログイン');
+  assert.equal(app.button.disabled, false);
   assert.equal(app.newButton.disabled, true);
-  assert.equal(app.timers.size, 1);
-  assert.equal([...app.timers.values()][0].delay, 900);
-  await app.click();
-  app.clickNew();
-  assert.equal(app.nativeCalls.length, 1);
-  assert.equal(app.requests.length, 2);
-  assert.deepEqual(app.redirects, []);
-  app.advanceTimersBy(899);
-  await Promise.resolve();
-  assert.deepEqual(app.redirects, [], 'Allow the message to remain visible for the full notice delay');
-  app.advanceTimersBy(1);
-  await click;
-  assert.deepEqual(app.redirects, [CALLBACK]);
-  assert.ok(app.nativeCalls.every(call => call.method === 'get'));
-  assert.equal(app.newButton.disabled, true);
-  await app.click();
-  app.clickNew();
-  assert.deepEqual(app.redirects, [CALLBACK], 'Queued clicks cannot repeat the redirect after the notice');
+  assert.ok(Object.values(app.sections).every(element => element.hidden));
   assert.equal(app.timers.size, 0);
-  assert.equal(app.documentListeners.get('visibilitychange')?.size || 0, 0);
-});
-
-test('existing-account notice skips its delay when the page is already hidden', async () => {
-  const app = harness('login', 'signup');
-  await app.ready();
-  const click = app.click();
-  app.setVisibility('hidden');
-  await app.completeNative(0);
-  await click;
-  assert.ok(app.messageHistory.some(text => text.includes('アカウントが見つかりました')));
-  assert.deepEqual(app.redirects, [CALLBACK]);
-  assert.equal(app.timers.size, 0, 'Do not hold an expiring OAuth code behind a background timer');
-  assert.equal(app.documentListeners.get('visibilitychange')?.size || 0, 0);
-});
-
-test('hiding during the existing-account notice redirects early and removes its timer and listener', async () => {
-  const app = harness('login', 'signup');
-  await app.ready();
-  const click = app.click();
-  await app.completeNative(0);
-  await until(() => [...app.timers.values()].some(timer => timer.delay === 900), 'visible existing-account notice');
-  assert.deepEqual(app.redirects, []);
-  app.setVisibility('hidden');
-  await click;
-  assert.deepEqual(app.redirects, [CALLBACK]);
-  assert.equal(app.timers.size, 0);
-  assert.equal(app.documentListeners.get('visibilitychange')?.size || 0, 0);
-  app.setVisibility('visible');
-  app.setVisibility('hidden');
   app.advanceTimersBy(1000);
+  app.clickNew();
+  assert.deepEqual(app.redirects, [], 'The confirmed account screen must not automatically disappear');
+  await app.click();
+  assert.deepEqual(app.redirects, [CALLBACK]);
+  assert.equal(app.nativeCalls.length, 1, 'Continuing must not ask for another native ceremony');
+  assert.equal(app.requests.length, 2);
   await app.click();
   app.clickNew();
-  assert.deepEqual(app.redirects, [CALLBACK], 'Visibility changes and the old timer must not repeat completion');
-  assert.equal(app.nativeCalls.length, 1);
+  assert.deepEqual(app.redirects, [CALLBACK], 'Continue can navigate only once');
+});
+
+test('a hidden confirmed-account page waits for the member instead of logging in automatically', async () => {
+  const app = harness('login', 'signup');
+  await app.ready();
+  const click = app.click();
+  app.setVisibility('hidden');
+  await app.completeNative(0);
+  await click;
+  assert.deepEqual(app.redirects, []);
+  assert.equal(app.button.disabled, false);
+  app.setVisibility('visible');
+  await app.click();
+  assert.deepEqual(app.redirects, [CALLBACK]);
+  assert.equal(app.timers.size, 0);
+});
+
+for (const elapsed of [44999, 45000, 60 * 60 * 1000]) {
+  test('confirmed-account continuation checks code age on click after ' + elapsed + 'ms', async () => {
+    const app = harness('login', 'signup');
+    await app.ready();
+    const click = app.click();
+    await app.completeNative(0);
+    await click;
+    app.setVisibility('hidden');
+    app.advanceTimersBy(elapsed);
+    app.setVisibility('visible');
+    assert.deepEqual(app.redirects, []);
+    assert.ok(app.intro.textContent.includes('アカウントが見つかりました'));
+    await app.click();
+    assert.deepEqual(app.redirects, [elapsed < 45000 ? CALLBACK : '/?auth=login&v=20260912-confirmed']);
+    assert.equal(app.nativeCalls.length, 1);
+    assert.equal(app.requests.length, 2);
+    app.clickNew();
+    assert.equal(app.redirects.length, 1);
+  });
+}
+
+test('the continuation window starts before verification so a slow response cannot renew an old code', async () => {
+  const app = harness('login', 'signup');
+  await app.ready();
+  const click = app.click();
+  app.nativeCalls[0].resolve(credential('login'));
+  await until(() => app.requests.length === 2, 'verification request');
+  app.advanceTimersBy(46000);
+  app.respond(1, { redirect_url: CALLBACK });
+  await click;
+  assert.ok(app.intro.textContent.includes('アカウントが見つかりました'));
+  await app.click();
+  assert.deepEqual(app.redirects, ['/?auth=login&v=20260912-confirmed']);
   assert.equal(app.requests.length, 2);
+});
+
+test('navigation failure preserves the confirmed account and never restarts verification or registration', async () => {
+  const app = harness('login', 'signup', { navigationFailures: 1 });
+  await app.ready();
+  const click = app.click();
+  await app.completeNative(0);
+  await click;
+  await app.click();
+  assert.deepEqual(app.redirects, []);
+  assert.equal(app.button.disabled, false);
+  assert.equal(app.button.textContent, '元のアカウントでログイン');
+  assert.equal(app.newButton.disabled, true);
+  assert.ok(app.intro.textContent.includes('アカウントが見つかりました'));
+  app.clickNew();
+  assert.equal(app.requests.length, 2);
+  assert.equal(app.nativeCalls.length, 1);
+  await app.click();
+  assert.deepEqual(app.redirects, [CALLBACK]);
 });
 
 test('only an explicit new-account action navigates to registration, once', async () => {
@@ -718,11 +760,10 @@ test('new-account action cannot replace the flow during preparation, native logi
   app.clickNew();
   assert.deepEqual(app.redirects, []);
   app.respond(1, { redirect_url: CALLBACK });
-  await until(() => [...app.timers.values()].some(timer => timer.delay === 900), 'existing-account notice before redirect');
+  await click;
   app.clickNew();
   assert.deepEqual(app.redirects, []);
-  app.advanceTimersBy(900);
-  await click;
+  await app.click();
   app.clickNew();
   assert.deepEqual(app.redirects, [CALLBACK]);
   assert.equal(app.nativeCalls.length, 1);
@@ -756,7 +797,7 @@ for (const outcome of ['cancel', 'verification rejection']) {
     assert.ok(app.requests.every(request => request.url.includes('/authentication/')));
     assert.ok(app.nativeCalls.every(call => call.method === 'get'));
     assert.deepEqual(app.redirects, []);
-    assert.ok(app.messageHistory.every(text => !text.includes('アカウントが見つかりました')), 'Failure must never announce an existing account');
+    assert.ok(app.introHistory.every(text => !text.includes('アカウントが見つかりました')), 'Failure must never announce an existing account');
     if (outcome === 'cancel') assert.match(app.message.textContent, /登録済み|登録時/);
     app.clickNew();
     assert.equal(new URL(app.redirects[0]).searchParams.get('screen_hint'), 'signup_new');
@@ -817,7 +858,7 @@ for (const outcome of ['unapproved callback', 'missing callback', 'server error'
     await until(() => app.requests.length === 3, 'authentication retry after invalid result');
     app.respondOptions(2);
     await click;
-    assert.ok(app.messageHistory.every(text => !text.includes('アカウントが見つかりました')));
+    assert.ok(app.introHistory.every(text => !text.includes('アカウントが見つかりました')));
     assert.equal(app.timers.size, 0, 'Invalid verification results must not schedule a success announcement');
     assert.deepEqual(app.redirects, []);
     assert.ok(app.nativeCalls.every(call => call.method === 'get'));
