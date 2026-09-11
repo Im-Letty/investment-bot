@@ -30,6 +30,15 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
   const maxOptionsAge=180000;
   const initialLabel=button.textContent;
   function say(text,error){message.textContent=text;message.className='kna-msg'+(error?' kna-err':'');}
+  function pauseForLoginNotice(){
+    if(document.visibilityState==='hidden')return Promise.resolve();
+    return new Promise(resolve=>{
+      const timer=setTimeout(finish,900);
+      function finish(){clearTimeout(timer);document.removeEventListener('visibilitychange',onVisibility);resolve();}
+      function onVisibility(){if(document.visibilityState==='hidden')finish();}
+      document.addEventListener('visibilitychange',onVisibility);
+    });
+  }
   function lockButtons(){button.disabled=true;if(newButton)newButton.disabled=true;}
   function unlockButtons(){button.disabled=busy;if(newButton)newButton.disabled=busy||needsRestart;}
   function readyLabel(){return registrationUncertain?'保存したパスキーでログイン':needsRestart?(restartMode==='signup'?'登録画面を開き直す':'ログイン画面を開き直す'):(options?initialLabel:'もう一度試す');}
@@ -136,7 +145,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
         // Restart through the application's login/signup entry. Reloading this
         // authorize URL would reuse an OAuth state that may already be expired.
         say((restartMode==='signup'?'登録':'ログイン')+'画面を開いています…');
-        location.assign('/?auth='+restartMode+'&v=20260912-existing');
+        location.assign('/?auth='+restartMode+'&v=20260912-existing-notice');
         leaving=true;
         return;
       }
@@ -159,6 +168,13 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       const result=await post('verify',payload);
       const destination=new URL(result.redirect_url);
       if(destination.origin!=='https://bvfndgjiahjqdlnyygnx.supabase.co'||destination.pathname!=='/auth/v1/callback')throw new Error('接続先を確認できませんでした。');
+      if(checkExisting){
+        // Account existence is confirmed by the server, not by a local hint or
+        // by the native picker alone. Keep both actions locked during handoff.
+        say('登録済みのアカウントが見つかりました。元のアカウントでログインしています。');
+        button.textContent='ログインしています…';
+        await pauseForLoginNotice();
+      }
       location.assign(destination.href);
       leaving=true;
     }catch(error){
