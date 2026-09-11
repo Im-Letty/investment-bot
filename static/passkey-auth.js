@@ -171,7 +171,7 @@ try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){w
       if(checkExisting){
         // Account existence is confirmed by the server, not by a local hint or
         // by the native picker alone. Keep both actions locked during handoff.
-        say('登録済みのアカウントが見つかりました。元のアカウントでログインしています。');
+        say('登録済みのアカウントが見つかりました。元のアカウントでログインしてください。');
         button.textContent='ログインしています…';
         await pauseForLoginNotice();
       }

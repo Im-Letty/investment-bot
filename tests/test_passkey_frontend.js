@@ -623,7 +623,7 @@ test('signup entry announces an existing account only after verification and wai
   assert.equal(app.timers.size, 0);
   app.respond(1, { redirect_url: CALLBACK });
   await until(() => app.message.textContent.includes('アカウントが見つかりました'), 'verified existing-account announcement');
-  assert.equal(app.message.textContent, '登録済みのアカウントが見つかりました。元のアカウントでログインしています。');
+  assert.equal(app.message.textContent, '登録済みのアカウントが見つかりました。元のアカウントでログインしてください。');
   assert.equal(app.button.textContent, 'ログインしています…');
   assert.equal(app.button.disabled, true);
   assert.equal(app.newButton.disabled, true);
