@@ -74,6 +74,7 @@
   }
   function drawMarket(d){
     _mktCache=d.market;renderMorningGrid(_mktCache);
+    window.__knHomeABase=d;if(window.knHomeA)window.knHomeA.acceptBase(d);
     var t=document.getElementById('morning-update-time');if(t)t.textContent=d.updated||'--';
     var tr=window.t||function(k){return k;};
     var a=document.getElementById('morning-analysis');if(a)a.innerHTML='<strong>'+esc(tr('data_updated'))+': '+esc(d.updated||'--')+'</strong>'+(d.market['VIX恐怖指数']?'<br>VIX: '+esc(d.market['VIX恐怖指数'].display):'')+(d.market['米10年金利']?esc(tr('mkt_us_rate_label'))+esc(d.market['米10年金利'].display):'');
@@ -89,6 +90,7 @@
       drawMarket(d);if(Number.isFinite(d.fetched_at))save('kn_market_v1',d);
       return d;
     }).catch(function(){
+      if(window.knHomeA)window.knHomeA.baseFailed();
       if(_mktCache){renderMorningGrid(_mktCache);return;}
       var a=document.getElementById('morning-analysis');if(a)a.textContent='市場データを確認しています。ニュースはそのままご覧いただけます。';
       window.__mdTry=(window.__mdTry||0)+1;
