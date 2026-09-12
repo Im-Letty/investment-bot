@@ -2447,10 +2447,6 @@ def cache_versioned_features(response):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
 
-# Warm public headlines independently of optional translation preloading.
-# This starts a background refresh without delaying server startup.
-news_cache.snapshot(wait=False)
-
 # Start translation preload in background (works for both gunicorn and direct run)
 # PRELOAD_TRANSLATIONS=0 で無効化可能（メモリ節約）
 if os.environ.get("PRELOAD_TRANSLATIONS", "1") != "0":
