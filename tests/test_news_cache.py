@@ -1,4 +1,6 @@
 import ast
+import gzip
+import io
 from pathlib import Path
 from threading import Event, Lock
 import unittest
@@ -108,14 +110,38 @@ class NewsCacheTests(unittest.TestCase):
         response = Mock()
         response.__enter__ = Mock(return_value=response)
         response.__exit__ = Mock(return_value=False)
-        response.iter_content.return_value = [b'<rss><channel><item><title>News</title></item></channel></rss>']
-        with patch('news_cache.requests.get', return_value=response) as get:
+        response.headers = {}
+        xml = b'<rss><channel><item><title>News</title></item></channel></rss>'
+        response.read1.side_effect = io.BytesIO(xml).read1
+        with patch('news_cache.urlopen', return_value=response) as get:
             self.assertEqual(fetch_feed('https://example.test/rss'), ('News',))
-            get.assert_called_once_with('https://example.test/rss', timeout=(2, 3), stream=True)
-            response.raise_for_status.assert_called_once()
-        response.iter_content.return_value = [b'x' * 2_000_001]
-        with patch('news_cache.requests.get', return_value=response):
+            request = get.call_args.args[0]
+            self.assertEqual(request.full_url, 'https://example.test/rss')
+            self.assertTrue(request.get_header('User-agent').startswith('feedparser/'))
+            self.assertEqual(request.get_header('Accept-encoding'), 'identity')
+            self.assertEqual(get.call_args.kwargs, {'timeout': 8})
+        response.read1.side_effect = io.BytesIO(b'x' * 2_000_001).read1
+        with patch('news_cache.urlopen', return_value=response):
             with self.assertRaises(ValueError):
+                fetch_feed('https://example.test/rss')
+
+    def test_network_fetch_bounds_gzip_and_total_read_time(self):
+        response = Mock()
+        response.__enter__ = Mock(return_value=response)
+        response.__exit__ = Mock(return_value=False)
+        response.headers = {'Content-Encoding': 'gzip'}
+        xml = b'<rss><channel><item><title>News</title></item></channel></rss>'
+        response.read1.side_effect = io.BytesIO(gzip.compress(xml)).read1
+        with patch('news_cache.urlopen', return_value=response):
+            self.assertEqual(fetch_feed('https://example.test/rss'), ('News',))
+        response.read1.side_effect = io.BytesIO(gzip.compress(b'x' * 2_000_001)).read1
+        with patch('news_cache.urlopen', return_value=response):
+            with self.assertRaisesRegex(ValueError, 'decoded size'):
+                fetch_feed('https://example.test/rss')
+        response.read1.side_effect = io.BytesIO(xml).read1
+        response.headers = {}
+        with patch('news_cache.urlopen', return_value=response), patch('news_cache.time.monotonic', side_effect=[0, 0, 11]):
+            with self.assertRaisesRegex(ValueError, 'time budget'):
                 fetch_feed('https://example.test/rss')
 
 

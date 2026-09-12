@@ -1,10 +1,15 @@
 """Shared public RSS snapshots; slow feeds never block an existing snapshot."""
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from threading import Condition, Thread
+import gzip
+import io
+import logging
 import time
+from urllib.request import Request, urlopen
 
 import feedparser
-import requests
+
+logger = logging.getLogger(__name__)
 
 
 NEWS_FEEDS = {
@@ -17,18 +22,29 @@ NEWS_FEEDS = {
 
 def fetch_feed(url):
     # Parse bytes so feedparser cannot make an unbounded network request.
-    deadline = time.monotonic() + 6
-    with requests.get(url, timeout=(2, 3), stream=True) as response:
-        response.raise_for_status()
+    deadline = time.monotonic() + 10
+    request = Request(url, headers={"User-Agent": feedparser.USER_AGENT,
+                                   "Accept-Encoding": "identity"})
+    # Keep the original feedparser urllib transport and feed client identity.
+    # read1 returns available buffered bytes without filling a large chunk or
+    # paying Python iteration overhead for every byte on a small server.
+    with urlopen(request, timeout=8) as response:
         content = bytearray()
-        if time.monotonic() > deadline:
-            raise ValueError("RSS response exceeded its time budget")
-        # RSS is small. Check each yielded byte so a trickling body cannot keep
-        # a large chunk incomplete forever despite the socket's read timeout.
-        for chunk in response.iter_content(1):
+        while True:
+            if time.monotonic() > deadline:
+                raise ValueError("RSS response exceeded its time budget")
+            chunk = response.read1(64 * 1024)
             content.extend(chunk)
             if len(content) > 2_000_000 or time.monotonic() > deadline:
                 raise ValueError("RSS response exceeded its size/time budget")
+            if not chunk:
+                break
+        # identity was requested, but tolerate a server returning gzip anyway.
+        if response.headers.get("Content-Encoding", "").lower() == "gzip":
+            with gzip.GzipFile(fileobj=io.BytesIO(content)) as compressed:
+                content = compressed.read(2_000_001)
+            if len(content) > 2_000_000:
+                raise ValueError("RSS response exceeded its decoded size budget")
     parsed = feedparser.parse(bytes(content))
     titles = [str(entry.get("title", "")).strip()[:1000]
               for entry in parsed.entries[:7] if entry.get("title")]
@@ -91,7 +107,10 @@ class NewsCache:
                         titles = tuple(str(t).strip()[:1000] for t in future.result()[:7] if t)
                         if not titles:
                             continue
-                    except Exception:
+                    except Exception as error:
+                        logger.warning("RSS refresh failed source=%s error=%s status=%s",
+                                       pending[future], type(error).__name__,
+                                       getattr(error, "code", "-"))
                         continue
                     with self._condition:
                         self._values[pending[future]] = (titles, self.clock())
