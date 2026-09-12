@@ -3066,7 +3066,6 @@ window.sb.auth.getSession().then(function(result){
     html+='<p class="kna-privacy">顔や指紋の情報を、こちらでお預かりすることはありません。</p>';
     if(!confirmed){
     html+='<details class="kna-alternatives"'+(passkeyEn?'':' open')+'><summary>LINE・Google・メールで'+verb+'</summary><div class="kna-alternative-body">';
-    if(mode==='login') html+='<p class="kna-alternative-copy">登録したときと同じ方法を選んでください。</p>';
     html+=lineBtn();
     html+=googleBtn();
     html+=mailBtn();
