@@ -233,12 +233,14 @@ class RouteCompatibilityTests(unittest.TestCase):
                        news_cache=cache, news_translations=translator, NEWS_FEEDS=NEWS_FEEDS)
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'news-routes', 'exec'), context)
         self.assertEqual(context['fetch_news'](), {source: '・見出し' if source == 'NHK経済' else '' for source in NEWS_FEEDS})
+        cache.snapshot.reset_mock()
         response = app.test_client().get('/api/morning-news?lang=unknown')
         data = response.get_json()
         self.assertEqual(data['lang'], 'ja')
         self.assertEqual(data['fetched_at'], 1000)
         self.assertTrue(data['refreshing'])
         self.assertTrue(data['stale'])
+        cache.snapshot.assert_called_once_with(wait=False)
         translator.snapshot.assert_called_once_with(snapshot['news'], 'ja')
 
 

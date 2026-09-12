@@ -2149,7 +2149,9 @@ def api_morning_news():
         lang = (request.args.get("lang") or "ja").lower()
         if lang not in ("ja", "en", "ko", "zh"):
             lang = "ja"
-        snapshot = news_cache.snapshot()
+        # Keep the web worker available while a first snapshot is prepared.
+        # The browser polls refreshing snapshots without clearing content.
+        snapshot = news_cache.snapshot(wait=False)
         items, translating = news_translations.snapshot(snapshot["news"], lang)
         fetched_at = snapshot["fetched_at"]
         result = {**snapshot, "news": items, "lang": lang,
@@ -2444,6 +2446,10 @@ def cache_versioned_features(response):
             r"/static/(?:simulator-embed-[a-f0-9]{10}\.html|pet-features-[a-f0-9]{10}\.js)", request.path):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
+
+# Warm public headlines independently of optional translation preloading.
+# This starts a background refresh without delaying server startup.
+news_cache.snapshot(wait=False)
 
 # Start translation preload in background (works for both gunicorn and direct run)
 # PRELOAD_TRANSLATIONS=0 で無効化可能（メモリ節約）
