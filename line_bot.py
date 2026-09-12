@@ -9,7 +9,8 @@ import requests
 import threading
 import time
 import gc
-from flask import Flask, request, abort, jsonify, redirect
+from news_cache import NEWS_FEEDS, news_cache, HeadlineTranslations
+from flask import Flask, request, abort, jsonify, redirect, send_file
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import (
@@ -742,7 +743,8 @@ def fetch_watchlist():
     return results
 
 # ===== Translation helpers (MyMemory API) =====
-_translation_cache = {}  # {(text, target_lang): translated}
+_translation_cache = {}  # {(text, target_lang): (translated, expires_at)}
+_translation_lock = threading.Lock()
 
 def translate_text(text, target_lang):
     """Translate Japanese text to target_lang (en/ko/zh) via MyMemory API.
@@ -751,8 +753,10 @@ def translate_text(text, target_lang):
     if not text or not target_lang or target_lang == "ja":
         return text
     key = (text, target_lang)
-    if key in _translation_cache:
-        return _translation_cache[key]
+    with _translation_lock:
+        cached = _translation_cache.get(key)
+        if cached and cached[1] > time.time():
+            return cached[0]
     lang_map = {"en": "en", "ko": "ko", "zh": "zh-CN"}
     tgt = lang_map.get(target_lang)
     if not tgt:
@@ -767,7 +771,10 @@ def translate_text(text, target_lang):
         translated = (j.get("responseData") or {}).get("translatedText") or text
         # MyMemory sometimes returns error messages in translatedText
         if translated and "MYMEMORY WARNING" not in translated.upper():
-            _translation_cache[key] = translated
+            with _translation_lock:
+                _translation_cache[key] = (translated, time.time() + 3600)
+                while len(_translation_cache) > 256:
+                    del _translation_cache[next(iter(_translation_cache))]
             return translated
     except Exception:
         pass
@@ -782,6 +789,8 @@ def translate_news_items(items, target_lang):
         translated_title = translate_text(it.get("title", ""), target_lang)
         out.append({"source": it.get("source", ""), "title": translated_title})
     return out
+
+news_translations = HeadlineTranslations(translate_text)
 
 def preload_translations():
     """Preload en/ko/zh translations of current news on server startup.
@@ -812,17 +821,9 @@ def preload_translations():
 
 
 def fetch_news():
-    rss = {
-        "NHK経済":      "https://www.nhk.or.jp/rss/news/cat5.xml",
-        "NHK株・企業":  "https://www.nhk.or.jp/rss/news/cat4.xml",
-        "ロイター経済":  "https://feeds.reuters.com/reuters/businessNews",
-        "ロイター米国株":"https://feeds.reuters.com/reuters/companyNews",
-    }
-    all_news = {}
-    for label, url in rss.items():
-        feed = feedparser.parse(url)
-        all_news[label] = "\n".join([f"・{e.title}" for e in feed.entries[:7]])
-    return all_news
+    snapshot = news_cache.snapshot()
+    return {source: "\n".join("・" + item["title"] for item in snapshot["news"]
+                              if item["source"] == source) for source in NEWS_FEEDS}
 
 def generate_morning_report(lang="ja"):
     market    = fetch_market_data()
@@ -1910,7 +1911,8 @@ def api_morning_data():
         result = {
             "date": today + "(" + weekday + ")",
             "market": {},
-            "updated": datetime.now().strftime("%H:%M")
+            "updated": datetime.fromtimestamp(_MKT_CACHE["ts"]).strftime("%H:%M") if _MKT_CACHE["ts"] else "--",
+            "fetched_at": _MKT_CACHE["ts"] or None
         }
         for k, v in market.items():
             result["market"][k] = {
@@ -2145,15 +2147,15 @@ def api_lookup_all():
 def api_morning_news():
     try:
         lang = (request.args.get("lang") or "ja").lower()
-        news = fetch_news()
-        items = []
-        for source, content in news.items():
-            for line in content.split("\n"):
-                title = line.strip().lstrip("・").strip()
-                if title:
-                    items.append({"source": source, "title": title})
-        items = translate_news_items(items, lang)
-        return jsonify({"news": items, "updated": datetime.now().strftime("%H:%M"), "lang": lang})
+        if lang not in ("ja", "en", "ko", "zh"):
+            lang = "ja"
+        snapshot = news_cache.snapshot()
+        items, translating = news_translations.snapshot(snapshot["news"], lang)
+        fetched_at = snapshot["fetched_at"]
+        result = {**snapshot, "news": items, "lang": lang,
+                  "translation_pending": translating,
+                  "updated": datetime.fromtimestamp(fetched_at).strftime("%H:%M") if fetched_at else "--"}
+        return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e), "news": []}), 200
 
@@ -2432,8 +2434,16 @@ try{var cs=await self.clients.matchAll({type:'window'});cs.forEach(function(c){c
 
 @app.route("/")
 def index():
-    with open("index.html", encoding="utf-8") as f:
-        return f.read(), 200, {"Content-Type": "text/html"}
+    # Revalidate on each visit; unchanged HTML can reuse its previous download.
+    return send_file("index.html", mimetype="text/html", conditional=True, max_age=0)
+
+
+@app.after_request
+def cache_versioned_features(response):
+    if response.status_code == 200 and re.fullmatch(
+            r"/static/(?:simulator-embed-[a-f0-9]{10}\.html|pet-features-[a-f0-9]{10}\.js)", request.path):
+        response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+    return response
 
 # Start translation preload in background (works for both gunicorn and direct run)
 # PRELOAD_TRANSLATIONS=0 で無効化可能（メモリ節約）
