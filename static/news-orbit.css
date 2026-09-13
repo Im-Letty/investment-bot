@@ -22,9 +22,10 @@ body.kn-home-a .kn-orbit-scene {position:absolute;inset:0;isolation:isolate;poin
 body.kn-home-a .kn-orbit-globe-halo {position:absolute;width:215px;height:170px;left:50%;top:21px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--kn-orbit-pale) 83%,#fff) 0,color-mix(in srgb,var(--kn-orbit-pale) 35%,transparent) 47%,transparent 74%)}
 body.kn-home-a .kn-orbit-globe {position:absolute;left:50%;top:6px;width:208px;height:208px;margin-left:-104px;object-fit:contain;z-index:5;clip-path:circle(43.25% at 50% 50%);animation:knNewsEarthSway 14s ease-in-out infinite}
 body.kn-home-a .kn-orbit-world-shadow {position:absolute;left:50%;top:189px;width:120px;height:15px;transform:translateX(-50%);background:radial-gradient(ellipse,color-mix(in srgb,var(--kn-orbit-ink) 20%,transparent),transparent 69%);animation:knNewsWorldShadow 14s ease-in-out infinite}
-body.kn-home-a .kn-orbit-globe-orbit {position:absolute;left:50%;top:52px;margin-left:-139px;width:278px;height:107px;border-radius:50%;transform:rotate(-16deg);border:1px solid color-mix(in srgb,var(--kn-orbit-ink) 24%,transparent);pointer-events:none}
-body.kn-home-a .kn-orbit-orbit-back {z-index:1}
-body.kn-home-a .kn-orbit-orbit-front {z-index:7;clip-path:inset(51% 0 0 0);border-color:color-mix(in srgb,var(--kn-orbit-accent) 55%,#fffdf0)}
+/* Both depth halves use the same gradient and meet at its midpoint. */
+body.kn-home-a .kn-orbit-globe-orbit {position:absolute;left:50%;top:52px;margin-left:-139px;width:278px;height:107px;box-sizing:border-box;border:0;padding:1px;border-radius:50%;transform:rotate(-16deg);pointer-events:none;background:linear-gradient(180deg,color-mix(in srgb,var(--kn-orbit-ink) 24%,transparent) 28%,color-mix(in srgb,var(--kn-orbit-accent) 55%,#fffdf0) 72%);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude}
+body.kn-home-a .kn-orbit-orbit-back {z-index:1;clip-path:inset(0 0 50% 0)}
+body.kn-home-a .kn-orbit-orbit-front {z-index:7;clip-path:inset(50% 0 0 0)}
 body.kn-home-a .kn-orbit-news-orbiter {position:absolute;top:107px;left:50%;margin:-31px 0 0 -31px;width:62px;height:62px;display:flex;align-items:center;justify-content:center;animation:knNewsOrbit 15s linear infinite;will-change:transform}
 body.kn-home-a .kn-orbit-news-orbiter img {display:block;width:100%;height:100%;object-fit:contain}
 body.kn-home-a .kn-orbit-orbiter-two {animation-delay:-5s}
