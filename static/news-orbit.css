@@ -13,10 +13,15 @@ body.kn-home-a #morning-section .morning-banner {
   background:radial-gradient(ellipse at 6% 0%,color-mix(in srgb,var(--kn-orbit-pale) 42%,#fff) 0,transparent 63%),radial-gradient(ellipse at 100% 100%,var(--kn-orbit-pale) 0,transparent 48%),linear-gradient(125deg,var(--kn-orbit-pale),var(--kn-orbit-mid) 65%,var(--kn-orbit-pale))!important;
 }
 body.kn-home-a[data-theme="dark"] #morning-section .morning-banner {background:linear-gradient(125deg,var(--kn-orbit-pale),var(--kn-orbit-mid) 65%,var(--kn-orbit-pale))!important}
-body.kn-home-a .kn-a-orbit-signature {display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px;color:var(--kn-a-muted)}
-body.kn-home-a #morning-section .kn-a-masthead .kn-a-orbit-signature h1 {font:400 calc(13px * var(--kn-a-scale,1))/1.7 var(--kn-a-serif)!important;letter-spacing:.09em!important;margin:0!important;color:var(--kn-a-muted)!important}
-body.kn-home-a .kn-a-orbit-signature .kn-a-wordmark-en {font:400 calc(10px * var(--kn-a-scale,1))/1.7 Georgia,serif!important;letter-spacing:.1em;margin:0;padding-left:8px;border-left:1px solid color-mix(in srgb,var(--kn-orbit-ink) 27%,transparent)}
-body.kn-home-a #knHomeADate {margin-top:12px}
+/* Selected B: a small sun beside the title, with the date beneath. */
+body.kn-home-a .kn-a-daily-caption {--kn-caption-ink:#446851;--kn-caption-gold:#a28c55;--kn-caption-line:#859d715c;min-height:76px;max-width:300px;margin:0 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--kn-caption-ink)}
+body.kn-home-a[data-kn-a-custom-color] .kn-a-daily-caption,body.kn-home-a[data-theme="dark"] .kn-a-daily-caption {--kn-caption-ink:var(--kn-a-muted);--kn-caption-gold:color-mix(in srgb,var(--kn-a-muted) 70%,#c3a35e);--kn-caption-line:color-mix(in srgb,var(--kn-a-muted) 35%,transparent)}
+body.kn-home-a .kn-a-daily-title {display:flex;align-items:center;justify-content:center;gap:9px;margin-bottom:8px;max-width:100%}
+body.kn-home-a #morning-section .kn-a-masthead .kn-a-daily-title h1 {font:400 calc(13px * var(--kn-a-scale,1))/1.7 var(--kn-a-serif)!important;letter-spacing:.055em!important;margin:0!important;color:var(--kn-caption-ink)!important;text-align:center;min-width:0}
+body.kn-home-a .kn-a-masthead .kn-a-daily-title svg {width:18px;height:18px;flex:none;fill:none;stroke:var(--kn-caption-gold);stroke-width:1.1;stroke-linecap:round;stroke-linejoin:round}
+body.kn-home-a .kn-a-daily-caption #knHomeADate {display:flex;align-items:center;justify-content:center;gap:10px;font:400 calc(11px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)!important;letter-spacing:.055em;font-variant-numeric:tabular-nums;color:var(--kn-caption-ink);margin:0}
+body.kn-home-a #knHomeADate time {white-space:nowrap}
+body.kn-home-a .kn-a-date-separator {width:1px;height:9px;background:var(--kn-caption-line)}
 body.kn-home-a .kn-news-orbit {position:relative;isolation:isolate;width:320px;max-width:100%;height:220px;margin:0 auto}
 body.kn-home-a .kn-orbit-scene {position:absolute;inset:0;isolation:isolate;pointer-events:none}
 body.kn-home-a .kn-orbit-globe-halo {position:absolute;width:215px;height:170px;left:50%;top:21px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--kn-orbit-pale) 83%,#fff) 0,color-mix(in srgb,var(--kn-orbit-pale) 35%,transparent) 47%,transparent 74%)}
