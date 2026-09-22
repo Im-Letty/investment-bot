@@ -9,7 +9,8 @@ import requests
 import threading
 import time
 import gc
-from news_cache import NEWS_FEEDS, news_cache, HeadlineTranslations
+from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
+                        select_daily_news, load_reviewed_supplements)
 from flask import Flask, request, abort, jsonify, redirect, send_file
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -822,8 +823,9 @@ def preload_translations():
 
 def fetch_news():
     snapshot = news_cache.snapshot()
-    return {source: "\n".join("・" + item["title"] for item in snapshot["news"]
-                              if item["source"] == source) for source in NEWS_FEEDS}
+    return {source: "\n".join(("・" + item["title"] for item in
+                              [item for item in snapshot["news"] if item["source"] == source][:7]))
+            for source in NEWS_FEEDS}
 
 def generate_morning_report(lang="ja"):
     market    = fetch_market_data()
@@ -2151,10 +2153,15 @@ def api_morning_news():
             lang = "ja"
         # Keep the web worker available while a first snapshot is prepared.
         # The browser polls refreshing snapshots without clearing content.
-        snapshot = news_cache.snapshot(wait=False)
-        items, translating = news_translations.snapshot(snapshot["news"], lang)
+        snapshot = select_daily_news(
+            news_cache.snapshot(wait=False), allowed_sources=WEB_NEWS_SOURCES,
+            reviewed_supplements=load_reviewed_supplements())
+        news_count = len(snapshot["news"])
+        translated, translating = news_translations.snapshot(
+            snapshot["news"] + snapshot["supplements"], lang)
         fetched_at = snapshot["fetched_at"]
-        result = {**snapshot, "news": items, "lang": lang,
+        result = {**snapshot, "news": translated[:news_count],
+                  "supplements": translated[news_count:], "lang": lang,
                   "translation_pending": translating,
                   "updated": datetime.fromtimestamp(fetched_at).strftime("%H:%M") if fetched_at else "--"}
         return jsonify(result)

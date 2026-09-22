@@ -28,7 +28,7 @@ function harness(saved={}){
     return node;
   }
   ['morning-news-content','morning-analysis','morning-points','morning-countdown','morning-update-time'].forEach(id=>nodes[id]=element());
-  const context={console,Promise,Date:FakeDate,Number,AbortController,
+  const context={console,Promise,Date:FakeDate,Number,URL,AbortController,
     document:{readyState:'loading',hidden:false,documentElement:{lang:'ja'},getElementById:id=>nodes[id]||null,addEventListener:(name,fn)=>(listeners[name]||=[]).push(fn)},
     localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v))},
     fetch(url,options){const d=deferred();requests.push({url,options,...d});return d.promise;},
@@ -42,7 +42,12 @@ function harness(saved={}){
     event:name=>(listeners[name]||[]).forEach(fn=>fn()),
     language(l){storage.set('app_lang',l);context.document.documentElement.lang=l;},
     reply(request,data){request.resolve({ok:true,json:async()=>data});return flush();},
-    news(l='ja',extra={}){return {lang:l,news:[{source:'NHK経済',title:'今日のニュース'}],fetched_at:clock/1000,updated:'09:00',refreshing:false,stale:false,translation_pending:false,...extra};},
+    news(l='ja',extra={}){
+      const date=new Date(clock+9*3600000).toISOString().slice(0,10);
+      const data={lang:l,policy_version:2,edition_date:date,selection_status:'ready',news:[{source:'NHK経済',title:'今日のニュース'}],supplements:[],fetched_at:clock/1000,updated:'09:00',refreshing:false,stale:false,translation_pending:false,...extra};
+      data.news=data.news.map((item,i)=>({url:'https://news.example/item-'+i,published_at:clock/1000,published_date:date,...item}));
+      return data;
+    },
     market(){return {market:{'日経225':{display:'100 ▲1%'}},updated:'09:00',fetched_at:clock/1000};}
   };
 }
@@ -60,7 +65,7 @@ test('news starts without waiting for market; repeated startup shares requests',
 
 test('cached news appears immediately, refresh does not blank it, and titles are escaped',async()=>{
   const app=harness();const old=app.news('ja',{news:[{source:'<feed>',title:'<img src=x onerror=bad()>'}]});
-  app.storage.set('kn_news_v1_ja',JSON.stringify(old));app.event('DOMContentLoaded');
+  app.storage.set('kn_news_v2_ja',JSON.stringify(old));app.event('DOMContentLoaded');
   const content=app.nodes['morning-news-content'];
   assert.match(content.innerHTML,/&lt;img/);assert.ok(!content.innerHTML.includes('<img'));
   assert.ok(!content.innerHTML.includes('skeleton'));assert.match(content.innerHTML,/取得/);
@@ -86,6 +91,14 @@ test('returning to pending translation bypasses freshness delay',async()=>{
   assert.equal(app.requests.filter(r=>r.url.endsWith('=en')).length,2);
 });
 
+test('late old-language pending response cannot replace rendered current-language news with a skeleton',async()=>{
+  const app=harness();app.event('DOMContentLoaded');app.language('en');app.event('langChanged');
+  await app.reply(app.requests.find(r=>r.url.endsWith('=en')),app.news('en',{news:[{source:'NHK',title:'Current headline'}]}));
+  await app.reply(app.requests[0],app.news('ja',{news:[],fetched_at:null,refreshing:true,selection_status:'refreshing'}));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/Current headline/);
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('skeleton'));
+});
+
 test('fresh complete data is reused and hidden tabs do not poll',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news());await app.reply(app.requests[1],app.market());
@@ -100,14 +113,14 @@ test('fresh complete data is reused and hidden tabs do not poll',async()=>{
 test('empty pending cold response is not persisted as a successful cache',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news('ja',{news:[],fetched_at:null,refreshing:true}));
-  assert.equal(app.storage.has('kn_news_v1_ja'),false);
+  assert.equal(app.storage.has('kn_news_v2_ja'),false);
   assert.match(app.nodes['morning-news-content'].innerHTML,/skeleton/);
   for(const [id,timer] of [...app.timers])if(timer.ms===1500){app.timers.delete(id);timer.fn();}
   assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,2);
 });
 
 test('expired saved headlines are not shown; cold failure exposes a working retry',async()=>{
-  const app=harness();app.storage.set('kn_news_v1_ja',JSON.stringify(app.news('ja',{fetched_at:(app.now()-901000)/1000})));
+  const app=harness();app.storage.set('kn_news_v2_ja',JSON.stringify(app.news('ja',{fetched_at:(app.now()-901000)/1000})));
   app.event('DOMContentLoaded');assert.match(app.nodes['morning-news-content'].innerHTML,/skeleton/);
   app.requests[0].reject(new Error('offline'));await flush();
   assert.match(app.nodes['morning-news-content'].innerHTML,/もう一度読み込む/);
@@ -123,12 +136,11 @@ test('market failure does not prevent successfully loaded headlines',async()=>{
   assert.match(app.nodes['morning-analysis'].textContent,/ニュースはそのまま/);
 });
 
-test('E front shows at most three distinct headlines; A details keep all live sources',async()=>{
+test('E front preserves daily selection and A details contain only selected headlines',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   const news=[
-    {source:'国内経済',title:'見出し1'},{source:'国内経済',title:'見出し2'},
-    {source:'会社',title:'見出し1'},{source:'会社',title:'見出し3'},
-    {source:'海外',title:'見出し4'},{source:'海外',title:'見出し5'}
+    {source:'国内経済',title:'見出し1'},{source:'会社',title:'見出し2'},
+    {source:'海外',title:'見出し3'}
   ];
   await app.reply(app.requests[0],app.news('ja',{news}));
   const html=app.nodes['morning-news-content'].innerHTML;
@@ -139,18 +151,18 @@ test('E front shows at most three distinct headlines; A details keep all live so
   assert.match(html,/class="stories editorial-detail"/);
   assert.equal((html.match(/<details class="story"/g)||[]).length,3);
   assert.equal((html.match(/<li>/g)||[]).length,news.length);
-  news.forEach(item=>assert.ok(html.includes('<li>'+item.title+'</li>')));
+  news.forEach(item=>assert.ok(html.includes('<li><span>'+item.title+'</span>')));
   assert.ok(!html.includes('AIで'));
   assert.ok(!html.includes('サンマルク'));
 });
 
-test('calendar labels JST retrieval date, not an invented publication date',async()=>{
+test('calendar and publication dates use the JST edition',async()=>{
   const app=harness();app.advance(Date.UTC(2026,8,21,15,1)-app.now());app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news());
   const html=app.nodes['morning-news-content'].innerHTML;
-  assert.match(html,/取得日 2026-09-22/);
+  assert.match(html,/掲載対象日 2026-09-22/);
   assert.match(html,/<strong>22<\/strong>/);
-  assert.match(html,/記事の発表日はそれぞれ異なります/);
+  assert.match(html,/本日発表された経済ニュースを優先/);
   assert.match(html,/JST/);
 });
 
@@ -199,6 +211,71 @@ test('a source disappearing during refresh returns keyboard focus to Read more',
 test('saved recent market data renders before the first network response',()=>{
   const app=harness();app.storage.set('kn_market_v1',JSON.stringify(app.market()));
   app.event('DOMContentLoaded');assert.equal(app.renders.length,1);assert.equal(app.requests.length,2);
+});
+
+test('pre-policy cache is never used, even when its retrieval time is recent',()=>{
+  const app=harness();
+  const legacy=app.news('ja',{policy_version:1,news:[{source:'NHK経済',title:'日付未確認の旧見出し'}]});
+  app.storage.set('kn_news_v1_ja',JSON.stringify(legacy));
+  app.storage.set('kn_news_v2_ja',JSON.stringify(legacy));
+  app.event('DOMContentLoaded');
+  assert.match(app.nodes['morning-news-content'].innerHTML,/skeleton/);
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('日付未確認の旧見出し'));
+});
+
+test('successfully checked empty day replaces old headlines without adding filler or retry errors',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news());
+  app.advance(121000);app.context.loadMorningNews();
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[],selection_status:'empty_today'}));
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.match(html,/まだ確認できていません/);
+  assert.ok(!html.includes('今日のニュース'));
+  assert.ok(!html.includes('morning-news-error'));
+  assert.equal(JSON.parse(app.storage.get('kn_news_v2_ja')).news.length,0);
+});
+
+test('reviewed older news stays in a separately dated supplement and never fills today',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  const old=app.now()/1000-86400;
+  const supplement={source:'NHK経済',title:'確認済みの補足',url:'https://news.example/older',published_at:old,published_date:new Date(old*1000+9*3600000).toISOString().slice(0,10),is_supplement:true,editorial_reason:'今日の制度変更を理解するための補足です。'};
+  await app.reply(app.requests[0],app.news('ja',{news:[],supplements:[supplement]}));
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.match(html,/日付付きの補足/);
+  assert.match(html,/2026\/9\/11/);
+  assert.match(html,/まだ確認できていません/);
+  assert.ok(!html.split('<details class="read-more"')[0].includes('確認済みの補足'));
+  assert.ok(html.includes(supplement.editorial_reason));
+});
+
+test('yesterday cannot reappear from cache when the network fails after JST midnight',async()=>{
+  const app=harness();app.advance(Date.UTC(2026,8,12,14,59,59)-app.now());app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news());
+  app.advance(2000);
+  for(const timer of app.intervals.values())timer.fn();
+  const request=app.requests.findLast(r=>r.url.includes('morning-news'));
+  assert.notEqual(request,app.requests[0]);
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('今日のニュース'));
+  request.reject(new Error('offline'));await flush();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('今日のニュース'));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/もう一度/);
+});
+
+test('a response requested yesterday is discarded if it arrives after JST midnight',async()=>{
+  const app=harness();app.advance(Date.UTC(2026,8,12,14,59,59)-app.now());app.event('DOMContentLoaded');
+  const yesterday=app.news();app.advance(2000);
+  await app.reply(app.requests[0],yesterday);
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('今日のニュース'));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/skeleton/);
+  assert.equal(app.storage.has('kn_news_v2_ja'),false);
+});
+
+test('missing, future and noncurrent publication dates never display as today',async()=>{
+  for(const metadata of [{published_at:null},{published_at:9999999999},{published_date:'2026-09-11'},{url:'javascript:alert(1)'}]){
+    const app=harness();app.event('DOMContentLoaded');
+    await app.reply(app.requests[0],app.news('ja',{news:[{source:'NHK経済',title:'採用しない見出し',...metadata}]}));
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('採用しない見出し'));
+  }
 });
 
 test('intro visuals and animation timeline remain byte-identical to the approved release',()=>{
