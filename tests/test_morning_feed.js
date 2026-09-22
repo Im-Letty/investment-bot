@@ -12,7 +12,21 @@ function harness(saved={}){
   const requests=[], storage=new Map(Object.entries(saved)), listeners={}, timers=new Map(), intervals=new Map(), nodes={}, renders=[];
   let timerId=0, clock=Date.UTC(2026,8,12,0,0);
   class FakeDate extends Date{static now(){return clock;}}
-  function element(){return {innerHTML:'',textContent:'',attrs:{},setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k];},querySelector(){return this.button||(this.button={});}};}
+  function element(){
+    let html='';
+    const node={textContent:'',attrs:{},details:[],summaries:[],
+      setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k];},
+      querySelector(){return this.button||(this.button={});},
+      querySelectorAll(selector){return selector==='details[data-news-key]'?this.details:selector==='[data-news-focus]'?this.summaries:[];},
+      contains(child){return this.summaries.includes(child);}};
+    const decode=s=>s.replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
+    Object.defineProperty(node,'innerHTML',{get(){return html;},set(value){
+      html=value;
+      node.details=[...html.matchAll(/<details\b[^>]*data-news-key="([^"]*)"/g)].map(m=>({open:false,getAttribute:k=>k==='data-news-key'?decode(m[1]):null}));
+      node.summaries=[...html.matchAll(/<summary\b[^>]*data-news-focus="([^"]*)"/g)].map(m=>({getAttribute:k=>k==='data-news-focus'?decode(m[1]):null,focus(options){this.focusOptions=options;context.document.activeElement=this;}}));
+    }});
+    return node;
+  }
   ['morning-news-content','morning-analysis','morning-points','morning-countdown','morning-update-time'].forEach(id=>nodes[id]=element());
   const context={console,Promise,Date:FakeDate,Number,AbortController,
     document:{readyState:'loading',hidden:false,documentElement:{lang:'ja'},getElementById:id=>nodes[id]||null,addEventListener:(name,fn)=>(listeners[name]||=[]).push(fn)},
@@ -107,6 +121,79 @@ test('market failure does not prevent successfully loaded headlines',async()=>{
   await app.reply(app.requests[0],app.news());
   assert.match(app.nodes['morning-news-content'].innerHTML,/今日のニュース/);
   assert.match(app.nodes['morning-analysis'].textContent,/ニュースはそのまま/);
+});
+
+test('E front shows at most three distinct headlines; A details keep all live sources',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  const news=[
+    {source:'国内経済',title:'見出し1'},{source:'国内経済',title:'見出し2'},
+    {source:'会社',title:'見出し1'},{source:'会社',title:'見出し3'},
+    {source:'海外',title:'見出し4'},{source:'海外',title:'見出し5'}
+  ];
+  await app.reply(app.requests[0],app.news('ja',{news}));
+  const html=app.nodes['morning-news-content'].innerHTML;
+  const front=html.split('<details class="read-more"')[0];
+  assert.match(front,/class="news-card journal"/);
+  assert.equal((front.match(/class="brief-part"/g)||[]).length,3);
+  assert.equal((front.match(/見出し1/g)||[]).length,1);
+  assert.match(html,/class="stories editorial-detail"/);
+  assert.equal((html.match(/<details class="story"/g)||[]).length,3);
+  assert.equal((html.match(/<li>/g)||[]).length,news.length);
+  news.forEach(item=>assert.ok(html.includes('<li>'+item.title+'</li>')));
+  assert.ok(!html.includes('AIで'));
+  assert.ok(!html.includes('サンマルク'));
+});
+
+test('calendar labels JST retrieval date, not an invented publication date',async()=>{
+  const app=harness();app.advance(Date.UTC(2026,8,21,15,1)-app.now());app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news());
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.match(html,/取得日 2026-09-22/);
+  assert.match(html,/<strong>22<\/strong>/);
+  assert.match(html,/記事の発表日はそれぞれ異なります/);
+  assert.match(html,/JST/);
+});
+
+test('refresh preserves open sources and keyboard focus; language change resets them',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news());
+  const content=app.nodes['morning-news-content'];
+  content.details.forEach(node=>node.open=true);
+  const oldSummary=content.summaries[1];oldSummary.focus();
+  app.advance(121000);app.context.loadMorningNews();
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[{source:'NHK経済',title:'更新された見出し'}]}));
+  assert.ok(content.details.every(node=>node.open));
+  assert.equal(app.context.document.activeElement,content.summaries[1]);
+  assert.notEqual(app.context.document.activeElement,oldSummary);
+  assert.equal(content.summaries[1].focusOptions.preventScroll,true);
+  app.language('en');app.event('langChanged');
+  await app.reply(app.requests.at(-1),app.news('en'));
+  assert.ok(content.details.every(node=>!node.open));
+});
+
+test('failed refresh retains expanded content and escapes source labels in attributes',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news('ja',{news:[{source:'\" onclick=\"bad()',title:'<script>bad()</script>'}]}));
+  const content=app.nodes['morning-news-content'];
+  content.details.forEach(node=>node.open=true);
+  assert.ok(!content.innerHTML.includes('" onclick="'));
+  assert.ok(!content.innerHTML.includes('<script>'));
+  app.advance(121000);app.context.loadMorningNews();
+  app.requests.at(-1).reject(new Error('offline'));await flush();
+  assert.ok(content.details.every(node=>node.open));
+  assert.match(content.innerHTML,/いま更新できません/);
+});
+
+test('a source disappearing during refresh returns keyboard focus to Read more',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news());
+  const content=app.nodes['morning-news-content'];
+  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
+  app.advance(121000);app.context.loadMorningNews();
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[{source:'別の配信元',title:'見出し'}]}));
+  assert.equal(app.context.document.activeElement,content.summaries[0]);
+  assert.equal(content.details[0].open,true);
+  assert.equal(content.details[1].open,false);
 });
 
 test('saved recent market data renders before the first network response',()=>{

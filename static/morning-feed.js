@@ -21,15 +21,53 @@
     var timer=controller?setTimeout(function(){controller.abort();},12000):null;
     return fetch(url,controller?{signal:controller.signal}:undefined).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).finally(function(){if(timer)clearTimeout(timer);});
   }
+  var digestCopy={
+    ja:{title:'経済ニュース',kicker:'経済の動きを、ひと目で。',meta:'配信元の見出し',date:'取得日',period:'各配信元から取得した見出しです。記事の発表日はそれぞれ異なります。',more:'もっと詳しく',close:'説明を閉じる',intro:'気になる配信元を開いて、見出しを読む。',source:'配信元',count:function(n){return n+'件の見出し';}},
+    en:{title:'Economic news',kicker:'The economy, at a glance.',meta:'Headlines from publishers',date:'Retrieved',period:'Headlines retrieved from publishers. Article publication dates vary.',more:'Read more',close:'Close details',intro:'Choose a publisher to read its headlines.',source:'Publisher',count:function(n){return n+' headlines';}},
+    ko:{title:'경제 뉴스',kicker:'경제의 움직임을 한눈에.',meta:'언론사 헤드라인',date:'가져온 날짜',period:'언론사에서 가져온 헤드라인입니다. 각 기사의 발행일은 다릅니다.',more:'더 자세히',close:'설명 닫기',intro:'언론사를 선택해 헤드라인을 읽어 보세요.',source:'언론사',count:function(n){return '헤드라인 '+n+'개';}},
+    zh:{title:'经济新闻',kicker:'一眼了解经济动态。',meta:'媒体新闻标题',date:'获取日期',period:'以下标题来自各媒体，文章的发布日期各不相同。',more:'了解更多',close:'收起详情',intro:'选择媒体，阅读新闻标题。',source:'媒体',count:function(n){return n+'条标题';}}
+  };
+  function newsSource(source){return window.translateNewsSource?window.translateNewsSource(source):source;}
+  function digestMarkup(d,l,status){
+    var c=digestCopy[l],groups=Object.create(null),featured=[],seen=Object.create(null);
+    d.news.forEach(function(item){(groups[item.source]||(groups[item.source]=[])).push(item.title);});
+    // Show at most three supplied headlines first, while retaining every source
+    // below. These are not AI summaries or claims about publication dates.
+    for(var row=0;row<7&&featured.length<3;row++)Object.keys(groups).forEach(function(source){
+      var title=groups[source][row];if(featured.length<3&&title&&!seen[title]){seen[title]=true;featured.push({source:source,title:title});}
+    });
+    var fetched=new Date(d.fetched_at*1000),jst=new Date(d.fetched_at*1000+9*60*60*1000);
+    var year=jst.getUTCFullYear(),month=String(jst.getUTCMonth()+1).padStart(2,'0'),day=String(jst.getUTCDate()).padStart(2,'0');
+    var dateKey=year+'-'+month+'-'+day,weekday=fetched.toLocaleDateString(l,{timeZone:'Asia/Tokyo',weekday:'long'});
+    var calendar='<div class="calendar" aria-label="'+esc(c.date+' '+dateKey+' '+weekday)+'"><span>'+esc(c.date)+' · '+month+' / '+year+'</span><strong>'+day+'</strong><small>'+esc(weekday)+'</small></div>';
+    var brief=featured.map(function(item){return '<div class="brief-part"><p>'+esc(item.title)+'</p><span class="headline-source">'+esc(newsSource(item.source))+'</span></div>';}).join('');
+    var stories=Object.keys(groups).map(function(source){
+      var key='source:'+source;
+      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.source)+'</span><span class="story-title">'+esc(newsSource(source))+'</span><span class="story-takeaway">'+esc(c.count(groups[source].length))+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><ul class="headline-list">'+groups[source].map(function(title){return '<li>'+esc(title)+'</li>';}).join('')+'</ul></div></details>';
+    }).join('');
+    return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="news-meta"><span>'+esc(c.meta)+'</span></div><div class="heading-text"><p class="news-kicker">'+esc(c.kicker)+'</p><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div><p class="news-period">'+esc(c.period)+'</p></header><div class="news-content"><div class="brief">'+brief+'</div><details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail"><p class="stories-intro">'+esc(c.intro)+'</p>'+stories+'</div></details><footer class="news-footer"><p>'+esc(status)+'</p></footer></div></article>';
+  }
+  function replaceNews(el,html,l){
+    if(el.innerHTML===html)return;
+    var opened=Object.create(null),focus=null;
+    if(shownLanguage===l){
+      el.querySelectorAll('details[data-news-key]').forEach(function(node){if(node.open)opened[node.getAttribute('data-news-key')]=true;});
+      if(document.activeElement&&el.contains(document.activeElement))focus=document.activeElement.getAttribute('data-news-focus');
+    }
+    el.innerHTML=html;
+    el.querySelectorAll('details[data-news-key]').forEach(function(node){node.open=!!opened[node.getAttribute('data-news-key')];});
+    if(focus){
+      var target=null,fallback=null;
+      el.querySelectorAll('[data-news-focus]').forEach(function(node){var key=node.getAttribute('data-news-focus');if(key===focus)target=node;if(key==='more')fallback=node;});
+      if(target||fallback)(target||fallback).focus({preventScroll:true});
+    }
+  }
   function drawNews(d,l,failed){
     if(l!==lang())return;
     var el=document.getElementById('morning-news-content');if(!el)return;
-    var groups=Object.create(null),c=copy[l];
-    d.news.forEach(function(item){(groups[item.source]||(groups[item.source]=[])).push(item.title);});
-    var html=Object.keys(groups).map(function(source){return '<div class="morning-news-source-block"><span class="morning-news-source-label">'+esc(window.translateNewsSource?window.translateNewsSource(source):source)+'</span>'+groups[source].map(function(title){return '<div class="morning-news-item">'+esc(title)+'</div>';}).join('')+'</div>';}).join('');
-    var stamp=new Date(d.fetched_at*1000).toLocaleString(l,{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    html+='<div class="morning-news-updated">'+esc(c.updated+' '+stamp)+(failed?' · '+esc(c.failed):d.translation_pending?' · '+esc(c.pending):d.stale?' · '+esc(c.stale):'')+'</div>';
-    if(el.innerHTML!==html)el.innerHTML=html;
+    var c=copy[l],stamp=new Date(d.fetched_at*1000).toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    var status=c.updated+' '+stamp+' JST'+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
+    replaceNews(el,digestMarkup(d,l,status),l);
     el.setAttribute('aria-busy','false');shownLanguage=l;
   }
   function drawLoading(l){
