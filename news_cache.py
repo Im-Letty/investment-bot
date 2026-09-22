@@ -241,10 +241,14 @@ def _validated_digest(value):
         return None
     edition, headline, summary = (value.get(field) for field in ("edition_date", "headline", "summary"))
     refs = value.get("article_refs")
+    mode = value.get("publication_mode")
+    if mode not in (None, "curated"):
+        return None
+    curated = mode == "curated"
     if (not isinstance(edition, str) or not isinstance(headline, str)
             or not 1 <= len(headline.strip()) <= 80 or not isinstance(summary, str)
-            or not 160 <= len(summary.strip()) <= 260
-            or not isinstance(refs, list) or not 1 <= len(refs) <= 3):
+            or not 200 <= len(summary.strip()) <= 300
+            or not isinstance(refs, list) or not (2 if curated else 1) <= len(refs) <= 3):
         return None
     articles, identities = [], set()
     for ref in refs:
@@ -261,8 +265,19 @@ def _validated_digest(value):
             return None
         identities.add(identity)
         articles.append(dict(zip(("source", "url", "published_at", "title"), identity)))
-    return {"edition_date": edition, "lang": "ja", "headline": headline.strip(),
-            "summary": summary.strip(), "article_refs": articles}
+    result = {"edition_date": edition, "lang": "ja", "headline": headline.strip(),
+              "summary": summary.strip(), "article_refs": articles}
+    if curated:
+        reviewed = _publication_time(value.get("reviewed_at"))
+        titles = {" ".join(unicodedata.normalize("NFKC", ref["title"]).casefold().split())
+                  for ref in articles}
+        if (reviewed is None or reviewed.astimezone(JST).date().isoformat() != edition
+                or reviewed.timestamp() < max(ref["published_at"] for ref in articles)
+                or len({ref["url"] for ref in articles}) != len(articles)
+                or len(titles) != len(articles)):
+            return None
+        result.update(publication_mode="curated", reviewed_at=reviewed.timestamp())
+    return result
 
 
 def load_reviewed_digests(path=None):
@@ -287,13 +302,41 @@ def _select_reviewed_digest(news, edition, reviewed_digests):
     matches = []
     for value in reviewed_digests:
         digest = _validated_digest(value)
-        if digest is None or digest["edition_date"] != edition:
+        if (digest is None or digest.get("publication_mode") == "curated"
+                or digest["edition_date"] != edition):
             continue
         refs = {tuple(ref[field] for field in fields) for ref in digest["article_refs"]}
         if refs == selected and len(digest["article_refs"]) == len(news):
             matches.append(digest)
     # Multiple matching reviews are ambiguous rather than an implicit override.
     return matches[0] if len(matches) == 1 else None
+
+
+def _select_curated_digest(news, edition, now, reviewed_digests):
+    """Keep an explicitly published edition independent of an RSS list window.
+
+    Editorial review records the original source facts, including articles a
+    feed no longer exposes. Absence from a feed is not a contradiction. An
+    observed change to a referenced article's identity does require re-review.
+    """
+    candidates = []
+    for value in reviewed_digests:
+        digest = _validated_digest(value)
+        if (digest is not None and digest.get("publication_mode") == "curated"
+                and digest["edition_date"] == edition and digest["reviewed_at"] <= now):
+            candidates.append(digest)
+    if len(candidates) != 1:
+        return None
+    digest = candidates[0]
+    by_url = {ref["url"]: ref for ref in digest["article_refs"]}
+    for item in news:
+        ref = by_url.get(_safe_url(item.get("url")))
+        if ref is not None:
+            published = _publication_time(item.get("published_at"))
+            if (item.get("source") != ref["source"] or item.get("title") != ref["title"]
+                    or published is None or published.timestamp() != ref["published_at"]):
+                return None
+    return digest
 
 
 def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=3,
@@ -303,7 +346,9 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
     ``now`` accepts a Unix timestamp or datetime (naive datetimes mean UTC).
     Approvals contain an obtained article URL and a nonempty editorial reason;
     approvals cannot supply or override an article's title or publication date.
-    A reviewed digest must cover exactly the selected original articles.
+    An unmarked reviewed digest must cover exactly the live selection. An
+    explicitly curated edition publishes its own reviewed two or three current
+    articles, retaining source-fetch diagnostics separately from publication.
     """
     if isinstance(now, datetime):
         now = now.replace(tzinfo=timezone.utc) if now.tzinfo is None else now
@@ -384,10 +429,22 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
         status = "refreshing"
     else:
         status = "unavailable"
-    return {**deepcopy(snapshot), "news": news, "supplements": supplements,
-            "policy_version": 3, "edition_date": edition.isoformat(),
-            "digest": _select_reviewed_digest(news, edition.isoformat(), reviewed_digests),
-            "selection_status": status, "selection_counts": counts}
+    result = {**deepcopy(snapshot), "news": news, "supplements": supplements,
+              "policy_version": 4, "edition_date": edition.isoformat(),
+              "digest": _select_reviewed_digest(news, edition.isoformat(), reviewed_digests),
+              "selection_status": status, "selection_counts": counts}
+    curated = _select_curated_digest(snapshot.get("news", []), edition.isoformat(), now, reviewed_digests)
+    if (curated is not None and len(curated["article_refs"]) <= max(0, min(3, max_items))
+            and (allowed_sources is None or all(ref["source"] in allowed_sources
+                                                for ref in curated["article_refs"]))):
+        # These articles were checked for publication, not obtained by this RSS
+        # request. Retain source-level fetch diagnostics without fabricating a
+        # combined retrieval timestamp or saving this as a fresh feed snapshot.
+        result.update(delivery="published", fetched_at=None, stale=False,
+                      news=[{**deepcopy(ref), "published_date": edition.isoformat()}
+                            for ref in curated["article_refs"]],
+                      digest=curated, selection_status="ready")
+    return result
 
 
 class HeadlineTranslations:

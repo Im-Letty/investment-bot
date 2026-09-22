@@ -1,41 +1,47 @@
 # Website news selection
 
-The website uses a fixed pair of sources: `NHK経済` and `ロイター経済`, listed in `WEB_NEWS_SOURCES`. It does not substitute other publishers when one is unavailable. The shared raw cache also serves the existing LINE/report flow; its other categories are not eligible for the website.
+The website uses a fixed pair of news publishers: `NHK経済` and `ロイター経済`, listed in `WEB_NEWS_SOURCES`. An explicitly reviewed Reuters article from an attributed distribution page is still Reuters reporting; independent commentary by the host is not eligible. A missing RSS feed does not authorize automatic publisher substitution. The shared raw cache also serves the existing LINE/report flow; its other categories are not eligible for the website.
 
 ## Today first
 
 - Use the article's original publication time, converted to Japan time (UTC+09:00).
 - Never substitute an edit timestamp, retrieval time, or a guessed date.
 - Missing, invalid, future-dated publications and invalid article URLs are excluded.
-- Show up to three current-day articles, newest first. Three is a limit, not a quota.
+- Select two or three distinct, important current-day economic developments for a published edition, with Japanese economic and household relevance central. Multiple reports about one event count as one topic. The raw feed fallback remains newest-first, up to three articles.
 - Deduplicate by normalized title or article URL. Differently worded reports about the same event still need editorial comparison; this is not semantic AI deduplication.
 - When no eligible articles have been confirmed, show that state without padding the current-day list with older stories.
 - A source outage is separate from a successfully checked feed with no eligible articles.
-- Recompute selection at request time. Browser caches require policy version 3 and the current Japan-time edition date, including after midnight and delayed responses.
+- Recompute selection at request time. Browser caches require policy version 4 and the current Japan-time edition date, including after midnight and delayed responses.
 
 ## One short daily summary
 
-The front of the card shows one short headline and approximately 200 Japanese characters for the whole selected day, not a separate 200-character block per article. The original headlines, publication times and links stay in the expanded details.
+The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. The original headlines, publication times and links stay in the expanded details. Do not expand each article into a separate 200–300 character block.
 
-`news-digests.json` holds reviewed Japanese copy. Each record contains `edition_date`, `lang: "ja"`, `headline` (1–80 characters), `summary` (160–260 characters), and `article_refs`. Each reference must contain the exact original `source`, normalized `url`, `published_at`, and `title` from the current selection. Every selected article must be covered, with no additional references or duplicates. A reference match is checked before headline translation. The authored Japanese text keeps its language marker when a reader changes the interface language.
+`news-digests.json` holds reviewed Japanese copy. Each record contains `edition_date`, `lang: "ja"`, `headline` (1–80 characters), `summary` (200–300 characters), and `article_refs`. Every reference contains the verified `source`, normalized `url`, original `published_at` of the linked article, and its exact `title`. The authored Japanese text keeps its language marker when a reader changes the interface language.
 
-Before adding a review, read the source content, confirm the facts and original publication date, explain unfamiliar terms in plain language, and combine overlapping events. Do not infer causes or effects from a headline alone. Keep Japanese economic news central; do not invent a Japan-related effect to make an overseas story fit.
+An edition explicitly approved for publication uses `publication_mode: "curated"` and an actual `reviewed_at` timestamp. It requires two or three distinct references published on the edition's Japan date. The review must be on that same date, no earlier than any reference's publication and no later than now. The review covers every topic in the edition. RSS absence alone does not revoke a checked article, and unrelated new feed entries do not silently change the scope of its summary. A conflicting source, title or original publication timestamp observed at the same URL invalidates the edition. Multiple competing reviewed editions are ambiguous and are not published automatically.
 
-If no review matches, show that today's summary has not been published and keep the current article links available in details. Do not substitute yesterday's summary, silently summarize a different article set, or present headline strings as body summaries. This is a reviewed publication path; it does not yet generate future daily summaries automatically.
+Unmarked legacy records remain tied to the exact current live selection before headline translation. All text in either path must meet the current 200–300 character limit.
+
+Before adding a review, read the source content, confirm its publication date, and combine overlapping events. Write for a middle-school reader: replace unfamiliar terms or explain them briefly at first use. Cover what happened, a supported effect on daily life or companies, and a concrete next development to watch. Distinguish reported facts, general economic mechanisms and possible future effects. Do not invent causes from a headline, imply that prices must move in one direction, or manufacture a Japan-related consequence. Established background sources may verify a mechanism; they are not counted or presented as another piece of today's news.
+
+If no valid edition is available, keep current article links available and show that today's summary is not yet published. Do not fabricate extra topics or substitute older events just to reach two or three. This is a reviewed publication path; it does not yet generate future daily summaries automatically.
 
 ## Immediate first display
 
-The root HTML includes the current news card and an inert `knInitialNews` JSON payload. `news_initial.py` starts the feed refresh without waiting for it, then renders from a usable current feed snapshot. When the feed cache is cold or expired, exactly one valid authored edition for the current Japan date can be displayed as `delivery: "published"`. Its original article dates must already have occurred. This published edition has `fetched_at: null` and a publication-date label; it is not a fresh feed response.
+The root HTML includes the current news card and an inert `knInitialNews` JSON payload. `news_initial.py` starts the feed refresh without waiting for it, then renders the current curated edition or usable current feed selection. The API and HTML use the same curated selection. A published edition has `delivery: "published"`, `fetched_at: null` and a publication-date label; it is not a freshly fetched RSS response. Source-level fetch diagnostics remain separate. Cold fallback for a legacy record never revives a rejected curated edition.
 
-The browser reads that embedded content immediately, keeps it readable while the feed request is pending or unavailable, and then applies a successful live selection. An empty or changed successful selection can invalidate the published summary. The published fallback is never saved as fresh RSS data, and it expires at Japan midnight. A freshly retrieved browser snapshot can also supply immediate content. Expanded article panels and focus survive the initial JavaScript handover.
+The browser reads embedded content immediately, keeps it readable during pending or unavailable requests, and accepts subsequent published editions from the API. A confirmed identity conflict can replace it with live article data without the invalid summary. Published content is never saved as fresh RSS data, remains separate per interface language and expires at Japan midnight. Expanded article panels and focus survive the initial JavaScript handover.
 
 The HTML remains revalidated on each visit. Its ETag includes the Japan date and rendered content, so a prior-day edition cannot return through an unchanged conditional response. Render's existing compression remains in use. This removes the extra news-request wait once the page arrives; network and server startup time still affect the page itself. A new day's authored summary still requires publication through the reviewed path above.
 
 ### Reviewed edition: 2026-09-22
 
-- Body: 189 Japanese characters, based on the publicly readable lead of [NHK's article](https://news.web.nhk/newsweb/na/nd-20260922de51819), published 2026-09-22 09:25 JST about the September 21 US session.
-- The index explanation was checked against the [Nasdaq Composite definition](https://indexes.nasdaq.com/Index/Overview/COMP).
-- No index figure, percentage gain, forecast, or effect on Japanese shares was added. The body is original explanatory wording, not copied article text.
+- Body: 224 Japanese characters covering **two developments**, currency movements and US shares.
+- Reuters article: [Yen squeezed as hawkish turn grips central banks](https://www.marketscreener.com/news/yen-squeezed-as-hawkish-turn-grips-central-banks-ce785adbd08ef321), Tom Westbrook / Reuters. The linked distribution page states first publication September 21, 2026 20:53 EDT, or September 22 09:53 JST. Its later modification at 01:28 EDT / 14:28 JST is not used as publication. This is the linked page's original timestamp, not a claim about the inaccessible Reuters-hosted original.
+- NHK article: [Nasdaq record](https://news.web.nhk/newsweb/na/nd-20260922de51819), published September 22 09:25 JST about the September 21 US session. The index explanation was checked against the [Nasdaq Composite definition](https://indexes.nasdaq.com/Index/Overview/COMP).
+- The possible effect of a weaker yen on imported food/fuel and household costs is background explanation supported by the [Bank of Japan's March 2022 press-conference record](https://www.boj.or.jp/about/press/kaiken_2022/kk220322a.htm). No past numeric data or policy decision is presented as today's news.
+- Interest-rate developments are a watchpoint, not a prediction that yen or share prices will rise or fall. The copy does not claim household prices have already risen because of today's trading.
 
 ## Important older context
 

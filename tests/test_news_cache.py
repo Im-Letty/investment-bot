@@ -27,7 +27,7 @@ def article(title, published='2026-09-22T03:00:00Z', *, url=None, source='NHK経
 
 def digest_for(items, edition='2026-09-22'):
     return {'edition_date': edition, 'lang': 'ja', 'headline': '今日の経済ニュース',
-            'summary': '確認した記事の内容をやさしい日本語でまとめたテスト用の文章です。' * 6,
+            'summary': '確認した記事の内容をやさしい日本語でまとめたテスト用の文章です。' * 7,
             'article_refs': [{field: item[field] for field in ('source', 'url', 'published_at', 'title')}
                              for item in items]}
 
@@ -303,7 +303,7 @@ class DailySelectionTests(unittest.TestCase):
         empty = select_daily_news({'news': items[:1]}, now=self.now)
         self.assertEqual(empty['news'], [])
         self.assertEqual(empty['selection_status'], 'empty_today')
-        self.assertEqual(empty['policy_version'], 3)
+        self.assertEqual(empty['policy_version'], 4)
 
     def test_only_reviewed_obtained_recent_older_news_become_separate_supplements(self):
         old = article('Rate decision', '2026-09-21T03:00:00Z')
@@ -362,6 +362,66 @@ class ReviewedDigestTests(unittest.TestCase):
         return select_daily_news({'news': items}, now=self.now,
                                  allowed_sources=WEB_NEWS_SOURCES, reviewed_digests=digests)
 
+    def curated(self, items, **fields):
+        return {**digest_for(items), 'summary': '文' * 240, 'publication_mode': 'curated',
+                'reviewed_at': self.now - 60, **fields}
+
+    def test_curated_publication_keeps_two_reviewed_articles_when_one_feed_is_missing(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        reviewed = self.curated(items)
+        raw = {'news': [items[0]], 'source_fetched_at': {'NHK経済': self.now - 10},
+               'source_status': {'NHK経済': 'ok', 'ロイター経済': 'error'}}
+        result = select_daily_news(raw, now=self.now, allowed_sources=WEB_NEWS_SOURCES,
+                                   reviewed_digests=[reviewed])
+        self.assertEqual(result['delivery'], 'published')
+        self.assertIsNone(result['fetched_at'])
+        self.assertEqual(result['source_fetched_at'], raw['source_fetched_at'])
+        self.assertEqual(result['selection_counts']['today'], 1)
+        self.assertEqual(len(result['news']), 2)
+        self.assertEqual(result['digest'], reviewed)
+        self.assertEqual(result['news'][1]['published_date'], '2026-09-22')
+        # Editorial selection is stable as unrelated newer feed entries arrive.
+        extra = article('Unrelated', '2026-09-22T03:30:00Z')
+        self.assertEqual(self.select(items + [extra], [reviewed])['digest'], reviewed)
+        result['digest']['article_refs'][0]['title'] = 'Changed by caller'
+        self.assertEqual(reviewed['article_refs'][0]['title'], 'Domestic')
+
+    def test_curated_references_reject_observed_identity_changes_not_missing_feed_entries(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        reviewed = self.curated(items)
+        self.assertEqual(self.select([], [reviewed])['digest'], reviewed)
+        for change in ({'title': 'Correction'}, {'published_at': items[0]['published_at'] + 60},
+                       {'published_at': None}, {'source': 'ロイター経済'}):
+            with self.subTest(change=change):
+                result = self.select([{**items[0], **change}], [reviewed])
+                self.assertIsNone(result['digest'])
+                self.assertNotIn('delivery', result)
+        limited = select_daily_news({'news': []}, now=self.now, allowed_sources=('NHK経済',),
+                                    reviewed_digests=[reviewed])
+        self.assertIsNone(limited['digest'])
+
+    def test_curated_publication_requires_current_review_two_distinct_articles_and_200_to_300_chars(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        review = self.curated(items)
+        invalid = [self.curated(items[:1]), self.curated(items + [items[0]]),
+                   self.curated([items[0], {**items[1], 'url': items[0]['url']}]),
+                   self.curated([items[0], {**items[1], 'title': items[0]['title']}]),
+                   {**review, 'summary': '文' * 199}, {**review, 'summary': '文' * 301},
+                   {**review, 'reviewed_at': None}, {**review, 'reviewed_at': True},
+                   {**review, 'reviewed_at': self.now + 1},
+                   {**review, 'reviewed_at': timestamp('2026-09-21T03:00:00Z')},
+                   {**review, 'reviewed_at': items[0]['published_at'] - 1},
+                   {**review, 'publication_mode': 'unchecked'}]
+        for value in invalid:
+            with self.subTest(value=value):
+                self.assertIsNone(self.select([], [value])['digest'])
+        for length in (200, 300):
+            self.assertIsNotNone(self.select([], [{**review, 'summary': '文' * length}])['digest'])
+        self.assertIsNone(self.select([], [review, review])['digest'])
+        tomorrow = select_daily_news({'news': []}, now=timestamp('2026-09-22T15:00:00Z'),
+                                     reviewed_digests=[review])
+        self.assertIsNone(tomorrow['digest'])
+
     def test_digest_covers_exact_selected_original_articles_without_mutation(self):
         items = [article('Domestic'), article('Overseas', source='ロイター経済')]
         review = digest_for(items[::-1])
@@ -415,13 +475,15 @@ class ReviewedDigestTests(unittest.TestCase):
         review = digest_for([item])
         invalid = [None, {}, {**review, 'lang': 'en'}, {**review, 'headline': ''},
                    {**review, 'headline': '見' * 81}, {**review, 'summary': '見出しだけ'},
-                   {**review, 'summary': '文' * 261}, {**review, 'article_refs': []},
+                   {**review, 'summary': '文' * 199}, {**review, 'summary': '文' * 301}, {**review, 'article_refs': []},
                    {**review, 'article_refs': review['article_refs'] * 2}]
         for value in invalid:
             with self.subTest(value=value):
                 result = self.select([item], [value])
                 self.assertEqual(len(result['news']), 1)
                 self.assertIsNone(result['digest'])
+        for length in (200, 300):
+            self.assertIsNotNone(self.select([item], [{**review, 'summary': '文' * length}])['digest'])
         self.assertIsNone(self.select([item], [])['digest'])
         self.assertIsNone(self.select([item], [review, {**review, 'headline': '別の説明'}])['digest'])
 
@@ -560,7 +622,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertEqual(data['fetched_at'], 1000)
         self.assertTrue(data['refreshing'])
         self.assertTrue(data['stale'])
-        self.assertEqual(data['policy_version'], 3)
+        self.assertEqual(data['policy_version'], 4)
         self.assertEqual(data['digest'], reviewed_digest)
         self.assertEqual(data['edition_date'], '2026-09-22')
         self.assertEqual([item['title'] for item in data['news']], ['見出し'])
@@ -589,7 +651,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertEqual(empty['news'], [])
         self.assertEqual(empty['supplements'], [])
         self.assertEqual(empty['selection_status'], 'empty_today')
-        self.assertEqual(empty['policy_version'], 3)
+        self.assertEqual(empty['policy_version'], 4)
         self.assertIsNone(empty['digest'])
         translator.snapshot.assert_called_once_with([], 'ja')
 

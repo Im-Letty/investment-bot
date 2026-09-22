@@ -18,11 +18,12 @@ NEWS_PLACEHOLDER = ('<div id="morning-news-content"><div class="morning-news-loa
 
 
 def initial_news(snapshot, *, now=None, reviewed_digests=(), reviewed_supplements=()):
-    """Prefer confirmed feed state; a cold start can show an authored edition.
+    """Render an explicit curated edition or confirmed feed state immediately.
 
     Publication is deliberately separate from feed freshness. A published
     edition has no invented retrieval time and is never labelled as a fresh RSS
-    result. A successful current feed selection can invalidate its old review.
+    result. Live identity conflicts invalidate a curated review; changes in the
+    live selection also invalidate older unmarked, selection-bound reviews.
     """
     now = time.time() if now is None else now
     current = _publication_time(now)
@@ -31,6 +32,8 @@ def initial_news(snapshot, *, now=None, reviewed_digests=(), reviewed_supplement
     selected = select_daily_news(snapshot, now=now, allowed_sources=WEB_NEWS_SOURCES,
                                  reviewed_digests=reviewed_digests,
                                  reviewed_supplements=reviewed_supplements)
+    if selected.get("delivery") == "published":
+        return {**selected, "lang": "ja", "translation_pending": False}
     stamp = _publication_time(selected.get("fetched_at"))
     if (stamp is not None and 0 <= now - stamp.timestamp() < 900
             and selected["selection_status"] in ("ready", "empty_today")):
@@ -40,14 +43,15 @@ def initial_news(snapshot, *, now=None, reviewed_digests=(), reviewed_supplement
     candidates = []
     for value in reviewed_digests:
         digest = _validated_digest(value)
-        if (digest is not None and digest["edition_date"] == edition
+        if (digest is not None and digest.get("publication_mode") != "curated"
+                and digest["edition_date"] == edition
                 and all(ref["published_at"] <= now for ref in digest["article_refs"])
                 and len({ref["url"] for ref in digest["article_refs"]}) == len(digest["article_refs"])):
             candidates.append(digest)
     if len(candidates) != 1:
         return None
     digest = candidates[0]
-    return {"delivery": "published", "policy_version": 3, "edition_date": edition,
+    return {"delivery": "published", "policy_version": 4, "edition_date": edition,
             "lang": "ja", "news": [{**deepcopy(ref), "published_date": edition}
                                      for ref in digest["article_refs"]],
             "supplements": [], "digest": deepcopy(digest), "fetched_at": None,

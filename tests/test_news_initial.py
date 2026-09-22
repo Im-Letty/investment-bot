@@ -31,7 +31,7 @@ def article(title='Original headline', published='2026-09-22T00:25:00Z'):
 
 def review(items=None, **fields):
     return {'edition_date': '2026-09-22', 'lang': 'ja', 'headline': '今日の経済ニュース',
-            'summary': '確認済みの記事をわかりやすく説明する文章です。' * 8,
+            'summary': '確認済みの記事をわかりやすく説明する文章です。' * 10,
             'article_refs': deepcopy([article()] if items is None else items), **fields}
 
 
@@ -75,6 +75,32 @@ class ParsedInitial(HTMLParser):
 
 
 class InitialSelectionTests(unittest.TestCase):
+    def test_curated_two_article_edition_is_identical_for_cold_empty_and_partial_feeds(self):
+        first = article()
+        second = {**article('Second article'), 'url': 'https://reuters.example/current', 'source': 'ロイター経済'}
+        authored = review([first, second], summary='文' * 250, publication_mode='curated', reviewed_at=NOW - 60)
+        for raw in (cold(), live([]), live([first])):
+            with self.subTest(raw=raw):
+                data = initial_news(raw, now=NOW, reviewed_digests=[authored])
+                self.assertEqual(data['delivery'], 'published')
+                self.assertEqual(data['policy_version'], 4)
+                self.assertIsNone(data['fetched_at'])
+                self.assertEqual(data['digest'], authored)
+                self.assertEqual(len(data['news']), 2)
+                html = render_initial_html(NEWS_PLACEHOLDER, data)
+                self.assertIn(authored['summary'], html)
+                self.assertIn(second['url'], html)
+                self.assertNotIn('読み込み中', html)
+
+    def test_curated_conflict_or_future_review_cannot_reenter_through_cold_fallback(self):
+        first = article()
+        second = {**article('Second article'), 'url': 'https://reuters.example/current', 'source': 'ロイター経済'}
+        authored = review([first, second], summary='文' * 250, publication_mode='curated', reviewed_at=NOW - 60)
+        expired = live([article('Corrected headline')], source_fetched_at={'NHK経済': NOW - 901})
+        self.assertIsNone(initial_news(expired, now=NOW, reviewed_digests=[authored]))
+        self.assertIsNone(initial_news(cold(), now=NOW, reviewed_digests=[{**authored, 'reviewed_at': NOW + 1}]))
+        self.assertIsNone(initial_news(cold(), now=timestamp('2026-09-22T15:00:00Z'), reviewed_digests=[authored]))
+
     def test_cold_publication_is_readable_without_fabricated_retrieval_time(self):
         reviews = [review()]
         data = initial_news(cold(), now=NOW, reviewed_digests=reviews)
@@ -124,7 +150,8 @@ class InitialSelectionTests(unittest.TestCase):
         future = review([article(published='2026-09-22T05:00:00Z')])
         duplicate = review([article(), article('Changed title for same URL')])
         for values in ([], [None], [review(), review()], [future], [duplicate],
-                       [review(summary='Too short')], [review(edition_date='2026-09-21')]):
+                       [review(summary='Too short')], [review(summary='文' * 199)],
+                       [review(summary='文' * 301)], [review(edition_date='2026-09-21')]):
             with self.subTest(values=values):
                 self.assertIsNone(initial_news(cold(), now=NOW, reviewed_digests=values))
         unsafe = article(); unsafe['url'] = 'javascript:alert(1)'
@@ -137,7 +164,7 @@ class InitialSelectionTests(unittest.TestCase):
         # URL validation may reject a quote; use a valid encoded URL while
         # retaining adversarial text in headline, summary and source title.
         ref['url'] = 'https://news.example/?value=%22&other=1'
-        authored = review([ref], headline=bad, summary=bad + '説明文です。' * 25)
+        authored = review([ref], headline=bad, summary=bad + '説明文です。' * 35)
         data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
         html = render_initial_html(NEWS_PLACEHOLDER, data)
         self.assertIn('&lt;/script&gt;', html)
