@@ -103,7 +103,7 @@
       var key='supplement:'+item.url;
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p><div class="headline-meta">'+articleLink(item,l)+'</div></div></details>';
     }).join('')+'</section>';
-    var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail">'+stories+'</div></details>':'';
+    var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'+stories+'</div></details>':'';
     return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+more+'<footer class="news-footer"><p><span>'+esc(status)+'</span>'+sources+'</p></footer></div></article>';
   }
   function replaceNews(el,html,l){

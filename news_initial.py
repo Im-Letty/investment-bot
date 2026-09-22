@@ -121,7 +121,7 @@ def render_news_markup(data):
         stories.append('<section class="news-supplements"><h4>日付付きの補足</h4>' + "".join(supplements) + '</section>')
     more = (('<details class="read-more" data-news-key="more"><summary data-news-focus="more">'
              '<span class="closed-label">もっと詳しく</span><span class="open-label">閉じる</span>'
-             '<span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail">'
+             '<span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'
              + "".join(stories) + '</div></details>') if stories else '')
     if data.get("delivery") == "published":
         status = data["edition_date"].replace("-", "/") + " 掲載"
