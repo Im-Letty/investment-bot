@@ -82,7 +82,8 @@
     var edition=new Date(d.edition_date+'T00:00:00+09:00'),day=d.edition_date.slice(-2),weekday=edition.toLocaleDateString(l,{timeZone:'Asia/Tokyo',weekday:'long'});
     var calendar='<div class="calendar" aria-label="'+esc(c.date+' '+d.edition_date+' '+weekday)+'"><strong>'+day+'</strong><small>'+esc(weekday)+'</small></div>';
     var digest=reviewedDigest(d);
-    var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div><span class="headline-source">'+esc(Object.keys(groups).map(newsSource).join(' / '))+'</span>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
+    var sources=digest?'<span class="headline-source">'+esc(Object.keys(groups).map(newsSource).join(' / '))+'</span>':'';
+    var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
     var stories=Object.keys(groups).map(function(source){
       var key='source:'+source;
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.source)+'</span><span class="story-title">'+esc(newsSource(source))+'</span><span class="story-takeaway">'+esc(c.count(groups[source].length))+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><ul class="headline-list">'+groups[source].map(function(item){return '<li><span>'+esc(item.title)+'</span><div class="headline-meta">'+publication(item,l)+articleLink(item,l)+'</div></li>';}).join('')+'</ul></div></details>';
@@ -92,7 +93,7 @@
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span><span class="story-takeaway">'+esc(newsSource(item.source))+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p><div class="headline-meta">'+articleLink(item,l)+'</div></div></details>';
     }).join('')+'</section>';
     var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail"><p class="stories-intro">'+esc(c.intro)+'</p>'+stories+'</div></details>':'';
-    return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+more+'<footer class="news-footer"><p>'+esc(status)+'</p></footer></div></article>';
+    return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+more+'<footer class="news-footer"><p><span>'+esc(status)+'</span>'+sources+'</p></footer></div></article>';
   }
   function replaceNews(el,html,l){
     if(el.innerHTML===html)return;

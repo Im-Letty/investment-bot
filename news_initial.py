@@ -84,10 +84,10 @@ def render_news_markup(data):
     calendar = (f'<div class="calendar" aria-label="掲載対象日 {data["edition_date"]} {weekday}">'
                 f'<strong>{edition:%d}</strong><small>{weekday}</small></div>')
     digest = data.get("digest")
+    sources = f'<span class="headline-source">{esc(" / ".join(groups))}</span>' if digest else ''
     if digest:
         brief = (f'<div class="daily-digest" lang="ja"><h4 class="brief-headline">{esc(digest["headline"])}</h4>'
-                 f'<p class="brief-summary">{esc(digest["summary"])}</p></div>'
-                 f'<span class="headline-source">{esc(" / ".join(groups))}</span>')
+                 f'<p class="brief-summary">{esc(digest["summary"])}</p></div>')
     else:
         message = ("本日のまとめはまだ掲載されていません。記事は「もっと詳しく」から読めます。" if data["news"]
                    else "本日発表された経済ニュースは、まだ確認できていません。")
@@ -124,7 +124,7 @@ def render_news_markup(data):
     return ('<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle">'
             '<header class="news-header">' + calendar + '<div class="heading-text"><h3 id="knNewsDigestTitle">経済ニュース</h3></div></header>'
             '<div class="news-content"><div class="brief">' + brief + '</div>' + more +
-            '<footer class="news-footer"><p>' + esc(status) + '</p></footer></div></article>')
+            '<footer class="news-footer"><p><span>' + esc(status) + '</span>' + sources + '</p></footer></div></article>')
 
 
 def render_initial_html(html, data):
