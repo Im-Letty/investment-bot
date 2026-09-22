@@ -493,15 +493,19 @@ class TranslationTests(unittest.TestCase):
 
 class RouteCompatibilityTests(unittest.TestCase):
     def test_html_revalidates_and_only_hashed_features_get_long_cache(self):
+        import os
         import re
         from flask import request, send_file
+        from news_initial import news_index_response
         root = Path(__file__).parents[1]
         tree = ast.parse((root / 'line_bot.py').read_text())
         nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef)
                  and node.name in ('index', 'cache_versioned_features')]
         app = Flask('file-cache-test', root_path=str(root), static_folder='static')
+        cache = Mock(); cache.snapshot.return_value = {'news': []}
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'file-routes', 'exec'),
-             dict(app=app, request=request, send_file=send_file, re=re))
+             dict(app=app, request=request, send_file=send_file, re=re, os=os,
+                  news_index_response=news_index_response, news_cache=cache))
         client = app.test_client()
         first = client.get('/')
         try:

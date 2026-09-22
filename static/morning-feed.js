@@ -4,6 +4,7 @@
   var newsCache={}, newsPending={}, newsTimers={}, newsAttempts={}, marketPending=null, marketRetry=null;
   var NEWS_TTL=120000, MAX_NEWS_AGE=900000, MAX_MARKET_AGE=120000;
   var shownLanguage=null, shownEdition=null, newsLoadedAt={}, started=false;
+  var initialNews=null, initialRead=false;
   var copy={
     ja:{loading:'ニュースを準備しています',updated:'取得',pending:'翻訳中',stale:'最新情報を確認中',failed:'いま更新できません。表示中の取得時刻をご確認ください。',empty:'ニュースを取得できませんでした。',retry:'もう一度読み込む'},
     en:{loading:'Preparing headlines',updated:'Retrieved',pending:'Translating',stale:'Checking for updates',failed:'Unable to refresh. Please check the retrieval time.',empty:'Unable to load headlines.',retry:'Try again'},
@@ -16,9 +17,9 @@
   function save(key,data){try{localStorage.setItem(key,JSON.stringify(data));}catch(e){}}
   function editionKey(stamp){return new Date(stamp*1000+9*60*60*1000).toISOString().slice(0,10);}
   function safeNewsURL(value){try{var u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch(_){return '';}}
-  function validNews(d,l){
+  function validEdition(d,l){
     var now=Date.now()/1000;
-    if(!d||d.policy_version!==3||d.lang!==l||d.edition_date!==editionKey(now)||!Number.isFinite(d.fetched_at)||now-d.fetched_at<0||now-d.fetched_at>=MAX_NEWS_AGE/1000||!['ready','empty_today'].includes(d.selection_status)||!Array.isArray(d.news)||d.news.length>3||!Array.isArray(d.supplements)||d.supplements.length>1)return false;
+    if(!d||d.policy_version!==3||d.lang!==l||d.edition_date!==editionKey(now)||!['ready','empty_today'].includes(d.selection_status)||!Array.isArray(d.news)||d.news.length>3||!Array.isArray(d.supplements)||d.supplements.length>1)return false;
     function article(x,older){
       if(!x||typeof x.source!=='string'||x.source.length>=100||typeof x.title!=='string'||!x.title.trim()||x.title.length>2000||!safeNewsURL(x.url)||!Number.isFinite(x.published_at)||x.published_at>now)return false;
       var date=editionKey(x.published_at);
@@ -27,7 +28,23 @@
     }
     return d.news.every(function(x){return article(x,false);})&&d.supplements.every(function(x){return article(x,true);});
   }
-  function cachedNews(l){if(!validNews(newsCache[l],l))newsCache[l]=read('kn_news_v3_'+l);return validNews(newsCache[l],l)?newsCache[l]:null;}
+  function validNews(d,l){
+    var now=Date.now()/1000;
+    return validEdition(d,l)&&d.delivery!=='published'&&Number.isFinite(d.fetched_at)&&now-d.fetched_at>=0&&now-d.fetched_at<MAX_NEWS_AGE/1000;
+  }
+  function validPublished(d,l){return validEdition(d,l)&&l==='ja'&&d.delivery==='published'&&d.fetched_at===null&&d.supplements.length===0&&!!reviewedDigest(d);}
+  function cachedNews(l){
+    if(!initialRead){
+      initialRead=true;
+      try{var node=document.getElementById('knInitialNews');initialNews=node?JSON.parse(node.textContent):null;}catch(_){initialNews=null;}
+      // Native <details> are already usable in server-rendered HTML. Preserve
+      // a reader's open panel and focus when JavaScript first takes over.
+      if(shownLanguage===null&&(validNews(initialNews,l)||validPublished(initialNews,l))){shownLanguage=l;shownEdition=initialNews.edition_date;}
+    }
+    if(!validNews(newsCache[l],l))newsCache[l]=read('kn_news_v3_'+l);
+    if(validNews(initialNews,l)&&(!validNews(newsCache[l],l)||initialNews.fetched_at>newsCache[l].fetched_at))newsCache[l]=initialNews;
+    return validNews(newsCache[l],l)?newsCache[l]:validPublished(initialNews,l)?initialNews:null;
+  }
   function reviewedDigest(d){
     var digest=d.digest;
     if(!digest||digest.lang!=='ja'||digest.edition_date!==d.edition_date||typeof digest.headline!=='string'||!digest.headline.trim()||Array.from(digest.headline).length>80||typeof digest.summary!=='string'||Array.from(digest.summary).length<160||Array.from(digest.summary).length>260||!Array.isArray(digest.article_refs)||!d.news.length||digest.article_refs.length!==d.news.length)return null;
@@ -92,8 +109,12 @@
   function drawNews(d,l,failed){
     if(l!==lang())return;
     var el=document.getElementById('morning-news-content');if(!el)return;
-    var c=copy[l],stamp=new Date(d.fetched_at*1000).toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    var status=c.updated+' '+stamp+' JST'+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
+    var c=copy[l],status;
+    if(d.delivery==='published')status=d.edition_date.replace(/-/g,'/')+' 掲載'+(failed?' · 最新情報を確認できませんでした。':'');
+    else{
+      var stamp=new Date(d.fetched_at*1000).toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+      status=c.updated+' '+stamp+' JST'+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
+    }
     replaceNews(el,digestMarkup(d,l,status),l);
     el.setAttribute('aria-busy','false');shownLanguage=l;shownEdition=d.edition_date;
   }
@@ -125,9 +146,12 @@
     newsPending[l]=fetchJSON('/api/morning-news?lang='+encodeURIComponent(l)).then(function(d){
       if(d.error||!Array.isArray(d.news))throw new Error('Unavailable news');
       if(validNews(d,l)){
+        // A successful live selection replaces the embedded publication,
+        // including a newly checked empty day. Never revive it after that.
+        initialNews=null;
         newsCache[l]=d;newsLoadedAt[l]=Date.now();save('kn_news_v3_'+l,d);drawNews(d,l);
         if(d.refreshing||d.translation_pending)scheduleNews(l);else newsAttempts[l]=0;
-      }else if(d.refreshing||(d.policy_version===3&&d.edition_date!==editionKey(Date.now()/1000))){scheduleNews(l);var current=cachedNews(l);if(current)drawNews(current,l,true);else if((newsAttempts[l]||0)>=8)drawFailure(l);else drawLoading(l);}
+      }else if(d.refreshing||(d.policy_version===3&&d.edition_date!==editionKey(Date.now()/1000))){scheduleNews(l);var current=cachedNews(l);if(current)drawNews(current,l);else if((newsAttempts[l]||0)>=8)drawFailure(l);else drawLoading(l);}
       else throw new Error('Empty news');
       return d;
     }).catch(function(){

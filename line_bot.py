@@ -11,6 +11,7 @@ import time
 import gc
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
+from news_initial import news_index_response
 from flask import Flask, request, abort, jsonify, redirect, send_file
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -2444,8 +2445,9 @@ try{var cs=await self.clients.matchAll({type:'window'});cs.forEach(function(c){c
 
 @app.route("/")
 def index():
-    # Revalidate on each visit; unchanged HTML can reuse its previous download.
-    return send_file("index.html", mimetype="text/html", conditional=True, max_age=0)
+    # The current published edition is part of the first HTML response; external
+    # feed refreshes run in the background without delaying readable content.
+    return news_index_response(os.path.join(app.root_path, "index.html"), news_cache, request)
 
 
 @app.after_request

@@ -140,6 +140,85 @@ function reviewed(data,extra={}){
   return {edition_date:data.edition_date,lang:'ja',headline:'AIの会社などの株に、買いが集まる',summary:'内容を確認した今日のニュースです。'.repeat(12),article_refs:data.news.map(({source,url,published_at,title})=>({source,url,published_at,title})),...extra};
 }
 
+function published(app){
+  const data=app.news('ja',{delivery:'published',fetched_at:null,refreshing:true});data.digest=reviewed(data);
+  app.nodes.knInitialNews={textContent:JSON.stringify(data)};
+  return data;
+}
+
+test('first visit reads the embedded publication before any API or market response',()=>{
+  const app=harness(),data=published(app);app.event('DOMContentLoaded');
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.summary));assert.ok(!html.includes('skeleton'));
+  assert.match(html,/2026\/09\/12 掲載/);assert.ok(!html.includes('1970'));assert.ok(!html.includes('取得 '));
+  assert.equal(app.requests.length,2,'Live checks still begin in the background');
+  assert.equal(app.storage.has('kn_news_v3_ja'),false,'Published copy must not impersonate a fresh RSS cache');
+});
+
+test('first hydration preserves panels and focus opened before deferred scripts finish',()=>{
+  const app=harness();published(app);
+  const content=app.nodes['morning-news-content'];
+  content.innerHTML='<details data-news-key="more"><summary data-news-focus="more">もっと詳しく</summary><details data-news-key="source:NHK経済"><summary data-news-focus="source:NHK経済">NHK経済</summary></details></details>';
+  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
+  app.event('DOMContentLoaded');
+  assert.ok(content.details.every(node=>node.open));
+  assert.equal(app.context.document.activeElement,content.summaries[1]);
+  assert.equal(content.summaries[1].focusOptions.preventScroll,true);
+});
+
+test('published edition remains readable during cold refresh, network failure and a long same-day visit',async()=>{
+  const app=harness(),data=published(app);app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news('ja',{news:[],digest:null,fetched_at:null,selection_status:'refreshing',refreshing:true}));
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('確認できませんでした'));
+  app.advance(3600000);app.context.loadMorningNews(true);
+  app.requests.at(-1).reject(new Error('offline'));await flush();
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.summary));assert.match(html,/最新情報を確認できませんでした/);
+  assert.ok(!html.includes('skeleton'));assert.ok(!html.includes('morning-news-error'));
+});
+
+test('fresh embedded live data is immediately usable and newer than a saved snapshot',()=>{
+  const app=harness(),old=app.news('ja',{fetched_at:app.now()/1000-100,news:[{source:'NHK経済',title:'保存されていた古い見出し'}]});
+  app.storage.set('kn_news_v3_ja',JSON.stringify(old));
+  const current=app.news();current.digest=reviewed(current);app.nodes.knInitialNews={textContent:JSON.stringify(current)};
+  app.event('DOMContentLoaded');
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(current.digest.summary));assert.ok(!html.includes('保存されていた古い見出し'));
+});
+
+test('successful live selection replaces published copy and does not revive it after expiry',async()=>{
+  const app=harness(),data=published(app);app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news('ja',{digest:null,news:[],selection_status:'empty_today'}));
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/まだ確認できていません/);
+  app.advance(901000);app.context.loadMorningNews();app.requests.at(-1).reject(new Error('offline'));await flush();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+});
+
+test('published edition expires at JST midnight even when the network fails',async()=>{
+  const app=harness();app.advance(Date.UTC(2026,8,12,14,59,59)-app.now());
+  const data=published(app);app.event('DOMContentLoaded');
+  app.advance(2000);for(const timer of app.intervals.values())timer.fn();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  app.requests[0].reject(new Error('offline'));await flush();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+});
+
+test('malformed, mismatched, prior-day or future published bootstrap is ignored',()=>{
+  for(const mutate of [
+    d=>d.edition_date='2026-09-11', d=>d.digest=null,
+    d=>d.fetched_at=0, d=>d.digest.article_refs[0].title='別の原題',
+    d=>d.news[0].published_at+=10, d=>d.news[0].url='javascript:alert(1)',
+    d=>d.policy_version=2
+  ]){
+    const app=harness(),data=published(app);mutate(data);app.nodes.knInitialNews.textContent=JSON.stringify(data);
+    app.event('DOMContentLoaded');assert.match(app.nodes['morning-news-content'].innerHTML,/skeleton/);
+  }
+  const app=harness();app.nodes.knInitialNews={textContent:'bad json'};app.event('DOMContentLoaded');
+  assert.match(app.nodes['morning-news-content'].innerHTML,/skeleton/);
+});
+
 test('E front shows one reviewed daily digest and A details preserve all selected headlines',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   const news=[

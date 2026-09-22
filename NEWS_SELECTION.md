@@ -23,6 +23,14 @@ Before adding a review, read the source content, confirm the facts and original 
 
 If no review matches, show that today's summary has not been published and keep the current article links available in details. Do not substitute yesterday's summary, silently summarize a different article set, or present headline strings as body summaries. This is a reviewed publication path; it does not yet generate future daily summaries automatically.
 
+## Immediate first display
+
+The root HTML includes the current news card and an inert `knInitialNews` JSON payload. `news_initial.py` starts the feed refresh without waiting for it, then renders from a usable current feed snapshot. When the feed cache is cold or expired, exactly one valid authored edition for the current Japan date can be displayed as `delivery: "published"`. Its original article dates must already have occurred. This published edition has `fetched_at: null` and a publication-date label; it is not a fresh feed response.
+
+The browser reads that embedded content immediately, keeps it readable while the feed request is pending or unavailable, and then applies a successful live selection. An empty or changed successful selection can invalidate the published summary. The published fallback is never saved as fresh RSS data, and it expires at Japan midnight. A freshly retrieved browser snapshot can also supply immediate content. Expanded article panels and focus survive the initial JavaScript handover.
+
+The HTML remains revalidated on each visit. Its ETag includes the Japan date and rendered content, so a prior-day edition cannot return through an unchanged conditional response. Render's existing compression remains in use. This removes the extra news-request wait once the page arrives; network and server startup time still affect the page itself. A new day's authored summary still requires publication through the reviewed path above.
+
 ### Reviewed edition: 2026-09-22
 
 - Body: 189 Japanese characters, based on the publicly readable lead of [NHK's article](https://news.web.nhk/newsweb/na/nd-20260922de51819), published 2026-09-22 09:25 JST about the September 21 US session.
