@@ -310,6 +310,58 @@ function curated(app,lang='ja'){
   data.digest=reviewed(data,{publication_mode:'curated',reviewed_at:app.now()/1000});return data;
 }
 
+function withArticleSummaries(data){
+  data.digest.article_summaries=data.digest.article_refs.map((ref,i)=>({...ref,headline:'やさしい見出し'+i,summary:('ニュース'+i+'の出来事と暮らしへの影響を説明します。').repeat(10)}));
+  return data;
+}
+
+test('Read more reveals each reviewed article summary without another click and keeps original links',async()=>{
+  const app=harness(),data=withArticleSummaries(curated(app));
+  app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+  const html=app.nodes['morning-news-content'].innerHTML;
+  const detail=html.split('<details class="read-more"')[1].split('</details>')[0];
+  assert.equal((detail.match(/class="article-summary"/g)||[]).length,2);
+  assert.ok(!detail.includes('<details class="story"'));
+  assert.ok(!detail.includes('stories-intro'));
+  data.digest.article_summaries.forEach(item=>{
+    assert.ok(detail.includes('<span class="story-title">'+item.headline+'</span>'));
+    assert.ok(detail.includes(item.summary));assert.ok(detail.includes('href="'+item.url+'"'));
+  });
+  assert.ok(html.split('<details class="read-more"')[0].includes(data.digest.summary));
+});
+
+test('article copy cannot be shown with incomplete, duplicate or mismatched original references',async()=>{
+  for(const mutate of [
+    d=>d.digest.article_summaries.pop(),
+    d=>d.digest.article_summaries[1]={...d.digest.article_summaries[0]},
+    d=>d.digest.article_summaries[0].title='別の原題',
+    d=>d.digest.article_summaries[0].url='https://news.example/wrong',
+    d=>d.digest.article_summaries[0].source='別の配信元',
+    d=>d.digest.article_summaries[0].published_at-=1,
+    d=>d.digest.article_summaries[0].headline=' ',
+    d=>d.digest.article_summaries[0].summary='文'.repeat(199),
+    d=>d.digest.article_summaries[0].summary='文'.repeat(301),
+    d=>d.digest.article_summaries=null,
+  ]){
+    const app=harness(),data=withArticleSummaries(curated(app));mutate(data);
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(!html.includes('article-summary'));assert.ok(!html.includes('brief-summary'));
+  }
+});
+
+test('reviewed article copy is escaped and retains Japanese language under a translated interface',async()=>{
+  const app=harness(),data=withArticleSummaries(curated(app,'en'));app.language('en');
+  data.news=data.news.map(item=>({...item,title:'Translated original headline'}));
+  data.digest.article_summaries[0].headline='<img src=x onerror=bad()>';
+  data.digest.article_summaries[0].summary='<script>bad()</script>'+'確認した記事の説明です。'.repeat(17);
+  app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.equal((html.match(/class="story summarized-story" lang="ja"/g)||[]).length,2);
+  assert.ok(html.includes('&lt;img'));assert.ok(html.includes('&lt;script&gt;'));
+  assert.ok(!html.includes('<img'));assert.ok(!html.includes('<script>'));
+});
+
 test('API delivers one 200–300 character published summary from two or three articles without a fake feed timestamp',async()=>{
   for(const count of [2,3]){
     const app=harness(),data=curated(app);

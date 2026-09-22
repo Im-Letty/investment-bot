@@ -93,8 +93,17 @@ def render_news_markup(data):
                    else "本日発表された経済ニュースは、まだ確認できていません。")
         brief = f'<p class="news-empty">{message}</p>'
     stories = []
+    article_summaries = {item["url"]: item for item in (digest or {}).get("article_summaries", [])}
     for item in data["news"]:
         key = esc("article:" + item["url"])
+        authored = article_summaries.get(item["url"])
+        if authored:
+            stories.append('<article class="story summarized-story" lang="ja">'
+                           f'<h4><span class="story-category">{esc(item["source"])}</span>'
+                           f'<span class="story-title">{esc(authored["headline"])}</span></h4>'
+                           f'<div class="story-content"><p class="article-summary">{esc(authored["summary"])}</p>'
+                           f'<div class="headline-meta">{_publication(item)}{_article_link(item)}</div></div></article>')
+            continue
         stories.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
                        f'<summary data-news-focus="{key}"><h4><span class="story-category">{esc(item["source"])}</span>'
                        f'<span class="story-title">{esc(item["title"])}</span>'
@@ -114,7 +123,7 @@ def render_news_markup(data):
     more = (('<details class="read-more" data-news-key="more"><summary data-news-focus="more">'
              '<span class="closed-label">もっと詳しく</span><span class="open-label">閉じる</span>'
              '<span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail">'
-             '<p class="stories-intro">気になるニュースを開いて、元の記事を読む。</p>' + "".join(stories) + '</div></details>') if stories else '')
+             + "".join(stories) + '</div></details>') if stories else '')
     if data.get("delivery") == "published":
         status = data["edition_date"].replace("-", "/") + " 掲載"
     else:

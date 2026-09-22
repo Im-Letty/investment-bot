@@ -75,6 +75,29 @@ class ParsedInitial(HTMLParser):
 
 
 class InitialSelectionTests(unittest.TestCase):
+    def test_article_summaries_are_readable_together_inside_more_with_escaped_copy(self):
+        first = article()
+        second = {**article('Second article'), 'url': 'https://reuters.example/current', 'source': 'ロイター経済'}
+        summaries = [{**item, 'headline': f'やさしい見出し{number}<img>',
+                      'summary': '確認した記事をやさしく説明する文章です。' * 10 + '<script>bad()</script>'}
+                     for number, item in enumerate([first, second])]
+        authored = review([first, second], publication_mode='curated', reviewed_at=NOW - 60,
+                          article_summaries=summaries)
+        data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
+        html = render_initial_html(NEWS_PLACEHOLDER, data)
+        detail = html.split('<details class="read-more"', 1)[1].split('</details>', 1)[0]
+        self.assertEqual(detail.count('class="article-summary"'), 2)
+        self.assertEqual(detail.count('class="story summarized-story" lang="ja"'), 2)
+        self.assertNotIn('<details class="story"', detail)
+        self.assertNotIn('stories-intro', detail)
+        self.assertIn('やさしい見出し0&lt;img&gt;', detail)
+        self.assertIn('&lt;script&gt;bad()&lt;/script&gt;', detail)
+        self.assertNotIn('<img>', detail)
+        self.assertNotIn('<script>', detail)
+        for item in (first, second):
+            self.assertIn(f'href="{item["url"]}"', detail)
+        self.assertEqual(json.loads(ParsedInitial(html).json)['digest']['article_summaries'], summaries)
+
     def test_curated_two_article_edition_is_identical_for_cold_empty_and_partial_feeds(self):
         first = article()
         second = {**article('Second article'), 'url': 'https://reuters.example/current', 'source': 'ロイター経済'}

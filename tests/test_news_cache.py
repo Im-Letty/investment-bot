@@ -366,6 +366,70 @@ class ReviewedDigestTests(unittest.TestCase):
         return {**digest_for(items), 'summary': '文' * 240, 'publication_mode': 'curated',
                 'reviewed_at': self.now - 60, **fields}
 
+    def details_for(self, items):
+        return [{**{field: item[field] for field in ('source', 'url', 'published_at', 'title')},
+                 'headline': '読みやすい記事の見出し', 'summary': '文' * 240} for item in items]
+
+    def test_article_summaries_preserve_original_bindings_and_trim_copy_without_mutation(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        details = self.details_for(items[::-1])
+        details[0].update(headline='  読みやすい見出し　', summary='  ' + '文' * 240 + '\n',
+                          url=details[0]['url'].replace('example.test', 'EXAMPLE.test') + '#detail')
+        review = self.curated(items, article_summaries=details)
+        result = self.select(items[:1], [review])
+        self.assertEqual(result['digest']['summary'], review['summary'])
+        self.assertEqual(result['digest']['article_summaries'][0],
+                         {**self.details_for(items[::-1])[0], 'headline': '読みやすい見出し'})
+        result['digest']['article_summaries'][1]['summary'] = 'Changed by caller'
+        self.assertEqual(review['article_summaries'][1]['summary'], '文' * 240)
+        plain = digest_for(items)
+        self.assertNotIn('article_summaries', self.select(items, [plain])['digest'])
+        plain['article_summaries'] = self.details_for(items)
+        self.assertEqual(self.select(items, [plain])['digest']['article_summaries'], plain['article_summaries'])
+
+    def test_article_summaries_require_complete_unique_reference_coverage(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        details = self.details_for(items)
+        invalid = [None, {}, 'summary', [], [details[0]], details + [details[0]],
+                   [details[0], details[0]], [details[0], None],
+                   [details[0], {**details[1], 'title': 'Another article'}],
+                   [details[0], {**details[1], 'source': 'NHK経済'}],
+                   [details[0], {**details[1], 'url': 'https://example.test/other'}],
+                   [details[0], {**details[1], 'published_at': items[1]['published_at'] + 1}],
+                   [details[0], {**details[1], 'published_at': timestamp('2026-09-21T03:00:00Z')}]]
+        for value in invalid:
+            with self.subTest(value=value):
+                review = self.curated(items, article_summaries=value)
+                self.assertIsNone(self.select(items, [review])['digest'])
+
+    def test_article_summary_copy_length_boundaries_and_malformed_fields_fail_closed(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        details = self.details_for(items)
+        for heading_length, body_length in ((1, 200), (80, 300)):
+            value = [{**details[0], 'headline': '  ' + '見' * heading_length + '  ',
+                      'summary': '\n' + '文' * body_length + '\n'}, details[1]]
+            result = self.select(items, [self.curated(items, article_summaries=value)])
+            self.assertEqual(len(result['digest']['article_summaries'][0]['headline']), heading_length)
+            self.assertEqual(len(result['digest']['article_summaries'][0]['summary']), body_length)
+        for change in ({'headline': ''}, {'headline': '　 '}, {'headline': '見' * 81},
+                       {'headline': None}, {'summary': '文' * 199}, {'summary': '文' * 301},
+                       {'summary': None}, {'source': []}, {'title': {}}, {'url': 'javascript:alert(1)'},
+                       {'published_at': True}, {'published_at': float('nan')}, {'published_at': None}):
+            with self.subTest(change=change):
+                value = [{**details[0], **change}, details[1]]
+                self.assertIsNone(self.select(items, [self.curated(items, article_summaries=value)])['digest'])
+
+    def test_article_summaries_are_validated_when_loading_authored_file(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        review = self.curated(items, article_summaries=self.details_for(items))
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'news-digests.json'
+            path.write_text(json.dumps([review]), encoding='utf-8')
+            self.assertEqual(load_reviewed_digests(path), [review])
+            review['article_summaries'].pop()
+            path.write_text(json.dumps([review]), encoding='utf-8')
+            self.assertEqual(load_reviewed_digests(path), [])
+
     def test_curated_publication_keeps_two_reviewed_articles_when_one_feed_is_missing(self):
         items = [article('Domestic'), article('Foreign', source='ロイター経済')]
         reviewed = self.curated(items)

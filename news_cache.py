@@ -267,6 +267,31 @@ def _validated_digest(value):
         articles.append(dict(zip(("source", "url", "published_at", "title"), identity)))
     result = {"edition_date": edition, "lang": "ja", "headline": headline.strip(),
               "summary": summary.strip(), "article_refs": articles}
+    if "article_summaries" in value:
+        details = value["article_summaries"]
+        if not isinstance(details, list) or len(details) != len(articles):
+            return None
+        validated, covered = [], set()
+        for detail in details:
+            if not isinstance(detail, dict):
+                return None
+            source, title = detail.get("source"), detail.get("title")
+            url = _safe_url(detail.get("url"))
+            published = _publication_time(detail.get("published_at"))
+            heading, body = detail.get("headline"), detail.get("summary")
+            if (not isinstance(source, str) or not isinstance(title, str)
+                    or not url or published is None or not isinstance(heading, str)
+                    or not 1 <= len(heading.strip()) <= 80 or not isinstance(body, str)
+                    or not 200 <= len(body.strip()) <= 300):
+                return None
+            identity = (source, url, published.timestamp(), title)
+            if identity not in identities or identity in covered:
+                return None
+            covered.add(identity)
+            validated.append({**dict(zip(("source", "url", "published_at", "title"), identity)),
+                              "headline": heading.strip(), "summary": body.strip()})
+        # Equal lengths plus unique exact identities require complete coverage.
+        result["article_summaries"] = validated
     if curated:
         reviewed = _publication_time(value.get("reviewed_at"))
         titles = {" ".join(unicodedata.normalize("NFKC", ref["title"]).casefold().split())

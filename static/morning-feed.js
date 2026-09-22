@@ -57,6 +57,15 @@
       used.add(ref.url);
       return d.news.some(function(item){return ref.url===item.url&&ref.source===item.source&&ref.published_at===item.published_at&&(d.lang!=='ja'||ref.title===item.title);});
     });
+    if(Object.prototype.hasOwnProperty.call(digest,'article_summaries')){
+      var summaries=digest.article_summaries,covered=new Set();
+      if(!Array.isArray(summaries)||summaries.length!==digest.article_refs.length)return null;
+      if(!summaries.every(function(item){
+        if(!item||typeof item.headline!=='string'||!item.headline.trim()||Array.from(item.headline.trim()).length>80||typeof item.summary!=='string'||Array.from(item.summary.trim()).length<200||Array.from(item.summary.trim()).length>300||covered.has(item.url))return false;
+        covered.add(item.url);
+        return digest.article_refs.some(function(ref){return item.source===ref.source&&item.url===ref.url&&item.published_at===ref.published_at&&item.title===ref.title;});
+      }))return null;
+    }
     return matches?digest:null;
   }
   function fetchJSON(url){
@@ -65,10 +74,10 @@
     return fetch(url,controller?{signal:controller.signal}:undefined).then(function(r){if(!r.ok)throw new Error('HTTP '+r.status);return r.json();}).finally(function(){if(timer)clearTimeout(timer);});
   }
   var digestCopy={
-    ja:{title:'経済ニュース',date:'掲載対象日',noDigest:'本日のまとめはまだ掲載されていません。記事は「もっと詳しく」から読めます。',more:'もっと詳しく',close:'閉じる',intro:'気になるニュースを開いて、元の記事を読む。',source:'配信元',count:function(n){return n+'件の見出し';},noToday:'本日発表された経済ニュースは、まだ確認できていません。',supplements:'日付付きの補足',supplement:'補足',original:'元の記事を読む',published:'発表'},
-    en:{title:'Economic news',date:'Edition date',noDigest:'Today’s summary has not been published yet. Open Read more for the articles.',more:'Read more',close:'Close details',intro:'Choose a story to view the original article.',source:'Publisher',count:function(n){return n+' headlines';},noToday:'No qualifying economic news published today has been confirmed yet.',supplements:'Earlier news for context',supplement:'Context',original:'Read the original article',published:'Published'},
-    ko:{title:'경제 뉴스',date:'게시 대상 날짜',noDigest:'오늘의 요약은 아직 게시되지 않았습니다. 더 자세히에서 기사를 읽을 수 있습니다.',more:'더 자세히',close:'설명 닫기',intro:'뉴스를 선택해 원문 기사를 확인해 보세요.',source:'언론사',count:function(n){return '헤드라인 '+n+'개';},noToday:'오늘 발표된 경제 뉴스는 아직 확인되지 않았습니다.',supplements:'이전 날짜의 참고 뉴스',supplement:'참고',original:'원문 읽기',published:'발표'},
-    zh:{title:'经济新闻',date:'本期日期',noDigest:'今天的摘要尚未发布，请打开了解更多查看文章。',more:'了解更多',close:'收起详情',intro:'选择新闻，查看原文。',source:'媒体',count:function(n){return n+'条标题';},noToday:'暂未确认今天发布的相关经济新闻。',supplements:'标注日期的补充新闻',supplement:'补充',original:'阅读原文',published:'发布'}
+    ja:{title:'経済ニュース',date:'掲載対象日',noDigest:'本日のまとめはまだ掲載されていません。記事は「もっと詳しく」から読めます。',more:'もっと詳しく',close:'閉じる',source:'配信元',count:function(n){return n+'件の見出し';},noToday:'本日発表された経済ニュースは、まだ確認できていません。',supplements:'日付付きの補足',supplement:'補足',original:'元の記事を読む',published:'発表'},
+    en:{title:'Economic news',date:'Edition date',noDigest:'Today’s summary has not been published yet. Open Read more for the articles.',more:'Read more',close:'Close details',source:'Publisher',count:function(n){return n+' headlines';},noToday:'No qualifying economic news published today has been confirmed yet.',supplements:'Earlier news for context',supplement:'Context',original:'Read the original article',published:'Published'},
+    ko:{title:'경제 뉴스',date:'게시 대상 날짜',noDigest:'오늘의 요약은 아직 게시되지 않았습니다. 더 자세히에서 기사를 읽을 수 있습니다.',more:'더 자세히',close:'설명 닫기',source:'언론사',count:function(n){return '헤드라인 '+n+'개';},noToday:'오늘 발표된 경제 뉴스는 아직 확인되지 않았습니다.',supplements:'이전 날짜의 참고 뉴스',supplement:'참고',original:'원문 읽기',published:'발표'},
+    zh:{title:'经济新闻',date:'本期日期',noDigest:'今天的摘要尚未发布，请打开了解更多查看文章。',more:'了解更多',close:'收起详情',source:'媒体',count:function(n){return n+'条标题';},noToday:'暂未确认今天发布的相关经济新闻。',supplements:'标注日期的补充新闻',supplement:'补充',original:'阅读原文',published:'发布'}
   };
   function newsSource(source){if(source==='ロイター経済')return {ja:'ロイター経済',en:'Reuters Business',ko:'로이터 경제',zh:'路透经济'}[lang()];return window.translateNewsSource?window.translateNewsSource(source):source;}
   function publication(item,l){
@@ -86,13 +95,15 @@
     var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
     var stories=d.news.map(function(item){
       var key='article:'+item.url;
+      var authored=digest&&(digest.article_summaries||[]).find(function(summary){return summary.url===item.url;});
+      if(authored)return '<article class="story summarized-story" lang="ja"><h4><span class="story-category">'+esc(newsSource(item.source))+'</span><span class="story-title">'+esc(authored.headline)+'</span></h4><div class="story-content"><p class="article-summary">'+esc(authored.summary)+'</p><div class="headline-meta">'+publication(item,l)+articleLink(item,l)+'</div></div></article>';
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(newsSource(item.source))+'</span><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><div class="headline-meta">'+publication(item,l)+articleLink(item,l)+'</div></div></details>';
     }).join('');
     if(d.supplements.length)stories+='<section class="news-supplements"><h4>'+esc(c.supplements)+'</h4>'+d.supplements.map(function(item){
       var key='supplement:'+item.url;
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span><span class="story-takeaway">'+esc(newsSource(item.source))+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p><div class="headline-meta">'+articleLink(item,l)+'</div></div></details>';
     }).join('')+'</section>';
-    var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail"><p class="stories-intro">'+esc(c.intro)+'</p>'+stories+'</div></details>':'';
+    var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail">'+stories+'</div></details>':'';
     return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+more+'<footer class="news-footer"><p><span>'+esc(status)+'</span>'+sources+'</p></footer></div></article>';
   }
   function replaceNews(el,html,l){

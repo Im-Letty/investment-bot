@@ -15,9 +15,11 @@ The website uses a fixed pair of news publishers: `NHK経済` and `ロイター�
 
 ## One short daily summary
 
-The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. The original headlines, publication times and links stay in the expanded details. Do not expand each article into a separate 200–300 character block.
+The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. Opening Read more shows each news item with its own plain Japanese headline and **200–300 characters per article**. These individual summaries are readable together without another disclosure click or leaving the site. Publisher names remain small, with publication times and original article links alongside each summary.
 
 `news-digests.json` holds reviewed Japanese copy. Each record contains `edition_date`, `lang: "ja"`, `headline` (1–80 characters), `summary` (200–300 characters), and `article_refs`. Every reference contains the verified `source`, normalized `url`, original `published_at` of the linked article, and its exact `title`. The authored Japanese text keeps its language marker when a reader changes the interface language.
+
+The optional `article_summaries` list adds a `headline` (1–80 characters) and `summary` (200–300 characters) to each article's exact `source`, normalized `url`, `published_at` and original `title`. It must cover all reference articles exactly once. Partial, duplicate, mismatched or malformed copy invalidates the reviewed digest; a missing list retains the older link-only behavior. Original source titles remain in the provenance records. Both initial HTML and browser rendering use the same reviewed copy. Short paragraphs are authored with line breaks, and all rendered text is escaped.
 
 An edition explicitly approved for publication uses `publication_mode: "curated"` and an actual `reviewed_at` timestamp. It requires two or three distinct references published on the edition's Japan date. The review must be on that same date, no earlier than any reference's publication and no later than now. The review covers every topic in the edition. RSS absence alone does not revoke a checked article, and unrelated new feed entries do not silently change the scope of its summary. A conflicting source, title or original publication timestamp observed at the same URL invalidates the edition. Multiple competing reviewed editions are ambiguous and are not published automatically.
 
@@ -42,6 +44,9 @@ The HTML remains revalidated on each visit. Its ETag includes the Japan date and
 - NHK article: [Nasdaq record](https://news.web.nhk/newsweb/na/nd-20260922de51819), published September 22 09:25 JST about the September 21 US session. The index explanation was checked against the [Nasdaq Composite definition](https://indexes.nasdaq.com/Index/Overview/COMP).
 - The possible effect of a weaker yen on imported food/fuel and household costs is background explanation supported by the [Bank of Japan's March 2022 press-conference record](https://www.boj.or.jp/about/press/kaiken_2022/kk220322a.htm). No past numeric data or policy decision is presented as today's news.
 - Interest-rate developments are a watchpoint, not a prediction that yen or share prices will rise or fall. The copy does not claim household prices have already risen because of today's trading.
+- Individual detail bodies: Reuters 220 characters and NHK 258 characters, including paragraph breaks. Each article has a separate plain-language Japanese headline. The combined 224-character front summary remains unchanged.
+- The Reuters detail's 157-yen range and concern about possible official currency intervention were rechecked in the [same Reuters report distributed by Yahoo Finance](https://ca.finance.yahoo.com/news/yen-squeezed-hawkish-turn-grips-052642961.html). A possible intervention is not a confirmed decision. Publication metadata still refers to the originally linked MarketScreener page.
+- Stock-index background was checked against the [Japan Exchange Group explanation](https://www.jpx.co.jp/faq/stock_price_index.html). General explanations are not additional current news reports or forecasts about every individual share.
 
 ## Important older context
 
