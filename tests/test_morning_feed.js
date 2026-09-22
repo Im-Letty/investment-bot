@@ -158,7 +158,7 @@ test('first visit reads the embedded publication before any API or market respon
 test('first hydration preserves panels and focus opened before deferred scripts finish',()=>{
   const app=harness();published(app);
   const content=app.nodes['morning-news-content'];
-  content.innerHTML='<details data-news-key="more"><summary data-news-focus="more">もっと詳しく</summary><details data-news-key="source:NHK経済"><summary data-news-focus="source:NHK経済">NHK経済</summary></details></details>';
+  content.innerHTML='<details data-news-key="more"><summary data-news-focus="more">もっと詳しく</summary><details data-news-key="article:https://news.example/item-0"><summary data-news-focus="article:https://news.example/item-0">今日のニュース</summary></details></details>';
   content.details.forEach(node=>node.open=true);content.summaries[1].focus();
   app.event('DOMContentLoaded');
   assert.ok(content.details.every(node=>node.open));
@@ -238,8 +238,7 @@ test('E front shows one reviewed daily digest and A details preserve all selecte
   assert.ok(!html.includes('news-period'));
   assert.match(html,/class="stories editorial-detail"/);
   assert.equal((html.match(/<details class="story"/g)||[]).length,3);
-  assert.equal((html.match(/<li>/g)||[]).length,news.length);
-  news.forEach(item=>assert.ok(html.includes('<li><span>'+item.title+'</span>')));
+  news.forEach(item=>assert.ok(html.includes('<span class="story-title">'+item.title+'</span>')));
   assert.ok(!html.includes('サンマルク'));
 });
 
@@ -320,7 +319,7 @@ test('API delivers one 200–300 character published summary from two or three a
     app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
     const html=app.nodes['morning-news-content'].innerHTML;
     assert.equal((html.match(/class="brief-summary"/g)||[]).length,1);
-    assert.equal((html.match(/<li>/g)||[]).length,count);
+    assert.equal((html.match(/<details class="story"/g)||[]).length,count);
     assert.ok(html.includes(data.digest.summary));assert.match(html,/掲載/);
     assert.ok(!html.includes('morning-news-error'));assert.equal(app.storage.has('kn_news_v4_ja'),false);
     app.context.loadMorningNews();assert.equal(app.requests.length,2,'Published edition is reused between refreshes');
@@ -370,7 +369,7 @@ test('authored Japanese digest remains explicitly Japanese when reference headli
   assert.ok(html.includes(data.digest.summary));assert.match(html,/Translated headline/);
 });
 
-test('refresh preserves open sources and keyboard focus; language change resets them',async()=>{
+test('refresh preserves open articles and keyboard focus; language change resets them',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news());
   const content=app.nodes['morning-news-content'];
@@ -387,7 +386,7 @@ test('refresh preserves open sources and keyboard focus; language change resets 
   assert.ok(content.details.every(node=>!node.open));
 });
 
-test('failed refresh retains expanded content and escapes source labels in attributes',async()=>{
+test('failed refresh retains expanded content and escapes unsafe titles and source labels',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news('ja',{news:[{source:'\" onclick=\"bad()',title:'<script>bad()</script>'}]}));
   const content=app.nodes['morning-news-content'];
@@ -400,13 +399,13 @@ test('failed refresh retains expanded content and escapes source labels in attri
   assert.match(content.innerHTML,/いま更新できません/);
 });
 
-test('a source disappearing during refresh returns keyboard focus to Read more',async()=>{
+test('an article disappearing during refresh returns keyboard focus to Read more',async()=>{
   const app=harness();app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news());
   const content=app.nodes['morning-news-content'];
   content.details.forEach(node=>node.open=true);content.summaries[1].focus();
   app.advance(121000);app.context.loadMorningNews();
-  await app.reply(app.requests.at(-1),app.news('ja',{news:[{source:'別の配信元',title:'見出し'}]}));
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[{source:'別の配信元',title:'見出し',url:'https://news.example/replacement'}]}));
   assert.equal(app.context.document.activeElement,content.summaries[0]);
   assert.equal(content.details[0].open,true);
   assert.equal(content.details[1].open,false);

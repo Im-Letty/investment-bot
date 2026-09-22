@@ -93,15 +93,13 @@ def render_news_markup(data):
                    else "本日発表された経済ニュースは、まだ確認できていません。")
         brief = f'<p class="news-empty">{message}</p>'
     stories = []
-    for source, items in groups.items():
-        key = esc("source:" + source)
-        articles = "".join(f'<li><span>{esc(item["title"])}</span><div class="headline-meta">'
-                           f'{_publication(item)}{_article_link(item)}</div></li>' for item in items)
+    for item in data["news"]:
+        key = esc("article:" + item["url"])
         stories.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
-                       f'<summary data-news-focus="{key}"><h4><span class="story-category">配信元</span>'
-                       f'<span class="story-title">{esc(source)}</span><span class="story-takeaway">{len(items)}件の見出し</span>'
+                       f'<summary data-news-focus="{key}"><h4><span class="story-category">{esc(item["source"])}</span>'
+                       f'<span class="story-title">{esc(item["title"])}</span>'
                        '</h4><span class="plus" aria-hidden="true"></span></summary>'
-                       f'<div class="story-content"><ul class="headline-list">{articles}</ul></div></details>')
+                       f'<div class="story-content"><div class="headline-meta">{_publication(item)}{_article_link(item)}</div></div></details>')
     if data["supplements"]:
         supplements = []
         for item in data["supplements"]:
@@ -116,7 +114,7 @@ def render_news_markup(data):
     more = (('<details class="read-more" data-news-key="more"><summary data-news-focus="more">'
              '<span class="closed-label">もっと詳しく</span><span class="open-label">閉じる</span>'
              '<span class="read-arrow" aria-hidden="true">↗</span></summary><div class="stories editorial-detail">'
-             '<p class="stories-intro">気になる配信元を開いて、見出しを読む。</p>' + "".join(stories) + '</div></details>') if stories else '')
+             '<p class="stories-intro">気になるニュースを開いて、元の記事を読む。</p>' + "".join(stories) + '</div></details>') if stories else '')
     if data.get("delivery") == "published":
         status = data["edition_date"].replace("-", "/") + " 掲載"
     else:
