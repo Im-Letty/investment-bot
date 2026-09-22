@@ -99,13 +99,12 @@ def render_news_markup(data):
         authored = article_summaries.get(item["url"])
         if authored:
             stories.append('<article class="story summarized-story" lang="ja">'
-                           f'<h4><span class="story-category">{esc(item["source"])}</span>'
-                           f'<span class="story-title">{esc(authored["headline"])}</span></h4>'
+                           f'<h4><span class="story-title">{esc(authored["headline"])}</span></h4>'
                            f'<div class="story-content"><p class="article-summary">{esc(authored["summary"])}</p>'
                            f'<div class="headline-meta">{_publication(item)}{_article_link(item)}</div></div></article>')
             continue
         stories.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
-                       f'<summary data-news-focus="{key}"><h4><span class="story-category">{esc(item["source"])}</span>'
+                       f'<summary data-news-focus="{key}"><h4>'
                        f'<span class="story-title">{esc(item["title"])}</span>'
                        '</h4><span class="plus" aria-hidden="true"></span></summary>'
                        f'<div class="story-content"><div class="headline-meta">{_publication(item)}{_article_link(item)}</div></div></details>')
@@ -115,7 +114,7 @@ def render_news_markup(data):
             key = esc("supplement:" + item["url"])
             supplements.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
                                f'<summary data-news-focus="{key}"><h4><span class="story-category">補足 · {_publication(item)}</span>'
-                               f'<span class="story-title">{esc(item["title"])}</span><span class="story-takeaway">{esc(item["source"])}</span>'
+                               f'<span class="story-title">{esc(item["title"])}</span>'
                                '</h4><span class="plus" aria-hidden="true"></span></summary>'
                                f'<div class="story-content"><p>{esc(item["editorial_reason"])}</p>'
                                f'<div class="headline-meta">{_article_link(item)}</div></div></details>')

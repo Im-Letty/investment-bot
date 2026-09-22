@@ -15,7 +15,7 @@ The website uses a fixed pair of news publishers: `NHK経済` and `ロイター�
 
 ## One short daily summary
 
-The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. Opening Read more shows each news item with its own plain Japanese headline and **200–300 characters per article**. These individual summaries are readable together without another disclosure click or leaving the site. Publisher names remain small, with publication times and original article links alongside each summary.
+The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. Opening Read more shows each news item with its own plain Japanese headline and **200–300 characters per article**. These individual summaries are readable together without another disclosure click or leaving the site. Publisher names are listed once beside the footer publication date, without repeating them on each article. Publication times and original article links remain alongside each summary.
 
 `news-digests.json` holds reviewed Japanese copy. Each record contains `edition_date`, `lang: "ja"`, `headline` (1–80 characters), `summary` (200–300 characters), and `article_refs`. Every reference contains the verified `source`, normalized `url`, original `published_at` of the linked article, and its exact `title`. The authored Japanese text keeps its language marker when a reader changes the interface language.
 
