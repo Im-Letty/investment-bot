@@ -12,7 +12,8 @@ from urllib.parse import quote
 
 from flask import Flask
 from news_cache import (HeadlineTranslations, NEWS_FEEDS, WEB_NEWS_SOURCES,
-                        NewsCache, fetch_feed, load_reviewed_supplements, select_daily_news)
+                        NewsCache, fetch_feed, load_reviewed_digests,
+                        load_reviewed_supplements, select_daily_news)
 
 
 def timestamp(value):
@@ -22,6 +23,13 @@ def timestamp(value):
 def article(title, published='2026-09-22T03:00:00Z', *, url=None, source='NHK経済'):
     return {'source': source, 'title': title, 'url': url or 'https://example.test/' + quote(title),
             'published_at': timestamp(published) if published else None}
+
+
+def digest_for(items, edition='2026-09-22'):
+    return {'edition_date': edition, 'lang': 'ja', 'headline': '今日の経済ニュース',
+            'summary': '確認した記事の内容をやさしい日本語でまとめたテスト用の文章です。' * 6,
+            'article_refs': [{field: item[field] for field in ('source', 'url', 'published_at', 'title')}
+                             for item in items]}
 
 
 def read_feed(xml):
@@ -295,7 +303,7 @@ class DailySelectionTests(unittest.TestCase):
         empty = select_daily_news({'news': items[:1]}, now=self.now)
         self.assertEqual(empty['news'], [])
         self.assertEqual(empty['selection_status'], 'empty_today')
-        self.assertEqual(empty['policy_version'], 2)
+        self.assertEqual(empty['policy_version'], 3)
 
     def test_only_reviewed_obtained_recent_older_news_become_separate_supplements(self):
         old = article('Rate decision', '2026-09-21T03:00:00Z')
@@ -345,6 +353,90 @@ class DailySelectionTests(unittest.TestCase):
                             '[{"url":"https://example.test/a","reason":" "}]'):
                 path.write_text(invalid)
                 self.assertEqual(load_reviewed_supplements(path), [])
+
+
+class ReviewedDigestTests(unittest.TestCase):
+    now = timestamp('2026-09-22T04:00:00Z')
+
+    def select(self, items, digests):
+        return select_daily_news({'news': items}, now=self.now,
+                                 allowed_sources=WEB_NEWS_SOURCES, reviewed_digests=digests)
+
+    def test_digest_covers_exact_selected_original_articles_without_mutation(self):
+        items = [article('Domestic'), article('Overseas', source='ロイター経済')]
+        review = digest_for(items[::-1])
+        # URL normalization matches the same article; reference order is immaterial.
+        review['article_refs'][0]['url'] = review['article_refs'][0]['url'].replace('example.test', 'EXAMPLE.test') + '#detail'
+        result = self.select(items, [review])
+        self.assertEqual(result['digest']['summary'], review['summary'])
+        self.assertEqual(result['digest']['headline'], review['headline'])
+        self.assertEqual(result['digest']['lang'], 'ja')
+        self.assertEqual(result['digest']['article_refs'], digest_for(items[::-1])['article_refs'])
+        result['digest']['article_refs'][0]['title'] = 'Caller mutation'
+        self.assertEqual(review['article_refs'][0]['title'], 'Overseas')
+        self.assertNotIn('digest', items[0])
+
+    def test_changed_identity_never_reuses_reviewed_text(self):
+        original = article('Original')
+        review = digest_for([original])
+        for changed in ({'title': 'Updated headline'}, {'url': 'https://example.test/other'},
+                        {'published_at': original['published_at'] + 60}, {'source': 'ロイター経済'}):
+            with self.subTest(changed=changed):
+                result = self.select([{**original, **changed}], [review])
+                self.assertEqual(len(result['news']), 1)
+                self.assertIsNone(result['digest'])
+
+    def test_added_removed_and_replaced_selected_articles_require_new_review(self):
+        first, second, newer = article('First'), article('Second'), article('Newer', '2026-09-22T03:30:00Z')
+        one, two = digest_for([first]), digest_for([first, second])
+        for items, reviews in (([first, second], [one]), ([first], [two]),
+                               ([first, newer], [two]), ([], [one])):
+            with self.subTest(items=items):
+                self.assertIsNone(self.select(items, reviews)['digest'])
+        self.assertEqual(self.select([first, newer], [two, digest_for([first, newer])])['digest']['article_refs'],
+                         digest_for([first, newer])['article_refs'])
+
+    def test_yesterday_unknown_future_and_supplement_articles_cannot_fill_today(self):
+        today = article('Today')
+        older = article('Older', '2026-09-21T03:00:00Z')
+        review = digest_for([older], '2026-09-21')
+        result = select_daily_news({'news': [today, older]}, now=self.now,
+                                   reviewed_digests=[review],
+                                   reviewed_supplements=[{'url': older['url'], 'reason': 'Context'}])
+        self.assertEqual(len(result['supplements']), 1)
+        self.assertIsNone(result['digest'])
+        for item in (older, article('Unknown', None), article('Future', '2026-09-22T05:00:00Z')):
+            self.assertIsNone(self.select([item], [digest_for([item])])['digest'])
+        wrong_edition = {**digest_for([today]), 'edition_date': '2026-09-21'}
+        self.assertIsNone(self.select([today], [wrong_edition])['digest'])
+
+    def test_missing_malformed_duplicate_and_ambiguous_reviews_fail_closed(self):
+        item = article('Today')
+        review = digest_for([item])
+        invalid = [None, {}, {**review, 'lang': 'en'}, {**review, 'headline': ''},
+                   {**review, 'headline': '見' * 81}, {**review, 'summary': '見出しだけ'},
+                   {**review, 'summary': '文' * 261}, {**review, 'article_refs': []},
+                   {**review, 'article_refs': review['article_refs'] * 2}]
+        for value in invalid:
+            with self.subTest(value=value):
+                result = self.select([item], [value])
+                self.assertEqual(len(result['news']), 1)
+                self.assertIsNone(result['digest'])
+        self.assertIsNone(self.select([item], [])['digest'])
+        self.assertIsNone(self.select([item], [review, {**review, 'headline': '別の説明'}])['digest'])
+
+    def test_digest_file_validation_and_missing_file(self):
+        review = digest_for([article('Today')])
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'news-digests.json'
+            self.assertEqual(load_reviewed_digests(path), [])
+            path.write_text(json.dumps([review]), encoding='utf-8')
+            self.assertEqual(load_reviewed_digests(path), [review])
+            bad_ref = {**review['article_refs'][0], 'published_at': True}
+            for invalid in ('invalid json', '{}', json.dumps([review, None]),
+                            json.dumps([{**review, 'article_refs': [bad_ref]}])):
+                path.write_text(invalid, encoding='utf-8')
+                self.assertEqual(load_reviewed_digests(path), [])
 
 
 class TranslationTests(unittest.TestCase):
@@ -446,10 +538,12 @@ class RouteCompatibilityTests(unittest.TestCase):
         cache = Mock(); cache.snapshot.return_value = snapshot
         translator = Mock(); translator.snapshot.side_effect = lambda items, lang: (items, False)
         approvals = [{'url': raw_items[1]['url'], 'reason': 'Reviewed economic relevance'}]
+        reviewed_digest = digest_for(raw_items[:1])
         context = dict(app=app, request=request, jsonify=jsonify, datetime=datetime,
                        news_cache=cache, news_translations=translator, NEWS_FEEDS=NEWS_FEEDS,
                        WEB_NEWS_SOURCES=WEB_NEWS_SOURCES,
                        load_reviewed_supplements=lambda: approvals,
+                       load_reviewed_digests=lambda: [reviewed_digest],
                        select_daily_news=lambda data, **kwargs: select_daily_news(data, now=now, **kwargs))
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'news-routes', 'exec'), context)
         report = context['fetch_news']()
@@ -462,13 +556,26 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertEqual(data['fetched_at'], 1000)
         self.assertTrue(data['refreshing'])
         self.assertTrue(data['stale'])
-        self.assertEqual(data['policy_version'], 2)
+        self.assertEqual(data['policy_version'], 3)
+        self.assertEqual(data['digest'], reviewed_digest)
         self.assertEqual(data['edition_date'], '2026-09-22')
         self.assertEqual([item['title'] for item in data['news']], ['見出し'])
         self.assertEqual([item['title'] for item in data['supplements']], ['Earlier 0'])
         self.assertEqual(data['selection_counts']['received'], 8)
         cache.snapshot.assert_called_once_with(wait=False)
         translator.snapshot.assert_called_once_with(data['news'] + data['supplements'], 'ja')
+        # The authored Japanese digest and its original references are never sent
+        # through the headline translator, including on an English response.
+        translator.snapshot.reset_mock()
+        translator.snapshot.side_effect = lambda items, lang: ([{**item, 'title': 'Translated ' + item['title']}
+                                                                for item in items], False)
+        english = app.test_client().get('/api/morning-news?lang=en').get_json()
+        self.assertEqual(english['lang'], 'en')
+        self.assertEqual(english['digest'], reviewed_digest)
+        self.assertEqual(english['news'][0]['title'], 'Translated 見出し')
+        translated_items, translated_lang = translator.snapshot.call_args.args
+        self.assertEqual(translated_lang, 'en')
+        self.assertTrue(all('summary' not in item for item in translated_items))
         # A successful feed that contains no current articles is a valid empty
         # edition; the route must not translate or return the earlier stories.
         cache.snapshot.return_value = {**snapshot, 'news': raw_items[2:],
@@ -478,7 +585,8 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertEqual(empty['news'], [])
         self.assertEqual(empty['supplements'], [])
         self.assertEqual(empty['selection_status'], 'empty_today')
-        self.assertEqual(empty['policy_version'], 2)
+        self.assertEqual(empty['policy_version'], 3)
+        self.assertIsNone(empty['digest'])
         translator.snapshot.assert_called_once_with([], 'ja')
 
 

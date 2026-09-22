@@ -235,13 +235,75 @@ def load_reviewed_supplements(path=None):
         return []
 
 
+def _validated_digest(value):
+    """Validate authored Japanese copy and the original articles it summarizes."""
+    if not isinstance(value, dict) or value.get("lang") != "ja":
+        return None
+    edition, headline, summary = (value.get(field) for field in ("edition_date", "headline", "summary"))
+    refs = value.get("article_refs")
+    if (not isinstance(edition, str) or not isinstance(headline, str)
+            or not 1 <= len(headline.strip()) <= 80 or not isinstance(summary, str)
+            or not 160 <= len(summary.strip()) <= 260
+            or not isinstance(refs, list) or not 1 <= len(refs) <= 3):
+        return None
+    articles, identities = [], set()
+    for ref in refs:
+        if not isinstance(ref, dict):
+            return None
+        source, title = ref.get("source"), ref.get("title")
+        url, published = _safe_url(ref.get("url")), _publication_time(ref.get("published_at"))
+        if (source not in WEB_NEWS_SOURCES or not isinstance(title, str)
+                or not title.strip() or len(title) > 1000 or not url or published is None
+                or published.astimezone(JST).date().isoformat() != edition):
+            return None
+        identity = (source, url, published.timestamp(), title)
+        if identity in identities:
+            return None
+        identities.add(identity)
+        articles.append(dict(zip(("source", "url", "published_at", "title"), identity)))
+    return {"edition_date": edition, "lang": "ja", "headline": headline.strip(),
+            "summary": summary.strip(), "article_refs": articles}
+
+
+def load_reviewed_digests(path=None):
+    """Read reviewed copy; a missing or malformed file supplies no daily digest."""
+    try:
+        values = json.loads(Path(path or Path(__file__).with_name("news-digests.json")).read_text(encoding="utf-8"))
+        if not isinstance(values, list):
+            return []
+        digests = [_validated_digest(value) for value in values]
+        return digests if all(digest is not None for digest in digests) else []
+    except (OSError, ValueError, TypeError):
+        return []
+
+
+def _select_reviewed_digest(news, edition, reviewed_digests):
+    # A changing feed must never attach yesterday's copy, or a summary of only
+    # part of the selected news, to a new set of articles. Match before translation.
+    if not news or not reviewed_digests or any(not isinstance(item.get("source"), str) for item in news):
+        return None
+    fields = ("source", "url", "published_at", "title")
+    selected = {tuple(item[field] for field in fields) for item in news}
+    matches = []
+    for value in reviewed_digests:
+        digest = _validated_digest(value)
+        if digest is None or digest["edition_date"] != edition:
+            continue
+        refs = {tuple(ref[field] for field in fields) for ref in digest["article_refs"]}
+        if refs == selected and len(digest["article_refs"]) == len(news):
+            matches.append(digest)
+    # Multiple matching reviews are ambiguous rather than an implicit override.
+    return matches[0] if len(matches) == 1 else None
+
+
 def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=3,
-                      max_supplements=1, allowed_sources=None):
+                      max_supplements=1, allowed_sources=None, reviewed_digests=()):
     """Select today's original publications in JST, plus explicit dated reviews.
 
     ``now`` accepts a Unix timestamp or datetime (naive datetimes mean UTC).
     Approvals contain an obtained article URL and a nonempty editorial reason;
     approvals cannot supply or override an article's title or publication date.
+    A reviewed digest must cover exactly the selected original articles.
     """
     if isinstance(now, datetime):
         now = now.replace(tzinfo=timezone.utc) if now.tzinfo is None else now
@@ -323,7 +385,8 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
     else:
         status = "unavailable"
     return {**deepcopy(snapshot), "news": news, "supplements": supplements,
-            "policy_version": 2, "edition_date": edition.isoformat(),
+            "policy_version": 3, "edition_date": edition.isoformat(),
+            "digest": _select_reviewed_digest(news, edition.isoformat(), reviewed_digests),
             "selection_status": status, "selection_counts": counts}
 
 

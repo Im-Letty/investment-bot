@@ -10,7 +10,7 @@ import threading
 import time
 import gc
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
-                        select_daily_news, load_reviewed_supplements)
+                        select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from flask import Flask, request, abort, jsonify, redirect, send_file
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -2155,7 +2155,8 @@ def api_morning_news():
         # The browser polls refreshing snapshots without clearing content.
         snapshot = select_daily_news(
             news_cache.snapshot(wait=False), allowed_sources=WEB_NEWS_SOURCES,
-            reviewed_supplements=load_reviewed_supplements())
+            reviewed_supplements=load_reviewed_supplements(),
+            reviewed_digests=load_reviewed_digests())
         news_count = len(snapshot["news"])
         translated, translating = news_translations.snapshot(
             snapshot["news"] + snapshot["supplements"], lang)
