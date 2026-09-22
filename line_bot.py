@@ -9,6 +9,7 @@ import requests
 import threading
 import time
 import gc
+import math
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
@@ -691,6 +692,46 @@ def _rtp(sym, fb):
 
 _MKT_CACHE = {"ts": 0.0, "data": None}  # 60秒使い回し
 
+def _market_change_values(price, previous_close=None):
+    """Keep the absolute and percentage moves on the same unrounded basis."""
+    value = float(price)
+    if not math.isfinite(value) or value <= 0:
+        raise ValueError("invalid price")
+    try:
+        previous = float(previous_close)
+    except (TypeError, ValueError, OverflowError):
+        previous = None
+    if previous is None or not math.isfinite(previous) or previous <= 0:
+        return value, None, None
+    change_value = value - previous
+    return value, change_value / previous * 100, change_value
+
+
+def _market_quote_units(symbol, currency=""):
+    """Describe quote units without an extra upstream metadata request."""
+    symbol = symbol.upper()
+    if symbol == "^N225":
+        return "JPY", "currency"
+    if symbol in ("^IRX", "^FVX", "^TNX", "^TYX"):
+        return currency, "percentage_points"
+    if symbol.startswith("^"):
+        return currency, "points"
+    if symbol.endswith("=X"):
+        pair = symbol[:-2]
+        if len(pair) in (3, 6) and pair.isalpha():
+            currency = currency or pair[-3:]
+    elif symbol.endswith(".T"):
+        currency = currency or "JPY"
+    elif "-" in symbol and len(symbol.rsplit("-", 1)[1]) == 3:
+        # Yahoo cryptocurrency pairs encode their quote currency in the suffix.
+        suffix = symbol.rsplit("-", 1)[1]
+        if suffix.isalpha():
+            currency = currency or suffix
+    elif symbol in ("GC=F", "SI=F", "CL=F"):
+        currency = currency or "USD"
+    return currency, "currency"
+
+
 def fetch_market_data():
     if _MKT_CACHE["data"] is not None and (time.time() - _MKT_CACHE["ts"]) < 60:
         return _MKT_CACHE["data"]
@@ -706,15 +747,20 @@ def fetch_market_data():
     for label, symbol in tickers.items():
         try:
             hist = yf.Ticker(symbol).history(period="5d")
-            if len(hist) >= 2:
-                val   = _rtp(symbol, hist["Close"].iloc[-1])
-                prev  = hist["Close"].iloc[-2]
-                pct   = (val - prev) / prev * 100
-                arrow = "▲" if pct >= 0 else "▼"
+            if len(hist) >= 1:
+                prev = hist["Close"].iloc[-2] if len(hist) >= 2 else None
+                val, pct, change_value = _market_change_values(
+                    _rtp(symbol, hist["Close"].iloc[-1]), prev)
+                currency, change_unit = _market_quote_units(symbol)
+                arrow = "▲" if pct is not None and pct >= 0 else "▼"
                 results[label] = {
-                    "display": f"{val:,.2f}　{arrow}{abs(pct):.2f}%",
+                    "display": f"{val:,.2f}　{arrow}{abs(pct):.2f}%" if pct is not None else f"{val:,.2f}",
                     "pct": pct,
-                    "value": val
+                    "value": val,
+                    "price": val,
+                    "change_value": change_value,
+                    "currency": currency,
+                    "change_unit": change_unit,
                 }
         except Exception:
             pass
@@ -1919,7 +1965,11 @@ def api_morning_data():
         }
         for k, v in market.items():
             result["market"][k] = {
-                "price": v.get("price", "--"),
+                "price": v.get("price", v.get("value")),
+                "pct": v.get("pct"),
+                "change_value": v.get("change_value"),
+                "currency": v.get("currency", ""),
+                "change_unit": v.get("change_unit"),
                 "change": v.get("change", "--"),
                 "display": v.get("display", "--")
             }
@@ -1946,11 +1996,13 @@ def api_quote():
         if light:
             info = {}
             name = symbol
-            currency = ""
+            # The currency is stable metadata; reuse it when a detailed quote exists.
+            currency = (_QUOTE_CACHE.get((symbol, False), (0, {}))[1].get("currency") or "")
         else:
             info = t.info
             name = info.get("shortName") or info.get("longName") or symbol
             currency = info.get("currency") or ""
+        currency, change_unit = _market_quote_units(symbol, currency)
         _sym_u = symbol.upper()
         _is_index = _sym_u.startswith("^")
         _is_fx = _sym_u.endswith("=X")
@@ -1970,35 +2022,45 @@ def api_quote():
             except Exception:
                 details = None
         if len(hist) >= 2:
-            val = _rtp(symbol, hist["Close"].iloc[-1])
             prev = hist["Close"].iloc[-2]
-            pct = (val - prev) / prev * 100
-            if (val is None) or (val != val) or (val in (float("inf"), float("-inf"))) or (val <= 0) or (abs(pct) > 50):
+            try:
+                val, pct, change_value = _market_change_values(
+                    _rtp(symbol, hist["Close"].iloc[-1]), prev)
+            except (TypeError, ValueError, OverflowError):
                 return jsonify({"error": "invalid data", "symbol": symbol}), 422
-            arrow = "▲" if pct >= 0 else "▼"
+            if pct is not None and abs(pct) > 50:
+                return jsonify({"error": "invalid data", "symbol": symbol}), 422
+            arrow = "▲" if pct is not None and pct >= 0 else "▼"
             _qp = {
                 "symbol": symbol,
                 "details": details,
                 "name": name,
                 "currency": currency,
+                "change_unit": change_unit,
                 "price": round(val, 4),
-                "pct": round(pct, 2),
-                "display": f"{val:,.2f} {arrow}{abs(pct):.2f}%",
-                "change": arrow + str(round(abs(pct), 2)) + "%"
+                "pct": round(pct, 2) if pct is not None else None,
+                "change_value": change_value,
+                "display": f"{val:,.2f} {arrow}{abs(pct):.2f}%" if pct is not None else f"{val:,.2f}",
+                "change": arrow + str(round(abs(pct), 2)) + "%" if pct is not None else "--"
             }
             if len(_QUOTE_CACHE) > 300:
                 _QUOTE_CACHE.clear()
             _QUOTE_CACHE[_qk] = (time.time(), _qp)
             return jsonify(_qp)
         elif len(hist) == 1:
-            val = _rtp(symbol, hist["Close"].iloc[-1])
+            try:
+                val, pct, change_value = _market_change_values(_rtp(symbol, hist["Close"].iloc[-1]))
+            except (TypeError, ValueError, OverflowError):
+                return jsonify({"error": "invalid data", "symbol": symbol}), 422
             _qp = {
                 "symbol": symbol,
                 "details": details,
                 "name": name,
                 "currency": currency,
+                "change_unit": change_unit,
                 "price": round(val, 4),
-                "pct": 0,
+                "pct": pct,
+                "change_value": change_value,
                 "display": f"{val:,.2f}",
                 "change": "--"
             }

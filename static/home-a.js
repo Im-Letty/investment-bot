@@ -30,14 +30,18 @@
     if(!model)return;
     var rows=model.rows(), anyFailure=rows.some(function(row){return row.failed;});
     setHTML(document.getElementById('knHomeMarketGrid'),rows.map(function(row){
-      var price='—', change='', note='', item=row.item;
-      if(row.display){var parts=row.display.split(/[\s　]+/);price=parts[0];change=parts.slice(1).join(' ');}
-      else if(row.quote){price=Number(row.quote.price).toLocaleString(lang(),{maximumFractionDigits:item.category==='fx'?4:2});if(item.currency==='USD')price='$'+price;else if(item.currency==='JPY')price='¥'+price;change=row.quote.change==='--'?'':row.quote.change?row.quote.change:row.quote.pct==null?'':(row.quote.pct>=0?'▲':'▼')+Math.abs(row.quote.pct).toFixed(2)+'%';}
+      var price='—', legacy='', note='', item=row.item;
+      if(row.display){var parts=row.display.split(/[\s　]+/);price=parts[0];legacy=parts.slice(1).join(' ');}
+      else if(row.quote){price=Number(row.quote.price).toLocaleString(lang(),{maximumFractionDigits:item.category==='fx'?4:2});if(item.currency==='USD')price='$'+price;else if(item.currency==='JPY')price='¥'+price;}
+      var movement=window.KNMarketData.formatChange(row.quote,item,lang(),legacy||undefined);
+      var hasChange=!!(movement.amount||movement.percent);
+      var percent=movement.amount&&movement.percent?(lang()==='ja'||lang()==='zh'?'（'+movement.percent+'）':'('+movement.percent+')'):movement.percent;
+      var change=(movement.amount?'<span class="kn-a-change-amount">'+esc(movement.amount)+'</span>':'')+(percent?'<span class="kn-a-change-percent">'+esc(percent)+'</span>':'');
       if(row.failed)note=(row.quote||row.display)?text('updating'):text('failed');
       else if(!row.quote&&!row.display)note=text('loading');
-      else if(!change)note=text('nodiff');
+      else if(!hasChange)note=text('nodiff');
       var time=row.at?new Date(row.at).toLocaleString(lang(),{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
-      return '<div class="kn-a-quote" title="'+esc(item.label+(time?' · '+time:''))+'"><div class="kn-a-quote-name">'+esc(item.label)+'</div><div class="kn-a-quote-value">'+esc(price)+'</div><div class="kn-a-quote-change '+(/^[▼−-]/.test(change)?'is-down':'')+'">'+esc(change||note)+'</div>'+(change&&note?'<div class="kn-a-quote-note">'+esc(note)+'</div>':'')+'</div>';
+      return '<div class="kn-a-quote" title="'+esc(item.label+(time?' · '+time:''))+'"><div class="kn-a-quote-name">'+esc(item.label)+'</div><div class="kn-a-quote-value">'+esc(price)+'</div><div class="kn-a-quote-change is-'+movement.direction+'">'+(change||esc(note))+'</div>'+(hasChange&&note?'<div class="kn-a-quote-note">'+esc(note)+'</div>':'')+'</div>';
     }).join(''));
     var retry=document.getElementById('knMarketRetry');if(retry)retry.hidden=!anyFailure;
     renderDate();

@@ -10,6 +10,38 @@
   var TTL = 60000, RETAIN = 86400000, RETRY = 30000;
   function normalize(value) { return String(value || '').normalize('NFKC').trim().toUpperCase(); }
   function validQuote(q) { return q && Number.isFinite(q.price) && q.price > 0 && (q.pct == null || Number.isFinite(q.pct)); }
+  // Absolute movement comes from the quote itself, never from its rounded percent.
+  function formatChange(quote, item, locale, legacy) {
+    var q=quote||{}, entry=item||{}, language=locale||'ja', symbol=entry.symbol||'';
+    var delta=Number.isFinite(q.change_value)?q.change_value:null;
+    var pct=Number.isFinite(q.pct)?q.pct:null;
+    var rate=/^\^(TNX|IRX|FVX|TYX)$/.test(symbol);
+    var unit=q.change_unit||(rate?'percentage_points':symbol==='^N225'?'currency':entry.category==='index'||symbol[0]==='^'?'points':'currency');
+    var currency=symbol==='^N225'?'JPY':q.currency||entry.currency||'';
+    if(!currency && entry.category==='fx')currency=symbol==='JPY=X'?'JPY':/^[A-Z]{6}=X$/.test(symbol)?symbol.slice(3,6):'';
+    var units={ja:['ポイント','ポイント'],en:[' pt',' pp'],ko:['포인트','%p'],zh:['点','个百分点']};
+    var unitWords=units[language]||units.en, suffix='';
+    if(unit==='points')suffix=unitWords[0];
+    else if(unit==='percentage_points')suffix=unitWords[1];
+    else if(currency){
+      var names=language==='ja'?{JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド',AUD:'豪ドル',CAD:'カナダドル',CHF:'スイスフラン',HKD:'香港ドル',CNY:'人民元',KRW:'ウォン'}:{};
+      suffix=names[currency]||' '+currency;
+    }
+    function signed(value, digits) {
+      var rounded=Number(value.toFixed(digits));
+      return (rounded>0?'+':rounded<0?'−':'')+Math.abs(rounded).toLocaleString(language,{minimumFractionDigits:digits,maximumFractionDigits:digits});
+    }
+    var digits=unit==='percentage_points'?3:entry.category==='fx'&&currency!=='JPY'?4:2;
+    if(delta!==null && delta!==0)while(digits<6 && Number(delta.toFixed(digits))===0)digits++;
+    var amount=delta===null?'':signed(delta,digits)+suffix;
+    var percent=pct===null?'':signed(pct,2)+'%';
+    var fallback=typeof legacy==='string'?legacy:typeof q.change==='string'?q.change:'';
+    if(fallback==='--')fallback='';
+    // Old cached data remains usable until a structured quote arrives.
+    if(!percent && !amount)percent=fallback;
+    var direction=delta!==null?delta:pct!==null?pct:/^[▼−-]/.test(fallback)?-1:/^[▲+]/.test(fallback)?1:0;
+    return {amount:amount,percent:percent,direction:direction<0?'down':direction>0?'up':'flat'};
+  }
   function create(options) {
     var storage = options.storage, clock = options.now || Date.now;
     var catalog = options.catalog.slice(), cache = Object.create(null), pending = Object.create(null), failed = Object.create(null);
@@ -85,7 +117,7 @@
         if (item.baseKey) {
           var source = base && base[item.baseKey], record = cache[item.symbol];
           var unavailable = coreFailed || !!baseMissing[item.baseKey];
-          if (source && typeof source.display === 'string' && source.display && source.display !== '--') return {item:item, display:source.display, at:baseTimes[item.baseKey], failed:unavailable, pending:false};
+          if (source && typeof source.display === 'string' && source.display && source.display !== '--') return {item:item, display:source.display, quote:validQuote(source)?source:undefined, at:baseTimes[item.baseKey], failed:unavailable, pending:false};
           return {item:item, quote:record && record.quote, at:record && record.at, failed:unavailable, pending:!baseSeen&&!unavailable};
         }
         var record = cache[item.symbol];
@@ -125,5 +157,5 @@
       }
     };
   }
-  return {create:create, normalize:normalize, validQuote:validQuote};
+  return {create:create, normalize:normalize, validQuote:validQuote, formatChange:formatChange};
 });
