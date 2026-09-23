@@ -5,13 +5,13 @@
 <link rel="stylesheet" href="/static/home-a.css?v=20260924-notice1">
 <link rel="stylesheet" href="/static/news-orbit.css?v=20260917-caption-b1">
 <link rel="stylesheet" href="/static/news-digest.css?v=20260922-plus1">
-<link rel="stylesheet" href="/static/stock-focus.css?v=20260923-theme-a2">
+<link rel="stylesheet" href="/static/stock-focus.css?v=20260924-codes1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
 <script defer src="/static/market-data.js?v=20260923-instant1"></script>
 <script defer src="/static/news-orbit.js?v=20260913-controls3"></script>
 <script defer src="/static/home-a.js?v=20260924-notice1"></script>
-<script defer src="/static/stock-focus.js?v=20260924-rank1"></script>
+<script defer src="/static/stock-focus.js?v=20260924-codes1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -3879,7 +3879,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     list.slice(0,20).forEach(function(sym,i){
       fetch("/api/quote?symbol="+encodeURIComponent(sym)+"&_t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
         rows[i]=window.StockFocus.watchRow(j,sym,window.KNMarketData&&window.KNMarketData.formatChange);
-      }).catch(function(){ rows[i]='<div style="padding:8px 0;color:#999;">'+esc(sym)+'\uff08\u53d6\u5f97\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\uff09</div>'; }).then(function(){
+      }).catch(function(){ rows[i]=window.StockFocus.watchRow(null,sym); }).then(function(){
         var cur=document.getElementById("knWatchSec"); if(!cur||cur.dataset.knToken!==String(token)) return;
         var bx=document.getElementById("knWatchList"); if(bx) bx.innerHTML=rows.join("");
       });
