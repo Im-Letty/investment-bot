@@ -1,14 +1,26 @@
 /* Candidate A: one quiet sheet, with every stock feature kept in place. */
 #knTabWrap {
-  --sf-ink:#244e40;
-  --sf-body:#466358;
-  --sf-muted:#607267;
-  --sf-line:#d9e3d7;
-  --sf-paper:#fffdf7;
+  --sf-ink:var(--kn-a-ink,#244e40);
+  --sf-body:color-mix(in srgb,var(--sf-ink) 40%,var(--sf-muted));
+  --sf-muted:var(--kn-a-muted,#607267);
+  --sf-line:var(--kn-a-line,#d9e3d7);
+  --sf-paper:var(--kn-a-paper,#fffdf7);
+  --sf-accent:var(--kn-a-button,#295f49);
+  --sf-selected:color-mix(in srgb,var(--kn-a-chip,#edf5e9) 65%,var(--sf-line));
+  --sf-rank:color-mix(in srgb,var(--sf-muted) 60%,var(--sf-paper));
   --sf-up:#287454;
   --sf-down:#ab595d;
   container-type:inline-size;
 }
+body.kn-home-a[data-theme="dark"] #knTabWrap {
+  --sf-up:#8cd2aa;
+  --sf-down:#efa9ad;
+  --sf-accent:var(--kn-a-ink);
+}
+body.kn-home-a #knTabWrap #knCompanyFocus,
+body.kn-home-a #knTabWrap .sf-market,
+body.kn-home-a #knTabWrap .sf-ranking,
+body.kn-home-a #knTabWrap .sf-stories {background:transparent!important;color:var(--sf-ink)!important}
 body.kn-home-a #knTabWrap {
   margin:0 0 25px!important;
   padding:27px 32px 22px!important;
@@ -46,7 +58,7 @@ body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {
   line-height:1.5!important;
 }
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
-  background:#e8f1e3!important;
+  background:var(--sf-selected)!important;
   color:var(--sf-ink)!important;
 }
 body.kn-home-a #knTabWrap>.kn-a-stock-tabs+div {
@@ -81,7 +93,7 @@ body.kn-home-a #knTabWrap #knSubRow button {
 }
 body.kn-home-a #knTabWrap #knSubRow button[aria-pressed="true"] {
   color:var(--sf-ink)!important;
-  border-bottom-color:#295f49!important;
+  border-bottom-color:var(--sf-accent)!important;
   font-weight:500!important;
 }
 body.kn-home-a #knTabWrap #knDivSubRow {
@@ -94,6 +106,12 @@ body.kn-home-a #knTabWrap #knDivSubRow {
 body.kn-home-a #knTabWrap #knDivSubRow button {
   min-height:44px;
   font-size:calc(13px * var(--kn-a-scale,1))!important;
+  color:var(--sf-muted)!important;
+  border-bottom-color:transparent!important;
+}
+body.kn-home-a #knTabWrap #knDivSubRow button[aria-pressed="true"] {
+  color:var(--sf-ink)!important;
+  border-bottom-color:var(--sf-accent)!important;
 }
 body.kn-home-a #knTabWrap #homeMoversList>.sf-content {padding:0!important}
 #knTabWrap .sf-content {
@@ -107,11 +125,11 @@ body.kn-home-a #knTabWrap #homeMoversList>.sf-content {padding:0!important}
 #knTabWrap button:focus-visible,
 #knTabWrap summary:focus-visible,
 #knTabWrap a:focus-visible,
-#knTabWrap .sf-ranking:focus-visible {outline:2px solid #388564;outline-offset:4px}
+#knTabWrap .sf-ranking:focus-visible {outline:2px solid var(--sf-accent);outline-offset:4px}
 #knTabWrap .sf-rank-toolbar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 5px}
 #knTabWrap .sf-direction-tabs {display:inline-flex;gap:4px;padding:3px;margin:0;border:1px solid var(--sf-line);border-radius:5px;background:transparent;flex:none}
 #knTabWrap .sf-direction-tabs button {font:400 12px/1.7 var(--kn-a-sans,sans-serif);color:var(--sf-muted);border:0;border-radius:3px;background:transparent;min-height:35px;padding:6px 16px;cursor:pointer;touch-action:manipulation}
-#knTabWrap .sf-direction-tabs button[aria-selected="true"] {background:#e6f0e4;color:var(--sf-ink)}
+#knTabWrap .sf-direction-tabs button[aria-selected="true"] {background:var(--sf-selected);color:var(--sf-ink)}
 #knTabWrap .sf-direction-tabs button[data-sf-rank="down"][aria-selected="true"] {color:var(--sf-down)}
 #knTabWrap .sf-column-hint {font-size:10px;color:var(--sf-muted);margin-left:auto;text-align:right;white-space:nowrap}
 #knTabWrap .sf-market {margin:0;padding:0;border:0}
@@ -120,7 +138,7 @@ body.kn-home-a #knTabWrap #homeMoversList>.sf-content {padding:0!important}
 #knTabWrap .sf-ranking[hidden] {display:none!important}
 #knTabWrap .sf-rows {padding:0;margin:0;list-style:none}
 #knTabWrap .sf-row {display:grid;grid-template-columns:21px minmax(0,1fr) auto;gap:13px;align-items:center;min-height:86px;padding:13px 0;border-bottom:1px solid var(--sf-line)}
-#knTabWrap .sf-rank {font:italic 15px/1 Georgia,serif;color:#9bb09d;text-align:center}
+#knTabWrap .sf-rank {font:italic 15px/1 Georgia,serif;color:var(--sf-rank);text-align:center}
 #knTabWrap .sf-stock-name {min-width:0;overflow-wrap:anywhere;font-size:14px;font-weight:500;line-height:1.65}
 #knTabWrap .sf-quote {display:flex;flex-direction:column;gap:1px;white-space:nowrap;font-variant-numeric:tabular-nums}
 #knTabWrap .sf-price {font:500 21px/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;letter-spacing:.015em;color:var(--sf-ink)}
