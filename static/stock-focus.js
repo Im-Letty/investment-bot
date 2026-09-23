@@ -36,7 +36,7 @@
     return {text:parts.length?'株価 '+parts.join(' / '):'',showDate:item=>groups.get(market(item)).size!==1};
   }
   function row(item,index,showDate=true){
-    return '<li class="sf-row"><span class="sf-rank" aria-label="'+(index+1)+'位">'+String(index+1).padStart(2,'0')+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'"><span>'+escape(item.name||item.symbol)+'</span></div>'+quote(item,showDate)+'</li>';
+    return '<li class="sf-row"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'"><span>'+escape(item.name||item.symbol)+'</span></div>'+quote(item,showDate)+'</li>';
   }
   function watchRow(raw,symbol,formatChange){
     const item=raw||{},name=escape(item.name||symbol);
