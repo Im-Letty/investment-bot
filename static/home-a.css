@@ -55,6 +55,9 @@ body.kn-home-a .kn-a-quote-change.is-down {color:#a26a56}
 body.kn-home-a .kn-a-quote-change.is-flat {color:var(--kn-a-muted)}
 body.kn-home-a .kn-a-quote-note {font-size:calc(12px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted)}
 body.kn-home-a .kn-a-market-foot {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:9px;font-size:calc(12px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted)}
+body.kn-home-a .kn-a-market-foot[hidden] {display:none}
+body.kn-home-a #knHomeNotice {max-width:1054px;box-sizing:border-box;margin:0 auto;padding:8px 22px 20px;color:var(--kn-a-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.9 var(--kn-a-sans)}
+body.kn-home-a #knHomeNotice p {margin:0;padding-top:17px;border-top:1px solid var(--kn-a-line);font-size:inherit!important;overflow-wrap:anywhere}
 body.kn-home-a #knMarketRetry {background:transparent;border:0;border-bottom:1px solid currentColor;color:var(--kn-a-ink);font:inherit;cursor:pointer;white-space:nowrap}
 body.kn-home-a #knMarketRetry[hidden] {display:none}
 body.kn-home-a #morning-section .morning-extra {max-width:1054px!important;margin:0 auto!important;padding:0 22px!important;background:transparent!important}
