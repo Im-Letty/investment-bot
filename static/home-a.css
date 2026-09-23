@@ -39,6 +39,14 @@ body.kn-home-a .kn-a-wordmark-en {font:400 calc(12px * var(--kn-a-scale,1))/1.6 
 body.kn-home-a #knHomeADate {display:flex;align-items:center;justify-content:center;gap:10px;font-size:calc(13px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted);margin-top:19px}
 body.kn-home-a #knHomeADate svg {width:19px;height:19px;color:#a58d54}
 body.kn-home-a #knHomeMarkets {background:var(--kn-a-paper);padding:15px max(22px,calc((100% - 1010px)/2)) 13px;border-bottom:1px solid var(--kn-a-line);color:var(--kn-a-ink)}
+/* Keep retrieval times visible just outside the price band. */
+body.kn-home-a #knHomeMarketTimes {display:flex;align-items:baseline;gap:12px;max-width:1054px;min-height:calc(20px * var(--kn-a-scale,1) + 14px);box-sizing:border-box;margin:0 auto;padding:8px 22px 6px;background:transparent;color:var(--kn-a-muted);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans);text-align:left}
+body.kn-home-a #knHomeMarketTimeText {display:flex;flex:1;min-width:0;gap:18px;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:none}
+body.kn-home-a #knHomeMarketTimeText::-webkit-scrollbar {display:none}
+body.kn-home-a #knHomeMarketTimeText:focus-visible {outline:2px solid var(--kn-a-ink);outline-offset:2px}
+body.kn-home-a #knHomeMarketTimes .kn-a-market-time {display:inline-flex;flex:none;align-items:baseline;gap:6px;white-space:nowrap}
+body.kn-home-a #knHomeMarketTimes .kn-a-market-time-label {font:inherit;color:inherit}
+body.kn-home-a #knHomeMarketTimes time {font:inherit;color:inherit;font-variant-numeric:tabular-nums;white-space:nowrap}
 body.kn-home-a .kn-a-market-heading {display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;color:var(--kn-a-muted);font-size:calc(13px * var(--kn-a-scale,1))!important}
 body.kn-home-a #knMarketOpen {display:flex;align-items:center;gap:5px;padding:5px 0 5px 8px;border:0;background:none;color:inherit;font:inherit;cursor:pointer}
 body.kn-home-a #knMarketOpen svg {width:15px;height:15px}
@@ -48,14 +56,12 @@ body.kn-home-a .kn-a-quote:first-child {padding-left:0}
 body.kn-home-a .kn-a-quote:last-child {border:0;padding-right:0}
 body.kn-home-a .kn-a-quote-name {font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.5;color:var(--kn-a-muted);margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 body.kn-home-a .kn-a-quote-value {font-size:calc(18px * var(--kn-a-scale,1))!important;font-weight:600;letter-spacing:-.04em;font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1.6}
-body.kn-home-a .kn-a-quote-change {display:flex;flex-wrap:wrap;align-items:baseline;gap:0 2px;font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.8;color:#387b58;font-variant-numeric:tabular-nums}
+body.kn-home-a .kn-a-quote-change {display:flex;flex-wrap:wrap;align-items:baseline;align-content:flex-start;gap:0 2px;min-height:3.6em;font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.8;color:#387b58;font-variant-numeric:tabular-nums}
 body.kn-home-a .kn-a-change-amount {font-weight:600;white-space:nowrap}
 body.kn-home-a .kn-a-change-percent {font-size:calc(11px * var(--kn-a-scale,1))!important;white-space:nowrap}
 body.kn-home-a .kn-a-quote-change.is-down {color:#a26a56}
 body.kn-home-a .kn-a-quote-change.is-flat {color:var(--kn-a-muted)}
-body.kn-home-a .kn-a-quote-note {font-size:calc(12px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted)}
-body.kn-home-a .kn-a-market-foot {display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:9px;font-size:calc(12px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted)}
-body.kn-home-a .kn-a-market-foot[hidden] {display:none}
+body.kn-home-a .kn-a-quote-note {min-height:1.6em;font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.6;color:var(--kn-a-muted)}
 body.kn-home-a #knHomeNotice {max-width:1054px;box-sizing:border-box;margin:0 auto;padding:8px 22px 20px;color:var(--kn-a-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.9 var(--kn-a-sans)}
 body.kn-home-a #knHomeNotice p {margin:0;padding-top:17px;border-top:1px solid var(--kn-a-line);font-size:inherit!important;overflow-wrap:anywhere}
 body.kn-home-a #knMarketRetry {background:transparent;border:0;border-bottom:1px solid currentColor;color:var(--kn-a-ink);font:inherit;cursor:pointer;white-space:nowrap}

@@ -14,14 +14,19 @@ function harness(saved={}){
   class FakeDate extends Date{static now(){return clock;}}
   function element(){
     let html='';
-    const node={textContent:'',attrs:{},details:[],summaries:[],
+    const node={textContent:'',attrs:{},details:[],summaries:[],replacements:0,
       setAttribute(k,v){this.attrs[k]=v;},getAttribute(k){return this.attrs[k];},
       querySelector(){return this.button||(this.button={});},
       querySelectorAll(selector){return selector==='details[data-news-key]'?this.details:selector==='[data-news-focus]'?this.summaries:[];},
       contains(child){return this.summaries.includes(child);}};
     const decode=s=>s.replace(/&quot;/g,'"').replace(/&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-    Object.defineProperty(node,'innerHTML',{get(){return html;},set(value){
-      html=value;
+    Object.defineProperty(node,'innerHTML',{get(){
+      let index=0;
+      // Match the browser: opening a native details element adds its open
+      // attribute to innerHTML without changing the rendered article source.
+      return html.replace(/<details\b[^>]*data-news-key="[^"]*"[^>]*>/g,tag=>node.details[index++].open?tag.slice(0,-1)+' open="">':tag);
+    },set(value){
+      html=value;node.replacements++;
       node.details=[...html.matchAll(/<details\b[^>]*data-news-key="([^"]*)"/g)].map(m=>({open:false,getAttribute:k=>k==='data-news-key'?decode(m[1]):null}));
       node.summaries=[...html.matchAll(/<summary\b[^>]*data-news-focus="([^"]*)"/g)].map(m=>({getAttribute:k=>k==='data-news-focus'?decode(m[1]):null,focus(options){this.focusOptions=options;context.document.activeElement=this;}}));
     }});
@@ -604,6 +609,67 @@ test('refresh preserves open articles and keyboard focus; language change resets
   app.language('en');app.event('langChanged');
   await app.reply(app.requests.at(-1),app.news('en'));
   assert.ok(content.details.every(node=>!node.open));
+});
+
+test('unchanged news keeps the same open detail and focused summary DOM nodes',async()=>{
+  const app=harness();app.event('DOMContentLoaded');const data=app.news();
+  await app.reply(app.requests[0],data);
+  const content=app.nodes['morning-news-content'];
+  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
+  const detail=content.details[1],summary=content.summaries[1],replacements=content.replacements;
+  assert.match(content.innerHTML,/open=""/,'The harness serializes reader interaction like a browser');
+  app.context.loadMorningNews();
+  assert.equal(content.replacements,replacements,'Cached refresh does not rebuild reader state');
+  app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),data);
+  assert.equal(content.replacements,replacements,'An unchanged successful response does not replace DOM');
+  assert.equal(content.details[1],detail);assert.equal(content.summaries[1],summary);
+  assert.equal(app.context.document.activeElement,summary);assert.equal(detail.open,true);
+});
+
+test('background retries keep a failed-refresh notice until a successful response',async()=>{
+  const app=harness();app.event('DOMContentLoaded');const data=app.news();
+  await app.reply(app.requests[0],data);
+  app.context.loadMorningNews(true);app.requests.at(-1).reject(new Error('offline'));await flush();
+  const content=app.nodes['morning-news-content'];
+  content.details.forEach(node=>node.open=true);content.summaries[1].focus();
+  const summary=content.summaries[1],replacements=content.replacements;
+  assert.match(content.innerHTML,/いま更新できません/);
+  app.context.loadMorningNews(true);
+  assert.equal(content.replacements,replacements,'Starting a background request keeps the failed notice');
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[],fetched_at:null,refreshing:true,selection_status:'refreshing'}));
+  assert.equal(content.replacements,replacements,'A pending response also keeps the failed notice');
+  const retry=[...app.timers].find(([,timer])=>timer.ms===3000);assert.ok(retry);
+  app.timers.delete(retry[0]);retry[1].fn();
+  app.requests.at(-1).reject(new Error('still offline'));await flush();
+  assert.equal(content.replacements,replacements,'Repeated failure does not rebuild the article');
+  assert.equal(app.context.document.activeElement,summary);
+  app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),data);
+  assert.equal(content.replacements,replacements+1,'Success clears the notice once');
+  assert.ok(!content.innerHTML.includes('いま更新できません'));
+  assert.ok(content.details.every(node=>node.open));
+});
+
+test('automatic cold retries retain the error view while an explicit retry shows loading',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  app.requests[0].reject(new Error('offline'));await flush();
+  const content=app.nodes['morning-news-content'],replacements=content.replacements;
+  const retry=[...app.timers].find(([,timer])=>timer.ms===1500);assert.ok(retry);
+  app.timers.delete(retry[0]);retry[1].fn();
+  assert.equal(content.replacements,replacements);assert.match(content.innerHTML,/morning-news-error/);
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[],fetched_at:null,refreshing:true,selection_status:'refreshing'}));
+  assert.equal(content.replacements,replacements);assert.match(content.innerHTML,/morning-news-error/);
+  content.button.onclick();assert.match(content.innerHTML,/skeleton/);
+  await app.reply(app.requests.at(-1),app.news());
+  assert.match(content.innerHTML,/今日のニュース/);assert.ok(!content.innerHTML.includes('skeleton'));
+});
+
+test('returning from another language loading view restores an identical cached article',async()=>{
+  const app=harness();app.event('DOMContentLoaded');await app.reply(app.requests[0],app.news());
+  const content=app.nodes['morning-news-content'];
+  app.language('en');app.event('langChanged');assert.match(content.innerHTML,/Preparing headlines/);
+  app.language('ja');app.event('langChanged');
+  assert.match(content.innerHTML,/今日のニュース/);assert.ok(!content.innerHTML.includes('skeleton'));
+  assert.equal(content.attrs['aria-busy'],'false');
 });
 
 test('failed refresh retains expanded content and escapes unsafe titles and source labels',async()=>{

@@ -131,3 +131,61 @@ test('legacy alerts stay outside new home rankings and favorite management has w
  for(const id of ['alert-ticker-input','alert-watchlist','alert-refresh-btn','alert-msg'])assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
  assert.match(html,/var liveWatch=document.getElementById\('knWatchSec'\);if\(liveWatch\)liveWatch.style.display='none'/);
 });
+
+function watchHarness(symbols){
+ class Element{
+  constructor(tag,id=''){this.tagName=tag.toUpperCase();this.id=id;this.children=[];this.dataset={};this.style={};this._html='';this.writes=0;this.attachments=0;}
+  set innerHTML(html){this._html=html;this.writes++;this.children.forEach(child=>{child.parentNode=null;});this.children=[];
+   const list=html.match(/^<div id="knWatchList">([\s\S]*)<\/div>$/);
+   if(list){const box=new Element('div','knWatchList');box.innerHTML=list[1];this.appendChild(box);}
+   if(html.includes('id="knWatchAddBtn"'))this.appendChild(new Element('button','knWatchAddBtn'));
+  }
+  get innerHTML(){return this._html;}
+  appendChild(child){if(child.parentNode)child.parentNode.children.splice(child.parentNode.children.indexOf(child),1);this.children.push(child);child.parentNode=this;child.attachments++;return child;}
+  get previousElementSibling(){return this.parentNode?.children[this.parentNode.children.indexOf(this)-1]||null;}
+  contains(child){return this===child||this.children.some(node=>node.contains(child));}
+  insertAdjacentElement(position,child){assert.equal(position,'afterend');if(child.parentNode)child.parentNode.children.splice(child.parentNode.children.indexOf(child),1);this.parentNode.children.splice(this.parentNode.children.indexOf(this)+1,0,child);child.parentNode=this.parentNode;child.attachments++;}
+ }
+ const root=new Element('main'),grid=new Element('div','morning-idx-grid'),wrap=new Element('div','knTabWrap'),body=new Element('div'),sub=new Element('div','knSubRow'),movers=new Element('div','homeMoversCard');
+ root.appendChild(grid);root.appendChild(wrap);wrap.appendChild(body);body.appendChild(sub);body.appendChild(movers);wrap.dataset.stockView='watch';sub.style.display='flex';
+ const find=(node,id)=>node.id===id?node:node.children.map(child=>find(child,id)).find(Boolean);
+ const storage=new Map([['alert_watchlist_v1',JSON.stringify(symbols)]]),requests=[],timers=new Map();let timerId=0;
+ const document={readyState:'complete',createElement:tag=>new Element(tag),getElementById:id=>find(root,id)||null,addEventListener(){}};
+ const w={document,StockFocus:stock,KNMarketData:require('../static/market-data.js'),renderMorningGrid(){},openAlertSection(){}};
+ const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},AbortController,Date,setTimeout(fn,ms){timers.set(++timerId,{fn,ms});return timerId;},clearTimeout(id){timers.delete(id);},fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;}};
+ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),source=html.match(/<script>\s*(\/\* knWatchSection v2[\s\S]*?)<\/script>/)[1];vm.runInNewContext(source,context);
+ return {w,document,wrap,sub,requests,timers,setSelection(list){storage.set('alert_watchlist_v1',JSON.stringify(list));},async respond(request,quote,ok=true){request.resolve({ok,json:async()=>quote});await flush();}};
+}
+test('favorite refresh retains existing rows and nodes, then commits every result together',async()=>{
+ const h=watchHarness(['7203.T','AAPL']);h.w.__knRefreshWatch();await flush();
+ const section=h.document.getElementById('knWatchSec'),box=h.document.getElementById('knWatchList'),initial=box.innerHTML,writes=box.writes,attachments=section.attachments;
+ await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY'});assert.equal(box.innerHTML,initial);assert.equal(box.writes,writes);
+ await h.respond(h.requests[1],{name:'Apple',price:200,currency:'USD'});assert.match(box.innerHTML,/Toyota/);assert.match(box.innerHTML,/Apple/);assert.equal(box.writes,writes+1);
+ const previous=box.innerHTML,refreshWrites=box.writes;
+ h.w.renderMorningGrid();await flush();h.w.renderMorningGrid();await flush();assert.equal(h.requests.length,4);assert.equal(box.innerHTML,previous);
+ assert.equal(h.document.getElementById('knWatchSec'),section);assert.equal(h.document.getElementById('knWatchList'),box);assert.equal(section.attachments,attachments);
+ h.wrap.dataset.stockView='companies';section.style.display='none';
+ await h.respond(h.requests[3],{name:'Apple',price:201,currency:'USD'});assert.equal(box.innerHTML,previous);
+ await h.respond(h.requests[2],{name:'Toyota',price:101,currency:'JPY'});assert.equal(box.writes,refreshWrites+1);assert.match(box.innerHTML,/101/);assert.equal(section.style.display,'none');
+ const unchanged=box.writes;h.w.__knRefreshWatch();await flush();
+ await h.respond(h.requests[4],{name:'Toyota',price:101,currency:'JPY'});await h.respond(h.requests[5],{name:'Apple',price:201,currency:'USD'});assert.equal(box.writes,unchanged);
+});
+test('favorite selection changes and empty state reject late results from previous selections',async()=>{
+ const h=watchHarness(['OLD.T']);h.w.__knRefreshWatch();await flush();
+ h.setSelection(['NEW.T']);h.w.__knRefreshWatch();await flush();
+ await h.respond(h.requests[1],{name:'New company',price:222,currency:'JPY'});
+ const box=h.document.getElementById('knWatchList');await h.respond(h.requests[0],{name:'Old company',price:111,currency:'JPY'});
+ assert.match(box.innerHTML,/New company/);assert.doesNotMatch(box.innerHTML,/Old company/);
+ h.w.__knRefreshWatch();await flush();h.setSelection([]);h.w.__knRefreshWatch();
+ await h.respond(h.requests[2],{name:'Late company',price:333,currency:'JPY'});
+ assert.equal(h.document.getElementById('knWatchList'),null);assert.match(h.document.getElementById('knWatchSec').innerHTML,/お気に入りはまだありません/);assert.equal(typeof h.document.getElementById('knWatchAddBtn').onclick,'function');
+});
+test('favorite batch bounds stalled requests and shows honest failure rows without partial rendering',async()=>{
+ const h=watchHarness(['GOOD.T','BAD.T','SLOW.T']);h.w.__knRefreshWatch();await flush();
+ const box=h.document.getElementById('knWatchList'),initial=box.innerHTML;
+ await h.respond(h.requests[0],{name:'Ready company',price:123,currency:'JPY'});await h.respond(h.requests[1],{name:'Rejected body',price:999,currency:'JPY'},false);
+ assert.equal(box.innerHTML,initial);
+ for(const [id,timer]of [...h.timers])if(timer.ms===12000){h.timers.delete(id);timer.fn();}await flush();
+ assert.match(box.innerHTML,/Ready company/);assert.equal((box.innerHTML.match(/株価を確認できませんでした/g)||[]).length,2);assert.doesNotMatch(box.innerHTML,/Rejected body/);assert.equal(h.requests[2].options.signal.aborted,true);
+ await h.respond(h.requests[2],{name:'Late stalled company',price:456,currency:'JPY'});assert.doesNotMatch(box.innerHTML,/Late stalled company/);
+});

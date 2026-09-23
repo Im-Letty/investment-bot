@@ -3,7 +3,7 @@
   'use strict';
   var newsCache={}, newsPending={}, newsTimers={}, newsAttempts={}, marketPending=null, marketRetry=null;
   var NEWS_TTL=120000, MAX_NEWS_AGE=900000, MAX_MARKET_AGE=7*86400000;
-  var shownLanguage=null, shownEdition=null, newsLoadedAt={}, started=false;
+  var shownLanguage=null, shownEdition=null, shownNews=null, shownState=null, newsLoadedAt={}, started=false;
   var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={};
   var copy={
     ja:{loading:'ニュースを準備しています',updated:'取得',pending:'翻訳中',stale:'最新情報を確認中',failed:'いま更新できません。表示中の取得時刻をご確認ください。',empty:'ニュースを取得できませんでした。',retry:'もう一度読み込む'},
@@ -129,6 +129,10 @@
     return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+more+'<footer class="news-footer"><p><span>'+esc(status)+'</span>'+sources+'</p></footer></div></article>';
   }
   function replaceNews(el,html,l){
+    // Native details.open changes the DOM serialization without changing the
+    // article. Compare the last rendered source, not a reader's current DOM.
+    if(el.__knNewsHTML===html&&el.__knNewsLanguage===l)return;
+    el.__knNewsHTML=html;el.__knNewsLanguage=l;
     if(el.innerHTML===html)return;
     var opened=Object.create(null),focus=null;
     if(shownLanguage===l){
@@ -153,20 +157,20 @@
       status=c.updated+' '+stamp+' JST'+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
     }
     replaceNews(el,digestMarkup(d,l,status),l);
-    el.setAttribute('aria-busy','false');shownLanguage=l;shownEdition=d.edition_date;
+    el.setAttribute('aria-busy','false');shownLanguage=l;shownEdition=d.edition_date;shownNews=d;shownState='news';
   }
   function drawLoading(l){
     if(l!==lang())return;
     var el=document.getElementById('morning-news-content');if(!el)return;
     if(shownLanguage===l&&shownEdition===editionKey(Date.now()/1000)&&el.getAttribute('aria-busy')==='true')return;
-    el.innerHTML='<div class="morning-news-skeleton" role="status" aria-label="'+esc(copy[l].loading)+'"><span></span><i></i><i></i><i></i><i></i></div>';
-    el.setAttribute('aria-busy','true');shownLanguage=l;shownEdition=editionKey(Date.now()/1000);
+    replaceNews(el,'<div class="morning-news-skeleton" role="status" aria-label="'+esc(copy[l].loading)+'"><span></span><i></i><i></i><i></i><i></i></div>',l);
+    el.setAttribute('aria-busy','true');shownLanguage=l;shownEdition=editionKey(Date.now()/1000);shownNews=null;shownState='loading';
   }
   function drawFailure(l){
     if(l!==lang())return;var el=document.getElementById('morning-news-content');if(!el)return;
-    el.innerHTML='<div class="morning-news-error">'+esc(copy[l].empty)+' <button type="button" class="morning-news-retry">'+esc(copy[l].retry)+'</button></div>';
-    el.setAttribute('aria-busy','false');shownEdition=editionKey(Date.now()/1000);var button=el.querySelector('button');
-    if(button)button.onclick=function(){newsAttempts[l]=0;return loadNews(true);};
+    replaceNews(el,'<div class="morning-news-error">'+esc(copy[l].empty)+' <button type="button" class="morning-news-retry">'+esc(copy[l].retry)+'</button></div>',l);
+    el.setAttribute('aria-busy','false');shownLanguage=l;shownEdition=editionKey(Date.now()/1000);shownNews=null;shownState='failed';var button=el.querySelector('button');
+    if(button)button.onclick=function(){newsAttempts[l]=0;return loadNews(true,true);};
   }
   function scheduleNews(l){
     clearTimeout(newsTimers[l]);
@@ -174,9 +178,17 @@
     newsAttempts[l]=(newsAttempts[l]||0)+1;
     newsTimers[l]=setTimeout(function(){if(lang()===l&&!document.hidden)loadNews(true);},Math.min(10000,1500*newsAttempts[l]));
   }
-  function loadNews(force){
+  function keepNewsWhileLoading(l,cached,manualRetry){
+    if(l!==lang())return;
+    if(cached){
+      // Retain a failed-refresh notice until the next successful check instead
+      // of removing and adding it again on each background retry.
+      if(shownLanguage!==l||shownNews!==cached)drawNews(cached,l);
+    }else if(manualRetry||shownLanguage!==l||shownEdition!==editionKey(Date.now()/1000)||shownState!=='failed')drawLoading(l);
+  }
+  function loadNews(force,manualRetry){
     var l=lang(),cached=cachedNews(l),period=publicationPeriod();
-    if(cached)drawNews(cached,l);else drawLoading(l);
+    keepNewsWhileLoading(l,cached,manualRetry);
     if(newsPending[l])return newsPending[l];
     if(!force&&newsPeriods[l]===period&&cached&&!cached.refreshing&&!cached.translation_pending&&Date.now()-(newsLoadedAt[l]||0)<NEWS_TTL)return Promise.resolve(cached);
     clearTimeout(newsTimers[l]);
@@ -193,7 +205,7 @@
       }else if(validPublished(d,l)){
         rememberPublished(d,l);newsLoadedAt[l]=Date.now();drawNews(cachedNews(l)||d,l);
         if(d.refreshing||d.translation_pending)scheduleNews(l);else newsAttempts[l]=0;
-      }else if(d.refreshing||(d.policy_version===4&&d.edition_date!==editionKey(Date.now()/1000))){scheduleNews(l);var current=cachedNews(l);if(current)drawNews(current,l);else if((newsAttempts[l]||0)>=8)drawFailure(l);else drawLoading(l);}
+      }else if(d.refreshing||(d.policy_version===4&&d.edition_date!==editionKey(Date.now()/1000))){scheduleNews(l);var current=cachedNews(l);if(!current&&(newsAttempts[l]||0)>=8)drawFailure(l);else keepNewsWhileLoading(l,current,false);}
       else throw new Error('Empty news');
       return d;
     }).catch(function(){

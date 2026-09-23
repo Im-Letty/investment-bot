@@ -29,7 +29,12 @@
   function renderMarkets() {
     if(!model)return;
     var rows=model.rows(), anyFailure=rows.some(function(row){return row.failed;});
-    setHTML(document.getElementById('knHomeMarketGrid'),rows.map(function(row){
+    var grid=document.getElementById('knHomeMarketGrid'),selection=JSON.stringify(rows.map(function(row){return row.item.id||row.item.symbol;})),times=[];
+    if(grid&&grid.__marketSelection!==selection){
+      setHTML(grid,rows.map(function(){return '<div class="kn-a-quote"><div class="kn-a-quote-name"></div><div class="kn-a-quote-value"></div><div class="kn-a-quote-change"></div><div class="kn-a-quote-note"></div></div>';}).join(''));
+      grid.__marketSelection=selection;
+    }
+    rows.forEach(function(row,index){
       var price='—', legacy='', note='', item=row.item;
       if(row.display){var parts=row.display.split(/[\s　]+/);price=parts[0];legacy=parts.slice(1).join(' ');}
       else if(row.quote){price=Number(row.quote.price).toLocaleString(lang(),{maximumFractionDigits:item.category==='fx'?4:2});if(item.currency==='USD')price='$'+price;else if(item.currency==='JPY')price='¥'+price;}
@@ -40,11 +45,20 @@
       if(row.failed)note=(row.quote||row.display)?text('updating'):text('failed');
       else if(!row.quote&&!row.display)note=text('loading');
       else if(!hasChange)note=text('nodiff');
-      var time=row.at?new Date(row.at).toLocaleString(lang(),{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' JST':'';
-      if(row.stale&&time)note=({ja:'取得 ',en:'Retrieved ',ko:'가져옴 ',zh:'获取 '}[lang()])+time;
-      return '<div class="kn-a-quote" title="'+esc(item.label+(time?' · '+time:''))+'"><div class="kn-a-quote-name">'+esc(item.label)+'</div><div class="kn-a-quote-value">'+esc(price)+'</div><div class="kn-a-quote-change is-'+movement.direction+'">'+(change||esc(note))+'</div>'+(hasChange&&note?'<div class="kn-a-quote-note">'+esc(note)+'</div>':'')+'</div>';
-    }).join(''));
-    var retry=document.getElementById('knMarketRetry');if(retry){retry.hidden=!anyFailure;retry.parentElement.hidden=!anyFailure;}
+      var date=Number.isFinite(row.at)&&row.at>0?new Date(row.at):null;
+      var time=date&&Number.isFinite(date.getTime())&&(row.quote||row.display)?date.toLocaleString(lang(),{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' JST':'';
+      times.push({label:item.label,time:time,iso:time?date.toISOString():''});
+      var card=grid&&grid.children[index];if(!card)return;
+      if(card.title!==item.label)card.title=item.label;
+      setHTML(card.children[0],esc(item.label));setHTML(card.children[1],esc(price));
+      var changeClass='kn-a-quote-change is-'+movement.direction;if(card.children[2].className!==changeClass)card.children[2].className=changeClass;
+      setHTML(card.children[2],change||esc(note));setHTML(card.children[3],hasChange&&note?esc(note):'');
+    });
+    var groups=[];
+    times.forEach(function(entry){var group=groups.find(function(g){return g.time===entry.time;});if(group)group.labels.push(entry.label);else groups.push({time:entry.time,iso:entry.iso,labels:[entry.label]});});
+    var retrieved=({ja:'取得 ',en:'Retrieved ',ko:'가져옴 ',zh:'获取 '}[lang()]),unknown=({ja:'取得時刻 —',en:'Retrieved —',ko:'가져온 시간 —',zh:'获取时间 —'}[lang()]);
+    setHTML(document.getElementById('knHomeMarketTimeText'),groups.map(function(group){return '<span class="kn-a-market-time">'+(groups.length>1?'<span class="kn-a-market-time-label">'+esc(group.labels.join('・'))+'</span>':'')+(group.time?'<time datetime="'+esc(group.iso)+'">'+esc(retrieved+group.time)+'</time>':esc(unknown))+'</span>';}).join(''));
+    var retry=document.getElementById('knMarketRetry');if(retry)retry.hidden=!anyFailure;
     renderDate();
   }
   function renderSelected() {
@@ -112,7 +126,8 @@
     ['dsSetSize','dsSetFont','dsReset'].forEach(function(name){if(typeof window[name]==='function'){var original=window[name];window[name]=function(){var result=original.apply(this,arguments);syncReading();return result;};}});
     var masthead=document.createElement('div');masthead.className='kn-a-masthead';masthead.innerHTML='<div class="kn-a-top-row"><button type="button" id="knHomeAMenu" aria-label="'+esc(text('menu'))+'">'+icon('menu')+'</button><button type="button" id="knHomeAAccount" aria-label="'+esc(text('account'))+'">'+icon('user')+'</button></div>'+(window.KNNewsOrbit?window.KNNewsOrbit.markup:'')+'<div class="kn-a-daily-caption"><div class="kn-a-daily-title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.3"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg><h1 data-kn-home-text="daily">'+esc(text('daily'))+'</h1></div><div id="knHomeADate"></div></div>';banner.appendChild(masthead);
     if(window.KNNewsOrbit)window.KNNewsOrbit.mount(masthead);
-    var markets=document.createElement('section');markets.id='knHomeMarkets';markets.innerHTML='<div class="kn-a-market-heading"><button type="button" id="knMarketOpen">'+icon('settings')+'<span data-kn-home-text="choose">'+esc(text('choose'))+'</span></button></div><div id="knHomeMarketGrid"></div><div class="kn-a-market-foot"><button type="button" id="knMarketRetry" hidden data-kn-home-text="retry">'+esc(text('retry'))+'</button></div>';banner.insertAdjacentElement('afterend',markets);
+    var markets=document.createElement('section');markets.id='knHomeMarkets';markets.innerHTML='<div class="kn-a-market-heading"><button type="button" id="knMarketOpen">'+icon('settings')+'<span data-kn-home-text="choose">'+esc(text('choose'))+'</span></button></div><div id="knHomeMarketGrid"></div>';banner.insertAdjacentElement('afterend',markets);
+    var marketTimes=document.createElement('div');marketTimes.id='knHomeMarketTimes';marketTimes.innerHTML='<div id="knHomeMarketTimeText" tabindex="0"></div><button type="button" id="knMarketRetry" hidden data-kn-home-text="retry">'+esc(text('retry'))+'</button>';markets.insertAdjacentElement('afterend',marketTimes);
     var notice=document.createElement('footer');notice.id='knHomeNotice';notice.innerHTML='<p data-kn-home-text="notice">'+esc(text('notice'))+'</p>';section.appendChild(notice);
     try{if(typeof window.loadCustomSymbols==='function')window.loadCustomSymbols();}catch(_){}
     model=window.KNMarketData.create({catalog:window.KN_MARKET_CATALOG,custom:window._customSymbols||[],storage:localStorage,fetch:window.fetch.bind(window),onChange:renderMarkets});
