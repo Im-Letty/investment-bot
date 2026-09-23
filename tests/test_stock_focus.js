@@ -53,11 +53,11 @@ test('nested direction tab state uses selected, roving tabindex and one visible 
  stock.selectRanking(root,'down');assert.deepEqual(buttons.map(b=>b.attrs['aria-selected']),['false','true']);assert.deepEqual(buttons.map(b=>b.tabIndex),[-1,0]);assert.deepEqual(panels.map(p=>p.hidden),[true,false]);
  assert.match(stock.rankingMarkup(payload([item('7203.T')]),'down'),/id="sf-rank-panel-up"[^>]+ hidden/);
 });
-test('reviewed real company stories show publication date, source and independent quote date',()=>{
+test('reviewed real company stories show publication date and source',()=>{
  const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));
  assert.equal(stock.validStories(data,now).length,2);
  const html=stock.companyMarkup(data,payload([item('9432.T'),item('6501.T')]),'ready',now);
- assert.match(html,/NTT/);assert.match(html,/日立製作所/);assert.match(html,/2026\/09\/15 発表/);assert.match(html,/2026\/09\/18 の株価/);assert.match(html,/target="_blank" rel="noopener noreferrer"/);
+ assert.match(html,/NTT/);assert.match(html,/日立製作所/);assert.match(html,/2026\/09\/15 発表/);assert.match(html,/2026\/09\/18 発表/);assert.match(html,/target="_blank" rel="noopener noreferrer"/);
  assert.doesNotMatch(html,/DEMO|さくら食品|みなと電機|あおば物流|サンプル/);
  assert.equal(stock.validStories(data,Date.parse('2026-10-01T03:00:00Z')).length,0);
  assert.equal(stock.validStories(data,Date.parse('2026-09-22T03:00:00Z')).length,0);
@@ -66,20 +66,21 @@ test('server/provider text is escaped, unsafe story links never become markup',(
  const html=stock.rankingMarkup(payload([{...item('7203.T'),name:'<img src=x onerror=alert(1)>'}]));assert.doesNotMatch(html,/<img/);assert.match(html,/&lt;img/);
  const real=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));real.companies[0].source_url='javascript:alert(1)';assert.equal(stock.validStories(real,now).length,1);
 });
-test('company details keep every quote, change and trade date out of the collapsed card',()=>{
+test('company details show explanations without quotes or price loading states',()=>{
  const editorial=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));
  const html=stock.companyMarkup(editorial,payload([item('9432.T'),item('6501.T')]),'ready',now);
  const cards=[...html.matchAll(/<article class="sf-company">(.*?)<\/article>/g)];assert.equal(cards.length,2);
  for(const [,card] of cards){
    const details=card.match(/<details\b([^>]*)>(.*?)<\/details>/);assert.ok(details);
    assert.doesNotMatch(details[1],/\bopen\b/);
-   assert.match(details[2],/sf-price/);assert.match(details[2],/\+10円/);assert.match(details[2],/\+10\.00%/);assert.match(details[2],/datetime="2026-09-18"[^>]*>9\/18 時点<\/time>/);
+   assert.doesNotMatch(card,/sf-quote|sf-price|sf-change|の株価|時点/);
+   assert.match(details[2],/どんな会社？[\s\S]*何があった？[\s\S]*これからの注目は？[\s\S]*会社の発表を読む/);
    const summary=details[2].match(/<summary>(.*?)<\/summary>/);assert.ok(summary);assert.match(summary[1],/<h4>/);assert.match(summary[1],/sf-disclosure-mark/);assert.doesNotMatch(summary[1],/詳しく/);
    const collapsed=card.replace(details[0],summary[0]);assert.match(collapsed,/sf-company-name/);assert.match(collapsed,/sf-stock-code/);assert.match(collapsed,/<h4>/);assert.doesNotMatch(collapsed,/sf-quote|sf-price|sf-change|の株価/);
  }
  assert.doesNotMatch(html,/株価はどう動いた/);
  const missing=stock.companyMarkup(editorial,null,'ready',now);
- assert.equal((missing.match(/株価を確認できませんでした/g)||[]).length,2);assert.doesNotMatch(missing,/sf-price/);
+ assert.equal(missing,html);assert.doesNotMatch(missing,/株価を確認|sf-price/);
 });
 test('company selection uses at most three distinct valid companies without filling empty slots',()=>{
  const base=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json'))),first=base.companies[0];
