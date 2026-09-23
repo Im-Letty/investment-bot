@@ -66,6 +66,30 @@ test('server/provider text is escaped, unsafe story links never become markup',(
  const html=stock.rankingMarkup(payload([{...item('7203.T'),name:'<img src=x onerror=alert(1)>'}]));assert.doesNotMatch(html,/<img/);assert.match(html,/&lt;img/);
  const real=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));real.companies[0].source_url='javascript:alert(1)';assert.equal(stock.validStories(real,now).length,1);
 });
+test('company details keep every quote, change and trade date out of the collapsed card',()=>{
+ const editorial=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));
+ const html=stock.companyMarkup(editorial,payload([item('9432.T'),item('6501.T')]),'ready',now);
+ const cards=[...html.matchAll(/<article class="sf-company">(.*?)<\/article>/g)];assert.equal(cards.length,2);
+ for(const [,card] of cards){
+   const details=card.match(/<details\b([^>]*)>(.*?)<\/details>/);assert.ok(details);
+   assert.doesNotMatch(details[1],/\bopen\b/);
+   assert.match(details[2],/sf-price/);assert.match(details[2],/\+10円/);assert.match(details[2],/\+10\.00%/);assert.match(details[2],/2026\/09\/18 の株価/);
+   const collapsed=card.replace(details[0],'');assert.match(collapsed,/sf-company-name/);assert.match(collapsed,/sf-stock-code/);assert.match(collapsed,/<h4>/);assert.doesNotMatch(collapsed,/sf-quote|sf-price|sf-change|の株価/);
+ }
+ assert.doesNotMatch(html,/株価はどう動いた/);
+ const missing=stock.companyMarkup(editorial,null,'ready',now);
+ assert.equal((missing.match(/株価を確認できませんでした/g)||[]).length,2);assert.doesNotMatch(missing,/sf-price/);
+});
+test('company selection uses at most three distinct valid companies without filling empty slots',()=>{
+ const base=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json'))),first=base.companies[0];
+ const stories=Array.from({length:5},(_,i)=>({...first,symbol:(1000+i)+'.T',source_url:'https://example.com/announcement/'+i}));
+ const invalid={...first,symbol:'INVALID.T',published_date:'2026-10-01'};
+ const duplicateCompany={...stories[0],symbol:'1000.t',source_url:'https://example.com/second-story'};
+ const duplicateSource={...stories[1],symbol:'DUP.T',source_url:stories[1].source_url+'/#details'};
+ const selected=stock.validStories({...base,companies:[invalid,stories[0],duplicateCompany,stories[1],duplicateSource,...stories.slice(2)]},now);
+ assert.deepEqual(selected.map(x=>x.symbol),['1000.T','1001.T','1002.T']);
+ for(const count of [0,1,2])assert.equal(stock.validStories({...base,companies:stories.slice(0,count)},now).length,count);
+});
 test('production tabs preserve existing dividend, calendar, search and favorites wiring',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');const script=html.match(/<script>\/\*knTabFeatureV1\*\/[\s\S]*?<\/script>/)[0];
  assert.ok(script.indexOf("_mkSub('movers','','ランキング')")<script.indexOf("_mkSub('companies','','注目')"));assert.ok(script.indexOf("_subRow.appendChild(_sC)")<script.indexOf("_subRow.appendChild(_sW)"));

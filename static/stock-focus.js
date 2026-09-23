@@ -67,7 +67,13 @@
     if(!data||!Array.isArray(data.companies)||!dateLabel(data.edition_date)||!dateLabel(data.valid_until))return [];
     const today=new Date(now+9*3600000).toISOString().slice(0,10);
     if(data.edition_date>today||data.valid_until<today)return [];
-    return data.companies.filter(x=>x&&['symbol','name','sector','title','business','event','outlook','source_url','published_date'].every(k=>typeof x[k]==='string'&&x[k])&&/^https:\/\//.test(x.source_url)&&dateLabel(x.published_date)&&x.published_date<=today).slice(0,3);
+    const symbols=new Set(),sources=new Set();
+    return data.companies.filter(x=>{
+      if(!x||!['symbol','name','sector','title','business','event','outlook','source_url','published_date'].every(k=>typeof x[k]==='string'&&x[k].trim())||!/^https:\/\//.test(x.source_url)||!dateLabel(x.published_date)||x.published_date>today)return false;
+      const symbol=x.symbol.trim().toUpperCase(),source=x.source_url.split('#')[0].replace(/\/$/,'');
+      if(symbols.has(symbol)||sources.has(source))return false;
+      symbols.add(symbol);sources.add(source);return true;
+    }).slice(0,3);
   }
   function movement(raw){
     const q=normalizeItem(raw);
@@ -77,12 +83,11 @@
   }
   function companyMarkup(editorial,data,status='loading',now=Date.now()){
     const stories=validStories(editorial,now),quotes=new Map((data?data.items:[]).map(x=>[x.symbol,x]));
-    const shown=stories.map(item=>quotes.get(item.symbol)).filter(Boolean),dates=tradeDates(shown);
     const cards=stories.map(item=>{
       const value=quotes.get(item.symbol);
-      return '<article class="sf-company"><p class="sf-company-name">'+escape(item.name)+stockCode(item.symbol)+'</p><h4>'+escape(item.title)+'</h4>'+quote(value,value?dates.showDate(value):false)+'<details class="sf-explanation" data-stock-detail="'+escape(item.symbol)+'"><summary><span class="sf-closed">詳しく</span><span class="sf-open">閉じる</span><i aria-hidden="true"></i></summary><div><p class="sf-business">'+escape(item.business)+'</p><p class="sf-quote-date">'+dateLabel(item.published_date)+' 発表</p><h5>何があった？</h5><p>'+escape(item.event)+'</p><h5>株価はどう動いた？</h5>'+(value&&dateLabel(value.trade_date)?'<p class="sf-quote-date">'+dateLabel(value.trade_date)+' の株価</p>':'')+'<p>'+escape(movement(value))+'</p><h5>これから見るポイント</h5><p>'+escape(item.outlook)+'</p><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a></div></details></article>';
+      return '<article class="sf-company"><p class="sf-company-name">'+escape(item.name)+stockCode(item.symbol)+'</p><h4>'+escape(item.title)+'</h4><details class="sf-explanation" data-stock-detail="'+escape(item.symbol)+'"><summary><span class="sf-closed">詳しく</span><span class="sf-open">閉じる</span><i aria-hidden="true"></i></summary><div>'+quote(value)+'<p class="sf-business">'+escape(item.business)+'</p><p class="sf-quote-date">'+dateLabel(item.published_date)+' 発表</p><h5>何があった？</h5><p>'+escape(item.event)+'</p><h5>これからの注目は？</h5><p>'+escape(item.outlook)+'</p><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a></div></details></article>';
     }).join('');
-    return '<div class="sf-content"><section class="sf-stories" aria-label="注目企業">'+(stories.length?'<div class="sf-companies">'+cards+'</div>'+(shown.length?'<p class="sf-meta"><span class="sf-meta-date">'+escape(dates.text)+'</span></p>':''):'<p class="sf-state">'+(status==='loading'?'企業の話題を確認しています…':'現在、確認済みの企業の話題を準備しています。')+'</p>')+'</section></div>';
+    return '<div class="sf-content"><section class="sf-stories" aria-label="注目企業">'+(stories.length?'<div class="sf-companies">'+cards+'</div>':'<p class="sf-state">'+(status==='loading'?'企業の話題を確認しています…':'現在、確認済みの企業の話題を準備しています。')+'</p>')+'</section></div>';
   }
   function selectRanking(container,direction){
     if(!['up','down'].includes(direction))return;
@@ -114,7 +119,7 @@
       }catch(_){if(token===generation)status='error';}
       finally{busy=false;if(token===generation)render();else refresh();}
     }
-    async function loadStories(){try{editorial=await getJSON('/static/company-focus.json?v=20260923');storyStatus='ready';}catch(_){storyStatus='error';}render();}
+    async function loadStories(){try{editorial=await getJSON('/static/company-focus.json?v=20260924-layoutd1');storyStatus='ready';}catch(_){storyStatus='error';}render();}
     function init(){
       restore();render();refresh();loadStories();
       w.closeStockWatchManager=function(){const manager=doc.getElementById('alert-section');if(manager)manager.style.display='none';const home=doc.getElementById('morning-section'),news=doc.getElementById('morning-news-section');if(home)home.style.display='block';if(news)news.style.display='';if(w.__knRefreshWatch)w.__knRefreshWatch();if(w.__knSetSub)w.__knSetSub('watch');};

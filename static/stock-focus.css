@@ -1,4 +1,4 @@
-/* Candidate A: one quiet sheet, with every stock feature kept in place. */
+/* Candidate A stock sheet, with the company stories arranged in layout D. */
 #knTabWrap {
   --sf-ink:var(--kn-a-ink,#244e40);
   --sf-body:color-mix(in srgb,var(--sf-ink) 40%,var(--sf-muted));
@@ -170,20 +170,23 @@ body.kn-home-a #knTabWrap #knWatchSec .sf-state {text-align:center}
 #knTabWrap .sf-more>summary {justify-content:center;padding:0;background:transparent;border:0;border-radius:0}
 #knTabWrap .sf-more>summary small {font-size:10px;color:var(--sf-muted);margin-left:4px}
 #knTabWrap .sf-more[open]>summary {margin-bottom:5px}
-#knTabWrap .sf-companies {display:grid;grid-template-columns:1fr;gap:13px;align-items:start;padding-top:1px}
-#knTabWrap .sf-company {display:grid;grid-template-columns:135px minmax(0,1fr) 130px;gap:0 15px;padding:13px 0 3px;min-width:0;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
-#knTabWrap .sf-company-name {grid-column:1;grid-row:1;font-size:13px;line-height:1.7;font-weight:500;overflow-wrap:anywhere;margin:5px 0}
-#knTabWrap .sf-company h4 {grid-column:2;grid-row:1;font:500 18px/1.7 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.02em;color:var(--sf-ink);overflow-wrap:anywhere;margin:0 0 10px}
-#knTabWrap .sf-company>.sf-quote {grid-column:3;grid-row:1;align-items:flex-end;text-align:right}
-#knTabWrap .sf-company>.sf-quote .sf-price {font-size:17px}
-#knTabWrap .sf-company>.sf-quote .sf-change {font-size:11px}
-#knTabWrap .sf-company>.sf-quote .sf-change>span {font-size:10px}
-#knTabWrap .sf-explanation {grid-column:2/4;margin:0;border:0;min-width:0}
-#knTabWrap .sf-explanation>summary {min-height:45px;font-size:11px}
-#knTabWrap .sf-explanation>div {padding:5px 0 15px;font-size:13px;line-height:1.95;color:var(--sf-body)}
-#knTabWrap .sf-explanation h5 {font-size:11px;font-weight:600;margin:15px 0 5px;color:var(--sf-ink)}
-#knTabWrap .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 11px;color:var(--sf-body)}
+/* Layout D keeps the story prominent and places prices inside its details. */
+#knTabWrap .sf-companies {display:block;padding-top:0}
+#knTabWrap .sf-company {display:block;max-width:720px;min-width:0;padding:22px 0 18px;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
+#knTabWrap .sf-company:last-child {border-bottom:0;padding-bottom:0}
+#knTabWrap .sf-company-name {font-size:16px;line-height:1.6;font-weight:500;overflow-wrap:anywhere;margin:0;color:var(--sf-ink)}
+#knTabWrap .sf-company h4 {font:500 22px/1.65 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.02em;color:var(--sf-ink);overflow-wrap:anywhere;margin:12px 0 0}
+#knTabWrap .sf-explanation {margin:13px 0 0;border:0;min-width:0}
+#knTabWrap .sf-explanation>summary {min-height:42px;font-size:11px}
+#knTabWrap .sf-explanation>div {padding:8px 0;font-size:13px;line-height:1.95;color:var(--sf-body)}
+#knTabWrap .sf-explanation h5 {font-size:12px;font-weight:600;margin:19px 0 6px;color:var(--sf-ink)}
+#knTabWrap .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 14px;color:var(--sf-body)}
 #knTabWrap .sf-explanation .sf-quote-date {font-size:10px;color:var(--sf-muted)}
+#knTabWrap .sf-explanation>div>.sf-quote {flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:3px 10px;width:100%;max-width:420px;margin:1px 0 19px;padding:10px 12px;background:var(--kn-a-chip,var(--sf-selected));border-radius:3px;white-space:normal;text-align:left}
+#knTabWrap .sf-explanation .sf-quote .sf-price {font-size:16px;color:var(--sf-body);white-space:nowrap}
+#knTabWrap .sf-explanation .sf-quote .sf-change {font-size:11px;white-space:nowrap}
+#knTabWrap .sf-explanation .sf-quote .sf-change>span {font-size:11px}
+#knTabWrap .sf-explanation .sf-quote .sf-quote-date {flex-basis:100%;margin:0;font-size:10px}
 #knTabWrap .sf-source {display:block;margin-top:10px;font-size:11px;line-height:1.9;color:var(--sf-muted);text-underline-offset:4px;overflow-wrap:anywhere}
 #knTabWrap .sf-state {font-size:13px;line-height:1.9;color:var(--sf-muted);padding:25px 0;margin:0;text-align:left}
 #knTabWrap .sf-meta {font-size:10px;line-height:1.8;color:var(--sf-muted);margin:17px 0 0}
@@ -196,12 +199,13 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
   body.kn-home-a #knTabWrap #knSubRow {gap:10px!important}
   body.kn-home-a #knTabWrap #knSubRow button,
   body.kn-home-a #knTabWrap #knDivSubRow button {font-size:calc(12px * var(--kn-a-scale,1))!important}
-  #knTabWrap .sf-company {display:block;padding:15px 0 3px}
-  #knTabWrap .sf-company-name {font-size:11px;margin:0 0 6px}
-  #knTabWrap .sf-company h4 {margin-bottom:10px}
-  #knTabWrap .sf-company>.sf-quote {flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:3px 8px;text-align:left;margin-bottom:10px}
-  #knTabWrap .sf-company>.sf-quote .sf-quote-date {flex-basis:100%}
-  #knTabWrap .sf-explanation {border-top:1px solid var(--sf-line)}
+  #knTabWrap .sf-company {padding-top:20px}
+  #knTabWrap .sf-company-name {font-size:15px}
+  #knTabWrap .sf-company h4 {font-size:21px}
+}
+@container(max-width:300px) {
+  body.kn-home-a #knTabWrap .kn-a-stock-tabs {grid-template-columns:1.1fr .9fr 1.1fr .7fr}
+  body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {font-size:calc(11px * var(--kn-a-scale,1))!important;padding-inline:1px!important;white-space:normal!important;overflow-wrap:anywhere}
 }
 @media(max-width:680px) {
   body.kn-home-a #knTabWrap {padding:22px 18px 20px!important}
