@@ -74,7 +74,8 @@ test('company details keep every quote, change and trade date out of the collaps
    const details=card.match(/<details\b([^>]*)>(.*?)<\/details>/);assert.ok(details);
    assert.doesNotMatch(details[1],/\bopen\b/);
    assert.match(details[2],/sf-price/);assert.match(details[2],/\+10円/);assert.match(details[2],/\+10\.00%/);assert.match(details[2],/2026\/09\/18 の株価/);
-   const collapsed=card.replace(details[0],'');assert.match(collapsed,/sf-company-name/);assert.match(collapsed,/sf-stock-code/);assert.match(collapsed,/<h4>/);assert.doesNotMatch(collapsed,/sf-quote|sf-price|sf-change|の株価/);
+   const summary=details[2].match(/<summary>(.*?)<\/summary>/);assert.ok(summary);assert.match(summary[1],/<h4>/);assert.match(summary[1],/sf-disclosure-mark/);assert.doesNotMatch(summary[1],/詳しく/);
+   const collapsed=card.replace(details[0],summary[0]);assert.match(collapsed,/sf-company-name/);assert.match(collapsed,/sf-stock-code/);assert.match(collapsed,/<h4>/);assert.doesNotMatch(collapsed,/sf-quote|sf-price|sf-change|の株価/);
  }
  assert.doesNotMatch(html,/株価はどう動いた/);
  const missing=stock.companyMarkup(editorial,null,'ready',now);
