@@ -30,7 +30,7 @@ function harness(saved={}){
   ['morning-news-content','morning-analysis','morning-points','morning-countdown','morning-update-time'].forEach(id=>nodes[id]=element());
   const context={console,Promise,Date:FakeDate,Number,URL,AbortController,
     document:{readyState:'loading',hidden:false,documentElement:{lang:'ja'},getElementById:id=>nodes[id]||null,addEventListener:(name,fn)=>(listeners[name]||=[]).push(fn)},
-    localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v))},
+    localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,String(v)),removeItem:k=>storage.delete(k)},
     fetch(url,options){const d=deferred();requests.push({url,options,...d});return d.promise;},
     setTimeout:(fn,ms)=>{const id=++timerId;timers.set(id,{fn,ms});return id;},clearTimeout:id=>timers.delete(id),
     setInterval:(fn,ms)=>{const id=++timerId;intervals.set(id,{fn,ms});return id;},clearInterval:id=>intervals.delete(id),
@@ -196,7 +196,7 @@ test('successful live selection replaces published copy and does not revive it a
   assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
 });
 
-test('published edition expires at JST midnight even when the network fails',async()=>{
+test('legacy unmarked published edition expires at JST midnight even when the network fails',async()=>{
   const app=harness();app.advance(Date.UTC(2026,8,12,14,59,59)-app.now());
   const data=published(app);app.event('DOMContentLoaded');
   app.advance(2000);for(const timer of app.intervals.values())timer.fn();
@@ -205,7 +205,7 @@ test('published edition expires at JST midnight even when the network fails',asy
   assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
 });
 
-test('malformed, mismatched, prior-day or future published bootstrap is ignored',()=>{
+test('malformed, mismatched, prior-day or future legacy published bootstrap is ignored',()=>{
   for(const mutate of [
     d=>d.edition_date='2026-09-11', d=>d.digest=null,
     d=>d.fetched_at=0, d=>d.digest.article_refs[0].title='別の原題',
@@ -309,6 +309,174 @@ function curated(app,lang='ja'){
   const data=app.news(lang,{delivery:'published',fetched_at:null,refreshing:false,news:[{source:'NHK経済',title:'株の動き'},{source:'ロイター経済',title:'円の動き'}]});
   data.digest=reviewed(data,{publication_mode:'curated',reviewed_at:app.now()/1000});return data;
 }
+
+test('curated September 22 edition stays dated September 22 after midnight, empty live checks and offline refresh',async()=>{
+  const app=harness();app.advance(Date.parse('2026-09-22T23:59:59+09:00')-app.now());
+  const data=curated(app);data.digest.headline='九月二十二日の掲載版';
+  app.nodes.knInitialNews={textContent:JSON.stringify(data)};app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],data);
+  app.advance(2000);for(const timer of app.intervals.values())timer.fn();
+  let html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.headline));assert.match(html,/2026\/09\/22 掲載/);
+  assert.match(html,/掲載対象日 2026-09-22/);
+  assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,1);
+  app.context.loadMorningNews(true);
+  await app.reply(app.requests.at(-1),app.news('ja',{news:[],digest:null,selection_status:'empty_today'}));
+  html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.headline));assert.match(html,/2026\/09\/22 掲載/);
+  assert.ok(!html.includes('2026/09/23 掲載'));
+  assert.equal(JSON.parse(app.storage.get('kn_news_v4_ja')).news.length,0);
+  assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).edition_date,'2026-09-22');
+  app.advance(121000);app.context.loadMorningNews();app.requests.at(-1).reject(new Error('offline'));await flush();
+  html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.headline));assert.match(html,/最新情報を確認できませんでした/);
+  assert.match(html,/2026\/09\/22 掲載/);
+});
+
+test('a retained curated edition is restored independently of the live cache and a stale embedded edition',async()=>{
+  const seed=harness(),older=curated(seed);older.digest.headline='古い掲載版';
+  seed.advance(86400000);const newer=curated(seed);newer.digest.headline='保存済みの新しい掲載版';
+  const app=harness({'kn_published_news_v1_ja':JSON.stringify(newer)});app.advance(2*86400000);
+  app.nodes.knInitialNews={textContent:JSON.stringify(older)};app.event('DOMContentLoaded');
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(newer.digest.headline));
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(older.digest.headline));
+  app.requests[0].reject(new Error('offline'));await flush();
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(newer.digest.headline));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/13 掲載/);
+  assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).edition_date,'2026-09-13');
+});
+
+test('new unreviewed live articles keep the last curated edition until a new curated release is valid',async()=>{
+  const app=harness(),old=curated(app);old.digest.headline='確認済みの掲載版';
+  app.nodes.knInitialNews={textContent:JSON.stringify(old)};app.advance(86400000);app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news('ja',{news:[{source:'NHK経済',title:'まだ要約未確認の新記事'}]}));
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(old.digest.headline));
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('まだ要約未確認の新記事'));
+  const fresh=curated(app);fresh.digest.headline='新しい確認済み掲載版';
+  app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),fresh);
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(fresh.digest.headline));
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(old.digest.headline));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/13 掲載/);
+  app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),old);
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(fresh.digest.headline));
+  assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).edition_date,'2026-09-13');
+});
+
+test('a delayed same-day publication cannot replace a later released edition',async()=>{
+  const app=harness(),earlier=curated(app);earlier.digest.headline='先に出た掲載版';earlier.digest.publish_at=app.now()/1000;
+  app.advance(60000);const later=curated(app);later.digest.headline='後に出た掲載版';later.digest.publish_at=app.now()/1000;
+  app.nodes.knInitialNews={textContent:JSON.stringify(later)};app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],earlier);
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(later.digest.headline));
+  assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).digest.publish_at,later.digest.publish_at);
+});
+
+test('an explicit live identity conflict clears the retained publication and its persistent copy',async()=>{
+  const app=harness(),data=curated(app);app.nodes.knInitialNews={textContent:JSON.stringify(data)};
+  app.advance(86400000);app.event('DOMContentLoaded');
+  assert.ok(app.storage.has('kn_published_news_v1_ja'));
+  await app.reply(app.requests[0],app.news('ja',{news:[],selection_status:'empty_today',publication_revoked:true}));
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/まだ確認できていません/);
+  assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
+  app.advance(901000);app.context.loadMorningNews();app.requests.at(-1).reject(new Error('offline'));await flush();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
+});
+
+test('prepared 08:00 edition cannot appear early from bootstrap, persistent storage or an API response',async()=>{
+  for(const location of ['bootstrap','storage','api']){
+    const app=harness();app.advance(Date.parse('2026-09-12T07:59:00+09:00')-app.now());
+    const data=curated(app);data.digest.publish_at=Date.parse('2026-09-12T08:00:00+09:00')/1000;
+    if(location==='bootstrap')app.nodes.knInitialNews={textContent:JSON.stringify(data)};
+    if(location==='storage')app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));
+    app.event('DOMContentLoaded');
+    if(location==='api')await app.reply(app.requests[0],data);
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),location);
+    app.advance(60000);
+    if(location!=='api')await app.reply(app.requests[0],data);
+    else {app.context.loadMorningNews();await app.reply(app.requests.at(-1),data);}
+    assert.ok(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),location);
+    assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).digest.publish_at,data.digest.publish_at);
+  }
+});
+
+test('invalid release timestamps and tomorrow editions cannot enter the published cache',async()=>{
+  for(const mutate of [
+    d=>d.digest.publish_at=null,
+    d=>d.digest.publish_at=d.digest.reviewed_at-1,
+    d=>d.digest.publish_at=d.digest.reviewed_at+1,
+    d=>{d.digest.reviewed_at-=86400;d.digest.publish_at=d.digest.reviewed_at;},
+    d=>{d.edition_date='2026-09-13';d.digest.edition_date=d.edition_date;}
+  ]){
+    const app=harness(),data=curated(app);mutate(data);app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+    assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
+  }
+});
+
+test('out-of-range dates in saved publications cannot block news or market startup',()=>{
+  for(const mutate of [d=>d.news[0].published_at=-1e100,d=>d.digest.reviewed_at=-1e100]){
+    const app=harness(),data=curated(app);mutate(data);
+    app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));
+    app.storage.set('kn_market_v1',JSON.stringify(app.market()));
+    assert.doesNotThrow(()=>app.event('DOMContentLoaded'));
+    assert.equal(app.renders.length,1);
+    assert.equal(app.requests.length,2);
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  }
+});
+
+test('a revocation in initial HTML clears saved copy before any API response',async()=>{
+  const app=harness(),old=curated(app);
+  app.storage.set('kn_published_news_v1_ja',JSON.stringify(old));
+  const corrected=app.news('ja',{publication_revoked:true,news:[{source:'NHK経済',title:'訂正後の見出し'}]});
+  app.nodes.knInitialNews={textContent:JSON.stringify(corrected)};app.event('DOMContentLoaded');
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(old.digest.summary));
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes('訂正後の見出し'));
+  assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
+  app.requests[0].reject(new Error('offline'));await flush();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(old.digest.summary));
+});
+
+test('08:00 JST triggers one check despite a fresh prior edition, then keeps the normal 120-second TTL',async()=>{
+  const app=harness(),old=curated(app);app.advance(Date.parse('2026-09-13T07:59:59+09:00')-app.now());
+  app.nodes.knInitialNews={textContent:JSON.stringify(old)};app.event('DOMContentLoaded');await app.reply(app.requests[0],old);
+  const count=()=>app.requests.filter(r=>r.url.includes('morning-news')).length;
+  assert.equal(count(),1);
+  app.advance(1000);for(const timer of app.intervals.values())timer.fn();
+  assert.equal(count(),2,'Release boundary bypasses fresh fetch TTL');
+  await app.reply(app.requests.findLast(r=>r.url.includes('morning-news')),old);
+  for(let i=0;i<30;i++)for(const timer of app.intervals.values())timer.fn();
+  assert.equal(count(),2,'An older displayed calendar date does not poll each second');
+  app.advance(119000);app.context.loadMorningNews();assert.equal(count(),2);
+  app.advance(1000);app.context.loadMorningNews();assert.equal(count(),3);
+  const next=curated(app);next.digest.headline='八時に公開された掲載版';
+  await app.reply(app.requests.at(-1),next);
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(next.digest.headline));
+  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/13 掲載/);
+});
+
+test('a pending pre-08:00 request is followed by one release check after it completes',async()=>{
+  const app=harness(),old=curated(app);app.advance(Date.parse('2026-09-13T07:59:59+09:00')-app.now());
+  app.nodes.knInitialNews={textContent:JSON.stringify(old)};app.event('DOMContentLoaded');
+  app.advance(1000);for(const timer of app.intervals.values())timer.fn();
+  assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,1);
+  await app.reply(app.requests[0],old);for(const timer of app.intervals.values())timer.fn();
+  assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,2);
+  await app.reply(app.requests.findLast(r=>r.url.includes('morning-news')),old);
+  for(const timer of app.intervals.values())timer.fn();
+  assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,2);
+});
+
+test('returning from a hidden tab at 08:00 checks publication even inside the fetch TTL',async()=>{
+  const app=harness(),old=curated(app);app.advance(Date.parse('2026-09-13T07:59:59+09:00')-app.now());
+  app.nodes.knInitialNews={textContent:JSON.stringify(old)};app.event('DOMContentLoaded');await app.reply(app.requests[0],old);
+  app.context.document.hidden=true;app.advance(1000);for(const timer of app.intervals.values())timer.fn();
+  assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,1);
+  app.context.document.hidden=false;app.event('visibilitychange');
+  assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,2);
+});
 
 function withArticleSummaries(data){
   data.digest.article_summaries=data.digest.article_refs.map((ref,i)=>({...ref,headline:'やさしい見出し'+i,summary:('ニュース'+i+'の出来事と暮らしへの影響を説明します。').repeat(10)}));
@@ -468,6 +636,102 @@ test('saved recent market data renders before the first network response',()=>{
   app.event('DOMContentLoaded');assert.equal(app.renders.length,1);assert.equal(app.requests.length,2);
 });
 
+test('first visitor gets embedded market prices before network and a returning visitor uses the newer snapshot',()=>{
+  const app=harness();const embedded=app.market();
+  app.nodes.knInitialMarket={textContent:JSON.stringify(embedded)};
+  app.event('DOMContentLoaded');
+  assert.equal(app.renders.length,1);assert.equal(app.context.__knHomeABase.fetched_at,embedded.fetched_at);
+  const returning=harness();const older={...returning.market(),fetched_at:returning.now()/1000-3600};
+  returning.nodes.knInitialMarket={textContent:JSON.stringify(older)};
+  returning.storage.set('kn_market_v1',JSON.stringify(returning.market()));returning.event('DOMContentLoaded');
+  assert.equal(returning.context.__knHomeABase.fetched_at,returning.now()/1000);
+});
+
+test('previous real market prices survive a day away while out-of-range snapshots are rejected',()=>{
+  const app=harness();const old={...app.market(),fetched_at:app.now()/1000-86400};
+  app.storage.set('kn_market_v1',JSON.stringify(old));app.event('DOMContentLoaded');
+  assert.equal(app.renders.length,1);assert.equal(app.context.__knHomeABase.fetched_at,old.fetched_at);
+  for(const age of [-10,7*86400]){
+    const invalid=harness();invalid.nodes.knInitialMarket={textContent:JSON.stringify({...invalid.market(),fetched_at:invalid.now()/1000-age})};
+    invalid.event('DOMContentLoaded');assert.equal(invalid.renders.length,0);
+  }
+});
+
+test('empty background refresh keeps the visible market and retries without a failed state',async()=>{
+  const app=harness();app.storage.set('kn_market_v1',JSON.stringify(app.market()));
+  let failed=0;app.context.knHomeA={acceptBase(){},baseFailed(){failed++;}};
+  app.event('DOMContentLoaded');await app.reply(app.requests[1],{market:{},fetched_at:null,refreshing:true});
+  assert.equal(app.renders.length,1);assert.equal(failed,0);
+  assert.ok([...app.timers.values()].some(t=>t.ms===2000));
+});
+
+function useActualMarketGrid(app){
+  const grid=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8').split('\n').find(line=>line.startsWith('function renderMorningGrid('));
+  app.context.getSelIndices=()=>['日経225'];app.context._allIndices=[];
+  app.nodes['morning-idx-grid']={innerHTML:'',querySelectorAll:()=>[]};
+  vm.runInNewContext(grid,app.context);
+}
+
+test('malformed saved or embedded market rows cannot interrupt news and market startup',async()=>{
+  for(const origin of ['saved','embedded']){
+    for(const market of [[],42,{'日経225':null},{'日経225':{display:123}},{'日経225':{display:{text:'123'}}}]){
+      const app=harness();useActualMarketGrid(app);
+      const bad={...app.market(),market};
+      if(origin==='saved')app.storage.set('kn_market_v1',JSON.stringify(bad));
+      else app.nodes.knInitialMarket={textContent:JSON.stringify(bad)};
+      assert.doesNotThrow(()=>app.event('DOMContentLoaded'));
+      assert.deepEqual(app.requests.map(r=>r.url),['/api/morning-news?lang=ja','/api/morning-data']);
+      assert.equal(app.context._mktCache,null);
+      await app.reply(app.requests[0],app.news());await app.reply(app.requests[1],app.market());
+      assert.match(app.nodes['morning-news-content'].innerHTML,/今日のニュース/);
+      assert.match(app.nodes['morning-idx-grid'].innerHTML,/100 ▲1%/);
+    }
+  }
+});
+
+test('market normalization retains valid rows and quote dates while discarding invalid siblings',()=>{
+  const app=harness();useActualMarketGrid(app);
+  const stamp=app.now()/1000,valid={display:'100 ▲1%',price:100,pct:1,currency:'JPY',fetched_at:stamp-3600};
+  app.storage.set('kn_market_v1',JSON.stringify({fetched_at:stamp,updated:{bad:true},market:{
+    '日経225':valid,'ドル円':{display:123},'NYダウ':{display:'40,000',price:'40000'},
+    'S&P500':{display:'5,000',fetched_at:stamp+1},'VIX恐怖指数':{display:'20',fetched_at:null},
+    '米10年金利':{display:'<img src=x onerror=bad()>'}
+  }}));
+  app.event('DOMContentLoaded');
+  assert.equal(Object.keys(app.context._mktCache).join(','),'日経225');
+  assert.equal(app.context._mktCache['日経225'].fetched_at,stamp-3600);
+  assert.equal(app.context._mktCache['日経225'].price,100);
+  assert.equal(app.context.__knHomeABase.fetched_at,stamp-3600);
+  assert.equal(app.nodes['morning-update-time'].textContent,'--');
+  assert.match(app.nodes['morning-idx-grid'].innerHTML,/100 ▲1%/);
+  assert.equal(app.requests.length,2);
+});
+
+test('API market rows are normalized before rendering and persistent storage',async()=>{
+  const app=harness();useActualMarketGrid(app);app.event('DOMContentLoaded');
+  const stamp=app.now()/1000;
+  await app.reply(app.requests[1],{fetched_at:stamp,updated:'09:00',market:{
+    '日経225':{display:'100 ▲1%',price:100,fetched_at:stamp-60},
+    'ドル円':{display:123},'米10年金利':{display:'4.2',pct:'unknown'}
+  }});
+  const stored=JSON.parse(app.storage.get('kn_market_v1'));
+  assert.deepEqual(Object.keys(stored.market),['日経225']);
+  assert.equal(stored.fetched_at,stamp-60);assert.equal(stored.market['日経225'].fetched_at,stamp-60);
+  assert.equal(Object.keys(app.context._mktCache).join(','),'日経225');
+  assert.match(app.nodes['morning-idx-grid'].innerHTML,/100 ▲1%/);
+});
+
+test('entirely malformed API market data preserves valid prices and leaves news usable',async()=>{
+  for(const payload of [null,{market:[]},{market:{'日経225':{display:123}},fetched_at:Date.UTC(2026,8,12)/1000}]){
+    const app=harness();useActualMarketGrid(app);app.storage.set('kn_market_v1',JSON.stringify(app.market()));
+    app.event('DOMContentLoaded');await app.reply(app.requests[1],payload);await app.reply(app.requests[0],app.news());
+    assert.equal(app.context._mktCache['日経225'].display,'100 ▲1%');
+    assert.match(app.nodes['morning-idx-grid'].innerHTML,/100 ▲1%/);
+    assert.match(app.nodes['morning-news-content'].innerHTML,/今日のニュース/);
+    assert.equal(JSON.parse(app.storage.get('kn_market_v1')).market['日経225'].display,'100 ▲1%');
+  }
+});
+
 test('pre-policy cache is never used, even when its retrieval time is recent',()=>{
   const app=harness();
   const legacy=app.news('ja',{policy_version:1,news:[{source:'NHK経済',title:'日付未確認の旧見出し'}]});
@@ -508,6 +772,8 @@ test('yesterday cannot reappear from cache when the network fails after JST midn
   await app.reply(app.requests[0],app.news());
   app.advance(2000);
   for(const timer of app.intervals.values())timer.fn();
+  assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('今日のニュース'));
+  app.context.loadMorningNews();
   const request=app.requests.findLast(r=>r.url.includes('morning-news'));
   assert.notEqual(request,app.requests[0]);
   assert.ok(!app.nodes['morning-news-content'].innerHTML.includes('今日のニュース'));

@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 
 from flask import Flask, request
 from news_initial import (NEWS_PLACEHOLDER, initial_news,
-                          news_index_response, render_initial_html, render_news_markup)
+                          news_index_response, render_initial_html, render_news_markup, render_initial_market)
 
 
 ROOT = Path(__file__).parents[1]
@@ -75,6 +75,20 @@ class ParsedInitial(HTMLParser):
 
 
 class InitialSelectionTests(unittest.TestCase):
+    def test_market_values_arrive_in_first_html_with_original_time_and_safe_json(self):
+        quote = {'price': 42000, 'pct': 1, 'change_value': 420,
+                 'currency': 'JPY', 'change_unit': 'currency',
+                 'display': '42,000 </script><script>bad()</script>', 'fetched_at': NOW - 3600}
+        data = {'market': {'日経225': quote}, 'fetched_at': NOW - 3600, 'stale': True}
+        html = render_initial_market('<head></head><body></body>', data, now=NOW)
+        self.assertIn('id="knInitialMarket"', html)
+        self.assertNotIn('<script>bad()', html)
+        payload = json.loads(html.split('id="knInitialMarket">', 1)[1].split('</script>', 1)[0])
+        self.assertEqual(payload['market']['日経225']['fetched_at'], NOW - 3600)
+        self.assertEqual(payload['market']['日経225']['price'], 42000)
+        expired = {**data, 'market': {'日経225': {**quote, 'fetched_at': NOW - 7 * 86400}}}
+        self.assertNotIn('knInitialMarket', render_initial_market('<head></head>', expired, now=NOW))
+
     def test_article_summaries_are_readable_together_inside_more_with_escaped_copy(self):
         first = article()
         second = {**article('Second article'), 'url': 'https://reuters.example/current', 'source': 'ロイター経済'}
@@ -122,7 +136,9 @@ class InitialSelectionTests(unittest.TestCase):
         expired = live([article('Corrected headline')], source_fetched_at={'NHK経済': NOW - 901})
         self.assertIsNone(initial_news(expired, now=NOW, reviewed_digests=[authored]))
         self.assertIsNone(initial_news(cold(), now=NOW, reviewed_digests=[{**authored, 'reviewed_at': NOW + 1}]))
-        self.assertIsNone(initial_news(cold(), now=timestamp('2026-09-22T15:00:00Z'), reviewed_digests=[authored]))
+        retained = initial_news(cold(), now=timestamp('2026-09-22T15:00:00Z'), reviewed_digests=[authored])
+        self.assertEqual(retained['edition_date'], '2026-09-22')
+        self.assertIn('2026/09/22 掲載', render_news_markup(retained))
 
     def test_cold_publication_is_readable_without_fabricated_retrieval_time(self):
         reviews = [review()]
@@ -264,7 +280,8 @@ class InitialResponseTests(unittest.TestCase):
         node = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'index')
         app = Flask('real-index-wrapper', root_path=str(ROOT))
         context = {'app': app, 'os': os, 'request': request, 'news_cache': self.cache,
-                   'news_index_response': lambda path, cache, req: news_index_response(path, cache, req, now=NOW)}
+                   'initial_market_payload': lambda: {'market': {}},
+                   'news_index_response': lambda path, cache, req, **kwargs: news_index_response(path, cache, req, now=NOW, **kwargs)}
         exec(compile(ast.Module(body=[node], type_ignores=[]), 'index-wrapper', 'exec'), context)
         response = app.test_client().get('/')
         html = response.get_data(as_text=True)

@@ -8,6 +8,7 @@ import json
 import time
 
 from flask import Response
+from market_snapshot import validated_market
 from news_cache import (JST, WEB_NEWS_SOURCES, _publication_time, _validated_digest,
                         load_reviewed_digests, load_reviewed_supplements,
                         select_daily_news)
@@ -145,7 +146,18 @@ def render_initial_html(html, data):
     return html.replace(NEWS_PLACEHOLDER, replacement, 1)
 
 
-def news_index_response(html_path, cache, request, *, now=None):
+def render_initial_market(html, data, *, now=None):
+    now = time.time() if now is None else now
+    market = validated_market(data, now)
+    if not market:
+        return html
+    payload = {**data, "market": market}
+    serialized = json.dumps(payload, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
+    serialized = serialized.replace("<", "\\u003c").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
+    return html.replace('</head>', '<script type="application/json" id="knInitialMarket">' + serialized + '</script></head>', 1)
+
+
+def news_index_response(html_path, cache, request, *, now=None, market_payload=None):
     # Start all feed refreshes before file reads/rendering, but never wait for
     # external traffic before returning the HTML and published edition.
     snapshot = cache.snapshot(wait=False)
@@ -153,7 +165,8 @@ def news_index_response(html_path, cache, request, *, now=None):
     edition = datetime.fromtimestamp(now, JST).date().isoformat()
     data = initial_news(snapshot, now=now, reviewed_digests=load_reviewed_digests(),
                         reviewed_supplements=load_reviewed_supplements())
-    body = render_initial_html(Path(html_path).read_text(encoding="utf-8"), data).encode("utf-8")
+    html = render_initial_html(Path(html_path).read_text(encoding="utf-8"), data)
+    body = render_initial_market(html, market_payload, now=now).encode("utf-8")
     # Render's existing edge compression handles the wire representation.
     response = Response(body, mimetype="text/html")
     response.cache_control.no_cache = True

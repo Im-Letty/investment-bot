@@ -10,6 +10,8 @@ import threading
 import time
 import gc
 import math
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from market_snapshot import CORE_MARKETS, MarketSnapshot
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
@@ -732,42 +734,55 @@ def _market_quote_units(symbol, currency=""):
     return currency, "currency"
 
 
-def fetch_market_data():
-    if _MKT_CACHE["data"] is not None and (time.time() - _MKT_CACHE["ts"]) < 60:
-        return _MKT_CACHE["data"]
-    tickers = {
-        "日経225":    "^N225",
-        "ドル円":     "JPY=X",
-        "米10年金利": "^TNX",
-        "S&P500":    "^GSPC",
-        "NYダウ":     "^DJI",
-        "VIX恐怖指数":"^VIX",
+def _fetch_market_quote(label, symbol):
+    # history includes the current trading session. Reusing its close avoids a
+    # second fast_info network request and keeps both changes on the same basis.
+    hist = yf.Ticker(symbol).history(period="5d", timeout=8)
+    if len(hist) < 1:
+        return None
+    prev = hist["Close"].iloc[-2] if len(hist) >= 2 else None
+    val, pct, change_value = _market_change_values(hist["Close"].iloc[-1], prev)
+    currency, change_unit = _market_quote_units(symbol)
+    arrow = "▲" if pct is not None and pct >= 0 else "▼"
+    return label, {
+        "display": f"{val:,.2f}　{arrow}{abs(pct):.2f}%" if pct is not None else f"{val:,.2f}",
+        "pct": pct, "value": val, "price": val, "change_value": change_value,
+        "currency": currency, "change_unit": change_unit, "change": "--",
+        "fetched_at": time.time(),
     }
+
+
+def _load_market_snapshot():
     results = {}
-    for label, symbol in tickers.items():
-        try:
-            hist = yf.Ticker(symbol).history(period="5d")
-            if len(hist) >= 1:
-                prev = hist["Close"].iloc[-2] if len(hist) >= 2 else None
-                val, pct, change_value = _market_change_values(
-                    _rtp(symbol, hist["Close"].iloc[-1]), prev)
-                currency, change_unit = _market_quote_units(symbol)
-                arrow = "▲" if pct is not None and pct >= 0 else "▼"
-                results[label] = {
-                    "display": f"{val:,.2f}　{arrow}{abs(pct):.2f}%" if pct is not None else f"{val:,.2f}",
-                    "pct": pct,
-                    "value": val,
-                    "price": val,
-                    "change_value": change_value,
-                    "currency": currency,
-                    "change_unit": change_unit,
-                }
-        except Exception:
-            pass
-    if results:
-        _MKT_CACHE["ts"] = time.time()
-        _MKT_CACHE["data"] = results
-    return results
+    with ThreadPoolExecutor(max_workers=3, thread_name_prefix="market-quote") as pool:
+        jobs = [pool.submit(_fetch_market_quote, label, symbol)
+                for label, symbol in CORE_MARKETS.items()]
+        for job in as_completed(jobs):
+            try:
+                item = job.result()
+                if item:
+                    results[item[0]] = item[1]
+            except Exception:
+                pass
+    return {"market": results}
+
+
+_market_snapshot = MarketSnapshot(
+    _load_market_snapshot,
+    seed_path=os.path.join(app.root_path, "market-snapshot.json"),
+    cache_path=os.environ.get("MARKET_SNAPSHOT_PATH", "/tmp/kn-market-snapshot-v1.json"),
+)
+
+
+def initial_market_payload():
+    """Local snapshot for HTML and API; never wait for upstream quote requests."""
+    return _market_snapshot.payload()
+
+
+def fetch_market_data():
+    payload = initial_market_payload()
+    _MKT_CACHE.update(ts=payload["fetched_at"] or 0, data=payload["market"])
+    return payload["market"]
 
 def fetch_watchlist():
     results = []
@@ -1952,30 +1967,9 @@ def kakeibo():
 
 @app.route("/api/morning-data", methods=["GET"])
 def api_morning_data():
-    try:
-        market = fetch_market_data()
-        today = date.today().strftime("%Y/%m/%d")
-        weekdays = ["月","火","水","木","金","土","日"]
-        weekday = weekdays[date.today().weekday()]
-        result = {
-            "date": today + "(" + weekday + ")",
-            "market": {},
-            "updated": datetime.fromtimestamp(_MKT_CACHE["ts"]).strftime("%H:%M") if _MKT_CACHE["ts"] else "--",
-            "fetched_at": _MKT_CACHE["ts"] or None
-        }
-        for k, v in market.items():
-            result["market"][k] = {
-                "price": v.get("price", v.get("value")),
-                "pct": v.get("pct"),
-                "change_value": v.get("change_value"),
-                "currency": v.get("currency", ""),
-                "change_unit": v.get("change_unit"),
-                "change": v.get("change", "--"),
-                "display": v.get("display", "--")
-            }
-        return jsonify(result)
-    except Exception as e:
-        return jsonify({"error": str(e), "date": date.today().strftime("%Y/%m/%d"), "market": {}}), 200
+    response = jsonify(initial_market_payload())
+    response.headers["Cache-Control"] = "public, max-age=15, stale-while-revalidate=60"
+    return response
 
 _QUOTE_CACHE = {}  # {(symbol, light): (epoch, payload)} 60秒使い回しでyfinance連打を防ぐ
 _QUOTE_TTL = 60
@@ -2509,7 +2503,8 @@ try{var cs=await self.clients.matchAll({type:'window'});cs.forEach(function(c){c
 def index():
     # The current published edition is part of the first HTML response; external
     # feed refreshes run in the background without delaying readable content.
-    return news_index_response(os.path.join(app.root_path, "index.html"), news_cache, request)
+    return news_index_response(os.path.join(app.root_path, "index.html"), news_cache, request,
+                               market_payload=initial_market_payload())
 
 
 @app.after_request

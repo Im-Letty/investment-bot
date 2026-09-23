@@ -302,6 +302,12 @@ def _validated_digest(value):
                 or len(titles) != len(articles)):
             return None
         result.update(publication_mode="curated", reviewed_at=reviewed.timestamp())
+        if "publish_at" in value:
+            release = _publication_time(value["publish_at"])
+            if (release is None or release < reviewed
+                    or release.astimezone(JST).date().isoformat() != edition):
+                return None
+            result["publish_at"] = release.timestamp()
     return result
 
 
@@ -348,10 +354,18 @@ def _select_curated_digest(news, edition, now, reviewed_digests):
     for value in reviewed_digests:
         digest = _validated_digest(value)
         if (digest is not None and digest.get("publication_mode") == "curated"
-                and digest["edition_date"] == edition and digest["reviewed_at"] <= now):
+                and digest["edition_date"] <= edition and digest["reviewed_at"] <= now
+                and digest.get("publish_at", digest["reviewed_at"]) <= now):
             candidates.append(digest)
+    if not candidates:
+        return None, False
+    # A published issue remains readable through midnight and a missed update.
+    # A prepared issue enters the selection only at its explicit release time.
+    latest = max((item["edition_date"], item.get("publish_at", item["reviewed_at"])) for item in candidates)
+    candidates = [item for item in candidates
+                  if (item["edition_date"], item.get("publish_at", item["reviewed_at"])) == latest]
     if len(candidates) != 1:
-        return None
+        return None, True
     digest = candidates[0]
     by_url = {ref["url"]: ref for ref in digest["article_refs"]}
     for item in news:
@@ -360,8 +374,8 @@ def _select_curated_digest(news, edition, now, reviewed_digests):
             published = _publication_time(item.get("published_at"))
             if (item.get("source") != ref["source"] or item.get("title") != ref["title"]
                     or published is None or published.timestamp() != ref["published_at"]):
-                return None
-    return digest
+                return None, True
+    return digest, False
 
 
 def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=3,
@@ -458,7 +472,9 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
               "policy_version": 4, "edition_date": edition.isoformat(),
               "digest": _select_reviewed_digest(news, edition.isoformat(), reviewed_digests),
               "selection_status": status, "selection_counts": counts}
-    curated = _select_curated_digest(snapshot.get("news", []), edition.isoformat(), now, reviewed_digests)
+    curated, revoked = _select_curated_digest(snapshot.get("news", []), edition.isoformat(), now, reviewed_digests)
+    if revoked:
+        result["publication_revoked"] = True
     if (curated is not None and len(curated["article_refs"]) <= max(0, min(3, max_items))
             and (allowed_sources is None or all(ref["source"] in allowed_sources
                                                 for ref in curated["article_refs"]))):
@@ -466,9 +482,13 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
         # request. Retain source-level fetch diagnostics without fabricating a
         # combined retrieval timestamp or saving this as a fresh feed snapshot.
         result.update(delivery="published", fetched_at=None, stale=False,
-                      news=[{**deepcopy(ref), "published_date": edition.isoformat()}
+                      edition_date=curated["edition_date"],
+                      news=[{**deepcopy(ref), "published_date": datetime.fromtimestamp(ref["published_at"], JST).date().isoformat()}
                             for ref in curated["article_refs"]],
                       digest=curated, selection_status="ready")
+        if curated["edition_date"] != edition.isoformat():
+            # Today's contextual approvals are not part of an earlier issue.
+            result["supplements"] = []
     return result
 
 

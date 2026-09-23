@@ -7,9 +7,9 @@
 <link rel="stylesheet" href="/static/news-digest.css?v=20260922-plus1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
-<script defer src="/static/market-data.js?v=20260923-market-b1"></script>
+<script defer src="/static/market-data.js?v=20260923-instant1"></script>
 <script defer src="/static/news-orbit.js?v=20260913-controls3"></script>
-<script defer src="/static/home-a.js?v=20260923-market-b1"></script>
+<script defer src="/static/home-a.js?v=20260923-instant1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -277,7 +277,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.__KN_HOME_A)re
 .drawer-color-reset{width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:0.78rem;padding:6px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;font-family:inherit;}
 .drawer-color-reset:hover{background:rgba(255,255,255,0.25);}
 .morning-news-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#999;font-size:0.8rem;font-weight:400;}.morning-news-loading::before{display:none;}@keyframes mn-spin{to{transform:rotate(360deg);}}.mn-movers-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#999;font-size:0.8rem;font-weight:400;}.mn-movers-loading::before{display:none;}.hero,.mc,.sim-card,#teachCard,.morning-banner,#skBanner{box-shadow:0 10px 30px -12px rgba(20,83,45,0.18),0 2px 6px rgba(20,83,45,0.05);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform;}.hero:hover,.mc:hover,.sim-card:hover,#teachCard:hover,.morning-banner:hover,#skBanner:hover{transform:translateY(-6px);box-shadow:0 22px 44px -14px rgba(20,83,45,0.28),0 4px 10px rgba(20,83,45,0.08);}#myPageCard,#talkCard,#safeBadge{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform;}#myPageCard:hover,#talkCard:hover,#safeBadge:hover{transform:translateY(-6px);}:root{--plan-radius:12px;--plan-border:#e3e8e3;--plan-bg:#fff;--plan-title:#2e7d50;--plan-sub:#777;--plan-title-size:14.5px;--plan-sub-size:12px;}.ts-opt,.bg-item{border:1px solid var(--plan-border);border-radius:var(--plan-radius);background:var(--plan-bg);}.bg-item{padding:12px 14px;border-bottom:1px solid var(--plan-border);margin-bottom:9px;}.bg-item:last-child{border-bottom:1px solid var(--plan-border);margin-bottom:0;}.ts-opt{padding:13px 14px;}.ts-name,.bg-it-t{color:var(--plan-title);font-size:var(--plan-title-size);font-weight:600;}.ts-rate,.bg-it-d{color:var(--plan-sub);font-size:var(--plan-sub-size);}</style>
-  <script src="/static/morning-feed.js?v=20260922-plus1" defer></script>
+  <script src="/static/morning-feed.js?v=20260923-instant1" defer></script>
 <style id="knHideHomeTicker">/* Hide the home-screen ticker bar (keep #tickerInner2 for existing JS). Morning-letter bar is unaffected. */
 #lp-section .ticker-wrap{display:none !important;}</style>
 <script>

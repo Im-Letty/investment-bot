@@ -484,7 +484,47 @@ class ReviewedDigestTests(unittest.TestCase):
         self.assertIsNone(self.select([], [review, review])['digest'])
         tomorrow = select_daily_news({'news': []}, now=timestamp('2026-09-22T15:00:00Z'),
                                      reviewed_digests=[review])
-        self.assertIsNone(tomorrow['digest'])
+        self.assertEqual(tomorrow['digest'], review)
+        self.assertEqual(tomorrow['edition_date'], '2026-09-22')
+
+    def test_next_curated_edition_releases_at_eight_and_keeps_original_dates(self):
+        previous_items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        previous = self.curated(previous_items)
+        next_items = [article('Next domestic', '2026-09-22T21:00:00Z'),
+                      article('Next foreign', '2026-09-22T21:30:00Z', source='ロイター経済')]
+        next_review = {**self.curated(next_items), 'edition_date': '2026-09-23',
+                       'reviewed_at': timestamp('2026-09-22T22:30:00Z'),
+                       'publish_at': timestamp('2026-09-22T23:00:00Z')}
+        for at, expected in [('2026-09-22T15:00:00Z', previous),
+                             ('2026-09-22T22:59:59Z', previous),
+                             ('2026-09-22T23:00:00Z', next_review),
+                             ('2026-09-24T23:00:00Z', next_review)]:
+            with self.subTest(at=at):
+                result = select_daily_news({'news': []}, now=timestamp(at),
+                                          reviewed_digests=[next_review, previous])
+                self.assertEqual(result['digest'], expected)
+                self.assertEqual(result['edition_date'], expected['edition_date'])
+                self.assertTrue(all(item['published_date'] == expected['edition_date'] for item in result['news']))
+
+    def test_release_cannot_precede_review_and_identity_conflict_revokes_retained_edition(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        review = self.curated(items)
+        for release in (True, None, review['reviewed_at'] - 1, timestamp('2026-09-23T23:00:00Z')):
+            self.assertIsNone(self.select([], [{**review, 'publish_at': release}])['digest'])
+        changed = [{**items[0], 'title': 'Corrected fact'}]
+        result = select_daily_news({'news': changed}, now=timestamp('2026-09-23T00:00:00Z'),
+                                   reviewed_digests=[review])
+        self.assertIsNone(result['digest'])
+        self.assertTrue(result['publication_revoked'])
+
+    def test_retained_edition_does_not_inherit_new_days_context(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        extra = article('Separate context')
+        result = select_daily_news({'news': [extra]}, now=timestamp('2026-09-23T00:00:00Z'),
+                                   reviewed_digests=[self.curated(items)],
+                                   reviewed_supplements=[{'url': extra['url'], 'reason': 'Important current context'}])
+        self.assertEqual(result['edition_date'], '2026-09-22')
+        self.assertEqual(result['supplements'], [])
 
     def test_digest_covers_exact_selected_original_articles_without_mutation(self):
         items = [article('Domestic'), article('Overseas', source='ロイター経済')]
@@ -631,6 +671,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         cache = Mock(); cache.snapshot.return_value = {'news': []}
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'file-routes', 'exec'),
              dict(app=app, request=request, send_file=send_file, re=re, os=os,
+                  initial_market_payload=lambda: {'market': {}},
                   news_index_response=news_index_response, news_cache=cache))
         client = app.test_client()
         first = client.get('/')

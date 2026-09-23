@@ -38,5 +38,46 @@
         "summary": "21日のアメリカでは、イランをめぐる不安がやわらぎ、AI（人工知能）に関わる会社などの株を買う動きが広がりました。株は会社の一部を持つ権利で、売り買いする値段が変わります。\n\n新しい技術を扱う会社の株が多い「ナスダック総合指数」は、取引を終えた時点で約3か月半ぶりに過去最高になりました。これは、たくさんの会社の株の値動きを一つの数字にまとめたものです。こうした会社の株を持つ人にとっては、自分の資産の価値に関わる動きです。\n\nこれからは、イランをめぐる状況が変わったときに、株を買う動きが続くかを見ていきましょう。"
       }
     ]
+  },
+  {
+    "edition_date": "2026-09-23",
+    "lang": "ja",
+    "headline": "原油は値下がり、円は157円台",
+    "summary": "23日の経済ニュースは、原油と円の動きです。ガソリンなどの原料になる原油は、サウジアラビアの輸送用パイプが再開し、届く量が増えるとの期待から値下がりしました。一方、米国でお金を借りるときなどの利率（金利）が上がるとの見方がドルを支え、円は１ドル157円台でした。\n日本では、原油高や円安が海外から物を買う費用を増やします。原油が下がっても、暮らしの負担がすぐ軽くなるとは限りません。今後は原油の輸出の回復と中東での話し合い、日米の金利の動きが注目されます。",
+    "article_refs": [
+      {
+        "source": "ロイター経済",
+        "url": "https://sa.marketscreener.com/news/oil-falls-1-on-better-supply-outlook-hopes-for-us-iran-talks-ce785ad9db88f522",
+        "published_at": 1790138700.0,
+        "title": "Oil falls $1 on better supply outlook, hopes for US-Iran talks"
+      },
+      {
+        "source": "ロイター経済",
+        "url": "https://hk.marketscreener.com/news/dollar-holds-near-2-month-high-as-markets-weigh-rate-hikes-iran-diplomacy-ce785ad9d88ff025",
+        "published_at": 1790127540.0,
+        "title": "Dollar holds near 2-month high as markets weigh rate hikes, Iran diplomacy"
+      }
+    ],
+    "article_summaries": [
+      {
+        "source": "ロイター経済",
+        "url": "https://sa.marketscreener.com/news/oil-falls-1-on-better-supply-outlook-hopes-for-us-iran-talks-ce785ad9db88f522",
+        "published_at": 1790138700.0,
+        "title": "Oil falls $1 on better supply outlook, hopes for US-Iran talks",
+        "headline": "原油が届く量の回復に期待、価格が下がる",
+        "summary": "23日、ガソリンなどの原料になる原油が値下がりを続け、約２週間ぶりの安さになりました。\nサウジアラビアで原油を運ぶパイプが再開し、中東から届く量が増えるとの期待が広がりました。米国とイランの話し合いが進むとの期待も背景にあります。代表的な原油の価格は、日本時間午後１時21分に前日より1.1％安くなりました。\n日本では原油高が物の値段を押し上げる要因になります。ただし、和平が決まったという報道ではありません。輸出の回復と話し合いの進み方が、次の確認点です。"
+      },
+      {
+        "source": "ロイター経済",
+        "url": "https://hk.marketscreener.com/news/dollar-holds-near-2-month-high-as-markets-weigh-rate-hikes-iran-diplomacy-ce785ad9d88ff025",
+        "published_at": 1790127540.0,
+        "title": "Dollar holds near 2-month high as markets weigh rate hikes, Iran diplomacy",
+        "headline": "米国の金利上昇を意識、円は157円台",
+        "summary": "23日に報じられた取引では、円は１ドル157.55円でした。米国でお金を借りるときなどの利率（金利）が上がるとの見方が、ドルを支えています。\n日本の金利を決める日銀は先週、金利を引き上げました。それでも、今後どのくらいの速さで上げるのか分からない、との見方が広がりました。政府などが円を買って円安を抑える「為替介入」への警戒も続いています。\n一般に円安は、海外から物を買う費用を増やします。介入の実施は確定しておらず、次の日米の金利判断や政府の対応が注目されます。"
+      }
+    ],
+    "publication_mode": "curated",
+    "reviewed_at": 1790147814.395807,
+    "publish_at": 1790147814.395807
   }
 ]

@@ -153,3 +153,51 @@ test('small FX moves remain visible and localization keeps a numeric sign withou
   assert.equal(formatChange({change_value:-28,pct:-0.5},catalog.find(x=>x.id==='S&P500'),'en').amount,'−28.00 pt');
   assert.equal(formatChange({change_value:0.025,pct:0.5},catalog.find(x=>x.id==='米10年金利'),'zh').amount,'+0.025个百分点');
 });
+test('core prices render from persistent storage on a new visit before a network response',()=>{
+  const app=harness({morn_sel:'["日経225","ドル円"]'});
+  const quote={price:42000,pct:1,change_value:420,currency:'JPY',display:'42,000 ▲1%'};
+  app.model.acceptBase({market:{'日経225':quote},fetched_at:1789250000});
+  const reopened=harness(Object.fromEntries(app.storage));
+  assert.equal(reopened.requests.length,0);
+  assert.equal(reopened.model.rows()[0].quote.price,42000);
+  assert.equal(reopened.model.rows()[0].quote.change_value,420);
+  assert.equal(reopened.model.rows()[0].at,1789250000000);
+});
+test('saved prices older than a day remain visible with their real timestamp until a week',()=>{
+  const saved={AAPL:{at:1789250000000-3*86400000,quote:{price:123,pct:1}}};
+  const app=harness({morn_sel:'["AAPL"]',kn_market_quotes_v2:JSON.stringify(saved)});
+  assert.equal(app.model.rows()[0].quote.price,123);
+  assert.equal(app.model.rows()[0].stale,true);
+  saved.AAPL.at=1789250000000-7*86400000;
+  const expired=harness({morn_sel:'["AAPL"]',kn_market_quotes_v2:JSON.stringify(saved)});
+  assert.equal(expired.model.rows()[0].quote,undefined);
+});
+test('partial background updates retain separate quote timestamps',()=>{
+  const app=harness({morn_sel:'["日経225","ドル円"]'});
+  app.model.acceptBase({market:{
+    '日経225':{price:42000,pct:1,display:'42,000 ▲1%',fetched_at:1789250000},
+    'ドル円':{price:150,pct:0,display:'150',fetched_at:1789249800}
+  },fetched_at:1789250000,refreshing:true});
+  assert.equal(app.model.rows()[0].at,1789250000000);
+  assert.equal(app.model.rows()[0].stale,false);
+  assert.equal(app.model.rows()[1].at,1789249800000);
+  assert.equal(app.model.rows()[1].stale,true);
+  assert.equal(app.model.rows()[1].failed,false);
+});
+test('an older HTML snapshot cannot replace newer local prices',()=>{
+  const cache={'^N225':{at:1789250000000,quote:{price:43000,pct:1,change_value:400}}};
+  const app=harness({morn_sel:'["日経225"]',kn_market_quotes_v2:JSON.stringify(cache)});
+  app.model.acceptBase({market:{'日経225':{price:42000,pct:1,display:'42,000 ▲1%',change_value:420}},fetched_at:1789249800});
+  const row=app.model.rows()[0];
+  assert.equal(row.quote.price,43000);
+  assert.equal(row.quote.change_value,400);
+  assert.equal(row.at,1789250000000);
+  assert.equal(JSON.parse(app.storage.get('kn_market_quotes_v2'))['^N225'].at,1789250000000);
+});
+test('an empty refreshing server response is pending, not a failed update',()=>{
+  const app=harness();
+  app.model.acceptBase({market:{},fetched_at:null,refreshing:true});
+  assert.ok(app.model.rows().every(row=>row.pending&&!row.failed));
+  app.model.acceptBase({market:{},fetched_at:null,refreshing:false});
+  assert.ok(app.model.rows().every(row=>!row.pending&&row.failed));
+});

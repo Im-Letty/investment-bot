@@ -2,6 +2,8 @@
 
 import ast
 from datetime import date, datetime
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import threading
 import math
 from pathlib import Path
 from types import SimpleNamespace
@@ -9,6 +11,7 @@ import unittest
 from unittest.mock import Mock
 
 from flask import Flask, jsonify, request
+from market_snapshot import CORE_MARKETS, MarketSnapshot
 
 
 ROOT = Path(__file__).parents[1]
@@ -47,6 +50,7 @@ class MarketQuoteTests(unittest.TestCase):
         # Importing line_bot would initialize paid APIs and production provisioning.
         tree = ast.parse((ROOT / 'line_bot.py').read_text(encoding='utf-8'))
         names = {'_rtp', '_market_change_values', '_market_quote_units',
+                 '_fetch_market_quote', '_load_market_snapshot', 'initial_market_payload',
                  'fetch_market_data', 'api_morning_data', 'api_quote'}
         nodes = [node for node in tree.body
                  if isinstance(node, ast.FunctionDef) and node.name in names]
@@ -58,10 +62,18 @@ class MarketQuoteTests(unittest.TestCase):
                             time=SimpleNamespace(time=lambda: 1000.0),
                             yf=SimpleNamespace(Ticker=self.ticker_factory),
                             _MKT_CACHE={'ts': 0, 'data': None},
-                            _QUOTE_CACHE={}, _QUOTE_TTL=60)
+                            _QUOTE_CACHE={}, _QUOTE_TTL=60,
+                            ThreadPoolExecutor=ThreadPoolExecutor, as_completed=as_completed,
+                            CORE_MARKETS=CORE_MARKETS)
         exec(compile(ast.Module(body=nodes, type_ignores=[]),
                      str(ROOT / 'line_bot.py'), 'exec'), self.context)
+        self.context['_market_snapshot'] = MarketSnapshot(
+            lambda:self.context['_load_market_snapshot'](), now=lambda:1000)
         self.client = self.app.test_client()
+
+    def prime_market(self):
+        # Warm the snapshot explicitly; an HTTP request must never do this work.
+        self.context['_market_snapshot']._refresh()
 
     def quote(self, symbol, closes, current, *, light=True, info=None):
         self.tickers[symbol] = FakeTicker(closes, current, info)
@@ -79,7 +91,8 @@ class MarketQuoteTests(unittest.TestCase):
         }
         labels = ['日経225', 'ドル円', '米10年金利', 'S&P500', 'NYダウ', 'VIX恐怖指数']
         for symbol, (previous, current, _, _) in values.items():
-            self.tickers[symbol] = FakeTicker([previous, previous + 1], current)
+            self.tickers[symbol] = FakeTicker([previous, current], current)
+        self.prime_market()
         response = self.client.get('/api/morning-data')
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
@@ -94,10 +107,35 @@ class MarketQuoteTests(unittest.TestCase):
                 self.assertEqual(quote['change_unit'], unit)
                 self.assertEqual(quote['change'], '--')  # Existing legacy field.
         self.assertEqual(data['market']['日経225']['display'], '42,020.12　▲1.01%')
-        self.assertEqual(self.context['_MKT_CACHE']['data']['日経225']['value'], 42020.123456)
+        self.assertEqual(data['market']['日経225']['value'], 42020.123456)
+        self.assertEqual(response.headers['Cache-Control'], 'public, max-age=15, stale-while-revalidate=60')
+        self.assertFalse(data['refreshing'])
+        for ticker in self.tickers.values():
+            ticker.history.assert_called_once_with(period='5d', timeout=8)
+            self.assertEqual(ticker.info_reads, 0)
         calls = self.ticker_factory.call_count
         self.assertEqual(self.client.get('/api/morning-data').get_json(), data)
         self.assertEqual(self.ticker_factory.call_count, calls)
+
+    def test_morning_api_returns_saved_prices_while_provider_is_blocked(self):
+        entered, release = threading.Event(), threading.Event()
+        def load():
+            entered.set(); release.wait(2)
+            return {"market": {}}
+        snapshot = MarketSnapshot(load, now=lambda:1000)
+        snapshot._market = {'日経225':{'price':42000,'display':'42,000','pct':None,
+                                    'change_value':None,'fetched_at':900}}
+        self.context['_market_snapshot'] = snapshot
+        try:
+            response = self.client.get('/api/morning-data')
+            self.assertTrue(entered.wait(1))
+            data = response.get_json()
+            self.assertEqual(data['market']['日経225']['price'],42000)
+            self.assertEqual(data['market']['日経225']['fetched_at'],900)
+            self.assertTrue(data['refreshing'])
+            self.assertEqual(self.ticker_factory.call_count,0)
+        finally:
+            release.set();snapshot._thread.join(2)
 
     def test_quote_absolute_change_is_not_reconstructed_from_rounded_percent(self):
         response = self.quote('7203.T', [41600, 41900], 42020.123456)
@@ -127,7 +165,8 @@ class MarketQuoteTests(unittest.TestCase):
         self.assertIsNone(data['pct'])
         self.assertEqual(data['display'], '10,100.00')
         self.assertEqual(data['change'], '--')
-        self.tickers['^N225'] = FakeTicker([42000], 42100)
+        self.tickers['^N225'] = FakeTicker([42100], 42100)
+        self.prime_market()
         morning = self.client.get('/api/morning-data').get_json()['market']['日経225']
         self.assertEqual(morning['price'], 42100)
         self.assertIsNone(morning['change_value'])

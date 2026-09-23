@@ -40,7 +40,8 @@
       if(row.failed)note=(row.quote||row.display)?text('updating'):text('failed');
       else if(!row.quote&&!row.display)note=text('loading');
       else if(!hasChange)note=text('nodiff');
-      var time=row.at?new Date(row.at).toLocaleString(lang(),{month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'}):'';
+      var time=row.at?new Date(row.at).toLocaleString(lang(),{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' JST':'';
+      if(row.stale&&time)note=({ja:'取得 ',en:'Retrieved ',ko:'가져옴 ',zh:'获取 '}[lang()])+time;
       return '<div class="kn-a-quote" title="'+esc(item.label+(time?' · '+time:''))+'"><div class="kn-a-quote-name">'+esc(item.label)+'</div><div class="kn-a-quote-value">'+esc(price)+'</div><div class="kn-a-quote-change is-'+movement.direction+'">'+(change||esc(note))+'</div>'+(hasChange&&note?'<div class="kn-a-quote-note">'+esc(note)+'</div>':'')+'</div>';
     }).join(''));
     var retry=document.getElementById('knMarketRetry');if(retry)retry.hidden=!anyFailure;

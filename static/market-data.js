@@ -7,7 +7,7 @@
   'use strict';
   var DEFAULTS = ['日経225', 'ドル円', 'S&P500', 'NYダウ'];
   var SYMBOL = /^[A-Z0-9^][A-Z0-9.^=\-]{0,24}$/;
-  var TTL = 60000, RETAIN = 86400000, RETRY = 30000;
+  var TTL = 60000, RETAIN = 7 * 86400000, RETRY = 30000;
   function normalize(value) { return String(value || '').normalize('NFKC').trim().toUpperCase(); }
   function validQuote(q) { return q && Number.isFinite(q.price) && q.price > 0 && (q.pct == null || Number.isFinite(q.pct)); }
   // Absolute movement comes from the quote itself, never from its rounded percent.
@@ -45,7 +45,7 @@
   function create(options) {
     var storage = options.storage, clock = options.now || Date.now;
     var catalog = options.catalog.slice(), cache = Object.create(null), pending = Object.create(null), failed = Object.create(null);
-    var selected = [], base = Object.create(null), baseTimes = Object.create(null), baseMissing = Object.create(null), baseSeen = false, coreFailed = false;
+    var selected = [], base = Object.create(null), baseTimes = Object.create(null), baseMissing = Object.create(null), baseSeen = false, baseRefreshing = false, coreFailed = false;
     function read(key) { try { return JSON.parse(storage.getItem(key) || 'null'); } catch (_) { return null; } }
     function save(key, value) { try { storage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } }
     function emit() { if (options.onChange) options.onChange(); }
@@ -117,11 +117,11 @@
         if (item.baseKey) {
           var source = base && base[item.baseKey], record = cache[item.symbol];
           var unavailable = coreFailed || !!baseMissing[item.baseKey];
-          if (source && typeof source.display === 'string' && source.display && source.display !== '--') return {item:item, display:source.display, quote:validQuote(source)?source:undefined, at:baseTimes[item.baseKey], failed:unavailable, pending:false};
-          return {item:item, quote:record && record.quote, at:record && record.at, failed:unavailable, pending:!baseSeen&&!unavailable};
+          if (source && typeof source.display === 'string' && source.display && source.display !== '--' && (!record || baseTimes[item.baseKey] >= record.at)) return {item:item, display:source.display, quote:validQuote(source)?source:undefined, at:baseTimes[item.baseKey], failed:unavailable, pending:false, stale:clock()-baseTimes[item.baseKey]>=TTL};
+          return {item:item, quote:record && record.quote, at:record && record.at, failed:unavailable, pending:(!baseSeen||baseRefreshing)&&!unavailable, stale:!!record&&clock()-record.at>=TTL};
         }
         var record = cache[item.symbol];
-        return {item:item, quote:record && record.quote, at:record && record.at, failed:failed[item.symbol]!=null, pending:!!pending[item.symbol]};
+        return {item:item, quote:record && record.quote, at:record && record.at, failed:failed[item.symbol]!=null, pending:!!pending[item.symbol], stale:!!record&&clock()-record.at>=TTL};
       });
     }
     return {
@@ -134,13 +134,17 @@
       },
       acceptBase: function(data) {
         if (!data || !data.market) return;
-        baseSeen=true;coreFailed=false;
+        baseSeen=true;baseRefreshing=!!data.refreshing;coreFailed=false;
         catalog.filter(function(item){return item.baseKey;}).forEach(function(item){
           var source=data.market[item.baseKey];
           if(source&&typeof source.display==='string'&&source.display&&source.display!=='--'){
-            base[item.baseKey]=source;baseTimes[item.baseKey]=Number.isFinite(data.fetched_at)?data.fetched_at*1000:clock();delete baseMissing[item.baseKey];
-          }else baseMissing[item.baseKey]=true;
+            var at=Number.isFinite(source.fetched_at)?source.fetched_at*1000:Number.isFinite(data.fetched_at)?data.fetched_at*1000:clock();
+            if(!baseTimes[item.baseKey]||at>=baseTimes[item.baseKey]){base[item.baseKey]=source;baseTimes[item.baseKey]=at;}
+            if(validQuote(source)&&(!cache[item.symbol]||at>=cache[item.symbol].at))cache[item.symbol]={quote:source,at:at};
+            delete baseMissing[item.baseKey];
+          }else baseMissing[item.baseKey]=!baseRefreshing;
         });
+        saveCache();
         emit();
       },
       baseFailed: function() { coreFailed=true; emit(); },

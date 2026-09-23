@@ -1,0 +1,72 @@
+{
+  "source": "https://investment-bot-ta24.onrender.com/api/morning-data",
+  "fetched_at": 1790147324.1736562,
+  "market": {
+    "NYダウ": {
+      "price": 51863.69,
+      "pct": -0.35570085181432254,
+      "change_value": -185.13812499999767,
+      "currency": "",
+      "change_unit": "points",
+      "change": "--",
+      "display": "51,863.69　▼0.36%",
+      "value": 51863.69,
+      "fetched_at": 1790147324.1736562
+    },
+    "S&P500": {
+      "price": 7764.64,
+      "pct": -0.0007752432287857309,
+      "change_value": -0.06019531249967258,
+      "currency": "",
+      "change_unit": "points",
+      "change": "--",
+      "display": "7,764.64　▼0.00%",
+      "value": 7764.64,
+      "fetched_at": 1790147324.1736562
+    },
+    "VIX恐怖指数": {
+      "price": 14.21,
+      "pct": -4.0513193964664795,
+      "change_value": -0.6000004196166984,
+      "currency": "",
+      "change_unit": "points",
+      "change": "--",
+      "display": "14.21　▼4.05%",
+      "value": 14.21,
+      "fetched_at": 1790147324.1736562
+    },
+    "ドル円": {
+      "price": 157.76499938964844,
+      "pct": 0.25163538273507063,
+      "change_value": 0.39599609375,
+      "currency": "JPY",
+      "change_unit": "currency",
+      "change": "--",
+      "display": "157.76　▲0.25%",
+      "value": 157.76499938964844,
+      "fetched_at": 1790147324.1736562
+    },
+    "日経225": {
+      "price": 65018.94921875,
+      "pct": 1.3762875421466019,
+      "change_value": 882.69921875,
+      "currency": "JPY",
+      "change_unit": "currency",
+      "change": "--",
+      "display": "65,018.95　▲1.38%",
+      "value": 65018.94921875,
+      "fetched_at": 1790147324.1736562
+    },
+    "米10年金利": {
+      "price": 4.968,
+      "pct": -0.6002429789594423,
+      "change_value": -0.030000144958496122,
+      "currency": "",
+      "change_unit": "percentage_points",
+      "change": "--",
+      "display": "4.97　▼0.60%",
+      "value": 4.968,
+      "fetched_at": 1790147324.1736562
+    }
+  }
+}
