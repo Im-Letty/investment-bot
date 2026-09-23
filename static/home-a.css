@@ -39,7 +39,7 @@ body.kn-home-a .kn-a-wordmark-en {font:400 calc(12px * var(--kn-a-scale,1))/1.6 
 body.kn-home-a #knHomeADate {display:flex;align-items:center;justify-content:center;gap:10px;font-size:calc(13px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted);margin-top:19px}
 body.kn-home-a #knHomeADate svg {width:19px;height:19px;color:#a58d54}
 body.kn-home-a #knHomeMarkets {background:var(--kn-a-paper);padding:15px max(22px,calc((100% - 1010px)/2)) 13px;border-bottom:1px solid var(--kn-a-line);color:var(--kn-a-ink)}
-body.kn-home-a .kn-a-market-heading {display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;color:var(--kn-a-muted);font-size:calc(13px * var(--kn-a-scale,1))!important}
+body.kn-home-a .kn-a-market-heading {display:flex;justify-content:flex-end;align-items:center;margin-bottom:12px;color:var(--kn-a-muted);font-size:calc(13px * var(--kn-a-scale,1))!important}
 body.kn-home-a #knMarketOpen {display:flex;align-items:center;gap:5px;padding:5px 0 5px 8px;border:0;background:none;color:inherit;font:inherit;cursor:pointer}
 body.kn-home-a #knMarketOpen svg {width:15px;height:15px}
 body.kn-home-a #knHomeMarketGrid {display:flex;overflow-x:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:var(--kn-a-line) transparent;padding-bottom:3px}
