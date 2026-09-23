@@ -5,13 +5,13 @@
 <link rel="stylesheet" href="/static/home-a.css?v=20260923-market-b1">
 <link rel="stylesheet" href="/static/news-orbit.css?v=20260917-caption-b1">
 <link rel="stylesheet" href="/static/news-digest.css?v=20260922-plus1">
-<link rel="stylesheet" href="/static/stock-focus.css?v=20260923-focus1">
+<link rel="stylesheet" href="/static/stock-focus.css?v=20260923-layout-a1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
 <script defer src="/static/market-data.js?v=20260923-instant1"></script>
 <script defer src="/static/news-orbit.js?v=20260913-controls3"></script>
 <script defer src="/static/home-a.js?v=20260923-instant1"></script>
-<script defer src="/static/stock-focus.js?v=20260923-focus1"></script>
+<script defer src="/static/stock-focus.js?v=20260923-layout-a1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -3863,15 +3863,14 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     var list=[];
     try{ list=JSON.parse(localStorage.getItem("alert_watchlist_v1")||"[]"); }catch(e){ list=[]; }
     if(!Array.isArray(list)) list=[];
-    var head='<div style="font-weight:700;margin-bottom:8px;">\u2b50 \u3042\u306a\u305f\u306e\u30a6\u30a9\u30c3\u30c1\u9298\u67c4</div>';
     if(!list.length){
-      sec.innerHTML=head+'<div style="color:#666;font-size:14px;line-height:1.6;margin-bottom:10px;">\u6c17\u306b\u306a\u308b\u9298\u67c4\u3092\u767b\u9332\u3059\u308b\u3068\u3001\u6bce\u671d\u3053\u3053\u3067\u52d5\u304d\u3092\u30c1\u30a7\u30c3\u30af\u3067\u304d\u307e\u3059\u3002</div>'+'<button id="knWatchAddBtn" type="button" style="position:relative;display:inline-flex;align-items:center;justify-content:center;background:#ffffff;color:#9aa0a6;border:1.5px solid #9aa0a6;border-radius:18px;padding:7px 18px;font-size:12px;font-weight:700;letter-spacing:0.5px;cursor:pointer;">\uff0b \u9298\u67c4\u3092\u767b\u9332\u3059\u308b</button>';
+      sec.innerHTML='<p class="sf-state">お気に入りはまだありません</p><button id="knWatchAddBtn" class="sf-retry" type="button">＋ 銘柄を追加</button>';
       place();
       var b=document.getElementById("knWatchAddBtn");
       if(b) b.addEventListener("click",function(){ try{ if(typeof closeDrawer==="function")closeDrawer(); }catch(e){} if(typeof openAlertSection==="function"){ openAlertSection(); } });
       return;
     }
-    sec.innerHTML=head+'<div id="knWatchList"><div style="color:#999;font-size:13px;">\u8aad\u307f\u8fbc\u307f\u4e2d...</div></div>';
+    sec.innerHTML='<div id="knWatchList"><p class="sf-state">株価を確認しています…</p></div>';
     place();
     var manage=document.createElement('button');manage.type='button';manage.className='sf-retry';manage.textContent='お気に入りを管理';manage.onclick=function(){window.openAlertSection();};sec.appendChild(manage);
     var token=Date.now(); sec.dataset.knToken=String(token);
@@ -3879,9 +3878,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     var rows=new Array(list.length).fill("");
     list.slice(0,20).forEach(function(sym,i){
       fetch("/api/quote?symbol="+encodeURIComponent(sym)+"&_t="+Date.now(),{cache:"no-store"}).then(function(r){return r.json();}).then(function(j){
-        var pct=(typeof j.pct==="number")?j.pct:0; var up=pct>=0;
-        var color=up?"#1a9e54":"#d23b3b"; var arrow=up?"\u25b2":"\u25bc"; var nm=j.name||sym;
-        rows[i]='<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #eee;"><div><div style="font-weight:600;">'+esc(sym)+'</div><div style="font-size:12px;color:#888;">'+esc(nm)+'</div></div><div style="text-align:right;"><div style="font-weight:700;">'+esc(j.price!=null?j.price:"-")+'</div><div style="color:'+color+';font-size:13px;font-weight:700;">'+arrow+Math.abs(pct).toFixed(2)+'%</div></div></div>';
+        rows[i]=window.StockFocus.watchRow(j,sym,window.KNMarketData&&window.KNMarketData.formatChange);
       }).catch(function(){ rows[i]='<div style="padding:8px 0;color:#999;">'+esc(sym)+'\uff08\u53d6\u5f97\u3067\u304d\u307e\u305b\u3093\u3067\u3057\u305f\uff09</div>'; }).then(function(){
         var cur=document.getElementById("knWatchSec"); if(!cur||cur.dataset.knToken!==String(token)) return;
         var bx=document.getElementById("knWatchList"); if(bx) bx.innerHTML=rows.join("");
