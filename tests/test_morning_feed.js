@@ -803,7 +803,7 @@ test('intro visuals and animation timeline remain byte-identical to the approved
   const child=require('node:child_process');
   const before=child.execFileSync('git',['show','77ec036:index.html'],{cwd:path.join(__dirname,'..'),encoding:'utf8',maxBuffer:2e6});
   const after=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
-  function intro(html){const start=html.indexOf('    <!-- Approved mint glass intro');const end=html.indexOf('function startApprovedIntro(){',start);return html.slice(start,end);}
+  function intro(html){const start=html.indexOf('    <!-- Approved mint glass intro');const end=html.indexOf('<!-- LP -->',start);return html.slice(start,end);}
   assert.equal(intro(after),intro(before));
 });
 

@@ -12,6 +12,7 @@ import gc
 import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from market_snapshot import CORE_MARKETS, MarketSnapshot
+from scanner_snapshot import ScannerSnapshot
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
@@ -2973,7 +2974,6 @@ def _dividend_warmer_run():
 # auto-kick disabled to avoid OOM on Render free tier
 
 
-_SCANNER_CACHE = {"ts": 0, "data": None}
 _SCANNER_TTL = 600
 
 _SCANNER_TICKERS_JP = [
@@ -2998,91 +2998,83 @@ _SCANNER_TICKERS_US = [
 def _build_scanner_data():
     syms = _SCANNER_TICKERS_JP + _SCANNER_TICKERS_US
     results = []
-    try:
-        # メモリ節約: 100銘柄を一度に取らず、20銘柄ずつ順番に取得する(瞬間最大メモリを大幅に抑える)
-        CHUNK = 20
-        for ci in range(0, len(syms), CHUNK):
-            chunk = syms[ci:ci + CHUNK]
-            data = yf.download(chunk, period="3d", group_by="ticker", threads=False, progress=False, auto_adjust=False)
-            for s in chunk:
+    # The request only reads a local snapshot; these bounded batches run in its worker.
+    # Keep unadjusted closes, including the previous trading day's actual closing price.
+    for offset in range(0, len(syms), 20):
+        chunk = syms[offset:offset + 20]
+        try:
+            data = yf.download(chunk, period="5d", group_by="ticker", threads=False,
+                               progress=False, auto_adjust=False, timeout=8)
+            fetched_at = time.time()
+            for symbol in chunk:
                 try:
-                    df = data[s] if len(chunk) > 1 else data
-                    closes = df["Close"].dropna()
-                    if len(closes) >= 2:
-                        val = float(closes.iloc[-1])
-                        prev = float(closes.iloc[-2])
-                        if prev > 0:
-                            pct = (val - prev) / prev * 100.0
-                            results.append({
-                                "symbol": s,
-                                "price": round(val, 4),
-                                "prev": round(prev, 4),
-                                "pct": round(pct, 2)
-                            })
-                except Exception:
+                    frame = data[symbol] if len(chunk) > 1 else data
+                    closes = frame["Close"].dropna()
+                    if len(closes) < 2:
+                        continue
+                    price, previous = float(closes.iloc[-1]), float(closes.iloc[-2])
+                    if not all(math.isfinite(value) and value > 0 for value in (price, previous)):
+                        continue
+                    results.append({
+                        "symbol": symbol,
+                        "name": JP_STOCKS.get(symbol.removesuffix(".T"), symbol),
+                        "price": round(price, 4), "prev": round(previous, 4),
+                        "change_value": round(price - previous, 4),
+                        "pct": round((price - previous) / previous * 100, 2),
+                        "currency": "JPY" if symbol.endswith(".T") else "USD",
+                        "trade_date": closes.index[-1].date().isoformat(),
+                        "fetched_at": fetched_at,
+                    })
+                except (KeyError, IndexError, TypeError, ValueError, AttributeError):
                     continue
             del data
-        import gc
-        gc.collect()
-    except Exception:
-        for s in syms:
-            try:
-                t = yf.Ticker(s)
-                hist = t.history(period="3d")
-                if len(hist) >= 2:
-                    val = float(hist["Close"].iloc[-1])
-                    prev = float(hist["Close"].iloc[-2])
-                    if prev > 0:
-                        pct = (val - prev) / prev * 100.0
-                        results.append({
-                            "symbol": s,
-                            "price": round(val, 4),
-                            "prev": round(prev, 4),
-                            "pct": round(pct, 2)
-                        })
-            except Exception:
-                continue
-    results.sort(key=lambda r: r["pct"], reverse=True)
+        except Exception:
+            continue  # Keep successful batches; never fall back to 100 blocking requests.
+    gc.collect()
     return results
+
+
+_scanner_snapshot = ScannerSnapshot(
+    _build_scanner_data,
+    seed_path=os.path.join(app.root_path, "scanner-snapshot.json"),
+    cache_path=os.environ.get("SCANNER_SNAPSHOT_PATH", "/tmp/kn-scanner-snapshot-v1.json"),
+    ttl=_SCANNER_TTL,
+)
 
 
 @app.route("/api/scanner", methods=["GET"])
 def api_scanner():
     try:
-        threshold = float(request.args.get("threshold", "3"))
-    except Exception:
+        threshold = abs(float(request.args.get("threshold", "3")))
+        if not math.isfinite(threshold):
+            threshold = 3.0
+    except (ValueError, TypeError):
         threshold = 3.0
-    threshold = abs(threshold)
     try:
         limit = int(request.args.get("limit", "10"))
-    except Exception:
+    except (ValueError, TypeError):
         limit = 10
     limit = max(1, min(20, limit))
-    now = time.time()
-    cached = _SCANNER_CACHE.get("data")
-    cache_age = now - _SCANNER_CACHE.get("ts", 0)
-    if not cached or cache_age >= _SCANNER_TTL:
-        try:
-            cached = _build_scanner_data()
-            _SCANNER_CACHE["ts"] = now
-            _SCANNER_CACHE["data"] = cached
-        except Exception as e:
-            return jsonify({"error": str(e), "surges": [], "drops": []}), 200
+    snapshot = _scanner_snapshot.payload()
     pro = request.args.get("pro") == "1"
-    if pro:
-        pool = cached
-    else:
-        pool = [r for r in cached if str(r.get("symbol", "")).endswith(".T")]
-    surges = [r for r in pool if r["pct"] >= threshold][:limit]
-    drops_all = sorted([r for r in pool if r["pct"] <= -threshold], key=lambda r: r["pct"])
-    drops = drops_all[:limit]
+    allowed = set(_SCANNER_TICKERS_JP + (_SCANNER_TICKERS_US if pro else []))
+    pool = [row for row in snapshot["items"] if row["symbol"] in allowed]
+    pool.sort(key=lambda row: row["pct"], reverse=True)
+    now = time.time()
+    updated_at = max((row["fetched_at"] for row in pool), default=None)
     return jsonify({
         "threshold": threshold,
-        "updated_at": _SCANNER_CACHE.get("ts", 0),
-        "cache_age_sec": int(now - _SCANNER_CACHE.get("ts", now)),
-        "total_scanned": len(cached),
-        "surges": surges,
-        "drops": drops
+        "updated_at": updated_at,
+        "cache_age_sec": max(0, int(now - updated_at)) if updated_at is not None else None,
+        "stale": not pool or any(now - row["fetched_at"] >= _SCANNER_TTL for row in pool),
+        "refreshing": snapshot["refreshing"],
+        "total_scanned": len(pool), "universe_size": len(allowed),
+        "scope": "selected_jp_us" if pro else "selected_jp",
+        "max_per_direction": 20,
+        "items": pool,
+        "surges": [row for row in pool if row["pct"] >= threshold][:limit],
+        "drops": sorted((row for row in pool if row["pct"] <= -threshold),
+                        key=lambda row: row["pct"])[:limit],
     })
 
 

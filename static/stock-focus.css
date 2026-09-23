@@ -1,0 +1,81 @@
+/* New stock treatment is isolated from news, market and dividend panels. */
+#knTabWrap{--sf-ink:#245547;--sf-body:#4d6b60;--sf-muted:#708277;--sf-line:#dce5d9;--sf-paper:#fffdf7;--sf-up:#277555;--sf-down:#ab5556}
+#knTabWrap .sf-view-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-bottom:25px}
+#knTabWrap .sf-view-tabs button{display:block;width:100%;min-width:0;min-height:48px;padding:10px 3px;white-space:normal;line-height:1.65;font-size:13px;text-align:center;overflow-wrap:anywhere}
+#knTabWrap .sf-view-tabs button:focus-visible{outline:2px solid #4c8969;outline-offset:3px;border-radius:3px}
+#knTabWrap .sf-content{color:var(--sf-ink);font-family:var(--kn-a-sans,-apple-system,BlinkMacSystemFont,sans-serif);text-align:left;line-height:1.7}
+#knTabWrap .sf-content *{box-sizing:border-box}
+#knTabWrap .sf-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:18px}
+#knTabWrap .sf-section-head h3{font:500 24px/1.55 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.035em;margin:0;color:var(--sf-ink)}
+#knTabWrap .sf-eyebrow{font-size:12px;color:var(--sf-muted);margin:0 0 7px;letter-spacing:.07em}
+#knTabWrap .sf-count{font-size:11px;white-space:nowrap;color:var(--sf-muted);padding-bottom:5px}
+#knTabWrap .sf-companies{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;align-items:start}
+#knTabWrap .sf-company{position:relative;border:1px solid var(--sf-line);border-radius:12px;background:linear-gradient(135deg,#f5f9ef 0, var(--sf-paper) 48%);padding:20px 18px 0;min-width:0;overflow:hidden}
+#knTabWrap .sf-card-top{display:flex;align-items:center;justify-content:space-between;color:var(--sf-muted);font-size:11px;letter-spacing:.06em;margin:0 0 18px}
+#knTabWrap .sf-card-top>span:first-child{padding:2px 8px;border-radius:4px;background:#e8f0e1;color:#57705b}
+#knTabWrap .sf-number{font:italic 23px/1 Georgia,serif;color:#a4b99f}
+#knTabWrap .sf-company h4{font:500 19px/1.8 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.015em;min-height:3.6em;margin:0 0 19px;color:var(--sf-ink);overflow-wrap:anywhere}
+#knTabWrap .sf-company-name{font-size:15px;font-weight:600;letter-spacing:.04em;margin:0 0 5px}
+#knTabWrap .sf-business{font-size:12px;line-height:1.9;color:var(--sf-body);margin:0 0 18px;min-height:3.8em}
+#knTabWrap .sf-quote{font-variant-numeric:tabular-nums;display:flex;flex-direction:column;gap:2px;white-space:nowrap}
+#knTabWrap .sf-price{font:500 25px/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;letter-spacing:.015em;color:var(--sf-ink)}
+#knTabWrap .sf-price small{font-family:var(--kn-a-sans,sans-serif);font-size:11px;font-weight:400;margin-left:5px}
+#knTabWrap .sf-change{font-size:13px;font-weight:500;line-height:1.7}
+#knTabWrap .sf-change>span{font-size:11px;font-weight:400}
+#knTabWrap .sf-up{color:var(--sf-up)}
+#knTabWrap .sf-down{color:var(--sf-down)}
+#knTabWrap .sf-explanation{margin-top:19px;border-top:1px solid var(--sf-line)}
+#knTabWrap .sf-content summary{cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;font-size:12px;font-weight:500;color:var(--sf-ink)}
+#knTabWrap .sf-content summary::-webkit-details-marker{display:none}
+#knTabWrap .sf-content summary::marker{content:""}
+#knTabWrap .sf-content summary:focus-visible{outline:2px solid #4c8969;outline-offset:3px;border-radius:3px}
+#knTabWrap .sf-content summary>i{width:11px;height:11px;position:relative;flex:none}
+#knTabWrap .sf-content summary>i:before,#knTabWrap .sf-content summary>i:after{content:"";position:absolute;background:currentColor;top:5px;left:0;width:11px;height:1px}
+#knTabWrap .sf-content summary>i:after{transform:rotate(90deg)}
+#knTabWrap .sf-content details[open]>summary>i:after{display:none}
+#knTabWrap .sf-content .sf-open{display:none}
+#knTabWrap .sf-content details[open]>summary .sf-open{display:inline}
+#knTabWrap .sf-content details[open]>summary .sf-closed{display:none}
+#knTabWrap .sf-explanation>div{padding:2px 0 18px}
+#knTabWrap .sf-explanation h5{font-size:12px;font-weight:600;margin:12px 0 5px;color:var(--sf-ink)}
+#knTabWrap .sf-explanation p{font-size:13px;line-height:1.95;margin:0;color:var(--sf-body)}
+#knTabWrap .sf-market{margin:0;padding:0;border:0}
+#knTabWrap .sf-description{font-size:12px;color:var(--sf-muted);margin:7px 0 0}
+#knTabWrap .sf-basis{font-size:11px;color:var(--sf-muted);line-height:1.85;margin:-4px 0 19px}
+#knTabWrap .sf-direction-tabs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));width:min(100%,300px);gap:4px;padding:4px;margin:0 0 24px;background:#f0f5ec;border:1px solid var(--sf-line);border-radius:8px}
+#knTabWrap .sf-direction-tabs button{font:500 13px/1.6 var(--kn-a-sans,sans-serif);letter-spacing:.035em;color:var(--sf-body);border:0;border-radius:5px;background:transparent;min-height:43px;padding:8px 20px;cursor:pointer}
+#knTabWrap .sf-direction-tabs button[aria-selected="true"]{color:#fffdf7;background:#2d654f}
+#knTabWrap .sf-direction-tabs button:focus-visible,#knTabWrap .sf-ranking:focus-visible{outline:2px solid #4c8969;outline-offset:3px}
+#knTabWrap .sf-rankings{display:block}
+#knTabWrap .sf-ranking{min-width:0}
+#knTabWrap .sf-ranking[hidden]{display:none!important}
+#knTabWrap .sf-ranking-head{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--sf-line);padding:0 0 11px}
+#knTabWrap .sf-ranking-head h4{margin:0;font-size:15px;font-weight:500;letter-spacing:.035em;color:var(--sf-ink)}
+#knTabWrap .sf-ranking-head h4 span{display:inline-grid;place-items:center;width:27px;height:27px;border:1px solid #d0dfd2;border-radius:50%;margin-right:8px;font:19px/1 sans-serif}
+#knTabWrap .sf-ranking-head>span{font-size:11px;color:var(--sf-muted)}
+#knTabWrap .sf-column-labels{display:flex;justify-content:space-between;gap:8px;font-size:10px;color:var(--sf-muted);padding:10px 0 0}
+#knTabWrap .sf-rows{padding:0;margin:0;list-style:none}
+#knTabWrap .sf-row{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:9px;align-items:center;min-height:87px;padding:15px 0;border-bottom:1px solid var(--sf-line)}
+#knTabWrap .sf-rank{font:italic 15px/1 Georgia,serif;color:#92aa95;align-self:start;padding-top:7px}
+#knTabWrap .sf-stock-name{display:flex;flex-direction:column;gap:4px;min-width:0;overflow-wrap:anywhere;font-size:14px;line-height:1.6}
+#knTabWrap .sf-stock-name small{font-size:10px;color:var(--sf-muted)}
+#knTabWrap .sf-row .sf-quote{text-align:right}
+#knTabWrap .sf-row .sf-price{font-size:20px}
+#knTabWrap .sf-row .sf-change{font-size:12px}
+#knTabWrap .sf-row .sf-change>span{font-size:10px}
+#knTabWrap .sf-more>summary{margin:12px 0 0;padding:8px 11px;border:1px solid var(--sf-line);background:#f1f6ed;border-radius:6px;font-size:12px;min-height:45px}
+#knTabWrap .sf-more small{font-size:10px;color:var(--sf-muted);margin-left:4px}
+#knTabWrap .sf-more[open]>summary{margin-bottom:5px}
+@media(max-width:850px){#knTabWrap .sf-companies{gap:10px}#knTabWrap .sf-company{padding:17px 14px 0}#knTabWrap .sf-company h4{font-size:17px}#knTabWrap .sf-rankings{gap:18px}#knTabWrap .sf-row{gap:7px;grid-template-columns:16px minmax(0,1fr) auto}#knTabWrap .sf-stock-name{font-size:13px}#knTabWrap .sf-row .sf-price{font-size:18px}}
+body.kn-home-a #knTabWrap #knSubRow{gap:14px!important;display:flex;margin:0 0 25px!important}
+body.kn-home-a #knTabWrap #knSubRow button{flex:1 1 0!important;width:0;min-width:0;min-height:48px;font-size:13px!important;white-space:normal;line-height:1.65}
+body.kn-home-a #knTabWrap #knSubRow button[aria-pressed="true"]{color:var(--sf-ink)!important;border-bottom-color:var(--sf-ink)!important}
+body.kn-home-a #knTabWrap #homeMoversList>.sf-content{padding:0!important}
+#knTabWrap .sf-state{font-size:13px;line-height:1.9;color:var(--sf-muted);padding:20px 0;margin:0;text-align:left}
+#knTabWrap .sf-meta{font-size:10px;line-height:1.8;color:var(--sf-muted);margin:18px 0 0}
+#knTabWrap .sf-quote-date{font-size:10px;font-weight:400;color:var(--sf-muted);white-space:normal;line-height:1.7}
+#knTabWrap .sf-source{display:block;margin-top:10px;font-size:11px;line-height:1.9;color:var(--sf-muted);text-underline-offset:3px}
+#knTabWrap .sf-retry{margin-left:8px;border:1px solid var(--sf-line);border-radius:6px;padding:7px 12px;background:var(--sf-paper);color:var(--sf-ink);font:inherit;cursor:pointer}
+#knTabWrap .sf-companies{grid-template-columns:repeat(auto-fit,minmax(min(100%,240px),1fr))}
+#knTabWrap .sf-quote .sf-flat{color:var(--sf-muted)}
+@media(max-width:680px){body.kn-home-a #knTabWrap #knSubRow{gap:7px!important}body.kn-home-a #knTabWrap #knSubRow button{font-size:12px!important;min-height:48px}#knTabWrap .sf-companies{grid-template-columns:1fr}#knTabWrap .sf-company h4{font-size:20px;min-height:0;margin-bottom:17px}#knTabWrap .sf-business{min-height:0}#knTabWrap .sf-company{padding:18px 20px 0}}
