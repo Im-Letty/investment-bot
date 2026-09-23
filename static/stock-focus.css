@@ -185,13 +185,19 @@ body.kn-home-a #knTabWrap #knWatchSec .sf-state {text-align:center}
 #knTabWrap .sf-explanation>div {padding:16px 0 9px;font-size:13px;line-height:1.95;color:var(--sf-body)}
 #knTabWrap .sf-explanation h5 {font-size:12px;font-weight:600;margin:19px 0 6px;color:var(--sf-ink)}
 #knTabWrap .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 14px;color:var(--sf-body)}
+#knTabWrap .sf-explain-block+.sf-explain-block {margin-top:18px}
+#knTabWrap .sf-explain-block h5 {margin:0 0 6px}
+#knTabWrap .sf-explain-block p {margin:0}
 #knTabWrap .sf-explanation .sf-quote-date {font-size:10px;color:var(--sf-muted)}
-#knTabWrap .sf-explanation>div>.sf-quote {flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:3px 10px;width:100%;max-width:420px;margin:1px 0 19px;padding:10px 12px;background:var(--kn-a-chip,var(--sf-selected));border-radius:3px;white-space:normal;text-align:left}
+#knTabWrap .sf-explanation>div>.sf-quote {flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:3px 10px;width:100%;max-width:420px;margin:18px 0 0;padding:10px 12px;background:var(--kn-a-chip,var(--sf-selected));border-radius:3px;white-space:normal;text-align:left}
 #knTabWrap .sf-explanation .sf-quote .sf-price {font-size:16px;color:var(--sf-body);white-space:nowrap}
 #knTabWrap .sf-explanation .sf-quote .sf-change {font-size:11px;white-space:nowrap}
 #knTabWrap .sf-explanation .sf-quote .sf-change>span {font-size:11px}
 #knTabWrap .sf-explanation .sf-quote .sf-quote-date {flex-basis:100%;margin:0;font-size:10px}
 #knTabWrap .sf-source {display:block;margin-top:10px;font-size:11px;line-height:1.9;color:var(--sf-muted);text-underline-offset:4px;overflow-wrap:anywhere}
+#knTabWrap .sf-story-source {display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-top:10px}
+#knTabWrap .sf-story-source .sf-source {margin:0}
+#knTabWrap .sf-story-date {font-size:10px;line-height:1.9;color:var(--sf-muted);white-space:nowrap}
 #knTabWrap .sf-state {font-size:13px;line-height:1.9;color:var(--sf-muted);padding:25px 0;margin:0;text-align:left}
 #knTabWrap .sf-meta {font-size:10px;line-height:1.8;color:var(--sf-muted);margin:17px 0 0}
 #knTabWrap .sf-meta-date {display:block;font-size:10px;line-height:1.8;color:var(--sf-muted);margin:0 0 3px}
