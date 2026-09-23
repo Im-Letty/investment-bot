@@ -22,11 +22,19 @@
     for(const raw of data.items){const item=normalizeItem(raw);if(item&&finite(item.fetched_at)&&item.fetched_at*1000<=now+60000&&now-item.fetched_at*1000<CACHE_AGE&&dateLabel(item.trade_date)&&!symbols.has(item.symbol)){symbols.add(item.symbol);items.push(item);}}
     return items.length?{...data,items}:null;
   }
-  function quote(raw,showDate=true){
+  function quote(raw,showDate=true,compactYear=null){
     const item=normalizeItem(raw);
     if(!item)return '<div class="sf-quote"><span class="sf-quote-date">株価を確認できませんでした</span></div>';
     const delta=item.change_value,sign=delta>0?'+':delta<0?'−':'',direction=delta>0?'up':delta<0?'down':'flat',unit=item.currency==='JPY'?'円':item.currency==='USD'?'米ドル':escape(item.currency);
-    return '<div class="sf-quote"><span class="sf-price">'+amount(item.price)+'<small>'+unit+'</small></span><span class="sf-change sf-'+direction+'">'+sign+amount(delta)+unit+' <span>（'+sign+Math.abs(item.pct).toFixed(2)+'%）</span></span>'+(showDate&&dateLabel(item.trade_date)?'<span class="sf-quote-date">'+dateLabel(item.trade_date)+' の株価</span>':'')+'</div>';
+    const fullDate=dateLabel(item.trade_date);
+    let dateMarkup='';
+    if(showDate&&fullDate){
+      if(compactYear){
+        const [year,month,day]=item.trade_date.split('-'),shortDate=(year===compactYear?'':year+'/')+Number(month)+'/'+Number(day);
+        dateMarkup='<time class="sf-quote-date" datetime="'+escape(item.trade_date)+'" aria-label="'+fullDate+' の株価" title="'+fullDate+' の株価">'+shortDate+' 時点</time>';
+      }else dateMarkup='<span class="sf-quote-date">'+fullDate+' の株価</span>';
+    }
+    return '<div class="sf-quote"><span class="sf-price">'+amount(item.price)+'<small>'+unit+'</small></span><span class="sf-change sf-'+direction+'">'+sign+amount(delta)+unit+' <span>（'+sign+Math.abs(item.pct).toFixed(2)+'%）</span></span>'+dateMarkup+'</div>';
   }
   function tradeDates(items){
     const groups=new Map();
@@ -83,10 +91,11 @@
   }
   function companyMarkup(editorial,data,status='loading',now=Date.now()){
     const stories=validStories(editorial,now),quotes=new Map((data?data.items:[]).map(x=>[x.symbol,x]));
+    const quoteYear=new Date(now+9*3600000).toISOString().slice(0,4);
     const cards=stories.map(item=>{
       const value=quotes.get(item.symbol);
       const explanation=[['どんな会社？',item.business],['何があった？',item.event],['これからの注目は？',item.outlook]].map(([heading,body],index)=>'<section class="sf-explain-block"><h5>'+escape(heading)+'</h5><p'+(index===0?' class="sf-business"':'')+'>'+escape(body)+'</p></section>').join('');
-      return '<article class="sf-company"><p class="sf-company-name">'+escape(item.name)+stockCode(item.symbol)+'</p><details class="sf-explanation" data-stock-detail="'+escape(item.symbol)+'"><summary><h4>'+escape(item.title)+'</h4><span class="sf-sr-only sf-closed">'+escape(item.name)+'の記事を開く</span><span class="sf-sr-only sf-open">'+escape(item.name)+'の記事を閉じる</span><span class="sf-disclosure-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12"/><path class="sf-vertical" d="M10 4v12"/></svg></span></summary><div>'+explanation+quote(value)+'<div class="sf-story-source"><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a><time class="sf-story-date" datetime="'+escape(item.published_date)+'">'+dateLabel(item.published_date)+' 発表</time></div></div></details></article>';
+      return '<article class="sf-company"><p class="sf-company-name">'+escape(item.name)+stockCode(item.symbol)+'</p><details class="sf-explanation" data-stock-detail="'+escape(item.symbol)+'"><summary><h4>'+escape(item.title)+'</h4><span class="sf-sr-only sf-closed">'+escape(item.name)+'の記事を開く</span><span class="sf-sr-only sf-open">'+escape(item.name)+'の記事を閉じる</span><span class="sf-disclosure-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12"/><path class="sf-vertical" d="M10 4v12"/></svg></span></summary><div>'+explanation+quote(value,true,quoteYear)+'<div class="sf-story-source"><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a><time class="sf-story-date" datetime="'+escape(item.published_date)+'">'+dateLabel(item.published_date)+' 発表</time></div></div></details></article>';
     }).join('');
     return '<div class="sf-content"><section class="sf-stories" aria-label="注目企業">'+(stories.length?'<div class="sf-companies">'+cards+'</div>':'<p class="sf-state">'+(status==='loading'?'企業の話題を確認しています…':'現在、確認済みの企業の話題を準備しています。')+'</p>')+'</section></div>';
   }
