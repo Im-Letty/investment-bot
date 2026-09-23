@@ -170,9 +170,9 @@ body.kn-home-a #knTabWrap #knWatchSec .sf-state {text-align:center}
 #knTabWrap .sf-more>summary {justify-content:center;padding:0;background:transparent;border:0;border-radius:0}
 #knTabWrap .sf-more>summary small {font-size:10px;color:var(--sf-muted);margin-left:4px}
 #knTabWrap .sf-more[open]>summary {margin-bottom:5px}
-/* Layout D keeps the story prominent and places prices inside its details. */
+/* Company stories: reading layout C with the original heading and body typefaces. */
 #knTabWrap .sf-companies {display:block;padding-top:0}
-#knTabWrap .sf-company {display:block;max-width:720px;min-width:0;padding:22px 0 18px;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
+#knTabWrap .sf-company {display:block;max-width:720px;min-width:0;padding:26px 0 28px;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
 #knTabWrap .sf-company:last-child {border-bottom:0;padding-bottom:0}
 #knTabWrap .sf-company-name {font-size:16px;line-height:1.6;font-weight:500;overflow-wrap:anywhere;margin:0;color:var(--sf-ink)}
 #knTabWrap .sf-company h4 {font:500 22px/1.65 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.02em;color:var(--sf-ink);overflow-wrap:anywhere;margin:12px 0 0}
@@ -182,20 +182,23 @@ body.kn-home-a #knTabWrap #knWatchSec .sf-state {text-align:center}
 #knTabWrap .sf-disclosure-mark {display:flex;align-items:center;justify-content:center;grid-column:2;grid-row:1;width:44px;height:44px;color:var(--sf-ink)}
 #knTabWrap .sf-disclosure-mark svg {width:19px;height:19px;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
 #knTabWrap .sf-explanation[open]>summary .sf-disclosure-mark .sf-vertical {opacity:0}
-#knTabWrap .sf-explanation>div {padding:16px 0 9px;font-size:13px;line-height:1.95;color:var(--sf-body)}
+#knTabWrap .sf-explanation>div {margin-top:18px;padding:2px 0 9px;font-size:13px;line-height:1.95;color:var(--sf-story-text)}
 #knTabWrap .sf-explanation h5 {font-size:12px;font-weight:600;margin:19px 0 6px;color:var(--sf-ink)}
-#knTabWrap .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 14px;color:var(--sf-body)}
-#knTabWrap .sf-explain-block+.sf-explain-block {margin-top:18px}
-#knTabWrap .sf-explain-block h5 {margin:0 0 6px}
+#knTabWrap .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 14px;color:var(--sf-story-text);overflow-wrap:anywhere}
+#knTabWrap .sf-stories {--sf-story-text:color-mix(in srgb,var(--sf-ink) 20%,#4b4e4b)}
+body.kn-home-a[data-theme="dark"] #knTabWrap .sf-stories {--sf-story-text:color-mix(in srgb,var(--sf-ink) 75%,var(--sf-muted))}
+#knTabWrap .sf-reading-blocks {min-width:0}
+#knTabWrap .sf-explain-block {display:grid;grid-template-columns:28px minmax(0,1fr);gap:13px;position:relative;min-width:0}
+#knTabWrap .sf-explain-block:before {content:"";position:absolute;left:13.5px;top:34px;bottom:-18px;width:1px;background:var(--sf-line)}
+#knTabWrap .sf-explain-block:last-child:before {bottom:4px}
+#knTabWrap .sf-explain-block+.sf-explain-block {margin-top:24px}
+#knTabWrap .sf-explain-copy {min-width:0}
+#knTabWrap .sf-explain-block h5 {margin:0 0 7px;padding-top:3px}
 #knTabWrap .sf-explain-block p {margin:0}
-#knTabWrap .sf-explanation .sf-quote-date {font-size:10px;color:var(--sf-muted)}
-#knTabWrap .sf-explanation>div>.sf-quote {flex-direction:row;align-items:baseline;flex-wrap:wrap;gap:3px 10px;width:100%;max-width:420px;margin:18px 0 0;padding:10px 12px;background:var(--kn-a-chip,var(--sf-selected));border-radius:3px;white-space:normal;text-align:left}
-#knTabWrap .sf-explanation .sf-quote .sf-price {font-size:16px;color:var(--sf-body);white-space:nowrap}
-#knTabWrap .sf-explanation .sf-quote .sf-change {font-size:11px;white-space:nowrap}
-#knTabWrap .sf-explanation .sf-quote .sf-change>span {font-size:11px}
-#knTabWrap .sf-explanation .sf-quote .sf-quote-date {flex-basis:100%;margin:0;font-size:10px}
+#knTabWrap .sf-story-icon {display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--kn-a-chip,var(--sf-selected));color:var(--sf-muted)}
+#knTabWrap .sf-story-icon svg {display:block;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
 #knTabWrap .sf-source {display:block;margin-top:10px;font-size:11px;line-height:1.9;color:var(--sf-muted);text-underline-offset:4px;overflow-wrap:anywhere}
-#knTabWrap .sf-story-source {display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 12px;margin-top:10px}
+#knTabWrap .sf-story-source {display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 13px;margin-top:22px;padding-top:12px;border-top:1px solid var(--sf-line)}
 #knTabWrap .sf-story-source .sf-source {margin:0}
 #knTabWrap .sf-story-date {font-size:10px;line-height:1.9;color:var(--sf-muted);white-space:nowrap}
 #knTabWrap .sf-state {font-size:13px;line-height:1.9;color:var(--sf-muted);padding:25px 0;margin:0;text-align:left}
@@ -209,9 +212,12 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
   body.kn-home-a #knTabWrap #knSubRow {gap:10px!important}
   body.kn-home-a #knTabWrap #knSubRow button,
   body.kn-home-a #knTabWrap #knDivSubRow button {font-size:calc(12px * var(--kn-a-scale,1))!important}
-  #knTabWrap .sf-company {padding-top:20px}
+  #knTabWrap .sf-company {padding-top:24px}
   #knTabWrap .sf-company-name {font-size:15px}
   #knTabWrap .sf-company h4 {font-size:21px}
+}
+@container(max-width:370px) {
+  #knTabWrap .sf-explain-block {gap:10px}
 }
 @container(max-width:300px) {
   #knTabWrap .sf-explanation>summary {gap:4px}
@@ -238,9 +244,4 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
 
 @media(prefers-reduced-motion:no-preference) {
   #knTabWrap .sf-disclosure-mark .sf-vertical {transition:opacity .18s}
-  #knTabWrap .sf-explanation[open]>div {animation:sf-company-body-appear .2s ease-out}
-  @keyframes sf-company-body-appear {
-    from {opacity:.2;transform:translateY(3px)}
-    to {opacity:1;transform:translateY(0)}
-  }
 }
