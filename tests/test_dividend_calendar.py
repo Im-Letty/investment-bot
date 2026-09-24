@@ -93,7 +93,7 @@ class CalendarTests(unittest.TestCase):
             self.assertEqual(row['ex_dividend_date'],'2026-09-29')
         self.assertEqual(by_kind['holding_deadline']['calculation'],'previous_cash_equity_trading_day')
         self.assertEqual(len(by_kind['holding_deadline']['calculation_sources']),2)
-        self.assertEqual(data['range'],{'start':'2026-09-01','end':'2026-11-30'})
+        self.assertEqual(data['range'],{'start':'2026-09-01','end':'2027-09-30'})
         self.assertEqual(data['coverage'],{'universe':229,'known':1,'unknown':228})
         self.assertEqual(data['universe_as_of'],'2026-09-24')
         self.assertNotIn('_origin',by_kind['ex_dividend'])
@@ -197,16 +197,30 @@ class CalendarTests(unittest.TestCase):
             calendar.ensure_refresh();calendar.ensure_refresh()
         read.assert_not_called()
 
-    def test_three_month_boundary_and_flask_contract(self):
+    def test_one_year_boundary_and_flask_contract(self):
         calendar=self.calendar();app=Flask(__name__);register_dividend_calendar(app,calendar);client=app.test_client()
         response=client.get('/api/dividend/calendar-v2?month=2026-11&scope=favorites&symbols=9432.T')
         self.assertEqual(response.status_code,200);self.assertEqual(response.get_json()['events'][0]['period'],'2026-11')
         self.assertEqual(response.headers['Cache-Control'],'no-store')
-        self.assertEqual(client.get('/api/dividend/calendar-v2?month=2026-12').status_code,400)
+        self.assertEqual(client.get('/api/dividend/calendar-v2?month=2027-10').status_code,400)
         self.assertEqual(client.get('/api/dividend/calendar-v2?month=2026-08').status_code,400)
         self.assertEqual(client.get('/api/dividend/calendar-v2?scope=evil').status_code,400)
+        self.assertEqual(client.get('/api/dividend/calendar-v2?month=2027-09').status_code,200)
         first,last=month_range(datetime(2026,12,24).date())
-        self.assertEqual(first.isoformat(),'2026-12-01');self.assertEqual(last.isoformat(),'2027-02-28')
+        self.assertEqual(first.isoformat(),'2026-12-01');self.assertEqual(last.isoformat(),'2027-12-31')
+
+    def test_next_year_announced_payment_is_visible_without_repeating_this_year(self):
+        self.payments.write_text(json.dumps({'items':{'9432.T':{
+            'payment_period':'2027-09','reviewed_on':'2026-09-24',
+            'source':{'title':'Company announcement','url':'https://group.ntt/jp/ir/shares/calendar/'}}}}))
+        calendar=self.calendar()
+        rows=calendar.payload('2027-09')['events']
+        self.assertEqual(len(rows),1)
+        self.assertEqual(rows[0]['kind'],'payment')
+        self.assertEqual(rows[0]['period'],'2027-09')
+        self.assertEqual(calendar.payload('2027-08')['events'],[])
+        self.now=datetime(2026,10,1,tzinfo=JST).timestamp()
+        self.assertEqual(calendar.payload('2027-10')['range']['end'],'2027-10-31')
 
     def test_reviewed_current_distribution_is_attached_to_both_official_dates(self):
         self.seed.write_text(json.dumps(document([event('5803.T')])))

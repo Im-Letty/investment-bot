@@ -11,8 +11,8 @@ function harness(saved=storage()){
   const time=clock(),requests=[],states=[],env={...time,storage:saved,AbortController,fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;}};
   const loader=calendar.createLoader(env,state=>states.push(state));return {loader,time,requests,states,storage:saved,load(query={month:MONTH,scope:'all',symbols:[]}){const promise=loader.load(query);return promise;},async reply(index,payload,status=200){requests[index].resolve({ok:status===200,status,json:async()=>payload});await flush();}};
 }
-test('JST month bounds cover exactly current month and two following months across the year',()=>{
-  assert.deepEqual(calendar.bounds(Date.parse('2026-12-31T15:00:00Z')),{start:'2027-01-01',end:'2027-03-31',months:['2027-01','2027-02','2027-03']});
+test('JST month bounds cover the same month next year across the year',()=>{
+  assert.deepEqual(calendar.bounds(Date.parse('2026-12-31T15:00:00Z')),{start:'2027-01-01',end:'2028-01-31',months:Array.from({length:13},(_,i)=>calendar.shift('2027-01',i))});
   assert.equal(calendar.shift('2026-12',1),'2027-01');assert.equal(calendar.day('2026-02-29'),null);assert.equal(calendar.day('2024-02-29'),'2024-02-29');assert.equal(calendar.month('2026-13'),null);
 });
 test('month-only payment plans never acquire days and are excluded from date dots and upcoming day lists',()=>{
@@ -94,7 +94,7 @@ function uiHarness({saved=storage(),gate=Promise.resolve(),prices=null}={}){
 test('calendar UI renders 42 cells, limits navigation and preserves unchanged list/disclosure nodes',async()=>{
   const h=uiHarness();await flush();const realMonth=calendar.today().slice(0,7),range=calendar.bounds(),date=calendar.today(),raw=fixture({events:[event({date,verified_on:calendar.today()})],range,updated_at:Date.now()/1000});await h.reply(0,raw);
   const grid=h.mount.find('dc-grid');assert.equal(grid.children.length,42);assert.equal(h.mount.find('dc-month-navigation').children[0].disabled,true);const first=h.mount.find('dc-events').children[0];assert.ok(first);const disclosure=first.find('dc-evidence');disclosure.open=true;h.w.KNDividendCalendar.refresh();await h.reply(1,raw);assert.equal(h.mount.find('dc-events').children[0],first);assert.equal(disclosure.open,true);assert.equal(grid.children.length,42);
-  h.mount.find('dc-month-navigation').children[2].dispatch('click');assert.match(h.requests.at(-1).url,new RegExp(calendar.shift(realMonth,1)));h.mount.find('dc-month-navigation').children[2].dispatch('click');assert.equal(h.mount.find('dc-month-navigation').children[2].disabled,true);
+  h.mount.find('dc-month-navigation').children[2].dispatch('click');assert.match(h.requests.at(-1).url,new RegExp(calendar.shift(realMonth,1)));for(let i=1;i<12;i++)h.mount.find('dc-month-navigation').children[2].dispatch('click');assert.equal(h.mount.find('dc-month-navigation').children[2].disabled,true);assert.match(h.requests.at(-1).url,new RegExp(calendar.shift(realMonth,12)));
 });
 test('day selection, five-item pagination and month plans are separate and company buttons carry safe identifiers',async()=>{
   const h=uiHarness();await flush();const realMonth=calendar.today().slice(0,7),date=calendar.today(),raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:Array.from({length:7},(_,i)=>event({symbol:(1000+i)+'.T',date,name:i===0?'<img src=x>':'会社'+i,verified_on:date})).concat(event({symbol:'9432.T',kind:'payment',precision:'month',period:realMonth,date:null,verified_on:date}))});await h.reply(0,raw);

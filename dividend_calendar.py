@@ -1,4 +1,4 @@
-"""Three-month dividend calendar from verified schedules, without guessed dates."""
+"""Rolling one-year dividend calendar from verified schedules, without guessed dates."""
 from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
 import fcntl
@@ -48,7 +48,7 @@ def iso_day(value):
 
 def month_range(today):
     start = today.replace(day=1)
-    year, month = divmod(start.year * 12 + start.month - 1 + 3, 12)
+    year, month = divmod(start.year * 12 + start.month - 1 + 13, 12)
     return start, date(year, month + 1, 1) - timedelta(days=1)
 
 

@@ -1,7 +1,7 @@
 /* Dates come from verified schedules; month-only plans never acquire an invented day. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root&&root.document)api.start(root);})(typeof window==='undefined'?null:window,function(){
   'use strict';
-  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v5:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
+  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v6:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
   const finite=v=>typeof v==='number'&&Number.isFinite(v),clean=(v,max=160)=>typeof v==='string'?v.trim().slice(0,max):'';
   function parse(value,fallback){try{return JSON.parse(value)||fallback;}catch(e){return fallback;}}
   function symbol(value){const key=clean(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
@@ -9,7 +9,7 @@
   function day(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return null;const date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value?value:null;}
   function today(now=Date.now()){return new Date(now+9*3600000).toISOString().slice(0,10);}
   function shift(value,delta){if(!month(value))return null;const parts=value.split('-').map(Number),date=new Date(Date.UTC(parts[0],parts[1]-1+delta,1));return date.toISOString().slice(0,7);}
-  function bounds(now=Date.now()){const start=today(now).slice(0,7),last=shift(start,2),end=new Date(Date.parse(shift(last,1)+'-01T00:00:00Z')-86400000).toISOString().slice(0,10);return {start:start+'-01',end,months:[start,shift(start,1),last]};}
+  function bounds(now=Date.now()){const start=today(now).slice(0,7),last=shift(start,12),end=new Date(Date.parse(shift(last,1)+'-01T00:00:00Z')-86400000).toISOString().slice(0,10);return {start:start+'-01',end,months:Array.from({length:13},(_,i)=>shift(start,i))};}
   function safeUrl(value){if(typeof value!=='string'||/[\u0000-\u0020\u007f\\]/.test(value))return null;try{const u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:null;}catch(e){return null;}}
   function at(value,now=Date.now()){const n=finite(value)?value>=1e12?value:value*1000:null;return n>0&&n<=now+60000?n:null;}
   function uniq(values){return Array.from(new Set(values));}
@@ -249,11 +249,11 @@
         refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':searchText?'この月に一致する確認済みの予定はありません。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
         const plans=prioritize(data?data.events.filter(event=>event.precision==='month'&&matches(event)):[]);refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
       }
-      function render(){refs.all.setAttribute('aria-pressed',String(scope==='all'));refs.favorites.setAttribute('aria-pressed',String(scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[2];const state=current,data=state&&state.data;
+      function render(){refs.all.setAttribute('aria-pressed',String(scope==='all'));refs.favorites.setAttribute('aria-pressed',String(scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[12];const state=current,data=state&&state.data;
         if(autoDate&&data&&(['ready','stale'].includes(state.status)||data.events.length)){const next=visibleEvents(data,null,today())[0];selectedDate=next?next.date:monthValue===today().slice(0,7)?today():monthValue+'-01';autoDate=false;}
         const checked=data&&data.updated_at?'確認 '+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(data.updated_at)+' JST':'';
         refs.retry.hidden=!(state&&['error','stale'].includes(state.status));refs.status.textContent=!state||state.status==='loading'?'予定を確認しています…':state.status==='error'?(data?'更新できませんでした。保存済みの予定を表示しています。':'予定を読み込めませんでした。'):state.status==='pending'?'確認できた予定を集めています…':state.status==='refreshing'?'最新の予定を確認しています…':state.status==='stale'?'保存済みの予定です。'+checked:checked;
-        refs.universe.textContent='東証の国内上場企業を対象に、確認できた配当日程を掲載しています。全社の日程・配当額が揃っているわけではありません。';refs.universe.hidden=!refs.universe.textContent;
+        refs.universe.textContent='東証の国内上場企業を対象に、確認できた配当日程を掲載しています。1年先まで表示できますが、未発表・未確認の予定は載りません。予定が空欄でも、配当がないとは限りません。';refs.universe.hidden=!refs.universe.textContent;
         refs.coverage.textContent=data&&data.coverage.universe?'対象 '+data.coverage.universe+'社 ／ この月の予定を確認 '+data.coverage.known+'社'+(data.coverage.unknown?' ／ 日程未確認 '+data.coverage.unknown+'社':'')+(scope==='all'?'（収集対象の銘柄）':''):'';
         const notes=[];if(favorites.legacyCount)notes.push('以前の登録 '+favorites.legacyCount+'社も含みます');if(favorites.overflow)notes.push('100社を超える登録は保存されています');if(favorites.error||favorites.migrationError)notes.push('保存済み銘柄の引き継ぎを確認できませんでした');if(state&&state.excluded&&state.excluded.length)notes.push(state.excluded.length+'社の銘柄コードを確認できませんでした');refs.migration.textContent=notes.join('。');refs.migration.hidden=!notes.length;updateDays();renderLists();
       }
