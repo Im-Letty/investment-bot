@@ -68,18 +68,45 @@ test('encrypted favorites persistence survives a new page and rejects failed dur
  fail=true;await assert.rejects(restored.remove('7203.T'),/quota/);assert.deepEqual(restored.list(),['7203.T']);
 });
 class Element{
- constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.style={};this.listeners={};this.attrs={};this.value='';this.textContent='';this.isConnected=true;this.scrollTop=0;}
- appendChild(node){this.children.push(node);return node;}replaceChildren(...nodes){this.children=nodes;}setAttribute(k,v){this.attrs[k]=v;}addEventListener(k,v){this.listeners[k]=v;}focus(){this.focused=true;}querySelector(tag){return this.children.flatMap(n=>[n,...n.children]).find(n=>n.tagName===tag)||null;}
+ constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.style={overflow:'',paddingRight:'',setProperty(k,v){this[k]=v;}};this.listeners={};this.attrs={};this.value='';this.textContent='';this.isConnected=true;this.scrollTop=0;this.inert=false;this.classes=new Set();this.classList={add:v=>this.classes.add(v),remove:v=>this.classes.delete(v),contains:v=>this.classes.has(v)};}
+ appendChild(node){if(node.parentNode)node.parentNode.children=node.parentNode.children.filter(n=>n!==node);node.parentNode=this;this.children.push(node);return node;}replaceChildren(...nodes){this.children=nodes;}setAttribute(k,v){this.attrs[k]=v;}addEventListener(k,v){this.listeners[k]=v;}focus(){this.focused=true;if(this.doc)this.doc.activeElement=this;}querySelector(tag){return this.children.flatMap(n=>[n,...n.children]).find(n=>n.tagName===tag)||null;}closest(selector){return selector==='[hidden]'&&this.hidden?this:null;}getClientRects(){return this.hidden?[]:[{}];}
 }
-test('UI searches on submit, adds selected company, removes it, returns to favorites and handles Japanese composition',async()=>{
- const ids=['alert-section','alert-ticker-input','stock-search-form','stock-search-results','alert-watchlist','alert-msg','stock-watch-count','morning-section','morning-news-section'];const nodes=new Map(ids.map(id=>[id,new Element()]));const requests=[],timers=new Map();let tid=0,refreshes=0,tab='';
- const classes=new Set(['view-asaletter']);nodes.get('morning-section').scrollTop=450;
- const w={document:{body:{classList:{add:value=>classes.add(value),remove:value=>classes.delete(value)}},addEventListener(){},readyState:'complete',activeElement:new Element('button'),querySelector:()=>nodes.get('morning-section'),getElementById:id=>nodes.get(id),createElement:tag=>new Element(tag)},localStorage:storage(),StockWatch:{},AbortController,scrollTo(){},__knRefreshWatch(){refreshes++;},__knSetSub(value){tab=value;},setTimeout(fn,ms){timers.set(++tid,{fn,ms});return tid;},clearTimeout:id=>timers.delete(id),async fetch(url){requests.push(url);return {ok:true,json:async()=>({results:[toyota]})};}};
- watch.start(w);await w.openStockWatchManager();assert.equal(classes.has('view-asaletter'),false);const input=nodes.get('alert-ticker-input');input.value='トヨタ';
+function uiHarness({reduced=true}={}){
+ const ids=['alert-section','alert-ticker-input','stock-search-form','stock-search-results','alert-watchlist','alert-msg','stock-watch-count','morning-section','morning-news-section','stock-watch-close','stock-search-heading'];const nodes=new Map(ids.map(id=>[id,new Element()]));const requests=[],timers=new Map(),events={};let tid=0,refreshes=0;
+ const body=new Element('BODY'),panel=new Element('section'),originalFocus=new Element('button'),fallback=new Element('button'),submit=new Element('button'),nav=new Element('nav');nav.inert=true;
+ body.classList.add('view-asaletter');body.appendChild(nodes.get('morning-section'));body.appendChild(nav);body.appendChild(nodes.get('alert-section'));nodes.get('morning-section').scrollTop=450;
+ const manager=nodes.get('alert-section');manager.querySelector=selector=>selector==='.sw-sheet'?panel:null;
+ const doc={body,documentElement:{clientWidth:400},addEventListener:(key,fn)=>events[key]=fn,readyState:'complete',activeElement:originalFocus,querySelector:()=>fallback,getElementById:id=>nodes.get(id),createElement:tag=>{const node=new Element(tag);node.doc=doc;return node;}};
+ for(const node of [...nodes.values(),panel,originalFocus,fallback,submit])node.doc=doc;
+ panel.querySelectorAll=()=>[nodes.get('stock-watch-close'),nodes.get('alert-ticker-input'),submit];
+ const vv={height:780,offsetTop:0,events:{},addEventListener(key,fn){this.events[key]=fn;}};
+ const w={document:doc,localStorage:storage(),StockWatch:{},AbortController,innerWidth:400,visualViewport:vv,matchMedia:()=>({matches:reduced}),scrollTo(){},__knRefreshWatch(){refreshes++;},setTimeout(fn,ms){timers.set(++tid,{fn,ms});return tid;},clearTimeout:id=>timers.delete(id),async fetch(url){requests.push(url);return {ok:true,json:async()=>({results:[toyota]})};}};
+ watch.start(w);return {w,doc,nodes,panel,manager,nav,originalFocus,fallback,submit,requests,timers,events,vv,get refreshes(){return refreshes;}};
+}
+test('sheet preserves the home while searching, adding and removing; Japanese composition does not submit',async()=>{
+ const h=uiHarness();const {w,doc,nodes,requests,manager}=h;
+ await w.openStockWatchManager();assert.equal(doc.body.classList.contains('view-asaletter'),true);assert.equal(nodes.get('morning-section').inert,true);assert.equal(manager.style.display,'flex');assert.equal(h.panel.focused,true);const input=nodes.get('alert-ticker-input');input.value='トヨタ';
  input.listeners.compositionstart();input.listeners.input();nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();assert.equal(requests.length,0);
- input.listeners.compositionend();nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();assert.equal(requests.length,1);
+ input.listeners.compositionend();nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();assert.equal(requests.length,1);assert.equal(nodes.get('stock-search-heading').hidden,false);
  const button=nodes.get('stock-search-results').children[0].children[0].children[1];await button.listeners.click();await flush();
- assert.equal(button.textContent,'追加済み');assert.equal(nodes.get('stock-watch-count').textContent,'1 / 20');assert.equal(nodes.get('alert-msg').textContent,'');assert.equal(requests.length,1);
- const remove=nodes.get('alert-watchlist').children[0].children[0].children[1];await remove.listeners.click();assert.equal(nodes.get('stock-watch-count').textContent,'0 / 20');
- w.document.activeElement.isConnected=false;w.closeStockWatchManager();assert.equal(nodes.get('morning-section').focused,true);assert.equal(nodes.get('alert-section').style.display,'none');assert.equal(tab,'watch');assert.ok(refreshes>=3);assert.equal(classes.has('view-asaletter'),true);assert.equal(nodes.get('morning-section').scrollTop,450);
+ assert.equal(button.textContent,'追加済み');assert.equal(nodes.get('stock-watch-count').textContent,'1件');assert.equal(nodes.get('alert-msg').textContent,'');assert.equal(requests.length,1);
+ const remove=nodes.get('alert-watchlist').children[0].children[0].children[1];await remove.listeners.click();assert.equal(nodes.get('stock-watch-count').textContent,'0件');
+ h.originalFocus.isConnected=false;w.closeStockWatchManager();assert.equal(h.fallback.focused,true);assert.equal(manager.style.display,'none');assert.ok(h.refreshes>=3);assert.equal(doc.body.classList.contains('view-asaletter'),true);assert.equal(nodes.get('morning-section').scrollTop,450);assert.equal(nodes.get('morning-section').inert,false);assert.equal(h.nav.inert,true);assert.equal(doc.body.style.overflow,'');
+});
+test('sheet traps focus, follows the visible keyboard viewport and closes with Escape or backdrop',async()=>{
+ const h=uiHarness();await h.w.openStockWatchManager();let prevented=0;const key=(value,shiftKey=false)=>h.events.keydown({key:value,shiftKey,preventDefault(){prevented++;}});
+ const close=h.nodes.get('stock-watch-close');close.focus();key('Tab',true);assert.equal(h.doc.activeElement,h.submit);key('Tab');assert.equal(h.doc.activeElement,close);assert.equal(prevented,2);
+ h.vv.height=420;h.vv.offsetTop=30;h.vv.events.resize();assert.equal(h.manager.style['--sw-viewport-height'],'420px');assert.equal(h.manager.style['--sw-viewport-top'],'30px');
+ key('Escape');assert.equal(h.manager.style.display,'none');assert.equal(h.doc.activeElement,h.originalFocus);
+ await h.w.openStockWatchManager();const backdrop=new Element();backdrop.classList.add('sw-backdrop');h.manager.listeners.click({target:backdrop});assert.equal(h.manager.style.display,'none');
+});
+test('reopening during the close animation retains the original focus and background state',async()=>{
+ const h=uiHarness({reduced:false});await h.w.openStockWatchManager();h.w.closeStockWatchManager();assert.equal(h.manager.dataset.closing,'true');assert.equal(h.nodes.get('morning-section').inert,true);
+ await h.w.openStockWatchManager();assert.equal(h.manager.dataset.closing,undefined);assert.equal([...h.timers.values()].filter(t=>t.ms===180).length,0);
+ h.w.closeStockWatchManager();[...h.timers.values()].find(t=>t.ms===180).fn();assert.equal(h.manager.style.display,'none');assert.equal(h.nodes.get('morning-section').inert,false);assert.equal(h.doc.activeElement,h.originalFocus);
+});
+test('a query interrupted by closing resumes when the sheet is opened again',async()=>{
+ const h=uiHarness();await h.w.openStockWatchManager();const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';input.listeners.input();
+ h.w.closeStockWatchManager();assert.equal(h.requests.length,0);await h.w.openStockWatchManager();await flush();assert.equal(h.requests.length,1);assert.equal(h.nodes.get('stock-search-heading').hidden,false);
+ assert.equal(h.nodes.get('stock-search-results').children[0].children.length,1);
 });
