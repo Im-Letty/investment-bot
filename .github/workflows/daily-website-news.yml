@@ -1,0 +1,19 @@
+name: Daily website news
+on:
+  schedule:
+    # Start before 08:00 Japan time. Server performs preparation at 07:45.
+    - cron: '32 22 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: daily-website-news
+  cancel-in-progress: false
+jobs:
+  prepare-and-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+      - name: Keep the website awake and verify the morning edition
+        run: python scripts/check_daily_news.py

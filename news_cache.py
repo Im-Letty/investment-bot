@@ -10,6 +10,7 @@ import io
 import json
 import logging
 import math
+import os
 import time
 import unicodedata
 from urllib.parse import urlsplit, urlunsplit
@@ -248,7 +249,7 @@ def _validated_digest(value):
     if (not isinstance(edition, str) or not isinstance(headline, str)
             or not 1 <= len(headline.strip()) <= 80 or not isinstance(summary, str)
             or not 200 <= len(summary.strip()) <= 300
-            or not isinstance(refs, list) or not (2 if curated else 1) <= len(refs) <= 3):
+            or not isinstance(refs, list) or not 1 <= len(refs) <= 3):
         return None
     articles, identities = [], set()
     for ref in refs:
@@ -311,16 +312,33 @@ def _validated_digest(value):
     return result
 
 
-def load_reviewed_digests(path=None):
-    """Read reviewed copy; a missing or malformed file supplies no daily digest."""
+def _read_digest_file(path):
     try:
-        values = json.loads(Path(path or Path(__file__).with_name("news-digests.json")).read_text(encoding="utf-8"))
+        values = json.loads(Path(path).read_text(encoding="utf-8"))
         if not isinstance(values, list):
             return []
         digests = [_validated_digest(value) for value in values]
         return digests if all(digest is not None for digest in digests) else []
     except (OSError, ValueError, TypeError):
         return []
+
+
+def load_reviewed_digests(path=None):
+    """Merge committed editions with privately persisted scheduled publications.
+
+    Reading never starts a network request. Broken runtime data cannot remove
+    the deployed last-good edition. Explicit paths keep CLI/test behavior.
+    """
+    if path is not None:
+        return _read_digest_file(path)
+    baseline = _read_digest_file(Path(__file__).with_name("news-digests.json"))
+    runtime = _read_digest_file(os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"))
+    by_date = {item["edition_date"]: item for item in baseline}
+    for item in runtime:
+        previous = by_date.get(item["edition_date"])
+        if previous is None or item.get("reviewed_at", 0) > previous.get("reviewed_at", 0):
+            by_date[item["edition_date"]] = item
+    return sorted(by_date.values(), key=lambda item: item["edition_date"])[-30:]
 
 
 def _select_reviewed_digest(news, edition, reviewed_digests):

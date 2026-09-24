@@ -464,10 +464,14 @@ class ReviewedDigestTests(unittest.TestCase):
                                     reviewed_digests=[reviewed])
         self.assertIsNone(limited['digest'])
 
-    def test_curated_publication_requires_current_review_two_distinct_articles_and_200_to_300_chars(self):
+    def test_one_confirmed_topic_is_valid_without_padding(self):
+        review = self.curated([article('Domestic')])
+        self.assertIsNotNone(self.select([], [review])['digest'])
+
+    def test_curated_publication_requires_current_review_distinct_articles_and_200_to_300_chars(self):
         items = [article('Domestic'), article('Foreign', source='ロイター経済')]
         review = self.curated(items)
-        invalid = [self.curated(items[:1]), self.curated(items + [items[0]]),
+        invalid = [self.curated([]), self.curated(items + [items[0]]),
                    self.curated([items[0], {**items[1], 'url': items[0]['url']}]),
                    self.curated([items[0], {**items[1], 'title': items[0]['title']}]),
                    {**review, 'summary': '文' * 199}, {**review, 'summary': '文' * 301},

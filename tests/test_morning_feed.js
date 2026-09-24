@@ -551,9 +551,9 @@ test('API delivers one 200–300 character published summary from two or three a
   }
 });
 
-test('curated publication with fewer than two articles, invalid review time or wrong length cannot render',async()=>{
+test('curated publication with no articles, invalid review time or wrong length cannot render',async()=>{
   for(const mutate of [
-    d=>{d.news.pop();d.digest.article_refs.pop();},
+    d=>{d.news=[];d.digest.article_refs=[];},
     d=>d.digest.reviewed_at+=1,
     d=>d.digest.reviewed_at-=86400,
     d=>d.digest.reviewed_at-=1,
@@ -947,4 +947,13 @@ test('extended game code is preserved in order and loads only when opened',async
   context.openPetTab();assert.equal(scripts.length,3);assert.equal(timers.size,0);
   // Login and news-view rewards belong to the original small card runtime.
   assert.ok(html.includes('render(false);dailyLogin();startStroll()'));
+});
+
+
+test('a verified one-topic edition remains readable on quiet news days',async()=>{
+  const app=harness(),data=curated(app);
+  data.news=data.news.slice(0,1);data.digest.article_refs=data.digest.article_refs.slice(0,1);
+  if(data.digest.article_summaries)data.digest.article_summaries=data.digest.article_summaries.slice(0,1);
+  app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+  assert.ok(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
 });

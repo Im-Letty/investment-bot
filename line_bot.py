@@ -64,6 +64,19 @@ SUPABASE_URL = os.environ.get("SUPABASE_URL", "")
 SUPABASE_KEY = os.environ.get("SUPABASE_KEY", "")
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+# Website news is isolated from all LINE message/report handlers. Preparation
+# runs off-request; only validated, durably stored editions become visible.
+from daily_news_producer import configuration as news_configuration, generate_edition
+from daily_news_runtime import start as start_daily_news
+_news_config = news_configuration()
+_daily_news = start_daily_news(
+    supabase, generate_edition,
+    enabled=_news_config["enabled"] and _news_config["configured"],
+    baseline_path=os.path.join(os.path.dirname(__file__), "news-digests.json"),
+    cache_path=os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"),
+    url=SUPABASE_URL, key=SUPABASE_KEY)
+
+
 from passkey_auth import create_passkey_blueprint
 from passkey_provision import ensure_passkey_provider
 app.register_blueprint(create_passkey_blueprint(supabase))
@@ -2275,6 +2288,18 @@ def api_morning_news():
         return jsonify(result)
     except Exception as e:
         return jsonify({"error": str(e), "news": []}), 200
+
+@app.route("/api/news-publication")
+def api_news_publication():
+    """Read-only operational status. No caller-provided dates, prompts or force flag."""
+    status = _daily_news.snapshot()
+    status.update(configured=_news_config["configured"],
+                  missing=_news_config["missing"],
+                  schedule="08:00 Asia/Tokyo", preparation="07:45 Asia/Tokyo")
+    response = jsonify(status)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
 
 @app.route("/health")
 def health():
