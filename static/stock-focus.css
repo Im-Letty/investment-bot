@@ -146,11 +146,14 @@ body.kn-home-a #knTabWrap #homeMoversList>.sf-content {padding:0!important}
 #knTabWrap .sf-ranking[hidden] {display:none!important}
 #knTabWrap .sf-rows {padding:0;margin:0;list-style:none}
 #knTabWrap .sf-row {display:grid;grid-template-columns:21px minmax(0,1fr) auto;gap:13px;align-items:center;min-height:86px;padding:13px 0;border-bottom:1px solid var(--sf-line)}
-#knTabWrap .sf-rank {font:italic 15px/1 Georgia,serif;color:var(--sf-rank);text-align:center}
+#knTabWrap .sf-rank,
+#knTabWrap .dividend-list .div-rank {font:italic 15px/1 Georgia,serif;color:var(--sf-rank);text-align:center}
 #knTabWrap .sf-stock-name {min-width:0;overflow-wrap:anywhere;font-size:14px;font-weight:500;line-height:1.65}
-#knTabWrap .sf-stock-code {display:block;margin-top:3px;color:var(--sf-muted);font:400 11px/1.5 var(--kn-a-sans,sans-serif);letter-spacing:.04em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#knTabWrap .sf-stock-code,
+#knTabWrap .dividend-list .div-code {display:block;margin-top:3px;color:var(--sf-muted);font:400 11px/1.5 var(--kn-a-sans,sans-serif);letter-spacing:.04em;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #knTabWrap .sf-quote {display:flex;flex-direction:column;gap:1px;white-space:nowrap;font-variant-numeric:tabular-nums}
-#knTabWrap .sf-price {font:500 21px/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;letter-spacing:.015em;color:var(--sf-ink)}
+#knTabWrap .sf-price,
+#knTabWrap .dividend-list .div-yield {font:500 21px/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;letter-spacing:.015em;color:var(--sf-ink);font-variant-numeric:tabular-nums}
 #knTabWrap .sf-price small {font-family:var(--kn-a-sans,sans-serif);font-size:10px;font-weight:400;margin-left:3px;letter-spacing:0}
 #knTabWrap .sf-change {font-size:12px;font-weight:400;line-height:1.75}
 #knTabWrap .sf-change>span {font-size:11px}
@@ -239,7 +242,8 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
   body.kn-home-a #morning-section #knTabWrap>.kn-a-section-title {font-size:calc(23px * var(--kn-a-scale,1))!important;margin-bottom:15px!important}
   #knTabWrap .sf-row {grid-template-columns:17px minmax(0,1fr) auto;gap:9px;min-height:83px}
   #knTabWrap .sf-watch-row {gap:9px;min-height:83px}
-  #knTabWrap .sf-price {font-size:20px}
+  #knTabWrap .sf-price,
+  #knTabWrap .dividend-list .div-yield {font-size:20px}
   #knTabWrap .sf-change {font-size:11px}
   #knTabWrap .sf-change>span {font-size:10px}
 }
