@@ -88,6 +88,7 @@
 
 /* Approved holding-period story: the estimate, purchase options and dates share one quiet column. */
 #knDividendCalendar .dc-holding-story {grid-column:1/-1;min-width:0;margin:4px 0 10px;padding:0;border:0;background:transparent!important;color:var(--dc-ink)!important;box-shadow:none;container:dividend-holding / inline-size}
+#knDividendCalendar .dc-past-event {margin:0 0 15px;padding:9px 12px;border-left:2px solid var(--dc-line);background:var(--dc-chip);color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.85 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
 #knDividendCalendar .dc-dividend-estimate {min-width:0;margin:0 0 23px;padding:0 0 20px;border:0;border-bottom:1px solid var(--dc-line);background:transparent!important;color:var(--dc-ink)!important;box-shadow:none}
 #knDividendCalendar .dc-dividend-heading {display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;min-width:0}
 #knDividendCalendar .dc-dividend-heading h5 {margin:0;padding:0;color:var(--dc-ink);font:500 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
@@ -100,7 +101,7 @@
 #knDividendCalendar .dc-dividend-values>.dc-dividend-value {align-content:start;min-height:calc(61px * var(--kn-a-scale,1));margin:0}
 #knDividendCalendar .dc-dividend-values .dc-dividend-value>strong {font-size:calc(23px * var(--kn-a-scale,1))}
 #knDividendCalendar .dc-dividend-note {margin:9px 0 0;padding:0;color:var(--dc-muted);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
-#knDividendCalendar .dc-dividend-unknown,#knDividendCalendar .dc-dividend-value>.dc-dividend-unknown {margin:9px 0 0;padding:0;color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.85 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
+#knDividendCalendar .dc-dividend-values .dc-dividend-value>.dc-dividend-unknown {margin:0;padding:0;color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.85 var(--kn-a-sans,sans-serif);letter-spacing:0;overflow-wrap:anywhere}
 #knDividendCalendar .dc-price-panel {min-width:0;margin:17px 0 0;padding:16px 0 0;border:0;border-top:1px solid var(--dc-line);background:transparent!important;color:var(--dc-ink)!important;box-shadow:none}
 #knDividendCalendar .dc-price-heading {display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:4px 12px;min-width:0}
 #knDividendCalendar .dc-price-heading h5 {margin:0;padding:0;color:var(--dc-ink);font:500 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
@@ -137,6 +138,7 @@
 #knDividendCalendar .dc-range-label {color:var(--dc-ink);font:400 calc(12px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
 #knDividendCalendar .dc-range-value {display:block;max-width:100%;margin:0;padding:0;color:var(--dc-ink);font:600 calc(27px * var(--kn-a-scale,1))/1.3 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.035em;overflow-wrap:anywhere}
 #knDividendCalendar .dc-range-value small {display:inline-block;color:var(--dc-ink);font:400 calc(11px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);letter-spacing:0;white-space:nowrap}
+#knDividendCalendar .dc-range-value.dc-range-unknown {color:var(--dc-muted);font:500 calc(14px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);letter-spacing:0}
 #knDividendCalendar .dc-range-deadline {color:var(--dc-ink);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
 #knDividendCalendar .dc-range-arrow {color:var(--dc-muted);font:400 calc(19px * var(--kn-a-scale,1))/1 var(--kn-a-sans,sans-serif);text-align:center}
 #knDividendCalendar .dc-holding-note {margin:13px 0 0;padding:0;color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.9 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
@@ -155,4 +157,9 @@
   #knDividendCalendar .dc-range-value {font-size:calc(24px * var(--kn-a-scale,1))}
   #knDividendCalendar .dc-range-label {font-size:calc(11px * var(--kn-a-scale,1))}
   #knDividendCalendar .dc-broker-links a {grid-template-columns:minmax(0,1fr) minmax(0,.7fr) 12px;gap:6px}
+}
+@container dividend-holding (max-width:250px){
+  #knDividendCalendar .dc-dividend-values,#knDividendCalendar .dc-price-values {grid-template-columns:minmax(0,1fr)}
+  #knDividendCalendar .dc-holding-range {grid-template-columns:minmax(0,1fr);gap:12px}
+  #knDividendCalendar .dc-range-arrow {transform:rotate(90deg)}
 }

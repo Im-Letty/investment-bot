@@ -104,7 +104,6 @@
       refs.grid=el('div','dc-grid');refs.grid.setAttribute('role','group');refs.grid.setAttribute('aria-labelledby','dc-month-title');
       const statusRow=el('div','dc-status-row');refs.status=el('p','dc-status');refs.status.setAttribute('role','status');refs.retry=button('再確認','dc-retry',()=>refresh(true));refs.retry.hidden=true;append(statusRow,refs.status,refs.retry);
       const listHead=el('div','dc-list-heading');refs.heading=el('h4');refs.heading.id='dc-agenda-title';refs.clear=button('これからの予定へ','dc-reset',()=>{selectedDate=null;autoDate=false;limit=5;renderLists();updateDays();});refs.clear.hidden=true;append(listHead,refs.heading,refs.clear);
-      refs.guidance=el('div','dc-guidance');refs.guidance.hidden=true;
       refs.list=el('ul','dc-events');refs.empty=el('p','dc-empty');refs.more=button('もっと見る','dc-more',()=>{limit+=5;renderLists();});refs.more.hidden=true;
       refs.plans=el('div','dc-month-plans');refs.planHeading=el('h4','dc-plan-heading');refs.planList=el('ul','dc-events');refs.planMore=button('もっと見る','dc-more',()=>{monthLimit+=5;renderLists();});append(refs.plans,refs.planHeading,el('p','dc-plan-note','配当金が支払われる時期です。詳しい日付はまだ確認できていません。'),refs.planList,refs.planMore);
       refs.coverage=el('p','dc-coverage');refs.migration=el('p','dc-coverage');refs.universe=el('p','dc-universe');
@@ -117,7 +116,7 @@
       ].forEach(([title,text])=>append(terms,el('dt','',title),el('dd','',text)));
       const helpSource=el('a','dc-help-source','日付のしくみを確認する ↗');helpSource.href='https://faq.sbisec.co.jp/answer/5ef300184a6766001122cc38/';helpSource.target='_blank';helpSource.rel='noopener noreferrer';
       append(legend,el('summary','','いつ買って、いつまで持つ？'),terms,el('p','dc-help-note','一般的な日本株の現物取引（お金を払って株を買う方法）の説明です。配当の有無・金額は会社の発表によります。株主優待の保有期間の条件とは異なります。'),helpSource,refs.universe);
-      const layout=el('div','dc-layout'),calendarPanel=el('section','dc-calendar-panel'),agendaPanel=el('section','dc-agenda-panel');calendarPanel.setAttribute('aria-labelledby','dc-month-title');agendaPanel.setAttribute('aria-labelledby','dc-agenda-title');append(calendarPanel,weekdays,refs.grid,statusRow);append(agendaPanel,listHead,refs.guidance,refs.list,refs.empty,refs.more,refs.plans);append(layout,calendarPanel,agendaPanel);append(mount,filters,navigation,layout,refs.coverage,refs.migration,legend);
+      const layout=el('div','dc-layout'),calendarPanel=el('section','dc-calendar-panel'),agendaPanel=el('section','dc-agenda-panel');calendarPanel.setAttribute('aria-labelledby','dc-month-title');agendaPanel.setAttribute('aria-labelledby','dc-agenda-title');append(calendarPanel,weekdays,refs.grid,statusRow);append(agendaPanel,listHead,refs.list,refs.empty,refs.more,refs.plans);append(layout,calendarPanel,agendaPanel);append(mount,filters,navigation,layout,refs.coverage,refs.migration,legend);
       function query(){return {month:monthValue,scope,symbols:favorites.symbols};}
       const loader=createLoader({fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage},state=>{current=state;render();w.clearTimeout(retryTimer);if(state.data&&state.data.refreshing&&state.status!=='error'&&polls<4&&!doc.hidden&&mount.getClientRects().length){retryTimer=w.setTimeout(()=>{polls++;refresh(true,false);},15000);}});
       function prettyMonth(value){return value.slice(0,4)+'年'+Number(value.slice(5))+'月';}
@@ -151,7 +150,7 @@
       }
       function pricePanel(event){
         const panel=el('section','dc-price-panel'),heading=el('div','dc-price-heading'),values=el('div','dc-price-values'),refs={};
-        append(heading,el('h5','','購入金額の目安'),el('span','dc-price-mode','自動更新'));
+        append(heading,el('h5','','現在の購入金額の目安'),el('span','dc-price-mode','自動更新'));
         [['single','1株の株価'],['hundred','100株の購入目安']].forEach(([key,label])=>{const cell=el('div','dc-price-cell');refs[key]=el('strong','dc-price-value','—');append(cell,el('span','dc-price-label',label),refs[key],el('span','dc-price-unit','円'));values.appendChild(cell);});
         refs.time=el('p','dc-price-time','株価の時刻を確認しています');refs.status=el('p','dc-price-status','株価を確認しています…');
         append(panel,heading,values,refs.time,refs.status);panel.__priceRefs=refs;return panel;
@@ -161,33 +160,42 @@
         const active=!doc.hidden&&priceInView&&mount.getClientRects().length>0;
         if(!active)priceController.pause();
         priceNodes.clear();
-        for(const row of Array.from(refs.list.children)){if(!row.__priceRefs)continue;const key=row.__priceSymbol;if(!priceNodes.has(key))priceNodes.set(key,[]);priceNodes.get(key).push(row.__priceRefs);}
+        for(const row of [...refs.list.children,...refs.planList.children]){if(!row.__priceRefs)continue;const key=row.__priceSymbol;if(!priceNodes.has(key))priceNodes.set(key,[]);priceNodes.get(key).push(row.__priceRefs);}
         priceController.setSymbols([...priceNodes.keys()]);
         priceNodes.forEach((_,key)=>updatePrice(key,priceController.peek(key)));
         if(active)priceController.resume();
       }
       function holdingStory(event){
         const story=el('div','dc-holding-story'),amount=event.dividend,window=event.holding_window;
+        const confirmedDay=event.precision==='day'&&event.status==='confirmed',deadline=window?window.deadline:confirmedDay&&event.kind==='holding_deadline'?event.date:null,ex=window?window.ex_dividend:confirmedDay&&event.kind==='ex_dividend'?event.date:null,currentDay=today(),past=event.precision==='day'&&event.date<currentDay,deadlinePast=deadline&&deadline<currentDay;
+        if(past)story.appendChild(el('p','dc-past-event',event.status==='planned'?'過去の予定日です。実際の日程は、まだ確認できていません。':event.kind==='payment'?'過去の支払い日程です。':'過去の配当日程です。今から買っても、この配当の対象にはなりません。'));
         const estimate=el('section','dc-dividend-estimate'),heading=el('div','dc-dividend-heading');
-        append(heading,el('h5','','今回の配当予想'));if(event.record_date)heading.appendChild(el('span','',prettyMonth(event.record_date.slice(0,7))+'分'));estimate.appendChild(heading);
-        if(amount){
-          const values=el('div','dc-dividend-values');
-          [[1,'1株保有した場合'],[100,'100株保有した場合']].forEach(([shares,label])=>{const value=el('div','dc-dividend-value');append(value,el('span','',label),el('strong','',new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(amount.per_share*shares*100)/100)),el('span','dc-dividend-unit','円'));values.appendChild(value);});
-          append(estimate,values,el('p','dc-dividend-note','税引前・会社予想'));
-        }else estimate.appendChild(el('p','dc-dividend-unknown','今回の金額はまだ確認できていません。'));
+        append(heading,el('h5','',event.kind==='payment'?'この支払いの配当額':past?'当時の配当予想':'今回の配当予想'));if(event.record_date)heading.appendChild(el('span','',prettyMonth(event.record_date.slice(0,7))+'分'));estimate.appendChild(heading);
+        const values=el('div','dc-dividend-values');
+        [[1,'1株保有した場合'],[100,'100株保有した場合']].forEach(([shares,label])=>{
+          const value=el('div','dc-dividend-value');value.appendChild(el('span','',label));
+          if(amount)append(value,el('strong','',new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(amount.per_share*shares*100)/100)),el('span','dc-dividend-unit','円'));
+          else value.appendChild(el('strong','dc-dividend-unknown','金額未確認'));
+          values.appendChild(value);
+        });
+        append(estimate,values,el('p','dc-dividend-note',amount?(past?'税引前・当時の会社予想。確定した支払額とは異なる場合があります。':'税引前・会社予想'):'この配当1回分の金額は、まだ確認できていません。'));
         const unit=el('p','dc-unit-note');append(unit,el('strong','','通常の購入は100株単位です。'),el('span','','証券会社や銘柄によっては、1株から買えるサービスもあります。'));
         const prices=pricePanel(event);story.__priceRefs=prices.__priceRefs;append(estimate,prices,unit,brokerOptions(event));story.appendChild(estimate);
-        append(story,el('p','dc-range-title','今回の配当を受け取るには'));
+        append(story,el('p','dc-range-title',past?'この配当の購入・保有期限':'今回の配当を受け取るには'));
         const range=el('div','dc-holding-range');
-        [['start','購入はいつまで？','取引終了までに買う'],['end','保有はいつまで？','取引終了時点まで持つ']].forEach(([position,label,deadline],index)=>{
+        [['start','購入はいつまで？',deadlinePast?'取引終了までに購入':'取引終了までに買う'],['end','保有はいつまで？',deadlinePast?'取引終了時点まで保有':'取引終了時点まで持つ']].forEach(([position,label,description],index)=>{
           if(index){const arrow=el('span','dc-range-arrow','→');arrow.setAttribute('aria-hidden','true');range.appendChild(arrow);}
-          const part=el('div','dc-range-'+position),date=el('strong','dc-range-value',shortDate(window.deadline)+' ');date.appendChild(el('small','',weekday(window.deadline)));
-          append(part,el('span','dc-range-label',label),date,el('span','dc-range-deadline',deadline));range.appendChild(part);
+          const part=el('div','dc-range-'+position),date=el('strong','dc-range-value'+(deadline?'':' dc-range-unknown'),deadline?shortDate(deadline)+' ':'日程未確認');if(deadline)date.appendChild(el('small','',weekday(deadline)));
+          append(part,el('span','dc-range-label',label),date);if(deadline)part.appendChild(el('span','dc-range-deadline',description));range.appendChild(part);
         });
-        const after=el('section','dc-after-deadline');append(after,el('h5','',shortDate(window.ex_dividend)+'（'+weekday(window.ex_dividend)+'）以降に売っても'),el('p','','今回の配当の権利は残ります。'+(event.record_date?shortDate(event.record_date)+'や':'')+'支払日まで持ち続ける必要はありません。'));
-        append(story,range,el('p','dc-holding-note',shortDate(window.deadline)+'当日に買っても対象です。その日の途中で売らず、取引終了まで持ちます。注文しただけでなく、実際に買えている必要があります。'),after);
-        if(event.record_date){const record=el('p','dc-record-note');append(record,el('strong','',shortDate(event.record_date)+'（'+weekday(event.record_date)+'） 権利確定日'),el('span','','配当の対象になる株主が決まる日です。買う締切・配当金の支払日とは別です。'));story.appendChild(record);}
-        story.appendChild(el('p','dc-holding-note',shortDate(window.ex_dividend)+'以降に新しく買った株は、今回の配当には間に合いません。'));
+        let note=deadline?(deadlinePast?shortDate(deadline)+'までに買い、その日の取引終了時点まで持っていた株が対象です。':shortDate(deadline)+'当日に買っても対象です。その日の途中で売らず、取引終了まで持ちます。注文しただけでなく、実際に買えている必要があります。'):'購入・保有の締切日は、まだ確認できていません。';
+        if(event.kind==='payment')note+='支払日や支払予定月は、購入・保有の締切とは別です。';
+        const after=el('section','dc-after-deadline');
+        if(ex)append(after,el('h5','',past?shortDate(ex)+'（'+weekday(ex)+'） 権利落ち日':shortDate(ex)+'（'+weekday(ex)+'）以降に売っても'),el('p','',deadline?'締切まで持っていれば、今回の配当の権利は残ります。'+(event.record_date?shortDate(event.record_date)+'や':'')+'支払日まで持ち続ける必要はありません。':'前の取引日の終了時点まで持っていた株は、この日以降に売っても配当の権利が残ります。支払日まで持ち続ける必要はありません。'));
+        else append(after,el('h5','','売却できる日は？'),el('p','','日程未確認。配当の権利を残して売却できる「権利落ち日」は、まだ確認できていません。'));
+        append(story,range,el('p','dc-holding-note',note),after);
+        const record=el('p','dc-record-note');append(record,el('strong','',event.record_date?shortDate(event.record_date)+'（'+weekday(event.record_date)+'） 権利確定日':'権利確定日：日程未確認'),el('span','','配当の対象になる株主が決まる日です。買う締切・配当金の支払日とは別です。'));story.appendChild(record);
+        if(ex)story.appendChild(el('p','dc-holding-note',shortDate(ex)+'以降に新しく買った株は、この配当の対象にはなりません。'));
         return story;
       }
       function eventRow(event){
@@ -200,28 +208,11 @@
         append(body,name,el('span','dc-company-code',event.code));
         if(!event.holding_window||event.kind==='ex_dividend')body.appendChild(tag);
         append(row,date,body);
-        if(event.holding_window){const story=holdingStory(event);story.appendChild(evidence);row.__priceRefs=story.__priceRefs;row.__priceSymbol=event.symbol;row.appendChild(story);}
-        else {if(event.record_date)body.appendChild(el('p','dc-record-date','株主が決まる日：'+dateLabel(event.record_date)+'（権利確定日）'));body.appendChild(evidence);}
+        const story=holdingStory(event);story.appendChild(evidence);row.__priceRefs=story.__priceRefs;row.__priceSymbol=event.symbol;row.appendChild(story);
         return row;
       }
       function drawList(node,events){const signature=JSON.stringify(events);if(node.__signature===signature)return;node.__signature=signature;const old=new Map(Array.from(node.children).map(row=>[row.dataset.event,row]));const rows=events.map(event=>{const prior=old.get(event.id);if(prior&&prior.__event===JSON.stringify(event))return prior;const row=eventRow(event);row.__event=JSON.stringify(event);return row;});node.replaceChildren(...rows);}
-      function renderGuidance(events){
-        const kinds=uniq(events.filter(event=>!event.holding_window).map(event=>event.kind));
-        const signature=JSON.stringify([selectedDate,kinds]);if(refs.guidance.__signature===signature)return;refs.guidance.__signature=signature;
-        refs.guidance.replaceChildren();refs.guidance.hidden=!selectedDate||!kinds.length;if(refs.guidance.hidden)return;
-        kinds.forEach(kind=>{
-          const guide=el('section','dc-date-guide');
-          if(kind==='holding_deadline'){
-            append(guide,el('h5','','いつから、いつまで持つ？'),el('p','',dateLabel(selectedDate)+'までに買い、この日の取引終了時点まで持つと、今回の配当の対象になります。当日に買っても間に合います。'),el('p','','「権利確定日」は、配当の対象になる株主が決まる日です。配当金の支払日とは別です。'));
-          }else if(kind==='ex_dividend'){
-            append(guide,el('h5','','権利落ち日とは？'),el('p','','この日に新しく買った株は、今回の配当には間に合いません。前の取引日の終了時点まで持っていた株は、この日に売っても今回の配当の権利が残ります。'),el('p','','「権利確定日」は、配当の対象になる株主が決まる日です。配当金の支払日とは別です。'));
-          }else{
-            append(guide,el('h5','','配当金が支払われる日'),el('p','','会社から配当金が支払われる日です。株を持つ締切や、株主が決まる「権利確定日」とは別です。'));
-          }
-          refs.guidance.appendChild(guide);
-        });
-      }
-      function renderLists(){const data=current&&current.data,events=visibleEvents(data,selectedDate,today());refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':'これからの予定';refs.clear.hidden=!selectedDate;renderGuidance(events);drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
+      function renderLists(){const data=current&&current.data,events=visibleEvents(data,selectedDate,today());refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
         refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
         const plans=data?data.events.filter(event=>event.precision==='month'):[];refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
       }

@@ -142,7 +142,7 @@ test('A displays actual deadlines, 100-share forecasts and safe broker disclosur
   assert.equal(story.find('dc-holding-range').children.length,3);
   assert.equal(story.find('dc-range-start').find('dc-range-value').textContent,story.find('dc-range-end').find('dc-range-value').textContent);
   assert.match(story.find('dc-after-deadline').textContent,/今回の配当の権利は残ります/);
-  assert.ok(story.find('dc-record-note'));assert.equal(h.mount.find('dc-guidance').hidden,true);
+  assert.ok(story.find('dc-record-note'));assert.equal(h.mount.find('dc-guidance'),undefined);
   const brokers=story.find('dc-brokers');assert.equal(brokers.children[0].textContent,'1株で買えるか確認する');
   assert.equal(story.find('dc-broker-links').children.length,3);
   for(const li of story.find('dc-broker-links').children){const a=li.children[0];assert.match(a.href,/^https:\/\//);assert.equal(a.rel,'noopener noreferrer');}
@@ -151,8 +151,72 @@ test('A displays actual deadlines, 100-share forecasts and safe broker disclosur
 test('unknown amounts stay unknown while Fujikura has a specifically verified broker list',async()=>{
   const h=uiHarness();await flush();const date=calendar.today(),ex=new Date(Date.parse(date+'T00:00:00Z')+86400000).toISOString().slice(0,10);
   const raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'5803.T',name:'フジクラ',date,verified_on:date,holding_deadline:date,ex_dividend_date:ex})]});
-  await h.reply(0,raw);const story=h.mount.find('dc-holding-story');assert.ok(story.find('dc-dividend-unknown'));assert.equal(story.find('dc-dividend-value'),undefined);assert.equal(story.find('dc-record-note'),undefined);
+  await h.reply(0,raw);const story=h.mount.find('dc-holding-story');assert.equal(story.find('dc-dividend-values').textContent,'1株保有した場合金額未確認100株保有した場合金額未確認');assert.equal(story.find('dc-dividend-unit'),undefined);assert.match(story.find('dc-record-note').textContent,/権利確定日：日程未確認/);
   assert.equal(story.find('dc-brokers').children[0].textContent,'1株から買える証券会社');assert.match(story.find('dc-broker-stock').textContent,/フジクラ（5803）の取扱例/);
+});
+
+test('each event date has the shared detail card and only validated deadlines are displayed',async t=>{
+  t.mock.method(Date,'now',()=>NOW);
+  const h=uiHarness();await flush();
+  const rows=[
+    event({date:'2026-09-24',kind:'ex_dividend',holding_deadline:'2026-09-18',ex_dividend_date:'2026-09-24',record_date:'2026-09-25'}),
+    event({date:'2026-09-25'}),
+    event({date:'2026-09-26',status:'planned',holding_deadline:'2026-09-26',ex_dividend_date:'2026-09-29'}),
+    event({date:'2026-09-29',kind:'ex_dividend',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29',record_date:'2026-09-30'}),
+    event({date:'2026-09-30',kind:'payment',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29',record_date:'2026-09-30'})
+  ];
+  await h.reply(0,fixture({events:rows}));
+  for(const item of rows){
+    h.mount.find('dc-grid').children.find(cell=>cell.dataset.date===item.date).dispatch('click');
+    const row=h.mount.find('dc-events').children[0],story=row.find('dc-holding-story');
+    assert.ok(story);assert.equal(story.find('dc-dividend-values').children.length,2);assert.equal(story.find('dc-price-values').children.length,2);assert.equal(story.find('dc-broker-links').children.length,3);
+    assert.match(story.textContent,/購入はいつまで？/);assert.match(story.textContent,/保有はいつまで？/);assert.match(story.find('dc-price-heading').textContent,/現在の購入金額の目安/);
+    assert.ok(story.find('dc-evidence'));assert.equal(h.mount.find('dc-date-guide'),undefined);
+    const start=story.find('dc-range-start').find('dc-range-value').textContent,end=story.find('dc-range-end').find('dc-range-value').textContent;
+    assert.equal(start,end);
+    if(item.date==='2026-09-24'){assert.match(start,/9\/18/);assert.match(story.find('dc-holding-note').textContent,/持っていた株が対象/);assert.doesNotMatch(story.textContent,/当日に買っても対象です/);}
+    else if(item.date==='2026-09-25'){assert.match(start,/9\/25/);assert.match(story.find('dc-after-deadline').textContent,/日程未確認/);}
+    else if(item.date==='2026-09-29'){assert.match(start,/9\/28/);assert.match(story.find('dc-after-deadline').textContent,/9\/29/);}
+    else assert.equal(start,'日程未確認');
+    if(item.kind==='payment'){assert.match(story.find('dc-holding-note').textContent,/支払日や支払予定月は、購入・保有の締切とは別/);assert.match(story.find('dc-after-deadline').textContent,/日程未確認/);}
+  }
+});
+
+test('past ex-date cards distinguish historical forecasts and dates from current share prices',async t=>{
+  t.mock.method(Date,'now',()=>NOW);
+  const h=uiHarness();await flush();
+  const dividend={record_date:'2026-09-18',per_share:19,currency:'JPY',status:'forecast',announced_on:'2026-09-01',verified_on:'2026-09-24',source:{title:'当時の会社予想',url:'https://example.com/forecast'}};
+  const history=event({symbol:'6861.T',date:'2026-09-17',kind:'ex_dividend',source:{title:'記録済みの権利落ち日',url:'https://finance.yahoo.com/quote/6861.T/'}});
+  const official=event({date:'2026-09-17',kind:'ex_dividend',holding_deadline:'2026-09-16',ex_dividend_date:'2026-09-17',record_date:'2026-09-18',dividend});
+  await h.reply(0,fixture({events:[history,official]}));
+  h.mount.find('dc-grid').children.find(cell=>cell.dataset.date==='2026-09-17').dispatch('click');
+  const cards=h.mount.find('dc-events').children;
+  assert.equal(cards.length,2);
+  for(const row of cards){
+    const story=row.find('dc-holding-story');assert.match(story.find('dc-past-event').textContent,/過去の配当日程/);assert.match(story.find('dc-dividend-heading').textContent,/当時の配当予想/);assert.match(story.find('dc-price-heading').textContent,/現在の購入金額の目安/);assert.match(story.find('dc-after-deadline').textContent,/9\/17（木） 権利落ち日/);assert.doesNotMatch(story.textContent,/当日に買っても対象です/);assert.equal(story.find('dc-price-note'),undefined);
+  }
+  const unknown=cards.find(row=>row.__priceSymbol==='6861.T').find('dc-holding-story');
+  assert.equal(unknown.find('dc-range-value').textContent,'日程未確認');assert.doesNotMatch(unknown.textContent,/9\/16/);assert.match(unknown.find('dc-dividend-values').textContent,/金額未確認/);assert.match(unknown.find('dc-evidence').textContent,/記録済みの権利落ち日/);
+  const known=cards.find(row=>row.__priceSymbol==='7203.T').find('dc-holding-story');
+  assert.match(known.find('dc-range-value').textContent,/9\/16/);assert.equal(known.find('dc-dividend-values').textContent,'1株保有した場合19円100株保有した場合1,900円');assert.match(known.find('dc-dividend-note').textContent,/当時の会社予想/);assert.match(known.find('dc-evidence').textContent,/配当予想の発表 2026\/09\/01/);
+});
+
+test('month-only payments share the full card and live prices with day cards without inventing deadlines',async t=>{
+  t.mock.method(Date,'now',()=>NOW);
+  let notify,instance;const states=new Map(),prices={create(env,onUpdate){notify=onUpdate;return instance={selected:[],setSymbols(list){this.selected=list;},peek(key){return states.get(key)||{quote:null};},pause(){},resume(){}};}};
+  const h=uiHarness({prices});await flush();
+  const dayPayment=event({date:'2026-09-24',kind:'payment'}),plan=event({kind:'payment',precision:'month',date:null,period:MONTH,status:'planned',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29'});
+  const raw=fixture({events:[dayPayment,plan,{...plan,symbol:'9432.T'}]});await h.reply(0,raw);
+  const dayRow=h.mount.find('dc-events').children[0],planList=h.mount.find('dc-month-plans').find('dc-events'),planRow=planList.children.find(row=>row.__priceSymbol==='7203.T');
+  assert.deepEqual(instance.selected,['7203.T','9432.T']);assert.equal(planList.children.length,2);
+  for(const row of [dayRow,...planList.children]){
+    const story=row.find('dc-holding-story');assert.ok(story);assert.equal(story.find('dc-range-value').textContent,'日程未確認');assert.match(story.find('dc-dividend-values').textContent,/金額未確認/);assert.match(story.find('dc-dividend-heading').textContent,/この支払いの配当額/);assert.equal(story.find('dc-broker-links').children.length,3);assert.doesNotMatch(story.find('dc-holding-range').textContent,/9\/28/);
+  }
+  assert.equal(planRow.find('dc-event-date').textContent,'9月');
+  const brokers=planRow.find('dc-brokers');brokers.open=true;
+  const price={quote:{symbol:'7203.T',price:2500,currency:'JPY',price_updated_at:NOW/1000,fetched_at:NOW/1000},pending:false};states.set('7203.T',price);notify('7203.T',price);
+  for(const row of [dayRow,planRow]){const cells=row.find('dc-price-values').children;assert.equal(cells[0].find('dc-price-value').textContent,'2,500');assert.equal(cells[1].find('dc-price-value').textContent,'250,000');}
+  h.w.KNDividendCalendar.refresh();await h.reply(1,raw);assert.equal(planList.children.find(row=>row.__priceSymbol==='7203.T'),planRow);assert.equal(brokers.open,true);
 });
 
 
