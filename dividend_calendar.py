@@ -120,20 +120,65 @@ def validate_events(rows, today, *, origin='official'):
 
 
 def with_holding_deadlines(events):
-    out = list(events)
+    out = []
     for event in events:
         if event['_origin'] != 'official' or event['kind'] != 'ex_dividend' or event['status'] != 'confirmed':
+            out.append(event)
             continue
         deadline = previous_trading_day(event.get('date'))
         if deadline is None:
+            out.append(event)
             continue
         row = deepcopy(event)
+        row.update(holding_deadline=deadline, ex_dividend_date=event['date'])
+        out.append(row)
+        row = deepcopy(row)
         row.update(id=f"{event['symbol']}-holding_deadline-{deadline}", kind='holding_deadline', date=deadline,
                    calculation='previous_cash_equity_trading_day', calculation_sources=[
                        {'title':'JPX 現物株式の休業日','url':HOLIDAY_SOURCE},
                        {'title':'JPX 株式の受渡し（T+2）','url':SETTLEMENT_SOURCE}])
         out.append(row)
     return out
+
+
+def validate_dividend_amounts(document, today):
+    """Index separately reviewed, per-distribution amounts; never annual totals."""
+    if not isinstance(document, dict) or document.get('schema_version') != 1:
+        return None
+    rows = document.get('items')
+    if not isinstance(rows, list) or len(rows) > 10000:
+        return None
+    result, duplicates = {}, set()
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        ticker = symbol(row.get('symbol'))
+        record = iso_day(row.get('record_date'))
+        announced = iso_day(row.get('announced_on'))
+        verified = iso_day(row.get('verified_on'))
+        source = _source(row.get('source'))
+        amount = row.get('per_share')
+        try:
+            valid_amount = (isinstance(amount, (int, float)) and not isinstance(amount, bool)
+                            and math.isfinite(amount) and amount >= 0)
+        except OverflowError:
+            valid_amount = False
+        if (not ticker or not record or not announced or not verified or not source
+                or not announced <= verified <= today or announced > record
+                or row.get('currency') != 'JPY' or row.get('status') != 'forecast'
+                or not valid_amount):
+            continue
+        key = (ticker, record.isoformat())
+        # Conflicting entries need editorial review; row order must not choose
+        # the amount silently. A single current forecast belongs to each period.
+        if key in result or key in duplicates:
+            result.pop(key, None)
+            duplicates.add(key)
+            continue
+        result[key] = dict(record_date=record.isoformat(), per_share=amount,
+                           currency='JPY', status='forecast',
+                           announced_on=announced.isoformat(), verified_on=verified.isoformat(), source=source)
+    return result
 
 
 def _read_json(path, max_bytes=4_000_000):
@@ -153,17 +198,20 @@ class DividendCalendar:
     def __init__(self, catalogue, dividends, companies, *, loader=None, universe_loader=None,
                  schedule_path=ROOT/'dividend-calendar-schedules.json',
                  payment_path=ROOT/'company-profile-schedules.json',
+                 amount_path=ROOT/'dividend-calendar-amounts.json',
                  universe_path=ROOT/'static'/'nikkei225-universe.json',
                  cache_path=None, universe_cache_path=None, now=time.time, retry=300):
         self.catalogue, self.dividends = catalogue, dividends
         self.companies = dict(companies)
         self.loader, self.universe_loader = loader, universe_loader
         self.schedule_path, self.payment_path, self.universe_path = schedule_path, payment_path, universe_path
+        self.amount_path = amount_path
         self.cache_path = Path(cache_path) if cache_path else None
         self.universe_cache_path = Path(universe_cache_path) if universe_cache_path else None
         self.now, self.retry = now, retry
         self._document = None
         self._universe_document = None
+        self._dividend_amounts = {}
         self._reset_process()
         self._load_local()
         if hasattr(os, 'register_at_fork'):
@@ -264,7 +312,8 @@ class DividendCalendar:
 
     def _load_local(self):
         for path,accept in ((self.schedule_path,self._accept_document),(self.cache_path,self._accept_document),
-                            (self.universe_path,self._accept_universe),(self.universe_cache_path,self._accept_universe)):
+                            (self.universe_path,self._accept_universe),(self.universe_cache_path,self._accept_universe),
+                            (self.amount_path,self._accept_amounts)):
             if not path:
                 continue
             try:
@@ -275,6 +324,13 @@ class DividendCalendar:
                     self._files_seen[key] = stamp
             except OSError:
                 pass
+
+    def _accept_amounts(self, value):
+        amounts = validate_dividend_amounts(value, self._today())
+        if amounts is None:
+            return False
+        self._dividend_amounts = amounts
+        return True
 
     def _save(self, path, value):
         if not path:
@@ -396,6 +452,7 @@ class DividendCalendar:
         with self._lock:
             document = self._document
             universe = self._universe_document
+            amounts = self._dividend_amounts
             refreshing, failed = self._running, self._failed
         core = {code+'.T' for code in self.companies if code+'.T' in known}
         if universe:
@@ -446,6 +503,10 @@ class DividendCalendar:
         for event in chosen.values():
             if event['precision']=='month' and (event['symbol'],event['kind'],event['period']) in precise:
                 continue
+            if event['_origin']=='official' and event['kind'] in ('holding_deadline','ex_dividend'):
+                amount = amounts.get((event['symbol'],event.get('record_date')))
+                if amount:
+                    event['dividend'] = deepcopy(amount)
             event.pop('_origin',None)
             result.append(event)
         result.sort(key=lambda row:(row.get('date',row.get('period')+'-99' if row.get('period') else ''),row['kind'],row['code']))

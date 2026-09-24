@@ -10,7 +10,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from flask import Flask
-from dividend_calendar import DividendCalendar, JST, month_range, previous_trading_day, register_dividend_calendar
+from dividend_calendar import (DividendCalendar, JST, month_range, previous_trading_day,
+                               register_dividend_calendar, validate_dividend_amounts)
 
 NOW=datetime(2026,9,24,14,tzinfo=JST).timestamp()
 
@@ -27,13 +28,23 @@ def document(events=None,now=NOW):
                 source={'title':'JPX','url':'https://www.jpx.co.jp/list/20260924.xls'})
 
 
+def dividend_amount(**changes):
+    row = dict(symbol='5803.T', record_date='2026-09-30', per_share=19,
+               currency='JPY', status='forecast', announced_on='2026-08-07', verified_on='2026-09-24',
+               source={'title':'フジクラ 2027年3月期 第1四半期決算短信',
+                       'url':'https://ssl4.eir-parts.net/doc/5803/tdnet/2866589/00.pdf'})
+    row.update(changes)
+    return row
+
+
 class CalendarTests(unittest.TestCase):
     def setUp(self):
         self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.path=Path(self.temp.name)
         self.now=NOW
         self.catalogue=Mock()
         self.catalogue.all_items.return_value={'items':[{'code':str(code),'name':'会社'+str(code)} for code in range(1000,1225)]+[
-            {'code':'7203','name':'トヨタ'},{'code':'9432','name':'NTT'},{'code':'285A','name':'キオクシア'}]}
+            {'code':'7203','name':'トヨタ'},{'code':'9432','name':'NTT'},{'code':'285A','name':'キオクシア'},
+            {'code':'5803','name':'フジクラ'}]}
         self.dividends=Mock();self.dividends.payload.return_value={'items':[]}
         self.seed=self.path/'schedules.json';self.seed.write_text(json.dumps(document()))
         self.universe=self.path/'universe.json';self.universe.write_text(json.dumps(dict(as_of='2026-09-24',retrieved_at=datetime.fromtimestamp(NOW,JST).isoformat(),
@@ -41,10 +52,11 @@ class CalendarTests(unittest.TestCase):
             scheduled_changes=[{'effective_on':'2026-10-01','add':[{'code':'285A'}]}])))
         self.payments=self.path/'payments.json';self.payments.write_text(json.dumps({'items':{'9432.T':{
             'payment_period':'2026-11','reviewed_on':'2026-09-24','source':{'title':'NTT','url':'https://group.ntt/jp/ir/shares/calendar/'}}}}))
+        self.amounts=self.path/'amounts.json';self.amounts.write_text(json.dumps({'schema_version':1,'items':[dividend_amount()]}))
 
     def calendar(self,loader=None,**kwargs):
         return DividendCalendar(self.catalogue,self.dividends,{'7203':'トヨタ','9432':'NTT'},loader=loader,
-            schedule_path=self.seed,payment_path=self.payments,universe_path=self.universe,
+            schedule_path=self.seed,payment_path=self.payments,amount_path=self.amounts,universe_path=self.universe,
             cache_path=self.path/'runtime.json',now=lambda:self.now,**kwargs)
 
     def test_official_exdate_and_real_businessday_deadline(self):
@@ -52,6 +64,9 @@ class CalendarTests(unittest.TestCase):
         by_kind={row['kind']:row for row in data['events']}
         self.assertEqual(by_kind['holding_deadline']['date'],'2026-09-28')
         self.assertEqual(by_kind['ex_dividend']['date'],'2026-09-29')
+        for row in by_kind.values():
+            self.assertEqual(row['holding_deadline'],'2026-09-28')
+            self.assertEqual(row['ex_dividend_date'],'2026-09-29')
         self.assertEqual(by_kind['holding_deadline']['calculation'],'previous_cash_equity_trading_day')
         self.assertEqual(len(by_kind['holding_deadline']['calculation_sources']),2)
         self.assertEqual(data['range'],{'start':'2026-09-01','end':'2026-11-30'})
@@ -73,6 +88,8 @@ class CalendarTests(unittest.TestCase):
             data=calendar.payload('2026-09','7203','favorites')
         self.assertEqual([(row['symbol'],row['kind'],row['date']) for row in data['events']],
                          [('7203.T','holding_deadline','2026-09-30')])
+        self.assertEqual(data['events'][0]['holding_deadline'],'2026-09-30')
+        self.assertEqual(data['events'][0]['ex_dividend_date'],'2026-10-01')
         # Only the selected company is considered, once for selection and once
         # to construct the complete derived event with its provenance.
         self.assertEqual(previous.call_count,2)
@@ -103,6 +120,8 @@ class CalendarTests(unittest.TestCase):
         calendar=self.calendar();data=calendar.payload('2026-09')
         historical=next(row for row in data['events'] if row.get('date')=='2026-09-17')
         self.assertEqual(historical['kind'],'ex_dividend')
+        self.assertNotIn('holding_deadline',historical)
+        self.assertNotIn('ex_dividend_date',historical)
         self.assertFalse(any(row['kind']=='holding_deadline' and row['date']=='2026-09-16' for row in data['events']))
         self.assertEqual(calendar.payload('2026-10')['events'],[])
         self.assertFalse(any(row.get('date')=='2026-11-29' for row in calendar.payload('2026-11')['events']))
@@ -164,6 +183,91 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual(client.get('/api/dividend/calendar-v2?scope=evil').status_code,400)
         first,last=month_range(datetime(2026,12,24).date())
         self.assertEqual(first.isoformat(),'2026-12-01');self.assertEqual(last.isoformat(),'2027-02-28')
+
+    def test_reviewed_current_distribution_is_attached_to_both_official_dates(self):
+        self.seed.write_text(json.dumps(document([event('5803.T')])))
+        calendar=self.calendar()
+        data=calendar.payload('2026-09','5803','favorites')
+        expected=dividend_amount();expected.pop('symbol')
+        self.assertEqual(len(data['events']),2)
+        self.assertEqual({row['kind'] for row in data['events']},{'holding_deadline','ex_dividend'})
+        for row in data['events']:
+            self.assertEqual(row['dividend'],expected)
+            self.assertEqual(row['record_date'],row['dividend']['record_date'])
+        # Consumer mutation must not change a subsequent API response.
+        data['events'][0]['dividend']['per_share']=999
+        self.assertTrue(all(row['dividend']['per_share']==19 for row in calendar.payload('2026-09','5803','favorites')['events']))
+        app=Flask(__name__);register_dividend_calendar(app,calendar)
+        response=app.test_client().get('/api/dividend/calendar-v2?month=2026-09&scope=favorites&symbols=5803')
+        self.assertEqual(response.status_code,200)
+        self.assertEqual(response.get_json()['events'][0]['dividend'],expected)
+
+    def test_amount_requires_exact_company_and_record_date_and_not_payment_or_history(self):
+        rows=[event(),event('5803.T','2026-09-28','payment')]
+        for record in ('2025-09-30','2026-10-30',None):
+            with self.subTest(record_date=record):
+                wrong=event('5803.T');wrong['record_date']=record
+                # Provider-injected amounts are not trusted schedule fields.
+                wrong['dividend']=dict(per_share=888)
+                self.seed.write_text(json.dumps(document(rows+[wrong])))
+                data=self.calendar().payload('2026-09','7203,5803','favorites')
+                self.assertTrue(data['events'])
+                self.assertTrue(all('dividend' not in row for row in data['events']))
+        self.seed.write_text(json.dumps(document([])))
+        self.dividends.payload.return_value={'items':[{'ticker':'5803.T','name':'フジクラ','fetched_at':NOW,
+            'annual_dividend':999,'annual_dividend_per_share':999,'ex_dividend_dates':['2026-09-17']}]}
+        history=self.calendar().payload('2026-09','5803','favorites')['events']
+        self.assertEqual(len(history),1)
+        self.assertNotIn('dividend',history[0])
+        self.assertNotIn('holding_deadline',history[0])
+
+    def test_official_refresh_does_not_overwrite_reviewed_amount_file(self):
+        self.seed.write_text(json.dumps(document([event('5803.T')])))
+        calendar=self.calendar();original=self.amounts.read_bytes()
+        self.now+=86400
+        refreshed=document([event('5803.T')],self.now);refreshed['verified_on']='2026-09-25'
+        self.assertTrue(calendar._accept_document(refreshed))
+        calendar._save(calendar.cache_path,calendar._document)
+        data=calendar.payload('2026-09','5803','favorites')
+        self.assertEqual([row['dividend']['per_share'] for row in data['events']],[19,19])
+        self.assertEqual(self.amounts.read_bytes(),original)
+        self.assertTrue(all('dividend' not in row for row in json.loads(calendar.cache_path.read_text())['events']))
+
+    def test_forecast_validation_rejects_ambiguous_or_invalid_values_without_guessing(self):
+        today=datetime.fromtimestamp(NOW,JST).date()
+        invalid=[{'per_share':value} for value in (None,True,-1,float('nan'),float('inf'),'19',10**400)]
+        invalid += [{'currency':'USD'},{'status':'paid'},{'record_date':'2026-02-30'},
+                    {'verified_on':'2026-09-25'},{'announced_on':'2026-09-25'},
+                    {'announced_on':'2026-08-07','verified_on':'2026-08-06'},
+                    {'source':{'title':'untrusted','url':'http://example.com/file.pdf'}}]
+        for changes in invalid:
+            with self.subTest(changes=changes):
+                self.assertEqual(validate_dividend_amounts({'schema_version':1,'items':[dividend_amount(**changes)]},today),{})
+        duplicate={'schema_version':1,'items':[dividend_amount(),dividend_amount(per_share=20)]}
+        self.assertEqual(validate_dividend_amounts(duplicate,today),{})
+        zero=validate_dividend_amounts({'schema_version':1,'items':[dividend_amount(per_share=0)]},today)
+        self.assertEqual(zero[('5803.T','2026-09-30')]['per_share'],0)
+
+    def test_optional_amount_file_missing_or_malformed_leaves_calendar_available(self):
+        self.seed.write_text(json.dumps(document([event('5803.T')])))
+        self.amounts.unlink()
+        data=self.calendar().payload('2026-09','5803','favorites')
+        self.assertEqual(len(data['events']),2)
+        self.assertTrue(all('dividend' not in row for row in data['events']))
+        self.amounts.write_text('{broken')
+        self.assertTrue(all('dividend' not in row for row in self.calendar().payload('2026-09','5803','favorites')['events']))
+
+    def test_committed_distribution_file_contains_reviewed_interim_forecasts(self):
+        path=Path(__file__).resolve().parents[1]/'dividend-calendar-amounts.json'
+        data=json.loads(path.read_text())
+        indexed=validate_dividend_amounts(data,datetime.fromtimestamp(NOW,JST).date())
+        expected={'5803.T':(19,'2026-08-07'),'9432.T':(2.7,'2026-08-06'),'7203.T':(50,'2026-08-04')}
+        for ticker,(amount,announced) in expected.items():
+            with self.subTest(symbol=ticker):
+                row=indexed[(ticker,'2026-09-30')]
+                self.assertEqual(row['per_share'],amount)
+                self.assertEqual(row['announced_on'],announced)
+                self.assertEqual(row['status'],'forecast')
 
 
 if __name__=='__main__':unittest.main()

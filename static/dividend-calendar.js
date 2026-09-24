@@ -1,7 +1,7 @@
 /* Dates come from verified schedules; month-only plans never acquire an invented day. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root&&root.document)api.start(root);})(typeof window==='undefined'?null:window,function(){
   'use strict';
-  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v2:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
+  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v3:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
   const finite=v=>typeof v==='number'&&Number.isFinite(v),clean=(v,max=160)=>typeof v==='string'?v.trim().slice(0,max):'';
   function parse(value,fallback){try{return JSON.parse(value)||fallback;}catch(e){return fallback;}}
   function symbol(value){const key=clean(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
@@ -28,6 +28,18 @@
       await write(MIGRATED,JSON.stringify([...done]));return selection(store);
     }catch(e){return {...selection(store),migrationError:true};}
   }
+  function dividendAmount(raw,record,now=Date.now()){
+    if(!raw||typeof raw!=='object'||!record||raw.record_date!==record||raw.currency!=='JPY'||raw.status!=='forecast'||!finite(raw.per_share)||raw.per_share<0||raw.per_share>1000000)return null;
+    const announced=day(raw.announced_on),verified=day(raw.verified_on),source=raw.source||{},url=safeUrl(source.url),title=clean(source.title,120);
+    if(!announced||!verified||announced>verified||verified>today(now)||announced>record||!url||!title)return null;
+    return {record_date:record,per_share:raw.per_share,currency:'JPY',status:'forecast',announced_on:announced,verified_on:verified,source:{title,url}};
+  }
+  function holdingWindow(raw,date,record){
+    const deadline=day(raw.holding_deadline),ex=day(raw.ex_dividend_date);
+    if(raw.precision!=='day'||raw.status!=='confirmed'||!deadline||!ex||deadline>=ex||Date.parse(ex)-Date.parse(deadline)>15*86400000||record&&ex>=record)return null;
+    if(raw.kind==='holding_deadline'?date!==deadline:raw.kind!=='ex_dividend'||date!==ex)return null;
+    return {deadline,ex_dividend:ex};
+  }
   function normalize(raw,selected,scope,symbols,now=Date.now()){
     if(!raw||typeof raw!=='object'||raw.error||!Array.isArray(raw.events)||!raw.coverage||!raw.range)return null;
     const start=day(raw.range.start),end=day(raw.range.end),stamp=at(raw.updated_at,now);if(!start||!end||start>end||selected<start.slice(0,7)||selected>end.slice(0,7))return null;
@@ -40,7 +52,7 @@
       if(row.precision==='day'?(!date||date.slice(0,7)!==selected):(row.precision!=='month'||row.kind!=='payment'||!period||period!==selected))continue;
       const id=[key,row.kind,row.precision,row.precision==='day'?date:period].join(':');if(seen.has(id))continue;seen.add(id);
       const record=day(row.record_date),recordDate=row.precision==='day'&&row.kind!=='payment'&&record&&record>date?record:null;
-      events.push({id,symbol:key,code:key.slice(0,-2),name:clean(row.name)||key,kind:row.kind,precision:row.precision,date:row.precision==='day'?date:null,period:row.precision==='month'?period:null,status:row.status,source:{title,url},verified_on:verified,record_date:recordDate});
+      events.push({id,symbol:key,code:key.slice(0,-2),name:clean(row.name)||key,kind:row.kind,precision:row.precision,date:row.precision==='day'?date:null,period:row.precision==='month'?period:null,status:row.status,source:{title,url},verified_on:verified,record_date:recordDate,holding_deadline:day(row.holding_deadline),ex_dividend_date:day(row.ex_dividend_date),holding_window:holdingWindow(row,date,recordDate),dividend:row.kind!=='payment'?dividendAmount(row.dividend,recordDate,now):null});
     }
     events.sort((a,b)=>(a.date||a.period).localeCompare(b.date||b.period)||a.symbol.localeCompare(b.symbol)||a.kind.localeCompare(b.kind));
     return {events,coverage,range:{start,end},updated_at:stamp,universe_as_of:day(raw.universe_as_of),status:raw.status==='loading'?'pending':['ready','stale','pending','unavailable'].includes(raw.status)?raw.status:'ready',refreshing:raw.refreshing===true,month:selected,scope};
@@ -112,10 +124,62 @@
       function dateLabel(value){return Number(value.slice(5,7))+'月'+Number(value.slice(8))+'日';}
       function buildDays(){refs.grid.replaceChildren();dateButtons.clear();calendarDays(monthValue,[],today()).forEach(item=>{if(!item){const blank=el('span','dc-blank');blank.setAttribute('aria-hidden','true');refs.grid.appendChild(blank);return;}const cell=button(String(item.day),'dc-day',()=>selectDay(item.date));cell.dataset.date=item.date;const count=el('small','dc-day-count');count.setAttribute('aria-hidden','true');cell.appendChild(count);cell.addEventListener('keydown',event=>{const jump={ArrowRight:1,ArrowLeft:-1,ArrowDown:7,ArrowUp:-7}[event.key];if(!jump)return;const destination=new Date(Date.parse(item.date+'T00:00:00Z')+jump*86400000).toISOString().slice(0,10),target=dateButtons.get(destination);if(target){event.preventDefault();target.button.focus();}});dateButtons.set(item.date,{button:cell,count});refs.grid.appendChild(cell);});}
       function updateDays(){const events=current&&current.data&&current.data.events||[];calendarDays(monthValue,events,today()).forEach(item=>{if(!item)return;const row=dateButtons.get(item.date);row.button.setAttribute('aria-pressed',String(selectedDate===item.date));row.button.setAttribute('aria-label',dateLabel(item.date)+'、'+(item.count?item.count+'件の予定':'確認済みの予定なし'));if(item.today)row.button.setAttribute('aria-current','date');else row.button.removeAttribute('aria-current');row.count.textContent=item.count?String(item.count):'';row.count.hidden=!item.count;});}
-      function eventRow(event){const row=el('li','dc-event');row.dataset.event=event.id;const date=el('div','dc-event-date',event.precision==='day'?Number(event.date.slice(5,7))+'/'+Number(event.date.slice(8)):Number(event.period.slice(5))+'月');const body=el('div','dc-event-body'),name=el('button','cp-company-link dc-company',event.name);name.type='button';name.dataset.companyProfile=event.symbol;name.dataset.companyName=event.name;name.setAttribute('aria-label',event.name+'の会社情報を開く');const tag=el('p','dc-event-kind',KINDS[event.kind]+(event.status==='planned'?'（予定）':''));tag.dataset.kind=event.kind;const evidence=el('details','dc-evidence');append(evidence,el('summary','','出典・確認日'));const link=el('a','',event.source.title);link.href=event.source.url;link.target='_blank';link.rel='noopener noreferrer';append(evidence,link,el('span','','確認 '+event.verified_on.replace(/-/g,'/')));append(body,name,el('span','dc-company-code',event.code),tag);if(event.record_date)body.appendChild(el('p','dc-record-date','株主が決まる日：'+dateLabel(event.record_date)+'（権利確定日）'));body.appendChild(evidence);append(row,date,body);return row;}
+      function sourceLink(title,url,cls=''){const link=el('a',cls,title);link.href=url;link.target='_blank';link.rel='noopener noreferrer';return link;}
+      function shortDate(value){return Number(value.slice(5,7))+'/'+Number(value.slice(8));}
+      function weekday(value){return ['日','月','火','水','木','金','土'][new Date(value+'T00:00:00Z').getUTCDay()];}
+      function brokerOptions(event){
+        const details=el('details','dc-brokers'),body=el('div','dc-brokers-body'),list=el('ul','dc-broker-links'),verified=event.symbol==='5803.T';
+        append(details,el('summary','',verified?'1株から買える証券会社':'1株で買えるか確認する'));
+        append(body,el('p','dc-broker-stock',verified?event.name+'（'+event.code+'）の取扱例':'各社の対象銘柄で「'+event.code+'」を確認できます。'));
+        [
+          ['SBI証券','S株','https://faq.sbisec.co.jp/answer/5f17d6e68c7981001102a0c0/'],
+          ['楽天証券','かぶミニ®','https://www.rakuten-sec.co.jp/web/domestic/ols/lineup/'],
+          ['マネックス証券','ワン株','https://info.monex.co.jp/wankabu/meigara.html']
+        ].forEach(([name,service,url])=>{const li=el('li'),link=sourceLink('',url);link.setAttribute('aria-label',name+' '+service+'の公式案内（別タブ）');const icon=el('span','dc-broker-external','↗');icon.setAttribute('aria-hidden','true');append(link,el('span','dc-broker-name',name),el('span','dc-broker-service',service),icon);append(li,link);list.appendChild(li);});
+        append(body,list,el('p','dc-broker-note','1株単位の注文締切は、通常の100株取引と異なる場合があります。最新の取扱状況・締切は各社の公式サイトで確認できます。'));
+        if(verified)body.appendChild(el('p','dc-broker-note','2026/9/24 確認'));
+        details.appendChild(body);return details;
+      }
+      function holdingStory(event){
+        const story=el('div','dc-holding-story'),amount=event.dividend,window=event.holding_window;
+        const estimate=el('section','dc-dividend-estimate'),heading=el('div','dc-dividend-heading');
+        append(heading,el('h5','','今回の配当予想'));if(event.record_date)heading.appendChild(el('span','',prettyMonth(event.record_date.slice(0,7))+'分'));estimate.appendChild(heading);
+        if(amount){
+          const value=el('div','dc-dividend-value');append(value,el('span','','100株保有した場合'),el('strong','',new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(amount.per_share*10000)/100)),el('span','dc-dividend-unit','円'));
+          append(estimate,value,el('p','dc-dividend-note','税引前・会社予想'));
+        }else estimate.appendChild(el('p','dc-dividend-unknown','今回の金額はまだ確認できていません。'));
+        const unit=el('p','dc-unit-note');append(unit,el('strong','','通常の購入は100株単位です。'),el('span','','証券会社や銘柄によっては、1株から買えるサービスもあります。'));
+        append(estimate,unit,brokerOptions(event));story.appendChild(estimate);
+        append(story,el('p','dc-range-title','今回の配当を受け取るには'));
+        const range=el('div','dc-holding-range');
+        [['start','購入はいつまで？','取引終了までに買う'],['end','保有はいつまで？','取引終了時点まで持つ']].forEach(([position,label,deadline],index)=>{
+          if(index){const arrow=el('span','dc-range-arrow','→');arrow.setAttribute('aria-hidden','true');range.appendChild(arrow);}
+          const part=el('div','dc-range-'+position),date=el('strong','dc-range-value',shortDate(window.deadline)+' ');date.appendChild(el('small','',weekday(window.deadline)));
+          append(part,el('span','dc-range-label',label),date,el('span','dc-range-deadline',deadline));range.appendChild(part);
+        });
+        const after=el('section','dc-after-deadline');append(after,el('h5','',shortDate(window.ex_dividend)+'（'+weekday(window.ex_dividend)+'）以降に売っても'),el('p','','今回の配当の権利は残ります。'+(event.record_date?shortDate(event.record_date)+'や':'')+'支払日まで持ち続ける必要はありません。'));
+        append(story,range,el('p','dc-holding-note',shortDate(window.deadline)+'当日に買っても対象です。その日の途中で売らず、取引終了まで持ちます。注文しただけでなく、実際に買えている必要があります。'),after);
+        if(event.record_date){const record=el('p','dc-record-note');append(record,el('strong','',shortDate(event.record_date)+'（'+weekday(event.record_date)+'） 権利確定日'),el('span','','配当の対象になる株主が決まる日です。買う締切・配当金の支払日とは別です。'));story.appendChild(record);}
+        story.appendChild(el('p','dc-holding-note',shortDate(window.ex_dividend)+'以降に新しく買った株は、今回の配当には間に合いません。'));
+        return story;
+      }
+      function eventRow(event){
+        const row=el('li','dc-event');row.dataset.event=event.id;
+        const date=el('div','dc-event-date',event.precision==='day'?shortDate(event.date):Number(event.period.slice(5))+'月');
+        const body=el('div','dc-event-body'),name=el('button','cp-company-link dc-company',event.name);name.type='button';name.dataset.companyProfile=event.symbol;name.dataset.companyName=event.name;name.setAttribute('aria-label',event.name+'の会社情報を開く');
+        const tag=el('p','dc-event-kind',KINDS[event.kind]+(event.status==='planned'?'（予定）':''));tag.dataset.kind=event.kind;
+        const evidence=el('details','dc-evidence');append(evidence,el('summary','','出典・確認日'),sourceLink(event.source.title,event.source.url),el('span','','日程の確認 '+event.verified_on.replace(/-/g,'/')));
+        if(event.dividend)append(evidence,sourceLink(event.dividend.source.title,event.dividend.source.url),el('span','','配当予想の発表 '+event.dividend.announced_on.replace(/-/g,'/')+' ／ 確認 '+event.dividend.verified_on.replace(/-/g,'/')));
+        append(body,name,el('span','dc-company-code',event.code));
+        if(!event.holding_window||event.kind==='ex_dividend')body.appendChild(tag);
+        append(row,date,body);
+        if(event.holding_window){const story=holdingStory(event);story.appendChild(evidence);row.appendChild(story);}
+        else {if(event.record_date)body.appendChild(el('p','dc-record-date','株主が決まる日：'+dateLabel(event.record_date)+'（権利確定日）'));body.appendChild(evidence);}
+        return row;
+      }
       function drawList(node,events){const signature=JSON.stringify(events);if(node.__signature===signature)return;node.__signature=signature;const old=new Map(Array.from(node.children).map(row=>[row.dataset.event,row]));const rows=events.map(event=>{const prior=old.get(event.id);if(prior&&prior.__event===JSON.stringify(event))return prior;const row=eventRow(event);row.__event=JSON.stringify(event);return row;});node.replaceChildren(...rows);}
       function renderGuidance(events){
-        const kinds=uniq(events.map(event=>event.kind));
+        const kinds=uniq(events.filter(event=>!event.holding_window).map(event=>event.kind));
         const signature=JSON.stringify([selectedDate,kinds]);if(refs.guidance.__signature===signature)return;refs.guidance.__signature=signature;
         refs.guidance.replaceChildren();refs.guidance.hidden=!selectedDate||!kinds.length;if(refs.guidance.hidden)return;
         kinds.forEach(kind=>{

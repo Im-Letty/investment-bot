@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "items": [
+    {
+      "symbol": "5803.T",
+      "record_date": "2026-09-30",
+      "per_share": 19,
+      "currency": "JPY",
+      "status": "forecast",
+      "announced_on": "2026-08-07",
+      "verified_on": "2026-09-24",
+      "source": {
+        "title": "フジクラ 2027年3月期 第1四半期決算短信・配当の状況",
+        "url": "https://ssl4.eir-parts.net/doc/5803/tdnet/2866589/00.pdf"
+      }
+    },
+    {
+      "symbol": "9432.T",
+      "record_date": "2026-09-30",
+      "per_share": 2.7,
+      "currency": "JPY",
+      "status": "forecast",
+      "announced_on": "2026-08-06",
+      "verified_on": "2026-09-24",
+      "source": {
+        "title": "NTT 2027年3月期 第1四半期決算短信・配当の状況",
+        "url": "https://group.ntt/jp/ir/library/timely_disclosure/2026/pdf/011.pdf#page=1"
+      }
+    },
+    {
+      "symbol": "7203.T",
+      "record_date": "2026-09-30",
+      "per_share": 50,
+      "currency": "JPY",
+      "status": "forecast",
+      "announced_on": "2026-08-04",
+      "verified_on": "2026-09-24",
+      "source": {
+        "title": "トヨタ自動車 2027年3月期 第1四半期決算短信・配当の状況",
+        "url": "https://global.toyota/pages/global_toyota/ir/financial-results/2027_1q_summary_jp.pdf#page=2"
+      }
+    }
+  ]
+}

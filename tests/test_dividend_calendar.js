@@ -115,3 +115,42 @@ test('saved favorites are the default, including after decryption, while a manua
   let unlock;const gate=new Promise(resolve=>unlock=resolve),delayed=storage(),h=uiHarness({saved:delayed,gate});assert.match(h.requests[0].url,/scope=all/);delayed.setItem(WATCH,'["9432.T"]');unlock();await flush();assert.match(h.requests.at(-1).url,/scope=favorites/);assert.match(h.requests.at(-1).url,/9432.T/);
   let release;const chosen=storage(),other=uiHarness({saved:chosen,gate:new Promise(resolve=>release=resolve)});other.mount.find('dc-filters').children[0].dispatch('click');chosen.setItem(WATCH,'["7203.T"]');release();await flush();assert.match(other.requests.at(-1).url,/scope=all/);assert.equal(other.mount.find('dc-filters').children[0].getAttribute('aria-pressed'),'true');
 });
+
+test('holding dates survive cache normalization and cannot be invented from a record date',()=>{
+  const base=event({record_date:'2026-09-30',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29'});
+  const raw=fixture({events:[base,event({...base,symbol:'1001.T',holding_deadline:undefined}),event({...base,symbol:'1002.T',ex_dividend_date:'2026-09-27'}),event({...base,symbol:'1003.T',holding_deadline:'2026-09-25'}),event({...base,symbol:'1004.T',kind:'payment'})]});
+  const normalized=calendar.normalize(raw,MONTH,'all',[],NOW);
+  assert.deepEqual(normalized.events.find(e=>e.symbol==='7203.T').holding_window,{deadline:'2026-09-28',ex_dividend:'2026-09-29'});
+  assert.ok(normalized.events.filter(e=>e.symbol!=='7203.T').every(e=>e.holding_window===null));
+  assert.deepEqual(calendar.normalize(normalized,MONTH,'all',[],NOW).events.find(e=>e.symbol==='7203.T').holding_window,{deadline:'2026-09-28',ex_dividend:'2026-09-29'});
+});
+test('only sourced forecasts for the matching record date are displayed as this dividend',()=>{
+  const dividend={record_date:'2026-09-30',per_share:19,currency:'JPY',status:'forecast',announced_on:'2026-08-07',verified_on:'2026-09-24',source:{title:'会社の中間配当予想',url:'https://www.fujikura.co.jp/ir/'}};
+  const variants=[dividend,{...dividend,record_date:'2027-03-31'},{...dividend,per_share:-1},{...dividend,currency:'USD'},{...dividend,status:'annual'},{...dividend,source:{title:'bad',url:'javascript:alert(1)'}},{...dividend,verified_on:'2026-09-25'}];
+  const raw=fixture({events:variants.map((amount,i)=>event({symbol:(1000+i)+'.T',record_date:'2026-09-30',dividend:amount}))});
+  const rows=calendar.normalize(raw,MONTH,'all',[],NOW).events;
+  assert.equal(rows.find(e=>e.symbol==='1000.T').dividend.per_share,19);
+  assert.ok(rows.filter(e=>e.symbol!=='1000.T').every(e=>e.dividend===null));
+});
+test('A displays actual deadlines, 100-share forecasts and safe broker disclosures without duplicate guidance',async()=>{
+  const h=uiHarness();await flush();const date=calendar.today(),plus=n=>new Date(Date.parse(date+'T00:00:00Z')+n*86400000).toISOString().slice(0,10),record=plus(2);
+  const dividend={record_date:record,per_share:2.7,currency:'JPY',status:'forecast',announced_on:date,verified_on:date,source:{title:'中間配当の会社予想',url:'https://group.ntt/jp/ir/'}};
+  const raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'9432.T',date,verified_on:date,record_date:record,holding_deadline:date,ex_dividend_date:plus(1),dividend})]});
+  await h.reply(0,raw);
+  const row=h.mount.find('dc-events').children[0],story=row.find('dc-holding-story');assert.ok(story);assert.equal(story.parentNode,row);
+  assert.equal(story.find('dc-dividend-value').textContent,'100株保有した場合270円');assert.match(story.textContent,/税引前・会社予想/);
+  assert.equal(story.find('dc-holding-range').children.length,3);
+  assert.equal(story.find('dc-range-start').find('dc-range-value').textContent,story.find('dc-range-end').find('dc-range-value').textContent);
+  assert.match(story.find('dc-after-deadline').textContent,/今回の配当の権利は残ります/);
+  assert.ok(story.find('dc-record-note'));assert.equal(h.mount.find('dc-guidance').hidden,true);
+  const brokers=story.find('dc-brokers');assert.equal(brokers.children[0].textContent,'1株で買えるか確認する');
+  assert.equal(story.find('dc-broker-links').children.length,3);
+  for(const li of story.find('dc-broker-links').children){const a=li.children[0];assert.match(a.href,/^https:\/\//);assert.equal(a.rel,'noopener noreferrer');}
+  brokers.open=true;h.w.KNDividendCalendar.refresh();await h.reply(1,raw);assert.equal(h.mount.find('dc-events').children[0],row);assert.equal(brokers.open,true);
+});
+test('unknown amounts stay unknown while Fujikura has a specifically verified broker list',async()=>{
+  const h=uiHarness();await flush();const date=calendar.today(),ex=new Date(Date.parse(date+'T00:00:00Z')+86400000).toISOString().slice(0,10);
+  const raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'5803.T',name:'フジクラ',date,verified_on:date,holding_deadline:date,ex_dividend_date:ex})]});
+  await h.reply(0,raw);const story=h.mount.find('dc-holding-story');assert.ok(story.find('dc-dividend-unknown'));assert.equal(story.find('dc-dividend-value'),undefined);assert.equal(story.find('dc-record-note'),undefined);
+  assert.equal(story.find('dc-brokers').children[0].textContent,'1株から買える証券会社');assert.match(story.find('dc-broker-stock').textContent,/フジクラ（5803）の取扱例/);
+});
