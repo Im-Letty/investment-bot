@@ -10,6 +10,7 @@
   function escape(value) { return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function number(value,digits) { return Number.isFinite(value)?value.toLocaleString('ja-JP',{maximumFractionDigits:digits,minimumFractionDigits:digits}):'—'; }
   function stamp(value) {
+    if(value==null || value==='' || typeof value!=='number' && typeof value!=='string')return '';
     var date=new Date(typeof value==='number'?value*1000:value);
     return isNaN(date.getTime())?'':new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(date)+' JST';
   }

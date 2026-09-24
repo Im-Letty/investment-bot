@@ -91,6 +91,13 @@ test('saved rows appear synchronously while the refresh is still unresolved',asy
   assert.match(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/保存済み/);
   await flush();assert.equal(h.requests.length,1);assert.equal(h.requests[0].settled,undefined);
 });
+test('an empty cold snapshot shows pending status without inventing a date',async()=>{
+  const h=harness();h.window.KNDividendView.list('top');await flush();
+  await h.reply(h.request('/top?'),{items:[],updated_at:null,status:'loading',refreshing:true});
+  assert.match(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/確認しています/);
+  assert.doesNotMatch(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/JST|取得 /);
+  assert.equal(h.list('top').innerHTML,'');
+});
 
 test('failed refresh retains dated rows and retry replaces them only when fresh data arrives',async()=>{
   const h=harness({top:snapshot()});h.window.KNDividendView.list('top');await flush();
