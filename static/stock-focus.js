@@ -39,15 +39,19 @@
   function stockCode(symbol){
     return '<small class="sf-stock-code">'+escape(String(symbol||'').replace(/\.T$/,''))+'</small>';
   }
+  function companyName(symbol,name){
+    const content='<span>'+escape(name||symbol)+'</span>'+stockCode(symbol);
+    return /^[0-9][A-Z0-9]{3}\.T$/.test(symbol||'')?'<button type="button" class="cp-company-link" data-company-profile="'+escape(symbol)+'" data-company-name="'+escape(name||symbol)+'" aria-label="'+escape(name||symbol)+'の会社情報を開く">'+content+'</button>':content;
+  }
   function row(item,index,showDate=true){
-    return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'"><span>'+escape(item.name||item.symbol)+'</span>'+stockCode(item.symbol)+'</div>'+quote(item,showDate)+'</li>';
+    return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'">'+companyName(item.symbol,item.name)+'</div>'+quote(item,showDate)+'</li>';
   }
   function watchRow(raw,symbol,formatChange){
     const item=raw||{},name=escape(item.name||symbol);
-    if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+name+stockCode(symbol)+'</div><span class="sf-quote-date">株価を確認できませんでした</span></div>';
+    if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">株価を確認できませんでした</span></div>';
     const currency=item.currency||(symbol.endsWith('.T')?'JPY':''),unit=({JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド'})[currency]||currency;
     const change=typeof formatChange==='function'?formatChange(item,{symbol,currency},'ja'):{amount:'',percent:'',direction:'flat'};
-    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'"><span>'+name+'</span>'+stockCode(symbol)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+'</div></div>';
+    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+'</div></div>';
   }
   function ranked(data,direction){
     return (data?data.items:[]).filter(x=>direction==='up'?x.pct>=3:x.pct<=-3).sort((a,b)=>direction==='up'?b.pct-a.pct:a.pct-b.pct).slice(0,20);
@@ -91,7 +95,7 @@
     ];
     const cards=stories.map(item=>{
       const explanation=[['どんな会社？',item.business],['何があった？',item.event],['これからの注目は？',item.outlook]].map(([heading,body],index)=>'<section class="sf-explain-block"><span class="sf-story-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" focusable="false">'+icons[index]+'</svg></span><div class="sf-explain-copy"><h5>'+escape(heading)+'</h5><p'+(index===0?' class="sf-business"':'')+'>'+escape(body)+'</p></div></section>').join('');
-      return '<article class="sf-company"><p class="sf-company-name">'+escape(item.name)+stockCode(item.symbol)+'</p><details class="sf-explanation" data-stock-detail="'+escape(item.symbol)+'"><summary><h4>'+escape(item.title)+'</h4><span class="sf-sr-only sf-closed">'+escape(item.name)+'の記事を開く</span><span class="sf-sr-only sf-open">'+escape(item.name)+'の記事を閉じる</span><span class="sf-disclosure-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12"/><path class="sf-vertical" d="M10 4v12"/></svg></span></summary><div><div class="sf-reading-blocks">'+explanation+'</div><div class="sf-story-source"><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a><time class="sf-story-date" datetime="'+escape(item.published_date)+'">'+dateLabel(item.published_date)+' 発表</time></div></div></details></article>';
+      return '<article class="sf-company"><p class="sf-company-name">'+companyName(item.symbol,item.name)+'</p><details class="sf-explanation" data-stock-detail="'+escape(item.symbol)+'"><summary><h4>'+escape(item.title)+'</h4><span class="sf-sr-only sf-closed">'+escape(item.name)+'の記事を開く</span><span class="sf-sr-only sf-open">'+escape(item.name)+'の記事を閉じる</span><span class="sf-disclosure-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12"/><path class="sf-vertical" d="M10 4v12"/></svg></span></summary><div><div class="sf-reading-blocks">'+explanation+'</div><div class="sf-story-source"><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a><time class="sf-story-date" datetime="'+escape(item.published_date)+'">'+dateLabel(item.published_date)+' 発表</time></div></div></details></article>';
     }).join('');
     return '<div class="sf-content"><section class="sf-stories" aria-label="注目企業">'+(stories.length?'<div class="sf-companies">'+cards+'</div>':'<p class="sf-state">'+(status==='loading'?'企業の話題を確認しています…':'現在、確認済みの企業の話題を準備しています。')+'</p>')+'</section></div>';
   }

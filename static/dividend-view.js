@@ -54,7 +54,7 @@
             }
             var sub=key==='top'?metric(tr('div_annual','年間配当'),number(it.annual_dividend,2)+yen,'distribution'):metric(tr('div_yield','利回り'),number(it.yield_pct,2)+'%','distribution');
             if(Number.isFinite(it.price))sub+=metric(tr('div_kabuka','株価'),number(it.price,2)+yen,'quote');
-            return '<div class="div-item"><div class="div-rank">'+(idx+1)+'</div><div><div class="div-name">'+escape(name)+'</div><div class="div-code">'+escape(it.code)+'</div></div><div class="dividend-row-values"><div class="div-yield">'+escape(main)+'</div><div class="div-metrics">'+sub+'</div>'+(it.price_updated_at?'<div class="div-meta div-price-time">'+escape(tr('div_kabuka','株価')+' '+stamp(it.price_updated_at))+'</div>':'')+'</div></div>';
+            return '<div class="div-item"><div class="div-rank">'+(idx+1)+'</div><div><button type="button" class="cp-company-link" data-company-profile="'+escape(it.ticker||it.code+'.T')+'" data-company-name="'+escape(name)+'" aria-label="'+escape(name)+'の会社情報を開く"><span class="div-name">'+escape(name)+'</span><span class="div-code">'+escape(it.code)+'</span></button></div><div class="dividend-row-values"><div class="div-yield">'+escape(main)+'</div><div class="div-metrics">'+sub+'</div>'+(it.price_updated_at?'<div class="div-meta div-price-time">'+escape(tr('div_kabuka','株価')+' '+stamp(it.price_updated_at))+'</div>':'')+'</div></div>';
           }).join('');
           el.innerHTML=html;signatures[key]=signature;
         }

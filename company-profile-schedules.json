@@ -1,0 +1,14 @@
+{
+  "items": {
+    "9432.T": {
+      "payment_period": "2026-11",
+      "reviewed_on": "2026-09-24",
+      "fetched_at": 1790227486,
+      "source_updated_on": "2026-08-07",
+      "source": {
+        "title": "NTT・配当の支払い予定",
+        "url": "https://group.ntt/jp/ir/shares/calendar/"
+      }
+    }
+  }
+}

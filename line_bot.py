@@ -2642,6 +2642,15 @@ _dividend_snapshot = DividendSnapshot(
     _dividend_companies,
     cache_path=os.environ.get("DIVIDEND_SNAPSHOT_PATH", "/tmp/kn-dividend-snapshot.json"))
 
+# The company sheet returns reviewed text and saved figures immediately;
+# market-provider requests run in its bounded background pool.
+from company_profile import CompanyProfiles
+from company_profile_api import register_company_profiles
+_company_profiles = CompanyProfiles(
+    cache_path=os.environ.get("COMPANY_PROFILE_PATH", "/tmp/kn-company-profiles.json"),
+    seed_path=os.path.join(os.path.dirname(__file__), "company-profile-snapshot.json"))
+register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot)
+
 
 @app.before_request
 def _ensure_dividend_warmer():
