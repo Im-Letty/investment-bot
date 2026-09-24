@@ -61,6 +61,32 @@
     var retry=document.getElementById('knMarketRetry');if(retry)retry.hidden=!anyFailure;
     renderDate();
   }
+  function startMarketRefresh() {
+    var timer=null,pending=null;
+    function refresh(force) {
+      if(timer!==null){clearTimeout(timer);timer=null;}
+      if(document.hidden)return Promise.resolve();
+      if(pending)return pending;
+      var began=Date.now();renderDate();
+      pending=Promise.all([
+        Promise.resolve().then(function(){return model.refresh(force===true);}),
+        // Core indices use the existing shared request/cache. The selected
+        // extra quotes have their own per-symbol single-flight requests.
+        Promise.resolve().then(function(){return window.loadMorningData?window.loadMorningData():null;})
+      ]).catch(function(){}).finally(function(){
+        pending=null;
+        if(!document.hidden)timer=setTimeout(function(){refresh(false);},Math.max(0,60000-(Date.now()-began)));
+      });
+      return pending;
+    }
+    document.addEventListener('visibilitychange',function(){
+      if(document.hidden){if(timer!==null){clearTimeout(timer);timer=null;}}
+      else refresh(false);
+    });
+    if(window.addEventListener)window.addEventListener('online',function(){refresh(true);});
+    refresh(false);
+    return refresh;
+  }
   function renderSelected() {
     setHTML(document.getElementById('knMarketSelected'),draft.map(function(id){var c=model.find(id);return '<button type="button" class="kn-market-chip" data-kn-remove="'+esc(id)+'" aria-label="'+esc(c.label)+' ×"><span>'+esc(c.label)+'</span><span aria-hidden="true">×</span></button>';}).join('')||'<span class="kn-market-empty">'+esc(text('none'))+'</span>');
     document.getElementById('knMarketCount').textContent=draft.length+' / 4';
@@ -140,15 +166,13 @@
     document.getElementById('knHomeAMenu').onclick=function(){var b=document.getElementById('hamburgerBtn');if(b)b.click();};
     document.getElementById('knHomeAAccount').onclick=function(){var b=document.querySelector('#knBottomNav [data-act="mypage"]');if(b)b.click();};
     document.getElementById('knMarketOpen').onclick=openPicker;
-    document.getElementById('knMarketRetry').onclick=function(){model.refresh(true);if(window.loadMorningData)window.loadMorningData();};
+    document.getElementById('knMarketRetry').onclick=function(){return refreshMarkets(true);};
     window.openIndexCustomizer=openPicker;
     document.addEventListener('click',function(e){var tab=e.target.closest('#knTabWrap [data-kn-tab]');if(tab&&['stock','div_top','div_cal','div_search'].includes(tab.dataset.knTab))document.querySelectorAll('#knTabWrap [data-kn-tab]').forEach(function(b){b.setAttribute('aria-pressed',String(b===tab));});});
     decoratePanels();
     var attempts=0,initTimer=setInterval(function(){decoratePanels();if(document.querySelector('.kn-a-stock-tabs')||++attempts>=30)clearInterval(initTimer);},300);
     document.addEventListener('langChanged',function(){document.querySelectorAll('[data-kn-home-text]').forEach(function(node){node.textContent=text(node.dataset.knHomeText);});renderDate();renderMarkets();});
-    document.addEventListener('visibilitychange',function(){if(!document.hidden){renderDate();model.refresh(false);}});
-    setInterval(function(){if(!document.hidden){renderDate();model.refresh(false);}},60000);
-    renderMarkets();model.refresh(false);
+    renderMarkets();var refreshMarkets=startMarketRefresh();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
 })();

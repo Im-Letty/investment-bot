@@ -723,6 +723,30 @@ test('previous real market prices survive a day away while out-of-range snapshot
   }
 });
 
+test('hidden tabs cancel core-market retries and visibility restoration shares one fresh request',async()=>{
+  const app=harness();app.event('DOMContentLoaded');
+  await app.reply(app.requests[1],{market:{},fetched_at:null,refreshing:true});
+  assert.ok([...app.timers.values()].some(timer=>timer.ms===2000));
+  app.context.document.hidden=true;app.event('visibilitychange');
+  assert.ok(![...app.timers.values()].some(timer=>timer.ms===2000));
+  await app.context.loadMorningData();
+  assert.equal(app.requests.filter(request=>request.url==='/api/morning-data').length,1);
+  app.context.document.hidden=false;app.event('visibilitychange');app.event('visibilitychange');
+  assert.equal(app.requests.filter(request=>request.url==='/api/morning-data').length,2);
+  await app.reply(app.requests.findLast(request=>request.url==='/api/morning-data'),app.market());
+  assert.equal(app.renders.length,1);
+});
+
+test('a market response finishing after hiding cannot restart background retries',async()=>{
+  for(const fails of [false,true]){
+    const app=harness();app.event('DOMContentLoaded');app.context.document.hidden=true;app.event('visibilitychange');
+    if(fails){app.requests[1].reject(new Error('offline'));await flush();}
+    else await app.reply(app.requests[1],{market:{},fetched_at:null,refreshing:true});
+    assert.ok(![...app.timers.values()].some(timer=>timer.ms<12000),'No market backoff timer while hidden');
+    await app.context.loadMorningData();assert.equal(app.requests.filter(request=>request.url==='/api/morning-data').length,1);
+  }
+});
+
 test('empty background refresh keeps the visible market and retries without a failed state',async()=>{
   const app=harness();app.storage.set('kn_market_v1',JSON.stringify(app.market()));
   let failed=0;app.context.knHomeA={acceptBase(){},baseFailed(){failed++;}};

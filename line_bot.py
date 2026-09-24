@@ -1974,6 +1974,26 @@ def api_morning_data():
 
 _QUOTE_CACHE = {}  # {(symbol, light): (epoch, payload)} 60秒使い回しでyfinance連打を防ぐ
 _QUOTE_TTL = 60
+_QUOTE_ERRORS = {}
+_QUOTE_RETRY_TTL = 15
+# A fixed set of locks bounds memory while coalescing same-symbol requests.
+# Detailed and light requests share a lock; fresh detailed prices can serve both.
+_QUOTE_LOCKS = tuple(threading.Lock() for _ in range(64))
+
+
+def _cached_api_quote(symbol, light):
+    keys = [(symbol, light)] + ([(symbol, False)] if light else [])
+    now = time.time()
+    for key in keys:
+        cached = _QUOTE_CACHE.get(key)
+        if cached and 0 <= now - cached[0] < _QUOTE_TTL:
+            payload = dict(cached[1])
+            payload["fetched_at"] = cached[1].get("fetched_at", cached[0])
+            if light and not key[1]:
+                payload.update(name=symbol, details=None)
+            return payload
+    return None
+
 
 @app.route("/api/quote", methods=["GET"])
 def api_quote():
@@ -1981,13 +2001,40 @@ def api_quote():
     light = request.args.get("light", "") == "1"
     if not symbol:
         return jsonify({"error": "symbol is required"}), 400
+    cached = _cached_api_quote(symbol, light)
+    if cached is not None:
+        return jsonify(cached)
+    lock = _QUOTE_LOCKS[hash(symbol) % len(_QUOTE_LOCKS)]
+    if not lock.acquire(timeout=10):
+        return jsonify({"error": "Quote refresh is still in progress", "symbol": symbol}), 503
+    try:
+        # Another request may have fetched the price while this one waited.
+        cached = _cached_api_quote(symbol, light)
+        if cached is not None:
+            return jsonify(cached)
+        key = (symbol, light)
+        failed = _QUOTE_ERRORS.get(key)
+        if failed and 0 <= time.time() - failed[0] < _QUOTE_RETRY_TTL:
+            return jsonify(failed[1]), failed[2]
+        result = _load_api_quote(symbol, light)
+        response, status = result if isinstance(result, tuple) else (result, result.status_code)
+        if status >= 400:
+            # Failed parallel requests also share a short retry delay.
+            if len(_QUOTE_ERRORS) > 300:
+                _QUOTE_ERRORS.clear()
+            _QUOTE_ERRORS[key] = (time.time(), response.get_json(), status)
+        else:
+            _QUOTE_ERRORS.pop(key, None)
+        return result
+    finally:
+        lock.release()
+
+
+def _load_api_quote(symbol, light):
     _qk = (symbol, light)
-    _qc = _QUOTE_CACHE.get(_qk)
-    if _qc and (time.time() - _qc[0]) < _QUOTE_TTL:
-        return jsonify(_qc[1])
     try:
         t = yf.Ticker(symbol)
-        hist = t.history(period="5d")
+        hist = t.history(period="5d", timeout=8)
         if light:
             info = {}
             name = symbol
@@ -2040,7 +2087,8 @@ def api_quote():
             }
             if len(_QUOTE_CACHE) > 300:
                 _QUOTE_CACHE.clear()
-            _QUOTE_CACHE[_qk] = (time.time(), _qp)
+            _qp["fetched_at"] = time.time()
+            _QUOTE_CACHE[_qk] = (_qp["fetched_at"], _qp)
             return jsonify(_qp)
         elif len(hist) == 1:
             try:
@@ -2061,7 +2109,8 @@ def api_quote():
             }
             if len(_QUOTE_CACHE) > 300:
                 _QUOTE_CACHE.clear()
-            _QUOTE_CACHE[_qk] = (time.time(), _qp)
+            _qp["fetched_at"] = time.time()
+            _QUOTE_CACHE[_qk] = (_qp["fetched_at"], _qp)
             return jsonify(_qp)
         else:
             return jsonify({"error": "No data found for: " + symbol}), 404

@@ -51,7 +51,8 @@ class MarketQuoteTests(unittest.TestCase):
         tree = ast.parse((ROOT / 'line_bot.py').read_text(encoding='utf-8'))
         names = {'_rtp', '_market_change_values', '_market_quote_units',
                  '_fetch_market_quote', '_load_market_snapshot', 'initial_market_payload',
-                 'fetch_market_data', 'api_morning_data', 'api_quote'}
+                 'fetch_market_data', 'api_morning_data', 'api_quote',
+                 '_cached_api_quote', '_load_api_quote'}
         nodes = [node for node in tree.body
                  if isinstance(node, ast.FunctionDef) and node.name in names]
         self.app = Flask('market-test')
@@ -63,6 +64,8 @@ class MarketQuoteTests(unittest.TestCase):
                             yf=SimpleNamespace(Ticker=self.ticker_factory),
                             _MKT_CACHE={'ts': 0, 'data': None},
                             _QUOTE_CACHE={}, _QUOTE_TTL=60,
+                            _QUOTE_ERRORS={}, _QUOTE_RETRY_TTL=15,
+                            _QUOTE_LOCKS=tuple(threading.Lock() for _ in range(64)),
                             ThreadPoolExecutor=ThreadPoolExecutor, as_completed=as_completed,
                             CORE_MARKETS=CORE_MARKETS)
         exec(compile(ast.Module(body=nodes, type_ignores=[]),
@@ -187,6 +190,7 @@ class MarketQuoteTests(unittest.TestCase):
         for closes in ([100], [99, 100]):
             for current in (float('nan'), float('inf'), -100):
                 with self.subTest(closes=closes, current=current):
+                    self.context['_QUOTE_ERRORS'].clear()
                     response = self.quote('7203.T', closes, current)
                     self.assertEqual(response.status_code, 422)
                     self.assertEqual(response.get_json()['error'], 'invalid data')
@@ -219,14 +223,112 @@ class MarketQuoteTests(unittest.TestCase):
         full = self.quote('EXAMPLE.TO', [10, 10.5], 10.5, light=False, info=info).get_json()
         self.assertEqual(full['name'], 'Example')
         self.assertEqual(full['details']['marketCap'], 100000)
+        calls_before_light = self.ticker_factory.call_count
+        self.context['time'].time = lambda: 1010.0
         light = self.client.get('/api/quote?symbol=EXAMPLE.TO&light=1').get_json()
         self.assertEqual(light['currency'], 'CAD')
         self.assertEqual(light['change_value'], 0.5)
+        self.assertEqual(light['fetched_at'], 1000)
+        self.assertEqual(self.ticker_factory.call_count, calls_before_light)
         self.assertEqual(self.tickers['EXAMPLE.TO'].info_reads, 1)
         calls = self.ticker_factory.call_count
         cached = self.client.get('/api/quote?symbol=EXAMPLE.TO&light=1').get_json()
         self.assertEqual(cached, light)
         self.assertEqual(self.ticker_factory.call_count, calls)
+
+    def test_quote_refresh_time_is_preserved_on_cache_hits_and_moves_only_after_fetch(self):
+        first = self.quote('7203.T', [100, 101], 101).get_json()
+        self.assertEqual(first['fetched_at'], 1000)
+        ticker = self.tickers['7203.T']
+        ticker.history.assert_called_once_with(period='5d', timeout=8)
+        ticker.fast_info['last_price'] = 102
+        self.context['time'].time = lambda: 1030.0
+        cached = self.client.get('/api/quote?symbol=7203.T&light=1').get_json()
+        self.assertEqual((cached['price'], cached['fetched_at']), (101, 1000))
+        self.assertEqual(ticker.history.call_count, 1)
+        self.context['time'].time = lambda: 1061.0
+        fresh = self.client.get('/api/quote?symbol=7203.T&light=1').get_json()
+        self.assertEqual((fresh['price'], fresh['fetched_at']), (102, 1061))
+        self.assertEqual(ticker.history.call_count, 2)
+
+    def test_one_bar_quote_has_a_real_retrieval_timestamp_without_fake_change(self):
+        data = self.quote('BTC-JPY', [10000], 10100).get_json()
+        self.assertEqual(data['fetched_at'], 1000)
+        self.assertIsNone(data['pct'])
+        self.assertIsNone(data['change_value'])
+
+    def test_concurrent_same_symbol_requests_fetch_history_once(self):
+        entered, release, contender = threading.Event(), threading.Event(), threading.Event()
+        guard, serial = threading.Lock(), threading.Lock()
+        class TrackingLock:
+            attempts = 0
+            def acquire(self, timeout):
+                with guard:
+                    self.attempts += 1
+                    if self.attempts == 2:
+                        contender.set()
+                return serial.acquire(timeout=timeout)
+            def release(self):
+                serial.release()
+        self.context['_QUOTE_LOCKS'] = (TrackingLock(),)
+        ticker = FakeTicker([100, 101], 101)
+        def history(**kwargs):
+            entered.set()
+            if not release.wait(2):
+                raise RuntimeError('test provider timed out')
+            return FakeHistory([100, 101])
+        ticker.history.side_effect = history
+        self.tickers['7203.T'] = ticker
+        def fetch():
+            with self.app.test_client() as client:
+                response = client.get('/api/quote?symbol=7203.T&light=1')
+                return response.status_code, response.get_json()
+        with ThreadPoolExecutor(max_workers=2) as workers:
+            first = workers.submit(fetch)
+            try:
+                self.assertTrue(entered.wait(1))
+                second = workers.submit(fetch)
+                self.assertTrue(contender.wait(1))
+                self.assertEqual(ticker.history.call_count, 1)
+            finally:
+                release.set()
+            one, two = first.result(timeout=2), second.result(timeout=2)
+        self.assertEqual(one, two)
+        self.assertEqual(one[0], 200)
+        self.assertEqual(one[1]['fetched_at'], 1000)
+        self.assertEqual(ticker.history.call_count, 1)
+
+    def test_failed_refresh_is_throttled_and_preserves_previous_cache_timestamp(self):
+        self.quote('7203.T', [100, 101], 101)
+        ticker = self.tickers['7203.T']
+        ticker.history.side_effect = RuntimeError('provider unavailable')
+        self.context['time'].time = lambda: 1061.0
+        failed = self.client.get('/api/quote?symbol=7203.T&light=1')
+        self.assertEqual(failed.status_code, 500)
+        self.assertNotIn('fetched_at', failed.get_json())
+        self.context['time'].time = lambda: 1070.0
+        again = self.client.get('/api/quote?symbol=7203.T&light=1')
+        self.assertEqual(again.status_code, 500)
+        self.assertEqual(ticker.history.call_count, 2)
+        saved = self.context['_QUOTE_CACHE'][('7203.T', True)]
+        self.assertEqual((saved[0], saved[1]['fetched_at']), (1000, 1000))
+        self.context['time'].time = lambda: 1077.0
+        ticker.history.side_effect = None
+        ticker.fast_info['last_price'] = 102
+        fresh = self.client.get('/api/quote?symbol=7203.T&light=1').get_json()
+        self.assertEqual((fresh['price'], fresh['fetched_at']), (102, 1077))
+        self.assertEqual(ticker.history.call_count, 3)
+
+    def test_waiting_for_inflight_quote_has_a_bounded_timeout(self):
+        lock = Mock()
+        lock.acquire.return_value = False
+        self.context['_QUOTE_LOCKS'] = (lock,)
+        response = self.client.get('/api/quote?symbol=7203.T&light=1')
+        self.assertEqual(response.status_code, 503)
+        self.assertNotIn('fetched_at', response.get_json())
+        lock.acquire.assert_called_once_with(timeout=10)
+        lock.release.assert_not_called()
+        self.ticker_factory.assert_not_called()
 
 
 if __name__ == '__main__':

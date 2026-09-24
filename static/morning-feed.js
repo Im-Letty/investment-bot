@@ -251,6 +251,7 @@
     var p=document.getElementById('morning-points');if(p)p.innerHTML='✅ <strong>'+esc(tr('mp_latest'))+'</strong><br>✅ '+esc(tr('mp_morning_line'));
   }
   function loadMarket(){
+    if(document.hidden)return Promise.resolve(_mktCache);
     if(marketPending)return marketPending;
     if(_mktCache&&Date.now()-_mktLastFetch<_mktFetchSec*1000){renderMorningGrid(_mktCache);return Promise.resolve(_mktCache);}
     clearTimeout(marketRetry);
@@ -259,7 +260,7 @@
       if(!d||d.error)throw new Error('Unavailable market');
       if(d.refreshing&&d.market&&!Object.keys(d.market).length){
         if(window.knHomeA)window.knHomeA.acceptBase(d);
-        marketRetry=setTimeout(loadMarket,2000);return d;
+        if(!document.hidden)marketRetry=setTimeout(loadMarket,2000);return d;
       }
       if(!Object.keys(d.market).length)throw new Error('Unavailable market');
       _mktLastFetch=Date.now();_mktCountdown=_mktFetchSec;window.__mdTry=0;
@@ -270,7 +271,7 @@
       if(_mktCache){renderMorningGrid(_mktCache);return;}
       var a=document.getElementById('morning-analysis');if(a)a.textContent='市場データを確認しています。ニュースはそのままご覧いただけます。';
       window.__mdTry=(window.__mdTry||0)+1;
-      if(window.__mdTry<=8)marketRetry=setTimeout(loadMarket,Math.min(10000,1500*window.__mdTry));
+      if(!document.hidden&&window.__mdTry<=8)marketRetry=setTimeout(loadMarket,Math.min(10000,1500*window.__mdTry));
     }).finally(function(){marketPending=null;});return marketPending;
   }
   function start(){
@@ -290,7 +291,7 @@
     },1000);
   }
   window.loadMorningNews=loadNews;window.loadMorningData=loadMarket;window.startMorningInterval=start;
-  document.addEventListener('visibilitychange',function(){if(!document.hidden){loadNews();loadMarket();}});
+  document.addEventListener('visibilitychange',function(){if(document.hidden)clearTimeout(marketRetry);else{loadNews();loadMarket();}});
   document.addEventListener('langChanged',function(){loadNews();});
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});else start();
 })();

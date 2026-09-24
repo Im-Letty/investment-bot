@@ -10,9 +10,14 @@ vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../static/market-catalog
 const catalog=JSON.parse(JSON.stringify(catalogContext.window.KN_MARKET_CATALOG));
 async function flush(){for(let i=0;i<15;i++)await Promise.resolve();}
 function harness(saved={}){
-  const storage=new Map(Object.entries(saved)),requests=[];let now=1789250000000;
-  const model=create({catalog,custom:[{key:'SHOP',label:'Shopify'}],now:()=>now,storage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},fetch(url){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});requests.push({url,resolve,reject});return promise;}});
-  return {model,storage,requests,advance:ms=>now+=ms,reply:async(request,quote={price:100,pct:1,change:'▲1.00%',name:'Example'})=>{request.resolve({ok:true,json:async()=>quote});await flush();}};
+  const storage=new Map(Object.entries(saved)),requests=[],timers=new Map();let now=1789250000000,timerId=0;
+  const model=create({catalog,custom:[{key:'SHOP',label:'Shopify'}],now:()=>now,storage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
+    setTimeout(fn,ms){const id=++timerId;timers.set(id,{fn,at:now+ms});return id;},clearTimeout:id=>timers.delete(id),
+    fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});requests.push({url,options,resolve,reject});return promise;}});
+  return {model,storage,requests,timers,now:()=>now,advance(ms){now+=ms;for(const [id,timer] of [...timers])if(timer.at<=now){timers.delete(id);timer.fn();}},reply:async(request,quote={price:100,pct:1,change:'▲1.00%',name:'Example'})=>{
+    if(quote&&!Object.hasOwn(quote,'fetched_at'))quote={...quote,fetched_at:now/1000};
+    request.resolve({ok:true,json:async()=>quote});await flush();
+  }};
 }
 test('catalog has the approved 239 choices, unique IDs and no saved preview prices',()=>{
   assert.equal(catalog.length,239);assert.equal(new Set(catalog.map(c=>c.id)).size,239);
@@ -144,7 +149,7 @@ test('selected extra quotes retain structured movement through the storage cache
   const quote={price:250.5,pct:0.2,change_value:0.5,currency:'USD',change_unit:'currency'};
   await app.reply(app.requests[0],quote);await request;
   const cached=harness(Object.fromEntries(app.storage));
-  assert.deepEqual(cached.model.rows()[0].quote,quote);
+  assert.deepEqual(cached.model.rows()[0].quote,{...quote,fetched_at:app.now()/1000});
   assert.equal(formatChange(cached.model.rows()[0].quote,catalog.find(x=>x.id==='AAPL'),'ja').amount,'+0.50米ドル');
 });
 test('small FX moves remain visible and localization keeps a numeric sign without negative zero',()=>{
@@ -200,4 +205,51 @@ test('an empty refreshing server response is pending, not a failed update',()=>{
   assert.ok(app.model.rows().every(row=>row.pending&&!row.failed));
   app.model.acceptBase({market:{},fetched_at:null,refreshing:false});
   assert.ok(app.model.rows().every(row=>!row.pending&&row.failed));
+});
+
+
+test('one-minute quote checks use request start even when the response takes several seconds',async()=>{
+  const app=harness({morn_sel:'["AAPL"]'});
+  const first=app.model.refresh();await flush();app.advance(3500);await app.reply(app.requests[0]);await first;
+  app.advance(56500);const second=app.model.refresh();await flush();assert.equal(app.requests.length,2);
+  app.advance(2000);await app.reply(app.requests[1]);await second;
+  app.advance(58000);const third=app.model.refresh();await flush();assert.equal(app.requests.length,3);
+  await app.reply(app.requests[2]);await third;
+  assert.ok(app.requests.every(request=>request.options.cache==='no-store'));
+});
+
+test('a server-cached quote keeps its acquisition time and failures never freshen saved prices',async()=>{
+  const app=harness({morn_sel:'["AAPL"]'}),stamp=app.now()/1000-35;
+  const first=app.model.refresh();await flush();await app.reply(app.requests[0],{price:150,pct:1,fetched_at:stamp});await first;
+  assert.equal(app.model.rows()[0].at,stamp*1000);
+  app.advance(60000);const failed=app.model.refresh();await flush();app.requests[1].reject(new Error('offline'));await failed;
+  const old=app.model.rows()[0];assert.equal(old.quote.price,150);assert.equal(old.at,stamp*1000);assert.equal(old.failed,true);
+  app.advance(30000);const recovery=app.model.refresh();await flush();await app.reply(app.requests[2],{price:151,pct:2});await recovery;
+  assert.equal(app.model.rows()[0].failed,false);assert.equal(app.model.rows()[0].at,app.now());
+});
+
+test('missing, future or expired quote timestamps cannot invent a fresh acquisition',async()=>{
+  for(const fetched_at of [undefined,null,0,1789250061,1789250000-7*86400]){
+    const saved={AAPL:{quote:{price:150,pct:1},at:1789249999000}},app=harness({morn_sel:'["AAPL"]',kn_market_quotes_v2:JSON.stringify(saved)});
+    const pending=app.model.refresh(true);await flush();await app.reply(app.requests[0],{price:999,pct:2,fetched_at});await pending;
+    assert.equal(app.model.rows()[0].quote.price,150);assert.equal(app.model.rows()[0].at,saved.AAPL.at);assert.equal(app.model.rows()[0].failed,true);
+  }
+});
+
+test('quote timeout releases the pending request and late results cannot overwrite a newer recovery',async()=>{
+  const app=harness({morn_sel:'["AAPL"]'}),first=app.model.refresh();await flush();
+  const concurrent=app.model.refresh(true);await flush();assert.equal(app.requests.length,1);
+  app.advance(12000);await Promise.all([first,concurrent]);assert.equal(app.requests[0].options.signal.aborted,true);assert.equal(app.model.rows()[0].failed,true);
+  const recovery=app.model.refresh(true);await flush();assert.equal(app.requests.length,2);
+  await app.reply(app.requests[1],{price:151,pct:1});await recovery;
+  await app.reply(app.requests[0],{price:999,pct:1});
+  assert.equal(app.model.rows()[0].quote.price,151);assert.equal(app.model.rows()[0].failed,false);assert.equal(app.timers.size,0);
+});
+
+
+test('small server clock skew keeps the true timestamp, including when restored from storage',async()=>{
+  const app=harness({morn_sel:'["AAPL"]'}),fetched_at=app.now()/1000+15;
+  const first=app.model.refresh();await flush();await app.reply(app.requests[0],{price:150,pct:1,fetched_at});await first;
+  assert.equal(app.model.rows()[0].at,fetched_at*1000);assert.equal(app.model.rows()[0].failed,false);
+  const restored=harness(Object.fromEntries(app.storage));assert.equal(restored.model.rows()[0].at,fetched_at*1000);
 });

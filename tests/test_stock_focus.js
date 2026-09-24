@@ -104,10 +104,10 @@ test('all executable inline scripts remain syntactically valid after integration
  assert.ok(count>20);
 });
 async function flush(){for(let i=0;i<20;i++)await Promise.resolve();}
-function browserHarness(saved){
+function browserHarness(saved,hidden=false){
  const elements=new Map(['homeMoversList','knCompanyFocus'].map(id=>[id,{innerHTML:'',querySelectorAll(){return [];},contains(){return false;}}]));
  const listeners={},requests=[],timers=new Map(),storage=new Map(Object.entries(saved||{}));let timerId=0;
- const w={AbortController,document:{readyState:'complete',activeElement:null,getElementById:id=>elements.get(id)||null,addEventListener:(key,fn)=>{listeners[key]=fn;}},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId;},clearTimeout:id=>timers.delete(id),fetch(url){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,resolve,reject});return promise;}};
+ const w={AbortController,addEventListener:(key,fn)=>{listeners[key]=fn;},document:{readyState:'complete',hidden,activeElement:null,getElementById:id=>elements.get(id)||null,addEventListener:(key,fn)=>{listeners[key]=fn;}},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId;},clearTimeout:id=>timers.delete(id),fetch(url){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,resolve,reject});return promise;}};
  stock.start(w);
  return {w,elements,listeners,requests,timers,async respond(request,data){request.resolve({ok:true,json:async()=>data});await flush();}};
 }
@@ -127,6 +127,64 @@ test('style switch discards a late response from a different market scope',async
  await h.respond(next,{updated_at:stamp,items:[{...item('AAPL'),fetched_at:stamp,currency:'USD'}],scope:'selected_jp_us'});
  assert.match(h.elements.get('homeMoversList').innerHTML,/AAPL/);assert.doesNotMatch(h.elements.get('homeMoversList').innerHTML,/OLD.T/);
 });
+function scannerPayload(price=110){const stamp=Date.now()/1000;return {updated_at:stamp,items:[{...item('7203.T'),price,fetched_at:stamp}],scope:'selected_jp'};}
+function fireRankingTimer(h,delay){const pair=[...h.timers].find(([,t])=>t.ms===delay);assert.ok(pair,'expected scheduled refresh');h.timers.delete(pair[0]);pair[1].fn();}
+test('rankings continue refreshing every minute without erasing current prices',async()=>{
+ const h=browserHarness();await h.respond(h.requests[0],scannerPayload(110));
+ for(const price of [112,114]){
+   const previous=h.elements.get('homeMoversList').innerHTML;
+   fireRankingTimer(h,60000);
+   assert.equal(h.elements.get('homeMoversList').innerHTML,previous);
+   const request=h.requests.filter(r=>r.url.includes('/api/scanner')).at(-1);
+   await h.respond(request,scannerPayload(price));assert.match(h.elements.get('homeMoversList').innerHTML,new RegExp('>'+price+'<small>'));
+ }
+ assert.equal(h.requests.filter(r=>r.url.includes('/api/scanner')).length,3);
+ assert.equal([...h.timers.values()].filter(t=>t.ms===60000).length,1);
+});
+test('rankings pause while hidden, resume immediately and share an in-flight refresh',async()=>{
+ const h=browserHarness(undefined,true);
+ assert.equal(h.requests.filter(r=>r.url.includes('/api/scanner')).length,0);
+ h.w.document.hidden=false;h.listeners.visibilitychange();h.listeners.online();h.listeners.visibilitychange();
+ assert.equal(h.requests.filter(r=>r.url.includes('/api/scanner')).length,1);
+ h.w.document.hidden=true;h.listeners.visibilitychange();
+ await h.respond(h.requests.find(r=>r.url.includes('/api/scanner')),scannerPayload());
+ assert.ok(![...h.timers.values()].some(t=>t.ms===60000||t.ms===3000));
+ h.w.document.hidden=false;h.listeners.visibilitychange();
+ assert.equal(h.requests.filter(r=>r.url.includes('/api/scanner')).length,2);
+ await h.respond(h.requests.at(-1),scannerPayload(113));
+ assert.equal([...h.timers.values()].filter(t=>t.ms===60000).length,1);
+ h.w.document.hidden=true;h.listeners.visibilitychange();
+ assert.ok(![...h.timers.values()].some(t=>t.ms===60000));
+});
+test('background ranking failure keeps dated prices and retries on the next minute',async()=>{
+ const h=browserHarness();await h.respond(h.requests[0],scannerPayload());fireRankingTimer(h,60000);
+ h.requests.at(-1).reject(new Error('offline'));await flush();
+ const html=h.elements.get('homeMoversList').innerHTML;assert.match(html,/>110<small>/);assert.match(html,/保存済みの価格/);
+ fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(115));
+ assert.match(h.elements.get('homeMoversList').innerHTML,/>115<small>/);assert.doesNotMatch(h.elements.get('homeMoversList').innerHTML,/保存済みの価格/);
+});
+test('recurring ranking price changes preserve rows and disclosures when their order is unchanged',async()=>{
+ const h=browserHarness();
+ function tree(html=''){
+   const node={writes:0,rows:[],footer:null,querySelectorAll(selector){return selector==='.sf-row'?this.rows:[];},querySelector(selector){return selector==='.sf-meta'?this.footer:null;},contains(){return false;}};
+   Object.defineProperty(node,'innerHTML',{get(){return this.html||'';},set(value){this.writes++;this.html=value;this.rows=[];
+     for(const [,id,body]of value.matchAll(/<section class="sf-ranking" id="([^"]+)"[^>]*>(.*?)<\/section>/g))for(const [,symbol,content]of body.matchAll(/<li class="sf-row" data-stock-symbol="([^"]+)">(.*?)<\/li>/g)){
+       const values={};for(const selector of ['.sf-rank','.sf-stock-name','.sf-quote']){
+         const name=selector.slice(1),match=content.match(new RegExp('<(span|div) class="'+name+'"[^>]*>(.*?)<\\/\\1>'));
+         assert.ok(match,selector);values[selector]={innerHTML:match[2]};
+       }
+       this.rows.push({dataset:{stockSymbol:symbol},querySelector:selector=>values[selector],closest:()=>({id})});
+     }
+     const footer=value.match(/<footer class="sf-meta">(.*?)<\/footer>/);this.footer=footer?{innerHTML:footer[1]}:null;
+   }});node.innerHTML=html;return node;
+ }
+ h.w.document.createElement=()=>tree();const box=tree();h.elements.set('homeMoversList',box);
+ await h.respond(h.requests[0],scannerPayload(110));const row=box.rows[0],quote=row.querySelector('.sf-quote'),writes=box.writes;
+ h.w.document.activeElement=row;fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(115));
+ assert.equal(box.writes,writes);assert.equal(box.rows[0],row);assert.equal(row.querySelector('.sf-quote'),quote);assert.match(quote.innerHTML,/>115<small>/);assert.equal(h.w.document.activeElement,row);
+ // Crossing from up to down must rebuild the ranking groups, rather than leaving the company in the old group.
+ fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(90));assert.equal(box.writes,writes+1);assert.equal(box.rows[0].closest().id,'sf-rank-panel-down');
+});
 test('legacy alerts stay outside new home rankings and favorite management has working targets',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');assert.doesNotMatch(html,/_knSyncAlert|Move 急騰・急落アラート/);
  for(const id of ['alert-ticker-input','alert-watchlist','alert-refresh-btn','alert-msg'])assert.equal((html.match(new RegExp('id="'+id+'"','g'))||[]).length,1);
@@ -142,6 +200,7 @@ function watchHarness(symbols){
    if(html.includes('id="knWatchAddBtn"'))this.appendChild(new Element('button','knWatchAddBtn'));
   }
   get innerHTML(){return this._html;}
+  setAttribute(name,value){this[name]=String(value);}
   appendChild(child){if(child.parentNode)child.parentNode.children.splice(child.parentNode.children.indexOf(child),1);this.children.push(child);child.parentNode=this;child.attachments++;return child;}
   get previousElementSibling(){return this.parentNode?.children[this.parentNode.children.indexOf(this)-1]||null;}
   contains(child){return this===child||this.children.some(node=>node.contains(child));}
@@ -150,12 +209,13 @@ function watchHarness(symbols){
  const root=new Element('main'),grid=new Element('div','morning-idx-grid'),wrap=new Element('div','knTabWrap'),body=new Element('div'),sub=new Element('div','knSubRow'),movers=new Element('div','homeMoversCard');
  root.appendChild(grid);root.appendChild(wrap);wrap.appendChild(body);body.appendChild(sub);body.appendChild(movers);wrap.dataset.stockView='watch';sub.style.display='flex';
  const find=(node,id)=>node.id===id?node:node.children.map(child=>find(child,id)).find(Boolean);
- const storage=new Map([['alert_watchlist_v1',JSON.stringify(symbols)]]),requests=[],timers=new Map();let timerId=0;
- const document={readyState:'complete',createElement:tag=>new Element(tag),getElementById:id=>find(root,id)||null,addEventListener(){}};
- const w={document,StockFocus:stock,KNMarketData:require('../static/market-data.js'),renderMorningGrid(){},openAlertSection(){}};
- const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},AbortController,Date,setTimeout(fn,ms){timers.set(++timerId,{fn,ms});return timerId;},clearTimeout(id){timers.delete(id);},fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;}};
+ const storage=new Map([['alert_watchlist_v1',JSON.stringify(symbols)]]),requests=[],timers=new Map(),events={},windowEvents={};let timerId=0,now=100000;
+ const document={readyState:'complete',hidden:false,createElement:tag=>new Element(tag),getElementById:id=>find(root,id)||null,addEventListener(type,fn){events[type]=fn;}};
+ const w={document,StockFocus:stock,KNMarketData:require('../static/market-data.js'),renderMorningGrid(){},openAlertSection(){},addEventListener(type,fn){windowEvents[type]=fn;}};
+ class ClockDate extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
+ const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},AbortController,Date:ClockDate,setTimeout(fn,ms){timers.set(++timerId,{fn,ms,at:now+ms});return timerId;},clearTimeout(id){timers.delete(id);},fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;}};
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),source=html.match(/<script>\s*(\/\* knWatchSection v2[\s\S]*?)<\/script>/)[1];vm.runInNewContext(source,context);
- return {w,document,wrap,sub,requests,timers,setSelection(list){storage.set('alert_watchlist_v1',JSON.stringify(list));},async respond(request,quote,ok=true){request.resolve({ok,json:async()=>quote});await flush();}};
+ return {w,document,wrap,sub,requests,timers,async advance(ms){const end=now+ms;while(true){const next=[...timers].filter(([,timer])=>timer.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!next)break;now=next[1].at;timers.delete(next[0]);next[1].fn();await flush();}now=end;},async visibility(hidden){document.hidden=hidden;events.visibilitychange();await flush();},async online(){windowEvents.online();await flush();},setSelection(list){storage.set('alert_watchlist_v1',JSON.stringify(list));},async respond(request,quote,ok=true){request.resolve({ok,json:async()=>quote});await flush();}};
 }
 test('favorite refresh retains existing rows and nodes, then commits every result together',async()=>{
  const h=watchHarness(['7203.T','AAPL']);h.w.__knRefreshWatch();await flush();
@@ -163,7 +223,7 @@ test('favorite refresh retains existing rows and nodes, then commits every resul
  await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY'});assert.equal(box.innerHTML,initial);assert.equal(box.writes,writes);
  await h.respond(h.requests[1],{name:'Apple',price:200,currency:'USD'});assert.match(box.innerHTML,/Toyota/);assert.match(box.innerHTML,/Apple/);assert.equal(box.writes,writes+1);
  const previous=box.innerHTML,refreshWrites=box.writes;
- h.w.renderMorningGrid();await flush();h.w.renderMorningGrid();await flush();assert.equal(h.requests.length,4);assert.equal(box.innerHTML,previous);
+ h.w.renderMorningGrid();await flush();assert.equal(h.requests.length,2);h.w.__knRefreshWatch();await flush();h.w.renderMorningGrid();await flush();assert.equal(h.requests.length,4);assert.equal(box.innerHTML,previous);
  assert.equal(h.document.getElementById('knWatchSec'),section);assert.equal(h.document.getElementById('knWatchList'),box);assert.equal(section.attachments,attachments);
  h.wrap.dataset.stockView='companies';section.style.display='none';
  await h.respond(h.requests[3],{name:'Apple',price:201,currency:'USD'});assert.equal(box.innerHTML,previous);
@@ -189,4 +249,45 @@ test('favorite batch bounds stalled requests and shows honest failure rows witho
  for(const [id,timer]of [...h.timers])if(timer.ms===12000){h.timers.delete(id);timer.fn();}await flush();
  assert.match(box.innerHTML,/Ready company/);assert.equal((box.innerHTML.match(/株価を確認できませんでした/g)||[]).length,2);assert.doesNotMatch(box.innerHTML,/Rejected body/);assert.equal(h.requests[2].options.signal.aborted,true);
  await h.respond(h.requests[2],{name:'Late stalled company',price:456,currency:'JPY'});assert.doesNotMatch(box.innerHTML,/Late stalled company/);
+});
+
+test('favorite prices poll once a minute, pause while hidden and resume without overlapping requests',async()=>{
+ const h=watchHarness(['7203.T']);h.w.__knRefreshWatch();await flush();
+ await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY'});
+ const box=h.document.getElementById('knWatchList'),initialWrites=box.writes;
+ await h.advance(59999);assert.equal(h.requests.length,1);
+ await h.advance(1);assert.equal(h.requests.length,2);assert.match(h.requests[1].url,/light=1/);assert.doesNotMatch(h.requests[1].url,/_t=/);
+ h.w.__knRefreshWatch();h.w.renderMorningGrid();await h.online();assert.equal(h.requests.length,2);
+ assert.equal(box.writes,initialWrites);
+ await h.respond(h.requests[1],{name:'7203.T',price:101,currency:'JPY'});
+ assert.match(box.innerHTML,/Toyota/);assert.match(box.innerHTML,/101/);
+ await h.visibility(true);await h.advance(180000);assert.equal(h.requests.length,2);
+ await h.visibility(false);assert.equal(h.requests.length,3);
+ await h.respond(h.requests[2],{name:'7203.T',price:102,currency:'JPY'});
+ await h.advance(60000);assert.equal(h.requests.length,4);
+});
+test('favorite automatic failures preserve last good prices and names through recovery',async()=>{
+ const h=watchHarness(['7203.T','AAPL']);h.w.__knRefreshWatch();await flush();
+ await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY',pct:1,change_value:1});
+ await h.respond(h.requests[1],{name:'Apple',price:200,currency:'USD',pct:2,change_value:4});
+ const box=h.document.getElementById('knWatchList'),previous=box.innerHTML,writes=box.writes,status=h.document.getElementById('knWatchStatus');
+ assert.equal(status.textContent,'');assert.equal(status.className,'sf-watch-status');assert.equal(status.role,'status');
+ await h.advance(60000);
+ await h.respond(h.requests[2],{error:'Unavailable'},false);
+ await h.respond(h.requests[3],{price:null});
+ assert.equal(box.innerHTML,previous);assert.equal(box.writes,writes);assert.doesNotMatch(box.innerHTML,/株価を確認できませんでした/);assert.equal(status.textContent,'更新を確認できませんでした');assert.equal(h.document.getElementById('knWatchStatus'),status);
+ await h.advance(60000);
+ await h.respond(h.requests[4],{name:'7203.T',price:105,currency:'JPY',pct:5,change_value:5});
+ assert.equal(box.innerHTML,previous);
+ await h.respond(h.requests[5],{name:'AAPL',price:205,currency:'USD',pct:4.5,change_value:9});
+ assert.match(box.innerHTML,/Toyota/);assert.match(box.innerHTML,/Apple/);assert.match(box.innerHTML,/105/);assert.match(box.innerHTML,/205/);assert.equal(box.writes,writes+1);assert.equal(status.textContent,'');assert.equal(h.document.getElementById('knWatchStatus'),status);
+});
+
+test('favorite selection edits share in-flight requests for companies kept in the list',async()=>{
+ const h=watchHarness(['7203.T']);h.w.__knRefreshWatch();await flush();
+ h.setSelection(['7203.T','AAPL']);h.w.__knRefreshWatch();await flush();
+ assert.equal(h.requests.length,2);assert.match(h.requests[0].url,/7203/);assert.match(h.requests[1].url,/AAPL/);
+ const box=h.document.getElementById('knWatchList'),initial=box.innerHTML;
+ await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY'});assert.equal(box.innerHTML,initial);
+ await h.respond(h.requests[1],{name:'Apple',price:200,currency:'USD'});assert.match(box.innerHTML,/Toyota/);assert.match(box.innerHTML,/Apple/);
 });

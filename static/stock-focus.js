@@ -5,7 +5,7 @@
   if(root&&root.document){root.StockFocus=api;api.start(root);}
 })(typeof window==='undefined'?null:window,function(){
   'use strict';
-  const DAY=86400000, CACHE_AGE=7*DAY;
+  const DAY=86400000, CACHE_AGE=7*DAY, REFRESH_MS=60000;
   const escape=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const amount=value=>Math.abs(value).toLocaleString('ja-JP',{maximumFractionDigits:2});
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
@@ -40,7 +40,7 @@
     return '<small class="sf-stock-code">'+escape(String(symbol||'').replace(/\.T$/,''))+'</small>';
   }
   function row(item,index,showDate=true){
-    return '<li class="sf-row"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'"><span>'+escape(item.name||item.symbol)+'</span>'+stockCode(item.symbol)+'</div>'+quote(item,showDate)+'</li>';
+    return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'"><span>'+escape(item.name||item.symbol)+'</span>'+stockCode(item.symbol)+'</div>'+quote(item,showDate)+'</li>';
   }
   function watchRow(raw,symbol,formatChange){
     const item=raw||{},name=escape(item.name||symbol);
@@ -104,8 +104,29 @@
     const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0;
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
+    function updateRankingValues(el,html){
+      // Keep list, disclosure and focus nodes when the ranked companies haven't changed.
+      if(!doc.createElement)return false;
+      const next=doc.createElement('div');next.innerHTML=html;
+      const before=Array.from(el.querySelectorAll('.sf-row')),after=Array.from(next.querySelectorAll('.sf-row'));
+      if(!before.length||before.length!==after.length||before.some((row,i)=>row.dataset.stockSymbol!==after[i].dataset.stockSymbol||row.closest('.sf-ranking').id!==after[i].closest('.sf-ranking').id))return false;
+      const cells=['.sf-rank','.sf-stock-name','.sf-quote'];
+      const patches=[];
+      for(let i=0;i<before.length;i++)for(const selector of cells){
+        const target=before[i].querySelector(selector),source=after[i].querySelector(selector);
+        if(!target||!source)return false;
+        patches.push([target,source]);
+      }
+      const footer=el.querySelector('.sf-meta'),nextFooter=next.querySelector('.sf-meta');
+      if(!footer||!nextFooter)return false;
+      patches.push([footer,nextFooter]);
+      for(const [target,source]of patches){if(target.innerHTML!==source.innerHTML)target.innerHTML=source.innerHTML;}
+      selectRanking(el,active);
+      return true;
+    }
     function paint(id,html){
       const el=doc.getElementById(id);if(!el||el.__stockHTML===html)return;
+      if(id==='homeMoversList'&&updateRankingValues(el,html)){el.__stockHTML=html;return;}
       const open=new Set(Array.from(el.querySelectorAll('details[open][data-stock-detail]')).map(x=>x.dataset.stockDetail));
       const focused=doc.activeElement,focusKey=focused&&el.contains(focused)&&focused.getAttribute('data-sf-rank');
       el.innerHTML=html;el.__stockHTML=html;
@@ -115,15 +136,22 @@
     function render(){paint('homeMoversList',rankingMarkup(data,active,status));paint('knCompanyFocus',companyMarkup(editorial,data,storyStatus));}
     function restore(){try{data=normalizePayload(JSON.parse(w.localStorage.getItem(cacheKey())));if(data)data.stale=true;}catch(_){data=null;}}
     async function getJSON(url){const controller=new w.AbortController(),timeout=w.setTimeout(()=>controller.abort(),12000);try{const response=await w.fetch(url,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{w.clearTimeout(timeout);}}
+    function schedule(delay=REFRESH_MS){
+      w.clearTimeout(timer);timer=null;
+      if(!doc.hidden)timer=w.setTimeout(refresh,delay);
+    }
     async function refresh(){
-      if(busy)return;busy=true;const token=generation;
+      w.clearTimeout(timer);timer=null;
+      if(busy||doc.hidden)return;
+      busy=true;const token=generation;let delay=REFRESH_MS;
       try{const result=await getJSON('/api/scanner?limit=20'+(currentScope==='pro'?'&pro=1':''));if(token!==generation)return;
         const next=normalizePayload(result);
         if(next){data=next;status='ready';try{w.localStorage.setItem(cacheKey(),JSON.stringify(next));}catch(_){}}
         else status=result.refreshing?'loading':'error';
-        if(result.refreshing&&poll++<10){w.clearTimeout(timer);timer=w.setTimeout(refresh,3000);}else{poll=0;if(!data)status='error';}
+        if(!data&&result.refreshing&&poll++<10)delay=3000;
+        else{poll=0;if(!data)status='error';}
       }catch(_){if(token===generation)status='error';}
-      finally{busy=false;if(token===generation)render();else refresh();}
+      finally{busy=false;if(token===generation){render();schedule(delay);}else refresh();}
     }
     async function loadStories(){try{editorial=await getJSON('/static/company-focus.json?v=20260924-layoutd1');storyStatus='ready';}catch(_){storyStatus='error';}render();}
     function init(){
@@ -133,7 +161,12 @@
       doc.addEventListener('keydown',e=>{const button=e.target.closest&&e.target.closest('[data-sf-rank]');if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();active=e.key==='Home'?'up':e.key==='End'?'down':button.dataset.sfRank==='up'?'down':'up';selectRanking(doc.getElementById('homeMoversList'),active);doc.getElementById('sf-rank-tab-'+active).focus();});
       doc.addEventListener('styleChanged',()=>{const next=scope();if(next===currentScope)return;currentScope=next;generation++;poll=0;w.clearTimeout(timer);data=null;status='loading';restore();render();refresh();});
       doc.addEventListener('knStockViewChanged',()=>{render();if(status==='error')refresh();});
-      doc.addEventListener('visibilitychange',()=>{if(!doc.hidden){if(data&&Date.now()-data.updated_at*1000>CACHE_AGE){data=null;status='loading';render();}refresh();}});
+      doc.addEventListener('visibilitychange',()=>{
+        if(doc.hidden){w.clearTimeout(timer);timer=null;return;}
+        if(data&&Date.now()-data.updated_at*1000>CACHE_AGE){data=null;status='loading';render();}
+        refresh();
+      });
+      if(w.addEventListener)w.addEventListener('online',refresh);
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});else init();
   }

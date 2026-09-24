@@ -44,7 +44,8 @@
   }
   function create(options) {
     var storage = options.storage, clock = options.now || Date.now;
-    var catalog = options.catalog.slice(), cache = Object.create(null), pending = Object.create(null), failed = Object.create(null);
+    var later = options.setTimeout || setTimeout, cancel = options.clearTimeout || clearTimeout;
+    var catalog = options.catalog.slice(), cache = Object.create(null), pending = Object.create(null), failed = Object.create(null), checked = Object.create(null);
     var selected = [], base = Object.create(null), baseTimes = Object.create(null), baseMissing = Object.create(null), baseSeen = false, baseRefreshing = false, coreFailed = false;
     function read(key) { try { return JSON.parse(storage.getItem(key) || 'null'); } catch (_) { return null; } }
     function save(key, value) { try { storage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } }
@@ -76,7 +77,7 @@
     if (savedCache && typeof savedCache === 'object' && !Array.isArray(savedCache)) {
       Object.keys(savedCache).slice(0, 48).forEach(function(symbol) {
         var record = savedCache[symbol];
-        if (SYMBOL.test(symbol) && record && validQuote(record.quote) && Number.isFinite(record.at) && clock() >= record.at && clock() - record.at < RETAIN) cache[symbol] = record;
+        if (SYMBOL.test(symbol) && record && validQuote(record.quote) && Number.isFinite(record.at) && record.at <= clock()+60000 && clock() - record.at < RETAIN) cache[symbol] = record;
       });
     }
     hydrate(options.custom);
@@ -87,27 +88,33 @@
     }
     function fetchQuote(symbol, full) {
       if (pending[symbol]) return pending[symbol];
+      checked[symbol]=clock();
       var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
       var timeout, done = false;
-      var request = Promise.resolve().then(function() { return options.fetch('/api/quote?symbol=' + encodeURIComponent(symbol) + (full ? '' : '&light=1'), controller ? {signal: controller.signal} : {}); }).then(function(response) {
+      var request = Promise.resolve().then(function() { return options.fetch('/api/quote?symbol=' + encodeURIComponent(symbol) + (full ? '' : '&light=1'), controller ? {signal: controller.signal,cache:'no-store'} : {cache:'no-store'}); }).then(function(response) {
         if (!response.ok) throw new Error('quote unavailable');
         return response.json();
       });
-      var deadline = new Promise(function(_, reject) { timeout = setTimeout(function() { if (done) return; if (controller) controller.abort(); reject(new Error('timeout')); }, 12000); });
+      var deadline = new Promise(function(_, reject) { timeout = later(function() { if (done) return; if (controller) controller.abort(); reject(new Error('timeout')); }, 12000); });
       pending[symbol] = Promise.race([request,deadline]).then(function(quote) {
-        if (!validQuote(quote)) throw new Error('invalid quote');
-        cache[symbol] = {quote: quote, at: clock()};
-        delete failed[symbol]; saveCache(); return quote;
+        var at=quote&&Number.isFinite(quote.fetched_at)?quote.fetched_at*1000:NaN;
+        if (!validQuote(quote)||!Number.isFinite(at)||at<=0||at>clock()+60000||clock()-at>=RETAIN) throw new Error('invalid quote');
+        // The server may return a cached quote. Keep its original retrieval time,
+        // and never replace a newer saved snapshot with an older API response.
+        if(!cache[symbol]||at>=cache[symbol].at){cache[symbol] = {quote: quote, at: at};delete failed[symbol];saveCache();}
+        return quote;
       }).catch(function(error) { failed[symbol] = clock(); throw error; }).finally(function() {
-        done = true; clearTimeout(timeout); delete pending[symbol]; emit();
+        done = true; cancel(timeout); delete pending[symbol]; emit();
       });
       return pending[symbol];
     }
     function refresh(force) {
       var requests = selected.map(find).filter(Boolean).filter(function(item) { return !item.baseKey; }).map(function(item) {
         var record = cache[item.symbol];
-        if (!force && record && clock()-record.at < TTL) return Promise.resolve(record.quote);
         if (!force && failed[item.symbol] != null && clock()-failed[item.symbol] < RETRY) return Promise.resolve(null);
+        // Request-start time prevents network latency from turning one-minute
+        // polling into an accidental two-minute interval.
+        if (!force && failed[item.symbol] == null && record && clock()-(checked[item.symbol] == null?record.at:checked[item.symbol]) < TTL) return Promise.resolve(record.quote);
         return fetchQuote(item.symbol, false).catch(function() { return null; });
       });
       emit(); return Promise.all(requests);
