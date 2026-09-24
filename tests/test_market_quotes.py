@@ -56,7 +56,8 @@ class MarketQuoteTests(unittest.TestCase):
         names = {'_rtp', '_market_change_values', '_market_quote_units',
                  '_fetch_market_quote', '_load_market_snapshot', 'initial_market_payload',
                  'fetch_market_data', 'api_morning_data', 'api_quote',
-                 '_cached_api_quote', '_load_api_quote', '_quote_source_metadata', '_load_timed_jpy_quote'}
+                 '_cached_api_quote', '_load_api_quote', '_quote_source_metadata', '_load_timed_jpy_quote',
+                 'cache_versioned_features'}
         nodes = [node for node in tree.body
                  if isinstance(node, ast.FunctionDef) and node.name in names]
         self.app = Flask('market-test')
@@ -383,6 +384,44 @@ class MarketQuoteTests(unittest.TestCase):
         updated=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
         self.assertEqual((updated['price'],updated['price_updated_at'],updated['fetched_at']),(102,900,1122))
         self.ticker_factory.assert_not_called()
+
+    def test_verified_price_is_retained_if_provider_loses_its_timestamp(self):
+        self.set_chart()
+        first=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.context['time'].time=lambda:1061
+        self.set_chart(regularMarketTime=None)
+        failed=self.client.get('/api/quote?symbol=5803.T&light=1')
+        self.assertEqual(failed.status_code,503)
+        self.assertNotIn('fetched_at',failed.get_json())
+        self.assertEqual(self.context['_QUOTE_CACHE'][('5803.T',True)][1],first)
+        self.ticker_factory.assert_not_called()
+
+    def test_older_or_conflicting_market_snapshot_cannot_replace_verified_price(self):
+        self.set_chart()
+        first=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.context['time'].time=lambda:1061
+        for stamp in (799,800):
+            self.context['_QUOTE_ERRORS'].clear()
+            self.set_chart(regularMarketTime=stamp,regularMarketPrice=102)
+            failed=self.client.get('/api/quote?symbol=5803.T&light=1')
+            self.assertEqual(failed.status_code,502)
+            self.assertEqual(self.context['_QUOTE_CACHE'][('5803.T',True)][1],first)
+        self.context['time'].time=lambda:1077
+        self.set_chart(regularMarketTime=900,regularMarketPrice=102)
+        recovered=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertEqual((recovered['price'],recovered['price_updated_at'],recovered['fetched_at']),(102,900,1077))
+        self.ticker_factory.assert_not_called()
+
+    def test_browser_and_proxy_cannot_cache_prices_or_failed_responses(self):
+        self.set_chart()
+        first=self.client.get('/api/quote?symbol=5803.T&light=1')
+        cached=self.client.get('/api/quote?symbol=5803.T&light=1')
+        self.context['time'].time=lambda:1061
+        self.set_chart(regularMarketTime=None)
+        failed=self.client.get('/api/quote?symbol=5803.T&light=1')
+        invalid=self.client.get('/api/quote')
+        for response in (first,cached,failed,invalid):
+            self.assertEqual(response.headers['Cache-Control'],'no-store')
 
     def test_bad_chart_timestamp_symbol_currency_or_range_cannot_label_fallback_price(self):
         invalid=[{'regularMarketTime':stamp} for stamp in (None,True,0,-1,float('nan'),float('inf'),1001,800.5,'800')]

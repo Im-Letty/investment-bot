@@ -2117,6 +2117,18 @@ def _load_api_quote(symbol, light):
     try:
         if light:
             timed = _load_timed_jpy_quote(symbol)
+            previous = _QUOTE_CACHE.get(_qk)
+            previous_quote = previous[1] if previous else {}
+            previous_stamp = previous_quote.get("price_updated_at")
+            if previous_stamp:
+                if timed is None:
+                    # Keep the verified snapshot; an untimed fallback cannot
+                    # establish a newer price and adds another slow request.
+                    return jsonify({"error": "Quote time unavailable", "symbol": symbol}), 503
+                if (timed["price_updated_at"] < previous_stamp
+                        or (timed["price_updated_at"] == previous_stamp
+                            and timed["price"] != previous_quote["price"])):
+                    return jsonify({"error": "Inconsistent quote snapshot", "symbol": symbol}), 502
             if timed is not None:
                 if len(_QUOTE_CACHE) > 300:
                     _QUOTE_CACHE.clear()
@@ -2555,7 +2567,11 @@ def index():
 
 @app.after_request
 def cache_versioned_features(response):
-    if response.status_code == 200 and re.fullmatch(
+    if request.path == "/api/quote":
+        # Only the bounded server cache should determine quote freshness.
+        # A browser or CDN must not add another cache lifetime to prices/errors.
+        response.headers["Cache-Control"] = "no-store"
+    elif response.status_code == 200 and re.fullmatch(
             r"/static/(?:simulator-embed-[a-f0-9]{10}\.html|pet-features-[a-f0-9]{10}\.js)", request.path):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response

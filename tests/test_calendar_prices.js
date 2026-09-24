@@ -60,7 +60,33 @@ test('pause stops requests and timers; resume checks freshness immediately witho
  h.model.pause();await h.advance(60000);h.model.resume();await flush();assert.equal(h.requests.length,2);
  h.model.pause();assert.equal(h.requests[1].opts.signal.aborted,true);assert.equal(h.timers.size,0);
  await h.reply(1,quote(h,'7203.T',{price:4000}));assert.equal(h.model.peek('7203').quote.price,3000);
- h.model.resume();await flush();assert.equal(h.requests.length,3);h.model.pause();
+ h.model.resume();await flush();assert.equal(h.requests.length,2);
+ await h.advance(15000);assert.equal(h.requests.length,3);h.model.pause();
+});
+test('shared server cache expiry avoids waiting a second full minute',async()=>{
+ const h=harness();h.model.setSymbols(['7203']);await flush();const began=h.now();
+ await h.reply(0,quote(h,'7203.T',{fetched_at:(began-40000)/1000}));
+ await h.advance(19999);assert.equal(h.requests.length,1);
+ await h.advance(1);assert.equal(h.requests.length,2);assert.equal(h.requests[1].at-began,20000);
+ await h.reply(1,quote(h));await h.advance(59999);assert.equal(h.requests.length,2);
+ await h.advance(1);assert.equal(h.requests.length,3);h.model.pause();
+});
+test('repeated old snapshots have a fifteen-second floor and failures use normal backoff',async()=>{
+ const h=harness();h.model.setSymbols(['7203']);await flush();const began=h.now();
+ const old=quote(h,'7203.T',{fetched_at:(began-59000)/1000});await h.reply(0,old);
+ await h.advance(14999);assert.equal(h.requests.length,1);
+ await h.advance(1);assert.equal(h.requests.length,2);await h.reply(1,old);
+ await h.advance(15000);assert.equal(h.requests.length,3);await h.reject(2);
+ await h.advance(59999);assert.equal(h.requests.length,3);
+ await h.advance(1);assert.equal(h.requests.length,4);
+ assert.equal(h.model.peek('7203').quote.fetched_at,old.fetched_at);h.model.pause();
+});
+test('returning with a stale snapshot rechecks immediately, while repeated brief hides do not hammer the server',async()=>{
+ const h=harness();h.model.setSymbols(['7203']);await flush();const began=h.now();
+ await h.reply(0,quote(h,'7203.T',{fetched_at:(began-50000)/1000}));
+ h.model.pause();await h.advance(20000);h.model.resume();await flush();assert.equal(h.requests.length,2);
+ for(let i=0;i<3;i++){h.model.pause();await h.advance(1000);h.model.resume();await flush();}
+ assert.equal(h.requests.length,2);await h.advance(12000);assert.equal(h.requests.length,3);h.model.pause();
 });
 test('failure retains the last quote and original timestamps, with a stale error state that recovers',async()=>{
  const h=harness();h.model.setSymbols(['7203']);await flush();const original=quote(h);await h.reply(0,original);

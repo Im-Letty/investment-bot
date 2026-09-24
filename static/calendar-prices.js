@@ -1,11 +1,11 @@
-/* Visible calendar quotes: bounded requests, saved prices and one-minute cadence. */
+/* Visible quotes: recheck when the shared snapshot expires, without rapid retry loops. */
 (function(root,factory){
   var api=factory(root);
   if(typeof module==='object'&&module.exports)module.exports=api;
   else root.KNCalendarPrices=api;
 })(typeof window!=='undefined'?window:globalThis,function(root){
   'use strict';
-  var KEY='kn_calendar_prices_v1',INTERVAL=60000,TIMEOUT=12000,RETAIN=7*86400000,MAX=100;
+  var KEY='kn_calendar_prices_v1',INTERVAL=60000,MIN_RECHECK=15000,TIMEOUT=12000,RETAIN=7*86400000,MAX=100;
   function symbol(value){
     if(typeof value!=='string')return null;
     value=value.normalize('NFKC').trim().toUpperCase();
@@ -31,7 +31,7 @@
       cancel=env.clearTimeout||root.clearTimeout.bind(root),fetcher=env.fetch||(root.fetch&&root.fetch.bind(root)),
       Controller=env.AbortController||root.AbortController,storage=env.storage;
     if(!storage)try{storage=root.localStorage;}catch(_){}
-    var selected=new Set(),quotes=Object.create(null),started=Object.create(null),errors=Object.create(null),
+    var selected=new Set(),quotes=Object.create(null),started=Object.create(null),nextCheck=Object.create(null),errors=Object.create(null),
       jobs=new Map(),queue=new Set(),timer=null,paused=false;
     function readSaved(){
       try{
@@ -62,9 +62,15 @@
       if(selected.has(ticker)&&typeof onUpdate==='function')try{onUpdate(ticker,peek(ticker));}catch(_){}
     }
     function dueAt(ticker){
-      if(Object.prototype.hasOwnProperty.call(started,ticker))return started[ticker]+INTERVAL;
+      if(Object.prototype.hasOwnProperty.call(nextCheck,ticker))return nextCheck[ticker];
       var quote=validQuote(quotes[ticker],ticker,now());
       return quote?quote.fetched_at*1000+INTERVAL:now();
+    }
+    function afterSnapshot(ticker,quote){
+      // A shared server response may already be nearly a minute old. Its
+      // original retrieval time, not our receipt time, determines expiry.
+      return Math.max(started[ticker]+MIN_RECHECK,
+        Math.min(started[ticker]+INTERVAL,quote.fetched_at*1000+INTERVAL));
     }
     function schedule(){
       if(timer!==null){cancel(timer);timer=null;}
@@ -86,13 +92,13 @@
       var quote=!error&&validQuote(raw,ticker,now()),previous=validQuote(quotes[ticker],ticker,now());
       if(quote&&previous&&(quote.price_updated_at<previous.price_updated_at||quote.fetched_at<previous.fetched_at||
         (quote.price_updated_at===previous.price_updated_at&&quote.price!==previous.price)))quote=null;
-      if(quote){quotes[ticker]=quote;delete errors[ticker];persist();}
+      if(quote){quotes[ticker]=quote;nextCheck[ticker]=afterSnapshot(ticker,quote);delete errors[ticker];persist();}
       else errors[ticker]=error==='timeout'?'timeout':'unavailable';
       notify(ticker);pump();schedule();
     }
     function start(ticker){
-      var job={controller:Controller?new Controller():null,timer:null};
-      jobs.set(ticker,job);started[ticker]=now();
+      var job={controller:Controller?new Controller():null,timer:null,sent:false};
+      jobs.set(ticker,job);started[ticker]=now();nextCheck[ticker]=started[ticker]+INTERVAL;
       job.timer=later(function(){
         if(jobs.get(ticker)!==job)return;
         if(job.controller)try{job.controller.abort();}catch(_){}
@@ -101,6 +107,7 @@
       Promise.resolve().then(function(){
         if(jobs.get(ticker)!==job||paused||!selected.has(ticker))return null;
         if(!fetcher)throw new Error('Unavailable');
+        job.sent=true;
         return fetcher('/api/quote?symbol='+encodeURIComponent(ticker)+'&light=1',
           {signal:job.controller?job.controller.signal:undefined,cache:'no-store'});
       }).then(function(response){
@@ -131,7 +138,7 @@
         var ticker=symbol(value);if(ticker&&next.size<MAX)next.add(ticker);
       });
       selected.forEach(function(ticker){
-        if(!next.has(ticker)){stopJob(ticker);queue.delete(ticker);delete started[ticker];delete errors[ticker];}
+        if(!next.has(ticker)){stopJob(ticker);queue.delete(ticker);delete started[ticker];delete nextCheck[ticker];delete errors[ticker];}
       });
       selected=next;
       selected.forEach(notify);refresh(false);
@@ -139,7 +146,12 @@
     }
     function pause(){
       paused=true;if(timer!==null){cancel(timer);timer=null;}
-      Array.from(jobs.keys()).forEach(function(ticker){stopJob(ticker);delete started[ticker];});
+      Array.from(jobs.keys()).forEach(function(ticker){
+        var job=jobs.get(ticker),quote=validQuote(quotes[ticker],ticker,now());
+        stopJob(ticker);
+        if(!job.sent){delete started[ticker];delete nextCheck[ticker];}
+        else nextCheck[ticker]=quote?afterSnapshot(ticker,quote):started[ticker]+MIN_RECHECK;
+      });
       queue.clear();selected.forEach(notify);
     }
     function resume(){paused=false;refresh(false);}
