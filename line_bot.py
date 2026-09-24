@@ -2138,139 +2138,29 @@ def _load_api_quote(symbol, light):
         return jsonify({"error": str(e)}), 500
 
 
-_LOOKUP_CACHE = {}
-_LOOKUP_TTL = 300
+# Company identity comes from the bundled official JPX catalogue, not a live quote.
+# The monthly refresh runs separately so cold starts/search requests stay fast.
+from stock_search import StockSearch
+_stock_search = StockSearch(runtime_path=os.environ.get("STOCK_CATALOGUE_PATH", "/tmp/kn-stock-catalogue.json"))
 
 
-# === JPX 上場銘柄辞書（日本語名→コード） ===
-_JPX_DICT = {}
-_JPX_DICT_TS = 0
-_ALIAS = {"アストロステーション": "186A"}
-_JPX_BASE = "https://www.jpx.co.jp"
-_JPX_PAGE = "/markets/statistics-equities/misc/01.html"
+@app.before_request
+def _ensure_stock_catalogue_worker():
+    # Gunicorn preloads the module before forking: start the updater in workers.
+    _stock_search.ensure_refresh_worker()
 
-def _load_jpx_dict():
-    """JPXの上場銘柄一覧(Excel)を取得して {コード: 社名} を返す。取得失敗時は空の辞書。"""
-    try:
-        import re as _re
-        import pandas as _pd
-        _ua = {"User-Agent": "Mozilla/5.0"}
-        _page = requests.get(_JPX_BASE + _JPX_PAGE, headers=_ua, timeout=20)
-        _m = _re.search(r"href=\"([^\"]*data_j\.xls)", _page.text)
-        if not _m:
-            return {}
-        _href = _m.group(1)
-        if _href.startswith("http"):
-            _xls_url = _href
-        else:
-            _xls_url = _JPX_BASE + _href
-        _resp = requests.get(_xls_url, headers=_ua, timeout=30)
-        import io as _io
-        _df = _pd.read_excel(_io.BytesIO(_resp.content), dtype=str)
-        _out = {}
-        for _, _row in _df.iterrows():
-            _code = str(_row.get("コード", "")).strip()
-            _name = str(_row.get("銘柄名", "")).strip()
-            _mkt = str(_row.get("市場・商品区分", ""))
-            if not _code or not _name:
-                continue
-            if "内国株式" not in _mkt:
-                continue
-            if len(_code) != 4:
-                continue
-            _out[_code] = _name
-        return _out
-    except Exception as _e:
-        print("[jpx] load error: " + str(_e))
-        return {}
-
-def _jpx_refresh():
-    global _JPX_DICT, _JPX_DICT_TS
-    _d = _load_jpx_dict()
-    if _d:
-        _JPX_DICT = _d
-        _JPX_DICT_TS = time.time()
-        print("[jpx] loaded " + str(len(_d)) + " stocks")
-
-def _jpx_loop():
-    time.sleep(20)
-    _jpx_refresh()
-    while True:
-        time.sleep(86400)
-        _jpx_refresh()
-
-try:
-    threading.Thread(target=_jpx_loop, daemon=True).start()
-except Exception as _e:
-    print("[jpx] thread start error: " + str(_e))
 
 @app.route("/api/lookup", methods=["GET"])
 def api_lookup():
-    q = (request.args.get("q") or "").strip()
-    if not q:
-        return jsonify({"results": []})
-    key = q.lower()
-    # 日本語クエリで辞書が未ロードなら遅延ロード
-    if (not _JPX_DICT) and any(("ぁ" <= _c <= "ん") or ("ァ" <= _c <= "ヶ") or ("一" <= _c <= "鿿") for _c in q):
-        try:
-            _jpx_refresh()
-        except Exception:
-            pass
-    # 日本語（かな/漢字）を含む場合は JPX 辞書を部分一致検索
-    if _JPX_DICT and any(("ぁ" <= _c <= "ん") or ("ァ" <= _c <= "ヶ") or ("一" <= _c <= "鿿") for _c in q):
-        _jres = []
-        for _code, _nm in _JPX_DICT.items():
-            if q in _nm:
-                _jres.append({"symbol": _code + ".T", "name": _nm, "exchange": "Tokyo", "type": "EQUITY"})
-        for _al, _cd in _ALIAS.items():
-            if (_al in q or q in _al) and _cd in _JPX_DICT:
-                _sym = _cd + ".T"
-                if not any(r["symbol"] == _sym for r in _jres):
-                    _jres.append({"symbol": _sym, "name": _JPX_DICT[_cd], "exchange": "Tokyo", "type": "EQUITY"})
-        if _jres:
-            _LOOKUP_CACHE[key] = {"ts": time.time(), "data": _jres}
-            return jsonify({"results": _jres})
-    now = time.time()
-    cached = _LOOKUP_CACHE.get(key)
-    if cached and (now - cached["ts"]) < _LOOKUP_TTL:
-        return jsonify({"results": cached["data"]})
-    try:
-        resp = requests.get(
-            "https://query1.finance.yahoo.com/v1/finance/search",
-            params={"q": q, "quotesCount": 8, "newsCount": 0, "lang": "ja-JP", "region": "JP"},
-            headers={"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-            timeout=8,
-        )
-        j = resp.json()
-        quotes = j.get("quotes") or []
-        results = []
-        for it in quotes:
-            sym = (it.get("symbol") or "")
-            if not sym:
-                continue
-            name = (it.get("shortname") or it.get("longname") or sym)
-            exch = (it.get("exchDisp") or it.get("exchange") or "")
-            qtype = (it.get("quoteType") or "")
-            results.append({"symbol": sym, "name": name, "exchange": exch, "type": qtype})
-        _LOOKUP_CACHE[key] = {"ts": now, "data": results}
-        return jsonify({"results": results})
-    except Exception as e:
-        return jsonify({"results": [], "error": str(e)}), 200
+    return jsonify(_stock_search.search(request.args.get("q", "")))
+
 
 @app.route("/api/lookup_all", methods=["GET"])
 def api_lookup_all():
-    if (not _JPX_DICT):
-        try:
-            _jpx_refresh()
-        except Exception:
-            pass
-    items = []
-    for _code, _nm in _JPX_DICT.items():
-        items.append({"code": _code, "name": _nm})
-    for _al, _cd in _ALIAS.items():
-        if _cd in _JPX_DICT:
-            items.append({"code": _cd, "name": _al})
-    return jsonify({"count": len(items), "items": items})
+    response = jsonify(_stock_search.all_items())
+    response.headers["Cache-Control"] = "public, max-age=3600"
+    return response
+
 
 @app.route("/api/morning-news", methods=["GET"])
 def api_morning_news():

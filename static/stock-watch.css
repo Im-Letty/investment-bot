@@ -1,0 +1,226 @@
+/* Favorites manager shares the home palette and stays in the page flow. */
+#alert-section.stock-watch-manager {
+  --sw-ink:var(--kn-a-ink,#184b3c);
+  --sw-muted:var(--kn-a-muted,#547467);
+  --sw-paper:var(--kn-a-paper,#fffdf6);
+  --sw-line:var(--kn-a-line,#dce6d7);
+  --sw-accent:var(--kn-a-button,#205c49);
+  --sw-chip:var(--kn-a-chip,#edf5e9);
+  --sw-error:color-mix(in srgb,var(--sw-ink) 55%,#b44c4c);
+  box-sizing:border-box;
+  width:calc(100% - 32px);
+  max-width:680px;
+  margin:20px auto calc(96px + env(safe-area-inset-bottom,0px));
+  padding:22px 26px 28px!important;
+  border:1px solid var(--sw-line);
+  border-radius:8px;
+  background:var(--sw-paper)!important;
+  color:var(--sw-ink)!important;
+  box-shadow:none;
+  font:400 calc(14px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,-apple-system,BlinkMacSystemFont,sans-serif);
+  text-align:left;
+  overflow-wrap:anywhere;
+}
+#alert-section.stock-watch-manager * {box-sizing:border-box}
+#alert-section.stock-watch-manager [hidden] {display:none!important}
+#alert-section.stock-watch-manager button,
+#alert-section.stock-watch-manager input {font-family:inherit;letter-spacing:inherit}
+#alert-section.stock-watch-manager button {
+  min-width:44px;
+  min-height:44px;
+  border:1px solid transparent;
+  border-radius:6px;
+  font-size:calc(13px * var(--kn-a-scale,1));
+  font-weight:500;
+  line-height:1.5;
+  cursor:pointer;
+  touch-action:manipulation;
+  transition:background-color .15s ease,border-color .15s ease,color .15s ease;
+}
+#alert-section.stock-watch-manager button:focus-visible,
+#alert-section.stock-watch-manager input:focus-visible {
+  outline:2px solid var(--sw-ink);
+  outline-offset:3px;
+}
+#alert-section.stock-watch-manager button:disabled {cursor:default}
+#alert-section.stock-watch-manager .sw-back {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  margin:0 0 8px -8px;
+  padding:6px 8px;
+  background:transparent;
+  color:var(--sw-muted);
+  font-weight:400;
+}
+#alert-section.stock-watch-manager h3 {
+  margin:0 0 26px;
+  padding:0;
+  color:var(--sw-ink);
+  font:500 calc(23px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);
+  letter-spacing:.04em;
+  text-align:left;
+}
+#alert-section.stock-watch-manager .sw-search {margin:0;padding:0}
+#alert-section.stock-watch-manager .sw-search>label {
+  display:block;
+  margin:0 0 8px;
+  color:var(--sw-muted);
+  font-size:calc(12px * var(--kn-a-scale,1));
+  font-weight:400;
+}
+#alert-section.stock-watch-manager .sw-search-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:stretch;
+  gap:8px;
+}
+#alert-section.stock-watch-manager #alert-ticker-input {
+  display:block;
+  width:100%;
+  min-width:0;
+  min-height:48px;
+  margin:0;
+  padding:10px 12px;
+  border:1px solid var(--sw-line)!important;
+  border-radius:6px;
+  background:var(--sw-paper)!important;
+  color:var(--sw-ink)!important;
+  /* Keep iOS focused-input zoom from shifting the page. */
+  font-size:calc(16px * var(--kn-a-scale,1));
+  line-height:1.5;
+  box-shadow:none;
+}
+#alert-section.stock-watch-manager #alert-ticker-input::placeholder {
+  color:var(--sw-muted);
+  opacity:1;
+  font-size:calc(13px * var(--kn-a-scale,1));
+}
+#alert-section.stock-watch-manager .sw-search-row>button {
+  min-width:70px;
+  padding:10px 18px;
+  background:var(--sw-accent);
+  color:#fffdf6;
+}
+#alert-section.stock-watch-manager .sw-search-row>button:disabled {
+  background:var(--sw-chip);
+  border-color:var(--sw-line);
+  color:var(--sw-muted);
+}
+#alert-section.stock-watch-manager #alert-msg {
+  min-height:24px;
+  margin:8px 0 0;
+  padding:0;
+  color:var(--sw-muted);
+  font-size:calc(12px * var(--kn-a-scale,1));
+  line-height:1.8;
+}
+#alert-section.stock-watch-manager .sw-feedback[data-error="true"] {
+  padding:4px 0 4px 10px!important;
+  border-left:2px solid var(--sw-error);
+  color:var(--sw-error)!important;
+}
+#alert-section.stock-watch-manager #stock-search-results {
+  min-height:36px;
+  margin:4px 0 24px;
+}
+#alert-section.stock-watch-manager .sw-saved-heading {
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin:0 0 4px;
+}
+#alert-section.stock-watch-manager .sw-saved-heading h4 {
+  margin:0;
+  padding:0;
+  color:var(--sw-ink);
+  font:500 calc(14px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);
+}
+#alert-section.stock-watch-manager #stock-watch-count {
+  min-width:24px;
+  padding:1px 7px;
+  border-radius:20px;
+  background:var(--sw-chip);
+  color:var(--sw-muted);
+  font-size:calc(11px * var(--kn-a-scale,1));
+  font-variant-numeric:tabular-nums;
+  text-align:center;
+}
+#alert-section.stock-watch-manager .sw-list {list-style:none;margin:0;padding:0}
+#alert-section.stock-watch-manager .sw-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:14px;
+  min-height:74px;
+  margin:0;
+  padding:13px 0;
+  border-bottom:1px solid var(--sw-line);
+  background:transparent;
+}
+#alert-section.stock-watch-manager .sw-company {min-width:0}
+#alert-section.stock-watch-manager .sw-name {
+  display:block;
+  color:var(--sw-ink);
+  font-size:calc(15px * var(--kn-a-scale,1));
+  font-weight:500;
+  line-height:1.65;
+}
+#alert-section.stock-watch-manager .sw-code {
+  display:block;
+  margin-top:2px;
+  color:var(--sw-muted);
+  font-size:calc(11px * var(--kn-a-scale,1));
+  line-height:1.6;
+  letter-spacing:.04em;
+  font-variant-numeric:tabular-nums;
+}
+#alert-section.stock-watch-manager .sw-add,
+#alert-section.stock-watch-manager .sw-remove {
+  min-width:64px;
+  padding:8px 12px;
+  white-space:nowrap;
+}
+#alert-section.stock-watch-manager .sw-add {
+  border-color:var(--sw-line);
+  background:var(--sw-chip);
+  color:var(--sw-ink);
+}
+#alert-section.stock-watch-manager .sw-remove,
+#alert-section.stock-watch-manager .sw-add:disabled {
+  background:transparent;
+  color:var(--sw-muted);
+  font-weight:400;
+}
+#alert-section.stock-watch-manager .sw-add:disabled {border-color:transparent}
+#alert-section.stock-watch-manager .sw-empty {
+  margin:0;
+  padding:18px 0;
+  color:var(--sw-muted);
+  font-size:calc(13px * var(--kn-a-scale,1));
+  line-height:1.9;
+}
+@media (hover:hover) {
+  #alert-section.stock-watch-manager .sw-back:hover,
+  #alert-section.stock-watch-manager .sw-remove:not(:disabled):hover {
+    background:var(--sw-chip);
+    color:var(--sw-ink);
+  }
+  #alert-section.stock-watch-manager .sw-add:not(:disabled):hover {border-color:var(--sw-muted)}
+  #alert-section.stock-watch-manager .sw-search-row>button:not(:disabled):hover {
+    background:color-mix(in srgb,var(--sw-accent) 85%,var(--sw-ink));
+  }
+}
+@media (max-width:480px) {
+  #alert-section.stock-watch-manager {
+    width:calc(100% - 24px);
+    margin-top:12px;
+    padding:16px 16px 24px!important;
+  }
+  #alert-section.stock-watch-manager h3 {font-size:calc(21px * var(--kn-a-scale,1));margin-bottom:22px}
+  #alert-section.stock-watch-manager .sw-row {gap:10px}
+  #alert-section.stock-watch-manager .sw-search-row>button {min-width:64px;padding-inline:12px}
+}
+@media (prefers-reduced-motion:reduce) {
+  #alert-section.stock-watch-manager button {transition:none}
+}
