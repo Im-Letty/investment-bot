@@ -1,7 +1,7 @@
 /* Dates come from verified schedules; month-only plans never acquire an invented day. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root&&root.document)api.start(root);})(typeof window==='undefined'?null:window,function(){
   'use strict';
-  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v4:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
+  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v5:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
   const finite=v=>typeof v==='number'&&Number.isFinite(v),clean=(v,max=160)=>typeof v==='string'?v.trim().slice(0,max):'';
   function parse(value,fallback){try{return JSON.parse(value)||fallback;}catch(e){return fallback;}}
   function symbol(value){const key=clean(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
@@ -46,7 +46,7 @@
     const count=value=>Number.isInteger(value)&&value>=0?value:null,coverage={universe:count(raw.coverage.universe),known:count(raw.coverage.known),unknown:count(raw.coverage.unknown)};
     if(Object.values(coverage).includes(null)||coverage.known>coverage.universe||coverage.unknown>coverage.universe)return null;
     const seen=new Set(),allowed=new Set(symbols),events=[];
-    for(const row of raw.events.slice(0,3000)){
+    for(const row of raw.events.slice(0,20000)){
       if(!row||typeof row!=='object')continue;const key=symbol(row.symbol||row.code),date=day(row.date),period=month(row.period),source=row.source&&typeof row.source==='object'?row.source:{},url=safeUrl(source.url),title=clean(source.title,120),verified=day(row.verified_on);
       if(!key||scope==='favorites'&&!allowed.has(key)||!KINDS[row.kind]||!['confirmed','planned'].includes(row.status)||!url||!title||!verified||verified>today(now))continue;
       if(row.precision==='day'?(!date||date.slice(0,7)!==selected):(row.precision!=='month'||row.kind!=='payment'||!period||period!==selected))continue;
@@ -94,11 +94,31 @@
     function init(){
       const doc=w.document,mount=doc.getElementById('knDividendCalendar');if(!mount||mount.dataset.ready)return;
       mount.dataset.ready='true';let storage=null;try{storage=w.localStorage;}catch(e){}
-      let monthValue=today().slice(0,7),scope=selection(storage).symbols.length?'favorites':'all',scopeChosen=false,selectedDate=null,autoDate=true,limit=5,monthLimit=5,current=null,favorites=selection(storage),lastQuery='',lastRefresh=0,retryTimer=null,refreshTimer=null,polls=0;const refs={},dateButtons=new Map(),priceNodes=new Map();let priceController=null,priceInView=typeof w.IntersectionObserver!=='function';
+      let monthValue=today().slice(0,7),scope=selection(storage).symbols.length?'favorites':'all',scopeChosen=false,searchText='',selectedDate=null,autoDate=true,limit=5,monthLimit=5,current=null,favorites=selection(storage),lastQuery='',lastRefresh=0,retryTimer=null,refreshTimer=null,polls=0;const refs={},dateButtons=new Map(),priceNodes=new Map();let priceController=null,priceInView=typeof w.IntersectionObserver!=='function';
       function el(tag,cls,text){const node=doc.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
       function append(parent,...nodes){nodes.forEach(node=>parent.appendChild(node));return parent;}
       function button(label,cls,fn){const node=el('button',cls,label);node.type='button';node.addEventListener('click',fn);return node;}
       const filters=el('div','dc-filters');filters.setAttribute('aria-label','表示する銘柄');refs.all=button('掲載銘柄','dc-filter',()=>setScope('all'));refs.favorites=button('お気に入り','dc-filter',()=>setScope('favorites'));refs.manage=button('銘柄を追加','dc-manage',()=>{if(w.openStockWatchManager)w.openStockWatchManager();});append(filters,refs.all,refs.favorites,refs.manage);
+      refs.search=el('input','dc-search');refs.search.type='search';refs.search.placeholder='会社名・銘柄コードで探す';refs.search.setAttribute('aria-label','表示中の月の会社名・銘柄コードを検索');
+      const searchKey=value=>String(value||'').normalize('NFKC').toLowerCase().replace(/[\s・]/g,'').replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));
+      const matches=event=>!searchText||searchKey(event.name+' '+event.code).includes(searchText);
+      const companyResults=el('div','dc-company-results');companyResults.hidden=true;companyResults.setAttribute('aria-live','polite');
+      let companyLimit=5,catalogue=null,cataloguePending=false,catalogueFailed=false;
+      function renderCompanyResults(){
+        companyResults.hidden=!searchText;companyResults.replaceChildren();if(!searchText)return;
+        if(!catalogue){companyResults.appendChild(el('p','dc-status',catalogueFailed?'会社一覧を確認できませんでした。検索し直してください。':'会社を探しています…'));return;}
+        const found=catalogue.filter(matches),shown=found.slice(0,companyLimit);
+        companyResults.appendChild(el('p','dc-status',found.length?'該当 '+found.length+'社（会社名から詳細を確認）':'会社一覧に一致する銘柄がありません。'));
+        shown.forEach(company=>{const link=button(company.name+'　'+company.code,'dc-search-company',()=>{});link.dataset.companyProfile=company.symbol;link.dataset.companyName=company.name;companyResults.appendChild(link);});
+        if(found.length>companyLimit)companyResults.appendChild(button('\u3082\u3063\u3068\u898b\u308b','dc-more',()=>{companyLimit+=5;renderCompanyResults();}));
+      }
+      async function loadCatalogue(){
+        if(catalogue||cataloguePending)return;cataloguePending=true;catalogueFailed=false;renderCompanyResults();
+        const controller=new w.AbortController(),timer=w.setTimeout(()=>controller.abort(),12000);
+        try{const response=await w.fetch('/api/lookup_all',{signal:controller.signal});if(!response.ok)throw new Error('catalogue');const raw=await response.json();if(!Array.isArray(raw.items))throw new Error('catalogue');catalogue=raw.items.slice(0,10000).filter(row=>row&&symbol(row.code)&&clean(row.name)).map(row=>({symbol:symbol(row.code),code:symbol(row.code).slice(0,-2),name:clean(row.name)}));}
+        catch(error){catalogueFailed=true;}finally{w.clearTimeout(timer);cataloguePending=false;renderCompanyResults();}
+      }
+      refs.search.addEventListener('input',()=>{searchText=searchKey(refs.search.value);companyLimit=5;selectedDate=null;autoDate=false;limit=monthLimit=5;renderLists();updateDays();renderCompanyResults();if(searchText)loadCatalogue();});
       const navigation=el('div','dc-month-navigation');refs.previous=button('‹','dc-month-arrow',()=>changeMonth(-1));refs.previous.setAttribute('aria-label','前の月');refs.next=button('›','dc-month-arrow',()=>changeMonth(1));refs.next.setAttribute('aria-label','次の月');refs.month=el('h3','dc-month');refs.month.id='dc-month-title';append(navigation,refs.previous,refs.month,refs.next);
       const weekdays=el('div','dc-weekdays');weekdays.setAttribute('aria-hidden','true');['日','月','火','水','木','金','土'].forEach(name=>weekdays.appendChild(el('span','',name)));
       refs.grid=el('div','dc-grid');refs.grid.setAttribute('role','group');refs.grid.setAttribute('aria-labelledby','dc-month-title');
@@ -116,7 +136,7 @@
       ].forEach(([title,text])=>append(terms,el('dt','',title),el('dd','',text)));
       const helpSource=el('a','dc-help-source','日付のしくみを確認する ↗');helpSource.href='https://faq.sbisec.co.jp/answer/5ef300184a6766001122cc38/';helpSource.target='_blank';helpSource.rel='noopener noreferrer';
       append(legend,el('summary','','いつ買って、いつまで持つ？'),terms,el('p','dc-help-note','一般的な日本株の現物取引（お金を払って株を買う方法）の説明です。配当の有無・金額は会社の発表によります。株主優待の保有期間の条件とは異なります。'),helpSource,refs.universe);
-      const layout=el('div','dc-layout'),calendarPanel=el('section','dc-calendar-panel'),agendaPanel=el('section','dc-agenda-panel');calendarPanel.setAttribute('aria-labelledby','dc-month-title');agendaPanel.setAttribute('aria-labelledby','dc-agenda-title');append(calendarPanel,weekdays,refs.grid,statusRow);append(agendaPanel,listHead,refs.list,refs.empty,refs.more,refs.plans);append(layout,calendarPanel,agendaPanel);append(mount,filters,navigation,layout,refs.coverage,refs.migration,legend);
+      const layout=el('div','dc-layout'),calendarPanel=el('section','dc-calendar-panel'),agendaPanel=el('section','dc-agenda-panel');calendarPanel.setAttribute('aria-labelledby','dc-month-title');agendaPanel.setAttribute('aria-labelledby','dc-agenda-title');append(calendarPanel,weekdays,refs.grid,statusRow);append(agendaPanel,listHead,refs.list,refs.empty,refs.more,refs.plans);append(layout,calendarPanel,agendaPanel);append(mount,filters,refs.search,companyResults,navigation,layout,refs.coverage,refs.migration,legend);
       function query(){return {month:monthValue,scope,symbols:favorites.symbols};}
       const loader=createLoader({fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage},state=>{if(!state.data&&current&&current.data&&state.query.scope==='all'&&current.query.scope==='all'&&state.query.month===current.query.month)state={...state,data:current.data,status:state.status==='loading'?'refreshing':state.status};current=state;render();w.clearTimeout(retryTimer);if(state.data&&state.data.refreshing&&state.status!=='error'&&polls<4&&!doc.hidden&&mount.getClientRects().length){retryTimer=w.setTimeout(()=>{polls++;refresh(true,false);},15000);}});
       function prettyMonth(value){return value.slice(0,4)+'年'+Number(value.slice(5))+'月';}
@@ -225,15 +245,15 @@
           row.__favorite.hidden=!saved.has(event.symbol);return row;
         });node.replaceChildren(...rows);
       }
-      function renderLists(){const data=current&&current.data,events=prioritize(visibleEvents(data,selectedDate,today()));refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
-        refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
-        const plans=prioritize(data?data.events.filter(event=>event.precision==='month'):[]);refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
+      function renderLists(){const data=current&&current.data,events=prioritize((searchText&&!selectedDate?(data?data.events.filter(event=>event.precision==='day'):[]):visibleEvents(data,selectedDate,today())).filter(matches));refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':searchText?'検索結果':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
+        refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':searchText?'この月に一致する確認済みの予定はありません。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
+        const plans=prioritize(data?data.events.filter(event=>event.precision==='month'&&matches(event)):[]);refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
       }
       function render(){refs.all.setAttribute('aria-pressed',String(scope==='all'));refs.favorites.setAttribute('aria-pressed',String(scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[2];const state=current,data=state&&state.data;
         if(autoDate&&data&&(['ready','stale'].includes(state.status)||data.events.length)){const next=visibleEvents(data,null,today())[0];selectedDate=next?next.date:monthValue===today().slice(0,7)?today():monthValue+'-01';autoDate=false;}
         const checked=data&&data.updated_at?'確認 '+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(data.updated_at)+' JST':'';
         refs.retry.hidden=!(state&&['error','stale'].includes(state.status));refs.status.textContent=!state||state.status==='loading'?'予定を確認しています…':state.status==='error'?(data?'更新できませんでした。保存済みの予定を表示しています。':'予定を読み込めませんでした。'):state.status==='pending'?'確認できた予定を集めています…':state.status==='refreshing'?'最新の予定を確認しています…':state.status==='stale'?'保存済みの予定です。'+checked:checked;
-        refs.universe.textContent=data&&data.universe_as_of?'日経225の構成：'+data.universe_as_of.replace(/-/g,'/')+' 時点。掲載銘柄は収集対象の銘柄で、すべての上場会社ではありません。':'';refs.universe.hidden=!refs.universe.textContent;
+        refs.universe.textContent='東証の国内上場企業を対象に、確認できた配当日程を掲載しています。全社の日程・配当額が揃っているわけではありません。';refs.universe.hidden=!refs.universe.textContent;
         refs.coverage.textContent=data&&data.coverage.universe?'対象 '+data.coverage.universe+'社 ／ この月の予定を確認 '+data.coverage.known+'社'+(data.coverage.unknown?' ／ 日程未確認 '+data.coverage.unknown+'社':'')+(scope==='all'?'（収集対象の銘柄）':''):'';
         const notes=[];if(favorites.legacyCount)notes.push('以前の登録 '+favorites.legacyCount+'社も含みます');if(favorites.overflow)notes.push('100社を超える登録は保存されています');if(favorites.error||favorites.migrationError)notes.push('保存済み銘柄の引き継ぎを確認できませんでした');if(state&&state.excluded&&state.excluded.length)notes.push(state.excluded.length+'社の銘柄コードを確認できませんでした');refs.migration.textContent=notes.join('。');refs.migration.hidden=!notes.length;updateDays();renderLists();
       }

@@ -75,6 +75,14 @@ class CalendarTests(unittest.TestCase):
                 self.assertTrue(all(row['yield_pct']==expected for row in result['events']))
                 self.dividends.payload.assert_called_with(refresh=False)
 
+    def test_all_scope_includes_verified_companies_outside_nikkei_without_extra_scan(self):
+        self.seed.write_text(json.dumps(document([event('5803.T'),event('285A.T')])))
+        data=self.calendar().payload('2026-09')
+        self.assertEqual({row['symbol'] for row in data['events']},{'5803.T','285A.T'})
+        self.assertEqual(data['coverage'],{'universe':229,'known':2,'unknown':227})
+        self.dividends.request_companies.assert_not_called()
+        self.assertEqual(self.calendar().payload('2026-09','5803','favorites')['coverage']['universe'],1)
+
     def test_official_exdate_and_real_businessday_deadline(self):
         data=self.calendar().payload('2026-09')
         by_kind={row['kind']:row for row in data['events']}
@@ -86,7 +94,7 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual(by_kind['holding_deadline']['calculation'],'previous_cash_equity_trading_day')
         self.assertEqual(len(by_kind['holding_deadline']['calculation_sources']),2)
         self.assertEqual(data['range'],{'start':'2026-09-01','end':'2026-11-30'})
-        self.assertEqual(data['coverage'],{'universe':227,'known':1,'unknown':226})
+        self.assertEqual(data['coverage'],{'universe':229,'known':1,'unknown':228})
         self.assertEqual(data['universe_as_of'],'2026-09-24')
         self.assertNotIn('_origin',by_kind['ex_dividend'])
 
@@ -126,7 +134,7 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual({row['symbol'] for row in favorite['events']},{'7203.T'})
         self.dividends.request_companies.assert_called_once_with({'7203':'トヨタ','285A':'キオクシア'})
         self.assertEqual(calendar.payload('2026-09','','favorites')['coverage'],{'universe':0,'known':0,'unknown':0})
-        self.assertEqual(calendar.payload('2026-09','285A','all')['coverage']['universe'],228)
+        self.assertEqual(calendar.payload('2026-09','285A','all')['coverage']['universe'],229)
         for value in ['http://evil','7203.T/../x']:
             with self.assertRaises(ValueError):calendar.payload('2026-09',value)
 

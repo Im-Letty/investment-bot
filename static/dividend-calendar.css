@@ -1,4 +1,7 @@
 /* Approved A: a light month grid and a thin-lined agenda, using the site's palette. */
+#knDividendCalendar .dc-search {display:block;width:100%;min-height:44px;margin:0 0 18px;padding:10px 13px;border:1px solid var(--dc-line);border-radius:8px;background:var(--dc-paper);color:var(--dc-ink);font:inherit;font-size:16px;box-shadow:none}
+#knDividendCalendar .dc-search::placeholder {color:var(--dc-muted)}
+#knDividendCalendar .dc-search:focus-visible {outline:2px solid var(--dc-ink);outline-offset:2px}
 #knDividendCalendar {
   --dc-ink:var(--kn-a-ink,#184b3c);--dc-muted:var(--kn-a-muted,#547467);--dc-paper:var(--kn-a-paper,#fffdf6);--dc-line:var(--kn-a-line,#dce6d7);--dc-chip:var(--kn-a-chip,#edf5e9);
   width:100%;max-width:960px;margin:0 auto;padding:0;color:var(--dc-ink);background:transparent;
@@ -180,3 +183,5 @@
   #knDividendCalendar .dc-holding-range {grid-template-columns:minmax(0,1fr);gap:12px}
   #knDividendCalendar .dc-range-arrow {transform:rotate(90deg)}
 }
+#knDividendCalendar .dc-company-results {margin:-8px 0 20px;border-bottom:1px solid var(--dc-line);padding-bottom:12px}
+#knDividendCalendar .dc-search-company {display:block;width:100%;text-align:left;border-bottom:1px solid var(--dc-line);padding:10px 4px;overflow-wrap:anywhere}

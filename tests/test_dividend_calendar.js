@@ -273,3 +273,30 @@ test('each date sorts favorites first then yields descending, unknown last, befo
   h.mount.find('dc-reset').dispatch('click');h.mount.find('dc-more').dispatch('click');
   assert.equal(symbols().at(-1),'9999.T');
 });
+
+test('search filters verified month events by company or fullwidth code without dropping calendar counts',async t=>{
+  t.mock.method(Date,'now',()=>NOW);const h=uiHarness();await flush();
+  await h.reply(0,fixture({events:[event({symbol:'5803.T',name:'フジクラ'}),event({symbol:'7203.T',name:'トヨタ自動車'}),event({symbol:'5803.T',name:'フジクラ',kind:'payment',precision:'month',date:null,period:MONTH,status:'planned'})]}));
+  const search=h.mount.find('dc-search'),list=h.mount.find('dc-events');
+  search.value='５８０３';search.dispatch('input');assert.equal(list.children.length,1);assert.equal(list.children[0].__priceSymbol,'5803.T');
+  assert.equal(h.mount.find('dc-grid').children.find(x=>x.dataset.date==='2026-09-28').find('dc-day-count').textContent,'2');
+  search.value='ふじくら';search.dispatch('input');assert.equal(list.children[0].__priceSymbol,'5803.T');
+  search.value='存在しない会社';search.dispatch('input');assert.equal(list.children.length,0);assert.match(h.mount.find('dc-empty').textContent,/一致する確認済み/);
+  search.value='';search.dispatch('input');assert.equal(list.children.length,2);
+});
+
+test('calendar keeps all confirmed events beyond the former 3000 row limit',()=>{
+  const events=Array.from({length:3200},(_,i)=>event({symbol:(1000+i)+'.T'}));
+  assert.equal(calendar.normalize(fixture({events}),MONTH,'all',[],NOW).events.length,3200);
+});
+
+test('company search returns companies even without calendar events and reuses the catalogue',async t=>{
+  t.mock.method(Date,'now',()=>NOW);const h=uiHarness();await flush();await h.reply(0,fixture());
+  const search=h.mount.find('dc-search');search.value='285A';search.dispatch('input');
+  assert.equal(h.requests[1].url,'/api/lookup_all');
+  await h.reply(1,{items:[{code:'285A',name:'Company without dates'},{code:'7203',name:'Toyota'}]});
+  const link=h.mount.find('dc-search-company');assert.equal(link.dataset.companyProfile,'285A.T');
+  assert.equal(h.mount.find('dc-events').children.length,0);
+  search.value='7203';search.dispatch('input');assert.equal(h.requests.length,2);assert.equal(h.mount.find('dc-search-company').dataset.companyProfile,'7203.T');
+  search.value='';search.dispatch('input');assert.equal(h.mount.find('dc-company-results').hidden,true);
+});

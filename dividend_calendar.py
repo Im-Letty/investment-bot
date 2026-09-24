@@ -454,10 +454,8 @@ class DividendCalendar:
             universe = self._universe_document
             amounts = self._dividend_amounts
             refreshing, failed = self._running, self._failed
-        core = {code+'.T' for code in self.companies if code+'.T' in known}
-        if universe:
-            core.update(ticker for row in universe['items'] if (ticker := symbol(row.get('symbol') or row.get('code'))) in known)
-        selected = requested if scope == 'favorites' else core | requested
+        # All domestic listed companies are eligible; only verified dates appear.
+        selected = requested if scope == 'favorites' else set(known)
         # Adds favorites to the existing bounded provider queue; never performs
         # a synchronous fetch and never extends the ranking's own universe.
         if requested and hasattr(self.dividends, 'request_companies'):
