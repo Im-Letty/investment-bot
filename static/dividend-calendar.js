@@ -147,15 +147,14 @@
           refs.hundred.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(quote.price*10000)/100):'—';
           refs.time.textContent=quote?'株価 '+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(quote.price_updated_at*1000)+' JST 時点':'株価の時刻を確認しています';
           refs.status.textContent=state&&state.error?(quote?'更新できませんでした。前回の価格を表示しています。':'株価を取得できませんでした。自動で再確認します。'):quote?'':'株価を確認しています…';
-          refs.note.textContent='参考価格'+(quote&&finite(quote.delay_minutes)?(quote.delay_minutes>0?'（約'+quote.delay_minutes+'分遅れ）':''):'（約20分遅れ）')+'・100株は手数料別';
         }
       }
       function pricePanel(event){
         const panel=el('section','dc-price-panel'),heading=el('div','dc-price-heading'),values=el('div','dc-price-values'),refs={};
         append(heading,el('h5','','購入金額の目安'),el('span','dc-price-mode','自動更新'));
         [['single','1株の株価'],['hundred','100株の購入目安']].forEach(([key,label])=>{const cell=el('div','dc-price-cell');refs[key]=el('strong','dc-price-value','—');append(cell,el('span','dc-price-label',label),refs[key],el('span','dc-price-unit','円'));values.appendChild(cell);});
-        refs.time=el('p','dc-price-time','株価の時刻を確認しています');refs.status=el('p','dc-price-status','株価を確認しています…');refs.note=el('p','dc-price-note','参考価格（約20分遅れ）・100株は手数料別');
-        append(panel,heading,values,refs.time,refs.status,refs.note);panel.__priceRefs=refs;return panel;
+        refs.time=el('p','dc-price-time','株価の時刻を確認しています');refs.status=el('p','dc-price-status','株価を確認しています…');
+        append(panel,heading,values,refs.time,refs.status);panel.__priceRefs=refs;return panel;
       }
       function syncPrices(){
         if(!priceController)return;

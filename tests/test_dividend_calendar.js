@@ -165,7 +165,7 @@ test('share and lot prices update in place without closing the broker disclosure
   const value={quote:{symbol:'5803.T',price:4952.1,currency:'JPY',fetched_at:Date.now()/1000,price_updated_at:Date.now()/1000-1200,delay_minutes:20},pending:false,error:null};states.set('5803.T',value);notify('5803.T',value);
   const cells=panel.find('dc-price-values').children;
   assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');assert.equal(cells[1].find('dc-price-value').textContent,'495,210');
-  assert.match(panel.find('dc-price-time').textContent,/JST 時点/);assert.match(panel.find('dc-price-note').textContent,/20分遅れ/);
+  assert.match(panel.find('dc-price-time').textContent,/JST 時点/);assert.equal(panel.find('dc-price-note'),undefined);
   notify('5803.T',{...value,quote:{...value.quote,price:4952.2}});assert.equal(cells[1].find('dc-price-value').textContent,'495,220');
   assert.equal(h.mount.find('dc-events').children[0],row);assert.equal(row.find('dc-holding-range'),range);assert.equal(brokers.open,true);
   notify('5803.T',{...value,error:'network'});assert.match(panel.find('dc-price-status').textContent,/前回の価格/);assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');

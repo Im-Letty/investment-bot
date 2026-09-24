@@ -110,10 +110,9 @@
 #knDividendCalendar .dc-price-label {flex-basis:100%;min-width:0;color:var(--dc-muted);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
 #knDividendCalendar .dc-price-value {min-width:0;max-width:100%;margin:0;padding:0;color:var(--dc-ink);font:600 calc(21px * var(--kn-a-scale,1))/1.4 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.02em;overflow-wrap:anywhere}
 #knDividendCalendar .dc-price-unit {color:var(--dc-ink);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif)}
-#knDividendCalendar .dc-price-time,#knDividendCalendar .dc-price-status,#knDividendCalendar .dc-price-note {min-width:0;margin:0;padding:0;color:var(--dc-muted);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
+#knDividendCalendar .dc-price-time,#knDividendCalendar .dc-price-status {min-width:0;margin:0;padding:0;color:var(--dc-muted);font:400 calc(11px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
 #knDividendCalendar .dc-price-time {min-height:1.8em;margin-top:6px;font-variant-numeric:tabular-nums}
 #knDividendCalendar .dc-price-status {min-height:3.6em;margin-top:2px;color:var(--dc-ink)}
-#knDividendCalendar .dc-price-note {min-height:3.6em;margin-top:3px}
 #knDividendCalendar .dc-unit-note {margin:13px 0 0;padding:0;color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.9 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
 #knDividendCalendar .dc-unit-note strong {display:block;color:var(--dc-ink);font-weight:500}
 #knDividendCalendar .dc-unit-note>span {display:block;margin-top:3px}
