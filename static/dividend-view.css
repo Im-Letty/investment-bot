@@ -1,0 +1,6 @@
+.dividend-snapshot-status,.dividend-basis {font-size:11px;line-height:1.6;color:var(--sf-muted,#6b7770)}
+.dividend-snapshot-status {min-height:22px;margin-top:12px}
+.dividend-basis {margin:0 0 8px}
+.dividend-row-values {text-align:right;font-variant-numeric:tabular-nums}
+.dividend-retry {margin-left:12px;color:inherit;font:inherit;background:transparent;border:0;text-decoration:underline;cursor:pointer;padding:4px}
+@media(max-width:480px){.dividend-list .div-item{grid-template-columns:24px minmax(0,1fr) minmax(0,1fr);gap:8px}.dividend-row-values .div-meta{font-size:10px;line-height:1.7;overflow-wrap:anywhere}}

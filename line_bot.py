@@ -2634,125 +2634,53 @@ JP_STOCKS = {
     "9437": "NTTドコモ",
 }
 
-# メモリキャッシュ (1時間TTL)
-_dividend_cache = {}
-_DIV_CACHE_TTL = 21600  # 1h
+# All dividend views share one real, dated snapshot. No request performs a scan.
+from dividend_snapshot import DividendSnapshot
+_jpx_dividend_names = {item["code"]: item["name"] for item in _stock_search.all_items()["items"]}
+_dividend_companies = {code: _jpx_dividend_names[code] for code in JP_STOCKS if code in _jpx_dividend_names}
+_dividend_snapshot = DividendSnapshot(
+    _dividend_companies,
+    cache_path=os.environ.get("DIVIDEND_SNAPSHOT_PATH", "/tmp/kn-dividend-snapshot.json"))
 
-def _div_cache_get(key):
-    v = _dividend_cache.get(key)
-    if not v: return None
-    if time.time() - v[0] > _DIV_CACHE_TTL:
-        _dividend_cache.pop(key, None)
-        return None
-    return v[1]
 
-def _div_cache_set(key, value):
-    _dividend_cache[key] = (time.time(), value)
+@app.before_request
+def _ensure_dividend_warmer():
+    # Starts inside the serving worker, never in Gunicorn's preload master.
+    # The first home request can prepare the section without blocking its HTML.
+    _dividend_snapshot.ensure_refresh()
+
 
 def _resolve_jp_ticker(q):
-    """ティッカー(7203)や会社名(トヨタ)から 7203.T 形式に解決。
-    JP_STOCKSに無ければyfinance検索でフォローする。"""
-    if not q: return None, None
-    q = q.strip()
-    # 数字のみならティッカー
-    if q.isdigit() and q in JP_STOCKS:
-        return f"{q}.T", JP_STOCKS[q]
-    # 4桁数字だがリスト外 → そのまま .T として扱う（全上場コード対応）
-    if q.isdigit() and len(q) == 4:
-        return f"{q}.T", q
-    # .T 付き
-    if q.endswith(".T") and q[:-2].isdigit():
-        code = q[:-2]
-        return q, JP_STOCKS.get(code, code)
-    # 会社名 完全一致を優先
-    ql = q.lower()
-    for code, name in JP_STOCKS.items():
-        if ql == name.lower():
-            return f"{code}.T", name
-    # 会社名 部分一致
-    for code, name in JP_STOCKS.items():
-        if ql in name.lower() or name.lower() in ql or ql == code:
-            return f"{code}.T", name
-    # ここまでで見つからない → yfinanceの検索でフォロー（マイナー銘柄対応）
-    try:
-        from yfinance import Search
-        res = Search(q, max_results=10).quotes or []
-        for item in res:
-            sym = item.get("symbol", "")
-            if sym.endswith(".T"):
-                nm = item.get("shortname") or item.get("longname") or q
-                return sym, nm
-    except Exception as e:
-        print(f"[_resolve_jp_ticker] yf search error: {e}")
+    if not q:
+        return None, None
+    for item in _stock_search.search(q).get("results", []):
+        if item.get("verified") and item.get("symbol", "").endswith(".T"):
+            return item["symbol"], item["name"]
     return None, None
 
+
 def _get_dividend_info(ticker, name):
-    """yfinanceで配当情報を取得 (キャッシュ付き)"""
-    cached = _div_cache_get(f"div_{ticker}")
-    if cached is not None:
-        return cached
+    return _dividend_snapshot.lookup(ticker, name)
+
+
+def _dividend_response(data):
+    response = jsonify(data)
+    response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+def _dividend_limit():
     try:
-        t = yf.Ticker(ticker)
-        info = t.info or {}
-        divs = t.dividends  # pandas Series
-        annual = 0.0
-        history = []
-        if divs is not None and len(divs) > 0:
-            try:
-                # 過去5年分を集計
-                from datetime import datetime as _dt, timedelta as _td
-                cutoff = _dt.now(divs.index.tz) - _td(days=365*5) if hasattr(divs.index, 'tz') and divs.index.tz else None
-                # 年間合計
-                by_year = divs.groupby(divs.index.year).sum()
-                history = [{"year": int(y), "total": round(float(v), 2)} for y, v in by_year.tail(5).items()]
-                # 直近年1年間の配当
-                if len(history) > 0:
-                    annual = history[-1]["total"]
-                # トライリング配当もinfoから取りる
-                td = info.get("trailingAnnualDividendRate")
-                if td: annual = float(td)
-            except Exception as _e:
-                pass
-        price = info.get("currentPrice") or info.get("regularMarketPrice") or 0
-        # 配当利回り計算: annual_dividend / price * 100 を優先（最も信頼できる）
-        # yfinance の dividendYield はスケール不安定（%だったり小数だったり）なのでフォールバックのみ
-        if price and annual and price > 0:
-            yield_pct = (annual / price) * 100
-        else:
-            dy = info.get("dividendYield") or 0
-            # dividendYield が >1 なら既に%表示、≤1 なら小数表示と判定
-            yield_pct = dy if dy > 1 else dy * 100
-        # 次期配当見込み日
-        ex_div_ts = info.get("exDividendDate")
-        ex_div_date = None
-        if ex_div_ts:
-            try:
-                ex_div_date = datetime.fromtimestamp(ex_div_ts).strftime("%Y-%m-%d")
-            except Exception:
-                ex_div_date = None
-        result = {
-            "ticker": ticker,
-            "code": ticker.replace(".T", ""),
-            "name": name,
-            "price": round(float(price), 2) if price else None,
-            "annual_dividend": round(float(annual), 2) if annual else 0,
-            "yield_pct": round(float(yield_pct), 2) if yield_pct else 0,
-            "payout_ratio": round(float(info.get("payoutRatio") or 0) * 100, 1),
-            "ex_dividend_date": ex_div_date,
-            "history": history,
-            "currency": info.get("currency", "JPY"),
-        }
-        _div_cache_set(f"div_{ticker}", result)
-        return result
-    except Exception as e:
-        print(f"[dividend] error for {ticker}: {e}")
-        return None
+        return max(1, min(int(request.args.get("limit", 30)), 200))
+    except (ValueError, TypeError):
+        return 30
+
 
 @app.route("/api/dividend/list", methods=["GET"])
 def api_dividend_list():
-    """軽量な銘柄リスト (yfinanceを呼ばず、JP_STOCKSのマッピングだけ返す)"""
-    items = [{"code": code, "name": name} for code, name in JP_STOCKS.items()]
+    items = [{"code": code, "name": name} for code, name in _dividend_companies.items()]
     return jsonify({"items": items, "count": len(items)})
+
 
 @app.route("/api/dividend/search", methods=["GET"])
 def api_dividend_search():
@@ -2762,187 +2690,42 @@ def api_dividend_search():
     ticker, name = _resolve_jp_ticker(q)
     if not ticker:
         return jsonify({"error": "not found", "query": q}), 404
-    info = _get_dividend_info(ticker, name)
-    if not info:
-        return jsonify({"error": "fetch failed", "ticker": ticker}), 500
-    return jsonify(info)
+    return _dividend_response(_get_dividend_info(ticker, name))
+
 
 @app.route("/api/dividend/top", methods=["GET"])
 def api_dividend_top():
-    """高配当利回りランキング（部分スキャン+バックグラウンド警告）"""
-    try:
-        limit = int(request.args.get("limit", 30))
-    except:
-        limit = 30
-    cached = _div_cache_get("top_yield")
-    if cached:
-        return jsonify({"items": cached[:limit], "cached": True})
-    # キャッシュなし→限定スキャン（Renderワーカータイムアウト回避）
-    results = _scan_dividends_partial(min(limit * 3, 60))
-    results.sort(key=lambda x: x.get("yield_pct", 0), reverse=True)
-    # 部分結果は短時間キャッシュ。全件はバックグラウンド warmer が後で上書き
-    _div_cache_set("top_yield", results)
-    # warmer disabled (RAM-bound on Render free tier)
-    return jsonify({"items": results[:limit], "cached": False, "partial": True})
+    data = _dividend_snapshot.payload()
+    rows = [row for row in data["items"] if row.get("yield_pct") is not None and row["yield_pct"] > 0]
+    data["items"] = sorted(rows, key=lambda row: (-row["yield_pct"], row["code"]))[:_dividend_limit()]
+    data["available_count"] = len(rows)
+    return _dividend_response(data)
 
-@app.route("/api/dividend/calendar", methods=["GET"])
-def api_dividend_calendar():
-    """権利落ち日カレンダー（部分スキャン+バックグラウンド警告）"""
-    month = request.args.get("month", "")
-    cached = _div_cache_get(f"cal_{month}")
-    if cached:
-        return jsonify({"days": cached, "cached": True})
-    # 限定スキャン
-    results = _scan_dividends_partial(80)
-    by_day = {}
-    for info in results:
-        if info and info.get("ex_dividend_date"):
-            d = info["ex_dividend_date"]
-            if month and not d.startswith(month):
-                continue
-            by_day.setdefault(d, []).append({
-                "code": info.get("code"), "name": info.get("name"),
-                "yield_pct": info.get("yield_pct", 0),
-                "annual_dividend": info.get("annual_dividend", 0),
-            })
-    days = sorted(by_day.items())
-    out = [{"date": d, "items": items} for d, items in days]
-    _div_cache_set(f"cal_{month}", out)
-    # warmer disabled (RAM-bound on Render free tier)
-    return jsonify({"days": out, "cached": False, "partial": True})
 
 @app.route("/api/dividend/yearly", methods=["GET"])
 def api_dividend_yearly():
-    """年間配当総額ランキング（共有キャッシュ+部分スキャン）"""
-    try:
-        limit = int(request.args.get("limit", 30))
-    except:
-        limit = 30
-    cached = _div_cache_get("yearly")
-    if cached:
-        sorted_items = sorted(cached, key=lambda x: x.get("annual_dividend", 0), reverse=True)
-        return jsonify({"items": sorted_items[:limit], "cached": True})
-    # top_yieldのキャッシュも使う
-    cached_top = _div_cache_get("top_yield")
-    if cached_top:
-        sorted_items = sorted(cached_top, key=lambda x: x.get("annual_dividend", 0), reverse=True)
-        return jsonify({"items": sorted_items[:limit], "cached": True, "source": "top_yield"})
-    # 限定スキャン
-    results = _scan_dividends_partial(min(limit * 3, 60))
-    results.sort(key=lambda x: x.get("annual_dividend", 0), reverse=True)
-    _div_cache_set("yearly", results)
-    # warmer disabled (RAM-bound on Render free tier)
-    return jsonify({"items": results[:limit], "cached": False, "partial": True})
+    data = _dividend_snapshot.payload()
+    rows = [row for row in data["items"] if row.get("annual_dividend") is not None and row["annual_dividend"] > 0]
+    data["items"] = sorted(rows, key=lambda row: (-row["annual_dividend"], row["code"]))[:_dividend_limit()]
+    data["available_count"] = len(rows)
+    return _dividend_response(data)
 
-# === 配当データ並列スキャン ヘルパー ===
-def _div_cache_set_short(key, value):
-    """部分結果は短期キャッシュ（5分）。warmerが完了したら上書きされる"""
-    _dividend_cache[key] = (time.time() - _DIV_CACHE_TTL + 300, value)
 
-def _scan_dividends_partial(n, hard_timeout=15):
-    """JP_STOCKSの先頭n銘柄を並列スキャン。タイムアウト時は未完了タスクをキャンセル"""
-    from concurrent.futures import ThreadPoolExecutor, wait, FIRST_COMPLETED
-    items = list(JP_STOCKS.items())[:n]
-    if not items:
-        return []
-    def _one(item):
-        code, name = item
-        try:
-            return _get_dividend_info(f"{code}.T", name)
-        except Exception:
-            return None
-    ex = ThreadPoolExecutor(max_workers=12)
-    try:
-        futs = [ex.submit(_one, it) for it in items]
-        deadline = time.time() + hard_timeout
-        results = []
-        remaining = set(futs)
-        while remaining and time.time() < deadline:
-            timeout_left = max(0.1, deadline - time.time())
-            done, remaining = wait(remaining, timeout=timeout_left, return_when=FIRST_COMPLETED)
-            for fut in done:
-                try:
-                    info = fut.result(timeout=0.01)
-                    if info:
-                        results.append(info)
-                except Exception:
-                    pass
-        # 未完了タスクはキャンセル（実行中のものは止められないが、待たない）
-        for fut in remaining:
-            fut.cancel()
-        return results
-    finally:
-        # wait=Falseで未完了スレッドを置き去りにする（プロセス終了時に消える）
-        try:
-            ex.shutdown(wait=False, cancel_futures=True)
-        except TypeError:
-            # Python<3.9
-            ex.shutdown(wait=False)
-
-# === バックグラウンドwarmer（全213銘柄をゆっくり収集してキャッシュ） ===
-_DIV_WARMER_STARTED = False
-_DIV_WARMER_LOCK = threading.Lock()
-
-def _ensure_dividend_warmer():
-    global _DIV_WARMER_STARTED
-    with _DIV_WARMER_LOCK:
-        if _DIV_WARMER_STARTED:
-            return
-        _DIV_WARMER_STARTED = True
-    try:
-        t = threading.Thread(target=_dividend_warmer_run, daemon=True)
-        t.start()
-        print("[dividend] warmer thread started")
-    except Exception as e:
-        print(f"[dividend] warmer start failed: {e}")
-        with _DIV_WARMER_LOCK:
-            _DIV_WARMER_STARTED = False
-
-def _dividend_warmer_run():
-    """全銘柄をバックグラウンドで収集してキャッシュ。小バッチで実行してメモリ圧迫を避ける"""
-    try:
-        from concurrent.futures import ThreadPoolExecutor
-        all_items = list(JP_STOCKS.items())
-        batch = 10
-        results = []
-        for i in range(0, len(all_items), batch):
-            chunk = all_items[i:i+batch]
-            ex = ThreadPoolExecutor(max_workers=6)
-            try:
-                def _one(item):
-                    code, name = item
-                    try:
-                        return _get_dividend_info(f"{code}.T", name)
-                    except Exception:
-                        return None
-                for info in ex.map(_one, chunk, timeout=60):
-                    if info:
-                        results.append(info)
-            except Exception as e:
-                print(f"[dividend] warmer batch {i} error: {e}")
-            finally:
-                try:
-                    ex.shutdown(wait=False, cancel_futures=True)
-                except TypeError:
-                    ex.shutdown(wait=False)
-            # 各バッチ後にキャッシュを更新（部分的に利用可能に）
-            if results:
-                top = sorted([r for r in results if r.get("yield_pct", 0) > 0],
-                             key=lambda x: x.get("yield_pct", 0), reverse=True)
-                yearly = sorted([r for r in results if r.get("annual_dividend", 0) > 0],
-                                key=lambda x: x.get("annual_dividend", 0), reverse=True)
-                _div_cache_set("top_yield", top)
-                _div_cache_set("yearly", yearly)
-            time.sleep(0.5)  # Yahoo へのレート緩和
-        print(f"[dividend] warmer done: {len(results)} stocks total")
-    except Exception as e:
-        print(f"[dividend] warmer error: {e}")
-    finally:
-        # 次回再起動時に再度走らせるためフラグを残す（成功でも保持）
-        pass
-
-# warmer is now strictly on-demand only (manual /api/dividend/warmup or env DIVIDEND_WARMER=1)
-# auto-kick disabled to avoid OOM on Render free tier
+@app.route("/api/dividend/calendar", methods=["GET"])
+def api_dividend_calendar():
+    month = request.args.get("month", "")
+    if month and not re.fullmatch(r"[0-9]{4}-(?:0[1-9]|1[0-2])", month):
+        return jsonify({"error": "invalid month"}), 400
+    data = _dividend_snapshot.payload()
+    by_day = {}
+    for row in data.pop("items"):
+        for day in row.get("ex_dividend_dates", []):
+            if month and not day.startswith(month):
+                continue
+            by_day.setdefault(day, []).append(dict(row))
+    data["days"] = [{"date": day, "items": sorted(items, key=lambda row: row["code"])}
+                    for day, items in sorted(by_day.items())]
+    return _dividend_response(data)
 
 
 _SCANNER_TTL = 600
