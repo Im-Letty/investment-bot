@@ -5,30 +5,15 @@
 .dividend-retry {margin-left:12px;color:inherit;font:inherit;background:transparent;border:0;text-decoration:underline;cursor:pointer;padding:4px}
 @media(max-width:480px){.dividend-list .div-item{grid-template-columns:24px minmax(0,1fr) minmax(0,1fr);gap:8px}.dividend-row-values .div-meta{font-size:10px;line-height:1.7;overflow-wrap:anywhere}}
 
-/* Separate dividend amounts, stock prices and their dates by role. */
-#knTabWrap .dividend-list {
-  --div-accent:color-mix(in srgb,var(--sf-accent,#205c49) 85%,#14251d);
-  --div-quote:#343b43;
-  --div-label:#666f6b;
-}
-body.kn-home-a[data-theme="dark"] #knTabWrap .dividend-list {
-  --div-accent:color-mix(in srgb,var(--brand-color,#3da060) 28%,#fff);
-  --div-quote:#e0e5e9;
-  --div-label:#aab8b0;
-}
+/* Use the same text roles and theme colors as today's stock panel. */
 #knTabWrap .dividend-list .div-item {border-color:var(--sf-line);grid-template-columns:24px minmax(0,1fr) minmax(0,auto)}
 #knTabWrap .dividend-list .div-name {color:var(--sf-ink);overflow-wrap:anywhere}
 #knTabWrap .dividend-list .dividend-row-values {min-width:0}
-#knTabWrap .dividend-list .div-yield {
-  display:inline-block;color:var(--div-accent);padding:2px 9px;border-radius:6px;
-  background:color-mix(in srgb,var(--div-accent) 8%,var(--sf-paper,#fffdf7));
-}
 #knTabWrap .dividend-list .div-metrics {display:grid;gap:2px;margin-top:7px}
 #knTabWrap .dividend-list .div-metric {display:flex;align-items:baseline;justify-content:space-between;gap:12px;font-size:11px;line-height:1.7}
-#knTabWrap .dividend-list .div-metric-label {color:var(--div-label);font-weight:400;white-space:nowrap}
-#knTabWrap .dividend-list .div-metric-value {font:500 12px/1.7 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;white-space:nowrap;color:var(--div-accent)}
-#knTabWrap .dividend-list .div-metric--quote .div-metric-value {color:var(--div-quote)}
-#knTabWrap .dividend-list .div-price-time {font-size:10px;font-weight:400;color:var(--div-label);line-height:1.7;margin-top:7px}
+#knTabWrap .dividend-list .div-metric-label {color:var(--sf-muted);font-weight:400;white-space:nowrap}
+#knTabWrap .dividend-list .div-metric-value {font:500 12px/1.7 -apple-system,BlinkMacSystemFont,"Helvetica Neue",sans-serif;white-space:nowrap;color:var(--sf-ink)}
+#knTabWrap .dividend-list .div-price-time {font-size:10px;font-weight:400;color:var(--sf-muted);line-height:1.7;margin-top:7px}
 @media(max-width:480px){
   #knTabWrap .dividend-list .div-item {grid-template-columns:17px minmax(0,1fr) minmax(0,1.15fr);gap:8px;padding-inline:0}
   #knTabWrap .dividend-list .div-metric {gap:6px;flex-wrap:wrap;justify-content:flex-end}
