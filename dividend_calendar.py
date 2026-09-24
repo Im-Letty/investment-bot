@@ -473,12 +473,19 @@ class DividendCalendar:
         events = with_holding_deadlines(raw_events)
         events.extend(self._payment_events(today))
         historical = []
+        yields = {}
         for row in self.dividends.payload(refresh=False)['items']:
             if row.get('ticker') not in selected:
                 continue
             fetched = row.get('fetched_at')
             if not isinstance(fetched, (int, float)) or isinstance(fetched, bool) or not math.isfinite(fetched) or fetched > self.now():
                 continue
+            value = row.get('yield_pct')
+            if (row.get('annual_dividend_basis') == 'trailing_12m'
+                    and isinstance(value, (int, float)) and not isinstance(value, bool)
+                    and math.isfinite(value) and value >= 0
+                    and 0 <= self.now() - fetched < 30 * 86400):
+                yields[row['ticker']] = value
             for day in row.get('ex_dividend_dates', []):
                 if not isinstance(day,str) or not day.startswith(month):
                     continue
@@ -507,6 +514,7 @@ class DividendCalendar:
                 amount = amounts.get((event['symbol'],event.get('record_date')))
                 if amount:
                     event['dividend'] = deepcopy(amount)
+            event['yield_pct'] = yields.get(event['symbol'])
             event.pop('_origin',None)
             result.append(event)
         result.sort(key=lambda row:(row.get('date',row.get('period')+'-99' if row.get('period') else ''),row['kind'],row['code']))

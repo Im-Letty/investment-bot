@@ -59,6 +59,22 @@ class CalendarTests(unittest.TestCase):
             schedule_path=self.seed,payment_path=self.payments,amount_path=self.amounts,universe_path=self.universe,
             cache_path=self.path/'runtime.json',now=lambda:self.now,**kwargs)
 
+    def test_calendar_carries_existing_snapshot_yield_without_fetching_quotes(self):
+        base = dict(ticker='7203.T', fetched_at=NOW, yield_pct=3.2,
+                    annual_dividend_basis='trailing_12m')
+        calendar = self.calendar()
+        for changes, expected in [({}, 3.2), ({'yield_pct':0}, 0),
+                ({'yield_pct':None}, None), ({'yield_pct':True}, None),
+                ({'yield_pct':-1}, None), ({'yield_pct':float('nan')}, None),
+                ({'fetched_at':NOW-31*86400}, None),
+                ({'annual_dividend_basis':'unknown'}, None)]:
+            with self.subTest(changes=changes):
+                self.dividends.payload.return_value={'items':[{**base, **changes}]}
+                result=calendar.payload('2026-09')
+                self.assertTrue(result['events'])
+                self.assertTrue(all(row['yield_pct']==expected for row in result['events']))
+                self.dividends.payload.assert_called_with(refresh=False)
+
     def test_official_exdate_and_real_businessday_deadline(self):
         data=self.calendar().payload('2026-09')
         by_kind={row['kind']:row for row in data['events']}

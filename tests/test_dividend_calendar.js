@@ -257,3 +257,19 @@ test('disclosures stay closed initially and favorites precede pagination without
   h.saved.setItem(WATCH,'[]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));
   assert.equal(list.children[0],first);assert.equal(first.__disclosure.open,true);assert.equal(list.children.find(x=>x.__priceSymbol==='1006.T').__favorite.hidden,true);
 });
+
+test('each date sorts favorites first then yields descending, unknown last, before pagination',async t=>{
+  t.mock.method(Date,'now',()=>NOW);
+  const h=uiHarness();await flush();
+  const values=[null,0,3,6,6,1,-2,'9'];
+  const rows=values.map((value,i)=>event({symbol:(1000+i)+'.T',yield_pct:value}));
+  await h.reply(0,fixture({events:rows.concat(event({symbol:'9999.T',date:'2026-09-29',yield_pct:99}))}));
+  h.saved.setItem(WATCH,'["1005.T"]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));
+  const list=h.mount.find('dc-events'),symbols=()=>list.children.map(row=>row.__priceSymbol);
+  assert.deepEqual(symbols(),['1005.T','1003.T','1004.T','1002.T','1001.T']);
+  h.mount.find('dc-more').dispatch('click');
+  assert.deepEqual(symbols(),['1005.T','1003.T','1004.T','1002.T','1001.T','1000.T','1006.T','1007.T']);
+  assert.equal(h.mount.find('dc-grid').children.find(x=>x.dataset.date==='2026-09-28').find('dc-day-count').textContent,'8');
+  h.mount.find('dc-reset').dispatch('click');h.mount.find('dc-more').dispatch('click');
+  assert.equal(symbols().at(-1),'9999.T');
+});

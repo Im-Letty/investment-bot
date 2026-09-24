@@ -1,7 +1,7 @@
 /* Dates come from verified schedules; month-only plans never acquire an invented day. */
 (function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root&&root.document)api.start(root);})(typeof window==='undefined'?null:window,function(){
   'use strict';
-  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v3:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
+  const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v4:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
   const finite=v=>typeof v==='number'&&Number.isFinite(v),clean=(v,max=160)=>typeof v==='string'?v.trim().slice(0,max):'';
   function parse(value,fallback){try{return JSON.parse(value)||fallback;}catch(e){return fallback;}}
   function symbol(value){const key=clean(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
@@ -52,7 +52,7 @@
       if(row.precision==='day'?(!date||date.slice(0,7)!==selected):(row.precision!=='month'||row.kind!=='payment'||!period||period!==selected))continue;
       const id=[key,row.kind,row.precision,row.precision==='day'?date:period].join(':');if(seen.has(id))continue;seen.add(id);
       const record=day(row.record_date),recordDate=row.precision==='day'&&row.kind!=='payment'&&record&&record>date?record:null;
-      events.push({id,symbol:key,code:key.slice(0,-2),name:clean(row.name)||key,kind:row.kind,precision:row.precision,date:row.precision==='day'?date:null,period:row.precision==='month'?period:null,status:row.status,source:{title,url},verified_on:verified,record_date:recordDate,holding_deadline:day(row.holding_deadline),ex_dividend_date:day(row.ex_dividend_date),holding_window:holdingWindow(row,date,recordDate),dividend:row.kind!=='payment'?dividendAmount(row.dividend,recordDate,now):null});
+      events.push({id,yield_pct:finite(row.yield_pct)&&row.yield_pct>=0?row.yield_pct:null,symbol:key,code:key.slice(0,-2),name:clean(row.name)||key,kind:row.kind,precision:row.precision,date:row.precision==='day'?date:null,period:row.precision==='month'?period:null,status:row.status,source:{title,url},verified_on:verified,record_date:recordDate,holding_deadline:day(row.holding_deadline),ex_dividend_date:day(row.ex_dividend_date),holding_window:holdingWindow(row,date,recordDate),dividend:row.kind!=='payment'?dividendAmount(row.dividend,recordDate,now):null});
     }
     events.sort((a,b)=>(a.date||a.period).localeCompare(b.date||b.period)||a.symbol.localeCompare(b.symbol)||a.kind.localeCompare(b.kind));
     return {events,coverage,range:{start,end},updated_at:stamp,universe_as_of:day(raw.universe_as_of),status:raw.status==='loading'?'pending':['ready','stale','pending','unavailable'].includes(raw.status)?raw.status:'ready',refreshing:raw.refreshing===true,month:selected,scope};
@@ -215,7 +215,7 @@
       }
       function prioritize(events){
         const saved=new Set(favorites.symbols);
-        return events.slice().sort((a,b)=>(a.date||a.period).localeCompare(b.date||b.period)||Number(saved.has(b.symbol))-Number(saved.has(a.symbol)));
+        return events.slice().sort((a,b)=>(a.date||a.period).localeCompare(b.date||b.period)||Number(saved.has(b.symbol))-Number(saved.has(a.symbol))||((b.yield_pct??-1)-(a.yield_pct??-1))||a.symbol.localeCompare(b.symbol));
       }
       function drawList(node,events){
         const signature=JSON.stringify([events,favorites.symbols]);if(node.__signature===signature)return;node.__signature=signature;
