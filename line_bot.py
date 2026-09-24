@@ -29,7 +29,7 @@ from datetime import timedelta
 import base64
 import re
 import secrets as _secrets_mod
-from urllib.parse import urlencode
+from urllib.parse import urlencode, quote as url_quote
 try:
     from cryptography.fernet import Fernet
 except Exception as _e_fernet:
@@ -2001,12 +2001,74 @@ _QUOTE_RETRY_TTL = 15
 _QUOTE_LOCKS = tuple(threading.Lock() for _ in range(64))
 
 
+def _quote_source_metadata(symbol, price_updated_at=None):
+    metadata = {
+        "source": "Yahoo Finance",
+        "source_url": "https://finance.yahoo.com/quote/" + url_quote(symbol, safe="") + "/",
+        "price_updated_at": price_updated_at,
+    }
+    if re.fullmatch(r"[0-9][0-9A-Z]{3}\.T", symbol):
+        # Provider's published exchange delay, not the age of this quote:
+        # https://help.yahoo.com/kb/SLN2310.html (checked 2026-09-24).
+        metadata["delay_minutes"] = 20
+    return metadata
+
+
+def _load_timed_jpy_quote(symbol):
+    """Read price and exchange timestamp from the same Yahoo chart response."""
+    if not re.fullmatch(r"[0-9][0-9A-Z]{3}\.T", symbol):
+        return None
+    try:
+        response = requests.get(
+            "https://query1.finance.yahoo.com/v8/finance/chart/" + symbol,
+            # chartPreviousClose is relative to the requested range. With a
+            # five-day range it must not be mistaken for yesterday's close.
+            params={"range": "1d", "interval": "1d"},
+            headers={"User-Agent": "Mozilla/5.0"}, timeout=(3, 5), allow_redirects=False)
+        if response.status_code != 200 or len(response.content) > 1_000_000:
+            return None
+        chart = response.json().get("chart", {})
+        results = chart.get("result")
+        if chart.get("error") or not isinstance(results, list) or len(results) != 1:
+            return None
+        meta = results[0].get("meta", {})
+        if (meta.get("symbol") != symbol or meta.get("currency") != "JPY"
+                or meta.get("range") != "1d"):
+            return None
+        value, stamp = meta.get("regularMarketPrice"), meta.get("regularMarketTime")
+        if (isinstance(value, bool) or not isinstance(value, (int, float))
+                or isinstance(stamp, bool) or not isinstance(stamp, (int, float))
+                or not math.isfinite(stamp) or not 0 < stamp <= time.time()
+                or stamp != int(stamp)):
+            return None
+        previous = meta.get("previousClose", meta.get("chartPreviousClose"))
+        if isinstance(previous, bool):
+            previous = None
+        value, pct, change = _market_change_values(value, previous)
+        if pct is not None and abs(pct) > 50:
+            return None
+        arrow = "▲" if pct is not None and pct >= 0 else "▼"
+        return dict(symbol=symbol, details=None, name=symbol, currency="JPY", change_unit="currency",
+                    price=round(value, 4), pct=round(pct, 2) if pct is not None else None,
+                    change_value=change,
+                    display=f"{value:,.2f} {arrow}{abs(pct):.2f}%" if pct is not None else f"{value:,.2f}",
+                    change=arrow + str(round(abs(pct), 2)) + "%" if pct is not None else "--",
+                    **_quote_source_metadata(symbol, int(stamp)))
+    except (requests.RequestException, TypeError, ValueError, OverflowError, AttributeError, KeyError):
+        return None
+
+
 def _cached_api_quote(symbol, light):
     keys = [(symbol, light)] + ([(symbol, False)] if light else [])
     now = time.time()
     for key in keys:
         cached = _QUOTE_CACHE.get(key)
         if cached and 0 <= now - cached[0] < _QUOTE_TTL:
+            if (light and not key[1] and re.fullmatch(r"[0-9][0-9A-Z]{3}\.T", symbol)
+                    and not cached[1].get("price_updated_at")):
+                # A detailed quote with an unknown market timestamp cannot
+                # stand in for the timed price requested by the calendar.
+                continue
             payload = dict(cached[1])
             payload["fetched_at"] = cached[1].get("fetched_at", cached[0])
             if light and not key[1]:
@@ -2053,6 +2115,14 @@ def api_quote():
 def _load_api_quote(symbol, light):
     _qk = (symbol, light)
     try:
+        if light:
+            timed = _load_timed_jpy_quote(symbol)
+            if timed is not None:
+                if len(_QUOTE_CACHE) > 300:
+                    _QUOTE_CACHE.clear()
+                timed["fetched_at"] = time.time()
+                _QUOTE_CACHE[_qk] = (timed["fetched_at"], timed)
+                return jsonify(timed)
         t = yf.Ticker(symbol)
         hist = t.history(period="5d", timeout=8)
         if light:
@@ -2107,6 +2177,9 @@ def _load_api_quote(symbol, light):
             }
             if len(_QUOTE_CACHE) > 300:
                 _QUOTE_CACHE.clear()
+            # fast_info may have replaced a daily close; neither that bar's
+            # date nor our retrieval time establishes this price's trade time.
+            _qp.update(_quote_source_metadata(symbol))
             _qp["fetched_at"] = time.time()
             _QUOTE_CACHE[_qk] = (_qp["fetched_at"], _qp)
             return jsonify(_qp)
@@ -2129,6 +2202,7 @@ def _load_api_quote(symbol, light):
             }
             if len(_QUOTE_CACHE) > 300:
                 _QUOTE_CACHE.clear()
+            _qp.update(_quote_source_metadata(symbol))
             _qp["fetched_at"] = time.time()
             _QUOTE_CACHE[_qk] = (_qp["fetched_at"], _qp)
             return jsonify(_qp)

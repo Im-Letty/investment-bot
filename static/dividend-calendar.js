@@ -94,7 +94,7 @@
     function init(){
       const doc=w.document,mount=doc.getElementById('knDividendCalendar');if(!mount||mount.dataset.ready)return;
       mount.dataset.ready='true';let storage=null;try{storage=w.localStorage;}catch(e){}
-      let monthValue=today().slice(0,7),scope=selection(storage).symbols.length?'favorites':'all',scopeChosen=false,selectedDate=null,autoDate=true,limit=5,monthLimit=5,current=null,favorites=selection(storage),lastQuery='',lastRefresh=0,retryTimer=null,refreshTimer=null,polls=0;const refs={},dateButtons=new Map();
+      let monthValue=today().slice(0,7),scope=selection(storage).symbols.length?'favorites':'all',scopeChosen=false,selectedDate=null,autoDate=true,limit=5,monthLimit=5,current=null,favorites=selection(storage),lastQuery='',lastRefresh=0,retryTimer=null,refreshTimer=null,polls=0;const refs={},dateButtons=new Map(),priceNodes=new Map();let priceController=null,priceInView=typeof w.IntersectionObserver!=='function';
       function el(tag,cls,text){const node=doc.createElement(tag);if(cls)node.className=cls;if(text!==undefined)node.textContent=text;return node;}
       function append(parent,...nodes){nodes.forEach(node=>parent.appendChild(node));return parent;}
       function button(label,cls,fn){const node=el('button',cls,label);node.type='button';node.addEventListener('click',fn);return node;}
@@ -140,16 +140,44 @@
         if(verified)body.appendChild(el('p','dc-broker-note','2026/9/24 確認'));
         details.appendChild(body);return details;
       }
+      function updatePrice(symbol,state){
+        for(const refs of priceNodes.get(symbol)||[]){
+          const quote=state&&state.quote;
+          refs.single.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:4}).format(quote.price):'—';
+          refs.hundred.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(quote.price*10000)/100):'—';
+          refs.time.textContent=quote?'株価 '+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(quote.price_updated_at*1000)+' JST 時点':'株価の時刻を確認しています';
+          refs.status.textContent=state&&state.error?(quote?'更新できませんでした。前回の価格を表示しています。':'株価を取得できませんでした。自動で再確認します。'):quote?'':'株価を確認しています…';
+          refs.note.textContent='参考価格'+(quote&&finite(quote.delay_minutes)?(quote.delay_minutes>0?'（約'+quote.delay_minutes+'分遅れ）':''):'（約20分遅れ）')+'・100株は手数料別';
+        }
+      }
+      function pricePanel(event){
+        const panel=el('section','dc-price-panel'),heading=el('div','dc-price-heading'),values=el('div','dc-price-values'),refs={};
+        append(heading,el('h5','','購入金額の目安'),el('span','dc-price-mode','自動更新'));
+        [['single','1株の株価'],['hundred','100株の購入目安']].forEach(([key,label])=>{const cell=el('div','dc-price-cell');refs[key]=el('strong','dc-price-value','—');append(cell,el('span','dc-price-label',label),refs[key],el('span','dc-price-unit','円'));values.appendChild(cell);});
+        refs.time=el('p','dc-price-time','株価の時刻を確認しています');refs.status=el('p','dc-price-status','株価を確認しています…');refs.note=el('p','dc-price-note','参考価格（約20分遅れ）・100株は手数料別');
+        append(panel,heading,values,refs.time,refs.status,refs.note);panel.__priceRefs=refs;return panel;
+      }
+      function syncPrices(){
+        if(!priceController)return;
+        const active=!doc.hidden&&priceInView&&mount.getClientRects().length>0;
+        if(!active)priceController.pause();
+        priceNodes.clear();
+        for(const row of Array.from(refs.list.children)){if(!row.__priceRefs)continue;const key=row.__priceSymbol;if(!priceNodes.has(key))priceNodes.set(key,[]);priceNodes.get(key).push(row.__priceRefs);}
+        priceController.setSymbols([...priceNodes.keys()]);
+        priceNodes.forEach((_,key)=>updatePrice(key,priceController.peek(key)));
+        if(active)priceController.resume();
+      }
       function holdingStory(event){
         const story=el('div','dc-holding-story'),amount=event.dividend,window=event.holding_window;
         const estimate=el('section','dc-dividend-estimate'),heading=el('div','dc-dividend-heading');
         append(heading,el('h5','','今回の配当予想'));if(event.record_date)heading.appendChild(el('span','',prettyMonth(event.record_date.slice(0,7))+'分'));estimate.appendChild(heading);
         if(amount){
-          const value=el('div','dc-dividend-value');append(value,el('span','','100株保有した場合'),el('strong','',new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(amount.per_share*10000)/100)),el('span','dc-dividend-unit','円'));
-          append(estimate,value,el('p','dc-dividend-note','税引前・会社予想'));
+          const values=el('div','dc-dividend-values');
+          [[1,'1株保有した場合'],[100,'100株保有した場合']].forEach(([shares,label])=>{const value=el('div','dc-dividend-value');append(value,el('span','',label),el('strong','',new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(amount.per_share*shares*100)/100)),el('span','dc-dividend-unit','円'));values.appendChild(value);});
+          append(estimate,values,el('p','dc-dividend-note','税引前・会社予想'));
         }else estimate.appendChild(el('p','dc-dividend-unknown','今回の金額はまだ確認できていません。'));
         const unit=el('p','dc-unit-note');append(unit,el('strong','','通常の購入は100株単位です。'),el('span','','証券会社や銘柄によっては、1株から買えるサービスもあります。'));
-        append(estimate,unit,brokerOptions(event));story.appendChild(estimate);
+        const prices=pricePanel(event);story.__priceRefs=prices.__priceRefs;append(estimate,prices,unit,brokerOptions(event));story.appendChild(estimate);
         append(story,el('p','dc-range-title','今回の配当を受け取るには'));
         const range=el('div','dc-holding-range');
         [['start','購入はいつまで？','取引終了までに買う'],['end','保有はいつまで？','取引終了時点まで持つ']].forEach(([position,label,deadline],index)=>{
@@ -173,7 +201,7 @@
         append(body,name,el('span','dc-company-code',event.code));
         if(!event.holding_window||event.kind==='ex_dividend')body.appendChild(tag);
         append(row,date,body);
-        if(event.holding_window){const story=holdingStory(event);story.appendChild(evidence);row.appendChild(story);}
+        if(event.holding_window){const story=holdingStory(event);story.appendChild(evidence);row.__priceRefs=story.__priceRefs;row.__priceSymbol=event.symbol;row.appendChild(story);}
         else {if(event.record_date)body.appendChild(el('p','dc-record-date','株主が決まる日：'+dateLabel(event.record_date)+'（権利確定日）'));body.appendChild(evidence);}
         return row;
       }
@@ -196,7 +224,7 @@
       }
       function renderLists(){const data=current&&current.data,events=visibleEvents(data,selectedDate,today());refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':'これからの予定';refs.clear.hidden=!selectedDate;renderGuidance(events);drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
         refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
-        const plans=data?data.events.filter(event=>event.precision==='month'):[];refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';
+        const plans=data?data.events.filter(event=>event.precision==='month'):[];refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
       }
       function render(){refs.all.setAttribute('aria-pressed',String(scope==='all'));refs.favorites.setAttribute('aria-pressed',String(scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[2];const state=current,data=state&&state.data;
         if(autoDate&&data&&(['ready','stale'].includes(state.status)||data.events.length)){const next=visibleEvents(data,null,today())[0];selectedDate=next?next.date:monthValue===today().slice(0,7)?today():monthValue+'-01';autoDate=false;}
@@ -211,10 +239,13 @@
       function changeMonth(delta){const next=shift(monthValue,delta);if(!bounds().months.includes(next))return;monthValue=next;selectedDate=null;autoDate=true;limit=monthLimit=5;polls=0;buildDays();refresh(true);}
       function schedule(){w.clearTimeout(refreshTimer);if(!doc.hidden)refreshTimer=w.setTimeout(()=>{if(mount.getClientRects().length)refresh(false);schedule();},300000);}
       function refresh(force=false,reset=true){const range=bounds();if(!range.months.includes(monthValue)){monthValue=range.months[0];selectedDate=null;autoDate=true;buildDays();}favorites={...selection(storage),migrationError:favorites.migrationError};const next=query(),key=JSON.stringify(next);if(doc.hidden)return Promise.resolve();if(!force&&key===lastQuery&&Date.now()-lastRefresh<60000)return Promise.resolve();if(reset){polls=0;w.clearTimeout(retryTimer);}lastQuery=key;lastRefresh=Date.now();return loader.load(next);}
-      w.KNDividendCalendar={refresh:()=>refresh(true),__ready:true};w.loadDividendCalendar=w.KNDividendCalendar.refresh;buildDays();render();refresh();schedule();
+      if(w.KNCalendarPrices){priceController=w.KNCalendarPrices.create({fetch:w.fetch.bind(w),storage,now:Date.now,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),AbortController:w.AbortController},updatePrice);priceController.pause();}
+      w.KNDividendCalendar={refresh:()=>{syncPrices();return refresh(true);},__ready:true};w.loadDividendCalendar=w.KNDividendCalendar.refresh;buildDays();render();refresh();schedule();
+      if(typeof w.IntersectionObserver==='function'){const observer=new w.IntersectionObserver(entries=>{priceInView=entries.some(entry=>entry.isIntersecting);syncPrices();},{rootMargin:'100px'});observer.observe(mount);}
+      doc.addEventListener('knStockViewChanged',syncPrices);
       migrate(storage,w.__knPersistLocalSetting,w.__knGateReady).then(result=>{favorites=result;if(!scopeChosen&&favorites.symbols.length)scope='favorites';if(result.error||result.migrationError)render();if(w.dispatchEvent&&w.Event)w.dispatchEvent(new w.Event('kn:watchlist-change'));else refresh(true);}).catch(()=>{});
-      if(w.addEventListener){w.addEventListener('kn:watchlist-change',()=>{const before=lastQuery;favorites=selection(storage);if(JSON.stringify(query())!==before)refresh(true);});w.addEventListener('storage',event=>{if([FAVORITES,LEGACY,MIGRATED,null].includes(event.key))refresh(true);});w.addEventListener('online',()=>refresh(true));}
-      doc.addEventListener('visibilitychange',()=>{w.clearTimeout(retryTimer);w.clearTimeout(refreshTimer);if(doc.hidden)loader.cancel();else{if(mount.getClientRects().length)refresh(true);schedule();}});
+      if(w.addEventListener){w.addEventListener('kn:watchlist-change',()=>{const before=lastQuery;favorites=selection(storage);if(JSON.stringify(query())!==before)refresh(true);});w.addEventListener('storage',event=>{if([FAVORITES,LEGACY,MIGRATED,null].includes(event.key))refresh(true);});w.addEventListener('online',()=>{syncPrices();if(priceController&&!doc.hidden&&priceInView)priceController.refresh(true);refresh(true);});}
+      doc.addEventListener('visibilitychange',()=>{w.clearTimeout(retryTimer);w.clearTimeout(refreshTimer);syncPrices();if(doc.hidden)loader.cancel();else{if(mount.getClientRects().length)refresh(true);schedule();}});
     }
     if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);else init();
   }

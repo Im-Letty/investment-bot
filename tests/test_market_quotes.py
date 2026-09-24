@@ -6,9 +6,13 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
 import math
 from pathlib import Path
+import re
 from types import SimpleNamespace
 import unittest
 from unittest.mock import Mock
+from urllib.parse import quote as url_quote
+
+import requests
 
 from flask import Flask, jsonify, request
 from market_snapshot import CORE_MARKETS, MarketSnapshot
@@ -52,14 +56,16 @@ class MarketQuoteTests(unittest.TestCase):
         names = {'_rtp', '_market_change_values', '_market_quote_units',
                  '_fetch_market_quote', '_load_market_snapshot', 'initial_market_payload',
                  'fetch_market_data', 'api_morning_data', 'api_quote',
-                 '_cached_api_quote', '_load_api_quote'}
+                 '_cached_api_quote', '_load_api_quote', '_quote_source_metadata', '_load_timed_jpy_quote'}
         nodes = [node for node in tree.body
                  if isinstance(node, ast.FunctionDef) and node.name in names]
         self.app = Flask('market-test')
         self.tickers = {}
         self.ticker_factory = Mock(side_effect=lambda symbol: self.tickers[symbol])
+        self.chart_get = Mock(return_value=SimpleNamespace(status_code=503))
         self.context = dict(app=self.app, jsonify=jsonify, request=request,
-                            date=date, datetime=datetime, math=math,
+                            date=date, datetime=datetime, math=math, re=re, url_quote=url_quote,
+                            requests=SimpleNamespace(get=self.chart_get, RequestException=requests.RequestException),
                             time=SimpleNamespace(time=lambda: 1000.0),
                             yf=SimpleNamespace(Ticker=self.ticker_factory),
                             _MKT_CACHE={'ts': 0, 'data': None},
@@ -82,6 +88,15 @@ class MarketQuoteTests(unittest.TestCase):
         self.tickers[symbol] = FakeTicker(closes, current, info)
         suffix = '&light=1' if light else ''
         return self.client.get('/api/quote?symbol=' + symbol + suffix)
+
+    def set_chart(self, **changes):
+        meta = dict(symbol='5803.T', currency='JPY', range='1d', regularMarketPrice=101.234567,
+                    regularMarketTime=800, previousClose=100, chartPreviousClose=99)
+        meta.update(changes)
+        response = SimpleNamespace(status_code=200, content=b'{"chart":{}}',
+                                   json=lambda:{'chart':{'result':[{'meta':meta}],'error':None}})
+        self.chart_get.return_value = response
+        return response
 
     def test_morning_exposes_unrounded_absolute_change_and_units(self):
         values = {
@@ -329,6 +344,143 @@ class MarketQuoteTests(unittest.TestCase):
         lock.acquire.assert_called_once_with(timeout=10)
         lock.release.assert_not_called()
         self.ticker_factory.assert_not_called()
+
+    def test_domestic_chart_keeps_price_and_actual_timestamp_together(self):
+        self.set_chart()
+        response=self.client.get('/api/quote?symbol=5803.T&light=1')
+        self.assertEqual(response.status_code,200)
+        data=response.get_json()
+        self.assertEqual(data['price'],101.2346)
+        self.assertEqual(data['price_updated_at'],800)
+        self.assertEqual(data['fetched_at'],1000)
+        self.assertAlmostEqual(data['change_value'],1.234567)
+        self.assertEqual(data['pct'],1.23)
+        self.assertEqual(data['source'],'Yahoo Finance')
+        self.assertEqual(data['source_url'],'https://finance.yahoo.com/quote/5803.T/')
+        self.assertEqual(data['delay_minutes'],20)
+        self.assertEqual(data['currency'],'JPY')
+        self.assertIsNone(data['details'])
+        self.ticker_factory.assert_not_called()
+        self.chart_get.assert_called_once_with(
+            'https://query1.finance.yahoo.com/v8/finance/chart/5803.T',
+            params={'range':'1d','interval':'1d'}, headers={'User-Agent':'Mozilla/5.0'},
+            timeout=(3,5),allow_redirects=False)
+
+    def test_market_timestamp_does_not_advance_on_cache_hit_or_unchanged_refetch(self):
+        self.set_chart()
+        first=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.context['time'].time=lambda:1030
+        cached=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertEqual(cached,first)
+        self.assertEqual(self.chart_get.call_count,1)
+        self.context['time'].time=lambda:1061
+        checked=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertEqual((checked['price_updated_at'],checked['fetched_at']),(800,1061))
+        self.assertEqual(checked['price'],first['price'])
+        self.assertEqual(self.chart_get.call_count,2)
+        self.context['time'].time=lambda:1122
+        self.set_chart(regularMarketPrice=102,regularMarketTime=900)
+        updated=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertEqual((updated['price'],updated['price_updated_at'],updated['fetched_at']),(102,900,1122))
+        self.ticker_factory.assert_not_called()
+
+    def test_bad_chart_timestamp_symbol_currency_or_range_cannot_label_fallback_price(self):
+        invalid=[{'regularMarketTime':stamp} for stamp in (None,True,0,-1,float('nan'),float('inf'),1001,800.5,'800')]
+        invalid += [{'symbol':'7203.T'},{'currency':'USD'},{'range':'5d'},
+                    {'regularMarketPrice':True},{'regularMarketPrice':float('nan')},
+                    {'regularMarketPrice':float('inf')},{'regularMarketPrice':-1}]
+        for changes in invalid:
+            with self.subTest(changes=changes):
+                self.context['_QUOTE_CACHE'].clear()
+                self.set_chart(**changes)
+                result=self.quote('5803.T',[95,98],99).get_json()
+                self.assertEqual(result['price'],99)
+                self.assertIsNone(result['price_updated_at'])
+                self.assertEqual(result['fetched_at'],1000)
+                self.assertEqual(result['delay_minutes'],20)
+
+    def test_same_response_previous_close_or_null_never_five_day_history(self):
+        self.set_chart(previousClose=None,chartPreviousClose=50)
+        result=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertEqual(result['price_updated_at'],800)
+        self.assertIsNone(result['pct'])
+        self.assertIsNone(result['change_value'])
+        self.ticker_factory.assert_not_called()
+        # If the current response only supplies chartPreviousClose, range=1d
+        # provides the matching prior close, without another history request.
+        self.context['_QUOTE_CACHE'].clear()
+        response=self.set_chart(chartPreviousClose=100)
+        raw=response.json();raw['chart']['result'][0]['meta'].pop('previousClose')
+        response.json=lambda:raw
+        result=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertAlmostEqual(result['change_value'],1.234567)
+        self.ticker_factory.assert_not_called()
+
+    def test_full_price_without_timestamp_does_not_hide_fresh_timed_light_quote(self):
+        first=self.quote('5803.T',[95,98],99,light=False,info={'shortName':'フジクラ','currency':'JPY'}).get_json()
+        self.assertIsNone(first['price_updated_at'])
+        calls=self.ticker_factory.call_count
+        self.set_chart(regularMarketPrice=101)
+        light=self.client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        self.assertEqual((light['price'],light['price_updated_at']),(101,800))
+        self.assertEqual(self.ticker_factory.call_count,calls)
+        self.assertEqual(self.chart_get.call_count,1)
+
+    def test_chart_failure_has_bounded_fallback_without_inventing_quote_time(self):
+        for failure in ('timeout','invalid_json','oversize','provider_error'):
+            with self.subTest(failure=failure):
+                self.context['_QUOTE_CACHE'].clear()
+                response=self.set_chart()
+                if failure=='timeout':self.chart_get.side_effect=requests.Timeout('provider timeout')
+                elif failure=='invalid_json':response.json=Mock(side_effect=ValueError('invalid JSON'))
+                elif failure=='oversize':response.content=b'x'*1_000_001
+                else:response.json=lambda:{'chart':{'error':{'code':'Not Found'},'result':None}}
+                try:
+                    data=self.quote('5803.T',[98,99],100).get_json()
+                    self.assertEqual(data['price'],100)
+                    self.assertIsNone(data['price_updated_at'])
+                    self.assertEqual(data['fetched_at'],1000)
+                finally:self.chart_get.side_effect=None
+
+    def test_domestic_chart_is_singleflight_under_concurrent_requests(self):
+        entered,release,contender=threading.Event(),threading.Event(),threading.Event()
+        real_lock=threading.Lock()
+        class TrackingLock:
+            def acquire(self,timeout):
+                if real_lock.locked():contender.set()
+                return real_lock.acquire(timeout=timeout)
+            def release(self):real_lock.release()
+        self.context['_QUOTE_LOCKS']=(TrackingLock(),)
+        response=self.set_chart()
+        def chart(*args,**kwargs):
+            entered.set()
+            if not release.wait(2):raise requests.Timeout()
+            return response
+        self.chart_get.side_effect=chart
+        def fetch():
+            with self.app.test_client() as client:
+                return client.get('/api/quote?symbol=5803.T&light=1').get_json()
+        with ThreadPoolExecutor(max_workers=2) as workers:
+            first=workers.submit(fetch)
+            try:
+                self.assertTrue(entered.wait(1))
+                second=workers.submit(fetch)
+                self.assertTrue(contender.wait(1))
+                self.assertEqual(self.chart_get.call_count,1)
+            finally:release.set()
+            one,two=first.result(timeout=2),second.result(timeout=2)
+        self.assertEqual(one,two)
+        self.assertEqual(one['price_updated_at'],800)
+        self.assertEqual(self.chart_get.call_count,1)
+        self.ticker_factory.assert_not_called()
+
+    def test_non_domestic_quotes_do_not_call_japanese_chart_or_receive_japan_delay(self):
+        self.set_chart()
+        data=self.quote('EURUSD=X',[1.1,1.11],1.12).get_json()
+        self.chart_get.assert_not_called()
+        self.assertIsNone(data['price_updated_at'])
+        self.assertNotIn('delay_minutes',data)
+        self.assertEqual(data['source_url'],'https://finance.yahoo.com/quote/EURUSD%3DX/')
 
 
 if __name__ == '__main__':

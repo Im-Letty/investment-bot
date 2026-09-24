@@ -86,10 +86,10 @@ class Element{
   addEventListener(type,fn){(this.listeners[type]??=[]).push(fn);}dispatch(type,event={}){for(const fn of this.listeners[type]||[])fn({target:this,...event});}
   find(cls){return this.all().find(node=>node.className.split(' ').includes(cls));}all(){return [this,...this.children.flatMap(child=>child.all())];}focus(){this.doc.activeElement=this;}getClientRects(){return this.hidden?[]:[{}];}
 }
-function uiHarness({saved=storage(),gate=Promise.resolve()}={}){
+function uiHarness({saved=storage(),gate=Promise.resolve(),prices=null}={}){
   const time=clock(),events={},requests=[],doc={readyState:'complete',hidden:false,createElement(tag){return new Element(tag,this);},getElementById(id){return id==='knDividendCalendar'?this.mount:null;},addEventListener(type,fn){(events[type]??=[]).push(fn);}};doc.mount=doc.createElement('div');const winEvents={};
   const w={...time,document:doc,localStorage:saved,AbortController,__knGateReady:gate,addEventListener(type,fn){(winEvents[type]??=[]).push(fn);},Event:class{constructor(type){this.type=type;}},dispatchEvent(event){for(const fn of winEvents[event.type]||[])fn(event);},fetch(url,options){return new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}));},openStockWatchManager(){this.managed=true;}};
-  calendar.start(w);return {w,doc,mount:doc.mount,time,events,winEvents,requests,saved,async reply(index,raw){requests[index].resolve({ok:true,status:200,json:async()=>raw});await flush();}};
+  if(prices)w.KNCalendarPrices=prices;calendar.start(w);return {w,doc,mount:doc.mount,time,events,winEvents,requests,saved,async reply(index,raw){requests[index].resolve({ok:true,status:200,json:async()=>raw});await flush();}};
 }
 test('calendar UI renders 42 cells, limits navigation and preserves unchanged list/disclosure nodes',async()=>{
   const h=uiHarness();await flush();const realMonth=calendar.today().slice(0,7),range=calendar.bounds(),date=calendar.today(),raw=fixture({events:[event({date,verified_on:calendar.today()})],range,updated_at:Date.now()/1000});await h.reply(0,raw);
@@ -138,7 +138,7 @@ test('A displays actual deadlines, 100-share forecasts and safe broker disclosur
   const raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'9432.T',date,verified_on:date,record_date:record,holding_deadline:date,ex_dividend_date:plus(1),dividend})]});
   await h.reply(0,raw);
   const row=h.mount.find('dc-events').children[0],story=row.find('dc-holding-story');assert.ok(story);assert.equal(story.parentNode,row);
-  assert.equal(story.find('dc-dividend-value').textContent,'100株保有した場合270円');assert.match(story.textContent,/税引前・会社予想/);
+  assert.equal(story.find('dc-dividend-values').textContent,'1株保有した場合2.7円100株保有した場合270円');assert.match(story.textContent,/税引前・会社予想/);
   assert.equal(story.find('dc-holding-range').children.length,3);
   assert.equal(story.find('dc-range-start').find('dc-range-value').textContent,story.find('dc-range-end').find('dc-range-value').textContent);
   assert.match(story.find('dc-after-deadline').textContent,/今回の配当の権利は残ります/);
@@ -153,4 +153,21 @@ test('unknown amounts stay unknown while Fujikura has a specifically verified br
   const raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'5803.T',name:'フジクラ',date,verified_on:date,holding_deadline:date,ex_dividend_date:ex})]});
   await h.reply(0,raw);const story=h.mount.find('dc-holding-story');assert.ok(story.find('dc-dividend-unknown'));assert.equal(story.find('dc-dividend-value'),undefined);assert.equal(story.find('dc-record-note'),undefined);
   assert.equal(story.find('dc-brokers').children[0].textContent,'1株から買える証券会社');assert.match(story.find('dc-broker-stock').textContent,/フジクラ（5803）の取扱例/);
+});
+
+
+test('share and lot prices update in place without closing the broker disclosure or replacing dates',async()=>{
+  let notify,instance;const states=new Map(),prices={create(env,onUpdate){notify=onUpdate;return instance={selected:[],paused:true,setSymbols(list){this.selected=list;},peek(key){return states.get(key)||{quote:null,pending:false,error:null};},pause(){this.paused=true;},resume(){this.paused=false;},refresh(){}};}};
+  const h=uiHarness({prices});await flush();const date=calendar.today(),ex=new Date(Date.parse(date+'T00:00:00Z')+86400000).toISOString().slice(0,10);
+  await h.reply(0,fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'5803.T',name:'フジクラ',date,verified_on:date,holding_deadline:date,ex_dividend_date:ex})]}));
+  assert.deepEqual(instance.selected,['5803.T']);assert.equal(instance.paused,false);
+  const row=h.mount.find('dc-events').children[0],panel=row.find('dc-price-panel'),range=row.find('dc-holding-range'),brokers=row.find('dc-brokers');brokers.open=true;
+  const value={quote:{symbol:'5803.T',price:4952.1,currency:'JPY',fetched_at:Date.now()/1000,price_updated_at:Date.now()/1000-1200,delay_minutes:20},pending:false,error:null};states.set('5803.T',value);notify('5803.T',value);
+  const cells=panel.find('dc-price-values').children;
+  assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');assert.equal(cells[1].find('dc-price-value').textContent,'495,210');
+  assert.match(panel.find('dc-price-time').textContent,/JST 時点/);assert.match(panel.find('dc-price-note').textContent,/20分遅れ/);
+  notify('5803.T',{...value,quote:{...value.quote,price:4952.2}});assert.equal(cells[1].find('dc-price-value').textContent,'495,220');
+  assert.equal(h.mount.find('dc-events').children[0],row);assert.equal(row.find('dc-holding-range'),range);assert.equal(brokers.open,true);
+  notify('5803.T',{...value,error:'network'});assert.match(panel.find('dc-price-status').textContent,/前回の価格/);assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');
+  h.doc.hidden=true;for(const fn of h.events.visibilitychange)fn();assert.equal(instance.paused,true);
 });
