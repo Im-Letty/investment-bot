@@ -77,7 +77,7 @@
         button.disabled=true;
         try{
           const result=await store.add(item);
-          if(result.status==='added'){feedback(item.name+'を追加しました。');button.textContent='追加済み';renderSaved();notify();}
+          if(result.status==='added'){feedback('');button.textContent='追加済み';renderSaved();notify();}
           else if(result.status==='duplicate'){feedback('登録済みの銘柄です。');button.textContent='追加済み';}
           else{feedback(result.status==='limit'?'お気に入りは20件まで登録できます。':'検索結果から銘柄を選んでください。',true);button.disabled=false;}
         }catch(e){feedback('保存できませんでした。ブラウザの保存設定を確認して、もう一度お試しください。',true);button.disabled=false;}

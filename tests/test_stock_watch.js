@@ -79,7 +79,7 @@ test('UI searches on submit, adds selected company, removes it, returns to favor
  input.listeners.compositionstart();input.listeners.input();nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();assert.equal(requests.length,0);
  input.listeners.compositionend();nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();assert.equal(requests.length,1);
  const button=nodes.get('stock-search-results').children[0].children[0].children[1];await button.listeners.click();await flush();
- assert.equal(button.textContent,'追加済み');assert.equal(nodes.get('stock-watch-count').textContent,'1 / 20');assert.match(nodes.get('alert-msg').textContent,/追加しました/);assert.equal(requests.length,1);
+ assert.equal(button.textContent,'追加済み');assert.equal(nodes.get('stock-watch-count').textContent,'1 / 20');assert.equal(nodes.get('alert-msg').textContent,'');assert.equal(requests.length,1);
  const remove=nodes.get('alert-watchlist').children[0].children[0].children[1];await remove.listeners.click();assert.equal(nodes.get('stock-watch-count').textContent,'0 / 20');
  w.document.activeElement.isConnected=false;w.closeStockWatchManager();assert.equal(nodes.get('morning-section').focused,true);assert.equal(nodes.get('alert-section').style.display,'none');assert.equal(tab,'watch');assert.ok(refreshes>=3);assert.equal(classes.has('view-asaletter'),true);assert.equal(nodes.get('morning-section').scrollTop,450);
 });
