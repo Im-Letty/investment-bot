@@ -319,6 +319,58 @@ class RuntimeTests(unittest.TestCase):
         self.generator.assert_not_called()
         self.assertEqual(self.storage.created, [])
 
+    def test_pid_change_resets_inherited_held_locks_and_dead_thread_before_start(self):
+        runtime = self.runtime()
+        old_state, old_work, old_stop = runtime._state_lock, runtime._work_lock, runtime._stop
+        old_state.acquire()
+        old_work.acquire()
+        old_stop.set()
+        runtime._thread = Mock()
+        runtime._private = runtime._restored = True
+        self.storage.after_fork = Mock()
+        started = Event()
+        fake_thread = Mock()
+        fake_thread.is_alive.return_value = True
+        fake_thread.start.side_effect = started.set
+        try:
+            with patch("daily_news_runtime.os.getpid", return_value=runtime._pid + 1), \
+                    patch("daily_news_runtime.Thread", return_value=fake_thread) as constructor:
+                # Calling from a separate thread gives a bounded failure if a
+                # regression acquires either permanently held parent lock.
+                caller = Thread(target=runtime.start, daemon=True)
+                caller.start()
+                caller.join(1)
+                self.assertFalse(caller.is_alive(), "start blocked on a parent-process lock")
+                self.assertTrue(started.is_set())
+                self.assertIsNot(runtime._state_lock, old_state)
+                self.assertIsNot(runtime._work_lock, old_work)
+                self.assertIsNot(runtime._stop, old_stop)
+                self.assertFalse(runtime._stop.is_set())
+                self.assertFalse(runtime._private)
+                self.assertFalse(runtime._restored)
+                self.assertEqual(runtime.snapshot()["status"], "starting")
+                runtime.start()
+                self.assertEqual(constructor.call_count, 1)
+                self.assertEqual(fake_thread.start.call_count, 1)
+                self.storage.after_fork.assert_called_once()
+        finally:
+            old_state.release()
+            old_work.release()
+
+    def test_repeated_start_keeps_one_live_periodic_thread(self):
+        runtime = self.runtime(enabled=False)
+        runtime.start()
+        first = runtime._thread
+        try:
+            for _ in range(5):
+                runtime.start()
+                self.assertIs(runtime._thread, first)
+            self.assertTrue(first.is_alive())
+        finally:
+            runtime.stop()
+            first.join(2)
+        self.assertFalse(first.is_alive())
+
 
 class Response:
     def __init__(self, status, value):
@@ -396,6 +448,25 @@ class StorageTests(unittest.TestCase):
                             cache_path=Path(directory) / "absent-cache.json")
             runtime.stop()
             session.assert_not_called()
+
+    def test_factory_deferred_start_creates_no_master_thread_or_http_request(self):
+        with TemporaryDirectory() as directory, patch("daily_news_runtime.Thread") as thread:
+            storage = Mock()
+            runtime = start(storage=storage, generator=Mock(), enabled=True, autostart=False,
+                            baseline_path=Path(directory) / "absent.json",
+                            cache_path=Path(directory) / "absent-cache.json")
+            self.assertIsNone(runtime._thread)
+            self.assertEqual(runtime.snapshot()["status"], "starting")
+            storage.ensure_private.assert_not_called()
+            thread.assert_not_called()
+
+    def test_storage_transport_recreated_after_fork_without_touching_old_pool(self):
+        storage, inherited_session = self.adapter([])
+        with patch("daily_news_runtime.requests.Session") as factory:
+            storage.after_fork()
+        self.assertIs(storage._session, factory.return_value)
+        inherited_session.close.assert_not_called()
+        inherited_session.request.assert_not_called()
 
     def test_response_size_and_slow_stream_fail_closed_and_close_connection(self):
         oversized = Response(200, {})

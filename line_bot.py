@@ -70,11 +70,18 @@ from daily_news_producer import configuration as news_configuration, generate_ed
 from daily_news_runtime import start as start_daily_news
 _news_config = news_configuration()
 _daily_news = start_daily_news(
-    supabase, generate_edition,
+    supabase, generate_edition, autostart=False,
     enabled=_news_config["enabled"] and _news_config["configured"],
     baseline_path=os.path.join(os.path.dirname(__file__), "news-digests.json"),
     cache_path=os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"),
     url=SUPABASE_URL, key=SUPABASE_KEY)
+
+
+@app.before_request
+def ensure_daily_news_worker():
+    # Start in the serving process, not in a preloaded Gunicorn master. The
+    # external morning wake/check also enters here when no visitor is present.
+    _daily_news.start()
 
 
 from passkey_auth import create_passkey_blueprint

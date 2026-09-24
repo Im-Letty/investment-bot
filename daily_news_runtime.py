@@ -9,6 +9,7 @@ from datetime import date, datetime
 import base64
 import json
 import math
+import os
 from pathlib import Path
 import re
 from threading import Event, Lock, Thread
@@ -76,6 +77,11 @@ class SupabaseNewsStorage:
                          "Cache-Control": "no-cache"}
         self._session = session or requests.Session()
         self._timeout = timeout
+
+    def after_fork(self):
+        # Never acquire/close connection pools inherited from another process.
+        # Rebuild the transport; configuration and server headers are unchanged.
+        self._session = requests.Session()
 
     def _request(self, method, path, **kwargs):
         headers = {**self._headers, **kwargs.pop("headers", {})}
@@ -220,6 +226,7 @@ class DailyNewsRuntime:
         self.enabled = bool(enabled and callable(generator))
         self.baseline_path, self.cache_path = Path(baseline_path), Path(cache_path)
         self.clock, self.interval = clock, max(1, interval)
+        self._pid = os.getpid()
         self._state_lock, self._work_lock = Lock(), Lock()
         self._stop = Event()
         self._thread = None
@@ -233,6 +240,27 @@ class DailyNewsRuntime:
                        "attempt_count": 0, "edition_date": latest.get("edition_date"),
                        "publish_at": latest.get("publish_at", latest.get("reviewed_at")),
                        "last_error": None}
+        # Gunicorn preload forks after imports. Reset while the child is still
+        # single-threaded, with a PID guard as a fallback for alternate launchers.
+        if hasattr(os, "register_at_fork"):
+            os.register_at_fork(after_in_child=self._after_fork)
+
+    def _after_fork(self):
+        self._state_lock, self._work_lock = Lock(), Lock()
+        self._stop = Event()
+        self._thread = None
+        self._private = self._restored = False
+        self._state = {**self._state, "status": "starting", "attempt_count": 0, "last_error": None}
+        reset = getattr(self.storage, "after_fork", None)
+        if callable(reset):
+            reset()
+        self._pid = os.getpid()
+
+    def _ensure_process(self):
+        # This must precede *any* inherited lock acquisition: its owner thread
+        # does not exist in the child, even when Thread.is_alive() says otherwise.
+        if self._pid != os.getpid():
+            self._after_fork()
 
     @staticmethod
     def _merge(values):
@@ -255,21 +283,26 @@ class DailyNewsRuntime:
             self._state.update(status=status, **metadata)
 
     def snapshot(self):
+        self._ensure_process()
         with self._state_lock:
             return dict(self._state)
 
     def reviewed_digests(self):
+        self._ensure_process()
         with self._state_lock:
             return deepcopy(self._issues)
 
     def start(self):
+        self._ensure_process()
         with self._state_lock:
-            if self._thread is None:
+            if self._thread is None or not self._thread.is_alive():
+                self._stop.clear()
                 self._thread = Thread(target=self._loop, name="website-daily-news", daemon=True)
                 self._thread.start()
         return self
 
     def stop(self):
+        self._ensure_process()
         self._stop.set()
 
     def _loop(self):
@@ -278,6 +311,7 @@ class DailyNewsRuntime:
             self._stop.wait(self.interval)
 
     def kick(self):
+        self._ensure_process()
         # Requests never wait for a storage lookup or start overlapping work.
         if not self._stop.is_set() and self._work_lock.acquire(blocking=False):
             try:
@@ -289,6 +323,7 @@ class DailyNewsRuntime:
 
     def run_once(self):
         """Synchronous tick for startup checks/tests, never called by web routes."""
+        self._ensure_process()
         if self._stop.is_set() or not self._work_lock.acquire(blocking=False):
             return self.snapshot()
         self._run_locked()
@@ -454,12 +489,15 @@ class DailyNewsRuntime:
         self._ready(issue, self.clock())
 
 
-def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, storage=None, **kwargs):
+def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, storage=None,
+          autostart=True, **kwargs):
     """Start without blocking Flask. Explicit ``enabled`` gates paid generation.
 
     Pass ``url`` and the server service key, or a Supabase client exposing
     ``supabase_url``/``supabase_key``. Without storage, previous copy is retained.
     The injected storage protocol is ensure_private/read/create/recent_days/reviewed_keys.
+    With Gunicorn preload, use autostart=False and call runtime.start() in each
+    web worker (for example before_request); no master process thread is needed.
     """
     if storage is None:
         url = url or getattr(supabase, "supabase_url", None)
@@ -468,4 +506,5 @@ def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, s
             storage = SupabaseNewsStorage(url, key)
         except (StorageUnavailable, ValueError):
             storage = None
-    return DailyNewsRuntime(storage, generator, enabled=enabled, **kwargs).start()
+    runtime = DailyNewsRuntime(storage, generator, enabled=enabled, **kwargs)
+    return runtime.start() if autostart else runtime
