@@ -118,7 +118,7 @@
       append(legend,el('summary','','いつ買って、いつまで持つ？'),terms,el('p','dc-help-note','一般的な日本株の現物取引（お金を払って株を買う方法）の説明です。配当の有無・金額は会社の発表によります。株主優待の保有期間の条件とは異なります。'),helpSource,refs.universe);
       const layout=el('div','dc-layout'),calendarPanel=el('section','dc-calendar-panel'),agendaPanel=el('section','dc-agenda-panel');calendarPanel.setAttribute('aria-labelledby','dc-month-title');agendaPanel.setAttribute('aria-labelledby','dc-agenda-title');append(calendarPanel,weekdays,refs.grid,statusRow);append(agendaPanel,listHead,refs.list,refs.empty,refs.more,refs.plans);append(layout,calendarPanel,agendaPanel);append(mount,filters,navigation,layout,refs.coverage,refs.migration,legend);
       function query(){return {month:monthValue,scope,symbols:favorites.symbols};}
-      const loader=createLoader({fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage},state=>{current=state;render();w.clearTimeout(retryTimer);if(state.data&&state.data.refreshing&&state.status!=='error'&&polls<4&&!doc.hidden&&mount.getClientRects().length){retryTimer=w.setTimeout(()=>{polls++;refresh(true,false);},15000);}});
+      const loader=createLoader({fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage},state=>{if(!state.data&&current&&current.data&&state.query.scope==='all'&&current.query.scope==='all'&&state.query.month===current.query.month)state={...state,data:current.data,status:state.status==='loading'?'refreshing':state.status};current=state;render();w.clearTimeout(retryTimer);if(state.data&&state.data.refreshing&&state.status!=='error'&&polls<4&&!doc.hidden&&mount.getClientRects().length){retryTimer=w.setTimeout(()=>{polls++;refresh(true,false);},15000);}});
       function prettyMonth(value){return value.slice(0,4)+'年'+Number(value.slice(5))+'月';}
       function dateLabel(value){return Number(value.slice(5,7))+'月'+Number(value.slice(8))+'日';}
       function buildDays(){refs.grid.replaceChildren();dateButtons.clear();calendarDays(monthValue,[],today()).forEach(item=>{if(!item){const blank=el('span','dc-blank');blank.setAttribute('aria-hidden','true');refs.grid.appendChild(blank);return;}const cell=button(String(item.day),'dc-day',()=>selectDay(item.date));cell.dataset.date=item.date;const count=el('small','dc-day-count');count.setAttribute('aria-hidden','true');cell.appendChild(count);cell.addEventListener('keydown',event=>{const jump={ArrowRight:1,ArrowLeft:-1,ArrowDown:7,ArrowUp:-7}[event.key];if(!jump)return;const destination=new Date(Date.parse(item.date+'T00:00:00Z')+jump*86400000).toISOString().slice(0,10),target=dateButtons.get(destination);if(target){event.preventDefault();target.button.focus();}});dateButtons.set(item.date,{button:cell,count});refs.grid.appendChild(cell);});}
@@ -160,7 +160,7 @@
         const active=!doc.hidden&&priceInView&&mount.getClientRects().length>0;
         if(!active)priceController.pause();
         priceNodes.clear();
-        for(const row of [...refs.list.children,...refs.planList.children]){if(!row.__priceRefs)continue;const key=row.__priceSymbol;if(!priceNodes.has(key))priceNodes.set(key,[]);priceNodes.get(key).push(row.__priceRefs);}
+        for(const row of [...refs.list.children,...refs.planList.children]){if(!row.__priceRefs||!row.__disclosure.open)continue;const key=row.__priceSymbol;if(!priceNodes.has(key))priceNodes.set(key,[]);priceNodes.get(key).push(row.__priceRefs);}
         priceController.setSymbols([...priceNodes.keys()]);
         priceNodes.forEach((_,key)=>updatePrice(key,priceController.peek(key)));
         if(active)priceController.resume();
@@ -200,21 +200,34 @@
       }
       function eventRow(event){
         const row=el('li','dc-event');row.dataset.event=event.id;
-        const date=el('div','dc-event-date',event.precision==='day'?shortDate(event.date):Number(event.period.slice(5))+'月');
-        const body=el('div','dc-event-body'),name=el('button','cp-company-link dc-company',event.name);name.type='button';name.dataset.companyProfile=event.symbol;name.dataset.companyName=event.name;name.setAttribute('aria-label',event.name+'の会社情報を開く');
-        const tag=el('p','dc-event-kind',KINDS[event.kind]+(event.status==='planned'?'（予定）':''));tag.dataset.kind=event.kind;
+        const disclosure=el('details','dc-disclosure'),summary=el('summary','dc-event-summary');row.__disclosure=disclosure;
+        const date=el('span','dc-event-date',event.precision==='day'?shortDate(event.date):Number(event.period.slice(5))+'月');
+        const body=el('span','dc-event-body'),name=el('span','dc-company',event.name),badge=el('span','dc-favorite','★');badge.setAttribute('aria-label','お気に入り');row.__favorite=badge;
+        append(body,name,el('span','dc-company-code',event.code));
+        const tag=el('span','dc-event-kind',KINDS[event.kind]+(event.status==='planned'?'（予定）':''));tag.dataset.kind=event.kind;body.appendChild(tag);
+        append(summary,date,body,badge);
+        const story=holdingStory(event),profile=button('会社情報を見る','cp-company-link dc-profile',()=>{});profile.dataset.companyProfile=event.symbol;profile.dataset.companyName=event.name;profile.setAttribute('aria-label',event.name+'の会社情報を開く');
         const evidence=el('details','dc-evidence');append(evidence,el('summary','','出典・確認日'),sourceLink(event.source.title,event.source.url),el('span','','日程の確認 '+event.verified_on.replace(/-/g,'/')));
         if(event.dividend)append(evidence,sourceLink(event.dividend.source.title,event.dividend.source.url),el('span','','配当予想の発表 '+event.dividend.announced_on.replace(/-/g,'/')+' ／ 確認 '+event.dividend.verified_on.replace(/-/g,'/')));
-        append(body,name,el('span','dc-company-code',event.code));
-        if(!event.holding_window||event.kind==='ex_dividend')body.appendChild(tag);
-        append(row,date,body);
-        const story=holdingStory(event);story.appendChild(evidence);row.__priceRefs=story.__priceRefs;row.__priceSymbol=event.symbol;row.appendChild(story);
+        append(story,profile,evidence);row.__priceRefs=story.__priceRefs;row.__priceSymbol=event.symbol;
+        append(disclosure,summary,story);row.appendChild(disclosure);disclosure.addEventListener('toggle',syncPrices);
         return row;
       }
-      function drawList(node,events){const signature=JSON.stringify(events);if(node.__signature===signature)return;node.__signature=signature;const old=new Map(Array.from(node.children).map(row=>[row.dataset.event,row]));const rows=events.map(event=>{const prior=old.get(event.id);if(prior&&prior.__event===JSON.stringify(event))return prior;const row=eventRow(event);row.__event=JSON.stringify(event);return row;});node.replaceChildren(...rows);}
-      function renderLists(){const data=current&&current.data,events=visibleEvents(data,selectedDate,today());refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
+      function prioritize(events){
+        const saved=new Set(favorites.symbols);
+        return events.slice().sort((a,b)=>(a.date||a.period).localeCompare(b.date||b.period)||Number(saved.has(b.symbol))-Number(saved.has(a.symbol)));
+      }
+      function drawList(node,events){
+        const signature=JSON.stringify([events,favorites.symbols]);if(node.__signature===signature)return;node.__signature=signature;
+        const old=new Map(Array.from(node.children).map(row=>[row.dataset.event,row])),saved=new Set(favorites.symbols);
+        const rows=events.map(event=>{const prior=old.get(event.id);let row=prior;
+          if(!prior||prior.__event!==JSON.stringify(event)){row=eventRow(event);row.__event=JSON.stringify(event);if(prior)row.__disclosure.open=prior.__disclosure.open;}
+          row.__favorite.hidden=!saved.has(event.symbol);return row;
+        });node.replaceChildren(...rows);
+      }
+      function renderLists(){const data=current&&current.data,events=prioritize(visibleEvents(data,selectedDate,today()));refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
         refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
-        const plans=data?data.events.filter(event=>event.precision==='month'):[];refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
+        const plans=prioritize(data?data.events.filter(event=>event.precision==='month'):[]);refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
       }
       function render(){refs.all.setAttribute('aria-pressed',String(scope==='all'));refs.favorites.setAttribute('aria-pressed',String(scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[2];const state=current,data=state&&state.data;
         if(autoDate&&data&&(['ready','stale'].includes(state.status)||data.events.length)){const next=visibleEvents(data,null,today())[0];selectedDate=next?next.date:monthValue===today().slice(0,7)?today():monthValue+'-01';autoDate=false;}
@@ -234,7 +247,7 @@
       if(typeof w.IntersectionObserver==='function'){const observer=new w.IntersectionObserver(entries=>{priceInView=entries.some(entry=>entry.isIntersecting);syncPrices();},{rootMargin:'100px'});observer.observe(mount);}
       doc.addEventListener('knStockViewChanged',syncPrices);
       migrate(storage,w.__knPersistLocalSetting,w.__knGateReady).then(result=>{favorites=result;if(!scopeChosen&&favorites.symbols.length)scope='favorites';if(result.error||result.migrationError)render();if(w.dispatchEvent&&w.Event)w.dispatchEvent(new w.Event('kn:watchlist-change'));else refresh(true);}).catch(()=>{});
-      if(w.addEventListener){w.addEventListener('kn:watchlist-change',()=>{const before=lastQuery;favorites=selection(storage);if(JSON.stringify(query())!==before)refresh(true);});w.addEventListener('storage',event=>{if([FAVORITES,LEGACY,MIGRATED,null].includes(event.key))refresh(true);});w.addEventListener('online',()=>{syncPrices();if(priceController&&!doc.hidden&&priceInView)priceController.refresh(true);refresh(true);});}
+      if(w.addEventListener){w.addEventListener('kn:watchlist-change',()=>{const before=lastQuery;favorites=selection(storage);renderLists();if(JSON.stringify(query())!==before)refresh(true);});w.addEventListener('storage',event=>{if([FAVORITES,LEGACY,MIGRATED,null].includes(event.key))refresh(true);});w.addEventListener('online',()=>{syncPrices();if(priceController&&!doc.hidden&&priceInView)priceController.refresh(true);refresh(true);});}
       doc.addEventListener('visibilitychange',()=>{w.clearTimeout(retryTimer);w.clearTimeout(refreshTimer);syncPrices();if(doc.hidden)loader.cancel();else{if(mount.getClientRects().length)refresh(true);schedule();}});
     }
     if(w.document.readyState==='loading')w.document.addEventListener('DOMContentLoaded',init);else init();

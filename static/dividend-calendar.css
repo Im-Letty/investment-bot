@@ -40,6 +40,23 @@
 #knDividendCalendar .dc-events[data-selected-day=true]>.dc-event {grid-template-columns:minmax(0,1fr)}
 #knDividendCalendar .dc-events[data-selected-day=true]>.dc-event>.dc-event-date {display:none}
 #knDividendCalendar .dc-event-body {min-width:0}
+#knDividendCalendar .dc-event>.dc-disclosure {grid-column:1/-1;min-width:0;width:100%}
+#knDividendCalendar .dc-event-summary {display:grid;grid-template-columns:43px minmax(0,1fr) auto 22px;align-items:center;gap:10px;min-height:56px;cursor:pointer;list-style:none;color:var(--dc-ink)}
+#knDividendCalendar .dc-event-summary::-webkit-details-marker {display:none}
+#knDividendCalendar .dc-event-summary::marker {content:""}
+#knDividendCalendar .dc-event-summary:after {content:"＋";grid-column:4;grid-row:1;text-align:center;color:var(--dc-muted);font-size:20px}
+#knDividendCalendar .dc-disclosure[open]>.dc-event-summary:after {content:"−"}
+#knDividendCalendar .dc-event-summary:focus-visible {outline:2px solid var(--dc-ink);outline-offset:4px;border-radius:4px}
+#knDividendCalendar .dc-event-summary .dc-company {display:block}
+#knDividendCalendar .dc-event-summary .dc-event-kind {display:block}
+#knDividendCalendar .dc-favorite {grid-column:3;grid-row:1;font-size:12px;color:var(--dc-muted)}
+#knDividendCalendar .dc-favorite[hidden] {display:none}
+#knDividendCalendar .dc-events[data-selected-day=true] .dc-event-summary {grid-template-columns:minmax(0,1fr) auto 22px}
+#knDividendCalendar .dc-events[data-selected-day=true] .dc-event-summary>.dc-event-date {display:none}
+#knDividendCalendar .dc-events[data-selected-day=true] .dc-event-summary:after {grid-column:3}
+#knDividendCalendar .dc-events[data-selected-day=true] .dc-favorite {grid-column:2}
+#knDividendCalendar .dc-disclosure>.dc-holding-story {margin-top:18px;padding-top:18px;border-top:1px solid var(--dc-line)}
+#knDividendCalendar .dc-profile {display:block;min-height:44px;margin-top:14px;padding:6px 0;color:var(--dc-ink);font:400 calc(12px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);text-decoration:underline;text-underline-offset:3px}
 #knDividendCalendar .dc-company {width:100%;padding:3px 0;color:var(--dc-ink);font-size:calc(14px * var(--kn-a-scale,1));font-weight:500;line-height:1.65;text-align:left;overflow-wrap:anywhere}
 #knDividendCalendar .dc-company-code {display:block;margin:0;color:var(--dc-muted);font:400 calc(10px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif);letter-spacing:.045em;font-variant-numeric:tabular-nums}
 #knDividendCalendar .dc-event-kind {margin:5px 0 0;color:var(--dc-muted);font-size:calc(11px * var(--kn-a-scale,1));line-height:1.7}

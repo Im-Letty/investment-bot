@@ -98,7 +98,7 @@ test('calendar UI renders 42 cells, limits navigation and preserves unchanged li
 });
 test('day selection, five-item pagination and month plans are separate and company buttons carry safe identifiers',async()=>{
   const h=uiHarness();await flush();const realMonth=calendar.today().slice(0,7),date=calendar.today(),raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:Array.from({length:7},(_,i)=>event({symbol:(1000+i)+'.T',date,name:i===0?'<img src=x>':'会社'+i,verified_on:date})).concat(event({symbol:'9432.T',kind:'payment',precision:'month',period:realMonth,date:null,verified_on:date}))});await h.reply(0,raw);
-  const list=h.mount.find('dc-events');assert.equal(list.children.length,5);assert.equal(h.mount.find('dc-month-plans').hidden,false);assert.equal(h.mount.find('dc-plan-heading').textContent,Number(realMonth.slice(5))+'月の支払い予定');const link=list.children[0].find('dc-company');assert.equal(link.dataset.companyProfile,'1000.T');assert.equal(link.textContent,'<img src=x>');assert.equal(link.children.length,0);
+  const list=h.mount.find('dc-events');assert.equal(list.children.length,5);assert.equal(h.mount.find('dc-month-plans').hidden,false);assert.equal(h.mount.find('dc-plan-heading').textContent,Number(realMonth.slice(5))+'月の支払い予定');const link=list.children[0].find('dc-company');assert.equal(list.children[0].find('dc-profile').dataset.companyProfile,'1000.T');assert.equal(link.textContent,'<img src=x>');assert.equal(link.children.length,0);
   h.mount.find('dc-more').dispatch('click');assert.equal(list.children.length,7);h.mount.find('dc-grid').children.find(node=>node.dataset.date===date).dispatch('click');assert.match(h.mount.find('dc-list-heading').textContent,/の予定/);assert.equal(list.children.length,5);assert.equal(h.mount.find('dc-reset').hidden,false);
   h.mount.find('dc-reset').dispatch('click');assert.equal(h.mount.find('dc-reset').hidden,true);assert.equal(h.mount.find('dc-list-heading').children[0].textContent,'これからの予定');
 });
@@ -137,7 +137,7 @@ test('A displays actual deadlines, 100-share forecasts and safe broker disclosur
   const dividend={record_date:record,per_share:2.7,currency:'JPY',status:'forecast',announced_on:date,verified_on:date,source:{title:'中間配当の会社予想',url:'https://group.ntt/jp/ir/'}};
   const raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'9432.T',date,verified_on:date,record_date:record,holding_deadline:date,ex_dividend_date:plus(1),dividend})]});
   await h.reply(0,raw);
-  const row=h.mount.find('dc-events').children[0],story=row.find('dc-holding-story');assert.ok(story);assert.equal(story.parentNode,row);
+  const row=h.mount.find('dc-events').children[0],story=row.find('dc-holding-story');assert.ok(story);assert.equal(story.parentNode,row.__disclosure);
   assert.equal(story.find('dc-dividend-values').textContent,'1株保有した場合2.7円100株保有した場合270円');assert.match(story.textContent,/税引前・会社予想/);
   assert.equal(story.find('dc-holding-range').children.length,3);
   assert.equal(story.find('dc-range-start').find('dc-range-value').textContent,story.find('dc-range-end').find('dc-range-value').textContent);
@@ -208,6 +208,7 @@ test('month-only payments share the full card and live prices with day cards wit
   const dayPayment=event({date:'2026-09-24',kind:'payment'}),plan=event({kind:'payment',precision:'month',date:null,period:MONTH,status:'planned',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29'});
   const raw=fixture({events:[dayPayment,plan,{...plan,symbol:'9432.T'}]});await h.reply(0,raw);
   const dayRow=h.mount.find('dc-events').children[0],planList=h.mount.find('dc-month-plans').find('dc-events'),planRow=planList.children.find(row=>row.__priceSymbol==='7203.T');
+  assert.deepEqual(instance.selected,[]);for(const row of [dayRow,...planList.children]){row.__disclosure.open=true;row.__disclosure.dispatch('toggle');}
   assert.deepEqual(instance.selected,['7203.T','9432.T']);assert.equal(planList.children.length,2);
   for(const row of [dayRow,...planList.children]){
     const story=row.find('dc-holding-story');assert.ok(story);assert.equal(story.find('dc-range-value').textContent,'日程未確認');assert.match(story.find('dc-dividend-values').textContent,/金額未確認/);assert.match(story.find('dc-dividend-heading').textContent,/この支払いの配当額/);assert.equal(story.find('dc-broker-links').children.length,3);assert.doesNotMatch(story.find('dc-holding-range').textContent,/9\/28/);
@@ -224,6 +225,7 @@ test('share and lot prices update in place without closing the broker disclosure
   let notify,instance;const states=new Map(),prices={create(env,onUpdate){notify=onUpdate;return instance={selected:[],paused:true,setSymbols(list){this.selected=list;},peek(key){return states.get(key)||{quote:null,pending:false,error:null};},pause(){this.paused=true;},resume(){this.paused=false;},refresh(){}};}};
   const h=uiHarness({prices});await flush();const date=calendar.today(),ex=new Date(Date.parse(date+'T00:00:00Z')+86400000).toISOString().slice(0,10);
   await h.reply(0,fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:[event({symbol:'5803.T',name:'フジクラ',date,verified_on:date,holding_deadline:date,ex_dividend_date:ex})]}));
+  assert.deepEqual(instance.selected,[]);const disclosure=h.mount.find('dc-disclosure');assert.equal(disclosure.open,false);disclosure.open=true;disclosure.dispatch('toggle');
   assert.deepEqual(instance.selected,['5803.T']);assert.equal(instance.paused,false);
   const row=h.mount.find('dc-events').children[0],panel=row.find('dc-price-panel'),range=row.find('dc-holding-range'),brokers=row.find('dc-brokers');brokers.open=true;
   const value={quote:{symbol:'5803.T',price:4952.1,currency:'JPY',fetched_at:Date.now()/1000,price_updated_at:Date.now()/1000-1200,delay_minutes:20},pending:false,error:null};states.set('5803.T',value);notify('5803.T',value);
@@ -233,5 +235,25 @@ test('share and lot prices update in place without closing the broker disclosure
   notify('5803.T',{...value,quote:{...value.quote,price:4952.2}});assert.equal(cells[1].find('dc-price-value').textContent,'495,220');
   assert.equal(h.mount.find('dc-events').children[0],row);assert.equal(row.find('dc-holding-range'),range);assert.equal(brokers.open,true);
   notify('5803.T',{...value,error:'network'});assert.match(panel.find('dc-price-status').textContent,/前回の価格/);assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');
+  row.__disclosure.open=false;row.__disclosure.dispatch('toggle');assert.deepEqual(instance.selected,[]);
   h.doc.hidden=true;for(const fn of h.events.visibilitychange)fn();assert.equal(instance.paused,true);
+});
+
+test('disclosures stay closed initially and favorites precede pagination without changing day counts',async t=>{
+  t.mock.method(Date,'now',()=>NOW);
+  const h=uiHarness();await flush();
+  const rows=Array.from({length:7},(_,i)=>event({symbol:(1000+i)+'.T',name:'会社'+i}));
+  const raw=fixture({events:rows.concat(event({symbol:'9999.T',date:'2026-09-29'}))});await h.reply(0,raw);
+  const list=h.mount.find('dc-events'),first=list.children[0];
+  assert.equal(first.__disclosure.open,false);assert.equal(first.find('dc-company').tagName,'SPAN');
+  const count=h.mount.find('dc-grid').children.find(x=>x.dataset.date==='2026-09-28').find('dc-day-count');assert.equal(count.textContent,'7');
+  first.__disclosure.open=true;first.__disclosure.dispatch('toggle');
+  h.saved.setItem(WATCH,'["1006.T","9999.T"]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));
+  assert.equal(list.children[0].__priceSymbol,'1006.T');assert.equal(list.children[0].__favorite.hidden,false);
+  assert.equal(list.children[1],first);assert.equal(first.__disclosure.open,true);assert.equal(count.textContent,'7');assert.equal(list.children.length,5);
+  h.mount.find('dc-more').dispatch('click');assert.equal(list.children.length,7);
+  h.mount.find('dc-reset').dispatch('click');assert.equal(list.children[0].__priceSymbol,'1006.T');
+  h.mount.find('dc-more').dispatch('click');assert.equal(list.children.at(-1).__priceSymbol,'9999.T');
+  h.saved.setItem(WATCH,'[]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));
+  assert.equal(list.children[0],first);assert.equal(first.__disclosure.open,true);assert.equal(list.children.find(x=>x.__priceSymbol==='1006.T').__favorite.hidden,true);
 });
