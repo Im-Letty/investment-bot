@@ -227,7 +227,7 @@ class RouteTests(unittest.TestCase):
                   'api_dividend_yearly', 'api_dividend_calendar'}
         tree = ast.parse((ROOT / 'line_bot.py').read_text())
         nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name in wanted]
-        scope = dict(app=self.app, jsonify=jsonify, request=request, re=re, _dividend_snapshot=self.service)
+        scope = dict(app=self.app, jsonify=jsonify, request=request, re=re, _dividend_snapshot=self.service, _dividend_companies={"7203":"トヨタ"})
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'dividend-routes', 'exec'), scope)
         self.client = self.app.test_client()
 

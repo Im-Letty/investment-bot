@@ -1,0 +1,169 @@
+"""Official calendar dates, bounded refreshes and transparent unknown coverage."""
+from copy import deepcopy
+from datetime import datetime
+import json
+from pathlib import Path
+import tempfile
+import threading
+import time
+import unittest
+from unittest.mock import Mock, patch
+
+from flask import Flask
+from dividend_calendar import DividendCalendar, JST, month_range, previous_trading_day, register_dividend_calendar
+
+NOW=datetime(2026,9,24,14,tzinfo=JST).timestamp()
+
+
+def event(symbol='7203.T',day='2026-09-29',kind='ex_dividend',source='jpx'):
+    return dict(symbol=symbol,name='会社',date=day,kind=kind,precision='day',status='confirmed',
+                verified_on='2026-09-24',record_date='2026-09-30',effective_record_date='2026-09-30',
+                source={'title':'公式日程','url':'https://www.jpx.co.jp/list/20260924.xls' if source=='jpx' else 'https://company.example.jp/ir'})
+
+
+def document(events=None,now=NOW):
+    return dict(version=1,events=[event()] if events is None else events,verified_on='2026-09-24',
+                fetched_at=now,record_window={'start':'2026-09-24','end':'2026-10-08'},
+                source={'title':'JPX','url':'https://www.jpx.co.jp/list/20260924.xls'})
+
+
+class CalendarTests(unittest.TestCase):
+    def setUp(self):
+        self.temp=tempfile.TemporaryDirectory();self.addCleanup(self.temp.cleanup);self.path=Path(self.temp.name)
+        self.now=NOW
+        self.catalogue=Mock()
+        self.catalogue.all_items.return_value={'items':[{'code':str(code),'name':'会社'+str(code)} for code in range(1000,1225)]+[
+            {'code':'7203','name':'トヨタ'},{'code':'9432','name':'NTT'},{'code':'285A','name':'キオクシア'}]}
+        self.dividends=Mock();self.dividends.payload.return_value={'items':[]}
+        self.seed=self.path/'schedules.json';self.seed.write_text(json.dumps(document()))
+        self.universe=self.path/'universe.json';self.universe.write_text(json.dumps(dict(as_of='2026-09-24',retrieved_at=datetime.fromtimestamp(NOW,JST).isoformat(),
+            items=[{'code':str(code),'name':'会社'} for code in range(1000,1225)],
+            scheduled_changes=[{'effective_on':'2026-10-01','add':[{'code':'285A'}]}])))
+        self.payments=self.path/'payments.json';self.payments.write_text(json.dumps({'items':{'9432.T':{
+            'payment_period':'2026-11','reviewed_on':'2026-09-24','source':{'title':'NTT','url':'https://group.ntt/jp/ir/shares/calendar/'}}}}))
+
+    def calendar(self,loader=None,**kwargs):
+        return DividendCalendar(self.catalogue,self.dividends,{'7203':'トヨタ','9432':'NTT'},loader=loader,
+            schedule_path=self.seed,payment_path=self.payments,universe_path=self.universe,
+            cache_path=self.path/'runtime.json',now=lambda:self.now,**kwargs)
+
+    def test_official_exdate_and_real_businessday_deadline(self):
+        data=self.calendar().payload('2026-09')
+        by_kind={row['kind']:row for row in data['events']}
+        self.assertEqual(by_kind['holding_deadline']['date'],'2026-09-28')
+        self.assertEqual(by_kind['ex_dividend']['date'],'2026-09-29')
+        self.assertEqual(by_kind['holding_deadline']['calculation'],'previous_cash_equity_trading_day')
+        self.assertEqual(len(by_kind['holding_deadline']['calculation_sources']),2)
+        self.assertEqual(data['range'],{'start':'2026-09-01','end':'2026-11-30'})
+        self.assertEqual(data['coverage'],{'universe':227,'known':1,'unknown':226})
+        self.assertEqual(data['universe_as_of'],'2026-09-24')
+        self.assertNotIn('_origin',by_kind['ex_dividend'])
+
+    def test_holidays_weekends_and_unverified_calendar_year(self):
+        self.assertEqual(previous_trading_day('2026-09-24'),'2026-09-18')
+        self.assertEqual(previous_trading_day('2027-01-04'),'2026-12-30')
+        self.assertIsNone(previous_trading_day('2026-09-23'))
+        self.assertIsNone(previous_trading_day('2028-01-05'))
+        self.assertIsNone(previous_trading_day('2026-01-05')) # 2025 calendar not verified here.
+
+    def test_scope_filters_before_deriving_but_keeps_deadline_in_previous_month(self):
+        self.seed.write_text(json.dumps(document([event('7203.T','2026-10-01'),event('9432.T','2026-10-01')])))
+        calendar=self.calendar()
+        with patch('dividend_calendar.previous_trading_day',wraps=previous_trading_day) as previous:
+            data=calendar.payload('2026-09','7203','favorites')
+        self.assertEqual([(row['symbol'],row['kind'],row['date']) for row in data['events']],
+                         [('7203.T','holding_deadline','2026-09-30')])
+        # Only the selected company is considered, once for selection and once
+        # to construct the complete derived event with its provenance.
+        self.assertEqual(previous.call_count,2)
+
+    def test_month_precision_is_retained_never_assigned_a_guessed_day(self):
+        calendar=self.calendar();data=calendar.payload('2026-11')
+        payment=data['events'][0]
+        self.assertEqual(payment['kind'],'payment');self.assertEqual(payment['period'],'2026-11')
+        self.assertEqual(payment['precision'],'month');self.assertNotIn('date',payment)
+        self.assertEqual(payment['status'],'planned')
+        self.assertEqual(calendar.payload('2026-10')['events'],[])
+
+    def test_favorites_are_verified_filtered_and_queued_without_losing_valid_ones(self):
+        calendar=self.calendar()
+        favorite=calendar.payload('2026-09','７２０３,９４３７,２８５ａ','favorites')
+        self.assertEqual(favorite['invalid_symbols'],['9437.T'])
+        self.assertEqual(favorite['coverage'],{'universe':2,'known':1,'unknown':1})
+        self.assertEqual({row['symbol'] for row in favorite['events']},{'7203.T'})
+        self.dividends.request_companies.assert_called_once_with({'7203':'トヨタ','285A':'キオクシア'})
+        self.assertEqual(calendar.payload('2026-09','','favorites')['coverage'],{'universe':0,'known':0,'unknown':0})
+        self.assertEqual(calendar.payload('2026-09','285A','all')['coverage']['universe'],228)
+        for value in ['http://evil','7203.T/../x']:
+            with self.assertRaises(ValueError):calendar.payload('2026-09',value)
+
+    def test_only_past_historical_exdates_no_forward_year_rollover(self):
+        self.dividends.payload.return_value={'items':[{'ticker':'7203.T','name':'トヨタ','fetched_at':NOW,
+            'ex_dividend_dates':['2025-11-29','2026-09-17','2026-10-29']} ]}
+        calendar=self.calendar();data=calendar.payload('2026-09')
+        historical=next(row for row in data['events'] if row.get('date')=='2026-09-17')
+        self.assertEqual(historical['kind'],'ex_dividend')
+        self.assertFalse(any(row['kind']=='holding_deadline' and row['date']=='2026-09-16' for row in data['events']))
+        self.assertEqual(calendar.payload('2026-10')['events'],[])
+        self.assertFalse(any(row.get('date')=='2026-11-29' for row in calendar.payload('2026-11')['events']))
+
+    def test_confirmed_window_replaces_cancellations_preserves_company_schedules(self):
+        custom=event('9432.T','2026-11-30','payment',source='company')
+        earlier=event('7203.T','2026-09-17');earlier.update(record_date='2026-09-18',effective_record_date='2026-09-18')
+        self.seed.write_text(json.dumps(document([event(),custom,earlier])))
+        calendar=self.calendar();self.now+=60
+        empty=document([],self.now)
+        self.assertTrue(calendar._accept_document(empty))
+        dates={row.get('date') for row in calendar.payload('2026-09')['events']}
+        self.assertNotIn('2026-09-29',dates);self.assertIn('2026-09-17',dates)
+        payment=calendar.payload('2026-11')['events']
+        self.assertEqual(len(payment),1);self.assertEqual(payment[0]['date'],'2026-11-30')
+        self.assertFalse(calendar._accept_document({'events':[]}))
+
+    def test_background_singleflight_stale_preserved_on_failure_and_fork_reset(self):
+        release=threading.Event();entered=threading.Event()
+        def load(now):entered.set();release.wait(2);raise RuntimeError('private failure')
+        self.now+=86400
+        calendar=self.calendar(load)
+        start=time.monotonic();first=calendar.payload('2026-09')
+        self.assertLess(time.monotonic()-start,.1);self.assertTrue(first['refreshing'])
+        self.assertTrue(entered.wait(1));thread=calendar._thread
+        for _ in range(5):calendar.payload('2026-09')
+        self.assertIs(thread,calendar._thread)
+        release.set();thread.join(2)
+        stale=calendar.payload('2026-09')
+        self.assertEqual(stale['status'],'stale');self.assertEqual(stale['updated_at'],NOW)
+        self.assertFalse(stale['refreshing']);self.assertTrue(stale['events'])
+        old=calendar._lock;old.acquire()
+        with patch('dividend_calendar.os.getpid',return_value=calendar._pid+1):
+            calendar.loader=None;value=calendar.payload('2026-09')
+        old.release();self.assertIsNot(old,calendar._lock);self.assertFalse(value['refreshing'])
+
+    def test_afternoon_rechecks_morning_and_weekend_does_not_repeat_old_publication(self):
+        calendar=self.calendar()
+        morning=document(now=datetime(2026,9,24,11,tzinfo=JST).timestamp())
+        self.now=datetime(2026,9,24,13,29,tzinfo=JST).timestamp();self.assertTrue(calendar._checked_today(morning))
+        self.now+=60;self.assertFalse(calendar._checked_today(morning))
+        morning['fetched_at']=self.now;self.assertTrue(calendar._checked_today(morning))
+        self.now=datetime(2026,9,26,15,tzinfo=JST).timestamp();old_publication=document(now=self.now)
+        self.assertTrue(calendar._checked_today(old_publication))
+
+    def test_unchanged_files_are_not_reparsed_on_each_request(self):
+        calendar=self.calendar()
+        with patch('dividend_calendar._read_json',wraps=__import__('dividend_calendar')._read_json) as read:
+            calendar.ensure_refresh();calendar.ensure_refresh()
+        read.assert_not_called()
+
+    def test_three_month_boundary_and_flask_contract(self):
+        calendar=self.calendar();app=Flask(__name__);register_dividend_calendar(app,calendar);client=app.test_client()
+        response=client.get('/api/dividend/calendar-v2?month=2026-11&scope=favorites&symbols=9432.T')
+        self.assertEqual(response.status_code,200);self.assertEqual(response.get_json()['events'][0]['period'],'2026-11')
+        self.assertEqual(response.headers['Cache-Control'],'no-store')
+        self.assertEqual(client.get('/api/dividend/calendar-v2?month=2026-12').status_code,400)
+        self.assertEqual(client.get('/api/dividend/calendar-v2?month=2026-08').status_code,400)
+        self.assertEqual(client.get('/api/dividend/calendar-v2?scope=evil').status_code,400)
+        first,last=month_range(datetime(2026,12,24).date())
+        self.assertEqual(first.isoformat(),'2026-12-01');self.assertEqual(last.isoformat(),'2027-02-28')
+
+
+if __name__=='__main__':unittest.main()

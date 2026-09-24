@@ -2651,6 +2651,19 @@ _company_profiles = CompanyProfiles(
     seed_path=os.path.join(os.path.dirname(__file__), "company-profile-snapshot.json"))
 register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot)
 
+from dividend_calendar import DividendCalendar, register_dividend_calendar
+from jpx_calendar_source import fetch_jpx_events
+from scripts.update_nikkei225 import update_universe as update_nikkei_universe
+_calendar_universe_cache = os.environ.get("NIKKEI_UNIVERSE_PATH", "/tmp/kn-nikkei225-universe.json")
+_dividend_calendar = DividendCalendar(
+    _stock_search, _dividend_snapshot, _dividend_companies,
+    loader=fetch_jpx_events,
+    universe_loader=lambda now: update_nikkei_universe(output_path=_calendar_universe_cache, now=now),
+    cache_path=os.environ.get("DIVIDEND_CALENDAR_PATH", "/tmp/kn-dividend-calendar.json"),
+    universe_cache_path=_calendar_universe_cache)
+register_dividend_calendar(app, _dividend_calendar)
+
+
 
 @app.before_request
 def _ensure_dividend_warmer():
@@ -2705,7 +2718,7 @@ def api_dividend_search():
 @app.route("/api/dividend/top", methods=["GET"])
 def api_dividend_top():
     data = _dividend_snapshot.payload()
-    rows = [row for row in data["items"] if row.get("yield_pct") is not None and row["yield_pct"] > 0]
+    rows = [row for row in data["items"] if row.get("code") in _dividend_companies and row.get("yield_pct") is not None and row["yield_pct"] > 0]
     data["items"] = sorted(rows, key=lambda row: (-row["yield_pct"], row["code"]))[:_dividend_limit()]
     data["available_count"] = len(rows)
     return _dividend_response(data)
@@ -2714,7 +2727,7 @@ def api_dividend_top():
 @app.route("/api/dividend/yearly", methods=["GET"])
 def api_dividend_yearly():
     data = _dividend_snapshot.payload()
-    rows = [row for row in data["items"] if row.get("annual_dividend") is not None and row["annual_dividend"] > 0]
+    rows = [row for row in data["items"] if row.get("code") in _dividend_companies and row.get("annual_dividend") is not None and row["annual_dividend"] > 0]
     data["items"] = sorted(rows, key=lambda row: (-row["annual_dividend"], row["code"]))[:_dividend_limit()]
     data["available_count"] = len(rows)
     return _dividend_response(data)

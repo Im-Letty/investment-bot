@@ -347,6 +347,18 @@ class DividendSnapshot:
                         coverage_count=sum(code + '.T' in self._rows for code in self.companies),
                         universe_count=len(self.companies), annual_dividend_basis='trailing_12m')
 
+    def request_companies(self, companies):
+        """Queue JPX-validated calendar favorites without changing rankings."""
+        self._check_pid()
+        with self._lock:
+            for code,name in list(companies.items())[:100]:
+                if not isinstance(code,str) or not re.fullmatch(r'[0-9][A-Z0-9]{3}',code):
+                    continue
+                row=self._rows.get(code+'.T')
+                if row is None or self.now()-row['fetched_at'] >= self.ttl:
+                    self._pending[code]=str(name)[:200]
+        self.ensure_refresh()
+
     def lookup(self, ticker, name):
         self._check_pid()
         with self._lock:

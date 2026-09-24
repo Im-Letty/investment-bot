@@ -10,10 +10,12 @@
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
 <link rel="stylesheet" href="/static/dividend-view.css?v=20260924-dividend-stock1">
+<link rel="stylesheet" href="/static/dividend-calendar.css?v=20260924-calendar1">
 <link rel="stylesheet" href="/static/company-profile.css?v=20260924-company1">
 <script defer src="/static/company-profile.js?v=20260924-company1"></script>
 <script defer src="/static/dividend-data.js?v=20260924-dividend2"></script>
 <script defer src="/static/dividend-view.js?v=20260924-company1"></script>
+<script defer src="/static/dividend-calendar.js?v=20260924-calendar1"></script>
 <script defer src="/static/market-data.js?v=20260924-autorefresh1"></script>
 <script defer src="/static/news-orbit.js?v=20260913-controls3"></script>
 <script defer src="/static/home-a.js?v=20260924-autorefresh1"></script>
@@ -29,7 +31,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.__KN_HOME_A)re
 /* knGate: encrypted localStorage gate (runs early). Whitelisted keys are stored encrypted via AES-GCM; reads/writes go through an in-memory cache so existing code is unchanged. */
 (function(){
   if(window.__knGate) return;
-  var WL=["tk_name","cm_nick","mp_todos","myDividendStocks","custom_symbols","alert_watchlist_v1","stock_watch_names_v1","scannerAlertHistory","ksPool","ksWeights","sk_streak","sk_last","sk_total","sk_badges","home_layout_v1","pet_game"];
+  var WL=["tk_name","cm_nick","mp_todos","myDividendStocks","dividend_calendar_migrated_v1","custom_symbols","alert_watchlist_v1","stock_watch_names_v1","scannerAlertHistory","ksPool","ksWeights","sk_streak","sk_last","sk_total","sk_badges","home_layout_v1","pet_game"];
   var ENC="knenc:", PFX="knv1:", KEY_NAME="knVaultKeyV1";
   var realGet=localStorage.getItem.bind(localStorage);
   var realSet=localStorage.setItem.bind(localStorage);
@@ -769,11 +771,7 @@ root.drawOuterOrbit=draw;draw(3000);
           <div class="dividend-list" id="dividend-yearly-list"></div>
         </div>
         <div class="dividend-pane" data-pane="cal" style="display:none">
-          <div class="dividend-cal-controls">
-            <div class="dividend-cal-nav-flex"><button class="cal-nav-btn" onclick="shiftDividendCalMonth(-1)" data-i18n-title="div_prev_mo" title="前の月">‹</button><span id="dividend-cal-label" class="cal-nav-label"></span><button class="cal-nav-btn" onclick="shiftDividendCalMonth(1)" data-i18n-title="div_next_mo" title="次の月">›</button><button class="cal-nav-today" onclick="goDividendCalToday()" data-i18n-title="div_today_title" title="今月へ" data-i18n="div_today">今月</button></div><input type="month" id="dividend-cal-month" onchange="loadDividendCalendar()" style="display:none"><div class="mystock-section"><div class="mystock-header" data-i18n-html="div_my_label" data-help-key="div_my_label">⭐ マイ株（保有銘柄）</div><div class="mystock-input-row"><input type="text" id="mystock-input" data-i18n-placeholder="div_my_ph" placeholder="例: 7261 マツダ"><button onclick="addMyStock()" data-i18n="div_add_btn">＋追加</button></div><div id="mystock-list" class="mystock-list"></div><div class="mystock-legend"><span class="cal-tag tag-top" data-i18n-html="div_chip_top_html">🔴高配当TOP20</span><span class="cal-tag tag-yr" data-i18n-html="div_chip_yr_html">🟢年間TOP20</span><span class="cal-tag tag-my" data-i18n-html="div_chip_my_html">⭐マイ株</span></div></div>
-          </div>
-          <div class="dividend-loading">読み込み中...</div>
-          <div class="dividend-cal" id="dividend-cal-body"></div><div id="dividend-detail-modal" class="dividend-detail-modal" onclick="if(event.target===this)this.style.display='none'"><div class="dividend-detail-content"><button class="dividend-detail-close" onclick="document.getElementById('dividend-detail-modal').style.display='none'">×</button><div id="dividend-detail-body"></div></div></div>
+          <div id="knDividendCalendar"></div>
         </div>
         <div class="dividend-pane" data-pane="search" style="display:none">
           <div class="dividend-search-wrap">
@@ -973,11 +971,6 @@ document.addEventListener('DOMContentLoaded',startApprovedIntro,{once:true});
       if (tab === 'top') loadDividendTop();
       else if (tab === 'yearly') loadDividendYearly();
       else if (tab === 'cal') {
-        var inp = document.getElementById('dividend-cal-month');
-        if (inp && !inp.value) {
-          var now = new Date();
-          inp.value = now.getFullYear() + '-' + String(now.getMonth()+1).padStart(2,'0');
-        }
         loadDividendCalendar();
       }
     }
@@ -995,19 +988,13 @@ document.addEventListener('DOMContentLoaded',startApprovedIntro,{once:true});
     }
     function loadDividendTop() { window.KNDividendView.list('top'); }
     function loadDividendYearly() { window.KNDividendView.list('yearly'); }
-    var _topCodes=new Set(); var _yrCodes=new Set(); var _allStocksData={}; function _getMyStocks(){try{return JSON.parse(localStorage.getItem('myDividendStocks')||'[]');}catch(e){return [];}} function _saveMyStocks(arr){localStorage.setItem('myDividendStocks',JSON.stringify(arr));} function _myStocksHas(code){return _getMyStocks().some(function(s){return s.code===code;});} function addMyStock(){var inp=document.getElementById('mystock-input');var v=(inp.value||'').trim();if(!v)return;var parts=v.split(/[\s,]+/);var name=parts.slice(1).join(' ')||parts[0];var code=parts[0];var arr=_getMyStocks();if(arr.some(function(s){return s.code===code;})){alert(_divT('div_already_reg','既に登録されています'));return;}arr.push({code:code,name:name});_saveMyStocks(arr);inp.value='';renderMyStocksList();loadDividendCalendar();} function removeMyStock(code){var arr=_getMyStocks().filter(function(s){return s.code!==code;});_saveMyStocks(arr);renderMyStocksList();loadDividendCalendar();} function renderMyStocksList(){var el=document.getElementById('mystock-list');if(!el)return;var arr=_getMyStocks();if(arr.length===0){el.innerHTML='<div style="color:#9ca3af;font-size:12px;padding:4px">'+_divT('div_unreg','未登録（コードと銘柄名を入力して追加）')+'</div>';return;}el.innerHTML=arr.map(function(s){return '<span class="mystock-chip">'+s.name+' ('+s.code+') <button onclick="removeMyStock(\''+s.code+'\')">×</button></span>';}).join('');} function _showDayList(dateStr){var items=(window._calDayMap||{})[dateStr]||[];var modal=document.getElementById('dividend-detail-modal');var body=document.getElementById('dividend-detail-body');var html='<h3 style="margin:0 0 8px 0">'+dateStr+' の配当 ('+items.length+'件)</h3><div style="max-height:60vh;overflow-y:auto">';items.forEach(function(it){var isMy=_myStocksHas(it.code);var inTop=_topCodes.has(it.code);var inYr=_yrCodes.has(it.code);var tags='';if(inTop)tags+='<span class="cal-tag tag-top">🔴高配当</span>';if(inYr)tags+='<span class="cal-tag tag-yr">🟢年間</span>';if(isMy)tags+='<span class="cal-tag tag-my">⭐</span>';html+='<div style="padding:8px;border-bottom:1px solid #eee;cursor:pointer" onclick="showDividendDetail(\''+it.code+'\')"><b>'+it.name+'</b> <span style="color:#6b7280;font-size:12px">('+it.code+')</span><div style="font-size:12px;color:#6b7280">'+_divT('div_yield_short','利回り')+' '+(Number.isFinite(it.yield_pct)?it.yield_pct.toFixed(2):'—')+'% ・ '+_divT('div_payout_short','配当')+' '+(Number.isFinite(it.annual_dividend)?it.annual_dividend.toFixed(2):'—')+_divT('div_yen','円')+'</div><div style="margin-top:4px">'+tags+'</div></div>';});html+='</div>';body.innerHTML=html;modal.style.display='flex';} function showDividendDetail(code){var it=_allStocksData[code];var arr=_getMyStocks();var my=arr.find(function(s){return s.code===code;});if(!it && my){it={code:code,name:my.name};} if(!it){alert(_divT('div_not_found','データが見つかりません'));return;}var modal=document.getElementById('dividend-detail-modal');var body=document.getElementById('dividend-detail-body');var tags=''; if(_topCodes.has(code))tags+='<span class="cal-tag tag-top">'+_divT('div_chip_top_html','🔴高配当TOP20')+'</span>'; if(_yrCodes.has(code))tags+='<span class="cal-tag tag-yr">'+_divT('div_chip_yr_html','🟢年間TOP20')+'</span>'; if(_myStocksHas(code))tags+='<span class="cal-tag tag-my">'+_divT('div_chip_my_html','⭐マイ株')+'</span>'; var btnTxt=_myStocksHas(code)?_divT('div_remove_my','マイ株から削除'):_divT('div_add_my','マイ株に追加');var btnFn=_myStocksHas(code)?('removeMyStock(\''+code+'\');document.getElementById(\'dividend-detail-modal\').style.display=\'none\';'):('var a=_getMyStocks();a.push({code:\''+code+'\',name:\''+(it.name||'').replace(/\x27/g,'')+'\'});_saveMyStocks(a);renderMyStocksList();loadDividendCalendar();document.getElementById(\'dividend-detail-modal\').style.display=\'none\';');body.innerHTML='<h3 style="margin:0 0 8px 0">'+(window._stockName?_stockName(it.code,it.name):it.name)+' <span style="color:#6b7280;font-size:14px">('+it.code+')</span></h3><div style="margin-bottom:8px">'+tags+'</div><table style="width:100%;border-collapse:collapse;font-size:14px"><tr><td style="padding:4px;color:#6b7280">'+_divT('div_kabuka','株価')+'</td><td style="padding:4px;text-align:right"><b>'+(it.price?it.price.toFixed(0):'-')+_divT('div_yen','円')+'</b></td></tr><tr><td style="padding:4px;color:#6b7280">'+_divT('div_annual','年間配当')+'</td><td style="padding:4px;text-align:right"><b>'+(it.annual_dividend?it.annual_dividend.toFixed(0):'-')+_divT('div_yen','円')+'</b></td></tr><tr><td style="padding:4px;color:#6b7280">'+_divT('div_yield','配当利回り')+'</td><td style="padding:4px;text-align:right"><b>'+(it.yield_pct?it.yield_pct.toFixed(2)+"%":'-')+'</b></td></tr><tr><td style="padding:4px;color:#6b7280">'+_divT('div_ex_date','権利落ち日')+'</td><td style="padding:4px;text-align:right"><b>'+(it.ex_dividend_date||'-')+'</b></td></tr></table><div style="margin-top:12px;text-align:center"><button onclick="'+btnFn+'" style="padding:8px 16px;background:#3da060;color:white;border:none;border-radius:6px;cursor:pointer">'+btnTxt+'</button></div>';modal.style.display='flex';} function shiftDividendCalMonth(delta){var inp=document.getElementById('dividend-cal-month');var v=inp.value||''; var y,m; if(/^\d{4}-\d{2}/.test(v)){y=parseInt(v.substring(0,4),10);m=parseInt(v.substring(5,7),10);}else{var n=new Date();y=n.getFullYear();m=n.getMonth()+1;} m+=delta; while(m<1){m+=12;y--;} while(m>12){m-=12;y++;} inp.value=y+'-'+String(m).padStart(2,'0'); loadDividendCalendar();} function goDividendCalToday(){var inp=document.getElementById('dividend-cal-month');var n=new Date();inp.value=n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0'); loadDividendCalendar();} function _updateDividendCalLabel(){var inp=document.getElementById('dividend-cal-month');var lbl=document.getElementById('dividend-cal-label');if(!lbl)return; var v=inp.value||''; var y,m; if(/^\d{4}-\d{2}/.test(v)){y=parseInt(v.substring(0,4),10);m=parseInt(v.substring(5,7),10);}else{var n=new Date();y=n.getFullYear();m=n.getMonth()+1;} lbl.textContent=y+_divT('cal_year','年')+m+_divT('cal_month','月');} function loadDividendCalendar() { try{renderMyStocksList();}catch(e){} try{_updateDividendCalLabel();}catch(e){}
-      var pane = document.querySelector('.dividend-pane[data-pane="cal"]');
-      var loading = pane.querySelector('.dividend-loading');
-      var body = document.getElementById('dividend-cal-body');
-      var _calInp = document.getElementById('dividend-cal-month'); if(!_calInp.value){var _n=new Date(); _calInp.value=_n.getFullYear()+'-'+String(_n.getMonth()+1).padStart(2,'0');} var month = _calInp.value || ''; try{_updateDividendCalLabel();}catch(e){}
-      window.KNDividendView.calendar(month, function(d) {
-          var signature=JSON.stringify([month,d.days,Array.from(_topCodes),Array.from(_yrCodes),_getMyStocks(),window.currentLang]);
-          if(body.dataset.snapshot===signature)return;
-          body.dataset.snapshot=signature;
-          body.innerHTML = '';
-          if (!d.days) { d.days = []; }
-          (function(){var monthVal=document.getElementById('dividend-cal-month').value||''; var ym; if(monthVal && /^\d{4}-\d{2}/.test(monthVal)){ym=monthVal.substring(0,7);} else { var now=new Date(); ym=now.getFullYear()+'-'+String(now.getMonth()+1).padStart(2,'0'); } var parts=ym.split('-'); var y=parseInt(parts[0],10); var m=parseInt(parts[1],10); var firstDay=new Date(y,m-1,1); var daysInMonth=new Date(y,m,0).getDate(); var startWeekday=firstDay.getDay(); var dayMap={}; d.days.forEach(function(day){dayMap[day.date]=day.items||[];}); var wrap=document.createElement('div'); wrap.className='cal-grid-wrap'; var head='<div class="cal-grid-head">'; (window._weekdays||['日','月','火','水','木','金','土']).forEach(function(w,i){head+='<div class="cal-grid-hcell'+(i===0?' sun':(i===6?' sat':''))+'">'+w+'</div>';}); head+='</div>'; var grid='<div class="cal-grid">'; var totalCells=Math.ceil((startWeekday+daysInMonth)/7)*7; for(var i=0;i<totalCells;i++){var dayNum=i-startWeekday+1; if(dayNum<1||dayNum>daysInMonth){grid+='<div class="cal-cell empty"></div>';continue;} var dateStr=y+'-'+String(m).padStart(2,'0')+'-'+String(dayNum).padStart(2,'0'); var items=dayMap[dateStr]||[]; var wd=(startWeekday+dayNum-1)%7; var cls='cal-cell'+(wd===0?' sun':(wd===6?' sat':'')); grid+='<div class="'+cls+'"><div class="cal-cell-date">'+dayNum+'</div>'; if(items.length>0){grid+='<div class="cal-cell-items">'; items.slice(0,4).forEach(function(it){var isMy=_myStocksHas(it.code); var inTop=_topCodes.has(it.code); var inYr=_yrCodes.has(it.code); var chipCls='cal-chip'; if(isMy)chipCls+=' chip-my'; else if(inTop&&inYr)chipCls+=' chip-both'; else if(inTop)chipCls+=' chip-top'; else if(inYr)chipCls+=' chip-yr'; var safeName=((window._stockName?_stockName(it.code,it.name):it.name)||'').replace(/"/g,'&quot;'); grid+='<div class="'+chipCls+'" title="'+safeName+' ('+it.code+')" onclick="showDividendDetail(\''+it.code+'\')">'+safeName+'</div>';}); if(items.length>4){grid+='<div class="cal-chip chip-more" onclick="_showDayList(\''+dateStr+'\')">+'+(items.length-4)+'件</div>';} grid+='</div>';} grid+='</div>';} grid+='</div>'; wrap.innerHTML=head+grid; body.appendChild(wrap); window._calDayMap=dayMap;})();
-        });
+    var _topCodes=new Set(); var _yrCodes=new Set(); var _allStocksData={};
+    function showDividendDetail(code) {
+      var company = _allStocksData[code] || {};
+      if (window.KNCompanyProfile) window.KNCompanyProfile.open(code, company.name || code);
+    }
+    function loadDividendCalendar() {
+      if (window.KNDividendCalendar) window.KNDividendCalendar.refresh();
     }
     // === オートコンプリート ===
     var _divAcCache = null;
@@ -3873,7 +3860,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     }).finally(function(){if(pending===request){pending=null;scheduleRefresh();}});
     return request.promise;
   }
-  window.__knRefreshWatch=function(){return build(true);};
+  window.__knRefreshWatch=function(){window.dispatchEvent(new Event("kn:watchlist-change"));return build(true);};
   document.addEventListener('visibilitychange',function(){if(document.hidden)stopRefresh();else build(true);});
   if(window.addEventListener){
     window.addEventListener('online',function(){build(true);});
