@@ -25,6 +25,20 @@ test('normalization rejects invented dates, unsafe sources, wrong months and mis
   const all=calendar.normalize(raw,MONTH,'all',[],NOW);assert.equal(all.events.length,3);const mine=calendar.normalize(raw,MONTH,'favorites',['9432.T'],NOW);assert.equal(mine.events.length,1);assert.equal(mine.events[0].symbol,'9432.T');
   assert.equal(calendar.normalize(fixture({coverage:{universe:1,known:2,unknown:0}}),MONTH,'all',[],NOW),null);assert.equal(calendar.normalize(fixture(),'2026-12','all',[],NOW),null);
 });
+test('record dates retain the published date and are never inferred from deadlines or effective record dates',()=>{
+  const rows=[
+    event({symbol:'1000.T',record_date:'2026-09-30',effective_record_date:'2026-09-29'}),
+    event({symbol:'1001.T',effective_record_date:'2026-09-30'}),
+    event({symbol:'1002.T',record_date:'2026-09-31'}),
+    event({symbol:'1003.T',record_date:'2026-09-27'}),
+    event({symbol:'1004.T',kind:'payment',precision:'month',period:MONTH,date:null,record_date:'2026-09-30'})
+  ];
+  const result=calendar.normalize(fixture({events:rows}),MONTH,'all',[],NOW);
+  assert.equal(result.events.length,5);
+  assert.equal(result.events.find(row=>row.symbol==='1000.T').record_date,'2026-09-30');
+  assert.ok(result.events.filter(row=>row.symbol!=='1000.T').every(row=>row.record_date===null));
+  assert.equal(calendar.normalize(result,MONTH,'all',[],NOW).events.find(row=>row.symbol==='1000.T').record_date,'2026-09-30');
+});
 test('legacy shares migrate after gate readiness without deleting original data or existing foreign favorites',async()=>{
   const old=JSON.stringify([{code:'７２０３',name:'トヨタ'},{code:'9432',name:'NTT'}]),saved=storage({[WATCH]:'["AAPL","9432.T"]',[OLD]:old});let ready;const promise=new Promise(resolve=>ready=resolve),writes=[];
   const migration=calendar.migrate(saved,async(key,value)=>{writes.push(key);saved.setItem(key,value);},promise);await flush();assert.equal(writes.length,0);ready();const result=await migration;

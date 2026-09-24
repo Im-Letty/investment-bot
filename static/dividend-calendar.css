@@ -70,3 +70,18 @@
 }
 @media(max-width:360px){#knDividendCalendar .dc-filters {gap:0}#knDividendCalendar .dc-filter {padding-inline:8px;font-size:calc(12px * var(--kn-a-scale,1))}#knDividendCalendar .dc-manage {font-size:calc(10px * var(--kn-a-scale,1))}#knDividendCalendar .dc-grid,#knDividendCalendar .dc-weekdays {gap:1px}#knDividendCalendar .dc-event {gap:10px;grid-template-columns:42px minmax(0,1fr)}}
 @media(hover:hover){#knDividendCalendar .dc-month-arrow:not(:disabled):hover,#knDividendCalendar .dc-day:hover {background:var(--dc-chip)}#knDividendCalendar .dc-company:hover {text-decoration:underline;text-underline-offset:4px}}
+
+/* Short explanations distinguish owning shares from receiving the dividend. */
+#knDividendCalendar .dc-guidance {display:grid;gap:10px;min-width:0;margin:14px 0 4px}
+#knDividendCalendar .dc-date-guide {min-width:0;margin:0;padding:12px 14px;border:0;border-left:2px solid var(--dc-line);border-radius:0 4px 4px 0;background:color-mix(in srgb,var(--dc-chip) 45%,var(--dc-paper))!important;color:var(--dc-ink)!important;box-shadow:none}
+#knDividendCalendar .dc-date-guide h5 {margin:0 0 6px;padding:0;color:var(--dc-ink);font:500 calc(12px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);letter-spacing:.015em;overflow-wrap:anywhere}
+#knDividendCalendar .dc-date-guide p {margin:0;padding:0;color:var(--dc-ink);font:400 calc(12px * var(--kn-a-scale,1))/1.95 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
+#knDividendCalendar .dc-record-date {margin:6px 0 0;padding:0;color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.85 var(--kn-a-sans,sans-serif);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+#knDividendCalendar .dc-help-terms {max-width:680px;margin:8px 0 0;padding:0}
+#knDividendCalendar .dc-help-terms dt {margin:17px 0 5px;padding:0;color:var(--dc-ink);font:500 calc(12px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
+#knDividendCalendar .dc-help-terms dt:first-child {margin-top:0}
+#knDividendCalendar .dc-help-terms dd {margin:0;padding:0;color:var(--dc-muted);font:400 calc(12px * var(--kn-a-scale,1))/1.95 var(--kn-a-sans,sans-serif);overflow-wrap:anywhere}
+#knDividendCalendar .dc-help .dc-help-note {max-width:680px;margin:17px 0 0;padding:0;color:var(--dc-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.95;overflow-wrap:anywhere}
+#knDividendCalendar .dc-help-source {display:inline-flex;align-items:center;min-height:44px;max-width:100%;margin-top:7px;padding:7px 0;color:var(--dc-ink);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.8;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:4px;overflow-wrap:anywhere}
+
+#knDividendCalendar .dc-date-guide p+p {margin-top:8px}
