@@ -49,9 +49,12 @@
             var name=window._stockName?window._stockName(it.code,it.name):it.name;
             var yen=tr('div_yen','円');
             var main=key==='top'?number(it.yield_pct,2)+'%':number(it.annual_dividend,2)+yen;
-            var sub=key==='top'?tr('div_annual','年間配当')+' '+number(it.annual_dividend,2)+yen:tr('div_yield','利回り')+' '+number(it.yield_pct,2)+'%';
-            if(Number.isFinite(it.price))sub+=' · '+tr('div_kabuka','株価')+' '+number(it.price,2)+yen;
-            return '<div class="div-item"><div class="div-rank">'+(idx+1)+'</div><div><div class="div-name">'+escape(name)+'</div><div class="div-code">'+escape(it.code)+'</div></div><div class="dividend-row-values"><div class="div-yield">'+escape(main)+'</div><div class="div-meta">'+escape(sub)+'</div>'+(it.price_updated_at?'<div class="div-meta">'+escape(tr('div_kabuka','株価')+' '+stamp(it.price_updated_at))+'</div>':'')+'</div></div>';
+            function metric(label,value,kind) {
+              return '<div class="div-metric div-metric--'+kind+'"><span class="div-metric-label">'+escape(label)+'</span> <span class="div-metric-value">'+escape(value)+'</span></div>';
+            }
+            var sub=key==='top'?metric(tr('div_annual','年間配当'),number(it.annual_dividend,2)+yen,'distribution'):metric(tr('div_yield','利回り'),number(it.yield_pct,2)+'%','distribution');
+            if(Number.isFinite(it.price))sub+=metric(tr('div_kabuka','株価'),number(it.price,2)+yen,'quote');
+            return '<div class="div-item"><div class="div-rank">'+(idx+1)+'</div><div><div class="div-name">'+escape(name)+'</div><div class="div-code">'+escape(it.code)+'</div></div><div class="dividend-row-values"><div class="div-yield">'+escape(main)+'</div><div class="div-metrics">'+sub+'</div>'+(it.price_updated_at?'<div class="div-meta div-price-time">'+escape(tr('div_kabuka','株価')+' '+stamp(it.price_updated_at))+'</div>':'')+'</div></div>';
           }).join('');
           el.innerHTML=html;signatures[key]=signature;
         }

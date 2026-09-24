@@ -71,7 +71,7 @@ test('high dividend rows omit missing/non-numeric yields instead of inventing 0%
   await h.reply(h.request('/top?'),snapshot([...invalid,row({name:'表示する会社',annual_dividend:null,price:null})]));
   const html=h.list('top').innerHTML;
   assert.equal((html.match(/class="div-item"/g)||[]).length,1);
-  assert.match(html,/表示する会社/);assert.match(html,/3\.25%/);assert.match(html,/年間配当 —円/);
+  assert.match(html,/表示する会社/);assert.match(html,/3\.25%/);assert.match(h.list('top').textContent,/年間配当 —円/);
   assert.doesNotMatch(html,/missing|0\.00%|株価 0/);
 });
 
@@ -127,14 +127,14 @@ test('identical rows are not replaced when only the fetch timestamp changes',asy
   assert.equal(h.list('top').innerHTML,previous);assert.equal(h.list('top').htmlWrites,writes);
   assert.match(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/取得 /);
   h.document.documentElement.lang='en';h.window.KNDividendView.list('top');
-  assert.equal(h.list('top').htmlWrites,writes+1);assert.match(h.list('top').innerHTML,/Annual dividend 90\.00 yen/);
+  assert.equal(h.list('top').htmlWrites,writes+1);assert.match(h.list('top').textContent,/Annual dividend 90\.00 yen/);
 });
 
 test('company and code text from a dividend response cannot introduce executable markup',async()=>{
   const h=harness();h.window.KNDividendView.list('yearly');await flush();
   await h.reply(h.request('/yearly?'),snapshot([row({name:'<img src=x onerror=alert(1)>',code:'<script>alert(1)</script>',annual_dividend:125.5,yield_pct:null,price:null})]));
   const html=h.list('yearly').innerHTML;
-  assert.match(html,/125\.50円/);assert.match(html,/利回り —%/);assert.match(html,/&lt;img/);assert.match(html,/&lt;script&gt;/);
+  assert.match(html,/125\.50円/);assert.match(h.list('yearly').textContent,/利回り —%/);assert.match(html,/&lt;img/);assert.match(html,/&lt;script&gt;/);
   assert.doesNotMatch(html,/<img|<script|0\.00%/);
 });
 
