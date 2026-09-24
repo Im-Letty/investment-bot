@@ -10,6 +10,7 @@
   --sf-rank:color-mix(in srgb,var(--sf-muted) 60%,var(--sf-paper));
   --sf-up:#287454;
   --sf-down:#ab595d;
+  --sf-navigation-width:720px;
   container-type:inline-size;
 }
 body.kn-home-a[data-theme="dark"] #knTabWrap {
@@ -37,6 +38,8 @@ body.kn-home-a #morning-section #knTabWrap>.kn-a-section-title {
 }
 body.kn-home-a #knTabWrap .kn-a-stock-tabs {
   display:grid!important;
+  width:100%;
+  max-width:var(--sf-navigation-width);
   grid-template-columns:repeat(4,minmax(0,1fr));
   gap:8px!important;
   padding:0 0 12px!important;
@@ -48,13 +51,13 @@ body.kn-home-a #knTabWrap .kn-a-stock-tabs {
 }
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {
   min-width:0;
-  min-height:43px;
+  min-height:44px;
   padding:9px 3px!important;
   border-radius:5px!important;
   color:var(--sf-muted)!important;
   font-size:calc(13px * var(--kn-a-scale,1))!important;
   font-weight:400!important;
-  white-space:normal;
+  white-space:normal!important;
   line-height:1.5!important;
 }
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
@@ -69,8 +72,8 @@ body.kn-home-a #knTabWrap>.kn-a-stock-tabs+div {
 }
 body.kn-home-a #knTabWrap #knSubRow {
   width:100%!important;
-  max-width:390px;
-  gap:16px!important;
+  max-width:var(--sf-navigation-width);
+  gap:8px!important;
   margin:0 0 18px!important;
   border-bottom:1px solid var(--sf-line)!important;
 }
@@ -89,8 +92,9 @@ body.kn-home-a #knTabWrap #knSubRow button {
   font-size:calc(13px * var(--kn-a-scale,1))!important;
   font-weight:400!important;
   line-height:1.65;
-  white-space:normal;
+  white-space:normal!important;
 }
+body.kn-home-a #knTabWrap #knSubRow button>span {display:none!important}
 body.kn-home-a #knTabWrap #knSubRow button[aria-pressed="true"] {
   color:var(--sf-ink)!important;
   border-bottom-color:var(--sf-accent)!important;
@@ -98,13 +102,17 @@ body.kn-home-a #knTabWrap #knSubRow button[aria-pressed="true"] {
 }
 body.kn-home-a #knTabWrap #knDivSubRow {
   width:100%!important;
-  max-width:390px;
-  gap:16px!important;
+  max-width:var(--sf-navigation-width);
+  gap:8px!important;
   margin:0 0 18px!important;
   border-bottom-color:var(--sf-line)!important;
 }
 body.kn-home-a #knTabWrap #knDivSubRow button {
+  flex:1 1 0!important;
+  width:0;
+  min-width:0;
   min-height:44px;
+  white-space:normal!important;
   font-size:calc(13px * var(--kn-a-scale,1))!important;
   color:var(--sf-muted)!important;
   border-bottom-color:transparent!important;
