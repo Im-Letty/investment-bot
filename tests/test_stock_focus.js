@@ -299,7 +299,7 @@ test('conditions include small changes, sort by amount or volume, and exclude un
  assert.equal(stock.ranked(data,'up',{metric:'volume'})[0].symbol,'2222.T');
  assert.equal(stock.ranked(data,'down',{market:'prime'}).length,0);
  const html=stock.rankingMarkup(data,'up','ready',{metric:'volume',market:'growth'});
- assert.match(html,/2,000株/);assert.match(html,/条件変更/);assert.doesNotMatch(html,/sf-rank-panel-down/);
+ assert.match(html,/2,000株/);assert.match(html,/並べる基準/);assert.doesNotMatch(html,/sf-rank-panel-down/);
 });
 test('ranking conditions persist and rerender when the user changes a setting',()=>{
  const h=browserHarness();
@@ -308,4 +308,16 @@ test('ranking conditions persist and rerender when the user changes a setting',(
  assert.match(h.w.localStorage.getItem('kn_rank_conditions'),/volume/);
  h.listeners.change({target:{getAttribute:()=> 'market',value:'growth'}});
  assert.match(h.elements.get('homeMoversList').innerHTML,/value="growth" selected/);
+});
+
+test('compact bar combines direction and metric and preserves the selected order',()=>{
+ const h=browserHarness();
+ h.listeners.change({target:{getAttribute:()=> 'order',value:'dropAmount'}});
+ const html=h.elements.get('homeMoversList').innerHTML;
+ assert.match(html,/value="dropAmount" selected/);
+ assert.match(html,/sf-compact-controls/);
+ assert.doesNotMatch(html,/<summary>条件変更/);
+ assert.match(h.w.localStorage.getItem('kn_rank_conditions'),/"direction":"down"/);
+ h.listeners.change({target:{getAttribute:()=> 'order',value:'volume'}});
+ assert.doesNotMatch(h.elements.get('homeMoversList').innerHTML,/sf-rank-panel-down/);
 });

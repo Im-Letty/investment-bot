@@ -258,11 +258,18 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
 @media(prefers-reduced-motion:no-preference) {
   #knTabWrap .sf-disclosure-mark .sf-vertical {transition:opacity .18s}
 }
-.sf-conditions{margin:8px 0;color:var(--kn-a-ink,#184b3c);font:inherit}
-.sf-conditions summary{cursor:pointer;text-align:right;padding:10px 0;font-size:13px}
-.sf-conditions>div{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
-.sf-conditions label{display:flex;flex-direction:column;gap:6px;font-size:12px}
-.sf-conditions select{width:100%;min-width:0;min-height:44px;border:1px solid var(--kn-a-line,#dce6d7);border-radius:8px;padding:8px;background:var(--kn-a-paper,#fffdf6);color:inherit;font:inherit;font-size:16px}
-.sf-conditions p,.sf-ranking-condition{font-size:12px;line-height:1.8;color:var(--kn-a-muted,#547467)}
+/* Approved compact A: a joined, thin-bordered bar. */
+#knTabWrap .sf-rank-toolbar[hidden]{display:none!important}
+#knTabWrap .sf-compact-controls{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,1fr);gap:0;padding:7px 0;border:1px solid var(--kn-a-line,#bdcfc3);border-radius:9px;background:var(--kn-a-paper,#fffefb);color:var(--kn-a-ink,#244f44);margin:8px 0 0}
+#knTabWrap .sf-compact-controls label{display:flex;flex-direction:column;min-width:0;padding:0 12px;gap:0}
+#knTabWrap .sf-compact-controls label+label{border-left:1px solid var(--kn-a-line,#dbe5de)}
+#knTabWrap .sf-compact-controls label>span{font:400 10px/1.7 var(--kn-a-sans,sans-serif);color:var(--kn-a-muted,#688078)}
+#knTabWrap .sf-compact-controls select{display:block;width:100%;min-width:0;min-height:36px;padding:5px 24px 5px 0;border:0;border-radius:0;background:transparent;box-shadow:none;color:inherit;font:500 16px/1.5 var(--kn-a-sans,sans-serif);cursor:pointer}
+#knTabWrap .sf-compact-controls select:focus-visible{outline:2px solid var(--kn-a-ink,#244f44);outline-offset:2px}
+#knTabWrap .sf-ranking-help{margin-top:8px;font-size:11px;color:var(--kn-a-muted,#688078)}
+#knTabWrap .sf-ranking-help summary{cursor:pointer;text-align:right;list-style:none;padding:4px 0;min-height:28px}
+#knTabWrap .sf-ranking-help summary::-webkit-details-marker{display:none}
+#knTabWrap .sf-ranking-help p{font-size:12px;line-height:1.8;padding:9px 12px;background:var(--kn-a-chip,#ecf4ee);border-radius:8px;margin:5px 0}
+#knTabWrap .sf-ranking-condition{font-size:12px;line-height:1.8;color:var(--kn-a-muted,#547467);margin:14px 0 5px}
 .sf-volume{grid-column:2/-1;text-align:right;font-size:12px}
-@media(max-width:380px){.sf-conditions>div{grid-template-columns:1fr}}
+@media(max-width:380px){#knTabWrap .sf-compact-controls label{padding-inline:9px}}
