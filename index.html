@@ -9,7 +9,7 @@
 <link rel="stylesheet" href="/static/stock-watch.css?v=20260924-sheetd1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
-<link rel="stylesheet" href="/static/dividend-view.css?v=20260924-dividend-stock1">
+<link rel="stylesheet" href="/static/dividend-view.css?v=20260925-search-a1">
 <link rel="stylesheet" href="/static/dividend-calendar.css?v=20260925-benefits1">
 <link rel="stylesheet" href="/static/company-profile.css?v=20260924-company1">
 <script defer src="/static/company-profile.js?v=20260924-company1"></script>
@@ -777,11 +777,13 @@ root.drawOuterOrbit=draw;draw(3000);
         </div>
         <div class="dividend-pane" data-pane="search" style="display:none">
           <div class="dividend-search-wrap">
+            <svg class="dividend-search-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
             <div class="dividend-search-ac-wrap">
-              <input type="text" id="dividend-search-input" data-i18n-ph="div_search_ph" placeholder="会社名 または ティッカーを入力" oninput="onDividendSearchInput()" onkeypress="if(event.key==='Enter'){closeDividendAC();doDividendSearch();}" autocomplete="off">
+              <input type="text" id="dividend-search-input" data-i18n-ph="div_search_ph" placeholder="会社名・銘柄コード" aria-label="会社名・銘柄コード" oninput="onDividendSearchInput();document.getElementById('dividend-search-clear').hidden=!this.value" onkeypress="if(event.key==='Enter'){closeDividendAC();doDividendSearch();}" autocomplete="off">
               <div class="dividend-ac-list" id="dividend-ac-list" style="display:none"></div>
             </div>
-            <button onclick="doDividendSearch()" data-i18n="div_search_btn">検索</button>
+            <button type="button" id="dividend-search-clear" class="dividend-search-clear" aria-label="入力を消す" hidden onclick="var input=document.getElementById('dividend-search-input');input.value='';this.hidden=true;closeDividendAC();document.getElementById('dividend-search-result').replaceChildren();input.focus()">×</button>
+            <button type="button" class="dividend-search-submit" onclick="closeDividendAC();doDividendSearch()" data-i18n="div_search_btn">検索</button>
           </div>
           <div class="dividend-search-result" id="dividend-search-result"></div>
         </div>
@@ -2180,7 +2182,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_tab_yearly: "年間配当",
     div_tab_cal: "カレンダー",
     div_tab_search: "検索",
-    div_search_ph: "会社名 または ティッカーを入力",
+    div_search_ph: "会社名・銘柄コード",
     div_search_btn: "検索",
     div_loading: "読み込み中...",
     div_no_data: "データがありません",

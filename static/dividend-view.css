@@ -19,3 +19,19 @@
   #knTabWrap .dividend-list .div-metric {gap:6px;flex-wrap:wrap;justify-content:flex-end}
   #knTabWrap .dividend-list .div-metric-label {margin-right:auto}
 }
+/* Approved search A: one compact field with an integrated submit button. */
+.dividend-pane[data-pane="search"] .dividend-search-wrap{display:flex;align-items:center;gap:8px;width:100%;margin:12px 0 18px;padding:0 0 0 13px;border:1px solid var(--kn-a-line,#bdcfc3);border-radius:9px;background:var(--kn-a-paper,#fffefb);color:var(--kn-a-ink,#244f44);box-shadow:none}
+.dividend-pane[data-pane="search"] .dividend-search-wrap:focus-within{outline:2px solid var(--kn-a-muted,#739f8e);outline-offset:3px}
+.dividend-pane[data-pane="search"] .dividend-search-icon{width:18px;height:18px;flex:none;stroke:currentColor;fill:none;stroke-width:1.6}
+.dividend-pane[data-pane="search"] .dividend-search-ac-wrap{min-width:0;flex:1}
+.dividend-pane[data-pane="search"] #dividend-search-input{width:100%;min-width:0;min-height:50px;padding:12px 0;border:0;border-radius:0;background:transparent;color:inherit;font:400 16px/1.6 var(--kn-a-sans,sans-serif);outline:none;box-shadow:none}
+.dividend-pane[data-pane="search"] #dividend-search-input::placeholder{color:var(--kn-a-muted,#80938b);font-size:13px}
+.dividend-pane[data-pane="search"] .dividend-search-submit{align-self:stretch;flex:none;min-height:50px;padding:10px 16px;border:0;border-left:1px solid var(--kn-a-line,#dbe5de);border-radius:0 8px 8px 0;background:var(--kn-a-chip,#f1f6ef);color:var(--kn-a-ink,#244f44);font:500 13px/1.5 var(--kn-a-sans,sans-serif);cursor:pointer;box-shadow:none}
+.dividend-pane[data-pane="search"] .dividend-search-clear{flex:none;padding:0;width:30px;min-height:44px;border:0;background:transparent;color:var(--kn-a-muted,#688078);font-size:19px;font-weight:400;box-shadow:none}
+.dividend-pane[data-pane="search"] .dividend-search-clear[hidden]{display:none!important}
+.dividend-pane[data-pane="search"] .dividend-ac-list{background:var(--kn-a-paper,#fffefb);color:var(--kn-a-ink,#244f44);border-color:var(--kn-a-line,#dbe5de);border-radius:9px}
+.dividend-pane[data-pane="search"] .dividend-search-result .res-card{background:transparent;border:0;border-bottom:1px solid var(--kn-a-line,#dbe5de);border-radius:0;padding:17px 0;color:var(--kn-a-ink,#244f44);box-shadow:none}
+.dividend-pane[data-pane="search"] .dividend-search-result .res-name,.dividend-pane[data-pane="search"] .dividend-search-result .res-val{color:var(--kn-a-ink,#244f44);font-weight:500}
+.dividend-pane[data-pane="search"] .dividend-search-result .res-label,.dividend-pane[data-pane="search"] .dividend-search-result .hist-row{color:var(--kn-a-muted,#688078)}
+.dividend-pane[data-pane="search"] .dividend-search-result .res-row{border-color:var(--kn-a-line,#dbe5de)}
+@media(max-width:380px){.dividend-pane[data-pane="search"] .dividend-search-wrap{gap:6px;padding-left:10px}.dividend-pane[data-pane="search"] .dividend-search-submit{padding-inline:12px}}
