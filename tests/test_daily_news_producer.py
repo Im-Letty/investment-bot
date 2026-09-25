@@ -98,6 +98,17 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(provider.claude.call_count,3)
         self.assertEqual(provider.gemini.call_count,1)
 
+    def test_overlapping_topics_rebuild_one_story_and_require_new_review(self):
+        provider=Mock();provider.claude.side_effect=[draft(),draft(1)]
+        provider.gemini.side_effect=[{**approved(),'approved':False,'issues':['Overlap'],
+             'checks':{**approved()['checks'],'distinct_topics':False}},approved()]
+        issue=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+        self.assertEqual(len(issue['article_refs']),1)
+        repair=provider.claude.call_args.args[1]
+        self.assertEqual(repair['maximum_articles'],1)
+        self.assertEqual([row['index'] for row in repair['articles']],[0])
+        self.assertEqual(provider.gemini.call_count,2)
+
     def test_search_failure_keeps_verified_article(self):
         provider = Mock(); provider.claude.return_value = draft(1)
         provider.gemini.side_effect = [GenerationError('gemini_unavailable'), approved()]
