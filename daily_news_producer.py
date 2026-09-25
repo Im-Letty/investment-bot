@@ -83,7 +83,13 @@ class Providers:
                             {'x-goog-api-key': self.env.get('GEMINI_API_KEY', '')}, payload, 'gemini')
         candidate = (result.get('candidates') or [{}])[0]
         if candidate.get('finishReason') != 'STOP':
-            raise GenerationError('gemini_incomplete')
+            reason = candidate.get('finishReason') or result.get('promptFeedback', {}).get('blockReason') or 'MISSING'
+            allowed = {'MAX_TOKENS', 'SAFETY', 'RECITATION', 'LANGUAGE', 'OTHER', 'BLOCKLIST',
+                       'PROHIBITED_CONTENT', 'SPII', 'MALFORMED_FUNCTION_CALL',
+                       'UNEXPECTED_TOOL_CALL', 'TOO_MANY_TOOL_CALLS', 'MISSING'}
+            reason = reason if reason in allowed else 'OTHER'
+            stage = 'discovery' if search else 'review'
+            raise GenerationError('gemini_' + stage + '_' + reason.lower())
         parts = candidate.get('content', {}).get('parts', [])
         output = ''.join(p.get('text', '') for p in parts if not p.get('thought'))
         return json_object(output)

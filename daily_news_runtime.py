@@ -26,7 +26,7 @@ BUCKET = "website-news"
 CACHE_PATH = Path("/tmp/kn-daily-news.json")
 BASELINE_PATH = Path(__file__).with_name("news-digests.json")
 ATTEMPT_INTERVAL = 15 * 60
-MAX_ATTEMPTS = 3
+MAX_ATTEMPTS = 4
 GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini_incomplete",
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
                               "future_article", "invalid_edition", "no_verified_articles",
@@ -36,7 +36,7 @@ GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini
 def _safe_generation_error(value):
     code = str(value)
     return code if (code in GENERATION_ERRORS or re.fullmatch(
-        r"(?:gemini|claude)_(?:http_[0-9]{3}|response_limit|unavailable)", code)) else "generation_failed"
+        r"(?:(?:gemini|claude)_(?:http_[0-9]{3}|response_limit|unavailable)|gemini_(?:discovery|review)_(?:max_tokens|safety|recitation|language|other|blocklist|prohibited_content|spii|malformed_function_call|unexpected_tool_call|too_many_tool_calls|missing))", code)) else "generation_failed"
 
 
 class StorageUnavailable(RuntimeError):

@@ -83,6 +83,15 @@ class ProducerTests(unittest.TestCase):
         with self.assertRaises(GenerationError): json_object('[]')
         self.assertNotIn('secret', str(configuration({'GEMINI_API_KEY': 'secret'})))
 
+    def test_finish_reason_is_specific_but_does_not_expose_provider_text(self):
+        provider=Providers({})
+        with patch.object(provider, '_post', return_value={'candidates':[{'finishReason':'MAX_TOKENS'}]}):
+            with self.assertRaisesRegex(GenerationError, '^gemini_discovery_max_tokens$'):
+                provider.gemini('find', {}, search=True)
+        with patch.object(provider, '_post', return_value={'candidates':[{'finishReason':'private secret'}]}):
+            with self.assertRaisesRegex(GenerationError, '^gemini_review_other$'):
+                provider.gemini('review', {})
+
     def test_http_errors_expose_only_status(self):
         session = MagicMock(); response = session.post.return_value.__enter__.return_value
         response.status_code = 401; response.text = 'secret invalid key'
