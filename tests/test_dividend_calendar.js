@@ -303,10 +303,14 @@ test('benefits tab separates dates and conditions and restores the dividend view
  const tabs=h.mount.find('dc-filters').children;
  assert.deepEqual(tabs.slice(0,3).map(b=>b.textContent),['配当','株主優待','お気に入り']);
  tabs[1].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,true);assert.equal(h.mount.find('dc-benefits-pane').hidden,false);
- const pane=h.mount.find('dc-benefits-pane');assert.match(pane.textContent,/2,000ポイント/);assert.match(pane.textContent,/1年以上の継続保有/);
- assert.equal(pane.find('bc-list').children.length,1);
- assert.match(pane.find('bc-pending').textContent,/KDDI/);
- pane.find('dc-month-navigation').children[2].dispatch('click');assert.equal(pane.find('bc-list').find('bc-card'),undefined);
+ const pane=h.mount.find('dc-benefits-pane'),benefits=h.w.KNBenefits;
+ const cards=()=>pane.find('bc-list').children.filter(node=>node.className==='bc-card');
+ assert.equal(cards().length,Math.min(5,benefits.rowsForMonth(MONTH).length));
+ assert.match(pane.find('dc-status').textContent,new RegExp(benefits.programmes.length+'社を掲載'));
+ if(cards().length)assert.ok(cards()[0].find('bc-tags'));
+ const pending=benefits.programmes.filter(company=>!company.schedules.some(schedule=>schedule.date>=calendar.today()));
+ assert.equal(pane.find('bc-pending').hidden,pending.length===0);assert.equal(pane.find('bc-pending').open,true);
+ pane.find('dc-month-navigation').children[2].dispatch('click');assert.equal(cards().length,Math.min(5,benefits.rowsForMonth(calendar.shift(MONTH,1)).length));
  tabs[0].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,false);assert.equal(tabs[0].getAttribute('aria-pressed'),'true');
  tabs[1].dispatch('click');tabs[2].dispatch('click');assert.equal(h.mount.find('dc-benefits-pane').hidden,true);
 });

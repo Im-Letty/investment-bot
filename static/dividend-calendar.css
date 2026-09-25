@@ -200,3 +200,8 @@
 #knDividendCalendar .bc-pending{margin:22px 0;font:400 13px/1.8 var(--kn-a-sans,sans-serif);color:var(--dc-muted)}
 #knDividendCalendar .bc-pending>summary{cursor:pointer;margin-bottom:14px}
 #knDividendCalendar .dc-filters{flex-wrap:wrap}
+/* Benefits retain the calendar layout while exposing coverage and date sources. */
+#knDividendCalendar .bc-today{margin:0 0 16px auto;min-width:0}
+#knDividendCalendar .bc-basis{margin:0}
+#knDividendCalendar .bc-date-source{display:block;margin-top:8px}
+@media(max-width:680px){#knDividendCalendar .dc-benefits-pane .dc-layout[data-searching="true"]>.dc-agenda-panel{order:-1}}
