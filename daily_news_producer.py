@@ -249,6 +249,7 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
         issue = build_issue(draft, articles, clock())
     if issue['edition_date'] != edition:
         raise GenerationError('edition_day_changed')
+    repair_data = data
     for review_attempt in range(4):
         review = providers.gemini(REVIEW, {'draft': draft, 'original_articles': data['articles']})
         passed = (review.get('approved') is True and review.get('issues') == []
@@ -261,7 +262,6 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
             failed = [key for key in CHECKS if checks.get(key) is not True]
             raise GenerationError('editorial_review_failed_' + (failed[0] if failed else 'approval'))
         duplicate_topics = isinstance(review.get('checks'), dict) and review['checks'].get('distinct_topics') is False
-        repair_data = data
         if duplicate_topics:
             # Rebuild from one verified source instead of cosmetically rewriting
             # the same overlapping selection. It is still independently reviewed.
@@ -283,7 +283,7 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
                 'correction': '実測文字数が範囲外の本文だけを250文字前後に修正。校閲済みの事実は変えず、資料外の話は追加しない。見出しは80文字以内、indexは入力の整数を維持し、JSON全体を返してください。'})
             draft = fit_lengths(draft, repair_data, providers)
             issue = build_issue(draft, articles, clock())
-        if duplicate_topics and (len(draft['articles']) != 1 or draft['articles'][0]['index'] != chosen):
+        if repair_data.get('maximum_articles') == 1 and (len(draft['articles']) != 1 or draft['articles'][0]['index'] not in repair_data['allowed_indexes']):
             raise GenerationError('editorial_review_failed_distinct_topics')
         if issue['edition_date'] != edition:
             raise GenerationError('edition_day_changed')

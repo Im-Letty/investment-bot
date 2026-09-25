@@ -118,6 +118,7 @@ class ProducerTests(unittest.TestCase):
         issue=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
         self.assertEqual(len(issue['article_refs']),1)
         self.assertEqual(provider.gemini.call_count,3)
+        self.assertEqual(len(provider.claude.call_args.args[1]['articles']),1)
 
     def test_search_failure_keeps_verified_article(self):
         provider = Mock(); provider.claude.return_value = draft(1)
