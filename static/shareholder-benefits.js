@@ -1,0 +1,28 @@
+/* Reviewed company programmes. Calendar dates are explicit, never inferred from dividends. */
+(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root)root.KNBenefits=api;})(typeof window==='undefined'?null:window,function(){
+'use strict';
+const programmes=[
+ {code:'3088',name:'マツキヨココカラ＆カンパニー',category:'日用品',reward:'2,000ポイント',shares:'100株以上',holding:'長期保有の条件なし',date:'2026-09-28',record:'2026-09-30',period:'3月末・9月末',conditions:'100〜499株の場合。9月28日の取引終了までに買い、その時点まで持つ必要があります。ポイントまたは同額の寄付を選べます。',use:'マツモトキヨシ・ココカラファインのグループ店舗やオンラインストアで利用できます。処方薬には使えません。',delivery:'郵送される案内から期限内の申し込みが必要です。付与時期は案内をご確認ください。',url:'https://www.matsukiyococokara.com/ir/stockinfo/benefits/',verified:'2026-09-25'},
+ {code:'9433',name:'KDDI',category:'ポイント',reward:'2,000円相当から',shares:'200株以上',holding:'1年以上の継続保有',date:null,record:null,period:'3月末',conditions:'1年以上5年未満は2,000円相当。株主名簿への継続した記録など、会社所定の条件があります。今から買って次の3月末まで持つだけでは、1年以上の条件を満たしません。',use:'Pontaポイントなどから選択する制度です。選択肢と手続きは会社の案内で確認できます。',delivery:'掲載内容は2026年度の制度です。同年度の申し込みは8月31日に終了しました。次回の詳しい日程は確認後に掲載します。日付未確認のため、カレンダーの件数には含めていません。',url:'https://www.kddi.com/corporate/ir/individual/stockholder/',verified:'2026-09-25'}
+];
+function rowsForMonth(month){return programmes.filter(p=>p.date&&p.date.slice(0,7)===month);}
+function create(w,mount,cal){
+ const doc=w.document;let month=cal.today().slice(0,7),selected=null,query='';
+ function el(tag,cls,text){const n=doc.createElement(tag);n.className=cls||'';if(text!==undefined)n.textContent=text;return n;}
+ function btn(text,cls,fn){const n=el('button',cls,text);n.type='button';n.addEventListener('click',fn);return n;}
+ const intro=el('p','dc-status','会社の公式情報を確認した2社を掲載。人気順ではありません。');
+ const search=el('input','dc-search');search.type='search';search.placeholder='会社名・銘柄コードで探す';search.setAttribute('aria-label','株主優待を検索');search.addEventListener('input',()=>{query=String(search.value||'').normalize('NFKC').toLowerCase().trim();selected=null;render();});
+ const nav=el('div','dc-month-navigation'),label=el('h3','dc-month'),prev=btn('‹','dc-month-arrow',()=>move(-1)),next=btn('›','dc-month-arrow',()=>move(1));prev.setAttribute('aria-label','優待カレンダーの前の月');next.setAttribute('aria-label','優待カレンダーの次の月');nav.appendChild(prev);nav.appendChild(label);nav.appendChild(next);
+ const layout=el('div','dc-layout'),left=el('section','dc-calendar-panel'),right=el('section','dc-agenda-panel'),week=el('div','dc-weekdays'),grid=el('div','dc-grid'),list=el('div','bc-list'),head=el('h4','bc-heading');
+ ['日','月','火','水','木','金','土'].forEach(d=>week.appendChild(el('span','',d)));left.appendChild(week);left.appendChild(grid);right.appendChild(head);right.appendChild(list);layout.appendChild(left);layout.appendChild(right);
+ const pending=el('details','bc-pending'),pendingBody=el('div','bc-pending-body');pending.appendChild(el('summary','','制度を確認済み・次回の日程を確認中'));
+ pending.appendChild(pendingBody);
+ const note=el('p','dc-coverage','購入の締切日を表示しています。長期保有が必要な優待は、締切当日の購入だけでは対象になりません。未掲載の会社にも優待がある場合があります。');
+ [intro,search,nav,layout,pending,note].forEach(n=>mount.appendChild(n));
+ function card(p){const box=el('details','bc-card'),summary=el('summary','bc-summary'),title=el('strong','bc-reward',p.reward),name=el('span','bc-company',p.name+'　'+p.code),tags=el('span','bc-tags',p.shares+' ／ '+p.holding);[name,title,tags,el('span','bc-date',p.date?'購入・保有の締切 '+p.date.replaceAll('-','/'):'次回の購入締切：確認中')].forEach(n=>summary.appendChild(n));box.appendChild(summary);const dl=el('dl','bc-detail');[['何がもらえる？',p.use],['保有の条件',p.conditions],['いつ届く？',p.delivery],['対象になる時期',p.record?p.record.replaceAll('-','/')+'の株主名簿で確認（年2回の制度）':p.period+'（現行制度）']].forEach(([a,b])=>{dl.appendChild(el('dt','',a));dl.appendChild(el('dd','',b));});box.appendChild(dl);const link=el('a','dc-help-source','会社の優待案内 ↗');link.href=p.url;link.target='_blank';link.rel='noopener noreferrer';box.appendChild(link);box.appendChild(el('p','dc-coverage',p.verified.replaceAll('-','/')+' 確認'));return box;}
+ function move(delta){month=cal.shift(month,delta);selected=null;render();}
+ function render(){const months=cal.bounds().months;prev.disabled=month<=months[0];next.disabled=month>=months[12];label.textContent=month.replace('-','年 ')+'月';const events=rowsForMonth(month).filter(p=>(p.name+p.code).toLowerCase().includes(query));grid.replaceChildren();cal.calendarDays(month,events.map(p=>({date:p.date,precision:'day',kind:'benefit'}))).forEach(d=>{if(!d){grid.appendChild(el('span'));return;}const b=btn(String(d.day),'dc-day',()=>{selected=selected===d.date?null:d.date;render();});if(d.count)b.appendChild(el('span','dc-day-count',d.count+'件'));b.setAttribute('aria-label',d.date+' 優待の購入締切 '+d.count+'件');b.setAttribute('aria-pressed',String(selected===d.date));grid.appendChild(b);});head.textContent=selected?selected.replaceAll('-','/')+' の購入締切':'この月の優待の購入締切';list.replaceChildren();const rows=events.filter(p=>!selected||p.date===selected);rows.forEach(p=>list.appendChild(card(p)));if(!rows.length)list.appendChild(el('p','dc-empty','この月・日付の確認済みの優待日程はありません。優待がないという意味ではありません。'));pendingBody.replaceChildren();programmes.filter(p=>!p.date&&(p.name+p.code).toLowerCase().includes(query)).forEach(p=>pendingBody.appendChild(card(p)));}
+ render();return {render};
+}
+return {programmes,rowsForMonth,create};
+});

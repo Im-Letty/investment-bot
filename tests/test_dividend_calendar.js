@@ -103,7 +103,7 @@ test('day selection, five-item pagination and month plans are separate and compa
   h.mount.find('dc-reset').dispatch('click');assert.equal(h.mount.find('dc-reset').hidden,true);assert.equal(h.mount.find('dc-list-heading').children[0].textContent,'これからの予定');
 });
 test('favorite filter shares storage updates and keyboard arrows move to the neighboring day',async()=>{
-  const h=uiHarness();await flush();await h.reply(0,fixture({range:calendar.bounds(),events:[],updated_at:Date.now()/1000}));h.mount.find('dc-filters').children[1].dispatch('click');assert.equal(h.requests.length,1);assert.match(h.mount.find('dc-empty').textContent,/お気に入りに日本株/);
+  const h=uiHarness();await flush();await h.reply(0,fixture({range:calendar.bounds(),events:[],updated_at:Date.now()/1000}));h.mount.find('dc-filters').children[2].dispatch('click');assert.equal(h.requests.length,1);assert.match(h.mount.find('dc-empty').textContent,/お気に入りに日本株/);
   h.saved.setItem(WATCH,'["7203.T"]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));assert.equal(h.requests.length,2);assert.match(h.requests[1].url,/scope=favorites/);assert.match(h.requests[1].url,/7203.T/);
   const cells=h.mount.find('dc-grid').children.filter(node=>node.dataset.date);let prevented=false;cells[3].dispatch('keydown',{key:'ArrowRight',preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.doc.activeElement,cells[4]);h.mount.find('dc-manage').dispatch('click');assert.equal(h.w.managed,true);
 });
@@ -295,4 +295,18 @@ test('company search returns companies even without calendar events and reuses t
   assert.equal(h.mount.find('dc-events').children.length,0);
   search.value='7203';search.dispatch('input');assert.equal(h.requests.length,2);assert.equal(h.mount.find('dc-search-company').dataset.companyProfile,'7203.T');
   search.value='';search.dispatch('input');assert.equal(h.mount.find('dc-company-results').hidden,true);
+});
+
+test('benefits tab separates dates and conditions and restores the dividend view',async t=>{
+ t.mock.method(Date,'now',()=>NOW);
+ const h=uiHarness();h.w.KNBenefits=require('../static/shareholder-benefits.js');await flush();await h.reply(0,fixture());
+ const tabs=h.mount.find('dc-filters').children;
+ assert.deepEqual(tabs.slice(0,3).map(b=>b.textContent),['配当','株主優待','お気に入り']);
+ tabs[1].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,true);assert.equal(h.mount.find('dc-benefits-pane').hidden,false);
+ const pane=h.mount.find('dc-benefits-pane');assert.match(pane.textContent,/2,000ポイント/);assert.match(pane.textContent,/1年以上の継続保有/);
+ assert.equal(pane.find('bc-list').children.length,1);
+ assert.match(pane.find('bc-pending').textContent,/KDDI/);
+ pane.find('dc-month-navigation').children[2].dispatch('click');assert.equal(pane.find('bc-list').find('bc-card'),undefined);
+ tabs[0].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,false);assert.equal(tabs[0].getAttribute('aria-pressed'),'true');
+ tabs[1].dispatch('click');tabs[2].dispatch('click');assert.equal(h.mount.find('dc-benefits-pane').hidden,true);
 });
