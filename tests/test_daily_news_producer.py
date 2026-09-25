@@ -71,7 +71,7 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(provider.claude.call_count,2)
         self.assertEqual(provider.gemini.call_count,2)
         self.assertEqual(provider.claude.call_args.args[1]['editorial_feedback'],rejection)
-        provider.gemini.side_effect=[rejection,rejection]
+        provider.gemini.side_effect=[rejection]*4
         with self.assertRaisesRegex(GenerationError,'editorial_review_failed_no_invented_outlook'):
             generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
 
@@ -108,6 +108,16 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(repair['maximum_articles'],1)
         self.assertEqual([row['index'] for row in repair['articles']],[0])
         self.assertEqual(provider.gemini.call_count,2)
+
+    def test_successive_editorial_findings_are_fixed_before_final_approval(self):
+        provider=Mock();provider.claude.side_effect=[draft(),draft(1),draft(1)]
+        provider.gemini.side_effect=[{**approved(),'approved':False,'issues':['Overlap'],
+             'checks':{**approved()['checks'],'distinct_topics':False}},
+             {**approved(),'approved':False,'issues':['Date ambiguity'],
+             'checks':{**approved()['checks'],'dates':False}},approved()]
+        issue=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+        self.assertEqual(len(issue['article_refs']),1)
+        self.assertEqual(provider.gemini.call_count,3)
 
     def test_search_failure_keeps_verified_article(self):
         provider = Mock(); provider.claude.return_value = draft(1)

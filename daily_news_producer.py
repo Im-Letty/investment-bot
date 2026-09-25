@@ -131,6 +131,7 @@ WRITING = '''あなたは日本経済ニュースの編集者です。入力の�
 記事ごとに何が起きたか、確認できた影響、今後の注目を短い2段落で示してください。
 資料にない未来の結果を断定しない。一般的な経済の仕組みは今回確定した影響と明確に区別。
 十分な根拠がなければ、影響や見通しを無理に足さない。過去の月の統計を今日起きたことと混同しない。
+記事の発表日と出来事の日時は別です。「今日」「昨日」「今朝」は避け、元の記事に24日の米国市場とあればそのまま「24日の米国市場」と書いてください。発表日が25日でも出来事を25日に置き換えないでください。元の記事にない日時は足さないでください。
 本文を長くコピーせず、自分の言葉で要約。記憶・見出し・検索の抜粋だけを根拠にしない。
 JSONのみ：{"headline":"...","summary":"...","articles":[{"index":0,"headline":"...","summary":"..."}]}。
 indexは入力articlesの番号です。日付・URL・配信元は生成しない。'''
@@ -248,14 +249,14 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
         issue = build_issue(draft, articles, clock())
     if issue['edition_date'] != edition:
         raise GenerationError('edition_day_changed')
-    for review_attempt in range(2):
+    for review_attempt in range(4):
         review = providers.gemini(REVIEW, {'draft': draft, 'original_articles': data['articles']})
         passed = (review.get('approved') is True and review.get('issues') == []
                   and isinstance(review.get('checks'), dict)
                   and all(review['checks'].get(key) is True for key in CHECKS))
         if passed:
             break
-        if review_attempt:
+        if review_attempt == 3:
             checks = review.get('checks') if isinstance(review.get('checks'), dict) else {}
             failed = [key for key in CHECKS if checks.get(key) is not True]
             raise GenerationError('editorial_review_failed_' + (failed[0] if failed else 'approval'))
