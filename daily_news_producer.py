@@ -190,16 +190,18 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
                 raise
     if not articles:
         raise GenerationError('no_verified_articles')
-    data = {'edition_date': edition, 'articles': articles}
+    data = {'edition_date': edition, 'articles': [{**article, 'index': i} for i, article in enumerate(articles)]}
     draft = providers.claude(WRITING, data)
     # One bounded repair for format/length errors. No speculative repeated calls.
     try:
         issue = build_issue(draft, articles, clock())
     except GenerationError as error:
-        if str(error) != 'invalid_edition':
+        if str(error) not in ('invalid_edition', 'invalid_article_selection'):
             raise
         draft = providers.claude(WRITING, {**data, 'previous_draft': draft,
-                               'correction': '各本文を200〜300文字、見出しを80文字以内のJSONに修正。資料外の話を足さない。'})
+                               'validation_error': str(error),
+                               'allowed_indexes': list(range(len(articles))),
+                               'correction': 'indexは入力記事に明記された整数をそのまま使用し、重複させない。各本文を200〜300文字、見出しを80文字以内のJSONに修正。資料外の話を足さない。'})
         issue = build_issue(draft, articles, clock())
     if issue['edition_date'] != edition:
         raise GenerationError('edition_day_changed')

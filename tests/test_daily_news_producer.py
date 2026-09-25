@@ -73,6 +73,19 @@ class ProducerTests(unittest.TestCase):
         generate_edition(NOW, providers=provider, collector=lambda _: articles(), clock=lambda: NOW)
         self.assertEqual(provider.claude.call_count, 2)
 
+    def test_article_indexes_are_explicit_and_invalid_indexes_get_one_repair(self):
+        provider=Mock();bad=draft();bad['articles'][0]['index']='0'
+        provider.claude.side_effect=[bad,draft()];provider.gemini.return_value=approved()
+        result=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+        self.assertEqual(len(result['article_refs']),2)
+        data=provider.claude.call_args_list[0].args[1]
+        self.assertEqual([a['index'] for a in data['articles']],[0,1,2])
+        self.assertEqual(provider.claude.call_args.args[1]['validation_error'],'invalid_article_selection')
+        self.assertEqual(provider.claude.call_count,2)
+        provider.claude.side_effect=[bad,bad]
+        with self.assertRaisesRegex(GenerationError,'invalid_article_selection'):
+            generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+
     def test_midnight_completion_does_not_publish_as_another_day(self):
         provider = Mock(); provider.claude.return_value = draft(); provider.gemini.return_value = approved()
         with self.assertRaises(GenerationError):
