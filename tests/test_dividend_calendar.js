@@ -17,8 +17,8 @@ test('JST month bounds cover the same month next year across the year',()=>{
 });
 test('month-only payment plans never acquire days and are excluded from date dots and upcoming day lists',()=>{
   const data=calendar.normalize(fixture(),MONTH,'all',[],NOW);assert.equal(data.events.length,3);const plan=data.events.find(row=>row.precision==='month');assert.equal(plan.date,null);assert.equal(plan.period,MONTH);
-  const days=calendar.calendarDays(MONTH,data.events,'2026-09-24');assert.equal(days.length,42);assert.equal(days.filter(Boolean).length,30);assert.equal(days.find(row=>row&&row.day===28).count,1);assert.equal(days.reduce((sum,row)=>sum+(row?row.count:0),0),2);
-  assert.equal(calendar.visibleEvents(data,null,'2026-09-24').length,2);assert.equal(calendar.visibleEvents(data,'2026-09-29','2026-09-24')[0].kind,'ex_dividend');assert.equal(calendar.visibleEvents(data,null,'2026-09-30').length,0);
+  const days=calendar.calendarDays(MONTH,data.events,'2026-09-24');assert.equal(days.length,42);assert.equal(days.filter(Boolean).length,30);assert.equal(days.find(row=>row&&row.day===28).count,1);assert.equal(days.reduce((sum,row)=>sum+(row?row.count:0),0),1);
+  assert.equal(calendar.visibleEvents(data,null,'2026-09-24').length,1);assert.equal(calendar.visibleEvents(data,'2026-09-29','2026-09-24').length,0);assert.equal(days.find(row=>row&&row.day===29).count,0);assert.equal(calendar.visibleEvents(data,null,'2026-09-30').length,0);
 });
 test('normalization rejects invented dates, unsafe sources, wrong months and mismatched favorite companies',()=>{
   const raw=fixture();raw.events.push(event({date:'2026-09-31'}),event({date:'2026-10-01'}),event({kind:'holding_deadline',precision:'month',period:MONTH}),event({date:'2026-09-25',source:{title:'bad',url:'javascript:alert(1)'}}),event({date:'2026-09-26',verified_on:'2026-09-25'}),event());
@@ -167,6 +167,7 @@ test('each event date has the shared detail card and only validated deadlines ar
   ];
   await h.reply(0,fixture({events:rows}));
   for(const item of rows){
+    if(item.kind==='ex_dividend'){h.mount.find('dc-grid').children.find(cell=>cell.dataset.date===item.date).dispatch('click');assert.equal(h.mount.find('dc-events').children.length,0);continue;}
     h.mount.find('dc-grid').children.find(cell=>cell.dataset.date===item.date).dispatch('click');
     const row=h.mount.find('dc-events').children[0],story=row.find('dc-holding-story');
     assert.ok(story);assert.equal(story.find('dc-dividend-values').children.length,2);assert.equal(story.find('dc-price-values').children.length,2);assert.equal(story.find('dc-broker-links').children.length,3);
@@ -182,23 +183,18 @@ test('each event date has the shared detail card and only validated deadlines ar
   }
 });
 
-test('past ex-date cards distinguish historical forecasts and dates from current share prices',async t=>{
+test('deadline card keeps the sell-from explanation while duplicate ex-date stays hidden',async t=>{
   t.mock.method(Date,'now',()=>NOW);
   const h=uiHarness();await flush();
-  const dividend={record_date:'2026-09-18',per_share:19,currency:'JPY',status:'forecast',announced_on:'2026-09-01',verified_on:'2026-09-24',source:{title:'当時の会社予想',url:'https://example.com/forecast'}};
-  const history=event({symbol:'6861.T',date:'2026-09-17',kind:'ex_dividend',source:{title:'記録済みの権利落ち日',url:'https://finance.yahoo.com/quote/6861.T/'}});
-  const official=event({date:'2026-09-17',kind:'ex_dividend',holding_deadline:'2026-09-16',ex_dividend_date:'2026-09-17',record_date:'2026-09-18',dividend});
-  await h.reply(0,fixture({events:[history,official]}));
-  h.mount.find('dc-grid').children.find(cell=>cell.dataset.date==='2026-09-17').dispatch('click');
-  const cards=h.mount.find('dc-events').children;
-  assert.equal(cards.length,2);
-  for(const row of cards){
-    const story=row.find('dc-holding-story');assert.match(story.find('dc-past-event').textContent,/過去の配当日程/);assert.match(story.find('dc-dividend-heading').textContent,/当時の配当予想/);assert.match(story.find('dc-price-heading').textContent,/現在の購入金額の目安/);assert.match(story.find('dc-after-deadline').textContent,/9\/17（木） 権利落ち日/);assert.doesNotMatch(story.textContent,/当日に買っても対象です/);assert.equal(story.find('dc-price-note'),undefined);
-  }
-  const unknown=cards.find(row=>row.__priceSymbol==='6861.T').find('dc-holding-story');
-  assert.equal(unknown.find('dc-range-value').textContent,'日程未確認');assert.doesNotMatch(unknown.textContent,/9\/16/);assert.match(unknown.find('dc-dividend-values').textContent,/金額未確認/);assert.match(unknown.find('dc-evidence').textContent,/記録済みの権利落ち日/);
-  const known=cards.find(row=>row.__priceSymbol==='7203.T').find('dc-holding-story');
-  assert.match(known.find('dc-range-value').textContent,/9\/16/);assert.equal(known.find('dc-dividend-values').textContent,'1株保有した場合19円100株保有した場合1,900円');assert.match(known.find('dc-dividend-note').textContent,/当時の会社予想/);assert.match(known.find('dc-evidence').textContent,/配当予想の発表 2026\/09\/01/);
+  const base=event({holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29',record_date:'2026-09-30'});
+  await h.reply(0,fixture({events:[base,event({...base,date:'2026-09-29',kind:'ex_dividend'})]}));
+  h.mount.find('dc-grid').children.find(cell=>cell.dataset.date==='2026-09-28').dispatch('click');
+  assert.equal(h.mount.find('dc-events').children.length,1);
+  const story=h.mount.find('dc-holding-story');
+  assert.match(story.find('dc-range-value').textContent,/9\/28/);
+  assert.match(story.find('dc-after-deadline').textContent,/9\/29/);
+  h.mount.find('dc-grid').children.find(cell=>cell.dataset.date==='2026-09-29').dispatch('click');
+  assert.equal(h.mount.find('dc-events').children.length,0);
 });
 
 test('month-only payments share the full card and live prices with day cards without inventing deadlines',async t=>{

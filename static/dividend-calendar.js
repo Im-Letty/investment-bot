@@ -58,10 +58,10 @@
     return {events,coverage,range:{start,end},updated_at:stamp,universe_as_of:day(raw.universe_as_of),status:raw.status==='loading'?'pending':['ready','stale','pending','unavailable'].includes(raw.status)?raw.status:'ready',refreshing:raw.refreshing===true,month:selected,scope};
   }
   function calendarDays(selected,events,current=today()){
-    const first=new Date(selected+'-01T00:00:00Z'),offset=first.getUTCDay(),length=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate(),counts=new Map();events.forEach(event=>{if(event.precision==='day')counts.set(event.date,(counts.get(event.date)||0)+1);});
+    const first=new Date(selected+'-01T00:00:00Z'),offset=first.getUTCDay(),length=new Date(Date.UTC(first.getUTCFullYear(),first.getUTCMonth()+1,0)).getUTCDate(),counts=new Map();events.forEach(event=>{if(event.precision==='day'&&event.kind!=='ex_dividend')counts.set(event.date,(counts.get(event.date)||0)+1);});
     return Array.from({length:42},(_,index)=>{const n=index-offset+1;if(n<1||n>length)return null;const date=selected+'-'+String(n).padStart(2,'0');return {date,day:n,count:counts.get(date)||0,today:date===current};});
   }
-  function visibleEvents(data,selectedDate,current=today()){return data?data.events.filter(event=>event.precision==='day'&&(selectedDate?event.date===selectedDate:event.date>=current)):[];}
+  function visibleEvents(data,selectedDate,current=today()){return data?data.events.filter(event=>event.precision==='day'&&event.kind!=='ex_dividend'&&(selectedDate?event.date===selectedDate:event.date>=current)):[];}
   function createLoader(env,onState){
     const now=env.now||Date.now,set=env.setTimeout||setTimeout,clear=env.clearTimeout||clearTimeout;let serial=0,active=null,last=null;const memory=new Map();
     function keyOf(query){return query.month+'|'+query.scope+'|'+query.symbols.slice().sort().join(',');}
@@ -245,7 +245,7 @@
           row.__favorite.hidden=!saved.has(event.symbol);return row;
         });node.replaceChildren(...rows);
       }
-      function renderLists(){const data=current&&current.data,events=prioritize((searchText&&!selectedDate?(data?data.events.filter(event=>event.precision==='day'):[]):visibleEvents(data,selectedDate,today())).filter(matches));refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':searchText?'検索結果':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
+      function renderLists(){const data=current&&current.data,events=prioritize((searchText&&!selectedDate?(data?data.events.filter(event=>event.precision==='day'&&event.kind!=='ex_dividend'):[]):visibleEvents(data,selectedDate,today())).filter(matches));refs.list.dataset.selectedDay=String(!!selectedDate);refs.heading.textContent=selectedDate?Number(selectedDate.slice(5,7))+'/'+Number(selectedDate.slice(8))+' '+['日','月','火','水','木','金','土'][new Date(selectedDate+'T00:00:00Z').getUTCDay()]+'曜日の予定':searchText?'検索結果':'これからの予定';refs.clear.hidden=!selectedDate;drawList(refs.list,events.slice(0,limit));refs.more.hidden=events.length<=limit;refs.more.textContent='もっと見る（残り'+Math.max(0,events.length-limit)+'件）';
         refs.empty.hidden=events.length>0;refs.empty.textContent=!data?(current&&current.status==='error'?'日程を確認できませんでした。再確認をお試しください。':'予定を確認しています…'):scope==='favorites'&&!favorites.symbols.length?'お気に入りに日本株を追加すると、確認できた予定が表示されます。':searchText?'この月に一致する確認済みの予定はありません。':selectedDate?'この日に確認できた予定はありません。':'この月のこれからの予定は、まだ確認できていません。';
         const plans=prioritize(data?data.events.filter(event=>event.precision==='month'&&matches(event)):[]);refs.plans.hidden=!plans.length;refs.planHeading.textContent=Number(monthValue.slice(5))+'月の支払い予定';drawList(refs.planList,plans.slice(0,monthLimit));refs.planMore.hidden=plans.length<=monthLimit;refs.planMore.textContent='もっと見る（残り'+Math.max(0,plans.length-monthLimit)+'件）';syncPrices();
       }
