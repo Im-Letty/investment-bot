@@ -87,6 +87,17 @@ class ProducerTests(unittest.TestCase):
         self.assertEqual(measured[0]['characters'],180)
         self.assertEqual(measured[0]['required_min'],200)
 
+    def test_surgical_length_repair_preserves_source_indexes_and_other_text(self):
+        provider=Mock();short={**draft(),'summary':'x'*180}
+        provider.claude.side_effect=[short,short,{'replacements':[{'field':'summary','text':'x'*250},
+            {'field':'articles[0].summary','text':'bad'*80}]}]
+        provider.gemini.return_value=approved()
+        issue=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+        self.assertEqual(issue['summary'],'x'*250)
+        self.assertEqual(issue['article_summaries'][0]['summary'],draft()['articles'][0]['summary'])
+        self.assertEqual(provider.claude.call_count,3)
+        self.assertEqual(provider.gemini.call_count,1)
+
     def test_search_failure_keeps_verified_article(self):
         provider = Mock(); provider.claude.return_value = draft(1)
         provider.gemini.side_effect = [GenerationError('gemini_unavailable'), approved()]
