@@ -432,7 +432,7 @@ class DailyNewsRuntime:
         if not self.enabled:
             self._set("disabled")
             return
-        if not 7 * 60 + 45 <= minute < 22 * 60:
+        if not 7 * 60 <= minute < 22 * 60:
             return
         attempts = []
         for index in range(1, MAX_ATTEMPTS + 1):

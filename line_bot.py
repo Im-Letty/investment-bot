@@ -2278,7 +2278,7 @@ def api_news_publication():
     status = _daily_news.snapshot()
     status.update(configured=_news_config["configured"],
                   missing=_news_config["missing"],
-                  schedule="08:00 Asia/Tokyo", preparation="07:45 Asia/Tokyo")
+                  schedule="08:00 Asia/Tokyo", preparation="07:00 Asia/Tokyo")
     response = jsonify(status)
     response.headers["Cache-Control"] = "no-store"
     return response

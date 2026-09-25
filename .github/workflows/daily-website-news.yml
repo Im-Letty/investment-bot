@@ -1,7 +1,9 @@
 name: Daily website news
 on:
   schedule:
-    # Start before 08:00 Japan time. Server performs preparation at 07:45.
+    # Wake at 06:47 Japan time, ahead of 07:00 preparation / 08:00 release.
+    # Later schedules also recover from delayed or missed scheduled runs.
+    - cron: '47 21 * * *'
     - cron: '17,47 22 * * *'
     - cron: '17 23,0 * * *'
   workflow_dispatch:
@@ -13,7 +15,7 @@ concurrency:
 jobs:
   prepare-and-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 70
+    timeout-minutes: 105
     steps:
       - uses: actions/checkout@v4
       - name: Keep the website awake and verify the morning edition

@@ -107,8 +107,8 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(after["edition_date"], "2026-09-24")
         self.generator.assert_called_once()
 
-    def test_generation_window_includes_0745_and_excludes_2200(self):
-        for hour, minute, allowed in ((0, 0, False), (7, 44, False), (7, 45, True),
+    def test_generation_window_includes_0700_and_excludes_2200(self):
+        for hour, minute, allowed in ((0, 0, False), (6, 59, False), (7, 0, True), (7, 44, True),
                                        (21, 59, True), (22, 0, False), (23, 59, False)):
             with self.subTest(hour=hour, minute=minute):
                 self.now = at(hour=hour, minute=minute)

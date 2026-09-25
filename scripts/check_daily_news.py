@@ -8,10 +8,18 @@ BASE = 'https://investment-bot-ta24.onrender.com'
 JST = timezone(timedelta(hours=9))
 
 
+def check_window_seconds(now):
+    """Cover early preparation through 08:20, with a bounded late retry window."""
+    release_grace = now.replace(hour=8, minute=20, second=0, microsecond=0)
+    return min(100 * 60, max(65 * 60, (release_grace - now).total_seconds()))
+
+
 def main():
     started = time.monotonic()
-    expected = datetime.now(JST).date().isoformat()
-    while time.monotonic() - started < 65 * 60:
+    initial = datetime.now(JST)
+    expected = initial.date().isoformat()
+    window = check_window_seconds(initial)
+    while time.monotonic() - started < window:
         now = datetime.now(JST)
         if now.date().isoformat() != expected:
             raise SystemExit('Japan date changed before publication')
