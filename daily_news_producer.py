@@ -82,6 +82,12 @@ class Providers:
         result = self._post(f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
                             {'x-goog-api-key': self.env.get('GEMINI_API_KEY', '')}, payload, 'gemini')
         candidate = (result.get('candidates') or [{}])[0]
+        # Retry only interrupted output, never a safety rejection or failed review.
+        if candidate.get('finishReason') == 'MAX_TOKENS':
+            payload['generationConfig']['maxOutputTokens'] = 12000
+            result = self._post(f'https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent',
+                                {'x-goog-api-key': self.env.get('GEMINI_API_KEY', '')}, payload, 'gemini')
+            candidate = (result.get('candidates') or [{}])[0]
         if candidate.get('finishReason') != 'STOP':
             reason = candidate.get('finishReason') or result.get('promptFeedback', {}).get('blockReason') or 'MISSING'
             allowed = {'MAX_TOKENS', 'SAFETY', 'RECITATION', 'LANGUAGE', 'OTHER', 'BLOCKLIST',

@@ -27,6 +27,7 @@ from urllib3 import HTTPSConnectionPool
 JST = timezone(timedelta(hours=9))
 NHK_FEED = "https://www.nhk.or.jp/rss/news/cat5.xml"
 REUTERS_PAGES = ("https://www.reuters.com/business/", "https://www.reuters.com/world/japan/")
+REUTERS_DISTRIBUTION_PAGE = "https://www.newsweekjapan.jp/list/headlines/business"
 MAX_ARTICLES = 8
 MAX_CANDIDATES = 24
 MAX_WORKERS = 3
@@ -69,7 +70,7 @@ def _safe_url(value):
                 or p.password is not None or p.port not in (None, 443)):
             return None
         if host in ("newsweekjapan.jp", "www.newsweekjapan.jp"):
-            if not (p.path.startswith("/headlines/") or re.fullmatch(r"/articles/-/\d+/?", p.path)):
+            if not (p.path == '/list/headlines/business' or p.path.startswith("/headlines/") or re.fullmatch(r"/articles/-/\d+/?", p.path)):
                 return None
         return urlunsplit(("https", host, p.path or "/", p.query, ""))
     except (ValueError, UnicodeError):
@@ -374,6 +375,11 @@ def _discover(url, now, deadline):
             if not isinstance(raw, str):
                 continue
             link = _safe_url(urljoin(final_url, raw))
+            if (url == REUTERS_DISTRIBUTION_PAGE and link
+                    and urlsplit(link).hostname == 'www.newsweekjapan.jp'
+                    and re.fullmatch(r'/articles/-/\d+/?', urlsplit(link).path)):
+                candidates.append(link)
+                continue
             if (link and _family(urlsplit(link).hostname) == "reuters"
                     and re.search(r"/\d{4}-\d{2}-\d{2}/?$|-\d{4}-\d{2}-\d{2}/?$", urlsplit(link).path)
                     and urlsplit(link).path.startswith(("/business/", "/markets/", "/world/japan/"))):
@@ -421,7 +427,7 @@ def collect_articles(now, candidate_urls=None):
     for value in islice(candidate_urls or [], MAX_CANDIDATES):
         if safe := _safe_url(value):
             supplied.append(safe)
-    discoveries = [] if supplied else _parallel([NHK_FEED, *REUTERS_PAGES], lambda url: _discover(url, now, deadline), deadline)
+    discoveries = [] if supplied else _parallel([NHK_FEED, REUTERS_DISTRIBUTION_PAGE, *REUTERS_PAGES], lambda url: _discover(url, now, deadline), deadline)
     urls = list(dict.fromkeys(supplied + [url for batch in discoveries for url in batch]))[:MAX_CANDIDATES]
 
     def fetch(url):

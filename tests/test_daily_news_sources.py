@@ -210,6 +210,18 @@ class CollectionTests(unittest.TestCase):
         self.assertEqual(records[0]["url"], url)
         self.assertEqual(records[0]["evidence_url"], full)
 
+    def test_reuters_distribution_list_finds_articles_without_ai_search(self):
+        page=b'<a href="/articles/-/123">one</a><a href="/articles/-/123">duplicate</a><a href="https://evil.test/articles/-/456">bad</a>'
+        with patch.object(sources, '_download', return_value=(page,sources.REUTERS_DISTRIBUTION_PAGE)):
+            self.assertEqual(sources._discover(sources.REUTERS_DISTRIBUTION_PAGE,NOW,time.monotonic()+10),
+                             ['https://www.newsweekjapan.jp/articles/-/123'])
+        self.assertIsNone(sources._safe_url('https://www.newsweekjapan.jp/list/unrelated'))
+
+    def test_distribution_discovery_still_requires_today_and_reuters_attribution(self):
+        url='https://www.newsweekjapan.jp/articles/-/123'
+        self.assertIsNone(extract(html(url=url),url))
+        self.assertIsNone(extract(html(url=url,published='2026-09-23T07:00:00+09:00',fields={'author':'Reuters'}),url))
+
     def test_outage_and_headline_only_discovery_return_empty_without_generation(self):
         with patch.object(sources, "_download", side_effect=OSError("outage")):
             self.assertEqual(sources.collect_articles(NOW), [])

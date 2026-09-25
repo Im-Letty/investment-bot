@@ -92,6 +92,18 @@ class ProducerTests(unittest.TestCase):
             with self.assertRaisesRegex(GenerationError, '^gemini_review_other$'):
                 provider.gemini('review', {})
 
+    def test_token_limit_has_one_bounded_retry_but_safety_never_retries(self):
+        provider=Providers({})
+        complete={'candidates':[{'finishReason':'STOP','content':{'parts':[{'text':'{"approved":true}'}]}}]}
+        with patch.object(provider,'_post',side_effect=[{'candidates':[{'finishReason':'MAX_TOKENS'}]},complete]) as post:
+            self.assertTrue(provider.gemini('review',{})['approved'])
+            self.assertEqual(post.call_count,2)
+            self.assertEqual(post.call_args.args[2]['generationConfig']['maxOutputTokens'],12000)
+        with patch.object(provider,'_post',return_value={'candidates':[{'finishReason':'SAFETY'}]}) as post:
+            with self.assertRaisesRegex(GenerationError,'gemini_review_safety'):
+                provider.gemini('review',{})
+            self.assertEqual(post.call_count,1)
+
     def test_http_errors_expose_only_status(self):
         session = MagicMock(); response = session.post.return_value.__enter__.return_value
         response.status_code = 401; response.text = 'secret invalid key'

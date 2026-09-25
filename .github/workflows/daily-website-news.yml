@@ -2,7 +2,8 @@ name: Daily website news
 on:
   schedule:
     # Start before 08:00 Japan time. Server performs preparation at 07:45.
-    - cron: '32 22 * * *'
+    - cron: '17,47 22 * * *'
+    - cron: '17 23,0 * * *'
   workflow_dispatch:
 permissions:
   contents: read

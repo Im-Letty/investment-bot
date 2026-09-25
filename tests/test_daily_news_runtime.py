@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from daily_news_runtime import (DailyNewsRuntime, StorageUnavailable, SupabaseNewsStorage,
-                                ATTEMPT_INTERVAL, start)
+                                ATTEMPT_INTERVAL, MAX_ATTEMPTS, start)
 from news_cache import JST, load_reviewed_digests, select_daily_news
 
 
@@ -116,7 +116,7 @@ class RuntimeTests(unittest.TestCase):
                 self.runtime(storage=MemoryStorage(), generator=generator).run_once()
                 self.assertEqual(generator.call_count, int(allowed))
 
-    def test_attempts_are_durable_spaced_fifteen_minutes_and_capped_at_four(self):
+    def test_attempts_are_durable_spaced_and_capped(self):
         self.generator.side_effect = ValueError("provider secret must never be returned")
         runtime = self.runtime()
         self.assertEqual(runtime.run_once()["status"], "generation_failed")
@@ -131,13 +131,14 @@ class RuntimeTests(unittest.TestCase):
         self.now += ATTEMPT_INTERVAL
         runtime.run_once()
         self.now += ATTEMPT_INTERVAL
-        runtime.run_once()
-        self.now += ATTEMPT_INTERVAL
+        for _ in range(MAX_ATTEMPTS - 3):
+            runtime.run_once()
+            self.now += ATTEMPT_INTERVAL
         state = self.runtime().run_once()
         self.assertEqual(state["status"], "daily_limit")
-        self.assertEqual(state["attempt_count"], 4)
-        self.assertEqual(self.generator.call_count, 4)
-        self.assertEqual(len([key for key in self.storage.values if key.endswith(".lock")]), 4)
+        self.assertEqual(state["attempt_count"], MAX_ATTEMPTS)
+        self.assertEqual(self.generator.call_count, MAX_ATTEMPTS)
+        self.assertEqual(len([key for key in self.storage.values if key.endswith(".lock")]), MAX_ATTEMPTS)
         self.assertFalse(self.cache.exists())
 
     def test_next_japan_day_gets_a_separate_attempt_budget(self):
