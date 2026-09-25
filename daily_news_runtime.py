@@ -26,7 +26,7 @@ BUCKET = "website-news"
 CACHE_PATH = Path("/tmp/kn-daily-news.json")
 BASELINE_PATH = Path(__file__).with_name("news-digests.json")
 ATTEMPT_INTERVAL = 5 * 60
-MAX_ATTEMPTS = 7
+MAX_ATTEMPTS = 8
 GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini_incomplete",
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
                               "future_article", "invalid_edition", "no_verified_articles",

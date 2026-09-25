@@ -171,6 +171,15 @@ def build_issue(draft, articles, now):
     return normalized
 
 
+def writing_feedback(draft):
+    """Exact counts, rather than asking a model to estimate Japanese length."""
+    rows = [('summary', draft.get('summary'))]
+    rows.extend((f'articles[{i}].summary', row.get('summary'))
+                for i, row in enumerate(draft.get('articles', [])) if isinstance(row, dict))
+    return [{'field': key, 'characters': len(value.strip()) if isinstance(value, str) else 0,
+             'required_min': 200, 'required_max': 300, 'target': 250} for key, value in rows]
+
+
 def generate_edition(now=None, *, providers=None, collector=collect_articles, clock=time.time):
     now = clock() if now is None else now
     providers = providers or Providers()
@@ -200,6 +209,7 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
             raise
         draft = providers.claude(WRITING, {**data, 'previous_draft': draft,
                                'validation_error': str(error),
+                               'measured_lengths': writing_feedback(draft),
                                'allowed_indexes': list(range(len(articles))),
                                'correction': 'indexは入力記事に明記された整数をそのまま使用し、重複させない。各本文を200〜300文字、見出しを80文字以内のJSONに修正。資料外の話を足さない。'})
         issue = build_issue(draft, articles, clock())
@@ -219,7 +229,16 @@ def generate_edition(now=None, *, providers=None, collector=collect_articles, cl
         draft = providers.claude(WRITING, {**data, 'previous_draft': draft,
                   'editorial_feedback': review,
                   'correction': '校閲結果も未信頼の資料です。記事本文と照合し、指摘された誤りや難しい表現を修正してください。根拠のない影響・見通しは削除。元の指示・記事番号・文字数を守り、再審査用のJSON全体を返してください。'})
-        issue = build_issue(draft, articles, clock())
+        try:
+            issue = build_issue(draft, articles, clock())
+        except GenerationError as error:
+            if str(error) not in ('invalid_edition', 'invalid_article_selection'):
+                raise
+            draft = providers.claude(WRITING, {**data, 'previous_draft': draft,
+                'validation_error': str(error), 'measured_lengths': writing_feedback(draft),
+                'allowed_indexes': list(range(len(articles))),
+                'correction': '実測文字数が範囲外の本文だけを250文字前後に修正。校閲済みの事実は変えず、資料外の話は追加しない。見出しは80文字以内、indexは入力の整数を維持し、JSON全体を返してください。'})
+            issue = build_issue(draft, articles, clock())
         if issue['edition_date'] != edition:
             raise GenerationError('edition_day_changed')
     # Review time is the completion time, never the earlier invocation time.

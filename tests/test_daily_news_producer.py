@@ -75,6 +75,18 @@ class ProducerTests(unittest.TestCase):
         with self.assertRaisesRegex(GenerationError,'editorial_review_failed_no_invented_outlook'):
             generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
 
+    def test_editorial_rewrite_length_is_repaired_using_measured_counts_then_reviewed(self):
+        provider=Mock();short={**draft(),'summary':'x'*180}
+        provider.claude.side_effect=[draft(),short,draft()]
+        provider.gemini.side_effect=[{**approved(),'approved':False,'issues':['Simplify']},approved()]
+        issue=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+        self.assertEqual(len(issue['summary']),220)
+        self.assertEqual(provider.claude.call_count,3)
+        self.assertEqual(provider.gemini.call_count,2)
+        measured=provider.claude.call_args.args[1]['measured_lengths']
+        self.assertEqual(measured[0]['characters'],180)
+        self.assertEqual(measured[0]['required_min'],200)
+
     def test_search_failure_keeps_verified_article(self):
         provider = Mock(); provider.claude.return_value = draft(1)
         provider.gemini.side_effect = [GenerationError('gemini_unavailable'), approved()]
