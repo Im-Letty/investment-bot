@@ -157,7 +157,7 @@
     }
     const market=group('株価と会社の大きさ');metric(market,'price','株価');metric(market,'cap','時価総額','会社の株を全部合わせた値段');
     const dividends=group('配当');metric(dividends,'annual','過去1年の実績配当','1株あたり');metric(dividends,'forward','予想配当（今後1年の目安）','1株あたり。会社が出す年度ごとの予想とは異なります。');
-    metric(dividends,'exDate','配当の権利が外れる日','権利落ち日です。配当の支払日とは異なります。');metric(dividends,'paymentDate','配当の支払日');
+    metric(dividends,'exDate','次回の権利落ち日','権利落ち日です。配当の支払日とは異なります。');metric(dividends,'paymentDate','配当の支払日');
     const targets=group('専門家の予想');metric(targets,'target','アナリストの目標株価（平均）','専門家の予想・保証ではありません。');
     refs.targetRange=el('p','cp-fact-note');refs.targetDate=el('p','cp-fact-note');append(targets.box,refs.targetRange,refs.targetDate);
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.reviewed,refs.sources);
@@ -179,10 +179,10 @@
       setMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
       setMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?'取得 '+stamp(data.dividend_fetched_at):'取得日：未確認'):null);
       setMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
-      function schedule(value){return day(value)?dateText(value)+(value>today(Date.now())?'（予定）':''):null;}
+      function schedule(value){return w.KNDividendDates?w.KNDividendDates.describe(value):null;}
       setMetric('exDate',schedule(data.ex_dividend_date),day(data.ex_dividend_date)?fetched('ex_dividend_date'):null);
       const paymentMonth=month(data.dividend_payment_period),paymentDate=day(data.dividend_payment_date);
-      const paymentValue=paymentDate?schedule(paymentDate):paymentMonth?paymentMonth.slice(0,4)+'年'+Number(paymentMonth.slice(5))+'月'+(paymentMonth>today(Date.now()).slice(0,7)?'（予定）':''):null;
+      const paymentValue=paymentDate?schedule(paymentDate):paymentMonth?(w.KNDividendDates?w.KNDividendDates.describe(paymentMonth,Date.now(),true):null):null;
       setMetric('paymentDate',paymentValue,paymentDate?fetched('dividend_payment_date'):paymentMonth?'日付は未公表 / '+fetched('dividend_payment_period'):null);
       const analyst=data.analyst_target;
       setMetric('target',money(analyst&&analyst.mean,currency),analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?fetched('analyst_target'):null);

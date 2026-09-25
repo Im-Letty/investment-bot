@@ -12,7 +12,8 @@
 <link rel="stylesheet" href="/static/dividend-view.css?v=20260925-search-a1">
 <link rel="stylesheet" href="/static/dividend-calendar.css?v=20260925-benefits1">
 <link rel="stylesheet" href="/static/company-profile.css?v=20260924-company1">
-<script defer src="/static/company-profile.js?v=20260924-company1"></script>
+<script defer src="/static/dividend-dates.js?v=20260925-dates1"></script>
+<script defer src="/static/company-profile.js?v=20260925-dates1"></script>
 <script defer src="/static/dividend-data.js?v=20260924-dividend2"></script>
 <script defer src="/static/dividend-view.js?v=20260924-company1"></script>
 <script defer src="/static/calendar-prices.js?v=20260924-calendar-prices2"></script>
@@ -1059,7 +1060,7 @@ document.addEventListener('DOMContentLoaded',startApprovedIntro,{once:true});
             '<div class="res-row"><span class="res-label">' + _divT('div_yield','Yield') + '</span><span class="res-val" style="color:#dc2626">' + (Number.isFinite(d.yield_pct)?d.yield_pct.toFixed(2):'—') + '%</span></div>' +
             '<div class="res-row"><span class="res-label">' + _divT('div_annual','Annual') + '</span><span class="res-val">' + (Number.isFinite(d.annual_dividend)?d.annual_dividend.toFixed(2):'—') + yen + '</span></div>' +
             '<div class="res-row"><span class="res-label">' + _divT('div_payout','Payout') + '</span><span class="res-val">' + (Number.isFinite(d.payout_ratio)?d.payout_ratio.toFixed(1):'—') + '%</span></div>' +
-            '<div class="res-row"><span class="res-label">' + _divT('div_ex_date','Ex-Div') + '</span><span class="res-val">' + (d.ex_dividend_date || '-') + '</span></div>' +
+            '<div class="res-row"><span class="res-label">' + _divT('div_ex_date','Ex-Div') + '</span><span class="res-val">' + window.KNDividendDates.describe(d.ex_dividend_date) + '</span></div>' +
             '</div>';
           if (d.history && d.history.length > 0) {
             html += '<div class="res-card"><div style="font-weight:700;margin-bottom:6px">' + _divT('div_history','History') + '</div>';
