@@ -109,6 +109,7 @@ class ScannerRouteTests(unittest.TestCase):
             updated_at=NOW, cache_age_sec=0, stale=False, refreshing=False)
         context = dict(app=self.app, jsonify=jsonify, request=request, math=math,
                        time=SimpleNamespace(time=lambda: NOW), _SCANNER_TTL=600,
+                       _SCANNER_UNIVERSE={key: {"name": key, "market": "prime"} for key in self.jp},
                        _scanner_snapshot=self.snapshot, _SCANNER_TICKERS_JP=self.jp, _SCANNER_TICKERS_US=self.us)
         exec(compile(ast.Module(body=nodes, type_ignores=[]), str(ROOT / "line_bot.py"), "exec"), context)
         self.client = self.app.test_client()
@@ -121,7 +122,7 @@ class ScannerRouteTests(unittest.TestCase):
         self.assertEqual(data["total_scanned"], 50)
         self.assertEqual(data["universe_size"], 50)
         self.assertTrue(all(row["currency"] == "JPY" for row in data["items"]))
-        self.assertEqual(data["scope"], "selected_jp")
+        self.assertEqual(data["scope"], "rolling_jp")
 
     def test_pro_includes_us_with_currency_and_defaults_to_ten_per_direction(self):
         data = self.client.get("/api/scanner?pro=1").get_json()
@@ -129,7 +130,7 @@ class ScannerRouteTests(unittest.TestCase):
         self.assertEqual(data["total_scanned"], 51)
         self.assertEqual(data["surges"][0]["symbol"], "AAPL")
         self.assertEqual(data["surges"][0]["currency"], "USD")
-        self.assertEqual(data["scope"], "selected_jp_us")
+        self.assertEqual(data["scope"], "rolling_jp_us")
 
     def test_invalid_threshold_does_not_suppress_all_rows(self):
         for threshold in ("nan", "inf", "invalid"):
@@ -174,7 +175,8 @@ class ScannerLoaderTests(unittest.TestCase):
             iloc = closes.iloc
             index = closes.index
         download = Mock(return_value={"7203.T": {"Close": Series()}, "6758.T": {"Close": Series()}})
-        context = dict(yf=SimpleNamespace(download=download),
+        from scanner_universe import next_batch
+        context = dict(next_batch=next_batch, _scanner_cursor=0, yf=SimpleNamespace(download=download),
                        time=SimpleNamespace(time=lambda: NOW), math=math,
                        gc=SimpleNamespace(collect=lambda: None),
                        _SCANNER_TICKERS_JP=["7203.T", "6758.T"], _SCANNER_TICKERS_US=[],

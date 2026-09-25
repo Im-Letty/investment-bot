@@ -53,20 +53,31 @@
     const change=typeof formatChange==='function'?formatChange(item,{symbol,currency},'ja'):{amount:'',percent:'',direction:'flat'};
     return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+'</div></div>';
   }
-  function ranked(data,direction){
-    return (data?data.items:[]).filter(x=>direction==='up'?x.pct>=3:x.pct<=-3).sort((a,b)=>direction==='up'?b.pct-a.pct:a.pct-b.pct).slice(0,20);
+  const METRICS={pct:'値上がり率・値下がり率',amount:'値上がり額・値下がり額',volume:'出来高'};
+  const MARKETS={all:'全市場',prime:'プライム',standard:'スタンダード',growth:'グロース'};
+  function ranked(data,direction,options={}){
+    const metric=METRICS[options.metric]?options.metric:'pct',market=MARKETS[options.market]?options.market:'all';
+    const rows=(data?data.items:[]).filter(x=>market==='all'||x.market===market);
+    return rows.filter(x=>metric==='volume'?finite(x.volume)&&x.volume>=0:direction==='up'?x.pct>0:x.pct<0).sort((a,b)=>{
+      const key=metric==='amount'?'change_value':metric;
+      return (metric==='volume'||direction==='up'?b[key]-a[key]:a[key]-b[key])||a.symbol.localeCompare(b.symbol);
+    }).slice(0,20);
   }
-  function ranking(data,direction,active,status){
-    const items=ranked(data,direction),dates=tradeDates(data?data.items:[]),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,dates.showDate(item))).join('');
+  function ranking(data,direction,active,status,options={}){
+    const items=ranked(data,direction,options),dates=tradeDates(data?data.items:[]),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,dates.showDate(item)).replace('</li>',(options.metric==='volume'?'<span class="sf-volume">売買された株数 '+amount(item.volume)+'株</span>':'')+'</li>')).join('');
     const empty=data?'条件に当てはまる銘柄はありません。':status==='error'?'株価を確認できませんでした。':'株価を確認しています…';
     const more=items.length>5?'<details class="sf-more" data-stock-detail="rank-'+direction+'"><summary><span class="sf-closed">もっと見る<span class="sf-sr-only">、残り'+(items.length-5)+'社</span></span><span class="sf-open">閉じる</span><i aria-hidden="true"></i></summary><ol class="sf-rows" start="6">'+rows(items.slice(5),5)+'</ol></details>':'';
     return '<section class="sf-ranking" id="sf-rank-panel-'+direction+'" role="tabpanel" aria-labelledby="sf-rank-tab-'+direction+'" tabindex="0"'+(active!==direction?' hidden':'')+'>'+(items.length?'<ol class="sf-rows">'+rows(items.slice(0,5))+'</ol>':'<p class="sf-state">'+empty+(!data&&status==='error'?'<button class="sf-retry" type="button" data-stock-retry>再読み込み</button>':'')+'</p>')+more+'</section>';
   }
-  function rankingMarkup(data,active='up',status='loading'){
-    const tabs='<div class="sf-direction-tabs" role="tablist" aria-label="ランキングの種類">'+[['up','上昇'],['down','急落']].map(([key,label])=>'<button type="button" role="tab" id="sf-rank-tab-'+key+'" data-sf-rank="'+key+'" aria-controls="sf-rank-panel-'+key+'" aria-selected="'+(active===key)+'" tabindex="'+(active===key?0:-1)+'">'+label+'</button>').join('')+'</div>';
-    const scope=data&&data.scope==='selected_jp_us'?'日本・米国':'日本';
-    const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(data.items).text)+'</span><span>対象 '+scope+(finite(data.total_scanned)?' '+data.total_scanned+'社':'')+' · '+new Date(data.updated_at*1000).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 取得'+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span></footer>':'';
-    return '<div class="sf-content"><section class="sf-market" aria-label="株価ランキング"><div class="sf-rank-toolbar">'+tabs+'<span class="sf-column-hint">株価 / 前日比</span></div><div class="sf-rankings">'+ranking(data,'up',active,status)+ranking(data,'down',active,status)+'</div>'+meta+'</section></div>';
+  function rankingMarkup(data,active='up',status='loading',options={}){
+    const metric=METRICS[options.metric]?options.metric:'pct',market=MARKETS[options.market]?options.market:'all';
+    if(metric==='volume')active='up';
+    const tabs='<div class="sf-direction-tabs" role="tablist" aria-label="ランキングの種類">'+(metric==='volume'?[['up','出来高']]:[['up','上昇'],['down','下落']]).map(([key,label])=>'<button type="button" role="tab" id="sf-rank-tab-'+key+'" data-sf-rank="'+key+'" aria-controls="sf-rank-panel-'+key+'" aria-selected="'+(active===key)+'" tabindex="'+(active===key?0:-1)+'">'+label+'</button>').join('')+'</div>';
+    const select=(label,key,values,value)=>'<label>'+label+'<select data-rank-setting="'+key+'">'+Object.entries(values).map(([k,v])=>'<option value="'+k+'"'+(k===value?' selected':'')+'>'+v+'</option>').join('')+'</select></label>';
+    const controls='<details class="sf-conditions" data-stock-detail="conditions"><summary>条件変更</summary><div>'+select('並べる基準','metric',METRICS,metric)+select('対象市場','market',MARKETS,market)+'</div><p>率は％、額は前日から動いた金額。出来高は売買された株数です。売買代金は正確なデータを確保できていないため未対応です。</p></details>';
+    const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
+    const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(data.items).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+' · '+new Date(data.updated_at*1000).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 取得'+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
+    return '<div class="sf-content"><section class="sf-market" aria-label="株価ランキング"><div class="sf-rank-toolbar">'+tabs+'<span class="sf-column-hint">株価 / 前日比</span></div>'+controls+'<p class="sf-ranking-condition">'+(market==='all'&&data&&/jp_us$/.test(data.scope)?'全対象（日本・米国）':MARKETS[market])+' · '+METRICS[metric]+'</p><div class="sf-rankings">'+ranking(data,'up',active,status,{metric,market})+(metric==='volume'?'':ranking(data,'down',active,status,{metric,market}))+'</div>'+meta+'</section></div>';
   }
   function validStories(data,now=Date.now()){
     if(!data||!Array.isArray(data.companies)||!dateLabel(data.edition_date)||!dateLabel(data.valid_until))return [];
@@ -107,14 +118,15 @@
   function start(w){
     const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0;
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
+    let conditions={metric:'pct',market:'all'};try{const saved=JSON.parse(w.localStorage.getItem('kn_rank_conditions')||'null');if(saved&&METRICS[saved.metric]&&MARKETS[saved.market])conditions=saved;}catch(_){}
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
     function updateRankingValues(el,html){
       // Keep list, disclosure and focus nodes when the ranked companies haven't changed.
-      if(!doc.createElement)return false;
+      if(!doc.createElement||el.__rankConditions!==JSON.stringify(conditions))return false;
       const next=doc.createElement('div');next.innerHTML=html;
       const before=Array.from(el.querySelectorAll('.sf-row')),after=Array.from(next.querySelectorAll('.sf-row'));
       if(!before.length||before.length!==after.length||before.some((row,i)=>row.dataset.stockSymbol!==after[i].dataset.stockSymbol||row.closest('.sf-ranking').id!==after[i].closest('.sf-ranking').id))return false;
-      const cells=['.sf-rank','.sf-stock-name','.sf-quote'];
+      const cells=['.sf-rank','.sf-stock-name','.sf-quote',...(conditions.metric==='volume'?['.sf-volume']:[])];
       const patches=[];
       for(let i=0;i<before.length;i++)for(const selector of cells){
         const target=before[i].querySelector(selector),source=after[i].querySelector(selector);
@@ -133,11 +145,11 @@
       if(id==='homeMoversList'&&updateRankingValues(el,html)){el.__stockHTML=html;return;}
       const open=new Set(Array.from(el.querySelectorAll('details[open][data-stock-detail]')).map(x=>x.dataset.stockDetail));
       const focused=doc.activeElement,focusKey=focused&&el.contains(focused)&&focused.getAttribute('data-sf-rank');
-      el.innerHTML=html;el.__stockHTML=html;
+      el.innerHTML=html;el.__stockHTML=html;el.__rankConditions=JSON.stringify(conditions);
       el.querySelectorAll('details[data-stock-detail]').forEach(x=>{x.open=open.has(x.dataset.stockDetail);});
       if(focusKey){const button=el.querySelector('[data-sf-rank="'+focusKey+'"]');if(button)button.focus({preventScroll:true});}
     }
-    function render(){paint('homeMoversList',rankingMarkup(data,active,status));paint('knCompanyFocus',companyMarkup(editorial,data,storyStatus));}
+    function render(){paint('homeMoversList',rankingMarkup(data,active,status,conditions));paint('knCompanyFocus',companyMarkup(editorial,data,storyStatus));}
     function restore(){try{data=normalizePayload(JSON.parse(w.localStorage.getItem(cacheKey())));if(data)data.stale=true;}catch(_){data=null;}}
     async function getJSON(url){const controller=new w.AbortController(),timeout=w.setTimeout(()=>controller.abort(),12000);try{const response=await w.fetch(url,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{w.clearTimeout(timeout);}}
     function schedule(delay=REFRESH_MS){
@@ -161,8 +173,9 @@
     function init(){
       restore();render();refresh();loadStories();
       w.closeStockWatchManager=function(){const manager=doc.getElementById('alert-section');if(manager)manager.style.display='none';const home=doc.getElementById('morning-section'),news=doc.getElementById('morning-news-section');if(home)home.style.display='block';if(news)news.style.display='';if(w.__knRefreshWatch)w.__knRefreshWatch();if(w.__knSetSub)w.__knSetSub('watch');};
+      doc.addEventListener('change',e=>{const key=e.target.getAttribute&&e.target.getAttribute('data-rank-setting');if(!key)return;const value=e.target.value;if(key==='metric'&&METRICS[value]||key==='market'&&MARKETS[value]){conditions={...conditions,[key]:value};if(conditions.metric==='volume')active='up';try{w.localStorage.setItem('kn_rank_conditions',JSON.stringify(conditions));}catch(_){}render();}});
       doc.addEventListener('click',e=>{const button=e.target.closest&&e.target.closest('[data-sf-rank]');if(button){active=button.dataset.sfRank;selectRanking(doc.getElementById('homeMoversList'),active);}if(e.target.closest&&e.target.closest('[data-stock-retry]')){poll=0;status='loading';render();refresh();}});
-      doc.addEventListener('keydown',e=>{const button=e.target.closest&&e.target.closest('[data-sf-rank]');if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();active=e.key==='Home'?'up':e.key==='End'?'down':button.dataset.sfRank==='up'?'down':'up';selectRanking(doc.getElementById('homeMoversList'),active);doc.getElementById('sf-rank-tab-'+active).focus();});
+      doc.addEventListener('keydown',e=>{const button=e.target.closest&&e.target.closest('[data-sf-rank]');if(conditions.metric==='volume')return;if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();active=e.key==='Home'?'up':e.key==='End'?'down':button.dataset.sfRank==='up'?'down':'up';selectRanking(doc.getElementById('homeMoversList'),active);doc.getElementById('sf-rank-tab-'+active).focus();});
       doc.addEventListener('styleChanged',()=>{const next=scope();if(next===currentScope)return;currentScope=next;generation++;poll=0;w.clearTimeout(timer);data=null;status='loading';restore();render();refresh();});
       doc.addEventListener('knStockViewChanged',()=>{render();if(status==='error')refresh();});
       doc.addEventListener('visibilitychange',()=>{

@@ -42,6 +42,9 @@ def valid_quotes(rows, now):
                      pct=round((price - previous) / previous * 100, 2),
                      currency="JPY" if symbol.endswith(".T") else "USD",
                      trade_date=day.isoformat(), fetched_at=stamp)
+        volume = row.get("volume")
+        if isinstance(volume, (int, float)) and not isinstance(volume, bool) and math.isfinite(volume) and volume >= 0:
+            quote["volume"] = volume
         if symbol not in valid or stamp >= valid[symbol]["fetched_at"]:
             valid[symbol] = quote
     return valid

@@ -211,9 +211,9 @@ function watchHarness(symbols){
  const find=(node,id)=>node.id===id?node:node.children.map(child=>find(child,id)).find(Boolean);
  const storage=new Map([['alert_watchlist_v1',JSON.stringify(symbols)]]),requests=[],timers=new Map(),events={},windowEvents={};let timerId=0,now=100000;
  const document={readyState:'complete',hidden:false,createElement:tag=>new Element(tag),getElementById:id=>find(root,id)||null,addEventListener(type,fn){events[type]=fn;}};
- const w={document,StockFocus:stock,KNMarketData:require('../static/market-data.js'),renderMorningGrid(){},openAlertSection(){},addEventListener(type,fn){windowEvents[type]=fn;}};
+ const w={document,StockFocus:stock,KNMarketData:require('../static/market-data.js'),renderMorningGrid(){},openAlertSection(){},dispatchEvent(event){if(windowEvents[event.type])windowEvents[event.type](event);},addEventListener(type,fn){windowEvents[type]=fn;}};
  class ClockDate extends Date{constructor(...args){super(...(args.length?args:[now]));}static now(){return now;}}
- const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},AbortController,Date:ClockDate,setTimeout(fn,ms){timers.set(++timerId,{fn,ms,at:now+ms});return timerId;},clearTimeout(id){timers.delete(id);},fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;}};
+ const context={Event:class{constructor(type){this.type=type;}},window:w,document,localStorage:{getItem:key=>storage.get(key)||null},AbortController,Date:ClockDate,setTimeout(fn,ms){timers.set(++timerId,{fn,ms,at:now+ms});return timerId;},clearTimeout(id){timers.delete(id);},fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;}};
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),source=html.match(/<script>\s*(\/\* knWatchSection v2[\s\S]*?)<\/script>/)[1];vm.runInNewContext(source,context);
  return {w,document,wrap,sub,requests,timers,async advance(ms){const end=now+ms;while(true){const next=[...timers].filter(([,timer])=>timer.at<=end).sort((a,b)=>a[1].at-b[1].at)[0];if(!next)break;now=next[1].at;timers.delete(next[0]);next[1].fn();await flush();}now=end;},async visibility(hidden){document.hidden=hidden;events.visibilitychange();await flush();},async online(){windowEvents.online();await flush();},setSelection(list){storage.set('alert_watchlist_v1',JSON.stringify(list));},async respond(request,quote,ok=true){request.resolve({ok,json:async()=>quote});await flush();}};
 }
@@ -290,4 +290,22 @@ test('favorite selection edits share in-flight requests for companies kept in th
  const box=h.document.getElementById('knWatchList'),initial=box.innerHTML;
  await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY'});assert.equal(box.innerHTML,initial);
  await h.respond(h.requests[1],{name:'Apple',price:200,currency:'USD'});assert.match(box.innerHTML,/Toyota/);assert.match(box.innerHTML,/Apple/);
+});
+
+test('conditions include small changes, sort by amount or volume, and exclude unknown market membership',()=>{
+ const data=payload([{...item('1111.T'),price:101,market:'prime',volume:1000},{...item('2222.T'),price:110,prev:1000,market:'growth',volume:2000},{...item('3333.T'),price:202,prev:200,market:'prime'}]);
+ assert.equal(stock.ranked(data,'up').length,2);
+ assert.equal(stock.ranked(data,'up',{metric:'amount',market:'prime'})[0].symbol,'3333.T');
+ assert.equal(stock.ranked(data,'up',{metric:'volume'})[0].symbol,'2222.T');
+ assert.equal(stock.ranked(data,'down',{market:'prime'}).length,0);
+ const html=stock.rankingMarkup(data,'up','ready',{metric:'volume',market:'growth'});
+ assert.match(html,/2,000株/);assert.match(html,/条件変更/);assert.doesNotMatch(html,/sf-rank-panel-down/);
+});
+test('ranking conditions persist and rerender when the user changes a setting',()=>{
+ const h=browserHarness();
+ h.listeners.change({target:{getAttribute:()=> 'metric',value:'volume'}});
+ assert.match(h.elements.get('homeMoversList').innerHTML,/value="volume" selected/);
+ assert.match(h.w.localStorage.getItem('kn_rank_conditions'),/volume/);
+ h.listeners.change({target:{getAttribute:()=> 'market',value:'growth'}});
+ assert.match(h.elements.get('homeMoversList').innerHTML,/value="growth" selected/);
 });

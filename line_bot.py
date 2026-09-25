@@ -13,6 +13,7 @@ import math
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from market_snapshot import CORE_MARKETS, MarketSnapshot
 from scanner_snapshot import ScannerSnapshot
+from scanner_universe import load_universe, next_batch
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
@@ -2861,8 +2862,14 @@ _SCANNER_TICKERS_US = [
 ]
 
 
+_SCANNER_UNIVERSE = load_universe(os.path.join(app.root_path, 'static/jpx-company-catalogue.json'))
+_SCANNER_TICKERS_JP = list(_SCANNER_UNIVERSE)
+_scanner_cursor = 0
+
+
 def _build_scanner_data():
-    syms = _SCANNER_TICKERS_JP + _SCANNER_TICKERS_US
+    global _scanner_cursor
+    syms, _scanner_cursor = next_batch(_SCANNER_TICKERS_JP + _SCANNER_TICKERS_US, _scanner_cursor)
     results = []
     # The request only reads a local snapshot; these bounded batches run in its worker.
     # Keep unadjusted closes, including the previous trading day's actual closing price.
@@ -2885,6 +2892,7 @@ def _build_scanner_data():
                         "symbol": symbol,
                         "name": JP_STOCKS.get(symbol.removesuffix(".T"), symbol),
                         "price": round(price, 4), "prev": round(previous, 4),
+                        "volume": float(frame["Volume"].loc[closes.index[-1]]) if "Volume" in frame else None,
                         "change_value": round(price - previous, 4),
                         "pct": round((price - previous) / previous * 100, 2),
                         "currency": "JPY" if symbol.endswith(".T") else "USD",
@@ -2925,6 +2933,7 @@ def api_scanner():
     pro = request.args.get("pro") == "1"
     allowed = set(_SCANNER_TICKERS_JP + (_SCANNER_TICKERS_US if pro else []))
     pool = [row for row in snapshot["items"] if row["symbol"] in allowed]
+    pool = [dict(row, **_SCANNER_UNIVERSE.get(row["symbol"], {"market": "us"})) for row in pool]
     pool.sort(key=lambda row: row["pct"], reverse=True)
     now = time.time()
     updated_at = max((row["fetched_at"] for row in pool), default=None)
@@ -2935,7 +2944,8 @@ def api_scanner():
         "stale": not pool or any(now - row["fetched_at"] >= _SCANNER_TTL for row in pool),
         "refreshing": snapshot["refreshing"],
         "total_scanned": len(pool), "universe_size": len(allowed),
-        "scope": "selected_jp_us" if pro else "selected_jp",
+        "scope": "rolling_jp_us" if pro else "rolling_jp",
+        "universe_by_market": {key: sum(row["market"] == key for row in _SCANNER_UNIVERSE.values()) for key in ("prime", "standard", "growth")},
         "max_per_direction": 20,
         "items": pool,
         "surges": [row for row in pool if row["pct"] >= threshold][:limit],
