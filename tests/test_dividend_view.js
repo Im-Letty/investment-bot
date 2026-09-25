@@ -170,3 +170,21 @@ test('late previous-month data and badge responses cannot replace the selected m
   await h.reply(h.request('/top?'),snapshot());await h.reply(h.request('/yearly?'),snapshot());
   assert.ok(rendered.slice(count).every(entry=>entry.month==='10'&&entry.data.days[0].date==='2026-10-24'));
 });
+
+for(const key of ['top','yearly'])test(key+' shows five initially and retains expansion across refreshes',async()=>{
+ const items=Array.from({length:20},(_,i)=>row({code:String(1000+i),name:'会社'+i}));
+ const h=harness({[key]:snapshot(items)});h.window.KNDividendView.list(key);
+ const more=h.panes[key].querySelector('.dividend-more');
+ assert.equal((h.list(key).innerHTML.match(/class="div-item"/g)||[]).length,5);
+ assert.equal((more.querySelector('.dividend-list').innerHTML.match(/class="div-item"/g)||[]).length,15);
+ assert.equal(more.querySelector('summary').textContent,'もっと見る（残り15社）');
+ assert.match(more.querySelector('.dividend-list').innerHTML,/div-rank">6</);
+ more.open=true;more.ontoggle();assert.equal(more.querySelector('summary').textContent,'閉じる');
+ await flush();await h.reply(h.request('/'+key+'?'),snapshot(items.map(it=>({...it,price:3000})),{updated_at:NOW/1000+1}));
+ assert.equal(h.panes[key].querySelector('.dividend-more'),more);assert.equal(more.open,true);
+ assert.equal(more.querySelector('summary').textContent,'閉じる');
+});
+test('five or fewer entries do not show a more control',()=>{
+ const h=harness({top:snapshot(Array.from({length:5},(_,i)=>row({code:String(1000+i)})))});
+ h.window.KNDividendView.list('top');assert.equal(h.panes.top.querySelector('.dividend-more').hidden,true);
+});

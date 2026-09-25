@@ -35,3 +35,12 @@
 .dividend-pane[data-pane="search"] .dividend-search-result .res-label,.dividend-pane[data-pane="search"] .dividend-search-result .hist-row{color:var(--kn-a-muted,#688078)}
 .dividend-pane[data-pane="search"] .dividend-search-result .res-row{border-color:var(--kn-a-line,#dbe5de)}
 @media(max-width:380px){.dividend-pane[data-pane="search"] .dividend-search-wrap{gap:6px;padding-left:10px}.dividend-pane[data-pane="search"] .dividend-search-submit{padding-inline:12px}}
+
+/* Five initial rows; preserve the disclosure node during live refreshes. */
+#knTabWrap .dividend-more{margin:12px 0 0;color:var(--sf-ink)}
+#knTabWrap .dividend-more[hidden]{display:none!important}
+#knTabWrap .dividend-more>summary{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;padding:12px 0;border-bottom:1px solid var(--sf-line);font-size:calc(15px * var(--kn-a-scale,1));cursor:pointer;list-style:none}
+#knTabWrap .dividend-more>summary::-webkit-details-marker{display:none}
+#knTabWrap .dividend-more>summary:after{content:'＋';font-size:20px}
+#knTabWrap .dividend-more[open]>summary:after{content:'−'}
+#knTabWrap .dividend-more>summary:focus-visible{outline:2px solid currentColor;outline-offset:2px}

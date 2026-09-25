@@ -45,7 +45,7 @@
         remember(key,data);
         var signature=lang()+JSON.stringify(items);
         if(signature!==signatures[key]) {
-          var html=items.map(function(it,idx) {
+          var rows=items.map(function(it,idx) {
             var name=window._stockName?window._stockName(it.code,it.name):it.name;
             var yen=tr('div_yen','円');
             var main=key==='top'?number(it.yield_pct,2)+'%':number(it.annual_dividend,2)+yen;
@@ -55,8 +55,25 @@
             var sub=key==='top'?metric(tr('div_annual','年間配当'),number(it.annual_dividend,2)+yen,'distribution'):metric(tr('div_yield','利回り'),number(it.yield_pct,2)+'%','distribution');
             if(Number.isFinite(it.price))sub+=metric(tr('div_kabuka','株価'),number(it.price,2)+yen,'quote');
             return '<div class="div-item"><div class="div-rank">'+(idx+1)+'</div><div><button type="button" class="cp-company-link" data-company-profile="'+escape(it.ticker||it.code+'.T')+'" data-company-name="'+escape(name)+'" aria-label="'+escape(name)+'の会社情報を開く"><span class="div-name">'+escape(name)+'</span><span class="div-code">'+escape(it.code)+'</span></button></div><div class="dividend-row-values"><div class="div-yield">'+escape(main)+'</div><div class="div-metrics">'+sub+'</div>'+(it.price_updated_at?'<div class="div-meta div-price-time">'+escape(tr('div_kabuka','株価')+' '+stamp(it.price_updated_at))+'</div>':'')+'</div></div>';
-          }).join('');
-          el.innerHTML=html;signatures[key]=signature;
+          });
+          el.innerHTML=rows.slice(0,5).join('');
+          var more=pane.querySelector('.dividend-more');
+          if(!more){
+            more=document.createElement('details');more.className='dividend-more';
+            var summary=document.createElement('summary');more.appendChild(summary);
+            var remaining=document.createElement('div');remaining.className='dividend-list';more.appendChild(remaining);
+            var footer=pane.querySelector('.dividend-snapshot-status');
+            if(footer)pane.insertBefore(more,footer);else pane.appendChild(more);
+          }
+          more.hidden=rows.length<=5;
+          more.querySelector('.dividend-list').innerHTML=rows.slice(5).join('');
+          var remainingCount=Math.max(0,rows.length-5);
+          function updateSummary(){
+            var labels=({ja:['もっと見る','閉じる','残り'+remainingCount+'社'],en:['Show more','Close',remainingCount+' more'],ko:['더 보기','닫기',remainingCount+'개 더'],zh:['查看更多','收起','剩余'+remainingCount+'家']})[lang()]||['Show more','Close',remainingCount+' more'];
+            more.querySelector('summary').textContent=more.open?labels[1]:labels[0]+'（'+labels[2]+'）';
+          }
+          more.ontoggle=updateSummary;updateSummary();
+          signatures[key]=signature;
         }
         el.dataset.loaded='1';
         var basis=pane.querySelector('.dividend-basis');
