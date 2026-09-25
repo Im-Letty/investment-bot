@@ -133,7 +133,7 @@
     var wrap=document.getElementById('knTabWrap');if(!wrap)return;
     if(!wrap.querySelector('.kn-a-section-title')){var heading=document.createElement('h2');heading.className='kn-a-section-title';heading.dataset.knHomeText='stocks';heading.textContent=text('stocks');wrap.insertBefore(heading,wrap.firstChild);}
     if(window.KNStockSearch)window.KNStockSearch.mount(wrap);
-    wrap.querySelectorAll('[data-kn-tab]').forEach(function(b){if(!['stock','div_top','div_cal','div_search'].includes(b.dataset.knTab))return;if(!b.hasAttribute('aria-pressed'))b.setAttribute('aria-pressed',String(b.dataset.knTab==='stock'));b.parentElement.classList.add('kn-a-stock-tabs');});
+    wrap.querySelectorAll('[data-kn-tab]').forEach(function(b){if(!['stock','div_top','div_cal','div_search','favorites'].includes(b.dataset.knTab))return;if(!b.hasAttribute('aria-pressed'))b.setAttribute('aria-pressed',String(b.dataset.knTab==='stock'));b.parentElement.classList.add('kn-a-stock-tabs');});
   }
   async function boot() {
     if(window.knHomeA || !window.KNMarketData || !window.KN_MARKET_CATALOG)return;
@@ -146,6 +146,7 @@
     function syncReading(){
       var size='m',font='';try{size=localStorage.getItem('ui_fontscale')||'m';font=localStorage.getItem('ui_font')||'';}catch(_){}
       document.body.style.setProperty('--kn-a-scale',String(({s:.9,m:1,l:1.15,xl:1.3})[size]||1));
+      document.body.dataset.knReadingSize=size;
       var fonts={gothic:'"Noto Sans JP",sans-serif',round:'"Hiragino Maru Gothic ProN","M PLUS Rounded 1c","Noto Sans JP",sans-serif',mincho:'"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif',klee:'"Klee One",cursive',pop:'"Shippori Mincho",serif'};
       ['--kn-a-serif','--kn-a-sans'].forEach(function(key){if(fonts[font])document.body.style.setProperty(key,fonts[font]);else document.body.style.removeProperty(key);});
     }
@@ -169,7 +170,7 @@
     document.getElementById('knMarketOpen').onclick=openPicker;
     document.getElementById('knMarketRetry').onclick=function(){return refreshMarkets(true);};
     window.openIndexCustomizer=openPicker;
-    document.addEventListener('click',function(e){var tab=e.target.closest('#knTabWrap [data-kn-tab]');if(tab&&['stock','div_top','div_cal','div_search'].includes(tab.dataset.knTab))document.querySelectorAll('#knTabWrap [data-kn-tab]').forEach(function(b){b.setAttribute('aria-pressed',String(b===tab));});});
+    document.addEventListener('click',function(e){var tab=e.target.closest('#knTabWrap [data-kn-tab]');if(tab&&['stock','div_top','div_cal','div_search','favorites'].includes(tab.dataset.knTab))document.querySelectorAll('#knTabWrap [data-kn-tab]').forEach(function(b){b.setAttribute('aria-pressed',String(b===tab));});});
     decoratePanels();
     var attempts=0,initTimer=setInterval(function(){decoratePanels();if(document.querySelector('.kn-a-stock-tabs')||++attempts>=30)clearInterval(initTimer);},300);
     document.addEventListener('langChanged',function(){document.querySelectorAll('[data-kn-home-text]').forEach(function(node){node.textContent=text(node.dataset.knHomeText);});renderDate();renderMarkets();});

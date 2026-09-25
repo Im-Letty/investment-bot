@@ -142,7 +142,7 @@
         const home=doc.getElementById('morning-section');
         w.scrollTo({top:returnY,behavior:'instant'});
         if(home)home.scrollTop=homeScroll;
-        const target=returnFocus&&returnFocus.isConnected?returnFocus:doc.querySelector('#knWatchSec button, #knSubRow [data-sub="watch"]');
+        const target=returnFocus&&returnFocus.isConnected?returnFocus:doc.querySelector('#knWatchSec button, #knTabWrap [data-kn-tab="favorites"]');
         if(target)target.focus({preventScroll:true});
       }
       w.closeStockWatchManager=function(){

@@ -94,7 +94,7 @@ test('company selection uses at most three distinct valid companies without fill
 });
 test('production tabs preserve existing dividend, calendar, search and favorites wiring',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');const script=html.match(/<script>\/\*knTabFeatureV1\*\/[\s\S]*?<\/script>/)[0];
- assert.ok(script.indexOf("_mkSub('movers','','ランキング')")<script.indexOf("_mkSub('companies','','注目')"));assert.ok(script.indexOf("_subRow.appendChild(_sC)")<script.indexOf("_subRow.appendChild(_sW)"));
+ assert.ok(script.indexOf("_mkSub('movers','','ランキング')")<script.indexOf("_mkSub('companies','','企業ニュース')"));assert.doesNotMatch(script,/_subRow\.appendChild\(_sW\)/);assert.match(script,/mkTab\('favorites','','お気に入り'\)/);assert.match(script,/window\.__knSetSub=function\(view\)\{_showStock\(view\);\}/);assert.match(script,/stockMain='div_'\+tab/);
  assert.match(script,/data-sub/);assert.match(script,/if\(companies\)companies.style.display='none'/);assert.match(script,/switchDividendTab\(tab\)/);assert.doesNotMatch(script,/if\(k.id!=='knWatchAddBtn'\)k.style.display='none'/);
  assert.equal((html.match(/id="knCompanyFocus"/g)||[]).length,1);assert.match(html,/static\/stock-focus.js\?v=/);
 });

@@ -1,5 +1,5 @@
 /* Readable stock typography; preserve the selected font, palette and user scale. */
-body.kn-home-a #knTabWrap .kn-a-stock-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+body.kn-home-a #knTabWrap .kn-a-stock-tabs{grid-template-columns:repeat(4,minmax(0,1fr))!important}
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab],
 body.kn-home-a #knTabWrap #knSubRow button,
 body.kn-home-a #knTabWrap #knDivSubRow button{font-size:calc(15px * var(--kn-a-scale,1))!important;min-height:48px;line-height:1.65}
@@ -32,3 +32,9 @@ body.kn-home-a #knTabWrap #knDivSubRow button{font-size:calc(15px * var(--kn-a-s
  #knTabWrap .sf-compact-controls label{padding-inline:8px}
  #knTabWrap .sf-compact-controls select{font-size:calc(16px * var(--kn-a-scale,1))}
 }
+
+/* Keep the existing selected fill and typography; align four main destinations. */
+body.kn-home-a #knTabWrap .kn-a-stock-tabs{gap:4px!important}
+body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab]{padding-inline:0!important;word-break:keep-all;overflow-wrap:normal}
+@media(max-width:380px){body.kn-home-a #knTabWrap .kn-a-stock-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
+@media(max-width:560px){body.kn-home-a[data-kn-reading-size="l"] #knTabWrap .kn-a-stock-tabs,body.kn-home-a[data-kn-reading-size="xl"] #knTabWrap .kn-a-stock-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}}
