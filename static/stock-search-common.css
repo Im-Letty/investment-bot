@@ -1,0 +1,18 @@
+#knTabWrap .kn-stock-search{max-width:720px;margin:0 0 22px;color:var(--kn-a-ink,#244f44)}
+#knTabWrap .kn-stock-search-form{display:flex;align-items:center;gap:10px;border:1px solid var(--kn-a-line,#bdcfc3);border-radius:9px;background:var(--kn-a-paper,#fffefb);padding-left:14px;overflow:hidden}
+#knTabWrap .kn-stock-search-form:focus-within{outline:2px solid var(--kn-a-muted,#739f8e);outline-offset:2px}
+#knTabWrap .kn-stock-search-form svg{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6}
+#knTabWrap .kn-stock-search-form input{min-width:0;width:100%;flex:1;border:0;background:transparent;color:inherit;min-height:50px;padding:10px 0;font:400 16px/1.5 var(--kn-a-sans,sans-serif);outline:0;box-shadow:none}
+#knTabWrap .kn-stock-search-form input::placeholder{color:var(--kn-a-muted,#688078);font-size:14px}
+#knTabWrap .kn-stock-search-form button{align-self:stretch;flex:none;min-height:50px;padding:10px 16px;border:0;border-left:1px solid var(--kn-a-line,#bdcfc3);border-radius:0;background:var(--kn-a-chip,#f1f6ef);color:inherit;font:500 14px var(--kn-a-sans,sans-serif);cursor:pointer}
+#knTabWrap .kn-stock-search-panel{padding:8px 0 0}
+#knTabWrap .kn-stock-search-panel[hidden]{display:none}
+#knTabWrap .kn-stock-search-head{display:flex;align-items:center;justify-content:space-between;gap:12px;font:400 14px/1.6 var(--kn-a-sans,sans-serif)}
+#knTabWrap .kn-stock-search-head button{min-height:44px;flex:none;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer}
+#knTabWrap .kn-stock-search-results{max-height:300px;overflow:auto;overscroll-behavior:contain}
+#knTabWrap .kn-stock-search-company{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;min-height:52px;padding:12px 4px;text-align:left;border:0;border-bottom:1px solid var(--kn-a-line,#bdcfc3);background:transparent;color:inherit;font:400 16px/1.5 var(--kn-a-sans,sans-serif);cursor:pointer}
+#knTabWrap .kn-stock-search-company strong{font-weight:500;overflow-wrap:anywhere}
+#knTabWrap .kn-stock-search-company span{font-size:14px;flex:none}
+#knTabWrap .kn-stock-search button:focus-visible{outline:2px solid currentColor;outline-offset:-3px}
+#knTabWrap [data-kn-tab="div_search"]{display:none!important}
+@media(max-width:380px){#knTabWrap .kn-stock-search-form{gap:6px;padding-left:10px}#knTabWrap .kn-stock-search-form button{padding-inline:12px}}
