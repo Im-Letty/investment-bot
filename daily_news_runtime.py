@@ -26,7 +26,7 @@ BUCKET = "website-news"
 CACHE_PATH = Path("/tmp/kn-daily-news.json")
 BASELINE_PATH = Path(__file__).with_name("news-digests.json")
 ATTEMPT_INTERVAL = 5 * 60
-MAX_ATTEMPTS = 6
+MAX_ATTEMPTS = 7
 GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini_incomplete",
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
                               "future_article", "invalid_edition", "no_verified_articles",
@@ -35,7 +35,7 @@ GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini
 
 def _safe_generation_error(value):
     code = str(value)
-    return code if (code in GENERATION_ERRORS or re.fullmatch(
+    return code if (code in GENERATION_ERRORS or re.fullmatch(r'editorial_review_failed_(?:facts|dates|distinct_topics|japan_economy|readable|no_invented_outlook|original_wording|approval)', code) or re.fullmatch(
         r"(?:(?:gemini|claude)_(?:http_[0-9]{3}|response_limit|unavailable)|gemini_(?:discovery|review)_(?:max_tokens|safety|recitation|language|other|blocklist|prohibited_content|spii|malformed_function_call|unexpected_tool_call|too_many_tool_calls|missing))", code)) else "generation_failed"
 
 

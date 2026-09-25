@@ -61,6 +61,20 @@ class ProducerTests(unittest.TestCase):
             generate_edition(NOW, providers=provider, collector=lambda *a, **kw: [], clock=lambda: NOW)
         provider.claude.assert_not_called()
 
+    def test_rejected_copy_is_repaired_once_and_independently_reviewed_again(self):
+        provider=Mock();provider.claude.return_value=draft()
+        rejection={**approved(),'approved':False,'issues':['Unsupported outlook'],
+                   'checks':{**approved()['checks'],'no_invented_outlook':False}}
+        provider.gemini.side_effect=[rejection,approved()]
+        result=generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+        self.assertEqual(len(result['article_refs']),2)
+        self.assertEqual(provider.claude.call_count,2)
+        self.assertEqual(provider.gemini.call_count,2)
+        self.assertEqual(provider.claude.call_args.args[1]['editorial_feedback'],rejection)
+        provider.gemini.side_effect=[rejection,rejection]
+        with self.assertRaisesRegex(GenerationError,'editorial_review_failed_no_invented_outlook'):
+            generate_edition(NOW,providers=provider,collector=lambda _:articles(),clock=lambda:NOW)
+
     def test_search_failure_keeps_verified_article(self):
         provider = Mock(); provider.claude.return_value = draft(1)
         provider.gemini.side_effect = [GenerationError('gemini_unavailable'), approved()]
