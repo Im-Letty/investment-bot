@@ -5083,22 +5083,27 @@ _sM.onclick=function(){_setSub('movers');};_sC.onclick=function(){_setSub('compa
             }catch(e){ return false; }
       }
       function showMorning(){
-            try{
-                    var m = document.querySelector('.bn-item[data-act="morning"]');
-                    if(m) m.click();
-            }catch(e){}
+            if(window.__knNewsShown) return;
+            var section = document.getElementById('morning-section');
+            if(!section) return;
+            window.__knNewsShown = true;
+            // Select the initial view without clicking navigation or dismissing entry dialogs.
+            document.body.classList.add('view-asaletter');
+            section.style.display = 'block';
+            var nav = document.getElementById('knBottomNav');
+            if(nav) nav.querySelectorAll('.bn-item').forEach(function(button){
+                    button.classList.toggle('active', button.getAttribute('data-act')==='morning');
+            });
       }
       function loopSwap(n){ swapTabs(); if(n>0) setTimeout(function(){ loopSwap(n-1); }, 500); }
       // keep order corrected
       loopSwap(20);
       try{ var mo=new MutationObserver(function(){ swapTabs(); }); mo.observe(document.body,{childList:true,subtree:true}); }catch(e){}
-      // show morning letter on startup (after other startup scripts), only once
-      if(!window.__knNewsShown){
-            window.__knNewsShown = true;
-            setTimeout(showMorning, 350);
-            setTimeout(showMorning, 700);
-            setTimeout(showMorning, 1200);
-      }
+      // Deferred scripts can delay DOM readiness beyond any fixed startup timeout.
+      // Initialize after the navigation's DOMContentLoaded handler, exactly once.
+      if(document.readyState==='loading'){
+            document.addEventListener('DOMContentLoaded',showMorning,{once:true});
+      }else{ showMorning(); }
   })();
 </script>
 </script>
