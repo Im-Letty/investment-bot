@@ -102,13 +102,14 @@ body.kn-home-a #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
 }
 @media(min-width:1000px) {
   body.kn-home-a #morning-section > .morning-extra {
-    grid-template-columns:repeat(2,minmax(0,1fr));gap:26px;padding-top:30px!important;
+    grid-template-columns:minmax(0,1fr);gap:24px;padding-top:30px!important;
+    max-width:940px!important;
   }
-  body.kn-home-a #morning-news-section {grid-column:1;grid-row:1}
-  body.kn-home-a #knTabWrap {grid-column:2;grid-row:1}
+  body.kn-home-a #morning-news-section,
+  body.kn-home-a #knTabWrap {grid-column:1;grid-row:auto}
 }
-/* A desktop column is narrower than the viewport. Size stock content to the
-   column, including long company names, large type and calendar explanations. */
+/* Size stock content to its container, including long company names,
+   large type and calendar explanations. */
 @container home-stock (max-width:520px) {
   #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
   #knTabWrap .sf-row .sf-rank {grid-column:1;grid-row:1}
@@ -142,3 +143,20 @@ body.kn-home-a #knHomeMarkets.kn-markets-compact #knHomeMarketGrid .kn-a-quote-c
 body.kn-home-a #knHomeMarkets.kn-markets-compact #knHomeMarketGrid .kn-a-quote-note {min-height:.8em}
 body.kn-home-a[data-theme="dark"] #knHomeMarkets .kn-a-quote-change.is-up {color:#8cd2aa}
 body.kn-home-a[data-theme="dark"] #knHomeMarkets .kn-a-quote-change.is-down {color:#efa9ad}
+
+/* Real ranking content needs more width than the sample cards. Keep company
+   and quote together on desktop; only genuinely narrow cards stack the price. */
+@media(min-width:1000px) {
+  @container home-stock (min-width:440px) {
+    #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr) minmax(155px,.9fr);gap:12px;align-items:center;padding:13px 0}
+    #knTabWrap .sf-row .sf-rank {grid-column:1;grid-row:1}
+    #knTabWrap .sf-row .sf-stock-name {grid-column:2;grid-row:1}
+    #knTabWrap .sf-row .sf-quote {grid-column:3;grid-row:1}
+    #knTabWrap .sf-stock-name {letter-spacing:normal}
+    #knTabWrap .sf-watch-row {grid-template-columns:minmax(0,1fr) minmax(155px,.9fr);gap:12px}
+    #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr) minmax(155px,.9fr);gap:12px}
+    #knTabWrap .dividend-list .dividend-row-values {grid-column:3}
+  }
+  body.kn-home-a #knTabWrap .kn-stock-search {margin-bottom:14px}
+  body.kn-home-a #knTabWrap #knSubRow {margin-bottom:10px!important}
+}
