@@ -1,0 +1,26 @@
+/* Approved D: three mobile quotes, six seconds to read each step. */
+body.kn-home-a .kn-market-viewport {min-width:0;overflow:hidden}
+body.kn-home-a #knHomeMarkets .kn-market-motion {display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:44px;padding:8px 10px;background:transparent;border:0;border-radius:8px;color:var(--kn-a-muted);font:inherit;font-size:calc(12px * var(--kn-a-scale,1))!important;cursor:pointer}
+body.kn-home-a #knHomeMarkets .kn-market-motion[hidden] {display:none!important}
+body.kn-home-a #knHomeMarkets .kn-a-market-heading {gap:8px}
+body.kn-home-a #knHomeMarkets .kn-market-motion {margin-right:auto}
+body.kn-home-a #knHomeMarketGrid {width:100%;overflow:visible;scrollbar-width:none}
+body.kn-home-a #knHomeMarketGrid .kn-a-quote {box-sizing:border-box;flex:1 0 0}
+body.kn-home-a #knHomeMarketGrid .kn-a-quote-value {overflow-wrap:anywhere;white-space:normal}
+body.kn-home-a #knHomeMarkets.kn-markets-compact {padding-inline:12px}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid {padding:0}
+body.kn-home-a .kn-markets-compact:not(.kn-markets-rotating) #knHomeMarketGrid {display:grid;grid-template-columns:repeat(var(--kn-market-columns,3),minmax(0,1fr));row-gap:18px}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote {flex:0 0 calc(100% / var(--kn-market-columns,3));min-width:0;padding:0 6px;border-right:1px solid var(--kn-a-line);text-align:left}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote-name {font-size:calc(13px * var(--kn-a-scale,1))!important;max-width:none;margin-bottom:5px}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote-value {font-size:calc(20px * var(--kn-a-scale,1))!important;white-space:nowrap;line-height:1.6}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote-change {display:flex;flex-direction:column;align-items:flex-start;gap:3px;min-height:5.1em;font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.7}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-change-amount {min-height:3.4em;white-space:normal;word-break:keep-all;overflow-wrap:anywhere}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-change-percent {font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.7}
+body.kn-home-a #knHomeMarketGrid .kn-a-change-unit {display:inline-block;white-space:nowrap}
+body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote-note {min-height:3.2em;font-size:calc(11px * var(--kn-a-scale,1))!important;line-height:1.6;overflow-wrap:anywhere}
+body.kn-home-a .kn-markets-still #knHomeMarketGrid {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px 0}
+body.kn-home-a .kn-markets-still #knHomeMarketGrid .kn-a-quote {padding-inline:10px}
+@media(max-width:360px) {
+  body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote-value {font-size:calc(18px * var(--kn-a-scale,1))!important}
+  body.kn-home-a .kn-markets-compact #knHomeMarketGrid .kn-a-quote-name {font-size:calc(12px * var(--kn-a-scale,1))!important}
+}

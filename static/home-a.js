@@ -1,7 +1,7 @@
 /* Approved A home: reuse existing news, stock panels, navigation and account flows. */
 (function() {
   'use strict';
-  var model, dialog, draft = [], category = 'all', query = '', customBusy = false, pickerEpoch = 0;
+  var model, marketCarousel, dialog, draft = [], category = 'all', query = '', customBusy = false, pickerEpoch = 0;
   var categories = ['all','index','fx','commodity','jp','us','crypto','other','custom'];
   var words = {
     ja: {daily:'今日のマーケットニュース',market:'今日のマーケット',choose:'表示選択',title:'表示するマーケット',subtitle:'気になるものを、最大4つまで。',selected:'選択中',swap:'入れ替えるときは、選択中の項目を×で外してください。',search:'名前・銘柄コードで探す',placeholder:'例：金、ドル、トヨタ、AAPL',options:'選べるマーケット',back:'戻る',apply:'この表示にする',close:'閉じる',max:'最大4つです。選択中の項目を1つ外してください。',empty:'該当するものが見つかりませんでした。',none:'下から表示したいものを選んでください。',news:'今日のニュース',stocks:'今日の銘柄',morning:'朝レター',menu:'メニュー',account:'マイページ',retry:'再読み込み',loading:'読み込み中',failed:'取得できませんでした',updating:'更新を確認中',nodiff:'前日比なし',custom:'一覧にない銘柄を追加',customHint:'銘柄コードを入力（例：7203、AAPL、BTC-USD）',check:'確認する',checking:'確認中…',customError:'見つかりませんでした。銘柄コードを確認してください。',notice:'掲載している価格やニュースは、更新のタイミングにより最新の情報と異なる場合があります。',count:'件',categories:['すべて','株価指数','為替','金・原油など','日本株','米国株','暗号資産','金利・VIX','追加した銘柄']},
@@ -41,7 +41,8 @@
       var movement=window.KNMarketData.formatChange(row.quote,item,lang(),legacy||undefined);
       var hasChange=!!(movement.amount||movement.percent);
       var percent=movement.amount&&movement.percent?(lang()==='ja'||lang()==='zh'?'（'+movement.percent+'）':'('+movement.percent+')'):movement.percent;
-      var change=(movement.amount?'<span class="kn-a-change-amount">'+esc(movement.amount)+'</span>':'')+(percent?'<span class="kn-a-change-percent">'+esc(percent)+'</span>':'');
+      var amount=esc(movement.amount).replace(/(ポイント|포인트|个百分点)$/, '<span class="kn-a-change-unit">$1</span>');
+      var change=(movement.amount?'<span class="kn-a-change-amount">'+amount+'</span>':'')+(percent?'<span class="kn-a-change-percent">'+esc(percent)+'</span>':'');
       if(row.failed)note=(row.quote||row.display)?text('updating'):text('failed');
       else if(!row.quote&&!row.display)note=text('loading');
       else if(!hasChange)note=text('nodiff');
@@ -54,6 +55,7 @@
       var changeClass='kn-a-quote-change is-'+movement.direction;if(card.children[2].className!==changeClass)card.children[2].className=changeClass;
       setHTML(card.children[2],change||esc(note));setHTML(card.children[3],hasChange&&note?esc(note):'');
     });
+    if(marketCarousel)marketCarousel.sync();
     var groups=[];
     times.forEach(function(entry){var group=groups.find(function(g){return g.time===entry.time;});if(group)group.labels.push(entry.label);else groups.push({time:entry.time,iso:entry.iso,labels:[entry.label]});});
     var retrieved=({ja:'取得 ',en:'Retrieved ',ko:'가져옴 ',zh:'获取 '}[lang()]),unknown=({ja:'取得時刻 —',en:'Retrieved —',ko:'가져온 시간 —',zh:'获取时间 —'}[lang()]);
@@ -149,12 +151,14 @@
       document.body.dataset.knReadingSize=size;
       var fonts={gothic:'"Noto Sans JP",sans-serif',round:'"Hiragino Maru Gothic ProN","M PLUS Rounded 1c","Noto Sans JP",sans-serif',mincho:'"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif',klee:'"Klee One",cursive',pop:'"Shippori Mincho",serif'};
       ['--kn-a-serif','--kn-a-sans'].forEach(function(key){if(fonts[font])document.body.style.setProperty(key,fonts[font]);else document.body.style.removeProperty(key);});
+      if(marketCarousel)marketCarousel.sync();
     }
     syncReading();
     ['dsSetSize','dsSetFont','dsReset'].forEach(function(name){if(typeof window[name]==='function'){var original=window[name];window[name]=function(){var result=original.apply(this,arguments);syncReading();return result;};}});
     var masthead=document.createElement('div');masthead.className='kn-a-masthead';masthead.innerHTML='<div class="kn-a-top-row"><button type="button" id="knHomeAMenu" aria-label="'+esc(text('menu'))+'">'+icon('menu')+'</button><button type="button" id="knHomeAAccount" aria-label="'+esc(text('account'))+'">'+icon('user')+'</button></div>'+(window.KNNewsOrbit?window.KNNewsOrbit.markup:'')+'<div class="kn-a-daily-caption"><div class="kn-a-daily-title"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.3"/><path d="M12 1.5v3M12 19.5v3M1.5 12h3M19.5 12h3M4.6 4.6l2.1 2.1M17.3 17.3l2.1 2.1M4.6 19.4l2.1-2.1M17.3 6.7l2.1-2.1"/></svg><h1 data-kn-home-text="daily">'+esc(text('daily'))+'</h1></div><div id="knHomeADate"></div></div>';banner.appendChild(masthead);
     if(window.KNNewsOrbit)window.KNNewsOrbit.mount(masthead);
     var markets=document.createElement('section');markets.id='knHomeMarkets';markets.innerHTML='<div class="kn-a-market-heading"><button type="button" id="knMarketOpen">'+icon('settings')+'<span data-kn-home-text="choose">'+esc(text('choose'))+'</span></button></div><div id="knHomeMarketGrid"></div>';banner.insertAdjacentElement('afterend',markets);
+    if(window.KNMarketCarousel)marketCarousel=window.KNMarketCarousel.mount({grid:document.getElementById('knHomeMarketGrid'),controls:markets.querySelector('.kn-a-market-heading'),section:markets});
     var marketTimes=document.createElement('div');marketTimes.id='knHomeMarketTimes';marketTimes.innerHTML='<div id="knHomeMarketTimeText" tabindex="0"></div><button type="button" id="knMarketRetry" hidden data-kn-home-text="retry">'+esc(text('retry'))+'</button>';markets.insertAdjacentElement('afterend',marketTimes);
     var notice=document.createElement('footer');notice.id='knHomeNotice';notice.innerHTML='<p data-kn-home-text="notice">'+esc(text('notice'))+'</p>';section.appendChild(notice);
     try{if(typeof window.loadCustomSymbols==='function')window.loadCustomSymbols();}catch(_){}
