@@ -9,9 +9,9 @@ const catalogContext={window:{}};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../static/market-catalog.js'),'utf8'),catalogContext);
 const catalog=JSON.parse(JSON.stringify(catalogContext.window.KN_MARKET_CATALOG));
 async function flush(){for(let i=0;i<15;i++)await Promise.resolve();}
-function harness(saved={}){
+function harness(saved={},custom=[{key:'SHOP',label:'Shopify'}],sourceCatalog=catalog){
   const storage=new Map(Object.entries(saved)),requests=[],timers=new Map();let now=1789250000000,timerId=0;
-  const model=create({catalog,custom:[{key:'SHOP',label:'Shopify'}],now:()=>now,storage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
+  const model=create({catalog:sourceCatalog,custom,now:()=>now,storage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},
     setTimeout(fn,ms){const id=++timerId;timers.set(id,{fn,at:now+ms});return id;},clearTimeout:id=>timers.delete(id),
     fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b});requests.push({url,options,resolve,reject});return promise;}});
   return {model,storage,requests,timers,now:()=>now,advance(ms){now+=ms;for(const [id,timer] of [...timers])if(timer.at<=now){timers.delete(id);timer.fn();}},reply:async(request,quote={price:100,pct:1,change:'▲1.00%',name:'Example'})=>{
@@ -89,6 +89,120 @@ test('custom lookup validates ticker syntax and does not commit automatically',a
   const before=app.model.selection();const lookup=app.model.lookup('ＣＯＳＴ');await flush();assert.equal(app.requests.length,1);assert.match(app.requests[0].url,/symbol=COST$/);
   await app.reply(app.requests[0],{price:950,pct:1,name:'Costco'});const candidate=await lookup;
   assert.equal(candidate.label,'Costco');assert.deepEqual(app.model.selection(),before);
+});
+test('local market search normalizes kana, full-width codes and spaces without changing the catalog',async()=>{
+  const app=harness(),before=app.model.catalog();
+  for(const query of ['とよた','トヨタ','ﾄﾖﾀ','ト ヨ タ','７２０３．ｔ']){
+    assert.ok(app.model.searchLocal(query).some(item=>item.symbol==='7203.T'),query);
+  }
+  assert.ok(app.model.searchLocal('dow').some(item=>item.symbol==='^DJI'));
+  assert.ok(app.model.searchLocal('ｓｈｏｐｉｆｙ').some(item=>item.symbol==='SHOP'));
+  assert.deepEqual(await app.model.search(''),{items:before,unavailable:false});
+  assert.deepEqual(app.model.catalog(),before);assert.equal(app.requests.length,0);assert.equal(app.storage.size,0);
+});
+test('company-name search finds an unlisted Japanese company without fetching its price or saving it',async()=>{
+  const app=harness(),before=app.model.selection(),size=app.model.catalog().length;
+  const request=app.model.search('キオクシア');
+  assert.match(app.requests[0].url,/^\/api\/lookup\?q=/);
+  assert.equal(decodeURIComponent(app.requests[0].url.split('=')[1]),'キオクシア');
+  await app.reply(app.requests[0],{results:[{symbol:'285A.T',name:'キオクシアホールディングス',type:'EQUITY',currency:'JPY'}]});
+  const result=await request;
+  assert.equal(result.unavailable,false);assert.equal(result.items.length,1);
+  assert.deepEqual(result.items[0],{id:'285A.T',symbol:'285A.T',label:'キオクシアホールディングス',category:'custom',pickerGroup:'stocks',keywords:'285A.T',currency:'JPY'});
+  assert.equal(app.requests.length,1);assert.equal(app.model.find('285A.T'),undefined);
+  assert.equal(app.model.catalog().length,size);assert.deepEqual(app.model.selection(),before);assert.equal(app.storage.size,0);
+});
+test('search merges symbols once and retains existing catalog identity even for a new company-name alias',async()=>{
+  const app=harness(),apple=app.model.find('AAPL');
+  const request=app.model.search('Apple Inc.');
+  await app.reply(app.requests[0],{results:[
+    {symbol:'AAPL',name:'Remote name must not replace the existing label',type:'EQUITY'},
+    {symbol:'aapl',name:'Duplicate',type:'EQUITY'},
+    {symbol:'COST',name:'Costco Wholesale',type:'EQUITY',currency:'USD'},
+    {symbol:'ＣＯＳＴ',name:'Duplicate Costco',type:'EQUITY'}
+  ]});
+  const result=await request;
+  assert.deepEqual(result.items.map(item=>item.symbol),['AAPL','COST']);
+  assert.equal(result.items[0],apple);assert.equal(result.items[0].category,'us');
+  assert.equal(result.items[1].label,'Costco Wholesale');assert.equal(app.model.find('COST'),undefined);
+});
+test('remote candidates require safe symbols, bounded names and a supported company type',async()=>{
+  const app=harness(),request=app.model.search('海外企業');
+  await app.reply(app.requests[0],{results:[
+    {symbol:'<script>',name:'Unsafe symbol',type:'EQUITY'},
+    {symbol:'A'.repeat(26),name:'Long symbol',type:'EQUITY'},
+    {symbol:'NO_NAME',name:'',type:'EQUITY'},
+    {symbol:'LONG',name:'長'.repeat(201),type:'EQUITY'},
+    {symbol:'CTRL',name:'bad\u0000name',type:'EQUITY'},
+    {symbol:'^RUT',name:'Not a company result',type:'INDEX'},
+    {symbol:'VT',name:'Vanguard Total World',type:'ETF',currency:'invalid'},
+    {symbol:'VOD.L',name:'Vodafone',type:'EQUITY',currency:'GBp'}
+  ]});
+  const result=await request;
+  assert.deepEqual(result.items.map(item=>item.symbol),['VT','VOD.L']);
+  assert.equal('currency' in result.items[0],false);assert.equal(result.items[1].currency,'GBp');
+  assert.ok(result.items.every(item=>item.pickerGroup==='stocks'));assert.equal(app.requests.length,1);
+});
+test('network and API unavailability preserve local candidates without a second quote request',async()=>{
+  for(const failure of ['network','unavailable','invalid']){
+    const app=harness(),before=app.model.selection(),request=app.model.search('とよた');
+    if(failure==='network')app.requests[0].reject(new Error('offline'));
+    else await app.reply(app.requests[0],failure==='unavailable'?{results:[],unavailable:true}:{results:null});
+    const result=await request;
+    assert.equal(result.unavailable,true);assert.ok(result.items.some(item=>item.symbol==='7203.T'));
+    assert.deepEqual(app.model.selection(),before);assert.equal(app.requests.length,1);assert.equal(app.storage.size,0);
+  }
+});
+test('empty company results retain direct index, currency and crypto symbol lookup',async()=>{
+  for(const symbol of ['^RUT','CHFJPY=X','ETH-USD']){
+    const app=harness(),before=app.model.selection(),request=app.model.search(symbol);
+    await app.reply(app.requests[0],{results:[]});
+    assert.equal(app.requests.length,2);assert.equal(app.requests[1].url,'/api/quote?symbol='+encodeURIComponent(symbol));
+    await app.reply(app.requests[1],{price:100,pct:1,name:'Direct '+symbol,currency:'USD'});
+    const result=await request;
+    assert.equal(result.unavailable,false);assert.equal(result.items[0].symbol,symbol);
+    assert.equal(app.model.find(symbol),result.items[0]);assert.deepEqual(app.model.selection(),before);
+    assert.equal(app.storage.has('morn_sel'),false);
+  }
+});
+test('short or non-code queries do not trigger a quote fallback',async()=>{
+  for(const query of ['Q','該当しない会社']){
+    const app=harness({},[],[]),request=app.model.search(query);await app.reply(app.requests[0],{results:[]});
+    assert.deepEqual(await request,{items:[],unavailable:false});assert.equal(app.requests.length,1);
+  }
+});
+test('aborting before or during company search rejects promptly and cannot start a late fallback',async()=>{
+  const app=harness(),pre=new AbortController();pre.abort();
+  await assert.rejects(app.model.search('^RUT',{signal:pre.signal}),{name:'AbortError'});assert.equal(app.requests.length,0);
+  const controller=new AbortController(),request=app.model.search('^RUT',{signal:controller.signal});
+  assert.equal(app.requests[0].options.signal,controller.signal);
+  controller.abort();await assert.rejects(request,{name:'AbortError'});
+  await app.reply(app.requests[0],{results:[]});
+  assert.equal(app.requests.length,1);assert.equal(app.model.find('^RUT'),undefined);assert.equal(app.storage.size,0);
+});
+test('aborting during a direct-code fallback cannot register its late candidate or alter selection',async()=>{
+  const app=harness(),controller=new AbortController(),before=app.model.selection();
+  const request=app.model.search('^RUT',{signal:controller.signal});await app.reply(app.requests[0],{results:[]});
+  assert.equal(app.requests.length,2);controller.abort();await assert.rejects(request,{name:'AbortError'});
+  await app.reply(app.requests[1],{price:100,pct:1,name:'Russell 2000'});
+  assert.equal(app.model.find('^RUT'),undefined);assert.deepEqual(app.model.selection(),before);assert.equal(app.storage.has('morn_sel'),false);
+});
+test('remember registers only a chosen candidate and hydration retains its saved group and currency',async()=>{
+  const app=harness(),before=app.model.selection(),request=app.model.search('キオクシア');
+  await app.reply(app.requests[0],{results:[{symbol:'285A.T',name:'キオクシアホールディングス',type:'EQUITY',currency:'JPY'}]});
+  const candidate=(await request).items[0],item=app.model.remember(candidate);
+  assert.equal(app.model.find('285A.T'),item);assert.equal(item.pickerGroup,'stocks');assert.equal(item.currency,'JPY');
+  assert.deepEqual(app.model.selection(),before);assert.equal(app.storage.size,0);assert.equal(app.requests.length,1);
+  assert.equal(app.model.remember(candidate),item);assert.equal(app.model.remember({symbol:'<script>'}),null);
+  assert.equal(app.model.commit([item.id]),true);await flush();
+  await app.reply(app.requests[1],{price:2000,pct:1,currency:'JPY'});
+  const custom=[{key:item.symbol,label:item.label,pickerGroup:item.pickerGroup,currency:item.currency}];
+  app.storage.set('custom_symbols',JSON.stringify(custom));
+  const restored=harness(Object.fromEntries(app.storage),JSON.parse(app.storage.get('custom_symbols')));
+  assert.deepEqual(restored.model.selection(),['285A.T']);
+  assert.equal(restored.model.find('285A.T').label,'キオクシアホールディングス');
+  assert.equal(restored.model.find('285A.T').pickerGroup,'stocks');assert.equal(restored.model.find('285A.T').currency,'JPY');
+  assert.equal(restored.model.rows()[0].quote.price,2000);assert.equal(restored.requests.length,0);
 });
 test('B displays the real movement and signed percentage for all four default markets',()=>{
   const examples=[

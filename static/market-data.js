@@ -9,6 +9,19 @@
   var SYMBOL = /^[A-Z0-9^][A-Z0-9.^=\-]{0,24}$/;
   var TTL = 60000, RETAIN = 7 * 86400000, RETRY = 30000;
   function normalize(value) { return String(value || '').normalize('NFKC').trim().toUpperCase(); }
+  function searchKey(value) { return normalize(value).replace(/[\u3041-\u3096]/g,function(c){return String.fromCharCode(c.charCodeAt(0)+0x60);}).replace(/\s/g,''); }
+  function validCurrency(value) { return typeof value === 'string' && /^(?:[A-Z]{3}|GBp)$/.test(value); }
+  function abortError() { var error=new Error('Search cancelled');error.name='AbortError';return error; }
+  function checkAbort(signal) { if(signal && signal.aborted)throw abortError(); }
+  function abortable(promise, signal) {
+    if(!signal)return promise;
+    var onAbort;
+    var stopped=new Promise(function(_,reject){
+      onAbort=function(){reject(abortError());};
+      if(signal.aborted)onAbort();else signal.addEventListener('abort',onAbort,{once:true});
+    });
+    return Promise.race([promise,stopped]).finally(function(){signal.removeEventListener('abort',onAbort);});
+  }
   function validQuote(q) { return q && Number.isFinite(q.price) && q.price > 0 && (q.pct == null || Number.isFinite(q.pct)); }
   // Absolute movement comes from the quote itself, never from its rounded percent.
   function formatChange(quote, item, locale, legacy) {
@@ -54,8 +67,75 @@
     function addCustom(item) {
       if (!item || typeof item.key !== 'string') return;
       var symbol = normalize(item.key);
-      if (!SYMBOL.test(symbol) || find(symbol)) return;
-      catalog.push({ id: symbol, symbol: symbol, label: String(item.label || symbol).slice(0, 100), category: 'custom', keywords: symbol });
+      if (!SYMBOL.test(symbol)) return;
+      var existing=find(symbol);if(existing)return existing;
+      var entry={ id: symbol, symbol: symbol, label: String(item.label || symbol).slice(0, 100), category: 'custom', keywords: symbol };
+      if(['index','fx','stocks','other'].indexOf(item.pickerGroup)>=0)entry.pickerGroup=item.pickerGroup;
+      if(validCurrency(item.currency))entry.currency=item.currency;
+      catalog.push(entry);return entry;
+    }
+    function remember(item) {
+      if(!item || typeof item.symbol!=='string')return null;
+      return addCustom({key:item.symbol,label:item.label,pickerGroup:item.pickerGroup,currency:item.currency}) || null;
+    }
+    function searchLocal(raw) {
+      var key=searchKey(raw);
+      return catalog.filter(function(item){return searchKey(item.label+' '+item.symbol+' '+(item.keywords||'')).includes(key);});
+    }
+    function lookup(raw, signal) {
+      try { checkAbort(signal); } catch(error) { return Promise.reject(error); }
+      var symbol = normalize(raw);
+      if (/^[0-9A-Z]{4}$/.test(symbol) && /[0-9]/.test(symbol)) symbol += '.T';
+      if (!SYMBOL.test(symbol)) return Promise.reject(new Error('invalid symbol'));
+      var existing = find(symbol); if (existing) return Promise.resolve(existing);
+      return fetchQuote(symbol,true).then(function(q) {
+        checkAbort(signal);
+        return addCustom({key:symbol,label:q.name || symbol,currency:q.currency});
+      });
+    }
+    async function searchItems(raw, signal) {
+      checkAbort(signal);
+      if(typeof raw!=='string' || raw.length>80 || /[\u0000-\u001f\u007f]/.test(raw))return {items:[],unavailable:false};
+      var query=raw.trim(),items=searchLocal(query),unavailable=false,seen=Object.create(null);
+      if(!query)return {items:items,unavailable:false};
+      items.forEach(function(item){seen[normalize(item.symbol)]=true;});
+      try {
+        var response=await options.fetch('/api/lookup?q='+encodeURIComponent(query),{signal:signal});
+        checkAbort(signal);
+        if(!response.ok)throw new Error('search unavailable');
+        var data=await response.json();checkAbort(signal);
+        if(!data || !Array.isArray(data.results))throw new Error('invalid search response');
+        unavailable=!!data.unavailable;
+        data.results.slice(0,40).forEach(function(row){
+          if(!row || typeof row.symbol!=='string' || typeof row.name!=='string' ||
+             !row.name.trim() || row.name.length>200 || /[\u0000-\u001f\u007f]/.test(row.name) ||
+             (row.type!=='EQUITY' && row.type!=='ETF'))return;
+          var symbol=normalize(row.symbol);
+          if(!SYMBOL.test(symbol) || seen[symbol])return;
+          var item=find(symbol);
+          if(!item){
+            item={id:symbol,symbol:symbol,label:row.name.trim().slice(0,100),category:'custom',pickerGroup:'stocks',keywords:symbol};
+            if(validCurrency(row.currency))item.currency=row.currency;
+          }
+          seen[symbol]=true;items.push(item);
+        });
+      } catch(error) {
+        if((signal && signal.aborted) || (error && error.name==='AbortError'))throw abortError();
+        unavailable=true;
+      }
+      checkAbort(signal);
+      var code=normalize(query);
+      // Company lookup excludes indices, FX and crypto; retain direct symbol lookup.
+      if(!items.length && code.length>=2 && SYMBOL.test(code)){
+        try { items.push(await lookup(query,signal)); }
+        catch(error){if((signal && signal.aborted) || (error && error.name==='AbortError'))throw abortError();unavailable=true;}
+      }
+      checkAbort(signal);
+      return {items:items,unavailable:unavailable};
+    }
+    function search(raw, settings) {
+      var signal=settings && settings.signal;
+      return abortable(searchItems(raw,signal),signal);
     }
     function validate(ids) {
       if (!Array.isArray(ids)) return [];
@@ -133,6 +213,7 @@
     }
     return {
       catalog: function() { return catalog.slice(); }, find: find,
+      searchLocal: searchLocal, search: search, remember: remember,
       selection: function() { return selected.slice(); }, validate: validate, hydrate: hydrate,
       commit: function(ids) {
         var next = validate(ids);
@@ -156,16 +237,7 @@
       },
       baseFailed: function() { coreFailed=true; emit(); },
       refresh: refresh, rows: rows,
-      lookup: function(raw) {
-        var symbol = normalize(raw);
-        if (/^[0-9A-Z]{4}$/.test(symbol) && /[0-9]/.test(symbol)) symbol += '.T';
-        if (!SYMBOL.test(symbol)) return Promise.reject(new Error('invalid symbol'));
-        var existing = find(symbol); if (existing) return Promise.resolve(existing);
-        return fetchQuote(symbol,true).then(function(q) {
-          addCustom({key:symbol,label:q.name || symbol});
-          return find(symbol);
-        });
-      }
+      lookup: lookup
     };
   }
   return {create:create, normalize:normalize, validQuote:validQuote, formatChange:formatChange};
