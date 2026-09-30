@@ -1,5 +1,6 @@
 /* H: shared home surfaces. Keep the globe artwork and navigation layout intact. */
-body.kn-home-a #morning-section {
+body.kn-home-a #morning-section,
+body.kn-home-a #knMarketPicker {
   --kn-a-bg:#f0eedf;
   --kn-a-paper:#faf9ef;
   --kn-a-ink:#3d4b3c;
@@ -8,10 +9,11 @@ body.kn-home-a #morning-section {
   --kn-a-button:#607765;
   --kn-a-chip:#eeeddf;
   --kn-orbit-pale:var(--kn-a-paper);
-  background:var(--kn-a-bg)!important;
 }
+body.kn-home-a #morning-section {background:var(--kn-a-bg)!important}
 /* Tint the large surfaces as well as text and controls when a color is chosen. */
-body.kn-home-a[data-kn-a-custom-color] #morning-section {
+body.kn-home-a[data-kn-a-custom-color] #morning-section,
+body.kn-home-a[data-kn-a-custom-color] #knMarketPicker {
   --kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#f5f2e9);
   --kn-a-paper:color-mix(in srgb,var(--brand-color) 3%,#fffdf6);
   --kn-a-ink:color-mix(in srgb,var(--brand-color) 30%,#303c30);
@@ -20,11 +22,13 @@ body.kn-home-a[data-kn-a-custom-color] #morning-section {
   --kn-a-line:color-mix(in srgb,var(--brand-color) 12%,#dedccf);
   --kn-a-chip:color-mix(in srgb,var(--brand-color) 6%,#f0eedf);
 }
-body.kn-home-a[data-theme="dark"] #morning-section {
+body.kn-home-a[data-theme="dark"] #morning-section,
+body.kn-home-a[data-theme="dark"] #knMarketPicker {
   --kn-a-bg:#20271f;--kn-a-paper:#2b3328;--kn-a-ink:#eeeede;
   --kn-a-muted:#c0c6b2;--kn-a-line:#48513e;--kn-a-button:#9db89e;--kn-a-chip:#394432;
 }
-body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #morning-section {
+body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #morning-section,
+body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #knMarketPicker {
   --kn-a-bg:color-mix(in srgb,var(--brand-color) 10%,#20241f);
   --kn-a-paper:color-mix(in srgb,var(--brand-color) 12%,#2b3029);
   --kn-a-ink:color-mix(in srgb,var(--brand-color) 5%,#f5f4e9);
@@ -33,9 +37,11 @@ body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #morning-section {
   --kn-a-button:color-mix(in srgb,var(--brand-color) 25%,#d3dfcc);
   --kn-a-chip:color-mix(in srgb,var(--brand-color) 16%,#394032);
 }
+body.kn-home-a[data-theme="dark"] #knMarketPicker #knMarketApply {color:#20271f}
 /* Keep a brighter, subtle ivory reading surface with every light-mode color.
    Scope this below the hero so its light and the bottom navigation stay intact. */
 body.kn-home-a:not([data-theme="dark"]) #knHomeMarkets,
+body.kn-home-a:not([data-theme="dark"]) #knMarketPicker,
 body.kn-home-a:not([data-theme="dark"]) #morning-section > .morning-extra {
   --kn-a-paper:#fdfcf6;
 }

@@ -103,42 +103,43 @@ body.kn-home-a #knHomeADrawerBrand {display:flex;align-items:center;gap:12px;pad
 body.kn-home-a #knHomeADrawerBrand button {margin-left:auto;border:0;background:none;color:inherit;font:400 calc(23px * var(--kn-a-scale,1))/1 var(--kn-a-sans)!important;cursor:pointer;padding:5px}
 body.kn-home-a .kn-a-nmark {width:39px;height:39px;flex-shrink:0;display:grid;place-items:center;border-radius:50%;background:radial-gradient(circle at 33% 28%,#fff 0,#e3f3e8 35%,var(--kn-a-mint) 100%);color:white;font:600 calc(26px * var(--kn-a-scale,1))/1 "Helvetica Neue",sans-serif!important;text-shadow:0 2px 3px #386d5054;outline:1px solid var(--kn-a-line);outline-offset:3px}
 
-/* The chooser lives in a native dialog, above every app overlay. */
-#knMarketPicker {width:min(580px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 28px);margin:auto;padding:0;overflow:hidden;border:1px solid var(--kn-a-line);border-radius:18px;color:var(--kn-a-ink);background:var(--kn-a-paper);font-family:var(--kn-a-sans);font-size:calc(16px * var(--kn-a-scale,1))!important;line-height:1.6}
+/* Approved picker A: quiet dividers, selection on the right, stable layout. */
+#knMarketPicker {width:min(580px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 28px);margin:auto;padding:0;overflow:hidden;border:1px solid var(--kn-a-line);border-radius:13px;color:var(--kn-a-ink);background:var(--kn-a-paper);font-family:var(--kn-a-sans);font-size:calc(16px * var(--kn-a-scale,1))!important;line-height:1.6}
 #knMarketPicker::backdrop {background:#193f2d70}
-#knMarketForm {display:flex;flex-direction:column;height:min(800px,calc(100dvh - 28px));max-height:calc(100dvh - 28px)}
+#knMarketForm {display:flex;flex-direction:column;height:min(700px,calc(100dvh - 30px));max-height:calc(100dvh - 30px)}
 #knMarketPicker button,#knMarketPicker input {font:inherit;color:inherit}
 #knMarketPicker button {cursor:pointer}
 #knMarketPicker :focus-visible,body.kn-home-a #knHomeMarkets button:focus-visible,body.kn-home-a .kn-a-masthead button:focus-visible {outline:3px solid #86ad91;outline-offset:3px}
-#knMarketPicker .kn-market-head {padding:25px 26px 14px;flex-shrink:0;position:relative}
+#knMarketPicker .kn-market-head {padding:15px 18px 12px;flex-shrink:0;position:relative}
 #knMarketPicker h2 {font:500 calc(25px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif)!important;color:var(--kn-a-ink);padding:0 22px 0 0;margin:0 0 5px}
 #knMarketPicker .kn-market-head>p {font-size:calc(14px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted);margin:0 0 15px}
 #knMarketPicker .kn-market-close {flex:0 0 44px;width:44px;height:44px;border:0;background:none;padding:5px;font-size:calc(23px * var(--kn-a-scale,1))!important;line-height:1}
-#knMarketPicker .kn-market-selected-heading {display:flex;gap:12px;align-items:center;font-size:calc(13px * var(--kn-a-scale,1))!important;margin-bottom:9px;color:var(--kn-a-muted)}
-#knMarketCount {margin-left:auto;border-radius:12px;background:var(--kn-a-chip);padding:2px 10px;color:var(--kn-a-ink)}
-#knMarketSelected {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
-#knMarketPicker .kn-market-chip {border:1px solid var(--kn-a-line);background:var(--kn-a-chip);border-radius:8px;padding:7px 10px;display:flex;align-items:center;justify-content:space-between;gap:9px;text-align:left;min-width:0}
+#knMarketPicker .kn-market-selected-heading {display:flex;gap:10px;align-items:center;min-height:44px;font-size:calc(13px * var(--kn-a-scale,1))!important;margin-bottom:9px;color:var(--kn-a-muted)}
+#knMarketCount {margin-left:auto;color:var(--kn-a-ink);font-variant-numeric:tabular-nums}
+#knMarketSelected {display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;align-content:start;min-height:calc(88px * var(--kn-a-scale,1) + 7px)}
+#knMarketPicker .kn-market-chip {border:0;background:var(--kn-a-chip);border-radius:7px;padding:6px 9px;display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left;min-width:0;min-height:calc(44px * var(--kn-a-scale,1))}
 #knMarketPicker .kn-market-chip>span:first-child {font-size:calc(14px * var(--kn-a-scale,1))!important;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 #knMarketPicker .kn-market-chip>span:last-child {font-size:calc(19px * var(--kn-a-scale,1))!important;line-height:1.2;color:var(--kn-a-muted)}
 #knMarketPicker .kn-market-empty {grid-column:1/-1;font-size:calc(14px * var(--kn-a-scale,1))!important;padding:15px 0;color:var(--kn-a-muted)}
 #knMarketPicker .kn-market-head .kn-market-hint {font-size:calc(12px * var(--kn-a-scale,1))!important;margin:10px 0 0;line-height:1.6}
-#knMarketPicker .kn-market-scroll {padding:17px 26px 10px;overflow-y:auto;min-height:0;flex:1;border-block:1px solid var(--kn-a-line);scrollbar-width:thin;scrollbar-color:var(--kn-a-line) transparent}
+#knMarketPicker .kn-market-scroll {padding:16px 18px 6px;overflow-y:auto;overscroll-behavior:contain;min-height:0;flex:1;border-top:1px solid var(--kn-a-line);scrollbar-width:thin;scrollbar-color:var(--kn-a-line) transparent}
 #knMarketPicker .kn-market-search-label {display:block;font-size:calc(13px * var(--kn-a-scale,1))!important;margin-bottom:8px}
-#knMarketPicker .kn-market-search {display:flex;align-items:center;gap:8px;border:1px solid var(--kn-a-line);border-radius:9px;padding:4px 6px 4px 12px;background:var(--kn-a-paper)}
-#knMarketPicker .kn-market-search input {border:0;background:transparent;min-width:0;width:100%;font-size:calc(16px * var(--kn-a-scale,1))!important;outline:none;line-height:1.5}
+#knMarketPicker .kn-market-search {display:flex;align-items:center;gap:7px;border:1px solid var(--kn-a-line);border-radius:6px;padding:3px 4px 3px 11px;background:var(--kn-a-paper)}
+#knMarketPicker .kn-market-search input {border:0!important;background:transparent!important;color:var(--kn-a-ink)!important;min-width:0;width:100%;font-size:calc(16px * var(--kn-a-scale,1))!important;outline:none;line-height:1.5}
 #knMarketPicker .kn-market-search:focus-within {outline:2px solid #8daf98;outline-offset:2px}
 #knMarketSearch {flex-shrink:0;min-height:44px;min-width:48px;padding:6px 10px;border:0;border-radius:6px;background:var(--kn-a-chip);font-size:calc(14px * var(--kn-a-scale,1))!important}
 /* Keep result counts available to screen readers without adding visible copy. */
 #knMarketPicker .kn-market-results-heading {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 #knMarketOptions {margin-top:14px}
-#knMarketOptions label {display:flex;align-items:center;padding:12px 0;gap:12px;border-bottom:1px solid var(--kn-a-line);cursor:pointer}
-#knMarketOptions input {width:18px;height:18px;flex-shrink:0;accent-color:var(--kn-a-button)}
-#knMarketPicker .kn-market-option-name {display:block;font-size:calc(15px * var(--kn-a-scale,1))!important;line-height:1.6}
+#knMarketOptions label {display:flex;align-items:center;padding:13px 0;gap:15px;min-height:56px;border-bottom:1px solid var(--kn-a-line);cursor:pointer}
+#knMarketOptions label>span {flex:1;min-width:0;overflow-wrap:anywhere}
+#knMarketOptions input {order:2;width:21px;height:21px;margin:0;flex-shrink:0;accent-color:var(--kn-a-button)}
+#knMarketPicker .kn-market-option-name {display:block;font-size:calc(16px * var(--kn-a-scale,1))!important;line-height:1.5}
 #knMarketPicker .kn-market-meta {display:block;font-size:calc(12px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted);line-height:1.6}
-#knMarketPicker .kn-market-foot {padding:10px 26px 17px;flex-shrink:0}
-#knMarketPicker .kn-market-actions {display:flex;gap:8px;justify-content:flex-end}
-#knMarketPicker .kn-market-actions button {border:1px solid var(--kn-a-line);border-radius:7px;padding:9px 18px;background:transparent;font-size:calc(14px * var(--kn-a-scale,1))!important}
-#knMarketPicker #knMarketApply {background:var(--kn-a-button);border-color:var(--kn-a-button);color:#fffdf6}
+#knMarketPicker .kn-market-foot {padding:12px 18px 16px;flex-shrink:0}
+#knMarketPicker .kn-market-actions {display:flex;gap:9px}
+#knMarketPicker .kn-market-actions button {border:1px solid var(--kn-a-line);border-radius:6px;padding:8px 15px;min-height:46px;background:transparent;font-size:calc(14px * var(--kn-a-scale,1))!important}
+#knMarketPicker #knMarketApply {flex:1;background:var(--kn-a-button);border-color:var(--kn-a-button);color:#fffdf6}
 #knMarketPicker #knMarketApply:disabled {opacity:.45;cursor:default}
 #knMarketError {font-size:calc(13px * var(--kn-a-scale,1))!important;line-height:1.7;margin:0 0 6px;color:#956047}
 #knMarketError:empty {display:none}
@@ -156,11 +157,7 @@ body.kn-home-a .kn-a-nmark {width:39px;height:39px;flex-shrink:0;display:grid;pl
   body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {font-size:calc(13px * var(--kn-a-scale,1))!important}
 }
 @media(max-width:420px) {
-  #knMarketPicker .kn-market-head {padding:22px 18px 13px}
   #knMarketPicker h2 {font-size:calc(23px * var(--kn-a-scale,1))!important}
-  #knMarketPicker .kn-market-scroll {padding:15px 18px 8px}
-  #knMarketPicker .kn-market-foot {padding:12px 18px 16px}
   #knMarketPicker .kn-market-chip>span:first-child {font-size:calc(13px * var(--kn-a-scale,1))!important}
-  #knMarketCategories button {padding:5px 9px;font-size:calc(12px * var(--kn-a-scale,1))!important}
 }
 @media(prefers-reduced-motion:reduce) {body.kn-home-a #morning-section * {scroll-behavior:auto!important}}
