@@ -538,7 +538,8 @@ function draw(position){
  ctx.canvas.style.opacity=String(Math.pow(Number(ballStyle.opacity),1.5));
  ctx.clearRect(0,0,190,170);
  const colors=getComputedStyle(stage),gradient=ctx.createLinearGradient(24,7,164,147);
- gradient.addColorStop(0,colors.getPropertyValue('--mm-bg').trim());gradient.addColorStop(.5,colors.getPropertyValue('--mm-cool').trim());gradient.addColorStop(1,colors.getPropertyValue('--mm-accent').trim());
+ const ringColor=(key,fallback)=>colors.getPropertyValue(key).trim()||colors.getPropertyValue(fallback).trim();
+ gradient.addColorStop(0,ringColor('--intro-ring-start','--mm-bg'));gradient.addColorStop(.5,ringColor('--intro-ring-mid','--mm-cool'));gradient.addColorStop(1,ringColor('--intro-ring-end','--mm-accent'));
  ctx.strokeStyle=gradient;ctx.lineWidth=1.55;ctx.lineCap='round';
  // A circle of radius 73 surrounds the sphere of radius 57 in 3D.
  // Orthographic projection; rear segments behind the sphere are occluded.
@@ -880,6 +881,10 @@ window.knApplyEntryColor=function(hex){
   }
   introPalette['--mm-halo']=blend(homeSurface,'#ffffff',.7);
   introPalette['--entry-surface']=`linear-gradient(155deg,${blend(homeSurface,'#ffffff',.5)},${blend(homeSurface,'#ffffff',.22)} 53%,${blend(homeSurface,'#ffffff',.35)})`;
+  // Give only the thin orbit a little more contrast, preserving the sphere and background.
+  introPalette['--intro-ring-start']=blend(introPalette['--mm-bg'],introPalette['--mm-ink'],.16);
+  introPalette['--intro-ring-mid']=blend(introPalette['--mm-cool'],introPalette['--mm-muted'],.22);
+  introPalette['--intro-ring-end']=blend(introPalette['--mm-accent'],introPalette['--mm-muted'],.18);
   document.querySelectorAll('#spl,#news-pastel-palettes,#news-pastel-palettes section').forEach(el=>{for(const [key,value] of Object.entries(introPalette))el.style.setProperty(key,value);});
   // Preserve the original glass sphere colors while its surroundings use the brighter home palette.
   document.querySelectorAll('#spl .glass-ball').forEach(el=>{for(const key of ['--mm-bg','--mm-cool','--mm-accent'])el.style.setProperty(key,palette[key]);});
