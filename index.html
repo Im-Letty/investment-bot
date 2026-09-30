@@ -604,7 +604,7 @@ root.drawOuterOrbit=draw;draw(3000);
 #spl #news-pastel-palettes .gallery{display:block;max-width:none;margin:0}
 #spl #news-pastel-palettes .screen{height:100vh;height:100svh;border-radius:0;background:var(--entry-surface,linear-gradient(155deg,#f8f7ef,#f3f2e6 53%,#f5f4ea))}
 #spl #news-pastel-palettes .object-stage{top:calc(50% - 170px)}
-#spl #news-pastel-palettes .glass-ball{box-shadow:inset 2px 3px 4px #ffffff9c,inset -3px -4px 7px var(--mm-cool),inset -10px -12px 20px #30483b55,0 0 20px color-mix(in srgb,var(--mm-cool) 12%,transparent)}
+#spl #news-pastel-palettes .glass-ball{--mm-bg:#356c5c;--mm-cool:#e2fff4;--mm-accent:#e1edb9}
 #spl #news-pastel-palettes .floor-shadow{background:color-mix(in srgb,var(--mm-bg) 40%,transparent)}
 #spl #news-pastel-palettes .brand{top:calc(50% + 60px)}
 #knWelcomeOv{position:fixed;inset:0;z-index:155000;display:none;overflow-y:auto;overscroll-behavior:contain;background:var(--entry-surface,linear-gradient(155deg,#edf9f1,#a2d6bf 53%,#dff3e7));text-align:left;color-scheme:light}
@@ -881,6 +881,8 @@ window.knApplyEntryColor=function(hex){
   introPalette['--mm-halo']=blend(homeSurface,'#ffffff',.7);
   introPalette['--entry-surface']=`linear-gradient(155deg,${blend(homeSurface,'#ffffff',.5)},${blend(homeSurface,'#ffffff',.22)} 53%,${blend(homeSurface,'#ffffff',.35)})`;
   document.querySelectorAll('#spl,#news-pastel-palettes,#news-pastel-palettes section').forEach(el=>{for(const [key,value] of Object.entries(introPalette))el.style.setProperty(key,value);});
+  // Preserve the original glass sphere colors while its surroundings use the brighter home palette.
+  document.querySelectorAll('#spl .glass-ball').forEach(el=>{for(const key of ['--mm-bg','--mm-cool','--mm-accent'])el.style.setProperty(key,palette[key]);});
 };
 try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){window.knApplyEntryColor(null);}
 function startApprovedIntro(){
