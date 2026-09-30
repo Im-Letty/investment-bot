@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="/static/home-h.css?v=20260930-colors1">
 <script defer src="/static/stock-search-common.js?v=20260925-common1"></script>
 <script defer src="/static/market-carousel.js?v=20260929-three1"></script>
-<script defer src="/static/home-a.js?v=20260930-colors1"></script>
+<script defer src="/static/home-a.js?v=20260930-colors2"></script>
 <script defer src="/static/stock-focus.js?v=20260925-rank-bara1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
@@ -1187,13 +1187,20 @@ function adjustBrightness(hex, factor){
   const f = 1+factor;
   return rgbToHex(r*f, g*f, b*f);
 }
-function applyBrandColor(hex){
+function applyBrandColor(hex, customSelection){
   // Keep the welcome palette on the same saved color path as the drawer.
   if(typeof hex !== 'string' || !/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(hex)) hex = '#3da060';
   const welcomeRgb = hexToRgb(hex);
   hex = rgbToHex(welcomeRgb.r, welcomeRgb.g, welcomeRgb.b);
   const root = document.documentElement;
   root.style.setProperty('--brand-color', hex);
+  // A selected green theme is distinct from resetting to the beige home palette.
+  if(typeof customSelection !== 'boolean') {
+    customSelection = hex !== '#3da060';
+    try { customSelection = customSelection || localStorage.getItem('userBrandColorCustom') === '1'; } catch(e){}
+  }
+  root.toggleAttribute('data-custom-brand-color', customSelection);
+  try { localStorage.setItem('userBrandColorCustom', customSelection ? '1' : '0'); } catch(e){}
   window.knApplyEntryColor?.(hex);
   root.style.setProperty('--brand-light', adjustBrightness(hex, 0.15));
   root.style.setProperty('--brand-lighter', adjustBrightness(hex, 0.25));
@@ -1235,12 +1242,12 @@ function loadBrandColor(){
 }
 function initColorCustomizer(){
   document.querySelectorAll('.drawer-color-preset').forEach(btn=>{
-    btn.addEventListener('click', function(){ applyBrandColor(this.getAttribute('data-color')); });
+    btn.addEventListener('click', function(){ applyBrandColor(this.getAttribute('data-color'), true); });
   });
   const inp = document.getElementById('drawerColorInput');
-  if(inp) inp.addEventListener('input', function(){ applyBrandColor(this.value); });
+  if(inp) inp.addEventListener('input', function(){ applyBrandColor(this.value, true); });
   const rst = document.getElementById('drawerColorReset');
-  if(rst) rst.addEventListener('click', function(){ applyBrandColor('#3da060'); });
+  if(rst) rst.addEventListener('click', function(){ applyBrandColor('#3da060', false); });
 }
 loadBrandColor();
 document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); initColorCustomizer(); });
