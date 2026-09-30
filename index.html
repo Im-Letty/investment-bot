@@ -467,7 +467,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 #news-pastel-palettes [data-kind=future] .brand p{font-family:'Yu Mincho',serif;font-size:20px;max-width:8em;margin:21px auto 0;line-height:1.65;color:var(--mm-ink)}
 #news-pastel-palettes[data-focus] [data-kind=message] .brand p{font-size:28px}
 #news-pastel-palettes[data-focus] [data-kind=global] .eyebrow{font-size:34px}
-#news-pastel-palettes [data-kind=green]{--mm-bg:#356c5c;--mm-halo:#83c9af;--mm-cool:#e2fff4;--mm-accent:#e1edb9;--mm-ink:#184b3c;--mm-muted:#365d50;--letter:#416439;--surface:radial-gradient(ellipse at 83% 5%,#effff4 0%,#b3e7cd 26%,#88c5ac 52%,#d4efdf 100%)}
+#news-pastel-palettes [data-kind=green]{--mm-bg:#647666;--mm-halo:#b8c5ad;--mm-cool:#f1f3e4;--mm-accent:#d9d0b0;--mm-ink:#3d4b3c;--mm-muted:#606b57;--letter:#67715f;--surface:linear-gradient(155deg,#f6f4eb,#e7e5d4 53%,#f0eedf)}
 #news-pastel-palettes [data-kind=blue]{--mm-bg:#365e82;--mm-halo:#92c8ed;--mm-cool:#ecfaff;--mm-accent:#dceeff;--mm-ink:#204764;--mm-muted:#3c5d77;--letter:#3d607c;--surface:radial-gradient(ellipse at 83% 5%,#f1fcff 0%,#b9e2f7 26%,#92bddf 52%,#dceefb 100%)}
 #news-pastel-palettes [data-kind=yellow]{--mm-bg:#8a6833;--mm-halo:#f3d991;--mm-cool:#fff9e9;--mm-accent:#fff0bc;--mm-ink:#634719;--mm-muted:#75572d;--letter:#7a5822;--surface:radial-gradient(ellipse at 83% 5%,#fffdf0 0%,#fff0bf 26%,#ebce87 52%,#fff2ce 100%)}
 #news-pastel-palettes [data-kind=pink]{--mm-bg:#874461;--mm-halo:#efabc8;--mm-cool:#fff0f8;--mm-accent:#ffe4de;--mm-ink:#653047;--mm-muted:#78485c;--letter:#81445c;--surface:radial-gradient(ellipse at 83% 5%,#fff4fa 0%,#ffd4e7 26%,#e8a7c2 52%,#ffe1ed 100%)}
@@ -480,7 +480,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 #news-pastel-palettes .glass-turn i:nth-child(2){transform:rotateZ(32deg) rotateY(58deg)}
 #news-pastel-palettes .glass-turn i:nth-child(3){transform:rotateZ(96deg) rotateY(64deg)}
 
-#news-pastel-palettes [data-kind=green]{--surface:linear-gradient(155deg,#edf9f1,#a2d6bf 53%,#dff3e7)}
+#news-pastel-palettes [data-kind=green]{--surface:linear-gradient(155deg,#f6f4eb,#e7e5d4 53%,#f0eedf)}
 #news-pastel-palettes .hybrid-orbits{visibility:hidden}
 #news-pastel-palettes .depth-orbit{position:absolute;inset:0;width:190px;height:170px;z-index:2;pointer-events:none;transform-origin:95px 77px}
 
@@ -596,13 +596,13 @@ root.drawOuterOrbit=draw;draw(3000);
  #news-mint-welcome.entry-arriving .screen>.actions{animation:none}
 }
 
-/* Approved mint glass entry. Intro motion remains 3000ms; exit is 700ms. */
-#spl{position:fixed;inset:0;z-index:156000;overflow:hidden;background:var(--entry-surface,linear-gradient(155deg,#edf9f1,#a2d6bf 53%,#dff3e7));opacity:1;transition:opacity .7s cubic-bezier(.4,0,.2,1);color-scheme:light}
+/* Muted ivory and celadon intro. Motion remains 3000ms; exit is 700ms. */
+#spl{--entry-surface:linear-gradient(155deg,#f6f4eb,#e7e5d4 53%,#f0eedf);position:fixed;inset:0;z-index:156000;overflow:hidden;background:var(--entry-surface);opacity:1;transition:opacity .7s cubic-bezier(.4,0,.2,1);color-scheme:light}
 #spl.leaving{opacity:0;pointer-events:none}
 #spl.done{display:none}
 #spl .controls,#spl .caption,#spl .status,#spl .footer,#knWelcomeOv .caption{display:none!important}
 #spl #news-pastel-palettes .gallery{display:block;max-width:none;margin:0}
-#spl #news-pastel-palettes .screen{height:100vh;height:100svh;border-radius:0;background:var(--entry-surface,linear-gradient(155deg,#edf9f1,#a2d6bf 53%,#dff3e7))}
+#spl #news-pastel-palettes .screen{height:100vh;height:100svh;border-radius:0;background:var(--entry-surface,linear-gradient(155deg,#f6f4eb,#e7e5d4 53%,#f0eedf))}
 #spl #news-pastel-palettes .object-stage{top:calc(50% - 170px)}
 #spl #news-pastel-palettes .brand{top:calc(50% + 60px)}
 #knWelcomeOv{position:fixed;inset:0;z-index:155000;display:none;overflow-y:auto;overscroll-behavior:contain;background:var(--entry-surface,linear-gradient(155deg,#edf9f1,#a2d6bf 53%,#dff3e7));text-align:left;color-scheme:light}
@@ -860,7 +860,20 @@ window.knApplyEntryColor=function(hex){
     palette={'--mm-bg':hsl(tone*.6,32),'--mm-halo':hsl(tone,68),'--mm-cool':hsl(tone,94),'--mm-accent':hsl(tone*.7,82),'--mm-ink':hsl(tone*.7,20),'--mm-muted':hsl(tone*.4,30),'--letter':hsl(tone*.55,28),'--entry-button':hsl(tone*.7,25),'--entry-surface':`linear-gradient(155deg,${hsl(tone,96)},${hsl(tone,75)} 53%,${hsl(tone,91)})`};
   }
   for(const [key,value] of Object.entries(palette))document.documentElement.style.setProperty(key,value);
-  document.querySelectorAll('#news-pastel-palettes,#news-pastel-palettes section,#news-mint-welcome').forEach(el=>{for(const [key,value] of Object.entries(palette))el.style.setProperty(key,value);});
+  document.querySelectorAll('#news-mint-welcome').forEach(el=>{for(const [key,value] of Object.entries(palette))el.style.setProperty(key,value);});
+  // The intro uses quieter colors locally; account and welcome palettes keep their settings.
+  let introPalette={'--mm-bg':'#647666','--mm-halo':'#b8c5ad','--mm-cool':'#f1f3e4','--mm-accent':'#d9d0b0','--mm-ink':'#3d4b3c','--mm-muted':'#606b57','--letter':'#67715f','--entry-surface':'linear-gradient(155deg,#f6f4eb,#e7e5d4 53%,#f0eedf)'};
+  const validColor=/^#[0-9a-f]{6}$/i.test(hex||'');
+  let customIntro=document.documentElement.hasAttribute('data-custom-brand-color');
+  if(!document.documentElement.style.getPropertyValue('--brand-color')){
+    try{customIntro=localStorage.getItem('userBrandColorCustom')==='1';}catch(e){}
+  }
+  if(validColor&&(hex.toLowerCase()!=='#3da060'||customIntro)){
+    // Blend with neutral pigments; resolved hex values also work in the canvas ring.
+    const tint=(base,weight)=>'#'+[1,3,5].map(i=>Math.round(parseInt(hex.slice(i,i+2),16)*weight+parseInt(base.slice(i,i+2),16)*(1-weight)).toString(16).padStart(2,'0')).join('');
+    introPalette={'--mm-bg':tint('#737d70',.22),'--mm-halo':tint('#c7cebd',.12),'--mm-cool':tint('#f5f4e9',.03),'--mm-accent':tint('#d9d0b0',.1),'--mm-ink':tint('#3d4b3c',.15),'--mm-muted':tint('#606b57',.15),'--letter':tint('#67715f',.15),'--entry-surface':`linear-gradient(155deg,${tint('#f6f4eb',.04)},${tint('#e7e5d4',.1)} 53%,${tint('#f0eedf',.06)})`};
+  }
+  document.querySelectorAll('#spl,#news-pastel-palettes,#news-pastel-palettes section').forEach(el=>{for(const [key,value] of Object.entries(introPalette))el.style.setProperty(key,value);});
 };
 try{window.knApplyEntryColor(localStorage.getItem('userBrandColor'));}catch(e){window.knApplyEntryColor(null);}
 function startApprovedIntro(){
