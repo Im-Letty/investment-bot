@@ -33,11 +33,11 @@ body.kn-home-a[data-theme="dark"][data-kn-a-custom-color] #morning-section {
   --kn-a-button:color-mix(in srgb,var(--brand-color) 25%,#d3dfcc);
   --kn-a-chip:color-mix(in srgb,var(--brand-color) 16%,#394032);
 }
-/* Keep the approved ivory reading surfaces with every light-mode color.
+/* Keep a brighter, subtle ivory reading surface with every light-mode color.
    Scope this below the hero so its light and the bottom navigation stay intact. */
-body.kn-home-a:not([data-theme="dark"])[data-kn-a-custom-color] #knHomeMarkets,
-body.kn-home-a:not([data-theme="dark"])[data-kn-a-custom-color] #morning-section > .morning-extra {
-  --kn-a-paper:#faf9ef;
+body.kn-home-a:not([data-theme="dark"]) #knHomeMarkets,
+body.kn-home-a:not([data-theme="dark"]) #morning-section > .morning-extra {
+  --kn-a-paper:#fdfcf6;
 }
 /* Cover the current globe and the saved paper/town alternatives in every mode. */
 body.kn-home-a #morning-section .morning-banner,
