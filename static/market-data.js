@@ -9,6 +9,18 @@
   var SYMBOL = /^[A-Z0-9^][A-Z0-9.^=\-]{0,24}$/;
   var TTL = 60000, RETAIN = 7 * 86400000, RETRY = 30000;
   function normalize(value) { return String(value || '').normalize('NFKC').trim().toUpperCase(); }
+  // Display stock codes separately from the provider IDs used for prices/storage.
+  // Indices and other instruments do not have an ordinary stock code. Unknown
+  // exchange suffixes are omitted rather than guessed (e.g. COST.TO).
+  function displayCode(item) {
+    if(!item || ['index','fx','commodity','crypto','other'].indexOf(item.category)>=0 ||
+       ['index','fx','other'].indexOf(item.pickerGroup)>=0)return '';
+    var symbol=normalize(item.symbol),jp=symbol.match(/^([0-9][0-9A-Z]{3,4})\.T$/);
+    if(jp)return jp[1];
+    if(['jp','us','custom'].indexOf(item.category)<0 && item.pickerGroup!=='stocks')return '';
+    if(/^BRK[-.][AB]$/.test(symbol))return symbol.replace('-','.');
+    return /^[A-Z][A-Z0-9]{0,9}$/.test(symbol)?symbol:'';
+  }
   function searchKey(value) { return normalize(value).replace(/[\u3041-\u3096]/g,function(c){return String.fromCharCode(c.charCodeAt(0)+0x60);}).replace(/\s/g,''); }
   function validCurrency(value) { return typeof value === 'string' && /^(?:[A-Z]{3}|GBp)$/.test(value); }
   function abortError() { var error=new Error('Search cancelled');error.name='AbortError';return error; }
@@ -80,7 +92,7 @@
     }
     function searchLocal(raw) {
       var key=searchKey(raw);
-      return catalog.filter(function(item){return searchKey(item.label+' '+item.symbol+' '+(item.keywords||'')).includes(key);});
+      return catalog.filter(function(item){return searchKey(item.label+' '+item.symbol+' '+displayCode(item)+' '+(item.keywords||'')).includes(key);});
     }
     function lookup(raw, signal) {
       try { checkAbort(signal); } catch(error) { return Promise.reject(error); }
@@ -240,5 +252,5 @@
       lookup: lookup
     };
   }
-  return {create:create, normalize:normalize, validQuote:validQuote, formatChange:formatChange};
+  return {create:create, normalize:normalize, displayCode:displayCode, validQuote:validQuote, formatChange:formatChange};
 });

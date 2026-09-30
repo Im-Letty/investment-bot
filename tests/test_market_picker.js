@@ -84,6 +84,7 @@ const remote=(id,label)=>({id,symbol:id,label,category:'custom',pickerGroup:'sto
 
 test('picker starts with six familiar markets and searches the complete bundled catalog',async()=>{
  const h=harness();assert.deepEqual(h.ids(),featured);assert.equal(h.node('knMarketResultCount').textContent,'6件');assert.equal(h.requests.length,0);
+ assert.equal(h.node('knMarketOptions').textContent,'日経225ドル円S&P500NYダウトヨタ自動車7203AppleAAPL');
  assert.equal(h.dialog.querySelectorAll('input').filter(input=>input.getAttribute('type')==='search').length,1);
  for(const query of ['任天堂','7974']){
   h.type(query);assert.deepEqual(h.ids(),['7974.T']);assert.equal(h.node('knMarketOptionsTitle').textContent,'検索結果');

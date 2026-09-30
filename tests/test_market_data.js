@@ -4,7 +4,7 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
-const {create,formatChange}=require('../static/market-data.js');
+const {create,formatChange,displayCode}=require('../static/market-data.js');
 const catalogContext={window:{}};
 vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../static/market-catalog.js'),'utf8'),catalogContext);
 const catalog=JSON.parse(JSON.stringify(catalogContext.window.KN_MARKET_CATALOG));
@@ -24,6 +24,20 @@ test('catalog has the approved 239 choices, unique IDs and no saved preview pric
   assert.equal(catalog.filter(c=>c.category==='jp').length,213);
   assert.equal(catalog.find(c=>c.id==='ナスダック').symbol,'^IXIC');
   assert.ok(catalog.every(c=>!('quote'in c)&&!('price'in c)));
+});
+test('display stock codes preserve letters and share classes without exposing provider notation',()=>{
+  const before=JSON.stringify(catalog);
+  for(const item of catalog){
+    const expected=item.category==='jp'?item.symbol.slice(0,-2):item.category==='us'?item.symbol:'';
+    assert.equal(displayCode(item),expected,item.symbol);
+  }
+  for(const [symbol,code] of [['285A.T','285A'],['25935.T','25935'],['COST','COST'],['BRK-B','BRK.B'],['COST.TO',''],['0700.HK',''],['JPY=X',''],['BTC-JPY',''],['^N225','']]){
+    const item={id:symbol,symbol,category:'custom',pickerGroup:'stocks'};
+    assert.equal(displayCode(item),code);assert.equal(item.symbol,symbol);assert.equal(item.id,symbol);
+  }
+  assert.equal(JSON.stringify(catalog),before);
+  const app=harness({},[{key:'BRK-B',label:'Berkshire Hathaway',pickerGroup:'stocks'}]);
+  assert.deepEqual(app.model.searchLocal('BRK.B').map(item=>item.symbol),['BRK-B']);
 });
 test('retains legacy selections and custom names, without fetching the catalog',async()=>{
   const app=harness({morn_sel:JSON.stringify(['日経225','SHOP','^IXIC','ドル円'])});
