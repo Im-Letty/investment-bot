@@ -5,7 +5,7 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const source=fs.readFileSync(path.join(__dirname,'../static/news-orbit.js'),'utf8');
-function harness(reduced=false,savedPause=false){
+function harness(reduced=false,savedPause=false,options){
   const storage=new Map(savedPause?[['kn_home_motion_paused','1']]:[]);let resets=0;
   const classes=new Set(),events={},buttonEvents={},attrs={},sceneAttrs={};let mediaCallback,intersectionCallback,observations=0;
   const root={dataset:{},classList:{toggle(name,value){if(value)classes.add(name);else classes.delete(name);}},querySelector(selector){return selector==='.kn-orbit-toggle'?button:scene;}};
@@ -17,7 +17,7 @@ function harness(reduced=false,savedPause=false){
   context.window.IntersectionObserver=context.IntersectionObserver;
   vm.runInNewContext(source,context);
   const host={querySelector(){return root;}};
-  context.window.KNNewsOrbit.mount(host);
+  context.window.KNNewsOrbit.mount(host,options);
   return {classes,attrs,sceneAttrs,document,host,root,context,storage,resets:()=>resets,
     click(){buttonEvents.click();},event(name){(events[name]||[]).forEach(fn=>fn());},
     visible(value){intersectionCallback([{target:root,isIntersecting:value}]);},
@@ -62,4 +62,18 @@ test('display reset clears saved pause and retains the system motion preference'
   const a=harness(false,true);a.context.window.dsReset();assert.equal(a.resets(),1);
   assert.ok(!a.storage.has('kn_home_motion_paused'));assert.ok(!a.classes.has('kn-orbit-paused'));
   a.preference(true);a.context.window.dsReset();assert.equal(a.resets(),2);assert.ok(a.classes.has('kn-orbit-reduced'));assert.ok(a.classes.has('kn-orbit-paused'));
+});
+
+// Alternative artwork shares the same motion preferences and language updates.
+test('alternative scene descriptions retain pause, reduced-motion and translation behavior',()=>{
+  const a=harness(true,false,{descriptions:{ja:'和紙の便り',en:'Paper letters'}});
+  assert.equal(a.sceneAttrs['aria-label'],'和紙の便り');
+  assert.ok(a.classes.has('kn-orbit-reduced'));
+  a.click();assert.ok(!a.classes.has('kn-orbit-reduced'));
+  a.document.documentElement.lang='en';a.event('langChanged');
+  assert.equal(a.sceneAttrs['aria-label'],'Paper letters');
+  a.click();assert.ok(a.classes.has('kn-orbit-paused'));
+  a.visible(false);a.visible(true);assert.ok(a.classes.has('kn-orbit-paused'));
+  a.document.documentElement.lang='unknown';a.event('langChanged');
+  assert.equal(a.sceneAttrs['aria-label'],'和紙の便り');
 });

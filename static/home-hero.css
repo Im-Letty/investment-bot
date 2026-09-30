@@ -1,0 +1,47 @@
+/* Saved B/D options. Every layout/color rule is gated by the selected hero.
+   With the default globe provider, this sheet does not alter the page. */
+body.kn-home-a #morning-section .morning-banner[data-kn-home-hero] {
+  overflow:hidden;
+  background:radial-gradient(ellipse at 50% 28%,#faf8e9 0,transparent 59%),linear-gradient(150deg,#e9e7d6,#dadfcb 62%,#e5e3d0)!important;
+}
+body.kn-home-a #morning-section .morning-banner[data-kn-home-hero="town"] {
+  background:radial-gradient(ellipse at 50% 26%,#fff8e9,transparent 57%),linear-gradient(130deg,#eae2d0,#e0e4ce)!important;
+}
+body.kn-home-a #morning-section .morning-banner[data-kn-home-hero] .kn-a-top-row {color:#3d4b3c}
+body.kn-home-a[data-kn-a-custom-color] #morning-section .morning-banner[data-kn-home-hero],
+body.kn-home-a[data-theme="dark"] #morning-section .morning-banner[data-kn-home-hero] {
+  background:radial-gradient(ellipse at 50% 28%,var(--kn-orbit-pale),transparent 65%),linear-gradient(130deg,var(--kn-orbit-pale),var(--kn-orbit-mid))!important;
+}
+body.kn-home-a[data-kn-a-custom-color] #morning-section .morning-banner[data-kn-home-hero] .kn-a-top-row,
+body.kn-home-a[data-theme="dark"] #morning-section .morning-banner[data-kn-home-hero] .kn-a-top-row {color:var(--kn-a-ink)}
+body.kn-home-a .kn-news-orbit.kn-home-hero {width:610px;max-width:100%;height:263px;margin:-13px auto 0}
+body.kn-home-a .kn-home-hero .kn-orbit-scene {transform:none}
+body.kn-home-a .kn-a-masthead .kn-home-hero svg.kn-hero-art {display:block;width:100%;height:100%;stroke:none;fill:none;overflow:visible}
+.kn-home-hero .kn-hero-art * {vector-effect:non-scaling-stroke}
+.kn-home-hero .kn-hero-news-stack {animation:knHeroFloat 10s ease-in-out infinite}
+.kn-home-hero .kn-hero-news-page {transform-origin:190px 245px;animation:knHeroPage 10s ease-in-out infinite}
+.kn-home-hero .kn-hero-letter-sun {animation:knHeroSun 14s ease-in-out infinite}
+.kn-home-hero .kn-hero-letter-leaf {transform-origin:407px 244px;animation:knHeroSway 9s ease-in-out infinite}
+.kn-home-hero .kn-hero-ink-reveal {stroke-dasharray:150;animation:knHeroInk 10s ease-in-out infinite}
+.kn-home-hero .kn-hero-window-glow {animation:knHeroWindows 9s ease-in-out infinite}
+.kn-home-hero .kn-hero-window-glow.kn-hero-delay {animation-delay:-4.5s}
+.kn-home-hero .kn-hero-street-light {offset-path:path('M158 250Q296 297 448 249');animation:knHeroTravel 15s linear infinite}
+.kn-home-hero .kn-hero-tree-sway {transform-origin:433px 234px;animation:knHeroSway 11s ease-in-out infinite}
+.kn-home-hero .kn-hero-city-sun {animation:knHeroFloat 15s ease-in-out infinite}
+@keyframes knHeroFloat {0%,100%{transform:translateY(2px)}50%{transform:translateY(-8px)}}
+@keyframes knHeroSway {0%,100%{transform:rotate(-3deg)}50%{transform:rotate(4deg)}}
+@keyframes knHeroPage {0%,25%,100%{transform:skewY(0deg)}58%,68%{transform:skewY(-4deg) translateY(-3px)}}
+@keyframes knHeroSun {0%,100%{transform:translateY(3px);opacity:.7}50%{transform:translateY(-9px);opacity:1}}
+@keyframes knHeroInk {0%,100%{stroke-dashoffset:150;opacity:.2}30%,80%{stroke-dashoffset:0;opacity:.8}}
+@keyframes knHeroWindows {0%,100%{opacity:.25}40%,65%{opacity:.95}}
+@keyframes knHeroTravel {0%{offset-distance:0%;opacity:0}8%,90%{opacity:1}100%{offset-distance:100%;opacity:0}}
+/* KNNewsOrbit owns pause, viewport visibility and system reduced-motion state. */
+body.kn-home-a .kn-home-hero.kn-orbit-reduced .kn-hero-ink-reveal {stroke-dashoffset:0;opacity:.8}
+body.kn-home-a .kn-home-hero.kn-orbit-reduced .kn-hero-street-light {offset-distance:55%;opacity:1}
+@media(max-width:700px) {
+  body.kn-home-a .kn-news-orbit.kn-home-hero {width:440px;max-width:none;height:232px;margin:-8px 0 0;left:50%;transform:translateX(-50%)}
+}
+@media(prefers-reduced-motion:reduce) {
+  body.kn-home-a .kn-home-hero:not(.kn-orbit-motion-enabled) .kn-hero-ink-reveal {stroke-dashoffset:0;opacity:.8}
+  body.kn-home-a .kn-home-hero:not(.kn-orbit-motion-enabled) .kn-hero-street-light {offset-distance:55%;opacity:1}
+}
