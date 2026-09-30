@@ -142,7 +142,7 @@
     if(window.__knGateReady)try{await window.__knGateReady;}catch(_){}
     var section=document.getElementById('morning-section'),banner=section&&section.querySelector('.morning-banner');if(!banner)return;
     document.body.classList.add('kn-home-a');
-    function syncColor(){var color=document.documentElement.style.getPropertyValue('--brand-color').trim().toLowerCase();document.body.toggleAttribute('data-kn-a-custom-color',!!color&&!['#3da060','#a2d6bf'].includes(color));}
+    function syncColor(){var color=document.documentElement.style.getPropertyValue('--brand-color').trim().toLowerCase();document.body.toggleAttribute('data-kn-a-custom-color',!!color&&color!=='#3da060');}
     syncColor();
     if(typeof window.applyBrandColor==='function'){var applyColor=window.applyBrandColor;window.applyBrandColor=function(){var result=applyColor.apply(this,arguments);syncColor();return result;};}
     function syncReading(){
