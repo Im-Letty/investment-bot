@@ -128,10 +128,9 @@ body.kn-home-a .kn-a-nmark {width:39px;height:39px;flex-shrink:0;display:grid;pl
 #knMarketPicker .kn-market-search input {border:0;background:transparent;min-width:0;width:100%;font-size:calc(16px * var(--kn-a-scale,1))!important;outline:none;line-height:1.5}
 #knMarketPicker .kn-market-search:focus-within {outline:2px solid #8daf98;outline-offset:2px}
 #knMarketSearch {flex-shrink:0;min-height:44px;min-width:48px;padding:6px 10px;border:0;border-radius:6px;background:var(--kn-a-chip);font-size:calc(14px * var(--kn-a-scale,1))!important}
-#knMarketCategories {display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 20px}
-#knMarketCategories button {border:1px solid var(--kn-a-line);background:none;border-radius:20px;padding:6px 11px;font-size:calc(13px * var(--kn-a-scale,1))!important;line-height:1.5}
-#knMarketCategories button[aria-pressed="true"] {background:var(--kn-a-button);border-color:var(--kn-a-button);color:#fffdf6}
-#knMarketPicker .kn-market-results-heading {display:flex;align-items:center;justify-content:space-between;font-size:calc(12px * var(--kn-a-scale,1))!important;color:var(--kn-a-muted);margin-bottom:6px}
+/* Keep result counts available to screen readers without adding visible copy. */
+#knMarketPicker .kn-market-results-heading {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+#knMarketOptions {margin-top:14px}
 #knMarketOptions label {display:flex;align-items:center;padding:12px 0;gap:12px;border-bottom:1px solid var(--kn-a-line);cursor:pointer}
 #knMarketOptions input {width:18px;height:18px;flex-shrink:0;accent-color:var(--kn-a-button)}
 #knMarketPicker .kn-market-option-name {display:block;font-size:calc(15px * var(--kn-a-scale,1))!important;line-height:1.6}
