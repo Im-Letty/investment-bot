@@ -159,6 +159,14 @@ body.kn-home-a #knTabWrap .kn-stock-search-form {
 body.kn-home-a #knTabWrap .sf-compact-controls {
   border-radius:16px;background:var(--kn-a-bg);
 }
+/* Give search and ranking controls a faint tint in every light-mode palette. */
+body.kn-home-a:not([data-theme="dark"]) #knTabWrap .kn-stock-search-form,
+body.kn-home-a:not([data-theme="dark"]) #knTabWrap .sf-compact-controls {
+  background:color-mix(in srgb,var(--kn-a-bg) 20%,var(--kn-a-paper));
+}
+body.kn-home-a:not([data-theme="dark"]) #knTabWrap .kn-stock-search-form button {
+  background:color-mix(in srgb,var(--kn-a-chip) 35%,var(--kn-a-paper));
+}
 body.kn-home-a #knHomeMarkets.kn-markets-compact #knHomeMarketGrid .kn-a-change-amount {min-height:1.7em}
 body.kn-home-a #knHomeMarkets.kn-markets-compact #knHomeMarketGrid .kn-a-quote-change {min-height:4.2em}
 body.kn-home-a #knHomeMarkets.kn-markets-compact #knHomeMarketGrid .kn-a-quote-note {min-height:.8em}
