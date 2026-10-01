@@ -83,7 +83,7 @@
       return {field,panel};
     };
     const orderPicker=picker('order','並べる基準',choices,order),marketPicker=picker('market','対象の市場',marketChoices,market);
-    const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderPicker.field+marketPicker.field+'</div>'+orderPicker.panel+marketPicker.panel+'</div><details class="sf-ranking-help" data-stock-detail="conditions"><summary>並べ方の意味は？ ⓘ</summary><p>前の取引日の終わりの株価と比べ、動いた割合（％）や金額が大きい順です。</p><p>例：100円→110円なら、値上がり率10％・値上がり額10円。</p><p>「売買が多い株」は、売買された株数の多い順です。</p></details>';
+    const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderPicker.field+marketPicker.field+'</div>'+orderPicker.panel+marketPicker.panel+'</div>';
 
     const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
     const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(data.items).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+' · '+new Date(data.updated_at*1000).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 取得'+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
