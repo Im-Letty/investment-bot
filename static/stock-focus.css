@@ -181,7 +181,8 @@ body.kn-home-a #knTabWrap #knWatchSec .sf-state {text-align:center}
 #knTabWrap .sf-more {margin:15px 0 0}
 #knTabWrap .sf-more>summary {justify-content:center;padding:0;background:transparent;border:0;border-radius:0}
 #knTabWrap .sf-more>summary small {font-size:10px;color:var(--sf-muted);margin-left:4px}
-#knTabWrap .sf-more[open]>summary {margin-bottom:5px}
+#knTabWrap .sf-more[open] {margin-top:0}
+#knTabWrap .sf-more[open]>summary {display:none}
 /* Company stories: reading layout C with the original heading and body typefaces. */
 #knTabWrap .sf-companies {display:block;padding-top:0}
 #knTabWrap .sf-company {display:block;max-width:720px;min-width:0;padding:26px 0 28px;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
