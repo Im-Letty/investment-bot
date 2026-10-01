@@ -73,13 +73,17 @@
     const metric=METRICS[options.metric]?options.metric:'pct',market=MARKETS[options.market]?options.market:'all';
     if(metric==='volume')active='up';
     const tabs='<div class="sf-direction-tabs" role="tablist" aria-label="ランキングの種類">'+(metric==='volume'?[['up','出来高']]:[['up','上昇'],['down','下落']]).map(([key,label])=>'<button type="button" role="tab" id="sf-rank-tab-'+key+'" data-sf-rank="'+key+'" aria-controls="sf-rank-panel-'+key+'" aria-selected="'+(active===key)+'" tabindex="'+(active===key?0:-1)+'">'+label+'</button>').join('')+'</div>';
-    const select=(label,key,values,value)=>'<label><span>'+label+'</span>'+'<select data-rank-setting="'+key+'">'+Object.entries(values).map(([k,v])=>'<option value="'+k+'"'+(k===value?' selected':'')+'>'+v+'</option>').join('')+'</select></label>';
     const order=metric==='volume'?'volume':metric==='amount'?(active==='down'?'dropAmount':'amount'):(active==='down'?'down':'pct');
     const choices={pct:'上がった株',down:'下がった株',amount:'上がった金額',dropAmount:'下がった金額',volume:'売買が多い株'};
     const marketChoices={...MARKETS,all:data&&/jp_us$/.test(data.scope)?'日本・米国':MARKETS.all};
-    const orderField='<div class="sf-order-field"><span id="sf-order-label">並べる基準</span><button type="button" class="sf-order-trigger" id="sf-order-trigger" data-rank-setting="order" aria-haspopup="listbox" aria-expanded="false" aria-controls="sf-order-options" aria-labelledby="sf-order-label sf-order-value"><span id="sf-order-value">'+choices[order]+'</span><i aria-hidden="true"></i></button></div>';
-    const orderPanel='<div class="sf-order-popover" id="sf-order-popover" hidden><div class="sf-order-heading"><span id="sf-order-heading">並べる基準</span><button type="button" data-rank-close aria-label="選択肢を閉じる">×</button></div><div id="sf-order-options" role="listbox" aria-labelledby="sf-order-heading">'+Object.entries(choices).map(([key,label])=>'<button type="button" role="option" data-rank-order="'+key+'" aria-selected="'+(key===order)+'" tabindex="'+(key===order?'0':'-1')+'"><span>'+label+'</span><span class="sf-order-check" aria-hidden="true">✓</span></button>').join('')+'</div></div>';
-    const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderField+select('対象の市場','market',marketChoices,market)+'</div>'+orderPanel+'</div><details class="sf-ranking-help" data-stock-detail="conditions"><summary>並べ方の意味は？ ⓘ</summary><p>「上がった株・下がった株」は前日の終値から動いた割合（％）の大きい順、「上がった金額・下がった金額」は動いた金額（円）の大きい順です。「売買が多い株」は売買された株数（出来高）の多い順です。</p><p>迷ったら市場は「全市場」を選べます。売買代金は正確なデータを確保できていないため未対応です。</p></details>';
+    const picker=(key,title,values,value)=>{
+      const id='sf-'+key;
+      const field='<div class="sf-order-field"><span id="'+id+'-label">'+title+'</span><button type="button" class="sf-order-trigger" id="'+id+'-trigger" data-rank-setting="'+key+'" aria-haspopup="listbox" aria-expanded="false" aria-controls="'+id+'-options" aria-labelledby="'+id+'-label '+id+'-value"><span id="'+id+'-value">'+values[value]+'</span><i aria-hidden="true"></i></button></div>';
+      const panel='<div class="sf-order-popover" id="'+id+'-popover" hidden><div class="sf-order-heading"><span id="'+id+'-heading">'+title+'</span><button type="button" data-rank-close="'+key+'" aria-label="選択肢を閉じる">×</button></div><div id="'+id+'-options" role="listbox" aria-labelledby="'+id+'-heading">'+Object.entries(values).map(([option,label])=>'<button type="button" role="option" data-rank-'+key+'="'+option+'" aria-selected="'+(option===value)+'" tabindex="'+(option===value?'0':'-1')+'" data-rank-choice="'+key+'"><span>'+label+'</span><span class="sf-order-check" aria-hidden="true">✓</span></button>').join('')+'</div></div>';
+      return {field,panel};
+    };
+    const orderPicker=picker('order','並べる基準',choices,order),marketPicker=picker('market','対象の市場',marketChoices,market);
+    const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderPicker.field+marketPicker.field+'</div>'+orderPicker.panel+marketPicker.panel+'</div><details class="sf-ranking-help" data-stock-detail="conditions"><summary>並べ方の意味は？ ⓘ</summary><p>「上がった株・下がった株」は前日の終値から動いた割合（％）の大きい順、「上がった金額・下がった金額」は動いた金額（円）の大きい順です。「売買が多い株」は売買された株数（出来高）の多い順です。</p><p>迷ったら市場は「全市場」を選べます。売買代金は正確なデータを確保できていないため未対応です。</p></details>';
 
     const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
     const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(data.items).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+' · '+new Date(data.updated_at*1000).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 取得'+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
@@ -122,35 +126,31 @@
     container.querySelectorAll('.sf-ranking').forEach(panel=>{panel.hidden=panel.id!=='sf-rank-panel-'+direction;});
   }
   function start(w){
-    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,orderMenuOpen=false;
+    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,openMenu=null;
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
     let conditions={metric:'pct',market:'all'};try{const saved=JSON.parse(w.localStorage.getItem('kn_rank_conditions')||'null');if(saved&&METRICS[saved.metric]&&MARKETS[saved.market])conditions=saved;if(['up','down'].includes(conditions.direction))active=conditions.direction;}catch(_){}
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
-    function setOrderMenu(open,focus=false){
-      orderMenuOpen=open;
-      const panel=doc.getElementById('sf-order-popover'),trigger=doc.getElementById('sf-order-trigger');
-      if(!panel||!trigger)return;
-      panel.hidden=!open;trigger.setAttribute('aria-expanded',String(open));
-      if(open)positionOrderMenu();
-      if(focus){
-        if(open)panel.querySelectorAll('[data-rank-order]').forEach(option=>{option.tabIndex=option.getAttribute('aria-selected')==='true'?0:-1;});
-        const target=open?panel.querySelector('[aria-selected="true"]'):trigger;if(target)target.focus({preventScroll:true});
+    function setMenu(key,focus=false,returnKey=openMenu){
+      openMenu=key;
+      for(const kind of ['order','market']){
+        const panel=doc.getElementById('sf-'+kind+'-popover'),trigger=doc.getElementById('sf-'+kind+'-trigger');
+        if(panel)panel.hidden=kind!==key;
+        if(trigger)trigger.setAttribute('aria-expanded',String(kind===key));
       }
-    }
-    function positionOrderMenu(){
-      const panel=doc.getElementById('sf-order-popover');if(!orderMenuOpen||!panel||!panel.getBoundingClientRect)return;
-      const anchor=panel.parentElement.getBoundingClientRect(),viewport=w.visualViewport,top=viewport?viewport.offsetTop:0,height=viewport?viewport.height:w.innerHeight;
-      const below=top+height-anchor.bottom-90,above=anchor.top-top-12,useAbove=below<panel.scrollHeight&&above>below;
-      panel.classList.toggle('sf-order-above',useAbove);panel.style.maxHeight=Math.max(120,useAbove?above:below)+'px';
+      if(!focus)return;
+      const panel=key&&doc.getElementById('sf-'+key+'-popover');
+      if(panel)panel.querySelectorAll('[data-rank-choice]').forEach(option=>{option.tabIndex=option.getAttribute('aria-selected')==='true'?0:-1;});
+      const target=panel?panel.querySelector('[aria-selected="true"]'):doc.getElementById('sf-'+returnKey+'-trigger');
+      if(target)target.focus({preventScroll:true});
     }
     function changeSetting(key,value){
       if(key==='order'&&['pct','down','amount','dropAmount','volume'].includes(value)){
         active=['down','dropAmount'].includes(value)?'down':'up';
         conditions={...conditions,metric:value==='volume'?'volume':['amount','dropAmount'].includes(value)?'amount':'pct',direction:active};
-      }else if(key==='metric'&&METRICS[value]||key==='market'&&MARKETS[value]){
+      }else if(key==='metric'&&Object.hasOwn(METRICS,value)||key==='market'&&Object.hasOwn(MARKETS,value)){
         conditions={...conditions,[key]:value};if(conditions.metric==='volume')active='up';
       }else return;
-      setOrderMenu(false);
+      setMenu(null);
       try{w.localStorage.setItem('kn_rank_conditions',JSON.stringify(conditions));}catch(_){}
       render();
     }
@@ -178,15 +178,16 @@
       const el=doc.getElementById(id);if(!el||el.__stockHTML===html)return;
       if(id==='homeMoversList'&&updateRankingValues(el,html)){el.__stockHTML=html;return;}
       const open=new Set(Array.from(el.querySelectorAll('details[open][data-stock-detail]')).map(x=>x.dataset.stockDetail));
-      const focused=doc.activeElement,ownsFocus=focused&&el.contains(focused),settingKey=ownsFocus&&focused.getAttribute('data-rank-setting'),focusKey=ownsFocus&&focused.getAttribute('data-sf-rank'),orderFocus=ownsFocus&&focused.getAttribute('data-rank-order'),closeFocus=ownsFocus&&focused.hasAttribute('data-rank-close');
+      const focused=doc.activeElement,ownsFocus=focused&&el.contains(focused),settingKey=ownsFocus&&focused.getAttribute('data-rank-setting'),focusKey=ownsFocus&&focused.getAttribute('data-sf-rank'),choiceKey=ownsFocus&&focused.getAttribute('data-rank-choice'),choiceValue=choiceKey&&focused.getAttribute('data-rank-'+choiceKey),closeKey=ownsFocus&&focused.getAttribute('data-rank-close');
       el.innerHTML=html;el.__stockHTML=html;el.__rankConditions=JSON.stringify(conditions);
       el.querySelectorAll('details[data-stock-detail]').forEach(x=>{x.open=open.has(x.dataset.stockDetail);});
-      if(id==='homeMoversList')setOrderMenu(orderMenuOpen);
+      if(id==='homeMoversList')setMenu(openMenu);
       if(settingKey){const select=el.querySelector('[data-rank-setting="'+settingKey+'"]');if(select)select.focus({preventScroll:true});}
       if(focusKey){const button=el.querySelector('[data-sf-rank="'+focusKey+'"]');if(button)button.focus({preventScroll:true});}
-      if(orderFocus||closeFocus){
-        const target=orderMenuOpen?el.querySelector(orderFocus?'[data-rank-order="'+orderFocus+'"]':'[data-rank-close]'):doc.getElementById('sf-order-trigger');
-        if(orderMenuOpen&&orderFocus)el.querySelectorAll('[data-rank-order]').forEach(option=>{option.tabIndex=option===target?0:-1;});
+      if(choiceKey||closeKey){
+        const key=choiceKey||closeKey,panel=doc.getElementById('sf-'+key+'-popover');
+        const target=openMenu===key?panel.querySelector(choiceKey?'[data-rank-'+key+'="'+choiceValue+'"]':'[data-rank-close]'):doc.getElementById('sf-'+key+'-trigger');
+        if(openMenu===key&&choiceKey)panel.querySelectorAll('[data-rank-choice]').forEach(option=>{option.tabIndex=option===target?0:-1;});
         if(target)target.focus({preventScroll:true});
       }
     }
@@ -217,21 +218,22 @@
       doc.addEventListener('change',e=>{const key=e.target.getAttribute&&e.target.getAttribute('data-rank-setting');if(key)changeSetting(key,e.target.value);});
       doc.addEventListener('click',e=>{
         const closest=selector=>e.target.closest&&e.target.closest(selector);
-        if(closest('.sf-order-trigger')){setOrderMenu(!orderMenuOpen,true);return;}
-        if(closest('[data-rank-close]')){setOrderMenu(false,true);return;}
-        const option=closest('[data-rank-order]');
-        if(option){changeSetting('order',option.dataset.rankOrder);setOrderMenu(false,true);return;}
-        if(orderMenuOpen&&!closest('.sf-order-popover'))setOrderMenu(false);
+        const trigger=closest('.sf-order-trigger'),close=closest('[data-rank-close]');
+        if(trigger){const key=trigger.dataset.rankSetting;setMenu(openMenu===key?null:key,true,key);return;}
+        if(close){setMenu(null,true,close.dataset.rankClose);return;}
+        const option=closest('[data-rank-choice]');
+        if(option){const key=option.dataset.rankChoice;changeSetting(key,option.getAttribute('data-rank-'+key));setMenu(null,true,key);return;}
+        if(openMenu&&!closest('.sf-order-popover'))setMenu(null);
         const button=closest('[data-sf-rank]');if(button){active=button.dataset.sfRank;selectRanking(doc.getElementById('homeMoversList'),active);}
         if(closest('[data-stock-retry]')){poll=0;status='loading';render();refresh();}
       });
-      doc.addEventListener('focusin',e=>{if(orderMenuOpen&&e.target.closest&&!e.target.closest('.sf-order-popover,.sf-order-trigger'))setOrderMenu(false);});
+      doc.addEventListener('focusin',e=>{if(openMenu&&e.target.closest&&!e.target.closest('.sf-order-popover,.sf-order-trigger'))setMenu(null);});
       doc.addEventListener('keydown',e=>{
-        const closest=selector=>e.target.closest&&e.target.closest(selector),trigger=closest('.sf-order-trigger'),option=closest('[data-rank-order]');
-        if(orderMenuOpen&&e.key==='Escape'){e.preventDefault();setOrderMenu(false,true);return;}
-        if(trigger&&['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();setOrderMenu(true,true);return;}
+        const closest=selector=>e.target.closest&&e.target.closest(selector),trigger=closest('.sf-order-trigger'),option=closest('[data-rank-choice]');
+        if(openMenu&&e.key==='Escape'){e.preventDefault();setMenu(null,true);return;}
+        if(trigger&&['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();setMenu(trigger.dataset.rankSetting,true);return;}
         if(option&&['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
-          e.preventDefault();const choices=Array.from(doc.getElementById('sf-order-options').querySelectorAll('[data-rank-order]')),index=choices.indexOf(option);
+          e.preventDefault();const choices=Array.from(doc.getElementById('sf-'+option.dataset.rankChoice+'-options').querySelectorAll('[data-rank-choice]')),index=choices.indexOf(option);
           const next=e.key==='Home'?0:e.key==='End'?choices.length-1:(index+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;
           choices.forEach((choice,i)=>choice.tabIndex=i===next?0:-1);choices[next].focus();return;
         }
@@ -244,7 +246,7 @@
         if(data&&Date.now()-data.updated_at*1000>CACHE_AGE){data=null;status='loading';render();}
         refresh();
       });
-      if(w.addEventListener){w.addEventListener('online',refresh);w.addEventListener('resize',positionOrderMenu);}
+      if(w.addEventListener)w.addEventListener('online',refresh);
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});else init();
   }

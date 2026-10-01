@@ -308,7 +308,7 @@ test('ranking conditions persist and rerender when the user changes a setting',(
  assert.match(h.elements.get('homeMoversList').innerHTML,/role="option" data-rank-order="volume" aria-selected="true"/);
  assert.match(h.w.localStorage.getItem('kn_rank_conditions'),/volume/);
  h.listeners.change({target:{getAttribute:()=> 'market',value:'growth'}});
- assert.match(h.elements.get('homeMoversList').innerHTML,/value="growth" selected/);
+ assert.match(h.elements.get('homeMoversList').innerHTML,/role="option" data-rank-market="growth" aria-selected="true"/);
 });
 
 test('compact bar combines direction and metric and preserves the selected order',()=>{
@@ -376,10 +376,10 @@ function rankingMenuHarness(saved){
   for(const id of elements.keys()){const el=new Element('div');el.setAttribute('id',id);doc.body.appendChild(el);elements.set(id,el);}
  });
  h.node=id=>h.w.document.getElementById(id);
- h.option=value=>h.node('sf-order-options').querySelector('[data-rank-order="'+value+'"]');
+ h.option=(value,key='order')=>h.node('sf-'+key+'-options').querySelector('[data-rank-'+key+'="'+value+'"]');
  h.click=target=>{(target.closest('button')||target).focus();h.listeners.click({target});};
  h.key=(target,key)=>{const event={target,key,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};h.listeners.keydown(event);if(!event.defaultPrevented&&['Enter',' '].includes(key)&&target.tagName==='BUTTON')h.click(target);return event;};
- h.changeMarket=value=>{const target=h.elements.get('homeMoversList').querySelector('[data-rank-setting="market"]');target.value=value;target.focus();h.listeners.change({target});};
+ h.changeMarket=value=>{h.click(h.node('sf-market-trigger'));h.click(h.option(value,'market'));};
  h.saved=()=>JSON.parse(h.w.localStorage.getItem('kn_rank_conditions'));
  return h;
 }
@@ -396,16 +396,18 @@ test('all five order options save and restore their metric and direction without
   assert.equal(h.w.document.activeElement,h.node('sf-order-trigger'));
   const restored=rankingMenuHarness({kn_rank_conditions:h.w.localStorage.getItem('kn_rank_conditions')});
   assert.equal(restored.option(value).getAttribute('aria-selected'),'true');
-  assert.equal(restored.elements.get('homeMoversList').querySelector('option[selected]').getAttribute('value'),'growth');
+  assert.equal(restored.option('growth','market').getAttribute('aria-selected'),'true');
   assert.equal(restored.node('sf-order-value').textContent,label);
  }
 });
 
-test('invalid order values cannot overwrite settings and market changes preserve the selected order',()=>{
+test('invalid values cannot overwrite either setting and market changes preserve the selected order',()=>{
  const h=rankingMenuHarness();h.changeMarket('prime');h.click(h.node('sf-order-trigger'));h.click(h.option('dropAmount'));
  const before=h.w.localStorage.getItem('kn_rank_conditions');
- for(const value of ['bogus','',null,'__proto__'])h.listeners.change({target:{getAttribute:()=> 'order',value}});
- const invalid=h.w.document.createElement('button');invalid.setAttribute('data-rank-order','bogus');h.node('sf-order-options').appendChild(invalid);h.click(invalid);
+ for(const key of ['order','market']){
+  for(const value of ['bogus','',null,'__proto__','constructor'])h.listeners.change({target:{getAttribute:()=>key,value}});
+  const invalid=h.w.document.createElement('button');invalid.setAttribute('data-rank-'+key,'bogus');invalid.setAttribute('data-rank-choice',key);h.node('sf-'+key+'-options').appendChild(invalid);h.click(invalid);
+ }
  assert.equal(h.w.localStorage.getItem('kn_rank_conditions'),before);
  assert.equal(h.option('dropAmount').getAttribute('aria-selected'),'true');
  h.changeMarket('standard');assert.deepEqual(h.saved(),{metric:'amount',market:'standard',direction:'down'});
@@ -464,4 +466,71 @@ test('full rebuilds preserve the close-button focus and never steal focus from o
  const outside=h.w.document.createElement('button');h.w.document.body.appendChild(outside);outside.focus();
  fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(115));
  assert.equal(h.w.document.activeElement,outside);assert.equal(h.node('sf-order-popover').hidden,true);
+});
+
+test('all four market options save and restore without changing the ranking metric or direction',()=>{
+ for(const [market,label]of [['all','全市場'],['prime','プライム'],['standard','スタンダード'],['growth','グロース']]){
+  const h=rankingMenuHarness({kn_rank_conditions:JSON.stringify({metric:'amount',market:'all',direction:'down'})});
+  h.click(h.node('sf-market-trigger'));h.click(h.option(market,'market').querySelector('span'));
+  assert.deepEqual(h.saved(),{metric:'amount',market,direction:'down'});
+  assert.equal(h.node('sf-market-value').textContent,label);
+  assert.deepEqual(h.node('sf-market-options').querySelectorAll('[aria-selected="true"]').map(node=>node.dataset.rankMarket),[market]);
+  assert.equal(h.option('dropAmount').getAttribute('aria-selected'),'true');
+  assert.equal(h.node('sf-market-popover').hidden,true);assert.equal(h.node('sf-market-trigger').getAttribute('aria-expanded'),'false');
+  assert.equal(h.w.document.activeElement,h.node('sf-market-trigger'));
+  const restored=rankingMenuHarness({kn_rank_conditions:h.w.localStorage.getItem('kn_rank_conditions')});
+  assert.equal(restored.option(market,'market').getAttribute('aria-selected'),'true');
+  assert.equal(restored.node('sf-market-value').textContent,label);assert.equal(restored.option('dropAmount').getAttribute('aria-selected'),'true');
+ }
+});
+
+test('opening either ranking picker closes the other and each close action restores its own trigger',()=>{
+ const h=rankingMenuHarness();
+ for(const key of ['order','market','order','market']){
+  const other=key==='order'?'market':'order';h.click(h.node('sf-'+key+'-trigger'));
+  assert.equal(h.node('sf-'+key+'-popover').hidden,false);assert.equal(h.node('sf-'+key+'-trigger').getAttribute('aria-expanded'),'true');
+  assert.equal(h.node('sf-'+other+'-popover').hidden,true);assert.equal(h.node('sf-'+other+'-trigger').getAttribute('aria-expanded'),'false');
+  assert.equal(h.w.document.activeElement,h.node('sf-'+key+'-options').querySelector('[aria-selected="true"]'));
+ }
+ h.click(h.node('sf-market-trigger'));assert.equal(h.node('sf-market-popover').hidden,true);assert.equal(h.w.document.activeElement,h.node('sf-market-trigger'));
+ h.click(h.node('sf-market-trigger'));h.click(h.node('sf-market-popover').querySelector('[data-rank-close]'));
+ assert.equal(h.node('sf-market-popover').hidden,true);assert.equal(h.w.document.activeElement,h.node('sf-market-trigger'));
+ assert.equal(h.node('sf-order-popover').hidden,true);assert.equal(h.saved(),null);
+});
+
+test('market keyboard navigation wraps, cancels without saving and commits only the chosen market',()=>{
+ const h=rankingMenuHarness(),trigger=h.node('sf-market-trigger');trigger.focus();
+ assert.equal(h.key(trigger,'ArrowUp').defaultPrevented,true);assert.equal(h.w.document.activeElement,h.option('all','market'));
+ h.key(h.option('all','market'),'ArrowUp');assert.equal(h.w.document.activeElement,h.option('growth','market'));
+ h.key(h.option('growth','market'),'Home');assert.equal(h.w.document.activeElement,h.option('all','market'));
+ h.key(h.option('all','market'),'End');assert.equal(h.w.document.activeElement,h.option('growth','market'));
+ assert.equal(h.saved(),null);assert.equal(h.option('all','market').getAttribute('aria-selected'),'true');
+ h.key(h.option('growth','market'),'Escape');assert.equal(h.w.document.activeElement,trigger);assert.equal(h.node('sf-market-popover').hidden,true);
+ h.key(trigger,'Enter');assert.equal(h.w.document.activeElement,h.option('all','market'));
+ assert.deepEqual(h.node('sf-market-options').querySelectorAll('[data-rank-choice]').filter(option=>option.tabIndex===0).map(option=>option.dataset.rankMarket),['all']);
+ h.key(h.option('all','market'),'ArrowDown');h.key(h.option('prime','market'),' ');
+ assert.deepEqual(h.saved(),{metric:'pct',market:'prime'});assert.equal(h.node('sf-market-popover').hidden,true);
+ assert.equal(h.w.document.activeElement,h.node('sf-market-trigger'));assert.equal(h.option('pct').getAttribute('aria-selected'),'true');
+});
+
+test('market focus and open state survive both minute price patches and full ranking rebuilds',async()=>{
+ const h=rankingMenuHarness();await h.respond(h.requests[0],scannerPayload(110));
+ const box=h.elements.get('homeMoversList'),writes=box.writes;
+ h.click(h.node('sf-market-trigger'));h.key(h.option('all','market'),'ArrowDown');
+ const option=h.option('prime','market'),panel=h.node('sf-market-popover');
+ fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(115));
+ assert.equal(box.writes,writes);assert.equal(h.node('sf-market-popover'),panel);assert.equal(panel.hidden,false);assert.equal(h.w.document.activeElement,option);
+ fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(90));
+ assert.equal(box.writes,writes+1);assert.notEqual(h.option('prime','market'),option);assert.equal(h.node('sf-market-popover').hidden,false);
+ assert.equal(h.node('sf-order-popover').hidden,true);assert.equal(h.node('sf-market-trigger').getAttribute('aria-expanded'),'true');
+ assert.equal(h.w.document.activeElement,h.option('prime','market'));
+ assert.deepEqual(h.node('sf-market-options').querySelectorAll('[data-rank-choice]').filter(node=>node.tabIndex===0).map(node=>node.dataset.rankMarket),['prime']);
+ assert.equal(h.saved(),null,'Refreshing must not select the highlighted market');
+ h.node('sf-market-popover').querySelector('[data-rank-close]').focus();
+ fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(120));
+ assert.equal(h.w.document.activeElement,h.node('sf-market-popover').querySelector('[data-rank-close]'));
+ h.click(h.option('prime','market'));assert.equal(h.node('sf-market-popover').hidden,true);
+ const outside=h.w.document.createElement('button');h.w.document.body.appendChild(outside);outside.focus();
+ fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(90));
+ assert.equal(h.node('sf-market-popover').hidden,true);assert.equal(h.w.document.activeElement,outside);
 });
