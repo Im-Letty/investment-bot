@@ -77,7 +77,9 @@
     const order=metric==='volume'?'volume':metric==='amount'?(active==='down'?'dropAmount':'amount'):(active==='down'?'down':'pct');
     const choices={pct:'上がった株',down:'下がった株',amount:'上がった金額',dropAmount:'下がった金額',volume:'売買が多い株'};
     const marketChoices={...MARKETS,all:data&&/jp_us$/.test(data.scope)?'日本・米国':MARKETS.all};
-    const controls='<div class="sf-compact-controls" aria-label="ランキングの表示条件">'+select('並べる基準','order',choices,order)+select('対象の市場','market',marketChoices,market)+'</div><details class="sf-ranking-help" data-stock-detail="conditions"><summary>並べ方の意味は？ ⓘ</summary><p>「上がった株・下がった株」は前日の終値から動いた割合（％）の大きい順、「上がった金額・下がった金額」は動いた金額（円）の大きい順です。「売買が多い株」は売買された株数（出来高）の多い順です。</p><p>迷ったら市場は「全市場」を選べます。売買代金は正確なデータを確保できていないため未対応です。</p></details>';
+    const orderField='<div class="sf-order-field"><span id="sf-order-label">並べる基準</span><button type="button" class="sf-order-trigger" id="sf-order-trigger" data-rank-setting="order" aria-haspopup="listbox" aria-expanded="false" aria-controls="sf-order-options" aria-labelledby="sf-order-label sf-order-value"><span id="sf-order-value">'+choices[order]+'</span><i aria-hidden="true"></i></button></div>';
+    const orderPanel='<div class="sf-order-popover" id="sf-order-popover" hidden><div class="sf-order-heading"><span id="sf-order-heading">並べる基準</span><button type="button" data-rank-close aria-label="選択肢を閉じる">×</button></div><div id="sf-order-options" role="listbox" aria-labelledby="sf-order-heading">'+Object.entries(choices).map(([key,label])=>'<button type="button" role="option" data-rank-order="'+key+'" aria-selected="'+(key===order)+'" tabindex="'+(key===order?'0':'-1')+'"><span>'+label+'</span><span class="sf-order-check" aria-hidden="true">✓</span></button>').join('')+'</div></div>';
+    const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderField+select('対象の市場','market',marketChoices,market)+'</div>'+orderPanel+'</div><details class="sf-ranking-help" data-stock-detail="conditions"><summary>並べ方の意味は？ ⓘ</summary><p>「上がった株・下がった株」は前日の終値から動いた割合（％）の大きい順、「上がった金額・下がった金額」は動いた金額（円）の大きい順です。「売買が多い株」は売買された株数（出来高）の多い順です。</p><p>迷ったら市場は「全市場」を選べます。売買代金は正確なデータを確保できていないため未対応です。</p></details>';
 
     const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
     const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(data.items).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+' · '+new Date(data.updated_at*1000).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 取得'+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
@@ -120,10 +122,38 @@
     container.querySelectorAll('.sf-ranking').forEach(panel=>{panel.hidden=panel.id!=='sf-rank-panel-'+direction;});
   }
   function start(w){
-    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0;
+    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,orderMenuOpen=false;
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
     let conditions={metric:'pct',market:'all'};try{const saved=JSON.parse(w.localStorage.getItem('kn_rank_conditions')||'null');if(saved&&METRICS[saved.metric]&&MARKETS[saved.market])conditions=saved;if(['up','down'].includes(conditions.direction))active=conditions.direction;}catch(_){}
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
+    function setOrderMenu(open,focus=false){
+      orderMenuOpen=open;
+      const panel=doc.getElementById('sf-order-popover'),trigger=doc.getElementById('sf-order-trigger');
+      if(!panel||!trigger)return;
+      panel.hidden=!open;trigger.setAttribute('aria-expanded',String(open));
+      if(open)positionOrderMenu();
+      if(focus){
+        if(open)panel.querySelectorAll('[data-rank-order]').forEach(option=>{option.tabIndex=option.getAttribute('aria-selected')==='true'?0:-1;});
+        const target=open?panel.querySelector('[aria-selected="true"]'):trigger;if(target)target.focus({preventScroll:true});
+      }
+    }
+    function positionOrderMenu(){
+      const panel=doc.getElementById('sf-order-popover');if(!orderMenuOpen||!panel||!panel.getBoundingClientRect)return;
+      const anchor=panel.parentElement.getBoundingClientRect(),viewport=w.visualViewport,top=viewport?viewport.offsetTop:0,height=viewport?viewport.height:w.innerHeight;
+      const below=top+height-anchor.bottom-90,above=anchor.top-top-12,useAbove=below<panel.scrollHeight&&above>below;
+      panel.classList.toggle('sf-order-above',useAbove);panel.style.maxHeight=Math.max(120,useAbove?above:below)+'px';
+    }
+    function changeSetting(key,value){
+      if(key==='order'&&['pct','down','amount','dropAmount','volume'].includes(value)){
+        active=['down','dropAmount'].includes(value)?'down':'up';
+        conditions={...conditions,metric:value==='volume'?'volume':['amount','dropAmount'].includes(value)?'amount':'pct',direction:active};
+      }else if(key==='metric'&&METRICS[value]||key==='market'&&MARKETS[value]){
+        conditions={...conditions,[key]:value};if(conditions.metric==='volume')active='up';
+      }else return;
+      setOrderMenu(false);
+      try{w.localStorage.setItem('kn_rank_conditions',JSON.stringify(conditions));}catch(_){}
+      render();
+    }
     function updateRankingValues(el,html){
       // Keep list, disclosure and focus nodes when the ranked companies haven't changed.
       if(!doc.createElement||el.__rankConditions!==JSON.stringify(conditions))return false;
@@ -148,11 +178,17 @@
       const el=doc.getElementById(id);if(!el||el.__stockHTML===html)return;
       if(id==='homeMoversList'&&updateRankingValues(el,html)){el.__stockHTML=html;return;}
       const open=new Set(Array.from(el.querySelectorAll('details[open][data-stock-detail]')).map(x=>x.dataset.stockDetail));
-      const focused=doc.activeElement,settingKey=focused&&el.contains(focused)&&focused.getAttribute('data-rank-setting'),focusKey=focused&&el.contains(focused)&&focused.getAttribute('data-sf-rank');
+      const focused=doc.activeElement,ownsFocus=focused&&el.contains(focused),settingKey=ownsFocus&&focused.getAttribute('data-rank-setting'),focusKey=ownsFocus&&focused.getAttribute('data-sf-rank'),orderFocus=ownsFocus&&focused.getAttribute('data-rank-order'),closeFocus=ownsFocus&&focused.hasAttribute('data-rank-close');
       el.innerHTML=html;el.__stockHTML=html;el.__rankConditions=JSON.stringify(conditions);
       el.querySelectorAll('details[data-stock-detail]').forEach(x=>{x.open=open.has(x.dataset.stockDetail);});
+      if(id==='homeMoversList')setOrderMenu(orderMenuOpen);
       if(settingKey){const select=el.querySelector('[data-rank-setting="'+settingKey+'"]');if(select)select.focus({preventScroll:true});}
       if(focusKey){const button=el.querySelector('[data-sf-rank="'+focusKey+'"]');if(button)button.focus({preventScroll:true});}
+      if(orderFocus||closeFocus){
+        const target=orderMenuOpen?el.querySelector(orderFocus?'[data-rank-order="'+orderFocus+'"]':'[data-rank-close]'):doc.getElementById('sf-order-trigger');
+        if(orderMenuOpen&&orderFocus)el.querySelectorAll('[data-rank-order]').forEach(option=>{option.tabIndex=option===target?0:-1;});
+        if(target)target.focus({preventScroll:true});
+      }
     }
     function render(){paint('homeMoversList',rankingMarkup(data,active,status,conditions));paint('knCompanyFocus',companyMarkup(editorial,data,storyStatus));}
     function restore(){try{data=normalizePayload(JSON.parse(w.localStorage.getItem(cacheKey())));if(data)data.stale=true;}catch(_){data=null;}}
@@ -178,9 +214,29 @@
     function init(){
       restore();render();refresh();loadStories();
       w.closeStockWatchManager=function(){const manager=doc.getElementById('alert-section');if(manager)manager.style.display='none';const home=doc.getElementById('morning-section'),news=doc.getElementById('morning-news-section');if(home)home.style.display='block';if(news)news.style.display='';if(w.__knRefreshWatch)w.__knRefreshWatch();if(w.__knSetSub)w.__knSetSub('watch');};
-      doc.addEventListener('change',e=>{const key=e.target.getAttribute&&e.target.getAttribute('data-rank-setting');if(!key)return;const value=e.target.value;if(key==='order'&&['pct','down','amount','dropAmount','volume'].includes(value)){active=['down','dropAmount'].includes(value)?'down':'up';conditions={...conditions,metric:value==='volume'?'volume':['amount','dropAmount'].includes(value)?'amount':'pct',direction:active};try{w.localStorage.setItem('kn_rank_conditions',JSON.stringify(conditions));}catch(_){}render();return;}if(key==='metric'&&METRICS[value]||key==='market'&&MARKETS[value]){conditions={...conditions,[key]:value};if(conditions.metric==='volume')active='up';try{w.localStorage.setItem('kn_rank_conditions',JSON.stringify(conditions));}catch(_){}render();}});
-      doc.addEventListener('click',e=>{const button=e.target.closest&&e.target.closest('[data-sf-rank]');if(button){active=button.dataset.sfRank;selectRanking(doc.getElementById('homeMoversList'),active);}if(e.target.closest&&e.target.closest('[data-stock-retry]')){poll=0;status='loading';render();refresh();}});
-      doc.addEventListener('keydown',e=>{const button=e.target.closest&&e.target.closest('[data-sf-rank]');if(conditions.metric==='volume')return;if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();active=e.key==='Home'?'up':e.key==='End'?'down':button.dataset.sfRank==='up'?'down':'up';selectRanking(doc.getElementById('homeMoversList'),active);doc.getElementById('sf-rank-tab-'+active).focus();});
+      doc.addEventListener('change',e=>{const key=e.target.getAttribute&&e.target.getAttribute('data-rank-setting');if(key)changeSetting(key,e.target.value);});
+      doc.addEventListener('click',e=>{
+        const closest=selector=>e.target.closest&&e.target.closest(selector);
+        if(closest('.sf-order-trigger')){setOrderMenu(!orderMenuOpen,true);return;}
+        if(closest('[data-rank-close]')){setOrderMenu(false,true);return;}
+        const option=closest('[data-rank-order]');
+        if(option){changeSetting('order',option.dataset.rankOrder);setOrderMenu(false,true);return;}
+        if(orderMenuOpen&&!closest('.sf-order-popover'))setOrderMenu(false);
+        const button=closest('[data-sf-rank]');if(button){active=button.dataset.sfRank;selectRanking(doc.getElementById('homeMoversList'),active);}
+        if(closest('[data-stock-retry]')){poll=0;status='loading';render();refresh();}
+      });
+      doc.addEventListener('focusin',e=>{if(orderMenuOpen&&e.target.closest&&!e.target.closest('.sf-order-popover,.sf-order-trigger'))setOrderMenu(false);});
+      doc.addEventListener('keydown',e=>{
+        const closest=selector=>e.target.closest&&e.target.closest(selector),trigger=closest('.sf-order-trigger'),option=closest('[data-rank-order]');
+        if(orderMenuOpen&&e.key==='Escape'){e.preventDefault();setOrderMenu(false,true);return;}
+        if(trigger&&['ArrowDown','ArrowUp'].includes(e.key)){e.preventDefault();setOrderMenu(true,true);return;}
+        if(option&&['ArrowDown','ArrowUp','Home','End'].includes(e.key)){
+          e.preventDefault();const choices=Array.from(doc.getElementById('sf-order-options').querySelectorAll('[data-rank-order]')),index=choices.indexOf(option);
+          const next=e.key==='Home'?0:e.key==='End'?choices.length-1:(index+(e.key==='ArrowDown'?1:-1)+choices.length)%choices.length;
+          choices.forEach((choice,i)=>choice.tabIndex=i===next?0:-1);choices[next].focus();return;
+        }
+        const button=closest('[data-sf-rank]');if(conditions.metric==='volume')return;if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();active=e.key==='Home'?'up':e.key==='End'?'down':button.dataset.sfRank==='up'?'down':'up';selectRanking(doc.getElementById('homeMoversList'),active);doc.getElementById('sf-rank-tab-'+active).focus();
+      });
       doc.addEventListener('styleChanged',()=>{const next=scope();if(next===currentScope)return;currentScope=next;generation++;poll=0;w.clearTimeout(timer);data=null;status='loading';restore();render();refresh();});
       doc.addEventListener('knStockViewChanged',()=>{render();if(status==='error')refresh();});
       doc.addEventListener('visibilitychange',()=>{
@@ -188,7 +244,7 @@
         if(data&&Date.now()-data.updated_at*1000>CACHE_AGE){data=null;status='loading';render();}
         refresh();
       });
-      if(w.addEventListener)w.addEventListener('online',refresh);
+      if(w.addEventListener){w.addEventListener('online',refresh);w.addEventListener('resize',positionOrderMenu);}
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});else init();
   }

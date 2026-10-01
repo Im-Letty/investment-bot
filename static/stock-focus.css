@@ -273,3 +273,24 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
 #knTabWrap .sf-ranking-condition{font-size:12px;line-height:1.8;color:var(--kn-a-muted,#547467);margin:14px 0 5px}
 .sf-volume{grid-column:2/-1;text-align:right;font-size:12px}
 @media(max-width:380px){#knTabWrap .sf-compact-controls label{padding-inline:9px}}
+
+/* Approved A: a thin-lined order list, using the site's current palette. */
+#knTabWrap .sf-order-wrap{position:relative}
+#knTabWrap .sf-order-field{display:flex;flex-direction:column;min-width:0;padding:0 12px}
+#knTabWrap .sf-order-field>span{font:400 calc(13px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);color:var(--sf-muted)}
+#knTabWrap .sf-order-field+label{border-left:1px solid var(--sf-line)}
+#knTabWrap .sf-order-trigger{display:flex;align-items:center;justify-content:space-between;gap:8px;width:100%;min-height:36px;padding:5px 3px 5px 0;border:0;border-radius:0;background:transparent;color:var(--sf-ink);text-align:left;font:500 calc(16px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif);cursor:pointer}
+#knTabWrap .sf-order-trigger i{width:7px;height:7px;flex:none;border-right:1px solid;border-bottom:1px solid;transform:rotate(45deg);margin:0 2px 4px}
+#knTabWrap .sf-order-trigger[aria-expanded=true] i{transform:rotate(225deg);margin-bottom:0}
+#knTabWrap .sf-order-popover[hidden]{display:none!important}
+#knTabWrap .sf-order-popover{position:absolute;z-index:20;top:calc(100% + 7px);left:0;width:100%;max-width:350px;padding:7px 12px;background:var(--sf-paper);color:var(--sf-ink);border:1px solid var(--sf-line);border-radius:12px;box-shadow:0 12px 27px #34432a16;max-height:calc(100dvh - 110px);overflow:auto;overscroll-behavior:contain}
+#knTabWrap .sf-order-popover.sf-order-above{top:auto;bottom:calc(100% + 7px)}
+#knTabWrap .sf-order-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:40px;color:var(--sf-muted);font:400 calc(13px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif)}
+#knTabWrap .sf-order-heading button{display:grid;place-items:center;flex:none;width:44px;min-height:44px;padding:0;border:0;background:transparent;color:inherit;font:300 24px/1 var(--kn-a-sans,sans-serif);cursor:pointer}
+#knTabWrap .sf-order-popover [role=option]{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px;width:100%;padding:10px 5px;border:0;border-top:1px solid var(--sf-line);border-radius:0;background:transparent;color:var(--sf-ink);text-align:left;font:400 calc(16px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif);cursor:pointer}
+#knTabWrap .sf-order-popover [aria-selected=true]{font-weight:600}
+#knTabWrap .sf-order-check{visibility:hidden;color:var(--sf-accent);flex:none}
+#knTabWrap .sf-order-popover [aria-selected=true] .sf-order-check{visibility:visible}
+#knTabWrap .sf-order-popover button:focus-visible{outline:2px solid var(--sf-accent);outline-offset:-2px;border-radius:4px}
+@media(hover:hover){#knTabWrap .sf-order-popover [role=option]:hover{background:var(--kn-a-chip,#eeeddf)}}
+@media(max-width:480px){#knTabWrap .sf-order-field{padding-inline:8px}}
