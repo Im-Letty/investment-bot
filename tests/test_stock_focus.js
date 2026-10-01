@@ -385,7 +385,7 @@ function rankingMenuHarness(saved){
 }
 
 test('all five order options save and restore their metric and direction without changing the market',()=>{
- const cases=[['pct','pct','up','上がった株'],['down','pct','down','下がった株'],['amount','amount','up','上がった金額'],['dropAmount','amount','down','下がった金額'],['volume','volume','up','売買が多い株']];
+ const cases=[['pct','pct','up','値上がり率（％）'],['down','pct','down','値下がり率（％）'],['amount','amount','up','値上がり額'],['dropAmount','amount','down','値下がり額'],['volume','volume','up','売買が多い株']];
  for(const [value,metric,direction,label]of cases){
   const h=rankingMenuHarness({kn_rank_conditions:JSON.stringify({metric:'pct',market:'growth',direction:'up'})});
   h.click(h.node('sf-order-trigger'));h.click(h.option(value).querySelector('span'));
