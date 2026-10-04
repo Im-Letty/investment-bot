@@ -29,14 +29,16 @@ ATTEMPT_INTERVAL = 5 * 60
 MAX_ATTEMPTS = 6
 GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini_incomplete",
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
+                              "openai_incomplete", "openai_refused", "openai_invalid_response",
+                              "openai_not_configured",
                               "future_article", "invalid_edition", "no_verified_articles",
                               "edition_day_changed", "editorial_review_failed", "generation_failed"))
 
 
 def _safe_generation_error(value):
     code = str(value)
-    return code if (code in GENERATION_ERRORS or re.fullmatch(r'invalid_edition_lengths_[0-9]{1,5}(?:_[0-9]{1,5}){0,3}', code) or re.fullmatch(r'editorial_review_failed_(?:facts|dates|distinct_topics|japan_economy|readable|no_invented_outlook|original_wording|approval)', code) or re.fullmatch(
-        r"(?:(?:gemini|claude)_(?:http_[0-9]{3}|response_limit|unavailable)|gemini_(?:discovery|review)_(?:max_tokens|safety|recitation|language|other|blocklist|prohibited_content|spii|malformed_function_call|unexpected_tool_call|too_many_tool_calls|missing))", code)) else "generation_failed"
+    return code if (code in GENERATION_ERRORS or re.fullmatch(r'invalid_edition_lengths_[0-9]{1,5}(?:_[0-9]{1,5}){0,3}', code) or re.fullmatch(r'(?:editorial_review_failed|openai_review_failed)_(?:facts|dates|distinct_topics|japan_economy|readable|no_invented_outlook|original_wording|approval)', code) or re.fullmatch(
+        r"(?:(?:gemini|claude|openai)_(?:http_[0-9]{3}|response_limit|unavailable)|gemini_(?:discovery|review)_(?:max_tokens|safety|recitation|language|other|blocklist|prohibited_content|spii|malformed_function_call|unexpected_tool_call|too_many_tool_calls|missing))", code)) else "generation_failed"
 
 
 class StorageUnavailable(RuntimeError):

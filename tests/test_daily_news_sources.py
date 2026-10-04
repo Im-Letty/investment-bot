@@ -52,6 +52,14 @@ class ArticleEvidenceTests(unittest.TestCase):
         tagged = extract(html(fields={"headline": {"@value": "日本の経済", "@language": "ja"}}))
         self.assertEqual(tagged["title"], "日本の経済")
 
+    def test_jsonld_entities_are_decoded_after_json_syntax_is_parsed(self):
+        title = '会社の&quot;国内&quot;投資とR&amp;D'
+        body = '担当者は&quot;国内投資&quot;と説明しました。' + BODY
+        result = extract(html(title=title, body=body))
+        self.assertIsNotNone(result)
+        self.assertEqual(result["title"], '会社の"国内"投資とR&D')
+        self.assertEqual(result["body"], '担当者は"国内投資"と説明しました。' + BODY)
+
     def test_modified_only_naive_invalid_past_and_future_dates_are_rejected(self):
         for published in (None, "2026-09-24", "2026-09-24T07:00:00", "2026-02-30T07:00:00+09:00",
                           "2026-09-23T23:59:59+09:00", "2026-09-24T08:00:01+09:00"):
@@ -180,6 +188,34 @@ class SafeTransportTests(unittest.TestCase):
 
 
 class CollectionTests(unittest.TestCase):
+    def test_discovery_alternates_publishers_before_applying_candidate_limit(self):
+        nhk_urls = [f"https://news.web.nhk/newsweb/na/nd-{i}" for i in range(24)]
+        reuters_urls = [f"https://www.reuters.com/business/report-{i}-2026-09-24/" for i in range(24)]
+        distribution = "https://www.newsweekjapan.jp/articles/-/123"
+
+        def parallel(items, function, deadline):
+            if items[0] == sources.NHK_FEED:
+                return [nhk_urls, [distribution], reuters_urls, [reuters_urls[0]]]
+            return []
+
+        with patch.object(sources, "_parallel", side_effect=parallel) as work:
+            self.assertEqual(sources.collect_articles(NOW), [])
+        selected = work.call_args_list[1].args[0]
+        expected = [value for pair in zip(nhk_urls[:12], [distribution, *reuters_urls[:11]]) for value in pair]
+        self.assertEqual(selected, expected)
+        self.assertEqual(len(selected), sources.MAX_CANDIDATES)
+        self.assertEqual(len(set(selected)), len(selected))
+
+    def test_discovery_uses_remaining_capacity_when_one_publisher_has_fewer_candidates(self):
+        nhk_urls = [f"https://news.web.nhk/newsweb/na/nd-{i}" for i in range(24)]
+        for discoveries, expected in (([nhk_urls, [REUTERS]], [nhk_urls[0], REUTERS, *nhk_urls[1:23]]),
+                                      ([[], [REUTERS]], [REUTERS]),
+                                      ([nhk_urls, []], nhk_urls)):
+            with self.subTest(discoveries=discoveries):
+                with patch.object(sources, "_parallel", side_effect=[discoveries, []]) as work:
+                    self.assertEqual(sources.collect_articles(NOW), [])
+                self.assertEqual(work.call_args_list[1].args[0], expected)
+
     def test_rss_discovery_is_today_only_and_never_substitutes_updated(self):
         feed = f'''<rss><channel><item><link>{NHK}</link><pubDate>Wed, 23 Sep 2026 22:00:00 GMT</pubDate></item>
         <item><link>https://news.web.nhk/newsweb/na/old</link><pubDate>Tue, 22 Sep 2026 22:00:00 GMT</pubDate></item>

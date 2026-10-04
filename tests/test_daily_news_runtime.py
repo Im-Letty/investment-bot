@@ -307,6 +307,41 @@ class RuntimeTests(unittest.TestCase):
         self.assertNotIn("sk-secret", json.dumps(state))
         self.assertNotIn("private.invalid", json.dumps(self.storage.values))
 
+    def test_openai_failures_preserve_previous_edition_and_safe_status_after_restart(self):
+        codes = ['openai_not_configured', 'openai_incomplete', 'openai_refused',
+                 'openai_invalid_response', 'openai_http_429', 'openai_response_limit',
+                 'openai_unavailable']
+        codes.extend('openai_review_failed_' + check for check in
+                     ('facts', 'dates', 'distinct_topics', 'japan_economy', 'readable',
+                      'no_invented_outlook', 'original_wording', 'approval'))
+        previous = issue('2026-09-23')
+        for code in codes:
+            with self.subTest(code=code):
+                storage = MemoryStorage({'days/2026-09-23/edition.json': previous})
+                self.write(self.cache, [previous])
+                generator = Mock(side_effect=ValueError(code))
+                runtime = self.runtime(storage=storage, generator=generator)
+                state = runtime.run_once()
+                self.assertEqual(state['status'], 'generation_failed')
+                self.assertEqual(state['last_error'], code)
+                self.assertEqual(runtime.reviewed_digests(), [previous])
+                self.assertEqual(load_reviewed_digests(self.cache), [previous])
+                self.assertNotIn('days/2026-09-24/edition.json', storage.values)
+                restarted = self.runtime(storage=storage, generator=generator)
+                self.assertEqual(restarted.run_once()['last_error'], code)
+                self.assertEqual(restarted.reviewed_digests(), [previous])
+                generator.assert_called_once()
+
+    def test_openai_looking_error_with_private_details_is_not_persisted_or_exposed(self):
+        detail = 'openai_http_429 private-upstream-body https://private.invalid'
+        self.generator.side_effect = ValueError(detail)
+        runtime = self.runtime()
+        state = runtime.run_once()
+        self.assertEqual(state['last_error'], 'generation_failed')
+        self.assertNotIn('private-upstream-body', json.dumps(state))
+        self.assertNotIn('private.invalid', json.dumps(self.storage.values))
+        self.assertEqual(self.runtime().run_once()['last_error'], 'generation_failed')
+
     def test_missing_storage_never_calls_generator_and_keeps_baseline(self):
         self.write(self.baseline, [issue("2026-09-23")])
         runtime = self.runtime(storage=None)

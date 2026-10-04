@@ -10,7 +10,7 @@ from email.utils import parsedate_to_datetime
 from hashlib import sha256
 from html import unescape
 from html.parser import HTMLParser
-from itertools import islice
+from itertools import islice, zip_longest
 import ipaddress
 import json
 import math
@@ -247,7 +247,10 @@ def _jsonld(document):
     for node in document.nodes:
         if node.tag == "script" and node.attrs.get("type", "").split(";", 1)[0].lower() == "application/ld+json":
             try:
-                result.extend(_objects(json.loads(_text(node, exclude=False))))
+                # Script contents are raw JSON. Decoding HTML entities before
+                # parsing can turn a string's &quot; into JSON syntax.
+                raw = "".join(child for child in node.children if isinstance(child, str))
+                result.extend(_objects(json.loads(raw)))
             except (ValueError, TypeError, RecursionError):
                 continue
     return result
@@ -428,7 +431,16 @@ def collect_articles(now, candidate_urls=None):
         if safe := _safe_url(value):
             supplied.append(safe)
     discoveries = [] if supplied else _parallel([NHK_FEED, REUTERS_DISTRIBUTION_PAGE, *REUTERS_PAGES], lambda url: _discover(url, now, deadline), deadline)
-    urls = list(dict.fromkeys(supplied + [url for batch in discoveries for url in batch]))[:MAX_CANDIDATES]
+    by_publisher = [[], []]
+    for url in dict.fromkeys(supplied + [url for batch in discoveries for url in batch]):
+        family = _family(urlsplit(url).hostname)
+        if family == "nhk":
+            by_publisher[0].append(url)
+        elif family in ("reuters", "distribution"):
+            by_publisher[1].append(url)
+    # Reuters distributions belong to the same publisher. Reserve candidate
+    # opportunities for both publishers before applying the shared fetch cap.
+    urls = [url for pair in zip_longest(*by_publisher) for url in pair if url is not None][:MAX_CANDIDATES]
 
     def fetch(url):
         parsed = urlsplit(url)
