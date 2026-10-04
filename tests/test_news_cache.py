@@ -1,4 +1,5 @@
 import ast
+from copy import deepcopy
 import gzip
 import io
 import json
@@ -355,6 +356,108 @@ class DailySelectionTests(unittest.TestCase):
                 self.assertEqual(load_reviewed_supplements(path), [])
 
 
+class HeadlineFallbackTests(unittest.TestCase):
+    now = timestamp('2026-10-04T03:00:00Z')
+
+    def reviewed(self, day='2026-10-02', **fields):
+        refs = [article('Reviewed ' + day, day + 'T00:00:00Z')]
+        return {**digest_for(refs, day), 'publication_mode': 'curated',
+                'summary': '確認済みの説明。' * 30,
+                'reviewed_at': timestamp(day + 'T00:30:00Z'), **fields}
+
+    def snapshot(self, items, now=None):
+        now = self.now if now is None else now
+        return {'news': items, 'fetched_at': now - 10,
+                'source_fetched_at': {'NHK経済': now - 10},
+                'source_status': {'NHK経済': 'ok', 'ロイター経済': 'error'},
+                'source_stale': {'NHK経済': False},
+                'source_refreshing': {'NHK経済': False}, 'refreshing': False}
+
+    def select(self, raw, reviews=(), now=None):
+        return select_daily_news(raw, now=self.now if now is None else now,
+                                 allowed_sources=WEB_NEWS_SOURCES, reviewed_digests=reviews)
+
+    def test_old_curated_edition_cannot_hide_verified_today_feed_after_eight(self):
+        current = [article('Today first', '2026-10-04T00:00:00Z'),
+                   article('Today second', '2026-10-04T01:00:00Z')]
+        previous = self.reviewed()
+        raw = self.snapshot(current + [article('Yesterday', '2026-10-03T00:00:00Z')])
+        original = deepcopy(raw)
+        result = self.select(raw, [previous])
+        self.assertEqual(result['delivery'], 'headlines')
+        self.assertEqual(result['fallback_reason'], 'current_edition_unavailable')
+        self.assertEqual(result['edition_date'], '2026-10-04')
+        self.assertEqual(result['previous_edition_date'], '2026-10-02')
+        self.assertIsNone(result['digest'])
+        self.assertEqual(result['fetched_at'], raw['fetched_at'])
+        self.assertEqual(result['source_status'], raw['source_status'])
+        self.assertEqual([item['title'] for item in result['news']], ['Today second', 'Today first'])
+        for original_item in current:
+            item = next(value for value in result['news'] if value['url'] == original_item['url'])
+            self.assertEqual(item['published_at'], original_item['published_at'])
+            self.assertEqual(item['published_date'], '2026-10-04')
+        self.assertEqual(raw, original)
+
+    def test_release_boundary_keeps_prior_edition_until_eight_jst(self):
+        previous = self.reviewed()
+        current = article('Early article', '2026-10-03T22:00:00Z')
+        for at, expected in [('2026-10-03T22:59:59Z', 'published'),
+                             ('2026-10-03T23:00:00Z', 'headlines')]:
+            with self.subTest(at=at):
+                now = timestamp(at)
+                result = self.select(self.snapshot([current], now), [previous], now)
+                self.assertEqual(result['delivery'], expected)
+                self.assertEqual(result['edition_date'],
+                                 '2026-10-02' if expected == 'published' else '2026-10-04')
+
+    def test_no_prior_edition_also_labels_today_headlines_after_eight(self):
+        current = article('Early article', '2026-10-03T22:00:00Z')
+        result = self.select(self.snapshot([current]))
+        self.assertEqual(result['delivery'], 'headlines')
+        self.assertIsNone(result['digest'])
+        self.assertNotIn('previous_edition_date', result)
+        before = timestamp('2026-10-03T22:59:59Z')
+        self.assertNotIn('delivery', self.select(self.snapshot([current], before), now=before))
+
+    def test_same_day_curated_edition_still_wins_over_unrelated_feed_updates(self):
+        current = self.reviewed('2026-10-04')
+        unrelated = article('Newer unrelated report', '2026-10-04T02:00:00Z')
+        result = self.select(self.snapshot([unrelated]), [self.reviewed(), current])
+        self.assertEqual(result['delivery'], 'published')
+        self.assertEqual(result['digest'], current)
+        self.assertIsNone(result['fetched_at'])
+        self.assertNotIn('fallback_reason', result)
+
+    def test_no_valid_today_articles_preserves_prior_edition_with_its_real_date(self):
+        previous = self.reviewed()
+        invalid = [article('Yesterday', '2026-10-03T00:00:00Z'),
+                   article('Unknown date', None),
+                   article('Future', '2026-10-04T04:00:00Z'),
+                   article('Unsafe URL', '2026-10-04T00:00:00Z', url='javascript:alert(1)'),
+                   article('Other source', '2026-10-04T00:00:00Z', source='Unapproved')]
+        for items in ([], invalid):
+            with self.subTest(items=items):
+                result = self.select(self.snapshot(items), [previous])
+                self.assertEqual(result['delivery'], 'published')
+                self.assertEqual(result['edition_date'], '2026-10-02')
+                self.assertEqual(result['digest'], previous)
+                self.assertNotIn('fallback_reason', result)
+
+    def test_unreleased_or_conflicted_current_review_never_leaks_into_headlines(self):
+        current = article('Today verified', '2026-10-04T00:00:00Z')
+        prepared = self.reviewed('2026-10-04', publish_at=timestamp('2026-10-04T04:00:00Z'))
+        result = self.select(self.snapshot([current]), [self.reviewed(), prepared])
+        self.assertEqual(result['delivery'], 'headlines')
+        self.assertIsNone(result['digest'])
+        self.assertEqual(result['news'][0]['title'], current['title'])
+        corrected = {**prepared['article_refs'][0], 'title': 'Source correction'}
+        result = self.select(self.snapshot([corrected]), [self.reviewed(), self.reviewed('2026-10-04')])
+        self.assertTrue(result['publication_revoked'])
+        self.assertEqual(result['delivery'], 'headlines')
+        self.assertIsNone(result['digest'])
+        self.assertNotIn('previous_edition_date', result)
+
+
 class ReviewedDigestTests(unittest.TestCase):
     now = timestamp('2026-09-22T04:00:00Z')
 
@@ -459,7 +562,7 @@ class ReviewedDigestTests(unittest.TestCase):
             with self.subTest(change=change):
                 result = self.select([{**items[0], **change}], [reviewed])
                 self.assertIsNone(result['digest'])
-                self.assertNotIn('delivery', result)
+                self.assertNotEqual(result.get('delivery'), 'published')
         limited = select_daily_news({'news': []}, now=self.now, allowed_sources=('NHK経済',),
                                     reviewed_digests=[reviewed])
         self.assertIsNone(limited['digest'])

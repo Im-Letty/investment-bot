@@ -85,17 +85,27 @@ def render_news_markup(data):
     calendar = (f'<div class="calendar" aria-label="掲載対象日 {data["edition_date"]} {weekday}">'
                 f'<strong>{edition:%d}</strong><small>{weekday}</small></div>')
     digest = data.get("digest")
+    headlines_only = data.get("delivery") == "headlines" and not digest
     sources = f'<span class="headline-source">{esc(" / ".join(groups))}</span>' if digest else ''
     if digest:
         brief = (f'<div class="daily-digest" lang="ja"><h4 class="brief-headline">{esc(digest["headline"])}</h4>'
                  f'<p class="brief-summary">{esc(digest["summary"])}</p></div>')
+    elif headlines_only and data["news"]:
+        brief = ('<h4 class="brief-headline">今日の見出し</h4>'
+                 f'<p class="news-empty">{edition:%Y/%m/%d} · 本日の要約は未掲載です。</p>'
+                 '<ul class="headline-list">'
+                 + ''.join(f'<li><a class="story-title" href="{esc(item["url"])}" target="_blank" rel="noopener noreferrer">'
+                           f'{esc(item["title"])}</a><div class="headline-meta">'
+                           f'<span class="headline-source">{esc(item["source"])}</span>'
+                           f'{_publication(item)}</div></li>' for item in data["news"])
+                 + '</ul>')
     else:
         message = ("本日のまとめはまだ掲載されていません。記事は「もっと詳しく」から読めます。" if data["news"]
                    else "本日発表された経済ニュースは、まだ確認できていません。")
         brief = f'<p class="news-empty">{message}</p>'
     stories = []
     article_summaries = {item["url"]: item for item in (digest or {}).get("article_summaries", [])}
-    for item in data["news"]:
+    for item in ([] if headlines_only else data["news"]):
         key = esc("article:" + item["url"])
         authored = article_summaries.get(item["url"])
         if authored:

@@ -48,7 +48,7 @@ except Exception as _e_google:
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v43-line-news-recovery"
+APP_VERSION = "v44-website-news-fallback"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None

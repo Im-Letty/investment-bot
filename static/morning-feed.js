@@ -4,7 +4,7 @@
   var newsCache={}, newsPending={}, newsTimers={}, newsAttempts={}, marketPending=null, marketRetry=null;
   var NEWS_TTL=120000, MAX_NEWS_AGE=900000, MAX_MARKET_AGE=7*86400000;
   var shownLanguage=null, shownEdition=null, shownNews=null, shownState=null, newsLoadedAt={}, started=false;
-  var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={};
+  var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={}, publishedFloors={};
   var copy={
     ja:{loading:'ニュースを準備しています',updated:'取得',pending:'翻訳中',stale:'最新情報を確認中',failed:'いま更新できません。表示中の取得時刻をご確認ください。',empty:'ニュースを取得できませんでした。',retry:'もう一度読み込む'},
     en:{loading:'Preparing headlines',updated:'Retrieved',pending:'Translating',stale:'Checking for updates',failed:'Unable to refresh. Please check the retrieval time.',empty:'Unable to load headlines.',retry:'Try again'},
@@ -18,6 +18,7 @@
   function editionKey(stamp){var date=new Date(stamp*1000+9*60*60*1000);return Number.isFinite(date.getTime())?date.toISOString().slice(0,10):'';}
   function publicationPeriod(){return editionKey(Date.now()/1000-8*60*60);}
   function curatedPublication(d){return !!(d&&d.delivery==='published'&&d.digest&&d.digest.publication_mode==='curated');}
+  function headlinesFallback(d){return !!(d&&d.delivery==='headlines'&&d.fallback_reason==='current_edition_unavailable'&&d.digest===null&&d.selection_status==='ready'&&Array.isArray(d.news)&&d.news.length);}
   function safeNewsURL(value){try{var u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch(_){return '';}}
   function validEdition(d,l){
     var now=Date.now()/1000,today=editionKey(now);
@@ -32,11 +33,11 @@
   }
   function validNews(d,l){
     var now=Date.now()/1000;
-    return validEdition(d,l)&&d.delivery!=='published'&&Number.isFinite(d.fetched_at)&&now-d.fetched_at>=0&&now-d.fetched_at<MAX_NEWS_AGE/1000;
+    return validEdition(d,l)&&d.delivery!=='published'&&(d.delivery!=='headlines'||(headlinesFallback(d)&&d.edition_date===publicationPeriod()))&&Number.isFinite(d.fetched_at)&&now-d.fetched_at>=0&&now-d.fetched_at<MAX_NEWS_AGE/1000;
   }
   function validPublished(d,l){return validEdition(d,l)&&d.delivery==='published'&&d.fetched_at===null&&!!reviewedDigest(d);}
   function rememberPublished(d,l){
-    if(!validPublished(d,l))return;
+    if(!validPublished(d,l)||(publishedFloors[l]&&d.edition_date<publishedFloors[l]))return;
     var previous=publishedNews[l];
     function releasedAt(item){return item.digest.publish_at==null?item.digest.reviewed_at||0:item.digest.publish_at;}
     if(validPublished(previous,l)&&((curatedPublication(previous)&&!curatedPublication(d))||previous.edition_date>d.edition_date||(previous.edition_date===d.edition_date&&releasedAt(previous)>releasedAt(d))))return;
@@ -48,6 +49,15 @@
     delete publishedNews[l];
     try{localStorage.removeItem('kn_published_news_v1_'+l);}catch(e){}
   }
+  function preferHeadlines(d,published,l){return headlinesFallback(d)&&validNews(d,l)&&(!validPublished(published,l)||published.edition_date<d.edition_date);}
+  function acceptHeadlines(d,l){
+    // Keep a date-only floor even after the short-lived RSS cache expires, so
+    // stale embedded/API editions cannot resurrect the superseded publication.
+    if(!publishedFloors[l]||publishedFloors[l]<d.edition_date){
+      publishedFloors[l]=d.edition_date;save('kn_news_headline_edition_v1_'+l,d.edition_date);
+    }
+    clearPublished(l);
+  }
   function cachedNews(l){
     if(!initialRead){
       initialRead=true;
@@ -57,7 +67,8 @@
       if(shownLanguage===null&&(validNews(initialNews,l)||validPublished(initialNews,l))){shownLanguage=l;shownEdition=initialNews.edition_date;}
     }
     if(!publishedRead[l]){
-      publishedRead[l]=true;var saved=read('kn_published_news_v1_'+l);
+      publishedRead[l]=true;var saved=read('kn_published_news_v1_'+l),floor=read('kn_news_headline_edition_v1_'+l);
+      if(typeof floor==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(floor)&&floor<=editionKey(Date.now()/1000))publishedFloors[l]=floor;
       if(initialNews&&initialNews.lang===l&&initialNews.publication_revoked===true){
         var correction=initialNews;clearPublished(l);initialNews=correction;
       }else if(curatedPublication(saved))rememberPublished(saved,l);
@@ -65,6 +76,7 @@
     }
     if(!validNews(newsCache[l],l))newsCache[l]=read('kn_news_v4_'+l);
     if(validNews(initialNews,l)&&(!validNews(newsCache[l],l)||initialNews.fetched_at>newsCache[l].fetched_at))newsCache[l]=initialNews;
+    if(preferHeadlines(newsCache[l],publishedNews[l],l))acceptHeadlines(newsCache[l],l);
     return validPublished(publishedNews[l],l)?publishedNews[l]:validNews(newsCache[l],l)?newsCache[l]:null;
   }
   function reviewedDigest(d){
@@ -101,6 +113,12 @@
     ko:{title:'경제 뉴스',date:'게시 대상 날짜',noDigest:'오늘의 요약은 아직 게시되지 않았습니다. 더 자세히에서 기사를 읽을 수 있습니다.',more:'더 자세히',close:'설명 닫기',source:'언론사',count:function(n){return '헤드라인 '+n+'개';},noToday:'오늘 발표된 경제 뉴스는 아직 확인되지 않았습니다.',supplements:'이전 날짜의 참고 뉴스',supplement:'참고',original:'원문 읽기',published:'발표'},
     zh:{title:'经济新闻',date:'本期日期',noDigest:'今天的摘要尚未发布，请打开了解更多查看文章。',more:'了解更多',close:'收起详情',source:'媒体',count:function(n){return n+'条标题';},noToday:'暂未确认今天发布的相关经济新闻。',supplements:'标注日期的补充新闻',supplement:'补充',original:'阅读原文',published:'发布'}
   };
+  var headlineCopy={
+    ja:{title:'今日の見出し',pending:'本日の要約は未掲載です。'},
+    en:{title:'Today’s headlines',pending:'Today’s summary has not been published yet.'},
+    ko:{title:'오늘의 헤드라인',pending:'오늘의 요약은 아직 게시되지 않았습니다.'},
+    zh:{title:'今日标题',pending:'今天的摘要尚未发布。'}
+  };
   function newsSource(source){if(source==='ロイター経済')return {ja:'ロイター経済',en:'Reuters Business',ko:'로이터 경제',zh:'路透经济'}[lang()];return window.translateNewsSource?window.translateNewsSource(source):source;}
   function publication(item,l){
     var date=new Date(item.published_at*1000),label=date.toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -112,10 +130,11 @@
     d.news.forEach(function(item){(groups[item.source]||(groups[item.source]=[])).push(item);});
     var edition=new Date(d.edition_date+'T00:00:00+09:00'),day=d.edition_date.slice(-2),weekday=edition.toLocaleDateString(l,{timeZone:'Asia/Tokyo',weekday:'long'});
     var calendar='<div class="calendar" aria-label="'+esc(c.date+' '+d.edition_date+' '+weekday)+'"><strong>'+day+'</strong><small>'+esc(weekday)+'</small></div>';
-    var digest=reviewedDigest(d);
+    var digest=reviewedDigest(d),headlines=headlinesFallback(d);
     var sources=digest?'<span class="headline-source">'+esc(Object.keys(groups).map(newsSource).join(' / '))+'</span>':'';
     var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
-    var stories=d.news.map(function(item){
+    if(headlines)brief='<h4 class="brief-headline">'+esc(headlineCopy[l].title)+'</h4><p class="news-empty">'+esc(d.edition_date.replace(/-/g,'/')+' · '+headlineCopy[l].pending)+'</p><ul class="headline-list">'+d.news.map(function(item){return '<li><a class="story-title" href="'+esc(safeNewsURL(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.title)+'</a><div class="headline-meta"><span class="headline-source">'+esc(newsSource(item.source))+'</span>'+publication(item,l)+'</div></li>';}).join('')+'</ul>';
+    var stories=headlines?'':d.news.map(function(item){
       var key='article:'+item.url;
       var authored=digest&&(digest.article_summaries||[]).find(function(summary){return summary.url===item.url;});
       if(authored)return '<article class="story summarized-story" lang="ja"><h4><span class="story-title">'+esc(authored.headline)+'</span></h4><div class="story-content"><p class="article-summary">'+esc(authored.summary)+'</p><div class="headline-meta">'+publication(item,l)+articleLink(item,l)+'</div></div></article>';
@@ -196,10 +215,16 @@
     newsPending[l]=fetchJSON('/api/morning-news?lang='+encodeURIComponent(l)).then(function(d){
       if(d.publication_revoked===true)clearPublished(l);
       if(d.error||!Array.isArray(d.news))throw new Error('Unavailable news');
+      if(validPublished(d,l)&&publishedFloors[l]&&d.edition_date<publishedFloors[l]){
+        scheduleNews(l);var retained=cachedNews(l);
+        if(!retained&&(newsAttempts[l]||0)>=8)drawFailure(l);else keepNewsWhileLoading(l,retained,false);
+        return d;
+      }
       if(validNews(d,l)){
-        // Keep an approved edition until another approved edition is released.
-        // A live feed may be empty while the next publication is being prepared.
-        if(!curatedPublication(publishedNews[l]))clearPublished(l);
+        // Only an explicitly dated, verified headline fallback can supersede an
+        // older curated edition. Empty/failed feeds still retain that edition.
+        if(preferHeadlines(d,publishedNews[l],l))acceptHeadlines(d,l);
+        else if(!curatedPublication(publishedNews[l]))clearPublished(l);
         newsCache[l]=d;newsLoadedAt[l]=Date.now();save('kn_news_v4_'+l,d);drawNews(cachedNews(l)||d,l);
         if(d.refreshing||d.translation_pending)scheduleNews(l);else newsAttempts[l]=0;
       }else if(validPublished(d,l)){

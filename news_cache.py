@@ -377,7 +377,8 @@ def _select_curated_digest(news, edition, now, reviewed_digests):
             candidates.append(digest)
     if not candidates:
         return None, False
-    # A published issue remains readable through midnight and a missed update.
+    # Keep a last published issue available through midnight or a missed update.
+    # The caller can prefer today's verified headlines after the release time.
     # A prepared issue enters the selection only at its explicit release time.
     latest = max((item["edition_date"], item.get("publish_at", item["reviewed_at"])) for item in candidates)
     candidates = [item for item in candidates
@@ -424,7 +425,8 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
         snapshot["fetched_at"] = min(snapshot["source_fetched_at"].values(), default=None)
         snapshot["stale"] = any(snapshot["source_stale"].values())
         snapshot["refreshing"] = any(snapshot["source_refreshing"].values())
-    edition = current.astimezone(JST).date()
+    local = current.astimezone(JST)
+    edition = local.date()
     counts = dict(received=0, valid_dated=0, today=0, older=0,
                   unknown_date=0, future_date=0, invalid_url=0)
     today, earlier = [], []
@@ -493,9 +495,14 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
     curated, revoked = _select_curated_digest(snapshot.get("news", []), edition.isoformat(), now, reviewed_digests)
     if revoked:
         result["publication_revoked"] = True
-    if (curated is not None and len(curated["article_refs"]) <= max(0, min(3, max_items))
-            and (allowed_sources is None or all(ref["source"] in allowed_sources
-                                                for ref in curated["article_refs"]))):
+    eligible_curated = (curated is not None
+                       and len(curated["article_refs"]) <= max(0, min(3, max_items))
+                       and (allowed_sources is None or all(ref["source"] in allowed_sources
+                                                           for ref in curated["article_refs"])))
+    current_headlines_available = local.hour >= 8 and bool(news)
+    use_current_headlines = (eligible_curated and current_headlines_available
+                            and curated["edition_date"] < edition.isoformat())
+    if eligible_curated and not use_current_headlines:
         # These articles were checked for publication, not obtained by this RSS
         # request. Retain source-level fetch diagnostics without fabricating a
         # combined retrieval timestamp or saving this as a fresh feed snapshot.
@@ -507,6 +514,13 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
         if curated["edition_date"] != edition.isoformat():
             # Today's contextual approvals are not part of an earlier issue.
             result["supplements"] = []
+    if current_headlines_available and result["digest"] is None:
+        # A failed daily writer must not freeze current, independently verified
+        # RSS headlines behind an older summary. No summary or publication time
+        # is invented; source dates and the actual feed retrieval time survive.
+        result.update(delivery="headlines", fallback_reason="current_edition_unavailable")
+        if use_current_headlines:
+            result["previous_edition_date"] = curated["edition_date"]
     return result
 
 

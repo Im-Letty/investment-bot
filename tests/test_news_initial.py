@@ -161,14 +161,60 @@ class InitialSelectionTests(unittest.TestCase):
     def test_successful_current_feed_selection_overrides_incompatible_published_review(self):
         changed = article('New original headline')
         data = initial_news(live([changed]), now=NOW, reviewed_digests=[review()])
-        self.assertNotIn('delivery', data)
+        self.assertEqual(data['delivery'], 'headlines')
         self.assertIsNone(data['digest'])
         self.assertEqual(data['news'][0]['title'], changed['title'])
         html = render_news_markup(data)
         self.assertIn(changed['title'], html)
-        self.assertIn('本日のまとめはまだ掲載されていません', html)
+        self.assertIn('本日の要約は未掲載です', html)
         self.assertNotIn(review()['summary'], html)
         self.assertIn('取得 ', html)
+
+    def test_after_eight_initial_html_shows_today_headlines_instead_of_old_summary(self):
+        old_article = {**article('Old reviewed article', '2026-09-21T03:00:00Z'),
+                       'url': 'https://news.example/old'}
+        authored = review([old_article], edition_date='2026-09-21', summary='前号の説明。' * 40,
+                          publication_mode='curated', reviewed_at=timestamp('2026-09-21T04:00:00Z'))
+        current = article('Current headline <img>')
+        data = initial_news(live([current]), now=NOW, reviewed_digests=[authored])
+        self.assertEqual(data['delivery'], 'headlines')
+        self.assertEqual(data['edition_date'], '2026-09-22')
+        self.assertEqual(data['previous_edition_date'], '2026-09-21')
+        self.assertIsNone(data['digest'])
+        html = render_initial_html(NEWS_PLACEHOLDER, data)
+        brief = html.split('<div class="brief">', 1)[1].split('<details class="read-more"', 1)[0]
+        self.assertIn('今日の見出し', brief)
+        self.assertIn('2026/09/22 · 本日の要約は未掲載です。', brief)
+        self.assertIn('<ul class="headline-list"><li><a class="story-title" href="https://news.example/current"', brief)
+        self.assertIn('rel="noopener noreferrer">Current headline &lt;img&gt;</a>', brief)
+        self.assertEqual(brief.count('Current headline &lt;img&gt;'), 1)
+        self.assertNotIn('<details class="read-more"', html)
+        self.assertNotIn(authored['summary'], html)
+        self.assertNotIn('Old reviewed article', html)
+        self.assertIn('<span class="headline-source">NHK経済</span>', html)
+        self.assertIn('発表 2026/9/22 09:25 JST', html)
+        self.assertIn('href="https://news.example/current"', html)
+        self.assertEqual(json.loads(ParsedInitial(html).json), data)
+
+    def test_headlines_more_contains_only_reviewed_supplements_without_duplicate_stories(self):
+        data = initial_news(live(), now=NOW)
+        data['supplements'] = [{**article('Earlier context', '2026-09-21T03:00:00Z'),
+                                'url': 'https://news.example/context',
+                                'editorial_reason': '今日の記事に関係する確認済みの補足。'}]
+        html = render_news_markup(data)
+        brief, more = html.split('<details class="read-more"', 1)
+        self.assertIn('Original headline', brief)
+        self.assertNotIn('Original headline', more)
+        self.assertIn('Earlier context', more)
+        self.assertIn('今日の記事に関係する確認済みの補足。', more)
+        self.assertNotIn('href="https://news.example/current"', more)
+
+    def test_expired_today_feed_cannot_become_an_initial_headlines_fallback(self):
+        old_article = {**article('Old', '2026-09-21T03:00:00Z'), 'url': 'https://news.example/old'}
+        authored = review([old_article], edition_date='2026-09-21', summary='前号の説明。' * 40,
+                          publication_mode='curated', reviewed_at=timestamp('2026-09-21T04:00:00Z'))
+        raw = live(source_fetched_at={'NHK経済': NOW - 900})
+        self.assertIsNone(initial_news(raw, now=NOW, reviewed_digests=[authored]))
 
     def test_confirmed_empty_today_is_not_replaced_by_authored_news(self):
         data = initial_news(live([]), now=NOW, reviewed_digests=[review()])
