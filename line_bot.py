@@ -14,6 +14,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from market_snapshot import CORE_MARKETS, MarketSnapshot
 from scanner_snapshot import ScannerSnapshot
 from scanner_universe import load_universe, next_batch
+from line_language import normalize_language, language_command
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
@@ -46,7 +47,7 @@ except Exception as _e_google:
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v41"
+APP_VERSION = "v42-line-language"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -129,20 +130,10 @@ def set_user_lang(line_user_id, lang):
     """Supabaseのusers.lang列に言語を保存"""
     try:
         save_user(line_user_id, {"lang": lang})
+        return True
     except Exception as e:
         print(f"[set_user_lang] error: {e}")
-
-def detect_language(text):
-    # ハングルがあれば韓国語
-    if any('\uac00' <= c <= '\ud7a3' for c in text):
-        return "ko"
-    # ひらがな or カタカナがあれば日本語（日本語特有）
-    if any('\u3040' <= c <= '\u309f' or '\u30a0' <= c <= '\u30ff' for c in text):
-        return "ja"
-    # 漢字のみなら中国語
-    if any('\u4e00' <= c <= '\u9fff' for c in text):
-        return "zh"
-    return "en"
+        return False
 
 def get_message(lang, key):
     messages = {
@@ -205,6 +196,12 @@ def get_message(lang, key):
             "en": "✅ Language changed to English 🇬🇧",
             "ko": "✅ 언어를 한국어로 변경했습니다 🇰🇷",
             "zh": "✅ 已将语言切换为中文 🇨🇳",
+        },
+        "lang_save_error": {
+            "ja": "言語の設定を保存できませんでした。少し待ってから、もう一度「日本語」と送ってください。",
+            "en": "Couldn't save your language setting. Please try sending 'lang en' again shortly.",
+            "ko": "언어 설정을 저장하지 못했습니다. 잠시 후 'lang ko'를 다시 보내 주세요.",
+            "zh": "未能保存语言设置。请稍后再次发送“lang zh”。",
         },
         "market_header": {
             "ja": "📊 今日の相場",
@@ -940,6 +937,7 @@ def generate_morning_report(lang="ja"):
 あなたは、株の初心者に毎朝「今日の投資判断材料」を届ける、正確で親切な先生です。
 
 【絶対に守るルール】
+・本文・見出し・説明は必ず日本語で書く（会社名や銘柄コードは元の表記でよい）
 ・専門用語は必ず（）で説明する
 ・理由を必ず書く
 ・不確かなことは書かない
@@ -1337,7 +1335,7 @@ def handle_follow(event):
         existing = get_user(line_user_id)
         if not existing:
             set_user_lang(line_user_id, "ja")
-        lang = get_user_lang(line_user_id) or "ja"
+        lang = normalize_language(get_user_lang(line_user_id))
     except Exception as e:
         print(f"[follow] user setup error: {e}")
         lang = "ja"
@@ -1357,20 +1355,13 @@ def handle_message(event):
     reply_token  = event.reply_token
     line_user_id = event.source.user_id
 
-    # 言語判定：保存済みがあればそれを優先、なければメッセージから判定して保存
+    # 銘柄コードや短いコマンドから配信言語を推測しない。
+    # 保存済みの設定を使い、言語変更は明示的なコマンドだけで行う。
     stored_lang = get_user_lang(line_user_id)
-    detected = detect_language(user_text)
-    if stored_lang:
-        # 既存ユーザー：保存済み言語を使用。ただし明確に違う言語で送ってきたら更新
-        if detected != stored_lang and len(user_text) >= 4:
-            set_user_lang(line_user_id, detected)
-            lang = detected
-        else:
-            lang = stored_lang
-    else:
-        # 新規ユーザー：検出した言語を保存
-        lang = detected
-        set_user_lang(line_user_id, lang)
+    lang = normalize_language(stored_lang)
+    target_lang = language_command(user_text)
+    # 読取失敗と未設定を区別できないため、既定言語を自動保存しない。
+    # 新規友だちの初期設定は handle_follow で保存する。
 
     with ApiClient(configuration) as api_client:
         api = MessagingApi(api_client)
@@ -1379,18 +1370,17 @@ def handle_message(event):
         text_lower = user_text.lower().strip()
         if _line_admin_command(api, line_user_id, reply_token, text_lower): return
 
-        # 言語切替コマンド: "lang ja" / "lang en" / "lang ko" / "lang zh"
-        if text_lower.startswith("lang "):
-            target = text_lower[5:].strip()
-            if target in ("ja", "en", "ko", "zh"):
-                set_user_lang(line_user_id, target)
-                api.reply_message(ReplyMessageRequest(
-                    reply_token=reply_token,
-                    messages=[TextMessage(text=get_message(target, "lang_changed"))]
-                ))
-                return
+        # 「日本語」などの言語名、または "lang ja/en/ko/zh" で変更。
+        if target_lang is not None:
+            saved = set_user_lang(line_user_id, target_lang)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_message(
+                    target_lang, "lang_changed" if saved else "lang_save_error"))]
+            ))
+            return
 
-        # ヘルプコマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        # 各言語のコマンドを受け付け、返信は保存済みの言語にそろえる。
         help_map = {
             "ヘルプ": "ja", "へるぷ": "ja",
             "help": "en",
@@ -1399,15 +1389,14 @@ def handle_message(event):
         }
         msg_key = text_lower if text_lower in help_map else user_text.strip()
         if msg_key in help_map:
-            cmd_lang = help_map[msg_key]
-            set_user_lang(line_user_id, cmd_lang)
+            cmd_lang = lang
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(cmd_lang, "help_text"))]
             ))
             return
 
-        # 設定確認コマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        # 設定確認コマンド
         settings_map = {
             "設定": "ja", "せってい": "ja",
             "settings": "en", "setting": "en",
@@ -1416,8 +1405,7 @@ def handle_message(event):
         }
         msg_key2 = text_lower if text_lower in settings_map else user_text.strip()
         if msg_key2 in settings_map:
-            cmd_lang = settings_map[msg_key2]
-            set_user_lang(line_user_id, cmd_lang)
+            cmd_lang = lang
             dh = get_user_delivery_hour(line_user_id)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
@@ -1425,7 +1413,7 @@ def handle_message(event):
             ))
             return
 
-        # 相場コマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        # 相場コマンド
         market_map = {
             "相場": "ja", "そうば": "ja",
             "market": "en",
@@ -1434,15 +1422,14 @@ def handle_message(event):
         }
         msg_key3 = text_lower if text_lower in market_map else user_text.strip()
         if msg_key3 in market_map:
-            cmd_lang = market_map[msg_key3]
-            set_user_lang(line_user_id, cmd_lang)
+            cmd_lang = lang
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_market_summary(cmd_lang))]
             ))
             return
 
-        # ニュースコマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        # ニュースコマンド
         news_map = {
             "ニュース": "ja", "にゅーす": "ja",
             "news": "en",
@@ -1451,15 +1438,14 @@ def handle_message(event):
         }
         msg_key4 = text_lower if text_lower in news_map else user_text.strip()
         if msg_key4 in news_map:
-            cmd_lang = news_map[msg_key4]
-            set_user_lang(line_user_id, cmd_lang)
+            cmd_lang = lang
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_news_summary(cmd_lang))]
             ))
             return
 
-        # 為替コマンド（キーワードの言語で返信＆ユーザー言語を更新）
+        # 為替コマンド
         fx_map = {
             "為替": "ja", "かわせ": "ja",
             "fx": "en", "forex": "en",
@@ -1468,8 +1454,7 @@ def handle_message(event):
         }
         msg_key5 = text_lower if text_lower in fx_map else user_text.strip()
         if msg_key5 in fx_map:
-            cmd_lang = fx_map[msg_key5]
-            set_user_lang(line_user_id, cmd_lang)
+            cmd_lang = lang
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_fx_summary(cmd_lang))]
@@ -1485,8 +1470,7 @@ def handle_message(event):
         }
         msg_key6 = text_lower if text_lower in morning_map else user_text.strip()
         if msg_key6 in morning_map:
-            cmd_lang = morning_map[msg_key6]
-            set_user_lang(line_user_id, cmd_lang)
+            cmd_lang = lang
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(cmd_lang, "waiting_morning"))]
@@ -1508,13 +1492,13 @@ def handle_message(event):
                 matched_calc = (pfx, pfx_lang)
                 break
         if matched_calc:
-            pfx, cmd_lang = matched_calc
+            pfx, _ = matched_calc
+            cmd_lang = lang
             stripped = user_text.strip()
             if stripped.lower().startswith(pfx.lower()):
                 args_part = stripped[len(pfx):].strip()
             else:
                 args_part = stripped[len(pfx):].strip()
-            set_user_lang(line_user_id, cmd_lang)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_compound_calc(args_part, cmd_lang))]
@@ -1534,13 +1518,13 @@ def handle_message(event):
                 matched_sim = (pfx, pfx_lang)
                 break
         if matched_sim:
-            pfx, cmd_lang = matched_sim
+            pfx, _ = matched_sim
+            cmd_lang = lang
             stripped = user_text.strip()
             if stripped.lower().startswith(pfx.lower()):
                 args_part = stripped[len(pfx):].strip()
             else:
                 args_part = stripped[len(pfx):].strip()
-            set_user_lang(line_user_id, cmd_lang)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_savings_calc(args_part, cmd_lang))]
@@ -1560,13 +1544,13 @@ def handle_message(event):
                 matched_delivery = (pfx, pfx_lang)
                 break
         if matched_delivery:
-            pfx, cmd_lang = matched_delivery
+            pfx, _ = matched_delivery
+            cmd_lang = lang
             stripped = user_text.strip()
             if stripped.lower().startswith(pfx.lower()):
                 args_part = stripped[len(pfx):].strip()
             else:
                 args_part = stripped[len(pfx):].strip()
-            set_user_lang(line_user_id, cmd_lang)
             if not args_part:
                 api.reply_message(ReplyMessageRequest(
                     reply_token=reply_token,
@@ -1614,13 +1598,13 @@ def handle_message(event):
                 matched_prefix = (pfx, pfx_lang)
                 break
         if matched_prefix:
-            pfx, cmd_lang = matched_prefix
+            pfx, _ = matched_prefix
+            cmd_lang = lang
             stripped = user_text.strip()
             if stripped.lower().startswith(pfx.lower()):
                 symbol_part = stripped[len(pfx):].strip()
             else:
                 symbol_part = stripped[len(pfx):].strip()
-            set_user_lang(line_user_id, cmd_lang)
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_stock_price(symbol_part, cmd_lang))]
@@ -1634,7 +1618,7 @@ def handle_message(event):
                 reply_token=reply_token,
                 messages=[TextMessage(text=get_message(lang, "waiting_morning"))]
             ))
-            report = generate_morning_report()
+            report = generate_morning_report(lang)
             send_line_message(report, user_id=line_user_id)
 
         elif intent == "register":
@@ -1711,9 +1695,7 @@ def morning():
     skipped = 0
     for u in users:
         uid  = u.get("line_user_id")
-        lang = (u.get("lang") or "ja").lower()
-        if lang not in ("ja", "en", "ko", "zh"):
-            lang = "ja"
+        lang = normalize_language(u.get("lang"))
         # LINEの正規ユーザーIDは "U" で始まる33文字。それ以外（test123等のダミー）はスキップ
         if not uid or not (isinstance(uid, str) and len(uid) == 33 and uid.startswith("U")):
             skipped += 1
