@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import Mock
 
 from line_language import language_command, normalize_language
+from line_news import is_news_request
 
 
 ROOT = Path(__file__).parents[1]
@@ -48,6 +49,8 @@ class MessageHarness:
         self.context = {
             'normalize_language': normalize_language,
             'language_command': language_command,
+            'is_news_request': is_news_request,
+            'line_ai_response': lambda operation, lang='ja', fallback=None: operation(),
             'get_user_lang': Mock(side_effect=lambda _: self.stored),
             'set_user_lang': Mock(side_effect=save_language),
             'ApiClient': ApiClientStub,

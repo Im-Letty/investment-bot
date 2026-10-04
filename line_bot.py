@@ -15,6 +15,7 @@ from market_snapshot import CORE_MARKETS, MarketSnapshot
 from scanner_snapshot import ScannerSnapshot
 from scanner_universe import load_universe, next_batch
 from line_language import normalize_language, language_command
+from line_news import is_news_request, format_news_reply
 from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
@@ -47,7 +48,7 @@ except Exception as _e_google:
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v42-line-language"
+APP_VERSION = "v43-line-news-recovery"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -227,6 +228,18 @@ def get_message(lang, key):
             "ko": "⚠️ 뉴스를 가져올 수 없습니다. 잠시 후 다시 시도해주세요.",
             "zh": "⚠️ 无法获取新闻。请稍后再试。",
         },
+        "ai_unavailable": {
+            "ja": "現在、AIによる解説を利用できません。ニュースの見出しと元記事は「今日のニュース」と送ると確認できます。",
+            "en": "AI explanations are currently unavailable. Send 'news' for news headlines and original article links.",
+            "ko": "현재 AI 설명을 이용할 수 없습니다. '뉴스'를 보내면 뉴스 제목과 원문 링크를 확인할 수 있습니다.",
+            "zh": "目前无法使用AI解说。发送“新闻”可查看新闻标题和原文链接。",
+        },
+        "morning_headlines_fallback": {
+            "ja": "朝レター・簡易版\nAIによる解説を利用できないため、確認できたニュースの見出しをご案内します。",
+            "en": "Morning report — headlines only\nAI explanations are unavailable. Here are the available news headlines.",
+            "ko": "아침 레터 · 간단판\nAI 설명을 이용할 수 없어 확인된 뉴스 제목을 안내합니다.",
+            "zh": "早报·简版\nAI解说目前不可用，以下是已确认的新闻标题。",
+        },
         "price_error": {
             "ja": "⚠️ 銘柄情報を取得できませんでした。銘柄コードをご確認ください（例：株価 7203 / price AAPL）",
             "en": "⚠️ Unable to fetch stock info. Please check the ticker symbol (e.g., price AAPL / 株価 7203)",
@@ -338,41 +351,23 @@ def get_market_summary(lang="ja"):
         return get_message(lang, "market_error")
 
 
-def get_news_summary(lang="ja", limit=5):
-    """最新の市場ニュースを取得して要約形式で返す（4言語対応）"""
+def get_news_summary(lang="ja", limit=3):
+    """Dated economic headlines, available without a paid AI request."""
+    lang = normalize_language(lang)
     try:
-        rss_sources = [
-            ("https://www.nhk.or.jp/rss/news/cat5.xml",          "NHK"),
-            ("https://feeds.reuters.com/reuters/businessNews",   "Reuters"),
-            ("https://www.nhk.or.jp/rss/news/cat4.xml",          "NHK"),
-        ]
-        items = []
-        for url, src in rss_sources:
-            try:
-                feed = feedparser.parse(url)
-                for e in feed.entries[:3]:
-                    items.append({"source": src, "title": e.title})
-                    if len(items) >= limit:
-                        break
-                if len(items) >= limit:
-                    break
-            except Exception as e:
-                print(f"[news] feed error {url}: {e}")
-                continue
-        if not items:
-            return get_message(lang, "news_error")
-        try:
-            items = translate_news_items(items, lang)
-        except Exception as e:
-            print(f"[news] translate error: {e}")
-        lines_out = [get_message(lang, "news_header"), ""]
-        for it in items[:limit]:
-            src = it.get("source", "")
-            title = it.get("title", "")
-            lines_out.append(f"[{src}] {title}")
-        return "\n".join(lines_out)
+        # Use the bounded shared cache. Japanese source text must not silently
+        # become untranslated English when an external AI service is unavailable.
+        selected = select_daily_news(
+            news_cache.snapshot(), allowed_sources=("NHK経済",),
+            max_items=min(3, max(1, limit)), reviewed_digests=(), reviewed_supplements=())
+        translated, pending = news_translations.snapshot(selected["news"], lang)
+        pending = pending or (lang != "ja" and any(
+            item.get("title") == original.get("title")
+            for item, original in zip(translated, selected["news"])))
+        selected = {**selected, "news": translated}
+        return format_news_reply(selected, lang, translation_pending=pending)
     except Exception as e:
-        print(f"[get_news_summary] error: {e}")
+        print(f"[line news] fetch failed: {type(e).__name__}")
         return get_message(lang, "news_error")
 
 
@@ -683,18 +678,35 @@ def build_settings_text(lang, delivery_hour):
                 f"配信時刻を変えたい場合は\n「配信時刻 8」のように 0〜23 を送ってください")
 
 
+_admin_error_notices = {}
+_admin_error_notice_lock = threading.Lock()
+
+
 def notify_admin(message, error=None):
     """エラーや重要イベントを管理者LINEに通知する。失敗してもメイン処理は止めない。"""
     try:
         if not ADMIN_USER_ID:
             return
-        body = f"⚠️ [Keizai NEWS] {message}"
         if error:
-            err_text = str(error)
-            if len(err_text) > 500:
-                err_text = err_text[:500] + "..."
-            body += f"\n\nError: {err_text}"
-        body += f"\n\nTime: {datetime.now().isoformat()}\nVersion: {APP_VERSION}"
+            # Never send provider payloads, request IDs or recipient IDs to LINE.
+            credit_error = "credit balance is too low" in str(error).lower()
+            error_key = "ai_credit" if credit_error else "processing_error"
+            now = time.monotonic()
+            with _admin_error_notice_lock:
+                previous = _admin_error_notices.get(error_key)
+                if previous is not None and now - previous < 900:
+                    return
+                _admin_error_notices[error_key] = now
+            if credit_error:
+                detail = ("AI解説に使うClaude APIの利用残高が不足しています。\n"
+                          "AI解説の再開には、管理者による残高の確認・追加が必要です。\n"
+                          "「今日のニュース」で見出しと元記事を確認できます。")
+            else:
+                detail = "一部の処理を完了できませんでした。管理者用のサーバーログで原因を確認してください。"
+            body = f"⚠️ 経済NEWSからのお知らせ\n\n{detail}"
+        else:
+            body = f"⚠️ 経済NEWS\n{message}"
+        body += f"\n\n日時：{(datetime.utcnow() + timedelta(hours=9)).strftime('%Y/%m/%d %H:%M')}（日本時間）"
         with ApiClient(configuration) as api_client:
             api = MessagingApi(api_client)
             api.push_message(PushMessageRequest(
@@ -703,6 +715,16 @@ def notify_admin(message, error=None):
             ))
     except Exception as e:
         print(f"[notify_admin] failed to send: {e}")
+
+
+def line_ai_response(operation, lang="ja", fallback=None):
+    """Return a usable response when AI fails, without exposing provider errors."""
+    try:
+        return operation()
+    except Exception as error:
+        print(f"[line ai] unavailable: {type(error).__name__}")
+        notify_admin("AI処理を完了できませんでした", error)
+        return fallback() if fallback is not None else get_message(lang, "ai_unavailable")
 
 def _rtp(sym, fb):
     try:
@@ -909,6 +931,13 @@ def fetch_news():
             for source in NEWS_FEEDS}
 
 def generate_morning_report(lang="ja"):
+    lang = normalize_language(lang)
+    return line_ai_response(
+        lambda: _generate_morning_report(lang), lang,
+        fallback=lambda: get_message(lang, "morning_headlines_fallback") + "\n\n" + get_news_summary(lang))
+
+
+def _generate_morning_report(lang="ja"):
     market    = fetch_market_data()
     watchlist = fetch_watchlist()
     news      = fetch_news()
@@ -1437,7 +1466,7 @@ def handle_message(event):
             "新闻": "zh", "新聞": "zh",
         }
         msg_key4 = text_lower if text_lower in news_map else user_text.strip()
-        if msg_key4 in news_map:
+        if msg_key4 in news_map or is_news_request(user_text):
             cmd_lang = lang
             api.reply_message(ReplyMessageRequest(
                 reply_token=reply_token,
@@ -1611,7 +1640,15 @@ def handle_message(event):
             ))
             return
 
-        intent = detect_intent(user_text, lang)
+        try:
+            intent = detect_intent(user_text, lang)
+        except Exception as error:
+            notify_admin("メッセージの処理を完了できませんでした", error)
+            api.reply_message(ReplyMessageRequest(
+                reply_token=reply_token,
+                messages=[TextMessage(text=get_message(lang, "ai_unavailable"))]
+            ))
+            return
 
         if intent == "morning":
             api.reply_message(ReplyMessageRequest(
@@ -1636,7 +1673,7 @@ def handle_message(event):
             if not user_info or not user_info.get("stocks_owned"):
                 send_line_message(get_message(lang, "no_assets"), user_id=line_user_id)
             else:
-                analysis = analyze_portfolio(user_info, lang)
+                analysis = line_ai_response(lambda: analyze_portfolio(user_info, lang), lang)
                 send_line_message(analysis, user_id=line_user_id)
 
         elif intent == "simulator":
@@ -1659,7 +1696,7 @@ def handle_message(event):
                 messages=[TextMessage(text=get_message(lang, "waiting"))]
             ))
             user_info = get_user(line_user_id)
-            answer = answer_question(user_text, user_info, lang)
+            answer = line_ai_response(lambda: answer_question(user_text, user_info, lang), lang)
             save_user(line_user_id, {"conversation_history": user_text})
             chunks = [answer[i:i+4500] for i in range(0, len(answer), 4500)]
             for chunk in chunks:
