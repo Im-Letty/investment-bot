@@ -20,10 +20,33 @@
   function curatedPublication(d){return !!(d&&d.delivery==='published'&&d.digest&&d.digest.publication_mode==='curated');}
   function headlinesFallback(d){return !!(d&&d.delivery==='headlines'&&d.fallback_reason==='current_edition_unavailable'&&d.digest===null&&d.selection_status==='ready'&&Array.isArray(d.news)&&d.news.length);}
   function safeNewsURL(value){try{var u=new URL(value);return ['https:','http:'].includes(u.protocol)&&!u.username&&!u.password?u.href:'';}catch(_){return '';}}
+  function validISODate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;var date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;}
+  function sourceWindow(digest){
+    var w=digest&&digest.source_window;
+    if(!w||Object.keys(w).length!==5||w.version!==1||digest.publication_mode!=='curated'||w.edition_date!==digest.edition_date||!validISODate(w.edition_date))return null;
+    var midnight=Date.parse(w.edition_date+'T00:00:00+09:00')/1000;
+    return w.window_start===midnight-16*3600&&w.carryover_start===midnight-16.5*3600&&w.cutoff_at===midnight+7.5*3600?w:null;
+  }
+  function officialArticle(item,w,reviewedAt){
+    if(!item||!['総務省統計局','財務省'].includes(item.source)||!validISODate(item.published_date)||!['second','day'].includes(item.publication_precision)||typeof item.body_sha256!=='string'||! /^[a-f0-9]{64}$/.test(item.body_sha256)||!Number.isFinite(item.body_verified_at)||item.body_verified_at>w.cutoff_at||item.body_verified_at>reviewedAt)return false;
+    var url;try{url=new URL(item.url);}catch(_){return false;}
+    if(url.protocol!=='https:'||url.hostname!==({'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp'}[item.source])||url.username||url.password||url.search||(url.port&&url.port!=='443'))return false;
+    var deferred=item.selection_route==='deferred',previous=editionKey(w.window_start),previousStart=w.window_start-86400;
+    if(deferred){
+      if(item.deferred_from!==previous||!['late_verification','review_failed','omitted'].includes(item.deferred_reason)||(item.deferred_reason==='late_verification'&&item.body_verified_at<=w.carryover_start))return false;
+    }else if(Object.prototype.hasOwnProperty.call(item,'deferred_from')||Object.prototype.hasOwnProperty.call(item,'deferred_reason'))return false;
+    if(item.publication_precision==='day')return item.published_at===null&&editionKey(item.body_verified_at)>=item.published_date&&(deferred?item.published_date>=editionKey(previousStart)&&item.published_date<=previous:item.selection_route==='date_only'&&item.published_date>=previous&&item.published_date<=editionKey(w.cutoff_at));
+    if(!Number.isFinite(item.published_at)||item.published_at>w.cutoff_at||item.published_at>item.body_verified_at||editionKey(item.published_at)!==item.published_date)return false;
+    if(deferred)return item.published_at>=previousStart&&item.published_at<=w.carryover_start;
+    return item.selection_route==='main'?item.published_at>=w.window_start:item.selection_route==='carryover'&&item.published_at>w.carryover_start&&item.published_at<w.window_start;
+  }
+  function sameArticleMetadata(a,b,w){return a.published_at===b.published_at&&(!w||['published_date','publication_precision','body_sha256','body_verified_at','selection_route','deferred_from','deferred_reason'].every(function(key){return a[key]===b[key];}));}
   function validEdition(d,l){
-    var now=Date.now()/1000,today=editionKey(now);
+    var now=Date.now()/1000,today=editionKey(now),window=sourceWindow(d&&d.digest);
     if(!d||d.policy_version!==4||d.lang!==l||typeof d.edition_date!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(d.edition_date)||d.edition_date>today||(!curatedPublication(d)&&d.edition_date!==today)||!['ready','empty_today'].includes(d.selection_status)||!Array.isArray(d.news)||d.news.length>3||!Array.isArray(d.supplements)||d.supplements.length>1)return false;
+    if(d.digest&&Object.prototype.hasOwnProperty.call(d.digest,'source_window')&&!window)return false;
     function article(x,older){
+      if(window&&!older)return !!(x&&typeof x.title==='string'&&x.title.trim()&&x.title.length<=2000&&safeNewsURL(x.url)&&officialArticle(x,window,now));
       if(!x||typeof x.source!=='string'||x.source.length>=100||typeof x.title!=='string'||!x.title.trim()||x.title.length>2000||!safeNewsURL(x.url)||!Number.isFinite(x.published_at)||x.published_at>now)return false;
       var date=editionKey(x.published_at);
       if(x.published_date!==date)return false;
@@ -80,16 +103,18 @@
     return validPublished(publishedNews[l],l)?publishedNews[l]:validNews(newsCache[l],l)?newsCache[l]:null;
   }
   function reviewedDigest(d){
-    var digest=d.digest;
+    var digest=d.digest,window=sourceWindow(d.digest);
     if(!digest||digest.lang!=='ja'||digest.edition_date!==d.edition_date||typeof digest.headline!=='string'||!digest.headline.trim()||Array.from(digest.headline).length>80||typeof digest.summary!=='string'||Array.from(digest.summary).length<200||Array.from(digest.summary).length>300||!Array.isArray(digest.article_refs)||!d.news.length||digest.article_refs.length!==d.news.length)return null;
     if(digest.publication_mode!=null&&digest.publication_mode!=='curated')return null;
-    if(digest.publication_mode==='curated'&&(digest.article_refs.length<1||digest.article_refs.length>3||!Number.isFinite(digest.reviewed_at)||digest.reviewed_at>Date.now()/1000||editionKey(digest.reviewed_at)!==d.edition_date||digest.article_refs.some(function(ref){return !ref||!Number.isFinite(ref.published_at)||ref.published_at>digest.reviewed_at;})))return null;
+    if(Object.prototype.hasOwnProperty.call(digest,'source_window')&&!window)return null;
+    if(digest.publication_mode==='curated'&&(digest.article_refs.length<1||digest.article_refs.length>3||!Number.isFinite(digest.reviewed_at)||digest.reviewed_at>Date.now()/1000||editionKey(digest.reviewed_at)!==d.edition_date||(window&&digest.reviewed_at<window.cutoff_at)||digest.article_refs.some(function(ref){return window?!officialArticle(ref,window,digest.reviewed_at):!ref||!Number.isFinite(ref.published_at)||ref.published_at>digest.reviewed_at;})))return null;
+    if(window&&(!Number.isFinite(digest.publish_at)||digest.publish_at<window.cutoff_at+1800))return null;
     if(Object.prototype.hasOwnProperty.call(digest,'publish_at')&&(!Number.isFinite(digest.publish_at)||digest.publication_mode!=='curated'||digest.publish_at<digest.reviewed_at||digest.publish_at>Date.now()/1000||editionKey(digest.publish_at)!==d.edition_date))return null;
     var used=new Set();
     var matches=digest.article_refs.every(function(ref){
       if(!ref||!safeNewsURL(ref.url)||used.has(ref.url))return false;
       used.add(ref.url);
-      return d.news.some(function(item){return ref.url===item.url&&ref.source===item.source&&ref.published_at===item.published_at&&(d.lang!=='ja'||ref.title===item.title);});
+      return d.news.some(function(item){return ref.url===item.url&&ref.source===item.source&&sameArticleMetadata(ref,item,window)&&(d.lang!=='ja'||ref.title===item.title);});
     });
     if(Object.prototype.hasOwnProperty.call(digest,'article_summaries')){
       var summaries=digest.article_summaries,covered=new Set();
@@ -97,7 +122,7 @@
       if(!summaries.every(function(item){
         if(!item||typeof item.headline!=='string'||!item.headline.trim()||Array.from(item.headline.trim()).length>80||typeof item.summary!=='string'||Array.from(item.summary.trim()).length<200||Array.from(item.summary.trim()).length>300||covered.has(item.url))return false;
         covered.add(item.url);
-        return digest.article_refs.some(function(ref){return item.source===ref.source&&item.url===ref.url&&item.published_at===ref.published_at&&item.title===ref.title;});
+        return digest.article_refs.some(function(ref){return item.source===ref.source&&item.url===ref.url&&sameArticleMetadata(item,ref,window)&&item.title===ref.title;});
       }))return null;
     }
     return matches?digest:null;
@@ -121,6 +146,10 @@
   };
   function newsSource(source){if(source==='ロイター経済')return {ja:'ロイター経済',en:'Reuters Business',ko:'로이터 경제',zh:'路透经济'}[lang()];return window.translateNewsSource?window.translateNewsSource(source):source;}
   function publication(item,l){
+    if(item.publication_precision==='day'&&item.published_at===null){
+      var day=new Date(item.published_date+'T00:00:00+09:00').toLocaleDateString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric'});
+      return '<time class="publication-date" datetime="'+esc(item.published_date)+'">'+esc(digestCopy[l].published+' '+day)+'</time>';
+    }
     var date=new Date(item.published_at*1000),label=date.toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
     return '<time class="publication-date" datetime="'+esc(date.toISOString())+'">'+esc(digestCopy[l].published+' '+label+' JST')+'</time>';
   }
@@ -132,6 +161,7 @@
     var calendar='<div class="calendar" aria-label="'+esc(c.date+' '+d.edition_date+' '+weekday)+'"><strong>'+day+'</strong><small>'+esc(weekday)+'</small></div>';
     var digest=reviewedDigest(d),headlines=headlinesFallback(d);
     var sources=digest?'<span class="headline-source">'+esc(Object.keys(groups).map(newsSource).join(' / '))+'</span>':'';
+    if(digest&&Object.keys(groups).some(function(source){return ['総務省統計局','財務省'].includes(source);}))sources+='<span class="headline-source">当サイトが要約・編集</span>';
     var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
     if(headlines)brief='<h4 class="brief-headline">'+esc(headlineCopy[l].title)+'</h4><p class="news-empty">'+esc(d.edition_date.replace(/-/g,'/')+' · '+headlineCopy[l].pending)+'</p><ul class="headline-list">'+d.news.map(function(item){return '<li><a class="story-title" href="'+esc(safeNewsURL(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.title)+'</a><div class="headline-meta"><span class="headline-source">'+esc(newsSource(item.source))+'</span>'+publication(item,l)+'</div></li>';}).join('')+'</ul>';
     var stories=headlines?'':d.news.map(function(item){

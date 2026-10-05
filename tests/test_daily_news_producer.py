@@ -1,12 +1,14 @@
 import copy
 import json
+from hashlib import sha256
 from datetime import datetime
 import unittest
 from unittest.mock import Mock, MagicMock, patch
 
 from news_cache import JST
 from daily_news_producer import (CHECKS, GenerationError, Providers, build_issue,
-                                  configuration, generate_edition, json_object)
+                                  configuration, generate_edition, json_object,
+                                  GENERATION_BUDGET_SECONDS, _generation_deadline)
 
 NOW = datetime(2026, 9, 24, 7, 50, tzinfo=JST).timestamp()
 
@@ -217,6 +219,98 @@ class ProducerTests(unittest.TestCase):
         provider.gemini.assert_called_once()
 
 
+class DeadlineTests(unittest.TestCase):
+    def setUp(self):
+        self.elapsed = 0
+        self.monotonic = patch('daily_news_producer.time.monotonic', side_effect=lambda: self.elapsed)
+        self.monotonic.start()
+        self.addCleanup(self.monotonic.stop)
+        self.provider = provider_mock()
+        self.provider.claude.return_value = draft()
+        self.provider.gemini.return_value = approved()
+
+    def generate(self, collector=lambda _: articles()):
+        return generate_edition(NOW, providers=self.provider, collector=collector, clock=lambda: NOW)
+
+    def test_slow_collector_stops_before_any_paid_provider_and_context_is_reset(self):
+        def slow(now):
+            self.elapsed = GENERATION_BUDGET_SECONDS
+            return articles()
+        with self.assertRaisesRegex(GenerationError, '^generation_deadline$'):
+            self.generate(slow)
+        self.assertEqual(self.provider.method_calls, [])
+        self.assertIsNone(_generation_deadline.get())
+        # A later attempt gets its own budget instead of inheriting the old one.
+        self.assertEqual(self.generate()['edition_date'], '2026-09-24')
+        self.assertIsNone(_generation_deadline.get())
+
+    def test_expiration_after_each_stage_stops_followup_calls_and_rejects_late_approval(self):
+        for stage, expected in (('claude', ['claude']), ('gemini', ['claude', 'gemini']),
+                                ('openai', ['claude', 'gemini', 'openai'])):
+            with self.subTest(stage=stage):
+                self.elapsed = 0
+                self.provider = provider_mock()
+                self.provider.claude.return_value = draft()
+                self.provider.gemini.return_value = approved()
+                def expire(*args, **kwargs):
+                    self.elapsed = GENERATION_BUDGET_SECONDS
+                    return draft() if stage == 'claude' else approved()
+                getattr(self.provider, stage).side_effect = expire
+                with self.assertRaisesRegex(GenerationError, '^generation_deadline$'):
+                    self.generate()
+                self.assertEqual([call[0] for call in self.provider.method_calls], expected)
+                self.assertIsNone(_generation_deadline.get())
+
+    def test_discovery_deadline_is_not_swallowed_when_one_verified_article_exists(self):
+        def expire(*args, **kwargs):
+            self.elapsed = GENERATION_BUDGET_SECONDS
+            return {'urls': []}
+        self.provider.gemini.side_effect = expire
+        collector = Mock(return_value=articles()[:1])
+        with self.assertRaisesRegex(GenerationError, '^generation_deadline$'):
+            self.generate(collector)
+        collector.assert_called_once()
+        self.provider.claude.assert_not_called()
+        self.provider.openai.assert_not_called()
+
+    def test_gemini_internal_token_retry_cannot_send_http_after_global_deadline(self):
+        session = MagicMock()
+        response = session.post.return_value.__enter__.return_value
+        response.status_code = 200
+        response.raw.read1.side_effect = [json.dumps({'candidates': [{'finishReason': 'MAX_TOKENS'}]}).encode(), b'']
+        provider = Providers({}, session)
+        original_post = provider._post
+        def expire_after_response(*args, **kwargs):
+            result = original_post(*args, **kwargs)
+            self.elapsed = 10
+            return result
+        token = _generation_deadline.set(10)
+        try:
+            with patch.object(provider, '_post', side_effect=expire_after_response):
+                with self.assertRaisesRegex(GenerationError, '^generation_deadline$'):
+                    provider.gemini('review', {})
+            session.post.assert_called_once()
+        finally:
+            _generation_deadline.reset(token)
+
+    def test_http_timeout_uses_remaining_budget_and_late_response_is_rejected(self):
+        session = MagicMock()
+        response = session.post.return_value.__enter__.return_value
+        response.status_code = 200
+        def late_body(*args, **kwargs):
+            self.elapsed = 3
+            return b'{}'
+        response.raw.read1.side_effect = late_body
+        token = _generation_deadline.set(3)
+        try:
+            with self.assertRaisesRegex(GenerationError, '^generation_deadline$'):
+                Providers({}, session)._post('https://example.test', {}, {}, 'gemini')
+            self.assertEqual(session.post.call_args.kwargs['timeout'], (3, 3))
+            session.post.return_value.__exit__.assert_called_once()
+        finally:
+            _generation_deadline.reset(token)
+
+
 class DualReviewTests(unittest.TestCase):
     def provider(self):
         provider = provider_mock()
@@ -287,23 +381,36 @@ class DualReviewTests(unittest.TestCase):
         for reviewer in (provider.gemini, provider.openai):
             self.assertEqual([call.args[1]['draft'] for call in reviewer.call_args_list], [initial, repaired])
 
-    def test_openai_missing_checks_nonboolean_flags_and_issues_fail_closed_with_four_round_limit(self):
+    def test_malformed_review_stops_before_paying_for_a_rewrite(self):
         invalid_reviews = [
             {'approved': True},
             {**approved(), 'approved': 'true'},
             {**approved(), 'checks': {**approved()['checks'], 'facts': 'true'}},
             {**approved(), 'checks': {key: True for key in CHECKS if key != 'dates'}},
-            {**approved(), 'issues': ['Unsupported claim']},
+            {**approved(), 'issues': {'private': 'not a list'}},
+            {**approved(), 'checks': {**approved()['checks'], 'unexpected': True}},
+            {**approved(), 'issues': ['x' * 2001]},
+            {**approved(), 'issues': ['x'] * 21},
+            {**approved(), 'unexpected': 'not in the review contract'},
         ]
-        for review in invalid_reviews:
-            with self.subTest(review=review):
-                provider = self.provider()
-                provider.openai.return_value = review
-                with self.assertRaisesRegex(GenerationError, '^openai_review_failed_'):
-                    self.generate(provider)
-                self.assertEqual(provider.openai.call_count, 4)
-                self.assertEqual(provider.gemini.call_count, 4)
-                self.assertEqual(provider.claude.call_count, 4)
+        for name in ('gemini', 'openai'):
+            for review in invalid_reviews:
+                with self.subTest(provider=name, review=review):
+                    provider = self.provider()
+                    getattr(provider, name).return_value = review
+                    with self.assertRaisesRegex(GenerationError, '^invalid_provider_json$'):
+                        self.generate(provider)
+                    self.assertEqual(provider.claude.call_count, 1)
+                    self.assertEqual(provider.gemini.call_count, 1)
+                    self.assertEqual(provider.openai.call_count, 1 if name == 'openai' else 0)
+
+    def test_valid_review_with_unresolved_issues_never_publishes(self):
+        provider = self.provider()
+        provider.openai.return_value = {**approved(), 'issues': ['Unsupported claim']}
+        with self.assertRaisesRegex(GenerationError, '^openai_review_failed_approval$'):
+            self.generate(provider)
+        self.assertEqual(provider.openai.call_count, 4)
+        self.assertEqual(provider.claude.call_count, 4)
 
     def test_openai_provider_failure_stops_without_rewrite_or_fallback_approval(self):
         for code in ('openai_not_configured', 'openai_http_429', 'openai_unavailable',
@@ -427,6 +534,135 @@ class OpenAIProviderTests(unittest.TestCase):
         with self.assertRaisesRegex(GenerationError, '^openai_http_429$'):
             provider.openai('review', {})
         self.assertFalse(session.post.call_args.kwargs['allow_redirects'])
+
+
+class OfficialWindowProducerTests(unittest.TestCase):
+    @staticmethod
+    def stamp(value):
+        return datetime.fromisoformat(value + '+09:00').timestamp()
+
+    def setUp(self):
+        self.now = self.stamp('2026-10-06T07:40:00')
+        self.window = {'version': 1, 'edition_date': '2026-10-06',
+                       'window_start': self.stamp('2026-10-05T08:00:00'),
+                       'carryover_start': self.stamp('2026-10-05T07:30:00'),
+                       'cutoff_at': self.stamp('2026-10-06T07:30:00')}
+        body = 'これは原文取得と期間判定を検証する架空の発表本文です。' * 10
+        self.records = [{'source': '財務省', 'title': '金融経済の発表',
+                         'url': 'https://www.mof.go.jp/public_relations/conference/my20261005.html',
+                         'evidence_url': 'https://www.mof.go.jp/public_relations/conference/my20261005.html',
+                         'published_at': self.stamp('2026-10-05T10:00:00'),
+                         'published_date': '2026-10-05', 'publication_precision': 'second',
+                         'body': body, 'body_sha256': sha256(body.encode()).hexdigest(),
+                         'body_verified_at': self.window['cutoff_at'] - 60},
+                        {'source': '総務省統計局', 'title': '労働力調査の結果',
+                         'url': 'https://www.stat.go.jp/data/roudou/sokuhou/tsuki/index.html',
+                         'evidence_url': 'https://www.stat.go.jp/data/roudou/sokuhou/tsuki/index.html',
+                         'published_at': None, 'published_date': '2026-10-05', 'publication_precision': 'day',
+                         'body': body + '統計調査の例。',
+                         'body_sha256': sha256((body + '統計調査の例。').encode()).hexdigest(),
+                         'body_verified_at': self.window['cutoff_at'] - 30}]
+        self.provider = provider_mock()
+        self.provider.claude.return_value = draft(2)
+        self.provider.gemini.return_value = approved()
+        self.collector = Mock(side_effect=AssertionError('frozen edition must never fetch'))
+
+    def generate(self, records=None, window=None):
+        return generate_edition(self.now, articles=self.records if records is None else records,
+                                source_window=self.window if window is None else window,
+                                providers=self.provider, collector=self.collector, clock=lambda: self.now)
+
+    def test_official_fixed_snapshot_skips_collection_and_search_keeps_precise_refs(self):
+        before = copy.deepcopy((self.records, self.window))
+        issue = self.generate()
+        self.collector.assert_not_called()
+        self.assertEqual(self.provider.gemini.call_count, 1)
+        self.assertNotIn('search', self.provider.gemini.call_args.kwargs)
+        self.assertEqual((self.records, self.window), before)
+        self.assertEqual(issue['source_window'], self.window)
+        self.assertEqual(issue['publish_at'], self.stamp('2026-10-06T08:00:00'))
+        self.assertEqual([r['selection_route'] for r in issue['article_refs']], ['main', 'date_only'])
+        self.assertIsNone(issue['article_refs'][1]['published_at'])
+        self.assertEqual(issue['article_refs'][1]['published_date'], '2026-10-05')
+        self.assertNotIn('body', issue['article_refs'][0])
+        self.assertNotIn('articles', issue)
+        self.assertEqual(self.provider.gemini.call_args.args[1], self.provider.openai.call_args.args[1])
+        self.assertEqual(self.provider.openai.call_args.args[1]['source_window'], self.window)
+        self.assertEqual(issue['article_refs'][0]['body_sha256'], self.records[0]['body_sha256'])
+
+    def test_invalid_or_late_sources_stop_before_paid_calls(self):
+        variants = []
+        for field, value in [('body_verified_at', 0), ('body_verified_at', self.window['cutoff_at'] + 1),
+                             ('body_sha256', '0' * 64), ('source', '日本銀行'),
+                             ('published_date', '2026-10-06'), ('published_at', None),
+                             ('selection_route', 'deferred')]:
+            records = copy.deepcopy(self.records)
+            records[0][field] = value
+            variants.append(records)
+        day_with_fake_time = copy.deepcopy(self.records)
+        day_with_fake_time[1]['published_at'] = self.stamp('2026-10-05T00:00:00')
+        variants.extend((day_with_fake_time, [], [self.records[0], self.records[0]]))
+        for records in variants:
+            with self.subTest(records=records):
+                with self.assertRaises(GenerationError):
+                    self.generate(records=records)
+        self.provider.claude.assert_not_called()
+        self.provider.gemini.assert_not_called()
+        self.provider.openai.assert_not_called()
+        self.collector.assert_not_called()
+
+    def test_window_must_have_fixed_boundaries_and_be_frozen_already(self):
+        for field, value in [('cutoff_at', self.window['cutoff_at'] + 1), ('window_start', 0),
+                             ('version', True), ('edition_date', '2026-10-05')]:
+            with self.subTest(field=field), self.assertRaises(GenerationError):
+                self.generate(window={**self.window, field: value})
+        self.now = self.window['cutoff_at'] - 1
+        with self.assertRaises(GenerationError):
+            self.generate()
+        self.provider.claude.assert_not_called()
+
+    def test_timed_window_boundaries_and_explicit_one_day_deferral(self):
+        for stamp, route, extra in [
+            ('2026-10-05T08:00:00', 'main', {}),
+            ('2026-10-05T07:30:01', 'carryover', {}),
+            ('2026-10-05T07:30:00', 'deferred', {'deferred_from': '2026-10-05', 'deferred_reason': 'late_verification'}),
+            ('2026-10-04T08:00:00', 'deferred', {'deferred_from': '2026-10-05', 'deferred_reason': 'omitted'})]:
+            with self.subTest(stamp=stamp):
+                record = {**self.records[0], 'published_at': self.stamp(stamp), 'published_date': stamp[:10], **extra}
+                issue = build_issue(draft(1), [record], self.now, source_window=self.window)
+                self.assertEqual(issue['article_refs'][0]['selection_route'], route)
+        for stamp, extra in [('2026-10-05T07:30:00', {}),
+                              ('2026-10-04T07:59:59', {'deferred_from': '2026-10-05', 'deferred_reason': 'omitted'}),
+                              ('2026-10-04T09:00:00', {'deferred_from': '2026-10-04', 'deferred_reason': 'review_failed'})]:
+            record = {**self.records[0], 'published_at': self.stamp(stamp), 'published_date': stamp[:10], **extra}
+            with self.subTest(stamp=stamp), self.assertRaises(GenerationError):
+                build_issue(draft(1), [record], self.now, source_window=self.window)
+
+    def test_date_only_deferral_preserves_unknown_time_and_regular_route_priority(self):
+        record = {**self.records[1], 'published_date': '2026-10-04',
+                  'deferred_from': '2026-10-05', 'deferred_reason': 'omitted'}
+        issue = build_issue(draft(1), [record], self.now, source_window=self.window)
+        self.assertEqual(issue['article_refs'][0]['selection_route'], 'deferred')
+        self.assertIsNone(issue['article_refs'][0]['published_at'])
+        record['published_date'] = '2026-10-05'
+        issue = build_issue(draft(1), [record], self.now, source_window=self.window)
+        self.assertEqual(issue['article_refs'][0]['selection_route'], 'date_only')
+        self.assertNotIn('deferred_reason', issue['article_refs'][0])
+        self.assertIn('deferred_reason', record)
+
+    def test_rewrite_is_reviewed_again_without_refetching_or_changing_evidence(self):
+        initial, revised = draft(2), draft(2)
+        revised['summary'] = '訂正' * 115
+        self.provider.claude.side_effect = [initial, revised]
+        self.provider.openai.side_effect = [{**approved(), 'approved': False, 'issues': ['説明を明確に']}, approved()]
+        issue = self.generate()
+        self.assertEqual(issue['summary'], revised['summary'])
+        self.assertEqual(self.provider.gemini.call_count, 2)
+        self.assertEqual(self.provider.openai.call_count, 2)
+        for reviewer in (self.provider.gemini, self.provider.openai):
+            self.assertEqual([c.args[1]['draft'] for c in reviewer.call_args_list], [initial, revised])
+            self.assertTrue(all(c.args[1]['source_window'] == self.window for c in reviewer.call_args_list))
+        self.collector.assert_not_called()
 
 
 if __name__ == '__main__': unittest.main()

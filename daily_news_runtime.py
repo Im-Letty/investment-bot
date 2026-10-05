@@ -1,6 +1,7 @@
 """Prepare one daily website edition, persisting it before local publication.
 
-The injected ``generator(unix_time)`` must be bounded to less than 15 minutes.
+The producer cooperatively stops starting work after 12 minutes. Pending claims
+have a 16-minute recovery lease; a result arriving after that lease is rejected.
 No LINE delivery or browser credentials are used by this module. Storage is a
 private, server-only bucket; its immutable attempt records coordinate workers.
 """
@@ -25,14 +26,16 @@ from publish_news import MAX_ISSUES, _publication_lock, _replace_atomically
 BUCKET = "website-news"
 CACHE_PATH = Path("/tmp/kn-daily-news.json")
 BASELINE_PATH = Path(__file__).with_name("news-digests.json")
-ATTEMPT_INTERVAL = 5 * 60
+ATTEMPT_INTERVAL = 15 * 60
+PENDING_ATTEMPT_SECONDS = 16 * 60
 MAX_ATTEMPTS = 6
 GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini_incomplete",
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
                               "openai_incomplete", "openai_refused", "openai_invalid_response",
                               "openai_not_configured",
                               "future_article", "invalid_edition", "no_verified_articles",
-                              "edition_day_changed", "editorial_review_failed", "generation_failed"))
+                              "edition_day_changed", "editorial_review_failed", "generation_failed",
+                              "generation_deadline", "invalid_source_window", "invalid_official_article"))
 
 
 def _safe_generation_error(value):
@@ -223,8 +226,10 @@ class DailyNewsRuntime:
     """All public reads are in-memory; network/AI only runs in daemon workers."""
 
     def __init__(self, storage, generator, *, enabled=False, baseline_path=BASELINE_PATH,
-                 cache_path=CACHE_PATH, clock=time.time, interval=30):
+                 cache_path=CACHE_PATH, clock=time.time, interval=30, source_preparer=None):
         self.storage, self.generator = storage, generator
+        self.source_preparer = source_preparer
+        self._source_history = None
         self.enabled = bool(enabled and callable(generator))
         self.baseline_path, self.cache_path = Path(baseline_path), Path(cache_path)
         self.clock, self.interval = clock, max(1, interval)
@@ -253,6 +258,7 @@ class DailyNewsRuntime:
         self._thread = None
         self._private = self._restored = False
         self._state = {**self._state, "status": "starting", "attempt_count": 0, "last_error": None}
+        self._source_history = None
         reset = getattr(self.storage, "after_fork", None)
         if callable(reset):
             reset()
@@ -398,6 +404,26 @@ class DailyNewsRuntime:
         except Exception:
             pass
 
+    def _published_history(self, now):
+        """Bounded durable history for source deduplication, not only two cached days."""
+        from morning_news_window import published_references
+        day = datetime.fromtimestamp(now, JST).date().isoformat()
+        if self._source_history is not None and self._source_history[0] == day:
+            return deepcopy(self._source_history[1])
+        issues = self.reviewed_digests()
+        past = [value for value in self.storage.recent_days() if value < day][:MAX_ISSUES]
+        for previous in past:
+            # Include the original and latest retained correction. Published
+            # references must not depend only on the two-day in-memory cache.
+            paths = [f"days/{previous}/edition.json"] + sorted(self.storage.reviewed_keys(previous), reverse=True)[:1]
+            for path in paths:
+                value = self.storage.read(path)
+                if value is not None:
+                    issues.append(_valid_issue(value, now, edition=previous))
+        issues = [issue for issue in issues if published_references([issue], now)]
+        self._source_history = (day, deepcopy(issues))
+        return issues
+
     def _tick(self):
         if self.storage is None:
             self._set("storage_unavailable")
@@ -436,6 +462,30 @@ class DailyNewsRuntime:
             return
         if not 7 * 60 <= minute < 22 * 60:
             return
+        manifest = None
+        if self.source_preparer is not None:
+            from morning_news_window import morning_window
+            cutoff = morning_window(now)["cutoff_at"]
+            history = self._published_history(now) if now >= cutoff else ()
+            manifest = self.source_preparer.prepare(now, history)
+            if manifest is None or now < cutoff:
+                self._set("collecting" if now < cutoff else "freezing", edition_date=day,
+                          cutoff_at=cutoff, last_error=None)
+                return
+            if not manifest["articles"]:
+                rows = manifest.get("source_status", {}).values()
+                complete = bool(manifest.get("source_status")) and all(
+                    isinstance(row, dict) and row.get("feed_status") == "ok"
+                    and row.get("status") in ("collected", "no_matching_candidates") for row in rows)
+                self._set("source_empty" if complete else "source_unavailable", edition_date=day,
+                          cutoff_at=cutoff, last_error=None if complete else "source_unavailable")
+                return
+            # Refresh after storage reads; all retries receive the same frozen
+            # articles, while invocation/publication times remain actual times.
+            now = self.clock()
+            if datetime.fromtimestamp(now, JST).date().isoformat() != day:
+                self._set("waiting")
+                return
         attempts = []
         for index in range(1, MAX_ATTEMPTS + 1):
             claim = self.storage.read(prefix + f"/attempt-{index}.lock")
@@ -451,14 +501,25 @@ class DailyNewsRuntime:
         if [index for index, _ in attempts] != list(range(1, len(attempts) + 1)):
             raise StorageUnavailable("storage_state")
         self._set("waiting", attempt_count=len(attempts))
+        retry_interval = ATTEMPT_INTERVAL
         if attempts:
             result = self.storage.read(prefix + f"/attempt-{len(attempts)}.result.json")
-            if isinstance(result, dict) and result.get("status") in ("generation_failed", "invalid_edition"):
+            finished_failure = (isinstance(result, dict)
+                                and result.get("edition_date") == day
+                                and result.get("attempt") == len(attempts)
+                                and result.get("started_at") == attempts[-1][1]
+                                and result.get("status") in ("generation_failed", "invalid_edition"))
+            if finished_failure:
                 self._set("waiting", last_error=_safe_generation_error(result.get("last_error", result["status"])))
+            else:
+                # An absent result is not a failed attempt: another worker may
+                # still be generating. Recovery is longer than the producer's
+                # cooperative budget, including time to record its outcome.
+                retry_interval = PENDING_ATTEMPT_SECONDS
         if len(attempts) >= MAX_ATTEMPTS:
             self._set("daily_limit")
             return
-        if attempts and now < max(started for _, started in attempts) + ATTEMPT_INTERVAL:
+        if attempts and now < max(started for _, started in attempts) + retry_interval:
             return
         number = len(attempts) + 1
         claim = {"version": 1, "edition_date": day, "attempt": number, "started_at": now}
@@ -467,7 +528,16 @@ class DailyNewsRuntime:
         self._set("generating", attempt_count=number)
         result_path = prefix + f"/attempt-{number}.result.json"
         try:
-            generated = self.generator(now)
+            if manifest is None:
+                generated = self.generator(now)
+            else:
+                from morning_news_window import WINDOW_FIELDS
+                generated = self.generator(now, articles=deepcopy(manifest["articles"]),
+                                           source_window={key: manifest[key] for key in WINDOW_FIELDS})
+            # Do not let a stalled/old worker publish after another worker can
+            # recover its claim. This does not cancel an in-flight provider call.
+            if self.clock() >= now + PENDING_ATTEMPT_SECONDS:
+                raise ValueError("generation_deadline")
         except Exception as error:
             code = _safe_generation_error(error)
             self._result(result_path, {**claim, "status": "generation_failed", "last_error": code})
@@ -476,7 +546,7 @@ class DailyNewsRuntime:
         try:
             issue = _valid_issue(generated, self.clock(), edition=day)
             release = current.replace(hour=8, minute=0, second=0, microsecond=0).timestamp()
-            issue["publish_at"] = max(release, issue["reviewed_at"], issue.get("publish_at", 0))
+            issue["publish_at"] = max(release, issue["reviewed_at"], issue.get("publish_at", 0), self.clock())
             issue = _valid_issue(issue, self.clock(), edition=day)
         except (ValueError, TypeError, OverflowError):
             self._result(result_path, {**claim, "status": "invalid_edition"})
@@ -492,7 +562,7 @@ class DailyNewsRuntime:
 
 
 def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, storage=None,
-          autostart=True, **kwargs):
+          autostart=True, source_preparer_factory=None, **kwargs):
     """Start without blocking Flask. Explicit ``enabled`` gates paid generation.
 
     Pass ``url`` and the server service key, or a Supabase client exposing
@@ -508,5 +578,7 @@ def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, s
             storage = SupabaseNewsStorage(url, key)
         except (StorageUnavailable, ValueError):
             storage = None
+    if storage is not None and source_preparer_factory is not None:
+        kwargs["source_preparer"] = source_preparer_factory(storage)
     runtime = DailyNewsRuntime(storage, generator, enabled=enabled, **kwargs)
     return runtime.start() if autostart else runtime

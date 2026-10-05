@@ -16,7 +16,7 @@ from scanner_snapshot import ScannerSnapshot
 from scanner_universe import load_universe, next_batch
 from line_language import normalize_language, language_command
 from line_news import is_news_request, format_news_reply
-from news_cache import (NEWS_FEEDS, WEB_NEWS_SOURCES, news_cache, HeadlineTranslations,
+from news_cache import (NEWS_FEEDS, PUBLISHED_NEWS_SOURCES, OFFICIAL_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
 from flask import Flask, request, abort, jsonify, redirect, send_file
@@ -48,7 +48,7 @@ except Exception as _e_google:
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v44-website-news-fallback"
+APP_VERSION = "v45-official-morning-news"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -71,13 +71,15 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 # runs off-request; only validated, durably stored editions become visible.
 from daily_news_producer import configuration as news_configuration, generate_edition
 from daily_news_runtime import start as start_daily_news
+from website_news import website_news, create_source_preparer
 _news_config = news_configuration()
 _daily_news = start_daily_news(
     supabase, generate_edition, autostart=False,
     enabled=_news_config["enabled"] and _news_config["configured"],
     baseline_path=os.path.join(os.path.dirname(__file__), "news-digests.json"),
     cache_path=os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"),
-    url=SUPABASE_URL, key=SUPABASE_KEY)
+    url=SUPABASE_URL, key=SUPABASE_KEY,
+    source_preparer_factory=create_source_preparer)
 
 
 @app.before_request
@@ -2277,7 +2279,7 @@ def api_morning_news():
         # Keep the web worker available while a first snapshot is prepared.
         # The browser polls refreshing snapshots without clearing content.
         snapshot = select_daily_news(
-            news_cache.snapshot(wait=False), allowed_sources=WEB_NEWS_SOURCES,
+            website_news.snapshot(wait=False), allowed_sources=PUBLISHED_NEWS_SOURCES,
             reviewed_supplements=load_reviewed_supplements(),
             reviewed_digests=load_reviewed_digests())
         news_count = len(snapshot["news"])
@@ -2298,7 +2300,9 @@ def api_news_publication():
     status = _daily_news.snapshot()
     status.update(configured=_news_config["configured"],
                   missing=_news_config["missing"],
-                  schedule="08:00 Asia/Tokyo", preparation="07:00 Asia/Tokyo")
+                  schedule="08:00 Asia/Tokyo", preparation="07:00 Asia/Tokyo",
+                  source_cutoff="07:30 Asia/Tokyo", source_mode="official",
+                  sources=list(OFFICIAL_NEWS_SOURCES))
     response = jsonify(status)
     response.headers["Cache-Control"] = "no-store"
     return response
@@ -2581,7 +2585,7 @@ try{var cs=await self.clients.matchAll({type:'window'});cs.forEach(function(c){c
 def index():
     # The current published edition is part of the first HTML response; external
     # feed refreshes run in the background without delaying readable content.
-    return news_index_response(os.path.join(app.root_path, "index.html"), news_cache, request,
+    return news_index_response(os.path.join(app.root_path, "index.html"), website_news, request,
                                market_payload=initial_market_payload())
 
 

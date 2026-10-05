@@ -9,7 +9,7 @@ import time
 
 from flask import Response
 from market_snapshot import validated_market
-from news_cache import (JST, WEB_NEWS_SOURCES, _publication_time, _validated_digest,
+from news_cache import (JST, PUBLISHED_NEWS_SOURCES, _publication_time, _validated_digest,
                         load_reviewed_digests, load_reviewed_supplements,
                         select_daily_news)
 
@@ -30,7 +30,7 @@ def initial_news(snapshot, *, now=None, reviewed_digests=(), reviewed_supplement
     current = _publication_time(now)
     if current is None:
         raise ValueError("now must be a valid timestamp")
-    selected = select_daily_news(snapshot, now=now, allowed_sources=WEB_NEWS_SOURCES,
+    selected = select_daily_news(snapshot, now=now, allowed_sources=PUBLISHED_NEWS_SOURCES,
                                  reviewed_digests=reviewed_digests,
                                  reviewed_supplements=reviewed_supplements)
     if selected.get("delivery") == "published":
@@ -66,6 +66,10 @@ def _stamp(value):
 
 
 def _publication(item):
+    if item.get("publication_precision") == "day" and item.get("published_at") is None:
+        date = datetime.fromisoformat(item["published_date"])
+        return (f'<time class="publication-date" datetime="{date:%Y-%m-%d}">'
+                f'発表 {date.year}/{date.month}/{date.day}</time>')
     iso = datetime.fromtimestamp(item["published_at"], timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
     return f'<time class="publication-date" datetime="{iso}">発表 {_stamp(item["published_at"])} JST</time>'
 
@@ -87,6 +91,8 @@ def render_news_markup(data):
     digest = data.get("digest")
     headlines_only = data.get("delivery") == "headlines" and not digest
     sources = f'<span class="headline-source">{esc(" / ".join(groups))}</span>' if digest else ''
+    if digest and any(source in ("総務省統計局", "財務省") for source in groups):
+        sources += '<span class="headline-source">当サイトが要約・編集</span>'
     if digest:
         brief = (f'<div class="daily-digest" lang="ja"><h4 class="brief-headline">{esc(digest["headline"])}</h4>'
                  f'<p class="brief-summary">{esc(digest["summary"])}</p></div>')

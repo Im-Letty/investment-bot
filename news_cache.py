@@ -11,6 +11,7 @@ import json
 import logging
 import math
 import os
+import re
 import time
 import unicodedata
 from urllib.parse import urlsplit, urlunsplit
@@ -30,6 +31,8 @@ NEWS_FEEDS = {
     "ロイター米国株": "https://feeds.reuters.com/reuters/companyNews",
 }
 WEB_NEWS_SOURCES = ("NHK経済", "ロイター経済")
+OFFICIAL_NEWS_SOURCES = ("総務省統計局", "財務省")
+PUBLISHED_NEWS_SOURCES = WEB_NEWS_SOURCES + OFFICIAL_NEWS_SOURCES
 
 
 def _safe_url(value):
@@ -236,6 +239,97 @@ def load_reviewed_supplements(path=None):
         return []
 
 
+def _official_window(value, edition):
+    """A new morning edition has explicit, fixed JST source boundaries."""
+    try:
+        day = datetime.strptime(edition, "%Y-%m-%d").replace(tzinfo=JST)
+        if day.date().isoformat() != edition or not isinstance(value, dict):
+            return None
+        previous = day - timedelta(days=1)
+        expected = {"version": 1, "edition_date": edition,
+                    "window_start": previous.replace(hour=8).timestamp(),
+                    "carryover_start": previous.replace(hour=7, minute=30).timestamp(),
+                    "cutoff_at": day.replace(hour=7, minute=30).timestamp()}
+        if (set(value) != set(expected) or type(value["version"]) is not int
+                or any(_publication_time(value[k]) is None for k in
+                       ("window_start", "carryover_start", "cutoff_at")) or value != expected):
+            return None
+        return expected
+    except (ValueError, TypeError, OverflowError):
+        return None
+
+
+def _official_ref(ref, window):
+    """Keep date precision and verified-version provenance in public references."""
+    if not isinstance(ref, dict):
+        return None
+    source, title, url = ref.get("source"), ref.get("title"), _safe_url(ref.get("url"))
+    if not isinstance(source, str):
+        return None
+    expected_host = {"総務省統計局": "www.stat.go.jp", "財務省": "www.mof.go.jp"}.get(source)
+    try:
+        parsed = urlsplit(url or "")
+        allowed_url = (parsed.scheme == "https" and parsed.hostname == expected_host
+                       and parsed.port in (None, 443) and not parsed.query)
+    except ValueError:
+        return None
+    if (not expected_host or not isinstance(title, str) or not title.strip() or len(title) > 1000
+            or not url or not allowed_url):
+        return None
+    stamp, verified = _publication_time(ref.get("published_at")), _publication_time(ref.get("body_verified_at"))
+    digest = ref.get("body_sha256")
+    if (verified is None or verified.timestamp() > window["cutoff_at"]
+            or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)):
+        return None
+    try:
+        published_day = datetime.strptime(ref.get("published_date", ""), "%Y-%m-%d").date()
+        if published_day.isoformat() != ref["published_date"]:
+            return None
+    except (ValueError, TypeError):
+        return None
+    edition_day = datetime.fromtimestamp(window["cutoff_at"], JST).date()
+    previous_day = edition_day - timedelta(days=1)
+    precision, route = ref.get("publication_precision"), ref.get("selection_route")
+    deferred = route == "deferred"
+    if deferred:
+        if (ref.get("deferred_from") != previous_day.isoformat()
+                or ref.get("deferred_reason") not in ("late_verification", "review_failed", "omitted")
+                or (ref.get("deferred_reason") == "late_verification"
+                    and verified.timestamp() <= window["carryover_start"])):
+            return None
+    elif "deferred_from" in ref or "deferred_reason" in ref:
+        return None
+    if precision == "day":
+        if (ref.get("published_at") is not None or published_day > verified.astimezone(JST).date()
+                or (not deferred and (route != "date_only" or published_day not in (previous_day, edition_day)))
+                or (deferred and not previous_day - timedelta(days=1) <= published_day <= previous_day)):
+            return None
+    elif precision == "second":
+        if (stamp is None or stamp.astimezone(JST).date() != published_day
+                or stamp > verified or stamp.timestamp() > window["cutoff_at"]):
+            return None
+        if deferred:
+            if not window["window_start"] - 86400 <= stamp.timestamp() <= window["carryover_start"]:
+                return None
+        elif route == "main":
+            if not window["window_start"] <= stamp.timestamp() <= window["cutoff_at"]:
+                return None
+        elif route == "carryover":
+            if not window["carryover_start"] < stamp.timestamp() < window["window_start"]:
+                return None
+        else:
+            return None
+    else:
+        return None
+    result = {"source": source, "title": title, "url": url,
+              "published_at": stamp.timestamp() if stamp else None,
+              "published_date": published_day.isoformat(), "publication_precision": precision,
+              "body_sha256": digest, "body_verified_at": verified.timestamp(), "selection_route": route}
+    if deferred:
+        result.update(deferred_from=ref["deferred_from"], deferred_reason=ref["deferred_reason"])
+    return result
+
+
 def _validated_digest(value):
     """Validate authored Japanese copy and the original articles it summarizes."""
     if not isinstance(value, dict) or value.get("lang") != "ja":
@@ -246,6 +340,9 @@ def _validated_digest(value):
     if mode not in (None, "curated"):
         return None
     curated = mode == "curated"
+    window = _official_window(value.get("source_window"), edition) if "source_window" in value else None
+    if "source_window" in value and (window is None or not curated):
+        return None
     if (not isinstance(edition, str) or not isinstance(headline, str)
             or not 1 <= len(headline.strip()) <= 80 or not isinstance(summary, str)
             or not 200 <= len(summary.strip()) <= 300
@@ -257,17 +354,23 @@ def _validated_digest(value):
             return None
         source, title = ref.get("source"), ref.get("title")
         url, published = _safe_url(ref.get("url")), _publication_time(ref.get("published_at"))
-        if (source not in WEB_NEWS_SOURCES or not isinstance(title, str)
+        official = _official_ref(ref, window) if window else None
+        if window:
+            if official is None:
+                return None
+        elif (source not in WEB_NEWS_SOURCES or not isinstance(title, str)
                 or not title.strip() or len(title) > 1000 or not url or published is None
                 or published.astimezone(JST).date().isoformat() != edition):
             return None
-        identity = (source, url, published.timestamp(), title)
+        identity = (source, url, published.timestamp() if published else None, title)
         if identity in identities:
             return None
         identities.add(identity)
-        articles.append(dict(zip(("source", "url", "published_at", "title"), identity)))
+        articles.append(official or dict(zip(("source", "url", "published_at", "title"), identity)))
     result = {"edition_date": edition, "lang": "ja", "headline": headline.strip(),
               "summary": summary.strip(), "article_refs": articles}
+    if window:
+        result["source_window"] = window
     if "article_summaries" in value:
         details = value["article_summaries"]
         if not isinstance(details, list) or len(details) != len(articles):
@@ -281,15 +384,18 @@ def _validated_digest(value):
             published = _publication_time(detail.get("published_at"))
             heading, body = detail.get("headline"), detail.get("summary")
             if (not isinstance(source, str) or not isinstance(title, str)
-                    or not url or published is None or not isinstance(heading, str)
+                    or not url or (published is None and not window) or not isinstance(heading, str)
                     or not 1 <= len(heading.strip()) <= 80 or not isinstance(body, str)
                     or not 200 <= len(body.strip()) <= 300):
                 return None
-            identity = (source, url, published.timestamp(), title)
+            identity = (source, url, published.timestamp() if published else None, title)
             if identity not in identities or identity in covered:
                 return None
             covered.add(identity)
-            validated.append({**dict(zip(("source", "url", "published_at", "title"), identity)),
+            normalized = _official_ref(detail, window) if window else dict(zip(("source", "url", "published_at", "title"), identity))
+            if normalized is None or (window and normalized not in articles):
+                return None
+            validated.append({**normalized,
                               "headline": heading.strip(), "summary": body.strip()})
         # Equal lengths plus unique exact identities require complete coverage.
         result["article_summaries"] = validated
@@ -298,15 +404,19 @@ def _validated_digest(value):
         titles = {" ".join(unicodedata.normalize("NFKC", ref["title"]).casefold().split())
                   for ref in articles}
         if (reviewed is None or reviewed.astimezone(JST).date().isoformat() != edition
-                or reviewed.timestamp() < max(ref["published_at"] for ref in articles)
+                or reviewed.timestamp() < max(ref.get("body_verified_at", ref["published_at"]) for ref in articles)
+                or (window and reviewed.timestamp() < window["cutoff_at"])
                 or len({ref["url"] for ref in articles}) != len(articles)
                 or len(titles) != len(articles)):
             return None
         result.update(publication_mode="curated", reviewed_at=reviewed.timestamp())
+        if window and "publish_at" not in value:
+            return None
         if "publish_at" in value:
             release = _publication_time(value["publish_at"])
             if (release is None or release < reviewed
-                    or release.astimezone(JST).date().isoformat() != edition):
+                    or release.astimezone(JST).date().isoformat() != edition
+                    or (window and release.timestamp() < window["cutoff_at"] + 1800)):
                 return None
             result["publish_at"] = release.timestamp()
     return result
@@ -390,6 +500,10 @@ def _select_curated_digest(news, edition, now, reviewed_digests):
     for item in news:
         ref = by_url.get(_safe_url(item.get("url")))
         if ref is not None:
+            if digest.get("source_window"):
+                if (_official_ref(item, digest["source_window"]) != ref):
+                    return None, True
+                continue
             published = _publication_time(item.get("published_at"))
             if (item.get("source") != ref["source"] or item.get("title") != ref["title"]
                     or published is None or published.timestamp() != ref["published_at"]):
@@ -508,7 +622,7 @@ def select_daily_news(snapshot, now=None, *, reviewed_supplements=(), max_items=
         # combined retrieval timestamp or saving this as a fresh feed snapshot.
         result.update(delivery="published", fetched_at=None, stale=False,
                       edition_date=curated["edition_date"],
-                      news=[{**deepcopy(ref), "published_date": datetime.fromtimestamp(ref["published_at"], JST).date().isoformat()}
+                      news=[{**deepcopy(ref), "published_date": ref.get("published_date") or datetime.fromtimestamp(ref["published_at"], JST).date().isoformat()}
                             for ref in curated["article_refs"]],
                       digest=curated, selection_status="ready")
         if curated["edition_date"] != edition.isoformat():

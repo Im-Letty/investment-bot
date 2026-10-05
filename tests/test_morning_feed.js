@@ -1088,3 +1088,107 @@ test('a verified one-topic edition remains readable on quiet news days',async()=
   app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
   assert.ok(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
 });
+
+function officialMorning(app,precision='second'){
+  const data=curated(app),midnight=Date.parse(data.edition_date+'T00:00:00+09:00')/1000;
+  const ref={source:'財務省',url:'https://www.mof.go.jp/policy/example.html',title:'確認した公式発表',
+    published_date:new Date((midnight-86400+9*3600)*1000).toISOString().slice(0,10),
+    publication_precision:precision,published_at:precision==='day'?null:midnight-12*3600,
+    body_sha256:'a'.repeat(64),body_verified_at:midnight+7*3600,selection_route:precision==='day'?'date_only':'main'};
+  data.news=[ref];data.digest.article_refs=[{...ref}];
+  data.digest.source_window={version:1,edition_date:data.edition_date,window_start:midnight-16*3600,carryover_start:midnight-16.5*3600,cutoff_at:midnight+7.5*3600};
+  data.digest.publish_at=midnight+8*3600;data.digest.reviewed_at=midnight+7.75*3600;
+  data.digest.article_summaries=[{...ref,headline:'日本経済の発表を確認',summary:'内容を確認した個別の記事を説明する文章です。'.repeat(10)}];
+  return data;
+}
+
+test('official morning edition retains yesterday publication date and edited attribution on first visit and cache',async()=>{
+  for(const origin of ['api','embedded','saved']){
+    const app=harness(),data=officialMorning(app);
+    if(origin==='embedded')app.nodes.knInitialNews={textContent:JSON.stringify(data)};
+    if(origin==='saved')app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));
+    app.event('DOMContentLoaded');if(origin==='api')await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(html.includes(data.digest.summary));assert.match(html,/2026\/09\/12 掲載/);
+    assert.match(html,/datetime="2026-09-11T03:00:00.000Z"/);
+    assert.match(html,/財務省/);assert.match(html,/当サイトが要約・編集/);
+    assert.match(html,/日本経済の発表を確認/);
+    assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_date,'2026-09-11');
+  }
+});
+
+test('official date-only sources render only the real date without inventing midnight or epoch time',async()=>{
+  const app=harness(),data=officialMorning(app,'day');app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.summary));assert.match(html,/<time class="publication-date" datetime="2026-09-11">発表 2026\/9\/11<\/time>/);
+  assert.doesNotMatch(html,/1970|00:00|JST/);
+  assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_at,null);
+});
+
+test('official morning source evidence remains bound to the reviewed source and cutoff',async()=>{
+  for(const alter of [
+    d=>d.digest.source_window.window_start-=1,
+    d=>d.digest.source_window.extra=true,
+    d=>delete d.digest.publish_at,
+    d=>d.digest.publish_at=d.digest.source_window.cutoff_at+1799,
+    d=>d.digest.source_window.edition_date='2026-09-11',
+    d=>d.digest.source_window.edition_date='2026-99-99',
+    d=>d.digest.article_refs[0].body_sha256='b'.repeat(64),
+    d=>d.digest.article_summaries[0].body_verified_at-=1,
+    d=>d.digest.article_summaries[0].published_date='2026-09-12',
+    d=>d.news[0].body_verified_at=d.digest.source_window.cutoff_at+1,
+    d=>d.news[0].published_at=d.digest.source_window.cutoff_at+1,
+    d=>d.news[0].publication_precision='minute',
+    d=>d.news[0].url='https://www.mof.go.jp.evil.example/fake',
+    d=>d.news[0].deferred_from=null,
+    d=>d.news[0].published_date='2026-02-30',
+    d=>d.digest.reviewed_at=d.digest.source_window.cutoff_at-1,
+    d=>d.digest.reviewed_at-=86400,
+    d=>delete d.digest.source_window
+  ]){
+    const app=harness(),data=officialMorning(app);alter(data);app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+    assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
+  }
+});
+
+test('only explicitly marked carryover and one-edition deferral can extend the ordinary morning window',async()=>{
+  for(const [route,stamp,valid] of [['main',-16*3600,true],['main',-16.25*3600,false],['carryover',-16.25*3600,true],['carryover',-16.5*3600,false],['deferred',-16.5*3600,true],['deferred',-40*3600,true],['deferred',-40*3600-1,false]]){
+    const app=harness(),data=officialMorning(app),midnight=data.digest.source_window.cutoff_at-7.5*3600;
+    for(const item of [data.news[0],data.digest.article_refs[0],data.digest.article_summaries[0]]){
+      item.selection_route=route;item.published_at=midnight+stamp;item.published_date=new Date((item.published_at+9*3600)*1000).toISOString().slice(0,10);
+      if(route==='deferred'){item.deferred_from='2026-09-11';item.deferred_reason='review_failed';}
+    }
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    assert.equal(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),valid,route+' '+stamp);
+  }
+});
+
+test('an empty new day keeps the last official publication and its original dates',async()=>{
+  const app=harness(),data=officialMorning(app,'day');app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));app.advance(86400000);app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],app.news('ja',{news:[],selection_status:'empty_today'}));
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.ok(html.includes(data.digest.summary));assert.match(html,/2026\/09\/12 掲載/);assert.match(html,/datetime="2026-09-11"/);
+  assert.doesNotMatch(html,/2026\/09\/13 掲載/);
+});
+
+test('date-only deferral is explicit and cannot repeat beyond the next morning edition',async()=>{
+  for(const [date,from,valid] of [['2026-09-10','2026-09-11',true],['2026-09-11','2026-09-11',true],['2026-09-09','2026-09-11',false],['2026-09-10','2026-09-10',false]]){
+    const app=harness(),data=officialMorning(app,'day');
+    for(const item of [data.news[0],data.digest.article_refs[0],data.digest.article_summaries[0]])Object.assign(item,{published_date:date,selection_route:'deferred',deferred_from:from,deferred_reason:'late_verification'});
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    assert.equal(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),valid,date+' '+from);
+  }
+});
+
+test('late-verification deferral requires verification after the previous cutoff',async()=>{
+  for(const precision of ['second','day'])for(const [offset,valid] of [[-1,false],[0,false],[1,true]]){
+    const app=harness(),data=officialMorning(app,precision);
+    for(const item of [data.news[0],data.digest.article_refs[0],data.digest.article_summaries[0]])Object.assign(item,{
+      published_date:'2026-09-10',published_at:precision==='day'?null:Date.parse('2026-09-10T12:00:00+09:00')/1000,
+      body_verified_at:data.digest.source_window.carryover_start+offset,selection_route:'deferred',
+      deferred_from:'2026-09-11',deferred_reason:'late_verification'});
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    assert.equal(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),valid,precision+' '+offset);
+  }
+});

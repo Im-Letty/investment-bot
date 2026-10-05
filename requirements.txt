@@ -13,5 +13,6 @@ google-auth-oauthlib
 google-api-python-client
 cryptography
 xlrd
+pypdf==6.19.0
 
 webauthn==3.0.0

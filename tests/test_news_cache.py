@@ -779,7 +779,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'file-routes', 'exec'),
              dict(app=app, request=request, send_file=send_file, re=re, os=os,
                   initial_market_payload=lambda: {'market': {}},
-                  news_index_response=news_index_response, news_cache=cache))
+                  news_index_response=news_index_response, website_news=cache))
         client = app.test_client()
         first = client.get('/')
         try:
@@ -814,12 +814,13 @@ class RouteCompatibilityTests(unittest.TestCase):
                     'source_status': {'NHK経済': 'ok'}, 'source_stale': {'NHK経済': True},
                     'source_refreshing': {'NHK経済': True}}
         cache = Mock(); cache.snapshot.return_value = snapshot
+        website = Mock(); website.snapshot.return_value = snapshot
         translator = Mock(); translator.snapshot.side_effect = lambda items, lang: (items, False)
         approvals = [{'url': raw_items[1]['url'], 'reason': 'Reviewed economic relevance'}]
         reviewed_digest = digest_for(raw_items[:1])
         context = dict(app=app, request=request, jsonify=jsonify, datetime=datetime,
                        news_cache=cache, news_translations=translator, NEWS_FEEDS=NEWS_FEEDS,
-                       WEB_NEWS_SOURCES=WEB_NEWS_SOURCES,
+                       website_news=website, PUBLISHED_NEWS_SOURCES=WEB_NEWS_SOURCES,
                        load_reviewed_supplements=lambda: approvals,
                        load_reviewed_digests=lambda: [reviewed_digest],
                        select_daily_news=lambda data, **kwargs: select_daily_news(data, now=now, **kwargs))
@@ -840,7 +841,8 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertEqual([item['title'] for item in data['news']], ['見出し'])
         self.assertEqual([item['title'] for item in data['supplements']], ['Earlier 0'])
         self.assertEqual(data['selection_counts']['received'], 8)
-        cache.snapshot.assert_called_once_with(wait=False)
+        cache.snapshot.assert_not_called()
+        website.snapshot.assert_called_once_with(wait=False)
         translator.snapshot.assert_called_once_with(data['news'] + data['supplements'], 'ja')
         # The authored Japanese digest and its original references are never sent
         # through the headline translator, including on an English response.
@@ -856,7 +858,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         self.assertTrue(all('summary' not in item for item in translated_items))
         # A successful feed that contains no current articles is a valid empty
         # edition; the route must not translate or return the earlier stories.
-        cache.snapshot.return_value = {**snapshot, 'news': raw_items[2:],
+        website.snapshot.return_value = {**snapshot, 'news': raw_items[2:],
                                        'source_refreshing': {'NHK経済': False}}
         translator.snapshot.reset_mock()
         empty = app.test_client().get('/api/morning-news').get_json()

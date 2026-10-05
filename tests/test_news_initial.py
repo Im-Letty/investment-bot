@@ -48,6 +48,25 @@ def live(items=None, **fields):
             'source_stale': {'NHK経済': False}, 'refreshing': False, **fields}
 
 
+
+def official_review(precision='second'):
+    ref = {'source': '財務省', 'url': 'https://www.mof.go.jp/policy/example.html',
+           'title': '確認した公的発表', 'published_date': '2026-09-21',
+           'published_at': None if precision == 'day' else timestamp('2026-09-21T12:00:00+09:00'),
+           'publication_precision': precision, 'body_sha256': 'a' * 64,
+           'body_verified_at': timestamp('2026-09-22T07:00:00+09:00'),
+           'selection_route': 'date_only' if precision == 'day' else 'main'}
+    return review([ref], publication_mode='curated',
+                  reviewed_at=timestamp('2026-09-22T07:45:00+09:00'),
+                  publish_at=timestamp('2026-09-22T08:00:00+09:00'),
+                  source_window={'version': 1, 'edition_date': '2026-09-22',
+                                 'window_start': timestamp('2026-09-21T08:00:00+09:00'),
+                                 'carryover_start': timestamp('2026-09-21T07:30:00+09:00'),
+                                 'cutoff_at': timestamp('2026-09-22T07:30:00+09:00')},
+                  article_summaries=[{**ref, 'headline': '読みやすい個別の見出し',
+                                      'summary': '公的な発表の内容を確認して説明する文章です。' * 10}])
+
+
 class ParsedInitial(HTMLParser):
     def __init__(self, html):
         super().__init__()
@@ -75,6 +94,38 @@ class ParsedInitial(HTMLParser):
 
 
 class InitialSelectionTests(unittest.TestCase):
+    def test_official_edition_renders_source_date_separately_from_edition_without_invented_time(self):
+        for precision in ('second', 'day'):
+            authored = official_review(precision)
+            data = {'delivery': 'published', 'edition_date': authored['edition_date'],
+                    'news': deepcopy(authored['article_refs']), 'supplements': [], 'digest': authored}
+            html = render_initial_html(NEWS_PLACEHOLDER, data)
+            self.assertIn('2026/09/22 掲載', html)
+            self.assertIn('当サイトが要約・編集', html)
+            self.assertIn('財務省', html)
+            self.assertIn('読みやすい個別の見出し', html)
+            if precision == 'day':
+                self.assertIn('datetime="2026-09-21">発表 2026/9/21</time>', html)
+                self.assertNotIn('JST', html)
+                self.assertNotIn('1970', html)
+                self.assertIsNone(json.loads(ParsedInitial(html).json)['news'][0]['published_at'])
+            else:
+                self.assertIn('datetime="2026-09-21T03:00:00.000Z"', html)
+                self.assertIn('発表 2026/9/21 12:00 JST', html)
+            self.assertEqual(json.loads(ParsedInitial(html).json)['news'][0]['published_date'], '2026-09-21')
+
+    def test_official_morning_edition_keeps_prior_source_day_on_cold_start(self):
+        for precision in ('second', 'day'):
+            authored = official_review(precision)
+            data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
+            self.assertIsNotNone(data)
+            self.assertEqual(data['delivery'], 'published')
+            self.assertEqual(data['edition_date'], '2026-09-22')
+            self.assertEqual(data['news'][0]['published_date'], '2026-09-21')
+            self.assertEqual(data['news'][0]['published_at'], authored['article_refs'][0]['published_at'])
+            self.assertIsNone(data['fetched_at'])
+            self.assertEqual(data['digest']['source_window'], authored['source_window'])
+
     def test_market_values_arrive_in_first_html_with_original_time_and_safe_json(self):
         quote = {'price': 42000, 'pct': 1, 'change_value': 420,
                  'currency': 'JPY', 'change_unit': 'currency',
@@ -325,7 +376,7 @@ class InitialResponseTests(unittest.TestCase):
         tree = ast.parse((ROOT / 'line_bot.py').read_text(encoding='utf-8'))
         node = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'index')
         app = Flask('real-index-wrapper', root_path=str(ROOT))
-        context = {'app': app, 'os': os, 'request': request, 'news_cache': self.cache,
+        context = {'app': app, 'os': os, 'request': request, 'website_news': self.cache,
                    'initial_market_payload': lambda: {'market': {}},
                    'news_index_response': lambda path, cache, req, **kwargs: news_index_response(path, cache, req, now=NOW, **kwargs)}
         exec(compile(ast.Module(body=[node], type_ignores=[]), 'index-wrapper', 'exec'), context)

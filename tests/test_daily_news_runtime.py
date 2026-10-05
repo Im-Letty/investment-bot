@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from daily_news_runtime import (DailyNewsRuntime, StorageUnavailable, SupabaseNewsStorage,
-                                ATTEMPT_INTERVAL, MAX_ATTEMPTS, start)
+                                ATTEMPT_INTERVAL, PENDING_ATTEMPT_SECONDS, MAX_ATTEMPTS, start)
 from news_cache import JST, load_reviewed_digests, select_daily_news
 
 
@@ -107,6 +107,133 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(after["edition_date"], "2026-09-24")
         self.generator.assert_called_once()
 
+    def test_preparer_collects_without_paid_attempt_until_cutoff(self):
+        from morning_news_window import MorningNewsPreparer
+        from hashlib import sha256
+        body = "取得して検証した原文" * 30
+        def collect(now, **kwargs):
+            kwargs["diagnostics"].update({"財務省": {"feed_status": "ok", "status": "collected"}})
+            return [{"source": "財務省", "title": "公式発表", "url": "https://www.mof.go.jp/test",
+                     "body": body, "body_sha256": sha256(body.encode()).hexdigest(),
+                     "published_at": at("2026-09-23", 12, 0), "published_date": "2026-09-23",
+                     "publication_precision": "second", "body_verified_at": self.now}]
+        collector = Mock(side_effect=collect)
+        preparer = MorningNewsPreparer(self.storage, collector, clock=lambda: self.now)
+        self.generator.side_effect = None
+        self.generator.return_value = issue()
+        self.now = at(hour=7, minute=0)
+        runtime = self.runtime(source_preparer=preparer)
+        self.assertEqual(runtime.run_once()["status"], "collecting")
+        self.generator.assert_not_called()
+        self.assertFalse(any("attempt-" in key for key in self.storage.values))
+        self.now = at(hour=7, minute=30)
+        self.assertEqual(runtime.run_once()["status"], "prepared")
+        self.assertEqual(collector.call_count, 1)
+        self.assertEqual(self.generator.call_args.kwargs["articles"][0]["published_date"], "2026-09-23")
+        self.assertEqual(self.generator.call_args.kwargs["source_window"]["cutoff_at"], self.now)
+        self.now = at(hour=8, minute=0)
+        self.assertEqual(runtime.run_once()["status"], "ready")
+        self.generator.assert_called_once()
+
+    def test_prepared_manifest_is_unchanged_through_paid_failure_and_restart(self):
+        from morning_news_window import morning_window
+        manifest = {**morning_window(at()), "articles": [{"body": "固定原文"}], "source_status": {}}
+        prepare = Mock()
+        prepare.prepare.side_effect = lambda *args: deepcopy(manifest)
+        self.generator.side_effect = ValueError("editorial_review_failed_facts")
+        first = self.runtime(source_preparer=prepare)
+        self.assertEqual(first.run_once()["status"], "generation_failed")
+        sent = deepcopy(self.generator.call_args.kwargs)
+        self.now += ATTEMPT_INTERVAL
+        second = self.runtime(source_preparer=prepare)
+        self.assertEqual(second.run_once()["status"], "generation_failed")
+        self.assertEqual(self.generator.call_count, 2)
+        self.assertEqual(self.generator.call_args.kwargs, sent)
+        self.assertEqual(manifest["articles"], [{"body": "固定原文"}])
+
+    def test_empty_sources_and_collection_failure_are_distinct_without_ai(self):
+        from morning_news_window import morning_window
+        for source_status, expected in (({"feed_status": "ok", "status": "no_matching_candidates"}, "source_empty"),
+                                        ({"feed_status": "failed", "status": "feed_failed"}, "source_unavailable")):
+            with self.subTest(expected=expected):
+                prepare = Mock()
+                prepare.prepare.return_value = {**morning_window(self.now), "articles": [],
+                                                 "source_status": {"財務省": source_status}}
+                runtime = self.runtime(source_preparer=prepare)
+                self.assertEqual(runtime.run_once()["status"], expected)
+                self.generator.assert_not_called()
+                self.assertFalse(any("attempt-" in key for key in self.storage.values))
+
+    def test_expired_final_collection_cannot_become_successful_empty_day(self):
+        from morning_news_window import MorningNewsPreparer
+        def empty(now, **kwargs):
+            kwargs["diagnostics"].update({"財務省": {"feed_status": "ok", "status": "no_matching_candidates"}})
+            return []
+        collector = Mock(side_effect=empty)
+        preparer = MorningNewsPreparer(self.storage, collector, clock=lambda: self.now)
+        self.now = at(hour=7, minute=25)
+        preparer.prepare(self.now)
+        self.storage.create("days/2026-09-24/preparation/slot-6.lock", {
+            "version": 1, "edition_date": "2026-09-24", "slot": 6, "started_at": at(hour=7, minute=29)})
+        self.now = at(hour=7, minute=31)
+        runtime = self.runtime(source_preparer=preparer)
+        self.assertEqual(runtime.run_once()["status"], "source_unavailable")
+        self.generator.assert_not_called()
+        self.assertEqual(collector.call_count, 1)
+        self.assertFalse(any("attempt-" in key for key in self.storage.values))
+
+    def test_correction_exclusion_cannot_become_successful_empty_day(self):
+        from hashlib import sha256
+        from morning_news_window import MorningNewsPreparer
+        def changed(now, **kwargs):
+            kwargs["diagnostics"].update({"財務省": {"feed_status": "ok", "status": "collected"}})
+            body = str(self.now) + "確認した原文" * 30
+            return [{"source": "財務省", "title": "公式発表", "url": "https://www.mof.go.jp/test",
+                     "body": body, "body_sha256": sha256(body.encode()).hexdigest(),
+                     "published_at": at("2026-09-23", 12, 0), "published_date": "2026-09-23",
+                     "publication_precision": "second", "body_verified_at": self.now}]
+        collector = Mock(side_effect=changed)
+        preparer = MorningNewsPreparer(self.storage, collector, clock=lambda: self.now)
+        self.now = at(hour=7, minute=0)
+        preparer.prepare(self.now)
+        self.now = at(hour=7, minute=5)
+        preparer.prepare(self.now)
+        self.now = at(hour=7, minute=30)
+        runtime = self.runtime(source_preparer=preparer)
+        self.assertEqual(runtime.run_once()["status"], "source_unavailable")
+        self.generator.assert_not_called()
+        self.assertEqual(collector.call_count, 2)
+        self.assertFalse(any("attempt-" in key for key in self.storage.values))
+
+    def test_durable_history_includes_older_days_but_not_unpublished_issue(self):
+        for day in ("2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23"):
+            self.storage.values[f"days/{day}/edition.json"] = issue(day)
+        runtime = self.runtime()
+        runtime._issues = [issue()]
+        history = runtime._published_history(self.now)
+        self.assertEqual({row["edition_date"] for row in history}, {"2026-09-20", "2026-09-21", "2026-09-22", "2026-09-23"})
+
+    def test_late_prepared_edition_does_not_backdate_release(self):
+        self.now = at(hour=9, minute=12)
+        runtime = self.runtime()
+        self.assertEqual(runtime.run_once()["status"], "ready")
+        self.assertEqual(runtime.reviewed_digests()[0]["publish_at"], self.now)
+
+    def test_preparer_factory_uses_resolved_storage_without_starting_work(self):
+        factory = Mock(return_value=Mock())
+        runtime = start(storage=self.storage, generator=self.generator, enabled=True,
+                        source_preparer_factory=factory, autostart=False,
+                        baseline_path=self.baseline, cache_path=self.cache)
+        factory.assert_called_once_with(self.storage)
+        self.assertIs(runtime.source_preparer, factory.return_value)
+        factory.return_value.prepare.assert_not_called()
+        self.assertEqual(self.storage.private_checks, 0)
+        self.generator.assert_not_called()
+        factory.reset_mock()
+        start(url=None, key=None, source_preparer_factory=factory, autostart=False,
+              baseline_path=self.baseline, cache_path=self.cache)
+        factory.assert_not_called()
+
     def test_generation_window_includes_0700_and_excludes_2200(self):
         for hour, minute, allowed in ((0, 0, False), (6, 59, False), (7, 0, True), (7, 44, True),
                                        (21, 59, True), (22, 0, False), (23, 59, False)):
@@ -152,6 +279,98 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(state["attempt_count"], 1)
         self.assertEqual(self.generator.call_count, 4)
         self.assertIn("days/2026-09-25/attempt-1.lock", self.storage.values)
+
+    def test_failed_attempts_keep_two_attempts_for_eight_or_later_across_restarts(self):
+        self.generator.side_effect = ValueError("no_verified_articles")
+        self.now = at(hour=7, minute=0)
+        for minute in range(60):
+            self.now = at(hour=7, minute=minute)
+            self.runtime().run_once()
+        self.assertEqual([call.args[0] for call in self.generator.call_args_list],
+                         [at(hour=7, minute=minute) for minute in (0, 15, 30, 45)])
+        self.now = at(hour=8, minute=0)
+        self.assertEqual(self.runtime().run_once()["status"], "generation_failed")
+        self.assertEqual(self.generator.call_count, 5)
+        self.now = at(hour=8, minute=15)
+        self.runtime().run_once()
+        self.now = at(hour=8, minute=30)
+        self.assertEqual(self.runtime().run_once()["status"], "daily_limit")
+        self.assertEqual(self.generator.call_count, 6)
+
+    def test_pending_attempt_blocks_other_worker_until_recovery_lease(self):
+        self.now = at(hour=7, minute=0)
+        entered, release = Event(), Event()
+        def blocked(now):
+            entered.set()
+            release.wait(3)
+            return issue(reviewed=at(hour=7, minute=0))
+        first = self.runtime(generator=blocked)
+        thread = Thread(target=first.run_once)
+        thread.start()
+        try:
+            self.assertTrue(entered.wait(2))
+            original = deepcopy(self.storage.values["days/2026-09-24/attempt-1.lock"])
+            for elapsed in (5 * 60, 15 * 60, PENDING_ATTEMPT_SECONDS - 1):
+                self.now = at(hour=7, minute=0) + elapsed
+                self.assertEqual(self.runtime().run_once()["status"], "waiting")
+            self.generator.assert_not_called()
+            self.assertEqual(self.storage.values["days/2026-09-24/attempt-1.lock"], original)
+        finally:
+            release.set()
+            thread.join(3)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(first.snapshot()["status"], "prepared")
+
+    def test_expired_claim_recovers_but_late_original_worker_cannot_publish(self):
+        self.now = at(hour=7, minute=0)
+        entered, release = Event(), Event()
+        def blocked(now):
+            entered.set()
+            release.wait(3)
+            return {**issue(reviewed=now), "headline": "期限切れの古い原稿"}
+        first = self.runtime(generator=blocked)
+        thread = Thread(target=first.run_once)
+        thread.start()
+        try:
+            self.assertTrue(entered.wait(2))
+            self.now += PENDING_ATTEMPT_SECONDS
+            self.generator.side_effect = lambda now: {**issue(reviewed=now), "headline": "回復した原稿"}
+            self.assertEqual(self.runtime().run_once()["status"], "prepared")
+            self.generator.assert_called_once()
+        finally:
+            release.set()
+            thread.join(3)
+        self.assertFalse(thread.is_alive())
+        self.assertEqual(first.snapshot()["last_error"], "generation_deadline")
+        self.assertEqual(self.storage.read("days/2026-09-24/edition.json")["headline"], "回復した原稿")
+        self.assertEqual(load_reviewed_digests(self.cache)[0]["headline"], "回復した原稿")
+        self.assertEqual(len([key for key in self.storage.values if key.endswith(".lock")]), 2)
+
+    def test_unmatched_failure_record_does_not_shorten_pending_lease(self):
+        started = at(hour=7, minute=0)
+        claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1, "started_at": started}
+        self.storage.values["days/2026-09-24/attempt-1.lock"] = claim
+        self.storage.values["days/2026-09-24/attempt-1.result.json"] = {
+            **claim, "started_at": started - 1, "status": "generation_failed"}
+        self.now = started + ATTEMPT_INTERVAL
+        self.assertEqual(self.runtime().run_once()["status"], "waiting")
+        self.generator.assert_not_called()
+        self.now = started + PENDING_ATTEMPT_SECONDS
+        self.runtime().run_once()
+        self.generator.assert_called_once()
+
+    def test_publication_gate_opens_at_eight_without_worker_tick_or_paid_call(self):
+        self.write(self.baseline, [issue("2026-09-23")])
+        self.now = at(hour=7, minute=59, second=50)
+        runtime = self.runtime()
+        self.assertEqual(runtime.run_once()["status"], "prepared")
+        for second, edition in ((-1, "2026-09-23"), (0, "2026-09-24"), (1, "2026-09-24")):
+            self.now = at(hour=8, minute=0) + second
+            selected = select_daily_news({"news": []}, self.now,
+                                         reviewed_digests=runtime.reviewed_digests())
+            self.assertEqual(selected["edition_date"], edition)
+        self.assertEqual(runtime.snapshot()["status"], "prepared")
+        self.generator.assert_called_once()
 
     def test_disabled_generation_still_restores_durable_editions(self):
         self.storage.values["days/2026-09-23/edition.json"] = issue("2026-09-23")

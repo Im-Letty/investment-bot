@@ -1,9 +1,10 @@
 name: Daily website news
 on:
   schedule:
-    # Wake at 06:47 Japan time, ahead of 07:00 preparation / 08:00 release.
-    # Later schedules also recover from delayed or missed scheduled runs.
-    - cron: '47 21 * * *'
+    # Wake from 04:47 JST to absorb observed scheduler delays. This only wakes
+    # the host; the server still collects at 07:00 and releases at 08:00.
+    # Standard Ubuntu runners are free for this public repository.
+    - cron: '47 19,20,21 * * *'
     - cron: '17,47 22 * * *'
     - cron: '17 23,0 * * *'
   workflow_dispatch:
@@ -15,7 +16,7 @@ concurrency:
 jobs:
   prepare-and-check:
     runs-on: ubuntu-latest
-    timeout-minutes: 105
+    timeout-minutes: 245
     steps:
       - uses: actions/checkout@v4
       - name: Keep the website awake and verify the morning edition
