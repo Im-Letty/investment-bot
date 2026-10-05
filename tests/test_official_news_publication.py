@@ -2,6 +2,7 @@
 from copy import deepcopy
 from datetime import datetime
 from hashlib import sha256
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
@@ -118,6 +119,85 @@ class PublicationTests(unittest.TestCase):
 
 
 class MorningFlowTests(unittest.TestCase):
+    def test_verified_supporting_pdf_stays_in_frozen_evidence_and_out_of_public_output(self):
+        now = [stamp(hour=7)]
+        record = source()
+        html_body = record['body']
+        pdf_body = ('VERIFIED_PDF_ORIGINAL_ONLY: This fixture represents the complete signed document.\n'
+                    'The parties signed this example document on 2 October 2026.\n')
+        combined = html_body + '\n\n【確認済み添付PDF本文】\n' + pdf_body
+        supporting = [{'url': 'https://www.mof.go.jp/policy/international_policy/convention/dialogue/test-mou.pdf',
+                       'parent_url': record['url'], 'title': '確認済み覚書（英語・試験用）',
+                       'body_sha256': sha256(pdf_body.encode()).hexdigest(),
+                       'document_date': '2026-10-02', 'document_date_kind': 'signed'}]
+        record.update(body=combined, body_sha256=sha256(combined.encode()).hexdigest(),
+                      supporting_documents=supporting,
+                      source_scope='official_html_with_verified_supporting_pdf')
+        collected = []
+        def collect(started, **options):
+            collected.append(started)
+            options['diagnostics'].update({name: {'feed_status': 'ok', 'status': 'collected'}
+                                           for name in ('総務省統計局', '財務省')})
+            return [{**deepcopy(record), 'body_verified_at': now[0]}]
+        storage = MemoryStorage()
+        preparer = MorningNewsPreparer(storage, collect, clock=lambda: now[0])
+        provider = Mock()
+        provider.claude.return_value = {'headline': '経済の新しい発表', 'summary': '要' * 230,
+            'articles': [{'index': 0, 'headline': '発表のポイント', 'summary': '詳' * 250}]}
+        approval = {'approved': True, 'checks': {key: True for key in CHECKS}, 'issues': []}
+        provider.gemini.return_value = approval
+        provider.openai.return_value = approval
+        with patch('requests.sessions.Session.request', side_effect=AssertionError('network disabled')):
+            for minute in (0, 5, 10, 15, 20, 25, 29):
+                now[0] = stamp(hour=7, minute=minute)
+                self.assertIsNone(preparer.prepare(now[0]))
+            now[0] = stamp(hour=7, minute=30)
+            frozen = preparer.prepare(now[0])
+            self.assertEqual(frozen['articles'][0]['body'], combined)
+            self.assertEqual(frozen['articles'][0]['supporting_documents'], supporting)
+            self.assertEqual(frozen['articles'][0]['source_scope'], record['source_scope'])
+            before = deepcopy(frozen)
+            # Neither a caller mutation nor a collector's later mutable fixture
+            # may change the immutable evidence used by the morning edition.
+            returned = preparer.prepare(now[0])
+            returned['articles'][0]['supporting_documents'][0]['document_date'] = '2050-01-01'
+            record['body'] = 'changed after the preparation cutoff'
+            self.assertEqual(preparer.prepare(now[0]), before)
+            self.assertEqual(len(collected), 7)
+            window = {name: frozen[name] for name in morning_window(now[0])}
+            issue = generate_edition(now[0], articles=frozen['articles'], source_window=window,
+                                     providers=provider, clock=lambda: now[0])
+            self.assertEqual(frozen, before)
+            expected_input = [{**before['articles'][0], 'index': 0}]
+            self.assertEqual(provider.claude.call_args.args[1]['articles'], expected_input)
+            for reviewer in (provider.gemini, provider.openai):
+                reviewer.assert_called_once()
+                submitted = reviewer.call_args.args[1]['original_articles']
+                self.assertEqual(submitted, expected_input)
+                self.assertEqual(submitted[0]['supporting_documents'][0]['document_date'], '2026-10-02')
+                self.assertEqual(submitted[0]['published_date'], '2026-10-05')
+            self.assertEqual(provider.gemini.call_args.args[1], provider.openai.call_args.args[1])
+            now[0] = stamp()
+            visible = initial_news(website_news.snapshot(), now=now[0], reviewed_digests=[issue])
+            html = render_news_markup(visible)
+            self.assertEqual(current_delivery(visible, datetime.fromtimestamp(now[0], JST)), 'published')
+        for ref in issue['article_refs'] + issue['article_summaries']:
+            self.assertEqual(ref['published_date'], '2026-10-05')
+            self.assertEqual(ref['published_at'], stamp('2026-10-05', 12))
+            self.assertEqual(ref['body_sha256'], sha256(combined.encode()).hexdigest())
+            self.assertNotIn('body', ref)
+            self.assertNotIn('supporting_documents', ref)
+        self.assertEqual(visible['news'][0]['published_date'], '2026-10-05')
+        self.assertIn('発表 2026/10/5', html)
+        self.assertNotIn('発表 2026/10/2', html)
+        for public in (json.dumps(issue, ensure_ascii=False), json.dumps(visible, ensure_ascii=False), html):
+            self.assertNotIn('supporting_documents', public)
+            self.assertNotIn('official_html_with_verified_supporting_pdf', public)
+            self.assertNotIn('VERIFIED_PDF_ORIGINAL_ONLY', public)
+            self.assertNotIn(html_body, public)
+            self.assertNotIn(supporting[0]['url'], public)
+            self.assertNotIn(supporting[0]['body_sha256'], public)
+
     def test_collection_generation_reviews_persistence_gate_html_and_checker(self):
         now = [stamp(hour=6, minute=47)]
         calls = []

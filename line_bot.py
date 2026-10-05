@@ -48,7 +48,7 @@ except Exception as _e_google:
 
 app = Flask(__name__)
 APP_START_TIME = datetime.now()
-APP_VERSION = "v45-official-morning-news"
+APP_VERSION = "v46-isolated-morning-news"
 
 # === anthropic グローバルクライアント（メモリ節約: 毎回 new せず使い回す）===
 _anthropic_client = None
@@ -69,12 +69,13 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Website news is isolated from all LINE message/report handlers. Preparation
 # runs off-request; only validated, durably stored editions become visible.
-from daily_news_producer import configuration as news_configuration, generate_edition
+from daily_news_producer import configuration as news_configuration
+from website_news_producer import generate_website_edition, configuration_metadata
 from daily_news_runtime import start as start_daily_news
 from website_news import website_news, create_source_preparer
 _news_config = news_configuration()
 _daily_news = start_daily_news(
-    supabase, generate_edition, autostart=False,
+    supabase, generate_website_edition, autostart=False,
     enabled=_news_config["enabled"] and _news_config["configured"],
     baseline_path=os.path.join(os.path.dirname(__file__), "news-digests.json"),
     cache_path=os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"),
@@ -2296,13 +2297,18 @@ def api_morning_news():
 
 @app.route("/api/news-publication")
 def api_news_publication():
-    """Read-only operational status. No caller-provided dates, prompts or force flag."""
+    """Operational snapshot; request hooks intentionally wake background workers.
+
+    No caller-provided dates, prompts or force flag. Use the hosting dashboard
+    for inspection that must not wake this application's generation process.
+    """
     status = _daily_news.snapshot()
     status.update(configured=_news_config["configured"],
                   missing=_news_config["missing"],
                   schedule="08:00 Asia/Tokyo", preparation="07:00 Asia/Tokyo",
                   source_cutoff="07:30 Asia/Tokyo", source_mode="official",
-                  sources=list(OFFICIAL_NEWS_SOURCES))
+                  sources=list(OFFICIAL_NEWS_SOURCES),
+                  **configuration_metadata())
     response = jsonify(status)
     response.headers["Cache-Control"] = "no-store"
     return response

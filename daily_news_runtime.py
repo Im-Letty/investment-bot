@@ -33,7 +33,16 @@ GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
                               "openai_incomplete", "openai_refused", "openai_invalid_response",
                               "openai_not_configured",
-                              "future_article", "invalid_edition", "no_verified_articles",
+                              "future_article", "invalid_edition", "invalid_edition_date",
+                              "invalid_edition_repeated_summary", "no_verified_articles",
+                              "isolated_article_schema", "isolated_article_length",
+                              "isolated_article_paragraphs", "isolated_article_evidence",
+                              "isolated_article_readability", "isolated_overview_readability",
+                              "isolated_overview_schema", "isolated_overview_selection",
+                              "isolated_overview_length", "isolated_overview_repeated",
+                              "isolated_editorial_review_failed",
+                              "isolated_budget_required",
+                              "generation_call_limit", "generation_budget_required",
                               "edition_day_changed", "editorial_review_failed", "generation_failed",
                               "generation_deadline", "invalid_source_window", "invalid_official_article"))
 

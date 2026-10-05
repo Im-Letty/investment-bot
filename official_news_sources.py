@@ -29,6 +29,24 @@ FEEDS = {
     "日本銀行": "https://www.boj.or.jp/rss/whatsnew.xml",
 }
 HOSTS = {"www.stat.go.jp": "総務省統計局", "www.mof.go.jp": "財務省", "www.boj.or.jp": "日本銀行"}
+# Individually inspected parent/attachment pairs, not a general PDF crawler.
+# The parent supplies publication metadata; the PDF's signing date is separate.
+MOF_SUPPORTING_PDFS = {
+    "/policy/international_policy/convention/dialogue/20260925182123.html": {
+        "path": "/policy/international_policy/convention/dialogue/JointStrategicFinancingMemorandumofCooperation.pdf",
+        "title": "Japan-Australia Joint Strategic Financing Memorandum of Cooperation",
+        "document_date": "2026-10-02",
+        "signature": "Signed in duplicate at the Australian Embassy, Tokyo on 2 October 2026.",
+        "allow_empty_password_pdf": True,
+    },
+    "/policy/international_policy/convention/dialogue/20260925182036.html": {
+        "path": "/policy/international_policy/convention/dialogue/JP_MoU.pdf",
+        "title": "日本財務省と豪州財務省が代表する豪州政府との間の日豪財務大臣対話に関する協力覚書",
+        "document_date": "2026-10-05",
+        "signature": "本覚書は、2026年10月5日に東京において、英語により2通作成された。",
+        "allow_empty_password_pdf": True,
+    },
+}
 MAX_BYTES = 2_000_000
 MAX_BODY_CHARS = 30_000
 # Official statistical points can be shorter than a newspaper article (the
@@ -70,7 +88,7 @@ def _article_path(host, path):
                 or re.fullmatch(r"/policy/exchequer/reference/receipts_payments/[A-Za-z0-9_-]*gaiyo\.html?", path))
 
 
-def _safe_url(value, *, base=None):
+def _safe_url(value, *, base=None, allow_supporting_pdf=False):
     if not isinstance(value, str) or not value or len(value) > 2048:
         return None
     if any(ord(c) < 33 or ord(c) == 127 for c in value) or "\\" in value:
@@ -88,17 +106,25 @@ def _safe_url(value, *, base=None):
                 or parsed.port not in (None, 443) or parsed.query):
             return None
         normalized = urlunsplit(("https", host, parsed.path, "", ""))
-        return normalized if normalized in FEEDS.values() or _article_path(host, parsed.path) else None
+        supporting_pdf = (allow_supporting_pdf and host == "www.mof.go.jp" and
+                          any(parsed.path == item["path"] for item in MOF_SUPPORTING_PDFS.values()))
+        return normalized if normalized in FEEDS.values() or _article_path(host, parsed.path) or supporting_pdf else None
     except (ValueError, UnicodeError):
         return None
 
 
-def _download(url, deadline):
+def _download(url, deadline, *, max_bytes=None, supporting_pdf=False):
     """Pinned-IP HTTPS; redirects stay on the same explicitly approved host."""
-    current = _safe_url(url)
+    current = _safe_url(url, allow_supporting_pdf=supporting_pdf)
     if not current:
         raise ValueError("unapproved_source")
     host = urlsplit(current).hostname
+    supporting_url = current if supporting_pdf and host == "www.mof.go.jp" and current.endswith(".pdf") else None
+    if supporting_pdf and supporting_url is None:
+        raise ValueError("unapproved_source")
+    maximum = MAX_BYTES if max_bytes is None else min(MAX_BYTES, max_bytes)
+    if type(maximum) is not int or maximum <= 0:
+        raise ValueError("source_size_limit")
     limit, seen = min(deadline, time.monotonic() + REQUEST_SECONDS), set()
     for hop in range(MAX_REDIRECTS + 1):
         if current in seen or time.monotonic() >= limit:
@@ -117,27 +143,29 @@ def _download(url, deadline):
                                       "Accept": "text/html,application/xml,application/rss+xml,application/rdf+xml,application/pdf",
                                       "Accept-Encoding": "identity", "Host": host}) as response:
                 if response.status_code in (301, 302, 303, 307, 308):
-                    redirect = _safe_url(response.headers.get("Location", ""), base=current)
-                    if hop == MAX_REDIRECTS or not redirect or urlsplit(redirect).hostname != host:
+                    redirect = _safe_url(response.headers.get("Location", ""), base=current,
+                                         allow_supporting_pdf=supporting_pdf)
+                    if (hop == MAX_REDIRECTS or not redirect or urlsplit(redirect).hostname != host
+                            or (supporting_url is not None and redirect != supporting_url)):
                         raise ValueError("unapproved_redirect")
                     current = redirect
                     continue
                 if response.status_code != 200:
                     raise ValueError("source_unavailable")
                 mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
-                is_pdf = host == "www.boj.or.jp" and urlsplit(current).path.endswith(".pdf")
+                is_pdf = (host == "www.boj.or.jp" and urlsplit(current).path.endswith(".pdf")) or supporting_url is not None
                 expected = {"application/pdf"} if is_pdf else {
                     "text/html", "application/xhtml+xml", "application/xml", "text/xml",
                     "application/rss+xml", "application/rdf+xml", "application/atom+xml"}
                 if mime not in expected:
                     raise ValueError("source_content_type")
                 length = response.headers.get("Content-Length")
-                if length is not None and (not length.isdecimal() or int(length) > MAX_BYTES):
+                if length is not None and (not length.isdecimal() or int(length) > maximum):
                     raise ValueError("source_size_limit")
                 content = bytearray()
                 while True:
                     chunk = response.raw.read1(4096, decode_content=True)
-                    if time.monotonic() >= limit or len(content) + len(chunk) > MAX_BYTES:
+                    if time.monotonic() >= limit or len(content) + len(chunk) > maximum:
                         raise ValueError("source_size_or_time_limit")
                     if not chunk:
                         return bytes(content), current
@@ -330,14 +358,28 @@ def extract():
         from pypdf import PdfReader
     except ImportError:
         return {"error": "pdf_parser_unavailable"}
-    maximum, pages_limit, chars_limit = map(int, sys.argv[1:])
+    if len(sys.argv) != 5 or sys.argv[4] not in ("reject_encrypted", "allow_empty_password_pdf"):
+        return {"error": "pdf_parse_failed"}
+    maximum, pages_limit, chars_limit = map(int, sys.argv[1:4])
     payload = sys.stdin.buffer.read(maximum + 1)
     if len(payload) > maximum or not payload.startswith(b"%PDF-"):
         return {"error": "pdf_invalid"}
     try:
         document = PdfReader(io.BytesIO(payload), strict=True)
         if document.is_encrypted:
-            return {"error": "pdf_encrypted"}
+            if sys.argv[4] != "allow_empty_password_pdf":
+                return {"error": "pdf_encrypted"}
+            # Only public, empty-user-password documents explicitly permitting
+            # text extraction qualify. Never try an owner password or guesses.
+            permissions = document.trailer["/Encrypt"].get("/P")
+            if (not isinstance(permissions, int) or isinstance(permissions, bool)
+                    or not -(2 ** 31) <= permissions < 2 ** 32 or not permissions & 16):
+                return {"error": "pdf_extraction_forbidden"}
+            if document.decrypt("") != 1:  # pypdf PasswordType.USER_PASSWORD
+                return {"error": "pdf_encrypted"}
+            if (document.are_permissions_valid is not True or document.user_access_permissions is None
+                    or int(document.user_access_permissions) != (permissions & 0xffffffff)):
+                return {"error": "pdf_extraction_forbidden"}
         if not 1 <= len(document.pages) <= pages_limit:
             return {"error": "pdf_page_limit"}
         pages, total = [], 0
@@ -358,14 +400,17 @@ print(json.dumps(extract(), ensure_ascii=True))
 '''
 
 
-def _pdf_text(payload, deadline=None):
-    """Parse text PDFs in a bounded child; no OCR, partial pages or PDF metadata.
+def _pdf_text(payload, deadline=None, *, allow_empty_password_pdf=False):
+    """Parse every PDF page in a bounded child; never infer publication metadata.
 
     The child receives only public bytes, with an empty environment and isolated
     Python imports. It has no reason to open URLs or evaluate PDF actions. A
     parent timeout also kills a parser stuck inside one page's decompression.
+    Encryption is rejected by default. An individually approved public document
+    may opt into empty-user-password access with explicit text-copy permission.
     """
-    if not isinstance(payload, bytes) or len(payload) > MAX_BYTES or not payload.startswith(b"%PDF-"):
+    if (type(allow_empty_password_pdf) is not bool or not isinstance(payload, bytes)
+            or len(payload) > MAX_BYTES or not payload.startswith(b"%PDF-")):
         raise ValueError("pdf_invalid")
     remaining = PDF_SECONDS if deadline is None else min(PDF_SECONDS, deadline - time.monotonic())
     if remaining <= 0:
@@ -373,7 +418,8 @@ def _pdf_text(payload, deadline=None):
     try:
         result = subprocess.run(
             [sys.executable, "-I", "-B", "-c", _PDF_SCRIPT, str(MAX_BYTES),
-             str(MAX_PDF_PAGES), str(MAX_BODY_CHARS)], input=payload,
+             str(MAX_PDF_PAGES), str(MAX_BODY_CHARS),
+             "allow_empty_password_pdf" if allow_empty_password_pdf else "reject_encrypted"], input=payload,
             stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env={},
             timeout=remaining, check=False)
     except subprocess.TimeoutExpired:
@@ -386,7 +432,7 @@ def _pdf_text(payload, deadline=None):
             raise ValueError
         if "error" in parsed:
             code = parsed["error"]
-            allowed = {"pdf_parser_unavailable", "pdf_invalid", "pdf_encrypted", "pdf_page_limit",
+            allowed = {"pdf_parser_unavailable", "pdf_invalid", "pdf_encrypted", "pdf_extraction_forbidden", "pdf_page_limit",
                        "pdf_unreadable_page", "pdf_text_limit", "pdf_parse_failed"}
             raise ValueError(code if code in allowed else "pdf_parse_failed")
         pages = parsed["pages"]
@@ -432,6 +478,57 @@ def _record(item, original, final, body, publication, observed_at, now, since):
             "body": body, "body_sha256": sha256(body.encode("utf-8")).hexdigest(), "evidence_url": final,
             **{key: publication[key] for key in ("published_at", "published_date", "publication_precision")},
             "observed_at": observed_at}
+
+
+def _mof_supporting_body(record, document, body_node, payload_size, deadline):
+    """Require the registered full PDF and preserve the parent's identity/date."""
+    specification = MOF_SUPPORTING_PDFS.get(urlsplit(record["url"]).path)
+    if specification is None:
+        if urlsplit(record["evidence_url"]).path in MOF_SUPPORTING_PDFS:
+            raise ValueError("supporting_pdf_identity_mismatch")
+        return record
+    if record["evidence_url"] != record["url"]:
+        raise ValueError("supporting_pdf_identity_mismatch")
+    pdf_url = "https://www.mof.go.jp" + specification["path"]
+
+    def is_body_link(node):
+        if (node.tag != "a" or _safe_url(node.attrs.get("href"), base=record["url"],
+                                        allow_supporting_pdf=True) != pdf_url):
+            return False
+        ancestor = node
+        while ancestor is not None:
+            if ancestor.tag in _BLOCKED or _EXCLUDED_CLASS.search(ancestor.attrs.get("class", "")):
+                return False
+            if ancestor is body_node:
+                return True
+            ancestor = ancestor.parent
+        return False
+
+    if not any(is_body_link(node) for node in document.nodes):
+        raise ValueError("supporting_pdf_link_missing")
+    deadline = time.monotonic() + COLLECTION_SECONDS if deadline is None else deadline
+    pdf_payload, final_url = _download(pdf_url, deadline, max_bytes=MAX_BYTES - payload_size,
+                                       supporting_pdf=True)
+    if final_url != pdf_url:
+        raise ValueError("unapproved_redirect")
+    if not isinstance(pdf_payload, bytes) or payload_size + len(pdf_payload) > MAX_BYTES:
+        raise ValueError("source_size_limit")
+    pdf_body = _pdf_text(pdf_payload, deadline,
+                         allow_empty_password_pdf=specification.get("allow_empty_password_pdf", False))
+    if (_compact(specification["title"]) not in _compact(pdf_body[:1200])
+            or _compact(specification["signature"]) not in _compact(pdf_body[-1200:])):
+        raise ValueError("supporting_pdf_identity_mismatch")
+    body = (f'【財務省の発表本文（HTML）】\n出典：{record["url"]}\n{record["body"]}\n\n'
+            f'【発表本文からリンクされた確認済み補足資料（PDF全文）】\n'
+            f'資料名：{specification["title"]}\n出典：{pdf_url}\n'
+            f'文書の署名日：{specification["document_date"]}（親記事の発表日とは別）\n{pdf_body}')
+    if len(body) > MAX_BODY_CHARS:
+        raise ValueError("pdf_text_limit")
+    return {**record, "body": body, "body_sha256": sha256(body.encode("utf-8")).hexdigest(),
+            "source_scope": "official_html_with_verified_supporting_pdf",
+            "supporting_documents": [{"url": pdf_url, "parent_url": record["url"],
+                "title": specification["title"], "body_sha256": sha256(pdf_body.encode("utf-8")).hexdigest(),
+                "document_date": specification["document_date"], "document_date_kind": "signed"}]}
 
 
 def _extract_article(payload, item, final_url, now, since, *, observed_at, deadline=None):
@@ -499,7 +596,10 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
     else:
         html_publication = _html_date(document, body)
     publication = _agree([item, html_publication])
-    return _record(item, original, final, body, publication, observed_at, now, since)
+    record = _record(item, original, final, body, publication, observed_at, now, since)
+    if record is not None and host == "www.mof.go.jp":
+        return _mof_supporting_body(record, document, body_node, len(payload), deadline)
+    return record
 
 
 def collect_official_articles(now=None, *, since=None, until=None, diagnostics=None,
@@ -540,7 +640,8 @@ def collect_official_articles(now=None, *, since=None, until=None, diagnostics=N
                       "source_content_type", "source_size_limit", "source_size_or_time_limit", "source_redirect_limit",
                       "invalid_source_bytes", "unsupported_source_encoding", "unsupported_feed_declaration",
                       "unsupported_feed_structure", "invalid_verification_clock",
-                      "pdf_invalid", "pdf_parser_unavailable", "pdf_encrypted", "pdf_page_limit",
+                      "supporting_pdf_link_missing", "supporting_pdf_identity_mismatch",
+                      "pdf_invalid", "pdf_parser_unavailable", "pdf_encrypted", "pdf_extraction_forbidden", "pdf_page_limit",
                       "pdf_unreadable_page", "pdf_text_limit", "pdf_parse_failed", "pdf_time_limit"}
     def error_code(exc):
         return str(exc) if isinstance(exc, ValueError) and str(exc) in allowed_errors else "source_read_failed"
