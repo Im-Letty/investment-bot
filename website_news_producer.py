@@ -15,7 +15,9 @@ import daily_news_producer as shared
 from isolated_news_producer import generate_isolated_edition
 
 
-CALL_LIMITS = {"claude": 4, "gemini": 3, "openai": 2}
+# Three details plus an overview use four writing calls. Leave room for two
+# local validation repairs without increasing the eight-call total ceiling.
+CALL_LIMITS = {"claude": 6, "gemini": 3, "openai": 2}
 TOTAL_CALL_LIMIT = 8
 GENERATION_SECONDS = 12 * 60
 GENERATION_MODE = "source_isolated"

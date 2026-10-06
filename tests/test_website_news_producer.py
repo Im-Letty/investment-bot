@@ -38,11 +38,12 @@ def approval():
 class MockTransport:
     """Exercises the real request construction and parsing, without sockets."""
 
-    def __init__(self, reviewer=None):
+    def __init__(self, reviewer=None, writer=None):
         self.session = MagicMock()
         self.session.post.side_effect = self.post
         self.calls = []
         self.reviewer = reviewer or (lambda name, data: approval())
+        self.writer = writer or (lambda data, value: value)
         self.after_post = None
         self.gemini_interruptions = 0
 
@@ -60,6 +61,7 @@ class MockTransport:
             else:
                 value = {"headline": "今日の経済をやさしく読む", "summary": "全体" * 120,
                          "indexes": [row["index"] for row in data["article_cards"]]}
+            value = self.writer(deepcopy(data), value)
             response = {"stop_reason": "end_turn", "content": [{"type": "text", "text": json.dumps(value)}]}
         elif "googleapis.com" in url:
             name = "gemini"
@@ -147,18 +149,93 @@ class WebsiteProducerTests(unittest.TestCase):
         self.generate(default, sources(1))
         self.assertEqual(other.calls[0][2]["model"], "claude-sonnet-4-6")
 
+    def test_three_articles_can_repair_two_short_details_and_still_get_both_reviews(self):
+        seen = set()
+
+        def writer(data, value):
+            if data["stage"] == "article":
+                index = data["articles"][0]["index"]
+                if index in (0, 2) and index not in seen:
+                    seen.add(index)
+                    value["summary"] = "短い文章です。\n\n補足です。"
+            return value
+
+        provider, transport = self.provider(MockTransport(writer=writer))
+        result = self.generate(provider, sources(3))
+        self.assertEqual(len(result["article_refs"]), 3)
+        self.assertEqual(provider.http_counts, {"claude": 6, "gemini": 1, "openai": 1})
+        self.assertEqual(len(transport.calls), website.TOTAL_CALL_LIMIT)
+        self.assertEqual([data["articles"][0]["index"] for name, data, _ in transport.calls
+                          if name == "claude" and data["stage"] == "article"], [0, 0, 1, 2, 2])
+        self.assertEqual(transport.calls[-2][1], transport.calls[-1][1])
+        self.assertEqual(transport.calls[-1][1]["draft"]["summary"], result["summary"])
+
+    def test_three_article_overview_can_be_repaired_without_skipping_final_reviews(self):
+        first = [True]
+
+        def writer(data, value):
+            if data["stage"] == "overview" and first[0]:
+                first[0] = False
+                value["summary"] = "短すぎる全体の文章です。"
+            return value
+
+        provider, transport = self.provider(MockTransport(writer=writer))
+        result = self.generate(provider, sources(3))
+        self.assertEqual(len(result["article_refs"]), 3)
+        self.assertEqual(provider.http_counts, {"claude": 5, "gemini": 1, "openai": 1})
+        self.assertEqual(transport.calls[-2][1], transport.calls[-1][1])
+
+    def test_unaffordable_third_detail_repair_retains_validation_failure_and_stops(self):
+        seen = set()
+
+        def writer(data, value):
+            if data["stage"] == "article":
+                index = data["articles"][0]["index"]
+                if index not in seen:
+                    seen.add(index)
+                    value["summary"] = "短い文章です。\n\n補足です。"
+            return value
+
+        provider, transport = self.provider(MockTransport(writer=writer))
+        with self.assertRaisesRegex(shared.GenerationError, "^isolated_article_length$"):
+            self.generate(provider, sources(3))
+        self.assertEqual(provider.http_counts, {"claude": 5})
+        self.assertLess(len(transport.calls), website.TOTAL_CALL_LIMIT)
+        transport.session.close.assert_called_once()
+
+    def test_unaffordable_overview_repair_retains_its_validation_failure(self):
+        seen = set()
+
+        def writer(data, value):
+            if data["stage"] == "article":
+                index = data["articles"][0]["index"]
+                if index in (0, 1) and index not in seen:
+                    seen.add(index)
+                    value["summary"] = "短い文章です。\n\n補足です。"
+            else:
+                value["summary"] = "短すぎる全体の文章です。"
+            return value
+
+        provider, transport = self.provider(MockTransport(writer=writer))
+        with self.assertRaisesRegex(shared.GenerationError, "^isolated_overview_length$"):
+            self.generate(provider, sources(3))
+        self.assertEqual(provider.http_counts, {"claude": 6})
+        self.assertNotIn("gemini", provider.http_counts)
+        self.assertNotIn("openai", provider.http_counts)
+        transport.session.close.assert_called_once()
+
     def test_metadata_only_contains_safe_configuration_and_is_independent(self):
         env = {**ENV, "SUPABASE_KEY": "unrelated-fixture"}
         with patch.object(website.shared.requests, "Session", side_effect=AssertionError("no session")):
             metadata = website.configuration_metadata(env)
         self.assertEqual(metadata, {"generation_mode": "source_isolated",
             "models": {"claude": "claude-sonnet-4-6", "gemini": "gemini-2.5-flash", "openai": "gpt-6-luna"},
-            "limits": {"provider_http_calls": {"claude": 4, "gemini": 3, "openai": 2},
+            "limits": {"provider_http_calls": {"claude": 6, "gemini": 3, "openai": 2},
                        "total_http_calls": 8, "generation_seconds": 720}})
         for value in env.values():
             self.assertNotIn(value, json.dumps(metadata))
         metadata["limits"]["provider_http_calls"]["claude"] = 999
-        self.assertEqual(website.configuration_metadata(env)["limits"]["provider_http_calls"]["claude"], 4)
+        self.assertEqual(website.configuration_metadata(env)["limits"]["provider_http_calls"]["claude"], 6)
         for bad in ("sk-fixture-never-a-model", "AIzaFixtureOnly", "model\nprivate", {}, ""):
             with self.subTest(bad=bad):
                 configured = {**env, "NEWS_CLAUDE_MODEL": bad}
@@ -218,7 +295,7 @@ class WebsiteProducerTests(unittest.TestCase):
         provider, transport = self.provider(MockTransport(reject))
         # There is not enough remaining Claude budget for both details and a
         # new overview. No first rewrite or old approval may escape that gate.
-        with self.assertRaisesRegex(shared.GenerationError, "^generation_call_limit$"):
+        with self.assertRaisesRegex(shared.GenerationError, "^isolated_editorial_review_failed$"):
             self.generate(provider)
         self.assertEqual([name for name, _, _ in transport.calls], ["claude"] * 3 + ["gemini", "openai"])
         transport.session.close.assert_called_once()
@@ -258,7 +335,7 @@ class WebsiteProducerTests(unittest.TestCase):
             self.assertEqual(transport.call_count, 8)
 
     def test_preflight_reserves_pending_writing_and_both_reviews_without_consuming_http(self):
-        cases = [(["claude"] * 2, 3), (["gemini"] * 3, 1), (["openai"] * 2, 1),
+        cases = [(["claude"] * 4, 3), (["gemini"] * 3, 1), (["openai"] * 2, 1),
                  (["claude"] * 2 + ["gemini"] * 2 + ["openai"], 2)]
         for spent, wanted in cases:
             with self.subTest(spent=spent):
@@ -274,7 +351,7 @@ class WebsiteProducerTests(unittest.TestCase):
         provider, transport = self.provider()
         provider.reserve_drafting(4)
         self.assertEqual(provider.http_counts, {})
-        for invalid in (0, 5, True, 1.0, "2"):
+        for invalid in (0, 7, True, 1.0, "2"):
             with self.assertRaisesRegex(shared.GenerationError, "^generation_budget_required$"):
                 provider.reserve_drafting(invalid)
         transport.session.post.assert_not_called()

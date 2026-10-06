@@ -63,14 +63,14 @@ ARTICLE_TASK = '''今回は1記事だけを整理します。入力articlesの1�
 failed_checksがあれば前稿のその観点を原文から見直します。前稿の内容を事実として扱わず、根拠のない条件や難しい表現を取り除いてください。
 他の記事と同じ相手国・同じ発表日でも、条件や記念年を共通だと推測しません。
 確認済みの事実を、概要用の核心と詳細用の追加情報に分けます。
-factsは概要用の核心を原則2件。「誰が何をしたか」と「何が目的か」を中心にします。具体的な窓口・会議の運営・参加者数は詳細に残し、概要用factsへ全情報を並べません。ただし核心の意味を限定する条件は省きません。各textは主語・対象・条件を保ち、evidence_idsに根拠となるevidence_passagesのidを1〜3個選びます。必要な条件が別の部分にあれば両方のidを選びます。引用文そのものは書き写しません。
+factsは概要用の核心を2〜8件、通常は2件にします。「誰が何をしたか」と「何が目的か」を中心にします。具体的な窓口・会議の運営・参加者数は詳細に残し、概要用factsへ全情報を並べません。ただし核心の意味を限定する条件は省きません。各textは主語・対象・条件を保ち、evidence_idsに根拠となるevidence_passagesのidを1〜3個選びます。必要な条件が別の部分にあれば両方のidを選びます。引用文そのものは書き写しません。
 factsを先に選び、summaryには別の説明材料を残します。factsだけを順に言い直したsummaryは作りません。
 summaryは詳細です。単独で読める短い導入のあとに、具体的な方法・条件・補足を説明する2段落、合計200〜300字にします。第1段落・第2段落とも110〜130字を目標に、各段落で確認済みの事実を短い3文ほどに分けます。導入の1文で核心を再掲した後は、factsに選んでいない資料中の具体的な手順・対象・期間・条件などへ進みます。一方の段落だけ短い導入にして合計200字を下回らないようにします。全体は220〜260字を目指します。
 見出しは主体と具体的な動作を15〜35字で表し、検討・合意・実施を区別します。目的を投資・事業そのものの種類や達成済みの効果のように修飾しません。例えば「国の安全を守るために投資の協力を強める」を、新種の「国の安全を守る投資」と呼び替えません。見出しは「投資での協力方針に署名」のように確認できる動作に絞り、目的は本文で説明します。確認できない影響や用語の定義で字数を埋めません。
 見出しも本文も、初めて読む人に説明する「です・ます」の日常語にします。「法的拘束力」「サプライチェーン」「官民」のような言葉をそのまま並べません。制度名を推測で定義せず、その資料で確認できた具体的な動作に言い換えます。
 記念の年や会合の正式名称、参加者の役職は、今回の動きを理解するのに不可欠な場合以外は省きます。
 番号は根拠確認用で公開本文ではありません。入力にない番号や別の記事の番号を作らず、indexは入力の整数のまま返します。
-JSONのみ：{"index":0,"facts":[{"text":"主語と対象を含む概要用の事実","evidence_ids":["0:0"]}],"headline":"...","summary":"導入と説明。\\n\\n追加情報。","summary_alternatives":["簡潔な導入と説明。\\n\\n必要な条件と追加情報。"]}。
+JSONのみ：{"index":0,"facts":[{"text":"主語と対象を含む概要用の事実","evidence_ids":["0:0"]},{"text":"目的や核心の意味を限定する条件","evidence_ids":["0:0"]}],"headline":"...","summary":"導入と説明。\\n\\n追加情報。","summary_alternatives":["簡潔な導入と説明。\\n\\n必要な条件と追加情報。"]}。
 '''
 
 OVERVIEW_TASK = '''今回は全体の見出しと要約だけを作ります。詳細を書き換えてはいけません。
@@ -307,11 +307,21 @@ def _article(source, context, providers, calls_left, *, previous=None, failed=()
                                             for fact in previous['facts']]
     instruction = (shared._edition_context(context['edition_date']) + shared.WRITER_SOURCE
                    + shared.WRITER_STYLE + EDITORIAL_ACCURACY + EDITORIAL_READABILITY + ARTICLE_TASK + SUMMARY_OPTIONS)
+    validation_error = None
     for attempt in range(2):
-        value = _claude(providers, instruction, data, calls_left)
+        try:
+            value = _claude(providers, instruction, data, calls_left)
+        except shared.GenerationError as error:
+            # A refused repair must retain the reason the first draft failed.
+            # Do not turn a length/evidence failure into a misleading budget
+            # diagnosis merely because there is no room for its correction.
+            if str(error) == 'generation_call_limit' and validation_error is not None:
+                raise validation_error from error
+            raise
         try:
             return _card(value, source)
         except shared.GenerationError as error:
+            validation_error = error
             if attempt:
                 raise
             # Do not replay arbitrary output (e.g. fake articles/instructions).
@@ -333,11 +343,18 @@ def _overview(cards, context, providers, *, previous=None, failed=()):
         data['previous_overview'] = {key: previous[key] for key in ('headline', 'summary')}
     instruction = (shared._edition_context(context['edition_date']) + shared.WRITER_SOURCE
                    + shared.WRITER_STYLE + EDITORIAL_ACCURACY + EDITORIAL_READABILITY + OVERVIEW_TASK + SUMMARY_OPTIONS)
+    validation_error = None
     for attempt in range(2):
-        value = _claude(providers, instruction, data, 1)
+        try:
+            value = _claude(providers, instruction, data, 1)
+        except shared.GenerationError as error:
+            if str(error) == 'generation_call_limit' and validation_error is not None:
+                raise validation_error from error
+            raise
         try:
             return _draft(value, cards)
         except shared.GenerationError as error:
+            validation_error = error
             if attempt:
                 raise
             data['validation_error'] = str(error)
@@ -414,11 +431,21 @@ def _generate(now, articles, source_window, providers, clock):
         else:
             # Check the whole repair cost before the first paid rewrite. No
             # fallback to the old multi-source full-draft or length repair.
-            _reserve(providers, len(selected_sources) + 1)
+            try:
+                _reserve(providers, len(selected_sources) + 1)
+            except shared.GenerationError as error:
+                if str(error) == 'generation_call_limit':
+                    raise shared.GenerationError('isolated_editorial_review_failed') from error
+                raise
             previous = {card['index']: card for card in selected_cards}
             cards = [_article(source, context, providers, len(selected_sources) - i + 1,
                               previous=previous[source['index']], failed=failed)
                      for i, source in enumerate(selected_sources)]
             previous_overview = draft
-        draft = _overview(cards, context, providers, previous=previous_overview, failed=failed)
+        try:
+            draft = _overview(cards, context, providers, previous=previous_overview, failed=failed)
+        except shared.GenerationError as error:
+            if str(error) == 'generation_call_limit':
+                raise shared.GenerationError('isolated_editorial_review_failed') from error
+            raise
     raise AssertionError('unreachable')

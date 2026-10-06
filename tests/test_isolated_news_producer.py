@@ -133,6 +133,43 @@ class IsolatedProducerTests(unittest.TestCase):
                 self.assertEqual(names, ['claude'] * (min(count, 3) + 1) + ['gemini', 'openai'])
                 self.assertEqual(self.provider.reservations[0], min(count, 3) + 1)
 
+    def test_three_article_writer_following_documented_json_shape_needs_no_repair(self):
+        # Model output that follows our own example must not waste a request on
+        # a schema repair. Three details plus the overview fill the original
+        # four-call writer allowance, even before either reviewer is invoked.
+        example, _ = json.JSONDecoder().raw_decode(isolated.ARTICLE_TASK.split('JSONのみ：', 1)[1])
+
+        def follow_example(data):
+            if data['stage'] == 'overview':
+                return overview_reply(data)
+            value = deepcopy(example)
+            reference = data['evidence_passages'][0]['id']
+            value.update(index=data['articles'][0]['index'], headline='公的発表のポイント',
+                         summary='導入' * 55 + '\n\n' + '補足' * 60,
+                         summary_alternatives=['簡潔' * 55 + '\n\n' + '説明' * 60])
+            for fact in value['facts']:
+                fact['evidence_ids'] = [reference]
+            return value
+
+        def reserve(needed):
+            spent = sum(name == 'claude' for name, _, _ in self.provider.calls)
+            if spent + needed > 4 or len(self.provider.calls) + needed + 2 > 8:
+                raise shared.GenerationError('test_budget_exhausted')
+
+        self.provider.writer = follow_example
+        self.provider.reserve_drafting = reserve
+        result = self.generate(rows=sources(3))
+        self.assertEqual(len(result['article_refs']), 3)
+        self.assertEqual([name for name, _, _ in self.provider.calls],
+                         ['claude'] * 4 + ['gemini', 'openai'])
+        self.assertTrue(all('validation_error' not in data for name, _, data in self.provider.calls
+                            if name == 'claude'))
+        final = [data for name, _, data in self.provider.calls if name in ('gemini', 'openai')]
+        self.assertEqual(final[0], final[1])
+        self.assertEqual([len(card['facts']) for card in final[0]['article_evidence']], [2, 2, 2])
+        self.assertEqual([row['index'] for row in final[0]['original_articles']], [0, 1, 2])
+        self.assertEqual(final[0]['draft']['summary'], result['summary'])
+
     def test_another_articles_legal_condition_or_anniversary_cannot_be_used_as_evidence(self):
         def contaminated(data):
             reply = article_reply(data) if data['stage'] == 'article' else overview_reply(data)
