@@ -1,0 +1,5 @@
+# Minimal dependencies for the isolated news runner. No web server or LINE SDK.
+requests==2.34.2
+feedparser==6.0.14
+pypdf==6.19.0
+cryptography==50.0.1

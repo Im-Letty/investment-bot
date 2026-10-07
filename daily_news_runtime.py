@@ -19,7 +19,7 @@ from urllib.parse import quote, urlsplit
 
 import requests
 
-from news_cache import JST, _validated_digest, load_reviewed_digests
+from news_cache import JST, OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_digests
 from publish_news import MAX_ISSUES, _publication_lock, _replace_atomically
 
 
@@ -30,6 +30,11 @@ ATTEMPT_INTERVAL = 15 * 60
 PENDING_ATTEMPT_SECONDS = 16 * 60
 MAX_ATTEMPTS = 6
 GENERATION_ERRORS = frozenset(("invalid_provider_json", "invalid_model", "gemini_incomplete",
+                              "codex_chatgpt_login_required", "codex_paid_writer_disabled",
+                              "codex_writer_configuration", "codex_writer_unavailable",
+                              "codex_writer_invalid_output", "codex_writer_output_limit",
+                              "codex_writer_timeout", "codex_writer_failed",
+                              "codex_writer_tool_use", "codex_writer_closed", "codex_writer_input_limit",
                               "claude_incomplete", "no_eligible_topics", "invalid_article_selection",
                               "openai_incomplete", "openai_refused", "openai_invalid_response",
                               "openai_not_configured",
@@ -235,11 +240,17 @@ class DailyNewsRuntime:
     """All public reads are in-memory; network/AI only runs in daemon workers."""
 
     def __init__(self, storage, generator, *, enabled=False, baseline_path=BASELINE_PATH,
-                 cache_path=CACHE_PATH, clock=time.time, interval=30, source_preparer=None):
+                 cache_path=CACHE_PATH, clock=time.time, interval=30, source_preparer=None,
+                 generation_owner="local", max_attempts=MAX_ATTEMPTS):
+        if generation_owner not in ("local", "external"):
+            raise ValueError("invalid_generation_owner")
+        if type(max_attempts) is not int or not 1 <= max_attempts <= MAX_ATTEMPTS:
+            raise ValueError("invalid_max_attempts")
         self.storage, self.generator = storage, generator
         self.source_preparer = source_preparer
+        self.generation_owner, self.max_attempts = generation_owner, max_attempts
         self._source_history = None
-        self.enabled = bool(enabled and callable(generator))
+        self.enabled = bool(enabled and (generation_owner == "external" or callable(generator)))
         self.baseline_path, self.cache_path = Path(baseline_path), Path(cache_path)
         self.clock, self.interval = clock, max(1, interval)
         self._pid = os.getpid()
@@ -253,6 +264,7 @@ class DailyNewsRuntime:
         self._issues = self._merge(values)
         latest = self._issues[-1] if self._issues else {}
         self._state = {"status": "starting", "enabled": self.enabled,
+                       "generation_owner": generation_owner, "max_attempts": max_attempts,
                        "attempt_count": 0, "edition_date": latest.get("edition_date"),
                        "publish_at": latest.get("publish_at", latest.get("reviewed_at")),
                        "last_error": None}
@@ -434,6 +446,10 @@ class DailyNewsRuntime:
         return issues
 
     def _tick(self):
+        if (self.generation_owner == "external"
+                and not callable(getattr(self.source_preparer, "prepare", None))):
+            self._set("configuration_unavailable", last_error="source_preparer_required")
+            return
         if self.storage is None:
             self._set("storage_unavailable")
             return
@@ -482,10 +498,15 @@ class DailyNewsRuntime:
                           cutoff_at=cutoff, last_error=None)
                 return
             if not manifest["articles"]:
-                rows = manifest.get("source_status", {}).values()
-                complete = bool(manifest.get("source_status")) and all(
-                    isinstance(row, dict) and row.get("feed_status") == "ok"
-                    and row.get("status") in ("collected", "no_matching_candidates") for row in rows)
+                source_status = manifest.get("source_status", {})
+                # A quiet official window is confirmed only after every
+                # enabled source was checked. A missing row is an outage, even
+                # when the remaining source successfully reported no stories.
+                complete = (isinstance(source_status, dict)
+                    and set(OFFICIAL_NEWS_SOURCES).issubset(source_status)
+                    and all(isinstance(row, dict) and row.get("feed_status") == "ok"
+                            and row.get("status") in ("collected", "no_matching_candidates")
+                            for row in source_status.values()))
                 self._set("source_empty" if complete else "source_unavailable", edition_date=day,
                           cutoff_at=cutoff, last_error=None if complete else "source_unavailable")
                 return
@@ -495,6 +516,11 @@ class DailyNewsRuntime:
             if datetime.fromtimestamp(now, JST).date().isoformat() != day:
                 self._set("waiting")
                 return
+        if self.generation_owner == "external":
+            # The source manifest is durable, but only the separate writer may
+            # claim a generation attempt. Keep polling for its reviewed edition.
+            self._set("waiting_for_writer", edition_date=day, cutoff_at=cutoff, last_error=None)
+            return
         attempts = []
         for index in range(1, MAX_ATTEMPTS + 1):
             claim = self.storage.read(prefix + f"/attempt-{index}.lock")
@@ -525,7 +551,14 @@ class DailyNewsRuntime:
                 # still be generating. Recovery is longer than the producer's
                 # cooperative budget, including time to record its outcome.
                 retry_interval = PENDING_ATTEMPT_SECONDS
-        if len(attempts) >= MAX_ATTEMPTS:
+        # Storage lookups can span a window boundary. Use the actual invocation
+        # time for both the retry decision and the durable attempt lease.
+        now = self.clock()
+        current = datetime.fromtimestamp(now, JST)
+        minute = current.hour * 60 + current.minute
+        if current.date().isoformat() != day or not 7 * 60 <= minute < 22 * 60:
+            return
+        if len(attempts) >= self.max_attempts:
             self._set("daily_limit")
             return
         if attempts and now < max(started for _, started in attempts) + retry_interval:
@@ -571,14 +604,17 @@ class DailyNewsRuntime:
 
 
 def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, storage=None,
-          autostart=True, source_preparer_factory=None, **kwargs):
-    """Start without blocking Flask. Explicit ``enabled`` gates paid generation.
+          autostart=True, source_preparer_factory=None, generation_owner="local",
+          max_attempts=MAX_ATTEMPTS, **kwargs):
+    """Start without blocking Flask. Explicit ``enabled`` gates source/generation work.
 
     Pass ``url`` and the server service key, or a Supabase client exposing
     ``supabase_url``/``supabase_key``. Without storage, previous copy is retained.
     The injected storage protocol is ensure_private/read/create/recent_days/reviewed_keys.
     With Gunicorn preload, use autostart=False and call runtime.start() in each
     web worker (for example before_request); no master process thread is needed.
+    External generation prepares sources and polls durable editions without
+    claiming attempts or invoking the supplied generator.
     """
     if storage is None:
         url = url or getattr(supabase, "supabase_url", None)
@@ -589,5 +625,6 @@ def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, s
             storage = None
     if storage is not None and source_preparer_factory is not None:
         kwargs["source_preparer"] = source_preparer_factory(storage)
-    runtime = DailyNewsRuntime(storage, generator, enabled=enabled, **kwargs)
+    runtime = DailyNewsRuntime(storage, generator, enabled=enabled,
+                               generation_owner=generation_owner, max_attempts=max_attempts, **kwargs)
     return runtime.start() if autostart else runtime

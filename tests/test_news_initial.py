@@ -10,6 +10,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from flask import Flask, request
+from news_cache import LEAD_OTHER_NEWS_STRUCTURE
+from news_copy_policy import COPY_LENGTH_POLICY
 from news_initial import (NEWS_PLACEHOLDER, initial_news,
                           news_index_response, render_initial_html, render_news_markup, render_initial_market)
 
@@ -94,6 +96,45 @@ class ParsedInitial(HTMLParser):
 
 
 class InitialSelectionTests(unittest.TestCase):
+    def test_lead_and_other_news_structure_shows_only_other_stories_and_keeps_all_embedded_copy(self):
+        for count in (1, 2, 3):
+            with self.subTest(count=count):
+                authored = official_review('day')
+                ref = authored['article_refs'][0]
+                authored.update(copy_length_policy=COPY_LENGTH_POLICY,
+                                reading_structure=LEAD_OTHER_NEWS_STRUCTURE,
+                                summary='先頭のニュースを短く紹介します。')
+                authored['article_refs'] = [{**ref, 'title': f'別の公式発表{i}',
+                    'url': f'https://www.mof.go.jp/policy/example{i}.html'} for i in range(count)]
+                authored['article_summaries'] = [{**item, 'headline': f'独立した見出し{i}<img>',
+                    'summary': f'独立して読める記事{i}です。\n\n確認した内容を説明します。'}
+                    for i, item in enumerate(authored['article_refs'])]
+                original = deepcopy(authored)
+                data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
+                html = render_initial_html(NEWS_PLACEHOLDER, data)
+                markup = html.split('<script type="application/json"', 1)[0]
+                self.assertIn(authored['summary'], markup)
+                self.assertNotIn('独立した見出し0', markup)
+                self.assertNotIn('独立して読める記事0', markup)
+                self.assertEqual(markup.count('class="story summarized-story"'), count - 1)
+                self.assertEqual('class="read-more"' in markup, count > 1)
+                for i in range(1, count):
+                    self.assertIn(f'独立した見出し{i}&lt;img&gt;', markup)
+                    self.assertIn(authored['article_summaries'][i]['summary'], markup)
+                self.assertNotIn('<img>', markup)
+                self.assertIn('datetime="2026-09-21">発表 2026/9/21', markup)
+                self.assertIn('href="https://www.mof.go.jp/policy/example0.html"', markup)
+                if count > 1:
+                    self.assertIn('ほかのニュース', markup)
+                    self.assertNotIn('もっと詳しく', markup)
+                self.assertEqual(json.loads(ParsedInitial(html).json)['digest'], original)
+                self.assertEqual(authored, original)
+                # Existing saved official editions keep their original design.
+                del authored['reading_structure']
+                legacy = render_news_markup(initial_news(cold(), now=NOW, reviewed_digests=[authored]))
+                self.assertEqual(legacy.count('class="story summarized-story"'), count)
+                self.assertIn('もっと詳しく', legacy)
+
     def test_official_edition_renders_source_date_separately_from_edition_without_invented_time(self):
         for precision in ('second', 'day'):
             authored = official_review(precision)
@@ -125,6 +166,22 @@ class InitialSelectionTests(unittest.TestCase):
             self.assertEqual(data['news'][0]['published_at'], authored['article_refs'][0]['published_at'])
             self.assertIsNone(data['fetched_at'])
             self.assertEqual(data['digest']['source_window'], authored['source_window'])
+
+    def test_flexible_reviewed_copy_is_identical_in_initial_markup_and_embedded_payload(self):
+        for precision in ('second', 'day'):
+            authored = official_review(precision)
+            authored.update(copy_length_policy=COPY_LENGTH_POLICY, summary='概' * 330)
+            authored['article_summaries'][0]['summary'] = '説' * 220 + '\n\n' + '補' * 218
+            original = deepcopy(authored)
+            data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
+            self.assertEqual(data['delivery'], 'published')
+            self.assertEqual(data['digest'], authored)
+            html = render_initial_html(NEWS_PLACEHOLDER, data)
+            self.assertIn(authored['summary'], html)
+            self.assertIn(authored['article_summaries'][0]['summary'].split('\n\n')[1], html)
+            embedded = json.loads(ParsedInitial(html).json)
+            self.assertEqual(embedded['digest'], authored)
+            self.assertEqual(authored, original)
 
     def test_market_values_arrive_in_first_html_with_original_time_and_safe_json(self):
         quote = {'price': 42000, 'pct': 1, 'change_value': 420,

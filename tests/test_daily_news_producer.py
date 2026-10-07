@@ -7,6 +7,7 @@ from unittest.mock import Mock, MagicMock, patch
 
 import daily_news_producer as news_producer
 from news_cache import JST
+from news_copy_policy import COPY_LENGTH_POLICY
 from daily_news_producer import (CHECKS, GenerationError, Providers, build_issue,
                                   configuration, generate_edition, json_object,
                                   GENERATION_BUDGET_SECONDS, _generation_deadline)
@@ -42,6 +43,36 @@ def openai_response(value=None):
 
 
 class ProducerTests(unittest.TestCase):
+    def test_flexible_policy_is_selected_by_code_not_draft_and_survives_normalization(self):
+        value = draft(1)
+        value.update(summary='要' * 330, copy_length_policy=COPY_LENGTH_POLICY)
+        value['articles'][0]['summary'] = '文' * 440
+        with self.assertRaisesRegex(GenerationError, '^invalid_edition_lengths_'):
+            build_issue(value, articles(), NOW)
+        result = build_issue(value, articles(), NOW, copy_length_policy=COPY_LENGTH_POLICY)
+        self.assertEqual(result['copy_length_policy'], COPY_LENGTH_POLICY)
+        self.assertEqual(result['summary'], value['summary'])
+        self.assertEqual(result['article_summaries'][0]['summary'], value['articles'][0]['summary'])
+        with self.assertRaisesRegex(GenerationError, '^invalid_copy_length_policy$'):
+            build_issue(draft(1), articles(), NOW, copy_length_policy='unknown')
+
+    def test_flexible_lengths_never_allow_empty_or_upper_limit_excess_or_repeat(self):
+        for role, values in (('overview', ('', ' \n ', '長' * 331)),
+                             ('article', ('', '\t　', '長' * 441))):
+            for text in values:
+                with self.subTest(role=role, size=len(text)):
+                    value = draft(1)
+                    if role == 'overview':
+                        value['summary'] = text
+                    else:
+                        value['articles'][0]['summary'] = text
+                    with self.assertRaisesRegex(GenerationError, '^invalid_edition_lengths_'):
+                        build_issue(value, articles(), NOW, copy_length_policy=COPY_LENGTH_POLICY)
+        value = draft(1)
+        value['summary'] = value['articles'][0]['summary'] = '同' * 310
+        with self.assertRaisesRegex(GenerationError, '^invalid_edition_repeated_summary$'):
+            build_issue(value, articles(), NOW, copy_length_policy=COPY_LENGTH_POLICY)
+
     def test_uses_retrieved_identity_not_ai_metadata_and_releases_at_eight(self):
         d = {**draft(), 'edition_date': '2050-01-01', 'source': 'made up', 'publish_at': 0}
         issue = build_issue(d, articles(), NOW)
@@ -303,12 +334,60 @@ class ProducerTests(unittest.TestCase):
                 provider.gemini('review',{})
             self.assertEqual(post.call_count,1)
 
+    def test_shared_gemini_keeps_1024_thinking_for_discovery_reviews_and_overrides(self):
+        complete = {'candidates': [{'finishReason': 'STOP', 'content': {'parts': [
+            {'text': '{"approved":true}'}]}}]}
+        # The shared/LINE provider must retain its existing payload even when
+        # its configured model matches the website's default review model.
+        for env in ({}, {'NEWS_GEMINI_MODEL': 'gemini-2.5-flash'},
+                    {'NEWS_GEMINI_MODEL': 'gemini-2.5-flash-preview'}):
+            for search in (False, True):
+                with self.subTest(env=env, search=search):
+                    provider = Providers(env, MagicMock())
+                    with patch.object(provider, '_post', return_value=complete) as post:
+                        self.assertTrue(provider.gemini('fixture', {}, search=search)['approved'])
+                    config = post.call_args.args[2]['generationConfig']
+                    self.assertEqual(config['thinkingConfig'], {'thinkingBudget': 1024})
+                    self.assertEqual(config['maxOutputTokens'], 6000)
+                    post.assert_called_once()
+
     def test_http_errors_expose_only_status(self):
         session = MagicMock(); response = session.post.return_value.__enter__.return_value
         response.status_code = 401; response.text = 'secret invalid key'
         with self.assertRaisesRegex(GenerationError, '^gemini_http_401$'):
             Providers({}, session)._post('https://example.test', {}, {}, 'gemini')
         self.assertFalse(session.post.call_args.kwargs['allow_redirects'])
+
+    def test_shared_transport_keeps_45_second_read_timeout_for_all_providers(self):
+        # Even an adaptive-shaped payload must not change the shared/LINE
+        # transport's default; the longer wait belongs only to the website.
+        payload = {'model': 'claude-sonnet-4-6',
+                   'thinking': {'type': 'adaptive', 'display': 'omitted'}}
+        for name in ('claude', 'gemini', 'openai'):
+            with self.subTest(provider=name):
+                session = MagicMock()
+                response = session.post.return_value.__enter__.return_value
+                response.status_code = 200
+                response.raw.read1.side_effect = [b'{}', b'']
+                self.assertEqual(Providers({}, session)._post('https://example.test', {}, payload, name), {})
+                self.assertEqual(session.post.call_args.kwargs['timeout'], (10, 45))
+                session.post.assert_called_once()
+
+    def test_shared_claude_keeps_nonstreaming_json_even_with_website_default_model(self):
+        session = MagicMock()
+        response = session.post.return_value.__enter__.return_value
+        response.status_code = 200
+        message = {'stop_reason': 'end_turn', 'content': [{'type': 'text', 'text': '{"ok":true}'}]}
+        response.raw.read1.side_effect = [json.dumps(message).encode(), b'']
+        result = Providers({'NEWS_CLAUDE_MODEL': 'claude-sonnet-4-6'}, session).claude('fixture', {})
+        self.assertEqual(result, {'ok': True})
+        payload = session.post.call_args.kwargs['json']
+        self.assertNotIn('stream', payload)
+        self.assertNotIn('thinking', payload)
+        self.assertEqual(payload['max_tokens'], 4500)
+        self.assertEqual(payload['temperature'], 0)
+        self.assertEqual(session.post.call_args.kwargs['timeout'], (10, 45))
+        session.post.assert_called_once()
 
     def test_provider_rejects_oversize_and_slow_streams(self):
         session = MagicMock(); response = session.post.return_value.__enter__.return_value
@@ -317,9 +396,12 @@ class ProducerTests(unittest.TestCase):
         with self.assertRaisesRegex(GenerationError, 'response_limit'):
             Providers({}, session)._post('https://example.test', {}, {}, 'gemini')
         response.raw.read1.return_value = b'{}'
-        with patch('daily_news_producer.time.monotonic', side_effect=[0, 101]):
-            with self.assertRaisesRegex(GenerationError, 'response_limit'):
-                Providers({}, session)._post('https://example.test', {}, {}, 'gemini')
+        payload = {'model': 'claude-sonnet-4-6', 'stream': True}
+        for name in ('claude', 'gemini', 'openai'):
+            with self.subTest(provider=name), patch('daily_news_producer.time.monotonic', side_effect=[0, 101]):
+                with self.assertRaisesRegex(GenerationError, '^' + name + '_response_limit$'):
+                    Providers({}, session)._post('https://example.test', {}, payload, name)
+                self.assertEqual(session.post.call_args.kwargs['timeout'], (10, 45))
         session.post.return_value.__exit__.assert_called()
 
     def test_midnight_during_independent_review_is_rejected(self):

@@ -12,7 +12,9 @@ from unittest.mock import Mock, patch
 from urllib.parse import quote
 
 from flask import Flask
-from news_cache import (HeadlineTranslations, NEWS_FEEDS, WEB_NEWS_SOURCES,
+from news_copy_policy import COPY_LENGTH_POLICY
+from news_cache import (HeadlineTranslations, LEAD_OTHER_NEWS_STRUCTURE, NEWS_FEEDS, WEB_NEWS_SOURCES,
+                        _validated_digest,
                         NewsCache, fetch_feed, load_reviewed_digests,
                         load_reviewed_supplements, select_daily_news)
 
@@ -473,6 +475,47 @@ class ReviewedDigestTests(unittest.TestCase):
         return [{**{field: item[field] for field in ('source', 'url', 'published_at', 'title')},
                  'headline': '読みやすい記事の見出し', 'summary': '文' * 240} for item in items]
 
+    def test_new_reading_structure_is_versioned_and_bound_to_official_ordered_full_copy(self):
+        refs = [{'source': '財務省', 'title': f'独立した公式発表{i}',
+                 'url': f'https://www.mof.go.jp/policy/example{i}.html',
+                 'published_date': '2026-09-21', 'published_at': None,
+                 'publication_precision': 'day', 'body_sha256': str(i + 1) * 64,
+                 'body_verified_at': timestamp('2026-09-22T07:00:00+09:00'),
+                 'selection_route': 'date_only'} for i in range(3)]
+        window = {'version': 1, 'edition_date': '2026-09-22',
+                  'window_start': timestamp('2026-09-21T08:00:00+09:00'),
+                  'carryover_start': timestamp('2026-09-21T07:30:00+09:00'),
+                  'cutoff_at': timestamp('2026-09-22T07:30:00+09:00')}
+        review = self.curated(refs, reading_structure=LEAD_OTHER_NEWS_STRUCTURE,
+            source_window=window, copy_length_policy=COPY_LENGTH_POLICY,
+            reviewed_at=timestamp('2026-09-22T07:45:00+09:00'),
+            publish_at=timestamp('2026-09-22T08:00:00+09:00'),
+            article_refs=deepcopy(refs), article_summaries=[{**ref,
+                'headline': f'記事{i}の読みやすい見出し', 'summary': f'記事{i}を単独で説明します。'}
+                for i, ref in enumerate(refs)])
+        self.assertEqual(_validated_digest(review), review)
+        with TemporaryDirectory() as folder:
+            path = Path(folder) / 'news-digests.json'
+            path.write_text(json.dumps([review]), encoding='utf-8')
+            self.assertEqual(load_reviewed_digests(path), [review])
+        mutations = [lambda value: value.pop('source_window'),
+                     lambda value: value.pop('copy_length_policy'),
+                     lambda value: value.pop('publication_mode'),
+                     lambda value: value.pop('article_summaries'),
+                     lambda value: value['article_summaries'].reverse(),
+                     lambda value: value['article_summaries'][1].update(body_sha256='a' * 64),
+                     lambda value: value['article_refs'][1].update(body_verified_at=window['cutoff_at'] + 1)]
+        mutations += [lambda value, marker=marker: value.update(reading_structure=marker)
+                      for marker in (None, False, {}, [], 'lead-plus-other-news-v2')]
+        for mutate in mutations:
+            value = deepcopy(review)
+            mutate(value)
+            self.assertIsNone(_validated_digest(value))
+        legacy = deepcopy(review)
+        del legacy['reading_structure']
+        legacy['article_summaries'].reverse()
+        self.assertEqual(_validated_digest(legacy), legacy)
+
     def test_article_summaries_preserve_original_bindings_and_trim_copy_without_mutation(self):
         items = [article('Domestic'), article('Foreign', source='ロイター経済')]
         details = self.details_for(items[::-1])
@@ -521,6 +564,55 @@ class ReviewedDigestTests(unittest.TestCase):
             with self.subTest(change=change):
                 value = [{**details[0], **change}, details[1]]
                 self.assertIsNone(self.select(items, [self.curated(items, article_summaries=value)])['digest'])
+
+    def test_flexible_copy_keeps_role_limits_and_policy_when_selected_and_loaded(self):
+        items = [article('Domestic'), article('Foreign', source='ロイター経済')]
+        for overview_length, article_length in ((1, 1), (180, 350), (330, 440)):
+            with self.subTest(overview_length=overview_length, article_length=article_length):
+                details = self.details_for(items)
+                details[0]['summary'] = ' \n' + '説' * article_length + '\n '
+                review = self.curated(items, copy_length_policy=COPY_LENGTH_POLICY,
+                    summary=' \n' + '概' * overview_length + '\n ', article_summaries=details)
+                original = deepcopy(review)
+                selected = self.select([], [review])['digest']
+                self.assertEqual(selected['copy_length_policy'], COPY_LENGTH_POLICY)
+                self.assertEqual(selected['summary'], '概' * overview_length)
+                self.assertEqual(selected['article_summaries'][0]['summary'], '説' * article_length)
+                self.assertEqual(review, original)
+                with TemporaryDirectory() as folder:
+                    path = Path(folder) / 'news-digests.json'
+                    path.write_text(json.dumps([review]), encoding='utf-8')
+                    self.assertEqual(load_reviewed_digests(path), [selected])
+
+    def test_flexible_copy_rejects_empty_over_limit_and_unknown_policy(self):
+        items = [article('Domestic')]
+        review = self.curated(items, copy_length_policy=COPY_LENGTH_POLICY,
+                             article_summaries=self.details_for(items))
+        mutations = [
+            lambda value: value.update(summary=' \n\t　'),
+            lambda value: value.update(summary='概' * 331),
+            lambda value: value['article_summaries'][0].update(summary=' \n\t　'),
+            lambda value: value['article_summaries'][0].update(summary='説' * 441),
+        ]
+        mutations.extend(lambda value, policy=policy: value.update(copy_length_policy=policy)
+                         for policy in (None, True, {}, [], 'flexible-v2'))
+        for mutate in mutations:
+            value = deepcopy(review)
+            mutate(value)
+            with self.subTest(value=value):
+                self.assertIsNone(self.select(items, [value])['digest'])
+
+    def test_flexible_policy_does_not_relax_source_binding_or_review_date(self):
+        items = [article('Domestic')]
+        review = self.curated(items, copy_length_policy=COPY_LENGTH_POLICY,
+            summary='概' * 330, article_summaries=self.details_for(items))
+        review['article_summaries'][0]['summary'] = '説' * 440
+        for mutate in (lambda value: value.update(reviewed_at=self.now + 1),
+                       lambda value: value['article_summaries'][0].update(title='Different article'),
+                       lambda value: value['article_summaries'][0].update(url='javascript:alert(1)')):
+            value = deepcopy(review)
+            mutate(value)
+            self.assertIsNone(self.select(items, [value])['digest'])
 
     def test_article_summaries_are_validated_when_loading_authored_file(self):
         items = [article('Domestic'), article('Foreign', source='ロイター経済')]
@@ -765,6 +857,35 @@ class TranslationTests(unittest.TestCase):
 
 
 class RouteCompatibilityTests(unittest.TestCase):
+    def test_flexible_reviewed_copy_and_policy_survive_actual_api_wrapper(self):
+        from flask import jsonify, request
+        now = timestamp('2026-09-22T04:00:00Z')
+        items = [article('Original release')]
+        reviewed = {**digest_for(items), 'publication_mode': 'curated', 'reviewed_at': now - 60,
+                    'copy_length_policy': COPY_LENGTH_POLICY, 'summary': '概' * 330,
+                    'article_summaries': [{**items[0], 'headline': '個別の発表',
+                                          'summary': '説' * 220 + '\n\n' + '補' * 218}]}
+        original = deepcopy(reviewed)
+        tree = ast.parse((Path(__file__).parents[1] / 'line_bot.py').read_text())
+        nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef)
+                 and node.name == 'api_morning_news']
+        app = Flask('flexible-copy-api-test')
+        website = Mock(); website.snapshot.return_value = {'news': []}
+        translator = Mock(); translator.snapshot.side_effect = lambda news, lang: (news, False)
+        context = dict(app=app, request=request, jsonify=jsonify, datetime=datetime,
+                       website_news=website, news_translations=translator,
+                       PUBLISHED_NEWS_SOURCES=WEB_NEWS_SOURCES,
+                       load_reviewed_supplements=lambda: [], load_reviewed_digests=lambda: [reviewed],
+                       select_daily_news=lambda data, **kwargs: select_daily_news(data, now=now, **kwargs))
+        exec(compile(ast.Module(body=nodes, type_ignores=[]), 'news-route', 'exec'), context)
+        for lang in ('ja', 'en'):
+            response = app.test_client().get('/api/morning-news?lang=' + lang)
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertEqual(data['delivery'], 'published')
+            self.assertEqual(data['digest'], reviewed)
+            self.assertEqual(reviewed, original)
+
     def test_html_revalidates_and_only_hashed_features_get_long_cache(self):
         import os
         import re

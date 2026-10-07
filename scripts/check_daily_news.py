@@ -2,19 +2,33 @@
 from datetime import datetime, timedelta, timezone
 import json
 import math
+from pathlib import Path
 import re
+import sys
 import time
 from urllib.parse import urlsplit
 from urllib.request import urlopen
 
+if __package__ in (None, ''):
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+from news_copy_policy import COPY_LENGTH_POLICY, summary_bounds
+
 BASE = 'https://investment-bot-ta24.onrender.com'
 JST = timezone(timedelta(hours=9))
+# Mirrored from the public format without importing server/SDK dependencies.
+LEAD_OTHER_NEWS_STRUCTURE = 'lead-plus-other-news-v1'
+PUBLICATION_STATES = frozenset(('starting', 'waiting', 'disabled', 'collecting', 'freezing',
+    'source_empty', 'source_unavailable', 'waiting_for_writer', 'prepared', 'ready',
+    'generating', 'generation_failed', 'daily_limit', 'storage_unavailable',
+    'cache_unavailable', 'unavailable', 'invalid_edition', 'configuration_unavailable'))
 
 
 def valid_official_delivery(data, now):
     """Check the public frozen-source contract with stdlib only (CI has no SDKs)."""
     try:
         digest = data['digest']
+        if digest.get('lang') != 'ja':
+            return False
         day = now.replace(hour=0, minute=0, second=0, microsecond=0)
         previous = day - timedelta(days=1)
         expected = {'version': 1, 'edition_date': day.date().isoformat(),
@@ -33,10 +47,18 @@ def valid_official_delivery(data, now):
         refs, details = digest['article_refs'], digest['article_summaries']
         if not isinstance(refs, list) or len(refs) != len(data['news']) or not isinstance(details, list) or len(details) != len(refs):
             return False
-        for text in [digest] + details:
+        policy = digest.get('copy_length_policy')
+        if 'copy_length_policy' in digest and policy != COPY_LENGTH_POLICY:
+            return False
+        structure = digest.get('reading_structure')
+        if 'reading_structure' in digest and (structure != LEAD_OTHER_NEWS_STRUCTURE
+                or policy != COPY_LENGTH_POLICY):
+            return False
+        for role, text in [('overview', digest)] + [('article', item) for item in details]:
+            minimum, maximum = summary_bounds(role, policy)
             if (not isinstance(text, dict) or not isinstance(text.get('headline'), str)
                     or not 1 <= len(text['headline'].strip()) <= 80
-                    or not isinstance(text.get('summary'), str) or not 200 <= len(text['summary'].strip()) <= 300):
+                    or not isinstance(text.get('summary'), str) or not minimum <= len(text['summary'].strip()) <= maximum):
                 return False
         fields = ('source', 'title', 'url', 'published_at', 'published_date',
                   'publication_precision', 'body_sha256', 'body_verified_at', 'selection_route',
@@ -45,6 +67,9 @@ def valid_official_delivery(data, now):
         if (len({ref['url'] for ref in refs}) != len(refs)
                 or sorted(map(repr, map(identity, data['news']))) != sorted(map(repr, map(identity, refs)))
                 or sorted(map(repr, map(identity, details))) != sorted(map(repr, map(identity, refs)))):
+            return False
+        if structure is not None and any(detail.get('url') != ref.get('url')
+                                         for detail, ref in zip(details, refs)):
             return False
         for ref in refs:
             if not isinstance(ref.get('title'), str) or not 1 <= len(ref['title'].strip()) <= 1000:
@@ -104,6 +129,7 @@ def current_delivery(data, now):
     """A dated headline fallback is usable, but never a successful AI edition."""
     today = now.date().isoformat()
     if (now.hour < 8 or not isinstance(data, dict) or data.get('policy_version') != 4
+            or 'error' in data
             or data.get('edition_date') != today or data.get('selection_status') != 'ready'
             or data.get('lang') != 'ja'):
         return None
@@ -177,17 +203,32 @@ def main():
             # actual job with persistent per-day attempt limits.
             with urlopen(BASE + '/api/news-publication', timeout=60) as response:
                 state = json.load(response)
-            print(json.dumps(state, ensure_ascii=False), flush=True)
             # Warm the public feed even when AI is disabled or has used its
             # daily attempts. Keep waking until 08:00; exiting at 07:30 would
             # otherwise leave a sleeping site with only yesterday's edition.
             with urlopen(BASE + '/api/morning-news?lang=ja', timeout=45) as response:
                 published = json.load(response)
+            # A slow wake/request can cross 08:00 or midnight. Attest what was
+            # actually observed after the responses, not the request start.
+            now = datetime.now(JST)
+            if now.date().isoformat() != expected:
+                raise SystemExit('Japan date changed before publication')
+            status = state.get('status') if isinstance(state, dict) else None
+            print(json.dumps({'event': 'publication_observation', 'edition_date': expected,
+                'checked_at': now.isoformat(timespec='seconds'),
+                'status': status if isinstance(status, str) and status in PUBLICATION_STATES else 'unknown'},
+                ensure_ascii=False), flush=True)
             delivery = current_delivery(published, now)
             if delivery == 'published':
+                release = now.replace(hour=8, minute=0, second=0, microsecond=0)
+                print(json.dumps({'event': 'current_edition_first_observed',
+                    'edition_date': expected, 'observed_at': now.isoformat(timespec='seconds'),
+                    'seconds_since_scheduled_release': round((now - release).total_seconds(), 3),
+                    'timing_note': 'First observed availability; not proof of exact 08:00 release.'},
+                    ensure_ascii=False), flush=True)
                 print('Current Japan edition is publicly available.', flush=True)
                 return 0
-            if (now.hour >= 8 and state.get('status') == 'source_empty'
+            if (now.hour >= 8 and isinstance(state, dict) and state.get('status') == 'source_empty'
                     and state.get('edition_date') == expected and state.get('source_mode') == 'official'
                     and state.get('sources') == ['総務省統計局', '財務省']
                     and state.get('cutoff_at') == now.replace(hour=7, minute=30, second=0, microsecond=0).timestamp()

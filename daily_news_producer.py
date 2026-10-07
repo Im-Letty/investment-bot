@@ -15,6 +15,7 @@ import time
 
 import requests
 from news_cache import JST, _validated_digest
+from news_copy_policy import summary_bounds
 from daily_news_sources import collect_articles
 from official_news_sources import _safe_url as _official_url
 from urllib.parse import urlsplit
@@ -77,34 +78,50 @@ class Providers:
         self.env = os.environ if environ is None else environ
         self.session = session or requests.Session()
 
+    def _request_seconds(self, provider, payload):
+        return 100
+
+    def _request_read_timeout(self, provider, payload):
+        return 45
+
+    def _gemini_thinking_budget(self, model, *, search):
+        return 1024
+
+    def _decode_response(self, provider, payload, chunks):
+        """Default JSON transport; website Claude may consume bounded SSE."""
+        return json.loads(b''.join(chunks))
+
     def _post(self, url, headers, payload, provider):
         _check_deadline()
         started = time.monotonic()
-        deadline = started + 100
+        request_seconds = self._request_seconds(provider, payload)
+        deadline = started + request_seconds
         total_deadline = _generation_deadline.get()
-        remaining = total_deadline - started if total_deadline is not None else 100
+        remaining = total_deadline - started if total_deadline is not None else request_seconds
         if remaining <= 0:
             raise GenerationError('generation_deadline')
         if total_deadline is not None:
             deadline = min(deadline, total_deadline)
         try:
             with self.session.post(url, headers=headers, json=payload,
-                                   timeout=(min(10, remaining), min(45, remaining)),
+                                   timeout=(min(10, remaining),
+                                            min(self._request_read_timeout(provider, payload), remaining)),
                                    stream=True, allow_redirects=False) as response:
                 _check_deadline()
                 if response.status_code != 200:
                     raise GenerationError(f'{provider}_http_{response.status_code}')
-                chunks, size = [], 0
-                while True:
-                    chunk = response.raw.read1(65536, decode_content=True)
-                    _check_deadline()
-                    size += len(chunk)
-                    if size > 1_000_000 or time.monotonic() > deadline:
-                        raise GenerationError(f'{provider}_response_limit')
-                    if not chunk:
-                        break
-                    chunks.append(chunk)
-                return json.loads(b''.join(chunks))
+                def chunks():
+                    size = 0
+                    while True:
+                        chunk = response.raw.read1(65536, decode_content=True)
+                        _check_deadline()
+                        size += len(chunk)
+                        if size > 1_000_000 or time.monotonic() > deadline:
+                            raise GenerationError(f'{provider}_response_limit')
+                        if not chunk:
+                            return
+                        yield chunk
+                return self._decode_response(provider, payload, chunks())
         except (requests.RequestException, ValueError) as exc:
             if isinstance(exc, GenerationError):
                 raise
@@ -117,7 +134,8 @@ class Providers:
         payload = {'systemInstruction': {'parts': [{'text': instruction}]},
                    'contents': [{'role': 'user', 'parts': [{'text': json.dumps(data, ensure_ascii=False)}]}],
                    'generationConfig': {'temperature': 0, 'maxOutputTokens': 6000,
-                                        'thinkingConfig': {'thinkingBudget': 1024}}}
+                                        'thinkingConfig': {'thinkingBudget':
+                                            self._gemini_thinking_budget(model, search=search)}}}
         if search:
             payload['tools'] = [{'google_search': {}}]
         else:
@@ -389,7 +407,11 @@ def _official_articles(articles, window, now):
     return clean
 
 
-def build_issue(draft, articles, now, *, source_window=None):
+def build_issue(draft, articles, now, *, source_window=None, copy_length_policy=None):
+    try:
+        summary_bounds('overview', copy_length_policy)
+    except ValueError:
+        raise GenerationError('invalid_copy_length_policy') from None
     official = source_window is not None
     if official:
         source_window = _source_window(source_window, now)
@@ -421,10 +443,15 @@ def build_issue(draft, articles, now, *, source_window=None):
                                    for ref, d in zip(refs, details)]}
     if official:
         issue['source_window'] = deepcopy(source_window)
+    if copy_length_policy is not None:
+        # Trusted caller selects the version. Never read it from AI draft data.
+        issue['copy_length_policy'] = copy_length_policy
     normalized = _validated_digest(issue)
     if normalized is None:
-        sizes = [row['characters'] for row in writing_feedback(draft)]
-        if any(not 200 <= size <= 300 for size in sizes):
+        feedback = writing_feedback(draft, copy_length_policy=copy_length_policy)
+        sizes = [row['characters'] for row in feedback]
+        if any(not row['required_min'] <= row['characters'] <= row['required_max']
+               for row in feedback):
             raise GenerationError('invalid_edition_lengths_' + '_'.join(str(min(n,99999)) for n in sizes))
         raise GenerationError('invalid_edition')
     summary_text = re.sub(r'\s+', '', normalized['summary'])
@@ -434,13 +461,19 @@ def build_issue(draft, articles, now, *, source_window=None):
     return normalized
 
 
-def writing_feedback(draft):
+def writing_feedback(draft, *, copy_length_policy=None):
     """Exact counts, rather than asking a model to estimate Japanese length."""
     rows = [('summary', draft.get('summary'))]
     rows.extend((f'articles[{i}].summary', row.get('summary'))
                 for i, row in enumerate(draft.get('articles', [])) if isinstance(row, dict))
-    return [{'field': key, 'characters': len(value.strip()) if isinstance(value, str) else 0,
-             'required_min': 200, 'required_max': 300, 'target': 250} for key, value in rows]
+    result = []
+    for key, value in rows:
+        role = 'overview' if key == 'summary' else 'article'
+        minimum, maximum = summary_bounds(role, copy_length_policy)
+        result.append({'field': key, 'characters': len(value.strip()) if isinstance(value, str) else 0,
+                       'required_min': minimum, 'required_max': maximum,
+                       'target': 300 if copy_length_policy is not None and role == 'article' else 250})
+    return result
 
 
 def _edition_context(value):

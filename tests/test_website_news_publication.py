@@ -19,6 +19,7 @@ from scripts.check_daily_news import current_delivery
 from tests.test_daily_news_runtime import MemoryStorage, issue as legacy_issue
 from tests.test_isolated_news_producer import sources, article_reply, overview_reply, approved
 from tests.test_official_news_publication import stamp
+from tests.test_website_news_producer import claude_events, sse_bytes
 from website_news import website_news
 from website_news_producer import WebsiteProviders, generate_website_edition, configuration_metadata
 
@@ -27,7 +28,7 @@ class FixtureResponse:
     status_code = 200
 
     def __init__(self, value):
-        content = json.dumps(value, ensure_ascii=False).encode()
+        content = value if isinstance(value, bytes) else json.dumps(value, ensure_ascii=False).encode()
         buffer = io.BytesIO(content)
         self.raw = Mock()
         self.raw.read1.side_effect = lambda size, **kwargs: buffer.read(size)
@@ -74,6 +75,8 @@ class FixtureSession:
             return response
         if name == 'openai' and self.mode == 'invalid_json':
             response['output'][0]['content'][0]['text'] = 'not-json'
+        if name == 'claude' and payload.get('stream') is True:
+            response = sse_bytes(claude_events(response))
         return FixtureResponse(response)
 
 
@@ -168,11 +171,16 @@ class WebsitePublicationTests(unittest.TestCase):
                 self.assertLessEqual(len(self.sessions[0].calls), 8)
                 self.sessions[0].close.assert_called_once()
 
-    def test_application_wiring_uses_website_generator(self):
+    def test_application_wiring_uses_explicit_website_writer_role(self):
         tree = ast.parse((Path(__file__).parents[1] / 'line_bot.py').read_text())
         start = next(node.value for node in tree.body if isinstance(node, ast.Assign)
                      and any(isinstance(target, ast.Name) and target.id == '_daily_news' for target in node.targets))
-        self.assertEqual(start.args[1].id, 'generate_website_edition')
+        self.assertIsInstance(start.args[1], ast.Call)
+        self.assertEqual(start.args[1].func.id, 'server_generator')
+        self.assertEqual(start.args[1].args[0].id, '_news_config')
+        role = next(item.value for item in start.keywords if item.arg == 'generation_owner')
+        self.assertEqual(role.value.id, '_news_config')
+        self.assertEqual(role.slice.value, 'generation_owner')
         for code in ('generation_call_limit', 'generation_budget_required'):
             self.assertEqual(_safe_generation_error(RuntimeError(code)), code)
 

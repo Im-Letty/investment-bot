@@ -1022,7 +1022,9 @@ test('missing, future and noncurrent publication dates never display as today',a
 
 test('intro visuals and animation timeline remain byte-identical to the approved release',()=>{
   const child=require('node:child_process');
-  const before=child.execFileSync('git',['show','77ec036:index.html'],{cwd:path.join(__dirname,'..'),encoding:'utf8',maxBuffer:2e6});
+  // Current approved production baseline. The former 77ec036 baseline predates
+  // the already deployed intro updates and failed even on the untouched HEAD.
+  const before=child.execFileSync('git',['show','a484385fdeb72b3b1be20c09ab3b261ee3a127cc:index.html'],{cwd:path.join(__dirname,'..'),encoding:'utf8',maxBuffer:2e6});
   const after=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
   function intro(html){const start=html.indexOf('    <!-- Approved mint glass intro');const end=html.indexOf('<!-- LP -->',start);return html.slice(start,end);}
   assert.equal(intro(after),intro(before));
@@ -1101,6 +1103,54 @@ function officialMorning(app,precision='second'){
   data.digest.article_summaries=[{...ref,headline:'日本経済の発表を確認',summary:'内容を確認した個別の記事を説明する文章です。'.repeat(10)}];
   return data;
 }
+
+test('flexible reviewed copy survives API, embedded initial copy and saved browser reuse',async()=>{
+  for(const origin of ['api','embedded','saved']){
+    const app=harness(),data=officialMorning(app);
+    data.digest.copy_length_policy='flexible-v1';
+    data.digest.summary='概'.repeat(330);
+    data.digest.article_summaries[0].summary='説'.repeat(220)+'\n\n'+'補'.repeat(218);
+    if(origin==='embedded')app.nodes.knInitialNews={textContent:JSON.stringify(data)};
+    if(origin==='saved')app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));
+    app.event('DOMContentLoaded');if(origin==='api')await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(html.includes(data.digest.summary));
+    assert.ok(html.includes('説'.repeat(220))&&html.includes('補'.repeat(218)));
+    const saved=JSON.parse(app.storage.get('kn_published_news_v1_ja'));
+    assert.equal(saved.digest.copy_length_policy,'flexible-v1');
+    assert.deepEqual(saved.digest.article_summaries,data.digest.article_summaries);
+    app.context.loadMorningNews();
+    assert.ok(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+  }
+});
+
+test('flexible copy counts Unicode characters and permits concise complete text without padding',async()=>{
+  for(const [overview,detail] of [['📌'.repeat(330),'📌'.repeat(440)],['要点を伝える短い文章です。','発表を短く紹介します。\n\n追加の情報を説明します。']]){
+    const app=harness(),data=officialMorning(app);
+    data.digest.copy_length_policy='flexible-v1';data.digest.summary=overview;
+    data.digest.article_summaries[0].summary=detail;
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(html.includes(overview));assert.ok(html.includes('article-summary'));
+  }
+});
+
+test('flexible copy rejects unknown policy, empty or over-limit text and changed source evidence',async()=>{
+  const changes=[
+    d=>d.digest.summary=' \n\t　', d=>d.digest.summary='概'.repeat(331),
+    d=>d.digest.article_summaries[0].summary=' \n\t　',
+    d=>d.digest.article_summaries[0].summary='説'.repeat(441),
+    d=>d.digest.article_summaries[0].body_sha256='b'.repeat(64),
+    d=>d.digest.publish_at-=1,
+    ...[null,true,{},[],'flexible-v2'].map(policy=>d=>d.digest.copy_length_policy=policy),
+  ];
+  for(const change of changes){
+    const app=harness(),data=officialMorning(app);data.digest.copy_length_policy='flexible-v1';change(data);
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(!html.includes('brief-summary'));assert.ok(!html.includes('article-summary'));
+  }
+});
 
 test('official morning edition retains yesterday publication date and edited attribution on first visit and cache',async()=>{
   for(const origin of ['api','embedded','saved']){
@@ -1191,4 +1241,66 @@ test('late-verification deferral requires verification after the previous cutoff
     app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
     assert.equal(app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),valid,precision+' '+offset);
   }
+});
+
+function leadOtherMorning(app,count=3){
+  const data=officialMorning(app,'day'),base=data.news[0];
+  data.digest.copy_length_policy='flexible-v1';
+  data.digest.reading_structure='lead-plus-other-news-v1';
+  data.digest.summary='代表ニュースだけを短く説明します。';
+  data.digest.article_refs=Array.from({length:count},(_,i)=>({...base,title:'別の公式発表'+i,url:'https://www.mof.go.jp/policy/example'+i+'.html'}));
+  data.digest.article_summaries=data.digest.article_refs.map((ref,i)=>({...ref,headline:'追加ニュース'+i+'<img>',summary:'記事'+i+'を単独で説明します。\n\n原文で確認した別の内容です。'}));
+  // The API news list may be sorted for another language; the reviewed reference
+  // order determines the representative and the order of the extra stories.
+  data.news=data.digest.article_refs.map(ref=>({...ref})).reverse();
+  return data;
+}
+
+test('lead plus other news shows one representative and only the independently reviewed extra articles',async()=>{
+  for(const count of [1,2,3])for(const origin of ['api','embedded','saved']){
+    const app=harness(),data=leadOtherMorning(app,count),before=JSON.stringify(data);
+    if(origin==='embedded')app.nodes.knInitialNews={textContent:before};
+    if(origin==='saved')app.storage.set('kn_published_news_v1_ja',before);
+    app.event('DOMContentLoaded');
+    if(origin==='api')await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(html.includes(data.digest.summary));
+    assert.doesNotMatch(html,/追加ニュース0|記事0を単独で/);
+    assert.equal((html.match(/class="story summarized-story"/g)||[]).length,count-1);
+    assert.equal(html.includes('class="read-more"'),count>1);
+    assert.match(html,/href="https:\/\/www.mof.go.jp\/policy\/example0.html"/);
+    assert.match(html,/datetime="2026-09-11">/);
+    assert.doesNotMatch(html,/1970|00:00|<img>/);
+    for(let i=1;i<count;i++){
+      assert.ok(html.includes('追加ニュース'+i+'&lt;img&gt;'));
+      assert.ok(html.includes(data.digest.article_summaries[i].summary));
+    }
+    if(count===3)assert.ok(html.indexOf('追加ニュース1')<html.indexOf('追加ニュース2'));
+    if(count>1){assert.match(html,/ほかのニュース/);assert.doesNotMatch(html,/もっと詳しく/);}
+    assert.equal(JSON.stringify(data),before);
+    assert.deepEqual(JSON.parse(app.storage.get('kn_published_news_v1_ja')).digest,data.digest);
+  }
+});
+
+test('new reading marker cannot alter legacy copy or bypass source, policy and ordered detail requirements',async()=>{
+  const invalid=[
+    d=>delete d.digest.source_window,
+    d=>delete d.digest.copy_length_policy,
+    d=>delete d.digest.article_summaries,
+    d=>delete d.digest.publication_mode,
+    d=>d.digest.article_summaries.reverse(),
+    d=>d.digest.article_summaries[1].body_sha256='b'.repeat(64),
+    ...[null,true,{},[],'lead-plus-other-news-v2'].map(marker=>d=>d.digest.reading_structure=marker)
+  ];
+  for(const change of invalid){
+    const app=harness(),data=leadOtherMorning(app);change(data);app.event('DOMContentLoaded');
+    await app.reply(app.requests[0],data);
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary));
+    assert.equal(app.storage.has('kn_published_news_v1_ja'),false);
+  }
+  const app=harness(),legacy=leadOtherMorning(app);delete legacy.digest.reading_structure;
+  legacy.digest.article_summaries.reverse();app.event('DOMContentLoaded');await app.reply(app.requests[0],legacy);
+  const html=app.nodes['morning-news-content'].innerHTML;
+  assert.equal((html.match(/class="story summarized-story"/g)||[]).length,3);
+  assert.match(html,/追加ニュース0|もっと詳しく/);assert.doesNotMatch(html,/ほかのニュース/);
 });

@@ -9,7 +9,7 @@ import time
 
 from flask import Response
 from market_snapshot import validated_market
-from news_cache import (JST, PUBLISHED_NEWS_SOURCES, _publication_time, _validated_digest,
+from news_cache import (JST, LEAD_OTHER_NEWS_STRUCTURE, PUBLISHED_NEWS_SOURCES, _publication_time, _validated_digest,
                         load_reviewed_digests, load_reviewed_supplements,
                         select_daily_news)
 
@@ -89,6 +89,9 @@ def render_news_markup(data):
     calendar = (f'<div class="calendar" aria-label="掲載対象日 {data["edition_date"]} {weekday}">'
                 f'<strong>{edition:%d}</strong><small>{weekday}</small></div>')
     digest = data.get("digest")
+    lead_and_others = (digest or {}).get("reading_structure") == LEAD_OTHER_NEWS_STRUCTURE
+    ordered_news = ([next(item for item in data["news"] if item["url"] == ref["url"])
+                     for ref in digest["article_refs"]] if lead_and_others else data["news"])
     headlines_only = data.get("delivery") == "headlines" and not digest
     sources = f'<span class="headline-source">{esc(" / ".join(groups))}</span>' if digest else ''
     if digest and any(source in ("総務省統計局", "財務省") for source in groups):
@@ -96,6 +99,9 @@ def render_news_markup(data):
     if digest:
         brief = (f'<div class="daily-digest" lang="ja"><h4 class="brief-headline">{esc(digest["headline"])}</h4>'
                  f'<p class="brief-summary">{esc(digest["summary"])}</p></div>')
+        if lead_and_others:
+            brief += (f'<div class="headline-meta">{_publication(ordered_news[0])}'
+                      f'{_article_link(ordered_news[0])}</div>')
     elif headlines_only and data["news"]:
         brief = ('<h4 class="brief-headline">今日の見出し</h4>'
                  f'<p class="news-empty">{edition:%Y/%m/%d} · 本日の要約は未掲載です。</p>'
@@ -111,7 +117,7 @@ def render_news_markup(data):
         brief = f'<p class="news-empty">{message}</p>'
     stories = []
     article_summaries = {item["url"]: item for item in (digest or {}).get("article_summaries", [])}
-    for item in ([] if headlines_only else data["news"]):
+    for item in ([] if headlines_only else ordered_news[1:] if lead_and_others else ordered_news):
         key = esc("article:" + item["url"])
         authored = article_summaries.get(item["url"])
         if authored:
@@ -136,8 +142,9 @@ def render_news_markup(data):
                                f'<div class="story-content"><p>{esc(item["editorial_reason"])}</p>'
                                f'<div class="headline-meta">{_article_link(item)}</div></div></details>')
         stories.append('<section class="news-supplements"><h4>日付付きの補足</h4>' + "".join(supplements) + '</section>')
+    more_label = 'ほかのニュース' if lead_and_others else 'もっと詳しく'
     more = (('<details class="read-more" data-news-key="more"><summary data-news-focus="more">'
-             '<span class="closed-label">もっと詳しく</span><span class="open-label">閉じる</span>'
+             f'<span class="closed-label">{more_label}</span><span class="open-label">閉じる</span>'
              '<span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'
              + "".join(stories) + '</div></details>') if stories else '')
     if data.get("delivery") == "published":

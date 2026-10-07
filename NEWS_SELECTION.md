@@ -1,8 +1,268 @@
 # Website news selection
 
-## Implemented website source path — local verification (2026-10-05)
+## Writer decision: Codex, same editorial policy (2026-10-07)
 
-The locally implemented automatic website path uses **総務省統計局・財務省**. `website_news.py` explicitly enables those two sources in `official_news_sources.py`; it does not retrieve BOJ or start the shared LINE RSS cache. Collection, the immutable morning source window, drafting/review, saved-edition validation and public metadata are connected in the local code. This document describes that implementation and offline verification, **not a completed deployment or a confirmed production 08:00 release**.
+The owner selected **Codex signed in with ChatGPT** as the website's future
+summary writer to reduce Claude API costs. This is a writer migration, not a
+change to article selection, factual standards or final review requirements.
+The local entry point is `codex_website_producer.generate_codex_website_edition`.
+Its provider calls the same `isolated_news_producer` article and overview stages
+with their complete existing instructions and frozen evidence. The internal
+method name `claude()` is only a compatibility seam; this entry point makes no
+Anthropic request and never falls back to an API writer.
+
+The inherited policy is:
+
+- Front overview: explain one verified lead story in about **200–300
+  Japanese characters**. Opened details: one or two other distinct stories,
+  each about **200–400**. Accuracy
+  and readability take priority, with the existing 330/440 upper room; do not
+  pad or repeatedly buy rewrites solely to reach the length target.
+- Write clear, polite Japanese for a middle-school reader. Explain necessary
+  unfamiliar terms, avoid difficult terms in the headline, and use only numbers
+  needed to understand the event. The overview normally uses at most two
+  numbers other than dates, not a target to fill.
+- Keep each detail understandable on its own: identify its separate event and
+  add useful source-backed explanation. Do not repeat the opening event.
+- Preserve who did what, conditions, scope, units and degree of certainty.
+  A plan, possibility or discussion is not a completed action. Do not invent
+  daily-life effects or a future outlook when the source does not support them.
+- Choose at most three suitable distinct topics; never manufacture topics on
+  quiet days. Keep real announcement dates, source attribution, source-body
+  hashes and the existing morning-window selection/release rules.
+
+Gemini and OpenAI must independently check the **same final copy** against
+the original verified bodies. The existing local checks and both fresh reviews
+remain mandatory before publication. ChatGPT-authenticated Codex drafting uses
+the subscription's Codex allowance; Gemini/OpenAI review requests still use
+their separate APIs and can incur charges. An API-authenticated CLI is rejected
+before drafting, and review keys are not passed to the Codex subprocess.
+
+Subscription writing is capped at eight CLI attempts per edition, including
+failures. Paid reviews retain Gemini's three-request and OpenAI's two-request
+ceilings, at most five HTTP attempts combined. The same 12-minute overall
+deadline applies. A stopped writer or failed review cannot publish a draft.
+
+**Current boundary:** this is an undeployed migration candidate, not confirmation
+of a production writer switch or a successful 08:00 release. In the candidate,
+`website_news_execution.py` defaults to the external Codex writer role: Render
+collects and freezes sources, reports `waiting_for_writer`, and consumes only a
+reviewed durable edition. It never claims a generation attempt or invokes a
+paid writer in that role. `NEWS_WEBSITE_WRITER=claude` is an explicit legacy
+rollback setting, not an automatic fallback. The currently deployed server
+has not received this wiring change and may still invoke its previous writer.
+
+`scripts/run_codex_news.py` is the real-clock local worker. Its default invocation
+only reports missing configuration names and CLI availability; it performs no
+authentication, collection, generation or storage writes. Live operation needs
+both `--run-live` and `--once` or `--serve`. **That live mode can publish** through
+the private shared storage and is not the private rehearsal. It must only be
+started after the private final-copy review and actual connection checks.
+There are no simulated dates or force/upload options. Existing frozen bodies,
+history and immutable claim records are shared with the server. By default the
+local worker permits one durable generation attempt per day, including failed
+attempts; restart does not reset that cap. That bounds an automatic day to at
+most eight Codex CLI writing calls and five review HTTP requests. Raising the
+cap is an explicit operator choice. Claims refresh the actual clock after slow
+storage reads so a late read cannot start generation outside the allowed hours
+or consume the recovery lease before writing starts.
+
+The Mac's server-storage connection and recurring local execution are not
+connected yet. The local runner now has an explicit `--use-keychain` mode that
+reuses the existing private-test Gemini/OpenAI keys. Its default check queries
+attributes only and never reads credential bytes. A separate, owner-approved
+Supabase URL/service-key pair is required in the fixed production Keychain item;
+metadata presence must not be mistaken for successful connection or valid keys. The Mac must be running for the local path. Do not
+copy personal login tokens into Render or silently restart the old paid writer
+as a substitute.
+
+Transport check on October 7: one actual ChatGPT-authenticated Codex call
+produced a locally valid draft from the October 5 MOF HTML announcement. No
+review API was called. That historical HTML-only check is explicitly private
+and nonpublishable; it does not establish complete attachment verification,
+the two fresh final-copy reviews, today's news eligibility or a daily release.
+
+References: [Codex authentication](https://learn.chatgpt.com/docs/auth),
+[non-interactive structured output](https://learn.chatgpt.com/docs/non-interactive-mode).
+
+### Reader feedback and distinct-news preview (2026-10-07)
+
+The owner found the term `財務大臣` unfamiliar and the expanded stories too
+similar to the opening text. The requested reading structure is an opening
+news item followed by **different news**, rather than a more detailed retelling
+of the opening item. The new private example shows one opening story and two
+other distinct stories. It preserves the real October 2/5 announcement dates
+and is not today's morning edition. The toggle example is `ほかのニュース`.
+It must not repeat the opening event, split one event into extra stories, or
+fill a quiet day with old announcements disguised as new news.
+
+The example uses the Japan–Australia dialogue memorandum, August employment,
+and the separately verified October 2 MOF press-conference statement about
+reviewing government-funded activities. It is kept separately from the earlier
+approved text. Its revised copy has **not** received fresh Gemini/OpenAI
+approval; it is a nonpublishable structure example, with no paid API calls.
+
+The shared readability guard now requires `財務大臣` to be explained at the
+first occurrence in each standalone body and avoided in headlines. The fixed
+role example is `国のお金の使い方などを担当する大臣`, based on the
+[MOF functions page](https://www.mof.go.jp/about_mof/introduction/functions/index.htm).
+This general role must not imply that spending was decided in this announcement
+or that one minister alone controls every government decision. Both semantic
+reviewers must still check those distinctions. The affected checks passed 126
+tests at that stage; this local guard change is undeployed. The follow-up guard
+also explains `基金` and `総務省統計局` at each standalone body's first occurrence
+and avoids the country abbreviations `豪州`/`日豪` in headlines. These fixed
+explanations describe general meanings; they never establish a current funding
+decision, new agency task or achieved effect.
+
+The local migration now uses the code-owned
+`reading_structure: lead-plus-other-news-v1` marker. The overview receives only
+the lead article's evidence, while ordered `selected_indexes` retains all
+selected articles for the complete final-copy checks. Saved-digest validation,
+server initial rendering and browser rendering preserve this contract. Both
+reviewers check the opening and every additional article against all selected
+originals. Only marked new editions omit the lead detail from the expanded UI;
+older editions retain their original complete rendering. The public reading
+structure remains undeployed until the real storage connection and local
+recurring worker are ready.
+
+
+### Actual distinct-news copy check (2026-10-07, 18:10 JST)
+
+A separate fresh nonpublic run used the three verified historical originals
+listed above. Codex produced a lead overview and three complete article drafts;
+Gemini and OpenAI both approved the same complete final copy and all selected
+originals. This run includes the new role/fund/agency explanation guards and
+full country names in headlines. It used four subscription CLI writing calls,
+one Gemini HTTP review and one OpenAI HTTP review, with no Anthropic request.
+The final-copy SHA-256 is
+`a56d86428c4e870b97e99e046c36fb808135c5a72f1f9fb8dcabfc1a66806d95`;
+both approved submission hashes are
+`8f9a6ae3345600572d0e9ae45651f8e8b83fa3be0a5d58d951072767801eb796`.
+This is historical-copy confirmation only, not current morning eligibility,
+production storage publication, a deployed writer switch or a real 08:00 test.
+
+The resulting local regression checks passed 442 Python tests and 90 browser
+rendering/refresh tests. The actual Mac preflight also verified the saved
+ChatGPT subscription login without generating text or creating a daily claim.
+A secret-free candidate archive and readiness report were saved separately.
+
+### Production handoff checks prepared (2026-10-07)
+
+`scripts/check_codex_connection.py` is a separate read-only connection checker.
+The default only reports saved-item metadata. Explicit
+`--check-live --use-keychain` loads the storage pair and makes at most three
+fixed GETs: the private `website-news` bucket, today's preparation manifest and
+today's edition. It never creates storage, claims a generation attempt, fetches
+sources, invokes AI or prints credentials. Missing current objects, inaccessible
+credentials, authentication errors, network failures and nonprivate storage are
+separate states. A valid connection with no current issue is not a successful
+08:00 update.
+
+The Mac live runner checks the ChatGPT login before creating its runtime or
+claiming a daily attempt. `--run-live --serve --morning --use-keychain` accepts
+new real-clock ticks only from 06:45 through 08:14:59 JST and stops scheduling
+new ticks at 08:15. An in-progress bounded generation can finish afterward;
+this is not a forced cancellation or a publication-time override. The normal
+Codex writer also rechecks its subscription login for every writing request.
+The one-attempt default, immutable claims, 12-minute generation ceiling and
+independent review gates remain unchanged. No native recurring job has yet
+been installed. The owner subsequently chose Mac-off operation; the private CI
+path below supersedes the local morning scheduling plan.
+
+### Mac-off private CI candidate (2026-10-07)
+
+The owner authorized Mac-off operation, production connection and a real 08:00
+check. The prepared candidate uses a **private GitHub Actions runner with native
+Codex CLI**, not the unverified built-in scheduling of an OpenAI-hosted Codex
+Cloud environment. Render collects and freezes the same two official sources.
+`scripts/run_private_news_job.py` waits for today's immutable manifest without
+starting a collector, then runs at most one durable generation attempt. Its
+default is dry and prints configuration names only.
+
+The private job starts around 07:17 JST, is bounded to 35 minutes and at most
+08:15, and requires at least 16 minutes remaining before generation. The
+inherited 12-minute generation budget and both final-copy review gates remain
+mandatory. There are no force, arbitrary-date, retry-cap or key arguments on
+this runner. Waiting/collecting/freezing and partial source checks cannot count
+as publication success. Both enabled official sources must be healthy before
+an empty window is called `source_empty`.
+
+`cloud_news_auth.py` handles only a **new, dedicated ChatGPT login**. It never
+seeds from the owner's existing Mac profile. It restores AES-256-GCM encrypted
+managed auth to a private temporary home, preserves refreshed auth even after
+generation failure, and rejects API-key auth. The fixed private ciphertext path
+is `ops/codex-auth/v1.json`; `CODEX_AUTH_ENCRYPTION_KEY` stays separately in the
+private CI secret manager. Fixed paths do not reduce the Supabase service-role
+key's project-wide privileges. Every use of this auth must be serialized; a
+failed checkpoint needs attention, and forced host termination may require a
+new dedicated login. This is not an uninterrupted-service guarantee.
+
+The public verifier now checks the new reading structure, ordered article
+references and language consistently with the publishing validator. It records
+the first observed release time and its delay after 08:00. Offline boundary
+tests do not prove that GitHub cron will start at a specific instant. Free
+GitHub scheduling and Render cold starts can still be delayed.
+
+The secret-free operations workflow and explanation are prepared separately in
+`../news-cloud-ops`. The external private repository, its credentials, the daily
+schedule and production cutover are **not connected**. Automatic approval review
+rejected repository creation because that specific external change needed
+explicit owner approval. No alternative route bypassed it. No real auth or API
+key was read or transferred for this CI preparation; no paid AI request or
+public-site request was made.
+
+### Actual private final-copy check (2026-10-07, 16:38 JST)
+
+The final historical-copy run used the real October 5 Ministry of Finance
+announcement with its verified complete supporting PDF, and the October 2
+Statistics Bureau release for August employment. Their original dates, body
+hashes and actual October 7 verification times were retained. The Tokyo CPI
+index page was excluded because the fetched body contained no result values.
+This is a private historical text test, not a current morning edition.
+
+The final run completed three ChatGPT-authenticated Codex writing calls and one
+actual review request to each of Gemini and OpenAI. Both approved the identical
+final draft and submission hash. An independent source/readability check
+found no remaining mandatory issue. The overview is 193 characters; the two
+details are 218 and 106, allowed by `flexible-v1` without padding a short source.
+The exact approved copy is preserved in the private result and preview; no
+post-approval copy edit, `build_issue`, runtime publication or LINE send occurred.
+
+An earlier approved draft still needed a readability correction: the
+employment overview only reported that results were announced, and its detail
+used an unexplained indicator. A second bounded run correctly stopped when
+OpenAI rejected an unexplained unemployment count. The shared instructions now
+require a statistical release's meaningful main result and comparison, and the
+local gate covers unemployment rates/counts, employment counts and seasonally
+adjusted values. A source-supported plain-language result may be chosen instead
+of inventing a definition. Revised copy always needs both fresh reviews.
+
+Across these three private runs there were twelve Codex writing calls and eight
+review API requests (Gemini four / OpenAI four), with zero Anthropic requests.
+These are request counts, not measured currency charges. The final affected
+regression checks passed 234 tests, and the private harness checks passed 60.
+Production remains undeployed: the real Mac worker's dry configuration check
+still reports missing shared-storage and reviewer environment configuration.
+The saved private-test Keychain keys remain available; they are not lost.
+Actual server handoff, local recurring execution and the production 08:00 release
+remain separate unfinished checks. Older Claude checkpoint sections below are
+historical evidence and do not override this result or prove deployment.
+
+## Website source path and verification status (2026-10-07)
+
+The owner reconfirmed this source pair on October 7: continue collecting the
+Statistics Bureau and Ministry of Finance originals directly, without adding
+Gemini Search to the morning source path. Codex writes the easy-Japanese copy;
+Gemini and OpenAI are the two independent reviewers, not substitute collectors.
+Both must approve the identical final copy against the identical verified
+originals after any repair. Unverified evidence, unresolved factual concerns,
+or an unavailable reviewer must block a new publication. Zero misinformation
+is the owner's aim, not a guarantee established by official attribution or
+two AI approvals. The two agencies' limited announcement feeds do not cover
+every economic development or establish continuous real-time coverage.
+
+The locally implemented automatic website path uses **総務省統計局・財務省**. `website_news.py` explicitly enables those two sources in `official_news_sources.py`; it does not retrieve BOJ or start the shared LINE RSS cache. Collection, the immutable morning source window, drafting/review, saved-edition validation and public metadata are connected in the local code. The official source/runtime path was deployed in earlier revisions. The recovered Codex writer/adapter candidate now has the private historical-copy approval above, but its actual server-storage connection and deployment remain unfinished; an actual production 08:00 release has not been confirmed.
 
 The owner selected public-agency announcements on 2026-10-05, with **日本銀行** also proposed, but BOJ remains on hold pending clarification of its use conditions. Broader market, disclosure and licensed news sources remain later candidates. The [statistics-site terms](https://www.stat.go.jp/info/riyou.html) and [finance-ministry terms](https://www.mof.go.jp/about_mof/notice/index.html) were rechecked on 2026-10-05. For those two agencies, use the selected announcement text under the applicable PDL1.0 terms, credit the source URL and identify the site's summary as edited content. Do not assume that third-party material, imagery, logos or separately restricted content is covered.
 
@@ -71,7 +331,7 @@ BOJ has not been cleared for external-AI submission or public summaries. The abs
 
 対象は公式新着RSSに掲載された金融政策の決定資料のHTML・PDF本文です。例として https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k260918a.pdf のような資料を想定しています。朝の準備時間帯に少数回取得し、原文の発表日・リンクを保持する方法を計画しています。
 
-取得した本文をAnthropic・Google・OpenAIのAPIへ送信して文章生成と内容照合を行い、1件につき200〜300字程度の独自の日本語要約を作成する想定です。当方でAIモデルを学習させる目的はありません。API事業者側の保存・学習利用条件は契約・設定によって異なるため、必要な条件をご教示いただいた上で適合を確認する予定です。
+取得した本文をAnthropic・Google・OpenAIのAPIへ送信して文章生成と内容照合を行い、1件につき200〜400字程度を目安とする独自の日本語要約を作成する想定です。当方でAIモデルを学習させる目的はありません。API事業者側の保存・学習利用条件は契約・設定によって異なるため、必要な条件をご教示いただいた上で適合を確認する予定です。
 
 原文全文、写真、ロゴ等を掲載する予定はなく、サイトが作成した要約であること、貴行の資料名・出典リンク・実際の発表日を示す予定です。
 
@@ -103,19 +363,19 @@ These rules describe the retained RSS compatibility selector. The official morni
 
 ## One short daily summary
 
-The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. Opening Read more shows each news item with its own plain Japanese headline and **200–300 characters per article**. These individual summaries are readable together without another disclosure click or leaving the site. Publisher names are listed once beside the footer publication date, without repeating them on each article. Publication times and original article links remain alongside each summary.
+The front of the card shows one short headline and **200–300 Japanese characters for the two or three topics combined**. Opening Read more shows each news item with its own plain Japanese headline and **200–400 characters per article as a guideline**. These individual summaries are readable together without another disclosure click or leaving the site. Publisher names are listed once beside the footer publication date, without repeating them on each article. Publication times and original article links remain alongside each summary.
 
 The writer, length repair and both reviewers share the same readability rules. Keep the combined summary to normally two essential numbers besides dates; preserve every comparison period. Each detail begins with one short sentence identifying the development, then adds source-backed information or an explanation, so it stands alone without repeating the whole overview. Do not turn a proposal or stated intention into a decision in a headline. These are generation and review requirements, not a guarantee that AI will never make a mistake.
 
-`news-digests.json` holds committed reviewed Japanese copy, supplemented by validated runtime editions. Each record contains `edition_date`, `lang: "ja"`, `headline` (1–80 characters), `summary` (200–300 characters), and `article_refs`. Every reference contains the verified `source`, normalized `url`, original `published_at` of the linked article, and its exact `title`. Official-window records additionally preserve `published_date`, `publication_precision`, `body_sha256`, `body_verified_at` and `selection_route`; date-only articles have a null `published_at`. The authored Japanese text keeps its language marker when a reader changes the interface language.
+`news-digests.json` holds committed reviewed Japanese copy, supplemented by validated runtime editions. Each record contains `edition_date`, `lang: "ja"`, `headline` (1–80 characters), `summary` (200–300 characters for legacy unmarked copy), and `article_refs`. New website editions set the code-selected `copy_length_policy: "flexible-v1"`: the overview aims for 200–300 characters and details aim for 200–400, with 10% upper room (330 and 440) for necessary explanations/qualifications. A nonempty shorter summary is allowed if it passes all other validation and both final content reviews; no padding is purchased merely to reach 200. Every reference contains the verified `source`, normalized `url`, original `published_at` of the linked article, and its exact `title`. Official-window records additionally preserve `published_date`, `publication_precision`, `body_sha256`, `body_verified_at` and `selection_route`; date-only articles have a null `published_at`. The authored Japanese text keeps its language marker when a reader changes the interface language.
 
-The `article_summaries` list adds a `headline` (1–80 characters) and `summary` (200–300 characters) to each article's exact reference metadata, including the official date/verification fields when present. It must cover all reference articles exactly once. Partial, duplicate, mismatched or malformed copy invalidates the reviewed digest; a missing list retains the older link-only behavior for compatible saved records. New automatic editions include individual summaries. Original source titles remain in the provenance records. Both initial HTML and browser rendering use the same reviewed copy. Short paragraphs are authored with line breaks, and all rendered text is escaped.
+The `article_summaries` list adds a `headline` (1–80 characters) and `summary` (legacy 200–300; `flexible-v1` nonempty and at most 440) to each article's exact reference metadata, including the official date/verification fields when present. It must cover all reference articles exactly once. Partial, duplicate, mismatched or malformed copy invalidates the reviewed digest; a missing list retains the older link-only behavior for compatible saved records. New automatic editions include individual summaries. Original source titles remain in the provenance records. Both initial HTML and browser rendering use the same reviewed copy. Short paragraphs are authored with line breaks, and all rendered text is escaped.
 
 An edition explicitly approved for publication uses `publication_mode: "curated"` and an actual `reviewed_at` timestamp. It requires one to three distinct references; do not invent a second topic on a quiet day. For official editions, every reference must qualify under the edition's `source_window`, and the review must finish on the edition date at or after 07:30. Original article dates may be earlier and are kept unchanged. `publish_at` is required and is no earlier than both 08:00 JST and the actual review completion. It gates a prepared edition until release and never backdates late approval. Saved legacy curated records without `source_window` retain their same-day publication-date validation and optional `publish_at` compatibility.
 
 The review covers every topic in the edition. RSS absence alone does not revoke a checked article, and unrelated new feed entries do not silently change the scope of its summary. Conflicting source identity, title, timestamp or body-version evidence within the same URL/original-date identity invalidates selection; a changed body is not automatically a new article. A recurring URL with a newly verified original release date is handled as a separate announcement. The latest released edition is selected by edition date and release timestamp. Equal latest dates/timestamps are ambiguous and revoke cached publication. A delayed or failed new edition leaves the previous publication under its original date.
 
-Unmarked legacy records remain tied to the exact current live selection before headline translation. All text in either path must meet the current 200–300 character limit.
+Unmarked legacy records remain tied to the exact current live selection before headline translation. Unmarked records retain strict 200–300 limits. Only code-marked `flexible-v1` records use the role-specific flexible bounds. Unknown or explicit-null policy values invalidate the record. This version is preserved through normalization, initial HTML, the API and browser storage/rendering.
 
 Before adding a review, read the source content, confirm its publication date, and combine overlapping events. Write for a middle-school reader: replace unfamiliar terms or explain them briefly at first use. Explain what happened and any supported relevance to daily life or companies. Include a next development only when the source establishes it; do not fill a mandatory outlook with speculation. Distinguish reported facts, general economic mechanisms and possible future effects. Do not invent causes from a headline, imply that prices must move in one direction, or manufacture a Japan-related consequence. Established background sources may verify a mechanism; they are not counted or presented as another piece of today's news.
 
@@ -176,9 +436,9 @@ The server runs `daily_news_runtime.py` every 30 seconds after a serving worker 
 
 `website_news_producer.generate_website_edition(now, articles=..., source_window=...)` validates the fixed official snapshot before any paid call through the shared source validators. It accepts only Statistics Bureau and Ministry of Finance articles with eligible dates, valid body hashes and verification times no later than cutoff. It preserves the caller's articles/window and never fetches extra articles or uses Gemini Search on this path. An empty or invalid snapshot does not start AI. It returns the existing `build_issue` digest contract, so storage, source references, initial HTML and the 08:00 release gate remain compatible. The older `daily_news_producer.generate_edition` entry remains compatibility code; the newly wired website runtime does not call it.
 
-Claude first writes each selected article separately, then writes one combined overview from the source-bound cards. Each detail and the entire overview must be 200–300 characters. Gemini and OpenAI independently check exactly the same final draft against the same selected frozen source bodies, evidence cards and date/window metadata for facts, dates, economic relevance, distinct topics, readability, unsupported outlook and copied wording. Neither reviewer receives the other's verdict. Both must return the strict boolean-check/issue-list contract and approve every check, with no outstanding issues. Agreement is not a guarantee of factual truth.
+Claude first writes each selected article separately, then writes one combined overview from the source-bound cards. The overview aims for 200–300 characters and each independently readable detail for 200–400. The code-selected `flexible-v1` policy allows necessary modest excess up to 330/440, respectively; empty copy is rejected and shorter copy still needs readability/content approval. Gemini and OpenAI independently check exactly the same final draft against the same selected frozen source bodies, evidence cards and date/window metadata for facts, dates, economic relevance, distinct topics, readability, unsupported outlook and copied wording. Neither reviewer receives the other's verdict. Both must return the strict boolean-check/issue-list contract and approve every check, with no outstanding issues. Agreement is not a guarantee of factual truth.
 
-Each article/overview stage has at most two writing attempts, and there are at most two complete editorial-review rounds, always subject to the stricter remaining HTTP budget. Only fixed failed-check names enter a rewrite; free-form reviewer prose cannot leak another article's conditions into its source-isolated context. A revised draft requires fresh approval by both reviewers. Invalid review JSON, connection errors, refusals, incomplete output, expired deadlines or an exhausted budget stop the attempt without publishing. The new path never invokes legacy `fit_lengths`, never appends text through its repair route, and never falls back to a mixed-source draft. No eligible body or a failed check leaves the previous published edition under its original date.
+Each article/overview stage has at most three local writing attempts (the initial draft and up to two local-validation corrections), and there are still at most two complete editorial-review rounds, always subject to the stricter remaining HTTP budget. The extra local correction does not relax the policy-selected safety bounds, readability, evidence or final-review requirements. It does not force a paid rewrite merely because a nonempty complete text is shorter than the target or modestly exceeds it within the allowed safety bounds. Only fixed failed-check names enter an editorial rewrite; free-form reviewer prose cannot leak another article's conditions into its source-isolated context. A revised draft requires fresh approval by both reviewers. Invalid review JSON, connection errors, refusals, incomplete output, expired deadlines or an exhausted budget stop the attempt without publishing. The new path never invokes legacy `fit_lengths`, never appends text through its repair route, and never falls back to a mixed-source draft. No eligible body or a failed check leaves the previous published edition under its original date.
 
 The website adapter allows **Claude six / Gemini three / OpenAI two, at most eight HTTP attempts in total, and a 12-minute cooperative deadline**. Three details plus their overview require four writing calls; two local validation repairs and both final reviewers can now fit in the unchanged total ceiling. The historical private rehearsal used a four-call writing cap. A complete editorial rewrite may still exceed the available total and must stop safely; the allowance is not a promise that every repair will fit. Counts include failed requests and Gemini's internal output-token retry. Before writing, `reserve_drafting` checks the pending detail/overview calls and at least one remaining review by each provider; it does not promise that an additional token retry will fit. A new website attempt creates a fresh single-use provider. Its Session is closed and its private environment copy cleared on success or failure. An earlier inherited deadline is never extended. These are per-attempt limits; the daily retry limits below also apply.
 
@@ -188,21 +448,37 @@ Private Supabase Storage bucket `website-news` stores collection-slot claims/sna
 
 Server-only `GEMINI_API_KEY`, `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, `SUPABASE_URL` and service-role `SUPABASE_KEY` are required. Missing OpenAI configuration disables new automatic generation rather than silently skipping its review; previously published editions remain available. The new website adapter's defaults are **Claude Sonnet 4.6 (`claude-sonnet-4-6`), Gemini 2.5 Flash and GPT-6 Luna**. Explicit `NEWS_CLAUDE_MODEL`, `NEWS_GEMINI_MODEL` and `NEWS_OPENAI_MODEL` settings are respected without modifying the caller's environment. The October 6 workflow status from deployed revision `a6d38b3` confirmed these three effective models. An existing override can still select another model. The retained shared Providers class keeps its older Haiku default; the website adapter does not change the LINE generator.
 
+For the exact default `claude-sonnet-4-6`, the local website adapter uses `thinking: {type: enabled, budget_tokens: 2048, display: omitted}`, `output_config.effort: medium`, `max_tokens: 8000` and streaming, without a `temperature` field. The stream decoder discards thinking, redacted-thinking and signature blocks, and accepts only a complete ordered response with `end_turn`, `message_stop` and clean EOF. Partial streamed text cannot become a draft. The vendor still supports manual thinking for this model, although it is deprecated; 2048 is a thinking target, not a strict thinking cap or guaranteed final-answer reservation. The 8000 ceiling bounds the combined response. This exact native website path has a 180-second per-request window and 90-second read timeout; other paths retain their 100/45-second limits. The existing 1 MB response bound, eight-total HTTP ceiling and 12-minute cooperative attempt deadline remain unchanged. Non-default Claude overrides and the shared/LINE provider retain their existing paths. These local revisions still await a newly passing real-AI/editorial check and deployment; historical private successes do not establish that check or an actual production 08:00 release.
+
+The exact website `gemini-2.5-flash` review with search disabled uses `thinkingBudget: 4096`. Shared/LINE, search-enabled calls and explicit other model overrides retain 1024. Thinking and response text share the unchanged 6000-token output cap; only a genuine `MAX_TOKENS` result may use the existing bounded 12000-token retry. Every HTTP attempt, including that retry, counts against the same limits. This setting provides more room to compare the complete source bodies and completed draft; it is not factual approval and cannot convert a rejection into a retry or success.
+
 OpenAI uses the Responses API with a strict review JSON schema, medium reasoning, a 4,000-token output cap and `store: false`; it receives no browser session or ChatGPT credentials. API access and billing must be configured in the owner's OpenAI project. A ChatGPT subscription is not the API credential. Production uses Render's server environment, while the wake/check workflow needs no provider keys. **macOS Keychain credentials used for local private tests are not transferred to Render automatically.** `DAILY_NEWS_ENABLED=0` stops automatic paid generation while retaining published content. No new paid hosting plan or news subscription is created.
 
-### Source-isolated writer — shared by the private test and deployed website adapter
+### Source-isolated writer — shared by the private test and website adapter
 
-`isolated_news_producer.py` is used by `work/news-private-final-preview/live_morning_rehearsal.py` and the deployed `website_news_producer.py`. Each article is drafted and repaired with only its own frozen body, attachments and dates. The code fixes its source index, splits the exact body into numbered passages, and resolves the AI's chosen evidence IDs only within that article. The AI does not retype original quotes. These reference checks do not prove the interpretation is true: the complete final draft still requires independent Gemini and OpenAI approval against the originals.
+`isolated_news_producer.py` is used by `work/news-private-final-preview/live_morning_rehearsal.py` and the website adapter `website_news_producer.py`. Each article is drafted and repaired with only its own frozen body, attachments and dates. The code fixes its source index, splits the exact body into numbered passages, and resolves the AI's chosen evidence IDs only within that article. The AI does not retype original quotes. These reference checks do not prove the interpretation is true: the complete final draft still requires independent Gemini and OpenAI approval against the originals.
 
-The candidate takes at most three records in the preparation snapshot's existing stable order. This is a bounded candidate set, not an importance ranking of every announcement. A separate overview call receives source-bound cards, not all original bodies, and cannot alter the details. Details remain independently readable, two paragraphs and 200–300 characters; the whole overview is also 200–300 characters. A correction never falls back to the old mixed-source full-draft or length-repair call. Free-form reviewer issues do not enter article calls because they can contain another article's conditions; only fixed failed-check names are supplied. Reducing duplicate topics to one article also removes the old multi-article overview from the next writing input.
+The candidate takes at most three records in the preparation snapshot's existing stable order. This is a bounded candidate set, not an importance ranking of every announcement. A separate overview call receives source-bound cards, not all original bodies, and cannot alter the details. Details remain independently readable and two paragraphs, aiming for 200–400 characters; the whole overview aims for 200–300. Necessary modest excess is accepted up to 440/330, respectively. Writer guidance favors short complete sentences of about 40–45 characters, with source meaning, necessary qualifications and readability taking precedence over soft length targets. It never pads copy to reach the lower target. A correction never falls back to the old mixed-source full-draft or length-repair call. Free-form reviewer issues do not enter article calls because they can contain another article's conditions; only fixed failed-check names are supplied. Reducing duplicate topics to one article also removes the old multi-article overview from the next writing input.
+
+Each detail answers one reader question with one additional concrete point from its own source, rather than listing internal coordination methods. The introduction identifies the actor, date and core event in one short sentence, aiming for 40–70 characters without dropping required scope or conditions. The second paragraph explains the selected point and its necessary qualifications; an explicit source purpose is included there only when it helps explain that point. These are soft structure targets; the policy-selected character safety bounds and two-paragraph checks remain mandatory. A fictional 218-character style example illustrates this structure without introducing real announcement facts. Confirmed actors can be stated explicitly, but a missing actor cannot be borrowed from an adjacent item. Participants, procedural responsibilities, signing dates and announcement dates remain distinct. Omitting a nonessential claim also omits its conditions; retaining a claim requires retaining the qualifications that limit its meaning, including applicable confidentiality, classification and jurisdictional requirements elsewhere in the same document. The actor exploring support must remain distinct from a financing institution whose functions are used; conditions must not be narrowed to statutory requirements without source support. Undefined specialist names do not justify inventing a general definition: omit a nonessential name and explain the documented purpose or role instead. This does not require enumerating conditions for methods the article does not adopt.
+
+Review originals and evidence cards follow the final draft's declared article-index order, even when it differs from collection order. Bodies, hashes, dates and indexes are unchanged; both reviewers receive identical newly assembled projections. This reduces positional confusion without changing selection, interpreting sources for the reviewer or overriding a verdict.
+
+The overview headline describes only one core action from the first selected article, without implying an unsupported sequence of meeting and signing. New isolated overviews are locally limited to 35 headline characters; detail headlines retain their 80-character compatibility limit. Bounded correction receives a numeric headline-length measurement, and the native overview schema repeats the same actor/action scope without unsupported JSON-schema length patterns. Correction-only system directives now follow the general task and example, keeping the existing fixed-vocabulary and measured-length feedback at the end; initial drafting instructions remain unchanged. This ordering is not a factual validator or a guarantee that a model follows the instruction. It must not combine another article's signatory, date or document into a shared event. The overview prose separately states each article's actor, core event and explicit purpose; its quotations verify those selected claims and qualifications rather than supply a list of methods. Both reviewers check the same first-article headline correspondence, event-date precision and separation of the overview from detailed methods. Review input keeps completed headline/summary text only under `draft`; `article_evidence` contains the selected index, unchanged facts/quotes and source reference. Both reviewers identify the exact `draft.headline`, `draft.summary` or `draft.articles[*]` field before reporting an issue, avoiding attribution of a detail title to the overview. This does not relax the factual or editorial checks, and both receive identical newly corrected drafts and complete original bodies. A mocked two-article regression uses different signatories and event dates with the same publication date: a merged headline is rejected without publication, and a newly written correction requires fresh identical-draft review by both providers.
 
 The isolated generator requires a budget-checking provider in both paths. If a two-article draft fails after three Claude calls, a repair needing another three Claude calls stops before spending on it. No approval is reused for a revised draft. Private diagnostic records omit the fact cards and original evidence quotes; they retain chosen public-draft text, redacted review findings, source-reference metadata, safe validation codes and numeric candidate measurements. Original bodies and supporting-document metadata remain private, never part of the public digest. Offline regressions exercise the legal-condition/anniversary mix-up and the simulated 07:59:59 / 08:00 release boundary.
 
-The writer can return `summary` plus **at most two optional complete `summary_alternatives`** in the same bounded response; the normal instruction requests one alternative. Shared source IDs, headline, evidence and selection metadata must validate independently of the alternatives. Code selects the first complete candidate satisfying the existing 200–300-character, paragraph and copy rules, discards the alternatives, and sends only the chosen final draft to both reviewers. It never truncates or stitches candidate prose. If all candidates fail, the same two stage attempts and HTTP caps apply. Rejection cannot silently select an unreviewed alternative. Diagnostic metadata records the selected candidate and measured counts without persisting unused alternatives. This can avoid a length-only repeat request, but increases output tokens per response; no general cost or success-rate improvement is claimed.
+The writer can return `summary` plus **at most two optional complete `summary_alternatives`** in the same bounded response; the normal instruction requests one alternative. Shared source IDs, headline, evidence and selection metadata must validate independently of the alternatives. Code selects the first complete candidate satisfying the policy-selected character safety bounds, paragraph and copy rules, discards the alternatives, and sends only the chosen final draft to both reviewers. It never truncates or stitches candidate prose. If all candidates fail, the same three local stage attempts and unchanged Claude-six/eight-total HTTP caps apply. Rejection cannot silently select an unreviewed alternative. Diagnostic metadata records the selected candidate and measured counts without persisting unused alternatives. This can avoid a length-only repeat request, but increases output tokens per response; no general cost or success-rate improvement is claimed.
 
-Writing instructions preserve the actor, action, object, counted unit and certainty in facts, headlines, details and overview. Agreement to explore cooperation must not become agreement to implement it; confirmed signatures must not be weakened to guesses. The small copy rule currently checks eight unexplained terms: 経済安全保障, 法的拘束力, サプライチェーン, 官民, 覚書, 政策・金融関係機関, 重要鉱物 and 政府系金融機関. Headlines use everyday wording; necessary terms are explained at first occurrence in each independently readable summary. It never rewrites the original evidence or automatically substitutes a term. This checks wording structure, not semantic truth or measured reading age; both final reviews remain mandatory.
+Writing instructions preserve the actor, action, object, counted unit and certainty in facts, headlines, details and overview. Agreement to explore cooperation must not become agreement to implement it; confirmed signatures must not be weakened to guesses. The small copy rule checks a fixed list of unexplained terms, including 経済安全保障, 法的拘束力, 法的な拘束力, サプライチェーン, 官民, 覚書, 政策・金融関係機関, 重要鉱物, 政府系金融機関, マクロ経済, 融資, インド太平洋地域, 安全保障上の経済目標, エネルギー安全保障, 共同投資, 戦略的なリスク, グリーン産業, 機密指定, 共同出資, 戦略投資 and 戦略金融. Headlines use everyday wording; necessary terms are explained at first occurrence in each independently readable summary. The initial and correction prompts explicitly list the same fixed headline and first-use glossary vocabulary before the stage task; the terms are code-selected, never supplied by source text or reviewers. It never rewrites the original evidence or automatically substitutes a term. A separate headline-only rule refuses 「初めて」 and 「初の」 because compact headlines repeatedly broadened the first meeting of a named new framework into the first-ever conversation between its participants. A bounded rewrite must change that headline; adding a gloss does not resolve it. A separate narrow check also refuses observed signature-to-dialogue/meeting conjunctions such as 「署名し対話会合を開催」 before buying reviews; a bounded rewrite must choose one core action. This is not a Japanese grammar parser and other multi-action titles still require semantic review. Negated modifiers such as 「署名しない企業向けの説明会を開催」 are not caught. Accurate, qualified first-meeting wording in the article body remains allowed. This checks wording structure, not semantic truth or measured reading age; both final reviews remain mandatory.
 
-### Historical private failures — superseded by the successful run below
+### Copy-form adjustment after recovery (2026-10-07)
+
+The local readability validator now recognizes one narrowly defined explanation-first form for 経済安全保障. Its first occurrence in each summary may be immediately preceded by exactly one of 「経済の面から国の安全を守る考え方」, 「経済の面から国の安全を守ること」 or 「経済の面から国の安全を守る」 and enclosed in matching `（経済安全保障）` or `(経済安全保障)`. These fixed phrases are an editorial simplification informed by [the Ministry of Foreign Affairs explanation](https://www.mofa.go.jp/mofaj/ecm/es/index.html), not a verbatim official definition or proof that an article's use is accurate. The usual term-followed-by-explanation form remains preferred.
+
+This exception does not modify generated text or introduce a source/model-supplied glossary. It does not accept partial explanations, mismatched parentheses, an unexplained first use followed by a later gloss, or arbitrary reverse glosses for the other 20 fixed terms. All 21 terms remain prohibited in headlines. The policy-selected character safety bounds, detail paragraphs, evidence checks, finite call budgets and fresh independent Gemini/OpenAI review of the same final draft remain unchanged; an explanation's meaning must still pass both reviewers. Native private tests have exercised this local change, but it is not deployed. A machine-approved rehearsal after recovery was independently rejected for a dropped co-investment qualification; later runs stopped on genuine editorial or validation failures. No unverified or failed draft was published. The current source passes 480 free regression tests; the frozen 456-test recovery snapshot remains separate.
+
+### Historical private failures and earlier successful execution
 
 Before source isolation, three private session runs on 2026-10-05 ended in editorial rejection, eight HTTP calls each, including the Sonnet comparison and compact writer instructions. One draft applied the first document's conditions to a second official release. OpenAI rejected it while Gemini approved. At that stage, evidence separation was unresolved and no run had passed the editorial and simulated release gates together. These are historical failures, not the status of the latest implementation.
 
@@ -212,13 +488,13 @@ The subsequent bounded editorial rehearsal first stopped at a 311-character over
 
 The third run in that editorial session used four Claude calls, with details of 243 and 261 characters after one repair, then stopped at a 307-character overview. Neither reviewer was called for that run. All three runs together used 13 provider HTTP calls. Manual comparison also found that its first detail changed approximately 20 participating institutions into approximately 20 people; a valid character count would not have made that draft correct. The original HTML counts policy/financial institutions, not their representatives. The second document supports meetings in principle every year and an initial five-year cooperation period; these remain its own conditions, not conditions shared with the October 2 document. The session reached its three-run limit and erased its keys. No new edition or LINE message was sent, and neither a real-AI simulated release nor actual 08:00 publication succeeded.
 
-### Local saved credentials and latest successful private test
+### Local saved credentials and historical successful private test
 
 At the owner's explicit request to avoid repeated entry, the loopback-only form has a separate save-only step using native macOS Keychain bindings. The three keys are stored together in one fixed generic-password item, not project files, browser storage, command-line arguments or clipboard. Startup checks presence metadata only; saving does not collect sources or call AI. An explicit test click loads saved keys into a bounded in-memory batch of up to 60 minutes and three runs. Nonces and immutable run records prevent repeated requests from starting the same run twice. Expiry, finish and normal shutdown clear the memory batch and stop its active child, while retaining the Keychain item for later explicit tests. A separate confirmed delete action removes it. The owner handles any Keychain permission dialog. This local facility does not configure the Render server.
 
 The owner saved the keys and started two private tests on 2026-10-05. The first used five HTTP calls (Claude three, Gemini one, OpenAI one); OpenAI rejected unexplained specialist language while factual/date checks passed. The wording rules and term checks were then refined. The explicitly triggered repeat reused the saved keys without another input. The successful record is `work/news-private-final-preview/morning-session-afd5c2f592c54aa3a859a8d5b81f9de7-run-2/completion.json`, with `verified_success: true` and `status: private_rehearsal_passed`; it used **Claude Sonnet 4.6 and five HTTP calls: Claude three / Gemini one / OpenAI one**. The chosen overview was 283 characters and the details were 240 and 288 characters.
 
-Both reviewers approved the same final draft and all nine private checks passed: no generation before cutoff, identical new draft approved by both, unchanged source snapshot, hidden at simulated 07:59:59, ready and visible at simulated 08:00:00, public-checker contract, restart without regeneration, and no original bodies in the public payload. This proves that private execution, not real Render cron execution, exact-time availability or general factual correctness. No new public edition or LINE message was sent. Total for this saved-key session was ten provider HTTP calls across two runs. Live reuse without re-entry was observed; reuse across a real server restart remains covered only by offline tests. The later local website wiring and its 356 mocked/blocked tests added no paid calls.
+Both reviewers approved the same final draft and all nine private checks passed: no generation before cutoff, identical new draft approved by both, unchanged source snapshot, hidden at simulated 07:59:59, ready and visible at simulated 08:00:00, public-checker contract, restart without regeneration, and no original bodies in the public payload. This proves that private execution, not real Render cron execution, exact-time availability or general factual correctness. No new public edition or LINE message was sent. Total for this saved-key session was ten provider HTTP calls across two runs. Live reuse without re-entry was observed. On October 7, native tests also reused the retained Keychain item after a real local server restart without credential input; this confirms local reuse, not Render configuration. The later local website wiring and its 356 mocked/blocked tests added no paid calls.
 
 ### Deployment verification
 
@@ -242,3 +518,20 @@ The checker confirms a new publication only when the current curated summary is 
 - Reuters oil article distributed by [MarketScreener Saudi Arabia](https://sa.marketscreener.com/news/oil-falls-1-on-better-supply-outlook-hopes-for-us-iran-talks-ce785ad9db88f522): first publication 2026-09-23 07:45 +03, or 13:45 JST. Facts and the 04:21 GMT market observation were cross-checked in the complete attributed [Euronext distribution](https://live.euronext.com/en/financial-news/oil-falls-1-better-supply-outlook-hopes-us-iran-talks). The supply restart was on Tuesday; the article and price report are Wednesday's. No completed peace agreement is claimed.
 - Reuters currency article distributed by [MarketScreener Hong Kong](https://hk.marketscreener.com/news/dollar-holds-near-2-month-high-as-markets-weigh-rate-hikes-iran-diplomacy-ce785ad9d88ff025): first publication 2026-09-23 09:39 HKT, or 10:39 JST. Full text also verified via the [India distribution](https://in.marketscreener.com/news/dollar-holds-near-2-month-high-as-markets-weigh-rate-hikes-iran-diplomacy-ce785ad9d88ff025), whose first timestamp is 07:09 IST, the same instant. Modification times were not substituted for first publication. Possible intervention is not described as a confirmed action.
 - The import-cost/consumer-price mechanism is contextual explanation from the [Bank of Japan's 2026-03-02 speech, section 3](https://www.boj.or.jp/about/press/koen_2026/ko260302a.htm). It is not a third piece of current news. NHK's current RSS and metadata were available but full article text was not verified, so this edition uses two Reuters reports rather than fabricating NHK details.
+
+### Earlier recovered Claude candidate checkpoint (2026-10-07)
+
+The latest completed native rehearsal at this checkpoint was local attempt 58 (session run 18): actual official collection, two verified source bodies, Claude four / Gemini one / OpenAI one HTTP attempts. Gemini approved all checks. OpenAI accepted readability but rejected a factual and certainty change: identifying coordination points that could facilitate meetings had become a confirmed decision to establish coordination windows. No final verified public copy or private 08:00 success was produced. The supported manual-thinking configuration completed actual requests, but this is not approval of the resulting copy. The attempt stopped under its bounded repair-and-review reserve; it did not return a provider credit-balance error.
+
+The fixed writer instructions now distinguish identifying a coordination point from establishing a new window, preserve possibility rather than turn it into a decision, and avoid choosing a nonessential internal procedure just to fill the detail. An independent source comparison confirmed the rejection and a read-only patch audit confirmed that only two fixed instruction passages changed. All 467 free tests passed after this repair (3.382 seconds); the repaired instructions have not yet received a fresh native confirmation. At that checkpoint the observed Claude balance was USD 0.11, insufficient to complete another writing-and-review attempt; the later read-only audit observed USD -0.01. Replenishment, a fresh bounded native check and independent exact-copy editorial review remain required before deployment. Retained macOS Keychain credentials allow later explicit local tests without re-entry. This does not transfer credentials to Render.
+
+The private recent-carryover test uses an actual source collection and a previous-slot fixture, with a simulated upcoming 07:30 cutoff and 08:00 release; it does not reset or modify production attempts, publish a test edition or send LINE. Production remains at the previously verified commit; no new revision was committed, pushed or deployed at this checkpoint.
+
+
+## Earlier flexible-copy checkpoint before Codex verification — 2026-10-07
+
+At this earlier Claude-only checkpoint the local flexible-copy change had no new real-AI final approval or deployment, and rehearsal 58 remained rejected. The later Codex historical-copy approval above does not turn that earlier rehearsal into a pass or establish current morning eligibility. `flexible-v1` is selected by trusted website code, never an AI draft property; shared/LINE generation and unmarked historical copy retain strict 200–300 bounds. No approved text is truncated, spliced or padded. Both independent reviewers receive the same complete final draft and selected source bodies, with fresh approval mandatory after any change. The private diagnostic handoff also requires the policy version to match both reviews and the final edition while preserving exact text and hashes.
+
+Correction/cost controls below remain a **next implementation plan**, not completed features. The earlier Claude balance observation is historical; the later Codex test made no Anthropic request. Per-HTTP numeric usage and a persistent development monetary budget still need implementation for the remaining paid reviews, reserving fresh final reviews before sending a paid step. If the legacy Claude path is explicitly used, cumulative SSE usage must be updated, not repeatedly summed; retry requests are separate costs. Missing usage or interrupted requests remain unresolved reservations rather than being treated as free. Pricing estimates are not an absolute invoice guarantee, and external production/other-account activity is outside a local-only ledger.
+
+The existing eight-HTTP ceiling can fund the initial two-detail/overview/two-review path (five calls), but a complete two-detail editorial rewrite plus new overview and two fresh reviews requires another five, exceeding eight even without local retries. To reduce repair cost safely, define a strict code-validated review target (selected source index, overview/detail role and fixed failed check with verified evidence references), then retain unaffected drafts and correct only identified targets. Free-form review issues cannot select arbitrary repair scopes. The full revised edition still needs both fresh independent reviews. Do not raise request ceilings or waive reviews as a substitute for cumulative monetary controls.

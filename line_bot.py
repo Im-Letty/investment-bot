@@ -69,14 +69,14 @@ supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 # Website news is isolated from all LINE message/report handlers. Preparation
 # runs off-request; only validated, durably stored editions become visible.
-from daily_news_producer import configuration as news_configuration
-from website_news_producer import generate_website_edition, configuration_metadata
+from website_news_execution import configuration as news_configuration, server_generator, configuration_metadata
 from daily_news_runtime import start as start_daily_news
 from website_news import website_news, create_source_preparer
 _news_config = news_configuration()
 _daily_news = start_daily_news(
-    supabase, generate_website_edition, autostart=False,
+    supabase, server_generator(_news_config), autostart=False,
     enabled=_news_config["enabled"] and _news_config["configured"],
+    generation_owner=_news_config["generation_owner"],
     baseline_path=os.path.join(os.path.dirname(__file__), "news-digests.json"),
     cache_path=os.environ.get("NEWS_RUNTIME_PATH", "/tmp/kn-daily-news.json"),
     url=SUPABASE_URL, key=SUPABASE_KEY,

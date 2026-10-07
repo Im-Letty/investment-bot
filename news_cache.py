@@ -18,6 +18,7 @@ from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, urlopen
 
 import feedparser
+from news_copy_policy import COPY_LENGTH_POLICY, summary_bounds
 
 logger = logging.getLogger(__name__)
 JST = timezone(timedelta(hours=9))
@@ -330,6 +331,9 @@ def _official_ref(ref, window):
     return result
 
 
+LEAD_OTHER_NEWS_STRUCTURE = "lead-plus-other-news-v1"
+
+
 def _validated_digest(value):
     """Validate authored Japanese copy and the original articles it summarizes."""
     if not isinstance(value, dict) or value.get("lang") != "ja":
@@ -340,12 +344,25 @@ def _validated_digest(value):
     if mode not in (None, "curated"):
         return None
     curated = mode == "curated"
+    policy = value.get("copy_length_policy")
+    if "copy_length_policy" in value and policy != COPY_LENGTH_POLICY:
+        return None
+    try:
+        overview_min, overview_max = summary_bounds("overview", policy)
+        article_min, article_max = summary_bounds("article", policy)
+    except ValueError:
+        return None
     window = _official_window(value.get("source_window"), edition) if "source_window" in value else None
     if "source_window" in value and (window is None or not curated):
         return None
+    structure = value.get("reading_structure")
+    if "reading_structure" in value and (structure != LEAD_OTHER_NEWS_STRUCTURE
+            or not window or not curated or policy != COPY_LENGTH_POLICY
+            or "article_summaries" not in value):
+        return None
     if (not isinstance(edition, str) or not isinstance(headline, str)
             or not 1 <= len(headline.strip()) <= 80 or not isinstance(summary, str)
-            or not 200 <= len(summary.strip()) <= 300
+            or not overview_min <= len(summary.strip()) <= overview_max
             or not isinstance(refs, list) or not 1 <= len(refs) <= 3):
         return None
     articles, identities = [], set()
@@ -369,6 +386,8 @@ def _validated_digest(value):
         articles.append(official or dict(zip(("source", "url", "published_at", "title"), identity)))
     result = {"edition_date": edition, "lang": "ja", "headline": headline.strip(),
               "summary": summary.strip(), "article_refs": articles}
+    if policy is not None:
+        result["copy_length_policy"] = policy
     if window:
         result["source_window"] = window
     if "article_summaries" in value:
@@ -386,7 +405,7 @@ def _validated_digest(value):
             if (not isinstance(source, str) or not isinstance(title, str)
                     or not url or (published is None and not window) or not isinstance(heading, str)
                     or not 1 <= len(heading.strip()) <= 80 or not isinstance(body, str)
-                    or not 200 <= len(body.strip()) <= 300):
+                    or not article_min <= len(body.strip()) <= article_max):
                 return None
             identity = (source, url, published.timestamp() if published else None, title)
             if identity not in identities or identity in covered:
@@ -398,7 +417,15 @@ def _validated_digest(value):
             validated.append({**normalized,
                               "headline": heading.strip(), "summary": body.strip()})
         # Equal lengths plus unique exact identities require complete coverage.
+        # The new reading structure binds the lead to the first reference and
+        # the other independent stories to the same reviewed order. Older saved
+        # editions retain their existing coverage-only contract.
+        if structure is not None and any(
+                detail["url"] != ref["url"] for detail, ref in zip(validated, articles)):
+            return None
         result["article_summaries"] = validated
+    if structure is not None:
+        result["reading_structure"] = structure
     if curated:
         reviewed = _publication_time(value.get("reviewed_at"))
         titles = {" ".join(unicodedata.normalize("NFKC", ref["title"]).casefold().split())
