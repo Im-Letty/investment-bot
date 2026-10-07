@@ -8,7 +8,8 @@ import subprocess
 import sys
 from unittest.mock import patch
 from news_copy_policy import COPY_LENGTH_POLICY
-from scripts.check_daily_news import JST, check_window_seconds, current_delivery, healthy_quiet_response, main
+from scripts.check_daily_news import (JST, check_window_seconds, current_delivery,
+                                     healthy_quiet_response, main, publication_observation)
 
 
 class CheckWindowTests(unittest.TestCase):
@@ -151,6 +152,50 @@ class DeliveryCheckTests(unittest.TestCase):
         data['error'] = 'fixture-only failure'
         self.assertIsNone(current_delivery(data, self.now))
 
+    def test_observation_logs_actual_dates_without_copy_or_untrusted_metadata(self):
+        before = self.now - timedelta(seconds=1)
+        historical = self.published()
+        historical['edition_date'] = historical['digest']['edition_date'] = '2026-10-03'
+        historical['digest']['summary'] = 'private-copy-do-not-log'
+        historical['secret'] = 'do-not-log'
+        original = deepcopy(historical)
+        observation = publication_observation({'status': 'prepared', 'secret': 'do-not-log'}, historical, before)
+        self.assertEqual(observation['public_edition_date'], '2026-10-03')
+        self.assertEqual(observation['digest_edition_date'], '2026-10-03')
+        self.assertEqual(observation['public_delivery'], 'published')
+        self.assertTrue(observation['public_curated_summary'])
+        self.assertTrue(observation['before_scheduled_release'])
+        self.assertFalse(observation['current_edition_visible_before_release'])
+        self.assertNotIn('do-not-log', json.dumps(observation))
+        self.assertEqual(historical, original)
+        malformed = {'edition_date': '2026-02-30', 'delivery': 'do-not-log',
+                     'digest': {'edition_date': '2026-1-04', 'summary': 'do-not-log'}}
+        observation = publication_observation({'status': 'do-not-log'}, malformed, before)
+        self.assertIsNone(observation['public_edition_date'])
+        self.assertIsNone(observation['digest_edition_date'])
+        self.assertEqual(observation['public_delivery'], 'unknown')
+        self.assertEqual(observation['status'], 'unknown')
+        self.assertNotIn('do-not-log', json.dumps(observation))
+
+    def test_observation_flags_visible_current_curated_copy_only_before_release(self):
+        current = self.marked_official_published()
+        before = self.now - timedelta(seconds=1)
+        self.assertTrue(publication_observation({}, current, before)['current_edition_visible_before_release'])
+        self.assertFalse(publication_observation({}, current, self.now)['current_edition_visible_before_release'])
+        for change_public_date in (True, False):
+            mismatched = deepcopy(current)
+            if change_public_date:
+                mismatched['edition_date'] = '2026-10-03'
+            else:
+                mismatched['digest']['edition_date'] = '2026-10-03'
+            self.assertTrue(publication_observation({}, mismatched, before)
+                            ['current_edition_visible_before_release'])
+        for changes in ({'delivery': 'rehearsal'}, {'digest': None}, {'news': []}):
+            self.assertFalse(publication_observation({}, {**current, **changes}, before)
+                             ['current_edition_visible_before_release'])
+        current['digest']['publication_mode'] = 'draft'
+        self.assertFalse(publication_observation({}, current, before)['current_edition_visible_before_release'])
+
     def test_observation_uses_response_time_and_reports_only_observed_delay(self):
         for seconds in (0, 21):
             clock = {'now': self.now - timedelta(seconds=1)}
@@ -179,13 +224,17 @@ class DeliveryCheckTests(unittest.TestCase):
             self.assertEqual(observation['checked_at'], clock['now'].isoformat(timespec='seconds'))
             self.assertEqual(first['observed_at'], observation['checked_at'])
             self.assertEqual(first['seconds_since_scheduled_release'], seconds)
+            self.assertFalse(first['pre_release_observed'])
+            self.assertFalse(observation['before_scheduled_release'])
+            self.assertEqual(observation['public_edition_date'], self.data['edition_date'])
+            self.assertEqual(observation['public_delivery'], 'published')
             self.assertIn('not proof of exact 08:00 release', first['timing_note'])
             self.assertNotIn('do-not-log', output.getvalue())
             self.assertNotIn(data['digest']['summary'], output.getvalue())
 
     def test_pre_release_response_is_not_published_and_midnight_response_fails_closed(self):
         before = self.now - timedelta(seconds=1)
-        for response_at, message in ((before, 'was not confirmed'),
+        for response_at, message in ((before, 'publicly visible before 08:00 JST'),
                 (self.now + timedelta(days=1), 'Japan date changed')):
             clock = {'elapsed': 0, 'now': before}
             def fetch(url, **options):
@@ -210,6 +259,34 @@ class DeliveryCheckTests(unittest.TestCase):
                     main()
                 self.assertNotIn('current_edition_first_observed', output.getvalue())
                 self.assertNotIn('publicly available', output.getvalue())
+
+    def test_first_observed_availability_records_actual_pre_release_hidden_response(self):
+        before = self.now - timedelta(seconds=1)
+        historical = self.published()
+        historical['edition_date'] = historical['digest']['edition_date'] = '2026-10-03'
+        historical['news'][0]['published_date'] = '2026-10-03'
+        historical['news'][0]['published_at'] -= 86400
+        current = self.marked_official_published()
+        clock = {'elapsed': 0}
+        def sleep(seconds):
+            clock['elapsed'] += seconds
+        responses = [{'status': 'prepared'}, historical, {'status': 'ready'}, current]
+        with patch('scripts.check_daily_news.datetime') as date_mock, \
+                patch('scripts.check_daily_news.check_window_seconds', return_value=120), \
+                patch('scripts.check_daily_news.time.monotonic', side_effect=lambda: clock['elapsed']), \
+                patch('scripts.check_daily_news.time.sleep', side_effect=sleep), \
+                patch('scripts.check_daily_news.urlopen', side_effect=[io.BytesIO(json.dumps(x).encode()) for x in responses]), \
+                patch('sys.stdout', new_callable=io.StringIO) as output:
+            date_mock.now.side_effect = lambda tz: before + timedelta(seconds=clock['elapsed'])
+            date_mock.strptime.side_effect = datetime.strptime
+            date_mock.fromtimestamp.side_effect = datetime.fromtimestamp
+            self.assertEqual(main(), 0)
+        observations = [json.loads(line) for line in output.getvalue().splitlines() if line.startswith('{')]
+        self.assertEqual(observations[0]['public_edition_date'], '2026-10-03')
+        self.assertTrue(observations[0]['before_scheduled_release'])
+        self.assertFalse(observations[0]['current_edition_visible_before_release'])
+        self.assertTrue(observations[-1]['pre_release_observed'])
+        self.assertEqual(observations[-1]['seconds_since_scheduled_release'], 59)
 
     def test_official_checker_accepts_flexible_role_bounds_without_mutating_copy(self):
         for overview_length, article_length in ((1, 1), (180, 350), (330, 440)):

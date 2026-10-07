@@ -1,5 +1,5 @@
 """External wake/check only. No secrets, AI calls, LINE endpoints or Git writes."""
-from datetime import datetime, timedelta, timezone
+from datetime import date, datetime, timedelta, timezone
 import json
 import math
 from pathlib import Path
@@ -125,6 +125,43 @@ def check_window_seconds(now):
     return min(maximum, max(65 * 60, (release_grace - now).total_seconds()))
 
 
+def publication_observation(state, data, now):
+    """Log only dated delivery metadata, including an actual pre-release leak."""
+    def safe_day(value):
+        if not isinstance(value, str) or len(value) != 10:
+            return None
+        try:
+            parsed = date.fromisoformat(value)
+            return value if parsed.isoformat() == value else None
+        except ValueError:
+            return None
+
+    state = state if isinstance(state, dict) else {}
+    data = data if isinstance(data, dict) else {}
+    digest = data.get('digest')
+    digest = digest if isinstance(digest, dict) else {}
+    status = state.get('status')
+    delivery = data.get('delivery')
+    public_day = safe_day(data.get('edition_date'))
+    digest_day = safe_day(digest.get('edition_date'))
+    articles = data.get('news')
+    summary = digest.get('summary')
+    visible = (delivery == 'published' and digest.get('publication_mode') == 'curated'
+               and isinstance(articles, list) and bool(articles)
+               and isinstance(summary, str) and bool(summary.strip()))
+    before_release = now < now.replace(hour=8, minute=0, second=0, microsecond=0)
+    return {'event': 'publication_observation', 'edition_date': now.date().isoformat(),
+            'checked_at': now.isoformat(timespec='seconds'),
+            'status': status if isinstance(status, str) and status in PUBLICATION_STATES else 'unknown',
+            'public_edition_date': public_day,
+            'public_delivery': delivery if delivery in ('published', 'headlines') else 'unknown',
+            'digest_edition_date': digest_day,
+            'public_curated_summary': visible,
+            'before_scheduled_release': before_release,
+            'current_edition_visible_before_release': (before_release and visible
+                and now.date().isoformat() in (public_day, digest_day))}
+
+
 def current_delivery(data, now):
     """A dated headline fallback is usable, but never a successful AI edition."""
     today = now.date().isoformat()
@@ -194,6 +231,7 @@ def main():
     expected = initial.date().isoformat()
     window = check_window_seconds(initial)
     headlines_seen = False
+    pre_release_observed = False
     while time.monotonic() - started < window:
         now = datetime.now(JST)
         if now.date().isoformat() != expected:
@@ -213,17 +251,20 @@ def main():
             now = datetime.now(JST)
             if now.date().isoformat() != expected:
                 raise SystemExit('Japan date changed before publication')
-            status = state.get('status') if isinstance(state, dict) else None
-            print(json.dumps({'event': 'publication_observation', 'edition_date': expected,
-                'checked_at': now.isoformat(timespec='seconds'),
-                'status': status if isinstance(status, str) and status in PUBLICATION_STATES else 'unknown'},
+            observation = publication_observation(state, published, now)
+            print(json.dumps(observation,
                 ensure_ascii=False), flush=True)
+            if observation['current_edition_visible_before_release']:
+                raise SystemExit('Current curated edition was publicly visible before 08:00 JST')
+            if observation['before_scheduled_release'] and healthy_quiet_response(published, now):
+                pre_release_observed = True
             delivery = current_delivery(published, now)
             if delivery == 'published':
                 release = now.replace(hour=8, minute=0, second=0, microsecond=0)
                 print(json.dumps({'event': 'current_edition_first_observed',
                     'edition_date': expected, 'observed_at': now.isoformat(timespec='seconds'),
                     'seconds_since_scheduled_release': round((now - release).total_seconds(), 3),
+                    'pre_release_observed': pre_release_observed,
                     'timing_note': 'First observed availability; not proof of exact 08:00 release.'},
                     ensure_ascii=False), flush=True)
                 print('Current Japan edition is publicly available.', flush=True)
