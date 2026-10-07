@@ -15,9 +15,9 @@ concurrency:
   cancel-in-progress: false
 jobs:
   prepare-and-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 245
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Keep the website awake and verify the morning edition
         run: python scripts/check_daily_news.py
