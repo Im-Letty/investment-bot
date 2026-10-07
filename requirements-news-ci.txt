@@ -1,5 +1,7 @@
-# Minimal dependencies for the isolated news runner. No web server or LINE SDK.
+# Isolated runner and response-contract tests. No server is started or LINE SDK loaded.
 requests==2.34.2
 feedparser==6.0.14
 pypdf==6.19.0
 cryptography==50.0.1
+# Only the pre-publication handoff tests import Flask Response.
+Flask==3.1.3
