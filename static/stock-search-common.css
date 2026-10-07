@@ -51,4 +51,4 @@ body.kn-home-a #knTabWrap .kn-stock-search-open{font:400 calc(15px * var(--kn-a-
 #knTabWrap .kn-stock-search-company strong{font-size:calc(16px * var(--kn-a-scale,1))!important}
 #knTabWrap .kn-stock-search-company span{font-size:calc(14px * var(--kn-a-scale,1))!important}
 @media(max-width:380px){#knTabWrap .kn-stock-search-form{gap:6px;padding-left:10px}#knTabWrap .kn-stock-search-form button{padding-inline:12px}}
-@media(max-width:380px){body.kn-home-a #knTabWrap .kn-stock-heading{gap:8px}body.kn-home-a #knTabWrap .kn-stock-heading>.kn-a-section-title{font-size:calc(22px * var(--kn-a-scale,1))!important}body.kn-home-a #knTabWrap .kn-stock-search-dialog{padding-inline:14px}}
+@media(max-width:380px){body.kn-home-a #knTabWrap .kn-stock-heading{gap:4px}body.kn-home-a #knTabWrap .kn-stock-heading>.kn-a-section-title{font-size:calc(22px * var(--kn-a-scale,1))!important}body.kn-home-a #knTabWrap .kn-stock-search-dialog{padding-inline:14px}}
