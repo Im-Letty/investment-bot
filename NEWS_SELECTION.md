@@ -170,10 +170,10 @@ independent review gates remain unchanged. No native recurring job has yet
 been installed. The owner subsequently chose Mac-off operation; the private CI
 path below supersedes the local morning scheduling plan.
 
-### Mac-off private CI candidate (2026-10-07)
+### Mac-off private CI deployment (2026-10-07)
 
 The owner authorized Mac-off operation, production connection and a real 08:00
-check. The prepared candidate uses a **private GitHub Actions runner with native
+check. The deployed implementation uses a **private GitHub Actions runner with native
 Codex CLI**, not the unverified built-in scheduling of an OpenAI-hosted Codex
 Cloud environment. Render collects and freezes the same two official sources.
 `scripts/run_private_news_job.py` waits for today's immutable manifest without
@@ -204,13 +204,24 @@ the first observed release time and its delay after 08:00. Offline boundary
 tests do not prove that GitHub cron will start at a specific instant. Free
 GitHub scheduling and Render cold starts can still be delayed.
 
-The secret-free operations workflow and explanation are prepared separately in
-`../news-cloud-ops`. The external private repository, its credentials, the daily
-schedule and production cutover are **not connected**. Automatic approval review
-rejected repository creation because that specific external change needed
-explicit owner approval. No alternative route bypassed it. No real auth or API
-key was read or transferred for this CI preparation; no paid AI request or
-public-site request was made.
+The operations workflow and explanation are maintained separately in the private
+`Im-Letty/investment-news-ops` repository (`../news-cloud-ops` locally). The owner
+explicitly approved that repository, dedicated encrypted ChatGPT auth and transfer
+of the Gemini/OpenAI/Supabase connection secrets. These are now registered; the
+existing Mac Codex profile was never copied. Real Linux runs confirmed offline
+safety checks, storage/login connectivity, one native subscription JSON response,
+encrypted auth checkpoint and transient-auth cleanup. No review API call was
+needed for those infrastructure checks.
+
+Render was verified on 2026-10-07 at 23:39 JST with `enabled=true`,
+`configured=true`, `writer_provider=codex_subscription` and
+`generation_owner=external`; both public news endpoints returned HTTP 200.
+The private daily schedule is enabled and its producer is pinned to an approved
+commit. The existing dated October 5 edition remains public until a valid new
+edition is available. The first real new morning is **2026-10-08**, whose source
+freeze, final-copy review and actual release time are still unverified. The
+public wake/check records that observation, and a follow-up is scheduled to read
+the result. Successful connection is not proof of an actual 08:00 publication.
 
 ### Actual private final-copy check (2026-10-07, 16:38 JST)
 
@@ -502,7 +513,7 @@ Before enabling this version in production, confirm the required server configur
 
 Official implementation references: [Responses structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs) and [GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna), checked 2026-10-05.
 
-`.github/workflows/daily-website-news.yml` starts an external wake/check at 04:47 JST, with recovery schedules at 05:47, 06:47, 07:17, 07:47, 08:17 and 09:17 JST. The early wake buffer addresses delayed scheduled runs observed on 2026-10-05; it does not move article collection earlier than 07:00 or spend on AI before 07:30. A job starting at 04:47 stays awake until at least 08:20 (bounded to 240 minutes, job timeout 245 minutes). This public repository uses a standard Ubuntu runner, which is free under [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions); review that choice if the repository becomes private. Manual dispatch is supported. The server owns generation and publication; the workflow cannot supply arbitrary prompts or dates and uses no secrets. A delayed GitHub cron or sleeping/unavailable free host can still delay preparation; this is an 08:00 target with recovery, not an exact-time availability guarantee.
+`.github/workflows/daily-website-news.yml` starts an external wake/check at 04:47 JST, with recovery schedules at 05:47, 06:47, 07:17, 07:47, 08:17 and 09:17 JST. The early wake buffer addresses delayed scheduled runs observed on 2026-10-05; it does not move article collection earlier than 07:00 or spend on AI before 07:30. A job starting at 04:47 stays awake until at least 08:20 (bounded to 240 minutes, job timeout 245 minutes). This public repository uses a standard Ubuntu runner, which is free under [GitHub Actions billing](https://docs.github.com/en/billing/concepts/product-billing/github-actions); review that choice if the repository becomes private. Manual dispatch is supported. Render owns collection, freezing and publication; the private runner owns generation and review. The public workflow cannot supply arbitrary prompts or dates and uses no secrets. A delayed GitHub cron or sleeping/unavailable free host can still delay preparation; this is an 08:00 target with recovery, not an exact-time availability guarantee.
 
 No new HTTP endpoint was added for this connection. The existing `/api/news-publication` includes operational status and safe `generation_mode`, model IDs and limit metadata, never provider keys or raw responses. **Its ordinary application request hooks intentionally wake background workers.** Fetching it can therefore start eligible collection or generation; it is not a side-effect-free private dry-run endpoint. It accepts no caller-selected date, prompt or force flag. For an inspection that must not wake the application, use the hosting dashboard instead. The new metadata becomes available on Render only after deployment.
 
