@@ -87,7 +87,8 @@ _daily_news = start_daily_news(
 def ensure_daily_news_worker():
     # Start in the serving process, not in a preloaded Gunicorn master. The
     # external morning wake/check also enters here when no visitor is present.
-    _daily_news.start()
+    if request.endpoint != "api_private_news_release_test":
+        _daily_news.start()
 
 
 from passkey_auth import create_passkey_blueprint
@@ -2256,7 +2257,8 @@ _stock_search = StockSearch(runtime_path=os.environ.get("STOCK_CATALOGUE_PATH", 
 @app.before_request
 def _ensure_stock_catalogue_worker():
     # Gunicorn preloads the module before forking: start the updater in workers.
-    _stock_search.ensure_refresh_worker()
+    if request.endpoint != "api_private_news_release_test":
+        _stock_search.ensure_refresh_worker()
 
 
 @app.route("/api/lookup", methods=["GET"])
@@ -2311,6 +2313,32 @@ def api_news_publication():
                   **configuration_metadata())
     response = jsonify(status)
     response.headers["Cache-Control"] = "no-store"
+    return response
+
+
+@app.route("/api/private-news-release-test", methods=["POST"])
+def api_private_news_release_test():
+    """Read an expiring private test only; never prepare or publish an edition."""
+    from daily_news_runtime import SupabaseNewsStorage
+    from news_release_test import private_preview_response, valid_request
+    if request.content_length is None or request.content_length > 2048:
+        result, status = {"status": "not_found"}, 404
+    else:
+        body = request.get_json(silent=True)
+        test_id = body.get("id") if isinstance(body, dict) and set(body) == {"id"} else None
+        token = request.headers.get("X-News-Test-Token", "")
+        if not valid_request(test_id, token):
+            result, status = {"status": "not_found"}, 404
+        else:
+            try:
+                result, status = private_preview_response(
+                    SupabaseNewsStorage(SUPABASE_URL, SUPABASE_KEY), test_id, token, time.time())
+            except Exception:
+                result, status = {"status": "not_found"}, 404
+    response = jsonify(result)
+    response.status_code = status
+    response.headers["Cache-Control"] = "no-store, private"
+    response.headers["X-Robots-Tag"] = "noindex, nofollow, noarchive"
     return response
 
 
@@ -2789,7 +2817,8 @@ register_dividend_calendar(app, _dividend_calendar)
 def _ensure_dividend_warmer():
     # Starts inside the serving worker, never in Gunicorn's preload master.
     # The first home request can prepare the section without blocking its HTML.
-    _dividend_snapshot.ensure_refresh()
+    if request.endpoint != "api_private_news_release_test":
+        _dividend_snapshot.ensure_refresh()
 
 
 def _resolve_jp_ticker(q):
