@@ -1,8 +1,31 @@
 /* A shared company search, available from the heading on every stock tab. */
 (function(){
   'use strict';
+  var labels={ja:{search:'銘柄を検索',favorites:'お気に入り',div_cal:'カレンダー',actions:'銘柄の操作'},en:{search:'Search stocks',favorites:'Favorites',div_cal:'Calendar',actions:'Stock actions'},ko:{search:'종목 검색',favorites:'즐겨찾기',div_cal:'캘린더',actions:'종목 메뉴'},zh:{search:'搜索股票',favorites:'收藏',div_cal:'日历',actions:'股票操作'}};
+  function mountShortcuts(wrap){
+    var head=wrap.querySelector('.kn-stock-heading'),opener=wrap.querySelector('.kn-stock-search-open');if(!head||!opener)return;
+    var actions=head.querySelector('.kn-stock-actions');
+    if(!actions){actions=document.createElement('div');actions.className='kn-stock-actions';actions.setAttribute('role','group');head.appendChild(actions);actions.appendChild(opener);}
+    var icons={favorites:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',div_cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h2M14 14h2M8 17h2"/>'};
+    ['favorites','div_cal'].forEach(function(key){
+      var button=wrap.querySelector('[data-kn-tab="'+key+'"]');if(!button||button.classList.contains('kn-stock-shortcut'))return;
+      // Move the existing button: its original onclick still opens the existing view.
+      button.classList.add('kn-stock-shortcut');button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[key]+'</svg>';
+      if(key==='div_cal')button.setAttribute('aria-controls','knDivHolder');actions.appendChild(button);
+    });
+    if(head.dataset.shortcutsReady)return;head.dataset.shortcutsReady='true';
+    var title=document.createElement('h3');title.className='kn-stock-view-title';title.hidden=true;
+    var sub=wrap.querySelector('#knSubRow');if(sub)sub.before(title);
+    function sync(){
+      var lang=(window.currentLang||document.documentElement.lang||'ja').split('-')[0],copy=labels[lang]||labels.ja;
+      actions.setAttribute('aria-label',copy.actions);opener.setAttribute('aria-label',copy.search);opener.title=copy.search;
+      actions.querySelectorAll('.kn-stock-shortcut').forEach(function(button){button.setAttribute('aria-label',copy[button.dataset.knTab]);button.title=copy[button.dataset.knTab];});
+      var current=wrap.dataset.stockMain;title.hidden=!['favorites','div_cal'].includes(current);title.textContent=copy[current]||'';
+    }
+    sync();new MutationObserver(sync).observe(wrap,{attributes:true,attributeFilter:['data-stock-main']});document.addEventListener('langChanged',sync);
+  }
   window.KNStockSearch={mount:function(wrap){
-    if(wrap.querySelector('.kn-stock-search'))return;
+    if(wrap.querySelector('.kn-stock-search')){mountShortcuts(wrap);return;}
     var heading=wrap.querySelector('.kn-a-section-title');if(!heading)return;
     var icon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.6 4.6"/></svg>';
     var head=document.createElement('div');head.className='kn-stock-heading';heading.before(head);head.appendChild(heading);
@@ -48,5 +71,6 @@
     form.onsubmit=function(event){event.preventDefault();search();};
     input.addEventListener('input',function(event){cancel();if(!input.value.trim()){clearResults();return;}if(!event.isComposing)timer=setTimeout(search,300);});
     input.addEventListener('compositionend',function(){cancel();timer=setTimeout(search,300);});
+    mountShortcuts(wrap);
   }};
 })();
