@@ -31,7 +31,7 @@
 <link rel="stylesheet" href="/static/home-h.css?v=20261001-controls1">
 <script defer src="/static/stock-search-common.js?v=20260925-common1"></script>
 <script defer src="/static/market-carousel.js?v=20260929-three1"></script>
-<script defer src="/static/home-a.js?v=20261001-codes1"></script>
+<script defer src="/static/home-a.js?v=20261008-menu-a"></script>
 <script defer src="/static/stock-focus.js?v=20261001-more1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
@@ -333,6 +333,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 .morning-news-updated{font:400 11px/1.8 system-ui,sans-serif;color:#687a70;margin:12px 0 2px}
 .morning-news-retry{font:inherit;color:var(--brand-color,#205c49);background:transparent;border:1px solid currentColor;border-radius:16px;padding:5px 12px;cursor:pointer}
 </style>
+<link rel="stylesheet" href="/static/menu-a.css?v=20261008-a1">
 </head>
   <body>
 
@@ -4010,93 +4011,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
   setTimeout(init,1500);setTimeout(init,3000);
 })();</script>
 
-<script>
-/* SettingsDrawer v1 — moves the 設定(Settings) modal items into the hamburger drawer as an inline accordion */
-(function(){
-  function init(){
-    try{
-      var btn=document.getElementById('drawerSettingsBtn');
-      if(!btn) return;
-      if(document.getElementById('settingsAccPanel')) return; // already initialised
 
-      // accordion panel inserted right after the settings button's wrapper
-      var panel=document.createElement('div');
-      panel.id='settingsAccPanel';
-      panel.style.cssText='overflow:hidden;max-height:0px;opacity:0;flex:none;flex-shrink:0;transition:max-height .28s ease,opacity .2s ease;padding:0 8px;';
-      var holder=document.createElement('div');
-      holder.id='settingsAccHolder';
-      holder.style.cssText='padding:6px 4px 10px;';
-      panel.appendChild(holder);
-      var wrap=btn.closest('div');
-      wrap.parentElement.insertBefore(panel, wrap.nextSibling);
-
-      // chevron indicator on the button
-      var chev=document.createElement('span');
-      chev.textContent='\u25BE';
-      chev.style.cssText='margin-left:auto;transition:transform .2s ease;transform:rotate(-90deg);font-size:12px;';
-
-      // replace the button to drop its original modal-opening click handler
-      var newBtn=btn.cloneNode(true);
-      newBtn.appendChild(chev);
-      btn.parentElement.replaceChild(newBtn, btn);
-
-      var built=false, open=false;
-      function buildOnce(){
-        if(built) return;
-        if(window._openSettings) window._openSettings();
-        var modal=document.querySelector('.settings-modal');
-        if(!modal) return;
-        var modalBg=document.getElementById('settingsModalBg');
-        var secs=[].slice.call(modal.querySelectorAll('.settings-section'));
-        secs.forEach(function(s){ holder.appendChild(s); });
-        if(modalBg){ modalBg.style.display='none'; modalBg.classList.remove('open'); }
-        // --- also move 表示設定 button + カラーカスタム section into the accordion ---
-        try{
-          var sd=document.getElementById('sideDrawer');
-          if(sd){
-            var dispBtn=[].slice.call(sd.querySelectorAll('button')).filter(function(b){return /openDisplaySettings/.test(b.getAttribute('onclick')||'');})[0];
-            if(!dispBtn){
-              dispBtn=document.createElement('button'); dispBtn.type='button'; dispBtn.className='drawer-item';
-              dispBtn.textContent='表示設定を開く';
-              dispBtn.setAttribute('onclick','closeDrawer();openDisplaySettings()');
-            }
-            if(dispBtn && !holder.contains(dispBtn)){
-              var dsec=document.createElement('div'); dsec.className='settings-section';
-              var dt=document.createElement('div'); dt.className='settings-section-title'; dt.textContent='表示設定';
-              dsec.appendChild(dt); dsec.appendChild(dispBtn); holder.appendChild(dsec);
-            }
-            var colorLabel=[].slice.call(sd.querySelectorAll('.drawer-section-label')).filter(function(l){return /sidebar_color_custom/.test(l.getAttribute('data-i18n')||'')||/カラーカスタム/.test(l.textContent);})[0];
-            var colorWrap=sd.querySelector('.drawer-color-wrap');
-            if(colorLabel && colorWrap && !holder.contains(colorWrap)){
-              var csec=document.createElement('div'); csec.className='settings-section';
-              var ct=document.createElement('div'); ct.className='settings-section-title'; ct.textContent=(colorLabel.textContent||'カラーカスタム').trim();
-              csec.appendChild(ct); csec.appendChild(colorWrap); holder.appendChild(csec);
-              if(colorLabel.parentElement) colorLabel.parentElement.removeChild(colorLabel);
-            }
-          }
-        }catch(e){}
-        built = true;
-      }
-      function setOpen(o){
-        open=o;
-        if(o){
-          buildOnce();
-          panel.style.maxHeight='none';
-          panel.style.opacity='1';
-          chev.style.transform='rotate(0deg)';
-        }else{
-          panel.style.maxHeight='0px';
-          panel.style.opacity='0';
-          chev.style.transform='rotate(-90deg)';
-        }
-      }
-      newBtn.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); setOpen(!open); }, true);
-    }catch(err){ /* no-op */ }
-  }
-  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',function(){setTimeout(init,300);});
-  else setTimeout(init,300);
-})();
-</script>
 
 <style id="hideNavOnDrawer">/* hide bottom nav while hamburger drawer is open */
 body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
@@ -4968,58 +4883,7 @@ setInterval(apply,500);
 
 </script>
 
-<script>
-  /* KN MENU REBUILD: simplify drawer into single accordion with genre + correct destinations */
-  (function(){
-      if(window.__KN_MENU_REBUILD) return; window.__KN_MENU_REBUILD=true;
-      var U=String.fromCharCode;
-      function J(){ return Array.prototype.map.call(arguments,function(c){return U(c);}).join(''); }
-      function CD(){ try{ if(window.closeDrawer) window.closeDrawer(); }catch(e){} }
-      function bn(act){ var b=document.querySelector('.bn-item[data-act="'+act+'"]'); if(b){ b.click(); return true; } return false; }
-      function callFn(fn){ CD(); setTimeout(function(){ try{ if(window[fn]) window[fn](); }catch(e){} }, 320); }
-      function openMP(cb){ CD(); setTimeout(function(){ bn('mypage'); setTimeout(function(){ var ov=document.querySelector('#myPageOv'); if(ov&&cb) cb(ov); }, 300); }, 250); }
-      var DEST={
-            morning: function(){ CD(); setTimeout(function(){ bn('morning'); },250); },
-            sim:     function(){ callFn('openSimulatorSection'); },
-            shorts:  function(){ CD(); setTimeout(function(){ bn('shorts'); },250); },
-            saved:   function(){ CD(); setTimeout(function(){ try{ if(window.openSaved) window.openSaved(); }catch(e){} },320); },
-            talk:    function(){ CD(); setTimeout(function(){ bn('talk'); },250); },
-            kakeibo: function(){ openMP(function(ov){ var t=ov.querySelectorAll('.mp-toptab'); if(t[1]) t[1].click(); }); },
-            memo:    function(){ openMP(function(ov){ var t=ov.querySelectorAll('.mp-toptab'); if(t[0]) t[0].click(); var m=ov.querySelector('.mo-tab[data-i18n="g2_mp_tab_memo"]'); if(m) m.click(); }); },
-            alert:   function(){ callFn('openAlertSection'); },
-            guide:   function(){ callFn('openBeginnerGuide'); }
-      };
-      function rebuild(){
-            var nav=document.getElementById('drawerNav'); if(!nav) return false;
-            var sample=nav.querySelector('.drawer-item'); if(!sample) return false;
-            function mk(html,h){ var b=sample.cloneNode(false); b.removeAttribute('onclick'); b.removeAttribute('data-i18n'); b.removeAttribute('href'); b.className='drawer-item'; b.innerHTML=html; b.addEventListener('click',h); return b; }
-            var LBL={
-                    morning: U(9728,65039)+' '+J(26397,12398,30456,22580,12524,12479,12540),
-                    sim:     U(55357,56522)+' '+J(12471,12511,12517,12524,12540,12479,12540),
-                    shorts:  U(55356,57260)+' '+J(12471,12519,12540,12488),
-                    saved:   U(55357,56598)+' '+J(20445,23384,12375,12383,21205,30011),
-                    talk:    U(55357,56492)+' '+J(12488,12540,12463),
-                    kakeibo: U(55357,56530)+' '+J(23478,35336,31807),
-                    memo:    U(55357,56541)+' '+J(12513,12514),
-                    alert:   U(9889)+' '+J(24613,39378,12450,12521,12540,12488),
-                    guide:   U(55358,56813)+' '+J(12399,12376,12417,12390,12460,12452,12489)
-            };
-            var order=['morning','sim','shorts','saved','talk','kakeibo','memo','alert','guide'];
-            var head=document.createElement('div'); head.className='drawer-section-label knAccHead';
-            head.innerHTML=J(12513,12491,12517,12540)+'<span class="knChev">'+U(9660)+'</span>';
-            var panel=document.createElement('div'); panel.className='knAccPanel';
-            order.forEach(function(k){ panel.appendChild(mk(LBL[k], DEST[k])); });
-            head.addEventListener('click', function(){ var open=panel.style.maxHeight&&panel.style.maxHeight!=='0px'; if(open){ panel.style.maxHeight='0px'; head.classList.remove('open'); } else { panel.style.maxHeight='none'; head.classList.add('open'); } });
-            nav.innerHTML=''; head.style.setProperty('display','flex','important'); panel.style.maxHeight='none';
-            nav.appendChild(head); nav.appendChild(panel); function knTidy(){ Array.prototype.slice.call(nav.children).forEach(function(c){ if(c.classList.contains('knAccPanel')||c.classList.contains('drawer-section-label')) return; try{ c.parentNode.removeChild(c); }catch(e){} }); } knTidy(); try{ if(window.__knTidyObs) window.__knTidyObs.disconnect(); var obs=new MutationObserver(function(){ knTidy(); }); obs.observe(nav,{childList:true}); window.__knTidyObs=obs; }catch(e){}
-            var icon=document.querySelector('.drawer-app-icon'); if(icon) icon.style.setProperty('display','none','important');
-            return true;
-      }
-      function tryRebuild(n){ if(rebuild()) return; if(n>0) setTimeout(function(){ tryRebuild(n-1); }, 400); }
-      if(document.readyState!=='loading'){ setTimeout(function(){ tryRebuild(12); }, 900); }
-      else { document.addEventListener('DOMContentLoaded', function(){ setTimeout(function(){ tryRebuild(12); }, 900); }); }
-  })();
-</script>
+<script src="/static/menu-a.js?v=20261008-a1" defer></script>
 
 </script>
 
@@ -5347,7 +5211,7 @@ _sM.onclick=function(){_setSub('movers');};_sC.onclick=function(){_setSub('compa
                     if(tring&&tring.getAttribute('data-knadj')!=='1'){ tring.setAttribute('data-knadj','1'); var kids=tring.children; for(var j=0;j<kids.length;j++){ var inl=kids[j].style.transform||""; if(/translateY\(-?[0-9.]+px\)/.test(inl)){ kids[j].style.transform=inl.replace(/translateY\(-?[0-9.]+px\)/,"translateY(-76px)"); } } }
                     // 3) swap drawer icons from menu ring svgs (matched by title)
                     var nav=document.getElementById("drawerNav");
-                    if(nav){
+                    if(nav&&!nav.closest('.kn-menu-a')){
                               var map={}; var rk=ring.children;
                               for(i=0;i<rk.length;i++){ var t=rk[i].getAttribute("title")||""; var sv=rk[i].querySelector("svg"); if(t&&sv) map[t]=sv; }
                               var btns=nav.querySelectorAll("button,a");
