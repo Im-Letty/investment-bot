@@ -1,5 +1,6 @@
-/* Candidate A stock sheet, with the company stories arranged in layout D. */
-#knTabWrap {
+/* Stock sheet and the separate candidate B company-news cards. */
+#knTabWrap,
+#knCompanyNewsSection {
   --sf-ink:var(--kn-a-ink,#244e40);
   --sf-body:color-mix(in srgb,var(--sf-ink) 40%,var(--sf-muted));
   --sf-muted:var(--kn-a-muted,#607267);
@@ -21,7 +22,7 @@ body.kn-home-a[data-theme="dark"] #knTabWrap {
 body.kn-home-a #knTabWrap #knCompanyFocus,
 body.kn-home-a #knTabWrap .sf-market,
 body.kn-home-a #knTabWrap .sf-ranking,
-body.kn-home-a #knTabWrap .sf-stories {background:transparent!important;color:var(--sf-ink)!important}
+body.kn-home-a :is(#knTabWrap,#knCompanyNewsSection) .sf-stories {background:transparent!important;color:var(--sf-ink)!important}
 body.kn-home-a #knTabWrap {
   margin:0 0 25px!important;
   padding:27px 32px 22px!important;
@@ -122,17 +123,17 @@ body.kn-home-a #knTabWrap #knDivSubRow button[aria-pressed="true"] {
   border-bottom-color:var(--sf-accent)!important;
 }
 body.kn-home-a #knTabWrap #homeMoversList>.sf-content {padding:0!important}
-#knTabWrap .sf-content {
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content {
   color:var(--sf-ink);
   font-family:var(--kn-a-sans,-apple-system,BlinkMacSystemFont,sans-serif);
   text-align:left;
   line-height:1.7;
 }
-#knTabWrap .sf-content * {box-sizing:border-box}
-#knTabWrap .sf-sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
-#knTabWrap button:focus-visible,
-#knTabWrap summary:focus-visible,
-#knTabWrap a:focus-visible,
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content * {box-sizing:border-box}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-sr-only {position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+:is(#knTabWrap,#knCompanyNewsSection) button:focus-visible,
+:is(#knTabWrap,#knCompanyNewsSection) summary:focus-visible,
+:is(#knTabWrap,#knCompanyNewsSection) a:focus-visible,
 #knTabWrap .sf-ranking:focus-visible {outline:2px solid var(--sf-accent);outline-offset:4px}
 #knTabWrap .sf-rank-toolbar {display:flex;align-items:center;justify-content:space-between;gap:12px;margin:0 0 5px}
 #knTabWrap .sf-direction-tabs {display:inline-flex;gap:4px;padding:3px;margin:0;border:1px solid var(--sf-line);border-radius:5px;background:transparent;flex:none}
@@ -167,57 +168,57 @@ body.kn-home-a #knTabWrap #knWatchSec .sf-retry {display:block;margin:18px auto 
 body.kn-home-a #knTabWrap #knWatchSec .sf-state {text-align:center}
 #knTabWrap .sf-watch-status {min-height:18px;margin:8px 0 0;font-size:10px;line-height:18px;color:var(--sf-muted)}
 #knTabWrap .sf-quote-date {font-size:10px;font-weight:400;color:var(--sf-muted);white-space:normal;line-height:1.7}
-#knTabWrap .sf-content summary {cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px;font-size:12px;font-weight:400;color:var(--sf-body)}
-#knTabWrap .sf-content summary::-webkit-details-marker {display:none}
-#knTabWrap .sf-content summary::marker {content:""}
-#knTabWrap .sf-content summary>i {width:11px;height:11px;position:relative;flex:none}
-#knTabWrap .sf-content summary>i:before,
-#knTabWrap .sf-content summary>i:after {content:"";position:absolute;background:currentColor;top:5px;left:0;width:11px;height:1px}
-#knTabWrap .sf-content summary>i:after {transform:rotate(90deg)}
-#knTabWrap .sf-content details[open]>summary>i:after {display:none}
-#knTabWrap .sf-content .sf-open {display:none}
-#knTabWrap .sf-content details[open]>summary .sf-open {display:inline}
-#knTabWrap .sf-content details[open]>summary .sf-closed {display:none}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary {cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:42px;font-size:12px;font-weight:400;color:var(--sf-body)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary::-webkit-details-marker {display:none}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary::marker {content:""}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary>i {width:11px;height:11px;position:relative;flex:none}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary>i:before,
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary>i:after {content:"";position:absolute;background:currentColor;top:5px;left:0;width:11px;height:1px}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content summary>i:after {transform:rotate(90deg)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content details[open]>summary>i:after {display:none}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content .sf-open {display:none}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content details[open]>summary .sf-open {display:inline}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-content details[open]>summary .sf-closed {display:none}
 #knTabWrap .sf-more {margin:15px 0 0}
 #knTabWrap .sf-more>summary {justify-content:center;padding:0;background:transparent;border:0;border-radius:0}
 #knTabWrap .sf-more>summary small {font-size:10px;color:var(--sf-muted);margin-left:4px}
 #knTabWrap .sf-more[open] {margin-top:0}
 #knTabWrap .sf-more[open]>summary {display:none}
 /* Company stories: reading layout C with the original heading and body typefaces. */
-#knTabWrap .sf-companies {display:block;padding-top:0}
-#knTabWrap .sf-company {display:block;max-width:720px;min-width:0;padding:26px 0 28px;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
-#knTabWrap .sf-company:last-child {border-bottom:0;padding-bottom:0}
-#knTabWrap .sf-company-name {font-size:16px;line-height:1.6;font-weight:500;overflow-wrap:anywhere;margin:0;color:var(--sf-ink)}
-#knTabWrap .sf-company h4 {font:500 22px/1.65 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.02em;color:var(--sf-ink);overflow-wrap:anywhere;margin:12px 0 0}
-#knTabWrap .sf-explanation {margin:12px 0 0;border:0;min-width:0}
-#knTabWrap .sf-explanation>summary {display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:start;min-height:44px;font-size:11px;border-radius:4px;touch-action:manipulation}
-#knTabWrap .sf-explanation>summary h4 {min-width:0;margin:0;padding-top:3px}
-#knTabWrap .sf-disclosure-mark {display:flex;align-items:center;justify-content:center;grid-column:2;grid-row:1;width:44px;height:44px;color:var(--sf-ink)}
-#knTabWrap .sf-disclosure-mark svg {width:19px;height:19px;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
-#knTabWrap .sf-explanation[open]>summary .sf-disclosure-mark .sf-vertical {opacity:0}
-#knTabWrap .sf-explanation>div {margin-top:18px;padding:2px 0 9px;font-size:13px;line-height:1.95;color:var(--sf-story-text)}
-#knTabWrap .sf-explanation h5 {font-size:12px;font-weight:600;margin:19px 0 6px;color:var(--sf-ink)}
-#knTabWrap .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 14px;color:var(--sf-story-text);overflow-wrap:anywhere}
-#knTabWrap .sf-stories {--sf-story-text:color-mix(in srgb,var(--sf-ink) 20%,#4b4e4b)}
-body.kn-home-a[data-theme="dark"] #knTabWrap .sf-stories {--sf-story-text:color-mix(in srgb,var(--sf-ink) 75%,var(--sf-muted))}
-#knTabWrap .sf-reading-blocks {min-width:0}
-#knTabWrap .sf-explain-block {display:grid;grid-template-columns:28px minmax(0,1fr);gap:13px;position:relative;min-width:0}
-#knTabWrap .sf-explain-block:before {content:"";position:absolute;left:13.5px;top:34px;bottom:-18px;width:1px;background:var(--sf-line)}
-#knTabWrap .sf-explain-block:last-child:before {bottom:4px}
-#knTabWrap .sf-explain-block+.sf-explain-block {margin-top:24px}
-#knTabWrap .sf-explain-copy {min-width:0}
-#knTabWrap .sf-explain-block h5 {margin:0 0 7px;padding-top:3px}
-#knTabWrap .sf-explain-block p {margin:0}
-#knTabWrap .sf-story-icon {display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--kn-a-chip,var(--sf-selected));color:var(--sf-muted)}
-#knTabWrap .sf-story-icon svg {display:block;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
-#knTabWrap .sf-source {display:block;margin-top:10px;font-size:11px;line-height:1.9;color:var(--sf-muted);text-underline-offset:4px;overflow-wrap:anywhere}
-#knTabWrap .sf-story-source {display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 13px;margin-top:22px;padding-top:12px;border-top:1px solid var(--sf-line)}
-#knTabWrap .sf-story-source .sf-source {margin:0}
-#knTabWrap .sf-story-date {font-size:10px;line-height:1.9;color:var(--sf-muted);white-space:nowrap}
-#knTabWrap .sf-state {font-size:13px;line-height:1.9;color:var(--sf-muted);padding:25px 0;margin:0;text-align:left}
-#knTabWrap .sf-meta {font-size:10px;line-height:1.8;color:var(--sf-muted);margin:17px 0 0}
-#knTabWrap .sf-meta-date {display:block;font-size:10px;line-height:1.8;color:var(--sf-muted);margin:0 0 3px}
-#knTabWrap .sf-retry {margin-left:8px;border:1px solid var(--sf-line);border-radius:5px;padding:7px 12px;background:var(--sf-paper);color:var(--sf-ink);font:inherit;cursor:pointer}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-companies {display:block;padding-top:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-company {display:block;max-width:720px;min-width:0;padding:26px 0 28px;background:transparent;border:0;border-bottom:1px solid var(--sf-line);border-radius:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-company:last-child {border-bottom:0;padding-bottom:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-company-name {font-size:16px;line-height:1.6;font-weight:500;overflow-wrap:anywhere;margin:0;color:var(--sf-ink)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-company h4 {font:500 22px/1.65 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);letter-spacing:.02em;color:var(--sf-ink);overflow-wrap:anywhere;margin:12px 0 0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation {margin:12px 0 0;border:0;min-width:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation>summary {display:grid;grid-template-columns:minmax(0,1fr) 44px;gap:8px;align-items:start;min-height:44px;font-size:11px;border-radius:4px;touch-action:manipulation}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation>summary h4 {min-width:0;margin:0;padding-top:3px}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-disclosure-mark {display:flex;align-items:center;justify-content:center;grid-column:2;grid-row:1;width:44px;height:44px;color:var(--sf-ink)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-disclosure-mark svg {width:19px;height:19px;stroke:currentColor;stroke-width:1.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation[open]>summary .sf-disclosure-mark .sf-vertical {opacity:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation>div {margin-top:18px;padding:2px 0 9px;font-size:13px;line-height:1.95;color:var(--sf-story-text)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation h5 {font-size:12px;font-weight:600;margin:19px 0 6px;color:var(--sf-ink)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explanation p {font-size:13px;line-height:1.95;margin:0 0 14px;color:var(--sf-story-text);overflow-wrap:anywhere}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-stories {--sf-story-text:color-mix(in srgb,var(--sf-ink) 20%,#4b4e4b)}
+body.kn-home-a[data-theme="dark"] :is(#knTabWrap,#knCompanyNewsSection) .sf-stories {--sf-story-text:color-mix(in srgb,var(--sf-ink) 75%,var(--sf-muted))}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-reading-blocks {min-width:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block {display:grid;grid-template-columns:28px minmax(0,1fr);gap:13px;position:relative;min-width:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block:before {content:"";position:absolute;left:13.5px;top:34px;bottom:-18px;width:1px;background:var(--sf-line)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block:last-child:before {bottom:4px}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block+.sf-explain-block {margin-top:24px}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-copy {min-width:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block h5 {margin:0 0 7px;padding-top:3px}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block p {margin:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-story-icon {display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--kn-a-chip,var(--sf-selected));color:var(--sf-muted)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-story-icon svg {display:block;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.35;stroke-linecap:round;stroke-linejoin:round}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-source {display:block;margin-top:10px;font-size:11px;line-height:1.9;color:var(--sf-muted);text-underline-offset:4px;overflow-wrap:anywhere}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-story-source {display:flex;flex-wrap:wrap;align-items:baseline;gap:7px 13px;margin-top:22px;padding-top:12px;border-top:1px solid var(--sf-line)}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-story-source .sf-source {margin:0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-story-date {font-size:10px;line-height:1.9;color:var(--sf-muted);white-space:nowrap}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-state {font-size:13px;line-height:1.9;color:var(--sf-muted);padding:25px 0;margin:0;text-align:left}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-meta {font-size:10px;line-height:1.8;color:var(--sf-muted);margin:17px 0 0}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-meta-date {display:block;font-size:10px;line-height:1.8;color:var(--sf-muted);margin:0 0 3px}
+:is(#knTabWrap,#knCompanyNewsSection) .sf-retry {margin-left:8px;border:1px solid var(--sf-line);border-radius:5px;padding:7px 12px;background:var(--sf-paper);color:var(--sf-ink);font:inherit;cursor:pointer}
 body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);padding-block:14px}
 @container(max-width:580px) {
   body.kn-home-a #knTabWrap .kn-a-stock-tabs {gap:4px!important}
@@ -225,16 +226,16 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
   body.kn-home-a #knTabWrap #knSubRow {gap:10px!important}
   body.kn-home-a #knTabWrap #knSubRow button,
   body.kn-home-a #knTabWrap #knDivSubRow button {font-size:calc(12px * var(--kn-a-scale,1))!important}
-  #knTabWrap .sf-company {padding-top:24px}
-  #knTabWrap .sf-company-name {font-size:15px}
-  #knTabWrap .sf-company h4 {font-size:21px}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-company {padding-top:24px}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-company-name {font-size:15px}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-company h4 {font-size:21px}
 }
 @container(max-width:370px) {
-  #knTabWrap .sf-explain-block {gap:10px}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-explain-block {gap:10px}
 }
 @container(max-width:300px) {
-  #knTabWrap .sf-explanation>summary {gap:4px}
-  #knTabWrap .sf-explanation>summary h4 {font-size:20px}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-explanation>summary {gap:4px}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-explanation>summary h4 {font-size:20px}
   body.kn-home-a #knTabWrap .kn-a-stock-tabs {grid-template-columns:1.1fr .9fr 1.1fr .7fr}
   body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {font-size:calc(11px * var(--kn-a-scale,1))!important;padding-inline:1px!important;white-space:normal!important;overflow-wrap:anywhere}
 }
@@ -257,7 +258,7 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
 }
 
 @media(prefers-reduced-motion:no-preference) {
-  #knTabWrap .sf-disclosure-mark .sf-vertical {transition:opacity .18s}
+  :is(#knTabWrap,#knCompanyNewsSection) .sf-disclosure-mark .sf-vertical {transition:opacity .18s}
 }
 /* Approved compact A: a joined, thin-bordered bar. */
 #knTabWrap .sf-rank-toolbar[hidden]{display:none!important}
@@ -296,3 +297,103 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {border-color:var(--sf-line);p
 #knTabWrap .sf-order-popover button:focus-visible{outline:2px solid var(--sf-accent);outline-offset:-2px;border-radius:4px}
 @media(hover:hover){#knTabWrap .sf-order-popover [role=option]:hover{background:var(--kn-a-chip,#eeeddf)}}
 @media(max-width:480px){#knTabWrap .sf-order-field{padding-inline:8px}}
+
+/* Candidate B: company headlines have their own frame below economic news. */
+body.kn-home-a #knCompanyNewsSection {
+  container-name:company-news;
+  margin:0;
+  padding:0;
+  background:transparent;
+  color:var(--sf-ink);
+  text-align:left;
+}
+#knCompanyNewsSection [hidden],
+body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
+#knCompanyNewsTitle {
+  margin:0 0 17px;
+  color:var(--sf-ink);
+  font:500 calc(25px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);
+  letter-spacing:.07em;
+}
+#knCompanyNewsSection .sf-companies {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  align-items:start;
+  gap:16px;
+}
+#knCompanyNewsSection .sf-company,
+#knCompanyNewsSection .sf-company:last-child {
+  max-width:none;
+  margin:0;
+  padding:22px;
+  background:var(--sf-paper);
+  border:1px solid var(--sf-line);
+  border-radius:12px;
+}
+#knCompanyNewsSection .sf-company-name {
+  font-size:calc(15px * var(--kn-a-scale,1));
+  line-height:1.7;
+}
+#knCompanyNewsSection .sf-company-name .sf-stock-code {
+  display:block;
+  margin-top:3px;
+  font-family:var(--kn-a-sans,sans-serif);
+  font-weight:400;
+  font-variant-numeric:tabular-nums;
+  color:var(--sf-muted);
+  font-size:calc(12px * var(--kn-a-scale,1));
+}
+#knCompanyNewsSection .sf-explanation {margin-top:14px}
+#knCompanyNewsSection .sf-explanation>summary h4 {
+  padding-top:2px;
+  font-size:calc(21px * var(--kn-a-scale,1));
+  line-height:1.7;
+}
+#knCompanyNewsSection .sf-explanation p {
+  font-size:calc(15px * var(--kn-a-scale,1));
+  line-height:1.9;
+}
+#knCompanyNewsSection .sf-explain-block h5 {
+  font-size:calc(14px * var(--kn-a-scale,1));
+  line-height:1.65;
+}
+#knCompanyNewsSection .sf-story-source {
+  align-items:center;
+  gap:6px 12px;
+  margin-top:22px;
+}
+#knCompanyNewsSection .sf-source,
+#knCompanyNewsSection .sf-story-date {
+  font-size:calc(12px * var(--kn-a-scale,1));
+}
+#knCompanyNewsSection .sf-story-source .sf-source {
+  display:inline-flex;
+  align-items:center;
+  min-height:44px;
+}
+#knCompanyNewsSection .sf-state,
+#knCompanyNewsSection .sf-meta {
+  font-size:calc(14px * var(--kn-a-scale,1));
+}
+#knCompanyNewsSection button.sf-more {
+  display:block;
+  min-height:44px;
+  margin:20px auto 0;
+  padding:9px 26px;
+  background:var(--sf-paper);
+  border:1px solid var(--sf-line);
+  border-radius:7px;
+  color:var(--sf-ink);
+  font:400 calc(14px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);
+  cursor:pointer;
+  touch-action:manipulation;
+}
+@container company-news (max-width:620px) {
+  #knCompanyNewsSection .sf-companies {grid-template-columns:minmax(0,1fr)}
+  #knCompanyNewsSection .sf-company,
+  #knCompanyNewsSection .sf-company:last-child {padding:20px}
+}
+@container company-news (max-width:330px) {
+  #knCompanyNewsSection .sf-company,
+  #knCompanyNewsSection .sf-company:last-child {padding:17px}
+}

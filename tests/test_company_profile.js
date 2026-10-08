@@ -142,6 +142,21 @@ test('backdrop close, removed opener fallback and reopening mid-animation preser
   const h=dialogHarness({reduced:false});h.view.open(KEY,'トヨタ',h.trigger);const refs=h.view.elements;refs.overlay.dispatch('click',{target:refs.backdrop});assert.equal(refs.overlay.dataset.closing,'true');h.view.open(KEY,'トヨタ',h.trigger);assert.equal(refs.overlay.dataset.closing,undefined);await h.time.advance(180);assert.equal(refs.overlay.hidden,false);
   h.home.children=h.home.children.filter(n=>n!==h.trigger);h.trigger.parentNode=null;h.view.close();await h.time.advance(180);assert.equal(refs.overlay.hidden,true);assert.equal(h.home.inert,false);assert.equal(h.doc.activeElement,h.doc.fallback);
 });
+test('closing after company cards refresh returns focus to the same company in the news frame',()=>{
+  const h=dialogHarness(),stories=h.doc.createElement('section');stories.id='knCompanyFocus';h.home.appendChild(stories);stories.appendChild(h.trigger);h.trigger.dataset.companyProfile=KEY;
+  h.view.open(KEY,'トヨタ',h.trigger);const replacement=h.doc.createElement('button');replacement.dataset.companyProfile=KEY;stories.replaceChildren(replacement);
+  assert.equal(h.trigger.isConnected,false);h.view.close();assert.equal(h.doc.activeElement,replacement);assert.equal(h.home.inert,false);
+});
+test('removed news openers use the existing fallback when their replacement is absent or unavailable',()=>{
+  for(const unavailable of ['different company','hidden','disabled','aria disabled','removed frame']){
+    const h=dialogHarness(),stories=h.doc.createElement('section');stories.id='knCompanyFocus';h.home.appendChild(stories);stories.appendChild(h.trigger);h.trigger.dataset.companyProfile=KEY;
+    const outside=h.doc.createElement('button');outside.dataset.companyProfile=KEY;h.home.appendChild(outside);
+    h.view.open(KEY,'トヨタ',h.trigger);const replacement=h.doc.createElement('button');replacement.dataset.companyProfile=unavailable==='different company'?'9432.T':KEY;stories.replaceChildren(replacement);
+    if(unavailable==='hidden')stories.hidden=true;if(unavailable==='disabled')replacement.disabled=true;if(unavailable==='aria disabled')replacement.setAttribute('aria-disabled','true');
+    if(unavailable==='removed frame'){h.home.children=h.home.children.filter(node=>node!==stories);stories.parentNode=null;}
+    h.view.close();assert.equal(h.doc.activeElement,h.doc.fallback,unavailable+' must not focus a different, hidden or outside company button');
+  }
+});
 test('delegated company button does not toggle its article, closes cancel requests and late data stays hidden',async()=>{
   const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);h.trigger.dataset.companyProfile=KEY;h.trigger.dataset.companyName='トヨタ';let prevented=false,stopped=false;
   for(const fn of h.events.click)fn({target:h.trigger,preventDefault(){prevented=true;},stopPropagation(){stopped=true;}});await flush();assert.equal(prevented,true);assert.equal(stopped,true);assert.equal(requests.length,1);const overlay=h.doc.body.children.at(-1);assert.equal(overlay.hidden,false);

@@ -136,7 +136,7 @@
     container.querySelectorAll('.sf-ranking').forEach(panel=>{panel.hidden=panel.id!=='sf-rank-panel-'+direction;});
   }
   function start(w){
-    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,openMenu=null,storyBusy=false,storyTimer=null,storyVisible=5;
+    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,openMenu=null,storyBusy=false,storyTimer=null,storyVisible=5,storyFrameVisible=false;
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
     let conditions={metric:'pct',market:'all'};try{const saved=JSON.parse(w.localStorage.getItem('kn_rank_conditions')||'null');if(saved&&METRICS[saved.metric]&&MARKETS[saved.market])conditions=saved;if(['up','down'].includes(conditions.direction))active=conditions.direction;}catch(_){}
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
@@ -191,10 +191,12 @@
       const focused=doc.activeElement,ownsFocus=focused&&el.contains(focused),settingKey=ownsFocus&&focused.getAttribute('data-rank-setting'),focusKey=ownsFocus&&focused.getAttribute('data-sf-rank'),choiceKey=ownsFocus&&focused.getAttribute('data-rank-choice'),choiceValue=choiceKey&&focused.getAttribute('data-rank-'+choiceKey),closeKey=ownsFocus&&focused.getAttribute('data-rank-close');
       const focusedStory=id==='knCompanyFocus'&&ownsFocus&&focused.closest&&focused.closest('details[data-stock-detail]');
       const storyFocus=focusedStory?{key:focusedStory.dataset.stockDetail,source:focused.matches('.sf-source')}:null;
+      const focusedCompany=id==='knCompanyFocus'&&ownsFocus&&focused.closest&&focused.closest('[data-company-profile]'),companyFocus=focusedCompany&&focusedCompany.dataset.companyProfile;
       const moreFocus=id==='knCompanyFocus'&&ownsFocus&&focused.hasAttribute('data-company-more');
       el.innerHTML=html;el.__stockHTML=html;el.__rankConditions=JSON.stringify(conditions);
       el.querySelectorAll('details[data-stock-detail]').forEach(x=>{x.open=open.has(x.dataset.stockDetail);});
       if(storyFocus){const detail=Array.from(el.querySelectorAll('details[data-stock-detail]')).find(x=>x.dataset.stockDetail===storyFocus.key),target=detail&&detail.querySelector(storyFocus.source?'.sf-source':'summary');if(target)target.focus({preventScroll:true});}
+      if(companyFocus){const target=Array.from(el.querySelectorAll('[data-company-profile]')).find(x=>x.dataset.companyProfile===companyFocus);if(target)target.focus({preventScroll:true});}
       if(moreFocus){const target=el.querySelector('[data-company-more]');if(target)target.focus({preventScroll:true});}
       if(id==='homeMoversList')setMenu(openMenu);
       if(settingKey){const select=el.querySelector('[data-rank-setting="'+settingKey+'"]');if(select)select.focus({preventScroll:true});}
@@ -228,8 +230,16 @@
       finally{busy=false;if(token===generation){render();schedule(delay);}else refresh();}
     }
     function storiesVisible(){
+      const section=doc.getElementById('knCompanyNewsSection');
+      if(section)return !doc.hidden&&!section.hidden&&(typeof section.getClientRects==='function'?section.getClientRects().length>0:section.style.display!=='none');
       const wrap=doc.getElementById('knTabWrap');
       return !doc.hidden&&!!wrap&&wrap.dataset.stockMain==='stock'&&wrap.dataset.stockView==='companies';
+    }
+    function updateStoryVisibility(){
+      const visible=storiesVisible();
+      if(visible===storyFrameVisible)return;
+      storyFrameVisible=visible;
+      if(visible)loadStories();else{w.clearTimeout(storyTimer);storyTimer=null;}
     }
     function scheduleStories(){
       w.clearTimeout(storyTimer);storyTimer=null;
@@ -250,7 +260,12 @@
       finally{storyBusy=false;renderStories();scheduleStories();}
     }
     function init(){
+      storyFrameVisible=storiesVisible();
       restore();render();refresh();loadStories(true);
+      if(doc.getElementById('knCompanyNewsSection')&&w.MutationObserver){
+        const observer=new w.MutationObserver(updateStoryVisibility);
+        for(const id of ['morning-section','knCompanyNewsSection']){const target=doc.getElementById(id);if(target)observer.observe(target,{attributes:true,attributeFilter:['style','hidden','class']});}
+      }
       w.closeStockWatchManager=function(){const manager=doc.getElementById('alert-section');if(manager)manager.style.display='none';const home=doc.getElementById('morning-section'),news=doc.getElementById('morning-news-section');if(home)home.style.display='block';if(news)news.style.display='';if(w.__knRefreshWatch)w.__knRefreshWatch();if(w.__knSetSub)w.__knSetSub('watch');};
       doc.addEventListener('change',e=>{const key=e.target.getAttribute&&e.target.getAttribute('data-rank-setting');if(key)changeSetting(key,e.target.value);});
       doc.addEventListener('click',e=>{
@@ -279,11 +294,11 @@
         const button=closest('[data-sf-rank]');if(conditions.metric==='volume')return;if(!button||!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;e.preventDefault();active=e.key==='Home'?'up':e.key==='End'?'down':button.dataset.sfRank==='up'?'down':'up';selectRanking(doc.getElementById('homeMoversList'),active);doc.getElementById('sf-rank-tab-'+active).focus();
       });
       doc.addEventListener('styleChanged',()=>{const next=scope();if(next===currentScope)return;currentScope=next;generation++;poll=0;w.clearTimeout(timer);data=null;status='loading';restore();render();refresh();});
-      doc.addEventListener('knStockViewChanged',()=>{render();if(status==='error')refresh();if(storiesVisible())loadStories();else{w.clearTimeout(storyTimer);storyTimer=null;}});
+      doc.addEventListener('knStockViewChanged',()=>{render();if(status==='error')refresh();if(doc.getElementById('knCompanyNewsSection'))updateStoryVisibility();else if(storiesVisible())loadStories();else{w.clearTimeout(storyTimer);storyTimer=null;}});
       doc.addEventListener('visibilitychange',()=>{
-        if(doc.hidden){w.clearTimeout(timer);timer=null;w.clearTimeout(storyTimer);storyTimer=null;return;}
+        if(doc.hidden){w.clearTimeout(timer);timer=null;w.clearTimeout(storyTimer);storyTimer=null;storyFrameVisible=false;return;}
         if(data&&Date.now()-data.updated_at*1000>CACHE_AGE){data=null;status='loading';render();}
-        refresh();if(storiesVisible())loadStories();
+        refresh();if(storiesVisible()){storyFrameVisible=true;loadStories();}
       });
       if(w.addEventListener)w.addEventListener('online',()=>{refresh();if(storiesVisible())loadStories();});
     }

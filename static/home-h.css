@@ -189,3 +189,125 @@ body.kn-home-a[data-theme="dark"] #knHomeMarkets .kn-a-quote-change.is-down {col
   body.kn-home-a #knTabWrap .kn-stock-search {margin-bottom:14px}
   body.kn-home-a #knTabWrap #knSubRow {margin-bottom:10px!important}
 }
+
+/* Stock layout A: two clear destinations and quotes beside company names. */
+body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  width:100%;
+  max-width:none;
+  gap:18px!important;
+  margin:0 0 22px!important;
+  padding:0!important;
+  background:transparent!important;
+  border:0!important;
+  border-bottom:1px solid var(--kn-a-line)!important;
+  border-radius:0!important;
+  overflow:visible!important;
+}
+body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [data-kn-tab="stock"],
+body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [data-kn-tab="div_top"] {
+  min-width:0;
+  min-height:50px;
+  margin:0 0 -1px!important;
+  padding:9px 6px!important;
+  border:0!important;
+  border-bottom:2px solid transparent!important;
+  border-radius:0!important;
+  background:transparent!important;
+  color:var(--kn-a-muted)!important;
+  font:400 calc(17px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)!important;
+}
+body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
+  border-bottom-color:var(--kn-a-button)!important;
+  color:var(--kn-a-ink)!important;
+  font-weight:600!important;
+}
+body.kn-home-a #morning-section #knTabWrap #knSubRow,
+body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] .kn-stock-view-title {
+  display:none!important;
+}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow {
+  width:100%!important;
+  max-width:none;
+  gap:8px!important;
+  margin:0 0 14px!important;
+  padding:0;
+  border:0!important;
+}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow button {
+  flex:1 1 0!important;
+  width:auto;
+  min-width:0;
+  min-height:44px;
+  margin:0!important;
+  padding:8px 10px!important;
+  border:1px solid var(--kn-a-line)!important;
+  border-radius:6px!important;
+  background:transparent!important;
+  color:var(--kn-a-muted)!important;
+  font:400 calc(16px * var(--kn-a-scale,1))/1.65 var(--kn-a-sans,sans-serif)!important;
+  white-space:normal!important;
+}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow button>span {display:none!important}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow button[aria-pressed="true"] {
+  border-color:var(--kn-a-button)!important;
+  background:var(--kn-a-chip)!important;
+  color:var(--kn-a-ink)!important;
+  font-weight:500!important;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-row {
+  grid-template-columns:23px minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  min-height:89px;
+  padding:15px 0;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-row .sf-rank {grid-column:1;grid-row:1;font-size:17px}
+body.kn-home-a #morning-section #knTabWrap .sf-row .sf-stock-name {grid-column:2;grid-row:1}
+body.kn-home-a #morning-section #knTabWrap .sf-row .sf-quote {grid-column:3;grid-row:1}
+body.kn-home-a #morning-section #knTabWrap .sf-stock-name,
+body.kn-home-a #morning-section #knTabWrap .dividend-list .div-name {
+  font-size:calc(16px * var(--kn-a-scale,1));
+  line-height:1.7;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-price,
+body.kn-home-a #morning-section #knTabWrap .dividend-list .div-yield {
+  font-size:calc(23px * var(--kn-a-scale,1));
+  line-height:1.5;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-price small {font-size:calc(12px * var(--kn-a-scale,1))}
+body.kn-home-a #morning-section #knTabWrap .sf-change {font-size:calc(14px * var(--kn-a-scale,1));line-height:1.9}
+body.kn-home-a #morning-section #knTabWrap .sf-change>span {font-size:calc(13px * var(--kn-a-scale,1))}
+body.kn-home-a #morning-section #knTabWrap .sf-watch-row {
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center;
+  gap:12px;
+  min-height:89px;
+  padding:15px 0;
+}
+body.kn-home-a #morning-section #knTabWrap .dividend-list .div-item {
+  grid-template-columns:23px minmax(0,1fr) auto;
+  gap:12px;
+  padding-block:15px;
+}
+body.kn-home-a #morning-section #knTabWrap .dividend-list .dividend-row-values {grid-column:3}
+@container home-stock (max-width:280px) {
+  body.kn-home-a #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
+  body.kn-home-a #morning-section #knTabWrap .sf-row .sf-quote {grid-column:2;grid-row:2}
+  body.kn-home-a #morning-section #knTabWrap .sf-watch-row {grid-template-columns:minmax(0,1fr);gap:6px}
+  body.kn-home-a #morning-section #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr);gap:6px 10px}
+  body.kn-home-a #morning-section #knTabWrap .dividend-list .dividend-row-values {grid-column:2}
+}
+@container home-stock (max-width:440px) {
+  body.kn-home-a[data-kn-reading-size="l"] #morning-section #knTabWrap .sf-row,
+  body.kn-home-a[data-kn-reading-size="xl"] #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
+  body.kn-home-a[data-kn-reading-size="l"] #morning-section #knTabWrap .sf-row .sf-quote,
+  body.kn-home-a[data-kn-reading-size="xl"] #morning-section #knTabWrap .sf-row .sf-quote {grid-column:2;grid-row:2}
+  body.kn-home-a[data-kn-reading-size="l"] #morning-section #knTabWrap .sf-watch-row,
+  body.kn-home-a[data-kn-reading-size="xl"] #morning-section #knTabWrap .sf-watch-row {grid-template-columns:minmax(0,1fr);gap:6px}
+  body.kn-home-a[data-kn-reading-size="l"] #morning-section #knTabWrap .dividend-list .div-item,
+  body.kn-home-a[data-kn-reading-size="xl"] #morning-section #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr);gap:6px 10px}
+  body.kn-home-a[data-kn-reading-size="l"] #morning-section #knTabWrap .dividend-list .dividend-row-values,
+  body.kn-home-a[data-kn-reading-size="xl"] #morning-section #knTabWrap .dividend-list .dividend-row-values {grid-column:2}
+}

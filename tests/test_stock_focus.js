@@ -94,8 +94,11 @@ test('company selection retains distinct valid companies beyond three without fi
 });
 test('production tabs preserve existing dividend, calendar, search and favorites wiring',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');const script=html.match(/<script>\/\*knTabFeatureV1\*\/[\s\S]*?<\/script>/)[0];
- assert.ok(script.indexOf("_mkSub('movers','','ランキング')")<script.indexOf("_mkSub('companies','','企業ニュース')"));assert.doesNotMatch(script,/_subRow\.appendChild\(_sW\)/);assert.match(script,/mkTab\('favorites','','お気に入り'\)/);assert.match(script,/window\.__knSetSub=function\(view\)\{_showStock\(view\);\}/);assert.match(script,/stockMain='div_'\+tab/);
- assert.match(script,/data-sub/);assert.match(script,/if\(companies\)companies.style.display='none'/);assert.match(script,/switchDividendTab\(tab\)/);assert.doesNotMatch(script,/if\(k.id!=='knWatchAddBtn'\)k.style.display='none'/);
+ assert.match(script,/_mkSub\('movers','','ランキング'\)/);assert.doesNotMatch(script,/_mkSub\('companies'|_subRow\.appendChild\(_sW\)/);assert.match(script,/mkTab\('favorites','','お気に入り'\)/);assert.match(script,/window\.__knSetSub=function\(view\)\{_showStock\(view\);\}/);assert.match(script,/stockMain='div_'\+tab/);
+ assert.match(script,/data-sub/);assert.doesNotMatch(script,/companies\.style\.display|appendChild\(companies\)/);assert.match(script,/switchDividendTab\(tab\)/);assert.doesNotMatch(script,/if\(k.id!=='knWatchAddBtn'\)k.style.display='none'/);
+ const news=html.indexOf('id="morning-news-section"'),company=html.indexOf('id="knCompanyNewsSection"'),panel=html.indexOf('id="knCompanyFocus"');
+ assert.ok(news>=0&&company>news&&panel>company,'company stories follow the economic news in their own section');
+ assert.match(html.slice(company,panel),/企業ニュース/);
  assert.equal((html.match(/id="knCompanyFocus"/g)||[]).length,1);assert.match(html,/static\/stock-focus.js\?v=/);
 });
 test('all executable inline scripts remain syntactically valid after integration',()=>{
@@ -325,11 +328,11 @@ test('compact bar combines direction and metric and preserves the selected order
 
 // Parse the production markup and simulate DOM mechanics only. The actual
 // rendering, event delegation, storage and refresh handlers remain unchanged.
-function rankingMenuHarness(saved){
+function rankingMenuHarness(saved,prepare){
  const h=browserHarness(saved,false,(w,elements,listeners)=>{
   const doc=w.document;
   class Element{
-   constructor(tag){this.tagName=tag.toUpperCase();this.attrs={};this.dataset={};this.children=[];this.writes=0;}
+   constructor(tag){this.tagName=tag.toUpperCase();this.attrs={};this.dataset={};this.style={};this.children=[];this.writes=0;}
    setAttribute(key,value){this.attrs[key]=String(value);if(key.startsWith('data-'))this.dataset[key.slice(5).replace(/-([a-z])/g,(_,c)=>c.toUpperCase())]=String(value);}
    getAttribute(key){return this.attrs[key]??null;}
    hasAttribute(key){return Object.hasOwn(this.attrs,key);}
@@ -337,7 +340,7 @@ function rankingMenuHarness(saved){
    get hidden(){return this.hasAttribute('hidden');}set hidden(value){if(value)this.setAttribute('hidden','');else delete this.attrs.hidden;}
    get open(){return this.hasAttribute('open');}set open(value){if(value)this.setAttribute('open','');else delete this.attrs.open;}
    get tabIndex(){return Number(this.getAttribute('tabindex')??0);}set tabIndex(value){this.setAttribute('tabindex',value);}
-   appendChild(child){if(typeof child!=='string')child.parentElement=this;this.children.push(child);return child;}
+   appendChild(child){if(typeof child!=='string'){if(child.parentElement)child.parentElement.children.splice(child.parentElement.children.indexOf(child),1);child.parentElement=this;}this.children.push(child);return child;}
    contains(node){return node===this||this.children.some(child=>typeof child!=='string'&&child.contains(node));}
    matches(selector){
     return selector.split(',').some(part=>{
@@ -374,6 +377,7 @@ function rankingMenuHarness(saved){
   doc.body=new Element('body');doc.activeElement=doc.body;
   doc.createElement=tag=>new Element(tag);doc.getElementById=id=>doc.body.querySelector('#'+id);
   for(const id of elements.keys()){const el=new Element('div');el.setAttribute('id',id);doc.body.appendChild(el);elements.set(id,el);}
+  if(prepare)prepare(w,elements,listeners);
  });
  h.node=id=>h.w.document.getElementById(id);
  h.option=(value,key='order')=>h.node('sf-'+key+'-options').querySelector('[data-rank-'+key+'="'+value+'"]');
@@ -560,15 +564,55 @@ function companyPayload(){
  return {...fixture,edition_date:today,valid_until:until,checked_at:stamp,status:'ready',
   companies:fixture.companies.map((x,i)=>({...x,published_date:today,valid_until:until,article_id:'article-'+i,reviewed_at:stamp}))};
 }
-function companyHarness(){
- const h=rankingMenuHarness(),wrap=h.w.document.createElement('div');wrap.setAttribute('id','knTabWrap');h.w.document.body.appendChild(wrap);
+function companyHarness(standalone=false){
+ const mounted={observers:[]};
+ const h=rankingMenuHarness(undefined,(w,elements)=>{
+  if(!standalone)return;
+  const doc=w.document,home=doc.createElement('div'),section=doc.createElement('section');home.setAttribute('id','morning-section');section.setAttribute('id','knCompanyNewsSection');home.appendChild(section);section.appendChild(elements.get('knCompanyFocus'));doc.body.appendChild(home);
+  section.getClientRects=()=>{for(let node=section;node;node=node.parentElement)if(node.hidden||node.style.display==='none')return [];return [{}];};
+  w.MutationObserver=class{constructor(callback){this.callback=callback;this.targets=[];mounted.observers.push(this);}observe(target,options){this.targets.push({target,options});}disconnect(){this.targets=[];}};
+  mounted.home=home;mounted.section=section;
+ });
+ const wrap=h.w.document.createElement('div');wrap.setAttribute('id','knTabWrap');(mounted.home||h.w.document.body).appendChild(wrap);
  h.setView=(view='companies',main='stock')=>{wrap.dataset.stockMain=main;wrap.dataset.stockView=view;h.listeners.knStockViewChanged({detail:{view}});};
+ h.setStoryVisibility=(target,visible)=>{const node=mounted[target];assert.ok(node,'standalone visibility target');node.style.display=visible?'':'none';for(const observer of mounted.observers)if(observer.targets.some(entry=>entry.target===node))observer.callback([{type:'attributes',attributeName:'style',target:node}],observer);};
  h.companyRequests=()=>h.requests.filter(r=>r.url==='/api/company-news');
  h.companyBox=()=>h.elements.get('knCompanyFocus');
  h.story=(id='article-0')=>h.companyBox().querySelectorAll('details[data-stock-detail]').find(x=>x.dataset.stockDetail===id);
  h.setView();return h;
 }
 function fireCompanyTimer(h){const pair=[...h.timers].find(([,t])=>t.ms===60000&&t.fn.name==='loadStories');assert.ok(pair,'expected company refresh');h.timers.delete(pair[0]);pair[1].fn();}
+
+test('standalone company stories poll through stock tab switches without view-triggered requests',async()=>{
+ const h=companyHarness(true),initial=companyPayload();await h.respond(h.companyRequests()[0],initial);h.story().open=true;h.story().querySelector('summary').focus();
+ for(const [view,main]of [['movers','stock'],['watch','favorites'],['movers','div_top'],['movers','div_cal']]){
+  const before=h.companyRequests().length;h.setView(view,main);h.setView(view,main);
+  assert.equal(h.companyRequests().length,before,'changing the stock view does not fetch visible company stories again');
+  assert.equal([...h.timers.values()].filter(t=>t.fn.name==='loadStories').length,1);
+  fireCompanyTimer(h);assert.equal(h.companyRequests().length,before+1);
+  await h.respond(h.companyRequests().at(-1),initial);assert.ok(h.story().open);
+ }
+ assert.equal(h.companyRequests().length,5);assert.equal(h.w.document.activeElement,h.story().querySelector('summary'));
+});
+
+test('standalone company visibility pauses on home or frame hide and resumes one shared request',async()=>{
+ const h=companyHarness(true),initial=companyPayload();await h.respond(h.companyRequests()[0],initial);
+ for(const target of ['home','section']){
+  const before=h.companyRequests().length;h.setStoryVisibility(target,false);
+  assert.ok(![...h.timers.values()].some(t=>t.fn.name==='loadStories'));
+  h.listeners.online();h.setView('watch','favorites');assert.equal(h.companyRequests().length,before);
+  h.setStoryVisibility(target,true);assert.equal(h.companyRequests().length,before+1);
+  h.setStoryVisibility(target,true);h.setView('movers','stock');h.listeners.online();assert.equal(h.companyRequests().length,before+1);
+  h.setStoryVisibility(target,false);await h.respond(h.companyRequests().at(-1),initial);
+  assert.ok(![...h.timers.values()].some(t=>t.fn.name==='loadStories'),'late response cannot restart a hidden frame');
+  h.setStoryVisibility(target,true);assert.equal(h.companyRequests().length,before+2);
+  await h.respond(h.companyRequests().at(-1),initial);assert.equal([...h.timers.values()].filter(t=>t.fn.name==='loadStories').length,1);
+ }
+ const before=h.companyRequests().length;h.w.document.hidden=true;h.listeners.visibilitychange();
+ assert.ok(![...h.timers.values()].some(t=>t.fn.name==='loadStories'));h.setStoryVisibility('home',false);h.setStoryVisibility('home',true);h.listeners.online();assert.equal(h.companyRequests().length,before);
+ h.w.document.hidden=false;h.listeners.visibilitychange();h.listeners.online();assert.equal(h.companyRequests().length,before+1);
+ await h.respond(h.companyRequests().at(-1),initial);h.setView('movers','div_cal');assert.equal(h.companyRequests().length,before+1,'stock navigation after document resume does not trigger an extra company request');assert.equal([...h.timers.values()].filter(t=>t.fn.name==='loadStories').length,1);
+});
 
 test('company stories initially show five then reveal more without additional requests or losing open details',async()=>{
  const h=companyHarness(),initial=companyPayload(),base=initial.companies[0];
@@ -666,4 +710,16 @@ test('unchanged company copy keeps DOM nodes; revised copy preserves each articl
  const different=companyPayload();different.companies[0].article_id='new-article';different.companies[0].source_url='https://example.com/new-announcement';
  fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),different);
  assert.equal(h.story('new-article').open,false,'A new article for the same company does not inherit the old open state');
+});
+
+test('company card updates retain the focused company-name button without taking outside focus',async()=>{
+ const h=companyHarness(true),initial=companyPayload();await h.respond(h.companyRequests()[0],initial);
+ const first=h.companyBox().querySelector('[data-company-profile]'),symbol=first.dataset.companyProfile;first.focus();
+ const revised=companyPayload();revised.companies[1].event+=' 更新した説明です。';
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),revised);
+ const replacement=h.companyBox().querySelectorAll('[data-company-profile]').find(node=>node.dataset.companyProfile===symbol);
+ assert.notEqual(replacement,first);assert.equal(h.w.document.activeElement,replacement);
+ const outside=h.w.document.createElement('button');h.w.document.body.appendChild(outside);outside.focus();
+ revised.companies[1].outlook+=' 次の発表を確認します。';fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),revised);
+ assert.equal(h.w.document.activeElement,outside);
 });
