@@ -27,6 +27,34 @@ SOURCE_HASH_KEYS = ('symbol', 'name', 'business', 'title', 'url', 'published_dat
                     'sector', 'business_url', 'related_company', 'other_news')
 PUBLIC_KEYS = ('symbol', 'name', 'sector', 'title', 'business', 'event', 'outlook',
                'source_url', 'published_date', 'published_at', 'article_id', 'reviewed_at')
+FEED_STATES = frozenset({'ok', 'failed', 'not_completed'})
+COLLECTION_STATES = frozenset({'fetch_incomplete', 'feed_failed', 'no_matching_candidates',
+                              'collected', 'collected_partial', 'articles_unavailable'})
+SOURCE_ERROR_CODES = frozenset({'unapproved_source', 'source_time_limit', 'source_unavailable',
+    'unapproved_redirect', 'source_content_type', 'source_size_limit', 'source_size_or_time_limit',
+    'unsupported_feed_declaration', 'unsupported_feed_structure', 'unsupported_source_encoding',
+    'invalid_verification_clock', 'source_read_failed', 'body_or_date_unverified'})
+STORAGE_ERROR_CODES = frozenset({'storage_configuration', 'storage_response', 'storage_timeout',
+    'storage_network', 'storage_bucket', 'storage_private_required', 'storage_read', 'storage_size',
+    'storage_write', 'storage_list', 'storage_state', 'company_record_invalid'})
+
+
+def _safe_source_diagnostics(value):
+    value = value if isinstance(value, dict) else {}
+    result = {}
+    for name, _, _ in SOURCES.values():
+        row = value.get(name)
+        row = row if isinstance(row, dict) else {}
+        feed, status = row.get('feed_status'), row.get('status')
+        errors = row.get('errors', [])
+        errors = errors if isinstance(errors, (list, tuple)) else ['source_read_failed']
+        result[name] = {
+            'feed_status': feed if isinstance(feed, str) and feed in FEED_STATES else 'not_completed',
+            'status': status if isinstance(status, str) and status in COLLECTION_STATES else 'fetch_incomplete',
+            'errors': sorted({error if isinstance(error, str) and error in SOURCE_ERROR_CODES
+                              else 'source_read_failed' for error in errors[:len(SOURCE_ERROR_CODES)]}),
+        }
+    return result
 
 
 def canonical_hash(value):
@@ -209,6 +237,8 @@ class CompanyNewsRuntime:
         self._lock = threading.Lock()
         self._thread, self._pid, self._source_check = None, os.getpid(), 0
         self._source_status = 'refreshing'
+        self._source_diagnostics = _safe_source_diagnostics(None)
+        self._last_error_phase, self._last_error_code = None, None
         self._last_restore, self._restore_day = 0, None
         self._candidate_check, self._candidate_day = 0, None
         try:
@@ -246,6 +276,7 @@ class CompanyNewsRuntime:
 
     def run_once(self):
         now = self.clock()
+        phase = 'storage_check'
         try:
             self.storage.ensure_private()
             collected = False
@@ -253,9 +284,13 @@ class CompanyNewsRuntime:
             if self.collector and now - self._source_check >= 900:
                 self._source_check = now
                 self._source_status = 'refreshing'
+                phase = 'candidate_read'
                 known_sources = candidate_records(self.storage, now)
                 known = [source['url'] for source in known_sources]
+                phase = 'source_collect'
                 result = self.collector(now=now, exclude_urls=known)
+                with self._lock:
+                    self._source_diagnostics = _safe_source_diagnostics(result.get('diagnostics'))
                 sources = result['articles']
                 # Verification timestamps are recorded after HTTP completes.
                 # A slow successful fetch is not a future source relative to
@@ -263,6 +298,7 @@ class CompanyNewsRuntime:
                 now = self.clock()
                 day = datetime.fromtimestamp(now, JST).date().isoformat()
                 combined = {source_fingerprint(source): source for source in known_sources}
+                phase = 'candidate_write'
                 for source in sources:
                     if valid_source(source, now):
                         self.storage.create(f'{PREFIX}/candidates/{day}/{source_fingerprint(source)}.json', source)
@@ -278,6 +314,7 @@ class CompanyNewsRuntime:
                 previous = deepcopy(self._records)
                 waiting = deepcopy(self._candidates)
             restored = self._restore_day != day or now - self._last_restore >= 900
+            phase = 'publication_read'
             if restored:
                 records = read_records(self.storage, now, cache=self._published_cache)
                 active_days = {(datetime.fromtimestamp(now, JST).date() - timedelta(days=offset)).isoformat()
@@ -290,11 +327,14 @@ class CompanyNewsRuntime:
                     if datetime.fromtimestamp(item['company']['reviewed_at'], JST).date().isoformat() != day] + today
             refreshed_candidates = collected or self._candidate_day != day or now - self._candidate_check >= 900
             if refreshed_candidates:
+                phase = 'candidate_read'
                 waiting = collected_candidates if collected_candidates is not None else candidate_records(self.storage, now)
             # Only cached waiting candidates need claim/seen checks each minute;
             # old queue manifests and historical editions are read periodically.
+            phase = 'claim_read'
             pending = pending_candidates(self.storage, now, candidates=waiting)
             if records != previous:
+                phase = 'cache_write'
                 self._persist(records)
             with self._lock:
                 self._records, self._pending = records, pending
@@ -305,9 +345,14 @@ class CompanyNewsRuntime:
                     self._candidate_check, self._candidate_day = now, day
                 self._status = 'ready' if self._source_status in ('ready', 'source_empty') else 'error'
                 self._checked = self._source_check or None
-        except Exception:
+                self._last_error_phase = None if self._status == 'ready' else 'source_collect'
+                self._last_error_code = None if self._status == 'ready' else 'source_collection_failed'
+        except Exception as error:
             with self._lock:
                 self._status = 'error'
+                self._last_error_phase = phase
+                self._last_error_code = (str(error) if isinstance(error, StorageUnavailable)
+                    and str(error) in STORAGE_ERROR_CODES else 'runtime_failed')
 
     def snapshot(self):
         with self._lock:
@@ -318,6 +363,8 @@ class CompanyNewsRuntime:
             pending = [source for source in self._pending if valid_source(source, self.clock())]
             fingerprints = sorted(source_fingerprint(source) for source in pending)
             return {'status': self._status, 'checked_at': self._checked,
+                    'source_diagnostics': deepcopy(self._source_diagnostics),
+                    'last_error_phase': self._last_error_phase, 'last_error_code': self._last_error_code,
                     'pending_count': len(pending),
                     'batch_id': canonical_hash(fingerprints) if fingerprints else None,
                     'sources': ['NTT', 'KDDI', 'パナソニック'],

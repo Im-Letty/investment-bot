@@ -2327,7 +2327,8 @@ def _collect_company_sources(**options):
                   and item.get('feed_status') == 'ok'
                   and item.get('status') in ('collected', 'no_matching_candidates')
                   for item in diagnostics.values())
-    return {'articles': articles, 'status': ('ready' if articles else 'source_empty') if healthy else 'error'}
+    return {'articles': articles, 'status': ('ready' if articles else 'source_empty') if healthy else 'error',
+            'diagnostics': diagnostics}
 
 
 _company_news = CompanyNewsRuntime(CompanyNewsStorage(SUPABASE_URL, SUPABASE_KEY),

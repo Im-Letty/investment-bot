@@ -134,6 +134,24 @@ class CompanySourceTests(unittest.TestCase):
         self.assertIsNone(self.extract(PANASONIC, article(PANASONIC, issuer='パナソニック株式会社',
                                                        company_badge='パナソニック エナジー株式会社')))
 
+    def test_inspected_connect_group_actor_is_preserved_without_inventing_corporation(self):
+        result = self.extract(PANASONIC, article(PANASONIC, issuer='パナソニック コネクトグループ'))
+        self.assertEqual(result['related_company'], 'パナソニック コネクトグループ')
+        self.assertEqual(result['name'], 'パナソニック ホールディングス')
+        self.assertIsNone(self.extract(PANASONIC, article(PANASONIC, issuer='パナソニック 未確認グループ')))
+
+    def test_issuer_in_partner_description_later_paragraph_or_footer_is_not_actor(self):
+        actor = 'パナソニック コネクトグループ'
+        filler = 'これは取得処理を確かめる架空の本文です。実際の会社発表ではありません。' * 5
+        for body in (f'{actor}の取引先である別会社は、新しい設備を開発します。{filler}',
+                     f'別会社は、新しい設備を開発します。{filler}\n{actor}は取引先です。',
+                     f'{actor}\n別会社は、新しい設備を開発します。{filler}'):
+            with self.subTest(body=body[:30]):
+                self.assertIsNone(self.extract(PANASONIC, article(PANASONIC, body=body)))
+        payload = article(PANASONIC, issuer='別の会社株式会社').replace(
+            b'<footer>footer</footer>', f'<footer>{actor}は会社案内の見出しです。</footer>'.encode())
+        self.assertIsNone(self.extract(PANASONIC, payload))
+
     def test_panasonic_body_tables_and_headings_are_not_lost(self):
         extra = ('<div class="BlockModule"><h2>実験の条件</h2><table>'
                  '<tr><th>対象</th><td>架空設備1台</td></tr></table></div>')

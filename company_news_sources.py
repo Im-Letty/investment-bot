@@ -43,7 +43,8 @@ SOURCES = {
         "business_url": "https://holdings.panasonic/jp/corporate/about/group-strategy/business-segments.html",
         "related_issuers": ("パナソニック ホールディングス株式会社", "パナソニック株式会社",
                             "パナソニック エナジー株式会社", "パナソニック インダストリー株式会社",
-                            "パナソニック コネクト株式会社", "パナソニック エレクトリックワークス株式会社",
+                            "パナソニック コネクト株式会社", "パナソニック コネクトグループ",
+                            "パナソニック エレクトリックワークス株式会社",
                             "パナソニック HVAC&CC株式会社"),
     },
 }
@@ -223,6 +224,20 @@ def _day(value):
         return None
 
 
+def _declared_issuer(body, issuers):
+    # The newsroom also publishes Connect *group* announcements. Preserve
+    # that inspected group name instead of inventing a single legal company.
+    # A company appearing later, or in a "company's partner" possessive,
+    # cannot establish that it is the actor of the leading announcement.
+    first_line = next((line for line in body.splitlines() if line.strip()), "")
+    lead = _compact(first_line)
+    for issuer in issuers:
+        name = _compact(issuer)
+        if lead.startswith(name) and lead[len(name):].startswith(("は", "（", "(")):
+            return issuer
+    return None
+
+
 def _extract_article(payload, item, final_url, now, since, *, observed_at):
     source = item["source"]
     config = SOURCES[source]
@@ -285,8 +300,7 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at):
         # Current pages can contain an empty company badge. The legal issuer
         # at the start of the press-release narrative is the evidence then;
         # the newsroom publisher alone is not evidence that the HD announced.
-        issuer = next((name for name in config["related_issuers"]
-                       if _compact(body).startswith(_compact(name))), None)
+        issuer = _declared_issuer(body, config["related_issuers"])
         if not issuer or (related_company and _compact(issuer) not in _compact(related_company)):
             return None
         related_company = issuer

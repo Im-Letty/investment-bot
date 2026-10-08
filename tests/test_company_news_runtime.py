@@ -1,9 +1,13 @@
 from copy import deepcopy
+import ast
 from datetime import date, timedelta
 from hashlib import sha256
+import json
+from pathlib import Path
 import tempfile
 import threading
 import unittest
+from unittest.mock import patch
 
 from company_news_runtime import (CompanyNewsRuntime, PREFIX, article_id, canonical_hash,
     pending_candidates, public_snapshot, source_fingerprint, source_hash, valid_record, valid_source)
@@ -77,6 +81,122 @@ class CountingStorage(MemoryStorage):
 
 
 class CompanyRuntimeTests(unittest.TestCase):
+    def diagnostics(self, error=False):
+        from company_news_runtime import SOURCES
+        result = {name: {'feed_status': 'ok', 'status': 'no_matching_candidates', 'errors': []}
+                  for name, _, _ in SOURCES.values()}
+        if error:
+            result['NTT'].update(status='articles_unavailable', errors=['body_or_date_unverified'])
+        return result
+
+    def test_operational_diagnostics_are_fixed_bounded_and_never_expose_untrusted_text(self):
+        storage = MemoryStorage()
+        diagnostics = self.diagnostics(error=True)
+        diagnostics['NTT'].update(body='private original body', url='https://secret.example',
+            errors=['body_or_date_unverified', 'sk-private-error', ['unknown']])
+        diagnostics['KDDI'].update(feed_status=['untrusted'], status='raw provider message')
+        diagnostics['unknown company'] = {'errors': ['sk-private-error']}
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = CompanyNewsRuntime(storage, collector=lambda **_: {'status': 'error',
+                'articles': [], 'diagnostics': diagnostics}, clock=lambda: NOW, cache_path=temp + '/cache.json')
+            runtime.run_once(); result = runtime.operational_snapshot()
+        safe = result['source_diagnostics']
+        self.assertEqual(set(safe), {'NTT', 'KDDI', 'パナソニック ホールディングス'})
+        self.assertTrue(all(set(row) == {'feed_status', 'status', 'errors'} for row in safe.values()))
+        self.assertEqual(safe['NTT']['errors'], ['body_or_date_unverified', 'source_read_failed'])
+        self.assertEqual(safe['KDDI']['feed_status'], 'not_completed')
+        self.assertEqual(safe['KDDI']['status'], 'fetch_incomplete')
+        self.assertEqual(result['status'], 'error')
+        self.assertEqual(result['last_error_phase'], 'source_collect')
+        self.assertEqual(result['last_error_code'], 'source_collection_failed')
+        for private in ('sk-private', 'original body', 'secret.example', 'raw provider', 'unknown company'):
+            self.assertNotIn(private, json.dumps(result))
+        result['source_diagnostics']['NTT']['errors'].append('changed by caller')
+        self.assertNotIn('changed by caller', runtime.operational_snapshot()['source_diagnostics']['NTT']['errors'])
+
+    def test_source_diagnostics_are_retained_between_polls_and_cleared_on_recovery(self):
+        storage, clock, calls = CountingStorage(), [NOW], []
+        storage.create(f'{PREFIX}/days/2026-10-08/published-1.json', record())
+        def collect(**_):
+            calls.append(1)
+            failed = len(calls) == 1
+            return {'status': 'error' if failed else 'source_empty', 'articles': [],
+                    'diagnostics': self.diagnostics(error=failed)}
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = CompanyNewsRuntime(storage, collector=collect, clock=lambda: clock[0],
+                cache_path=temp + '/cache.json')
+            runtime.run_once()
+            initial = runtime.operational_snapshot()['source_diagnostics']
+            self.assertEqual(len(runtime.snapshot()['companies']), 1)
+            storage.reset_counts(); clock[0] += 60; runtime.run_once()
+            self.assertEqual(runtime.operational_snapshot()['source_diagnostics'], initial)
+            self.assertEqual(storage.lists, [])
+            self.assertEqual(len(calls), 1)
+            clock[0] = NOW + 900; runtime.run_once()
+            recovered = runtime.operational_snapshot()
+            self.assertEqual(recovered['status'], 'ready')
+            self.assertIsNone(recovered['last_error_phase'])
+            self.assertIsNone(recovered['last_error_code'])
+            self.assertEqual(recovered['source_diagnostics']['NTT']['errors'], [])
+
+    def test_failure_phase_and_code_are_safe_for_storage_collection_and_local_cache(self):
+        from company_news_runtime import StorageUnavailable
+        for failure, expected_phase, expected_code in (
+                ('bucket', 'storage_check', 'storage_private_required'),
+                ('queue', 'candidate_read', 'storage_list'),
+                ('source', 'source_collect', 'runtime_failed'),
+                ('candidate', 'candidate_write', 'storage_write'),
+                ('publication', 'publication_read', 'storage_read'),
+                ('claims', 'claim_read', 'storage_read'),
+                ('cache', 'cache_write', 'runtime_failed')):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temp:
+                storage = MemoryStorage()
+                collector = lambda **_: {'status': 'ready', 'articles': [source()],
+                                         'diagnostics': self.diagnostics()}
+                def fail(code): raise StorageUnavailable(code)
+                if failure == 'bucket': storage.ensure_private = lambda: fail('storage_private_required')
+                if failure == 'queue': storage._list = lambda _: fail('storage_list')
+                if failure == 'source':
+                    def collector(**_): raise RuntimeError('sk-private-source-body')
+                if failure == 'candidate': storage.create = lambda *_: fail('storage_write')
+                original_read = storage.read
+                if failure in ('publication', 'claims'):
+                    def read(path):
+                        if ('/published-' if failure == 'publication' else '/attempt-') in path:
+                            fail('storage_read')
+                        return original_read(path)
+                    storage.read = read
+                if failure == 'cache': storage.create(f'{PREFIX}/days/2026-10-08/published-1.json', record())
+                runtime = CompanyNewsRuntime(storage, collector=collector, clock=lambda: NOW,
+                                             cache_path=temp + '/cache.json')
+                if failure == 'cache':
+                    def persist(_): raise OSError('sk-private-local-path')
+                    runtime._persist = persist
+                runtime.run_once(); result = runtime.operational_snapshot()
+                self.assertEqual(result['status'], 'error')
+                self.assertEqual(result['last_error_phase'], expected_phase)
+                self.assertEqual(result['last_error_code'], expected_code)
+                self.assertNotIn('sk-private', json.dumps(result))
+                if failure == 'publication':
+                    self.assertEqual(result['source_diagnostics'], self.diagnostics())
+
+    def test_company_collector_wrapper_passes_diagnostics_without_changing_health_rule(self):
+        import company_news_sources
+        tree = ast.parse(Path(__file__).resolve().parents[1].joinpath('line_bot.py').read_text())
+        function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
+                        and node.name == '_collect_company_sources')
+        namespace = {}
+        exec(compile(ast.Module(body=[function], type_ignores=[]), '<company-wrapper>', 'exec'), namespace)
+        for failure in (False, True):
+            expected = self.diagnostics(error=failure)
+            def collect(*_, diagnostics, **__):
+                diagnostics.update(expected)
+                return []
+            with patch.object(company_news_sources, 'collect_company_articles', side_effect=collect):
+                result = namespace['_collect_company_sources'](now=NOW)
+            self.assertEqual(result['diagnostics'], expected)
+            self.assertEqual(result['status'], 'error' if failure else 'source_empty')
+
     def test_source_verification_binds_body_date_and_fixed_official_identity(self):
         self.assertTrue(valid_source(source(), NOW))
         for key, value in [('body', 'x' * 120), ('url', 'https://evil.example/news'),
