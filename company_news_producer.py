@@ -32,6 +32,58 @@ HTTP_LIMITS = {"gemini": 2, "openai": 1}
 COPY_FIELDS = ("title", "business", "event", "outlook")
 CHECKS = ("company_identity", "facts", "dates", "readable", "distinct_topics",
           "no_invented_outlook", "original_wording")
+COMPANY_ERRORS = frozenset(('company_invalid_source', 'company_invalid_copy',
+                            'company_not_configured', 'company_record_invalid',
+                            'company_publication_conflict'))
+
+
+def safe_company_error(error):
+    """Only fixed company codes and pre-existing safe transport codes escape."""
+    code = str(error)
+    lengths = getattr(error, 'copy_lengths', None)
+    if (code == 'company_invalid_copy' and isinstance(lengths, dict)
+            and set(lengths) == set(COPY_FIELDS)
+            and all(type(value) is int and 0 <= value <= 100_000 for value in lengths.values())):
+        return code + '_' + '_'.join(str(lengths[key]) for key in COPY_FIELDS)
+    if code in COMPANY_ERRORS or code in {
+        f'company_review_failed_{provider}_{check}'
+        for provider in ('gemini', 'openai') for check in (*CHECKS, 'approval', 'schema')
+    }:
+        return code
+    from daily_news_runtime import _safe_generation_error
+    return _safe_generation_error(error)
+
+
+def _failed_check(review):
+    if (not isinstance(review, dict) or set(review) != {'approved', 'checks', 'issues'}
+            or not isinstance(review.get('checks'), dict) or set(review['checks']) != set(CHECKS)
+            or any(type(value) is not bool for value in review['checks'].values())):
+        return 'schema'
+    return next((key for key in CHECKS if review['checks'][key] is False), 'approval')
+
+
+def safe_company_diagnostic(error):
+    """Non-public copy and fixed checks only; no provider prose or input body."""
+    value = getattr(error, 'company_diagnostic', None)
+    if not isinstance(value, dict) or set(value) != {'draft', 'checks'}:
+        return None
+    try:
+        draft = validate_copy(value['draft'])
+    except shared.GenerationError:
+        return None
+    # The writer only sees public announcement data, never reviewer API keys.
+    # Also withhold any credential-looking output from diagnostic artifacts.
+    if re.search(r'(?i)(sk[-_][A-Za-z0-9]|AIza[A-Za-z0-9]|Bearer\s+)',
+                 json.dumps(draft, ensure_ascii=False)):
+        return None
+    checks = value['checks']
+    if (not isinstance(checks, dict) or set(checks) != {'gemini', 'openai'}
+            or any(not isinstance(values, dict) or set(values) != set(CHECKS)
+                   or any(type(item) is not bool for item in values.values())
+                   for values in checks.values())):
+        return None
+    return {'draft': draft, 'checks': deepcopy(checks)}
+
 REVIEW_SCHEMA = {
     "type": "object", "additionalProperties": False,
     "properties": {
@@ -159,7 +211,11 @@ def validate_copy(value):
             or not 60 <= sum(len(value[key]) for key in COPY_FIELDS[1:]) <= 440
             or any(len(_normalized(value[key])) < 8 for key in COPY_FIELDS[1:])
             or len({_normalized(value[key]) for key in COPY_FIELDS[1:]}) != 3):
-        raise shared.GenerationError("company_invalid_copy")
+        error = shared.GenerationError("company_invalid_copy")
+        if isinstance(value, dict):
+            error.copy_lengths = {key: len(value[key]) if isinstance(value.get(key), str) else 0
+                                  for key in COPY_FIELDS}
+        raise error
     return deepcopy(value)
 
 
@@ -311,16 +367,21 @@ def generate_company_news(source, now=None, *, providers=None, clock=time.time):
         input_digest = source_hash(clean)
         review_data = {"draft": deepcopy(draft), "source": deepcopy(clean),
                        "content_sha256": digest, "source_sha256": input_digest}
-        proofs, rejected = {}, []
+        proofs, rejected, review_checks = {}, [], {}
         for name in ("gemini", "openai"):
             provider._check()
             review = getattr(provider, name)(REVIEW_INSTRUCTION, deepcopy(review_data))
+            if isinstance(review, dict):
+                review_checks[name] = deepcopy(review.get('checks'))
             if not _review_passed(review):
-                rejected.append(name)
+                rejected.append((name, _failed_check(review)))
             else:
                 proofs[name] = {"approved": True, "content_sha256": digest, "source_sha256": input_digest}
         if rejected:
-            raise shared.GenerationError("company_review_failed_" + rejected[0])
+            name, check = rejected[0]
+            error = shared.GenerationError(f'company_review_failed_{name}_{check}')
+            error.company_diagnostic = {'draft': deepcopy(draft), 'checks': review_checks}
+            raise error
         reviewed_at = clock()
         provider._check()
         if not _number(reviewed_at) or reviewed_at < now:

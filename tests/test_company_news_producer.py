@@ -55,6 +55,17 @@ class Writer:
 
 
 class CompanyProducerTests(unittest.TestCase):
+    def test_safe_company_diagnostics_keep_fixed_checks_and_lengths_without_prose(self):
+        self.assertEqual(company.safe_company_error(GenerationError('company_review_failed_gemini_facts')),
+                         'company_review_failed_gemini_facts')
+        self.assertEqual(company.safe_company_error(GenerationError('company_review_failed_gemini_sk-secret')),
+                         'generation_failed')
+        with self.assertRaises(GenerationError) as caught:
+            company.validate_copy({**COPY, 'outlook': '未定です'})
+        safe = company.safe_company_error(caught.exception)
+        self.assertRegex(safe, r'^company_invalid_copy_[0-9]+_[0-9]+_[0-9]+_4$')
+        self.assertNotIn('未定', safe)
+
     def setUp(self):
         guard = patch("requests.sessions.Session.request", side_effect=AssertionError("live HTTP forbidden"))
         guard.start()
@@ -163,19 +174,40 @@ class CompanyProducerTests(unittest.TestCase):
                 return value
             with self.subTest(failed=failed):
                 provider, writer, transport = self.make(reviewer=reviewer)
-                with self.assertRaisesRegex(GenerationError, "^company_review_failed_" + failed + "$"):
+                with self.assertRaisesRegex(GenerationError, "^company_review_failed_" + failed + "_facts$"):
                     self.generate(provider)
                 self.assertEqual(len(writer.calls), 1)
                 self.assertEqual([name for name, _, _ in transport.calls], ["gemini", "openai"])
                 self.assertEqual(transport.calls[0][1], transport.calls[1][1])
                 self.assertNotIn("fixture rejection", json.dumps(transport.calls[1][1]))
 
+    def test_private_failure_diagnostic_retains_copy_and_checks_without_review_prose(self):
+        def reviewer(name, data):
+            value = approval()
+            if name == 'gemini':
+                value['approved'] = False
+                value['checks']['company_identity'] = False
+                value['issues'] = ['untrusted provider prose sk-never-output']
+            return value
+        provider, _, _ = self.make(reviewer=reviewer)
+        with self.assertRaises(GenerationError) as caught:
+            self.generate(provider)
+        diagnostic = company.safe_company_diagnostic(caught.exception)
+        self.assertEqual(diagnostic['draft'], COPY)
+        self.assertIs(diagnostic['checks']['gemini']['company_identity'], False)
+        self.assertIs(diagnostic['checks']['openai']['company_identity'], True)
+        self.assertNotIn('issues', json.dumps(diagnostic))
+        self.assertNotIn('sk-never', json.dumps(diagnostic))
+        caught.exception.company_diagnostic['draft']['title'] = '確認しない sk-never-output'
+        self.assertIsNone(company.safe_company_diagnostic(caught.exception))
+
     def test_missing_checks_non_boolean_and_nonempty_issues_are_rejections(self):
         for change in ({"checks": {}}, {"checks": {key: 1 for key in company.CHECKS}},
                        {"issues": ["not fully approved"]}, {"extra": "metadata"}):
             with self.subTest(change=change):
                 provider, writer, transport = self.make(reviewer=lambda name, data: {**approval(), **change})
-                with self.assertRaisesRegex(GenerationError, "^company_review_failed_gemini$"):
+                expected = 'approval' if 'issues' in change else 'schema'
+                with self.assertRaisesRegex(GenerationError, "^company_review_failed_gemini_" + expected + "$"):
                     self.generate(provider)
                 self.assertEqual(len(writer.calls), 1)
                 self.assertEqual(len(transport.calls), 2)
