@@ -2316,6 +2316,48 @@ def api_news_publication():
     return response
 
 
+from company_news_runtime import CompanyNewsRuntime, SupabaseNewsStorage as CompanyNewsStorage
+
+
+def _collect_company_sources(**options):
+    from company_news_sources import collect_company_articles
+    diagnostics = {}
+    articles = collect_company_articles(diagnostics=diagnostics, **options)
+    healthy = len(diagnostics) == 3 and all(isinstance(item, dict)
+                  and item.get('feed_status') == 'ok'
+                  and item.get('status') in ('collected', 'no_matching_candidates')
+                  for item in diagnostics.values())
+    return {'articles': articles, 'status': ('ready' if articles else 'source_empty') if healthy else 'error'}
+
+
+_company_news = CompanyNewsRuntime(CompanyNewsStorage(SUPABASE_URL, SUPABASE_KEY),
+    collector=_collect_company_sources,
+    cache_path=os.environ.get('COMPANY_NEWS_RUNTIME_PATH', '/tmp/kn-company-news.json'))
+
+
+@app.before_request
+def ensure_company_news_worker():
+    if (request.endpoint != 'api_private_news_release_test'
+            and os.environ.get('COMPANY_NEWS_ENABLED', '1') != '0'):
+        _company_news.start()
+
+
+@app.route('/api/company-news', methods=['GET'])
+def api_company_news():
+    # Cached, independently reviewed copy only; a visitor never invokes AI.
+    response = jsonify(_company_news.snapshot())
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/api/company-news-status', methods=['GET'])
+def api_company_news_status():
+    # Fixed operational counters/hash; no raw source bodies or credentials.
+    response = jsonify(_company_news.operational_snapshot())
+    response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
 @app.route("/api/private-news-release-test", methods=["POST"])
 def api_private_news_release_test():
     """Read an expiring private test only; never prepare or publish an edition."""

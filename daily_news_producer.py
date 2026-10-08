@@ -173,6 +173,10 @@ class Providers:
         return json_object(''.join(p.get('text', '') for p in result.get('content', [])
                                    if p.get('type') == 'text'))
 
+    def _openai_review_schema(self, data):
+        """Trusted subclasses can review another document with a fixed schema."""
+        return REVIEW_SCHEMA
+
     def openai(self, instruction, data):
         key = self.env.get('OPENAI_API_KEY', '').strip()
         if not key:
@@ -185,7 +189,7 @@ class Providers:
             'reasoning': {'effort': 'medium'}, 'instructions': instruction,
             'input': [{'role': 'user', 'content': json.dumps(data, ensure_ascii=False)}],
             'text': {'format': {'type': 'json_schema', 'name': 'news_editorial_review',
-                                'strict': True, 'schema': REVIEW_SCHEMA}},
+                                'strict': True, 'schema': self._openai_review_schema(data)}},
         }
         result = self._post('https://api.openai.com/v1/responses',
                             {'Authorization': 'Bearer ' + key}, payload, 'openai')

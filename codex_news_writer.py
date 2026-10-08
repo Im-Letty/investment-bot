@@ -32,6 +32,21 @@ _ENV_NAMES = ("HOME", "CODEX_HOME", "PATH", "LANG", "LC_ALL", "LC_CTYPE",
               "TZ", "TMPDIR", "TMP", "TEMP")
 _CHATGPT_STATUS = "Logged in using ChatGPT"
 
+# Trusted, source-independent schemas. Company copy has no AI-supplied dates,
+# identities or publication metadata; its caller attaches those after review.
+_TRUSTED_SCHEMAS = {
+    "company_article": {
+        "type": "object", "additionalProperties": False,
+        "properties": {
+            "title": {"type": "string", "description": "会社と今回の核心の出来事を短く示す見出し"},
+            "business": {"type": "string", "description": "確認済み会社説明だけから、何をする会社かをやさしく説明"},
+            "event": {"type": "string", "description": "取得本文だけから、今回何を発表したかを説明。計画と実績を区別"},
+            "outlook": {"type": "string", "description": "本文で明示された今後の計画や条件。不明なら発表では今後の見通しを示していないと明記。効果や予測を作らない"},
+        },
+        "required": ["title", "business", "event", "outlook"],
+    },
+}
+
 
 @dataclass(frozen=True)
 class _ProcessResult:
@@ -65,6 +80,8 @@ def _safe_environment(environ):
 
 
 def _transport_schema(stage):
+    if isinstance(stage, str) and stage in _TRUSTED_SCHEMAS:
+        return deepcopy(_TRUSTED_SCHEMAS[stage])
     schema = _claude_schema(stage)
     # OpenAI strict structured output requires every property to be required.
     # Preserve the editorial descriptions and only represent optional absence
@@ -439,7 +456,7 @@ class CodexNewsWriter:
                 value = _json_loads(_read_answer(answer_path))
                 if not _matches_schema(value, schema):
                     raise _ProcessFailure("codex_writer_invalid_output")
-                if value.get("summary_alternatives") is None:
+                if "summary_alternatives" in value and value["summary_alternatives"] is None:
                     del value["summary_alternatives"]
                 return value
         except _ProcessFailure as error:

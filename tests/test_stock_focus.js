@@ -113,7 +113,7 @@ function browserHarness(saved,hidden=false,prepare){
  return {w,elements,listeners,requests,timers,async respond(request,data){request.resolve({ok:true,json:async()=>data});await flush();}};
 }
 test('cold provider waiting ends with a retry action rather than an endless spinner',async()=>{
- const h=browserHarness();await h.respond(h.requests.find(r=>r.url.includes('company-focus')),{companies:[]});
+ const h=browserHarness();await h.respond(h.requests.find(r=>r.url==='/api/company-news'),{companies:[],status:'ready'});
  for(let i=0;i<=10;i++){
    const request=h.requests.filter(r=>r.url.includes('/api/scanner'))[i];assert.ok(request);await h.respond(request,{items:[],updated_at:null,refreshing:true});
    if(i<10){const [key,timer]=[...h.timers].find(([,v])=>v.ms===3000);h.timers.delete(key);timer.fn();}
@@ -533,4 +533,110 @@ test('market focus and open state survive both minute price patches and full ran
  const outside=h.w.document.createElement('button');h.w.document.body.appendChild(outside);outside.focus();
  fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(90));
  assert.equal(h.node('sf-market-popover').hidden,true);assert.equal(h.w.document.activeElement,outside);
+});
+
+test('company story dates are real calendar dates and each article expires independently',()=>{
+ const fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));
+ const articles={...fixture,companies:fixture.companies.map((x,i)=>({...x,article_id:'article-'+i,valid_until:i?'2026-09-30':'2026-09-22'}))};
+ assert.deepEqual(stock.validStories(articles,now).map(x=>x.symbol),['6501.T']);
+ for(const bad of ['2026-02-30','2026-13-01','2026-09-31',null,'']){
+  assert.equal(stock.validStories({...fixture,valid_until:bad},now).length,0);
+  assert.equal(stock.validStories({...fixture,edition_date:bad},now).length,0);
+  assert.equal(stock.validStories({...fixture,companies:[{...fixture.companies[0],published_date:bad}]},now).length,0);
+  assert.equal(stock.validStories({...fixture,companies:[{...fixture.companies[0],valid_until:bad}]},now).length,0);
+ }
+ const limit={...fixture,companies:[{...fixture.companies[0],article_id:'same-article',valid_until:'2026-09-23'}]};
+ assert.equal(stock.validStories(limit,Date.parse('2026-09-23T14:59:59Z')).length,1);
+ assert.equal(stock.validStories(limit,Date.parse('2026-09-23T15:00:00Z')).length,0);
+ assert.equal(limit.companies[0].valid_until,'2026-09-23','Validation never extends a deadline');
+ const duplicateId={...fixture,companies:fixture.companies.map(x=>({...x,article_id:'same-article'}))};
+ assert.equal(stock.validStories(duplicateId,now).length,1);
+});
+
+function companyPayload(){
+ const stamp=Date.now()/1000,today=new Date((stamp+9*3600)*1000).toISOString().slice(0,10);
+ const until=new Date((stamp+9*3600+7*86400)*1000).toISOString().slice(0,10);
+ const fixture=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json')));
+ return {...fixture,edition_date:today,valid_until:until,checked_at:stamp,status:'ready',
+  companies:fixture.companies.map((x,i)=>({...x,published_date:today,valid_until:until,article_id:'article-'+i,reviewed_at:stamp}))};
+}
+function companyHarness(){
+ const h=rankingMenuHarness(),wrap=h.w.document.createElement('div');wrap.setAttribute('id','knTabWrap');h.w.document.body.appendChild(wrap);
+ h.setView=(view='companies',main='stock')=>{wrap.dataset.stockMain=main;wrap.dataset.stockView=view;h.listeners.knStockViewChanged({detail:{view}});};
+ h.companyRequests=()=>h.requests.filter(r=>r.url==='/api/company-news');
+ h.companyBox=()=>h.elements.get('knCompanyFocus');
+ h.story=(id='article-0')=>h.companyBox().querySelectorAll('details[data-stock-detail]').find(x=>x.dataset.stockDetail===id);
+ h.setView();return h;
+}
+function fireCompanyTimer(h){const pair=[...h.timers].find(([,t])=>t.ms===60000&&t.fn.name==='loadStories');assert.ok(pair,'expected company refresh');h.timers.delete(pair[0]);pair[1].fn();}
+
+test('company API refreshes every visible minute without changing ranking data or adding storage',async()=>{
+ const h=companyHarness(),initial=companyPayload(),rankingBefore=h.elements.get('homeMoversList').innerHTML;
+ assert.equal(h.companyRequests().length,1);assert.ok(!h.requests.some(r=>r.url.includes('/static/company-focus')));
+ await h.respond(h.companyRequests()[0],initial);assert.match(h.companyBox().innerHTML,/NTT/);
+ for(const title of ['確認済みの新しい取り組み','確認済みの次の発表']){
+  const before=h.companyBox().innerHTML;fireCompanyTimer(h);assert.equal(h.companyBox().innerHTML,before);
+  const next=companyPayload();next.companies[0].title=title;
+  await h.respond(h.companyRequests().at(-1),next);assert.match(h.companyBox().innerHTML,new RegExp(title));
+ }
+ assert.equal(h.companyRequests().length,3);assert.equal(h.requests.filter(r=>r.url.includes('/api/scanner')).length,1);
+ assert.equal(h.elements.get('homeMoversList').innerHTML,rankingBefore);
+ assert.equal(h.w.localStorage.getItem('kn_rank_conditions'),null);assert.equal(h.w.localStorage.getItem('kn_stock_focus_v1_jp'),null);
+});
+
+test('company timers pause off-tab or hidden, resume on return and deduplicate in-flight requests',async()=>{
+ const h=companyHarness();h.listeners.online();h.listeners.visibilitychange();h.setView();assert.equal(h.companyRequests().length,1);
+ await h.respond(h.companyRequests()[0],companyPayload());
+ h.setView('watch','favorites');assert.ok(![...h.timers.values()].some(t=>t.fn.name==='loadStories'));
+ h.listeners.online();assert.equal(h.companyRequests().length,1);
+ h.setView();assert.equal(h.companyRequests().length,2);
+ h.w.document.hidden=true;h.listeners.visibilitychange();
+ await h.respond(h.companyRequests()[1],companyPayload());assert.ok(![...h.timers.values()].some(t=>t.fn.name==='loadStories'));
+ h.listeners.online();h.setView();assert.equal(h.companyRequests().length,2);
+ h.w.document.hidden=false;h.listeners.visibilitychange();h.listeners.online();h.setView();assert.equal(h.companyRequests().length,3);
+ await h.respond(h.companyRequests()[2],companyPayload());
+ assert.equal([...h.timers.values()].filter(t=>t.fn.name==='loadStories').length,1);
+ h.w.document.hidden=true;h.listeners.visibilitychange();assert.ok(![...h.timers.values()].some(t=>t.fn.name==='loadStories'));
+});
+
+test('company refresh failures preserve valid reviewed copy and recover without an invented date',async()=>{
+ const h=companyHarness(),initial=companyPayload();await h.respond(h.companyRequests()[0],initial);h.story().open=true;
+ fireCompanyTimer(h);h.companyRequests().at(-1).reject(new Error('PRIVATE_UPSTREAM_ERROR'));await flush();
+ assert.match(h.companyBox().innerHTML,/NTT/);assert.match(h.companyBox().innerHTML,/更新を確認できませんでした/);
+ assert.ok(h.story().open);assert.doesNotMatch(h.companyBox().innerHTML,/PRIVATE_UPSTREAM_ERROR/);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{status:'error',companies:[]});
+ assert.match(h.companyBox().innerHTML,/NTT/);assert.ok(h.story().open);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{status:'refreshing',companies:[]});
+ assert.match(h.companyBox().innerHTML,/NTT/);assert.ok(h.story().open);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),initial);
+ assert.doesNotMatch(h.companyBox().innerHTML,/確認できませんでした/);assert.ok(h.story().open);
+ assert.match(h.companyBox().innerHTML,new RegExp(initial.companies[0].published_date.replaceAll('-','/')+' 発表'));
+});
+
+test('company empty, expired and failed responses have honest distinct states and a retry',async()=>{
+ const h=companyHarness();await h.respond(h.companyRequests()[0],{status:'refreshing',companies:[]});
+ assert.match(h.companyBox().innerHTML,/新しい企業の発表を確認しています/);assert.doesNotMatch(h.companyBox().innerHTML,/sf-company-name/);
+ fireCompanyTimer(h);h.companyRequests().at(-1).reject(new Error('offline'));await flush();
+ assert.match(h.companyBox().innerHTML,/企業の発表を確認できませんでした/);
+ const before=h.companyRequests().length;h.click(h.companyBox().querySelector('[data-company-retry]'));
+ assert.equal(h.companyRequests().length,before+1);await h.respond(h.companyRequests().at(-1),companyPayload());assert.match(h.companyBox().innerHTML,/NTT/);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...companyPayload(),companies:[]});
+ assert.doesNotMatch(h.companyBox().innerHTML,/NTT|確認できませんでした/);assert.match(h.companyBox().innerHTML,/新しい企業の発表を確認しています/);
+ const expired=companyPayload();expired.valid_until='2000-01-01';fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),expired);
+ assert.doesNotMatch(h.companyBox().innerHTML,/NTT/);assert.match(h.companyBox().innerHTML,/企業の発表を確認できませんでした/);
+});
+
+test('unchanged company copy keeps DOM nodes; revised copy preserves each article disclosure and focus',async()=>{
+ const h=companyHarness(),initial=companyPayload();await h.respond(h.companyRequests()[0],initial);
+ const box=h.companyBox(),first=h.story(),summary=first.querySelector('summary');first.open=true;summary.focus();const writes=box.writes;
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...initial,checked_at:initial.checked_at+60});
+ assert.equal(box.writes,writes);assert.equal(h.story(),first);assert.equal(h.w.document.activeElement,summary);
+ const revised=companyPayload();revised.companies[1].title='別の企業の確認済みの発表';fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),revised);
+ assert.equal(box.writes,writes+1);assert.ok(h.story().open);assert.equal(h.story('article-1').open,false);
+ assert.equal(h.w.document.activeElement,h.story().querySelector('summary'));
+ h.story().querySelector('.sf-source').focus();revised.companies[1].event+=' 追加の確認内容です。';
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),revised);assert.equal(h.w.document.activeElement,h.story().querySelector('.sf-source'));
+ const different=companyPayload();different.companies[0].article_id='new-article';different.companies[0].source_url='https://example.com/new-announcement';
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),different);
+ assert.equal(h.story('new-article').open,false,'A new article for the same company does not inherit the old open state');
 });

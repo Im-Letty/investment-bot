@@ -98,6 +98,21 @@ class WriterTests(unittest.TestCase):
             schema["properties"]["headline"]["description"] = "mutated"
             self.assertEqual(_claude_schema(stage), original)
 
+    def test_company_schema_is_trusted_static_and_disallows_ai_metadata(self):
+        answer = {"title": "会社が新しい設備の検討を発表", "business": "通信サービスを提供する会社です。",
+                  "event": "新しい設備の導入を検討すると発表しました。", "outlook": "導入時期は今回の発表では示していません。"}
+        original = writer._transport_schema("company_article")
+        runner = FakeRunner(answer)
+        self.assertEqual(self.make_writer(runner).write("会社本文だけを照合", {"stage": "company_article"}), answer)
+        self.assertEqual(runner.calls[1]["schema"], original)
+        self.assertEqual(set(original["required"]), {"title", "business", "event", "outlook"})
+        changed = writer._transport_schema("company_article")
+        changed["properties"]["title"]["description"] = "untrusted mutation"
+        self.assertEqual(writer._transport_schema("company_article"), original)
+        for invalid in ({**answer, "symbol": "0000.T"}, {**answer, "reviews": {}}, {**answer, "event": None}):
+            with self.subTest(invalid=invalid), self.assertRaisesRegex(GenerationError, "^codex_writer_invalid_output$"):
+                self.make_writer(FakeRunner(invalid)).write("会社本文だけを照合", {"stage": "company_article"})
+
     def test_empty_and_present_alternatives_are_not_stripped(self):
         for alternatives in ([], ["候補1"], ["候補1", "候補2"]):
             with self.subTest(alternatives=alternatives):
