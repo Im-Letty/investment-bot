@@ -1,17 +1,17 @@
 /* A shared company search, available from the heading on every stock tab. */
 (function(){
   'use strict';
-  var labels={ja:{search:'銘柄を検索',favorites:'お気に入り',div_cal:'カレンダー',actions:'銘柄の操作'},en:{search:'Search stocks',favorites:'Favorites',div_cal:'Calendar',actions:'Stock actions'},ko:{search:'종목 검색',favorites:'즐겨찾기',div_cal:'캘린더',actions:'종목 메뉴'},zh:{search:'搜索股票',favorites:'收藏',div_cal:'日历',actions:'股票操作'}};
+  var labels={ja:{search:'銘柄を検索',favorites:'お気に入り',div_cal:'カレンダー',div_top:'配当金',actions:'銘柄の操作'},en:{search:'Search stocks',favorites:'Favorites',div_cal:'Calendar',div_top:'Dividends',actions:'Stock actions'},ko:{search:'종목 검색',favorites:'즐겨찾기',div_cal:'캘린더',div_top:'배당',actions:'종목 메뉴'},zh:{search:'搜索股票',favorites:'收藏',div_cal:'日历',div_top:'股息',actions:'股票操作'}};
   function mountShortcuts(wrap){
     var head=wrap.querySelector('.kn-stock-heading'),opener=wrap.querySelector('.kn-stock-search-open');if(!head||!opener)return;
     var actions=head.querySelector('.kn-stock-actions');
     if(!actions){actions=document.createElement('div');actions.className='kn-stock-actions';actions.setAttribute('role','group');head.insertBefore(actions,head.querySelector('.kn-stock-quick-search'));}
-    var icons={favorites:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',div_cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h2M14 14h2M8 17h2"/>'};
-    ['favorites','div_cal'].forEach(function(key){
+    var icons={favorites:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',div_cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h2M14 14h2M8 17h2"/>',div_top:'<circle cx="12" cy="12" r="9"/><path d="m8.5 7.5 3.5 5 3.5-5M12 12.5v5M8.5 12.5h7M8.5 15.5h7"/>'};
+    ['favorites','div_cal','div_top'].forEach(function(key){
       var button=wrap.querySelector('[data-kn-tab="'+key+'"]');if(!button||button.classList.contains('kn-stock-shortcut'))return;
       // Move the existing button: its original onclick still opens the existing view.
       button.classList.add('kn-stock-shortcut');button.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true">'+icons[key]+'</svg>';
-      if(key==='div_cal')button.setAttribute('aria-controls','knDivHolder');actions.appendChild(button);
+      if(key==='div_cal'||key==='div_top')button.setAttribute('aria-controls','knDivHolder');actions.appendChild(button);
     });
     if(head.dataset.shortcutsReady)return;head.dataset.shortcutsReady='true';
     var title=document.createElement('h3');title.className='kn-stock-view-title';title.hidden=true;
@@ -20,7 +20,7 @@
       var lang=(window.currentLang||document.documentElement.lang||'ja').split('-')[0],copy=labels[lang]||labels.ja;
       actions.setAttribute('aria-label',copy.actions);opener.setAttribute('aria-label',copy.search);opener.title=copy.search;
       actions.querySelectorAll('.kn-stock-shortcut').forEach(function(button){button.setAttribute('aria-label',copy[button.dataset.knTab]);button.title=copy[button.dataset.knTab];});
-      var current=wrap.dataset.stockMain;title.hidden=!['favorites','div_cal'].includes(current);title.textContent=copy[current]||'';
+      var current=wrap.dataset.stockMain;title.hidden=!['favorites','div_cal','div_top'].includes(current);title.textContent=copy[current]||'';
     }
     sync();new MutationObserver(sync).observe(wrap,{attributes:true,attributeFilter:['data-stock-main']});document.addEventListener('langChanged',sync);
   }
