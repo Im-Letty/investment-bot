@@ -206,7 +206,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs {
   overflow:visible!important;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [data-kn-tab="stock"],
-body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [data-kn-tab="div_top"] {
+body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [data-kn-tab="favorites"] {
   min-width:0;
   min-height:50px;
   margin:0 0 -1px!important;
@@ -224,7 +224,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"
   font-weight:600!important;
 }
 body.kn-home-a #morning-section #knTabWrap #knSubRow,
-body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] .kn-stock-view-title {
+body.kn-home-a #morning-section #knTabWrap[data-stock-main="favorites"] .kn-stock-view-title {
   display:none!important;
 }
 body.kn-home-a #morning-section #knTabWrap #knDivSubRow {

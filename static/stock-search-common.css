@@ -8,7 +8,8 @@ body.kn-home-a #knTabWrap .kn-stock-shortcut{display:inline-flex!important;align
 body.kn-home-a #knTabWrap .kn-stock-shortcut:hover{background:var(--kn-a-chip)!important}
 body.kn-home-a #knTabWrap .kn-stock-shortcut[aria-pressed="true"]{background:var(--kn-a-chip)!important;border-color:var(--kn-a-button)!important}
 #knTabWrap .kn-stock-shortcut[aria-pressed="true"] svg{stroke-width:1.8}
-#knTabWrap .kn-stock-shortcut[data-kn-tab="favorites"][aria-pressed="true"] svg{fill:color-mix(in srgb,var(--kn-a-button) 18%,transparent)}
+body.kn-home-a #knTabWrap .kn-stock-shortcut[data-kn-tab="div_top"]{flex-direction:column;gap:1px}
+body.kn-home-a #knTabWrap .kn-stock-shortcut-label{font:400 calc(12px * var(--kn-a-scale,1))/1.3 var(--kn-a-sans,sans-serif)!important;letter-spacing:0;white-space:nowrap}
 #knTabWrap .kn-stock-shortcut:focus-visible{outline:2px solid var(--kn-a-ink);outline-offset:3px}
 #knTabWrap .kn-stock-view-title{margin:0 0 18px;font:500 calc(18px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif,serif)!important;color:var(--kn-a-ink)}
 #knTabWrap .kn-stock-view-title[hidden]{display:none!important}
