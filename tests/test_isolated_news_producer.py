@@ -122,6 +122,78 @@ class IsolatedProducerTests(unittest.TestCase):
         with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$'):
             self.generate()
 
+    def test_conference_date_survives_article_card_overview_and_both_reviews(self):
+        row = sources(1)[0]
+        url = 'https://www.mof.go.jp/public_relations/conference/my20261004.html'
+        body = ('架空の会見資料。担当者は10月4日の会見で架空の税の見直しを説明しました。'
+                'このページは10月5日に掲載されました。検討はまだ終わっていません。'
+                'これは日付の受け渡しを確かめる架空の試験資料で、実際のニュースではありません。')
+        row.update(url=url, evidence_url=url, body=body, body_sha256=sha256(body.encode()).hexdigest(),
+                   title='財務大臣の架空の記者会見（令和8年10月4日）',
+                   event_date='2026-10-04', event_date_kind='press_conference',
+                   publication_evidence={'url': 'https://www.mof.go.jp/public_relations/whats_new/202610.html',
+                                         'html_sha256': '0' * 64})
+        before = deepcopy(row)
+
+        def writer(data):
+            if data['stage'] == 'article':
+                source = data['articles'][0]
+                self.assertEqual(source['event_date'], '2026-10-04')
+                self.assertEqual(source['published_date'], '2026-10-05')
+                return {**article_reply(data),
+                    'summary': detail_summary('担当者は10月4日、架空の会見を開きました。'),
+                    'facts': [{'text': '担当者は10月4日の会見で架空の税の見直しを説明しました。', 'evidence_ids': ['0:0']},
+                              {'text': '検討はまだ終わっていません。', 'evidence_ids': ['0:0']}]}
+            ref = data['article_cards'][0]['source_ref']
+            self.assertEqual(ref['event_date_kind'], 'press_conference')
+            self.assertEqual(ref['event_date'], '2026-10-04')
+            self.assertEqual(ref['published_date'], '2026-10-05')
+            self.assertNotIn('publication_evidence', ref)
+            self.assertNotIn('html_sha256', json.dumps(data))
+            event_day = datetime.fromisoformat(ref['event_date'])
+            return {**overview_reply(data), 'summary':
+                f'担当者は{event_day.month}月{event_day.day}日の会見で架空の税の見直しを説明しました。'}
+
+        self.provider.writer = writer
+        result = self.generate(rows=[row])
+        self.assertEqual(result['summary'], '担当者は10月4日の会見で架空の税の見直しを説明しました。')
+        self.assertEqual(result['article_refs'][0]['published_date'], '2026-10-05')
+        self.assertNotIn('event_date', result['article_refs'][0])
+        self.assertEqual(row, before)
+        writing = [(instruction, data) for name, instruction, data in self.provider.calls if name == 'claude']
+        for instruction, _ in writing:
+            self.assertIn('掲載・発表日', instruction)
+            self.assertIn('event_dateは会見日', instruction)
+            self.assertIn('互いに置き換えません', instruction)
+        reviews = [(instruction, data) for name, instruction, data in self.provider.calls if name != 'claude']
+        self.assertEqual(reviews[0], reviews[1])
+        for instruction, data in reviews:
+            self.assertIn('会見が行われた日はevent_date', instruction)
+            self.assertEqual(data['original_articles'][0]['event_date'], '2026-10-04')
+            self.assertEqual(data['original_articles'][0]['published_date'], '2026-10-05')
+            self.assertEqual(data['article_evidence'][0]['source_ref'], writing[1][1]['article_cards'][0]['source_ref'])
+            self.assertEqual(data['draft']['summary'], result['summary'])
+
+    def test_unvalidated_event_pair_cannot_enter_article_card_or_pay_for_generation(self):
+        source = {**sources(1)[0], 'index': 0, 'event_date': '2026-10-04', 'event_date_kind': 'press_conference'}
+        with self.assertRaisesRegex(shared.GenerationError, '^invalid_official_article$'):
+            isolated._card(article_reply({'articles': [source]}), source)
+        with self.assertRaisesRegex(shared.GenerationError, '^invalid_official_article$'):
+            self.generate(rows=[source])
+        self.assertEqual(self.provider.calls, [])
+
+    def test_generated_event_date_cannot_replace_validated_source_reference(self):
+        source = {**sources(1)[0], 'index': 0,
+                  'url': 'https://www.mof.go.jp/public_relations/conference/my20261004.html',
+                  'evidence_url': 'https://www.mof.go.jp/public_relations/conference/my20261004.html',
+                  'event_date': '2026-10-04', 'event_date_kind': 'press_conference'}
+        reply = {**article_reply({'articles': [source]}), 'event_date': '2026-10-05'}
+        with self.assertRaisesRegex(shared.GenerationError, '^isolated_article_schema$'):
+            isolated._card(reply, source)
+        card = isolated._card(article_reply({'articles': [source]}), source)
+        self.assertEqual(card['source_ref']['event_date'], '2026-10-04')
+        self.assertEqual(card['source_ref']['published_date'], '2026-10-05')
+
     def test_statistical_core_keeps_result_period_and_comparison_in_isolated_evidence(self):
         # Synthetic values test source/data isolation, not an actual release.
         body = ('架空の統計資料。総務省統計局は10月5日、8月の全国の結果を公表しました。'

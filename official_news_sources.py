@@ -88,7 +88,11 @@ def _article_path(host, path):
                 or re.fullmatch(r"/policy/exchequer/reference/receipts_payments/[A-Za-z0-9_-]*gaiyo\.html?", path))
 
 
-def _safe_url(value, *, base=None, allow_supporting_pdf=False):
+def _mof_archive_path(path):
+    return bool(re.fullmatch(r"/public_relations/whats_new/[12]\d{3}(?:0[1-9]|1[0-2])\.html", path))
+
+
+def _safe_url(value, *, base=None, allow_supporting_pdf=False, allow_publication_archive=False):
     if not isinstance(value, str) or not value or len(value) > 2048:
         return None
     if any(ord(c) < 33 or ord(c) == 127 for c in value) or "\\" in value:
@@ -108,19 +112,26 @@ def _safe_url(value, *, base=None, allow_supporting_pdf=False):
         normalized = urlunsplit(("https", host, parsed.path, "", ""))
         supporting_pdf = (allow_supporting_pdf and host == "www.mof.go.jp" and
                           any(parsed.path == item["path"] for item in MOF_SUPPORTING_PDFS.values()))
-        return normalized if normalized in FEEDS.values() or _article_path(host, parsed.path) or supporting_pdf else None
+        publication_archive = (allow_publication_archive and host == "www.mof.go.jp"
+                               and _mof_archive_path(parsed.path))
+        return normalized if (normalized in FEEDS.values() or _article_path(host, parsed.path)
+                              or supporting_pdf or publication_archive) else None
     except (ValueError, UnicodeError):
         return None
 
 
-def _download(url, deadline, *, max_bytes=None, supporting_pdf=False):
+def _download(url, deadline, *, max_bytes=None, supporting_pdf=False, publication_archive=False):
     """Pinned-IP HTTPS; redirects stay on the same explicitly approved host."""
-    current = _safe_url(url, allow_supporting_pdf=supporting_pdf)
+    current = _safe_url(url, allow_supporting_pdf=supporting_pdf,
+                        allow_publication_archive=publication_archive)
     if not current:
         raise ValueError("unapproved_source")
     host = urlsplit(current).hostname
     supporting_url = current if supporting_pdf and host == "www.mof.go.jp" and current.endswith(".pdf") else None
     if supporting_pdf and supporting_url is None:
+        raise ValueError("unapproved_source")
+    archive_url = current if publication_archive and host == "www.mof.go.jp" and _mof_archive_path(urlsplit(current).path) else None
+    if publication_archive and (archive_url is None or supporting_pdf):
         raise ValueError("unapproved_source")
     maximum = MAX_BYTES if max_bytes is None else min(MAX_BYTES, max_bytes)
     if type(maximum) is not int or maximum <= 0:
@@ -144,9 +155,11 @@ def _download(url, deadline, *, max_bytes=None, supporting_pdf=False):
                                       "Accept-Encoding": "identity", "Host": host}) as response:
                 if response.status_code in (301, 302, 303, 307, 308):
                     redirect = _safe_url(response.headers.get("Location", ""), base=current,
-                                         allow_supporting_pdf=supporting_pdf)
+                                         allow_supporting_pdf=supporting_pdf,
+                                         allow_publication_archive=publication_archive)
                     if (hop == MAX_REDIRECTS or not redirect or urlsplit(redirect).hostname != host
-                            or (supporting_url is not None and redirect != supporting_url)):
+                            or (supporting_url is not None and redirect != supporting_url)
+                            or (archive_url is not None and redirect != archive_url)):
                         raise ValueError("unapproved_redirect")
                     current = redirect
                     continue
@@ -154,7 +167,7 @@ def _download(url, deadline, *, max_bytes=None, supporting_pdf=False):
                     raise ValueError("source_unavailable")
                 mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
                 is_pdf = (host == "www.boj.or.jp" and urlsplit(current).path.endswith(".pdf")) or supporting_url is not None
-                expected = {"application/pdf"} if is_pdf else {
+                expected = {"application/pdf"} if is_pdf else {"text/html", "application/xhtml+xml"} if archive_url else {
                     "text/html", "application/xhtml+xml", "application/xml", "text/xml",
                     "application/rss+xml", "application/rdf+xml", "application/atom+xml"}
                 if mime not in expected:
@@ -324,10 +337,12 @@ def _body_text(node, *, excluded_classes=frozenset()):
     return "\n".join(line for value in "".join(parts).splitlines() if (line := " ".join(value.split())))
 
 
-def _html_date(document, body):
+def _html_dates(document, body, *, exclude_date_meta=False):
     dates = []
     for node in document.nodes:
         name = (node.attrs.get("property") or node.attrs.get("name") or "").lower()
+        if exclude_date_meta and name == "date":
+            continue
         if node.tag == "meta" and name in ("date", "datepublished", "pubdate", "article:published_time"):
             dates.append(_publication(node.attrs.get("content", "")))
     for obj in _jsonld(document):
@@ -341,8 +356,12 @@ def _html_date(document, body):
                 year = int(year) if year else 2018 + (1 if era == "元" else int(era))
                 dates.append(_publication(date(year, int(month), int(day)).isoformat()))
             except ValueError:
-                return None
-    return _agree(dates)
+                return [None]
+    return dates
+
+
+def _html_date(document, body):
+    return _agree(_html_dates(document, body))
 
 
 _PDF_SCRIPT = r'''
@@ -449,6 +468,120 @@ def _pdf_text(payload, deadline=None, *, allow_empty_password_pdf=False):
 
 def _compact(value):
     return re.sub(r"\s+", "", unicodedata.normalize("NFKC", value))
+
+
+def _japanese_day(match):
+    year, era, month, day = match.groups()
+    try:
+        year = int(year) if year else 2018 + (1 if era == "元" else int(era))
+        return date(year, int(month), int(day))
+    except ValueError:
+        return None
+
+
+def _mof_archive_entry(payload, archive_url, item):
+    """Correlate one conference link with its containing dated archive section."""
+    document = _Document(_decode(payload))
+    mains = [node for node in document.nodes if node.tag == "main" and node.attrs.get("id") == "main"]
+    if len(mains) != 1:
+        return None
+    main = mains[0]
+    headings = [node for node in document.nodes if node.tag == "h1" and _descends(node, main)]
+    published_day = date.fromisoformat(item["published_date"])
+    month_heading = f"令和{published_day.year - 2018}年({published_day.year}年)新着情報:{published_day.month}月"
+    if len(headings) != 1 or _compact(_body_text(headings[0])) != month_heading:
+        return None
+    links = [node for node in document.nodes if node.tag == "a" and _descends(node, main)
+             and _safe_url(node.attrs.get("href"), base=archive_url) == item["url"]]
+    # Duplicate placements can mean an update/repost; do not choose one date.
+    if len(links) != 1:
+        return None
+    link = links[0]
+    ancestor = link
+    while ancestor is not main:
+        if ancestor.tag in _BLOCKED or _EXCLUDED_CLASS.search(ancestor.attrs.get("class", "")):
+            return None
+        ancestor = ancestor.parent
+    if ("information-item-inner" not in link.attrs.get("class", "").split()
+            or link.parent.tag != "li" or "information-item" not in link.parent.attrs.get("class", "").split()
+            or link.parent.parent.tag != "ul"
+            or "information" not in link.parent.parent.attrs.get("class", "").split()):
+        return None
+    titles = [node for node in document.nodes if _descends(node, link)
+              and "information-item-content" in node.attrs.get("class", "").split()]
+    labels = [node for node in document.nodes if _descends(node, link)
+              and {"information-item-label", "-conference"}.issubset(node.attrs.get("class", "").split())]
+    if (len(titles) != 1 or _compact(_body_text(titles[0])) != _compact(item["title"])
+            or len(labels) != 1 or _compact(_body_text(labels[0])) != "会見等"):
+        return None
+    section = link.parent
+    while section is not main and section.tag != "section":
+        section = section.parent
+    datelines = [node for node in document.nodes if node.tag == "h3" and node.parent is section]
+    if section is main or len(datelines) != 1:
+        return None
+    heading = _compact(_body_text(datelines[0]))
+    match = re.match(_JAPANESE_DATE, heading)
+    suffix = heading[match.end():] if match else ""
+    if not match or not re.fullmatch(r"\([月火水木金土日]曜日\)", suffix):
+        return None
+    day = _japanese_day(match)
+    weekday = "月火水木金土日"[day.weekday()] if day else None
+    if day != published_day or suffix != f"({weekday}曜日)":
+        return None
+    return {"url": archive_url, "published_date": day.isoformat(), "title": item["title"],
+            "html_sha256": sha256(payload).hexdigest()}
+
+
+def _mof_conference_publication(document, heading, body, item, original, final, now, since,
+                                payload_size, deadline):
+    """Separate the conference day from a later independently verified posting day.
+
+    This exception is only for the exact conference page, never a general RSS
+    fallback. The monthly official archive must corroborate URL, title and date.
+    Other explicit page publication dates still have to agree with the RSS.
+    """
+    if (original != final or not re.fullmatch(r"/public_relations/conference/my\d{8}[a-z]?\.html",
+                                             urlsplit(original).path)
+            or _compact(heading) != _compact(item["title"]) or not _in_window(item, now, since)):
+        return None
+    event_dates = list(re.finditer(_JAPANESE_DATE, _compact(heading)))
+    if len(event_dates) != 1:
+        return None
+    event_day = _japanese_day(event_dates[0])
+    published_day = date.fromisoformat(item["published_date"])
+    if event_day is None or not event_day < published_day <= now.astimezone(JST).date():
+        return None
+    metadata = [_publication(node.attrs.get("content", "")) for node in document.nodes
+                if node.tag == "meta" and (node.attrs.get("property") or node.attrs.get("name") or "").lower() == "date"]
+    event_metadata = _agree(metadata)
+    if (event_metadata is None or event_metadata["publication_precision"] != "day"
+            or event_metadata["published_date"] != event_day.isoformat()):
+        return None
+    explicit_dates = _html_dates(document, body, exclude_date_meta=True)
+    if explicit_dates and _agree([item, *explicit_dates]) is None:
+        return None
+    declared_urls = [node.attrs.get("href") for node in document.nodes
+                     if node.tag == "link" and "canonical" in node.attrs.get("rel", "").lower().split()]
+    declared_urls += [node.attrs.get("content") for node in document.nodes
+                      if node.tag == "meta" and node.attrs.get("property", "").lower() == "og:url"]
+    if any(_safe_url(value, base=original) != original for value in declared_urls):
+        return None
+    archive_url = f"https://www.mof.go.jp/public_relations/whats_new/{published_day:%Y%m}.html"
+    deadline = time.monotonic() + COLLECTION_SECONDS if deadline is None else deadline
+    payload, archive_final = _download(archive_url, deadline, max_bytes=MAX_BYTES - payload_size,
+                                       publication_archive=True)
+    if archive_final != archive_url:
+        raise ValueError("unapproved_redirect")
+    if not isinstance(payload, bytes) or payload_size + len(payload) > MAX_BYTES:
+        raise ValueError("source_size_limit")
+    evidence = _mof_archive_entry(payload, archive_url, item)
+    if evidence is None:
+        return None
+    return {"publication": {key: item[key] for key in ("published_at", "published_date", "publication_precision")},
+            "event_date": event_day.isoformat(), "event_date_kind": "press_conference",
+            "publication_evidence": evidence,
+            "source_scope": "official_conference_with_verified_publication_archive"}
 
 
 def _boj_publication(header):
@@ -596,7 +729,14 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
     else:
         html_publication = _html_date(document, body)
     publication = _agree([item, html_publication])
+    conference = None
+    if publication is None and host == "www.mof.go.jp" and len(headings) == 1:
+        conference = _mof_conference_publication(document, _body_text(headings[0]), body, item,
+            original, final, now, since, len(payload), deadline)
+        publication = conference["publication"] if conference else None
     record = _record(item, original, final, body, publication, observed_at, now, since)
+    if record is not None and conference:
+        record.update({key: value for key, value in conference.items() if key != "publication"})
     if record is not None and host == "www.mof.go.jp":
         return _mof_supporting_body(record, document, body_node, len(payload), deadline)
     return record

@@ -5,7 +5,7 @@ from datetime import datetime
 import io
 import json
 from pathlib import Path
-from tempfile import TemporaryDirectory
+from tempfile import TemporaryDirectory, gettempdir
 import unittest
 from unittest.mock import Mock, patch
 
@@ -19,6 +19,9 @@ from scripts import run_codex_news as original_runner
 from tests.test_codex_website_producer import Writer
 from tests.test_daily_news_runtime import MemoryStorage
 from tests.test_website_news_producer import ENV, MockTransport, approval, sources
+
+
+RESULT_TEMP_ROOT = Path(gettempdir()).resolve()
 
 
 def at(hour=7, minute=17, second=0):
@@ -142,6 +145,8 @@ class PrivateJobTests(unittest.TestCase):
         copied = self.runtime.source_preparer.prepare(self.clock.now)
         copied["articles"][0]["body"] = "changed"
         self.assertEqual(self.runtime.source_preparer.prepare(self.clock.now), self.manifest)
+        self.assertEqual(result["source_article_count"], len(self.manifest["articles"]))
+        self.assertEqual(sum(result["source_date_counts"].values()), len(self.manifest["articles"]))
 
     def test_late_freeze_wait_is_readonly_and_still_allows_one_tick(self):
         self.clock.now = at(7, 30)
@@ -330,6 +335,8 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual((result["status"], result["success"]), ("source_empty", True))
         generator.assert_not_called()
         self.assertEqual(self.storage.created, [])
+        self.assertEqual(result["source_article_count"], 0)
+        self.assertEqual(result["source_date_counts"], {})
 
     def test_real_failed_daily_claim_is_not_repeated_by_a_restarted_ci_job(self):
         with TemporaryDirectory() as folder:
@@ -348,6 +355,139 @@ class PrivateJobTests(unittest.TestCase):
         generator.assert_called_once()
         self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
                          ["days/2026-10-06/attempt-1.lock"])
+
+
+class SafeResultTests(unittest.TestCase):
+    def test_prepared_and_quiet_are_distinct_and_do_not_attest_public_delivery(self):
+        for status, prepared, quiet in (("prepared", True, False), ("ready", True, False),
+                                        ("source_empty", False, True)):
+            with self.subTest(status=status):
+                report = job.safe_report({"status": status, "success": True,
+                    "edition_date": "2026-10-06", "attempt_count": 1,
+                    "publish_at": at(8), "source_article_count": 0 if quiet else 1,
+                    "source_date_counts": {} if quiet else {"2026-10-05": 1}}, at(), at(7, 40))
+                self.assertTrue(report["success"])
+                self.assertEqual(report["new_edition_prepared"], prepared)
+                self.assertEqual(report["source_empty"], quiet)
+                self.assertFalse(report["public_delivery_confirmed"])
+                self.assertEqual(report["job_started_at"], "2026-10-06T07:17:00+09:00")
+                self.assertEqual(report["job_finished_at"], "2026-10-06T07:40:00+09:00")
+                self.assertEqual(report["expected_edition_date"], "2026-10-06")
+
+    def test_report_drops_unknown_status_secret_fields_and_invalid_counts(self):
+        report = job.safe_report({"status": "private raw response", "success": True,
+            "edition_date": "credential", "last_error": "secret-key",
+            "attempt_count": True, "publish_at": float("nan"), "body": "private body",
+            "source_article_count": 1, "source_date_counts": {"secret-date": 1},
+            "credentials": {"key": "secret-value"}}, at(), at(7, 18))
+        self.assertEqual(report["status"], "job_unavailable")
+        self.assertFalse(report["success"])
+        self.assertIsNone(report["edition_date"])
+        self.assertEqual(report["last_error"], "generation_failed")
+        for name in ("attempt_count", "publish_at", "body", "source_article_count", "source_date_counts", "credentials"):
+            self.assertNotIn(name, report)
+        self.assertNotIn("secret", json.dumps(report))
+
+    def test_all_eight_frozen_candidates_are_counted_without_selected_article_claim(self):
+        result = job._outcome("prepared", "2026-10-06", success=True,
+            manifest={"articles": [{"published_date": "2026-10-05", "body": "private body"}] * 8})
+        report = job.safe_report(result, at(), at(7, 40))
+        self.assertEqual(report["source_article_count"], 8)
+        self.assertEqual(report["source_date_counts"], {"2026-10-05": 8})
+        self.assertEqual(report["source_count_kind"], "frozen_candidates")
+        self.assertNotIn("private body", json.dumps(report))
+        for changes in ({"source_article_count": 9, "source_date_counts": {"2026-10-05": 9}},
+                        {"source_article_count": 8, "source_date_counts": {"2026-10-05": 7}}):
+            self.assertNotIn("source_article_count", job.safe_report({**result, **changes}, at(), at(7, 40)))
+
+    def test_cli_new_result_is_complete_private_and_contains_only_safe_metadata(self):
+        with TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:
+            target = Path(folder) / "result.json"
+            result = {"status": "prepared", "success": True, "edition_date": "2026-10-06",
+                      "publish_at": at(8), "body": "private body", "api_key": "secret-value"}
+            out = io.StringIO()
+            with redirect_stdout(out), patch.object(job.time, "time", side_effect=[at(), at(7, 40)]), \
+                    patch.object(job, "process_deadline", return_value=nullcontext()), \
+                    patch.object(job, "run_job", return_value=result):
+                self.assertEqual(job.main(["--run-live", "--result-file", str(target)]), 0)
+            report = json.loads(target.read_text())
+            self.assertEqual(report, json.loads(out.getvalue()))
+            self.assertEqual(target.stat().st_mode & 0o777, 0o600)
+            self.assertEqual(list(Path(folder).iterdir()), [target])
+            self.assertTrue(report["new_edition_prepared"])
+            self.assertFalse(report["public_delivery_confirmed"])
+            self.assertNotIn("secret-value", target.read_text())
+            self.assertNotIn("private body", target.read_text())
+
+    def test_cli_existing_and_symlink_targets_are_rejected_before_live_work(self):
+        with TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:
+            parent = Path(folder)
+            original = parent / "original.json"
+            original.write_text("retain")
+            linked = parent / "linked.json"
+            linked.symlink_to(original)
+            dangling = parent / "dangling.json"
+            dangling.symlink_to(parent / "absent.json")
+            real_directory = parent / "real"
+            real_directory.mkdir()
+            linked_directory = parent / "linked-directory"
+            linked_directory.symlink_to(real_directory, target_is_directory=True)
+            for target in (original, linked, dangling, linked_directory / "result.json"):
+                with self.subTest(target=target.name), redirect_stdout(io.StringIO()) as out, \
+                        patch.object(job.time, "time", return_value=at()), \
+                        patch.object(job, "run_job") as live, patch.object(job, "process_deadline") as alarm:
+                    self.assertEqual(job.main(["--run-live", "--result-file", str(target)]), 1)
+                    self.assertEqual(json.loads(out.getvalue())["status"], "result_file_unavailable")
+                live.assert_not_called()
+                alarm.assert_not_called()
+            self.assertEqual(original.read_text(), "retain")
+            self.assertFalse((real_directory / "result.json").exists())
+
+    def test_target_created_during_live_work_cannot_be_overwritten(self):
+        with TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:
+            target = Path(folder) / "result.json"
+            output = job.ResultFile(target)
+            try:
+                target.write_text("racing writer")
+                with self.assertRaises(job.ResultFileUnavailable):
+                    output.write(job.safe_report({"status": "outside_morning_window"}, at(8), at(8)))
+            finally:
+                output.close()
+            self.assertEqual(target.read_text(), "racing writer")
+            self.assertEqual(list(Path(folder).iterdir()), [target])
+
+    def test_hard_deadline_still_saves_fixed_failure_and_real_times(self):
+        with TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:
+            target = Path(folder) / "result.json"
+            with redirect_stdout(io.StringIO()), patch.object(job.time, "time", side_effect=[at(), at(7, 52)]), \
+                    patch.object(job, "process_deadline", return_value=nullcontext()), \
+                    patch.object(job, "run_job", side_effect=job.JobDeadline()):
+                self.assertEqual(job.main(["--run-live", "--result-file", str(target)]), 1)
+            report = json.loads(target.read_text())
+            self.assertEqual(report["status"], "job_deadline")
+            self.assertFalse(report["success"])
+            self.assertEqual(report["job_finished_at"], "2026-10-06T07:52:00+09:00")
+
+    def test_write_and_cleanup_permission_errors_are_fixed_and_do_not_expose_paths(self):
+        for operation in ("link", "unlink"):
+            with self.subTest(operation=operation), TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:
+                target = Path(folder) / "result.json"
+                out = io.StringIO()
+                with redirect_stdout(out), patch.object(job.time, "time", return_value=at()), \
+                        patch.object(job, "process_deadline", return_value=nullcontext()), \
+                        patch.object(job, "run_job", return_value={"status": "waiting", "success": False}), \
+                        patch.object(job.os, operation, side_effect=PermissionError("secret-private-path")):
+                    self.assertEqual(job.main(["--run-live", "--result-file", str(target)]), 1)
+                self.assertEqual(json.loads(out.getvalue())["status"], "result_file_unavailable")
+                self.assertNotIn("secret-private-path", out.getvalue())
+                if operation == "link":
+                    self.assertEqual(list(Path(folder).iterdir()), [])
+
+    def test_result_file_is_not_an_implicit_live_opt_in(self):
+        with patch("sys.stderr", io.StringIO()), patch.object(job, "run_job") as live:
+            with self.assertRaises(SystemExit):
+                job.main(["--result-file", "unused.json"])
+        live.assert_not_called()
 
 
 class ProcessDeadlineTests(unittest.TestCase):

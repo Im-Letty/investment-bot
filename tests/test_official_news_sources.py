@@ -311,6 +311,201 @@ class OfficialSourceTests(unittest.TestCase):
         self.assertEqual(sources._since('2026-10-02', NOW), date(2026, 10, 2))
 
 
+class MinistryConferencePublicationTests(unittest.TestCase):
+    url = 'https://www.mof.go.jp/public_relations/conference/my20261006.html'
+    archive_url = 'https://www.mof.go.jp/public_relations/whats_new/202610.html'
+    title = '片山財務大臣兼内閣府特命担当大臣閣議後記者会見の概要(令和8年10月6日(火曜日))'
+    now = datetime(2026, 10, 8, 7, 20, tzinfo=sources.JST)
+    since = datetime(2026, 10, 7, tzinfo=sources.JST)
+
+    def item(self, published='Wed, 07 Oct 2026 12:25:00 +0900'):
+        return {'source': '財務省', 'title': self.title, 'url': self.url,
+                **sources._publication(published)}
+
+    def html(self, *, title=None, event='2026-10-06', extra=''):
+        payload = mof_html(published=event).decode().replace('財務大臣の記者会見', escape(title or self.title))
+        return payload.replace('</head>', extra + '</head>').encode()
+
+    def archive(self, *, title=None, url='../conference/my20261006.html',
+                day='令和8年10月07日（水曜日）', month='令和8年（2026年）新着情報：10月', duplicate=False):
+        entry = ('<li class="information-item">'
+                 f'<a class="information-item-inner" href="{escape(url)}">'
+                 '<span class="information-item-label label -conference">会見等</span>'
+                 f'<div class="information-item-content"><p>{escape(title or self.title)}</p></div></a></li>')
+        return (f'<html><meta charset="utf-8"><main id="main"><h1>{escape(month)}</h1>'
+                f'<section><h3>{escape(day)}</h3><ul class="information">{entry}{entry if duplicate else ""}'
+                '</ul></section></main></html>').encode()
+
+    def extract(self, *, html=None, archive=None, item=None, final=None, since=None):
+        item = item or self.item()
+        with patch.object(sources, '_download', return_value=(archive or self.archive(), self.archive_url)) as download:
+            result = sources._extract_article(html or self.html(), item, final or item['url'], self.now,
+                since or self.since, observed_at=self.now.timestamp(), deadline=12345)
+        return result, download
+
+    def collect(self, *, html=None, archive=None, clock=None, until=None):
+        documents = {sources.FEEDS['財務省']: feed([rss_item(self.url, self.title, 'Wed, 07 Oct 2026 12:25:00 +0900')]),
+                     self.url: html or self.html(), self.archive_url: archive or self.archive()}
+        report = {}
+        with patch.object(sources, '_download', side_effect=lambda url, *args, **kwargs: (documents[url], url)) as download:
+            rows = sources.collect_official_articles(self.now, since=self.since, until=until,
+                enabled_sources=('財務省',), diagnostics=report, clock=clock or (lambda: self.now.timestamp()))
+        return rows, report, download
+
+    def test_event_day_and_independently_corroborated_posting_day_are_preserved(self):
+        result, download = self.extract()
+        self.assertEqual(result['published_date'], '2026-10-07')
+        self.assertEqual(result['published_at'], self.item()['published_at'])
+        self.assertEqual(result['event_date'], '2026-10-06')
+        self.assertEqual(result['event_date_kind'], 'press_conference')
+        self.assertEqual(result['evidence_url'], self.url)
+        self.assertEqual(result['publication_evidence'], {'url': self.archive_url, 'title': self.title,
+            'published_date': '2026-10-07', 'html_sha256': sha256(self.archive()).hexdigest()})
+        self.assertEqual(result['body_sha256'], sha256(result['body'].encode()).hexdigest())
+        download.assert_called_once_with(self.archive_url, 12345,
+            max_bytes=sources.MAX_BYTES - len(self.html()), publication_archive=True)
+
+    def test_date_only_posting_does_not_acquire_an_invented_time(self):
+        result, _ = self.extract(item=self.item('2026-10-07'))
+        self.assertEqual(result['publication_precision'], 'day')
+        self.assertIsNone(result['published_at'])
+
+    def test_collection_verification_time_follows_archive_validation(self):
+        readings = iter((self.now.timestamp(), self.now.timestamp() + 4))
+        rows, report, download = self.collect(clock=lambda: next(readings))
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['observed_at'], self.now.timestamp())
+        self.assertEqual(rows[0]['body_verified_at'], self.now.timestamp() + 4)
+        self.assertEqual(report['財務省']['status'], 'collected')
+        self.assertEqual(download.call_count, 3)
+
+    def test_archive_date_title_url_month_and_unique_placement_must_all_agree(self):
+        payloads = (self.archive(title='財務大臣の別の記者会見'),
+                    self.archive(url='../conference/my20261002.html'),
+                    self.archive(url=self.url + '?unexpected=1'),
+                    self.archive(url=self.url.replace('www.mof.go.jp', 'www.mof.go.jp.evil.test')),
+                    self.archive(day='令和8年10月06日（火曜日）'),
+                    self.archive(day='令和8年10月07日（火曜日）'),
+                    self.archive(month='令和8年（2026年）新着情報：9月'),
+                    self.archive(duplicate=True),
+                    self.archive().replace(b'<main id="main">', b'<footer>'),
+                    self.archive().replace(b'<section>', b'<nav><section>').replace(b'</section>', b'</section></nav>'),
+                    self.archive().replace(b'<section>', b'<section class="related">'),
+                    self.archive().replace(b'<h3>', b'<h4>'),
+                    self.archive().replace(b'information-item-content', b'unverified-title'))
+        for payload in payloads:
+            with self.subTest(payload_length=len(payload)):
+                result, _ = self.extract(archive=payload)
+                self.assertIsNone(result)
+
+    def test_page_event_metadata_heading_and_declared_identity_cannot_conflict(self):
+        payloads = (self.html(event=None), self.html(event='2026-10-05'),
+                    self.html(event='2026-10-06T12:00:00+09:00'),
+                    self.html(title=self.title.replace('10月6日', '10月5日')),
+                    self.html(extra='<meta name="date" content="2026-10-05">'),
+                    self.html(extra='<meta property="date" content="2026-10-05">'),
+                    self.html(extra='<meta property="article:published_time" content="2026-10-07T12:24:00+09:00">'),
+                    self.html(extra='<meta name="datePublished" content="invalid">'),
+                    self.html(extra='<link rel="canonical" href="my20261002.html">'),
+                    self.html(extra='<meta property="og:url" content="https://example.test/changed.html">'),
+                    self.html().replace(b'</h1>', b'</h1><h1>another title</h1>'))
+        for payload in payloads:
+            with self.subTest(payload_length=len(payload)):
+                result, download = self.extract(html=payload)
+                self.assertIsNone(result)
+                download.assert_not_called()
+        result, _ = self.extract(html=self.html(extra='<meta property="article:published_time" content="2026-10-07T12:25:00+09:00">'))
+        self.assertIsNotNone(result)
+
+    def test_future_or_later_than_posting_conference_cannot_be_reclassified(self):
+        for event, title in (('2026-10-08', self.title.replace('10月6日', '10月8日')),
+                             ('2026-10-09', self.title.replace('10月6日', '10月9日'))):
+            item = {**self.item(), 'title': title}
+            result, download = self.extract(html=self.html(title=title, event=event), item=item)
+            self.assertIsNone(result)
+            download.assert_not_called()
+
+    def test_publication_window_uses_posting_time_and_never_event_day(self):
+        result, _ = self.extract(since=datetime(2026, 10, 7, 12, 25, tzinfo=sources.JST))
+        self.assertIsNotNone(result)
+        result, download = self.extract(since=datetime(2026, 10, 7, 12, 25, 1, tzinfo=sources.JST))
+        self.assertIsNone(result)
+        download.assert_not_called()
+        rows, _, download = self.collect(until=datetime(2026, 10, 7, 12, 24, 59, tzinfo=sources.JST))
+        self.assertEqual(rows, [])
+        self.assertEqual(download.call_count, 1)
+
+    def test_month_boundary_uses_posting_month_for_archive(self):
+        title = self.title.replace('10月6日(火曜日)', '9月30日(水曜日)')
+        item = {**self.item('Thu, 01 Oct 2026 12:25:00 +0900'), 'title': title}
+        result, download = self.extract(html=self.html(title=title, event='2026-09-30'), item=item,
+            archive=self.archive(title=title, day='令和8年10月01日（木曜日）'), since=date(2026, 10, 1))
+        self.assertIsNotNone(result)
+        self.assertEqual(result['event_date'], '2026-09-30')
+        self.assertEqual(download.call_args.args[0], self.archive_url)
+
+    def test_nonconference_articles_and_redirected_pages_keep_strict_dates(self):
+        item = {**self.item(), 'url': 'https://www.mof.go.jp/policy/budget/topics/test.html'}
+        result, download = self.extract(item=item)
+        self.assertIsNone(result)
+        download.assert_not_called()
+        result, download = self.extract(final=MOF_URL)
+        self.assertIsNone(result)
+        download.assert_not_called()
+
+    def test_failed_or_inconsistent_archive_is_not_a_successful_empty_window(self):
+        rows, report, _ = self.collect(archive=self.archive(day='令和8年10月06日（火曜日）'))
+        self.assertEqual(rows, [])
+        self.assertEqual(report['財務省']['status'], 'articles_unavailable')
+        self.assertIn('body_or_date_unverified', report['財務省']['errors'])
+        with patch.object(sources, '_download', side_effect=ValueError('source_unavailable')):
+            with self.assertRaisesRegex(ValueError, '^source_unavailable$'):
+                sources._extract_article(self.html(), self.item(), self.url, self.now, self.since,
+                    observed_at=self.now.timestamp())
+
+    def test_archive_and_article_share_size_budget_and_archive_cannot_redirect(self):
+        for payload, final, error in ((b'x' * sources.MAX_BYTES, self.archive_url, 'source_size_limit'),
+                                     (self.archive(), self.archive_url.replace('202610', '202609'), 'unapproved_redirect')):
+            with self.subTest(error=error), patch.object(sources, '_download', return_value=(payload, final)):
+                with self.assertRaisesRegex(ValueError, '^' + error + '$'):
+                    sources._extract_article(self.html(), self.item(), self.url, self.now, self.since,
+                        observed_at=self.now.timestamp(), deadline=12345)
+
+    def test_archive_transport_requires_explicit_exact_allowlist_and_html(self):
+        self.assertIsNone(sources._safe_url(self.archive_url))
+        self.assertEqual(sources._safe_url(self.archive_url, allow_publication_archive=True), self.archive_url)
+        unsafe = (self.archive_url.replace('202610', '202613'), self.archive_url.replace('202610', '202600'),
+                  self.archive_url.replace('whats_new', 'conference'), self.archive_url + '?redirect=1',
+                  self.archive_url.replace('https:', 'http:'), self.archive_url.replace('www.mof.go.jp', 'www.stat.go.jp'))
+        for url in unsafe:
+            with self.subTest(url=url), patch.object(sources, '_public_ip') as dns:
+                self.assertIsNone(sources._safe_url(url, allow_publication_archive=True))
+                with self.assertRaisesRegex(ValueError, '^unapproved_source$'):
+                    sources._download(url, 55, publication_archive=True)
+                dns.assert_not_called()
+        with patch.object(sources, '_public_ip') as dns:
+            with self.assertRaisesRegex(ValueError, '^unapproved_source$'):
+                sources._download(self.url, 55, publication_archive=True)
+            dns.assert_not_called()
+        session = MagicMock()
+        response = session.get.return_value.__enter__.return_value
+        response.status_code = 302
+        for target in (self.archive_url.replace('202610', '202609'), self.url):
+            response.headers = {'Location': target}
+            with self.subTest(target=target), patch.object(sources.requests, 'Session') as factory, \
+                    patch.object(sources, '_public_ip', return_value='8.8.8.8'), \
+                    patch.object(sources, '_PinnedHTTPSAdapter'), patch.object(sources.time, 'monotonic', return_value=0):
+                factory.return_value.__enter__.return_value = session
+                with self.assertRaisesRegex(ValueError, '^unapproved_redirect$'):
+                    sources._download(self.archive_url, 55, publication_archive=True)
+        response.status_code, response.headers = 200, {'Content-Type': 'application/rss+xml'}
+        with patch.object(sources.requests, 'Session') as factory, patch.object(sources, '_public_ip', return_value='8.8.8.8'), \
+                patch.object(sources, '_PinnedHTTPSAdapter'), patch.object(sources.time, 'monotonic', return_value=0):
+            factory.return_value.__enter__.return_value = session
+            with self.assertRaisesRegex(ValueError, '^source_content_type$'):
+                sources._download(self.archive_url, 55, publication_archive=True)
+
+
 class MinistrySupportingPDFTests(unittest.TestCase):
     parent = 'https://www.mof.go.jp/policy/international_policy/convention/dialogue/20260925182123.html'
     pdf_url = 'https://www.mof.go.jp/policy/international_policy/convention/dialogue/JointStrategicFinancingMemorandumofCooperation.pdf'

@@ -1247,6 +1247,62 @@ class OfficialWindowProducerTests(unittest.TestCase):
         self.provider.openai.assert_not_called()
         self.collector.assert_not_called()
 
+    def test_distinct_conference_day_reaches_writer_and_both_reviews_without_replacing_posting_day(self):
+        record = self.records[0]
+        record.update(event_date='2026-10-04', event_date_kind='press_conference',
+                      title='財務大臣の架空の記者会見（令和8年10月4日）',
+                      url='https://www.mof.go.jp/public_relations/conference/my20261004.html',
+                      evidence_url='https://www.mof.go.jp/public_relations/conference/my20261004.html')
+        before = copy.deepcopy(self.records)
+        issue = self.generate()
+        for method, key in ((self.provider.claude, 'articles'), (self.provider.gemini, 'original_articles'),
+                            (self.provider.openai, 'original_articles')):
+            original = method.call_args.args[1][key][0]
+            self.assertEqual(original['event_date'], '2026-10-04')
+            self.assertEqual(original['event_date_kind'], 'press_conference')
+            self.assertEqual(original['published_date'], '2026-10-05')
+            self.assertEqual(original['published_at'], before[0]['published_at'])
+            self.assertIn('掲載・発表日', method.call_args.args[0])
+            self.assertIn('会見が行われた日はevent_date', method.call_args.args[0])
+            self.assertIn('互いに置き換えません', method.call_args.args[0])
+        self.assertEqual(self.provider.gemini.call_args.args[1], self.provider.openai.call_args.args[1])
+        self.assertEqual(self.records, before)
+        self.assertEqual(issue['article_refs'][0]['published_date'], '2026-10-05')
+        self.assertNotIn('event_date', issue['article_refs'][0])
+        self.collector.assert_not_called()
+
+    def test_invalid_conference_event_pairs_stop_before_any_provider_call(self):
+        valid = {**self.records[0], 'event_date': '2026-10-04', 'event_date_kind': 'press_conference'}
+        variants = [{key: value for key, value in valid.items() if key != missing}
+                    for missing in ('event_date', 'event_date_kind')]
+        variants += [{**valid, key: value} for key, value in (
+            ('event_date', None), ('event_date', '20261004'), ('event_date', '2026-W40-7'),
+            ('event_date', '2026-10-04T12:00:00'), ('event_date', '2026-10-32'),
+            ('event_date', '2026-10-05'), ('event_date', '2026-10-07'),
+            ('event_date_kind', 'signed'), ('event_date_kind', None),
+            ('source', '総務省統計局'),
+            ('url', 'https://www.mof.go.jp/policy/budget/topics/test.html'),
+            ('evidence_url', 'https://www.mof.go.jp/public_relations/conference/my20261004.html'))]
+        for record in variants:
+            with self.subTest(event=record.get('event_date'), kind=record.get('event_date_kind'), url=record['url']):
+                with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+                    self.generate(records=[record])
+        self.provider.claude.assert_not_called()
+        self.provider.gemini.assert_not_called()
+        self.provider.openai.assert_not_called()
+        self.collector.assert_not_called()
+
+    def test_earlier_event_day_does_not_change_day_precision_or_posting_window(self):
+        record = {**self.records[0], 'published_at': None, 'publication_precision': 'day',
+                  'event_date': '2026-09-30', 'event_date_kind': 'press_conference'}
+        validated = news_producer._official_articles([record], self.window, self.now)[0]
+        self.assertEqual(validated['event_date'], '2026-09-30')
+        self.assertEqual(validated['published_date'], '2026-10-05')
+        self.assertEqual(validated['selection_route'], 'date_only')
+        self.assertIsNone(validated['published_at'])
+        with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+            news_producer._official_articles([{**record, 'published_date': '2026-10-04'}], self.window, self.now)
+
     def test_window_must_have_fixed_boundaries_and_be_frozen_already(self):
         for field, value in [('cutoff_at', self.window['cutoff_at'] + 1), ('window_start', 0),
                              ('version', True), ('edition_date', '2026-10-05')]:
