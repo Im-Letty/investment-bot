@@ -5,7 +5,7 @@
   function mountShortcuts(wrap){
     var head=wrap.querySelector('.kn-stock-heading'),opener=wrap.querySelector('.kn-stock-search-open');if(!head||!opener)return;
     var actions=head.querySelector('.kn-stock-actions');
-    if(!actions){actions=document.createElement('div');actions.className='kn-stock-actions';actions.setAttribute('role','group');head.appendChild(actions);actions.appendChild(opener);}
+    if(!actions){actions=document.createElement('div');actions.className='kn-stock-actions';actions.setAttribute('role','group');head.insertBefore(actions,head.querySelector('.kn-stock-quick-search'));}
     var icons={favorites:'<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8Z"/>',div_cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h2M14 14h2M8 17h2"/>'};
     ['favorites','div_cal'].forEach(function(key){
       var button=wrap.querySelector('[data-kn-tab="'+key+'"]');if(!button||button.classList.contains('kn-stock-shortcut'))return;
@@ -29,22 +29,29 @@
     var heading=wrap.querySelector('.kn-a-section-title');if(!heading)return;
     var icon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.6 4.6"/></svg>';
     var head=document.createElement('div');head.className='kn-stock-heading';heading.before(head);head.appendChild(heading);
-    var opener=document.createElement('button');opener.type='button';opener.className='kn-stock-search-open';opener.innerHTML=icon+'<span>検索</span>';
-    opener.setAttribute('aria-label','銘柄を検索');opener.setAttribute('aria-haspopup','dialog');opener.setAttribute('aria-expanded','false');opener.setAttribute('aria-controls','knStockSearchDialog');head.appendChild(opener);
+    var quickForm=document.createElement('form');quickForm.className='kn-stock-quick-search';quickForm.setAttribute('role','search');quickForm.setAttribute('aria-label','銘柄の検索');
+    var quickInput=document.createElement('input');quickInput.type='search';quickInput.setAttribute('aria-label','会社名・銘柄コード');quickInput.placeholder='会社名・銘柄コード';quickInput.autocomplete='off';quickInput.setAttribute('enterkeyhint','search');quickForm.appendChild(quickInput);
+    var opener=document.createElement('button');opener.type='submit';opener.className='kn-stock-search-open';opener.innerHTML=icon+'<span>検索</span>';
+    opener.setAttribute('aria-label','銘柄を検索');opener.setAttribute('aria-haspopup','dialog');opener.setAttribute('aria-expanded','false');opener.setAttribute('aria-controls','knStockSearchDialog');quickForm.appendChild(opener);head.appendChild(quickForm);
     var section=document.createElement('dialog');section.id='knStockSearchDialog';section.className='kn-stock-search kn-stock-search-dialog';section.setAttribute('aria-labelledby','knStockSearchTitle');
     section.innerHTML='<div class="kn-stock-search-dialog-head"><h3 id="knStockSearchTitle">銘柄を検索</h3><button type="button" class="kn-stock-search-close" aria-label="検索を閉じる">閉じる</button></div><form class="kn-stock-search-form" role="search">'+icon+'<input type="search" aria-label="会社名・銘柄コードで検索" placeholder="会社名・銘柄コード" autocomplete="off" enterkeyhint="search"><button type="submit">検索</button></form><div class="kn-stock-search-panel" hidden><div class="kn-stock-search-head"><span role="status" aria-live="polite"></span></div><div class="kn-stock-search-results"></div></div>';
     head.insertAdjacentElement('afterend',section);
     var input=section.querySelector('input'),form=section.querySelector('form'),panel=section.querySelector('.kn-stock-search-panel'),status=section.querySelector('[role="status"]'),results=section.querySelector('.kn-stock-search-results');
-    var timer,controller,epoch=0,previousOverflow,isShowing=false;
+    var timer,controller,epoch=0,previousOverflow,isShowing=false,quickComposing=false;
     function cancel(){clearTimeout(timer);epoch++;if(controller)controller.abort();}
     function clearResults(){cancel();panel.hidden=true;results.replaceChildren();}
-    function restore(){if(!isShowing)return;isShowing=false;clearResults();document.body.style.overflow=previousOverflow;opener.setAttribute('aria-expanded','false');opener.focus({preventScroll:true});}
+    function restore(){if(!isShowing)return;isShowing=false;quickInput.value=input.value;clearResults();document.body.style.overflow=previousOverflow;opener.setAttribute('aria-expanded','false');opener.focus({preventScroll:true});}
     function close(){if(section.open)section.close();restore();}
-    opener.onclick=function(){
+    quickForm.onsubmit=function(event){
+      event.preventDefault();if(quickComposing)return;
       if(section.open)return;
+      input.value=quickInput.value;
       previousOverflow=document.body.style.overflow;section.showModal();isShowing=true;document.body.style.overflow='hidden';
       opener.setAttribute('aria-expanded','true');input.focus({preventScroll:true});
+      if(input.value.trim())search();
     };
+    quickInput.addEventListener('compositionstart',function(){quickComposing=true;});
+    quickInput.addEventListener('compositionend',function(){quickComposing=false;});
     section.querySelector('.kn-stock-search-close').onclick=close;
     section.addEventListener('cancel',function(event){event.preventDefault();close();});
     section.addEventListener('close',function(){if(!section.open)restore();});
