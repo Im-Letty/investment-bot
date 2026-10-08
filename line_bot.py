@@ -2320,15 +2320,30 @@ from company_news_runtime import CompanyNewsRuntime, SupabaseNewsStorage as Comp
 
 
 def _collect_company_sources(**options):
-    from company_news_sources import collect_company_articles
+    from company_news_sources import collect_company_articles, FEEDS
+    from company_news_catalogue import current_catalogue
+    from datetime import datetime, timezone
+    raw_now = options.get('now')
+    catalogue = current_catalogue(now=datetime.fromtimestamp(raw_now, timezone.utc) if raw_now else None)
     diagnostics = {}
     articles = collect_company_articles(diagnostics=diagnostics, **options)
-    healthy = len(diagnostics) == 3 and all(isinstance(item, dict)
+    healthy = len(diagnostics) == len(FEEDS) and all(isinstance(item, dict)
                   and item.get('feed_status') == 'ok'
                   and item.get('status') in ('collected', 'no_matching_candidates')
                   for item in diagnostics.values())
-    return {'articles': articles, 'status': ('ready' if articles else 'source_empty') if healthy else 'error',
-            'diagnostics': diagnostics}
+    readable_feed = any(isinstance(item, dict) and item.get('feed_status') == 'ok'
+                        for item in diagnostics.values())
+    # Verified releases may proceed when another feed is unavailable. An empty
+    # partial collection must not claim that no companies made announcements.
+    return {'articles': articles, 'status': 'source_empty' if not articles and healthy else
+            'ready' if articles or readable_feed else 'error',
+            'collection_health': 'complete' if healthy else 'partial',
+            'diagnostics': diagnostics, 'catalogue': catalogue.snapshot(),
+            'coverage': {'universe': 'nikkei225', 'candidate_company_count': len(catalogue.members),
+                         'membership_as_of': catalogue.provenance['as_of'],
+                         'direct_feed_company_count': 3, 'source_channel_count': len(FEEDS),
+                         'distribution_scope': 'issuer_published_releases',
+                         'all_company_announcements_covered': False}}
 
 
 _company_news = CompanyNewsRuntime(CompanyNewsStorage(SUPABASE_URL, SUPABASE_KEY),

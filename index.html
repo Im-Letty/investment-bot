@@ -32,7 +32,7 @@
 <script defer src="/static/stock-search-common.js?v=20261008-search-bar1"></script>
 <script defer src="/static/market-carousel.js?v=20260929-three1"></script>
 <script defer src="/static/home-a.js?v=20261008-heading-b1"></script>
-<script defer src="/static/stock-focus.js?v=20261008-company-news1"></script>
+<script defer src="/static/stock-focus.js?v=20261008-company225-1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -731,7 +731,7 @@ root.drawOuterOrbit=draw;draw(3000);
   
   <div id="homeMoversList" aria-live="polite"><p class="sf-state">株価を確認しています…</p></div>
 </div>
-<section id="knCompanyFocus" style="display:none" aria-label="注目企業"></section>
+<section id="knCompanyFocus" style="display:none" aria-label="企業ニュース"></section>
 <div id="morning-analysis" class="morning-analysis-text" data-i18n="morning_loading">読み込み中...</div>
         <div id="morning-points" class="morning-points-text"></div>
       <div class="morning-news-section" id="morning-news-section">

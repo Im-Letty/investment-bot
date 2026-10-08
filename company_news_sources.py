@@ -1,4 +1,4 @@
-"""Read a bounded set of corporate announcements from three official feeds.
+"""Read bounded corporate announcements from official and issuer-published feeds.
 
 Bodies are private, short-lived writing inputs, never public archive content.
 The listed company is a trusted catalogue identity; related_company identifies
@@ -6,7 +6,6 @@ the actual announcing subsidiary and must be respected by the writer.
 """
 from datetime import date, datetime, timedelta
 from hashlib import sha256
-from itertools import zip_longest
 import math
 import re
 import time
@@ -18,6 +17,7 @@ import requests
 
 from daily_news_sources import JST, _Document, _PinnedHTTPSAdapter, _public_ip, _parallel, _jsonld
 from official_news_sources import _publication, _now, _in_window, _body_text, _descends
+from company_news_selection import priority, candidate_order
 
 SOURCES = {
     "NTT": {
@@ -49,6 +49,7 @@ SOURCES = {
     },
 }
 FEEDS = {name: config["feed"] for name, config in SOURCES.items()}
+FEEDS['PR TIMES'] = 'https://prtimes.jp/index.rdf'
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
 MAX_CANDIDATES = 8
@@ -57,9 +58,6 @@ MIN_BODY_CHARS = 100
 MAX_BODY_CHARS = 20_000
 COLLECTION_SECONDS = 40
 REQUEST_SECONDS = 10
-_EXCLUDED = re.compile(r"人事|役員|定款|株主名簿|株主総会|自己株式|株式取得状況|社債|配当|決算説明会|"
-                       r"開催|登壇|講演|出展|フォーラム|Forum|受賞|表彰|キャンペーン|セミナー|募集|採用", re.I)
-_TOPIC = re.compile(r"提供|発売|開発|実証|稼働|開始|提携|協業|契約|供給|増産|新設|生産|設備|買収|導入|共同|事業|サービス|製品|研究")
 _DATE = re.compile(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日")
 _ERROR_CODES = frozenset({"unapproved_source", "source_time_limit", "source_unavailable",
     "unapproved_redirect", "source_content_type", "source_size_limit", "source_size_or_time_limit",
@@ -89,6 +87,11 @@ def _safe_url(value, *, source=None, base=None):
     if any(ord(char) < 33 or ord(char) == 127 for char in value) or "\\" in value:
         return None
     try:
+        if source is None or source == 'PR TIMES':
+            from company_news_prtimes import safe_url as prtimes_url
+            approved = prtimes_url(urljoin(base, value) if base else value)
+            if approved:
+                return approved
         parsed = urlsplit(urljoin(base, value) if base else value)
         host = (parsed.hostname or "").lower()
         if (parsed.scheme.lower() != "https" or parsed.username is not None
@@ -195,11 +198,12 @@ def _feed_items(payload, source, now, since):
         # Any explicit future clock is ineligible, even if other evidence only
         # establishes a day or two publisher clocks disagree.
         if (not url or url == FEEDS[source] or not 1 <= len(title) <= 1000
-                or _EXCLUDED.search(title) or not _TOPIC.search(title) or not publication
+                or not priority(title)[0] or not publication
                 or any(value and value["published_at"] is not None and value["published_at"] > now.timestamp()
                        for value in dates) or not _in_window(publication, now, since)):
             continue
-        records.append({"source": source, "title": title, "url": url, **publication})
+        records.append({"source": source, "symbol": SOURCES[source]['symbol'],
+                        "title": title, "url": url, **publication})
     unique = {(item["url"], item["published_date"]): item for item in records}
     return sorted(unique.values(), key=_order)
 
@@ -353,6 +357,9 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
     else:
         raise ValueError("exclude_urls_requires_strings")
     now = _now(now)
+    from company_news_catalogue import load_current_snapshot
+    from company_news_prtimes import parse_feed, extract_article
+    catalogue = load_current_snapshot(now=now)
     if until is not None:
         now = min(now, _now(until))
     if since is None:
@@ -361,7 +368,7 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
         since = date.fromisoformat(since) if isinstance(since, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", since) else _now(since)
     deadline = time.monotonic() + COLLECTION_SECONDS
     report = {source: {"feed_status": "not_completed", "status": "fetch_incomplete", "candidates": 0,
-                      "selected": 0, "completed": 0, "accepted": 0, "errors": []} for source in SOURCES}
+                      "selected": 0, "completed": 0, "accepted": 0, "errors": []} for source in FEEDS}
 
     def error_code(exc):
         return str(exc) if isinstance(exc, ValueError) and str(exc) in _ERROR_CODES else "source_read_failed"
@@ -371,12 +378,14 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             payload, final = _download(FEEDS[source], deadline)
             if final != FEEDS[source]:
                 raise ValueError("unapproved_redirect")
-            return source, _feed_items(payload, source, now, since), None
+            items = (parse_feed(payload, now, since, catalogue) if source == 'PR TIMES'
+                     else _feed_items(payload, source, now, since))
+            return source, items, None
         except Exception as exc:
             return source, [], error_code(exc)
 
-    batches = _parallel(list(SOURCES), read_feed, deadline)
-    by_source = {source: [] for source in SOURCES}
+    batches = _parallel(list(FEEDS), read_feed, deadline)
+    by_source = {source: [] for source in FEEDS}
     for source, items, error in batches:
         row = report[source]
         row.update(feed_status="failed" if error else "ok",
@@ -384,12 +393,14 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
         if error:
             row["errors"].append(error)
         by_source[source] = [item for item in items if item["url"] not in excluded][:MAX_CANDIDATES]
-    candidates = [item for group in zip_longest(*by_source.values()) for item in group if item is not None][:MAX_CANDIDATES]
-    selected, selected_sources = [], set()
+    candidates = sorted([item for items in by_source.values() for item in items],
+                        key=candidate_order)[:MAX_CANDIDATES]
+    selected, selected_symbols = [], set()
     for item in candidates:
-        if item["source"] not in selected_sources:
+        symbol = item['symbol']
+        if catalogue.is_member(symbol) and symbol not in selected_symbols:
             selected.append(item)
-            selected_sources.add(item["source"])
+            selected_symbols.add(symbol)
         if len(selected) == MAX_ARTICLES:
             break
     for item in selected:
@@ -399,7 +410,9 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
         try:
             payload, final = _download(item["url"], deadline)
             observed = clock()
-            article = _extract_article(payload, item, final, now, since, observed_at=observed)
+            article = (extract_article(payload, item, final, now, since, observed_at=observed,
+                                       catalogue=catalogue) if item['source'] == 'PR TIMES'
+                       else _extract_article(payload, item, final, now, since, observed_at=observed))
             if article:
                 verified = clock()
                 if (type(observed) not in (int, float) or not math.isfinite(observed) or observed <= 0

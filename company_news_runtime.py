@@ -13,9 +13,15 @@ import time
 from urllib.parse import urlsplit
 
 from news_cache import JST
-from daily_news_runtime import StorageUnavailable, SupabaseNewsStorage
+from daily_news_runtime import BUCKET, StorageUnavailable, SupabaseNewsStorage
 
 PREFIX = 'company-news/v1'
+# A single collector can persist at most 3 sources per 15-minute poll: 288/day.
+# Enumerate the entire bounded queue before choosing articles, never an arbitrary
+# first page. Immutable bodies are cached and retained for only these 3 days.
+CANDIDATE_PAGE_SIZE = 100
+MAX_CANDIDATES_PER_DAY = 300
+CANDIDATE_SCAN_SECONDS = 60
 SOURCES = {
     '9432.T': ('NTT', 'group.ntt', r'/jp/newsrelease/\d{4}/\d{2}/\d{2}/[^/]+\.html'),
     '9433.T': ('KDDI', 'newsroom.kddi.com', r'/news/detail/kddi_nr-[^/]+\.html'),
@@ -25,6 +31,9 @@ COPY_KEYS = ('title', 'business', 'event', 'outlook')
 SOURCE_HASH_KEYS = ('symbol', 'name', 'business', 'title', 'url', 'published_date',
                     'published_at', 'body_sha256', 'body_verified_at', 'source',
                     'sector', 'business_url', 'related_company', 'other_news')
+OPTIONAL_SOURCE_KEYS = ('company_id', 'business_context_mode', 'catalogue_as_of',
+                       'catalogue_facts_sha256', 'catalogue_source_sha256')
+CHANNEL_NAMES = tuple(value[0] for value in SOURCES.values()) + ('PR TIMES',)
 PUBLIC_KEYS = ('symbol', 'name', 'sector', 'title', 'business', 'event', 'outlook',
                'source_url', 'published_date', 'published_at', 'article_id', 'reviewed_at')
 FEED_STATES = frozenset({'ok', 'failed', 'not_completed'})
@@ -36,13 +45,14 @@ SOURCE_ERROR_CODES = frozenset({'unapproved_source', 'source_time_limit', 'sourc
     'invalid_verification_clock', 'source_read_failed', 'body_or_date_unverified'})
 STORAGE_ERROR_CODES = frozenset({'storage_configuration', 'storage_response', 'storage_timeout',
     'storage_network', 'storage_bucket', 'storage_private_required', 'storage_read', 'storage_size',
-    'storage_write', 'storage_list', 'storage_state', 'company_record_invalid'})
+    'storage_write', 'storage_list', 'storage_state', 'company_record_invalid',
+    'company_queue_limit', 'company_queue_timeout'})
 
 
 def _safe_source_diagnostics(value):
     value = value if isinstance(value, dict) else {}
     result = {}
-    for name, _, _ in SOURCES.values():
+    for name in CHANNEL_NAMES:
         row = value.get(name)
         row = row if isinstance(row, dict) else {}
         feed, status = row.get('feed_status'), row.get('status')
@@ -67,7 +77,72 @@ def article_id(source):
 
 
 def source_hash(source):
-    return canonical_hash({key: source.get(key) for key in SOURCE_HASH_KEYS})
+    # Keep the hashes of already reviewed legacy records unchanged.
+    return canonical_hash({key: source.get(key) for key in SOURCE_HASH_KEYS} |
+                          {key: source[key] for key in OPTIONAL_SOURCE_KEYS if key in source})
+
+
+def _catalogue_path(facts_digest, source_digest):
+    return f'{PREFIX}/catalogues/{facts_digest}/{source_digest}.json'
+
+
+def source_catalogue(storage, source, *, deadline=None):
+    """One immutable membership snapshot per source generation, no body/index weights."""
+    digest = source.get('catalogue_facts_sha256') if isinstance(source, dict) else None
+    source_digest = source.get('catalogue_source_sha256') if isinstance(source, dict) else None
+    if any(not isinstance(value, str) or not re.fullmatch(r'[a-f0-9]{64}', value)
+           for value in (digest, source_digest)):
+        return None
+    cache = getattr(storage, '_company_catalogue_cache', None)
+    if cache is None:
+        cache = storage._company_catalogue_cache = {}
+    cache_key = (digest, source_digest)
+    document = cache.get(cache_key)
+    if document is None:
+        if deadline is not None:
+            _candidate_time(deadline)
+        document = storage.read(_catalogue_path(digest, source_digest))
+        if document is None:
+            # The original archive used a facts-only key. It is usable only
+            # when its exact official CSV proof also matches this source.
+            if deadline is not None:
+                _candidate_time(deadline)
+            document = storage.read(f'{PREFIX}/catalogues/{digest}.json')
+    if document is None:
+        return None
+    try:
+        from company_news_catalogue import load_catalogue
+        catalogue = load_catalogue(snapshot=document,
+            now=datetime.fromtimestamp(source['body_verified_at'], JST))
+        if (catalogue.facts_sha256 != digest
+                or catalogue.provenance['source_sha256'] != source_digest):
+            return None
+        cache[cache_key] = deepcopy(document)
+        return catalogue
+    except (ValueError, KeyError, TypeError, OverflowError):
+        return None
+
+
+def _membership_source(source, now, catalogue=None):
+    from company_news_prtimes import safe_url
+    if catalogue is None:
+        return False
+    try:
+        member = catalogue.members.get(source['symbol'])
+        actor = catalogue.match_issuer(source.get('related_company'))
+        parsed = urlsplit(source['url'])
+        company_id = source.get('company_id')
+        return bool(member and actor and actor['symbol'] == member['symbol']
+            and source['name'] == member['name'] and source.get('source') == 'PR TIMES'
+            and safe_url(source['url']) == source['url'] and source['url'] != 'https://prtimes.jp/index.rdf'
+            and isinstance(company_id, str) and re.fullmatch(r'[1-9][0-9]{0,8}', company_id)
+            and parsed.path.endswith('.' + company_id.zfill(9) + '.html')
+            and source.get('catalogue_as_of') == catalogue.provenance['as_of']
+            and source.get('catalogue_facts_sha256') == catalogue.facts_sha256
+            and source.get('catalogue_source_sha256') == catalogue.provenance['source_sha256']
+            and source.get('business_context_mode') in ('verified_profile', 'announcement_only'))
+    except (ValueError, KeyError, TypeError, OverflowError):
+        return False
 
 
 def source_fingerprint(source):
@@ -85,16 +160,24 @@ def _stamp(value):
     return type(value) in (int, float) and math.isfinite(value) and 0 < value < 253402268399
 
 
-def valid_source(source, now):
-    if not isinstance(source, dict) or source.get('symbol') not in SOURCES or not _stamp(now):
+def valid_source(source, now, *, catalogue=None):
+    if not isinstance(source, dict) or not _stamp(now):
         return False
-    name, host, pattern = SOURCES[source['symbol']]
+    distribution = source.get('source') == 'PR TIMES'
+    if distribution:
+        if not _membership_source(source, now, catalogue):
+            return False
+        name, host, pattern = source['name'], 'prtimes.jp', r'/main/html/rd/p/[0-9]{9}\.[0-9]{9}\.html'
+    elif source.get('symbol') in SOURCES:
+        name, host, pattern = SOURCES[source['symbol']]
+    else:
+        return False
     parsed = urlsplit(str(source.get('url', '')))
     if (source.get('name') != name or parsed.scheme != 'https' or parsed.hostname != host
             or parsed.netloc != host or parsed.query or parsed.fragment
             or not re.fullmatch(pattern, parsed.path) or not _day(source.get('published_date'))):
         return False
-    for key, minimum, maximum in [('title', 3, 500), ('business', 8, 250), ('body', 100, 30000)]:
+    for key, minimum, maximum in [('title', 3, 500), ('business', 8, 2000), ('body', 100, 30000)]:
         value = source.get(key)
         if not isinstance(value, str) or not minimum <= len(value.strip()) <= maximum:
             return False
@@ -111,11 +194,11 @@ def valid_source(source, now):
         and datetime.fromtimestamp(stamp, JST).date() == publication)
 
 
-def valid_record(record, now):
+def valid_record(record, now, *, catalogue=None):
     if not isinstance(record, dict) or record.get('schema') != 'company-reviewed-v1':
         return False
     source, company = record.get('source'), record.get('company')
-    if not valid_source(source, now) or not isinstance(company, dict):
+    if not valid_source(source, now, catalogue=catalogue) or not isinstance(company, dict):
         return False
     if any(company.get(key) != source.get(key) for key in
            ('symbol', 'name', 'published_date', 'published_at', 'body_sha256', 'body_verified_at')):
@@ -145,8 +228,9 @@ def valid_record(record, now):
     return company.get('valid_until') == until
 
 
-def public_snapshot(records, now, status='ready', checked_at=None):
-    valid = [item['company'] for item in records if valid_record(item, now)
+def public_snapshot(records, now, status='ready', checked_at=None, *, storage=None):
+    valid = [item['company'] for item in records if valid_record(item, now,
+                catalogue=source_catalogue(storage, item.get('source')) if storage else None)
              and item['company']['valid_until'] >= datetime.fromtimestamp(now, JST).date().isoformat()]
     valid.sort(key=lambda item: (item['published_date'], item.get('published_at') or 0,
                                 item['reviewed_at']), reverse=True)
@@ -156,14 +240,14 @@ def public_snapshot(records, now, status='ready', checked_at=None):
             continue
         symbols.add(company['symbol']); ids.add(company['article_id'])
         selected.append({**{key: company.get(key) for key in PUBLIC_KEYS}, 'valid_until': company['valid_until']})
-        if len(selected) == 3:
+        if len(selected) == 225:
             break
     today = datetime.fromtimestamp(now, JST).date().isoformat()
     return {'edition_date': max((datetime.fromtimestamp(item['reviewed_at'], JST).date().isoformat()
                                 for item in selected), default=today),
             'valid_until': max((item['valid_until'] for item in selected), default=today),
             'companies': selected, 'status': status, 'checked_at': checked_at,
-            'source_interval_seconds': 900, 'max_companies_per_day': 3}
+            'source_interval_seconds': 900, 'max_generation_attempts_per_day': 3}
 
 
 def read_records(storage, now, *, today_only=False, cache=None):
@@ -179,7 +263,7 @@ def read_records(storage, now, *, today_only=False, cache=None):
             if record is None:
                 record = storage.read(path)
             if record is not None:
-                if not valid_record(record, now):
+                if not valid_record(record, now, catalogue=source_catalogue(storage, record.get('source'))):
                     raise StorageUnavailable('company_record_invalid')
                 if cache is not None:
                     cache[path] = deepcopy(record)
@@ -187,34 +271,105 @@ def read_records(storage, now, *, today_only=False, cache=None):
     return records
 
 
+def _candidate_time(deadline):
+    if time.monotonic() >= deadline:
+        raise StorageUnavailable('company_queue_timeout')
+
+
+def _candidate_names(storage, prefix, deadline):
+    """Company-only pagination; the morning reader's 30-item limit is unchanged."""
+    if not isinstance(storage, SupabaseNewsStorage):
+        _candidate_time(deadline)
+        values = storage._list(prefix)
+        _candidate_time(deadline)
+        if not isinstance(values, list):
+            raise StorageUnavailable('storage_list')
+        if len(values) > MAX_CANDIDATES_PER_DAY:
+            raise StorageUnavailable('company_queue_limit')
+        return values
+    items = []
+    for offset in range(0, MAX_CANDIDATES_PER_DAY + 1, CANDIDATE_PAGE_SIZE):
+        _candidate_time(deadline)
+        limit = min(CANDIDATE_PAGE_SIZE, MAX_CANDIDATES_PER_DAY + 1 - offset)
+        response = storage._request('POST', '/object/list/' + BUCKET,
+            json={'prefix': prefix, 'limit': limit, 'offset': offset,
+                  'sortBy': {'column': 'name', 'order': 'desc'}})
+        if not 200 <= response.status_code < 300:
+            raise StorageUnavailable('storage_list')
+        values = storage._payload(response)
+        _candidate_time(deadline)
+        if not isinstance(values, list) or len(values) > limit:
+            raise StorageUnavailable('storage_list')
+        items.extend(values)
+        if len(items) > MAX_CANDIDATES_PER_DAY:
+            raise StorageUnavailable('company_queue_limit')
+        if len(values) < limit:
+            return items
+    raise StorageUnavailable('company_queue_limit')
+
+
+def _current_catalogue(now):
+    from company_news_catalogue import load_current_snapshot
+    try:
+        return load_current_snapshot(now=datetime.fromtimestamp(now, JST))
+    except ValueError:
+        return None
+
+
 def candidate_records(storage, now):
     candidates = []
+    deadline = time.monotonic() + CANDIDATE_SCAN_SECONDS
     today = datetime.fromtimestamp(now, JST).date()
-    for offset in range(3):
-        day = (today - timedelta(days=offset)).isoformat()
-        prefix = f'{PREFIX}/candidates/{day}'
-        for item in storage._list(prefix):
+    current = _current_catalogue(now)
+    if current is None:
+        return []
+    cache = getattr(storage, '_company_candidate_cache', None)
+    if cache is None:
+        cache = storage._company_candidate_cache = {}
+    prefixes = [f'{PREFIX}/candidates/{(today - timedelta(days=offset)).isoformat()}'
+                for offset in range(3)]
+    for path in list(cache):
+        if path.rsplit('/', 1)[0] not in prefixes:
+            del cache[path]
+    # Fail before any selection or paid generation if a whole day exceeds the
+    # documented cap. A partial page must never look like the complete queue.
+    manifests = [(prefix, _candidate_names(storage, prefix, deadline)) for prefix in prefixes]
+    for prefix, items in manifests:
+        for item in items:
+            _candidate_time(deadline)
             name = item.get('name') if isinstance(item, dict) else None
             if not isinstance(name, str) or not re.fullmatch(r'[0-9a-f]{64}\.json', name):
                 continue
-            source = storage.read(prefix + '/' + name)
-            if valid_source(source, now) and (today - date.fromisoformat(source['published_date'])).days <= 2:
+            path = prefix + '/' + name
+            source = deepcopy(cache.get(path))
+            if source is None:
+                source = storage.read(path)
+            if (isinstance(source, dict) and current.is_member(source.get('symbol'))
+                    and valid_source(source, now, catalogue=source_catalogue(storage, source, deadline=deadline))
+                    and (today - date.fromisoformat(source['published_date'])).days <= 2):
+                cache[path] = deepcopy(source)
                 candidates.append(source)
-    return sorted(candidates, key=lambda x: (x['published_date'], x.get('published_at') or 0), reverse=True)
+            _candidate_time(deadline)
+    from company_news_selection import candidate_order
+    return sorted(candidates, key=candidate_order)
 
 
 def pending_candidates(storage, now, *, candidates=None):
-    candidates = candidate_records(storage, now) if candidates is None else candidates
-    if not candidates:
-        return []
     day = datetime.fromtimestamp(now, JST).date().isoformat()
     claims = [storage.read(f'{PREFIX}/days/{day}/attempt-{slot}.json') for slot in range(1, 4)]
     if all(claim is not None for claim in claims):
         return []
-    selected = set(claim['symbol'] for claim in claims if isinstance(claim, dict) and claim.get('symbol') in SOURCES)
+    candidates = candidate_records(storage, now) if candidates is None else candidates
+    if not candidates:
+        return []
+    current = _current_catalogue(now)
+    if current is None:
+        return []
+    selected = set(claim['symbol'] for claim in claims if isinstance(claim, dict) and isinstance(claim.get('symbol'), str))
     pending = []
     for source in candidates:
-        if (not valid_source(source, now)
+        if (not isinstance(source, dict) or not current.is_member(source.get('symbol'))
+                or not valid_source(source, now, catalogue=source_catalogue(storage, source))
                 or (datetime.fromtimestamp(now, JST).date() - date.fromisoformat(source['published_date'])).days > 2):
             continue
         if source['symbol'] in selected:
@@ -238,6 +393,12 @@ class CompanyNewsRuntime:
         self._thread, self._pid, self._source_check = None, os.getpid(), 0
         self._source_status = 'refreshing'
         self._source_diagnostics = _safe_source_diagnostics(None)
+        self._coverage = {'universe': 'nikkei225', 'candidate_company_count': None,
+                          'membership_as_of': None, 'direct_feed_company_count': 3,
+                          'source_channel_count': len(CHANNEL_NAMES),
+                          'distribution_scope': 'issuer_published_releases',
+                          'all_company_announcements_covered': False}
+        self._collection_health = 'unknown'
         self._last_error_phase, self._last_error_code = None, None
         self._last_restore, self._restore_day = 0, None
         self._candidate_check, self._candidate_day = 0, None
@@ -299,15 +460,27 @@ class CompanyNewsRuntime:
                 day = datetime.fromtimestamp(now, JST).date().isoformat()
                 combined = {source_fingerprint(source): source for source in known_sources}
                 phase = 'candidate_write'
+                catalogue = result.get('catalogue')
+                if catalogue is not None:
+                    from company_news_catalogue import load_catalogue
+                    verified_catalogue = load_catalogue(snapshot=catalogue, now=datetime.fromtimestamp(now, JST))
+                    self.storage.create(_catalogue_path(verified_catalogue.facts_sha256,
+                        verified_catalogue.provenance['source_sha256']), catalogue)
+                    with self._lock:
+                        self._coverage.update(candidate_company_count=len(verified_catalogue.members),
+                            membership_as_of=verified_catalogue.provenance['as_of'])
+                with self._lock:
+                    health = result.get('collection_health')
+                    self._collection_health = health if health in ('complete', 'partial') else 'unknown'
                 for source in sources:
-                    if valid_source(source, now):
+                    if valid_source(source, now, catalogue=source_catalogue(self.storage, source)):
                         self.storage.create(f'{PREFIX}/candidates/{day}/{source_fingerprint(source)}.json', source)
                         combined[source_fingerprint(source)] = source
                 self._source_status = result.get('status')
                 self._source_check = now
                 collected = True
-                collected_candidates = sorted(combined.values(), key=lambda item:
-                    (item['published_date'], item.get('published_at') or 0), reverse=True)
+                from company_news_selection import candidate_order
+                collected_candidates = sorted(combined.values(), key=candidate_order)
             now = self.clock()
             day = datetime.fromtimestamp(now, JST).date().isoformat()
             with self._lock:
@@ -356,17 +529,24 @@ class CompanyNewsRuntime:
 
     def snapshot(self):
         with self._lock:
-            return public_snapshot(deepcopy(self._records), self.clock(), self._status, self._checked)
+            return {**public_snapshot(deepcopy(self._records), self.clock(), self._status, self._checked,
+                                   storage=self.storage), 'coverage': deepcopy(self._coverage),
+                    'collection_health': self._collection_health}
 
     def operational_snapshot(self):
         with self._lock:
-            pending = [source for source in self._pending if valid_source(source, self.clock())]
+            now = self.clock()
+            current = _current_catalogue(now)
+            pending = [source for source in self._pending if current is not None
+                        and current.is_member(source.get('symbol')) and valid_source(source, now,
+                        catalogue=source_catalogue(self.storage, source))]
             fingerprints = sorted(source_fingerprint(source) for source in pending)
             return {'status': self._status, 'checked_at': self._checked,
                     'source_diagnostics': deepcopy(self._source_diagnostics),
+                    'coverage': deepcopy(self._coverage), 'collection_health': self._collection_health,
                     'last_error_phase': self._last_error_phase, 'last_error_code': self._last_error_code,
                     'pending_count': len(pending),
                     'batch_id': canonical_hash(fingerprints) if fingerprints else None,
-                    'sources': ['NTT', 'KDDI', 'パナソニック'],
+                    'sources': list(CHANNEL_NAMES),
                     'writer_provider': 'codex_subscription', 'generation_owner': 'external',
-                    'source_interval_seconds': 900, 'max_companies_per_day': 3}
+                    'source_interval_seconds': 900, 'max_generation_attempts_per_day': 3}

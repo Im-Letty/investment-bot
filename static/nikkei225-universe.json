@@ -1,13 +1,13 @@
 {
   "schema_version": 1,
   "index": "nikkei225",
-  "as_of": "2026-09-24",
-  "retrieved_at": "2026-09-24T14:43:35+09:00",
+  "as_of": "2026-10-08",
+  "retrieved_at": "2026-10-08T18:49:37+09:00",
   "source": {
     "title": "日経平均株価・構成銘柄（公式の株価換算係数一覧から銘柄を取得）",
     "url": "https://indexes.nikkei.co.jp/nkave/archives/file/nikkei_225_price_adjustment_factor_jp.csv",
     "component_url": "https://indexes.nikkei.co.jp/nkave/index/component?idx=nk225",
-    "sha256": "23edef1ba5238dfe0ece105003913424f04422866677ce37466a92bfbb0e8a20"
+    "sha256": "a21034d57e7b7dbdbbff8bf1c261e35b2b371908158b07455a2b3fc6d8a25d1f"
   },
   "items": [
     {
@@ -356,14 +356,14 @@
       "name": "富士フイルムホールディングス"
     },
     {
-      "code": "4902",
-      "symbol": "4902.T",
-      "name": "コニカミノルタ"
-    },
-    {
       "code": "4911",
       "symbol": "4911.T",
       "name": "資生堂"
+    },
+    {
+      "code": "5016",
+      "symbol": "5016.T",
+      "name": "ＪＸ金属"
     },
     {
       "code": "5019",
@@ -429,11 +429,6 @@
       "code": "5411",
       "symbol": "5411.T",
       "name": "ＪＦＥホールディングス"
-    },
-    {
-      "code": "543A",
-      "symbol": "543A.T",
-      "name": "ＡＲＣＨＩＯＮ"
     },
     {
       "code": "5631",
@@ -581,6 +576,11 @@
       "name": "安川電機"
     },
     {
+      "code": "6525",
+      "symbol": "6525.T",
+      "name": "ＫＯＫＵＳＡＩＥＬＥＣＴＲＩＣ"
+    },
+    {
       "code": "6526",
       "symbol": "6526.T",
       "name": "ソシオネクスト"
@@ -694,11 +694,6 @@
       "code": "6988",
       "symbol": "6988.T",
       "name": "日東電工"
-    },
-    {
-      "code": "7004",
-      "symbol": "7004.T",
-      "name": "カナデビア"
     },
     {
       "code": "7011",
@@ -1111,6 +1106,11 @@
       "name": "東宝"
     },
     {
+      "code": "9697",
+      "symbol": "9697.T",
+      "name": "カプコン"
+    },
+    {
       "code": "9735",
       "symbol": "9735.T",
       "name": "セコム"
@@ -1136,61 +1136,5 @@
       "name": "ソフトバンクグループ"
     }
   ],
-  "scheduled_changes": [
-    {
-      "announced_on": "2026-09-08",
-      "effective_on": "2026-09-29",
-      "ends_on": "2026-09-30",
-      "kind": "temporary_spinoff",
-      "add": [
-        {
-          "code": "646A",
-          "symbol": "646A.T",
-          "name": "クラサスケミカル"
-        }
-      ],
-      "remove": [],
-      "source_url": "https://indexes.nikkei.co.jp/nkave/archives/news/20260908J_2.pdf"
-    },
-    {
-      "announced_on": "2026-09-04",
-      "effective_on": "2026-10-01",
-      "kind": "regular_replacement",
-      "add": [
-        {
-          "code": "5016",
-          "symbol": "5016.T",
-          "name": "ＪＸ金属"
-        },
-        {
-          "code": "6525",
-          "symbol": "6525.T",
-          "name": "ＫＯＫＵＳＡＩ ＥＬＥＣＴＲＩＣ"
-        },
-        {
-          "code": "9697",
-          "symbol": "9697.T",
-          "name": "カプコン"
-        }
-      ],
-      "remove": [
-        {
-          "code": "4902",
-          "symbol": "4902.T",
-          "name": "コニカミノルタ"
-        },
-        {
-          "code": "543A",
-          "symbol": "543A.T",
-          "name": "ＡＲＣＨＩＯＮ"
-        },
-        {
-          "code": "7004",
-          "symbol": "7004.T",
-          "name": "カナデビア"
-        }
-      ],
-      "source_url": "https://indexes.nikkei.co.jp/nkave/archives/news/20260904J_1.pdf"
-    }
-  ]
+  "scheduled_changes": []
 }

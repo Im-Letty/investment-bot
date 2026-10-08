@@ -82,14 +82,14 @@ test('company details show explanations without quotes or price loading states',
  const missing=stock.companyMarkup(editorial,null,'ready',now);
  assert.equal(missing,html);assert.doesNotMatch(missing,/株価を確認|sf-price/);
 });
-test('company selection uses at most three distinct valid companies without filling empty slots',()=>{
+test('company selection retains distinct valid companies beyond three without filling empty slots',()=>{
  const base=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json'))),first=base.companies[0];
  const stories=Array.from({length:5},(_,i)=>({...first,symbol:(1000+i)+'.T',source_url:'https://example.com/announcement/'+i}));
  const invalid={...first,symbol:'INVALID.T',published_date:'2026-10-01'};
  const duplicateCompany={...stories[0],symbol:'1000.t',source_url:'https://example.com/second-story'};
  const duplicateSource={...stories[1],symbol:'DUP.T',source_url:stories[1].source_url+'/#details'};
  const selected=stock.validStories({...base,companies:[invalid,stories[0],duplicateCompany,stories[1],duplicateSource,...stories.slice(2)]},now);
- assert.deepEqual(selected.map(x=>x.symbol),['1000.T','1001.T','1002.T']);
+ assert.deepEqual(selected.map(x=>x.symbol),['1000.T','1001.T','1002.T','1003.T','1004.T']);
  for(const count of [0,1,2])assert.equal(stock.validStories({...base,companies:stories.slice(0,count)},now).length,count);
 });
 test('production tabs preserve existing dividend, calendar, search and favorites wiring',()=>{
@@ -569,6 +569,33 @@ function companyHarness(){
  h.setView();return h;
 }
 function fireCompanyTimer(h){const pair=[...h.timers].find(([,t])=>t.ms===60000&&t.fn.name==='loadStories');assert.ok(pair,'expected company refresh');h.timers.delete(pair[0]);pair[1].fn();}
+
+test('company stories initially show five then reveal more without additional requests or losing open details',async()=>{
+ const h=companyHarness(),initial=companyPayload(),base=initial.companies[0];
+ initial.companies=Array.from({length:7},(_,i)=>({...base,symbol:(1000+i)+'.T',name:'架空テスト会社'+i,article_id:'article-'+i,source_url:'https://example.test/release/'+i}));
+ await h.respond(h.companyRequests()[0],initial);
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,5);
+ h.story().open=true;h.story().querySelector('summary').focus();
+ h.click(h.companyBox().querySelector('[data-company-more]'));
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,7);
+ assert.equal(h.companyBox().querySelector('[data-company-more]'),null);
+ assert.ok(h.story().open);
+ assert.equal(h.companyRequests().length,1);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),initial);
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,7);
+ assert.ok(h.story().open);
+});
+
+test('company background updates preserve keyboard focus on the more button',async()=>{
+ const h=companyHarness(),initial=companyPayload(),base=initial.companies[0];
+ initial.companies=Array.from({length:7},(_,i)=>({...base,symbol:(1000+i)+'.T',article_id:'article-'+i,source_url:'https://example.test/release/'+i}));
+ await h.respond(h.companyRequests()[0],initial);
+ h.companyBox().querySelector('[data-company-more]').focus();
+ const revised={...initial,companies:initial.companies.map((story,i)=>i===0?{...story,title:'確認済みの記事の新しい見出し'}:story)};
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),revised);
+ assert.equal(h.w.document.activeElement,h.companyBox().querySelector('[data-company-more]'));
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,5);
+});
 
 test('company API refreshes every visible minute without changing ranking data or adding storage',async()=>{
  const h=companyHarness(),initial=companyPayload(),rankingBefore=h.elements.get('homeMoversList').innerHTML;

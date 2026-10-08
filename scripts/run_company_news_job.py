@@ -11,7 +11,7 @@ import time
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from daily_news_runtime import SupabaseNewsStorage
 from company_news_runtime import (PREFIX, article_id, candidate_records, pending_candidates,
-                                 source_fingerprint, valid_record)
+                                 source_fingerprint, valid_record, source_catalogue)
 from company_news_producer import safe_company_diagnostic, safe_company_error
 from news_cache import JST
 
@@ -102,7 +102,8 @@ def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_new
             company = generator(source, now=clock(), clock=clock)
             company['valid_until'] = (date.fromisoformat(source['published_date']) + timedelta(days=7)).isoformat()
             record = {'schema': 'company-reviewed-v1', 'source': source, 'company': company}
-            if datetime.fromtimestamp(clock(), JST).date().isoformat() != day or not valid_record(record, clock()):
+            if datetime.fromtimestamp(clock(), JST).date().isoformat() != day or not valid_record(record, clock(),
+                    catalogue=source_catalogue(storage, source)):
                 raise ValueError('company_record_invalid')
             stored = storage.create(f'{PREFIX}/days/{day}/published-{slot}.json', record)
             if not stored:
@@ -172,6 +173,8 @@ def main(argv=None):
     diagnostics = []
     try:
         with process_deadline(seconds=29 * 60):
+            from company_news_catalogue import current_catalogue
+            current_catalogue(now=datetime.now(JST))
             storage = SupabaseNewsStorage(os.environ.get('SUPABASE_URL'), os.environ.get('SUPABASE_KEY'))
             excluded, other = published_economy_context(storage, time.time())
             result = run_job(storage, generate_company_news, exclusion_urls=excluded, other_news=other,

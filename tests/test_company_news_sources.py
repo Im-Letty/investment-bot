@@ -229,6 +229,9 @@ class CompanySourceTests(unittest.TestCase):
         def download(url, deadline):
             if failure == url:
                 raise ValueError('source_unavailable')
+            if url == sources.FEEDS['PR TIMES']:
+                return (b'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
+                        b'xmlns="http://purl.org/rss/1.0/"><channel/></rdf:RDF>'), url
             for source in URLS:
                 if url == sources.FEEDS[source]:
                     return feed(source), url
@@ -244,16 +247,18 @@ class CompanySourceTests(unittest.TestCase):
     def test_collector_verifies_three_bodies_and_keeps_actual_verification_clock(self):
         result, diagnostics, fetch = self.collect()
         self.assertEqual(len(result), 3)
-        self.assertEqual(fetch.call_count, 6)
+        self.assertEqual(fetch.call_count, 7)
         self.assertEqual({item['symbol'] for item in result}, {'9432.T', '9433.T', '6752.T'})
         self.assertTrue(all(item['body_verified_at'] == NOW.timestamp() for item in result))
-        self.assertTrue(all(row['status'] == 'collected' for row in diagnostics.values()))
+        self.assertTrue(all(diagnostics[name]['status'] == 'collected' for name in URLS))
+        self.assertEqual(diagnostics['PR TIMES']['status'], 'no_matching_candidates')
 
     def test_known_urls_skip_bodies_without_claiming_unseen_site_has_no_news(self):
         result, diagnostics, fetch = self.collect(exclude_urls=set(URLS.values()))
         self.assertEqual(result, [])
-        self.assertEqual(fetch.call_count, 3)
-        self.assertTrue(all(row['feed_status'] == 'ok' and row['candidates'] == 1 and row['selected'] == 0 for row in diagnostics.values()))
+        self.assertEqual(fetch.call_count, 4)
+        self.assertTrue(all(diagnostics[name]['feed_status'] == 'ok' and diagnostics[name]['candidates'] == 1
+                            and diagnostics[name]['selected'] == 0 for name in URLS))
 
     def test_failed_feed_and_failed_article_are_distinct(self):
         result, diagnostics, _ = self.collect(failure=sources.FEEDS['NTT'])
@@ -266,6 +271,9 @@ class CompanySourceTests(unittest.TestCase):
 
     def test_successfully_checked_empty_is_distinct_from_failure(self):
         def download(url, deadline):
+            if url == sources.FEEDS['PR TIMES']:
+                return (b'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
+                        b'xmlns="http://purl.org/rss/1.0/"><channel/></rdf:RDF>'), url
             return b'<rss><channel/></rss>', url
         with patch.object(sources, '_download', side_effect=download):
             diagnostics = {}
@@ -275,7 +283,7 @@ class CompanySourceTests(unittest.TestCase):
     def test_invalid_verification_clock_does_not_publish_verified_body(self):
         result, diagnostics, _ = self.collect(invalid_clock=True)
         self.assertEqual(result, [])
-        self.assertTrue(all('invalid_verification_clock' in row['errors'] for row in diagnostics.values()))
+        self.assertTrue(all('invalid_verification_clock' in diagnostics[name]['errors'] for name in URLS))
 
     def test_multiple_candidate_articles_never_fetch_more_than_one_per_company(self):
         original = sources._feed_items
@@ -285,8 +293,8 @@ class CompanySourceTests(unittest.TestCase):
         with patch.object(sources, '_feed_items', side_effect=duplicate_candidates):
             result, diagnostics, fetch = self.collect()
         self.assertEqual(len(result), 3)
-        self.assertEqual(fetch.call_count, 6)
-        self.assertTrue(all(row['selected'] == 1 for row in diagnostics.values()))
+        self.assertEqual(fetch.call_count, 7)
+        self.assertTrue(all(diagnostics[name]['selected'] == 1 for name in URLS))
 
 
 if __name__ == '__main__':

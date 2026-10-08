@@ -85,6 +85,7 @@ class CompanyRuntimeTests(unittest.TestCase):
         from company_news_runtime import SOURCES
         result = {name: {'feed_status': 'ok', 'status': 'no_matching_candidates', 'errors': []}
                   for name, _, _ in SOURCES.values()}
+        result['PR TIMES'] = {'feed_status': 'ok', 'status': 'no_matching_candidates', 'errors': []}
         if error:
             result['NTT'].update(status='articles_unavailable', errors=['body_or_date_unverified'])
         return result
@@ -101,7 +102,7 @@ class CompanyRuntimeTests(unittest.TestCase):
                 'articles': [], 'diagnostics': diagnostics}, clock=lambda: NOW, cache_path=temp + '/cache.json')
             runtime.run_once(); result = runtime.operational_snapshot()
         safe = result['source_diagnostics']
-        self.assertEqual(set(safe), {'NTT', 'KDDI', 'パナソニック ホールディングス'})
+        self.assertEqual(set(safe), {'NTT', 'KDDI', 'パナソニック ホールディングス', 'PR TIMES'})
         self.assertTrue(all(set(row) == {'feed_status', 'status', 'errors'} for row in safe.values()))
         self.assertEqual(safe['NTT']['errors'], ['body_or_date_unverified', 'source_read_failed'])
         self.assertEqual(safe['KDDI']['feed_status'], 'not_completed')
@@ -180,7 +181,7 @@ class CompanyRuntimeTests(unittest.TestCase):
                 if failure == 'publication':
                     self.assertEqual(result['source_diagnostics'], self.diagnostics())
 
-    def test_company_collector_wrapper_passes_diagnostics_without_changing_health_rule(self):
+    def test_company_collector_wrapper_distinguishes_partial_feed_coverage_without_blocking_verified_news(self):
         import company_news_sources
         tree = ast.parse(Path(__file__).resolve().parents[1].joinpath('line_bot.py').read_text())
         function = next(node for node in tree.body if isinstance(node, ast.FunctionDef)
@@ -195,7 +196,10 @@ class CompanyRuntimeTests(unittest.TestCase):
             with patch.object(company_news_sources, 'collect_company_articles', side_effect=collect):
                 result = namespace['_collect_company_sources'](now=NOW)
             self.assertEqual(result['diagnostics'], expected)
-            self.assertEqual(result['status'], 'error' if failure else 'source_empty')
+            self.assertEqual(result['status'], 'ready' if failure else 'source_empty')
+            self.assertEqual(result['collection_health'], 'partial' if failure else 'complete')
+            self.assertEqual(result['coverage']['candidate_company_count'], 225)
+            self.assertFalse(result['coverage']['all_company_announcements_covered'])
 
     def test_source_verification_binds_body_date_and_fixed_official_identity(self):
         self.assertTrue(valid_source(source(), NOW))
