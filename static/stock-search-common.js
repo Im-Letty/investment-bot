@@ -26,9 +26,17 @@
     }
     sync();new MutationObserver(sync).observe(wrap,{attributes:true,attributeFilter:['data-stock-main']});document.addEventListener('langChanged',sync);
   }
+  function mountHomeButton(wrap,heading){
+    var button=document.createElement('button');button.type='button';button.className='kn-stock-home';
+    button.textContent=heading.textContent;button.dataset.knHomeText=heading.dataset.knHomeText||'stocks';
+    heading.removeAttribute('data-kn-home-text');heading.replaceChildren(button);
+    button.setAttribute('aria-controls','homeMoversCard knWatchSec');
+    button.onclick=function(){if(window.__knSetSub)window.__knSetSub(wrap.dataset.stockView==='watch'?'watch':'movers');};
+  }
   window.KNStockSearch={mount:function(wrap){
     if(wrap.querySelector('.kn-stock-search')){mountShortcuts(wrap);return;}
     var heading=wrap.querySelector('.kn-a-section-title');if(!heading)return;
+    mountHomeButton(wrap,heading);
     var icon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.6 4.6"/></svg>';
     var head=document.createElement('div');head.className='kn-stock-heading';heading.before(head);head.appendChild(heading);
     var opener=document.createElement('button');opener.type='button';opener.className='kn-stock-search-open';opener.innerHTML=icon+'<span>検索</span>';
