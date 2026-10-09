@@ -388,6 +388,16 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   cursor:pointer;
   touch-action:manipulation;
 }
+/* Equal headline cards in two columns; opened articles grow by row. */
+@container company-news (min-width:621px) {
+  #knCompanyNewsSection .sf-companies {
+    align-items:stretch;
+    grid-auto-rows:1fr;
+  }
+  #knCompanyNewsSection .sf-companies:has(.sf-explanation[open]) {
+    grid-auto-rows:auto;
+  }
+}
 @container company-news (max-width:620px) {
   #knCompanyNewsSection .sf-companies {grid-template-columns:minmax(0,1fr)}
   #knCompanyNewsSection .sf-company,
