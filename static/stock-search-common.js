@@ -2,8 +2,19 @@
 (function(){
   'use strict';
   var labels={ja:{search:'銘柄を検索',favorites:'お気に入り',div_cal:'カレンダー',div_top:'配当金',div_short:'配当',actions:'銘柄の操作'},en:{search:'Search stocks',favorites:'Favorites',div_cal:'Calendar',div_top:'Dividends',div_short:'Div.',actions:'Stock actions'},ko:{search:'종목 검색',favorites:'즐겨찾기',div_cal:'캘린더',div_top:'배당',div_short:'배당',actions:'종목 메뉴'},zh:{search:'搜索股票',favorites:'收藏',div_cal:'日历',div_top:'股息',div_short:'股息',actions:'股票操作'}};
+  function mountLayout(wrap){
+    if(wrap.querySelector('.kn-stock-layout'))return;
+    var stock=wrap.querySelector('[data-kn-tab="stock"]'),movers=wrap.querySelector('#homeMoversCard');
+    if(!stock||!movers)return;
+    var navigation=stock.parentElement,content=movers.parentElement;
+    if(navigation.parentElement!==wrap||content.parentElement!==wrap)return;
+    var layout=document.createElement('div');layout.className='kn-stock-layout';
+    navigation.classList.add('kn-a-stock-tabs');content.classList.add('kn-stock-body');
+    navigation.before(layout);layout.appendChild(navigation);layout.appendChild(content);
+  }
   function mountShortcuts(wrap){
     var head=wrap.querySelector('.kn-stock-heading'),opener=wrap.querySelector('.kn-stock-search-open');if(!head||!opener)return;
+    mountLayout(wrap);
     var actions=head.querySelector('.kn-stock-actions');
     if(!actions){actions=document.createElement('div');actions.className='kn-stock-actions';actions.setAttribute('role','group');head.insertBefore(actions,head.querySelector('.kn-stock-quick-search'));}
     var icons={div_cal:'<rect x="4" y="5" width="16" height="16" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M8 14h2M14 14h2M8 17h2"/>',div_top:'<circle cx="12" cy="12" r="9"/><path d="m8.5 7.5 3.5 5 3.5-5M12 12.5v5M8.5 12.5h7M8.5 15.5h7"/>'};
