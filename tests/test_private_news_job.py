@@ -233,6 +233,27 @@ class PrivateJobTests(unittest.TestCase):
                 self.assertFalse(result["success"])
                 self.build.assert_not_called()
 
+    def test_empty_source_failure_preserves_fixed_diagnostics_without_generation(self):
+        rows = {
+            "総務省統計局": {"feed_status": "failed", "status": "feed_failed", "candidates": 0,
+                "selected": 0, "completed": 0, "accepted": 0, "returned": 0,
+                "errors": ["unsupported_feed_structure"]},
+            "財務省": {"feed_status": "ok", "status": "articles_unavailable", "candidates": 2,
+                "selected": 2, "completed": 2, "accepted": 0, "returned": 0,
+                "errors": ["body_or_date_unverified"]},
+        }
+        self.storage = ReadStorage({**self.manifest, "articles": [], "source_status": rows})
+        result = self.run_job()
+        report = job.safe_report(result, at(), self.clock.now)
+        self.assertEqual((report["status"], report["success"]), ("source_unavailable", False))
+        self.assertEqual(result["source_status"], rows)
+        self.assertEqual(report["source_status"], rows)
+        self.assertEqual(report["source_article_count"], 0)
+        self.assertEqual(report["source_date_counts"], {})
+        self.build.assert_not_called()
+        self.runtime.run_once.assert_not_called()
+        self.assertEqual(self.storage.created, [])
+
     def test_nonterminal_runtime_statuses_and_rejections_are_never_success_or_retried(self):
         for status in ("collecting", "waiting", "freezing", "waiting_for_writer", "daily_limit",
                        "generation_failed", "invalid_edition", "disabled", "source_unavailable"):
@@ -400,11 +421,85 @@ class SafeResultTests(unittest.TestCase):
                         {"source_article_count": 8, "source_date_counts": {"2026-10-05": 7}}):
             self.assertNotIn("source_article_count", job.safe_report({**result, **changes}, at(), at(7, 40)))
 
+    def test_source_diagnostics_never_reflect_secret_url_raw_copy_keys_or_error_text(self):
+        secrets = ("sb_secret_fixture", "fixture-gemini", "fixture-openai", "private-original-body",
+                   "private-original-title", "private-credential-field", "arbitrary-error-message",
+                   "https://private.example/source?api_key=fixture-key")
+        rows = {
+            "総務省統計局": {"feed_status": secrets[-1], "status": secrets[3],
+                "candidates": 120, "selected": 20, "completed": 20, "accepted": 20, "returned": 8,
+                "errors": ["unsupported_feed_structure", "pdf_encrypted", *secrets,
+                           {"api_key": "fixture-key"}], "body": secrets[3], "title": secrets[4],
+                "url": secrets[-1], secrets[5]: secrets[0]},
+            "財務省": {"feed_status": "failed", "status": "articles_unavailable",
+                "errors": ["supporting_pdf_identity_mismatch", "body_or_date_unverified"],
+                "api_key": secrets[1]},
+            "日本銀行": {"feed_status": "ok", "status": "collected", "body": secrets[3]},
+            secrets[-1]: {"errors": [secrets[6]], secrets[5]: secrets[2]},
+        }
+        expected = {
+            "総務省統計局": {"feed_status": "not_completed", "status": "fetch_incomplete",
+                "candidates": 120, "selected": 20, "completed": 20, "accepted": 20, "returned": 8,
+                "errors": ["pdf_encrypted", "source_read_failed", "unsupported_feed_structure"]},
+            "財務省": {"feed_status": "failed", "status": "articles_unavailable",
+                "errors": ["body_or_date_unverified", "supporting_pdf_identity_mismatch"]},
+        }
+        manifest = {"articles": [], "source_status": rows, "body": secrets[3], "api_key": secrets[0]}
+        result = job._outcome("source_unavailable", "2026-10-06", manifest=manifest)
+        self.assertEqual(result["source_status"], expected)
+        # safe_report is also an independent boundary for a caller that did not
+        # obtain its result from _outcome, or replaced the sanitized field.
+        report = job.safe_report({**result, "source_status": rows}, at(), at(7, 40))
+        self.assertEqual(report["source_status"], expected)
+        self.assertEqual(set(report["source_status"]), set(OFFICIAL_NEWS_SOURCES))
+        for output in (result, report):
+            serialized = json.dumps(output, ensure_ascii=False)
+            for secret in secrets:
+                self.assertNotIn(secret, serialized)
+            for field in ("日本銀行", "api_key", "body", "title", "url"):
+                self.assertNotIn('"' + field + '"', serialized)
+        self.assertEqual(manifest["source_status"], rows)
+
+    def test_source_diagnostics_keep_only_bounded_exact_integer_counts(self):
+        limits = {"candidates": 120, "selected": 20, "completed": 20, "accepted": 20, "returned": 8}
+        for field, limit in limits.items():
+            for count in (0, limit, True, False, -1, limit + 1, 10 ** 30,
+                          1.0, float("nan"), "secret-count", {"key": "secret-value"}):
+                with self.subTest(field=field, count=repr(count)):
+                    result = {"source_status": {"総務省統計局": {
+                        "feed_status": "ok", "status": "collected", field: count}}}
+                    row = job.safe_report(result, at(), at(7, 40))["source_status"]["総務省統計局"]
+                    if type(count) is int and 0 <= count <= limit:
+                        self.assertEqual(row[field], count)
+                    else:
+                        self.assertNotIn(field, row)
+
+    def test_missing_or_malformed_source_diagnostics_use_bounded_fixed_values(self):
+        for rows in (None, [], {"untrusted-source-name": {}},
+                     {"総務省統計局": {"feed_status": ["secret-feed"], "status": {"secret": "value"},
+                                      "errors": "arbitrary-error-message"}, "財務省": "private-copy"}):
+            with self.subTest(rows=type(rows).__name__):
+                diagnostics = job.safe_report({"source_status": rows}, at(), at(7, 40))["source_status"]
+                self.assertEqual(set(diagnostics), set(OFFICIAL_NEWS_SOURCES))
+                for row in diagnostics.values():
+                    self.assertEqual(row["feed_status"], "not_completed")
+                    self.assertEqual(row["status"], "fetch_incomplete")
+                    self.assertIn(row["errors"], ([], ["source_read_failed"]))
+                self.assertNotIn("secret", json.dumps(diagnostics))
+                self.assertNotIn("private-copy", json.dumps(diagnostics))
+        report = job.safe_report({"source_status": {"財務省": {
+            "feed_status": "failed", "status": "feed_failed", "errors": ["pdf_parse_failed"] * 1000}}},
+            at(), at(7, 40))
+        self.assertEqual(report["source_status"]["財務省"]["errors"], ["pdf_parse_failed"])
+
     def test_cli_new_result_is_complete_private_and_contains_only_safe_metadata(self):
         with TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:
             target = Path(folder) / "result.json"
             result = {"status": "prepared", "success": True, "edition_date": "2026-10-06",
-                      "publish_at": at(8), "body": "private body", "api_key": "secret-value"}
+                      "publish_at": at(8), "body": "private body", "api_key": "secret-value",
+                      "source_status": {"総務省統計局": {"feed_status": "ok", "status": "collected",
+                          "returned": 1, "errors": ["private-error-text"], "body": "private body",
+                          "api_key": "secret-value", "url": "https://private.example/source"}}}
             out = io.StringIO()
             with redirect_stdout(out), patch.object(job.time, "time", side_effect=[at(), at(7, 40)]), \
                     patch.object(job, "process_deadline", return_value=nullcontext()), \
@@ -418,6 +513,10 @@ class SafeResultTests(unittest.TestCase):
             self.assertFalse(report["public_delivery_confirmed"])
             self.assertNotIn("secret-value", target.read_text())
             self.assertNotIn("private body", target.read_text())
+            self.assertNotIn("private-error-text", target.read_text())
+            self.assertNotIn("https://private.example/source", target.read_text())
+            self.assertEqual(report["source_status"]["総務省統計局"]["errors"], ["source_read_failed"])
+            self.assertEqual(set(report["source_status"]), set(OFFICIAL_NEWS_SOURCES))
 
     def test_cli_existing_and_symlink_targets_are_rejected_before_live_work(self):
         with TemporaryDirectory(dir=RESULT_TEMP_ROOT) as folder:

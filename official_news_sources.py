@@ -320,14 +320,40 @@ def _descends(node, ancestor):
     return False
 
 
-def _body_text(node, *, excluded_classes=frozenset()):
+def _visible_content(node):
+    """Reject explicit hidden/auxiliary containers and their ancestors."""
+    while node is not None:
+        if (node.tag in _BLOCKED or _EXCLUDED_CLASS.search(node.attrs.get("class", ""))
+                or "hidden" in node.attrs or node.attrs.get("aria-hidden", "").lower() == "true"
+                or re.search(r"(?:^|;)\s*(?:display\s*:\s*none|visibility\s*:\s*hidden)\s*(?:!important\s*)?(?:;|$)",
+                             node.attrs.get("style", ""), re.I)):
+            return False
+        node = node.parent
+    return True
+
+
+def _visible_subtree(node, *, skipped_tags=frozenset()):
+    """Require visible evidence throughout an explicitly verified template."""
+    pending = [node]
+    while pending:
+        current = pending.pop()
+        if current is not node and (current.tag in _BLOCKED or current.tag in skipped_tags):
+            continue
+        if not _visible_content(current):
+            return False
+        pending.extend(child for child in current.children if not isinstance(child, str))
+    return True
+
+
+def _body_text(node, *, excluded_classes=frozenset(), excluded_tags=frozenset()):
     parts, pending = [], [node]
     while pending:
         item = pending.pop()
         if isinstance(item, str):
             parts.append(item)
             continue
-        if (item.tag in _BLOCKED or _EXCLUDED_CLASS.search(item.attrs.get("class", ""))
+        if (item.tag in _BLOCKED or item.tag in excluded_tags
+                or _EXCLUDED_CLASS.search(item.attrs.get("class", ""))
                 or excluded_classes.intersection(item.attrs.get("class", "").split())):
             continue
         separator = "\n" if item.tag in _BLOCKS else " " if item.tag in ("td", "th") else ""
@@ -479,17 +505,21 @@ def _japanese_day(match):
         return None
 
 
-def _mof_archive_entry(payload, archive_url, item):
-    """Correlate one conference link with its containing dated archive section."""
+def _mof_archive_entry(payload, archive_url, item, *, category="conference"):
+    """Correlate one approved release link with its dated archive section."""
+    label = {"conference": "会見等", "international": "国際政策"}.get(category)
+    if label is None:
+        return None
     document = _Document(_decode(payload))
     mains = [node for node in document.nodes if node.tag == "main" and node.attrs.get("id") == "main"]
-    if len(mains) != 1:
+    if len(mains) != 1 or not _visible_content(mains[0]):
         return None
     main = mains[0]
     headings = [node for node in document.nodes if node.tag == "h1" and _descends(node, main)]
     published_day = date.fromisoformat(item["published_date"])
     month_heading = f"令和{published_day.year - 2018}年({published_day.year}年)新着情報:{published_day.month}月"
-    if len(headings) != 1 or _compact(_body_text(headings[0])) != month_heading:
+    if (len(headings) != 1 or not _visible_subtree(headings[0])
+            or _compact(_body_text(headings[0])) != month_heading):
         return None
     links = [node for node in document.nodes if node.tag == "a" and _descends(node, main)
              and _safe_url(node.attrs.get("href"), base=archive_url) == item["url"]]
@@ -497,11 +527,8 @@ def _mof_archive_entry(payload, archive_url, item):
     if len(links) != 1:
         return None
     link = links[0]
-    ancestor = link
-    while ancestor is not main:
-        if ancestor.tag in _BLOCKED or _EXCLUDED_CLASS.search(ancestor.attrs.get("class", "")):
-            return None
-        ancestor = ancestor.parent
+    if not _visible_content(link):
+        return None
     if ("information-item-inner" not in link.attrs.get("class", "").split()
             or link.parent.tag != "li" or "information-item" not in link.parent.attrs.get("class", "").split()
             or link.parent.parent.tag != "ul"
@@ -510,15 +537,16 @@ def _mof_archive_entry(payload, archive_url, item):
     titles = [node for node in document.nodes if _descends(node, link)
               and "information-item-content" in node.attrs.get("class", "").split()]
     labels = [node for node in document.nodes if _descends(node, link)
-              and {"information-item-label", "-conference"}.issubset(node.attrs.get("class", "").split())]
+              and {"information-item-label", "-" + category}.issubset(node.attrs.get("class", "").split())]
     if (len(titles) != 1 or _compact(_body_text(titles[0])) != _compact(item["title"])
-            or len(labels) != 1 or _compact(_body_text(labels[0])) != "会見等"):
+            or len(labels) != 1 or _compact(_body_text(labels[0])) != label
+            or not _visible_subtree(titles[0]) or not _visible_subtree(labels[0])):
         return None
     section = link.parent
     while section is not main and section.tag != "section":
         section = section.parent
     datelines = [node for node in document.nodes if node.tag == "h3" and node.parent is section]
-    if section is main or len(datelines) != 1:
+    if section is main or len(datelines) != 1 or not _visible_subtree(datelines[0]):
         return None
     heading = _compact(_body_text(datelines[0]))
     match = re.match(_JAPANESE_DATE, heading)
@@ -531,6 +559,83 @@ def _mof_archive_entry(payload, archive_url, item):
         return None
     return {"url": archive_url, "published_date": day.isoformat(), "title": item["title"],
             "html_sha256": sha256(payload).hexdigest()}
+
+
+def _mof_statistical_publication(document, heading, body_node, body, item, original, final,
+                                 now, since, payload_size, deadline):
+    """Verify the balance-of-payments release dateline despite stale CMS date.
+
+    This specific template has an explicit publisher dateline before the result
+    body. RSS, that dateline and the dated official archive must agree. Other
+    publication metadata remains authoritative; no general RSS fallback exists.
+    """
+    path = re.fullmatch(r"/policy/international_policy/reference/balance_of_payments/"
+                        r"preliminary/pg([12]\d{3})(0[1-9]|1[0-2])\.htm", urlsplit(original).path)
+    if (not path or original != final or _compact(heading) != _compact(item["title"])
+            or not _in_window(item, now, since)):
+        return None
+    period = re.fullmatch(r"(?:(\d{4})年|令和(元|\d+)年)(\d{1,2})月中国際収支状況\(速報\)の概要",
+                          _compact(heading))
+    if period is None:
+        return None
+    year, era, month = period.groups()
+    year = int(year) if year else 2018 + (1 if era == "元" else int(era))
+    if (year, int(month)) != (int(path[1]), int(path[2])):
+        return None
+    # Only whitespace may separate the release's dateline/publisher/title/body.
+    # A tagless quote before the dateline is not the approved release template.
+    for node in body_node.parent.children:
+        if node is body_node:
+            break
+        if isinstance(node, str) and node.strip():
+            return None
+    siblings = [node for node in body_node.parent.children if not isinstance(node, str)]
+    if len(siblings) < 4 or siblings[3] is not body_node:
+        return None
+    dateline, publisher, title = siblings[:3]
+    if (any(node.tag != "p" or "text-right" not in node.attrs.get("class", "").split()
+            for node in (dateline, publisher)) or _compact(_body_text(publisher)) != "財務省"
+            or title.tag != "h2" or _compact(_body_text(title)) != _compact(heading)):
+        return None
+    match = re.fullmatch(_JAPANESE_DATE, _compact(_body_text(dateline)))
+    day = _japanese_day(match) if match else None
+    if (day is None or day.isoformat() != item["published_date"]
+            or (year, int(month)) >= (day.year, day.month)
+            or not all(_visible_subtree(node) for node in (dateline, publisher, title))
+            or not _visible_subtree(body_node, skipped_tags={"caption"})):
+        return None
+    metadata = [_publication(node.attrs.get("content", "")) for node in document.nodes
+                if node.tag == "meta" and (node.attrs.get("property") or node.attrs.get("name") or "").lower() == "date"]
+    page_date = _agree(metadata) if metadata else None
+    if metadata and (page_date is None or page_date["publication_precision"] != "day"
+                     or date.fromisoformat(page_date["published_date"]) > day):
+        return None
+    explicit = _html_dates(document, body, exclude_date_meta=True)
+    if explicit and _agree([item, *explicit]) is None:
+        return None
+    declared = [node.attrs.get("href") for node in document.nodes
+                if node.tag == "link" and "canonical" in node.attrs.get("rel", "").lower().split()]
+    declared += [node.attrs.get("content") for node in document.nodes
+                 if node.tag == "meta" and node.attrs.get("property", "").lower() == "og:url"]
+    if any(_safe_url(value, base=original) != original for value in declared):
+        return None
+    archive_url = f"https://www.mof.go.jp/public_relations/whats_new/{day:%Y%m}.html"
+    deadline = time.monotonic() + COLLECTION_SECONDS if deadline is None else deadline
+    payload, archive_final = _download(archive_url, deadline, max_bytes=MAX_BYTES - payload_size,
+                                       publication_archive=True)
+    if archive_final != archive_url:
+        raise ValueError("unapproved_redirect")
+    if not isinstance(payload, bytes) or payload_size + len(payload) > MAX_BYTES:
+        raise ValueError("source_size_limit")
+    evidence = _mof_archive_entry(payload, archive_url, item, category="international")
+    if evidence is None:
+        return None
+    result = {"publication": {key: item[key] for key in ("published_at", "published_date", "publication_precision")},
+              "publication_evidence": evidence,
+              "source_scope": "official_statistical_release_with_verified_publication_archive"}
+    if page_date is not None:
+        result["page_metadata_date"] = page_date["published_date"]
+    return result
 
 
 def _mof_conference_publication(document, heading, body, item, original, final, now, since,
@@ -684,6 +789,9 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
     main = next((node for node in document.nodes if node.tag == "main" and node.attrs.get("id") == main_id), None)
     if main is None:
         return None
+    if host == "www.stat.go.jp" and urlsplit(final).path == "/data/kakei/sokuhou/tsuki/index.html":
+        from official_stat_monthly import extract_stat_monthly
+        return extract_stat_monthly(document, item, original, final, now, since, observed_at)
     headings = [node for node in document.nodes if node.tag == "h1" and _descends(node, main)]
     if not headings or not _body_text(headings[0]):
         return None
@@ -706,13 +814,19 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
         if body_node is None:
             return None
     boj_nonbody_classes = {"link-list01", "info-item01"} if host == "www.boj.or.jp" else frozenset()
-    body = _body_text(body_node, excluded_classes=boj_nonbody_classes)
+    # This template uses hidden duplicate captions as table accessibility
+    # labels. They are not result text; keep the visible table cells intact.
+    nonbody_tags = ({"caption"} if host == "www.mof.go.jp" and re.fullmatch(
+        r"/policy/international_policy/reference/balance_of_payments/preliminary/pg[12]\d{3}(?:0[1-9]|1[0-2])\.htm",
+        urlsplit(final).path) else frozenset())
+    body = _body_text(body_node, excluded_classes=boj_nonbody_classes, excluded_tags=nonbody_tags)
     if not MIN_BODY_CHARS <= len(body) <= MAX_BODY_CHARS:
         return None
     content = [node for node in document.nodes if node.tag in ("p", "table", "dl", "ul", "ol")
                and _descends(node, body_node)]
     content = [node for node in content if not any(other is not node and _descends(node, other) for other in content)]
-    meaningful = "\n".join(_body_text(node, excluded_classes=boj_nonbody_classes) for node in content)
+    meaningful = "\n".join(_body_text(node, excluded_classes=boj_nonbody_classes,
+                                    excluded_tags=nonbody_tags) for node in content)
     if len(meaningful) < MIN_BODY_CHARS:
         return None
     if host == "www.boj.or.jp":
@@ -730,9 +844,13 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
         html_publication = _html_date(document, body)
     publication = _agree([item, html_publication])
     conference = None
-    if publication is None and host == "www.mof.go.jp" and len(headings) == 1:
+    if (publication is None and host == "www.mof.go.jp" and len(headings) == 1
+            and _visible_subtree(headings[0])):
         conference = _mof_conference_publication(document, _body_text(headings[0]), body, item,
             original, final, now, since, len(payload), deadline)
+        if conference is None:
+            conference = _mof_statistical_publication(document, _body_text(headings[0]), body_node, body,
+                item, original, final, now, since, len(payload), deadline)
         publication = conference["publication"] if conference else None
     record = _record(item, original, final, body, publication, observed_at, now, since)
     if record is not None and conference:

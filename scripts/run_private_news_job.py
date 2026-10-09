@@ -49,6 +49,21 @@ _JOB_STATUSES = _RUNTIME_STATUSES | frozenset(("outside_morning_window", "job_de
     "manifest_unavailable", "invalid_source_manifest", "generation_window_exhausted",
     "subscription_login_unavailable", "job_unavailable", "job_deadline_unavailable",
     "result_file_unavailable"))
+_SOURCE_FEED_STATUSES = frozenset(("ok", "failed", "not_completed"))
+_SOURCE_STATUSES = frozenset(("fetch_incomplete", "feed_failed", "no_matching_candidates",
+    "collected", "collected_partial", "articles_unavailable"))
+_SOURCE_ERROR_CODES = frozenset(("unapproved_source", "source_time_limit", "unapproved_redirect",
+    "source_unavailable", "source_content_type", "source_size_limit", "source_size_or_time_limit",
+    "source_redirect_limit", "invalid_source_bytes", "unsupported_source_encoding",
+    "unsupported_feed_declaration", "unsupported_feed_structure", "invalid_verification_clock",
+    "supporting_pdf_link_missing", "supporting_pdf_identity_mismatch", "pdf_invalid",
+    "pdf_parser_unavailable", "pdf_encrypted", "pdf_extraction_forbidden", "pdf_page_limit",
+    "pdf_unreadable_page", "pdf_text_limit", "pdf_parse_failed", "pdf_time_limit",
+    "source_read_failed", "body_or_date_unverified"))
+# Match the collector's current bounds without allowing upstream configuration
+# to expand the private report's schema or reflect untrusted source values.
+_SOURCE_COUNT_LIMITS = {"candidates": 120, "selected": 20, "completed": 20,
+    "accepted": 20, "returned": MAX_ARTICLES}
 
 
 class ResultFileUnavailable(RuntimeError):
@@ -125,6 +140,30 @@ def _safe_day(value):
         return None
 
 
+def _safe_source_diagnostics(value):
+    """Only enabled source names, fixed enums and bounded integer counts."""
+    value = value if isinstance(value, dict) else {}
+    result = {}
+    for source in OFFICIAL_NEWS_SOURCES:
+        row = value.get(source)
+        row = row if isinstance(row, dict) else {}
+        feed, status = row.get("feed_status"), row.get("status")
+        errors = row.get("errors", [])
+        errors = errors if isinstance(errors, (list, tuple)) else ["source_read_failed"]
+        safe = {
+            "feed_status": feed if isinstance(feed, str) and feed in _SOURCE_FEED_STATUSES else "not_completed",
+            "status": status if isinstance(status, str) and status in _SOURCE_STATUSES else "fetch_incomplete",
+            "errors": sorted({error if isinstance(error, str) and error in _SOURCE_ERROR_CODES
+                              else "source_read_failed" for error in errors[:len(_SOURCE_ERROR_CODES)]}),
+        }
+        for field, limit in _SOURCE_COUNT_LIMITS.items():
+            count = row.get(field)
+            if type(count) is int and 0 <= count <= limit:
+                safe[field] = count
+        result[source] = safe
+    return result
+
+
 def safe_report(result, started, finished):
     """Fixed metadata only. Prepared copy never attests public availability."""
     result = result if isinstance(result, dict) else {}
@@ -147,6 +186,8 @@ def safe_report(result, started, finished):
         report["publish_at"] = datetime.fromtimestamp(publish, JST).isoformat(timespec="seconds")
     if result.get("last_error") is not None:
         report["last_error"] = _safe_generation_error(result["last_error"])
+    if "source_status" in result:
+        report["source_status"] = _safe_source_diagnostics(result["source_status"])
     count, counts = result.get("source_article_count"), result.get("source_date_counts")
     if (type(count) is int and 0 <= count <= MAX_ARTICLES and isinstance(counts, dict) and len(counts) <= MAX_ARTICLES
             and all(_safe_day(key) is not None and type(value) is int and 1 <= value <= MAX_ARTICLES
@@ -248,6 +289,8 @@ def _outcome(status, day=None, *, success=False, state=None, manifest=None):
             value["publish_at"] = publish
         if state.get("last_error") is not None:
             value["last_error"] = _safe_generation_error(state["last_error"])
+    if isinstance(manifest, dict) and "source_status" in manifest:
+        value["source_status"] = _safe_source_diagnostics(manifest["source_status"])
     articles = manifest.get("articles") if isinstance(manifest, dict) else None
     if isinstance(articles, list) and len(articles) <= MAX_ARTICLES:
         counts = {}
