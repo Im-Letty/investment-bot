@@ -46,7 +46,7 @@ body.kn-home-a #knTabWrap .kn-stock-search-dialog{position:fixed;inset:clamp(16p
 body.kn-home-a #knTabWrap .kn-stock-search-open{font:400 calc(15px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif)!important}
 #knTabWrap .kn-stock-search-dialog-head h3{font:500 calc(21px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif,serif)!important}
 #knTabWrap .kn-stock-search-dialog .kn-stock-search-close{font:400 calc(15px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif)!important}
-#knTabWrap .kn-stock-search-form input{font:400 calc(16px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif)!important}
+#knTabWrap .kn-stock-search-form input{font:400 max(16px,calc(16px * var(--kn-a-scale,1)))/1.5 var(--kn-a-sans,sans-serif)!important}
 #knTabWrap .kn-stock-search-form button{font:500 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif)!important}
 #knTabWrap .kn-stock-search-head{font:400 calc(14px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)!important}
 #knTabWrap .kn-stock-search-head [role="status"]{font-size:calc(14px * var(--kn-a-scale,1))!important}
