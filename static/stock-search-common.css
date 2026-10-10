@@ -15,15 +15,13 @@ body.kn-home-a #knTabWrap .kn-stock-shortcut[aria-pressed="true"]{background:var
 body.kn-home-a #knTabWrap .kn-stock-shortcut[data-kn-tab="div_top"]{flex-direction:column;gap:1px}
 body.kn-home-a #knTabWrap .kn-stock-shortcut-label{font:400 calc(12px * var(--kn-a-scale,1))/1.3 var(--kn-a-sans,sans-serif)!important;letter-spacing:0;white-space:nowrap}
 #knTabWrap .kn-stock-shortcut:focus-visible{outline:2px solid var(--kn-a-ink);outline-offset:3px}
-#knTabWrap .kn-stock-view-title{margin:0 0 18px;font:500 calc(18px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif,serif)!important;color:var(--kn-a-ink)}
-#knTabWrap .kn-stock-view-title[hidden]{display:none!important}
 #knTabWrap .kn-stock-search-open svg{width:19px;height:19px;fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round}
 #knTabWrap .kn-stock-search-open:focus-visible{outline:2px solid var(--kn-a-ink);outline-offset:3px}
 #knTabWrap .kn-stock-search-open:hover{background:var(--kn-a-chip)}
 body.kn-home-a #knTabWrap .kn-stock-search-dialog{width:min(620px,calc(100vw - 28px));max-width:none;max-height:calc(100dvh - 32px);margin:auto!important;padding:18px 20px 22px;border:1px solid var(--kn-a-line);border-radius:16px;background:var(--kn-a-paper);color:var(--kn-a-ink);font-family:var(--kn-a-sans,sans-serif);overflow:auto;overscroll-behavior:contain}
 #knTabWrap .kn-stock-search-dialog:not([open]){display:none!important}
 #knTabWrap .kn-stock-search-dialog::backdrop{background:rgba(35,43,33,.28)}
-#knTabWrap .kn-stock-search-dialog-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}
+#knTabWrap .kn-stock-search-dialog-head{display:flex;align-items:center;justify-content:flex-end;gap:12px;margin-bottom:15px}
 #knTabWrap .kn-stock-search-dialog-head h3{margin:0;font:500 calc(21px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif,serif)}
 #knTabWrap .kn-stock-search-dialog .kn-stock-search-close{min-height:44px;padding:6px 0 6px 12px;border:0;background:none;color:inherit;font:400 calc(15px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,sans-serif);cursor:pointer}
 #knTabWrap .kn-stock-search-form{display:flex;align-items:center;gap:10px;border:1px solid var(--kn-a-line,#bdcfc3);border-radius:9px;background:var(--kn-a-paper,#fffefb);padding-left:14px;overflow:hidden}
