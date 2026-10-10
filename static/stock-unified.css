@@ -1,4 +1,5 @@
 /* Selected F: a side menu on wide panels, with the same controls on every view. */
+body.kn-home-a #morning-section {scrollbar-gutter:stable}
 body.kn-home-a #morning-section #knTabWrap {
   --kn-stock-radius:7px;
   --kn-stock-space:20px;
@@ -6,6 +7,7 @@ body.kn-home-a #morning-section #knTabWrap {
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-surface {
   container:home-stock / inline-size;
+  min-height:var(--kn-view-min-height,0px);
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-layout {display:block;min-width:0}
 body.kn-home-a #morning-section #knTabWrap .kn-stock-body {

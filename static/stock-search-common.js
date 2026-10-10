@@ -59,15 +59,29 @@
     section.innerHTML='<div class="kn-stock-search-dialog-head"><h3 id="knStockSearchTitle" hidden>銘柄を検索</h3><button type="button" class="kn-stock-search-close" aria-label="検索を閉じる">閉じる</button></div><form class="kn-stock-search-form" role="search">'+icon+'<input type="search" aria-label="会社名・銘柄コードで検索" placeholder="会社名・銘柄コード" autocomplete="off" enterkeyhint="search"><button type="submit">検索</button></form><div class="kn-stock-search-panel" hidden><div class="kn-stock-search-head"><span role="status" aria-live="polite"></span></div><div class="kn-stock-search-results"></div></div>';
     head.insertAdjacentElement('afterend',section);
     var input=section.querySelector('input'),form=section.querySelector('form'),panel=section.querySelector('.kn-stock-search-panel'),status=section.querySelector('[role="status"]'),results=section.querySelector('.kn-stock-search-results');
-    var timer,controller,epoch=0,previousOverflow,isShowing=false;
+    var timer,controller,epoch=0,previousOverflow,previousPadding,previousHomeOverflow,backgroundScroll,isShowing=false;
+    var home=wrap.closest('#morning-section');
     function cancel(){clearTimeout(timer);epoch++;if(controller)controller.abort();}
     function clearResults(){cancel();panel.hidden=true;results.replaceChildren();}
-    function restore(){if(!isShowing)return;isShowing=false;clearResults();document.body.style.overflow=previousOverflow;opener.setAttribute('aria-expanded','false');opener.focus({preventScroll:true});}
+    function restore(){
+      if(!isShowing)return;
+      if(window.KNViewStability)window.KNViewStability.hold(opener,{snapshot:backgroundScroll});
+      isShowing=false;clearResults();document.body.style.overflow=previousOverflow;document.body.style.paddingRight=previousPadding;
+      if(home)home.style.overflowY=previousHomeOverflow;
+      opener.setAttribute('aria-expanded','false');opener.focus({preventScroll:true});
+      if(backgroundScroll)backgroundScroll.restore();backgroundScroll=null;
+    }
     function close(){if(section.open)section.close();restore();}
     opener.onclick=function(){
       if(section.open)return;
-      previousOverflow=document.body.style.overflow;section.showModal();isShowing=true;document.body.style.overflow='hidden';
+      if(window.KNViewStability){backgroundScroll=window.KNViewStability.capture(opener);window.KNViewStability.hold(opener);}
+      previousOverflow=document.body.style.overflow;previousPadding=document.body.style.paddingRight;
+      previousHomeOverflow=home&&home.style.overflowY;
+      var gutter=Math.max(0,window.innerWidth-document.documentElement.clientWidth);
+      if(gutter)document.body.style.paddingRight=(parseFloat(window.getComputedStyle(document.body).paddingRight)||0)+gutter+'px';
+      section.showModal();isShowing=true;document.body.style.overflow='hidden';if(home)home.style.overflowY='hidden';
       opener.setAttribute('aria-expanded','true');input.focus({preventScroll:true});
+      if(backgroundScroll)backgroundScroll.restore();
       if(input.value.trim())search();
     };
     section.querySelector('.kn-stock-search-close').onclick=close;

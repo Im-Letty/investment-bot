@@ -135,6 +135,8 @@
   }
   function openPicker() {
     if(!model)return;
+    var opener=document.getElementById('knMarketOpen');
+    if(window.KNViewStability){dialog.__knBackgroundScroll=window.KNViewStability.capture(opener);window.KNViewStability.hold(opener);}
     cancelSearch();composing=false;
     draft=model.selection();query='';searchItems=[];searchFailed=false;
     dialog.setAttribute('aria-label',text('title'));
@@ -142,12 +144,18 @@
     var search=document.getElementById('knMarketQuery');search.value='';search.placeholder=text('placeholder');search.setAttribute('aria-label',text('search'));
     document.getElementById('knMarketError').textContent='';
     renderSelected();renderOptions();dialog.showModal();
+    if(dialog.__knBackgroundScroll)dialog.__knBackgroundScroll.restore();
   }
   function makePicker() {
     dialog=document.createElement('dialog');dialog.id='knMarketPicker';dialog.setAttribute('aria-label',text('title'));
     dialog.innerHTML='<form id="knMarketForm"><div class="kn-market-head"><div class="kn-market-selected-heading"><span data-kn-copy="selected"></span><span id="knMarketCount" aria-live="polite"></span><button type="button" class="kn-market-close" data-kn-close aria-label="'+esc(text('close'))+'">×</button></div><div id="knMarketSelected"></div></div><div class="kn-market-scroll"><div class="kn-market-search"><input id="knMarketQuery" type="search" autocomplete="off" maxlength="80" enterkeyhint="search"><button type="button" id="knMarketSearch" data-kn-copy="searchButton"></button></div><div class="kn-market-results-heading"><span id="knMarketOptionsTitle"></span><span id="knMarketResultCount" aria-live="polite"></span></div><p id="knMarketSearchStatus" role="status" aria-live="polite"></p><div id="knMarketOptions"></div></div><div class="kn-market-foot"><p id="knMarketError" role="status" aria-live="polite"></p><div class="kn-market-actions"><button type="button" data-kn-close data-kn-copy="back"></button><button type="submit" id="knMarketApply" data-kn-copy="apply"></button></div></div></form>';
     document.body.appendChild(dialog);
-    dialog.addEventListener('close',cancelSearch);
+    dialog.addEventListener('close',function(){
+      cancelSearch();var opener=document.getElementById('knMarketOpen');
+      if(window.KNViewStability)window.KNViewStability.hold(opener,{snapshot:dialog.__knBackgroundScroll});
+      if(dialog.__knBackgroundScroll)dialog.__knBackgroundScroll.restore();dialog.__knBackgroundScroll=null;
+      if(opener)opener.focus({preventScroll:true});
+    });
     dialog.addEventListener('click',function(e){
       if(e.target===dialog||e.target.closest('[data-kn-close]')){cancelSearch();dialog.close();return;}
       var remove=e.target.closest('[data-kn-remove]');if(remove){var index=draft.indexOf(remove.dataset.knRemove);draft=draft.filter(function(id){return id!==remove.dataset.knRemove;});document.getElementById('knMarketError').textContent='';renderSelected();dialog.querySelectorAll('#knMarketOptions input').forEach(function(input){input.checked=draft.indexOf(input.value)>=0;});var chips=dialog.querySelectorAll('[data-kn-remove]');(chips[Math.min(index,chips.length-1)]||document.getElementById('knMarketQuery')).focus({preventScroll:true});}
