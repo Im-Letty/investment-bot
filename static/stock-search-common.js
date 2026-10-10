@@ -12,6 +12,8 @@
     var layout=document.createElement('div');layout.className='kn-stock-layout';
     navigation.classList.add('kn-a-stock-tabs');content.classList.add('kn-stock-body');
     navigation.before(surface);surface.appendChild(layout);layout.appendChild(navigation);layout.appendChild(content);
+    // Keep the original heading and shortcut handlers together inside the paper.
+    var heading=wrap.querySelector('.kn-stock-heading');if(heading)surface.insertBefore(heading,layout);
   }
   function mountShortcuts(wrap){
     var head=wrap.querySelector('.kn-stock-heading'),opener=wrap.querySelector('.kn-stock-search-open');if(!head||!opener)return;
@@ -47,7 +49,10 @@
     var heading=wrap.querySelector('.kn-a-section-title');if(!heading)return;
     mountHomeButton(wrap,heading);
     var icon='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m15.4 15.4 4.6 4.6"/></svg>';
-    var head=document.createElement('div');head.className='kn-stock-heading';heading.before(head);head.appendChild(heading);
+    var head=document.createElement('div');head.className='kn-stock-heading kn-section-header';heading.before(head);
+    var symbol=document.createElement('span');symbol.className='kn-section-symbol';symbol.setAttribute('aria-hidden','true');
+    symbol.innerHTML='<svg viewBox="0 0 48 48" fill="none" focusable="false"><rect class="kn-symbol-tint" x="6" y="7" width="36" height="34" rx="3"/><rect x="6" y="7" width="36" height="34" rx="3"/><path d="M12 34h24M12 34V14M14 28l7-7 6 4 9-10M31 15h5v5"/></svg>';
+    head.appendChild(symbol);head.appendChild(heading);
     var opener=document.createElement('button');opener.type='button';opener.className='kn-stock-search-open';opener.innerHTML=icon+'<span>検索</span>';
     opener.setAttribute('aria-label','銘柄を検索');opener.setAttribute('aria-haspopup','dialog');opener.setAttribute('aria-expanded','false');opener.setAttribute('aria-controls','knStockSearchDialog');head.appendChild(opener);
     var section=document.createElement('dialog');section.id='knStockSearchDialog';section.className='kn-stock-search kn-stock-search-dialog';section.setAttribute('aria-labelledby','knStockSearchTitle');

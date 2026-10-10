@@ -109,17 +109,70 @@ body.kn-home-a #morning-section #knTabWrap {
   background:transparent!important;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-heading {
-  margin-bottom:17px;
+  display:grid;
+  grid-template-columns:calc(55px * var(--kn-a-scale,1)) minmax(0,1fr) auto;
+  column-gap:15px;row-gap:10px;
+  align-items:center;
+  margin-bottom:26px;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-heading > .kn-a-section-title {
   border:0!important;padding:0!important;margin:0!important;
-  font:500 calc(23px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif)!important;
-  letter-spacing:.07em!important;
+  font:500 calc(16px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif)!important;
+  letter-spacing:.025em!important;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-surface {
-  min-width:0;padding:24px 22px 20px;
-  border:1px solid var(--kn-a-line);border-radius:12px;
+  min-width:0;padding:24px 24px 20px;
+  border:0;border-radius:18px 18px 4px 4px;
   background:var(--kn-a-paper);
+  box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
+}
+/* A familiar word and a quiet line illustration share the date header's rhythm. */
+body.kn-home-a #morning-section .kn-section-symbol {
+  box-sizing:border-box;
+  display:flex;align-items:center;justify-content:center;
+  width:calc(55px * var(--kn-a-scale,1));min-height:calc(55px * var(--kn-a-scale,1));
+  padding-right:14px;border-right:1px solid var(--kn-a-line);
+  color:var(--kn-a-ink);
+}
+body.kn-home-a #morning-section .kn-section-symbol svg {
+  display:block;flex:none;width:calc(40px * var(--kn-a-scale,1));height:calc(40px * var(--kn-a-scale,1));
+  stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;
+}
+body.kn-home-a #morning-section .kn-section-symbol .kn-symbol-tint {
+  fill:currentColor;fill-opacity:.06;stroke:none;
+}
+body.kn-home-a #morning-section #knCompanyNewsSection {
+  background:var(--kn-a-paper);border:0;border-radius:18px 18px 4px 4px;
+  box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
+}
+body.kn-home-a #knCompanyNewsSection > .kn-section-header {
+  display:grid;grid-template-columns:calc(55px * var(--kn-a-scale,1)) minmax(0,1fr);
+  align-items:center;column-gap:15px;padding:24px 24px 0;
+}
+body.kn-home-a #knCompanyNewsSection #knCompanyNewsTitle {
+  margin:0;font:500 calc(16px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif);
+  letter-spacing:.025em;color:var(--kn-a-ink);
+}
+body.kn-home-a #knCompanyNewsSection #knCompanyFocus {padding:26px 24px 20px}
+@container home-stock (max-width:420px) {
+  body.kn-home-a #morning-section #knTabWrap .kn-stock-heading {
+    grid-template-columns:calc(42px * var(--kn-a-scale,1)) minmax(0,1fr) auto;
+    column-gap:10px;
+  }
+  body.kn-home-a #morning-section #knTabWrap .kn-section-symbol {
+    width:calc(42px * var(--kn-a-scale,1));padding-right:10px;
+  }
+  body.kn-home-a #morning-section #knTabWrap .kn-section-symbol svg {
+    width:calc(31px * var(--kn-a-scale,1));height:calc(31px * var(--kn-a-scale,1));
+  }
+}
+@container home-stock (max-width:285px) {
+  body.kn-home-a #morning-section #knTabWrap .kn-stock-heading {grid-template-columns:calc(42px * var(--kn-a-scale,1)) minmax(0,1fr)}
+  body.kn-home-a #morning-section #knTabWrap .kn-stock-actions {grid-column:2;justify-self:start}
+}
+@container home-stock (max-width:420px) {
+  body.kn-home-a:is([data-kn-reading-size="l"],[data-kn-reading-size="xl"]) #morning-section #knTabWrap .kn-stock-heading {grid-template-columns:calc(42px * var(--kn-a-scale,1)) minmax(0,1fr)}
+  body.kn-home-a:is([data-kn-reading-size="l"],[data-kn-reading-size="xl"]) #morning-section #knTabWrap .kn-stock-actions {grid-column:2;justify-self:start}
 }
 body.kn-home-a #knTabWrap .kn-a-stock-tabs {padding-bottom:0!important}
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {
