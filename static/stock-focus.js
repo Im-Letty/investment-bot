@@ -115,8 +115,8 @@
     const unit=q.currency==='JPY'?'円':'米ドル';
     return (dateLabel(q.trade_date)?dateLabel(q.trade_date)+'の株価は、':'取得した株価は、')+'前の取引日の終値'+(q.change_value===0?'と同じでした。':'より'+amount(q.change_value)+unit+'（'+Math.abs(q.pct).toFixed(2)+'%）'+(q.change_value>0?'上がりました。':'下がりました。'));
   }
-  function companyMarkup(editorial,data,status='loading',now=Date.now(),visible=5){
-    const allStories=validStories(editorial,now),stories=allStories.slice(0,Math.max(5,visible));
+  function companyMarkup(editorial,data,status='loading',now=Date.now(),visible=3){
+    const allStories=validStories(editorial,now),stories=allStories.slice(0,Math.max(3,visible));
     const icons=[
       '<path d="M4 18V6l7-3v15M11 8h5v10M2 18h16M7 7v1m0 3v1m0 3v1m7-5v1m0 3v1"/>',
       '<path d="M4 5h12v13H4zM7 2h6v5H7zM7 10h6m-6 3h6m-6 3h3"/>',
@@ -136,7 +136,7 @@
     container.querySelectorAll('.sf-ranking').forEach(panel=>{panel.hidden=panel.id!=='sf-rank-panel-'+direction;});
   }
   function start(w){
-    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,openMenu=null,storyBusy=false,storyTimer=null,storyVisible=5,storyFrameVisible=false;
+    const doc=w.document;let data=null,editorial=null,status='loading',storyStatus='loading',active='up',busy=false,poll=0,timer=null,generation=0,openMenu=null,storyBusy=false,storyTimer=null,storyVisible=3,storyPageSize=3,storyExpanded=false,storyFrameVisible=false;
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
     let conditions={metric:'pct',market:'all'};try{const saved=JSON.parse(w.localStorage.getItem('kn_rank_conditions')||'null');if(saved&&METRICS[saved.metric]&&MARKETS[saved.market])conditions=saved;if(['up','down'].includes(conditions.direction))active=conditions.direction;}catch(_){}
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
@@ -197,7 +197,7 @@
       el.querySelectorAll('details[data-stock-detail]').forEach(x=>{x.open=open.has(x.dataset.stockDetail);});
       if(storyFocus){const detail=Array.from(el.querySelectorAll('details[data-stock-detail]')).find(x=>x.dataset.stockDetail===storyFocus.key),target=detail&&detail.querySelector(storyFocus.source?'.sf-source':'summary');if(target)target.focus({preventScroll:true});}
       if(companyFocus){const target=Array.from(el.querySelectorAll('[data-company-profile]')).find(x=>x.dataset.companyProfile===companyFocus);if(target)target.focus({preventScroll:true});}
-      if(moreFocus){const target=el.querySelector('[data-company-more]');if(target)target.focus({preventScroll:true});}
+      if(moreFocus){const last=Array.from(el.querySelectorAll('.sf-company')).at(-1),target=el.querySelector('[data-company-more]')||(last&&last.querySelector('summary'));if(target)target.focus({preventScroll:true});}
       if(id==='homeMoversList')setMenu(openMenu);
       if(settingKey){const select=el.querySelector('[data-rank-setting="'+settingKey+'"]');if(select)select.focus({preventScroll:true});}
       if(focusKey){const button=el.querySelector('[data-sf-rank="'+focusKey+'"]');if(button)button.focus({preventScroll:true});}
@@ -209,6 +209,28 @@
       }
     }
     function renderStories(){paint('knCompanyFocus',companyMarkup(editorial,data,storyStatus,Date.now(),storyVisible));}
+    function updateStoryLayout(width){
+      // Match the company-news container breakpoint, including narrow desktop panels.
+      if(!finite(width)||width<=0)return;
+      const size=width>=621?4:3;
+      if(size===storyPageSize)return;
+      storyPageSize=size;
+      if(!storyExpanded){
+        storyVisible=size;
+        const el=doc.getElementById('knCompanyFocus');
+        if(el)Array.from(el.querySelectorAll('.sf-company')).forEach((card,index)=>{
+          if(index>=size&&(card.querySelector('details[open]')||card.contains(doc.activeElement))){storyVisible=index+1;storyExpanded=true;}
+        });
+      }
+      renderStories();
+    }
+    function observeStoryLayout(){
+      const section=doc.getElementById('knCompanyNewsSection')||doc.getElementById('knCompanyFocus');
+      if(!section)return;
+      updateStoryLayout(section.clientWidth);
+      if(w.ResizeObserver){const observer=new w.ResizeObserver(entries=>{for(const entry of entries)if(entry.target===section)updateStoryLayout(entry.contentRect.width);});observer.observe(section);}
+      else if(w.addEventListener)w.addEventListener('resize',()=>updateStoryLayout(section.clientWidth));
+    }
     function render(){paint('homeMoversList',rankingMarkup(data,active,status,conditions));renderStories();}
     function restore(){try{data=normalizePayload(JSON.parse(w.localStorage.getItem(cacheKey())));if(data)data.stale=true;}catch(_){data=null;}}
     async function getJSON(url){const controller=new w.AbortController(),timeout=w.setTimeout(()=>controller.abort(),12000);try{const response=await w.fetch(url,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{w.clearTimeout(timeout);}}
@@ -261,6 +283,7 @@
     }
     function init(){
       storyFrameVisible=storiesVisible();
+      observeStoryLayout();
       restore();render();refresh();loadStories(true);
       if(doc.getElementById('knCompanyNewsSection')&&w.MutationObserver){
         const observer=new w.MutationObserver(updateStoryVisibility);
@@ -271,7 +294,7 @@
       doc.addEventListener('click',e=>{
         const closest=selector=>e.target.closest&&e.target.closest(selector);
         if(closest('[data-company-retry]')){storyStatus='loading';renderStories();loadStories(true);return;}
-        if(closest('[data-company-more]')){const before=storyVisible;storyVisible+=5;renderStories();const list=doc.getElementById('sf-company-list'),detail=list&&list.querySelectorAll('details')[before],target=detail&&detail.querySelector('summary');if(target)target.focus({preventScroll:true});return;}
+        if(closest('[data-company-more]')){const before=storyVisible;storyExpanded=true;storyVisible+=storyPageSize;renderStories();const list=doc.getElementById('sf-company-list'),detail=list&&list.querySelectorAll('details')[before],target=detail&&detail.querySelector('summary');if(target)target.focus({preventScroll:true});return;}
         const trigger=closest('.sf-order-trigger'),close=closest('[data-rank-close]');
         if(trigger){const key=trigger.dataset.rankSetting;setMenu(openMenu===key?null:key,true,key);return;}
         if(close){setMenu(null,true,close.dataset.rankClose);return;}

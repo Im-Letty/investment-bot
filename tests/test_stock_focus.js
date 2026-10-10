@@ -564,20 +564,23 @@ function companyPayload(){
  return {...fixture,edition_date:today,valid_until:until,checked_at:stamp,status:'ready',
   companies:fixture.companies.map((x,i)=>({...x,published_date:today,valid_until:until,article_id:'article-'+i,reviewed_at:stamp}))};
 }
-function companyHarness(standalone=false){
- const mounted={observers:[]};
+function companyHarness(standalone=false,width=390){
+ const mounted={observers:[],resizers:[]};
  const h=rankingMenuHarness(undefined,(w,elements)=>{
+  elements.get('knCompanyFocus').clientWidth=width;
+  w.ResizeObserver=class{constructor(callback){this.callback=callback;mounted.resizers.push(this);}observe(target){this.target=target;}};
   if(!standalone)return;
   const doc=w.document,home=doc.createElement('div'),section=doc.createElement('section');home.setAttribute('id','morning-section');section.setAttribute('id','knCompanyNewsSection');home.appendChild(section);section.appendChild(elements.get('knCompanyFocus'));doc.body.appendChild(home);
   section.getClientRects=()=>{for(let node=section;node;node=node.parentElement)if(node.hidden||node.style.display==='none')return [];return [{}];};
   w.MutationObserver=class{constructor(callback){this.callback=callback;this.targets=[];mounted.observers.push(this);}observe(target,options){this.targets.push({target,options});}disconnect(){this.targets=[];}};
-  mounted.home=home;mounted.section=section;
+  section.clientWidth=width;mounted.home=home;mounted.section=section;
  });
  const wrap=h.w.document.createElement('div');wrap.setAttribute('id','knTabWrap');(mounted.home||h.w.document.body).appendChild(wrap);
  h.setView=(view='companies',main='stock')=>{wrap.dataset.stockMain=main;wrap.dataset.stockView=view;h.listeners.knStockViewChanged({detail:{view}});};
  h.setStoryVisibility=(target,visible)=>{const node=mounted[target];assert.ok(node,'standalone visibility target');node.style.display=visible?'':'none';for(const observer of mounted.observers)if(observer.targets.some(entry=>entry.target===node))observer.callback([{type:'attributes',attributeName:'style',target:node}],observer);};
  h.companyRequests=()=>h.requests.filter(r=>r.url==='/api/company-news');
  h.companyBox=()=>h.elements.get('knCompanyFocus');
+ h.resize=width=>{for(const observer of mounted.resizers){observer.target.clientWidth=width;observer.callback([{target:observer.target,contentRect:{width}}]);}};
  h.story=(id='article-0')=>h.companyBox().querySelectorAll('details[data-stock-detail]').find(x=>x.dataset.stockDetail===id);
  h.setView();return h;
 }
@@ -614,12 +617,15 @@ test('standalone company visibility pauses on home or frame hide and resumes one
  await h.respond(h.companyRequests().at(-1),initial);h.setView('movers','div_cal');assert.equal(h.companyRequests().length,before+1,'stock navigation after document resume does not trigger an extra company request');assert.equal([...h.timers.values()].filter(t=>t.fn.name==='loadStories').length,1);
 });
 
-test('company stories initially show five then reveal more without additional requests or losing open details',async()=>{
+test('company stories initially show three then reveal more without additional requests or losing open details',async()=>{
  const h=companyHarness(),initial=companyPayload(),base=initial.companies[0];
  initial.companies=Array.from({length:7},(_,i)=>({...base,symbol:(1000+i)+'.T',name:'架空テスト会社'+i,article_id:'article-'+i,source_url:'https://example.test/release/'+i}));
  await h.respond(h.companyRequests()[0],initial);
- assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,5);
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,3);
  h.story().open=true;h.story().querySelector('summary').focus();
+ h.click(h.companyBox().querySelector('[data-company-more]'));
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,6);
+ assert.equal(h.w.document.activeElement,h.story('article-3').querySelector('summary'));
  h.click(h.companyBox().querySelector('[data-company-more]'));
  assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,7);
  assert.equal(h.companyBox().querySelector('[data-company-more]'),null);
@@ -638,7 +644,49 @@ test('company background updates preserve keyboard focus on the more button',asy
  const revised={...initial,companies:initial.companies.map((story,i)=>i===0?{...story,title:'確認済みの記事の新しい見出し'}:story)};
  fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),revised);
  assert.equal(h.w.document.activeElement,h.companyBox().querySelector('[data-company-more]'));
- assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,5);
+ assert.equal(h.companyBox().querySelectorAll('details[data-stock-detail]').length,3);
+});
+
+test('company initial count follows panel width without fetching or resetting expanded stories',async()=>{
+ const h=companyHarness(true,620),initial=companyPayload(),base=initial.companies[0];
+ initial.companies=Array.from({length:12},(_,i)=>({...base,symbol:(1000+i)+'.T',article_id:'article-'+i,source_url:'https://example.test/release/'+i}));
+ await h.respond(h.companyRequests()[0],initial);
+ const count=()=>h.companyBox().querySelectorAll('.sf-company').length;
+ assert.equal(count(),3);h.resize(621);assert.equal(count(),4);h.resize(620);assert.equal(count(),3);
+ const writes=h.companyBox().writes;h.resize(500);h.resize(0);assert.equal(h.companyBox().writes,writes);
+ h.resize(900);h.click(h.companyBox().querySelector('[data-company-more]'));assert.equal(count(),8);
+ h.story().open=true;h.story().querySelector('summary').focus();
+ h.resize(390);assert.equal(count(),8);assert.ok(h.story().open);assert.equal(h.w.document.activeElement,h.story().querySelector('summary'));
+ h.resize(1000);assert.equal(count(),8);assert.equal(h.companyRequests().length,1);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),initial);assert.equal(count(),8);assert.ok(h.story().open);
+});
+
+test('narrowing the company panel preserves an open or focused fourth story',async()=>{
+ for(const kind of ['open','source','company']){
+  const h=companyHarness(true,621),initial=companyPayload(),base=initial.companies[0];
+  initial.companies=Array.from({length:5},(_,i)=>({...base,symbol:(1000+i)+'.T',article_id:'article-'+i,source_url:'https://example.test/release/'+i}));
+  await h.respond(h.companyRequests()[0],initial);
+  const fourth=h.story('article-3');
+  if(kind==='open')fourth.open=true;
+  else if(kind==='source'){fourth.open=true;fourth.querySelector('.sf-source').focus();}
+  else h.companyBox().querySelectorAll('[data-company-profile]')[3].focus();
+  h.resize(620);assert.equal(h.companyBox().querySelectorAll('.sf-company').length,4);
+  if(kind!=='company')assert.ok(h.story('article-3').open);
+  if(kind==='source')assert.equal(h.w.document.activeElement,h.story('article-3').querySelector('.sf-source'));
+  if(kind==='company')assert.equal(h.w.document.activeElement,h.companyBox().querySelectorAll('[data-company-profile]')[3]);
+  assert.equal(h.companyRequests().length,1);
+ }
+});
+
+test('widening the panel preserves more-button focus when the final article replaces it',async()=>{
+ const h=companyHarness(true,390),initial=companyPayload(),base=initial.companies[0];
+ initial.companies=Array.from({length:4},(_,i)=>({...base,symbol:(1000+i)+'.T',article_id:'article-'+i,source_url:'https://example.test/release/'+i}));
+ await h.respond(h.companyRequests()[0],initial);
+ h.companyBox().querySelector('[data-company-more]').focus();h.resize(621);
+ assert.equal(h.companyBox().querySelector('[data-company-more]'),null);
+ assert.equal(h.w.document.activeElement,h.story('article-3').querySelector('summary'));
+ const outside=h.w.document.createElement('button');h.w.document.body.appendChild(outside);outside.focus();h.resize(620);
+ assert.equal(h.w.document.activeElement,outside);assert.equal(h.companyRequests().length,1);
 });
 
 test('company API refreshes every visible minute without changing ranking data or adding storage',async()=>{
