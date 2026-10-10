@@ -68,10 +68,9 @@
           }
           more.hidden=rows.length<=5;
           more.querySelector('.dividend-list').innerHTML=rows.slice(5).join('');
-          var remainingCount=Math.max(0,rows.length-5);
           function updateSummary(){
-            var labels=({ja:['もっと見る','閉じる','残り'+remainingCount+'社'],en:['Show more','Close',remainingCount+' more'],ko:['더 보기','닫기',remainingCount+'개 더'],zh:['查看更多','收起','剩余'+remainingCount+'家']})[lang()]||['Show more','Close',remainingCount+' more'];
-            more.querySelector('summary').textContent=more.open?labels[1]:labels[0]+'（'+labels[2]+'）';
+            var labels=({ja:['もっと見る','閉じる'],en:['Show more','Close'],ko:['더 보기','닫기'],zh:['查看更多','收起']})[lang()]||['Show more','Close'];
+            more.querySelector('summary').textContent=more.open?labels[1]:labels[0];
           }
           more.ontoggle=updateSummary;updateSummary();
           signatures[key]=signature;

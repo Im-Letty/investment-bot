@@ -190,7 +190,7 @@ for(const key of ['top','yearly'])test(key+' shows five initially and retains ex
  const more=h.panes[key].querySelector('.dividend-more');
  assert.equal((h.list(key).innerHTML.match(/class="div-item"/g)||[]).length,5);
  assert.equal((more.querySelector('.dividend-list').innerHTML.match(/class="div-item"/g)||[]).length,15);
- assert.equal(more.querySelector('summary').textContent,'もっと見る（残り15社）');
+ assert.equal(more.querySelector('summary').textContent,'もっと見る');
  assert.match(more.querySelector('.dividend-list').innerHTML,/div-rank">6</);
  more.open=true;more.ontoggle();assert.equal(more.querySelector('summary').textContent,'閉じる');
  await flush();await h.reply(h.request('/'+key+'?'),snapshot(items.map(it=>({...it,price:3000})),{updated_at:NOW/1000+1}));
