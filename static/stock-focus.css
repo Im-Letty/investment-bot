@@ -312,7 +312,7 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
 #knCompanyNewsTitle {
   margin:0 0 17px;
   color:var(--sf-ink);
-  font:500 calc(25px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);
+  font:500 calc(23px * var(--kn-a-scale,1))/1.6 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);
   letter-spacing:.07em;
 }
 #knCompanyNewsSection .sf-companies {
@@ -331,7 +331,7 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   border-radius:12px;
 }
 #knCompanyNewsSection .sf-company-name {
-  font-size:calc(15px * var(--kn-a-scale,1));
+  font-size:calc(14px * var(--kn-a-scale,1));
   line-height:1.7;
 }
 #knCompanyNewsSection .sf-company-name .sf-stock-code {
@@ -343,18 +343,18 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   color:var(--sf-muted);
   font-size:calc(12px * var(--kn-a-scale,1));
 }
-#knCompanyNewsSection .sf-explanation {margin-top:14px}
+#knCompanyNewsSection .sf-explanation {margin-top:12px}
 #knCompanyNewsSection .sf-explanation>summary h4 {
   padding-top:2px;
-  font-size:calc(21px * var(--kn-a-scale,1));
+  font-size:calc(19px * var(--kn-a-scale,1));
   line-height:1.7;
 }
 #knCompanyNewsSection .sf-explanation p {
-  font-size:calc(15px * var(--kn-a-scale,1));
+  font-size:calc(14.5px * var(--kn-a-scale,1));
   line-height:1.9;
 }
 #knCompanyNewsSection .sf-explain-block h5 {
-  font-size:calc(14px * var(--kn-a-scale,1));
+  font-size:calc(13px * var(--kn-a-scale,1));
   line-height:1.65;
 }
 #knCompanyNewsSection .sf-story-source {
