@@ -155,7 +155,7 @@ test('first visit reads the embedded publication before any API or market respon
   const app=harness(),data=published(app);app.event('DOMContentLoaded');
   const html=app.nodes['morning-news-content'].innerHTML;
   assert.ok(html.includes(data.digest.summary));assert.ok(!html.includes('skeleton'));
-  assert.match(html,/2026\/09\/12 掲載/);assert.ok(!html.includes('1970'));assert.ok(!html.includes('取得 '));
+  assert.match(html,/aria-label="掲載対象日 2026-09-12 /);assert.ok(!html.includes('1970'));assert.ok(!html.includes('取得 '));
   assert.equal(app.requests.length,2,'Live checks still begin in the background');
   assert.equal(app.storage.has('kn_news_v4_ja'),false,'Published copy must not impersonate a fresh RSS cache');
 });
@@ -357,7 +357,7 @@ test('headline fallback waits until exactly 08:00 JST while keeping the earlier 
   app.advance(Date.parse('2026-09-13T07:59:59+09:00')-app.now());app.event('DOMContentLoaded');
   await app.reply(app.requests[0],currentHeadlines(app));
   assert.match(app.nodes['morning-news-content'].innerHTML,/前日の掲載版/);
-  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/12 掲載/);
+  assert.match(app.nodes['morning-news-content'].innerHTML,/aria-label="掲載対象日 2026-09-12 /);
   assert.equal(app.storage.has('kn_news_headline_edition_v1_ja'),false);
   app.advance(1000);for(const timer of app.intervals.values())timer.fn();
   await app.reply(app.requests.findLast(r=>r.url.includes('morning-news')),currentHeadlines(app));
@@ -376,7 +376,7 @@ test('missing or invalid current headlines never discard the last dated publicat
     app.storage.set('kn_published_news_v1_ja',JSON.stringify(old));app.advance(86400000);app.event('DOMContentLoaded');
     await app.reply(app.requests[0],currentHeadlines(app,'ja',change));
     assert.match(app.nodes['morning-news-content'].innerHTML,/保持する掲載版/);
-    assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/12 掲載/);
+    assert.match(app.nodes['morning-news-content'].innerHTML,/aria-label="掲載対象日 2026-09-12 /);
     assert.equal(app.storage.has('kn_news_headline_edition_v1_ja'),false);
     assert.ok(app.storage.has('kn_published_news_v1_ja'));
   }
@@ -453,20 +453,20 @@ test('curated September 22 edition stays dated September 22 after midnight, empt
   await app.reply(app.requests[0],data);
   app.advance(2000);for(const timer of app.intervals.values())timer.fn();
   let html=app.nodes['morning-news-content'].innerHTML;
-  assert.ok(html.includes(data.digest.headline));assert.match(html,/2026\/09\/22 掲載/);
+  assert.ok(html.includes(data.digest.headline));assert.match(html,/aria-label="掲載対象日 2026-09-22 /);
   assert.match(html,/掲載対象日 2026-09-22/);
   assert.equal(app.requests.filter(r=>r.url.includes('morning-news')).length,1);
   app.context.loadMorningNews(true);
   await app.reply(app.requests.at(-1),app.news('ja',{news:[],digest:null,selection_status:'empty_today'}));
   html=app.nodes['morning-news-content'].innerHTML;
-  assert.ok(html.includes(data.digest.headline));assert.match(html,/2026\/09\/22 掲載/);
-  assert.ok(!html.includes('2026/09/23 掲載'));
+  assert.ok(html.includes(data.digest.headline));assert.match(html,/aria-label="掲載対象日 2026-09-22 /);
+  assert.ok(!html.includes('aria-label="掲載対象日 2026-09-23 '));
   assert.equal(JSON.parse(app.storage.get('kn_news_v4_ja')).news.length,0);
   assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).edition_date,'2026-09-22');
   app.advance(121000);app.context.loadMorningNews();app.requests.at(-1).reject(new Error('offline'));await flush();
   html=app.nodes['morning-news-content'].innerHTML;
   assert.ok(html.includes(data.digest.headline));assert.match(html,/最新情報を確認できませんでした/);
-  assert.match(html,/2026\/09\/22 掲載/);
+  assert.match(html,/aria-label="掲載対象日 2026-09-22 /);
 });
 
 test('a retained curated edition is restored independently of the live cache and a stale embedded edition',async()=>{
@@ -478,7 +478,7 @@ test('a retained curated edition is restored independently of the live cache and
   assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(older.digest.headline));
   app.requests[0].reject(new Error('offline'));await flush();
   assert.ok(app.nodes['morning-news-content'].innerHTML.includes(newer.digest.headline));
-  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/13 掲載/);
+  assert.match(app.nodes['morning-news-content'].innerHTML,/aria-label="掲載対象日 2026-09-13 /);
   assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).edition_date,'2026-09-13');
 });
 
@@ -492,7 +492,7 @@ test('new unreviewed live articles keep the last curated edition until a new cur
   app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),fresh);
   assert.ok(app.nodes['morning-news-content'].innerHTML.includes(fresh.digest.headline));
   assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(old.digest.headline));
-  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/13 掲載/);
+  assert.match(app.nodes['morning-news-content'].innerHTML,/aria-label="掲載対象日 2026-09-13 /);
   app.context.loadMorningNews(true);await app.reply(app.requests.at(-1),old);
   assert.ok(app.nodes['morning-news-content'].innerHTML.includes(fresh.digest.headline));
   assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).edition_date,'2026-09-13');
@@ -590,7 +590,7 @@ test('08:00 JST triggers one check despite a fresh prior edition, then keeps the
   const next=curated(app);next.digest.headline='八時に公開された掲載版';
   await app.reply(app.requests.at(-1),next);
   assert.ok(app.nodes['morning-news-content'].innerHTML.includes(next.digest.headline));
-  assert.match(app.nodes['morning-news-content'].innerHTML,/2026\/09\/13 掲載/);
+  assert.match(app.nodes['morning-news-content'].innerHTML,/aria-label="掲載対象日 2026-09-13 /);
 });
 
 test('a pending pre-08:00 request is followed by one release check after it completes',async()=>{
@@ -1159,9 +1159,9 @@ test('official morning edition retains yesterday publication date and edited att
     if(origin==='saved')app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));
     app.event('DOMContentLoaded');if(origin==='api')await app.reply(app.requests[0],data);
     const html=app.nodes['morning-news-content'].innerHTML;
-    assert.ok(html.includes(data.digest.summary));assert.match(html,/2026\/09\/12 掲載/);
-    assert.match(html,/datetime="2026-09-11T03:00:00.000Z"/);
-    assert.match(html,/財務省/);assert.match(html,/当サイトが要約・編集/);
+    assert.ok(html.includes(data.digest.summary));assert.match(html,/aria-label="掲載対象日 2026-09-12 /);
+    assert.match(html,/<time class="publication-date" datetime="2026-09-11T03:00:00.000Z" title="発表 2026\/9\/11 12:00 JST">9\/11 発表<\/time>/);
+    assert.match(html,/財務省/);assert.match(html,/公式発表をもとに要約/);
     assert.match(html,/日本経済の発表を確認/);
     assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_date,'2026-09-11');
   }
@@ -1170,7 +1170,7 @@ test('official morning edition retains yesterday publication date and edited att
 test('official date-only sources render only the real date without inventing midnight or epoch time',async()=>{
   const app=harness(),data=officialMorning(app,'day');app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
   const html=app.nodes['morning-news-content'].innerHTML;
-  assert.ok(html.includes(data.digest.summary));assert.match(html,/<time class="publication-date" datetime="2026-09-11">発表 2026\/9\/11<\/time>/);
+  assert.ok(html.includes(data.digest.summary));assert.match(html,/<time class="publication-date" datetime="2026-09-11" title="発表 2026\/9\/11">9\/11 発表<\/time>/);
   assert.doesNotMatch(html,/1970|00:00|JST/);
   assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_at,null);
 });
@@ -1218,8 +1218,8 @@ test('an empty new day keeps the last official publication and its original date
   const app=harness(),data=officialMorning(app,'day');app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));app.advance(86400000);app.event('DOMContentLoaded');
   await app.reply(app.requests[0],app.news('ja',{news:[],selection_status:'empty_today'}));
   const html=app.nodes['morning-news-content'].innerHTML;
-  assert.ok(html.includes(data.digest.summary));assert.match(html,/2026\/09\/12 掲載/);assert.match(html,/datetime="2026-09-11"/);
-  assert.doesNotMatch(html,/2026\/09\/13 掲載/);
+  assert.ok(html.includes(data.digest.summary));assert.match(html,/aria-label="掲載対象日 2026-09-12 /);assert.match(html,/datetime="2026-09-11"/);
+  assert.doesNotMatch(html,/aria-label="掲載対象日 2026-09-13 /);
 });
 
 test('date-only deferral is explicit and cannot repeat beyond the next morning edition',async()=>{
@@ -1248,7 +1248,8 @@ function leadOtherMorning(app,count=3){
   data.digest.copy_length_policy='flexible-v1';
   data.digest.reading_structure='lead-plus-other-news-v1';
   data.digest.summary='代表ニュースだけを短く説明します。';
-  data.digest.article_refs=Array.from({length:count},(_,i)=>({...base,title:'別の公式発表'+i,url:'https://www.mof.go.jp/policy/example'+i+'.html'}));
+  data.digest.article_refs=Array.from({length:count},(_,i)=>({...base,title:'別の公式発表'+i,
+    source:i%2?'総務省統計局':'財務省',url:'https://'+(i%2?'www.stat.go.jp':'www.mof.go.jp')+'/policy/example'+i+'.html'}));
   data.digest.article_summaries=data.digest.article_refs.map((ref,i)=>({...ref,headline:'追加ニュース'+i+'<img>',summary:'記事'+i+'を単独で説明します。\n\n原文で確認した別の内容です。'}));
   // The API news list may be sorted for another language; the reviewed reference
   // order determines the representative and the order of the extra stories.
@@ -1269,8 +1270,16 @@ test('lead plus other news shows one representative and only the independently r
     assert.equal((html.match(/class="story summarized-story"/g)||[]).length,count-1);
     assert.equal(html.includes('class="read-more"'),count>1);
     assert.match(html,/href="https:\/\/www.mof.go.jp\/policy\/example0.html"/);
-    assert.match(html,/datetime="2026-09-11">/);
+    assert.match(html,/datetime="2026-09-11" title="発表 2026\/9\/11">9\/11 発表<\/time>/);
     assert.doesNotMatch(html,/1970|00:00|<img>/);
+    for(const ref of data.digest.article_refs){
+      const links=html.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
+      const link=links.find(markup=>markup.includes('href="'+ref.url+'"'));
+      assert.ok(link,'Source link must point to this article: '+ref.url);
+      assert.ok(link.endsWith('>'+ref.source+' ↗</a>'),'Link label must name this article’s source');
+    }
+    assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,count);
+    assert.doesNotMatch(html,/class="news-footer"|当サイトが要約・編集/);
     for(let i=1;i<count;i++){
       assert.ok(html.includes('追加ニュース'+i+'&lt;img&gt;'));
       assert.ok(html.includes(data.digest.article_summaries[i].summary));

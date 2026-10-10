@@ -156,40 +156,45 @@
   };
   var otherNewsCopy={ja:'ほかのニュース',en:'Other news',ko:'다른 뉴스',zh:'其他新闻'};
   function newsSource(source){if(source==='ロイター経済')return {ja:'ロイター経済',en:'Reuters Business',ko:'로이터 경제',zh:'路透经济'}[lang()];return window.translateNewsSource?window.translateNewsSource(source):source;}
-  function publication(item,l){
+  function publication(item,l,compact){
     if(item.publication_precision==='day'&&item.published_at===null){
       var day=new Date(item.published_date+'T00:00:00+09:00').toLocaleDateString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric'});
+      if(compact&&l==='ja')return '<time class="publication-date" datetime="'+esc(item.published_date)+'" title="'+esc(digestCopy[l].published+' '+day)+'">'+Number(item.published_date.slice(5,7))+'/'+Number(item.published_date.slice(8,10))+' 発表</time>';
       return '<time class="publication-date" datetime="'+esc(item.published_date)+'">'+esc(digestCopy[l].published+' '+day)+'</time>';
     }
     var date=new Date(item.published_at*1000),label=date.toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    if(compact&&l==='ja')return '<time class="publication-date" datetime="'+esc(date.toISOString())+'" title="'+esc(digestCopy[l].published+' '+label+' JST')+'">'+esc(date.toLocaleDateString('ja',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric'})+' 発表')+'</time>';
     return '<time class="publication-date" datetime="'+esc(date.toISOString())+'">'+esc(digestCopy[l].published+' '+label+' JST')+'</time>';
   }
-  function articleLink(item,l){var url=safeNewsURL(item.url);return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer">'+esc(digestCopy[l].original)+' ↗</a>':'';}
+  function articleLink(item,l){var url=safeNewsURL(item.url),source=newsSource(item.source||'')||digestCopy[l].original;return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" aria-label="'+esc(source+' · '+digestCopy[l].original)+'">'+esc(source)+' ↗</a>':'';}
+  function articleMeta(item,l,summarized){
+    var info='',key='summary-info:'+item.url;
+    if(summarized&&['財務省','総務省統計局','日本銀行'].includes(item.source))info='<details class="news-info" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'" aria-label="'+esc({ja:'要約について',en:'About this summary',ko:'요약 정보',zh:'关于摘要'}[l])+'"><span class="news-info-symbol" aria-hidden="true">i</span></summary><p class="news-info-note">'+esc({ja:'公式発表をもとに要約',en:'Summarized from the official announcement',ko:'공식 발표를 바탕으로 요약',zh:'根据官方公告整理摘要'}[l])+'</p></details>';
+    return '<div class="headline-meta article-meta"><div class="article-meta-main">'+publication(item,l,true)+articleLink(item,l)+'</div>'+info+'</div>';
+  }
   function digestMarkup(d,l,status){
-    var c=digestCopy[l],groups=Object.create(null);
-    d.news.forEach(function(item){(groups[item.source]||(groups[item.source]=[])).push(item);});
+    var c=digestCopy[l];
     var edition=new Date(d.edition_date+'T00:00:00+09:00'),day=d.edition_date.slice(-2),weekday=edition.toLocaleDateString(l,{timeZone:'Asia/Tokyo',weekday:'long'});
     var calendar='<div class="calendar" aria-label="'+esc(c.date+' '+d.edition_date+' '+weekday)+'"><strong>'+day+'</strong><small>'+esc(weekday)+'</small></div>';
     var digest=reviewedDigest(d),headlines=headlinesFallback(d);
     var leadAndOthers=digest&&digest.reading_structure==='lead-plus-other-news-v1';
     var orderedNews=leadAndOthers?digest.article_refs.map(function(ref){return d.news.find(function(item){return item.url===ref.url;});}):d.news;
-    var sources=digest?'<span class="headline-source">'+esc(Object.keys(groups).map(newsSource).join(' / '))+'</span>':'';
-    if(digest&&Object.keys(groups).some(function(source){return ['総務省統計局','財務省'].includes(source);}))sources+='<span class="headline-source">当サイトが要約・編集</span>';
     var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
-    if(leadAndOthers)brief+='<div class="headline-meta">'+publication(orderedNews[0],l)+articleLink(orderedNews[0],l)+'</div>';
     if(headlines)brief='<h4 class="brief-headline">'+esc(headlineCopy[l].title)+'</h4><p class="news-empty">'+esc(d.edition_date.replace(/-/g,'/')+' · '+headlineCopy[l].pending)+'</p><ul class="headline-list">'+d.news.map(function(item){return '<li><a class="story-title" href="'+esc(safeNewsURL(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.title)+'</a><div class="headline-meta"><span class="headline-source">'+esc(newsSource(item.source))+'</span>'+publication(item,l)+'</div></li>';}).join('')+'</ul>';
     var stories=headlines?'':(leadAndOthers?orderedNews.slice(1):orderedNews).map(function(item){
       var key='article:'+item.url;
       var authored=digest&&(digest.article_summaries||[]).find(function(summary){return summary.url===item.url;});
-      if(authored)return '<article class="story summarized-story" lang="ja"><h4><span class="story-title">'+esc(authored.headline)+'</span></h4><div class="story-content"><p class="article-summary">'+esc(authored.summary)+'</p><div class="headline-meta">'+publication(item,l)+articleLink(item,l)+'</div></div></article>';
-      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><div class="headline-meta">'+publication(item,l)+articleLink(item,l)+'</div></div></details>';
+      if(authored)return '<article class="story summarized-story" lang="ja"><h4><span class="story-title">'+esc(authored.headline)+'</span></h4><div class="story-content"><p class="article-summary">'+esc(authored.summary)+'</p>'+articleMeta(item,l,true)+'</div></article>';
+      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content">'+articleMeta(item,l,false)+'</div></details>';
     }).join('');
     if(d.supplements.length)stories+='<section class="news-supplements"><h4>'+esc(c.supplements)+'</h4>'+d.supplements.map(function(item){
       var key='supplement:'+item.url;
-      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p><div class="headline-meta">'+articleLink(item,l)+'</div></div></details>';
+      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p>'+articleMeta(item,l,false)+'</div></details>';
     }).join('')+'</section>';
     var more=stories?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(leadAndOthers?otherNewsCopy[l]:c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'+stories+'</div></details>':'';
-    return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+more+'<footer class="news-footer"><p><span>'+esc(status)+'</span>'+sources+'</p></footer></div></article>';
+    var tail=leadAndOthers?'<div class="news-tail">'+articleMeta(orderedNews[0],l,true)+more+'</div>':more;
+    var footer=status?'<footer class="news-footer"><p>'+esc(status)+'</p></footer>':'';
+    return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+tail+footer+'</div></article>';
   }
   function replaceNews(el,html,l){
     // Native details.open changes the DOM serialization without changing the
@@ -214,7 +219,7 @@
     if(l!==lang())return;
     var el=document.getElementById('morning-news-content');if(!el)return;
     var c=copy[l],status;
-    if(d.delivery==='published')status=d.edition_date.replace(/-/g,'/')+' '+({ja:'掲載',en:'Published',ko:'게시',zh:'发布'}[l])+(failed?' · '+({ja:'最新情報を確認できませんでした。',en:'Unable to check for updates.',ko:'최신 정보를 확인하지 못했습니다.',zh:'暂时无法检查更新。'}[l]):'');
+    if(d.delivery==='published')status=failed?({ja:'最新情報を確認できませんでした。',en:'Unable to check for updates.',ko:'최신 정보를 확인하지 못했습니다.',zh:'暂时无法检查更新。'}[l]):'';
     else{
       var stamp=new Date(d.fetched_at*1000).toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
       status=c.updated+' '+stamp+' JST'+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');

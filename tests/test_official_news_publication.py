@@ -58,10 +58,17 @@ class PublicationTests(unittest.TestCase):
                 self.assertEqual(data['news'][0]['published_date'], '2026-10-05')
                 self.assertEqual(current_delivery(data, datetime.fromtimestamp(stamp(), JST)), 'published')
                 html = render_news_markup(data)
-                self.assertIn('発表 2026/10/5', html)
-                self.assertIn('当サイトが要約・編集', html)
+                self.assertIn('aria-label="掲載対象日 2026-10-06 ', html)
+                self.assertIn('title="発表 2026/10/5', html)
+                self.assertIn('>10/5 発表</time>', html)
+                self.assertIn('公式発表をもとに要約', html)
+                self.assertNotIn('class="news-footer"', html)
                 if precision == 'day':
+                    self.assertIn('datetime="2026-10-05" title="発表 2026/10/5"', html)
                     self.assertNotIn('00:00', html)
+                else:
+                    self.assertIn('datetime="2026-10-05T03:00:00.000Z"', html)
+                    self.assertIn('title="発表 2026/10/5 12:00 JST"', html)
 
     def test_invalid_source_provenance_is_rejected_consistently(self):
         invalid = [{'source': []}, {'source': '日本銀行'}, {'url': 'https://evil.test/news'},

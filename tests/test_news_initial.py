@@ -76,12 +76,17 @@ class ParsedInitial(HTMLParser):
         self.json = ''
         self.script = False
         self.scripts = []
+        self.links = []
+        self.current_link = None
         self.feed(html)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if 'id' in attrs:
             self.ids.append(attrs['id'])
+        if tag == 'a':
+            self.current_link = {'attrs': attrs, 'text': ''}
+            self.links.append(self.current_link)
         if tag == 'script':
             self.scripts.append(attrs)
             self.script = attrs.get('id') == 'knInitialNews'
@@ -89,10 +94,14 @@ class ParsedInitial(HTMLParser):
     def handle_endtag(self, tag):
         if tag == 'script':
             self.script = False
+        if tag == 'a':
+            self.current_link = None
 
     def handle_data(self, data):
         if self.script:
             self.json += data
+        if self.current_link is not None:
+            self.current_link['text'] += data
 
 
 class InitialSelectionTests(unittest.TestCase):
@@ -105,7 +114,9 @@ class InitialSelectionTests(unittest.TestCase):
                                 reading_structure=LEAD_OTHER_NEWS_STRUCTURE,
                                 summary='先頭のニュースを短く紹介します。')
                 authored['article_refs'] = [{**ref, 'title': f'別の公式発表{i}',
-                    'url': f'https://www.mof.go.jp/policy/example{i}.html'} for i in range(count)]
+                    'source': '総務省統計局' if i % 2 else '財務省',
+                    'url': f'https://{"www.stat.go.jp" if i % 2 else "www.mof.go.jp"}/policy/example{i}.html'}
+                    for i in range(count)]
                 authored['article_summaries'] = [{**item, 'headline': f'独立した見出し{i}<img>',
                     'summary': f'独立して読める記事{i}です。\n\n確認した内容を説明します。'}
                     for i, item in enumerate(authored['article_refs'])]
@@ -122,8 +133,16 @@ class InitialSelectionTests(unittest.TestCase):
                     self.assertIn(f'独立した見出し{i}&lt;img&gt;', markup)
                     self.assertIn(authored['article_summaries'][i]['summary'], markup)
                 self.assertNotIn('<img>', markup)
-                self.assertIn('datetime="2026-09-21">発表 2026/9/21', markup)
+                self.assertIn('datetime="2026-09-21" title="発表 2026/9/21">9/21 発表</time>', markup)
                 self.assertIn('href="https://www.mof.go.jp/policy/example0.html"', markup)
+                links = ParsedInitial(markup).links
+                for item in authored['article_refs']:
+                    matching = [link for link in links if link['attrs'].get('href') == item['url']]
+                    self.assertEqual(len(matching), 1)
+                    self.assertEqual(matching[0]['text'], item['source'] + ' ↗')
+                    self.assertEqual(matching[0]['attrs'].get('rel'), 'noopener noreferrer')
+                self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), count)
+                self.assertNotIn('class="news-footer"', markup)
                 if count > 1:
                     self.assertIn('ほかのニュース', markup)
                     self.assertNotIn('もっと詳しく', markup)
@@ -141,12 +160,12 @@ class InitialSelectionTests(unittest.TestCase):
             data = {'delivery': 'published', 'edition_date': authored['edition_date'],
                     'news': deepcopy(authored['article_refs']), 'supplements': [], 'digest': authored}
             html = render_initial_html(NEWS_PLACEHOLDER, data)
-            self.assertIn('2026/09/22 掲載', html)
-            self.assertIn('当サイトが要約・編集', html)
+            self.assertIn('aria-label="掲載対象日 2026-09-22 ', html)
+            self.assertIn('公式発表をもとに要約', html)
             self.assertIn('財務省', html)
             self.assertIn('読みやすい個別の見出し', html)
             if precision == 'day':
-                self.assertIn('datetime="2026-09-21">発表 2026/9/21</time>', html)
+                self.assertIn('datetime="2026-09-21" title="発表 2026/9/21">9/21 発表</time>', html)
                 self.assertNotIn('JST', html)
                 self.assertNotIn('1970', html)
                 self.assertIsNone(json.loads(ParsedInitial(html).json)['news'][0]['published_at'])
@@ -246,7 +265,7 @@ class InitialSelectionTests(unittest.TestCase):
         self.assertIsNone(initial_news(cold(), now=NOW, reviewed_digests=[{**authored, 'reviewed_at': NOW + 1}]))
         retained = initial_news(cold(), now=timestamp('2026-09-22T15:00:00Z'), reviewed_digests=[authored])
         self.assertEqual(retained['edition_date'], '2026-09-22')
-        self.assertIn('2026/09/22 掲載', render_news_markup(retained))
+        self.assertIn('aria-label="掲載対象日 2026-09-22 ', render_news_markup(retained))
 
     def test_cold_publication_is_readable_without_fabricated_retrieval_time(self):
         reviews = [review()]
@@ -259,7 +278,7 @@ class InitialSelectionTests(unittest.TestCase):
         self.assertIn(reviews[0]['summary'], html)
         self.assertNotIn('読み込み中', html)
         self.assertNotIn('取得 ', html)
-        self.assertIn('2026/09/22 掲載', html)
+        self.assertIn('aria-label="掲載対象日 2026-09-22 ', html)
         parsed = ParsedInitial(html)
         self.assertEqual(parsed.ids.count('morning-news-content'), 1)
         self.assertEqual(parsed.ids.count('knNewsDigest'), 1)
