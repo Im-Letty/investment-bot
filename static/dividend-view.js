@@ -21,6 +21,7 @@
     if(at) text=at+' '+(saved||error||data.status==='stale'?words()[0]:words()[1]);
     else if(data&&data.refreshing&&!error) text=words()[2];
     else text=words()[3];
+    if(pane.dataset.dividendBasis==='trailing_12m')text+=' · '+words()[5];
     el.textContent=text;
     if(error || !at && (!data||!data.refreshing)) {
       var retry=document.createElement('button');retry.type='button';retry.className='dividend-retry';retry.textContent=words()[4];
@@ -76,9 +77,7 @@
           signatures[key]=signature;
         }
         el.dataset.loaded='1';
-        var basis=pane.querySelector('.dividend-basis');
-        if(!basis){basis=document.createElement('div');basis.className='dividend-basis';pane.insertBefore(basis,el);}
-        basis.textContent=items.some(function(it){return it.annual_dividend_basis==='trailing_12m';})?words()[5]:'';
+        pane.dataset.dividendBasis=items.some(function(it){return it.annual_dividend_basis==='trailing_12m';})?'trailing_12m':'';
       } else if(!el.dataset.loaded && !data.refreshing && data.updated_at) {
         el.textContent=words()[6];
       }
