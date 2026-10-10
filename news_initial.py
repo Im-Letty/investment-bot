@@ -152,9 +152,10 @@ def render_news_markup(data):
     else:
         status = "取得 " + _stamp(data["fetched_at"]) + " JST" + (" · 最新情報を確認中" if data.get("stale") else "")
     return ('<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle">'
-            '<header class="news-header">' + calendar + '<div class="heading-text"><h3 id="knNewsDigestTitle">経済ニュース</h3></div></header>'
+            '<h2 id="knNewsDigestTitle" class="news-section-title">経済ニュース</h2>'
+            '<div class="news-surface"><header class="news-header">' + calendar + '</header>'
             '<div class="news-content"><div class="brief">' + brief + '</div>' + more +
-            '<footer class="news-footer"><p><span>' + esc(status) + '</span>' + sources + '</p></footer></div></article>')
+            '<footer class="news-footer"><p><span>' + esc(status) + '</span>' + sources + '</p></footer></div></div></article>')
 
 
 def render_initial_html(html, data):

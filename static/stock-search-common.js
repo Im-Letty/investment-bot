@@ -8,9 +8,10 @@
     if(!stock||!movers)return;
     var navigation=stock.parentElement,content=movers.parentElement;
     if(navigation.parentElement!==wrap||content.parentElement!==wrap)return;
+    var surface=document.createElement('div');surface.className='kn-stock-surface';
     var layout=document.createElement('div');layout.className='kn-stock-layout';
     navigation.classList.add('kn-a-stock-tabs');content.classList.add('kn-stock-body');
-    navigation.before(layout);layout.appendChild(navigation);layout.appendChild(content);
+    navigation.before(surface);surface.appendChild(layout);layout.appendChild(navigation);layout.appendChild(content);
   }
   function mountShortcuts(wrap){
     var head=wrap.querySelector('.kn-stock-heading'),opener=wrap.querySelector('.kn-stock-search-open');if(!head||!opener)return;

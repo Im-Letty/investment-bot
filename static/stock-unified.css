@@ -2,6 +2,9 @@
 body.kn-home-a #morning-section #knTabWrap {
   --kn-stock-radius:7px;
   --kn-stock-space:20px;
+  container:none;
+}
+body.kn-home-a #morning-section #knTabWrap .kn-stock-surface {
   container:home-stock / inline-size;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-layout {display:block;min-width:0}
