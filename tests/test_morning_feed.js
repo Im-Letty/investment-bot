@@ -1276,6 +1276,7 @@ test('lead plus other news shows one representative and only the independently r
     assert.ok(afterSources,'The source row exists even when there is one article');
     assert.match(beforeSources,/<details class="read-more"/);
     assert.doesNotMatch(beforeSources,/<a\b/,'Source names are not beside plus or repeated below extra articles');
+    assert.doesNotMatch(beforeSources,/class="news-info"/,'Summary information is not shown before plus is opened');
     const sourceRow=afterSources.split('</details>')[0];
     const links=sourceRow.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
     assert.equal(links.length,count,'Every reviewed article keeps its own source link');
@@ -1288,7 +1289,11 @@ test('lead plus other news shows one representative and only the independently r
       assert.ok(title&&title[1].includes(ref.title),'A shared publisher’s links remain distinguishable');
       assert.ok(link.match(/aria-label="[^"]*"/)[0].includes(ref.title),'The spoken link name identifies the article');
     }
-    assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,count);
+    assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,1);
+    assert.match(sourceRow,/<details class="news-info"/);
+    assert.match(sourceRow,/class="news-info-note">公式発表をもとに要約<\/p>/);
+    assert.ok(sourceRow.includes('data-news-key="summary-info:'+data.digest.article_refs[0].url+'"'));
+    assert.ok(sourceRow.includes('data-news-focus="summary-info:'+data.digest.article_refs[0].url+'"'));
     assert.doesNotMatch(html,/class="news-footer"|当サイトが要約・編集/);
     for(let i=1;i<count;i++){
       assert.ok(html.includes('追加ニュース'+i+'&lt;img&gt;'));

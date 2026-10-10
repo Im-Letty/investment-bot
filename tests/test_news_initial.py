@@ -138,6 +138,7 @@ class InitialSelectionTests(unittest.TestCase):
                 before_sources, after_sources = markup.split('class="article-sources"', 1)
                 self.assertIn('<details class="read-more"', before_sources)
                 self.assertEqual(ParsedInitial(before_sources).links, [])
+                self.assertNotIn('class="news-info"', before_sources)
                 source_row = after_sources.split('</details>', 1)[0]
                 links = ParsedInitial(source_row).links
                 self.assertEqual(len(links), count)
@@ -148,7 +149,12 @@ class InitialSelectionTests(unittest.TestCase):
                     self.assertEqual(matching[0]['attrs'].get('rel'), 'noopener noreferrer')
                     self.assertIn(item['title'], matching[0]['attrs'].get('title', ''))
                     self.assertIn(item['title'], matching[0]['attrs'].get('aria-label', ''))
-                self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), count)
+                self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), 1)
+                self.assertIn('<details class="news-info"', source_row)
+                self.assertIn('class="news-info-note">公式発表をもとに要約</p>', source_row)
+                info_key = 'summary-info:' + authored['article_refs'][0]['url']
+                self.assertIn(f'data-news-key="{info_key}"', source_row)
+                self.assertIn(f'data-news-focus="{info_key}"', source_row)
                 self.assertNotIn('class="news-footer"', markup)
                 if count > 1:
                     self.assertIn('ほかのニュース', markup)
