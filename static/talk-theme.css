@@ -1,0 +1,316 @@
+/* Existing talk screens share the morning letter's resolved palette. */
+body.kn-home-a :is(#talkOv, #cmOv, #teachOv) {
+  --talk-gutter: max(24px, calc((100vw - 960px) / 2));
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: var(--kn-talk-nav-height, calc(58px + env(safe-area-inset-bottom, 0px))) !important;
+  min-width: 0;
+  min-height: 0;
+  height: auto !important;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--kn-sh-bg, #f0eedf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font-family: var(--kn-a-sans, system-ui, sans-serif);
+  overscroll-behavior: contain;
+}
+
+body.kn-home-a #talkOv { z-index: 99997 !important; }
+body.kn-home-a #teachOv { z-index: 99998 !important; }
+body.kn-home-a #cmOv { z-index: 99999 !important; }
+
+body.kn-home-a :is(#talkOv .tk-head, #cmOv .cm-top, #teachOv .to-head) {
+  flex: 0 0 auto;
+  gap: 12px;
+  min-height: 76px;
+  box-sizing: border-box;
+  padding: 18px var(--talk-gutter);
+  padding-left: max(54px, var(--talk-gutter));
+  background: var(--kn-sh-bg, #f0eedf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+  font: 500 calc(22px * var(--kn-a-scale, 1))/1.4 var(--kn-a-serif, "Yu Mincho", serif) !important;
+}
+
+body.kn-home-a :is(#talkOv .tk-head > span, #teachOv .to-head > span, #cmOv .cm-title) {
+  min-width: 0;
+  color: inherit !important;
+  font: inherit !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a :is(#talkOv .tk-x, #teachOv .to-x, #cmOv .cm-back) {
+  flex: 0 0 auto;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 4px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font: 400 26px/1 system-ui, sans-serif !important;
+  cursor: pointer;
+}
+
+body.kn-home-a #cmOv .cm-on {
+  flex: 0 0 auto;
+  color: var(--kn-sh-muted, #606b57);
+  font: 400 calc(12px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  white-space: nowrap;
+}
+
+body.kn-home-a #talkOv .tk-syms {
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 12px var(--talk-gutter);
+  gap: 8px;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+body.kn-home-a :is(#talkOv .tk-sym, #teachOv .to-chip) {
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  min-height: 42px;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  font: 400 calc(14px * var(--kn-a-scale, 1))/1.4 var(--kn-a-sans, sans-serif) !important;
+  cursor: pointer;
+}
+
+body.kn-home-a #talkOv .tk-sym {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+body.kn-home-a #talkOv .tk-sym.on {
+  background: var(--kn-sh-chip, #eeeddf) !important;
+  border-color: var(--kn-sh-button, #607765);
+  box-shadow: inset 0 -2px 0 var(--kn-sh-button, #607765);
+}
+
+body.kn-home-a :is(#talkOv .tk-body, #cmOv .cm-list, #teachOv .to-body) {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 22px var(--talk-gutter);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  background: var(--kn-sh-bg, #f0eedf) !important;
+}
+
+body.kn-home-a :is(#talkOv .tk-disc, #cmOv .cm-warn, #teachOv .to-disc) {
+  background: var(--kn-sh-chip, #eeeddf) !important;
+  color: var(--kn-sh-muted, #606b57) !important;
+  font: 400 calc(13px * var(--kn-a-scale, 1))/1.65 var(--kn-a-sans, sans-serif) !important;
+}
+
+body.kn-home-a #talkOv .tk-disc {
+  padding: 12px 14px;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+
+body.kn-home-a :is(#cmOv .cm-warn, #teachOv .to-disc) {
+  flex: 0 0 auto;
+  padding: 10px var(--talk-gutter);
+  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+}
+
+body.kn-home-a :is(#talkOv .tk-c, #cmOv .cm-bubble, #teachOv .to-msg) {
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 10px;
+  padding: 14px 16px;
+  box-shadow: none;
+  font: 400 calc(15px * var(--kn-a-scale, 1))/1.75 var(--kn-a-sans, sans-serif) !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a :is(#cmOv .cm-msg.me .cm-bubble, #teachOv .to-user) {
+  background: var(--kn-sh-chip, #eeeddf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+}
+
+body.kn-home-a :is(#talkOv .tk-cn, #talkOv .tk-cb) {
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+}
+
+body.kn-home-a #talkOv .tk-cn {
+  font: 500 calc(13px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+}
+
+body.kn-home-a #talkOv .tk-cb {
+  font: inherit !important;
+}
+
+body.kn-home-a :is(#talkOv .tk-ct, #cmOv .cm-meta, #cmOv .cm-count, #talkOv .tk-empty, #cmOv .cm-nick label) {
+  color: var(--kn-sh-muted, #606b57) !important;
+  font: 400 calc(12px * var(--kn-a-scale, 1))/1.6 var(--kn-a-sans, sans-serif) !important;
+}
+
+body.kn-home-a #cmOv .cm-count.over { color: #e05555 !important; }
+
+body.kn-home-a #talkOv .tk-msg {
+  min-height: calc(20px * var(--kn-a-scale, 1));
+  height: auto;
+  font: 400 calc(12px * var(--kn-a-scale, 1))/1.6 var(--kn-a-sans, sans-serif) !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a :is(#talkOv .tk-foot, #cmOv .cm-bar, #teachOv .to-foot) {
+  flex: 0 0 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 16px var(--talk-gutter);
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-ink, #3d4b3c);
+  border-top: 1px solid var(--kn-sh-line, #d5d6c3);
+}
+
+body.kn-home-a :is(#talkOv .tk-row, #cmOv .cm-input-row, #teachOv .to-foot) {
+  gap: 10px;
+  align-items: flex-end;
+}
+
+body.kn-home-a :is(#talkOv .tk-name, #talkOv .tk-in, #cmOv .cm-nick input, #cmOv textarea, #teachOv .to-input) {
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 10px 12px;
+  background: var(--kn-sh-bg, #f0eedf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  font: 400 max(16px, calc(16px * var(--kn-a-scale, 1)))/1.5 var(--kn-a-sans, sans-serif) !important;
+}
+
+body.kn-home-a #talkOv .tk-name {
+  width: min(280px, 100%);
+  max-width: 100%;
+}
+
+body.kn-home-a :is(#talkOv .tk-name, #talkOv .tk-in, #cmOv input, #cmOv textarea, #teachOv .to-input)::placeholder {
+  color: var(--kn-sh-muted, #606b57);
+  opacity: 1;
+}
+
+body.kn-home-a :is(#talkOv .tk-send, #cmOv .cm-send, #teachOv .to-send) {
+  flex: 0 0 auto;
+  min-width: 72px;
+  width: auto;
+  min-height: 44px;
+  height: auto;
+  box-sizing: border-box;
+  padding: 10px 18px;
+  border: 1px solid var(--kn-sh-ink, #3d4b3c);
+  border-radius: 8px;
+  background: var(--kn-sh-ink, #3d4b3c) !important;
+  color: var(--kn-sh-paper, #fdfcf6) !important;
+  font: 500 calc(14px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+body.kn-home-a :is(#talkOv, #cmOv, #teachOv) :is(button, input, textarea, [role="button"]):focus-visible {
+  outline: 2px solid var(--kn-sh-button, #607765) !important;
+  outline-offset: 3px;
+}
+
+body.kn-home-a :is(#talkOv, #cmOv, #teachOv) button:disabled {
+  opacity: .55;
+  cursor: wait;
+}
+
+@media (max-width: 640px) {
+  body.kn-home-a :is(#talkOv, #cmOv, #teachOv) { --talk-gutter: 16px; }
+  body.kn-home-a :is(#talkOv .tk-head, #cmOv .cm-top, #teachOv .to-head) {
+    min-height: 68px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    gap: 8px;
+    font-size: calc(19px * var(--kn-a-scale, 1)) !important;
+  }
+  body.kn-home-a :is(#talkOv .tk-body, #cmOv .cm-list, #teachOv .to-body) { padding-top: 16px; padding-bottom: 16px; }
+  body.kn-home-a :is(#talkOv .tk-foot, #cmOv .cm-bar, #teachOv .to-foot) { padding-top: 12px; padding-bottom: 12px; }
+  body.kn-home-a :is(#talkOv .tk-c, #cmOv .cm-bubble, #teachOv .to-msg) { padding: 12px 14px; }
+  body.kn-home-a :is(#cmOv .cm-bubble, #teachOv .to-msg) { max-width: 90%; }
+}
+
+@media (max-height: 480px) {
+  body.kn-home-a :is(#talkOv .tk-head, #cmOv .cm-top, #teachOv .to-head) { min-height: 54px; padding-top: 7px; padding-bottom: 7px; }
+  body.kn-home-a :is(#talkOv .tk-syms, #talkOv .tk-foot, #cmOv .cm-bar, #teachOv .to-foot) { padding-top: 8px; padding-bottom: 8px; }
+}
+/* Both existing Talk entrances keep their click handlers and hidden items. */
+body.kn-home-a :is(#knMyTalkHub,#talkHubOv) {
+  background:var(--kn-sh-bg)!important;color:var(--kn-sh-ink)!important;
+  bottom:var(--kn-talk-nav-height,calc(58px + env(safe-area-inset-bottom,0px)))!important;
+  font-family:var(--kn-a-sans,system-ui,-apple-system,"Noto Sans JP",sans-serif);
+  overflow-y:auto;box-sizing:border-box;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-head,#talkHubOv .thb-head) {
+  display:flex!important;align-items:center;gap:12px;box-sizing:border-box;
+  min-height:72px;padding:16px max(24px,calc((100vw - 960px)/2))!important;
+  padding-left:max(54px,calc((100vw - 960px)/2))!important;
+  background:var(--kn-sh-bg)!important;color:var(--kn-sh-ink)!important;
+  border-bottom:1px solid var(--kn-sh-line);font-size:22px!important;font-weight:500!important;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-title,#talkHubOv .thb-title) {
+  font:500 calc(22px * var(--kn-a-scale,1))/1.3 var(--kn-a-serif,"Noto Serif JP","Yu Mincho",serif)!important;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-body,#talkHubOv .thb-body) {
+  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;
+  max-width:960px;margin:28px auto;padding:0 24px;box-sizing:content-box;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card) {
+  display:flex;flex-direction:row;align-items:center;gap:18px;
+  margin:0!important;padding:28px 24px!important;min-height:150px;box-sizing:border-box;
+  border:1px solid var(--kn-sh-line)!important;border-radius:8px!important;
+  background:var(--kn-sh-paper)!important;color:var(--kn-sh-ink)!important;
+  box-shadow:0 3px 0 color-mix(in srgb,var(--kn-sh-line) 45%,transparent)!important;
+  cursor:pointer;transition:border-color .15s,background .15s;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card):hover {
+  border-color:var(--kn-sh-muted)!important;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card):focus-visible {
+  outline:2px solid var(--kn-sh-button);outline-offset:4px;
+}
+body.kn-home-a #knMyTalkHub .kt-hub-icon,
+body.kn-home-a #talkHubOv .thb-ico {
+  display:flex;align-items:center;justify-content:center;flex:0 0 42px;
+  width:42px;height:42px;color:var(--kn-sh-button);
+}
+body.kn-home-a #knMyTalkHub .kt-hub-icon svg {width:32px;height:32px}
+body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-copy {flex:1;min-width:0}
+body.kn-home-a #talkHubOv .kt-hub-copy > :is(.thb-tt,.thb-sub) {display:block}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-card-title,#talkHubOv .thb-tt) {
+  color:var(--kn-sh-ink)!important;font:500 calc(18px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif)!important;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-sub,#talkHubOv .thb-sub) {
+  color:var(--kn-sh-muted)!important;font:400 calc(13px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,system-ui,sans-serif)!important;
+  margin-top:6px!important;
+}
+body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-arrow {font:300 26px/1 serif;color:var(--kn-sh-muted)}
+body.kn-home-a #talkHubOv .thb-x {margin-left:auto;color:var(--kn-sh-ink);padding:8px;cursor:pointer}
+body.kn-home-a.kn-talk-active #knFloatHam {z-index:100001!important}
+body.kn-home-a.kn-talk-active #drawerOverlay {z-index:100010!important}
+body.kn-home-a.kn-talk-active #sideDrawer {z-index:100020!important}
+@media(max-width:640px) {
+  body.kn-home-a :is(#knMyTalkHub .kt-hub-head,#talkHubOv .thb-head) {min-height:62px;padding-top:14px!important;padding-bottom:14px!important}
+  body.kn-home-a :is(#knMyTalkHub .kt-hub-title,#talkHubOv .thb-title) {font-size:calc(19px * var(--kn-a-scale,1))!important}
+  body.kn-home-a :is(#knMyTalkHub .kt-hub-body,#talkHubOv .thb-body) {grid-template-columns:1fr;margin:20px auto;padding:0 16px;gap:14px}
+  body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card) {min-height:120px;padding:24px 18px!important;gap:14px}
+  body.kn-home-a :is(#knMyTalkHub .kt-hub-card-title,#talkHubOv .thb-tt) {font-size:calc(16px * var(--kn-a-scale,1))!important}
+  body.kn-home-a :is(#knMyTalkHub .kt-hub-sub,#talkHubOv .thb-sub) {font-size:calc(12px * var(--kn-a-scale,1))!important}
+}
