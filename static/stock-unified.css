@@ -162,3 +162,23 @@ body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-day {max-widt
 @media(max-width:380px) {
   body.kn-home-a #morning-section #knTabWrap .kn-stock-search-dialog {padding:18px 14px}
 }
+/* Use the same quiet disclosure control in company news and every stock list. */
+body.kn-home-a #morning-section :is(
+  #knCompanyNewsSection button.sf-more,
+  #knTabWrap .sf-more>summary,
+  #knTabWrap .dividend-more>summary,
+  #knTabWrap #knDividendCalendar .dc-more:not(.bc-today,.bc-jump)
+) {
+  box-sizing:border-box;
+  width:fit-content;max-width:100%;min-width:0;min-height:44px;
+  margin:0 auto;padding:9px 26px;
+  justify-content:center;text-align:center;
+  background:transparent;border:0;border-radius:0;box-shadow:none;
+  color:var(--kn-a-ink);
+  font:400 calc(14px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif)!important;
+  cursor:pointer;touch-action:manipulation;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-more>summary span {font:inherit!important}
+body.kn-home-a #morning-section #knTabWrap :is(.sf-more,.dividend-more) {margin-top:20px}
+body.kn-home-a #morning-section #knTabWrap .sf-more[open] {margin-top:0}
+body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-more:not(.bc-today,.bc-jump) {margin-top:20px}
