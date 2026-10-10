@@ -21,6 +21,9 @@ function schedulesFor(company){
 }
 function rowsForMonth(month){return programmes.flatMap(schedulesFor).filter(row=>row.date.slice(0,7)===month);}
 function searchKey(value){return String(value||'').normalize('NFKC').toLowerCase().replace(/[\s・]/g,'').replace(/[ァ-ヶ]/g,c=>String.fromCharCode(c.charCodeAt(0)-0x60));}
+function monthLabel(value){return value.slice(0,4)+'年'+Number(value.slice(5))+'月';}
+function shortDay(value){return Number(value.slice(5,7))+'/'+Number(value.slice(8));}
+function agendaLabel(value){return shortDay(value)+' '+['日','月','火','水','木','金','土'][new Date(value+'T00:00:00Z').getUTCDay()]+'曜日の予定';}
 function nextRow(company,today){
   const dates=schedulesFor(company),next=dates.find(row=>row.date>=today);
   return next||{...company,date:null,record:null,holdUntil:'次回の保有締切は確認中',grant:'次回の付与時期は確認中',lastConfirmed:dates.length?dates[dates.length-1].date:null};
@@ -41,10 +44,15 @@ function create(w,mount,cal){
   [prev,label,next].forEach(node=>nav.appendChild(node));
   const todayButton=btn('今月に戻る','dc-more bc-today',()=>{month=cal.today().slice(0,7);reset();render();});
   const layout=el('div','dc-layout'),left=el('section','dc-calendar-panel'),right=el('section','dc-agenda-panel');
-  const week=el('div','dc-weekdays'),grid=el('div','dc-grid'),list=el('div','bc-list'),head=el('h4','bc-heading');
+  const week=el('div','dc-weekdays'),grid=el('div','dc-grid'),list=el('div','bc-list'),head=el('h4','bc-heading'),listHead=el('div','dc-list-heading');
+  const clear=btn('予定一覧に戻る','dc-reset',()=>{selected=null;limit=5;render();});clear.hidden=true;
+  head.id='bc-agenda-title';label.id='bc-month-title';
+  left.setAttribute('aria-labelledby',label.id);right.setAttribute('aria-labelledby',head.id);
+  grid.setAttribute('role','group');grid.setAttribute('aria-labelledby',label.id);week.setAttribute('aria-hidden','true');
+  listHead.appendChild(head);listHead.appendChild(clear);
   const more=btn('もっと見る','dc-more bc-more',()=>{limit+=5;render();});
   ['日','月','火','水','木','金','土'].forEach(day=>week.appendChild(el('span','',day)));
-  [week,grid].forEach(node=>left.appendChild(node));[head,list,more].forEach(node=>right.appendChild(node));
+  [week,grid].forEach(node=>left.appendChild(node));[listHead,list,more].forEach(node=>right.appendChild(node));
   layout.appendChild(left);layout.appendChild(right);
   const pending=el('details','bc-pending'),pendingHeading=el('summary'),pendingBody=el('div','bc-pending-body');pending.open=true;
   const pendingMore=btn('もっと見る','dc-more bc-pending-more',()=>{pendingLimit+=5;render();});
@@ -55,15 +63,18 @@ function create(w,mount,cal){
   function sortRows(rows){const saved=favorites();return rows.slice().sort((a,b)=>Number(saved.has(b.code))-Number(saved.has(a.code))||(a.date||'9999').localeCompare(b.date||'9999')||a.code.localeCompare(b.code));}
   function matches(company){return !query||searchKey(company.name+' '+company.code+' '+(company.aliases||'')).includes(query);}
   function card(row,opened){
-    const box=el('details','bc-card'),summary=el('summary','bc-summary');
+    const box=el('details','bc-card dc-disclosure'),summary=el('summary','bc-summary dc-event-summary');
     box.dataset.benefitKey=row.code+':'+(row.date||'pending');box.open=opened.has(box.dataset.benefitKey);
     const hold=row.date?(row.holdUntil||row.date.replaceAll('-','/')+'の取引終了まで'):'次回の保有締切は確認中';
-    [el('span','bc-company',row.name+'　'+row.code),el('strong','bc-reward',row.reward),el('span','bc-tags',row.shares+' ／ '+row.holding),el('span','bc-date','いつまで持つ？ '+hold+(row.status==='planned'?'（予定）':'')),el('span','bc-date','いつもらえる？ '+(row.grant||'付与時期は会社の案内で確認'))].forEach(node=>summary.appendChild(node));
-    if(row.basis)summary.appendChild(el('span','dc-coverage bc-basis',row.basis));
+    const date=el('span','dc-event-date',row.date?shortDay(row.date):'未確認'),body=el('span','dc-event-body');
+    [el('span','dc-company bc-company',row.name),el('span','dc-company-code',row.code),el('strong','bc-reward',row.reward),el('span','bc-tags',row.shares+' ／ '+row.holding),el('span','bc-date','保有はいつまで？ '+hold+(row.status==='planned'?'（予定）':'')),el('span','bc-date','いつもらえる？ '+(row.grant||'付与時期は会社の案内で確認'))].forEach(node=>body.appendChild(node));
+    if(row.basis)body.appendChild(el('span','dc-coverage bc-basis',row.basis));
+    const badge=el('span','dc-favorite','★');badge.setAttribute('aria-label','お気に入り');badge.hidden=!favorites().has(row.code);
+    [date,body,badge].forEach(node=>summary.appendChild(node));
     box.appendChild(summary);
     const details=el('dl','bc-detail');
     const period=(row.record?row.record.replaceAll('-','/')+'の株主名簿で確認。':'')+(row.period||'会社の案内で確認');
-    [['何がもらえる？',row.use],['いつまで持つ？',row.holdExplanation||'継続保有など会社所定の条件があります。会社の優待案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
+    [['何がもらえる？',row.use],['保有はいつまで？',row.holdExplanation||'継続保有など会社所定の条件があります。会社の優待案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
     box.appendChild(details);
     if(row.lastConfirmed)box.appendChild(el('p','dc-coverage','前回掲載した締切：'+row.lastConfirmed.replaceAll('-','/')+'。次回の日程は未確認です。'));
     const verified=dates.label(row.verified,'確認');
@@ -72,7 +83,7 @@ function create(w,mount,cal){
     const source=row.source,sourceUrl=typeof source==='string'?source:source&&source.url;
     if(sourceUrl&&sourceUrl!==row.url){const dates=el('a','dc-help-source bc-date-source','購入締切の日程資料 ↗');dates.href=sourceUrl;dates.target='_blank';dates.rel='noopener noreferrer';box.appendChild(dates);}
     if(query&&row.date&&row.date.slice(0,7)!==month&&cal.bounds().months.includes(row.date.slice(0,7))){
-      box.appendChild(btn(row.date.slice(0,7).replace('-','年 ')+'月のカレンダーを見る','dc-more bc-jump',()=>{month=row.date.slice(0,7);selected=row.date;limit=5;render();}));
+      box.appendChild(btn(monthLabel(row.date.slice(0,7))+'のカレンダーを見る','dc-more bc-jump',()=>{month=row.date.slice(0,7);selected=row.date;limit=5;render();}));
     }
     return box;
   }
@@ -85,7 +96,7 @@ function create(w,mount,cal){
     const today=cal.today(),months=cal.bounds().months;
     if(!months.includes(month)){month=months[0];reset();}
     prev.disabled=month===months[0];next.disabled=month===months[months.length-1];todayButton.hidden=month===today.slice(0,7);
-    label.textContent=month.replace('-','年 ')+'月';
+    label.textContent=monthLabel(month);
     const allMonthRows=rowsForMonth(month),events=allMonthRows.filter(matches),allMatches=programmes.filter(matches);
     layout.dataset.searching=String(!!query);
     const total=new Set(programmes.map(company=>company.code)).size;
@@ -95,18 +106,19 @@ function create(w,mount,cal){
     cal.calendarDays(month,events.map(row=>({date:row.date,precision:'day',kind:'benefit'})),today).forEach(day=>{
       if(!day){grid.appendChild(el('span'));return;}
       const button=btn(String(day.day),'dc-day',()=>{selected=selected===day.date?null:day.date;limit=5;render();const focused=dateButtons.get(day.date);if(focused)focused.focus();});
-      button.dataset.date=day.date;if(day.count)button.appendChild(el('span','dc-day-count',day.count+'件'));
-      button.setAttribute('aria-label',day.date+' 優待の購入締切 '+day.count+'件');button.setAttribute('aria-pressed',String(selected===day.date));
+      button.dataset.date=day.date;if(day.count){const count=el('small','dc-day-count',String(day.count));count.setAttribute('aria-hidden','true');button.appendChild(count);}
+      button.setAttribute('aria-label',Number(day.date.slice(5,7))+'月'+Number(day.date.slice(8))+'日、'+(day.count?day.count+'件の優待の購入締切':'確認済みの予定なし'));button.setAttribute('aria-pressed',String(selected===day.date));
       if(day.date===today)button.setAttribute('aria-current','date');dateButtons.set(day.date,button);grid.appendChild(button);
     });
     const searching=!!query&&!selected;
     const rows=sortRows(searching?allMatches.map(company=>nextRow(company,today)):events.filter(row=>!selected||row.date===selected));
-    head.textContent=selected?selected.replaceAll('-','/')+' の購入締切':searching?'掲載企業の検索結果 '+allMatches.length+'社（次回の掲載日程）':'この月の優待の購入締切';
-    drawList(list,rows,limit);more.hidden=rows.length<=limit;more.textContent='もっと見る（残り'+Math.max(0,rows.length-limit)+'件）';
+    list.dataset.selectedDay=String(!!selected);clear.hidden=!selected;
+    head.textContent=selected?agendaLabel(selected):searching?'掲載企業の検索結果 '+allMatches.length+'社（次回の掲載日程）':'この月の優待の購入締切';
+    drawList(list,rows,limit);more.hidden=rows.length<=limit;
     if(!rows.length)list.appendChild(el('p','dc-empty',searching?'掲載中の会社には一致するものがありません。未掲載の会社にも優待がある場合があります。':'この月・日付の掲載日程はありません。優待がないという意味ではありません。'));
     const unknown=sortRows(allMatches.map(company=>nextRow(company,today)).filter(row=>!row.date));
     pending.hidden=!!query||!unknown.length;pendingHeading.textContent='制度を掲載済み・次回の日程は未確認 '+unknown.length+'社';
-    drawList(pendingBody,unknown,pendingLimit);pendingMore.hidden=unknown.length<=pendingLimit;pendingMore.textContent='もっと見る（残り'+Math.max(0,unknown.length-pendingLimit)+'社）';
+    drawList(pendingBody,unknown,pendingLimit);pendingMore.hidden=unknown.length<=pendingLimit;
   }
   if(doc.addEventListener)doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)render();});
   if(w.addEventListener)w.addEventListener('kn:watchlist-change',render);

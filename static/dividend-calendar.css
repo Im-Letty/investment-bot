@@ -55,10 +55,10 @@
 #knDividendCalendar .dc-event-summary .dc-event-kind {display:block}
 #knDividendCalendar .dc-favorite {grid-column:3;grid-row:1;font-size:12px;color:var(--dc-muted)}
 #knDividendCalendar .dc-favorite[hidden] {display:none}
-#knDividendCalendar .dc-events[data-selected-day=true] .dc-event-summary {grid-template-columns:minmax(0,1fr) auto 22px}
-#knDividendCalendar .dc-events[data-selected-day=true] .dc-event-summary>.dc-event-date {display:none}
-#knDividendCalendar .dc-events[data-selected-day=true] .dc-event-summary:after {grid-column:3}
-#knDividendCalendar .dc-events[data-selected-day=true] .dc-favorite {grid-column:2}
+#knDividendCalendar :is(.dc-events,.bc-list)[data-selected-day=true] .dc-event-summary {grid-template-columns:minmax(0,1fr) auto 22px}
+#knDividendCalendar :is(.dc-events,.bc-list)[data-selected-day=true] .dc-event-summary>.dc-event-date {display:none}
+#knDividendCalendar :is(.dc-events,.bc-list)[data-selected-day=true] .dc-event-summary:after {grid-column:3}
+#knDividendCalendar :is(.dc-events,.bc-list)[data-selected-day=true] .dc-favorite {grid-column:2}
 #knDividendCalendar .dc-disclosure>.dc-holding-story {margin-top:18px;padding-top:18px;border-top:1px solid var(--dc-line)}
 #knDividendCalendar .dc-profile {display:block;min-height:44px;margin-top:14px;padding:6px 0;color:var(--dc-ink);font:400 calc(12px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);text-decoration:underline;text-underline-offset:3px}
 #knDividendCalendar .dc-company {width:100%;padding:3px 0;color:var(--dc-ink);font-size:calc(14px * var(--kn-a-scale,1));font-weight:500;line-height:1.65;text-align:left;overflow-wrap:anywhere}
@@ -187,22 +187,19 @@
 #knDividendCalendar .dc-company-results {margin:-8px 0 20px;border-bottom:1px solid var(--dc-line);padding-bottom:12px}
 #knDividendCalendar .dc-search-company {display:block;width:100%;text-align:left;border-bottom:1px solid var(--dc-line);padding:10px 4px;overflow-wrap:anywhere}
 #knDividendCalendar .dc-dividend-pane[hidden],#knDividendCalendar .dc-benefits-pane[hidden]{display:none!important}
-#knDividendCalendar .bc-card{margin:0 0 14px;padding:18px;border:1px solid var(--dc-line);border-radius:12px;background:var(--dc-paper);color:var(--dc-ink);min-width:0}
-#knDividendCalendar .bc-summary{cursor:pointer;display:flex;flex-direction:column;gap:9px;list-style:none;overflow-wrap:anywhere}
-#knDividendCalendar .bc-summary::-webkit-details-marker{display:none}
-#knDividendCalendar .bc-summary::after{content:'＋';align-self:flex-end}
-#knDividendCalendar .bc-card[open]>.bc-summary::after{content:'−'}
-#knDividendCalendar .bc-company,#knDividendCalendar .bc-date{font:400 12px/1.7 var(--kn-a-sans,sans-serif);color:var(--dc-muted)}
-#knDividendCalendar .bc-reward{font:600 23px/1.5 var(--kn-a-sans,sans-serif)}
-#knDividendCalendar .bc-tags{font:500 13px/1.8 var(--kn-a-sans,sans-serif);background:var(--dc-chip);padding:7px 10px;border-radius:6px}
-#knDividendCalendar .bc-detail{font:400 14px/1.9 var(--kn-a-sans,sans-serif);border-top:1px solid var(--dc-line);padding-top:16px}
-#knDividendCalendar .bc-detail dt{font-weight:600;margin-top:14px}
+#knDividendCalendar .bc-card{margin:0;padding:16px 0;border:0;border-bottom:1px solid var(--dc-line);border-radius:0;background:transparent;color:var(--dc-ink);min-width:0}
+#knDividendCalendar .bc-summary{overflow-wrap:anywhere}
+#knDividendCalendar .bc-date,#knDividendCalendar .bc-tags{display:block;margin:5px 0 0;font:400 calc(12px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);color:var(--dc-muted)}
+#knDividendCalendar .bc-reward{display:block;margin:5px 0 0;font:500 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif)}
+#knDividendCalendar .bc-detail{margin:18px 0 0;font:400 calc(12px * var(--kn-a-scale,1))/1.9 var(--kn-a-sans,sans-serif);border-top:1px solid var(--dc-line);padding-top:18px}
+#knDividendCalendar .bc-detail dt{font:500 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);margin-top:14px}
+#knDividendCalendar .bc-detail dt:first-child{margin-top:0}
 #knDividendCalendar .bc-detail dd{margin:5px 0 0;overflow-wrap:anywhere}
-#knDividendCalendar .bc-pending{margin:22px 0;font:400 13px/1.8 var(--kn-a-sans,sans-serif);color:var(--dc-muted)}
-#knDividendCalendar .bc-pending>summary{cursor:pointer;margin-bottom:14px}
+#knDividendCalendar .bc-pending{margin:22px 0;font:400 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);color:var(--dc-muted)}
+#knDividendCalendar .bc-pending>summary{cursor:pointer;min-height:44px;padding:7px 0 10px;border-bottom:1px solid var(--dc-line)}
 #knDividendCalendar .dc-filters{flex-wrap:wrap}
 /* Benefits retain the calendar layout while exposing coverage and date sources. */
 #knDividendCalendar .bc-today{margin:0 0 16px auto;min-width:0}
-#knDividendCalendar .bc-basis{margin:0}
+#knDividendCalendar .bc-basis{display:block;margin:5px 0 0}
 #knDividendCalendar .bc-date-source{display:block;margin-top:8px}
 @media(max-width:680px){#knDividendCalendar .dc-benefits-pane .dc-layout[data-searching="true"]>.dc-agenda-panel{order:-1}}

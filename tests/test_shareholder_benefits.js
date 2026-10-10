@@ -23,7 +23,7 @@ function harness(data,options={}){
  const mount=doc.createElement('div'),w={document:doc,localStorage:{getItem:key=>saved.get(key)},addEventListener(type,fn){events[type]=fn;}};
  const cal={today:()=>current,shift:calendar.shift,bounds:()=>calendar.bounds(Date.parse(current+'T03:00:00Z')),calendarDays:calendar.calendarDays};
  const api=load(data),view=api.create(w,mount,cal);
- return {api,view,mount,doc,events,setToday(value){current=value;},search(value){const input=mount.find('dc-search');input.value=value;input.dispatch('input');},cards(){return mount.find('bc-list').children.filter(node=>node.className==='bc-card');}};
+ return {api,view,mount,doc,events,setToday(value){current=value;},search(value){const input=mount.find('dc-search');input.value=value;input.dispatch('input');},cards(){return mount.find('bc-list').children.filter(node=>node.className.split(' ').includes('bc-card'));}};
 }
 test('a company can have multiple explicit dates without generating unreviewed years or duplicates',()=>{
  const data=[company('1000',{schedules:[schedule('2026-09-28'),schedule('2027-03-29',{record:'2027-03-31'}),schedule('2026-09-28'),schedule('2027-02-30')]}),company('2000')];
@@ -38,7 +38,7 @@ test('monthly counts include all matching dates while lists paginate and priorit
  assert.equal(h.mount.find('dc-status').textContent,'');assert.equal(h.mount.find('dc-status').hidden,true);assert.equal(h.cards().length,5);
  assert.match(h.mount.children.at(-1).textContent,/空欄や検索結果なしは、優待がないという意味ではありません/);
  assert.match(h.cards()[0].textContent,/会社1006/);assert.equal(h.mount.find('bc-more').hidden,false);
- const day=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-28');assert.equal(day.find('dc-day-count').textContent,'7件');
+ const day=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-28');assert.equal(day.find('dc-day-count').textContent,'7');
  const today=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-24');assert.equal(today.getAttribute('aria-current'),'date');
  h.cards()[0].open=true;h.mount.find('bc-more').dispatch('click');assert.equal(h.cards().length,8);assert.equal(h.cards()[0].open,true);assert.equal(h.mount.find('bc-more').hidden,true);
  day.dispatch('click');assert.equal(h.cards().length,5);assert.equal(h.doc.activeElement.dataset.date,'2026-09-28');assert.equal(h.doc.activeElement.getAttribute('aria-pressed'),'true');
@@ -51,7 +51,7 @@ test('search normalizes names, fullwidth codes and kana aliases across months wi
  assert.equal(h.mount.find('dc-layout').dataset.searching,'true');assert.match(h.mount.find('dc-status').textContent,/掲載2社.*検索結果は1社.*表示中の月.*0社・0件/);
  assert.equal(h.mount.find('dc-status').hidden,false);
  h.search('すしろー');assert.equal(h.cards().length,1);assert.match(h.mount.find('bc-heading').textContent,/検索結果 1社/);
- h.mount.find('bc-jump').dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年 03月');assert.match(h.cards()[0].textContent,/2027\/03\/29/);
+ h.mount.find('bc-jump').dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年3月');assert.match(h.cards()[0].textContent,/2027\/03\/29/);
  h.search('未掲載の会社');assert.equal(h.cards().length,0);assert.match(h.mount.find('dc-empty').textContent,/未掲載の会社にも優待/);
  h.search('');assert.equal(h.mount.find('dc-status').hidden,true);assert.equal(h.mount.find('dc-status').textContent,'');
 });
@@ -76,9 +76,33 @@ test('pending companies paginate independently and planned schedules retain thei
 });
 test('month navigation clamps to bounds and refreshes the current month after a date rollover',()=>{
  const h=harness([company('1000')]),nav=h.mount.find('dc-month-navigation');
- assert.equal(nav.children[0].disabled,true);nav.children[0].dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2026年 09月');
- for(let i=0;i<14;i++)nav.children[2].dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年 09月');assert.equal(nav.children[2].disabled,true);
- h.mount.find('bc-today').dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2026年 09月');
- h.setToday('2027-01-01');h.view.render();assert.equal(h.mount.find('dc-month').textContent,'2027年 01月');assert.equal(h.cards().length,0);assert.match(h.mount.find('bc-pending').textContent,/会社1000/);
+ assert.equal(nav.children[0].disabled,true);nav.children[0].dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2026年9月');
+ for(let i=0;i<14;i++)nav.children[2].dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年9月');assert.equal(nav.children[2].disabled,true);
+ h.mount.find('bc-today').dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2026年9月');
+ h.setToday('2027-01-01');h.view.render();assert.equal(h.mount.find('dc-month').textContent,'2027年1月');assert.equal(h.cards().length,0);assert.match(h.mount.find('bc-pending').textContent,/会社1000/);
  assert.equal(h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2027-01-01').getAttribute('aria-current'),'date');
+});
+test('benefit summaries share dividend date, company-code, disclosure and plain pagination structure',()=>{
+ const h=harness(Array.from({length:7},(_,i)=>company(String(1000+i))),{favorites:['1006.T']});
+ const card=h.cards()[0];
+ assert.ok(card.className.split(' ').includes('dc-disclosure'));
+ assert.ok(card.find('bc-summary').className.split(' ').includes('dc-event-summary'));
+ assert.equal(card.find('dc-company').textContent,'会社1006');assert.equal(card.find('dc-company-code').textContent,'1006');
+ assert.equal(card.find('dc-event-date').textContent,'9/28');assert.equal(card.find('dc-favorite').hidden,false);
+ assert.equal(h.cards()[1].find('dc-favorite').hidden,true);
+ assert.equal(h.mount.find('bc-more').textContent,'もっと見る');
+ h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-28').dispatch('click');
+ assert.equal(h.mount.find('bc-heading').textContent,'9/28 月曜日の予定');assert.equal(h.mount.find('bc-list').dataset.selectedDay,'true');
+ assert.equal(h.mount.find('dc-reset').hidden,false);h.mount.find('dc-reset').dispatch('click');
+ assert.equal(h.mount.find('bc-list').dataset.selectedDay,'false');assert.equal(h.mount.find('dc-reset').hidden,true);
+ assert.equal(h.mount.find('bc-heading').textContent,'この月の優待の購入締切');
+});
+test('matching dividend typography keeps long-term benefit conditions and unknown timing explicit',()=>{
+ const h=harness(Array.from({length:7},(_,i)=>company(String(1000+i),{schedules:[],holding:'1年以上の継続保有',conditions:'200株以上を1年以上保有'})));
+ const card=h.mount.find('bc-pending-body').children[0];
+ assert.equal(card.find('dc-event-date').textContent,'未確認');assert.match(card.find('bc-tags').textContent,/1年以上の継続保有/);
+ assert.match(card.find('bc-detail').textContent,/200株以上を1年以上保有/);
+ assert.match(card.find('bc-date').textContent,/次回の保有締切は確認中/);
+ assert.equal(h.mount.find('bc-pending-more').textContent,'もっと見る');
+ assert.equal(card.find('bc-verified').textContent,'2026/09/24 確認');
 });

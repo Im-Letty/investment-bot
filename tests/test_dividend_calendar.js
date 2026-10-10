@@ -317,7 +317,7 @@ test('benefits tab separates dates and conditions and restores the dividend view
  assert.deepEqual(tabs.slice(0,3).map(b=>b.textContent),['配当','株主優待','お気に入り']);
  tabs[1].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,true);assert.equal(h.mount.find('dc-benefits-pane').hidden,false);
  const pane=h.mount.find('dc-benefits-pane'),benefits=h.w.KNBenefits;
- const cards=()=>pane.find('bc-list').children.filter(node=>node.className==='bc-card');
+ const cards=()=>pane.find('bc-list').children.filter(node=>node.className.split(' ').includes('bc-card'));
  assert.equal(cards().length,Math.min(5,benefits.rowsForMonth(MONTH).length));
  assert.equal(pane.find('dc-status').textContent,'');assert.equal(pane.find('dc-status').hidden,true);
  if(cards().length)assert.ok(cards()[0].find('bc-tags'));
