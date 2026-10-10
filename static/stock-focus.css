@@ -405,9 +405,10 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   min-height:44px;
   margin:20px auto 0;
   padding:9px 26px;
-  background:var(--sf-paper);
-  border:1px solid var(--sf-line);
-  border-radius:7px;
+  background:transparent;
+  border:0;
+  border-radius:0;
+  box-shadow:none;
   color:var(--sf-ink);
   font:400 calc(14px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);
   cursor:pointer;
