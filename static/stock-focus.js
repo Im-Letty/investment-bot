@@ -67,7 +67,7 @@
   function ranking(data,direction,active,status,options={}){
     const items=ranked(data,direction,options),market=MARKETS[options.market]?options.market:'all',quoteDates=tradeDates((data?data.items:[]).filter(item=>market==='all'||item.market===market)),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,quoteDates.showDate(item)).replace('</li>',(options.metric==='volume'?'<span class="sf-volume">売買された株数 '+amount(item.volume)+'株</span>':'')+'</li>')).join('');
     const empty=data?'条件に当てはまる銘柄はありません。':status==='error'?'株価を確認できませんでした。':'株価を確認しています…';
-    const more=items.length>5?'<details class="sf-more" data-stock-detail="rank-'+direction+'"><summary><span>もっと見る<span class="sf-sr-only">、残り'+(items.length-5)+'社</span></span><i aria-hidden="true"></i></summary><ol class="sf-rows" start="6">'+rows(items.slice(5),5)+'</ol></details>':'';
+    const more=items.length>5?'<details class="sf-more" data-stock-detail="rank-'+direction+'"><summary><span>もっと見る<span class="sf-sr-only">、残り'+(items.length-5)+'社</span></span></summary><ol class="sf-rows" start="6">'+rows(items.slice(5),5)+'</ol></details>':'';
     return '<section class="sf-ranking" id="sf-rank-panel-'+direction+'" role="tabpanel" aria-labelledby="sf-rank-tab-'+direction+'" tabindex="0"'+(active!==direction?' hidden':'')+'>'+(items.length?'<ol class="sf-rows">'+rows(items.slice(0,5))+'</ol>':'<p class="sf-state">'+empty+(!data&&status==='error'?'<button class="sf-retry" type="button" data-stock-retry>再読み込み</button>':'')+'</p>')+more+'</section>';
   }
   function rankingMarkup(data,active='up',status='loading',options={}){
