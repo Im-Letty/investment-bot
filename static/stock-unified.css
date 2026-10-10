@@ -2,6 +2,7 @@
 body.kn-home-a #morning-section #knTabWrap {
   --kn-stock-radius:7px;
   --kn-stock-space:20px;
+  container:home-stock / inline-size;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-layout {display:block;min-width:0}
 body.kn-home-a #morning-section #knTabWrap .kn-stock-body {
@@ -12,6 +13,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-stock-body {
   border-radius:0!important;
   container:stock-content / inline-size;
 }
+body.kn-home-a #morning-section #knTabWrap #knDivHolder > .dividend-tab-body {min-width:0;padding:0!important}
 body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs {
   display:grid!important;
   grid-template-columns:repeat(2,minmax(0,1fr))!important;
@@ -83,6 +85,41 @@ body.kn-home-a #knTabWrap #knDividendCalendar .dc-filter[aria-pressed="true"] {
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-day {border-radius:var(--kn-stock-radius)}
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-day[aria-pressed="true"] {border-color:var(--kn-a-button)}
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-event {padding-block:16px}
+/* The dividend and calendar switches follow the same F navigation at the same panel width. */
+body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] #knDivSubRow,
+body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filters {
+  display:grid!important;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px!important;
+  width:100%!important;max-width:none;
+  margin:0 0 22px!important;padding:0!important;
+  min-height:0;align-content:start;align-items:stretch;
+  border:0!important;
+}
+body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filters {grid-template-columns:repeat(3,minmax(0,1fr))}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow button,
+body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter {
+  min-width:0;min-height:50px;flex:none!important;
+  margin:0!important;padding:10px 13px!important;
+  border:1px solid var(--kn-a-line)!important;
+  border-radius:var(--kn-stock-radius)!important;
+  background:transparent!important;color:var(--kn-a-muted)!important;
+  font:400 calc(16px * var(--kn-a-scale,1))/1.65 var(--kn-a-sans,sans-serif)!important;
+  white-space:normal!important;text-align:center;
+}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow button[aria-pressed="true"],
+body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter[aria-pressed="true"] {
+  border-color:var(--kn-a-button)!important;
+  background:var(--kn-a-chip)!important;color:var(--kn-a-ink)!important;
+  box-shadow:inset 0 -2px 0 var(--kn-a-button)!important;font-weight:500!important;
+}
+body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-manage {
+  grid-column:1/-1;margin:0!important;padding:4px 0!important;
+  min-height:44px;text-align:left;font-size:calc(14px * var(--kn-a-scale,1));
+}
+body.kn-home-a #morning-section #knTabWrap #knDivSubRow button:focus-visible {
+  outline:2px solid var(--kn-a-button);outline-offset:3px;
+}
 @container home-stock (min-width:651px) {
   body.kn-home-a #morning-section #knTabWrap .kn-stock-layout {display:grid;grid-template-columns:160px minmax(0,1fr);gap:28px;align-items:start}
   body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs {
@@ -95,6 +132,31 @@ body.kn-home-a #knTabWrap #knDividendCalendar .dc-event {padding-block:16px}
   body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs :is([data-kn-tab="stock"],[data-kn-tab="favorites"]) {text-align:left;justify-content:flex-start;border:0!important}
   body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {border-left:2px solid var(--kn-a-button)!important;box-shadow:none!important}
   body.kn-home-a #morning-section #knTabWrap:is([data-stock-main="div_top"],[data-stock-main="div_cal"],[data-stock-main="div_search"]) .kn-stock-layout {grid-template-columns:minmax(0,1fr)}
+  body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] .kn-stock-body {
+    display:grid;grid-template-columns:160px minmax(0,1fr);gap:0 28px;align-items:start;
+  }
+  body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] .kn-stock-view-title {grid-column:1/-1}
+  body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] #knDivSubRow {grid-column:1;grid-row:2}
+  body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] #knDivHolder {grid-column:2;grid-row:2;min-width:0}
+  body.kn-home-a #morning-section #knTabWrap #knDividendCalendar {
+    display:grid;grid-template-columns:160px minmax(0,1fr);gap:28px;align-items:start;
+    max-width:none;
+  }
+  body.kn-home-a #morning-section #knTabWrap[data-stock-main="div_top"] #knDivSubRow,
+  body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filters {
+    grid-template-columns:minmax(0,1fr);
+    gap:6px!important;margin:0!important;
+    padding-right:17px!important;border-right:1px solid var(--kn-a-line)!important;
+    min-height:200px;
+  }
+  body.kn-home-a #morning-section #knTabWrap #knDivSubRow button,
+  body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter {
+    text-align:left;justify-content:flex-start;border:0!important;
+  }
+  body.kn-home-a #morning-section #knTabWrap #knDivSubRow button[aria-pressed="true"],
+  body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter[aria-pressed="true"] {
+    border-left:2px solid var(--kn-a-button)!important;box-shadow:none!important;
+  }
 }
 @container stock-content (max-width:440px) {
   body.kn-home-a #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
@@ -103,11 +165,12 @@ body.kn-home-a #knTabWrap #knDividendCalendar .dc-event {padding-block:16px}
   body.kn-home-a #morning-section #knTabWrap .sf-watch-row .sf-quote {align-items:flex-start;text-align:left}
   body.kn-home-a #morning-section #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr);gap:6px 10px}
   body.kn-home-a #morning-section #knTabWrap .dividend-list .dividend-row-values {grid-column:2;text-align:left}
-  body.kn-home-a #knTabWrap #knDividendCalendar .dc-filter {flex:1 1 90px;min-width:0;padding-inline:6px}
-  body.kn-home-a #knTabWrap #knDividendCalendar .dc-manage {margin-left:0;flex-basis:100%;text-align:left;padding-left:0}
 }
 @container home-stock (max-width:440px) {
   body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs :is([data-kn-tab="stock"],[data-kn-tab="favorites"]) {padding-inline:6px!important}
+  body.kn-home-a #morning-section #knTabWrap #knDivSubRow button,
+  body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter {padding-inline:6px!important}
+  body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter {padding-inline:2px!important}
 }
 @media(max-width:380px) {
   body.kn-home-a #morning-section #knTabWrap .kn-stock-search-dialog {padding:18px 14px}

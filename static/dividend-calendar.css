@@ -9,6 +9,7 @@
   font:400 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,-apple-system,BlinkMacSystemFont,sans-serif);text-align:left;
 }
 #knDividendCalendar * {box-sizing:border-box}
+#knDividendCalendar .dc-content {min-width:0;container:dividend-calendar / inline-size}
 #knDividendCalendar [hidden] {display:none!important}
 #knDividendCalendar button {min-height:44px;margin:0;border:0;background:transparent;color:inherit;font:inherit;cursor:pointer;touch-action:manipulation;box-shadow:none;white-space:normal}
 #knDividendCalendar button:disabled {cursor:default;opacity:.3}
