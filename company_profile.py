@@ -17,11 +17,13 @@ import threading
 import time
 
 import requests
+from urllib3.exceptions import HTTPError as UpstreamReadError
 
 JST = timezone(timedelta(hours=9))
 TTL = 6 * 3600
 RETAIN = 30 * 86400
 PROFILE_URL = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/'
+CHART_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 MODULES = 'price,summaryDetail,financialData,calendarEvents,assetProfile'
 FIELDS = ('market_cap', 'forward_annual_dividend_per_share', 'analyst_target',
           'ex_dividend_date', 'dividend_payment_date', 'price')
@@ -105,6 +107,38 @@ def parse_profile(payload, symbol, name, fetched_at):
                 updated_at=fetched_at, _business_summary=summary)
 
 
+def parse_chart_profile(payload, symbol, name, fetched_at):
+    """A quote fallback is only a dated price, never a financial forecast."""
+    if not safe_symbol(symbol) or not isinstance(payload, dict):
+        return None
+    chart = payload.get('chart')
+    if not isinstance(chart, dict) or chart.get('error'):
+        return None
+    results = chart.get('result')
+    if not isinstance(results, list) or len(results) != 1 or not isinstance(results[0], dict):
+        return None
+    meta = results[0].get('meta')
+    if not isinstance(meta, dict) or meta.get('symbol') != symbol or meta.get('currency') != 'JPY':
+        return None
+    quote_at = _number(meta.get('regularMarketTime'))
+    price = _number(meta.get('regularMarketPrice'))
+    if quote_at is None or not 0 <= fetched_at - quote_at < RETAIN:
+        price = quote_at = None
+    cap = _number(meta.get('marketCap'))
+    if price is None and cap is None:
+        return None
+    data = dict(currency='JPY', price=price, price_updated_at=quote_at,
+                market_cap=cap, forward_annual_dividend_per_share=None,
+                forward_dividend_basis='annualized', analyst_target=None,
+                ex_dividend_date=None, dividend_payment_date=None)
+    fields = {key: dict(fetched_at=fetched_at, as_of=quote_at if key == 'price' else None)
+              for key in FIELDS if data[key] is not None}
+    source = dict(name='Yahoo Finance', url='https://finance.yahoo.com/quote/' + symbol + '/',
+                  api_url=CHART_URL + symbol, fetched_at=fetched_at, fields=fields)
+    return dict(symbol=symbol, name=name, data=data, source=source,
+                updated_at=fetched_at, partial=True)
+
+
 class YahooProfileProvider:
     """Public Yahoo session handshake, isolated per worker; tokens stay private."""
     def __init__(self, *, session_factory=requests.Session, now=time.time,
@@ -118,7 +152,7 @@ class YahooProfileProvider:
         if state is None or state['pid'] != os.getpid():
             session = self.session_factory()
             session.headers.update({'User-Agent': 'Mozilla/5.0'})
-            state = self._local.state = dict(session=session, crumb=None, pid=os.getpid())
+            state = self._local.state = dict(session=session, crumb=None, pid=os.getpid(), summary_retry_at=0)
         return state
 
     def _read(self, state, url, deadline, *, params=None, max_bytes=250000):
@@ -144,11 +178,7 @@ class YahooProfileProvider:
                 chunks.append(chunk)
             return response.status_code, b''.join(chunks)
 
-    def __call__(self, symbol, name):
-        if not safe_symbol(symbol):
-            return None
-        state = self._state()
-        deadline = self.monotonic() + self.deadline
+    def _summary(self, state, symbol, name, deadline):
         params = dict(modules=MODULES, formatted='false')
         if state['crumb']:
             params['crumb'] = state['crumb']
@@ -169,6 +199,37 @@ class YahooProfileProvider:
         if status != 200 or self.monotonic() >= deadline:
             return None
         return parse_profile(json.loads(body), symbol, name, self.now())
+
+    def __call__(self, symbol, name):
+        if not safe_symbol(symbol):
+            return None
+        state = self._state()
+        started = self.monotonic()
+        deadline = started + self.deadline
+        # Preserve time for the small chart response when the financial-data
+        # endpoint or its cookie handshake is unavailable. A failed handshake
+        # is suppressed briefly across symbols on the same background worker.
+        summary_deadline = deadline - min(8, self.deadline * .4)
+        if started >= state['summary_retry_at']:
+            try:
+                result = self._summary(state, symbol, name, summary_deadline)
+            except (requests.RequestException, UpstreamReadError, ValueError,
+                    TypeError, AttributeError, TimeoutError, OSError):
+                result = None
+            if result:
+                return result
+            state['summary_retry_at'] = self.monotonic() + 180
+        if self.monotonic() >= deadline:
+            return None
+        try:
+            status, body = self._read(state, CHART_URL + symbol, deadline,
+                                      params={'range': '1d', 'interval': '1d'}, max_bytes=50000)
+            if status != 200 or self.monotonic() >= deadline:
+                return None
+            return parse_chart_profile(json.loads(body), symbol, name, self.now())
+        except (requests.RequestException, UpstreamReadError, ValueError,
+                TypeError, AttributeError, TimeoutError, OSError):
+            return None
 
 
 def _valid_record(record, now):
@@ -347,7 +408,8 @@ class CompanyProfiles:
                 self._save()
 
     def _stale(self, row, now):
-        return any(now - meta['fetched_at'] >= self.ttl for meta in row['source']['fields'].values())
+        return (row.get('partial') is True and now - row['updated_at'] >= self.retry
+                or any(now - meta['fetched_at'] >= self.ttl for meta in row['source']['fields'].values()))
 
     def get(self, symbol, name):
         if not safe_symbol(symbol):
@@ -371,10 +433,12 @@ class CompanyProfiles:
                     thread.start()
                 self._condition.notify_all()
             refreshing = symbol in self._pending
-            status = ('stale' if stale or symbol in self._errors else 'ready') if row else (
+            status = ('stale' if stale or symbol in self._errors or row.get('partial') is True else 'ready') if row else (
                 'pending' if refreshing else 'unavailable')
             if row:
                 public = {key: deepcopy(row[key]) for key in ('symbol', 'name', 'updated_at', 'data', 'source')}
+                if row.get('partial') is True:
+                    public['partial'] = True
                 return dict(public, status=status, refreshing=refreshing)
             return dict(symbol=symbol, name=str(name or symbol)[:200], status=status,
                         refreshing=refreshing, updated_at=None, data=None, source=None)

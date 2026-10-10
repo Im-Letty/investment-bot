@@ -8,8 +8,10 @@ import threading
 import time
 import unittest
 from unittest.mock import Mock, patch
+from urllib3.exceptions import ReadTimeoutError
 
-from company_profile import CompanyProfiles, YahooProfileProvider, JST, TTL, parse_profile
+from company_profile import (CompanyProfiles, YahooProfileProvider, JST, TTL,
+                             parse_profile, parse_chart_profile)
 
 NOW = datetime(2026, 9, 24, 15, tzinfo=JST).timestamp()
 
@@ -28,6 +30,12 @@ def payload(symbol='7203.T'):
 
 def record(symbol='7203.T', now=NOW):
     return parse_profile(payload(symbol), symbol, 'テスト会社', now)
+
+
+def chart_payload(symbol='7203.T'):
+    return {'chart': {'error': None, 'result': [{'meta': {
+        'symbol': symbol, 'currency': 'JPY', 'regularMarketPrice': 3000,
+        'regularMarketTime': NOW - 60}}]}}
 
 
 def wait_until(condition, timeout=2):
@@ -108,10 +116,81 @@ class ParseTests(unittest.TestCase):
         session = Mock(); session.headers = {}
         session.get.return_value = Response(200, b'x' * 250001)
         provider = YahooProfileProvider(session_factory=lambda: session)
-        with self.assertRaises(ValueError): provider('7203.T', 'トヨタ')
-        ticks = iter([0, 0, 21])
+        with self.assertRaises(ValueError):
+            provider._read(provider._state(), 'https://example.test/', provider.monotonic() + 20)
+        ticks = iter([0, 21])
         provider = YahooProfileProvider(session_factory=lambda: session, monotonic=lambda: next(ticks))
-        with self.assertRaises(TimeoutError): provider('7203.T', 'トヨタ')
+        with self.assertRaises(TimeoutError):
+            provider._read(provider._state(), 'https://example.test/', 20)
+
+    def test_financial_endpoint_failure_has_small_dated_quote_fallback(self):
+        session = Mock(); session.headers = {}; clock = [0]
+        session.get.side_effect = [Response(401, {}), Response(404, b''),
+                                   Response(403, b'Access denied'), Response(200, chart_payload())]
+        provider = YahooProfileProvider(session_factory=lambda: session, now=lambda: NOW,
+                                         monotonic=lambda: clock[0])
+        result = provider('7203.T', 'トヨタ')
+        self.assertTrue(result['partial'])
+        self.assertEqual(result['data']['price'], 3000)
+        self.assertEqual(result['data']['price_updated_at'], NOW - 60)
+        self.assertEqual(result['source']['fields']['price'], {'fetched_at': NOW, 'as_of': NOW - 60})
+        for key in ('market_cap', 'analyst_target', 'forward_annual_dividend_per_share',
+                    'ex_dividend_date', 'dividend_payment_date'):
+            self.assertIsNone(result['data'][key])
+        self.assertEqual(session.get.call_args.kwargs['params'], {'range': '1d', 'interval': '1d'})
+        # Avoid repeating the failed handshake for each company or poll.
+        session.get.side_effect = [Response(200, chart_payload('9432.T'))]
+        clock[0] = 10
+        self.assertEqual(provider('9432.T', 'NTT')['symbol'], '9432.T')
+        self.assertEqual(session.get.call_count, 5)
+        clock[0] = 181
+        session.get.side_effect = [Response(200, payload('9432.T'))]
+        self.assertNotIn('partial', provider('9432.T', 'NTT'))
+        self.assertIn('quoteSummary', session.get.call_args.args[0])
+
+    def test_fallback_reserves_time_inside_original_total_deadline(self):
+        clock = [0]; calls = []
+        provider = YahooProfileProvider(now=lambda: NOW, monotonic=lambda: clock[0], deadline=20)
+        def read(state, url, deadline, **kwargs):
+            calls.append((url, deadline))
+            if 'quoteSummary' in url:
+                clock[0] = deadline
+                raise TimeoutError('financial timeout')
+            clock[0] = 19
+            return 200, json.dumps(chart_payload()).encode()
+        provider._read = read
+        self.assertEqual(provider('7203.T', 'トヨタ')['data']['price'], 3000)
+        self.assertEqual([deadline for url, deadline in calls], [12, 20])
+        clock[0] = 0
+        def expired(state, url, deadline, **kwargs):
+            clock[0] = 21
+            raise TimeoutError('total timeout')
+        provider = YahooProfileProvider(now=lambda: NOW, monotonic=lambda: clock[0])
+        provider._read = Mock(side_effect=expired)
+        self.assertIsNone(provider('7203.T', 'トヨタ'))
+        self.assertEqual(provider._read.call_count, 1)
+
+    def test_quote_fallback_rejects_identity_currency_and_unobserved_price(self):
+        for key, invalid in [('symbol', '9432.T'), ('currency', 'USD'),
+                             ('regularMarketTime', NOW + 60), ('regularMarketPrice', float('nan'))]:
+            source = chart_payload(); source['chart']['result'][0]['meta'][key] = invalid
+            self.assertIsNone(parse_chart_profile(source, '7203.T', 'トヨタ', NOW))
+        source = chart_payload(); source['chart']['result'][0]['meta'].update(
+            marketCap=35000000000000, dividendRate=100, targetMeanPrice=3600, exDividendDate=1790640000)
+        result = parse_chart_profile(source, '7203.T', 'トヨタ', NOW)
+        self.assertEqual(result['data']['market_cap'], 35000000000000)
+        self.assertIsNone(result['source']['fields']['market_cap']['as_of'])
+        self.assertIsNone(result['data']['forward_annual_dividend_per_share'])
+        self.assertIsNone(result['data']['analyst_target'])
+        self.assertIsNone(result['data']['ex_dividend_date'])
+
+    def test_stream_timeout_or_malformed_summary_can_still_return_dated_quote(self):
+        for failure in [ReadTimeoutError(None, None, 'stream timed out'),
+                        (200, json.dumps({'quoteSummary': ['invalid shape']}).encode())]:
+            provider = YahooProfileProvider(now=lambda: NOW)
+            provider._read = Mock(side_effect=[failure, (200, json.dumps(chart_payload()).encode())])
+            self.assertTrue(provider('7203.T', 'トヨタ')['partial'])
+            self.assertEqual(provider._read.call_count, 2)
 
 
 class CacheTests(unittest.TestCase):
@@ -175,6 +254,23 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(result['source']['fields']['analyst_target']['fetched_at'],NOW)
         self.assertEqual(result['source']['fields']['price']['fetched_at'],self.now)
         self.assertEqual(result['status'],'stale')
+
+    def test_quote_only_fallback_is_partial_and_does_not_refetch_on_every_poll(self):
+        loader = Mock(side_effect=lambda symbol, name: parse_chart_profile(
+            chart_payload(symbol), symbol, name, self.now))
+        cache = self.cache(loader)
+        cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        for _ in range(15):
+            current = cache.get('7203.T', 'トヨタ')
+            self.assertEqual(current['status'], 'stale')
+            self.assertTrue(current['partial'])
+            self.assertFalse(current['refreshing'])
+        self.assertEqual(loader.call_count, 1)
+        self.now += 181
+        cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: loader.call_count == 2 and not cache.get('7203.T', 'トヨタ')['refreshing'])
+        self.assertEqual(cache.get('7203.T', 'トヨタ')['source']['fields']['price']['fetched_at'], self.now)
 
     def test_disk_restart_and_raw_business_summary_is_editorial_only(self):
         cache=self.cache();cache.get('7203.T','トヨタ')

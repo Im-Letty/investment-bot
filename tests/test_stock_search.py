@@ -27,14 +27,20 @@ class Response:
     def iter_content(self, size): yield self.content
 
 
-def fixture_workbook(extra=''):
+def fixture_workbook(extra='', industry=False):
     labels = ['日付', 'コード', '銘柄名', '市場・商品区分', 'テスト会社', 'プライム（内国株式）']
+    if industry:
+        labels += ['33業種区分', '情報・通信業']
     ns = 'http://schemas.openxmlformats.org/spreadsheetml/2006/main'
     shared = '<sst xmlns="'+ns+'">'+''.join('<si><t>'+x+'</t></si>' for x in labels)+'</sst>'
     rows = ['<row>'+''.join(f'<c r="{c}1" t="s"><v>{i}</v></c>' for i,c in enumerate('ABCD'))+'</row>']
+    if industry:
+        rows[0] = rows[0].replace('</row>', '<c r="E1" t="s"><v>6</v></c></row>')
     for i in range(1000):
         n=i+2
         rows.append(f'<row><c r="A{n}"><v>20260831</v></c><c r="B{n}"><v>{1000+i}</v></c><c r="C{n}" t="s"><v>4</v></c><c r="D{n}" t="s"><v>5</v></c></row>')
+        if industry:
+            rows[-1] = rows[-1].replace('</row>', f'<c r="E{n}" t="s"><v>7</v></c></row>')
     out=BytesIO()
     with ZipFile(out,'w',ZIP_DEFLATED) as z:
         z.writestr('xl/sharedStrings.xml',shared)
@@ -74,6 +80,33 @@ class StockSearchTests(unittest.TestCase):
         self.assertEqual(len({x['code'] for x in data['items']}),data['count'])
         self.assertEqual(next(x['name'] for x in data['items'] if x['code']=='9432'),self.search.search('NTT')['results'][0]['name'])
         self.assertLessEqual(len(self.search.search('日')['results']),20)
+
+    def test_company_identity_is_offline_and_preserves_official_date(self):
+        company = self.search.company('7203')
+        self.assertEqual(company['name'], 'トヨタ自動車')
+        self.assertIn('内国株式', company['market'])
+        self.assertEqual(company['catalogue_as_of'], self.search.catalogue['as_of'])
+        self.assertEqual(company['source_url'], module.JPX_PAGE)
+        self.assertIsNone(self.search.company('9999'))
+        company['name'] = 'modified'
+        self.assertEqual(self.search.company('7203')['name'], 'トヨタ自動車')
+        self.session.get.assert_not_called()
+
+    def test_catalogue_retains_optional_official_industry_without_guessing(self):
+        original = json.loads(SEED_PATH.read_text())
+        original['items'][0]['industry'] = '水産・農林業'
+        clean = module._verified_catalogue(original)
+        self.assertEqual(clean['items'][0]['industry'], '水産・農林業')
+        original['items'][0]['industry'] = '<bad>\x00'
+        with self.assertRaises(ValueError):
+            module._verified_catalogue(original)
+
+    def test_official_workbook_industry_column_survives_parsing(self):
+        url = 'https://www.jpx.co.jp/markets/statistics-equities/misc/example/data_j.xlsx'
+        value = parse_jpx_xlsx(fixture_workbook(industry=True), url)
+        self.assertTrue(all(row['industry'] == '情報・通信業' for row in value['items']))
+        old = parse_jpx_xlsx(fixture_workbook(), url)
+        self.assertTrue(all('industry' not in row for row in old['items']))
 
     def test_remote_symbols_are_validated_and_cached_without_quotes(self):
         self.session.get.return_value=Response({'quotes':[

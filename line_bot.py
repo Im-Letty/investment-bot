@@ -2855,7 +2855,8 @@ from company_profile_api import register_company_profiles
 _company_profiles = CompanyProfiles(
     cache_path=os.environ.get("COMPANY_PROFILE_PATH", "/tmp/kn-company-profiles.json"),
     seed_path=os.path.join(os.path.dirname(__file__), "company-profile-snapshot.json"))
-register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot)
+register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot,
+                          quotes=lambda: _scanner_snapshot.payload(refresh=False))
 
 from dividend_calendar import DividendCalendar, register_dividend_calendar
 from jpx_calendar_source import fetch_jpx_events

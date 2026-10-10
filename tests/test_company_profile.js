@@ -2,6 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const profile=require('../static/company-profile.js');
 const NOW=Date.parse('2026-09-24T06:00:00Z'),KEY='7203.T',PREFIX='kn_company_profile_v1:';
+const IDENTITY={market:'プライム（内国株式）',industry:'輸送用機器',source_url:'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html',date:'2026-09-23',source_title:'日本取引所グループ（JPX）'};
 function fixture(changes={}){
   return {symbol:KEY,name:'トヨタ自動車',status:'ready',refreshing:false,updated_at:NOW/1000,
     data:{currency:'JPY',price:3210,price_updated_at:(NOW-60000)/1000,market_cap:42000000000000,annual_dividend:95,annual_dividend_basis:'trailing_12m',dividend_fetched_at:(NOW-3600000)/1000,forward_annual_dividend_per_share:100,forward_dividend_basis:'annualized',analyst_target:{mean:3600,low:2900,high:4100,analyst_count:12,currency:'JPY',as_of:null},ex_dividend_date:'2026-09-29',dividend_payment_date:'2026-11-26'},
@@ -52,9 +53,21 @@ test('pending polling stops at 90 seconds and never relabels old observations as
   for(let i=0;i<30;i++){assert.equal(h.requests.length,i+1);await h.reply(i,pending);await h.time.advance(3000);}
   assert.equal(h.requests.length,30);assert.equal(h.states.at(-1).reason,'pending_timeout');assert.equal(h.states.at(-1).data.data.price_updated_at,NOW-60000);assert.equal(h.time.timers.size,0);
 });
-test('a stalled request aborts within 12 seconds and explicit retry succeeds',async()=>{
-  const h=loaderHarness();await h.load();await h.time.advance(12000);assert.equal(h.requests[0].options.signal.aborted,true);assert.equal(h.states.at(-1).reason,'timeout');
-  await h.load();await h.reply(1,fixture());assert.equal(h.states.at(-1).status,'ready');assert.equal(h.requests.length,2);
+test('stalled requests abort within 12 seconds, retry twice, and then allow explicit retry',async()=>{
+  const h=loaderHarness();await h.load();await h.time.advance(12000);assert.equal(h.requests[0].options.signal.aborted,true);assert.equal(h.states.at(-1).reason,'retrying');
+  await h.time.advance(1000);assert.equal(h.requests.length,2);await h.time.advance(12000);await h.time.advance(3000);assert.equal(h.requests.length,3);await h.time.advance(12000);
+  assert.equal(h.states.at(-1).reason,'timeout');assert.equal(h.states.at(-1).updating,false);assert.equal(h.time.timers.size,0);
+  await h.load();await h.reply(3,fixture());assert.equal(h.states.at(-1).status,'ready');assert.equal(h.requests.length,4);
+});
+test('transient failures recover automatically, while invalid and unknown companies are not retried',async()=>{
+  const h=loaderHarness();await h.load();await h.reply(0,{},503);assert.equal(h.states.at(-1).reason,'retrying');
+  await h.time.advance(1000);await h.reply(1,fixture());assert.equal(h.states.at(-1).status,'ready');await h.time.advance(20000);assert.equal(h.requests.length,2);
+  for(const [status,body] of [[404,{error:'company_not_found'}],[400,{error:'invalid_symbol'}],[200,fixture({symbol:'9432.T'})]]){
+    const bad=loaderHarness();await bad.load();await bad.reply(0,body,status);assert.equal(bad.states.at(-1).updating,false);await bad.time.advance(90000);assert.equal(bad.requests.length,1);
+  }
+});
+test('closing during retry cancels backoff and never starts another request',async()=>{
+  const h=loaderHarness();await h.load();await h.reply(0,{},429);h.loader.cancel();const count=h.states.length;await h.time.advance(90000);assert.equal(h.requests.length,1);assert.equal(h.states.length,count);assert.equal(h.time.timers.size,0);
 });
 test('closing and switching companies ignore late replies and cancel pending timers',async()=>{
   const h=loaderHarness();await h.load();await h.load('9432.T');assert.equal(h.requests[0].options.signal.aborted,true);
@@ -66,7 +79,8 @@ test('persisted last-good data survives failure and incomplete pending responses
   const h=loaderHarness(saved);await h.load();assert.equal(h.states[0].fromCache,true);assert.equal(h.states[0].data.data.price,3210);
   const partial=fixture({updated_at:null,status:'pending',refreshing:true,data:{currency:'JPY'},editorial:{...fixture().editorial,business:'新しい説明です。'}});
   await h.reply(0,partial);assert.equal(h.states.at(-1).data.data.price,3210);assert.equal(h.states.at(-1).data.editorial.business,'新しい説明です。');assert.equal(h.states.at(-1).fromCache,true);
-  await h.time.advance(3000);h.requests[1].reject(new Error('offline'));await flush();assert.equal(h.states.at(-1).status,'stale');assert.equal(h.states.at(-1).data.updated_at,NOW);
+  await h.time.advance(3000);h.requests[1].reject(new Error('offline'));await flush();assert.equal(h.states.at(-1).reason,'retrying');assert.equal(h.states.at(-1).data.data.price,3210);
+  await h.time.advance(1000);h.requests[2].reject(new Error('offline'));await flush();await h.time.advance(3000);h.requests[3].reject(new Error('offline'));await flush();assert.equal(h.states.at(-1).status,'stale');assert.equal(h.states.at(-1).data.updated_at,NOW);
 });
 test('an older server seed cannot roll back saved profile fields or their dates',async()=>{
   const h=loaderHarness();await h.load();await h.reply(0,fixture());await h.load();
@@ -79,8 +93,20 @@ test('an older server seed cannot roll back saved profile fields or their dates'
 });
 test('expired cache, inaccessible storage, and not-found responses are handled safely',async()=>{
   const old=fixture({updated_at:(NOW-8*86400000)/1000});old.data.price_updated_at=old.updated_at;old.data.dividend_fetched_at=old.updated_at;
+  for(const field of Object.values(old.source.fields))field.fetched_at=old.updated_at;
   const h=loaderHarness(storage({[PREFIX+KEY]:JSON.stringify(old)}));await h.load();assert.equal(h.states[0].data,null);await h.reply(0,{error:'unknown'},404);assert.equal(h.states.at(-1).reason,'not_found');
   const failing=loaderHarness({getItem(){throw new Error('storage disabled');},setItem(){throw new Error('quota');}});await failing.load();await failing.reply(0,fixture());assert.equal(failing.states.at(-1).status,'ready');assert.equal(failing.loader.peek(KEY).data.price,3210);
+});
+test('dated end-of-day prices cache without an invented market timestamp and cannot roll back',async()=>{
+  const h=loaderHarness(),close=fixture({updated_at:null});close.data.price_updated_at=null;close.data.price_trade_date='2026-09-23';close.data.annual_dividend=null;close.data.dividend_fetched_at=null;
+  await h.load();await h.reply(0,close);assert.equal(h.loader.peek(KEY).data.price_updated_at,null);assert.equal(h.loader.peek(KEY).data.price_trade_date,'2026-09-23');
+  await h.load();const older=structuredClone(close);older.data.price=1;older.data.price_trade_date='2026-09-22';older.source.fields.price.fetched_at=NOW/1000;await h.reply(1,older);assert.equal(h.states.at(-1).data.data.price,3210);assert.equal(h.states.at(-1).data.data.price_trade_date,'2026-09-23');
+  await h.load();const newer=structuredClone(close);newer.data.price=3300;newer.data.price_trade_date='2026-09-24';await h.reply(2,newer);assert.equal(h.states.at(-1).data.data.price,3300);assert.equal(h.states.at(-1).data.data.price_updated_at,null);
+  const reloaded=loaderHarness(h.storage);await reloaded.load();assert.equal(reloaded.states[0].data.data.price,3300);
+});
+test('official identity is accepted only with a safe source and an actual nonfuture catalogue date',()=>{
+  const clean=profile.normalize(fixture({identity:IDENTITY}),KEY,NOW);assert.equal(clean.identity.industry,'輸送用機器');assert.equal(clean.identity.date,'2026-09-23');
+  for(const identity of [{...IDENTITY,source_url:'javascript:alert(1)'},{...IDENTITY,date:'2026-02-30'},{...IDENTITY,date:'2026-09-25'},{market:'プライム',industry:'輸送用機器'}])assert.equal(profile.normalize(fixture({identity}),KEY,NOW).identity,null);
 });
 
 class Element {
@@ -124,6 +150,18 @@ test('missing prices, timestamps and editorials are explicit, while zero dividen
   const raw=fixture({editorial:null});raw.data.price_updated_at=null;raw.data.annual_dividend=0;raw.data.ex_dividend_date='2020-09-29';raw.data.dividend_payment_date='2099-11-26';h.view.render(state(raw));
   assert.equal(refs.business.body.textContent,'この会社の説明はまだ掲載されていません');assert.equal(refs.life.section.hidden,true);assert.match(refs.price.time.textContent,/株価の時点：未確認/);assert.equal(refs.annual.value.textContent,'0円');assert.equal(refs.annual.unknown.hidden,true);assert.equal(refs.exDate.value.textContent,'次回未確認（過去の記録：2020/09/29）');assert.equal(refs.paymentDate.value.textContent,'2099/11/26（予定）');
   raw.data.price=null;h.view.render(state(raw));assert.equal(refs.price.value.textContent,'—');assert.equal(refs.price.unknown.hidden,false);assert.equal(refs.price.time.hidden,true);
+});
+test('company basics remain usable when financial data or editorial is missing, with the source date intact',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ自動車',h.trigger);
+  const raw=fixture({name:KEY,identity:IDENTITY,status:'pending',refreshing:true,data:{currency:'JPY'},editorial:null,updated_at:null,sources:[]});h.view.render(state(raw,{updating:true}));const refs=h.view.elements;
+  assert.equal(refs.name.textContent,'トヨタ自動車');assert.equal(refs.basic.hidden,false);assert.equal(refs.market.value.textContent,'プライム（内国株式）');assert.equal(refs.industry.value.textContent,'輸送用機器');assert.equal(refs.business.section.hidden,true);assert.equal(refs.price.value.textContent,'—');assert.equal(refs.price.unknown.hidden,false);assert.equal(refs.identityDate.textContent,'会社一覧の基準日 2026/09/23');assert.equal(refs.sources.children[0].children[0].href,IDENTITY.source_url);
+  h.view.render(state(raw,{status:'error',updating:false}));assert.match(refs.status.textContent,/会社の基本情報を表示/);assert.equal(refs.retry.hidden,false);assert.equal(refs.basic.hidden,false);
+  h.view.render({symbol:KEY,status:'error',data:null,updating:false});assert.equal(refs.name.textContent,'トヨタ自動車');assert.equal(refs.basic.hidden,true);assert.match(refs.business.body.textContent,/今は確認できません/);
+});
+test('scanner closing-price dates are explicit; precise quote times take precedence when present',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price_updated_at=null;raw.data.price_trade_date='2026-09-23';h.view.render(state(raw));const refs=h.view.elements;
+  assert.match(refs.price.time.textContent,/株価 2026\/09\/23 の終値/);assert.doesNotMatch(refs.price.time.textContent,/株価の時点：未確認/);
+  raw.data.price_updated_at=(NOW-60000)/1000;h.view.render(state(raw));assert.match(refs.price.time.textContent,/株価の時点.*14:59/);assert.doesNotMatch(refs.price.time.textContent,/終値/);
 });
 test('a payment month stays month-precise and never invents a payment day',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.dividend_payment_date=null;raw.data.dividend_payment_period='2099-11';raw.source.fields.dividend_payment_period={fetched_at:(NOW-2*3600000)/1000};h.view.render(state(raw));

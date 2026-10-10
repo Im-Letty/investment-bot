@@ -5,7 +5,7 @@
   if(root&&root.document)root.KNCompanyProfile=api.start(root);
 })(typeof window==='undefined'?null:window,function(){
   'use strict';
-  const POLL_MS=3000,POLL_LIMIT=90000,REQUEST_TIMEOUT=12000,CACHE_AGE=7*86400000,CACHE_PREFIX='kn_company_profile_v1:';
+  const POLL_MS=3000,POLL_LIMIT=90000,REQUEST_TIMEOUT=12000,RETRY_DELAYS=[1000,3000],CACHE_AGE=7*86400000,CACHE_PREFIX='kn_company_profile_v1:';
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
   const text=(value,limit=400)=>typeof value==='string'?value.trim().slice(0,limit):'';
   function symbol(value){const key=text(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
@@ -61,7 +61,10 @@
       business:text(raw.editorial.business),life:text(raw.editorial.life),watch:text(raw.editorial.watch),
       reviewed_on:day(raw.editorial.reviewed_on),sources:sourceList(raw.editorial.sources,now)
     }:null;
-    const data={currency,price:positive(input.price),price_updated_at:timestamp(input.price_updated_at,now),market_cap:positive(input.market_cap),
+    const identityInput=raw.identity&&typeof raw.identity==='object'?raw.identity:{};
+    const identityUrl=safeUrl(identityInput.source_url),identityDate=day(identityInput.date);
+    const identity=identityUrl&&identityDate&&identityDate<=today(now)?{market:text(identityInput.market,100),industry:text(identityInput.industry,100),source_url:identityUrl,date:identityDate,source_title:text(identityInput.source_title,120)||'会社の一覧の出典'}:null;
+    const data={currency,price:positive(input.price),price_updated_at:timestamp(input.price_updated_at,now),price_trade_date:day(input.price_trade_date)&&input.price_trade_date<=today(now)?input.price_trade_date:null,market_cap:positive(input.market_cap),
       annual_dividend:input.annual_dividend_basis==='trailing_12m'?amount(input.annual_dividend):null,
       annual_dividend_basis:input.annual_dividend_basis==='trailing_12m'?'trailing_12m':null,
       dividend_fetched_at:timestamp(input.dividend_fetched_at,now),
@@ -71,15 +74,29 @@
     const sources=sourceList(raw.sources,now);
     if(!sources.length&&fieldSource.url)sources.push(...sourceList([fieldSource],now));
     return {symbol:key,name:text(raw.name,160)||key,status:raw.status,refreshing:raw.refreshing===true,
-      updated_at:timestamp(raw.updated_at,now),data,editorial,sources,source:{fields}};
+      updated_at:timestamp(raw.updated_at,now),data,editorial,identity,sources,source:{fields}};
   }
   function hasFacts(record){return !!record&&(record.data.price!==null||record.data.market_cap!==null||record.data.annual_dividend!==null||record.data.forward_annual_dividend_per_share!==null||record.data.ex_dividend_date||record.data.dividend_payment_date||record.data.dividend_payment_period||record.data.analyst_target&&record.data.analyst_target.mean!==null);}
-  function cacheTime(record){return record&&Math.max(record.updated_at||0,record.data.price_updated_at||0,record.data.dividend_fetched_at||0);}
+  function cacheTime(record){return record&&Math.max(record.updated_at||0,record.data.price_updated_at||0,record.data.dividend_fetched_at||0,record.source.fields.price.fetched_at||0);}
+  function priceDay(record){return record.data.price_trade_date||(record.data.price_updated_at?today(record.data.price_updated_at):null);}
+  function newerPrice(record,before){
+    const incoming=priceDay(record),previous=priceDay(before);
+    if(incoming&&previous&&incoming!==previous)return incoming>previous;
+    if(incoming&&!previous)return true;if(!incoming&&previous)return false;
+    if((record.data.price_updated_at||0)!==(before.data.price_updated_at||0))return (record.data.price_updated_at||0)>(before.data.price_updated_at||0);
+    return (record.source.fields.price.fetched_at||0)>(before.source.fields.price.fetched_at||0);
+  }
   function retainNewer(record,before){
-    if(!before||hasFacts(record)&&(record.updated_at||0)>=(before.updated_at||0))return record;
-    const kept={...before,name:record.name,editorial:record.editorial||before.editorial,status:record.status,refreshing:record.refreshing,data:{...before.data},source:{fields:{...before.source.fields}}};
-    if(record.data.price!==null&&(record.data.price_updated_at||0)>(before.data.price_updated_at||0)){
-      kept.data.price=record.data.price;kept.data.price_updated_at=record.data.price_updated_at;kept.source.fields.price=record.source.fields.price;
+    if(!before)return record;
+    const fresh=hasFacts(record)&&(record.updated_at||0)>=(before.updated_at||0);
+    const keepPrice=before.data.price!==null&&(record.data.price===null||newerPrice(before,record));
+    if(fresh&&!keepPrice)return record;
+    const base=fresh?record:before;
+    const kept={...base,name:record.name,editorial:record.editorial||before.editorial,identity:record.identity||before.identity,status:record.status,refreshing:record.refreshing,data:{...base.data},source:{fields:{...base.source.fields}}};
+    if(keepPrice){
+      for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=before.data[key];kept.source.fields.price=before.source.fields.price;
+    }else if(record.data.price!==null&&newerPrice(record,before)){
+      for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=record.data[key];kept.source.fields.price=record.source.fields.price;
     }
     if(record.data.annual_dividend!==null&&(record.data.dividend_fetched_at||0)>(before.data.dividend_fetched_at||0)){
       kept.data.annual_dividend=record.data.annual_dividend;kept.data.annual_dividend_basis=record.data.annual_dividend_basis;kept.data.dividend_fetched_at=record.data.dividend_fetched_at;
@@ -104,13 +121,16 @@
     function cancel(){version++;busy=false;clear(requestTimer);clear(pollTimer);requestTimer=pollTimer=null;if(controller)controller.abort();controller=null;if(cancelWait)cancelWait(new Error('cancelled'));cancelWait=null;current='';}
     function emit(state){last=state;onState(state);}
     function end(key,reason){busy=false;const kept=saved(key)||(last&&last.symbol===key&&last.data);emit({symbol:key,status:kept?'stale':'error',data:kept||null,fromCache:!!kept,updating:false,reason});}
-    async function request(key,token,deadline){
+    async function request(key,token,deadline,retry=0){
       if(token!==version)return;
       const remaining=deadline-now();if(remaining<=0){end(key,'pending_timeout');return;}
       const active=new env.AbortController();controller=active;
       try{
         const timeout=new Promise((resolve,reject)=>{cancelWait=reject;requestTimer=set(()=>{active.abort();reject(new Error('timeout'));},Math.min(REQUEST_TIMEOUT,remaining));});
-        const response=Promise.resolve().then(()=>env.fetch('/api/company-profile?symbol='+encodeURIComponent(key),{signal:active.signal,cache:'no-store'})).then(async result=>{if(!result.ok)throw new Error(result.status===404?'not_found':'request');return result.json();});
+        const response=Promise.resolve().then(()=>env.fetch('/api/company-profile?symbol='+encodeURIComponent(key),{signal:active.signal,cache:'no-store'})).then(async result=>{
+          if(!result.ok){const error=new Error(result.status===404?'not_found':'request');error.retryable=[408,425,429].includes(result.status)||result.status>=500;throw error;}
+          try{return await result.json();}catch(error){throw new Error('invalid');}
+        });
         const payload=await Promise.race([response,timeout]);
         if(token!==version)return;
         const record=normalize(payload,key,now());if(!record)throw new Error('invalid');
@@ -119,7 +139,16 @@
         if(record.status==='unavailable'&&!pending){busy=false;emit({symbol:key,status:'error',data,fromCache,updating:false,reason:'unavailable'});return;}
         emit({symbol:key,status:pending?'pending':fromCache?'stale':record.status,data,fromCache,updating:pending,reason:null});
         if(pending){pollTimer=set(()=>{pollTimer=null;request(key,token,deadline);},Math.min(POLL_MS,Math.max(0,deadline-now())));}else busy=false;
-      }catch(error){if(token===version)end(key,error.message==='not_found'?'not_found':error.message==='timeout'?'timeout':'unavailable');}
+      }catch(error){
+        if(token!==version)return;
+        const reason=error.message==='not_found'?'not_found':error.message==='timeout'?'timeout':'unavailable';
+        const delay=RETRY_DELAYS[retry],retryable=error.retryable!==false&&!['not_found','invalid'].includes(error.message);
+        if(retryable&&delay!==undefined&&now()+delay<deadline){
+          const kept=saved(key)||(last&&last.symbol===key&&last.data);
+          emit({symbol:key,status:'pending',data:kept||null,fromCache:!!saved(key),updating:true,reason:'retrying'});
+          pollTimer=set(()=>{pollTimer=null;request(key,token,deadline,retry+1);},delay);
+        }else end(key,reason);
+      }
       finally{if(token===version){clear(requestTimer);requestTimer=null;controller=null;cancelWait=null;}}
     }
     function load(value){
@@ -132,7 +161,7 @@
     return {load,cancel,peek:key=>saved(symbol(key)),getState:()=>last};
   }
   function createDialog(w,onRetry){
-    const doc=w.document,refs={};let opened=false,closing=null,returnFocus=null,returnCompanySymbol='',background=[],scrolls=[],bodyStyle=null,currentSymbol='';
+    const doc=w.document,refs={};let opened=false,closing=null,returnFocus=null,returnCompanySymbol='',background=[],scrolls=[],bodyStyle=null,currentSymbol='',selectedName='';
     function el(tag,cls,content){const node=doc.createElement(tag);if(cls)node.className=cls;if(content!==undefined)node.textContent=content;return node;}
     function append(parent,...nodes){nodes.forEach(node=>parent.appendChild(node));return parent;}
     const overlay=el('div','cp-overlay');overlay.id='knCompanyProfile';overlay.hidden=true;
@@ -143,6 +172,9 @@
     append(identity,refs.code,refs.name);append(head,identity,closeButton);
     const content=el('div','cp-content'),feedback=el('div','cp-feedback');feedback.setAttribute('role','status');
     refs.status=el('p');refs.retry=el('button','cp-retry','もう一度確認');refs.retry.type='button';refs.retry.hidden=true;append(feedback,refs.status,refs.retry);
+    const basic=el('section','cp-basic');basic.hidden=true;
+    const basicList=el('dl','cp-basic-list');append(basic,el('h3','cp-heading','会社の基本情報'),basicList);refs.basic=basic;
+    [['market','市場'],['industry','業種']].forEach(([key,label])=>{const row=el('div','cp-basic-row'),value=el('dd');append(row,el('dt','',label),value);basicList.appendChild(row);refs[key]={row,value};});
     const stories=el('div','cp-stories');
     [['business','どんな会社？'],['life','暮らしとのつながり'],['watch','これから見るところ']].forEach(([key,title])=>{
       const section=el('section','cp-story'),body=el('p','cp-story-copy');append(section,el('h3','cp-heading',title),body);stories.appendChild(section);refs[key]={section,body};
@@ -160,22 +192,25 @@
     metric(dividends,'exDate','次回の権利落ち日','権利落ち日です。配当の支払日とは異なります。');metric(dividends,'paymentDate','配当の支払日');
     const targets=group('専門家の予想');metric(targets,'target','アナリストの目標株価（平均）','専門家の予想・保証ではありません。');
     refs.targetRange=el('p','cp-fact-note');refs.targetDate=el('p','cp-fact-note');append(targets.box,refs.targetRange,refs.targetDate);
-    const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.reviewed,refs.sources);
-    append(content,feedback,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
+    const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.identityDate,refs.reviewed,refs.sources);
+    append(content,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
     let sourcesSignature='';
     function setMetric(key,value,when){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
       if(!opened||state.symbol!==currentSymbol)return;
-      const record=state.data,data=record&&record.data||{},currency=data.currency||'JPY',editorial=record&&record.editorial;
-      if(record&&record.name)refs.name.textContent=record.name;
+      const record=state.data,data=record&&record.data||{},currency=data.currency||'JPY',editorial=record&&record.editorial,identity=record&&record.identity;
+      if(record&&record.name&&symbol(record.name)!==currentSymbol)refs.name.textContent=record.name;else refs.name.textContent=selectedName;
       const failed=['error','stale'].includes(state.status)&&!state.updating;
-      refs.status.textContent=state.status==='loading'?'情報を確認しています…':state.updating?(state.fromCache?'保存していた情報を表示し、最新の情報を確認しています…':'最新の情報を確認しています…'):failed?(record&&hasFacts(record)?'一部の情報は保存済みです。取得日時をご確認ください。':'情報を確認できませんでした。'):state.status==='stale'?'保存済みの情報です。取得日時をご確認ください。':'';
+      refs.status.textContent=state.reason==='retrying'?'通信が一時的に遅れています。自動でもう一度確認しています…':state.status==='loading'?'株価や配当の情報を確認しています…':state.updating?(state.fromCache?'保存していた情報を表示し、最新の情報を確認しています…':'株価や配当の情報を確認しています…'):failed?(record&&hasFacts(record)?'一部の情報は保存済みです。取得日時をご確認ください。':identity?'会社の基本情報を表示しています。株価や配当の情報は今は確認できません。':'情報を確認できませんでした。'):state.status==='stale'?'保存済みの情報です。取得日時をご確認ください。':'';
       refs.retry.hidden=!failed;
       feedback.hidden=!refs.status.textContent&&!failed;
-      refs.business.body.textContent=editorial?editorial.business:record?'この会社の説明はまだ掲載されていません':'会社の説明を確認しています…';
+      refs.basic.hidden=!(identity&&(identity.market||identity.industry));
+      ['market','industry'].forEach(key=>{refs[key].row.hidden=!(identity&&identity[key]);refs[key].value.textContent=identity&&identity[key]||'';});
+      refs.business.section.hidden=!editorial&&!refs.basic.hidden;
+      refs.business.body.textContent=editorial?editorial.business:record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
       ['life','watch'].forEach(key=>{refs[key].section.hidden=!(editorial&&editorial[key]);refs[key].body.textContent=editorial&&editorial[key]||'';});
       function fetched(field,fallback){const value=record&&record.source.fields[field]&&record.source.fields[field].fetched_at||fallback;return stamp(value)?'取得 '+stamp(value):'取得日：未確認';}
-      setMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?'株価の時点 '+stamp(data.price_updated_at):'株価の時点：未確認')+' / '+fetched('price'):null);
+      setMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?'株価の時点 '+stamp(data.price_updated_at):data.price_trade_date?'株価 '+dateText(data.price_trade_date)+' の終値':'株価の時点：未確認')+' / '+fetched('price'):null);
       setMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
       setMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?'取得 '+stamp(data.dividend_fetched_at):'取得日：未確認'):null);
       setMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
@@ -190,7 +225,8 @@
       refs.targetRange.textContent=[range,analyst&&analyst.analyst_count?analyst.analyst_count+'人の予想':''].filter(Boolean).join(' / ');refs.targetRange.hidden=!refs.targetRange.textContent;
       refs.targetDate.textContent=analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?(analyst.as_of?'予想日 '+dateText(analyst.as_of):'予想が出された日は提供元に記載がありません。'):'';refs.targetDate.hidden=!refs.targetDate.textContent;
       refs.reviewed.textContent=editorial?(editorial.reviewed_on?'会社の説明の確認日 '+dateText(editorial.reviewed_on):'会社の説明の確認日：未確認'):'';refs.reviewed.hidden=!refs.reviewed.textContent;
-      const allSources=[...(editorial&&editorial.sources||[]),...(record&&record.sources||[])],signature=JSON.stringify(allSources);
+      refs.identityDate.textContent=identity?'会社一覧の基準日 '+dateText(identity.date):'';refs.identityDate.hidden=!refs.identityDate.textContent;
+      const allSources=[...(editorial&&editorial.sources||[]),...(identity?[{title:identity.source_title,url:identity.source_url,fetched_at:null}]:[]),...(record&&record.sources||[])],signature=JSON.stringify(allSources);
       if(signature!==sourcesSignature){
         sourcesSignature=signature;refs.sources.replaceChildren();
         const unique=new Set();allSources.forEach(source=>{if(unique.has(source.url))return;unique.add(source.url);const row=el('li'),link=el('a','cp-source-link',source.title);link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);if(stamp(source.fetched_at))row.appendChild(el('small','cp-source-time','取得 '+stamp(source.fetched_at)));refs.sources.appendChild(row);});
@@ -215,7 +251,7 @@
       delete overlay.dataset.closing;
       if(!opened)rememberBackground(trigger);
       if(currentSymbol!==key){numbers.open=false;content.scrollTop=0;sourcesSignature='';}
-      currentSymbol=key;opened=true;refs.code.textContent=key.replace(/\.T$/,'');refs.name.textContent=text(name,160)||key;overlay.hidden=false;sizeViewport();panel.focus({preventScroll:true});
+      currentSymbol=key;selectedName=text(name,160)||key;opened=true;refs.code.textContent=key.replace(/\.T$/,'');refs.name.textContent=selectedName;overlay.hidden=false;sizeViewport();panel.focus({preventScroll:true});
       background.forEach(item=>item.node.setAttribute('aria-hidden','true'));
     }
     function finishClose(){

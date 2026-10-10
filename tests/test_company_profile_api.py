@@ -9,32 +9,39 @@ import tempfile
 from flask import Flask
 from company_profile_api import register_company_profiles, read_editorial, payment_schedule
 from datetime import date
+from datetime import datetime, timedelta, timezone
 
 
 class ProfileRoutes(unittest.TestCase):
     def setUp(self):
         self.app = Flask(__name__)
         self.catalogue = Mock()
-        self.catalogue.all_items.return_value = {'items': [{'code': '7203', 'name': 'トヨタ自動車'}]}
+        self.company = {'code': '7203', 'name': 'トヨタ自動車', 'market': 'プライム（内国株式）',
+                        'industry': '輸送用機器', 'catalogue_as_of': '2026-09-30',
+                        'source_url': 'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html'}
+        self.catalogue.company.side_effect = lambda code: deepcopy(self.company) if code == '7203' else None
         self.profiles = Mock()
         self.raw = {'symbol': '7203.T', 'name': 'provider name', 'status': 'pending', 'refreshing': True,
                     'updated_at': None, 'data': {'forward_annual_dividend_per_share': 100}}
         self.profiles.get.side_effect = lambda *_: deepcopy(self.raw)
         self.dividends = Mock()
-        self.dividends.payload.return_value = {'items': [{'ticker': '7203.T', 'price': 3000,
+        self.dividends.lookup.return_value = {'ticker': '7203.T', 'price': 3000,
             'price_updated_at': 1000, 'annual_dividend': 95, 'annual_dividend_basis': 'trailing_12m',
-            'fetched_at': 1100}]}
+            'fetched_at': 1100}
+        self.quotes = Mock(return_value={'items': []})
         self.story = {'business': '車をつくる会社です。', 'life': '移動を支えます。',
                       'watch': 'どんな車が売れるかに注目です。', 'reviewed_on': '2026-09-24',
                       'sources': [{'title': '会社情報', 'url': 'https://global.toyota/jp/company/'}]}
         register_company_profiles(self.app, self.profiles, self.catalogue, self.dividends,
-                                  {'7203.T': self.story})
+                                  {'7203.T': self.story}, quotes=self.quotes)
         self.client = self.app.test_client()
 
     def test_invalid_and_unknown_companies_cannot_trigger_provider_requests(self):
         for symbol, status in [('https://example.org', 400), ('../7203.T', 400), ('AAPL', 400), ('9999.T', 404)]:
             self.assertEqual(self.client.get('/api/company-profile', query_string={'symbol': symbol}).status_code, status)
         self.profiles.get.assert_not_called()
+        self.dividends.lookup.assert_not_called()
+        self.quotes.assert_not_called()
 
     def test_first_open_has_reviewed_text_and_saved_prices_during_background_fetch(self):
         response = self.client.get('/api/company-profile?symbol=7203')
@@ -48,7 +55,7 @@ class ProfileRoutes(unittest.TestCase):
         self.assertEqual(body['source']['fields']['price']['fetched_at'], 1100)
         self.assertEqual(body['data']['forward_annual_dividend_per_share'], 100)
         self.assertIsNone(body['updated_at'])
-        self.dividends.payload.assert_called_once_with(refresh=False)
+        self.dividends.lookup.assert_called_once_with('7203.T', 'トヨタ自動車')
         self.assertEqual(response.headers['Cache-Control'], 'no-store')
         self.assertNotIn('annual_dividend', self.raw['data'])
 
@@ -64,10 +71,70 @@ class ProfileRoutes(unittest.TestCase):
 
     def test_missing_information_stays_missing(self):
         self.raw['data'] = None
-        self.dividends.payload.return_value = {'items': []}
+        self.dividends.lookup.return_value = {'status': 'unavailable'}
         body = self.client.get('/api/company-profile?symbol=7203.T').get_json()
         self.assertEqual(body['data'], {'currency': 'JPY'})
         self.assertEqual(body['sources'], [])
+
+    def test_official_identity_is_available_without_financial_data_or_editorial(self):
+        self.raw.update(status='unavailable', refreshing=False, data=None)
+        self.dividends.lookup.return_value = {'status': 'unavailable'}
+        response = self.client.get('/api/company-profile?symbol=7203')
+        identity = response.get_json()['identity']
+        self.assertEqual(identity['industry'], '輸送用機器')
+        self.assertEqual(identity['market'], 'プライム（内国株式）')
+        self.assertEqual(identity['date'], '2026-09-30')
+        self.assertEqual(identity['source_url'], self.company['source_url'])
+        self.assertEqual(response.status_code, 200)
+
+    def test_existing_dated_close_is_immediately_available_without_a_new_scan(self):
+        now = datetime.now(timezone(timedelta(hours=9)))
+        trade_day = now.date() - timedelta(days=1)
+        self.raw.update(status='unavailable', refreshing=False, data=None)
+        self.dividends.lookup.return_value = {'status': 'loading', 'refreshing': True}
+        self.quotes.return_value = {'items': [{'symbol': '7203.T', 'currency': 'JPY', 'price': 3200,
+                                             'trade_date': trade_day.isoformat(), 'fetched_at': now.timestamp() - 20}]}
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['data']['price'], 3200)
+        self.assertEqual(body['data']['price_trade_date'], trade_day.isoformat())
+        self.assertIsNone(body['data']['price_updated_at'])
+        self.assertEqual(body['source']['fields']['price']['as_of'], trade_day.isoformat())
+        self.assertTrue(body['refreshing'])
+        self.assertEqual(body['status'], 'pending')
+        self.assertNotIn('market_cap', body['data'])
+        self.quotes.assert_called_once_with()
+
+    def test_old_forecast_does_not_prevent_a_newer_saved_close(self):
+        now = datetime.now(timezone(timedelta(hours=9)))
+        day = now.date() - timedelta(days=1)
+        self.raw['data'].update(price=3000, price_updated_at=(now - timedelta(days=3)).timestamp())
+        self.quotes.return_value = {'items': [{'symbol': '7203.T', 'currency': 'JPY', 'price': 3200,
+                                             'trade_date': day.isoformat(), 'fetched_at': now.timestamp() - 20}]}
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['data']['price'], 3200)
+        self.assertEqual(body['data']['forward_annual_dividend_per_share'], 100)
+        self.assertIsNone(body['updated_at'])
+
+    def test_future_expired_or_wrong_currency_quotes_stay_unknown(self):
+        now = datetime.now(timezone(timedelta(hours=9)))
+        self.raw['data'] = None
+        self.dividends.lookup.return_value = {'status': 'unavailable'}
+        valid = {'symbol': '7203.T', 'currency': 'JPY', 'price': 3200,
+                 'trade_date': now.date().isoformat(), 'fetched_at': now.timestamp() - 20}
+        for overrides in ({'trade_date': (now.date()+timedelta(days=1)).isoformat()},
+                          {'fetched_at': now.timestamp()-8*86400}, {'currency': 'USD'}, {'price': True}):
+            with self.subTest(overrides=overrides):
+                self.quotes.return_value = {'items': [dict(valid, **overrides)]}
+                self.assertNotIn('price', self.client.get('/api/company-profile?symbol=7203').get_json()['data'])
+
+    def test_same_day_saved_close_cannot_replace_a_dated_provider_quote(self):
+        now = datetime.now(timezone(timedelta(hours=9)))
+        self.raw['data'].update(price=3300, price_updated_at=now.timestamp()-60)
+        self.quotes.return_value = {'items': [{'symbol': '7203.T', 'currency': 'JPY', 'price': 3200,
+                                             'trade_date': now.date().isoformat(), 'fetched_at': now.timestamp()-20}]}
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['data']['price'], 3300)
+        self.assertNotIn('price_trade_date', body['data'])
 
     def test_full_width_codes_resolve_to_the_same_verified_company(self):
         self.assertEqual(self.client.get('/api/company-profile?symbol=７２０３').get_json()['symbol'], '7203.T')

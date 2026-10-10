@@ -83,6 +83,12 @@
 #knCompanyProfile .cp-feedback {margin:0 0 20px;color:var(--cp-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.8}
 #knCompanyProfile .cp-feedback p {margin:0}
 #knCompanyProfile .cp-retry {margin:6px 0 0;padding:5px 11px;border:1px solid var(--cp-line);border-radius:6px;background:transparent;color:var(--cp-ink);font-size:calc(12px * var(--kn-a-scale,1))}
+#knCompanyProfile .cp-basic {margin:0 0 24px;padding:16px;border:1px solid var(--cp-line);border-radius:8px;background:color-mix(in srgb,var(--cp-chip) 45%,var(--cp-paper))}
+#knCompanyProfile .cp-basic-list {margin:0}
+#knCompanyProfile .cp-basic-row {display:grid;grid-template-columns:3em minmax(0,1fr);gap:14px;align-items:start;font-size:calc(14px * var(--kn-a-scale,1));line-height:1.8}
+#knCompanyProfile .cp-basic-row+.cp-basic-row {margin-top:7px}
+#knCompanyProfile .cp-basic-row dt {color:var(--cp-muted)}
+#knCompanyProfile .cp-basic-row dd {margin:0;color:var(--cp-ink);overflow-wrap:anywhere}
 #knCompanyProfile .cp-story {margin:0;padding:0;background:transparent!important;color:var(--cp-ink)!important}
 #knCompanyProfile .cp-story+.cp-story {margin-top:25px}
 #knCompanyProfile .cp-heading {margin:0 0 8px;padding:0;color:var(--cp-ink);font:500 calc(14px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif);letter-spacing:.025em}

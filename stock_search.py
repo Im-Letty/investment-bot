@@ -65,7 +65,14 @@ def _verified_catalogue(value):
                 or not 1 <= len(name) <= 200 or any(ord(c) < 32 for c in name)
                 or not isinstance(market, str) or '内国株式' not in market):
             raise ValueError('Invalid catalogue company')
-        clean.append({'code': code, 'name': name, 'market': market})
+        item = {'code': code, 'name': name, 'market': market}
+        industry = row.get('industry')
+        if industry is not None:
+            if (not isinstance(industry, str) or not 1 <= len(industry) <= 100
+                    or any(ord(c) < 32 for c in industry)):
+                raise ValueError('Invalid catalogue industry')
+            item['industry'] = industry
+        clean.append(item)
         seen.add(code)
     return {**value, 'as_of': as_of.isoformat(), 'items': sorted(clean, key=lambda row: row['code'])}
 
@@ -110,7 +117,12 @@ def parse_jpx_xlsx(payload, file_url, fetched_at=None):
         stamp = values.get(columns['日付'], '').strip().removesuffix('.0')
         parsed = datetime.strptime(stamp, '%Y%m%d').date()
         dates.add(parsed.isoformat())
-        companies.append({'code': code, 'name': values.get(columns['銘柄名'], '').strip(), 'market': market})
+        company = {'code': code, 'name': values.get(columns['銘柄名'], '').strip(), 'market': market}
+        if '33業種区分' in columns:
+            industry = values.get(columns['33業種区分'], '').strip()
+            if industry and industry != '-':
+                company['industry'] = industry
+        companies.append(company)
     if len(dates) != 1:
         raise ValueError('Mixed catalogue dates')
     return _verified_catalogue({'version': 1, 'source_url': JPX_PAGE, 'file_url': file_url,
@@ -205,6 +217,13 @@ class StockSearch:
 
     def _index(self):
         self.index = [(row, normalize(row['code']), normalize(row['name'])) for row in self.catalogue['items']]
+        self._companies = {row['code']: row for row in self.catalogue['items']}
+
+    def company(self, code):
+        """Return dated official identity immediately, without any provider call."""
+        with self._state_lock:
+            row = self._companies.get(code)
+            return dict(row, catalogue_as_of=self.catalogue['as_of'], source_url=JPX_PAGE) if row else None
 
     def refresh(self):
         if not self._refresh_lock.acquire(blocking=False):

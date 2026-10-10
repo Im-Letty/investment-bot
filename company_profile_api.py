@@ -2,6 +2,7 @@
 from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
 import json
+import math
 from pathlib import Path
 import re
 import unicodedata
@@ -56,7 +57,7 @@ def payment_schedule(symbol, today=None, path=SCHEDULE_PATH):
         return None
 
 
-def register_company_profiles(app, profiles, catalogue, dividends, editorial=None):
+def register_company_profiles(app, profiles, catalogue, dividends, editorial=None, *, quotes=None):
     reviewed = read_editorial() if editorial is None else editorial
 
     @app.get('/api/company-profile')
@@ -67,20 +68,28 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         if not re.fullmatch(r'[0-9][A-Z0-9]{3}\.T', symbol):
             return jsonify(error='invalid_symbol'), 400
         # A syntactically valid ticker is not proof that a company exists.
-        company = next((row for row in catalogue.all_items()['items'] if row['code'] == symbol[:-2]), None)
+        company = catalogue.company(symbol[:-2])
         if company is None:
             return jsonify(error='company_not_found'), 404
         payload = deepcopy(profiles.get(symbol, company['name']))
         payload['symbol'], payload['name'] = symbol, company['name']
+        payload['identity'] = {
+            'market': company.get('market'), 'industry': company.get('industry'),
+            'date': company.get('catalogue_as_of'), 'source_url': company.get('source_url'),
+            'source_title': '日本取引所グループ（JPX）'}
         payload['editorial'] = deepcopy(reviewed.get(symbol))
         figures = payload.setdefault('data', {})
         if not isinstance(figures, dict):
             figures = payload['data'] = {}
         figures['currency'] = 'JPY'
-        # Read the existing snapshot only. Opening a profile must not wait for
-        # the dividend universe or start a second market-data scan.
-        dividend = next((row for row in dividends.payload(refresh=False)['items']
-                         if row['ticker'] == symbol), None)
+        # Queue this verified company ahead of the dividend universe, returning
+        # saved facts immediately. The existing bounded pool does the work.
+        dividend = dividends.lookup(symbol, company['name'])
+        waiting_dividend = dividend.get('status') == 'loading' and dividend.get('refreshing') is True
+        payload['refreshing'] = payload.get('refreshing') is True or waiting_dividend
+        if waiting_dividend and payload.get('status') == 'unavailable':
+            payload['status'] = 'pending'
+        dividend = dividend if any(dividend.get(key) is not None for key in ('price', 'annual_dividend')) else None
         if dividend:
             figures.update(annual_dividend=dividend.get('annual_dividend'),
                            annual_dividend_basis=dividend.get('annual_dividend_basis'),
@@ -91,6 +100,32 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                     payload['source'] = {}
                 payload['source'].setdefault('fields', {})['price'] = {
                     'fetched_at': dividend.get('fetched_at'), 'as_of': dividend.get('price_updated_at')}
+        # The ranking scanner already keeps dated closes for almost the whole
+        # search catalogue. Reading it must not launch a new provider scan.
+        quote = None
+        if quotes is not None:
+            try:
+                now = datetime.now(JST)
+                candidate = next((row for row in quotes().get('items', []) if row.get('symbol') == symbol), None)
+                if candidate and candidate.get('currency') == 'JPY':
+                    price, fetched = candidate.get('price'), candidate.get('fetched_at')
+                    trade_day = date.fromisoformat(candidate['trade_date'])
+                    if (all(isinstance(value, (int, float)) and not isinstance(value, bool)
+                            and math.isfinite(value) and value > 0 for value in (price, fetched))
+                            and 0 <= now.timestamp() - fetched < 7 * 86400
+                            and 0 <= (now.date() - trade_day).days <= 7):
+                        observed = figures.get('price_updated_at')
+                        previous_day = (datetime.fromtimestamp(observed, JST).date()
+                                        if isinstance(observed, (int, float)) and observed > 0 else None)
+                        if figures.get('price') is None or previous_day is not None and trade_day > previous_day:
+                            quote = candidate
+                            figures.update(price=price, price_updated_at=None, price_trade_date=trade_day.isoformat())
+                            if not isinstance(payload.get('source'), dict):
+                                payload['source'] = {}
+                            payload['source'].setdefault('fields', {})['price'] = {
+                                'fetched_at': fetched, 'as_of': trade_day.isoformat()}
+            except (KeyError, TypeError, ValueError, OverflowError, OSError):
+                pass
         sources = []
         source = payload.get('source')
         if isinstance(source, dict):
@@ -102,6 +137,10 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
             sources.append({'title': '配当実績・株価（Yahoo Finance）',
                             'url': 'https://finance.yahoo.com/quote/' + symbol + '/history/?filter=div',
                             'fetched_at': dividend.get('fetched_at')})
+        if quote:
+            sources.append({'title': '株価の終値（Yahoo Finance）',
+                            'url': 'https://finance.yahoo.com/quote/' + symbol + '/history/',
+                            'fetched_at': quote['fetched_at']})
         schedule = payment_schedule(symbol)
         if schedule:
             figures['dividend_payment_period'] = schedule['payment_period']
