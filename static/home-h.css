@@ -90,10 +90,12 @@ body.kn-home-a #knNewsDigest .calendar small {font-size:calc(11px * var(--kn-a-s
 body.kn-home-a #knNewsDigest .heading-text h3 {font-size:calc(16px * var(--kn-a-scale,1))!important}
 body.kn-home-a #knNewsDigest .news-content {padding:0 24px 20px}
 body.kn-home-a #knNewsDigest .brief {border-top:0;margin:0;padding:26px 0}
-body.kn-home-a #knNewsDigest .brief-headline {
+body.kn-home-a #knNewsDigest .brief-headline,
+body.kn-home-a #knNewsDigest .editorial-detail .story-title {
   font:500 calc(23px * var(--kn-a-scale,1))/1.7 var(--kn-a-serif)!important;
-  letter-spacing:.025em;margin-bottom:15px;
+  letter-spacing:.025em;
 }
+body.kn-home-a #knNewsDigest .brief-headline {margin-bottom:15px}
 body.kn-home-a #knNewsDigest .brief p {color:var(--kn-a-ink)}
 body.kn-home-a #knNewsDigest .read-more > summary {
   background:transparent;border:0;border-top:1px dashed var(--kn-a-line);
