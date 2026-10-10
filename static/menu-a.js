@@ -14,6 +14,7 @@
   function stored(key, fallback) { try { return localStorage.getItem(key) || fallback; } catch (_) { return fallback; } }
   function icon(key) { return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="'+paths[key]+'"/></svg>'; }
   function row(key) { var b=document.createElement('button');b.type='button';b.className='drawer-item kn-menu-row';b.dataset.menuPage=key;b.innerHTML=icon(key)+'<span data-menu-copy="'+key+'">'+text(key)+'</span><svg class="kn-menu-chevron" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>';return b; }
+  function group(keys) { var section=document.createElement('div');section.className='kn-menu-group';keys.forEach(function(key){section.appendChild(row(key));});return section; }
   function detail(key) { var d=document.createElement('details');d.className='kn-menu-details';d.innerHTML='<summary data-menu-copy="'+key+'">'+text(key)+'</summary>';return d; }
   function bn(act) { var b=document.querySelector('.bn-item[data-act="'+act+'"]');if(b)b.click(); }
   function close() { if(window.closeDrawer)window.closeDrawer(); }
@@ -65,14 +66,16 @@
     var header=document.createElement('div');header.className='kn-menu-header';header.innerHTML='<button type="button" class="kn-menu-close" aria-label="'+text('close')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>';drawer.insertBefore(header,drawer.firstChild);header.querySelector('button').onclick=close;
     nav.replaceChildren();
     var panel=document.createElement('div');panel.className='knAccPanel kn-menu-content';nav.appendChild(panel);
-    ['favorites','calendar'].forEach(function(key){panel.appendChild(row(key));});
+    panel.appendChild(group(['favorites','calendar','alert']));
+    panel.appendChild(group(['account','kakeibo','memo','saved']));
+    panel.appendChild(group(['talk','pet']));
+    panel.appendChild(group(['guide']));
     var colors=drawer.querySelector('.drawer-color-wrap:has(.drawer-color-presets)');
     if(colors){var palette=document.createElement('section');palette.className='kn-menu-palette';palette.innerHTML='<h3 data-menu-copy="color">'+text('color')+'</h3>';palette.appendChild(colors);panel.appendChild(palette);colors.querySelectorAll('.drawer-color-preset').forEach(function(b){b.type='button';b.setAttribute('aria-label',b.title);b.style.setProperty('--menu-swatch',b.getAttribute('data-color'));});var reset=colors.querySelector('#drawerColorReset');if(reset){reset.removeAttribute('data-i18n');reset.dataset.menuCopy='resetColor';reset.textContent=text('resetColor');}}
-    var original=detail('original');original.open=true;['saved','talk','kakeibo','memo','alert','guide','pet'].forEach(function(key){original.appendChild(row(key));});panel.appendChild(original);
     var display=detail('display');display.innerHTML+='<p class="kn-menu-label" data-menu-copy="size">'+text('size')+'</p><div class="kn-menu-sizes">'+[['s','small'],['m','medium'],['l','large'],['xl','largest']].map(function(v){return '<button type="button" data-menu-size="'+v[0]+'" data-menu-copy="'+v[1]+'">'+text(v[1])+'</button>';}).join('')+'</div><label class="kn-menu-font"><span data-menu-copy="font">'+text('font')+'</span><select id="knMenuFont" aria-label="'+text('font')+'">'+['gothic','round','mincho','klee','pop'].map(function(key){return '<option value="'+key+'" data-menu-copy="'+key+'">'+text(key)+'</option>';}).join('')+'</select></label>';
     var motion=document.getElementById('knHomeOrbitMotion');if(motion){motion.classList.add('kn-menu-motion');display.appendChild(motion);}
     var reset=document.createElement('button');reset.type='button';reset.className='kn-menu-reset';reset.dataset.menuReset='1';reset.dataset.menuCopy='reset';reset.textContent=text('reset');display.appendChild(reset);panel.appendChild(display);
-    var style=detail('style');style.innerHTML+='<div class="kn-menu-styles">'+['beginner','pro'].map(function(key){return '<button type="button" data-menu-style="'+key+'" data-menu-copy="'+key+'">'+text(key)+'</button>';}).join('')+'</div>';panel.appendChild(style);panel.appendChild(row('account'));
+    var style=detail('style');style.innerHTML+='<div class="kn-menu-styles">'+['beginner','pro'].map(function(key){return '<button type="button" data-menu-style="'+key+'" data-menu-copy="'+key+'">'+text(key)+'</button>';}).join('')+'</div>';panel.appendChild(style);
     var language=detail('language'),grid=drawer.querySelector('.lang-grid');if(grid){language.appendChild(grid);panel.appendChild(language);}
     drawer.querySelectorAll(':scope > .drawer-section-label,:scope > .drawer-color-wrap,:scope > .drawer-footer').forEach(function(n){n.remove();});
     var oldSettings=document.getElementById('drawerSettingsBtn');if(oldSettings)oldSettings.parentElement.remove();
