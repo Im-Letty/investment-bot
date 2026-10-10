@@ -27,6 +27,21 @@ CHART_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 MODULES = 'price,summaryDetail,financialData,calendarEvents,assetProfile'
 FIELDS = ('market_cap', 'forward_annual_dividend_per_share', 'analyst_target',
           'ex_dividend_date', 'dividend_payment_date', 'price')
+FIELD_STATES = frozenset(('available', 'loading', 'source_missing', 'fetch_error', 'invalid', 'unconfirmed'))
+
+
+class ProfileFailure:
+    """Internal diagnostic containing only fixed codes, never upstream text."""
+    def __init__(self, reason='unconfirmed', *, field_status=None):
+        reason = reason if reason in ('fetch_error', 'invalid', 'unconfirmed') else 'unconfirmed'
+        self.field_status = {key: reason for key in FIELDS}
+        for key, status in (field_status if isinstance(field_status, dict) else {}).items():
+            if key in FIELDS and isinstance(status, str) and status in FIELD_STATES - {'available', 'loading'}:
+                self.field_status[key] = status
+
+
+class InvalidProfile(ValueError):
+    pass
 
 
 def safe_symbol(symbol):
@@ -52,6 +67,22 @@ def _day(value):
         return day.isoformat() if 1970 <= day.year <= 2100 else None
     except (ValueError, OverflowError, OSError):
         return None
+
+
+def _field_state(value, *raw_values):
+    if value is not None:
+        return 'available'
+    present = any(raw is not None and (not isinstance(raw, dict) or 'raw' not in raw
+                                      or raw['raw'] is not None) for raw in raw_values)
+    return 'invalid' if present else 'source_missing'
+
+
+def _missing_state(known, incoming):
+    # A transport failure or skipped request has not observed this field again.
+    # Keep the last definite observation until a new field response replaces it.
+    if known in ('source_missing', 'invalid') and incoming in ('fetch_error', 'unconfirmed'):
+        return known
+    return incoming
 
 
 def parse_profile(payload, symbol, name, fetched_at):
@@ -93,8 +124,14 @@ def parse_profile(payload, symbol, name, fetched_at):
                 ex_dividend_date=_day(calendar.get('exDividendDate')) or _day(detail.get('exDividendDate')),
                 dividend_payment_date=_day(calendar.get('dividendDate')),
                 price=_number(price.get('regularMarketPrice')), price_updated_at=observed_quote_at)
-    if not any(data[key] is not None for key in FIELDS):
-        return None
+    field_status = dict(
+        market_cap=_field_state(data['market_cap'], price.get('marketCap')),
+        forward_annual_dividend_per_share=_field_state(data['forward_annual_dividend_per_share'], detail.get('dividendRate')),
+        analyst_target=_field_state(targets, *(financial.get(key) for key in
+                                    ('targetMeanPrice', 'targetLowPrice', 'targetHighPrice'))),
+        ex_dividend_date=_field_state(data['ex_dividend_date'], calendar.get('exDividendDate'), detail.get('exDividendDate')),
+        dividend_payment_date=_field_state(data['dividend_payment_date'], calendar.get('dividendDate')),
+        price=_field_state(data['price'], price.get('regularMarketPrice')))
     # The quote's time does NOT establish the analyst forecast's date, the
     # company's forecast date, or the observation time for its market cap.
     metadata = {key: dict(fetched_at=fetched_at, as_of=observed_quote_at if key == 'price' else None)
@@ -104,10 +141,10 @@ def parse_profile(payload, symbol, name, fetched_at):
     summary = asset.get('longBusinessSummary')
     summary = summary[:20000] if isinstance(summary, str) else None
     return dict(symbol=symbol, name=name, data=data, source=source,
-                updated_at=fetched_at, _business_summary=summary)
+                updated_at=fetched_at, _business_summary=summary, field_status=field_status)
 
 
-def parse_chart_profile(payload, symbol, name, fetched_at):
+def parse_chart_profile(payload, symbol, name, fetched_at, *, summary_status='unconfirmed'):
     """A quote fallback is only a dated price, never a financial forecast."""
     if not safe_symbol(symbol) or not isinstance(payload, dict):
         return None
@@ -135,8 +172,14 @@ def parse_chart_profile(payload, symbol, name, fetched_at):
               for key in FIELDS if data[key] is not None}
     source = dict(name='Yahoo Finance', url='https://finance.yahoo.com/quote/' + symbol + '/',
                   api_url=CHART_URL + symbol, fetched_at=fetched_at, fields=fields)
+    summary_status = summary_status if summary_status in ('fetch_error', 'invalid') else 'unconfirmed'
+    field_status = {key: 'available' if data[key] is not None else summary_status for key in FIELDS}
+    if price is None:
+        field_status['price'] = _field_state(price, meta.get('regularMarketPrice'), meta.get('regularMarketTime'))
+    if cap is None and _field_state(cap, meta.get('marketCap')) == 'invalid':
+        field_status['market_cap'] = 'invalid'
     return dict(symbol=symbol, name=name, data=data, source=source,
-                updated_at=fetched_at, partial=True)
+                updated_at=fetched_at, partial=True, field_status=field_status)
 
 
 class YahooProfileProvider:
@@ -152,7 +195,8 @@ class YahooProfileProvider:
         if state is None or state['pid'] != os.getpid():
             session = self.session_factory()
             session.headers.update({'User-Agent': 'Mozilla/5.0'})
-            state = self._local.state = dict(session=session, crumb=None, pid=os.getpid(), summary_retry_at=0)
+            state = self._local.state = dict(session=session, crumb=None, pid=os.getpid(),
+                                            summary_retry_at=0, summary_status='unconfirmed', summary_symbol=None)
         return state
 
     def _read(self, state, url, deadline, *, params=None, max_bytes=250000):
@@ -198,7 +242,10 @@ class YahooProfileProvider:
                                       params=dict(params, crumb=crumb))
         if status != 200 or self.monotonic() >= deadline:
             return None
-        return parse_profile(json.loads(body), symbol, name, self.now())
+        result = parse_profile(json.loads(body), symbol, name, self.now())
+        if result is None:
+            raise InvalidProfile()
+        return result
 
     def __call__(self, symbol, name):
         if not safe_symbol(symbol):
@@ -211,25 +258,38 @@ class YahooProfileProvider:
         # is suppressed briefly across symbols on the same background worker.
         summary_deadline = deadline - min(8, self.deadline * .4)
         if started >= state['summary_retry_at']:
+            reason = 'fetch_error'
             try:
                 result = self._summary(state, symbol, name, summary_deadline)
-            except (requests.RequestException, UpstreamReadError, ValueError,
-                    TypeError, AttributeError, TimeoutError, OSError):
+            except (ValueError, TypeError, AttributeError):
+                reason = 'invalid'
+                result = None
+            except (requests.RequestException, UpstreamReadError, TimeoutError, OSError):
                 result = None
             if result:
                 return result
+            state['summary_symbol'] = symbol
+            state['summary_status'] = reason
             state['summary_retry_at'] = self.monotonic() + 180
+        summary_status = state['summary_status'] if state['summary_symbol'] == symbol else 'unconfirmed'
+        failure = ProfileFailure(summary_status)
         if self.monotonic() >= deadline:
-            return None
+            return failure
         try:
             status, body = self._read(state, CHART_URL + symbol, deadline,
                                       params={'range': '1d', 'interval': '1d'}, max_bytes=50000)
             if status != 200 or self.monotonic() >= deadline:
-                return None
-            return parse_chart_profile(json.loads(body), symbol, name, self.now())
-        except (requests.RequestException, UpstreamReadError, ValueError,
-                TypeError, AttributeError, TimeoutError, OSError):
-            return None
+                return failure
+            result = parse_chart_profile(json.loads(body), symbol, name, self.now(),
+                                         summary_status=summary_status)
+            if result is not None:
+                return result
+            failure.field_status['price'] = 'invalid'
+        except (ValueError, TypeError, AttributeError):
+            failure.field_status['price'] = 'invalid'
+        except (requests.RequestException, UpstreamReadError, TimeoutError, OSError):
+            pass
+        return failure
 
 
 def _valid_record(record, now):
@@ -245,6 +305,11 @@ def _valid_record(record, now):
     if not isinstance(fields, dict) or source.get('name') != 'Yahoo Finance':
         return None
     value = deepcopy(record)
+    supplied = record.get('field_status')
+    value['field_status'] = {key: (supplied.get(key) if isinstance(supplied, dict)
+                                  and isinstance(supplied.get(key), str)
+                                  and supplied.get(key) in FIELD_STATES - {'available', 'loading'}
+                                  else 'unconfirmed') for key in FIELDS}
     price_at = value['data'].get('price_updated_at')
     if price_at is not None and (_number(price_at) is None or not 0 <= stamp - price_at < RETAIN):
         return None
@@ -257,6 +322,7 @@ def _valid_record(record, now):
         if observed is None or not 0 <= now - observed < RETAIN:
             value['data'][key] = None
             value['source']['fields'].pop(key, None)
+            value['field_status'][key] = 'unconfirmed'
             continue
         if key in ('market_cap', 'price', 'forward_annual_dividend_per_share'):
             if _number(field, zero=key == 'forward_annual_dividend_per_share') is None:
@@ -274,8 +340,10 @@ def _valid_record(record, now):
                 return None
             if any(field.get(part) is not None and _number(field[part]) is None for part in ('mean', 'low', 'high')):
                 return None
+        value['field_status'][key] = 'available'
     if not any(value['data'].get(key) is not None for key in FIELDS):
-        return None
+        if not any(status in ('source_missing', 'invalid') for status in value['field_status'].values()):
+            return None
     return value
 
 
@@ -308,6 +376,7 @@ class CompanyProfiles:
         self._pending = set()
         self._attempts = {}
         self._errors = set()
+        self._failures = {}
         self._threads = []
 
     def _check_pid(self):
@@ -343,8 +412,16 @@ class CompanyProfiles:
                         previous.get('fetched_at', 0) > latest.get('fetched_at', 0)):
                     merged['data'][key] = deepcopy(old['data'][key])
                     merged['source']['fields'][key] = deepcopy(previous)
+                    merged['field_status'][key] = 'available'
                     if key == 'price':
                         merged['data']['price_updated_at'] = old['data'].get('price_updated_at')
+                elif incoming['data'].get(key) is None and old['data'].get(key) is None and (
+                        incoming['updated_at'] < old['updated_at']
+                        or incoming['field_status'][key] == 'unconfirmed'):
+                    merged['field_status'][key] = old['field_status'][key]
+                elif incoming['data'].get(key) is None and old['data'].get(key) is None:
+                    merged['field_status'][key] = _missing_state(old['field_status'][key],
+                                                               incoming['field_status'][key])
             if not incoming.get('_business_summary'):
                 merged['_business_summary'] = old.get('_business_summary')
             merged['updated_at'] = max(old['updated_at'], incoming['updated_at'])
@@ -392,16 +469,32 @@ class CompanyProfiles:
                 while not self._queue:
                     self._condition.wait()
                 symbol, name = self._queue.popleft()
+            failure = ProfileFailure('unconfirmed')
             try:
-                row = _valid_record(self.loader(symbol, name), self.now())
+                incoming = self.loader(symbol, name)
+                if isinstance(incoming, ProfileFailure):
+                    failure = incoming
+                    row = None
+                else:
+                    row = _valid_record(incoming, self.now())
+                    if incoming is not None and row is None:
+                        failure = ProfileFailure('invalid')
+            except (requests.RequestException, UpstreamReadError, TimeoutError, OSError):
+                failure = ProfileFailure('fetch_error')
+                row = None
+            except ValueError:
+                failure = ProfileFailure('invalid')
+                row = None
             except Exception:
                 row = None  # Do not put upstream messages, URLs with tokens or secrets into an API response.
             with self._condition:
                 if row and row['symbol'] == symbol:
                     self._merge(row)
                     self._errors.discard(symbol)
+                    self._failures.pop(symbol, None)
                 else:
                     self._errors.add(symbol)
+                    self._failures[symbol] = failure.field_status
                 self._attempts[symbol] = self.now()
                 self._pending.discard(symbol)
             if row:
@@ -409,12 +502,14 @@ class CompanyProfiles:
 
     def _stale(self, row, now):
         return (row.get('partial') is True and now - row['updated_at'] >= self.retry
+                or not row['source']['fields'] and now - row['updated_at'] >= self.ttl
                 or any(now - meta['fetched_at'] >= self.ttl for meta in row['source']['fields'].values()))
 
     def get(self, symbol, name):
         if not safe_symbol(symbol):
             return dict(symbol=symbol if isinstance(symbol, str) else None, status='unavailable',
-                        refreshing=False, updated_at=None, data=None, source=None)
+                        refreshing=False, updated_at=None, data=None, source=None,
+                        field_status={key: 'invalid' for key in FIELDS})
         self._check_pid()
         with self._condition:
             self._read_disk()
@@ -437,11 +532,17 @@ class CompanyProfiles:
                 'pending' if refreshing else 'unavailable')
             if row:
                 public = {key: deepcopy(row[key]) for key in ('symbol', 'name', 'updated_at', 'data', 'source')}
+                public['field_status'] = {
+                    key: ('available' if row['data'].get(key) is not None else
+                          _missing_state(row['field_status'][key], self._failures.get(symbol, {}).get(
+                              key, row['field_status'][key]))) for key in FIELDS}
                 if row.get('partial') is True:
                     public['partial'] = True
                 return dict(public, status=status, refreshing=refreshing)
             return dict(symbol=symbol, name=str(name or symbol)[:200], status=status,
-                        refreshing=refreshing, updated_at=None, data=None, source=None)
+                        refreshing=refreshing, updated_at=None, data=None, source=None,
+                        field_status=deepcopy(self._failures.get(symbol)) or {
+                            key: 'loading' if refreshing else 'unconfirmed' for key in FIELDS})
 
     def get_business_summary_for_review(self, symbol):
         """Internal editorial input only; never returned by the public get()."""

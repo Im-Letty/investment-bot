@@ -116,6 +116,9 @@
 #knCompanyProfile .cp-unknown {display:block;color:var(--cp-muted);font-size:calc(11px * var(--kn-a-scale,1));font-weight:400;line-height:1.7}
 #knCompanyProfile .cp-fact-time {margin:5px 0 0;color:var(--cp-muted);font-size:calc(10px * var(--kn-a-scale,1));line-height:1.8;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 #knCompanyProfile .cp-fact-note {margin:10px 0 0;color:var(--cp-muted);font-size:calc(11px * var(--kn-a-scale,1));line-height:1.9;overflow-wrap:anywhere}
+#knCompanyProfile .cp-reason-help {margin-top:16px;color:var(--cp-muted);font-size:calc(11px * var(--kn-a-scale,1));line-height:1.8}
+#knCompanyProfile .cp-reason-help summary {display:list-item;min-height:44px;padding:10px 0;color:var(--cp-muted);cursor:pointer;touch-action:manipulation}
+#knCompanyProfile .cp-reason-help p {margin:6px 0 0;overflow-wrap:anywhere}
 #knCompanyProfile .cp-sources {margin-top:24px;padding-top:0;color:var(--cp-muted)}
 #knCompanyProfile .cp-sources>.cp-heading {color:var(--cp-muted);font-size:calc(12px * var(--kn-a-scale,1));font-weight:400}
 #knCompanyProfile .cp-review-date {margin:0 0 9px;color:var(--cp-muted);font-size:calc(11px * var(--kn-a-scale,1));line-height:1.8}

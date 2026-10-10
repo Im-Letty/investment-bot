@@ -13,6 +13,30 @@ from flask import jsonify, request
 EDITORIAL_PATH = Path(__file__).with_name('static') / 'company-profile-editorial.json'
 SCHEDULE_PATH = Path(__file__).with_name('company-profile-schedules.json')
 JST = timezone(timedelta(hours=9))
+PROFILE_FIELDS = ('price', 'market_cap', 'forward_annual_dividend_per_share',
+                  'ex_dividend_date', 'dividend_payment_date', 'analyst_target')
+FIELD_STATES = {'available', 'loading', 'source_missing', 'fetch_error', 'invalid', 'unconfirmed'}
+
+
+def field_states(payload, fields):
+    """Only use observed reasons; old records cannot prove why a field is absent."""
+    supplied = payload.get('field_status')
+    supplied = supplied if isinstance(supplied, dict) else {}
+    loading = payload.get('refreshing') is True and payload.get('status') in ('pending', 'loading')
+    return {field: supplied[field] if isinstance(supplied.get(field), str) and supplied[field] in FIELD_STATES else
+            'loading' if loading else 'unconfirmed' for field in fields}
+
+
+def has_figure(figures, field):
+    value = figures.get(field)
+    if field == 'analyst_target':
+        return isinstance(value, dict) and any(
+            isinstance(value.get(part), (int, float)) and not isinstance(value.get(part), bool)
+            and math.isfinite(value[part]) and value[part] > 0 for part in ('mean', 'low', 'high'))
+    if field in ('ex_dividend_date', 'dividend_payment_date'):
+        return isinstance(value, str) and bool(value)
+    return (isinstance(value, (int, float)) and not isinstance(value, bool) and math.isfinite(value)
+            and (value >= 0 if field in ('annual_dividend', 'forward_annual_dividend_per_share') else value > 0))
 
 
 def read_editorial(path=EDITORIAL_PATH):
@@ -72,6 +96,7 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         if company is None:
             return jsonify(error='company_not_found'), 404
         payload = deepcopy(profiles.get(symbol, company['name']))
+        states = field_states(payload, PROFILE_FIELDS)
         payload['symbol'], payload['name'] = symbol, company['name']
         payload['identity'] = {
             'market': company.get('market'), 'industry': company.get('industry'),
@@ -85,6 +110,10 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         # Queue this verified company ahead of the dividend universe, returning
         # saved facts immediately. The existing bounded pool does the work.
         dividend = dividends.lookup(symbol, company['name'])
+        dividend_states = field_states(dividend, ('price', 'annual_dividend'))
+        states['annual_dividend'] = dividend_states['annual_dividend']
+        if not has_figure(figures, 'price') and dividend_states['price'] == 'loading':
+            states['price'] = 'loading'
         waiting_dividend = dividend.get('status') == 'loading' and dividend.get('refreshing') is True
         payload['refreshing'] = payload.get('refreshing') is True or waiting_dividend
         if waiting_dividend and payload.get('status') == 'unavailable':
@@ -149,6 +178,15 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
             payload['source'].setdefault('fields', {})['dividend_payment_period'] = {
                 'fetched_at': schedule['fetched_at'], 'as_of': schedule.get('source_updated_on')}
             sources.append(dict(schedule['source'], fetched_at=schedule['fetched_at']))
+            states['dividend_payment_date'] = 'available'
+        # A saved valid value remains visible with its own date even if the
+        # current fetch failed. Zero is a value only for verified dividend data.
+        for field in (*PROFILE_FIELDS, 'annual_dividend'):
+            if has_figure(figures, field):
+                states[field] = 'available'
+            elif states[field] == 'available' and not (field == 'dividend_payment_date' and schedule):
+                states[field] = 'unconfirmed'
+        payload['field_status'] = states
         payload['sources'] = sources
         response = jsonify(payload)
         response.headers['Cache-Control'] = 'no-store'

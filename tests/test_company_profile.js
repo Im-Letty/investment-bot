@@ -108,6 +108,41 @@ test('official identity is accepted only with a safe source and an actual nonfut
   const clean=profile.normalize(fixture({identity:IDENTITY}),KEY,NOW);assert.equal(clean.identity.industry,'輸送用機器');assert.equal(clean.identity.date,'2026-09-23');
   for(const identity of [{...IDENTITY,source_url:'javascript:alert(1)'},{...IDENTITY,date:'2026-02-30'},{...IDENTITY,date:'2026-09-25'},{market:'プライム',industry:'輸送用機器'}])assert.equal(profile.normalize(fixture({identity}),KEY,NOW).identity,null);
 });
+test('field statuses accept only known reasons and rejected values never masquerade as available numbers',()=>{
+  const clean=profile.normalize(fixture({data:{currency:'JPY',price:'3210'},field_status:{price:'available',market_cap:'source_missing',annual_dividend:'unpublished',made_up:'loading'}}),KEY,NOW);
+  assert.deepEqual(clean.field_status,{price:'invalid',market_cap:'source_missing'});
+  assert.equal(profile.fieldReason({data:clean},'price'),'内容を確認中');assert.equal(profile.fieldReason({data:clean},'market_cap'),'提供元に情報なし');assert.equal(profile.fieldReason({data:clean},'annual_dividend'),'未確認');
+});
+test('a valid target range without a mean is unconfirmed rather than malformed',()=>{
+  const raw=fixture({field_status:{analyst_target:'available'}});raw.data.analyst_target={mean:null,low:2900,high:4100,analyst_count:12,currency:'JPY'};
+  const clean=profile.normalize(raw,KEY,NOW);assert.equal(clean.field_status.analyst_target,'available');assert.equal(profile.fieldReason({data:clean},'analyst_target'),'未確認');assert.equal(clean.data.analyst_target.low,2900);
+  raw.data.analyst_target={mean:3600,low:4100,high:2900,currency:'JPY'};const bad=profile.normalize(raw,KEY,NOW);assert.equal(bad.field_status.analyst_target,'invalid');assert.equal(profile.fieldReason({data:bad},'analyst_target'),'内容を確認中');
+});
+test('each empty field explains its own state and unrelated annual loading does not override a completed source',()=>{
+  const field_status={price:'loading',market_cap:'source_missing',annual_dividend:'loading',forward_annual_dividend_per_share:'fetch_error',ex_dividend_date:'invalid',dividend_payment_date:'unconfirmed',analyst_target:'source_missing'};
+  const record=profile.normalize(fixture({data:{currency:'JPY'},field_status,status:'pending',refreshing:true}),KEY,NOW),pending={data:record,status:'pending',updating:true};
+  assert.equal(profile.fieldReason(pending,'price'),'取得中');assert.equal(profile.fieldReason(pending,'annual_dividend'),'取得中');assert.equal(profile.fieldReason(pending,'market_cap'),'提供元に情報なし');assert.equal(profile.fieldReason(pending,'forward_annual_dividend_per_share'),'通信エラー');assert.equal(profile.fieldReason(pending,'ex_dividend_date'),'内容を確認中');assert.equal(profile.fieldReason(pending,'dividend_payment_date'),'未確認');assert.equal(profile.fieldReason(pending,'analyst_target'),'提供元に情報なし');
+  assert.equal(profile.fieldReason({status:'loading',updating:true,data:null},'price'),'取得中');assert.equal(profile.fieldReason({...pending,reason:'retrying'},'market_cap'),'提供元に情報なし');assert.equal(profile.fieldReason({...pending,reason:'fetch_error',updating:false},'ex_dividend_date'),'内容を確認中');
+  assert.equal(profile.fieldReason({...pending,reason:'pending_timeout',updating:false},'annual_dividend'),'未確認');
+});
+test('browser failures are distinct from unknown companies and malformed responses',async()=>{
+  const h=loaderHarness();await h.load();await h.reply(0,{},503);assert.equal(profile.fieldReason(h.states.at(-1),'market_cap'),'通信エラー');
+  const unknown=loaderHarness();await unknown.load();await unknown.reply(0,{},404);assert.equal(unknown.states.at(-1).reason,'not_found');assert.equal(profile.fieldReason(unknown.states.at(-1),'price'),'未確認');
+  const malformed=loaderHarness();await malformed.load();await malformed.reply(0,fixture({symbol:'9432.T'}));assert.equal(malformed.states.at(-1).reason,'invalid');assert.equal(profile.fieldReason(malformed.states.at(-1),'price'),'内容を確認中');
+  const invalid=loaderHarness();await invalid.load();await invalid.reply(0,{},400);assert.equal(profile.fieldReason(invalid.states.at(-1),'price'),'未確認');
+});
+test('current response field reasons replace cached failures even when older numeric records are retained',async()=>{
+  const saved=fixture({field_status:{market_cap:'fetch_error',annual_dividend:'loading'}});saved.data.market_cap=null;saved.data.annual_dividend=null;
+  const h=loaderHarness();await h.load();await h.reply(0,saved);
+  const later=fixture({updated_at:null,data:{currency:'JPY'},field_status:{market_cap:'source_missing',annual_dividend:'loading'},status:'pending',refreshing:true});await h.load();await h.reply(1,later);
+  assert.equal(h.states.at(-1).fromCache,true);assert.equal(h.states.at(-1).data.data.price,3210);assert.equal(profile.fieldReason(h.states.at(-1),'market_cap'),'提供元に情報なし');assert.equal(profile.fieldReason(h.states.at(-1),'annual_dividend'),'取得中');
+  h.loader.cancel();const reloaded=loaderHarness(h.storage);await reloaded.load();assert.equal(reloaded.states[0].data.field_status.annual_dividend,'unconfirmed');assert.equal(profile.fieldReason({...reloaded.states[0],updating:false},'annual_dividend'),'未確認');assert.equal(profile.fieldReason(reloaded.states[0],'annual_dividend'),'取得中');assert.equal(profile.fieldReason(reloaded.states[0],'market_cap'),'提供元に情報なし');
+});
+test('valid saved values, zero dividends, and month-precise schedules do not become missing on later failure',()=>{
+  const raw=fixture({field_status:Object.fromEntries(['price','market_cap','annual_dividend','forward_annual_dividend_per_share','ex_dividend_date','dividend_payment_date','analyst_target'].map(key=>[key,'fetch_error']))});raw.data.annual_dividend=0;raw.data.dividend_payment_date=null;raw.data.dividend_payment_period='2026-11';
+  const state={data:profile.normalize(raw,KEY,NOW),status:'stale',updating:false,reason:'fetch_error'};
+  for(const key of Object.keys(raw.field_status))assert.equal(profile.fieldReason(state,key),'',key);
+});
 
 class Element {
   constructor(tag,doc){this.tagName=tag.toUpperCase();this.doc=doc;this.children=[];this.dataset={};this.attributes={};this.listeners={};this.hidden=false;this.disabled=false;this.inert=false;this.open=false;this.scrollTop=0;this.scrollLeft=0;this.className='';this.style={overflow:'',position:'',top:'',left:'',right:'',width:'',paddingRight:'',setProperty(k,v){this[k]=v;}};this._text='';}
@@ -163,9 +198,25 @@ test('scanner closing-price dates are explicit; precise quote times take precede
   assert.match(refs.price.time.textContent,/株価 2026\/09\/23 の終値/);assert.doesNotMatch(refs.price.time.textContent,/株価の時点：未確認/);
   raw.data.price_updated_at=(NOW-60000)/1000;h.view.render(state(raw));assert.match(refs.price.time.textContent,/株価の時点.*14:59/);assert.doesNotMatch(refs.price.time.textContent,/終値/);
 });
+test('empty metric labels change individually and explain source omissions without claiming nonpublication',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const refs=h.view.elements;
+  const raw=fixture({data:{currency:'JPY'},field_status:{price:'loading',market_cap:'source_missing',annual_dividend:'fetch_error',forward_annual_dividend_per_share:'invalid',ex_dividend_date:'unconfirmed',dividend_payment_date:'source_missing',analyst_target:'unconfirmed'},status:'pending',refreshing:true});
+  h.view.render(state(raw,{updating:true}));assert.equal(refs.price.unknown.textContent,'取得中');assert.equal(refs.cap.unknown.textContent,'提供元に情報なし');assert.equal(refs.annual.unknown.textContent,'通信エラー');assert.equal(refs.forward.unknown.textContent,'内容を確認中');assert.equal(refs.exDate.unknown.textContent,'未確認');assert.equal(refs.paymentDate.unknown.textContent,'提供元に情報なし');assert.equal(refs.target.unknown.textContent,'未確認');
+  assert.equal(refs.reasonHelp.hidden,false);assert.equal(refs.reasonHelp.open,false);assert.match(refs.reasonHelp.textContent,/会社が未公表とは限りません/);assert.equal(refs.reasonHelp.querySelector('summary').textContent,'表示の意味');
+  refs.numbers.open=true;refs.reasonHelp.open=true;refs.content.scrollTop=230;h.view.render(state(fixture()));assert.equal(refs.reasonHelp.hidden,true);assert.equal(refs.numbers.open,true);assert.equal(refs.content.scrollTop,230);assert.equal(refs.price.unknown.hidden,true);
+});
+test('missing dividend dates show their actual reason instead of a generic date-helper placeholder',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const calls=[];h.w.KNDividendDates={describe(value){calls.push(value);return '次回未確認';}};
+  const raw=fixture({data:{currency:'JPY'},field_status:{ex_dividend_date:'source_missing',dividend_payment_date:'fetch_error'}});h.view.render(state(raw));const refs=h.view.elements;
+  assert.deepEqual(calls,[]);assert.equal(refs.exDate.value.textContent,'—');assert.equal(refs.exDate.unknown.hidden,false);assert.equal(refs.exDate.unknown.textContent,'提供元に情報なし');assert.equal(refs.paymentDate.value.textContent,'—');assert.equal(refs.paymentDate.unknown.hidden,false);assert.equal(refs.paymentDate.unknown.textContent,'通信エラー');
+});
+test('an average target can be unconfirmed while a valid low-to-high forecast remains visible',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture({field_status:{analyst_target:'available'}});raw.data.analyst_target={mean:null,low:2900,high:4100,analyst_count:12,currency:'JPY'};h.view.render(state(raw));const refs=h.view.elements;
+  assert.equal(refs.target.value.textContent,'—');assert.equal(refs.target.unknown.hidden,false);assert.equal(refs.target.unknown.textContent,'未確認');assert.equal(refs.targetRange.hidden,false);assert.match(refs.targetRange.textContent,/2,900円〜4,100円/);
+});
 test('a payment month stays month-precise and never invents a payment day',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.dividend_payment_date=null;raw.data.dividend_payment_period='2099-11';raw.source.fields.dividend_payment_period={fetched_at:(NOW-2*3600000)/1000};h.view.render(state(raw));
-  const refs=h.view.elements;assert.equal(refs.paymentDate.value.textContent,'2099/11（予定）');assert.match(refs.paymentDate.time.textContent,/日付は未公表/);assert.match(refs.paymentDate.time.textContent,/13:00/);assert.equal(refs.paymentDate.unknown.hidden,true);
+  const refs=h.view.elements;assert.equal(refs.paymentDate.value.textContent,'2099/11（予定）');assert.match(refs.paymentDate.time.textContent,/日付は未確認/);assert.match(refs.paymentDate.time.textContent,/13:00/);assert.equal(refs.paymentDate.unknown.hidden,true);
   raw.data.dividend_payment_period='2026-13';h.view.render(state(raw));assert.equal(refs.paymentDate.value.textContent,'—');assert.equal(refs.paymentDate.unknown.hidden,false);
   raw.data.dividend_payment_period='2099-11';raw.data.dividend_payment_date='2099-11-26';h.view.render(state(raw));assert.equal(refs.paymentDate.value.textContent,'2099/11/26（予定）');
 });

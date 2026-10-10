@@ -183,6 +183,11 @@ class DividendSnapshot:
         self._thread = None
         self._pending = {}  # Extra individually requested companies share the same pool.
         self._symbol_attempts = {}
+        self._symbol_queued = set()
+        self._symbol_processing = set()
+        # Outcomes belong to one verified ticker, never to the whole scan.
+        # They contain classifications only, not provider errors or response bodies.
+        self._symbol_outcomes = {}
 
     def _check_pid(self):
         if self._pid != os.getpid():
@@ -280,6 +285,7 @@ class DividendSnapshot:
                             self.now() - self._rows[code + '.T']['fetched_at'] >= self.ttl)
                         and (code + '.T' not in self._symbol_attempts or
                              self.now() - self._symbol_attempts[code + '.T'] >= self.retry)]
+                self._symbol_queued = {ticker for ticker, _ in jobs}
             # Only two jobs are submitted at a time, so a newly searched
             # company can go next instead of waiting behind the whole universe.
             queue = deque(jobs)
@@ -296,24 +302,40 @@ class DividendSnapshot:
                                 else:
                                     queued.add(ticker)
                                 queue.appendleft((ticker, name))
+                                self._symbol_queued.add(ticker)
                         self._pending.clear()
                     while queue and len(futures) < 2:
                         ticker, name = queue.popleft()
                         with self._lock:
                             self._symbol_attempts[ticker] = self.now()
+                            self._symbol_queued.discard(ticker)
+                            self._symbol_processing.add(ticker)
                         futures[pool.submit(self.loader, ticker, name)] = ticker
                     if not futures:
                         break
                     done, _ = wait(futures, return_when=FIRST_COMPLETED)
                     for future in done:
-                        futures.pop(future)
+                        ticker = futures.pop(future)
                         try:
-                            incoming = validated([future.result()], self.now())
+                            result = future.result()
+                            incoming = validated([result], self.now())
+                            if incoming and ticker not in incoming:
+                                incoming = {}
+                            outcome = 'unconfirmed' if result is None or incoming else 'invalid'
+                        except (requests.RequestException, OSError, TimeoutError):
+                            incoming, outcome = {}, 'fetch_error'
+                        except (ValueError, TypeError, KeyError, OverflowError):
+                            incoming, outcome = {}, 'invalid'
                         except Exception:
-                            incoming = {}
-                        if incoming:
-                            with self._lock:
+                            # An unknown loader failure does not prove which
+                            # information the source publishes.
+                            incoming, outcome = {}, 'unconfirmed'
+                        with self._lock:
+                            self._symbol_processing.discard(ticker)
+                            self._symbol_outcomes[ticker] = outcome
+                            if incoming:
                                 self._merge(incoming)
+                        if incoming:
                             successes += 1
                             self._save()  # First valid result is visible immediately.
                         else:
@@ -327,6 +349,8 @@ class DividendSnapshot:
             with self._lock:
                 self._failed = failures > 0
                 self._running = False
+                self._symbol_queued.clear()
+                self._symbol_processing.clear()
                 self._last_attempt = self.now()
 
     def payload(self, *, refresh=True):
@@ -367,10 +391,22 @@ class DividendSnapshot:
                 self._pending[ticker[:-2]] = name
         payload = self.payload()
         row = next((row for row in payload.pop('items') if row['ticker'] == ticker), None)
+        with self._lock:
+            eligible = (ticker not in self._symbol_attempts or
+                        self.now() - self._symbol_attempts[ticker] >= self.retry)
+            waiting = (ticker in self._symbol_queued or ticker in self._symbol_processing or
+                       self._running and ticker[:-2] in self._pending and eligible)
+            outcome = 'loading' if waiting else self._symbol_outcomes.get(ticker, 'unconfirmed')
+        fields = {key: 'available' if row and row.get(key) is not None else outcome
+                  for key in ('price', 'annual_dividend')}
+        if row and row.get('calculation_status') == 'split_review':
+            fields['annual_dividend'] = 'invalid'
         if row:
-            return dict(row, updated_at=row['fetched_at'], refreshing=payload['refreshing'],
+            return dict(row, updated_at=row['fetched_at'], refreshing=waiting,
                         stale=self.now() - row['fetched_at'] >= self.ttl,
-                        status='stale' if self.now() - row['fetched_at'] >= self.ttl else 'ready')
-        payload['status'] = 'loading' if payload['refreshing'] else 'unavailable'
+                        status='stale' if self.now() - row['fetched_at'] >= self.ttl else 'ready',
+                        field_status=fields)
+        payload['refreshing'] = waiting
+        payload['status'] = 'loading' if waiting else 'unavailable'
         payload['updated_at'] = None
-        return dict(payload, ticker=ticker, code=ticker[:-2], name=name)
+        return dict(payload, ticker=ticker, code=ticker[:-2], name=name, field_status=fields)

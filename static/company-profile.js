@@ -8,6 +8,9 @@
   const POLL_MS=3000,POLL_LIMIT=90000,REQUEST_TIMEOUT=12000,RETRY_DELAYS=[1000,3000],CACHE_AGE=7*86400000,CACHE_PREFIX='kn_company_profile_v1:';
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
   const text=(value,limit=400)=>typeof value==='string'?value.trim().slice(0,limit):'';
+  const FIELD_KEYS=['price','market_cap','annual_dividend','forward_annual_dividend_per_share','ex_dividend_date','dividend_payment_date','analyst_target'];
+  const METRIC_KEYS={price:'price',cap:'market_cap',annual:'annual_dividend',forward:'forward_annual_dividend_per_share',exDate:'ex_dividend_date',paymentDate:'dividend_payment_date',target:'analyst_target'};
+  const FIELD_REASONS={loading:'取得中',source_missing:'提供元に情報なし',fetch_error:'通信エラー',invalid:'内容を確認中',unconfirmed:'未確認'};
   function symbol(value){const key=text(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
   function safeUrl(value){
     if(typeof value!=='string'||/[\u0000-\u0020\u007f\\]/.test(value))return null;
@@ -73,8 +76,39 @@
       analyst_target:analyst,ex_dividend_date:day(input.ex_dividend_date),dividend_payment_date:day(input.dividend_payment_date),dividend_payment_period:month(input.dividend_payment_period)};
     const sources=sourceList(raw.sources,now);
     if(!sources.length&&fieldSource.url)sources.push(...sourceList([fieldSource],now));
+    const statuses=raw.field_status&&typeof raw.field_status==='object'?raw.field_status:{},field_status={};
+    FIELD_KEYS.forEach(key=>{
+      if(statuses[key]==='available'||Object.prototype.hasOwnProperty.call(FIELD_REASONS,statuses[key]))field_status[key]=statuses[key];
+      if(field_status[key]!=='available'||knownField({data},key))return;
+      const supplied=input[key];
+      const rejected=key==='analyst_target'?supplied!==null&&supplied!==undefined&&(typeof supplied!=='object'||!analyst||['mean','low','high'].some(part=>supplied[part]!==null&&supplied[part]!==undefined&&!positive(supplied[part]))):supplied!==null&&supplied!==undefined;
+      if(rejected)field_status[key]='invalid';
+    });
     return {symbol:key,name:text(raw.name,160)||key,status:raw.status,refreshing:raw.refreshing===true,
-      updated_at:timestamp(raw.updated_at,now),data,editorial,identity,sources,source:{fields}};
+      updated_at:timestamp(raw.updated_at,now),data,editorial,identity,field_status,sources,source:{fields}};
+  }
+  function knownField(record,key){
+    const data=record&&record.data||{};
+    if(['price','market_cap'].includes(key))return finite(data[key])&&data[key]>0;
+    if(['annual_dividend','forward_annual_dividend_per_share'].includes(key))return finite(data[key])&&data[key]>=0;
+    if(key==='analyst_target')return finite(data.analyst_target&&data.analyst_target.mean)&&data.analyst_target.mean>0;
+    if(key==='dividend_payment_date')return !!(day(data.dividend_payment_date)||month(data.dividend_payment_period));
+    return key==='ex_dividend_date'&&!!day(data.ex_dividend_date);
+  }
+  function fieldReason(state,key){
+    const record=state&&state.data;if(knownField(record,key))return '';
+    const supplied=record&&record.field_status&&record.field_status[key];
+    // A completed source's known omission is independent of other fields still
+    // loading, or of a later request failing before it provides new evidence.
+    if(['source_missing','invalid'].includes(supplied))return FIELD_REASONS[supplied];
+    if(state&&['not_found','invalid_request'].includes(state.reason))return FIELD_REASONS.unconfirmed;
+    if(state&&state.reason==='invalid')return FIELD_REASONS.invalid;
+    if(state&&['retrying','fetch_error','timeout'].includes(state.reason))return FIELD_REASONS.fetch_error;
+    if(state&&state.reason==='pending_timeout')return FIELD_REASONS.unconfirmed;
+    if(supplied==='available')return FIELD_REASONS.unconfirmed;
+    if(supplied==='unconfirmed'&&state&&state.fromCache&&state.status==='stale'&&state.updating)return FIELD_REASONS.loading;
+    if(Object.prototype.hasOwnProperty.call(FIELD_REASONS,supplied))return FIELD_REASONS[supplied];
+    return state&&(state.updating||state.status==='loading')?FIELD_REASONS.loading:FIELD_REASONS.unconfirmed;
   }
   function hasFacts(record){return !!record&&(record.data.price!==null||record.data.market_cap!==null||record.data.annual_dividend!==null||record.data.forward_annual_dividend_per_share!==null||record.data.ex_dividend_date||record.data.dividend_payment_date||record.data.dividend_payment_period||record.data.analyst_target&&record.data.analyst_target.mean!==null);}
   function cacheTime(record){return record&&Math.max(record.updated_at||0,record.data.price_updated_at||0,record.data.dividend_fetched_at||0,record.source.fields.price.fetched_at||0);}
@@ -92,7 +126,7 @@
     const keepPrice=before.data.price!==null&&(record.data.price===null||newerPrice(before,record));
     if(fresh&&!keepPrice)return record;
     const base=fresh?record:before;
-    const kept={...base,name:record.name,editorial:record.editorial||before.editorial,identity:record.identity||before.identity,status:record.status,refreshing:record.refreshing,data:{...base.data},source:{fields:{...base.source.fields}}};
+    const kept={...base,name:record.name,editorial:record.editorial||before.editorial,identity:record.identity||before.identity,field_status:{...before.field_status,...record.field_status},status:record.status,refreshing:record.refreshing,data:{...base.data},source:{fields:{...base.source.fields}}};
     if(keepPrice){
       for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=before.data[key];kept.source.fields.price=before.source.fields.price;
     }else if(record.data.price!==null&&newerPrice(record,before)){
@@ -116,6 +150,7 @@
       let record=cache.get(key);
       if(!record){try{record=normalize(JSON.parse(env.storage&&env.storage.getItem(CACHE_PREFIX+key)),key,now());}catch(e){}}
       if(!record||!hasFacts(record)||!cacheTime(record)||now()-cacheTime(record)>CACHE_AGE)return null;
+      if(Object.values(record.field_status||{}).includes('loading'))record={...record,field_status:Object.fromEntries(Object.entries(record.field_status).map(([field,status])=>[field,status==='loading'?'unconfirmed':status]))};
       cache.set(key,record);return record;
     }
     function cancel(){version++;busy=false;clear(requestTimer);clear(pollTimer);requestTimer=pollTimer=null;if(controller)controller.abort();controller=null;if(cancelWait)cancelWait(new Error('cancelled'));cancelWait=null;current='';}
@@ -128,7 +163,7 @@
       try{
         const timeout=new Promise((resolve,reject)=>{cancelWait=reject;requestTimer=set(()=>{active.abort();reject(new Error('timeout'));},Math.min(REQUEST_TIMEOUT,remaining));});
         const response=Promise.resolve().then(()=>env.fetch('/api/company-profile?symbol='+encodeURIComponent(key),{signal:active.signal,cache:'no-store'})).then(async result=>{
-          if(!result.ok){const error=new Error(result.status===404?'not_found':'request');error.retryable=[408,425,429].includes(result.status)||result.status>=500;throw error;}
+          if(!result.ok){const retryable=[408,425,429].includes(result.status)||result.status>=500,error=new Error(result.status===404?'not_found':retryable?'fetch_error':'invalid_request');error.retryable=retryable;throw error;}
           try{return await result.json();}catch(error){throw new Error('invalid');}
         });
         const payload=await Promise.race([response,timeout]);
@@ -141,7 +176,7 @@
         if(pending){pollTimer=set(()=>{pollTimer=null;request(key,token,deadline);},Math.min(POLL_MS,Math.max(0,deadline-now())));}else busy=false;
       }catch(error){
         if(token!==version)return;
-        const reason=error.message==='not_found'?'not_found':error.message==='timeout'?'timeout':'unavailable';
+        const reason=['not_found','timeout','invalid','invalid_request'].includes(error.message)?error.message:'fetch_error';
         const delay=RETRY_DELAYS[retry],retryable=error.retryable!==false&&!['not_found','invalid'].includes(error.message);
         if(retryable&&delay!==undefined&&now()+delay<deadline){
           const kept=saved(key)||(last&&last.symbol===key&&last.data);
@@ -192,10 +227,12 @@
     metric(dividends,'exDate','次回の権利落ち日','権利落ち日です。配当の支払日とは異なります。');metric(dividends,'paymentDate','配当の支払日');
     const targets=group('専門家の予想');metric(targets,'target','アナリストの目標株価（平均）','専門家の予想・保証ではありません。');
     refs.targetRange=el('p','cp-fact-note');refs.targetDate=el('p','cp-fact-note');append(targets.box,refs.targetRange,refs.targetDate);
+    const reasonHelp=el('details','cp-reason-help');reasonHelp.hidden=true;
+    append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.identityDate,refs.reviewed,refs.sources);
     append(content,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
     let sourcesSignature='';
-    function setMetric(key,value,when){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.time.textContent=when||'';ref.time.hidden=!when;}
+    function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
       if(!opened||state.symbol!==currentSymbol)return;
       const record=state.data,data=record&&record.data||{},currency=data.currency||'JPY',editorial=record&&record.editorial,identity=record&&record.identity;
@@ -209,18 +246,20 @@
       refs.business.section.hidden=!editorial&&!refs.basic.hidden;
       refs.business.body.textContent=editorial?editorial.business:record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
       ['life','watch'].forEach(key=>{refs[key].section.hidden=!(editorial&&editorial[key]);refs[key].body.textContent=editorial&&editorial[key]||'';});
+      function showMetric(key,value,when){setMetric(key,value,when,fieldReason(state,METRIC_KEYS[key]));}
       function fetched(field,fallback){const value=record&&record.source.fields[field]&&record.source.fields[field].fetched_at||fallback;return stamp(value)?'取得 '+stamp(value):'取得日：未確認';}
-      setMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?'株価の時点 '+stamp(data.price_updated_at):data.price_trade_date?'株価 '+dateText(data.price_trade_date)+' の終値':'株価の時点：未確認')+' / '+fetched('price'):null);
-      setMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
-      setMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?'取得 '+stamp(data.dividend_fetched_at):'取得日：未確認'):null);
-      setMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
-      function schedule(value){return w.KNDividendDates?w.KNDividendDates.describe(value):null;}
-      setMetric('exDate',schedule(data.ex_dividend_date),day(data.ex_dividend_date)?fetched('ex_dividend_date'):null);
+      showMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?'株価の時点 '+stamp(data.price_updated_at):data.price_trade_date?'株価 '+dateText(data.price_trade_date)+' の終値':'株価の時点：未確認')+' / '+fetched('price'):null);
+      showMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
+      showMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?'取得 '+stamp(data.dividend_fetched_at):'取得日：未確認'):null);
+      showMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
+      function schedule(value){return day(value)&&w.KNDividendDates?w.KNDividendDates.describe(value):null;}
+      showMetric('exDate',schedule(data.ex_dividend_date),day(data.ex_dividend_date)?fetched('ex_dividend_date'):null);
       const paymentMonth=month(data.dividend_payment_period),paymentDate=day(data.dividend_payment_date);
       const paymentValue=paymentDate?schedule(paymentDate):paymentMonth?(w.KNDividendDates?w.KNDividendDates.describe(paymentMonth,Date.now(),true):null):null;
-      setMetric('paymentDate',paymentValue,paymentDate?fetched('dividend_payment_date'):paymentMonth?'日付は未公表 / '+fetched('dividend_payment_period'):null);
+      showMetric('paymentDate',paymentValue,paymentDate?fetched('dividend_payment_date'):paymentMonth?'日付は未確認 / '+fetched('dividend_payment_period'):null);
       const analyst=data.analyst_target;
-      setMetric('target',money(analyst&&analyst.mean,currency),analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?fetched('analyst_target'):null);
+      showMetric('target',money(analyst&&analyst.mean,currency),analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?fetched('analyst_target'):null);
+      refs.reasonHelp.hidden=!Object.keys(METRIC_KEYS).some(key=>!refs[key].unknown.hidden);
       const range=analyst&&analyst.low!==null&&analyst.high!==null?'予想の幅 '+money(analyst.low,currency)+'〜'+money(analyst.high,currency):'';
       refs.targetRange.textContent=[range,analyst&&analyst.analyst_count?analyst.analyst_count+'人の予想':''].filter(Boolean).join(' / ');refs.targetRange.hidden=!refs.targetRange.textContent;
       refs.targetDate.textContent=analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?(analyst.as_of?'予想日 '+dateText(analyst.as_of):'予想が出された日は提供元に記載がありません。'):'';refs.targetDate.hidden=!refs.targetDate.textContent;
@@ -296,5 +335,5 @@
     w.document.addEventListener('click',event=>{const target=event.target&&event.target.closest&&event.target.closest('[data-company-profile]');if(!target||target.disabled||target.getAttribute('aria-disabled')==='true'||!symbol(target.dataset.companyProfile))return;event.preventDefault();event.stopPropagation();open(target.dataset.companyProfile,target.dataset.companyName,target);},true);
     return {open,close,__ready:true};
   }
-  return {symbol,safeUrl,day,month,timestamp,stamp,money,normalize,hasFacts,createLoader,createDialog,start,POLL_MS,POLL_LIMIT,REQUEST_TIMEOUT};
+  return {symbol,safeUrl,day,month,timestamp,stamp,money,normalize,hasFacts,fieldReason,createLoader,createDialog,start,POLL_MS,POLL_LIMIT,REQUEST_TIMEOUT};
 });

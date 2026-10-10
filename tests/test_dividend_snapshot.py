@@ -11,6 +11,7 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 
+import requests
 from flask import Flask, jsonify, request
 from dividend_snapshot import DividendSnapshot, JST, TTL, parse_chart, validated, fetch_dividend_info
 
@@ -212,6 +213,89 @@ class SnapshotTests(unittest.TestCase):
         service.lookup('7203.T', 'トヨタ'); service._thread.join(2)
         ready = service.lookup('7203.T', 'トヨタ')
         self.assertEqual(ready['status'], 'ready'); self.assertEqual(ready['updated_at'], self.now)
+
+    def test_missing_fields_describe_the_selected_request_while_other_stocks_keep_scanning(self):
+        release = threading.Event(); other_entered = threading.Event(); calls = []
+        def load(ticker, name):
+            calls.append(ticker)
+            if ticker == '7203.T':
+                raise requests.Timeout('provider detail must not be exposed')
+            other_entered.set(); release.wait(3)
+            return row(ticker[:-2])
+        service = self.snapshot({'7203': 'トヨタ', '9432': 'NTT', '9433': 'KDDI'}, load)
+        self.addCleanup(release.set)
+        service.lookup('7203.T', 'トヨタ')
+        self.assertTrue(other_entered.wait(1))
+        deadline = time.monotonic() + 1
+        while '7203.T' not in service._symbol_outcomes and time.monotonic() < deadline:
+            time.sleep(.005)
+        failed = service.lookup('7203.T', 'トヨタ')
+        self.assertTrue(service.payload(refresh=False)['refreshing'])
+        self.assertEqual(failed['status'], 'unavailable')
+        self.assertFalse(failed['refreshing'])
+        self.assertEqual(failed['field_status'], {'price': 'fetch_error', 'annual_dividend': 'fetch_error'})
+        self.assertNotIn('provider detail', json.dumps(failed))
+        self.assertEqual(calls.count('7203.T'), 1)
+        release.set(); service._thread.join(3)
+
+    def test_request_failure_malformed_response_and_ambiguous_absence_are_distinct(self):
+        invalid = row(); invalid['price'] = float('nan')
+        for result, expected in [(requests.Timeout('private'), 'fetch_error'),
+                                 (OSError('private'), 'fetch_error'),
+                                 (TimeoutError('private'), 'fetch_error'),
+                                 (ValueError('private'), 'invalid'),
+                                 (invalid, 'invalid'), (row('9432'), 'invalid'),
+                                 (None, 'unconfirmed')]:
+            with self.subTest(expected=expected, result=type(result).__name__):
+                loader = Mock(side_effect=result) if isinstance(result, Exception) else Mock(return_value=result)
+                service = self.snapshot(loader=loader)
+                service.lookup('7203.T', 'トヨタ'); service._thread.join(2)
+                failed = service.lookup('7203.T', 'トヨタ')
+                self.assertEqual(failed['field_status'], {'price': expected, 'annual_dividend': expected})
+                self.assertFalse(failed['refreshing'])
+                self.assertEqual(loader.call_count, 1)
+                self.assertEqual(service.payload(refresh=False)['items'], [])
+
+    def test_saved_values_stay_available_with_original_dates_during_a_failed_refresh(self):
+        service = self.snapshot()
+        service.lookup('7203.T', 'トヨタ'); service._thread.join(2)
+        original = service.lookup('7203.T', 'トヨタ')
+        self.now += TTL + 1
+        service.loader = Mock(side_effect=requests.ConnectionError('private provider detail'))
+        service.lookup('7203.T', 'トヨタ'); service._thread.join(2)
+        saved = service.lookup('7203.T', 'トヨタ')
+        self.assertEqual(saved['field_status'], {'price': 'available', 'annual_dividend': 'available'})
+        for field in ('price', 'annual_dividend', 'price_updated_at', 'fetched_at', 'updated_at'):
+            self.assertEqual(saved[field], original[field])
+        self.assertFalse(saved['refreshing']); self.assertEqual(service.loader.call_count, 1)
+
+    def test_zero_recorded_dividend_is_available_and_split_review_stays_withheld(self):
+        zero = row(); zero['annual_dividend'] = 0
+        service = self.snapshot(loader=lambda *args: zero)
+        service.lookup('7203.T', 'トヨタ'); service._thread.join(2)
+        observed = service.lookup('7203.T', 'トヨタ')
+        self.assertEqual(observed['annual_dividend'], 0)
+        self.assertEqual(observed['field_status']['annual_dividend'], 'available')
+        self.now += TTL + 1
+        split = row(now=self.now); split['calculation_status'] = 'split_review'
+        service.loader = lambda *args: split
+        service.lookup('7203.T', 'トヨタ'); service._thread.join(2)
+        withheld = service.lookup('7203.T', 'トヨタ')
+        self.assertIsNone(withheld['annual_dividend'])
+        self.assertEqual(withheld['field_status'], {'price': 'available', 'annual_dividend': 'invalid'})
+
+    def test_queued_company_is_loading_only_until_its_own_attempt_finishes(self):
+        release = threading.Event(); entered = threading.Event()
+        def load(*args): entered.set(); release.wait(3); return None
+        service = self.snapshot(loader=load)
+        self.addCleanup(release.set)
+        first = service.lookup('7203.T', 'トヨタ')
+        self.assertTrue(entered.wait(1))
+        self.assertEqual(first['field_status'], {'price': 'loading', 'annual_dividend': 'loading'})
+        release.set(); service._thread.join(2)
+        complete = service.lookup('7203.T', 'トヨタ')
+        self.assertEqual(complete['field_status'], {'price': 'unconfirmed', 'annual_dividend': 'unconfirmed'})
+        self.assertFalse(complete['refreshing'])
 
 
 class RouteTests(unittest.TestCase):

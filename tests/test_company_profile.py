@@ -9,9 +9,10 @@ import time
 import unittest
 from unittest.mock import Mock, patch
 from urllib3.exceptions import ReadTimeoutError
+import requests
 
 from company_profile import (CompanyProfiles, YahooProfileProvider, JST, TTL,
-                             parse_profile, parse_chart_profile)
+                             parse_profile, parse_chart_profile, ProfileFailure, FIELDS)
 
 NOW = datetime(2026, 9, 24, 15, tzinfo=JST).timestamp()
 
@@ -167,7 +168,7 @@ class ParseTests(unittest.TestCase):
             raise TimeoutError('total timeout')
         provider = YahooProfileProvider(now=lambda: NOW, monotonic=lambda: clock[0])
         provider._read = Mock(side_effect=expired)
-        self.assertIsNone(provider('7203.T', 'トヨタ'))
+        self.assertEqual(set(provider('7203.T', 'トヨタ').field_status.values()), {'fetch_error'})
         self.assertEqual(provider._read.call_count, 1)
 
     def test_quote_fallback_rejects_identity_currency_and_unobserved_price(self):
@@ -183,6 +184,7 @@ class ParseTests(unittest.TestCase):
         self.assertIsNone(result['data']['forward_annual_dividend_per_share'])
         self.assertIsNone(result['data']['analyst_target'])
         self.assertIsNone(result['data']['ex_dividend_date'])
+        self.assertEqual(result['field_status']['analyst_target'], 'unconfirmed')
 
     def test_stream_timeout_or_malformed_summary_can_still_return_dated_quote(self):
         for failure in [ReadTimeoutError(None, None, 'stream timed out'),
@@ -191,6 +193,58 @@ class ParseTests(unittest.TestCase):
             provider._read = Mock(side_effect=[failure, (200, json.dumps(chart_payload()).encode())])
             self.assertTrue(provider('7203.T', 'トヨタ')['partial'])
             self.assertEqual(provider._read.call_count, 2)
+
+    def test_field_reasons_separate_successful_missing_values_from_invalid_values(self):
+        source = payload(); modules = source['quoteSummary']['result'][0]
+        modules['summaryDetail']['dividendRate'] = {'raw': None}
+        modules['calendarEvents']['dividendDate'] = None
+        modules['financialData'] = {}
+        modules['price']['marketCap'] = 'not a number'
+        result = parse_profile(source, '7203.T', 'トヨタ', NOW)
+        self.assertEqual(result['field_status']['market_cap'], 'invalid')
+        for key in ('forward_annual_dividend_per_share', 'dividend_payment_date', 'analyst_target'):
+            self.assertEqual(result['field_status'][key], 'source_missing')
+        self.assertEqual(result['field_status']['price'], 'available')
+        modules['summaryDetail']['dividendRate'] = 0
+        modules['financialData'] = {'targetMeanPrice': 3600, 'targetLowPrice': 4000, 'targetHighPrice': 3000}
+        result = parse_profile(source, '7203.T', 'トヨタ', NOW)
+        self.assertEqual(result['field_status']['forward_annual_dividend_per_share'], 'available')
+        self.assertEqual(result['field_status']['analyst_target'], 'invalid')
+        modules['price']['marketCap'] = {}
+        self.assertEqual(parse_profile(source, '7203.T', 'トヨタ', NOW)['field_status']['market_cap'], 'invalid')
+        self.assertNotIn('unpublished', result['field_status'].values())
+
+    def test_provider_fallback_keeps_summary_failure_reason_for_detailed_fields(self):
+        for summary, reason in [(ReadTimeoutError(None, None, 'private request/token'), 'fetch_error'),
+                                ((200, b'{invalid json'), 'invalid')]:
+            provider = YahooProfileProvider(now=lambda: NOW)
+            provider._read = Mock(side_effect=[summary, (200, json.dumps(chart_payload()).encode())])
+            result = provider('7203.T', 'トヨタ')
+            self.assertEqual(result['field_status']['price'], 'available')
+            for key in set(FIELDS) - {'price'}:
+                self.assertEqual(result['field_status'][key], reason)
+            self.assertNotIn('private request/token', json.dumps(result))
+
+    def test_complete_failure_contains_only_fixed_codes(self):
+        provider = YahooProfileProvider(now=lambda: NOW)
+        provider._read = Mock(side_effect=ReadTimeoutError(None, None, 'secret raw error'))
+        result = provider('7203.T', 'トヨタ')
+        self.assertIsInstance(result, ProfileFailure)
+        self.assertEqual(set(result.field_status.values()), {'fetch_error'})
+        self.assertNotIn('secret', json.dumps(result.field_status))
+
+    def test_suppressed_summary_does_not_copy_another_companys_invalid_reason(self):
+        provider = YahooProfileProvider(now=lambda: NOW)
+        provider._read = Mock(side_effect=[(200, b'{malformed summary'),
+            (200, json.dumps(chart_payload()).encode()),
+            (200, json.dumps(chart_payload('9432.T')).encode())])
+        first = provider('7203.T', 'トヨタ')
+        self.assertEqual(first['field_status']['analyst_target'], 'invalid')
+        second = provider('9432.T', 'NTT')
+        self.assertEqual(second['field_status']['price'], 'available')
+        self.assertEqual(second['field_status']['analyst_target'], 'unconfirmed')
+        self.assertEqual(second['field_status']['dividend_payment_date'], 'unconfirmed')
+        self.assertEqual(provider._read.call_count, 3)
 
 
 class CacheTests(unittest.TestCase):
@@ -271,6 +325,139 @@ class CacheTests(unittest.TestCase):
         cache.get('7203.T', 'トヨタ')
         wait_until(lambda: loader.call_count == 2 and not cache.get('7203.T', 'トヨタ')['refreshing'])
         self.assertEqual(cache.get('7203.T', 'トヨタ')['source']['fields']['price']['fetched_at'], self.now)
+
+    def test_pending_failed_and_queue_saturated_fields_have_distinct_reasons(self):
+        release = threading.Event()
+        def failed(symbol, name):
+            release.wait(2)
+            return ProfileFailure('invalid')
+        cache = self.cache(failed, max_pending=1)
+        pending = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(set(pending['field_status'].values()), {'loading'})
+        saturated = cache.get('9432.T', 'NTT')
+        self.assertEqual(set(saturated['field_status'].values()), {'unconfirmed'})
+        release.set()
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        failure = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(set(failure['field_status'].values()), {'invalid'})
+        self.assertEqual(failure['status'], 'unavailable')
+
+    def test_cached_valid_facts_survive_failed_attempt_without_new_timestamps(self):
+        cache = self.cache(); cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: cache.get('7203.T', 'トヨタ')['status'] == 'ready')
+        before = cache.get('7203.T', 'トヨタ')
+        self.now += TTL + 1
+        cache.loader = lambda symbol, name: ProfileFailure('fetch_error')
+        cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        after = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(after['data'], before['data'])
+        self.assertEqual(after['source'], before['source'])
+        self.assertEqual(after['updated_at'], NOW)
+        self.assertEqual(after['field_status']['price'], 'available')
+
+    def test_partial_merge_retains_old_values_and_marks_only_missing_fields_failed(self):
+        cache = self.cache(); cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: cache.get('7203.T', 'トヨタ')['status'] == 'ready')
+        self.now += TTL + 1
+        cache.loader = lambda symbol, name: parse_chart_profile(chart_payload(symbol), symbol, name, self.now,
+                                                               summary_status='fetch_error')
+        cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        result = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(result['field_status']['analyst_target'], 'available')
+        self.assertEqual(result['source']['fields']['analyst_target']['fetched_at'], NOW)
+
+    def test_successful_all_missing_response_is_cached_as_source_missing_not_failure(self):
+        source = {'quoteSummary': {'result': [{'price': {'symbol': '7203.T', 'currency': 'JPY'}}]}}
+        loader = Mock(side_effect=lambda symbol, name: parse_profile(source, symbol, name, self.now))
+        cache = self.cache(loader); cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        result = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(set(result['field_status'].values()), {'source_missing'})
+        self.assertEqual(result['status'], 'ready')
+        for _ in range(5): cache.get('7203.T', 'トヨタ')
+        self.assertEqual(loader.call_count, 1)
+
+    def test_legacy_or_malformed_cached_reasons_do_not_claim_confirmed_missing(self):
+        value = record(); value['data']['dividend_payment_date'] = None
+        value['source']['fields'].pop('dividend_payment_date')
+        for supplied in [None, {'dividend_payment_date': 'unpublished'},
+                         {'dividend_payment_date': []}, {'dividend_payment_date': 'available'}]:
+            value['field_status'] = supplied
+            self.path.write_text(json.dumps({'items': [value]}))
+            cache = self.cache(Mock(side_effect=AssertionError('no fetch needed')))
+            result = cache.get('7203.T', 'トヨタ')
+            self.assertEqual(result['field_status']['dividend_payment_date'], 'unconfirmed')
+            self.assertEqual(result['field_status']['price'], 'available')
+
+    def test_unknown_loader_failure_is_not_reported_as_network_error(self):
+        for supplied, reason in [(None, 'unconfirmed'), (RuntimeError('unknown issue'), 'unconfirmed'),
+                                (requests.ConnectionError('private connection'), 'fetch_error'),
+                                (TimeoutError('timed out'), 'fetch_error'),
+                                (ValueError('invalid shape'), 'invalid')]:
+            loader = Mock(side_effect=supplied) if isinstance(supplied, Exception) else Mock(return_value=supplied)
+            cache = self.cache(loader)
+            cache.get('7203.T', 'トヨタ')
+            wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+            result = cache.get('7203.T', 'トヨタ')
+            self.assertEqual(set(result['field_status'].values()), {reason})
+            self.assertNotIn('private', json.dumps(result))
+
+    def test_older_or_unconfirmed_merge_does_not_erase_missing_reason(self):
+        source = payload(); source['quoteSummary']['result'][0]['calendarEvents']['dividendDate'] = None
+        cache = self.cache()
+        newer = parse_profile(source, '7203.T', 'トヨタ', self.now)
+        cache._merge(newer)
+        older = deepcopy(newer); older['updated_at'] -= 60
+        older['field_status']['dividend_payment_date'] = 'invalid'
+        cache._merge(older)
+        self.assertEqual(cache.get('7203.T', 'トヨタ')['field_status']['dividend_payment_date'], 'source_missing')
+        unconfirmed = deepcopy(newer); unconfirmed['updated_at'] += 1
+        self.now += 1
+        unconfirmed['field_status']['dividend_payment_date'] = 'unconfirmed'
+        cache._merge(unconfirmed)
+        self.assertEqual(cache.get('7203.T', 'トヨタ')['field_status']['dividend_payment_date'], 'source_missing')
+
+    def test_transport_failure_keeps_definitive_missing_reason_but_updates_unknown(self):
+        source = {'quoteSummary': {'result': [{'price': {
+            'symbol': '7203.T', 'currency': 'JPY', 'regularMarketPrice': 3000,
+            'regularMarketTime': NOW - 60}}]}}
+        before = parse_profile(source, '7203.T', 'トヨタ', self.now)
+        before['field_status']['market_cap'] = 'unconfirmed'
+        cache = self.cache(); cache._merge(before)
+        self.now += TTL + 1
+        cache.loader = lambda symbol, name: ProfileFailure('fetch_error')
+        cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        result = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(result['field_status']['dividend_payment_date'], 'source_missing')
+        self.assertEqual(result['field_status']['market_cap'], 'fetch_error')
+        self.assertEqual(result['field_status']['price'], 'available')
+        self.assertEqual(result['source']['fields']['price']['fetched_at'], NOW)
+
+    def test_chart_partial_keeps_definitive_empty_field_observations_until_new_response(self):
+        source = payload(); modules = source['quoteSummary']['result'][0]
+        modules['calendarEvents']['dividendDate'] = None
+        modules['financialData']['targetLowPrice'] = 10000
+        cache = self.cache(); cache._merge(parse_profile(source, '7203.T', 'トヨタ', self.now))
+        self.now += TTL + 1
+        cache.loader = lambda symbol, name: parse_chart_profile(chart_payload(symbol), symbol, name, self.now,
+                                                               summary_status='fetch_error')
+        cache.get('7203.T', 'トヨタ')
+        wait_until(lambda: not cache.get('7203.T', 'トヨタ')['refreshing'])
+        result = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(result['field_status']['dividend_payment_date'], 'source_missing')
+        self.assertEqual(result['field_status']['analyst_target'], 'invalid')
+        self.assertEqual(result['field_status']['price'], 'available')
+        self.assertEqual(result['source']['fields']['price']['fetched_at'], self.now)
+        self.now += 1
+        modules['financialData'] = {}
+        modules['calendarEvents']['dividendDate'] = 1796083200
+        cache._merge(parse_profile(source, '7203.T', 'トヨタ', self.now))
+        updated = cache.get('7203.T', 'トヨタ')
+        self.assertEqual(updated['field_status']['analyst_target'], 'source_missing')
+        self.assertEqual(updated['field_status']['dividend_payment_date'], 'available')
 
     def test_disk_restart_and_raw_business_summary_is_editorial_only(self):
         cache=self.cache();cache.get('7203.T','トヨタ')

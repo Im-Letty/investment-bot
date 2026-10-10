@@ -69,6 +69,65 @@ class ProfileRoutes(unittest.TestCase):
         self.assertEqual(body['data']['dividend_fetched_at'], 1100)
         self.assertEqual(len(body['sources']), 2)
 
+    def test_separate_sources_keep_each_missing_reason_during_a_dividend_fetch(self):
+        self.raw.update(status='ready', refreshing=False, data={'currency': 'JPY'},
+                        field_status={'market_cap': 'source_missing',
+                                      'analyst_target': 'invalid', 'price': 'source_missing',
+                                      'dividend_payment_date': 'source_missing'})
+        self.dividends.lookup.return_value = {'status': 'loading', 'refreshing': True,
+                                             'field_status': {'price': 'loading', 'annual_dividend': 'loading'}}
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertTrue(body['refreshing'])
+        self.assertEqual(body['field_status']['market_cap'], 'source_missing')
+        self.assertEqual(body['field_status']['analyst_target'], 'invalid')
+        self.assertEqual(body['field_status']['annual_dividend'], 'loading')
+        self.assertEqual(body['field_status']['price'], 'loading')
+        self.assertEqual(body['field_status']['dividend_payment_date'], 'source_missing')
+
+    def test_saved_numbers_override_fetch_failure_without_changing_dates(self):
+        self.raw.update(status='stale', refreshing=False, data={'price': 3100, 'price_updated_at': 1250},
+                        field_status={field: 'fetch_error' for field in ('price', 'market_cap', 'analyst_target')})
+        self.dividends.lookup.return_value.update(field_status={'price': 'fetch_error', 'annual_dividend': 'fetch_error'})
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['field_status']['price'], 'available')
+        self.assertEqual(body['field_status']['annual_dividend'], 'available')
+        self.assertEqual(body['field_status']['market_cap'], 'fetch_error')
+        self.assertEqual(body['data']['price_updated_at'], 1250)
+        self.assertEqual(body['data']['dividend_fetched_at'], 1100)
+
+    def test_verified_zero_dividend_is_available_but_split_review_is_not_zero(self):
+        self.dividends.lookup.return_value.update(annual_dividend=0, field_status={'annual_dividend': 'available'})
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['data']['annual_dividend'], 0)
+        self.assertEqual(body['field_status']['annual_dividend'], 'available')
+        self.dividends.lookup.return_value.update(annual_dividend=None, calculation_status='split_review',
+                                                 field_status={'annual_dividend': 'invalid'})
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertIsNone(body['data']['annual_dividend'])
+        self.assertEqual(body['field_status']['annual_dividend'], 'invalid')
+
+    def test_legacy_or_untrusted_status_cannot_claim_company_has_not_announced(self):
+        self.raw.update(status='ready', refreshing=False, data=None,
+                        field_status={'analyst_target': 'unpublished', 'market_cap': 'available'})
+        self.dividends.lookup.return_value = {'status': 'unavailable', 'field_status': {'annual_dividend': 'unpublished'}}
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['field_status']['analyst_target'], 'unconfirmed')
+        self.assertEqual(body['field_status']['market_cap'], 'unconfirmed')
+        self.assertEqual(body['field_status']['annual_dividend'], 'unconfirmed')
+
+    def test_scanner_price_removes_only_price_failure(self):
+        now = datetime.now(timezone(timedelta(hours=9)))
+        self.raw.update(status='unavailable', refreshing=False, data=None,
+                        field_status={'price': 'fetch_error', 'market_cap': 'fetch_error'})
+        self.dividends.lookup.return_value = {'status': 'unavailable',
+                                             'field_status': {'price': 'fetch_error', 'annual_dividend': 'fetch_error'}}
+        self.quotes.return_value = {'items': [{'symbol': '7203.T', 'currency': 'JPY', 'price': 3200,
+                                             'trade_date': now.date().isoformat(), 'fetched_at': now.timestamp()-20}]}
+        body = self.client.get('/api/company-profile?symbol=7203').get_json()
+        self.assertEqual(body['field_status']['price'], 'available')
+        self.assertEqual(body['field_status']['market_cap'], 'fetch_error')
+        self.assertEqual(body['field_status']['annual_dividend'], 'fetch_error')
+
     def test_missing_information_stays_missing(self):
         self.raw['data'] = None
         self.dividends.lookup.return_value = {'status': 'unavailable'}
