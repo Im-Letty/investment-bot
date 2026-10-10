@@ -156,15 +156,11 @@
   };
   var otherNewsCopy={ja:'ほかのニュース',en:'Other news',ko:'다른 뉴스',zh:'其他新闻'};
   function newsSource(source){if(source==='ロイター経済')return {ja:'ロイター経済',en:'Reuters Business',ko:'로이터 경제',zh:'路透经济'}[lang()];return window.translateNewsSource?window.translateNewsSource(source):source;}
-  function publication(item,l,compact){
-    if(item.publication_precision==='day'&&item.published_at===null){
-      var day=new Date(item.published_date+'T00:00:00+09:00').toLocaleDateString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric'});
-      if(compact&&l==='ja')return '<time class="publication-date" datetime="'+esc(item.published_date)+'" title="'+esc(digestCopy[l].published+' '+day)+'">'+Number(item.published_date.slice(5,7))+'/'+Number(item.published_date.slice(8,10))+' 発表</time>';
-      return '<time class="publication-date" datetime="'+esc(item.published_date)+'">'+esc(digestCopy[l].published+' '+day)+'</time>';
-    }
-    var date=new Date(item.published_at*1000),label=date.toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-    if(compact&&l==='ja')return '<time class="publication-date" datetime="'+esc(date.toISOString())+'" title="'+esc(digestCopy[l].published+' '+label+' JST')+'">'+esc(date.toLocaleDateString('ja',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric'})+' 発表')+'</time>';
-    return '<time class="publication-date" datetime="'+esc(date.toISOString())+'">'+esc(digestCopy[l].published+' '+label+' JST')+'</time>';
+  function publication(item,l){
+    var dayOnly=item.publication_precision==='day'&&item.published_at===null;
+    var label=window.KNDateDisplay.label(dayOnly?item.published_date:item.published_at,digestCopy[l].published,!dayOnly);
+    var datetime=dayOnly?item.published_date:new Date(item.published_at*1000).toISOString();
+    return '<time class="publication-date" datetime="'+esc(datetime)+'" title="'+esc(label+(dayOnly?'':' JST'))+'">'+esc(label)+'</time>';
   }
   function articleLink(item,l){var url=safeNewsURL(item.url),source=newsSource(item.source||'')||digestCopy[l].original,title=item.title||'';return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" title="'+esc(title)+'" aria-label="'+esc((title?title+' · ':'')+source+' · '+digestCopy[l].original)+'">'+esc(source)+' ↗</a>':'';}
   function summaryInfo(item,l){
@@ -184,7 +180,7 @@
     var leadAndOthers=digest&&digest.reading_structure==='lead-plus-other-news-v1';
     var orderedNews=leadAndOthers?digest.article_refs.map(function(ref){return d.news.find(function(item){return item.url===ref.url;});}):d.news;
     var brief=digest?'<div class="daily-digest" lang="ja"><h4 class="brief-headline">'+esc(digest.headline)+'</h4><p class="brief-summary">'+esc(digest.summary)+'</p></div>':'<p class="news-empty">'+esc(d.news.length?c.noDigest:c.noToday)+'</p>';
-    if(headlines)brief='<h4 class="brief-headline">'+esc(headlineCopy[l].title)+'</h4><p class="news-empty">'+esc(d.edition_date.replace(/-/g,'/')+' · '+headlineCopy[l].pending)+'</p><ul class="headline-list">'+d.news.map(function(item){return '<li><a class="story-title" href="'+esc(safeNewsURL(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.title)+'</a><div class="headline-meta"><span class="headline-source">'+esc(newsSource(item.source))+'</span>'+publication(item,l)+'</div></li>';}).join('')+'</ul>';
+    if(headlines)brief='<h4 class="brief-headline">'+esc(headlineCopy[l].title)+'</h4><p class="news-empty">'+esc(d.edition_date.replace(/-/g,'/')+' · '+headlineCopy[l].pending)+'</p><ul class="headline-list">'+d.news.map(function(item){return '<li><a class="story-title" href="'+esc(safeNewsURL(item.url))+'" target="_blank" rel="noopener noreferrer">'+esc(item.title)+'</a><div class="headline-meta">'+publication(item,l)+'<span class="headline-source">'+esc(newsSource(item.source))+'</span>'+'</div></li>';}).join('')+'</ul>';
     var stories=headlines?'':(leadAndOthers?orderedNews.slice(1):orderedNews).map(function(item){
       var key='article:'+item.url;
       var authored=digest&&(digest.article_summaries||[]).find(function(summary){return summary.url===item.url;});
@@ -227,8 +223,8 @@
     var c=copy[l],status;
     if(d.delivery==='published')status=failed?({ja:'最新情報を確認できませんでした。',en:'Unable to check for updates.',ko:'최신 정보를 확인하지 못했습니다.',zh:'暂时无法检查更新。'}[l]):'';
     else{
-      var stamp=new Date(d.fetched_at*1000).toLocaleString(l,{timeZone:'Asia/Tokyo',year:'numeric',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'});
-      status=c.updated+' '+stamp+' JST'+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
+      var stamp=window.KNDateDisplay.label(d.fetched_at,c.updated,true);
+      status=stamp+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');
     }
     replaceNews(el,digestMarkup(d,l,status),l);
     el.setAttribute('aria-busy','false');shownLanguage=l;shownEdition=d.edition_date;shownNews=d;shownState='news';

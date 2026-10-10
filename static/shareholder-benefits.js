@@ -1,10 +1,11 @@
 /* Company programmes and reviewed schedules; never infer annual dates in the view. */
 (function(root,factory){
   const data=typeof module==='object'&&module.exports?require('./shareholder-benefits-data.js'):root&&root.KNBenefitsData;
-  const api=factory(Array.isArray(data)?data:[]);
+  const dates=typeof module==='object'&&module.exports?require('./date-display.js'):root&&root.KNDateDisplay;
+  const api=factory(Array.isArray(data)?data:[],dates);
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root)root.KNBenefits=api;
-})(typeof window==='undefined'?null:window,function(programmes){
+})(typeof window==='undefined'?null:window,function(programmes,dates){
 'use strict';
 function validDay(value){
   if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
@@ -65,10 +66,11 @@ function create(w,mount,cal){
     [['何がもらえる？',row.use],['いつまで持つ？',row.holdExplanation||'継続保有など会社所定の条件があります。会社の優待案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
     box.appendChild(details);
     if(row.lastConfirmed)box.appendChild(el('p','dc-coverage','前回掲載した締切：'+row.lastConfirmed.replaceAll('-','/')+'。次回の日程は未確認です。'));
+    const verified=dates.label(row.verified,'確認');
+    if(verified)box.appendChild(el('p','dc-coverage bc-verified',verified));
     const link=el('a','dc-help-source','会社の優待案内 ↗');link.href=row.url;link.target='_blank';link.rel='noopener noreferrer';box.appendChild(link);
     const source=row.source,sourceUrl=typeof source==='string'?source:source&&source.url;
     if(sourceUrl&&sourceUrl!==row.url){const dates=el('a','dc-help-source bc-date-source','購入締切の日程資料 ↗');dates.href=sourceUrl;dates.target='_blank';dates.rel='noopener noreferrer';box.appendChild(dates);}
-    if(row.verified)box.appendChild(el('p','dc-coverage',row.verified.replaceAll('-','/')+' 確認'));
     if(query&&row.date&&row.date.slice(0,7)!==month&&cal.bounds().months.includes(row.date.slice(0,7))){
       box.appendChild(btn(row.date.slice(0,7).replace('-','年 ')+'月のカレンダーを見る','dc-more bc-jump',()=>{month=row.date.slice(0,7);selected=row.date;limit=5;render();}));
     }

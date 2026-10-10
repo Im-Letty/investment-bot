@@ -1,5 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
+const dates=require('../static/date-display.js');
 const calendar=require('../static/dividend-calendar.js');
 const NOW=Date.parse('2026-09-24T06:00:00Z'),MONTH='2026-09',WATCH='alert_watchlist_v1',OLD='myDividendStocks',DONE='dividend_calendar_migrated_v1';
 function event(changes={}){return {id:'test',symbol:'7203.T',code:'7203',name:'トヨタ自動車',date:'2026-09-28',kind:'holding_deadline',precision:'day',status:'confirmed',source:{title:'会社の公式サイト',url:'https://global.toyota/jp/ir/'},verified_on:'2026-09-24',...changes};}
@@ -88,13 +89,25 @@ class Element{
 }
 function uiHarness({saved=storage(),gate=Promise.resolve(),prices=null}={}){
   const time=clock(),events={},requests=[],doc={readyState:'complete',hidden:false,createElement(tag){return new Element(tag,this);},getElementById(id){return id==='knDividendCalendar'?this.mount:null;},addEventListener(type,fn){(events[type]??=[]).push(fn);}};doc.mount=doc.createElement('div');const winEvents={};
-  const w={...time,document:doc,localStorage:saved,AbortController,__knGateReady:gate,addEventListener(type,fn){(winEvents[type]??=[]).push(fn);},Event:class{constructor(type){this.type=type;}},dispatchEvent(event){for(const fn of winEvents[event.type]||[])fn(event);},fetch(url,options){return new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}));},openStockWatchManager(){this.managed=true;}};
+  const w={KNDateDisplay:dates,...time,document:doc,localStorage:saved,AbortController,__knGateReady:gate,addEventListener(type,fn){(winEvents[type]??=[]).push(fn);},Event:class{constructor(type){this.type=type;}},dispatchEvent(event){for(const fn of winEvents[event.type]||[])fn(event);},fetch(url,options){return new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}));},openStockWatchManager(){this.managed=true;}};
   if(prices)w.KNCalendarPrices=prices;calendar.start(w);return {w,doc,mount:doc.mount,time,events,winEvents,requests,saved,async reply(index,raw){requests[index].resolve({ok:true,status:200,json:async()=>raw});await flush();}};
 }
 test('calendar UI renders 42 cells, limits navigation and preserves unchanged list/disclosure nodes',async()=>{
   const h=uiHarness();await flush();const realMonth=calendar.today().slice(0,7),range=calendar.bounds(),date=calendar.today(),raw=fixture({events:[event({date,verified_on:calendar.today()})],range,updated_at:Date.now()/1000});await h.reply(0,raw);
   const grid=h.mount.find('dc-grid');assert.equal(grid.children.length,42);assert.equal(h.mount.find('dc-month-navigation').children[0].disabled,true);const first=h.mount.find('dc-events').children[0];assert.ok(first);const disclosure=first.find('dc-evidence');disclosure.open=true;h.w.KNDividendCalendar.refresh();await h.reply(1,raw);assert.equal(h.mount.find('dc-events').children[0],first);assert.equal(disclosure.open,true);assert.equal(grid.children.length,42);
   h.mount.find('dc-month-navigation').children[2].dispatch('click');assert.match(h.requests.at(-1).url,new RegExp(calendar.shift(realMonth,1)));for(let i=1;i<12;i++)h.mount.find('dc-month-navigation').children[2].dispatch('click');assert.equal(h.mount.find('dc-month-navigation').children[2].disabled,true);assert.match(h.requests.at(-1).url,new RegExp(calendar.shift(realMonth,12)));
+});
+test('calendar metadata puts actual dates before sources and preserves schedule-day precision',async t=>{
+  t.mock.method(Date,'now',()=>NOW);
+  const h=uiHarness();await flush();
+  const dividend={record_date:'2026-09-30',per_share:2.7,currency:'JPY',status:'forecast',announced_on:'2026-09-22',verified_on:'2026-09-24',source:{title:'中間配当の会社予想',url:'https://group.ntt/jp/ir/'}};
+  await h.reply(0,fixture({events:[event({symbol:'5803.T',name:'フジクラ',record_date:'2026-09-30',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29',dividend})]}));
+  const row=h.mount.find('dc-events').children[0],evidence=row.find('dc-evidence');
+  assert.equal(h.mount.find('dc-status').textContent,'2026/09/24 15:00 確認');assert.equal(row.find('dc-event-date').textContent,'9/28');
+  assert.deepEqual(evidence.children.map(node=>node.textContent),['日付・出典','2026/09/24 日程を確認','会社の公式サイト ↗','2026/09/22 配当予想を発表 ／ 2026/09/24 確認','中間配当の会社予想 ↗']);
+  assert.equal(evidence.children[2].href,'https://global.toyota/jp/ir/');assert.equal(evidence.children[4].href,'https://group.ntt/jp/ir/');assert.equal(evidence.children[2].rel,'noopener noreferrer');
+  assert.doesNotMatch(evidence.textContent,/\d{2}:\d{2}/);assert.equal(row.find('dc-broker-stock').textContent,'フジクラ（5803）の取扱例');
+  assert.ok(row.find('dc-brokers').all().some(node=>node.className==='dc-broker-note'&&node.textContent==='2026/09/24 確認'));
 });
 test('day selection, five-item pagination and month plans are separate and company buttons carry safe identifiers',async()=>{
   const h=uiHarness();await flush();const realMonth=calendar.today().slice(0,7),date=calendar.today(),raw=fixture({range:calendar.bounds(),updated_at:Date.now()/1000,events:Array.from({length:7},(_,i)=>event({symbol:(1000+i)+'.T',date,name:i===0?'<img src=x>':'会社'+i,verified_on:date})).concat(event({symbol:'9432.T',kind:'payment',precision:'month',period:realMonth,date:null,verified_on:date}))});await h.reply(0,raw);
@@ -227,7 +240,7 @@ test('share and lot prices update in place without closing the broker disclosure
   const value={quote:{symbol:'5803.T',price:4952.1,currency:'JPY',fetched_at:Date.now()/1000,price_updated_at:Date.now()/1000-1200,delay_minutes:20},pending:false,error:null};states.set('5803.T',value);notify('5803.T',value);
   const cells=panel.find('dc-price-values').children;
   assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');assert.equal(cells[1].find('dc-price-value').textContent,'495,210');
-  assert.match(panel.find('dc-price-time').textContent,/JST 時点/);assert.equal(panel.find('dc-price-note'),undefined);
+  assert.equal(panel.find('dc-price-time').textContent,dates.label(value.quote.price_updated_at,'株価時点',true));assert.equal(panel.find('dc-price-note'),undefined);
   notify('5803.T',{...value,quote:{...value.quote,price:4952.2}});assert.equal(cells[1].find('dc-price-value').textContent,'495,220');
   assert.equal(h.mount.find('dc-events').children[0],row);assert.equal(row.find('dc-holding-range'),range);assert.equal(brokers.open,true);
   notify('5803.T',{...value,error:'network'});assert.match(panel.find('dc-price-status').textContent,/前回の価格/);assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');

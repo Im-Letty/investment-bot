@@ -5,6 +5,7 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const {create}=require('../static/dividend-data.js');
+const dates=require('../static/date-display.js');
 const source=fs.readFileSync(path.join(__dirname,'../static/dividend-view.js'),'utf8');
 const NOW=Date.parse('2026-09-24T03:00:00Z');
 const row=(extra={})=>({code:'7203',name:'トヨタ',yield_pct:3.25,annual_dividend:90,price:2769.23,...extra});
@@ -53,7 +54,7 @@ function harness(saved={}) {
   const model=create({now:()=>now,storage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},
     setTimeout(fn,delay){timers.set(++timerId,{fn,at:now+delay});return timerId;},clearTimeout:id=>timers.delete(id),
     fetch(url,options){return new Promise((resolve,reject)=>requests.push({url,options,resolve,reject}));}});
-  const window={document,KNDividendData:model,_topCodes:new Set(),_yrCodes:new Set(),_allStocksData:{},_stockName:(_,name)=>name,
+  const window={document,KNDateDisplay:dates,KNDividendData:model,_topCodes:new Set(),_yrCodes:new Set(),_allStocksData:{},_stockName:(_,name)=>name,
     _divT(key,fallback){return document.documentElement.lang==='en'?({div_yen:' yen',div_annual:'Annual dividend',div_yield:'Yield',div_kabuka:'Price'}[key]||fallback):fallback;}};
   vm.runInNewContext(source,{window,document,Intl,Date,Set,Number,console},{filename:'dividend-view.js'});
   return {window,document,panes,elements,requests,timers,storage,
@@ -125,9 +126,21 @@ test('identical rows are not replaced when only the fetch timestamp changes',asy
   const previous=h.list('top').innerHTML,writes=h.list('top').htmlWrites;
   await h.reply(h.request('/top?'),snapshot([row()],{updated_at:NOW/1000+30}));
   assert.equal(h.list('top').innerHTML,previous);assert.equal(h.list('top').htmlWrites,writes);
-  assert.match(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/取得 /);
+  assert.match(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/2026\/09\/24 12:00 取得$/);
   h.document.documentElement.lang='en';h.window.KNDividendView.list('top');
   assert.equal(h.list('top').htmlWrites,writes+1);assert.match(h.list('top').textContent,/Annual dividend 90\.00 yen/);
+});
+
+test('quote metadata uses the shared date-first order and does not add time to date-only values',async()=>{
+  const h=harness();h.window.KNDividendView.list('top');await flush();
+  await h.reply(h.request('/top?'),snapshot([
+    row({price_updated_at:NOW/1000}),
+    row({code:'9432',price_updated_at:'2026-09-23'}),
+  ]));
+  assert.match(h.list('top').innerHTML,/2026\/09\/24 12:00 株価時点/);
+  assert.match(h.list('top').innerHTML,/2026\/09\/23 株価時点/);
+  assert.doesNotMatch(h.list('top').innerHTML,/2026\/09\/23 \d{2}:\d{2}|JST/);
+  assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').textContent,'2026/09/24 12:00 取得');
 });
 
 test('company and code text from a dividend response cannot introduce executable markup',async()=>{

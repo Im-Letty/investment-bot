@@ -6,21 +6,22 @@
 <link rel="stylesheet" href="/static/market-carousel.css?v=20261011-six1">
 <link rel="stylesheet" href="/static/news-orbit.css?v=20260917-caption-b1">
 <link rel="stylesheet" href="/static/news-digest.css?v=20261011-plain-info1">
-<link rel="stylesheet" href="/static/stock-focus.css?v=20261011-company-reading1">
+<link rel="stylesheet" href="/static/stock-focus.css?v=20261011-metadata1">
 <link rel="stylesheet" href="/static/stock-watch.css?v=20260924-sheetd1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
 <link rel="stylesheet" href="/static/dividend-view.css?v=20260925-five1">
 <link rel="stylesheet" href="/static/dividend-calendar.css?v=20261010-stocks-f2">
 <link rel="stylesheet" href="/static/company-profile.css?v=20261010-profile-reasons1">
+<script defer src="/static/date-display.js?v=20261011-metadata1"></script>
 <script defer src="/static/dividend-dates.js?v=20260925-dates1"></script>
-<script defer src="/static/company-profile.js?v=20261010-profile-reasons1"></script>
+<script defer src="/static/company-profile.js?v=20261011-metadata1"></script>
 <script defer src="/static/dividend-data.js?v=20260924-dividend2"></script>
-<script defer src="/static/dividend-view.js?v=20260925-five1"></script>
+<script defer src="/static/dividend-view.js?v=20261011-metadata1"></script>
 <script defer src="/static/calendar-prices.js?v=20260924-calendar-prices2"></script>
 <script defer src="/static/shareholder-benefits-data.js?v=20260926-catalogue1"></script>
-<script defer src="/static/shareholder-benefits.js?v=20260926-catalogue1"></script>
-<script defer src="/static/dividend-calendar.js?v=20261010-stocks-f2"></script>
+<script defer src="/static/shareholder-benefits.js?v=20261011-metadata1"></script>
+<script defer src="/static/dividend-calendar.js?v=20261011-metadata1"></script>
 <script defer src="/static/market-data.js?v=20261011-six1"></script>
 <script defer src="/static/news-orbit.js?v=20260930-scenes1"></script>
 <script defer src="/static/home-hero-config.js?v=20260930-globe1"></script>
@@ -34,7 +35,7 @@
 <script defer src="/static/stock-search-common.js?v=20261011-stable-search1"></script>
 <script defer src="/static/market-carousel.js?v=20261011-six1"></script>
 <script defer src="/static/home-a.js?v=20261011-six1"></script>
-<script defer src="/static/stock-focus.js?v=20261010-company-count1"></script>
+<script defer src="/static/stock-focus.js?v=20261011-metadata1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -310,7 +311,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.__KN_HOME_A)re
 .drawer-color-reset{width:100%;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#fff;font-size:0.78rem;padding:6px 10px;border-radius:6px;cursor:pointer;transition:background 0.15s;font-family:inherit;}
 .drawer-color-reset:hover{background:rgba(255,255,255,0.25);}
 .morning-news-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#999;font-size:0.8rem;font-weight:400;}.morning-news-loading::before{display:none;}@keyframes mn-spin{to{transform:rotate(360deg);}}.mn-movers-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:20px;color:#999;font-size:0.8rem;font-weight:400;}.mn-movers-loading::before{display:none;}.hero,.mc,.sim-card,#teachCard,.morning-banner,#skBanner{box-shadow:0 10px 30px -12px rgba(20,83,45,0.18),0 2px 6px rgba(20,83,45,0.05);transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform;}.hero:hover,.mc:hover,.sim-card:hover,#teachCard:hover,.morning-banner:hover,#skBanner:hover{transform:translateY(-6px);box-shadow:0 22px 44px -14px rgba(20,83,45,0.28),0 4px 10px rgba(20,83,45,0.08);}#myPageCard,#talkCard,#safeBadge{transition:transform .35s cubic-bezier(.2,.8,.2,1),box-shadow .35s ease;will-change:transform;}#myPageCard:hover,#talkCard:hover,#safeBadge:hover{transform:translateY(-6px);}:root{--plan-radius:12px;--plan-border:#e3e8e3;--plan-bg:#fff;--plan-title:#2e7d50;--plan-sub:#777;--plan-title-size:14.5px;--plan-sub-size:12px;}.ts-opt,.bg-item{border:1px solid var(--plan-border);border-radius:var(--plan-radius);background:var(--plan-bg);}.bg-item{padding:12px 14px;border-bottom:1px solid var(--plan-border);margin-bottom:9px;}.bg-item:last-child{border-bottom:1px solid var(--plan-border);margin-bottom:0;}.ts-opt{padding:13px 14px;}.ts-name,.bg-it-t{color:var(--plan-title);font-size:var(--plan-title-size);font-weight:600;}.ts-rate,.bg-it-d{color:var(--plan-sub);font-size:var(--plan-sub-size);}</style>
-  <script src="/static/morning-feed.js?v=20261011-bottom-date1" defer></script>
+  <script src="/static/morning-feed.js?v=20261011-metadata1" defer></script>
 <style id="knHideHomeTicker">/* Hide the home-screen ticker bar (keep #tickerInner2 for existing JS). Morning-letter bar is unaffected. */
 #lp-section .ticker-wrap{display:none !important;}</style>
 <script>
@@ -2248,7 +2249,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "次回権利落ち日",
     div_history: "過去5年の配当推移",
     div_stocks: "銘柄",
-    div_yen: "円", div_kabuka: "株価", div_today: "今月", div_today_title: "今月へ", div_prev_mo: "前の月", div_next_mo: "次の月", div_my_label: "⭐ マイ株（保有銘柄）", div_my_ph: "例: 7261 マツダ", div_add_btn: "＋追加", div_chip_top: "高配当TOP20", div_chip_yr: "年間TOP20", div_chip_my: "マイ株", div_chip_top_html: "🔴高配当TOP20", div_chip_yr_html: "🟢年間TOP20", div_chip_my_html: "⭐マイ株", div_remove_my: "マイ株から削除", div_add_my: "マイ株に追加", div_yield_short: "利回り", div_payout_short: "配当", cal_year: "年", cal_month: "月", div_already_reg: "既に登録されています", div_not_found: "データが見つかりません", div_unreg: "未登録（コードと銘柄名を入力して追加）",
+    div_yen: "円", div_kabuka: "株価", div_price_as_of: "株価時点", div_today: "今月", div_today_title: "今月へ", div_prev_mo: "前の月", div_next_mo: "次の月", div_my_label: "⭐ マイ株（保有銘柄）", div_my_ph: "例: 7261 マツダ", div_add_btn: "＋追加", div_chip_top: "高配当TOP20", div_chip_yr: "年間TOP20", div_chip_my: "マイ株", div_chip_top_html: "🔴高配当TOP20", div_chip_yr_html: "🟢年間TOP20", div_chip_my_html: "⭐マイ株", div_remove_my: "マイ株から削除", div_add_my: "マイ株に追加", div_yield_short: "利回り", div_payout_short: "配当", cal_year: "年", cal_month: "月", div_already_reg: "既に登録されています", div_not_found: "データが見つかりません", div_unreg: "未登録（コードと銘柄名を入力して追加）",
     div_error: "エラー",
     div_no_month: "この月の権利落ち銘柄はありません",
     morning_title: "朝の相場レター",
@@ -2314,7 +2315,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "Next Ex-Div Date",
     div_history: "Dividend History (Last 5Y)",
     div_stocks: "stocks",
-    div_yen: "JPY", div_kabuka: "Price", div_today: "This Month", div_today_title: "Go to this month", div_prev_mo: "Previous month", div_next_mo: "Next month", div_my_label: "⭐ My Stocks (Holdings)", div_my_ph: "e.g. 7261 Mazda", div_add_btn: "+ Add", div_chip_top: "High Yield TOP20", div_chip_yr: "Annual TOP20", div_chip_my: "My Stock", div_chip_top_html: "🔴 High Yield TOP20", div_chip_yr_html: "🟢 Annual TOP20", div_chip_my_html: "⭐ My Stock", div_remove_my: "Remove from My Stocks", div_add_my: "Add to My Stocks", div_yield_short: "Yield", div_payout_short: "Dividend", cal_year: "/", cal_month: " ", div_already_reg: "Already registered", div_not_found: "Data not found", div_unreg: "Not registered (enter code and stock name to add)",
+    div_yen: "JPY", div_kabuka: "Price", div_price_as_of: "Price as of", div_today: "This Month", div_today_title: "Go to this month", div_prev_mo: "Previous month", div_next_mo: "Next month", div_my_label: "⭐ My Stocks (Holdings)", div_my_ph: "e.g. 7261 Mazda", div_add_btn: "+ Add", div_chip_top: "High Yield TOP20", div_chip_yr: "Annual TOP20", div_chip_my: "My Stock", div_chip_top_html: "🔴 High Yield TOP20", div_chip_yr_html: "🟢 Annual TOP20", div_chip_my_html: "⭐ My Stock", div_remove_my: "Remove from My Stocks", div_add_my: "Add to My Stocks", div_yield_short: "Yield", div_payout_short: "Dividend", cal_year: "/", cal_month: " ", div_already_reg: "Already registered", div_not_found: "Data not found", div_unreg: "Not registered (enter code and stock name to add)",
     div_error: "Error",
     div_no_month: "No ex-dividend stocks this month",
     morning_title: "Morning Market Brief",
@@ -2380,7 +2381,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "다음 권리락 일",
     div_history: "과거 5년간 배당 추이",
     div_stocks: "종목",
-    div_yen: "엔", div_kabuka: "주가", div_today: "이번달", div_today_title: "이번달로", div_prev_mo: "이전 달", div_next_mo: "다음 달", div_my_label: "⭐ 내 종목 (보유)", div_my_ph: "예: 7261 마쓰다", div_add_btn: "+ 추가", div_chip_top: "고배당 TOP20", div_chip_yr: "연간 TOP20", div_chip_my: "내 종목", div_chip_top_html: "🔴 고배당 TOP20", div_chip_yr_html: "🟢 연간 TOP20", div_chip_my_html: "⭐ 내 종목", div_remove_my: "내 종목에서 제거", div_add_my: "내 종목에 추가", div_yield_short: "수익률", div_payout_short: "배당", cal_year: "년", cal_month: "월", div_already_reg: "이미 등록되어 있습니다", div_not_found: "데이터를 찾을 수 없습니다", div_unreg: "미등록 (코드와 종목명을 입력하여 추가)",
+    div_yen: "엔", div_kabuka: "주가", div_price_as_of: "주가 기준", div_today: "이번달", div_today_title: "이번달로", div_prev_mo: "이전 달", div_next_mo: "다음 달", div_my_label: "⭐ 내 종목 (보유)", div_my_ph: "예: 7261 마쓰다", div_add_btn: "+ 추가", div_chip_top: "고배당 TOP20", div_chip_yr: "연간 TOP20", div_chip_my: "내 종목", div_chip_top_html: "🔴 고배당 TOP20", div_chip_yr_html: "🟢 연간 TOP20", div_chip_my_html: "⭐ 내 종목", div_remove_my: "내 종목에서 제거", div_add_my: "내 종목에 추가", div_yield_short: "수익률", div_payout_short: "배당", cal_year: "년", cal_month: "월", div_already_reg: "이미 등록되어 있습니다", div_not_found: "데이터를 찾을 수 없습니다", div_unreg: "미등록 (코드와 종목명을 입력하여 추가)",
     div_error: "오류",
     div_no_month: "이달 권리락 종목이 없습니다",
     morning_title: "아침 시황 레터",
@@ -2446,7 +2447,7 @@ document.addEventListener('DOMContentLoaded', function(){ loadBrandColor(); init
     div_ex_date: "下次除息日",
     div_history: "过去5年股息",
     div_stocks: "只",
-    div_yen: "元", div_kabuka: "股价", div_today: "本月", div_today_title: "跳到本月", div_prev_mo: "上月", div_next_mo: "下月", div_my_label: "⭐ 我的股票（持仓）", div_my_ph: "例: 7261 马自达", div_add_btn: "+ 添加", div_chip_top: "高股息TOP20", div_chip_yr: "年股息TOP20", div_chip_my: "我的股票", div_chip_top_html: "🔴 高股息TOP20", div_chip_yr_html: "🟢 年股息TOP20", div_chip_my_html: "⭐ 我的股票", div_remove_my: "从我的股票移除", div_add_my: "添加到我的股票", div_yield_short: "收益率", div_payout_short: "股息", cal_year: "年", cal_month: "月", div_already_reg: "已注册", div_not_found: "未找到数据", div_unreg: "未注册（输入代码和股票名称添加）",
+    div_yen: "元", div_kabuka: "股价", div_price_as_of: "股价时点", div_today: "本月", div_today_title: "跳到本月", div_prev_mo: "上月", div_next_mo: "下月", div_my_label: "⭐ 我的股票（持仓）", div_my_ph: "例: 7261 马自达", div_add_btn: "+ 添加", div_chip_top: "高股息TOP20", div_chip_yr: "年股息TOP20", div_chip_my: "我的股票", div_chip_top_html: "🔴 高股息TOP20", div_chip_yr_html: "🟢 年股息TOP20", div_chip_my_html: "⭐ 我的股票", div_remove_my: "从我的股票移除", div_add_my: "添加到我的股票", div_yield_short: "收益率", div_payout_short: "股息", cal_year: "年", cal_month: "月", div_already_reg: "已注册", div_not_found: "未找到数据", div_unreg: "未注册（输入代码和股票名称添加）",
     div_error: "错误",
     div_no_month: "本月无除息股票",
     morning_title: "晨间市场简报",

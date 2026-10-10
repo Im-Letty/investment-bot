@@ -62,23 +62,20 @@ def initial_news(snapshot, *, now=None, reviewed_digests=(), reviewed_supplement
 
 def _stamp(value):
     date = datetime.fromtimestamp(value, JST)
-    return f"{date.year}/{date.month}/{date.day} {date:%H:%M}"
+    return f"{date:%Y/%m/%d %H:%M}"
 
 
 def _publication(item, *, compact=False):
-    if item.get("publication_precision") == "day" and item.get("published_at") is None:
+    day_only = item.get("publication_precision") == "day" and item.get("published_at") is None
+    if day_only:
         date = datetime.fromisoformat(item["published_date"])
-        if compact:
-            return (f'<time class="publication-date" datetime="{date:%Y-%m-%d}" '
-                    f'title="発表 {date.year}/{date.month}/{date.day}">{date.month}/{date.day} 発表</time>')
-        return (f'<time class="publication-date" datetime="{date:%Y-%m-%d}">'
-                f'発表 {date.year}/{date.month}/{date.day}</time>')
-    iso = datetime.fromtimestamp(item["published_at"], timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
-    if compact:
-        date = datetime.fromtimestamp(item["published_at"], JST)
-        return (f'<time class="publication-date" datetime="{iso}" title="発表 {_stamp(item["published_at"])} JST">'
-                f'{date.month}/{date.day} 発表</time>')
-    return f'<time class="publication-date" datetime="{iso}">発表 {_stamp(item["published_at"])} JST</time>'
+        iso, label = f"{date:%Y-%m-%d}", f"{date:%Y/%m/%d} 発表"
+    else:
+        iso = datetime.fromtimestamp(item["published_at"], timezone.utc).isoformat(timespec="milliseconds").replace("+00:00", "Z")
+        label = f"{_stamp(item['published_at'])} 発表"
+    title = label + ("" if day_only else " JST")
+    return (f'<time class="publication-date" datetime="{iso}" title="{title}">'
+            f'{label}</time>')
 
 
 def _article_link(item):
@@ -126,8 +123,7 @@ def render_news_markup(data):
                  '<ul class="headline-list">'
                  + ''.join(f'<li><a class="story-title" href="{esc(item["url"])}" target="_blank" rel="noopener noreferrer">'
                            f'{esc(item["title"])}</a><div class="headline-meta">'
-                           f'<span class="headline-source">{esc(item["source"])}</span>'
-                           f'{_publication(item)}</div></li>' for item in data["news"])
+                           f'{_publication(item)}<span class="headline-source">{esc(item["source"])}</span></div></li>' for item in data["news"])
                  + '</ul>')
     else:
         message = ("本日のまとめはまだ掲載されていません。記事は「もっと詳しく」から読めます。" if data["news"]
@@ -173,7 +169,7 @@ def render_news_markup(data):
     if data.get("delivery") == "published":
         status = ''
     else:
-        status = "取得 " + _stamp(data["fetched_at"]) + " JST" + (" · 最新情報を確認中" if data.get("stale") else "")
+        status = _stamp(data["fetched_at"]) + " 取得" + (" · 最新情報を確認中" if data.get("stale") else "")
     tail = (f'<div class="news-tail">{more}</div>'
             if lead_and_others else more)
     footer = f'<footer class="news-footer"><p>{esc(status)}</p></footer>' if status else ''

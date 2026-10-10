@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
+const dates = fs.readFileSync(path.join(__dirname, '../static/date-display.js'), 'utf8');
 const source = fs.readFileSync(path.join(__dirname, '../static/morning-feed.js'), 'utf8');
 
 function deferred(){let resolve, reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
@@ -41,7 +42,7 @@ function harness(saved={}){
     setInterval:(fn,ms)=>{const id=++timerId;intervals.set(id,{fn,ms});return id;},clearInterval:id=>intervals.delete(id),
     _mktCache:null,_mktLastFetch:0,_mktFetchSec:10,_mktCountdown:10,_mktInterval:null,
     renderMorningGrid:data=>renders.push(data),translateNewsSource:s=>s,t:s=>s};
-  context.window=context;vm.runInNewContext(source,context);
+  context.window=context;vm.runInNewContext(dates,context);vm.runInNewContext(source,context);
   return {context,requests,storage,nodes,timers,intervals,renders,
     now:()=>clock,advance:ms=>clock+=ms,
     event:name=>(listeners[name]||[]).forEach(fn=>fn()),
@@ -982,7 +983,7 @@ test('reviewed older news stays in a separately dated supplement and never fills
   await app.reply(app.requests[0],app.news('ja',{news:[],supplements:[supplement]}));
   const html=app.nodes['morning-news-content'].innerHTML;
   assert.match(html,/日付付きの補足/);
-  assert.match(html,/2026\/9\/11/);
+  assert.match(html,/2026\/09\/11/);
   assert.match(html,/まだ確認できていません/);
   assert.ok(!html.split('<details class="read-more"')[0].includes('確認済みの補足'));
   assert.ok(html.includes(supplement.editorial_reason));
@@ -1160,7 +1161,7 @@ test('official morning edition retains yesterday publication date and edited att
     app.event('DOMContentLoaded');if(origin==='api')await app.reply(app.requests[0],data);
     const html=app.nodes['morning-news-content'].innerHTML;
     assert.ok(html.includes(data.digest.summary));assert.match(html,/aria-label="掲載対象日 2026-09-12 /);
-    assert.match(html,/<time class="publication-date" datetime="2026-09-11T03:00:00.000Z" title="発表 2026\/9\/11 12:00 JST">9\/11 発表<\/time>/);
+    assert.match(html,/<time class="publication-date" datetime="2026-09-11T03:00:00.000Z" title="2026\/09\/11 12:00 発表 JST">2026\/09\/11 12:00 発表<\/time>/);
     assert.match(html,/財務省/);assert.match(html,/公式発表をもとに要約/);
     assert.match(html,/日本経済の発表を確認/);
     assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_date,'2026-09-11');
@@ -1170,7 +1171,7 @@ test('official morning edition retains yesterday publication date and edited att
 test('official date-only sources render only the real date without inventing midnight or epoch time',async()=>{
   const app=harness(),data=officialMorning(app,'day');app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
   const html=app.nodes['morning-news-content'].innerHTML;
-  assert.ok(html.includes(data.digest.summary));assert.match(html,/<time class="publication-date" datetime="2026-09-11" title="発表 2026\/9\/11">9\/11 発表<\/time>/);
+  assert.ok(html.includes(data.digest.summary));assert.match(html,/<time class="publication-date" datetime="2026-09-11" title="2026\/09\/11 発表">2026\/09\/11 発表<\/time>/);
   assert.doesNotMatch(html,/1970|00:00|JST/);
   assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_at,null);
 });
@@ -1294,12 +1295,12 @@ test('lead plus other news shows one representative and only the independently r
       assert.ok(link.match(/aria-label="[^"]*"/)[0].includes(ref.title),'The spoken link name identifies the article');
       const linkStart=sourceRow.indexOf('<a href="'+ref.url+'"');
       const dateMarkup=sourceRow.slice(sourceRow.lastIndexOf('<time ',linkStart),linkStart);
-      const monthDay=Number(ref.published_date.slice(5,7))+'/'+Number(ref.published_date.slice(8,10));
+      const fullDate=ref.published_date.replace(/-/g,'/');
       const realDatetime=precision==='day'?ref.published_date:new Date(ref.published_at*1000).toISOString();
       assert.ok(dateMarkup.includes('datetime="'+realDatetime+'"'),'Each source link retains its own actual publication date');
-      assert.ok(dateMarkup.includes('>'+monthDay+' 発表</time>'),'Compact date belongs to the corresponding article');
-      const fullDate=Number(ref.published_date.slice(0,4))+'/'+monthDay;
-      const exactTitle=precision==='day'?'発表 '+fullDate:'発表 '+fullDate+(ref.source==='総務省統計局'?' 06:00 JST':' 12:00 JST');
+      const displayed=fullDate+(precision==='day'?'':ref.source==='総務省統計局'?' 06:00':' 12:00')+' 発表';
+      assert.ok(dateMarkup.includes('>'+displayed+'</time>'),'Date and verified time belong to the corresponding article');
+      const exactTitle=displayed+(precision==='day'?'':' JST');
       assert.ok(dateMarkup.includes('title="'+exactTitle+'"'),'The full precision remains available without inventing a time');
     }
     assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,1);

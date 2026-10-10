@@ -4,10 +4,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const calendar=require('../static/dividend-calendar.js');
+const dates=require('../static/date-display.js');
 const script=fs.readFileSync(path.join(__dirname,'../static/shareholder-benefits.js'),'utf8');
 function schedule(date,extra={}){return {date,record:date.slice(0,7)+'-30',holdUntil:date.replaceAll('-','/')+'の取引終了まで',holdExplanation:'今回の期限まで保有してください。',grant:'会社の案内で確認',delivery:'申込期限を確認してください。',status:'planned',basis:'現行制度に基づく予定',source:'https://example.com/dates',verified:'2026-09-24',...extra};}
 function company(code,changes={}){return {code,name:'会社'+code,reward:'優待券',shares:'100株以上',holding:'長期保有の条件なし',period:'9月末',conditions:'必要株数を保有',use:'対象店舗で利用',url:'https://example.com/ir/'+code,verified:'2026-09-24',schedules:[schedule('2026-09-28')],...changes};}
-function load(data){const context={module:{exports:{}},require(name){assert.equal(name,'./shareholder-benefits-data.js');return data;}};vm.runInNewContext(script,context);return context.module.exports;}
+function load(data){const context={module:{exports:{}},require(name){if(name==='./date-display.js')return dates;assert.equal(name,'./shareholder-benefits-data.js');return data;}};vm.runInNewContext(script,context);return context.module.exports;}
 class Element{
  constructor(tag,doc){this.tagName=tag;this.doc=doc;this.children=[];this.dataset={};this.attrs={};this.listeners={};this.className='';this.hidden=false;this.open=false;this.disabled=false;this._text='';}
  get textContent(){return this._text+this.children.map(node=>node.textContent).join('');}set textContent(value){this._text=String(value);this.children=[];}
@@ -65,6 +66,10 @@ test('pending companies paginate independently and planned schedules retain thei
  const h=harness([company('1000',{period:'9月末（年1回）'})]),card=h.cards()[0];
  assert.match(card.textContent,/年1回/);assert.doesNotMatch(card.textContent,/年2回/);assert.match(card.find('bc-date').textContent,/（予定）/);
  assert.equal(card.find('bc-basis').textContent,'現行制度に基づく予定');assert.equal(card.find('dc-help-source').href,'https://example.com/ir/1000');assert.equal(card.find('bc-date-source').href,'https://example.com/dates');
+ const verified=card.find('bc-verified');assert.equal(verified.textContent,'2026/09/24 確認');
+ assert.ok(card.children.indexOf(verified)<card.children.indexOf(card.find('dc-help-source')));
+ assert.ok(card.children.indexOf(verified)<card.children.indexOf(card.find('bc-date-source')));
+ assert.doesNotMatch(verified.textContent,/\d{2}:\d{2}/);
 });
 test('month navigation clamps to bounds and refreshes the current month after a date rollover',()=>{
  const h=harness([company('1000')]),nav=h.mount.find('dc-month-navigation');

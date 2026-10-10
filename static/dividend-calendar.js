@@ -1,5 +1,5 @@
 /* Dates come from verified schedules; month-only plans never acquire an invented day. */
-(function(root,factory){const api=factory();if(typeof module==='object'&&module.exports)module.exports=api;if(root&&root.document)api.start(root);})(typeof window==='undefined'?null:window,function(){
+(function(root,factory){const api=factory(typeof module==='object'&&module.exports?require('./date-display.js'):root.KNDateDisplay);if(typeof module==='object'&&module.exports)module.exports=api;if(root&&root.document)api.start(root);})(typeof window==='undefined'?null:window,function(dates){
   'use strict';
   const FAVORITES='alert_watchlist_v1',LEGACY='myDividendStocks',MIGRATED='dividend_calendar_migrated_v1',NAMES='stock_watch_names_v1',CACHE='kn_dividend_calendar_v6:',KINDS={holding_deadline:'配当のために持っておく日',payment:'配当の支払い',ex_dividend:'権利落ち日'};
   const finite=v=>typeof v==='number'&&Number.isFinite(v),clean=(v,max=160)=>typeof v==='string'?v.trim().slice(0,max):'';
@@ -156,7 +156,7 @@
           ['マネックス証券','ワン株','https://info.monex.co.jp/wankabu/meigara.html']
         ].forEach(([name,service,url])=>{const li=el('li'),link=sourceLink('',url);link.setAttribute('aria-label',name+' '+service+'の公式案内（別タブ）');const icon=el('span','dc-broker-external','↗');icon.setAttribute('aria-hidden','true');append(link,el('span','dc-broker-name',name),el('span','dc-broker-service',service),icon);append(li,link);list.appendChild(li);});
         append(body,list,el('p','dc-broker-note','1株単位の注文締切は、通常の100株取引と異なる場合があります。最新の取扱状況・締切は各社の公式サイトで確認できます。'));
-        if(verified)body.appendChild(el('p','dc-broker-note','2026/9/24 確認'));
+        if(verified)body.appendChild(el('p','dc-broker-note',dates.label('2026-09-24','確認')));
         details.appendChild(body);return details;
       }
       function updatePrice(symbol,state){
@@ -164,7 +164,7 @@
           const quote=state&&state.quote;
           refs.single.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:4}).format(quote.price):'—';
           refs.hundred.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(quote.price*10000)/100):'—';
-          refs.time.textContent=quote?'株価 '+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(quote.price_updated_at*1000)+' JST 時点':'株価の時刻を確認しています';
+          refs.time.textContent=quote?dates.label(quote.price_updated_at,'株価時点',true):'株価の時刻を確認しています';
           refs.status.textContent=state&&state.error?(quote?'更新できませんでした。前回の価格を表示しています。':'株価を取得できませんでした。自動で再確認します。'):quote?'':'株価を確認しています…';
         }
       }
@@ -227,8 +227,8 @@
         const tag=el('span','dc-event-kind',KINDS[event.kind]+(event.status==='planned'?'（予定）':''));tag.dataset.kind=event.kind;body.appendChild(tag);
         append(summary,date,body,badge);
         const story=holdingStory(event),profile=button('会社情報を見る','cp-company-link dc-profile',()=>{});profile.dataset.companyProfile=event.symbol;profile.dataset.companyName=event.name;profile.setAttribute('aria-label',event.name+'の会社情報を開く');
-        const evidence=el('details','dc-evidence');append(evidence,el('summary','','出典・確認日'),sourceLink(event.source.title,event.source.url),el('span','','日程の確認 '+event.verified_on.replace(/-/g,'/')));
-        if(event.dividend)append(evidence,sourceLink(event.dividend.source.title,event.dividend.source.url),el('span','','配当予想の発表 '+event.dividend.announced_on.replace(/-/g,'/')+' ／ 確認 '+event.dividend.verified_on.replace(/-/g,'/')));
+        const evidence=el('details','dc-evidence');append(evidence,el('summary','','日付・出典'),el('span','',dates.label(event.verified_on,'日程を確認')),sourceLink(event.source.title+' ↗',event.source.url));
+        if(event.dividend)append(evidence,el('span','',dates.label(event.dividend.announced_on,'配当予想を発表')+' ／ '+dates.label(event.dividend.verified_on,'確認')),sourceLink(event.dividend.source.title+' ↗',event.dividend.source.url));
         append(story,profile,evidence);row.__priceRefs=story.__priceRefs;row.__priceSymbol=event.symbol;
         append(disclosure,summary,story);row.appendChild(disclosure);disclosure.addEventListener('toggle',syncPrices);
         return row;
@@ -251,7 +251,7 @@
       }
       function render(){refs.all.setAttribute('aria-pressed',String(!dividendPane.hidden&&scope==='all'));refs.favorites.setAttribute('aria-pressed',String(!dividendPane.hidden&&scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[12];const state=current,data=state&&state.data;
         if(autoDate&&data&&(['ready','stale'].includes(state.status)||data.events.length)){const next=visibleEvents(data,null,today())[0];selectedDate=next?next.date:monthValue===today().slice(0,7)?today():monthValue+'-01';autoDate=false;}
-        const checked=data&&data.updated_at?'確認 '+new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit',hour12:false}).format(data.updated_at)+' JST':'';
+        const checked=data&&data.updated_at?dates.label(data.updated_at/1000,'確認',true):'';
         refs.retry.hidden=!(state&&['error','stale'].includes(state.status));refs.status.textContent=!state||state.status==='loading'?'予定を確認しています…':state.status==='error'?(data?'更新できませんでした。保存済みの予定を表示しています。':'予定を読み込めませんでした。'):state.status==='pending'?'確認できた予定を集めています…':state.status==='refreshing'?'最新の予定を確認しています…':state.status==='stale'?'保存済みの予定です。'+checked:checked;
         refs.universe.textContent='東証の国内上場企業を対象に、確認できた配当日程を掲載しています。1年先まで表示できますが、未発表・未確認の予定は載りません。予定が空欄でも、配当がないとは限りません。';refs.universe.hidden=!refs.universe.textContent;
         refs.coverage.textContent=data&&data.coverage.universe?'対象 '+data.coverage.universe+'社 ／ この月の予定を確認 '+data.coverage.known+'社'+(data.coverage.unknown?' ／ 日程未確認 '+data.coverage.unknown+'社':'')+(scope==='all'?'（収集対象の銘柄）':''):'';

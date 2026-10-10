@@ -1,5 +1,6 @@
 const {test}=require('node:test');
 const assert=require('node:assert/strict');
+const dates=require('../static/date-display.js');
 const profile=require('../static/company-profile.js');
 const NOW=Date.parse('2026-09-24T06:00:00Z'),KEY='7203.T',PREFIX='kn_company_profile_v1:';
 const IDENTITY={market:'プライム（内国株式）',industry:'輸送用機器',source_url:'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html',date:'2026-09-23',source_title:'日本取引所グループ（JPX）'};
@@ -166,7 +167,7 @@ function dialogHarness({reduced=true}={}){
   const time=clock(),events={};const doc={activeElement:null,documentElement:{clientWidth:400},createElement(tag){return new Element(tag,this);},addEventListener(type,fn){(events[type]??=[]).push(fn);},getElementById(id){function find(node){return node.id===id?node:node.children.map(find).find(Boolean);}return find(this.body)||null;},querySelector(){return this.fallback;}};
   doc.body=doc.createElement('body');const home=doc.createElement('main');home.id='morning-section';home.scrollTop=480;doc.body.appendChild(home);const trigger=doc.createElement('button');home.appendChild(trigger);trigger.focus();const nav=doc.createElement('nav');nav.inert=true;nav.setAttribute('aria-hidden','true');doc.body.appendChild(nav);doc.fallback=doc.createElement('button');home.appendChild(doc.fallback);
   const vv={height:780,offsetTop:0,events:{},addEventListener(type,fn){this.events[type]=fn;}};
-  const w={KNDividendDates:require('../static/dividend-dates.js'),...time,document:doc,innerWidth:400,scrollY:95,scrollTo(value){this.restoredScroll=value.top;},visualViewport:vv,matchMedia:()=>({matches:reduced}),getComputedStyle:()=>({paddingRight:'0px'}),AbortController,localStorage:storage()};let retries=0;const view=profile.createDialog(w,()=>retries++);
+  const w={KNDateDisplay:dates,KNDividendDates:require('../static/dividend-dates.js'),...time,document:doc,innerWidth:400,scrollY:95,scrollTo(value){this.restoredScroll=value.top;},visualViewport:vv,matchMedia:()=>({matches:reduced}),getComputedStyle:()=>({paddingRight:'0px'}),AbortController,localStorage:storage()};let retries=0;const view=profile.createDialog(w,()=>retries++);
   return {w,doc,home,nav,trigger,time,events,vv,view,get retries(){return retries;},key(key,shiftKey=false){const event={key,shiftKey,prevented:false,stopped:false,preventDefault(){this.prevented=true;},stopImmediatePropagation(){this.stopped=true;}};for(const fn of events.keydown||[])fn(event);return event;}};
 }
 function state(raw=fixture(),extra={}){return {symbol:KEY,status:raw.status,data:profile.normalize(raw,KEY,NOW),updating:false,fromCache:false,...extra};}
@@ -189,14 +190,25 @@ test('missing prices, timestamps and editorials are explicit, while zero dividen
 test('company basics remain usable when financial data or editorial is missing, with the source date intact',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ自動車',h.trigger);
   const raw=fixture({name:KEY,identity:IDENTITY,status:'pending',refreshing:true,data:{currency:'JPY'},editorial:null,updated_at:null,sources:[]});h.view.render(state(raw,{updating:true}));const refs=h.view.elements;
-  assert.equal(refs.name.textContent,'トヨタ自動車');assert.equal(refs.basic.hidden,false);assert.equal(refs.market.value.textContent,'プライム（内国株式）');assert.equal(refs.industry.value.textContent,'輸送用機器');assert.equal(refs.business.section.hidden,true);assert.equal(refs.price.value.textContent,'—');assert.equal(refs.price.unknown.hidden,false);assert.equal(refs.identityDate.textContent,'会社一覧の基準日 2026/09/23');assert.equal(refs.sources.children[0].children[0].href,IDENTITY.source_url);
+  assert.equal(refs.name.textContent,'トヨタ自動車');assert.equal(refs.basic.hidden,false);assert.equal(refs.market.value.textContent,'プライム（内国株式）');assert.equal(refs.industry.value.textContent,'輸送用機器');assert.equal(refs.business.section.hidden,true);assert.equal(refs.price.value.textContent,'—');assert.equal(refs.price.unknown.hidden,false);assert.equal(refs.identityDate.textContent,'2026/09/23 会社一覧の基準日');assert.equal(refs.sources.children[0].children[0].href,IDENTITY.source_url);
   h.view.render(state(raw,{status:'error',updating:false}));assert.match(refs.status.textContent,/会社の基本情報を表示/);assert.equal(refs.retry.hidden,false);assert.equal(refs.basic.hidden,false);
   h.view.render({symbol:KEY,status:'error',data:null,updating:false});assert.equal(refs.name.textContent,'トヨタ自動車');assert.equal(refs.basic.hidden,true);assert.match(refs.business.body.textContent,/今は確認できません/);
 });
 test('scanner closing-price dates are explicit; precise quote times take precedence when present',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price_updated_at=null;raw.data.price_trade_date='2026-09-23';h.view.render(state(raw));const refs=h.view.elements;
-  assert.match(refs.price.time.textContent,/株価 2026\/09\/23 の終値/);assert.doesNotMatch(refs.price.time.textContent,/株価の時点：未確認/);
-  raw.data.price_updated_at=(NOW-60000)/1000;h.view.render(state(raw));assert.match(refs.price.time.textContent,/株価の時点.*14:59/);assert.doesNotMatch(refs.price.time.textContent,/終値/);
+  assert.match(refs.price.time.textContent,/2026\/09\/23 終値/);assert.doesNotMatch(refs.price.time.textContent,/株価の時点：未確認/);
+  raw.data.price_updated_at=(NOW-60000)/1000;h.view.render(state(raw));assert.match(refs.price.time.textContent,/2026\/09\/24 14:59 株価時点/);assert.doesNotMatch(refs.price.time.textContent,/終値/);
+});
+test('company metadata shares date-first JST formatting without inventing release times',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);
+  const raw=fixture({identity:IDENTITY});raw.data.analyst_target.as_of='2026-09-23';h.view.render(state(raw));const refs=h.view.elements;
+  assert.equal(refs.price.time.textContent,'2026/09/24 14:59 株価時点 / 2026/09/24 15:00 取得');
+  assert.equal(refs.cap.time.textContent,'2026/09/24 14:00 取得');assert.equal(refs.annual.time.textContent,'2026/09/24 14:00 取得');
+  assert.equal(refs.targetDate.textContent,'2026/09/23 予想');assert.equal(refs.reviewed.textContent,'2026/09/24 会社の説明を確認');assert.equal(refs.identityDate.textContent,'2026/09/23 会社一覧の基準日');
+  assert.doesNotMatch(refs.reviewed.textContent,/\d{2}:\d{2}/);
+  const yahoo=refs.sources.children.find(row=>row.children.some(node=>node.href==='https://finance.yahoo.com/quote/7203.T/'));
+  assert.deepEqual(yahoo.children.map(node=>node.textContent),['2026/09/24 15:00 取得','Yahoo Finance ↗']);assert.equal(yahoo.children[1].rel,'noopener noreferrer');
+  const editorial=refs.sources.children[0];assert.equal(editorial.children.length,1);assert.equal(editorial.children[0].textContent,'会社の公式サイト ↗');
 });
 test('empty metric labels change individually and explain source omissions without claiming nonpublication',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const refs=h.view.elements;

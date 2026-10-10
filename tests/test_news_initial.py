@@ -166,14 +166,17 @@ class InitialSelectionTests(unittest.TestCase):
                     publication = matching[0]['publication']
                     self.assertIsNotNone(publication)
                     date = datetime.fromisoformat(item['published_date'])
-                    self.assertEqual(publication['text'], f'{date.month}/{date.day} 発表')
+                    expected_date = f'{date:%Y/%m/%d}'
+                    if precision != 'day':
+                        expected_date += datetime.fromtimestamp(item['published_at'], tz=JST).strftime(' %H:%M')
+                    self.assertEqual(publication['text'], expected_date + ' 発表')
                     if precision == 'day':
                         self.assertEqual(publication['attrs']['datetime'], item['published_date'])
-                        self.assertEqual(publication['attrs']['title'], f'発表 {date.year}/{date.month}/{date.day}')
+                        self.assertEqual(publication['attrs']['title'], f'{date:%Y/%m/%d} 発表')
                     else:
                         actual = datetime.fromtimestamp(item['published_at'], tz=JST)
                         self.assertEqual(publication['attrs']['datetime'], actual.astimezone(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'))
-                        self.assertEqual(publication['attrs']['title'], f'発表 {actual.year}/{actual.month}/{actual.day} {actual:%H:%M} JST')
+                        self.assertEqual(publication['attrs']['title'], f'{actual:%Y/%m/%d %H:%M} 発表 JST')
                 self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), 1)
                 self.assertIn('<details class="news-info"', source_row)
                 self.assertIn('class="news-info-note">公式発表をもとに要約</p>', source_row)
@@ -206,13 +209,13 @@ class InitialSelectionTests(unittest.TestCase):
             self.assertIn('財務省', html)
             self.assertIn('読みやすい個別の見出し', html)
             if precision == 'day':
-                self.assertIn('datetime="2026-09-21" title="発表 2026/9/21">9/21 発表</time>', html)
+                self.assertIn('datetime="2026-09-21" title="2026/09/21 発表">2026/09/21 発表</time>', html)
                 self.assertNotIn('JST', html)
                 self.assertNotIn('1970', html)
                 self.assertIsNone(json.loads(ParsedInitial(html).json)['news'][0]['published_at'])
             else:
                 self.assertIn('datetime="2026-09-21T03:00:00.000Z"', html)
-                self.assertIn('発表 2026/9/21 12:00 JST', html)
+                self.assertIn('2026/09/21 12:00 発表 JST', html)
             self.assertEqual(json.loads(ParsedInitial(html).json)['news'][0]['published_date'], '2026-09-21')
 
     def test_official_morning_edition_keeps_prior_source_day_on_cold_start(self):
@@ -336,7 +339,7 @@ class InitialSelectionTests(unittest.TestCase):
         self.assertIn(changed['title'], html)
         self.assertIn('本日の要約は未掲載です', html)
         self.assertNotIn(review()['summary'], html)
-        self.assertIn('取得 ', html)
+        self.assertIn(' 取得</p>', html)
 
     def test_after_eight_initial_html_shows_today_headlines_instead_of_old_summary(self):
         old_article = {**article('Old reviewed article', '2026-09-21T03:00:00Z'),
@@ -360,7 +363,7 @@ class InitialSelectionTests(unittest.TestCase):
         self.assertNotIn(authored['summary'], html)
         self.assertNotIn('Old reviewed article', html)
         self.assertIn('<span class="headline-source">NHK経済</span>', html)
-        self.assertIn('発表 2026/9/22 09:25 JST', html)
+        self.assertIn('2026/09/22 09:25 発表 JST', html)
         self.assertIn('href="https://news.example/current"', html)
         self.assertEqual(json.loads(ParsedInitial(html).json), data)
 

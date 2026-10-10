@@ -1,9 +1,9 @@
 /* Company facts are independent of the article disclosure and retain their own dates. */
 (function(root,factory){
-  const api=factory();
+  const api=factory(typeof module==='object'&&module.exports?require('./date-display.js'):root.KNDateDisplay);
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root&&root.document)root.KNCompanyProfile=api.start(root);
-})(typeof window==='undefined'?null:window,function(){
+})(typeof window==='undefined'?null:window,function(dates){
   'use strict';
   const POLL_MS=3000,POLL_LIMIT=90000,REQUEST_TIMEOUT=12000,RETRY_DELAYS=[1000,3000],CACHE_AGE=7*86400000,CACHE_PREFIX='kn_company_profile_v1:';
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
@@ -27,8 +27,7 @@
     else if(typeof value==='string'&&/^\d{4}-\d{2}-\d{2}T.*(?:Z|[+-]\d{2}:\d{2})$/.test(value)&&day(value.slice(0,10)))at=Date.parse(value);
     return finite(at)&&at>0&&at<=now+60000?at:null;
   }
-  function dateText(value){return day(value)?value.replace(/-/g,'/'):'—';}
-  function stamp(value){return finite(value)?new Intl.DateTimeFormat('ja-JP',{timeZone:'Asia/Tokyo',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',hour12:false}).format(value)+' JST':null;}
+  function stamp(value){return finite(value)?dates.timestamp(value/1000)||null:null;}
   function today(now){return new Date(now+9*3600000).toISOString().slice(0,10);}
   function money(value,currency='JPY',compact=false){
     if(!finite(value)||value<0||!['JPY','USD','EUR','GBP'].includes(currency))return null;
@@ -247,10 +246,10 @@
       refs.business.body.textContent=editorial?editorial.business:record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
       ['life','watch'].forEach(key=>{refs[key].section.hidden=!(editorial&&editorial[key]);refs[key].body.textContent=editorial&&editorial[key]||'';});
       function showMetric(key,value,when){setMetric(key,value,when,fieldReason(state,METRIC_KEYS[key]));}
-      function fetched(field,fallback){const value=record&&record.source.fields[field]&&record.source.fields[field].fetched_at||fallback;return stamp(value)?'取得 '+stamp(value):'取得日：未確認';}
-      showMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?'株価の時点 '+stamp(data.price_updated_at):data.price_trade_date?'株価 '+dateText(data.price_trade_date)+' の終値':'株価の時点：未確認')+' / '+fetched('price'):null);
+      function fetched(field,fallback){const value=record&&record.source.fields[field]&&record.source.fields[field].fetched_at||fallback;return stamp(value)?dates.label(value/1000,'取得',true):'取得日時：未確認';}
+      showMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?dates.label(data.price_updated_at/1000,'株価時点',true):data.price_trade_date?dates.label(data.price_trade_date,'終値'):'株価の時点：未確認')+' / '+fetched('price'):null);
       showMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
-      showMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?'取得 '+stamp(data.dividend_fetched_at):'取得日：未確認'):null);
+      showMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?dates.label(data.dividend_fetched_at/1000,'取得',true):'取得日時：未確認'):null);
       showMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
       function schedule(value){return day(value)&&w.KNDividendDates?w.KNDividendDates.describe(value):null;}
       showMetric('exDate',schedule(data.ex_dividend_date),day(data.ex_dividend_date)?fetched('ex_dividend_date'):null);
@@ -262,13 +261,13 @@
       refs.reasonHelp.hidden=!Object.keys(METRIC_KEYS).some(key=>!refs[key].unknown.hidden);
       const range=analyst&&analyst.low!==null&&analyst.high!==null?'予想の幅 '+money(analyst.low,currency)+'〜'+money(analyst.high,currency):'';
       refs.targetRange.textContent=[range,analyst&&analyst.analyst_count?analyst.analyst_count+'人の予想':''].filter(Boolean).join(' / ');refs.targetRange.hidden=!refs.targetRange.textContent;
-      refs.targetDate.textContent=analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?(analyst.as_of?'予想日 '+dateText(analyst.as_of):'予想が出された日は提供元に記載がありません。'):'';refs.targetDate.hidden=!refs.targetDate.textContent;
-      refs.reviewed.textContent=editorial?(editorial.reviewed_on?'会社の説明の確認日 '+dateText(editorial.reviewed_on):'会社の説明の確認日：未確認'):'';refs.reviewed.hidden=!refs.reviewed.textContent;
-      refs.identityDate.textContent=identity?'会社一覧の基準日 '+dateText(identity.date):'';refs.identityDate.hidden=!refs.identityDate.textContent;
+      refs.targetDate.textContent=analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?(analyst.as_of?dates.label(analyst.as_of,'予想'):'予想が出された日は提供元に記載がありません。'):'';refs.targetDate.hidden=!refs.targetDate.textContent;
+      refs.reviewed.textContent=editorial?(editorial.reviewed_on?dates.label(editorial.reviewed_on,'会社の説明を確認'):'会社の説明の確認日：未確認'):'';refs.reviewed.hidden=!refs.reviewed.textContent;
+      refs.identityDate.textContent=identity?dates.label(identity.date,'会社一覧の基準日'):'';refs.identityDate.hidden=!refs.identityDate.textContent;
       const allSources=[...(editorial&&editorial.sources||[]),...(identity?[{title:identity.source_title,url:identity.source_url,fetched_at:null}]:[]),...(record&&record.sources||[])],signature=JSON.stringify(allSources);
       if(signature!==sourcesSignature){
         sourcesSignature=signature;refs.sources.replaceChildren();
-        const unique=new Set();allSources.forEach(source=>{if(unique.has(source.url))return;unique.add(source.url);const row=el('li'),link=el('a','cp-source-link',source.title);link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';row.appendChild(link);if(stamp(source.fetched_at))row.appendChild(el('small','cp-source-time','取得 '+stamp(source.fetched_at)));refs.sources.appendChild(row);});
+        const unique=new Set();allSources.forEach(source=>{if(unique.has(source.url))return;unique.add(source.url);const row=el('li'),link=el('a','cp-source-link',source.title+' ↗');link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';if(stamp(source.fetched_at))row.appendChild(el('small','cp-source-time',dates.label(source.fetched_at/1000,'取得',true)));row.appendChild(link);refs.sources.appendChild(row);});
         if(!allSources.length)refs.sources.appendChild(el('li','cp-source-time','出典：未確認'));
       }
     }

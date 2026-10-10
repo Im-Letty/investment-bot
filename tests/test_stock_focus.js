@@ -18,18 +18,31 @@ test('fewer than6 companies have no empty more button; no eligible stocks is dif
  const error=stock.rankingMarkup(null,'up','error');assert.match(error,/再読み込み/);assert.doesNotMatch(error,/条件に当てはまる銘柄はありません/);
 });
 test('uses price minus previous close, not rounded source pct, with both amount and percentage',()=>{
- const html=stock.quote({...item('7203.T'),price:1001.5,prev:1000,pct:99});assert.match(html,/\+1.5円/);assert.match(html,/\+0.15%/);assert.match(html,/2026\/09\/18 の株価/);assert.doesNotMatch(html,/99%/);
+ const html=stock.quote({...item('7203.T'),price:1001.5,prev:1000,pct:99});assert.match(html,/\+1.5円/);assert.match(html,/\+0.15%/);assert.match(html,/2026\/09\/18 取引日/);assert.doesNotMatch(html,/99%/);
  const us=stock.quote({...item('AAPL'),currency:'USD',price:99.5});assert.match(us,/−0.5米ドル/);assert.match(us,/−0.50%/);
  assert.match(stock.quote({...item('7203.T'),price:100}),/sf-flat/);
 });
 test('invalid or missing amounts are never rendered as zero',()=>{
  for(const value of [undefined,null,NaN,Infinity,0,-1,'100']){assert.equal(stock.normalizeItem({...item('7203.T'),price:value}),null);assert.doesNotMatch(stock.quote({...item('7203.T'),price:value}),/sf-price/);}
 });
+test('trade dates remain validated ISO days rather than epoch timestamps',()=>{
+ for(const trade_date of [now/1000,now,null,'2026-09-31','2026-09-18T00:00:00Z'])assert.equal(payload([{...item('7203.T'),trade_date}]),null);
+ assert.ok(payload([item('7203.T')]));
+});
 test('common quote dates are grouped by market, while mixed dates remain on each row',()=>{
  const jp=item('7203.T'),us={...item('AAPL'),currency:'USD',trade_date:'2026-09-21'};
- const grouped=stock.tradeDates([jp,us]);assert.equal(grouped.text,'株価 日本 2026/09/18 / 米国 2026/09/21');assert.equal(grouped.showDate(jp),false);assert.equal(grouped.showDate(us),false);
+ const grouped=stock.tradeDates([jp,us]);assert.equal(grouped.text,'2026/09/18 日本の取引日 / 2026/09/21 米国の取引日');assert.equal(grouped.showDate(jp),false);assert.equal(grouped.showDate(us),false);
  const older={...item('9432.T'),trade_date:'2026-09-17'};
- const html=stock.rankingMarkup(payload([jp,older,us]));assert.match(html,/2026\/09\/18 の株価/);assert.match(html,/2026\/09\/17 の株価/);assert.match(html,/米国 2026\/09\/21/);assert.doesNotMatch(html,/2026\/09\/21 の株価/);
+ const html=stock.rankingMarkup(payload([jp,older,us]));assert.match(html,/2026\/09\/18 取引日/);assert.match(html,/2026\/09\/17 取引日/);assert.match(html,/2026\/09\/21 米国の取引日/);assert.doesNotMatch(html,/2026\/09\/21 取引日/);
+});
+test('ranking metadata separates trade dates from full Japanese retrieval times and follows the selected market',()=>{
+ const jp={...item('7203.T'),market:'prime'},older={...item('9432.T'),market:'standard',trade_date:'2026-09-17'},us={...item('AAPL'),currency:'USD',market:'us',trade_date:'2026-09-21'};
+ const data=payload([jp,older,us]),html=stock.rankingMarkup(data,'up','ready',{market:'prime'});
+ const footer=html.match(/<footer class="sf-meta">(.*?)<\/footer>/)[1];
+ assert.match(footer,/2026\/09\/18 取引日/);assert.match(footer,/2026\/09\/23 18:00 取得 · 取得済み 1社/);
+ assert.doesNotMatch(footer,/2026\/09\/17|2026\/09\/21|米国|日本の取引日|銘柄ごと/);
+ assert.doesNotMatch(html,/sf-quote-date/,'one date within the selected market stays in the footer');
+ assert.doesNotMatch(footer,/18:00 発表|2026\/09\/23 18:00 取引日/);
 });
 test('favorite quotes preserve currency and absolute changes without inventing missing changes',()=>{
  const format=require('../static/market-data.js').formatChange;
@@ -61,6 +74,14 @@ test('reviewed real company stories show publication date and source',()=>{
  assert.doesNotMatch(html,/DEMO|さくら食品|みなと電機|あおば物流|サンプル/);
  assert.equal(stock.validStories(data,Date.parse('2026-10-01T03:00:00Z')).length,0);
  assert.equal(stock.validStories(data,Date.parse('2026-09-22T03:00:00Z')).length,0);
+});
+test('company metadata keeps the real publication day before its source without inventing a time',()=>{
+ const data=JSON.parse(fs.readFileSync(path.join(__dirname,'../static/company-focus.json'))),html=stock.companyMarkup(data,null,'ready',now);
+ const metadata=[...html.matchAll(/<div class="sf-story-source">(.*?)<\/div>/g)];assert.equal(metadata.length,2);
+ for(const [,markup]of metadata){
+  assert.match(markup,/^<time class="sf-story-date" datetime="2026-09-\d{2}">2026\/09\/\d{2} 発表<\/time><a class="sf-source"/);
+  assert.match(markup,/会社の発表を読む ↗<\/a>$/);assert.doesNotMatch(markup,/\d{2}:\d{2}|JST|掲載|取得/);
+ }
 });
 test('server/provider text is escaped, unsafe story links never become markup',()=>{
  const html=stock.rankingMarkup(payload([{...item('7203.T'),name:'<img src=x onerror=alert(1)>'}]));assert.doesNotMatch(html,/<img/);assert.match(html,/&lt;img/);

@@ -1,15 +1,16 @@
 /* Approved stock panel: live rankings and independently reviewed company stories. */
 (function(root,factory){
-  const api=factory();
+  const dates=typeof module==='object'&&module.exports?require('./date-display.js'):root&&root.KNDateDisplay;
+  const api=factory(dates);
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root&&root.document){root.StockFocus=api;api.start(root);}
-})(typeof window==='undefined'?null:window,function(){
+})(typeof window==='undefined'?null:window,function(dates){
   'use strict';
   const DAY=86400000, CACHE_AGE=7*DAY, REFRESH_MS=60000;
   const escape=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const amount=value=>Math.abs(value).toLocaleString('ja-JP',{maximumFractionDigits:2});
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
-  const dateLabel=value=>/^\d{4}-\d{2}-\d{2}$/.test(value||'')?value.replace(/-/g,'/'):'';
+  const dateLabel=value=>typeof value==='string'?dates.date(value):'';
   function normalizeItem(item){
     if(!item||!finite(item.price)||!finite(item.prev)||item.price<=0||item.prev<=0||typeof item.symbol!=='string')return null;
     const delta=item.price-item.prev;
@@ -26,15 +27,15 @@
     const item=normalizeItem(raw);
     if(!item)return '<div class="sf-quote"><span class="sf-quote-date">株価を確認できませんでした</span></div>';
     const delta=item.change_value,sign=delta>0?'+':delta<0?'−':'',direction=delta>0?'up':delta<0?'down':'flat',unit=item.currency==='JPY'?'円':item.currency==='USD'?'米ドル':escape(item.currency);
-    const dateMarkup=showDate&&dateLabel(item.trade_date)?'<span class="sf-quote-date">'+dateLabel(item.trade_date)+' の株価</span>':'';
+    const dateMarkup=showDate&&dateLabel(item.trade_date)?'<span class="sf-quote-date">'+dateLabel(item.trade_date)+' 取引日</span>':'';
     return '<div class="sf-quote"><span class="sf-price">'+amount(item.price)+'<small>'+unit+'</small></span><span class="sf-change sf-'+direction+'">'+sign+amount(delta)+unit+' <span>（'+sign+Math.abs(item.pct).toFixed(2)+'%）</span></span>'+dateMarkup+'</div>';
   }
   function tradeDates(items){
     const groups=new Map();
     const market=item=>item.symbol.endsWith('.T')?'日本':'米国';
     for(const item of items){if(!groups.has(market(item)))groups.set(market(item),new Set());groups.get(market(item)).add(dateLabel(item.trade_date));}
-    const parts=Array.from(groups,([key,dates])=>((groups.size>1?key+' ':'')+(dates.size===1&&![...dates].includes('')?[...dates][0]:'銘柄ごとの日付')));
-    return {text:parts.length?'株価 '+parts.join(' / '):'',showDate:item=>groups.get(market(item)).size!==1};
+    const parts=Array.from(groups,([key,groupDates])=>groupDates.size===1&&![...groupDates].includes('')?[...groupDates][0]+' '+(groups.size>1?key+'の':'')+'取引日':(groups.size>1?key+' ':'')+'銘柄ごとの取引日');
+    return {text:parts.join(' / '),showDate:item=>groups.get(market(item)).size!==1};
   }
   function stockCode(symbol){
     return '<small class="sf-stock-code">'+escape(String(symbol||'').replace(/\.T$/,''))+'</small>';
@@ -64,7 +65,7 @@
     }).slice(0,20);
   }
   function ranking(data,direction,active,status,options={}){
-    const items=ranked(data,direction,options),dates=tradeDates(data?data.items:[]),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,dates.showDate(item)).replace('</li>',(options.metric==='volume'?'<span class="sf-volume">売買された株数 '+amount(item.volume)+'株</span>':'')+'</li>')).join('');
+    const items=ranked(data,direction,options),market=MARKETS[options.market]?options.market:'all',quoteDates=tradeDates((data?data.items:[]).filter(item=>market==='all'||item.market===market)),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,quoteDates.showDate(item)).replace('</li>',(options.metric==='volume'?'<span class="sf-volume">売買された株数 '+amount(item.volume)+'株</span>':'')+'</li>')).join('');
     const empty=data?'条件に当てはまる銘柄はありません。':status==='error'?'株価を確認できませんでした。':'株価を確認しています…';
     const more=items.length>5?'<details class="sf-more" data-stock-detail="rank-'+direction+'"><summary><span>もっと見る<span class="sf-sr-only">、残り'+(items.length-5)+'社</span></span><i aria-hidden="true"></i></summary><ol class="sf-rows" start="6">'+rows(items.slice(5),5)+'</ol></details>':'';
     return '<section class="sf-ranking" id="sf-rank-panel-'+direction+'" role="tabpanel" aria-labelledby="sf-rank-tab-'+direction+'" tabindex="0"'+(active!==direction?' hidden':'')+'>'+(items.length?'<ol class="sf-rows">'+rows(items.slice(0,5))+'</ol>':'<p class="sf-state">'+empty+(!data&&status==='error'?'<button class="sf-retry" type="button" data-stock-retry>再読み込み</button>':'')+'</p>')+more+'</section>';
@@ -86,7 +87,7 @@
     const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderPicker.field+marketPicker.field+'</div>'+orderPicker.panel+marketPicker.panel+'</div>';
 
     const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
-    const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(data.items).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+' · '+new Date(data.updated_at*1000).toLocaleString('ja-JP',{timeZone:'Asia/Tokyo',month:'numeric',day:'numeric',hour:'2-digit',minute:'2-digit'})+' 取得'+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
+    const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(pool).text)+'</span><span>'+escape(dates.timestamp(data.updated_at))+' 取得 · 取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
     return '<div class="sf-content"><section class="sf-market" aria-label="株価ランキング"><div class="sf-rank-toolbar" hidden>'+tabs+'<span class="sf-column-hint">株価 / 前日比</span></div>'+controls+'<div class="sf-rankings">'+ranking(data,'up',active,status,{metric,market})+(metric==='volume'?'':ranking(data,'down',active,status,{metric,market}))+'</div>'+meta+'</section></div>';
   }
   function storyDate(value){
@@ -124,7 +125,7 @@
     ];
     const cards=stories.map(item=>{
       const explanation=[['どんな会社？',item.business],['何があった？',item.event],['これからの注目は？',item.outlook]].map(([heading,body],index)=>'<section class="sf-explain-block"><span class="sf-story-icon" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none" focusable="false">'+icons[index]+'</svg></span><div class="sf-explain-copy"><h5>'+escape(heading)+'</h5><p'+(index===0?' class="sf-business"':'')+'>'+escape(body)+'</p></div></section>').join('');
-      return '<article class="sf-company"><p class="sf-company-name">'+companyName(item.symbol,item.name)+'</p><details class="sf-explanation" data-stock-detail="'+escape(storyKey(item))+'"><summary><h4>'+escape(item.title)+'</h4><span class="sf-sr-only sf-closed">'+escape(item.name)+'の記事を開く</span><span class="sf-sr-only sf-open">'+escape(item.name)+'の記事を閉じる</span><span class="sf-disclosure-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12"/><path class="sf-vertical" d="M10 4v12"/></svg></span></summary><div><div class="sf-reading-blocks">'+explanation+'</div><div class="sf-story-source"><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a><time class="sf-story-date" datetime="'+escape(item.published_date)+'">'+dateLabel(item.published_date)+' 発表</time></div></div></details></article>';
+      return '<article class="sf-company"><p class="sf-company-name">'+companyName(item.symbol,item.name)+'</p><details class="sf-explanation" data-stock-detail="'+escape(storyKey(item))+'"><summary><h4>'+escape(item.title)+'</h4><span class="sf-sr-only sf-closed">'+escape(item.name)+'の記事を開く</span><span class="sf-sr-only sf-open">'+escape(item.name)+'の記事を閉じる</span><span class="sf-disclosure-mark" aria-hidden="true"><svg viewBox="0 0 20 20" fill="none"><path d="M4 10h12"/><path class="sf-vertical" d="M10 4v12"/></svg></span></summary><div><div class="sf-reading-blocks">'+explanation+'</div><div class="sf-story-source"><time class="sf-story-date" datetime="'+escape(item.published_date)+'">'+dateLabel(item.published_date)+' 発表</time><a class="sf-source" href="'+escape(item.source_url)+'" target="_blank" rel="noopener noreferrer">会社の発表を読む ↗</a></div></div></details></article>';
     }).join('');
     const retry='<button class="sf-retry" type="button" data-company-retry>再読み込み</button>';
     const more=allStories.length>stories.length?'<button class="sf-more" type="button" data-company-more aria-controls="sf-company-list">もっと見る</button>':'';

@@ -388,7 +388,8 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
 }
 #knCompanyNewsSection .sf-source,
 #knCompanyNewsSection .sf-story-date {
-  font-size:calc(12px * var(--kn-a-scale,1));
+  font-size:calc(13px * var(--kn-a-scale,1));
+  line-height:1.8;
 }
 #knCompanyNewsSection .sf-story-source .sf-source {
   display:inline-flex;
