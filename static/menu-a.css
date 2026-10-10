@@ -1,7 +1,7 @@
 /* A: quiet list with a visible palette and the original features. */
 body.kn-home-a #sideDrawer.kn-menu-a{width:min(350px,calc(100vw - 28px));left:0;transform:translateX(-105%);height:100dvh;display:flex;flex-direction:column;padding:0;overflow:hidden;transition:transform .25s ease;box-shadow:8px 0 30px #24352d20;font-family:var(--kn-a-sans);}
 body.kn-home-a #sideDrawer.kn-menu-a.open{transform:translateX(0)}
-#sideDrawer.kn-menu-a .kn-menu-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex:none;padding:18px 20px 14px;border-bottom:1px solid var(--kn-a-line);font:400 calc(22px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif);color:var(--kn-a-ink);}
+#sideDrawer.kn-menu-a .kn-menu-header{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:none;padding:18px 20px 14px;border-bottom:1px solid var(--kn-a-line);font:400 calc(22px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif);color:var(--kn-a-ink);}
 #sideDrawer.kn-menu-a .kn-menu-close{background:none;border:0;color:inherit;width:44px;height:44px;display:grid;place-items:center;cursor:pointer;flex:none;}
 #sideDrawer.kn-menu-a svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;flex:none;}
 #sideDrawer.kn-menu-a #drawerNav{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:10px 20px max(24px,env(safe-area-inset-bottom));}
