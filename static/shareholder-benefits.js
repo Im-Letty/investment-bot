@@ -89,7 +89,8 @@ function create(w,mount,cal){
     const allMonthRows=rowsForMonth(month),events=allMonthRows.filter(matches),allMatches=programmes.filter(matches);
     layout.dataset.searching=String(!!query);
     const total=new Set(programmes.map(company=>company.code)).size;
-    intro.textContent=query?'掲載'+total+'社のうち、検索結果は'+allMatches.length+'社。表示中の月に一致する日程は'+new Set(events.map(row=>row.code)).size+'社・'+events.length+'件です。':'公式情報を確認した'+total+'社を掲載。この月の掲載日程は'+new Set(allMonthRows.map(row=>row.code)).size+'社・'+allMonthRows.length+'件です。全ての優待を網羅しているものではありません。';
+    intro.hidden=!query;
+    intro.textContent=query?'掲載'+total+'社のうち、検索結果は'+allMatches.length+'社。表示中の月に一致する日程は'+new Set(events.map(row=>row.code)).size+'社・'+events.length+'件です。':'';
     grid.replaceChildren();dateButtons.clear();
     cal.calendarDays(month,events.map(row=>({date:row.date,precision:'day',kind:'benefit'})),today).forEach(day=>{
       if(!day){grid.appendChild(el('span'));return;}

@@ -35,7 +35,8 @@ test('a company can have multiple explicit dates without generating unreviewed y
 test('monthly counts include all matching dates while lists paginate and prioritize saved favorites',()=>{
  const data=Array.from({length:7},(_,i)=>company(String(1000+i)));data[0].schedules.push(schedule('2026-09-29'));
  const h=harness(data,{favorites:['1006.T']});
- assert.match(h.mount.find('dc-status').textContent,/7社を掲載.*7社・8件/);assert.equal(h.cards().length,5);
+ assert.equal(h.mount.find('dc-status').textContent,'');assert.equal(h.mount.find('dc-status').hidden,true);assert.equal(h.cards().length,5);
+ assert.match(h.mount.children.at(-1).textContent,/空欄や検索結果なしは、優待がないという意味ではありません/);
  assert.match(h.cards()[0].textContent,/会社1006/);assert.equal(h.mount.find('bc-more').hidden,false);
  const day=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-28');assert.equal(day.find('dc-day-count').textContent,'7件');
  const today=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-24');assert.equal(today.getAttribute('aria-current'),'date');
@@ -48,9 +49,11 @@ test('search normalizes names, fullwidth codes and kana aliases across months wi
  h.search('ココカラ＆');assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/3088/);
  h.search('３５６３');assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/2027\/03\/29/);assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);
  assert.equal(h.mount.find('dc-layout').dataset.searching,'true');assert.match(h.mount.find('dc-status').textContent,/掲載2社.*検索結果は1社.*表示中の月.*0社・0件/);
+ assert.equal(h.mount.find('dc-status').hidden,false);
  h.search('すしろー');assert.equal(h.cards().length,1);assert.match(h.mount.find('bc-heading').textContent,/検索結果 1社/);
  h.mount.find('bc-jump').dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年 03月');assert.match(h.cards()[0].textContent,/2027\/03\/29/);
  h.search('未掲載の会社');assert.equal(h.cards().length,0);assert.match(h.mount.find('dc-empty').textContent,/未掲載の会社にも優待/);
+ h.search('');assert.equal(h.mount.find('dc-status').hidden,true);assert.equal(h.mount.find('dc-status').textContent,'');
 });
 test('undated and expired programmes remain discoverable without fabricated next dates or calendar counts',()=>{
  const data=[company('1000',{schedules:[schedule('2026-08-28')]}),company('2000',{name:'KDDI',schedules:[],holding:'1年以上の継続保有'})];

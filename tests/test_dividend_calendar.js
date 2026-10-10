@@ -319,7 +319,7 @@ test('benefits tab separates dates and conditions and restores the dividend view
  const pane=h.mount.find('dc-benefits-pane'),benefits=h.w.KNBenefits;
  const cards=()=>pane.find('bc-list').children.filter(node=>node.className==='bc-card');
  assert.equal(cards().length,Math.min(5,benefits.rowsForMonth(MONTH).length));
- assert.match(pane.find('dc-status').textContent,new RegExp(benefits.programmes.length+'社を掲載'));
+ assert.equal(pane.find('dc-status').textContent,'');assert.equal(pane.find('dc-status').hidden,true);
  if(cards().length)assert.ok(cards()[0].find('bc-tags'));
  const pending=benefits.programmes.filter(company=>!company.schedules.some(schedule=>schedule.date>=calendar.today()));
  assert.equal(pane.find('bc-pending').hidden,pending.length===0);assert.equal(pane.find('bc-pending').open,true);
