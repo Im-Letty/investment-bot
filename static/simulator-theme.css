@@ -1,0 +1,206 @@
+/* The parent supplies resolved morning-letter colors; these are its default palette. */
+:root {
+  --sim-bg: #f0eedf;
+  --sim-paper: #fdfcf6;
+  --sim-ink: #3d4b3c;
+  --sim-muted: #606b57;
+  --sim-line: #d5d6c3;
+  --sim-button: #607765;
+  --sim-chip: #eeeddf;
+  --sim-on-button: #fff;
+}
+
+body {
+  background: var(--sim-bg) !important;
+  color: var(--sim-ink) !important;
+}
+
+body :is(h1, .sim-title, .section-title, .mp-section-title) {
+  color: var(--sim-ink) !important;
+}
+
+body :is(.card, .metric, .info-item) {
+  background: var(--sim-paper) !important;
+  border-color: var(--sim-line) !important;
+  box-shadow: 0 1px 6px color-mix(in srgb, var(--sim-ink) 7%, transparent) !important;
+}
+
+body .info-item {
+  background: var(--sim-chip) !important;
+}
+
+body .tabs {
+  background: var(--sim-chip) !important;
+  color: var(--sim-ink) !important;
+  box-shadow: inset 0 1px 4px color-mix(in srgb, var(--sim-ink) 5%, transparent) !important;
+}
+
+body .tab {
+  background: transparent !important;
+  color: var(--sim-muted) !important;
+}
+
+body .tab.active {
+  background: var(--sim-paper) !important;
+  color: var(--sim-ink) !important;
+  box-shadow: 0 1px 5px color-mix(in srgb, var(--sim-ink) 10%, transparent),
+    inset 0 -2px 0 var(--sim-button) !important;
+}
+
+body :is(.row label, .unit, .metric .mlabel, .info-label, .reg-label, .form-label,
+  .no-data, .mp-updated, .lang-globe, .lang-select-outer select) {
+  color: var(--sim-muted) !important;
+}
+
+body :is(.row .right, .val-input, .metric .mval, .info-value, .mp-name,
+  .mp-stock-name, .mp-progress-label, #mp-progress-pct) {
+  color: var(--sim-ink) !important;
+}
+
+body .lang-select-outer::after {
+  color: var(--sim-muted) !important;
+}
+
+body .row input[type="range"] {
+  accent-color: var(--sim-button) !important;
+}
+
+body .row input[type="range"]::-webkit-slider-runnable-track {
+  background: var(--fill, var(--sim-line)) !important;
+}
+
+body .row input[type="range"]::-webkit-slider-thumb {
+  background: var(--sim-paper) !important;
+  border-color: var(--sim-button) !important;
+  box-shadow: 0 1px 4px color-mix(in srgb, var(--sim-ink) 15%, transparent) !important;
+}
+
+body .row input[type="range"]::-moz-range-thumb {
+  background: var(--sim-paper) !important;
+  border-color: var(--sim-button) !important;
+}
+
+body .row input[type="range"]::-moz-range-progress {
+  background: var(--sim-button) !important;
+}
+
+body .row input[type="range"]::-moz-range-track {
+  background: var(--sim-line) !important;
+}
+
+body .chart-outer {
+  background: var(--sim-chart-bg, var(--sim-chip)) !important;
+  border-color: var(--sim-line) !important;
+}
+
+body :is(.sim-pro-box-d, .sim-pro-box-m, .sim-pro-box-l, .sim-pro-box-g) {
+  color: var(--sim-ink) !important;
+}
+
+body :is(.sim-analysis, #g2sim-note) {
+  background: var(--sim-chip) !important;
+  color: var(--sim-ink) !important;
+  border-color: var(--sim-line) !important;
+}
+
+body :is(.sim-analysis-title, .sim-analysis-value) {
+  color: var(--sim-ink) !important;
+}
+
+body .sim-analysis-checks {
+  color: var(--sim-muted) !important;
+  border-color: var(--sim-line) !important;
+}
+
+body .sim-analysis [stroke="#2d4a2d"] {
+  stroke: var(--sim-ink);
+}
+
+body .sim-analysis [stroke="#3da060"] {
+  stroke: var(--sim-button);
+}
+
+body :is(.reg-input, .form-input) {
+  background: var(--sim-paper) !important;
+  color: var(--sim-ink) !important;
+  border-color: var(--sim-line) !important;
+}
+
+body :is(.reg-input, .form-input)::placeholder {
+  color: var(--sim-muted);
+  opacity: 1;
+}
+
+body :is(.reg-input, .form-input):focus {
+  border-color: var(--sim-button) !important;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--sim-button) 15%, transparent) !important;
+}
+
+body :is(.btn, .btn-apply) {
+  background: var(--sim-button) !important;
+  color: var(--sim-on-button) !important;
+  border-color: var(--sim-button) !important;
+  box-shadow: none !important;
+}
+
+body :is(.btn-secondary, .btn-add) {
+  background: var(--sim-paper) !important;
+  color: var(--sim-ink) !important;
+  border-color: var(--sim-line) !important;
+}
+
+body :is(.btn-secondary, .btn-add):hover {
+  background: var(--sim-chip) !important;
+  border-color: var(--sim-button) !important;
+}
+
+body .mp-profile-card {
+  background: var(--sim-chip) !important;
+  color: var(--sim-ink) !important;
+}
+
+body .mp-avatar {
+  background: var(--sim-paper) !important;
+  color: var(--sim-ink) !important;
+  border-color: var(--sim-line) !important;
+}
+
+body .mp-summary-card:not(.mp-card-red) {
+  background: var(--sim-paper) !important;
+  color: var(--sim-ink) !important;
+  box-shadow: 0 1px 6px color-mix(in srgb, var(--sim-ink) 7%, transparent) !important;
+}
+
+body .mp-summary-card:not(.mp-card-red) .mp-card-label {
+  color: var(--sim-muted) !important;
+  opacity: 1;
+}
+
+body .mp-progress-bar-bg {
+  background: var(--sim-line) !important;
+}
+
+body .mp-progress-bar-fill {
+  background: var(--sim-button) !important;
+}
+
+body :is(.mp-stock-item, .mp-chip, .ke-cat) {
+  background: var(--sim-chip) !important;
+  color: var(--sim-ink) !important;
+  border-color: var(--sim-button) !important;
+}
+
+body .spinner {
+  border-color: var(--sim-line) !important;
+  border-top-color: var(--sim-button) !important;
+}
+
+body .kakeibo-entry {
+  border-color: var(--sim-line) !important;
+}
+
+/* Error messages, delete actions, income/expense colors and warning icons retain meaning. */
+body :is(.tab, .btn, .btn-apply, .btn-add, .val-input, .row input[type="range"]):focus-visible {
+  outline: 2px solid var(--sim-button);
+  outline-offset: 2px;
+}
