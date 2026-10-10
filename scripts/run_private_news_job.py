@@ -10,7 +10,7 @@ import argparse
 from collections.abc import Mapping
 from contextlib import contextmanager
 from copy import deepcopy
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 import json
 import math
 import os
@@ -33,14 +33,18 @@ from scripts.run_codex_news import build_runtime, configuration, preflight_subsc
 from website_news_producer import GENERATION_SECONDS
 
 
-JOB_SECONDS = 35 * 60
+# Waiting for 07:30 is not part of the writer's processing allowance. The
+# complete CI step is still bounded, independently of the 08:00 release target.
+WAIT_SECONDS = 30 * 60
+PROCESSING_SECONDS = 45 * 60
+GENERATION_JOB_SECONDS = 35 * 60
+JOB_SECONDS = WAIT_SECONDS + PROCESSING_SECONDS
 POLL_SECONDS = 30
 # Preserve time for runtime's storage/history checks and its 16-minute claim
 # lease. A late manifest must not start work with only a few seconds remaining.
 GENERATION_RESERVE_SECONDS = GENERATION_SECONDS + 4 * 60
 START_MINUTE = 7 * 60
-LAST_START_MINUTE = 8 * 60
-END_MINUTE = 8 * 60 + 15
+LAST_START_MINUTE = 23 * 60
 _RUNTIME_STATUSES = frozenset(("ready", "prepared", "collecting", "waiting", "freezing",
     "waiting_for_writer", "source_empty", "source_unavailable", "daily_limit", "disabled",
     "generation_failed", "invalid_edition", "storage_unavailable", "cache_unavailable",
@@ -217,7 +221,16 @@ def _morning(now):
     minute = current.hour * 60 + current.minute
     if not START_MINUTE <= minute < LAST_START_MINUTE:
         return None
-    return morning_window(now), current.replace(hour=8, minute=15, second=0, microsecond=0).timestamp()
+    tomorrow = current.replace(hour=0, minute=0, second=0, microsecond=0) + timedelta(days=1)
+    return morning_window(now), tomorrow.timestamp()
+
+
+def _budget(now, morning):
+    if morning is None:
+        return JOB_SECONDS
+    window, end_at = morning
+    wait = max(0, min(WAIT_SECONDS, window["cutoff_at"] - now))
+    return min(wait + PROCESSING_SECONDS, end_at - now)
 
 
 @contextmanager
@@ -321,7 +334,7 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
     if morning is None:
         return _outcome("outside_morning_window")
     window, end_at = morning
-    day, deadline = window["edition_date"], mono_started + JOB_SECONDS
+    day, deadline = window["edition_date"], mono_started + _budget(started, morning)
     settings = configuration(env)
     if not settings["configured"]:
         return _outcome("configuration_unavailable", day)
@@ -356,6 +369,9 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
             return _outcome("job_deadline", day)
         if manifest is None:
             return _outcome("manifest_unavailable", day)
+        # Slow source freezing may consume the processing guard, but waiting
+        # before the cutoff never consumes the writer's own 35-minute allowance.
+        deadline = min(deadline, monotonic() + GENERATION_JOB_SECONDS)
         try:
             frozen = FrozenSources(manifest, window)
         except (ValueError, TypeError, OverflowError):
@@ -408,9 +424,12 @@ def main(argv=None):
         parser.error("--result-file requires --run-live")
     if not args.run_live:
         settings = configuration()
-        settings.update(job_seconds=JOB_SECONDS, generation_seconds=GENERATION_SECONDS,
-                        generation_attempts=1, start_window="07:00–08:00 Asia/Tokyo",
-                        stop_by="08:15 Asia/Tokyo", source_collection_allowed=False)
+        settings.update(job_seconds=JOB_SECONDS, processing_seconds=PROCESSING_SECONDS,
+                        generation_job_seconds=GENERATION_JOB_SECONDS,
+                        generation_seconds=GENERATION_SECONDS,
+                        generation_attempts=1, start_window="07:00–23:00 Asia/Tokyo",
+                        stop_by="same-day midnight Asia/Tokyo", target_release="08:00 Asia/Tokyo",
+                        source_collection_allowed=False)
         print(json.dumps(settings, ensure_ascii=False))
         return 0
     now, output = time.time(), None
@@ -418,7 +437,7 @@ def main(argv=None):
         if args.result_file is not None:
             output = ResultFile(args.result_file)
         morning = _morning(now)
-        budget = min(JOB_SECONDS, morning[1] - now) if morning is not None else JOB_SECONDS
+        budget = _budget(now, morning)
         with process_deadline(seconds=budget):
             result = run_job()
     except JobDeadline:

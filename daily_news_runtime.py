@@ -485,7 +485,7 @@ class DailyNewsRuntime:
         if not self.enabled:
             self._set("disabled")
             return
-        if not 7 * 60 <= minute < 22 * 60:
+        if not 7 * 60 <= minute < 23 * 60:
             return
         manifest = None
         if self.source_preparer is not None:
@@ -556,7 +556,7 @@ class DailyNewsRuntime:
         now = self.clock()
         current = datetime.fromtimestamp(now, JST)
         minute = current.hour * 60 + current.minute
-        if current.date().isoformat() != day or not 7 * 60 <= minute < 22 * 60:
+        if current.date().isoformat() != day or not 7 * 60 <= minute < 23 * 60:
             return
         if len(attempts) >= self.max_attempts:
             self._set("daily_limit")

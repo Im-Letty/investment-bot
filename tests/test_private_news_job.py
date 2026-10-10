@@ -88,7 +88,9 @@ class PrivateJobTests(unittest.TestCase):
         result = json.loads(out.getvalue())
         self.assertFalse(result["publication_allowed"])
         self.assertFalse(result["connection_checked"])
-        self.assertEqual(result["job_seconds"], 35 * 60)
+        self.assertEqual(result["job_seconds"], 75 * 60)
+        self.assertEqual(result["processing_seconds"], 45 * 60)
+        self.assertEqual(result["generation_job_seconds"], 35 * 60)
         self.assertEqual(result["generation_seconds"], 12 * 60)
         self.assertEqual(result["generation_attempts"], 1)
         for value in self.env.values():
@@ -103,7 +105,7 @@ class PrivateJobTests(unittest.TestCase):
                 live.assert_not_called()
 
     def test_outside_real_jst_morning_exits_before_preflight_or_connection(self):
-        for stamp in (at(6, 59), at(8, 0), at(15, 0), at(23, 59)):
+        for stamp in (at(6, 59), at(23, 0), at(23, 59)):
             with self.subTest(stamp=stamp):
                 self.clock.now = stamp
                 result = self.run_job()
@@ -159,13 +161,38 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(self.storage.created, [])
         self.runtime.run_once.assert_called_once()
 
+    def test_actual_0710_start_and_073130_freeze_keep_full_writer_budget(self):
+        self.clock = Clock(at(7, 10, 26))
+        original = self.storage.read
+        self.storage.read = Mock(side_effect=lambda path: original(path)
+            if self.clock.now >= at(7, 31, 30) else None)
+        result = self.run_job()
+        self.assertEqual((result["status"], result["success"]), ("prepared", True))
+        self.assertGreaterEqual(self.clock.now, at(7, 31, 30))
+        self.runtime.run_once.assert_called_once()
+
+    def test_late_start_and_finish_after_eight_publish_at_actual_completion(self):
+        for hour, minute in ((8, 0), (9, 45), (12, 0), (22, 59)):
+            with self.subTest(hour=hour, minute=minute):
+                self.clock = Clock(at(hour, minute))
+                self.runtime.reset_mock()
+                def complete():
+                    self.clock.sleep(3 * 60)
+                    return {"status": "ready", "edition_date": "2026-10-06",
+                            "publish_at": self.clock.now, "attempt_count": 1}
+                self.runtime.run_once.side_effect = complete
+                result = self.run_job()
+                self.assertEqual((result["status"], result["success"]), ("ready", True))
+                self.assertEqual(result["publish_at"], at(hour, minute) + 3 * 60)
+                self.runtime.run_once.assert_called_once()
+
     def test_missing_manifest_is_bounded_and_cannot_collect_or_freeze(self):
         self.storage = ReadStorage(None)
         result = self.run_job()
         self.assertEqual(result["status"], "job_deadline")
         self.assertFalse(result["success"])
-        self.assertEqual(self.clock.now, at(7, 52))
-        self.assertEqual(self.clock.mono, 100 + job.JOB_SECONDS)
+        self.assertEqual(self.clock.now, at(8, 15))
+        self.assertEqual(self.clock.mono, 100 + 13 * 60 + job.PROCESSING_SECONDS)
         self.assertTrue(all(path == "days/2026-10-06/preparation/manifest.json"
                             for path in self.storage.reads))
         self.assertEqual(self.storage.created, [])
@@ -180,7 +207,7 @@ class PrivateJobTests(unittest.TestCase):
             self.clock.now = at(7, 30)
         result = self.run_job(sleep=rollback)
         self.assertEqual(result["status"], "job_deadline")
-        self.assertEqual(self.clock.mono, 100 + job.JOB_SECONDS)
+        self.assertEqual(self.clock.mono, 100 + job.PROCESSING_SECONDS)
         self.build.assert_not_called()
 
     def test_invalid_frozen_manifest_is_rejected_without_runtime(self):
@@ -205,7 +232,7 @@ class PrivateJobTests(unittest.TestCase):
 
     def test_late_manifest_cannot_start_without_full_generation_reserve(self):
         def late(_path):
-            self.clock.sleep(7 * 60)
+            self.clock.sleep(30 * 60)
             return deepcopy(self.manifest)
         self.storage.read = late
         result = self.run_job()
@@ -307,7 +334,7 @@ class PrivateJobTests(unittest.TestCase):
                     run.return_value = state
                 self.assertEqual(job.main(["--run-live"]), 1)
             self.assertFalse(json.loads(out.getvalue())["success"])
-            deadline.assert_called_once_with(seconds=job.JOB_SECONDS)
+            deadline.assert_called_once_with(seconds=13 * 60 + job.PROCESSING_SECONDS)
 
     def test_real_runtime_reviews_identical_copy_claims_once_and_keeps_eight_am_release(self):
         calls, reviews = [], []
@@ -358,6 +385,40 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(self.storage.created, [])
         self.assertEqual(result["source_article_count"], 0)
         self.assertEqual(result["source_date_counts"], {})
+
+    def test_real_runtime_late_finish_reviews_same_copy_and_never_backdates_or_repeats(self):
+        self.clock = Clock(at(8, 11))
+        reviews = []
+        with TemporaryDirectory() as folder:
+            baseline = Path(folder) / "baseline.json"
+            baseline.write_text("[]")
+            def build(_env, **options):
+                def generate(now, **source_options):
+                    transport = MockTransport(reviewer=lambda name, data: reviews.append((name, data)) or approval())
+                    result = generate_codex_website_edition(now, **source_options,
+                        clock=lambda: self.clock.now,
+                        providers=CodexWebsiteProviders(ENV, transport.session, writer=Writer()))
+                    self.clock.sleep(3 * 60)
+                    return result
+                return DailyNewsRuntime(options["storage"], generate, enabled=True,
+                    baseline_path=baseline, cache_path=options["cache_path"],
+                    max_attempts=options["max_attempts"], clock=lambda: self.clock.now)
+            result = self.run_job(runtime_factory=build)
+            self.assertEqual((result["status"], result["success"]), ("ready", True))
+            self.assertEqual(result["publish_at"], at(8, 14))
+            self.assertEqual([name for name, _ in reviews], ["gemini", "openai"])
+            self.assertEqual(reviews[0][1], reviews[1][1])
+            issue = self.storage.values["days/2026-10-06/edition.json"]
+            self.assertEqual(issue["source_window"], self.window)
+            self.assertEqual(issue["publish_at"], at(8, 14))
+            self.assertIsNone(select_daily_news({"news": []}, at(8, 13), reviewed_digests=[issue])["digest"])
+            self.assertEqual(select_daily_news({"news": []}, at(8, 14), reviewed_digests=[issue])
+                             ["digest"]["edition_date"], "2026-10-06")
+            self.clock = Clock(at(12, 0))
+            self.assertTrue(self.run_job(runtime_factory=build)["success"])
+            self.assertEqual(len(reviews), 2)
+            self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
+                             ["days/2026-10-06/attempt-1.lock"])
 
     def test_real_failed_daily_claim_is_not_repeated_by_a_restarted_ci_job(self):
         with TemporaryDirectory() as folder:

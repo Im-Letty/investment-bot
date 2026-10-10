@@ -418,9 +418,9 @@ class RuntimeTests(unittest.TestCase):
               baseline_path=self.baseline, cache_path=self.cache)
         factory.assert_not_called()
 
-    def test_generation_window_includes_0700_and_excludes_2200(self):
+    def test_generation_window_includes_delayed_same_day_and_excludes_2300(self):
         for hour, minute, allowed in ((0, 0, False), (6, 59, False), (7, 0, True), (7, 44, True),
-                                       (21, 59, True), (22, 0, False), (23, 59, False)):
+                                       (21, 59, True), (22, 0, True), (22, 59, True), (23, 0, False), (23, 59, False)):
             with self.subTest(hour=hour, minute=minute):
                 self.now = at(hour=hour, minute=minute)
                 generator = Mock(return_value=issue())
@@ -428,9 +428,9 @@ class RuntimeTests(unittest.TestCase):
                 self.assertEqual(generator.call_count, int(allowed))
 
     def test_slow_claim_reads_cannot_generate_after_window_or_for_previous_day(self):
-        for changed_at in (at(hour=22, minute=0), at("2026-09-25", hour=7, minute=0)):
+        for changed_at in (at(hour=23, minute=0), at("2026-09-25", hour=7, minute=0)):
             with self.subTest(changed_at=changed_at):
-                self.now = at(hour=21, minute=59, second=59)
+                self.now = at(hour=22, minute=59, second=59)
                 storage = MemoryStorage()
                 original_read = storage.read
 
@@ -446,7 +446,7 @@ class RuntimeTests(unittest.TestCase):
                 self.generator.assert_not_called()
 
     def test_slow_result_read_cannot_start_retry_after_window(self):
-        self.now = at(hour=21, minute=59, second=59)
+        self.now = at(hour=22, minute=59, second=59)
         claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1,
                  "started_at": at(hour=21, minute=30)}
         self.storage.values["days/2026-09-24/attempt-1.lock"] = claim
@@ -456,7 +456,7 @@ class RuntimeTests(unittest.TestCase):
 
         def slow_read(path):
             if path == "days/2026-09-24/attempt-1.result.json":
-                self.now = at(hour=22, minute=0)
+                self.now = at(hour=23, minute=0)
             return original_read(path)
 
         self.storage.read = Mock(side_effect=slow_read)
