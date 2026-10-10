@@ -48,6 +48,9 @@
         if(value&&doc.documentElement.style.getPropertyValue('--kn-sh-'+name)!==value)
           doc.documentElement.style.setProperty('--kn-sh-'+name,value);
       });
+      var scale=getComputedStyle(document.body).getPropertyValue('--kn-a-scale').trim()||'1';
+      if(doc.documentElement.style.getPropertyValue('--kn-sh-scale')!==scale)
+        doc.documentElement.style.setProperty('--kn-sh-scale',scale);
       attribute(doc.body,'data-kn-ledger-dark',String(document.body.getAttribute('data-theme')==='dark'));
     } catch(ignore) { /* A different-origin frame does not receive the palette. */ }
   }

@@ -241,6 +241,20 @@ body.kn-home-a #myPageOv .td-del {
 
 body.kn-home-a #myPageOv .kb-pane { min-width: 0; }
 
+/* The embedded ledger owns its scrolling so its dialogs fit above the shared navigation. */
+body.kn-home-a #myPageOv .mo-body:has(> .kb-pane.on) {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+body.kn-home-a #myPageOv .kb-pane.on { flex: 1 1 0; min-height: 0; }
+body.kn-home-a #myPageOv .kb-pane.on .kb-frame { height: 100%; }
+body.kn-home-a #myPageOv .mo-body:has(> .kb-pane.on) #knLogoutBtn {
+  flex: 0 0 auto;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
 body.kn-home-a #myPageOv .kb-frame {
   width: 100%;
   max-width: 100%;
