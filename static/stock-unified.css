@@ -182,3 +182,21 @@ body.kn-home-a #morning-section #knTabWrap .sf-more>summary span {font:inherit!i
 body.kn-home-a #morning-section #knTabWrap :is(.sf-more,.dividend-more) {margin-top:20px}
 body.kn-home-a #morning-section #knTabWrap .sf-more[open] {margin-top:0}
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-more:not(.bc-today,.bc-jump) {margin-top:20px}
+/* Company names share the company-news typeface and weight, with a slight size increase. */
+body.kn-home-a #morning-section #knTabWrap :is(
+  .sf-stock-name,
+  .dividend-list .div-name,
+  #knDividendCalendar .dc-company,
+  #knDividendCalendar .dc-search-company,
+  #knDividendCalendar .bc-company,
+  .kn-stock-search-company strong,
+  .dividend-search-result .res-name,
+  .dividend-ac-item
+) {
+  font:500 calc(17px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif)!important;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-stock-name .cp-company-link,
+body.kn-home-a #morning-section #knTabWrap .sf-stock-name .cp-company-link>span,
+body.kn-home-a #morning-section #knTabWrap .sf-stock-name>span {
+  font:inherit!important;
+}
