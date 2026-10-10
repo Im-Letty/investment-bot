@@ -1268,15 +1268,25 @@ test('lead plus other news shows one representative and only the independently r
     assert.ok(html.includes(data.digest.summary));
     assert.doesNotMatch(html,/追加ニュース0|記事0を単独で/);
     assert.equal((html.match(/class="story summarized-story"/g)||[]).length,count-1);
-    assert.equal(html.includes('class="read-more"'),count>1);
+    assert.equal(html.includes('class="read-more"'),true);
     assert.match(html,/href="https:\/\/www.mof.go.jp\/policy\/example0.html"/);
     assert.match(html,/datetime="2026-09-11" title="発表 2026\/9\/11">9\/11 発表<\/time>/);
     assert.doesNotMatch(html,/1970|00:00|<img>/);
+    const [beforeSources,afterSources]=html.split('class="article-sources"');
+    assert.ok(afterSources,'The source row exists even when there is one article');
+    assert.match(beforeSources,/<details class="read-more"/);
+    assert.doesNotMatch(beforeSources,/<a\b/,'Source names are not beside plus or repeated below extra articles');
+    const sourceRow=afterSources.split('</details>')[0];
+    const links=sourceRow.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
+    assert.equal(links.length,count,'Every reviewed article keeps its own source link');
     for(const ref of data.digest.article_refs){
-      const links=html.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
-      const link=links.find(markup=>markup.includes('href="'+ref.url+'"'));
-      assert.ok(link,'Source link must point to this article: '+ref.url);
+      const matching=links.filter(markup=>markup.includes('href="'+ref.url+'"'));
+      assert.equal(matching.length,1,'Source link must point to this article: '+ref.url);
+      const link=matching[0];
       assert.ok(link.endsWith('>'+ref.source+' ↗</a>'),'Link label must name this article’s source');
+      const title=link.match(/title="([^"]*)"/);
+      assert.ok(title&&title[1].includes(ref.title),'A shared publisher’s links remain distinguishable');
+      assert.ok(link.match(/aria-label="[^"]*"/)[0].includes(ref.title),'The spoken link name identifies the article');
     }
     assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,count);
     assert.doesNotMatch(html,/class="news-footer"|当サイトが要約・編集/);
@@ -1286,6 +1296,7 @@ test('lead plus other news shows one representative and only the independently r
     }
     if(count===3)assert.ok(html.indexOf('追加ニュース1')<html.indexOf('追加ニュース2'));
     if(count>1){assert.match(html,/ほかのニュース/);assert.doesNotMatch(html,/もっと詳しく/);}
+    else {assert.match(html,/記事の出典/);assert.doesNotMatch(html,/ほかのニュース/);}
     assert.equal(JSON.stringify(data),before);
     assert.deepEqual(JSON.parse(app.storage.get('kn_published_news_v1_ja')).digest,data.digest);
   }

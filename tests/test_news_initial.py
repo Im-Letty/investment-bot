@@ -128,24 +128,34 @@ class InitialSelectionTests(unittest.TestCase):
                 self.assertNotIn('独立した見出し0', markup)
                 self.assertNotIn('独立して読める記事0', markup)
                 self.assertEqual(markup.count('class="story summarized-story"'), count - 1)
-                self.assertEqual('class="read-more"' in markup, count > 1)
+                self.assertIn('class="read-more"', markup)
                 for i in range(1, count):
                     self.assertIn(f'独立した見出し{i}&lt;img&gt;', markup)
                     self.assertIn(authored['article_summaries'][i]['summary'], markup)
                 self.assertNotIn('<img>', markup)
                 self.assertIn('datetime="2026-09-21" title="発表 2026/9/21">9/21 発表</time>', markup)
                 self.assertIn('href="https://www.mof.go.jp/policy/example0.html"', markup)
-                links = ParsedInitial(markup).links
+                before_sources, after_sources = markup.split('class="article-sources"', 1)
+                self.assertIn('<details class="read-more"', before_sources)
+                self.assertEqual(ParsedInitial(before_sources).links, [])
+                source_row = after_sources.split('</details>', 1)[0]
+                links = ParsedInitial(source_row).links
+                self.assertEqual(len(links), count)
                 for item in authored['article_refs']:
                     matching = [link for link in links if link['attrs'].get('href') == item['url']]
                     self.assertEqual(len(matching), 1)
                     self.assertEqual(matching[0]['text'], item['source'] + ' ↗')
                     self.assertEqual(matching[0]['attrs'].get('rel'), 'noopener noreferrer')
+                    self.assertIn(item['title'], matching[0]['attrs'].get('title', ''))
+                    self.assertIn(item['title'], matching[0]['attrs'].get('aria-label', ''))
                 self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), count)
                 self.assertNotIn('class="news-footer"', markup)
                 if count > 1:
                     self.assertIn('ほかのニュース', markup)
                     self.assertNotIn('もっと詳しく', markup)
+                else:
+                    self.assertIn('記事の出典', markup)
+                    self.assertNotIn('ほかのニュース', markup)
                 self.assertEqual(json.loads(ParsedInitial(html).json)['digest'], original)
                 self.assertEqual(authored, original)
                 # Existing saved official editions keep their original design.
