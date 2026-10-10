@@ -179,6 +179,8 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
   line-height:1.5;
   box-shadow:none;
 }
+/* Preserve the thin, palette-colored native clear control in both entry points. */
+#alert-section.stock-watch-manager #alert-ticker-input[type="search"]::-webkit-search-cancel-button{-webkit-appearance:none;appearance:none;width:24px;height:28px;margin:0 2px 0 4px;cursor:pointer;background-color:var(--sw-muted,#688078);-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6 18 18M18 6 6 18' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") center/22px 22px no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 6 18 18M18 6 6 18' fill='none' stroke='black' stroke-width='1.3' stroke-linecap='round'/%3E%3C/svg%3E") center/22px 22px no-repeat}
 #alert-section.stock-watch-manager #alert-ticker-input::placeholder {
   color:var(--sw-muted);
   opacity:1;
@@ -241,11 +243,15 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
   border-bottom:1px solid var(--sw-line);
   background:transparent;
 }
-#alert-section.stock-watch-manager .sw-company {min-width:0;flex:1 1 auto}
+#alert-section.stock-watch-manager .sw-company {
+  min-width:0;flex:1 1 auto;margin:0;padding:0;
+  border:0;background:transparent;color:inherit;text-align:left;
+  font-family:var(--kn-a-sans,sans-serif);
+}
 #alert-section.stock-watch-manager .sw-name {
   display:block;
   color:var(--sw-ink);
-  font-size:calc(15px * var(--kn-a-scale,1));
+  font-size:calc(17px * var(--kn-a-scale,1));
   font-weight:500;
   line-height:1.7;
 }

@@ -67,15 +67,27 @@
       if(!manager||!input||!form||manager.dataset.searchReady)return;
       manager.dataset.searchReady='true';
       const results=doc.getElementById('stock-search-results'),saved=doc.getElementById('alert-watchlist'),message=doc.getElementById('alert-msg'),count=doc.getElementById('stock-watch-count');
-      const panel=manager.querySelector('.sw-sheet'),closeButton=doc.getElementById('stock-watch-close'),heading=doc.getElementById('stock-search-heading');
+      const panel=manager.querySelector('.sw-sheet'),closeButton=doc.getElementById('stock-watch-close'),heading=doc.getElementById('stock-search-heading'),title=doc.getElementById('stock-watch-title');
       if(!panel||!closeButton)return;
       // Keep the dialog outside any home-view stacking context or inert ancestor.
       doc.body.appendChild(manager);
       const store=createStore(w.localStorage,w.__knPersistLocalSetting,w.__knGateReady);
-      let state={status:'idle',items:[]},composing=false,opened=false,returnFocus=null,returnY=0,homeScroll=0,closeTimer=null,background=[],bodyOverflow='',bodyPadding='';
+      let state={status:'idle',items:[]},composing=false,opened=false,returnFocus=null,returnY=0,homeScroll=0,closeTimer=null,background=[],bodyOverflow='',bodyPadding='',homeOverflow='',backgroundScroll=null;
       function el(tag,className,text){const node=doc.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
       function feedback(text,error){message.textContent=text;message.className='sw-feedback';message.dataset.error=error?'true':'false';}
-      function company(item){const box=el('div','sw-company');box.appendChild(el('span','sw-name',item.name));box.appendChild(el('small','sw-code',symbol(item.symbol).replace(/\.T$/,'')));return box;}
+      function company(item){
+        const box=el('button','sw-company');box.type='button';
+        box.appendChild(el('span','sw-name',item.name));box.appendChild(el('small','sw-code',symbol(item.symbol).replace(/\.T$/,'')));
+        box.setAttribute('aria-label',item.name+'の会社情報を開く');
+        box.addEventListener('click',()=>{
+          if(!w.KNCompanyProfile||!w.KNCompanyProfile.open){feedback('会社情報を読み込めませんでした。ページを開き直してください。',true);return;}
+          const trigger=returnFocus;
+          // Release this sheet's inert/scroll locks before the profile takes over.
+          w.closeStockWatchManager(true);
+          w.KNCompanyProfile.open(symbol(item.symbol),item.name,trigger);
+        });
+        return box;
+      }
       function notify(){if(w.__knRefreshWatch)w.__knRefreshWatch();}
       async function add(item,button){
         button.disabled=true;
@@ -122,16 +134,24 @@
         const gutter=Math.max(0,w.innerWidth-doc.documentElement.clientWidth);
         if(gutter&&w.getComputedStyle)doc.body.style.paddingRight=(parseFloat(w.getComputedStyle(doc.body).paddingRight)||0)+gutter+'px';
         doc.body.style.overflow='hidden';
+        const home=doc.getElementById('morning-section');homeOverflow=home?home.style.overflowY:'';if(home)home.style.overflowY='hidden';
       }
-      w.openStockWatchManager=async function(){
+      w.openStockWatchManager=async function(options){
+        options=options||{};
         if(closeTimer!==null){w.clearTimeout(closeTimer);closeTimer=null;}
         delete manager.dataset.closing;
         if(!opened){
-          returnFocus=doc.activeElement;returnY=w.scrollY||0;const home=doc.getElementById('morning-section');homeScroll=home?home.scrollTop:0;
+          returnFocus=options.trigger||doc.activeElement;
+          backgroundScroll=options.snapshot||(w.KNViewStability&&w.KNViewStability.capture(returnFocus));
+          if(backgroundScroll&&w.KNViewStability)w.KNViewStability.hold(returnFocus,{snapshot:backgroundScroll});
+          returnY=w.scrollY||0;const home=doc.getElementById('morning-section');homeScroll=home?home.scrollTop:0;
           freezeBackground();
         }
         opened=true;
+        if(title)title.textContent=options.mode==='search'?'銘柄を検索':'お気に入り';
+        if(returnFocus)returnFocus.setAttribute('aria-expanded','true');
         sizeViewport();manager.style.display='flex';panel.focus({preventScroll:true});
+        if(backgroundScroll)backgroundScroll.restore();
         if(input.value.trim()&&['idle','loading','error'].includes(state.status))search.run(input.value);
         try{await store.ready;renderSaved();}catch(e){feedback('保存済みの銘柄を読み込めませんでした。ページを開き直してください。',true);}
       };
@@ -139,14 +159,19 @@
         closeTimer=null;opened=false;manager.style.display='none';delete manager.dataset.closing;
         background.forEach(item=>{item.node.inert=item.inert;});background=[];
         doc.body.style.overflow=bodyOverflow;doc.body.style.paddingRight=bodyPadding;
-        const home=doc.getElementById('morning-section');
+        const home=doc.getElementById('morning-section');if(home)home.style.overflowY=homeOverflow;
+        if(returnFocus)returnFocus.setAttribute('aria-expanded','false');
         w.scrollTo({top:returnY,behavior:'instant'});
         if(home)home.scrollTop=homeScroll;
         const target=returnFocus&&returnFocus.isConnected?returnFocus:doc.querySelector('#knWatchSec button, #knTabWrap [data-kn-tab="favorites"]');
         if(target)target.focus({preventScroll:true});
+        if(backgroundScroll){backgroundScroll.restore();if(w.KNViewStability)w.KNViewStability.hold(target,{snapshot:backgroundScroll});}
+        backgroundScroll=null;
       }
-      w.closeStockWatchManager=function(){
-        if(!opened||closeTimer!==null)return;
+      w.closeStockWatchManager=function(immediate){
+        if(!opened)return;
+        if(immediate===true){if(closeTimer!==null)w.clearTimeout(closeTimer);search.cancel();finishClose();return;}
+        if(closeTimer!==null)return;
         search.cancel();
         if(w.matchMedia&&w.matchMedia('(prefers-reduced-motion: reduce)').matches){finishClose();return;}
         manager.dataset.closing='true';closeTimer=w.setTimeout(finishClose,180);

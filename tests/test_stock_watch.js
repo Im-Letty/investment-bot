@@ -69,10 +69,10 @@ test('encrypted favorites persistence survives a new page and rejects failed dur
 });
 class Element{
  constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.style={overflow:'',paddingRight:'',setProperty(k,v){this[k]=v;}};this.listeners={};this.attrs={};this.value='';this.textContent='';this.isConnected=true;this.scrollTop=0;this.inert=false;this.classes=new Set();this.classList={add:v=>this.classes.add(v),remove:v=>this.classes.delete(v),contains:v=>this.classes.has(v)};}
- appendChild(node){if(node.parentNode)node.parentNode.children=node.parentNode.children.filter(n=>n!==node);node.parentNode=this;this.children.push(node);return node;}replaceChildren(...nodes){this.children=nodes;}setAttribute(k,v){this.attrs[k]=v;}addEventListener(k,v){this.listeners[k]=v;}focus(){this.focused=true;if(this.doc)this.doc.activeElement=this;}querySelector(tag){return this.children.flatMap(n=>[n,...n.children]).find(n=>n.tagName===tag)||null;}closest(selector){return selector==='[hidden]'&&this.hidden?this:null;}getClientRects(){return this.hidden?[]:[{}];}
+ appendChild(node){if(node.parentNode)node.parentNode.children=node.parentNode.children.filter(n=>n!==node);node.parentNode=this;this.children.push(node);return node;}replaceChildren(...nodes){this.children=nodes;}setAttribute(k,v){this.attrs[k]=v;}getAttribute(k){return this.attrs[k]??null;}addEventListener(k,v){this.listeners[k]=v;}focus(options){this.focused=true;this.focusOptions=options;if(this.doc)this.doc.activeElement=this;}querySelector(tag){return this.children.flatMap(n=>[n,...n.children]).find(n=>n.tagName===tag)||null;}closest(selector){return selector==='[hidden]'&&this.hidden?this:null;}getClientRects(){return this.hidden?[]:[{}];}
 }
 function uiHarness({reduced=true}={}){
- const ids=['alert-section','alert-ticker-input','stock-search-form','stock-search-results','alert-watchlist','alert-msg','stock-watch-count','morning-section','morning-news-section','stock-watch-close','stock-search-heading'];const nodes=new Map(ids.map(id=>[id,new Element()]));const requests=[],timers=new Map(),events={};let tid=0,refreshes=0;
+ const ids=['alert-section','alert-ticker-input','stock-search-form','stock-search-results','alert-watchlist','alert-msg','stock-watch-count','morning-section','morning-news-section','stock-watch-close','stock-search-heading','stock-watch-title'];const nodes=new Map(ids.map(id=>[id,new Element()]));const requests=[],timers=new Map(),events={};let tid=0,refreshes=0;
  const body=new Element('BODY'),panel=new Element('section'),originalFocus=new Element('button'),fallback=new Element('button'),submit=new Element('button'),nav=new Element('nav');nav.inert=true;
  body.classList.add('view-asaletter');body.appendChild(nodes.get('morning-section'));body.appendChild(nav);body.appendChild(nodes.get('alert-section'));nodes.get('morning-section').scrollTop=450;
  const manager=nodes.get('alert-section');manager.querySelector=selector=>selector==='.sw-sheet'?panel:null;
@@ -109,4 +109,53 @@ test('a query interrupted by closing resumes when the sheet is opened again',asy
  const h=uiHarness();await h.w.openStockWatchManager();const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';input.listeners.input();
  h.w.closeStockWatchManager();assert.equal(h.requests.length,0);await h.w.openStockWatchManager();await flush();assert.equal(h.requests.length,1);assert.equal(h.nodes.get('stock-search-heading').hidden,false);
  assert.equal(h.nodes.get('stock-search-results').children[0].children.length,1);
+});
+test('heading search and favorite management use one sheet and retain the same saved companies',async()=>{
+ const h=uiHarness();await flush();
+ await h.w.openStockWatchManager({mode:'search',trigger:h.originalFocus});
+ assert.equal(h.manager.style.display,'flex');assert.equal(h.nodes.get('stock-watch-title').textContent,'銘柄を検索');
+ const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';
+ h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ const row=h.nodes.get('stock-search-results').children[0].children[0],add=row.children[1];
+ assert.equal(row.children[0].tagName,'button','Company names retain the company information action');
+ assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)||'[]'),[],'Looking up a company never adds it automatically');
+ await add.listeners.click();await flush();
+ assert.equal(h.nodes.get('stock-watch-count').textContent,'1件');
+ h.w.closeStockWatchManager();
+ await h.w.openStockWatchManager();
+ assert.equal(h.manager.style.display,'flex');assert.equal(h.nodes.get('stock-watch-title').textContent,'お気に入り');
+ assert.equal(h.nodes.get('stock-watch-count').textContent,'1件');
+ assert.equal(h.nodes.get('alert-watchlist').children[0].children[0].children[0].children[0].textContent,toyota.name);
+ assert.equal(h.requests.length,1,'Switching entry points does not repeat a completed lookup');
+});
+test('heading search restores its pre-focus position and returns focus to its explicit trigger',async()=>{
+ const h=uiHarness(),home=h.nodes.get('morning-section'),trigger=new Element('button');trigger.doc=h.doc;
+ home.style.overflowY='auto';h.doc.body.style.overflow='clip';h.doc.body.style.paddingRight='7px';
+ let restores=0;const snapshot={restore(){restores++;home.scrollTop=265;}};
+ await h.w.openStockWatchManager({mode:'search',trigger,snapshot});
+ assert.equal(home.scrollTop,265,'The supplied pointer-down position wins over later focus movement');
+ assert.equal(home.style.overflowY,'hidden');assert.equal(home.inert,true);assert.equal(trigger.attrs['aria-expanded'],'true');
+ assert.equal(h.doc.activeElement,h.panel);assert.deepEqual(h.panel.focusOptions,{preventScroll:true});
+ home.scrollTop=310;h.w.closeStockWatchManager();
+ assert.equal(home.scrollTop,265);assert.equal(home.style.overflowY,'auto');assert.equal(home.inert,false);
+ assert.equal(h.doc.body.style.overflow,'clip');assert.equal(h.doc.body.style.paddingRight,'7px');
+ assert.equal(h.doc.activeElement,trigger);assert.deepEqual(trigger.focusOptions,{preventScroll:true});
+ assert.equal(trigger.attrs['aria-expanded'],'false');assert.ok(restores>=2);
+});
+test('company information opens only after the shared sheet releases its background lock',async()=>{
+ const h=uiHarness({reduced:false}),home=h.nodes.get('morning-section');home.style.overflowY='auto';
+ await h.w.openStockWatchManager({mode:'search',trigger:h.originalFocus});
+ const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';
+ h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ let call=null;h.w.KNCompanyProfile={open(key,name,trigger){
+  assert.equal(h.manager.style.display,'none','There cannot be two active modal focus traps');
+  assert.equal(home.inert,false);assert.equal(home.style.overflowY,'auto');assert.equal(h.doc.body.style.overflow,'');
+  assert.equal([...h.timers.values()].filter(timer=>timer.ms===180).length,0,'The old close animation cannot unlock a newly opened profile');
+  call={key,name,trigger};
+ }};
+ const company=h.nodes.get('stock-search-results').children[0].children[0].children[0];
+ assert.equal(company.tagName,'button');
+ await company.listeners.click();await flush();
+ assert.deepEqual(call,{key:toyota.symbol,name:toyota.name,trigger:h.originalFocus});
+ assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)||'[]'),[],'Opening company information is distinct from adding a favorite');
 });
