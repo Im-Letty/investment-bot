@@ -142,9 +142,9 @@
 #knNewsDigest .news-info {display:contents}
 #knNewsDigest .news-info>summary {
   grid-column:2;display:flex;align-items:center;justify-content:center;
-  width:44px;height:44px;border-radius:50%;color:var(--kn-news-muted);
+  width:44px;height:44px;border-radius:0;background:transparent;color:var(--kn-news-muted);
 }
-#knNewsDigest .news-info>summary:hover {background:var(--kn-news-hover)}
+#knNewsDigest .news-info>summary:hover {background:transparent}
 #knNewsDigest .news-info-symbol {
   display:flex;align-items:center;justify-content:center;width:16px;height:16px;
   border:1px solid currentColor;border-radius:50%;font:400 12px/1 Georgia,serif!important;
