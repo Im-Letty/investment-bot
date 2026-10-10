@@ -49,10 +49,25 @@ test('retains legacy selections and custom names, without fetching the catalog',
 });
 test('rejects empty and over-limit commits, and accepts four categories',async()=>{
   const app=harness();const before=app.model.selection();
-  assert.equal(app.model.commit([]),false);assert.equal(app.model.commit(['日経225','ドル円','S&P500','NYダウ','AAPL']),false);assert.deepEqual(app.model.selection(),before);
+  assert.equal(app.model.commit([]),false);assert.equal(app.model.commit(['日経225','ドル円','S&P500','NYダウ','AAPL','7203.T','GC=F']),false);assert.deepEqual(app.model.selection(),before);
   assert.equal(app.model.commit(['EURJPY=X','GC=F','7203.T','BTC-JPY']),true);await flush();assert.equal(app.requests.length,4);
   assert.equal(JSON.parse(app.storage.get('morn_sel')).length,4);
   for(const request of app.requests)await app.reply(request);
+});
+test('six selected markets persist in order, while a seventh does not alter the saved selection',async()=>{
+  const app=harness(),six=['日経225','ドル円','S&P500','NYダウ','7203.T','AAPL'];
+  assert.deepEqual(app.model.selection(),['日経225','ドル円','S&P500','NYダウ']);
+  assert.equal(app.model.commit(six),true);await flush();
+  assert.deepEqual(app.model.selection(),six);assert.deepEqual(JSON.parse(app.storage.get('morn_sel')),six);
+  assert.equal(app.requests.length,2,'Only the two selected non-base quotes are requested');
+  assert.equal(app.model.commit([...six,'GC=F']),false);
+  assert.deepEqual(app.model.selection(),six);assert.deepEqual(JSON.parse(app.storage.get('morn_sel')),six);
+  for(const request of app.requests)await app.reply(request);
+  const reopened=harness(Object.fromEntries(app.storage));
+  assert.deepEqual(reopened.model.selection(),six);assert.deepEqual(reopened.model.rows().map(row=>row.item.id),six);
+  assert.equal(reopened.requests.length,0,'Restoring selections does not fetch unrelated markets');
+  const oversized=harness({morn_sel:JSON.stringify([...six,'GC=F'])});
+  assert.deepEqual(oversized.model.selection(),six);
 });
 test('concurrent refreshes share requests, reuse fresh quotes, and refresh after TTL',async()=>{
   const app=harness({morn_sel:'["AAPL","GC=F"]'});

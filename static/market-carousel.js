@@ -7,6 +7,7 @@
     viewport.className = 'kn-market-viewport';
     grid.parentNode.insertBefore(viewport, grid);
     viewport.appendChild(grid);
+    // The pause control is visually hidden until keyboard focus; quotes stay readable to screen readers.
     var button = document.createElement('button');
     button.type = 'button'; button.className = 'kn-market-motion'; button.hidden = true;
     controls.insertBefore(button, controls.firstChild);

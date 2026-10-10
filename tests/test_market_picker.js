@@ -62,9 +62,9 @@ function documentHarness(){
 }
 
 async function flush(){for(let i=0;i<12;i++)await Promise.resolve();}
-function harness(){
+function harness(saved={}){
  const doc=documentHarness(),requests=[],timers=new Map();let timerId=0,now=0;
- const storage={getItem:()=>null,setItem(){}};
+ const stored=new Map(Object.entries(saved)),storage={getItem:key=>stored.get(key)||null,setItem:(key,value)=>stored.set(key,value)};
  const model=market.create({catalog,storage,fetch:async()=>({ok:false})});
  model.search=(query,options)=>new Promise((resolve,reject)=>requests.push({query,signal:options.signal,resolve,reject}));
  const window={KNMarketData:market};
@@ -74,7 +74,7 @@ function harness(){
  vm.runInNewContext(source.slice(0,end)+'window.mountPickerForTest=function(value){model=value;makePicker();return openPicker;};})();',context);
  const open=window.mountPickerForTest(model);open();
  const node=id=>doc.getElementById(id),input=node('knMarketQuery'),dialog=node('knMarketPicker');
- return {doc,window,model,node,input,dialog,requests,timers,open,
+ return {doc,window,model,node,input,dialog,requests,timers,open,stored,
   type(value,extra={}){input.value=value;input.dispatch('input',extra);},
   ids(){return node('knMarketOptions').querySelectorAll('input').map(option=>option.value);},
   advance(ms){now+=ms;for(const [id,timer]of [...timers])if(timer.at<=now){timers.delete(id);timer.fn();}},
@@ -93,6 +93,33 @@ test('picker starts with six familiar markets and searches the complete bundled 
  assert.ok(expected.length>6,'Fixture searches more than the featured set');assert.deepEqual(h.ids(),expected);
  assert.equal(h.requests.length,0);h.advance(350);assert.equal(h.requests.length,1);assert.equal(h.requests[0].query,'日本');
  await h.reply(0,h.model.searchLocal('日本'));assert.deepEqual(h.ids(),expected);
+});
+
+test('picker accepts six, rejects a seventh, and restores all six when reopened',()=>{
+ const h=harness();assert.equal(h.node('knMarketCount').textContent,'4 / 6');
+ function choose(id){
+  const option=h.node('knMarketOptions').querySelectorAll('input').find(input=>input.value===id);
+  assert.ok(option,id);option.checked=true;option.dispatch('change');return option;
+ }
+ choose('7203.T');choose('AAPL');assert.equal(h.node('knMarketCount').textContent,'6 / 6');
+ h.type('任天堂');assert.equal(choose('7974.T').checked,false);
+ assert.match(h.node('knMarketError').textContent,/最大6つ/);assert.equal(h.node('knMarketCount').textContent,'6 / 6');
+ h.node('knMarketForm').dispatch('submit');
+ const six=['日経225','ドル円','S&P500','NYダウ','7203.T','AAPL'];
+ assert.deepEqual(h.model.selection(),six);assert.deepEqual(JSON.parse(h.stored.get('morn_sel')),six);assert.equal(h.dialog.open,false);
+ h.open();assert.equal(h.node('knMarketCount').textContent,'6 / 6');
+ assert.deepEqual(h.node('knMarketSelected').querySelectorAll('[data-kn-remove]').map(node=>node.dataset.knRemove),six);
+ const reloaded=harness(Object.fromEntries(h.stored));
+ assert.equal(reloaded.node('knMarketCount').textContent,'6 / 6');assert.deepEqual(reloaded.model.selection(),six);
+});
+
+test('removing a selected market frees a slot for another market at the six-item limit',()=>{
+ const six=['日経225','ドル円','S&P500','NYダウ','7203.T','AAPL'],h=harness({morn_sel:JSON.stringify(six)});
+ const remove=h.node('knMarketSelected').querySelectorAll('[data-kn-remove]').find(node=>node.dataset.knRemove==='AAPL');remove.dispatch('click');
+ assert.equal(h.node('knMarketCount').textContent,'5 / 6');h.type('任天堂');
+ const option=h.node('knMarketOptions').querySelector('input');option.checked=true;option.dispatch('change');
+ assert.equal(option.checked,true);assert.equal(h.node('knMarketError').textContent,'');assert.equal(h.node('knMarketCount').textContent,'6 / 6');
+ h.node('knMarketForm').dispatch('submit');assert.deepEqual(h.model.selection(),[...six.slice(0,-1),'7974.T']);
 });
 
 test('typing invalidates old responses immediately, even before the next debounce runs',async()=>{

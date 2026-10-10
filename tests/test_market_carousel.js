@@ -166,6 +166,25 @@ test('price and language updates refresh clones without restarting the current w
   h.advance(4000); assert.equal(h.index(), 2);
 });
 
+test('six mobile markets all appear in a complete cycle and shrinking to two stops rotation', () => {
+  const h = harness({count:6});
+  const seen = new Set(h.shown());
+  for (let step=0;step<6;step++) {
+    h.advance(6700); h.shown().forEach(id=>seen.add(id));
+    assert.equal(h.originals().length,6); assert.equal(h.clones().length,3);
+  }
+  assert.deepEqual([...seen],['A','B','C','D','E','F']); assert.equal(h.index(),0);
+  h.replace(['E','F']); const position=h.grid.style.transform;
+  h.advance(60000); assert.equal(h.grid.style.transform,position); assert.equal(h.timers.size,0);
+  assert.deepEqual(h.shown(),['E','F']); assert.equal(h.clones().length,0); assert.equal(h.button.hidden,true);
+});
+
+test('six desktop markets remain visible without automatic rotation', () => {
+  const h=harness({count:6,mobile:false});
+  assert.equal(h.originals().length,6); assert.equal(h.clones().length,0); assert.equal(h.timers.size,0);
+  assert.equal(h.button.hidden,true); h.advance(60000); assert.equal(h.index(),0);
+});
+
 test('selection changes discard removed markets and rotate only when the visible capacity is exceeded', () => {
   const h = harness(); h.advance(6700);
   h.replace(['W', 'X', 'Y', 'Z']);

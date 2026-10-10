@@ -6,6 +6,7 @@
 })(typeof window !== 'undefined' ? window : this, function() {
   'use strict';
   var DEFAULTS = ['日経225', 'ドル円', 'S&P500', 'NYダウ'];
+  var MAX_SELECTION = 6;
   var SYMBOL = /^[A-Z0-9^][A-Z0-9.^=\-]{0,24}$/;
   var TTL = 60000, RETAIN = 7 * 86400000, RETRY = 30000;
   function normalize(value) { return String(value || '').normalize('NFKC').trim().toUpperCase(); }
@@ -155,7 +156,7 @@
         if (typeof raw !== 'string') return result;
         var entry = find(raw);
         if (!entry && SYMBOL.test(normalize(raw))) { addCustom({key: normalize(raw)}); entry = find(normalize(raw)); }
-        if (entry && result.indexOf(entry.id) < 0 && result.length < 4) result.push(entry.id);
+        if (entry && result.indexOf(entry.id) < 0 && result.length < MAX_SELECTION) result.push(entry.id);
         return result;
       }, []);
     }
@@ -229,7 +230,7 @@
       selection: function() { return selected.slice(); }, validate: validate, hydrate: hydrate,
       commit: function(ids) {
         var next = validate(ids);
-        if (!next.length || !Array.isArray(ids) || ids.length > 4 || next.length !== new Set(ids).size) return false;
+        if (!next.length || !Array.isArray(ids) || ids.length > MAX_SELECTION || next.length !== new Set(ids).size) return false;
         selected = next; save('morn_sel',selected); emit(); refresh(false); return true;
       },
       acceptBase: function(data) {
@@ -252,5 +253,5 @@
       lookup: lookup
     };
   }
-  return {create:create, normalize:normalize, displayCode:displayCode, validQuote:validQuote, formatChange:formatChange};
+  return {maxSelection:MAX_SELECTION, create:create, normalize:normalize, displayCode:displayCode, validQuote:validQuote, formatChange:formatChange};
 });
