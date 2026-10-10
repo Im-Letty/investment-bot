@@ -122,7 +122,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-stock-heading > .kn-a-section-tit
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-surface {
   min-width:0;padding:24px 24px 20px;
-  border:0;border-radius:18px 18px 4px 4px;
+  border:0;border-radius:0 0 4px 4px;
   background:var(--kn-a-paper);
   box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
 }
@@ -142,7 +142,7 @@ body.kn-home-a #morning-section .kn-section-symbol .kn-symbol-tint {
   fill:currentColor;fill-opacity:.06;stroke:none;
 }
 body.kn-home-a #morning-section #knCompanyNewsSection {
-  background:var(--kn-a-paper);border:0;border-radius:18px 18px 4px 4px;
+  background:var(--kn-a-paper);border:0;border-radius:0;
   box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
 }
 body.kn-home-a #knCompanyNewsSection > .kn-section-header {

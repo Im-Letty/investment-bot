@@ -328,7 +328,7 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   padding:22px;
   background:var(--sf-paper);
   border:1px solid var(--sf-line);
-  border-radius:12px;
+  border-radius:0;
 }
 #knCompanyNewsSection .sf-company-name {
   font-size:calc(14px * var(--kn-a-scale,1));
