@@ -1,6 +1,6 @@
 import ast
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timezone
 from html.parser import HTMLParser
 import json
 import os
@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import Mock, patch
 
 from flask import Flask, request
-from news_cache import LEAD_OTHER_NEWS_STRUCTURE
+from news_cache import JST, LEAD_OTHER_NEWS_STRUCTURE
 from news_copy_policy import COPY_LENGTH_POLICY
 from news_initial import (NEWS_PLACEHOLDER, initial_news,
                           news_index_response, render_initial_html, render_news_markup, render_initial_market)
@@ -78,14 +78,19 @@ class ParsedInitial(HTMLParser):
         self.scripts = []
         self.links = []
         self.current_link = None
+        self.times = []
+        self.current_time = None
         self.feed(html)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
         if 'id' in attrs:
             self.ids.append(attrs['id'])
+        if tag == 'time':
+            self.current_time = {'attrs': attrs, 'text': ''}
+            self.times.append(self.current_time)
         if tag == 'a':
-            self.current_link = {'attrs': attrs, 'text': ''}
+            self.current_link = {'attrs': attrs, 'text': '', 'publication': self.times[-1] if self.times else None}
             self.links.append(self.current_link)
         if tag == 'script':
             self.scripts.append(attrs)
@@ -96,26 +101,33 @@ class ParsedInitial(HTMLParser):
             self.script = False
         if tag == 'a':
             self.current_link = None
+        if tag == 'time':
+            self.current_time = None
 
     def handle_data(self, data):
         if self.script:
             self.json += data
         if self.current_link is not None:
             self.current_link['text'] += data
+        if self.current_time is not None:
+            self.current_time['text'] += data
 
 
 class InitialSelectionTests(unittest.TestCase):
     def test_lead_and_other_news_structure_shows_only_other_stories_and_keeps_all_embedded_copy(self):
-        for count in (1, 2, 3):
-            with self.subTest(count=count):
-                authored = official_review('day')
+        for count, precision in ((count, precision) for count in (1, 2, 3) for precision in ('day', 'second')):
+            with self.subTest(count=count, precision=precision):
+                authored = official_review(precision)
                 ref = authored['article_refs'][0]
                 authored.update(copy_length_policy=COPY_LENGTH_POLICY,
                                 reading_structure=LEAD_OTHER_NEWS_STRUCTURE,
                                 summary='先頭のニュースを短く紹介します。')
                 authored['article_refs'] = [{**ref, 'title': f'別の公式発表{i}',
                     'source': '総務省統計局' if i % 2 else '財務省',
-                    'url': f'https://{"www.stat.go.jp" if i % 2 else "www.mof.go.jp"}/policy/example{i}.html'}
+                    'url': f'https://{"www.stat.go.jp" if i % 2 else "www.mof.go.jp"}/policy/example{i}.html',
+                    'published_date': authored['edition_date'] if i % 2 else ref['published_date'],
+                    'published_at': (None if precision == 'day' else timestamp('2026-09-22T06:00:00+09:00'))
+                        if i % 2 else ref['published_at']}
                     for i in range(count)]
                 authored['article_summaries'] = [{**item, 'headline': f'独立した見出し{i}<img>',
                     'summary': f'独立して読める記事{i}です。\n\n確認した内容を説明します。'}
@@ -133,15 +145,17 @@ class InitialSelectionTests(unittest.TestCase):
                     self.assertIn(f'独立した見出し{i}&lt;img&gt;', markup)
                     self.assertIn(authored['article_summaries'][i]['summary'], markup)
                 self.assertNotIn('<img>', markup)
-                self.assertIn('datetime="2026-09-21" title="発表 2026/9/21">9/21 発表</time>', markup)
                 self.assertIn('href="https://www.mof.go.jp/policy/example0.html"', markup)
                 before_sources, after_sources = markup.split('class="article-sources"', 1)
                 self.assertIn('<details class="read-more"', before_sources)
                 self.assertEqual(ParsedInitial(before_sources).links, [])
                 self.assertNotIn('class="news-info"', before_sources)
+                self.assertEqual(ParsedInitial(before_sources).times, [])
                 source_row = after_sources.split('</details>', 1)[0]
-                links = ParsedInitial(source_row).links
+                parsed_sources = ParsedInitial(source_row)
+                links = parsed_sources.links
                 self.assertEqual(len(links), count)
+                self.assertEqual(len(parsed_sources.times), count)
                 for item in authored['article_refs']:
                     matching = [link for link in links if link['attrs'].get('href') == item['url']]
                     self.assertEqual(len(matching), 1)
@@ -149,6 +163,17 @@ class InitialSelectionTests(unittest.TestCase):
                     self.assertEqual(matching[0]['attrs'].get('rel'), 'noopener noreferrer')
                     self.assertIn(item['title'], matching[0]['attrs'].get('title', ''))
                     self.assertIn(item['title'], matching[0]['attrs'].get('aria-label', ''))
+                    publication = matching[0]['publication']
+                    self.assertIsNotNone(publication)
+                    date = datetime.fromisoformat(item['published_date'])
+                    self.assertEqual(publication['text'], f'{date.month}/{date.day} 発表')
+                    if precision == 'day':
+                        self.assertEqual(publication['attrs']['datetime'], item['published_date'])
+                        self.assertEqual(publication['attrs']['title'], f'発表 {date.year}/{date.month}/{date.day}')
+                    else:
+                        actual = datetime.fromtimestamp(item['published_at'], tz=JST)
+                        self.assertEqual(publication['attrs']['datetime'], actual.astimezone(timezone.utc).isoformat(timespec='milliseconds').replace('+00:00', 'Z'))
+                        self.assertEqual(publication['attrs']['title'], f'発表 {actual.year}/{actual.month}/{actual.day} {actual:%H:%M} JST')
                 self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), 1)
                 self.assertIn('<details class="news-info"', source_row)
                 self.assertIn('class="news-info-note">公式発表をもとに要約</p>', source_row)

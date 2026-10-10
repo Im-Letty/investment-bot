@@ -188,17 +188,17 @@
     var stories=headlines?'':(leadAndOthers?orderedNews.slice(1):orderedNews).map(function(item){
       var key='article:'+item.url;
       var authored=digest&&(digest.article_summaries||[]).find(function(summary){return summary.url===item.url;});
-      if(authored)return '<article class="story summarized-story" lang="ja"><h4><span class="story-title">'+esc(authored.headline)+'</span></h4><div class="story-content"><p class="article-summary">'+esc(authored.summary)+'</p>'+articleMeta(item,l,!leadAndOthers,!leadAndOthers)+'</div></article>';
-      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content">'+articleMeta(item,l,false,!leadAndOthers)+'</div></details>';
+      if(authored)return '<article class="story summarized-story" lang="ja"><h4><span class="story-title">'+esc(authored.headline)+'</span></h4><div class="story-content"><p class="article-summary">'+esc(authored.summary)+'</p>'+(leadAndOthers?'':articleMeta(item,l,true))+'</div></article>';
+      return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content">'+(leadAndOthers?'':articleMeta(item,l,false))+'</div></details>';
     }).join('');
     if(d.supplements.length)stories+='<section class="news-supplements"><h4>'+esc(c.supplements)+'</h4>'+d.supplements.map(function(item){
       var key='supplement:'+item.url;
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p>'+articleMeta(item,l,false)+'</div></details>';
     }).join('')+'</section>';
     var sourceLabel={ja:'記事の出典',en:'Article sources',ko:'기사 출처',zh:'文章来源'}[l];
-    var sourceRow=leadAndOthers?'<div class="article-sources" aria-label="'+esc(sourceLabel)+'"><div class="article-source-links">'+orderedNews.map(function(item){return articleLink(item,l);}).join('')+'</div>'+summaryInfo(orderedNews[0],l)+'</div>':'';
+    var sourceRow=leadAndOthers?'<div class="article-sources" aria-label="'+esc(sourceLabel)+'"><div class="article-source-links">'+orderedNews.map(function(item){return '<div class="article-source">'+publication(item,l,true)+articleLink(item,l)+'</div>';}).join('')+'</div>'+summaryInfo(orderedNews[0],l)+'</div>':'';
     var more=stories||sourceRow?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(leadAndOthers?(stories?otherNewsCopy[l]:sourceLabel):c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'+stories+sourceRow+'</div></details>':'';
-    var tail=leadAndOthers?'<div class="news-tail">'+articleMeta(orderedNews[0],l,false,false)+more+'</div>':more;
+    var tail=leadAndOthers?'<div class="news-tail">'+more+'</div>':more;
     var footer=status?'<footer class="news-footer"><p>'+esc(status)+'</p></footer>':'';
     return '<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle"><header class="news-header">'+calendar+'<div class="heading-text"><h3 id="knNewsDigestTitle">'+esc(c.title)+'</h3></div></header><div class="news-content"><div class="brief">'+brief+'</div>'+tail+footer+'</div></article>';
   }

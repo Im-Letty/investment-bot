@@ -142,13 +142,13 @@ def render_news_markup(data):
             stories.append('<article class="story summarized-story" lang="ja">'
                            f'<h4><span class="story-title">{esc(authored["headline"])}</span></h4>'
                            f'<div class="story-content"><p class="article-summary">{esc(authored["summary"])}</p>'
-                           f'{_article_meta(item, summarized=not lead_and_others, source_link=not lead_and_others)}</div></article>')
+                           f'{"" if lead_and_others else _article_meta(item, summarized=True)}</div></article>')
             continue
         stories.append(f'<details class="story" name="kn-news-sources" data-news-key="{key}">'
                        f'<summary data-news-focus="{key}"><h4>'
                        f'<span class="story-title">{esc(item["title"])}</span>'
                        '</h4><span class="plus" aria-hidden="true"></span></summary>'
-                       f'<div class="story-content">{_article_meta(item, source_link=not lead_and_others)}</div></details>')
+                       f'<div class="story-content">{"" if lead_and_others else _article_meta(item)}</div></details>')
     if data["supplements"]:
         supplements = []
         for item in data["supplements"]:
@@ -161,7 +161,8 @@ def render_news_markup(data):
                                f'{_article_meta(item)}</div></details>')
         stories.append('<section class="news-supplements"><h4>日付付きの補足</h4>' + "".join(supplements) + '</section>')
     source_row = ('<div class="article-sources" aria-label="記事の出典"><div class="article-source-links">'
-                  + ''.join(_article_link(item) for item in ordered_news) + '</div>'
+                  + ''.join('<div class="article-source">' + _publication(item, compact=True)
+                            + _article_link(item) + '</div>' for item in ordered_news) + '</div>'
                   + _summary_info(ordered_news[0]) + '</div>'
                   if lead_and_others else '')
     more_label = ('ほかのニュース' if stories else '記事の出典') if lead_and_others else 'もっと詳しく'
@@ -173,7 +174,7 @@ def render_news_markup(data):
         status = ''
     else:
         status = "取得 " + _stamp(data["fetched_at"]) + " JST" + (" · 最新情報を確認中" if data.get("stale") else "")
-    tail = (f'<div class="news-tail">{_article_meta(ordered_news[0], source_link=False)}{more}</div>'
+    tail = (f'<div class="news-tail">{more}</div>'
             if lead_and_others else more)
     footer = f'<footer class="news-footer"><p>{esc(status)}</p></footer>' if status else ''
     return ('<article id="knNewsDigest" class="news-card journal" aria-labelledby="knNewsDigestTitle">'

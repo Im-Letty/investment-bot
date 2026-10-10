@@ -1243,13 +1243,15 @@ test('late-verification deferral requires verification after the previous cutoff
   }
 });
 
-function leadOtherMorning(app,count=3){
-  const data=officialMorning(app,'day'),base=data.news[0];
+function leadOtherMorning(app,count=3,precision='day'){
+  const data=officialMorning(app,precision),base=data.news[0];
   data.digest.copy_length_policy='flexible-v1';
   data.digest.reading_structure='lead-plus-other-news-v1';
   data.digest.summary='代表ニュースだけを短く説明します。';
   data.digest.article_refs=Array.from({length:count},(_,i)=>({...base,title:'別の公式発表'+i,
-    source:i%2?'総務省統計局':'財務省',url:'https://'+(i%2?'www.stat.go.jp':'www.mof.go.jp')+'/policy/example'+i+'.html'}));
+    source:i%2?'総務省統計局':'財務省',url:'https://'+(i%2?'www.stat.go.jp':'www.mof.go.jp')+'/policy/example'+i+'.html',
+    published_date:i%2?data.edition_date:base.published_date,
+    published_at:i%2?(precision==='day'?null:Date.parse(data.edition_date+'T06:00:00+09:00')/1000):base.published_at}));
   data.digest.article_summaries=data.digest.article_refs.map((ref,i)=>({...ref,headline:'追加ニュース'+i+'<img>',summary:'記事'+i+'を単独で説明します。\n\n原文で確認した別の内容です。'}));
   // The API news list may be sorted for another language; the reviewed reference
   // order determines the representative and the order of the extra stories.
@@ -1258,8 +1260,8 @@ function leadOtherMorning(app,count=3){
 }
 
 test('lead plus other news shows one representative and only the independently reviewed extra articles',async()=>{
-  for(const count of [1,2,3])for(const origin of ['api','embedded','saved']){
-    const app=harness(),data=leadOtherMorning(app,count),before=JSON.stringify(data);
+  for(const count of [1,2,3])for(const precision of ['day','second'])for(const origin of ['api','embedded','saved']){
+    const app=harness(),data=leadOtherMorning(app,count,precision),before=JSON.stringify(data);
     if(origin==='embedded')app.nodes.knInitialNews={textContent:before};
     if(origin==='saved')app.storage.set('kn_published_news_v1_ja',before);
     app.event('DOMContentLoaded');
@@ -1270,16 +1272,18 @@ test('lead plus other news shows one representative and only the independently r
     assert.equal((html.match(/class="story summarized-story"/g)||[]).length,count-1);
     assert.equal(html.includes('class="read-more"'),true);
     assert.match(html,/href="https:\/\/www.mof.go.jp\/policy\/example0.html"/);
-    assert.match(html,/datetime="2026-09-11" title="発表 2026\/9\/11">9\/11 発表<\/time>/);
-    assert.doesNotMatch(html,/1970|00:00|<img>/);
+    assert.doesNotMatch(html,/1970|<img>/);
+    if(precision==='day')assert.doesNotMatch(html,/00:00|JST/);
     const [beforeSources,afterSources]=html.split('class="article-sources"');
     assert.ok(afterSources,'The source row exists even when there is one article');
     assert.match(beforeSources,/<details class="read-more"/);
     assert.doesNotMatch(beforeSources,/<a\b/,'Source names are not beside plus or repeated below extra articles');
     assert.doesNotMatch(beforeSources,/class="news-info"/,'Summary information is not shown before plus is opened');
+    assert.doesNotMatch(beforeSources,/class="publication-date"/,'Publication dates appear only in the final opened source row');
     const sourceRow=afterSources.split('</details>')[0];
     const links=sourceRow.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
     assert.equal(links.length,count,'Every reviewed article keeps its own source link');
+    assert.equal((sourceRow.match(/<time\b/g)||[]).length,count,'Each article date appears once in the final source row');
     for(const ref of data.digest.article_refs){
       const matching=links.filter(markup=>markup.includes('href="'+ref.url+'"'));
       assert.equal(matching.length,1,'Source link must point to this article: '+ref.url);
@@ -1288,6 +1292,15 @@ test('lead plus other news shows one representative and only the independently r
       const title=link.match(/title="([^"]*)"/);
       assert.ok(title&&title[1].includes(ref.title),'A shared publisher’s links remain distinguishable');
       assert.ok(link.match(/aria-label="[^"]*"/)[0].includes(ref.title),'The spoken link name identifies the article');
+      const linkStart=sourceRow.indexOf('<a href="'+ref.url+'"');
+      const dateMarkup=sourceRow.slice(sourceRow.lastIndexOf('<time ',linkStart),linkStart);
+      const monthDay=Number(ref.published_date.slice(5,7))+'/'+Number(ref.published_date.slice(8,10));
+      const realDatetime=precision==='day'?ref.published_date:new Date(ref.published_at*1000).toISOString();
+      assert.ok(dateMarkup.includes('datetime="'+realDatetime+'"'),'Each source link retains its own actual publication date');
+      assert.ok(dateMarkup.includes('>'+monthDay+' 発表</time>'),'Compact date belongs to the corresponding article');
+      const fullDate=Number(ref.published_date.slice(0,4))+'/'+monthDay;
+      const exactTitle=precision==='day'?'発表 '+fullDate:'発表 '+fullDate+(ref.source==='総務省統計局'?' 06:00 JST':' 12:00 JST');
+      assert.ok(dateMarkup.includes('title="'+exactTitle+'"'),'The full precision remains available without inventing a time');
     }
     assert.equal((html.match(/class="news-info-note">公式発表をもとに要約<\/p>/g)||[]).length,1);
     assert.match(sourceRow,/<details class="news-info"/);
