@@ -103,7 +103,7 @@ test('calendar metadata puts actual dates before sources and preserves schedule-
   const dividend={record_date:'2026-09-30',per_share:2.7,currency:'JPY',status:'forecast',announced_on:'2026-09-22',verified_on:'2026-09-24',source:{title:'中間配当の会社予想',url:'https://group.ntt/jp/ir/'}};
   await h.reply(0,fixture({events:[event({symbol:'5803.T',name:'フジクラ',record_date:'2026-09-30',holding_deadline:'2026-09-28',ex_dividend_date:'2026-09-29',dividend})]}));
   const row=h.mount.find('dc-events').children[0],evidence=row.find('dc-evidence');
-  assert.equal(h.mount.find('dc-status').textContent,'2026/09/24 15:00 確認');assert.equal(row.find('dc-event-date').textContent,'9/28');
+  assert.equal(h.mount.find('dc-status').textContent,'');assert.equal(row.find('dc-event-date').textContent,'9/28');
   assert.deepEqual(evidence.children.map(node=>node.textContent),['日付・出典','2026/09/24 日程を確認','会社の公式サイト ↗','2026/09/22 配当予想を発表 ／ 2026/09/24 確認','中間配当の会社予想 ↗']);
   assert.equal(evidence.children[2].href,'https://global.toyota/jp/ir/');assert.equal(evidence.children[4].href,'https://group.ntt/jp/ir/');assert.equal(evidence.children[2].rel,'noopener noreferrer');
   assert.doesNotMatch(evidence.textContent,/\d{2}:\d{2}/);assert.equal(row.find('dc-broker-stock').textContent,'フジクラ（5803）の取扱例');
@@ -240,7 +240,7 @@ test('share and lot prices update in place without closing the broker disclosure
   const value={quote:{symbol:'5803.T',price:4952.1,currency:'JPY',fetched_at:Date.now()/1000,price_updated_at:Date.now()/1000-1200,delay_minutes:20},pending:false,error:null};states.set('5803.T',value);notify('5803.T',value);
   const cells=panel.find('dc-price-values').children;
   assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');assert.equal(cells[1].find('dc-price-value').textContent,'495,210');
-  assert.equal(panel.find('dc-price-time').textContent,dates.label(value.quote.price_updated_at,'株価時点',true));assert.equal(panel.find('dc-price-note'),undefined);
+  assert.equal(panel.find('dc-price-time').textContent,dates.price(value.quote.price_updated_at));assert.equal(panel.find('dc-price-note'),undefined);
   notify('5803.T',{...value,quote:{...value.quote,price:4952.2}});assert.equal(cells[1].find('dc-price-value').textContent,'495,220');
   assert.equal(h.mount.find('dc-events').children[0],row);assert.equal(row.find('dc-holding-range'),range);assert.equal(brokers.open,true);
   notify('5803.T',{...value,error:'network'});assert.match(panel.find('dc-price-status').textContent,/前回の価格/);assert.equal(cells[0].find('dc-price-value').textContent,'4,952.1');

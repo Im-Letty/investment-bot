@@ -164,7 +164,7 @@
           const quote=state&&state.quote;
           refs.single.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:4}).format(quote.price):'—';
           refs.hundred.textContent=quote?new Intl.NumberFormat('ja-JP',{maximumFractionDigits:2}).format(Math.round(quote.price*10000)/100):'—';
-          refs.time.textContent=quote?dates.label(quote.price_updated_at,'株価時点',true):'株価の時刻を確認しています';
+          refs.time.textContent=quote?dates.price(quote.price_updated_at):'株価の時刻を確認しています';
           refs.status.textContent=state&&state.error?(quote?'更新できませんでした。前回の価格を表示しています。':'株価を取得できませんでした。自動で再確認します。'):quote?'':'株価を確認しています…';
         }
       }
@@ -251,8 +251,7 @@
       }
       function render(){refs.all.setAttribute('aria-pressed',String(!dividendPane.hidden&&scope==='all'));refs.favorites.setAttribute('aria-pressed',String(!dividendPane.hidden&&scope==='favorites'));refs.month.textContent=prettyMonth(monthValue);const range=bounds();refs.previous.disabled=monthValue<=range.months[0];refs.next.disabled=monthValue>=range.months[12];const state=current,data=state&&state.data;
         if(autoDate&&data&&(['ready','stale'].includes(state.status)||data.events.length)){const next=visibleEvents(data,null,today())[0];selectedDate=next?next.date:monthValue===today().slice(0,7)?today():monthValue+'-01';autoDate=false;}
-        const checked=data&&data.updated_at?dates.label(data.updated_at/1000,'確認',true):'';
-        refs.retry.hidden=!(state&&['error','stale'].includes(state.status));refs.status.textContent=!state||state.status==='loading'?'予定を確認しています…':state.status==='error'?(data?'更新できませんでした。保存済みの予定を表示しています。':'予定を読み込めませんでした。'):state.status==='pending'?'確認できた予定を集めています…':state.status==='refreshing'?'最新の予定を確認しています…':state.status==='stale'?'保存済みの予定です。'+checked:checked;
+        refs.retry.hidden=!(state&&['error','stale'].includes(state.status));refs.status.textContent=!state||state.status==='loading'?'予定を確認しています…':state.status==='error'?(data?'更新できませんでした。保存済みの予定を表示しています。':'予定を読み込めませんでした。'):state.status==='pending'?'確認できた予定を集めています…':state.status==='refreshing'?'最新の予定を確認しています…':state.status==='stale'?'保存済みの予定です。':'';
         refs.universe.textContent='東証の国内上場企業を対象に、確認できた配当日程を掲載しています。1年先まで表示できますが、未発表・未確認の予定は載りません。予定が空欄でも、配当がないとは限りません。';refs.universe.hidden=!refs.universe.textContent;
         refs.coverage.textContent=data&&data.coverage.universe?'対象 '+data.coverage.universe+'社 ／ この月の予定を確認 '+data.coverage.known+'社'+(data.coverage.unknown?' ／ 日程未確認 '+data.coverage.unknown+'社':'')+(scope==='all'?'（収集対象の銘柄）':''):'';
         const notes=[];if(favorites.legacyCount)notes.push('以前の登録 '+favorites.legacyCount+'社も含みます');if(favorites.overflow)notes.push('100社を超える登録は保存されています');if(favorites.error||favorites.migrationError)notes.push('保存済み銘柄の引き継ぎを確認できませんでした');if(state&&state.excluded&&state.excluded.length)notes.push(state.excluded.length+'社の銘柄コードを確認できませんでした');refs.migration.textContent=notes.join('。');refs.migration.hidden=!notes.length;updateDays();renderLists();

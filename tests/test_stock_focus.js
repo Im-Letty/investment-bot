@@ -18,7 +18,7 @@ test('fewer than6 companies have no empty more button; no eligible stocks is dif
  const error=stock.rankingMarkup(null,'up','error');assert.match(error,/再読み込み/);assert.doesNotMatch(error,/条件に当てはまる銘柄はありません/);
 });
 test('uses price minus previous close, not rounded source pct, with both amount and percentage',()=>{
- const html=stock.quote({...item('7203.T'),price:1001.5,prev:1000,pct:99});assert.match(html,/\+1.5円/);assert.match(html,/\+0.15%/);assert.match(html,/2026\/09\/18 取引日/);assert.doesNotMatch(html,/99%/);
+ const html=stock.quote({...item('7203.T'),price:1001.5,prev:1000,pct:99});assert.match(html,/\+1.5円/);assert.match(html,/\+0.15%/);assert.match(html,/株価 9\/18/);assert.doesNotMatch(html,/99%/);
  const us=stock.quote({...item('AAPL'),currency:'USD',price:99.5});assert.match(us,/−0.5米ドル/);assert.match(us,/−0.50%/);
  assert.match(stock.quote({...item('7203.T'),price:100}),/sf-flat/);
 });
@@ -31,18 +31,26 @@ test('trade dates remain validated ISO days rather than epoch timestamps',()=>{
 });
 test('common quote dates are grouped by market, while mixed dates remain on each row',()=>{
  const jp=item('7203.T'),us={...item('AAPL'),currency:'USD',trade_date:'2026-09-21'};
- const grouped=stock.tradeDates([jp,us]);assert.equal(grouped.text,'2026/09/18 日本の取引日 / 2026/09/21 米国の取引日');assert.equal(grouped.showDate(jp),false);assert.equal(grouped.showDate(us),false);
+ const grouped=stock.tradeDates([jp,us]);assert.equal(grouped.text,'日本 株価 9/18 / 米国 株価 9/21');assert.equal(grouped.showDate(jp),false);assert.equal(grouped.showDate(us),false);
  const older={...item('9432.T'),trade_date:'2026-09-17'};
- const html=stock.rankingMarkup(payload([jp,older,us]));assert.match(html,/2026\/09\/18 取引日/);assert.match(html,/2026\/09\/17 取引日/);assert.match(html,/2026\/09\/21 米国の取引日/);assert.doesNotMatch(html,/2026\/09\/21 取引日/);
+ const html=stock.rankingMarkup(payload([jp,older,us]));assert.match(html,/株価 9\/18/);assert.match(html,/株価 9\/17/);assert.match(html,/米国 株価 9\/21/);assert.doesNotMatch(html,/取引日|JST/);
 });
-test('ranking metadata separates trade dates from full Japanese retrieval times and follows the selected market',()=>{
+test('ranking metadata shows the selected market price date without inventing a time or displaying retrieval time',()=>{
  const jp={...item('7203.T'),market:'prime'},older={...item('9432.T'),market:'standard',trade_date:'2026-09-17'},us={...item('AAPL'),currency:'USD',market:'us',trade_date:'2026-09-21'};
  const data=payload([jp,older,us]),html=stock.rankingMarkup(data,'up','ready',{market:'prime'});
  const footer=html.match(/<footer class="sf-meta">(.*?)<\/footer>/)[1];
- assert.match(footer,/2026\/09\/18 取引日/);assert.match(footer,/2026\/09\/23 18:00 取得 · 取得済み 1社/);
- assert.doesNotMatch(footer,/2026\/09\/17|2026\/09\/21|米国|日本の取引日|銘柄ごと/);
+ assert.match(footer,/株価 9\/18/);assert.match(footer,/取得済み 1社/);
+ assert.doesNotMatch(footer,/9\/17|9\/21|米国|銘柄ごと|2026\/09\/23|18:00|JST/);
  assert.doesNotMatch(html,/sf-quote-date/,'one date within the selected market stays in the footer');
- assert.doesNotMatch(footer,/18:00 発表|2026\/09\/23 18:00 取引日/);
+ assert.doesNotMatch(footer,/取得 ·|取引日/);
+});
+test('exact price timestamps stay distinct when multiple quotes share a trade date',()=>{
+ const first={...item('7203.T'),price_updated_at:Date.parse('2026-09-18T06:30:00Z')/1000};
+ const second={...item('9432.T'),price_updated_at:Date.parse('2026-09-18T05:00:00Z')/1000};
+ const grouped=stock.tradeDates([first,second]);assert.equal(grouped.showDate(first),true);
+ const html=stock.rankingMarkup(payload([first,second]));
+ assert.match(html,/株価 9\/18 15:30 JST/);assert.match(html,/株価 9\/18 14:00 JST/);
+ assert.doesNotMatch(html,/2026\/09\/23 18:00/);
 });
 test('favorite quotes preserve currency and absolute changes without inventing missing changes',()=>{
  const format=require('../static/market-data.js').formatChange;

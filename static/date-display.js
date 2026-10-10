@@ -27,5 +27,17 @@
     var text=withTime?timestamp(value):day(value);
     return text?text+(kind?' '+kind:''):'';
   }
-  return Object.freeze({date:day,timestamp:timestamp,label:label});
+  function price(value,kind='株価'){
+    var prefix=kind?String(kind)+' ':'';
+    if(typeof value==='string'){
+      var dateOnly=day(value);
+      if(!dateOnly)return '';
+      var parts=dateOnly.split('/');
+      return prefix+Number(parts[1])+'/'+Number(parts[2]);
+    }
+    if(typeof value!=='number'||!Number.isFinite(value)||value<=0)return '';
+    var date=tokyo(value);
+    return date?prefix+(date.getUTCMonth()+1)+'/'+date.getUTCDate()+' '+pad(date.getUTCHours())+':'+pad(date.getUTCMinutes())+' JST':'';
+  }
+  return Object.freeze({date:day,timestamp:timestamp,label:label,price:price});
 });

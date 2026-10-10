@@ -11,6 +11,7 @@
   const amount=value=>Math.abs(value).toLocaleString('ja-JP',{maximumFractionDigits:2});
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
   const dateLabel=value=>typeof value==='string'?dates.date(value):'';
+  const priceTime=item=>dates.price(item.price_updated_at)||dates.price(item.trade_date);
   function normalizeItem(item){
     if(!item||!finite(item.price)||!finite(item.prev)||item.price<=0||item.prev<=0||typeof item.symbol!=='string')return null;
     const delta=item.price-item.prev;
@@ -27,14 +28,14 @@
     const item=normalizeItem(raw);
     if(!item)return '<div class="sf-quote"><span class="sf-quote-date">株価を確認できませんでした</span></div>';
     const delta=item.change_value,sign=delta>0?'+':delta<0?'−':'',direction=delta>0?'up':delta<0?'down':'flat',unit=item.currency==='JPY'?'円':item.currency==='USD'?'米ドル':escape(item.currency);
-    const dateMarkup=showDate&&dateLabel(item.trade_date)?'<span class="sf-quote-date">'+dateLabel(item.trade_date)+' 取引日</span>':'';
+    const dateMarkup=showDate&&priceTime(item)?'<span class="sf-quote-date">'+escape(priceTime(item))+'</span>':'';
     return '<div class="sf-quote"><span class="sf-price">'+amount(item.price)+'<small>'+unit+'</small></span><span class="sf-change sf-'+direction+'">'+sign+amount(delta)+unit+' <span>（'+sign+Math.abs(item.pct).toFixed(2)+'%）</span></span>'+dateMarkup+'</div>';
   }
   function tradeDates(items){
     const groups=new Map();
     const market=item=>item.symbol.endsWith('.T')?'日本':'米国';
-    for(const item of items){if(!groups.has(market(item)))groups.set(market(item),new Set());groups.get(market(item)).add(dateLabel(item.trade_date));}
-    const parts=Array.from(groups,([key,groupDates])=>groupDates.size===1&&![...groupDates].includes('')?[...groupDates][0]+' '+(groups.size>1?key+'の':'')+'取引日':(groups.size>1?key+' ':'')+'銘柄ごとの取引日');
+    for(const item of items){if(!groups.has(market(item)))groups.set(market(item),new Set());groups.get(market(item)).add(priceTime(item));}
+    const parts=Array.from(groups,([key,groupDates])=>groupDates.size===1&&![...groupDates].includes('')?(groups.size>1?key+' ':'')+[...groupDates][0]:(groups.size>1?key+' ':'')+'銘柄ごとの株価時点');
     return {text:parts.join(' / '),showDate:item=>groups.get(market(item)).size!==1};
   }
   function stockCode(symbol){
@@ -52,7 +53,7 @@
     if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">株価を確認できませんでした</span></div>';
     const currency=item.currency||(symbol.endsWith('.T')?'JPY':''),unit=({JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド'})[currency]||currency;
     const change=typeof formatChange==='function'?formatChange(item,{symbol,currency},'ja'):{amount:'',percent:'',direction:'flat'};
-    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+'</div></div>';
+    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+(priceTime(item)?'<span class="sf-quote-date">'+escape(priceTime(item))+'</span>':'')+'</div></div>';
   }
   const METRICS={pct:'値上がり率・値下がり率',amount:'値上がり額・値下がり額',volume:'出来高'};
   const MARKETS={all:'全市場',prime:'プライム',standard:'スタンダード',growth:'グロース'};
@@ -87,7 +88,7 @@
     const controls='<div class="sf-order-wrap"><div class="sf-compact-controls" aria-label="ランキングの表示条件">'+orderPicker.field+marketPicker.field+'</div>'+orderPicker.panel+marketPicker.panel+'</div>';
 
     const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
-    const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(pool).text)+'</span><span>'+escape(dates.timestamp(data.updated_at))+' 取得 · 取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
+    const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(pool).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
     return '<div class="sf-content"><section class="sf-market" aria-label="株価ランキング"><div class="sf-rank-toolbar" hidden>'+tabs+'<span class="sf-column-hint">株価 / 前日比</span></div>'+controls+'<div class="sf-rankings">'+ranking(data,'up',active,status,{metric,market})+(metric==='volume'?'':ranking(data,'down',active,status,{metric,market}))+'</div>'+meta+'</section></div>';
   }
   function storyDate(value){

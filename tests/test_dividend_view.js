@@ -126,21 +126,30 @@ test('identical rows are not replaced when only the fetch timestamp changes',asy
   const previous=h.list('top').innerHTML,writes=h.list('top').htmlWrites;
   await h.reply(h.request('/top?'),snapshot([row()],{updated_at:NOW/1000+30}));
   assert.equal(h.list('top').innerHTML,previous);assert.equal(h.list('top').htmlWrites,writes);
-  assert.match(h.panes.top.querySelector('.dividend-snapshot-status').textContent,/2026\/09\/24 12:00 取得$/);
+  assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').textContent,'');
+  assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').hidden,true);
   h.document.documentElement.lang='en';h.window.KNDividendView.list('top');
   assert.equal(h.list('top').htmlWrites,writes+1);assert.match(h.list('top').textContent,/Annual dividend 90\.00 yen/);
 });
 
-test('quote metadata uses the shared date-first order and does not add time to date-only values',async()=>{
+test('quote metadata shows actual price time and never substitutes a retrieval timestamp',async()=>{
   const h=harness();h.window.KNDividendView.list('top');await flush();
   await h.reply(h.request('/top?'),snapshot([
     row({price_updated_at:NOW/1000}),
     row({code:'9432',price_updated_at:'2026-09-23'}),
   ]));
-  assert.match(h.list('top').innerHTML,/2026\/09\/24 12:00 株価時点/);
-  assert.match(h.list('top').innerHTML,/2026\/09\/23 株価時点/);
-  assert.doesNotMatch(h.list('top').innerHTML,/2026\/09\/23 \d{2}:\d{2}|JST/);
-  assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').textContent,'2026/09/24 12:00 取得');
+  assert.match(h.list('top').innerHTML,/株価 9\/24 12:00 JST/);
+  assert.match(h.list('top').innerHTML,/株価 9\/23<\/div>/);
+  assert.doesNotMatch(h.list('top').innerHTML,/株価 9\/23 \d{2}:\d{2}/);
+  assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').textContent,'');
+});
+
+test('dividend basis remains in the footer without its retrieval time',()=>{
+  const h=harness({top:snapshot([row({annual_dividend_basis:'trailing_12m'})])});
+  h.window.KNDividendView.list('top');
+  const footer=h.panes.top.querySelector('.dividend-snapshot-status');
+  assert.equal(footer.textContent,'保存済み · 過去1年の配当実績');
+  assert.doesNotMatch(footer.textContent,/取得|2026\/|JST/);
 });
 
 test('company and code text from a dividend response cannot introduce executable markup',async()=>{
