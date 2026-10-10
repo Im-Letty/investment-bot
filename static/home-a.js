@@ -37,7 +37,7 @@
     }
     rows.forEach(function(row,index){
       var price='—', legacy='', note='', item=row.item;
-      if(row.display){var parts=row.display.split(/[\s　]+/);price=parts[0];legacy=parts.slice(1).join(' ');}
+      if(row.display){var parts=row.display.split(/[\s　]+/);price=parts[0].replace(/(\.\d*?[1-9])0+$|\.0+$/, '$1');legacy=parts.slice(1).join(' ');}
       else if(row.quote){price=Number(row.quote.price).toLocaleString(lang(),{maximumFractionDigits:item.category==='fx'?4:2});if(item.currency==='USD')price='$'+price;else if(item.currency==='JPY')price='¥'+price;}
       var movement=window.KNMarketData.formatChange(row.quote,item,lang(),legacy||undefined);
       var hasChange=!!(movement.amount||movement.percent);

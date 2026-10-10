@@ -22,6 +22,14 @@ function harness(){
 }
 const at=Date.parse('2026-09-23T16:38:00Z');
 const row=(id='日経225',extra={})=>({item:{id,symbol:id==='日経225'?'^N225':'JPY=X',label:id,category:id==='日経225'?'index':'fx',currency:'JPY'},quote:{price:100,change_value:1,pct:1,currency:'JPY'},at,stale:false,failed:false,...extra});
+test('legacy price strings trim only trailing decimal zeros and keep fractional prices and percent precision',()=>{
+ const h=harness();
+ for(const [display,expected] of [['42,000.00 ▲1.00%','42,000'],['153.50 ▲1.00%','153.5'],['153.25 ▲1.00%','153.25'],['0.000010 ▲1.00%','0.00001']]){
+  h.render([row('ドル円',{display,quote:null})]);
+  const cells=h.nodes.knHomeMarketGrid.children[0].children;
+  assert.equal(cells[1].innerHTML,expected);assert.match(cells[2].innerHTML,/▲1\.00%/);
+ }
+});
 test('retrieval times remain visible across freshness changes without rebuilding quote cards',()=>{
  const h=harness();h.render([row()]);const grid=h.nodes.knHomeMarketGrid,card=grid.children[0],cells=card.children;
  grid.scrollLeft=83;const timestamp=h.nodes.knHomeMarketTimeText.innerHTML,writes=cells.map(c=>c.writes);

@@ -54,8 +54,8 @@ test('exact price timestamps stay distinct when multiple quotes share a trade da
 });
 test('favorite quotes preserve currency and absolute changes without inventing missing changes',()=>{
  const format=require('../static/market-data.js').formatChange;
- const jp=stock.watchRow({name:'<会社>',price:1001.5,currency:'JPY',change_value:1.5,pct:.15},'7203.T',format);assert.match(jp,/&lt;会社&gt;/);assert.match(jp,/\+1\.50円/);assert.match(jp,/\+0\.15%/);
- const us=stock.watchRow({price:99.5,currency:'USD',change_value:-.5,pct:-.5},'AAPL',format);assert.match(us,/−0\.50米ドル/);assert.match(us,/sf-down/);
+ const jp=stock.watchRow({name:'<会社>',price:1001.5,currency:'JPY',change_value:1.5,pct:.15},'7203.T',format);assert.match(jp,/&lt;会社&gt;/);assert.match(jp,/\+1\.5円/);assert.match(jp,/\+0\.15%/);
+ const us=stock.watchRow({price:99.5,currency:'USD',change_value:-.5,pct:-.5},'AAPL',format);assert.match(us,/−0\.5米ドル/);assert.match(us,/sf-down/);
  const missing=stock.watchRow({price:100,currency:'JPY',change_value:null,pct:null},'7203.T',format);assert.match(missing,/sf-price/);assert.doesNotMatch(missing,/sf-change|0\.00%/);
  for(const price of [null,NaN,Infinity,0])assert.doesNotMatch(stock.watchRow({price},'7203.T',format),/sf-price/);
  assert.match(stock.watchRow({price:.0014,currency:'USD'},'LOW',format),/0\.0014<small>米ドル/);

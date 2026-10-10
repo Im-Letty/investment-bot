@@ -9,6 +9,7 @@
   }
   function escape(value) { return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];}); }
   function number(value,digits) { return Number.isFinite(value)?value.toLocaleString('ja-JP',{maximumFractionDigits:digits,minimumFractionDigits:digits}):'—'; }
+  function amount(value) { return Number.isFinite(value)?value.toLocaleString('ja-JP',{maximumFractionDigits:2}):'—'; }
   function stamp(value) {
     if(value==null || value==='' || typeof value!=='number' && typeof value!=='string')return '';
     if(typeof value==='string' && /^\d{4}-\d{2}-\d{2}$/.test(value))return window.KNDateDisplay.date(value);
@@ -50,12 +51,12 @@
           var rows=items.map(function(it,idx) {
             var name=window._stockName?window._stockName(it.code,it.name):it.name;
             var yen=tr('div_yen','円');
-            var main=key==='top'?number(it.yield_pct,2)+'%':number(it.annual_dividend,2)+yen;
+            var main=key==='top'?number(it.yield_pct,2)+'%':amount(it.annual_dividend)+yen;
             function metric(label,value,kind) {
               return '<div class="div-metric div-metric--'+kind+'"><span class="div-metric-label">'+escape(label)+'</span> <span class="div-metric-value">'+escape(value)+'</span></div>';
             }
-            var sub=key==='top'?metric(tr('div_annual','年間配当'),number(it.annual_dividend,2)+yen,'distribution'):metric(tr('div_yield','利回り'),number(it.yield_pct,2)+'%','distribution');
-            if(Number.isFinite(it.price))sub+=metric(tr('div_kabuka','株価'),number(it.price,2)+yen,'quote');
+            var sub=key==='top'?metric(tr('div_annual','年間配当'),amount(it.annual_dividend)+yen,'distribution'):metric(tr('div_yield','利回り'),number(it.yield_pct,2)+'%','distribution');
+            if(Number.isFinite(it.price))sub+=metric(tr('div_kabuka','株価'),amount(it.price)+yen,'quote');
             var priceTime=Number.isFinite(it.price)?window.KNDateDisplay.price(it.price_updated_at,tr('div_kabuka','株価')):'';
             return '<div class="div-item"><div class="div-rank">'+(idx+1)+'</div><div><button type="button" class="cp-company-link" data-company-profile="'+escape(it.ticker||it.code+'.T')+'" data-company-name="'+escape(name)+'" aria-label="'+escape(name)+'の会社情報を開く"><span class="div-name">'+escape(name)+'</span><span class="div-code">'+escape(it.code)+'</span></button></div><div class="dividend-row-values"><div class="div-yield">'+escape(main)+'</div><div class="div-metrics">'+sub+'</div>'+(priceTime?'<div class="div-meta div-price-time">'+escape(priceTime)+'</div>':'')+'</div></div>';
           });

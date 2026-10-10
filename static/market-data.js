@@ -53,14 +53,14 @@
       var names=language==='ja'?{JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド',AUD:'豪ドル',CAD:'カナダドル',CHF:'スイスフラン',HKD:'香港ドル',CNY:'人民元',KRW:'ウォン'}:{};
       suffix=names[currency]||' '+currency;
     }
-    function signed(value, digits) {
+    function signed(value, digits, fixed) {
       var rounded=Number(value.toFixed(digits));
-      return (rounded>0?'+':rounded<0?'−':'')+Math.abs(rounded).toLocaleString(language,{minimumFractionDigits:digits,maximumFractionDigits:digits});
+      return (rounded>0?'+':rounded<0?'−':'')+Math.abs(rounded).toLocaleString(language,{minimumFractionDigits:fixed?digits:0,maximumFractionDigits:digits});
     }
     var digits=unit==='percentage_points'?3:entry.category==='fx'&&currency!=='JPY'?4:2;
     if(delta!==null && delta!==0)while(digits<6 && Number(delta.toFixed(digits))===0)digits++;
-    var amount=delta===null?'':signed(delta,digits)+suffix;
-    var percent=pct===null?'':signed(pct,2)+'%';
+    var amount=delta===null?'':signed(delta,digits,unit==='percentage_points')+suffix;
+    var percent=pct===null?'':signed(pct,2,true)+'%';
     var fallback=typeof legacy==='string'?legacy:typeof q.change==='string'?q.change:'';
     if(fallback==='--')fallback='';
     // Old cached data remains usable until a structured quote arrives.

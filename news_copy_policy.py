@@ -9,6 +9,12 @@ Unmarked saved/LINE copy keeps the legacy strict limits.
 
 COPY_LENGTH_POLICY = "flexible-v1"
 
+MONEY_DISPLAY_INSTRUCTION = (
+    "金額は値や通貨・単位を変えず、小数部の末尾の0を省きます"
+    "（1,000.00円は1,000円、55.50円は55.5円）。"
+    "実際の端数を整数へ丸めず、割合や比較条件の精度は維持します。\n"
+)
+
 
 def summary_bounds(role, policy=None):
     if role not in ("overview", "article"):

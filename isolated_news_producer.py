@@ -10,7 +10,7 @@ import re
 import time
 
 import daily_news_producer as shared
-from news_copy_policy import COPY_LENGTH_POLICY, summary_bounds
+from news_copy_policy import COPY_LENGTH_POLICY, MONEY_DISPLAY_INSTRUCTION, summary_bounds
 from news_cache import LEAD_OTHER_NEWS_STRUCTURE
 
 
@@ -61,6 +61,7 @@ HEADLINE_SCOPE_INSTRUCTION = ('見出しでは「初めて」「初の」を使�
     '原文で確認できる主体と開催・開始などの動作へ書き直します。何の第1回かを明確にする表現は使えますが、'
     '新設の会合の初回を、両国や大臣が過去に話し合ったことがない意味へ広げません。'
     '本文の初回の記述は、元資料の対象と条件を正確に残す場合に限ります。\n')
+EDITORIAL_READABILITY += MONEY_DISPLAY_INSTRUCTION
 EDITORIAL_READABILITY += HEADLINE_SCOPE_INSTRUCTION
 HEADLINE_COUNTRY_INSTRUCTION = (
     '見出しでは「豪州」「日豪」の国名の略称を使いません。必要な国名は「オーストラリア」、'

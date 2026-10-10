@@ -13,6 +13,17 @@ const snapshot=(items=[row()],extra={})=>({items,updated_at:NOW/1000,status:'rea
 const calendar=(month,extra={})=>({days:[{date:month+'-24',items:[row({code:month,name:month+'の会社'})]}],updated_at:NOW/1000,status:'ready',refreshing:false,...extra});
 async function flush(){for(let i=0;i<25;i++)await Promise.resolve();}
 
+test('annual dividends and prices omit padded zeros while retaining fractions and yield precision',()=>{
+  const data=snapshot([row({annual_dividend:1000,price:2000}),row({code:'9432',annual_dividend:55.5,price:153.25,yield_pct:3.2}),row({code:'6758',annual_dividend:0,price:0})]);
+  const h=harness({top:data,yearly:data});
+  for(const key of ['top','yearly']){
+    h.window.KNDividendView.list(key);
+    const text=h.list(key).textContent;
+    assert.match(text,/1,000円/);assert.match(text,/2,000円/);assert.match(text,/55\.5円/);assert.match(text,/153\.25円/);assert.match(text,/0円/);
+    assert.match(text,/3\.20%/);assert.doesNotMatch(text,/\.00円|55\.50円/);
+  }
+});
+
 // Only the DOM operations used by the view are provided. Row markup is kept as
 // rendered so assertions inspect the output instead of reimplementing rendering.
 class Element {
@@ -129,7 +140,7 @@ test('identical rows are not replaced when only the fetch timestamp changes',asy
   assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').textContent,'');
   assert.equal(h.panes.top.querySelector('.dividend-snapshot-status').hidden,true);
   h.document.documentElement.lang='en';h.window.KNDividendView.list('top');
-  assert.equal(h.list('top').htmlWrites,writes+1);assert.match(h.list('top').textContent,/Annual dividend 90\.00 yen/);
+  assert.equal(h.list('top').htmlWrites,writes+1);assert.match(h.list('top').textContent,/Annual dividend 90 yen/);
 });
 
 test('quote metadata shows actual price time and never substitutes a retrieval timestamp',async()=>{
@@ -156,7 +167,7 @@ test('company and code text from a dividend response cannot introduce executable
   const h=harness();h.window.KNDividendView.list('yearly');await flush();
   await h.reply(h.request('/yearly?'),snapshot([row({name:'<img src=x onerror=alert(1)>',code:'<script>alert(1)</script>',annual_dividend:125.5,yield_pct:null,price:null})]));
   const html=h.list('yearly').innerHTML;
-  assert.match(html,/125\.50円/);assert.match(h.list('yearly').textContent,/利回り —%/);assert.match(html,/&lt;img/);assert.match(html,/&lt;script&gt;/);
+  assert.match(html,/125\.5円/);assert.match(h.list('yearly').textContent,/利回り —%/);assert.match(html,/&lt;img/);assert.match(html,/&lt;script&gt;/);
   assert.doesNotMatch(html,/<img|<script|0\.00%/);
 });
 

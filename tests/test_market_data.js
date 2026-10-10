@@ -235,10 +235,10 @@ test('remember registers only a chosen candidate and hydration retains its saved
 });
 test('B displays the real movement and signed percentage for all four default markets',()=>{
   const examples=[
-    ['日経225',420,1.01,'JPY','currency','+420.00円','+1.01%','up'],
+    ['日経225',420,1.01,'JPY','currency','+420円','+1.01%','up'],
     ['ドル円',0.45,0.30,'JPY','currency','+0.45円','+0.30%','up'],
-    ['S&P500',-28,-0.50,'USD','points','−28.00ポイント','−0.50%','down'],
-    ['NYダウ',100,0.25,'USD','points','+100.00ポイント','+0.25%','up']
+    ['S&P500',-28,-0.50,'USD','points','−28ポイント','−0.50%','down'],
+    ['NYダウ',100,0.25,'USD','points','+100ポイント','+0.25%','up']
   ];
   for(const [id,change_value,pct,currency,change_unit,amount,percent,direction] of examples){
     assert.deepEqual(formatChange({change_value,pct,currency,change_unit},catalog.find(x=>x.id===id),'ja'),{amount,percent,direction});
@@ -248,16 +248,16 @@ test('rate points, currency pairs, stocks, commodities and crypto retain their o
   const examples=[
     ['米10年金利',0.025,'percentage_points','USD','+0.025ポイント'],
     ['EURUSD=X',-0.0023,'currency','USD','−0.0023米ドル'],
-    ['7203.T',35,'currency','JPY','+35.00円'],
-    ['AAPL',1.5,'currency','USD','+1.50米ドル'],
-    ['GC=F',14.5,'currency','USD','+14.50米ドル'],
-    ['BTC-JPY',125000,'currency','JPY','+125,000.00円']
+    ['7203.T',35,'currency','JPY','+35円'],
+    ['AAPL',1.5,'currency','USD','+1.5米ドル'],
+    ['GC=F',14.5,'currency','USD','+14.5米ドル'],
+    ['BTC-JPY',125000,'currency','JPY','+125,000円']
   ];
   for(const [id,change_value,change_unit,currency,expected] of examples){
     assert.equal(formatChange({change_value,change_unit,currency,pct:1},catalog.find(x=>x.id===id),'ja').amount,expected);
   }
   assert.equal(formatChange({change_value:0.25,currency:'GBp',pct:1},{symbol:'TEST.L',category:'custom'},'en').amount,'+0.25 GBp');
-  assert.equal(formatChange({change_value:1,pct:1},{symbol:'UNKNOWN',category:'custom'},'ja').amount,'+1.00');
+  assert.equal(formatChange({change_value:1,pct:1},{symbol:'UNKNOWN',category:'custom'},'ja').amount,'+1');
 });
 test('missing and nonnumeric absolute values never synthesize a change from rounded percentages',()=>{
   const item=catalog.find(x=>x.id==='日経225');
@@ -265,7 +265,7 @@ test('missing and nonnumeric absolute values never synthesize a change from roun
     assert.deepEqual(formatChange({price:42000,change_value,pct:1.01},item,'ja'),{amount:'',percent:'+1.01%',direction:'up'});
   }
   assert.deepEqual(formatChange({price:42000,change_value:null,pct:null,change:'--'},item,'ja'),{amount:'',percent:'',direction:'flat'});
-  assert.deepEqual(formatChange({change_value:0,pct:0},item,'ja'),{amount:'0.00円',percent:'0.00%',direction:'flat'});
+  assert.deepEqual(formatChange({change_value:0,pct:0},item,'ja'),{amount:'0円',percent:'0.00%',direction:'flat'});
 });
 test('legacy cache percent is retained without fabricating an amount, then enriched on refresh',()=>{
   const app=harness({morn_sel:'["日経225"]'});
@@ -275,7 +275,7 @@ test('legacy cache percent is retained without fabricating an amount, then enric
   const fresh={display:'42,000 ▲1.01%',price:42000,change_value:420,pct:1.01,currency:'JPY',change_unit:'currency'};
   app.model.acceptBase({market:{'日経225':fresh},fetched_at:1789250060});
   row=app.model.rows()[0];assert.equal(row.quote,fresh);assert.equal(row.display,fresh.display);
-  assert.equal(formatChange(row.quote,row.item,'ja').amount,'+420.00円');
+  assert.equal(formatChange(row.quote,row.item,'ja').amount,'+420円');
 });
 test('partial core updates keep price and absolute movement from the same snapshot',()=>{
   const app=harness({morn_sel:'["日経225","ドル円"]'});
@@ -293,12 +293,12 @@ test('selected extra quotes retain structured movement through the storage cache
   await app.reply(app.requests[0],quote);await request;
   const cached=harness(Object.fromEntries(app.storage));
   assert.deepEqual(cached.model.rows()[0].quote,{...quote,fetched_at:app.now()/1000});
-  assert.equal(formatChange(cached.model.rows()[0].quote,catalog.find(x=>x.id==='AAPL'),'ja').amount,'+0.50米ドル');
+  assert.equal(formatChange(cached.model.rows()[0].quote,catalog.find(x=>x.id==='AAPL'),'ja').amount,'+0.5米ドル');
 });
 test('small FX moves remain visible and localization keeps a numeric sign without negative zero',()=>{
   assert.equal(formatChange({change_value:0.00001,pct:0.0001,currency:'USD'},catalog.find(x=>x.id==='EURUSD=X'),'ja').amount,'+0.00001米ドル');
   assert.equal(formatChange({change_value:-0,pct:-0},catalog.find(x=>x.id==='S&P500'),'en').percent,'0.00%');
-  assert.equal(formatChange({change_value:-28,pct:-0.5},catalog.find(x=>x.id==='S&P500'),'en').amount,'−28.00 pt');
+  assert.equal(formatChange({change_value:-28,pct:-0.5},catalog.find(x=>x.id==='S&P500'),'en').amount,'−28 pt');
   assert.equal(formatChange({change_value:0.025,pct:0.5},catalog.find(x=>x.id==='米10年金利'),'zh').amount,'+0.025个百分点');
 });
 test('core prices render from persistent storage on a new visit before a network response',()=>{

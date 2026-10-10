@@ -31,6 +31,7 @@ test('unknowns remain unknown, actual zero dividends survive, and forecast basis
   const clean=profile.normalize(raw,KEY,NOW);
   assert.equal(clean.data.price,null);assert.equal(clean.data.market_cap,null);assert.equal(clean.data.annual_dividend,0);assert.equal(clean.data.forward_annual_dividend_per_share,null);assert.equal(clean.data.analyst_target,null);
   assert.equal(profile.money(0),'0円');assert.equal(profile.money(null),null);assert.equal(profile.money(-5),null);assert.equal(profile.money(42000000000000,'JPY',true),'42兆円');
+  assert.equal(profile.money(1000),'1,000円');assert.equal(profile.money(55.5),'55.5円');assert.equal(profile.money(55.25),'55.25円');
   raw.data.annual_dividend_basis='unknown';assert.equal(profile.normalize(raw,KEY,NOW).data.annual_dividend,null);
   raw.data.analyst_target={mean:4000,low:2000,high:3000,currency:'JPY'};assert.equal(profile.normalize(raw,KEY,NOW).data.analyst_target,null);
 });
