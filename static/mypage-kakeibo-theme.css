@@ -1,0 +1,224 @@
+/* The morning-letter palette is shared with the parent page; existing controls keep their visibility. */
+/* Embedded MyPage already has the same six links in the parent's bottom navigation. */
+body.kn-ledger-letter.kn-ledger-embedded #kkHomeBar { display:none; }
+body.kn-ledger-letter.kn-ledger-embedded { padding-bottom:24px; }
+body.kn-ledger-letter[data-kn-ledger-dark="true"] {
+  --kn-ledger-income:#96d6ae;
+  --kn-ledger-expense:#efa4a0;
+  --kn-ledger-investment:#8bd7cb;
+  color-scheme:dark;
+}
+body.kn-ledger-letter[data-kn-ledger-dark="true"] .submit-btn.inc {background:#387d56}
+body.kn-ledger-letter[data-kn-ledger-dark="true"] .submit-btn.exp {background:#b94f4b}
+body.kn-ledger-letter[data-kn-ledger-dark="true"] .submit-btn.inv {background:#237e76}
+body.kn-ledger-letter {
+  --kn-ledger-bg:var(--kn-sh-bg,#f2f3eb);
+  --kn-ledger-paper:var(--kn-sh-paper,#fffdf6);
+  --kn-ledger-ink:var(--kn-sh-ink,#184b3c);
+  --kn-ledger-muted:var(--kn-sh-muted,#547467);
+  --kn-ledger-line:var(--kn-sh-line,#dce6d7);
+  --kn-ledger-button:var(--kn-sh-button,#446b52);
+  --kn-ledger-chip:var(--kn-sh-chip,#edf0e5);
+  --kn-ledger-income:#387d56;
+  --kn-ledger-expense:#b94f4b;
+  --kn-ledger-investment:#237e76;
+  --kn-ledger-sans:var(--kn-sh-sans,"Noto Sans JP",-apple-system,BlinkMacSystemFont,sans-serif);
+  --kn-ledger-serif:var(--kn-sh-serif,"Yu Mincho","Hiragino Mincho ProN",serif);
+  --brand-color:var(--kn-ledger-button);
+  --brand-dark:var(--kn-ledger-ink);
+  --brand-light:var(--kn-ledger-button);
+  --brand-lighter:var(--kn-ledger-muted);
+  --brand-darker:var(--kn-ledger-ink);
+  --brand-deep:var(--kn-ledger-ink);
+  --brand-pale:var(--kn-ledger-line);
+  --brand-soft:var(--kn-ledger-chip);
+  --brand-mist:var(--kn-ledger-chip);
+  --brand-haze:var(--kn-ledger-bg);
+  margin:0;
+  padding-bottom:calc(86px + env(safe-area-inset-bottom,0px));
+  background:var(--kn-ledger-bg);
+  color:var(--kn-ledger-ink);
+  font:400 15px/1.8 var(--kn-ledger-sans);
+  color-scheme:light;
+}
+body.kn-ledger-letter :is(button,input,select,textarea) {font-family:var(--kn-ledger-sans)}
+body.kn-ledger-letter :is(button,a,input,select,textarea,[tabindex]):focus-visible {
+  outline:2px solid var(--kn-ledger-button)!important;
+  outline-offset:3px;
+  box-shadow:none;
+}
+body.kn-ledger-letter :is(button,a) {touch-action:manipulation}
+body.kn-ledger-letter :is(.header,.tab-content,.tab-nav,#ocr-bar) {
+  width:100%;max-width:960px;margin-inline:auto;
+}
+body.kn-ledger-letter .header {
+  padding:18px 24px!important;
+  background:transparent!important;
+  color:var(--kn-ledger-ink);
+  border-bottom:1px solid var(--kn-ledger-line);
+}
+body.kn-ledger-letter :is(.header::before,.header::after) {background:none}
+body.kn-ledger-letter .header-top {gap:16px}
+body.kn-ledger-letter .back-btn {
+  min-width:44px;min-height:44px;padding:9px 13px;
+  background:transparent!important;color:var(--kn-ledger-ink)!important;
+  border:1px solid var(--kn-ledger-line);border-radius:5px;
+  font-size:16px;opacity:1;
+}
+body.kn-ledger-letter :is(.header-title,.total-asset-label,.total-asset-change) {color:var(--kn-ledger-ink)}
+body.kn-ledger-letter .header-title {font:500 18px/1.7 var(--kn-ledger-serif)}
+body.kn-ledger-letter .total-asset-label {font-size:13px;color:var(--kn-ledger-muted)}
+body.kn-ledger-letter .total-asset-val {color:var(--kn-ledger-ink);font-size:34px;font-weight:600;text-shadow:none}
+body.kn-ledger-letter .total-asset-change {font-size:13px;color:var(--kn-ledger-muted)}
+body.kn-ledger-letter .tab-nav {background:var(--kn-ledger-paper);border-color:var(--kn-ledger-line)}
+body.kn-ledger-letter .tn-item {min-height:48px;padding:12px 18px;font-size:15px;font-weight:400;color:var(--kn-ledger-muted)}
+body.kn-ledger-letter .tn-item.active {color:var(--kn-ledger-ink);border-bottom-color:var(--kn-ledger-button);font-weight:500}
+body.kn-ledger-letter .tab-content {padding:24px}
+body.kn-ledger-letter :is(.card,.sum-item) {
+  background:var(--kn-ledger-paper);border:1px solid var(--kn-ledger-line);
+  border-radius:7px;box-shadow:none;
+}
+body.kn-ledger-letter .card {padding:22px;margin-bottom:20px}
+body.kn-ledger-letter .card-title {margin-bottom:18px;color:var(--kn-ledger-ink);font:500 16px/1.7 var(--kn-ledger-sans)}
+body.kn-ledger-letter .sum-grid {gap:12px;margin-bottom:20px}
+body.kn-ledger-letter .sum-item {min-width:0;padding:18px}
+body.kn-ledger-letter .sum-lbl {color:var(--kn-ledger-muted);font-size:13px}
+body.kn-ledger-letter .sum-num {font-size:25px;font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+body.kn-ledger-letter .sum-num.green {color:var(--kn-ledger-income)}
+body.kn-ledger-letter .sum-num.red {color:var(--kn-ledger-expense)}
+body.kn-ledger-letter .sum-num.teal {color:var(--kn-ledger-ink)}
+body.kn-ledger-letter .sum-num.sage {color:var(--kn-ledger-investment)}
+body.kn-ledger-letter .chart-area {height:230px}
+/* Keep chart datasets, category swatches and bar colours distinct. Only legend text changes. */
+body.kn-ledger-letter :is(#donut-legend,#asset-legend) {min-width:0;font-size:13px!important}
+body.kn-ledger-letter :is(#donut-legend,#asset-legend)>div>span:nth-child(2) {color:var(--kn-ledger-muted)!important;overflow-wrap:anywhere}
+body.kn-ledger-letter :is(#donut-legend,#asset-legend)>div>span:last-child {color:var(--kn-ledger-ink)!important}
+body.kn-ledger-letter :is(.asset-item,.rec-item,.day-rec-item) {padding-block:15px;border-bottom-color:var(--kn-ledger-line)}
+body.kn-ledger-letter :is(.asset-name,.rec-name) {min-width:0;color:var(--kn-ledger-ink);font-size:15px;font-weight:500;overflow-wrap:anywhere}
+body.kn-ledger-letter .asset-name>span {color:var(--kn-ledger-muted)!important;font-size:12px!important}
+body.kn-ledger-letter .asset-val {color:var(--kn-ledger-ink);font-size:16px;font-weight:600}
+body.kn-ledger-letter :is(.asset-pct,.rec-meta,.day-rec-cat) {color:var(--kn-ledger-muted);font-size:12px}
+body.kn-ledger-letter .rec-body {min-width:0}
+body.kn-ledger-letter .rec-icon {width:40px;height:40px;border-radius:6px}
+body.kn-ledger-letter :is(.rec-icon.inc,.rec-icon.inv) {background:var(--kn-ledger-chip)}
+body.kn-ledger-letter .rec-icon.exp {background:color-mix(in srgb,var(--kn-ledger-expense) 9%,var(--kn-ledger-paper))}
+body.kn-ledger-letter .rec-amt {font-size:17px;font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.kn-ledger-letter .rec-amt.inc {color:var(--kn-ledger-income)}
+body.kn-ledger-letter .rec-amt.exp {color:var(--kn-ledger-expense)}
+body.kn-ledger-letter .rec-amt.inv {color:var(--kn-ledger-investment)}
+body.kn-ledger-letter :is(.rec-del,.day-rec-del) {min-width:44px;min-height:44px;padding:8px;color:var(--kn-ledger-muted)}
+body.kn-ledger-letter :is(.rec-del,.day-rec-del):hover {color:var(--kn-ledger-expense)}
+body.kn-ledger-letter .empty-state {color:var(--kn-ledger-muted);font-size:14px;line-height:1.9}
+body.kn-ledger-letter :is(.form-tabs,.type-tabs) {gap:8px;margin-bottom:20px}
+body.kn-ledger-letter :is(.ftab,.type-tab) {
+  min-width:0;min-height:48px;padding:10px 8px;border:1px solid var(--kn-ledger-line);
+  border-radius:5px;background:var(--kn-ledger-paper);color:var(--kn-ledger-muted);
+  font-size:15px;font-weight:400;line-height:1.6;
+}
+body.kn-ledger-letter :is(.ftab.active-inc,.type-tab.sel-inc) {background:color-mix(in srgb,var(--kn-ledger-income) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-income);border-color:var(--kn-ledger-income);box-shadow:inset 0 -2px 0 var(--kn-ledger-income);font-weight:500}
+body.kn-ledger-letter :is(.ftab.active-exp,.type-tab.sel-exp) {background:color-mix(in srgb,var(--kn-ledger-expense) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-expense);border-color:var(--kn-ledger-expense);box-shadow:inset 0 -2px 0 var(--kn-ledger-expense);font-weight:500}
+body.kn-ledger-letter :is(.ftab.active-inv,.type-tab.sel-inv) {background:color-mix(in srgb,var(--kn-ledger-investment) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-investment);border-color:var(--kn-ledger-investment);box-shadow:inset 0 -2px 0 var(--kn-ledger-investment);font-weight:500}
+body.kn-ledger-letter :is(input,select,textarea) {
+  min-width:0;min-height:48px;border-color:var(--kn-ledger-line)!important;
+  border-radius:5px!important;background:var(--kn-ledger-paper)!important;
+  color:var(--kn-ledger-ink)!important;font-size:16px!important;line-height:1.6;
+}
+body.kn-ledger-letter .inp {padding:12px 14px;margin-bottom:14px;border-width:1px;box-shadow:none}
+body.kn-ledger-letter :is(input,textarea)::placeholder {color:var(--kn-ledger-muted);opacity:1}
+body.kn-ledger-letter .inp:focus {border-color:var(--kn-ledger-button)!important;box-shadow:none}
+body.kn-ledger-letter .submit-btn {min-height:50px;padding:12px 16px;border-radius:5px;font-size:16px;font-weight:500;line-height:1.7}
+body.kn-ledger-letter .submit-btn.inc {background:var(--kn-ledger-income)}
+body.kn-ledger-letter .submit-btn.exp {background:var(--kn-ledger-expense)}
+body.kn-ledger-letter .submit-btn.inv {background:var(--kn-ledger-investment)}
+body.kn-ledger-letter .submit-btn.ast {background:var(--kn-ledger-ink);color:var(--kn-ledger-paper)}
+body.kn-ledger-letter .month-nav {gap:12px;margin-bottom:20px}
+body.kn-ledger-letter .mnav-btn {width:44px;height:44px;border:1px solid var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font-size:16px}
+body.kn-ledger-letter .mnav-btn:hover {background:var(--kn-ledger-chip)}
+body.kn-ledger-letter .mnav-lbl {color:var(--kn-ledger-ink);font:500 21px/1.6 var(--kn-ledger-serif);text-align:center}
+body.kn-ledger-letter .cal-grid {gap:4px}
+body.kn-ledger-letter .cal-head {padding:7px 0;color:var(--kn-ledger-muted);font-size:13px;font-weight:400}
+body.kn-ledger-letter .cal-head.sun,body.kn-ledger-letter .cal-day.sun .cal-day-num {color:var(--kn-ledger-expense)}
+body.kn-ledger-letter .cal-head.sat,body.kn-ledger-letter .cal-day.sat .cal-day-num {color:var(--kn-ledger-income)}
+body.kn-ledger-letter .cal-day {min-height:60px;border-color:var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);padding:8px 2px;transition:background-color .15s}
+body.kn-ledger-letter .cal-day:hover {background:var(--kn-ledger-chip)}
+body.kn-ledger-letter .cal-day.empty {background:transparent;border-color:transparent}
+body.kn-ledger-letter .cal-day-num {color:var(--kn-ledger-ink);font-size:15px;font-weight:400;font-variant-numeric:tabular-nums}
+body.kn-ledger-letter .cal-day.today {background:var(--kn-ledger-chip);border-color:var(--kn-ledger-button);color:var(--kn-ledger-ink)}
+body.kn-ledger-letter .cal-day.today .cal-day-num {color:var(--kn-ledger-ink);font-weight:600}
+body.kn-ledger-letter .cal-day-total {color:var(--kn-ledger-expense);font-size:10px;font-variant-numeric:tabular-nums}
+body.kn-ledger-letter .cal-day.today .cal-day-total {color:var(--kn-ledger-expense)}
+body.kn-ledger-letter .cal-day.today.has-data::after {background:var(--kn-ledger-button)}
+body.kn-ledger-letter #calCatSummary>div:first-child {color:var(--kn-ledger-ink)!important}
+body.kn-ledger-letter #calCatSummary>div>div>span:first-child {color:var(--kn-ledger-ink)!important}
+/* These rules style open panels without changing the .open or .active display rules. */
+body.kn-ledger-letter :is(.modal-overlay,#ocr-modal,#gmailIntroModal,#kk-ai-modal) {background:rgba(24,38,31,.35)!important}
+body.kn-ledger-letter .modal-box {
+  width:calc(100% - 24px);max-width:720px;margin-inline:auto;
+  background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);
+  border:1px solid var(--kn-ledger-line);border-radius:7px 7px 0 0;
+  padding:24px;box-shadow:none;
+}
+body.kn-ledger-letter :is(.modal-title,.modal-form-title) {color:var(--kn-ledger-ink);font-size:16px;font-weight:500}
+body.kn-ledger-letter .modal-close {width:44px;height:44px;min-width:44px;border-radius:5px;background:transparent;color:var(--kn-ledger-ink)}
+body.kn-ledger-letter .modal-close:hover {background:var(--kn-ledger-chip)}
+body.kn-ledger-letter #dayRecList .day-rec-item>div:nth-child(2)>div:first-child {color:var(--kn-ledger-ink)!important;font-size:15px!important;font-weight:500!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #dayRecList .day-rec-item>div:nth-child(3)[style*="var(--brand-color)"] {color:var(--kn-ledger-income)!important}
+body.kn-ledger-letter #ocr-modal .box {
+  max-width:720px;padding:24px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);
+  border:1px solid var(--kn-ledger-line);border-radius:7px;box-shadow:none;
+}
+body.kn-ledger-letter #ocr-modal h3 {font:500 20px/1.7 var(--kn-ledger-serif)}
+body.kn-ledger-letter #ocr-modal label {color:var(--kn-ledger-muted);font-size:13px!important}
+body.kn-ledger-letter #ocr-modal :is(.top,.row) {gap:8px;margin-bottom:12px}
+body.kn-ledger-letter #ocr-modal :is(input,select) {padding:9px 10px}
+body.kn-ledger-letter #ocr-modal .row {grid-template-columns:minmax(0,2fr) minmax(76px,1fr) minmax(96px,1fr) 44px}
+body.kn-ledger-letter #ocr-modal :is(.add-btn,.delx,.actions button) {min-height:44px;padding:9px 12px;border-radius:5px;font-size:14px;font-weight:500;line-height:1.7}
+body.kn-ledger-letter #ocr-modal :is(.add-btn,.cancel-btn) {border:1px solid var(--kn-ledger-line);background:var(--kn-ledger-chip);color:var(--kn-ledger-ink)}
+body.kn-ledger-letter #ocr-modal .save-btn {background:var(--kn-ledger-ink);color:var(--kn-ledger-paper)}
+body.kn-ledger-letter #ocr-modal .delx {background:transparent;color:var(--kn-ledger-expense);border:1px solid var(--kn-ledger-line)}
+body.kn-ledger-letter #ocr-total {color:var(--kn-ledger-ink);font-variant-numeric:tabular-nums}
+body.kn-ledger-letter .kkb {min-height:56px;padding:12px 16px;margin:0;border:1px solid var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transition:background-color .15s}
+body.kn-ledger-letter .kkb:hover,body.kn-ledger-letter .kkb:active {transform:none;box-shadow:none;background:var(--kn-ledger-chip)}
+body.kn-ledger-letter .kkb-icon {width:40px;height:40px;border-radius:5px;background:var(--kn-ledger-chip)}
+body.kn-ledger-letter .kkb-title {color:var(--kn-ledger-ink);font-size:15px;font-weight:500;white-space:normal;line-height:1.6}
+body.kn-ledger-letter .kkb-sub {color:var(--kn-ledger-muted);font-size:12px;font-weight:400;white-space:normal;line-height:1.6}
+body.kn-ledger-letter #kk-input-actions {flex-wrap:wrap}
+body.kn-ledger-letter .kk-bottomnav {width:calc(100% - 48px);max-width:912px;margin:22px auto 0;padding:5px;border:1px solid var(--kn-ledger-line);border-radius:7px;background:var(--kn-ledger-paper);box-shadow:none}
+body.kn-ledger-letter .kk-bottomnav .kk-nav-item {min-width:0;min-height:56px;padding:8px 5px;border-radius:4px;color:var(--kn-ledger-muted);font-size:13px;font-weight:400;line-height:1.5}
+body.kn-ledger-letter .kk-bottomnav .kk-nav-item.active {background:var(--kn-ledger-chip);color:var(--kn-ledger-ink);box-shadow:inset 0 -2px 0 var(--kn-ledger-button);font-weight:500}
+body.kn-ledger-letter .kk-bottomnav .kk-nav-item.active svg {stroke:currentColor}
+body.kn-ledger-letter :is(#mailSection,#gmailSection) {max-width:912px;margin:20px auto!important;padding:22px!important;border:1px solid var(--kn-ledger-line);border-radius:7px!important;background:var(--kn-ledger-paper)!important;box-shadow:none!important;color:var(--kn-ledger-ink);font-family:var(--kn-ledger-sans)!important}
+body.kn-ledger-letter :is(#mailSection,#gmailSection) :is(h2,h3) {color:var(--kn-ledger-ink)!important;font-weight:500}
+body.kn-ledger-letter :is(#mailAddrBtn,#gmailConnectBtn,#gmailSyncBtn,#gmailIntroAgree) {min-height:44px;padding:10px 14px!important;border-radius:5px!important;background:var(--kn-ledger-ink)!important;color:var(--kn-ledger-paper)!important;font:500 14px/1.7 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter :is(#mailCopyBtn,#gmailIntroCancel,#gmailDisconnectBtn) {min-height:44px;padding:10px 14px!important;border:1px solid var(--kn-ledger-line)!important;border-radius:5px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:400 14px/1.7 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #gmailDisconnectBtn {color:var(--kn-ledger-expense)!important}
+body.kn-ledger-letter #mailAddrBox {padding:14px!important;border:1px solid var(--kn-ledger-line);border-radius:5px!important;background:var(--kn-ledger-chip)!important}
+body.kn-ledger-letter :is(#mailAddrText,#gmailInfo) {color:var(--kn-ledger-ink)!important}
+body.kn-ledger-letter :is(#mailAddrMsg,#gmailSyncResult) {color:var(--kn-ledger-muted)!important;font-size:13px!important;line-height:1.8}
+body.kn-ledger-letter :is(#gmailIntroModal,#kk-ai-modal)>div {background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink);border:1px solid var(--kn-ledger-line);border-radius:7px!important;padding:24px!important;box-shadow:none!important}
+body.kn-ledger-letter #gmailIntroModal h3 {color:var(--kn-ledger-ink)!important;font:500 20px/1.7 var(--kn-ledger-serif)}
+body.kn-ledger-letter #kkHomeBar {background:var(--kn-ledger-paper);border-top-color:var(--kn-ledger-line);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
+body.kn-ledger-letter #kkHomeBar .bn-item {min-height:50px;color:var(--kn-ledger-muted);font-family:var(--kn-ledger-sans);font-weight:400;line-height:1.5}
+body.kn-ledger-letter #kkHomeBar .bn-item:active {transform:none;color:var(--kn-ledger-ink)}
+@media (min-width:720px) {
+  body.kn-ledger-letter .sum-grid {grid-template-columns:repeat(4,minmax(0,1fr))}
+  body.kn-ledger-letter .modal-box {margin-bottom:24px;border-radius:7px}
+}
+@media (max-width:480px) {
+  body.kn-ledger-letter :is(.header,.tab-content) {padding:16px!important}
+  body.kn-ledger-letter .card {padding:18px}
+  body.kn-ledger-letter .sum-item {padding:14px}
+  body.kn-ledger-letter .sum-num {font-size:23px}
+  body.kn-ledger-letter .kk-bottomnav {width:calc(100% - 32px);margin-top:16px}
+  body.kn-ledger-letter .cal-grid {gap:2px}
+  body.kn-ledger-letter .cal-day {min-height:56px}
+  body.kn-ledger-letter :is(.modal-box,#ocr-modal .box) {padding:18px}
+  body.kn-ledger-letter #ocr-modal .row {grid-template-columns:minmax(0,1fr) minmax(80px,.65fr) 44px}
+  body.kn-ledger-letter #ocr-modal .row>select {grid-column:1/3;grid-row:2}
+  body.kn-ledger-letter #ocr-modal .row>.delx {grid-column:3;grid-row:1/3;align-self:start}
+  body.kn-ledger-letter :is(#mailSection,#gmailSection) {margin-inline:16px!important;padding:18px!important}
+}
+@media (prefers-reduced-motion:reduce) {
+  body.kn-ledger-letter :is(.kkb,.cal-day) {transition:none}
+  body.kn-ledger-letter .kn-chat-fab,body.kn-ledger-letter .kn-chat-fab .kn-bot {animation:none}
+}

@@ -1,0 +1,356 @@
+/* MyPage keeps its existing panels and storage while sharing the morning palette. */
+body.kn-home-a.kn-mypage-active #knFloatHam { z-index: 100001 !important; }
+body.kn-home-a.kn-mypage-active #drawerOverlay { z-index: 100010 !important; }
+body.kn-home-a.kn-mypage-active #sideDrawer { z-index: 100020 !important; }
+
+body.kn-home-a #myPageOv {
+  --mypage-gutter: max(24px, calc((100vw - 960px) / 2));
+  bottom: var(--kn-talk-nav-height, calc(58px + env(safe-area-inset-bottom, 0px))) !important;
+  min-width: 0;
+  min-height: 0;
+  height: auto !important;
+  box-sizing: border-box;
+  overflow: hidden;
+  background: var(--kn-sh-bg, #f0eedf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font-family: var(--kn-a-sans, system-ui, sans-serif);
+  overscroll-behavior: contain;
+}
+
+body.kn-home-a #myPageOv .mo-head {
+  flex: 0 0 auto;
+  min-width: 0;
+  min-height: 76px;
+  gap: 12px;
+  box-sizing: border-box;
+  padding: 18px var(--mypage-gutter);
+  background: var(--kn-sh-bg, #f0eedf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+  font: 500 calc(22px * var(--kn-a-scale, 1))/1.4 var(--kn-a-serif, "Yu Mincho", serif) !important;
+}
+
+body.kn-home-a #myPageOv .mo-head > span {
+  min-width: 0;
+  color: inherit !important;
+  font: inherit !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a #myPageOv .mo-x {
+  flex: 0 0 auto;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 4px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font: 400 26px/1 system-ui, sans-serif !important;
+  cursor: pointer;
+}
+
+body.kn-home-a #myPageOv .mp-toptabs {
+  flex: 0 0 auto;
+  min-width: 0;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 12px var(--mypage-gutter);
+  background: var(--kn-sh-bg, #f0eedf) !important;
+  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+body.kn-home-a #myPageOv .mp-toptab {
+  flex: 1 0 auto;
+  min-width: 120px;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 11px 18px;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-muted, #606b57) !important;
+  box-shadow: none;
+  font: 400 calc(16px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  white-space: nowrap;
+}
+
+body.kn-home-a #myPageOv .mp-toptab.on {
+  background: var(--kn-sh-chip, #eeeddf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border-color: var(--kn-sh-button, #607765);
+  box-shadow: inset 0 -2px 0 var(--kn-sh-button, #607765);
+}
+
+body.kn-home-a #myPageOv .mo-tabs {
+  flex: 0 0 auto;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: 0 var(--mypage-gutter);
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+
+body.kn-home-a #myPageOv .mo-tab {
+  flex: 1 0 auto;
+  min-width: 120px;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 12px 16px;
+  background: transparent !important;
+  color: var(--kn-sh-muted, #606b57) !important;
+  border-bottom: 2px solid transparent;
+  font: 400 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  white-space: nowrap;
+}
+
+body.kn-home-a #myPageOv .mo-tab.on {
+  background: var(--kn-sh-chip, #eeeddf) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  border-bottom-color: var(--kn-sh-button, #607765);
+}
+
+body.kn-home-a #myPageOv .mo-body {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 24px var(--mypage-gutter);
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  background: var(--kn-sh-bg, #f0eedf) !important;
+}
+
+body.kn-home-a #myPageOv .mo-pane {
+  min-width: 0;
+  max-width: 100%;
+  color: var(--kn-sh-ink, #3d4b3c);
+}
+
+body.kn-home-a #myPageOv :is(.mo-lead, .mo-note, .td-empty) {
+  color: var(--kn-sh-muted, #606b57) !important;
+  font: 400 calc(14px * var(--kn-a-scale, 1))/1.75 var(--kn-a-sans, sans-serif) !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a #myPageOv .mo-lead { margin-bottom: 18px; }
+
+body.kn-home-a #myPageOv .mo-save {
+  min-height: calc(20px * var(--kn-a-scale, 1));
+  height: auto;
+  color: var(--kn-sh-muted, #606b57) !important;
+  font: 400 calc(12px * var(--kn-a-scale, 1))/1.6 var(--kn-a-sans, sans-serif) !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a #myPageOv :is(textarea, .td-add input) {
+  min-width: 0;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font: 400 max(16px, calc(16px * var(--kn-a-scale, 1)))/1.7 var(--kn-a-sans, sans-serif) !important;
+}
+
+body.kn-home-a #myPageOv :is(textarea, input)::placeholder {
+  color: var(--kn-sh-muted, #606b57);
+  opacity: 1;
+}
+
+body.kn-home-a #myPageOv .td-add {
+  min-width: 0;
+  gap: 10px;
+  align-items: stretch;
+  margin-bottom: 18px;
+}
+
+body.kn-home-a #myPageOv .td-add button {
+  flex: 0 0 auto;
+  min-width: 64px;
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 10px 18px;
+  border: 1px solid var(--kn-sh-ink, #3d4b3c);
+  border-radius: 8px;
+  background: var(--kn-sh-ink, #3d4b3c) !important;
+  color: var(--kn-sh-paper, #fdfcf6) !important;
+  font: 500 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  white-space: nowrap;
+}
+
+body.kn-home-a #myPageOv .td-item {
+  min-width: 0;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  box-shadow: none;
+}
+
+body.kn-home-a #myPageOv .td-item.done {
+  background: var(--kn-sh-chip, #eeeddf) !important;
+}
+
+body.kn-home-a #myPageOv .td-chk {
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  border: 1px solid var(--kn-sh-ink, #3d4b3c);
+  border-radius: 6px;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-paper, #fdfcf6) !important;
+  font: 500 16px/1 system-ui, sans-serif !important;
+}
+
+body.kn-home-a #myPageOv .td-item.done .td-chk {
+  background: var(--kn-sh-ink, #3d4b3c) !important;
+}
+
+body.kn-home-a #myPageOv .td-txt {
+  min-width: 0;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font: 400 calc(16px * var(--kn-a-scale, 1))/1.7 var(--kn-a-sans, sans-serif) !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a #myPageOv .td-item.done .td-txt {
+  color: var(--kn-sh-muted, #606b57) !important;
+}
+
+body.kn-home-a #myPageOv .td-del {
+  min-width: 40px;
+  min-height: 40px;
+  padding: 6px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent !important;
+  color: var(--kn-sh-muted, #606b57) !important;
+  font: 400 22px/1 system-ui, sans-serif !important;
+}
+
+body.kn-home-a #myPageOv .kb-pane { min-width: 0; }
+
+body.kn-home-a #myPageOv .kb-frame {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 8px;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+}
+
+body.kn-home-a #myPageOv :is(button, input, textarea, iframe, [role="button"], [role="checkbox"], [role="tab"]):focus-visible {
+  outline: 2px solid var(--kn-sh-button, #607765) !important;
+  outline-offset: 3px;
+}
+
+body.kn-home-a #myPageOv button:disabled { opacity: .55; cursor: wait; }
+
+@media (max-width: 640px) {
+  body.kn-home-a #myPageOv { --mypage-gutter: 16px; }
+  body.kn-home-a #myPageOv .mo-head {
+    min-height: 68px;
+    padding-left: 60px;
+    padding-top: 14px;
+    padding-bottom: 14px;
+    font-size: calc(19px * var(--kn-a-scale, 1)) !important;
+  }
+  body.kn-home-a #myPageOv .mp-toptabs { padding-top: 10px; padding-bottom: 10px; }
+  body.kn-home-a #myPageOv .mp-toptab { padding-right: 14px; padding-left: 14px; }
+  body.kn-home-a #myPageOv .mo-tab { padding-right: 12px; padding-left: 12px; }
+  body.kn-home-a #myPageOv .mo-body { padding-top: 18px; padding-bottom: 18px; }
+}
+
+@media (max-height: 480px) {
+  body.kn-home-a #myPageOv .mo-head { min-height: 54px; padding-top: 7px; padding-bottom: 7px; }
+  body.kn-home-a #myPageOv .mp-toptabs { padding-top: 6px; padding-bottom: 6px; }
+}
+
+/* Logout remains a distinct destructive action; existing handlers own visibility. */
+body.kn-home-a #myPageOv #knLogoutBtn {
+  min-height: 46px;
+  box-sizing: border-box;
+  padding: 12px 16px !important;
+  border: 1px solid #b1443b !important;
+  border-radius: 8px !important;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: #b1443b !important;
+  font: 500 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+}
+
+body.kn-home-a[data-theme="dark"] #myPageOv #knLogoutBtn {
+  border-color: #ef9c8e !important;
+  color: #ef9c8e !important;
+}
+
+body.kn-home-a #knLogoutDlg {
+  z-index: 100030 !important;
+  padding: 16px;
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--kn-sh-ink, #3d4b3c) 38%, transparent) !important;
+  font-family: var(--kn-a-sans, system-ui, sans-serif);
+}
+
+body.kn-home-a #knLogoutDlg > div {
+  width: 100% !important;
+  max-width: 360px !important;
+  max-height: calc(100dvh - 32px);
+  box-sizing: border-box;
+  padding: 24px 20px !important;
+  border: 1px solid var(--kn-sh-line, #d5d6c3);
+  border-radius: 10px !important;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  box-shadow: 0 12px 36px color-mix(in srgb, var(--kn-sh-ink, #3d4b3c) 16%, transparent) !important;
+  overflow-y: auto;
+}
+
+body.kn-home-a #knLogoutDlg > div > div:first-child {
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+  font: 500 calc(18px * var(--kn-a-scale, 1))/1.6 var(--kn-a-serif, "Yu Mincho", serif) !important;
+  overflow-wrap: anywhere;
+}
+
+body.kn-home-a #knLogoutDlg > div > div:last-child {
+  flex-wrap: wrap;
+  gap: 10px !important;
+}
+
+body.kn-home-a #knLogoutDlg button {
+  flex: 1 1 120px !important;
+  min-width: 0;
+  min-height: 44px;
+  box-sizing: border-box;
+  padding: 11px 12px !important;
+  border-radius: 8px !important;
+  font: 500 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  white-space: nowrap;
+}
+
+body.kn-home-a #knLogoutDlg button:first-child {
+  border: 1px solid var(--kn-sh-line, #d5d6c3) !important;
+  background: var(--kn-sh-paper, #fdfcf6) !important;
+  color: var(--kn-sh-ink, #3d4b3c) !important;
+}
+
+body.kn-home-a #knLogoutDlg button:last-child {
+  border: 1px solid #b1443b !important;
+  background: #b1443b !important;
+  color: #fffdf6 !important;
+}
+
+body.kn-home-a #knLogoutDlg button:focus-visible {
+  outline: 2px solid var(--kn-sh-button, #607765) !important;
+  outline-offset: 3px;
+}
