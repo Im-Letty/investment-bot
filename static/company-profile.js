@@ -324,7 +324,8 @@
     if(w.KNCompanyProfile&&w.KNCompanyProfile.__ready)return w.KNCompanyProfile;
     let view=null,current='',name='';
     let storage=null;try{storage=w.localStorage;}catch(e){}
-    const loader=createLoader({fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage},state=>{if(view)view.render(state);});
+    const env={fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage};
+    const loader=createLoader(env,state=>{if(view)view.render(state);});
     function close(){loader.cancel();if(view)view.close();}
     function open(value,label,trigger){
       const key=symbol(value);if(!key||!w.document.body)return false;
@@ -332,7 +333,7 @@
       current=key;name=text(label,160)||key;view.open(key,name,trigger);loader.load(key);const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
     }
     w.document.addEventListener('click',event=>{const target=event.target&&event.target.closest&&event.target.closest('[data-company-profile]');if(!target||target.disabled||target.getAttribute('aria-disabled')==='true'||!symbol(target.dataset.companyProfile))return;event.preventDefault();event.stopPropagation();open(target.dataset.companyProfile,target.dataset.companyName,target);},true);
-    return {open,close,__ready:true};
+    return {open,close,createFactsLoader:onState=>createLoader(env,onState),__ready:true};
   }
   return {symbol,safeUrl,day,month,timestamp,stamp,money,normalize,hasFacts,fieldReason,createLoader,createDialog,start,POLL_MS,POLL_LIMIT,REQUEST_TIMEOUT};
 });

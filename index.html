@@ -6,7 +6,7 @@
 <link rel="stylesheet" href="/static/market-carousel.css?v=20261011-six1">
 <link rel="stylesheet" href="/static/news-orbit.css?v=20260917-caption-b1">
 <link rel="stylesheet" href="/static/news-digest.css?v=20261011-plain-info1">
-<link rel="stylesheet" href="/static/stock-focus.css?v=20261011-company-close1">
+<link rel="stylesheet" href="/static/stock-focus.css?v=20261011-watch-dividends1">
 <link rel="stylesheet" href="/static/stock-watch.css?v=20261011-shared-search1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
@@ -15,7 +15,8 @@
 <link rel="stylesheet" href="/static/company-profile.css?v=20261010-profile-reasons1">
 <script defer src="/static/date-display.js?v=20261011-price-time1"></script>
 <script defer src="/static/dividend-dates.js?v=20260925-dates1"></script>
-<script defer src="/static/company-profile.js?v=20261011-metadata1"></script>
+<script defer src="/static/company-profile.js?v=20261011-watch-dividends1"></script>
+<script defer src="/static/watch-dividends.js?v=20261011-watch-dividends1"></script>
 <script defer src="/static/dividend-data.js?v=20260924-dividend2"></script>
 <script defer src="/static/dividend-view.js?v=20261011-price-time1"></script>
 <script defer src="/static/calendar-prices.js?v=20260924-calendar-prices2"></script>
@@ -35,7 +36,7 @@
 <script defer src="/static/stock-search-common.js?v=20261011-shared-search1"></script>
 <script defer src="/static/market-carousel.js?v=20261011-six1"></script>
 <script defer src="/static/home-a.js?v=20261011-six1"></script>
-<script defer src="/static/stock-focus.js?v=20261011-price-time1"></script>
+<script defer src="/static/stock-focus.js?v=20261011-watch-dividends1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -3880,8 +3881,8 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
       if(previous){j.name=previous.name||j.name;j.currency=j.currency||previous.currency;}
       if(window.StockWatch&&window.StockWatch.savedName){var savedName=window.StockWatch.savedName(sym);if(savedName!==sym)j.name=savedName;}
       lastGood[sym]=j;
-      return {html:window.StockFocus.watchRow(j,sym,window.KNMarketData&&window.KNMarketData.formatChange),failed:false};
-    }).catch(function(){return {html:window.StockFocus.watchRow(lastGood[sym]||{name:window.StockWatch&&window.StockWatch.savedName?window.StockWatch.savedName(sym):sym},sym,window.KNMarketData&&window.KNMarketData.formatChange),failed:true};}).finally(function(){clearTimeout(timer);if(rowPending[sym]===result)delete rowPending[sym];});
+      return {html:window.StockFocus.watchRow(j,sym,window.KNMarketData&&window.KNMarketData.formatChange,window.KNWatchDividends&&window.KNWatchDividends.peek(sym)),failed:false};
+    }).catch(function(){return {html:window.StockFocus.watchRow(lastGood[sym]||{name:window.StockWatch&&window.StockWatch.savedName?window.StockWatch.savedName(sym):sym},sym,window.KNMarketData&&window.KNMarketData.formatChange,window.KNWatchDividends&&window.KNWatchDividends.peek(sym)),failed:true};}).finally(function(){clearTimeout(timer);if(rowPending[sym]===result)delete rowPending[sym];});
     rowPending[sym]=result;return result;
   }
   function build(force){
@@ -3894,7 +3895,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     if(!list.length){
       generation++;pending=null;lastKey=null;stopRefresh();
       if(changed){sec.innerHTML='<p class="sf-state">お気に入りはまだありません</p><button id="knWatchAddBtn" class="sf-retry" type="button">＋ 銘柄を追加</button>';sec.dataset.knSelection=key;}
-      place();
+      place();if(window.KNWatchDividends)window.KNWatchDividends.refresh();
       var b=document.getElementById("knWatchAddBtn");
       if(b)b.onclick=function(){try{if(typeof closeDrawer==='function')closeDrawer();}catch(e){}if(typeof window.openStockWatchManager==='function')window.openStockWatchManager();};
       return;
@@ -3905,6 +3906,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
       var manage=document.createElement('button');manage.type='button';manage.className='sf-retry';manage.textContent='お気に入りを管理';manage.onclick=function(){window.openStockWatchManager();};sec.appendChild(manage);
     }
     place();
+    if(window.KNWatchDividends)window.KNWatchDividends.refresh();
     if(document.hidden){stopRefresh();return;}
     if(pending&&pending.key===key&&pending.section===sec)return pending.promise;
     if(!force&&lastKey===key&&Date.now()-lastStarted<REFRESH_INTERVAL)return;
@@ -3917,6 +3919,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
       var html=rows.map(function(row){return row.html;}).join('');if(box&&box.innerHTML!==html)box.innerHTML=html;
       var message=rows.some(function(row){return row.failed;})?'更新を確認できませんでした':'';
       if(status&&status.textContent!==message)status.textContent=message;
+      if(window.KNWatchDividends)window.KNWatchDividends.refresh();
     }).finally(function(){if(pending===request){pending=null;scheduleRefresh();}});
     return request.promise;
   }

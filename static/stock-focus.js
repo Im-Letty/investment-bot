@@ -1,10 +1,11 @@
 /* Approved stock panel: live rankings and independently reviewed company stories. */
 (function(root,factory){
   const dates=typeof module==='object'&&module.exports?require('./date-display.js'):root&&root.KNDateDisplay;
-  const api=factory(dates);
+  const dividends=typeof module==='object'&&module.exports?require('./watch-dividends.js'):root&&root.KNWatchDividends;
+  const api=factory(dates,dividends);
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root&&root.document){root.StockFocus=api;api.start(root);}
-})(typeof window==='undefined'?null:window,function(dates){
+})(typeof window==='undefined'?null:window,function(dates,dividends){
   'use strict';
   const DAY=86400000, CACHE_AGE=7*DAY, REFRESH_MS=60000;
   const escape=value=>String(value==null?'':value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -48,12 +49,13 @@
   function row(item,index,showDate=true){
     return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'">'+companyName(item.symbol,item.name)+'</div>'+quote(item,showDate)+'</li>';
   }
-  function watchRow(raw,symbol,formatChange){
+  function watchRow(raw,symbol,formatChange,dividendState){
     const item=raw||{},name=escape(item.name||symbol);
-    if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">株価を確認できませんでした</span></div>';
+    const facts=dividends?'<div class="sf-watch-dividend" data-watch-dividend="'+escape(symbol)+'">'+dividends.markup(dividendState)+'</div>':'';
+    if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">株価を確認できませんでした</span>'+facts+'</div>';
     const currency=item.currency||(symbol.endsWith('.T')?'JPY':''),unit=({JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド'})[currency]||currency;
     const change=typeof formatChange==='function'?formatChange(item,{symbol,currency},'ja'):{amount:'',percent:'',direction:'flat'};
-    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+(priceTime(item)?'<span class="sf-quote-date">'+escape(priceTime(item))+'</span>':'')+'</div></div>';
+    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+(priceTime(item)?'<span class="sf-quote-date">'+escape(priceTime(item))+'</span>':'')+'</div>'+facts+'</div>';
   }
   const METRICS={pct:'値上がり率・値下がり率',amount:'値上がり額・値下がり額',volume:'出来高'};
   const MARKETS={all:'全市場',prime:'プライム',standard:'スタンダード',growth:'グロース'};
