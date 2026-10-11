@@ -23,6 +23,22 @@ def document(sources):
     return {'version': 1, 'scope': national.SCOPE, 'sources': sources}
 
 
+def new_listing_table(rows):
+    header = ('<tr><th>上場日（上場承認日）</th><th>会社名（注3）</th><th>コード</th>'
+              '<th>会社概要</th><th>確認書</th><th>仮条件</th><th>公募</th><th>売買単位</th></tr>'
+              '<tr><th>市場区分</th><th>Iの部</th><th>CG報告書</th><th>公募価格</th><th>売出</th><th>決算短信</th></tr>')
+    return ('<table>' + header + ''.join(
+        f'<tr><td>{stamp}</td><td>{name}</td><td>{code}</td>' + '<td>-</td>' * 5 + '</tr>' +
+        f'<tr><td>{market}</td>' + '<td>-</td>' * 5 + '</tr>' for stamp, name, code, market in rows) + '</table>').encode()
+
+
+def transfer_table(rows):
+    return ('<table><tr><th>変更日</th><th>会社名（注1）</th><th>コード</th><th>市場区分</th>'
+            '<th>以前の市場区分</th><th>幹事取引参加者</th><th>代表者インタビュー</th></tr>' + ''.join(
+                '<tr>' + ''.join(f'<td>{value}</td>' for value in (*row, '-', '-')) + '</tr>'
+                for row in rows) + '</table>').encode()
+
+
 class OfficialNationalCatalogueTests(unittest.TestCase):
     def test_live_read_snapshot_is_dated_and_every_current_identity_is_searchable_offline(self):
         supplement = national.read_supplement()
@@ -86,6 +102,20 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         self.assertEqual(search.search('9691')['results'], [])
         self.assertEqual(search.company('7851')['exchange'], 'Fukuoka')
         self.assertEqual(search.company('7851')['symbol'], '7851.JP')
+        search.session.get.assert_not_called()
+
+    def test_effective_market_transfer_corrects_current_market_without_changing_provider_count(self):
+        search = StockSearch(runtime_path=None, session=Mock())
+        medrx = search.company('4586')
+        self.assertEqual(medrx['market'], 'スタンダード（内国株式）')
+        self.assertEqual(medrx['market_changed_on'], '2026-10-07')
+        self.assertEqual(medrx['as_of'], '2026-10-11')
+        self.assertEqual(medrx['source_url'], national.SOURCES['tokyo_transfers'])
+        self.assertEqual(medrx['provider_symbol'], '4586.T')
+        self.assertEqual(search.company('4475')['market'], 'グロース（内国株式）')
+        self.assertNotIn('market_changed_on', search.company('4475'), 'Announced date window is not an actual change')
+        self.assertEqual(len(search.all_items()['items']), 3796)
+        self.assertEqual(len(search.provider_items()), 3686)
         search.session.get.assert_not_called()
 
     def test_companies_with_multiple_regional_listings_survive_tokyo_delisting(self):
@@ -161,13 +191,101 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         self.assertNotIn('123A', closed)
 
     def test_new_listing_parser_uses_listing_date_not_approval_date_and_skips_future(self):
-        payload = '''<table><tr><th>上場日（上場承認日）</th><th>会社名</th><th>コード</th></tr>
-        <tr><td>2026/10/01<br>（2026/09/01）</td><td>（株）Current *</td><td>640A</td></tr>
-        <tr><td>グロース</td><td>Iの部</td></tr>
-        <tr><td>2026/10/15<br>（2026/09/08）</td><td>Future</td><td>648A</td></tr>
-        <tr><td>グロース</td><td>市場区分</td></tr></table>'''.encode()
+        payload = new_listing_table([
+            ('2026/10/01<br>（2026/09/01）', '<a href="https://current.test/">（株）Current *</a>', '640A', 'グロース'),
+            ('2026/10/15<br>（2026/09/08）', '<a href="https://future.test/">Future</a>', '648A', 'グロース')])
         rows = national.parse_tokyo_new(payload, DAY)
         self.assertEqual(rows, [{'code': '640A', 'name': 'Current', 'market': 'グロース（内国株式）', 'listed_on': '2026-10-01'}])
+
+    def test_new_listing_name_comes_from_company_link_not_video_label(self):
+        payload = new_listing_table([('2026/02/13<br>（2026/01/09）',
+            '<a href="https://www.tobooks.jp/">（株）ＴＯブックス</a><br>'
+            '<a href="https://youtu.be/1GKeoFdHgmo">代表者インタビュー</a>', '500A', 'スタンダード')])
+        self.assertEqual(national.parse_tokyo_new(payload, DAY)[0]['name'], 'ＴＯブックス')
+        seed = national.read_supplement()
+        self.assertEqual(next(row for row in seed['sources']['tokyo_new']['items'] if row['code'] == '500A')['name'], 'ＴＯブックス')
+        self.assertTrue(all('代表者インタビュー' not in row['name'] for row in seed['sources']['tokyo_new']['items']))
+
+    def test_new_listing_unknown_name_structure_duplicate_code_or_unpaired_market_fails(self):
+        good = ('2026/10/01<br>（2026/09/01）', '<a href="https://company.test/">（株）Current</a>', '640A', 'グロース')
+        for name in (good[1] + '<a href="https://second.test/">Other company</a>',
+                     good[1] + ' Unknown label', '<span>' + good[1] + '</span>',
+                     '<a href="https://youtu.be/example">代表者インタビュー</a>'):
+            with self.subTest(name=name), self.assertRaises(ValueError):
+                national.parse_tokyo_new(new_listing_table([(good[0], name, good[2], good[3])]), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_new(new_listing_table([good, good]), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_new(new_listing_table([good]).replace(b'<td>-</td></tr></table>', b'</tr></table>'), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_new(new_listing_table([good]).removesuffix(b'</table>'), DAY)
+        for stamp in ('2026/10/01 ～ 2026/10/03', '2026/10/01（2026/10/02）', '2026/10/32（2026/09/01）'):
+            with self.subTest(stamp=stamp), self.assertRaises(ValueError):
+                national.parse_tokyo_new(new_listing_table([(stamp, good[1], good[2], good[3])]), DAY)
+
+    def test_market_transfer_parser_requires_actual_effective_date_and_known_markets(self):
+        payload = transfer_table([
+            ('2026/10/20<br> ～ 2026/10/22', 'ＨＥＮＮＧＥ（株）', '4475', 'プライム', 'グロース'),
+            ('2026/10/07', '（株）メドレックス', '4586', 'スタンダード', 'グロース'),
+            ('2026/10/15', 'Future（株）', '123A', 'プライム', 'スタンダード'),
+            ('2026/10/01 ～ 2026/10/03', 'Unconfirmed actual date（株）', '234A', 'プライム', 'グロース')])
+        self.assertEqual(national.parse_tokyo_transfers(payload, DAY), [{
+            'code': '4586', 'name': 'メドレックス', 'changed_on': '2026-10-07',
+            'market': 'スタンダード（内国株式）', 'previous_market': 'グロース（内国株式）'}])
+
+    def test_market_transfer_changed_columns_invalid_dates_and_duplicate_identities_fail_safe(self):
+        good = ('2026/10/07', '（株）メドレックス', '4586', 'スタンダード', 'グロース')
+        for row in (('2026/10/32', *good[1:]), ('2026/10/07 未確定', *good[1:]),
+                    ('2026/10/09 ～ 2026/10/07', *good[1:]),
+                    (*good[:3], 'PRO', good[4]), (*good[:3], 'グロース', 'グロース')):
+            with self.subTest(row=row), self.assertRaises(ValueError):
+                national.parse_tokyo_transfers(transfer_table([row]), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_transfers(transfer_table([good, good]), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_transfers(transfer_table([good]).replace('以前の市場区分'.encode(), '変更理由'.encode()), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_transfers(transfer_table([good]).replace(b'<td>-</td></tr>', b'</tr>'), DAY)
+        with self.assertRaises(ValueError):
+            national.parse_tokyo_transfers(transfer_table([good]).removesuffix(b'</table>'), DAY)
+
+    def test_market_transfer_cannot_resurrect_delisted_or_mismatch_current_issuer(self):
+        monthly = {'as_of': '2026-09-30', 'source_url': 'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html',
+            'items': [{'code': '4586', 'name': 'メドレックス', 'market': 'グロース（内国株式）'},
+                      {'code': '6147', 'name': 'ヤマザキ', 'market': 'スタンダード（内国株式）'},
+                      {'code': '123A', 'name': 'New issuer', 'market': 'グロース（内国株式）'},
+                      {'code': '234A', 'name': 'Wrong former market', 'market': 'プライム（内国株式）'}]}
+        rows = [{'code': code, 'name': name, 'market': target, 'previous_market': previous, 'changed_on': '2026-10-07'} for
+                code, name, target, previous in [
+                    ('4586', 'メドレックス', 'スタンダード（内国株式）', 'グロース（内国株式）'),
+                    ('6147', 'ヤマザキ', 'プライム（内国株式）', 'スタンダード（内国株式）'),
+                    ('123A', 'Old issuer', 'スタンダード（内国株式）', 'グロース（内国株式）'),
+                    ('234A', 'Wrong former market', 'プライム（内国株式）', 'グロース（内国株式）'),
+                    ('999A', 'Unknown company', 'スタンダード（内国株式）', 'グロース（内国株式）')]]
+        extra = document({'tokyo_transfers': source('tokyo_transfers', rows),
+                          'tokyo_delisted': source('tokyo_delisted', [{'code': '6147', 'name': 'ヤマザキ', 'delisted_on': '2026-10-01'}]),
+                          'sapporo_all': source('sapporo_all', [{'code': '6147', 'name': 'ヤマザキ', 'market': '本則市場'}])})
+        merged, closed = national.merge_companies(monthly, extra)
+        by_code = {row['code']: row for row in merged}
+        self.assertEqual(by_code['4586']['market'], 'スタンダード（内国株式）')
+        self.assertEqual(by_code['6147']['symbol'], '6147.JP')
+        self.assertEqual(by_code['123A']['market'], 'グロース（内国株式）')
+        self.assertNotIn('market_changed_on', by_code['234A'])
+        self.assertNotIn('999A', by_code)
+        self.assertIn('6147', closed)
+
+    def test_market_transfer_older_than_monthly_or_later_relisting_cannot_overwrite(self):
+        monthly = {'as_of': '2026-10-31', 'source_url': 'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html',
+                   'items': [{'code': '4586', 'name': 'メドレックス', 'market': 'プライム（内国株式）'}]}
+        extra = document({'tokyo_transfers': source('tokyo_transfers', [{'code': '4586', 'name': 'メドレックス',
+            'market': 'スタンダード（内国株式）', 'previous_market': 'グロース（内国株式）', 'changed_on': '2026-10-07'}])})
+        merged, _ = national.merge_companies(monthly, extra)
+        self.assertEqual(merged[0]['market'], 'プライム（内国株式）')
+        monthly.update(as_of='2026-09-30', items=[])
+        extra['sources']['tokyo_new'] = source('tokyo_new', [{'code': '4586', 'name': 'メドレックス',
+            'market': 'グロース（内国株式）', 'listed_on': '2026-10-10'}])
+        merged, _ = national.merge_companies(monthly, extra)
+        self.assertEqual(merged[0]['market'], 'グロース（内国株式）')
 
     def test_delisting_parser_skips_future_announced_delisting(self):
         payload = '''<table><tr><th>上場廃止日</th><th>銘柄名</th><th>コード</th><th>市場区分</th><th>上場廃止理由</th></tr>
@@ -283,6 +401,31 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
             cache = Path(temporary) / 'national.json'
             cache.write_text(json.dumps(bad))
             self.assertEqual(national.read_supplement(runtime_path=cache), before)
+
+    def test_older_runtime_ui_label_or_future_transfer_cannot_replace_verified_seed(self):
+        before = national.read_supplement()
+        bad = deepcopy(before)
+        bad['sources']['tokyo_new']['items'][0]['name'] += ' 代表者インタビュー'
+        bad['sources']['tokyo_transfers']['items'][0]['changed_on'] = '2026-10-20'
+        with tempfile.TemporaryDirectory() as temporary:
+            cache = Path(temporary) / 'national.json'
+            cache.write_text(json.dumps(bad))
+            after = national.read_supplement(runtime_path=cache)
+        self.assertEqual(after['sources']['tokyo_new'], before['sources']['tokyo_new'])
+        self.assertEqual(after['sources']['tokyo_transfers'], before['sources']['tokyo_transfers'])
+
+    def test_changed_or_truncated_transfer_page_retains_last_good_market_source(self):
+        before = national.read_supplement()
+        good = ('2026/10/07', '（株）メドレックス', '4586', 'スタンダード', 'グロース')
+        for payload in (transfer_table([good]).removesuffix(b'</table>'),
+                        transfer_table([good]).replace('以前の市場区分'.encode(), '変更理由'.encode())):
+            def download(url, session):
+                if url == national.SOURCES['tokyo_transfers']:
+                    return payload
+                raise requests.Timeout('no response')
+            with patch.object(national, '_download', side_effect=download):
+                after = national.refresh_supplement(before, today=DAY)
+            self.assertEqual(after, before)
 
     def test_partial_runtime_corruption_keeps_other_verified_exchange_update(self):
         before = national.read_supplement()

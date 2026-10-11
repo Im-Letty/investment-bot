@@ -12,6 +12,7 @@ import json
 from pathlib import Path
 import re
 import time
+import unicodedata
 
 import requests
 
@@ -22,6 +23,7 @@ CODE = re.compile(r'^[0-9][0-9A-Z]{3}$')
 SOURCES = {
     'tokyo_new': 'https://www.jpx.co.jp/listing/stocks/new/index.html',
     'tokyo_delisted': 'https://www.jpx.co.jp/listing/stocks/delisted/index.html',
+    'tokyo_transfers': 'https://www.jpx.co.jp/listing/stocks/transfers/index.html',
     'nagoya': 'https://www.nse.or.jp/api/stock/search.json?listedSingle=1&dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1',
     'sapporo': 'https://www.sse.or.jp/tandoku',
     'fukuoka': 'https://www.fse.or.jp/market-info/single-listings/',
@@ -39,6 +41,7 @@ SOURCE_TITLES = {'Tokyo': '日本取引所グループ（JPX）', 'Nagoya': '名
 REGIONAL_MARKETS = {'Nagoya': {'プレミア市場', 'メイン市場', 'ネクスト市場'},
                     'Sapporo': {'本則市場', 'アンビシャス市場'},
                     'Fukuoka': {'本則', 'Q-Board'}}
+TOKYO_MARKETS = {'プライム', 'スタンダード', 'グロース'}
 
 
 def today_jst():
@@ -48,6 +51,7 @@ def today_jst():
 class _Node:
     def __init__(self, tag='', attrs=()):
         self.tag, self.attrs, self.children = tag, dict(attrs), []
+        self.closed = False
 
     def text(self):
         return ''.join(child.text() if isinstance(child, _Node) else child for child in self.children)
@@ -75,6 +79,7 @@ class _HTML(HTMLParser):
         if self.count > 100000 or len(self.stack) > 100:
             raise ValueError('Official HTML size limit')
         node = _Node(tag, attrs)
+        node.closed = tag in self.VOID
         self.stack[-1].children.append(node)
         if tag not in self.VOID:
             self.stack.append(node)
@@ -87,6 +92,7 @@ class _HTML(HTMLParser):
     def handle_endtag(self, tag):
         for i in range(len(self.stack) - 1, 0, -1):
             if self.stack[i].tag == tag:
+                self.stack[i].closed = True
                 del self.stack[i:]
                 break
 
@@ -123,31 +129,108 @@ def _stamp(value):
     return date(*map(int, match.groups())) if match else None
 
 
+def _new_company_name(cell):
+    # JPX puts the company link and a separate video link in the same cell.
+    # A whole-cell text extraction turns that UI label into a company name.
+    links = list(cell.findall('a'))
+    if not 1 <= len(links) <= 2 or not _text(links[0]) or _text(links[0]) == '代表者インタビュー':
+        raise ValueError('Unknown new-listing company link')
+    if len(links) == 2 and (_text(links[1]) != '代表者インタビュー'
+                           or not re.match(r'^https://(?:youtu\.be/|(?:www\.)?youtube\.com/)', links[1].attrs.get('href', ''))):
+        raise ValueError('Unknown new-listing supplementary link')
+    if not re.match(r'^https?://', links[0].attrs.get('href', '')):
+        raise ValueError('Unknown new-listing company URL')
+    # Unknown text outside those links must not silently become part of a name.
+    outside = ''.join(child for child in cell.children if isinstance(child, str)).strip()
+    nodes = [child for child in cell.children if isinstance(child, _Node)]
+    if outside or any(node.tag not in ('a', 'br') or not node.closed for node in nodes):
+        raise ValueError('Unknown new-listing name structure')
+    name = _name(_text(links[0]))
+    if not 1 <= len(name) <= 200 or '代表者インタビュー' in name:
+        raise ValueError('Invalid new-listing company name')
+    return name
+
+
 def parse_tokyo_new(payload, observed_on):
     root = _HTML(payload.decode('utf-8')).root
     tables = [table for table in root.findall('table') if '上場日' in table.text()
               and '上場承認日' in table.text() and '市場区分' in table.text()]
-    if len(tables) != 1:
+    if len(tables) != 1 or not tables[0].closed:
         raise ValueError('Unknown JPX new-listing table')
-    rows, result, parsed = list(tables[0].findall('tr')), [], 0
-    for i, row in enumerate(rows):
+    rows, result, parsed, seen = list(tables[0].findall('tr')), [], 0, set()
+    if len(rows) < 4:
+        raise ValueError('Incomplete JPX new-listing page')
+    header, secondary = [_text(c) for c in _cells(rows[0])], [_text(c) for c in _cells(rows[1])]
+    if (len(header) != 8 or not header[0].startswith('上場日') or '上場承認日' not in header[0]
+            or not header[1].startswith('会社名') or header[2] != 'コード'
+            or len(secondary) != 6 or secondary[0] != '市場区分'):
+        raise ValueError('Unknown JPX new-listing columns')
+    if (len(rows) - 2) % 2:
+        raise ValueError('Unpaired JPX new-listing row')
+    for i in range(2, len(rows), 2):
+        row = rows[i]
         cells = _cells(row)
-        if len(cells) < 3:
-            continue
-        stamp = _stamp(_text(cells[0]))
+        market_cells = _cells(rows[i + 1])
+        if (len(cells) != 8 or len(market_cells) != 6 or not row.closed or not rows[i + 1].closed
+                or any(cell.tag != 'td' or not cell.closed for cell in (*cells, *market_cells))):
+            raise ValueError('Unknown JPX new-listing row structure')
+        dates = re.fullmatch(r'(\d{4}/\d{2}/\d{2})\s*[（(](\d{4}/\d{2}/\d{2})[）)]', _text(cells[0]))
+        stamp = _stamp(dates[1]) if dates else None
         code = _text(cells[2]).upper()
-        if stamp is None or not CODE.fullmatch(code):
-            continue
+        if (stamp is None or _stamp(dates[2]) > stamp or not CODE.fullmatch(code) or code in seen):
+            raise ValueError('Invalid JPX new-listing identity')
+        name = _new_company_name(cells[1])
+        seen.add(code)
         parsed += 1
-        market_cells = _cells(rows[i + 1]) if i + 1 < len(rows) else []
-        market = _text(market_cells[0]) if market_cells else ''
-        if market not in ('プライム', 'スタンダード', 'グロース'):
+        market = _text(market_cells[0])
+        if market not in TOKYO_MARKETS:
             raise ValueError('Unknown new-listing market')
         if stamp <= observed_on:
-            result.append({'code': code, 'name': _name(_text(cells[1])),
+            result.append({'code': code, 'name': name,
                            'market': market + '（内国株式）', 'listed_on': stamp.isoformat()})
     if parsed == 0:
         raise ValueError('Incomplete JPX new-listing page')
+    return result
+
+
+def parse_tokyo_transfers(payload, observed_on):
+    root = _HTML(payload.decode('utf-8')).root
+    tables = [table for table in root.findall('table') if '以前の市場区分' in table.text()
+              and '変更日' in table.text() and 'コード' in table.text()]
+    if len(tables) != 1 or not tables[0].closed:
+        raise ValueError('Unknown JPX market-transfer table')
+    rows = list(tables[0].findall('tr'))
+    header = [_text(cell) for cell in _cells(rows[0])] if rows else []
+    if (len(header) != 7 or header[0] != '変更日' or not header[1].startswith('会社名')
+            or header[2:5] != ['コード', '市場区分', '以前の市場区分']):
+        raise ValueError('Unknown JPX market-transfer columns')
+    result, seen = [], set()
+    for row in rows[1:]:
+        cells = _cells(row)
+        if len(cells) != 7 or not row.closed or any(cell.tag != 'td' or not cell.closed for cell in cells):
+            raise ValueError('Unknown JPX market-transfer row structure')
+        stamp, name, code, market, previous = [_text(cell) for cell in cells[:5]]
+        if (not CODE.fullmatch(code) or code in seen or market not in TOKYO_MARKETS
+                or previous not in TOKYO_MARKETS or market == previous):
+            raise ValueError('Invalid JPX market-transfer identity')
+        seen.add(code)
+        name = _name(name)
+        if not 1 <= len(name) <= 200 or '代表者インタビュー' in name:
+            raise ValueError('Invalid JPX market-transfer name')
+        if re.fullmatch(r'\d{4}/\d{2}/\d{2}', stamp):
+            event = _stamp(stamp)
+        else:
+            window = re.fullmatch(r'(\d{4}/\d{2}/\d{2})\s*～\s*(\d{4}/\d{2}/\d{2})', stamp)
+            if not window or _stamp(window[1]) > _stamp(window[2]):
+                raise ValueError('Unknown JPX market-transfer date')
+            # Announced windows are not evidence of an actual change date.
+            continue
+        if event <= observed_on:
+            result.append({'code': code, 'name': name, 'changed_on': event.isoformat(),
+                           'market': market + '（内国株式）',
+                           'previous_market': previous + '（内国株式）'})
+    if len(rows) < 2:
+        raise ValueError('Incomplete JPX market-transfer page')
     return result
 
 
@@ -357,6 +440,7 @@ def parse_fukuoka_all(payload, observed_on):
 
 
 PARSERS = {'tokyo_new': parse_tokyo_new, 'tokyo_delisted': parse_tokyo_delisted,
+           'tokyo_transfers': parse_tokyo_transfers,
            'nagoya': parse_nagoya, 'sapporo': parse_sapporo, 'fukuoka': parse_fukuoka,
            'nagoya_all': parse_nagoya_all, 'sapporo_all': parse_sapporo_all,
            'fukuoka_all': parse_fukuoka_all}
@@ -379,7 +463,8 @@ def _clean_source(key, source, today):
         code, name = row.get('code'), row.get('name')
         if (not isinstance(code, str) or not CODE.fullmatch(code) or code in seen
                 or not isinstance(name, str) or not 1 <= len(name) <= 200
-                or any(ord(c) < 32 for c in name)):
+                or any(ord(c) < 32 for c in name)
+                or (key in ('tokyo_new', 'tokyo_transfers') and '代表者インタビュー' in name)):
             raise ValueError('Invalid official identity')
         item = {'code': code, 'name': name}
         if key == 'tokyo_delisted':
@@ -389,7 +474,7 @@ def _clean_source(key, source, today):
             item['delisted_on'] = event.isoformat()
         else:
             market = row.get('market')
-            allowed = {'プライム（内国株式）', 'スタンダード（内国株式）', 'グロース（内国株式）'} if exchange == 'Tokyo' else REGIONAL_MARKETS[exchange]
+            allowed = {name + '（内国株式）' for name in TOKYO_MARKETS} if exchange == 'Tokyo' else REGIONAL_MARKETS[exchange]
             if market not in allowed:
                 raise ValueError('Invalid ordinary company market')
             item['market'] = market
@@ -398,6 +483,12 @@ def _clean_source(key, source, today):
                 if event > observed:
                     raise ValueError('Unimplemented listing')
                 item['listed_on'] = event.isoformat()
+            elif key == 'tokyo_transfers':
+                event = date.fromisoformat(row.get('changed_on', ''))
+                previous = row.get('previous_market')
+                if event > observed or previous not in allowed or previous == market:
+                    raise ValueError('Invalid implemented market transfer')
+                item.update(changed_on=event.isoformat(), previous_market=previous)
             if 'industry' in row:
                 value = row['industry']
                 if not isinstance(value, str) or not 1 <= len(value) <= 100 or any(ord(c) < 32 for c in value):
@@ -512,6 +603,23 @@ def merge_companies(monthly, supplement):
         current = tokyo.get(row['code'])
         if current and (monthly_date is None or row['delisted_on'] > monthly_date) and row['delisted_on'] >= current.get('listed_on', '0000-00-00'):
             del tokyo[row['code']]
+    transfers = sources.get('tokyo_transfers', {})
+    def same_name(left, right):
+        def normalized(value):
+            return re.sub(r'\s+', '', unicodedata.normalize('NFKC', value).replace('株式会社', ''))
+        return normalized(left) == normalized(right)
+    for row in transfers.get('items', []):
+        current = tokyo.get(row['code'])
+        # A market change only updates a matching, still-listed Tokyo company.
+        # It cannot create a listing, undo a delisting, or affect a later issuer
+        # that reused the code. Monthly data already includes older changes.
+        if (current and (monthly_date is None or row['changed_on'] > monthly_date)
+                and row['changed_on'] >= current.get('listed_on', '0000-00-00')
+                and row['changed_on'] <= transfers['as_of']
+                and current.get('market') == row['previous_market']
+                and same_name(current['name'], row['name'])):
+            current.update(market=row['market'], market_changed_on=row['changed_on'],
+                           source_url=transfers['source_url'], catalogue_as_of=transfers['as_of'])
     companies = dict(tokyo)
     for key, exchange in (('nagoya', 'Nagoya'), ('sapporo', 'Sapporo'), ('fukuoka', 'Fukuoka')):
         # Full exchange membership covers companies listed on several regional

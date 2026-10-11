@@ -39,6 +39,9 @@ def normalize_name(value):
     if not isinstance(value, str) or not 0 < len(value) <= 200:
         return None
     value = unicodedata.normalize('NFKC', value).replace('株式会社', '')
+    # The official exchange masters use both full corporate forms and (株).
+    # Remove that legal form only; never fuzzy-match abbreviated brand names.
+    value = re.sub(r'^\s*\(株\)\s*|\s*\(株\)\s*$', '', value)
     value = re.sub(r'\s+', '', value)
     return value if value else None
 
@@ -63,8 +66,77 @@ def official_identity(symbol, company):
             or company.get('symbol', symbol) != symbol
             or symbol.endswith('.T') != (exchange == 'Tokyo')):
         return None
-    return dict(symbol=symbol, code=code, name=name, exchange=exchange,
-                exchange_id=EXCHANGES[exchange])
+    identity = dict(symbol=symbol, code=code, name=name, exchange=exchange,
+                    exchange_id=EXCHANGES[exchange])
+    others = company.get('other_listings', [])
+    if not isinstance(others, list) or len(others) > len(EXCHANGES) - 1:
+        return None
+    pairs = set()
+    for row in others:
+        # Only official, same-company secondary listings are usable proof.
+        # A same ticker on another exchange is not an identity match by itself.
+        if (not isinstance(row, dict) or row.get('exchange') not in EXCHANGES
+                or row.get('code') != code or normalize_name(row.get('name')) != name):
+            continue
+        if row['exchange'] != exchange:
+            pairs.add(row['exchange'])
+    if pairs:
+        identity['listings'] = [dict(exchange=key, exchange_id=EXCHANGES[key])
+                                for key in sorted(pairs)]
+    return identity
+
+
+def _identity_exchanges(identity):
+    return {row['exchange_id']: row['exchange'] for row in
+            [identity, *identity.get('listings', [])]}
+
+
+def _stored_identity(supplied):
+    if not isinstance(supplied, dict):
+        return None
+    listings = supplied.get('listings', [])
+    if (not isinstance(listings, list) or len(listings) > len(EXCHANGES) - 1
+            or any(not isinstance(item, dict) for item in listings)):
+        return None
+    clean = official_identity(supplied.get('symbol'), dict(code=supplied.get('code'), name=supplied.get('name'),
+        exchange=supplied.get('exchange'), symbol=supplied.get('symbol'),
+        other_listings=[dict(code=supplied.get('code'), name=supplied.get('name'), exchange=item.get('exchange'))
+                        for item in listings]))
+    return clean if clean == supplied else None
+
+
+def read_candidate_hints(path, now):
+    """A discovery QID is a search shortcut, never proof or displayable facts."""
+    if not path:
+        return {}
+    try:
+        path = Path(path)
+        if path.stat().st_size > MAX_CACHE_BYTES:
+            return {}
+        document = json.loads(path.read_text(encoding='utf-8'))
+        discovered = document.get('discovered_at')
+        if (document.get('version') != 1 or not _number(discovered)
+                or not 0 <= now - discovered < RETAIN):
+            return {}
+        rows = document.get('candidate_hints')
+        if not isinstance(rows, list) or len(rows) > MAX_RECORDS:
+            return {}
+        result, repeated = {}, set()
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            symbol, identity, ids = (row.get(key) for key in ('symbol', 'identity', 'entity_ids'))
+            if (not _stored_identity(identity) or symbol != identity['symbol']
+                    or not isinstance(ids, list) or not 0 < len(ids) <= 5
+                    or any(not _qid(qid) for qid in ids) or len(set(ids)) != len(ids)):
+                continue
+            if symbol in result or symbol in repeated:
+                repeated.add(symbol); result.pop(symbol, None)
+                continue
+            result[symbol] = dict(identity=identity, entity_ids=ids)
+        return result
+    except (OSError, ValueError, TypeError, AttributeError):
+        return {}
 
 
 def _japanese(value, limit=400, *, require_script=False):
@@ -157,7 +229,9 @@ def verify_entity(entity, identity, today, now=None):
         if not _current_claim(claim, today, now):
             continue
         value = _snak_value(claim.get('mainsnak'), 'P414')
-        if not isinstance(value, dict) or value.get('id') != identity['exchange_id']:
+        exchange_id = value.get('id') if isinstance(value, dict) else None
+        exchanges = _identity_exchanges(identity)
+        if exchange_id not in exchanges:
             continue
         tickers = claim.get('qualifiers', {}).get('P249', [])
         if not isinstance(tickers, list) or len(tickers) > 32:
@@ -168,7 +242,7 @@ def verify_entity(entity, identity, today, now=None):
                 continue
             if unicodedata.normalize('NFKC', code).strip().upper() == identity['code']:
                 return dict(entity_id=entity['id'], matched_name=matched,
-                            exchange=identity['exchange'], exchange_id=identity['exchange_id'],
+                            exchange=exchanges[exchange_id], exchange_id=exchange_id,
                             code=identity['code'], rank=claim.get('rank', 'normal'),
                             current_listing=True)
     return None
@@ -203,15 +277,17 @@ class BusinessFailure:
 
 
 class WikidataBusinessProvider:
-    """At most search + company entities + eight fact labels, in 15 seconds."""
+    """Verified QID hints skip search; entities are always checked afresh."""
     def __init__(self, *, session_factory=requests.Session, now=time.time,
-                 monotonic=time.monotonic, deadline=15, interactive=False, cooldown_path=None):
+                 monotonic=time.monotonic, deadline=15, interactive=False, cooldown_path=None,
+                 candidate_hints=None):
         self.session_factory, self.now, self.monotonic = session_factory, now, monotonic
         self.deadline = max(.1, min(15, deadline))
         # MediaWiki explicitly permits omitting maxlag while a user waits for
         # an interactive result. Automated refreshes retain maxlag=5.
         self.interactive = interactive is True
         self.cooldown_path = Path(cooldown_path) if cooldown_path else None
+        self.candidate_hints = deepcopy(candidate_hints) if isinstance(candidate_hints, dict) else {}
         self._reset_process()
         if hasattr(os, 'register_at_fork'):
             os.register_at_fork(after_in_child=self._reset_process)
@@ -318,15 +394,23 @@ class WikidataBusinessProvider:
             return BusinessFailure('identity_unconfirmed')
         deadline = self.monotonic() + self.deadline
         try:
-            search = self._read(dict(action='wbsearchentities', search=company['name'], language='ja',
-                                     uselang='ja', type='item', limit='5'), deadline, 40_000)
-            if isinstance(search, BusinessFailure):
-                return search
-            rows = search.get('search')
-            if not isinstance(rows, list):
-                return BusinessFailure('invalid')
-            ids = list(dict.fromkeys(row.get('id') for row in rows[:5]
-                                     if isinstance(row, dict) and _qid(row.get('id'))))
+            hint = self.candidate_hints.get(symbol)
+            using_hint = isinstance(hint, dict) and hint.get('identity') == identity
+            if using_hint:
+                ids = hint.get('entity_ids', [])
+                if (not isinstance(ids, list) or not 0 < len(ids) <= 5
+                        or any(not _qid(qid) for qid in ids)):
+                    return BusinessFailure('invalid')
+            else:
+                search = self._read(dict(action='wbsearchentities', search=company['name'], language='ja',
+                                         uselang='ja', type='item', limit='5'), deadline, 40_000)
+                if isinstance(search, BusinessFailure):
+                    return search
+                rows = search.get('search')
+                if not isinstance(rows, list):
+                    return BusinessFailure('invalid')
+                ids = list(dict.fromkeys(row.get('id') for row in rows[:5]
+                                         if isinstance(row, dict) and _qid(row.get('id'))))
             if not ids:
                 return BusinessFailure('source_missing')
             result = self._read(dict(action='wbgetentities', ids='|'.join(ids), languages='ja',
@@ -344,6 +428,12 @@ class WikidataBusinessProvider:
                 if proof:
                     verified.append((entity, proof))
             if len(verified) != 1:
+                if using_hint and not verified:
+                    # The QID discovery can age independently of the issuer.
+                    # Discard obsolete hints, so the next bounded attempt does
+                    # a fresh name search rather than repeating a dead entity.
+                    self.candidate_hints.pop(symbol, None)
+                    return BusinessFailure('identity_unconfirmed', retry_after_seconds=30)
                 return BusinessFailure('identity_unconfirmed')
             entity, proof = verified[0]
             description = _japanese(entity.get('descriptions', {}).get('ja'), require_script=True)
@@ -384,16 +474,17 @@ def _valid_record(row, now, identity=None):
     supplied = row.get('identity')
     if not isinstance(supplied, dict):
         return None
-    verified_identity = official_identity(row.get('symbol'), dict(code=supplied.get('code'), name=supplied.get('name'),
-                                    exchange=supplied.get('exchange'), symbol=supplied.get('symbol')))
+    verified_identity = _stored_identity(supplied)
     fetched, proof, facts = (row.get(key) for key in ('fetched_at', 'proof', 'facts'))
-    if (verified_identity != supplied or identity is not None and identity != supplied
+    if (verified_identity is None or row.get('symbol') != supplied['symbol']
+            or identity is not None and identity != supplied
             or not _number(fetched) or not 0 <= now - fetched < RETAIN
             or not isinstance(proof, dict) or not isinstance(facts, dict)
             or not _qid(proof.get('entity_id')) or proof.get('current_listing') is not True
             or proof.get('rank') not in ('normal', 'preferred')
             or normalize_name(proof.get('matched_name')) != supplied['name']
-            or any(proof.get(key) != supplied[key] for key in ('code', 'exchange', 'exchange_id'))):
+            or proof.get('code') != supplied['code']
+            or _identity_exchanges(supplied).get(proof.get('exchange_id')) != proof.get('exchange')):
         return None
     description = facts.get('description')
     if description is not None and _japanese(dict(language='ja', value=description), require_script=True) is None:
@@ -435,17 +526,20 @@ def public_facts(row, *, state='unconfirmed', refreshing=False):
 
 
 class CompanyBusinesses:
-    """No bulk scan: one worker refreshes selected, official company identities."""
-    def __init__(self, loader=None, *, cache_path=None, now=time.time, ttl=TTL, retry=RETRY,
+    """Return preverified facts immediately; one worker refreshes selected firms."""
+    def __init__(self, loader=None, *, cache_path=None, seed_path=None, now=time.time, ttl=TTL, retry=RETRY,
                  max_pending=64, max_records=MAX_RECORDS, interactive=False):
         self.now, self.ttl, self.retry = now, ttl, retry
         self.cache_path = Path(cache_path) if cache_path else None
         self.loader = loader or WikidataBusinessProvider(now=now, interactive=interactive,
-            cooldown_path=str(self.cache_path) + '.backoff.json' if self.cache_path else None)
+            cooldown_path=str(self.cache_path) + '.backoff.json' if self.cache_path else None,
+            candidate_hints=read_candidate_hints(seed_path, now()))
         self.max_pending = max(1, min(64, int(max_pending)))
         self.max_records = max(1, min(MAX_RECORDS, int(max_records)))
-        self._records = OrderedDict(); self._file_mtime = None
+        self._records = OrderedDict(); self._seed_records = {}; self._file_mtime = None
         self._reset_process()
+        if seed_path:
+            self._load(Path(seed_path), seed=True)
         if self.cache_path:
             self._load(self.cache_path)
         if hasattr(os, 'register_at_fork'):
@@ -465,7 +559,7 @@ class CompanyBusinesses:
         while len(self._records) > self.max_records:
             self._records.popitem(last=False)
 
-    def _load(self, path):
+    def _load(self, path, *, seed=False):
         try:
             if path.stat().st_size > MAX_CACHE_BYTES:
                 return
@@ -476,6 +570,8 @@ class CompanyBusinesses:
                     clean = _valid_record(row, self.now())
                     if clean:
                         self._merge(clean)
+                        if seed:
+                            self._seed_records[clean['symbol']] = clean
         except (OSError, ValueError, TypeError, AttributeError):
             pass
 
@@ -557,6 +653,9 @@ class CompanyBusinesses:
         with self._condition:
             self._read_disk(); now = self.now()
             row = _valid_record(self._records.get(symbol), now, identity)
+            seeded = _valid_record(self._seed_records.get(symbol), now, identity)
+            if seeded and (not row or seeded['fetched_at'] > row['fetched_at']):
+                row = seeded
             previous = self._records.get(symbol)
             if not row and previous and previous.get('identity') != identity:
                 self._attempts.pop(symbol, None); self._failures.pop(symbol, None); self._retry_delays.pop(symbol, None)

@@ -2883,6 +2883,7 @@ _company_quotes = (CompanyQuotes(
     if os.environ.get("COMPANY_QUOTE_REFRESH_ENABLED", "0") == "1" else None)
 _company_businesses = CompanyBusinesses(
     cache_path=os.environ.get("COMPANY_BUSINESS_PATH", "/tmp/kn-company-businesses.json"),
+    seed_path=os.path.join(os.path.dirname(__file__), "static", "company-business-seed.json"),
     interactive=True)  # Only selected-company detail requests use this service.
 register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot,
                           quotes=lambda: _scanner_snapshot.payload(refresh=False),

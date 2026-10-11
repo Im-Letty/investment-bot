@@ -14,7 +14,8 @@ import requests
 
 from company_business import (CompanyBusinesses, WikidataBusinessProvider, BusinessFailure,
                               EXCHANGES, TTL, RETAIN, RETRY, MAX_FACTS, normalize_name,
-                              official_identity, verify_entity, fact_ids, _valid_record)
+                              official_identity, verify_entity, fact_ids, _valid_record,
+                              read_candidate_hints)
 
 NOW = datetime(2026, 10, 11, 11, tzinfo=timezone.utc).timestamp()
 TODAY = date(2026, 10, 11)
@@ -85,6 +86,9 @@ class IdentityTests(unittest.TestCase):
     def test_only_nfkc_whitespace_and_corporate_form_are_normalized(self):
         self.assertEqual(normalize_name(' 株式会社 トヨタ 自動車 '), 'トヨタ自動車')
         self.assertEqual(normalize_name('ＡＢＣ株式会社'), 'ABC')
+        self.assertEqual(normalize_name('（株）ＡＢＣ'), 'ABC')
+        self.assertEqual(normalize_name('ＡＢＣ（株）'), 'ABC')
+        self.assertNotEqual(normalize_name('株ABC'), normalize_name('ABC'))
         self.assertNotEqual(normalize_name('トヨタ自動車HD'), normalize_name('トヨタ自動車'))
         self.assertNotEqual(normalize_name('トヨタ自動車'), normalize_name('トヨタ車体'))
 
@@ -111,6 +115,39 @@ class IdentityTests(unittest.TestCase):
         raw = entity(code='7204')
         raw['claims']['P414'].append(entity(exchange='Nagoya')['claims']['P414'][0])
         self.assertIsNone(verify_entity(raw, identity, TODAY))
+
+    def test_secondary_official_listing_can_prove_same_company_and_code(self):
+        official = company('6147', 'ヤマザキ', 'Sapporo')
+        official['other_listings'] = [dict(code='6147', name='（株）ヤマザキ', exchange='Fukuoka')]
+        identity = official_identity('6147.JP', official)
+        raw = entity(name='ヤマザキ', code='6147', exchange='Fukuoka')
+        proof = verify_entity(raw, identity, TODAY)
+        self.assertEqual(proof['exchange'], 'Fukuoka')
+        value = saved('6147.JP', name='ヤマザキ', exchange='Sapporo')
+        value.update(identity=identity, proof=proof)
+        self.assertIsNotNone(_valid_record(value, NOW, identity))
+        # An unregistered listing must not become proof merely by sharing a code.
+        del official['other_listings']
+        current_identity = official_identity('6147.JP', official)
+        self.assertIsNone(verify_entity(raw, current_identity, TODAY))
+        self.assertIsNone(_valid_record(value, NOW, current_identity))
+        raw['claims']['P414'][0]['qualifiers']['P582'] = [value_snak('P582', {'time': '+2026-01-01T00:00:00Z'})]
+        self.assertIsNone(verify_entity(raw, identity, TODAY))
+
+    def test_wrong_name_code_unknown_exchange_and_forged_saved_pair_are_rejected(self):
+        official = company('6147', 'ヤマザキ', 'Sapporo')
+        raw = entity(name='ヤマザキ', code='6147', exchange='Fukuoka')
+        for other in [dict(code='6147', name='山崎製パン', exchange='Fukuoka'),
+                      dict(code='6148', name='ヤマザキ', exchange='Fukuoka'),
+                      dict(code='6147', name='ヤマザキ', exchange='Unknown')]:
+            official['other_listings'] = [other]
+            self.assertIsNone(verify_entity(raw, official_identity('6147.JP', official), TODAY))
+        official['other_listings'] = [dict(code='6147', name='ヤマザキ', exchange='Fukuoka')]
+        value = saved('6147.JP', name='ヤマザキ', exchange='Sapporo')
+        value['identity'] = official_identity('6147.JP', official)
+        value['proof'] = verify_entity(raw, value['identity'], TODAY)
+        value['identity']['listings'][0]['exchange_id'] = EXCHANGES['Tokyo']
+        self.assertIsNone(_valid_record(value, NOW))
 
     def test_current_japanese_alias_can_match_official_name(self):
         identity = official_identity('7203.T', company())
@@ -210,6 +247,43 @@ class ProviderTests(unittest.TestCase):
     def test_unknown_identity_makes_no_request(self):
         result = self.provider('7203.T', company(name=''))
         self.assertEqual(result.reason, 'identity_unconfirmed'); self.factory.assert_not_called()
+
+    def test_preloaded_hint_skips_search_but_verifies_fresh_entity(self):
+        self.provider.candidate_hints = {'7203.T': dict(identity=official_identity('7203.T', company()), entity_ids=['Q53268'])}
+        self.session.get.side_effect = [Response({'entities': {'Q53268': entity()}}),
+                                       Response({'entities': {}})]
+        result = self.provider('7203.T', company())
+        self.assertEqual(result['proof']['entity_id'], 'Q53268')
+        self.assertEqual(self.session.get.call_count, 2)
+        self.assertEqual(self.session.get.call_args_list[0].kwargs['params']['action'], 'wbgetentities')
+        self.assertEqual(self.session.get.call_args_list[0].kwargs['params']['maxlag'], '5')
+
+    def test_wrong_company_or_ambiguous_hint_cannot_be_displayed_as_facts(self):
+        identity = official_identity('7203.T', company())
+        for values in [{'Q53268': entity(code='7204')},
+                       {'Q53268': entity(), 'Q333': entity(qid='Q333')}]:
+            self.provider.candidate_hints = {'7203.T': dict(identity=identity, entity_ids=list(values))}
+            self.session.get.side_effect = [Response({'entities': values})]
+            result = self.provider('7203.T', company())
+            self.assertEqual(result.reason, 'identity_unconfirmed')
+            self.assertNotIn('facts', vars(result))
+
+    def test_hint_for_old_official_name_does_not_replace_name_search(self):
+        self.provider.candidate_hints = {'7203.T': dict(identity=official_identity('7203.T', company(name='以前の会社')), entity_ids=['Q999'])}
+        self.responses()
+        self.assertEqual(self.provider('7203.T', company())['proof']['entity_id'], 'Q53268')
+        self.assertEqual(self.session.get.call_args_list[0].kwargs['params']['action'], 'wbsearchentities')
+
+    def test_obsolete_hint_is_discarded_before_next_bounded_name_search(self):
+        self.provider.candidate_hints = {'7203.T': dict(identity=official_identity('7203.T', company()), entity_ids=['Q53268'])}
+        self.session.get.side_effect = [Response({'entities': {'Q53268': entity(code='7204')}})]
+        first = self.provider('7203.T', company())
+        self.assertEqual(first.reason, 'identity_unconfirmed')
+        self.assertEqual(first.retry_after_seconds, 30)
+        self.assertNotIn('7203.T', self.provider.candidate_hints)
+        self.session.get.reset_mock(); self.responses()
+        self.assertEqual(self.provider('7203.T', company())['proof']['entity_id'], 'Q53268')
+        self.assertEqual(self.session.get.call_args_list[0].kwargs['params']['action'], 'wbsearchentities')
 
     def test_explicit_interactive_requests_omit_only_maxlag(self):
         self.responses()
@@ -386,6 +460,68 @@ class CacheTests(unittest.TestCase):
                 source_url='https://www.wikidata.org/wiki/Q53268', source_title='Wikidata',
                 fetched_at=NOW, kind='structured_company_facts', field_status='available',
                 products=['自動車'], industry_labels=['自動車産業'], refreshing=False))
+
+    def test_packaged_verified_seed_is_immediate_and_newer_runtime_wins(self):
+        seed = Path(self.temp.name) / 'seed.json'
+        seed.write_text(json.dumps({'version': 1, 'items': [saved()]}))
+        loader = Mock(side_effect=AssertionError('fresh seed must not fetch'))
+        cache = self.cache(loader, seed_path=seed)
+        self.assertEqual(cache.get('7203.T', company())['fetched_at'], NOW)
+        loader.assert_not_called()
+        newer = saved(now=NOW + 10)
+        newer['facts']['description'] = '新しい説明'
+        self.path.write_text(json.dumps({'version': 1, 'items': [newer]}))
+        self.now += 10
+        cache = self.cache(loader, seed_path=seed)
+        self.assertEqual(cache.get('7203.T', company())['text'], '新しい説明')
+        loader.assert_not_called()
+        # A stale name or removed secondary listing never leaks from the seed.
+        cache.loader = lambda symbol, row: BusinessFailure('source_missing')
+        self.assertIsNone(cache.get('7203.T', company(name='異なる会社'))['text'])
+
+    def test_expired_or_forged_seed_is_not_available(self):
+        seed = Path(self.temp.name) / 'seed.json'
+        bad = saved(); bad['proof']['code'] = '9999'
+        seed.write_text(json.dumps({'version': 1, 'items': [bad, saved(now=NOW - RETAIN)]}))
+        cache = self.cache(lambda symbol, row: BusinessFailure('source_missing'), seed_path=seed)
+        self.assertIsNone(cache.get('7203.T', company())['text'])
+        self.wait_done(cache)
+        self.assertEqual(cache.get('7203.T', company())['field_status'], 'source_missing')
+
+    def test_newer_runtime_for_old_identity_cannot_hide_matching_fresh_seed(self):
+        seed = Path(self.temp.name) / 'seed.json'
+        seed.write_text(json.dumps({'version': 1, 'items': [saved(now=NOW - 20)]}))
+        self.path.write_text(json.dumps({'version': 1, 'items': [saved(now=NOW - 10, name='以前の会社名')]}))
+        loader = Mock(side_effect=AssertionError('verified fresh seed is available'))
+        cache = self.cache(loader, seed_path=seed)
+        current = cache.get('7203.T', company())
+        self.assertEqual(current['text'], '愛知県豊田市にある自動車メーカー')
+        self.assertEqual(current['fetched_at'], NOW - 20)
+        self.assertFalse(current['refreshing']); loader.assert_not_called()
+
+    def test_seed_hints_cannot_make_missing_business_facts_available(self):
+        seed = Path(self.temp.name) / 'seed.json'
+        hint = dict(symbol='7203.T', identity=official_identity('7203.T', company()), entity_ids=['Q53268'])
+        seed.write_text(json.dumps({'version': 1, 'discovered_at': NOW, 'candidate_hints': [hint], 'items': []}))
+        self.assertEqual(list(read_candidate_hints(seed, NOW)), ['7203.T'])
+        service = CompanyBusinesses(cache_path=self.path, seed_path=seed, now=lambda: self.now)
+        self.assertEqual(list(service.loader.candidate_hints), ['7203.T'])
+        self.assertEqual(len(service._records), 0)
+        service.loader = lambda symbol, row: BusinessFailure('source_missing')
+        self.assertIsNone(service.get('7203.T', company())['text'])
+        self.wait_done(service)
+
+    def test_old_future_repeated_and_forged_hints_are_not_used(self):
+        seed = Path(self.temp.name) / 'seed.json'
+        hint = dict(symbol='7203.T', identity=official_identity('7203.T', company()), entity_ids=['Q53268'])
+        for discovered in [NOW - RETAIN, NOW + 1, float('inf'), None]:
+            seed.write_text(json.dumps({'version': 1, 'discovered_at': discovered, 'candidate_hints': [hint]}))
+            self.assertEqual(read_candidate_hints(seed, NOW), {})
+        seed.write_text(json.dumps({'version': 1, 'discovered_at': NOW, 'candidate_hints': [hint, hint]}))
+        self.assertEqual(read_candidate_hints(seed, NOW), {})
+        hint['identity']['exchange_id'] = EXCHANGES['Nagoya']
+        seed.write_text(json.dumps({'version': 1, 'discovered_at': NOW, 'candidate_hints': [hint]}))
+        self.assertEqual(read_candidate_hints(seed, NOW), {})
 
     def test_missing_description_is_formatted_from_fact_labels_not_guessed_prose(self):
         value = saved(); value['facts']['description'] = None
