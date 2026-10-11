@@ -101,6 +101,17 @@ class IntradayWindowTests(unittest.TestCase):
             self.assertEqual(ref['selection_route'], 'intraday')
         self.assertEqual(_validated_digest(issue), issue)
 
+    def test_date_only_body_must_be_verified_inside_intraday_window(self):
+        record = {**self.record, 'published_at': None, 'publication_precision': 'day',
+                  'body_verified_at': self.window['window_start'] - 1}
+        with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+            _official_articles([record], self.window, self.now)
+        self.assertIsNone(_official_ref(record, self.window))
+        record['body_verified_at'] = self.window['window_start']
+        issue = self.issue(record)
+        self.assertEqual(_validated_digest(issue), issue)
+        self.assertIsNone(issue['article_refs'][0]['published_at'])
+
     def test_intraday_never_uses_carryover_or_correction_to_bypass_provenance(self):
         variants = []
         for key, value in (

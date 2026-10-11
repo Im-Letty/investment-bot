@@ -31,14 +31,28 @@ def valid_official_delivery(data, now):
             return False
         day = now.replace(hour=0, minute=0, second=0, microsecond=0)
         previous = day - timedelta(days=1)
-        expected = {'version': 1, 'edition_date': day.date().isoformat(),
-                    'window_start': previous.replace(hour=8).timestamp(),
-                    'carryover_start': previous.replace(hour=7, minute=30).timestamp(),
-                    'cutoff_at': day.replace(hour=7, minute=30).timestamp()}
-        window = digest['source_window']
-        if window != expected or type(window.get('version')) is not int:
-            return False
         number = lambda v: type(v) in (int, float) and math.isfinite(v)
+        window = digest['source_window']
+        if not isinstance(window, dict) or type(window.get('version')) is not int:
+            return False
+        intraday = window['version'] == 2
+        if intraday:
+            cutoff = window.get('cutoff_at')
+            if not number(cutoff) or cutoff <= 0:
+                return False
+            cutoff_day = datetime.fromtimestamp(cutoff, JST)
+            expected = {'version': 2, 'kind': 'intraday', 'edition_date': day.date().isoformat(),
+                        'window_start': day.replace(hour=7, minute=30).timestamp(),
+                        'cutoff_at': cutoff}
+            if cutoff_day.date() != day.date() or not 9 <= cutoff_day.hour < 23:
+                return False
+        else:
+            expected = {'version': 1, 'edition_date': day.date().isoformat(),
+                        'window_start': previous.replace(hour=8).timestamp(),
+                        'carryover_start': previous.replace(hour=7, minute=30).timestamp(),
+                        'cutoff_at': day.replace(hour=7, minute=30).timestamp()}
+        if window != expected:
+            return False
         reviewed, release = digest.get('reviewed_at'), digest.get('publish_at')
         if (not number(reviewed) or not number(release)
                 or not expected['cutoff_at'] <= reviewed <= release <= now.timestamp()
@@ -86,6 +100,10 @@ def valid_official_delivery(data, now):
             if pubday.isoformat() != ref['published_date'] or pubday > datetime.fromtimestamp(verified, JST).date():
                 return False
             route, stamp = ref['selection_route'], ref['published_at']
+            if intraday and (route != 'intraday' or pubday != day.date()
+                    or verified < expected['window_start']
+                    or 'deferred_from' in ref or 'deferred_reason' in ref):
+                return False
             deferred = route == 'deferred'
             if deferred and (ref.get('deferred_from') != previous.date().isoformat()
                     or ref.get('deferred_reason') not in ('late_verification', 'review_failed', 'omitted')
@@ -94,14 +112,19 @@ def valid_official_delivery(data, now):
             if not deferred and ('deferred_from' in ref or 'deferred_reason' in ref):
                 return False
             if ref['publication_precision'] == 'day':
-                allowed_days = ((previous - timedelta(days=1)).date(), previous.date()) if deferred else (previous.date(), day.date())
-                if stamp is not None or pubday not in allowed_days or (not deferred and route != 'date_only'):
+                allowed_days = ((day.date(),) if intraday else
+                    ((previous - timedelta(days=1)).date(), previous.date()) if deferred else
+                    (previous.date(), day.date()))
+                if (stamp is not None or pubday not in allowed_days
+                        or not intraday and not deferred and route != 'date_only'):
                     return False
             elif ref['publication_precision'] == 'second':
                 if (not number(stamp) or stamp > verified
                         or datetime.fromtimestamp(stamp, JST).date() != pubday):
                     return False
-                if deferred:
+                if intraday:
+                    valid = expected['window_start'] <= stamp <= expected['cutoff_at']
+                elif deferred:
                     valid = expected['window_start'] - 86400 <= stamp <= expected['carryover_start']
                 elif route == 'main':
                     valid = expected['window_start'] <= stamp <= expected['cutoff_at']
@@ -152,6 +175,7 @@ def publication_observation(state, data, now):
     before_release = now < now.replace(hour=8, minute=0, second=0, microsecond=0)
     return {'event': 'publication_observation', 'edition_date': now.date().isoformat(),
             'checked_at': now.isoformat(timespec='seconds'),
+            'edition_kind': edition_kind(digest),
             'status': status if isinstance(status, str) and status in PUBLICATION_STATES else 'unknown',
             'public_edition_date': public_day,
             'public_delivery': delivery if delivery in ('published', 'headlines') else 'unknown',
@@ -160,6 +184,16 @@ def publication_observation(state, data, now):
             'before_scheduled_release': before_release,
             'current_edition_visible_before_release': (before_release and visible
                 and now.date().isoformat() in (public_day, digest_day))}
+
+
+def edition_kind(digest):
+    """Identify daytime publication without attesting a reserved morning run."""
+    window = digest.get('source_window') if isinstance(digest, dict) else None
+    if not isinstance(window, dict) or type(window.get('version')) is not int:
+        return 'unknown'
+    if window['version'] == 2 and window.get('kind') == 'intraday':
+        return 'intraday'
+    return 'morning' if window['version'] == 1 else 'unknown'
 
 
 def current_delivery(data, now):
@@ -260,9 +294,19 @@ def main():
                 pre_release_observed = True
             delivery = current_delivery(published, now)
             if delivery == 'published':
+                kind = edition_kind(published.get('digest'))
+                if kind == 'intraday':
+                    print(json.dumps({'event': 'intraday_edition_first_observed',
+                        'edition_date': expected, 'edition_kind': kind,
+                        'observed_at': now.isoformat(timespec='seconds'),
+                        'timing_note': 'Observed intraday availability; not evidence of the reserved morning run.'},
+                        ensure_ascii=False), flush=True)
+                    print('Current reviewed intraday edition is publicly available.', flush=True)
+                    return 0
                 release = now.replace(hour=8, minute=0, second=0, microsecond=0)
                 print(json.dumps({'event': 'current_edition_first_observed',
-                    'edition_date': expected, 'observed_at': now.isoformat(timespec='seconds'),
+                    'edition_date': expected, 'edition_kind': kind,
+                    'observed_at': now.isoformat(timespec='seconds'),
                     'seconds_since_scheduled_release': round((now - release).total_seconds(), 3),
                     'pre_release_observed': pre_release_observed,
                     'timing_note': 'First observed availability; not proof of exact 08:00 release.'},

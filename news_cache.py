@@ -304,6 +304,7 @@ def _official_ref(ref, window):
     precision, route = ref.get("publication_precision"), ref.get("selection_route")
     intraday = window.get("kind") == "intraday"
     if intraday and (route != "intraday" or published_day != edition_day or "published_at" not in ref
+            or verified.timestamp() < window["window_start"]
             or "deferred_from" in ref or "deferred_reason" in ref):
         return None
     deferred = route == "deferred"

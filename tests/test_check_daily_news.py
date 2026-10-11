@@ -122,6 +122,98 @@ class DeliveryCheckTests(unittest.TestCase):
             {**extra, 'headline': '別の発表の詳細', 'summary': '別' * 240})
         return data
 
+    def intraday_published(self, *, precision='second'):
+        data = self.official_published()
+        ref = {**data['news'][0], 'published_date': self.now.date().isoformat(),
+               'published_at': self.now.replace(hour=9, minute=30).timestamp()
+                    if precision == 'second' else None,
+               'publication_precision': precision, 'selection_route': 'intraday',
+               'body_verified_at': self.now.replace(hour=9, minute=31).timestamp()}
+        digest = data['digest']
+        digest.update(copy_length_policy=COPY_LENGTH_POLICY,
+                      reading_structure='lead-plus-other-news-v1',
+                      reviewed_at=self.now.replace(hour=10, minute=1).timestamp(),
+                      publish_at=self.now.replace(hour=10, minute=2).timestamp(),
+                      article_refs=[deepcopy(ref)],
+                      article_summaries=[{**deepcopy(ref), 'headline': '新しい公式発表', 'summary': '詳' * 240}],
+                      source_window={'version': 2, 'kind': 'intraday',
+                          'edition_date': self.now.date().isoformat(),
+                          'window_start': self.now.replace(hour=7, minute=30).timestamp(),
+                          'cutoff_at': self.now.replace(hour=10).timestamp()})
+        data['news'] = [ref]
+        return data
+
+    def test_intraday_publication_is_valid_and_keeps_unknown_source_time(self):
+        now = self.now.replace(hour=12)
+        for precision in ('second', 'day'):
+            data = self.intraday_published(precision=precision)
+            original = deepcopy(data)
+            self.assertEqual(current_delivery(data, now), 'published')
+            self.assertEqual(publication_observation({}, data, now)['edition_kind'], 'intraday')
+            self.assertEqual(data, original)
+            if precision == 'day':
+                self.assertIsNone(data['digest']['article_refs'][0]['published_at'])
+            self.assertTrue(healthy_quiet_response(data, now + timedelta(days=1)))
+
+    def test_intraday_window_rejects_invalid_versions_times_and_morning_fields(self):
+        now = self.now.replace(hour=12)
+        mutations = [lambda w: w.update(version=True), lambda w: w.update(version=3),
+                     lambda w: w.update(kind='morning'),
+                     lambda w: w.update(cutoff_at=self.now.replace(hour=8, minute=59).timestamp()),
+                     lambda w: w.update(cutoff_at=self.now.replace(hour=23).timestamp()),
+                     lambda w: w.update(cutoff_at=float('nan')),
+                     lambda w: w.update(window_start=self.now.replace(hour=7, minute=29).timestamp()),
+                     lambda w: w.update(edition_date=(self.now - timedelta(days=1)).date().isoformat()),
+                     lambda w: w.update(carryover_start=self.now.timestamp())]
+        for mutate in mutations:
+            data = self.intraday_published()
+            mutate(data['digest']['source_window'])
+            self.assertIsNone(current_delivery(data, now))
+
+    def test_intraday_references_cannot_relabel_old_morning_or_changed_sources(self):
+        now = self.now.replace(hour=12)
+        changes = ({'published_date': (self.now - timedelta(days=1)).date().isoformat()},
+                   {'published_at': self.now.replace(hour=7, minute=29).timestamp()},
+                   {'body_verified_at': self.now.replace(hour=7, minute=29).timestamp()},
+                   {'selection_route': 'main'},
+                   {'deferred_from': (self.now - timedelta(days=1)).date().isoformat()},
+                   {'deferred_reason': 'omitted'},
+                   {'publication_precision': 'day', 'published_at': self.now.replace(hour=0).timestamp()})
+        for changed in changes:
+            data = self.intraday_published()
+            for row in data['news'] + data['digest']['article_refs'] + data['digest']['article_summaries']:
+                row.update(changed)
+            with self.subTest(changed=changed):
+                self.assertIsNone(current_delivery(data, now))
+        data = self.intraday_published()
+        data['news'][0]['body_sha256'] = 'b' * 64
+        self.assertIsNone(current_delivery(data, now))
+
+    def test_intraday_observation_does_not_attest_reserved_morning_publication(self):
+        now = self.now.replace(hour=12)
+        data = self.intraday_published()
+        with patch('scripts.check_daily_news.datetime') as date_mock, \
+                patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
+                patch('scripts.check_daily_news.time.monotonic', return_value=0), \
+                patch('scripts.check_daily_news.time.sleep') as sleeper, \
+                patch('scripts.check_daily_news.urlopen', side_effect=[
+                    io.BytesIO(json.dumps({'status': 'ready'}).encode()),
+                    io.BytesIO(json.dumps(data).encode())]), \
+                patch('sys.stdout', new_callable=io.StringIO) as output:
+            date_mock.now.return_value = now
+            date_mock.strptime.side_effect = datetime.strptime
+            date_mock.fromtimestamp.side_effect = datetime.fromtimestamp
+            self.assertEqual(main(), 0)
+            sleeper.assert_not_called()
+        observation, first = map(json.loads, output.getvalue().splitlines()[:2])
+        self.assertEqual(observation['edition_kind'], 'intraday')
+        self.assertEqual(first['event'], 'intraday_edition_first_observed')
+        self.assertEqual(first['observed_at'], now.isoformat(timespec='seconds'))
+        self.assertNotIn('current_edition_first_observed', output.getvalue())
+        self.assertNotIn('seconds_since_scheduled_release', first)
+        self.assertNotIn('pre_release_observed', first)
+        self.assertNotIn(data['digest']['summary'], output.getvalue())
+
     def test_new_reading_structure_requires_japanese_and_reviewed_detail_order(self):
         from news_cache import _validated_digest
         base = self.marked_official_published()

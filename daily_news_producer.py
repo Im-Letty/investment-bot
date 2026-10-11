@@ -518,6 +518,7 @@ def _official_articles(articles, window, now):
         _official_event_fields(row)
         if window.get('kind') == 'intraday':
             if (published_day != edition or 'published_at' not in row
+                    or verified < window['window_start']
                     or 'deferred_from' in row or 'deferred_reason' in row
                     or row.get('selection_route', 'intraday') != 'intraday'):
                 raise GenerationError('invalid_official_article')

@@ -23,14 +23,24 @@
   function validISODate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;var date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;}
   function sourceWindow(digest){
     var w=digest&&digest.source_window;
-    if(!w||Object.keys(w).length!==5||w.version!==1||digest.publication_mode!=='curated'||w.edition_date!==digest.edition_date||!validISODate(w.edition_date))return null;
+    if(!w||Object.keys(w).length!==5||digest.publication_mode!=='curated'||w.edition_date!==digest.edition_date||!validISODate(w.edition_date))return null;
     var midnight=Date.parse(w.edition_date+'T00:00:00+09:00')/1000;
+    if(w.version===2){
+      if(w.kind!=='intraday'||!Object.keys(w).every(function(key){return ['version','kind','edition_date','window_start','cutoff_at'].includes(key);})||!Number.isFinite(w.window_start)||w.window_start<=0||!Number.isFinite(w.cutoff_at)||w.cutoff_at<=0)return null;
+      return w.window_start===midnight+7.5*3600&&w.cutoff_at>=midnight+9*3600&&w.cutoff_at<midnight+23*3600?w:null;
+    }
+    if(w.version!==1)return null;
     return w.window_start===midnight-16*3600&&w.carryover_start===midnight-16.5*3600&&w.cutoff_at===midnight+7.5*3600?w:null;
   }
   function officialArticle(item,w,reviewedAt){
     if(!item||!['総務省統計局','財務省'].includes(item.source)||!validISODate(item.published_date)||!['second','day'].includes(item.publication_precision)||typeof item.body_sha256!=='string'||! /^[a-f0-9]{64}$/.test(item.body_sha256)||!Number.isFinite(item.body_verified_at)||item.body_verified_at>w.cutoff_at||item.body_verified_at>reviewedAt)return false;
     var url;try{url=new URL(item.url);}catch(_){return false;}
     if(url.protocol!=='https:'||url.hostname!==({'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp'}[item.source])||url.username||url.password||url.search||(url.port&&url.port!=='443'))return false;
+    if(w.kind==='intraday'){
+      if(item.selection_route!=='intraday'||item.published_date!==w.edition_date||item.body_verified_at<w.window_start||typeof item.title!=='string'||!item.title.trim()||item.title.length>1000||Object.prototype.hasOwnProperty.call(item,'deferred_from')||Object.prototype.hasOwnProperty.call(item,'deferred_reason'))return false;
+      if(item.publication_precision==='day')return item.published_at===null&&editionKey(item.body_verified_at)>=item.published_date;
+      return Number.isFinite(item.published_at)&&item.published_at>=w.window_start&&item.published_at<=w.cutoff_at&&item.published_at<=item.body_verified_at&&editionKey(item.published_at)===item.published_date;
+    }
     var deferred=item.selection_route==='deferred',previous=editionKey(w.window_start),previousStart=w.window_start-86400;
     if(deferred){
       if(item.deferred_from!==previous||!['late_verification','review_failed','omitted'].includes(item.deferred_reason)||(item.deferred_reason==='late_verification'&&item.body_verified_at<=w.carryover_start))return false;
@@ -117,7 +127,7 @@
     var hasStructure=Object.prototype.hasOwnProperty.call(digest,'reading_structure');
     if(hasStructure&&(digest.reading_structure!=='lead-plus-other-news-v1'||!window||digest.publication_mode!=='curated'||digest.copy_length_policy!=='flexible-v1'||!Object.prototype.hasOwnProperty.call(digest,'article_summaries')))return null;
     if(digest.publication_mode==='curated'&&(digest.article_refs.length<1||digest.article_refs.length>3||!Number.isFinite(digest.reviewed_at)||digest.reviewed_at>Date.now()/1000||editionKey(digest.reviewed_at)!==d.edition_date||(window&&digest.reviewed_at<window.cutoff_at)||digest.article_refs.some(function(ref){return window?!officialArticle(ref,window,digest.reviewed_at):!ref||!Number.isFinite(ref.published_at)||ref.published_at>digest.reviewed_at;})))return null;
-    if(window&&(!Number.isFinite(digest.publish_at)||digest.publish_at<window.cutoff_at+1800))return null;
+    if(window&&(!Number.isFinite(digest.publish_at)||digest.publish_at<window.cutoff_at+(window.kind==='intraday'?0:1800)))return null;
     if(Object.prototype.hasOwnProperty.call(digest,'publish_at')&&(!Number.isFinite(digest.publish_at)||digest.publication_mode!=='curated'||digest.publish_at<digest.reviewed_at||digest.publish_at>Date.now()/1000||editionKey(digest.publish_at)!==d.edition_date))return null;
     var used=new Set();
     var matches=digest.article_refs.every(function(ref){
