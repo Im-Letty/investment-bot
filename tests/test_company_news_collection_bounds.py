@@ -19,6 +19,28 @@ def item(index, ordinal=0):
 
 
 class CompanyCollectionBoundsTests(unittest.TestCase):
+    def test_transport_failures_have_fixed_safe_codes_through_runtime(self):
+        from company_news_runtime import _safe_source_diagnostics
+        failures = (
+            (sources.socket.gaierror, 'source_dns_failed'),
+            (sources.requests.exceptions.SSLError, 'source_tls_failed'),
+            (sources.requests.exceptions.ConnectTimeout, 'source_timeout'),
+            (sources.requests.exceptions.ReadTimeout, 'source_timeout'),
+            (sources.requests.exceptions.ConnectionError, 'source_connection_failed'),
+            (RuntimeError, 'source_read_failed'),
+        )
+        for exception, expected in failures:
+            with self.subTest(exception=exception.__name__):
+                report = {}
+                with patch.object(sources, 'FEEDS', {'NTT': sources.FEEDS['NTT']}), \
+                     patch.object(sources, '_download', side_effect=exception('private diagnostic sentinel')):
+                    self.assertEqual(sources.collect_company_articles(NOW, diagnostics=report), [])
+                self.assertEqual(report['NTT']['feed_status'], 'failed')
+                self.assertEqual(report['NTT']['errors'], [expected])
+                safe = _safe_source_diagnostics(report)
+                self.assertEqual(safe['NTT']['errors'], [expected])
+                self.assertNotIn('private diagnostic sentinel', str(safe))
+
     def collect(self, records, rejected=(), expired=False):
         feeds = {key: f'https://fixture.example/feed/{key}' for key in records}
         reads, report, clock = [], {}, [0.0]

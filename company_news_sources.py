@@ -8,6 +8,7 @@ from datetime import date, datetime, timedelta
 from hashlib import sha256
 import math
 import re
+import socket
 import time
 import unicodedata
 from urllib.parse import urljoin, urlsplit, urlunsplit
@@ -376,6 +377,16 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
                       "selected": 0, "completed": 0, "accepted": 0, "errors": []} for source in FEEDS}
 
     def error_code(exc):
+        # Fixed transport categories reveal neither exception text, response
+        # bodies nor credentials. Keep TLS verification and request bounds.
+        if isinstance(exc, socket.gaierror):
+            return 'source_dns_failed'
+        if isinstance(exc, requests.exceptions.SSLError):
+            return 'source_tls_failed'
+        if isinstance(exc, requests.exceptions.Timeout):
+            return 'source_timeout'
+        if isinstance(exc, requests.exceptions.ConnectionError):
+            return 'source_connection_failed'
         return str(exc) if isinstance(exc, ValueError) and str(exc) in _ERROR_CODES else "source_read_failed"
 
     def read_feed(source):

@@ -45,7 +45,8 @@ COLLECTION_STATES = frozenset({'fetch_incomplete', 'feed_failed', 'no_matching_c
 SOURCE_ERROR_CODES = frozenset({'unapproved_source', 'source_time_limit', 'source_unavailable',
     'unapproved_redirect', 'source_content_type', 'source_size_limit', 'source_size_or_time_limit',
     'unsupported_feed_declaration', 'unsupported_feed_structure', 'unsupported_source_encoding',
-    'invalid_verification_clock', 'source_read_failed', 'body_or_date_unverified'})
+    'invalid_verification_clock', 'source_read_failed', 'body_or_date_unverified',
+    'source_dns_failed', 'source_tls_failed', 'source_timeout', 'source_connection_failed'})
 STORAGE_ERROR_CODES = frozenset({'storage_configuration', 'storage_response', 'storage_timeout',
     'storage_network', 'storage_bucket', 'storage_private_required', 'storage_read', 'storage_size',
     'storage_write', 'storage_list', 'storage_state', 'company_record_invalid',
