@@ -3193,7 +3193,17 @@ window.sb.auth.getSession().then(function(result){
   }).catch(function(){});
   window.knaMode='login';
   window.openAuth=function(mode){ if(window.knEntryExitInProgress)return; resetPasskeyNotice(); window.knaMode=(mode==='signup')?'signup':'login'; mount(); var o=document.getElementById('knAuthOv'); if(o)o.classList.add('open'); };
-  window.closeAuth=function(){ if(window.knEntryExitInProgress)return; resetPasskeyNotice(); var o=document.getElementById('knAuthOv'); if(o)o.classList.remove('open'); };
+  window.closeAuth=function(){
+    if(window.knEntryExitInProgress)return;
+    resetPasskeyNotice();
+    // A protected tab may hide the morning letter before opening login.
+    // Restore it through the same navigation path as the morning button.
+    var morning=document.querySelector('#knBottomNav [data-act="morning"]');
+    if(morning)morning.click();else document.body.classList.add('view-asaletter');
+    if(window.knEnterHome)return window.knEnterHome();
+    var o=document.getElementById('knAuthOv');if(o)o.classList.remove('open');
+    window.knNavScreenSync?.();
+  };
   window.knaToggleFn=function(){ resetPasskeyNotice(); window.knaMode=(window.knaMode==='login')?'signup':'login'; mount(); };
   var requestedAuth=new URLSearchParams(location.search).get('auth');
   if(requestedAuth==='signup'||requestedAuth==='login'){
@@ -3535,6 +3545,8 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
   window.knWelcomeSkip=function(){return window.knEnterHome();};
   window.knHideWelcome=function(){return window.knEnterHome();};
   function maybeShow(){
+    // Cancelling the standalone login screen opens the public morning letter.
+    if(new URLSearchParams(location.search).get('screen')==='morning'){window.knEnterHome();return;}
     if(seen()) return;
     if(window.knUser) return;
     build();

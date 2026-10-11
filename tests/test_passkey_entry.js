@@ -34,11 +34,12 @@ async function until(predicate) {
   assert.fail('Expected asynchronous auth operation');
 }
 
-function harness({ mode = 'signup', user = null, enabled = true } = {}) {
-  let primary = { disabled: false }, markup = '';
-  const checks = [], oauth = [], messages = [], entries = [], listeners = {};
+function harness({ mode = 'signup', user = null, enabled = true, homeExit = true } = {}) {
+  let primary = { disabled: false }, markup = '', closing = false, morningClicks = 0, navSyncs = 0;
+  const checks = [], oauth = [], messages = [], entries = [], cancellations = [], listeners = {};
   const classes = new Set(['open']);
   const overlay = { classList: { contains: name => classes.has(name), add: name => classes.add(name), remove: name => classes.delete(name) } };
+  const morningButton = { click() { morningClicks++; } };
   function mount() {
     markup = context.render();
     primary = { disabled: context.passkeyEntryBusy || !context.KN_PASSKEY_ENABLED };
@@ -49,21 +50,33 @@ function harness({ mode = 'signup', user = null, enabled = true } = {}) {
     btnRow(options) { return '<button class="' + options.cls + '">' + options.label + '</button>'; },
     mount,
     document: {
-      querySelector(selector) { assert.equal(selector, '#knAuthOv .kna-pk'); return primary; },
+      querySelector(selector) {
+        if (selector.includes('data-act="morning"') || selector.includes("data-act='morning'")) return morningButton;
+        assert.equal(selector, '#knAuthOv .kna-pk'); return primary;
+      },
       getElementById(id) { assert.equal(id, 'knAuthOv'); return overlay; },
       addEventListener(type, listener) { (listeners[type] ||= []).push(listener); },
     },
     knaMsg(message, error) { messages.push({ message, error }); },
-    async knEnterHome() { entries.push(context.knUser && context.knUser.id); },
+    // Cancelling an entry is navigation, never evidence of successful login.
+    async knEnterHome() {
+      (closing ? cancellations : entries).push(context.knUser && context.knUser.id);
+      classes.delete('open');
+    },
+    knNavScreenSync() { navSyncs++; },
     sb: { auth: {
       getUser() { const request = deferred(); checks.push(request); return request.promise; },
       signInWithOAuth(options) { const request = deferred(); oauth.push({ options, ...request }); return request.promise; },
     } },
   };
+  if (!homeExit) delete context.knEnterHome;
   context.window = context;
   vm.runInNewContext(source, context, { filename: 'index-passkey-entry.js' });
   mount();
-  return { context, get primary() { return primary; }, get markup() { return markup; }, checks, oauth, messages, entries,
+  return { context, get primary() { return primary; }, get markup() { return markup; }, checks, oauth, messages, entries, cancellations,
+    morningClicks: () => morningClicks, navSyncs: () => navSyncs,
+    isOpen: () => classes.has('open'),
+    close() { closing = true; try { return context.closeAuth(); } finally { closing = false; } },
     click: () => context.knaPasskey(), mount,
     authChange() { for (const listener of listeners.knAuthChange || []) listener(); },
   };
@@ -204,16 +217,53 @@ for (const action of ['close', 'close and reopen', 'toggle']) {
     const app = harness({ user: { id: 'account-a' } });
     const click = app.click();
     if (action === 'toggle') app.context.knaToggleFn();
-    else app.context.closeAuth();
+    else app.close();
     if (action === 'close and reopen') app.context.openAuth('signup');
     app.checks[0].resolve({ data: { user: { id: 'account-a' } }, error: null });
     await click;
     assert.ok(!app.markup.includes(foundCopy));
     assert.equal(app.oauth.length, 0);
     assert.deepEqual(app.entries, []);
+    assert.equal(app.cancellations.length, action === 'toggle' ? 0 : 1);
     assert.equal(app.context.passkeyEntryBusy, false);
   });
 }
+
+for (const mode of ['login', 'signup']) {
+  test(mode + ': cancelling selects the morning letter without authenticating', async () => {
+    const app = harness({ mode });
+    await app.close();
+    assert.equal(app.morningClicks(), 1);
+    assert.equal(app.cancellations.length, 1);
+    assert.equal(app.isOpen(), false);
+    assert.deepEqual(app.entries, []);
+    assert.equal(app.checks.length, 0);
+    assert.equal(app.oauth.length, 0);
+    assert.equal(app.context.knUser, null);
+    app.context.openAuth(mode);
+    assert.equal(app.isOpen(), true, 'The entry remains usable after cancelling');
+    assert.equal(app.context.knaMode, mode);
+  });
+}
+
+test('cancelling during an existing entry transition does not navigate twice', async () => {
+  const app = harness({ mode: 'login' });
+  app.context.knEntryExitInProgress = true;
+  await app.close();
+  assert.equal(app.morningClicks(), 0);
+  assert.equal(app.cancellations.length, 0);
+  assert.equal(app.isOpen(), true);
+  assert.equal(app.oauth.length, 0);
+});
+
+test('cancel fallback closes the entry and synchronizes navigation', async () => {
+  const app = harness({ mode: 'login', homeExit: false });
+  await app.close();
+  assert.equal(app.morningClicks(), 1);
+  assert.equal(app.isOpen(), false);
+  assert.equal(app.navSyncs(), 1);
+  assert.equal(app.oauth.length, 0);
+});
 
 for (const change of ['signed out', 'different account', 'anonymous session']) {
   test('a confirmed notice is removed on auth change: ' + change, async () => {
