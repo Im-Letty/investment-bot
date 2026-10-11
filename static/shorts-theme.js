@@ -1,6 +1,25 @@
 (function () {
   'use strict';
   var names=['bg','paper','ink','muted','line','button','chip'], signature='', timer;
+  var layoutNav, layoutHeader;
+  function syncLayout() {
+    var shorts=document.getElementById('knShorts');
+    if(!shorts)return;
+    // Actual nav height includes safe-area insets and larger text settings.
+    var nav=layoutNav&&layoutNav.getBoundingClientRect().height;
+    if(nav>0) {
+      var value=Math.ceil(nav)+'px';
+      if(shorts.style.getPropertyValue('--kn-sh-nav-height')!==value)
+        shorts.style.setProperty('--kn-sh-nav-height',value);
+    }
+    var header=layoutHeader&&layoutHeader.getBoundingClientRect().height;
+    if(header>0) {
+      var value=Math.ceil(header)+'px';
+      if(shorts.style.getPropertyValue('--kn-sh-header-height')!==value)
+        shorts.style.setProperty('--kn-sh-header-height',value);
+    }
+  }
+  var layoutObserver=typeof ResizeObserver==='function'?new ResizeObserver(syncLayout):null;
   function syncPalette() {
     var source=document.getElementById('morning-section');
     if(!source)return;
@@ -60,6 +79,13 @@
       if(savedTitle&&savedTitle.textContent.indexOf('🔖')>=0)savedTitle.textContent='保存した動画';
     }
     var header=document.querySelector('#knShorts .ks-top');
+    var nav=document.getElementById('knBottomNav');
+    if(layoutObserver&&(header!==layoutHeader||nav!==layoutNav)) {
+      layoutObserver.disconnect();
+      if(header)layoutObserver.observe(header);
+      if(nav)layoutObserver.observe(nav);
+    }
+    layoutHeader=header;layoutNav=nav;
     if(header&&header!==observedHeader){
       headerObserver.disconnect();observedHeader=header;
       headerObserver.observe(header,{childList:true});
@@ -71,6 +97,7 @@
       feed.querySelectorAll('.ks-slide').forEach(decorateSlide);
       feedObserver.observe(feed,{childList:true,subtree:true,attributes:true,attributeFilter:['class']});
     }
+    syncLayout();
   }
   var rootObserver=new MutationObserver(schedulePalette);
   rootObserver.observe(document.documentElement,{attributes:true,attributeFilter:['style','class','data-custom-brand-color']});
@@ -80,5 +107,6 @@
   document.addEventListener('knAuthChange',function(){if(observedFeed)observedFeed.querySelectorAll('.ks-slide').forEach(decorateSlide);});
   window.addEventListener('storage',schedulePalette);
   window.addEventListener('focus',schedulePalette);
+  window.addEventListener('resize',syncLayout);
   hydrate();[100,600,1600].forEach(function(delay){setTimeout(hydrate,delay);});
 })();
