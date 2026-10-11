@@ -1031,29 +1031,68 @@ test('intro visuals and animation timeline remain byte-identical to the approved
   assert.equal(intro(after),intro(before));
 });
 
-test('simulator loads once on demand and keeps a retry after failure',()=>{
+function simulatorShellHarness(idle = true){
   const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
   const marker=html.indexOf('  if(window.__KN_SIM_EMBED4_BOOTED)');
   const end=html.indexOf('})();',marker);
   const code='(function(){'+html.slice(marker,end+5);
-  const callbacks={},timers=new Map();let seq=0,loads=0;
-  const frame={contentDocument:null,set src(value){this.url=value;loads++;}},status={hidden:true,querySelector(){return this.button||(this.button={});}},classes=new Set();
-  const overlay={classList:{add:x=>classes.add(x),remove:x=>classes.delete(x)}};
+  const callbacks={},timers=new Map(),messages=[];let seq=0,loads=0;
+  const child={postMessage:(data,origin)=>messages.push({data,origin})};
+  const frame={contentDocument:null,contentWindow:child,set src(value){this.url=value;loads++;}},status={hidden:true,querySelector(){return this.button||(this.button={});}},classes=new Set();
+  const overlay={setAttribute(){},classList:{contains:x=>classes.has(x),add:x=>classes.add(x),remove:x=>classes.delete(x)}};
   const nav={addEventListener:(name,fn)=>callbacks.nav=fn},ham={classList:{add(){},remove(){}},addEventListener(){}},drawer={addEventListener(){}};
   const nodes={knSimEmbedFrame:frame,knSimEmbedOv:overlay,knSimLoadState:status,knBottomNav:nav,knFloatHam:ham,sideDrawer:drawer};
-  const context={document:{readyState:'complete',getElementById:id=>nodes[id]},location:{},setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id)};
+  const context={document:{readyState:'complete',hidden:false,getElementById:id=>nodes[id],addEventListener:(name,fn)=>callbacks[name]=fn},location:{origin:'https://example.test'},URL,URLSearchParams,addEventListener:(name,fn)=>callbacks[name]=fn,setTimeout:(fn,ms)=>{timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id)};
+  if(idle)context.requestIdleCallback=fn=>callbacks.idle=fn;
   context.window=context;vm.runInNewContext(code,context);
-  assert.equal(loads,0,'No simulator document at startup');
-  context.openSimulator();context.openSimulator();assert.equal(loads,1);assert.equal(status.hidden,false);
-  const assetPath=frame.url.split('?')[0];
-  assert.match(assetPath,/^\/static\/simulator-embed-[a-f0-9]+\.html$/);
-  frame.contentDocument={URL:frame.url,getElementById:id=>id==='tab-daily'?{}:null};frame.onload();
-  assert.equal(status.hidden,true);context.openSimulator();assert.equal(loads,1);
-  frame.onerror();assert.equal(status.hidden,false);assert.match(status.innerHTML,/もう一度/);
-  status.button.onclick();assert.equal(loads,2);frame.onload();assert.equal(status.hidden,true);
-  assert.ok(!html.includes('loop(20); openSimBody();'));
+  return {html,context,frame,child,status,classes,timers,messages,callbacks,loads:()=>loads,
+    token:()=>new URLSearchParams(new URL(frame.url,'https://example.test').hash.slice(1)).get('sim_attempt'),
+    ready(overrides={}){callbacks.message({source:child,origin:context.location.origin,data:{type:'kn-simulator-ready',attempt:this.token()},...overrides});},
+    nav(act){callbacks.nav({target:{closest:()=>({getAttribute:()=>act})}});}};
+}
+
+test('simulator prepares without opening, becomes usable before load and reuses entered values',()=>{
+  const app=simulatorShellHarness();assert.equal(app.loads(),0);
+  app.callbacks.idle();assert.equal(app.loads(),1);assert.ok(!app.classes.has('show'));
+  app.ready({source:{}});app.ready({origin:'https://unrelated.test'});app.ready({data:{type:'kn-simulator-ready',attempt:'old'}});
+  assert.equal(app.status.hidden,false,'Only the current same-origin frame may finish preparation');
+  app.ready();assert.equal(app.status.hidden,true,'Input readiness does not wait for iframe load/fonts');
+  assert.equal(app.messages.at(-1).data.visible,false,'Hidden preload does not animate');
+  app.child.enteredAmount=12345;
+  app.context.openSimulator();assert.ok(app.classes.has('show'));assert.equal(app.messages.at(-1).data.visible,true);
+  app.frame.onload();app.frame.onerror();assert.equal(app.status.hidden,true,'Late resource events do not hide usable controls');
+  app.nav('morning');assert.ok(!app.classes.has('show'));assert.equal(app.messages.at(-1).data.visible,false);
+  app.nav('home');assert.ok(app.classes.has('show'));assert.equal(app.loads(),1);assert.equal(app.child.enteredAmount,12345);
+  app.context.document.hidden=true;app.callbacks.visibilitychange();assert.equal(app.messages.at(-1).data.visible,false);
+  assert.equal(app.timers.size,0);
+  assert.ok(!app.html.includes('setTimeout(openSimBody, 60)'));assert.ok(!app.html.includes('setTimeout(openSimBody, 200)'));
+  const assetPath=app.frame.url.split('?')[0];assert.match(assetPath,/^\/static\/simulator-embed-[a-f0-9]+\.html$/);
   const asset=fs.readFileSync(path.join(__dirname,'..',assetPath),'utf8');
   assert.ok(asset.includes('id="tab-daily"'));assert.ok(!asset.includes('id="sw-register"'));
+});
+
+test('simulator first click shares preload; failed attempts retry explicitly and ignore stale callbacks',()=>{
+  const app=simulatorShellHarness(false);
+  const preload=[...app.timers.values()].find(t=>t.ms===250);
+  app.context.openSimulator();app.context.openSimulator();preload.fn();assert.equal(app.loads(),1);
+  const cacheKey=app.frame.url.split('#')[0];
+  const oldToken=app.token(),oldLoad=app.frame.onload,oldError=app.frame.onerror,oldTimeout=[...app.timers.values()].find(t=>t.ms===20000).fn;
+  oldTimeout();assert.equal(app.status.hidden,false);assert.match(app.status.innerHTML,/もう一度/);
+  app.context.openSimulator();assert.equal(app.loads(),1,'Opening failure does not retry endlessly');
+  app.status.button.onclick();assert.equal(app.loads(),2);assert.notEqual(app.token(),oldToken);
+  assert.equal(app.frame.url.split('#')[0],cacheKey,'Retry token does not change the asset cache key');
+  app.frame.contentDocument={URL:cacheKey+'#sim_attempt='+oldToken};app.frame.onload();
+  oldLoad();oldError();oldTimeout();app.ready({data:{type:'kn-simulator-ready',attempt:oldToken}});
+  assert.equal(app.status.hidden,false,'Old attempt cannot finish or fail a newer attempt');
+  app.frame.contentDocument={URL:app.frame.url};
+  app.child.__KN_SIMULATOR_READY=true;app.child.__KN_SIMULATOR_READY_TOKEN=app.token();app.frame.onload();
+  assert.equal(app.status.hidden,true);app.context.openSimulator();assert.equal(app.loads(),2);
+});
+
+test('simulator does not confuse an HTML tab with working calculations',()=>{
+  const app=simulatorShellHarness();app.context.openSimulator();
+  app.frame.contentDocument={URL:app.frame.url,getElementById:()=>({})};app.frame.onload();
+  assert.equal(app.status.hidden,false);assert.match(app.status.innerHTML,/もう一度/);
 });
 
 test('extended game code is preserved in order and loads only when opened',async()=>{

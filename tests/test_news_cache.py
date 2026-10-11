@@ -886,7 +886,7 @@ class RouteCompatibilityTests(unittest.TestCase):
             self.assertEqual(data['digest'], reviewed)
             self.assertEqual(reviewed, original)
 
-    def test_html_revalidates_and_only_hashed_features_get_long_cache(self):
+    def test_html_revalidates_and_only_fixed_features_get_long_cache(self):
         import os
         import re
         from flask import request, send_file
@@ -911,7 +911,8 @@ class RouteCompatibilityTests(unittest.TestCase):
             again.close()
         finally:
             first.close()
-        for name in ('simulator-embed-55a2f12d18.html', 'pet-features-855cb201bd.js'):
+        for name in ('simulator-embed-55a2f12d18.html', 'pet-features-855cb201bd.js',
+                     'vendor/chart.umd-4.4.1.js'):
             response = client.get('/static/' + name)
             self.assertEqual(response.cache_control.max_age, 31536000)
             response.close()

@@ -2688,7 +2688,7 @@ def cache_versioned_features(response):
         # A browser or CDN must not add another cache lifetime to prices/errors.
         response.headers["Cache-Control"] = "no-store"
     elif response.status_code == 200 and re.fullmatch(
-            r"/static/(?:simulator-embed-[a-f0-9]{10}\.html|pet-features-[a-f0-9]{10}\.js)", request.path):
+            r"/static/(?:simulator-embed-[a-f0-9]{10}\.html|pet-features-[a-f0-9]{10}\.js|vendor/chart\.umd-4\.4\.1\.js)", request.path):
         response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
     return response
 

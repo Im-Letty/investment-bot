@@ -4786,29 +4786,47 @@ setInterval(apply,500);
 <script>
 (function(){
   if(window.__KN_SIM_EMBED4_BOOTED) return; window.__KN_SIM_EMBED4_BOOTED=true;
-  var SIM_URL="/static/simulator-embed-55a2f12d18.html?v=20261011-colors1";
-  var ov,frame,fham,loaded=false;
+  var SIM_URL="/static/simulator-embed-55a2f12d18.html?v=20261011-ready1";
+  var ov,frame,fham,state='idle',attempt='',sequence=0,timer;
   function els(){ov=document.getElementById("knSimEmbedOv");frame=document.getElementById("knSimEmbedFrame");fham=document.getElementById("knFloatHam");}
-  function ensure(){
-    els();if(!ov||!frame||loaded)return;
-    var status=document.getElementById('knSimLoadState'),timer;
+  function visibility(){
+    if(!frame||state!=='ready')return;
+    try{frame.contentWindow.postMessage({type:'kn-simulator-visibility',visible:ov.classList.contains('show')&&!document.hidden},location.origin);}catch(e){}
+  }
+  function finish(token){
+    if(token!==attempt||state!=='loading')return;
+    clearTimeout(timer);state='ready';
+    var status=document.getElementById('knSimLoadState');if(status)status.hidden=true;
+    ov.setAttribute('aria-busy','false');visibility();
+  }
+  function ensure(retry){
+    els();if(!ov||!frame||state==='loading'||state==='ready'||(state==='failed'&&retry!==true))return;
+    var status=document.getElementById('knSimLoadState');
+    var token=Date.now().toString(36)+'-'+(++sequence);attempt=token;state='loading';
     function fail(){
-      clearTimeout(timer);loaded=false;
-      if(status){status.hidden=false;status.innerHTML='計算画面を読み込めませんでした。 <button type="button">もう一度読み込む</button>';status.querySelector('button').onclick=ensure;}
+      if(token!==attempt||state!=='loading')return;
+      clearTimeout(timer);state='failed';ov.setAttribute('aria-busy','false');
+      if(status){status.hidden=false;status.innerHTML='計算画面を読み込めませんでした。 <button type="button">もう一度読み込む</button>';status.querySelector('button').onclick=function(){ensure(true);};}
     }
+    ov.setAttribute('aria-busy','true');
     if(status){status.hidden=false;status.textContent='計算画面を準備しています…';}
     frame.onload=function(){
+      if(token!==attempt||state!=='loading')return;
       try{var doc=frame.contentDocument;if(doc&&doc.URL==='about:blank')return;
-        if(!doc||!doc.getElementById('tab-daily')){fail();return;}
-        clearTimeout(timer);loaded=true;if(status)status.hidden=true;
+        if(doc&&new URLSearchParams(new URL(doc.URL,location.origin).hash.slice(1)).get('sim_attempt')!==token)return;
+        if(frame.contentWindow.__KN_SIMULATOR_READY&&frame.contentWindow.__KN_SIMULATOR_READY_TOKEN===token){finish(token);}else{fail();}
       }catch(e){fail();}
     };
-    frame.onerror=fail;loaded=true;
+    frame.onerror=fail;
     timer=setTimeout(fail,20000);
-    try{frame.src=SIM_URL;}catch(e){fail();}
+    try{frame.src=SIM_URL+'#sim_attempt='+encodeURIComponent(token);}catch(e){fail();}
   }
-  function openSim(){ensure();if(ov){ov.classList.add("show");if(fham)fham.classList.add("show");}else{window.location.href="/simulator";}}
-  function closeSim(){els();if(ov){ov.classList.remove("show");}if(fham){fham.classList.remove("show");}}
+  window.addEventListener('message',function(e){
+    if(frame&&e.source===frame.contentWindow&&e.origin===location.origin&&e.data&&e.data.type==='kn-simulator-ready'){finish(e.data.attempt);}
+  });
+  document.addEventListener('visibilitychange',visibility);
+  function openSim(){els();if(ov){ov.classList.add("show");if(fham)fham.classList.add("show");ensure();visibility();}else{window.location.href="/simulator";}}
+  function closeSim(){els();if(ov){ov.classList.remove("show");}if(fham){fham.classList.remove("show");}visibility();}
   window.openSimulator=function(){openSim();};
   window.openSimulatorSection=function(){openSim();};
   window.openSimFrame=function(){openSim();};
@@ -4839,7 +4857,9 @@ setInterval(apply,500);
   }
   function boot(){
     wireNav(); wireHam(); wireDrawer();
-    // The morning screen is first; create the simulator only when opened.
+    // Prepare once in the background; switching screens keeps entered values.
+    if(window.requestIdleCallback){window.requestIdleCallback(function(){ensure();},{timeout:1200});}
+    else{setTimeout(function(){ensure();},250);}
   }
   if(document.readyState!=="loading"){boot();}else{document.addEventListener("DOMContentLoaded",boot);}
 })();
@@ -4963,22 +4983,7 @@ setInterval(apply,500);
                     }
             }catch(e){}
       }
-      function openSimBody(){
-            try{ if(typeof window.openSimulator==='function') window.openSimulator(); }catch(e){}
-      }
-      function bindHome(){
-            try{
-                    var home = document.querySelector('.bn-item[data-act="home"]');
-                    if(home && !home.__knSimBound){
-                              home.__knSimBound = true;
-                              home.addEventListener('click', function(){
-                                          setTimeout(openSimBody, 60);
-                                          setTimeout(openSimBody, 200);
-                              });
-                    }
-            }catch(e){}
-      }
-      function run(){ hideSimCard(); bindHome(); }
+      function run(){ hideSimCard(); }
       function loop(n){ run(); if(n>0) setTimeout(function(){ loop(n-1); }, 500); }
       if(document.readyState!=='loading'){ loop(20); }
       else { document.addEventListener('DOMContentLoaded', function(){ loop(20); }); }

@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-<base href="https://investment-bot-ta24.onrender.com/">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="manifest" href="/static/manifest.json">
@@ -11,12 +10,13 @@
     
 <title>投資シミュレーター</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script>
 const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const isInLINE=/Line/i.test(navigator.userAgent)||navigator.userAgent.includes('LIFF');
 if(isMobile&&!isInLINE){document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:11px;font-size:12px;z-index:9999;font-family:Outfit,sans-serif;';b.innerHTML='LINEアプリで開くとより快適です　<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:700;margin-left:6px;">LINEで開く →</a>';document.body.appendChild(b);});}
 const urlParams=new URLSearchParams(window.location.search);
+const SIM_ATTEMPT=new URLSearchParams(location.hash.slice(1)).get('sim_attempt');
 const UID=urlParams.get('uid')||''; try{var _t=urlParams.get('tab'),_r=urlParams.get('rate'),_a=urlParams.get('amount'),_y=urlParams.get('years');if(_t||_r||_a||_y){function _setSim(id,v){var el=document.getElementById(id);if(el&&v!=null&&v!==''){el.value=v;try{el.dataset.raw=String(v).replace(/[^0-9.]/g,'');}catch(e){}}}var _n=0;function _apply(){_n++;if(typeof switchTab==='function'&&_t){try{switchTab(_t);}catch(e){}}if(_a)_setSim('m-amount-n',_a);if(_r)_setSim('m-rate-n',_r);if(_y)_setSim('m-years-n',_y);if(typeof calcM==='function'){try{calcM();}catch(e){}}if(_n<10)setTimeout(_apply,200);}if(document.readyState==='complete'){setTimeout(_apply,400);}else{window.addEventListener('load',function(){setTimeout(_apply,400);});}}}catch(e){}
 </script>
 <style>
@@ -367,7 +367,7 @@ function updateFill(el){
 
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="/static/vendor/chart.umd-4.4.1.js" async onload="if(window.__knSimulatorChartsLoaded)window.__knSimulatorChartsLoaded()"></script>
 <script id="simCoinColorEarly">
 (function(){
   function hexToRgb(h){
@@ -398,7 +398,13 @@ function updateFill(el){
   const bubbles=[];
   function mkB(){const r=rand(14,50);return{x:rand(0,canvas.width),y:canvas.height+r,r,speed:rand(0.2,0.55),drift:rand(-0.1,0.1),opacity:rand(0.015,0.038),wobble:rand(0,Math.PI*2),ws:rand(0.004,0.012)};}
   for(let i=0;i<16;i++){const b=mkB();b.y=rand(0,canvas.height);bubbles.push(b);}
-  function draw(){ if(window.__bgRAF){cancelAnimationFrame(window.__bgRAF);window.__bgRAF=0;} window.__simRedrawBg=draw;
+  // A retained, hidden iframe must not run a permanent animation loop.
+  let parentVisible=window.parent===window;
+  function active(){return parentVisible&&!document.hidden;}
+  function pause(){if(window.__bgRAF){cancelAnimationFrame(window.__bgRAF);window.__bgRAF=0;}}
+  function draw(){
+    pause();
+    if(!active())return;
     ctx.clearRect(0,0,canvas.width,canvas.height);
     const sym=SYMS[window.currentLang||'ja'];
     bubbles.forEach(b=>{
@@ -411,6 +417,16 @@ function updateFill(el){
     });
     window.__bgRAF=requestAnimationFrame(draw);
   }
+  window.__simRedrawBg=draw;
+  window.addEventListener('message',function(e){
+    if(window.parent===window||e.source!==window.parent||e.origin!==location.origin)return;
+    if(!e.data||e.data.type!=='kn-simulator-visibility'||typeof e.data.visible!=='boolean')return;
+    parentVisible=e.data.visible;
+    if(active())draw();else pause();
+  });
+  document.addEventListener('visibilitychange',function(){if(active())draw();else pause();});
+  window.addEventListener('pagehide',pause);
+  window.addEventListener('pageshow',function(){if(active())draw();});
   draw();
 })();
 
@@ -613,6 +629,8 @@ async function submitEdit(){
   } catch(e){document.getElementById('edit-msg').textContent='エラー：'+e.message;document.getElementById('edit-msg').style.color='#e53e3e';btn.disabled=false;btn.textContent='更新する';}
 }
 function makeChart(id,labels,p,tot){
+  // Numeric calculations and inputs remain usable while the graph library loads.
+  if(typeof window.Chart!=='function')return null;
   const ctx=document.getElementById(id);if(!ctx)return null;
   const t=T[window.currentLang];
   const chart = new Chart(ctx,{type:'line',data:{labels,datasets:[
@@ -678,10 +696,21 @@ function calcG(){
   if(chartG)chartG.destroy();chartG=makeChart('chart-g',labels,p,tot);
 }
 
+// The async graph library may arrive before or after input initialization.
+window.__knSimulatorChartsLoaded=function(){
+  if(!window.__KN_SIMULATOR_READY||typeof window.Chart!=='function')return;
+  calcD();calcM();calcL();calcG();
+};
+
 async function init(){
   var savedLang='ja';try{savedLang=localStorage.getItem('siteLang')||'ja';}catch(e){}
   if(!T[savedLang])savedLang='ja';
   setLang(savedLang);
+  window.__KN_SIMULATOR_READY=true;
+  window.__KN_SIMULATOR_READY_TOKEN=SIM_ATTEMPT;
+  if(window.parent!==window){
+    window.parent.postMessage({type:'kn-simulator-ready',attempt:window.__KN_SIMULATOR_READY_TOKEN},location.origin);
+  }
   if(UID){
     try{
       const res=await fetch(`/api/user-data?uid=${encodeURIComponent(UID)}`);
