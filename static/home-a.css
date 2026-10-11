@@ -4,6 +4,7 @@ body.kn-home-a {
   --kn-a-header-top:18px;
   --kn-a-header-min-inset:22px;
   --kn-a-header-content-width:1010px;
+  --kn-a-menu-left:max(var(--kn-a-header-min-inset),calc((100% - var(--kn-a-header-scrollbar,0px) - var(--kn-a-header-content-width))/2));
   --kn-a-ink:#184b3c; --kn-a-muted:#547467; --kn-a-paper:#fffdf6;
   --kn-a-bg:#f7fbf6; --kn-a-line:#dce6d7; --kn-a-button:#205c49;
   --kn-a-mint:#b0ddc7; --kn-a-pale:#def1e3; --kn-a-chip:#edf5e9;
@@ -28,10 +29,16 @@ body.kn-home-a[data-theme="dark"] {
 body.kn-home-a #morning-section {background:var(--kn-a-bg)!important;color:var(--kn-a-ink);font-family:var(--kn-a-sans);padding:0 0 32px!important}
 body.kn-home-a.view-asaletter #morning-section {bottom:calc(58px + env(safe-area-inset-bottom,0px))!important}
 body.kn-home-a.view-asaletter #knFloatHam {display:none!important}
-body.kn-home-a:has(#knSimEmbedOv.show) #knFloatHam {
-  top:var(--kn-a-header-top);
-  left:max(var(--kn-a-header-min-inset),calc((100% - var(--kn-a-header-scrollbar,0px) - var(--kn-a-header-content-width))/2));
+/* All page menus share the morning letter's position and clear its header text. */
+body.kn-home-a #knFloatHam {
+  top:var(--kn-a-header-top)!important;
+  left:var(--kn-a-menu-left)!important;
 }
+body.kn-home-a :is(#knShorts .ks-top,#myPageOv .mo-head,#petOv .pt-head) {padding-left:calc(var(--kn-a-menu-left) + 48px)!important}
+body.kn-home-a #petOv .pt-head {min-height:72px;box-sizing:border-box}
+body.kn-home-a:has(:is(#petOv.open,#myPageOv.open)) #knFloatHam {z-index:100001!important}
+body.kn-home-a:has(:is(#petOv.open,#myPageOv.open)) #drawerOverlay {z-index:100010!important}
+body.kn-home-a:has(:is(#petOv.open,#myPageOv.open)) #sideDrawer {z-index:100020!important}
 body.kn-home-a #morning-section .morning-banner {min-height:0!important;margin:0!important;padding:var(--kn-a-header-top) max(var(--kn-a-header-min-inset),calc((100% - var(--kn-a-header-content-width))/2)) 25px!important;border:0!important;border-radius:0!important;background:radial-gradient(ellipse at 6% 0%,#f8fff8 0,transparent 65%),linear-gradient(125deg,var(--kn-a-pale),var(--kn-a-mint) 65%,var(--kn-a-pale))!important;box-shadow:none!important;transform:none!important;will-change:auto!important}
 body.kn-home-a[data-theme="dark"] #morning-section .morning-banner {background:linear-gradient(125deg,var(--kn-a-pale),var(--kn-a-mint) 65%,var(--kn-a-pale))!important}
 body.kn-home-a #morning-section .morning-title,body.kn-home-a #morning-section .morning-icon,body.kn-home-a #morning-section .morning-sub,body.kn-home-a #morning-section #knNewsDeco,body.kn-home-a #morning-section #morningTickerWrap,body.kn-home-a #morning-section .morning-controls,body.kn-home-a #morning-section #morning-idx-grid {display:none!important}
