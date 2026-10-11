@@ -100,6 +100,8 @@ body.kn-home-a #knTabWrap .dividend-list .div-row {background:transparent;border
 body.kn-home-a #knBottomNav {background:var(--kn-a-paper)!important;border-top:1px solid var(--kn-a-line)!important;box-shadow:none!important;font-family:var(--kn-a-sans)!important}
 body.kn-home-a #knBottomNav .bn-item {color:var(--kn-a-muted)!important;background:none!important;text-shadow:none!important;box-shadow:none!important}
 body.kn-home-a #knBottomNav .bn-item.active {color:var(--kn-a-button)!important}
+/* Talk is opened from the morning header; retain only its existing route here. */
+#knBottomNav .bn-item[data-act="talk"] {display:none!important}
 body.kn-home-a #knBottomNav .bn-label {font-size:calc(12px * var(--kn-a-scale,1))!important;line-height:1.25!important;font-weight:400!important;letter-spacing:-.04em;white-space:normal}
 body.kn-home-a #knBottomNav svg {filter:none!important;width:21px!important;height:21px!important;stroke-width:1.5!important}
 body.kn-home-a #knChatFab {background:var(--kn-a-paper)!important;border:1px solid var(--kn-a-line)!important;box-shadow:0 3px 12px #294b3420!important;color:var(--kn-a-ink)!important}
