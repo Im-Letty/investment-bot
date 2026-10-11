@@ -303,7 +303,18 @@ body.kn-home-a :is(#knMyTalkHub .kt-hub-sub,#talkHubOv .thb-sub) {
 }
 body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-arrow {font:300 26px/1 serif;color:var(--kn-sh-muted)}
 body.kn-home-a #talkHubOv .thb-x {margin-left:auto;color:var(--kn-sh-ink);padding:8px;cursor:pointer}
-body.kn-home-a.kn-talk-active #knFloatHam {z-index:100001!important}
+body.kn-home-a.kn-talk-active {
+  --kn-talk-menu-left:max(var(--kn-a-header-min-inset,22px),calc((100% - var(--kn-a-header-scrollbar,0px) - var(--kn-a-header-content-width,1010px))/2));
+}
+body.kn-home-a.kn-talk-active #knFloatHam {
+  z-index:100001!important;
+  top:var(--kn-a-header-top,18px);
+  left:var(--kn-talk-menu-left);
+}
+/* Leave the same menu gutter in every Talk header, including the Back control. */
+body.kn-home-a.kn-talk-active :is(#knMyTalkHub .kt-hub-head,#talkHubOv .thb-head,#talkOv .tk-head,#cmOv .cm-top,#teachOv .to-head) {
+  padding-left:calc(var(--kn-talk-menu-left) + 48px)!important;
+}
 body.kn-home-a.kn-talk-active #drawerOverlay {z-index:100010!important}
 body.kn-home-a.kn-talk-active #sideDrawer {z-index:100020!important}
 @media(max-width:640px) {
