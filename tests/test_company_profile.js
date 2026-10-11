@@ -257,6 +257,8 @@ test('company price rows show delay, retained prices and unsupported regional so
   refs.numbers.open=true;refs.content.scrollTop=240;h.view.render(state(raw,{status:'stale',fromCache:true,updating:true}));assert.match(refs.price.note.textContent,/保存済み.*確認中/);assert.equal(refs.numbers.open,true);assert.equal(refs.content.scrollTop,240);
   const regional=fixture({symbol:'8301.JP',identity:{...IDENTITY,market:'福証単独上場'},name:'地域企業',editorial:null});h.view.open('8301.JP','地域企業',h.trigger);h.view.render({symbol:'8301.JP',status:'ready',data:profile.normalize(regional,'8301.JP',NOW),updating:false});
   assert.equal(refs.code.textContent,'8301');assert.equal(refs.price.value.textContent,'—');assert.equal(refs.price.unknown.textContent,'取得元未対応');assert.match(refs.price.note.textContent,/この取引所/);assert.equal(refs.market.value.textContent,'福証単独上場');
+  assert.match(refs.status.textContent,/株価・配当・時価総額の取得元は未対応/);assert.equal(refs.numbers.open,false);
+  h.view.render({symbol:'8301.JP',status:'pending',data:profile.normalize(regional,'8301.JP',NOW),updating:true});assert.match(refs.status.textContent,/株価・配当・時価総額の取得元は未対応/);assert.doesNotMatch(refs.status.textContent,/株価や配当の情報を確認しています/);
 });
 test('regional financial unavailability leaves its verified identity and sourced business readable',()=>{
   const h=dialogHarness(),key='1738.JP';h.view.open(key,'地域企業',h.trigger);

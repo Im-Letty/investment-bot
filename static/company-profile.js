@@ -292,6 +292,7 @@
       if(record&&record.name&&symbol(record.name)!==currentSymbol)refs.name.textContent=record.name;else refs.name.textContent=selectedName;
       const failed=['error','stale'].includes(state.status)&&!state.updating;
       refs.status.textContent=state.reason==='retrying'?'通信が一時的に遅れています。自動でもう一度確認しています…':state.status==='loading'?'株価や配当の情報を確認しています…':state.updating?(state.fromCache?'保存していた情報を表示し、最新の情報を確認しています…':'株価や配当の情報を確認しています…'):failed?(record&&hasFacts(record)?'一部の情報は保存済みです。取得日時をご確認ください。':identity?'会社の基本情報を表示しています。株価や配当の情報は今は確認できません。':'情報を確認できませんでした。'):state.status==='stale'?'保存済みの情報です。取得日時をご確認ください。':'';
+      if(record&&record.market_data&&record.market_data.kind==='unsupported')refs.status.textContent='会社の基本情報を表示しています。この取引所の株価・配当・時価総額の取得元は未対応です。';
       refs.retry.hidden=!failed;
       feedback.hidden=!refs.status.textContent&&!failed;
       refs.basic.hidden=!(identity&&(identity.market||identity.industry));
