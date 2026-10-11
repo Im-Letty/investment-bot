@@ -115,17 +115,17 @@ test('day selection, five-item pagination and month plans are separate and compa
   h.mount.find('dc-more').dispatch('click');assert.equal(list.children.length,7);h.mount.find('dc-grid').children.find(node=>node.dataset.date===date).dispatch('click');assert.match(h.mount.find('dc-list-heading').textContent,/の予定/);assert.equal(list.children.length,5);assert.equal(h.mount.find('dc-reset').hidden,false);
   h.mount.find('dc-reset').dispatch('click');assert.equal(h.mount.find('dc-reset').hidden,true);assert.equal(h.mount.find('dc-list-heading').children[0].textContent,'これからの予定');
 });
-test('favorite filter shares storage updates and keyboard arrows move to the neighboring day',async()=>{
-  const h=uiHarness();await flush();await h.reply(0,fixture({range:calendar.bounds(),events:[],updated_at:Date.now()/1000}));h.mount.find('dc-filters').children[2].dispatch('click');assert.equal(h.requests.length,1);assert.match(h.mount.find('dc-empty').textContent,/お気に入りに日本株/);
-  h.saved.setItem(WATCH,'["7203.T"]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));assert.equal(h.requests.length,2);assert.match(h.requests[1].url,/scope=favorites/);assert.match(h.requests[1].url,/7203.T/);
+test('calendar keeps all-company scope after favorites change and keyboard arrows move to the neighboring day',async()=>{
+  const h=uiHarness();await flush();await h.reply(0,fixture({range:calendar.bounds(),events:[],updated_at:Date.now()/1000}));assert.equal(h.requests.length,1);assert.doesNotMatch(h.mount.find('dc-empty').textContent,/お気に入りに日本株/);
+  h.saved.setItem(WATCH,'["7203.T"]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));assert.equal(h.requests.length,2);assert.match(h.requests[1].url,/scope=all/);assert.match(h.requests[1].url,/7203.T/);assert.equal(h.saved.getItem(WATCH),'["7203.T"]');
   const cells=h.mount.find('dc-grid').children.filter(node=>node.dataset.date);let prevented=false;cells[3].dispatch('keydown',{key:'ArrowRight',preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.doc.activeElement,cells[4]);h.mount.find('dc-manage').dispatch('click');assert.equal(h.w.managed,true);
 });
 test('hiding the page cancels outstanding work and resuming requests fresh data',async()=>{
   const h=uiHarness();await flush();h.doc.hidden=true;for(const fn of h.events.visibilitychange)fn();assert.equal(h.requests[0].options.signal.aborted,true);assert.equal(h.time.timers.size,0);h.doc.hidden=false;for(const fn of h.events.visibilitychange)fn();assert.equal(h.requests.length,2);
 });
-test('saved favorites are the default, including after decryption, while a manual filter choice wins',async()=>{
-  const saved=storage({[WATCH]:'["7203.T"]'}),first=uiHarness({saved});assert.match(first.requests[0].url,/scope=favorites/);await flush();
-  let unlock;const gate=new Promise(resolve=>unlock=resolve),delayed=storage(),h=uiHarness({saved:delayed,gate});assert.match(h.requests[0].url,/scope=all/);delayed.setItem(WATCH,'["9432.T"]');unlock();await flush();assert.match(h.requests.at(-1).url,/scope=favorites/);assert.match(h.requests.at(-1).url,/9432.T/);
+test('calendar always starts with all companies and decryption preserves saved favorites without narrowing scope',async()=>{
+  const saved=storage({[WATCH]:'["7203.T"]'}),first=uiHarness({saved});assert.match(first.requests[0].url,/scope=all/);await flush();assert.equal(saved.getItem(WATCH),'["7203.T"]');
+  let unlock;const gate=new Promise(resolve=>unlock=resolve),delayed=storage(),h=uiHarness({saved:delayed,gate});assert.match(h.requests[0].url,/scope=all/);delayed.setItem(WATCH,'["9432.T"]');unlock();await flush();assert.match(h.requests.at(-1).url,/scope=all/);assert.match(h.requests.at(-1).url,/9432.T/);assert.equal(delayed.getItem(WATCH),'["9432.T"]');
   let release;const chosen=storage(),other=uiHarness({saved:chosen,gate:new Promise(resolve=>release=resolve)});other.mount.find('dc-filters').children[0].dispatch('click');chosen.setItem(WATCH,'["7203.T"]');release();await flush();assert.match(other.requests.at(-1).url,/scope=all/);assert.equal(other.mount.find('dc-filters').children[0].getAttribute('aria-pressed'),'true');
 });
 
@@ -314,7 +314,7 @@ test('benefits tab separates dates and conditions and restores the dividend view
  t.mock.method(Date,'now',()=>NOW);
  const h=uiHarness();h.w.KNBenefits=require('../static/shareholder-benefits.js');await flush();await h.reply(0,fixture());
  const tabs=h.mount.find('dc-filters').children;
- assert.deepEqual(tabs.slice(0,3).map(b=>b.textContent),['配当','株主優待','お気に入り']);
+ assert.deepEqual(tabs.filter(b=>b.className==='dc-filter').map(b=>b.textContent),['配当','株主優待']);
  tabs[1].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,true);assert.equal(h.mount.find('dc-benefits-pane').hidden,false);
  const pane=h.mount.find('dc-benefits-pane'),benefits=h.w.KNBenefits;
  const cards=()=>pane.find('bc-list').children.filter(node=>node.className.split(' ').includes('bc-card'));
@@ -325,5 +325,5 @@ test('benefits tab separates dates and conditions and restores the dividend view
  assert.equal(pane.find('bc-pending').hidden,pending.length===0);assert.equal(pane.find('bc-pending').open,true);
  pane.find('dc-month-navigation').children[2].dispatch('click');assert.equal(cards().length,Math.min(5,benefits.rowsForMonth(calendar.shift(MONTH,1)).length));
  tabs[0].dispatch('click');assert.equal(h.mount.find('dc-dividend-pane').hidden,false);assert.equal(tabs[0].getAttribute('aria-pressed'),'true');
- tabs[1].dispatch('click');tabs[2].dispatch('click');assert.equal(h.mount.find('dc-benefits-pane').hidden,true);
+ tabs[1].dispatch('click');tabs[0].dispatch('click');assert.equal(h.mount.find('dc-benefits-pane').hidden,true);
 });

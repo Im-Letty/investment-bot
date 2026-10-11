@@ -101,7 +101,6 @@ body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filters {
   min-height:0;align-content:start;align-items:stretch;
   border:0!important;
 }
-body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filters {grid-template-columns:repeat(3,minmax(0,1fr))}
 body.kn-home-a #morning-section #knTabWrap #knDivSubRow button,
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter {
   min-width:0;min-height:50px;flex:none!important;
