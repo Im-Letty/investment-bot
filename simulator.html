@@ -135,7 +135,7 @@ h1 { font-size: 20px; font-weight: 600; color: #1a3a1a; margin-bottom: 1rem; tex
 function updateFill(el){
   const min=parseFloat(el.min)||0, max=parseFloat(el.max)||100, val=parseFloat(el.value)||0;
   const pct=((val-min)/(max-min)*100).toFixed(1);
-  el.style.setProperty('--fill','linear-gradient(to right,#2d7a2d '+pct+'%,#d8d8d8 '+pct+'%)');
+  el.style.setProperty('--fill','linear-gradient(to right,var(--sim-button, #607765) '+pct+'%,var(--sim-line, #d5d6c3) '+pct+'%)');
 }
 </script>
 </head>
@@ -368,24 +368,7 @@ function updateFill(el){
 </div>
 
 <script src="/static/vendor/chart.umd-4.4.1.js" async onload="if(window.__knSimulatorChartsLoaded)window.__knSimulatorChartsLoaded()"></script>
-<script id="simCoinColorEarly">
-(function(){
-  function hexToRgb(h){
-    if(!h) return null;
-    var m = String(h).trim().replace('#','');
-    if(m.length===3){ m = m[0]+m[0]+m[1]+m[1]+m[2]+m[2]; }
-    if(!/^[0-9a-fA-F]{6}$/.test(m)) return null;
-    return [parseInt(m.slice(0,2),16), parseInt(m.slice(2,4),16), parseInt(m.slice(4,6),16)];
-  }
-  try{
-    var rgb = hexToRgb(localStorage.getItem('userBrandColor'));
-    if(rgb){
-      var f = 0.45;
-      window.__coinRGB = Math.round(rgb[0]*(1-f))+','+Math.round(rgb[1]*(1-f))+','+Math.round(rgb[2]*(1-f));
-    }
-  }catch(e){}
-})();
-</script>
+
 <script>
 /* 背景パーティクル */
 (function(){
@@ -633,7 +616,7 @@ function makeChart(id,labels,p,tot){
   const ctx=document.getElementById(id);if(!ctx)return null;
   const chartFont='-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif';
   const t=T[window.currentLang];
-  return new Chart(ctx,{type:'line',data:{labels,datasets:[
+  const chart = new Chart(ctx,{type:'line',data:{labels,datasets:[
     {label:t.p_label,data:p,borderColor:'#a5d6a7',backgroundColor:'rgba(165,214,167,0.15)',borderWidth:2,pointRadius:0,pointHoverRadius:5,fill:true,tension:0.3},
     {label:t.t_label,data:tot,borderColor:'#1e5c20',backgroundColor:'rgba(30,92,32,0.12)',borderWidth:2.5,pointRadius:0,pointHoverRadius:6,fill:true,tension:0.3}
   ]},options:{responsive:true,maintainAspectRatio:false,
@@ -659,6 +642,8 @@ function makeChart(id,labels,p,tot){
       x:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}},
       y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
     }}});
+  if(window.KNSimulatorTheme) window.KNSimulatorTheme.applyChart(chart);
+  return chart;
 }
 
 function calcD(){
@@ -811,15 +796,15 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     var withinYearly=principal<=NISA_YEARLY_LIMIT;
     var withinLifetime=principal<=NISA_LIFETIME_LIMIT;
     var monthlyEq=years>0?(principal/(years*12)):0;
-    return '<div style="margin-top:14px;padding:14px;background:linear-gradient(135deg,rgba(61,160,96,.08),rgba(52,152,219,.08));border-radius:12px;border:1px solid rgba(61,160,96,.25);font-size:13px;line-height:1.7;">'+
-      '<div style="font-weight:700;color:#2d4a2d;margin-bottom:8px;font-size:14px;">'+tt('title')+'</div>'+
+    return '<div class="sim-analysis" style="margin-top:14px;padding:14px;background:linear-gradient(135deg,rgba(61,160,96,.08),rgba(52,152,219,.08));border-radius:12px;border:1px solid rgba(61,160,96,.25);font-size:13px;line-height:1.7;">'+
+      '<div class="sim-analysis-title" style="font-weight:700;color:#2d4a2d;margin-bottom:8px;font-size:14px;">'+tt('title')+'</div>'+
       '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
-      '<div>💰 '+tt('gain')+':<br><b style="color:#3da060;">'+fmtJPY(gain)+'</b></div>'+
-      '<div>🏦 '+tt('taxed')+':<br><b style="color:#e67e22;">'+fmtJPY(afterTax)+'</b></div>'+
-      '<div>🌸 '+tt('nisa')+':<br><b style="color:#3498db;">'+fmtJPY(finalAmount)+'</b></div>'+
-      '<div>✨ '+tt('advantage')+':<br><b style="color:#9b59b6;">+'+fmtJPY(nisaAdvantage)+'</b></div>'+
+      '<div>💰 '+tt('gain')+':<br><b class="sim-analysis-value" style="color:#3da060;">'+fmtJPY(gain)+'</b></div>'+
+      '<div>🏦 '+tt('taxed')+':<br><b class="sim-analysis-value" style="color:#e67e22;">'+fmtJPY(afterTax)+'</b></div>'+
+      '<div>🌸 '+tt('nisa')+':<br><b class="sim-analysis-value" style="color:#3498db;">'+fmtJPY(finalAmount)+'</b></div>'+
+      '<div>✨ '+tt('advantage')+':<br><b class="sim-analysis-value" style="color:#9b59b6;">+'+fmtJPY(nisaAdvantage)+'</b></div>'+
       '</div>'+
-      '<div style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,.1);font-size:12px;color:#555;">'+
+      '<div class="sim-analysis-checks" style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,.1);font-size:12px;color:#555;">'+
       '<div>'+tt('yearly_limit')+': '+(withinYearly?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
       '<div>'+tt('lifetime_limit')+': '+(withinLifetime?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
       (monthlyEq>0?'<div>'+tt('monthly_eq')+': '+fmtJPY(monthlyEq)+'/m</div>':'')+
@@ -861,161 +846,6 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,300);}
 })();</script>
     
-<!-- ===== Brand color sync: read userBrandColor (shared with home) & apply to simulator ===== -->
-<style id="simBrandSync">
-  .tab.active{ color: var(--brand-dark, #2d7a2d) !important; }
-  .tab.active{ background: var(--brand-lighter, #d0ead0) !important; }
-  .val-input, .metric .mval, .mp-name, .info-value, .mp-section-title{ color: var(--brand-dark, #2d7a2d) !important; }
-  .row input[type=range]::-moz-range-progress{ background: var(--brand-dark, #2d7a2d) !important; }
-  .row input[type=range]{ accent-color: var(--brand-color, #3da060) !important; }
-  .reg-input:focus{ border-color: var(--brand-dark, #2d7a2d) !important; }
-  h1, .sim-title{ color: var(--brand-deep, #225835) !important; }
-</style>
-
-<!-- __SIM_BRANDSYNC_BOOTED : syncs simulator look to home color customizer (localStorage userBrandColor). Recolors main UI + pale bg + readable text + metric values (.mval) + sliders + boxes + advice (bg/border/text) + detail box gradient bg + detail green text (incl 運用益) + chart (lines/fills/area bg/legend) across ALL tabs without a tab click, on live color change (storage event) AND on reload, idempotently (re-applies even after a previous brand color), surviving chart/graph redraws via MutationObserver. Meaningful color-codes (tax=orange/account=blue/merit=purple) kept. Default brand #3da060. -->
-<style id="simBrandSync"></style>
-<style id="simBrandSyncDetail"></style>
-<script>
-(function(){
-  if(window.__SIM_BRANDSYNC_BOOTED)return; window.__SIM_BRANDSYNC_BOOTED=true;
-  var DEFAULT_BRAND="#3da060";
-  function hexToRgb(h){h=(h||"").replace("#","");if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];var n=parseInt(h,16);return{r:(n>>16)&255,g:(n>>8)&255,b:n&255};}
-  function clamp(x){return Math.max(0,Math.min(255,Math.round(x)));}
-  function toHex(c){return "#"+[c.r,c.g,c.b].map(function(x){var s=clamp(x).toString(16);return s.length<2?"0"+s:s;}).join("");}
-  function tint(hex,a){var c=hexToRgb(hex);return toHex({r:c.r+(255-c.r)*a,g:c.g+(255-c.g)*a,b:c.b+(255-c.b)*a});}
-  function darken(hex,a){var c=hexToRgb(hex);return toHex({r:c.r*(1-a),g:c.g*(1-a),b:c.b*(1-a)});}
-  function rgba(hex,a){var c=hexToRgb(hex);return "rgba("+clamp(c.r)+","+clamp(c.g)+","+clamp(c.b)+","+a+")";}
-  function getBrand(){try{var v=localStorage.getItem("userBrandColor");return (v&&/^#?[0-9a-fA-F]{3,6}$/.test(v))?(v[0]==="#"?v:"#"+v):DEFAULT_BRAND;}catch(e){return DEFAULT_BRAND;}}
-  function buildVars(brand){return {
-    brand:brand, deep:darken(brand,0.30), bg:tint(brand,0.95), tabsBg:tint(brand,0.88), activeTab:tint(brand,0.78),
-    text:darken(brand,0.55), accent:darken(brand,0.18), noteBg:rgba(brand,0.10), noteBorder:rgba(brand,0.25),
-    chartBg:tint(brand,0.93), softBorder:rgba(brand,0.18), areaBg:tint(brand,0.93), lineMain:darken(brand,0.30),
-    linePrincipal:tint(brand,0.55), fillMain:rgba(brand,0.12), fillPrincipal:rgba(brand,0.15),
-    detailGrad:"linear-gradient(135deg,"+rgba(brand,0.10)+","+rgba(brand,0.05)+")"
-  };}
-  function isGreen(c){var m=c&&c.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);if(!m)return false;var r=+m[1],g=+m[2],b=+m[3];return (g>r+15&&g>b+15);}
-  function applyCss(v){
-    var css="body{background:"+v.bg+" !important;}"+
-    ".tabs{background:"+v.tabsBg+" !important;}"+
-    ".tab.active{background:"+v.activeTab+" !important;color:"+v.text+" !important;}"+
-    ".metric .val,.mval,.val-input,.section-title,h1,h2{color:"+v.text+" !important;}"+
-    ".row input[type=range]{accent-color:"+v.accent+" !important;}"+
-    ".chart-outer{background:"+v.chartBg+" !important;border-color:"+v.softBorder+" !important;}"+
-    ".card,.metric{border-color:"+v.softBorder+" !important;}"+
-    ".sim-pro-box-d,.sim-pro-box-m,.sim-pro-box-l,.sim-pro-box-g{border-color:"+v.softBorder+" !important;}";
-    var s=document.getElementById("simBrandSync"); if(s)s.textContent=css;
-  }
-  function applyInline(v){
-    var els=document.querySelectorAll("[style]");
-    for(var i=0;i<els.length;i++){var el=els[i];var st=el.getAttribute("style");if(!st)continue;var o=st;var t=el.textContent||"";
-      if(/💡/.test(t)&&/background:/.test(st)){st=st.replace(/background:[^;]+/,"background:"+v.noteBg);st=st.replace(/border:1px solid [^;]+/,"border:1px solid "+v.noteBorder);st=st.replace(/(^|;)\s*color:[^;]+/,"$1color:"+v.text);}
-      if(/詳細分析/.test(t)&&/linear-gradient/.test(st)){st=st.replace(/background:\s*linear-gradient[^;]+/i,"background:"+v.detailGrad);}
-      if(el.tagName==="B"&&/^¥/.test(t.trim())){var cs=getComputedStyle(el).color;if(isGreen(cs)||/#3da060/i.test(st)){st=st.replace(/color:[^;]+/,"color:"+v.deep);}}
-      if(el.tagName==="DIV"&&/font-weight:700;color:/.test(st)&&/詳細分析/.test(t)){st=st.replace(/color:[^;]+/,"color:"+v.text);}
-      if(st!==o)el.setAttribute("style",st);
-    }
-  }
-  function applySliders(v){
-    var rs=document.querySelectorAll(".row input[type=range]");
-    for(var i=0;i<rs.length;i++){var r=rs[i];var st=r.getAttribute("style");if(!st)continue;
-      var st2=st.replace(/(--fill:\s*linear-gradient\([^,]+,\s*)(#[0-9a-fA-F]{6}|rgba?\([^)]*\))/,"$1"+v.accent);
-      if(st2!==st)r.setAttribute("style",st2);}
-  }
-  var areaPlugin={id:"simBrandAreaBg",beforeDraw:function(chart){try{var a=chart.chartArea;if(!a)return;var ctx=chart.ctx;ctx.save();ctx.fillStyle=window.__simAreaBg||"#f0f7f0";ctx.fillRect(a.left,a.top,a.right-a.left,a.bottom-a.top);ctx.restore();}catch(e){}}};
-  try{if(window.Chart&&Chart.register)Chart.register(areaPlugin);}catch(e){}
-  function applyCharts(v){
-    window.__simAreaBg=v.areaBg;
-    try{if(window.Chart)Chart.defaults.color=v.text;}catch(e){}
-    try{document.querySelectorAll("canvas").forEach(function(cv){var ch=window.Chart&&Chart.getChart?Chart.getChart(cv):null;if(!ch)return;
-      (ch.data.datasets||[]).forEach(function(ds){var lbl=(ds.label||"");
-        if(/総資産/.test(lbl)){ds.borderColor=v.lineMain;ds.backgroundColor=v.fillMain;}
-        else if(/元本/.test(lbl)){ds.borderColor=v.linePrincipal;ds.backgroundColor=v.fillPrincipal;}
-        else{ds.borderColor=v.lineMain;ds.backgroundColor=v.fillMain;}});
-      ch.update("none");});}catch(e){}
-  }
-  function applyAll(){var v=buildVars(getBrand());applyCss(v);applyInline(v);applySliders(v);applyCharts(v);}
-  applyAll();
-  var tries=0;var iv=setInterval(function(){applyAll();if(++tries>=10)clearInterval(iv);},300);
-  var mt=null;
-  var obs=new MutationObserver(function(){clearTimeout(mt);mt=setTimeout(function(){var v=buildVars(getBrand());applyInline(v);applySliders(v);},40);});
-  try{obs.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:["style"]});}catch(e){}
-  document.addEventListener("input",function(e){if(e.target&&e.target.type==="range"){var v=buildVars(getBrand());applySliders(v);applyInline(v);setTimeout(function(){applyCharts(v);},30);}},true);
-  document.addEventListener("click",function(e){if(e.target&&e.target.closest&&e.target.closest(".tab")){var v=buildVars(getBrand());[60,250,600].forEach(function(d){setTimeout(function(){applyInline(v);applySliders(v);applyCharts(v);},d);});}},true);
-  setInterval(function(){var v=buildVars(getBrand());applySliders(v);},700);
-  window.addEventListener("storage",function(e){if(e.key==="userBrandColor")applyAll();});
-})();
-</script>
-<script>
-/* simBrandSyncText: recolor remaining green TEXT (tabs/labels/units/legend) + chart tooltip; detail-box labels, legend & chart legend set to neutral black. Additive, idempotent. */
-(function(){
-  function h2r(h){h=(h||'').replace('#','');if(h.length===3)h=h.split('').map(function(c){return c+c;}).join('');var n=parseInt(h,16);return [(n>>16)&255,(n>>8)&255,n&255];}
-  function dk(rgb,a){return rgb.map(function(c){return Math.round(c*(1-a));});}
-  function tn(rgb,a){return rgb.map(function(c){return Math.round(c+(255-c)*a);});}
-  function S(rgb){return 'rgb('+rgb[0]+','+rgb[1]+','+rgb[2]+')';}
-  function getColor(){return localStorage.getItem('userBrandColor')||'#3da060';}
-  var BLACK='#222';
-  function buildCss(hex){
-    var b=h2r(hex);
-    var text=S(dk(b,0.55));
-    var mid=S(tn(dk(b,0.30),0.30));
-    return [
-      '.tabs{color:'+text+' !important}',
-      '.tab{color:'+mid+' !important}',
-      '.tab.active{color:'+text+' !important}',
-      'label{color:'+mid+' !important}',
-      '.unit{color:'+mid+' !important}',
-      '.right{color:'+text+' !important}',
-      '.mlabel{color:'+BLACK+' !important}',
-      '.sim-pro-box-d,.sim-pro-box-m,.sim-pro-box-l,.sim-pro-box-g{color:'+BLACK+' !important}'
-    ].join('');
-  }
-  function applyText(){
-    var hex=getColor();
-    var st=document.getElementById('simBrandSyncText');
-    if(!st){st=document.createElement('style');st.id='simBrandSyncText';document.head.appendChild(st);}
-    var css=buildCss(hex);
-    if(st.textContent!==css)st.textContent=css;
-    fixHeading();
-    applyChart(hex);
-  }
-  function fixHeading(){
-    try{
-      var divs=document.querySelectorAll('.sim-pro-box-d *,.sim-pro-box-m *,.sim-pro-box-l *,.sim-pro-box-g *');
-      for(var i=0;i<divs.length;i++){
-        var d=divs[i];var s=d.getAttribute('style')||'';
-        if(/詳細分析/.test(d.textContent)&&d.children.length===0&&/color:/i.test(s)){d.style.color=BLACK;}
-      }
-    }catch(e){}
-  }
-  function applyChart(hex){
-    try{
-      if(typeof Chart==='undefined'||!Chart.instances)return;
-      var b=h2r(hex);
-      var title=S(dk(b,0.30)), body=S(dk(b,0.55)), border=S(dk(b,0.18));
-      Object.keys(Chart.instances).forEach(function(k){
-        var inst=Chart.instances[k];
-        if(!inst||!inst.options||!inst.options.plugins)return;
-        var changed=false;
-        var tt=inst.options.plugins.tooltip;
-        if(tt){
-          if(tt.titleColor!==title||tt.bodyColor!==body||tt.borderColor!==border)changed=true;
-          tt.titleColor=title;tt.bodyColor=body;tt.borderColor=border;
-        }
-        var lg=inst.options.plugins.legend;
-        if(lg&&lg.labels){ if(lg.labels.color!==BLACK)changed=true; lg.labels.color=BLACK; }
-        if(changed&&typeof inst.update==='function')inst.update('none');
-      });
-    }catch(e){}
-  }
-  function init(){applyText();}
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
-  window.addEventListener('storage',function(e){if(!e||e.key==='userBrandColor'||e.key===null)applyText();});
-  var n=0;var iv=setInterval(function(){applyText();if(++n>40)clearInterval(iv);},500);
-  document.addEventListener('click',function(){setTimeout(applyText,60);},true);
-  document.addEventListener('input',function(){setTimeout(applyText,60);},true);
-})();
-</script>
-
 <script id="simLangSync">
 (function(){
   if (window.__simLangSyncInit) return;
@@ -1054,46 +884,10 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 })();
 </script>
 
-<script id="simCoinColor">
-(function(){
-  if (window.__simCoinColorInit) return;
-  window.__simCoinColorInit = true;
-  function hexToRgb(h){
-    if(!h) return null;
-    h = String(h).trim();
-    var m = h.replace('#','');
-    if(m.length===3){ m = m[0]+m[0]+m[1]+m[1]+m[2]+m[2]; }
-    if(!/^[0-9a-fA-F]{6}$/.test(m)) return null;
-    var r = parseInt(m.slice(0,2),16);
-    var g = parseInt(m.slice(2,4),16);
-    var bl = parseInt(m.slice(4,6),16);
-    return [r,g,bl];
-  }
-  function darken(rgb,f){
-    return [Math.round(rgb[0]*(1-f)), Math.round(rgb[1]*(1-f)), Math.round(rgb[2]*(1-f))];
-  }
-  function update(){
-    try{
-      var c = localStorage.getItem('userBrandColor');
-      var rgb = hexToRgb(c);
-      if(rgb){
-        var d = darken(rgb,0.45);
-        window.__coinRGB = d[0]+','+d[1]+','+d[2];
-      } else {
-        window.__coinRGB = '30,92,32';
-      }
-    }catch(e){ window.__coinRGB = '30,92,32'; }
-    try{ if(typeof window.__simRedrawBg==='function'){ window.__simRedrawBg(); } }catch(e2){}
-  }
-  update();
-  window.addEventListener('storage', function(e){
-    if(!e || e.key === 'userBrandColor' || e.key === null){ update(); }
-  });
-  window.addEventListener('focus', update);
-  document.addEventListener('visibilitychange', function(){ if(!document.hidden){ update(); } });
-  setInterval(update, 400);
-})();
-</script>
+
+
+<link rel="stylesheet" href="/static/simulator-theme.css?v=20261011-neutral1">
+<script src="/static/simulator-theme.js?v=20261011-neutral1"></script>
 
 <link rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type1">
 

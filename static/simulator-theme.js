@@ -1,8 +1,8 @@
-/* Share the morning letter's resolved palette with its same-origin simulator. */
+/* Keep simulator surfaces neutral; share the morning letter's selected accent. */
 (function () {
   'use strict';
   var names = ['bg', 'paper', 'ink', 'muted', 'line', 'button', 'chip'];
-  var defaults = {bg:'#f0eedf',paper:'#fdfcf6',ink:'#3d4b3c',muted:'#606b57',line:'#d5d6c3',button:'#607765',chip:'#eeeddf'};
+  var defaults = {bg:'#f6f5f1',paper:'#fffefb',ink:'#303638',muted:'#626966',line:'#dbded9',button:'#607765',chip:'#eeeee8'};
   var palette, signature = '', timer;
   var probe = document.createElement('span');
   probe.hidden = true;
@@ -35,9 +35,7 @@
     try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1'||(brand&&brand!=='#3da060');} catch (_) {}
     if(custom && /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
       brand=normalize(brand,'#3da060');
-      var bases={bg:'#f5f2e9',ink:'#303c30',muted:'#606b57',button:'#4c6150',line:'#dedccf',chip:'#f0eedf'};
-      var weights={bg:.10,ink:.30,muted:.20,button:.45,line:.12,chip:.06};
-      Object.keys(bases).forEach(function(k){result[k]=mix(brand,bases[k],weights[k]);});
+      result.button=mix(brand,'#4c6150',.45);
     }
     return result;
   }
@@ -48,18 +46,18 @@
         var source=window.parent.document.getElementById('morning-section');
         if(source && window.parent.document.body.classList.contains('kn-home-a')) {
           var style=window.parent.getComputedStyle(source);
-          names.forEach(function(k){result[k]=normalize(style.getPropertyValue('--kn-a-'+k).trim(),result[k]);});
-          var paper=window.parent.document.getElementById('knHomeMarkets');
-          if(paper) result.paper=normalize(window.parent.getComputedStyle(paper).backgroundColor,result.paper);
+          result.button=normalize(style.getPropertyValue('--kn-a-button').trim(),result.button);
         }
       }
     } catch (_) {}
-    // Preserve the selected hue while keeping controls and chart lines readable.
+    // A very light selected color still needs a visible control/chart outline.
+    for(var step=0;contrast(result.button,result.paper)<3.5 && step<12;step++)
+      result.button=mix(result.button,'#303638',.85);
     result.onButton=contrast(result.button,result.paper)>contrast(result.button,result.ink)?result.paper:result.ink;
     if(contrast(result.button,result.onButton)<4.5) result.onButton=contrast(result.button,'#000000')>contrast(result.button,'#ffffff')?'#000000':'#ffffff';
-    result.chartBg=mix(result.bg,result.paper,.25);
-    result.chartMain=contrast(result.button,result.chartBg)>=3?result.button:result.ink;
-    result.chartPrincipal=contrast(result.muted,result.chartBg)>=3?result.muted:result.ink;
+    result.chartBg=result.paper;
+    result.chartMain=result.button;
+    result.chartPrincipal='#7b8580';
     return result;
   }
   function applyChart(chart) {
@@ -67,7 +65,7 @@
     chart.data.datasets.forEach(function(ds,index){
       var principal=index===0;
       ds.borderColor=principal?palette.chartPrincipal:palette.chartMain;
-      ds.backgroundColor=alpha(principal?palette.chartPrincipal:palette.chartMain,principal ? 0.04 : 0.12);
+      ds.backgroundColor=alpha(principal?palette.chartPrincipal:palette.chartMain,principal ? 0.01 : 0.07);
       ds.borderDash=principal?[5,4]:[];
     });
     var plugins=chart.options.plugins;

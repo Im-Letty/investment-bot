@@ -1,12 +1,12 @@
-/* The parent supplies resolved morning-letter colors; these are its default palette. */
+/* Neutral surfaces keep numbers readable; the selected color is an accent. */
 :root {
-  --sim-bg: #f0eedf;
-  --sim-paper: #fdfcf6;
-  --sim-ink: #3d4b3c;
-  --sim-muted: #606b57;
-  --sim-line: #d5d6c3;
+  --sim-bg: #f6f5f1;
+  --sim-paper: #fffefb;
+  --sim-ink: #303638;
+  --sim-muted: #626966;
+  --sim-line: #dbded9;
   --sim-button: #607765;
-  --sim-chip: #eeeddf;
+  --sim-chip: #eeeee8;
   --sim-on-button: #fff;
 }
 
