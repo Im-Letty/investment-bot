@@ -26,6 +26,20 @@
       (kind==='community'?'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>':'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>')+'</svg>';
     return span;
   }
+  function closeHub() {
+    var morning=document.getElementById('morning-section'),scrollTop=morning?morning.scrollTop:0;
+    var button=document.querySelector('#knBottomNav [data-act="morning"]');
+    if(button)button.click();
+    else {
+      var hub=document.getElementById('knMyTalkHub');if(hub)hub.style.display='none';
+      var otherHub=document.getElementById('talkHubOv');if(otherHub)otherHub.classList.remove('open');
+      document.body.classList.add('view-asaletter');
+    }
+    if(morning)morning.scrollTop=scrollTop;
+    hydrate();
+    var entrance=document.getElementById('knHomeATalk');
+    if(entrance&&entrance.focus)entrance.focus({preventScroll:true});
+  }
   function decorateHub() {
     document.querySelectorAll('#talkHubOv .thb-card').forEach(function(card){
       if(card.querySelector('.kt-hub-copy'))return;
@@ -37,6 +51,8 @@
     });
     var officialTitle=document.querySelector('#talkHubOv .thb-title');
     if(officialTitle&&/^📣\s*/.test(officialTitle.textContent))officialTitle.textContent=officialTitle.textContent.replace(/^📣\s*/,'');
+    var officialClose=document.querySelector('#talkHubOv .thb-x');
+    if(officialClose)officialClose.onclick=closeHub;
     var hub=document.getElementById('knMyTalkHub');
     if(!hub||hub.querySelector('.kt-hub-body'))return;
     var header=hub.firstElementChild,cards=Array.from(hub.children).slice(1);
@@ -44,6 +60,9 @@
     hub.classList.add('kt-hub');header.classList.add('kt-hub-head');
     var heading=header.firstElementChild;
     if(heading){heading.classList.add('kt-hub-title');heading.textContent=heading.textContent.replace(/^💬\s*/,'');}
+    var close=document.createElement('button');close.type='button';close.className='kt-hub-close';
+    close.textContent='×';close.setAttribute('aria-label','トークを閉じる');close.onclick=closeHub;
+    header.appendChild(close);
     var body=document.createElement('div');body.className='kt-hub-body';
     cards.forEach(function(card,index){
       card.classList.add('kt-hub-card');keyboardButton(card);

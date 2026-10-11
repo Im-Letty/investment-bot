@@ -302,7 +302,15 @@ body.kn-home-a :is(#knMyTalkHub .kt-hub-sub,#talkHubOv .thb-sub) {
   margin-top:6px!important;
 }
 body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-arrow {font:300 26px/1 serif;color:var(--kn-sh-muted)}
-body.kn-home-a #talkHubOv .thb-x {margin-left:auto;color:var(--kn-sh-ink);padding:8px;cursor:pointer}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-close,#talkHubOv .thb-x) {
+  display:flex;align-items:center;justify-content:center;flex:0 0 44px;
+  width:44px;height:44px;margin-left:auto;padding:0;box-sizing:border-box;
+  border:0;background:transparent;color:var(--kn-sh-ink);
+  font:400 30px/1 var(--kn-a-sans,system-ui,sans-serif);cursor:pointer;
+}
+body.kn-home-a :is(#knMyTalkHub .kt-hub-close,#talkHubOv .thb-x):focus-visible {
+  outline:2px solid var(--kn-sh-button);outline-offset:2px;
+}
 body.kn-home-a.kn-talk-active {
   --kn-talk-menu-left:max(var(--kn-a-header-min-inset,22px),calc((100% - var(--kn-a-header-scrollbar,0px) - var(--kn-a-header-content-width,1010px))/2));
 }
