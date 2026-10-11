@@ -31,6 +31,13 @@ body.kn-ledger-letter {--kn-type-scale:var(--kn-ledger-scale,1)}
 body.kn-home-a #morning-section :is(#knNewsDigestTitle,#knCompanyNewsTitle,#knTabWrap .kn-a-section-title) {
   font-size:calc(var(--kn-type-section) * var(--kn-type-scale))!important;
 }
+/* Both news sections use the original economic headline's Mincho treatment. */
+body.kn-home-a #knNewsDigest :is(.brief-headline,.editorial-detail .story-title),
+body.kn-home-a #knCompanyNewsSection :is(.sf-company-title,.sf-explanation>summary h4) {
+  font-family:var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",Georgia,serif)!important;
+  font-weight:500!important;
+  letter-spacing:.025em;
+}
 body.kn-home-a #knNewsDigest :is(.brief-headline,.summarized-story .story-title) {
   font-size:calc(var(--kn-type-news-title) * var(--kn-type-scale))!important;
 }
