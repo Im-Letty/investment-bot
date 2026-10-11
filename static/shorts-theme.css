@@ -206,7 +206,7 @@ body.kn-home-a #knShorts .ks-ph {
 }
 body.kn-home-a #knShorts .ks-ph {color:#fff!important}
 body.kn-home-a #knShorts .ks-meta {
-  position:absolute;left:0;right:0;bottom:64px;
+  position:absolute;left:0;right:0;bottom:144px;
   max-height:32%;padding:24px 66px 14px 20px;
   background:linear-gradient(to top,rgba(5,15,12,.9),rgba(5,15,12,0));
   border:0;border-radius:0;box-shadow:none;color:#fff;
@@ -214,12 +214,14 @@ body.kn-home-a #knShorts .ks-meta {
 body.kn-home-a #knShorts .ks-cap {
   font:500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.65 system-ui,sans-serif!important;
   color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.65);
+  max-height:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1) * 1.65 * 3);
+  overflow-y:auto;scrollbar-width:thin;
 }
 body.kn-home-a #knShorts .ks-tag {
   margin-top:6px;color:rgba(255,255,255,.88);font-weight:400;
 }
 body.kn-home-a #knShorts .ks-save {
-  z-index:6;right:12px;bottom:82px;width:44px;height:44px;
+  z-index:6;right:12px;bottom:162px;width:44px;height:44px;
   border:0;border-radius:50%;background:rgba(5,15,12,.35);color:#fff;font-size:26px;
 }
 body.kn-home-a #knShorts .ks-save.on {background:rgba(5,15,12,.7);color:#fff}
