@@ -108,18 +108,69 @@ test('picker accepts six, rejects a seventh, and restores all six when reopened'
  const six=['日経225','ドル円','S&P500','NYダウ','7203.T','AAPL'];
  assert.deepEqual(h.model.selection(),six);assert.deepEqual(JSON.parse(h.stored.get('morn_sel')),six);assert.equal(h.dialog.open,false);
  h.open();assert.equal(h.node('knMarketCount').textContent,'6 / 6');
- assert.deepEqual(h.node('knMarketSelected').querySelectorAll('[data-kn-remove]').map(node=>node.dataset.knRemove),six);
+ assert.deepEqual(h.node('knMarketOptions').querySelectorAll('input').filter(input=>input.checked).map(input=>input.value),six);
+ assert.equal(h.node('knMarketSelected'),null,'Selected choices are not copied into a moving header');
  const reloaded=harness(Object.fromEntries(h.stored));
  assert.equal(reloaded.node('knMarketCount').textContent,'6 / 6');assert.deepEqual(reloaded.model.selection(),six);
 });
 
 test('removing a selected market frees a slot for another market at the six-item limit',()=>{
  const six=['日経225','ドル円','S&P500','NYダウ','7203.T','AAPL'],h=harness({morn_sel:JSON.stringify(six)});
- const remove=h.node('knMarketSelected').querySelectorAll('[data-kn-remove]').find(node=>node.dataset.knRemove==='AAPL');remove.dispatch('click');
+ const remove=h.node('knMarketOptions').querySelectorAll('input').find(node=>node.value==='AAPL');remove.checked=false;remove.dispatch('change');
  assert.equal(h.node('knMarketCount').textContent,'5 / 6');h.type('任天堂');
  const option=h.node('knMarketOptions').querySelector('input');option.checked=true;option.dispatch('change');
  assert.equal(option.checked,true);assert.equal(h.node('knMarketError').textContent,'');assert.equal(h.node('knMarketCount').textContent,'6 / 6');
  h.node('knMarketForm').dispatch('submit');assert.deepEqual(h.model.selection(),[...six.slice(0,-1),'7974.T']);
+});
+
+test('checking and unchecking leave the candidate nodes, order, and focus in place',()=>{
+ const h=harness(),options=h.node('knMarketOptions'),nodes=options.querySelectorAll('input'),labels=options.children.slice();
+ const option=nodes.find(input=>input.value==='7203.T');option.focus();
+ for(const checked of [true,false,true]){
+  option.checked=checked;option.dispatch('change');
+  assert.equal(h.doc.activeElement,option,'Checking keeps focus on the same checkbox');
+  assert.deepEqual(options.querySelectorAll('input'),nodes,'No checkbox is recreated or moved to the top');
+  assert.deepEqual(options.children,labels,'Candidate rows retain their original identity and order');
+  assert.deepEqual(h.ids(),featured);
+  assert.equal(h.node('knMarketCount').textContent,checked?'5 / 6':'4 / 6');
+ }
+ assert.equal(h.node('knMarketSelected'),null);
+ assert.equal(h.dialog.querySelectorAll('[data-kn-remove]').length,0);
+});
+
+test('saved nonfeatured choices can be unchecked and remain in place until the dialog closes',()=>{
+ const selected=['日経225','7974.T'],h=harness({morn_sel:JSON.stringify(selected)});
+ assert.deepEqual(h.ids(),[...featured,'7974.T']);
+ const nodes=h.node('knMarketOptions').querySelectorAll('input'),option=nodes.at(-1);assert.equal(option.checked,true);
+ option.focus();option.checked=false;option.dispatch('change');
+ assert.deepEqual(h.ids(),[...featured,'7974.T']);assert.deepEqual(h.node('knMarketOptions').querySelectorAll('input'),nodes);
+ assert.equal(h.doc.activeElement,option);assert.equal(h.node('knMarketCount').textContent,'1 / 6');
+ h.type('');assert.deepEqual(h.ids(),[...featured,'7974.T']);assert.equal(h.node('knMarketOptions').querySelectorAll('input').at(-1).checked,false);
+ h.node('knMarketForm').dispatch('submit');assert.deepEqual(h.model.selection(),['日経225']);
+ h.open();assert.deepEqual(h.ids(),featured,'An unchecked extra is omitted only on a later opening');
+});
+
+test('a searched choice remains available for unchecking after clearing search',async()=>{
+ const h=harness();h.type('NEW');h.advance(350);await h.reply(0,[remote('NEW','検索で見つけた会社')]);
+ const searched=h.node('knMarketOptions').querySelector('input');searched.focus();searched.checked=true;searched.dispatch('change');
+ assert.equal(h.node('knMarketOptions').querySelector('input'),searched);assert.equal(h.doc.activeElement,searched);
+ assert.equal(h.node('knMarketCount').textContent,'5 / 6');
+ h.type('');assert.deepEqual(h.ids(),[...featured,'NEW']);
+ const nodes=h.node('knMarketOptions').querySelectorAll('input'),extra=nodes.at(-1);assert.equal(extra.checked,true);
+ extra.focus();extra.checked=false;extra.dispatch('change');
+ assert.deepEqual(h.node('knMarketOptions').querySelectorAll('input'),nodes);assert.equal(h.doc.activeElement,extra);
+ assert.deepEqual(h.ids(),[...featured,'NEW']);assert.equal(h.node('knMarketCount').textContent,'4 / 6');
+ h.node('knMarketForm').dispatch('submit');assert.deepEqual(h.model.selection(),featured.slice(0,4));
+});
+
+test('canceling discards draft checks and leaves the saved selection untouched',()=>{
+ const selected=['日経225','7974.T'],saved=JSON.stringify(selected),h=harness({morn_sel:saved});
+ const options=h.node('knMarketOptions').querySelectorAll('input'),old=options.find(input=>input.value==='7974.T'),added=options.find(input=>input.value==='AAPL');
+ old.checked=false;old.dispatch('change');added.checked=true;added.dispatch('change');
+ assert.deepEqual(h.model.selection(),selected);assert.equal(h.stored.get('morn_sel'),saved);
+ h.dialog.querySelector('[data-kn-close]').dispatch('click');assert.equal(h.dialog.open,false);
+ assert.deepEqual(h.model.selection(),selected);assert.equal(h.stored.get('morn_sel'),saved);
+ h.open();assert.deepEqual(h.node('knMarketOptions').querySelectorAll('input').filter(input=>input.checked).map(input=>input.value),selected);
 });
 
 test('typing invalidates old responses immediately, even before the next debounce runs',async()=>{

@@ -1,7 +1,7 @@
 /* Approved A home: reuse existing news, stock panels, navigation and account flows. */
 (function() {
   'use strict';
-  var model, marketCarousel, dialog, draft = [], query = '', searchItems = [], searchBusy = false, searchFailed = false;
+  var model, marketCarousel, dialog, draft = [], pickerItems = [], query = '', searchItems = [], searchBusy = false, searchFailed = false;
   var searchTimer, searchController, searchEpoch = 0, composing = false;
   var featured = ['日経225','ドル円','S&P500','NYダウ','7203.T','AAPL'];
   var words = {
@@ -91,13 +91,13 @@
     return refresh;
   }
   function renderSelected() {
-    setHTML(document.getElementById('knMarketSelected'),draft.map(function(id){var c=model.find(id);return '<button type="button" class="kn-market-chip" data-kn-remove="'+esc(id)+'" aria-label="'+esc(c.label)+' ×"><span>'+esc(c.label)+'</span><span aria-hidden="true">×</span></button>';}).join('')||'<span class="kn-market-empty">'+esc(text('none'))+'</span>');
+    // Update only the count; checking never adds a second row above the list.
     document.getElementById('knMarketCount').textContent=draft.length+' / '+window.KNMarketData.maxSelection;
     document.getElementById('knMarketApply').disabled=draft.length===0;
   }
   function renderOptions() {
     var searching=!!query.trim();
-    var items=searching?searchItems:featured.map(function(id){return model.find(id);}).filter(Boolean);
+    var items=searching?searchItems:pickerItems.map(function(id){return model.find(id);}).filter(Boolean);
     document.getElementById('knMarketOptionsTitle').textContent=text(searching?'searchResults':'mainOptions');
     document.getElementById('knMarketResultCount').textContent=items.length+text('count');
     document.getElementById('knMarketSearchStatus').textContent=searchBusy?text('searching'):searchFailed?text('searchFailed'):'';
@@ -107,6 +107,9 @@
       var code=window.KNMarketData.displayCode(c);
       return '<label><input type="checkbox" value="'+esc(c.id)+'" '+(draft.indexOf(c.id)>=0?'checked':'')+'><span><span class="kn-market-option-name">'+esc(c.label)+'</span>'+(code?'<span class="kn-market-meta">'+esc(code)+'</span>':'')+'</span></label>';
     }).join('')||(!searchBusy&&!searchFailed?'<p class="kn-market-empty">'+esc(text('empty'))+'</p>':''));
+    // Reopening after Cancel can reuse the same HTML, but native checked state
+    // must still be restored from the saved selection.
+    options.querySelectorAll('input').forEach(function(input){input.checked=draft.indexOf(input.value)>=0;});
     if(focused){var target=Array.from(options.querySelectorAll('input')).find(function(input){return input.value===focused;});if(target&&target!==document.activeElement)target.focus({preventScroll:true});}
   }
   function cancelSearch() {
@@ -138,7 +141,7 @@
     var opener=document.getElementById('knMarketOpen');
     if(window.KNViewStability){dialog.__knBackgroundScroll=window.KNViewStability.capture(opener);window.KNViewStability.hold(opener);}
     cancelSearch();composing=false;
-    draft=model.selection();query='';searchItems=[];searchFailed=false;
+    draft=model.selection();pickerItems=Array.from(new Set(featured.concat(draft)));query='';searchItems=[];searchFailed=false;
     dialog.setAttribute('aria-label',text('title'));
     dialog.querySelectorAll('[data-kn-copy]').forEach(function(node){node.textContent=text(node.dataset.knCopy);});
     var search=document.getElementById('knMarketQuery');search.value='';search.placeholder=text('placeholder');search.setAttribute('aria-label',text('search'));
@@ -148,7 +151,7 @@
   }
   function makePicker() {
     dialog=document.createElement('dialog');dialog.id='knMarketPicker';dialog.setAttribute('aria-label',text('title'));
-    dialog.innerHTML='<form id="knMarketForm"><div class="kn-market-head"><div class="kn-market-selected-heading"><span data-kn-copy="selected"></span><span id="knMarketCount" aria-live="polite"></span><button type="button" class="kn-market-close" data-kn-close aria-label="'+esc(text('close'))+'">×</button></div><div id="knMarketSelected"></div></div><div class="kn-market-scroll"><div class="kn-market-search"><input id="knMarketQuery" type="search" autocomplete="off" maxlength="80" enterkeyhint="search"><button type="button" id="knMarketSearch" data-kn-copy="searchButton"></button></div><div class="kn-market-results-heading"><span id="knMarketOptionsTitle"></span><span id="knMarketResultCount" aria-live="polite"></span></div><p id="knMarketSearchStatus" role="status" aria-live="polite"></p><div id="knMarketOptions"></div></div><div class="kn-market-foot"><p id="knMarketError" role="status" aria-live="polite"></p><div class="kn-market-actions"><button type="button" data-kn-close data-kn-copy="back"></button><button type="submit" id="knMarketApply" data-kn-copy="apply"></button></div></div></form>';
+    dialog.innerHTML='<form id="knMarketForm"><div class="kn-market-head"><div class="kn-market-selected-heading"><span data-kn-copy="selected"></span><span id="knMarketCount" aria-live="polite"></span><button type="button" class="kn-market-close" data-kn-close aria-label="'+esc(text('close'))+'">×</button></div></div><div class="kn-market-scroll"><div class="kn-market-search"><input id="knMarketQuery" type="search" autocomplete="off" maxlength="80" enterkeyhint="search"><button type="button" id="knMarketSearch" data-kn-copy="searchButton"></button></div><div class="kn-market-results-heading"><span id="knMarketOptionsTitle"></span><span id="knMarketResultCount" aria-live="polite"></span></div><p id="knMarketSearchStatus" role="status" aria-live="polite"></p><div id="knMarketOptions"></div></div><div class="kn-market-foot"><p id="knMarketError" role="status" aria-live="polite"></p><div class="kn-market-actions"><button type="button" data-kn-close data-kn-copy="back"></button><button type="submit" id="knMarketApply" data-kn-copy="apply"></button></div></div></form>';
     document.body.appendChild(dialog);
     dialog.addEventListener('close',function(){
       cancelSearch();var opener=document.getElementById('knMarketOpen');
@@ -158,7 +161,6 @@
     });
     dialog.addEventListener('click',function(e){
       if(e.target===dialog||e.target.closest('[data-kn-close]')){cancelSearch();dialog.close();return;}
-      var remove=e.target.closest('[data-kn-remove]');if(remove){var index=draft.indexOf(remove.dataset.knRemove);draft=draft.filter(function(id){return id!==remove.dataset.knRemove;});document.getElementById('knMarketError').textContent='';renderSelected();dialog.querySelectorAll('#knMarketOptions input').forEach(function(input){input.checked=draft.indexOf(input.value)>=0;});var chips=dialog.querySelectorAll('[data-kn-remove]');(chips[Math.min(index,chips.length-1)]||document.getElementById('knMarketQuery')).focus({preventScroll:true});}
     });
     document.getElementById('knMarketOptions').addEventListener('change',function(e){
       var input=e.target;if(input.tagName!=='INPUT')return;
@@ -167,6 +169,9 @@
       if(input.checked){
         if(draft.length>=window.KNMarketData.maxSelection){input.checked=false;document.getElementById('knMarketError').textContent=text('max');return;}
         item=model.remember(item);if(!item){input.checked=false;return;}draft.push(item.id);
+        // Keep searched choices available for unchecking after clearing search.
+        // Preserve them until this dialog closes, even when they are unchecked.
+        if(pickerItems.indexOf(item.id)<0)pickerItems.push(item.id);
       }else draft=draft.filter(function(id){return id!==input.value;});
       renderSelected();
     });
