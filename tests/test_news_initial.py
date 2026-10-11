@@ -70,7 +70,7 @@ def official_review(precision='second'):
 
 
 class ParsedInitial(HTMLParser):
-    def __init__(self, html):
+    def __init__(self, html, *, info_open=True):
         super().__init__()
         self.ids = []
         self.json = ''
@@ -80,10 +80,16 @@ class ParsedInitial(HTMLParser):
         self.current_link = None
         self.times = []
         self.current_time = None
+        self.info_open = info_open
+        self.info_content_depth = 0
         self.feed(html)
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
+        if tag == 'div' and (self.info_content_depth or attrs.get('class') == 'news-info-content'):
+            self.info_content_depth += 1
+        if self.info_content_depth and not self.info_open:
+            return
         if 'id' in attrs:
             self.ids.append(attrs['id'])
         if tag == 'time':
@@ -97,6 +103,12 @@ class ParsedInitial(HTMLParser):
             self.script = attrs.get('id') == 'knInitialNews'
 
     def handle_endtag(self, tag):
+        if self.info_content_depth and not self.info_open:
+            if tag == 'div':
+                self.info_content_depth -= 1
+            return
+        if tag == 'div' and self.info_content_depth:
+            self.info_content_depth -= 1
         if tag == 'script':
             self.script = False
         if tag == 'a':
@@ -105,6 +117,8 @@ class ParsedInitial(HTMLParser):
             self.current_time = None
 
     def handle_data(self, data):
+        if self.info_content_depth and not self.info_open:
+            return
         if self.script:
             self.json += data
         if self.current_link is not None:
@@ -153,6 +167,9 @@ class InitialSelectionTests(unittest.TestCase):
                 self.assertEqual(ParsedInitial(before_sources).times, [])
                 source_row = after_sources.split('</details>', 1)[0]
                 parsed_sources = ParsedInitial(source_row)
+                closed_sources = ParsedInitial(source_row, info_open=False)
+                self.assertEqual(closed_sources.links, [])
+                self.assertEqual(closed_sources.times, [])
                 links = parsed_sources.links
                 self.assertEqual(len(links), count)
                 self.assertEqual(len(parsed_sources.times), count)
@@ -179,6 +196,8 @@ class InitialSelectionTests(unittest.TestCase):
                         self.assertEqual(publication['attrs']['title'], f'{actual:%Y/%m/%d %H:%M} 発表 JST')
                 self.assertEqual(markup.count('class="news-info-note">公式発表をもとに要約</p>'), 1)
                 self.assertIn('<details class="news-info"', source_row)
+                self.assertIn('aria-label="発表日時と出典"', source_row)
+                self.assertIn('<div class="news-info-content"><div class="article-source-links">', source_row)
                 self.assertIn('class="news-info-note">公式発表をもとに要約</p>', source_row)
                 info_key = 'summary-info:' + authored['article_refs'][0]['url']
                 self.assertIn(f'data-news-key="{info_key}"', source_row)
@@ -197,6 +216,11 @@ class InitialSelectionTests(unittest.TestCase):
                 legacy = render_news_markup(initial_news(cold(), now=NOW, reviewed_digests=[authored]))
                 self.assertEqual(legacy.count('class="story summarized-story"'), count)
                 self.assertIn('もっと詳しく', legacy)
+                self.assertEqual(legacy.count('class="news-info-content"'), count)
+                self.assertEqual(len(ParsedInitial(legacy).links), count)
+                self.assertEqual(len(ParsedInitial(legacy).times), count)
+                self.assertEqual(ParsedInitial(legacy, info_open=False).links, [])
+                self.assertEqual(ParsedInitial(legacy, info_open=False).times, [])
 
     def test_official_edition_renders_source_date_separately_from_edition_without_invented_time(self):
         for precision in ('second', 'day'):
@@ -208,6 +232,10 @@ class InitialSelectionTests(unittest.TestCase):
             self.assertIn('公式発表をもとに要約', html)
             self.assertIn('財務省', html)
             self.assertIn('読みやすい個別の見出し', html)
+            markup = html.split('<script type="application/json"', 1)[0]
+            self.assertEqual(ParsedInitial(markup, info_open=False).links, [])
+            self.assertEqual(ParsedInitial(markup, info_open=False).times, [])
+            self.assertIn('aria-label="発表日時と出典"', markup)
             if precision == 'day':
                 self.assertIn('datetime="2026-09-21" title="2026/09/21 発表">2026/09/21 発表</time>', html)
                 self.assertNotIn('JST', html)
@@ -229,6 +257,43 @@ class InitialSelectionTests(unittest.TestCase):
             self.assertEqual(data['news'][0]['published_at'], authored['article_refs'][0]['published_at'])
             self.assertIsNone(data['fetched_at'])
             self.assertEqual(data['digest']['source_window'], authored['source_window'])
+
+    def test_official_info_keeps_escaped_source_identity_and_link_inside_disclosure(self):
+        authored = official_review()
+        ref = authored['article_refs'][0]
+        ref.update(title='公式の発表 "確認" <img>',
+                   url='https://www.mof.go.jp/policy/example.html?first=1&second=%22')
+        authored['article_summaries'][0].update(ref)
+        data = {'delivery': 'published', 'edition_date': authored['edition_date'],
+                'news': [ref], 'supplements': [], 'digest': authored}
+        markup = render_news_markup(data)
+        key = 'summary-info:' + ref['url']
+        self.assertIn('data-news-key="' + key.replace('&', '&amp;') + '"', markup)
+        self.assertIn('data-news-focus="' + key.replace('&', '&amp;') + '"', markup)
+        self.assertIn('title="公式の発表 &quot;確認&quot; &lt;img&gt;"', markup)
+        self.assertNotIn('<img>', markup)
+        links = ParsedInitial(markup).links
+        self.assertEqual(len(links), 1)
+        self.assertEqual(links[0]['attrs']['href'], ref['url'])
+        self.assertEqual(links[0]['attrs']['title'], ref['title'])
+        self.assertEqual(ParsedInitial(markup, info_open=False).links, [])
+        self.assertEqual(ParsedInitial(markup, info_open=False).times, [])
+
+    def test_nonofficial_summary_and_unsummarized_official_keep_existing_source_metadata(self):
+        nonofficial = article()
+        authored = review([nonofficial], article_summaries=[{**nonofficial,
+            'headline': '説明の見出し', 'summary': '確認した内容を説明します。'}])
+        official = official_review()['article_refs'][0]
+        for item, digest in ((nonofficial, authored), (official, None)):
+            with self.subTest(source=item['source'], summarized=digest is not None):
+                data = {'delivery': 'published', 'edition_date': '2026-09-22',
+                        'news': [item], 'supplements': [], 'digest': digest}
+                markup = render_news_markup(data)
+                self.assertNotIn('class="news-info"', markup)
+                parsed = ParsedInitial(markup, info_open=False)
+                self.assertEqual(len(parsed.links), 1)
+                self.assertEqual(parsed.links[0]['attrs']['href'], item['url'])
+                self.assertEqual(len(parsed.times), 1)
 
     def test_flexible_reviewed_copy_is_identical_in_initial_markup_and_embedded_payload(self):
         for precision in ('second', 'day'):

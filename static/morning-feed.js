@@ -163,14 +163,15 @@
     return '<time class="publication-date" datetime="'+esc(datetime)+'" title="'+esc(label+(dayOnly?'':' JST'))+'">'+esc(label)+'</time>';
   }
   function articleLink(item,l){var url=safeNewsURL(item.url),source=newsSource(item.source||'')||digestCopy[l].original,title=item.title||'';return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" title="'+esc(title)+'" aria-label="'+esc((title?title+' · ':'')+source+' · '+digestCopy[l].original)+'">'+esc(source)+' ↗</a>':'';}
-  function summaryInfo(item,l){
+  function summaryInfo(item,l,sourceRows){
     if(!['財務省','総務省統計局','日本銀行'].includes(item.source))return '';
     var key='summary-info:'+item.url;
-    return '<details class="news-info" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'" aria-label="'+esc({ja:'要約について',en:'About this summary',ko:'요약 정보',zh:'关于摘要'}[l])+'"><span class="news-info-symbol" aria-hidden="true">i</span></summary><p class="news-info-note">'+esc({ja:'公式発表をもとに要約',en:'Summarized from the official announcement',ko:'공식 발표를 바탕으로 요약',zh:'根据官方公告整理摘要'}[l])+'</p></details>';
+    return '<details class="news-info" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'" aria-label="'+esc({ja:'発表日時と出典',en:'Publication dates and sources',ko:'발표 날짜와 출처',zh:'发布日期与来源'}[l])+'"><span class="news-info-symbol" aria-hidden="true">i</span></summary><div class="news-info-content">'+(sourceRows||'')+'<p class="news-info-note">'+esc({ja:'公式発表をもとに要約',en:'Summarized from the official announcement',ko:'공식 발표를 바탕으로 요약',zh:'根据官方公告整理摘要'}[l])+'</p></div></details>';
   }
   function articleMeta(item,l,summarized,sourceLink){
-    var info=summarized?summaryInfo(item,l):'';
-    return '<div class="headline-meta article-meta"><div class="article-meta-main">'+publication(item,l,true)+(sourceLink===false?'':articleLink(item,l))+'</div>'+info+'</div>';
+    var metadata=publication(item,l,true)+(sourceLink===false?'':articleLink(item,l));
+    var info=summarized?summaryInfo(item,l,'<div class="article-source-links"><div class="article-source">'+metadata+'</div></div>'):'';
+    return '<div class="headline-meta article-meta">'+(info||'<div class="article-meta-main">'+metadata+'</div>')+'</div>';
   }
   function digestMarkup(d,l,status){
     var c=digestCopy[l];
@@ -192,7 +193,8 @@
       return '<details class="story" name="kn-news-sources" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'"><h4><span class="story-category">'+esc(c.supplement)+' · '+publication(item,l)+'</span><span class="story-title">'+esc(item.title)+'</span></h4><span class="plus" aria-hidden="true"></span></summary><div class="story-content"><p>'+esc(item.editorial_reason)+'</p>'+articleMeta(item,l,false)+'</div></details>';
     }).join('')+'</section>';
     var sourceLabel={ja:'記事の出典',en:'Article sources',ko:'기사 출처',zh:'文章来源'}[l];
-    var sourceRow=leadAndOthers?'<div class="article-sources" aria-label="'+esc(sourceLabel)+'"><div class="article-source-links">'+orderedNews.map(function(item){return '<div class="article-source">'+publication(item,l,true)+articleLink(item,l)+'</div>';}).join('')+'</div>'+summaryInfo(orderedNews[0],l)+'</div>':'';
+    var sourceLinks=leadAndOthers?'<div class="article-source-links">'+orderedNews.map(function(item){return '<div class="article-source">'+publication(item,l,true)+articleLink(item,l)+'</div>';}).join('')+'</div>':'';
+    var sourceRow=leadAndOthers?'<div class="article-sources" aria-label="'+esc(sourceLabel)+'">'+(summaryInfo(orderedNews[0],l,sourceLinks)||sourceLinks)+'</div>':'';
     var more=stories||sourceRow?'<details class="read-more" data-news-key="more"><summary data-news-focus="more"><span class="closed-label">'+esc(leadAndOthers?(stories?otherNewsCopy[l]:sourceLabel):c.more)+'</span><span class="open-label">'+esc(c.close)+'</span><span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'+stories+sourceRow+'</div></details>':'';
     var tail=leadAndOthers?'<div class="news-tail">'+more+'</div>':more;
     var footer=status?'<footer class="news-footer"><p>'+esc(status)+'</p></footer>':'';

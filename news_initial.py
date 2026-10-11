@@ -86,20 +86,27 @@ def _article_link(item):
             f'aria-label="{escape(title + " · " if title else "", quote=True)}{escape(source, quote=True)}の元の記事を読む">{escape(source)} ↗</a>')
 
 
-def _summary_info(item):
+def _summary_info(item, source_rows=''):
+    """Wrap source rows already escaped by the publication/link renderers."""
     if item.get("source") not in ("財務省", "総務省統計局", "日本銀行"):
         return ''
     key = escape("summary-info:" + item["url"], quote=True)
     return (f'<details class="news-info" data-news-key="{key}">'
-            f'<summary data-news-focus="{key}" aria-label="要約について">'
+            f'<summary data-news-focus="{key}" aria-label="発表日時と出典">'
             '<span class="news-info-symbol" aria-hidden="true">i</span></summary>'
-            '<p class="news-info-note">公式発表をもとに要約</p></details>')
+            '<div class="news-info-content">'
+            + (f'<div class="article-source-links">{source_rows}</div>' if source_rows else '')
+            + '<p class="news-info-note">公式発表をもとに要約</p></div></details>')
 
 
 def _article_meta(item, *, summarized=False, source_link=True):
-    info = _summary_info(item) if summarized else ''
+    source_row = (f'<div class="article-source">{_publication(item, compact=True)}'
+                  f'{_article_link(item) if source_link else ""}</div>')
+    info = _summary_info(item, source_row) if summarized else ''
+    if info:
+        return f'<div class="headline-meta article-meta">{info}</div>'
     return (f'<div class="headline-meta article-meta"><div class="article-meta-main">'
-            f'{_publication(item, compact=True)}{_article_link(item) if source_link else ""}</div>{info}</div>')
+            f'{_publication(item, compact=True)}{_article_link(item) if source_link else ""}</div></div>')
 
 
 def render_news_markup(data):
@@ -156,10 +163,11 @@ def render_news_markup(data):
                                f'<div class="story-content"><p>{esc(item["editorial_reason"])}</p>'
                                f'{_article_meta(item)}</div></details>')
         stories.append('<section class="news-supplements"><h4>日付付きの補足</h4>' + "".join(supplements) + '</section>')
-    source_row = ('<div class="article-sources" aria-label="記事の出典"><div class="article-source-links">'
-                  + ''.join('<div class="article-source">' + _publication(item, compact=True)
-                            + _article_link(item) + '</div>' for item in ordered_news) + '</div>'
-                  + _summary_info(ordered_news[0]) + '</div>'
+    source_rows = ''.join('<div class="article-source">' + _publication(item, compact=True)
+                         + _article_link(item) + '</div>' for item in ordered_news) if lead_and_others else ''
+    source_row = ('<div class="article-sources" aria-label="記事の出典">'
+                  + (_summary_info(ordered_news[0], source_rows)
+                     or '<div class="article-source-links">' + source_rows + '</div>') + '</div>'
                   if lead_and_others else '')
     more_label = ('ほかのニュース' if stories else '記事の出典') if lead_and_others else 'もっと詳しく'
     more = (('<details class="read-more" data-news-key="more"><summary data-news-focus="more">'

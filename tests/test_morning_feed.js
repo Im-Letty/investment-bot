@@ -1045,13 +1045,14 @@ test('simulator loads once on demand and keeps a retry after failure',()=>{
   context.window=context;vm.runInNewContext(code,context);
   assert.equal(loads,0,'No simulator document at startup');
   context.openSimulator();context.openSimulator();assert.equal(loads,1);assert.equal(status.hidden,false);
-  assert.match(frame.url,/^\/static\/simulator-embed-[a-f0-9]+\.html$/);
+  const assetPath=frame.url.split('?')[0];
+  assert.match(assetPath,/^\/static\/simulator-embed-[a-f0-9]+\.html$/);
   frame.contentDocument={URL:frame.url,getElementById:id=>id==='tab-daily'?{}:null};frame.onload();
   assert.equal(status.hidden,true);context.openSimulator();assert.equal(loads,1);
   frame.onerror();assert.equal(status.hidden,false);assert.match(status.innerHTML,/もう一度/);
   status.button.onclick();assert.equal(loads,2);frame.onload();assert.equal(status.hidden,true);
   assert.ok(!html.includes('loop(20); openSimBody();'));
-  const asset=fs.readFileSync(path.join(__dirname,'..',frame.url),'utf8');
+  const asset=fs.readFileSync(path.join(__dirname,'..',assetPath),'utf8');
   assert.ok(asset.includes('id="tab-daily"'));assert.ok(!asset.includes('id="sw-register"'));
 });
 
@@ -1282,9 +1283,14 @@ test('lead plus other news shows one representative and only the independently r
     assert.doesNotMatch(beforeSources,/class="news-info"/,'Summary information is not shown before plus is opened');
     assert.doesNotMatch(beforeSources,/class="publication-date"/,'Publication dates appear only in the final opened source row');
     const sourceRow=afterSources.split('</details>')[0];
+    const [infoHeader,infoContent]=sourceRow.split('<div class="news-info-content">');
+    assert.ok(infoContent,'Publication metadata is enclosed by the info disclosure');
+    assert.match(infoHeader,/<details class="news-info"[^>]*><summary[^>]*aria-label="発表日時と出典"/);
+    assert.doesNotMatch(infoHeader,/<time\b|<a\b/,'Dates and source links are not visible beside the closed info symbol');
+    assert.doesNotMatch(infoHeader,/<details[^>]*\bopen(?:\s|>)/,'Source details start closed');
     const links=sourceRow.match(/<a\b[^>]*>[^<]*<\/a>/g)||[];
     assert.equal(links.length,count,'Every reviewed article keeps its own source link');
-    assert.equal((sourceRow.match(/<time\b/g)||[]).length,count,'Each article date appears once in the final source row');
+    assert.equal((infoContent.match(/<time\b/g)||[]).length,count,'Each article date appears once inside the info disclosure');
     for(const ref of data.digest.article_refs){
       const matching=links.filter(markup=>markup.includes('href="'+ref.url+'"'));
       assert.equal(matching.length,1,'Source link must point to this article: '+ref.url);
