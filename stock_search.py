@@ -20,6 +20,8 @@ import xml.etree.ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
 import requests
+from japan_equity_catalogue import (SEED_PATH as NATIONAL_SEED_PATH, SCOPE as NATIONAL_SCOPE,
+                                    merge_companies, read_supplement, refresh_supplement)
 
 JPX_PAGE = 'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html'
 SEED_PATH = Path(__file__).with_name('static') / 'jpx-company-catalogue.json'
@@ -166,9 +168,14 @@ def download_catalogue():
 
 
 class StockSearch:
-    def __init__(self, seed_path=SEED_PATH, runtime_path=RUNTIME_PATH, *, session=None, clock=time.time):
+    def __init__(self, seed_path=SEED_PATH, runtime_path=RUNTIME_PATH, *, session=None, clock=time.time,
+                 national_seed_path=NATIONAL_SEED_PATH, national_runtime_path=None):
         self.session, self.clock = session or requests.Session(), clock
         self.runtime_path = Path(runtime_path) if runtime_path else None
+        self.national_runtime_path = (Path(national_runtime_path) if national_runtime_path else
+                                      self.runtime_path.with_name(self.runtime_path.stem + '-national.json')
+                                      if self.runtime_path else None)
+        self.supplement = read_supplement(national_seed_path, self.national_runtime_path)
         self._state_lock, self._refresh_lock = Lock(), Lock()
         self._remote_slots = Semaphore(3)
         self._pending, self._cache = set(), {}
@@ -216,47 +223,86 @@ class StockSearch:
                 return
 
     def _index(self):
-        self.index = [(row, normalize(row['code']), normalize(row['name'])) for row in self.catalogue['items']]
-        self._companies = {row['code']: row for row in self.catalogue['items']}
+        rows, self._closed_tokyo_codes = merge_companies(self.catalogue, self.supplement)
+        self.index = [(row, normalize(row['code']), normalize(row['name'])) for row in rows]
+        self._companies = {row['code']: row for row in rows}
+        self._provider_items = [dict(code=row['code'], name=row['name'], symbol=row['symbol'],
+                                     provider_symbol=row['provider_symbol'])
+                                for row in rows if row['provider_symbol'] is not None]
 
     def company(self, code):
         """Return dated official identity immediately, without any provider call."""
+        if not isinstance(code, str):
+            return None
+        code = unicodedata.normalize('NFKC', code).strip().upper()
+        symbol = code if code.endswith(('.T', '.JP')) else None
+        if symbol:
+            code = code.rsplit('.', 1)[0]
         with self._state_lock:
             row = self._companies.get(code)
-            return dict(row, catalogue_as_of=self.catalogue['as_of'], source_url=JPX_PAGE) if row else None
+            if row is None or symbol and symbol != row['symbol']:
+                return None
+            return json.loads(json.dumps(row, ensure_ascii=False))
 
     def refresh(self):
         if not self._refresh_lock.acquire(blocking=False):
             return False
         try:
-            latest = download_catalogue()
-            if self.catalogue['as_of'] and latest['as_of'] < self.catalogue['as_of']:
-                return False
-            if self.runtime_path:
-                temporary = self.runtime_path.with_suffix('.tmp.' + str(os.getpid()))
+            latest = None
+            try:
+                candidate = download_catalogue()
+                if not self.catalogue['as_of'] or candidate['as_of'] >= self.catalogue['as_of']:
+                    if self.runtime_path:
+                        self._save_catalogue(candidate, self.runtime_path)
+                    latest = candidate
+            except (OSError, ValueError, IndexError, KeyError, requests.RequestException, ET.ParseError, BadZipFile):
+                pass
+            # The monthly file and each official supplement are independent.
+            # Failure of one exchange cannot erase another exchange's identity.
+            national = refresh_supplement(self.supplement, session=self.session)
+            national_changed = national != self.supplement
+            if national_changed and self.national_runtime_path:
                 try:
-                    temporary.write_text(json.dumps(latest, ensure_ascii=False), encoding='utf-8')
-                    os.replace(temporary, self.runtime_path)
-                finally:
-                    temporary.unlink(missing_ok=True)
+                    self._save_catalogue(national, self.national_runtime_path)
+                except OSError:
+                    national_changed = False
             with self._state_lock:
-                self.catalogue = latest
-                self._index()
-                self._cache.clear()
-            return True
-        except (OSError, ValueError, IndexError, KeyError, requests.RequestException, ET.ParseError, BadZipFile):
-            return False
+                if latest is not None:
+                    self.catalogue = latest
+                if national_changed:
+                    self.supplement = national
+                if latest is not None or national_changed:
+                    self._index()
+                    self._cache.clear()
+            return latest is not None or national_changed
         finally:
             self._refresh_lock.release()
 
+    @staticmethod
+    def _save_catalogue(document, path):
+        temporary = path.with_suffix('.tmp.' + str(os.getpid()))
+        try:
+            temporary.write_text(json.dumps(document, ensure_ascii=False), encoding='utf-8')
+            os.replace(temporary, path)
+        finally:
+            temporary.unlink(missing_ok=True)
+
     def all_items(self):
         with self._state_lock:
-            items = [{'code': row['code'], 'name': row['name']} for row in self.catalogue['items']]
-            return {'items': items, 'count': len(items), 'catalogue_as_of': self.catalogue['as_of']}
+            items = [{'code': row['code'], 'name': row['name']} for row in self._companies.values()]
+            return {'items': items, 'count': len(items), 'catalogue_as_of': self.catalogue['as_of'],
+                    'scope': NATIONAL_SCOPE, 'exchanges': sorted({row['exchange'] for row in self._companies.values()}),
+                    'source_dates': {key: value['as_of'] for key, value in self.supplement['sources'].items()},
+                    'excluded_products': ['ETF', 'REIT', 'preferred_or_class_shares', 'professional_markets']}
+
+    def provider_items(self):
+        """Verified provider-supported identities, indexed once per catalogue update."""
+        with self._state_lock:
+            return [dict(row) for row in self._provider_items]
 
     def _local(self, query):
         key = normalize(query)
-        code_key = key.removesuffix('.t')
+        code_key = key.rsplit('.', 1)[0] if key.endswith(('.t', '.jp')) else key
         matches = []
         with self._state_lock:
             for row, code, name in self.index:
@@ -266,9 +312,14 @@ class StockSearch:
                 if score is not None:
                     matches.append((score, row['code'], row))
             rows = [row for _, _, row in sorted(matches)[:20]]
-            return [{'symbol': row['code'] + '.T', 'name': row['name'], 'exchange': 'Tokyo',
-                     'type': 'EQUITY', 'currency': 'JPY', 'verified': True, 'source': 'JPX',
-                     'catalogue_as_of': self.catalogue['as_of']} for row in rows]
+            if key.endswith(('.t', '.jp')):
+                rows = [row for row in rows if normalize(row['symbol']) == key]
+            return [{'symbol': row['symbol'], 'provider_symbol': row['provider_symbol'],
+                     'name': row['name'], 'exchange': row['exchange'], 'market': row['market'],
+                     'type': 'EQUITY', 'currency': 'JPY', 'verified': True,
+                     'source': 'JPX' if row['exchange'] == 'Tokyo' else row['source_title'],
+                     'source_url': row['source_url'], 'scope': NATIONAL_SCOPE,
+                     'catalogue_as_of': row['catalogue_as_of']} for row in rows]
 
     def search(self, query):
         if not isinstance(query, str) or len(query) > 80 or any(ord(c) < 32 for c in query):
@@ -279,6 +330,16 @@ class StockSearch:
         local = self._local(query)
         if local:
             return {'results': local, 'catalogue_as_of': self.catalogue['as_of']}
+        # Internal regional identities are not quote-provider symbols.  A Tokyo
+        # delisting must not be resurrected by an upstream historical quote.
+        upper = unicodedata.normalize('NFKC', query).strip().upper()
+        code = upper.rsplit('.', 1)[0] if upper.endswith(('.T', '.JP')) else upper
+        with self._state_lock:
+            known = self._companies.get(code)
+            closed_tokyo = code in self._closed_tokyo_codes
+        if (upper.endswith('.JP') or closed_tokyo or known and known['provider_symbol'] is None
+                or re.fullmatch(r'[0-9][0-9A-Z]{3}\.[NFS]', upper)):
+            return {'results': [], 'scope': NATIONAL_SCOPE}
         # One-character remote queries create broad, expensive typeahead calls.
         if len(key) < 2:
             return {'results': []}
@@ -314,6 +375,8 @@ class StockSearch:
                 kind = row.get('quoteType')
                 if (not symbol or symbol in seen or kind not in ('EQUITY', 'ETF')
                         or not isinstance(name, str) or not 1 <= len(name) <= 200):
+                    continue
+                if symbol.endswith('.T') and symbol[:-2] in self._closed_tokyo_codes:
                     continue
                 seen.add(symbol)
                 rows.append({'symbol': symbol, 'name': name, 'exchange': row.get('exchDisp') or row.get('exchange') or '',

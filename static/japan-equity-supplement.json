@@ -1,0 +1,4471 @@
+{
+  "version": 1,
+  "scope": "japan-listed-domestic-common-equity",
+  "sources": {
+    "tokyo_new": {
+      "source_url": "https://www.jpx.co.jp/listing/stocks/new/index.html",
+      "as_of": "2026-10-11",
+      "sha256": "df7af48ee566c9d2d6cf50aa091b2ddd2b902368411c5d13dc39f9c04630f373",
+      "items": [
+        {
+          "code": "500A",
+          "name": "ＴＯブックス 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-02-13"
+        },
+        {
+          "code": "504A",
+          "name": "イノバセル（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-02-24"
+        },
+        {
+          "code": "505A",
+          "name": "ギークリー 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-02-27"
+        },
+        {
+          "code": "519A",
+          "name": "ベーシック 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-03-25"
+        },
+        {
+          "code": "520A",
+          "name": "ジェイファーマ（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-03-25"
+        },
+        {
+          "code": "523A",
+          "name": "セイワホールディングス 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-03-27"
+        },
+        {
+          "code": "542A",
+          "name": "ビタブリッドジャパン 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-04-02"
+        },
+        {
+          "code": "543A",
+          "name": "ARCHION",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-04-01"
+        },
+        {
+          "code": "544A",
+          "name": "GMSグループ",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-04-01"
+        },
+        {
+          "code": "545A",
+          "name": "トランヴィア",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-04-01"
+        },
+        {
+          "code": "546A",
+          "name": "MIRAINIホールディングス",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-04-01"
+        },
+        {
+          "code": "547A",
+          "name": "ムニノバホールディングス",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-04-01"
+        },
+        {
+          "code": "548A",
+          "name": "システムエグゼ",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-04-06"
+        },
+        {
+          "code": "549A",
+          "name": "ヒトトヒトホールディングス（株） 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-04-07"
+        },
+        {
+          "code": "550A",
+          "name": "ソフトテックス 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-04-09"
+        },
+        {
+          "code": "554A",
+          "name": "バトンズ 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-04-21"
+        },
+        {
+          "code": "556A",
+          "name": "犬猫生活（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-04-23"
+        },
+        {
+          "code": "558A",
+          "name": "SQUEEZE 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-04-22"
+        },
+        {
+          "code": "559A",
+          "name": "梅乃宿酒造（株） 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-04-24"
+        },
+        {
+          "code": "575A",
+          "name": "前澤ホールディングス",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-06-01"
+        },
+        {
+          "code": "581A",
+          "name": "GO（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-06-16"
+        },
+        {
+          "code": "584A",
+          "name": "LiNKX（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-06-23"
+        },
+        {
+          "code": "589A",
+          "name": "ネイス（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-06-30"
+        },
+        {
+          "code": "590A",
+          "name": "ギフティグループ",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-07-01"
+        },
+        {
+          "code": "593A",
+          "name": "ティアフォー 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-07-22"
+        },
+        {
+          "code": "598A",
+          "name": "チャットプラス（株） 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-07-15"
+        },
+        {
+          "code": "603A",
+          "name": "アイ・グリッド・ソリューションズ 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-07-29"
+        },
+        {
+          "code": "604A",
+          "name": "ビーエイブル 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-07-29"
+        },
+        {
+          "code": "607A",
+          "name": "エブリー 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-08-04"
+        },
+        {
+          "code": "618A",
+          "name": "KOMPEITO 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-09-11"
+        },
+        {
+          "code": "619A",
+          "name": "オリバー 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-09-16"
+        },
+        {
+          "code": "621A",
+          "name": "オーディオストック 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-09-16"
+        },
+        {
+          "code": "622A",
+          "name": "テクノクラフト 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-09-18"
+        },
+        {
+          "code": "623A",
+          "name": "ベルテックス 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-09-18"
+        },
+        {
+          "code": "625A",
+          "name": "Skyfall 代表者インタビュー",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-09-17"
+        },
+        {
+          "code": "627A",
+          "name": "akippa（株） 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-09-18"
+        },
+        {
+          "code": "634A",
+          "name": "レイヤード 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-09-25"
+        },
+        {
+          "code": "640A",
+          "name": "ASNOVA Companies",
+          "market": "グロース（内国株式）",
+          "listed_on": "2026-10-01"
+        },
+        {
+          "code": "641A",
+          "name": "NOK Group",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-10-01"
+        },
+        {
+          "code": "642A",
+          "name": "キューデンホールディングス",
+          "market": "プライム（内国株式）",
+          "listed_on": "2026-10-01"
+        },
+        {
+          "code": "646A",
+          "name": "クラサスケミカル（株） 代表者インタビュー",
+          "market": "スタンダード（内国株式）",
+          "listed_on": "2026-09-29"
+        }
+      ]
+    },
+    "tokyo_delisted": {
+      "source_url": "https://www.jpx.co.jp/listing/stocks/delisted/index.html",
+      "as_of": "2026-10-11",
+      "sha256": "4bd35ae35ac62c606d52a39582e9cb73a6e3c33d1c1b336076f42f32e341bf96",
+      "items": [
+        {
+          "code": "1726",
+          "name": "ビーアールホールディングス",
+          "delisted_on": "2026-06-01"
+        },
+        {
+          "code": "176A",
+          "name": "レジル",
+          "delisted_on": "2026-01-14"
+        },
+        {
+          "code": "1776",
+          "name": "三井住建道路",
+          "delisted_on": "2026-05-29"
+        },
+        {
+          "code": "1841",
+          "name": "サンユー建設",
+          "delisted_on": "2026-03-27"
+        },
+        {
+          "code": "1909",
+          "name": "日本ドライケミカル",
+          "delisted_on": "2026-09-14"
+        },
+        {
+          "code": "1948",
+          "name": "弘電社",
+          "delisted_on": "2026-09-25"
+        },
+        {
+          "code": "1949",
+          "name": "住友電設",
+          "delisted_on": "2026-03-03"
+        },
+        {
+          "code": "202A",
+          "name": "豆蔵",
+          "delisted_on": "2026-04-14"
+        },
+        {
+          "code": "2162",
+          "name": "ｎｍｓ ホールディングス",
+          "delisted_on": "2026-08-28"
+        },
+        {
+          "code": "2180",
+          "name": "サニーサイドアップグループ",
+          "delisted_on": "2026-09-16"
+        },
+        {
+          "code": "2196",
+          "name": "エスクリ",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "2344",
+          "name": "平安レイサービス",
+          "delisted_on": "2026-05-08"
+        },
+        {
+          "code": "2374",
+          "name": "セントケア・ホールディング",
+          "delisted_on": "2026-03-13"
+        },
+        {
+          "code": "2389",
+          "name": "デジタルホールディングス",
+          "delisted_on": "2026-03-19"
+        },
+        {
+          "code": "2540",
+          "name": "養命酒製造",
+          "delisted_on": "2026-06-18"
+        },
+        {
+          "code": "2686",
+          "name": "ジーフット",
+          "delisted_on": "2026-06-23"
+        },
+        {
+          "code": "2692",
+          "name": "伊藤忠食品",
+          "delisted_on": "2026-05-19"
+        },
+        {
+          "code": "2743",
+          "name": "ピクセルカンパニーズ",
+          "delisted_on": "2026-01-16"
+        },
+        {
+          "code": "2763",
+          "name": "エフティグループ",
+          "delisted_on": "2026-07-30"
+        },
+        {
+          "code": "3079",
+          "name": "ディーブイエックス",
+          "delisted_on": "2026-08-28"
+        },
+        {
+          "code": "3094",
+          "name": "スーパーバリュー",
+          "delisted_on": "2026-01-05"
+        },
+        {
+          "code": "3198",
+          "name": "ＳＦＰホールディングス",
+          "delisted_on": "2026-06-29"
+        },
+        {
+          "code": "3271",
+          "name": "ＴＨＥグローバル社",
+          "delisted_on": "2026-07-28"
+        },
+        {
+          "code": "3294",
+          "name": "イーグランド",
+          "delisted_on": "2026-06-15"
+        },
+        {
+          "code": "3480",
+          "name": "ジェイ・エス・ビー",
+          "delisted_on": "2026-09-02"
+        },
+        {
+          "code": "3526",
+          "name": "芦森工業",
+          "delisted_on": "2026-02-26"
+        },
+        {
+          "code": "3541",
+          "name": "農業総合研究所",
+          "delisted_on": "2026-04-27"
+        },
+        {
+          "code": "3546",
+          "name": "アレンザホールディングス",
+          "delisted_on": "2026-06-26"
+        },
+        {
+          "code": "3593",
+          "name": "ホギメディカル",
+          "delisted_on": "2026-05-15"
+        },
+        {
+          "code": "3655",
+          "name": "ブレインパッド",
+          "delisted_on": "2026-03-17"
+        },
+        {
+          "code": "3670",
+          "name": "協立情報通信",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "3681",
+          "name": "ブイキューブ",
+          "delisted_on": "2026-07-01"
+        },
+        {
+          "code": "3787",
+          "name": "テクノマセマティカル",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "3856",
+          "name": "Ａｂａｌａｎｃｅ",
+          "delisted_on": "2026-09-26"
+        },
+        {
+          "code": "3902",
+          "name": "メディカル・データ・ビジョン",
+          "delisted_on": "2026-04-24"
+        },
+        {
+          "code": "3924",
+          "name": "ランドコンピュータ",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "3961",
+          "name": "シルバーエッグ・テクノロジー",
+          "delisted_on": "2026-03-23"
+        },
+        {
+          "code": "4080",
+          "name": "田中化学研究所",
+          "delisted_on": "2026-01-28"
+        },
+        {
+          "code": "4171",
+          "name": "グローバルインフォメーション",
+          "delisted_on": "2026-08-13"
+        },
+        {
+          "code": "4316",
+          "name": "ビーマップ",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "4333",
+          "name": "東邦システムサイエンス",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "4367",
+          "name": "広栄化学",
+          "delisted_on": "2026-07-30"
+        },
+        {
+          "code": "4384",
+          "name": "ラクスル",
+          "delisted_on": "2026-05-29"
+        },
+        {
+          "code": "4449",
+          "name": "ギフティ",
+          "delisted_on": "2026-06-29"
+        },
+        {
+          "code": "4494",
+          "name": "バリオセキュア",
+          "delisted_on": "2026-06-26"
+        },
+        {
+          "code": "4530",
+          "name": "久光製薬",
+          "delisted_on": "2026-05-11"
+        },
+        {
+          "code": "4556",
+          "name": "カイノス",
+          "delisted_on": "2026-06-11"
+        },
+        {
+          "code": "4659",
+          "name": "エイジス",
+          "delisted_on": "2026-06-19"
+        },
+        {
+          "code": "4690",
+          "name": "日本パレットプール",
+          "delisted_on": "2026-04-15"
+        },
+        {
+          "code": "4745",
+          "name": "東京個別指導学院",
+          "delisted_on": "2026-01-08"
+        },
+        {
+          "code": "4800",
+          "name": "オリコン",
+          "delisted_on": "2026-09-28"
+        },
+        {
+          "code": "4917",
+          "name": "マンダム",
+          "delisted_on": "2026-05-15"
+        },
+        {
+          "code": "4957",
+          "name": "ヤスハラケミカル",
+          "delisted_on": "2026-03-06"
+        },
+        {
+          "code": "4974",
+          "name": "タカラバイオ",
+          "delisted_on": "2026-06-12"
+        },
+        {
+          "code": "5017",
+          "name": "富士石油",
+          "delisted_on": "2026-01-20"
+        },
+        {
+          "code": "5103",
+          "name": "昭和ホールディングス",
+          "delisted_on": "2026-08-25"
+        },
+        {
+          "code": "5191",
+          "name": "住友理工",
+          "delisted_on": "2026-01-29"
+        },
+        {
+          "code": "5202",
+          "name": "日本板硝子",
+          "delisted_on": "2026-09-28"
+        },
+        {
+          "code": "5259",
+          "name": "ＢＢＤイニシアティブ",
+          "delisted_on": "2026-04-28"
+        },
+        {
+          "code": "5352",
+          "name": "黒崎播磨",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "5386",
+          "name": "鶴弥",
+          "delisted_on": "2026-03-17"
+        },
+        {
+          "code": "5476",
+          "name": "日本高周波鋼業",
+          "delisted_on": "2026-01-29"
+        },
+        {
+          "code": "5596",
+          "name": "アウトルックコンサルティング",
+          "delisted_on": "2026-02-25"
+        },
+        {
+          "code": "5660",
+          "name": "神鋼鋼線工業",
+          "delisted_on": "2026-08-28"
+        },
+        {
+          "code": "5727",
+          "name": "東邦チタニウム",
+          "delisted_on": "2026-05-28"
+        },
+        {
+          "code": "5856",
+          "name": "エルアイイーエイチ",
+          "delisted_on": "2026-06-26"
+        },
+        {
+          "code": "5903",
+          "name": "シンポ",
+          "delisted_on": "2026-07-22"
+        },
+        {
+          "code": "6060",
+          "name": "こころネット",
+          "delisted_on": "2026-01-29"
+        },
+        {
+          "code": "6096",
+          "name": "レアジョブ",
+          "delisted_on": "2026-07-29"
+        },
+        {
+          "code": "6147",
+          "name": "ヤマザキ",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "6173",
+          "name": "アクアライン",
+          "delisted_on": "2026-06-01"
+        },
+        {
+          "code": "6197",
+          "name": "ソラスト",
+          "delisted_on": "2026-08-06"
+        },
+        {
+          "code": "6201",
+          "name": "豊田自動織機",
+          "delisted_on": "2026-06-01"
+        },
+        {
+          "code": "6210",
+          "name": "ＴＯＹＯイノベックス",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "6293",
+          "name": "日精樹脂工業",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "6312",
+          "name": "フロイント産業",
+          "delisted_on": "2026-01-27"
+        },
+        {
+          "code": "6403",
+          "name": "水道機工",
+          "delisted_on": "2026-06-24"
+        },
+        {
+          "code": "6406",
+          "name": "フジテック",
+          "delisted_on": "2026-03-23"
+        },
+        {
+          "code": "6486",
+          "name": "イーグル工業",
+          "delisted_on": "2026-09-29"
+        },
+        {
+          "code": "6489",
+          "name": "前澤工業",
+          "delisted_on": "2026-05-28"
+        },
+        {
+          "code": "6542",
+          "name": "ＦＣホールディングス",
+          "delisted_on": "2026-01-14"
+        },
+        {
+          "code": "6565",
+          "name": "ＡＢホテル",
+          "delisted_on": "2026-05-01"
+        },
+        {
+          "code": "6670",
+          "name": "ＭＣＪ",
+          "delisted_on": "2026-06-16"
+        },
+        {
+          "code": "6734",
+          "name": "ニューテック",
+          "delisted_on": "2026-03-23"
+        },
+        {
+          "code": "6901",
+          "name": "澤藤電機",
+          "delisted_on": "2026-05-15"
+        },
+        {
+          "code": "6957",
+          "name": "芝浦電子",
+          "delisted_on": "2026-01-13"
+        },
+        {
+          "code": "7082",
+          "name": "ジモティー",
+          "delisted_on": "2026-09-29"
+        },
+        {
+          "code": "7088",
+          "name": "フォーラムエンジニアリング",
+          "delisted_on": "2026-05-13"
+        },
+        {
+          "code": "7092",
+          "name": "Ｆａｓｔ Ｆｉｔｎｅｓｓ Ｊａｐａｎ",
+          "delisted_on": "2026-04-20"
+        },
+        {
+          "code": "7105",
+          "name": "三菱ロジスネクスト",
+          "delisted_on": "2026-04-27"
+        },
+        {
+          "code": "7116",
+          "name": "ダイワ通信",
+          "delisted_on": "2026-03-25"
+        },
+        {
+          "code": "7183",
+          "name": "あんしん保証",
+          "delisted_on": "2026-10-09"
+        },
+        {
+          "code": "7205",
+          "name": "日野自動車",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "7229",
+          "name": "ユタカ技研",
+          "delisted_on": "2026-06-10"
+        },
+        {
+          "code": "7240",
+          "name": "ＮＯＫ",
+          "delisted_on": "2026-09-29"
+        },
+        {
+          "code": "7250",
+          "name": "太平洋工業",
+          "delisted_on": "2026-04-13"
+        },
+        {
+          "code": "7255",
+          "name": "桜井製作所",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "7317",
+          "name": "松屋アールアンドディ",
+          "delisted_on": "2026-07-17"
+        },
+        {
+          "code": "7420",
+          "name": "佐鳥電機",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "7426",
+          "name": "山大",
+          "delisted_on": "2026-09-28"
+        },
+        {
+          "code": "7445",
+          "name": "ライトオン",
+          "delisted_on": "2026-02-26"
+        },
+        {
+          "code": "7450",
+          "name": "サンデー",
+          "delisted_on": "2026-04-01"
+        },
+        {
+          "code": "7455",
+          "name": "パリミキホールディングス",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "7467",
+          "name": "萩原電気ホールディングス",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "7490",
+          "name": "日新商事",
+          "delisted_on": "2026-10-09"
+        },
+        {
+          "code": "7635",
+          "name": "杉田エース",
+          "delisted_on": "2026-03-24"
+        },
+        {
+          "code": "7709",
+          "name": "クボテック",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "7718",
+          "name": "スター精密",
+          "delisted_on": "2026-03-13"
+        },
+        {
+          "code": "7739",
+          "name": "キヤノン電子",
+          "delisted_on": "2026-04-21"
+        },
+        {
+          "code": "7817",
+          "name": "パラマウントベッドホールディングス",
+          "delisted_on": "2026-02-05"
+        },
+        {
+          "code": "7851",
+          "name": "カワセコンピュータサプライ",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "7922",
+          "name": "三光産業",
+          "delisted_on": "2026-06-25"
+        },
+        {
+          "code": "7923",
+          "name": "トーイン",
+          "delisted_on": "2026-03-27"
+        },
+        {
+          "code": "7925",
+          "name": "前澤化成工業",
+          "delisted_on": "2026-05-28"
+        },
+        {
+          "code": "7940",
+          "name": "ウェーブロックホールディングス",
+          "delisted_on": "2026-07-09"
+        },
+        {
+          "code": "7946",
+          "name": "光陽社",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "7985",
+          "name": "ネポン",
+          "delisted_on": "2026-10-01"
+        },
+        {
+          "code": "7999",
+          "name": "ＭＵＴＯＨホールディングス",
+          "delisted_on": "2026-06-10"
+        },
+        {
+          "code": "8209",
+          "name": "フレンドリー",
+          "delisted_on": "2026-04-27"
+        },
+        {
+          "code": "8283",
+          "name": "ＰＡＬＴＡＣ",
+          "delisted_on": "2026-08-10"
+        },
+        {
+          "code": "8289",
+          "name": "Ｏｌｙｍｐｉｃグループ",
+          "delisted_on": "2026-06-29"
+        },
+        {
+          "code": "8515",
+          "name": "アイフル",
+          "delisted_on": "2026-03-30"
+        },
+        {
+          "code": "9067",
+          "name": "丸運",
+          "delisted_on": "2026-06-04"
+        },
+        {
+          "code": "9223",
+          "name": "ＡＳＮＯＶＡ",
+          "delisted_on": "2026-09-29"
+        },
+        {
+          "code": "9338",
+          "name": "ＩＮＦＯＲＩＣＨ",
+          "delisted_on": "2026-06-16"
+        },
+        {
+          "code": "9508",
+          "name": "九州電力",
+          "delisted_on": "2026-09-29"
+        },
+        {
+          "code": "9600",
+          "name": "アイネット",
+          "delisted_on": "2026-02-26"
+        },
+        {
+          "code": "9691",
+          "name": "両毛システムズ",
+          "delisted_on": "2026-10-09"
+        },
+        {
+          "code": "9719",
+          "name": "ＳＣＳＫ",
+          "delisted_on": "2026-03-12"
+        },
+        {
+          "code": "9776",
+          "name": "札幌臨床検査センター",
+          "delisted_on": "2026-02-16"
+        },
+        {
+          "code": "9914",
+          "name": "植松商会",
+          "delisted_on": "2026-09-21"
+        },
+        {
+          "code": "9927",
+          "name": "ワットマン",
+          "delisted_on": "2026-06-19"
+        }
+      ]
+    },
+    "nagoya": {
+      "source_url": "https://www.nse.or.jp/api/stock/search.json?listedSingle=1&dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1",
+      "as_of": "2026-10-11",
+      "sha256": "0cf015c7e620dd97c397673cbe2fd0e18ed0814e494afc50b4b6cc5665c5e194",
+      "items": [
+        {
+          "code": "1738",
+          "name": "ＮＩＴＴＯＨ",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1777",
+          "name": "川崎設備工業",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1869",
+          "name": "名工建設",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1892",
+          "name": "徳倉建設",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "2467",
+          "name": "ＶＬＣセキュリティ",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2551",
+          "name": "マルサンアイ",
+          "market": "メイン市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "259A",
+          "name": "ケイ・ウノ",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "275A",
+          "name": "ハンワホームズ",
+          "market": "ネクスト市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "2902",
+          "name": "太陽化学",
+          "market": "メイン市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "3032",
+          "name": "ゴルフ・ドゥ",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3066",
+          "name": "ＪＢイレブン",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3260",
+          "name": "エスポア",
+          "market": "ネクスト市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3346",
+          "name": "ヒロタグループホールディングス",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3384",
+          "name": "アークコア",
+          "market": "ネクスト市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3419",
+          "name": "アートグリーン",
+          "market": "ネクスト市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3442",
+          "name": "ＭＩＥコーポレーション",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "3504",
+          "name": "丸八ホールディングス",
+          "market": "メイン市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3670",
+          "name": "協立情報通信",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3739",
+          "name": "コムシード",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3775",
+          "name": "ガイアックス",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "377A",
+          "name": "エージェントＩＧホールディングス",
+          "market": "メイン市場",
+          "industry": "保険業"
+        },
+        {
+          "code": "3808",
+          "name": "オーケーウェブ",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "391A",
+          "name": "山忠",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "418A",
+          "name": "ウリドキ",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "5075",
+          "name": "アップコン",
+          "market": "ネクスト市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "5241",
+          "name": "日本オーエー研究所",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "5342",
+          "name": "ジャニス工業",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5343",
+          "name": "ニッコー",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5386",
+          "name": "鶴弥",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5530",
+          "name": "日本システムバンク",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "5607",
+          "name": "中央可鍛工業",
+          "market": "メイン市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "5979",
+          "name": "カネソウ",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "6025",
+          "name": "日本ＰＣサービス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6111",
+          "name": "旭精機工業",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6142",
+          "name": "富士精工",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6225",
+          "name": "エコム",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "624A",
+          "name": "かがやきホールディングス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6439",
+          "name": "中日本鋳工",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6565",
+          "name": "ＡＢホテル",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6623",
+          "name": "愛知電機",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6655",
+          "name": "東洋電機",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6846",
+          "name": "中央製作所",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "7076",
+          "name": "名南Ｍ＆Ａ",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7227",
+          "name": "アスカ",
+          "market": "メイン市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7485",
+          "name": "岡谷鋼機",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7488",
+          "name": "ヤガミ",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7675",
+          "name": "セントラルフォレストグループ",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7790",
+          "name": "バルコス",
+          "market": "ネクスト市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7870",
+          "name": "福島印刷",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7946",
+          "name": "光陽社",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7950",
+          "name": "日本デコラックス",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "8071",
+          "name": "東海エレクトロニクス",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8145",
+          "name": "中部水産",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8190",
+          "name": "ヤマナカ",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "8228",
+          "name": "マルイチ産商",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "9040",
+          "name": "大宝運輸",
+          "market": "メイン市場",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9170",
+          "name": "成友興業",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9357",
+          "name": "名港海運",
+          "market": "メイン市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9359",
+          "name": "伊勢湾海運",
+          "market": "メイン市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9402",
+          "name": "中部日本放送",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9471",
+          "name": "文溪堂",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9643",
+          "name": "中日本興業",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9664",
+          "name": "御園座",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9914",
+          "name": "植松商会",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        }
+      ]
+    },
+    "sapporo": {
+      "source_url": "https://www.sse.or.jp/tandoku",
+      "as_of": "2026-10-11",
+      "sha256": "c0697ce351f2bd2b184ae14be45ef4445e33bddcff6835391aedddba1d46ef54",
+      "items": [
+        {
+          "code": "1449",
+          "name": "株式会社FUJIジャパン",
+          "market": "本則市場"
+        },
+        {
+          "code": "1832",
+          "name": "株式会社北海電工",
+          "market": "本則市場"
+        },
+        {
+          "code": "2137",
+          "name": "株式会社光ハイツ・ヴェラス",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "2172",
+          "name": "株式会社インサイト",
+          "market": "本則市場"
+        },
+        {
+          "code": "2218",
+          "name": "日糧製パン株式会社",
+          "market": "本則市場"
+        },
+        {
+          "code": "2928",
+          "name": "RIZAPグループ株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "2976",
+          "name": "日本グランデ株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "3055",
+          "name": "株式会社TSUMUGU HOLDINGS",
+          "market": "本則市場"
+        },
+        {
+          "code": "3849",
+          "name": "日本テクノ・ラボ株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "3977",
+          "name": "フュージョン株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "5039",
+          "name": "株式会社キットアライブ",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "5579",
+          "name": "株式会社GSI",
+          "market": "本則市場"
+        },
+        {
+          "code": "8594",
+          "name": "中道リース株式会社",
+          "market": "本則市場"
+        },
+        {
+          "code": "9027",
+          "name": "株式会社ロジネットジャパン",
+          "market": "本則市場"
+        },
+        {
+          "code": "9085",
+          "name": "北海道中央バス株式会社",
+          "market": "本則市場"
+        }
+      ]
+    },
+    "fukuoka": {
+      "source_url": "https://www.fse.or.jp/market-info/single-listings/",
+      "as_of": "2026-10-11",
+      "sha256": "f1daff18994764c8dc40400557ac1af39b7669d10a783dbc995739f77c7f6c42",
+      "items": [
+        {
+          "code": "1771",
+          "name": "日本乾溜工業",
+          "market": "本則",
+          "industry": "建設業"
+        },
+        {
+          "code": "1999",
+          "name": "サイタホールディングス",
+          "market": "本則",
+          "industry": "建設業"
+        },
+        {
+          "code": "2058",
+          "name": "ヒガシマル",
+          "market": "本則",
+          "industry": "食料品"
+        },
+        {
+          "code": "231A",
+          "name": "Ｃｒｏｓｓ Ｅホールディングス",
+          "market": "Q-Board",
+          "industry": "建設業"
+        },
+        {
+          "code": "242A",
+          "name": "リプライオリティ",
+          "market": "Q-Board",
+          "industry": "サービス業"
+        },
+        {
+          "code": "272A",
+          "name": "グリーンクロスホールディングス",
+          "market": "本則",
+          "industry": "卸売業"
+        },
+        {
+          "code": "2919",
+          "name": "マルタイ",
+          "market": "本則",
+          "industry": "食料品"
+        },
+        {
+          "code": "2974",
+          "name": "大英産業",
+          "market": "本則",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3047",
+          "name": "ＴＲＵＣＫ－ＯＮＥ",
+          "market": "Q-Board",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3824",
+          "name": "メディアファイブ",
+          "market": "Q-Board",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4018",
+          "name": "Geolocation　Technology",
+          "market": "Q-Board",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4250",
+          "name": "フロンティア",
+          "market": "Q-Board",
+          "industry": "化学"
+        },
+        {
+          "code": "4827",
+          "name": "ビジネス・ワンホールディングス",
+          "market": "Q-Board",
+          "industry": "不動産業"
+        },
+        {
+          "code": "4995",
+          "name": "サンケイ化学",
+          "market": "本則",
+          "industry": "化学"
+        },
+        {
+          "code": "5953",
+          "name": "昭和鉄工",
+          "market": "本則",
+          "industry": "金属製品"
+        },
+        {
+          "code": "6076",
+          "name": "アメイズ",
+          "market": "本則",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7441",
+          "name": "Ｍｉｓｕｍｉ",
+          "market": "本則",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7851",
+          "name": "カワセコンピュータサプライ",
+          "market": "本則",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7894",
+          "name": "丸東産業",
+          "market": "本則",
+          "industry": "化学"
+        },
+        {
+          "code": "7985",
+          "name": "ネポン",
+          "market": "本則",
+          "industry": "金属製品"
+        },
+        {
+          "code": "8398",
+          "name": "筑邦銀行",
+          "market": "本則",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8554",
+          "name": "南日本銀行",
+          "market": "本則",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8559",
+          "name": "豊和銀行",
+          "market": "本則",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8560",
+          "name": "宮崎太陽銀行",
+          "market": "本則",
+          "industry": "銀行業"
+        },
+        {
+          "code": "9035",
+          "name": "第一交通産業",
+          "market": "本則",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9388",
+          "name": "パパネッツ",
+          "market": "Q-Board",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9407",
+          "name": "ＲＫＢ毎日ホールディングス",
+          "market": "本則",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9942",
+          "name": "ジョイフル",
+          "market": "本則",
+          "industry": "小売業"
+        }
+      ]
+    },
+    "nagoya_all": {
+      "source_url": "https://www.nse.or.jp/api/stock/search.json?dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1",
+      "as_of": "2026-10-11",
+      "sha256": "06298898236c164caf4c8327d6f328bc5a0fe77aea89b6db1159f2445390d32a",
+      "items": [
+        {
+          "code": "138A",
+          "name": "光フードサービス",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "1438",
+          "name": "岐阜造園",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1444",
+          "name": "ニッソウ",
+          "market": "ネクスト市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1738",
+          "name": "ＮＩＴＴＯＨ",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1766",
+          "name": "東建コーポレーション",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1777",
+          "name": "川崎設備工業",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1780",
+          "name": "ヤマウラ",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1801",
+          "name": "大成建設",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1803",
+          "name": "清水建設",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1811",
+          "name": "錢高組",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1812",
+          "name": "鹿島建設",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1869",
+          "name": "名工建設",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1870",
+          "name": "矢作建設工業",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1878",
+          "name": "大東建託",
+          "market": "プレミア市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "1892",
+          "name": "徳倉建設",
+          "market": "メイン市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1893",
+          "name": "五洋建設",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1928",
+          "name": "積水ハウス",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "1946",
+          "name": "トーエネック",
+          "market": "プレミア市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "2053",
+          "name": "中部飼料",
+          "market": "プレミア市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "212A",
+          "name": "フィットイージー",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2139",
+          "name": "中広",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2169",
+          "name": "ＣＤＳ",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2185",
+          "name": "シイエム・シイ",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2207",
+          "name": "ｍｅｉｔｏ",
+          "market": "プレミア市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "2209",
+          "name": "井村屋グループ",
+          "market": "プレミア市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "2224",
+          "name": "コモ",
+          "market": "メイン市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "2327",
+          "name": "日鉄ソリューションズ",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "2329",
+          "name": "東北新社",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "2351",
+          "name": "ＡＳＪ",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "2376",
+          "name": "サイネックス",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2424",
+          "name": "ブラス",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2435",
+          "name": "シダー",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2467",
+          "name": "ＶＬＣセキュリティ",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "246A",
+          "name": "アスア",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2479",
+          "name": "ジェイテック",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2480",
+          "name": "システム・ロケーション",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "2485",
+          "name": "ティア",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "2551",
+          "name": "マルサンアイ",
+          "market": "メイン市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "259A",
+          "name": "ケイ・ウノ",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "2681",
+          "name": "セカンドリテイリング",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "2722",
+          "name": "ＩＫホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "2734",
+          "name": "サーラコーポレーション",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "2753",
+          "name": "あみやき亭",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "275A",
+          "name": "ハンワホームズ",
+          "market": "ネクスト市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "2778",
+          "name": "パレモ・ホールディングス",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "2780",
+          "name": "コメ兵ホールディングス",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "2806",
+          "name": "ユタカフーズ",
+          "market": "メイン市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "2811",
+          "name": "カゴメ",
+          "market": "プレミア市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "2902",
+          "name": "太陽化学",
+          "market": "メイン市場",
+          "industry": "食料品"
+        },
+        {
+          "code": "2983",
+          "name": "アールプランナー",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "2986",
+          "name": "ＬＡホールディングス",
+          "market": "プレミア市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3028",
+          "name": "アルペン",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3032",
+          "name": "ゴルフ・ドゥ",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3035",
+          "name": "ケイティケイ",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3066",
+          "name": "ＪＢイレブン",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3086",
+          "name": "Ｊ．フロント　リテイリング",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3091",
+          "name": "ブロンコビリー",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3116",
+          "name": "トヨタ紡織",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "3138",
+          "name": "富士山マガジンサービス",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3184",
+          "name": "ＩＣＤＡホールディングス",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3186",
+          "name": "ネクステージ",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3202",
+          "name": "ダイトウボウ",
+          "market": "プレミア市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3205",
+          "name": "ダイドーリミテッド",
+          "market": "プレミア市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3221",
+          "name": "ヨシックスホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3232",
+          "name": "三重交通グループホールディングス",
+          "market": "プレミア市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3260",
+          "name": "エスポア",
+          "market": "ネクスト市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3320",
+          "name": "クロスプラス",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3321",
+          "name": "ミタチ産業",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3346",
+          "name": "ヒロタグループホールディングス",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3384",
+          "name": "アークコア",
+          "market": "ネクスト市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3419",
+          "name": "アートグリーン",
+          "market": "ネクスト市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3422",
+          "name": "Ｊ－ＭＡＸ",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "3439",
+          "name": "三ツ知",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "3441",
+          "name": "山王",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "3442",
+          "name": "ＭＩＥコーポレーション",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "3447",
+          "name": "信和",
+          "market": "プレミア市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "3461",
+          "name": "パルマ",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3469",
+          "name": "デュアルタップ",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3494",
+          "name": "マリオン",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3504",
+          "name": "丸八ホールディングス",
+          "market": "メイン市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3524",
+          "name": "日東製網",
+          "market": "プレミア市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3543",
+          "name": "コメダホールディングス",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3549",
+          "name": "クスリのアオキホールディングス",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3556",
+          "name": "リネットジャパングループ",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "3559",
+          "name": "ピーバンドットコム",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "3571",
+          "name": "ソトー",
+          "market": "プレミア市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3577",
+          "name": "東海染工",
+          "market": "プレミア市場",
+          "industry": "繊維製品"
+        },
+        {
+          "code": "3670",
+          "name": "協立情報通信",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3739",
+          "name": "コムシード",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3771",
+          "name": "システムリサーチ",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3775",
+          "name": "ガイアックス",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "377A",
+          "name": "エージェントＩＧホールディングス",
+          "market": "メイン市場",
+          "industry": "保険業"
+        },
+        {
+          "code": "3808",
+          "name": "オーケーウェブ",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3842",
+          "name": "ネクストジェン",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "391A",
+          "name": "山忠",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "3922",
+          "name": "ＰＲ ＴＩＭＥＳ",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "3947",
+          "name": "ダイナパック",
+          "market": "メイン市場",
+          "industry": "パルプ・紙"
+        },
+        {
+          "code": "3958",
+          "name": "笹徳印刷",
+          "market": "メイン市場",
+          "industry": "パルプ・紙"
+        },
+        {
+          "code": "3974",
+          "name": "ＳＣＡＴ",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4062",
+          "name": "イビデン",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "4063",
+          "name": "信越化学工業",
+          "market": "プレミア市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4072",
+          "name": "電算システムホールディングス",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4124",
+          "name": "大阪油化工業",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4125",
+          "name": "三和油化工業",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "418A",
+          "name": "ウリドキ",
+          "market": "ネクスト市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4196",
+          "name": "ネオマーケティング",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4206",
+          "name": "アイカ工業",
+          "market": "プレミア市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4240",
+          "name": "クラスターテクノロジー",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4247",
+          "name": "ポバール興業",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4361",
+          "name": "川口化学工業",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4430",
+          "name": "東海ソフト",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4439",
+          "name": "東名",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4445",
+          "name": "リビン・テクノロジーズ",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4463",
+          "name": "日華化学",
+          "market": "プレミア市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4502",
+          "name": "武田薬品工業",
+          "market": "プレミア市場",
+          "industry": "医薬品"
+        },
+        {
+          "code": "4616",
+          "name": "川上塗料",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "4658",
+          "name": "日本空調サービス",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "4667",
+          "name": "アイサンテクノロジー",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "4681",
+          "name": "リゾートトラスト",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "4691",
+          "name": "ワシントンホテル",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "4707",
+          "name": "キタック",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "4732",
+          "name": "ユー・エス・エス",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "4760",
+          "name": "アルファ",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "4920",
+          "name": "日本色材工業研究所",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "5020",
+          "name": "ＥＮＥＯＳホールディングス",
+          "market": "プレミア市場",
+          "industry": "石油・石炭製品"
+        },
+        {
+          "code": "5075",
+          "name": "アップコン",
+          "market": "ネクスト市場",
+          "industry": "建設業"
+        },
+        {
+          "code": "5204",
+          "name": "石塚硝子",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "523A",
+          "name": "セイワホールディングス",
+          "market": "ネクスト市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5241",
+          "name": "日本オーエー研究所",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "5271",
+          "name": "トーヨーアサノ",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5287",
+          "name": "イトーヨーギョー",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5331",
+          "name": "ノリタケ",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5332",
+          "name": "ＴＯＴＯ",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5333",
+          "name": "ＮＧＫ",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5334",
+          "name": "日本特殊陶業",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5342",
+          "name": "ジャニス工業",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5343",
+          "name": "ニッコー",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5344",
+          "name": "ＭＡＲＵＷＡ",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5356",
+          "name": "美濃窯業",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5384",
+          "name": "フジミインコーポレーテッド",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5386",
+          "name": "鶴弥",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5401",
+          "name": "日本製鉄",
+          "market": "プレミア市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "5406",
+          "name": "神戸製鋼所",
+          "market": "プレミア市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "5461",
+          "name": "中部鋼鈑",
+          "market": "プレミア市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "546A",
+          "name": "ＭＩＲＡＩＮＩホールディングス",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "5471",
+          "name": "大同特殊鋼",
+          "market": "プレミア市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "5482",
+          "name": "愛知製鋼",
+          "market": "プレミア市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "550A",
+          "name": "ソフトテックス",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "5530",
+          "name": "日本システムバンク",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "5589",
+          "name": "オートサーバー",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "5607",
+          "name": "中央可鍛工業",
+          "market": "メイン市場",
+          "industry": "鉄鋼"
+        },
+        {
+          "code": "5802",
+          "name": "住友電気工業",
+          "market": "プレミア市場",
+          "industry": "非鉄金属"
+        },
+        {
+          "code": "5918",
+          "name": "瀧上工業",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5938",
+          "name": "ＬＩＸＩＬ",
+          "market": "プレミア市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5947",
+          "name": "リンナイ",
+          "market": "プレミア市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5952",
+          "name": "アマテイ",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5979",
+          "name": "カネソウ",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5984",
+          "name": "兼房",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5992",
+          "name": "中央発條",
+          "market": "プレミア市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "5994",
+          "name": "ファインシンター",
+          "market": "メイン市場",
+          "industry": "金属製品"
+        },
+        {
+          "code": "6025",
+          "name": "日本ＰＣサービス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6029",
+          "name": "アトラグループ",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6036",
+          "name": "ＫｅｅＰｅｒ技研",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6055",
+          "name": "ジャパンマテリアル",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6074",
+          "name": "ジェイエスエス",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6103",
+          "name": "オークマ",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6111",
+          "name": "旭精機工業",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6134",
+          "name": "ＦＵＪＩ",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6136",
+          "name": "オーエスジー",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6142",
+          "name": "富士精工",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6203",
+          "name": "豊和工業",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6225",
+          "name": "エコム",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "624A",
+          "name": "かがやきホールディングス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6267",
+          "name": "ゼネラルパッカー",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6325",
+          "name": "タカキタ",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6339",
+          "name": "新東工業",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6340",
+          "name": "澁谷工業",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6342",
+          "name": "太平製作所",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6345",
+          "name": "アイチコーポレーション",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6346",
+          "name": "キクカワエンタープライズ",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6396",
+          "name": "宇野澤組鐵工所",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6407",
+          "name": "ＣＫＤ",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "640A",
+          "name": "ＡＳＮＯＶＡ　Ｃｏｍｐａｎｉｅｓ",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6430",
+          "name": "ダイコク電機",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6439",
+          "name": "中日本鋳工",
+          "market": "メイン市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6448",
+          "name": "ブラザー工業",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6465",
+          "name": "ホシザキ",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6470",
+          "name": "大豊工業",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6473",
+          "name": "ジェイテクト",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "6501",
+          "name": "日立製作所",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6504",
+          "name": "富士電機",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6508",
+          "name": "明電舎",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6547",
+          "name": "グリーンズ",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6564",
+          "name": "ミダックホールディングス",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6565",
+          "name": "ＡＢホテル",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "6586",
+          "name": "マキタ",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "6615",
+          "name": "ユー・エム・シー・エレクトロニクス",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6623",
+          "name": "愛知電機",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6651",
+          "name": "日東工業",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6655",
+          "name": "東洋電機",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6676",
+          "name": "バッファロー",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6702",
+          "name": "富士通",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6718",
+          "name": "アイホン",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6797",
+          "name": "名古屋電機工業",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6846",
+          "name": "中央製作所",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6899",
+          "name": "ＡＳＴＩ",
+          "market": "メイン市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "6902",
+          "name": "デンソー",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "6995",
+          "name": "東海理化電機製作所",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "6999",
+          "name": "ＫＯＡ",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "7011",
+          "name": "三菱重工業",
+          "market": "プレミア市場",
+          "industry": "機械"
+        },
+        {
+          "code": "7012",
+          "name": "川崎重工業",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7059",
+          "name": "コプロ・ホールディングス",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7073",
+          "name": "ジェイック",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7075",
+          "name": "ＱＬＳホールディングス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7076",
+          "name": "名南Ｍ＆Ａ",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7102",
+          "name": "日本車輌製造",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7118",
+          "name": "伸和ホールディングス",
+          "market": "ネクスト市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7129",
+          "name": "ミアヘルサホールディングス",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7135",
+          "name": "ジャパンクラフトホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7203",
+          "name": "トヨタ自動車",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7213",
+          "name": "レシップホールディングス",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7220",
+          "name": "武蔵精密工業",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7227",
+          "name": "アスカ",
+          "market": "メイン市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7231",
+          "name": "トピー工業",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7241",
+          "name": "フタバ産業",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7245",
+          "name": "大同メタル工業",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7259",
+          "name": "アイシン",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7266",
+          "name": "今仙電機製作所",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7282",
+          "name": "豊田合成",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7283",
+          "name": "愛三工業",
+          "market": "プレミア市場",
+          "industry": "輸送用機器"
+        },
+        {
+          "code": "7322",
+          "name": "三十三フィナンシャルグループ",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "7362",
+          "name": "Ｔ．Ｓ．Ｉ",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7369",
+          "name": "メイホーホールディングス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "7380",
+          "name": "十六フィナンシャルグループ",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "7389",
+          "name": "あいちフィナンシャルグループ",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "7412",
+          "name": "アトム",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7485",
+          "name": "岡谷鋼機",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7488",
+          "name": "ヤガミ",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7514",
+          "name": "ヒマラヤ",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7593",
+          "name": "ＶＴホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7607",
+          "name": "進和",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7630",
+          "name": "壱番屋",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7649",
+          "name": "スギホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7675",
+          "name": "セントラルフォレストグループ",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "7682",
+          "name": "浜木綿",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "7723",
+          "name": "愛知時計電機",
+          "market": "プレミア市場",
+          "industry": "精密機器"
+        },
+        {
+          "code": "7747",
+          "name": "朝日インテック",
+          "market": "プレミア市場",
+          "industry": "精密機器"
+        },
+        {
+          "code": "7751",
+          "name": "キヤノン",
+          "market": "プレミア市場",
+          "industry": "電気機器"
+        },
+        {
+          "code": "7780",
+          "name": "メニコン",
+          "market": "プレミア市場",
+          "industry": "精密機器"
+        },
+        {
+          "code": "7790",
+          "name": "バルコス",
+          "market": "ネクスト市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7805",
+          "name": "プリントネット",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7870",
+          "name": "福島印刷",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7871",
+          "name": "フクビ化学工業",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "7875",
+          "name": "竹田ｉＰホールディングス",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7878",
+          "name": "光・彩",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7896",
+          "name": "セブン工業",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7928",
+          "name": "旭化学工業",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "7931",
+          "name": "未来工業",
+          "market": "プレミア市場",
+          "industry": "化学"
+        },
+        {
+          "code": "7943",
+          "name": "ニチハ",
+          "market": "プレミア市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "7946",
+          "name": "光陽社",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7950",
+          "name": "日本デコラックス",
+          "market": "メイン市場",
+          "industry": "化学"
+        },
+        {
+          "code": "7953",
+          "name": "菊水化学工業",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "7975",
+          "name": "リヒトラブ",
+          "market": "メイン市場",
+          "industry": "その他製品"
+        },
+        {
+          "code": "8015",
+          "name": "豊田通商",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8031",
+          "name": "三井物産",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8071",
+          "name": "東海エレクトロニクス",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8076",
+          "name": "カノークス",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8130",
+          "name": "サンゲツ",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8145",
+          "name": "中部水産",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8160",
+          "name": "木曽路",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "8190",
+          "name": "ヤマナカ",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "8225",
+          "name": "タカチホ",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8228",
+          "name": "マルイチ産商",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8285",
+          "name": "三谷産業",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "8306",
+          "name": "三菱ＵＦＪフィナンシャル・グループ",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8309",
+          "name": "三井住友トラストグループ",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8316",
+          "name": "三井住友フィナンシャルグループ",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8361",
+          "name": "大垣共立銀行",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8368",
+          "name": "百五銀行",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8522",
+          "name": "名古屋銀行",
+          "market": "プレミア市場",
+          "industry": "銀行業"
+        },
+        {
+          "code": "8601",
+          "name": "大和証券グループ本社",
+          "market": "プレミア市場",
+          "industry": "証券・商品先物取引業"
+        },
+        {
+          "code": "8604",
+          "name": "野村ホールディングス",
+          "market": "プレミア市場",
+          "industry": "証券・商品先物取引業"
+        },
+        {
+          "code": "8609",
+          "name": "岡三証券グループ",
+          "market": "プレミア市場",
+          "industry": "証券・商品先物取引業"
+        },
+        {
+          "code": "8616",
+          "name": "東海東京フィナンシャル・ホールディングス",
+          "market": "プレミア市場",
+          "industry": "証券・商品先物取引業"
+        },
+        {
+          "code": "8725",
+          "name": "ＭＳ＆ＡＤインシュアランスグループホールディングス",
+          "market": "プレミア市場",
+          "industry": "保険業"
+        },
+        {
+          "code": "8803",
+          "name": "平和不動産",
+          "market": "プレミア市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "8891",
+          "name": "ＡＭＧホールディングス",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "8904",
+          "name": "ＡＶＡＮＴＩＡ",
+          "market": "プレミア市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "8920",
+          "name": "東祥",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "8995",
+          "name": "誠建設工業",
+          "market": "メイン市場",
+          "industry": "不動産業"
+        },
+        {
+          "code": "9022",
+          "name": "東海旅客鉄道",
+          "market": "プレミア市場",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9040",
+          "name": "大宝運輸",
+          "market": "メイン市場",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9048",
+          "name": "名古屋鉄道",
+          "market": "プレミア市場",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9073",
+          "name": "京極運輸商事",
+          "market": "メイン市場",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9076",
+          "name": "セイノーホールディングス",
+          "market": "プレミア市場",
+          "industry": "陸運業"
+        },
+        {
+          "code": "9170",
+          "name": "成友興業",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9221",
+          "name": "フルハシＥＰＯ",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9249",
+          "name": "日本エコシステム",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9306",
+          "name": "東陽倉庫",
+          "market": "プレミア市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9310",
+          "name": "日本トランスシティ",
+          "market": "プレミア市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9330",
+          "name": "揚羽",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9357",
+          "name": "名港海運",
+          "market": "メイン市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9359",
+          "name": "伊勢湾海運",
+          "market": "メイン市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9368",
+          "name": "キムラユニティー",
+          "market": "プレミア市場",
+          "industry": "倉庫・運輸関連業"
+        },
+        {
+          "code": "9402",
+          "name": "中部日本放送",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9428",
+          "name": "クロップス",
+          "market": "プレミア市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9471",
+          "name": "文溪堂",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9476",
+          "name": "中央経済社ホールディングス",
+          "market": "メイン市場",
+          "industry": "情報・通信業"
+        },
+        {
+          "code": "9502",
+          "name": "中部電力",
+          "market": "プレミア市場",
+          "industry": "電気・ガス業"
+        },
+        {
+          "code": "9531",
+          "name": "東京瓦斯",
+          "market": "プレミア市場",
+          "industry": "電気・ガス業"
+        },
+        {
+          "code": "9533",
+          "name": "東邦瓦斯",
+          "market": "プレミア市場",
+          "industry": "電気・ガス業"
+        },
+        {
+          "code": "9643",
+          "name": "中日本興業",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9664",
+          "name": "御園座",
+          "market": "メイン市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9793",
+          "name": "ダイセキ",
+          "market": "プレミア市場",
+          "industry": "サービス業"
+        },
+        {
+          "code": "9900",
+          "name": "サガミホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "9913",
+          "name": "日邦産業",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "9914",
+          "name": "植松商会",
+          "market": "メイン市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "9956",
+          "name": "バローホールディングス",
+          "market": "プレミア市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "9969",
+          "name": "ショクブン",
+          "market": "メイン市場",
+          "industry": "小売業"
+        },
+        {
+          "code": "9982",
+          "name": "タキヒヨー",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        },
+        {
+          "code": "9987",
+          "name": "スズケン",
+          "market": "プレミア市場",
+          "industry": "卸売業"
+        }
+      ]
+    },
+    "sapporo_all": {
+      "source_url": "https://www.sse.or.jp/listing/list",
+      "as_of": "2026-10-11",
+      "sha256": "f9acb089a11d000c1646549b518b45c551ec9d21d3a99eda5797caefb090d3c6",
+      "items": [
+        {
+          "code": "1449",
+          "name": "株式会社FUJIジャパン",
+          "market": "本則市場"
+        },
+        {
+          "code": "1832",
+          "name": "株式会社北海電工",
+          "market": "本則市場"
+        },
+        {
+          "code": "1840",
+          "name": "土屋ホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "1885",
+          "name": "東亜建設工業",
+          "market": "本則市場"
+        },
+        {
+          "code": "1921",
+          "name": "巴コーポレーション",
+          "market": "本則市場"
+        },
+        {
+          "code": "2137",
+          "name": "株式会社光ハイツ・ヴェラス",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "2172",
+          "name": "株式会社インサイト",
+          "market": "本則市場"
+        },
+        {
+          "code": "2218",
+          "name": "日糧製パン株式会社",
+          "market": "本則市場"
+        },
+        {
+          "code": "2270",
+          "name": "雪印メグミルク",
+          "market": "本則市場"
+        },
+        {
+          "code": "2428",
+          "name": "ウェルネット",
+          "market": "本則市場"
+        },
+        {
+          "code": "2501",
+          "name": "サッポロビール",
+          "market": "本則市場"
+        },
+        {
+          "code": "2573",
+          "name": "北海道コカ・コーラボトリング",
+          "market": "本則市場"
+        },
+        {
+          "code": "2747",
+          "name": "北雄ラッキー",
+          "market": "本則市場"
+        },
+        {
+          "code": "2813",
+          "name": "和弘食品",
+          "market": "本則市場"
+        },
+        {
+          "code": "2928",
+          "name": "RIZAPグループ株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "2930",
+          "name": "北の達人コーポレーション",
+          "market": "本則市場"
+        },
+        {
+          "code": "2976",
+          "name": "日本グランデ株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "2986",
+          "name": "LAホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "3042",
+          "name": "セキュアヴェイル",
+          "market": "本則市場"
+        },
+        {
+          "code": "3055",
+          "name": "株式会社ほくやく・竹山ホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "353A",
+          "name": "エレベーターコミュニケーションズ",
+          "market": "本則市場"
+        },
+        {
+          "code": "3544",
+          "name": "サツドラホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "3802",
+          "name": "エコミック",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "3849",
+          "name": "日本テクノ・ラボ株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "3946",
+          "name": "トーモク",
+          "market": "本則市場"
+        },
+        {
+          "code": "3977",
+          "name": "フュージョン株式会社",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "3987",
+          "name": "エコモット",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "4088",
+          "name": "エア・ウォーター",
+          "market": "本則市場"
+        },
+        {
+          "code": "4320",
+          "name": "CEホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "4502",
+          "name": "武田薬品工業",
+          "market": "本則市場"
+        },
+        {
+          "code": "4720",
+          "name": "城南進学研究社",
+          "market": "本則市場"
+        },
+        {
+          "code": "4766",
+          "name": "ピーエイ",
+          "market": "本則市場"
+        },
+        {
+          "code": "5039",
+          "name": "株式会社キットアライブ",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "5351",
+          "name": "品川リフラ",
+          "market": "本則市場"
+        },
+        {
+          "code": "5380",
+          "name": "新東",
+          "market": "本則市場"
+        },
+        {
+          "code": "5401",
+          "name": "日本製鉄",
+          "market": "本則市場"
+        },
+        {
+          "code": "5579",
+          "name": "株式会社GSI",
+          "market": "本則市場"
+        },
+        {
+          "code": "5902",
+          "name": "ホッカン",
+          "market": "本則市場"
+        },
+        {
+          "code": "6147",
+          "name": "ヤマザキ",
+          "market": "本則市場"
+        },
+        {
+          "code": "6546",
+          "name": "フルテック",
+          "market": "本則市場"
+        },
+        {
+          "code": "7011",
+          "name": "三菱重工業",
+          "market": "本則市場"
+        },
+        {
+          "code": "7118",
+          "name": "伸和ホールディングス",
+          "market": "アンビシャス市場"
+        },
+        {
+          "code": "7512",
+          "name": "イオン北海道",
+          "market": "本則市場"
+        },
+        {
+          "code": "7531",
+          "name": "清和中央ホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "7643",
+          "name": "ダイイチ",
+          "market": "本則市場"
+        },
+        {
+          "code": "7751",
+          "name": "キヤノン",
+          "market": "本則市場"
+        },
+        {
+          "code": "8031",
+          "name": "三井物産",
+          "market": "本則市場"
+        },
+        {
+          "code": "8085",
+          "name": "ナラサキ産業",
+          "market": "本則市場"
+        },
+        {
+          "code": "8104",
+          "name": "クワザワホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "8341",
+          "name": "七十七銀行",
+          "market": "本則市場"
+        },
+        {
+          "code": "8377",
+          "name": "ほくほくフィナンシャルグループ",
+          "market": "本則市場"
+        },
+        {
+          "code": "8524",
+          "name": "北洋銀行",
+          "market": "本則市場"
+        },
+        {
+          "code": "8594",
+          "name": "中道リース株式会社",
+          "market": "本則市場"
+        },
+        {
+          "code": "8798",
+          "name": "アドバンスクリエイト",
+          "market": "本則市場"
+        },
+        {
+          "code": "8803",
+          "name": "平和不動産",
+          "market": "本則市場"
+        },
+        {
+          "code": "9027",
+          "name": "株式会社ロジネットジャパン",
+          "market": "本則市場"
+        },
+        {
+          "code": "9085",
+          "name": "北海道中央バス株式会社",
+          "market": "本則市場"
+        },
+        {
+          "code": "9249",
+          "name": "日本エコシステム",
+          "market": "本則市場"
+        },
+        {
+          "code": "9450",
+          "name": "ファイバーゲート",
+          "market": "本則市場"
+        },
+        {
+          "code": "9509",
+          "name": "北海道電力",
+          "market": "本則市場"
+        },
+        {
+          "code": "9534",
+          "name": "北海道瓦斯",
+          "market": "本則市場"
+        },
+        {
+          "code": "9601",
+          "name": "松竹",
+          "market": "本則市場"
+        },
+        {
+          "code": "9627",
+          "name": "アインホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "9678",
+          "name": "カナモト",
+          "market": "本則市場"
+        },
+        {
+          "code": "9812",
+          "name": "テーオーホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "9843",
+          "name": "ニトリホールディングス",
+          "market": "本則市場"
+        },
+        {
+          "code": "9948",
+          "name": "アークス",
+          "market": "本則市場"
+        },
+        {
+          "code": "9987",
+          "name": "スズケン",
+          "market": "本則市場"
+        }
+      ]
+    },
+    "fukuoka_all": {
+      "source_url": "https://www.fse.or.jp/investors/companies-and-brokers/",
+      "as_of": "2026-10-11",
+      "sha256": "9b8217baa6eeb5fd011001759d3660b40d26f3ae42373154ea95c51af4fa0a5b",
+      "items": [
+        {
+          "code": "1401",
+          "name": "エムビーエス",
+          "market": "Q-Board"
+        },
+        {
+          "code": "1419",
+          "name": "タマホーム",
+          "market": "本則"
+        },
+        {
+          "code": "1431",
+          "name": "Ｌｉｂ Ｗｏｒｋ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "1518",
+          "name": "三井松島ホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "1771",
+          "name": "日本乾溜工業",
+          "market": "本則"
+        },
+        {
+          "code": "1848",
+          "name": "富士ピー・エス",
+          "market": "本則"
+        },
+        {
+          "code": "1959",
+          "name": "クラフティア",
+          "market": "本則"
+        },
+        {
+          "code": "1966",
+          "name": "高田工業所",
+          "market": "本則"
+        },
+        {
+          "code": "1999",
+          "name": "サイタホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "2009",
+          "name": "鳥越製粉",
+          "market": "本則"
+        },
+        {
+          "code": "2058",
+          "name": "ヒガシマル",
+          "market": "本則"
+        },
+        {
+          "code": "2164",
+          "name": "地域新聞社",
+          "market": "本則"
+        },
+        {
+          "code": "231A",
+          "name": "Ｃｒｏｓｓ Ｅホールディングス",
+          "market": "Q-Board"
+        },
+        {
+          "code": "2327",
+          "name": "日鉄ソリューションズ",
+          "market": "本則"
+        },
+        {
+          "code": "242A",
+          "name": "リプライオリティ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "272A",
+          "name": "グリーンクロスホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "280A",
+          "name": "ＴＭＨ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "2919",
+          "name": "マルタイ",
+          "market": "本則"
+        },
+        {
+          "code": "2924",
+          "name": "イフジ産業",
+          "market": "本則"
+        },
+        {
+          "code": "2926",
+          "name": "篠崎屋",
+          "market": "本則"
+        },
+        {
+          "code": "2974",
+          "name": "大英産業",
+          "market": "本則"
+        },
+        {
+          "code": "2986",
+          "name": "ＬＡホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "3047",
+          "name": "ＴＲＵＣＫ－ＯＮＥ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "3166",
+          "name": "ＯＣＨＩホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "3246",
+          "name": "コーセーアールイー",
+          "market": "本則"
+        },
+        {
+          "code": "3261",
+          "name": "グランディーズ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "3280",
+          "name": "エストラスト",
+          "market": "本則"
+        },
+        {
+          "code": "3286",
+          "name": "トラストホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "3297",
+          "name": "東武住販",
+          "market": "Q-Board"
+        },
+        {
+          "code": "3359",
+          "name": "ｃｏｔｔａ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "3440",
+          "name": "日創グループ",
+          "market": "本則"
+        },
+        {
+          "code": "3475",
+          "name": "グッドコムアセット",
+          "market": "本則"
+        },
+        {
+          "code": "3494",
+          "name": "マリオン",
+          "market": "本則"
+        },
+        {
+          "code": "353A",
+          "name": "エレベーターコミュニケーションズ",
+          "market": "本則"
+        },
+        {
+          "code": "3634",
+          "name": "ソケッツ",
+          "market": "本則"
+        },
+        {
+          "code": "3824",
+          "name": "メディアファイブ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "3943",
+          "name": "大石産業",
+          "market": "本則"
+        },
+        {
+          "code": "4018",
+          "name": "Geolocation Technology",
+          "market": "Q-Board"
+        },
+        {
+          "code": "4059",
+          "name": "まぐまぐ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "4250",
+          "name": "フロンティア",
+          "market": "Q-Board"
+        },
+        {
+          "code": "4392",
+          "name": "ＦＩＧ",
+          "market": "本則"
+        },
+        {
+          "code": "4447",
+          "name": "ピー・ビーシステムズ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "4502",
+          "name": "武田薬品工業",
+          "market": "本則"
+        },
+        {
+          "code": "4651",
+          "name": "サニックスホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "4827",
+          "name": "ビジネス・ワンホールディングス",
+          "market": "Q-Board"
+        },
+        {
+          "code": "4892",
+          "name": "サイフューズ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "4995",
+          "name": "サンケイ化学",
+          "market": "本則"
+        },
+        {
+          "code": "5108",
+          "name": "ブリヂストン",
+          "market": "本則"
+        },
+        {
+          "code": "5233",
+          "name": "太平洋セメント",
+          "market": "本則"
+        },
+        {
+          "code": "5256",
+          "name": "Ｆｕｓｉｃ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "5332",
+          "name": "ＴＯＴＯ",
+          "market": "本則"
+        },
+        {
+          "code": "5401",
+          "name": "日本製鉄",
+          "market": "本則"
+        },
+        {
+          "code": "5449",
+          "name": "大阪製鐵",
+          "market": "本則"
+        },
+        {
+          "code": "5802",
+          "name": "住友電気工業",
+          "market": "本則"
+        },
+        {
+          "code": "5953",
+          "name": "昭和鉄工",
+          "market": "本則"
+        },
+        {
+          "code": "6076",
+          "name": "アメイズ",
+          "market": "本則"
+        },
+        {
+          "code": "6144",
+          "name": "西部電機",
+          "market": "本則"
+        },
+        {
+          "code": "6147",
+          "name": "ヤマザキ",
+          "market": "本則"
+        },
+        {
+          "code": "6195",
+          "name": "ホープ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "642A",
+          "name": "キューデンホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "6504",
+          "name": "富士電機",
+          "market": "本則"
+        },
+        {
+          "code": "6506",
+          "name": "安川電機",
+          "market": "本則"
+        },
+        {
+          "code": "6537",
+          "name": "ＷＡＳＨハウス",
+          "market": "Q-Board"
+        },
+        {
+          "code": "6622",
+          "name": "ダイヘン",
+          "market": "本則"
+        },
+        {
+          "code": "6653",
+          "name": "正興電機製作所",
+          "market": "本則"
+        },
+        {
+          "code": "6966",
+          "name": "三井ハイテック",
+          "market": "本則"
+        },
+        {
+          "code": "6982",
+          "name": "リード",
+          "market": "本則"
+        },
+        {
+          "code": "6998",
+          "name": "日本タングステン",
+          "market": "本則"
+        },
+        {
+          "code": "7011",
+          "name": "三菱重工業",
+          "market": "本則"
+        },
+        {
+          "code": "7037",
+          "name": "テノ．ホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "7042",
+          "name": "アクセスグループ・ホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "7047",
+          "name": "ポート",
+          "market": "Q-Board"
+        },
+        {
+          "code": "7130",
+          "name": "ヤマエグループホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "7180",
+          "name": "九州フィナンシャルグループ",
+          "market": "本則"
+        },
+        {
+          "code": "7189",
+          "name": "西日本フィナンシャルホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "7350",
+          "name": "おきなわフィナンシャルグループ",
+          "market": "本則"
+        },
+        {
+          "code": "7414",
+          "name": "小野建",
+          "market": "本則"
+        },
+        {
+          "code": "7417",
+          "name": "南陽",
+          "market": "本則"
+        },
+        {
+          "code": "7441",
+          "name": "Ｍｉｓｕｍｉ",
+          "market": "本則"
+        },
+        {
+          "code": "7525",
+          "name": "リックス",
+          "market": "本則"
+        },
+        {
+          "code": "7531",
+          "name": "清和中央ホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "7751",
+          "name": "キヤノン",
+          "market": "本則"
+        },
+        {
+          "code": "7813",
+          "name": "プラッツ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "7851",
+          "name": "カワセコンピュータサプライ",
+          "market": "本則"
+        },
+        {
+          "code": "7894",
+          "name": "丸東産業",
+          "market": "本則"
+        },
+        {
+          "code": "7957",
+          "name": "フジコピアン",
+          "market": "本則"
+        },
+        {
+          "code": "7985",
+          "name": "ネポン",
+          "market": "本則"
+        },
+        {
+          "code": "8031",
+          "name": "三井物産",
+          "market": "本則"
+        },
+        {
+          "code": "8179",
+          "name": "ロイヤルホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "8200",
+          "name": "リンガーハット",
+          "market": "本則"
+        },
+        {
+          "code": "8203",
+          "name": "ＭｒＭａｘＨＤ",
+          "market": "本則"
+        },
+        {
+          "code": "8230",
+          "name": "はせがわ",
+          "market": "本則"
+        },
+        {
+          "code": "8260",
+          "name": "井筒屋",
+          "market": "本則"
+        },
+        {
+          "code": "8354",
+          "name": "ふくおかフィナンシャルグループ",
+          "market": "本則"
+        },
+        {
+          "code": "8392",
+          "name": "大分銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8393",
+          "name": "宮崎銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8395",
+          "name": "佐賀銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8398",
+          "name": "筑邦銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8399",
+          "name": "琉球銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8554",
+          "name": "南日本銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8559",
+          "name": "豊和銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8560",
+          "name": "宮崎太陽銀行",
+          "market": "本則"
+        },
+        {
+          "code": "8596",
+          "name": "九州リースサービス",
+          "market": "本則"
+        },
+        {
+          "code": "8798",
+          "name": "アドバンスクリエイト",
+          "market": "本則"
+        },
+        {
+          "code": "8803",
+          "name": "平和不動産",
+          "market": "本則"
+        },
+        {
+          "code": "8996",
+          "name": "ハウスフリーダム",
+          "market": "本則"
+        },
+        {
+          "code": "9031",
+          "name": "西日本鉄道",
+          "market": "本則"
+        },
+        {
+          "code": "9035",
+          "name": "第一交通産業",
+          "market": "本則"
+        },
+        {
+          "code": "9065",
+          "name": "山九",
+          "market": "本則"
+        },
+        {
+          "code": "9142",
+          "name": "九州旅客鉄道",
+          "market": "本則"
+        },
+        {
+          "code": "9242",
+          "name": "メディア総研",
+          "market": "Q-Board"
+        },
+        {
+          "code": "9249",
+          "name": "日本エコシステム",
+          "market": "本則"
+        },
+        {
+          "code": "9388",
+          "name": "パパネッツ",
+          "market": "Q-Board"
+        },
+        {
+          "code": "9407",
+          "name": "ＲＫＢ毎日ホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "9474",
+          "name": "ゼンリン",
+          "market": "本則"
+        },
+        {
+          "code": "9511",
+          "name": "沖縄電力",
+          "market": "本則"
+        },
+        {
+          "code": "9536",
+          "name": "西部ガスホールディングス",
+          "market": "本則"
+        },
+        {
+          "code": "9601",
+          "name": "松竹",
+          "market": "本則"
+        },
+        {
+          "code": "9602",
+          "name": "東宝",
+          "market": "本則"
+        },
+        {
+          "code": "9635",
+          "name": "武蔵野興業",
+          "market": "本則"
+        },
+        {
+          "code": "9656",
+          "name": "グリーンランドリゾート",
+          "market": "本則"
+        },
+        {
+          "code": "9942",
+          "name": "ジョイフル",
+          "market": "本則"
+        }
+      ]
+    }
+  }
+}

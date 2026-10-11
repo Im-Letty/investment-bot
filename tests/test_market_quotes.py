@@ -73,6 +73,7 @@ class MarketQuoteTests(unittest.TestCase):
                             _QUOTE_CACHE={}, _QUOTE_TTL=60,
                             _QUOTE_ERRORS={}, _QUOTE_RETRY_TTL=15,
                             _QUOTE_LOCKS=tuple(threading.Lock() for _ in range(64)),
+                            _stock_search=SimpleNamespace(company=lambda code: None),
                             ThreadPoolExecutor=ThreadPoolExecutor, as_completed=as_completed,
                             CORE_MARKETS=CORE_MARKETS)
         exec(compile(ast.Module(body=nodes, type_ignores=[]),
@@ -80,6 +81,14 @@ class MarketQuoteTests(unittest.TestCase):
         self.context['_market_snapshot'] = MarketSnapshot(
             lambda:self.context['_load_market_snapshot'](), now=lambda:1000)
         self.client = self.app.test_client()
+
+    def test_internal_regional_identity_and_wrong_tokyo_suffix_do_not_reach_a_provider(self):
+        self.context['_stock_search'] = SimpleNamespace(company=lambda code:
+            {'symbol': '1738.JP', 'provider_symbol': None} if code == '1738' else None)
+        for symbol in ('1738.JP', '1738.T'):
+            self.assertEqual(self.client.get('/api/quote?symbol='+symbol).status_code, 400)
+        self.chart_get.assert_not_called()
+        self.ticker_factory.assert_not_called()
 
     def prime_market(self):
         # Warm the snapshot explicitly; an HTTP request must never do this work.

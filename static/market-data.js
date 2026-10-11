@@ -10,6 +10,9 @@
   var SYMBOL = /^[A-Z0-9^][A-Z0-9.^=\-]{0,24}$/;
   var TTL = 60000, RETAIN = 7 * 86400000, RETRY = 30000;
   function normalize(value) { return String(value || '').normalize('NFKC').trim().toUpperCase(); }
+  // .JP is a verified regional company identity, not a quote-provider ticker.
+  // Company search/favorites keep it; the price picker cannot quote it.
+  function quoteSymbol(value) { var symbol=normalize(value);return SYMBOL.test(symbol)&&!/\.JP$/.test(symbol); }
   // Display stock codes separately from the provider IDs used for prices/storage.
   // Indices and other instruments do not have an ordinary stock code. Unknown
   // exchange suffixes are omitted rather than guessed (e.g. COST.TO).
@@ -71,7 +74,7 @@
   function create(options) {
     var storage = options.storage, clock = options.now || Date.now;
     var later = options.setTimeout || setTimeout, cancel = options.clearTimeout || clearTimeout;
-    var catalog = options.catalog.slice(), cache = Object.create(null), pending = Object.create(null), failed = Object.create(null), checked = Object.create(null);
+    var catalog = options.catalog.filter(function(item){return quoteSymbol(item.symbol);}), cache = Object.create(null), pending = Object.create(null), failed = Object.create(null), checked = Object.create(null);
     var selected = [], base = Object.create(null), baseTimes = Object.create(null), baseMissing = Object.create(null), baseSeen = false, baseRefreshing = false, coreFailed = false;
     function read(key) { try { return JSON.parse(storage.getItem(key) || 'null'); } catch (_) { return null; } }
     function save(key, value) { try { storage.setItem(key, JSON.stringify(value)); return true; } catch (_) { return false; } }
@@ -80,7 +83,7 @@
     function addCustom(item) {
       if (!item || typeof item.key !== 'string') return;
       var symbol = normalize(item.key);
-      if (!SYMBOL.test(symbol)) return;
+      if (!quoteSymbol(symbol)) return;
       var existing=find(symbol);if(existing)return existing;
       var entry={ id: symbol, symbol: symbol, label: String(item.label || symbol).slice(0, 100), category: 'custom', keywords: symbol };
       if(['index','fx','stocks','other'].indexOf(item.pickerGroup)>=0)entry.pickerGroup=item.pickerGroup;
@@ -98,6 +101,7 @@
     function lookup(raw, signal) {
       try { checkAbort(signal); } catch(error) { return Promise.reject(error); }
       var symbol = normalize(raw);
+      if (/\.JP$/.test(symbol)) return Promise.reject(new Error('unsupported quote source'));
       if (/^[0-9A-Z]{4}$/.test(symbol) && /[0-9]/.test(symbol)) symbol += '.T';
       if (!SYMBOL.test(symbol)) return Promise.reject(new Error('invalid symbol'));
       var existing = find(symbol); if (existing) return Promise.resolve(existing);
@@ -109,7 +113,7 @@
     async function searchItems(raw, signal) {
       checkAbort(signal);
       if(typeof raw!=='string' || raw.length>80 || /[\u0000-\u001f\u007f]/.test(raw))return {items:[],unavailable:false};
-      var query=raw.trim(),items=searchLocal(query),unavailable=false,seen=Object.create(null);
+      var query=raw.trim(),items=searchLocal(query),unavailable=false,seen=Object.create(null),knownUnsupported=false;
       if(!query)return {items:items,unavailable:false};
       items.forEach(function(item){seen[normalize(item.symbol)]=true;});
       try {
@@ -124,6 +128,7 @@
              !row.name.trim() || row.name.length>200 || /[\u0000-\u001f\u007f]/.test(row.name) ||
              (row.type!=='EQUITY' && row.type!=='ETF'))return;
           var symbol=normalize(row.symbol);
+          if (/\.JP$/.test(symbol)){knownUnsupported=true;return;}
           if(!SYMBOL.test(symbol) || seen[symbol])return;
           var item=find(symbol);
           if(!item){
@@ -139,7 +144,7 @@
       checkAbort(signal);
       var code=normalize(query);
       // Company lookup excludes indices, FX and crypto; retain direct symbol lookup.
-      if(!items.length && code.length>=2 && SYMBOL.test(code)){
+      if(!items.length && !knownUnsupported && code.length>=2 && quoteSymbol(code)){
         try { items.push(await lookup(query,signal)); }
         catch(error){if((signal && signal.aborted) || (error && error.name==='AbortError'))throw abortError();unavailable=true;}
       }
@@ -154,9 +159,10 @@
       if (!Array.isArray(ids)) return [];
       return ids.reduce(function(result, raw) {
         if (typeof raw !== 'string') return result;
+        if(/\.JP$/.test(normalize(raw)))return result;
         var entry = find(raw);
         if (!entry && SYMBOL.test(normalize(raw))) { addCustom({key: normalize(raw)}); entry = find(normalize(raw)); }
-        if (entry && result.indexOf(entry.id) < 0 && result.length < MAX_SELECTION) result.push(entry.id);
+        if (entry && quoteSymbol(entry.symbol) && result.indexOf(entry.id) < 0 && result.length < MAX_SELECTION) result.push(entry.id);
         return result;
       }, []);
     }
@@ -170,7 +176,7 @@
     if (savedCache && typeof savedCache === 'object' && !Array.isArray(savedCache)) {
       Object.keys(savedCache).slice(0, 48).forEach(function(symbol) {
         var record = savedCache[symbol];
-        if (SYMBOL.test(symbol) && record && validQuote(record.quote) && Number.isFinite(record.at) && record.at <= clock()+60000 && clock() - record.at < RETAIN) cache[symbol] = record;
+        if (quoteSymbol(symbol) && record && validQuote(record.quote) && Number.isFinite(record.at) && record.at <= clock()+60000 && clock() - record.at < RETAIN) cache[symbol] = record;
       });
     }
     hydrate(options.custom);
@@ -180,6 +186,7 @@
       save('kn_market_quotes_v2', result);
     }
     function fetchQuote(symbol, full) {
+      if(!quoteSymbol(symbol))return Promise.reject(new Error('unsupported quote source'));
       if (pending[symbol]) return pending[symbol];
       checked[symbol]=clock();
       var controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
@@ -202,7 +209,7 @@
       return pending[symbol];
     }
     function refresh(force) {
-      var requests = selected.map(find).filter(Boolean).filter(function(item) { return !item.baseKey; }).map(function(item) {
+      var requests = selected.map(find).filter(Boolean).filter(function(item) { return !item.baseKey&&quoteSymbol(item.symbol); }).map(function(item) {
         var record = cache[item.symbol];
         if (!force && failed[item.symbol] != null && clock()-failed[item.symbol] < RETRY) return Promise.resolve(null);
         // Request-start time prevents network latency from turning one-minute

@@ -2107,6 +2107,12 @@ def api_quote():
     light = request.args.get("light", "") == "1"
     if not symbol:
         return jsonify({"error": "symbol is required"}), 400
+    if re.fullmatch(r'[0-9][A-Z0-9]{3}\.JP', symbol):
+        return jsonify({"error": "quote_provider_unsupported", "symbol": symbol}), 400
+    if re.fullmatch(r'[0-9][A-Z0-9]{3}\.T', symbol):
+        identity = _stock_search.company(symbol.split('.')[0])
+        if identity and identity.get("provider_symbol") != symbol:
+            return jsonify({"error": "symbol_market_mismatch", "symbol": symbol}), 400
     cached = _cached_api_quote(symbol, light)
     if cached is not None:
         return jsonify(cached)
@@ -2854,7 +2860,7 @@ JP_STOCKS = {
 
 # All dividend views share one real, dated snapshot. No request performs a scan.
 from dividend_snapshot import DividendSnapshot
-_jpx_dividend_names = {item["code"]: item["name"] for item in _stock_search.all_items()["items"]}
+_jpx_dividend_names = {item["code"]: item["name"] for item in _stock_search.provider_items()}
 _dividend_companies = {code: _jpx_dividend_names[code] for code in JP_STOCKS if code in _jpx_dividend_names}
 _dividend_snapshot = DividendSnapshot(
     _dividend_companies,
@@ -2864,11 +2870,22 @@ _dividend_snapshot = DividendSnapshot(
 # market-provider requests run in its bounded background pool.
 from company_profile import CompanyProfiles
 from company_profile_api import register_company_profiles
+from company_quotes import CompanyQuotes
+from company_business import CompanyBusinesses
 _company_profiles = CompanyProfiles(
     cache_path=os.environ.get("COMPANY_PROFILE_PATH", "/tmp/kn-company-profiles.json"),
     seed_path=os.path.join(os.path.dirname(__file__), "company-profile-snapshot.json"))
+# Increasing provider access requires permission to retrieve and redistribute
+# its data. Prepare the bounded service, but do not enable a new polling rate
+# merely because a public endpoint happens to respond.
+_company_quotes = (CompanyQuotes(
+    cache_path=os.environ.get("COMPANY_QUOTE_PATH", "/tmp/kn-company-quotes.json"))
+    if os.environ.get("COMPANY_QUOTE_REFRESH_ENABLED", "0") == "1" else None)
+_company_businesses = CompanyBusinesses(
+    cache_path=os.environ.get("COMPANY_BUSINESS_PATH", "/tmp/kn-company-businesses.json"))
 register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot,
-                          quotes=lambda: _scanner_snapshot.payload(refresh=False))
+                          quotes=lambda: _scanner_snapshot.payload(refresh=False),
+                          quote_service=_company_quotes, businesses=_company_businesses)
 
 from dividend_calendar import DividendCalendar, register_dividend_calendar
 from jpx_calendar_source import fetch_jpx_events

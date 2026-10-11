@@ -91,9 +91,10 @@
       }
       function company(item){
         const box=el('button','sw-company');box.type='button';
-        box.appendChild(el('span','sw-name',item.name));box.appendChild(el('small','sw-code',symbol(item.symbol).replace(/\.T$/,'')));
-        box.appendChild(el('small','sw-company-hint','会社情報・配当金を見る'));
-        box.setAttribute('aria-label',item.name+'の会社情報・配当金を見る');
+        const key=symbol(item.symbol),regional=/^[0-9][A-Z0-9]{3}\.JP$/.test(key),hint=regional?'会社情報を見る':'会社情報・配当金を見る';
+        box.appendChild(el('span','sw-name',item.name));box.appendChild(el('small','sw-code',key.replace(/\.(?:T|JP)$/,'')));
+        box.appendChild(el('small','sw-company-hint',hint));
+        box.setAttribute('aria-label',item.name+'の'+hint);
         box.addEventListener('click',()=>{
           if(!w.KNCompanyProfile||!w.KNCompanyProfile.open){feedback('会社情報を読み込めませんでした。ページを開き直してください。',true);return;}
           const trigger=returnFocus;
@@ -129,6 +130,7 @@
             const preview=el('div','sw-dividends'),annual=el('span','sw-dividend-line'),payment=el('span','sw-dividend-line');
             preview.appendChild(annual);preview.appendChild(payment);row.appendChild(preview);dividendNodes.set(key,[annual,payment]);paintDividends(key,dividendQueue.peek(key));
           }
+          if(/^[0-9][A-Z0-9]{3}\.JP$/.test(key))row.appendChild(el('small','sw-dividend-line','会社情報は表示できます。株価・配当の取得元は未対応です。'));
           list.appendChild(row);
         });
         results.appendChild(list);syncDividends();

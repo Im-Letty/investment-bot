@@ -40,17 +40,18 @@
     return {text:parts.join(' / '),showDate:item=>groups.get(market(item)).size!==1};
   }
   function stockCode(symbol){
-    return '<small class="sf-stock-code">'+escape(String(symbol||'').replace(/\.T$/,''))+'</small>';
+    return '<small class="sf-stock-code">'+escape(String(symbol||'').replace(/\.(?:T|JP)$/,''))+'</small>';
   }
   function companyName(symbol,name){
     const content='<span>'+escape(name||symbol)+'</span>'+stockCode(symbol);
-    return /^[0-9][A-Z0-9]{3}\.T$/.test(symbol||'')?'<button type="button" class="cp-company-link" data-company-profile="'+escape(symbol)+'" data-company-name="'+escape(name||symbol)+'" aria-label="'+escape(name||symbol)+'の会社情報を開く">'+content+'</button>':content;
+    return /^[0-9][A-Z0-9]{3}\.(?:T|JP)$/.test(symbol||'')?'<button type="button" class="cp-company-link" data-company-profile="'+escape(symbol)+'" data-company-name="'+escape(name||symbol)+'" aria-label="'+escape(name||symbol)+'の会社情報を開く">'+content+'</button>':content;
   }
   function row(item,index,showDate=true){
     return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'">'+companyName(item.symbol,item.name)+'</div>'+quote(item,showDate)+'</li>';
   }
   function watchRow(raw,symbol,formatChange,dividendState){
     const item=raw||{},name=escape(item.name||symbol);
+    if(/^[0-9][A-Z0-9]{3}\.JP$/.test(symbol||''))return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">この取引所の株価・配当は取得元未対応です</span></div>';
     const facts=dividends?'<div class="sf-watch-dividend" data-watch-dividend="'+escape(symbol)+'">'+dividends.markup(dividendState)+'</div>':'';
     if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">株価を確認できませんでした</span>'+facts+'</div>';
     const currency=item.currency||(symbol.endsWith('.T')?'JPY':''),unit=({JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド'})[currency]||currency;

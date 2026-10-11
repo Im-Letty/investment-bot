@@ -22,6 +22,10 @@ from urllib3.exceptions import HTTPError as UpstreamReadError
 JST = timezone(timedelta(hours=9))
 TTL = 6 * 3600
 RETAIN = 30 * 86400
+# Searches cover the full JPX domestic-company catalogue. This is retention,
+# not an instruction to fetch every company at startup or from a web request.
+MAX_PROFILE_RECORDS = 8192
+MAX_PROFILE_CACHE_BYTES = 64_000_000
 PROFILE_URL = 'https://query2.finance.yahoo.com/v10/finance/quoteSummary/'
 CHART_URL = 'https://query1.finance.yahoo.com/v8/finance/chart/'
 MODULES = 'price,summaryDetail,financialData,calendarEvents,assetProfile'
@@ -385,13 +389,13 @@ class CompanyProfiles:
 
     def _load(self, path):
         try:
-            if path.stat().st_size > 4_000_000:
+            if path.stat().st_size > MAX_PROFILE_CACHE_BYTES:
                 return
             data = json.loads(path.read_text(encoding='utf-8'))
             rows = data.get('items')
             if not isinstance(rows, list):
                 return
-            for row in rows[:512]:
+            for row in rows[:MAX_PROFILE_RECORDS]:
                 valid = _valid_record(row, self.now())
                 if valid:
                     self._merge(valid)
@@ -430,7 +434,7 @@ class CompanyProfiles:
         else:
             self._records[symbol] = deepcopy(incoming)
         self._records.move_to_end(symbol)
-        while len(self._records) > 512:
+        while len(self._records) > MAX_PROFILE_RECORDS:
             self._records.popitem(last=False)
 
     def _read_disk(self):
@@ -457,8 +461,11 @@ class CompanyProfiles:
                     with self._condition:
                         self._read_disk()
                         rows = deepcopy(list(self._records.values()))
+                    encoded = json.dumps({'items': rows}, ensure_ascii=False, allow_nan=False)
+                    if len(encoded.encode('utf-8')) > MAX_PROFILE_CACHE_BYTES:
+                        return  # Keep the last readable snapshot instead of replacing it with an oversized file.
                     temp = self.cache_path.with_name(self.cache_path.name + '.' + str(os.getpid()) + '.tmp')
-                    temp.write_text(json.dumps({'items': rows}, ensure_ascii=False, allow_nan=False), encoding='utf-8')
+                    temp.write_text(encoded, encoding='utf-8')
                     temp.replace(self.cache_path)
             except (OSError, ValueError):
                 pass

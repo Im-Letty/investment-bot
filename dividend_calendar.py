@@ -37,6 +37,47 @@ def symbol(value):
     return value if re.fullmatch(r'[0-9][0-9A-Z]{3}\.T', value) else None
 
 
+def provider_company_names(catalogue):
+    """Use verified provider mapping; regional .JP identities never become .T.
+
+    Older monthly-only catalogue adapters can still expose code/name items.
+    The serving StockSearch supplies an indexed provider list, avoiding one
+    identity lookup/deep copy per company on every calendar request.
+    """
+    provider_items = getattr(catalogue, 'provider_items', None)
+    rows = provider_items() if callable(provider_items) else None
+    if isinstance(rows, list):
+        result = {}
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            ticker, name, code = row.get('provider_symbol'), row.get('name'), row.get('code')
+            if (isinstance(ticker, str) and symbol(ticker) == ticker and ticker[:-2] == code
+                    and isinstance(name, str) and name):
+                result[ticker] = name
+        return result
+    document = catalogue.all_items()
+    rows = document.get('items', []) if isinstance(document, dict) else []
+    identity_lookup = getattr(catalogue, 'company', None)
+    result = {}
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        code, name = row.get('code'), row.get('name')
+        identity = identity_lookup(code) if callable(identity_lookup) else None
+        if isinstance(identity, dict):
+            ticker = identity.get('provider_symbol')
+            if isinstance(ticker, str) and symbol(ticker) == ticker and ticker[:-2] == code:
+                result[ticker] = name
+        elif document.get('scope') is None:
+            # Compatibility is limited to old monthly-only code/name adapters.
+            # A new national adapter without a mapping must fail closed.
+            ticker = symbol(code)
+            if ticker and isinstance(name, str) and name:
+                result[ticker] = name
+    return result
+
+
 def iso_day(value):
     if not isinstance(value, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', value):
         return None
@@ -443,7 +484,7 @@ class DividendCalendar:
             if not normalized:
                 raise ValueError('invalid_symbols')
             requested.add(normalized)
-        known = {row['code']+'.T': row['name'] for row in self.catalogue.all_items()['items']}
+        known = provider_company_names(self.catalogue)
         if len(requested) > 100:
             raise ValueError('invalid_symbols')
         invalid_symbols=sorted(requested-set(known))

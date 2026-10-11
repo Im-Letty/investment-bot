@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 
 from flask import Flask
 from dividend_calendar import (DividendCalendar, JST, month_range, previous_trading_day,
-                               register_dividend_calendar, validate_dividend_amounts)
+                               register_dividend_calendar, validate_dividend_amounts, provider_company_names)
 
 NOW=datetime(2026,9,24,14,tzinfo=JST).timestamp()
 
@@ -82,6 +82,41 @@ class CalendarTests(unittest.TestCase):
         self.assertEqual(data['coverage'],{'universe':229,'known':2,'unknown':227})
         self.dividends.request_companies.assert_not_called()
         self.assertEqual(self.calendar().payload('2026-09','5803','favorites')['coverage']['universe'],1)
+
+    def test_national_provider_mapping_does_not_send_regional_identity_to_tokyo(self):
+        catalogue = Mock(spec=['provider_items', 'all_items', 'company'])
+        catalogue.provider_items.return_value = [
+            {'code': '7203', 'name': 'トヨタ', 'symbol': '7203.T', 'provider_symbol': '7203.T'},
+            {'code': '1738', 'name': '地方会社', 'symbol': '1738.JP', 'provider_symbol': None}]
+        self.catalogue = catalogue
+        calendar = self.calendar()
+        calendar.ensure_refresh = Mock()
+        data = calendar.payload('2026-09', '1738,7203', 'favorites')
+        self.assertEqual(data['coverage']['universe'], 1)
+        self.dividends.request_companies.assert_called_once_with({'7203': 'トヨタ'})
+        catalogue.company.assert_not_called()
+        catalogue.all_items.assert_not_called()
+        with self.assertRaises(ValueError):
+            calendar.payload('2026-09', '1738.JP', 'favorites')
+
+    def test_legacy_monthly_only_catalogue_remains_compatible(self):
+        class LegacyCatalogue:
+            def all_items(self):
+                return {'items': [{'code': '7203', 'name': 'トヨタ'}]}
+        self.assertEqual(provider_company_names(LegacyCatalogue()), {'7203.T': 'トヨタ'})
+
+    def test_national_adapter_without_provider_helper_requires_explicit_mapping(self):
+        class NationalCatalogue:
+            def all_items(self):
+                return {'scope': 'japan-listed-domestic-common-equity', 'items': [
+                    {'code': '7203', 'name': 'トヨタ'}, {'code': '1738', 'name': '地方会社'}]}
+            def company(self, code):
+                return {'provider_symbol': '7203.T' if code == '7203' else None}
+        self.assertEqual(provider_company_names(NationalCatalogue()), {'7203.T': 'トヨタ'})
+        class UnmappedNationalCatalogue:
+            def all_items(self):
+                return {'scope': 'japan-listed-domestic-common-equity', 'items': [{'code': '1738', 'name': '地方会社'}]}
+        self.assertEqual(provider_company_names(UnmappedNationalCatalogue()), {})
 
     def test_official_exdate_and_real_businessday_deadline(self):
         data=self.calendar().payload('2026-09')

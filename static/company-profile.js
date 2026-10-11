@@ -5,13 +5,13 @@
   if(root&&root.document)root.KNCompanyProfile=api.start(root);
 })(typeof window==='undefined'?null:window,function(dates){
   'use strict';
-  const POLL_MS=3000,POLL_LIMIT=90000,REQUEST_TIMEOUT=12000,RETRY_DELAYS=[1000,3000],CACHE_AGE=7*86400000,CACHE_PREFIX='kn_company_profile_v1:';
+  const POLL_MS=3000,POLL_LIMIT=90000,REQUEST_TIMEOUT=12000,QUOTE_REFRESH_MS=60000,RETRY_DELAYS=[1000,3000],CACHE_AGE=7*86400000,CACHE_PREFIX='kn_company_profile_v1:';
   const finite=value=>typeof value==='number'&&Number.isFinite(value);
   const text=(value,limit=400)=>typeof value==='string'?value.trim().slice(0,limit):'';
   const FIELD_KEYS=['price','market_cap','annual_dividend','forward_annual_dividend_per_share','ex_dividend_date','dividend_payment_date','analyst_target'];
   const METRIC_KEYS={price:'price',cap:'market_cap',annual:'annual_dividend',forward:'forward_annual_dividend_per_share',exDate:'ex_dividend_date',paymentDate:'dividend_payment_date',target:'analyst_target'};
-  const FIELD_REASONS={loading:'取得中',source_missing:'提供元に情報なし',fetch_error:'通信エラー',invalid:'内容を確認中',unconfirmed:'未確認'};
-  function symbol(value){const key=text(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.T)?$/.test(key)?key.replace(/\.T$/,'')+'.T':'';}
+  const FIELD_REASONS={loading:'取得中',source_missing:'提供元に情報なし',fetch_error:'通信エラー',invalid:'内容を確認中',unconfirmed:'未確認',unsupported:'取得元未対応'};
+  function symbol(value){const key=text(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.(?:T|JP))?$/.test(key)?(/\.(?:T|JP)$/.test(key)?key:key+'.T'):'';}
   function safeUrl(value){
     if(typeof value!=='string'||/[\u0000-\u0020\u007f\\]/.test(value))return null;
     try{const url=new URL(value);return ['https:','http:'].includes(url.protocol)&&!url.username&&!url.password?url.href:null;}catch(e){return null;}
@@ -29,6 +29,33 @@
   }
   function stamp(value){return finite(value)?dates.timestamp(value/1000)||null:null;}
   function today(now){return new Date(now+9*3600000).toISOString().slice(0,10);}
+  function marketData(raw,data,now){
+    if(!raw||typeof raw!=='object'||!['delayed','end_of_day','unsupported'].includes(raw.kind))return null;
+    if(raw.kind==='unsupported')return {kind:'unsupported',delay_minutes:null,quote_as_of:null,quote_age_seconds:null,quote_is_recent:false};
+    const quoteAt=timestamp(raw.quote_as_of,now),delay=finite(raw.delay_minutes)&&raw.delay_minutes>=0&&raw.delay_minutes<=1440?raw.delay_minutes:null;
+    // Freshness belongs to this exact quote, not to a newly retrieved financial field.
+    if(quoteAt!==data.price_updated_at||data.price===null)return null;
+    return {kind:raw.kind,delay_minutes:delay,quote_as_of:quoteAt,quote_age_seconds:quoteAt?Math.max(0,(now-quoteAt)/1000):null,quote_is_recent:quoteAt!==null&&raw.quote_is_recent===true};
+  }
+  function quoteNote(state,now=Date.now()){
+    const record=state&&state.data,market=record&&record.market_data,data=record&&record.data||{};
+    if(market&&market.kind==='unsupported')return 'この取引所の株価・配当の取得元は未対応です。';
+    const parts=[];
+    const issue={fetch_error:'最新の株価取得で通信エラー',invalid:'最新の株価は内容を確認中',unconfirmed:'最新の株価は未確認'}[record&&record.quote_error];
+    if(!finite(data.price))return issue||'';
+    if(market&&market.kind==='delayed')parts.push(market.delay_minutes!==null?market.delay_minutes+'分遅延の株価':'遅延して配信される株価');
+    if(market&&market.kind==='end_of_day'||!data.price_updated_at&&data.price_trade_date)parts.push('終値');
+    const elapsed=market&&market.quote_as_of?Math.max(0,(now-market.quote_as_of)/1000):null;
+    const old=market&&market.kind==='delayed'&&(market.quote_is_recent!==true||elapsed!==null&&elapsed>(market.delay_minutes||0)*60+300);
+    if(state.fromCache)parts.push('保存済みの株価');
+    else if(old)parts.push('株価の時点をご確認ください');
+    else if(record&&record.quote_status==='stale'&&!record.quote_refreshing)parts.push('保存済みの株価');
+    if(issue)parts.push(issue);
+    else if(record&&record.quote_status==='unavailable')parts.push('最新の株価は確認できませんでした');
+    if(record&&record.quote_status?record.quote_refreshing:state.updating)parts.push('最新の株価を確認中');
+    else if(['fetch_error','timeout'].includes(state.reason))parts.push('最新の情報は通信エラー');
+    return parts.join(' / ');
+  }
   function money(value,currency='JPY',compact=false){
     if(!finite(value)||value<0||!['JPY','USD','EUR','GBP'].includes(currency))return null;
     const unit={JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド'}[currency];
@@ -45,7 +72,7 @@
     });
   }
   function normalize(raw,key,now=Date.now()){
-    if(!raw||typeof raw!=='object'||raw.error||symbol(raw.symbol)!==key||!['pending','ready','stale','unavailable'].includes(raw.status))return null;
+    if(!raw||typeof raw!=='object'||raw.error||symbol(raw.symbol)!==key||!['pending','ready','stale','unavailable','error'].includes(raw.status))return null;
     const input=raw.data&&typeof raw.data==='object'?raw.data:{},positive=v=>finite(v)&&v>0?v:null,amount=v=>finite(v)&&v>=0?v:null;
     const currency=/^[A-Z]{3}$/.test(input.currency||'')?input.currency:'JPY';
     const fieldSource=raw.source&&typeof raw.source==='object'?raw.source:{};
@@ -63,6 +90,14 @@
       business:text(raw.editorial.business),life:text(raw.editorial.life),watch:text(raw.editorial.watch),
       reviewed_on:day(raw.editorial.reviewed_on),sources:sourceList(raw.editorial.sources,now)
     }:null;
+    const overviewInput=raw.business_overview&&typeof raw.business_overview==='object'?raw.business_overview:{};
+    const overviewUrl=safeUrl(overviewInput.source_url),overviewStatus=['available','loading','source_missing','fetch_error','identity_unconfirmed'].includes(overviewInput.field_status)?overviewInput.field_status:'identity_unconfirmed';
+    const business_overview=overviewInput.kind==='structured_company_facts'?{
+      kind:overviewInput.kind,text:overviewStatus==='available'&&overviewUrl?text(overviewInput.text,1200):'',field_status:overviewStatus==='available'&&!overviewUrl?'identity_unconfirmed':overviewStatus,
+      source_url:overviewUrl,source_title:text(overviewInput.source_title,120)||'会社の情報の出典',fetched_at:timestamp(overviewInput.fetched_at,now),
+      products:Array.isArray(overviewInput.products)?overviewInput.products.slice(0,15).map(value=>text(value,80)).filter(Boolean):[],
+      industry_labels:Array.isArray(overviewInput.industry_labels)?overviewInput.industry_labels.slice(0,15).map(value=>text(value,80)).filter(Boolean):[]
+    }:null;
     const identityInput=raw.identity&&typeof raw.identity==='object'?raw.identity:{};
     const identityUrl=safeUrl(identityInput.source_url),identityDate=day(identityInput.date);
     const identity=identityUrl&&identityDate&&identityDate<=today(now)?{market:text(identityInput.market,100),industry:text(identityInput.industry,100),source_url:identityUrl,date:identityDate,source_title:text(identityInput.source_title,120)||'会社の一覧の出典'}:null;
@@ -73,6 +108,11 @@
       forward_annual_dividend_per_share:input.forward_dividend_basis==='annualized'?amount(input.forward_annual_dividend_per_share):null,
       forward_dividend_basis:input.forward_dividend_basis==='annualized'?'annualized':null,
       analyst_target:analyst,ex_dividend_date:day(input.ex_dividend_date),dividend_payment_date:day(input.dividend_payment_date),dividend_payment_period:month(input.dividend_payment_period)};
+    const regional=key.endsWith('.JP');
+    if(regional){
+      for(const name of FIELD_KEYS)data[name]=null;
+      data.price_updated_at=data.price_trade_date=data.dividend_fetched_at=data.dividend_payment_period=null;
+    }
     const sources=sourceList(raw.sources,now);
     if(!sources.length&&fieldSource.url)sources.push(...sourceList([fieldSource],now));
     const statuses=raw.field_status&&typeof raw.field_status==='object'?raw.field_status:{},field_status={};
@@ -83,8 +123,15 @@
       const rejected=key==='analyst_target'?supplied!==null&&supplied!==undefined&&(typeof supplied!=='object'||!analyst||['mean','low','high'].some(part=>supplied[part]!==null&&supplied[part]!==undefined&&!positive(supplied[part]))):supplied!==null&&supplied!==undefined;
       if(rejected)field_status[key]='invalid';
     });
+    if(regional)FIELD_KEYS.forEach(field=>{field_status[field]='unsupported';});
     return {symbol:key,name:text(raw.name,160)||key,status:raw.status,refreshing:raw.refreshing===true,
-      updated_at:timestamp(raw.updated_at,now),data,editorial,identity,field_status,sources,source:{fields}};
+      updated_at:timestamp(raw.updated_at,now),data,editorial,identity,business_overview,field_status,sources,source:{fields},
+      market_data:regional?marketData({kind:'unsupported'},data,now):marketData(raw.market_data,data,now),
+      quote_status:['ready','pending','stale','unavailable','error'].includes(raw.quote_status)?raw.quote_status:null,
+      quote_error:['fetch_error','invalid','unconfirmed'].includes(raw.quote_error)?raw.quote_error:null,
+      quote_refreshing:raw.quote_refreshing===true,
+      quote_refresh_enabled:raw.quote_refresh_enabled===true,
+      retry_after_seconds:finite(raw.retry_after_seconds)&&raw.retry_after_seconds>=0?Math.min(raw.retry_after_seconds,3600):null};
   }
   function knownField(record,key){
     const data=record&&record.data||{};
@@ -99,7 +146,7 @@
     const supplied=record&&record.field_status&&record.field_status[key];
     // A completed source's known omission is independent of other fields still
     // loading, or of a later request failing before it provides new evidence.
-    if(['source_missing','invalid'].includes(supplied))return FIELD_REASONS[supplied];
+    if(['source_missing','invalid','unsupported'].includes(supplied))return FIELD_REASONS[supplied];
     if(state&&['not_found','invalid_request'].includes(state.reason))return FIELD_REASONS.unconfirmed;
     if(state&&state.reason==='invalid')return FIELD_REASONS.invalid;
     if(state&&['retrying','fetch_error','timeout'].includes(state.reason))return FIELD_REASONS.fetch_error;
@@ -123,14 +170,18 @@
     if(!before)return record;
     const fresh=hasFacts(record)&&(record.updated_at||0)>=(before.updated_at||0);
     const keepPrice=before.data.price!==null&&(record.data.price===null||newerPrice(before,record));
-    if(fresh&&!keepPrice)return record;
+    const capAt=record.source.fields.market_cap.fetched_at||0,beforeCapAt=before.source.fields.market_cap.fetched_at||0;
+    const keepCap=before.data.market_cap!==null&&(record.data.market_cap===null||beforeCapAt>capAt);
+    if(fresh&&!keepPrice&&!keepCap)return record;
     const base=fresh?record:before;
-    const kept={...base,name:record.name,editorial:record.editorial||before.editorial,identity:record.identity||before.identity,field_status:{...before.field_status,...record.field_status},status:record.status,refreshing:record.refreshing,data:{...base.data},source:{fields:{...base.source.fields}}};
+    const kept={...base,name:record.name,editorial:record.editorial||before.editorial,identity:record.identity||before.identity,business_overview:record.business_overview||before.business_overview,field_status:{...before.field_status,...record.field_status},status:record.status,refreshing:record.refreshing,retry_after_seconds:record.retry_after_seconds,quote_status:record.quote_status,quote_error:record.quote_error,quote_refreshing:record.quote_refreshing,quote_refresh_enabled:record.quote_refresh_enabled,data:{...base.data},source:{fields:{...base.source.fields}}};
     if(keepPrice){
-      for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=before.data[key];kept.source.fields.price=before.source.fields.price;
+      for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=before.data[key];kept.source.fields.price=before.source.fields.price;kept.market_data=before.market_data;
     }else if(record.data.price!==null&&newerPrice(record,before)){
-      for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=record.data[key];kept.source.fields.price=record.source.fields.price;
+      for(const key of ['price','price_updated_at','price_trade_date'])kept.data[key]=record.data[key];kept.source.fields.price=record.source.fields.price;kept.market_data=record.market_data;
     }
+    if(keepCap){kept.data.market_cap=before.data.market_cap;kept.source.fields.market_cap=before.source.fields.market_cap;}
+    else if(record.data.market_cap!==null&&capAt>=beforeCapAt){kept.data.market_cap=record.data.market_cap;kept.source.fields.market_cap=record.source.fields.market_cap;}
     if(record.data.annual_dividend!==null&&(record.data.dividend_fetched_at||0)>(before.data.dividend_fetched_at||0)){
       kept.data.annual_dividend=record.data.annual_dividend;kept.data.annual_dividend_basis=record.data.annual_dividend_basis;kept.data.dividend_fetched_at=record.data.dividend_fetched_at;
     }
@@ -161,7 +212,8 @@
       const active=new env.AbortController();controller=active;
       try{
         const timeout=new Promise((resolve,reject)=>{cancelWait=reject;requestTimer=set(()=>{active.abort();reject(new Error('timeout'));},Math.min(REQUEST_TIMEOUT,remaining));});
-        const response=Promise.resolve().then(()=>env.fetch('/api/company-profile?symbol='+encodeURIComponent(key),{signal:active.signal,cache:'no-store'})).then(async result=>{
+        const purpose=env.purpose==='preview'?'preview':'detail';
+        const response=Promise.resolve().then(()=>env.fetch('/api/company-profile?symbol='+encodeURIComponent(key)+'&purpose='+purpose,{signal:active.signal,cache:'no-store'})).then(async result=>{
           if(!result.ok){const retryable=[408,425,429].includes(result.status)||result.status>=500,error=new Error(result.status===404?'not_found':retryable?'fetch_error':'invalid_request');error.retryable=retryable;throw error;}
           try{return await result.json();}catch(error){throw new Error('invalid');}
         });
@@ -170,8 +222,8 @@
         const record=normalize(payload,key,now());if(!record)throw new Error('invalid');
         const before=saved(key),data=retainNewer(record,before),fromCache=data!==record;save(data);
         const pending=record.status==='pending'||record.refreshing;
-        if(record.status==='unavailable'&&!pending){busy=false;emit({symbol:key,status:'error',data,fromCache,updating:false,reason:'unavailable'});return;}
-        emit({symbol:key,status:pending?'pending':fromCache?'stale':record.status,data,fromCache,updating:pending,reason:null});
+        if(['unavailable','error'].includes(record.status)&&!pending){busy=false;emit({symbol:key,status:'error',data,fromCache,updating:false,quoteRefreshEnabled:record.quote_refresh_enabled,reason:record.status==='error'?'fetch_error':'unavailable'});return;}
+        emit({symbol:key,status:pending?'pending':fromCache?'stale':record.status,data,fromCache,updating:pending,quoteRefreshEnabled:record.quote_refresh_enabled,reason:null});
         if(pending){pollTimer=set(()=>{pollTimer=null;request(key,token,deadline);},Math.min(POLL_MS,Math.max(0,deadline-now())));}else busy=false;
       }catch(error){
         if(token!==version)return;
@@ -213,6 +265,7 @@
     [['business','どんな会社？'],['life','暮らしとのつながり'],['watch','これから見るところ']].forEach(([key,title])=>{
       const section=el('section','cp-story'),body=el('p','cp-story-copy');append(section,el('h3','cp-heading',title),body);stories.appendChild(section);refs[key]={section,body};
     });
+    refs.businessSource=el('p','cp-source-time');refs.business.section.appendChild(refs.businessSource);
     const numbers=el('details','cp-numbers'),summary=el('summary','cp-numbers-toggle');
     const mark=el('i','cp-disclosure');mark.setAttribute('aria-hidden','true');append(summary,el('span','','数字・配当'),mark);numbers.appendChild(summary);
     const facts=el('div','cp-facts');numbers.appendChild(facts);
@@ -222,6 +275,7 @@
       if(help)dt.appendChild(el('small','cp-definition',help));append(dd,value,unknown,time);append(row,dt,dd);group.list.appendChild(row);refs[key]={value,unknown,time};
     }
     const market=group('株価と会社の大きさ');metric(market,'price','株価');metric(market,'cap','時価総額','会社の株を全部合わせた値段');
+    refs.price.note=el('p','cp-fact-note');refs.price.value.parentElement.appendChild(refs.price.note);
     const dividends=group('配当');metric(dividends,'annual','過去1年の実績配当','1株あたり');metric(dividends,'forward','予想配当（今後1年の目安）','1株あたり。会社が出す年度ごとの予想とは異なります。');
     metric(dividends,'exDate','次回の権利落ち日','権利落ち日です。配当の支払日とは異なります。');metric(dividends,'paymentDate','配当の支払日');
     const targets=group('専門家の予想');metric(targets,'target','アナリストの目標株価（平均）','専門家の予想・保証ではありません。');
@@ -230,11 +284,11 @@
     append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.identityDate,refs.reviewed,refs.sources);
     append(content,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
-    let sourcesSignature='';
+    let sourcesSignature='',businessSourceSignature='';
     function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
       if(!opened||state.symbol!==currentSymbol)return;
-      const record=state.data,data=record&&record.data||{},currency=data.currency||'JPY',editorial=record&&record.editorial,identity=record&&record.identity;
+      const record=state.data,data=record&&record.data||{},currency=data.currency||'JPY',editorial=record&&record.editorial,identity=record&&record.identity,overview=record&&record.business_overview;
       if(record&&record.name&&symbol(record.name)!==currentSymbol)refs.name.textContent=record.name;else refs.name.textContent=selectedName;
       const failed=['error','stale'].includes(state.status)&&!state.updating;
       refs.status.textContent=state.reason==='retrying'?'通信が一時的に遅れています。自動でもう一度確認しています…':state.status==='loading'?'株価や配当の情報を確認しています…':state.updating?(state.fromCache?'保存していた情報を表示し、最新の情報を確認しています…':'株価や配当の情報を確認しています…'):failed?(record&&hasFacts(record)?'一部の情報は保存済みです。取得日時をご確認ください。':identity?'会社の基本情報を表示しています。株価や配当の情報は今は確認できません。':'情報を確認できませんでした。'):state.status==='stale'?'保存済みの情報です。取得日時をご確認ください。':'';
@@ -242,12 +296,22 @@
       feedback.hidden=!refs.status.textContent&&!failed;
       refs.basic.hidden=!(identity&&(identity.market||identity.industry));
       ['market','industry'].forEach(key=>{refs[key].row.hidden=!(identity&&identity[key]);refs[key].value.textContent=identity&&identity[key]||'';});
-      refs.business.section.hidden=!editorial&&!refs.basic.hidden;
-      refs.business.body.textContent=editorial?editorial.business:record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
+      refs.business.section.hidden=!editorial&&!overview&&!refs.basic.hidden;
+      refs.business.body.textContent=editorial?editorial.business:overview&&overview.text?overview.text:overview&&overview.field_status==='loading'?'会社の事業内容を確認しています…':overview?'会社の事業内容はまだ確認できていません。':record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
+      refs.businessSource.hidden=!!editorial||!(overview&&overview.text);
+      const businessSignature=refs.businessSource.hidden?'':JSON.stringify([overview.fetched_at,overview.source_title,overview.source_url]);
+      if(businessSignature!==businessSourceSignature){
+        businessSourceSignature=businessSignature;refs.businessSource.replaceChildren();
+        if(!refs.businessSource.hidden){
+          if(overview.fetched_at)refs.businessSource.appendChild(el('span','',dates.label(overview.fetched_at/1000,'取得',true)+' '));
+          const link=el('a','cp-source-link',overview.source_title+' ↗');link.href=overview.source_url;link.target='_blank';link.rel='noopener noreferrer';refs.businessSource.appendChild(link);
+        }
+      }
       ['life','watch'].forEach(key=>{refs[key].section.hidden=!(editorial&&editorial[key]);refs[key].body.textContent=editorial&&editorial[key]||'';});
       function showMetric(key,value,when){setMetric(key,value,when,fieldReason(state,METRIC_KEYS[key]));}
       function fetched(field,fallback){const value=record&&record.source.fields[field]&&record.source.fields[field].fetched_at||fallback;return stamp(value)?dates.label(value/1000,'取得',true):'取得日時：未確認';}
       showMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?dates.label(data.price_updated_at/1000,'株価時点',true):data.price_trade_date?dates.label(data.price_trade_date,'終値'):'株価の時点：未確認')+' / '+fetched('price'):null);
+      refs.price.note.textContent=quoteNote(state,w.now?w.now():Date.now());refs.price.note.hidden=!refs.price.note.textContent;
       showMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
       showMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?dates.label(data.dividend_fetched_at/1000,'取得',true):'取得日時：未確認'):null);
       showMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
@@ -264,7 +328,7 @@
       refs.targetDate.textContent=analyst&&(analyst.mean!==null||analyst.low!==null||analyst.high!==null)?(analyst.as_of?dates.label(analyst.as_of,'予想'):'予想が出された日は提供元に記載がありません。'):'';refs.targetDate.hidden=!refs.targetDate.textContent;
       refs.reviewed.textContent=editorial?(editorial.reviewed_on?dates.label(editorial.reviewed_on,'会社の説明を確認'):'会社の説明の確認日：未確認'):'';refs.reviewed.hidden=!refs.reviewed.textContent;
       refs.identityDate.textContent=identity?dates.label(identity.date,'会社一覧の基準日'):'';refs.identityDate.hidden=!refs.identityDate.textContent;
-      const allSources=[...(editorial&&editorial.sources||[]),...(identity?[{title:identity.source_title,url:identity.source_url,fetched_at:null}]:[]),...(record&&record.sources||[])],signature=JSON.stringify(allSources);
+      const allSources=[...(editorial&&editorial.sources||[]),...(!editorial&&overview&&overview.text?[{title:overview.source_title,url:overview.source_url,fetched_at:overview.fetched_at}]:[]),...(identity?[{title:identity.source_title,url:identity.source_url,fetched_at:null}]:[]),...(record&&record.sources||[])],signature=JSON.stringify(allSources);
       if(signature!==sourcesSignature){
         sourcesSignature=signature;refs.sources.replaceChildren();
         const unique=new Set();allSources.forEach(source=>{if(unique.has(source.url))return;unique.add(source.url);const row=el('li'),link=el('a','cp-source-link',source.title+' ↗');link.href=source.url;link.target='_blank';link.rel='noopener noreferrer';if(stamp(source.fetched_at))row.appendChild(el('small','cp-source-time',dates.label(source.fetched_at/1000,'取得',true)));row.appendChild(link);refs.sources.appendChild(row);});
@@ -289,7 +353,7 @@
       delete overlay.dataset.closing;
       if(!opened)rememberBackground(trigger);
       if(currentSymbol!==key){numbers.open=false;content.scrollTop=0;sourcesSignature='';}
-      currentSymbol=key;selectedName=text(name,160)||key;opened=true;refs.code.textContent=key.replace(/\.T$/,'');refs.name.textContent=selectedName;overlay.hidden=false;sizeViewport();panel.focus({preventScroll:true});
+      currentSymbol=key;selectedName=text(name,160)||key;opened=true;refs.code.textContent=key.replace(/\.(?:T|JP)$/,'');refs.name.textContent=selectedName;overlay.hidden=false;sizeViewport();panel.focus({preventScroll:true});
       background.forEach(item=>item.node.setAttribute('aria-hidden','true'));
     }
     function finishClose(){
@@ -322,18 +386,29 @@
   }
   function start(w){
     if(w.KNCompanyProfile&&w.KNCompanyProfile.__ready)return w.KNCompanyProfile;
-    let view=null,current='',name='';
+    let view=null,current='',name='',refreshTimer=null;
     let storage=null;try{storage=w.localStorage;}catch(e){}
-    const env={fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage};
-    const loader=createLoader(env,state=>{if(view)view.render(state);});
-    function close(){loader.cancel();if(view)view.close();}
+    const env={fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),now:w.now,storage,purpose:'detail'};
+    function stopRefresh(){w.clearTimeout(refreshTimer);refreshTimer=null;}
+    const loader=createLoader(env,state=>{
+      if(view)view.render(state);
+      stopRefresh();
+      // Only a current API response can enable licensed quote refreshes.
+      // An old browser cache or a failed request cannot grant that capability.
+      if(!state.updating&&state.quoteRefreshEnabled===true&&view&&view.isOpen()&&!w.document.hidden&&current.endsWith('.T')&&!['not_found','invalid_request','invalid'].includes(state.reason)){
+        const delay=Math.max(QUOTE_REFRESH_MS,((state.data&&state.data.retry_after_seconds)||0)*1000);
+        refreshTimer=w.setTimeout(()=>{refreshTimer=null;if(view.isOpen()&&!w.document.hidden)loader.load(current);},delay);
+      }
+    });
+    function close(){stopRefresh();loader.cancel();if(view)view.close();}
     function open(value,label,trigger){
       const key=symbol(value);if(!key||!w.document.body)return false;
       if(!view){view=createDialog(w,()=>loader.load(current));view.setClose(close);}
-      current=key;name=text(label,160)||key;view.open(key,name,trigger);loader.load(key);const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
+      stopRefresh();current=key;name=text(label,160)||key;view.open(key,name,trigger);if(!w.document.hidden)loader.load(key);const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
     }
+    w.document.addEventListener('visibilitychange',()=>{if(!view||!view.isOpen())return;stopRefresh();if(w.document.hidden)loader.cancel();else loader.load(current);});
     w.document.addEventListener('click',event=>{const target=event.target&&event.target.closest&&event.target.closest('[data-company-profile]');if(!target||target.disabled||target.getAttribute('aria-disabled')==='true'||!symbol(target.dataset.companyProfile))return;event.preventDefault();event.stopPropagation();open(target.dataset.companyProfile,target.dataset.companyName,target);},true);
-    return {open,close,createFactsLoader:onState=>createLoader(env,onState),__ready:true};
+    return {open,close,createFactsLoader:onState=>createLoader({...env,purpose:'preview'},onState),__ready:true};
   }
-  return {symbol,safeUrl,day,month,timestamp,stamp,money,normalize,hasFacts,fieldReason,createLoader,createDialog,start,POLL_MS,POLL_LIMIT,REQUEST_TIMEOUT};
+  return {symbol,safeUrl,day,month,timestamp,stamp,money,normalize,hasFacts,fieldReason,quoteNote,createLoader,createDialog,start,POLL_MS,POLL_LIMIT,REQUEST_TIMEOUT,QUOTE_REFRESH_MS};
 });

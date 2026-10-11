@@ -514,5 +514,23 @@ class CacheTests(unittest.TestCase):
         self.assertEqual(result['status'],'ready');self.assertFalse(result['refreshing'])
         self.assertIsNot(old,cache._condition);old.release()
 
+    def test_company_retention_and_disk_load_exceed_old_512_limit(self):
+        from company_profile import MAX_PROFILE_RECORDS
+        self.assertGreaterEqual(MAX_PROFILE_RECORDS, 8192)
+        cache = self.cache()
+        for index in range(600):
+            cache._merge(record(str(1000 + index) + '.T', self.now))
+        cache._save()
+        restarted = self.cache()
+        self.assertEqual(len(restarted._records), 600)
+        self.assertEqual(restarted.get('1000.T', 'test')['data']['price'], 3000)
+
+    def test_oversized_new_snapshot_keeps_last_readable_file(self):
+        cache = self.cache(); cache._merge(record()); cache._save()
+        saved = self.path.read_text()
+        with patch('company_profile.MAX_PROFILE_CACHE_BYTES', 100):
+            cache._merge(record('9432.T')); cache._save()
+        self.assertEqual(self.path.read_text(), saved)
+
 
 if __name__=='__main__':unittest.main()

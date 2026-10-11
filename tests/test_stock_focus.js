@@ -59,6 +59,7 @@ test('favorite quotes preserve currency and absolute changes without inventing m
  const missing=stock.watchRow({price:100,currency:'JPY',change_value:null,pct:null},'7203.T',format);assert.match(missing,/sf-price/);assert.doesNotMatch(missing,/sf-change|0\.00%/);
  for(const price of [null,NaN,Infinity,0])assert.doesNotMatch(stock.watchRow({price},'7203.T',format),/sf-price/);
  assert.match(stock.watchRow({price:.0014,currency:'USD'},'LOW',format),/0\.0014<small>米ドル/);
+ const regional=stock.watchRow({name:'地方会社',price:999,currency:'JPY'},'1738.JP',format);assert.match(regional,/data-company-profile="1738\.JP"/);assert.match(regional,/取得元未対応/);assert.doesNotMatch(regional,/sf-price|999|data-watch-dividend/);
 });
 test('browser cache rejects expired/future payloads and expired per-row quotes without changing trade dates',()=>{
  const base={updated_at:now/1000,items:[item('7203.T')]};
@@ -263,6 +264,13 @@ test('favorite refresh retains existing rows and nodes, then commits every resul
  await h.respond(h.requests[2],{name:'Toyota',price:101,currency:'JPY'});assert.equal(box.writes,refreshWrites+1);assert.match(box.innerHTML,/101/);assert.equal(section.style.display,'none');
  const unchanged=box.writes;h.w.__knRefreshWatch();await flush();
  await h.respond(h.requests[4],{name:'Toyota',price:101,currency:'JPY'});await h.respond(h.requests[5],{name:'Apple',price:201,currency:'USD'});assert.equal(box.writes,unchanged);
+});
+test('regional favorites show their company link without a quote request or polling timer',async()=>{
+ const h=watchHarness(['1738.JP']);h.w.__knRefreshWatch();await flush();
+ assert.equal(h.requests.length,0);const box=h.document.getElementById('knWatchList');
+ assert.match(box.innerHTML,/data-company-profile="1738\.JP"/);assert.match(box.innerHTML,/取得元未対応/);
+ assert.equal([...h.timers.values()].filter(timer=>timer.ms===60000).length,0);
+ await h.advance(120000);assert.equal(h.requests.length,0);
 });
 test('favorite selection changes and empty state reject late results from previous selections',async()=>{
  const h=watchHarness(['OLD.T']);h.w.__knRefreshWatch();await flush();

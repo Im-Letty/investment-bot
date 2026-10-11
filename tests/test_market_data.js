@@ -119,6 +119,47 @@ test('custom lookup validates ticker syntax and does not commit automatically',a
   await app.reply(app.requests[0],{price:950,pct:1,name:'Costco'});const candidate=await lookup;
   assert.equal(candidate.label,'Costco');assert.deepEqual(app.model.selection(),before);
 });
+test('regional company identities cannot enter the price picker or request a provider quote',async()=>{
+  const app=harness(),before=app.model.selection();
+  for(const symbol of ['1738.JP','１７３８．ｊｐ','231A.JP']){
+    await assert.rejects(app.model.lookup(symbol),{message:'unsupported quote source'});
+    assert.equal(app.model.remember({symbol,label:'地域上場会社',pickerGroup:'stocks',currency:'JPY'}),null);
+    assert.equal(app.model.commit([symbol]),false);
+  }
+  await app.model.refresh(true);await app.model.refresh();
+  assert.equal(app.requests.length,0);assert.equal(app.timers.size,0);
+  assert.deepEqual(app.model.selection(),before);assert.equal(app.storage.has('morn_sel'),false);
+});
+test('old regional price selections and saved quotes are excluded without losing valid custom names',async()=>{
+  const oldQuotes={'1738.JP':{at:1789250000000,quote:{price:9999,pct:9,name:'Wrong Tokyo quote'}}};
+  const app=harness({morn_sel:'["1738.JP","日経225"]',kn_market_quotes_v2:JSON.stringify(oldQuotes)},
+    [{key:'1738.JP',label:'地域上場会社'},{key:'SHOP',label:'Shopify'}],
+    catalog.concat({id:'1738.JP',symbol:'1738.JP',label:'地域上場会社',category:'custom'}));
+  assert.deepEqual(app.model.selection(),['日経225']);assert.equal(app.model.find('1738.JP'),undefined);
+  assert.equal(app.model.find('SHOP').label,'Shopify');assert.equal(app.model.searchLocal('地域上場会社').length,0);
+  assert.ok(app.model.rows().every(row=>row.item.symbol!=='1738.JP'&&row.quote===undefined));
+  await app.model.refresh(true);app.advance(120000);await app.model.refresh();
+  assert.equal(app.requests.length,0);assert.equal(app.timers.size,0);
+});
+test('regional search results are excluded from price choices without a guessed Tokyo-code fallback',async()=>{
+  for(const query of ['1738','231A','1738.JP']){
+    const app=harness({},[],[]),request=app.model.search(query);
+    await app.reply(app.requests[0],{results:[{symbol:query.startsWith('231A')?'231A.JP':'1738.JP',name:'地域上場会社',type:'EQUITY',currency:'JPY'}]});
+    assert.deepEqual(await request,{items:[],unavailable:false});assert.equal(app.requests.length,1);
+    assert.match(app.requests[0].url,/^\/api\/lookup\?/);assert.equal(app.model.catalog().length,0);
+    assert.equal(app.storage.size,0);assert.equal(app.timers.size,0);
+  }
+});
+test('price search preserves supported Tokyo and overseas candidates alongside regional companies',async()=>{
+  const app=harness(),request=app.model.search('会社');
+  await app.reply(app.requests[0],{results:[
+    {symbol:'1738.JP',name:'地域上場会社',type:'EQUITY',currency:'JPY'},
+    {symbol:'285A.T',name:'キオクシアホールディングス',type:'EQUITY',currency:'JPY'},
+    {symbol:'COST',name:'Costco',type:'EQUITY',currency:'USD'}
+  ]});
+  assert.deepEqual((await request).items.map(item=>item.symbol),['285A.T','COST']);
+  assert.equal(app.requests.length,1);assert.equal(app.model.find('1738.JP'),undefined);
+});
 test('local market search normalizes kana, full-width codes and spaces without changing the catalog',async()=>{
   const app=harness(),before=app.model.catalog();
   for(const query of ['とよた','トヨタ','ﾄﾖﾀ','ト ヨ タ','７２０３．ｔ']){

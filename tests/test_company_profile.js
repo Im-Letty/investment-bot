@@ -5,7 +5,7 @@ const profile=require('../static/company-profile.js');
 const NOW=Date.parse('2026-09-24T06:00:00Z'),KEY='7203.T',PREFIX='kn_company_profile_v1:';
 const IDENTITY={market:'プライム（内国株式）',industry:'輸送用機器',source_url:'https://www.jpx.co.jp/markets/statistics-equities/misc/01.html',date:'2026-09-23',source_title:'日本取引所グループ（JPX）'};
 function fixture(changes={}){
-  return {symbol:KEY,name:'トヨタ自動車',status:'ready',refreshing:false,updated_at:NOW/1000,
+  return {symbol:KEY,name:'トヨタ自動車',status:'ready',refreshing:false,quote_refresh_enabled:true,updated_at:NOW/1000,
     data:{currency:'JPY',price:3210,price_updated_at:(NOW-60000)/1000,market_cap:42000000000000,annual_dividend:95,annual_dividend_basis:'trailing_12m',dividend_fetched_at:(NOW-3600000)/1000,forward_annual_dividend_per_share:100,forward_dividend_basis:'annualized',analyst_target:{mean:3600,low:2900,high:4100,analyst_count:12,currency:'JPY',as_of:null},ex_dividend_date:'2026-09-29',dividend_payment_date:'2026-11-26'},
     source:{name:'Yahoo Finance',url:'https://finance.yahoo.com/quote/7203.T/',fields:Object.fromEntries(['price','market_cap','forward_annual_dividend_per_share','analyst_target','ex_dividend_date','dividend_payment_date'].map((name,i)=>[name,{fetched_at:(NOW-i*3600000)/1000,as_of:null}]))},
     editorial:{business:'車を作り、世界中で販売する会社です。',life:'通勤や買い物で使う車を支えています。',watch:'車の売れ行きや材料の値段に注目です。',reviewed_on:'2026-09-24',sources:[{title:'会社の公式サイト',url:'https://global.toyota/jp/'}]},
@@ -22,9 +22,54 @@ function loaderHarness(saved=storage()){
 }
 test('Japanese company codes normalize; malformed symbols and mismatched company responses are rejected',()=>{
   assert.equal(profile.symbol('７２０３'),'7203.T');assert.equal(profile.symbol('285a.t'),'285A.T');
+  assert.equal(profile.symbol('８３０１.jp'),'8301.JP');
   for(const value of ['AAPL','7203.T/other','<script>','１２３',null])assert.equal(profile.symbol(value),'');
   assert.equal(profile.normalize(fixture({symbol:'9432.T'}),KEY,NOW),null);
   assert.equal(profile.normalize(fixture({status:'made-up'}),KEY,NOW),null);
+  assert.equal(profile.normalize(fixture({symbol:'7203.JP'}),KEY,NOW),null);
+});
+test('quote delay metadata belongs to its actual price and a cached quote never becomes realtime',()=>{
+  const raw=fixture({market_data:{kind:'delayed',delay_minutes:20,quote_as_of:(NOW-60000)/1000,quote_age_seconds:60,quote_is_recent:true}});
+  const record=profile.normalize(raw,KEY,NOW);
+  assert.equal(record.market_data.quote_as_of,NOW-60000);assert.equal(record.market_data.quote_age_seconds,60);
+  assert.equal(profile.quoteNote({data:record,status:'ready'},NOW),'20分遅延の株価');
+  assert.match(profile.quoteNote({data:record,status:'stale',fromCache:true,updating:true},NOW),/20分遅延.*保存済み.*確認中/);
+  assert.match(profile.quoteNote({data:record,status:'ready'},NOW+30*60000),/株価の時点/);
+  assert.match(profile.quoteNote({data:record,status:'error',reason:'fetch_error'},NOW),/通信エラー/);
+  raw.market_data.quote_as_of=NOW/1000;assert.equal(profile.normalize(raw,KEY,NOW).market_data,null,'Different quote timestamps cannot establish freshness');
+  raw.market_data={kind:'realtime',quote_as_of:(NOW-60000)/1000};assert.equal(profile.normalize(raw,KEY,NOW).market_data,null,'A source without verified realtime support cannot claim realtime');
+});
+test('quote-only failures describe retained prices without changing the independent financial state',async()=>{
+  const h=loaderHarness(),raw=fixture({market_data:{kind:'delayed',delay_minutes:20,quote_as_of:(NOW-60000)/1000,quote_is_recent:true},quote_status:'ready',quote_error:null,quote_refreshing:false});
+  await h.load();await h.reply(0,raw);await h.load();
+  const failure=fixture({data:{currency:'JPY'},updated_at:null,status:'ready',quote_status:'unavailable',quote_error:'fetch_error',quote_refreshing:false});await h.reply(1,failure);
+  const kept=h.states.at(-1);assert.equal(kept.data.data.price,3210);assert.equal(kept.data.data.price_updated_at,NOW-60000);assert.equal(kept.data.data.annual_dividend,95);
+  assert.equal(kept.data.status,'ready');assert.equal(kept.data.quote_error,'fetch_error');assert.match(profile.quoteNote(kept,NOW),/20分遅延.*保存済み.*株価取得で通信エラー/);
+  raw.quote_status='ready';raw.quote_refreshing=false;const financialPending=profile.normalize(raw,KEY,NOW);assert.equal(profile.quoteNote({data:financialPending,updating:true},NOW),'20分遅延の株価','A financial refresh is not a price refresh');
+  raw.quote_status='pending';raw.quote_refreshing=true;assert.match(profile.quoteNote({data:profile.normalize(raw,KEY,NOW)},NOW),/最新の株価を確認中/);
+  raw.quote_error='private upstream text';assert.equal(profile.normalize(raw,KEY,NOW).quote_error,null);
+});
+test('regional companies keep their identity and do not borrow a Tokyo quote or dividend',async()=>{
+  const key='8301.JP',raw=fixture({symbol:key,name:'地方の会社',identity:{...IDENTITY,market:'札証単独上場'},editorial:null,market_data:{kind:'delayed',delay_minutes:20,quote_as_of:(NOW-60000)/1000,quote_is_recent:true}});
+  const clean=profile.normalize(raw,key,NOW);assert.equal(clean.symbol,key);assert.equal(clean.identity.market,'札証単独上場');
+  for(const field of ['price','market_cap','annual_dividend','forward_annual_dividend_per_share','analyst_target','ex_dividend_date','dividend_payment_date'])assert.equal(clean.data[field],null,field);
+  assert.equal(profile.fieldReason({data:clean},'price'),'取得元未対応');assert.equal(clean.market_data.kind,'unsupported');
+  const h=loaderHarness();await h.load(key);assert.match(h.requests[0].url,/symbol=8301.JP&purpose=detail/);await h.reply(0,raw);assert.equal(h.states.at(-1).symbol,key);
+  await h.load(key);await h.reply(1,fixture({symbol:'8301.T'}));assert.equal(h.states.at(-1).reason,'invalid');
+});
+test('saving an older quote preserves that quote delay metadata and its original timestamps',async()=>{
+  const h=loaderHarness(),raw=fixture({market_data:{kind:'delayed',delay_minutes:20,quote_as_of:(NOW-60000)/1000,quote_is_recent:true}});
+  await h.load();await h.reply(0,raw);await h.load();
+  const older=fixture({updated_at:(NOW+30000)/1000,market_data:{kind:'delayed',delay_minutes:20,quote_as_of:(NOW-3600000)/1000,quote_is_recent:false}});older.data.price=1;older.data.price_updated_at=(NOW-3600000)/1000;
+  await h.reply(1,older);const kept=h.states.at(-1).data;assert.equal(kept.data.price,3210);assert.equal(kept.market_data.quote_as_of,NOW-60000);
+  const restored=loaderHarness(h.storage);await restored.load();assert.equal(restored.states[0].data.market_data.quote_as_of,NOW-60000);
+});
+test('search-time capitalization updates independently of the older financial profile and cannot roll back',async()=>{
+  const h=loaderHarness();await h.load();await h.reply(0,fixture());await h.load();
+  const newerCap=fixture({updated_at:(NOW-3600000)/1000});newerCap.data.market_cap=43000000000000;newerCap.source.fields.market_cap.fetched_at=NOW/1000;
+  await h.reply(1,newerCap);assert.equal(h.states.at(-1).data.data.market_cap,43000000000000);assert.equal(h.states.at(-1).data.source.fields.market_cap.fetched_at,NOW);
+  await h.load();const olderCap=fixture({updated_at:(NOW+30000)/1000});olderCap.data.market_cap=1;olderCap.source.fields.market_cap.fetched_at=(NOW-7200000)/1000;
+  await h.reply(2,olderCap);assert.equal(h.states.at(-1).data.data.market_cap,43000000000000);assert.equal(h.states.at(-1).data.source.fields.market_cap.fetched_at,NOW);
 });
 test('unknowns remain unknown, actual zero dividends survive, and forecast basis/currency are explicit',()=>{
   const raw=fixture();Object.assign(raw.data,{price:'3210',market_cap:true,annual_dividend:0,forward_dividend_basis:'company_forecast'});raw.data.analyst_target.currency='USD';
@@ -195,6 +240,31 @@ test('company basics remain usable when financial data or editorial is missing, 
   h.view.render(state(raw,{status:'error',updating:false}));assert.match(refs.status.textContent,/会社の基本情報を表示/);assert.equal(refs.retry.hidden,false);assert.equal(refs.basic.hidden,false);
   h.view.render({symbol:KEY,status:'error',data:null,updating:false});assert.equal(refs.name.textContent,'トヨタ自動車');assert.equal(refs.basic.hidden,true);assert.match(refs.business.body.textContent,/今は確認できません/);
 });
+test('structured company facts provide a sourced explanation while reviewed editorial remains preferred',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);
+  const overview={kind:'structured_company_facts',text:'日本の自動車メーカーです。',field_status:'available',source_url:'https://www.wikidata.org/wiki/Q53268',source_title:'Wikidata',fetched_at:NOW/1000,products:['自動車'],industry_labels:['自動車製造業']};
+  const raw=fixture({identity:IDENTITY,editorial:null,business_overview:overview});h.view.render(state(raw));const refs=h.view.elements;
+  assert.equal(refs.business.section.hidden,false);assert.equal(refs.business.body.textContent,overview.text);assert.equal(refs.businessSource.hidden,false);assert.equal(refs.businessSource.children.at(-1).href,overview.source_url);assert.match(refs.businessSource.textContent,/2026\/09\/24 15:00 取得.*Wikidata/);
+  const link=refs.businessSource.children.at(-1);link.focus();h.view.render(state(raw));assert.equal(refs.businessSource.children.at(-1),link);assert.equal(h.doc.activeElement,link,'A quote update must not remove the focused business-source link');
+  raw.editorial=fixture().editorial;h.view.render(state(raw));assert.equal(refs.business.body.textContent,raw.editorial.business);assert.equal(refs.businessSource.hidden,true);
+  raw.editorial=null;raw.business_overview={kind:'structured_company_facts',field_status:'identity_unconfirmed'};h.view.render(state(raw));assert.equal(refs.business.section.hidden,false);assert.match(refs.business.body.textContent,/まだ確認できていません/);assert.equal(refs.businessSource.hidden,true);assert.equal(refs.industry.value.textContent,'輸送用機器');
+  raw.business_overview={...overview,text:'<img onerror=alert(1)>',source_url:'javascript:alert(1)'};h.view.render(state(raw));assert.doesNotMatch(refs.business.body.textContent,/onerror/);assert.equal(refs.businessSource.hidden,true);
+});
+test('company price rows show delay, retained prices and unsupported regional sources without changing list dates',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);
+  const raw=fixture({market_data:{kind:'delayed',delay_minutes:20,quote_as_of:(NOW-60000)/1000,quote_is_recent:true}});h.view.render(state(raw));const refs=h.view.elements;
+  assert.equal(refs.price.note.textContent,'20分遅延の株価');assert.equal(refs.price.time.textContent,'2026/09/24 14:59 株価時点 / 2026/09/24 15:00 取得');
+  refs.numbers.open=true;refs.content.scrollTop=240;h.view.render(state(raw,{status:'stale',fromCache:true,updating:true}));assert.match(refs.price.note.textContent,/保存済み.*確認中/);assert.equal(refs.numbers.open,true);assert.equal(refs.content.scrollTop,240);
+  const regional=fixture({symbol:'8301.JP',identity:{...IDENTITY,market:'福証単独上場'},name:'地域企業',editorial:null});h.view.open('8301.JP','地域企業',h.trigger);h.view.render({symbol:'8301.JP',status:'ready',data:profile.normalize(regional,'8301.JP',NOW),updating:false});
+  assert.equal(refs.code.textContent,'8301');assert.equal(refs.price.value.textContent,'—');assert.equal(refs.price.unknown.textContent,'取得元未対応');assert.match(refs.price.note.textContent,/この取引所/);assert.equal(refs.market.value.textContent,'福証単独上場');
+});
+test('regional financial unavailability leaves its verified identity and sourced business readable',()=>{
+  const h=dialogHarness(),key='1738.JP';h.view.open(key,'地域企業',h.trigger);
+  const raw=fixture({symbol:key,name:'地域企業',status:'unavailable',refreshing:false,data:{currency:'JPY'},editorial:null,identity:{...IDENTITY,market:'名証メイン市場'},business_overview:{kind:'structured_company_facts',text:'住宅設備を扱う会社です。',field_status:'available',source_url:'https://www.wikidata.org/wiki/Q999',source_title:'Wikidata',fetched_at:NOW/1000}});
+  h.view.render({symbol:key,status:'error',reason:'unavailable',data:profile.normalize(raw,key,NOW),updating:false});const refs=h.view.elements;
+  assert.equal(refs.basic.hidden,false);assert.equal(refs.market.value.textContent,'名証メイン市場');assert.equal(refs.business.section.hidden,false);assert.equal(refs.business.body.textContent,raw.business_overview.text);assert.equal(refs.businessSource.hidden,false);
+  assert.equal(refs.price.unknown.textContent,'取得元未対応');assert.equal(refs.price.value.textContent,'—');assert.equal(refs.annual.value.textContent,'—');
+});
 test('scanner closing-price dates are explicit; precise quote times take precedence when present',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price_updated_at=null;raw.data.price_trade_date='2026-09-23';h.view.render(state(raw));const refs=h.view.elements;
   assert.match(refs.price.time.textContent,/2026\/09\/23 終値/);assert.doesNotMatch(refs.price.time.textContent,/株価の時点：未確認/);
@@ -263,4 +333,37 @@ test('delegated company button does not toggle its article, closes cancel reques
   const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);h.trigger.dataset.companyProfile=KEY;h.trigger.dataset.companyName='トヨタ';let prevented=false,stopped=false;
   for(const fn of h.events.click)fn({target:h.trigger,preventDefault(){prevented=true;},stopPropagation(){stopped=true;}});await flush();assert.equal(prevented,true);assert.equal(stopped,true);assert.equal(requests.length,1);const overlay=h.doc.body.children.at(-1);assert.equal(overlay.hidden,false);
   api.close();assert.equal(requests[0].options.signal.aborted,true);assert.equal(overlay.hidden,true);requests[0].resolve({ok:true,json:async()=>fixture()});await flush();assert.equal(overlay.hidden,true);assert.equal(h.home.inert,false);
+});
+test('only the selected visible Tokyo company requests minute quotes; previews and regional identities do not',async()=>{
+  const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
+  const reply=async(index,raw=fixture())=>{requests[index].resolve({ok:true,json:async()=>raw});await flush();};
+  api.open(KEY,'トヨタ',h.trigger);await flush();assert.match(requests[0].url,/purpose=detail/);await reply(0);
+  await h.time.advance(59999);assert.equal(requests.length,1);await h.time.advance(1);assert.equal(requests.length,2);await reply(1);
+  h.doc.hidden=true;for(const fn of h.events.visibilitychange)fn();await h.time.advance(120000);assert.equal(requests.length,2);
+  h.doc.hidden=false;for(const fn of h.events.visibilitychange)fn();await flush();assert.equal(requests.length,3);await reply(2);
+  const preview=api.createFactsLoader(()=>{});preview.load('9432.T');await flush();assert.match(requests[3].url,/symbol=9432.T&purpose=preview/);await reply(3,fixture({symbol:'9432.T'}));
+  api.close();await h.time.advance(120000);assert.equal(requests.length,4,'Closing cancels the selected quote refresh and a completed preview never starts a minute timer');
+  api.open('8301.JP','地域企業',h.trigger);await flush();assert.match(requests[4].url,/symbol=8301.JP&purpose=detail/);await reply(4,fixture({symbol:'8301.JP',status:'ready',data:{currency:'JPY'}}));await h.time.advance(120000);assert.equal(requests.length,5);
+  api.close();
+});
+test('backgrounding a company cancels its pending request and ignores the late reply until visible again',async()=>{
+  const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
+  api.open(KEY,'トヨタ',h.trigger);await flush();h.doc.hidden=true;for(const fn of h.events.visibilitychange)fn();assert.equal(requests[0].options.signal.aborted,true);
+  requests[0].resolve({ok:true,json:async()=>fixture()});await flush();await h.time.advance(120000);assert.equal(requests.length,1);
+  h.doc.hidden=false;for(const fn of h.events.visibilitychange)fn();await flush();assert.equal(requests.length,2);api.close();assert.equal(requests[1].options.signal.aborted,true);
+});
+test('selected quote refresh respects provider backoff and does not repeat unknown-company failures',async()=>{
+  const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
+  api.open(KEY,'トヨタ',h.trigger);await flush();requests[0].resolve({ok:true,json:async()=>fixture({retry_after_seconds:180})});await flush();
+  await h.time.advance(179999);assert.equal(requests.length,1);await h.time.advance(1);assert.equal(requests.length,2);
+  requests[1].resolve({ok:false,status:404,json:async()=>({error:'company_not_found'})});await flush();await h.time.advance(180000);assert.equal(requests.length,2);api.close();
+});
+test('minute quotes stay disabled unless a current API response explicitly enables them, regardless of old caches',async()=>{
+  for(const enabled of [false,undefined,'true']){
+    const h=dialogHarness(),requests=[];h.w.localStorage.setItem(PREFIX+KEY,JSON.stringify(fixture({quote_refresh_enabled:true})));h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
+    api.open(KEY,'トヨタ',h.trigger);await flush();const raw=fixture({quote_refresh_enabled:enabled,updated_at:null});requests[0].resolve({ok:true,json:async()=>raw});await flush();
+    await h.time.advance(180000);assert.equal(requests.length,1);assert.equal(profile.normalize(raw,KEY,NOW).quote_refresh_enabled,false);api.close();
+  }
+  const h=dialogHarness(),requests=[];h.w.localStorage.setItem(PREFIX+KEY,JSON.stringify(fixture({quote_refresh_enabled:true})));h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
+  api.open(KEY,'トヨタ',h.trigger);await flush();requests[0].resolve({ok:false,status:404});await flush();await h.time.advance(180000);assert.equal(requests.length,1,'A saved capability cannot arm a minute timer after a failed API request');api.close();
 });

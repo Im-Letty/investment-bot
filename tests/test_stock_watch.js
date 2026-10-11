@@ -22,6 +22,11 @@ test('unknown input cannot create a favorite; concurrent saves retain both selec
  await Promise.all([store.add(toyota),store.add({symbol:'AAPL',name:'Apple',verified:true}),store.add(toyota)]);
  assert.deepEqual(store.list(),['7203.T','AAPL']);
 });
+test('verified regional identities persist as regional favorites without being converted to Tokyo codes',async()=>{
+ const store=watch.createStore(storage()),regional={symbol:'8301.JP',name:'地域企業',verified:true,provider_symbol:null};
+ assert.equal((await store.add(regional)).status,'added');assert.deepEqual(store.list(),['8301.JP']);assert.equal(store.name('8301.JP'),'地域企業');
+ assert.equal((await store.add({...regional,symbol:'８３０１.jp'})).status,'duplicate');assert.equal((await store.add({...regional,symbol:'8301.T',name:'東証企業'})).status,'added');assert.deepEqual(store.list(),['8301.JP','8301.T']);
+});
 test('saved list is read only after decryption; quota failures do not claim success or discard existing data',async()=>{
  const saved=storage();let resolve;const ready=new Promise(r=>resolve=r);const store=watch.createStore(saved,null,ready);
  const adding=store.add(toyota);await flush();assert.deepEqual(store.list(),[]);
@@ -215,4 +220,11 @@ test('unavailable preview facts remain unconfirmed without blocking favorites or
  h.factsRequests[0].resolve({ok:false,status:404});await flush();
  const row=h.nodes.get('stock-search-results').children[0].children[0];assert.equal(row.children[2].children[0].textContent,'過去1年の配当（1株） 未確認');assert.equal(row.children[2].children[1].textContent,'支払予定 未確認');assert.equal(row.children[1].disabled,false);
  await row.children[1].listeners.click();await flush();assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)),['7203.T']);
+});
+test('regional searches open the regional company details and never enter Yahoo dividend previews',async()=>{
+ const regional={symbol:'8301.JP',name:'地域企業',verified:true,provider_symbol:null},h=uiHarness({withDividends:true,lookupItems:[regional,toyota]});
+ await h.w.openStockWatchManager({mode:'search'});h.nodes.get('alert-ticker-input').value='地域';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ const rows=h.nodes.get('stock-search-results').children[0].children,company=rows[0].children[0];assert.equal(company.children[1].textContent,'8301');assert.match(company.attrs['aria-label'],/会社情報を見る/);assert.match(rows[0].children[2].textContent,/取得元は未対応/);
+ assert.equal(h.factsRequests.length,1);assert.match(h.factsRequests[0].url,/symbol=7203.T/);assert.ok(h.factsRequests.every(request=>!request.url.includes('8301')));
+ let opened;h.w.KNCompanyProfile.open=key=>{opened=key;};company.listeners.click();assert.equal(opened,'8301.JP');assert.equal(h.manager.style.display,'none');
 });

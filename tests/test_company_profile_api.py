@@ -221,5 +221,116 @@ class ProfileRoutes(unittest.TestCase):
         self.assertIsNone(payment_schedule('9432.T', date(2026, 9, 23)))
 
 
+class SelectedCompanyRoutes(unittest.TestCase):
+    def setUp(self):
+        self.now = datetime.now(timezone(timedelta(hours=9))).timestamp()
+        self.company = dict(code='7203', symbol='7203.T', provider_symbol='7203.T',
+                            name='トヨタ自動車', exchange='Tokyo', industry='輸送用機器',
+                            source_title='日本取引所グループ（JPX）')
+        self.catalogue, self.profiles, self.dividends, self.quotes, self.businesses = [Mock() for _ in range(5)]
+        self.catalogue.company.side_effect = lambda code: deepcopy(self.company) if code == self.company['code'] else None
+        self.profile = dict(status='unavailable', refreshing=False, data={'currency': 'JPY'}, source=None)
+        self.profiles.get.side_effect = lambda *_: deepcopy(self.profile)
+        self.dividends.lookup.return_value = dict(status='unavailable', refreshing=False)
+        self.current = dict(symbol='7203.T', status='ready', refreshing=False, updated_at=self.now-1,
+            data=dict(currency='JPY', price=3000, price_updated_at=self.now-1200, market_cap=40000),
+            source=dict(name='Yahoo Finance', fields={
+                'price': dict(fetched_at=self.now-1, as_of=self.now-1200),
+                'market_cap': dict(fetched_at=self.now-1, as_of=None)}))
+        self.quotes.get.side_effect = lambda *_: deepcopy(self.current)
+        self.businesses.get.return_value = dict(kind='structured_company_facts', field_status='available',
+            text='愛知県豊田市にある自動車メーカー', source_url='https://www.wikidata.org/wiki/Q53268',
+            source_title='Wikidata', fetched_at=self.now-1)
+
+    def request(self, query='symbol=7203', *, editorial=None, scanner=None):
+        app = Flask(__name__)
+        register_company_profiles(app, self.profiles, self.catalogue, self.dividends,
+            editorial or {}, quotes=scanner, quote_service=self.quotes, businesses=self.businesses)
+        return app.test_client().get('/api/company-profile?' + query)
+
+    def test_selected_quote_fills_failed_financial_profile_with_real_delayed_time(self):
+        body = self.request().get_json()
+        self.assertTrue(body['quote_refresh_enabled'])
+        self.assertEqual(body['data']['price'], 3000)
+        self.assertEqual(body['data']['price_updated_at'], self.now-1200)
+        self.assertEqual(body['market_data']['kind'], 'delayed')
+        self.assertEqual(body['market_data']['delay_minutes'], 20)
+        self.assertEqual(body['status'], 'ready')
+        self.assertEqual(body['field_status']['price'], 'available')
+        self.assertIsNone(body['source']['fields']['market_cap']['as_of'])
+        self.assertEqual(body['business_overview']['text'], self.businesses.get.return_value['text'])
+
+    def test_preview_does_not_start_selected_quote_or_company_fact_requests(self):
+        self.request('symbol=7203&purpose=preview')
+        self.quotes.get.assert_not_called()
+        self.businesses.get.assert_not_called()
+
+    def test_older_quote_cannot_erase_newer_profile_price_or_its_time(self):
+        self.profile.update(status='ready', data=dict(currency='JPY', price=3100, price_updated_at=self.now-60))
+        body = self.request().get_json()
+        self.assertEqual(body['data']['price'], 3100)
+        self.assertEqual(body['market_data']['quote_as_of'], self.now-60)
+
+    def test_previous_day_quote_cannot_replace_later_date_only_close(self):
+        day = datetime.now(timezone(timedelta(hours=9))).date()
+        self.current['data']['price_updated_at'] = self.now-3*86400
+        scanner = Mock(return_value={'items': [dict(symbol='7203.T', currency='JPY', price=3200,
+                                                   trade_date=(day-timedelta(days=1)).isoformat(), fetched_at=self.now-10)]})
+        body = self.request(scanner=scanner).get_json()
+        self.assertEqual(body['data']['price'], 3200)
+        self.assertEqual(body['market_data']['kind'], 'end_of_day')
+        self.assertIsNone(body['market_data']['quote_as_of'])
+
+    def test_cooldown_is_exposed_using_the_ui_contract_without_zero_values(self):
+        self.current.update(refreshing=False, retry_after_seconds=600, data={}, source={},
+                            field_status={'price': 'fetch_error', 'market_cap': 'fetch_error'})
+        body = self.request().get_json()
+        self.assertEqual(body['retry_after_seconds'], 600)
+        self.assertNotIn('price', body['data'])
+        self.assertEqual(body['field_status']['price'], 'fetch_error')
+
+    def test_wrong_symbol_currency_future_time_and_malformed_data_are_not_prices(self):
+        valid = deepcopy(self.current)
+        for change in (dict(symbol='6758.T'), dict(data={'price': 3, 'currency': 'USD', 'price_updated_at': self.now-1}),
+                       dict(data={'price': 3, 'currency': 'JPY', 'price_updated_at': self.now+3600}), dict(data=['unexpected'])):
+            self.current = dict(valid, **change)
+            with self.subTest(change=change):
+                self.assertNotIn('price', self.request().get_json()['data'])
+
+    def test_cap_requires_its_own_observed_time_and_cannot_overwrite_newer_cap(self):
+        self.profile.update(status='ready', data=dict(currency='JPY', market_cap=50000),
+                            source={'fields': {'market_cap': {'fetched_at': self.now-0.5, 'as_of': None}}})
+        body = self.request().get_json()
+        self.assertEqual(body['data']['market_cap'], 50000)
+        self.profile['data'] = {}
+        self.current['source']['fields']['market_cap']['fetched_at'] = self.now+3600
+        self.assertNotIn('market_cap', self.request().get_json()['data'])
+
+    def test_regional_identity_and_business_do_not_fetch_a_guessed_tokyo_company(self):
+        self.company.update(code='1738', symbol='1738.JP', provider_symbol=None, name='ＮＩＴＴＯＨ', exchange='Nagoya',
+                            source_title='名古屋証券取引所')
+        body = self.request('symbol=1738.JP').get_json()
+        self.assertFalse(body['quote_refresh_enabled'])
+        self.assertEqual(body['status'], 'ready')
+        self.assertEqual(body['symbol'], '1738.JP')
+        self.assertEqual(body['identity']['source_title'], '名古屋証券取引所')
+        self.assertEqual(body['market_data']['kind'], 'unsupported')
+        self.assertEqual(body['data'], {'currency': 'JPY'})
+        self.profiles.get.assert_not_called(); self.dividends.lookup.assert_not_called(); self.quotes.get.assert_not_called()
+        self.businesses.get.assert_called_once()
+        self.assertEqual(self.request('symbol=1738.T').status_code, 400)
+
+    def test_reviewed_editorial_stays_first_and_does_not_request_community_facts(self):
+        body = self.request(editorial={'7203.T': {'business': '確認済みの会社紹介'}}).get_json()
+        self.assertEqual(body['editorial']['business'], '確認済みの会社紹介')
+        self.businesses.get.assert_not_called()
+
+    def test_new_quote_refresh_is_explicitly_disabled_without_a_configured_service(self):
+        app = Flask(__name__)
+        register_company_profiles(app, self.profiles, self.catalogue, self.dividends, {})
+        body = app.test_client().get('/api/company-profile?symbol=7203').get_json()
+        self.assertFalse(body['quote_refresh_enabled'])
+
+
 if __name__ == '__main__':
     unittest.main()
