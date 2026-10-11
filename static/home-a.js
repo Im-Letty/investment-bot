@@ -238,6 +238,13 @@
     makePicker();
     var drawer=document.getElementById('sideDrawer');if(drawer&&!drawer.classList.contains('kn-menu-a')&&!document.getElementById('knHomeADrawerBrand')){var brand=document.createElement('div');brand.id='knHomeADrawerBrand';brand.innerHTML='<span class="kn-a-nmark" aria-hidden="true">N</span><span>経済NEWS</span><button type="button" aria-label="'+esc(text('close'))+'">×</button>';brand.querySelector('button').onclick=function(){if(window.closeDrawer)window.closeDrawer();};drawer.insertBefore(brand,drawer.firstChild);}
     document.getElementById('knHomeAMenu').onclick=function(){var b=document.getElementById('hamburgerBtn');if(b)b.click();};
+    // Preserve the morning header's gutter while that panel is hidden by the simulator.
+    function syncMenuGutter(){
+      if(section.offsetWidth>0)document.body.style.setProperty('--kn-a-header-scrollbar',Math.max(0,section.offsetWidth-section.clientWidth)+'px');
+    }
+    syncMenuGutter();
+    if(window.ResizeObserver)new ResizeObserver(syncMenuGutter).observe(section);
+    else window.addEventListener('resize',syncMenuGutter);
     document.getElementById('knHomeAAccount').onclick=function(){var b=document.querySelector('#knBottomNav [data-act="mypage"]');if(b)b.click();};
     document.getElementById('knMarketOpen').onclick=openPicker;
     document.getElementById('knMarketRetry').onclick=function(){return refreshMarkets(true);};
