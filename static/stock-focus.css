@@ -330,7 +330,7 @@ body.kn-home-a #knTabWrap #knSubRow[hidden] {display:none!important}
   padding:22px;
   background:var(--sf-paper);
   border:1px solid var(--sf-line);
-  border-radius:0;
+  border-radius:6px;
 }
 /* Override legacy inline text sizes so nested company links scale only once. */
 #knCompanyNewsSection .sf-company-name {
