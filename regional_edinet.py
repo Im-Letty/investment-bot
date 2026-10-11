@@ -1,9 +1,8 @@
 """Candidate EDINET supplement for *filed fiscal-period* dividend facts.
 
-This module is not enabled by the application. It does not discover filings,
-fetch quotes, calculate capitalization, copy descriptions or create credentials.
-A caller must supply an official code list and an already known annual filing
-descriptor. Without an owner-provided API key, even a Session is not created.
+This optional module reads official filing metadata and filed fiscal dividends.
+It never fetches quotes, calculates capitalization, copies descriptions or creates
+credentials. Without an owner-provided API key, even a Session is not created.
 
 References: EDINET API v2 specification, sections 3-1, 3-2 and 4-1;
 2026 taxonomy element list ESE140114.xlsx; instance guideline ESE140112.pdf.
@@ -14,6 +13,9 @@ from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
 from io import BytesIO, StringIO
 import csv
+import fcntl
+import json
+from pathlib import Path
 import math
 import os
 import re
@@ -40,6 +42,9 @@ MAX_XML_BYTES = 8_000_000
 MAX_UNCOMPRESSED_BYTES = 24_000_000
 MAX_ZIP_ENTRIES = 256
 MAX_XML_NODES = 100_000
+MAX_LIST_BYTES = 4_000_000
+MAX_LIST_ROWS = 20_000
+SEED_PATH = Path(__file__).with_name('regional_edinet_identities.json')
 
 
 def _name(value):
@@ -136,33 +141,218 @@ def match_identity(company, identities):
     return row
 
 
+def _stamp(value):
+    if not isinstance(value, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}', value):
+        return None
+    try:
+        return datetime.strptime(value, '%Y-%m-%d %H:%M').replace(tzinfo=JST)
+    except ValueError:
+        return None
+
+
+def load_identity_seed(path=SEED_PATH, *, observed_at=None):
+    """Public dated identity facts only; no credentials or communication."""
+    now = time.time() if observed_at is None else observed_at
+    try:
+        today = datetime.fromtimestamp(now, JST).date()
+        raw = Path(path).read_bytes()
+        if len(raw) > 200_000:
+            return ()
+        data = json.loads(raw)
+        if data.get('source_url') != CODE_LIST_URL or data.get('version') != 1:
+            return ()
+        records = data.get('identities')
+        if not isinstance(records, list) or not 0 < len(records) <= 1000:
+            return ()
+        output, seen = [], set()
+        for item in records:
+            if not isinstance(item, dict) or set(item) != set(EdinetIdentity.__dataclass_fields__):
+                return ()
+            row = EdinetIdentity(**item)
+            if (not re.fullmatch(r'[0-9][A-Z0-9]{3}', row.code)
+                    or row.security_code != row.code + '0'
+                    or not re.fullmatch(r'E[0-9]{5}', row.edinet_code)
+                    or not _name(row.name) or not _date(row.as_of)
+                    or _date(row.as_of) > today or row.code in seen
+                    or row.corporate_number and not re.fullmatch(r'[0-9]{13}', row.corporate_number)):
+                return ()
+            output.append(row)
+            seen.add(row.code)
+        return tuple(output)
+    except (OSError, ValueError, TypeError, OverflowError):
+        return ()
+
+
+def _issuer_valid(row, identity):
+    return bool(identity and isinstance(row, dict)
+                and row.get('edinetCode') == identity.edinet_code
+                and row.get('secCode') == identity.security_code
+                and _name(row.get('filerName')) == _name(identity.name)
+                and (not row.get('JCN') or row['JCN'] == identity.corporate_number))
+
+
+def _active(row):
+    # 1 denotes an edit / disclosure event; 2 denotes unavailable metadata.
+    return (row.get('withdrawalStatus') == '0'
+            and row.get('docInfoEditStatus') in ('0', '1')
+            and row.get('disclosureStatus') in ('0', '1')
+            and row.get('legalStatus') in ('1', '2')
+            and row.get('xbrlFlag') == '1')
+
+
 def _descriptor_valid(descriptor, identity, observed):
-    today = observed.date()
     if not isinstance(descriptor, dict) or identity is None:
         return False
-    if (not re.fullmatch(r'S[A-Z0-9]{7}', str(descriptor.get('docID', '')))
-            or descriptor.get('edinetCode') != identity.edinet_code
-            or descriptor.get('secCode') != identity.security_code
-            or _name(descriptor.get('filerName')) != _name(identity.name)
-            or descriptor.get('docTypeCode') != '120'
-            or any(descriptor.get(field) != '0' for field in
-                   ('withdrawalStatus', 'docInfoEditStatus', 'disclosureStatus'))
-            or descriptor.get('xbrlFlag') != '1'):
+    row = descriptor
+    if row.get('docTypeCode') == '130':
+        base, chain = row.get('_annual_base'), row.get('_correction_chain')
+        if (not isinstance(chain, list) or not 0 < len(chain) <= 16
+                or not isinstance(base, dict) or base.get('docTypeCode') != '120'
+                or not _descriptor_valid(base, identity, observed)):
+            return False
+        parent, last_stamp = base['docID'], _stamp(base['submitDateTime'])
+        seen = {parent}
+        for correction in chain:
+            stamp = _stamp(correction.get('submitDateTime')) if isinstance(correction, dict) else None
+            if (not _issuer_valid(correction, identity) or not _active(correction)
+                    or correction.get('docTypeCode') != '130'
+                    or not re.fullmatch(r'S[A-Z0-9]{7}', str(correction.get('docID', '')))
+                    or correction.get('docID') in seen or correction.get('parentDocID') != parent
+                    or not stamp or not last_stamp <= stamp <= observed
+                    or any(correction.get(key) not in (None, '', base[key])
+                           for key in ('periodStart', 'periodEnd'))):
+                return False
+            parent, last_stamp = correction['docID'], stamp
+            seen.add(parent)
+        if row.get('docID') != parent or row.get('submitDateTime') != chain[-1]['submitDateTime']:
+            return False
+        if any(row.get(key) != base[key] for key in ('periodStart', 'periodEnd')):
+            return False
+    elif row.get('docTypeCode') != '120':
         return False
-    if descriptor.get('JCN') and descriptor['JCN'] != identity.corporate_number:
+    if (not re.fullmatch(r'S[A-Z0-9]{7}', str(row.get('docID', '')))
+            or not _issuer_valid(row, identity) or not _active(row)):
         return False
-    start, end = (_date(descriptor.get(field)) for field in ('periodStart', 'periodEnd'))
-    submitted = descriptor.get('submitDateTime')
-    if not isinstance(submitted, str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}', submitted):
-        return False
-    try:
-        submitted_date = datetime.strptime(submitted, '%Y-%m-%d %H:%M').date()
-    except ValueError:
-        return False
-    return bool(start and end and start <= end <= submitted_date <= today
-                and datetime.strptime(submitted, '%Y-%m-%d %H:%M').replace(tzinfo=JST) <= observed
-                and _date(identity.as_of) and _date(identity.as_of) <= today
+    start, end = (_date(row.get(field)) for field in ('periodStart', 'periodEnd'))
+    submitted = _stamp(row.get('submitDateTime'))
+    return bool(start and end and submitted and start <= end <= submitted.date()
+                and submitted <= observed and _date(identity.as_of)
+                and _date(identity.as_of) <= observed.date()
                 and 0 <= (end - start).days <= 550)
+
+
+_DESCRIPTOR_FIELDS = ('docID', 'edinetCode', 'secCode', 'filerName', 'JCN', 'docTypeCode',
+                      'periodStart', 'periodEnd', 'submitDateTime', 'opeDateTime', 'parentDocID',
+                      'withdrawalStatus', 'docInfoEditStatus', 'disclosureStatus', 'legalStatus', 'xbrlFlag')
+
+
+def parse_daily_filings(payload, requested_date, observed_at):
+    """Validate the official list envelope; store only annual identities / flags."""
+    observed = datetime.fromtimestamp(observed_at, JST)
+    requested = _date(requested_date)
+    if requested is None or requested > observed.date() or not isinstance(payload, dict):
+        raise ValueError('invalid_list')
+    metadata, rows = payload.get('metadata'), payload.get('results')
+    if not isinstance(metadata, dict) or not isinstance(rows, list) or len(rows) > MAX_LIST_ROWS:
+        raise ValueError('invalid_list')
+    parameter, resultset = metadata.get('parameter'), metadata.get('resultset')
+    process = _stamp(metadata.get('processDateTime'))
+    if (str(metadata.get('status')) != '200' or not isinstance(parameter, dict)
+            or parameter.get('date') != requested_date or str(parameter.get('type')) != '2'
+            or not isinstance(resultset, dict) or type(resultset.get('count')) is not int
+            or resultset['count'] != len(rows) or not process or process > observed):
+        raise ValueError('invalid_list')
+    selected = {}
+    for raw in rows:
+        if not isinstance(raw, dict) or not re.fullmatch(r'S[A-Z0-9]{7}', str(raw.get('docID', ''))):
+            raise ValueError('invalid_list')
+        unavailable = (raw.get('withdrawalStatus') in ('1', '2') or raw.get('legalStatus') == '0'
+                       or raw.get('docInfoEditStatus') == '2' or raw.get('disclosureStatus') == '2')
+        if raw.get('docTypeCode') not in ('120', '130') and not unavailable:
+            continue
+        row = {key: raw.get(key) for key in _DESCRIPTOR_FIELDS}
+        if any(value is not None and (not isinstance(value, str) or len(value) > 250)
+               for value in row.values()):
+            raise ValueError('invalid_list')
+        operation = _stamp(row.get('opeDateTime'))
+        submitted = _stamp(row.get('submitDateTime'))
+        if (row.get('opeDateTime') and (not operation or operation > observed)
+                or row.get('submitDateTime') and (not submitted or submitted > observed)):
+            raise ValueError('invalid_list')
+        if row.get('parentDocID') and not re.fullmatch(r'S[A-Z0-9]{7}', row['parentDocID']):
+            raise ValueError('invalid_list')
+        previous = selected.get(row['docID'])
+        if previous and previous != row:
+            old_time = _stamp(previous.get('opeDateTime'))
+            if not old_time or not operation or operation == old_time:
+                raise ValueError('ambiguous_list')
+            if operation < old_time:
+                continue
+        selected[row['docID']] = row
+    return dict(date=requested_date, process_at=metadata['processDateTime'], fetched_at=observed_at,
+                rows=list(selected.values()))
+
+
+def select_annual_filing(snapshots, identity, observed_at):
+    """Latest known fiscal year, with explicit correction links; never guarantee completeness."""
+    observed = datetime.fromtimestamp(observed_at, JST)
+    versions, removed = {}, set()
+    for snapshot in snapshots:
+        process = _stamp(snapshot.get('process_at'))
+        if not process or process > observed:
+            continue
+        for row in snapshot.get('rows', ()):
+            previous = versions.get(row['docID'])
+            rank = (process, _stamp(row.get('opeDateTime')) or datetime.min.replace(tzinfo=JST))
+            if previous and previous[0] == rank and previous[1] != row:
+                return dict(status='filing_invalidated', invalidated=True)
+            if not previous or rank > previous[0]:
+                versions[row['docID']] = (rank, row)
+        removed.update(snapshot.get('removed_doc_ids', ()))
+    rows = {key: item[1] for key, item in versions.items()}
+    for row in rows.values():
+        if row.get('withdrawalStatus') == '1' and row.get('parentDocID'):
+            removed.add(row['parentDocID'])
+    issuer = [row for row in rows.values() if _issuer_valid(row, identity)]
+    bases = [row for row in issuer if row.get('docTypeCode') == '120' and _date(row.get('periodEnd'))]
+    if not bases:
+        if any(row.get('docTypeCode') == '130' for row in issuer):
+            return dict(status='correction_unconfirmed', invalidated=True)
+        return dict(status='source_missing', invalidated=False)
+    period = max(row['periodEnd'] for row in bases)
+    bases = [row for row in bases if row['periodEnd'] == period]
+    valid = [row for row in bases if row['docID'] not in removed and _descriptor_valid(row, identity, observed)]
+    if len(bases) != 1 or len(valid) != 1:
+        return dict(status='filing_invalidated', invalidated=True)
+    base, chain = valid[0], []
+    # A new annual year is chosen before corrections of any older year.
+    corrections = [row for row in issuer if row.get('docTypeCode') == '130'
+                   and (row.get('periodEnd') in (None, '', period) or row.get('parentDocID') == base['docID'])]
+    if any(not row.get('parentDocID') for row in corrections):
+        return dict(status='correction_unconfirmed', invalidated=True)
+    parent, seen = base['docID'], {base['docID']}
+    while True:
+        children = [row for row in corrections if row.get('parentDocID') == parent]
+        if not children:
+            break
+        if len(children) != 1 or len(chain) >= 16:
+            return dict(status='correction_unconfirmed', invalidated=True)
+        child = children[0]
+        if child['docID'] in seen or child['docID'] in removed or not _active(child):
+            return dict(status='filing_invalidated', invalidated=True)
+        chain.append(child)
+        seen.add(child['docID'])
+        parent = child['docID']
+    # An unrelated parent with a same/unknown fiscal period cannot establish correctness.
+    if any(row['docID'] not in seen and row.get('parentDocID') not in rows for row in corrections):
+        return dict(status='correction_unconfirmed', invalidated=True)
+    selected = {**(chain[-1] if chain else base), 'periodStart': base['periodStart'], 'periodEnd': base['periodEnd']}
+    if chain:
+        selected.update(_annual_base=base, _correction_chain=chain)
+    if not _descriptor_valid(selected, identity, observed):
+        return dict(status='correction_unconfirmed' if chain else 'filing_invalidated', invalidated=True)
+    return dict(status='selected', invalidated=False, descriptor=selected,
+                base_doc_id=base['docID'], correction_count=len(chain))
 
 
 def _family(uri, family):
@@ -307,7 +497,9 @@ def parse_annual_dividend(payload, identity, descriptor, observed_at):
                 security_code=identity.security_code,
                 source_url='https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/' + descriptor['docID'] + '.pdf',
                 source_title='EDINET 有価証券報告書', kind='filed_fiscal_period_dividend',
-                split_adjustment='as_reported', latest_filing_guaranteed=False)
+                split_adjustment='as_reported', latest_filing_guaranteed=False,
+                doc_type_code=descriptor['docTypeCode'],
+                base_doc_id=descriptor.get('_annual_base', descriptor)['docID'])
 
 
 def parse_annual_zip(payload, identity, descriptor, observed_at):
@@ -352,15 +544,20 @@ def _retry_after(value, now):
 
 
 class EdinetAnnualDividends:
-    """Explicit candidate call only; single bounded request, no retries or scans."""
+    """One bounded request at a time; metadata and XBRL share a 60-second gate."""
     def __init__(self, api_key=None, *, identities=(), session_factory=requests.Session,
-                 clock=time.time, monotonic=time.monotonic):
+                 clock=time.time, monotonic=time.monotonic, cooldown_path=None):
         self._api_key = api_key if isinstance(api_key, str) and 0 < len(api_key) <= 1024 else None
         self.identities = tuple(identities)
         self.session_factory, self.clock, self.monotonic = session_factory, clock, monotonic
+        self.cooldown_path = Path(cooldown_path) if cooldown_path else None
         self._reset_process()
         if hasattr(os, 'register_at_fork'):
             os.register_at_fork(after_in_child=self._reset_process)
+
+    @property
+    def configured(self):
+        return bool(self._api_key)
 
     def _reset_process(self):
         self._pid, self._lock, self._next_request = os.getpid(), threading.Lock(), 0
@@ -373,6 +570,147 @@ class EdinetAnnualDividends:
                           field_status=dict(historical_dividend_per_share='available'))
         return result
 
+    def _shared_next(self):
+        if not self.cooldown_path or not self.cooldown_path.exists():
+            return 0
+        raw = self.cooldown_path.read_bytes()
+        if len(raw) > 256:
+            raise ValueError('invalid_gate')
+        stamp = json.loads(raw).get('next_request')
+        if not isinstance(stamp, (int, float)) or not math.isfinite(stamp) or stamp < 0:
+            raise ValueError('invalid_gate')
+        return stamp
+
+    def _reserve(self, stamp):
+        self._next_request = max(self._next_request, stamp)
+        if self.cooldown_path:
+            temporary = self.cooldown_path.with_name(self.cooldown_path.name + '.' + str(os.getpid()) + '.tmp')
+            try:
+                temporary.write_text(json.dumps({'next_request': self._next_request}))
+                os.replace(temporary, self.cooldown_path)
+            finally:
+                temporary.unlink(missing_ok=True)
+
+    def next_request_at(self):
+        try:
+            return max(self._next_request, self._shared_next())
+        except (OSError, ValueError, TypeError):
+            return self.clock() + 60
+
+    def restore_cooldown(self, stamp):
+        if not self.configured or type(stamp) not in (int, float) or not math.isfinite(stamp) or stamp < 0:
+            return False
+        with self._lock:
+            guard = None
+            try:
+                if self.cooldown_path:
+                    self.cooldown_path.parent.mkdir(parents=True, exist_ok=True)
+                    guard = open(str(self.cooldown_path) + '.lock', 'a')
+                    fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                self._reserve(max(stamp, self._shared_next()))
+                return True
+            except (OSError, ValueError, TypeError):
+                return False
+            finally:
+                if guard:
+                    guard.close()
+
+    def retry_after_seconds(self):
+        try:
+            return max(0, math.ceil(max(self._next_request, self._shared_next()) - self.clock()))
+        except (OSError, ValueError, TypeError):
+            return 60
+
+    def _request(self, document_id=None, requested_date=None):
+        if not self._api_key:
+            return dict(status='not_configured')
+        if self._pid != os.getpid():
+            self._reset_process()
+        if not self._lock.acquire(blocking=False):
+            return dict(status='provider_waiting')
+        guard = None
+        try:
+            now = self.clock()
+            if self.cooldown_path:
+                self.cooldown_path.parent.mkdir(parents=True, exist_ok=True)
+                guard = open(str(self.cooldown_path) + '.lock', 'a')
+                try:
+                    fcntl.flock(guard, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                except BlockingIOError:
+                    return dict(status='provider_waiting')
+            if now < max(self._next_request, self._shared_next()):
+                return dict(status='provider_waiting')
+            self._reserve(now + 60)
+            params = {'Subscription-Key': self._api_key, 'type': 2 if requested_date else 1}
+            if requested_date:
+                params['date'] = requested_date
+            url = API_BASE.rstrip('/') + '.json' if requested_date else API_BASE + document_id
+            deadline = self.monotonic() + 8
+            with self.session_factory() as session:
+                with session.get(url, params=params, timeout=(3, 5), stream=True,
+                                 allow_redirects=False) as response:
+                    if response.status_code == 429:
+                        self._reserve(now + _retry_after(response.headers.get('Retry-After'), now))
+                        return dict(status='rate_limited')
+                    if response.status_code != 200:
+                        if response.headers.get('Retry-After'):
+                            self._reserve(now + _retry_after(response.headers['Retry-After'], now))
+                        return dict(status='fetch_error')
+                    content_type = response.headers.get('Content-Type', '').split(';')[0].strip().lower()
+                    expected = ('application/json',) if requested_date else ('application/octet-stream', 'application/zip', 'application/json')
+                    if content_type not in expected:
+                        return dict(status='invalid_source')
+                    cap = MAX_LIST_BYTES if requested_date else (64_000 if content_type == 'application/json' else MAX_ZIP_BYTES)
+                    blocks, size = [], 0
+                    while True:
+                        if self.monotonic() >= deadline:
+                            return dict(status='fetch_error')
+                        block = response.raw.read1(64_000, decode_content=True)
+                        if not block:
+                            break
+                        size += len(block)
+                        if size > cap:
+                            return dict(status='invalid_source')
+                        blocks.append(block)
+                    payload = b''.join(blocks)
+                    if content_type == 'application/json':
+                        parsed = json.loads(payload)
+                        metadata = parsed.get('metadata') if isinstance(parsed, dict) else None
+                        status = metadata.get('status') if isinstance(metadata, dict) else parsed.get('StatusCode') if isinstance(parsed, dict) else None
+                        if str(status) == '429':
+                            self._reserve(now + _retry_after(response.headers.get('Retry-After'), now))
+                            return dict(status='rate_limited')
+                        if not requested_date or str(status) != '200':
+                            if response.headers.get('Retry-After'):
+                                self._reserve(now + _retry_after(response.headers['Retry-After'], now))
+                            return dict(status='fetch_error')
+                        return dict(status='downloaded', payload=parsed)
+            return dict(status='downloaded', payload=payload)
+        except (requests.RequestException, UpstreamReadError, OSError, TimeoutError,
+                ValueError, TypeError, AttributeError):
+            # Query credentials can appear in exceptions. Expose only fixed states.
+            return dict(status='fetch_error')
+        finally:
+            if guard:
+                guard.close()
+            self._lock.release()
+
+    def fetch_day(self, requested_date):
+        if not self._api_key:
+            return dict(status='not_configured')
+        today = datetime.fromtimestamp(self.clock(), JST).date()
+        day = _date(requested_date)
+        if day is None or not today - timedelta(days=399) <= day <= today:
+            return dict(status='invalid_source')
+        result = self._request(requested_date=requested_date)
+        if result['status'] != 'downloaded':
+            return dict(status=result['status'])
+        try:
+            snapshot = parse_daily_filings(result['payload'], requested_date, self.clock())
+            return dict(status='indexed', snapshot=snapshot)
+        except (ValueError, TypeError, OverflowError, OSError):
+            return dict(status='invalid_source')
+
     def fetch(self, company, descriptor):
         if not self._api_key:
             return self._result('not_configured')
@@ -380,62 +718,15 @@ class EdinetAnnualDividends:
         if identity is None:
             return self._result('identity_unconfirmed')
         try:
-            observed = self.clock()
-            valid_descriptor = _descriptor_valid(descriptor, identity, datetime.fromtimestamp(observed, JST))
+            valid = _descriptor_valid(descriptor, identity, datetime.fromtimestamp(self.clock(), JST))
         except (ValueError, TypeError, OverflowError, OSError):
-            valid_descriptor = False
-        if not valid_descriptor:
+            valid = False
+        if not valid:
             return self._result('filing_unconfirmed')
-        if self._pid != os.getpid():
-            self._reset_process()
-        if not self._lock.acquire(blocking=False):
-            return self._result('provider_waiting')
-        try:
-            if observed < self._next_request:
-                return self._result('provider_waiting')
-            self._next_request = observed + 60
-            deadline = self.monotonic() + 8
-            with self.session_factory() as session:
-                with session.get(API_BASE + descriptor['docID'],
-                                 params={'type': 1, 'Subscription-Key': self._api_key},
-                                 timeout=(3, 5), stream=True, allow_redirects=False) as response:
-                    if response.status_code == 429:
-                        self._next_request = observed + _retry_after(response.headers.get('Retry-After'), observed)
-                        return self._result('rate_limited')
-                    if response.status_code != 200:
-                        return self._result('fetch_error')
-                    content_type = response.headers.get('Content-Type', '').split(';')[0].strip().lower()
-                    if content_type not in ('application/octet-stream', 'application/zip', 'application/json'):
-                        return self._result('invalid_source')
-                    cap = 64_000 if content_type == 'application/json' else MAX_ZIP_BYTES
-                    blocks, size = [], 0
-                    while True:
-                        if self.monotonic() >= deadline:
-                            return self._result('fetch_error')
-                        block = response.raw.read1(64_000, decode_content=True)
-                        if not block:
-                            break
-                        size += len(block)
-                        if size > cap:
-                            return self._result('invalid_source')
-                        blocks.append(block)
-                    payload = b''.join(blocks)
-                    if content_type == 'application/json':
-                        # EDINET can return HTTP 200 containing an error object.
-                        import json
-                        error = json.loads(payload)
-                        metadata = error.get('metadata') if isinstance(error, dict) else None
-                        status = error.get('StatusCode') if isinstance(error, dict) else None
-                        status = metadata.get('status') if isinstance(metadata, dict) else status
-                        if str(status) == '429':
-                            self._next_request = observed + _retry_after(response.headers.get('Retry-After'), observed)
-                            return self._result('rate_limited')
-                        return self._result('fetch_error')
-            fact = parse_annual_zip(payload, identity, descriptor, self.clock())
-            return self._result('available', fact) if fact else self._result('source_missing')
-        except (requests.RequestException, UpstreamReadError, OSError, TimeoutError,
-                ValueError, TypeError, AttributeError):
-            # Exception URLs may contain the query credential; never expose them.
-            return self._result('fetch_error')
-        finally:
-            self._lock.release()
+        result = self._request(document_id=descriptor['docID'])
+        if result['status'] != 'downloaded':
+            return self._result(result['status'])
+        fact = parse_annual_zip(result['payload'], identity, descriptor, self.clock())
+        if not fact:
+            return self._result('correction_unconfirmed' if descriptor['docTypeCode'] == '130' else 'source_missing')
+        return self._result('available', fact)

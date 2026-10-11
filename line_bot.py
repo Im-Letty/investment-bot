@@ -2872,6 +2872,8 @@ from company_profile import CompanyProfiles
 from company_profile_api import register_company_profiles
 from company_quotes import CompanyQuotes
 from company_business import CompanyBusinesses
+from regional_edinet_service import RegionalEdinetDividends
+from regional_edinet_storage import EdinetCheckpointStore
 _company_profiles = CompanyProfiles(
     cache_path=os.environ.get("COMPANY_PROFILE_PATH", "/tmp/kn-company-profiles.json"),
     seed_path=os.path.join(os.path.dirname(__file__), "company-profile-snapshot.json"))
@@ -2885,9 +2887,27 @@ _company_businesses = CompanyBusinesses(
     cache_path=os.environ.get("COMPANY_BUSINESS_PATH", "/tmp/kn-company-businesses.json"),
     seed_path=os.path.join(os.path.dirname(__file__), "static", "company-business-seed.json"),
     interactive=True)  # Only selected-company detail requests use this service.
+# Owner-supplied credentials are read only by the server. No requests or worker
+# start at import; the selected regional-company detail triggers bounded work.
+def _edinet_checkpoint_store():
+    try:
+        # Reuse the existing server access to its existing private JSON bucket.
+        # This adapter cannot create buckets, alter policies or store API keys.
+        return EdinetCheckpointStore(CompanyNewsStorage(SUPABASE_URL, SUPABASE_KEY,
+                                                        timeout=(3, 5)))
+    except Exception:
+        return None
+
+
+_regional_annual_dividends = (RegionalEdinetDividends(
+    cache_path=os.environ.get("EDINET_DIVIDEND_PATH", "/tmp/kn-edinet-dividends.json"),
+    api_key=os.environ.get("EDINET_API_KEY"), checkpoint_store=_edinet_checkpoint_store())
+    if (os.environ.get("EDINET_DIVIDENDS_ENABLED", "0") == "1"
+        and bool(os.environ.get("EDINET_API_KEY"))) else None)
 register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot,
                           quotes=lambda: _scanner_snapshot.payload(refresh=False),
-                          quote_service=_company_quotes, businesses=_company_businesses)
+                          quote_service=_company_quotes, businesses=_company_businesses,
+                          annual_dividends=_regional_annual_dividends)
 
 from dividend_calendar import DividendCalendar, register_dividend_calendar
 from jpx_calendar_source import fetch_jpx_events

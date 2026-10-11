@@ -20,7 +20,7 @@ COMPANY = dict(code='6147', symbol='6147.JP', name='ヤマザキ', provider_symb
 DESCRIPTOR = dict(docID='S100TEST', edinetCode='E01507', secCode='61470',
                   filerName='株式会社ヤマザキ', docTypeCode='120', periodStart='2025-04-01',
                   periodEnd='2026-03-31', submitDateTime='2026-06-26 09:00',
-                  withdrawalStatus='0', docInfoEditStatus='0', disclosureStatus='0', xbrlFlag='1')
+                  withdrawalStatus='0', docInfoEditStatus='0', disclosureStatus='0', legalStatus='1', xbrlFlag='1')
 
 
 def xbrl(value='20.00', *, extra_facts='', scenario=True):
@@ -128,7 +128,7 @@ class FactTests(unittest.TestCase):
             self.assertIsNone(self.parse(xbrl().replace(original, changed)))
         for key, value in [('docID', '../S100TEST'), ('secCode', '6147'), ('edinetCode', 'E99999'),
                            ('filerName', '別会社'), ('docTypeCode', '130'), ('withdrawalStatus', '1'),
-                           ('docInfoEditStatus', '1'), ('disclosureStatus', '1'), ('xbrlFlag', '0'),
+                           ('docInfoEditStatus', '2'), ('disclosureStatus', '2'), ('legalStatus', '0'), ('xbrlFlag', '0'),
                            ('periodEnd', '2027-03-31'), ('submitDateTime', '2027-06-26 09:00'),
                            ('submitDateTime', '2026-10-11 23:59'),
                            ('JCN', '1234567890123')]:

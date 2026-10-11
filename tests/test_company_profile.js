@@ -20,6 +20,58 @@ function loaderHarness(saved=storage()){
   const loader=profile.createLoader(env,state=>states.push(state));
   return {time,requests,states,loader,storage:saved,async reply(index,payload,status=200){requests[index].resolve({ok:status===200,status,json:async()=>payload});await flush();},async load(key=KEY){loader.load(key);await flush();}};
 }
+const HISTORICAL='historical_dividend_per_share',REGIONAL_KEY='9085.JP';
+function filedFixture(changes={}){
+  const end='2026-09-24',from=new Date(Date.parse(end)-399*86400000).toISOString().slice(0,10);
+  const fact={value:50.5,currency:'JPY',unit:'JPY/share',security_code:'90850',edinet_code:'E00123',doc_id:'S100ABCD',fiscal_period:{start:'2025-04-01',end:'2026-03-31'},filing_submitted_at:'2026-06-30 09:00',submitted_at:Date.parse('2026-06-30T00:00:00Z')/1000,fetched_at:(NOW-1000)/1000,source_url:'https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/S100ABCD.pdf',source_title:'EDINET 有価証券報告書',kind:'filed_fiscal_period_dividend',split_adjustment:'as_reported',latest_filing_guaranteed:false};
+  return fixture({symbol:REGIONAL_KEY,name:'表示テスト企業',data:{currency:'JPY',[HISTORICAL]:50.5},identity:{...IDENTITY,exchange:'Sapporo',market:'札幌市場',industry:'陸運業'},editorial:null,updated_at:null,source:{fields:{}},sources:[],quote_refresh_enabled:false,historical_dividend_status:'available',historical_dividend_refreshing:false,historical_dividend_invalidated:false,historical_dividend_coverage:{window_days:400,indexed_days:399,missing_days:1,from,to:end,complete:false,snapshot_guaranteed:false},dividend_fact:fact,...changes});
+}
+test('filed fiscal-year dividends remain independent of unsupported Tokyo-derived numbers and accept true zero',()=>{
+  const raw=filedFixture();Object.assign(raw.data,{price:99,market_cap:300,annual_dividend:10,annual_dividend_basis:'trailing_12m',forward_annual_dividend_per_share:20,forward_dividend_basis:'annualized'});
+  const clean=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(clean.data[HISTORICAL],50.5);assert.equal(clean.dividend_fact.fetched_at,NOW-1000);assert.equal(clean.data.price,null);assert.equal(clean.data.annual_dividend,null);assert.equal(clean.data.forward_annual_dividend_per_share,null);assert.equal(clean.data.market_cap,null);assert.equal(clean.dividend_fact.latest_filing_guaranteed,false);
+  raw.data[HISTORICAL]=raw.dividend_fact.value=0;const zero=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(zero.data[HISTORICAL],0);assert.equal(profile.fieldReason({data:zero},HISTORICAL),'');
+  const tokyo=profile.normalize({...raw,symbol:KEY},KEY,NOW);assert.equal(tokyo.data[HISTORICAL],null);assert.equal(tokyo.dividend_fact,null);
+});
+test('invalid annual facts never become links or values and cannot survive in a cache',()=>{
+  const good=filedFixture();
+  for(const change of [{value:true},{security_code:'72030'},{currency:'USD'},{fiscal_period:{start:'2026-04-01',end:'2025-03-31'}},{filing_submitted_at:'2026-02-30 09:00'},{fetched_at:(NOW+1000)/1000},{source_url:good.dividend_fact.source_url+'?Subscription-Key=secret'},{source_url:good.dividend_fact.source_url.replace('S100ABCD','S100ABCE')},{source_url:'https://api.edinet-fsa.go.jp/api/v2/documents/S100ABCD?type=1'}]){
+    const raw=structuredClone(good);Object.assign(raw.dividend_fact,change);raw.sources=[{title:'EDINET',url:raw.dividend_fact.source_url}];raw.source.url=raw.dividend_fact.source_url;
+    const clean=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(clean.dividend_fact,null);assert.equal(clean.data[HISTORICAL],null);assert.equal(clean.historical_dividend_invalidated,true);assert.deepEqual(clean.sources,[]);
+  }
+  const raw=filedFixture();raw.data[HISTORICAL]=50;assert.equal(profile.normalize(raw,REGIONAL_KEY,NOW).dividend_fact,null);
+});
+test('the latest filed year and corrected submission win independently of financial profile freshness',async()=>{
+  const h=loaderHarness();await h.load(REGIONAL_KEY);await h.reply(0,filedFixture());
+  const older=filedFixture();older.dividend_fact.fiscal_period={start:'2024-04-01',end:'2025-03-31'};older.dividend_fact.filing_submitted_at='2025-06-30 09:00';older.dividend_fact.submitted_at=Date.parse('2025-06-30T00:00:00Z')/1000;older.dividend_fact.fetched_at=NOW/1000;older.dividend_fact.value=older.data[HISTORICAL]=1;
+  await h.load(REGIONAL_KEY);await h.reply(1,older);assert.equal(h.states.at(-1).data.data[HISTORICAL],50.5);assert.equal(h.states.at(-1).data.dividend_fact.fiscal_period.end,'2026-03-31');
+  const correction=filedFixture();correction.dividend_fact.filing_submitted_at='2026-07-01 09:00';correction.dividend_fact.submitted_at=Date.parse('2026-07-01T00:00:00Z')/1000;correction.dividend_fact.value=correction.data[HISTORICAL]=55;
+  await h.load(REGIONAL_KEY);await h.reply(2,correction);assert.equal(h.states.at(-1).data.data[HISTORICAL],55);
+  const reloaded=loaderHarness(h.storage);await reloaded.load(REGIONAL_KEY);assert.equal(reloaded.states[0].data.data[HISTORICAL],55);assert.equal(reloaded.states[0].data.dividend_fact.filing_submitted_at,'2026-07-01 09:00');
+});
+test('transient annual fetch failures retain the saved fiscal year and its original dates',async()=>{
+  const h=loaderHarness();await h.load(REGIONAL_KEY);await h.reply(0,filedFixture());
+  await h.load(REGIONAL_KEY);await h.reply(1,filedFixture({data:{currency:'JPY'},dividend_fact:null,historical_dividend_status:'fetch_error',historical_dividend_error:'fetch_error'}));
+  const kept=h.states.at(-1).data;assert.equal(kept.data[HISTORICAL],50.5);assert.equal(kept.dividend_fact.fetched_at,NOW-1000);assert.equal(kept.historical_dividend_error,'fetch_error');assert.equal(kept.dividend_fact.fiscal_period.end,'2026-03-31');
+  const reloaded=loaderHarness(h.storage);await reloaded.load(REGIONAL_KEY);assert.equal(reloaded.states[0].data.dividend_fact.fetched_at,NOW-1000);
+});
+test('known withdrawal or correction clears only the annual cache and cannot return after closing or reload',async()=>{
+  for(const status of ['invalid','unconfirmed']){
+    const h=loaderHarness();await h.load(REGIONAL_KEY);await h.reply(0,filedFixture());await h.load(REGIONAL_KEY);
+    await h.reply(1,filedFixture({data:{currency:'JPY'},dividend_fact:null,historical_dividend_status:status,historical_dividend_invalidated:true,sources:[{title:'EDINET',url:filedFixture().dividend_fact.source_url}]}));
+    const current=h.states.at(-1).data;assert.equal(current.dividend_fact,null);assert.equal(current.data[HISTORICAL],null);assert.deepEqual(current.sources,[]);assert.equal(current.identity.industry,'陸運業');
+    h.loader.cancel();assert.equal(h.loader.peek(REGIONAL_KEY),null);await h.load(REGIONAL_KEY);assert.equal(h.states.at(-1).data,null);
+    const reloaded=loaderHarness(h.storage);await reloaded.load(REGIONAL_KEY);assert.equal(reloaded.states[0].data,null);
+  }
+});
+test('disabling annual configuration removes its old cache and malformed coverage never claims completeness',async()=>{
+  const h=loaderHarness();await h.load(REGIONAL_KEY);await h.reply(0,filedFixture());await h.load(REGIONAL_KEY);
+  const disabled=filedFixture();delete disabled.historical_dividend_status;delete disabled.dividend_fact;await h.reply(1,disabled);assert.equal(h.states.at(-1).data.dividend_fact,null);assert.equal(h.loader.peek(REGIONAL_KEY),null);
+  const reloaded=loaderHarness(h.storage);await reloaded.load(REGIONAL_KEY);assert.equal(reloaded.states[0].data,null);
+  for(const change of [{missing_days:0},{window_days:true},{complete:true},{to:'2099-01-01'},{stale_days:400}]){
+    const raw=filedFixture();Object.assign(raw.historical_dividend_coverage,change);assert.equal(profile.normalize(raw,REGIONAL_KEY,NOW).historical_dividend_coverage,null);
+  }
+  const initial=filedFixture();Object.assign(initial.historical_dividend_coverage,{indexed_days:0,missing_days:400,observed_at:null});assert.equal(profile.normalize(initial,REGIONAL_KEY,NOW).historical_dividend_coverage.missing_days,400);
+});
 test('Japanese company codes normalize; malformed symbols and mismatched company responses are rejected',()=>{
   assert.equal(profile.symbol('７２０３'),'7203.T');assert.equal(profile.symbol('285a.t'),'285A.T');
   assert.equal(profile.symbol('８３０１.jp'),'8301.JP');
@@ -217,6 +269,20 @@ function dialogHarness({reduced=true}={}){
   return {w,doc,home,nav,trigger,time,events,vv,view,get retries(){return retries;},key(key,shiftKey=false){const event={key,shiftKey,prevented:false,stopped:false,preventDefault(){this.prevented=true;},stopImmediatePropagation(){this.stopped=true;}};for(const fn of events.keydown||[])fn(event);return event;}};
 }
 function state(raw=fixture(),extra={}){return {symbol:KEY,status:raw.status,data:profile.normalize(raw,KEY,NOW),updating:false,fromCache:false,...extra};}
+test('filed annual row has a separate label, exact fiscal period, submitted and fetched times, and EDINET attribution',()=>{
+  const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);const raw=filedFixture(),viewState={symbol:REGIONAL_KEY,status:'ready',data:profile.normalize(raw,REGIONAL_KEY,NOW),updating:false};h.view.render(viewState);const refs=h.view.elements;
+  assert.equal(refs.historical.row.hidden,false);assert.match(refs.historical.row.textContent,/年度の実績配当（1株）/);assert.equal(refs.historical.value.textContent,'50.5円');assert.equal(refs.historical.period.textContent,'2025/04/01〜2026/03/31 対象年度');assert.equal(refs.historical.time.textContent,'2026/06/30 09:00 提出 / 2026/09/24 14:59 取得');
+  assert.equal(refs.historical.source.children[0].href,raw.dividend_fact.source_url);assert.match(refs.historical.note.textContent,/当サイトがEDINET有価証券報告書から配当額を抜粋/);assert.match(refs.historical.note.textContent,/株式分割は調整していません/);assert.match(refs.historical.note.textContent,/保証されません/);assert.equal(refs.price.value.textContent,'—');assert.equal(refs.forward.value.textContent,'—');assert.equal(refs.annual.value.textContent,'—');assert.match(refs.status.textContent,/年度の実績配当は「数字・配当」/);
+  refs.numbers.open=true;refs.content.scrollTop=240;const link=refs.historical.source.children[0];link.focus();h.view.render(viewState);assert.equal(refs.historical.source.children[0],link);assert.equal(h.doc.activeElement,link);assert.equal(refs.numbers.open,true);assert.equal(refs.content.scrollTop,240);
+  raw.data[HISTORICAL]=raw.dividend_fact.value=0;h.view.render({...viewState,data:profile.normalize(raw,REGIONAL_KEY,NOW)});assert.equal(refs.historical.value.textContent,'0円');assert.equal(refs.historical.unknown.hidden,true);
+  raw.historical_dividend_error='fetch_error';h.view.render({...viewState,data:profile.normalize(raw,REGIONAL_KEY,NOW)});assert.match(refs.historical.note.textContent,/通信エラー.*保存済み/);
+});
+test('annual loading and invalidation are unknown values while an unconfigured service keeps the old layout',()=>{
+  const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);const refs=h.view.elements;
+  const pending=filedFixture({data:{currency:'JPY'},dividend_fact:null,historical_dividend_status:'loading',historical_dividend_refreshing:true});h.view.render({symbol:REGIONAL_KEY,status:'pending',updating:true,data:profile.normalize(pending,REGIONAL_KEY,NOW)});assert.equal(refs.historical.value.textContent,'—');assert.equal(refs.historical.unknown.textContent,'取得中');assert.equal(refs.historical.source.hidden,true);assert.equal(refs.historical.time.hidden,true);assert.match(refs.status.textContent,/年度の実績配当を確認/);
+  const invalid=filedFixture({data:{currency:'JPY'},dividend_fact:null,historical_dividend_status:'unconfirmed',historical_dividend_invalidated:true});h.view.render({symbol:REGIONAL_KEY,status:'ready',updating:false,data:profile.normalize(invalid,REGIONAL_KEY,NOW)});assert.equal(refs.historical.value.textContent,'—');assert.equal(refs.historical.unknown.textContent,'未確認');assert.equal(refs.historical.source.hidden,true);assert.equal(refs.historical.period.hidden,true);
+  h.view.open(KEY,'トヨタ',h.trigger);h.view.render(state(fixture()));assert.equal(refs.historical.row.hidden,true);assert.equal(refs.reasonHelp.hidden,true);
+});
 test('sheet opens immediately and restores body, background accessibility, focus and scroll after close',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const refs=h.view.elements;
   assert.equal(refs.overlay.hidden,false);assert.equal(refs.name.textContent,'トヨタ');assert.equal(refs.code.textContent,'7203');assert.equal(h.doc.activeElement,refs.panel);assert.equal(h.home.inert,true);assert.equal(h.home.getAttribute('aria-hidden'),'true');assert.equal(h.doc.body.style.position,'fixed');

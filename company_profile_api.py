@@ -16,6 +16,120 @@ JST = timezone(timedelta(hours=9))
 PROFILE_FIELDS = ('price', 'market_cap', 'forward_annual_dividend_per_share',
                   'ex_dividend_date', 'dividend_payment_date', 'analyst_target')
 FIELD_STATES = {'available', 'loading', 'source_missing', 'fetch_error', 'invalid', 'unconfirmed'}
+HISTORICAL_DIVIDEND = 'historical_dividend_per_share'
+EDINET_REASONS = {
+    'available': 'available', 'pending': 'loading', 'loading': 'loading',
+    'provider_waiting': 'loading', 'rate_limited': 'loading',
+    'source_missing': 'source_missing', 'fetch_error': 'fetch_error',
+    'invalid_source': 'invalid', 'invalid': 'invalid',
+    'identity_unconfirmed': 'unconfirmed', 'filing_unconfirmed': 'unconfirmed',
+    'filing_invalidated': 'invalid', 'correction_unconfirmed': 'unconfirmed',
+    'warm_budget_exhausted': 'unconfirmed',
+    'unconfirmed': 'unconfirmed',
+}
+
+
+def edinet_document_url(value, doc_id):
+    """No credential-bearing API URL, arbitrary host, query or fragment leaks."""
+    expected = 'https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/' + doc_id + '.pdf'
+    return value if isinstance(value, str) and value == expected else None
+
+
+def edinet_coverage(value):
+    if not isinstance(value, dict):
+        return None
+    names = ('window_days', 'indexed_days', 'missing_days')
+    if any(not isinstance(value.get(key), int) or isinstance(value[key], bool)
+           or not 0 <= value[key] <= 400 for key in names):
+        return None
+    if not value['window_days'] or value['indexed_days'] + value['missing_days'] != value['window_days']:
+        return None
+    try:
+        if any(not isinstance(value.get(key), str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', value[key])
+               for key in ('from', 'to')):
+            return None
+        start, end = (date.fromisoformat(value[key]) for key in ('from', 'to'))
+        if ((end - start).days + 1 != value['window_days'] or end > datetime.now(JST).date()
+                or not isinstance(value.get('complete'), bool) or value.get('snapshot_guaranteed') is not False
+                or value['complete'] != (value['missing_days'] == 0)):
+            return None
+    except (ValueError, TypeError, KeyError):
+        return None
+    # Fixed counters only; no filenames, descriptors, raw error or request URLs.
+    clean = {key: value[key] for key in (*names, 'from', 'to', 'complete', 'snapshot_guaranteed')}
+    if 'stale_days' in value:
+        if (not isinstance(value['stale_days'], int) or isinstance(value['stale_days'], bool)
+                or not 0 <= value['stale_days'] <= value['indexed_days']):
+            return None
+        clean['stale_days'] = value['stale_days']
+    if value.get('observed_at') is not None:
+        if not observed_time(value['observed_at']):
+            return None
+        clean['observed_at'] = value['observed_at']
+    return clean
+
+
+def filed_dividend_fact(raw, company):
+    if not isinstance(raw, dict):
+        return None
+    value, doc_id, fetched = (raw.get(key) for key in ('value', 'doc_id', 'fetched_at'))
+    if (not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value)
+            or not 0 <= value <= 1_000_000_000 or not observed_time(fetched)
+            or raw.get('currency') != 'JPY' or raw.get('unit') != 'JPY/share'
+            or raw.get('kind') != 'filed_fiscal_period_dividend' or raw.get('split_adjustment') != 'as_reported'
+            or not isinstance(doc_id, str) or not re.fullmatch(r'S[A-Z0-9]{7}', doc_id)
+            or raw.get('security_code') != company['code'] + '0'
+            or not isinstance(raw.get('edinet_code'), str) or not re.fullmatch(r'E[0-9]{5}', raw['edinet_code'])
+            or not edinet_document_url(raw.get('source_url'), doc_id)):
+        return None
+    period, submitted = raw.get('fiscal_period'), raw.get('filing_submitted_at')
+    if (not isinstance(period, dict) or not isinstance(submitted, str)
+            or not re.fullmatch(r'\d{4}-\d{2}-\d{2} \d{2}:\d{2}', submitted)):
+        return None
+    try:
+        if any(not isinstance(period.get(key), str) or not re.fullmatch(r'\d{4}-\d{2}-\d{2}', period[key])
+               for key in ('start', 'end')):
+            return None
+        start, end = (date.fromisoformat(period[key]) for key in ('start', 'end'))
+        submitted_at = datetime.strptime(submitted, '%Y-%m-%d %H:%M').replace(tzinfo=JST)
+        if not (0 <= (end - start).days <= 550 and end <= submitted_at.date()
+                and submitted_at.timestamp() <= fetched):
+            return None
+    except (ValueError, TypeError, KeyError, OverflowError, OSError):
+        return None
+    return dict(value=value, currency='JPY', unit='JPY/share',
+                fiscal_period={'start': start.isoformat(), 'end': end.isoformat()},
+                filing_submitted_at=submitted, submitted_at=submitted_at.timestamp(), fetched_at=fetched,
+                doc_id=doc_id, edinet_code=raw['edinet_code'], security_code=raw['security_code'],
+                source_url=raw['source_url'], source_title='EDINET 有価証券報告書',
+                kind='filed_fiscal_period_dividend', split_adjustment='as_reported',
+                latest_filing_guaranteed=False)
+
+
+def annual_dividend_result(raw, company):
+    """A filed fiscal-year figure is independent of trailing/forecast dividends."""
+    if not isinstance(raw, dict) or raw.get('configured') is not True or raw.get('status') == 'not_configured':
+        return None
+    reason = raw.get('status') if raw.get('status') in EDINET_REASONS else 'unconfirmed'
+    state = EDINET_REASONS[reason]
+    invalidated = raw.get('invalidated') is True or raw.get('status') not in EDINET_REASONS or reason in {
+        'filing_invalidated', 'correction_unconfirmed', 'identity_unconfirmed', 'invalid'}
+    fact = None if invalidated else filed_dividend_fact(raw.get('dividend_fact'), company)
+    data = raw.get('data') if isinstance(raw.get('data'), dict) else {}
+    value = data.get(HISTORICAL_DIVIDEND)
+    if fact and (isinstance(value, bool) or not isinstance(value, (int, float)) or value != fact['value']):
+        fact = None
+    if not invalidated and raw.get('dividend_fact') is not None and not fact:
+        state = 'invalid'
+        invalidated = True
+    if fact:
+        state = 'available'
+    elif state == 'available':
+        state = 'unconfirmed'
+    return dict(status=state, provider_status=reason, fact=fact, invalidated=invalidated,
+                error='fetch_error' if reason == 'fetch_error' else None,
+                refreshing=raw.get('refreshing') is True or state == 'loading',
+                coverage=edinet_coverage(raw.get('coverage')))
 
 
 def field_states(payload, fields):
@@ -95,7 +209,7 @@ def payment_schedule(symbol, today=None, path=SCHEDULE_PATH):
 
 
 def register_company_profiles(app, profiles, catalogue, dividends, editorial=None, *, quotes=None,
-                              quote_service=None, businesses=None):
+                              quote_service=None, businesses=None, annual_dividends=None):
     reviewed = read_editorial() if editorial is None else editorial
 
     @app.get('/api/company-profile')
@@ -139,6 +253,9 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         if not isinstance(figures, dict):
             figures = payload['data'] = {}
         figures['currency'] = 'JPY'
+        # Only the independently verified EDINET service may supply this field.
+        figures.pop(HISTORICAL_DIVIDEND, None)
+        payload.pop('dividend_fact', None)
         # Queue this verified company ahead of the dividend universe, returning
         # saved facts immediately. The existing bounded pool does the work.
         dividend = dividends.lookup(provider_symbol, company['name']) if provider_symbol else {}
@@ -266,6 +383,27 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
             sources.append({'title': '検索時の株価（Yahoo Finance・20分遅延）',
                             'url': 'https://finance.yahoo.com/quote/' + provider_symbol + '/',
                             'fetched_at': selected_quote.get('updated_at')})
+        if annual_dividends is not None and detail and not provider_symbol and symbol.endswith('.JP'):
+            try:
+                historical = annual_dividend_result(annual_dividends.get(company), company)
+            except (ValueError, TypeError, AttributeError, KeyError, OSError):
+                historical = None
+            if historical is not None:
+                states[HISTORICAL_DIVIDEND] = historical['status']
+                payload['historical_dividend_status'] = historical['status']
+                payload['historical_dividend_coverage'] = historical['coverage']
+                payload['historical_dividend_refreshing'] = historical['refreshing']
+                payload['historical_dividend_invalidated'] = historical['invalidated']
+                payload['historical_dividend_error'] = historical['error']
+                payload['dividend_fact'] = historical['fact']
+                payload['refreshing'] = payload.get('refreshing') is True or historical['refreshing']
+                if historical['fact']:
+                    fact = historical['fact']
+                    figures[HISTORICAL_DIVIDEND] = fact['value']
+                    source_fields(payload)[HISTORICAL_DIVIDEND] = {
+                        'fetched_at': fact['fetched_at'], 'as_of': fact['fiscal_period']['end']}
+                    sources.append({'title': 'EDINET 有価証券報告書（当サイトが配当額を抜粋）',
+                                    'url': fact['source_url'], 'fetched_at': fact['fetched_at']})
         schedule = payment_schedule(symbol)
         if schedule:
             figures['dividend_payment_period'] = schedule['payment_period']

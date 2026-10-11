@@ -332,5 +332,151 @@ class SelectedCompanyRoutes(unittest.TestCase):
         self.assertFalse(body['quote_refresh_enabled'])
 
 
+class FiledAnnualDividendRoutes(unittest.TestCase):
+    def setUp(self):
+        self.now = datetime.now(timezone.utc).timestamp() - 10
+        self.company = dict(code='9085', symbol='9085.JP', provider_symbol=None, name='表示テスト企業',
+                            exchange='Sapporo', market='札幌市場', industry='陸運業',
+                            catalogue_as_of=datetime.now().date().isoformat(),
+                            source_url='https://www.sse.or.jp/listing/list')
+        self.catalogue = Mock()
+        self.catalogue.company.side_effect = lambda code: deepcopy(self.company) if code == self.company['code'] else None
+        self.profiles, self.dividends, self.annual = Mock(), Mock(), Mock()
+        self.fact = dict(value=50.5, currency='JPY', unit='JPY/share', security_code='90850',
+                         edinet_code='E00123', doc_id='S100ABCD',
+                         fiscal_period=dict(start='2025-04-01', end='2026-03-31'),
+                         filing_submitted_at='2026-06-30 09:00', fetched_at=self.now,
+                         source_url='https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/S100ABCD.pdf',
+                         source_title='EDINET 有価証券報告書', kind='filed_fiscal_period_dividend',
+                         split_adjustment='as_reported', latest_filing_guaranteed=False,
+                         private_descriptor={'credential': 'must not escape'})
+        end = datetime.now(timezone(timedelta(hours=9))).date()
+        self.coverage = dict(window_days=400, indexed_days=399, missing_days=1,
+                             **{'from': (end-timedelta(days=399)).isoformat(), 'to': end.isoformat()},
+                             complete=False, snapshot_guaranteed=False, stale_days=10,
+                             observed_at=self.now, private_raw_error='must not escape')
+        self.raw = dict(configured=True, status='available', refreshing=False,
+                        data={'historical_dividend_per_share': 50.5}, dividend_fact=self.fact,
+                        coverage=self.coverage)
+        self.annual.get.side_effect = lambda *_: deepcopy(self.raw)
+
+    def request(self, query='symbol=9085.JP', service=True):
+        app = Flask(__name__)
+        register_company_profiles(app, self.profiles, self.catalogue, self.dividends, {},
+                                  annual_dividends=self.annual if service else None)
+        return app.test_client().get('/api/company-profile?' + query)
+
+    def test_filed_year_is_separate_from_forecast_trailing_and_unsupported_prices(self):
+        body = self.request().get_json()
+        self.assertEqual(body['data'], {'currency': 'JPY', 'historical_dividend_per_share': 50.5})
+        self.assertEqual(body['field_status']['historical_dividend_per_share'], 'available')
+        self.assertEqual(body['dividend_fact']['fiscal_period'], self.fact['fiscal_period'])
+        self.assertFalse(body['dividend_fact']['latest_filing_guaranteed'])
+        self.assertEqual(body['dividend_fact']['submitted_at'], datetime(2026, 6, 30, 9, tzinfo=timezone(timedelta(hours=9))).timestamp())
+        self.assertEqual(body['sources'][0]['url'], self.fact['source_url'])
+        self.assertIn('当サイトが配当額を抜粋', body['sources'][0]['title'])
+        self.assertEqual(body['market_data']['kind'], 'unsupported')
+        self.profiles.get.assert_not_called(); self.dividends.lookup.assert_not_called()
+        self.annual.get.assert_called_once_with(self.company)
+        self.assertNotIn('must not escape', json.dumps(body))
+
+    def test_actual_zero_is_available_but_missing_is_not_zero(self):
+        self.raw['data']['historical_dividend_per_share'] = self.fact['value'] = 0
+        self.assertEqual(self.request().get_json()['data']['historical_dividend_per_share'], 0)
+        self.raw.update(status='source_missing', data={}, dividend_fact=None)
+        body = self.request().get_json()
+        self.assertNotIn('historical_dividend_per_share', body['data'])
+        self.assertEqual(body['historical_dividend_status'], 'source_missing')
+        self.assertIsNone(body['dividend_fact'])
+
+    def test_preview_unknown_wrong_market_and_tokyo_never_start_annual_service(self):
+        body = self.request('symbol=9085.JP&purpose=preview').get_json()
+        self.assertNotIn('historical_dividend_status', body)
+        self.assertEqual(self.request('symbol=9085.T').status_code, 400)
+        self.assertEqual(self.request('symbol=9999.JP').status_code, 404)
+        self.annual.get.assert_not_called()
+        self.company.update(symbol='9085.T', provider_symbol='9085.T', exchange='Tokyo')
+        self.profiles.get.return_value = dict(status='ready', data={'currency': 'JPY'})
+        self.dividends.lookup.return_value = {}
+        self.request('symbol=9085.T')
+        self.annual.get.assert_not_called()
+
+    def test_missing_configuration_adds_no_annual_field_or_new_claim(self):
+        self.raw = dict(configured=False, status='not_configured', data={})
+        body = self.request().get_json()
+        self.assertEqual(body['data'], {'currency': 'JPY'})
+        self.assertNotIn('historical_dividend_status', body)
+        self.assertNotIn('dividend_fact', body)
+        self.annual.reset_mock()
+        self.request(service=False)
+        self.annual.get.assert_not_called()
+
+    def test_pending_annual_does_not_turn_unsupported_prices_into_loading(self):
+        self.raw.update(status='pending', refreshing=True, data={}, dividend_fact=None)
+        self.raw['coverage'].update(indexed_days=0, missing_days=400, stale_days=0, observed_at=None)
+        body = self.request().get_json()
+        self.assertTrue(body['refreshing'])
+        self.assertTrue(body['historical_dividend_refreshing'])
+        self.assertEqual(body['historical_dividend_status'], 'loading')
+        self.assertEqual(body['data'], {'currency': 'JPY'})
+        self.assertEqual(body['market_data']['kind'], 'unsupported')
+        self.assertEqual(body['historical_dividend_coverage']['missing_days'], 400)
+        self.assertNotIn('observed_at', body['historical_dividend_coverage'])
+
+    def test_known_withdrawal_correction_or_identity_failure_rejects_even_a_valid_old_fact(self):
+        for reason in ('filing_invalidated', 'correction_unconfirmed', 'identity_unconfirmed'):
+            with self.subTest(reason=reason):
+                self.raw.update(status=reason, invalidated=True)
+                body = self.request().get_json()
+                self.assertTrue(body['historical_dividend_invalidated'])
+                self.assertIsNone(body['dividend_fact'])
+                self.assertNotIn('historical_dividend_per_share', body['data'])
+                self.assertFalse(body['sources'])
+
+    def test_transient_failure_preserves_old_fact_and_actual_observation_times(self):
+        self.raw.update(status='fetch_error', invalidated=False)
+        body = self.request().get_json()
+        self.assertEqual(body['historical_dividend_status'], 'available')
+        self.assertEqual(body['historical_dividend_error'], 'fetch_error')
+        self.assertFalse(body['historical_dividend_invalidated'])
+        self.assertEqual(body['dividend_fact']['fetched_at'], self.now)
+        self.assertEqual(body['dividend_fact']['filing_submitted_at'], '2026-06-30 09:00')
+        for reason in ('provider_waiting', 'warm_budget_exhausted', 'invalid_source'):
+            self.raw.update(status=reason)
+            current = self.request().get_json()
+            self.assertFalse(current['historical_dividend_invalidated'])
+            self.assertEqual(current['dividend_fact']['value'], 50.5)
+
+    def test_untrusted_fact_and_credential_bearing_source_are_never_public(self):
+        good = deepcopy(self.raw)
+        changes = [dict(value=True), dict(value=float('nan')), dict(security_code='72030'),
+                   dict(currency='USD'), dict(source_url=self.fact['source_url']+'?Subscription-Key=secret'),
+                   dict(source_url=self.fact['source_url'].replace('S100ABCD', 'S100ABCE')),
+                   dict(source_url='https://api.edinet-fsa.go.jp/api/v2/documents/S100ABCD?type=1'),
+                   dict(fiscal_period={'start': '2026-04-01', 'end': '2025-03-31'}),
+                   dict(filing_submitted_at='2026-02-30 09:00'), dict(fetched_at=self.now+3600)]
+        for change in changes:
+            with self.subTest(change=change):
+                self.raw = deepcopy(good)
+                self.raw['dividend_fact'].update(change)
+                body = self.request().get_json()
+                self.assertIsNone(body['dividend_fact'])
+                self.assertTrue(body['historical_dividend_invalidated'])
+                self.assertNotIn('historical_dividend_per_share', body['data'])
+                self.assertFalse(body['sources'])
+                self.assertNotIn('Subscription-Key', json.dumps(body))
+
+    def test_coverage_counters_are_bounded_and_never_prove_latest_filing(self):
+        body = self.request().get_json()
+        self.assertEqual(body['historical_dividend_coverage']['missing_days'], 1)
+        self.assertEqual(body['historical_dividend_coverage']['stale_days'], 10)
+        self.assertFalse(body['historical_dividend_coverage']['complete'])
+        self.assertFalse(body['historical_dividend_coverage']['snapshot_guaranteed'])
+        for change in (dict(missing_days=0), dict(window_days=True), dict(complete=True),
+                       dict(stale_days=400), {'to': '2099-01-01'}):
+            self.raw['coverage'] = dict(self.coverage, **change)
+            self.assertIsNone(self.request().get_json()['historical_dividend_coverage'])
+
+
 if __name__ == '__main__':
     unittest.main()
