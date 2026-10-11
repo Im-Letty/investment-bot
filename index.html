@@ -4801,6 +4801,12 @@ setInterval(apply,500);
   }
   function ensure(retry){
     els();if(!ov||!frame||state==='loading'||state==='ready'||(state==='failed'&&retry!==true))return;
+    if(state==='failed'){
+      // A fragment-only navigation does not reload a failed document. Replace
+      // only on explicit retry, keeping the fixed HTTP URL cacheable.
+      var fresh=frame.cloneNode(false);fresh.removeAttribute('src');
+      frame.parentNode.replaceChild(fresh,frame);frame=fresh;
+    }
     var status=document.getElementById('knSimLoadState');
     var token=Date.now().toString(36)+'-'+(++sequence);attempt=token;state='loading';
     function fail(){
