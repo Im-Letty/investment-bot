@@ -19,6 +19,7 @@ from news_copy_policy import MONEY_DISPLAY_INSTRUCTION, summary_bounds
 from daily_news_sources import collect_articles
 from official_news_sources import _safe_url as _official_url
 from urllib.parse import urlsplit
+from uuid import uuid4
 
 GENERATION_BUDGET_SECONDS = 12 * 60
 _generation_deadline = ContextVar("news_generation_deadline", default=None)
@@ -74,9 +75,82 @@ def json_object(text):
 
 
 class Providers:
-    def __init__(self, environ=None, session=None):
+    def __init__(self, environ=None, session=None, *, usage_recorder=None):
         self.env = os.environ if environ is None else environ
         self.session = session or requests.Session()
+        self.usage_recorder = usage_recorder
+        self.usage_recording_failed = False
+
+    def _notify_usage(self, method, **record):
+        if self.usage_recorder is None:
+            return
+        try:
+            getattr(self.usage_recorder, method)(**record)
+        except Exception:
+            # Accounting is a soft target. Never retry a paid request or replace
+            # its editorial outcome because recording failed. Signal deadlines
+            # still propagate; the durable start can remain unresolved.
+            self.usage_recording_failed = True
+
+    @staticmethod
+    def _usage_model(provider, payload, url):
+        if provider == 'gemini':
+            try:
+                path = urlsplit(url).path
+            except (TypeError, ValueError):
+                return None
+            match = re.fullmatch(r'.*/models/([^/:]+):generateContent', path)
+            model = match.group(1) if match is not None else None
+        else:
+            model = payload.get('model') if isinstance(payload, dict) else None
+        if (not isinstance(model, str) or not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._-]{0,99}', model)
+                or model.startswith(('sk-', 'sk_', 'AIza'))):
+            return None
+        return model
+
+    @staticmethod
+    def _response_usage(provider, result):
+        """Copy only numeric usage; absent/invalid values never become zero."""
+        if not isinstance(result, dict):
+            return None, None
+        if provider == 'gemini':
+            raw = result.get('usageMetadata')
+            fields = ('promptTokenCount', 'candidatesTokenCount', 'cachedContentTokenCount',
+                      'thoughtsTokenCount', 'toolUsePromptTokenCount', 'totalTokenCount')
+            detail_fields = {}
+            tier = raw.get('serviceTier') if isinstance(raw, dict) else None
+            tiers = ('STANDARD', 'FLEX', 'PRIORITY', 'SERVICE_TIER_UNSPECIFIED')
+        elif provider == 'openai':
+            raw = result.get('usage')
+            fields = ('input_tokens', 'output_tokens', 'total_tokens')
+            detail_fields = {'input_tokens_details': ('cached_tokens', 'cache_write_tokens'),
+                             'output_tokens_details': ('reasoning_tokens',)}
+            tier = result.get('service_tier')
+            tiers = ('default', 'auto', 'flex', 'priority', 'scale')
+        else:
+            # Legacy Claude pricing/stream usage is outside this recorder's
+            # current scope. It is unknown, rather than a free request.
+            return None, None
+        tier = (None if tier is None or tier == '' else
+                tier if isinstance(tier, str) and tier in tiers else 'unknown')
+        if not isinstance(raw, dict):
+            return None, tier
+        def count(value):
+            return type(value) is int and 0 <= value <= 2 ** 63 - 1
+        if any(name in raw and not count(raw[name]) for name in fields):
+            return None, tier
+        usage = {name: raw[name] for name in fields if count(raw.get(name))}
+        for group, names in detail_fields.items():
+            detail = raw.get(group)
+            if group in raw and not isinstance(detail, dict):
+                return None, tier
+            if isinstance(detail, dict):
+                if any(name in detail and not count(detail[name]) for name in names):
+                    return None, tier
+                valid = {name: detail[name] for name in names if count(detail.get(name))}
+                if valid:
+                    usage[group] = valid
+        return usage or None, tier
 
     def _request_seconds(self, provider, payload):
         return 100
@@ -102,7 +176,17 @@ class Providers:
             raise GenerationError('generation_deadline')
         if total_deadline is not None:
             deadline = min(deadline, total_deadline)
+        request_id = uuid4().hex
+        safe_provider = provider if provider in ('gemini', 'openai', 'claude') else 'unknown'
+        model = self._usage_model(safe_provider, payload, url) if self.usage_recorder is not None else None
+        recorded = False
         try:
+            if self.usage_recorder is not None:
+                self._notify_usage('start_request', provider=safe_provider, model=model, request_id=request_id)
+                _check_deadline()
+                remaining = deadline - time.monotonic()
+                if remaining <= 0:
+                    raise GenerationError('generation_deadline')
             with self.session.post(url, headers=headers, json=payload,
                                    timeout=(min(10, remaining),
                                             min(self._request_read_timeout(provider, payload), remaining)),
@@ -121,11 +205,22 @@ class Providers:
                         if not chunk:
                             return
                         yield chunk
-                return self._decode_response(provider, payload, chunks())
+                result = self._decode_response(provider, payload, chunks())
+                usage, tier = self._response_usage(safe_provider, result)
+                # Record before finish-reason, refusal or draft-JSON validation;
+                # an unusable answer can still consume billable tokens.
+                recorded = True
+                self._notify_usage('record_request', provider=safe_provider, model=model,
+                                   request_id=request_id, usage=usage, service_tier=tier)
+                return result
         except (requests.RequestException, ValueError) as exc:
             if isinstance(exc, GenerationError):
                 raise
             raise GenerationError(f'{provider}_unavailable') from exc
+        finally:
+            if not recorded:
+                self._notify_usage('record_request', provider=safe_provider, model=model,
+                                   request_id=request_id, usage=None, service_tier=None)
 
     def gemini(self, instruction, data, *, search=False):
         model = self.env.get('NEWS_GEMINI_MODEL', 'gemini-2.5-flash')

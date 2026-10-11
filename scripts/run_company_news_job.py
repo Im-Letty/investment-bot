@@ -168,16 +168,22 @@ def main(argv=None):
             or not re.fullmatch(r'[0-9a-f]{40}', os.environ.get('COMPANY_NEWS_SOURCE_REVISION', ''))):
         print(json.dumps({'status': 'retry_not_allowed', 'retry_reason': 'workflow_input_required'}))
         return 2
-    from company_news_producer import generate_company_news
+    from company_news_producer import CompanyProviders, generate_company_news
     from scripts.run_private_news_job import JobDeadline, process_deadline
     diagnostics = []
+    usage_recorder = None
     try:
         with process_deadline(seconds=29 * 60):
             from company_news_catalogue import current_catalogue
             current_catalogue(now=datetime.now(JST))
             storage = SupabaseNewsStorage(os.environ.get('SUPABASE_URL'), os.environ.get('SUPABASE_KEY'))
+            from news_review_costs import ReviewUsageRecorder
+            usage_recorder = ReviewUsageRecorder(storage, scope='company')
             excluded, other = published_economy_context(storage, time.time())
-            result = run_job(storage, generate_company_news, exclusion_urls=excluded, other_news=other,
+            def generate(source, now=None, *, clock=time.time):
+                provider = CompanyProviders(usage_recorder=usage_recorder)
+                return generate_company_news(source, now=now, clock=clock, providers=provider)
+            result = run_job(storage, generate, exclusion_urls=excluded, other_news=other,
                              retry_article_id=args.retry_article_id,
                              retry_revision=os.environ.get('COMPANY_NEWS_SOURCE_REVISION'),
                              diagnostics=diagnostics)
@@ -185,6 +191,8 @@ def main(argv=None):
         result = {'status': 'job_deadline', 'published_count': 0}
     except Exception:
         result = {'status': 'storage_unavailable', 'published_count': 0}
+    if usage_recorder is not None:
+        result['api_review_cost'] = usage_recorder.safe_summary()
     result['finished_at'] = datetime.now(JST).isoformat(timespec='seconds')
     if args.result_file:
         target = Path(args.result_file)

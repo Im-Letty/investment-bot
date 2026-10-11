@@ -548,6 +548,47 @@ No new HTTP endpoint was added for this connection. The existing `/api/news-publ
 
 The checker confirms a new publication only when the current curated summary is visible. After 08:00 it also accepts an explicit current-day `source_mode: official`, `status: source_empty`, correct cutoff and fixed two-source, error-free result with a healthy public API response as a successfully checked quiet window. It reports that no new AI edition was created and that the earlier publication keeps its real date. This outcome is not a newly published article. Expired unfinished collection slots and corrections awaiting review cannot produce a successful quiet-day result; neither can `source_unavailable`, an unverified state or an HTTP-200 error object. Legacy current-day headlines alone generate one warning while it keeps waiting; if neither a valid current edition nor the explicit empty-window outcome is confirmed before the bounded deadline, the workflow fails.
 
+## Review API cost target (2026-10-11)
+
+The owner's latest instruction sets **10 JPY/day as a guideline** covering
+economic news, company news and private copy tests. Exceeding it alone does not
+stop delivery. Codex remains the writer; the same finished copy still needs
+both review approvals. Existing request, attempt and time limits remain in force.
+Original-source polling does not call a paid AI. No automatic purchase or new
+paid test is introduced by cost accounting.
+
+`news_review_costs.py` stores immutable numeric HTTP start/usage receipts in the
+existing private `website-news` bucket under `review-usage/v1/YYYY-MM-DD/`.
+Each actual attempt, including Gemini's token retry and unusable replies, has
+its own local UUID. Lost responses and missing/invalid usage stay unknown;
+restarts and new days do not erase unresolved starts. Recording failures do not
+resend an AI request or discard otherwise valid reviewed copy. No original,
+prompt, response, key or provider request ID is saved in these receipts.
+
+Published text rates checked on 2026-10-11 are used for the two default models.
+OpenAI output already includes reasoning; Gemini thinking is counted once
+using total minus prompt tokens. Cache reads/writes are input subsets. Unknown
+models or tiers have unknown cost. Missing OpenAI cache-write breakdowns use
+the conservative write rate, explicitly labelled in the receipt. USD and JPY
+estimates are distinct. The internal conversion is 159 JPY/USD, the
+[BOJ October reference rate](https://www.boj.or.jp/about/services/tame/tame_rate/kijun/kiju2610.htm),
+not the card rate or a tax-inclusive invoice. Rates and conversion need review
+when they change.
+
+`python -B scripts/report_news_review_costs.py --live --day YYYY-MM-DD` reads
+only private numeric receipts and aggregates all three scopes. Without `--live`
+it does not connect. Private morning/company workflows save `review-cost.json`.
+Pagination/read failures, orphan/mismatched receipts and unknown usage make the
+total incomplete. The bounded scan is not an atomic snapshot during concurrent
+writes. Account spending outside injected paths is not included; credit balance
+monitoring remains separate. Existing deduplication and call limits prevent
+unbounded paid retries; accounting does not weaken editorial checks or models.
+
+Rate references: [OpenAI GPT-6 Luna](https://developers.openai.com/api/docs/models/gpt-6-luna),
+[cache accounting](https://developers.openai.com/api/docs/guides/prompt-caching),
+[Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing),
+[usage metadata](https://ai.google.dev/api/generate-content#UsageMetadata).
+
 ## Immediate market display
 
 `market_snapshot.py` supplies verified saved prices in the initial HTML (`knInitialMarket`) and through `/api/morning-data` without awaiting Yahoo requests. The server refreshes at most three quotes concurrently in one background job. The frontend displays these values or newer local values immediately, then refreshes independently of news. Each quote retains its original retrieval timestamp; stale values display that timestamp in JST. Snapshots older than seven days are rejected. `market-snapshot.json` is a verified deployment seed, not live or fictional pricing. Runtime snapshots are saved to `MARKET_SNAPSHOT_PATH` (default `/tmp/kn-market-snapshot-v1.json`); ephemeral hosting and a first unseen custom symbol still need a successful upstream refresh. Network delivery and hosting startup remain outside this local cache guarantee.

@@ -274,7 +274,7 @@ def configuration_metadata(environ=None):
 class WebsiteProviders(shared.Providers):
     """Count every HTTP attempt, including the built-in Gemini token retry."""
 
-    def __init__(self, environ=None, session=None):
+    def __init__(self, environ=None, session=None, *, usage_recorder=None):
         supplied = os.environ if environ is None else environ
         if not isinstance(supplied, Mapping):
             raise shared.GenerationError("generation_budget_required")
@@ -284,7 +284,7 @@ class WebsiteProviders(shared.Providers):
             if not _model(value):
                 raise shared.GenerationError("invalid_model")
             env[key] = value
-        super().__init__(environ=env, session=session)
+        super().__init__(environ=env, session=session, usage_recorder=usage_recorder)
         self.session.trust_env = False
         self._counts = Counter()
         self._lock = Lock()

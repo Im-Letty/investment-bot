@@ -21,7 +21,7 @@ WRITING_SECONDS = 180
 class CodexWebsiteProviders(website.WebsiteProviders):
     """Only the compatibility writer method changes; all checks stay shared."""
 
-    def __init__(self, environ=None, session=None, *, writer=None):
+    def __init__(self, environ=None, session=None, *, writer=None, usage_recorder=None):
         import os
         supplied = os.environ if environ is None else environ
         if not isinstance(supplied, Mapping):
@@ -30,7 +30,7 @@ class CodexWebsiteProviders(website.WebsiteProviders):
         # Keychain record still contains one for the separate LINE workflow.
         env = {key: supplied[key] for key in ("GEMINI_API_KEY", "OPENAI_API_KEY",
                     "NEWS_GEMINI_MODEL", "NEWS_OPENAI_MODEL") if key in supplied}
-        super().__init__(environ=env, session=session)
+        super().__init__(environ=env, session=session, usage_recorder=usage_recorder)
         self._writer = writer if writer is not None else CodexNewsWriter()
         self._codex_calls = 0
 

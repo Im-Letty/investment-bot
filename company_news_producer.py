@@ -261,7 +261,8 @@ def _review_passed(value):
 class CompanyProviders(shared.Providers):
     """One writer call and one logical review per service, including HTTP retry."""
 
-    def __init__(self, environ=None, session=None, *, writer=None, monotonic=time.monotonic):
+    def __init__(self, environ=None, session=None, *, writer=None, monotonic=time.monotonic,
+                 usage_recorder=None):
         supplied = os.environ if environ is None else environ
         if not isinstance(supplied, Mapping):
             raise shared.GenerationError("generation_budget_required")
@@ -276,7 +277,7 @@ class CompanyProviders(shared.Providers):
                     or model.startswith(("sk-", "sk_", "AIza"))):
                 raise shared.GenerationError("invalid_model")
             env[key] = model
-        super().__init__(environ=env, session=session)
+        super().__init__(environ=env, session=session, usage_recorder=usage_recorder)
         self.session.trust_env = False
         self._writer = CodexNewsWriter() if writer is None else writer
         self._monotonic = monotonic

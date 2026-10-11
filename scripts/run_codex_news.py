@@ -101,15 +101,21 @@ def build_runtime(environ=None, *, storage=None, max_attempts=1,
         if storage is None:
             storage = SupabaseNewsStorage(env["SUPABASE_URL"], env["SUPABASE_KEY"])
 
+    from news_review_costs import ReviewUsageRecorder
+    usage_recorder = ReviewUsageRecorder(storage, scope="economy")
+
     def generate(now, *, articles, source_window):
         writer = CodexNewsWriter(executable=executable)
-        provider = CodexWebsiteProviders(environ=reviews, writer=writer)
+        provider = CodexWebsiteProviders(environ=reviews, writer=writer,
+                                        usage_recorder=usage_recorder)
         return generate_codex_website_edition(now, articles=articles,
                     source_window=source_window, providers=provider)
 
-    return DailyNewsRuntime(storage, generate, enabled=settings["enabled"],
+    runtime = DailyNewsRuntime(storage, generate, enabled=settings["enabled"],
                source_preparer=create_source_preparer(storage),
                generation_owner="local", max_attempts=max_attempts, cache_path=cache_path)
+    runtime.review_usage_recorder = usage_recorder
+    return runtime
 
 
 def safe_status(state):

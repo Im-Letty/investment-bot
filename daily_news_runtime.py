@@ -395,11 +395,12 @@ class SupabaseNewsStorage:
             self._remaining(deadline, time.monotonic if clock is None else clock)
         return value
 
-    def create(self, path, value):
+    def create(self, path, value, *, deadline=None, clock=None):
         body = json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
         if len(body) > 1_000_000:
             raise StorageUnavailable("storage_size")
         response = self._request("POST", "/object/" + BUCKET + "/" + quote(path, safe="/"), data=body,
+                                 deadline=deadline, clock=clock,
                                  headers={"Content-Type": "application/json", "x-upsert": "false",
                                           "Cache-Control": "max-age=0"})
         if self._duplicate(response):
