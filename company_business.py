@@ -199,15 +199,19 @@ def fact_ids(entity, today, now=None):
 class BusinessFailure:
     def __init__(self, reason='unconfirmed', *, retry_after_seconds=0):
         self.reason = reason if reason in KINDS and reason not in ('available', 'loading') else 'unconfirmed'
-        self.retry_after_seconds = max(0, min(900, int(retry_after_seconds)))
+        self.retry_after_seconds = max(0, int(retry_after_seconds))
 
 
 class WikidataBusinessProvider:
     """At most search + company entities + eight fact labels, in 15 seconds."""
     def __init__(self, *, session_factory=requests.Session, now=time.time,
-                 monotonic=time.monotonic, deadline=15):
+                 monotonic=time.monotonic, deadline=15, interactive=False, cooldown_path=None):
         self.session_factory, self.now, self.monotonic = session_factory, now, monotonic
         self.deadline = max(.1, min(15, deadline))
+        # MediaWiki explicitly permits omitting maxlag while a user waits for
+        # an interactive result. Automated refreshes retain maxlag=5.
+        self.interactive = interactive is True
+        self.cooldown_path = Path(cooldown_path) if cooldown_path else None
         self._reset_process()
         if hasattr(os, 'register_at_fork'):
             os.register_at_fork(after_in_child=self._reset_process)
@@ -216,11 +220,39 @@ class WikidataBusinessProvider:
         self._pid = os.getpid()
         self._local = threading.local()
         self._retry_at = 0
+        self._backoff_lock = threading.Lock()
+
+    def _read_shared_cooldown(self):
+        if self.cooldown_path:
+            try:
+                if self.cooldown_path.stat().st_size > 512:
+                    return
+                value = json.loads(self.cooldown_path.read_text(encoding='utf-8')).get('retry_at')
+                if _number(value):
+                    self._retry_at = max(self._retry_at, value)
+            except (OSError, ValueError, TypeError, AttributeError):
+                pass
+
+    def _save_shared_cooldown(self):
+        if not self.cooldown_path:
+            return
+        with self._backoff_lock:
+            try:
+                self.cooldown_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(str(self.cooldown_path) + '.lock', 'a') as shared_lock:
+                    fcntl.flock(shared_lock, fcntl.LOCK_EX)
+                    self._read_shared_cooldown()
+                    temporary = self.cooldown_path.with_name(self.cooldown_path.name + '.' + str(os.getpid()) + '.tmp')
+                    temporary.write_text(json.dumps({'retry_at': self._retry_at}, allow_nan=False), encoding='utf-8')
+                    temporary.replace(self.cooldown_path)
+            except (OSError, ValueError):
+                pass  # This process still respects its in-memory pause.
 
     @property
     def retry_after_seconds(self):
         if self._pid != os.getpid():
             self._reset_process()
+        self._read_shared_cooldown()
         return max(0, math.ceil(self._retry_at - self.now()))
 
     def _backoff(self, raw):
@@ -231,8 +263,10 @@ class WikidataBusinessProvider:
                 delay = int(raw) if raw.isdigit() else math.ceil(parsedate_to_datetime(raw).timestamp() - self.now())
             except (ValueError, TypeError, OverflowError, OSError):
                 pass
-        delay = max(30, min(900, delay))
+        # Retry-After is a minimum, including values longer than 15 minutes.
+        delay = max(30, delay)
         self._retry_at = max(self._retry_at, self.now() + delay)
+        self._save_shared_cooldown()
         return BusinessFailure('fetch_error', retry_after_seconds=self.retry_after_seconds)
 
     def _read(self, params, deadline, limit):
@@ -246,11 +280,14 @@ class WikidataBusinessProvider:
             session = self._local.session = self.session_factory()
             session.headers.update({'User-Agent': 'InvestmentLetterCompanyFacts/1.0 (+https://investment-bot-ta24.onrender.com/)',
                                     'Accept-Encoding': 'gzip,deflate'})
-        with session.get(API_URL, params=dict(params, format='json', maxlag='5'),
+        query = dict(params, format='json')
+        if not self.interactive:
+            query['maxlag'] = '5'
+        with session.get(API_URL, params=query,
                          timeout=(min(2, remaining / 3), min(4, remaining * 2 / 3)),
                          allow_redirects=False, stream=True) as response:
             retry_header = response.headers.get('Retry-After')
-            if response.status_code == 429:
+            if response.status_code == 429 or response.status_code == 503 and retry_header:
                 return self._backoff(retry_header)
             if response.status_code != 200:
                 return BusinessFailure('fetch_error')
@@ -400,10 +437,11 @@ def public_facts(row, *, state='unconfirmed', refreshing=False):
 class CompanyBusinesses:
     """No bulk scan: one worker refreshes selected, official company identities."""
     def __init__(self, loader=None, *, cache_path=None, now=time.time, ttl=TTL, retry=RETRY,
-                 max_pending=64, max_records=MAX_RECORDS):
-        self.loader = loader or WikidataBusinessProvider(now=now)
+                 max_pending=64, max_records=MAX_RECORDS, interactive=False):
         self.now, self.ttl, self.retry = now, ttl, retry
         self.cache_path = Path(cache_path) if cache_path else None
+        self.loader = loader or WikidataBusinessProvider(now=now, interactive=interactive,
+            cooldown_path=str(self.cache_path) + '.backoff.json' if self.cache_path else None)
         self.max_pending = max(1, min(64, int(max_pending)))
         self.max_records = max(1, min(MAX_RECORDS, int(max_records)))
         self._records = OrderedDict(); self._file_mtime = None
@@ -416,7 +454,7 @@ class CompanyBusinesses:
     def _reset_process(self):
         self._pid = os.getpid()
         self._condition = threading.Condition(); self._persist_lock = threading.Lock()
-        self._queue = deque(); self._pending = set(); self._attempts = {}; self._failures = {}
+        self._queue = deque(); self._pending = set(); self._attempts = {}; self._failures = {}; self._retry_delays = {}
         self._thread = None
 
     def _merge(self, row):
@@ -474,11 +512,13 @@ class CompanyBusinesses:
                 while not self._queue:
                     self._condition.wait()
                 symbol, company, identity = self._queue.popleft()
-            clean, failure = None, 'unconfirmed'
+            clean, failure, retry_delay = None, 'unconfirmed', self.retry
             try:
                 result = self.loader(symbol, company)
                 if isinstance(result, BusinessFailure):
                     failure = result.reason
+                    if result.retry_after_seconds:
+                        retry_delay = max(30, result.retry_after_seconds)
                 else:
                     clean = _valid_record(result, self.now(), identity)
                     if result is not None and not clean:
@@ -492,8 +532,10 @@ class CompanyBusinesses:
             with self._condition:
                 if clean:
                     self._merge(clean); self._failures.pop(symbol, None)
+                    self._retry_delays.pop(symbol, None)
                 else:
                     self._failures[symbol] = failure
+                    self._retry_delays[symbol] = retry_delay
             try:
                 if clean:
                     self._save()
@@ -517,12 +559,12 @@ class CompanyBusinesses:
             row = _valid_record(self._records.get(symbol), now, identity)
             previous = self._records.get(symbol)
             if not row and previous and previous.get('identity') != identity:
-                self._attempts.pop(symbol, None); self._failures.pop(symbol, None)
+                self._attempts.pop(symbol, None); self._failures.pop(symbol, None); self._retry_delays.pop(symbol, None)
             stale = not row or now - row['fetched_at'] >= self.ttl
             cooldown = getattr(self.loader, 'retry_after_seconds', 0)
             cooldown = cooldown if isinstance(cooldown, (int, float)) and not isinstance(cooldown, bool) else 0
             if (stale and not cooldown and symbol not in self._pending and len(self._pending) < self.max_pending
-                    and (symbol not in self._attempts or now - self._attempts[symbol] >= self.retry)):
+                    and (symbol not in self._attempts or now - self._attempts[symbol] >= self._retry_delays.get(symbol, self.retry))):
                 self._pending.add(symbol)
                 self._queue.append((symbol, deepcopy(official_company_row), identity))
                 if self._thread is None:

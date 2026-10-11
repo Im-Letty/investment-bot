@@ -11,6 +11,7 @@
   const FIELD_KEYS=['price','market_cap','annual_dividend','forward_annual_dividend_per_share','ex_dividend_date','dividend_payment_date','analyst_target'];
   const METRIC_KEYS={price:'price',cap:'market_cap',annual:'annual_dividend',forward:'forward_annual_dividend_per_share',exDate:'ex_dividend_date',paymentDate:'dividend_payment_date',target:'analyst_target'};
   const FIELD_REASONS={loading:'取得中',source_missing:'提供元に情報なし',fetch_error:'通信エラー',invalid:'内容を確認中',unconfirmed:'未確認',unsupported:'取得元未対応'};
+  const REGIONAL_MARKET_REFERENCES={Nagoya:'https://www.nse.or.jp/market/condition/quick/',Sapporo:'https://www.sse.or.jp/market',Fukuoka:'https://www.fse.or.jp/market-info/daily/'};
   function symbol(value){const key=text(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.(?:T|JP))?$/.test(key)?(/\.(?:T|JP)$/.test(key)?key:key+'.T'):'';}
   function safeUrl(value){
     if(typeof value!=='string'||/[\u0000-\u0020\u007f\\]/.test(value))return null;
@@ -100,7 +101,8 @@
     }:null;
     const identityInput=raw.identity&&typeof raw.identity==='object'?raw.identity:{};
     const identityUrl=safeUrl(identityInput.source_url),identityDate=day(identityInput.date);
-    const identity=identityUrl&&identityDate&&identityDate<=today(now)?{market:text(identityInput.market,100),industry:text(identityInput.industry,100),source_url:identityUrl,date:identityDate,source_title:text(identityInput.source_title,120)||'会社の一覧の出典'}:null;
+    const exchange=['Tokyo','Nagoya','Sapporo','Fukuoka'].includes(identityInput.exchange)&&(key.endsWith('.T')===(identityInput.exchange==='Tokyo'))?identityInput.exchange:null;
+    const identity=identityUrl&&identityDate&&identityDate<=today(now)?{market:text(identityInput.market,100),industry:text(identityInput.industry,100),exchange,source_url:identityUrl,date:identityDate,source_title:text(identityInput.source_title,120)||'会社の一覧の出典'}:null;
     const data={currency,price:positive(input.price),price_updated_at:timestamp(input.price_updated_at,now),price_trade_date:day(input.price_trade_date)&&input.price_trade_date<=today(now)?input.price_trade_date:null,market_cap:positive(input.market_cap),
       annual_dividend:input.annual_dividend_basis==='trailing_12m'?amount(input.annual_dividend):null,
       annual_dividend_basis:input.annual_dividend_basis==='trailing_12m'?'trailing_12m':null,
@@ -276,6 +278,7 @@
     }
     const market=group('株価と会社の大きさ');metric(market,'price','株価');metric(market,'cap','時価総額','会社の株を全部合わせた値段');
     refs.price.note=el('p','cp-fact-note');refs.price.value.parentElement.appendChild(refs.price.note);
+    refs.price.reference=el('p','cp-fact-note');refs.price.reference.hidden=true;refs.price.value.parentElement.appendChild(refs.price.reference);
     const dividends=group('配当');metric(dividends,'annual','過去1年の実績配当','1株あたり');metric(dividends,'forward','予想配当（今後1年の目安）','1株あたり。会社が出す年度ごとの予想とは異なります。');
     metric(dividends,'exDate','次回の権利落ち日','権利落ち日です。配当の支払日とは異なります。');metric(dividends,'paymentDate','配当の支払日');
     const targets=group('専門家の予想');metric(targets,'target','アナリストの目標株価（平均）','専門家の予想・保証ではありません。');
@@ -284,7 +287,7 @@
     append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.identityDate,refs.reviewed,refs.sources);
     append(content,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
-    let sourcesSignature='',businessSourceSignature='';
+    let sourcesSignature='',businessSourceSignature='',marketReferenceSignature='';
     function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
       if(!opened||state.symbol!==currentSymbol)return;
@@ -313,6 +316,11 @@
       function fetched(field,fallback){const value=record&&record.source.fields[field]&&record.source.fields[field].fetched_at||fallback;return stamp(value)?dates.label(value/1000,'取得',true):'取得日時：未確認';}
       showMetric('price',money(data.price,currency),data.price!==null&&data.price!==undefined?(stamp(data.price_updated_at)?dates.label(data.price_updated_at/1000,'株価時点',true):data.price_trade_date?dates.label(data.price_trade_date,'終値'):'株価の時点：未確認')+' / '+fetched('price'):null);
       refs.price.note.textContent=quoteNote(state,w.now?w.now():Date.now());refs.price.note.hidden=!refs.price.note.textContent;
+      const marketReference=record&&record.market_data&&record.market_data.kind==='unsupported'&&identity&&REGIONAL_MARKET_REFERENCES[identity.exchange]||'';
+      if(marketReference!==marketReferenceSignature){
+        marketReferenceSignature=marketReference;refs.price.reference.replaceChildren();refs.price.reference.hidden=!marketReference;
+        if(marketReference){const link=el('a','cp-source-link','取引所の公表データを確認 ↗');link.href=marketReference;link.target='_blank';link.rel='noopener noreferrer';append(refs.price.reference,link,el('span','','（株価の時点はリンク先でご確認ください）'));}
+      }
       showMetric('cap',money(data.market_cap,currency,true),data.market_cap!==null&&data.market_cap!==undefined?fetched('market_cap'):null);
       showMetric('annual',money(data.annual_dividend,currency),data.annual_dividend!==null&&data.annual_dividend!==undefined?(stamp(data.dividend_fetched_at)?dates.label(data.dividend_fetched_at/1000,'取得',true):'取得日時：未確認'):null);
       showMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);

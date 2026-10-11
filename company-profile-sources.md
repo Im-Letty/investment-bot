@@ -106,6 +106,21 @@ JPXの東証上場銘柄一覧（2026年9月末）を取得し、4文字の証�
 
 7日で更新対象になり、失敗時は元の取得日時付きの有効な情報を保持します。選択企業だけ・1worker・待機64件までで、全社取得を起動しません。HTTP429やmaxlag等の負荷保護を尊重します。
 
+### 2026-10-11 追加料金なしの情報補完
+
+本人は株価の20分遅延を許容し、追加料金なしを優先しています。新しい有料データ契約や有料AIによる全社紹介生成は行いません。株価の新しい60秒更新は、取得・再配信条件が確認できるまで既定無効のままです。
+
+会社説明は、本人が会社情報を開いて結果を待つ対話取得に限り、MediaWikiの公式例外に従ってmaxlagを指定しません。非対話取得の既定はmaxlag=5を維持します。どちらも同じAPI・名称/市場/証券コード照合を使い、受けたmaxlag・429・503の待機中に方式を切り替えて再送しません。Retry-Afterを15分へ短縮せず、待機終了時刻を同じホストのworker間で共有します。負荷による同社の再確認はこの待機に従い、通常の通信失敗・情報不足は引き続き1時間待ちます。
+
+- [対話取得と自動取得の公式説明](https://www.mediawiki.org/wiki/Manual:Maxlag_parameter)
+- [リクエスト・キャッシュ方針](https://www.wikidata.org/wiki/Wikidata:Data_access)
+
+地方単独上場110社の株価・配当・時価総額について、無料の自動取得と一般サイトへの再配信を許可する取得元は今回確認できませんでした。公開閲覧可能という理由で自動取込を追加しません。取得元未対応の表示を維持し、数字を開いた先に、その市場の人向け公式公表ページへのリンクを付けます。前営業日の日報や古い最終約定もあるため、このリンク先を20分遅延の現在値として表示しません。
+
+- [名証の相場表](https://www.nse.or.jp/market/condition/quick/)、[正式な株価情報配信](https://www.nse.or.jp/market/pay/information/)
+- [札証の市況・統計](https://www.sse.or.jp/market)
+- [福証の日報](https://www.fse.or.jp/market-info/daily/)、[公表データの利用条件](https://www.fse.or.jp/disclaimer/index.php)
+
 - [構造化データのライセンス](https://www.wikidata.org/wiki/Wikidata:Licensing)
 - [証券コードのモデル](https://www.wikidata.org/wiki/Property:P249)
 

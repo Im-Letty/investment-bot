@@ -267,6 +267,18 @@ test('regional financial unavailability leaves its verified identity and sourced
   assert.equal(refs.basic.hidden,false);assert.equal(refs.market.value.textContent,'名証メイン市場');assert.equal(refs.business.section.hidden,false);assert.equal(refs.business.body.textContent,raw.business_overview.text);assert.equal(refs.businessSource.hidden,false);
   assert.equal(refs.price.unknown.textContent,'取得元未対応');assert.equal(refs.price.value.textContent,'—');assert.equal(refs.annual.value.textContent,'—');
 });
+test('unsupported regional figures link only to the matching official market and keep link focus during refresh',()=>{
+  const h=dialogHarness(),key='6147.JP';h.view.open(key,'地域企業',h.trigger);
+  for(const [exchange,url] of [['Sapporo','https://www.sse.or.jp/market'],['Nagoya','https://www.nse.or.jp/market/condition/quick/'],['Fukuoka','https://www.fse.or.jp/market-info/daily/']]){
+    const raw=fixture({symbol:key,name:'地域企業',identity:{...IDENTITY,exchange},editorial:null});
+    const state={symbol:key,status:'ready',data:profile.normalize(raw,key,NOW),updating:false};h.view.render(state);const ref=h.view.elements.price.reference;
+    assert.equal(ref.hidden,false);assert.equal(ref.children[0].href,url);assert.equal(ref.children[0].rel,'noopener noreferrer');
+    const link=ref.children[0];link.focus();h.view.render(state);assert.equal(ref.children[0],link);assert.equal(h.doc.activeElement,link);
+    assert.equal(h.view.elements.price.value.textContent,'—');
+  }
+  const invalid=fixture({symbol:key,identity:{...IDENTITY,exchange:'Tokyo'}});h.view.render({symbol:key,status:'ready',data:profile.normalize(invalid,key,NOW)});assert.equal(h.view.elements.price.reference.hidden,true);
+  h.view.open(KEY,'トヨタ',h.trigger);h.view.render({symbol:KEY,status:'ready',data:profile.normalize(fixture({identity:{...IDENTITY,exchange:'Tokyo'}}),KEY,NOW)});assert.equal(h.view.elements.price.reference.hidden,true);
+});
 test('scanner closing-price dates are explicit; precise quote times take precedence when present',()=>{
   const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price_updated_at=null;raw.data.price_trade_date='2026-09-23';h.view.render(state(raw));const refs=h.view.elements;
   assert.match(refs.price.time.textContent,/2026\/09\/23 終値/);assert.doesNotMatch(refs.price.time.textContent,/株価の時点：未確認/);

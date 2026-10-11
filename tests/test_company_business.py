@@ -1,6 +1,7 @@
 """Short CC0 business facts need both official name and active listing proof."""
 from copy import deepcopy
 from datetime import date, datetime, timezone
+from email.utils import formatdate
 import json
 from pathlib import Path
 import tempfile
@@ -210,6 +211,18 @@ class ProviderTests(unittest.TestCase):
         result = self.provider('7203.T', company(name=''))
         self.assertEqual(result.reason, 'identity_unconfirmed'); self.factory.assert_not_called()
 
+    def test_explicit_interactive_requests_omit_only_maxlag(self):
+        self.responses()
+        self.provider.interactive = True
+        result = self.provider('7203.T', company())
+        self.assertEqual(result['proof']['entity_id'], 'Q53268')
+        self.assertEqual(self.session.get.call_count, 3)
+        for call in self.session.get.call_args_list:
+            self.assertNotIn('maxlag', call.kwargs['params'])
+            self.assertEqual(call.args, ('https://www.wikidata.org/w/api.php',))
+            self.assertFalse(call.kwargs['allow_redirects'])
+        self.assertFalse(WikidataBusinessProvider(interactive='true').interactive)
+
     def test_search_missing_and_name_code_mismatch_are_not_business_facts(self):
         self.session.get.side_effect = [Response({'search': []})]
         self.assertEqual(self.provider('7203.T', company()).reason, 'source_missing')
@@ -250,12 +263,12 @@ class ProviderTests(unittest.TestCase):
         response = Response(b'private token', status=429, headers={'Retry-After': '999999'})
         self.session.get.return_value = response
         result = self.provider('7203.T', company())
-        self.assertEqual(result.reason, 'fetch_error'); self.assertEqual(result.retry_after_seconds, 900)
+        self.assertEqual(result.reason, 'fetch_error'); self.assertEqual(result.retry_after_seconds, 999999)
         self.assertEqual(response.reads, 0)
         self.assertEqual(self.provider('7203.T', company()).reason, 'fetch_error')
         self.assertEqual(self.session.get.call_count, 1)
 
-    def test_http_200_maxlag_or_ratelimited_shares_bounded_provider_pause(self):
+    def test_http_200_maxlag_or_ratelimited_shares_minimum_provider_pause(self):
         for code in ('maxlag', 'ratelimited', 'ratelimit'):
             self.provider._retry_at = 0; self.session.get.reset_mock()
             self.session.get.side_effect = None
@@ -271,14 +284,57 @@ class ProviderTests(unittest.TestCase):
             self.assertEqual(self.provider('7203.T', company())['proof']['entity_id'], 'Q53268')
             self.assertEqual(self.session.get.call_args_list[-1].kwargs['params']['maxlag'], '5')
 
-    def test_maxlag_oversized_retry_after_is_capped_and_unknown_error_stays_fixed(self):
+    def test_long_retry_after_is_never_shortened_and_unknown_error_stays_fixed(self):
         self.session.get.return_value = Response({'error': {'code': 'maxlag', 'info': 'private'}},
                                                 headers={'Retry-After': '999999'})
-        self.assertEqual(self.provider('7203.T', company()).retry_after_seconds, 900)
+        self.assertEqual(self.provider('7203.T', company()).retry_after_seconds, 999999)
         self.provider._retry_at = 0
         self.session.get.return_value = Response({'error': {'code': 'some_unknown_error', 'info': 'private'}})
         self.assertEqual(self.provider('7203.T', company()).reason, 'fetch_error')
         self.assertEqual(self.provider.retry_after_seconds, 0)
+
+    def test_interactive_mode_cannot_bypass_a_previous_pause(self):
+        self.session.get.return_value = Response({'error': {'code': 'maxlag'}}, headers={'Retry-After': '5'})
+        self.assertEqual(self.provider('7203.T', company()).retry_after_seconds, 30)
+        self.provider.interactive = True
+        self.assertEqual(self.provider('7203.T', company()).reason, 'fetch_error')
+        self.assertEqual(self.session.get.call_count, 1)
+        self.now += 30; self.responses()
+        self.assertEqual(self.provider('7203.T', company())['proof']['entity_id'], 'Q53268')
+
+    def test_503_retry_after_is_shared_without_reading_error_body(self):
+        response = Response(b'private', status=503, headers={'Retry-After': '3600'})
+        self.session.get.return_value = response
+        self.assertEqual(self.provider('7203.T', company()).retry_after_seconds, 3600)
+        self.assertEqual(response.reads, 0)
+        self.assertEqual(self.provider('2317.T', company('2317', 'システナ')).reason, 'fetch_error')
+        self.assertEqual(self.session.get.call_count, 1)
+
+    def test_http_date_retry_after_longer_than_fifteen_minutes_is_preserved(self):
+        self.session.get.return_value = Response(b'private', status=429,
+            headers={'Retry-After': formatdate(self.now + 7200, usegmt=True)})
+        self.assertEqual(self.provider('7203.T', company()).retry_after_seconds, 7200)
+        self.now += 7199
+        self.assertEqual(self.provider('7203.T', company()).retry_after_seconds, 1)
+        self.assertEqual(self.session.get.call_count, 1)
+
+    def test_other_workers_and_restarts_observe_the_longest_saved_pause(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = Path(folder) / 'business.backoff.json'
+            first = WikidataBusinessProvider(session_factory=self.factory, now=lambda: self.now,
+                interactive=True, cooldown_path=path)
+            self.session.get.return_value = Response(b'private', status=429, headers={'Retry-After': '3600'})
+            self.assertEqual(first('7203.T', company()).retry_after_seconds, 3600)
+            second_factory = Mock()
+            second = WikidataBusinessProvider(session_factory=second_factory, now=lambda: self.now,
+                interactive=True, cooldown_path=path)
+            self.assertEqual(second('2317.T', company('2317', 'システナ')).retry_after_seconds, 3600)
+            second_factory.assert_not_called()
+            second._reset_process(); self.assertEqual(second.retry_after_seconds, 3600)
+            second._backoff('30'); self.assertEqual(second.retry_after_seconds, 3600)
+            self.assertNotIn('private', path.read_text())
+            self.now += 3599; self.assertEqual(second.retry_after_seconds, 1)
+            self.now += 1; self.assertEqual(second.retry_after_seconds, 0)
 
     def test_malformed_large_slow_and_transport_failures_have_fixed_reason(self):
         for response, expected in [(Response(b'private invalid json'), 'invalid'),
@@ -359,6 +415,20 @@ class CacheTests(unittest.TestCase):
         other.get('7203.T', company()); self.wait_done(other)
         result = other.get('7203.T', company())
         self.assertEqual(result['field_status'], 'fetch_error'); self.assertNotIn('private', json.dumps(result))
+
+    def test_provider_pause_retries_after_its_minimum_instead_of_one_hour(self):
+        loader = Mock(side_effect=[BusinessFailure('fetch_error', retry_after_seconds=30), saved(now=self.now + 30)])
+        cache = self.cache(loader); cache.get('7203.T', company()); self.wait_done(cache)
+        self.now += 29; cache.get('7203.T', company()); self.assertEqual(loader.call_count, 1)
+        self.now += 1; cache.get('7203.T', company()); self.wait_done(cache)
+        self.assertEqual(loader.call_count, 2)
+        self.assertEqual(cache.get('7203.T', company())['field_status'], 'available')
+
+    def test_default_noninteractive_and_selected_service_have_the_same_shared_pause_path(self):
+        automated = CompanyBusinesses(cache_path=self.path, now=lambda: self.now)
+        selected = CompanyBusinesses(cache_path=self.path, now=lambda: self.now, interactive=True)
+        self.assertFalse(automated.loader.interactive); self.assertTrue(selected.loader.interactive)
+        self.assertEqual(automated.loader.cooldown_path, selected.loader.cooldown_path)
 
     def test_queue_64_and_one_worker_no_duplicate_or_unknown_identity_fetch(self):
         release = threading.Event(); calls = []
