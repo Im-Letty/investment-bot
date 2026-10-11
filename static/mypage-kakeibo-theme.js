@@ -7,14 +7,14 @@
   function readingCharts(chart) {
     var style=getComputedStyle(document.body), scale=parseFloat(style.getPropertyValue('--kn-sh-scale'))||1;
     var muted=style.getPropertyValue('--kn-sh-muted').trim(), line=style.getPropertyValue('--kn-sh-line').trim();
-    var family=style.fontFamily, options=chart.options;
+    var family=style.fontFamily, caption=parseFloat(style.getPropertyValue('--kn-type-caption'))||12, options=chart.options;
     if(options.plugins&&options.plugins.legend&&options.plugins.legend.labels) {
       var labels=options.plugins.legend.labels;
-      labels.color=muted;labels.font={family:family,size:Math.max(11,12*scale)};
+      labels.color=muted;labels.font={family:family,size:Math.max(11,caption*scale)};
     }
     Object.keys(options.scales||{}).forEach(function(key){
       var axis=options.scales[key];
-      if(axis.ticks){axis.ticks.color=muted;axis.ticks.font={family:family,size:Math.max(10,11*scale)};}
+      if(axis.ticks){axis.ticks.color=muted;axis.ticks.font={family:family,size:Math.max(11,caption*scale)};}
       if(axis.grid)axis.grid.color=line;
       if(axis.border)axis.border.color=line;
     });

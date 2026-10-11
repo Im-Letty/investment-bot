@@ -3,7 +3,7 @@
   'use strict';
   var names = ['bg', 'paper', 'ink', 'muted', 'line', 'button', 'chip'];
   var defaults = {bg:'#f6f5f1',paper:'#fffefb',ink:'#303638',muted:'#626966',line:'#dbded9',button:'#607765',chip:'#eeeee8'};
-  var palette, signature = '', timer;
+  var palette, signature = '', readingScale = 0, timer;
   var probe = document.createElement('span');
   probe.hidden = true;
   document.body.appendChild(probe);
@@ -60,6 +60,22 @@
     result.chartPrincipal='#7b8580';
     return result;
   }
+  function readScale() {
+    var size='m', scale;
+    try {size=localStorage.getItem('ui_fontscale')||'m';} catch (_) {}
+    scale=({s:.9,m:1,l:1.15,xl:1.3})[size]||1;
+    try {
+      if(window.parent!==window && window.parent.location.origin===location.origin &&
+        window.parent.document.body.classList.contains('kn-home-a')) {
+        var selected=Number(window.parent.getComputedStyle(window.parent.document.body).getPropertyValue('--kn-a-scale').trim());
+        if(Number.isFinite(selected) && selected>0) scale=selected;
+      }
+    } catch (_) {}
+    return scale;
+  }
+  function chartFont(font, size) {
+    return Object.assign({},font,{size:size*(readingScale||1)});
+  }
   function applyChart(chart) {
     if(!chart || !palette) return;
     chart.data.datasets.forEach(function(ds,index){
@@ -69,18 +85,34 @@
       ds.borderDash=principal?[5,4]:[];
     });
     var plugins=chart.options.plugins;
-    if(plugins.legend && plugins.legend.labels) plugins.legend.labels.color=palette.muted;
-    if(plugins.tooltip) Object.assign(plugins.tooltip,{backgroundColor:palette.paper,titleColor:palette.ink,bodyColor:palette.ink,borderColor:palette.line});
+    if(plugins.legend && plugins.legend.labels) {
+      plugins.legend.labels.color=palette.muted;
+      plugins.legend.labels.font=chartFont(plugins.legend.labels.font,12);
+    }
+    if(plugins.tooltip) Object.assign(plugins.tooltip,{
+      backgroundColor:palette.paper,titleColor:palette.ink,bodyColor:palette.ink,borderColor:palette.line,
+      titleFont:chartFont(plugins.tooltip.titleFont,14),bodyFont:chartFont(plugins.tooltip.bodyFont,13)
+    });
     Object.keys(chart.options.scales||{}).forEach(function(k){
       var scale=chart.options.scales[k];
-      if(scale.ticks) scale.ticks.color=palette.muted;
+      if(scale.ticks) {
+        scale.ticks.color=palette.muted;
+        scale.ticks.font=chartFont(scale.ticks.font,12);
+      }
       if(scale.grid) scale.grid.color=alpha(palette.line,.65);
     });
     chart.update('none');
   }
   function sync() {
+    // A size change must also update when the selected color stays the same.
+    var nextScale=readScale(), readingChanged=readingScale!==nextScale;
+    if(readingChanged) {
+      readingScale=nextScale;
+      document.documentElement.style.setProperty('--kn-type-scale',String(readingScale));
+      document.body.setAttribute('data-kn-sim-large-text',String(readingScale>1.15));
+    }
     var next=readPalette(), nextSignature=JSON.stringify(next);
-    if(signature===nextSignature) return;
+    if(signature===nextSignature && !readingChanged) return;
     palette=next;signature=nextSignature;
     names.forEach(function(k){document.documentElement.style.setProperty('--sim-'+k,palette[k]);});
     document.documentElement.style.setProperty('--sim-on-button',palette.onButton);
@@ -88,6 +120,7 @@
     window.__coinRGB=rgb(palette.ink).join(',');
     if(window.Chart) {
       Chart.defaults.color=palette.muted;
+      Chart.defaults.font.size=12*readingScale;
       document.querySelectorAll('.chart-wrap canvas').forEach(function(canvas){applyChart(Chart.getChart(canvas));});
     }
   }
@@ -107,7 +140,7 @@
       });
     }
   } catch (_) {}
-  window.addEventListener('storage',function(e){if(!e.key||e.key==='userBrandColor'||e.key==='userBrandColorCustom')schedule();});
+  window.addEventListener('storage',function(e){if(!e.key||e.key==='userBrandColor'||e.key==='userBrandColorCustom'||e.key==='ui_fontscale')schedule();});
   window.addEventListener('focus',schedule);
   document.addEventListener('visibilitychange',schedule);
   // Cover delayed home initialization without a permanent polling timer.

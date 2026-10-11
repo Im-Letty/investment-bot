@@ -41,7 +41,7 @@ body.kn-ledger-letter {
   padding-bottom:calc(86px + env(safe-area-inset-bottom,0px));
   background:var(--kn-ledger-bg);
   color:var(--kn-ledger-ink);
-  font:400 calc(15px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans);
+  font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans);
   color-scheme:light;
 }
 body.kn-ledger-letter :is(button,input,select,textarea) {font-family:var(--kn-ledger-sans)}
@@ -60,21 +60,23 @@ body.kn-ledger-letter .header {
   color:var(--kn-ledger-ink);
   border-bottom:1px solid var(--kn-ledger-line);
 }
-body.kn-ledger-letter :is(.header::before,.header::after) {background:none}
+/* The old gradient boxes extend past the header even when transparent. */
+body.kn-ledger-letter .header::before,
+body.kn-ledger-letter .header::after {content:none;background:none}
 body.kn-ledger-letter .header-top {gap:16px}
 body.kn-ledger-letter .back-btn {
   min-width:44px;min-height:44px;padding:9px 13px;
   background:transparent!important;color:var(--kn-ledger-ink)!important;
   border:1px solid var(--kn-ledger-line);border-radius:5px;
-  font-size:calc(16px * var(--kn-ledger-scale));opacity:1;
+  font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));opacity:1;
 }
 body.kn-ledger-letter :is(.header-title,.total-asset-label,.total-asset-change) {color:var(--kn-ledger-ink)}
-body.kn-ledger-letter .header-title {font:500 calc(18px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-serif)}
-body.kn-ledger-letter .total-asset-label {font-size:calc(13px * var(--kn-ledger-scale));color:var(--kn-ledger-muted)}
+body.kn-ledger-letter .header-title {font:500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-serif)}
+body.kn-ledger-letter .total-asset-label {font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1));color:var(--kn-ledger-muted)}
 body.kn-ledger-letter .total-asset-val {color:var(--kn-ledger-ink);font-size:calc(34px * var(--kn-ledger-scale));font-weight:600;text-shadow:none}
-body.kn-ledger-letter .total-asset-change {font-size:calc(13px * var(--kn-ledger-scale));color:var(--kn-ledger-muted)}
+body.kn-ledger-letter .total-asset-change {font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1));color:var(--kn-ledger-muted)}
 body.kn-ledger-letter .tab-nav {background:var(--kn-ledger-paper);border-color:var(--kn-ledger-line)}
-body.kn-ledger-letter .tn-item {min-height:48px;padding:12px 18px;font-size:calc(15px * var(--kn-ledger-scale));font-weight:400;color:var(--kn-ledger-muted)}
+body.kn-ledger-letter .tn-item {min-height:48px;padding:12px 18px;font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));font-weight:400;color:var(--kn-ledger-muted)}
 body.kn-ledger-letter .tn-item.active {color:var(--kn-ledger-ink);border-bottom-color:var(--kn-ledger-button);font-weight:500}
 body.kn-ledger-letter .tab-content {padding:24px}
 body.kn-ledger-letter :is(.card,.sum-item) {
@@ -82,10 +84,10 @@ body.kn-ledger-letter :is(.card,.sum-item) {
   border-radius:7px;box-shadow:none;
 }
 body.kn-ledger-letter .card {padding:22px;margin-bottom:20px}
-body.kn-ledger-letter .card-title {margin-bottom:18px;color:var(--kn-ledger-ink);font:500 calc(16px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-sans)}
+body.kn-ledger-letter .card-title {margin-bottom:18px;color:var(--kn-ledger-ink);font:500 calc(var(--kn-type-section,16px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-sans)}
 body.kn-ledger-letter .sum-grid {gap:12px;margin-bottom:20px}
 body.kn-ledger-letter .sum-item {min-width:0;padding:18px}
-body.kn-ledger-letter .sum-lbl {color:var(--kn-ledger-muted);font-size:calc(13px * var(--kn-ledger-scale))}
+body.kn-ledger-letter .sum-lbl {color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1))}
 body.kn-ledger-letter .sum-num {font-size:calc(25px * var(--kn-ledger-scale));font-weight:600;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 body.kn-ledger-letter .sum-num.green {color:var(--kn-ledger-income)}
 body.kn-ledger-letter .sum-num.red {color:var(--kn-ledger-expense)}
@@ -94,30 +96,30 @@ body.kn-ledger-letter .sum-num.sage {color:var(--kn-ledger-investment)}
 body.kn-ledger-letter :is(.total-asset-val,.sum-num,.asset-val,.rec-amt) {font-family:var(--kn-ledger-sans)!important;font-variant-numeric:tabular-nums}
 body.kn-ledger-letter .chart-area {height:230px}
 /* Keep chart datasets, category swatches and bar colours distinct. Only legend text changes. */
-body.kn-ledger-letter :is(#donut-legend,#asset-legend) {min-width:0;font-size:calc(13px * var(--kn-ledger-scale))!important}
+body.kn-ledger-letter :is(#donut-legend,#asset-legend) {min-width:0;font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))!important}
 body.kn-ledger-letter :is(#donut-legend,#asset-legend)>div>span:nth-child(2) {color:var(--kn-ledger-muted)!important;overflow-wrap:anywhere}
 body.kn-ledger-letter :is(#donut-legend,#asset-legend)>div>span:last-child {color:var(--kn-ledger-ink)!important}
 body.kn-ledger-letter :is(.asset-item,.rec-item,.day-rec-item) {padding-block:15px;border-bottom-color:var(--kn-ledger-line)}
-body.kn-ledger-letter :is(.asset-name,.rec-name) {min-width:0;color:var(--kn-ledger-ink);font-size:calc(15px * var(--kn-ledger-scale));font-weight:500;overflow-wrap:anywhere}
-body.kn-ledger-letter .asset-name>span {color:var(--kn-ledger-muted)!important;font-size:calc(12px * var(--kn-ledger-scale))!important}
-body.kn-ledger-letter .asset-val {color:var(--kn-ledger-ink);font-size:calc(16px * var(--kn-ledger-scale));font-weight:600}
-body.kn-ledger-letter :is(.asset-pct,.rec-meta,.day-rec-cat) {color:var(--kn-ledger-muted);font-size:calc(12px * var(--kn-ledger-scale))}
+body.kn-ledger-letter :is(.asset-name,.rec-name) {min-width:0;color:var(--kn-ledger-ink);font-size:calc(var(--kn-type-item,16px) * var(--kn-type-scale,1));font-weight:500;overflow-wrap:anywhere}
+body.kn-ledger-letter .asset-name>span {color:var(--kn-ledger-muted)!important;font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))!important}
+body.kn-ledger-letter .asset-val {color:var(--kn-ledger-ink);font-size:calc(var(--kn-type-value,20px) * var(--kn-type-scale,1));font-weight:600}
+body.kn-ledger-letter :is(.asset-pct,.rec-meta,.day-rec-cat) {color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))}
 body.kn-ledger-letter .rec-body {min-width:0}
 body.kn-ledger-letter .rec-icon {width:40px;height:40px;border-radius:6px}
 body.kn-ledger-letter :is(.rec-icon.inc,.rec-icon.inv) {background:var(--kn-ledger-chip)}
 body.kn-ledger-letter .rec-icon.exp {background:color-mix(in srgb,var(--kn-ledger-expense) 9%,var(--kn-ledger-paper))}
-body.kn-ledger-letter .rec-amt {font-size:calc(17px * var(--kn-ledger-scale));font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.kn-ledger-letter .rec-amt {font-size:calc(var(--kn-type-value,20px) * var(--kn-type-scale,1));font-weight:600;font-variant-numeric:tabular-nums;white-space:nowrap}
 body.kn-ledger-letter .rec-amt.inc {color:var(--kn-ledger-income)}
 body.kn-ledger-letter .rec-amt.exp {color:var(--kn-ledger-expense)}
 body.kn-ledger-letter .rec-amt.inv {color:var(--kn-ledger-investment)}
 body.kn-ledger-letter :is(.rec-del,.day-rec-del) {min-width:44px;min-height:44px;padding:8px;color:var(--kn-ledger-muted)}
 body.kn-ledger-letter :is(.rec-del,.day-rec-del):hover {color:var(--kn-ledger-expense)}
-body.kn-ledger-letter .empty-state {color:var(--kn-ledger-muted);font-size:calc(14px * var(--kn-ledger-scale));line-height:1.9}
+body.kn-ledger-letter .empty-state {color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));line-height:1.9}
 body.kn-ledger-letter :is(.form-tabs,.type-tabs) {gap:8px;margin-bottom:20px}
 body.kn-ledger-letter :is(.ftab,.type-tab) {
   min-width:0;min-height:48px;padding:10px 8px;border:1px solid var(--kn-ledger-line);
   border-radius:5px;background:var(--kn-ledger-paper);color:var(--kn-ledger-muted);
-  font-size:calc(15px * var(--kn-ledger-scale));font-weight:400;line-height:1.6;
+  font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));font-weight:400;line-height:1.6;
 }
 body.kn-ledger-letter :is(.ftab.active-inc,.type-tab.sel-inc) {background:color-mix(in srgb,var(--kn-ledger-income) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-income);border-color:var(--kn-ledger-income);box-shadow:inset 0 -2px 0 var(--kn-ledger-income);font-weight:500}
 body.kn-ledger-letter :is(.ftab.active-exp,.type-tab.sel-exp) {background:color-mix(in srgb,var(--kn-ledger-expense) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-expense);border-color:var(--kn-ledger-expense);box-shadow:inset 0 -2px 0 var(--kn-ledger-expense);font-weight:500}
@@ -125,12 +127,12 @@ body.kn-ledger-letter :is(.ftab.active-inv,.type-tab.sel-inv) {background:color-
 body.kn-ledger-letter :is(input,select,textarea) {
   min-width:0;min-height:48px;border-color:var(--kn-ledger-line)!important;
   border-radius:5px!important;background:var(--kn-ledger-paper)!important;
-  color:var(--kn-ledger-ink)!important;font-size:max(16px,calc(16px * var(--kn-ledger-scale)))!important;line-height:1.6;
+  color:var(--kn-ledger-ink)!important;font-size:max(16px,calc(var(--kn-type-input,16px) * var(--kn-type-scale,1)))!important;line-height:1.6;
 }
 body.kn-ledger-letter .inp {padding:12px 14px;margin-bottom:14px;border-width:1px;box-shadow:none}
 body.kn-ledger-letter :is(input,textarea)::placeholder {color:var(--kn-ledger-muted);opacity:1}
 body.kn-ledger-letter .inp:focus {border-color:var(--kn-ledger-button)!important;box-shadow:none}
-body.kn-ledger-letter .submit-btn {min-height:50px;padding:12px 16px;border-radius:5px;font-size:calc(16px * var(--kn-ledger-scale));font-weight:500;line-height:1.7}
+body.kn-ledger-letter .submit-btn {min-height:50px;padding:12px 16px;border-radius:5px;font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));font-weight:500;line-height:1.7}
 body.kn-ledger-letter .submit-btn.inc {background:var(--kn-ledger-income)}
 body.kn-ledger-letter .submit-btn.exp {background:var(--kn-ledger-expense)}
 body.kn-ledger-letter .submit-btn.inv {background:var(--kn-ledger-investment)}
@@ -138,15 +140,15 @@ body.kn-ledger-letter .submit-btn.ast {background:var(--kn-ledger-ink);color:var
 body.kn-ledger-letter .month-nav {gap:12px;margin-bottom:20px}
 body.kn-ledger-letter .mnav-btn {width:44px;height:44px;border:1px solid var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font-size:calc(16px * var(--kn-ledger-scale))}
 body.kn-ledger-letter .mnav-btn:hover {background:var(--kn-ledger-chip)}
-body.kn-ledger-letter .mnav-lbl {color:var(--kn-ledger-ink);font:500 calc(21px * var(--kn-ledger-scale))/1.6 var(--kn-ledger-serif);text-align:center}
+body.kn-ledger-letter .mnav-lbl {color:var(--kn-ledger-ink);font:500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.6 var(--kn-ledger-serif);text-align:center}
 body.kn-ledger-letter .cal-grid {gap:4px}
-body.kn-ledger-letter .cal-head {padding:7px 0;color:var(--kn-ledger-muted);font-size:calc(13px * var(--kn-ledger-scale));font-weight:400}
+body.kn-ledger-letter .cal-head {padding:7px 0;color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1));font-weight:400}
 body.kn-ledger-letter .cal-head.sun,body.kn-ledger-letter .cal-day.sun .cal-day-num {color:var(--kn-ledger-expense)}
 body.kn-ledger-letter .cal-head.sat,body.kn-ledger-letter .cal-day.sat .cal-day-num {color:var(--kn-ledger-income)}
 body.kn-ledger-letter .cal-day {min-height:60px;border-color:var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);padding:8px 2px;transition:background-color .15s}
 body.kn-ledger-letter .cal-day:hover {background:var(--kn-ledger-chip)}
 body.kn-ledger-letter .cal-day.empty {background:transparent;border-color:transparent}
-body.kn-ledger-letter .cal-day-num {color:var(--kn-ledger-ink);font-size:calc(15px * var(--kn-ledger-scale));font-weight:400;font-variant-numeric:tabular-nums}
+body.kn-ledger-letter .cal-day-num {color:var(--kn-ledger-ink);font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));font-weight:400;font-variant-numeric:tabular-nums}
 body.kn-ledger-letter .cal-day.today {background:var(--kn-ledger-chip);border-color:var(--kn-ledger-button);color:var(--kn-ledger-ink)}
 body.kn-ledger-letter .cal-day.today .cal-day-num {color:var(--kn-ledger-ink);font-weight:600}
 body.kn-ledger-letter .cal-day-total {color:var(--kn-ledger-expense);font-size:calc(10px * var(--kn-ledger-scale));font-variant-numeric:tabular-nums}
@@ -162,21 +164,21 @@ body.kn-ledger-letter .modal-box {
   border:1px solid var(--kn-ledger-line);border-radius:7px 7px 0 0;
   padding:24px;box-shadow:none;
 }
-body.kn-ledger-letter :is(.modal-title,.modal-form-title) {color:var(--kn-ledger-ink);font-size:calc(16px * var(--kn-ledger-scale));font-weight:500}
+body.kn-ledger-letter :is(.modal-title,.modal-form-title) {color:var(--kn-ledger-ink);font-size:calc(var(--kn-type-section,16px) * var(--kn-type-scale,1));font-weight:500}
 body.kn-ledger-letter .modal-close {width:44px;height:44px;min-width:44px;border-radius:5px;background:transparent;color:var(--kn-ledger-ink)}
 body.kn-ledger-letter .modal-close:hover {background:var(--kn-ledger-chip)}
-body.kn-ledger-letter #dayRecList .day-rec-item>div:nth-child(2)>div:first-child {color:var(--kn-ledger-ink)!important;font-size:calc(15px * var(--kn-ledger-scale))!important;font-weight:500!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #dayRecList .day-rec-item>div:nth-child(2)>div:first-child {color:var(--kn-ledger-ink)!important;font-size:calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))!important;font-weight:500!important;overflow-wrap:anywhere}
 body.kn-ledger-letter #dayRecList .day-rec-item>div:nth-child(3)[style*="var(--brand-color)"] {color:var(--kn-ledger-income)!important}
 body.kn-ledger-letter #ocr-modal .box {
   max-width:720px;padding:24px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);
   border:1px solid var(--kn-ledger-line);border-radius:7px;box-shadow:none;
 }
-body.kn-ledger-letter #ocr-modal h3 {font:500 calc(20px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-serif)}
-body.kn-ledger-letter #ocr-modal label {color:var(--kn-ledger-muted);font-size:calc(13px * var(--kn-ledger-scale))!important}
+body.kn-ledger-letter #ocr-modal h3 {font:500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-serif)}
+body.kn-ledger-letter #ocr-modal label {color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1))!important}
 body.kn-ledger-letter #ocr-modal :is(.top,.row) {gap:8px;margin-bottom:12px}
 body.kn-ledger-letter #ocr-modal :is(input,select) {padding:9px 10px}
 body.kn-ledger-letter #ocr-modal .row {grid-template-columns:minmax(0,2fr) minmax(76px,1fr) minmax(96px,1fr) 44px}
-body.kn-ledger-letter #ocr-modal :is(.add-btn,.delx,.actions button) {min-height:44px;padding:9px 12px;border-radius:5px;font-size:calc(14px * var(--kn-ledger-scale));font-weight:500;line-height:1.7}
+body.kn-ledger-letter #ocr-modal :is(.add-btn,.delx,.actions button) {min-height:44px;padding:9px 12px;border-radius:5px;font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));font-weight:500;line-height:1.7}
 body.kn-ledger-letter #ocr-modal :is(.add-btn,.cancel-btn) {border:1px solid var(--kn-ledger-line);background:var(--kn-ledger-chip);color:var(--kn-ledger-ink)}
 body.kn-ledger-letter #ocr-modal .save-btn {background:var(--kn-ledger-ink);color:var(--kn-ledger-paper)}
 body.kn-ledger-letter #ocr-modal .delx {background:transparent;color:var(--kn-ledger-expense);border:1px solid var(--kn-ledger-line)}
@@ -184,73 +186,73 @@ body.kn-ledger-letter #ocr-total {color:var(--kn-ledger-ink);font-variant-numeri
 body.kn-ledger-letter .kkb {min-height:56px;padding:12px 16px;margin:0;border:1px solid var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;transition:background-color .15s}
 body.kn-ledger-letter .kkb:hover,body.kn-ledger-letter .kkb:active {transform:none;box-shadow:none;background:var(--kn-ledger-chip)}
 body.kn-ledger-letter .kkb-icon {width:40px;height:40px;border-radius:5px;background:var(--kn-ledger-chip)}
-body.kn-ledger-letter .kkb-title {color:var(--kn-ledger-ink);font-size:calc(15px * var(--kn-ledger-scale));font-weight:500;white-space:normal;line-height:1.6}
-body.kn-ledger-letter .kkb-sub {color:var(--kn-ledger-muted);font-size:calc(12px * var(--kn-ledger-scale));font-weight:400;white-space:normal;line-height:1.6}
+body.kn-ledger-letter .kkb-title {color:var(--kn-ledger-ink);font-size:calc(var(--kn-type-item,16px) * var(--kn-type-scale,1));font-weight:500;white-space:normal;line-height:1.6}
+body.kn-ledger-letter .kkb-sub {color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1));font-weight:400;white-space:normal;line-height:1.6}
 body.kn-ledger-letter #kk-input-actions {flex-wrap:wrap}
 body.kn-ledger-letter .kk-bottomnav {width:calc(100% - 48px);max-width:912px;margin:22px auto 0;padding:5px;border:1px solid var(--kn-ledger-line);border-radius:7px;background:var(--kn-ledger-paper);box-shadow:none}
-body.kn-ledger-letter .kk-bottomnav .kk-nav-item {min-width:0;min-height:56px;padding:8px 5px;border-radius:4px;color:var(--kn-ledger-muted);font-size:calc(13px * var(--kn-ledger-scale));font-weight:400;line-height:1.5}
+body.kn-ledger-letter .kk-bottomnav .kk-nav-item {min-width:0;min-height:56px;padding:8px 5px;border-radius:4px;color:var(--kn-ledger-muted);font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1));font-weight:400;line-height:1.5}
 body.kn-ledger-letter .kk-bottomnav .kk-nav-item.active {background:var(--kn-ledger-chip);color:var(--kn-ledger-ink);box-shadow:inset 0 -2px 0 var(--kn-ledger-button);font-weight:500}
 body.kn-ledger-letter .kk-bottomnav .kk-nav-item.active svg {stroke:currentColor}
 body.kn-ledger-letter :is(#mailSection,#gmailSection) {max-width:912px;margin:20px auto!important;padding:22px!important;border:1px solid var(--kn-ledger-line);border-radius:7px!important;background:var(--kn-ledger-paper)!important;box-shadow:none!important;color:var(--kn-ledger-ink);font-family:var(--kn-ledger-sans)!important}
-body.kn-ledger-letter :is(#mailSection,#gmailSection) :is(h2,h3) {color:var(--kn-ledger-ink)!important;font-weight:500}
-body.kn-ledger-letter :is(#mailAddrBtn,#gmailConnectBtn,#gmailSyncBtn,#gmailIntroAgree) {min-height:44px;padding:10px 14px!important;border-radius:5px!important;background:var(--kn-ledger-ink)!important;color:var(--kn-ledger-paper)!important;font:500 calc(14px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-sans)!important}
-body.kn-ledger-letter :is(#mailCopyBtn,#gmailIntroCancel,#gmailDisconnectBtn) {min-height:44px;padding:10px 14px!important;border:1px solid var(--kn-ledger-line)!important;border-radius:5px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:400 calc(14px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter :is(#mailSection,#gmailSection) :is(h2,h3) {color:var(--kn-ledger-ink)!important;font-size:calc(var(--kn-type-section,16px) * var(--kn-type-scale,1))!important;font-weight:500;line-height:1.7}
+body.kn-ledger-letter :is(#mailAddrBtn,#gmailConnectBtn,#gmailSyncBtn,#gmailIntroAgree) {min-height:44px;padding:10px 14px!important;border-radius:5px!important;background:var(--kn-ledger-ink)!important;color:var(--kn-ledger-paper)!important;font:500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter :is(#mailCopyBtn,#gmailIntroCancel,#gmailDisconnectBtn) {min-height:44px;padding:10px 14px!important;border:1px solid var(--kn-ledger-line)!important;border-radius:5px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-sans)!important}
 body.kn-ledger-letter #gmailDisconnectBtn {color:var(--kn-ledger-expense)!important}
-body.kn-ledger-letter #mailAddrBox {padding:14px!important;border:1px solid var(--kn-ledger-line);border-radius:5px!important;background:var(--kn-ledger-chip)!important}
+body.kn-ledger-letter #mailAddrBox {font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))!important;padding:14px!important;border:1px solid var(--kn-ledger-line);border-radius:5px!important;background:var(--kn-ledger-chip)!important}
 body.kn-ledger-letter :is(#mailAddrText,#gmailInfo) {color:var(--kn-ledger-ink)!important}
-body.kn-ledger-letter :is(#mailAddrMsg,#gmailSyncResult) {color:var(--kn-ledger-muted)!important;font-size:calc(13px * var(--kn-ledger-scale))!important;line-height:1.8}
+body.kn-ledger-letter :is(#mailAddrMsg,#gmailSyncResult) {color:var(--kn-ledger-muted)!important;font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))!important;line-height:1.8}
 body.kn-ledger-letter :is(#gmailIntroModal,#kk-ai-modal)>div {background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink);border:1px solid var(--kn-ledger-line);border-radius:7px!important;padding:24px!important;box-shadow:none!important}
-body.kn-ledger-letter #gmailIntroModal h3 {color:var(--kn-ledger-ink)!important;font:500 calc(20px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-serif)}
+body.kn-ledger-letter #gmailIntroModal h3 {color:var(--kn-ledger-ink)!important;font:500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-serif)}
 body.kn-ledger-letter #kkHomeBar {background:var(--kn-ledger-paper);border-top-color:var(--kn-ledger-line);box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none}
-body.kn-ledger-letter #kkHomeBar .bn-item {min-height:50px;color:var(--kn-ledger-muted);font-family:var(--kn-ledger-sans);font-weight:400;line-height:1.5}
+body.kn-ledger-letter #kkHomeBar .bn-item {font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1));min-height:50px;color:var(--kn-ledger-muted);font-family:var(--kn-ledger-sans);font-weight:400;line-height:1.5}
 body.kn-ledger-letter #kkHomeBar .bn-item:active {transform:none;color:var(--kn-ledger-ink)}
 /* Nested text and generated panels use the same paper, type and spacing as their enclosing view. */
 body.kn-ledger-letter :is(.asset-item,.rec-item,.day-rec-item) {gap:12px;min-width:0}
 body.kn-ledger-letter .day-rec-item>div:nth-child(2) {min-width:0}
-body.kn-ledger-letter .day-rec-item>div:nth-child(3) {font:600 calc(16px * var(--kn-ledger-scale))/1.6 var(--kn-ledger-sans)!important;font-variant-numeric:tabular-nums;white-space:nowrap}
+body.kn-ledger-letter .day-rec-item>div:nth-child(3) {font:600 calc(var(--kn-type-value,20px) * var(--kn-type-scale,1))/1.6 var(--kn-ledger-sans)!important;font-variant-numeric:tabular-nums;white-space:nowrap}
 body.kn-ledger-letter .day-rec-item>div:nth-child(3)[style*="color:#e05050"] {color:var(--kn-ledger-expense)!important}
 body.kn-ledger-letter .day-rec-item>div:nth-child(3)[style*="color:#2ba888"] {color:var(--kn-ledger-investment)!important}
 body.kn-ledger-letter #calCatSummary>div {min-width:0}
-body.kn-ledger-letter #calCatSummary>div:first-child {font:500 calc(15px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important}
-body.kn-ledger-letter #calCatSummary>div>div>span {font:400 calc(14px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #calCatSummary>div:first-child {font:500 calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #calCatSummary>div>div>span {font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
 body.kn-ledger-letter #calCatSummary>div>div>span:last-child {color:var(--kn-ledger-expense)!important;font-weight:500!important}
-body.kn-ledger-letter #calCatSummary>div>div:last-child {color:var(--kn-ledger-muted)!important;font-size:calc(12px * var(--kn-ledger-scale))!important}
-body.kn-ledger-letter #ocr-bar>button {min-height:48px;padding:12px 16px!important;border:1px solid var(--kn-ledger-line)!important;border-radius:5px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:500 calc(15px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-sans)!important;box-shadow:none!important}
+body.kn-ledger-letter #calCatSummary>div>div:last-child {color:var(--kn-ledger-muted)!important;font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))!important}
+body.kn-ledger-letter #ocr-bar>button {min-height:48px;padding:12px 16px!important;border:1px solid var(--kn-ledger-line)!important;border-radius:5px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-sans)!important;box-shadow:none!important}
 body.kn-ledger-letter #ocr-spinner {background:rgba(24,38,31,.35)!important}
 body.kn-ledger-letter #ocr-spinner>div:first-child {border-color:var(--kn-ledger-line)!important;border-top-color:var(--kn-ledger-ink)!important;background:var(--kn-ledger-paper)}
-body.kn-ledger-letter #ocr-spinner>div:last-child {max-width:calc(100% - 40px);padding:10px 18px;border:1px solid var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:400 calc(15px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important;text-align:center}
-body.kn-ledger-letter #ocr-modal .box>div>strong {color:var(--kn-ledger-ink);font:500 calc(15px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important}
-body.kn-ledger-letter #ocr-modal #ocr-items+div {margin-top:16px!important;padding-top:12px;border-top:1px solid var(--kn-ledger-line);color:var(--kn-ledger-muted)!important;font:400 calc(14px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #ocr-spinner>div:last-child {max-width:calc(100% - 40px);padding:10px 18px;border:1px solid var(--kn-ledger-line);border-radius:5px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important;text-align:center}
+body.kn-ledger-letter #ocr-modal .box>div>strong {color:var(--kn-ledger-ink);font:500 calc(var(--kn-type-section,16px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #ocr-modal #ocr-items+div {margin-top:16px!important;padding-top:12px;border-top:1px solid var(--kn-ledger-line);color:var(--kn-ledger-muted)!important;font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important}
 body.kn-ledger-letter #ocr-total {font-weight:500;color:var(--kn-ledger-ink)}
 body.kn-ledger-letter :is(#mailSection,#gmailSection)>p,
 body.kn-ledger-letter #mailAddrBox>div:first-child,
-body.kn-ledger-letter #gmailNotConnected>p {color:var(--kn-ledger-muted)!important;font:400 calc(14px * var(--kn-ledger-scale))/1.9 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
-body.kn-ledger-letter #mailAddrText {font:500 calc(14px * var(--kn-ledger-scale))/1.8 ui-monospace,SFMono-Regular,Menlo,monospace!important;overflow-wrap:anywhere}
-body.kn-ledger-letter :is(#gmailInfo,#gmailSyncResult,#mailAddrMsg) {font:400 calc(14px * var(--kn-ledger-scale))/1.9 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
-body.kn-ledger-letter #gmailIntroModal>div>div:not(:last-child) {color:var(--kn-ledger-ink)!important;font:400 calc(15px * var(--kn-ledger-scale))/1.9 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #gmailNotConnected>p {color:var(--kn-ledger-muted)!important;font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.9 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #mailAddrText {font:500 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.8 ui-monospace,SFMono-Regular,Menlo,monospace!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #gmailInfo {font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.9 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #gmailIntroModal>div>div:not(:last-child) {color:var(--kn-ledger-ink)!important;font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.9 var(--kn-ledger-sans)!important}
 body.kn-ledger-letter #gmailIntroModal p+p {margin-top:12px}
 body.kn-ledger-letter #gmailIntroModal strong {font-weight:500}
 body.kn-ledger-letter #gmailIntroModal>div>div:last-child {gap:8px}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-panel {width:100%;max-width:720px!important;padding:24px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink);border:1px solid var(--kn-ledger-line);border-radius:7px!important;box-shadow:none!important;font-family:var(--kn-ledger-sans)}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-head {gap:12px;margin-bottom:20px!important}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-head h2 {color:var(--kn-ledger-ink)!important;font:500 calc(20px * var(--kn-ledger-scale))/1.7 var(--kn-ledger-serif)!important}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-head h2 {color:var(--kn-ledger-ink)!important;font:500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.7 var(--kn-ledger-serif)!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-head>button {min-width:44px;min-height:44px;background:transparent!important;border:0!important;color:var(--kn-ledger-ink)!important;border-radius:5px;font-size:calc(24px * var(--kn-ledger-scale))!important}
-body.kn-ledger-letter #kk-ai-body {color:var(--kn-ledger-muted)!important;font:400 calc(15px * var(--kn-ledger-scale))/1.9 var(--kn-ledger-sans)}
+body.kn-ledger-letter #kk-ai-body {color:var(--kn-ledger-muted)!important;font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.9 var(--kn-ledger-sans)}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-score {padding:18px!important;margin-bottom:20px!important;border:1px solid var(--kn-ledger-line);border-radius:5px!important;background:var(--kn-ledger-chip)!important;color:var(--kn-ledger-ink)!important}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-score>div:first-child {font:400 calc(13px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important;color:var(--kn-ledger-muted);opacity:1!important}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-score>div:first-child {font:400 calc(var(--kn-type-label,13px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important;color:var(--kn-ledger-muted);opacity:1!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-score-number {width:fit-content!important;min-width:120px;height:auto!important;padding:10px 24px;margin:8px auto!important;border:1px solid var(--kn-ledger-line);border-radius:5px!important;background:var(--kn-ledger-paper)!important;font:600 calc(36px * var(--kn-ledger-scale))/1.3 var(--kn-ledger-sans)!important;font-variant-numeric:tabular-nums}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-score-number[style*="color:#27ae60"] {color:var(--kn-ledger-income)!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-score-number[style*="color:#f39c12"] {color:var(--kn-ledger-warning)!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-score-number[style*="color:#e74c3c"] {color:var(--kn-ledger-expense)!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-section {margin:20px 0!important;padding-top:16px;border-top:1px solid var(--kn-ledger-line)}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-heading {margin-bottom:8px!important;color:var(--kn-ledger-ink)!important;font:500 calc(16px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-text {color:var(--kn-ledger-ink)!important;font:400 calc(15px * var(--kn-ledger-scale))/1.95 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-heading {margin-bottom:8px!important;color:var(--kn-ledger-ink)!important;font:500 calc(var(--kn-type-section,16px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-text {color:var(--kn-ledger-ink)!important;font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.95 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
 body.kn-ledger-letter #kk-ai-modal ul.kk-advice-text {padding-left:22px!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-text li {margin-block:8px!important}
 body.kn-ledger-letter #kk-ai-modal .kk-advice-investment {margin:20px 0!important;padding:16px!important;border:1px solid var(--kn-ledger-line)!important;border-left:2px solid var(--kn-ledger-button)!important;border-radius:5px!important;background:var(--kn-ledger-chip)!important}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-usage {margin-top:20px!important;color:var(--kn-ledger-muted)!important;font:400 calc(13px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-close {min-height:48px;padding:10px 24px!important;border:1px solid var(--kn-ledger-ink)!important;border-radius:5px!important;background:var(--kn-ledger-ink)!important;color:var(--kn-ledger-paper)!important;font:500 calc(15px * var(--kn-ledger-scale))/1.8 var(--kn-ledger-sans)!important}
-body.kn-ledger-letter #kk-ai-modal .kk-advice-error {padding:16px!important;border:1px solid color-mix(in srgb,var(--kn-ledger-expense) 35%,var(--kn-ledger-line));border-left:2px solid var(--kn-ledger-expense);border-radius:5px;background:color-mix(in srgb,var(--kn-ledger-expense) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-expense)!important;font:400 calc(15px * var(--kn-ledger-scale))/1.9 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-usage {margin-top:20px!important;color:var(--kn-ledger-muted)!important;font:400 calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-close {min-height:48px;padding:10px 24px!important;border:1px solid var(--kn-ledger-ink)!important;border-radius:5px!important;background:var(--kn-ledger-ink)!important;color:var(--kn-ledger-paper)!important;font:500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important}
+body.kn-ledger-letter #kk-ai-modal .kk-advice-error {padding:16px!important;border:1px solid color-mix(in srgb,var(--kn-ledger-expense) 35%,var(--kn-ledger-line));border-left:2px solid var(--kn-ledger-expense);border-radius:5px;background:color-mix(in srgb,var(--kn-ledger-expense) 8%,var(--kn-ledger-paper));color:var(--kn-ledger-expense)!important;font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.9 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}
 @media (min-width:720px) {
   body.kn-ledger-letter .sum-grid {grid-template-columns:repeat(4,minmax(0,1fr))}
   body.kn-ledger-letter .modal-box {margin-bottom:24px;border-radius:7px}
@@ -278,3 +280,8 @@ body.kn-ledger-letter #kk-ai-modal .kk-advice-error {padding:16px!important;bord
   body.kn-ledger-letter :is(.kkb,.cal-day) {transition:none}
   body.kn-ledger-letter .kn-chat-fab,body.kn-ledger-letter .kn-chat-fab .kn-bot {animation:none}
 }
+
+/* Supporting account notices follow the same caption role as the morning letter. */
+body.kn-ledger-letter #mailAddrBox>p,
+body.kn-ledger-letter #gmailNotConnected>p,
+body.kn-ledger-letter :is(#gmailSyncResult,#mailAddrMsg) {font:400 calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))/1.8 var(--kn-ledger-sans)!important;overflow-wrap:anywhere}

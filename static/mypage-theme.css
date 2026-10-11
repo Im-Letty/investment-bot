@@ -14,6 +14,7 @@ body.kn-home-a #myPageOv {
   background: var(--kn-sh-bg, #f0eedf) !important;
   color: var(--kn-sh-ink, #3d4b3c) !important;
   font-family: var(--kn-a-sans, system-ui, sans-serif);
+  font-size: calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));
   overscroll-behavior: contain;
 }
 
@@ -27,7 +28,7 @@ body.kn-home-a #myPageOv .mo-head {
   background: var(--kn-sh-bg, #f0eedf) !important;
   color: var(--kn-sh-ink, #3d4b3c) !important;
   border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
-  font: 500 calc(22px * var(--kn-a-scale, 1))/1.4 var(--kn-a-serif, "Yu Mincho", serif) !important;
+  font: 500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.4 var(--kn-a-serif, "Yu Mincho", serif) !important;
 }
 
 body.kn-home-a #myPageOv .mo-head > span {
@@ -74,7 +75,7 @@ body.kn-home-a #myPageOv .mp-toptab {
   background: var(--kn-sh-paper, #fdfcf6) !important;
   color: var(--kn-sh-muted, #606b57) !important;
   box-shadow: none;
-  font: 400 calc(16px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  font: 400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans, sans-serif) !important;
   white-space: nowrap;
 }
 
@@ -105,7 +106,7 @@ body.kn-home-a #myPageOv .mo-tab {
   background: transparent !important;
   color: var(--kn-sh-muted, #606b57) !important;
   border-bottom: 2px solid transparent;
-  font: 400 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  font: 400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans, sans-serif) !important;
   white-space: nowrap;
 }
 
@@ -135,7 +136,7 @@ body.kn-home-a #myPageOv .mo-pane {
 
 body.kn-home-a #myPageOv :is(.mo-lead, .mo-note, .td-empty) {
   color: var(--kn-sh-muted, #606b57) !important;
-  font: 400 calc(14px * var(--kn-a-scale, 1))/1.75 var(--kn-a-sans, sans-serif) !important;
+  font: 400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.75 var(--kn-a-sans, sans-serif) !important;
   overflow-wrap: anywhere;
 }
 
@@ -145,7 +146,7 @@ body.kn-home-a #myPageOv .mo-save {
   min-height: calc(20px * var(--kn-a-scale, 1));
   height: auto;
   color: var(--kn-sh-muted, #606b57) !important;
-  font: 400 calc(12px * var(--kn-a-scale, 1))/1.6 var(--kn-a-sans, sans-serif) !important;
+  font: 400 calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))/1.6 var(--kn-a-sans, sans-serif) !important;
   overflow-wrap: anywhere;
 }
 
@@ -158,7 +159,7 @@ body.kn-home-a #myPageOv :is(textarea, .td-add input) {
   border-radius: 8px;
   background: var(--kn-sh-paper, #fdfcf6) !important;
   color: var(--kn-sh-ink, #3d4b3c) !important;
-  font: 400 max(16px, calc(16px * var(--kn-a-scale, 1)))/1.7 var(--kn-a-sans, sans-serif) !important;
+  font: 400 max(16px, calc(var(--kn-type-input,16px) * var(--kn-type-scale,1)))/1.7 var(--kn-a-sans, sans-serif) !important;
 }
 
 body.kn-home-a #myPageOv :is(textarea, input)::placeholder {
@@ -183,7 +184,7 @@ body.kn-home-a #myPageOv .td-add button {
   border-radius: 8px;
   background: var(--kn-sh-ink, #3d4b3c) !important;
   color: var(--kn-sh-paper, #fdfcf6) !important;
-  font: 500 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  font: 500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans, sans-serif) !important;
   white-space: nowrap;
 }
 
@@ -219,7 +220,7 @@ body.kn-home-a #myPageOv .td-item.done .td-chk {
 body.kn-home-a #myPageOv .td-txt {
   min-width: 0;
   color: var(--kn-sh-ink, #3d4b3c) !important;
-  font: 400 calc(16px * var(--kn-a-scale, 1))/1.7 var(--kn-a-sans, sans-serif) !important;
+  font: 400 calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))/1.7 var(--kn-a-sans, sans-serif) !important;
   overflow-wrap: anywhere;
 }
 
@@ -278,7 +279,7 @@ body.kn-home-a #myPageOv button:disabled { opacity: .55; cursor: wait; }
     padding-left: 60px;
     padding-top: 14px;
     padding-bottom: 14px;
-    font-size: calc(19px * var(--kn-a-scale, 1)) !important;
+    font-size: calc(var(--kn-type-page,19px) * var(--kn-type-scale,1)) !important;
   }
   body.kn-home-a #myPageOv .mp-toptabs { padding-top: 10px; padding-bottom: 10px; }
   body.kn-home-a #myPageOv .mp-toptab { padding-right: 14px; padding-left: 14px; }
@@ -300,7 +301,7 @@ body.kn-home-a #myPageOv #knLogoutBtn {
   border-radius: 8px !important;
   background: var(--kn-sh-paper, #fdfcf6) !important;
   color: #b1443b !important;
-  font: 500 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  font: 500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans, sans-serif) !important;
 }
 
 body.kn-home-a[data-theme="dark"] #myPageOv #knLogoutBtn {
@@ -332,7 +333,7 @@ body.kn-home-a #knLogoutDlg > div {
 
 body.kn-home-a #knLogoutDlg > div > div:first-child {
   color: var(--kn-sh-ink, #3d4b3c) !important;
-  font: 500 calc(18px * var(--kn-a-scale, 1))/1.6 var(--kn-a-serif, "Yu Mincho", serif) !important;
+  font: 500 calc(var(--kn-type-section,16px) * var(--kn-type-scale,1))/1.6 var(--kn-a-serif, "Yu Mincho", serif) !important;
   overflow-wrap: anywhere;
 }
 
@@ -348,7 +349,7 @@ body.kn-home-a #knLogoutDlg button {
   box-sizing: border-box;
   padding: 11px 12px !important;
   border-radius: 8px !important;
-  font: 500 calc(15px * var(--kn-a-scale, 1))/1.5 var(--kn-a-sans, sans-serif) !important;
+  font: 500 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans, sans-serif) !important;
   white-space: nowrap;
 }
 

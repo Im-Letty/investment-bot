@@ -36,7 +36,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs :is([data-kn-tab="st
   border-radius:var(--kn-stock-radius)!important;
   background:transparent!important;
   color:var(--kn-a-muted)!important;
-  font:400 calc(16px * var(--kn-a-scale,1))/1.65 var(--kn-a-sans,sans-serif)!important;
+  font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.65 var(--kn-a-sans,sans-serif)!important;
   white-space:normal!important;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
@@ -81,7 +81,7 @@ body.kn-home-a #knTabWrap #knDividendCalendar .dc-filters {gap:6px;flex-wrap:wra
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-filter {
   min-height:48px;padding:8px 12px;
   border:1px solid var(--kn-a-line);border-radius:var(--kn-stock-radius);
-  background:var(--kn-a-paper);font-size:calc(16px * var(--kn-a-scale,1));
+  background:var(--kn-a-paper);font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));
 }
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-filter[aria-pressed="true"] {
   border-color:var(--kn-a-button);background:var(--kn-a-chip);color:var(--kn-a-ink);
@@ -108,7 +108,7 @@ body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter {
   border:1px solid var(--kn-a-line)!important;
   border-radius:var(--kn-stock-radius)!important;
   background:transparent!important;color:var(--kn-a-muted)!important;
-  font:400 calc(16px * var(--kn-a-scale,1))/1.65 var(--kn-a-sans,sans-serif)!important;
+  font:400 calc(var(--kn-type-control,14px) * var(--kn-type-scale,1))/1.65 var(--kn-a-sans,sans-serif)!important;
   white-space:normal!important;text-align:center;
 }
 body.kn-home-a #morning-section #knTabWrap #knDivSubRow button[aria-pressed="true"],
@@ -192,7 +192,7 @@ body.kn-home-a #morning-section #knTabWrap :is(
   .dividend-search-result .res-name,
   .dividend-ac-item
 ) {
-  font:500 calc(17px * var(--kn-a-scale,1))/1.7 var(--kn-a-sans,sans-serif)!important;
+  font:500 calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))/1.7 var(--kn-a-sans,sans-serif)!important;
 }
 body.kn-home-a #morning-section #knTabWrap .sf-stock-name .cp-company-link,
 body.kn-home-a #morning-section #knTabWrap .sf-stock-name .cp-company-link>span,

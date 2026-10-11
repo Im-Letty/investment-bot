@@ -1,0 +1,171 @@
+/* Shared type sizes, based on the morning letter. Values stay unscaled so each
+   document can apply its own reading setting once, including embedded pages. */
+:root {
+  --kn-type-scale:1;
+  --kn-type-page:22px;
+  --kn-type-section:16px;
+  --kn-type-item:16px;
+  --kn-type-body:14px;
+  --kn-type-reading:15px;
+  --kn-type-control:14px;
+  --kn-type-label:13px;
+  --kn-type-caption:12px;
+  --kn-type-input:16px;
+  --kn-type-value:20px;
+  --kn-type-quote:23px;
+  --kn-type-news-title:23px;
+}
+body.kn-home-a {--kn-type-scale:var(--kn-a-scale,1)}
+body.kn-ledger-letter {--kn-type-scale:var(--kn-ledger-scale,1)}
+@media(max-width:640px) {
+  :root {
+    --kn-type-page:19px;
+    --kn-type-reading:14px;
+    --kn-type-value:18px;
+    --kn-type-news-title:20px;
+  }
+}
+
+/* Editorial headlines, the date emblem and the wordmark have separate roles.
+   Keep their hierarchy; section names use the same 16px across all three blocks. */
+body.kn-home-a #morning-section :is(#knNewsDigestTitle,#knCompanyNewsTitle,#knTabWrap .kn-a-section-title) {
+  font-size:calc(var(--kn-type-section) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knNewsDigest :is(.brief-headline,.summarized-story .story-title) {
+  font-size:calc(var(--kn-type-news-title) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knNewsDigest :is(.brief p,.article-summary,.reading-block p,.headline-list li) {
+  font-size:calc(var(--kn-type-reading) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knNewsDigest :is(.article-sources,.article-meta,.news-info-content,.news-info-note,.story-source,.news-footer,.headline-meta,.headline-source,.story-takeaway) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyNewsSection :is(.sf-company-title,.sf-explanation>summary h4) {
+  font-size:calc(var(--kn-type-item) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyNewsSection .sf-company-name {
+  font-size:calc(var(--kn-type-label) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyNewsSection :is(.sf-stock-code,.sf-story-date,.sf-source) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyNewsSection :is(.sf-explanation p,.sf-explanation>div,.sf-state) {
+  font-size:calc(var(--kn-type-body) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyNewsSection button.sf-more {
+  font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important;
+}
+
+/* Stock names, controls and supporting labels use the same roles in every tab. */
+body.kn-home-a #morning-section #knTabWrap :is(.sf-stock-name,.sf-company-name,.div-name,.dc-company,.kn-stock-search-company strong) {
+  font-size:calc(var(--kn-type-item) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #morning-section #knTabWrap :is([data-kn-tab],#knSubRow button,#knDivSubRow button,.sf-order-trigger,.sf-more>summary,.sf-watch-manage,.sf-watch-add,.dividend-more>summary,.dc-filter,.dc-more,.dc-reset,.dc-profile,.kn-stock-search-form button,.kn-stock-search-head) {
+  font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #morning-section #knTabWrap .sf-order-trigger>span {font-size:inherit!important}
+body.kn-home-a #morning-section #knTabWrap :is(.sf-stock-code,.sf-meta,.sf-ranking-help,.sf-ranking-condition,.sf-watch-status,.sf-volume,.div-code,.div-metric-label,.dividend-basis,.dividend-snapshot-status,.dc-company-code,.dc-status,.dc-evidence,.dc-event-kind,.dc-dividend-note,.dc-record-note,.dc-broker-note,.dc-price-status,.bc-date,.bc-tags,.kn-stock-search-company span) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #morning-section #knTabWrap :is(.sf-state,.sf-explanation p,.sf-explanation>div,.dc-date-guide p,.dc-holding-note,.dc-after-deadline p,.dc-unit-note,.bc-detail,.bc-pending) {
+  font-size:calc(var(--kn-type-body) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #morning-section #knTabWrap :is(.sf-price,.div-yield) {
+  font-size:calc(var(--kn-type-quote) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #morning-section #knTabWrap :is(.sf-change,.sf-change>span,.div-metric-value) {
+  font-size:calc(var(--kn-type-body) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #morning-section #knTabWrap :is(input:not([type=checkbox]),select,.kn-stock-search-form input) {
+  font-size:max(16px,calc(var(--kn-type-input) * var(--kn-type-scale)))!important;
+}
+
+/* Company information keeps its content and ordering; only type roles change. */
+body.kn-home-a #knCompanyProfile .cp-title {
+  font-size:calc(var(--kn-type-page) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyProfile .cp-heading {
+  font-size:calc(var(--kn-type-section) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyProfile :is(.cp-basic-row,.cp-story-copy,.cp-numbers-toggle) {
+  font-size:calc(var(--kn-type-body) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyProfile :is(.cp-code,.cp-definition,.cp-unknown,.cp-fact-time,.cp-fact-note,.cp-reason-help,.cp-review-date,.cp-source-link,.cp-source-time,.cp-feedback,.cp-metric-label,.cp-sources>.cp-heading) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyProfile :is(.cp-close,.cp-retry) {
+  font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyProfile .cp-number {
+  font-size:calc(var(--kn-type-value) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knCompanyProfile :is(.cp-basic-row dt,.cp-basic-row dd,.cp-feedback p) {
+  font-size:inherit!important;
+}
+
+/* Menu, selection dialogs and account settings belong to the same interface. */
+body.kn-home-a #sideDrawer.kn-menu-a :is(.kn-menu-row,.kn-menu-palette h3) {
+  font-size:calc(var(--kn-type-item) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #sideDrawer.kn-menu-a :is(summary,.kn-menu-sizes button,.kn-menu-styles button,.lang-btn,.kn-menu-motion,.kn-menu-reset,.drawer-color-reset) {
+  font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #sideDrawer.kn-menu-a :is(.kn-menu-label,.drawer-color-custom,.kn-menu-font) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #sideDrawer.kn-menu-a #knMenuFont {
+  font-size:max(16px,calc(var(--kn-type-input) * var(--kn-type-scale)))!important;
+}
+body.kn-home-a :is(#knMarketPicker h2,#dsOv .ds-title,#alert-section h2,.kns-head h2,#knTabWrap .kn-stock-search-dialog-head h3) {
+  font-size:calc(var(--kn-type-page) * var(--kn-type-scale))!important;
+}
+body.kn-home-a :is(#knMarketPicker .kn-market-option-name,.kns-row .nm,#alert-section .wl-tk) {
+  font-size:calc(var(--kn-type-item) * var(--kn-type-scale))!important;
+}
+body.kn-home-a :is(#knMarketPicker button:not(.kn-market-close),#dsOv .ds-opt,#dsOv .ds-reset,.kns-chip,#alert-section button:not(.wl-rm)) {
+  font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #knMarketOpen {font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important}
+body.kn-home-a #knMarketOpen span {font-size:inherit!important}
+body.kn-home-a :is(#knMarketPicker .kn-market-head>p,#knMarketPicker .kn-market-search-label,#dsOv .ds-label,.kns-muted,#alert-section .wl-empty) {
+  font-size:calc(var(--kn-type-body) * var(--kn-type-scale))!important;
+}
+body.kn-home-a :is(#knMarketPicker .kn-market-meta,#knMarketPicker .kn-market-hint,#dsOv .ds-note,.kns-sub,#alert-section .alert-sub,#alert-section .wl-msg,.scanner-status,.scanner-empty) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a :is(#knMarketPicker input:not([type=checkbox]),.kns-searchbar input,#alert-section input) {
+  font-size:max(16px,calc(var(--kn-type-input) * var(--kn-type-scale)))!important;
+}
+body.kn-home-a :is(#knHomeNotice,#knHomeMarketTimes,.kn-a-quote-name,.kn-a-quote-change,.kn-a-change-percent,.kn-a-quote-note) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+body.kn-home-a .kn-a-change-amount {font-size:inherit!important}
+
+/* Entry and learning dialogs share the same readable text roles. */
+#knAuthOv .kna-sub,body.kn-home-a #bgSheet h2 {
+  font-size:calc(var(--kn-type-page) * var(--kn-type-scale))!important;
+}
+#knAuthOv :is(.kna-btn,.kna-toggle,.kna-switch,.kna-alternatives>summary),
+body.kn-home-a #bgSheet :is(.bg-btns button,.bg-cta,.bg-retry,.bg-link) {
+  font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important;
+}
+#knAuthOv :is(.kna-intro,.kna-msg,.kna-alternative-copy,.kna-help),
+body.kn-home-a #bgSheet :is(#bgQ,.bg-tip,.bg-it-d,.bg-a,.bg-next-why) {
+  font-size:calc(var(--kn-type-body) * var(--kn-type-scale))!important;
+}
+#knAuthOv :is(.kna-privacy,.kna-soon),
+body.kn-home-a #bgSheet :is(.bg-sub,.bg-pct,.bg-note,.bg-cat,.bg-warn,.bg-next-num,.bg-dict-note) {
+  font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important;
+}
+#knAuthOv .kna-input {
+  font-size:max(16px,calc(var(--kn-type-input) * var(--kn-type-scale)))!important;
+}
+body.kn-home-a #bgSheet :is(.bg-box h3,.bg-it-t,.bg-next-h,.bg-next-t) {
+  font-size:calc(var(--kn-type-item) * var(--kn-type-scale))!important;
+}
+body.kn-home-a #pet-card #pgName {font-size:calc(var(--kn-type-item) * var(--kn-type-scale))!important}
+body.kn-home-a #pgBtns button {font-size:calc(var(--kn-type-control) * var(--kn-type-scale))!important}
+body.kn-home-a :is(#pgStageL,#pgExp,#pgNote) {font-size:calc(var(--kn-type-caption) * var(--kn-type-scale))!important}
+
+/* Important figures and compact calendar cells intentionally keep their own
+   sizes. Icons, logos and the decorative date are not text-size controls. */

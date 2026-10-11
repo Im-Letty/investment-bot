@@ -1,9 +1,13 @@
-/* Keep labels and numbers readable without the former heavy display weights. */
+/* Share the letter's type scale while keeping calculator labels and numbers light. */
+:root {
+  --kn-type-scale: 1;
+}
+
 body {
   --sim-font: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
     "Yu Gothic", "Noto Sans JP", sans-serif;
   font-family: var(--sim-font);
-  font-size: 14px;
+  font-size: calc(var(--kn-type-body, 14px) * var(--kn-type-scale, 1));
   font-weight: 400;
   line-height: 1.65;
 }
@@ -19,15 +23,21 @@ body :is(h1, .section-title, .mp-section-title, .mp-name, .mp-stock-name,
 }
 
 body h1 {
-  font-size: 20px;
+  font-size: calc(var(--kn-type-page, 22px) * var(--kn-type-scale, 1));
   line-height: 1.5;
 }
 
 body .tab {
-  font-size: 13px;
+  font-size: calc(var(--kn-type-control, 14px) * var(--kn-type-scale, 1));
   font-weight: 400;
   line-height: 1.5;
   padding-inline: 6px;
+  flex: 1 0 auto;
+  min-width: max-content;
+}
+
+body .tabs {
+  justify-content: flex-start;
 }
 
 body .tab.active {
@@ -35,11 +45,18 @@ body .tab.active {
 }
 
 body .row {
-  grid-template-columns: 84px minmax(0, 1fr) 86px;
+  grid-template-columns: 84px minmax(0, 1fr) max-content;
 }
 
-body :is(.row label, .metric .mlabel, .info-label, .mp-updated) {
-  font-size: 12px;
+body :is(.row label, .reg-label, .form-label, .unit, .mp-progress-label) {
+  font-size: calc(var(--kn-type-label, 13px) * var(--kn-type-scale, 1));
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+body :is(.metric .mlabel, .info-label, .mp-updated, .mp-card-label,
+  .lang-globe, .lang-select-outer select, .ke-cat) {
+  font-size: calc(var(--kn-type-caption, 12px) * var(--kn-type-scale, 1));
   font-weight: 400;
   line-height: 1.6;
 }
@@ -50,50 +67,85 @@ body .row label {
   overflow-wrap: anywhere;
 }
 
-body :is(.reg-label, .form-label, .unit) {
-  font-weight: 400;
+body :is(.section-title, .mp-section-title, .sim-analysis-title) {
+  font-size: calc(var(--kn-type-section, 16px) * var(--kn-type-scale, 1)) !important;
+  line-height: 1.6;
+}
+
+body :is(.mp-name, .mp-stock-name) {
+  font-size: calc(var(--kn-type-item, 16px) * var(--kn-type-scale, 1));
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+body :is(.btn, .btn-apply, .btn-add, .btn-sm, .mp-chip) {
+  font-size: calc(var(--kn-type-control, 14px) * var(--kn-type-scale, 1));
+  line-height: 1.6;
+}
+
+body .row .right {
+  overflow: visible;
+  min-width: 0;
 }
 
 body .val-input {
-  width: 100%;
-  max-width: 86px;
-  font-size: 16px;
+  width: calc(86px * max(1, var(--kn-type-scale, 1)));
+  max-width: none;
+  font-size: max(16px, calc(var(--kn-type-input, 16px) * var(--kn-type-scale, 1)));
   font-weight: 500;
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
 }
 
 body .val-input:is(.rate, .years) {
-  max-width: 52px;
+  width: calc(52px * max(1, var(--kn-type-scale, 1)));
+  max-width: none;
 }
 
 body :is(.reg-input, .form-input) {
-  font-size: 16px;
+  font-size: max(16px, calc(var(--kn-type-input, 16px) * var(--kn-type-scale, 1)));
   font-weight: 400;
 }
 
-body .metric .mval {
-  font-size: clamp(18px, 4.8vw, 20px);
+body :is(.metric .mval, .info-value, .mp-card-value, .ke-amount) {
+  font-size: calc(var(--kn-type-value, 20px) * var(--kn-type-scale, 1));
   font-weight: 500;
   line-height: 1.5;
   letter-spacing: normal;
   font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
 }
 
-body .sim-analysis {
-  font-size: 14px !important;
+body :is(.metric, .info-item, .mp-summary-card, .mp-profile-info) {
+  min-width: 0;
+}
+
+body :is(.sim-analysis, #g2sim-note, .no-data) {
+  font-size: calc(var(--kn-type-body, 14px) * var(--kn-type-scale, 1)) !important;
   line-height: 1.8 !important;
+  overflow-wrap: anywhere;
 }
 
 body .sim-analysis-checks {
-  font-size: 13px !important;
+  font-size: calc(var(--kn-type-caption, 12px) * var(--kn-type-scale, 1)) !important;
   line-height: 1.8;
+}
+
+body .sim-analysis > div[style*="grid"] {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
 }
 
 @media (max-width: 400px) {
   body .tab {
-    font-size: 12px;
     padding-inline: 3px;
+  }
+
+  body .row {
+    grid-template-columns: minmax(0, 1fr) max-content;
+  }
+
+  body .row label {
+    grid-column: 1 / -1;
   }
 
   body .card {
@@ -106,5 +158,10 @@ body .sim-analysis-checks {
 
   body .metric {
     padding: 12px 6px;
+  }
+
+  body[data-kn-sim-large-text="true"] .result-grid,
+  body[data-kn-sim-large-text="true"] .sim-analysis > div[style*="grid"] {
+    grid-template-columns: minmax(0, 1fr) !important;
   }
 }
