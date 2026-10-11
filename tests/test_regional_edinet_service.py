@@ -299,8 +299,15 @@ class ServiceTests(unittest.TestCase):
         fcntl.flock(guard, fcntl.LOCK_EX)
         provider = FixtureProvider()
         service = self.service(provider)
+        waiting = threading.Event()
+        original_wait = service._condition.wait
+        def observed_wait(timeout=None):
+            waiting.set()
+            return original_wait(timeout)
+        service._condition.wait = observed_wait
         try:
             service.get(COMPANY)
+            self.assertTrue(waiting.wait(3))
             self.assertEqual(provider.calls, [])
             self.assertTrue(service.get(COMPANY)['refreshing'])
         finally:
@@ -309,6 +316,18 @@ class ServiceTests(unittest.TestCase):
             service._condition.notify_all()
         self.assertTrue(service.wait_idle())
         self.assertEqual(len(provider.calls), 3)
+
+    def test_new_request_after_worker_completion_starts_another_bounded_job(self):
+        provider = FixtureProvider()
+        service = self.service(provider)
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertIsNone(service._worker)
+        with service._condition:
+            service._records['6147']['warm_resume_after'] = 0
+            service._snapshots.pop('2026-10-09')
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls[-1], ('day', '2026-10-09'))
+        self.assertIsNone(service._worker)
 
     def test_checkpoint_restores_after_selection_not_constructor_and_skips_saved_days(self):
         source = self.service(FixtureProvider({'2026-10-10': [descriptor()]}), max_warm_operations=3)

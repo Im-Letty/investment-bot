@@ -522,7 +522,14 @@ class RegionalEdinetDividends:
             with self._condition:
                 if self._closed:
                     self._jobs.clear()
-                    self._condition.notify_all()
+                # A get can enqueue after the worker decides to exit but before
+                # is_alive becomes false. Hand off that queue under this lock.
+                if self._worker is threading.current_thread():
+                    self._worker = None
+                    if self._jobs and not self._closed:
+                        self._worker = threading.Thread(target=self._run, name='regional-edinet', daemon=True)
+                        self._worker.start()
+                self._condition.notify_all()
 
     def wait_idle(self, timeout=5):
         """Deterministic fixture / graceful shutdown helper; no network triggers."""
