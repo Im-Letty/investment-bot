@@ -108,6 +108,22 @@ test('language change uses English fallback without translating user content',as
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(2,{body:'ニュース',name:'ニュース'})],has_more:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Community');assert.equal(h.nodes('.cw-category')[2].textContent,'News');assert.equal(h.node('.cw-post-body').textContent,'ニュース');assert.equal(h.node('.cw-author').textContent,'ニュース');assert.match(h.node('.cw-post-date').textContent,/Posted/);
   h.document.documentElement.lang='ko';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Community');
 });
+test('delayed language events preserve composer and reply controls and allow sending',async()=>{
+  const h=harness();h.ui.open();await h.response({ok:true,posts:[post(20,{category:'life'})],has_more:false});
+  const nickname=h.node('#cmNick'),body=h.node('#cmInput'),selects=h.node('.cw-composer').querySelectorAll('select');
+  nickname.value='表示名';body.value='入力中の投稿';body.emit('input');selects[0].value='news';selects[1].value='ja';
+  h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});let reply=h.node('.cw-reply-form').querySelector('textarea');reply.value='入力中の返信';reply.emit('input');
+  for(const language of ['ja','en','ko','ja']){
+    h.document.documentElement.lang=language;h.document.emit('langChanged');
+    assert.equal(h.node('#cmNick'),nickname);assert.equal(h.node('#cmInput'),body);assert.equal(body.value,'入力中の投稿');assert.equal(nickname.value,'表示名');
+    assert.deepEqual(h.node('.cw-composer').querySelectorAll('select'),selects);assert.equal(selects[0].value,'news');assert.equal(selects[1].value,'ja');
+    assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'入力中の返信');assert.equal(h.nodes('label[data-cw-copy]').length,0);
+  }
+  h.node('.cw-composer').emit('submit');await h.settle();let payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.body,'入力中の投稿');assert.equal(payload.name,'表示名');assert.equal(payload.category,'news');
+  await h.response({ok:true,post:post(21,{body:payload.body,category:'news',is_mine:true})});
+  h.node('.cw-reply-form').emit('submit');await h.settle();payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.body,'入力中の返信');assert.equal(payload.parent_id,20);assert.equal(payload.category,'life');
+  await h.response({ok:true,post:post(22,{parent_id:20,category:'life',body:payload.body,is_mine:true})});assert.equal(h.nodes('.cw-reply-post').length,1);
+});
 test('close button restores the original morning scroll position',async()=>{
   const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);assert.equal(h.document.getElementById('cmOv'),null);
 });
