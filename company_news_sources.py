@@ -6,17 +6,20 @@ the actual announcing subsidiary and must be respected by the writer.
 """
 from datetime import date, datetime, timedelta
 from hashlib import sha256
+import ipaddress
 import math
 import re
 import socket
+import ssl
 import time
 import unicodedata
 from urllib.parse import urljoin, urlsplit, urlunsplit
 from xml.etree import ElementTree
 
 import requests
+from urllib3.exceptions import ReadTimeoutError as _StreamReadTimeout, SSLError as _StreamSSLError
 
-from daily_news_sources import JST, _Document, _PinnedHTTPSAdapter, _public_ip, _parallel, _jsonld
+from daily_news_sources import JST, _Document, _PinnedHTTPSAdapter, _parallel, _jsonld
 from official_news_sources import _publication, _now, _in_window, _body_text, _descends
 from company_news_selection import priority, candidate_order
 import company_news_additional as additional
@@ -114,46 +117,84 @@ def _safe_url(value, *, source=None, base=None):
     return None
 
 
+def _public_addresses(host):
+    """Resolve once and reject the entire result if any address is unsafe."""
+    addresses = list(dict.fromkeys(row[4][0] for row in
+                                   socket.getaddrinfo(host, 443, type=socket.SOCK_STREAM)))
+    try:
+        if not addresses or any(not ipaddress.ip_address(address).is_global
+                                or ipaddress.ip_address(address).is_multicast for address in addresses):
+            raise ValueError('unapproved_source')
+    except ValueError as exc:
+        raise ValueError('unapproved_source') from exc
+    return addresses
+
+
 def _download(url, deadline):
-    """Pinned public-IP HTTPS, no redirects, credentials, or arbitrary hosts."""
+    """Pinned verified HTTPS; at most two public DNS IPs share one deadline.
+
+    Only a connect/read timeout or connection failure can try the next IP.
+    TLS, HTTP, redirects, content and size failures never trigger failover.
+    """
     safe = _safe_url(url)
     if safe != url:
         raise ValueError("unapproved_source")
     host = urlsplit(safe).hostname
     limit = min(deadline, time.monotonic() + REQUEST_SECONDS)
-    address = _public_ip(host)
-    remaining = limit - time.monotonic()
-    if remaining <= 0:
+    if time.monotonic() >= limit:
         raise ValueError("source_time_limit")
-    with requests.Session() as session:
-        session.trust_env = False
-        session.mount("https://", _PinnedHTTPSAdapter(host, address))
-        with session.get(url, allow_redirects=False, stream=True, verify=True,
-                         timeout=(min(3, remaining), min(3, remaining)),
-                         headers={"User-Agent": "CompanyNewsOfficialCollector/1.0",
-                                  "Accept": "text/html,application/xml,application/rss+xml,application/rdf+xml",
-                                  "Accept-Encoding": "identity", "Host": host}) as response:
-            if 300 <= response.status_code < 400:
-                raise ValueError("unapproved_redirect")
-            if response.status_code != 200:
-                raise ValueError("source_unavailable")
-            mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
-            is_feed = url in FEEDS.values()
-            allowed = ({"text/xml", "application/xml", "application/rss+xml", "application/rdf+xml"}
-                       if is_feed else {"text/html", "application/xhtml+xml"})
-            if mime not in allowed:
-                raise ValueError("source_content_type")
-            length = response.headers.get("Content-Length")
-            if length is not None and (not length.isdecimal() or int(length) > MAX_BYTES):
-                raise ValueError("source_size_limit")
-            payload = bytearray()
-            while True:
-                chunk = response.raw.read1(4096, decode_content=True)
-                if time.monotonic() >= limit or len(payload) + len(chunk) > MAX_BYTES:
-                    raise ValueError("source_size_or_time_limit")
-                if not chunk:
-                    return bytes(payload), url
-                payload.extend(chunk)
+    addresses = _public_addresses(host)[:2]
+    for index, address in enumerate(addresses):
+        remaining = limit - time.monotonic()
+        if remaining <= 0:
+            raise ValueError("source_time_limit")
+        try:
+            with requests.Session() as session:
+                session.trust_env = False
+                session.mount("https://", _PinnedHTTPSAdapter(host, address))
+                with session.get(url, allow_redirects=False, stream=True, verify=True,
+                                 timeout=(min(3, remaining), min(3, remaining)),
+                                 headers={"User-Agent": "CompanyNewsOfficialCollector/1.0",
+                                          "Accept": "text/html,application/xml,application/rss+xml,application/rdf+xml",
+                                          "Accept-Encoding": "identity", "Host": host}) as response:
+                    if 300 <= response.status_code < 400:
+                        raise ValueError("unapproved_redirect")
+                    if response.status_code != 200:
+                        raise ValueError("source_unavailable")
+                    mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
+                    is_feed = url in FEEDS.values()
+                    allowed = ({"text/xml", "application/xml", "application/rss+xml", "application/rdf+xml"}
+                               if is_feed else {"text/html", "application/xhtml+xml"})
+                    if mime not in allowed:
+                        raise ValueError("source_content_type")
+                    length = response.headers.get("Content-Length")
+                    if length is not None and (not length.isdecimal() or int(length) > MAX_BYTES):
+                        raise ValueError("source_size_limit")
+                    payload = bytearray()
+                    while True:
+                        if time.monotonic() >= limit:
+                            raise ValueError('source_size_or_time_limit')
+                        try:
+                            chunk = response.raw.read1(4096, decode_content=True)
+                        except (_StreamSSLError, ssl.SSLError) as exc:
+                            raise requests.exceptions.SSLError('source_tls_failed') from exc
+                        except _StreamReadTimeout as exc:
+                            raise requests.exceptions.ReadTimeout('source_timeout') from exc
+                        if time.monotonic() >= limit or len(payload) + len(chunk) > MAX_BYTES:
+                            raise ValueError("source_size_or_time_limit")
+                        if not chunk:
+                            return bytes(payload), url
+                        payload.extend(chunk)
+        except requests.exceptions.SSLError:
+            # SSLError subclasses ConnectionError: never treat failed TLS
+            # verification as permission to connect to another endpoint.
+            raise
+        except (requests.exceptions.ConnectTimeout, requests.exceptions.ReadTimeout,
+                requests.exceptions.ConnectionError):
+            if index == len(addresses) - 1:
+                raise
+            if time.monotonic() >= limit:
+                raise ValueError('source_time_limit')
 
 
 def _decode(payload):

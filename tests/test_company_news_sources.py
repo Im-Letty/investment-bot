@@ -207,7 +207,7 @@ class CompanySourceTests(unittest.TestCase):
         response.headers = {'Content-Type': 'text/html'}
         response.raw.read1.side_effect = [b'<html/>', b'']
         session.get.return_value = response
-        with patch.object(sources.requests, 'Session', return_value=session), patch.object(sources, '_public_ip', return_value='93.184.216.34'), patch.object(sources, '_PinnedHTTPSAdapter'):
+        with patch.object(sources.requests, 'Session', return_value=session), patch.object(sources, '_public_addresses', return_value=['93.184.216.34']), patch.object(sources, '_PinnedHTTPSAdapter'):
             result = sources._download(URLS['NTT'], sources.time.monotonic() + 20)
             self.assertEqual(result, (b'<html/>', URLS['NTT']))
             self.assertFalse(session.trust_env)
@@ -297,6 +297,187 @@ class CompanySourceTests(unittest.TestCase):
         self.assertEqual(len(result), 3)
         self.assertEqual(fetch.call_count, len(sources.FEEDS) + 3)
         self.assertTrue(all(diagnostics[name]['selected'] == 1 for name in URLS))
+
+
+class CompanyTransportFailoverTests(unittest.TestCase):
+    """Offline pinned transport fixtures; no network or certificate weakening."""
+    ADDRESSES = ['93.184.216.34', '1.1.1.1', '8.8.8.8']
+
+    def session(self, *, failure=None, chunks=None, status=200, headers=None):
+        session, response = MagicMock(), MagicMock()
+        session.__enter__.return_value = session
+        response.__enter__.return_value = response
+        response.status_code = status
+        response.headers = headers or {'Content-Type': 'text/html'}
+        response.raw.read1.side_effect = chunks or [b'<html/>', b'']
+        if failure is not None:
+            session.get.side_effect = failure
+        else:
+            session.get.return_value = response
+        return session, response
+
+    def test_first_connect_read_or_connection_failure_uses_only_second_verified_ip(self):
+        for error in (sources.requests.exceptions.ConnectTimeout, sources.requests.exceptions.ReadTimeout,
+                      sources.requests.exceptions.ConnectionError):
+            with self.subTest(error=error.__name__):
+                first, _ = self.session(failure=error('simulated transport failure'))
+                second, _ = self.session()
+                with patch.object(sources, '_public_addresses', return_value=self.ADDRESSES) as dns, \
+                        patch.object(sources.requests, 'Session', side_effect=[first, second]) as sessions, \
+                        patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
+                        patch.object(sources.time, 'monotonic', return_value=100):
+                    self.assertEqual(sources._download(URLS['NTT'], 140), (b'<html/>', URLS['NTT']))
+                dns.assert_called_once_with('group.ntt')
+                self.assertEqual(sessions.call_count, 2)
+                self.assertEqual(adapter.call_args_list[0].args, ('group.ntt', self.ADDRESSES[0]))
+                self.assertEqual(adapter.call_args_list[1].args, ('group.ntt', self.ADDRESSES[1]))
+                for session in (first, second):
+                    self.assertFalse(session.trust_env)
+                    kwargs = session.get.call_args.kwargs
+                    self.assertTrue(kwargs['verify'])
+                    self.assertFalse(kwargs['allow_redirects'])
+                    self.assertEqual(kwargs['headers']['Host'], 'group.ntt')
+                    self.assertEqual(session.get.call_args.args, (URLS['NTT'],))
+                    session.__exit__.assert_called_once()
+
+    def test_partial_body_read_timeout_discards_first_body_and_closes_response(self):
+        timeout = sources._StreamReadTimeout(None, '/original', 'simulated timeout')
+        first, first_response = self.session(chunks=[b'PARTIAL BODY', timeout])
+        second, _ = self.session()
+        with patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                patch.object(sources.requests, 'Session', side_effect=[first, second]), \
+                patch.object(sources, '_PinnedHTTPSAdapter'), \
+                patch.object(sources.time, 'monotonic', return_value=100):
+            self.assertEqual(sources._download(URLS['NTT'], 140)[0], b'<html/>')
+        first_response.__exit__.assert_called_once()
+        first.__exit__.assert_called_once()
+
+    def test_all_dns_answers_are_checked_before_any_request_even_an_unsafe_third_answer(self):
+        for unsafe in ('127.0.0.1', '10.0.0.1', '169.254.169.254', '224.0.0.1', '::1', 'not-an-ip'):
+            addresses = self.ADDRESSES[:2] + [unsafe]
+            answers = [(sources.socket.AF_INET, sources.socket.SOCK_STREAM, 6, '', (ip, 443)) for ip in addresses]
+            with self.subTest(unsafe=unsafe), patch.object(sources.socket, 'getaddrinfo', return_value=answers) as dns, \
+                    patch.object(sources.requests, 'Session') as sessions, \
+                    patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
+                    patch.object(sources.time, 'monotonic', return_value=100):
+                with self.assertRaisesRegex(ValueError, 'unapproved_source'):
+                    sources._download(URLS['NTT'], 140)
+                dns.assert_called_once_with('group.ntt', 443, type=sources.socket.SOCK_STREAM)
+                sessions.assert_not_called()
+                adapter.assert_not_called()
+
+    def test_dns_empty_and_duplicates_are_handled_without_second_resolution(self):
+        with patch.object(sources.socket, 'getaddrinfo', return_value=[]):
+            with self.assertRaisesRegex(ValueError, 'unapproved_source'):
+                sources._public_addresses('group.ntt')
+        answers = [(sources.socket.AF_INET, sources.socket.SOCK_STREAM, 6, '', (ip, 443))
+                   for ip in [self.ADDRESSES[0], self.ADDRESSES[0], self.ADDRESSES[1]]]
+        with patch.object(sources.socket, 'getaddrinfo', return_value=answers) as dns:
+            self.assertEqual(sources._public_addresses('group.ntt'), self.ADDRESSES[:2])
+            dns.assert_called_once()
+
+    def test_expired_shared_or_request_deadline_never_starts_second_connection(self):
+        for global_deadline, exhausted_at in ((140, 111), (105, 106)):
+            clock = [100]
+            first, _ = self.session()
+            def timeout(*args, **kwargs):
+                clock[0] = exhausted_at
+                raise sources.requests.exceptions.ConnectTimeout('simulated timeout')
+            first.get.side_effect = timeout
+            with self.subTest(deadline=global_deadline), \
+                    patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                    patch.object(sources.requests, 'Session', return_value=first) as sessions, \
+                    patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
+                    patch.object(sources.time, 'monotonic', side_effect=lambda: clock[0]):
+                with self.assertRaisesRegex(ValueError, 'source_time_limit'):
+                    sources._download(URLS['NTT'], global_deadline)
+                self.assertEqual(sessions.call_count, 1)
+                self.assertEqual(adapter.call_count, 1)
+
+    def test_second_timeout_uses_remaining_initial_budget_without_reset(self):
+        clock = [100]
+        first, _ = self.session()
+        def timeout(*args, **kwargs):
+            clock[0] = 108
+            raise sources.requests.exceptions.ReadTimeout('simulated timeout')
+        first.get.side_effect = timeout
+        second, _ = self.session()
+        with patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                patch.object(sources.requests, 'Session', side_effect=[first, second]), \
+                patch.object(sources, '_PinnedHTTPSAdapter'), \
+                patch.object(sources.time, 'monotonic', side_effect=lambda: clock[0]):
+            sources._download(URLS['NTT'], 140)
+        self.assertEqual(first.get.call_args.kwargs['timeout'], (3, 3))
+        self.assertEqual(second.get.call_args.kwargs['timeout'], (2, 2))
+
+    def test_header_consuming_budget_never_starts_a_body_read_or_another_ip(self):
+        clock = [100]
+        first, response = self.session()
+        def late_headers(*args, **kwargs):
+            clock[0] = 111
+            return response
+        first.get.side_effect = late_headers
+        with patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                patch.object(sources.requests, 'Session', return_value=first) as sessions, \
+                patch.object(sources, '_PinnedHTTPSAdapter'), \
+                patch.object(sources.time, 'monotonic', side_effect=lambda: clock[0]):
+            with self.assertRaisesRegex(ValueError, 'source_size_or_time_limit'):
+                sources._download(URLS['NTT'], 140)
+            response.raw.read1.assert_not_called()
+            self.assertEqual(sessions.call_count, 1)
+
+    def test_tls_or_certificate_failure_never_retries_even_for_connection_error_subclass(self):
+        for failure, streaming in ((sources.requests.exceptions.SSLError('simulated certificate mismatch'), False),
+                                   (sources._StreamSSLError('simulated certificate mismatch'), True),
+                                   (sources.ssl.SSLError(1, 'simulated TLS failure'), True)):
+            first, _ = self.session(chunks=[failure] if streaming else None,
+                                    failure=None if streaming else failure)
+            with self.subTest(streaming=streaming, error=type(failure).__name__), \
+                    patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                    patch.object(sources.requests, 'Session', return_value=first) as sessions, \
+                    patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
+                    patch.object(sources.time, 'monotonic', return_value=100):
+                with self.assertRaises(sources.requests.exceptions.SSLError):
+                    sources._download(URLS['NTT'], 140)
+                self.assertEqual(sessions.call_count, 1)
+                self.assertEqual(adapter.call_count, 1)
+
+    def test_http_redirect_content_or_size_failure_never_retries_another_ip(self):
+        for status, headers, code in ((302, {'Content-Type': 'text/html'}, 'unapproved_redirect'),
+                                      (403, {'Content-Type': 'text/html'}, 'source_unavailable'),
+                                      (200, {'Content-Type': 'application/pdf'}, 'source_content_type'),
+                                      (200, {'Content-Type': 'text/html', 'Content-Length': str(sources.MAX_BYTES + 1)}, 'source_size_limit')):
+            first, _ = self.session(status=status, headers=headers)
+            with self.subTest(code=code), patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                    patch.object(sources.requests, 'Session', return_value=first) as sessions, \
+                    patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
+                    patch.object(sources.time, 'monotonic', return_value=100):
+                with self.assertRaisesRegex(ValueError, code):
+                    sources._download(URLS['NTT'], 140)
+                self.assertEqual(sessions.call_count, 1)
+                self.assertEqual(adapter.call_count, 1)
+
+    def test_only_two_verified_addresses_can_be_attempted(self):
+        first, _ = self.session(failure=sources.requests.exceptions.ConnectTimeout('first simulated timeout'))
+        second, _ = self.session(failure=sources.requests.exceptions.ConnectTimeout('second simulated timeout'))
+        with patch.object(sources, '_public_addresses', return_value=self.ADDRESSES) as dns, \
+                patch.object(sources.requests, 'Session', side_effect=[first, second]) as sessions, \
+                patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
+                patch.object(sources.time, 'monotonic', return_value=100):
+            with self.assertRaises(sources.requests.exceptions.ConnectTimeout):
+                sources._download(URLS['NTT'], 140)
+            self.assertEqual(sessions.call_count, 2)
+            self.assertEqual(adapter.call_count, 2)
+            dns.assert_called_once()
+
+    def test_already_expired_deadline_skips_dns_and_http(self):
+        with patch.object(sources, '_public_addresses') as dns, \
+                patch.object(sources.requests, 'Session') as sessions, \
+                patch.object(sources.time, 'monotonic', return_value=100):
+            with self.assertRaisesRegex(ValueError, 'source_time_limit'):
+                sources._download(URLS['NTT'], 99)
+            dns.assert_not_called()
+            sessions.assert_not_called()
 
 
 if __name__ == '__main__':
