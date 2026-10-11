@@ -130,7 +130,7 @@
             const preview=el('div','sw-dividends'),annual=el('span','sw-dividend-line'),payment=el('span','sw-dividend-line');
             preview.appendChild(annual);preview.appendChild(payment);row.appendChild(preview);dividendNodes.set(key,[annual,payment]);paintDividends(key,dividendQueue.peek(key));
           }
-          if(/^[0-9][A-Z0-9]{3}\.JP$/.test(key))row.appendChild(el('small','sw-dividend-line','会社情報は表示できます。株価・配当の取得元は未対応です。'));
+          if(/^[0-9][A-Z0-9]{3}\.JP$/.test(key))row.appendChild(el('small','sw-dividend-line','会社情報は表示できます。株価・予想配当・時価総額の取得元は未対応です。'));
           list.appendChild(row);
         });
         results.appendChild(list);syncDividends();
