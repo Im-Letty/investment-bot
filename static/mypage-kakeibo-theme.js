@@ -72,7 +72,14 @@
     document.body.setAttribute('data-kn-ledger-dark','false');
   }
   sync();window.addEventListener('storage',sync);window.addEventListener('focus',sync);
-  if(window.Chart&&Chart.register)Chart.register({id:'knLedgerReading',beforeUpdate:readingCharts});
+  var registeredChart;
+  function chartsReady(){
+    if(!window.Chart||!Chart.register)return;
+    if(registeredChart!==Chart){Chart.register({id:'knLedgerReading',beforeUpdate:readingCharts});registeredChart=Chart;}
+    scheduleCharts();
+  }
+  window.addEventListener('kkChartsReady',chartsReady);
+  chartsReady();
   new MutationObserver(scheduleCharts).observe(document.documentElement,{attributes:true,attributeFilter:['style']});
   new MutationObserver(scheduleCharts).observe(document.body,{attributes:true,attributeFilter:['data-kn-ledger-dark']});
   syncCharts();
