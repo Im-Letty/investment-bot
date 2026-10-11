@@ -173,10 +173,20 @@ def _source_status(value):
 
 
 class MorningNewsPreparer:
-    def __init__(self, storage, collector, *, clock=time.time):
+    def __init__(self, storage, collector, *, clock=time.time, source_cache=None):
         self.storage, self.collector, self.clock = storage, collector, clock
+        self.source_cache = source_cache
         self._seen_slots = set()
         self._manifests = {}
+
+    def collect(self, now):
+        """Optional unpaid polling; the runtime calls this before edition gates."""
+        if self.source_cache is not None:
+            return self.source_cache.collect(now)
+        return None
+
+    def source_cache_snapshot(self):
+        return self.source_cache.operational_snapshot() if self.source_cache is not None else None
 
     @staticmethod
     def _prefix(day):
@@ -294,6 +304,8 @@ class MorningNewsPreparer:
             self._manifests = {day: frozen}
             return deepcopy(frozen) if now >= cutoff else None
         if now < cutoff:
+            # Keep the final 07:29 poll: a 15-minute cache alone would miss
+            # announcements appearing after 07:15 before the morning cutoff.
             minute = int((now - (cutoff - 30 * 60)) // 60)
             slot = max(index for index, start in enumerate(SLOT_MINUTES) if minute >= start)
             if (day, slot) in self._seen_slots:
@@ -324,14 +336,34 @@ class MorningNewsPreparer:
                                 "articles": articles, "source_status": _source_status(diagnostics)})
             return None
         snapshots, pending, expired = self._snapshots(day, now, wait=True)
+        cache_error = None
+        try:
+            cached = self.source_cache.snapshot(now, through=cutoff) if self.source_cache is not None else None
+        except ValueError as error:
+            if str(error) not in ("source_cache_read_deadline", "source_cache_capacity", "source_cache_index_unavailable"):
+                raise
+            cached = None
+            cache_error = str(error)
+        pending |= bool(cached and cached["pending"])
         if pending:
             return None
         rows = [row for snapshot in snapshots for row in snapshot["articles"]]
+        if cached:
+            previous = morning_window(cutoff - 86400)
+            for row in deepcopy(cached["articles"]):
+                if (_verified_article(row) and _normal_route(row, previous)
+                        and row["body_verified_at"] > previous["cutoff_at"]):
+                    row.update(deferred_from=previous["edition_date"], deferred_reason="late_verification")
+                rows.append(row)
         rows += self._deferred(window, published_issues, now)
-        status = {}
-        for snapshot in snapshots:
-            status.update(snapshot["source_status"])
-        if not snapshots:
+        checks = [(snapshot["finished_at"], snapshot["source_status"]) for snapshot in snapshots]
+        if cached and _number(cached.get("last_checked_at")):
+            checks.append((cached["last_checked_at"], cached["source_status"]))
+        checked_at, status = max(checks, key=lambda check: check[0]) if checks else (None, {})
+        status = deepcopy(status)
+        if not checks and cached:
+            status = deepcopy(cached["source_status"])
+        if not snapshots and not cached:
             status = {"collection": {"status": "not_prepared", "feed_status": "not_completed"}}
         revisions = _revision_identities(rows)
         if expired or revisions:
@@ -342,6 +374,22 @@ class MorningNewsPreparer:
                                                + (["correction_review_required"] if revisions else []),
                                      "expired_slots": expired, "correction_count": len(revisions)}
         manifest = {**window, "articles": select_articles(rows, window, published_issues), "source_status": status}
+        if self.source_cache is not None:
+            problems = [cache_error] if cache_error else []
+            if not manifest["articles"]:
+                if checked_at is None or checked_at < cutoff - 60:
+                    problems.append("near_cutoff_check_missing")
+                if any(_verified_article(row) and row["body_verified_at"] > cutoff
+                       and _normal_route(row, window) for snapshot in snapshots for row in snapshot["articles"]):
+                    problems.append("late_verification_pending")
+                if cached and cached.get("late_verification_pending"):
+                    problems.append("late_verification_pending")
+                if cached:
+                    problems.extend(cached["source_status"].get("preparation", {}).get("errors", []))
+            if problems:
+                preparation = status.setdefault("preparation", {"feed_status": "not_completed",
+                                                                 "status": "source_unavailable", "errors": []})
+                preparation["errors"] = sorted(set(preparation.get("errors", []) + problems))
         if not self.storage.create(prefix + "/manifest.json", manifest):
             manifest = self.storage.read(prefix + "/manifest.json")
         self._validate_manifest(manifest, window)

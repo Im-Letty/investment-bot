@@ -10,9 +10,12 @@ from datetime import date, datetime
 import base64
 import json
 import math
+import multiprocessing
 import os
 from pathlib import Path
 import re
+import select
+import signal
 from threading import Event, Lock, Thread
 import time
 from urllib.parse import quote, urlsplit
@@ -102,22 +105,222 @@ class SupabaseNewsStorage:
         # Rebuild the transport; configuration and server headers are unchanged.
         self._session = requests.Session()
 
-    def _request(self, method, path, **kwargs):
-        headers = {**self._headers, **kwargs.pop("headers", {})}
-        deadline, response = time.monotonic() + 30, None
+    @staticmethod
+    def _remaining(deadline, clock):
+        if type(deadline) not in (int, float) or not math.isfinite(deadline) or not callable(clock):
+            raise StorageUnavailable("storage_budget")
         try:
+            now = clock()
+        except Exception:
+            raise StorageUnavailable("storage_budget") from None
+        if type(now) not in (int, float) or not math.isfinite(now):
+            raise StorageUnavailable("storage_budget")
+        remaining = deadline - now
+        if not math.isfinite(remaining):
+            raise StorageUnavailable("storage_budget")
+        if remaining <= 0:
+            raise StorageUnavailable("storage_deadline")
+        return remaining
+
+    def _budget_timeout(self, remaining):
+        values = self._timeout if isinstance(self._timeout, tuple) else (self._timeout, self._timeout)
+        if (len(values) != 2 or any(type(value) not in (int, float) or not math.isfinite(value)
+                                    or value <= 0 for value in values)):
+            raise StorageUnavailable("storage_budget")
+        return tuple(min(value, remaining) for value in values)
+
+    def _budget_worker(self, writer, reader, method, path, deadline, clock, kwargs):
+        # A real requests pool must never be reused after fork. Injected test
+        # transports are retained; no network is started when using a mock.
+        write_fd = writer.fileno()
+        if reader is not None:
+            reader.close()
+        try:
+            # An independent hard timer also closes every socket if the owner
+            # is killed while this child is blocked in DNS/headers/body.
+            remaining = self._remaining(deadline, clock)
+            signal.signal(signal.SIGALRM, lambda *_: os._exit(0))
+            signal.setitimer(signal.ITIMER_REAL, remaining)
+            if isinstance(self._session, requests.sessions.Session):
+                self._session = requests.Session()
+            response = self._request_direct(method, path, deadline=deadline, clock=clock, **kwargs)
+            self._remaining(deadline, clock)
+            payload = (b"OK " + str(response.status_code).encode("ascii") + b" "
+                       + str(len(response.content)).encode("ascii") + b"\n" + response.content)
+        except StorageUnavailable as exc:
+            code = str(exc)
+            if code not in {"storage_budget", "storage_deadline", "storage_response", "storage_network"}:
+                code = "storage_network"
+            payload = b"ERR " + code.encode("ascii") + b"\n"
+        except Exception:
+            payload = b"ERR storage_network\n"
+        try:
+            view = memoryview(payload)
+            while view:
+                view = view[os.write(write_fd, view):]
+        except (OSError, BrokenPipeError):
+            pass
+        finally:
+            signal.setitimer(signal.ITIMER_REAL, 0)
+            writer.close()
+
+    def _request(self, method, path, *, deadline=None, clock=None, **kwargs):
+        if deadline is None:
+            if clock is not None:
+                raise StorageUnavailable("storage_budget")
+            return self._request_direct(method, path, **kwargs)
+        clock = time.monotonic if clock is None else clock
+        remaining = self._remaining(deadline, clock)
+        # Keep the pre-existing 30s single-request ceiling as well as the
+        # caller's shared deadline. Socket inactivity timeouts alone do not
+        # constrain slow headers, DNS, or a body arriving one byte at a time.
+        deadline = min(deadline, deadline - remaining + 30)
+        self._budget_timeout(remaining)
+        if multiprocessing.current_process().daemon:
+            raise StorageUnavailable("storage_budget")
+        real_transport = isinstance(self._session, requests.sessions.Session)
+        try:
+            if real_transport:
+                # The website has worker threads. A clean forkserver avoids
+                # inheriting locks held by them, while preloading this module
+                # avoids repeating its imports for every bounded cache read.
+                multiprocessing.set_forkserver_preload([__name__])
+            context = multiprocessing.get_context("forkserver" if real_transport else "fork")
+        except (ValueError, RuntimeError):
+            raise StorageUnavailable("storage_budget") from None
+        reader = writer = worker = None
+        started = False
+        startup = None
+        try:
+            reader, writer = context.Pipe(duplex=False)
+            read_fd = reader.fileno()
+            worker = context.Process(target=self._budget_worker,
+                                     args=(writer, None if real_transport else reader,
+                                           method, path, deadline, clock, kwargs), daemon=True)
+            if real_transport:
+                # Initial forkserver boot/import/IPC is part of the same
+                # deadline, rather than an unbounded step before HTTP starts.
+                startup = {"ready": Event(), "guard": Lock(), "cancelled": False,
+                           "started": False, "failed": False}
+                def launch():
+                    try:
+                        worker.start()
+                        startup["started"] = True
+                    except Exception:
+                        startup["failed"] = True
+                    finally:
+                        with startup["guard"]:
+                            if startup["cancelled"]:
+                                if startup["started"]:
+                                    try:
+                                        worker.kill()
+                                    except ProcessLookupError:
+                                        pass
+                                    worker.join(timeout=0)
+                                reader.close()
+                                writer.close()
+                            startup["ready"].set()
+                Thread(target=launch, name="news-storage-start", daemon=True).start()
+                if not startup["ready"].wait(self._remaining(deadline, clock)):
+                    raise StorageUnavailable("storage_deadline")
+                self._remaining(deadline, clock)
+                if startup["failed"]:
+                    raise StorageUnavailable("storage_budget")
+                started = startup["started"]
+            else:
+                worker.start()
+                started = True
+            writer.close()
+            writer = None
+            content = bytearray()
+            while True:
+                remaining = self._remaining(deadline, clock)
+                readable, _, _ = select.select([read_fd], [], [], remaining)
+                self._remaining(deadline, clock)
+                if not readable:
+                    raise StorageUnavailable("storage_deadline")
+                chunk = os.read(read_fd, 64 * 1024)
+                if not chunk:
+                    break
+                content.extend(chunk)
+                if len(content) > 1_000_100:
+                    raise StorageUnavailable("storage_response")
+                header, separator, body = bytes(content).partition(b"\n")
+                if separator:
+                    if header.startswith(b"ERR "):
+                        break
+                    match = re.fullmatch(rb"OK [0-9]{3} ([0-9]{1,7})", header)
+                    if not match or int(match[1]) > 1_000_000:
+                        raise StorageUnavailable("storage_response")
+                    if len(body) >= int(match[1]):
+                        # An explicit frame length avoids waiting for EOF on
+                        # a pipe descriptor inherited by another concurrent
+                        # fork. Partial frames still wait only to the deadline.
+                        break
+            self._remaining(deadline, clock)
+            header, separator, body = bytes(content).partition(b"\n")
+            if not separator:
+                raise StorageUnavailable("storage_network")
+            if header.startswith(b"ERR "):
+                code = header[4:].decode("ascii")
+                if code not in {"storage_budget", "storage_deadline", "storage_response", "storage_network"}:
+                    code = "storage_network"
+                raise StorageUnavailable(code)
+            match = re.fullmatch(rb"OK ([0-9]{3}) ([0-9]{1,7})", header)
+            if not match or len(body) != int(match[2]) or len(body) > 1_000_000:
+                raise StorageUnavailable("storage_response")
+            return _StorageResponse(int(match[1]), body)
+        except StorageUnavailable:
+            raise
+        except Exception:
+            raise StorageUnavailable("storage_network" if started else "storage_budget") from None
+        finally:
+            deferred_cleanup = False
+            if startup is not None:
+                with startup["guard"]:
+                    startup["cancelled"] = True
+                    deferred_cleanup = not startup["ready"].is_set()
+                    started = startup["started"]
+            if not deferred_cleanup:
+                if reader is not None:
+                    reader.close()
+                if writer is not None:
+                    writer.close()
+            if started and not deferred_cleanup:
+                # kill closes the child's in-flight sockets, even during DNS,
+                # connect or headers. Do not join beyond the caller's deadline.
+                if worker.is_alive():
+                    try:
+                        worker.kill()
+                    except ProcessLookupError:
+                        pass
+                worker.join(timeout=0)
+
+    def _request_direct(self, method, path, *, deadline=None, clock=None, **kwargs):
+        headers = {**self._headers, **kwargs.pop("headers", {})}
+        budgeted = deadline is not None
+        clock = time.monotonic if clock is None else clock
+        deadline, response = deadline if budgeted else clock() + 30, None
+        try:
+            timeout = self._budget_timeout(self._remaining(deadline, clock)) if budgeted else self._timeout
             response = self._session.request(method, self._url + path, headers=headers,
-                                             timeout=self._timeout, allow_redirects=False, stream=True, **kwargs)
+                                             timeout=timeout, allow_redirects=False, stream=True, **kwargs)
+            if budgeted:
+                self._remaining(deadline, clock)
             length = response.headers.get("Content-Length")
             if length is not None and (not length.isdecimal() or int(length) > 1_000_000):
                 raise StorageUnavailable("storage_response")
             content = bytearray()
             while True:
-                if time.monotonic() > deadline:
+                if budgeted:
+                    self._remaining(deadline, clock)
+                elif clock() > deadline:
                     raise StorageUnavailable("storage_timeout")
                 chunk = response.raw.read1(64 * 1024, decode_content=True)
                 content.extend(chunk)
-                if len(content) > 1_000_000 or time.monotonic() > deadline:
+                if budgeted:
+                    self._remaining(deadline, clock)
+                if len(content) > 1_000_000 or (not budgeted and clock() > deadline):
                     raise StorageUnavailable("storage_response")
                 if not chunk:
                     break
@@ -177,13 +380,20 @@ class SupabaseNewsStorage:
         if not isinstance(bucket, dict) or bucket.get("public") is not False:
             raise StorageUnavailable("storage_private_required")
 
-    def read(self, path):
-        response = self._request("GET", "/object/authenticated/" + BUCKET + "/" + quote(path, safe="/"))
+    def read(self, path, *, deadline=None, clock=None):
+        """Read within an optional caller-owned absolute monotonic deadline."""
+        response = self._request("GET", "/object/authenticated/" + BUCKET + "/" + quote(path, safe="/"),
+                                 deadline=deadline, clock=clock)
         if self._missing(response):
+            if deadline is not None:
+                self._remaining(deadline, time.monotonic if clock is None else clock)
             return None
         if not 200 <= response.status_code < 300:
             raise StorageUnavailable("storage_read")
-        return self._payload(response)
+        value = self._payload(response)
+        if deadline is not None:
+            self._remaining(deadline, time.monotonic if clock is None else clock)
+        return value
 
     def create(self, path, value):
         body = json.dumps(value, ensure_ascii=False, allow_nan=False).encode("utf-8")
@@ -198,15 +408,20 @@ class SupabaseNewsStorage:
             raise StorageUnavailable("storage_write")
         return True
 
-    def _list(self, prefix):
+    def _list(self, prefix, *, deadline=None, clock=None, offset=0):
+        if type(offset) is not int or not 0 <= offset <= 180:
+            raise StorageUnavailable("storage_budget")
         response = self._request("POST", "/object/list/" + BUCKET,
-                                 json={"prefix": prefix, "limit": MAX_ISSUES, "offset": 0,
-                                       "sortBy": {"column": "name", "order": "desc"}})
+                                 json={"prefix": prefix, "limit": MAX_ISSUES, "offset": offset,
+                                       "sortBy": {"column": "name", "order": "desc"}},
+                                 deadline=deadline, clock=clock)
         if not 200 <= response.status_code < 300:
             raise StorageUnavailable("storage_list")
         values = self._payload(response)
         if not isinstance(values, list):
             raise StorageUnavailable("storage_list")
+        if deadline is not None:
+            self._remaining(deadline, time.monotonic if clock is None else clock)
         return values
 
     def recent_days(self):
@@ -445,6 +660,26 @@ class DailyNewsRuntime:
         self._source_history = (day, deepcopy(issues))
         return issues
 
+    def _poll_sources(self):
+        collect = getattr(self.source_preparer, "collect", None)
+        if not self.enabled or not callable(collect):
+            return
+        try:
+            result = collect(self.clock())
+        except Exception:
+            # An unpaid poll cannot withdraw a reviewed edition or silently
+            # authorize a paid retry. Its durable claim still prevents repeats.
+            result = {"status": "unavailable", "last_checked_at": None}
+        if not isinstance(result, dict):
+            return
+        status = result.get("status")
+        status = status if status in ("not_checked", "checked", "pending", "not_completed",
+                                      "unavailable") else "unavailable"
+        stamp = result.get("last_checked_at")
+        stamp = stamp if type(stamp) in (int, float) and math.isfinite(stamp) else None
+        with self._state_lock:
+            self._state["source_cache"] = {"status": status, "last_checked_at": stamp}
+
     def _tick(self):
         if (self.generation_owner == "external"
                 and not callable(getattr(self.source_preparer, "prepare", None))):
@@ -479,12 +714,21 @@ class DailyNewsRuntime:
                     self.storage.create(key, baseline)
                     existing = self._read_edition(day, now)
         if existing is not None:
+            # Install reviewed copy first: a slow original fetch at 08:00 must
+            # not hold an already approved edition off the in-memory website.
             self._ready(existing, now)
+            self._poll_sources()
             return
         self._set("waiting", attempt_count=0)
         if not self.enabled:
             self._set("disabled")
             return
+        self._poll_sources()
+        now = self.clock()
+        current = datetime.fromtimestamp(now, JST)
+        if current.date().isoformat() != day:
+            return
+        minute = current.hour * 60 + current.minute
         if not 7 * 60 <= minute < 23 * 60:
             return
         manifest = None

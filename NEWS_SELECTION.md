@@ -273,7 +273,7 @@ is the owner's aim, not a guarantee established by official attribution or
 two AI approvals. The two agencies' limited announcement feeds do not cover
 every economic development or establish continuous real-time coverage.
 
-The locally implemented automatic website path uses **総務省統計局・財務省**. `website_news.py` explicitly enables those two sources in `official_news_sources.py`; it does not retrieve BOJ or start the shared LINE RSS cache. Collection, the immutable morning source window, drafting/review, saved-edition validation and public metadata are connected in the local code. The official source/runtime path was deployed in earlier revisions. The recovered Codex writer/adapter candidate now has the private historical-copy approval above, but its actual server-storage connection and deployment remain unfinished; an actual production 08:00 release has not been confirmed.
+The automatic website path uses **総務省統計局・財務省**. `website_news.py` explicitly enables those two sources in `official_news_sources.py`; it does not retrieve BOJ or start the shared LINE RSS cache. Collection, the immutable morning source window, drafting/review, saved-edition validation and public metadata are connected. The Mac-independent GitHub/Supabase/Render path was deployed, and a manually resumed edition was published at 12:10:04 JST on October 10 and observed on the website at 12:14. This supersedes the unfinished connection checkpoint above. The first new edition from the corrected independent scheduled clock remains a separate operational check; a healthy `source_empty` run does not prove new publication or an 08:00 release.
 
 The owner selected public-agency announcements on 2026-10-05, with **日本銀行** also proposed, but BOJ remains on hold pending clarification of its use conditions. Broader market, disclosure and licensed news sources remain later candidates. The [statistics-site terms](https://www.stat.go.jp/info/riyou.html) and [finance-ministry terms](https://www.mof.go.jp/about_mof/notice/index.html) were rechecked on 2026-10-05. For those two agencies, use the selected announcement text under the applicable PDL1.0 terms, credit the source URL and identify the site's summary as edited content. Do not assume that third-party material, imagery, logos or separately restricted content is covered.
 
@@ -296,6 +296,35 @@ BOJ HTML requires a matching heading, a leading dated BOJ attribution and substa
 `build_issue`, saved-edition validation, initial HTML, browser rendering and the publication checker support the official source window and original date precision. Previously published editions retain their actual dates. The older NHK/Reuters path documented below remains compatibility code for existing records and the separate RSS/LINE flow; it is not the new automatic website source selector. No private fixture or local code change is considered published merely because local checks pass.
 
 Historical connection check: a private Claude draft and independent Gemini/OpenAI reviews succeeded on 2026-10-05 using two announcements from 2026-10-02. That earlier check did not cover current-day collection or the release gate. The later source-isolated test `morning-session-afd5c2f592c54aa3a859a8d5b81f9de7-run-2` passed the nine private morning-flow checks, as recorded below; neither result establishes an actual production 08:00 release.
+
+### Advance original collection (2026-10-11)
+
+`OfficialNewsCache` saves verified originals in the existing private
+`website-news` bucket, independently of drafting or publication. The server
+worker can claim one collection slot per 15 minutes, including after a morning
+edition has been installed. It never starts an AI writer, reviewer, generation
+attempt or LINE delivery. An already reviewed edition is installed before this
+poll begins, and a poll failure does not remove it. This is the worker's polling
+interval, not a guarantee that a sleeping free host or a delayed cloud wake
+will run every slot.
+
+Immutable body/version/identity records preserve actual announcement dates and
+the earliest successful verification of each exact version. Snapshot reads
+cover at most three JST days and 128 versions, with a shared 12-second transport
+deadline. The isolated read transport also stops DNS/header/trickle-body waits;
+its child has an independent expiry if its owner exits. Bounded day-index
+pagination can recover earlier originals after many missing poll results.
+Unsupported deadlines or incomplete evidence fail closed instead of becoming
+a confirmed quiet source window.
+
+The final 07:29 collection and 07:30 source cutoff remain. A poll that verifies
+new evidence across the cutoff is not reported as a confirmed empty window;
+post-cutoff evidence is retained for the next morning under its real date.
+Morning manifests remain immutable and require the same two reviews of the
+final copy. `NEWS_SOURCE_CACHE_ENABLED=0` restores the preceding collection
+path. No new credentials, source permission or paid daytime generation are
+introduced. Emergency daytime selection, review and publication remain to be
+specified together with their cost limits.
 
 ### Implemented morning window
 
