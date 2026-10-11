@@ -1155,6 +1155,51 @@ class OfficialWindowProducerTests(unittest.TestCase):
                                 source_window=self.window if window is None else window,
                                 providers=self.provider, collector=self.collector, clock=lambda: self.now)
 
+    def boj_record(self):
+        body = ('2026年10月5日\n日本銀行\n金融市場調節方針について\n'
+                '日本銀行は、本日、政策委員会・金融政策決定会合において、'
+                '次回金融政策決定会合までの金融市場調節方針を、以下のとおりとすることを決定した。\n'
+                '無担保コールレート（オーバーナイト物）を、0.50％程度で推移するよう促す。\n'
+                'BOJ_ORIGINAL_PROSE_PRIVATE_FIXTURE。これは架空の原文であり、追加の注意事項です。')
+        return {**self.records[0], 'source': '日本銀行', 'title': '金融市場調節方針について',
+                'url': 'https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k261005a.pdf',
+                'evidence_url': 'https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k261005a.pdf',
+                'body': body, 'body_sha256': sha256(body.encode()).hexdigest()}
+
+    def test_boj_only_verified_rate_facts_reach_writer_and_same_two_review_payloads(self):
+        from official_boj_facts import policy_facts
+        record = policy_facts(self.boj_record())
+        self.assertIsNotNone(record)
+        self.provider.claude.return_value = draft(1)
+        issue = self.generate([record])
+        self.assertEqual(issue['article_refs'][0]['source'], '日本銀行')
+        self.assertEqual(issue['article_refs'][0]['url'], record['url'])
+        self.assertEqual(issue['article_refs'][0]['body_sha256'], record['body_sha256'])
+        self.assertEqual(self.provider.gemini.call_args.args[1], self.provider.openai.call_args.args[1])
+        for method in (self.provider.claude, self.provider.gemini, self.provider.openai):
+            self.assertNotIn('BOJ_ORIGINAL_PROSE_PRIVATE_FIXTURE', json.dumps(method.call_args.args))
+        self.assertNotIn('original_body_sha256', json.dumps(issue))
+        self.collector.assert_not_called()
+
+    def test_boj_raw_copy_and_invalid_fact_record_stop_before_all_providers(self):
+        from official_boj_facts import SCOPE, policy_facts
+        original = self.boj_record()
+        facts = policy_facts(original)
+        changed_body = facts['body'] + '\n原文が混ざった本文。'
+        variants = [original, {**original, 'source_scope': SCOPE},
+                    {**facts, 'body': changed_body, 'body_sha256': sha256(changed_body.encode()).hexdigest()},
+                    {k: v for k, v in facts.items() if k != 'original_body_sha256'},
+                    {**facts, 'policy_rate_percent': '20.1'}]
+        for row in variants:
+            with self.subTest(scope=row.get('source_scope')):
+                self.provider.reset_mock()
+                with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+                    self.generate([row])
+                self.provider.claude.assert_not_called()
+                self.provider.gemini.assert_not_called()
+                self.provider.openai.assert_not_called()
+                self.collector.assert_not_called()
+
     def test_official_fixed_snapshot_skips_collection_and_search_keeps_precise_refs(self):
         before = copy.deepcopy((self.records, self.window))
         issue = self.generate()

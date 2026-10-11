@@ -63,6 +63,7 @@ _SOURCE_ERROR_CODES = frozenset(("unapproved_source", "source_time_limit", "unap
     "supporting_pdf_link_missing", "supporting_pdf_identity_mismatch", "pdf_invalid",
     "pdf_parser_unavailable", "pdf_encrypted", "pdf_extraction_forbidden", "pdf_page_limit",
     "pdf_unreadable_page", "pdf_text_limit", "pdf_parse_failed", "pdf_time_limit",
+    "boj_policy_facts_unverified",
     "source_read_failed", "body_or_date_unverified"))
 # Match the collector's current bounds without allowing upstream configuration
 # to expand the private report's schema or reflect untrusted source values.

@@ -3,6 +3,7 @@
   'use strict';
   var newsCache={}, newsPending={}, newsTimers={}, newsAttempts={}, marketPending=null, marketRetry=null;
   var NEWS_TTL=120000, MAX_NEWS_AGE=900000, MAX_MARKET_AGE=7*86400000;
+  var officialSourceHosts={'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp','日本銀行':'www.boj.or.jp'};
   var shownLanguage=null, shownEdition=null, shownNews=null, shownState=null, newsLoadedAt={}, started=false;
   var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={}, publishedFloors={};
   var copy={
@@ -33,9 +34,10 @@
     return w.window_start===midnight-16*3600&&w.carryover_start===midnight-16.5*3600&&w.cutoff_at===midnight+7.5*3600?w:null;
   }
   function officialArticle(item,w,reviewedAt){
-    if(!item||!['総務省統計局','財務省'].includes(item.source)||!validISODate(item.published_date)||!['second','day'].includes(item.publication_precision)||typeof item.body_sha256!=='string'||! /^[a-f0-9]{64}$/.test(item.body_sha256)||!Number.isFinite(item.body_verified_at)||item.body_verified_at>w.cutoff_at||item.body_verified_at>reviewedAt)return false;
+    if(!item||!Object.prototype.hasOwnProperty.call(officialSourceHosts,item.source)||!validISODate(item.published_date)||!['second','day'].includes(item.publication_precision)||typeof item.body_sha256!=='string'||! /^[a-f0-9]{64}$/.test(item.body_sha256)||!Number.isFinite(item.body_verified_at)||item.body_verified_at>w.cutoff_at||item.body_verified_at>reviewedAt)return false;
     var url;try{url=new URL(item.url);}catch(_){return false;}
-    if(url.protocol!=='https:'||url.hostname!==({'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp'}[item.source])||url.username||url.password||url.search||(url.port&&url.port!=='443'))return false;
+    if(url.protocol!=='https:'||url.hostname!==officialSourceHosts[item.source]||url.username||url.password||url.search||(url.port&&url.port!=='443'))return false;
+    if(item.source==='日本銀行'&&!/^\/mopo\/mpmdeci\/(?:state_\d{4}\/k\d{6}[a-z]?\.html?|mpr_\d{4}\/k\d{6}[a-z]?\.pdf)$/.test(url.pathname))return false;
     if(w.kind==='intraday'){
       if(item.selection_route!=='intraday'||item.published_date!==w.edition_date||item.body_verified_at<w.window_start||typeof item.title!=='string'||!item.title.trim()||item.title.length>1000||Object.prototype.hasOwnProperty.call(item,'deferred_from')||Object.prototype.hasOwnProperty.call(item,'deferred_reason'))return false;
       if(item.publication_precision==='day')return item.published_at===null&&editionKey(item.body_verified_at)>=item.published_date;

@@ -13,6 +13,7 @@ from intraday_news_runtime import (PREFIX, article_identity, importance, intrada
                                   published_identities, run_job, select_candidate)
 from morning_news_window import JST
 from news_copy_policy import COPY_LENGTH_POLICY
+from news_cache import OFFICIAL_NEWS_SOURCES
 from news_review_receipt import completed_receipt
 
 
@@ -87,7 +88,7 @@ class Cache:
                 "last_checked_at": self.checked if self.checked is not None else now,
                 "source_status": {name: {"feed_status": "failed" if self.broken else "ok",
                     "status": "feed_failed" if self.broken else "collected", "errors": []}
-                    for name in ("財務省", "総務省統計局")}}
+                    for name in OFFICIAL_NEWS_SOURCES}}
 
 
 class IntradayTests(unittest.TestCase):

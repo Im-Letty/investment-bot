@@ -273,11 +273,11 @@ is the owner's aim, not a guarantee established by official attribution or
 two AI approvals. The two agencies' limited announcement feeds do not cover
 every economic development or establish continuous real-time coverage.
 
-The automatic website path uses **総務省統計局・財務省**. `website_news.py` explicitly enables those two sources in `official_news_sources.py`; it does not retrieve BOJ or start the shared LINE RSS cache. Collection, the immutable morning source window, drafting/review, saved-edition validation and public metadata are connected. The Mac-independent GitHub/Supabase/Render path was deployed, and a manually resumed edition was published at 12:10:04 JST on October 10 and observed on the website at 12:14. This supersedes the unfinished connection checkpoint above. The first new edition from the corrected independent scheduled clock remains a separate operational check; a healthy `source_empty` run does not prove new publication or an 08:00 release.
+The automatic website path now uses **総務省統計局・財務省・日本銀行**. `website_news.py` enables these three sources in `official_news_sources.py`, then projects BOJ decisions to the narrow fact-only record described below before any persistence or AI input. It does not start the shared LINE RSS cache. Collection, the immutable morning source window, drafting/review, saved-edition validation and public metadata are connected. The Mac-independent GitHub/Supabase/Render path was deployed, and a manually resumed edition was published at 12:10:04 JST on October 10 and observed on the website at 12:14. This supersedes the unfinished connection checkpoint above. The first new edition from the corrected independent scheduled clock remains a separate operational check; a healthy `source_empty` run does not prove new publication or an 08:00 release.
 
-The owner selected public-agency announcements on 2026-10-05, with **日本銀行** also proposed, but BOJ remains on hold pending clarification of its use conditions. Broader market, disclosure and licensed news sources remain later candidates. The [statistics-site terms](https://www.stat.go.jp/info/riyou.html) and [finance-ministry terms](https://www.mof.go.jp/about_mof/notice/index.html) were rechecked on 2026-10-05. For those two agencies, use the selected announcement text under the applicable PDL1.0 terms, credit the source URL and identify the site's summary as edited content. Do not assume that third-party material, imagery, logos or separately restricted content is covered.
+The owner selected public-agency announcements on 2026-10-05, with **日本銀行** also proposed. The previous hold on reproducing/rewriting BOJ prose remains; the October 11 addition is a separate, narrow factual-reporting path. Broader market, disclosure and licensed news sources remain later candidates. The [statistics-site terms](https://www.stat.go.jp/info/riyou.html) and [finance-ministry terms](https://www.mof.go.jp/about_mof/notice/index.html) were rechecked on 2026-10-05. For those two agencies, use the selected announcement text under the applicable PDL1.0 terms, credit the source URL and identify the site's summary as edited content. Do not assume that third-party material, imagery, logos or separately restricted content is covered.
 
-**The Bank of Japan has different terms.** Its [copyright policy](https://www.boj.or.jp/about/copyright.htm) calls for advance consultation for commercial reproduction, restricted passages and images, and disallows unauthorized alterations. An explicit permission for this site's automated commercial summary workflow has not been established. This does not establish that independently reporting facts is prohibited; it does mean that the other two sources' PDL permission must not be applied to BOJ. The BOJ addition is a private retrieval implementation only; public/AI use requires resolving the applicable scope before connecting it. No inquiry has been sent and no license purchased.
+**The Bank of Japan has different terms.** Its [copyright policy](https://www.boj.or.jp/about/copyright.htm) calls for advance consultation for commercial reproduction, restricted passages and images, and disallows unauthorized alterations. An explicit permission for this site's automated commercial summary workflow has not been established. This does not establish that independently reporting facts is prohibited; it does mean that the other two sources' PDL permission must not be applied to BOJ. Full-prose external-AI processing and public adaptation remain unapproved. The October 11 production addition does not use that full-prose workflow; it uses only verified decision data with independently composed labels. No inquiry has been sent and no license purchased.
 
 `official_news_sources.py` retains the original publication date and its precision. An announcement with no published time keeps `published_at: null`, `published_date: YYYY-MM-DD` and `publication_precision: day`; neither the retrieval time nor midnight becomes an invented publication time. `observed_at` records retrieval and `body_verified_at` records successful body/date verification; neither is substituted for publication. The month measured by a statistical release remains part of its source text, distinct from the date of announcement.
 
@@ -287,11 +287,11 @@ The registered public memorandum permits viewing without a password and text ext
 
 On 2026-10-05 the owner selected **announcements since the preceding day's 08:00, verified before the morning preparation cutoff**, with post-cutoff items considered the next morning. The implementation uses 07:30 JST as the cutoff, preserving 30 minutes for writing and independent review before the 08:00 target. The date-only and cutoff-gap routes below prevent fabricated times or lost boundary items. An empty period must remain empty.
 
-The retained **private BOJ adapter (not enabled for website collection)** checks the [official general RSS](https://www.boj.or.jp/rss/whatsnew.xml) and only accepts the policy-decision titles `金融市場調節方針について`, `金融市場調節方針の変更について`, and `当面の金融政策運営について` on narrowly allowed decision-document paths. Minutes, opinions, speeches, schedules and reference slides are not treated as new rate decisions. RSS history is limited; this is not an exhaustive historical backfill. Exact approved HTTP article links in the official RSS are upgraded to HTTPS without making HTTP requests.
+The bounded **BOJ document reader** checks the [official general RSS](https://www.boj.or.jp/rss/whatsnew.xml) and only accepts the policy-decision titles `金融市場調節方針について`, `金融市場調節方針の変更について`, and `当面の金融政策運営について` on narrowly allowed decision-document paths. Minutes, opinions, speeches, schedules and reference slides are not treated as new rate decisions. RSS history is limited; this is not an exhaustive historical backfill. Exact approved HTTP article links in the official RSS are upgraded to HTTPS without making HTTP requests.
 
 BOJ HTML requires a matching heading, a leading dated BOJ attribution and substantive text; PDF/link-only indexes are excluded. PDF text is extracted with `pypdf==6.19.0` in an isolated, bounded child process (2 MB, 20 pages, 8 seconds, 30,000 characters). Encrypted, scanned/unreadable, partial or oversized documents are rejected. The leading document date is cross-checked against the RSS publication date; effective dates, meeting dates, PDF metadata and future publication schedules do not replace it. The 2026-09-18 five-page policy PDF and the 2026-01-23 HTML decision were read successfully in private checks, preserving their historical dates. They are test documents, not today's news.
 
-`collect_official_articles(..., diagnostics=report)` reports source status and counts separately. A failed/unfinished feed, no matching candidates in a successfully read limited feed, failed article verification and partial collection are distinct states. It rejects well-formed HTML maintenance pages as invalid feeds. No matching RSS entry still does not prove that no announcement exists elsewhere. The collector and producer were tested locally with network/API calls replaced or blocked, including original-date handling, invalid sources, cutoff boundaries and fixed-snapshot generation. The retained BOJ retrieval tests do not enable BOJ in the website path.
+`collect_official_articles(..., diagnostics=report)` reports source status and counts separately. A failed/unfinished feed, no matching candidates in a successfully read limited feed, failed article verification and partial collection are distinct states. It rejects well-formed HTML maintenance pages as invalid feeds. No matching RSS entry still does not prove that no announcement exists elsewhere. The collector and producer were tested locally with network/API calls replaced or blocked, including original-date handling, invalid sources, cutoff boundaries and fixed-snapshot generation. BOJ reader tests alone do not establish production deployment or publication. The separate fact projection and its storage/review guards are required for website use.
 
 `build_issue`, saved-edition validation, initial HTML, browser rendering and the publication checker support the official source window and original date precision. Previously published editions retain their actual dates. The older NHK/Reuters path documented below remains compatibility code for existing records and the separate RSS/LINE flow; it is not the new automatic website source selector. No private fixture or local code change is considered published merely because local checks pass.
 
@@ -355,11 +355,51 @@ The private frozen manifest contains the verified bodies alongside the window fi
 
 If the checked source window has no eligible new candidate, the runtime reports `source_empty` and makes no AI generation call. Failed or incomplete source checks instead report `source_unavailable`; they are not treated as a confirmed quiet morning. In either case, an earlier valid publication remains under its original date. Deployment and an actual production release must be verified separately from these local implementation checks.
 
+### BOJ decision facts (2026-10-11)
+
+The owner requested the BOJ addition on October 11. This adds only the adopted
+short-term overnight-rate target and actual announcement date, not the whole
+report, outlook, minutes, speeches, or other statistics. The BOJ copyright
+policy was rechecked alongside the [Agency for Cultural Affairs explanation of
+facts and data](https://www.bunka.go.jp/seisaku/chosakuken/seidokaisetsu/chosakukensha_fumei/).
+This is an independently written factual report, not a claim of BOJ permission
+for commercial prose reproduction. No inquiry, contract, payment, logo use or
+permission change occurred.
+
+`official_boj_facts.py` requires the original document's verified date, issuer,
+policy-decision title and the adopted policy sentence immediately after its
+leading dateline. It cannot jump across sentences into a dissenting proposal or
+use a quoted previous decision. An unambiguous overnight-rate target becomes a
+fixed, independently composed fact record (`boj_policy_rate_facts_v1`). The
+complete source text exists only during the bounded read; it is not saved,
+fingerprinted as a manifest, sent to AI, or publicly reproduced. A document
+text hash records provenance, not a copy of its text. Unknown metadata and prose
+in typed metadata fields are rejected. Both the shared cache and the producer
+reject raw BOJ documents. The private current-rehearsal route has the same gate.
+
+Codex writes a concise explanation from those facts, and Gemini/OpenAI approve
+the identical final copy against the identical fact record. They do **not**
+review the full BOJ prose. Publication dates retain their actual precision;
+change direction, implementation dates, reasons and predictions are not inferred
+from the title or from other rates. An original URL remains available inside the
+existing final source disclosure. The daytime selector treats a new verified
+policy decision as important while retaining same-day freshness, identity
+claims, correction exclusion, and the existing three-attempt limit. The addition
+does not increase paid-call budgets. Unverified facts report an unavailable
+source, not a confirmed quiet day.
+
+The official RSS was read successfully on October 11 with no matching current-day
+policy decision. The September 18 five-page PDF was checked only as a historical
+reader/extractor example, preserving its September 18 date and separating the
+1.25% adopted target from the 1.5% lending-facility rate. It is not a newly
+published October 11 article. Deployment and the first actual new policy article
+remain distinct from offline tests and this read-only check.
+
 ### Source-use review and BOJ inquiry draft (not sent)
 
 The [PDL1.0 text](https://www.digital.go.jp/resources/open_data/public_data_license_v1.0), Statistics Bureau terms and Ministry of Finance terms were re-read on 2026-10-05. For material covered by PDL1.0, reproduction, adaptation and commercial use are allowed subject to its conditions. Retain the actual document link, provider attribution and an explicit indication that this site created/edited the summary. The compact UI approved on 2026-10-11 shows each article's actual provider as its original-document link, with `公式発表をもとに要約` in a native ⓘ disclosure for summarized official announcements. In the lead-plus-other-news layout, the + opens a final source row for all articles; links are kept per article, including separate URLs from the same provider, with the article title in the link title and accessible name. The collapsed row keeps only the +. The final source row inside the opened panel pairs each original publication date with its corresponding source link and includes one native ⓘ with the unchanged summary explanation; publication dates, sources and summary help appear only after + is opened. A single-article edition also provides the + so its source remains reachable. The edition date remains in the dated header, while each article keeps its original publication date and precise metadata. Do not imply official endorsement. Photos, maps, logos, separately restricted material and third-party rights are not cleared by that general rule; check each chosen document. PDL1.0 does not itself establish an AI provider's retention/training settings.
 
-BOJ has not been cleared for external-AI submission or public summaries. The absence of an AI-specific permission is not a determination that independent reporting of facts is prohibited. Obtain clarification on the planned workflow rather than treating a link or attribution as permission. The official [contact page](https://www.boj.or.jp/about/services/contact.htm) lists the Information Services Department for content-use inquiries. No message has been sent, no mailbox opened, and no operator identity or commercial status has been inferred.
+BOJ full prose has not been cleared for external-AI submission or public adaptation. The following old inquiry draft is not a dependency for the separately implemented fact-only path and has not been sent. The absence of an AI-specific permission is not a determination that independent reporting of facts is prohibited. Obtain clarification on the planned workflow rather than treating a link or attribution as permission. The official [contact page](https://www.boj.or.jp/about/services/contact.htm) lists the Information Services Department for content-use inquiries. No message has been sent, no mailbox opened, and no operator identity or commercial status has been inferred.
 
 宛先候補：日本銀行 情報サービス局 `post.prd8@boj.or.jp`
 

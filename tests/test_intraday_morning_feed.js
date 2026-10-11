@@ -60,6 +60,23 @@ test('published intraday JSON is rendered immediately and persisted from API',as
   assert.equal(a.storage.has('kn_news_v4_ja'),false,'Published copy is not an RSS fetch record');
 });
 
+test('BOJ intraday decision renders after review and stays bound to its official host and path',async()=>{
+  const data=publication({precise:false});
+  changeRef(data,'source','日本銀行');
+  changeRef(data,'url','https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k261011a.pdf');
+  const a=app();a.start();await a.reply(0,data);
+  assert.match(a.html(),/日中の新しい公式発表/);assert.match(a.html(),/日本銀行/);
+  assert.equal(JSON.parse(a.storage.get('kn_published_news_v1_ja')).news[0].published_at,null);
+  for(const url of ['https://www.mof.go.jp/policy/tax_policy/tax_reform/example.html',
+    'https://www.boj.or.jp/about/press/koen_2026/ko261011a.htm',
+    'https://www.boj.or.jp.evil.test/mopo/mpmdeci/mpr_2026/k261011a.pdf']){
+    const changed=clone(data);changeRef(changed,'url',url);
+    const rejected=app({},changed);rejected.start();
+    assert.doesNotMatch(rejected.html(),/日中の新しい公式発表/);
+    assert.equal(rejected.storage.has('kn_published_news_v1_ja'),false);
+  }
+});
+
 test('date-only intraday publication preserves unknown time in embedded and cached copy',()=>{
   const data=publication({precise:false}),a=app({},data);a.start();
   assert.match(a.html(),/日中の新しい公式発表/);

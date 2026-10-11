@@ -203,6 +203,10 @@ class MorningNewsPreparer:
         if known is None:
             proposed = {"version": 1, **identity, "first_seen_at": started,
                         "first_verified_at": row["body_verified_at"]}
+            if 'observed_at' in row:
+                if not _number(row['observed_at']) or not 0 < row['observed_at'] <= row['body_verified_at']:
+                    raise ValueError('invalid_source_identity')
+                proposed['first_observed_at'] = row['observed_at']
             known = proposed if self.storage.create(path, proposed) else self.storage.read(path)
         if (not isinstance(known, dict) or known.get("version") != 1 or known.get("url") != row["url"]
                 or not _number(known.get("first_seen_at")) or not _number(known.get("first_verified_at"))
@@ -212,6 +216,16 @@ class MorningNewsPreparer:
             row["requires_correction_review"] = True
         else:
             row["body_verified_at"] = min(row["body_verified_at"], known["first_verified_at"])
+            if 'observed_at' in row:
+                first_observed = known.get('first_observed_at')
+                if first_observed is None:
+                    # Old identities lack an observation timestamp. Omit this
+                    # optional field rather than inventing an earlier reading.
+                    row.pop('observed_at')
+                elif not _number(first_observed) or not 0 < first_observed <= row['body_verified_at']:
+                    raise ValueError('invalid_source_identity')
+                else:
+                    row['observed_at'] = min(row['observed_at'], first_observed)
         return row
 
     def _snapshots(self, day, now, *, wait=False):

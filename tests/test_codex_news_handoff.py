@@ -10,7 +10,7 @@ from unittest.mock import patch
 from codex_website_producer import CodexWebsiteProviders, generate_codex_website_edition
 from daily_news_runtime import DailyNewsRuntime
 from morning_news_window import MorningNewsPreparer, morning_window, select_articles
-from news_cache import JST
+from news_cache import JST, OFFICIAL_NEWS_SOURCES
 from news_initial import initial_news
 from website_news import website_news
 from tests.test_daily_news_runtime import MemoryStorage, issue as prior_issue
@@ -31,7 +31,7 @@ class CodexHandoffTests(unittest.TestCase):
         self.baseline.write_text(json.dumps([prior_issue("2026-10-05")]))
         window = morning_window(NOW)
         self.manifest = {**window, "articles": select_articles(sources(), window), "source_status": {
-             name: {"feed_status": "ok", "status": "collected"} for name in ("総務省統計局", "財務省")}}
+             name: {"feed_status": "ok", "status": "collected"} for name in OFFICIAL_NEWS_SOURCES}}
         self.storage = MemoryStorage({f"days/{self.day}/preparation/manifest.json": self.manifest})
         self.transports, self.writers = [], []
         self.reject = False

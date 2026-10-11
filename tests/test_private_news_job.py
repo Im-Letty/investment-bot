@@ -268,6 +268,7 @@ class PrivateJobTests(unittest.TestCase):
             "財務省": {"feed_status": "ok", "status": "articles_unavailable", "candidates": 2,
                 "selected": 2, "completed": 2, "accepted": 0, "returned": 0,
                 "errors": ["body_or_date_unverified"]},
+            "日本銀行": {"feed_status": "not_completed", "status": "fetch_incomplete", "errors": []},
         }
         self.storage = ReadStorage({**self.manifest, "articles": [], "source_status": rows})
         result = self.run_job()
@@ -504,6 +505,7 @@ class SafeResultTests(unittest.TestCase):
                 "errors": ["pdf_encrypted", "source_read_failed", "unsupported_feed_structure"]},
             "財務省": {"feed_status": "failed", "status": "articles_unavailable",
                 "errors": ["body_or_date_unverified", "supporting_pdf_identity_mismatch"]},
+            "日本銀行": {"feed_status": "ok", "status": "collected", "errors": []},
         }
         manifest = {"articles": [], "source_status": rows, "body": secrets[3], "api_key": secrets[0]}
         result = job._outcome("source_unavailable", "2026-10-06", manifest=manifest)
@@ -517,7 +519,7 @@ class SafeResultTests(unittest.TestCase):
             serialized = json.dumps(output, ensure_ascii=False)
             for secret in secrets:
                 self.assertNotIn(secret, serialized)
-            for field in ("日本銀行", "api_key", "body", "title", "url"):
+            for field in ("api_key", "body", "title", "url"):
                 self.assertNotIn('"' + field + '"', serialized)
         self.assertEqual(manifest["source_status"], rows)
 

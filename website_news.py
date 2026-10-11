@@ -6,13 +6,29 @@ from news_cache import OFFICIAL_NEWS_SOURCES
 from morning_news_window import MorningNewsPreparer
 from official_news_cache import OfficialNewsCache
 from official_news_sources import collect_official_articles
+from official_boj_facts import policy_facts
 
 
 def collect_website_sources(now, *, since, until, diagnostics):
-    # The BOJ adapter is deliberately not called until its use scope is settled.
-    return collect_official_articles(now, since=since, until=until,
+    rows = collect_official_articles(now, since=since, until=until,
                                      diagnostics=diagnostics,
                                      enabled_sources=OFFICIAL_NEWS_SOURCES)
+    result, rejected = [], 0
+    for row in rows:
+        if row.get('source') == '日本銀行':
+            row = policy_facts(row)
+            if row is None:
+                rejected += 1
+                continue
+        result.append(row)
+    if rejected:
+        report = diagnostics.get('日本銀行') if isinstance(diagnostics, dict) else None
+        if isinstance(report, dict):
+            report['accepted'] = max(0, report.get('accepted', 0) - rejected)
+            report['status'] = 'collected_partial' if report['accepted'] else 'articles_unavailable'
+            if 'boj_policy_facts_unverified' not in report.setdefault('errors', []):
+                report['errors'].append('boj_policy_facts_unverified')
+    return result
 
 
 def create_source_preparer(storage, *, clock=time.time, cache_enabled=None):

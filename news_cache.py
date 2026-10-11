@@ -32,7 +32,7 @@ NEWS_FEEDS = {
     "ロイター米国株": "https://feeds.reuters.com/reuters/companyNews",
 }
 WEB_NEWS_SOURCES = ("NHK経済", "ロイター経済")
-OFFICIAL_NEWS_SOURCES = ("総務省統計局", "財務省")
+OFFICIAL_NEWS_SOURCES = ("総務省統計局", "財務省", "日本銀行")
 PUBLISHED_NEWS_SOURCES = WEB_NEWS_SOURCES + OFFICIAL_NEWS_SOURCES
 
 
@@ -278,11 +278,15 @@ def _official_ref(ref, window):
     source, title, url = ref.get("source"), ref.get("title"), _safe_url(ref.get("url"))
     if not isinstance(source, str):
         return None
-    expected_host = {"総務省統計局": "www.stat.go.jp", "財務省": "www.mof.go.jp"}.get(source)
+    expected_host = {"総務省統計局": "www.stat.go.jp", "財務省": "www.mof.go.jp",
+                     "日本銀行": "www.boj.or.jp"}.get(source)
     try:
         parsed = urlsplit(url or "")
         allowed_url = (parsed.scheme == "https" and parsed.hostname == expected_host
                        and parsed.port in (None, 443) and not parsed.query)
+        if source == "日本銀行":
+            allowed_url = allowed_url and bool(re.fullmatch(
+                r"/mopo/mpmdeci/(?:state_\d{4}/k\d{6}[a-z]?\.html?|mpr_\d{4}/k\d{6}[a-z]?\.pdf)", parsed.path))
     except ValueError:
         return None
     if (not expected_host or not isinstance(title, str) or not title.strip() or len(title) > 1000

@@ -50,13 +50,15 @@ class DeliveryCheckTests(unittest.TestCase):
 
     def test_verified_empty_official_day_is_distinct_from_outage_and_publication(self):
         state = {'status': 'source_empty', 'source_mode': 'official', 'edition_date': '2026-10-04',
-                 'sources': ['総務省統計局', '財務省'], 'last_error': None,
+                 'sources': ['総務省統計局', '財務省', '日本銀行'], 'last_error': None,
                  'cutoff_at': self.now.replace(hour=7, minute=30).timestamp()}
         empty = {'policy_version': 4, 'lang': 'ja', 'edition_date': '2026-10-04',
                  'news': [], 'digest': None, 'selection_status': 'unavailable'}
         for changes, success in (({}, True), ({'status': 'source_unavailable'}, False),
                                  ({'edition_date': '2026-10-03'}, False),
-                                 ({'sources': ['財務省']}, False), ({'cutoff_at': 0}, False)):
+                                 ({'sources': ['財務省']}, False),
+                                 ({'sources': ['総務省統計局', '財務省']}, False),
+                                 ({'cutoff_at': 0}, False)):
             with self.subTest(changes=changes), patch('scripts.check_daily_news.datetime') as date_mock, \
                     patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
                     patch('scripts.check_daily_news.time.monotonic', side_effect=[0, 0, 2]), \
@@ -154,6 +156,22 @@ class DeliveryCheckTests(unittest.TestCase):
             if precision == 'day':
                 self.assertIsNone(data['digest']['article_refs'][0]['published_at'])
             self.assertTrue(healthy_quiet_response(data, now + timedelta(days=1)))
+
+    def test_boj_delivery_accepts_decision_only_and_preserves_date_precision(self):
+        now = self.now.replace(hour=12)
+        data = self.intraday_published(precision='day')
+        for ref in data['news'] + data['digest']['article_refs'] + data['digest']['article_summaries']:
+            ref.update(source='日本銀行', url='https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k261004a.pdf')
+        self.assertEqual(current_delivery(data, now), 'published')
+        self.assertIsNone(data['news'][0]['published_at'])
+        for url in ('https://www.mof.go.jp/policy/example.html',
+                    'https://www.boj.or.jp/about/press/kaiken_2026/kk261004a.htm',
+                    'https://www.boj.or.jp.evil.test/mopo/mpmdeci/mpr_2026/k261004a.pdf',
+                    'http://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k261004a.pdf'):
+            changed = deepcopy(data)
+            for ref in changed['news'] + changed['digest']['article_refs'] + changed['digest']['article_summaries']:
+                ref['url'] = url
+            self.assertIsNone(current_delivery(changed, now))
 
     def test_intraday_window_rejects_invalid_versions_times_and_morning_fields(self):
         now = self.now.replace(hour=12)

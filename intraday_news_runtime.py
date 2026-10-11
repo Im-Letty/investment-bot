@@ -16,6 +16,7 @@ from morning_news_window import JST, _verified_article
 from news_cache import OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_digests
 from official_news_cache import OfficialNewsCache, _article
 from website_news import collect_website_sources
+from official_boj_facts import valid_policy_fact_record
 
 PREFIX = "intraday-news/v1"
 MAX_ATTEMPTS = 3
@@ -69,6 +70,8 @@ def importance(row):
         return None
     if _SCHEDULE.search(title):
         return None
+    if row.get('source') == '日本銀行':
+        return 'monetary_policy' if valid_policy_fact_record(row) else None
     for category, pattern in _THEMES:
         if not pattern.search(title + "\n" + body) or not pattern.search(body):
             continue
@@ -178,7 +181,7 @@ def select_candidate(snapshot, window, published):
     candidates = [(category, row) for category, row in candidates
                   if len(versions[(row["url"], row["published_date"])]) == 1]
     # Prefer policy decisions, then newest first; no invented publication times.
-    candidates.sort(key=lambda item: (0 if item[0] == "fiscal_policy" else 1,
+    candidates.sort(key=lambda item: (0 if item[0] in ("fiscal_policy", "monetary_policy") else 1,
                     -(item[1]["published_at"] or item[1]["body_verified_at"]), item[1]["url"]))
     seen = set()
     unique = []

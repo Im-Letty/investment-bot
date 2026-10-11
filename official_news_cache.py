@@ -15,6 +15,7 @@ from urllib.parse import urlsplit
 
 from morning_news_window import JST, MAX_ARTICLES, _number, _verified_article
 from news_cache import OFFICIAL_NEWS_SOURCES
+from official_boj_facts import valid_policy_fact_record
 from official_news_sources import HOSTS, _article_path, _safe_url
 
 PREFIX = "official-sources/v1"
@@ -27,7 +28,8 @@ _HASH = re.compile(r"[0-9a-f]{64}")
 _FIELDS = ("source", "url", "title", "body_sha256", "published_date", "published_at",
            "publication_precision", "body_verified_at", "observed_at", "evidence_url",
            "source_scope", "supporting_documents", "publication_evidence",
-           "event_date", "event_date_kind", "page_metadata_date")
+           "event_date", "event_date_kind", "page_metadata_date",
+           "policy_rate_percent", "original_body_sha256")
 _ERRORS = frozenset(("unapproved_source", "source_time_limit", "unapproved_redirect",
     "source_unavailable", "source_content_type", "source_size_limit", "source_size_or_time_limit",
     "source_redirect_limit", "invalid_source_bytes", "unsupported_source_encoding",
@@ -35,7 +37,7 @@ _ERRORS = frozenset(("unapproved_source", "source_time_limit", "unapproved_redir
     "supporting_pdf_link_missing", "supporting_pdf_identity_mismatch", "pdf_invalid",
     "pdf_parser_unavailable", "pdf_encrypted", "pdf_extraction_forbidden", "pdf_page_limit",
     "pdf_unreadable_page", "pdf_text_limit", "pdf_parse_failed", "pdf_time_limit",
-    "source_read_failed", "body_or_date_unverified"))
+    "source_read_failed", "body_or_date_unverified", "boj_policy_facts_unverified"))
 
 
 def _hash(value):
@@ -87,6 +89,8 @@ def _article(value, now):
             or value["body_verified_at"] > now or _safe_url(value["url"]) != value["url"]
             or HOSTS.get(urlsplit(value["url"]).hostname) != value["source"]
             or not _article_path(urlsplit(value["url"]).hostname, urlsplit(value["url"]).path)):
+        raise ValueError("invalid_source_cache_article")
+    if value.get('source') == '日本銀行' and not valid_policy_fact_record(value):
         raise ValueError("invalid_source_cache_article")
     row = {field: deepcopy(value[field]) for field in _FIELDS if field in value}
     row["body"] = value["body"]

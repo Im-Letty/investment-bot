@@ -21,6 +21,8 @@ PUBLICATION_STATES = frozenset(('starting', 'waiting', 'disabled', 'collecting',
     'source_empty', 'source_unavailable', 'waiting_for_writer', 'prepared', 'ready',
     'generating', 'generation_failed', 'daily_limit', 'storage_unavailable',
     'cache_unavailable', 'unavailable', 'invalid_edition', 'configuration_unavailable'))
+OFFICIAL_SOURCE_HOSTS = {'総務省統計局': 'www.stat.go.jp', '財務省': 'www.mof.go.jp',
+                         '日本銀行': 'www.boj.or.jp'}
 
 
 def valid_official_delivery(data, now):
@@ -89,12 +91,15 @@ def valid_official_delivery(data, now):
             if not isinstance(ref.get('title'), str) or not 1 <= len(ref['title'].strip()) <= 1000:
                 return False
             url = urlsplit(ref['url'])
-            host = {'総務省統計局': 'www.stat.go.jp', '財務省': 'www.mof.go.jp'}.get(ref['source'])
+            host = OFFICIAL_SOURCE_HOSTS.get(ref['source'])
             verified = ref['body_verified_at']
             if (not host or url.scheme != 'https' or url.hostname != host or url.username or url.password
                     or url.port not in (None, 443) or url.query
                     or not number(verified) or not 0 < verified <= expected['cutoff_at']
                     or not re.fullmatch('[a-f0-9]{64}', ref['body_sha256'])):
+                return False
+            if ref['source'] == '日本銀行' and not re.fullmatch(
+                    r'/mopo/mpmdeci/(?:state_\d{4}/k\d{6}[a-z]?\.html?|mpr_\d{4}/k\d{6}[a-z]?\.pdf)', url.path):
                 return False
             pubday = datetime.strptime(ref['published_date'], '%Y-%m-%d').date()
             if pubday.isoformat() != ref['published_date'] or pubday > datetime.fromtimestamp(verified, JST).date():
@@ -315,7 +320,7 @@ def main():
                 return 0
             if (now.hour >= 8 and isinstance(state, dict) and state.get('status') == 'source_empty'
                     and state.get('edition_date') == expected and state.get('source_mode') == 'official'
-                    and state.get('sources') == ['総務省統計局', '財務省']
+                    and state.get('sources') == list(OFFICIAL_SOURCE_HOSTS)
                     and state.get('cutoff_at') == now.replace(hour=7, minute=30, second=0, microsecond=0).timestamp()
                     and state.get('last_error') is None and healthy_quiet_response(published, now)):
                 print('No eligible new announcements in the checked sources; previous edition retains its actual date. No AI edition was generated.', flush=True)

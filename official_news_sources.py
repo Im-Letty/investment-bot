@@ -871,9 +871,10 @@ def collect_official_articles(now=None, *, since=None, until=None, diagnostics=N
     separately using the actual clock. Missing/contradictory evidence is skipped.
     `until` optionally narrows the publication-time upper bound; it never makes
     future announcements eligible. `enabled_sources` selects a fixed subset of
-    FEEDS without mutating the shared source configuration. Production uses the
-    Statistics Bureau and Ministry of Finance explicitly; BOJ remains opt-in
-    at the caller's policy boundary. `body_verified_at` is the actual positive
+    FEEDS without mutating the shared source configuration. Website callers
+    enable the three sources but replace BOJ prose with verified decision facts
+    before storage or AI. This general reader itself grants no prose reuse.
+    `body_verified_at` is the actual positive
     clock reading after extraction and date validation, not the supplied `now`.
     Optional `diagnostics` is an output dict of per-source status/counts/error
     codes. No matches in a limited RSS feed do not prove no announcement exists.

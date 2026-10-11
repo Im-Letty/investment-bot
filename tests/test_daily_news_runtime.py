@@ -318,14 +318,14 @@ class RuntimeTests(unittest.TestCase):
 
     def test_missing_enabled_source_is_an_outage_not_a_quiet_day_after_restart(self):
         from morning_news_window import morning_window
-        self.assertEqual(OFFICIAL_NEWS_SOURCES, ("総務省統計局", "財務省"))
+        self.assertEqual(OFFICIAL_NEWS_SOURCES, ("総務省統計局", "財務省", "日本銀行"))
         self.write(self.baseline, [issue("2026-09-23")])
         self.now = at(hour=8, minute=0)
         healthy = {name: {"feed_status": "ok", "status": "no_matching_candidates"}
                    for name in OFFICIAL_NEWS_SOURCES}
         incomplete = [{name: row for name, row in healthy.items() if name != missing}
                       for missing in OFFICIAL_NEWS_SOURCES]
-        # An inactive source must never substitute for an enabled one.
+        # One checked source must never substitute for all enabled sources.
         incomplete += [{}, {"日本銀行": {"feed_status": "ok", "status": "no_matching_candidates"}}]
         for owner in ("local", "external"):
             for diagnostics in incomplete:

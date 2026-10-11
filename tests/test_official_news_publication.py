@@ -11,7 +11,7 @@ from unittest.mock import Mock, patch
 from daily_news_producer import CHECKS, generate_edition
 from daily_news_runtime import DailyNewsRuntime
 from morning_news_window import MorningNewsPreparer, morning_window
-from news_cache import JST, PUBLISHED_NEWS_SOURCES, _validated_digest, select_daily_news
+from news_cache import JST, OFFICIAL_NEWS_SOURCES, PUBLISHED_NEWS_SOURCES, _validated_digest, select_daily_news
 from news_initial import initial_news, render_news_markup
 from scripts.check_daily_news import current_delivery
 from tests.test_daily_news_runtime import MemoryStorage, issue as legacy_issue
@@ -48,6 +48,33 @@ class PublicationTests(unittest.TestCase):
         return select_daily_news(website_news.snapshot(), now or stamp(),
                                  allowed_sources=PUBLISHED_NEWS_SOURCES, reviewed_digests=[value])
 
+    def test_boj_reviewed_refs_require_exact_official_decision_path(self):
+        for path in ('/mopo/mpmdeci/mpr_2026/k261005a.pdf',
+                     '/mopo/mpmdeci/state_2026/k261005a.htm'):
+            value = edition('day')
+            for ref in value['article_refs'] + value['article_summaries']:
+                ref.update(source='日本銀行', url='https://www.boj.or.jp' + path)
+            self.assertIsNotNone(_validated_digest(value))
+            data = initial_news(website_news.snapshot(), now=stamp(), reviewed_digests=[value])
+            self.assertEqual(data['news'][0]['source'], '日本銀行')
+            self.assertEqual(data['news'][0]['published_date'], '2026-10-05')
+            self.assertIsNone(data['news'][0]['published_at'])
+            self.assertEqual(current_delivery(data, datetime.fromtimestamp(stamp(), JST)), 'published')
+            self.assertIn('日本銀行', render_news_markup(data))
+            for url in ('https://www.mof.go.jp' + path,
+                        'https://www.boj.or.jp.evil.test' + path,
+                        'https://www.boj.or.jp/about/press/koen_2026/ko261005a.htm',
+                        'http://www.boj.or.jp' + path,
+                        'https://www.boj.or.jp' + path + '?next=private'):
+                with self.subTest(url=url):
+                    changed = deepcopy(value)
+                    for ref in changed['article_refs'] + changed['article_summaries']:
+                        ref['url'] = url
+                    self.assertIsNone(_validated_digest(changed))
+                    self.assertIsNone(current_delivery({**data, 'digest': changed,
+                                                       'news': changed['article_refs']},
+                                                      datetime.fromtimestamp(stamp(), JST)))
+
     def test_actual_dates_survive_python_html_and_ci_check(self):
         for precision in ('second', 'day'):
             with self.subTest(precision=precision):
@@ -59,16 +86,17 @@ class PublicationTests(unittest.TestCase):
                 self.assertEqual(current_delivery(data, datetime.fromtimestamp(stamp(), JST)), 'published')
                 html = render_news_markup(data)
                 self.assertIn('aria-label="掲載対象日 2026-10-06 ', html)
-                self.assertIn('title="発表 2026/10/5', html)
-                self.assertIn('>10/5 発表</time>', html)
+                self.assertIn('title="2026/10/05', html)
                 self.assertIn('公式発表をもとに要約', html)
                 self.assertNotIn('class="news-footer"', html)
                 if precision == 'day':
-                    self.assertIn('datetime="2026-10-05" title="発表 2026/10/5"', html)
+                    self.assertIn('datetime="2026-10-05" title="2026/10/05 発表"', html)
+                    self.assertIn('>2026/10/05 発表</time>', html)
                     self.assertNotIn('00:00', html)
                 else:
                     self.assertIn('datetime="2026-10-05T03:00:00.000Z"', html)
-                    self.assertIn('title="発表 2026/10/5 12:00 JST"', html)
+                    self.assertIn('title="2026/10/05 12:00 発表 JST"', html)
+                    self.assertIn('>2026/10/05 12:00 発表</time>', html)
 
     def test_invalid_source_provenance_is_rejected_consistently(self):
         invalid = [{'source': []}, {'source': '日本銀行'}, {'url': 'https://evil.test/news'},
@@ -119,10 +147,10 @@ class PublicationTests(unittest.TestCase):
             ref['body_verified_at'] = stamp('2026-10-05', 7, 31)
         self.assertIsNotNone(_validated_digest(value))
 
-    def test_collection_wrapper_never_calls_unapproved_boj_source(self):
+    def test_collection_wrapper_enables_only_three_approved_official_sources(self):
         with patch('website_news.collect_official_articles', return_value=[]) as collector:
             collect_website_sources(stamp(hour=7), since=1, until=2, diagnostics={})
-        self.assertEqual(collector.call_args.kwargs['enabled_sources'], ('総務省統計局', '財務省'))
+        self.assertEqual(collector.call_args.kwargs['enabled_sources'], OFFICIAL_NEWS_SOURCES)
 
 
 class MorningFlowTests(unittest.TestCase):
@@ -144,7 +172,7 @@ class MorningFlowTests(unittest.TestCase):
         def collect(started, **options):
             collected.append(started)
             options['diagnostics'].update({name: {'feed_status': 'ok', 'status': 'collected'}
-                                           for name in ('総務省統計局', '財務省')})
+                                           for name in OFFICIAL_NEWS_SOURCES})
             return [{**deepcopy(record), 'body_verified_at': now[0]}]
         storage = MemoryStorage()
         preparer = MorningNewsPreparer(storage, collect, clock=lambda: now[0])
@@ -195,7 +223,7 @@ class MorningFlowTests(unittest.TestCase):
             self.assertNotIn('body', ref)
             self.assertNotIn('supporting_documents', ref)
         self.assertEqual(visible['news'][0]['published_date'], '2026-10-05')
-        self.assertIn('発表 2026/10/5', html)
+        self.assertIn('2026/10/05 12:00 発表', html)
         self.assertNotIn('発表 2026/10/2', html)
         for public in (json.dumps(issue, ensure_ascii=False), json.dumps(visible, ensure_ascii=False), html):
             self.assertNotIn('supporting_documents', public)
@@ -212,7 +240,7 @@ class MorningFlowTests(unittest.TestCase):
         def collect(started, **options):
             calls.append(started)
             options['diagnostics'].update({name: {'feed_status': 'ok', 'status': 'collected'}
-                                           for name in ('総務省統計局', '財務省')})
+                                           for name in OFFICIAL_NEWS_SOURCES})
             return [{**source('day'), 'body_verified_at': now[0]}]
         provider = Mock()
         provider.claude.return_value = {'headline': '経済の新しい発表', 'summary': '要' * 230,
@@ -253,7 +281,7 @@ class MorningFlowTests(unittest.TestCase):
             visible = initial_news(website_news.snapshot(), now=now[0], reviewed_digests=restarted.reviewed_digests())
             self.assertEqual(visible['edition_date'], '2026-10-06')
             self.assertEqual(visible['news'][0]['published_date'], '2026-10-05')
-            self.assertIn('発表 2026/10/5', render_news_markup(visible))
+            self.assertIn('2026/10/05 発表', render_news_markup(visible))
             self.assertEqual(current_delivery(visible, datetime.fromtimestamp(now[0], JST)), 'published')
             self.assertEqual(len(calls), 7)
             provider.claude.assert_called_once()

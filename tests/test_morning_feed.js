@@ -1146,6 +1146,37 @@ function officialMorning(app,precision='second'){
   return data;
 }
 
+test('reviewed BOJ morning copy uses its decision source and preserves unknown time',async()=>{
+  for(const origin of ['api','embedded','saved']){
+    const app=harness(),data=officialMorning(app,'day');
+    for(const ref of [data.news[0],data.digest.article_refs[0],data.digest.article_summaries[0]])
+      Object.assign(ref,{source:'日本銀行',url:'https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k260911a.pdf'});
+    if(origin==='embedded')app.nodes.knInitialNews={textContent:JSON.stringify(data)};
+    if(origin==='saved')app.storage.set('kn_published_news_v1_ja',JSON.stringify(data));
+    app.event('DOMContentLoaded');if(origin==='api')await app.reply(app.requests[0],data);
+    const html=app.nodes['morning-news-content'].innerHTML;
+    assert.ok(html.includes(data.digest.summary));assert.match(html,/日本銀行/);
+    assert.match(html,/https:\/\/www\.boj\.or\.jp\/mopo\/mpmdeci\/mpr_2026\/k260911a\.pdf/);
+    assert.match(html,/datetime="2026-09-11"/);assert.doesNotMatch(html,/00:00/);
+    assert.equal(JSON.parse(app.storage.get('kn_published_news_v1_ja')).news[0].published_at,null);
+  }
+});
+
+test('BOJ source cannot relabel another host, speech or unapproved policy path',async()=>{
+  for(const url of ['https://www.mof.go.jp/policy/example.html',
+    'https://www.boj.or.jp.evil.test/mopo/mpmdeci/mpr_2026/k260911a.pdf',
+    'https://www.boj.or.jp/about/press/koen_2026/ko260911a.htm',
+    'https://www.boj.or.jp/mopo/mpmdeci/opinion_2026/k260911a.pdf',
+    'http://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k260911a.pdf',
+    'https://www.boj.or.jp/mopo/mpmdeci/mpr_2026/k260911a.pdf?token=unexpected']){
+    const app=harness(),data=officialMorning(app,'day');
+    for(const ref of [data.news[0],data.digest.article_refs[0],data.digest.article_summaries[0]])Object.assign(ref,{source:'日本銀行',url});
+    app.event('DOMContentLoaded');await app.reply(app.requests[0],data);
+    assert.ok(!app.nodes['morning-news-content'].innerHTML.includes(data.digest.summary),url);
+    assert.equal(app.storage.has('kn_published_news_v1_ja'),false,url);
+  }
+});
+
 test('flexible reviewed copy survives API, embedded initial copy and saved browser reuse',async()=>{
   for(const origin of ['api','embedded','saved']){
     const app=harness(),data=officialMorning(app);
