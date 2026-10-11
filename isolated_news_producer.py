@@ -759,7 +759,11 @@ def _generate(now, articles, source_window, providers, clock):
             # This presentation contract is selected by code only after both
             # reviewers approve the exact complete draft and all references.
             # Never accept a model-supplied marker or add one to saved editions.
-            return {**issue, 'reading_structure': LEAD_OTHER_NEWS_STRUCTURE}
+            issue = {**issue, 'reading_structure': LEAD_OTHER_NEWS_STRUCTURE}
+            if window.get('kind') == 'intraday':
+                from news_review_receipt import completed_receipt
+                issue['review_receipt'] = completed_receipt(issue, review_data)
+            return issue
         if attempt:
             raise shared.GenerationError('isolated_editorial_review_failed')
         failed = tuple(key for key in shared.CHECKS if key in failed)

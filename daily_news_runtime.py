@@ -596,6 +596,8 @@ class DailyNewsRuntime:
             if proposed != existing:
                 _replace_atomically(self.cache_path, proposed)
         with self._state_lock:
+            if self._issues != proposed:
+                self._source_history = None
             self._issues = proposed
 
     def _restore(self, now):
@@ -648,11 +650,14 @@ class DailyNewsRuntime:
         if self._source_history is not None and self._source_history[0] == day:
             return deepcopy(self._source_history[1])
         issues = self.reviewed_digests()
-        past = [value for value in self.storage.recent_days() if value < day][:MAX_ISSUES]
+        past = [value for value in self.storage.recent_days() if value <= day][:MAX_ISSUES]
         for previous in past:
-            # Include the original and latest retained correction. Published
-            # references must not depend only on the two-day in-memory cache.
-            paths = [f"days/{previous}/edition.json"] + sorted(self.storage.reviewed_keys(previous), reverse=True)[:1]
+            # Every retained update consumes its original, even if a later
+            # daytime bulletin replaced it in the public in-memory cache.
+            keys = sorted(self.storage.reviewed_keys(previous), reverse=True)
+            if len(keys) >= 30:
+                raise StorageUnavailable("storage_history_capacity")
+            paths = [f"days/{previous}/edition.json"] + keys
             for path in paths:
                 value = self.storage.read(path)
                 if value is not None:

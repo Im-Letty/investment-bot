@@ -241,11 +241,22 @@ def load_reviewed_supplements(path=None):
 
 
 def _official_window(value, edition):
-    """A new morning edition has explicit, fixed JST source boundaries."""
+    """Every official edition has explicit, validated JST source boundaries."""
     try:
         day = datetime.strptime(edition, "%Y-%m-%d").replace(tzinfo=JST)
         if day.date().isoformat() != edition or not isinstance(value, dict):
             return None
+        if type(value.get("version")) is int and value["version"] == 2:
+            fields = {"version", "kind", "edition_date", "window_start", "cutoff_at"}
+            if (set(value) != fields or value["kind"] != "intraday" or value["edition_date"] != edition
+                    or any(_publication_time(value[k]) is None or value[k] <= 0
+                           for k in ("window_start", "cutoff_at"))):
+                return None
+            cutoff = datetime.fromtimestamp(value["cutoff_at"], JST)
+            if (cutoff.date() != day.date() or not 9 <= cutoff.hour < 23
+                    or value["window_start"] != day.replace(hour=7, minute=30).timestamp()):
+                return None
+            return deepcopy(value)
         previous = day - timedelta(days=1)
         expected = {"version": 1, "edition_date": edition,
                     "window_start": previous.replace(hour=8).timestamp(),
@@ -291,6 +302,10 @@ def _official_ref(ref, window):
     edition_day = datetime.fromtimestamp(window["cutoff_at"], JST).date()
     previous_day = edition_day - timedelta(days=1)
     precision, route = ref.get("publication_precision"), ref.get("selection_route")
+    intraday = window.get("kind") == "intraday"
+    if intraday and (route != "intraday" or published_day != edition_day or "published_at" not in ref
+            or "deferred_from" in ref or "deferred_reason" in ref):
+        return None
     deferred = route == "deferred"
     if deferred:
         if (ref.get("deferred_from") != previous_day.isoformat()
@@ -302,14 +317,18 @@ def _official_ref(ref, window):
         return None
     if precision == "day":
         if (ref.get("published_at") is not None or published_day > verified.astimezone(JST).date()
-                or (not deferred and (route != "date_only" or published_day not in (previous_day, edition_day)))
+                or (not intraday and not deferred
+                    and (route != "date_only" or published_day not in (previous_day, edition_day)))
                 or (deferred and not previous_day - timedelta(days=1) <= published_day <= previous_day)):
             return None
     elif precision == "second":
         if (stamp is None or stamp.astimezone(JST).date() != published_day
                 or stamp > verified or stamp.timestamp() > window["cutoff_at"]):
             return None
-        if deferred:
+        if intraday:
+            if not window["window_start"] <= stamp.timestamp() <= window["cutoff_at"]:
+                return None
+        elif deferred:
             if not window["window_start"] - 86400 <= stamp.timestamp() <= window["carryover_start"]:
                 return None
         elif route == "main":
@@ -441,9 +460,11 @@ def _validated_digest(value):
             return None
         if "publish_at" in value:
             release = _publication_time(value["publish_at"])
+            earliest_release = (window["cutoff_at"] + (0 if window.get("kind") == "intraday" else 1800)
+                                if window else None)
             if (release is None or release < reviewed
                     or release.astimezone(JST).date().isoformat() != edition
-                    or (window and release.timestamp() < window["cutoff_at"] + 1800)):
+                    or (window and release.timestamp() < earliest_release)):
                 return None
             result["publish_at"] = release.timestamp()
     return result

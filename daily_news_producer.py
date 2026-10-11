@@ -410,7 +410,8 @@ def review_passed(review):
 
 OFFICIAL_SOURCES = {'総務省統計局': 'www.stat.go.jp', '財務省': 'www.mof.go.jp'}
 OFFICIAL_EDITORIAL = '''
-今回はsource_windowに示された朝版のため、前日の発表や明示的な繰越を含みます。
+今回はsource_windowに明示された対象期間の版です。window_startとcutoff_atを確認してください。
+version=1の朝版は前日の発表や明示的な繰越を含みます。kind=intradayの日中版は当日の発表だけが対象で、前日分や繰越を含みません。
 版の日付、元の発表日、統計の対象月、出来事の日を区別してください。
 published_dateは元ページの掲載・発表日です。event_date_kind=press_conferenceのevent_dateは確認済みの会見日です。会見が行われた日はevent_date、ページが掲載・発表された日はpublished_dateとして区別し、互いに置き換えません。公式の元見出しに出来事の日が明示されている場合、その日付も使えます。掲載・発表日やURL内の数字から出来事の日を推測しません。
 publication_precision=dayの資料は発表時刻不明です。00:00や取得時刻を発表時刻にしないでください。
@@ -449,6 +450,23 @@ def _official_event_fields(row):
 
 
 def _source_window(value, now):
+    if isinstance(value, dict) and type(value.get('version')) is int and value['version'] == 2:
+        fields = {'version', 'kind', 'edition_date', 'window_start', 'cutoff_at'}
+        if (set(value) != fields or value['kind'] != 'intraday' or not _positive_time(now)
+                or not all(_positive_time(value[key]) for key in ('window_start', 'cutoff_at'))):
+            raise GenerationError('invalid_source_window')
+        try:
+            day = date.fromisoformat(value['edition_date'])
+            local = datetime.fromtimestamp(now, JST)
+            cutoff = datetime.fromtimestamp(value['cutoff_at'], JST)
+            start = datetime(day.year, day.month, day.day, 7, 30, tzinfo=JST)
+        except (TypeError, ValueError, OverflowError, OSError):
+            raise GenerationError('invalid_source_window') from None
+        if (value['edition_date'] != day.isoformat() or local.date() != day or cutoff.date() != day
+                or not 9 <= cutoff.hour < 23 or now < value['cutoff_at']
+                or value['window_start'] != start.timestamp()):
+            raise GenerationError('invalid_source_window')
+        return deepcopy(value)
     fields = {'version', 'edition_date', 'window_start', 'carryover_start', 'cutoff_at'}
     if (not isinstance(value, dict) or set(value) != fields or type(value['version']) is not int
             or value['version'] != 1 or not _positive_time(now)
@@ -498,6 +516,22 @@ def _official_articles(articles, window, now):
                 or url in seen):
             raise GenerationError('invalid_official_article')
         _official_event_fields(row)
+        if window.get('kind') == 'intraday':
+            if (published_day != edition or 'published_at' not in row
+                    or 'deferred_from' in row or 'deferred_reason' in row
+                    or row.get('selection_route', 'intraday') != 'intraday'):
+                raise GenerationError('invalid_official_article')
+            if precision == 'second':
+                if (not _positive_time(published) or published > verified
+                        or not window['window_start'] <= published <= window['cutoff_at']
+                        or datetime.fromtimestamp(published, JST).date() != published_day):
+                    raise GenerationError('invalid_official_article')
+            elif precision != 'day' or published is not None:
+                raise GenerationError('invalid_official_article')
+            row.update(url=url, evidence_url=evidence, selection_route='intraday')
+            clean.append(row)
+            seen.add(url)
+            continue
         if precision == 'second':
             if (not _positive_time(published) or published > verified or published > window['cutoff_at']
                     or datetime.fromtimestamp(published, JST).date() != published_day):
