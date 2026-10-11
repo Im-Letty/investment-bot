@@ -3604,27 +3604,20 @@ def inbound_mail():
 
 @app.route("/api/messages", methods=["GET", "POST"])
 def api_messages():
-    if request.method == "GET":
-        res = supabase.table("messages").select("*").order("id", desc=True).limit(100).execute()
-        rows = list(reversed(res.data or []))
-        return jsonify({"ok": True, "messages": rows})
-    data = request.get_json(silent=True) or {}
-    name = (data.get("name") or "").strip()[:20] or "名無しさん"
-    body = (data.get("body") or "").strip()
-    if not body:
-        return jsonify({"ok": False, "reason": "empty"}), 400
-    if len(body) > 200:
-        return jsonify({"ok": False, "reason": "too_long"}), 400
-    ng_words = ["振込", "儲かります", "必ず儲", "lineで検索", "@で検索", "稼げる"]
-    low = body.lower()
-    if any(w.lower() in low for w in ng_words):
-        return jsonify({"ok": False, "reason": "ng_word"}), 400
+    """Read-only previous conversations; new posts use verified community routes."""
+    if request.method != "GET":
+        return jsonify({"ok": False, "reason": "community_updated"}), 410
     try:
-        supabase.table("messages").insert({"name": name, "body": body}).execute()
-    except Exception as e:
-        print(f"[messages] insert error: {e}")
-        return jsonify({"ok": False, "reason": "db_error"}), 500
-    return jsonify({"ok": True})
+        res = (supabase.table("messages").select("id,name,body,created_at")
+               .order("id", desc=True).limit(100).execute())
+        rows = list(reversed(res.data or []))
+        # Do not expose future private columns through the legacy archive.
+        rows = [{k: row.get(k) for k in ("id", "name", "body", "created_at")} for row in rows]
+        response = jsonify({"ok": True, "messages": rows})
+        response.headers["Cache-Control"] = "no-store"
+        return response
+    except Exception:
+        return jsonify({"ok": False, "reason": "storage_unavailable"}), 503
 
 
 ALLOWED_SYMBOLS = {
@@ -3681,6 +3674,9 @@ def check_admin(req):
         body = req.get_json(silent=True) or {}
         pw = body.get("pass") or req.args.get("pass")
     return bool(ADMIN_PASS) and pw == ADMIN_PASS
+
+from community_api import register_community_routes
+register_community_routes(app, SUPABASE_URL, SUPABASE_KEY, check_admin=check_admin)
 
 @app.route("/api/admin/stats", methods=["GET", "POST"])
 def admin_stats():
