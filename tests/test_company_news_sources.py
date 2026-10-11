@@ -273,7 +273,10 @@ class CompanySourceTests(unittest.TestCase):
 
     def test_successfully_checked_empty_is_distinct_from_failure(self):
         def download(url, deadline):
-            if url == sources.FEEDS['PR TIMES']:
+            if url == sources.additional.FEEDS['大阪ガス（発表配信）']:
+                return (b'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
+                        b'xmlns="http://purl.org/rss/1.0/"><channel rdf:about="https://prtimes.jp/companyrdf.php?company_id=139670"/></rdf:RDF>'), url
+            if url == sources.FEEDS['PR TIMES'] or url in sources.issuer_feeds.FEEDS.values():
                 return (b'<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" '
                         b'xmlns="http://purl.org/rss/1.0/"><channel/></rdf:RDF>'), url
             return b'<rss><channel/></rss>', url

@@ -23,6 +23,7 @@ from daily_news_sources import JST, _Document, _PinnedHTTPSAdapter, _parallel, _
 from official_news_sources import _publication, _now, _in_window, _body_text, _descends
 from company_news_selection import priority, candidate_order
 import company_news_additional as additional
+import company_news_issuer_feeds as issuer_feeds
 
 SOURCES = {
     "NTT": {
@@ -56,6 +57,7 @@ SOURCES = {
 FEEDS = {name: config["feed"] for name, config in SOURCES.items()}
 FEEDS.update(additional.FEEDS)
 FEEDS['PR TIMES'] = 'https://prtimes.jp/index.rdf'
+FEEDS.update(issuer_feeds.FEEDS)
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
 MAX_CANDIDATES = 8
@@ -93,6 +95,9 @@ def _safe_url(value, *, source=None, base=None):
     if any(ord(char) < 33 or ord(char) == 127 for char in value) or "\\" in value:
         return None
     try:
+        approved = issuer_feeds.safe_feed_url(value, source=source)
+        if approved:
+            return approved
         approved = additional.safe_url(value, source=source, base=base)
         if approved:
             return approved
@@ -437,6 +442,8 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
                 raise ValueError("unapproved_redirect")
             if source == 'PR TIMES':
                 items = parse_feed(payload, now, since, catalogue)
+            elif source in issuer_feeds.SOURCES:
+                items = issuer_feeds.parse_feed(payload, source, now, since, catalogue)
             elif source in additional.SOURCES:
                 items = additional.parse_feed(payload, source, now, since, catalogue)
             else:
@@ -473,7 +480,8 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             observed = clock()
             if item['source'] == 'PR TIMES':
                 article = extract_article(payload, item, final, now, since,
-                                          observed_at=observed, catalogue=catalogue)
+                    observed_at=observed, catalogue=issuer_feeds.bound_catalogue(
+                        item.get('collection_channel'), catalogue))
             elif item['source'] in additional.SOURCES:
                 article = additional.extract_article(payload, item, final, now, since,
                                                      observed_at=observed, catalogue=catalogue)
@@ -491,6 +499,7 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             return item, None, error_code(exc)
 
     records = []
+    accepted_channels = {}
     pending = list(selected)
     while pending and len(records) < MAX_ARTICLES and time.monotonic() < deadline:
         # A broken top-ranked page must not hide the next verified company's
@@ -499,27 +508,29 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
         count = MAX_ARTICLES - len(records)
         batch, pending = pending[:count], pending[count:]
         for item in batch:
-            report[item["source"]]["selected"] += 1
+            report[item.get('collection_channel', item['source'])]["selected"] += 1
         for item, article, error in _parallel(batch, read_article, deadline):
-            row = report[item["source"]]
+            channel = item.get('collection_channel', item['source'])
+            row = report[channel]
             row["completed"] += 1
             if article:
                 row["accepted"] += 1
                 records.append(article)
+                accepted_channels[article['url']] = channel
             elif error not in row["errors"]:
                 row["errors"].append(error)
     if pending and len(records) < MAX_ARTICLES:
         # The shared deadline prevented the next selected bodies from being
         # read. Report incomplete collection instead of healthy absence.
         for item in pending[:MAX_ARTICLES - len(records)]:
-            report[item["source"]]["selected"] += 1
+            report[item.get('collection_channel', item['source'])]["selected"] += 1
     for source, row in report.items():
         if row["selected"]:
             if row["accepted"]:
                 row["status"] = "collected_partial" if row["errors"] or row["completed"] < row["selected"] else "collected"
             else:
                 row["status"] = "fetch_incomplete" if row["completed"] < row["selected"] else "articles_unavailable"
-        row["returned"] = sum(item["source"] == source for item in records)
+        row["returned"] = sum(accepted_channels.get(item['url'], item['source']) == source for item in records)
         row["errors"].sort()
     if diagnostics is not None:
         diagnostics.clear()

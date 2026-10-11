@@ -10,7 +10,7 @@ import unittest
 from unittest.mock import patch
 
 from company_news_runtime import (CompanyNewsRuntime, CHANNEL_NAMES, PREFIX, article_id, canonical_hash,
-    pending_candidates, public_snapshot, source_fingerprint, source_hash, valid_record, valid_source)
+    pending_candidates, public_snapshot, read_records, source_fingerprint, source_hash, valid_record, valid_source)
 
 NOW = 1791424800.0  # 2026-10-08 11:00 JST
 
@@ -126,7 +126,7 @@ class CompanyRuntimeTests(unittest.TestCase):
         safe = result['source_diagnostics']
         self.assertEqual(set(safe), set(CHANNEL_NAMES))
         self.assertTrue(all(set(row) == {'feed_status', 'status', 'errors'} for row in safe.values()))
-        self.assertEqual(safe['NTT']['errors'], ['body_or_date_unverified', 'source_read_failed'])
+        self.assertEqual(safe['NTT']['errors'], ['body_or_date_unverified'])
         self.assertEqual(safe['KDDI']['feed_status'], 'not_completed')
         self.assertEqual(safe['KDDI']['status'], 'fetch_incomplete')
         self.assertEqual(result['status'], 'error')
@@ -201,8 +201,7 @@ class CompanyRuntimeTests(unittest.TestCase):
                 self.assertEqual(result['last_error_code'], expected_code)
                 self.assertNotIn('sk-private', json.dumps(result))
                 if failure == 'publication':
-                    self.assertTrue(all(row['feed_status'] == 'not_completed'
-                                        for row in result['source_diagnostics'].values()))
+                    self.assertEqual(result['source_diagnostics'], self.diagnostics())
 
     def test_company_collector_wrapper_distinguishes_partial_feed_coverage_without_blocking_verified_news(self):
         import company_news_sources
@@ -232,6 +231,23 @@ class CompanyRuntimeTests(unittest.TestCase):
             self.assertFalse(valid_source(damaged, NOW), key)
         damaged = source(); damaged['published_at'] = NOW - 86400
         self.assertFalse(valid_source(damaged, NOW))
+
+    def test_registered_issuer_spelling_is_bound_to_exact_company_id_and_dated_member(self):
+        from company_news_catalogue import load_catalogue
+        _, document = catalogue_bound_record()
+        document['items'][-1] = {'code': '9531', 'symbol': '9531.T', 'name': '東京瓦斯'}
+        catalogue = load_catalogue(snapshot=document, editorial_path=None, now=NOW)
+        src = source()
+        src.update(symbol='9531.T', name='東京瓦斯', source='PR TIMES', company_id='21766',
+            related_company='東京ガス株式会社', business_context_mode='announcement_only',
+            url='https://prtimes.jp/main/html/rd/p/000000001.000021766.html',
+            catalogue_as_of='2026-10-08', catalogue_facts_sha256=catalogue.facts_sha256,
+            catalogue_source_sha256='a' * 64)
+        self.assertTrue(valid_record(record(src), NOW, catalogue=catalogue))
+        for key, value in [('company_id', '12345'), ('related_company', '東京ガスの子会社株式会社'),
+                           ('symbol', '9432.T'), ('name', '別の会社')]:
+            damaged = deepcopy(src); damaged[key] = value
+            self.assertFalse(valid_source(damaged, NOW, catalogue=catalogue), key)
 
     def test_both_reviews_must_match_exact_copy_and_no_date_extension(self):
         self.assertTrue(valid_record(record(), NOW))
@@ -329,6 +345,45 @@ class CompanyRuntimeTests(unittest.TestCase):
             runtime.run_once()
         self.assertEqual(len(observed[0]['companies']), 1)
         self.assertEqual(observed[0]['status'], 'refreshing')
+
+    def test_one_bad_historical_slot_does_not_block_other_independently_reviewed_copy(self):
+        from company_news_runtime import StorageUnavailable
+        for failure in ('damaged_copy', 'missing_catalogue', 'storage'):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temp:
+                storage, clock = MemoryStorage(), [NOW]
+                valid_path = f'{PREFIX}/days/2026-10-08/published-1.json'
+                bad_path = f'{PREFIX}/days/2026-10-07/published-1.json'
+                storage.create(valid_path, record())
+                damaged = record(source('9433.T'))
+                if failure == 'damaged_copy':
+                    damaged['company']['event'] += '審査されていない変更です。'
+                if failure == 'missing_catalogue':
+                    damaged, _ = catalogue_bound_record()
+                storage.create(bad_path, damaged)
+                original_read = storage.read
+                def read(path):
+                    if failure == 'storage' and path == bad_path:
+                        raise StorageUnavailable('storage_read')
+                    return original_read(path)
+                storage.read = read
+                with self.assertRaises(StorageUnavailable):
+                    read_records(storage, NOW)
+                runtime = CompanyNewsRuntime(storage, collector=lambda **_: {'status': 'source_empty',
+                    'articles': [], 'diagnostics': self.diagnostics()}, clock=lambda: clock[0],
+                    cache_path=temp + '/cache.json')
+                runtime.run_once()
+                result, observation = runtime.snapshot(), runtime.publication_observation()
+                self.assertEqual([item['symbol'] for item in result['companies']], ['9432.T'])
+                self.assertEqual(result['status'], 'error')
+                self.assertEqual(observation['last_error_phase'], 'publication_read')
+                self.assertEqual(observation['last_error_code'], 'storage_read' if failure == 'storage'
+                                 else 'company_record_invalid')
+                # Removing the unreadable slot and completing the next full
+                # restore clears the error; dates on the good copy stay real.
+                del storage.values[bad_path]; storage.read = original_read
+                clock[0] += 900; runtime.run_once()
+                self.assertEqual(runtime.snapshot()['status'], 'ready')
+                self.assertEqual(runtime.snapshot()['companies'][0]['published_date'], '2026-10-08')
 
     def test_new_route_review_proof_and_dated_catalogue_survive_offline_reader_restart(self):
         saved, document = catalogue_bound_record()

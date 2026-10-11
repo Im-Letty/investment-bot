@@ -212,6 +212,7 @@ class AdditionalIntegrationTests(unittest.TestCase):
                 'collection_health': 'partial', 'diagnostics': diagnostics},
                 clock=lambda: NOW, cache_path=temp + '/cache.json')
             worker.run_once()
+            worker._pending = [source(symbol) for symbol in ('9432.T', '9433.T', '6752.T')]
             result = worker.operational_snapshot()
         self.assertEqual(set(result['sources']), set(runtime.CHANNEL_NAMES))
         self.assertEqual(result['coverage']['direct_feed_company_count'], additional.direct_feed_company_count())
@@ -220,7 +221,7 @@ class AdditionalIntegrationTests(unittest.TestCase):
         self.assertFalse(result['coverage']['all_company_announcements_covered'])
         self.assertEqual(result['collection_health'], 'partial')
         self.assertEqual(result['source_diagnostics'][self.label]['errors'],
-                         ['source_read_failed', 'source_unavailable'])
+                         ['source_read_failed'])
         encoded = json.dumps(result, ensure_ascii=False)
         self.assertLess(len(encoded.encode()), 8192)
         self.assertLess(len(json.dumps(result).encode()), 8192)
@@ -228,9 +229,32 @@ class AdditionalIntegrationTests(unittest.TestCase):
         self.assertNotIn('private body', encoded)
         self.assertEqual(result['max_generation_attempts_per_day'], 3)
 
+    def test_longest_allowed_error_codes_on_all_routes_fit_escaped_clock_response(self):
+        # The old all-errors fixture selected the first alphabetical codes.
+        # Two individually longest allowed codes are a different, larger
+        # wire case and must fit Flask's default ASCII-escaped representation.
+        longest = sorted(runtime.SOURCE_ERROR_CODES, key=lambda code: (len(code), code),
+                         reverse=True)[:2]
+        diagnostics = {label: {'feed_status': 'failed', 'status': 'articles_unavailable',
+                               'errors': longest} for label in runtime.CHANNEL_NAMES}
+        with tempfile.TemporaryDirectory() as temp:
+            worker = runtime.CompanyNewsRuntime(self.storage, collector=lambda **_: {
+                'status': 'error', 'articles': [], 'catalogue': self.catalogue.snapshot(),
+                'collection_health': 'partial', 'diagnostics': diagnostics},
+                clock=lambda: NOW, cache_path=temp + '/cache.json')
+            worker.run_once()
+            worker._pending = [source(symbol) for symbol in ('9432.T', '9433.T', '6752.T')]
+            result = worker.operational_snapshot()
+        self.assertEqual(set(result['source_diagnostics']), set(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['pending_count'], 3)
+        self.assertIsNotNone(result['batch_id'])
+        self.assertTrue(all(row['errors'] == sorted(longest)[:1]
+                            for row in result['source_diagnostics'].values()))
+        self.assertLessEqual(len(json.dumps(result, ensure_ascii=True).encode()), 8192)
+
     def test_all_registered_channels_with_every_fixed_error_fit_clock_response_limit(self):
-        # More than a normal collector can return: retain every allowed fixed
-        # error for every channel to bound an expanded status response safely.
+        # More than a normal collector can return: bound error summaries for
+        # every channel so adding issuer routes cannot overflow the clock.
         diagnostics = {label: {'feed_status': 'failed', 'status': 'articles_unavailable',
                        'errors': sorted(runtime.SOURCE_ERROR_CODES)}
                        for label in runtime.CHANNEL_NAMES}
@@ -240,9 +264,10 @@ class AdditionalIntegrationTests(unittest.TestCase):
                 'collection_health': 'partial', 'diagnostics': diagnostics},
                 clock=lambda: NOW, cache_path=temp + '/cache.json')
             worker.run_once()
+            worker._pending = [source(symbol) for symbol in ('9432.T', '9433.T', '6752.T')]
             result = worker.operational_snapshot()
         self.assertEqual(set(result['source_diagnostics']), set(runtime.CHANNEL_NAMES))
-        self.assertTrue(all(set(row['errors']) == set(runtime.SOURCE_ERROR_CODES)
+        self.assertTrue(all(row['errors'] == sorted(runtime.SOURCE_ERROR_CODES)[:runtime.MAX_DIAGNOSTIC_ERRORS]
                             for row in result['source_diagnostics'].values()))
         self.assertLess(len(json.dumps(result, ensure_ascii=False).encode()), 8192)
         # Flask's default JSON provider escapes non-ASCII labels, so bound

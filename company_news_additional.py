@@ -75,6 +75,10 @@ SOURCES = {
         host='www.bridgestone.co.jp', symbol='5108.T', name='ブリヂストン', issuer='株式会社ブリヂストン',
         path=r'/corporate/news/20\d{8}\.html', template='bridgestone', actors=('株式会社ブリヂストン',),
         tracking='ref=rss'),
+    '大阪ガス（発表配信）': dict(feed='https://prtimes.jp/companyrdf.php?company_id=139670',
+        host='prtimes.jp', symbol='9532.T', name='大阪瓦斯', issuer='Daigasグループ',
+        path=r'/main/html/rd/p/[0-9]{9}\.000139670\.html', template='prtimes_group',
+        actors=('大阪ガス株式会社',), company_id='139670'),
 }
 FEEDS = {label: config['feed'] for label, config in SOURCES.items()}
 
@@ -111,8 +115,9 @@ def safe_url(value, source=None, base=None):
             if parsed.hostname != config['host']:
                 continue
             normalized = urlunsplit(('https', config['host'], parsed.path, '', ''))
-            if normalized == config['feed'] and not parsed.query:
-                return normalized
+            full = urlunsplit(('https', config['host'], parsed.path, parsed.query, ''))
+            if full == config['feed']:
+                return full
             if (re.fullmatch(config['path'], parsed.path)
                     and (not parsed.query or parsed.query == config.get('tracking'))):
                 return normalized
@@ -213,7 +218,14 @@ def parse_feed(payload, source, now, since, catalogue):
     else:
         raise ValueError('unsupported_feed_structure')
     config, records, conflicts = SOURCES[source], {}, set()
+    if config['template'] == 'prtimes_group':
+        channel = root.find(namespace + 'channel')
+        expected = config['feed']
+        if channel is None or channel.get('{' + RDF + '}about') != expected:
+            raise ValueError('unsupported_feed_structure')
     for entry in entries[:MAX_FEED_ITEMS]:
+        if config['template'] == 'prtimes_group' and _one(entry, '{' + DC + '}corp') != config['issuer']:
+            continue
         title = _plain(_one(entry, namespace + 'title'))
         url = safe_url(_one(entry, namespace + 'link'), source)
         date_fields = {}
@@ -307,7 +319,7 @@ def _declared_actor(actor, body, dateline=''):
     return False
 
 
-def _layout(document, config):
+def _layout(document, config, now=None, expected_url=None):
     """Return heading, visible dateline, narrative and optional original clock."""
     template = config['template']
     if template == 'toyota':
@@ -384,6 +396,44 @@ def _layout(document, config):
                          and node not in (heading, dateline)
                          and not any(_class(node, cls) for cls in ('box01Wrap', 'h2_basic01Wrap'))) if root else ''
         return heading, dateline, body, None, None
+    if template == 'prtimes_group':
+        from company_news_prtimes import _article_date, _profile_id, _article_objects, _future_clock, _local_clock
+        root = _single(_nodes(document, tag='article', identifier='js-heatmap-subject-area'))
+        heading = _single(_nodes(document, root, tag='h1', identifier='press-release-title')) if root else None
+        body_root = _single(_nodes(document, root, tag='div', identifier='press-release-body')) if root else None
+        positions = {id(node): i for i, node in enumerate(document.nodes)}
+        header = [node for node in _nodes(document, root) if body_root
+                  and positions[id(node)] < positions[id(body_root)]] if root else []
+        anchors = [node for node in header if node.tag == 'a' and _profile_id(node.attrs.get('href'))]
+        dateline = _single([node for node in header if node.tag == 'time'])
+        objects = _article_objects(document)
+        if (len(anchors) != 1 or _profile_id(anchors[0].attrs.get('href')) != config['company_id']
+                or _compact(_body_text(anchors[0])) != _compact(config['issuer'])
+                or len(objects) != 1 or heading is None or dateline is None or body_root is None):
+            return None, None, '', None, None
+        obj = objects[0]
+        if obj.get('url') is not None and obj.get('url') != expected_url:
+            return None, None, '', None, None
+        author = obj.get('author')
+        author = author[0] if isinstance(author, list) and len(author) == 1 else author
+        if (not isinstance(author, dict) or author.get('@type') != 'Organization'
+                or _compact(author.get('name')) != _compact(config['issuer'])
+                or _compact(_plain(obj.get('headline'))) != _compact(_body_text(heading))):
+            return None, None, '', None, None
+        metadata_day = _article_date(obj.get('datePublished'))
+        visible_day = _article_date(dateline.attrs.get('datetime'))
+        if not metadata_day or not visible_day or metadata_day['published_date'] != visible_day['published_date']:
+            return None, None, '', None, None
+        metadata_clock = _local_clock(obj.get('datePublished'))
+        visible_clock = _local_clock(dateline.attrs.get('datetime'))
+        if (metadata_clock is not None and visible_clock is not None and metadata_clock != visible_clock
+                or now is not None and (_future_clock(obj.get('datePublished'), metadata_day, now)
+                    or _future_clock(dateline.attrs.get('datetime'), visible_day, now))):
+            return None, None, '', None, None
+        # The inspected PR TIMES clock has no timezone. Keep its original
+        # day, corroborated by the visible day and feed, rather than inventing
+        # a Japanese publication time or using the RSS discovery timestamp.
+        return heading, dateline, _body_text(body_root), [metadata_day['published_date']], None
     return None, None, '', None, None
 
 
@@ -424,7 +474,7 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
     if type(observed_at) not in (int, float) or not math.isfinite(observed_at) or observed_at <= 0:
         raise ValueError('invalid_verification_clock')
     document = _Document(_decode(payload))
-    heading, dateline, body, metadata_clocks, visible_clock = _layout(document, config)
+    heading, dateline, body, metadata_clocks, visible_clock = _layout(document, config, now, url)
     visible_day = _day_text(_body_text(dateline)) if dateline else None
     heading_text = heading if isinstance(heading, str) else _body_text(heading) if heading else ''
     if (not heading_text or _compact(heading_text) != _compact(title) or not visible_day
@@ -447,6 +497,10 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
     publication = _agree(values)
     if not publication or not _in_window(publication, now, since):
         return None
+    if config['template'] == 'prtimes_group':
+        publication = _publication(publication['published_date'])
+        if not _in_window(publication, now, since):
+            return None
     # A parent-hosted page alone never attributes a subsidiary's announcement
     # to the parent. Require the inspected actor in the dateline or narrative.
     actors = [actor for actor in config['actors'] if _declared_actor(actor, body, _body_text(dateline))]

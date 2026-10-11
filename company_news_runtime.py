@@ -16,6 +16,7 @@ from news_cache import JST
 from daily_news_runtime import BUCKET, StorageUnavailable, SupabaseNewsStorage
 from company_news_additional import (SOURCES as ADDITIONAL_SOURCES,
                                      direct_feed_company_count, valid_identity)
+from company_news_issuer_feeds import SOURCES as ISSUER_SOURCES, match_member
 
 PREFIX = 'company-news/v1'
 # A single collector can persist at most 3 sources per 15-minute poll: 288/day.
@@ -36,7 +37,7 @@ SOURCE_HASH_KEYS = ('symbol', 'name', 'business', 'title', 'url', 'published_dat
 OPTIONAL_SOURCE_KEYS = ('company_id', 'business_context_mode', 'catalogue_as_of',
                        'catalogue_facts_sha256', 'catalogue_source_sha256')
 CHANNEL_NAMES = (tuple(value[0] for value in SOURCES.values()) + ('PR TIMES',)
-                 + tuple(ADDITIONAL_SOURCES))
+                 + tuple(ADDITIONAL_SOURCES) + tuple(ISSUER_SOURCES))
 PUBLIC_KEYS = ('symbol', 'name', 'sector', 'title', 'business', 'event', 'outlook',
                'source_url', 'published_date', 'published_at', 'article_id', 'reviewed_at')
 FEED_STATES = frozenset({'ok', 'failed', 'not_completed'})
@@ -47,6 +48,11 @@ SOURCE_ERROR_CODES = frozenset({'unapproved_source', 'source_time_limit', 'sourc
     'unsupported_feed_declaration', 'unsupported_feed_structure', 'unsupported_source_encoding',
     'invalid_verification_clock', 'source_read_failed', 'body_or_date_unverified',
     'source_dns_failed', 'source_tls_failed', 'source_timeout', 'source_connection_failed'})
+# Source count can grow without exceeding the existing clock's 8 KiB status
+# response budget. Real collectors normally record one feed/body failure; keep
+# a fixed bounded error summary for every channel instead of repeating every
+# possible error in every channel.
+MAX_DIAGNOSTIC_ERRORS = 1
 STORAGE_ERROR_CODES = frozenset({'storage_configuration', 'storage_response', 'storage_timeout',
     'storage_network', 'storage_bucket', 'storage_private_required', 'storage_read', 'storage_size',
     'storage_write', 'storage_list', 'storage_state', 'company_record_invalid',
@@ -66,7 +72,7 @@ def _safe_source_diagnostics(value):
             'feed_status': feed if isinstance(feed, str) and feed in FEED_STATES else 'not_completed',
             'status': status if isinstance(status, str) and status in COLLECTION_STATES else 'fetch_incomplete',
             'errors': sorted({error if isinstance(error, str) and error in SOURCE_ERROR_CODES
-                              else 'source_read_failed' for error in errors[:len(SOURCE_ERROR_CODES)]}),
+                              else 'source_read_failed' for error in errors[:len(SOURCE_ERROR_CODES)]})[:MAX_DIAGNOSTIC_ERRORS],
         }
     return result
 
@@ -135,7 +141,8 @@ def _membership_source(source, now, catalogue=None):
         return False
     try:
         member = catalogue.members.get(source['symbol'])
-        actor = catalogue.match_issuer(source.get('related_company'))
+        actor = (catalogue.match_issuer(source.get('related_company')) or
+                 match_member(source.get('related_company'), source.get('company_id'), catalogue))
         parsed = urlsplit(source['url'])
         company_id = source.get('company_id')
         return bool(member and actor and actor['symbol'] == member['symbol']
@@ -266,7 +273,7 @@ def public_snapshot(records, now, status='ready', checked_at=None, *, storage=No
             'source_interval_seconds': 900, 'max_generation_attempts_per_day': 3}
 
 
-def read_records(storage, now, *, today_only=False, cache=None):
+def read_records(storage, now, *, today_only=False, cache=None, errors=None):
     records = []
     today = datetime.fromtimestamp(now, JST).date()
     for offset in range(1 if today_only else 8):
@@ -275,15 +282,23 @@ def read_records(storage, now, *, today_only=False, cache=None):
             path = f'{PREFIX}/days/{day}/published-{slot}.json'
             # Published slots are immutable. Remember only successful reads;
             # missing slots remain eligible for the next minute's check.
-            record = cache.get(path) if cache is not None else None
-            if record is None:
-                record = storage.read(path)
-            if record is not None:
-                if not valid_record(record, now, catalogue=source_catalogue(storage, record.get('source'))):
-                    raise StorageUnavailable('company_record_invalid')
-                if cache is not None:
-                    cache[path] = deepcopy(record)
-                records.append(deepcopy(record))
+            try:
+                record = cache.get(path) if cache is not None else None
+                if record is None:
+                    record = storage.read(path)
+                if record is not None:
+                    if not valid_record(record, now, catalogue=source_catalogue(storage, record.get('source'))):
+                        raise StorageUnavailable('company_record_invalid')
+                    if cache is not None:
+                        cache[path] = deepcopy(record)
+                    records.append(deepcopy(record))
+            except Exception as error:
+                if errors is None:
+                    raise
+                # Readers can retain independently valid slots while reporting
+                # a partial restore. Strict callers still fail on any bad slot.
+                code = str(error) if isinstance(error, StorageUnavailable) and str(error) in STORAGE_ERROR_CODES else 'storage_read'
+                errors.append(code)
     return records
 
 
@@ -412,6 +427,7 @@ class CompanyNewsRuntime:
         self._coverage = {'universe': 'nikkei225', 'candidate_company_count': None,
                           'membership_as_of': None,
                           'direct_feed_company_count': direct_feed_company_count(),
+                          'issuer_feed_company_count': len({item['symbol'] for item in ISSUER_SOURCES.values()}),
                           'source_channel_count': len(CHANNEL_NAMES),
                           'distribution_scope': 'issuer_published_releases',
                           'all_company_announcements_covered': False}
@@ -420,6 +436,7 @@ class CompanyNewsRuntime:
         self._last_restore, self._restore_day = 0, None
         self._candidate_check, self._candidate_day = 0, None
         self._publication_checked = None
+        self._publication_error_code = None
         try:
             raw = json.loads(self.cache_path.read_text())
             records = raw if isinstance(raw, list) else raw.get('records', []) if isinstance(raw, dict) else []
@@ -492,19 +509,32 @@ class CompanyNewsRuntime:
                 previous = deepcopy(self._records)
             restored = self._restore_day != day or now - self._last_restore >= 900
             phase = 'publication_read'
+            publication_errors = []
             if restored:
-                records = read_records(self.storage, now, cache=self._published_cache)
+                records = read_records(self.storage, now, cache=self._published_cache, errors=publication_errors)
                 active_days = {(datetime.fromtimestamp(now, JST).date() - timedelta(days=offset)).isoformat()
                                for offset in range(8)}
                 self._published_cache = {path: record for path, record in self._published_cache.items()
                                          if path.split('/')[-2] in active_days}
             else:
-                today = read_records(self.storage, now, today_only=True, cache=self._published_cache)
+                today = read_records(self.storage, now, today_only=True, cache=self._published_cache,
+                                     errors=publication_errors)
                 records = [item for item in previous
                     if datetime.fromtimestamp(item['company']['reviewed_at'], JST).date().isoformat() != day] + today
+            if publication_errors:
+                restored_ids = {item['company']['article_id'] for item in records}
+                # Incomplete Storage reads do not erase locally verified,
+                # unexpired copies. They do not authorize any damaged record.
+                records.extend(item for item in previous
+                    if item['company']['article_id'] not in restored_ids
+                    and item['company']['valid_until'] >= day
+                    and valid_record(item, now, catalogue=source_catalogue(self.storage,
+                        item.get('source'), cache_only=True)))
             with self._lock:
                 self._records = records
                 self._publication_checked = now
+                if restored or publication_errors:
+                    self._publication_error_code = publication_errors[0] if publication_errors else None
                 if restored:
                     self._last_restore, self._restore_day = now, day
             if records != previous:
@@ -568,10 +598,11 @@ class CompanyNewsRuntime:
                 self._candidates = waiting
                 if refreshed_candidates:
                     self._candidate_check, self._candidate_day = now, day
-                self._status = 'ready' if self._source_status in ('ready', 'source_empty') else 'error'
+                self._status = 'ready' if not self._publication_error_code and self._source_status in ('ready', 'source_empty') else 'error'
                 self._checked = self._source_check or None
-                self._last_error_phase = None if self._status == 'ready' else 'source_collect'
-                self._last_error_code = None if self._status == 'ready' else 'source_collection_failed'
+                self._last_error_phase = ('publication_read' if self._publication_error_code else
+                                         None if self._status == 'ready' else 'source_collect')
+                self._last_error_code = self._publication_error_code or (None if self._status == 'ready' else 'source_collection_failed')
         except Exception as error:
             with self._lock:
                 self._status = 'error'
