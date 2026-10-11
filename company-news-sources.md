@@ -1,6 +1,6 @@
 # 企業発表の自動取得と出典
 
-確認日: 2026-10-08（日本時間）。選定候補は同日時点の日経225の225社です。従来のNTT・KDDI・パナソニックだけに候補を固定しません。ただし、225社の全発表を常時網羅する取得ではありません。
+更新日: 2026-10-11（日本時間）。選定候補は検証済みの日経225の225社です。公式RSSの直接取得を3社から11社へ増やし、PR TIMESの横断RSSも維持します。ただし、225社の全発表を常時網羅する取得ではありません。
 
 構成会社の事実は、日経公式の構成銘柄資料で日付・225件・証券コード（英字コードを含む）を検証します。保持するのは会社名とコードだけで、指数の構成比率や株価換算係数は保持・転載しません。10月1日入替後の構成を10月8日の原資料で確認しました。日次更新が失敗した場合は元の日付を保ち、14日を超えて古い資料を新規候補の確認に使いません。
 
@@ -33,6 +33,16 @@ RSSを自動連携に使う案内は[PR TIMES公式記事](https://prtimes.com/m
 | NTT（9432.T） | [公式ニュースリリース一覧](https://group.ntt/jp/newsrelease/)に掲載された [RDF/RSS](https://group.ntt/jp/newsrelease/rss/release.rdf) | `https://group.ntt/jp/newsrelease/YYYY/MM/DD/*.html` のみ | RSSの `dc:date`、本文の `p.c-navi-2__txt`、同じ見出しの `NewsArticle.datePublished` を照合。本文は `div.contents` 内の `c-wrap-1 c-wrap-1--o-4`。発表主体を著者・本文で確認。 |
 | KDDI（9433.T） | [公式RSS案内](https://www.kddi.com/rss-xml/)に掲載された [ニュースリリースRSS](https://newsroom.kddi.com/news/newsrelease.xml) | `https://newsroom.kddi.com/news/detail/kddi_nr-数字_数字.html` のみ | `pubDate`、`time.news-detail-heading1__date`、同じ見出しの `Article.datePublished` を照合。本文は `main#main` 内 `news-detail-main__content` の直接の `section`。IR記事はこのRSSに混ざっても除外。 |
 | パナソニック ホールディングス（6752.T） | [公式RSS案内](https://news.panasonic.com/jp/rss/)の [プレスリリースRSS](https://news.panasonic.com/jp/rss/press/index.xml) | `https://news.panasonic.com/jp/press/jnYYMMDD-数字` のみ（拡張子なし） | `pubDate`、`p.p-detailHeader__date`、同じ見出しの `NewsArticle.datePublished` を照合。本文は `#nw-contents` 内の `TextItem__text` と本文モジュール内の見出し・表・リスト。本文冒頭の法人名で実際の発表主体を識別。 |
+| トヨタ自動車（7203.T） | [公式RSS案内](https://global.toyota/jp/rss_feeds/)の [全ニュースRSS](https://global.toyota/export/jp/allnews_rss.xml) | `global.toyota/jp/newsroom/` の corporate・toyota・lexus の数字.html | 本文の同じ見出し・元の発表日とRSSを照合。時刻は補わず、発表主体を本文の署名・冒頭で確認。 |
+| 本田技研工業（7267.T） | [公式RSS案内](https://global.honda/jp/rss/)の [ニュースRSS](https://global.honda/jp/rss/hotnews.xml) | `global.honda/jp/news/YYYY/` の固定リリース形式のみ | 同じ見出し・補助見出し・画面の発表日・同じ記事の `datePublished` を照合。不正な time 属性は使わず、HondaJet等の別主体は親会社へ帰属させない。 |
+| ソフトバンクグループ（9984.T） | [プレスリリースRSS](https://group.softbank/news/press/index.rdf) | `group.softbank/news/press/YYYYMMDD` と枝番号のみ | 原文の見出し・time・本文を照合。画面の時刻とRSSが一致した場合だけ時刻を保持。 |
+| 日本電気（6701.T） | [公式ニュース案内](https://jpn.nec.com/jpn/news/news.html)の [プレスRSS](https://jpn.nec.com/ja/press/press.xml) | `jpn.nec.com/press/YYYYMM/YYYYMMDD_数字.html` のみ | 画面の元の見出し・発表日・日本電気株式会社の発表主体を照合。問い合わせ以降は本文に含めない。 |
+| 電通グループ（4324.T） | [ニュースリリースRSS](https://www.group.dentsu.com/jp/news/release/index.xml) | `www.group.dentsu.com/jp/news/release/6桁.html` のみ | 記事の見出し・発表日・本文を照合。ファンドや投資先だけの発表を、本文中の親会社名だけで採用しない。 |
+| 三菱重工業（7011.T） | [公式RSS案内](https://www.mhi.com/jp/rss)の [ニュースRSS](https://www.mhi.com/jp/rss/mhi_news.xml) | `www.mhi.com/jp/news/6桁または8桁.html` のみ | 元の見出し・画面の発表日・本文を照合。確認した時刻属性には時間帯の矛盾があるため、時刻を作らず日付だけ保持。 |
+| 大阪ガス（9532.T） | [公式RSS案内](https://www.osakagas.co.jp/company/press/about_rss/index.html)の [プレスRSS](https://www.osakagas.co.jp/company/press/rss/index.xml) | `www.osakagas.co.jp/company/press/prYYYY/数字_数字.html` のみ | 同じ見出し・元の発表日・本文の大阪ガス株式会社を確認。構成銘柄資料の正式名「大阪瓦斯」とコードで照合。PDFは取得しない。 |
+| ブリヂストン（5108.T） | [公式プレスRSS](https://www.bridgestone.co.jp/corporate/news/rss/bridgestone_news.xml) | `www.bridgestone.co.jp/corporate/news/YYYYMMDD番号.html` のみ | 同じ見出し・元の発表日・本文の発表主体を確認。問い合わせ欄を除外し、広告だけの発表は重要度選定から除外。 |
+
+追加8社のRSSと原文の実際の構造を2026-10-11に確認しました。追加取得元は、当時の日経225構成会社の保存証拠も必須です。原文の企業名が共同相手・親会社への言及や末尾の紹介にあるだけでは、発表主体とみなしません。固定の署名または本文冒頭の発表主体で確認します。事業説明未登録時はPR TIMESと同じ `announcement_only` 方針を使い、その記事本文の根拠と構成会社のsnapshotを両レビューへ渡します。
 
 事業紹介の根拠は [NTT事業案内](https://group.ntt/jp/business/)、[KDDIの事業](https://www.kddi.com/corporate/ir/individual/operation/)、[パナソニックグループ事業領域](https://holdings.panasonic/jp/corporate/about/group-strategy/business-segments.html)。短い固定説明とそのURLを取得結果に添えます。事業会社による発表では、親会社の証券コードを扱うカードであっても `related_company` に実際の法人名を保持します。書き手はその子会社が発表したことを明示し、親会社自身の成果・発表として言い換えてはいけません。
 
@@ -44,11 +54,11 @@ RSSを自動連携に使う案内は[PR TIMES公式記事](https://prtimes.com/m
 
 ## 取得量と日付の扱い
 
-取得は通常15分ごとに本番サーバーの取得workerから呼び出します。取得処理自体はスケジューラやAIを呼びません。3本の公式RSSと1本の横断RSSを、最大3通信の並列処理で読みます。公式RSS各120件、横断RSS200件までを検査し、候補を最大8件、本文を1回最大3件・1社1件に限定します。配信元の固定順ではなく、発表日と編集上の優先度で候補を選びます。既に確認済み・待機中のURLは `exclude_urls` で本文の再取得を省きます。
+取得は通常15分ごとに本番サーバーの取得workerから呼び出します。取得処理自体はスケジューラやAIを呼びません。11本の公式RSSと1本の横断RSSを、最大3通信の並列処理で読みます。公式RSS各120件、横断RSS200件までを検査し、本文確認の候補を最大8社、成功した本文を1回最大3件・1社1件に限定します。同じ会社の複数の見出しが別会社の候補枠を占めないよう、社ごとに選びます。本文確認に失敗した場合は、同じ予算内で次の別会社を確認します。配信元の固定順ではなく、発表日と編集上の優先度で候補を選びます。既に確認済み・待機中のURLは `exclude_urls` で本文の再取得を省きます。
 
 非公開候補一覧は会社ニュース専用の100件単位のページ取得とし、1日300件・3日900件までを確認します。最初の30件だけで重要度を判定しません。60秒の確認予算や件数上限を超えた場合は一部だけで審査を始めず、取得済みの変更不可な本文を3日範囲のcacheで再利用します。朝版の保管・一覧取得の条件は変更しません。
 
-公開一覧の3社上限は撤廃し、各社の最新の審査済み記事を最初5件・続き5件ずつ表示します。新規AI作成は既存の費用保護（日次最大3回の作成・照合、失敗も消費、同じ本文の自動再課金なし）を維持します。この作成予算と「対象企業を3社に固定すること」は別です。1日3回の作成予算を増やしてはいません。
+公開一覧の3社への固定は撤廃しています。画面の表示件数・「もっと見る」は既存の最大6件の表示方針を維持し、この取得元追加では変更しません。新規AI作成は既存の費用保護（日次最大3回の作成・照合、失敗も消費、同じ本文の自動再課金なし）を維持します。この作成予算と「対象企業を3社に固定すること」は別です。1日3回の作成予算を増やしてはいません。
 
 一部の配信元が失敗しても、本文・日付が検証済みの記事をほかの配信元の障害だけで止めません。取得健康度は `collection_health` と配信元ごとの固定診断へ分離します。一部失敗の空の取得を、225社すべてに新しい発表がないという意味にはしません。
 
@@ -68,6 +78,7 @@ RSSを自動連携に使う案内は[PR TIMES公式記事](https://prtimes.com/m
 
 - TDnetは [JPXの無料閲覧案内](https://www.jpx.co.jp/listing/disclosure/01.html)でスクレイピング等による自動取得を控えるよう明記しています。[TDnet robots](https://www.release.tdnet.info/robots.txt)も全パス禁止です。無料閲覧を自動収集に転用したり、非公式の代理APIで制限を回避しません。[正規API](https://www.jpx.co.jp/markets/paid-info-listing/tdnet/02.html)は有料なので、今回の追加のデータ契約なしという範囲では使いません。
 - 日立のIR RSSは [公式終了案内](https://www.hitachi.com/ja-jp/ir/topics/rss/)で2025-09-16終了を確認。終了済みURLを新着情報源に設定しません。
-- ソニーの公式サイトへの直接取得は確認時403だったため、制限の回避をせず今回の本文収集源から外しました。京セラのニュースルームは日付付きHTMLですが、今回の3社の固定RSS方式には含めません。
+- ソニーの公式サイトへの直接取得は確認時403だったため、制限の回避をせず今回の本文収集源から外しました。京セラのニュースルームは日付付きHTMLですが、今回の固定RSS方式には含めません。
+- 住友商事の案内されたRSSは記事URLが localhost だったため登録しません。キリン・武田のRSSは個人利用の条件があり、伊藤忠・アステラスも今回の用途でリンク等の条件が未解決のため追加しません。
 
 RSSには短い掲載期間や更新遅れがあり、正常に空だったとしても会社の全発表がないとは証明できません。今回の情報源と編集条件を満たす新着候補がなかった、と扱います。

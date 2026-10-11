@@ -2322,6 +2322,7 @@ from company_news_runtime import CompanyNewsRuntime, SupabaseNewsStorage as Comp
 def _collect_company_sources(**options):
     from company_news_sources import collect_company_articles, FEEDS
     from company_news_catalogue import current_catalogue
+    from company_news_additional import direct_feed_company_count
     from datetime import datetime, timezone
     raw_now = options.get('now')
     catalogue = current_catalogue(now=datetime.fromtimestamp(raw_now, timezone.utc) if raw_now else None)
@@ -2341,7 +2342,8 @@ def _collect_company_sources(**options):
             'diagnostics': diagnostics, 'catalogue': catalogue.snapshot(),
             'coverage': {'universe': 'nikkei225', 'candidate_company_count': len(catalogue.members),
                          'membership_as_of': catalogue.provenance['as_of'],
-                         'direct_feed_company_count': 3, 'source_channel_count': len(FEEDS),
+                         'direct_feed_company_count': direct_feed_company_count(),
+                         'source_channel_count': len(FEEDS),
                          'distribution_scope': 'issuer_published_releases',
                          'all_company_announcements_covered': False}}
 

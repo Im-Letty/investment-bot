@@ -18,6 +18,17 @@ class CompanySelectionTests(unittest.TestCase):
         self.assertEqual(priority('新しい圧縮機が工場向けに採用')[1], 'investment')
         self.assertEqual(priority('新卒採用のお知らせ'), (0, None))
 
+    def test_share_transfers_and_fund_investments_are_discovery_candidates(self):
+        self.assertEqual(priority('関連会社の株式譲渡契約締結について'), (5, 'business_change'))
+        self.assertEqual(priority('成長支援ファンドへの出資について'), (4, 'investment'))
+        self.assertEqual(priority('出資先会社の株式譲渡について'), (5, 'business_change'))
+
+    def test_new_keywords_do_not_override_routine_exclusion_or_add_forecasts(self):
+        for title in ['株式譲渡に関する説明会を開催', '出資先企業の役員人事について',
+                      'ファンドへの出資状況に関するセミナー',
+                      '次世代システムの名称を決定', '将来の株価上昇を予想']:
+            self.assertEqual(priority(title), (0, None))
+
     def test_routine_publicity_and_vague_titles_do_not_fill_slots(self):
         for title in ['新製品の受賞', '新しい事業の説明会', '最新技術のフォーラムを開催',
                       '役員人事のお知らせ', '自己株式の取得状況', '新製品発売キャンペーン',

@@ -9,7 +9,7 @@ import threading
 import unittest
 from unittest.mock import patch
 
-from company_news_runtime import (CompanyNewsRuntime, PREFIX, article_id, canonical_hash,
+from company_news_runtime import (CompanyNewsRuntime, CHANNEL_NAMES, PREFIX, article_id, canonical_hash,
     pending_candidates, public_snapshot, source_fingerprint, source_hash, valid_record, valid_source)
 
 NOW = 1791424800.0  # 2026-10-08 11:00 JST
@@ -82,10 +82,8 @@ class CountingStorage(MemoryStorage):
 
 class CompanyRuntimeTests(unittest.TestCase):
     def diagnostics(self, error=False):
-        from company_news_runtime import SOURCES
         result = {name: {'feed_status': 'ok', 'status': 'no_matching_candidates', 'errors': []}
-                  for name, _, _ in SOURCES.values()}
-        result['PR TIMES'] = {'feed_status': 'ok', 'status': 'no_matching_candidates', 'errors': []}
+                  for name in CHANNEL_NAMES}
         if error:
             result['NTT'].update(status='articles_unavailable', errors=['body_or_date_unverified'])
         return result
@@ -102,7 +100,7 @@ class CompanyRuntimeTests(unittest.TestCase):
                 'articles': [], 'diagnostics': diagnostics}, clock=lambda: NOW, cache_path=temp + '/cache.json')
             runtime.run_once(); result = runtime.operational_snapshot()
         safe = result['source_diagnostics']
-        self.assertEqual(set(safe), {'NTT', 'KDDI', 'パナソニック ホールディングス', 'PR TIMES'})
+        self.assertEqual(set(safe), set(CHANNEL_NAMES))
         self.assertTrue(all(set(row) == {'feed_status', 'status', 'errors'} for row in safe.values()))
         self.assertEqual(safe['NTT']['errors'], ['body_or_date_unverified', 'source_read_failed'])
         self.assertEqual(safe['KDDI']['feed_status'], 'not_completed')

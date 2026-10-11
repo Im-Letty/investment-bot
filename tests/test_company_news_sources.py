@@ -237,6 +237,8 @@ class CompanySourceTests(unittest.TestCase):
                     return feed(source), url
                 if url == URLS[source]:
                     return article(source), url
+            if url in sources.additional.FEEDS.values():
+                return b'<rss><channel/></rss>', url
             raise AssertionError(url)
         diagnostics = {}
         with patch.object(sources, '_download', side_effect=download) as fetch:
@@ -247,7 +249,7 @@ class CompanySourceTests(unittest.TestCase):
     def test_collector_verifies_three_bodies_and_keeps_actual_verification_clock(self):
         result, diagnostics, fetch = self.collect()
         self.assertEqual(len(result), 3)
-        self.assertEqual(fetch.call_count, 7)
+        self.assertEqual(fetch.call_count, len(sources.FEEDS) + 3)
         self.assertEqual({item['symbol'] for item in result}, {'9432.T', '9433.T', '6752.T'})
         self.assertTrue(all(item['body_verified_at'] == NOW.timestamp() for item in result))
         self.assertTrue(all(diagnostics[name]['status'] == 'collected' for name in URLS))
@@ -256,7 +258,7 @@ class CompanySourceTests(unittest.TestCase):
     def test_known_urls_skip_bodies_without_claiming_unseen_site_has_no_news(self):
         result, diagnostics, fetch = self.collect(exclude_urls=set(URLS.values()))
         self.assertEqual(result, [])
-        self.assertEqual(fetch.call_count, 4)
+        self.assertEqual(fetch.call_count, len(sources.FEEDS))
         self.assertTrue(all(diagnostics[name]['feed_status'] == 'ok' and diagnostics[name]['candidates'] == 1
                             and diagnostics[name]['selected'] == 0 for name in URLS))
 
@@ -293,7 +295,7 @@ class CompanySourceTests(unittest.TestCase):
         with patch.object(sources, '_feed_items', side_effect=duplicate_candidates):
             result, diagnostics, fetch = self.collect()
         self.assertEqual(len(result), 3)
-        self.assertEqual(fetch.call_count, 7)
+        self.assertEqual(fetch.call_count, len(sources.FEEDS) + 3)
         self.assertTrue(all(diagnostics[name]['selected'] == 1 for name in URLS))
 
 

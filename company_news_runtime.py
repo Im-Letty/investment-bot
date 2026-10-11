@@ -14,6 +14,8 @@ from urllib.parse import urlsplit
 
 from news_cache import JST
 from daily_news_runtime import BUCKET, StorageUnavailable, SupabaseNewsStorage
+from company_news_additional import (SOURCES as ADDITIONAL_SOURCES,
+                                     direct_feed_company_count, valid_identity)
 
 PREFIX = 'company-news/v1'
 # A single collector can persist at most 3 sources per 15-minute poll: 288/day.
@@ -33,7 +35,8 @@ SOURCE_HASH_KEYS = ('symbol', 'name', 'business', 'title', 'url', 'published_dat
                     'sector', 'business_url', 'related_company', 'other_news')
 OPTIONAL_SOURCE_KEYS = ('company_id', 'business_context_mode', 'catalogue_as_of',
                        'catalogue_facts_sha256', 'catalogue_source_sha256')
-CHANNEL_NAMES = tuple(value[0] for value in SOURCES.values()) + ('PR TIMES',)
+CHANNEL_NAMES = (tuple(value[0] for value in SOURCES.values()) + ('PR TIMES',)
+                 + tuple(ADDITIONAL_SOURCES))
 PUBLIC_KEYS = ('symbol', 'name', 'sector', 'title', 'business', 'event', 'outlook',
                'source_url', 'published_date', 'published_at', 'article_id', 'reviewed_at')
 FEED_STATES = frozenset({'ok', 'failed', 'not_completed'})
@@ -164,18 +167,26 @@ def valid_source(source, now, *, catalogue=None):
     if not isinstance(source, dict) or not _stamp(now):
         return False
     distribution = source.get('source') == 'PR TIMES'
+    label = source.get('source')
+    additional = isinstance(label, str) and label in ADDITIONAL_SOURCES
     if distribution:
         if not _membership_source(source, now, catalogue):
             return False
         name, host, pattern = source['name'], 'prtimes.jp', r'/main/html/rd/p/[0-9]{9}\.[0-9]{9}\.html'
+    elif additional:
+        # New routes carry their original immutable constituent proof. Their
+        # label alone cannot authorize another company or an arbitrary URL.
+        if catalogue is None or not valid_identity(source, catalogue):
+            return False
     elif source.get('symbol') in SOURCES:
         name, host, pattern = SOURCES[source['symbol']]
     else:
         return False
     parsed = urlsplit(str(source.get('url', '')))
-    if (source.get('name') != name or parsed.scheme != 'https' or parsed.hostname != host
-            or parsed.netloc != host or parsed.query or parsed.fragment
-            or not re.fullmatch(pattern, parsed.path) or not _day(source.get('published_date'))):
+    if (parsed.scheme != 'https' or not parsed.hostname or parsed.netloc != parsed.hostname
+            or parsed.query or parsed.fragment or not _day(source.get('published_date'))
+            or (not additional and (source.get('name') != name or parsed.hostname != host
+                                    or not re.fullmatch(pattern, parsed.path)))):
         return False
     for key, minimum, maximum in [('title', 3, 500), ('business', 8, 2000), ('body', 100, 30000)]:
         value = source.get(key)
@@ -394,7 +405,8 @@ class CompanyNewsRuntime:
         self._source_status = 'refreshing'
         self._source_diagnostics = _safe_source_diagnostics(None)
         self._coverage = {'universe': 'nikkei225', 'candidate_company_count': None,
-                          'membership_as_of': None, 'direct_feed_company_count': 3,
+                          'membership_as_of': None,
+                          'direct_feed_company_count': direct_feed_company_count(),
                           'source_channel_count': len(CHANNEL_NAMES),
                           'distribution_scope': 'issuer_published_releases',
                           'all_company_announcements_covered': False}

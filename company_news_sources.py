@@ -18,6 +18,7 @@ import requests
 from daily_news_sources import JST, _Document, _PinnedHTTPSAdapter, _public_ip, _parallel, _jsonld
 from official_news_sources import _publication, _now, _in_window, _body_text, _descends
 from company_news_selection import priority, candidate_order
+import company_news_additional as additional
 
 SOURCES = {
     "NTT": {
@@ -49,6 +50,7 @@ SOURCES = {
     },
 }
 FEEDS = {name: config["feed"] for name, config in SOURCES.items()}
+FEEDS.update(additional.FEEDS)
 FEEDS['PR TIMES'] = 'https://prtimes.jp/index.rdf'
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
@@ -87,6 +89,9 @@ def _safe_url(value, *, source=None, base=None):
     if any(ord(char) < 33 or ord(char) == 127 for char in value) or "\\" in value:
         return None
     try:
+        approved = additional.safe_url(value, source=source, base=base)
+        if approved:
+            return approved
         if source is None or source == 'PR TIMES':
             from company_news_prtimes import safe_url as prtimes_url
             approved = prtimes_url(urljoin(base, value) if base else value)
@@ -378,8 +383,12 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             payload, final = _download(FEEDS[source], deadline)
             if final != FEEDS[source]:
                 raise ValueError("unapproved_redirect")
-            items = (parse_feed(payload, now, since, catalogue) if source == 'PR TIMES'
-                     else _feed_items(payload, source, now, since))
+            if source == 'PR TIMES':
+                items = parse_feed(payload, now, since, catalogue)
+            elif source in additional.SOURCES:
+                items = additional.parse_feed(payload, source, now, since, catalogue)
+            else:
+                items = _feed_items(payload, source, now, since)
             return source, items, None
         except Exception as exc:
             return source, [], error_code(exc)
@@ -394,25 +403,30 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             row["errors"].append(error)
         by_source[source] = [item for item in items if item["url"] not in excluded][:MAX_CANDIDATES]
     candidates = sorted([item for items in by_source.values() for item in items],
-                        key=candidate_order)[:MAX_CANDIDATES]
+                        key=candidate_order)
     selected, selected_symbols = [], set()
     for item in candidates:
         symbol = item['symbol']
         if catalogue.is_member(symbol) and symbol not in selected_symbols:
             selected.append(item)
             selected_symbols.add(symbol)
-        if len(selected) == MAX_ARTICLES:
+        # Bound distinct companies, rather than letting one issuer's first
+        # eight headlines hide every other eligible company's announcement.
+        if len(selected) == MAX_CANDIDATES:
             break
-    for item in selected:
-        report[item["source"]]["selected"] += 1
 
     def read_article(item):
         try:
             payload, final = _download(item["url"], deadline)
             observed = clock()
-            article = (extract_article(payload, item, final, now, since, observed_at=observed,
-                                       catalogue=catalogue) if item['source'] == 'PR TIMES'
-                       else _extract_article(payload, item, final, now, since, observed_at=observed))
+            if item['source'] == 'PR TIMES':
+                article = extract_article(payload, item, final, now, since,
+                                          observed_at=observed, catalogue=catalogue)
+            elif item['source'] in additional.SOURCES:
+                article = additional.extract_article(payload, item, final, now, since,
+                                                     observed_at=observed, catalogue=catalogue)
+            else:
+                article = _extract_article(payload, item, final, now, since, observed_at=observed)
             if article:
                 verified = clock()
                 if (type(observed) not in (int, float) or not math.isfinite(observed) or observed <= 0
@@ -425,14 +439,28 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             return item, None, error_code(exc)
 
     records = []
-    for item, article, error in _parallel(selected, read_article, deadline):
-        row = report[item["source"]]
-        row["completed"] += 1
-        if article:
-            row["accepted"] += 1
-            records.append(article)
-        elif error not in row["errors"]:
-            row["errors"].append(error)
+    pending = list(selected)
+    while pending and len(records) < MAX_ARTICLES and time.monotonic() < deadline:
+        # A broken top-ranked page must not hide the next verified company's
+        # announcement. Keep one body per company, eight attempts and the
+        # shared forty-second budget; never persist more than three bodies.
+        count = MAX_ARTICLES - len(records)
+        batch, pending = pending[:count], pending[count:]
+        for item in batch:
+            report[item["source"]]["selected"] += 1
+        for item, article, error in _parallel(batch, read_article, deadline):
+            row = report[item["source"]]
+            row["completed"] += 1
+            if article:
+                row["accepted"] += 1
+                records.append(article)
+            elif error not in row["errors"]:
+                row["errors"].append(error)
+    if pending and len(records) < MAX_ARTICLES:
+        # The shared deadline prevented the next selected bodies from being
+        # read. Report incomplete collection instead of healthy absence.
+        for item in pending[:MAX_ARTICLES - len(records)]:
+            report[item["source"]]["selected"] += 1
     for source, row in report.items():
         if row["selected"]:
             if row["accepted"]:
