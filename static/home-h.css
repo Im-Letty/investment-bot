@@ -59,12 +59,14 @@ body.kn-home-a #knHomeMarkets .kn-a-quote-value {font-weight:600}
 body.kn-home-a #knHomeMarkets .kn-a-quote-change {flex-direction:column;gap:0}
 body.kn-home-a #knHomeMarketTimes,
 body.kn-home-a #knHomeNotice {max-width:1120px}
+/* One continuous paper: rounded news top, square joins, rounded stock bottom. */
 body.kn-home-a #morning-section > .morning-extra {
   box-sizing:border-box;
   display:grid;
   grid-template-columns:minmax(0,1fr);
   align-items:start;
-  gap:28px;
+  gap:0;
+  --kn-home-paper-radius:18px;
   max-width:1120px!important;
   padding:25px 20px 0!important;
   margin:0 auto!important;
@@ -76,8 +78,8 @@ body.kn-home-a #morning-section #morning-news-section {
 body.kn-home-a #morning-section #knNewsDigest {
   max-width:none;
   border:0;
-  border-radius:18px 18px 4px 4px;
-  box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
+  border-radius:var(--kn-home-paper-radius) var(--kn-home-paper-radius) 0 0;
+  box-shadow:none;
 }
 body.kn-home-a #knNewsDigest .news-header {
   grid-template-columns:calc(55px * var(--kn-a-scale,1)) minmax(0,1fr);
@@ -119,7 +121,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-stock-heading > .kn-a-section-tit
 }
 body.kn-home-a #morning-section #knTabWrap .kn-stock-surface {
   min-width:0;padding:24px 24px 20px;
-  border:0;border-radius:0 0 4px 4px;
+  border:0;border-radius:0 0 var(--kn-home-paper-radius) var(--kn-home-paper-radius);
   background:var(--kn-a-paper);
   box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
 }
@@ -140,7 +142,7 @@ body.kn-home-a #morning-section .kn-section-symbol .kn-symbol-tint {
 }
 body.kn-home-a #morning-section #knCompanyNewsSection {
   background:var(--kn-a-paper);border:0;border-radius:0;
-  box-shadow:0 4px 0 color-mix(in srgb,var(--kn-a-line) 55%,transparent);
+  box-shadow:none;
 }
 body.kn-home-a #knCompanyNewsSection > .kn-section-header {
   display:grid;grid-template-columns:calc(55px * var(--kn-a-scale,1)) minmax(0,1fr);
@@ -188,7 +190,7 @@ body.kn-home-a #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
 }
 @media(min-width:1000px) {
   body.kn-home-a #morning-section > .morning-extra {
-    grid-template-columns:minmax(0,1fr);gap:24px;padding-top:30px!important;
+    grid-template-columns:minmax(0,1fr);gap:0;padding-top:30px!important;
     max-width:940px!important;
   }
   body.kn-home-a #morning-news-section,
