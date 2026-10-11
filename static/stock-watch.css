@@ -333,3 +333,9 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
 @keyframes swSheetOut {from{opacity:1;transform:translate(-50%,0)}to{opacity:0;transform:translate(-50%,18px)}}
 @keyframes swVeilIn {from{opacity:0}to{opacity:1}}
 @keyframes swVeilOut {from{opacity:1}to{opacity:0}}
+
+/* Search results share one favorites store and keep dividend facts beside the company. */
+#alert-section.stock-watch-manager #stock-search-results .sw-row {flex-wrap:wrap;gap:10px 12px}
+#alert-section.stock-watch-manager .sw-company-hint {display:block;margin-top:3px;color:var(--sw-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.7}
+#alert-section.stock-watch-manager .sw-dividends {display:grid;flex:0 0 100%;gap:2px;color:var(--sw-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.8}
+#alert-section.stock-watch-manager .sw-add {min-height:44px;min-width:0;max-width:42%;padding:7px 12px;border:1px solid var(--sw-line);border-radius:8px;white-space:normal;font:500 calc(12px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)}

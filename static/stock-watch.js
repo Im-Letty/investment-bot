@@ -75,10 +75,25 @@
       let state={status:'idle',items:[]},composing=false,opened=false,returnFocus=null,returnY=0,homeScroll=0,closeTimer=null,background=[],bodyOverflow='',bodyPadding='',homeOverflow='',backgroundScroll=null;
       function el(tag,className,text){const node=doc.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
       function feedback(text,error){message.textContent=text;message.className='sw-feedback';message.dataset.error=error?'true':'false';}
+      const dividendNodes=new Map();
+      function paintDividends(key,value){
+        const lines=dividendNodes.get(key);if(!lines)return;
+        const text=w.KNWatchDividends.lines(value);
+        lines[0].textContent=text.annual;lines[1].textContent=text.payment;
+      }
+      const dividendQueue=w.KNWatchDividends&&w.KNWatchDividends.createQueue&&w.KNWatchDividends.lines&&w.KNCompanyProfile&&w.KNCompanyProfile.createFactsLoader?
+        w.KNWatchDividends.createQueue(callback=>w.KNCompanyProfile.createFactsLoader(callback),paintDividends):null;
+      function syncDividends(){
+        if(!dividendQueue)return;
+        const shown=opened&&closeTimer===null&&!doc.hidden&&!composing&&state.status==='results';
+        dividendQueue.select(Array.from(dividendNodes.keys()),shown);
+        if(shown)for(const key of dividendNodes.keys())paintDividends(key,dividendQueue.peek(key));
+      }
       function company(item){
         const box=el('button','sw-company');box.type='button';
         box.appendChild(el('span','sw-name',item.name));box.appendChild(el('small','sw-code',symbol(item.symbol).replace(/\.T$/,'')));
-        box.setAttribute('aria-label',item.name+'の会社情報を開く');
+        box.appendChild(el('small','sw-company-hint','会社情報・配当金を見る'));
+        box.setAttribute('aria-label',item.name+'の会社情報・配当金を見る');
         box.addEventListener('click',()=>{
           if(!w.KNCompanyProfile||!w.KNCompanyProfile.open){feedback('会社情報を読み込めませんでした。ページを開き直してください。',true);return;}
           const trigger=returnFocus;
@@ -93,21 +108,30 @@
         button.disabled=true;
         try{
           const result=await store.add(item);
-          if(result.status==='added'){feedback('');button.textContent='追加済み';renderSaved();notify();}
-          else if(result.status==='duplicate'){feedback('登録済みの銘柄です。');button.textContent='追加済み';}
+          if(result.status==='added'){feedback('');button.textContent='追加済み';button.setAttribute('aria-label',item.name+' 追加済み');renderSaved();notify();}
+          else if(result.status==='duplicate'){feedback('登録済みの銘柄です。');button.textContent='追加済み';button.setAttribute('aria-label',item.name+' 追加済み');}
           else{feedback(result.status==='limit'?'お気に入りは20件まで登録できます。':'検索結果から銘柄を選んでください。',true);button.disabled=false;}
         }catch(e){feedback('保存できませんでした。ブラウザの保存設定を確認して、もう一度お試しください。',true);button.disabled=false;}
       }
       function renderResults(next){
-        state=next;results.replaceChildren();results.setAttribute('aria-busy',next.status==='loading'?'true':'false');
+        state=next;dividendNodes.clear();results.replaceChildren();results.setAttribute('aria-busy',next.status==='loading'?'true':'false');
         if(heading)heading.hidden=next.status==='idle';
         const text={loading:'検索しています…',empty:'見つかりませんでした。会社名や銘柄コードを変えてみてください。',error:'検索できませんでした。少し待って、もう一度お試しください。'}[next.status];
-        if(text){const note=el('p','sw-empty',text);note.setAttribute('role','status');results.appendChild(note);return;}
-        if(!next.items.length)return;
+        if(text){const note=el('p','sw-empty',text);note.setAttribute('role','status');results.appendChild(note);syncDividends();return;}
+        if(!next.items.length){syncDividends();return;}
         const list=el('ul','sw-list');list.setAttribute('aria-label','銘柄の検索結果');
         const current=store.list();
-        next.items.forEach(item=>{const row=el('li','sw-row');row.appendChild(company(item));const has=current.includes(symbol(item.symbol));const button=el('button','sw-add',has?'追加済み':'＋ 追加');button.type='button';button.disabled=has;button.setAttribute('aria-label',item.name+(has?' 追加済み':'をお気に入りに追加'));button.addEventListener('click',()=>add(item,button));row.appendChild(button);list.appendChild(row);});
-        results.appendChild(list);
+        next.items.forEach(item=>{
+          const key=symbol(item.symbol),row=el('li','sw-row');row.appendChild(company(item));
+          const has=current.includes(key),button=el('button','sw-add',has?'追加済み':'お気に入りに追加');button.type='button';button.disabled=has;button.setAttribute('aria-label',item.name+(has?' 追加済み':'をお気に入りに追加'));button.addEventListener('click',()=>add(item,button));row.appendChild(button);
+          // Preview a small set of Japanese companies. Every result keeps its full company information action.
+          if(dividendQueue&&/^[0-9][A-Z0-9]{3}\.T$/.test(key)&&dividendNodes.size<5){
+            const preview=el('div','sw-dividends'),annual=el('span','sw-dividend-line'),payment=el('span','sw-dividend-line');
+            preview.appendChild(annual);preview.appendChild(payment);row.appendChild(preview);dividendNodes.set(key,[annual,payment]);paintDividends(key,dividendQueue.peek(key));
+          }
+          list.appendChild(row);
+        });
+        results.appendChild(list);syncDividends();
       }
       function renderSaved(){
         const current=store.list();count.textContent=current.length+'件';saved.replaceChildren();
@@ -118,7 +142,7 @@
         });row.appendChild(button);list.appendChild(row);});saved.appendChild(list);
       }
       const search=createSearch(w,renderResults);
-      input.addEventListener('compositionstart',()=>{composing=true;search.cancel();});
+      input.addEventListener('compositionstart',()=>{composing=true;search.cancel();if(dividendQueue)dividendQueue.select([],false);});
       input.addEventListener('compositionend',()=>{composing=false;search.schedule(input.value);});
       input.addEventListener('input',()=>{if(!composing)search.schedule(input.value);});
       form.addEventListener('submit',event=>{event.preventDefault();if(!composing){feedback('');search.run(input.value);}});
@@ -149,10 +173,12 @@
         }
         opened=true;
         if(title)title.textContent=options.mode==='search'?'銘柄を検索':'お気に入り';
+        const savedSection=doc.getElementById('stock-watch-saved');if(savedSection)savedSection.hidden=options.mode==='search';
         if(returnFocus)returnFocus.setAttribute('aria-expanded','true');
         sizeViewport();manager.style.display='flex';panel.focus({preventScroll:true});
         if(backgroundScroll)backgroundScroll.restore();
         if(input.value.trim()&&['idle','loading','error'].includes(state.status))search.run(input.value);
+        syncDividends();
         try{await store.ready;renderSaved();}catch(e){feedback('保存済みの銘柄を読み込めませんでした。ページを開き直してください。',true);}
       };
       function finishClose(){
@@ -170,6 +196,7 @@
       }
       w.closeStockWatchManager=function(immediate){
         if(!opened)return;
+        if(dividendQueue)dividendQueue.select([],false);
         if(immediate===true){if(closeTimer!==null)w.clearTimeout(closeTimer);search.cancel();finishClose();return;}
         if(closeTimer!==null)return;
         search.cancel();
@@ -188,6 +215,7 @@
         if(event.shiftKey&&(doc.activeElement===first||!focusable.includes(doc.activeElement))){event.preventDefault();last.focus({preventScroll:true});}
         else if(!event.shiftKey&&(doc.activeElement===last||!focusable.includes(doc.activeElement))){event.preventDefault();first.focus({preventScroll:true});}
       });
+      doc.addEventListener('visibilitychange',syncDividends);
       if(w.visualViewport){w.visualViewport.addEventListener('resize',sizeViewport);w.visualViewport.addEventListener('scroll',sizeViewport);}
       // Compatibility entry points; selecting a verified result is the only way to add.
       w.openAlertSection=w.openStockWatchManager;

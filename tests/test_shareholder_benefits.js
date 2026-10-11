@@ -23,7 +23,7 @@ function harness(data,options={}){
  const mount=doc.createElement('div'),w={document:doc,localStorage:{getItem:key=>saved.get(key)},addEventListener(type,fn){events[type]=fn;}};
  const cal={today:()=>current,shift:calendar.shift,bounds:()=>calendar.bounds(Date.parse(current+'T03:00:00Z')),calendarDays:calendar.calendarDays};
  const api=load(data),view=api.create(w,mount,cal);
- return {api,view,mount,doc,events,setToday(value){current=value;},search(value){const input=mount.find('dc-search');input.value=value;input.dispatch('input');},cards(){return mount.find('bc-list').children.filter(node=>node.className.split(' ').includes('bc-card'));}};
+ return {api,view,mount,doc,events,setToday(value){current=value;},cards(){return mount.find('bc-list').children.filter(node=>node.className.split(' ').includes('bc-card'));}};
 }
 test('a company can have multiple explicit dates without generating unreviewed years or duplicates',()=>{
  const data=[company('1000',{schedules:[schedule('2026-09-28'),schedule('2027-03-29',{record:'2027-03-31'}),schedule('2026-09-28'),schedule('2027-02-30')]}),company('2000')];
@@ -35,8 +35,8 @@ test('a company can have multiple explicit dates without generating unreviewed y
 test('monthly counts include all matching dates while lists paginate and prioritize saved favorites',()=>{
  const data=Array.from({length:7},(_,i)=>company(String(1000+i)));data[0].schedules.push(schedule('2026-09-29'));
  const h=harness(data,{favorites:['1006.T']});
- assert.equal(h.mount.find('dc-status').textContent,'');assert.equal(h.mount.find('dc-status').hidden,true);assert.equal(h.cards().length,5);
- assert.match(h.mount.children.at(-1).textContent,/空欄や検索結果なしは、優待がないという意味ではありません/);
+ assert.equal(h.mount.find('dc-status'),undefined);assert.equal(h.cards().length,5);
+ assert.match(h.mount.children.at(-1).textContent,/空欄は、優待がないという意味ではありません/);
  assert.match(h.cards()[0].textContent,/会社1006/);assert.equal(h.mount.find('bc-more').hidden,false);
  const day=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-28');assert.equal(day.find('dc-day-count').textContent,'7');
  const today=h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2026-09-24');assert.equal(today.getAttribute('aria-current'),'date');
@@ -44,24 +44,21 @@ test('monthly counts include all matching dates while lists paginate and priorit
  day.dispatch('click');assert.equal(h.cards().length,5);assert.equal(h.doc.activeElement.dataset.date,'2026-09-28');assert.equal(h.doc.activeElement.getAttribute('aria-pressed'),'true');
  h.doc.activeElement.dispatch('click');assert.equal(h.mount.find('bc-heading').textContent,'この月の優待の購入締切');
 });
-test('search normalizes names, fullwidth codes and kana aliases across months without adding other-month dots',()=>{
+test('benefit calendar navigates to later schedules without internal company search or other-month dots',()=>{
  const h=harness([company('3088',{name:'マツキヨココカラ＆カンパニー'}),company('3563',{name:'FOOD & LIFE COMPANIES',aliases:'スシロー 京樽',schedules:[schedule('2027-03-29',{record:'2027-03-31'})]})]);
- h.search('ココカラ＆');assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/3088/);
- h.search('３５６３');assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/2027\/03\/29/);assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);
- assert.equal(h.mount.find('dc-layout').dataset.searching,'true');assert.match(h.mount.find('dc-status').textContent,/掲載2社.*検索結果は1社.*表示中の月.*0社・0件/);
- assert.equal(h.mount.find('dc-status').hidden,false);
- h.search('すしろー');assert.equal(h.cards().length,1);assert.match(h.mount.find('bc-heading').textContent,/検索結果 1社/);
- h.mount.find('bc-jump').dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年3月');assert.match(h.cards()[0].textContent,/2027\/03\/29/);
- h.search('未掲載の会社');assert.equal(h.cards().length,0);assert.match(h.mount.find('dc-empty').textContent,/未掲載の会社にも優待/);
- h.search('');assert.equal(h.mount.find('dc-status').hidden,true);assert.equal(h.mount.find('dc-status').textContent,'');
+ assert.equal(h.mount.find('dc-search'),undefined);assert.equal(h.mount.find('dc-manage'),undefined);
+ assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/3088/);assert.doesNotMatch(h.mount.find('bc-list').textContent,/3563/);
+ const next=h.mount.find('dc-month-navigation').children[2];next.dispatch('click');assert.equal(h.cards().length,0);assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);
+ for(let i=0;i<5;i++)next.dispatch('click');assert.equal(h.mount.find('dc-month').textContent,'2027年3月');assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/3563/);assert.match(h.cards()[0].textContent,/2027\/03\/29/);
+ assert.equal(h.mount.find('dc-grid').children.find(node=>node.dataset.date==='2027-03-29').find('dc-day-count').textContent,'1');
+ h.mount.find('bc-today').dispatch('click');assert.match(h.cards()[0].textContent,/3088/);
 });
 test('undated and expired programmes remain discoverable without fabricated next dates or calendar counts',()=>{
  const data=[company('1000',{schedules:[schedule('2026-08-28')]}),company('2000',{name:'KDDI',schedules:[],holding:'1年以上の継続保有'})];
  const h=harness(data),pending=h.mount.find('bc-pending');
  assert.equal(pending.hidden,false);assert.equal(pending.open,true);assert.match(pending.textContent,/未確認 2社/);assert.match(pending.textContent,/前回掲載した締切：2026\/08\/28/);
  assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);assert.equal(h.cards().length,0);
- h.search('kddi');assert.equal(h.cards().length,1);assert.match(h.cards()[0].textContent,/次回の保有締切は確認中/);assert.equal(pending.hidden,true);
- h.search('');assert.equal(pending.hidden,false);
+ assert.match(pending.textContent,/KDDI/);assert.match(pending.textContent,/次回の保有締切は確認中/);assert.match(pending.textContent,/1年以上の継続保有/);
 });
 test('pending companies paginate independently and planned schedules retain their own period and source',()=>{
  const pending=harness(Array.from({length:7},(_,i)=>company(String(1000+i),{schedules:[]})));

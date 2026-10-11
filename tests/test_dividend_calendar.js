@@ -118,7 +118,7 @@ test('day selection, five-item pagination and month plans are separate and compa
 test('calendar keeps all-company scope after favorites change and keyboard arrows move to the neighboring day',async()=>{
   const h=uiHarness();await flush();await h.reply(0,fixture({range:calendar.bounds(),events:[],updated_at:Date.now()/1000}));assert.equal(h.requests.length,1);assert.doesNotMatch(h.mount.find('dc-empty').textContent,/お気に入りに日本株/);
   h.saved.setItem(WATCH,'["7203.T"]');h.w.dispatchEvent(new h.w.Event('kn:watchlist-change'));assert.equal(h.requests.length,2);assert.match(h.requests[1].url,/scope=all/);assert.match(h.requests[1].url,/7203.T/);assert.equal(h.saved.getItem(WATCH),'["7203.T"]');
-  const cells=h.mount.find('dc-grid').children.filter(node=>node.dataset.date);let prevented=false;cells[3].dispatch('keydown',{key:'ArrowRight',preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.doc.activeElement,cells[4]);h.mount.find('dc-manage').dispatch('click');assert.equal(h.w.managed,true);
+  const cells=h.mount.find('dc-grid').children.filter(node=>node.dataset.date);let prevented=false;cells[3].dispatch('keydown',{key:'ArrowRight',preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.doc.activeElement,cells[4]);assert.equal(h.mount.find('dc-manage'),undefined);assert.equal(h.w.managed,undefined);
 });
 test('hiding the page cancels outstanding work and resuming requests fresh data',async()=>{
   const h=uiHarness();await flush();h.doc.hidden=true;for(const fn of h.events.visibilitychange)fn();assert.equal(h.requests[0].options.signal.aborted,true);assert.equal(h.time.timers.size,0);h.doc.hidden=false;for(const fn of h.events.visibilitychange)fn();assert.equal(h.requests.length,2);
@@ -283,31 +283,21 @@ test('each date sorts favorites first then yields descending, unknown last, befo
   assert.equal(symbols().at(-1),'9999.T');
 });
 
-test('search filters verified month events by company or fullwidth code without dropping calendar counts',async t=>{
+test('calendar keeps unfiltered schedules and month plans without its own search or favorite manager',async t=>{
   t.mock.method(Date,'now',()=>NOW);const h=uiHarness();await flush();
   await h.reply(0,fixture({events:[event({symbol:'5803.T',name:'フジクラ'}),event({symbol:'7203.T',name:'トヨタ自動車'}),event({symbol:'5803.T',name:'フジクラ',kind:'payment',precision:'month',date:null,period:MONTH,status:'planned'})]}));
-  const search=h.mount.find('dc-search'),list=h.mount.find('dc-events');
-  search.value='５８０３';search.dispatch('input');assert.equal(list.children.length,1);assert.equal(list.children[0].__priceSymbol,'5803.T');
+  const list=h.mount.find('dc-events');
+  assert.equal(h.mount.find('dc-search'),undefined);assert.equal(h.mount.find('dc-company-results'),undefined);assert.equal(h.mount.find('dc-manage'),undefined);
+  assert.deepEqual(list.children.map(row=>row.__priceSymbol),['5803.T','7203.T']);
   assert.equal(h.mount.find('dc-grid').children.find(x=>x.dataset.date==='2026-09-28').find('dc-day-count').textContent,'2');
-  search.value='ふじくら';search.dispatch('input');assert.equal(list.children[0].__priceSymbol,'5803.T');
-  search.value='存在しない会社';search.dispatch('input');assert.equal(list.children.length,0);assert.match(h.mount.find('dc-empty').textContent,/一致する確認済み/);
-  search.value='';search.dispatch('input');assert.equal(list.children.length,2);
+  assert.equal(h.mount.find('dc-month-plans').hidden,false);assert.equal(h.mount.find('dc-month-plans').find('dc-event').__priceSymbol,'5803.T');
+  h.mount.find('dc-grid').children.find(x=>x.dataset.date==='2026-09-29').dispatch('click');assert.equal(list.children.length,0);assert.match(h.mount.find('dc-empty').textContent,/この日に確認できた予定/);
+  h.mount.find('dc-reset').dispatch('click');assert.equal(list.children.length,2);assert.ok(h.requests.every(request=>request.url.startsWith('/api/dividend/calendar-v2?')));
 });
 
 test('calendar keeps all confirmed events beyond the former 3000 row limit',()=>{
   const events=Array.from({length:3200},(_,i)=>event({symbol:(1000+i)+'.T'}));
   assert.equal(calendar.normalize(fixture({events}),MONTH,'all',[],NOW).events.length,3200);
-});
-
-test('company search returns companies even without calendar events and reuses the catalogue',async t=>{
-  t.mock.method(Date,'now',()=>NOW);const h=uiHarness();await flush();await h.reply(0,fixture());
-  const search=h.mount.find('dc-search');search.value='285A';search.dispatch('input');
-  assert.equal(h.requests[1].url,'/api/lookup_all');
-  await h.reply(1,{items:[{code:'285A',name:'Company without dates'},{code:'7203',name:'Toyota'}]});
-  const link=h.mount.find('dc-search-company');assert.equal(link.dataset.companyProfile,'285A.T');
-  assert.equal(h.mount.find('dc-events').children.length,0);
-  search.value='7203';search.dispatch('input');assert.equal(h.requests.length,2);assert.equal(h.mount.find('dc-search-company').dataset.companyProfile,'7203.T');
-  search.value='';search.dispatch('input');assert.equal(h.mount.find('dc-company-results').hidden,true);
 });
 
 test('benefits tab separates dates and conditions and restores the dividend view',async t=>{
@@ -319,7 +309,7 @@ test('benefits tab separates dates and conditions and restores the dividend view
  const pane=h.mount.find('dc-benefits-pane'),benefits=h.w.KNBenefits;
  const cards=()=>pane.find('bc-list').children.filter(node=>node.className.split(' ').includes('bc-card'));
  assert.equal(cards().length,Math.min(5,benefits.rowsForMonth(MONTH).length));
- assert.equal(pane.find('dc-status').textContent,'');assert.equal(pane.find('dc-status').hidden,true);
+ assert.equal(pane.find('dc-status'),undefined);assert.equal(pane.find('dc-search'),undefined);assert.equal(pane.find('dc-manage'),undefined);
  if(cards().length)assert.ok(cards()[0].find('bc-tags'));
  const pending=benefits.programmes.filter(company=>!company.schedules.some(schedule=>schedule.date>=calendar.today()));
  assert.equal(pane.find('bc-pending').hidden,pending.length===0);assert.equal(pane.find('bc-pending').open,true);

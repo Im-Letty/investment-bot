@@ -2,6 +2,7 @@ const {test}=require('node:test');
 const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const watch=require('../static/stock-watch.js');
+const dividendFacts=require('../static/watch-dividends.js'),companyProfile=require('../static/company-profile.js');
 const KEY='alert_watchlist_v1';
 const toyota={symbol:'7203.T',name:'トヨタ自動車',verified:true};
 function storage(initial={}){const map=new Map(Object.entries(initial));return {map,getItem:key=>map.get(key)??null,setItem:(key,value)=>map.set(key,value),removeItem:key=>map.delete(key)};}
@@ -71,8 +72,8 @@ class Element{
  constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.style={overflow:'',paddingRight:'',setProperty(k,v){this[k]=v;}};this.listeners={};this.attrs={};this.value='';this.textContent='';this.isConnected=true;this.scrollTop=0;this.inert=false;this.classes=new Set();this.classList={add:v=>this.classes.add(v),remove:v=>this.classes.delete(v),contains:v=>this.classes.has(v)};}
  appendChild(node){if(node.parentNode)node.parentNode.children=node.parentNode.children.filter(n=>n!==node);node.parentNode=this;this.children.push(node);return node;}replaceChildren(...nodes){this.children=nodes;}setAttribute(k,v){this.attrs[k]=v;}getAttribute(k){return this.attrs[k]??null;}addEventListener(k,v){this.listeners[k]=v;}focus(options){this.focused=true;this.focusOptions=options;if(this.doc)this.doc.activeElement=this;}querySelector(tag){return this.children.flatMap(n=>[n,...n.children]).find(n=>n.tagName===tag)||null;}closest(selector){return selector==='[hidden]'&&this.hidden?this:null;}getClientRects(){return this.hidden?[]:[{}];}
 }
-function uiHarness({reduced=true}={}){
- const ids=['alert-section','alert-ticker-input','stock-search-form','stock-search-results','alert-watchlist','alert-msg','stock-watch-count','morning-section','morning-news-section','stock-watch-close','stock-search-heading','stock-watch-title'];const nodes=new Map(ids.map(id=>[id,new Element()]));const requests=[],timers=new Map(),events={};let tid=0,refreshes=0;
+function uiHarness({reduced=true,withDividends=false,lookupItems=[toyota]}={}){
+ const ids=['alert-section','alert-ticker-input','stock-search-form','stock-search-results','alert-watchlist','stock-watch-saved','alert-msg','stock-watch-count','morning-section','morning-news-section','stock-watch-close','stock-search-heading','stock-watch-title'];const nodes=new Map(ids.map(id=>[id,new Element()]));const requests=[],factsRequests=[],timers=new Map(),events={};let tid=0,refreshes=0;
  const body=new Element('BODY'),panel=new Element('section'),originalFocus=new Element('button'),fallback=new Element('button'),submit=new Element('button'),nav=new Element('nav');nav.inert=true;
  body.classList.add('view-asaletter');body.appendChild(nodes.get('morning-section'));body.appendChild(nav);body.appendChild(nodes.get('alert-section'));nodes.get('morning-section').scrollTop=450;
  const manager=nodes.get('alert-section');manager.querySelector=selector=>selector==='.sw-sheet'?panel:null;
@@ -80,8 +81,12 @@ function uiHarness({reduced=true}={}){
  for(const node of [...nodes.values(),panel,originalFocus,fallback,submit])node.doc=doc;
  panel.querySelectorAll=()=>[nodes.get('stock-watch-close'),nodes.get('alert-ticker-input'),submit];
  const vv={height:780,offsetTop:0,events:{},addEventListener(key,fn){this.events[key]=fn;}};
- const w={document:doc,localStorage:storage(),StockWatch:{},AbortController,innerWidth:400,visualViewport:vv,matchMedia:()=>({matches:reduced}),scrollTo(){},__knRefreshWatch(){refreshes++;},setTimeout(fn,ms){timers.set(++tid,{fn,ms});return tid;},clearTimeout:id=>timers.delete(id),async fetch(url){requests.push(url);return {ok:true,json:async()=>({results:[toyota]})};}};
- watch.start(w);return {w,doc,nodes,panel,manager,nav,originalFocus,fallback,submit,requests,timers,events,vv,get refreshes(){return refreshes;}};
+ const w={document:doc,localStorage:storage(),StockWatch:{},AbortController,innerWidth:400,visualViewport:vv,matchMedia:()=>({matches:reduced}),scrollTo(){},__knRefreshWatch(){refreshes++;},setTimeout(fn,ms){timers.set(++tid,{fn,ms});return tid;},clearTimeout:id=>timers.delete(id),async fetch(url,options){
+  if(url.startsWith('/api/company-profile?'))return new Promise(resolve=>factsRequests.push({url,options,resolve}));
+  requests.push(url);return {ok:true,json:async()=>({results:lookupItems})};
+ }};
+ if(withDividends){w.KNWatchDividends=dividendFacts;w.KNCompanyProfile={createFactsLoader:callback=>companyProfile.createLoader({fetch:w.fetch.bind(w),AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),storage:w.localStorage},callback)};}
+ watch.start(w);return {w,doc,nodes,panel,manager,nav,originalFocus,fallback,submit,requests,factsRequests,timers,events,vv,get refreshes(){return refreshes;},async replyFacts(index,key,amount=95){factsRequests[index].resolve({ok:true,json:async()=>({symbol:key,status:'ready',updated_at:Date.now()/1000,data:{currency:'JPY',annual_dividend:amount,annual_dividend_basis:'trailing_12m',dividend_fetched_at:Date.now()/1000,dividend_payment_date:'2099-11-26'}})});await flush();}};
 }
 test('sheet preserves the home while searching, adding and removing; Japanese composition does not submit',async()=>{
  const h=uiHarness();const {w,doc,nodes,requests,manager}=h;
@@ -114,6 +119,7 @@ test('heading search and favorite management use one sheet and retain the same s
  const h=uiHarness();await flush();
  await h.w.openStockWatchManager({mode:'search',trigger:h.originalFocus});
  assert.equal(h.manager.style.display,'flex');assert.equal(h.nodes.get('stock-watch-title').textContent,'銘柄を検索');
+ assert.equal(h.nodes.get('stock-watch-saved').hidden,true,'Search offers adding while the saved list stays in favorite management');
  const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';
  h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
  const row=h.nodes.get('stock-search-results').children[0].children[0],add=row.children[1];
@@ -124,6 +130,7 @@ test('heading search and favorite management use one sheet and retain the same s
  h.w.closeStockWatchManager();
  await h.w.openStockWatchManager();
  assert.equal(h.manager.style.display,'flex');assert.equal(h.nodes.get('stock-watch-title').textContent,'お気に入り');
+ assert.equal(h.nodes.get('stock-watch-saved').hidden,false);
  assert.equal(h.nodes.get('stock-watch-count').textContent,'1件');
  assert.equal(h.nodes.get('alert-watchlist').children[0].children[0].children[0].children[0].textContent,toyota.name);
  assert.equal(h.requests.length,1,'Switching entry points does not repeat a completed lookup');
@@ -158,4 +165,54 @@ test('company information opens only after the shared sheet releases its backgro
  await company.listeners.click();await flush();
  assert.deepEqual(call,{key:toyota.symbol,name:toyota.name,trigger:h.originalFocus});
  assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)||'[]'),[],'Opening company information is distinct from adding a favorite');
+});
+test('search dividend previews repaint only facts and adding writes the existing favorites store',async()=>{
+ const h=uiHarness({withDividends:true});await h.w.openStockWatchManager({mode:'search'});
+ const input=h.nodes.get('alert-ticker-input');input.value='トヨタ';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ const list=h.nodes.get('stock-search-results').children[0],row=list.children[0],company=row.children[0],add=row.children[1],preview=row.children[2];
+ assert.equal(add.textContent,'お気に入りに追加');assert.match(company.attrs['aria-label'],/会社情報・配当金を見る/);assert.equal(h.factsRequests.length,1);
+ assert.match(preview.children[0].textContent,/確認中/);add.focus();const refreshes=h.refreshes;
+ await h.replyFacts(0,'7203.T',1000);
+ assert.equal(preview.children[0].textContent,'過去1年の配当（1株） 1,000円');assert.equal(preview.children[1].textContent,'2099/11/26 支払予定');
+ assert.equal(h.nodes.get('stock-search-results').children[0],list);assert.equal(row.children[1],add);assert.equal(h.doc.activeElement,add,'Enrichment must not rebuild or refocus the result');
+ assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)||'[]'),[],'Reading facts does not register a company');
+ await add.listeners.click();await flush();assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)),['7203.T']);assert.equal(h.nodes.get('stock-watch-count').textContent,'1件');assert.ok(h.refreshes>refreshes);
+ assert.equal(add.textContent,'追加済み');assert.equal(add.attrs['aria-label'],'トヨタ自動車 追加済み');assert.equal(add.disabled,true);assert.equal(h.w.localStorage.getItem('myDividendStocks'),null,'No second dividend favorites store is created');
+});
+test('search previews cap Japanese companies at five, use two workers and reuse completed results on reopen',async()=>{
+ const japanese=Array.from({length:7},(_,i)=>({symbol:(1000+i)+'.T',name:'会社'+i,verified:true})),foreign={symbol:'AAPL',name:'Apple',verified:true};
+ const h=uiHarness({withDividends:true,lookupItems:[foreign,...japanese]});await h.w.openStockWatchManager({mode:'search'});
+ h.nodes.get('alert-ticker-input').value='会社';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ const rows=h.nodes.get('stock-search-results').children[0].children;
+ assert.equal(rows.length,8);assert.equal(rows[0].children.length,2);assert.equal(rows.filter(row=>row.children.length===3).length,5);assert.equal(rows[6].children.length,2);assert.equal(rows[7].children.length,2);
+ assert.equal(h.factsRequests.length,2,'Only two facts requests may start concurrently');
+ for(let i=0;i<5;i++){const key=new URL(h.factsRequests[i].url,'https://fixture.test').searchParams.get('symbol');await h.replyFacts(i,key,i);}
+ assert.equal(h.factsRequests.length,5);assert.ok(h.factsRequests.every(request=>!request.url.includes('AAPL')));
+ h.w.closeStockWatchManager();await h.w.openStockWatchManager({mode:'search'});await flush();assert.equal(h.factsRequests.length,5,'Reopening reuses the completed facts cache');
+ assert.equal(rows[1].children[2].children[0].textContent,'過去1年の配当（1株） 0円');
+});
+test('hidden sheets and cleared searches cancel pending facts and reject their late responses',async()=>{
+ const ntt={symbol:'9432.T',name:'NTT',verified:true},h=uiHarness({withDividends:true,lookupItems:[toyota,ntt]});await h.w.openStockWatchManager({mode:'search'});
+ const input=h.nodes.get('alert-ticker-input');input.value='会社';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();assert.equal(h.factsRequests.length,2);
+ const preview=h.nodes.get('stock-search-results').children[0].children[0].children[2];
+ h.doc.hidden=true;h.events.visibilitychange();assert.ok(h.factsRequests.every(request=>request.options.signal.aborted));
+ await h.replyFacts(0,'7203.T',999);await h.replyFacts(1,'9432.T',999);assert.doesNotMatch(preview.children[0].textContent,/999/);
+ h.doc.hidden=false;h.events.visibilitychange();await flush();assert.equal(h.factsRequests.length,4,'Visibility resumes the bounded pending selection');
+ input.value='';input.listeners.input();assert.ok(h.factsRequests.slice(2).every(request=>request.options.signal.aborted));assert.equal(h.nodes.get('stock-search-results').children.length,0);
+ await h.replyFacts(2,'7203.T',777);await h.replyFacts(3,'9432.T',777);assert.equal(h.nodes.get('stock-search-results').children.length,0,'Old facts cannot restore cleared results');
+});
+test('closing or opening company information cancels preview work before the next dialog takes over',async()=>{
+ const h=uiHarness({withDividends:true,reduced:false});await h.w.openStockWatchManager({mode:'search'});
+ h.nodes.get('alert-ticker-input').value='トヨタ';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ h.w.closeStockWatchManager();assert.equal(h.factsRequests[0].options.signal.aborted,true,'Cancel at the start of the close animation');
+ await h.w.openStockWatchManager({mode:'search'});await flush();assert.equal(h.factsRequests.length,2);
+ let called=false;h.w.KNCompanyProfile.open=()=>{called=true;assert.equal(h.manager.style.display,'none');assert.equal(h.factsRequests[1].options.signal.aborted,true);};
+ h.nodes.get('stock-search-results').children[0].children[0].children[0].listeners.click();assert.equal(called,true);
+});
+test('unavailable preview facts remain unconfirmed without blocking favorites or creating zero values',async()=>{
+ const h=uiHarness({withDividends:true});await h.w.openStockWatchManager({mode:'search'});
+ h.nodes.get('alert-ticker-input').value='トヨタ';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ h.factsRequests[0].resolve({ok:false,status:404});await flush();
+ const row=h.nodes.get('stock-search-results').children[0].children[0];assert.equal(row.children[2].children[0].textContent,'過去1年の配当（1株） 未確認');assert.equal(row.children[2].children[1].textContent,'支払予定 未確認');assert.equal(row.children[1].disabled,false);
+ await row.children[1].listeners.click();await flush();assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)),['7203.T']);
 });
