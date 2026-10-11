@@ -10,10 +10,33 @@ import time
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from daily_news_runtime import SupabaseNewsStorage
-from company_news_runtime import (PREFIX, article_id, candidate_records, pending_candidates,
-                                 source_fingerprint, valid_record, source_catalogue)
+from company_news_runtime import (PREFIX, SOURCES, ADDITIONAL_SOURCES, article_id,
+                                 candidate_records, pending_candidates, source_fingerprint,
+                                 valid_record, source_catalogue, _stamp)
 from company_news_producer import safe_company_diagnostic, safe_company_error
 from news_cache import JST
+
+
+def _publication_receipt(record, confirmed_at):
+    """Closed metadata only, called after exact review proof and a new upload."""
+    source, company = record['source'], record['company']
+    label = source.get('source')
+    # Legacy records validate a fixed symbol/host. Never copy an arbitrary
+    # unused source label or any provider metadata into this CI report.
+    if label != 'PR TIMES' and label not in ADDITIONAL_SOURCES:
+        label = SOURCES[source['symbol']][0]
+    receipt = {key: company.get(key) if key == 'published_at' else company[key]
+               for key in ('article_id', 'symbol', 'source_url',
+        'published_date', 'published_at', 'body_sha256', 'content_sha256',
+        'source_sha256', 'reviewed_at')}
+    receipt.update(source=label, publication_confirmed_at=confirmed_at,
+        reviews={provider: {key: company['reviews'][provider][key]
+                           for key in ('approved', 'content_sha256', 'source_sha256')}
+                 for provider in ('gemini', 'openai')})
+    identifier = source.get('company_id')
+    if isinstance(identifier, str) and re.fullmatch(r'[1-9][0-9]{0,8}', identifier):
+        receipt['company_id'] = identifier
+    return receipt
 
 
 def _manual_retry_source(storage, now, day, identifier, revision):
@@ -53,7 +76,8 @@ def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_new
             retry_article_id=None, retry_revision=None, diagnostics=None):
     now = clock()
     day = datetime.fromtimestamp(now, JST).date().isoformat()
-    report = {'status': 'no_new_release', 'day': day, 'published_count': 0, 'attempt_count': 0}
+    report = {'status': 'no_new_release', 'day': day, 'published_count': 0, 'attempt_count': 0,
+              'publication_receipts': []}
     manual_retry = retry_article_id is not None
     if manual_retry and (not isinstance(retry_article_id, str)
                          or not re.fullmatch(r'[0-9a-f]{64}', retry_article_id)
@@ -102,14 +126,22 @@ def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_new
             company = generator(source, now=clock(), clock=clock)
             company['valid_until'] = (date.fromisoformat(source['published_date']) + timedelta(days=7)).isoformat()
             record = {'schema': 'company-reviewed-v1', 'source': source, 'company': company}
+            catalogue = source_catalogue(storage, source)
             if datetime.fromtimestamp(clock(), JST).date().isoformat() != day or not valid_record(record, clock(),
-                    catalogue=source_catalogue(storage, source)):
+                    catalogue=catalogue):
                 raise ValueError('company_record_invalid')
             stored = storage.create(f'{PREFIX}/days/{day}/published-{slot}.json', record)
             if not stored:
                 raise ValueError('company_publication_conflict')
             report['published_count'] += 1
             report['status'] = 'published'
+            # Upload completion is observed after Storage confirms create.
+            # A date rollover/ambiguous failed write cannot become a receipt.
+            confirmed_at = clock()
+            if (_stamp(confirmed_at) and datetime.fromtimestamp(confirmed_at, JST).date().isoformat() == day
+                    and valid_record(record, confirmed_at, catalogue=catalogue)
+                    and len(report['publication_receipts']) < 3):
+                report['publication_receipts'].append(_publication_receipt(record, confirmed_at))
         except Exception as error:
             attempt_status = 'review_failed'
             report['status'] = 'review_failed' if report['published_count'] == 0 else 'partially_published'
@@ -168,6 +200,7 @@ def main(argv=None):
             or not re.fullmatch(r'[0-9a-f]{40}', os.environ.get('COMPANY_NEWS_SOURCE_REVISION', ''))):
         print(json.dumps({'status': 'retry_not_allowed', 'retry_reason': 'workflow_input_required'}))
         return 2
+    source_revision = os.environ.get('COMPANY_NEWS_SOURCE_REVISION')
     from company_news_producer import CompanyProviders, generate_company_news
     from scripts.run_private_news_job import JobDeadline, process_deadline
     diagnostics = []
@@ -191,6 +224,8 @@ def main(argv=None):
         result = {'status': 'job_deadline', 'published_count': 0}
     except Exception:
         result = {'status': 'storage_unavailable', 'published_count': 0}
+    if isinstance(source_revision, str) and re.fullmatch(r'[0-9a-f]{40}', source_revision):
+        result['source_revision'] = source_revision
     if usage_recorder is not None:
         result['api_review_cost'] = usage_recorder.safe_summary()
     result['finished_at'] = datetime.now(JST).isoformat(timespec='seconds')

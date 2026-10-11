@@ -50,6 +50,144 @@ class CompanyJobTests(unittest.TestCase):
         self.assertEqual(run_job(storage, generate, clock=lambda: NOW)['attempt_count'], 0)
         self.assertEqual(len(calls), 1)
 
+    def test_publication_receipt_observes_success_after_upload_and_contains_closed_metadata_only(self):
+        clock = [NOW]
+        class UploadStorage(MemoryStorage):
+            def create(self, path, value):
+                created = super().create(path, value)
+                if '/published-' in path and created:
+                    clock[0] += 9
+                return created
+        storage = UploadStorage()
+        src = source(); src['published_at'] = NOW - 3600
+        self.queue(storage, src)
+        def generate(src, **_):
+            company = record(src)['company']
+            company['private_draft'] = 'PRIVATE DRAFT MUST NOT BE REPORTED'
+            for review in company['reviews'].values():
+                review['raw_response'] = 'sk-PRIVATE PROVIDER RESPONSE'
+            return company
+        result = run_job(storage, generate, clock=lambda: clock[0])
+        self.assertEqual(result['published_count'], 1)
+        self.assertEqual(len(result['publication_receipts']), 1)
+        receipt = result['publication_receipts'][0]
+        saved = storage.read(f'{PREFIX}/days/2026-10-08/published-1.json')['company']
+        self.assertEqual(set(receipt), {'article_id', 'symbol', 'source', 'source_url',
+            'published_date', 'published_at', 'body_sha256', 'content_sha256', 'source_sha256',
+            'reviewed_at', 'publication_confirmed_at', 'reviews'})
+        self.assertEqual(receipt['publication_confirmed_at'], NOW + 9)
+        self.assertEqual(receipt['source'], 'NTT')
+        self.assertEqual(receipt['published_date'], '2026-10-08')
+        self.assertEqual(receipt['published_at'], NOW - 3600)
+        for key in ('article_id', 'symbol', 'source_url', 'body_sha256',
+                    'content_sha256', 'source_sha256', 'reviewed_at'):
+            self.assertEqual(receipt[key], saved[key])
+        for provider in ('gemini', 'openai'):
+            self.assertEqual(receipt['reviews'][provider], {'approved': True,
+                'content_sha256': receipt['content_sha256'], 'source_sha256': receipt['source_sha256']})
+        encoded = json.dumps(result)
+        for private in (src['body'], saved['title'], saved['business'], saved['event'], saved['outlook'],
+                        'PRIVATE DRAFT', 'PRIVATE PROVIDER', 'raw_response', 'collection_channel'):
+            self.assertNotIn(private, encoded)
+
+    def test_publication_receipt_keeps_verified_prtimes_identity_without_asserting_individual_feed_origin(self):
+        from hashlib import sha256
+        from company_news_catalogue import load_catalogue
+        from tests.test_company_news_runtime import catalogue_bound_record
+        saved, document = catalogue_bound_record()
+        document['items'][-1] = {'code': '9531', 'symbol': '9531.T', 'name': '東京瓦斯'}
+        catalogue = load_catalogue(snapshot=document, editorial_path=None, now=NOW)
+        src = saved['source']
+        body = '東京ガス株式会社は、検証専用の架空設備を開発すると発表しました。' + source()['body'] * 2
+        src.update(symbol='9531.T', name='東京瓦斯', source='PR TIMES', company_id='21766',
+            related_company='東京ガス株式会社', body=body, body_sha256=sha256(body.encode()).hexdigest(),
+            business=body[:1800], url='https://prtimes.jp/main/html/rd/p/000000001.000021766.html',
+            catalogue_facts_sha256=catalogue.facts_sha256)
+        storage = MemoryStorage()
+        storage.create(f'{PREFIX}/catalogues/{src["catalogue_facts_sha256"]}/{src["catalogue_source_sha256"]}.json', document)
+        self.queue(storage, src)
+        result = run_job(storage, lambda src, **_: record(src)['company'], clock=lambda: NOW)
+        self.assertEqual(result['published_count'], 1)
+        receipt = result['publication_receipts'][0]
+        self.assertEqual(receipt['source'], 'PR TIMES')
+        self.assertEqual(receipt['company_id'], '21766')
+        self.assertEqual(receipt['source_url'], src['url'])
+        self.assertIsNone(receipt['published_at'])
+        self.assertNotIn('collection_channel', receipt)
+        self.assertNotIn('feed_url', receipt)
+
+    def test_approved_day_only_copy_without_optional_clock_keeps_successful_receipt(self):
+        storage = MemoryStorage(); self.queue(storage, source())
+        def generate(src, **_):
+            company = record(src)['company']
+            company.pop('published_at')
+            return company
+        result = run_job(storage, generate, clock=lambda: NOW)
+        self.assertEqual(result['status'], 'published')
+        self.assertEqual(result['published_count'], 1)
+        self.assertNotIn('last_error', result)
+        self.assertEqual(len(result['publication_receipts']), 1)
+        self.assertIsNone(result['publication_receipts'][0]['published_at'])
+        saved = storage.read(f'{PREFIX}/days/2026-10-08/published-1.json')
+        self.assertNotIn('published_at', saved['company'])
+
+    def test_failed_review_conflicting_upload_and_upload_failure_have_no_publication_receipt(self):
+        for failure in ('review', 'mismatched_copy', 'conflict', 'upload'):
+            with self.subTest(failure=failure):
+                class FailStorage(MemoryStorage):
+                    def create(self, path, value):
+                        if '/published-' in path:
+                            if failure == 'conflict':
+                                return False
+                            if failure == 'upload':
+                                raise RuntimeError('sk-PRIVATE STORAGE ERROR')
+                        return super().create(path, value)
+                storage = FailStorage(); self.queue(storage, source())
+                def generate(src, **_):
+                    if failure == 'review':
+                        raise RuntimeError('sk-PRIVATE REVIEW ERROR')
+                    company = record(src)['company']
+                    if failure == 'mismatched_copy':
+                        company['event'] += '審査されていない変更です。'
+                    return company
+                result = run_job(storage, generate, clock=lambda: NOW)
+                self.assertEqual(result['published_count'], 0)
+                self.assertEqual(result['publication_receipts'], [])
+                self.assertNotIn('sk-PRIVATE', json.dumps(result))
+
+    def test_day_rollover_before_or_during_upload_cannot_produce_a_confirmation_receipt(self):
+        for during_upload in (False, True):
+            with self.subTest(during_upload=during_upload):
+                clock = [NOW]
+                class MidnightStorage(MemoryStorage):
+                    def create(self, path, value):
+                        created = super().create(path, value)
+                        if '/published-' in path and created and during_upload:
+                            clock[0] = NOW + 13 * 3600  # next JST day, after create
+                        return created
+                storage = MidnightStorage(); self.queue(storage, source())
+                def generate(src, **_):
+                    if not during_upload:
+                        clock[0] = NOW + 13 * 3600
+                    return record(src)['company']
+                result = run_job(storage, generate, clock=lambda: clock[0])
+                self.assertEqual(result['publication_receipts'], [])
+                self.assertEqual(result['published_count'], 1 if during_upload else 0)
+
+    def test_partial_publication_receipts_cover_only_successful_independent_copies(self):
+        storage = MemoryStorage()
+        for symbol in ('9432.T', '9433.T', '6752.T'):
+            self.queue(storage, source(symbol))
+        def generate(src, **_):
+            if src['symbol'] == '9433.T':
+                raise RuntimeError('sk-PRIVATE REJECTION')
+            return record(src)['company']
+        result = run_job(storage, generate, clock=lambda: NOW)
+        self.assertEqual(result['published_count'], 2)
+        self.assertEqual(result['attempt_count'], 3)
+        self.assertEqual({item['symbol'] for item in result['publication_receipts']}, {'9432.T', '6752.T'})
+        self.assertNotIn(article_id(source('9433.T')), json.dumps(result))
+
     def test_failure_uses_one_slot_and_is_not_rebilled_later(self):
         storage, calls = MemoryStorage(), []
         self.queue(storage, source())
@@ -238,11 +376,40 @@ class CompanyJobTests(unittest.TestCase):
             self.assertEqual(main(['--run-live']), 0)
             self.assertIsNone(job.call_args.kwargs['retry_article_id'])
 
+    def test_cli_fixed_result_reports_only_valid_source_revision_not_arbitrary_environment(self):
+        valid = 'a' * 40
+        for revision in (valid, None, '', 'A' * 40, 'a' * 41, 'a' * 64, 'sk-PRIVATE VERSION INPUT'):
+            with self.subTest(revision=revision), tempfile.TemporaryDirectory() as temp:
+                environment = {'SUPABASE_KEY': 'sk-PRIVATE STORAGE CREDENTIAL',
+                               'UNRELATED_SETTING': 'PRIVATE ENV VALUE'}
+                if revision is not None:
+                    environment['COMPANY_NEWS_SOURCE_REVISION'] = revision
+                payload = {'status': 'no_new_release', 'day': '2026-10-08', 'published_count': 0,
+                           'attempt_count': 0, 'publication_receipts': []}
+                path = Path(temp) / 'result.json'
+                with patch.dict(os.environ, environment, clear=True), \
+                        patch('scripts.run_company_news_job.SupabaseNewsStorage'), \
+                        patch('scripts.run_company_news_job.published_economy_context', return_value=([], [])), \
+                        patch('scripts.run_company_news_job.run_job', side_effect=lambda *_, **__: deepcopy(payload)), \
+                        redirect_stdout(io.StringIO()) as output:
+                    self.assertEqual(main(['--run-live', '--result-file', str(path)]), 0)
+                result = json.loads(output.getvalue())
+                self.assertEqual(json.loads(path.read_text()), result)
+                if revision == valid:
+                    self.assertEqual(result['source_revision'], valid)
+                else:
+                    self.assertNotIn('source_revision', result)
+                for private in ('sk-PRIVATE', 'PRIVATE ENV VALUE', 'SUPABASE_KEY', 'UNRELATED_SETTING'):
+                    self.assertNotIn(private, output.getvalue())
+
     def test_daily_limit_counts_failures_and_successes_without_unlimited_retries(self):
         storage, calls = MemoryStorage(), []
         for symbol in ('9432.T', '9433.T', '6752.T'): self.queue(storage, source(symbol))
         def generate(src, **_): calls.append(src); return record(src)['company']
-        self.assertEqual(run_job(storage, generate, clock=lambda: NOW)['attempt_count'], 3)
+        result = run_job(storage, generate, clock=lambda: NOW)
+        self.assertEqual(result['attempt_count'], 3)
+        self.assertEqual(result['published_count'], 3)
+        self.assertEqual(len(result['publication_receipts']), 3)
         self.queue(storage, source(suffix='b'))
         self.assertEqual(run_job(storage, generate, clock=lambda: NOW)['attempt_count'], 0)
         self.assertEqual(len(calls), 3)
@@ -253,6 +420,7 @@ class CompanyJobTests(unittest.TestCase):
             company = record(src)['company']; company['title'] += '成功'; return company
         result = run_job(storage, mismatched, clock=lambda: NOW)
         self.assertEqual(result['published_count'], 0)
+        self.assertEqual(result['publication_receipts'], [])
         self.assertIsNone(storage.read(f'{PREFIX}/days/2026-10-08/published-1.json'))
 
     def test_same_article_as_economy_section_has_no_writer_or_review_cost(self):
