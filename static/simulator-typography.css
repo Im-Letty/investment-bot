@@ -1,0 +1,110 @@
+/* Keep labels and numbers readable without the former heavy display weights. */
+body {
+  --sim-font: -apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN",
+    "Yu Gothic", "Noto Sans JP", sans-serif;
+  font-family: var(--sim-font);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.65;
+}
+
+body :is(button, input, select, .mp-name, .info-value, .metric .mval) {
+  font-family: var(--sim-font);
+}
+
+body :is(h1, .section-title, .mp-section-title, .mp-name, .mp-stock-name,
+  .info-value, .mp-card-value, .ke-amount, .btn, .btn-apply, .btn-add,
+  .sim-analysis-title, .sim-analysis-value, #mp-progress-pct) {
+  font-weight: 500 !important;
+}
+
+body h1 {
+  font-size: 20px;
+  line-height: 1.5;
+}
+
+body .tab {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.5;
+  padding-inline: 6px;
+}
+
+body .tab.active {
+  font-weight: 500;
+}
+
+body .row {
+  grid-template-columns: 84px minmax(0, 1fr) 86px;
+}
+
+body :is(.row label, .metric .mlabel, .info-label, .mp-updated) {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+}
+
+body .row label {
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+
+body :is(.reg-label, .form-label, .unit) {
+  font-weight: 400;
+}
+
+body .val-input {
+  width: 100%;
+  max-width: 86px;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+}
+
+body .val-input:is(.rate, .years) {
+  max-width: 52px;
+}
+
+body :is(.reg-input, .form-input) {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+body .metric .mval {
+  font-size: clamp(18px, 4.8vw, 20px);
+  font-weight: 500;
+  line-height: 1.5;
+  letter-spacing: normal;
+  font-variant-numeric: tabular-nums;
+}
+
+body .sim-analysis {
+  font-size: 14px !important;
+  line-height: 1.8 !important;
+}
+
+body .sim-analysis-checks {
+  font-size: 13px !important;
+  line-height: 1.8;
+}
+
+@media (max-width: 400px) {
+  body .tab {
+    font-size: 12px;
+    padding-inline: 3px;
+  }
+
+  body .card {
+    padding: 16px;
+  }
+
+  body .result-grid {
+    gap: 6px;
+  }
+
+  body .metric {
+    padding: 12px 6px;
+  }
+}

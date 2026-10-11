@@ -631,6 +631,7 @@ function makeChart(id,labels,p,tot){
   // Numeric calculations and inputs remain usable while the graph library loads.
   if(typeof window.Chart!=='function')return null;
   const ctx=document.getElementById(id);if(!ctx)return null;
+  const chartFont='-apple-system, BlinkMacSystemFont, "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans JP", sans-serif';
   const t=T[window.currentLang];
   return new Chart(ctx,{type:'line',data:{labels,datasets:[
     {label:t.p_label,data:p,borderColor:'#a5d6a7',backgroundColor:'rgba(165,214,167,0.15)',borderWidth:2,pointRadius:0,pointHoverRadius:5,fill:true,tension:0.3},
@@ -639,13 +640,13 @@ function makeChart(id,labels,p,tot){
     animation:{duration:700,easing:'easeInOutQuart'},
     interaction:{mode:'index',intersect:false},
     plugins:{
-      legend:{display:true,position:'bottom',labels:{font:{size:12},boxWidth:12,padding:12,color:'#5a8a5c'}},
+      legend:{display:true,position:'bottom',labels:{font:{family:chartFont,size:12,weight:'400'},boxWidth:12,padding:12,color:'#5a8a5c'}},
       tooltip:{
         mode:'index',intersect:false,
         backgroundColor:'rgba(6,20,8,0.9)',
         borderColor:'rgba(30,92,32,0.5)',borderWidth:1,
-        titleFont:{family:'Outfit',size:14,weight:'700'},
-        bodyFont:{size:12},
+        titleFont:{family:chartFont,size:14,weight:'500'},
+        bodyFont:{family:chartFont,size:13,weight:'400'},
         padding:14,cornerRadius:6,
         titleColor:'#4dbb52',bodyColor:'#c8e8c8',
         callbacks:{
@@ -655,8 +656,8 @@ function makeChart(id,labels,p,tot){
       }
     },
     scales:{
-      x:{ticks:{font:{size:11},color:'#888',autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}},
-      y:{ticks:{font:{size:11},color:'#888',callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
+      x:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}},
+      y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
     }}});
 }
 
@@ -1093,6 +1094,8 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   setInterval(update, 400);
 })();
 </script>
+
+<link rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type1">
 
 </body>
 </html>
