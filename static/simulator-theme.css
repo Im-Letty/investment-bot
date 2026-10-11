@@ -1,6 +1,6 @@
-/* Neutral surfaces keep numbers readable; the selected color is an accent. */
+/* A faint themed backdrop surrounds neutral reading surfaces. */
 :root {
-  --sim-bg: #f6f5f1;
+  --sim-bg: #f2f3ef;
   --sim-paper: #fffefb;
   --sim-ink: #303638;
   --sim-muted: #626966;

@@ -1,4 +1,4 @@
-/* Keep simulator surfaces neutral; share the morning letter's selected accent. */
+/* Lightly tint the backdrop; keep reading surfaces neutral. */
 (function () {
   'use strict';
   var names = ['bg', 'paper', 'ink', 'muted', 'line', 'button', 'chip'];
@@ -33,9 +33,10 @@
   function fallbackPalette() {
     var result=Object.assign({},defaults), brand, custom;
     try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1'||(brand&&brand!=='#3da060');} catch (_) {}
-    if(custom && /^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
+    if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
       brand=normalize(brand,'#3da060');
-      result.button=mix(brand,'#4c6150',.45);
+      result.tint=brand;
+      if(custom) result.button=mix(brand,'#4c6150',.45);
     }
     return result;
   }
@@ -50,6 +51,8 @@
         }
       }
     } catch (_) {}
+    // Tint only the backdrop before adjusting control/chart contrast.
+    result.bg=mix(result.tint||result.button,result.paper,.08);
     // A very light selected color still needs a visible control/chart outline.
     for(var step=0;contrast(result.button,result.paper)<3.5 && step<12;step++)
       result.button=mix(result.button,'#303638',.85);
