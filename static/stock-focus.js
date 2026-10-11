@@ -29,7 +29,7 @@
     const item=normalizeItem(raw);
     if(!item)return '<div class="sf-quote"><span class="sf-quote-date">株価を確認できませんでした</span></div>';
     const delta=item.change_value,sign=delta>0?'+':delta<0?'−':'',direction=delta>0?'up':delta<0?'down':'flat',unit=item.currency==='JPY'?'円':item.currency==='USD'?'米ドル':escape(item.currency);
-    const dateMarkup=showDate&&priceTime(item)?'<span class="sf-quote-date">'+escape(priceTime(item))+'</span>':'';
+    const dateMarkup=showDate&&priceTime(item)?'<span class="sf-quote-date sf-price-time">'+escape(priceTime(item))+'</span>':'';
     return '<div class="sf-quote"><span class="sf-price">'+amount(item.price)+'<small>'+unit+'</small></span><span class="sf-change sf-'+direction+'">'+sign+amount(delta)+unit+' <span>（'+sign+Math.abs(item.pct).toFixed(2)+'%）</span></span>'+dateMarkup+'</div>';
   }
   function tradeDates(items){
@@ -55,7 +55,7 @@
     if(!finite(item.price)||item.price<=0)return '<div class="sf-watch-row"><div class="sf-stock-name">'+companyName(symbol,item.name)+'</div><span class="sf-quote-date">株価を確認できませんでした</span>'+facts+'</div>';
     const currency=item.currency||(symbol.endsWith('.T')?'JPY':''),unit=({JPY:'円',USD:'米ドル',EUR:'ユーロ',GBP:'英ポンド'})[currency]||currency;
     const change=typeof formatChange==='function'?formatChange(item,{symbol,currency},'ja'):{amount:'',percent:'',direction:'flat'};
-    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+(priceTime(item)?'<span class="sf-quote-date">'+escape(priceTime(item))+'</span>':'')+'</div>'+facts+'</div>';
+    return '<div class="sf-watch-row"><div class="sf-stock-name" title="'+escape(symbol)+'">'+companyName(symbol,item.name)+'</div><div class="sf-quote"><span class="sf-price">'+item.price.toLocaleString('ja-JP',{maximumSignificantDigits:15})+'<small>'+escape(unit)+'</small></span>'+(change.amount||change.percent?'<span class="sf-change sf-'+change.direction+'">'+escape(change.amount)+(change.percent?' <span>（'+escape(change.percent)+'）</span>':'')+'</span>':'')+(priceTime(item)?'<span class="sf-quote-date sf-price-time">'+escape(priceTime(item))+'</span>':'')+'</div>'+facts+'</div>';
   }
   const METRICS={pct:'値上がり率・値下がり率',amount:'値上がり額・値下がり額',volume:'出来高'};
   const MARKETS={all:'全市場',prime:'プライム',standard:'スタンダード',growth:'グロース'};

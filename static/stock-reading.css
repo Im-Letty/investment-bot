@@ -1,4 +1,6 @@
 /* Readable stock typography; preserve the selected font, palette and user scale. */
+/* Stock lists omit quote timestamps; retain separate loading and error messages. */
+#knTabWrap :is(.sf-price-time,.sf-meta-date,.div-price-time,.dc-price-time){display:none!important}
 body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs{grid-template-columns:minmax(0,1fr)!important}
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab],
 body.kn-home-a #knTabWrap #knSubRow button,
