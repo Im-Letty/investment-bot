@@ -92,6 +92,9 @@
     });
     var message=document.getElementById('tkMsg');if(message)message.setAttribute('aria-live','polite');
   }
+  // Talk is built on the first click. Prepare it in that same event so the
+  // shared 300 ms observer throttle cannot expose the legacy layout first.
+  window.knPrepareTalkScreen=hydrate;
   // KN_MO_THROTTLE can provide empty records, so inspect the current screen.
   var structureObserver=new MutationObserver(hydrate);
   structureObserver.observe(document.body,{childList:true});
