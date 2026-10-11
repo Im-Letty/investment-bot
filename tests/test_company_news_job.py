@@ -359,6 +359,7 @@ class CompanyJobTests(unittest.TestCase):
                 code = main(['--run-live', '--retry-article-id', identifier])
             self.assertEqual(code, 2)
             self.assertEqual(json.loads(output.getvalue())['retry_reason'], 'workflow_input_required')
+            self.assertEqual(json.loads(output.getvalue())['processing_kind'], 'manual_retry')
             storage.assert_not_called()
 
     def test_manual_workflow_input_is_passed_once_and_default_broker_has_no_retry(self):
@@ -369,11 +370,14 @@ class CompanyJobTests(unittest.TestCase):
                 patch('scripts.run_company_news_job.SupabaseNewsStorage'), \
                 patch('scripts.run_company_news_job.published_economy_context', return_value=([], [])), \
                 patch('scripts.run_company_news_job.run_job', return_value={'status': 'no_new_release'}) as job, \
-                redirect_stdout(io.StringIO()):
+                redirect_stdout(io.StringIO()) as output:
             self.assertEqual(main(['--run-live', '--retry-article-id', identifier]), 0)
+            self.assertEqual(json.loads(output.getvalue())['processing_kind'], 'manual_retry')
             self.assertEqual(job.call_args.kwargs['retry_article_id'], identifier)
             self.assertEqual(job.call_args.kwargs['retry_revision'], 'a' * 40)
+            output.seek(0); output.truncate(0)
             self.assertEqual(main(['--run-live']), 0)
+            self.assertEqual(json.loads(output.getvalue())['processing_kind'], 'normal')
             self.assertIsNone(job.call_args.kwargs['retry_article_id'])
 
     def test_cli_fixed_result_reports_only_valid_source_revision_not_arbitrary_environment(self):
@@ -395,6 +399,7 @@ class CompanyJobTests(unittest.TestCase):
                     self.assertEqual(main(['--run-live', '--result-file', str(path)]), 0)
                 result = json.loads(output.getvalue())
                 self.assertEqual(json.loads(path.read_text()), result)
+                self.assertEqual(result['processing_kind'], 'normal')
                 if revision == valid:
                     self.assertEqual(result['source_revision'], valid)
                 else:
@@ -478,6 +483,7 @@ class CompanyJobTests(unittest.TestCase):
         self.assertEqual(code, 1)
         result = json.loads(output.getvalue())
         self.assertEqual(result['status'], 'storage_unavailable')
+        self.assertEqual(result['processing_kind'], 'normal')
         self.assertEqual(result['published_count'], 0)
         self.assertNotIn('sk-private', output.getvalue())
         generate.assert_not_called()
@@ -491,6 +497,7 @@ class CompanyJobTests(unittest.TestCase):
             code = main(['--run-live'])
         self.assertEqual(code, 1)
         self.assertEqual(json.loads(output.getvalue())['status'], 'job_deadline')
+        self.assertEqual(json.loads(output.getvalue())['processing_kind'], 'normal')
         storage.assert_not_called(); generate.assert_not_called()
 
 

@@ -190,15 +190,17 @@ def main(argv=None):
     parser.add_argument('--result-file')
     parser.add_argument('--retry-article-id')
     args = parser.parse_args(argv)
+    processing_kind = 'manual_retry' if args.retry_article_id is not None else 'normal'
     if not args.run_live:
-        print(json.dumps({'status': 'explicit_live_opt_in_required'}))
+        print(json.dumps({'status': 'explicit_live_opt_in_required', 'processing_kind': processing_kind}))
         return 2
     if args.retry_article_id is not None and (
             os.environ.get('GITHUB_EVENT_NAME') != 'workflow_dispatch'
             or os.environ.get('COMPANY_MANUAL_RETRY_ARTICLE_ID') != args.retry_article_id
             or not re.fullmatch(r'[0-9a-f]{64}', args.retry_article_id)
             or not re.fullmatch(r'[0-9a-f]{40}', os.environ.get('COMPANY_NEWS_SOURCE_REVISION', ''))):
-        print(json.dumps({'status': 'retry_not_allowed', 'retry_reason': 'workflow_input_required'}))
+        print(json.dumps({'status': 'retry_not_allowed', 'retry_reason': 'workflow_input_required',
+                          'processing_kind': processing_kind}))
         return 2
     source_revision = os.environ.get('COMPANY_NEWS_SOURCE_REVISION')
     from company_news_producer import CompanyProviders, generate_company_news
@@ -224,6 +226,7 @@ def main(argv=None):
         result = {'status': 'job_deadline', 'published_count': 0}
     except Exception:
         result = {'status': 'storage_unavailable', 'published_count': 0}
+    result['processing_kind'] = processing_kind
     if isinstance(source_revision, str) and re.fullmatch(r'[0-9a-f]{40}', source_revision):
         result['source_revision'] = source_revision
     if usage_recorder is not None:
