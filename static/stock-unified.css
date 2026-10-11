@@ -1,4 +1,4 @@
-/* Selected F: a side menu on wide panels, with the same controls on every view. */
+/* Use the mobile stock layout at every width, with the same controls on every view. */
 body.kn-home-a #morning-section {scrollbar-gutter:stable}
 body.kn-home-a #morning-section #knTabWrap {
   --kn-stock-radius:7px;
@@ -124,19 +124,6 @@ body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-manage {
 body.kn-home-a #morning-section #knTabWrap #knDivSubRow button:focus-visible {
   outline:2px solid var(--kn-a-button);outline-offset:3px;
 }
-@container home-stock (min-width:651px) {
-  body.kn-home-a #morning-section #knTabWrap .kn-stock-layout {display:grid;grid-template-columns:160px minmax(0,1fr);gap:28px;align-items:start}
-  body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs {
-    grid-template-columns:minmax(0,1fr)!important;
-    gap:6px!important;margin:0!important;
-    padding-right:17px!important;border-right:1px solid var(--kn-a-line)!important;
-    min-height:200px;
-    align-content:start;
-  }
-  body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs :is([data-kn-tab="stock"],[data-kn-tab="favorites"]) {text-align:left;justify-content:flex-start;border:0!important}
-  body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {border-left:2px solid var(--kn-a-button)!important;box-shadow:none!important}
-  body.kn-home-a #morning-section #knTabWrap:is([data-stock-main="div_top"],[data-stock-main="div_cal"],[data-stock-main="div_search"]) .kn-stock-layout {grid-template-columns:minmax(0,1fr)}
-}
 /* Keep the month above its agenda, even when the wider content exceeds 820px. */
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar {display:block;max-width:none}
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-layout {grid-template-columns:minmax(0,1fr);gap:14px}
@@ -144,14 +131,13 @@ body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-calendar-pane
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-agenda-panel {padding-left:0;border-left:0}
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-grid {min-height:calc(264px * var(--kn-a-scale,1) + 15px)}
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-day {max-width:calc(44px * var(--kn-a-scale,1))}
-@container stock-content (max-width:440px) {
-  body.kn-home-a #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
-  body.kn-home-a #morning-section #knTabWrap .sf-row .sf-quote {grid-column:2;grid-row:2}
-  body.kn-home-a #morning-section #knTabWrap .sf-watch-row {grid-template-columns:minmax(0,1fr);gap:6px}
-  body.kn-home-a #morning-section #knTabWrap .sf-watch-row .sf-quote {align-items:flex-start;text-align:left}
-  body.kn-home-a #morning-section #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr);gap:6px 10px}
-  body.kn-home-a #morning-section #knTabWrap .dividend-list .dividend-row-values {grid-column:2;text-align:left}
-}
+/* Company names stay above their figures, as in the mobile lists. */
+body.kn-home-a #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
+body.kn-home-a #morning-section #knTabWrap .sf-row .sf-quote {grid-column:2;grid-row:2}
+body.kn-home-a #morning-section #knTabWrap .sf-watch-row {grid-template-columns:minmax(0,1fr);gap:6px}
+body.kn-home-a #morning-section #knTabWrap .sf-watch-row .sf-quote {align-items:flex-start;text-align:left}
+body.kn-home-a #morning-section #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr);gap:6px 10px}
+body.kn-home-a #morning-section #knTabWrap .dividend-list .dividend-row-values {grid-column:2;text-align:left}
 @container home-stock (max-width:440px) {
   body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs :is([data-kn-tab="stock"],[data-kn-tab="favorites"]) {padding-inline:6px!important}
   body.kn-home-a #morning-section #knTabWrap #knDivSubRow button,
