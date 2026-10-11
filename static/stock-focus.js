@@ -134,7 +134,11 @@
     const more=!expanded&&allStories.length>stories.length?'<button class="sf-more" type="button" data-company-more aria-controls="sf-company-list">もっと見る</button>':'';
     const close=expanded?'<button class="sf-more" type="button" data-company-close aria-controls="sf-company-list">閉じる</button>':'';
     const controls=more||close?'<div class="sf-story-controls">'+more+close+'</div>':'';
-    return '<div class="sf-content"><section class="sf-stories" aria-label="企業ニュース">'+(stories.length?'<div class="sf-companies" id="sf-company-list">'+cards+'</div>'+controls+(status==='error'?'<p class="sf-meta" role="status">更新を確認できませんでした。'+retry+'</p>':''):'<p class="sf-state">'+(status==='error'?'企業の発表を確認できませんでした。'+retry:'新しい企業の発表を確認しています。')+'</p>')+'</section></div>';
+    const empty=status==='error'?'企業の発表を確認できませんでした。'+retry
+      :status==='loading'?'新しい企業の発表を確認しています。'
+      :editorial&&editorial.display_state==='review_pending'?'新しい企業の発表を確認しました。記事の確認が終わり次第、掲載します。'
+      :'掲載できる新しい企業ニュースはまだありません。'+(editorial&&editorial.collection_health==='partial'?'一部の発表元を確認できていません。':'');
+    return '<div class="sf-content"><section class="sf-stories" aria-label="企業ニュース">'+(stories.length?'<div class="sf-companies" id="sf-company-list">'+cards+'</div>'+controls+(status==='error'?'<p class="sf-meta" role="status">更新を確認できませんでした。'+retry+'</p>':''):'<p class="sf-state" role="status">'+empty+'</p>')+'</section></div>';
   }
   function selectRanking(container,direction){
     if(!['up','down'].includes(direction))return;

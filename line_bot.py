@@ -87,7 +87,7 @@ _daily_news = start_daily_news(
 def ensure_daily_news_worker():
     # Start in the serving process, not in a preloaded Gunicorn master. The
     # external morning wake/check also enters here when no visitor is present.
-    if request.endpoint != "api_private_news_release_test":
+    if request.endpoint not in ("api_private_news_release_test", "api_company_news_observation"):
         _daily_news.start()
 
 
@@ -2257,7 +2257,7 @@ _stock_search = StockSearch(runtime_path=os.environ.get("STOCK_CATALOGUE_PATH", 
 @app.before_request
 def _ensure_stock_catalogue_worker():
     # Gunicorn preloads the module before forking: start the updater in workers.
-    if request.endpoint != "api_private_news_release_test":
+    if request.endpoint not in ("api_private_news_release_test", "api_company_news_observation"):
         _stock_search.ensure_refresh_worker()
 
 
@@ -2355,7 +2355,7 @@ _company_news = CompanyNewsRuntime(CompanyNewsStorage(SUPABASE_URL, SUPABASE_KEY
 
 @app.before_request
 def ensure_company_news_worker():
-    if (request.endpoint != 'api_private_news_release_test'
+    if (request.endpoint not in ('api_private_news_release_test', 'api_company_news_observation')
             and os.environ.get('COMPANY_NEWS_ENABLED', '1') != '0'):
         _company_news.start()
 
@@ -2373,6 +2373,16 @@ def api_company_news_status():
     # Fixed operational counters/hash; no raw source bodies or credentials.
     response = jsonify(_company_news.operational_snapshot())
     response.headers['Cache-Control'] = 'no-store'
+    return response
+
+
+@app.route('/api/company-news-observation', methods=['GET'])
+def api_company_news_observation():
+    # Passive process-memory counters only. Every before_request worker excludes
+    # this endpoint, so an observation cannot wake collection, AI or publication.
+    response = jsonify(_company_news.publication_observation())
+    response.headers['Cache-Control'] = 'no-store'
+    response.headers['X-Robots-Tag'] = 'noindex, nofollow'
     return response
 
 
@@ -2878,7 +2888,7 @@ register_dividend_calendar(app, _dividend_calendar)
 def _ensure_dividend_warmer():
     # Starts inside the serving worker, never in Gunicorn's preload master.
     # The first home request can prepare the section without blocking its HTML.
-    if request.endpoint != "api_private_news_release_test":
+    if request.endpoint not in ("api_private_news_release_test", "api_company_news_observation"):
         _dividend_snapshot.ensure_refresh()
 
 

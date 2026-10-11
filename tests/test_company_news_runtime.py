@@ -46,6 +46,30 @@ def record(src=None):
     return {'schema': 'company-reviewed-v1', 'source': src, 'company': company}
 
 
+def catalogue_bound_record():
+    """Fictional copy plus an offline dated membership proof for a new route."""
+    from company_news_additional import SOURCES as additional
+    from company_news_catalogue import load_catalogue, SOURCE_URL, COMPONENT_URL
+    cfg = additional['トヨタ自動車']
+    rows = [{'code': str(code), 'symbol': str(code) + '.T', 'name': f'架空検証会社{code}'}
+            for code in range(1000, 1224)]
+    rows.append({'code': cfg['symbol'][:-2], 'symbol': cfg['symbol'], 'name': cfg['name']})
+    document = {'schema_version': 1, 'index': 'nikkei225', 'as_of': '2026-10-08',
+        'retrieved_at': '2026-10-08T10:00:00+09:00', 'items': rows,
+        'source': {'url': SOURCE_URL, 'component_url': COMPONENT_URL, 'sha256': 'a' * 64}}
+    catalogue = load_catalogue(snapshot=document, editorial_path=None, now=NOW)
+    src = source()
+    body = cfg['actors'][0] + 'は、検証専用の架空設備を開発すると発表しました。' + src['body'] * 2
+    src.update(symbol=cfg['symbol'], name=cfg['name'], source='トヨタ自動車',
+        url='https://global.toyota/jp/newsroom/corporate/44911302.html', body=body,
+        body_sha256=sha256(body.encode()).hexdigest(), business=body[:1800],
+        business_url='https://global.toyota/jp/newsroom/corporate/44911302.html',
+        related_company=cfg['actors'][0], business_context_mode='announcement_only',
+        catalogue_as_of='2026-10-08', catalogue_facts_sha256=catalogue.facts_sha256,
+        catalogue_source_sha256='a' * 64)
+    return record(src), document
+
+
 class MemoryStorage:
     def __init__(self):
         self.values, self.lock = {}, threading.Lock()
@@ -177,7 +201,8 @@ class CompanyRuntimeTests(unittest.TestCase):
                 self.assertEqual(result['last_error_code'], expected_code)
                 self.assertNotIn('sk-private', json.dumps(result))
                 if failure == 'publication':
-                    self.assertEqual(result['source_diagnostics'], self.diagnostics())
+                    self.assertTrue(all(row['feed_status'] == 'not_completed'
+                                        for row in result['source_diagnostics'].values()))
 
     def test_company_collector_wrapper_distinguishes_partial_feed_coverage_without_blocking_verified_news(self):
         import company_news_sources
@@ -268,6 +293,89 @@ class CompanyRuntimeTests(unittest.TestCase):
             clock[0] += 60; runtime.run_once(); self.assertEqual(runtime.snapshot()['status'], 'error')
             storage.read = lambda _: (_ for _ in ()).throw(RuntimeError('sensitive'))
             runtime.run_once(); self.assertEqual(len(runtime.snapshot()['companies']), 1)
+
+    def test_cold_reader_restores_reviewed_copy_before_source_or_queue_failure(self):
+        from company_news_runtime import StorageUnavailable
+        for failure in ('source', 'queue'):
+            with self.subTest(failure=failure), tempfile.TemporaryDirectory() as temp:
+                storage = MemoryStorage()
+                storage.create(f'{PREFIX}/days/2026-10-08/published-1.json', record())
+                def collect(**_):
+                    raise RuntimeError('private network failure')
+                if failure == 'queue':
+                    def fail_list(_):
+                        raise StorageUnavailable('storage_list')
+                    storage._list = fail_list
+                runtime = CompanyNewsRuntime(storage, collector=collect, clock=lambda: NOW,
+                    cache_path=temp + '/cache.json')
+                runtime.run_once()
+                result = runtime.snapshot()
+                self.assertEqual(len(result['companies']), 1)
+                self.assertEqual(result['companies'][0]['published_date'], '2026-10-08')
+                self.assertEqual(result['status'], 'error')
+                self.assertEqual(result['display_state'], 'available')
+                self.assertEqual(result['publication_checked_at'], NOW)
+
+    def test_reviewed_publication_is_visible_while_slow_collection_runs(self):
+        storage = MemoryStorage()
+        storage.create(f'{PREFIX}/days/2026-10-08/published-1.json', record())
+        observed = []
+        with tempfile.TemporaryDirectory() as temp:
+            def collect(**_):
+                observed.append(runtime.snapshot())
+                return {'status': 'source_empty', 'articles': []}
+            runtime = CompanyNewsRuntime(storage, collector=collect, clock=lambda: NOW,
+                cache_path=temp + '/cache.json')
+            runtime.run_once()
+        self.assertEqual(len(observed[0]['companies']), 1)
+        self.assertEqual(observed[0]['status'], 'refreshing')
+
+    def test_new_route_review_proof_and_dated_catalogue_survive_offline_reader_restart(self):
+        saved, document = catalogue_bound_record()
+        storage = MemoryStorage()
+        src = saved['source']
+        path = f'{PREFIX}/catalogues/{src["catalogue_facts_sha256"]}/{src["catalogue_source_sha256"]}.json'
+        storage.create(path, document)
+        storage.create(f'{PREFIX}/days/2026-10-08/published-1.json', saved)
+        with tempfile.TemporaryDirectory() as temp:
+            cache_path = temp + '/cache.json'
+            runtime = CompanyNewsRuntime(storage, collector=lambda **_: {'status': 'source_empty', 'articles': []},
+                clock=lambda: NOW, cache_path=cache_path)
+            runtime.run_once()
+            self.assertEqual(len(runtime.snapshot()['companies']), 1)
+            cached = json.loads(Path(cache_path).read_text())
+            self.assertEqual(cached['schema'], 'company-news-cache-v2')
+            self.assertEqual(cached['catalogues'], [document])
+            offline = CountingStorage()
+            def fail_read(_):
+                raise AssertionError('A public snapshot must not fetch Storage')
+            offline.read = fail_read
+            restored = CompanyNewsRuntime(offline, clock=lambda: NOW, cache_path=cache_path)
+            self.assertEqual(len(restored.snapshot()['companies']), 1)
+            observation = restored.publication_observation()
+            self.assertEqual(observation['valid_reviewed_count'], 1)
+            self.assertEqual(observation['catalogue_required_record_count'], 1)
+            self.assertFalse(observation['worker_alive'])
+            self.assertNotIn('body', json.dumps(observation))
+            self.assertNotIn('source_url', json.dumps(observation))
+            expired = CompanyNewsRuntime(offline, clock=lambda: NOW + 8 * 86400, cache_path=cache_path)
+            self.assertEqual(expired.snapshot()['companies'], [])
+            cached['catalogues'][0]['items'][-1]['name'] = '別の会社'
+            Path(cache_path).write_text(json.dumps(cached))
+            uncached = CountingStorage(); uncached.read = fail_read
+            damaged = CompanyNewsRuntime(uncached, clock=lambda: NOW, cache_path=cache_path)
+            self.assertEqual(damaged.snapshot()['companies'], [])
+
+    def test_ready_empty_and_pending_are_not_permanent_loading_states(self):
+        storage = MemoryStorage()
+        with tempfile.TemporaryDirectory() as temp:
+            runtime = CompanyNewsRuntime(storage, collector=lambda **_: {'status': 'source_empty', 'articles': []},
+                clock=lambda: NOW, cache_path=temp + '/cache.json')
+            self.assertEqual(runtime.snapshot()['display_state'], 'loading')
+            runtime.run_once()
+            self.assertEqual(runtime.snapshot()['display_state'], 'no_recent_articles')
+            runtime._pending = [source()]
+            self.assertEqual(runtime.snapshot()['display_state'], 'review_pending')
 
     def test_minute_checks_only_missing_current_slots_and_cached_candidate_claims(self):
         storage, clock = CountingStorage(), [NOW]

@@ -90,7 +90,7 @@ def _catalogue_path(facts_digest, source_digest):
     return f'{PREFIX}/catalogues/{facts_digest}/{source_digest}.json'
 
 
-def source_catalogue(storage, source, *, deadline=None):
+def source_catalogue(storage, source, *, deadline=None, cache_only=False):
     """One immutable membership snapshot per source generation, no body/index weights."""
     digest = source.get('catalogue_facts_sha256') if isinstance(source, dict) else None
     source_digest = source.get('catalogue_source_sha256') if isinstance(source, dict) else None
@@ -103,6 +103,8 @@ def source_catalogue(storage, source, *, deadline=None):
     cache_key = (digest, source_digest)
     document = cache.get(cache_key)
     if document is None:
+        if cache_only:
+            return None
         if deadline is not None:
             _candidate_time(deadline)
         document = storage.read(_catalogue_path(digest, source_digest))
@@ -240,9 +242,11 @@ def valid_record(record, now, *, catalogue=None):
     return company.get('valid_until') == until
 
 
-def public_snapshot(records, now, status='ready', checked_at=None, *, storage=None):
+def public_snapshot(records, now, status='ready', checked_at=None, *, storage=None,
+                    catalogues_cached_only=False):
     valid = [item['company'] for item in records if valid_record(item, now,
-                catalogue=source_catalogue(storage, item.get('source')) if storage else None)
+                catalogue=source_catalogue(storage, item.get('source'),
+                    cache_only=catalogues_cached_only) if storage else None)
              and item['company']['valid_until'] >= datetime.fromtimestamp(now, JST).date().isoformat()]
     valid.sort(key=lambda item: (item['published_date'], item.get('published_at') or 0,
                                 item['reviewed_at']), reverse=True)
@@ -415,10 +419,32 @@ class CompanyNewsRuntime:
         self._last_error_phase, self._last_error_code = None, None
         self._last_restore, self._restore_day = 0, None
         self._candidate_check, self._candidate_day = 0, None
+        self._publication_checked = None
         try:
             raw = json.loads(self.cache_path.read_text())
-            if isinstance(raw, list):
-                self._records = [item for item in raw if valid_record(item, self.clock())]
+            records = raw if isinstance(raw, list) else raw.get('records', []) if isinstance(raw, dict) else []
+            documents = raw.get('catalogues', []) if isinstance(raw, dict) and raw.get('schema') == 'company-news-cache-v2' else []
+            # Local copies retain the exact dated constituent evidence needed
+            # to validate PR TIMES and newly registered official sources. The
+            # document is revalidated by source_catalogue; no network is used.
+            cache = getattr(storage, '_company_catalogue_cache', None)
+            if cache is None:
+                cache = storage._company_catalogue_cache = {}
+            if isinstance(documents, list):
+                for document in documents[:24]:
+                    if not isinstance(document, dict) or not isinstance(document.get('source'), dict):
+                        continue
+                    digest = canonical_hash({key: document.get(key) for key in ('index', 'as_of', 'items')})
+                    source_digest = document['source'].get('sha256')
+                    if isinstance(source_digest, str) and re.fullmatch(r'[a-f0-9]{64}', source_digest):
+                        cache[(digest, source_digest)] = document
+            if isinstance(records, list):
+                for item in records[:24]:
+                    if not isinstance(item, dict):
+                        continue
+                    catalogue = source_catalogue(storage, item.get('source'), cache_only=True)
+                    if valid_record(item, self.clock(), catalogue=catalogue):
+                        self._records.append(item)
         except (OSError, ValueError, TypeError):
             pass
 
@@ -441,7 +467,12 @@ class CompanyNewsRuntime:
         fd, name = tempfile.mkstemp(prefix='.company-news-', dir=self.cache_path.parent)
         try:
             with os.fdopen(fd, 'w') as stream:
-                json.dump(records, stream, ensure_ascii=False, allow_nan=False)
+                cache = getattr(self.storage, '_company_catalogue_cache', {})
+                keys = {(item['source'].get('catalogue_facts_sha256'),
+                         item['source'].get('catalogue_source_sha256')) for item in records}
+                documents = [cache[key] for key in sorted(keys, key=str) if key in cache]
+                json.dump({'schema': 'company-news-cache-v2', 'records': records,
+                           'catalogues': documents}, stream, ensure_ascii=False, allow_nan=False)
                 stream.flush(); os.fsync(stream.fileno())
             os.replace(name, self.cache_path)
         finally:
@@ -453,6 +484,32 @@ class CompanyNewsRuntime:
         phase = 'storage_check'
         try:
             self.storage.ensure_private()
+            # Publication restoration is independent of the slower source
+            # queue/HTTP poll. A feed or candidate-list failure must not leave
+            # a restarted reader blank when approved copies already exist.
+            day = datetime.fromtimestamp(now, JST).date().isoformat()
+            with self._lock:
+                previous = deepcopy(self._records)
+            restored = self._restore_day != day or now - self._last_restore >= 900
+            phase = 'publication_read'
+            if restored:
+                records = read_records(self.storage, now, cache=self._published_cache)
+                active_days = {(datetime.fromtimestamp(now, JST).date() - timedelta(days=offset)).isoformat()
+                               for offset in range(8)}
+                self._published_cache = {path: record for path, record in self._published_cache.items()
+                                         if path.split('/')[-2] in active_days}
+            else:
+                today = read_records(self.storage, now, today_only=True, cache=self._published_cache)
+                records = [item for item in previous
+                    if datetime.fromtimestamp(item['company']['reviewed_at'], JST).date().isoformat() != day] + today
+            with self._lock:
+                self._records = records
+                self._publication_checked = now
+                if restored:
+                    self._last_restore, self._restore_day = now, day
+            if records != previous:
+                phase = 'cache_write'
+                self._persist(records)
             collected = False
             collected_candidates = None
             if self.collector and now - self._source_check >= 900:
@@ -497,20 +554,7 @@ class CompanyNewsRuntime:
             now = self.clock()
             day = datetime.fromtimestamp(now, JST).date().isoformat()
             with self._lock:
-                previous = deepcopy(self._records)
                 waiting = deepcopy(self._candidates)
-            restored = self._restore_day != day or now - self._last_restore >= 900
-            phase = 'publication_read'
-            if restored:
-                records = read_records(self.storage, now, cache=self._published_cache)
-                active_days = {(datetime.fromtimestamp(now, JST).date() - timedelta(days=offset)).isoformat()
-                               for offset in range(8)}
-                self._published_cache = {path: record for path, record in self._published_cache.items()
-                                         if path.split('/')[-2] in active_days}
-            else:
-                today = read_records(self.storage, now, today_only=True, cache=self._published_cache)
-                records = [item for item in previous
-                    if datetime.fromtimestamp(item['company']['reviewed_at'], JST).date().isoformat() != day] + today
             refreshed_candidates = collected or self._candidate_day != day or now - self._candidate_check >= 900
             if refreshed_candidates:
                 phase = 'candidate_read'
@@ -519,14 +563,9 @@ class CompanyNewsRuntime:
             # old queue manifests and historical editions are read periodically.
             phase = 'claim_read'
             pending = pending_candidates(self.storage, now, candidates=waiting)
-            if records != previous:
-                phase = 'cache_write'
-                self._persist(records)
             with self._lock:
-                self._records, self._pending = records, pending
+                self._pending = pending
                 self._candidates = waiting
-                if restored:
-                    self._last_restore, self._restore_day = now, day
                 if refreshed_candidates:
                     self._candidate_check, self._candidate_day = now, day
                 self._status = 'ready' if self._source_status in ('ready', 'source_empty') else 'error'
@@ -542,9 +581,14 @@ class CompanyNewsRuntime:
 
     def snapshot(self):
         with self._lock:
-            return {**public_snapshot(deepcopy(self._records), self.clock(), self._status, self._checked,
-                                   storage=self.storage), 'coverage': deepcopy(self._coverage),
-                    'collection_health': self._collection_health}
+            result = public_snapshot(deepcopy(self._records), self.clock(), self._status, self._checked,
+                storage=self.storage, catalogues_cached_only=True)
+            state = ('available' if result['companies'] else 'unavailable' if self._status == 'error'
+                else 'loading' if self._status == 'refreshing' else 'review_pending' if self._pending
+                else 'no_recent_articles')
+            return {**result, 'coverage': deepcopy(self._coverage),
+                    'collection_health': self._collection_health, 'display_state': state,
+                    'publication_checked_at': self._publication_checked}
 
     def operational_snapshot(self):
         with self._lock:
@@ -563,3 +607,28 @@ class CompanyNewsRuntime:
                     'sources': list(CHANNEL_NAMES),
                     'writer_provider': 'codex_subscription', 'generation_owner': 'external',
                     'source_interval_seconds': 900, 'max_generation_attempts_per_day': 3}
+
+    def publication_observation(self):
+        """Safe numeric reader diagnostics; never reads Storage or starts work."""
+        with self._lock:
+            now = self.clock()
+            result = public_snapshot(deepcopy(self._records), now, self._status,
+                self._checked, storage=self.storage, catalogues_cached_only=True)
+            companies = result['companies']
+            return {'read_only_cached': True, 'status': self._status,
+                    'source_status': self._source_status,
+                    'checked_at': self._checked,
+                    'worker_alive': bool(self._thread and self._thread.is_alive()),
+                    'source_diagnostics': deepcopy(self._source_diagnostics),
+                    'coverage': deepcopy(self._coverage),
+                    'collection_health': self._collection_health,
+                    'record_count': len(self._records),
+                    'valid_reviewed_count': len(companies),
+                    'catalogue_required_record_count': sum(
+                        bool(item.get('source', {}).get('catalogue_facts_sha256'))
+                        for item in self._records),
+                    'publication_checked_at': self._publication_checked,
+                    'edition_date': result['edition_date'] if companies else None,
+                    'valid_until': result['valid_until'] if companies else None,
+                    'last_error_phase': self._last_error_phase,
+                    'last_error_code': self._last_error_code}

@@ -531,7 +531,8 @@ class DividendCalendar:
 def register_dividend_calendar(app, calendar):
     @app.before_request
     def ensure_dividend_calendar_worker():
-        calendar.ensure_refresh()
+        if request.endpoint != 'api_company_news_observation':
+            calendar.ensure_refresh()
 
     @app.get('/api/dividend/calendar-v2')
     def api_dividend_calendar_v2():

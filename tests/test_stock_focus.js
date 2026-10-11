@@ -814,9 +814,22 @@ test('company empty, expired and failed responses have honest distinct states an
  const before=h.companyRequests().length;h.click(h.companyBox().querySelector('[data-company-retry]'));
  assert.equal(h.companyRequests().length,before+1);await h.respond(h.companyRequests().at(-1),companyPayload());assert.match(h.companyBox().innerHTML,/NTT/);
  fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...companyPayload(),companies:[]});
- assert.doesNotMatch(h.companyBox().innerHTML,/NTT|確認できませんでした/);assert.match(h.companyBox().innerHTML,/新しい企業の発表を確認しています/);
+ assert.doesNotMatch(h.companyBox().innerHTML,/NTT|確認できませんでした|確認しています/);assert.match(h.companyBox().innerHTML,/掲載できる新しい企業ニュースはまだありません/);
  const expired=companyPayload();expired.valid_until='2000-01-01';fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),expired);
  assert.doesNotMatch(h.companyBox().innerHTML,/NTT/);assert.match(h.companyBox().innerHTML,/企業の発表を確認できませんでした/);
+});
+
+test('healthy empty, pending review and partial collection messages remain truthful',async()=>{
+ const h=companyHarness(),empty={...companyPayload(),companies:[],display_state:'no_recent_articles',collection_health:'complete'};
+ await h.respond(h.companyRequests()[0],empty);
+ assert.match(h.companyBox().innerHTML,/掲載できる新しい企業ニュースはまだありません/);
+ assert.doesNotMatch(h.companyBox().innerHTML,/確認しています|一部の発表元|sf-company-name/);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...empty,collection_health:'partial'});
+ assert.match(h.companyBox().innerHTML,/一部の発表元を確認できていません/);
+ assert.doesNotMatch(h.companyBox().innerHTML,/企業の発表がありません|確認しています/);
+ fireCompanyTimer(h);await h.respond(h.companyRequests().at(-1),{...empty,display_state:'review_pending'});
+ assert.match(h.companyBox().innerHTML,/記事の確認が終わり次第、掲載します/);
+ assert.doesNotMatch(h.companyBox().innerHTML,/sf-company-name|掲載できる新しい企業ニュースはまだありません/);
 });
 
 test('unchanged company copy keeps DOM nodes; revised copy preserves each article disclosure and focus',async()=>{
