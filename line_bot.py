@@ -2241,6 +2241,15 @@ def _ensure_stock_catalogue_worker():
 @app.route("/api/lookup", methods=["GET"])
 def api_lookup():
     payload = _stock_search.search(request.args.get("q", ""))
+    if request.args.get('per') == 'current':
+        payload = {**payload, 'results': [dict(row) for row in payload.get('results', [])]}
+        for row in payload['results']:
+            if isinstance(row, dict) and isinstance(row.get('symbol'), str) and row['symbol'].endswith(('.T', '.JP')):
+                row.pop('year_per', None)
+                row.pop('year_per_status', None)
+                row['current_per'] = None
+                row['current_per_status'] = 'unconfirmed'
+        return jsonify(payload)
     service = globals().get('_company_year_pers')
     return jsonify(enrich_search_per(payload, _stock_search, service) if service is not None else payload)
 

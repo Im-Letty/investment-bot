@@ -298,6 +298,7 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         symbol = canonical
         provider_symbol = company.get('provider_symbol', symbol if symbol.endswith('.T') else None)
         detail = request.args.get('purpose', 'detail') != 'preview'
+        current_per_only = request.args.get('per') == 'current'
         # A regional-only company is a real company, but .JP is our identity
         # key, never a guessed Yahoo ticker. Do not fetch a different market.
         payload = (deepcopy(profiles.get(provider_symbol, company['name'])) if provider_symbol else
@@ -510,7 +511,7 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                     'fetched_at': forecast['fetched_at'], 'as_of': forecast['announcement_date']}
                 sources.append({'title': forecast['source_title'], 'url': forecast['source_url'],
                                 'fetched_at': forecast['fetched_at']})
-        if year_pers is not None:
+        if year_pers is not None and not current_per_only:
             fact = year_pers.get(symbol, company)
             payload['year_per_status'] = fact['status'] if fact else 'unconfirmed'
             payload['year_per'] = fact
@@ -530,6 +531,11 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                 states[field] = 'available'
             elif states[field] == 'available' and not (field == 'dividend_payment_date' and schedule):
                 states[field] = 'unconfirmed'
+        if current_per_only:
+            figures['current_per'] = None
+            states['current_per'] = 'unconfirmed'
+            states.pop(YEAR_PER, None)
+            source_fields(payload).pop(YEAR_PER, None)
         payload['field_status'] = states
         payload['sources'] = sources
         response = jsonify(payload)

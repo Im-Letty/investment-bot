@@ -228,5 +228,17 @@ class StockSearchTests(unittest.TestCase):
         self.assertIn({'code':'7203','name':'トヨタ自動車'},all_data['items'])
         self.session.get.assert_not_called()
 
+    def test_current_only_lookup_skips_year_service_and_retains_default_contract(self):
+        from company_year_per import enrich_search_per
+        tree=ast.parse((ROOT/'line_bot.py').read_text());nodes=[n for n in tree.body if isinstance(n,ast.FunctionDef) and n.name=='api_lookup']
+        app=Flask('stock-current-per-test');years=Mock();years.get.return_value={'status':'available','value':12.34}
+        exec(compile(ast.Module(body=nodes,type_ignores=[]),str(ROOT/'line_bot.py'),'exec'),
+             {'app':app,'request':request,'jsonify':jsonify,'_stock_search':self.search,'_company_year_pers':years,'enrich_search_per':enrich_search_per})
+        client=app.test_client();body=client.get('/api/lookup?q=7203&per=current').get_json();row=body['results'][0]
+        self.assertIsNone(row['current_per']);self.assertEqual(row['current_per_status'],'unconfirmed');self.assertNotIn('year_per',row)
+        years.get.assert_not_called();default=client.get('/api/lookup?q=7203').get_json()['results'][0]
+        self.assertEqual(default['year_per']['value'],12.34);years.get.assert_called_once()
+        self.assertNotIn('current_per',self.search.search('7203')['results'][0]);self.session.get.assert_not_called()
+
 
 if __name__=='__main__':unittest.main()

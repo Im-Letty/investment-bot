@@ -117,7 +117,7 @@
       if(!query)return {items:items,unavailable:false};
       items.forEach(function(item){seen[normalize(item.symbol)]=true;});
       try {
-        var response=await options.fetch('/api/lookup?q='+encodeURIComponent(query),{signal:signal});
+        var response=await options.fetch('/api/lookup?q='+encodeURIComponent(query)+'&per=current',{signal:signal});
         checkAbort(signal);
         if(!response.ok)throw new Error('search unavailable');
         var data=await response.json();checkAbort(signal);

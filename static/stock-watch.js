@@ -1,9 +1,9 @@
 /* Company search and browser-local favorites. Quote availability never gates saving. */
 (function(root,factory){
-  const api=factory(typeof module==='object'&&module.exports?require('./year-per.js'):root.KNYearPER);
+  const api=factory();
   if(typeof module==='object'&&module.exports)module.exports=api;
   if(root&&root.document){root.StockWatch=api;api.start(root);}
-})(typeof window==='undefined'?null:window,function(yearPers){
+})(typeof window==='undefined'?null:window,function(){
   'use strict';
   const KEY='alert_watchlist_v1', NAMES='stock_watch_names_v1', LIMIT=20;
   function symbol(value){
@@ -11,10 +11,9 @@
     if(/^[0-9][0-9A-Z]{3}$/.test(text))return text+'.T';
     return /^[A-Z0-9][A-Z0-9.^=-]{0,24}$/.test(text)?text:'';
   }
-  function yearPerLine(item,dates,now){
-    const fallback='有報の年度PER 未確認',key=symbol(item&&item.symbol);
-    if(!/^[0-9][A-Z0-9]{3}\.(?:T|JP)$/.test(key))return '';
-    return yearPers&&dates&&typeof dates.date==='function'?yearPers.line({...item,symbol:key},now):fallback;
+  function currentPerLine(item){
+    const key=symbol(item&&item.symbol);
+    return /^[0-9][A-Z0-9]{3}\.(?:T|JP)$/.test(key)?'現在のPER 未確認':'';
   }
   function parse(value,fallback){try{return JSON.parse(value)||fallback;}catch(e){return fallback;}}
   function createStore(storage,persist,ready){
@@ -49,7 +48,7 @@
       controller=new w.AbortController();const active=controller;
       onState({status:'loading',items:[]});
       try{
-        const request=w.fetch('/api/lookup?q='+encodeURIComponent(query),{signal:active.signal}).then(response=>{if(!response.ok)throw new Error('lookup');return response.json();});
+        const request=w.fetch('/api/lookup?q='+encodeURIComponent(query)+'&per=current',{signal:active.signal}).then(response=>{if(!response.ok)throw new Error('lookup');return response.json();});
         const timeout=new Promise((resolve,reject)=>{deadline=w.setTimeout(()=>{active.abort();reject(new Error('timeout'));},10000);});
         const payload=await Promise.race([request,timeout]);
         if(token!==sequence)return;
@@ -136,8 +135,8 @@
             preview.appendChild(annual);preview.appendChild(payment);row.appendChild(preview);dividendNodes.set(key,[annual,payment]);paintDividends(key,dividendQueue.peek(key));
           }
           if(/^[0-9][A-Z0-9]{3}\.JP$/.test(key))row.appendChild(el('small','sw-dividend-line','会社情報は表示できます。株価・時価総額の取得元は未対応です。'));
-          // These dated filing facts arrive with lookup; no per-company request is needed.
-          const per=yearPerLine(item,w.KNDateDisplay);if(per)row.appendChild(el('small','sw-year-per',per));
+          // Current PER stays unconfirmed until a verified source is available.
+          const per=currentPerLine(item);if(per)row.appendChild(el('small','sw-per',per));
           list.appendChild(row);
         });
         results.appendChild(list);syncDividends();
@@ -236,5 +235,5 @@
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init);else init();
   }
-  return {symbol,yearPerLine,createStore,createSearch,start,LIMIT};
+  return {symbol,currentPerLine,createStore,createSearch,start,LIMIT};
 });

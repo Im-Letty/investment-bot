@@ -166,4 +166,17 @@ class YearPerApi(unittest.TestCase):
         body=client.get('/api/company-profile?symbol=1407.T').get_json()
         self.assertNotIn('year_per',body);self.assertNotIn('issuer_reported_fiscal_per',body['data'])
 
+    def test_current_only_request_skips_annual_read_and_preserves_default_api_fact(self):
+        fact=validate_year_per(fixture(),COMPANY,now=NOW);client,service=self.app(fact)
+        for purpose in ['preview','detail']:
+            body=client.get('/api/company-profile?symbol=1407.T&purpose='+purpose+'&per=current').get_json()
+            self.assertIsNone(body['data']['current_per']);self.assertEqual(body['field_status']['current_per'],'unconfirmed')
+            self.assertNotIn('year_per',body);self.assertNotIn('year_per_status',body)
+            self.assertNotIn('issuer_reported_fiscal_per',body['data']);self.assertNotIn('issuer_reported_fiscal_per',body['source']['fields'])
+            self.assertNotIn(fact['source_url'],[row['url'] for row in body['sources']])
+        service.get.assert_not_called()
+        original=client.get('/api/company-profile?symbol=1407.T').get_json()
+        self.assertEqual(original['year_per'],fact);self.assertEqual(original['data']['issuer_reported_fiscal_per'],12)
+        service.get.assert_called_once_with('1407.T',COMPANY)
+
 if __name__=='__main__':unittest.main()

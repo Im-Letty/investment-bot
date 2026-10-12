@@ -42118,6 +42118,898 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791843721.550443,
       "pdf_sha256": "ab4a876c45ba5e75a545c58aaa41c003f32ae62f03cbec01766d62a33346850b"
+    },
+    {
+      "symbol": "1436.T",
+      "identity": {
+        "symbol": "1436.T",
+        "code": "1436",
+        "name": "グリーンエナジー&カンパニー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "太陽光発電や蓄電設備、省エネ住宅を手がける持株会社です。グループ各社が設備の土地探しから建設・販売、保守を担い、一部は保有して電気を販売します。住宅購入者や投資家には、太陽光パネルを備えた住宅も提供します。",
+      "proof": {
+        "code": "1436",
+        "exchange": "Tokyo",
+        "corporate_number": "6480001006042",
+        "edinet_code": "E32163",
+        "source_company_name": "株式会社グリーンエナジー＆カンパニー",
+        "filing_company_name": "株式会社グリーンエナジー&カンパニー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YRWH",
+        "current_edinet_code": "E32163",
+        "current_corporate_number": "6480001006042"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YRWH",
+      "filed_on": "2026-07-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829228.180115,
+      "pdf_sha256": "310290acbcfe4fb515d995f7443242a06a1ce01f6c384e98846cbcf16fee2efb"
+    },
+    {
+      "symbol": "1963.T",
+      "identity": {
+        "symbol": "1963.T",
+        "code": "1963",
+        "name": "日揮ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "石油精製やガス、医薬品などの工場・設備を、グループ各社が設計し、必要な機器をそろえて建設する持株会社です。設備の試運転や保守に加え、石油精製に用いる触媒、半導体を作る装置のセラミックス部品などもグループで製造します。",
+      "proof": {
+        "code": "1963",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001008732",
+        "edinet_code": "E01575",
+        "source_company_name": "日揮ホールディングス株式会社",
+        "filing_company_name": "日揮ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEFQ",
+        "current_edinet_code": "E01575",
+        "current_corporate_number": "3010001008732"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEFQ",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832626.588215,
+      "pdf_sha256": "ee84798456a41c67a1e414f123c49ca49d1ce7015c5cd668f932159852e1c3ac"
+    },
+    {
+      "symbol": "2371.T",
+      "identity": {
+        "symbol": "2371.T",
+        "code": "2371",
+        "name": "カカクコム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "買い物や飲食店選び、仕事探しを助けるネットサービスを運営します。「価格.com」で商品の値段や評判を比べられるようにし、「食べログ」で店の検索・予約、「求人ボックス」で求人探しを提供。広告の掲載や店舗・企業への紹介に応じた手数料などで収入を得ます。",
+      "proof": {
+        "code": "2371",
+        "exchange": "Tokyo",
+        "corporate_number": "9011001065997",
+        "edinet_code": "E05350",
+        "source_company_name": "株式会社カカクコム",
+        "filing_company_name": "株式会社カカクコム",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBGN",
+        "current_edinet_code": "E05350",
+        "current_corporate_number": "9011001065997"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBGN",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843769.956474,
+      "pdf_sha256": "8dc87d19ff8dea62807be0662fb45e7bc25edb4232bc13bac2ec9621e5837b43"
+    },
+    {
+      "symbol": "2469.T",
+      "identity": {
+        "symbol": "2469.T",
+        "code": "2469",
+        "name": "ヒビノ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "音と映像でコンサートや催しを支える会社です。会場で使う機材を貸し出して操作し、録音・中継にも対応します。グループでは業務用の音響・映像機器の販売や設置、大型LED画面の製造、建物の音響設計や騒音対策も行います。",
+      "proof": {
+        "code": "2469",
+        "exchange": "Tokyo",
+        "corporate_number": "8010401025232",
+        "edinet_code": "E05550",
+        "source_company_name": "ヒビノ株式会社",
+        "filing_company_name": "ヒビノ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YG1N",
+        "current_edinet_code": "E05550",
+        "current_corporate_number": "8010401025232"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YG1N",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843854.609708,
+      "pdf_sha256": "203e3de9b2ccff6460098a053eacc3b830ac46bf2c9ec9ab23b550f2d3028130"
+    },
+    {
+      "symbol": "2722.T",
+      "identity": {
+        "symbol": "2722.T",
+        "code": "2722",
+        "name": "IKホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "雑貨・食品・化粧品を扱うグループの持株会社です。販売は子会社が担い、テレビやネットの通販、店舗で個人に販売します。韓国の化粧品も扱うほか、生協や通販会社、小売店、海外企業へ商品を卸します。",
+      "proof": {
+        "code": "2722",
+        "exchange": "Tokyo",
+        "corporate_number": "1180001029144",
+        "edinet_code": "E03386",
+        "source_company_name": "株式会社ＩＫホールディングス",
+        "filing_company_name": "株式会社IKホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YYQQ",
+        "current_edinet_code": "E03386",
+        "current_corporate_number": "1180001029144"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YYQQ",
+      "filed_on": "2026-08-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843991.554917,
+      "pdf_sha256": "c8ee524f8baaedb9c2037f4c0f9ffb00523a411c51c42bd139b63af3eeb8af98"
+    },
+    {
+      "symbol": "296A.T",
+      "identity": {
+        "symbol": "296A.T",
+        "code": "296A",
+        "name": "令和アカウンティング・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の経理を実務面から支えるグループ。大企業や不動産投資法人、医療機関などの会計処理を確認し、決算書や連結決算、投資家向けの開示書類づくりを助ける。企業買収時の会計調査や株式上場の準備も支援。経理担当者向けの講座・企業研修、経理人材の派遣・紹介も手掛ける。",
+      "proof": {
+        "code": "296A",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001128817",
+        "edinet_code": "E40164",
+        "source_company_name": "令和アカウンティング・ホールディングス株式会社",
+        "filing_company_name": "令和アカウンティング・ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAIC",
+        "current_edinet_code": "E40164",
+        "current_corporate_number": "6010001128817"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAIC",
+      "filed_on": "2026-06-11",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847300.178849,
+      "pdf_sha256": "06da0b71c78bf683fab35832b9dc68ea28c0a0dda8577c9eba4bbc5d2aa8dcfa"
+    },
+    {
+      "symbol": "3930.T",
+      "identity": {
+        "symbol": "3930.T",
+        "code": "3930",
+        "name": "はてな",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "個人が記事を発信する「はてなブログ」や、気になるWebページを保存・共有する「はてなブックマーク」を運営。企業向けには、情報発信サイトを作る仕組みや記事制作、広告を提供する。出版社のマンガ配信を支える「GigaViewer」の開発・運用や、サーバーの動きを見守る「Mackerel」も手掛け、有料サービスや広告、開発・運用の対価を得る。",
+      "proof": {
+        "code": "3930",
+        "exchange": "Tokyo",
+        "corporate_number": "1013201014709",
+        "edinet_code": "E32141",
+        "source_company_name": "株式会社はてな",
+        "filing_company_name": "株式会社はてな",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100WX9N",
+        "current_edinet_code": "E32141",
+        "current_corporate_number": "1013201014709"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100WX9N",
+      "filed_on": "2025-10-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847308.183883,
+      "pdf_sha256": "d0a18c06a837c42b41af1699173c9f99b5d1a082c9f94ed367c04ad5c17aa655"
+    },
+    {
+      "symbol": "4320.T",
+      "identity": {
+        "symbol": "4320.T",
+        "code": "4320",
+        "name": "CEホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "病院向けソフトを主軸とする持株会社。グループ会社が中小規模の病院に電子カルテ「MI・RA・Is」シリーズを販売し、診療記録や検査・投薬の指示を電子化する。医療システムの開発受託や運用管理、患者と医師が情報をやり取りするスマホサービスも提供。企業のWebサイト刷新やネット広告、施設向け電子看板の販売も行う。",
+      "proof": {
+        "code": "4320",
+        "exchange": "Tokyo",
+        "corporate_number": "8430001003331",
+        "edinet_code": "E05233",
+        "source_company_name": "株式会社ＣＥホールディングス",
+        "filing_company_name": "株式会社CEホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XB2A",
+        "current_edinet_code": "E05233",
+        "current_corporate_number": "8430001003331"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XB2A",
+      "filed_on": "2025-12-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847314.13254,
+      "pdf_sha256": "dbd6e7f3b1dd1c88b007d23577987685c4222dbcfbdb3b6778745c6ca7c26647"
+    },
+    {
+      "symbol": "4849.T",
+      "identity": {
+        "symbol": "4849.T",
+        "code": "4849",
+        "name": "エン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の採用と人材の活躍を支援するグループ。「エン転職」などで求職者に求人を届け、企業には求人掲載や候補者の紹介、採用に使うシステムを提供する。若手向けの求人サイト「AMBI」や、新卒学生に企業が声をかけるスカウトも展開。企業の人事制度づくりを支援し、グループ会社を通じて海外での求人サイト、人材紹介・派遣も手掛ける。",
+      "proof": {
+        "code": "4849",
+        "exchange": "Tokyo",
+        "corporate_number": "1011101029018",
+        "edinet_code": "E05192",
+        "source_company_name": "エン株式会社",
+        "filing_company_name": "エン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGWT",
+        "current_edinet_code": "E05192",
+        "current_corporate_number": "1011101029018"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGWT",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847320.161558,
+      "pdf_sha256": "fafefe3a0a3261a6c49759c8a69817aae186b65d3673fa8991edd9f8efd66787"
+    },
+    {
+      "symbol": "7326.T",
+      "identity": {
+        "symbol": "7326.T",
+        "code": "7326",
+        "name": "SBIインシュアランスグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "保険会社をまとめる持株会社。子会社がネットや保険代理店を通じ、自動車・火災・がんの保険や、病気・働けなくなった場合に備える生命保険商品を販売する。住宅ローン利用者向けの団体信用生命保険も扱う。少額短期保険の子会社では、賃貸住宅やペット、地震、結婚式など、特定の暮らしのリスクに備える商品を提供する。",
+      "proof": {
+        "code": "7326",
+        "exchange": "Tokyo",
+        "corporate_number": "6010401128870",
+        "edinet_code": "E33840",
+        "source_company_name": "ＳＢＩインシュアランスグループ株式会社",
+        "filing_company_name": "SBIインシュアランスグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDWS",
+        "current_edinet_code": "E33840",
+        "current_corporate_number": "6010401128870"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDWS",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847330.724879,
+      "pdf_sha256": "a3cf484a4e44af50914b7783875911209d60d15df0ba60aa8f1a71d466ba8bd0"
+    },
+    {
+      "symbol": "8066.T",
+      "identity": {
+        "symbol": "8066.T",
+        "code": "8066",
+        "name": "三谷商事",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "法人向けの商材販売から地域の生活サービスまで手掛ける商社。グループでセメントや生コンクリート、燃料・ガスを供給し、ゴンドラの製造や貸出、風力発電も行う。企業向けには情報機器の販売、ソフト開発、ネットワークの保守を提供。家庭向けのケーブルテレビやインターネット、自動車販売、介護事業なども展開する。",
+      "proof": {
+        "code": "8066",
+        "exchange": "Tokyo",
+        "corporate_number": "7210001004022",
+        "edinet_code": "E02602",
+        "source_company_name": "三谷商事株式会社",
+        "filing_company_name": "三谷商事株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ7S",
+        "current_edinet_code": "E02602",
+        "current_corporate_number": "7210001004022"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ7S",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847336.773738,
+      "pdf_sha256": "1d0aca13e2be4262f5eff449350fd7a689a084b252750d0254c6cd035326ec50"
+    },
+    {
+      "symbol": "8698.T",
+      "identity": {
+        "symbol": "8698.T",
+        "code": "8698",
+        "name": "マネックスグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "国内外の金融サービス会社に出資する持株会社。出資先のマネックス証券や米国TradeStationが、個人投資家向けにインターネットで証券を取引するサービスを提供。グループのコインチェックは、ビットコインなどの暗号資産を売買できる場を運営する。資産の運用・管理に関わるサービスや、企業への投資も手掛ける。",
+      "proof": {
+        "code": "8698",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001089066",
+        "edinet_code": "E03815",
+        "source_company_name": "マネックスグループ株式会社",
+        "filing_company_name": "マネックスグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YM8I",
+        "current_edinet_code": "E03815",
+        "current_corporate_number": "8010001089066"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YM8I",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847344.319034,
+      "pdf_sha256": "d4e5545c0d47bb68bccb5f052353c9f9b2677d97a9681e73419516cdf5a48cf4"
+    },
+    {
+      "symbol": "9341.T",
+      "identity": {
+        "symbol": "9341.T",
+        "code": "9341",
+        "name": "GENOVA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "医療機関の情報発信や、受付・会計などの仕事を支えるグループ。「Medical DOC」で健康情報や医院の紹介記事を配信し、医院から記事制作を請け負う。診療所向けの自動精算機「NOMOCa-Stand」や、LINEで予約・問い合わせを受ける仕組みも提供する。子会社のASANOでは歯科用の機器・材料を販売し、医院向けにカルテや予約を管理するクラウドサービスを手掛ける。",
+      "proof": {
+        "code": "9341",
+        "exchange": "Tokyo",
+        "corporate_number": "6011001046711",
+        "edinet_code": "E38215",
+        "source_company_name": "株式会社ＧＥＮＯＶＡ",
+        "filing_company_name": "株式会社GENOVA",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFQH",
+        "current_edinet_code": "E38215",
+        "current_corporate_number": "6011001046711"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFQH",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847350.382793,
+      "pdf_sha256": "04016221a239ae491b0290ffd3467404b53a30caa9cd3b58f1c2cc85535fd8a4"
+    },
+    {
+      "symbol": "9625.T",
+      "identity": {
+        "symbol": "9625.T",
+        "code": "9625",
+        "name": "セレスポ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "イベントを開く主催者に、会場づくりと当日の運営を提供する会社。開催内容の企画、会場の設営、演出や進行の準備から本番の運営まで請け負う。全国の拠点で多様な行事に対応し、競技団体が開くスポーツ大会や、皇室の方々が出席する各地の行事の制作にも携わる。",
+      "proof": {
+        "code": "9625",
+        "exchange": "Tokyo",
+        "corporate_number": "9013301006441",
+        "edinet_code": "E04899",
+        "source_company_name": "株式会社セレスポ",
+        "filing_company_name": "株式会社セレスポ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF00",
+        "current_edinet_code": "E04899",
+        "current_corporate_number": "9013301006441"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF00",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847356.3901272,
+      "pdf_sha256": "bcb9a757d2f911eec725914d68727c84057e560d383aff9a48f1e1990e57a162"
+    },
+    {
+      "symbol": "9733.T",
+      "identity": {
+        "symbol": "9733.T",
+        "code": "9733",
+        "name": "ナガセ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "学習塾や予備校を運営する教育グループ。東進ハイスクールや東進衛星予備校では高校生、四谷大塚や木村塾などでは小中学生の学びを支える。大学生・社会人向けの東進ビジネススクール、子ども向け英語教育や出版も展開する。グループのイトマン各社は、水泳教室やフィットネスクラブを運営している。",
+      "proof": {
+        "code": "9733",
+        "exchange": "Tokyo",
+        "corporate_number": "9012401011590",
+        "edinet_code": "E04824",
+        "source_company_name": "株式会社ナガセ",
+        "filing_company_name": "株式会社ナガセ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK8I",
+        "current_edinet_code": "E04824",
+        "current_corporate_number": "9012401011590"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK8I",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847362.378027,
+      "pdf_sha256": "9e336e62f692364c8fa7a21ac1dd50ae51d1a08f540a1b06bcbf323a0bdcfcea"
+    },
+    {
+      "symbol": "1808.T",
+      "identity": {
+        "symbol": "1808.T",
+        "code": "1808",
+        "name": "長谷工コーポレーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "マンションの計画や設計を立て、建設工事を担う会社です。グループ各社は住まいの販売・仲介、建物の管理や大きな修繕、老人ホームの運営にも携わり、住宅を建てた後の暮らしを支えます。",
+      "proof": {
+        "code": "1808",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401024061",
+        "edinet_code": "E00090",
+        "source_company_name": "株式会社長谷工コーポレーション",
+        "filing_company_name": "株式会社長谷工コーポレーション",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJVQ",
+        "current_edinet_code": "E00090",
+        "current_corporate_number": "7010401024061"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJVQ",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829347.0181031,
+      "pdf_sha256": "072db3aadd3f3afcb6427cfa2e5e0c620dbbd01f361a56e35395e6a216e3f38d"
+    },
+    {
+      "symbol": "215A.T",
+      "identity": {
+        "symbol": "215A.T",
+        "code": "215A",
+        "name": "タイミー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "短い時間だけ働きたい人と、その時間に人手が必要なお店や物流会社などを、アプリ「タイミー」でつなぎます。仕事は利用企業との直接雇用で、単発の勤務を紹介するほか、「タイミーキャリアプラス」で正社員への就職も支援します。",
+      "proof": {
+        "code": "215A",
+        "exchange": "Tokyo",
+        "corporate_number": "1012801018219",
+        "edinet_code": "E39760",
+        "source_company_name": "株式会社タイミー",
+        "filing_company_name": "株式会社タイミー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YS8Y",
+        "current_edinet_code": "E39760",
+        "current_corporate_number": "1012801018219"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YS8Y",
+      "filed_on": "2026-07-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832734.39928,
+      "pdf_sha256": "f9bd17df269d9b01296a1baa9dbf7b36b5c43a8b53b1b7f2c4ab76f216bee705"
+    },
+    {
+      "symbol": "2379.T",
+      "identity": {
+        "symbol": "2379.T",
+        "code": "2379",
+        "name": "ディップ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "仕事を探す人と企業を結ぶ求人サービスを運営する会社です。「バイトル」でアルバイト先、「はたらこねっと」で幅広い仕事を探せるほか、看護師や介護職の職場紹介も行います。中小企業向けには、面接の日程合わせや入社手続きを助ける「コボット」も提供します。",
+      "proof": {
+        "code": "2379",
+        "exchange": "Tokyo",
+        "corporate_number": "6010401050785",
+        "edinet_code": "E05368",
+        "source_company_name": "ディップ株式会社",
+        "filing_company_name": "ディップ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y510",
+        "current_edinet_code": "E05368",
+        "current_corporate_number": "6010401050785"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y510",
+      "filed_on": "2026-05-20",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843784.956928,
+      "pdf_sha256": "9f94dc990116292a206824251547b446211f77e957713ddc098e2373c7a8863d"
+    },
+    {
+      "symbol": "2666.T",
+      "identity": {
+        "symbol": "2666.T",
+        "code": "2666",
+        "name": "オートウェーブ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "車を買いたい・売りたい人に販売や買い取りのサービスを提供し、車検、整備、カー用品の販売も行います。もう一つの仕事として「業務スーパー」を運営し、冷凍食品や加工済みの食品を扱っています。",
+      "proof": {
+        "code": "2666",
+        "exchange": "Tokyo",
+        "corporate_number": "4040001001139",
+        "edinet_code": "E03355",
+        "source_company_name": "株式会社オートウェーブ",
+        "filing_company_name": "株式会社オートウェーブ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLV8",
+        "current_edinet_code": "E03355",
+        "current_corporate_number": "4040001001139"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLV8",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843954.409813,
+      "pdf_sha256": "1bd38feeda7c7734a2979d39ebc392491f35b7a137ffb8f372f668350bcd2991"
+    },
+    {
+      "symbol": "3086.T",
+      "identity": {
+        "symbol": "3086.T",
+        "code": "3086",
+        "name": "J.フロントリテイリング",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "大丸・松坂屋の百貨店と「パルコ」を傘下に持つ持株会社。グループで衣類や食品、生活用品などを買い物客に販売し、ショッピングセンターの開発や運営も行う。不動産の開発・販売、店舗の内装工事、クレジットカードの発行・運営も手掛けている。",
+      "proof": {
+        "code": "3086",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001111996",
+        "edinet_code": "E03516",
+        "source_company_name": "Ｊ．フロントリテイリング株式会社",
+        "filing_company_name": "J.フロントリテイリング株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6K0",
+        "current_edinet_code": "E03516",
+        "current_corporate_number": "5010001111996"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6K0",
+      "filed_on": "2026-05-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847306.378258,
+      "pdf_sha256": "1ff5220df86c72a1d8dbf4c744a2a0ec68b9d646ccd3e335e3ce5f4ed8179eda"
+    },
+    {
+      "symbol": "3989.T",
+      "identity": {
+        "symbol": "3989.T",
+        "code": "3989",
+        "name": "シェアリングテクノロジー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「生活110番」などのサイトを通じ、鍵のトラブル、水漏れ、害虫駆除などで困った人と、対応できる地域の専門業者をつなぐ。自社の電話窓口が希望する作業や訪問時間を聞き取り、全国の加盟店から紹介先を選ぶ。現場の作業は加盟店が担い、同社は紹介時や作業完了時に加盟店から手数料を受け取る。",
+      "proof": {
+        "code": "3989",
+        "exchange": "Tokyo",
+        "corporate_number": "2180001061708",
+        "edinet_code": "E33242",
+        "source_company_name": "シェアリングテクノロジー株式会社",
+        "filing_company_name": "シェアリングテクノロジー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XC4O",
+        "current_edinet_code": "E33242",
+        "current_corporate_number": "2180001061708"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XC4O",
+      "filed_on": "2025-12-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847312.01706,
+      "pdf_sha256": "dcd0b85aab31d828c72d12710ad92557efc85f0e1707779b6c322252a4595d40"
+    },
+    {
+      "symbol": "4681.T",
+      "identity": {
+        "symbol": "4681.T",
+        "code": "4681",
+        "name": "リゾートトラスト",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「エクシブ」「ベイコート倶楽部」などの会員制ホテルを開発し、客室を共同で所有・利用する会員権を販売する。グループでホテルの宿泊・飲食サービスやゴルフ場を運営し、会員に滞在や余暇の場を提供している。医療サービスの会員権の販売・管理や、在宅介護のサービスも手掛ける。",
+      "proof": {
+        "code": "4681",
+        "exchange": "Tokyo",
+        "corporate_number": "5180001041871",
+        "edinet_code": "E03969",
+        "source_company_name": "リゾートトラスト株式会社",
+        "filing_company_name": "リゾートトラスト株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFZK",
+        "current_edinet_code": "E03969",
+        "current_corporate_number": "5180001041871"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFZK",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847317.237348,
+      "pdf_sha256": "699cde8daa9bde1201ec852c29043f7547b3f4d542718ac6a24b13772c5020da"
+    },
+    {
+      "symbol": "7089.T",
+      "identity": {
+        "symbol": "7089.T",
+        "code": "7089",
+        "name": "フォースタートアップス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "スタートアップや成長企業に、経営幹部などの採用候補者を探して紹介し、採用活動の相談にも応じる。グループで新興企業の情報を集めた「STARTUP DB」を企業に提供し、大企業や自治体との連携・育成事業も支援する。企業の売却・買収の仲介やスタートアップへの投資も行い、人材と資金の両面で成長を支える。",
+      "proof": {
+        "code": "7089",
+        "exchange": "Tokyo",
+        "corporate_number": "1011201019356",
+        "edinet_code": "E35483",
+        "source_company_name": "フォースタートアップス株式会社",
+        "filing_company_name": "フォースタートアップス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIA4",
+        "current_edinet_code": "E35483",
+        "current_corporate_number": "1011201019356"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIA4",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847327.797251,
+      "pdf_sha256": "08a13f80626b4dcfbe3726035b691a3dcd7ac0ece97dab46f921c66002c00e37"
+    },
+    {
+      "symbol": "7527.T",
+      "identity": {
+        "symbol": "7527.T",
+        "code": "7527",
+        "name": "システムソフト",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "不動産、通信、保険、教育などの企業向けに、Webを使う業務システムの開発や導入支援を行う。賃貸物件を探す情報サイトも運営し、「SSクラウド」などのオンライン業務ソフトや、パソコンの繰り返し作業を自動化する仕組みを提供する。企業のデジタル化、他社との提携、財務面の相談を支援する事業もある。",
+      "proof": {
+        "code": "7527",
+        "exchange": "Tokyo",
+        "corporate_number": "7290001017693",
+        "edinet_code": "E02858",
+        "source_company_name": "株式会社システムソフト",
+        "filing_company_name": "株式会社システムソフト",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBIV",
+        "current_edinet_code": "E02858",
+        "current_corporate_number": "7290001017693"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBIV",
+      "filed_on": "2025-12-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847333.774726,
+      "pdf_sha256": "d7989829a3bcf193b43f198cdd546a4f29b00ae75abf7cd16a829ece08d99a0d"
+    },
+    {
+      "symbol": "8697.T",
+      "identity": {
+        "symbol": "8697.T",
+        "code": "8697",
+        "name": "日本取引所グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東京証券取引所や大阪取引所などを傘下に持つ持株会社。グループで株式や株価指数先物などを売買する市場と取引システムを運営する。売買成立後の証券・代金の受け渡しを支える清算業務や、市場の公正さを保つ業務、株価・指数データの提供も行い、証券会社や上場企業などから利用料を得る。",
+      "proof": {
+        "code": "8697",
+        "exchange": "Tokyo",
+        "corporate_number": "9120001098575",
+        "edinet_code": "E03814",
+        "source_company_name": "株式会社日本取引所グループ",
+        "filing_company_name": "株式会社日本取引所グループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YA84",
+        "current_edinet_code": "E03814",
+        "current_corporate_number": "9120001098575"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YA84",
+      "filed_on": "2026-06-11",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847341.342263,
+      "pdf_sha256": "7d0eae9c9347167580ea634a51a49ed9df3266e592aa18240d1f6d8975daa5a0"
+    },
+    {
+      "symbol": "9042.T",
+      "identity": {
+        "symbol": "9042.T",
+        "code": "9042",
+        "name": "阪急阪神ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "阪急電鉄や阪神電気鉄道などを束ねる持株会社。グループで鉄道・バスによる移動を支え、住宅や商業施設の開発・賃貸、ホテルの運営を行う。阪神タイガースや宝塚歌劇などのスポーツ・舞台公演、国内外の旅行商品の販売も手掛け、国際輸送や情報通信サービスも提供する。",
+      "proof": {
+        "code": "9042",
+        "exchange": "Tokyo",
+        "corporate_number": "2120901019851",
+        "edinet_code": "E04103",
+        "source_company_name": "阪急阪神ホールディングス株式会社",
+        "filing_company_name": "阪急阪神ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCBL",
+        "current_edinet_code": "E04103",
+        "current_corporate_number": "2120901019851"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCBL",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847347.471245,
+      "pdf_sha256": "d27db7626ba78689d387cbf148d35d5140cd4394f96d43e193ee50589de3b277"
+    },
+    {
+      "symbol": "9351.T",
+      "identity": {
+        "symbol": "9351.T",
+        "code": "9351",
+        "name": "東洋埠頭",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の貨物を保管・運搬する物流会社。普通倉庫や冷蔵倉庫、青果物・危険品用の倉庫などを使い、保管から荷物の出し入れまで請け負う。港では船への積み降ろしやコンテナの取扱いを行い、トラック配送や輸出入の手続きも担う。グループ会社を通じて海外を含む輸送・保管にも対応する。",
+      "proof": {
+        "code": "9351",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001034865",
+        "edinet_code": "E04321",
+        "source_company_name": "東洋埠頭株式会社",
+        "filing_company_name": "東洋埠頭株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YELE",
+        "current_edinet_code": "E04321",
+        "current_corporate_number": "7010001034865"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YELE",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847353.39133,
+      "pdf_sha256": "2bc6abbff39acf942491a2f90300bf901b880c24a948ad45403be1c117923801"
+    },
+    {
+      "symbol": "9644.T",
+      "identity": {
+        "symbol": "9644.T",
+        "code": "9644",
+        "name": "タナベコンサルティンググループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "中堅企業を中心に、事業の成長、人材育成、デジタル化などを支援するグループの持株会社。傘下のコンサルティング会社が経営計画づくりや採用・人事制度の整備、業務システムの活用を支援する。事業承継に伴う企業の買収・合併、上場準備、ブランドづくりや広報の相談にも対応し、企業や行政・公共機関の経営課題の改善を支える。",
+      "proof": {
+        "code": "9644",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001133750",
+        "edinet_code": "E04887",
+        "source_company_name": "株式会社タナベコンサルティンググループ",
+        "filing_company_name": "株式会社タナベコンサルティンググループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ07",
+        "current_edinet_code": "E04887",
+        "current_corporate_number": "3120001133750"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ07",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847359.495067,
+      "pdf_sha256": "6f31166e94d7b7d60e0056c9c56e54cd0b54af5eadb819843c77dc12cd73e44b"
     }
   ]
 }

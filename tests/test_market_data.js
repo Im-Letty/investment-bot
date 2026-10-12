@@ -174,7 +174,8 @@ test('company-name search finds an unlisted Japanese company without fetching it
   const app=harness(),before=app.model.selection(),size=app.model.catalog().length;
   const request=app.model.search('キオクシア');
   assert.match(app.requests[0].url,/^\/api\/lookup\?q=/);
-  assert.equal(decodeURIComponent(app.requests[0].url.split('=')[1]),'キオクシア');
+  const query=new URL(app.requests[0].url,'https://fixture.test').searchParams;
+  assert.equal(query.get('q'),'キオクシア');assert.equal(query.get('per'),'current');
   await app.reply(app.requests[0],{results:[{symbol:'285A.T',name:'キオクシアホールディングス',type:'EQUITY',currency:'JPY'}]});
   const result=await request;
   assert.equal(result.unavailable,false);assert.equal(result.items.length,1);

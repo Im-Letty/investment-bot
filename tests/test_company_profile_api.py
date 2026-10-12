@@ -59,6 +59,17 @@ class ProfileRoutes(unittest.TestCase):
         self.assertEqual(response.headers['Cache-Control'], 'no-store')
         self.assertNotIn('annual_dividend', self.raw['data'])
 
+    def test_current_only_request_retains_company_story_prices_and_dividends(self):
+        body = self.client.get('/api/company-profile?symbol=7203&per=current').get_json()
+        self.assertEqual(body['editorial'], self.story)
+        self.assertEqual(body['data']['price'], 3000)
+        self.assertEqual(body['data']['annual_dividend'], 95)
+        self.assertEqual(body['data']['forward_annual_dividend_per_share'], 100)
+        self.assertIsNone(body['data']['current_per'])
+        self.assertEqual(body['field_status']['current_per'], 'unconfirmed')
+        self.profiles.get.assert_called_once_with('7203.T', 'トヨタ自動車')
+        self.dividends.lookup.assert_called_once_with('7203.T', 'トヨタ自動車')
+
     def test_provider_price_keeps_its_own_time_and_sources_survive(self):
         self.raw.update(status='ready', refreshing=False, updated_at=1300,
                         source={'name': 'Yahoo Finance', 'url': 'https://finance.yahoo.com/quote/7203.T/'})
