@@ -15,5 +15,11 @@ def create_stock_talk_blueprint(url,key,catalogue,*,repository=None,check_admin=
     def rooms():
         q=request.args.get('q','').strip()
         rows=catalogue._local(q) if 1<=len(q)<=80 and not any(ord(c)<32 for c in q) else []
-        return jsonify(ok=True,rooms=[{'category':'stock:'+row['code'],'name':row['name'],'code':row['code']} for row in rows if catalogue.company(row['code'])][:20])
+        matches=[]
+        for row in rows:
+            company=catalogue.company(row.get('symbol') or row.get('code'))
+            if company:
+                code=company['code']
+                matches.append({'category':'stock:'+code,'name':company['name'],'code':code})
+        return jsonify(ok=True,rooms=matches[:20])
     return bp

@@ -3,8 +3,10 @@ from flask import Flask
 from stock_talk import create_stock_talk_blueprint,StockRooms
 from tests.test_community_api import FakeRPC,ALICE
 class Catalogue:
-    def company(self,code):return {'code':code,'name':'会社'+code} if code in ('7203','1832','6758') else None
-    def _local(self,q):return [{'code':q,'name':'会社'+q}] if self.company(q) else []
+    def company(self,code):
+        code=code.removesuffix('.JP') if isinstance(code,str) else code
+        return {'code':code,'name':'会社'+code} if code in ('7203','1832','6758') else None
+    def _local(self,q):return [{'symbol':q+'.JP','name':'会社'+q}] if self.company(q) else []
 class StockTests(unittest.TestCase):
     def setUp(self):
         self.repo=FakeRPC();self.app=Flask(__name__);self.app.register_blueprint(create_stock_talk_blueprint('','',Catalogue(),repository=self.repo,check_admin=lambda r:r.headers.get('X-Admin-Pass')=='manager'));self.c=self.app.test_client()
@@ -16,6 +18,14 @@ class StockTests(unittest.TestCase):
         self.assertEqual(self.c.get('/api/stock-talk/posts?category=stock:9999').status_code,400)
     def test_search_exposes_only_catalogue_room_and_company_label(self):
         r=self.c.get('/api/stock-talk/rooms?q=1832');self.assertEqual(r.json['rooms'],[{'category':'stock:1832','name':'会社1832','code':'1832'}])
+    def test_real_catalogue_search_returns_verified_regional_and_tokyo_room_ids(self):
+        from stock_search import StockSearch
+        catalogue=StockSearch(runtime_path=None)
+        app=Flask('real_catalogue');app.register_blueprint(create_stock_talk_blueprint('','',catalogue,repository=self.repo))
+        for code in ['1832','7203']:
+            r=app.test_client().get('/api/stock-talk/rooms?q='+code)
+            self.assertEqual(r.status_code,200)
+            self.assertTrue(any(room['category']=='stock:'+code for room in r.json['rooms']))
     def test_write_and_management_remain_verified(self):
         self.assertEqual(self.c.post('/api/stock-talk/posts',json={'category':'stock:7203','body':'x'}).status_code,401)
         self.assertEqual(self.c.get('/api/stock-talk/moderation/reports').status_code,403)
