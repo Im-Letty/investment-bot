@@ -246,6 +246,14 @@ def _official_window(value, edition):
         day = datetime.strptime(edition, "%Y-%m-%d").replace(tzinfo=JST)
         if day.date().isoformat() != edition or not isinstance(value, dict):
             return None
+        if type(value.get('version')) is int and value['version'] == 3:
+            from morning_news_window import RECOVERY_WINDOW_FIELDS, manifest_window
+            if set(value) != set(RECOVERY_WINDOW_FIELDS) or value.get('edition_date') != edition:
+                return None
+            try:
+                return manifest_window(value)
+            except ValueError:
+                return None
         if type(value.get("version")) is int and value["version"] == 2:
             fields = {"version", "kind", "edition_date", "window_start", "cutoff_at"}
             if (set(value) != fields or value["kind"] != "intraday" or value["edition_date"] != edition
@@ -294,7 +302,7 @@ def _official_ref(ref, window):
         return None
     stamp, verified = _publication_time(ref.get("published_at")), _publication_time(ref.get("body_verified_at"))
     digest = ref.get("body_sha256")
-    if (verified is None or verified.timestamp() > window["cutoff_at"]
+    if (verified is None or verified.timestamp() > window.get("snapshot_at", window["cutoff_at"])
             or not isinstance(digest, str) or not re.fullmatch(r"[0-9a-f]{64}", digest)):
         return None
     try:
@@ -456,7 +464,7 @@ def _validated_digest(value):
                   for ref in articles}
         if (reviewed is None or reviewed.astimezone(JST).date().isoformat() != edition
                 or reviewed.timestamp() < max(ref.get("body_verified_at", ref["published_at"]) for ref in articles)
-                or (window and reviewed.timestamp() < window["cutoff_at"])
+                or (window and reviewed.timestamp() < window.get("snapshot_at", window["cutoff_at"]))
                 or len({ref["url"] for ref in articles}) != len(articles)
                 or len(titles) != len(articles)):
             return None

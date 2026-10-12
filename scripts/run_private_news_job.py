@@ -2,8 +2,9 @@
 
 Default execution only reports configuration names. --run-live explicitly
 permits Codex subscription use, both review API charges and durable publication.
-Render collects and freezes the originals; this job never collects or freezes
-them. The job may prepare an edition before 08:00, while the existing runtime
+The unpaid private preparation step collects and freezes originals before this
+writer starts; this writer never fetches source bodies. It may prepare an
+edition before 08:00, while the existing runtime
 owns its actual publication time. There is no date, force or retry override.
 """
 import argparse
@@ -26,10 +27,11 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from daily_news_producer import GenerationError
-from daily_news_runtime import StorageUnavailable, SupabaseNewsStorage, _safe_generation_error
-from morning_news_window import MAX_ARTICLES, MorningNewsPreparer, morning_window
+from daily_news_runtime import StorageUnavailable, _safe_generation_error
+from morning_news_window import MAX_ARTICLES, MorningNewsPreparer, morning_window, manifest_window
 from news_cache import JST, OFFICIAL_NEWS_SOURCES
 from scripts.run_codex_news import build_runtime, configuration, preflight_subscription
+from scripts.private_news_storage import PrivateNewsStorage
 from website_news_producer import GENERATION_SECONDS
 
 
@@ -40,6 +42,9 @@ PROCESSING_SECONDS = 45 * 60
 GENERATION_JOB_SECONDS = 35 * 60
 JOB_SECONDS = WAIT_SECONDS + PROCESSING_SECONDS
 POLL_SECONDS = 30
+# A private source-preparation step now owns collection and freezing. Waiting
+# for its durable handoff must not spend the writer's processing allowance.
+MANIFEST_WAIT_SECONDS = 5 * 60
 # Preserve time for runtime's storage/history checks and its 16-minute claim
 # lease. A late manifest must not start work with only a few seconds remaining.
 GENERATION_RESERVE_SECONDS = GENERATION_SECONDS + 4 * 60
@@ -69,6 +74,43 @@ _SOURCE_ERROR_CODES = frozenset(("unapproved_source", "source_time_limit", "unap
 # to expand the private report's schema or reflect untrusted source values.
 _SOURCE_COUNT_LIMITS = {"candidates": 120, "selected": 20, "completed": 20,
     "accepted": 20, "returned": MAX_ARTICLES}
+_PHASES = frozenset(("starting", "configuration", "subscription_login", "manifest_wait",
+    "manifest_validation", "runtime_startup", "generation", "outcome", "completed"))
+_MANIFEST_STATES = frozenset(("not_checked", "missing", "present", "invalid"))
+
+
+class JobProgress:
+    """Fixed progress metadata retained even when SIGALRM interrupts the job."""
+
+    def __init__(self):
+        self.phase = "starting"
+        self.manifest_state = "not_checked"
+        self.manifest_reads = 0
+        self.manifest_version = None
+        self.runtime_status = None
+        self.attempt_count = None
+
+    def runtime(self, state):
+        if not isinstance(state, dict):
+            return
+        status = state.get("status")
+        if isinstance(status, str) and status in _RUNTIME_STATUSES:
+            self.runtime_status = status
+        count = state.get("attempt_count")
+        if type(count) is int and 0 <= count <= 6:
+            self.attempt_count = count
+
+    def fields(self):
+        value = {"phase": self.phase if self.phase in _PHASES else "starting",
+                 "manifest_state": self.manifest_state if self.manifest_state in _MANIFEST_STATES else "not_checked",
+                 "manifest_reads": min(1000, max(0, self.manifest_reads))}
+        if self.manifest_version in (1, 3):
+            value["manifest_version"] = self.manifest_version
+        if self.runtime_status is not None:
+            value["runtime_status"] = self.runtime_status
+        if self.attempt_count is not None:
+            value["attempt_count"] = self.attempt_count
+        return value
 
 
 class ResultFileUnavailable(RuntimeError):
@@ -200,6 +242,20 @@ def safe_report(result, started, finished):
         report["source_count_kind"] = "frozen_candidates"
         report["source_article_count"] = count
         report["source_date_counts"] = dict(sorted(counts.items()))
+    phase, manifest_state = result.get("phase"), result.get("manifest_state")
+    if isinstance(phase, str) and phase in _PHASES:
+        report["phase"] = phase
+    if isinstance(manifest_state, str) and manifest_state in _MANIFEST_STATES:
+        report["manifest_state"] = manifest_state
+    reads = result.get("manifest_reads")
+    if type(reads) is int and 0 <= reads <= 1000:
+        report["manifest_reads"] = reads
+    version = result.get("manifest_version")
+    if type(version) is int and version in (1, 3):
+        report["manifest_version"] = version
+    runtime_status = result.get("runtime_status")
+    if isinstance(runtime_status, str) and runtime_status in _RUNTIME_STATUSES:
+        report["runtime_status"] = runtime_status
     return report
 
 
@@ -268,12 +324,23 @@ the outer bound on an unsupported platform or over an existing alarm.
 class FrozenSources:
     """Immutable validated input, with no collector or storage-write path."""
 
-    def __init__(self, manifest, window):
-        MorningNewsPreparer._validate_manifest(manifest, window)
-        self._manifest, self._window = deepcopy(manifest), dict(window)
+    # Publication history was applied when the durable source snapshot was
+    # selected. Re-reading it cannot change this immutable input.
+    published_history_frozen = True
+
+    def __init__(self, manifest, window, *, now=None):
+        frozen_window = manifest_window(manifest, now=now)
+        if any(frozen_window.get(key) != window.get(key) for key in
+               ("edition_date", "window_start", "carryover_start", "cutoff_at")):
+            raise ValueError("invalid_source_manifest")
+        MorningNewsPreparer._validate_manifest(manifest, frozen_window)
+        self._manifest, self._window = deepcopy(manifest), dict(frozen_window)
 
     def prepare(self, now, published_issues=()):
-        if morning_window(now) != self._window or now < self._window["cutoff_at"]:
+        actual = morning_window(now)
+        if (any(actual.get(key) != self._window.get(key) for key in
+                ("edition_date", "window_start", "carryover_start", "cutoff_at"))
+                or now < self._window.get("snapshot_at", self._window["cutoff_at"])):
             raise ValueError("invalid_source_manifest")
         return deepcopy(self._manifest)
 
@@ -290,7 +357,7 @@ def healthy_empty(manifest):
                     for row in rows.values()))
 
 
-def _outcome(status, day=None, *, success=False, state=None, manifest=None):
+def _outcome(status, day=None, *, success=False, state=None, manifest=None, progress=None):
     value = {"status": status, "success": success}
     if day is not None:
         value["edition_date"] = day
@@ -315,12 +382,14 @@ def _outcome(status, day=None, *, success=False, state=None, manifest=None):
             counts[published] = counts.get(published, 0) + 1
         else:
             value.update(source_article_count=len(articles), source_date_counts=counts)
+    if isinstance(progress, JobProgress):
+        value.update(progress.fields())
     return value
 
 
 def run_job(environ=None, *, wall_clock=time.time, monotonic=time.monotonic, sleep=time.sleep,
-            storage_factory=SupabaseNewsStorage, runtime_factory=build_runtime,
-            preflight=preflight_subscription):
+            storage_factory=PrivateNewsStorage, runtime_factory=build_runtime,
+            preflight=preflight_subscription, progress=None):
     """Run once against today's frozen input; injectable transports are for tests.
 
 The CLI adds process_deadline around this function. All clocks below are real
@@ -330,17 +399,21 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
 """
     env = os.environ if environ is None else environ
     env = env if isinstance(env, Mapping) else {}
+    progress = progress if isinstance(progress, JobProgress) else JobProgress()
+    def outcome(status, day=None, **kwargs):
+        return _outcome(status, day, progress=progress, **kwargs)
     started, mono_started = wall_clock(), monotonic()
     morning = _morning(started)
     if morning is None:
-        return _outcome("outside_morning_window")
+        return outcome("outside_morning_window")
     window, end_at = morning
     day, deadline = window["edition_date"], mono_started + _budget(started, morning)
+    progress.phase = "configuration"
     settings = configuration(env)
     if not settings["configured"]:
-        return _outcome("configuration_unavailable", day)
+        return outcome("configuration_unavailable", day)
     if not settings["enabled"]:
-        return _outcome("disabled", day)
+        return outcome("disabled", day)
 
     def remaining():
         now = wall_clock()
@@ -350,45 +423,80 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
 
     runtime = None
     try:
+        progress.phase = "subscription_login"
         preflight(env)  # Readonly ChatGPT login status, once before any daily claim.
         if remaining() <= 0:
-            return _outcome("job_deadline", day)
-        storage = storage_factory(env["SUPABASE_URL"], env["SUPABASE_KEY"])
-        path = f"days/{day}/preparation/manifest.json"
+            return outcome("job_deadline", day)
+        if storage_factory is PrivateNewsStorage:
+            storage = storage_factory(env["SUPABASE_URL"], env["SUPABASE_KEY"],
+                                      deadline=deadline, clock=monotonic)
+        else:
+            storage = storage_factory(env["SUPABASE_URL"], env["SUPABASE_KEY"])
+        prefix = f"days/{day}/preparation/"
+        paths = (prefix + "recovery-v3.json", prefix + "manifest.json")
+        handoff_deadline = min(deadline, monotonic()
+            + max(0, window["cutoff_at"] - wall_clock()) + MANIFEST_WAIT_SECONDS)
+        phase_deadline = getattr(storage, "set_phase_deadline", None)
+        if callable(phase_deadline):
+            phase_deadline(handoff_deadline, phase="manifest_wait")
+        progress.phase = "manifest_wait"
         manifest = None
-        while remaining() > 0:
+        manifest_path = None
+        while remaining() > 0 and monotonic() < handoff_deadline:
             now = wall_clock()
             if now >= window["cutoff_at"]:
-                manifest = storage.read(path)
+                for path in paths:
+                    progress.manifest_reads += 1
+                    manifest = storage.read(path)
+                    if manifest is not None:
+                        progress.manifest_state = "present"
+                        manifest_path = path
+                        break
+                    progress.manifest_state = "missing"
                 if manifest is not None:
                     break
-            pause = min(POLL_SECONDS, remaining())
+            pause = min(POLL_SECONDS, remaining(), handoff_deadline - monotonic())
             if pause <= 0:
                 break
             sleep(pause)
         if remaining() <= 0:
-            return _outcome("job_deadline", day)
+            return outcome("job_deadline", day)
         if manifest is None:
-            return _outcome("manifest_unavailable", day)
+            return outcome("manifest_unavailable", day)
+        if monotonic() >= handoff_deadline:
+            return outcome("manifest_unavailable", day)
         # Slow source freezing may consume the processing guard, but waiting
         # before the cutoff never consumes the writer's own 35-minute allowance.
         deadline = min(deadline, monotonic() + GENERATION_JOB_SECONDS)
+        if callable(phase_deadline):
+            phase_deadline(deadline, phase="generation")
+        progress.phase = "manifest_validation"
         try:
-            frozen = FrozenSources(manifest, window)
+            if (manifest_path == paths[0]
+                    and (not isinstance(manifest, dict) or manifest.get("version") != 3
+                         or manifest.get("kind") != "morning")):
+                raise ValueError("invalid_source_manifest")
+            frozen = FrozenSources(manifest, window, now=wall_clock())
         except (ValueError, TypeError, OverflowError):
-            return _outcome("invalid_source_manifest", day)
+            progress.manifest_state = "invalid"
+            return outcome("invalid_source_manifest", day)
+        progress.manifest_version = manifest.get("version")
         if not manifest["articles"] and not healthy_empty(manifest):
-            return _outcome("source_unavailable", day, manifest=manifest)
+            return outcome("source_unavailable", day, manifest=manifest)
         if manifest["articles"] and remaining() < GENERATION_RESERVE_SECONDS:
-            return _outcome("generation_window_exhausted", day, manifest=manifest)
+            return outcome("generation_window_exhausted", day, manifest=manifest)
         # Cache contains reviewed copy only, never credentials or raw originals.
         with TemporaryDirectory(prefix="kn-private-news-job-") as folder:
+            progress.phase = "runtime_startup"
             runtime = runtime_factory(env, storage=storage, max_attempts=1,
                         cache_path=str(Path(folder) / "reviewed.json"))
             runtime.source_preparer = frozen
+            progress.phase = "generation"
             state = runtime.run_once()
+            progress.runtime(state)
+            progress.phase = "outcome"
             if remaining() <= 0:
-                return _outcome("job_deadline", day, state=state, manifest=manifest)
+                return outcome("job_deadline", day, state=state, manifest=manifest)
             status = state.get("status") if isinstance(state, dict) else None
             status = status if status in _RUNTIME_STATUSES else "unavailable"
             release = window["cutoff_at"] + 30 * 60
@@ -399,17 +507,18 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
                 status == "source_empty" and healthy_empty(manifest)
                 or status in ("ready", "prepared") and _number(published) and published >= release
                 and ((status == "prepared" and published > now) or (status == "ready" and published <= now))))
-            return _outcome(status, day, success=success, state=state, manifest=manifest)
+            return outcome(status, day, success=success, state=state, manifest=manifest)
     except GenerationError:
-        return _outcome("subscription_login_unavailable", day)
+        return outcome("subscription_login_unavailable", day)
     except StorageUnavailable:
-        return _outcome("storage_unavailable", day)
+        return outcome("storage_unavailable", day)
     except Exception:
         # No upstream response, source body, credential or exception is printed.
-        return _outcome("job_unavailable", day)
+        return outcome("job_unavailable", day)
     finally:
         if runtime is not None:
             try:
+                progress.runtime(runtime.snapshot())
                 runtime.stop()
             except Exception:
                 pass
@@ -427,22 +536,23 @@ def main(argv=None):
         settings = configuration()
         settings.update(job_seconds=JOB_SECONDS, processing_seconds=PROCESSING_SECONDS,
                         generation_job_seconds=GENERATION_JOB_SECONDS,
+                        manifest_wait_seconds=MANIFEST_WAIT_SECONDS,
                         generation_seconds=GENERATION_SECONDS,
                         generation_attempts=1, start_window="07:00–23:00 Asia/Tokyo",
                         stop_by="same-day midnight Asia/Tokyo", target_release="08:00 Asia/Tokyo",
                         source_collection_allowed=False)
         print(json.dumps(settings, ensure_ascii=False))
         return 0
-    now, output = time.time(), None
+    now, output, progress = time.time(), None, JobProgress()
     try:
         if args.result_file is not None:
             output = ResultFile(args.result_file)
         morning = _morning(now)
         budget = _budget(now, morning)
         with process_deadline(seconds=budget):
-            result = run_job()
+            result = run_job(progress=progress)
     except JobDeadline:
-        result = _outcome("job_deadline")
+        result = _outcome("job_deadline", progress=progress)
     except DeadlineUnavailable:
         result = _outcome("job_deadline_unavailable")
     except ResultFileUnavailable:

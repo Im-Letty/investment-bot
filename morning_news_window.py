@@ -1,7 +1,9 @@
 """Freeze verified morning sources before any paid generation.
 
 No clocks, collectors or storage are created at import time. Immutable storage
-claims bound collection across restarts; no source is fetched after the cutoff.
+claims bound collection across restarts. Version one freezes pre-cutoff bodies;
+explicit version-three recovery permits later acquisition with actual timestamps.
+This module remains stdlib-only for pre-install private workflow guards.
 """
 from copy import deepcopy
 from datetime import date, datetime, timedelta, timezone
@@ -14,7 +16,11 @@ JST = timezone(timedelta(hours=9))
 SLOT_MINUTES = (0, 5, 10, 15, 20, 25, 29)
 COLLECTION_LEASE_SECONDS = 90
 MAX_ARTICLES = 8
+APPROVED_MORNING_SOURCES = ("総務省統計局", "財務省", "日本銀行")
 WINDOW_FIELDS = ("version", "edition_date", "window_start", "carryover_start", "cutoff_at")
+RECOVERY_WINDOW_FIELDS = ("version", "kind", "edition_date", "window_start", "carryover_start", "cutoff_at", "snapshot_at")
+RECOVERY_LEASE_SECONDS = 5 * 60
+RECOVERY_COLLECTION_ATTEMPTS = 3
 DEFERRED_REASONS = ("late_verification", "review_failed", "omitted")
 
 
@@ -31,6 +37,72 @@ def morning_window(now):
             "window_start": previous.replace(hour=8, minute=0, second=0, microsecond=0).timestamp(),
             "carryover_start": previous.replace(hour=7, minute=30, second=0, microsecond=0).timestamp(),
             "cutoff_at": current.replace(hour=7, minute=30, second=0, microsecond=0).timestamp()}
+
+
+def verification_cutoff(window):
+    """Publication eligibility and actual verification have distinct bounds."""
+    return window["snapshot_at"] if window.get("version") == 3 else window["cutoff_at"]
+
+
+def recovery_window(now):
+    base = morning_window(now)
+    if now < base["cutoff_at"]:
+        raise ValueError("invalid_source_window")
+    return {**base, "version": 3, "kind": "morning", "snapshot_at": now}
+
+
+def manifest_window(value, now=None):
+    """Extract a strict morning window, retaining compatible version-one input."""
+    if not isinstance(value, dict):
+        raise ValueError("invalid_source_manifest")
+    version = value.get("version")
+    fields = RECOVERY_WINDOW_FIELDS if type(version) is int and version == 3 else WINDOW_FIELDS
+    try:
+        result = {key: value[key] for key in fields}
+        day = date.fromisoformat(result["edition_date"])
+        reference = datetime(day.year, day.month, day.day, 7, 30, tzinfo=JST).timestamp()
+        expected = morning_window(reference)
+        if type(version) is not int or version not in (1, 3) or result["edition_date"] != day.isoformat():
+            raise ValueError("invalid_source_manifest")
+        if any(result[key] != expected[key] or not _number(result[key])
+               for key in ("window_start", "carryover_start", "cutoff_at")):
+            raise ValueError("invalid_source_manifest")
+        if version == 3:
+            snapshot = result["snapshot_at"]
+            if (result["kind"] != "morning" or not _number(snapshot) or snapshot < reference
+                    or datetime.fromtimestamp(snapshot, JST).date() != day):
+                raise ValueError("invalid_source_manifest")
+        if now is not None and (not _number(now) or verification_cutoff(result) > now
+                or datetime.fromtimestamp(now, JST).date() != day):
+            raise ValueError("invalid_source_manifest")
+        return result
+    except (KeyError, TypeError, ValueError, OverflowError, OSError):
+        raise ValueError("invalid_source_manifest") from None
+
+
+def healthy_empty_manifest(value):
+    status = value.get("source_status") if isinstance(value, dict) else None
+    return (isinstance(value, dict) and value.get("articles") == [] and isinstance(status, dict)
+            and set(APPROVED_MORNING_SOURCES).issubset(status) and all(
+                isinstance(row, dict) and row.get("feed_status") == "ok"
+                and row.get("status") in ("collected", "no_matching_candidates")
+                and row.get("errors", []) == [] for row in status.values()))
+
+
+def read_prepared_manifest(storage, now):
+    """Prefer the already frozen recovery snapshot; never hide a malformed one."""
+    day = morning_window(now)["edition_date"]
+    for suffix in ("recovery-v3.json", "manifest.json"):
+        value = storage.read(f"days/{day}/preparation/{suffix}")
+        if value is None:
+            continue
+        window = manifest_window(value, now)
+        MorningNewsPreparer._validate_manifest(value, window)
+        if suffix == "recovery-v3.json" and window["version"] != 3:
+            raise ValueError("invalid_source_manifest")
+        if value["articles"] or healthy_empty_manifest(value):
+            return deepcopy(value)
+    return None
 
 
 def _verified_article(row):
@@ -124,7 +196,7 @@ def select_articles(articles, window, published_issues=()):
     for row in valid:
         by_identity.setdefault(_publication_identity(row), []).append(row)
     revisions = _revision_identities(valid)
-    published_ids = {_publication_identity(ref) for ref in published_references(published_issues, window["cutoff_at"])}
+    published_ids = {_publication_identity(ref) for ref in published_references(published_issues, verification_cutoff(window))}
     selected = []
     for identity, versions in by_identity.items():
         # A changed body on the same publication day needs correction review.
@@ -140,7 +212,7 @@ def select_articles(articles, window, published_issues=()):
             {**row, "deferred_from": v.get("deferred_from"), "deferred_reason": v.get("deferred_reason")}, window)), None)
         if deferred:
             row.update(deferred_from=deferred["deferred_from"], deferred_reason=deferred["deferred_reason"])
-        if row["body_verified_at"] > window["cutoff_at"]:
+        if row["body_verified_at"] > verification_cutoff(window):
             continue
         route = _normal_route(row, window)
         if route is None and _deferred_route(row, window):
@@ -272,11 +344,23 @@ class MorningNewsPreparer:
                         and _normal_route(article, previous)
                         and article["body_verified_at"] > previous["cutoff_at"]):
                     rows.append({**article, "deferred_from": day, "deferred_reason": "late_verification"})
-        frozen = self.storage.read(self._prefix(day) + "/manifest.json")
-        if frozen is None:
+        manifests = []
+        for suffix in ("/manifest.json", "/recovery-v3.json"):
+            frozen = self.storage.read(self._prefix(day) + suffix)
+            if frozen is None:
+                continue
+            frozen_window = manifest_window(frozen)
+            if frozen_window["edition_date"] != day:
+                raise ValueError("invalid_source_manifest")
+            self._validate_manifest(frozen, frozen_window)
+            manifests.append(frozen)
+            rows.extend(deepcopy(frozen["articles"]))
+            if frozen_window["version"] == 3:
+                rows.extend({**deepcopy(row), "deferred_from": day, "deferred_reason": "late_verification"}
+                    for row in frozen["articles"] if not row.get("deferred_from")
+                    and _normal_route(row, previous) and row["body_verified_at"] > previous["cutoff_at"])
+        if not manifests:
             return rows
-        self._validate_manifest(frozen, previous)
-        rows.extend(deepcopy(frozen["articles"]))
         published_previous = any(issue.get("edition_date") == day and published_references([issue], now) for issue in issues)
         failed = False
         if not published_previous:
@@ -293,22 +377,122 @@ class MorningNewsPreparer:
         reason = "omitted" if published_previous else "review_failed" if failed else None
         if reason:
             rows.extend({**row, "deferred_from": day, "deferred_reason": reason}
-                        for row in frozen["articles"] if not row.get("deferred_from") and _normal_route(row, previous))
+                        for frozen in manifests for row in frozen["articles"]
+                        if not row.get("deferred_from") and _normal_route(row, previous))
         return rows
 
     @staticmethod
     def _validate_manifest(value, window):
-        if (not isinstance(value, dict) or any(value.get(k) != v for k, v in window.items())
+        if (not isinstance(value, dict) or manifest_window(value) != window
+                or any(value.get(k) != v for k, v in window.items())
                 or not isinstance(value.get("articles"), list) or len(value["articles"]) > MAX_ARTICLES
                 or not isinstance(value.get("source_status"), dict)
+                or (window.get("version") == 3 and not value["articles"] and not healthy_empty_manifest(value))
                 or select_articles(value["articles"], window) != value["articles"]):
             raise ValueError("invalid_source_manifest")
+
+    def prepare_recovery(self, now, published_issues=()):
+        """Bounded unpaid acquisition after cutoff; immutable actual-time snapshot.
+
+        Three unpaid leases allow recovery from a killed collector. They never
+        consume or alter a paid generation lock. Unhealthy results are advisory
+        evidence, not a frozen empty-news result.
+        """
+        window = recovery_window(now)
+        if datetime.fromtimestamp(now, JST).hour >= 23:
+            raise ValueError("outside_morning_window")
+        day, prefix = window["edition_date"], self._prefix(window["edition_date"])
+        path = prefix + "/recovery-v3.json"
+        frozen = self.storage.read(path)
+        if frozen is not None:
+            frozen_window = manifest_window(frozen, now)
+            self._validate_manifest(frozen, frozen_window)
+            return deepcopy(frozen)
+        for number in range(1, RECOVERY_COLLECTION_ATTEMPTS + 1):
+            claim_path = prefix + f"/recovery-v3-{number}.lock"
+            claim = self.storage.read(claim_path)
+            if claim is not None:
+                started = claim.get("started_at") if isinstance(claim, dict) else None
+                if (not _number(started) or claim.get("edition_date") != day or claim.get("attempt") != number
+                        or not window["cutoff_at"] <= started <= now
+                        or datetime.fromtimestamp(started, JST).date().isoformat() != day
+                        or datetime.fromtimestamp(started, JST).hour >= 23):
+                    raise ValueError("invalid_source_snapshot")
+                result = self.storage.read(prefix + f"/recovery-v3-{number}.result.json")
+                if result is None and now < started + RECOVERY_LEASE_SECONDS:
+                    return None
+                continue
+            started = self.clock()
+            recovery_window(started)
+            if morning_window(started)["edition_date"] != day:
+                raise ValueError("source_preparation_deadline")
+            proposed = {"version": 1, "edition_date": day, "attempt": number, "started_at": started}
+            if not self.storage.create(claim_path, proposed):
+                return None
+            diagnostics = {}
+            try:
+                since = datetime.fromtimestamp(window["window_start"], JST).replace(hour=0).timestamp()
+                rows = self.collector(started, since=since, until=window["cutoff_at"], diagnostics=diagnostics)
+                finished = self.clock()
+                if (not isinstance(rows, list) or len(rows) > MAX_ARTICLES
+                        or any(not _verified_article(row) or row["body_verified_at"] > finished for row in rows)):
+                    raise ValueError("invalid_collector_output")
+            except Exception:
+                rows = []
+                diagnostics = {"collection": {"status": "source_unavailable", "feed_status": "failed"}}
+            finished = self.clock()
+            if (not _number(finished) or not started <= finished < started + RECOVERY_LEASE_SECONDS
+                    or morning_window(finished)["edition_date"] != day):
+                raise ValueError("source_preparation_deadline")
+            # Preserve genuine earlier same-version identity evidence only.
+            rows = [self._remember_identity(row, started) for row in rows]
+            window = recovery_window(self.clock())
+            if window["edition_date"] != day:
+                raise ValueError("source_preparation_deadline")
+            prior, pending, expired = self._snapshots(day, window["snapshot_at"], wait=True)
+            if pending:
+                return None
+            rows.extend(deepcopy(row) for snapshot in prior for row in snapshot["articles"])
+            rows.extend(self._deferred(window, published_issues, window["snapshot_at"]))
+            status = _source_status(diagnostics)
+            corrections = _revision_identities(rows)
+            if corrections:
+                status["preparation"] = {"feed_status": "not_completed", "status": "source_unavailable",
+                                         "errors": ["correction_review_required"], "correction_count": len(corrections)}
+            window = recovery_window(self.clock())
+            if window["edition_date"] != day or window["snapshot_at"] >= started + RECOVERY_LEASE_SECONDS:
+                raise ValueError("source_preparation_deadline")
+            selected = select_articles(rows, window, published_issues)
+            # A complete fresh recovery check may supersede an expired unpaid
+            # slot; incomplete/errored fresh checks cannot establish quiet news.
+            healthy = healthy_empty_manifest({"articles": [], "source_status": status})
+            if not selected and not healthy:
+                self.storage.create(prefix + f"/recovery-v3-{number}.result.json",
+                                    {**proposed, "finished_at": self.clock(), "status": "source_unavailable"})
+                raise ValueError("source_unavailable")
+            manifest = {**window, "articles": selected, "source_status": status}
+            self._validate_manifest(manifest, window)
+            if not self.storage.create(path, manifest):
+                manifest = self.storage.read(path)
+            frozen_window = manifest_window(manifest, self.clock())
+            self._validate_manifest(manifest, frozen_window)
+            return deepcopy(manifest)
+        raise ValueError("source_collection_limit")
 
     def prepare(self, now, published_issues=()):
         window = morning_window(now)
         day, cutoff = window["edition_date"], window["cutoff_at"]
         if now < cutoff - 30 * 60:
             return None
+        if now >= cutoff:
+            recovered = self.storage.read(self._prefix(day) + "/recovery-v3.json")
+            if recovered is not None:
+                recovered_window = manifest_window(recovered, now)
+                if recovered_window["version"] != 3:
+                    raise ValueError("invalid_source_manifest")
+                self._validate_manifest(recovered, recovered_window)
+                self._manifests = {day: recovered}
+                return deepcopy(recovered)
         if day in self._manifests:
             return deepcopy(self._manifests[day]) if now >= cutoff else None
         prefix = self._prefix(day)
@@ -388,6 +572,11 @@ class MorningNewsPreparer:
                                                + (["correction_review_required"] if revisions else []),
                                      "expired_slots": expired, "correction_count": len(revisions)}
         manifest = {**window, "articles": select_articles(rows, window, published_issues), "source_status": status}
+        if (not manifest["articles"] and any(_verified_article(row)
+                and row["body_verified_at"] > cutoff and _normal_route(row, window) for row in rows)):
+            preparation = status.setdefault("preparation", {"feed_status": "not_completed",
+                "status": "source_unavailable", "errors": []})
+            preparation["errors"] = sorted(set(preparation.get("errors", []) + ["late_verification_pending"]))
         if self.source_cache is not None:
             problems = [cache_error] if cache_error else []
             if not manifest["articles"]:

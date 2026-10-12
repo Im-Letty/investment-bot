@@ -51,6 +51,55 @@ function publication({kind='intraday',precise=true,cutoff=stamp('2026-10-11T13:2
 }
 function changeRef(data,key,value){for(const item of [data.news[0],data.digest.article_refs[0],data.digest.article_summaries[0]])item[key]=value;}
 
+function recoveryMorning(){
+  const data=publication({kind:'morning',precise:false,headline:'遅れて審査した朝の記事'});
+  data.digest.source_window={...data.digest.source_window,version:3,kind:'morning',snapshot_at:stamp('2026-10-11T09:00:17')};
+  changeRef(data,'body_verified_at',stamp('2026-10-11T09:00:16'));
+  data.digest.reviewed_at=stamp('2026-10-11T09:02:31');
+  data.digest.publish_at=data.digest.reviewed_at;
+  return data;
+}
+
+test('late morning keeps fixed publication cutoff and actual snapshot/review/release times',async()=>{
+  const data=recoveryMorning(),a=app();a.start();await a.reply(0,data);
+  assert.match(a.html(),/遅れて審査した朝の記事/);
+  const saved=JSON.parse(a.storage.get('kn_published_news_v1_ja'));
+  assert.equal(saved.digest.source_window.kind,'morning');
+  assert.equal(saved.digest.source_window.cutoff_at,stamp('2026-10-11T07:30:00'));
+  assert.equal(saved.digest.source_window.snapshot_at,stamp('2026-10-11T09:00:17'));
+  assert.equal(saved.news[0].body_verified_at,stamp('2026-10-11T09:00:16'));
+  assert.equal(saved.news[0].published_date,'2026-10-10');
+  assert.equal(saved.news[0].published_at,null);
+  assert.equal(saved.digest.publish_at,stamp('2026-10-11T09:02:31'));
+  const restored=app({'kn_published_news_v1_ja':JSON.stringify(saved)});restored.start();
+  assert.match(restored.html(),/遅れて審査した朝の記事/);
+});
+
+test('malformed recovery snapshot and review chronology fail closed',()=>{
+  for(const mutate of [d=>d.digest.source_window.snapshot_at=stamp('2026-10-11T07:29:59'),
+    d=>d.digest.source_window.snapshot_at=stamp('2026-10-12T09:00:00'),
+    d=>d.digest.source_window.kind='intraday',d=>d.digest.source_window.extra=true,
+    d=>d.digest.source_window.snapshot_at=Infinity,d=>d.digest.source_window.snapshot_at=true,
+    d=>d.digest.source_window.cutoff_at=stamp('2026-10-11T09:00:00'),
+    d=>d.digest.source_window.snapshot_at=stamp('2026-10-11T09:00:15'),
+    d=>d.digest.reviewed_at=stamp('2026-10-11T09:00:16'),
+    d=>d.digest.publish_at=stamp('2026-10-11T08:00:00')]){
+    const data=recoveryMorning();mutate(data);const a=app({},data);a.start();
+    assert.doesNotMatch(a.html(),/遅れて審査した朝の記事/);
+    assert.equal(a.storage.has('kn_published_news_v1_ja'),false);
+  }
+});
+
+test('legacy morning continues to reject late verification and recovery preserves precise source cutoff',()=>{
+  const legacy=recoveryMorning();delete legacy.digest.source_window.snapshot_at;delete legacy.digest.source_window.kind;legacy.digest.source_window.version=1;
+  const rejected=app({},legacy);rejected.start();assert.doesNotMatch(rejected.html(),/遅れて審査した朝の記事/);
+  const data=recoveryMorning();changeRef(data,'published_date','2026-10-11');changeRef(data,'publication_precision','second');
+  changeRef(data,'published_at',stamp('2026-10-11T07:30:00'));changeRef(data,'selection_route','main');
+  const accepted=app({},data);accepted.start();assert.match(accepted.html(),/遅れて審査した朝の記事/);
+  changeRef(data,'published_at',stamp('2026-10-11T07:30:01'));
+  const afterCutoff=app({},data);afterCutoff.start();assert.doesNotMatch(afterCutoff.html(),/遅れて審査した朝の記事/);
+});
+
 test('published intraday JSON is rendered immediately and persisted from API',async()=>{
   const a=app();a.start();const data=publication();await a.reply(0,data);
   assert.match(a.html(),/日中の新しい公式発表/);

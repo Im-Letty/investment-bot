@@ -329,7 +329,7 @@ specified together with their cost limits.
 ### Implemented morning window
 
 - All boundaries use Asia/Tokyo. There are seven collection slots: **07:00, 07:05, 07:10, 07:15, 07:20, 07:25 and 07:29**. Each slot has a durable create-only claim; a missed slot is not replayed as a burst. Freeze verified source content at **07:30:00**, then draft/review for **08:00** publication. Do not permanently finalize the edition at the first 07:00 success. Free-host startup and failed review can still cause delay; never backdate a late release.
-- Main timed announcements: original publication at or after the preceding day's 08:00 and at or before today's 07:30. The exact body version must also be verified by 07:30. `body_verified_at` is captured after extraction/date checks for that body hash; `observed_at` alone is not sufficient.
+- Main timed announcements: original publication at or after the preceding day's 08:00 and at or before today's 07:30. In the original version-one snapshot, the exact body version must also be verified by 07:30. The explicit version-three recovery below permits later acquisition while retaining this publication window. `body_verified_at` is captured after extraction/date checks for that body hash; `observed_at` alone is not sufficient.
 - Prevent the 30-minute gap: an unpublished timed announcement after the preceding 07:30 cutoff but before the preceding 08:00 is an eligible carryover candidate. A release exactly at the preceding cutoff that missed verification can also enter through the explicit deferred-candidate record. This keeps "post-cutoff goes to the next morning" consistent with the owner's main window.
 - Date-only announcements use their actual publication day, never a guessed 00:00 or retrieval time. Announcements dated the preceding or current day are eligible through a separate date-only route if their body was verified by the cutoff and the announcement identity (canonical URL plus original publication date) has not already been published. Their time is still null, and they are not represented as proven to be after 08:00. Collection begins from the preceding day's 00:00 date boundary; `morning_news_window.py` then applies the more precise eligibility routes.
 - Freeze each edition's source manifest with article identity, original date/precision, body hash, verified body and verification time. Retries/restarts use this immutable manifest and cannot silently include content fetched after cutoff. A substantive correction invalidates the affected draft and requires a new review, rather than silently updating the frozen body.
@@ -344,7 +344,7 @@ Boundary examples (local implementation policy, not claims about the currently d
 | October 5 08:00 publication, verified by October 6 07:30 | Main candidate; display October 5 as source date |
 | October 5 07:45 publication, missed the previous cutoff | Carryover candidate; not lost in a cutoff gap |
 | October 6 07:29 publication, verified at 07:30:00 | Candidate |
-| Same publication, verification finishes 07:30:01 | Defer to the following edition's candidate review |
+| Same publication, verification finishes 07:30:01 | Excluded from v1; eligible for the explicit same-day v3 recovery, with actual verification time |
 | October 5 publication day only, verified before cutoff, not previously published | Date-only candidate; no invented time |
 | Same URL/date/body already published | Do not publish again |
 | Same recurring statistics URL, with a new original release date verified in both feed and body | New announcement identity; apply the current window and body checks |
@@ -354,6 +354,50 @@ Boundary examples (local implementation policy, not claims about the currently d
 The private frozen manifest contains the verified bodies alongside the window fields: `version: 1`, `edition_date`, numeric `window_start` (preceding 08:00), `carryover_start` (preceding 07:30) and `cutoff_at` (current 07:30). The runtime passes those fields as `source_window` and the fixed bodies as `articles` to the producer; it cannot fetch extra articles or run Gemini Search on this path. Public editions carry `source_window` and references with source/title/URL, original date/precision, `body_sha256`, `body_verified_at` and `selection_route` (`main`, `carryover`, `date_only` or `deferred`). Only the deferred route exposes its preceding-edition date and reason. Raw source bodies stay in private preparation records and are not included in the public references.
 
 If the checked source window has no eligible new candidate, the runtime reports `source_empty` and makes no AI generation call. Failed or incomplete source checks instead report `source_unavailable`; they are not treated as a confirmed quiet morning. In either case, an earlier valid publication remains under its original date. Deployment and an actual production release must be verified separately from these local implementation checks.
+
+### Private preparation and late morning recovery (2026-10-12)
+
+08:00 is the owner's publication target. Missing it does not stop acquisition,
+review or publication. The private CI job now has an explicit unpaid preparation
+step before its writer. `scripts/prepare_private_news_sources.py` performs no
+I/O by default; `--run-live` permits only public-original acquisition and source
+storage in the existing private bucket. It never restores a Codex session,
+calls AI, changes a generation claim or publishes an edition. The preparation
+budget is the remaining wait to 07:30 (at most 30 minutes) plus five minutes of
+operations; the subsequent writer receives its own bounded processing budget.
+Every private storage call also retains the existing per-call transport bound.
+
+An existing valid v1 snapshot remains reusable. If it is absent or unhealthy,
+bounded late acquisition may create exactly one immutable
+`days/YYYY-MM-DD/preparation/recovery-v3.json`. Its source window has exactly
+`version: 3`, `kind: "morning"`, `edition_date`, `window_start`,
+`carryover_start`, `cutoff_at`, and `snapshot_at`. The publication boundaries
+remain the preceding 08:00/07:30 and current 07:30. `snapshot_at` records the
+actual later source freeze; source `body_verified_at` values must be no later
+than that snapshot. They are never changed to imply acquisition before 07:30.
+Original publication dates and unknown publication times remain unchanged.
+
+Up to three immutable unpaid collection leases per day allow recovery from an
+interrupted collector; there is still only one final recovery snapshot and no
+reset of the paid attempt ceiling. An active collection lease is pending. A
+failed, incomplete or ambiguous storage operation cannot become a healthy
+empty-news result. Changed versions of the same announcement require correction
+review. Deduplication includes durable publications through the actual snapshot,
+including intervening intraday publications. BOJ material remains the same
+limited decision facts, not stored or externally reviewed original prose.
+
+Preparation starts only from 07:00 to before 23:00 JST and stays on the same
+calendar day. Reviews must finish after the actual snapshot. Publication is
+no earlier than both 08:00 and actual review completion, and retains its actual
+later time. The public runtime reads a newly stored recovery snapshot before
+an old cached v1 result; it never performs fresh late acquisition through this
+handoff. Version-one morning and version-two intraday contracts remain valid,
+and kind `morning` recovery is distinct from an intraday edition. A recovery
+snapshot can support the immediately following morning's explicit deferral,
+with original dates and genuine late-verification/review evidence preserved.
+
+Offline validation of this protocol does not establish successful normal
+production acquisition, dual review, storage or visible publication.
 
 ### BOJ decision facts (2026-10-11)
 

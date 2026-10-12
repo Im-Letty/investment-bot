@@ -137,7 +137,8 @@ class PrivateJobTests(unittest.TestCase):
         self.assertTrue(result["success"])
         self.assertEqual(self.clock.now, at(7, 30))
         self.assertEqual(len(self.clock.pauses), 26)
-        self.assertEqual(self.storage.reads, ["days/2026-10-06/preparation/manifest.json"])
+        self.assertEqual(self.storage.reads, ["days/2026-10-06/preparation/recovery-v3.json",
+                                             "days/2026-10-06/preparation/manifest.json"])
         self.assertEqual(self.storage.private_checks, 0)
         self.assertEqual(self.storage.created, [])
         self.preflight.assert_called_once_with(self.env)
@@ -153,11 +154,11 @@ class PrivateJobTests(unittest.TestCase):
     def test_late_freeze_wait_is_readonly_and_still_allows_one_tick(self):
         self.clock.now = at(7, 30)
         values = [None, None, deepcopy(self.manifest)]
-        self.storage.read = Mock(side_effect=values)
+        self.storage.read = Mock(side_effect=lambda path: None if path.endswith("recovery-v3.json") else values.pop(0))
         result = self.run_job()
         self.assertTrue(result["success"])
         self.assertEqual(self.clock.now, at(7, 31))
-        self.assertEqual(self.storage.read.call_count, 3)
+        self.assertEqual(self.storage.read.call_count, 6)
         self.assertEqual(self.storage.created, [])
         self.runtime.run_once.assert_called_once()
 
@@ -170,6 +171,60 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual((result["status"], result["success"]), ("prepared", True))
         self.assertGreaterEqual(self.clock.now, at(7, 31, 30))
         self.runtime.run_once.assert_called_once()
+
+    def test_delayed_handoff_gets_fresh_generation_phase_within_original_total_cap(self):
+        self.clock = Clock(at(7, 30))
+        original = self.storage.read
+        self.storage.read = Mock(side_effect=lambda path: original(path)
+            if self.clock.now >= at(7, 34) else None)
+        phases = []
+        self.storage.set_phase_deadline = lambda expiry, *, phase: phases.append((phase, expiry))
+        result = self.run_job()
+        self.assertTrue(result["success"])
+        self.assertEqual([phase for phase, _ in phases], ["manifest_wait", "generation"])
+        self.assertEqual(phases[1][1] - self.clock.mono, job.GENERATION_JOB_SECONDS)
+        self.assertLessEqual(phases[1][1], 100 + job.PROCESSING_SECONDS)
+
+    def test_late_recovery_keeps_real_verification_and_publishes_after_eight(self):
+        self.clock = Clock(at(9, 0))
+        manifest = {**deepcopy(self.manifest), "version": 3, "kind": "morning", "snapshot_at": at(9, 0)}
+        for row in manifest["articles"]:
+            row["body_verified_at"] = at(8, 59)
+        self.storage = ReadStorage(None)
+        self.storage.values["days/2026-10-06/preparation/recovery-v3.json"] = manifest
+        def complete():
+            self.clock.sleep(3 * 60)
+            return {"status": "ready", "edition_date": "2026-10-06",
+                    "publish_at": self.clock.now, "attempt_count": 1}
+        self.runtime.run_once.side_effect = complete
+        result = self.run_job()
+        self.assertTrue(result["success"])
+        self.assertEqual(result["publish_at"], at(9, 3))
+        self.assertEqual(result["manifest_version"], 3)
+        passed = self.runtime.source_preparer.prepare(self.clock.now)
+        self.assertEqual(passed["cutoff_at"], at(7, 30))
+        self.assertTrue(all(row["body_verified_at"] == at(8, 59) for row in passed["articles"]))
+
+    def test_invalid_recovery_never_falls_back_to_an_older_manifest(self):
+        self.storage.values["days/2026-10-06/preparation/recovery-v3.json"] = {**self.manifest,
+            "version": 3, "kind": "morning", "snapshot_at": at(10)}
+        result = self.run_job()
+        self.assertEqual(result["status"], "invalid_source_manifest")
+        self.assertEqual(result["manifest_state"], "invalid")
+        self.assertNotIn("days/2026-10-06/preparation/manifest.json", self.storage.reads)
+        self.build.assert_not_called()
+
+    def test_fixed_diagnostics_identify_handoff_failure_without_body_or_ai(self):
+        self.storage = ReadStorage(None)
+        result = self.run_job()
+        report = job.safe_report(result, at(), self.clock.now)
+        self.assertEqual(report["phase"], "manifest_wait")
+        self.assertEqual(report["manifest_state"], "missing")
+        self.assertGreater(report["manifest_reads"], 0)
+        self.assertFalse(report["success"])
+        self.assertNotIn("articles", report)
+        self.build.assert_not_called()
+        self.assertEqual(self.storage.created, [])
 
     def test_late_start_and_finish_after_eight_publish_at_actual_completion(self):
         for hour, minute in ((8, 0), (9, 45), (12, 0), (22, 59)):
@@ -189,11 +244,12 @@ class PrivateJobTests(unittest.TestCase):
     def test_missing_manifest_is_bounded_and_cannot_collect_or_freeze(self):
         self.storage = ReadStorage(None)
         result = self.run_job()
-        self.assertEqual(result["status"], "job_deadline")
+        self.assertEqual(result["status"], "manifest_unavailable")
         self.assertFalse(result["success"])
-        self.assertEqual(self.clock.now, at(8, 15))
-        self.assertEqual(self.clock.mono, 100 + 13 * 60 + job.PROCESSING_SECONDS)
-        self.assertTrue(all(path == "days/2026-10-06/preparation/manifest.json"
+        self.assertEqual(self.clock.now, at(7, 35))
+        self.assertEqual(self.clock.mono, 100 + 13 * 60 + job.MANIFEST_WAIT_SECONDS)
+        self.assertTrue(all(path in ("days/2026-10-06/preparation/manifest.json",
+                                    "days/2026-10-06/preparation/recovery-v3.json")
                             for path in self.storage.reads))
         self.assertEqual(self.storage.created, [])
         self.assertEqual(self.storage.private_checks, 0)
@@ -206,8 +262,8 @@ class PrivateJobTests(unittest.TestCase):
             self.clock.mono += seconds
             self.clock.now = at(7, 30)
         result = self.run_job(sleep=rollback)
-        self.assertEqual(result["status"], "job_deadline")
-        self.assertEqual(self.clock.mono, 100 + job.PROCESSING_SECONDS)
+        self.assertEqual(result["status"], "manifest_unavailable")
+        self.assertEqual(self.clock.mono, 100 + job.MANIFEST_WAIT_SECONDS)
         self.build.assert_not_called()
 
     def test_invalid_frozen_manifest_is_rejected_without_runtime(self):
@@ -230,13 +286,13 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(result["status"], "job_deadline")
         self.build.assert_not_called()
 
-    def test_late_manifest_cannot_start_without_full_generation_reserve(self):
+    def test_expired_handoff_cannot_start_generation_with_late_manifest(self):
         def late(_path):
             self.clock.sleep(30 * 60)
             return deepcopy(self.manifest)
         self.storage.read = late
         result = self.run_job()
-        self.assertEqual(result["status"], "generation_window_exhausted")
+        self.assertEqual(result["status"], "manifest_unavailable")
         self.assertFalse(result["success"])
         self.build.assert_not_called()
 
@@ -338,7 +394,7 @@ class PrivateJobTests(unittest.TestCase):
             deadline.assert_called_once_with(seconds=13 * 60 + job.PROCESSING_SECONDS)
 
     def test_real_runtime_reviews_identical_copy_claims_once_and_keeps_eight_am_release(self):
-        calls, reviews = [], []
+        calls, reviews, history_reads = [], [], []
         with TemporaryDirectory() as folder:
             baseline = Path(folder) / "baseline.json"
             baseline.write_text("[]")
@@ -350,9 +406,12 @@ class PrivateJobTests(unittest.TestCase):
                     return generate_codex_website_edition(now, **source_options,
                         clock=lambda: self.clock.now,
                         providers=CodexWebsiteProviders(ENV, transport.session, writer=writer))
-                return DailyNewsRuntime(options["storage"], generate, enabled=True,
+                runtime = DailyNewsRuntime(options["storage"], generate, enabled=True,
                     baseline_path=baseline, cache_path=options["cache_path"],
                     max_attempts=options["max_attempts"], clock=lambda: self.clock.now)
+                runtime._published_history = Mock(side_effect=AssertionError("frozen selection must not reload history"))
+                history_reads.append(runtime._published_history)
+                return runtime
             result = self.run_job(runtime_factory=build)
             self.assertEqual((result["status"], result["success"]), ("prepared", True))
             self.assertEqual([name for name, _ in reviews], ["gemini", "openai"])
@@ -369,6 +428,8 @@ class PrivateJobTests(unittest.TestCase):
             self.assertEqual(len(calls), 1)
             self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
                              ["days/2026-10-06/attempt-1.lock"])
+            for history in history_reads:
+                history.assert_not_called()
 
     def test_real_runtime_quiet_day_has_no_claim_or_generation(self):
         self.storage = ReadStorage({**self.manifest, "articles": []})
@@ -629,6 +690,26 @@ class SafeResultTests(unittest.TestCase):
             self.assertEqual(report["status"], "job_deadline")
             self.assertFalse(report["success"])
             self.assertEqual(report["job_finished_at"], "2026-10-06T07:52:00+09:00")
+
+    def test_hard_deadline_retains_fixed_phase_and_runtime_attempt_metadata(self):
+        def interrupted(*, progress):
+            progress.phase = "generation"
+            progress.manifest_state = "present"
+            progress.manifest_version = 3
+            progress.runtime({"status": "generating", "attempt_count": 1,
+                              "secret": "fixture-must-not-leak"})
+            raise job.JobDeadline()
+        out = io.StringIO()
+        with redirect_stdout(out), patch.object(job.time, "time", return_value=at(9)), \
+                patch.object(job, "process_deadline", return_value=nullcontext()), \
+                patch.object(job, "run_job", side_effect=interrupted):
+            self.assertEqual(job.main(["--run-live"]), 1)
+        report = json.loads(out.getvalue())
+        self.assertEqual(report["status"], "job_deadline")
+        self.assertEqual(report["phase"], "generation")
+        self.assertEqual(report["runtime_status"], "generating")
+        self.assertEqual(report["attempt_count"], 1)
+        self.assertNotIn("fixture-must-not-leak", out.getvalue())
 
     def test_write_and_cleanup_permission_errors_are_fixed_and_do_not_expose_paths(self):
         for operation in ("link", "unlink"):

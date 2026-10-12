@@ -741,7 +741,8 @@ class DailyNewsRuntime:
         if self.source_preparer is not None:
             from morning_news_window import morning_window
             cutoff = morning_window(now)["cutoff_at"]
-            history = self._published_history(now) if now >= cutoff else ()
+            history = (self._published_history(now) if now >= cutoff
+                       and getattr(self.source_preparer, "published_history_frozen", False) is not True else ())
             manifest = self.source_preparer.prepare(now, history)
             if manifest is None or now < cutoff:
                 self._set("collecting" if now < cutoff else "freezing", edition_date=day,
@@ -823,9 +824,9 @@ class DailyNewsRuntime:
             if manifest is None:
                 generated = self.generator(now)
             else:
-                from morning_news_window import WINDOW_FIELDS
+                from morning_news_window import manifest_window
                 generated = self.generator(now, articles=deepcopy(manifest["articles"]),
-                                           source_window={key: manifest[key] for key in WINDOW_FIELDS})
+                                           source_window=manifest_window(manifest, now))
             # Do not let a stalled/old worker publish after another worker can
             # recover its claim. This does not cancel an in-flight provider call.
             if self.clock() >= now + PENDING_ATTEMPT_SECONDS:

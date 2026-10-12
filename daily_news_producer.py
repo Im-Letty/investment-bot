@@ -413,6 +413,7 @@ OFFICIAL_SOURCES = {'総務省統計局': 'www.stat.go.jp', '財務省': 'www.mo
 OFFICIAL_EDITORIAL = '''
 今回はsource_windowに明示された対象期間の版です。window_startとcutoff_atを確認してください。
 version=1の朝版は前日の発表や明示的な繰越を含みます。kind=intradayの日中版は当日の発表だけが対象で、前日分や繰越を含みません。
+version=3・kind=morningも同じ朝版の発表対象期間と明示的な繰越を使います。cutoff_atは発表対象期間の終わり、snapshot_atは原文を実際に確認して固定した時刻です。snapshot_atやbody_verified_atが07:30より遅い場合も、その実時刻を維持し、07:30以前に原文を取得したとは表現しません。
 版の日付、元の発表日、統計の対象月、出来事の日を区別してください。
 published_dateは元ページの掲載・発表日です。event_date_kind=press_conferenceのevent_dateは確認済みの会見日です。会見が行われた日はevent_date、ページが掲載・発表された日はpublished_dateとして区別し、互いに置き換えません。公式の元見出しに出来事の日が明示されている場合、その日付も使えます。掲載・発表日やURL内の数字から出来事の日を推測しません。
 publication_precision=dayの資料は発表時刻不明です。00:00や取得時刻を発表時刻にしないでください。
@@ -452,6 +453,14 @@ def _official_event_fields(row):
 
 
 def _source_window(value, now):
+    if isinstance(value, dict) and type(value.get('version')) is int and value['version'] == 3:
+        from morning_news_window import RECOVERY_WINDOW_FIELDS, manifest_window
+        try:
+            if set(value) != set(RECOVERY_WINDOW_FIELDS):
+                raise ValueError('invalid_source_manifest')
+            return manifest_window(value, now)
+        except (ValueError, TypeError, OverflowError):
+            raise GenerationError('invalid_source_window') from None
     if isinstance(value, dict) and type(value.get('version')) is int and value['version'] == 2:
         fields = {'version', 'kind', 'edition_date', 'window_start', 'cutoff_at'}
         if (set(value) != fields or value['kind'] != 'intraday' or not _positive_time(now)
@@ -513,7 +522,7 @@ def _official_articles(articles, window, now):
                 or not isinstance(body, str) or not 100 <= len(body) <= 30000
                 or row.get('body_sha256') != sha256(body.encode('utf-8')).hexdigest()
                 or row['published_date'] != published_day.isoformat()
-                or not _positive_time(verified) or verified > window['cutoff_at'] or verified > now
+                or not _positive_time(verified) or verified > window.get('snapshot_at', window['cutoff_at']) or verified > now
                 or published_day > datetime.fromtimestamp(verified, JST).date()
                 or url in seen):
             raise GenerationError('invalid_official_article')

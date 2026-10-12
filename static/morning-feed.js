@@ -24,17 +24,19 @@
   function validISODate(value){if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;var date=new Date(value+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===value;}
   function sourceWindow(digest){
     var w=digest&&digest.source_window;
-    if(!w||Object.keys(w).length!==5||digest.publication_mode!=='curated'||w.edition_date!==digest.edition_date||!validISODate(w.edition_date))return null;
+    if(!w||Object.keys(w).length!==(w.version===3?7:5)||digest.publication_mode!=='curated'||w.edition_date!==digest.edition_date||!validISODate(w.edition_date))return null;
     var midnight=Date.parse(w.edition_date+'T00:00:00+09:00')/1000;
     if(w.version===2){
       if(w.kind!=='intraday'||!Object.keys(w).every(function(key){return ['version','kind','edition_date','window_start','cutoff_at'].includes(key);})||!Number.isFinite(w.window_start)||w.window_start<=0||!Number.isFinite(w.cutoff_at)||w.cutoff_at<=0)return null;
       return w.window_start===midnight+7.5*3600&&w.cutoff_at>=midnight+9*3600&&w.cutoff_at<midnight+23*3600?w:null;
     }
-    if(w.version!==1)return null;
+    if(w.version===3){
+      if(w.kind!=='morning'||!Object.keys(w).every(function(key){return ['version','kind','edition_date','window_start','carryover_start','cutoff_at','snapshot_at'].includes(key);})||!Number.isFinite(w.snapshot_at)||w.snapshot_at<w.cutoff_at||editionKey(w.snapshot_at)!==w.edition_date)return null;
+    }else if(w.version!==1)return null;
     return w.window_start===midnight-16*3600&&w.carryover_start===midnight-16.5*3600&&w.cutoff_at===midnight+7.5*3600?w:null;
   }
   function officialArticle(item,w,reviewedAt){
-    if(!item||!Object.prototype.hasOwnProperty.call(officialSourceHosts,item.source)||!validISODate(item.published_date)||!['second','day'].includes(item.publication_precision)||typeof item.body_sha256!=='string'||! /^[a-f0-9]{64}$/.test(item.body_sha256)||!Number.isFinite(item.body_verified_at)||item.body_verified_at>w.cutoff_at||item.body_verified_at>reviewedAt)return false;
+    if(!item||!Object.prototype.hasOwnProperty.call(officialSourceHosts,item.source)||!validISODate(item.published_date)||!['second','day'].includes(item.publication_precision)||typeof item.body_sha256!=='string'||! /^[a-f0-9]{64}$/.test(item.body_sha256)||!Number.isFinite(item.body_verified_at)||item.body_verified_at>(w.version===3?w.snapshot_at:w.cutoff_at)||item.body_verified_at>reviewedAt)return false;
     var url;try{url=new URL(item.url);}catch(_){return false;}
     if(url.protocol!=='https:'||url.hostname!==officialSourceHosts[item.source]||url.username||url.password||url.search||(url.port&&url.port!=='443'))return false;
     if(item.source==='日本銀行'&&!/^\/mopo\/mpmdeci\/(?:state_\d{4}\/k\d{6}[a-z]?\.html?|mpr_\d{4}\/k\d{6}[a-z]?\.pdf)$/.test(url.pathname))return false;
@@ -128,7 +130,7 @@
     if(Object.prototype.hasOwnProperty.call(digest,'source_window')&&!window)return null;
     var hasStructure=Object.prototype.hasOwnProperty.call(digest,'reading_structure');
     if(hasStructure&&(digest.reading_structure!=='lead-plus-other-news-v1'||!window||digest.publication_mode!=='curated'||digest.copy_length_policy!=='flexible-v1'||!Object.prototype.hasOwnProperty.call(digest,'article_summaries')))return null;
-    if(digest.publication_mode==='curated'&&(digest.article_refs.length<1||digest.article_refs.length>3||!Number.isFinite(digest.reviewed_at)||digest.reviewed_at>Date.now()/1000||editionKey(digest.reviewed_at)!==d.edition_date||(window&&digest.reviewed_at<window.cutoff_at)||digest.article_refs.some(function(ref){return window?!officialArticle(ref,window,digest.reviewed_at):!ref||!Number.isFinite(ref.published_at)||ref.published_at>digest.reviewed_at;})))return null;
+    if(digest.publication_mode==='curated'&&(digest.article_refs.length<1||digest.article_refs.length>3||!Number.isFinite(digest.reviewed_at)||digest.reviewed_at>Date.now()/1000||editionKey(digest.reviewed_at)!==d.edition_date||(window&&digest.reviewed_at<(window.version===3?window.snapshot_at:window.cutoff_at))||digest.article_refs.some(function(ref){return window?!officialArticle(ref,window,digest.reviewed_at):!ref||!Number.isFinite(ref.published_at)||ref.published_at>digest.reviewed_at;})))return null;
     if(window&&(!Number.isFinite(digest.publish_at)||digest.publish_at<window.cutoff_at+(window.kind==='intraday'?0:1800)))return null;
     if(Object.prototype.hasOwnProperty.call(digest,'publish_at')&&(!Number.isFinite(digest.publish_at)||digest.publication_mode!=='curated'||digest.publish_at<digest.reviewed_at||digest.publish_at>Date.now()/1000||editionKey(digest.publish_at)!==d.edition_date))return null;
     var used=new Set();

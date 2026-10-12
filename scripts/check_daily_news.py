@@ -53,11 +53,17 @@ def valid_official_delivery(data, now):
                         'window_start': previous.replace(hour=8).timestamp(),
                         'carryover_start': previous.replace(hour=7, minute=30).timestamp(),
                         'cutoff_at': day.replace(hour=7, minute=30).timestamp()}
+            if window['version'] == 3:
+                snapshot = window.get('snapshot_at')
+                if (not number(snapshot) or not expected['cutoff_at'] <= snapshot <= now.timestamp()
+                        or datetime.fromtimestamp(snapshot, JST).date() != day.date()):
+                    return False
+                expected.update(version=3, kind='morning', snapshot_at=snapshot)
         if window != expected:
             return False
         reviewed, release = digest.get('reviewed_at'), digest.get('publish_at')
         if (not number(reviewed) or not number(release)
-                or not expected['cutoff_at'] <= reviewed <= release <= now.timestamp()
+                or not expected.get('snapshot_at', expected['cutoff_at']) <= reviewed <= release <= now.timestamp()
                 or release < day.replace(hour=8).timestamp()):
             return False
         refs, details = digest['article_refs'], digest['article_summaries']
@@ -95,7 +101,7 @@ def valid_official_delivery(data, now):
             verified = ref['body_verified_at']
             if (not host or url.scheme != 'https' or url.hostname != host or url.username or url.password
                     or url.port not in (None, 443) or url.query
-                    or not number(verified) or not 0 < verified <= expected['cutoff_at']
+                    or not number(verified) or not 0 < verified <= expected.get('snapshot_at', expected['cutoff_at'])
                     or not re.fullmatch('[a-f0-9]{64}', ref['body_sha256'])):
                 return False
             if ref['source'] == '日本銀行' and not re.fullmatch(
