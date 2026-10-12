@@ -2642,6 +2642,37 @@
       "pdf_sha256": "9fbbc0dc3f457419b5a61a498806a15791c848024c4771cc405d453822ae4136"
     },
     {
+      "symbol": "1941.T",
+      "identity": {
+        "symbol": "1941.T",
+        "code": "1941",
+        "name": "中電工",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで建物の電気・空調・通信設備や配電線、送変電用の地中線の工事を担う。中国電力グループから電気工事を受注するほか、子会社などでは学校の空調整備や工事材料の製造・販売も行う。",
+      "proof": {
+        "code": "1941",
+        "exchange": "Tokyo",
+        "corporate_number": "9240001006971",
+        "edinet_code": "E00073",
+        "source_company_name": "株式会社中電工",
+        "filing_company_name": "株式会社中電工",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD98",
+        "current_edinet_code": "E00073",
+        "current_corporate_number": "9240001006971"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD98",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832596.462697,
+      "pdf_sha256": "8d879a5cc5f08449d4759c78011e4a814318f304acde4dc947c3ddd21a43a082"
+    },
+    {
       "symbol": "1945.T",
       "identity": {
         "symbol": "1945.T",
@@ -2762,6 +2793,37 @@
       "pdf_sha256": "3b243e42abb840f4bcbc851ae11e2ad2c98859c75821032b79a71ce02a05c257"
     },
     {
+      "symbol": "1967.T",
+      "identity": {
+        "symbol": "1967.T",
+        "code": "1967",
+        "name": "ヤマト",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "建物の空調・衛生設備や電気設備、水処理プラント、冷凍・冷蔵設備の工事を設計・施工する。グループ会社は設備の保守や水力発電・売電、道の駅の運営などを担う。",
+      "proof": {
+        "code": "1967",
+        "exchange": "Tokyo",
+        "corporate_number": "5070001001977",
+        "edinet_code": "E00138",
+        "source_company_name": "株式会社ヤマト",
+        "filing_company_name": "株式会社ヤマト",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBIH",
+        "current_edinet_code": "E00138",
+        "current_corporate_number": "5070001001977"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBIH",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832634.1131399,
+      "pdf_sha256": "c9f06142e64de6bcb4834abd38c4cb9299e95163c03175e0fcb4022c455884f2"
+    },
+    {
       "symbol": "196A.T",
       "identity": {
         "symbol": "196A.T",
@@ -2880,6 +2942,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819721.219889,
       "pdf_sha256": "0a9aba173bd6601ac963e1184d8e3c497e1c5bab7e6c7d6b7bce796f14060208"
+    },
+    {
+      "symbol": "1997.T",
+      "identity": {
+        "symbol": "1997.T",
+        "code": "1997",
+        "name": "暁飯島工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "空調や給排水・衛生設備を設計して施工し、設備や機器の保守・管理も手がける。太陽光で発電した電力を販売する事業に加え、不動産を売買したり貸し出したりする事業も行う。",
+      "proof": {
+        "code": "1997",
+        "exchange": "Tokyo",
+        "corporate_number": "7050001000351",
+        "edinet_code": "E00246",
+        "source_company_name": "暁飯島工業株式会社",
+        "filing_company_name": "暁飯島工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X59V",
+        "current_edinet_code": "E00246",
+        "current_corporate_number": "7050001000351"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X59V",
+      "filed_on": "2025-11-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832660.3235142,
+      "pdf_sha256": "06db4aa3b7adb3a5790977293a07049b24346a6b82d45a149cb5691e907b2f3f"
     },
     {
       "symbol": "1999.JP",
@@ -3090,6 +3183,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819742.4429922,
       "pdf_sha256": "1e5fe626c7c4f063a18821407030aef51b140f920de60fb0ea96b545dfbbbe0f"
+    },
+    {
+      "symbol": "211A.T",
+      "identity": {
+        "symbol": "211A.T",
+        "code": "211A",
+        "name": "カドス・コーポレーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土地活用を希望する所有者と出店企業を結び、流通店舗の設計や工事の元請を担う。自社で借りた土地に店舗を建て、土地・建物を貸すなど不動産賃貸も行う。",
+      "proof": {
+        "code": "211A",
+        "exchange": "Tokyo",
+        "corporate_number": "9250001001352",
+        "edinet_code": "E39729",
+        "source_company_name": "株式会社カドス・コーポレーション",
+        "filing_company_name": "株式会社カドス・コーポレーション",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100WW30",
+        "current_edinet_code": "E39729",
+        "current_corporate_number": "9250001001352"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100WW30",
+      "filed_on": "2025-10-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832692.026093,
+      "pdf_sha256": "f3b6ff4c80f9aa3f47ff2d50457594ce83488cfabf82bc80341f880d51217fe6"
     },
     {
       "symbol": "212A.T",
@@ -3338,6 +3462,37 @@
       "pdf_sha256": "98dbbb5b41c3a1bb535fc565b571254361d083ad723da26e8fd7b6e516ba6a32"
     },
     {
+      "symbol": "2181.T",
+      "identity": {
+        "symbol": "2181.T",
+        "code": "2181",
+        "name": "パーソルホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで事務職や技術者の派遣、転職サービス「doda」、企業・自治体の業務受託を提供する。給与計算や窓口対応、システムの開発支援などを担い、アジアや豪州でも人材サービスを展開する。",
+      "proof": {
+        "code": "2181",
+        "exchange": "Tokyo",
+        "corporate_number": "8011001058176",
+        "edinet_code": "E21261",
+        "source_company_name": "パーソルホールディングス株式会社",
+        "filing_company_name": "パーソルホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGCS",
+        "current_edinet_code": "E21261",
+        "current_corporate_number": "8011001058176"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGCS",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832762.773972,
+      "pdf_sha256": "1690897feac71b06fb695e253fff5d26e4d849fee96e1f64239cd43a89212bc0"
+    },
+    {
       "symbol": "218A.T",
       "identity": {
         "symbol": "218A.T",
@@ -3488,6 +3643,37 @@
       "pdf_sha256": "3f2f1d1edf4c64412453dfa59bed3ebf4666b49f9983e626657801426d1b54d3"
     },
     {
+      "symbol": "2218.JP",
+      "identity": {
+        "symbol": "2218.JP",
+        "code": "2218",
+        "name": "日糧製パン",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "食パンの「絹艶」や「イギリス食パン」、菓子パンなどを製造・販売する。和洋菓子や調理パン、米飯製品も扱い、販売店の日々の注文に合わせて生産数量を調整する。",
+      "proof": {
+        "code": "2218",
+        "exchange": "Sapporo",
+        "corporate_number": "8430001012919",
+        "edinet_code": "E00382",
+        "source_company_name": "日糧製パン株式会社",
+        "filing_company_name": "日糧製パン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHEK",
+        "current_edinet_code": "E00382",
+        "current_corporate_number": "8430001012919"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHEK",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832816.7058828,
+      "pdf_sha256": "d9773b33a8a8478a8a58235001e761dcddd25e5d87364290853ccc1a4d53f593"
+    },
+    {
       "symbol": "2222.T",
       "identity": {
         "symbol": "2222.T",
@@ -3516,6 +3702,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819788.715544,
       "pdf_sha256": "5d304f975cc134a6aaf5f16029ab52d28e88158b20d69cc69c0110ab66274a6b"
+    },
+    {
+      "symbol": "2269.T",
+      "identity": {
+        "symbol": "2269.T",
+        "code": "2269",
+        "name": "明治ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "食品と医薬品の企業グループを束ねる持株会社。グループでは牛乳・ヨーグルト、チョコレートや乳幼児向けミルクなどに加え、医療用の薬や動物向けの薬を扱う。",
+      "proof": {
+        "code": "2269",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001123947",
+        "edinet_code": "E21902",
+        "source_company_name": "明治ホールディングス株式会社",
+        "filing_company_name": "明治ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YILP",
+        "current_edinet_code": "E21902",
+        "current_corporate_number": "9010001123947"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YILP",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832847.025332,
+      "pdf_sha256": "fefbd221b29191cbcc1ac83fe46325fa0eb8b2695d16765652eacc549638dd71"
     },
     {
       "symbol": "2286.T",
@@ -3606,6 +3823,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819799.21966,
       "pdf_sha256": "d9333bcabbe21d0d8ad01545fd025acd36c8e19c4e102f279f99d160ae493e90"
+    },
+    {
+      "symbol": "2303.T",
+      "identity": {
+        "symbol": "2303.T",
+        "code": "2303",
+        "name": "ドーン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "警察や消防、自治体向けに、地図と連動した防犯・防災のクラウドサービスを提供する。スマートフォンによる緊急通報や現場映像の共有を支え、地理情報システムの開発・保守も受託する。",
+      "proof": {
+        "code": "2303",
+        "exchange": "Tokyo",
+        "corporate_number": "9140001018622",
+        "edinet_code": "E05289",
+        "source_company_name": "株式会社ドーン",
+        "filing_company_name": "株式会社ドーン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YXLE",
+        "current_edinet_code": "E05289",
+        "current_corporate_number": "9140001018622"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YXLE",
+      "filed_on": "2026-08-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832877.058109,
+      "pdf_sha256": "cbc1cdaaccb34964a32edfa0689d0ca70d76bfa4fc856c16b48b5bb25714695e"
     },
     {
       "symbol": "2304.T",

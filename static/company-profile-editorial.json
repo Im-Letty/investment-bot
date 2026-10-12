@@ -4177,6 +4177,53 @@
         }
       ],
       "reviewed_on": "2026-10-13"
+    },
+    {
+      "symbol": "1762.T",
+      "name": "高松コンストラクショングループ",
+      "business": "建設・不動産を担う各社をまとめる持株会社です。グループでは賃貸住宅や工場を設計して建て、橋やダムの工事、港での土木工事、既存建物の改修も行います。",
+      "life": "住まいや勤務先の建設、ビルの修繕、港の整備などに関わるグループです。木造住宅の企画・販売や、マンションなどの管理も事業に含まれます。",
+      "watch": "建築工事、土木工事、不動産や住宅の事業を分けて確認します。公式のグループ会社紹介から、建築対象や担当会社、改修・管理までの業務範囲を確認できます。",
+      "sources": [
+        {
+          "title": "企業概要（事業説明は当サイト作成）",
+          "url": "https://www.takamatsu-cg.co.jp/about/companyoverview/index.html",
+          "fetched_at": 1791832881.109514
+        },
+        {
+          "title": "株式情報",
+          "url": "https://www.takamatsu-cg.co.jp/ir/stock/stockinformation.html",
+          "fetched_at": 1791832882.683497
+        },
+        {
+          "title": "グループ会社紹介",
+          "url": "https://www.takamatsu-cg.co.jp/group/index.html",
+          "fetched_at": 1791832884.248455
+        }
+      ],
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。"
+    },
+    {
+      "symbol": "1801.T",
+      "name": "大成建設",
+      "business": "建物の設計・施工と、道路や鉄道などの工事を手がける会社です。オフィスや工場、病院に加え、トンネル・橋・ダムも建設します。グループでは都市の再開発や建物の改修にも取り組んでいます。",
+      "life": "仕事場や買い物先、医療施設を建てる仕事と、道路や橋を通る移動を支える土木工事の両方に接点があります。建物や高速道路などを長く使うための改修も手がけます。",
+      "watch": "建築、土木、開発の各事業で、どの施設をつくり、既存施設をどう改修するかを確認します。公式の事業資料では、オフィスや工場の建築と道路・ダムの工事を分けて見られます。",
+      "sources": [
+        {
+          "title": "大成建設グループ統合報告書2025 中長期事業戦略（事業説明は当サイト作成）",
+          "url": "https://www.taisei.co.jp/sustainability/library/online/2025/pdf/05_chapter3_taisei_tougou25_a3.pdf",
+          "fetched_at": 1791832886.770357
+        },
+        {
+          "title": "大成建設グループ統合報告書2025 会社情報・株式情報",
+          "url": "https://www.taisei.co.jp/sustainability/library/online/2025/pdf/08_data_taisei_tougou25_a3.pdf",
+          "fetched_at": 1791832888.802089
+        }
+      ],
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。"
     }
   ]
 }
