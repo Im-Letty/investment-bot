@@ -42056,6 +42056,68 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791841436.758635,
       "pdf_sha256": "51160e37e66e05ab488e958918140fbb0f820a934ce62c5109f423337e6a7814"
+    },
+    {
+      "symbol": "9984.T",
+      "identity": {
+        "symbol": "9984.T",
+        "code": "9984",
+        "name": "ソフトバンクグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "投資ファンドなどを通して企業に出資する持株会社。グループ各社は個人・法人向けの通信やネット通販、決済サービスを担う。Armなどは半導体の設計に使う技術や、開発用ソフトを提供する。",
+      "proof": {
+        "code": "9984",
+        "exchange": "Tokyo",
+        "corporate_number": "1010401056795",
+        "edinet_code": "E02778",
+        "source_company_name": "ソフトバンクグループ株式会社",
+        "filing_company_name": "ソフトバンクグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGH5",
+        "current_edinet_code": "E02778",
+        "current_corporate_number": "1010401056795"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGH5",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843718.598681,
+      "pdf_sha256": "b308a78ff5007e07c9509295822181df0b81bb9c62afc190e31c6ff57cbfd31e"
+    },
+    {
+      "symbol": "9986.T",
+      "identity": {
+        "symbol": "9986.T",
+        "code": "9986",
+        "name": "蔵王産業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "業務用の掃除機や床を洗う機械、高圧・蒸気の洗浄機などを扱う。海外メーカーに仕様を指定した清掃・洗浄用の機器を輸入し、国内へ販売するほか、機械の整備や交換部品、日々使う消耗品も提供する。",
+      "proof": {
+        "code": "9986",
+        "exchange": "Tokyo",
+        "corporate_number": "3010601019393",
+        "edinet_code": "E02779",
+        "source_company_name": "蔵王産業株式会社",
+        "filing_company_name": "蔵王産業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ27",
+        "current_edinet_code": "E02779",
+        "current_corporate_number": "3010601019393"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ27",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843721.550443,
+      "pdf_sha256": "ab4a876c45ba5e75a545c58aaa41c003f32ae62f03cbec01766d62a33346850b"
     }
   ]
 }
