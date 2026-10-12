@@ -13,6 +13,8 @@ from stock_search import StockSearch, SEED_PATH as JPX_SEED_PATH
 import stock_search
 
 DAY = date(2026, 10, 11)
+SAPPORO_NAMES_FIXTURE = Path(__file__).with_name('fixtures') / 'sapporo_current_names.html'
+SAPPORO_SINGLE_NAMES_FIXTURE = Path(__file__).with_name('fixtures') / 'sapporo_single_current_names.html'
 
 
 def source(key, rows, stamp='2026-10-11'):
@@ -21,6 +23,20 @@ def source(key, rows, stamp='2026-10-11'):
 
 def document(sources):
     return {'version': 1, 'scope': national.SCOPE, 'sources': sources}
+
+
+def supplement_fixture(observed_on=DAY):
+    """Use saved identities with synthetic dates for fixed-day refresh tests.
+
+    The production seed is periodically updated. Its later observation stamp
+    must not turn an otherwise independent 2026-10-11 failure/recovery fixture
+    into a future-source test. Actual event dates and the production validator
+    remain unchanged; explicit future-cache tests still use their own stamps.
+    """
+    fixture = deepcopy(national.read_supplement())
+    for saved in fixture['sources'].values():
+        saved['as_of'] = min(saved['as_of'], observed_on.isoformat())
+    return national.verified_supplement(fixture, observed_on)
 
 
 def new_listing_table(rows):
@@ -362,11 +378,17 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
             return '<dl><dt><h5>' + title + '</h5></dt><dd><div>' + ''.join(
                 f'<dl><dt>{code}</dt><dd><a href="https://www.sse.or.jp/listing/company{code}">Company{code}</a></dd></dl>'
                 for code in codes) + '</div></dd></dl>'
-        payload = ('<div class="subnav07">' + group('単独上場会社 - 本則市場', [str(1400+i) for i in range(10)]) +
-                   group('重複上場会社 - 本則市場', [str(1500+i) for i in range(10)] + ['6147']) +
+        regular = [str(1400+i) for i in range(10)] + [str(1500+i) for i in range(10)] + ['6147']
+        def body(title, codes):
+            return '<section class="catlist"><h3>' + title + '</h3>' + ''.join(
+                f'<a href="./company{code}"><span>{code}</span>Company{code}</a>' for code in codes) + '</section>'
+        payload = ('<div class="subnav07">' + group('単独上場会社 - 本則市場', regular[:10]) +
+                   group('重複上場会社 - 本則市場', regular[10:]) +
                    group('単独上場会社 - アンビシャス', ['2928']) + group('重複上場会社 - アンビシャス', ['7118']) +
                    group('重複上場会社 - Sapporo PRO Frontier Market', ['628A']) +
-                   group('債券上場会社 - 北海道ESGプロボンドマーケット', ['0001']) + '</div>').encode()
+                   group('債券上場会社 - 北海道ESGプロボンドマーケット', ['0001']) + '</div>' +
+                   '<div id="listing">' + body('機械', regular) + body('アンビシャス市場', ['2928', '7118']) +
+                   body('Sapporo PRO Frontier Market', ['628A']) + '</div>').encode()
         rows = national.parse_sapporo_all(payload, DAY)
         codes = {r['code'] for r in rows}
         self.assertIn('6147', codes)
@@ -375,6 +397,208 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         self.assertNotIn('0001', codes)
         with self.assertRaises(ValueError):
             national.parse_sapporo_all(payload.replace('重複上場会社 - アンビシャス'.encode(), b'Unknown market'), DAY)
+
+    def test_saved_sapporo_main_list_uses_current_name_with_same_code_old_navigation_alias(self):
+        rows = national.parse_sapporo_all(SAPPORO_NAMES_FIXTURE.read_bytes(), DAY)
+        self.assertEqual(len(rows), 68)
+        renamed = next(row for row in rows if row['code'] == '3055')
+        self.assertEqual(renamed, {'code': '3055', 'name': '株式会社TSUMUGU HOLDINGS',
+                                  'market': '本則市場', 'aliases': ['株式会社ほくやく・竹山ホールディングス']})
+        self.assertEqual(len(rows), len({row['code'] for row in rows}))
+        self.assertEqual(next(row for row in rows if row['code'] == '6147')['market'], '本則市場')
+        self.assertEqual(next(row for row in rows if row['code'] == '7118')['market'], 'アンビシャス市場')
+        self.assertFalse({'0001', '0002', '588A', '628A', '615A', '599A'} & {row['code'] for row in rows})
+
+    def test_sapporo_main_body_requires_complete_matching_code_links_not_stale_navigation_fallback(self):
+        good = SAPPORO_NAMES_FIXTURE.read_bytes()
+        row = ('<dl><dt><a href="./company3055"><span>3055</span>株式会社TSUMUGU HOLDINGS'
+               '</a></dt><dd></dd></dl>').encode()
+        self.assertEqual(good.count(row), 1)
+        bad_cases = {
+            'missing_body': good.split(b'<div id="listing">')[0],
+            'partial_company_list': good.replace(row, b''),
+            'truncated_body': good.removesuffix(b'</div></body></html>\n'),
+            'duplicate_identity': good.replace(row, row + row),
+            'wrong_code_link': good.replace(b'./company3055', b'./company3056'),
+            'wrong_code_span': good.replace(row, row.replace(b'<span>3055</span>', b'<span>3056</span>')),
+            'unapproved_company_url': good.replace(b'./company3055', b'https://example.test/company3055'),
+            'extra_or_missing_code_span': good.replace(row, row.replace(b'<span>3055</span>', b'<span>3055</span><span>3055</span>')),
+            'five_digit_code': good.replace(row, row.replace(b'3055', b'30550')),
+            'market_mismatch': good.replace('<h3>アンビシャス市場</h3>'.encode(), '<h3>本則市場</h3>'.encode()),
+            'unknown_navigation_market': good.replace('単独上場会社 - 本則市場'.encode(), b'Unknown market'),
+        }
+        for reason, payload in bad_cases.items():
+            with self.subTest(reason=reason), self.assertRaises(ValueError):
+                national.parse_sapporo_all(payload, DAY)
+
+    def test_sapporo_unknown_or_duplicate_navigation_identity_cannot_supply_main_body_name(self):
+        good = SAPPORO_NAMES_FIXTURE.read_bytes()
+        old_row = ('<dl><dt>3055</dt><dd><a href="https://www.sse.or.jp/listing/company3055">'
+                   '<img alt="株式会社ほくやく・竹山ホールディングス"></a></dd></dl>').encode()
+        self.assertEqual(good.count(old_row), 1)
+        for payload in (good.replace(old_row, old_row + old_row),
+                        good.replace(old_row, old_row.replace(b'3055', b'3056')),
+                        good.replace(old_row, old_row.replace(b'company3055', b'company3056'))):
+            with self.assertRaises(ValueError):
+                national.parse_sapporo_all(payload, DAY)
+
+    def test_sapporo_single_company_identity_requires_matching_official_link_and_unique_code(self):
+        def link(code, name):
+            return f'<a href="/listing/company{code}"><span>{code}</span>{name}</a>'
+        renamed = link('3055', '株式会社TSUMUGU HOLDINGS')
+        good = ('<section id="honsoku">' + renamed + ''.join(link(str(1400+i), 'Current company') for i in range(4)) +
+                '</section><section id="ambitious">' + link('2928', 'Current ambitious') + '</section>').encode()
+        self.assertEqual(national.parse_sapporo(good, DAY)[0]['name'], '株式会社TSUMUGU HOLDINGS')
+        for payload in (good.replace(b'company3055', b'company3056'),
+                        good.replace(renamed.encode(), (renamed + renamed).encode()),
+                        good.replace(b'/listing/company3055', b'https://example.test/company3055')):
+            with self.assertRaises(ValueError):
+                national.parse_sapporo(payload, DAY)
+
+    def test_saved_single_sapporo_page_uses_explicit_parent_relative_company_links(self):
+        payload = SAPPORO_SINGLE_NAMES_FIXTURE.read_bytes()
+        rows = national.parse_sapporo(payload, DAY)
+        self.assertEqual(len(rows), 15)
+        self.assertEqual(next(row for row in rows if row['code'] == '3055'),
+                         {'code': '3055', 'name': '株式会社TSUMUGU HOLDINGS', 'market': '本則市場'})
+        self.assertEqual(next(row for row in rows if row['code'] == '2928')['market'], 'アンビシャス市場')
+        self.assertNotIn('588A', {row['code'] for row in rows})
+        for invalid in (b'../../listing/company3055', b'../listing/company3056',
+                        b'../listing/company30550', b'../listing/company3055?source=other'):
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                national.parse_sapporo(payload.replace(b'../listing/company3055', invalid), DAY)
+
+    def test_verified_regional_aliases_survive_save_restore_and_merge_without_changing_current_name(self):
+        rows = national.parse_sapporo_all(SAPPORO_NAMES_FIXTURE.read_bytes(), DAY)
+        good = document({'sapporo_all': source('sapporo_all', rows)})
+        verified = national.verified_supplement(good, DAY)
+        aliases = next(row for row in verified['sources']['sapporo_all']['items'] if row['code'] == '3055')['aliases']
+        self.assertEqual(aliases, ['株式会社ほくやく・竹山ホールディングス'])
+        with tempfile.TemporaryDirectory() as temporary:
+            seed, runtime = Path(temporary) / 'seed.json', Path(temporary) / 'runtime.json'
+            seed.write_text(json.dumps(good))
+            runtime.write_text(json.dumps(good))
+            restored = national.read_supplement(seed_path=seed, runtime_path=runtime)
+        merged, _ = national.merge_companies({'items': [], 'as_of': None}, restored)
+        renamed = next(row for row in merged if row['code'] == '3055')
+        self.assertEqual(renamed['name'], '株式会社TSUMUGU HOLDINGS')
+        self.assertEqual(renamed['aliases'], ['株式会社ほくやく・竹山ホールディングス'])
+        self.assertEqual(renamed['symbol'], '3055.JP')
+        self.assertIsNone(renamed['provider_symbol'])
+        aliases.append('Changed caller copy')
+        self.assertEqual(next(row for row in good['sources']['sapporo_all']['items'] if row['code'] == '3055')['aliases'],
+                         ['株式会社ほくやく・竹山ホールディングス'])
+
+    def test_untrusted_alias_structure_and_nonregional_aliases_fail_validation(self):
+        rows = national.parse_sapporo_all(SAPPORO_NAMES_FIXTURE.read_bytes(), DAY)
+        good = document({'sapporo_all': source('sapporo_all', rows)})
+        for invalid in ('Former name', [None], [{}], [''], ['Former\nname'], ['X' * 201],
+                        ['Duplicate', 'Duplicate'], ['株式会社TSUMUGU HOLDINGS'], ['Alias' + str(i) for i in range(9)]):
+            bad = deepcopy(good)
+            next(row for row in bad['sources']['sapporo_all']['items'] if row['code'] == '3055')['aliases'] = invalid
+            with self.subTest(invalid=invalid), self.assertRaises(ValueError):
+                national.verified_supplement(bad, DAY)
+        bad = document({'tokyo_new': source('tokyo_new', [{'code': '123A', 'name': 'Current',
+                        'market': 'グロース（内国株式）', 'listed_on': '2026-10-01', 'aliases': ['Unconfirmed']}])})
+        with self.assertRaises(ValueError):
+            national.verified_supplement(bad, DAY)
+
+    def test_stale_navigation_only_refresh_retains_last_good_complete_source(self):
+        before = supplement_fixture()
+        truncated = SAPPORO_NAMES_FIXTURE.read_bytes().split(b'<div id="listing">')[0]
+        def download(url, session):
+            if url == national.SOURCES['sapporo_all']:
+                return truncated
+            raise requests.Timeout('no response')
+        with patch.object(national, '_download', side_effect=download):
+            after = national.refresh_supplement(before, today=DAY)
+        self.assertEqual(after, before)
+
+    def test_sapporo_main_body_proof_is_written_only_after_successful_full_parse(self):
+        before = supplement_fixture()
+        payload = SAPPORO_NAMES_FIXTURE.read_bytes()
+        def download(url, session):
+            if url == national.SOURCES['sapporo_all']:
+                return payload
+            raise requests.Timeout('no response')
+        with patch.object(national, '_download', side_effect=download):
+            after = national.refresh_supplement(before, today=DAY)
+        full = after['sources']['sapporo_all']
+        self.assertEqual(full['identity_name_basis'], national.SAPPORO_MAIN_NAME_BASIS)
+        self.assertEqual(next(row for row in full['items'] if row['code'] == '3055')['name'], '株式会社TSUMUGU HOLDINGS')
+        for key in set(before['sources']) - {'sapporo_all'}:
+            self.assertEqual(after['sources'][key], before['sources'][key])
+
+    def test_same_day_navigation_cache_cannot_replace_seed_with_main_body_name_proof(self):
+        rows = national.parse_sapporo_all(SAPPORO_NAMES_FIXTURE.read_bytes(), DAY)
+        good = document({'sapporo_all': dict(source('sapporo_all', rows),
+                                           identity_name_basis=national.SAPPORO_MAIN_NAME_BASIS)})
+        for stamp in ('2026-10-11',):
+            old = deepcopy(good)
+            old['sources']['sapporo_all'].pop('identity_name_basis')
+            old['sources']['sapporo_all']['as_of'] = stamp
+            old_row = next(row for row in old['sources']['sapporo_all']['items'] if row['code'] == '3055')
+            old_row.update(name='株式会社ほくやく・竹山ホールディングス')
+            old_row.pop('aliases')
+            with self.subTest(stamp=stamp), tempfile.TemporaryDirectory() as temporary:
+                seed, runtime = Path(temporary) / 'seed.json', Path(temporary) / 'runtime.json'
+                seed.write_text(json.dumps(good))
+                runtime.write_text(json.dumps(old))
+                with patch.object(national, 'today_jst', return_value=date(2026, 10, 12)):
+                    restored = national.read_supplement(seed_path=seed, runtime_path=runtime)
+            self.assertEqual(restored, national.verified_supplement(good, date(2026, 10, 12)))
+
+    def test_later_legacy_membership_is_preserved_then_bounded_source_refresh_rechecks_current_names(self):
+        rows = national.parse_sapporo_all(SAPPORO_NAMES_FIXTURE.read_bytes(), DAY)
+        good = document({'sapporo_all': dict(source('sapporo_all', rows),
+                                           identity_name_basis=national.SAPPORO_MAIN_NAME_BASIS)})
+        later = deepcopy(good)
+        legacy = later['sources']['sapporo_all']
+        legacy.pop('identity_name_basis')
+        legacy['as_of'] = '2026-10-12'
+        legacy['sha256'] = 'b' * 64
+        row = next(row for row in legacy['items'] if row['code'] == '3055')
+        row.update(name='株式会社ほくやく・竹山ホールディングス')
+        row.pop('aliases')
+        today = date(2026, 10, 12)
+        with tempfile.TemporaryDirectory() as temporary:
+            seed, runtime = Path(temporary) / 'seed.json', Path(temporary) / 'runtime.json'
+            seed.write_text(json.dumps(good))
+            runtime.write_text(json.dumps(later))
+            with patch.object(national, 'today_jst', return_value=today):
+                restored = national.read_supplement(seed_path=seed, runtime_path=runtime)
+        self.assertEqual(restored, national.verified_supplement(later, today), 'Do not replace later membership with an older seed')
+        def download(url, session):
+            if url == national.SOURCES['sapporo_all']:
+                return SAPPORO_NAMES_FIXTURE.read_bytes()
+            raise requests.Timeout('no response')
+        with patch.object(national, '_download', side_effect=download) as fetch:
+            refreshed = national.refresh_supplement(restored, today=today)
+        full = refreshed['sources']['sapporo_all']
+        self.assertEqual(full['as_of'], '2026-10-12')
+        self.assertEqual(full['identity_name_basis'], national.SAPPORO_MAIN_NAME_BASIS)
+        self.assertEqual(next(row for row in full['items'] if row['code'] == '3055')['name'], '株式会社TSUMUGU HOLDINGS')
+        self.assertEqual(sum(call.args[0] == national.SOURCES['sapporo_all'] for call in fetch.call_args_list), 1)
+
+    def test_later_proven_current_body_snapshot_can_replace_seed_but_unknown_basis_cannot(self):
+        rows = national.parse_sapporo_all(SAPPORO_NAMES_FIXTURE.read_bytes(), DAY)
+        good = document({'sapporo_all': dict(source('sapporo_all', rows),
+                                           identity_name_basis=national.SAPPORO_MAIN_NAME_BASIS)})
+        fresh = deepcopy(good)
+        fresh['sources']['sapporo_all']['as_of'] = '2026-10-12'
+        fresh['sources']['sapporo_all']['sha256'] = 'b' * 64
+        with tempfile.TemporaryDirectory() as temporary:
+            seed, runtime = Path(temporary) / 'seed.json', Path(temporary) / 'runtime.json'
+            seed.write_text(json.dumps(good))
+            runtime.write_text(json.dumps(fresh))
+            with patch.object(national, 'today_jst', return_value=date(2026, 10, 12)):
+                self.assertEqual(national.read_supplement(seed_path=seed, runtime_path=runtime),
+                                 national.verified_supplement(fresh, date(2026, 10, 12)))
+        for basis in ('navigation_only', '', None, {}):
+            bad = deepcopy(good)
+            bad['sources']['sapporo_all']['identity_name_basis'] = basis
+            with self.subTest(basis=basis), self.assertRaises(ValueError):
+                national.verified_supplement(bad, DAY)
 
     def test_fukuoka_full_regular_market_excludes_explicit_etf_reit_and_pro(self):
         def link(code, name):
@@ -391,16 +615,17 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
             national.parse_fukuoka_all(payload.replace(b'6147', b'61471'), DAY)
 
     def test_failed_source_preserves_last_good_catalogue_and_invalid_future_cache_falls_back(self):
-        before = national.read_supplement()
+        before = supplement_fixture()
         session = Mock()
         session.get.side_effect = requests.Timeout('upstream failed')
         self.assertEqual(national.refresh_supplement(before, session=session, today=DAY), before)
-        bad = deepcopy(before)
+        actual_seed = national.read_supplement()
+        bad = deepcopy(actual_seed)
         bad['sources']['sapporo']['as_of'] = '2099-01-01'
         with tempfile.TemporaryDirectory() as temporary:
             cache = Path(temporary) / 'national.json'
             cache.write_text(json.dumps(bad))
-            self.assertEqual(national.read_supplement(runtime_path=cache), before)
+            self.assertEqual(national.read_supplement(runtime_path=cache), actual_seed)
 
     def test_older_runtime_ui_label_or_future_transfer_cannot_replace_verified_seed(self):
         before = national.read_supplement()
@@ -415,7 +640,7 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         self.assertEqual(after['sources']['tokyo_transfers'], before['sources']['tokyo_transfers'])
 
     def test_changed_or_truncated_transfer_page_retains_last_good_market_source(self):
-        before = national.read_supplement()
+        before = supplement_fixture()
         good = ('2026/10/07', '（株）メドレックス', '4586', 'スタンダード', 'グロース')
         for payload in (transfer_table([good]).removesuffix(b'</table>'),
                         transfer_table([good]).replace('以前の市場区分'.encode(), '変更理由'.encode())):
@@ -453,7 +678,7 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         search.session.get.assert_not_called()
 
     def test_failed_one_exchange_download_does_not_erase_other_exchange(self):
-        before = national.read_supplement()
+        before = supplement_fixture()
         rows = deepcopy(before['sources']['nagoya']['items'])
         rows[0]['name'] = 'Updated Nagoya identity'
         def download(url, session):

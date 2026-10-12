@@ -38,6 +38,7 @@ REGIONAL_SOURCES = {'nagoya': 'Nagoya', 'nagoya_all': 'Nagoya',
                     'fukuoka': 'Fukuoka', 'fukuoka_all': 'Fukuoka'}
 SOURCE_TITLES = {'Tokyo': '日本取引所グループ（JPX）', 'Nagoya': '名古屋証券取引所',
                  'Sapporo': '札幌証券取引所', 'Fukuoka': '福岡証券取引所'}
+SAPPORO_MAIN_NAME_BASIS = 'sapporo_main_company_list_v1'
 REGIONAL_MARKETS = {'Nagoya': {'プレミア市場', 'メイン市場', 'ネクスト市場'},
                     'Sapporo': {'本則市場', 'アンビシャス市場'},
                     'Fukuoka': {'本則', 'Q-Board'}}
@@ -122,6 +123,34 @@ def _name(value):
     value = value.strip().rstrip('*＊').strip()
     value = re.sub(r'^[（(]株[）)]\s*|\s*[（(]株[）)]$', '', value).strip()
     return value
+
+
+def _identity_name(value):
+    return (isinstance(value, str) and 1 <= len(value) <= 200
+            and not any(ord(c) < 32 for c in value))
+
+
+def _sapporo_company_code(link):
+    # Current-company links may be absolute or relative, but never guessed
+    # tickers or an arbitrary link containing a familiar four-digit number.
+    match = re.fullmatch(r'(?:https://www\.sse\.or\.jp/listing/|/listing/|\.\./listing/|\./)company([0-9][0-9A-Z]{3})',
+                         link.attrs.get('href', ''))
+    if not link.closed or match is None:
+        raise ValueError('Invalid Sapporo company link')
+    return match[1]
+
+
+def _sapporo_text_identity(link):
+    spans = list(link.findall('span'))
+    if len(spans) != 1 or not spans[0].closed:
+        raise ValueError('Unknown Sapporo company code span')
+    code, text = _text(spans[0]).upper(), _text(link)
+    if not CODE.fullmatch(code) or _sapporo_company_code(link) != code or not text.startswith(code):
+        raise ValueError('Invalid Sapporo current company')
+    name = _name(text[len(code):].strip())
+    if not _identity_name(name):
+        raise ValueError('Invalid Sapporo current company name')
+    return code, name
 
 
 def _stamp(value):
@@ -327,19 +356,17 @@ def parse_sapporo(payload, observed_on):
                if node.attrs.get('id') in ('honsoku', 'ambitious')}
     if set(regions) != {'honsoku', 'ambitious'}:
         raise ValueError('Unknown Sapporo ordinary sections')
-    result = []
+    result, seen = [], set()
     for key, market in (('honsoku', '本則市場'), ('ambitious', 'アンビシャス市場')):
         for link in _within_section(regions[key], 'a'):
             spans = list(link.findall('span'))
             if len(spans) != 1:
                 continue
-            code = _text(spans[0]).upper()
-            if not CODE.fullmatch(code):
-                raise ValueError('Invalid Sapporo company code')
-            text = _text(link)
-            if not text.startswith(code):
-                raise ValueError('Unknown Sapporo company name')
-            result.append({'code': code, 'name': text[len(code):].strip(), 'market': market})
+            code, name = _sapporo_text_identity(link)
+            if code in seen:
+                raise ValueError('Duplicate Sapporo company identity')
+            seen.add(code)
+            result.append({'code': code, 'name': name, 'market': market})
     if not 5 <= len(result) <= 100:
         raise ValueError('Incomplete Sapporo ordinary list')
     return result
@@ -354,7 +381,7 @@ def parse_sapporo_all(payload, observed_on):
               '重複上場会社 - 本則市場': '本則市場',
               '単独上場会社 - アンビシャス': 'アンビシャス市場',
               '重複上場会社 - アンビシャス': 'アンビシャス市場'}
-    result, parsed = [], set()
+    result, parsed, seen = [], set(), set()
     for block in menus[0].findall('dl'):
         children = [node for node in block.children if isinstance(node, _Node)]
         if len(children) != 2 or children[0].tag != 'dt' or children[1].tag != 'dd':
@@ -373,13 +400,52 @@ def parse_sapporo_all(payload, observed_on):
             if len(parts) != 2 or parts[0].tag != 'dt' or parts[1].tag != 'dd':
                 raise ValueError('Unknown Sapporo company row')
             code, links = _text(parts[0]).upper(), list(parts[1].findall('a'))
-            if not CODE.fullmatch(code) or len(links) != 1 or links[0].attrs.get('href') != 'https://www.sse.or.jp/listing/company' + code:
+            if (not CODE.fullmatch(code) or code in seen or len(links) != 1
+                    or _sapporo_company_code(links[0]) != code):
                 raise ValueError('Invalid Sapporo current company')
             images = list(links[0].findall('img'))
             name = _text(links[0]) or (images[0].attrs.get('alt', '') if len(images) == 1 else '')
-            result.append({'code': code, 'name': _name(name), 'market': groups[title]})
+            name = _name(name)
+            if not _identity_name(name):
+                raise ValueError('Invalid Sapporo current company name')
+            seen.add(code)
+            result.append({'code': code, 'name': name, 'market': groups[title]})
     if parsed != set(groups) or not 20 <= len(result) <= 200:
         raise ValueError('Incomplete Sapporo current companies')
+    # The navigation proves ordinary-market membership, but its logo alt text
+    # can retain an issuer's former name after the visible company list changes.
+    # Require a complete, matching main list and use its coded company links as
+    # the current name. A partial or changed document cannot replace last-good
+    # identities with a mixture of current body names and stale navigation.
+    listings = [node for node in root.findall('div') if node.attrs.get('id') == 'listing']
+    if len(listings) != 1 or not listings[0].closed:
+        raise ValueError('Unknown Sapporo main company list')
+    sections = [node for node in listings[0].findall('section')
+                if 'catlist' in node.attrs.get('class', '').split()]
+    if not sections:
+        raise ValueError('Incomplete Sapporo main company list')
+    expected = {row['code']: row for row in result}
+    current = {}
+    for section in sections:
+        headings = list(section.findall('h3'))
+        if not section.closed or len(headings) != 1 or not headings[0].closed:
+            raise ValueError('Unknown Sapporo company-list section')
+        heading = _text(headings[0])
+        if heading == 'Sapporo PRO Frontier Market':
+            continue
+        market = 'アンビシャス市場' if heading == 'アンビシャス市場' else '本則市場'
+        for link in section.findall('a'):
+            code, name = _sapporo_text_identity(link)
+            if code in current or code not in expected or expected[code]['market'] != market:
+                raise ValueError('Mismatched Sapporo main company identity')
+            current[code] = name
+    if set(current) != set(expected):
+        raise ValueError('Incomplete Sapporo current company names')
+    for row in result:
+        name = current[row['code']]
+        if name != row['name']:
+            row['aliases'] = [row['name']]
+            row['name'] = name
     return result
 
 
@@ -462,11 +528,18 @@ def _clean_source(key, source, today):
             raise ValueError('Invalid official company')
         code, name = row.get('code'), row.get('name')
         if (not isinstance(code, str) or not CODE.fullmatch(code) or code in seen
-                or not isinstance(name, str) or not 1 <= len(name) <= 200
-                or any(ord(c) < 32 for c in name)
+                or not _identity_name(name)
                 or (key in ('tokyo_new', 'tokyo_transfers') and '代表者インタビュー' in name)):
             raise ValueError('Invalid official identity')
         item = {'code': code, 'name': name}
+        if 'aliases' in row:
+            aliases = row['aliases']
+            if (key not in REGIONAL_SOURCES or not isinstance(aliases, list) or len(aliases) > 8
+                    or any(not _identity_name(alias) or alias == name for alias in aliases)
+                    or len(set(aliases)) != len(aliases)):
+                raise ValueError('Invalid official company aliases')
+            if aliases:
+                item['aliases'] = list(aliases)
         if key == 'tokyo_delisted':
             event = date.fromisoformat(row.get('delisted_on', ''))
             if event > observed:
@@ -500,8 +573,13 @@ def _clean_source(key, source, today):
                'sapporo_all': 20, 'fukuoka_all': 30}.get(key)
     if minimum and len(clean) < minimum:
         raise ValueError('Incomplete regional catalogue')
-    return {'source_url': SOURCES[key], 'as_of': observed.isoformat(), 'sha256': source['sha256'],
-            'items': sorted(clean, key=lambda item: item['code'])}
+    result = {'source_url': SOURCES[key], 'as_of': observed.isoformat(), 'sha256': source['sha256'],
+              'items': sorted(clean, key=lambda item: item['code'])}
+    if 'identity_name_basis' in source:
+        if key != 'sapporo_all' or source['identity_name_basis'] != SAPPORO_MAIN_NAME_BASIS:
+            raise ValueError('Invalid official company-name basis')
+        result['identity_name_basis'] = SAPPORO_MAIN_NAME_BASIS
+    return result
 
 
 def verified_supplement(value, today=None):
@@ -531,6 +609,14 @@ def read_supplement(seed_path=SEED_PATH, runtime_path=None):
                 except (ValueError, TypeError, KeyError):
                     continue
                 current = merged['sources'].get(key)
+                if (current is not None and current.get('identity_name_basis') == SAPPORO_MAIN_NAME_BASIS
+                        and source['as_of'] == current['as_of']
+                        and source.get('identity_name_basis') != SAPPORO_MAIN_NAME_BASIS):
+                    # Same-day cache order is not name freshness: prefer the
+                    # verified main list over the legacy navigation-only file.
+                    # A genuinely later snapshot retains its later membership;
+                    # the regular bounded refresh reparses its official source.
+                    continue
                 if current is None or source['as_of'] >= current['as_of']:
                     merged['sources'][key] = source
         except (OSError, ValueError, TypeError, KeyError):
@@ -578,9 +664,11 @@ def refresh_supplement(previous, *, session=requests, today=None):
     for key, url in SOURCES.items():
         try:
             payload = _download_source(key, url, session)
-            source = _clean_source(key, {'source_url': url, 'as_of': today.isoformat(),
-                                         'sha256': sha256(payload).hexdigest(),
-                                         'items': PARSERS[key](payload, today)}, today)
+            candidate = {'source_url': url, 'as_of': today.isoformat(),
+                         'sha256': sha256(payload).hexdigest(), 'items': PARSERS[key](payload, today)}
+            if key == 'sapporo_all':
+                candidate['identity_name_basis'] = SAPPORO_MAIN_NAME_BASIS
+            source = _clean_source(key, candidate, today)
             result['sources'][key] = source
         except (requests.RequestException, ValueError, KeyError, TypeError, AttributeError, IndexError, UnicodeError):
             continue
