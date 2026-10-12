@@ -169,3 +169,9 @@ test('an older read cannot overwrite a local edit even when its save finishes be
   h.ls.setItem(monthKey,'[]');h.ls.setItem(monthKey,JSON.stringify(records));const savedAgain=h.timer(1500);h.respondSave();await savedAgain;
   await h.respond({[monthKey]:'[]'});await nextRead;assert.equal(h.ls.getItem(monthKey),JSON.stringify(records),'edit-and-revert is still newer than the fetch');
 });
+test('ledger transport uses verified session bearer token and never sends a legacy UID',async()=>{
+ const h=syncFixture({lineUserId:'untrusted-id',kb2_assets:'[]'});
+ assert.equal(h.requests[0].url,'/api/kakeibo/load');assert.equal(h.requests[0].init.headers.Authorization,'Bearer fixture-token');
+ await h.respond(null);const save=h.timer(1500);const req=h.requests.at(-1);
+ assert.equal(req.init.headers.Authorization,'Bearer fixture-token');assert.equal(Object.hasOwn(JSON.parse(req.init.body),'uid'),false);h.respondSave();await save;
+});
