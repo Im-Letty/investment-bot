@@ -2841,6 +2841,8 @@ _dividend_snapshot = DividendSnapshot(
 # market-provider requests run in its bounded background pool.
 from company_profile import CompanyProfiles
 from company_profile_api import register_company_profiles
+from company_forecast_dividends import CompanyForecastDividends
+from company_reviewed_business import CompanyReviewedBusinesses
 from company_quotes import CompanyQuotes
 from company_business import CompanyBusinesses
 from company_public_business import CompanyPublicBusinesses
@@ -2880,7 +2882,9 @@ register_company_profiles(app, _company_profiles, _stock_search, _dividend_snaps
                           quotes=lambda: _scanner_snapshot.payload(refresh=False),
                           quote_service=_company_quotes, businesses=_company_businesses,
                           annual_dividends=_regional_annual_dividends,
-                          public_businesses=CompanyPublicBusinesses())
+                          public_businesses=CompanyPublicBusinesses(),
+                          forecast_dividends=CompanyForecastDividends(),
+                          reviewed_businesses=CompanyReviewedBusinesses())
 
 from dividend_calendar import DividendCalendar, register_dividend_calendar
 from jpx_calendar_source import fetch_jpx_events

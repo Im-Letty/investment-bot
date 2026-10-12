@@ -10,7 +10,8 @@
   const text=(value,limit=400)=>typeof value==='string'?value.trim().slice(0,limit):'';
   const FIELD_KEYS=['price','market_cap','annual_dividend','forward_annual_dividend_per_share','ex_dividend_date','dividend_payment_date','analyst_target'];
   const HISTORICAL_FIELD='historical_dividend_per_share';
-  const METRIC_KEYS={price:'price',cap:'market_cap',annual:'annual_dividend',historical:HISTORICAL_FIELD,forward:'forward_annual_dividend_per_share',exDate:'ex_dividend_date',paymentDate:'dividend_payment_date',target:'analyst_target'};
+  const ISSUER_FORECAST_FIELD='issuer_annual_dividend_forecast_per_share';
+  const METRIC_KEYS={price:'price',cap:'market_cap',annual:'annual_dividend',historical:HISTORICAL_FIELD,issuerForecast:ISSUER_FORECAST_FIELD,forward:'forward_annual_dividend_per_share',exDate:'ex_dividend_date',paymentDate:'dividend_payment_date',target:'analyst_target'};
   const FIELD_REASONS={loading:'取得中',source_missing:'提供元に情報なし',fetch_error:'通信エラー',invalid:'内容を確認中',unconfirmed:'未確認',unsupported:'取得元未対応'};
   const REGIONAL_MARKET_REFERENCES={Nagoya:'https://www.nse.or.jp/market/condition/quick/',Sapporo:'https://www.sse.or.jp/market',Fukuoka:'https://www.fse.or.jp/market-info/daily/'};
   function symbol(value){const key=text(value,30).normalize('NFKC').toUpperCase();return /^[0-9][A-Z0-9]{3}(?:\.(?:T|JP))?$/.test(key)?(/\.(?:T|JP)$/.test(key)?key:key+'.T'):'';}
@@ -47,6 +48,19 @@
     if(raw.observed_at!==undefined&&raw.observed_at!==null){const at=timestamp(raw.observed_at,now);if(!at||at>now)return null;clean.observed_at=at;}
     return clean;
   }
+  function issuerForecastFact(raw,key,name,exchange,now){
+    if(!raw||typeof raw!=='object'||raw.kind!=='issuer_annual_dividend_forecast'||raw.use_basis!=='independent_extraction_of_numeric_facts'||raw.security_code!==key.split('.')[0]||raw.issuer_name!==name||raw.exchange!==exchange||!exchange||raw.currency!=='JPY'||raw.unit!=='JPY/share'||raw.split_adjustment!=='as_reported'||raw.latest_revision_guaranteed!==false||!['available','range','undetermined','not_comparable','not_disclosed'].includes(raw.status))return null;
+    if(raw.status==='available'?(!finite(raw.value)||raw.value<0||raw.value>1e6):raw.value!==null)return null;
+    const range=raw.status==='range'&&raw.value_range;if(raw.status==='range'&&(!range||!finite(range.min)||!finite(range.max)||range.min<0||range.max>1e6||range.min>=range.max))return null;
+    const reason={not_comparable:'split_basis_mismatch',not_disclosed:'annual_amount_not_reported'}[raw.status]||null;if(reason&&raw.reason!==reason)return null;
+    const url=safeUrl(raw.source_url),period=raw.fiscal_period||{},start=day(period.start),end=day(period.end),announced=day(raw.announcement_date),checked=day(raw.checked_on),fetched=timestamp(raw.fetched_at,now);
+    if(!url||!start||!end||!announced||!checked||!fetched||fetched>now||start>=end||(Date.parse(end)-Date.parse(start))/86400000>550||announced>today(fetched)||today(fetched)>checked||checked>today(now)||Date.parse(announced)<Date.parse(start)-90*86400000||Date.parse(announced)>Date.parse(end)+180*86400000)return null;
+    const source=new URL(url),title=text(raw.source_title,160);
+    if(source.protocol!=='https:'||source.hostname!==raw.source_host||source.search&&!/^\?\d{1,20}$/.test(source.search)||source.hash||!source.pathname.toLowerCase().endsWith('.pdf')||!/^[a-z0-9.-]+$/.test(source.hostname)||!source.hostname.includes('.')||/^\d+(?:\.\d+)+$/.test(source.hostname)||/\.(?:local|localhost)$/.test(source.hostname)||!title)return null;
+    let reportedSplit=null;
+    if(raw.reported_split){const split=raw.reported_split,effective=day(split.effective_on);if(!effective||effective>end||!Number.isInteger(split.before)||!Number.isInteger(split.after)||split.before<=0||split.after<=0||split.before>1e6||split.after>1e6)return null;reportedSplit={effective_on:effective,before:split.before,after:split.after};}
+    return {kind:raw.kind,status:raw.status,reason,value:raw.value,value_range:range?{min:range.min,max:range.max}:null,reported_split:reportedSplit,currency:'JPY',unit:'JPY/share',security_code:raw.security_code,issuer_name:name,exchange,fiscal_period:{start,end},fiscal_period_expired:end<today(now),announcement_date:announced,checked_on:checked,fetched_at:fetched,source_url:url,source_title:title,source_host:raw.source_host,use_basis:raw.use_basis,split_adjustment:'as_reported',latest_revision_guaranteed:false};
+  }
   function marketData(raw,data,now){
     if(!raw||typeof raw!=='object'||!['delayed','end_of_day','unsupported'].includes(raw.kind))return null;
     if(raw.kind==='unsupported')return {kind:'unsupported',delay_minutes:null,quote_as_of:null,quote_age_seconds:null,quote_is_recent:false};
@@ -57,7 +71,7 @@
   }
   function quoteNote(state,now=Date.now()){
     const record=state&&state.data,market=record&&record.market_data,data=record&&record.data||{};
-    if(market&&market.kind==='unsupported')return 'この取引所の株価・予想配当の取得元は未対応です。';
+    if(market&&market.kind==='unsupported')return 'この取引所の株価・時価総額の取得元は未対応です。';
     const parts=[];
     const issue={fetch_error:'最新の株価取得で通信エラー',invalid:'最新の株価は内容を確認中',unconfirmed:'最新の株価は未確認'}[record&&record.quote_error];
     if(!finite(data.price))return issue||'';
@@ -113,15 +127,18 @@
     const overviewUrl=safeUrl(overviewInput.source_url),overviewStatus=['available','loading','source_missing','fetch_error','identity_unconfirmed'].includes(overviewInput.field_status)?overviewInput.field_status:'identity_unconfirmed';
     const recordUpdated=day(overviewInput.source_record_updated_on);
     const publicOverview=overviewInput.kind==='public_company_business'&&overviewUrl==='https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do'&&overviewInput.use_basis==='independent_summary_of_business_facts'&&day(overviewInput.source_updated_on)&&overviewInput.source_updated_on<=today(now)&&(overviewInput.source_record_updated_on==null||recordUpdated&&recordUpdated<=overviewInput.source_updated_on);
-    const business_overview=overviewInput.kind==='structured_company_facts'||publicOverview?{
+    const published=day(overviewInput.source_published_on),reviewed=day(overviewInput.reviewed_on),overviewFetched=timestamp(overviewInput.fetched_at,now);
+    const reviewedOverview=overviewInput.kind==='reviewed_company_business'&&overviewInput.source_kind==='public_annual_report'&&overviewInput.use_basis==='independent_summary_of_business_facts'&&/^https:\/\/(?:info\.gbiz\.go\.jp\/hojin\/edinetDownload\?docId=S[A-Z0-9]{7}|disclosure2dl\.edinet-fsa\.go\.jp\/searchdocument\/pdf\/S[A-Z0-9]{7}\.pdf)$/.test(overviewUrl||'')&&published&&reviewed&&published<=reviewed&&reviewed<=today(now)&&overviewFetched&&overviewFetched<=now&&published<=today(overviewFetched);
+    const business_overview=overviewInput.kind==='structured_company_facts'||publicOverview||reviewedOverview?{
       kind:overviewInput.kind,text:overviewStatus==='available'&&overviewUrl?text(overviewInput.text,1200):'',field_status:overviewStatus==='available'&&!overviewUrl?'identity_unconfirmed':overviewStatus,
       source_url:overviewUrl,source_title:text(overviewInput.source_title,120)||'会社の情報の出典',fetched_at:timestamp(overviewInput.fetched_at,now),
       products:Array.isArray(overviewInput.products)?overviewInput.products.slice(0,15).map(value=>text(value,80)).filter(Boolean):[],
       industry_labels:Array.isArray(overviewInput.industry_labels)?overviewInput.industry_labels.slice(0,15).map(value=>text(value,80)).filter(Boolean):[],
       source_updated_on:publicOverview?day(overviewInput.source_updated_on):null,
       source_record_updated_on:publicOverview?recordUpdated:null,
-      use_basis:publicOverview?overviewInput.use_basis:null,
-      attribution_notice:publicOverview?'職場情報総合サイト（しょくばらぼ）の事業情報をもとに当サイトが説明を作成。':''
+      source_kind:reviewedOverview?'public_annual_report':null,source_published_on:reviewedOverview?published:null,reviewed_on:reviewedOverview?reviewed:null,
+      use_basis:publicOverview||reviewedOverview?overviewInput.use_basis:null,
+      attribution_notice:publicOverview?'職場情報総合サイト（しょくばらぼ）の事業情報をもとに当サイトが説明を作成。':reviewedOverview?'提出資料の事業情報をもとに当サイトが説明を作成。':''
     }:null;
     const identityInput=raw.identity&&typeof raw.identity==='object'?raw.identity:{};
     const identityUrl=safeUrl(identityInput.source_url),identityDate=day(identityInput.date);
@@ -144,7 +161,12 @@
     let dividend_fact=historicalStatus&&!historicalInvalidated?historicalFact(raw.dividend_fact,key,now):null;
     if(historicalStatus&&raw.dividend_fact&&!historicalInvalidated&&(!dividend_fact||input[HISTORICAL_FIELD]!==dividend_fact.value)){historicalInvalidated=true;dividend_fact=null;}
     data[HISTORICAL_FIELD]=dividend_fact&&input[HISTORICAL_FIELD]===dividend_fact.value?dividend_fact.value:null;
-    const sources=sourceList(raw.sources,now).filter(source=>!new URL(source.url).hostname.endsWith('edinet-fsa.go.jp')||data[HISTORICAL_FIELD]!==null&&source.url===dividend_fact.source_url);
+    const issuerStatus=['available','range','undetermined','not_comparable','not_disclosed','unconfirmed'].includes(raw.issuer_dividend_forecast_status)?raw.issuer_dividend_forecast_status:null;
+    let issuer_dividend_forecast=issuerStatus?issuerForecastFact(raw.issuer_dividend_forecast,key,text(raw.name,160)||key,identity&&identity.exchange,now):null;
+    if(issuer_dividend_forecast&&(issuer_dividend_forecast.status!==issuerStatus||issuer_dividend_forecast.status==='available'&&input[ISSUER_FORECAST_FIELD]!==issuer_dividend_forecast.value))issuer_dividend_forecast=null;
+    data[ISSUER_FORECAST_FIELD]=issuer_dividend_forecast&&issuer_dividend_forecast.status==='available'?issuer_dividend_forecast.value:null;
+    const forecastSourceAllowed=source=>!raw.issuer_dividend_forecast||source.url!==raw.issuer_dividend_forecast.source_url||!!issuer_dividend_forecast;
+    const sources=sourceList(raw.sources,now).filter(forecastSourceAllowed).filter(source=>!new URL(source.url).hostname.endsWith('edinet-fsa.go.jp')||data[HISTORICAL_FIELD]!==null&&source.url===dividend_fact.source_url);
     if(!sources.length&&fieldSource.url)sources.push(...sourceList([fieldSource],now).filter(source=>!new URL(source.url).hostname.endsWith('edinet-fsa.go.jp')||data[HISTORICAL_FIELD]!==null&&source.url===dividend_fact.source_url));
     const statuses=raw.field_status&&typeof raw.field_status==='object'?raw.field_status:{},field_status={};
     FIELD_KEYS.forEach(key=>{
@@ -156,9 +178,11 @@
     });
     if(regional)FIELD_KEYS.forEach(field=>{field_status[field]='unsupported';});
     if(historicalStatus)field_status[HISTORICAL_FIELD]=data[HISTORICAL_FIELD]!==null?'available':raw.dividend_fact?'invalid':historicalStatus==='available'?'unconfirmed':historicalStatus;
+    if(issuerStatus)field_status[ISSUER_FORECAST_FIELD]=issuer_dividend_forecast&&issuer_dividend_forecast.status==='available'?'available':raw.issuer_dividend_forecast&&!issuer_dividend_forecast?'invalid':'unconfirmed';
     return {symbol:key,name:text(raw.name,160)||key,status:raw.status,refreshing:raw.refreshing===true,
       updated_at:timestamp(raw.updated_at,now),data,editorial,identity,business_overview,field_status,sources,source:{fields},
       dividend_fact:data[HISTORICAL_FIELD]!==null?dividend_fact:null,historical_dividend_status:historicalStatus,
+      issuer_dividend_forecast,issuer_dividend_forecast_status:issuerStatus,
       historical_dividend_coverage:historicalStatus?historicalCoverage(raw.historical_dividend_coverage,now):null,
       historical_dividend_refreshing:historicalStatus!==null&&raw.historical_dividend_refreshing===true,
       historical_dividend_invalidated:historicalInvalidated,
@@ -173,7 +197,7 @@
   function knownField(record,key){
     const data=record&&record.data||{};
     if(['price','market_cap'].includes(key))return finite(data[key])&&data[key]>0;
-    if(['annual_dividend','forward_annual_dividend_per_share',HISTORICAL_FIELD].includes(key))return finite(data[key])&&data[key]>=0;
+    if(['annual_dividend','forward_annual_dividend_per_share',HISTORICAL_FIELD,ISSUER_FORECAST_FIELD].includes(key))return finite(data[key])&&data[key]>=0;
     if(key==='analyst_target')return finite(data.analyst_target&&data.analyst_target.mean)&&data.analyst_target.mean>0;
     if(key==='dividend_payment_date')return !!(day(data.dividend_payment_date)||month(data.dividend_payment_period));
     return key==='ex_dividend_date'&&!!day(data.ex_dividend_date);
@@ -193,8 +217,8 @@
     if(Object.prototype.hasOwnProperty.call(FIELD_REASONS,supplied))return FIELD_REASONS[supplied];
     return state&&(state.updating||state.status==='loading')?FIELD_REASONS.loading:FIELD_REASONS.unconfirmed;
   }
-  function hasFacts(record){return !!record&&(record.data.price!==null||record.data.market_cap!==null||record.data.annual_dividend!==null||record.data.forward_annual_dividend_per_share!==null||finite(record.data[HISTORICAL_FIELD])||record.data.ex_dividend_date||record.data.dividend_payment_date||record.data.dividend_payment_period||record.data.analyst_target&&record.data.analyst_target.mean!==null);}
-  function cacheTime(record){return record&&Math.max(record.updated_at||0,record.data.price_updated_at||0,record.data.dividend_fetched_at||0,record.source.fields.price.fetched_at||0,record.dividend_fact&&record.dividend_fact.fetched_at||0);}
+  function hasFacts(record){return !!record&&(record.data.price!==null||record.data.market_cap!==null||record.data.annual_dividend!==null||record.data.forward_annual_dividend_per_share!==null||finite(record.data[HISTORICAL_FIELD])||record.issuer_dividend_forecast||record.data.ex_dividend_date||record.data.dividend_payment_date||record.data.dividend_payment_period||record.data.analyst_target&&record.data.analyst_target.mean!==null);}
+  function cacheTime(record){return record&&Math.max(record.updated_at||0,record.data.price_updated_at||0,record.data.dividend_fetched_at||0,record.source.fields.price.fetched_at||0,record.dividend_fact&&record.dividend_fact.fetched_at||0,record.issuer_dividend_forecast&&record.issuer_dividend_forecast.fetched_at||0);}
   function priceDay(record){return record.data.price_trade_date||(record.data.price_updated_at?today(record.data.price_updated_at):null);}
   function newerPrice(record,before){
     const incoming=priceDay(record),previous=priceDay(before);
@@ -217,7 +241,9 @@
     const capAt=record.source.fields.market_cap.fetched_at||0,beforeCapAt=before.source.fields.market_cap.fetched_at||0;
     const keepCap=before.data.market_cap!==null&&(record.data.market_cap===null||beforeCapAt>capAt);
     const keepHistorical=record.historical_dividend_status!==null&&!record.historical_dividend_invalidated&&before.dividend_fact&&!newerHistorical(record,before);
-    if(fresh&&!keepPrice&&!keepCap&&!keepHistorical)return record;
+    const nextForecast=record.issuer_dividend_forecast,oldForecast=before.issuer_dividend_forecast;
+    const keepIssuerForecast=nextForecast&&oldForecast&&(oldForecast.fiscal_period.end>nextForecast.fiscal_period.end||oldForecast.fiscal_period.end===nextForecast.fiscal_period.end&&oldForecast.announcement_date>nextForecast.announcement_date);
+    if(fresh&&!keepPrice&&!keepCap&&!keepHistorical&&!keepIssuerForecast)return record;
     const base=fresh?record:before;
     const kept={...base,name:record.name,editorial:record.editorial||before.editorial,identity:record.identity||before.identity,business_overview:record.business_overview||before.business_overview,field_status:{...before.field_status,...record.field_status},status:record.status,refreshing:record.refreshing,retry_after_seconds:record.retry_after_seconds,quote_status:record.quote_status,quote_error:record.quote_error,quote_refreshing:record.quote_refreshing,quote_refresh_enabled:record.quote_refresh_enabled,data:{...base.data},source:{fields:{...base.source.fields}}};
     if(keepPrice){
@@ -238,16 +264,26 @@
     const selected=record.historical_dividend_status===null||record.historical_dividend_invalidated?null:keepHistorical?before.dividend_fact:record.dividend_fact;
     kept.dividend_fact=selected;
     kept.data[HISTORICAL_FIELD]=selected?selected.value:null;
+    // A dated company revision (including an explicit undetermined forecast)
+    // wins over an older cached announcement. Removal or validation failure
+    // clears the field; a failed HTTP request retains the whole saved record.
+    const forecast=keepIssuerForecast?oldForecast:nextForecast;
+    kept.issuer_dividend_forecast=forecast;kept.issuer_dividend_forecast_status=forecast?forecast.status:record.issuer_dividend_forecast_status;
+    kept.data[ISSUER_FORECAST_FIELD]=forecast&&forecast.status==='available'?forecast.value:null;
+    if(forecast)kept.field_status[ISSUER_FORECAST_FIELD]=forecast.status==='available'?'available':'unconfirmed';
     if(selected)kept.field_status[HISTORICAL_FIELD]='available';
     kept.sources=(kept.sources||[]).filter(source=>!new URL(source.url).hostname.endsWith('edinet-fsa.go.jp'));
     if(selected)kept.sources.push({title:'EDINET 有価証券報告書（当サイトが配当額を抜粋）',url:selected.source_url,fetched_at:selected.fetched_at});
+    const oldForecastUrls=[before.issuer_dividend_forecast,record.issuer_dividend_forecast].filter(Boolean).map(fact=>fact.source_url);
+    kept.sources=kept.sources.filter(source=>!oldForecastUrls.includes(source.url));
+    if(forecast)kept.sources.push({title:forecast.source_title,url:forecast.source_url,fetched_at:forecast.fetched_at});
     return kept;
   }
   function createLoader(env,onState){
     const now=env.now||Date.now,set=env.setTimeout||setTimeout,clear=env.clearTimeout||clearTimeout;
     const cache=new Map();let version=0,current='',controller=null,requestTimer=null,pollTimer=null,cancelWait=null,busy=false,last=null;
     function save(record){
-      if(record.historical_dividend_invalidated||record.symbol.endsWith('.JP')&&record.historical_dividend_status===null){
+      if(record.historical_dividend_invalidated||record.symbol.endsWith('.JP')&&record.historical_dividend_status===null&&!record.issuer_dividend_forecast){
         cache.delete(record.symbol);
         try{if(env.storage&&env.storage.removeItem)env.storage.removeItem(CACHE_PREFIX+record.symbol);else if(env.storage)env.storage.setItem(CACHE_PREFIX+record.symbol,'null');}catch(e){}
       }
@@ -338,6 +374,8 @@
     refs.price.note=el('p','cp-fact-note');refs.price.value.parentElement.appendChild(refs.price.note);
     refs.price.reference=el('p','cp-fact-note');refs.price.reference.hidden=true;refs.price.value.parentElement.appendChild(refs.price.reference);
     const dividends=group('配当');metric(dividends,'annual','過去1年の実績配当','1株あたり');metric(dividends,'forward','予想配当（今後1年の目安）','1株あたり。会社が出す年度ごとの予想とは異なります。');
+    metric(dividends,'issuerForecast','会社の年度予想配当（1株）','会社の公表資料に記載された対象年度の予想です。');
+    refs.issuerForecast.row.hidden=true;refs.issuerForecast.period=el('p','cp-fact-note');refs.issuerForecast.source=el('p','cp-source-time');refs.issuerForecast.note=el('p','cp-fact-note');append(refs.issuerForecast.value.parentElement,refs.issuerForecast.period,refs.issuerForecast.source,refs.issuerForecast.note);
     metric(dividends,'historical','年度の実績配当（1株）','提出済みの年度の実績です。過去1年の合計や予想配当とは異なります。');
     refs.historical.row.hidden=true;refs.historical.period=el('p','cp-fact-note');refs.historical.source=el('p','cp-source-time');refs.historical.note=el('p','cp-fact-note');
     append(refs.historical.value.parentElement,refs.historical.period,refs.historical.source,refs.historical.note);
@@ -348,7 +386,7 @@
     append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.identityDate,refs.reviewed,refs.sources);
     append(content,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
-    let sourcesSignature='',businessSourceSignature='',marketReferenceSignature='',historicalSourceSignature='';
+    let sourcesSignature='',businessSourceSignature='',marketReferenceSignature='',historicalSourceSignature='',issuerForecastSourceSignature='';
     function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
       if(!opened||state.symbol!==currentSymbol)return;
@@ -357,8 +395,9 @@
       const failed=['error','stale'].includes(state.status)&&!state.updating;
       refs.status.textContent=state.reason==='retrying'?'通信が一時的に遅れています。自動でもう一度確認しています…':state.status==='loading'?'株価や配当の情報を確認しています…':state.updating?(state.fromCache?'保存していた情報を表示し、最新の情報を確認しています…':'株価や配当の情報を確認しています…'):failed?(record&&hasFacts(record)?'一部の情報は保存済みです。取得日時をご確認ください。':identity?'会社の基本情報を表示しています。株価や配当の情報は今は確認できません。':'情報を確認できませんでした。'):state.status==='stale'?'保存済みの情報です。取得日時をご確認ください。':'';
       if(record&&record.market_data&&record.market_data.kind==='unsupported')refs.status.textContent='会社の基本情報を表示しています。この取引所の株価・配当・時価総額の取得元は未対応です。';
+      if(record&&record.market_data&&record.market_data.kind==='unsupported'&&record.issuer_dividend_forecast)refs.status.textContent='この取引所の株価・時価総額の取得元は未対応です。会社の年度予想配当は「数字・配当」で確認できます。';
       if(record&&record.market_data&&record.market_data.kind==='unsupported'&&record.historical_dividend_status!==null){
-        refs.status.textContent='この取引所の株価・予想配当・時価総額の取得元は未対応です。'+(record.dividend_fact?'年度の実績配当は「数字・配当」で確認できます。':record.historical_dividend_status==='loading'?'年度の実績配当を確認しています。':'年度の実績配当はまだ確認できていません。');
+        refs.status.textContent='この取引所の株価・時価総額の取得元は未対応です。'+(record.issuer_dividend_forecast?'会社の年度予想配当は「数字・配当」で確認できます。':'')+(record.dividend_fact?'年度の実績配当は「数字・配当」で確認できます。':record.historical_dividend_status==='loading'?'年度の実績配当を確認しています。':'年度の実績配当はまだ確認できていません。');
       }
       refs.retry.hidden=!failed;
       feedback.hidden=!refs.status.textContent&&!failed;
@@ -367,10 +406,11 @@
       refs.business.section.hidden=!editorial&&!overview&&!refs.basic.hidden;
       refs.business.body.textContent=editorial?editorial.business:overview&&overview.text?overview.text:overview&&overview.field_status==='loading'?'会社の事業内容を確認しています…':overview?'会社の事業内容はまだ確認できていません。':record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
       refs.businessSource.hidden=!!editorial||!(overview&&overview.text);
-      const businessSignature=refs.businessSource.hidden?'':JSON.stringify([overview.fetched_at,overview.source_title,overview.source_url,overview.source_updated_on,overview.source_record_updated_on,overview.attribution_notice]);
+      const businessSignature=refs.businessSource.hidden?'':JSON.stringify([overview.fetched_at,overview.source_title,overview.source_url,overview.source_updated_on,overview.source_record_updated_on,overview.source_published_on,overview.reviewed_on,overview.attribution_notice]);
       if(businessSignature!==businessSourceSignature){
         businessSourceSignature=businessSignature;refs.businessSource.replaceChildren();
         if(!refs.businessSource.hidden){
+          if(overview.source_published_on)refs.businessSource.appendChild(el('span','',dates.label(overview.source_published_on,'提出')+' / '));
           if(overview.fetched_at)refs.businessSource.appendChild(el('span','',dates.label(overview.fetched_at/1000,'取得',true)+' '));
           const link=el('a','cp-source-link',overview.source_title+' ↗');link.href=overview.source_url;link.target='_blank';link.rel='noopener noreferrer';refs.businessSource.appendChild(link);
           if(overview.source_record_updated_on)refs.businessSource.appendChild(el('span','',' / '+dates.label(overview.source_record_updated_on,'企業掲載情報の更新')));
@@ -399,6 +439,16 @@
       refs.historical.source.hidden=!historical;
       refs.historical.note.textContent=historical?'当サイトがEDINET有価証券報告書から配当額を抜粋。株式分割は調整していません。最新の書類・訂正の確認は保証されません。'+(record.historical_dividend_refreshing?' 新しい書類を確認中です。':record.historical_dividend_error==='fetch_error'?' 更新時に通信エラーがあり、保存済みの実績を表示しています。':state.fromCache?' 保存済みの実績を表示しています。':''):'';refs.historical.note.hidden=!historical;
       showMetric('forward',money(data.forward_annual_dividend_per_share,currency),data.forward_annual_dividend_per_share!==null&&data.forward_annual_dividend_per_share!==undefined?fetched('forward_annual_dividend_per_share'):null);
+      const issuerForecast=record&&record.issuer_dividend_forecast;
+      refs.issuerForecast.row.hidden=!(record&&record.issuer_dividend_forecast_status!==null);
+      const issuerMoney=value=>finite(value)&&value>=0?value.toLocaleString('ja-JP',{maximumFractionDigits:20})+'円':null;
+      const issuerForecastValue=issuerForecast&&issuerForecast.status==='range'?issuerForecast.value_range.min.toLocaleString('ja-JP',{maximumFractionDigits:20})+'〜'+issuerMoney(issuerForecast.value_range.max):issuerForecast&&{undetermined:'未定',not_comparable:'年間額は比較不可',not_disclosed:'年間額の記載なし'}[issuerForecast.status]||issuerMoney(data[ISSUER_FORECAST_FIELD]);
+      showMetric('issuerForecast',issuerForecastValue,issuerForecast?dates.label(issuerForecast.announcement_date,'公表')+' / '+dates.label(issuerForecast.fetched_at/1000,'取得',true):null);
+      refs.issuerForecast.period.textContent=issuerForecast?dates.date(issuerForecast.fiscal_period.start)+'〜'+dates.date(issuerForecast.fiscal_period.end)+' 対象年度':'';refs.issuerForecast.period.hidden=!issuerForecast;
+      const issuerForecastSignature=issuerForecast?JSON.stringify([issuerForecast.source_url,issuerForecast.source_title]):'';
+      if(issuerForecastSignature!==issuerForecastSourceSignature){issuerForecastSourceSignature=issuerForecastSignature;refs.issuerForecast.source.replaceChildren();if(issuerForecast){const link=el('a','cp-source-link',issuerForecast.source_title+' ↗');link.href=issuerForecast.source_url;link.target='_blank';link.rel='noopener noreferrer';refs.issuerForecast.source.appendChild(link);}}refs.issuerForecast.source.hidden=!issuerForecast;
+      const reportedSplit=issuerForecast&&issuerForecast.reported_split;
+      refs.issuerForecast.note.textContent=issuerForecast?(issuerForecast.fiscal_period_expired?'対象年度は終了しています。資料当時の予想で、実績ではありません。 ':'')+(issuerForecast.status==='not_comparable'?'中間と期末で株式分割の基準が異なり、会社が年間額を示していないため合算しません。 ':'')+(reportedSplit?dates.date(reportedSplit.effective_on)+'の'+reportedSplit.before+'対'+reportedSplit.after+'の株式分割後の基準を会社が記載しています。 ':'')+'資料公表時点の会社予想です。最新の修正は保証されません。当サイトでは株式分割の換算を行っていません。':'';refs.issuerForecast.note.hidden=!issuerForecast;
       function schedule(value){return day(value)&&w.KNDividendDates?w.KNDividendDates.describe(value):null;}
       showMetric('exDate',schedule(data.ex_dividend_date),day(data.ex_dividend_date)?fetched('ex_dividend_date'):null);
       const paymentMonth=month(data.dividend_payment_period),paymentDate=day(data.dividend_payment_date);

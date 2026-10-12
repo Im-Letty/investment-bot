@@ -21,6 +21,13 @@ function loaderHarness(saved=storage()){
   return {time,requests,states,loader,storage:saved,async reply(index,payload,status=200){requests[index].resolve({ok:status===200,status,json:async()=>payload});await flush();},async load(key=KEY){loader.load(key);await flush();}};
 }
 const HISTORICAL='historical_dividend_per_share',REGIONAL_KEY='9085.JP';
+const ISSUER_FORECAST='issuer_annual_dividend_forecast_per_share';
+function issuerForecastFixture(changes={}){
+  const raw=filedFixture(),source='https://sirius.chuo-bus.co.jp/corporation/ir/forecast.pdf';
+  raw.issuer_dividend_forecast_status='available';raw.data[ISSUER_FORECAST]=60;
+  raw.issuer_dividend_forecast={kind:'issuer_annual_dividend_forecast',status:'available',value:60,currency:'JPY',unit:'JPY/share',security_code:'9085',issuer_name:raw.name,exchange:'Sapporo',fiscal_period:{start:'2026-04-01',end:'2027-03-31'},announcement_date:'2026-07-28',checked_on:'2026-09-24',fetched_at:(NOW-1000)/1000,source_url:source,source_title:'北海道中央バス 決算短信',source_host:'sirius.chuo-bus.co.jp',use_basis:'independent_extraction_of_numeric_facts',split_adjustment:'as_reported',latest_revision_guaranteed:false};
+  return {...raw,...changes};
+}
 function filedFixture(changes={}){
   const end='2026-09-24',from=new Date(Date.parse(end)-399*86400000).toISOString().slice(0,10);
   const fact={value:50.5,currency:'JPY',unit:'JPY/share',security_code:'90850',edinet_code:'E00123',doc_id:'S100ABCD',fiscal_period:{start:'2025-04-01',end:'2026-03-31'},filing_submitted_at:'2026-06-30 09:00',submitted_at:Date.parse('2026-06-30T00:00:00Z')/1000,fetched_at:(NOW-1000)/1000,source_url:'https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/S100ABCD.pdf',source_title:'EDINET 有価証券報告書',kind:'filed_fiscal_period_dividend',split_adjustment:'as_reported',latest_filing_guaranteed:false};
@@ -461,4 +468,48 @@ test('public summary display keeps source attribution, update dates and existing
   assert.equal(refs.business.body.textContent,overview.text);assert.equal(refs.businessSource.hidden,false);assert.equal(refs.businessSource.children.find(n=>n.tagName==='A').href,overview.source_url);
   assert.match(refs.businessSource.children.map(n=>n.textContent).join(' '),/2026\/05\/28 企業掲載情報の更新/);assert.match(refs.businessSource.children.map(n=>n.textContent).join(' '),/2026\/09\/24 一括データ更新/);assert.match(refs.businessSource.children.at(-1).textContent,/事業情報をもとに当サイトが説明を作成/);
   assert.equal(refs.life.section.hidden,true);assert.equal(data.data.price,fixture().data.price);
+});
+
+test('issuer fiscal forecast is independent of historical and annualized values and accepts a verified zero',()=>{
+  const raw=issuerForecastFixture();raw.data.forward_annual_dividend_per_share=100;raw.data.forward_dividend_basis='annualized';
+  const clean=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(clean.data[ISSUER_FORECAST],60);assert.equal(clean.data[HISTORICAL],50.5);assert.equal(clean.data.forward_annual_dividend_per_share,null);assert.equal(clean.data.price,null);
+  raw.data[ISSUER_FORECAST]=raw.issuer_dividend_forecast.value=0;const zero=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(zero.data[ISSUER_FORECAST],0);assert.equal(profile.fieldReason({data:zero},ISSUER_FORECAST),'');
+  raw.issuer_dividend_forecast_status=raw.issuer_dividend_forecast.status='undetermined';raw.issuer_dividend_forecast.value=null;delete raw.data[ISSUER_FORECAST];const undetermined=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(undetermined.data[ISSUER_FORECAST],null);assert.equal(undetermined.issuer_dividend_forecast.status,'undetermined');
+});
+test('wrong-company, unsafe or misdated issuer forecasts never become a number or source link',()=>{
+  for(const change of [{security_code:'7203'},{issuer_name:'別会社'},{exchange:'Tokyo'},{currency:'USD'},{unit:'JPY'},{value:true},{value:-1},{source_url:issuerForecastFixture().issuer_dividend_forecast.source_url+'?token=secret'},{source_host:'different.example'},{announcement_date:'2099-01-01'},{fetched_at:(NOW+1000)/1000},{fiscal_period:{start:'2027-04-01',end:'2027-03-31'}},{latest_revision_guaranteed:true}]){
+    const raw=issuerForecastFixture();Object.assign(raw.issuer_dividend_forecast,change);raw.sources=[{title:'予想',url:raw.issuer_dividend_forecast.source_url}];const clean=profile.normalize(raw,REGIONAL_KEY,NOW);assert.equal(clean.issuer_dividend_forecast,null);assert.equal(clean.data[ISSUER_FORECAST],null);assert.deepEqual(clean.sources,[]);
+  }
+  const mismatch=issuerForecastFixture();mismatch.data[ISSUER_FORECAST]=61;assert.equal(profile.normalize(mismatch,REGIONAL_KEY,NOW).issuer_dividend_forecast,null);
+});
+test('later issuer revisions and explicit undetermined forecasts survive cache while old announcements cannot roll them back',async()=>{
+  const h=loaderHarness();await h.load(REGIONAL_KEY);await h.reply(0,issuerForecastFixture());
+  const newer=issuerForecastFixture();newer.issuer_dividend_forecast.announcement_date='2026-08-20';newer.issuer_dividend_forecast.value=newer.data[ISSUER_FORECAST]=70;
+  await h.load(REGIONAL_KEY);await h.reply(1,newer);assert.equal(h.states.at(-1).data.data[ISSUER_FORECAST],70);
+  await h.load(REGIONAL_KEY);await h.reply(2,issuerForecastFixture());assert.equal(h.states.at(-1).data.data[ISSUER_FORECAST],70);
+  const unknown=issuerForecastFixture();unknown.issuer_dividend_forecast.announcement_date='2026-09-20';unknown.issuer_dividend_forecast.status=unknown.issuer_dividend_forecast_status='undetermined';unknown.issuer_dividend_forecast.value=null;delete unknown.data[ISSUER_FORECAST];
+  await h.load(REGIONAL_KEY);await h.reply(3,unknown);assert.equal(h.states.at(-1).data.data[ISSUER_FORECAST],null);assert.equal(h.states.at(-1).data.issuer_dividend_forecast.status,'undetermined');
+  const reloaded=loaderHarness(h.storage);await reloaded.load(REGIONAL_KEY);assert.equal(reloaded.states[0].data.issuer_dividend_forecast.status,'undetermined');assert.equal(reloaded.states[0].data.issuer_dividend_forecast.announcement_date,'2026-09-20');
+});
+test('issuer forecast row shows fiscal period, real publication date and source while retaining focus',()=>{
+  const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);const raw=issuerForecastFixture(),viewState={symbol:REGIONAL_KEY,status:'ready',data:profile.normalize(raw,REGIONAL_KEY,NOW),updating:false};h.view.render(viewState);const refs=h.view.elements;
+  assert.equal(refs.issuerForecast.row.hidden,false);assert.equal(refs.issuerForecast.value.textContent,'60円');assert.equal(refs.issuerForecast.period.textContent,'2026/04/01〜2027/03/31 対象年度');assert.equal(refs.issuerForecast.time.textContent,'2026/07/28 公表 / 2026/09/24 14:59 取得');assert.match(refs.issuerForecast.note.textContent,/資料公表時点/);assert.match(refs.issuerForecast.note.textContent,/最新の修正は保証されません/);assert.match(refs.status.textContent,/会社の年度予想配当/);
+  refs.numbers.open=true;const link=refs.issuerForecast.source.children[0];link.focus();h.view.render(viewState);assert.equal(refs.issuerForecast.source.children[0],link);assert.equal(h.doc.activeElement,link);
+  raw.issuer_dividend_forecast.status=raw.issuer_dividend_forecast_status='undetermined';raw.issuer_dividend_forecast.value=null;delete raw.data[ISSUER_FORECAST];h.view.render({...viewState,data:profile.normalize(raw,REGIONAL_KEY,NOW)});assert.equal(refs.issuerForecast.value.textContent,'未定');assert.equal(refs.issuerForecast.unknown.hidden,true);
+  delete raw.historical_dividend_status;h.view.render({...viewState,data:profile.normalize(raw,REGIONAL_KEY,NOW)});assert.match(refs.status.textContent,/会社の年度予想配当/);assert.doesNotMatch(refs.status.textContent,/株価・配当・時価総額/);
+});
+
+test('issuer ranges and mixed split bases retain their exact meaning and expired periods are explicit',()=>{
+  const raw=issuerForecastFixture(),h=dialogHarness();h.view.open(REGIONAL_KEY,raw.name,h.trigger);
+  raw.issuer_dividend_forecast.status=raw.issuer_dividend_forecast_status='range';raw.issuer_dividend_forecast.value=null;raw.issuer_dividend_forecast.value_range={min:1.34,max:2.01};delete raw.data[ISSUER_FORECAST];
+  let clean=profile.normalize(raw,REGIONAL_KEY,NOW);h.view.render({symbol:REGIONAL_KEY,status:'ready',data:clean});assert.equal(clean.data[ISSUER_FORECAST],null);assert.equal(h.view.elements.issuerForecast.value.textContent,'1.34〜2.01円');
+  raw.issuer_dividend_forecast.value_range={min:2,max:1};assert.equal(profile.normalize(raw,REGIONAL_KEY,NOW).issuer_dividend_forecast,null);
+  raw.issuer_dividend_forecast.status=raw.issuer_dividend_forecast_status='not_comparable';raw.issuer_dividend_forecast.reason='split_basis_mismatch';raw.issuer_dividend_forecast.fiscal_period={start:'2025-09-01',end:'2026-08-31'};
+  clean=profile.normalize(raw,REGIONAL_KEY,NOW);h.view.render({symbol:REGIONAL_KEY,status:'ready',data:clean});assert.equal(h.view.elements.issuerForecast.value.textContent,'年間額は比較不可');assert.match(h.view.elements.issuerForecast.note.textContent,/中間と期末で株式分割/);assert.match(h.view.elements.issuerForecast.note.textContent,/対象年度は終了/);assert.equal(clean.data[ISSUER_FORECAST],null);
+});
+test('reviewed report business summaries preserve public document provenance and reject credential URLs',()=>{
+  const raw=fixture({editorial:null,business_overview:{kind:'reviewed_company_business',text:'電子部品の検査装置を開発する会社です。',field_status:'available',source_kind:'public_annual_report',source_url:'https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100ABCD',source_title:'Gビズインフォ 公開有価証券報告書',source_published_on:'2026-06-26',reviewed_on:'2026-09-24',fetched_at:NOW/1000,use_basis:'independent_summary_of_business_facts'}});
+  const clean=profile.normalize(raw,KEY,NOW);assert.equal(clean.business_overview.text,raw.business_overview.text);assert.equal(clean.business_overview.source_published_on,'2026-06-26');assert.equal(profile.normalize(clean,KEY,NOW).business_overview.text,raw.business_overview.text);
+  const h=dialogHarness();h.view.open(KEY,raw.name,h.trigger);h.view.render(state(raw));assert.match(h.view.elements.businessSource.textContent,/2026\/06\/26 提出/);assert.match(h.view.elements.businessSource.textContent,/当サイトが説明を作成/);
+  raw.business_overview.source_url+='&token=secret';assert.equal(profile.normalize(raw,KEY,NOW).business_overview,null);
 });

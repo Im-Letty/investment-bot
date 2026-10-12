@@ -9,6 +9,7 @@ import unicodedata
 
 from flask import jsonify, request
 from company_business import official_company_overview
+from company_forecast_dividends import FIELD as ISSUER_FORECAST
 from regional_edinet import safe_edinet_diagnostic
 
 
@@ -276,7 +277,7 @@ def payment_schedule(symbol, today=None, path=SCHEDULE_PATH):
 
 def register_company_profiles(app, profiles, catalogue, dividends, editorial=None, *, quotes=None,
                               quote_service=None, businesses=None, annual_dividends=None,
-                              public_businesses=None):
+                              public_businesses=None, forecast_dividends=None, reviewed_businesses=None):
     reviewed = read_editorial() if editorial is None else editorial
 
     @app.get('/api/company-profile')
@@ -313,7 +314,11 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         payload['editorial'] = deepcopy(reviewed.get(symbol))
         public_business = (public_businesses.get(symbol, company)
                            if public_businesses is not None and detail and not payload['editorial'] else None)
-        if public_business:
+        reviewed_business = (reviewed_businesses.get(symbol, company)
+                             if reviewed_businesses is not None and detail and not payload['editorial'] else None)
+        if reviewed_business:
+            payload['business_overview'] = reviewed_business
+        elif public_business:
             payload['business_overview'] = public_business
         elif businesses is not None and detail and not payload['editorial']:
             payload['business_overview'] = deepcopy(businesses.get(symbol, company))
@@ -328,6 +333,8 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         # Only the independently verified EDINET service may supply this field.
         figures.pop(HISTORICAL_DIVIDEND, None)
         payload.pop('dividend_fact', None)
+        figures.pop(ISSUER_FORECAST, None)
+        payload.pop('issuer_dividend_forecast', None)
         # Queue this verified company ahead of the dividend universe, returning
         # saved facts immediately. The existing bounded pool does the work.
         dividend = dividends.lookup(provider_symbol, company['name']) if provider_symbol else {}
@@ -485,6 +492,19 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                 'fetched_at': schedule['fetched_at'], 'as_of': schedule.get('source_updated_on')}
             sources.append(dict(schedule['source'], fetched_at=schedule['fetched_at']))
             states['dividend_payment_date'] = 'available'
+        if forecast_dividends is not None:
+            forecast = forecast_dividends.get(symbol, company)
+            payload['issuer_dividend_forecast_status'] = 'unconfirmed'
+            if forecast:
+                payload['issuer_dividend_forecast'] = forecast
+                payload['issuer_dividend_forecast_status'] = forecast['status']
+                states[ISSUER_FORECAST] = 'available' if forecast['status'] == 'available' else 'unconfirmed'
+                if forecast['status'] == 'available':
+                    figures[ISSUER_FORECAST] = forecast['value']
+                source_fields(payload)[ISSUER_FORECAST] = {
+                    'fetched_at': forecast['fetched_at'], 'as_of': forecast['announcement_date']}
+                sources.append({'title': forecast['source_title'], 'url': forecast['source_url'],
+                                'fetched_at': forecast['fetched_at']})
         # A saved valid value remains visible with its own date even if the
         # current fetch failed. Zero is a value only for verified dividend data.
         for field in (*PROFILE_FIELDS, 'annual_dividend'):

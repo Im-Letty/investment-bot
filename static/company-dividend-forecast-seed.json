@@ -1,0 +1,3907 @@
+{
+  "schema_version": 1,
+  "use_basis": "independent_extraction_of_numeric_facts",
+  "all_regional_companies": 110,
+  "latest_revisions_guaranteed": false,
+  "items": [
+    {
+      "symbol": "1449.JP",
+      "identity": {
+        "symbol": "1449.JP",
+        "code": "1449",
+        "name": "FUJIジャパン",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 3,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/fuji2026.12-2.pdf",
+      "source_title": "2026年12月期第2四半期（中間期）決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819509.747719,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1449",
+        "source_security_code": "1449",
+        "issuer_name": "FUJIジャパン",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/fuji2026.12-2.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "1738.JP",
+      "identity": {
+        "symbol": "1738.JP",
+        "code": "1738",
+        "name": "NITTOH",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 18,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260806512240.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819362.96025,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1738",
+        "source_security_code": "1738",
+        "issuer_name": "NITTOH",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260806512240.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "1771.JP",
+      "identity": {
+        "symbol": "1771.JP",
+        "code": "1771",
+        "name": "日本乾溜工業",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 36,
+      "source_url": "https://kanryu.co.jp/assets/img/ir/press-release/2026/2026%E5%B9%B4%EF%BC%99%E6%9C%88%E6%9C%9F%E7%AC%AC%EF%BC%93%E5%9B%9B%E5%8D%8A%E6%9C%9F%E6%B1%BA%E7%AE%97.pdf",
+      "source_title": "2026年９月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.343652,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1771",
+        "source_security_code": "1771",
+        "issuer_name": "日本乾溜工業株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://kanryu.co.jp/assets/img/ir/press-release/2026/2026%E5%B9%B4%EF%BC%99%E6%9C%88%E6%9C%9F%E7%AC%AC%EF%BC%93%E5%9B%9B%E5%8D%8A%E6%9C%9F%E6%B1%BA%E7%AE%97.pdf",
+        "source_host": "kanryu.co.jp"
+      }
+    },
+    {
+      "symbol": "1777.JP",
+      "identity": {
+        "symbol": "1777.JP",
+        "code": "1777",
+        "name": "川崎設備工業",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 95,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260730503391.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819364.229449,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1777",
+        "source_security_code": "1777",
+        "issuer_name": "川崎設備工業",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260730503391.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "1832.JP",
+      "identity": {
+        "symbol": "1832.JP",
+        "code": "1832",
+        "name": "北海電工",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 20,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/07/hokkaid2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-07-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819511.184587,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1832",
+        "source_security_code": "1832",
+        "issuer_name": "北海電工",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/07/hokkaid2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "1869.JP",
+      "identity": {
+        "symbol": "1869.JP",
+        "code": "1869",
+        "name": "名工建設",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 66,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260729502419.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819365.417686,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1869",
+        "source_security_code": "1869",
+        "issuer_name": "名工建設",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260729502419.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "1892.JP",
+      "identity": {
+        "symbol": "1892.JP",
+        "code": "1892",
+        "name": "徳倉建設",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 250,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260806511407.pdf",
+      "source_title": "2027年３月期　第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819366.60507,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1892",
+        "source_security_code": "1892",
+        "issuer_name": "徳倉建設",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260806511407.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "1999.JP",
+      "identity": {
+        "symbol": "1999.JP",
+        "code": "1999",
+        "name": "サイタホールディングス",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 70,
+      "source_url": "https://www.saita-hd.co.jp/wp/wp-content/uploads/2026/08/20260818kessan.pdf",
+      "source_title": "2026年6月期 決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.344186,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "1999",
+        "source_security_code": "1999",
+        "issuer_name": "サイタホールディングス株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.saita-hd.co.jp/wp/wp-content/uploads/2026/08/20260818kessan.pdf",
+        "source_host": "www.saita-hd.co.jp"
+      }
+    },
+    {
+      "symbol": "2058.JP",
+      "identity": {
+        "symbol": "2058.JP",
+        "code": "2058",
+        "name": "ヒガシマル",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 12,
+      "source_url": "https://k-higashimaru.co.jp/h_corporate/wp-content/uploads/2026/08/ksts-2027-3-1q.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.344249,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2058",
+        "source_security_code": "2058",
+        "issuer_name": "株式会社ヒガシマル",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://k-higashimaru.co.jp/h_corporate/wp-content/uploads/2026/08/ksts-2027-3-1q.pdf",
+        "source_host": "k-higashimaru.co.jp"
+      }
+    },
+    {
+      "symbol": "2137.JP",
+      "identity": {
+        "symbol": "2137.JP",
+        "code": "2137",
+        "name": "光ハイツ・ヴェラス",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "not_disclosed",
+      "value": null,
+      "reason": "annual_amount_not_reported",
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/varus2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819512.659327,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2137",
+        "source_security_code": "2137",
+        "issuer_name": "光ハイツ・ヴェラス",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/varus2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "2172.JP",
+      "identity": {
+        "symbol": "2172.JP",
+        "code": "2172",
+        "name": "インサイト",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 9,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/ins2026.6.pdf",
+      "source_title": "2026年6月期 決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819514.006003,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2172",
+        "source_security_code": "2172",
+        "issuer_name": "インサイト",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/ins2026.6.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "2218.JP",
+      "identity": {
+        "symbol": "2218.JP",
+        "code": "2218",
+        "name": "日糧製パン",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 15,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/07/pan2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-07-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819515.45023,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2218",
+        "source_security_code": "2218",
+        "issuer_name": "日糧製パン",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/07/pan2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "231A.JP",
+      "identity": {
+        "symbol": "231A.JP",
+        "code": "231A",
+        "name": "CrossEホールディングス",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 55,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/260812231A0.pdf",
+      "source_title": "2026年９月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820129.466689,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "231A",
+        "source_security_code": "231A",
+        "issuer_name": "Ｃｒｏｓｓ Ｅホールディングス株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/260812231A0.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "242A.JP",
+      "identity": {
+        "symbol": "242A.JP",
+        "code": "242A",
+        "name": "リプライオリティ",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 22.8,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/260814242A1.pdf",
+      "source_title": "2026年９月期第３四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820129.466938,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "reported_split": {
+        "effective_on": "2026-04-01",
+        "before": 1,
+        "after": 2
+      },
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "242A",
+        "source_security_code": "242A",
+        "issuer_name": "株式会社リプライオリティ",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/260814242A1.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "2467.JP",
+      "identity": {
+        "symbol": "2467.JP",
+        "code": "2467",
+        "name": "VLCセキュリティ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260814520672.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819367.802577,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2467",
+        "source_security_code": "2467",
+        "issuer_name": "VLCセキュリティ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260814520672.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "2551.JP",
+      "identity": {
+        "symbol": "2551.JP",
+        "code": "2551",
+        "name": "マルサンアイ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 30,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260803506449.pdf",
+      "source_title": "2026年９月期第３四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-03",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819369.070411,
+      "fiscal_period": {
+        "start": "2025-09-21",
+        "end": "2026-09-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2551",
+        "source_security_code": "2551",
+        "issuer_name": "マルサンアイ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260803506449.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "259A.JP",
+      "identity": {
+        "symbol": "259A.JP",
+        "code": "259A",
+        "name": "ケイ・ウノ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260811517515.pdf",
+      "source_title": "2026年９月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819370.262538,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "259A",
+        "source_security_code": "259A",
+        "issuer_name": "ケイ・ウノ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260811517515.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "272A.JP",
+      "identity": {
+        "symbol": "272A.JP",
+        "code": "272A",
+        "name": "グリーンクロスホールディングス",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 40,
+      "source_url": "https://green-cross-hd.co.jp/wp-content/uploads/2026/09/第3期第1四半期決算短信全文（0910）.pdf",
+      "source_title": "令和9年4月期 第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-09-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.344299,
+      "fiscal_period": {
+        "start": "2026-05-01",
+        "end": "2027-04-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "272A",
+        "source_security_code": "272A",
+        "issuer_name": "株式会社グリーンクロスホールディングス",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://green-cross-hd.co.jp/wp-content/uploads/2026/09/第3期第1四半期決算短信全文（0910）.pdf",
+        "source_host": "green-cross-hd.co.jp"
+      }
+    },
+    {
+      "symbol": "275A.JP",
+      "identity": {
+        "symbol": "275A.JP",
+        "code": "275A",
+        "name": "ハンワホームズ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120261001544930.pdf",
+      "source_title": "2027年２月期第２四半期（中間期）決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-10-02",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819371.536175,
+      "fiscal_period": {
+        "start": "2026-02-21",
+        "end": "2027-02-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "275A",
+        "source_security_code": "275A",
+        "issuer_name": "ハンワホームズ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120261001544930.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "2902.JP",
+      "identity": {
+        "symbol": "2902.JP",
+        "code": "2902",
+        "name": "太陽化学",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 101,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260722597223.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信[日本基準](連結)",
+      "announcement_date": "2026-08-03",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819372.695615,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2902",
+        "source_security_code": "2902",
+        "issuer_name": "太陽化学",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260722597223.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "2919.JP",
+      "identity": {
+        "symbol": "2919.JP",
+        "code": "2919",
+        "name": "マルタイ",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 50,
+      "source_url": "https://www.marutai.co.jp/files/optionallink/00000824_file.pdf?1165601198",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819889.866576,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2919",
+        "source_security_code": "2919",
+        "issuer_name": "株式会社マルタイ",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.marutai.co.jp/files/optionallink/00000824_file.pdf?1165601198",
+        "source_host": "www.marutai.co.jp"
+      }
+    },
+    {
+      "symbol": "2928.JP",
+      "identity": {
+        "symbol": "2928.JP",
+        "code": "2928",
+        "name": "RIZAPグループ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "range",
+      "value": null,
+      "value_range": {
+        "min": 1.34,
+        "max": 2.01
+      },
+      "reason": "issuer_forecast_is_range",
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/rizap2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔IFRS〕(連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819516.821021,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2928",
+        "source_security_code": "2928",
+        "issuer_name": "RIZAPグループ",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/rizap2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "2974.JP",
+      "identity": {
+        "symbol": "2974.JP",
+        "code": "2974",
+        "name": "大英産業",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 24,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26080729741.pdf",
+      "source_title": "2026年９月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820130.279902,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2974",
+        "source_security_code": "2974",
+        "issuer_name": "大英産業株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26080729741.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "2976.JP",
+      "identity": {
+        "symbol": "2976.JP",
+        "code": "2976",
+        "name": "日本グランデ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "not_disclosed",
+      "value": null,
+      "reason": "annual_amount_not_reported",
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/grande2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819518.277754,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "2976",
+        "source_security_code": "2976",
+        "issuer_name": "日本グランデ",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/grande2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "3032.JP",
+      "identity": {
+        "symbol": "3032.JP",
+        "code": "3032",
+        "name": "ゴルフ・ドゥ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 4,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260731505084.pdf",
+      "source_title": "2027年3月期第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819373.885185,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3032",
+        "source_security_code": "3032",
+        "issuer_name": "ゴルフ・ドゥ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260731505084.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3047.JP",
+      "identity": {
+        "symbol": "3047.JP",
+        "code": "3047",
+        "name": "TRUCK-ONE",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 11,
+      "source_url": "https://www.truck-one.com/wp-content/uploads/2026/08/37-2qtansin.pdf",
+      "source_title": "2026年12月期第２四半期（中間期）決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819889.914166,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3047",
+        "source_security_code": "3047",
+        "issuer_name": "株式会社ＴＲＵＣＫ－ＯＮＥ",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.truck-one.com/wp-content/uploads/2026/08/37-2qtansin.pdf",
+        "source_host": "www.truck-one.com"
+      }
+    },
+    {
+      "symbol": "3055.JP",
+      "identity": {
+        "symbol": "3055.JP",
+        "code": "3055",
+        "name": "TSUMUGUHOLDINGS",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 20,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/hokutake2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819519.669988,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3055",
+        "source_security_code": "3055",
+        "issuer_name": "TSUMUGUHOLDINGS",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/hokutake2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "3066.JP",
+      "identity": {
+        "symbol": "3066.JP",
+        "code": "3066",
+        "name": "JBイレブン",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 2.5,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260802506065.pdf",
+      "source_title": "2027年３月期　第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819376.290265,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3066",
+        "source_security_code": "3066",
+        "issuer_name": "JBイレブン",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260802506065.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3260.JP",
+      "identity": {
+        "symbol": "3260.JP",
+        "code": "3260",
+        "name": "エスポア",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260420506976.pdf",
+      "source_title": "2026年２月期 決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-04-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819672.190955,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3260",
+        "source_security_code": "3260",
+        "issuer_name": "エスポア",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260420506976.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3346.JP",
+      "identity": {
+        "symbol": "3346.JP",
+        "code": "3346",
+        "name": "ヒロタグループホールディングス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260813519034.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819378.793451,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3346",
+        "source_security_code": "3346",
+        "issuer_name": "ヒロタグループホールディングス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260813519034.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3384.JP",
+      "identity": {
+        "symbol": "3384.JP",
+        "code": "3384",
+        "name": "アークコア",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260703587877.pdf",
+      "source_title": "2027年２月期第１四半期決算短信［日本基準］（非連結）",
+      "announcement_date": "2026-07-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819380.069344,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3384",
+        "source_security_code": "3384",
+        "issuer_name": "アークコア",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260703587877.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3419.JP",
+      "identity": {
+        "symbol": "3419.JP",
+        "code": "3419",
+        "name": "アートグリーン",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260914535638.pdf",
+      "source_title": "第３四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-09-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819381.334347,
+      "fiscal_period": {
+        "start": "2025-11-01",
+        "end": "2026-10-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3419",
+        "source_security_code": "3419",
+        "issuer_name": "アートグリーン",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260914535638.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3442.JP",
+      "identity": {
+        "symbol": "3442.JP",
+        "code": "3442",
+        "name": "MIEコーポレーション",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 40,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260729501730.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819382.506347,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3442",
+        "source_security_code": "3442",
+        "issuer_name": "MIEコーポレーション",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260729501730.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3504.JP",
+      "identity": {
+        "symbol": "3504.JP",
+        "code": "3504",
+        "name": "丸八ホールディングス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 50,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260811517491.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819383.779906,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3504",
+        "source_security_code": "3504",
+        "issuer_name": "丸八ホールディングス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260811517491.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "353A.JP",
+      "identity": {
+        "symbol": "353A.JP",
+        "code": "353A",
+        "name": "エレベーターコミュニケーションズ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://contents.xj-storage.jp/xcontents/AS82085/e16581ca/2f06/46a4/a993/f55657427f39/140120260713592582.pdf",
+      "source_title": "2026年５月期 決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-07-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819812.28079,
+      "fiscal_period": {
+        "start": "2026-06-01",
+        "end": "2027-05-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "353A",
+        "source_security_code": "353A",
+        "issuer_name": "エレベーターコミュニケーションズ",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://contents.xj-storage.jp/xcontents/AS82085/e16581ca/2f06/46a4/a993/f55657427f39/140120260713592582.pdf",
+        "source_host": "contents.xj-storage.jp"
+      }
+    },
+    {
+      "symbol": "3670.JP",
+      "identity": {
+        "symbol": "3670.JP",
+        "code": "3670",
+        "name": "協立情報通信",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 65,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260805510197.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819385.04493,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3670",
+        "source_security_code": "3670",
+        "issuer_name": "協立情報通信",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260805510197.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3739.JP",
+      "identity": {
+        "symbol": "3739.JP",
+        "code": "3739",
+        "name": "コムシード",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260807514842.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819386.228087,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3739",
+        "source_security_code": "3739",
+        "issuer_name": "コムシード",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260807514842.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3775.JP",
+      "identity": {
+        "symbol": "3775.JP",
+        "code": "3775",
+        "name": "ガイアックス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 5,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260814520528.pdf",
+      "source_title": "2026年12月期　第２四半期（中間期）決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819387.48978,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3775",
+        "source_security_code": "3775",
+        "issuer_name": "ガイアックス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260814520528.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "377A.JP",
+      "identity": {
+        "symbol": "377A.JP",
+        "code": "377A",
+        "name": "エージェントIGホールディングス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260813518892.pdf",
+      "source_title": "2026年12月期 第２四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819388.689343,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "377A",
+        "source_security_code": "377A",
+        "issuer_name": "エージェントIGホールディングス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260813518892.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3808.JP",
+      "identity": {
+        "symbol": "3808.JP",
+        "code": "3808",
+        "name": "オーケーウェブ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260826526392.pdf",
+      "source_title": "（訂正・数値データ訂正）「2026年６月期決算短信〔日本基準〕(連結)」の一部訂正について",
+      "announcement_date": "2026-08-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819390.006194,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3808",
+        "source_security_code": "3808",
+        "issuer_name": "オーケーウェブ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260826526392.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3824.JP",
+      "identity": {
+        "symbol": "3824.JP",
+        "code": "3824",
+        "name": "メディアファイブ",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 10,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26100838241.pdf",
+      "source_title": "2027年５月期第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-10-08",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820130.39047,
+      "fiscal_period": {
+        "start": "2026-06-01",
+        "end": "2027-05-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3824",
+        "source_security_code": "3824",
+        "issuer_name": "メディアファイブ株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26100838241.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "3849.JP",
+      "identity": {
+        "symbol": "3849.JP",
+        "code": "3849",
+        "name": "日本テクノ・ラボ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "undetermined",
+      "value": null,
+      "reason": "issuer_states_undetermined",
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/ntl2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819521.126101,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3849",
+        "source_security_code": "3849",
+        "issuer_name": "日本テクノ・ラボ",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/ntl2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "391A.JP",
+      "identity": {
+        "symbol": "391A.JP",
+        "code": "391A",
+        "name": "山忠",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 78,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260911535365.pdf",
+      "source_title": "2027年4月期_第1四半期決算短信",
+      "announcement_date": "2026-09-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819392.500388,
+      "fiscal_period": {
+        "start": "2026-05-01",
+        "end": "2027-04-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "391A",
+        "source_security_code": "391A",
+        "issuer_name": "山忠",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260911535365.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "3977.JP",
+      "identity": {
+        "symbol": "3977.JP",
+        "code": "3977",
+        "name": "フュージョン",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/07/fusion2027.2-1.pdf",
+      "source_title": "2027年2月期  第1四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-07-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819522.485568,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "3977",
+        "source_security_code": "3977",
+        "issuer_name": "フュージョン",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/07/fusion2027.2-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "4018.JP",
+      "identity": {
+        "symbol": "4018.JP",
+        "code": "4018",
+        "name": "GeolocationTechnology",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 10,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26081440183.pdf",
+      "source_title": "2026年６月期 決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820130.824227,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "4018",
+        "source_security_code": "4018",
+        "issuer_name": "株式会社Geolocation Technology",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26081440183.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "418A.JP",
+      "identity": {
+        "symbol": "418A.JP",
+        "code": "418A",
+        "name": "ウリドキ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260714593549.pdf",
+      "source_title": "2026年11月期第２四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-07-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819393.755379,
+      "fiscal_period": {
+        "start": "2025-12-01",
+        "end": "2026-11-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "418A",
+        "source_security_code": "418A",
+        "issuer_name": "ウリドキ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260714593549.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "4250.JP",
+      "identity": {
+        "symbol": "4250.JP",
+        "code": "4250",
+        "name": "フロンティア",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 18,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26071442500.pdf",
+      "source_title": "2026年11月期 第２四半期（中間期）決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-07-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820131.229456,
+      "fiscal_period": {
+        "start": "2025-12-01",
+        "end": "2026-11-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "reported_split": {
+        "effective_on": "2025-12-01",
+        "before": 1,
+        "after": 2
+      },
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "4250",
+        "source_security_code": "4250",
+        "issuer_name": "株式会社フロンティア",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26071442500.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "4827.JP",
+      "identity": {
+        "symbol": "4827.JP",
+        "code": "4827",
+        "name": "ビジネス・ワンホールディングス",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 13,
+      "source_url": "https://www.businessone-hd.com/wp-content/uploads/2027年３月期　第１四半期決算短信〔日本基準〕連結.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819890.094714,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "4827",
+        "source_security_code": "4827",
+        "issuer_name": "ビジネス・ワンホールディングス株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.businessone-hd.com/wp-content/uploads/2027年３月期　第１四半期決算短信〔日本基準〕連結.pdf",
+        "source_host": "www.businessone-hd.com"
+      }
+    },
+    {
+      "symbol": "4995.JP",
+      "identity": {
+        "symbol": "4995.JP",
+        "code": "4995",
+        "name": "サンケイ化学",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 30,
+      "source_url": "https://www.sankei-chem.com/ir/pdf/2026-8shihanki.pdf",
+      "source_title": "2026年11月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-10-08",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.664163,
+      "fiscal_period": {
+        "start": "2025-12-01",
+        "end": "2026-11-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "4995",
+        "source_security_code": "4995",
+        "issuer_name": "サンケイ化学株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.sankei-chem.com/ir/pdf/2026-8shihanki.pdf",
+        "source_host": "www.sankei-chem.com"
+      }
+    },
+    {
+      "symbol": "5039.JP",
+      "identity": {
+        "symbol": "5039.JP",
+        "code": "5039",
+        "name": "キットアライブ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/kitalive2026.12-2.pdf",
+      "source_title": "2026年12月期 第2四半期（中間期）決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819523.812684,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5039",
+        "source_security_code": "5039",
+        "issuer_name": "キットアライブ",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/kitalive2026.12-2.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "5075.JP",
+      "identity": {
+        "symbol": "5075.JP",
+        "code": "5075",
+        "name": "アップコン",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "undetermined",
+      "value": null,
+      "reason": "issuer_states_undetermined",
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260911535241.pdf",
+      "source_title": "2027年１月期第２四半期（中間期）決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-09-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819395.023044,
+      "fiscal_period": {
+        "start": "2026-02-01",
+        "end": "2027-01-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5075",
+        "source_security_code": "5075",
+        "issuer_name": "アップコン",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260911535241.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5241.JP",
+      "identity": {
+        "symbol": "5241.JP",
+        "code": "5241",
+        "name": "日本オーエー研究所",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 15,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260813519388.pdf",
+      "source_title": "2026年12月期第２四半期（中間期）決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819396.311356,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5241",
+        "source_security_code": "5241",
+        "issuer_name": "日本オーエー研究所",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260813519388.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5342.JP",
+      "identity": {
+        "symbol": "5342.JP",
+        "code": "5342",
+        "name": "ジャニス工業",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260804508558.pdf",
+      "source_title": "2027年3月期　第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819398.75553,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5342",
+        "source_security_code": "5342",
+        "issuer_name": "ジャニス工業",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260804508558.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5343.JP",
+      "identity": {
+        "symbol": "5343.JP",
+        "code": "5343",
+        "name": "ニッコー",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260804508759.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819400.018676,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5343",
+        "source_security_code": "5343",
+        "issuer_name": "ニッコー",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260804508759.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5386.JP",
+      "identity": {
+        "symbol": "5386.JP",
+        "code": "5386",
+        "name": "鶴弥",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "undetermined",
+      "value": null,
+      "reason": "issuer_states_undetermined",
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260731504336.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819401.274871,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5386",
+        "source_security_code": "5386",
+        "issuer_name": "鶴弥",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260731504336.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5530.JP",
+      "identity": {
+        "symbol": "5530.JP",
+        "code": "5530",
+        "name": "日本システムバンク",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 45,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260810517033.pdf",
+      "source_title": "2026年６月期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819402.471426,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5530",
+        "source_security_code": "5530",
+        "issuer_name": "日本システムバンク",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260810517033.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5579.JP",
+      "identity": {
+        "symbol": "5579.JP",
+        "code": "5579",
+        "name": "GSI",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 64,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/gsi2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819525.18716,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5579",
+        "source_security_code": "5579",
+        "issuer_name": "GSI",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/gsi2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "5607.JP",
+      "identity": {
+        "symbol": "5607.JP",
+        "code": "5607",
+        "name": "中央可鍛工業",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 19,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260805509807.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819406.161656,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5607",
+        "source_security_code": "5607",
+        "issuer_name": "中央可鍛工業",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260805509807.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "5953.JP",
+      "identity": {
+        "symbol": "5953.JP",
+        "code": "5953",
+        "name": "昭和鉄工",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 150,
+      "source_url": "https://www.showa.co.jp/dcms_media/other/202703kessan1.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.860455,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5953",
+        "source_security_code": "5953",
+        "issuer_name": "昭和鉄工株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.showa.co.jp/dcms_media/other/202703kessan1.pdf",
+        "source_host": "www.showa.co.jp"
+      }
+    },
+    {
+      "symbol": "5979.JP",
+      "identity": {
+        "symbol": "5979.JP",
+        "code": "5979",
+        "name": "カネソウ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "not_comparable",
+      "value": null,
+      "reason": "split_basis_mismatch",
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260819523040.pdf",
+      "source_title": "株式分割、株式分割に伴う定款の一部変更及び配当予想の修正に関するお知らせ",
+      "announcement_date": "2026-08-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819408.762117,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "5979",
+        "source_security_code": "5979",
+        "issuer_name": "カネソウ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260819523040.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6025.JP",
+      "identity": {
+        "symbol": "6025.JP",
+        "code": "6025",
+        "name": "日本PCサービス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260710591683.pdf",
+      "source_title": "2026年８月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-07-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819409.956864,
+      "fiscal_period": {
+        "start": "2025-09-01",
+        "end": "2026-08-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6025",
+        "source_security_code": "6025",
+        "issuer_name": "日本PCサービス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260710591683.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6076.JP",
+      "identity": {
+        "symbol": "6076.JP",
+        "code": "6076",
+        "name": "アメイズ",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 35,
+      "source_url": "https://www.az-hotels.co.jp/datas/files/2026/07/14/7b08216f4ede656ddafc72b3e12821137e83886a.pdf",
+      "source_title": "令和８年11月期 第２四半期（中間期）決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-07-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819890.719593,
+      "fiscal_period": {
+        "start": "2025-12-01",
+        "end": "2026-11-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6076",
+        "source_security_code": "6076",
+        "issuer_name": "株式会社アメイズ",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.az-hotels.co.jp/datas/files/2026/07/14/7b08216f4ede656ddafc72b3e12821137e83886a.pdf",
+        "source_host": "www.az-hotels.co.jp"
+      }
+    },
+    {
+      "symbol": "6111.JP",
+      "identity": {
+        "symbol": "6111.JP",
+        "code": "6111",
+        "name": "旭精機工業",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 60,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260729501414.pdf",
+      "source_title": "2027年３月期  第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-07-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819411.15244,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6111",
+        "source_security_code": "6111",
+        "issuer_name": "旭精機工業",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260729501414.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6142.JP",
+      "identity": {
+        "symbol": "6142.JP",
+        "code": "6142",
+        "name": "富士精工",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 50,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260707588674.pdf",
+      "source_title": "2027年２月期　第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-07-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819412.348223,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6142",
+        "source_security_code": "6142",
+        "issuer_name": "富士精工",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260707588674.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6147.JP",
+      "identity": {
+        "symbol": "6147.JP",
+        "code": "6147",
+        "name": "ヤマザキ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 10,
+      "source_url": "https://www.yamazaki-iron.co.jp/ir/library/pdf/results_2027_1q.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819776.720665,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6147",
+        "source_security_code": "6147",
+        "issuer_name": "ヤマザキ",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.yamazaki-iron.co.jp/ir/library/pdf/results_2027_1q.pdf",
+        "source_host": "www.yamazaki-iron.co.jp"
+      }
+    },
+    {
+      "symbol": "6225.JP",
+      "identity": {
+        "symbol": "6225.JP",
+        "code": "6225",
+        "name": "エコム",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 38,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260911534845.pdf",
+      "source_title": "2026年７月期　決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-09-11",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819413.540856,
+      "fiscal_period": {
+        "start": "2026-08-01",
+        "end": "2027-07-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6225",
+        "source_security_code": "6225",
+        "issuer_name": "エコム",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260911534845.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "624A.JP",
+      "identity": {
+        "symbol": "624A.JP",
+        "code": "624A",
+        "name": "かがやきホールディングス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "undetermined",
+      "value": null,
+      "reason": "issuer_states_undetermined",
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260917538177.pdf",
+      "source_title": "名古屋証券取引所ネクスト市場への上場に伴う当社決算情報等のお知らせ",
+      "announcement_date": "2026-09-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819672.931027,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "624A",
+        "source_security_code": "624A",
+        "issuer_name": "かがやきホールディングス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260917538177.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6439.JP",
+      "identity": {
+        "symbol": "6439.JP",
+        "code": "6439",
+        "name": "中日本鋳工",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "undetermined",
+      "value": null,
+      "reason": "issuer_states_undetermined",
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260807513655.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819414.811175,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6439",
+        "source_security_code": "6439",
+        "issuer_name": "中日本鋳工",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260807513655.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6565.JP",
+      "identity": {
+        "symbol": "6565.JP",
+        "code": "6565",
+        "name": "ABホテル",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 29,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260729501651.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819416.006559,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6565",
+        "source_security_code": "6565",
+        "issuer_name": "ABホテル",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260729501651.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6623.JP",
+      "identity": {
+        "symbol": "6623.JP",
+        "code": "6623",
+        "name": "愛知電機",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 280,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260730503091.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819417.281547,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6623",
+        "source_security_code": "6623",
+        "issuer_name": "愛知電機",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260730503091.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6655.JP",
+      "identity": {
+        "symbol": "6655.JP",
+        "code": "6655",
+        "name": "東洋電機",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 20,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260807513947.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819418.555417,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6655",
+        "source_security_code": "6655",
+        "issuer_name": "東洋電機",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260807513947.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "6846.JP",
+      "identity": {
+        "symbol": "6846.JP",
+        "code": "6846",
+        "name": "中央製作所",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 55,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260810516054.pdf",
+      "source_title": "2027年３月期第１四半期決算短信[日本基準](非連結)",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819419.845383,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "6846",
+        "source_security_code": "6846",
+        "issuer_name": "中央製作所",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260810516054.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7076.JP",
+      "identity": {
+        "symbol": "7076.JP",
+        "code": "7076",
+        "name": "名南M&A",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 8.65,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260810516265.pdf",
+      "source_title": "2026年９月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819421.059638,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7076",
+        "source_security_code": "7076",
+        "issuer_name": "名南M&A",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260810516265.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7118.JP",
+      "identity": {
+        "symbol": "7118.JP",
+        "code": "7118",
+        "name": "伸和ホールディングス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 38,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260803507040.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819422.294989,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7118",
+        "source_security_code": "7118",
+        "issuer_name": "伸和ホールディングス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260803507040.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7227.JP",
+      "identity": {
+        "symbol": "7227.JP",
+        "code": "7227",
+        "name": "アスカ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 54,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260923539060.pdf",
+      "source_title": "2026年11月期　第3四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-09-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819423.511032,
+      "fiscal_period": {
+        "start": "2025-12-01",
+        "end": "2026-11-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7227",
+        "source_security_code": "7227",
+        "issuer_name": "アスカ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260923539060.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7441.JP",
+      "identity": {
+        "symbol": "7441.JP",
+        "code": "7441",
+        "name": "Misumi",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 50,
+      "source_url": "https://kk-misumi.jp/wp/wp-content/uploads/2026/08/第71期第1四半期決算短信全文08.07.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819890.839753,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7441",
+        "source_security_code": "7441",
+        "issuer_name": "株式会社Ｍｉｓｕｍｉ",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://kk-misumi.jp/wp/wp-content/uploads/2026/08/第71期第1四半期決算短信全文08.07.pdf",
+        "source_host": "kk-misumi.jp"
+      }
+    },
+    {
+      "symbol": "7485.JP",
+      "identity": {
+        "symbol": "7485.JP",
+        "code": "7485",
+        "name": "岡谷鋼機",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 90,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260925540585.pdf",
+      "source_title": "令和9年2月期 第2四半期（中間期）決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-09-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819424.78368,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7485",
+        "source_security_code": "7485",
+        "issuer_name": "岡谷鋼機",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260925540585.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7488.JP",
+      "identity": {
+        "symbol": "7488.JP",
+        "code": "7488",
+        "name": "ヤガミ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 280,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260821524124.pdf",
+      "source_title": "2027年４月期 第１四半期決算短信[日本基準](連結)",
+      "announcement_date": "2026-08-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819427.341098,
+      "fiscal_period": {
+        "start": "2026-04-21",
+        "end": "2027-04-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7488",
+        "source_security_code": "7488",
+        "issuer_name": "ヤガミ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260821524124.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7675.JP",
+      "identity": {
+        "symbol": "7675.JP",
+        "code": "7675",
+        "name": "セントラルフォレストグループ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 64,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260806511811.pdf",
+      "source_title": "2026年12月期第２四半期(中間期)決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819428.60813,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7675",
+        "source_security_code": "7675",
+        "issuer_name": "セントラルフォレストグループ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260806511811.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7790.JP",
+      "identity": {
+        "symbol": "7790.JP",
+        "code": "7790",
+        "name": "バルコス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260814521379.pdf",
+      "source_title": "2026年12月期第2四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819429.842435,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7790",
+        "source_security_code": "7790",
+        "issuer_name": "バルコス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260814521379.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7851.JP",
+      "identity": {
+        "symbol": "7851.JP",
+        "code": "7851",
+        "name": "カワセコンピュータサプライ",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "not_disclosed",
+      "value": null,
+      "reason": "annual_amount_not_reported",
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26081378510.pdf",
+      "source_title": "令和９年３月期 第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-08-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820131.528538,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7851",
+        "source_security_code": "7851",
+        "issuer_name": "カワセコンピュータサプライ株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26081378510.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "7870.JP",
+      "identity": {
+        "symbol": "7870.JP",
+        "code": "7870",
+        "name": "福島印刷",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 11,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120261002545115.pdf",
+      "source_title": "2026年８月期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-10-02",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819431.147552,
+      "fiscal_period": {
+        "start": "2026-08-21",
+        "end": "2027-08-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7870",
+        "source_security_code": "7870",
+        "issuer_name": "福島印刷",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120261002545115.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7894.JP",
+      "identity": {
+        "symbol": "7894.JP",
+        "code": "7894",
+        "name": "丸東産業",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 40,
+      "source_url": "https://www.marutosangyo.co.jp/topics/attachment-file/373/tansin80-1.pdf",
+      "source_title": "2027年2月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-07-14",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819888.973328,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7894",
+        "source_security_code": "7894",
+        "issuer_name": "丸東産業株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.marutosangyo.co.jp/topics/attachment-file/373/tansin80-1.pdf",
+        "source_host": "www.marutosangyo.co.jp"
+      }
+    },
+    {
+      "symbol": "7946.JP",
+      "identity": {
+        "symbol": "7946.JP",
+        "code": "7946",
+        "name": "光陽社",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 11,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260810516775.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819433.639962,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7946",
+        "source_security_code": "7946",
+        "issuer_name": "光陽社",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260810516775.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7950.JP",
+      "identity": {
+        "symbol": "7950.JP",
+        "code": "7950",
+        "name": "日本デコラックス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 370,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260702587034.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819434.837217,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7950",
+        "source_security_code": "7950",
+        "issuer_name": "日本デコラックス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260702587034.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "7985.JP",
+      "identity": {
+        "symbol": "7985.JP",
+        "code": "7985",
+        "name": "ネポン",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 9,
+      "source_url": "https://www.nepon.co.jp/_cms/wp-content/uploads/2026/08/2027年3月期第1四半期決算短信〔日本基準〕（連結）.pdf",
+      "source_title": "2027年3月期第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819889.025111,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "7985",
+        "source_security_code": "7985",
+        "issuer_name": "ネポン株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.nepon.co.jp/_cms/wp-content/uploads/2026/08/2027年3月期第1四半期決算短信〔日本基準〕（連結）.pdf",
+        "source_host": "www.nepon.co.jp"
+      }
+    },
+    {
+      "symbol": "8071.JP",
+      "identity": {
+        "symbol": "8071.JP",
+        "code": "8071",
+        "name": "東海エレクトロニクス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 114,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260721596437.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-07-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819436.10527,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8071",
+        "source_security_code": "8071",
+        "issuer_name": "東海エレクトロニクス",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260721596437.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "8145.JP",
+      "identity": {
+        "symbol": "8145.JP",
+        "code": "8145",
+        "name": "中部水産",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 85,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260810517027.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-08-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819437.351784,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8145",
+        "source_security_code": "8145",
+        "issuer_name": "中部水産",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260810517027.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "8190.JP",
+      "identity": {
+        "symbol": "8190.JP",
+        "code": "8190",
+        "name": "ヤマナカ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 10,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260725599633.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-07-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819438.690439,
+      "fiscal_period": {
+        "start": "2026-03-21",
+        "end": "2027-03-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8190",
+        "source_security_code": "8190",
+        "issuer_name": "ヤマナカ",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260725599633.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "8228.JP",
+      "identity": {
+        "symbol": "8228.JP",
+        "code": "8228",
+        "name": "マルイチ産商",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 28,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260810517393.pdf",
+      "source_title": "2027年3月期　第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819439.918429,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8228",
+        "source_security_code": "8228",
+        "issuer_name": "マルイチ産商",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260810517393.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "8398.JP",
+      "identity": {
+        "symbol": "8398.JP",
+        "code": "8398",
+        "name": "筑邦銀行",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 60,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26080783980.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820132.273373,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8398",
+        "source_security_code": "8398",
+        "issuer_name": "株式会社筑邦銀行",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26080783980.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "8554.JP",
+      "identity": {
+        "symbol": "8554.JP",
+        "code": "8554",
+        "name": "南日本銀行",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 50,
+      "source_url": "https://nangin.jp/ir/contents/IR_202703q1_kessantanshin.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-05",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819891.080215,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8554",
+        "source_security_code": "8554",
+        "issuer_name": "株式会社南日本銀行",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://nangin.jp/ir/contents/IR_202703q1_kessantanshin.pdf",
+        "source_host": "nangin.jp"
+      }
+    },
+    {
+      "symbol": "8559.JP",
+      "identity": {
+        "symbol": "8559.JP",
+        "code": "8559",
+        "name": "豊和銀行",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 10,
+      "source_url": "https://www.howabank.co.jp/wp-content/uploads/2026/08/shihanki2027-1.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819891.438438,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8559",
+        "source_security_code": "8559",
+        "issuer_name": "株式会社豊和銀行",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.howabank.co.jp/wp-content/uploads/2026/08/shihanki2027-1.pdf",
+        "source_host": "www.howabank.co.jp"
+      }
+    },
+    {
+      "symbol": "8560.JP",
+      "identity": {
+        "symbol": "8560.JP",
+        "code": "8560",
+        "name": "宮崎太陽銀行",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 50,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26080685600.pdf",
+      "source_title": "2027年3月期 第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820132.333982,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8560",
+        "source_security_code": "8560",
+        "issuer_name": "株式会社宮崎太陽銀行",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26080685600.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "8594.JP",
+      "identity": {
+        "symbol": "8594.JP",
+        "code": "8594",
+        "name": "中道リース",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 15,
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/leasing2026.12-2.pdf",
+      "source_title": "2026年12月期 第2四半期（中間期）決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819526.673175,
+      "fiscal_period": {
+        "start": "2026-01-01",
+        "end": "2026-12-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "8594",
+        "source_security_code": "8594",
+        "issuer_name": "中道リース",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/leasing2026.12-2.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "9027.JP",
+      "identity": {
+        "symbol": "9027.JP",
+        "code": "9027",
+        "name": "ロジネットジャパン",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "not_comparable",
+      "value": null,
+      "reason": "split_basis_mismatch",
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/09/loginet20260915.pdf",
+      "source_title": "株式分割ならびに配当予想の修正および株主優待制度の変更に関するお知らせ",
+      "announcement_date": "2026-09-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819611.163429,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9027",
+        "source_security_code": "9027",
+        "issuer_name": "ロジネットジャパン",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/09/loginet20260915.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "9035.JP",
+      "identity": {
+        "symbol": "9035.JP",
+        "code": "9035",
+        "name": "第一交通産業",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 25,
+      "source_url": "https://files.microcms-assets.io/assets/17295144c7794f569a4d56657c269cd3/28d5359d208b4620b732b3f38792c544/2606_1_4hanki.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819889.385082,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9035",
+        "source_security_code": "9035",
+        "issuer_name": "第一交通産業株式会社",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://files.microcms-assets.io/assets/17295144c7794f569a4d56657c269cd3/28d5359d208b4620b732b3f38792c544/2606_1_4hanki.pdf",
+        "source_host": "files.microcms-assets.io"
+      }
+    },
+    {
+      "symbol": "9040.JP",
+      "identity": {
+        "symbol": "9040.JP",
+        "code": "9040",
+        "name": "大宝運輸",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 100,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260730503649.pdf",
+      "source_title": "2027年３月期　第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-07-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819441.198188,
+      "fiscal_period": {
+        "start": "2026-03-21",
+        "end": "2027-03-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9040",
+        "source_security_code": "9040",
+        "issuer_name": "大宝運輸",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260730503649.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9085.JP",
+      "identity": {
+        "symbol": "9085.JP",
+        "code": "9085",
+        "name": "北海道中央バス",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "undetermined",
+      "value": null,
+      "reason": "issuer_states_undetermined",
+      "source_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/bus2027.3-1.pdf",
+      "source_title": "2027年3月期 第1四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819529.328832,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9085",
+        "source_security_code": "9085",
+        "issuer_name": "北海道中央バス",
+        "exchange": "Sapporo",
+        "issuer_document_url": "https://www.sse.or.jp/wp-content/uploads/2026/08/bus2027.3-1.pdf",
+        "source_host": "www.sse.or.jp"
+      }
+    },
+    {
+      "symbol": "9170.JP",
+      "identity": {
+        "symbol": "9170.JP",
+        "code": "9170",
+        "name": "成友興業",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 14,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260805510426.pdf",
+      "source_title": "2026年９月期 第３四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819442.431418,
+      "fiscal_period": {
+        "start": "2025-10-01",
+        "end": "2026-09-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9170",
+        "source_security_code": "9170",
+        "issuer_name": "成友興業",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260805510426.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9357.JP",
+      "identity": {
+        "symbol": "9357.JP",
+        "code": "9357",
+        "name": "名港海運",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 100,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260806513146.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819443.751678,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9357",
+        "source_security_code": "9357",
+        "issuer_name": "名港海運",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260806513146.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9359.JP",
+      "identity": {
+        "symbol": "9359.JP",
+        "code": "9359",
+        "name": "伊勢湾海運",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 30,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260807514137.pdf",
+      "source_title": "2027年３月期　第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819444.962383,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9359",
+        "source_security_code": "9359",
+        "issuer_name": "伊勢湾海運",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260807514137.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9388.JP",
+      "identity": {
+        "symbol": "9388.JP",
+        "code": "9388",
+        "name": "パパネッツ",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 25,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26071593883.pdf",
+      "source_title": "2027年２月期 第１四半期決算短信[日本基準]（非連結）",
+      "announcement_date": "2026-07-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820133.628093,
+      "fiscal_period": {
+        "start": "2026-03-01",
+        "end": "2027-02-28"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "reported_split": {
+        "effective_on": "2026-08-01",
+        "before": 1,
+        "after": 2
+      },
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9388",
+        "source_security_code": "9388",
+        "issuer_name": "株式会社パパネッツ",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26071593883.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "9402.JP",
+      "identity": {
+        "symbol": "9402.JP",
+        "code": "9402",
+        "name": "中部日本放送",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 25,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260804509057.pdf",
+      "source_title": "2027年３月期第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-05",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819446.251464,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9402",
+        "source_security_code": "9402",
+        "issuer_name": "中部日本放送",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260804509057.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9407.JP",
+      "identity": {
+        "symbol": "9407.JP",
+        "code": "9407",
+        "name": "RKB毎日ホールディングス",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 85,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26080694070.pdf",
+      "source_title": "2027年３月期 第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-06",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820134.010501,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9407",
+        "source_security_code": "9407",
+        "issuer_name": "株式会社ＲＫＢ毎日ホールディングス",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26080694070.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    },
+    {
+      "symbol": "9471.JP",
+      "identity": {
+        "symbol": "9471.JP",
+        "code": "9471",
+        "name": "文溪堂",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 40.8,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260803507138.pdf",
+      "source_title": "2027年３月期　第１四半期決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-08-03",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819447.474314,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9471",
+        "source_security_code": "9471",
+        "issuer_name": "文溪堂",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260803507138.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9643.JP",
+      "identity": {
+        "symbol": "9643.JP",
+        "code": "9643",
+        "name": "中日本興業",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 60,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260803507520.pdf",
+      "source_title": "令和９年３月期 第１四半期決算短信〔日本基準〕(非連結）",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819448.787034,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9643",
+        "source_security_code": "9643",
+        "issuer_name": "中日本興業",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260803507520.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9664.JP",
+      "identity": {
+        "symbol": "9664.JP",
+        "code": "9664",
+        "name": "御園座",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 0,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260806512786.pdf",
+      "source_title": "令和９年３月期 第１四半期決算短信〔日本基準〕(非連結)",
+      "announcement_date": "2026-08-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819450.065467,
+      "fiscal_period": {
+        "start": "2026-04-01",
+        "end": "2027-03-31"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9664",
+        "source_security_code": "9664",
+        "issuer_name": "御園座",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260806512786.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9914.JP",
+      "identity": {
+        "symbol": "9914.JP",
+        "code": "9914",
+        "name": "植松商会",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 32.5,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120260729501395.pdf",
+      "source_title": "2027年３月期　第１四半期決算短信〔日本基準〕（非連結）",
+      "announcement_date": "2026-07-29",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791819451.297428,
+      "fiscal_period": {
+        "start": "2026-03-21",
+        "end": "2027-03-20"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9914",
+        "source_security_code": "9914",
+        "issuer_name": "植松商会",
+        "exchange": "Nagoya",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260729501395.pdf",
+        "source_host": "www.nse.or.jp"
+      }
+    },
+    {
+      "symbol": "9942.JP",
+      "identity": {
+        "symbol": "9942.JP",
+        "code": "9942",
+        "name": "ジョイフル",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "kind": "issuer_annual_dividend_forecast",
+      "status": "available",
+      "value": 10,
+      "source_url": "https://www.fse.or.jp/files/lis_tkj/26081099422.pdf",
+      "source_title": "2026年６月期決算短信〔日本基準〕(連結)",
+      "announcement_date": "2026-08-10",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791820134.468889,
+      "fiscal_period": {
+        "start": "2026-07-01",
+        "end": "2027-06-30"
+      },
+      "currency": "JPY",
+      "unit": "JPY/share",
+      "split_adjustment": "as_reported",
+      "latest_revision_guaranteed": false,
+      "use_basis": "independent_extraction_of_numeric_facts",
+      "proof": {
+        "code": "9942",
+        "source_security_code": "9942",
+        "issuer_name": "株式会社ジョイフル",
+        "exchange": "Fukuoka",
+        "issuer_document_url": "https://www.fse.or.jp/files/lis_tkj/26081099422.pdf",
+        "source_host": "www.fse.or.jp"
+      }
+    }
+  ]
+}
