@@ -1,14 +1,97 @@
 <!doctype html>
-<html lang="ja"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>コミュニティーの通報確認</title>
-<style>body{margin:0;background:#edf1e9;color:#244a3e;font:16px/1.65 system-ui,sans-serif}main{max-width:780px;margin:32px auto;padding:24px;background:#fffdf6;border-radius:16px}h1{font-size:24px;font-weight:500}input,button{font:inherit;padding:10px;border:1px solid #becfc1;border-radius:6px}button{background:#eef3ea;color:inherit;cursor:pointer}form{display:flex;gap:12px;flex-wrap:wrap}article{padding:20px 0;border-top:1px solid #d2dcca}.meta{font-size:13px;color:#65786d}.body{white-space:pre-wrap;overflow-wrap:anywhere}.actions{display:flex;gap:12px;flex-wrap:wrap}#status{min-height:2em}input{max-width:100%;box-sizing:border-box}</style>
-<main><h1>コミュニティーの通報確認</h1><p>運営用の画面です。通報内容を確認し、対象の投稿を非表示にするか判断します。</p>
+<html lang="ja">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>コミュニティーの通報確認</title>
+<style>
+body{margin:0;background:#edf1e9;color:#244a3e;font:16px/1.65 system-ui,sans-serif}
+main{max-width:780px;margin:32px auto;padding:24px;background:#fffdf6;border-radius:16px}
+h1{font-size:24px;font-weight:500}input,button{font:inherit;padding:10px;border:1px solid #becfc1;border-radius:6px}
+button{background:#eef3ea;color:inherit;cursor:pointer}button:disabled{opacity:.6;cursor:default}
+form,.filters{display:flex;gap:12px;flex-wrap:wrap}.filters{margin-top:20px}.filters[hidden]{display:none}
+.filters button[aria-pressed="true"]{background:#dce7dc;border-color:#65786d}
+article{padding:20px 0;border-top:1px solid #d2dcca}.meta{font-size:13px;color:#65786d}
+.body{white-space:pre-wrap;overflow-wrap:anywhere}.actions{display:flex;gap:12px;flex-wrap:wrap}
+#status{min-height:2em}input{max-width:100%;box-sizing:border-box}
+</style>
+<main>
+<h1>コミュニティーの通報確認</h1>
+<p>運営用の画面です。通報を確認し、投稿を非表示にするか判断します。非表示にした投稿は、対応済みの一覧から公開に戻せます。</p>
 <form id="login"><label>管理パスワード <input id="password" type="password" autocomplete="off" required></label><button type="submit">確認する</button><button type="button" id="leave">終了</button></form>
-<p id="status" role="status"></p><section id="reports"></section></main>
+<nav id="filters" class="filters" aria-label="通報の対応状況" hidden>
+<button id="openReports" type="button" aria-pressed="true">未対応</button>
+<button id="resolvedReports" type="button" aria-pressed="false">対応済み</button>
+</nav>
+<p id="status" role="status"></p><section id="reports"></section><button id="moreReports" type="button" hidden>もっと見る</button>
+</main>
 <script>
-(function(){'use strict';var secret='',epoch=0,list=document.getElementById('reports'),status=document.getElementById('status'),password=document.getElementById('password');
-function node(tag,text,cls){var n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;}
-async function api(path,data){var response=await fetch(path,{method:data?'POST':'GET',headers:{'X-Admin-Pass':secret,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined,cache:'no-store'});var result=await response.json();if(!response.ok||!result.ok)throw new Error(response.status===403?'管理パスワードを確認してください。':'読み込みに失敗しました。');return result;}
+(function(){
+'use strict';
+var secret='',epoch=0,session=0,selectedStatus='open',nextCursor=null;
+var list=document.getElementById('reports'),status=document.getElementById('status');
+var password=document.getElementById('password'),filters=document.getElementById('filters');
+var openButton=document.getElementById('openReports'),resolvedButton=document.getElementById('resolvedReports');
+var moreButton=document.getElementById('moreReports');
 var reasons={spam:'迷惑・宣伝',abuse:'嫌がらせ',privacy:'個人情報',misinformation:'誤った情報',other:'その他'};
-async function load(){var current=++epoch;list.replaceChildren();status.textContent='読み込み中…';try{var result=await api('/api/community/moderation/reports');if(current!==epoch)return;status.textContent=result.reports.length?'未対応の通報 '+result.reports.length+'件（最大50件ずつ）':'未対応の通報はありません。';result.reports.forEach(function(report){var post=report.post||{},a=node('article');a.append(node('div','投稿 #'+report.post_id+' / '+(reasons[report.reason]||report.reason),'meta'));a.append(node('h2',post.name||'投稿'));a.append(node('p',post.body||'本文を確認できません。','body'));a.append(node('p',post.deleted?'本人が削除しています。':post.hidden?'現在は非表示です。':'現在は公開されています。','meta'));var actions=node('div','', 'actions');[['非表示にする',true],['公開を維持・対応済みにする',false]].forEach(function(pair){var b=node('button',pair[0]);b.type='button';b.disabled=!!post.deleted&&pair[1];b.addEventListener('click',async function(){b.disabled=true;try{await api('/api/community/posts/'+report.post_id+'/moderate',{hidden:pair[1]});await load();}catch(error){status.textContent=error.message;b.disabled=false;}});actions.append(b);});a.append(actions);list.append(a);});}catch(error){if(current===epoch)status.textContent=error.message;}}
-document.getElementById('login').addEventListener('submit',function(event){event.preventDefault();secret=password.value;password.value='';load();});document.getElementById('leave').addEventListener('click',function(){++epoch;secret='';password.value='';list.replaceChildren();status.textContent='終了しました。';});window.addEventListener('pagehide',function(){++epoch;secret='';});})();
-</script></html>
+function node(tag,text,cls){var n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;}
+async function api(path,data){
+  var response=await fetch(path,{method:data?'POST':'GET',headers:{'X-Admin-Pass':secret,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined,cache:'no-store'});
+  var result=await response.json();
+  if(!response.ok||!result.ok)throw new Error(response.status===403?'管理パスワードを確認してください。':'読み込みに失敗しました。もう一度確認してください。');
+  return result;
+}
+function pressed(){openButton.setAttribute('aria-pressed',String(selectedStatus==='open'));resolvedButton.setAttribute('aria-pressed',String(selectedStatus==='resolved'));}
+function action(actions,label,post,hidden){
+  var b=node('button',label);b.type='button';
+  b.addEventListener('click',async function(){
+    var actionSession=session;Array.from(actions.children).forEach(function(button){button.disabled=true;});
+    try{
+      await api('/api/community/posts/'+post.id+'/moderate',{hidden:hidden});
+      if(actionSession===session&&secret)await load(false,'対応を保存しました。');
+    }catch(error){if(actionSession===session&&secret){status.textContent=error.message;Array.from(actions.children).forEach(function(button){button.disabled=false;});}}
+  });
+  actions.append(b);
+}
+async function load(append,notice){
+  if(!secret||append&&(nextCursor==null||moreButton.disabled))return;
+  var current=++epoch,view=selectedStatus,cursor=append?nextCursor:null;pressed();
+  if(!append){list.replaceChildren();nextCursor=null;moreButton.hidden=true;}
+  moreButton.disabled=true;status.textContent='読み込み中…';
+  try{
+    var result=await api('/api/community/moderation/reports?status='+view+(cursor==null?'':'&cursor='+encodeURIComponent(cursor)));
+    if(current!==epoch)return;
+    var label=view==='resolved'?'対応済み':'未対応';
+    var existing=new Set(Array.from(list.children).map(function(article){return article.dataset.reportId;}));
+    result.reports.forEach(function(report){
+      if(existing.has(String(report.id)))return;
+      var post=report.post||{},a=node('article');
+      a.dataset.reportId=String(report.id);existing.add(String(report.id));
+      a.append(node('div','投稿 #'+report.post_id+' / '+(reasons[report.reason]||report.reason),'meta'));
+      a.append(node('h2',post.name||'投稿'));a.append(node('p',post.body||'本文を確認できません。','body'));
+      a.append(node('p',post.deleted?'本人が削除しています。公開には戻せません。':post.hidden?'現在は非表示です。':'現在は公開されています。','meta'));
+      var actions=node('div','', 'actions');
+      if(post.deleted){
+        if(view==='open')action(actions,'対応済みにする',post,!!post.hidden);
+      }else if(post.hidden){
+        action(actions,'公開に戻す',post,false);
+      }else{
+        action(actions,'非表示にする',post,true);
+        if(view==='open')action(actions,'公開を維持・対応済みにする',post,false);
+      }
+      a.append(actions);list.append(a);
+    });
+    nextCursor=result.next_cursor;moreButton.hidden=!result.has_more;
+    status.textContent=(notice||'')+(list.children.length?label+'の通報 '+list.children.length+'件を表示中':label+'の通報はありません。');
+  }catch(error){if(current===epoch)status.textContent=error.message;}
+  finally{if(current===epoch)moreButton.disabled=false;}
+}
+function choose(value){if(!secret||value===selectedStatus)return;selectedStatus=value;load();}
+openButton.addEventListener('click',function(){choose('open');});
+resolvedButton.addEventListener('click',function(){choose('resolved');});
+moreButton.addEventListener('click',function(){load(true);});
+document.getElementById('login').addEventListener('submit',function(event){event.preventDefault();++session;secret=password.value;password.value='';selectedStatus='open';filters.hidden=false;load();});
+function exit(copy){++epoch;++session;secret='';password.value='';filters.hidden=true;moreButton.hidden=true;nextCursor=null;list.replaceChildren();status.textContent=copy||'';}
+document.getElementById('leave').addEventListener('click',function(){exit('終了しました。');});
+window.addEventListener('pagehide',function(){exit('');});
+})();
+</script>
+</html>

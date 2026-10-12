@@ -318,7 +318,21 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
         @blueprint.get('/api/community/moderation/reports')
         def reports():
             require_admin()
-            value = operation('report_list', data={'limit': 50})
+            report_status = request.args.get('status', 'open')
+            if report_status not in ('open', 'resolved'):
+                raise CommunityError('invalid_request')
+            cursor = _integer(request.args.get('cursor'), 'invalid_cursor', optional=True)
+            value = operation('report_list', data={'limit': 50, 'status': report_status, 'cursor': cursor})
+            # Legacy RPCs only list open reports. Never relabel those results as
+            # resolved history while the database update has not been installed.
+            if ((report_status == 'resolved' or cursor is not None) and value.get('status') != report_status
+                    or 'status' in value and value['status'] != report_status):
+                raise CommunityError('storage_unavailable')
+            has_more = value.get('has_more', False)
+            if (not isinstance(has_more, bool)
+                    or 'status' in value and 'has_more' not in value):
+                raise CommunityError('storage_unavailable')
+            next_cursor = _integer(value.get('next_cursor'), 'storage_unavailable', optional=True)
             rows = value.get('reports')
             if not isinstance(rows, list) or len(rows) > 50:
                 raise CommunityError('storage_unavailable')
@@ -327,6 +341,17 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
                 if (not isinstance(row, dict) or not isinstance(row.get('reason'), str)
                         or row['reason'] not in REPORT_REASONS):
                     raise CommunityError('storage_unavailable')
+                created_at, resolved_at = row.get('created_at'), row.get('resolved_at')
+                try:
+                    if not isinstance(created_at, str):
+                        raise ValueError('missing report timestamp')
+                    for stamp in (created_at,) + ((resolved_at,) if resolved_at is not None else ()):
+                        if not isinstance(stamp, str) or datetime.fromisoformat(stamp.replace('Z', '+00:00')).tzinfo is None:
+                            raise ValueError('bad report timestamp')
+                    if (report_status == 'resolved') != (resolved_at is not None):
+                        raise ValueError('wrong report state')
+                except (ValueError, TypeError, OverflowError):
+                    raise CommunityError('storage_unavailable') from None
                 raw_post = row.get('post')
                 if (not isinstance(raw_post, dict) or not isinstance(raw_post.get('hidden'), bool)
                         or not isinstance(raw_post.get('deleted'), bool)):
@@ -336,10 +361,17 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
                 if safe['id'] != post_id:
                     raise CommunityError('storage_unavailable')
                 clean.append(dict(id=_integer(row.get('id'), 'storage_unavailable'), post_id=post_id,
-                                  reason=row['reason'], created_at=row.get('created_at'),
+                                  reason=row['reason'], created_at=created_at, resolved_at=resolved_at,
                                   post={**{key:safe[key] for key in ('id','name','body','category','language','created_at')},
                                         'hidden':raw_post['hidden'], 'deleted':raw_post['deleted']}))
-            return jsonify(ok=True, reports=clean)
+            ids = [row['id'] for row in clean]
+            if (len(set(ids)) != len(ids) or ids != sorted(ids, reverse=report_status == 'resolved')
+                    or cursor is not None and any(post_id <= cursor if report_status == 'open' else post_id >= cursor for post_id in ids)
+                    or has_more and (not ids or next_cursor != ids[-1])
+                    or not has_more and next_cursor is not None):
+                raise CommunityError('storage_unavailable')
+            return jsonify(ok=True, status=report_status, reports=clean,
+                           has_more=has_more, next_cursor=next_cursor)
 
         @blueprint.post('/api/community/posts/<int:post_id>/moderate')
         def moderate(post_id):

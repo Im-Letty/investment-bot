@@ -39,6 +39,8 @@ class FakeRPC:
         self.lock = threading.Lock()
         self.failure = None
         self.override = None
+        self.report_status = 'open'
+        self.report_hidden = True
 
     def verify_user(self, token):
         self.auth_calls.append(token)
@@ -117,10 +119,16 @@ class FakeRPC:
                 self.likes.add(pair) if data['liked'] else self.likes.discard(pair)
                 return dict(ok=True, liked=data['liked'], like_count=sum(p == pair[0] for p, _ in self.likes))
             if action == 'report_list':
-                return dict(ok=True, reports=[dict(id=1, post_id=1, reason='spam',
+                report_status = data.get('status', 'open')
+                if report_status != self.report_status:
+                    return dict(ok=True, status=report_status, reports=[], has_more=False, next_cursor=None)
+                return dict(ok=True, status=report_status, has_more=False, next_cursor=None, reports=[dict(id=1, post_id=1, reason='spam',
                     created_at='2026-10-12T00:00:00+00:00', user_id=ALICE, secret='not-public',
-                    post=example(hidden=True,deleted=False,user_id=BOB,secret='not-public'))])
+                    resolved_at='2026-10-12T01:00:00+00:00' if report_status == 'resolved' else None,
+                    post=example(hidden=self.report_hidden,deleted=False,user_id=BOB,secret='not-public'))])
             if action == 'moderate':
+                self.report_hidden = data['hidden']
+                self.report_status = 'resolved'
                 return dict(ok=True)
             raise AssertionError(action)
 
@@ -327,6 +335,96 @@ class CommunityAPITests(unittest.TestCase):
                              headers={'X-Admin-Pass':'test-admin'})
         self.assertEqual(response.status_code,200)
 
+    def test_hidden_post_remains_in_resolved_reports_and_can_be_restored_by_same_admin_guard(self):
+        headers = {'X-Admin-Pass': 'test-admin'}
+        hidden = self.client.post('/api/community/posts/1/moderate', json={'hidden': True}, headers=headers)
+        self.assertEqual(hidden.status_code, 200)
+        pending = self.client.get('/api/community/moderation/reports?status=open', headers=headers)
+        self.assertEqual(pending.json['reports'], [])
+        history = self.client.get('/api/community/moderation/reports?status=resolved', headers=headers)
+        self.assertEqual(history.status_code, 200)
+        self.assertEqual(history.json['status'], 'resolved')
+        report = history.json['reports'][0]
+        self.assertTrue(report['post']['hidden'])
+        self.assertEqual(report['resolved_at'], '2026-10-12T01:00:00+00:00')
+        self.assertNotIn('user_id', report)
+        self.assertNotIn('user_id', report['post'])
+        self.assertNotIn('secret', report)
+        self.assertNotIn('secret', report['post'])
+        denied = self.client.post('/api/community/posts/1/moderate', json={'hidden': False})
+        self.assertEqual(denied.status_code, 403)
+        restored = self.client.post('/api/community/posts/1/moderate', json={'hidden': False}, headers=headers)
+        self.assertEqual(restored.status_code, 200)
+        history = self.client.get('/api/community/moderation/reports?status=resolved', headers=headers)
+        self.assertFalse(history.json['reports'][0]['post']['hidden'])
+        self.assertEqual(self.repo.calls[-1], ('report_list', None, {'limit': 50, 'status': 'resolved', 'cursor': None}))
+
+    def test_history_status_is_allowlisted_and_old_rpc_is_not_claimed_as_empty_resolved_history(self):
+        headers = {'X-Admin-Pass': 'test-admin'}
+        invalid = self.client.get('/api/community/moderation/reports?status=all', headers=headers)
+        self.assertEqual(invalid.status_code, 400)
+        self.assertEqual(self.repo.calls, [])
+        self.repo.override = dict(ok=True, reports=[])
+        legacy_open = self.client.get('/api/community/moderation/reports', headers=headers)
+        self.assertEqual(legacy_open.status_code, 200)
+        legacy_history = self.client.get('/api/community/moderation/reports?status=resolved', headers=headers)
+        self.assertEqual((legacy_history.status_code, legacy_history.json['reason']), (503, 'storage_unavailable'))
+
+    def test_report_history_rejects_mismatched_states_missing_dates_and_invalid_dates(self):
+        headers = {'X-Admin-Pass': 'test-admin'}
+        good = dict(ok=True, status='resolved', has_more=False, next_cursor=None, reports=[dict(id=1, post_id=1, reason='spam',
+                    created_at='2026-10-12T00:00:00+00:00', resolved_at='2026-10-12T01:00:00+00:00',
+                    post=example(hidden=True, deleted=False))])
+        for field, bad in (('resolved_at', None), ('resolved_at', 'bad-date'),
+                           ('resolved_at', '2026-10-12T01:00:00'), ('created_at', None)):
+            self.repo.override = deepcopy(good)
+            self.repo.override['reports'][0][field] = bad
+            response = self.client.get('/api/community/moderation/reports?status=resolved', headers=headers)
+            with self.subTest(field=field, bad=bad):
+                self.assertEqual((response.status_code, response.json['reason']), (503, 'storage_unavailable'))
+        self.repo.override = good
+        mismatch = self.client.get('/api/community/moderation/reports?status=open', headers=headers)
+        self.assertEqual(mismatch.status_code, 503)
+
+    def test_history_paging_limits_direction_and_cursor_are_checked_without_identity_leaks(self):
+        headers = {'X-Admin-Pass': 'test-admin'}
+        def row(post_id, resolved=False):
+            return dict(id=post_id, post_id=1, reason='spam', created_at='2026-10-12T00:00:00+00:00',
+                        resolved_at='2026-10-12T01:00:00+00:00' if resolved else None,
+                        user_id=ALICE, post=example(hidden=True, deleted=False))
+        self.repo.override = dict(ok=True, status='resolved', has_more=True, next_cursor=51,
+                                  reports=[row(i, True) for i in range(100, 50, -1)])
+        first = self.client.get('/api/community/moderation/reports?status=resolved', headers=headers)
+        self.assertEqual(first.status_code, 200)
+        self.assertEqual(len(first.json['reports']), 50)
+        self.assertEqual(first.json['next_cursor'], 51)
+        self.repo.override = dict(ok=True, status='resolved', has_more=False, next_cursor=None,
+                                  reports=[row(i, True) for i in range(50, 0, -1)])
+        second = self.client.get('/api/community/moderation/reports?status=resolved&cursor=51', headers=headers)
+        self.assertEqual(second.status_code, 200)
+        self.assertEqual({item['id'] for item in first.json['reports']} & {item['id'] for item in second.json['reports']}, set())
+        self.assertTrue(all('user_id' not in item for item in second.json['reports']))
+        self.assertEqual(self.repo.calls[-1][2], {'limit': 50, 'status': 'resolved', 'cursor': 51})
+        self.repo.override['reports'] = [row(51, True)]
+        self.assertEqual(self.client.get('/api/community/moderation/reports?status=resolved&cursor=51', headers=headers).status_code, 503)
+        self.repo.override = dict(ok=True, status='open', has_more=False, next_cursor=None, reports=[row(51), row(52)])
+        self.assertEqual(self.client.get('/api/community/moderation/reports?status=open&cursor=50', headers=headers).status_code, 200)
+        self.repo.override['reports'].reverse()
+        self.assertEqual(self.client.get('/api/community/moderation/reports?status=open&cursor=50', headers=headers).status_code, 503)
+        for invalid in ('0', '-1', 'False', '9007199254740992'):
+            self.assertEqual(self.client.get('/api/community/moderation/reports?cursor='+invalid, headers=headers).status_code, 400)
+
+    def test_history_rejects_missing_paging_metadata_wrong_tail_and_over_limit_results(self):
+        headers = {'X-Admin-Pass': 'test-admin'}
+        good_row = dict(id=1, post_id=1, reason='spam', created_at='2026-10-12T00:00:00+00:00',
+                        resolved_at='2026-10-12T01:00:00+00:00', post=example(hidden=True, deleted=False))
+        for value in (dict(ok=True, status='resolved', reports=[]),
+                      dict(ok=True, status='resolved', has_more=True, next_cursor=2, reports=[good_row]),
+                      dict(ok=True, status='resolved', has_more=False, next_cursor=1, reports=[good_row]),
+                      dict(ok=True, status='resolved', has_more=False, next_cursor=None, reports=[good_row]*51)):
+            self.repo.override = value
+            self.assertEqual(self.client.get('/api/community/moderation/reports?status=resolved', headers=headers).status_code, 503)
+
 
 class Response:
     def __init__(self,status=200,value=None):
@@ -400,6 +498,29 @@ class SQLContractTests(unittest.TestCase):
         self.assertIn('revoke all on function public.world_community_operation(text,uuid,jsonb) from public, anon, authenticated',lowered)
         self.assertIn('grant execute on function public.world_community_operation(text,uuid,jsonb) to service_role',lowered)
         self.assertNotRegex(lowered,r'grant\s+(?:all|execute|insert|update|delete).*to\s+(?:public|anon|authenticated)')
+
+    def test_moderation_history_followup_preserves_all_other_rpc_actions_and_existing_permissions(self):
+        directory = Path(__file__).parents[1] / 'migrations'
+        original = (directory / '20261012_world_community.sql').read_text()
+        followup = (directory / '20261012_community_moderation_history.sql').read_text()
+        def function(sql):
+            start = sql.index('create or replace function public.world_community_operation(')
+            return sql[start:sql.index('\n$$;', start) + 4]
+        def without_history(sql):
+            value = function(sql).replace('  v_report_status text;\n', '')
+            start = value.index("  if p_action='report_list' then")
+            end = value.index("  if p_action='moderate' then", start)
+            return value[:start] + value[end:]
+        self.assertEqual(without_history(original), without_history(followup),
+                         'Only the report-list read branch and its local variable may change')
+        lowered = followup.lower()
+        self.assertNotRegex(lowered, r'(?m)^\s*(?:grant|revoke|alter|drop|create table|create role)\b')
+        self.assertEqual(lowered.count('create or replace function'), 1)
+        self.assertIn("v_report_status not in ('open','resolved')", lowered)
+        self.assertIn("v_limit not between 1 and 50", lowered)
+        self.assertIn("v_report_status='open' and r.resolved_at is null", lowered)
+        self.assertIn("v_report_status='resolved' and r.resolved_at is not null", lowered)
+        self.assertIn("'resolved_at',q.resolved_at", lowered)
 
 
 if __name__=='__main__':
