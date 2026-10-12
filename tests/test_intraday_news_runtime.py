@@ -364,11 +364,108 @@ class IntradayTests(unittest.TestCase):
         self.assertEqual(calls[0][2], calls[1][2])
         self.assertEqual(len(self.storage.reviewed_keys("2026-10-11")), 1)
 
+    def test_boj_intraday_uses_only_verified_facts_in_both_reviews_and_storage(self):
+        from isolated_news_producer import generate_isolated_edition
+        from official_boj_facts import policy_facts
+        from tests.test_official_boj_facts import original
+        from tests.test_isolated_news_producer import FakeProviders
+        raw = original(day="2026-10-11")
+        raw.update(body_verified_at=at(10), observed_at=at(10))
+        fact = policy_facts(raw)
+        self.cache = Cache([fact])
+        provider = FakeProviders()
+
+        def generate(now, *, articles, source_window):
+            return generate_isolated_edition(now, articles=articles, source_window=source_window,
+                                             providers=provider, clock=lambda: self.now)
+
+        with patch("requests.sessions.Session.request", side_effect=AssertionError("network disabled")):
+            result = self.job(generator=generate)
+        self.assertEqual(result["status"], "published")
+        self.assertEqual(result["category"], "monetary_policy")
+        reviews = [call for call in provider.calls if call[0] in ("gemini", "openai")]
+        self.assertEqual([call[0] for call in reviews], ["gemini", "openai"])
+        self.assertEqual(reviews[0][2], reviews[1][2])
+        self.assertNotIn("PRIVATE_BOJ_PROSE", repr(provider.calls) + repr(self.storage.values))
+        saved = self.storage.values[self.storage.reviewed_keys("2026-10-11")[0]]
+        self.assertEqual(saved["source_window"]["kind"], "intraday")
+        self.assertEqual(saved["article_refs"][0]["body_sha256"], fact["body_sha256"])
+        self.assertEqual(saved["article_refs"][0]["published_date"], "2026-10-11")
+        self.assertIsNone(saved["article_refs"][0]["published_at"])
+        self.assertTrue(result["review_receipt"]["gemini_approved"])
+        self.assertTrue(result["review_receipt"]["openai_approved"])
+
     def test_empty_frozen_manifest_or_fabricated_zero_time_are_not_published(self):
         invalid = {**source(precision="day"), "published_at": at(0)}
         self.cache = Cache([invalid])
         self.assertEqual(self.job()["status"], "job_unavailable")
         self.generator.assert_not_called()
+
+    def test_cache_validation_failure_reports_owned_code_without_false_empty(self):
+        self.cache.collect = Mock(side_effect=ValueError("invalid_source_cache_poll"))
+        updates = []
+        result = self.job(check_only=True, progress=updates.append)
+        self.assertEqual(result["status"], "job_unavailable")
+        self.assertEqual(result["phase"], "source_collection")
+        self.assertEqual(result["last_error"], "invalid_source_cache_poll")
+        self.assertFalse(result["eligibility_checked"])
+        self.assertFalse(result["source_health_verified"])
+        self.assertEqual(result["attempt_count"], 0)
+        self.assertEqual(self.storage.created, [])
+        self.assertEqual(updates[-1], result)
+        self.preflight.assert_not_called()
+        self.generator.assert_not_called()
+
+    def test_arbitrary_exception_content_never_enters_fixed_progress_or_outcome(self):
+        for error in (ValueError("secret response body or key"),
+                      RuntimeError("secret response body or key")):
+            with self.subTest(kind=type(error).__name__):
+                self.cache.snapshot = Mock(side_effect=error)
+                updates = []
+                result = self.job(check_only=True, progress=updates.append)
+                self.assertEqual(result["status"], "job_unavailable")
+                self.assertEqual(result["phase"], "source_snapshot")
+                self.assertEqual(result["last_error"], "job_unavailable")
+                self.assertFalse(result["eligibility_checked"])
+                self.assertNotIn("secret", repr(result) + repr(updates))
+        self.preflight.assert_not_called()
+        self.generator.assert_not_called()
+
+    def test_bad_history_reports_storage_phase_instead_of_healthy_no_new_release(self):
+        self.storage.values["days/2026-10-11/edition.json"] = {"untrusted": "secret"}
+        result = self.job(check_only=True)
+        self.assertEqual(result["status"], "storage_unavailable")
+        self.assertEqual(result["phase"], "published_history")
+        self.assertEqual(result["last_error"], "intraday_history_invalid")
+        self.assertTrue(result["source_health_verified"])
+        self.assertFalse(result["eligibility_checked"])
+        self.assertEqual(self.storage.created, [])
+        self.assertNotIn("secret", repr(result))
+
+    def test_healthy_empty_is_attested_only_after_eligibility_and_claim_checks(self):
+        self.cache = Cache([])
+        updates = []
+        result = self.job(check_only=True, progress=updates.append)
+        self.assertEqual(result["status"], "no_new_release")
+        self.assertEqual(result["phase"], "outcome")
+        self.assertTrue(result["source_health_verified"])
+        self.assertTrue(result["eligibility_checked"])
+        self.assertEqual(updates[-1], result)
+        self.assertEqual(self.storage.created, [])
+        self.preflight.assert_not_called()
+        self.generator.assert_not_called()
+
+    def test_operational_observations_are_only_bounded_owned_counts(self):
+        self.cache = Cache([])
+        self.cache.safe_observations = lambda: {
+            "legacy_two_source_polls": 2, "concurrent_read_records": 1,
+            "raw_body": "secret", "upstream_error": "secret"}
+        result = self.job(check_only=True)
+        self.assertEqual(result["source_cache_observations"],
+                         {"legacy_two_source_polls": 2, "concurrent_read_records": 1})
+        self.assertNotIn("secret", repr(result))
+        self.cache.safe_observations = Mock(side_effect=RuntimeError("secret"))
+        self.assertEqual(self.job(check_only=True)["status"], "no_new_release")
 
     def test_check_outside_window_expected_day_mismatch_and_private_storage_errors_are_safe(self):
         for hour in (8, 23):

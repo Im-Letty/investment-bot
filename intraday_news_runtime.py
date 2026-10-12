@@ -14,7 +14,7 @@ import time
 from daily_news_runtime import BASELINE_PATH, StorageUnavailable, _safe_generation_error
 from morning_news_window import JST, _verified_article
 from news_cache import OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_digests
-from official_news_cache import OfficialNewsCache, _article
+from official_news_cache import OfficialNewsCache, _article, _diagnostics as source_diagnostics
 from website_news import collect_website_sources
 from official_boj_facts import valid_policy_fact_record
 
@@ -37,6 +37,23 @@ _THEMES = (
 _POLICY_RESULT = re.compile(r"決定|閣議決定|実施|施行|導入|成立|可決|引き上げ|引き下げ|変更|実行|措置|発動")
 _STAT_RESULT = re.compile(r"前年比|前年同月|前月比|増加|減少|上昇|低下|増え|減っ|上が|下が")
 _NUMBER = re.compile(r"[0-9０-９]+(?:[.,．][0-9０-９]+)?\s*(?:[%％]|円|兆|億|万|ポイント)")
+_SAFE_FAILURES = frozenset((
+    "storage_budget", "storage_deadline", "storage_response", "storage_network",
+    "storage_bucket", "storage_private_required", "storage_read", "storage_write",
+    "storage_list", "storage_size", "intraday_history_invalid", "intraday_history_deadline",
+    "intraday_history_capacity", "intraday_claim_invalid", "invalid_intraday_time",
+    "invalid_intraday_snapshot", "invalid_source_cache_time", "invalid_source_cache_article",
+    "invalid_source_cache_body", "invalid_source_cache_identity", "invalid_source_cache_version",
+    "invalid_source_cache_verification", "invalid_source_cache_poll", "invalid_source_cache_index",
+    "source_cache_read_deadline", "source_cache_deadline", "source_cache_capacity",
+    "source_cache_index_unavailable"))
+
+
+def _failure_code(error):
+    # Only codes emitted by owned validators/transports. Never reflect an
+    # upstream exception, response, URL, credentials or Python traceback.
+    code = str(error) if isinstance(error, (ValueError, StorageUnavailable)) else None
+    return code if code in _SAFE_FAILURES else "job_unavailable"
 
 
 def _number(value):
@@ -215,7 +232,7 @@ def _receipt(issue, normalized, now):
 
 
 def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=None,
-            check_only=False, baseline_path=BASELINE_PATH, expected_day=None):
+            check_only=False, baseline_path=BASELINE_PATH, expected_day=None, progress=None):
     """One eligible article, at most three durable attempts in each JST day."""
     started, mono_started = clock(), time.monotonic()
     current = datetime.fromtimestamp(started, JST)
@@ -223,10 +240,43 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
     report = {"schema_version": 1, "report_kind": "private_intraday_writer",
               "edition_date": day, "status": "no_new_release", "eligible_count": 0,
               "published_count": 0, "attempt_count": 0, "check_only": bool(check_only),
+              "phase": "configuration", "eligibility_checked": False,
+              "source_health_verified": False,
               "job_started_at": current.isoformat(timespec="seconds")}
+
+    def phase(value):
+        report["phase"] = value
+        if callable(progress):
+            progress(deepcopy(report))
+
+    def outcome(status=None, **fields):
+        if status is not None:
+            report["status"] = status
+        report.update(fields)
+        if callable(progress):
+            progress(deepcopy(report))
+        return deepcopy(report)
+
+    def cache_observations():
+        observer = getattr(cache, "safe_observations", None)
+        if not callable(observer):
+            return
+        try:
+            values = observer()
+        except Exception:
+            return  # Advisory counters must not mask the original failure.
+        if not isinstance(values, dict):
+            return
+        safe = {name: values[name] for name in
+                ("legacy_two_source_polls", "concurrent_read_records")
+                if type(values.get(name)) is int and 0 <= values[name] <= 128}
+        if safe:
+            report["source_cache_observations"] = safe
+
+    phase("configuration")
     window = intraday_window(started)
     if window is None or expected_day is not None and expected_day != day:
-        return {**report, "status": "outside_intraday_window"}
+        return outcome("outside_intraday_window")
 
     def same_day():
         now = clock()
@@ -240,20 +290,33 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
             pass  # Advisory only; immutable claims remain authoritative.
 
     try:
+        phase("storage_private_check")
         storage.ensure_private()
         cache = cache if cache is not None else OfficialNewsCache(storage, collect_website_sources, clock=clock)
+        cache_observations()
+        phase("source_collection")
         cache.collect(clock())
+        cache_observations()
         now = clock()
         if not same_day() or intraday_window(now) is None:
-            return {**report, "status": "outside_intraday_window"}
+            return outcome("outside_intraday_window")
         window = intraday_window(now)
+        phase("source_snapshot")
         snapshot = cache.snapshot(now)
+        cache_observations()
+        phase("source_validation")
+        report["source_status"] = source_diagnostics(snapshot.get("source_status"))
         if snapshot.get("pending") is True:
-            return {**report, "status": "source_pending"}
+            return outcome("source_pending")
         if not _healthy_snapshot(snapshot, now):
-            return {**report, "status": "source_unavailable"}
-        candidates = select_candidate(snapshot, window, published_identities(storage, now, baseline_path=baseline_path))
+            return outcome("source_unavailable")
+        report["source_health_verified"] = True
+        phase("published_history")
+        published = published_identities(storage, now, baseline_path=baseline_path)
+        phase("source_validation")
+        candidates = select_candidate(snapshot, window, published)
         claims = []
+        phase("claim_validation")
         for slot in range(1, MAX_ATTEMPTS + 1):
             claim = storage.read(f"{PREFIX}/days/{day}/attempt-{slot}.json")
             if claim is not None:
@@ -265,37 +328,44 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
                 claims.append(slot)
         report["attempt_count"] = len(claims)
         if len(claims) >= MAX_ATTEMPTS:
-            return {**report, "status": "daily_limit"}
+            report["eligibility_checked"] = True
+            return outcome("daily_limit")
+        phase("candidate_selection")
         chosen = next(((category, row) for category, row in candidates
                        if storage.read(f"{PREFIX}/seen/{article_identity(row)}.json") is None), None)
+        report["eligibility_checked"] = True
         if chosen is None:
-            return report
+            phase("outcome")
+            return outcome()
         category, source = chosen
         report.update(eligible_count=1, source_article_count=1, source_date_counts={day: 1},
                       source_precision=source["publication_precision"], category=category,
                       article_id=article_identity(source), source_body_sha256=source["body_sha256"],
                       source_checked_at=snapshot["last_checked_at"])
         if check_only:
-            return {**report, "status": "ready"}
+            phase("outcome")
+            return outcome("ready")
         if not callable(generator) or not callable(preflight):
-            return {**report, "status": "configuration_unavailable"}
+            return outcome("configuration_unavailable")
+        phase("subscription_login")
         preflight()  # Read-only login status, only after an eligible new release.
         if not same_day() or intraday_window(clock()) is None:
-            return {**report, "status": "outside_intraday_window"}
+            return outcome("outside_intraday_window")
         if time.monotonic() + GENERATION_SECONDS + 60 >= mono_started + JOB_SECONDS:
-            return {**report, "status": "generation_window_exhausted"}
+            return outcome("generation_window_exhausted")
         claim = {"schema_version": 1, "edition_date": day, "article_id": report["article_id"],
                  "source_body_sha256": source["body_sha256"], "started_at": clock()}
         slot = next((number for number in range(1, MAX_ATTEMPTS + 1)
                      if storage.create(f"{PREFIX}/days/{day}/attempt-{number}.json", {**claim, "attempt": number})), None)
         if slot is None:
-            return {**report, "status": "daily_limit", "attempt_count": MAX_ATTEMPTS}
+            return outcome("daily_limit", attempt_count=MAX_ATTEMPTS)
         report["attempt_count"] = max(report["attempt_count"] + 1, slot)
         result_path = f"{PREFIX}/days/{day}/result-{slot}.json"
         if not storage.create(f"{PREFIX}/seen/{report['article_id']}.json", {**claim, "attempt": slot}):
             save_result(result_path, {**claim, "attempt": slot, "status": "already_claimed"})
-            return {**report, "status": "no_new_release", "eligible_count": 0}
+            return outcome("no_new_release", eligible_count=0)
         generation_started = clock()
+        phase("generation")
         try:
             issue = generator(generation_started, articles=[deepcopy(source)], source_window=deepcopy(window))
             now = clock()
@@ -314,11 +384,12 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
         except Exception as error:
             code = _safe_generation_error(error)
             save_result(result_path, {**claim, "attempt": slot, "status": "review_failed", "last_error": code})
-            return {**report, "status": "review_failed", "last_error": code}
+            return outcome("review_failed", last_error=code)
         # Both approvals are complete. A storage timeout now cannot truthfully
         # be called a review failure: the remote write may already have won.
         report.update(reviewed_at=normalized["reviewed_at"], review_receipt=receipt,
                       publication_attempted_at=now)
+        phase("publication")
         normalized["publish_at"] = now
         normalized["review_receipt"] = receipt
         key = f"days/{day}/reviewed-{int(normalized['reviewed_at'] * 1_000_000):020d}.json"
@@ -342,11 +413,14 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
             save_result(result_path, {**claim, "attempt": slot, "status": "publication_unconfirmed",
                         "reviewed_at": normalized["reviewed_at"], "review_receipt": receipt,
                         "publication_attempted_at": now})
-            return {**report, "status": "publication_unconfirmed"}
+            return outcome("publication_unconfirmed")
         save_result(result_path, {**claim, "attempt": slot, "status": "published",
                                  "publish_at": now, "review_receipt": receipt})
-        return {**report, "status": "published", "published_count": 1, "publish_at": now}
-    except StorageUnavailable:
-        return {**report, "status": "storage_unavailable"}
-    except Exception:
-        return {**report, "status": "job_unavailable"}
+        phase("outcome")
+        return outcome("published", published_count=1, publish_at=now)
+    except StorageUnavailable as error:
+        cache_observations()
+        return outcome("storage_unavailable", last_error=_failure_code(error))
+    except Exception as error:
+        cache_observations()
+        return outcome("job_unavailable", last_error=_failure_code(error))

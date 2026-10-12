@@ -1,4 +1,4 @@
-from contextlib import redirect_stdout
+from contextlib import nullcontext, redirect_stdout
 from io import StringIO
 import json
 import os
@@ -8,7 +8,8 @@ import unittest
 from unittest.mock import Mock, patch
 
 from scripts import run_intraday_news_job as job
-from scripts.run_private_news_job import JobDeadline
+from scripts.run_private_news_job import DeadlineUnavailable, JobDeadline
+from daily_news_runtime import StorageUnavailable
 from tests.test_intraday_news_runtime import Cache, Storage, at, source
 
 
@@ -40,6 +41,141 @@ class IntradayJobTests(unittest.TestCase):
         self.assertEqual(report["schema_version"], 1)
         preflight.assert_not_called()
         self.assertEqual(self.storage.created, [])
+        self.assertTrue(report["eligibility_checked"])
+        self.assertTrue(report["source_health_verified"])
+        self.assertEqual(report["phase"], "outcome")
+
+    def test_source_snapshot_fixed_error_is_distinguished_from_healthy_zero(self):
+        self.cache.snapshot = Mock(side_effect=ValueError("invalid_source_cache_poll"))
+        preflight = Mock()
+        report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+            storage_factory=lambda url, key: self.storage, cache=self.cache, preflight=preflight)
+        self.assertEqual(report["status"], "job_unavailable")
+        self.assertEqual(report["phase"], "source_snapshot")
+        self.assertEqual(report["last_error"], "invalid_source_cache_poll")
+        self.assertFalse(report["eligibility_checked"])
+        self.assertFalse(report["source_health_verified"])
+        self.assertEqual(self.storage.created, [])
+        preflight.assert_not_called()
+
+    def test_unrecognized_source_exception_is_redacted_but_phase_is_retained(self):
+        self.cache.snapshot = Mock(side_effect=RuntimeError("fake-private-response-and-key"))
+        report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+            storage_factory=lambda url, key: self.storage, cache=self.cache)
+        self.assertEqual(report["phase"], "source_snapshot")
+        self.assertEqual(report["last_error"], "job_unavailable")
+        self.assertNotIn("fake-private", json.dumps(report))
+        self.assertFalse(report["eligibility_checked"])
+
+    def test_existing_bucket_check_failure_remains_storage_not_review_failure(self):
+        self.storage.ensure_private = Mock(side_effect=StorageUnavailable("storage_private_required"))
+        report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+            storage_factory=lambda url, key: self.storage, cache=self.cache)
+        self.assertEqual(report["status"], "storage_unavailable")
+        self.assertEqual(report["last_error"], "storage_private_required")
+        self.assertEqual(report["phase"], "storage_private_check")
+        self.assertFalse(report["eligibility_checked"])
+        self.assertEqual(self.storage.created, [])
+
+    def test_fixed_history_errors_keep_cause_and_preclaim_phase(self):
+        for code in ("intraday_history_invalid", "intraday_history_deadline", "intraday_history_capacity"):
+            with self.subTest(code=code):
+                self.storage.reviewed_keys = Mock(side_effect=StorageUnavailable(code))
+                report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+                    storage_factory=lambda url, key: self.storage, cache=self.cache)
+                self.assertEqual(report["last_error"], code)
+                self.assertEqual(report["phase"], "published_history")
+                self.assertTrue(report["source_health_verified"])
+                self.assertFalse(report["eligibility_checked"])
+                self.assertEqual(self.storage.created, [])
+
+    def test_default_storage_gets_private_absolute_budget_and_custom_factory_stays_two_args(self):
+        with patch.object(job, "PrivateNewsStorage", return_value=self.storage) as private:
+            report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+                                 monotonic=lambda: 100, cache=self.cache)
+        self.assertEqual(report["status"], "ready")
+        self.assertEqual(private.call_args.kwargs["deadline"], 100 + job.CHECK_SECONDS)
+        self.assertEqual(private.call_args.kwargs["phase"], "source_preparation")
+        custom = Mock(return_value=self.storage)
+        job.run_job(self.env, check_only=True, clock=lambda: at(), storage_factory=custom, cache=self.cache)
+        custom.assert_called_once_with(self.env["SUPABASE_URL"], self.env["SUPABASE_KEY"])
+
+    def test_storage_setup_error_is_safe_and_never_opens_writer(self):
+        factory = Mock(side_effect=StorageUnavailable("storage_network"))
+        writer = Mock()
+        report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+                             storage_factory=factory, writer_factory=writer)
+        self.assertEqual(report["status"], "storage_unavailable")
+        self.assertEqual(report["phase"], "storage_configuration")
+        self.assertEqual(report["last_error"], "storage_network")
+        writer.assert_not_called()
+
+    def test_hard_deadline_retains_progress_and_paid_claim_count(self):
+        def interrupted(storage, **kwargs):
+            kwargs["progress"]({"phase": "generation", "eligibility_checked": True,
+                                  "source_health_verified": True, "attempt_count": 1, "eligible_count": 1})
+            raise JobDeadline()
+        with patch.object(job, "run_intraday", side_effect=interrupted):
+            report = job.run_job(self.env, check_only=True, clock=lambda: at(),
+                                storage_factory=lambda url, key: self.storage)
+        self.assertEqual(report["status"], "job_deadline")
+        self.assertEqual(report["phase"], "generation")
+        self.assertEqual(report["attempt_count"], 1)
+        self.assertEqual(report["eligible_count"], 1)
+        self.assertTrue(report["eligibility_checked"])
+
+    def test_safe_result_drops_raw_metadata_and_keeps_only_fixed_counters_and_receipts(self):
+        value = {**job._base("published", at(), False), "phase": "publication", "attempt_count": 1,
+            "eligibility_checked": True, "source_health_verified": True,
+            "source_cache_observations": {"legacy_two_source_polls": 1, "concurrent_read_records": 2,
+                                           "fake-private-counter": 1},
+            "source_status": {"財務省": {"feed_status": "ok", "status": "collected", "accepted": 1,
+                                          "fake-private-response": "fake-private-value"}},
+            "review_receipt": {"content_sha256": "a" * 64, "review_payload_sha256": "b" * 64,
+                "source_body_sha256": ["c" * 64], "reviewed_at": at(), "gemini_approved": True,
+                "openai_approved": True, "body": "fake-private-original"},
+            "api_review_cost": {"request_count": 2, "estimated_cost_jpy": "1.25", "estimate_complete": True,
+                                "scope": "economy", "response": "fake-private-ai-response"},
+            "prompt": "fake-private-prompt", "body": "fake-private-original",
+            "last_error": "fake-private-key"}
+        report = job.safe_report(value, at(), at() + 1, False)
+        self.assertEqual(report["source_cache_observations"], {"legacy_two_source_polls": 1, "concurrent_read_records": 2})
+        self.assertEqual(report["review_receipt"]["content_sha256"], "a" * 64)
+        self.assertEqual(report["api_review_cost"]["estimated_cost_jpy"], "1.25")
+        self.assertEqual(report["last_error"], "job_unavailable")
+        self.assertNotIn("fake-private", json.dumps(report))
+
+    def test_main_check_budget_is_shorter_and_interrupted_progress_is_written(self):
+        def interrupted(*, progress, **kwargs):
+            progress.record({"phase": "source_snapshot", "attempt_count": 0,
+                             "source_cache_observations": {"legacy_two_source_polls": 1}})
+            raise JobDeadline()
+        with patch.object(job, "run_job", side_effect=interrupted), \
+                patch("scripts.run_private_news_job.process_deadline", return_value=nullcontext()) as timer, \
+                redirect_stdout(StringIO()) as output:
+            self.assertEqual(job.main(["--check-live"]), 1)
+        timer.assert_called_once_with(seconds=job.CHECK_SECONDS)
+        value = json.loads(output.getvalue())
+        self.assertEqual(value["phase"], "source_snapshot")
+        self.assertEqual(value["last_error"], "job_deadline")
+        self.assertFalse(value["eligibility_checked"])
+        self.assertEqual(value["source_cache_observations"]["legacy_two_source_polls"], 1)
+
+    def test_progress_rejects_wrong_types_and_unbounded_cache_counters(self):
+        progress = job.IntradayProgress()
+        progress.record({"phase": "fake-private-phase", "attempt_count": True, "eligibility_checked": 1,
+                         "source_cache_observations": {"legacy_two_source_polls": 129,
+                                                       "concurrent_read_records": False}})
+        self.assertEqual(progress.fields()["phase"], "starting")
+        self.assertFalse(progress.fields()["eligibility_checked"])
+        self.assertEqual(progress.fields()["source_cache_observations"], {})
+
+    def test_missing_hard_deadline_cannot_silently_start_live_processing(self):
+        with patch("scripts.run_private_news_job.process_deadline", side_effect=DeadlineUnavailable()), \
+                patch.object(job, "run_job") as run, redirect_stdout(StringIO()) as output:
+            self.assertEqual(job.main(["--check-live"]), 1)
+        run.assert_not_called()
+        self.assertEqual(json.loads(output.getvalue())["status"], "job_deadline_unavailable")
 
     def test_disabled_missing_and_bad_expected_day_do_not_start_ai(self):
         for env, status in (({}, "configuration_unavailable"),

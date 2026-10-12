@@ -38,6 +38,7 @@ _ERRORS = frozenset(("unapproved_source", "source_time_limit", "unapproved_redir
     "pdf_parser_unavailable", "pdf_encrypted", "pdf_extraction_forbidden", "pdf_page_limit",
     "pdf_unreadable_page", "pdf_text_limit", "pdf_parse_failed", "pdf_time_limit",
     "source_read_failed", "body_or_date_unverified", "boj_policy_facts_unverified"))
+_LEGACY_SOURCES = frozenset(("総務省統計局", "財務省"))
 
 
 def _hash(value):
@@ -83,6 +84,21 @@ def _diagnostics(value):
     return result
 
 
+def _stored_diagnostics(value):
+    """Accept only canonical current rows or the exact former two-source schema.
+
+    Legacy evidence never proves that the newly enabled BOJ was checked. Public
+    snapshots fill its status with the ordinary unavailable default.
+    """
+    canonical = _diagnostics(value)
+    if value == canonical:
+        return False
+    if (isinstance(value, dict) and set(value) == _LEGACY_SOURCES
+            and value == {source: canonical[source] for source in _LEGACY_SOURCES}):
+        return True
+    raise ValueError("invalid_source_cache_poll")
+
+
 def _article(value, now):
     if (not _verified_article(value) or value.get("source") not in OFFICIAL_NEWS_SOURCES
             or not 100 <= len(value["body"]) <= 30_000 or len(value["title"]) > 1000
@@ -119,13 +135,29 @@ class OfficialNewsCache:
         self._seen_slots, self._indexes, self._before_indexes = set(), {}, {}
         self._versions, self._bodies, self._identities = {}, {}, {}
         self._claims = {}
+        self._observations = {"legacy_two_source_polls": set(), "concurrent_read_records": set()}
         self._read_deadline = self._monotonic_deadline = None
         self._status = {"status": "not_checked", "poll_seconds": POLL_SECONDS,
                         "read_days": READ_DAYS, "max_versions": MAX_VERSIONS,
                         "last_checked_at": None, "source_status": _diagnostics({})}
 
     def operational_snapshot(self):
-        return deepcopy(self._status)
+        return {**deepcopy(self._status), "source_cache_observations": self.safe_observations()}
+
+    def safe_observations(self):
+        """Bounded counters only; never expose a source body, URL or record key."""
+        return {key: len(records) for key, records in self._observations.items()}
+
+    def _observe(self, kind, day, slot, record):
+        records = self._observations[kind]
+        if len(records) < MAX_VERSIONS:
+            records.add((day, slot, record))
+
+    def _observation_time(self, requested):
+        observed = self.clock()
+        if not _number(observed) or observed <= 0 or observed < requested:
+            raise ValueError("invalid_source_cache_time")
+        return observed
 
     def _prune(self, now):
         today = datetime.fromtimestamp(now, JST).date()
@@ -133,6 +165,8 @@ class OfficialNewsCache:
         self._seen_slots = {key for key in self._seen_slots if key[0] in days}
         self._indexes = {key: value for key, value in self._indexes.items() if key in days}
         self._before_indexes = {key: value for key, value in self._before_indexes.items() if key[0] in days}
+        self._observations = {name: {key for key in records if key[0] in days}
+                              for name, records in self._observations.items()}
         for values in (self._versions, self._bodies, self._identities, self._claims):
             while len(values) > MAX_VERSIONS:
                 values.pop(next(iter(values)))
@@ -213,12 +247,13 @@ class OfficialNewsCache:
             value = {"version": 1, "url": row["url"], "published_date": row["published_date"],
                      "first_version_id": version, "first_verified_at": row["body_verified_at"]}
             known = self._create(path, value) if create else self._read(path)
+            observed = self._observation_time(now)
             if (not isinstance(known, dict) or type(known.get("version")) is not int or known.get("version") != 1
                     or known.get("url") != row["url"] or known.get("published_date") != row["published_date"]
                     or not isinstance(known.get("first_version_id"), str)
                     or not _HASH.fullmatch(known["first_version_id"])
                     or not _number(known.get("first_verified_at"))
-                    or not 0 < known["first_verified_at"] <= now):
+                    or not 0 < known["first_verified_at"] <= observed):
                 raise ValueError("invalid_source_cache_identity")
             self._identities[identity] = known
         return self._identities[identity]
@@ -236,7 +271,7 @@ class OfficialNewsCache:
             first_day, first_slot = first_poll.get("day"), first_poll.get("slot")
             if not isinstance(first_day, str) or type(first_slot) is not int or not 0 <= first_slot < 96:
                 raise ValueError("invalid_source_cache_verification")
-            self._validate_claim(first_poll, first_day, first_slot, now)
+            self._validate_claim(first_poll, first_day, first_slot, self._observation_time(now))
             path = f"{PREFIX}/polls/{first_day}/{first_slot:02d}.lock"
             if path not in self._claims:
                 self._claims[path] = self._read(path)
@@ -253,7 +288,7 @@ class OfficialNewsCache:
                     raise ValueError("invalid_source_cache_body")
                 self._bodies[digest] = body["body"]
             row["body"] = self._bodies[digest]
-            row = _article(row, now)
+            row = _article(row, self._observation_time(now))
             if _version(row) != version:
                 raise ValueError("invalid_source_cache_version")
             if not first_poll["started_at"] <= row["body_verified_at"] <= first_poll["started_at"] + LEASE_SECONDS:
@@ -262,7 +297,7 @@ class OfficialNewsCache:
                 raise ValueError("invalid_source_cache_verification")
             self._versions[version] = row
         row = deepcopy(self._versions[version])
-        if row["body_verified_at"] > now:
+        if row["body_verified_at"] > self._observation_time(now):
             raise ValueError("invalid_source_cache_version")
         return row
 
@@ -348,6 +383,7 @@ class OfficialNewsCache:
         last_name = None
         for offset in range(0, 192, 30):
             entries = self._list(prefix, offset=offset)
+            observed = self._observation_time(now)
             if not isinstance(entries, list) or len(entries) > 30:
                 raise ValueError("invalid_source_cache_index")
             for entry in entries:
@@ -359,7 +395,7 @@ class OfficialNewsCache:
                 seen.add(name)
                 last_name = name
                 slot = int(name[:2])
-                if _slot_start(day, slot) > now or len(seen) > 192:
+                if _slot_start(day, slot) > observed or len(seen) > 192:
                     raise ValueError("invalid_source_cache_index")
                 if through is None or _slot_start(day, slot) < through:
                     available.append((slot, name[3:]))
@@ -374,7 +410,12 @@ class OfficialNewsCache:
             path = f"{prefix}/{slot:02d}"
             result = self._read(path + ".json")
             claim = self._read(path + ".lock")
-            self._validate_poll(result, claim, day, slot, now)
+            observed = self._observation_time(now)
+            legacy = self._validate_poll(result, claim, day, slot, observed)
+            if legacy:
+                self._observe("legacy_two_source_polls", day, slot, "poll")
+            if result["finished_at"] > now:
+                self._observe("concurrent_read_records", day, slot, "poll")
             if through is not None and result["started_at"] >= through:
                 result = None
             latest = result
@@ -382,7 +423,9 @@ class OfficialNewsCache:
             slot = max(slot for slot, _ in available)
             if latest is None or slot > latest["slot"]:
                 latest = self._read(f"{prefix}/{slot:02d}.lock")
-                self._validate_claim(latest, day, slot, now)
+                self._validate_claim(latest, day, slot, self._observation_time(now))
+                if latest["started_at"] > now:
+                    self._observe("concurrent_read_records", day, slot, "claim")
                 if through is not None and latest["started_at"] >= through:
                     latest = None
         cached = {"result": result, "latest": latest, "checked_at": now}
@@ -413,8 +456,9 @@ class OfficialNewsCache:
                 health_polls.append(health["result"])
             if health["latest"] and "finished_at" not in health["latest"]:
                 claims.append(health["latest"])
+        selection_bound = now if through is None else through
         verified_at = {version: stamp for poll in polls for version, stamp in poll["day_version_verified_at"].items()
-                       if through is None or stamp <= through}
+                       if stamp <= selection_bound}
         versions = set(verified_at)
         if len(versions) > MAX_VERSIONS:
             raise ValueError("source_cache_capacity")
@@ -436,8 +480,9 @@ class OfficialNewsCache:
         identities = {sha256((row["url"] + "\n" + row["published_date"]).encode()).hexdigest() for row in rows}
         self._identities = {key: value for key, value in self._identities.items() if key in identities}
         latest = max(health_polls + claims, key=lambda row: row["started_at"], default=None)
-        pending = bool(latest and "finished_at" not in latest and now < latest["started_at"] + LEASE_SECONDS)
-        status = deepcopy(latest["source_status"]) if latest and "finished_at" in latest else _diagnostics({})
+        pending = bool(latest and (("finished_at" not in latest and now < latest["started_at"] + LEASE_SECONDS)
+                                  or latest.get("finished_at", 0) > now))
+        status = _diagnostics(latest["source_status"]) if latest and "finished_at" in latest else _diagnostics({})
         if latest and "finished_at" not in latest and not pending:
             status["preparation"] = {"feed_status": "not_completed", "status": "source_unavailable",
                                      "errors": ["cache_slot_result_missing"]}
@@ -450,7 +495,8 @@ class OfficialNewsCache:
             self._status.update(status="pending" if pending else "checked" if checked else "not_completed",
                                 last_checked_at=checked, source_status=deepcopy(status))
         return {"articles": rows, "source_status": status, "pending": pending,
-                "last_checked_at": checked, "late_verification_pending": late_verification}
+                "last_checked_at": checked, "late_verification_pending": late_verification,
+                "source_cache_observations": self.safe_observations()}
 
     @staticmethod
     def _validate_claim(value, day, slot, now):
@@ -479,5 +525,6 @@ class OfficialNewsCache:
                 or set(value["day_version_verified_at"]) != set(value["day_version_ids"])
                 or any(not _number(stamp) or not 0 < stamp <= value["finished_at"]
                        for stamp in value["day_version_verified_at"].values())
-                or value.get("source_status") != _diagnostics(value.get("source_status"))):
+                ):
             raise ValueError("invalid_source_cache_poll")
+        return _stored_diagnostics(value.get("source_status"))

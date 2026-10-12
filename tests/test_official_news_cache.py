@@ -123,6 +123,156 @@ class CacheTests(unittest.TestCase):
         restored["articles"][0]["body"] = "caller mutation"
         self.assertNotEqual(self.cache().snapshot(self.now)["articles"][0]["body"], "caller mutation")
 
+    def test_canonical_legacy_two_source_poll_is_read_without_inventing_boj_health(self):
+        self.rows = []
+        self.cache().collect(self.now)
+        key = next(path for path in self.storage.values if '/polls/' in path and path.endswith('.json'))
+        self.storage.values[key]['source_status'].pop('日本銀行')
+        original = deepcopy(self.storage.values[key])
+        restored = self.cache()
+        snapshot = restored.snapshot(self.now)
+        self.assertEqual(snapshot['source_status']['日本銀行']['feed_status'], 'not_completed')
+        self.assertEqual(snapshot['source_status']['日本銀行']['status'], 'fetch_incomplete')
+        self.assertEqual(snapshot['source_cache_observations']['legacy_two_source_polls'], 1)
+        self.assertEqual(self.storage.values[key], original, 'Do not rewrite immutable legacy evidence')
+        from intraday_news_runtime import _healthy_snapshot
+        self.assertFalse(_healthy_snapshot(snapshot, self.now))
+        self.now += POLL_SECONDS
+        restored.collect(self.now)
+        fresh = restored.snapshot(self.now)
+        self.assertTrue(_healthy_snapshot(fresh, self.now))
+        self.assertEqual(fresh['source_status']['日本銀行']['feed_status'], 'ok')
+
+    def test_legacy_cache_does_not_break_current_intraday_unpaid_preflight(self):
+        from intraday_news_runtime import run_job
+        self.rows = []
+        self.now = at('2026-10-10')
+        self.cache().collect(self.now)
+        key = next(path for path in self.storage.values if '/polls/' in path and path.endswith('.json'))
+        self.storage.values[key]['source_status'].pop('日本銀行')
+        self.now = at('2026-10-12')
+        cache = self.cache()
+        generator, preflight = Mock(), Mock()
+        with TemporaryDirectory() as folder:
+            baseline = Path(folder) / 'baseline.json'
+            baseline.write_text('[]')
+            report = run_job(self.storage, generator, preflight=preflight, cache=cache,
+                             clock=lambda: self.now, check_only=True, baseline_path=baseline)
+        self.assertEqual(report['status'], 'no_new_release')
+        self.assertEqual(report['attempt_count'], 0)
+        self.assertEqual(report['published_count'], 0)
+        self.assertGreater(cache.safe_observations()['legacy_two_source_polls'], 0)
+        generator.assert_not_called()
+        preflight.assert_not_called()
+        self.assertFalse(any('attempt-' in key for key in self.storage.values))
+
+    def test_legacy_compatibility_does_not_accept_partial_or_corrupt_source_rows(self):
+        self.rows = []
+        self.cache().collect(self.now)
+        key = next(path for path in self.storage.values if '/polls/' in path and path.endswith('.json'))
+        original = deepcopy(self.storage.values[key])
+        original['source_status'].pop('日本銀行')
+        for mutate in (
+            lambda rows: rows.pop('財務省'),
+            lambda rows: rows.update({'unapproved': {}}),
+            lambda rows: rows['財務省'].update(status='unknown'),
+            lambda rows: rows['財務省'].update(candidates=-1),
+            lambda rows: rows['財務省'].update(extra='unexpected'),
+            lambda rows: rows['財務省'].update(errors=['unapproved error string']),
+        ):
+            with self.subTest(mutation=mutate):
+                corrupted = deepcopy(original)
+                mutate(corrupted['source_status'])
+                self.storage.values[key] = corrupted
+                with self.assertRaisesRegex(ValueError, 'invalid_source_cache_poll'):
+                    self.cache().snapshot(self.now)
+
+    def test_concurrent_claim_is_validated_at_read_completion_and_is_pending(self):
+        requested = self.now = at('2026-10-12', 14, 45, 4)
+        prefix = f'{PREFIX}/polls/2026-10-12'
+        self.storage.values[prefix + '/59.lock'] = {
+            'version': 1, 'day': '2026-10-12', 'slot': 59, 'started_at': requested + 1}
+        original_list = self.storage._list
+        def concurrent_listing(path, **options):
+            if path == prefix:
+                self.now = requested + 2
+            return original_list(path, **options)
+        self.storage._list = concurrent_listing
+        cache = self.cache()
+        cache.collect(requested)
+        self.collector.assert_not_called()
+        snapshot = cache.snapshot(self.now)
+        self.assertTrue(snapshot['pending'])
+        self.assertEqual(snapshot['articles'], [])
+        self.assertEqual(snapshot['source_cache_observations']['concurrent_read_records'], 1)
+        self.assertFalse(any('attempt-' in key for key in self.storage.values))
+
+    def test_future_claim_relative_to_actual_read_clock_remains_corruption(self):
+        requested = self.now = at('2026-10-12', 14, 45, 4)
+        prefix = f'{PREFIX}/polls/2026-10-12'
+        self.storage.values[prefix + '/59.lock'] = {
+            'version': 1, 'day': '2026-10-12', 'slot': 59, 'started_at': requested + 1}
+        with self.assertRaisesRegex(ValueError, 'invalid_source_cache_poll'):
+            self.cache().collect(requested)
+        self.collector.assert_not_called()
+
+    def test_completed_concurrent_poll_does_not_include_newer_facts_as_of_old_clock(self):
+        requested = at('2026-10-12', 14, 45, 4)
+        self.now = requested + 1
+        self.rows = [article(published=at('2026-10-12', 14))]
+        self.cache().collect(self.now)
+        prefix = f'{PREFIX}/polls/2026-10-12'
+        original_list = self.storage._list
+        self.now = requested
+        def concurrent_listing(path, **options):
+            if path == prefix:
+                self.now = requested + 2
+            return original_list(path, **options)
+        self.storage._list = concurrent_listing
+        cache = self.cache()
+        earlier = cache.snapshot(requested)
+        self.assertTrue(earlier['pending'])
+        self.assertEqual(earlier['articles'], [])
+        self.assertEqual(earlier['source_cache_observations']['concurrent_read_records'], 1)
+        current = cache.snapshot(self.now)
+        self.assertFalse(current['pending'])
+        self.assertEqual(current['articles'][0]['body_verified_at'], requested + 1)
+
+    def test_concurrent_post_cutoff_verification_stays_out_of_frozen_morning(self):
+        cutoff = at('2026-10-12', 7, 30)
+        self.now = cutoff - 1
+        self.rows = [article(published=at('2026-10-11', 12))]
+        def finishing_after_cutoff(started, **options):
+            self.now = cutoff + 1
+            return self.collect(started, **options)
+        self.cache(Mock(side_effect=finishing_after_cutoff)).collect(cutoff - 1)
+        self.now = cutoff
+        original_list = self.storage._list
+        prefix = f'{PREFIX}/polls/2026-10-12'
+        def concurrent_listing(path, **options):
+            if path == prefix:
+                self.now = cutoff + 2
+            return original_list(path, **options)
+        self.storage._list = concurrent_listing
+        cache = self.cache()
+        snapshot = cache.snapshot(cutoff, through=cutoff)
+        self.assertEqual(snapshot['articles'], [])
+        self.assertTrue(snapshot['pending'])
+        current = cache.snapshot(self.now, through=cutoff)
+        self.assertEqual(current['articles'], [])
+        self.assertTrue(current['late_verification_pending'])
+        self.assertFalse(current['pending'])
+
+    def test_operational_observation_counters_are_bounded_and_safe(self):
+        cache = self.cache()
+        for slot in range(96):
+            cache._observe('concurrent_read_records', '2026-10-10', slot, 'claim')
+            cache._observe('concurrent_read_records', '2026-10-10', slot, 'poll')
+        result = cache.operational_snapshot()['source_cache_observations']
+        self.assertEqual(result['concurrent_read_records'], 128)
+        self.assertEqual(set(result), {'legacy_two_source_polls', 'concurrent_read_records'})
+        self.assertTrue(all(type(value) is int and 0 <= value <= 128 for value in result.values()))
+
     def test_revision_is_preserved_and_blocks_normal_morning_selection(self):
         self.now = at("2026-10-09", 14)
         cache = self.cache()
