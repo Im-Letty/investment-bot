@@ -192,7 +192,7 @@
   }
   function switchCategory(category) {
     if(!current()||category===state.category)return;var s=state;persist();s.positions[s.category]=s.scroller.scrollTop;
-    cancelRequests(s);s.epoch++;s.category=category;if(s.destination)s.destination.textContent='投稿先：'+title(category);s.posts=[];s.replies={};s.pending.clear();s.loading=false;s.paging=false;s.polling=false;s.loadError=null;s.hasMore=false;s.newPosts=null;s.restoreTop=s.positions[category]||0;
+    cancelRequests(s);s.epoch++;s.category=category;if(config.stock)config.lastCategory=category;if(s.destination)s.destination.textContent='投稿先：'+title(category);s.posts=[];s.replies={};s.pending.clear();s.loading=false;s.paging=false;s.polling=false;s.loadError=null;s.hasMore=false;s.newPosts=null;s.restoreTop=s.positions[category]||0;
     s.categoryButtons.forEach(function(item){item.button.setAttribute('aria-pressed',String(item.code===category));});
     if(s.archive){s.archive.hidden=config.stock?false:category!=='all';s.archiveLoading=false;if(config.stock)s.archiveLoaded=false;if(!s.archiveLoaded){s.archive.open=false;s.archiveBody.replaceChildren();}}restoreDraft();if(config.stock){s.archive.open=false;s.archiveBody.replaceChildren();}s.categoryNote.textContent=category==='all'?t('いろいろな話題を、新しい投稿から。'):(lang()==='ja'?title(category)+'について、気軽に話そう。':'Talk about '+t(title(category)).toLowerCase()+'.');message('');load(false);
   }
@@ -282,11 +282,11 @@
     if(hub)hub.style.display='none';if(otherHub){otherHub.classList.remove('open');otherHub.style.display='';}
     if(current())return;var morning=doc.getElementById('morning-section'),root=el('section','cw-screen');root.id=config.stock?'stockTalkOv':'cmOv';root.setAttribute('aria-label',t(config.stock?'みんなの銘柄トーク':'コミュニティ'));
     var savedRetries;try{savedRetries=JSON.parse(stored(retryKey,'{}'));}catch(_){savedRetries={};}
-    var s={root:root,epoch:++sequence,category:config.stock?categories[0][0]:'all',posts:[],replies:{},retries:savedRetries&&typeof savedRetries==='object'?savedRetries:{},pending:new Set(),controllers:new Set(),positions:{},writes:0,morningTop:morning?morning.scrollTop:0,loading:false,paging:false,polling:false,hasMore:false};state=s;
-    var header=el('header','cw-header');header.appendChild(button('cw-back','‹','トークに戻る',back));header.appendChild(el('h1','cw-title',config.stock?'みんなの銘柄トーク':'コミュニティ'));header.appendChild(button('cw-close','×','コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
+    var s={root:root,epoch:++sequence,category:config.stock?(config.lastCategory||categories[0][0]):'all',posts:[],replies:{},retries:savedRetries&&typeof savedRetries==='object'?savedRetries:{},pending:new Set(),controllers:new Set(),positions:{},writes:0,morningTop:morning?morning.scrollTop:0,loading:false,paging:false,polling:false,hasMore:false};state=s;
+    var header=el('header','cw-header');header.appendChild(button('cw-back','‹','トークに戻る',back));header.appendChild(el('h1','cw-title',config.stock?'みんなの銘柄トーク':'コミュニティ'));header.appendChild(button('cw-close','×',config.stock?'銘柄トークを閉じて朝レターへ戻る':'コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
     var scroller=el('div','cw-scroll');s.scroller=scroller;var content=el('div','cw-content');scroller.appendChild(content);root.appendChild(scroller);
-    content.appendChild(el('p','cw-intro','経済やニュース、暮らしのお金を気軽に話そう。'));
-    var nav=el('nav','cw-categories');nav.setAttribute('aria-label','話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]===s.category));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});content.appendChild(nav);
+    content.appendChild(el('p','cw-intro',config.stock?'会社名・銘柄コードで選び、その銘柄について話そう。':'経済やニュース、暮らしのお金を気軽に話そう。'));
+    var nav=el('nav','cw-categories');nav.setAttribute('aria-label',config.stock?'銘柄・指数を選ぶ':'話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]===s.category));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});content.appendChild(nav);
     if(config.stock){
       var finder=el('form','cw-stock-search'),query=el('input','cw-input'),find=button('cw-primary','検索');query.type='search';query.placeholder='会社名・銘柄コード';query.setAttribute('aria-label','会社名・銘柄コード');find.type='submit';finder.appendChild(query);finder.appendChild(find);content.insertBefore(finder,nav);
       var matches=el('div','cw-stock-results');content.insertBefore(matches,nav);var searchEpoch=0;
