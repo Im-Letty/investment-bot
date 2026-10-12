@@ -4700,6 +4700,197 @@
           "source_published_on": "2026-04-01"
         }
       ]
+    },
+    {
+      "symbol": "7075.T",
+      "name": "ＱＬＳホールディングス",
+      "business": "保育園や学童の運営、介護・障がい福祉、人材派遣を行うグループをまとめる会社です。クオリスやエルサーブなどの子会社が、保育、訪問介護、子どもの発達支援などのサービスを担います。",
+      "life": "子どもを預ける保育園や放課後の支援、家庭を訪ねる介護サービスなどに関わります。働き手を必要とする企業へ人材を派遣する仕事もグループで行います。",
+      "watch": "保育、介護・福祉、人材派遣を分けて確認します。公式の事業紹介では、各子会社が担当するサービスと、利用する子ども・高齢者・企業などを見られます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "事業紹介（事業説明は当サイト作成）",
+          "url": "https://qlshd.co.jp/business/",
+          "fetched_at": 1791841213.050474
+        },
+        {
+          "title": "企業情報",
+          "url": "https://qlshd.co.jp/company/",
+          "fetched_at": 1791841211.581343
+        },
+        {
+          "title": "株式情報",
+          "url": "https://qlshd.co.jp/ir/stock/",
+          "fetched_at": 1791841214.63164
+        }
+      ]
+    },
+    {
+      "symbol": "8303.T",
+      "name": "ＳＢＩ新生銀行",
+      "business": "個人の預金や住宅ローン、企業への融資を扱う銀行です。グループでは買い物の分割払い、クレジットカード、リースなども提供し、企業買収や不動産、発電設備などの資金調達を支えます。",
+      "life": "お金を預ける口座や住宅の借入れ、買い物代金の支払いなどに関わります。会社が設備を導入したり、新しい事業に必要な資金を用意したりする場面にも接点があります。",
+      "watch": "銀行の預金・融資と、グループ会社の信用購入やリースを分けて確認します。公式の事業紹介で、個人向けの商品と企業向けの資金調達の仕組みを見られます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "SBI新生銀行の事業領域（事業説明は当サイト作成）",
+          "url": "https://corp.sbishinseibank.co.jp/ja/about/business/area.html",
+          "fetched_at": 1791841217.743787
+        },
+        {
+          "title": "株式基本情報",
+          "url": "https://corp.sbishinseibank.co.jp/ja/ir/stock/info.html",
+          "fetched_at": 1791841216.324421
+        },
+        {
+          "title": "東京証券取引所プライム市場への上場のお知らせ",
+          "url": "https://corp.sbishinseibank.co.jp/ja/news/news/auto_20251216520673/pdfFile.pdf",
+          "fetched_at": 1791841263.936581,
+          "source_published_on": "2025-12-17"
+        }
+      ]
+    },
+    {
+      "symbol": "5830.T",
+      "name": "いよぎんホールディングス",
+      "business": "伊予銀行などの金融・関連会社の経営を管理する持株会社です。グループは銀行業に加え、企業の設備を使うためのリース、住宅ローンの保証、企業向けソフトの開発、証券売買の仲介を行います。",
+      "life": "住宅の借入れを支える保証や、企業が事務機器・工場の機械・医療機器を利用するリースに関わります。業務用ソフトの開発や、証券取引を取り次ぐ仕事にも接点があります。",
+      "watch": "持株会社の経営管理と、伊予銀行や各子会社が担当する金融・関連サービスを分けて見ます。公式のグループ一覧で、銀行、リース、保証、ソフト開発などの担当会社を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "グループ会社（事業説明は当サイト作成）",
+          "url": "https://www.iyogin-hd.co.jp/company/group.html",
+          "fetched_at": 1791841203.27347
+        },
+        {
+          "title": "企業概要",
+          "url": "https://www.iyogin-hd.co.jp/company/overview.html",
+          "fetched_at": 1791841201.702962
+        },
+        {
+          "title": "第4期定時株主総会招集ご通知",
+          "url": "https://www.iyogin-hd.co.jp/ir/stock/pdf/conv-jp-004.pdf",
+          "fetched_at": 1791841259.28679,
+          "source_published_on": null,
+          "source_document_on": "2026-06-04",
+          "electronic_provision_started_on": "2026-06-02"
+        }
+      ]
+    },
+    {
+      "symbol": "621A.T",
+      "name": "オーディオストック",
+      "business": "音楽や効果音の利用権を、映像制作者などへ販売する「Audiostock」を運営する会社です。作り手と音源を使う人をつなぎ、楽曲を音楽配信サービスへ届ける手続きの代行や、著作権使用料の収益化も支援します。",
+      "life": "動画やゲーム、イベントで使うBGMや効果音を探す場面に関わります。音楽を作る人には販売や配信の機会を、使う人には作品に合う音源を選ぶ仕組みを提供します。",
+      "watch": "音源の単品購入や定額利用と、配信代行・著作権使用料に関わる仕事を分けて見ます。公式の事業紹介で、利用する制作者や音楽の作り手に提供する仕組みを確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "事業内容（事業説明は当サイト作成）",
+          "url": "https://audiostock.co.jp/?page_id=4317",
+          "fetched_at": 1791841320.432308
+        },
+        {
+          "title": "Audiostockとはどんなサービスですか？",
+          "url": "https://help.audiostock.jp/faq/what-kind-of-service-is-audiostock",
+          "fetched_at": 1791841208.839724
+        },
+        {
+          "title": "会社概要",
+          "url": "https://audiostock.co.jp/?page_id=4315",
+          "fetched_at": 1791841317.130794
+        },
+        {
+          "title": "株式基本情報",
+          "url": "https://ir.audiostock.co.jp/ir_stock.html",
+          "fetched_at": 1791841318.627702
+        },
+        {
+          "title": "東証グロース上場記念 特設ページ",
+          "url": "https://audiostock.jp/special/20260916",
+          "fetched_at": 1791841206.577927,
+          "source_published_on": "2026-09-16"
+        }
+      ]
+    },
+    {
+      "symbol": "8015.T",
+      "name": "豊田通商",
+      "business": "自動車向けの金属や部品を調達・加工し、工場への物流も支える商社です。グループでは車両の組み立てや販売、購入後の整備なども手がけます。穀物や食品を仕入れて販売し、保険の仲介にも関わっています。",
+      "life": "車づくりに必要な材料や部品の供給から、車の販売や整備まで関わります。グループが扱う食品原料や給食、保険のサービスも暮らしに接点があります。",
+      "watch": "材料を売る仕事、部品を届ける仕事、車を販売する仕事を分けて見ます。公式の各部門の紹介で、グループの担当会社と現在提供している商品・サービスを確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "メタル＋(Plus)本部 | 豊田通商株式会社（事業説明は当サイト作成）",
+          "url": "https://www.toyota-tsusho.com/company/business/metal.html",
+          "fetched_at": 1791841214.3555892
+        },
+        {
+          "title": "サプライチェーン本部 | 豊田通商株式会社",
+          "url": "https://www.toyota-tsusho.com/company/business/supply-chain.html",
+          "fetched_at": 1791841256.2171361
+        },
+        {
+          "title": "モビリティ本部 | 豊田通商株式会社",
+          "url": "https://www.toyota-tsusho.com/company/business/mobility.html",
+          "fetched_at": 1791841257.819508
+        },
+        {
+          "title": "ライフスタイル本部 | 豊田通商株式会社",
+          "url": "https://www.toyota-tsusho.com/company/business/lifestyle.html",
+          "fetched_at": 1791841259.423668
+        },
+        {
+          "title": "会社概要 | 豊田通商株式会社",
+          "url": "https://www.toyota-tsusho.com/company/profile.html",
+          "fetched_at": 1791841254.634125
+        },
+        {
+          "title": "株式の概要 | 豊田通商株式会社",
+          "url": "https://www.toyota-tsusho.com/ir/shareholders/outline.html",
+          "fetched_at": 1791841215.949733
+        }
+      ]
+    },
+    {
+      "symbol": "8365.T",
+      "name": "富山銀行",
+      "business": "預金を預かり、住宅や車の購入、教育費などのローンを扱う銀行です。企業向けには、事業を次の経営者へ引き継ぐ相談、取引先探し、採用に必要な人材の紹介などを行います。",
+      "life": "日常のお金の管理や、住まい・車に必要な費用の借り入れで接点があります。企業には新しい販売先や事業の協力相手を探す支援も提供します。",
+      "watch": "個人向けの預金・ローンと、企業向けの経営相談や取引先紹介を分けて見ます。公式の商品・サービス紹介で、各サービスの対象や利用条件を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "事業主のお客さま | 富山銀行（事業説明は当サイト作成）",
+          "url": "https://www.toyamabank.co.jp/pages/houjin/houjin-top.htm",
+          "fetched_at": 1791841286.4811468
+        },
+        {
+          "title": "富山銀行",
+          "url": "https://www.toyamabank.co.jp/",
+          "fetched_at": 1791841289.686904
+        },
+        {
+          "title": "会社概要 | 富山銀行",
+          "url": "https://www.toyamabank.co.jp/pages/info/bankdata.htm",
+          "fetched_at": 1791841261.091187
+        },
+        {
+          "title": "富山銀行IR説明資料 2026年3月期",
+          "url": "https://www.toyamabank.co.jp/pages/kabunushi/ir/2026_3_all.pdf",
+          "fetched_at": 1791841362.534393
+        }
+      ]
     }
   ]
 }
