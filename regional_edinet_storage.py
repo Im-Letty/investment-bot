@@ -14,7 +14,7 @@ import time
 import zlib
 
 from daily_news_runtime import BUCKET, StorageUnavailable
-from regional_edinet import _DESCRIPTOR_FIELDS, _date, _stamp
+from regional_edinet import _DESCRIPTOR_FIELDS, _date, _stamp, safe_edinet_diagnostic
 
 CHECKPOINT_PATH = 'regional-edinet/v1/checkpoint.json'
 FACT_PREFIX = 'regional-edinet/v1/facts'
@@ -69,10 +69,16 @@ def _cache(value):
                 or not isinstance(item.get('rows'), list) or not all(_descriptor(row) for row in item['rows'])):
             return False
     for code, item in records.items():
-        if not isinstance(code, str) or len(code) != 4 or not _keys(item, {'company', 'status', 'invalidated', 'last_attempt_at', 'attempted_doc_id', 'descriptor', 'fact', 'warm_progress', 'warm_finished_at', 'warm_resume_after', 'updated_at'}):
+        if not isinstance(code, str) or len(code) != 4 or not _keys(item, {'company', 'status', 'invalidated', 'last_attempt_at', 'attempted_doc_id', 'descriptor', 'fact', 'warm_progress', 'warm_finished_at', 'warm_resume_after', 'updated_at', 'diagnostic'}):
             return False
         if not _keys(item.get('company'), {'code', 'symbol', 'name', 'provider_symbol'}):
             return False
+        if 'diagnostic' in item:
+            diagnostic = item['diagnostic']
+            if (not isinstance(diagnostic, dict) or not isinstance(diagnostic.get('phase'), str)
+                    or not isinstance(diagnostic.get('reason'), str)
+                    or safe_edinet_diagnostic(diagnostic) != diagnostic):
+                return False
         if 'descriptor' in item and not _descriptor(item['descriptor']):
             return False
         if 'fact' in item and (not _keys(item['fact'], FACT_KEYS)

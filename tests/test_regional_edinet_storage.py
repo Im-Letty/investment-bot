@@ -6,6 +6,7 @@ import json
 from pathlib import Path
 import tempfile
 import unittest
+from unittest.mock import patch
 import zlib
 
 from regional_edinet_storage import (CHECKPOINT_PATH, EdinetCheckpointStore,
@@ -130,6 +131,125 @@ class CheckpointTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.store.load()
         self.assertEqual(self.store.last_load_error, 'checkpoint_schema_invalid')
+
+    def test_only_exact_safe_diagnostics_round_trip(self):
+        from regional_edinet import DIAGNOSTIC_REASONS
+        for phase in ('daily_index', 'filing', 'checkpoint'):
+            for reason in DIAGNOSTIC_REASONS:
+                for statuses in ({}, {'http_status': 100}, {'api_status': 599},
+                                 {'http_status': 200, 'api_status': 503}):
+                    diagnostic = {'phase': phase, 'reason': reason, **statuses}
+                    with self.subTest(diagnostic=diagnostic):
+                        cache = {**self.cache, 'records': {'6147': {
+                            'company': {'code': '6147'}, 'diagnostic': diagnostic}}}
+                        self.assertTrue(self.store.save(cache))
+                        self.assertEqual(self.store.load(), cache)
+                        self.assertIsNone(self.store.last_save_error)
+                        self.assertIsNone(self.store.last_load_error)
+        # Existing checkpoints without any diagnostic retain their contract.
+        self.assertTrue(self.store.save(self.cache))
+        self.assertEqual(self.store.load(), self.cache)
+
+    def test_untrusted_diagnostics_reject_before_transport_and_on_load(self):
+        safe = {'phase': 'daily_index', 'reason': 'http_error'}
+        bad = [None, [], 'fixture-only', 503, True, {},
+               {'phase': 'unknown', 'reason': 'http_error'},
+               {'phase': ['daily_index'], 'reason': 'http_error'},
+               {'phase': {'value': 'daily_index'}, 'reason': 'http_error'},
+               {'phase': 'daily_index', 'reason': 'unknown'},
+               {'phase': 'daily_index', 'reason': ['http_error']},
+               {'phase': 'daily_index', 'reason': {'value': 'http_error'}},
+               {'phase': 'daily_index'}, {'reason': 'http_error'}]
+        bad.extend({**safe, key: 'fixture-only'} for key in
+                   ('url', 'message', 'headers', 'api_key', 'response_body', 'Subscription-Key'))
+        bad.extend({**safe, 'reason': value} for value in
+                   ('https://example.invalid/private', 'credential=fixture-only', True, 503, None))
+        bad.extend({**safe, key: value} for key in ('http_status', 'api_status')
+                   for value in (99, 600, True, False, 200.0, '200', None, [], {},
+                                 'https://example.invalid/private'))
+        for diagnostic in bad:
+            with self.subTest(diagnostic=diagnostic):
+                transport = Transport()
+                store = EdinetCheckpointStore(transport, clock=lambda: 10)
+                cache = {**self.cache, 'records': {'6147': {
+                    'company': {'code': '6147'}, 'diagnostic': diagnostic}}}
+                self.assertFalse(store.save(cache))
+                self.assertEqual(store.last_save_error, 'checkpoint_schema_invalid')
+                self.assertEqual(transport.calls, [])
+                raw = json.dumps(cache).encode()
+                transport.wrapper = {'version': 1, 'encoding': 'zlib-base64',
+                    'data': base64.b64encode(zlib.compress(raw)).decode(),
+                    'sha256': sha256(raw).hexdigest()}
+                with self.assertRaises(ValueError):
+                    store.load()
+                self.assertEqual(store.last_load_error, 'checkpoint_schema_invalid')
+                self.assertFalse(any(call[0] in ('POST', 'CREATE') for call in transport.calls))
+
+    def test_real_service_safe_diagnostic_preserves_checkpoint_facts_and_resume(self):
+        from regional_edinet_service import RegionalEdinetDividends
+        from tests.test_regional_edinet_service import FixtureProvider, snapshot
+        from tests.test_regional_edinet import NOW, IDENTITY
+
+        class BackoffProvider(FixtureProvider):
+            def next_request_at(self):
+                return NOW + 3600
+
+        diagnostic = {'phase': 'daily_index', 'reason': 'api_status',
+                      'http_status': 200, 'api_status': 503}
+        record = {**self.fact_record(), 'status': 'fetch_error', 'diagnostic': diagnostic,
+                  'last_attempt_at': NOW, 'warm_resume_after': NOW + 3600, 'updated_at': NOW,
+                  'warm_progress': {'from': '2026-10-09', 'to': '2026-10-11',
+                                    'started_at': NOW - 60, 'operations': 12,
+                                    'status': 'interrupted', 'last_date': '2026-10-10'}}
+        snapshots = {'2026-10-11': snapshot('2026-10-11', [record['descriptor']]),
+                     '2026-10-10': snapshot('2026-10-10')}
+        with tempfile.TemporaryDirectory() as folder, patch(
+                'requests.sessions.Session.request', side_effect=AssertionError('network forbidden')):
+            source = RegionalEdinetDividends(Path(folder) / 'source.json', provider=BackoffProvider(),
+                     identities=(IDENTITY,), clock=lambda: NOW, window_days=3,
+                     checkpoint_store=self.store)
+            self.addCleanup(source.close)
+            source._restore_checkpoint()
+            cleaned = source._clean_record('6147', record)
+            self.assertEqual(cleaned['diagnostic'], diagnostic)
+            self.assertEqual(cleaned['fact'], record['fact'])
+            source._records['6147'] = cleaned
+            source._snapshots = deepcopy(snapshots)
+            source._save()
+            self.assertEqual(source._checkpoint_status, 'saved')
+            self.assertIsNone(source._checkpoint_save_error)
+            cache = self.store.load()
+            local = json.loads((Path(folder) / 'source.json').read_text())
+            self.assertEqual(cache, local)
+            self.assertEqual(cache['snapshots'], snapshots)
+            self.assertEqual(cache['records']['6147'], cleaned)
+            self.assertEqual(cache['next_request'], NOW + 3600)
+            journal = deepcopy(self.transport.facts)
+            self.assertEqual(len(journal), 1)
+
+            provider = BackoffProvider()
+            target = RegionalEdinetDividends(Path(folder) / 'absent.json', provider=provider,
+                     identities=(IDENTITY,), clock=lambda: NOW + 10, window_days=3,
+                     checkpoint_store=EdinetCheckpointStore(self.transport, clock=lambda: 10))
+            self.addCleanup(target.close)
+            self.assertFalse(target.cache_path.exists())
+            self.assertEqual(target._snapshots, {})
+            target._restore_checkpoint()
+            self.assertEqual(target._checkpoint_restore_status, 'restored')
+            self.assertIsNone(target._checkpoint_restore_error)
+            self.assertEqual(target._snapshots, snapshots)
+            self.assertEqual(target._records['6147'], cleaned)
+            self.assertEqual(target._restored_next_request, NOW + 3600)
+            self.assertEqual(target._checkpoint_restored_days, 2)
+            self.assertEqual(len(target._checkpoint_restored_facts), 1)
+            self.assertTrue(target._persistence('6147', record['fact'])['selected_fact_restored'])
+            self.assertEqual(target._coverage()['missing_days'], 1)
+            self.assertFalse(target._coverage()['complete'])
+            self.assertEqual(self.transport.facts, journal)
+            self.assertEqual(source.provider.calls, [])
+            self.assertEqual(provider.calls, [])
+            self.assertIsNone(source._worker)
+            self.assertIsNone(target._worker)
 
     def fact_record(self):
         from tests.test_regional_edinet import NOW, IDENTITY, COMPANY, DESCRIPTOR, zipped
