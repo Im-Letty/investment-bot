@@ -1,0 +1,128 @@
+/* The slider covers broad changes; adjacent buttons make one-step changes. */
+body .row.sim-adjust-row {
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 4px 12px;
+  margin-bottom: 18px;
+}
+
+body .row.sim-adjust-row label {
+  grid-column: 1;
+  grid-row: 1;
+}
+
+body .row.sim-adjust-row .right {
+  grid-column: 2;
+  grid-row: 1;
+  gap: 6px;
+}
+
+body .sim-step-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-width: 0;
+}
+
+body .row.sim-adjust-row .val-input {
+  width: calc(112px * max(1, var(--kn-type-scale, 1)));
+  min-height: 44px;
+  text-align: center;
+}
+
+body .row.sim-adjust-row .val-input:is(.rate, .years) {
+  width: calc(60px * max(1, var(--kn-type-scale, 1)));
+}
+
+body .sim-step-button {
+  flex: 0 0 44px;
+  width: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid var(--sim-line);
+  border-radius: 8px;
+  background: var(--sim-chip);
+  color: var(--sim-ink);
+  font: 400 22px/1 var(--sim-font);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+body .sim-step-button:hover:not(:disabled) {
+  border-color: var(--sim-button);
+}
+
+body .sim-step-button:active:not(:disabled) {
+  background: var(--sim-paper);
+}
+
+body .sim-step-button:disabled {
+  opacity: .4;
+  cursor: default;
+}
+
+body .sim-step-button:focus-visible {
+  outline: 2px solid var(--sim-button);
+  outline-offset: 2px;
+}
+
+body .row.sim-adjust-row input[type="range"] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 44px;
+}
+
+body .row.sim-adjust-row input[type="range"]::-webkit-slider-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  margin-top: -11.5px;
+}
+
+body .row.sim-adjust-row input[type="range"]::-moz-range-thumb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+@media (max-width: 540px) {
+  body .result-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  body .metric {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    text-align: left;
+  }
+
+  body .metric .mlabel {
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+
+  body .metric .mval {
+    min-width: 0;
+    text-align: right;
+  }
+
+  body .row.sim-adjust-row label {
+    grid-column: 1 / -1;
+  }
+
+  body .row.sim-adjust-row .right {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    display: grid;
+    grid-template-columns: 44px minmax(0, 1fr) 44px;
+  }
+
+  body .row.sim-adjust-row input[type="range"] {
+    grid-row: 3;
+  }
+}

@@ -12,9 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script>
-const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const isInLINE=/Line/i.test(navigator.userAgent)||navigator.userAgent.includes('LIFF');
-if(isMobile&&!isInLINE){document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:11px;font-size:12px;z-index:9999;font-family:Outfit,sans-serif;';b.innerHTML='LINEアプリで開くとより快適です　<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:700;margin-left:6px;">LINEで開く →</a>';document.body.appendChild(b);});}
 const urlParams=new URLSearchParams(window.location.search);
 const SIM_ATTEMPT=new URLSearchParams(location.hash.slice(1)).get('sim_attempt');
 const UID=urlParams.get('uid')||''; try{var _t=urlParams.get('tab'),_r=urlParams.get('rate'),_a=urlParams.get('amount'),_y=urlParams.get('years');if(_t||_r||_a||_y){function _setSim(id,v){var el=document.getElementById(id);if(el&&v!=null&&v!==''){el.value=v;try{el.dataset.raw=String(v).replace(/[^0-9.]/g,'');}catch(e){}}}var _n=0;function _apply(){_n++;if(typeof switchTab==='function'&&_t){try{switchTab(_t);}catch(e){}}if(_a)_setSim('m-amount-n',_a);if(_r)_setSim('m-rate-n',_r);if(_y)_setSim('m-years-n',_y);if(typeof calcM==='function'){try{calcM();}catch(e){}}if(_n<10)setTimeout(_apply,200);}if(document.readyState==='complete'){setTimeout(_apply,400);}else{window.addEventListener('load',function(){setTimeout(_apply,400);});}}}catch(e){}
@@ -461,7 +458,31 @@ function __fmtRaw(n){
   if(L==='zh'){if(n>=1e8){const y=Math.floor(n/1e8),w=Math.floor((n%1e8)/1e4),u=n%1e4;let s=y+'亿';if(w)s+=w+'万';if(u)s+=u+'元';if(!w&&!u)s+='元';return s;}if(n>=1e4){const w=Math.floor(n/1e4),u=n%1e4;return u?w+'万'+u+'元':w+'万元';}return n.toLocaleString()+'元';}
   return n.toLocaleString();
 }
-function fmt(n){
+function fmtYen(n){
+  if(!Number.isFinite(n))return '—';
+  const sign=n<0?'-':'',raw=String(Math.abs(n));
+  let [whole,fraction='']=raw.split('.');
+  // Expand the Number's decimal text without rounding or currency-unit modulo
+  // arithmetic, which would turn 100000000.1 into 1億0.099999994...円.
+  if(/[eE]/.test(raw)){
+    const [coefficient,exponent]=raw.toLowerCase().split('e');
+    const [integer,decimal='']=coefficient.split('.'),digits=integer+decimal;
+    const point=integer.length+Number(exponent);
+    if(point<=0){whole='0';fraction='0'.repeat(-point)+digits;}
+    else if(point>=digits.length){whole=digits+'0'.repeat(point-digits.length);fraction='';}
+    else{whole=digits.slice(0,point);fraction=digits.slice(point);}
+  }
+  fraction=fraction.replace(/0+$/,'');
+  const padded=whole.padStart(9,'0');
+  const oku=padded.slice(0,-8).replace(/^0+/,''),man=padded.slice(-8,-4).replace(/^0+/,''),yen=padded.slice(-4).replace(/^0+/, '');
+  const grouped=s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  let result=(oku?grouped(oku)+'億':'')+(man?grouped(man)+'万':'');
+  if(yen||fraction)result+=grouped(yen||'0')+(fraction?'.'+fraction:'')+'円';
+  else result=(result||'0')+'円';
+  return sign+result;
+}
+function fmt(n){return window.currentLang==='ja'?fmtYen(n):fmtChartTick(n);}
+function fmtChartTick(n){
   const L=window.currentLang;
   if(L==='ja'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'億';if(n>=1e4)return Math.round(n/1e4)+'万';return Math.round(n).toLocaleString();}
   if(L==='zh'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'亿';if(n>=1e4)return Math.round(n/1e4)+'万';return Math.round(n).toLocaleString();}
@@ -658,7 +679,7 @@ function makeChart(id,labels,p,tot){
     },
     scales:{
       x:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}},
-      y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
+      y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmtChartTick(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
     }}});
   if(window.KNSimulatorTheme) window.KNSimulatorTheme.applyChart(chart);
   return chart;
@@ -797,7 +818,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   var TAX_RATE=0.20315;
   var NISA_YEARLY_LIMIT=3600000;
   var NISA_LIFETIME_LIMIT=18000000;
-  function fmtJPY(n){return '¥'+Math.round(n).toLocaleString();}
+  function fmtJPY(n){return window.currentLang==='ja'?fmtYen(Math.round(n)):'¥'+Math.round(n).toLocaleString();}
   function getLang(){try{return localStorage.getItem('kk_lang')||localStorage.getItem('lang')||document.documentElement.lang||'ja';}catch(e){return 'ja';}}
   var L={
     ja:{title:'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" style="vertical-align:-2px;margin-right:5px" xmlns="http://www.w3.org/2000/svg"><path d="M3 3v18h18" stroke="#2d4a2d" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 14l4-4 3 3 5-6" stroke="#3da060" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>詳細分析',gain:'運用益',taxed:'税引き後（特定口座 20.315%）',nisa:'NISA口座（非課税）',advantage:'NISAメリット',yearly_limit:'新NISA年間上限（360万円）',lifetime_limit:'生涯上限（1800万円）',within:'内で収まる',exceeds:'を超える',monthly_eq:'月積立換算'},
@@ -901,11 +922,13 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 })();
 </script>
 
-<link rel="stylesheet" href="/static/simulator-theme.css?v=20261012-tint1">
+<link rel="stylesheet" href="/static/simulator-theme.css?v=20261012-fade1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
 <script src="/static/simulator-theme.js?v=20261012-tint1"></script>
 
 <link rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type2">
+<link rel="stylesheet" href="/static/simulator-inputs.css?v=20261012-fine1">
+<script src="/static/simulator-inputs.js?v=20261012-fine1"></script>
 
 </body>
 </html>

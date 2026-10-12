@@ -12,9 +12,6 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&family=Noto+Sans+JP:wght@300;400;500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
 <script>
-const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const isInLINE=/Line/i.test(navigator.userAgent)||navigator.userAgent.includes('LIFF');
-if(isMobile&&!isInLINE){document.addEventListener('DOMContentLoaded',()=>{const b=document.createElement('div');b.style.cssText='position:fixed;top:0;left:0;right:0;background:#06C755;color:white;text-align:center;padding:11px;font-size:12px;z-index:9999;font-family:Outfit,sans-serif;';b.innerHTML='LINEアプリで開くとより快適です　<a href="https://miniapp.line.me/2010103957-PwR8bCWl" style="color:white;font-weight:700;margin-left:6px;">LINEで開く →</a>';document.body.appendChild(b);});}
 const urlParams=new URLSearchParams(window.location.search);
 const SIM_ATTEMPT=new URLSearchParams(location.hash.slice(1)).get('sim_attempt');
 const UID=urlParams.get('uid')||''; try{var _t=urlParams.get('tab'),_r=urlParams.get('rate'),_a=urlParams.get('amount'),_y=urlParams.get('years');if(_t||_r||_a||_y){function _setSim(id,v){var el=document.getElementById(id);if(el&&v!=null&&v!==''){el.value=v;try{el.dataset.raw=String(v).replace(/[^0-9.]/g,'');}catch(e){}}}var _n=0;function _apply(){_n++;if(typeof switchTab==='function'&&_t){try{switchTab(_t);}catch(e){}}if(_a)_setSim('m-amount-n',_a);if(_r)_setSim('m-rate-n',_r);if(_y)_setSim('m-years-n',_y);if(typeof calcM==='function'){try{calcM();}catch(e){}}if(_n<10)setTimeout(_apply,200);}if(document.readyState==='complete'){setTimeout(_apply,400);}else{window.addEventListener('load',function(){setTimeout(_apply,400);});}}}catch(e){}
@@ -177,8 +174,8 @@ function updateFill(el){
       <div class="row"><label id="l-years-d">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="d-years" oninput="onSlider('d-years','d-years-n');calcD()"><div class="right"><input type="number" class="val-input years" id="d-years-n" min="1" max="100" step="1" oninput="onInput('d-years-n','d-years');calcD()"><span class="unit" id="u-yr-d">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-total-d">総積立額</div><div class="mval" id="d-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-d">利益</div><div class="mval" id="d-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-d">積立総額</div><div class="mval" id="d-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-d">運用益</div><div class="mval" id="d-gain"></div></div>
       <div class="metric"><div class="mlabel" id="l-final-d">総資産</div><div class="mval" id="d-final"></div></div>
     </div>
     <div class="card">
@@ -198,8 +195,8 @@ function updateFill(el){
       <div class="row"><label id="l-years-m">積立期間</label><input type="range" min="1" max="100" step="1" value="20" id="m-years" oninput="onSlider('m-years','m-years-n');calcM()"><div class="right"><input type="number" class="val-input years" id="m-years-n" min="1" max="100" step="1" oninput="onInput('m-years-n','m-years');calcM()"><span class="unit" id="u-yr-m">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-total-m">総積立額</div><div class="mval" id="m-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-m">利益</div><div class="mval" id="m-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-m">積立総額</div><div class="mval" id="m-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-m">運用益</div><div class="mval" id="m-gain"></div></div>
       <div class="metric"><div class="mlabel" id="l-final-m">総資産</div><div class="mval" id="m-final"></div></div>
     </div>
     <div class="card">
@@ -218,8 +215,8 @@ function updateFill(el){
       <div class="row"><label id="l-years-l">運用期間</label><input type="range" min="1" max="100" step="1" value="20" id="lp-years" oninput="onSlider('lp-years','lp-years-n');calcL()"><div class="right"><input type="number" class="val-input years" id="lp-years-n" min="1" max="100" step="1" oninput="onInput('lp-years-n','lp-years');calcL()"><span class="unit" id="u-yr-l">年</span></div></div>
     </div>
     <div class="result-grid">
-      <div class="metric"><div class="mlabel" id="l-principal">元本</div><div class="mval" id="lp-principal"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-l">利益</div><div class="mval" id="lp-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-principal">積立総額</div><div class="mval" id="lp-principal"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-l">運用益</div><div class="mval" id="lp-gain"></div></div>
       <div class="metric"><div class="mlabel" id="l-final-l">総資産</div><div class="mval" id="lp-final"></div></div>
     </div>
     <div class="card">
@@ -239,8 +236,8 @@ function updateFill(el){
     </div>
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-need">必要月額</div><div class="mval" id="g-monthly"></div></div>
-      <div class="metric"><div class="mlabel" id="l-total-g">総積立額</div><div class="mval" id="g-total"></div></div>
-      <div class="metric"><div class="mlabel" id="l-gain-g">利益</div><div class="mval" id="g-gain"></div></div>
+      <div class="metric"><div class="mlabel" id="l-total-g">積立総額</div><div class="mval" id="g-total"></div></div>
+      <div class="metric"><div class="mlabel" id="l-gain-g">運用益</div><div class="mval" id="g-gain"></div></div>
     </div>
     <div class="card">
       <p class="section-title" id="l-chart-g">資産推移グラフ</p>
@@ -429,7 +426,7 @@ const CUR={
 };
 
 const T={
-  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'総積立額',gain:'利益',final:'総資産',principal:'元本',need:'必要月額',chart:'資産推移グラフ',longnote:'💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。',yr:'年',yr_suffix:'目',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する',edit_btn:'更新する',edit_btn_loading:'更新中...',edit_err:'エラー：',no_data_title:'',mypage_loading:'読み込み中...',mp_name:'お名前',mp_target:'目標資産',mp_savings:'毎月投資額',mp_income:'年収',mp_stocks:'保有株',mp_traded:'トレード銘柄',mp_lastupdate:'最終更新：',nodata:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊'},
+  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'積立総額',gain:'運用益',final:'総資産',principal:'積立総額',need:'必要月額',chart:'資産推移グラフ',longnote:'💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。',yr:'年',yr_suffix:'目',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する',edit_btn:'更新する',edit_btn_loading:'更新中...',edit_err:'エラー：',no_data_title:'',mypage_loading:'読み込み中...',mp_name:'お名前',mp_target:'目標資産',mp_savings:'毎月投資額',mp_income:'年収',mp_stocks:'保有株',mp_traded:'トレード銘柄',mp_lastupdate:'最終更新：',nodata:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊'},
   en:{currency_unit:'$',title:'Investment Simulator',tab1:'Daily',tab2:'Monthly',tab3:'Lump Sum',tab4:'Goal',tab5:'My Page',daily:'Daily Amount',monthly:'Monthly Amount',lump:'Initial Amount',goal:'Target Amount',rate:'Annual Return',yearsD:'Period',yearsM:'Period',yearsL:'Period',yearsG:'Target Period',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Need',chart:'Asset Growth Chart',longnote:'💡 Even small daily contributions add up to a big difference over many years. Take your time — staying the course for the long run is the surest path.',yr:'y',yr_suffix:'',p_label:'Principal',t_label:'Total Assets',apply:'Apply to Simulator',edit_btn:'Update',edit_btn_loading:'Updating...',edit_err:'Error: ',no_data_title:'',mypage_loading:'Loading...',mp_name:'Name',mp_target:'Target',mp_savings:'Monthly Inv.',mp_income:'Annual Inc.',mp_stocks:'Holdings',mp_traded:'Trading',mp_lastupdate:'Last Update: ',nodata:'No information registered yet.<br>Send "register" on LINE to get started😊'},
   ko:{currency_unit:'₩',title:'투자 시뮬레이터',tab1:'매일 적립',tab2:'매월 적립',tab3:'일괄투자',tab4:'목표 자산',tab5:'마이페이지',daily:'매일 적립액',monthly:'월 적립액',lump:'초기 투자액',goal:'목표 자산',rate:'연 수익률',yearsD:'적립 기간',yearsM:'적립 기간',yearsL:'운용 기간',yearsG:'달성 기간',total:'총 적립액',gain:'수익',final:'총자산',principal:'원금',need:'필요 월액',chart:'자산 추이 차트',longnote:'💡 매일 조금씩 적립해도 긴 세월로 보면 이만큼 차이가 납니다. 서두르지 말고 길게 이어가는 것이 가장 빠른 길입니다.',yr:'년',yr_suffix:'년차',p_label:'원금',t_label:'총자산',apply:'시뮬레이터에 반영',edit_btn:'업데이트',edit_btn_loading:'업데이트 중...',edit_err:'오류: ',no_data_title:'',mypage_loading:'불러오는 중...',mp_name:'이름',mp_target:'목표 자산',mp_savings:'월 투자액',mp_income:'연수입',mp_stocks:'보유 주식',mp_traded:'트레이드 종목',mp_lastupdate:'최종 업데이트: ',nodata:'아직 정보가 등록되어 있지 않습니다.<br>LINE에서 "등록"을 보내 정보를 등록해주세요😊'},
   zh:{currency_unit:'元',title:'投资模拟器',tab1:'每日定投',tab2:'每月定投',tab3:'一次性投资',tab4:'目标资产',tab5:'我的页面',daily:'每日金额',monthly:'每月金额',lump:'初始投资额',goal:'目标金额',rate:'年收益率',yearsD:'投资期限',yearsM:'投资期限',yearsL:'投资期限',yearsG:'达成期限',total:'累计投资额',gain:'收益',final:'总资产',principal:'本金',need:'每月所需',chart:'资产走势图',longnote:'💡 即使每天小额定投，放眼长远也会有这么大的差距。不必着急，长期坚持才是最稳妥的捷径。',yr:'年',yr_suffix:'年',p_label:'本金',t_label:'总资产',apply:'应用到模拟器',edit_btn:'更新',edit_btn_loading:'更新中...',edit_err:'错误: ',no_data_title:'',mypage_loading:'加载中...',mp_name:'姓名',mp_target:'目标资产',mp_savings:'每月投资额',mp_income:'年收入',mp_stocks:'持有股票',mp_traded:'交易股票',mp_lastupdate:'最终更新: ',nodata:'尚未注册信息。<br>请在LINE上发送「注册」来登录信息😊'}
@@ -443,7 +440,31 @@ function fmtInput(n){
   if(L==='zh'){if(n>=1e8){const y=Math.floor(n/1e8),w=Math.floor((n%1e8)/1e4),u=n%1e4;let s=y+'亿';if(w)s+=w+'万';if(u)s+=u+'元';if(!w&&!u)s+='元';return s;}if(n>=1e4){const w=Math.floor(n/1e4),u=n%1e4;return u?w+'万'+u+'元':w+'万元';}return n.toLocaleString()+'元';}
   return n.toLocaleString();
 }
-function fmt(n){
+function fmtYen(n){
+  if(!Number.isFinite(n))return '—';
+  const sign=n<0?'-':'',raw=String(Math.abs(n));
+  let [whole,fraction='']=raw.split('.');
+  // Expand the Number's decimal text without rounding or currency-unit modulo
+  // arithmetic, which would turn 100000000.1 into 1億0.099999994...円.
+  if(/[eE]/.test(raw)){
+    const [coefficient,exponent]=raw.toLowerCase().split('e');
+    const [integer,decimal='']=coefficient.split('.'),digits=integer+decimal;
+    const point=integer.length+Number(exponent);
+    if(point<=0){whole='0';fraction='0'.repeat(-point)+digits;}
+    else if(point>=digits.length){whole=digits+'0'.repeat(point-digits.length);fraction='';}
+    else{whole=digits.slice(0,point);fraction=digits.slice(point);}
+  }
+  fraction=fraction.replace(/0+$/,'');
+  const padded=whole.padStart(9,'0');
+  const oku=padded.slice(0,-8).replace(/^0+/,''),man=padded.slice(-8,-4).replace(/^0+/,''),yen=padded.slice(-4).replace(/^0+/, '');
+  const grouped=s=>s.replace(/\B(?=(\d{3})+(?!\d))/g,',');
+  let result=(oku?grouped(oku)+'億':'')+(man?grouped(man)+'万':'');
+  if(yen||fraction)result+=grouped(yen||'0')+(fraction?'.'+fraction:'')+'円';
+  else result=(result||'0')+'円';
+  return sign+result;
+}
+function fmt(n){return window.currentLang==='ja'?fmtYen(n):fmtChartTick(n);}
+function fmtChartTick(n){
   const L=window.currentLang;
   if(L==='ja'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'億';if(n>=1e4)return Math.round(n/1e4)+'万';return Math.round(n).toLocaleString();}
   if(L==='zh'){if(n>=1e8)return(Math.round(n/1e8*10)/10)+'亿';if(n>=1e4)return Math.round(n/1e4)+'万';return Math.round(n).toLocaleString();}
@@ -640,7 +661,7 @@ function makeChart(id,labels,p,tot){
     },
     scales:{
       x:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',autoSkip:true,maxTicksLimit:10},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}},
-      y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmt(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
+      y:{ticks:{font:{family:chartFont,size:12,weight:'400'},color:'#888',callback:v=>fmtChartTick(v)},grid:{color:'rgba(0,0,0,0.06)',drawBorder:false}}
     }}});
   if(window.KNSimulatorTheme) window.KNSimulatorTheme.applyChart(chart);
   return chart;
@@ -779,7 +800,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
   var TAX_RATE=0.20315;
   var NISA_YEARLY_LIMIT=3600000;
   var NISA_LIFETIME_LIMIT=18000000;
-  function fmtJPY(n){return '¥'+Math.round(n).toLocaleString();}
+  function fmtJPY(n){return window.currentLang==='ja'?fmtYen(Math.round(n)):'¥'+Math.round(n).toLocaleString();}
   function getLang(){try{return localStorage.getItem('kk_lang')||localStorage.getItem('lang')||document.documentElement.lang||'ja';}catch(e){return 'ja';}}
   var L={
     ja:{title:'📈 詳細分析',gain:'運用益',taxed:'税引き後（特定口座 20.315%）',nisa:'NISA口座（非課税）',advantage:'NISAメリット',yearly_limit:'新NISA年間上限（360万円）',lifetime_limit:'生涯上限（1800万円）',within:'内で収まる',exceeds:'を超える',monthly_eq:'月積立換算'},
@@ -886,11 +907,13 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 
 
 
-<link rel="stylesheet" href="/static/simulator-theme.css?v=20261012-tint1">
+<link rel="stylesheet" href="/static/simulator-theme.css?v=20261012-fade1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
 <script src="/static/simulator-theme.js?v=20261012-tint1"></script>
 
 <link rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type2">
+<link rel="stylesheet" href="/static/simulator-inputs.css?v=20261012-fine1">
+<script src="/static/simulator-inputs.js?v=20261012-fine1"></script>
 
 </body>
 </html>

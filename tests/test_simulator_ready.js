@@ -25,6 +25,19 @@ function calculator(file,{uid='',embedded=true}={}){
     money(id,value){nodes.get(id).dataset.raw=String(value);nodes.get(id).value=String(value);},number(id,value){nodes.get(id).value=String(value);}};
 }
 for(const file of files){
+  test(`${file}: readable yen amounts preserve fractional yen, signs, and compact chart ticks`,()=>{
+    const h=calculator(file);
+    for(const [value,expected] of [[22220000000,'222億2,000万円'],[123456789.5,'1億2,345万6,789.5円'],
+      [100000000.1,'1億0.1円'],[1000.5,'1,000.5円'],[10000,'1万円'],[0,'0円'],
+      [-12345.5,'-1万2,345.5円'],[1e-7,'0.0000001円'],[1e21,'10,000,000,000,000億円']]){
+      assert.equal(h.context.fmt(value),expected);
+    }
+    assert.equal(h.context.fmtChartTick(22220000000),'222.2億');
+    h.context.countUp('m-gain',12345.5,'+');h.settleNumbers();
+    assert.equal(h.nodes.get('m-gain').textContent,'+1万2,345.5円');
+    h.context.currentLang='en';assert.equal(h.context.fmt(123456),'123K');
+    assert.doesNotMatch(read(file),/LINEアプリで開くとより快適です/);
+  });
   test(`${file}: all four modes initialize and report ready without a graph library or user-data response`,()=>{
     const h=calculator(file,{uid:'fixture-user'});h.settleNumbers();
     assert.equal(h.context.__KN_SIMULATOR_READY,true);

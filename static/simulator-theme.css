@@ -15,6 +15,13 @@ body {
   color: var(--sim-ink) !important;
 }
 
+/* Fade into the themed backdrop before the iframe/navigation boundary, so a
+   floating coin never ends in a sharp horizontal cut at the bottom edge. */
+#bg-canvas {
+  -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 calc(100% - 80px), transparent 100%);
+}
+
 body :is(h1, .sim-title, .section-title, .mp-section-title) {
   color: var(--sim-ink) !important;
 }
