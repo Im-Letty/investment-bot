@@ -4224,6 +4224,74 @@
       ],
       "reviewed_on": "2026-10-13",
       "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。"
+    },
+    {
+      "symbol": "2120.T",
+      "name": "ＬＩＦＵＬＬ",
+      "business": "住まいを探すサービス「LIFULL HOME'S」を運営し、賃貸や購入の物件情報を届ける会社です。不動産会社の集客や顧客管理も支援します。グループでは「LIFULL 介護」や「健美家」で施設・収益物件の情報を提供します。",
+      "life": "引っ越し先や購入する住宅を探すときに、物件の情報を調べるサービスと接点があります。グループの介護施設検索では、家族の住まい選びや見学の予約にも関わります。",
+      "watch": "住宅を探す人向けの情報提供と、不動産会社向けの集客・業務支援を分けて確認します。介護施設や投資用物件の検索サービスは、運営するグループ会社も合わせて見られます。",
+      "sources": [
+        {
+          "title": "サービス（事業説明は当サイト作成）",
+          "url": "https://lifull.com/service/",
+          "fetched_at": 1791834547.616714
+        },
+        {
+          "title": "会社概要",
+          "url": "https://lifull.com/company/about/",
+          "fetched_at": 1791834544.000859
+        },
+        {
+          "title": "株式基本情報",
+          "url": "https://lifull.com/ir/stockbond-information/ir-stock/",
+          "fetched_at": 1791834545.752763
+        },
+        {
+          "title": "事業概況",
+          "url": "https://lifull.com/ir/business/business/",
+          "fetched_at": 1791834549.349234
+        }
+      ],
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。"
+    },
+    {
+      "symbol": "642A.T",
+      "name": "キューデンホールディングス",
+      "business": "九州電力などから成るグループの事業方針を定め、経営を管理する持株会社です。グループでは発電から家庭・企業への電力供給、光回線や通信サービスを手がけます。",
+      "life": "家庭や工場で使う電気の供給、電線などの設備、インターネット・携帯電話のサービスと接点があります。これらの仕事はグループ内の事業会社が担当します。",
+      "watch": "持株会社の経営管理と、九州電力などが担う電気事業、QTnetが担う通信事業を区別して確認します。2027年4月に予定する再編は、実施済みの体制と分けて見ます。",
+      "sources": [
+        {
+          "title": "キューデンホールディングス株式会社を設立しました（事業説明は当サイト作成）",
+          "url": "https://www.kyudenhd.co.jp/press/kyudenhd/261001-1.html",
+          "source_published_on": "2026-10-01",
+          "fetched_at": 1791834551.144221
+        },
+        {
+          "title": "会社概要",
+          "url": "https://www.kyudenhd.co.jp/company/outline.html",
+          "fetched_at": 1791834552.792462
+        },
+        {
+          "title": "よくあるご質問",
+          "url": "https://www.kyudenhd.co.jp/faq.html",
+          "fetched_at": 1791834554.481743
+        },
+        {
+          "title": "発電事業",
+          "url": "https://www.kyudenhd.co.jp/group/power-generation.html",
+          "fetched_at": 1791834556.453386
+        },
+        {
+          "title": "ICTサービス事業",
+          "url": "https://www.kyudenhd.co.jp/group/ict-service.html",
+          "fetched_at": 1791834558.069813
+        }
+      ],
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。"
     }
   ]
 }
