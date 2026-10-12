@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {create}=require('../static/community.js');
 
-function harness({logged=true,storage=new Map(),language='ja'}={}) {
+function harness({logged=true,storage=new Map(),language='ja',config}={}) {
   const calls=[],pending=[],timers=new Map(),events=new Map();let timerId=0,authPrompts=0,prepared=0;
   function attrName(key){return 'data-'+key.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());}
   function matches(node,selector){
@@ -20,7 +20,7 @@ function harness({logged=true,storage=new Map(),language='ja'}={}) {
     set id(value){this.attrs.id=value;}get id(){return this.attrs.id||'';}
     set textContent(value){this._text=String(value);this.children.forEach(child=>child.parentNode=null);this.children=[];}get textContent(){return this._text+this.children.map(child=>child.textContent).join('');}
     set innerHTML(_){throw new Error('Community must use text nodes, not innerHTML');}
-    get firstElementChild(){return this.children[0]||null;}get lastElementChild(){return this.children.at(-1)||null;}
+    get lastChild(){return this.children.at(-1)||null;}get firstElementChild(){return this.children[0]||null;}get lastElementChild(){return this.children.at(-1)||null;}
     get isConnected(){return this===document.body||!!this.parentNode?.isConnected;}
     setAttribute(key,value){this.attrs[key]=String(value);}getAttribute(key){if(key.startsWith('data-')){const item=Object.entries(this.dataset).find(([k])=>attrName(k)===key);if(item)return String(item[1]);}return this.attrs[key]??null;}
     appendChild(node){node.parentNode?.removeChild(node);node.parentNode=this;this.children.push(node);return node;}
@@ -45,7 +45,7 @@ function harness({logged=true,storage=new Map(),language='ja'}={}) {
   const nav=new Node('nav');nav.id='knBottomNav';document.body.appendChild(nav);
   const morningButton=new Node('button');morningButton.setAttribute('data-act','morning');morningButton.addEventListener('click',()=>morning.scrollTop=0);nav.appendChild(morningButton);
   const window={document,AbortController,crypto:{randomUUID:()=>`10000000-0000-4000-8000-${String(++timerId).padStart(12,'0')}`},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},setInterval(fn,ms){const id=++timerId;timers.set(id,{fn,ms});return id;},clearInterval(id){timers.delete(id);},knPrepareTalkScreen(){prepared++;},knRequireAuth(){if(!logged)authPrompts++;return logged;},openAuth(){authPrompts++;},sb:{auth:{getSession:async()=>({data:{session:logged?{access_token:'local-fixture-token'}:null}})}},fetch(url,options){calls.push({url,options});return new Promise((resolve,reject)=>pending.push({url,options,resolve,reject}));}};
-  const ui=create(window);
+  const ui=create(window,config);
   async function settle(){await new Promise(resolve=>setImmediate(resolve));}
   async function response(data,status=200,index=0){await settle();assert.ok(pending[index],'a request is queued');const [request]=pending.splice(index,1);request.resolve({ok:status<400,status,json:async()=>data});await settle();return request;}
   function nodes(selector){return document.body.querySelectorAll(selector);}function node(selector){const result=document.body.querySelector(selector);assert.ok(result,selector);return result;}
@@ -154,4 +154,21 @@ test('an old replies GET cannot erase a reply; refresh waits for its write to se
 });
 test('idempotent reply response upserts an already visible reply without inflating its count',async()=>{
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(40,{reply_count:1})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[post(41,{parent_id:40,body:'保存済みの返信',is_mine:true})],has_more:false});const input=h.node('.cw-reply-form').querySelector('textarea');input.value='保存済みの返信';input.emit('input');h.node('.cw-reply-form').emit('submit');await h.response({ok:true,post:post(41,{parent_id:40,body:'保存済みの返信',is_mine:true})});assert.equal(h.nodes('.cw-reply-post').length,1);assert.equal(h.node('.cw-reply-toggle').querySelector('.cw-action-count').textContent,'1');
+});
+
+test('stock conversation keeps catalogue room, draft and transport separate from general community',async()=>{
+ const config={stock:true,categories:[['stock:7203','トヨタ 7203'],['stock:6758','ソニー 6758']]};
+ const h=harness({config});h.ui.open();await h.settle();assert.match(h.calls[0].url,/\/api\/stock-talk\/posts\?category=stock%3A7203/);
+ await h.response({ok:true,posts:[],has_more:false});h.node('.cw-compose-body').value='トヨタの下書き';h.node('.cw-compose-body').emit('input');
+ h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-compose-body').value,'');
+ h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-compose-body').value,'トヨタの下書き');
+});
+
+test('catalogue search opens a regional company room and writes only to that selected room',async()=>{
+ const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203']]}});h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ h.node('.cw-stock-search').querySelector('input').value='1832';h.node('.cw-stock-search').emit('submit');
+ await h.response({ok:true,rooms:[{category:'stock:1832',name:'北海電工',code:'1832'}]});h.node('.cw-stock-results').querySelector('button').click();
+ await h.response({ok:true,posts:[],has_more:false});assert.match(h.calls.at(-1).url,/category=stock%3A1832/);
+ h.node('.cw-compose-body').value='地方銘柄へのテスト';h.node('.cw-composer').emit('submit');await h.settle();
+ assert.equal(JSON.parse(h.calls.at(-1).options.body).category,'stock:1832');
 });

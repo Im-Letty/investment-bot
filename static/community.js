@@ -9,14 +9,16 @@
     root.cmSend = community.send;
     root.cmCount = community.count;
     root.KNCommunity = community;
+    root.knCreateConversation = factory;
   }
-})(typeof window === 'undefined' ? null : window, function (w) {
+})(typeof window === 'undefined' ? null : window, function (w, config) {
+  config=config||{};
   'use strict';
   var doc=w.document, state=null, sequence=0;
-  var categories=[['all','みんな'],['economy','経済'],['news','ニュース'],['life','暮らしのお金'],['learn','学び'],['chat','雑談']];
+  var categories=config.categories||[['all','みんな'],['economy','経済'],['news','ニュース'],['life','暮らしのお金'],['learn','学び'],['chat','雑談']];
   var languages=[['ja','日本語'],['en','English'],['ko','한국어'],['zh','中文'],['other','その他']];
   var reasons=[['spam','広告・勧誘'],['abuse','攻撃的な投稿'],['privacy','個人情報'],['misinformation','誤った情報'],['other','その他']];
-  var draftKey='kn_community_drafts_v1',retryKey='kn_community_requests_v1';
+  var draftKey=config.stock?'kn_stock_talk_drafts_v1':'kn_community_drafts_v1',retryKey=config.stock?'kn_stock_talk_requests_v1':'kn_community_requests_v1';
   var english={
     'コミュニティ':'Community','みんな':'All topics','経済':'Economy','ニュース':'News','暮らしのお金':'Everyday money','学び':'Learning','雑談':'Conversation',
     '経済やニュース、暮らしのお金を気軽に話そう。':'Share thoughts about the economy, news and everyday money.',
@@ -92,6 +94,7 @@
   }
   function cancelRequests(s) {s.controllers.forEach(function(controller){controller.abort();});s.controllers.clear();}
   function request(path,options,s) {
+    if(config.stock)path=path.replace('/api/community/','/api/stock-talk/');
     s=s||state;if(!s)return Promise.reject({reason:'closed'});
     var controller=new w.AbortController();s.controllers.add(controller);
     options=Object.assign({cache:'no-store'},options||{},{signal:controller.signal});
@@ -189,9 +192,9 @@
   }
   function switchCategory(category) {
     if(!current()||category===state.category)return;var s=state;persist();s.positions[s.category]=s.scroller.scrollTop;
-    cancelRequests(s);s.epoch++;s.category=category;s.posts=[];s.replies={};s.pending.clear();s.loading=false;s.paging=false;s.polling=false;s.loadError=null;s.hasMore=false;s.newPosts=null;s.restoreTop=s.positions[category]||0;
+    cancelRequests(s);s.epoch++;s.category=category;if(s.destination)s.destination.textContent='投稿先：'+title(category);s.posts=[];s.replies={};s.pending.clear();s.loading=false;s.paging=false;s.polling=false;s.loadError=null;s.hasMore=false;s.newPosts=null;s.restoreTop=s.positions[category]||0;
     s.categoryButtons.forEach(function(item){item.button.setAttribute('aria-pressed',String(item.code===category));});
-    if(s.archive){s.archive.hidden=category!=='all';s.archiveLoading=false;if(!s.archiveLoaded){s.archive.open=false;s.archiveBody.replaceChildren();}}restoreDraft();s.categoryNote.textContent=category==='all'?t('いろいろな話題を、新しい投稿から。'):(lang()==='ja'?title(category)+'について、気軽に話そう。':'Talk about '+t(title(category)).toLowerCase()+'.');message('');load(false);
+    if(s.archive){s.archive.hidden=config.stock?false:category!=='all';s.archiveLoading=false;if(config.stock)s.archiveLoaded=false;if(!s.archiveLoaded){s.archive.open=false;s.archiveBody.replaceChildren();}}restoreDraft();if(config.stock){s.archive.open=false;s.archiveBody.replaceChildren();}s.categoryNote.textContent=category==='all'?t('いろいろな話題を、新しい投稿から。'):(lang()==='ja'?title(category)+'について、気軽に話そう。':'Talk about '+t(title(category)).toLowerCase()+'.');message('');load(false);
   }
   function restoreDraft() {
     var s=state,saved=drafts()[s.category]||{};s.input.value=typeof saved.body==='string'?saved.body:'';
@@ -273,19 +276,29 @@
   }
   function select(options,label) {var node=el('select','cw-select');node.setAttribute('aria-label',label);options.forEach(function(item){var option=el('option','',item[1]);option.value=item[0];node.appendChild(option);});return node;}
   function open() {
+    if(!config.stock&&w.KNStockTalk)w.KNStockTalk.close();
+    if(config.stock&&w.KNCommunity)w.KNCommunity.close();
     var hub=doc.getElementById('knMyTalkHub'),otherHub=doc.getElementById('talkHubOv');
     if(hub)hub.style.display='none';if(otherHub){otherHub.classList.remove('open');otherHub.style.display='';}
-    if(current())return;var morning=doc.getElementById('morning-section'),root=el('section','cw-screen');root.id='cmOv';root.setAttribute('aria-label',t('コミュニティ'));
+    if(current())return;var morning=doc.getElementById('morning-section'),root=el('section','cw-screen');root.id=config.stock?'stockTalkOv':'cmOv';root.setAttribute('aria-label',t(config.stock?'みんなの銘柄トーク':'コミュニティ'));
     var savedRetries;try{savedRetries=JSON.parse(stored(retryKey,'{}'));}catch(_){savedRetries={};}
-    var s={root:root,epoch:++sequence,category:'all',posts:[],replies:{},retries:savedRetries&&typeof savedRetries==='object'?savedRetries:{},pending:new Set(),controllers:new Set(),positions:{},writes:0,morningTop:morning?morning.scrollTop:0,loading:false,paging:false,polling:false,hasMore:false};state=s;
-    var header=el('header','cw-header');header.appendChild(button('cw-back','‹','トークに戻る',back));header.appendChild(el('h1','cw-title','コミュニティ'));header.appendChild(button('cw-close','×','コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
+    var s={root:root,epoch:++sequence,category:config.stock?categories[0][0]:'all',posts:[],replies:{},retries:savedRetries&&typeof savedRetries==='object'?savedRetries:{},pending:new Set(),controllers:new Set(),positions:{},writes:0,morningTop:morning?morning.scrollTop:0,loading:false,paging:false,polling:false,hasMore:false};state=s;
+    var header=el('header','cw-header');header.appendChild(button('cw-back','‹','トークに戻る',back));header.appendChild(el('h1','cw-title',config.stock?'みんなの銘柄トーク':'コミュニティ'));header.appendChild(button('cw-close','×','コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
     var scroller=el('div','cw-scroll');s.scroller=scroller;var content=el('div','cw-content');scroller.appendChild(content);root.appendChild(scroller);
     content.appendChild(el('p','cw-intro','経済やニュース、暮らしのお金を気軽に話そう。'));
-    var nav=el('nav','cw-categories');nav.setAttribute('aria-label','話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]==='all'));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});content.appendChild(nav);
+    var nav=el('nav','cw-categories');nav.setAttribute('aria-label','話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]===s.category));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});content.appendChild(nav);
+    if(config.stock){
+      var finder=el('form','cw-stock-search'),query=el('input','cw-input'),find=button('cw-primary','検索');query.type='search';query.placeholder='会社名・銘柄コード';query.setAttribute('aria-label','会社名・銘柄コード');find.type='submit';finder.appendChild(query);finder.appendChild(find);content.insertBefore(finder,nav);
+      var matches=el('div','cw-stock-results');content.insertBefore(matches,nav);var searchEpoch=0;
+      function chooseRoom(room){if(!alive(s))return;if(!categories.some(function(c){return c[0]===room.category;})){categories.push([room.category,room.name+' '+room.code]);s.categoryInput.appendChild(el('option','',room.name+' '+room.code));s.categoryInput.lastChild.value=room.category;}switchCategory(room.category);s.categoryNote.textContent=room.name+' '+room.code;matches.replaceChildren();}
+      finder.addEventListener('submit',async function(e){e.preventDefault();var serial=++searchEpoch;matches.replaceChildren(el('p','cw-small','銘柄を検索中…'));try{var result=await request('/api/stock-talk/rooms?q='+encodeURIComponent(query.value),null,s);if(!alive(s)||serial!==searchEpoch)return;matches.replaceChildren();if(!result.rooms.length)matches.appendChild(el('p','cw-small','銘柄が見つかりませんでした。'));result.rooms.forEach(function(room){matches.appendChild(button('cw-category',room.name+' '+room.code,null,function(){chooseRoom(room);}));});}catch(e){if(alive(s)&&serial===searchEpoch)matches.replaceChildren(el('p','cw-small','検索できませんでした。もう一度お試しください。'));}});
+      s.chooseRoom=chooseRoom;
+    }
+
     var toolbar=el('div','cw-toolbar');s.categoryNote=el('p','cw-description','いろいろな話題を、新しい投稿から。');toolbar.appendChild(s.categoryNote);toolbar.appendChild(button('cw-primary','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;if(!s.composer.hidden)s.input.focus({preventScroll:true});}));content.appendChild(toolbar);content.appendChild(el('p','cw-small cw-login-hint','登録なしで投稿・返信できます。'));
-    var composer=el('form','cw-composer');composer.hidden=true;s.composer=composer;
+    var composer=el('form','cw-composer');composer.hidden=true;s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
     var fields=el('div','cw-composer-fields'),nicknameLabel=fieldLabel('ニックネーム'),nickname=el('input','cw-input');nickname.id='cmNick';nickname.type='text';nickname.maxLength=20;nickname.value=stored('cm_nick','');nickname.setAttribute('aria-label','ニックネーム（20文字まで）');nicknameLabel.appendChild(nickname);s.nickname=nickname;fields.appendChild(nicknameLabel);
-    var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);fields.appendChild(categoryLabel);
+    var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(config.stock?categories:categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);fields.appendChild(categoryLabel);if(config.stock){categoryLabel.hidden=true;s.categoryInput.disabled=true;}
     var languageLabel=fieldLabel('投稿の言語');s.languageInput=select(languages,'投稿の言語');languageLabel.appendChild(s.languageInput);fields.appendChild(languageLabel);composer.appendChild(fields);
     var inputLabel=fieldLabel('つぶやき'),input=el('textarea','cw-input cw-compose-body');input.id='cmInput';input.rows=3;input.placeholder='気になったことや、みんなへの質問を書いてみよう。';input.setAttribute('aria-label','つぶやき（200文字まで）');inputLabel.appendChild(input);composer.appendChild(inputLabel);s.input=input;
     var composerBottom=el('div','cw-form-bottom');s.counter=el('span','cw-small','0 / 200');s.counter.id='cmCount';composerBottom.appendChild(s.counter);s.sendButton=button('cw-primary','投稿する');s.sendButton.type='submit';composerBottom.appendChild(s.sendButton);composer.appendChild(composerBottom);composer.appendChild(el('p','cw-small','個人情報や、利益を保証する勧誘は書き込まないでください。'));content.appendChild(composer);
@@ -296,14 +309,14 @@
     s.empty=el('div','cw-state');s.empty.appendChild(el('p','','まだ投稿はありません。'));s.empty.appendChild(el('p','cw-small','最初のひとことを、気軽にどうぞ。'));content.appendChild(s.empty);
     s.failure=el('div','cw-state cw-error-state');s.failureCopy=el('p','');s.failure.appendChild(s.failureCopy);s.failure.appendChild(button('cw-text-button','もう一度読む',null,function(){load(false);}));content.appendChild(s.failure);
     s.feed=el('div','cw-feed');s.feed.setAttribute('aria-label','コミュニティの投稿');content.appendChild(s.feed);s.more=button('cw-more','もっと見る',null,function(){load(true);});content.appendChild(s.more);
-    var guide=el('details','cw-guide'),summary=el('summary','','この場所の使い方');guide.appendChild(summary);guide.appendChild(el('p','','株の話だけでなく、経済や日々のお金について交流できます。投稿は個人の意見です。相手を尊重し、気になる投稿は「…」から通報してください。日時は日本時間（JST）です。'));content.appendChild(guide);
+    var guide=el('details','cw-guide'),summary=el('summary','','この場所の使い方');guide.appendChild(summary);guide.appendChild(el('p','',config.stock?'選んだ会社や指数について交流できます。投稿は個人の意見です。相手を尊重し、気になる投稿は「…」から通報してください。日時は日本時間（JST）です。':'株の話だけでなく、経済や日々のお金について交流できます。投稿は個人の意見です。相手を尊重し、気になる投稿は「…」から通報してください。日時は日本時間（JST）です。'));content.appendChild(guide);
     s.archive=el('details','cw-archive');s.archive.appendChild(el('summary','','これまでの会話'));s.archiveBody=el('div','cw-archive-body');s.archive.appendChild(s.archiveBody);s.archiveLoaded=false;s.archive.addEventListener('toggle',function(){if(s.archive.open&&!s.archiveLoaded)loadArchive();});content.appendChild(s.archive);
-    doc.body.appendChild(root);restoreDraft();prepare();load(false);s.timer=w.setInterval(poll,30000);s.visibility=function(){if(!doc.hidden)poll();};doc.addEventListener('visibilitychange',s.visibility);
+    doc.body.appendChild(root);restoreDraft();if(config.stock){s.archive.hidden=false;s.categoryNote.textContent=title(s.category);if(config.onReady)config.onReady(s);}prepare();load(false);s.timer=w.setInterval(poll,30000);s.visibility=function(){if(!doc.hidden)poll();};doc.addEventListener('visibilitychange',s.visibility);
     s.languageChanged=function(){if(!alive(s))return;s.root.querySelectorAll('[data-cw-copy]').forEach(function(node){node.textContent=t(node.dataset.cwCopy);});s.root.querySelectorAll('[data-cw-label]').forEach(function(node){node.setAttribute('aria-label',t(node.dataset.cwLabel));});s.categoryNote.textContent=s.category==='all'?t('いろいろな話題を、新しい投稿から。'):(lang()==='ja'?title(s.category)+'について、気軽に話そう。':'Talk about '+t(title(s.category)).toLowerCase()+'.');render();};doc.addEventListener('langChanged',s.languageChanged);s.authChanged=poll;doc.addEventListener('knAuthChange',s.authChanged);
   }
   async function loadArchive() {
     if(!current()||state.archiveLoading)return;var s=state,epoch=s.epoch;s.archiveLoading=true;s.archiveBody.replaceChildren(el('p','cw-small','これまでの会話を読み込み中…'));
-    try{var data=await request('/api/messages',null,s);if(!alive(s,epoch))return;s.archiveLoaded=true;s.archiveBody.replaceChildren(el('p','cw-small','過去の会話です。現在のジャンル別投稿とは分けて表示しています。'));var rows=Array.isArray(data.messages)?data.messages:[];
+    try{var data=await request(config.stock?'/api/stock-comments?symbol='+encodeURIComponent(s.category.indexOf('stock:')===0?s.category.slice(6)+'.T':s.category.slice(6)):'/api/messages',null,s);if(!alive(s,epoch))return;s.archiveLoaded=true;s.archiveBody.replaceChildren(el('p','cw-small','過去の会話です。現在のジャンル別投稿とは分けて表示しています。'));var rows=Array.isArray(config.stock?data.comments:data.messages)?(config.stock?data.comments:data.messages):[];
       if(!rows.length)s.archiveBody.appendChild(el('p','cw-small','これまでの会話はまだありません。'));
       rows.forEach(function(post){var article=el('article','cw-legacy-post');article.appendChild(el('span','cw-author',post.name||'名無しさん'));article.appendChild(el('p','cw-post-body',post.body||''));article.appendChild(el('p','cw-post-date',date(post.created_at,'投稿')));s.archiveBody.appendChild(article);});
     }catch(error){if(alive(s,epoch)&&error.name!=='AbortError'){s.archiveLoaded=false;s.archiveBody.replaceChildren(el('p','cw-small cw-error',errorText(error)),button('cw-text-button','もう一度読む',null,loadArchive));}}

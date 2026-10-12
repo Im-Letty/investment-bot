@@ -15,7 +15,7 @@ function harness(){
     click(){return this.dispatch('click');}
   }
   const ids={};
-  for(const id of ['reports','status','password','filters','openReports','resolvedReports','moreReports','login','leave'])ids[id]=new Element(id==='password'?'input':'div');
+  for(const id of ['reports','status','password','filters','openReports','resolvedReports','moreReports','login','leave','reportScope'])ids[id]=new Element(id==='password'?'input':'div');
   ids.filters.hidden=true;
   ids.moreReports.hidden=true;
   const calls=[],pending=[],events={};
@@ -126,4 +126,10 @@ test('failed history page keeps already read reports available without false emp
   h.ids.moreReports.click();await h.response({ok:false,reason:'storage_unavailable'},503);
   assert.equal(h.ids.reports.children.length,1);assert.match(h.ids.status.textContent,/読み込みに失敗/);
   assert.equal(h.ids.moreReports.disabled,false);assert.equal(h.ids.moreReports.hidden,false);
+});
+
+test('stock report selection uses its isolated routes and ignores the prior community response',async()=>{
+ const h=harness();h.ids.password.value='fixture-admin';h.ids.login.dispatch('submit');await h.settle();
+ h.ids.reportScope.value='stock-talk';h.ids.reportScope.dispatch('change');await h.settle();
+ assert.match(h.calls.at(-1).url,/\/api\/stock-talk\/moderation\/reports/);
 });

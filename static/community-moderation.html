@@ -18,6 +18,7 @@ article{padding:20px 0;border-top:1px solid #d2dcca}.meta{font-size:13px;color:#
 <p>運営用の画面です。通報を確認し、投稿を非表示にするか判断します。非表示にした投稿は、対応済みの一覧から公開に戻せます。</p>
 <form id="login"><label>管理パスワード <input id="password" type="password" autocomplete="off" required></label><button type="submit">確認する</button><button type="button" id="leave">終了</button></form>
 <nav id="filters" class="filters" aria-label="通報の対応状況" hidden>
+<label>投稿の場所 <select id="reportScope"><option value="community">共通コミュニティー</option><option value="stock-talk">銘柄トーク</option></select></label>
 <button id="openReports" type="button" aria-pressed="true">未対応</button>
 <button id="resolvedReports" type="button" aria-pressed="false">対応済み</button>
 </nav>
@@ -26,7 +27,9 @@ article{padding:20px 0;border-top:1px solid #d2dcca}.meta{font-size:13px;color:#
 <script>
 (function(){
 'use strict';
-var secret='',epoch=0,session=0,selectedStatus='open',nextCursor=null;
+var secret='',epoch=0,session=0,selectedStatus='open',nextCursor=null,scope='community';
+var scopePicker=document.getElementById('reportScope');
+if(scopePicker)scopePicker.addEventListener('change',function(){++session;scope=scopePicker.value==='stock-talk'?'stock-talk':'community';load();});
 var list=document.getElementById('reports'),status=document.getElementById('status');
 var password=document.getElementById('password'),filters=document.getElementById('filters');
 var openButton=document.getElementById('openReports'),resolvedButton=document.getElementById('resolvedReports');
@@ -34,6 +37,7 @@ var moreButton=document.getElementById('moreReports');
 var reasons={spam:'迷惑・宣伝',abuse:'嫌がらせ',privacy:'個人情報',misinformation:'誤った情報',other:'その他'};
 function node(tag,text,cls){var n=document.createElement(tag);if(text)n.textContent=text;if(cls)n.className=cls;return n;}
 async function api(path,data){
+  path=path.replace('/api/community/','/api/'+scope+'/');
   var response=await fetch(path,{method:data?'POST':'GET',headers:{'X-Admin-Pass':secret,'Content-Type':'application/json'},body:data?JSON.stringify(data):undefined,cache:'no-store'});
   var result=await response.json();
   if(!response.ok||!result.ok)throw new Error(response.status===403?'管理パスワードを確認してください。':'読み込みに失敗しました。もう一度確認してください。');
@@ -66,6 +70,7 @@ async function load(append,notice){
       var post=report.post||{},a=node('article');
       a.dataset.reportId=String(report.id);existing.add(String(report.id));
       a.append(node('div','投稿 #'+report.post_id+' / '+(reasons[report.reason]||report.reason),'meta'));
+      if(scope==='stock-talk')a.append(node('p',post.category||'', 'meta'));
       a.append(node('h2',post.name||'投稿'));a.append(node('p',post.body||'本文を確認できません。','body'));
       a.append(node('p',post.deleted?'本人が削除しています。公開には戻せません。':post.hidden?'現在は非表示です。':'現在は公開されています。','meta'));
       var actions=node('div','', 'actions');

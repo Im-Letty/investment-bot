@@ -39,10 +39,11 @@ class CommunityError(Exception):
 class SupabaseCommunityRepository:
     """Fixed endpoints only, with bounded transport and no credential logging."""
 
-    def __init__(self, url, key, *, transport=None):
+    def __init__(self, url, key, *, transport=None, rpc_name=RPC_NAME):
         self.url = str(url or '').rstrip('/')
         self.key = str(key or '')
         self.transport = transport or requests
+        self.rpc_name = rpc_name
 
     def _json(self, response, unavailable):
         try:
@@ -79,7 +80,7 @@ class SupabaseCommunityRepository:
             raise CommunityError('storage_unavailable')
         try:
             response = self.transport.post(
-                self.url + '/rest/v1/rpc/' + RPC_NAME,
+                self.url + '/rest/v1/rpc/' + self.rpc_name,
                 headers={'apikey': self.key, 'Authorization': 'Bearer ' + self.key,
                          'Content-Type': 'application/json'},
                 json={'p_action': action, 'p_actor': actor, 'p_data': data or {}},
@@ -133,7 +134,7 @@ def _text(value, reason):
     return value.strip()
 
 
-def _public_post(raw, actor):
+def _public_post(raw, actor, categories=CATEGORIES):
     """Whitelist all public fields, including responses from a future RPC version."""
     if not isinstance(raw, dict):
         raise CommunityError('storage_unavailable')
@@ -143,7 +144,7 @@ def _public_post(raw, actor):
         name, body = raw['name'], raw['body']
         if not (isinstance(name, str) and 1 <= len(name) <= 20
                 and isinstance(body, str) and 1 <= len(body) <= 200
-                and raw.get('category') in CATEGORIES and raw.get('language') in LANGUAGES):
+                and raw.get('category') in categories and raw.get('language') in LANGUAGES):
             raise ValueError('bad post')
         created = raw['created_at']
         stamp = datetime.fromisoformat(created.replace('Z', '+00:00')) if isinstance(created, str) else None
@@ -161,10 +162,13 @@ def _public_post(raw, actor):
         raise CommunityError('storage_unavailable') from None
 
 
-def create_community_blueprint(supabase_url, supabase_key, *, repository=None, check_admin=None):
+def create_community_blueprint(supabase_url, supabase_key, *, repository=None, check_admin=None, categories=None, api_prefix='/api/community', blueprint_name='world_community', rpc_name=RPC_NAME, allow_all=True):
     """``repository`` is an offline test seam; no process-local post storage."""
-    repo = repository or SupabaseCommunityRepository(supabase_url, supabase_key)
-    blueprint = Blueprint('world_community', __name__)
+    repo = repository or SupabaseCommunityRepository(supabase_url, supabase_key, rpc_name=rpc_name)
+    allowed_categories = CATEGORIES if categories is None else categories
+    def public_post(raw, actor):
+        return _public_post(raw, actor, allowed_categories)
+    blueprint = Blueprint(blueprint_name, __name__)
 
     def actor(required=False):
         header = request.headers.get('Authorization', '')
@@ -199,7 +203,7 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
         if (not isinstance(value.get('posts'), list) or len(value['posts']) > cap
                 or not isinstance(value.get('has_more'), bool)):
             raise CommunityError('storage_unavailable')
-        posts = [_public_post(post, owner) for post in value['posts']]
+        posts = [public_post(post, owner) for post in value['posts']]
         cursor = _integer(value.get('next_cursor'), 'storage_unavailable', optional=True)
         if value['has_more'] and (not posts or cursor != posts[-1]['id']):
             raise CommunityError('storage_unavailable')
@@ -222,12 +226,12 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
         response.headers['Cache-Control'] = 'no-store'
         return response
 
-    @blueprint.route('/api/community/posts', methods=['GET', 'POST'])
+    @blueprint.route(api_prefix + '/posts', methods=['GET', 'POST'])
     def posts():
         owner = actor(request.method == 'POST')
         if request.method == 'GET':
             category = request.args.get('category', 'all')
-            if category != 'all' and category not in CATEGORIES:
+            if (category == 'all' and not allow_all) or (category != 'all' and category not in allowed_categories):
                 raise CommunityError('invalid_category')
             before = _integer(request.args.get('before'), 'invalid_cursor', optional=True)
             limit = _integer(request.args.get('limit', '20'), 'invalid_request')
@@ -244,7 +248,7 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
         if len(name) > 20:
             raise CommunityError('invalid_name')
         category, language = data.get('category'), data.get('language', 'other')
-        if not isinstance(category, str) or category not in CATEGORIES:
+        if not isinstance(category, str) or category not in allowed_categories:
             raise CommunityError('invalid_category')
         if not isinstance(language, str) or language not in LANGUAGES:
             raise CommunityError('invalid_language')
@@ -258,9 +262,9 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
             raise CommunityError('invalid_request_id') from None
         value = operation('create', owner, dict(name=name, body=body, category=category,
                                                language=language, parent_id=parent, request_id=request_id))
-        return jsonify(ok=True, post=_public_post(value.get('post'), owner))
+        return jsonify(ok=True, post=public_post(value.get('post'), owner))
 
-    @blueprint.get('/api/community/posts/<int:post_id>/replies')
+    @blueprint.get(api_prefix + '/posts/<int:post_id>/replies')
     def replies(post_id):
         _integer(post_id, 'invalid_parent')
         owner = actor()
@@ -270,13 +274,13 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
             raise CommunityError('invalid_request')
         return feed(operation('replies', owner, dict(post_id=post_id, after=after, limit=limit)), owner, limit)
 
-    @blueprint.delete('/api/community/posts/<int:post_id>')
+    @blueprint.delete(api_prefix + '/posts/<int:post_id>')
     def delete(post_id):
         _integer(post_id, 'invalid_parent')
         operation('delete', actor(True), {'post_id': post_id})
         return jsonify(ok=True)
 
-    @blueprint.post('/api/community/posts/<int:post_id>/report')
+    @blueprint.post(api_prefix + '/posts/<int:post_id>/report')
     def report(post_id):
         _integer(post_id, 'invalid_parent')
         owner = actor(True)
@@ -286,7 +290,7 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
         operation('report', owner, dict(post_id=post_id, reason=reason))
         return jsonify(ok=True)
 
-    @blueprint.post('/api/community/posts/<int:post_id>/like')
+    @blueprint.post(api_prefix + '/posts/<int:post_id>/like')
     def like(post_id):
         _integer(post_id, 'invalid_parent')
         owner = actor(True)
@@ -315,7 +319,7 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
             if not allowed:
                 raise CommunityError('forbidden')
 
-        @blueprint.get('/api/community/moderation/reports')
+        @blueprint.get(api_prefix + '/moderation/reports')
         def reports():
             require_admin()
             report_status = request.args.get('status', 'open')
@@ -356,7 +360,7 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
                 if (not isinstance(raw_post, dict) or not isinstance(raw_post.get('hidden'), bool)
                         or not isinstance(raw_post.get('deleted'), bool)):
                     raise CommunityError('storage_unavailable')
-                safe = _public_post(dict(raw_post, parent_id=None, reply_count=0, like_count=0), None)
+                safe = public_post(dict(raw_post, parent_id=None, reply_count=0, like_count=0), None)
                 post_id = _integer(row.get('post_id'), 'storage_unavailable')
                 if safe['id'] != post_id:
                     raise CommunityError('storage_unavailable')
@@ -373,7 +377,7 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
             return jsonify(ok=True, status=report_status, reports=clean,
                            has_more=has_more, next_cursor=next_cursor)
 
-        @blueprint.post('/api/community/posts/<int:post_id>/moderate')
+        @blueprint.post(api_prefix + '/posts/<int:post_id>/moderate')
         def moderate(post_id):
             _integer(post_id, 'invalid_parent')
             require_admin()

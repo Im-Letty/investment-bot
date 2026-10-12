@@ -86,7 +86,7 @@
     }
     decorateHub();
     var active=false;
-    ['knMyTalkHub','talkHubOv','talkOv','cmOv','teachOv'].forEach(function(id){
+    ['knMyTalkHub','talkHubOv','talkOv','cmOv','stockTalkOv','teachOv'].forEach(function(id){
       var screen=document.getElementById(id);if(!screen)return;
       if(getComputedStyle(screen).display!=='none')active=true;
       if(!watched.has(screen)){

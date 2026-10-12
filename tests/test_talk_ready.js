@@ -59,7 +59,8 @@ function harness({stock=true,legacy=true}={}){
   context.window=context;
   const html=read('index.html');
   const scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(match=>match[1]);
-  if(stock){const code=scripts.find(script=>script.includes('var SYMS=')&&script.includes('ov.id="talkOv"'));assert.ok(code,'actual stock-talk builder is present');vm.runInNewContext(code,context,{filename:'index.html: stock-talk'});}
+  if(stock){context.knCreateConversation=function(w,options){context.stockRooms=options.categories;return {open(){let n=document.getElementById('stockTalkOv');if(!n){n=new Element('section');n.id='stockTalkOv';document.body.appendChild(n);}n.style.display='flex';context.stockOpens=(context.stockOpens||0)+1;},close(){}};};vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../static/stock-talk.js'),'utf8'),context);}
+
   if(legacy){const code=scripts.find(script=>script.includes('var nav=document.getElementById("knBottomNav")')&&script.includes('ov.id="knMyTalkHub"'));assert.ok(code,'actual lazy Talk navigation builder is present');vm.runInNewContext(code,context,{filename:'index.html: Talk navigation'});}
   vm.runInNewContext(read('static/talk-theme.js'),context,{filename:'static/talk-theme.js'});
   return {context,document,body,nav,talkButton,timers,observers,requests,Element,html};
@@ -98,25 +99,14 @@ test('preparation retains both original entrance callbacks and keyboard access',
   const h=harness();let communityOpened=0;h.context.openCommunity=()=>communityOpened++;
   h.talkButton.click();let hub=ready(h),cards=hub.querySelectorAll('.kt-hub-card');
   cards[0].dispatch('keydown',{key:'Enter'});
-  assert.equal(hub.style.display,'none');assert.ok(h.document.getElementById('talkOv').classList.contains('open'));
-  assert.deepEqual(h.requests,['/api/stock-comments?symbol=N225']);
+  assert.equal(hub.style.display,'none');assert.ok(h.document.getElementById('stockTalkOv').style.display==='flex');
+  assert.equal(h.context.stockOpens,1);assert.equal(h.requests.length,0);
   h.talkButton.click();cards[1].dispatch('keydown',{key:' '});
   assert.equal(hub.style.display,'none');assert.equal(communityOpened,1);
   assert.ok(cards.every(card=>card.getAttribute('role')==='button'&&card.tabIndex===0));
 });
-test('all eight existing stock-talk routes keep their symbols and selection behavior',()=>{
-  const h=harness();h.talkButton.click();ready(h).querySelector('.kt-hub-card').click();
-  const buttons=h.document.querySelectorAll('#talkOv .tk-sym');
-  assert.equal(buttons.length,8);
-  const symbols=['N225','SP500','DJI','IXIC','7203.T','6758.T','9984.T','8306.T'];
-  buttons.forEach((button,index)=>{
-    button.click();h.context.knPrepareTalkScreen();
-    assert.equal(h.requests.at(-1),'/api/stock-comments?symbol='+encodeURIComponent(symbols[index]));
-    assert.equal(button.getAttribute('aria-pressed'),'true');
-    assert.equal(buttons.filter(node=>node.classList.contains('on')).length,1);
-  });
-  assert.ok(h.document.getElementById('tkName'));assert.ok(h.document.getElementById('tkInput'));
-  assert.equal(h.document.getElementById('tkMsg').getAttribute('aria-live'),'polite');
+test('all four index rooms and four existing company rooms remain available through the new conversation instance',()=>{
+ const h=harness();assert.deepEqual(Array.from(h.context.stockRooms, r=>r[0]),['stock:7203','stock:6758','stock:9984','stock:8306','index:N225','index:SP500','index:DJI','index:IXIC']);
 });
 test('the other existing Talk entrance also prepares its open state in the same click',()=>{
   const h=harness({stock:false,legacy:false}),hub=new h.Element('div');hub.id='talkHubOv';h.body.appendChild(hub);

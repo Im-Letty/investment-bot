@@ -3606,35 +3606,16 @@ ALLOWED_SYMBOLS = {
 def api_stock_comments():
     if request.method == "GET":
         symbol = (request.args.get("symbol") or "").strip()
-        if symbol not in ALLOWED_SYMBOLS:
+        if symbol not in ALLOWED_SYMBOLS and not _stock_search.company(symbol):
             return jsonify({"ok": False, "reason": "bad_symbol"}), 400
         try:
-            res = supabase.table("stock_comments").select("*").eq("symbol", symbol).order("id", desc=True).limit(100).execute()
+            res = supabase.table("stock_comments").select("id,symbol,name,body,created_at").eq("symbol", symbol).order("id", desc=True).limit(100).execute()
             rows = list(reversed(res.data or []))
         except Exception as e:
             print(f"[stock_comments] get error: {e}")
             return jsonify({"ok": False, "reason": "db_error"}), 500
         return jsonify({"ok": True, "comments": rows})
-    data = request.get_json(silent=True) or {}
-    symbol = (data.get("symbol") or "").strip()
-    if symbol not in ALLOWED_SYMBOLS:
-        return jsonify({"ok": False, "reason": "bad_symbol"}), 400
-    name = (data.get("name") or "").strip()[:20] or "名無しさん"
-    body = (data.get("body") or "").strip()
-    if not body:
-        return jsonify({"ok": False, "reason": "empty"}), 400
-    if len(body) > 200:
-        return jsonify({"ok": False, "reason": "too_long"}), 400
-    ng_words = ["振込", "儲かります", "必ず儲", "lineで検索", "@で検索", "稼げる", "絶対儲か", "元本保証"]
-    low = body.lower()
-    if any(w.lower() in low for w in ng_words):
-        return jsonify({"ok": False, "reason": "ng_word"}), 400
-    try:
-        supabase.table("stock_comments").insert({"symbol": symbol, "name": name, "body": body}).execute()
-    except Exception as e:
-        print(f"[stock_comments] insert error: {e}")
-        return jsonify({"ok": False, "reason": "db_error"}), 500
-    return jsonify({"ok": True})
+    return jsonify(ok=False, reason='stock_talk_updated'), 410
 
 
 ADMIN_PASS = os.environ.get("ADMIN_PASS", "")
@@ -3648,6 +3629,8 @@ def check_admin(req):
 
 from community_api import register_community_routes
 register_community_routes(app, SUPABASE_URL, SUPABASE_KEY, check_admin=check_admin)
+from stock_talk import create_stock_talk_blueprint
+app.register_blueprint(create_stock_talk_blueprint(SUPABASE_URL,SUPABASE_KEY,_stock_search,check_admin=check_admin))
 
 @app.route("/api/admin/stats", methods=["GET", "POST"])
 def admin_stats():
