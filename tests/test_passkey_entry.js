@@ -34,7 +34,7 @@ async function until(predicate) {
   assert.fail('Expected asynchronous auth operation');
 }
 
-function harness({ mode = 'signup', user = null, enabled = true, homeExit = true } = {}) {
+function harness({ mode = 'signup', user = null, enabled = true, homeExit = true, visible = true } = {}) {
   let primary = { disabled: false }, markup = '', closing = false, morningClicks = 0, navSyncs = 0;
   const checks = [], oauth = [], messages = [], entries = [], cancellations = [], listeners = {};
   const classes = new Set(['open']);
@@ -45,7 +45,7 @@ function harness({ mode = 'signup', user = null, enabled = true, homeExit = true
     primary = { disabled: context.passkeyEntryBusy || !context.KN_PASSKEY_ENABLED };
   }
   const context = {
-    KN_PASSKEY_ENABLED: enabled, knaMode: mode, knUser: user,
+    KN_PASSKEY_ENABLED: enabled, passkeyEntryVisible: visible, KN_EMAIL_ENABLED: true, knaMode: mode, knUser: user,
     isLineInApp() { return false; }, flag(value) { return !!value; },
     btnRow(options) { return '<button class="' + options.cls + '">' + options.label + '</button>'; },
     mount,
@@ -296,5 +296,17 @@ for (const outcome of ['expired', 'anonymous', 'changed identity', 'network erro
       assert.equal(app.context.knaMode, 'login');
       assert.ok(!app.markup.includes(foundCopy));
     }
+  });
+}
+
+for (const mode of ['signup', 'login']) {
+  test(mode + ': hidden passkey keeps alternative methods visible and cannot start OAuth', async () => {
+    const app = harness({mode, visible: false});
+    assert.doesNotMatch(app.markup, /パスキーで|顔や指紋|保存した顔認証/);
+    for (const name of ['LINE', 'Google', 'メール']) assert.ok(app.markup.includes(name + 'で'));
+    assert.match(app.markup, /kna-alternatives" open/);
+    await app.click();
+    assert.equal(app.oauth.length, 0);
+    assert.equal(app.checks.length, 0);
   });
 }
