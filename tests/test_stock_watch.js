@@ -3,8 +3,12 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const watch=require('../static/stock-watch.js');
 const dividendFacts=require('../static/watch-dividends.js'),companyProfile=require('../static/company-profile.js');
+const dates=require('../static/date-display.js');
 const KEY='alert_watchlist_v1';
 const toyota={symbol:'7203.T',name:'トヨタ自動車',verified:true};
+function perFact(item=toyota,overrides={}){
+ return {kind:'issuer_reported_fiscal_per',symbol:item.symbol,status:'available',value:12.34,unit:'times',basis:'consolidated',accounting_standard:'JGAAP',security_code:item.symbol.split('.')[0],issuer_name:item.name,exchange:item.symbol.endsWith('.T')?'Tokyo':'Nagoya',fiscal_period:{start:'2024-04-01',end:'2025-03-31'},price_basis:'not_stated',price_reference_date:null,source_url:'https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100TEST',source_title:'有価証券報告書（当サイトが年度PERを抜粋）',doc_id:'S100TEST',filed_on:'2025-06-30',checked_on:'2025-07-01',fetched_at:Date.parse('2025-07-01T00:00:00Z')/1000,use_basis:'independent_extraction_of_numeric_facts',latest_filing_guaranteed:false,...overrides};
+}
 function storage(initial={}){const map=new Map(Object.entries(initial));return {map,getItem:key=>map.get(key)??null,setItem:(key,value)=>map.set(key,value),removeItem:key=>map.delete(key)};}
 async function flush(){for(let i=0;i<25;i++)await Promise.resolve();}
 test('verified search selections save and reload without any quote request; duplicate codes normalize',async()=>{
@@ -86,7 +90,7 @@ function uiHarness({reduced=true,withDividends=false,lookupItems=[toyota]}={}){
  for(const node of [...nodes.values(),panel,originalFocus,fallback,submit])node.doc=doc;
  panel.querySelectorAll=()=>[nodes.get('stock-watch-close'),nodes.get('alert-ticker-input'),submit];
  const vv={height:780,offsetTop:0,events:{},addEventListener(key,fn){this.events[key]=fn;}};
- const w={document:doc,localStorage:storage(),StockWatch:{},AbortController,innerWidth:400,visualViewport:vv,matchMedia:()=>({matches:reduced}),scrollTo(){},__knRefreshWatch(){refreshes++;},setTimeout(fn,ms){timers.set(++tid,{fn,ms});return tid;},clearTimeout:id=>timers.delete(id),async fetch(url,options){
+ const w={document:doc,localStorage:storage(),StockWatch:{},KNDateDisplay:dates,AbortController,innerWidth:400,visualViewport:vv,matchMedia:()=>({matches:reduced}),scrollTo(){},__knRefreshWatch(){refreshes++;},setTimeout(fn,ms){timers.set(++tid,{fn,ms});return tid;},clearTimeout:id=>timers.delete(id),async fetch(url,options){
   if(url.startsWith('/api/company-profile?'))return new Promise(resolve=>factsRequests.push({url,options,resolve}));
   requests.push(url);return {ok:true,json:async()=>({results:lookupItems})};
  }};
@@ -189,7 +193,8 @@ test('search previews cap Japanese companies at five, use two workers and reuse 
  const h=uiHarness({withDividends:true,lookupItems:[foreign,...japanese]});await h.w.openStockWatchManager({mode:'search'});
  h.nodes.get('alert-ticker-input').value='会社';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
  const rows=h.nodes.get('stock-search-results').children[0].children;
- assert.equal(rows.length,8);assert.equal(rows[0].children.length,2);assert.equal(rows.filter(row=>row.children.length===3).length,5);assert.equal(rows[6].children.length,2);assert.equal(rows[7].children.length,2);
+ assert.equal(rows.length,8);assert.equal(rows[0].children.length,2);assert.equal(rows.filter(row=>row.children.some(node=>node.className==='sw-dividends')).length,5);assert.equal(rows[6].children.length,3);assert.equal(rows[7].children.length,3);
+ assert.equal(rows.slice(1).filter(row=>row.children.some(node=>node.className==='sw-year-per')).length,7,'Every Japanese result gets a synchronous PER state, independently of the five dividend previews');
  assert.equal(h.factsRequests.length,2,'Only two facts requests may start concurrently');
  for(let i=0;i<5;i++){const key=new URL(h.factsRequests[i].url,'https://fixture.test').searchParams.get('symbol');await h.replyFacts(i,key,i);}
  assert.equal(h.factsRequests.length,5);assert.ok(h.factsRequests.every(request=>!request.url.includes('AAPL')));
@@ -227,4 +232,58 @@ test('regional searches open the regional company details and never enter Yahoo 
  const rows=h.nodes.get('stock-search-results').children[0].children,company=rows[0].children[0];assert.equal(company.children[1].textContent,'8301');assert.match(company.attrs['aria-label'],/会社情報を見る/);assert.match(rows[0].children[2].textContent,/取得元は未対応/);
  assert.equal(h.factsRequests.length,1);assert.match(h.factsRequests[0].url,/symbol=7203.T/);assert.ok(h.factsRequests.every(request=>!request.url.includes('8301')));
  let opened;h.w.KNCompanyProfile.open=key=>{opened=key;};company.listeners.click();assert.equal(opened,'8301.JP');assert.equal(h.manager.style.display,'none');
+});
+test('filing PER is labeled by accounting scope and fiscal year without inventing a current price date',()=>{
+ const now=Date.parse('2026-10-13T00:00:00Z')/1000,item={...toyota,exchange:'Tokyo',code:'7203'};
+ item.year_per=perFact(item,{value:12.34000001});
+ assert.equal(watch.yearPerLine(item,dates,now),'有報の年度PER（連結） 12.34000001倍 · 2025/03/31までの年度');
+ assert.doesNotMatch(watch.yearPerLine(item,dates,now),/現在|株価時点|取得|年度末の株価/);
+ item.year_per=perFact(item,{basis:'standalone',value:1234.5,price_basis:'period_end_explicit',price_reference_date:'2025-03-31',source_url:'https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/S100TEST.pdf'});
+ assert.equal(watch.yearPerLine(item,dates,now),'有報の年度PER（単体） 1,234.5倍 · 2025/03/31までの年度');
+});
+test('PER reasons preserve red-ink and zero-EPS evidence instead of rendering zero ratios',()=>{
+ const item={...toyota},now=Date.parse('2026-10-13T00:00:00Z')/1000;
+ for(const [reason,label] of [['loss_eps','算定対象外（1株利益が赤字）'],['zero_eps','算定対象外（1株利益が0）'],['ratio_not_disclosed','未記載']]){
+  item.year_per=perFact(item,{status:'not_presented',value:null,reason});
+  assert.equal(watch.yearPerLine(item,dates,now),'有報の年度PER（連結） '+label+' · 2025/03/31までの年度');
+  assert.doesNotMatch(watch.yearPerLine(item,dates,now),/ 0倍/);
+ }
+});
+test('PER identity, filing provenance, fiscal dates, and numeric precision fail closed',()=>{
+ const now=Date.parse('2026-10-13T00:00:00Z')/1000,item={...toyota,exchange:'Tokyo',code:'7203'},unknown='有報の年度PER 未確認';
+ const invalid=[undefined,null,{status:'unconfirmed'},...[
+  {symbol:'7203.JP'},{security_code:'7202'},{issuer_name:'別会社'},{exchange:'Nagoya'},{kind:'current_per'},{unit:'JPY'},{latest_filing_guaranteed:true},{basis:'unknown'},{accounting_standard:'unknown'},
+  {value:0},{value:-12},{value:null},{value:'12.34'},{value:Infinity},{value:NaN},{value:1e8},{value:12.123456789},{status:'not_presented',value:null,reason:'unknown'},
+  {doc_id:'S100OTHER'},{source_url:'https://example.com/S100TEST.pdf'},{source_url:'https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100TEST&key=secret'},
+  {fiscal_period:{start:'2025-04-01',end:'2025-03-31'}},{fiscal_period:{start:'2024-04-01',end:'2025-02-30'}},{fiscal_period:{start:'2024-04-01',end:'2025-07-01'}},
+  {filed_on:'2025-07-02'},{checked_on:'2025-06-29'},{checked_on:'2027-01-01'},{fetched_at:null},{fetched_at:now+1},{fetched_at:Date.parse('2025-06-29T00:00:00Z')/1000},
+  {price_basis:'not_stated',price_reference_date:'2025-03-31'},{price_basis:'period_end_explicit',price_reference_date:null},{price_basis:'period_end_explicit',price_reference_date:'2025-03-30'}
+ ].map(change=>perFact(item,change))];
+ for(const raw of invalid)assert.equal(watch.yearPerLine({...item,year_per:raw},dates,now),unknown,JSON.stringify(raw));
+ assert.equal(watch.yearPerLine({...item,year_per:perFact(item),exchange:'Sapporo'},dates,now),unknown);
+ assert.equal(watch.yearPerLine({...item,year_per:perFact(item),code:'7202'},dates,now),unknown);
+ assert.equal(watch.yearPerLine({...item,year_per:perFact(item)},null,now),unknown);
+ assert.equal(watch.yearPerLine({symbol:'AAPL',name:'Apple',year_per:perFact(item)},dates,now),'');
+});
+test('all Japanese search rows show their lookup PER immediately with no extra PER or quote requests',async()=>{
+ const japanese=Array.from({length:6},(_,i)=>{const item={symbol:(1000+i)+'.T',code:String(1000+i),name:'会社'+i,exchange:'Tokyo',verified:true};return {...item,year_per:perFact(item,{value:10+i})};});
+ const regional={symbol:'1869.JP',code:'1869',name:'名工建設',exchange:'Nagoya',verified:true},foreign={symbol:'AAPL',name:'Apple',verified:true};
+ regional.year_per=perFact(regional,{basis:'standalone',value:8.125});
+ const h=uiHarness({withDividends:true,lookupItems:[...japanese,regional,foreign]});await h.w.openStockWatchManager({mode:'search'});
+ h.nodes.get('alert-ticker-input').value='会社';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ const rows=h.nodes.get('stock-search-results').children[0].children,perRows=rows.slice(0,7).map(row=>row.children.find(node=>node.className==='sw-year-per'));
+ assert.equal(perRows.length,7);assert.ok(perRows.every(node=>node&&node.textContent.includes('倍')));
+ assert.match(perRows[5].textContent,/15倍/,'PER also renders beyond the first five dividend previews');assert.match(perRows[6].textContent,/単体.*8.125倍/);
+ assert.equal(rows[7].children.some(node=>node.className==='sw-year-per'),false);
+ assert.deepEqual(h.requests,['/api/lookup?q=%E4%BC%9A%E7%A4%BE']);assert.equal(h.factsRequests.length,2,'Only the existing two dividend workers start');
+ assert.ok(h.factsRequests.every(request=>request.url.startsWith('/api/company-profile?symbol=')&&!request.url.includes('1869')));
+ const perNode=perRows[0],add=rows[0].children[1];add.focus();await h.replyFacts(0,japanese[0].symbol,95);
+ assert.equal(rows[0].children.find(node=>node.className==='sw-year-per'),perNode);assert.match(perNode.textContent,/10倍/);assert.equal(h.doc.activeElement,add,'Dividend enrichment does not replace the PER line or focus');
+});
+test('unconfirmed PER does not block saving, fabricate zero, or trigger an individual retry',async()=>{
+ const h=uiHarness({lookupItems:[{...toyota,year_per:perFact(toyota,{value:null})}]});await h.w.openStockWatchManager({mode:'search'});
+ h.nodes.get('alert-ticker-input').value='7203';h.nodes.get('stock-search-form').listeners.submit({preventDefault(){}});await flush();
+ const row=h.nodes.get('stock-search-results').children[0].children[0],per=row.children.find(node=>node.className==='sw-year-per');
+ assert.equal(per.textContent,'有報の年度PER 未確認');assert.equal(row.children[1].disabled,false);await row.children[1].listeners.click();await flush();
+ assert.deepEqual(JSON.parse(h.w.localStorage.getItem(KEY)),['7203.T']);assert.equal(h.requests.length,1);assert.equal(h.factsRequests.length,0);
 });

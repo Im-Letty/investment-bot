@@ -22,6 +22,14 @@ function loaderHarness(saved=storage()){
 }
 const HISTORICAL='historical_dividend_per_share',REGIONAL_KEY='9085.JP';
 const ISSUER_FORECAST='issuer_annual_dividend_forecast_per_share';
+const YEAR_PER='issuer_reported_fiscal_per';
+function yearPerFixture(changes={}){
+  const raw=fixture({identity:{...IDENTITY,exchange:'Tokyo'}});
+  raw.year_per_status='available';raw.data[YEAR_PER]=12.12345678;
+  raw.year_per={kind:YEAR_PER,symbol:KEY,status:'available',value:12.12345678,reason:null,unit:'times',basis:'consolidated',accounting_standard:'JGAAP',security_code:'7203',issuer_name:raw.name,exchange:'Tokyo',fiscal_period:{start:'2025-04-01',end:'2026-03-31'},price_basis:'not_stated',price_reference_date:null,doc_id:'S100TEST',source_url:'https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/S100TEST.pdf',source_title:'有価証券報告書（当サイトが年度PERを抜粋）',filed_on:'2026-06-30',checked_on:'2026-09-24',fetched_at:(NOW-1000)/1000,use_basis:'independent_extraction_of_numeric_facts',latest_filing_guaranteed:false};
+  raw.sources=[{title:raw.year_per.source_title,url:raw.year_per.source_url,fetched_at:raw.year_per.fetched_at}];
+  return {...raw,...changes};
+}
 function issuerForecastFixture(changes={}){
   const raw=filedFixture(),source='https://sirius.chuo-bus.co.jp/corporation/ir/forecast.pdf';
   raw.issuer_dividend_forecast_status='available';raw.data[ISSUER_FORECAST]=60;
@@ -512,4 +520,66 @@ test('reviewed report business summaries preserve public document provenance and
   const clean=profile.normalize(raw,KEY,NOW);assert.equal(clean.business_overview.text,raw.business_overview.text);assert.equal(clean.business_overview.source_published_on,'2026-06-26');assert.equal(profile.normalize(clean,KEY,NOW).business_overview.text,raw.business_overview.text);
   const h=dialogHarness();h.view.open(KEY,raw.name,h.trigger);h.view.render(state(raw));assert.match(h.view.elements.businessSource.textContent,/2026\/06\/26 提出/);assert.match(h.view.elements.businessSource.textContent,/当サイトが説明を作成/);
   raw.business_overview.source_url+='&token=secret';assert.equal(profile.normalize(raw,KEY,NOW).business_overview,null);
+});
+test('issuer-reported fiscal PER stays independent of current quotes and retains seconds across cache normalization',()=>{
+  const raw=yearPerFixture(),clean=profile.normalize(raw,KEY,NOW);
+  assert.equal(clean.year_per.value,12.12345678);assert.equal(clean.data[YEAR_PER],12.12345678);assert.equal(clean.data.price,3210);
+  assert.equal(clean.year_per.fetched_at,(NOW-1000)/1000);assert.equal(clean.source.fields[YEAR_PER].fetched_at,NOW-1000);
+  assert.equal(clean.year_per.price_reference_date,null);assert.equal(clean.year_per.price_basis,'not_stated');assert.equal(clean.sources[0].url,raw.year_per.source_url);
+  const cached=profile.normalize(clean,KEY,NOW);assert.equal(cached.year_per.fetched_at,clean.year_per.fetched_at);assert.equal(cached.data[YEAR_PER],12.12345678);assert.equal(cached.sources[0].fetched_at,NOW-1000);
+  raw.data[YEAR_PER]=13;assert.equal(profile.normalize(raw,KEY,NOW).year_per,null);
+  raw.data[YEAR_PER]=12.12345678;raw.year_per_status='not_presented';assert.equal(profile.normalize(raw,KEY,NOW).year_per,null);
+});
+test('PER normalization rejects wrong identities, unsafe disclosure URLs and unsupported accounting without exporting links',()=>{
+  const original=yearPerFixture();
+  for(const patch of [{symbol:'7203.JP'},{security_code:'7202'},{issuer_name:'別会社'},{exchange:'Sapporo'},{accounting_standard:'other'},{basis:'other'},{value:0},{value:NaN},{value:12.123456789},{unit:'yen'},{use_basis:'unreviewed'},{latest_filing_guaranteed:true},{doc_id:'S100ABCD'},{source_url:original.year_per.source_url+'?token=secret'},{source_url:'https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100TEST&key=secret'},{source_url:'https://example.com/S100TEST.pdf'},{fetched_at:(NOW+1000)/1000},{price_basis:'period_end_explicit',price_reference_date:null}]){
+    const raw=yearPerFixture();Object.assign(raw.year_per,patch);raw.sources=[{title:'有価証券報告書',url:raw.year_per.source_url}];raw.source.url=raw.year_per.source_url;
+    const clean=profile.normalize(raw,KEY,NOW);assert.equal(clean.year_per,null,JSON.stringify(patch));assert.equal(clean.data[YEAR_PER],null);assert.equal(clean.year_per_invalidated,true);assert.deepEqual(clean.sources,[]);
+  }
+  const validGbiz=yearPerFixture();validGbiz.year_per.source_url='https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100TEST';validGbiz.sources[0].url=validGbiz.year_per.source_url;assert.equal(profile.normalize(validGbiz,KEY,NOW).sources[0].url,validGbiz.year_per.source_url);
+});
+test('the latest PER fiscal year and corrected filing win regardless of quote freshness; an explicit omission replaces an old number',async()=>{
+  const h=loaderHarness();await h.load();await h.reply(0,yearPerFixture());
+  const older=yearPerFixture();older.year_per.fiscal_period={start:'2024-04-01',end:'2025-03-31'};older.year_per.filed_on='2025-06-30';older.year_per.value=older.data[YEAR_PER]=1;older.year_per.fetched_at=NOW/1000;
+  await h.load();await h.reply(1,older);let current=h.states.at(-1).data;assert.equal(current.year_per.value,12.12345678);assert.equal(current.year_per.fiscal_period.end,'2026-03-31');assert.equal(current.year_per.fetched_at,(NOW-1000)/1000);
+  const correction=yearPerFixture();correction.year_per.filed_on='2026-07-01';correction.year_per.value=correction.data[YEAR_PER]=15.5;
+  await h.load();await h.reply(2,correction);assert.equal(h.states.at(-1).data.year_per.value,15.5);
+  await h.load();await h.reply(3,yearPerFixture());assert.equal(h.states.at(-1).data.year_per.value,15.5,'An older filing cannot roll back a correction within the same fiscal year');
+  const absent=yearPerFixture();absent.year_per.filed_on='2026-07-02';absent.year_per.status=absent.year_per_status='not_presented';absent.year_per.value=absent.data[YEAR_PER]=null;absent.year_per.reason='loss_eps';
+  await h.load();await h.reply(4,absent);current=h.states.at(-1).data;assert.equal(current.data[YEAR_PER],null);assert.equal(current.year_per.reason,'loss_eps');assert.equal(current.year_per.filed_on,'2026-07-02');
+  const reloaded=loaderHarness(h.storage);await reloaded.load();assert.equal(reloaded.states[0].data.year_per.reason,'loss_eps');assert.equal(reloaded.states[0].data.year_per.fetched_at,(NOW-1000)/1000);
+});
+test('a PER-only response caches using its real acquisition seconds and HTTP failures preserve its original dates',async()=>{
+  const raw=yearPerFixture({data:{currency:'JPY',[YEAR_PER]:12.12345678},updated_at:null,source:{fields:{}},editorial:null,quote_refresh_enabled:false}),h=loaderHarness();
+  await h.load();await h.reply(0,raw);assert.equal(h.loader.peek(KEY).year_per.value,12.12345678);
+  const reloaded=loaderHarness(h.storage);await reloaded.load();assert.equal(reloaded.states[0].data.year_per.fetched_at,(NOW-1000)/1000);
+  await h.load();await h.reply(1,null,503);await h.time.advance(1000);await h.reply(2,null,503);await h.time.advance(3000);await h.reply(3,null,503);
+  const final=h.states.at(-1);assert.equal(final.reason,'fetch_error');assert.equal(final.data.year_per.fetched_at,(NOW-1000)/1000);assert.equal(final.data.year_per.filed_on,'2026-06-30');assert.equal(final.data.year_per.price_reference_date,null);assert.equal(final.data.data.price,null);
+});
+test('invalid or removed PER clears only its fact and source while other saved facts survive and reload cannot restore it',async()=>{
+  for(const replacement of ['wrong_company','unconfirmed']){
+    const h=loaderHarness();await h.load();await h.reply(0,yearPerFixture());await h.load();const raw=yearPerFixture({updated_at:null});
+    if(replacement==='wrong_company')raw.year_per.issuer_name='別会社';else{raw.year_per=null;raw.year_per_status='unconfirmed';raw.data[YEAR_PER]=null;}
+    await h.reply(1,raw);const clean=h.states.at(-1).data;assert.equal(clean.year_per,null);assert.equal(clean.data[YEAR_PER],null);assert.equal(clean.data.price,3210);assert.ok(clean.sources.every(source=>!source.url.includes('S100TEST')));
+    const reloaded=loaderHarness(h.storage);await reloaded.load();assert.equal(reloaded.states[0].data.year_per,null);assert.ok(reloaded.states[0].data.sources.every(source=>!source.url.includes('S100TEST')));
+  }
+  const h=loaderHarness(),good=yearPerFixture({data:{currency:'JPY',[YEAR_PER]:12.12345678},updated_at:null,source:{fields:{}},editorial:null});await h.load();await h.reply(0,good);await h.load();
+  await h.reply(1,{...good,data:{currency:'JPY'},year_per:null,year_per_status:'unconfirmed',sources:[]});assert.equal(h.loader.peek(KEY),null);
+  const reloaded=loaderHarness(h.storage);await reloaded.load();assert.equal(reloaded.states[0].data,null);
+});
+test('PER detail shows fiscal year, accounting scope, actual source dates and ambiguous price timing without disturbing focus',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const raw=yearPerFixture();h.view.render(state(raw));const refs=h.view.elements;
+  assert.equal(refs.yearPer.row.hidden,false);assert.match(refs.yearPer.row.textContent,/有報の年度PER（実績）/);assert.equal(refs.yearPer.value.textContent,'12.12345678倍');assert.equal(refs.yearPer.unknown.hidden,true);
+  assert.equal(refs.yearPer.period.textContent,'2025/04/01〜2026/03/31 対象年度 / 連結・日本基準');assert.equal(refs.yearPer.time.textContent,'2026/06/30 提出 / 2026/09/24 14:59 取得');
+  assert.match(refs.yearPer.note.textContent,/当サイトが有価証券報告書から年度PERを抜粋/);assert.match(refs.yearPer.note.textContent,/現在の株価から算定したPERではありません/);assert.match(refs.yearPer.note.textContent,/算定に使った株価の時点は資料に明記されていません/);assert.doesNotMatch(refs.yearPer.note.textContent,/2026\/03\/31.*算定株価/);
+  const link=refs.yearPer.source.children[0];assert.equal(link.href,raw.year_per.source_url);assert.equal(link.rel,'noopener noreferrer');refs.numbers.open=true;refs.content.scrollTop=350;link.focus();h.view.render(state(raw));assert.equal(refs.yearPer.source.children[0],link);assert.equal(h.doc.activeElement,link);assert.equal(refs.numbers.open,true);assert.equal(refs.content.scrollTop,350);
+  raw.year_per.basis='standalone';raw.year_per.accounting_standard='IFRS';raw.year_per.price_basis='period_end_explicit';raw.year_per.price_reference_date='2026-03-31';h.view.render(state(raw));assert.match(refs.yearPer.period.textContent,/単体・IFRS/);assert.match(refs.yearPer.note.textContent,/2026\/03\/31 算定株価の基準日/);assert.doesNotMatch(refs.yearPer.note.textContent,/資料に明記されていません/);
+});
+test('PER detail preserves non-presentation reasons; unconfirmed values stay independent of quote loading and never acquire sources',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);const refs=h.view.elements;
+  for(const [reason,label] of [['loss_eps','算定対象外（1株利益が赤字）'],['zero_eps','算定対象外（1株利益が0）'],['ratio_not_disclosed','未記載']]){
+    const raw=yearPerFixture();raw.year_per.status=raw.year_per_status='not_presented';raw.year_per.value=raw.data[YEAR_PER]=null;raw.year_per.reason=reason;h.view.render(state(raw));assert.equal(refs.yearPer.value.textContent,label);assert.equal(refs.yearPer.unknown.hidden,true);assert.equal(refs.yearPer.source.hidden,false);
+  }
+  const raw=yearPerFixture({year_per:null,year_per_status:'unconfirmed',data:{currency:'JPY',price:123},sources:[],status:'pending',refreshing:true});const clean=profile.normalize(raw,KEY,NOW),loading={data:clean,status:'pending',symbol:KEY,updating:true};h.view.render(loading);
+  assert.equal(refs.yearPer.row.hidden,false);assert.equal(refs.yearPer.value.textContent,'—');assert.equal(refs.yearPer.unknown.textContent,'未確認');assert.equal(refs.yearPer.source.hidden,true);assert.equal(refs.yearPer.period.hidden,true);assert.equal(refs.yearPer.time.hidden,true);assert.equal(refs.yearPer.note.hidden,true);assert.equal(profile.fieldReason({...loading,reason:'fetch_error'},YEAR_PER),'未確認');
 });

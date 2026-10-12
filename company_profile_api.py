@@ -10,6 +10,7 @@ import unicodedata
 from flask import jsonify, request
 from company_business import official_company_overview
 from company_forecast_dividends import FIELD as ISSUER_FORECAST
+from company_year_per import FIELD as YEAR_PER
 from regional_edinet import safe_edinet_diagnostic
 
 
@@ -277,7 +278,8 @@ def payment_schedule(symbol, today=None, path=SCHEDULE_PATH):
 
 def register_company_profiles(app, profiles, catalogue, dividends, editorial=None, *, quotes=None,
                               quote_service=None, businesses=None, annual_dividends=None,
-                              public_businesses=None, forecast_dividends=None, reviewed_businesses=None):
+                              public_businesses=None, forecast_dividends=None, reviewed_businesses=None,
+                              year_pers=None):
     reviewed = read_editorial() if editorial is None else editorial
 
     @app.get('/api/company-profile')
@@ -335,6 +337,9 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
         payload.pop('dividend_fact', None)
         figures.pop(ISSUER_FORECAST, None)
         payload.pop('issuer_dividend_forecast', None)
+        figures.pop(YEAR_PER, None)
+        payload.pop('year_per', None)
+        payload.pop('year_per_status', None)
         # Queue this verified company ahead of the dividend universe, returning
         # saved facts immediately. The existing bounded pool does the work.
         dividend = dividends.lookup(provider_symbol, company['name']) if provider_symbol else {}
@@ -505,6 +510,19 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                     'fetched_at': forecast['fetched_at'], 'as_of': forecast['announcement_date']}
                 sources.append({'title': forecast['source_title'], 'url': forecast['source_url'],
                                 'fetched_at': forecast['fetched_at']})
+        if year_pers is not None:
+            fact = year_pers.get(symbol, company)
+            payload['year_per_status'] = fact['status'] if fact else 'unconfirmed'
+            payload['year_per'] = fact
+            states[YEAR_PER] = 'available' if fact and fact['status'] == 'available' else 'unconfirmed'
+            if fact:
+                if fact['status'] == 'available':
+                    figures[YEAR_PER] = fact['value']
+                source_fields(payload)[YEAR_PER] = {
+                    'fetched_at': fact['fetched_at'], 'as_of': fact['price_reference_date'],
+                    'fiscal_period_end': fact['fiscal_period']['end']}
+                sources.append({'title': fact['source_title'], 'url': fact['source_url'],
+                                'fetched_at': fact['fetched_at']})
         # A saved valid value remains visible with its own date even if the
         # current fetch failed. Zero is a value only for verified dividend data.
         for field in (*PROFILE_FIELDS, 'annual_dividend'):

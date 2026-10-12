@@ -338,4 +338,5 @@ body[data-theme="dark"] #alert-section.stock-watch-manager {--sw-paper:var(--kn-
 #alert-section.stock-watch-manager #stock-search-results .sw-row {flex-wrap:wrap;gap:10px 12px}
 #alert-section.stock-watch-manager .sw-company-hint {display:block;margin-top:3px;color:var(--sw-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.7}
 #alert-section.stock-watch-manager .sw-dividends {display:grid;flex:0 0 100%;gap:2px;color:var(--sw-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.8}
+#alert-section.stock-watch-manager .sw-year-per {display:block;flex:0 0 100%;color:var(--sw-muted);font-size:calc(12px * var(--kn-a-scale,1));line-height:1.8;font-variant-numeric:tabular-nums}
 #alert-section.stock-watch-manager .sw-add {min-height:44px;min-width:0;max-width:42%;padding:7px 12px;border:1px solid var(--sw-line);border-radius:8px;white-space:normal;font:500 calc(12px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)}

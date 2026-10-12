@@ -2240,7 +2240,9 @@ def _ensure_stock_catalogue_worker():
 
 @app.route("/api/lookup", methods=["GET"])
 def api_lookup():
-    return jsonify(_stock_search.search(request.args.get("q", "")))
+    payload = _stock_search.search(request.args.get("q", ""))
+    service = globals().get('_company_year_pers')
+    return jsonify(enrich_search_per(payload, _stock_search, service) if service is not None else payload)
 
 
 @app.route("/api/lookup_all", methods=["GET"])
@@ -2843,6 +2845,7 @@ from company_profile import CompanyProfiles
 from company_profile_api import register_company_profiles
 from company_forecast_dividends import CompanyForecastDividends
 from company_reviewed_business import CompanyReviewedBusinesses
+from company_year_per import CompanyYearPERs, enrich_search_per
 from company_quotes import CompanyQuotes
 from company_business import CompanyBusinesses
 from company_public_business import CompanyPublicBusinesses
@@ -2878,13 +2881,14 @@ _regional_annual_dividends = (RegionalEdinetDividends(
     api_key=os.environ.get("EDINET_API_KEY"), checkpoint_store=_edinet_checkpoint_store())
     if (os.environ.get("EDINET_DIVIDENDS_ENABLED", "0") == "1"
         and bool(os.environ.get("EDINET_API_KEY"))) else None)
+_company_year_pers = CompanyYearPERs()
 register_company_profiles(app, _company_profiles, _stock_search, _dividend_snapshot,
                           quotes=lambda: _scanner_snapshot.payload(refresh=False),
                           quote_service=_company_quotes, businesses=_company_businesses,
                           annual_dividends=_regional_annual_dividends,
                           public_businesses=CompanyPublicBusinesses(),
                           forecast_dividends=CompanyForecastDividends(),
-                          reviewed_businesses=CompanyReviewedBusinesses())
+                          reviewed_businesses=CompanyReviewedBusinesses(), year_pers=_company_year_pers)
 
 from dividend_calendar import DividendCalendar, register_dividend_calendar
 from jpx_calendar_source import fetch_jpx_events
