@@ -2,9 +2,9 @@
   "version": 1,
   "license": "CC0-1.0",
   "source_url": "https://www.wikidata.org/wiki/Wikidata:Data_access",
-  "generated_at": 1791790338.152781,
-  "catalogue_identity_sha256": "6f5c4ae6aff5f0a14c5551362d64949c29fd024465863a3b5508aa63f19d6ec6",
-  "discovered_at": 1791790080.832583,
+  "generated_at": 1791792359.556976,
+  "catalogue_identity_sha256": "544a74378e97ea03947a01cc826b846017a6c8d4c9060e31fffffc3ec6aa196e",
+  "discovered_at": 1791792202.854589,
   "candidate_hints": [
     {
       "symbol": "1301.T",
@@ -2795,19 +2795,6 @@
       ]
     },
     {
-      "symbol": "254A.T",
-      "identity": {
-        "symbol": "254A.T",
-        "code": "254A",
-        "name": "AIフュージョンキャピタルグループ",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q136513060"
-      ]
-    },
-    {
       "symbol": "255A.T",
       "identity": {
         "symbol": "255A.T",
@@ -4583,19 +4570,6 @@
       ]
     },
     {
-      "symbol": "3053.T",
-      "identity": {
-        "symbol": "3053.T",
-        "code": "3053",
-        "name": "ペッパーフードサービス",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q11337413"
-      ]
-    },
-    {
       "symbol": "3054.T",
       "identity": {
         "symbol": "3054.T",
@@ -4613,7 +4587,7 @@
       "identity": {
         "symbol": "3055.JP",
         "code": "3055",
-        "name": "ほくやく・竹山ホールディングス",
+        "name": "TSUMUGUHOLDINGS",
         "exchange": "Sapporo",
         "exchange_id": "Q11093491"
       },
@@ -7416,19 +7390,6 @@
       ]
     },
     {
-      "symbol": "3863.T",
-      "identity": {
-        "symbol": "3863.T",
-        "code": "3863",
-        "name": "日本製紙",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q10834647"
-      ]
-    },
-    {
       "symbol": "3864.T",
       "identity": {
         "symbol": "3864.T",
@@ -8814,19 +8775,6 @@
       ]
     },
     {
-      "symbol": "4324.T",
-      "identity": {
-        "symbol": "4324.T",
-        "code": "4324",
-        "name": "電通グループ",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q119658125"
-      ]
-    },
-    {
       "symbol": "4334.T",
       "identity": {
         "symbol": "4334.T",
@@ -10138,19 +10086,6 @@
       ]
     },
     {
-      "symbol": "4679.T",
-      "identity": {
-        "symbol": "4679.T",
-        "code": "4679",
-        "name": "田谷",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q11577266"
-      ]
-    },
-    {
       "symbol": "4680.T",
       "identity": {
         "symbol": "4680.T",
@@ -10206,19 +10141,6 @@
       },
       "entity_ids": [
         "Q11248393"
-      ]
-    },
-    {
-      "symbol": "4689.T",
-      "identity": {
-        "symbol": "4689.T",
-        "code": "4689",
-        "name": "LINEヤフー",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q86734122"
       ]
     },
     {
@@ -12849,25 +12771,6 @@
       },
       "entity_ids": [
         "Q11527599"
-      ]
-    },
-    {
-      "symbol": "5938.T",
-      "identity": {
-        "symbol": "5938.T",
-        "code": "5938",
-        "name": "LIXIL",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475",
-        "listings": [
-          {
-            "exchange": "Nagoya",
-            "exchange_id": "Q1188840"
-          }
-        ]
-      },
-      "entity_ids": [
-        "Q11229276"
       ]
     },
     {
@@ -17868,25 +17771,6 @@
       ]
     },
     {
-      "symbol": "7259.T",
-      "identity": {
-        "symbol": "7259.T",
-        "code": "7259",
-        "name": "アイシン",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475",
-        "listings": [
-          {
-            "exchange": "Nagoya",
-            "exchange_id": "Q1188840"
-          }
-        ]
-      },
-      "entity_ids": [
-        "Q409907"
-      ]
-    },
-    {
       "symbol": "7261.T",
       "identity": {
         "symbol": "7261.T",
@@ -18830,19 +18714,6 @@
       },
       "entity_ids": [
         "Q11307189"
-      ]
-    },
-    {
-      "symbol": "7532.T",
-      "identity": {
-        "symbol": "7532.T",
-        "code": "7532",
-        "name": "パン・パシフィック・インターナショナルホールディングス",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q16485533"
       ]
     },
     {
@@ -22419,25 +22290,6 @@
       ]
     },
     {
-      "symbol": "8725.T",
-      "identity": {
-        "symbol": "8725.T",
-        "code": "8725",
-        "name": "MS&ADインシュアランスグループホールディングス",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475",
-        "listings": [
-          {
-            "exchange": "Nagoya",
-            "exchange_id": "Q1188840"
-          }
-        ]
-      },
-      "entity_ids": [
-        "Q5215769"
-      ]
-    },
-    {
       "symbol": "8729.T",
       "identity": {
         "symbol": "8729.T",
@@ -23749,19 +23601,6 @@
       },
       "entity_ids": [
         "Q213140"
-      ]
-    },
-    {
-      "symbol": "9202.T",
-      "identity": {
-        "symbol": "9202.T",
-        "code": "9202",
-        "name": "ANAホールディングス",
-        "exchange": "Tokyo",
-        "exchange_id": "Q217475"
-      },
-      "entity_ids": [
-        "Q11189379"
       ]
     },
     {
@@ -26120,16 +25959,16 @@
     }
   ],
   "coverage": {
-    "new_verified": 1126,
+    "new_verified": 1115,
     "unmapped": 1899,
-    "no_structured_facts": 630,
-    "pending_identity": 138,
-    "ambiguous": 3,
+    "no_structured_facts": 629,
+    "pending_identity": 139,
+    "ambiguous": 14,
     "official_companies": 3796,
-    "candidate_companies": 1894,
+    "candidate_companies": 1883,
     "available_records": 1126,
-    "verified_current_refresh": 1126,
-    "retained_previous_records": 0,
+    "verified_current_refresh": 1115,
+    "retained_previous_records": 11,
     "short_description_records": 1070,
     "generic_description_records": 83,
     "company_specific_short_description_records": 987,

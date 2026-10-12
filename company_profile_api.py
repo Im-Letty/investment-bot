@@ -101,6 +101,19 @@ def edinet_persistence(value, fact):
                                        'selected_fact_restored', 'selected_fact_saved')}
     clean.update(restored_at=value.get('restored_at'), saved_at=value.get('saved_at'),
                  snapshot_guaranteed=False, cross_instance_cas=False)
+    errors = {'storage_configuration', 'storage_budget', 'storage_deadline',
+              'storage_response', 'storage_network', 'storage_timeout',
+              'storage_bucket', 'storage_private_required', 'storage_read',
+              'storage_write', 'storage_size', 'checkpoint_wrapper_invalid',
+              'checkpoint_encoding_invalid', 'checkpoint_compression_invalid',
+              'checkpoint_digest_mismatch', 'checkpoint_schema_invalid',
+              'checkpoint_size_limit', 'checkpoint_read_failed', 'checkpoint_save_failed'}
+    for key in ('restore_error', 'save_error'):
+        if key in value:
+            error = value[key]
+            if error is not None and (not isinstance(error, str) or error not in errors):
+                return None
+            clean[key] = error
     # Global index recovery is separate from recovery of this validated value.
     for flag, timestamp_key in (('selected_fact_restored', 'restored_at'),
                                 ('selected_fact_saved', 'saved_at')):
@@ -114,6 +127,10 @@ def edinet_persistence(value, fact):
 
 def filed_dividend_fact(raw, company):
     if not isinstance(raw, dict):
+        return None
+    xbrl_hash = raw.get('xbrl_body_sha256')
+    if xbrl_hash is not None and (not isinstance(xbrl_hash, str)
+                                or not re.fullmatch(r'[0-9a-f]{64}', xbrl_hash)):
         return None
     value, doc_id, fetched = (raw.get(key) for key in ('value', 'doc_id', 'fetched_at'))
     if (not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value)
@@ -140,13 +157,16 @@ def filed_dividend_fact(raw, company):
             return None
     except (ValueError, TypeError, KeyError, OverflowError, OSError):
         return None
-    return dict(value=value, currency='JPY', unit='JPY/share',
+    clean = dict(value=value, currency='JPY', unit='JPY/share',
                 fiscal_period={'start': start.isoformat(), 'end': end.isoformat()},
                 filing_submitted_at=submitted, submitted_at=submitted_at.timestamp(), fetched_at=fetched,
                 doc_id=doc_id, edinet_code=raw['edinet_code'], security_code=raw['security_code'],
                 source_url=raw['source_url'], source_title='EDINET 有価証券報告書',
                 kind='filed_fiscal_period_dividend', split_adjustment='as_reported',
                 latest_filing_guaranteed=False)
+    if xbrl_hash is not None:
+        clean['xbrl_body_sha256'] = xbrl_hash
+    return clean
 
 
 def annual_dividend_result(raw, company):

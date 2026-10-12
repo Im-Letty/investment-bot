@@ -11,6 +11,7 @@ from dataclasses import dataclass
 from datetime import date, datetime, timezone, timedelta
 from decimal import Decimal, InvalidOperation
 from email.utils import parsedate_to_datetime
+from hashlib import sha256
 from io import BytesIO, StringIO
 import csv
 import fcntl
@@ -579,6 +580,7 @@ def parse_annual_dividend(payload, identity, descriptor, observed_at):
                 source_url='https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/' + descriptor['docID'] + '.pdf',
                 source_title='EDINET 有価証券報告書', kind='filed_fiscal_period_dividend',
                 split_adjustment='as_reported', latest_filing_guaranteed=False,
+                xbrl_body_sha256=sha256(payload).hexdigest(),
                 doc_type_code=descriptor['docTypeCode'],
                 base_doc_id=descriptor.get('_annual_base', descriptor)['docID'])
 

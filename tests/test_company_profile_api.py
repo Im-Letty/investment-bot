@@ -519,6 +519,18 @@ class FiledAnnualDividendRoutes(unittest.TestCase):
                 self.assertFalse(actual['selected_fact_restored'])
                 self.assertFalse(actual['selected_fact_saved'])
 
+    def test_fixed_persistence_failure_reason_does_not_expose_transport_details(self):
+        self.raw['persistence'] = dict(self.persistence(), restore_error='storage_timeout',
+                                       save_error=None, raw_error='private transport details')
+        actual = self.request().get_json()['historical_dividend_persistence']
+        self.assertEqual(actual['restore_error'], 'storage_timeout')
+        self.assertIsNone(actual['save_error'])
+        self.assertNotIn('private transport details', json.dumps(actual))
+        for reason in ('raw credentials', {'error': 'private'}, ['storage_timeout']):
+            with self.subTest(reason=reason):
+                self.raw['persistence']['restore_error'] = reason
+                self.assertIsNone(self.request().get_json()['historical_dividend_persistence'])
+
     def test_malformed_or_future_persistence_cannot_claim_durable_success(self):
         for change in (dict(durable_status='raw credentials'), dict(local_status=[]),
                        dict(restored_indexed_days=True), dict(restored_facts=111),
@@ -537,6 +549,15 @@ class FiledAnnualDividendRoutes(unittest.TestCase):
         actual = self.request().get_json()['historical_dividend_persistence']
         self.assertFalse(actual['selected_fact_saved'])
         self.assertFalse(actual['selected_fact_restored'])
+
+    def test_optional_xbrl_hash_is_verified_and_not_a_pdf_hash(self):
+        self.raw['dividend_fact']['xbrl_body_sha256'] = 'a' * 64
+        actual = self.request().get_json()['dividend_fact']
+        self.assertEqual(actual['xbrl_body_sha256'], 'a' * 64)
+        for digest in ('A' * 64, 'a' * 63, [], {'secret': 'invalid'}):
+            with self.subTest(digest=digest):
+                self.raw['dividend_fact']['xbrl_body_sha256'] = digest
+                self.assertIsNone(self.request().get_json()['dividend_fact'])
 
 
 if __name__ == '__main__':

@@ -186,6 +186,8 @@ class FactTests(unittest.TestCase):
         fact = self.parse()
         self.assertEqual(fact['value'], 20)
         self.assertEqual(fact['fiscal_period'], {'start': '2025-04-01', 'end': '2026-03-31'})
+        self.assertEqual(fact['xbrl_body_sha256'], module.sha256(xbrl()).hexdigest())
+        self.assertNotEqual(fact['xbrl_body_sha256'], module.sha256(zipped()).hexdigest())
         self.assertEqual(fact['filing_submitted_at'], '2026-06-26 09:00')
         self.assertEqual(fact['fetched_at'], NOW)
         self.assertEqual(fact['kind'], 'filed_fiscal_period_dividend')

@@ -20,8 +20,9 @@ import threading
 import time
 
 from regional_edinet import (EdinetAnnualDividends, JST, _date, _descriptor_valid,
-                            _issuer_valid, _stamp, _DESCRIPTOR_FIELDS, TAG, load_identity_seed, load_filing_hints, match_identity,
+                            _issuer_valid, _active, _stamp, _DESCRIPTOR_FIELDS, TAG, load_identity_seed, load_filing_hints, match_identity,
                             parse_daily_filings, select_annual_filing)
+from regional_edinet_storage import CHECKPOINT_ERROR_CODES
 
 MAX_CACHE_BYTES = 16_000_000
 MAX_CACHE_ROWS = 25_000
@@ -31,7 +32,7 @@ INVALIDATED = {'filing_invalidated', 'correction_unconfirmed', 'identity_unconfi
 FACT_KEYS = {'value', 'currency', 'unit', 'fiscal_period', 'tag', 'context_id', 'unit_id',
              'filing_submitted_at', 'fetched_at', 'doc_id', 'edinet_code', 'security_code',
              'source_url', 'source_title', 'kind', 'split_adjustment', 'latest_filing_guaranteed',
-             'doc_type_code', 'base_doc_id'}
+             'doc_type_code', 'base_doc_id', 'xbrl_body_sha256'}
 
 
 class RegionalEdinetDividends:
@@ -75,6 +76,12 @@ class RegionalEdinetDividends:
         self._checkpoint_restored_days = 0
         self._checkpoint_restored_facts = {}
         self._checkpoint_saved_facts = {}
+        self._checkpoint_restore_error = self._checkpoint_save_error = None
+        self._journal_restore_done, self._journal_retry_at = set(), {}
+        self._journal_saved_facts = {}
+        self._journal_existing_facts = {}
+        self._journal_pending_records, self._journal_pending_dates = {}, {}
+        self._journal_created_facts = {}
         self._load()
 
     @staticmethod
@@ -151,7 +158,12 @@ class RegionalEdinetDividends:
                              for key in ('context_id', 'unit_id'))
                      and fact.get('split_adjustment') == 'as_reported'
                      and fact.get('latest_filing_guaranteed') is False
+                     and ('xbrl_body_sha256' not in fact or isinstance(fact['xbrl_body_sha256'], str)
+                          and re.fullmatch(r'[a-f0-9]{64}', fact['xbrl_body_sha256']))
                      and fact.get('doc_id') == descriptor['docID']
+                     and fact.get('doc_type_code', descriptor['docTypeCode']) == descriptor['docTypeCode']
+                     and fact.get('base_doc_id', descriptor.get('_annual_base', descriptor)['docID'])
+                         == descriptor.get('_annual_base', descriptor)['docID']
                      and fact.get('security_code') == identity.security_code
                      and fact.get('edinet_code') == identity.edinet_code
                      and fact.get('fiscal_period') == {'start': descriptor['periodStart'], 'end': descriptor['periodEnd']}
@@ -257,6 +269,7 @@ class RegionalEdinetDividends:
                 self._checkpoint_status = 'missing'
                 self._checkpoint_restored = self._checkpoint_save_allowed = True
                 self._checkpoint_restore_status = 'missing'
+                self._checkpoint_restore_error = None
             else:
                 observation = {}
                 with self._condition:
@@ -264,6 +277,7 @@ class RegionalEdinetDividends:
                 self._checkpoint_status = 'restored' if valid else 'invalid'
                 self._checkpoint_restored = self._checkpoint_save_allowed = valid
                 self._checkpoint_restore_status = self._checkpoint_status
+                self._checkpoint_restore_error = None if valid else 'checkpoint_schema_invalid'
                 if valid:
                     self._checkpoint_restored_at = self.clock()
                     self._checkpoint_restored_days = observation['indexed_days']
@@ -271,17 +285,94 @@ class RegionalEdinetDividends:
         except Exception:
             self._checkpoint_status = 'load_failed'
             self._checkpoint_restore_status = 'load_failed'
+            code = getattr(self.checkpoint_store, 'last_load_error', None)
+            self._checkpoint_restore_error = (code if isinstance(code, str) and code in CHECKPOINT_ERROR_CODES
+                                               else 'checkpoint_read_failed')
         if not self._checkpoint_restored:
             self._checkpoint_restore_retry_at = self.clock() + 60
 
-    def _save(self):
-        with self._condition:
-            days = set(self._days())
-            self._snapshots = {day: value for day, value in self._snapshots.items() if day in days}
-            cache = {'version': 1, 'snapshots': deepcopy(self._snapshots),
-                     'records': {code: cleaned for code, record in list(self._records.items())[-MAX_FACTS:]
-                                for cleaned in [self._clean_record(code, record)] if cleaned},
-                     'next_request': self.provider.next_request_at() if hasattr(self.provider, 'next_request_at') else 0}
+    def _restore_selected_fact(self, code, job):
+        store = self.checkpoint_store
+        if (not self.configured or store is None or not callable(getattr(type(store), 'load_facts', None))
+                or code in self._journal_restore_done or self.clock() < self._journal_retry_at.get(code, 0)):
+            return
+        current = self._records[code]
+        if current.get('invalidated') is True or current.get('status') in INVALIDATED:
+            self._journal_restore_done.add(code)
+            return
+        if current.get('fact'):
+            self._journal_restore_done.add(code)
+            return
+        today = self._days()[0]
+        snapshot = self._snapshots.get(today)
+        # Never bring back a historical journal fact before today's metadata has
+        # been successfully observed. Existing retained facts keep their dates.
+        if not snapshot or snapshot['fetched_at'] < job['started_at']:
+            return
+        try:
+            days = self._days()
+            records = self._journal_pending_records.get(code)
+            if records is None:
+                records = store.load_facts(code, from_date=days[-1], to_date=days[0])
+                self._journal_pending_records[code] = records
+            if not isinstance(records, list) or len(records) > 3:
+                raise ValueError('invalid_checkpoint')
+            candidates, evidence, required_rows = {}, list(self._snapshots.values()), []
+            for item in records:
+                cleaned = self._clean_record(code, item)
+                if not cleaned or not cleaned.get('fact'):
+                    raise ValueError('invalid_checkpoint')
+                fact, descriptor = cleaned['fact'], cleaned['descriptor']
+                rows = ([descriptor['_annual_base'], *descriptor['_correction_chain']]
+                        if descriptor.get('_annual_base') else [descriptor])
+                required_rows.extend(rows)
+                candidates[fact['doc_id']] = cleaned
+            identity = match_identity(current['company'], self.identities)
+            required_dates = sorted({row['submitDateTime'][:10] for row in required_rows}, reverse=True)
+            self._journal_pending_dates[code] = required_dates
+            for day in required_dates:
+                if day not in days:
+                    self._journal_restore_done.add(code)
+                    return  # Original metadata outside the bounded window remains unconfirmed.
+                current_snapshot = self._snapshots.get(day)
+                if not current_snapshot or current_snapshot['fetched_at'] < job['started_at']:
+                    return  # _action schedules this exact date through the provider's existing gate.
+            for expected in required_rows:
+                live = [row for row in self._snapshots[expected['submitDateTime'][:10]]['rows']
+                        if row['docID'] == expected['docID']]
+                if (len(live) != 1 or not _issuer_valid(live[0], identity) or not _active(live[0])
+                        or any(live[0].get(key) != expected.get(key) for key in
+                               ('docTypeCode', 'submitDateTime', 'parentDocID'))
+                        or any(live[0].get(key) not in (None, '', expected.get(key))
+                               for key in ('periodStart', 'periodEnd'))):
+                    self._journal_restore_done.add(code)
+                    return  # An absent/revoked/changed original is never revived from the archive.
+            selected = select_annual_filing(evidence, identity, self.clock())
+            candidate = candidates.get(selected.get('descriptor', {}).get('docID'))
+            # Metadata from the current index wins over old journal observations:
+            # withdrawals, corrections, ambiguity and a newer known filing never
+            # fall back to an older persisted amount.
+            if candidate is not None and not selected.get('invalidated'):
+                candidate['descriptor'] = selected['descriptor']
+                candidate = self._clean_record(code, candidate)
+                if candidate and candidate.get('fact') and not self._selection(candidate, evidence=evidence).get('invalidated'):
+                    with self._condition:
+                        current.update(status='available', invalidated=False,
+                                       fact=candidate['fact'], descriptor=candidate['descriptor'])
+                        fingerprint = self._fact_hash(candidate['fact'])
+                        self._checkpoint_restored_facts[code] = fingerprint
+                        self._journal_existing_facts[code] = fingerprint
+                        self._checkpoint_restored_at = self.clock()
+                        self._checkpoint_restore_status = self._checkpoint_status = 'restored'
+                        self._checkpoint_restore_error = None
+            self._journal_restore_done.add(code)
+        except Exception:
+            error = getattr(store, 'last_load_error', None)
+            self._checkpoint_restore_error = (error if isinstance(error, str) and error in CHECKPOINT_ERROR_CODES
+                                               else 'checkpoint_schema_invalid')
+            self._journal_retry_at[code] = self.clock() + 60
+
+    def _write_local_cache(self, cache):
         try:
             raw = json.dumps(cache, ensure_ascii=False, separators=(',', ':'))
             if len(raw.encode()) > MAX_CACHE_BYTES or sum(len(value['rows']) for value in cache['snapshots'].values()) > MAX_CACHE_ROWS:
@@ -298,11 +389,64 @@ class RegionalEdinetDividends:
         except (OSError, ValueError, TypeError):
             self._persistence_failed = True
             self._local_save_status = 'save_failed'
+
+    def _save(self):
+        with self._condition:
+            days = set(self._days())
+            self._snapshots = {day: value for day, value in self._snapshots.items() if day in days}
+            cache = {'version': 1, 'snapshots': deepcopy(self._snapshots),
+                     'records': {code: cleaned for code, record in list(self._records.items())[-MAX_FACTS:]
+                                for cleaned in [self._clean_record(code, record)] if cleaned},
+                     'next_request': self.provider.next_request_at() if hasattr(self.provider, 'next_request_at') else 0}
+        journal_error = None
+        if (self.checkpoint_store and self.configured and self.clock() >= self._checkpoint_retry_at
+                and callable(getattr(type(self.checkpoint_store), 'save_fact', None))):
+            for code, record in cache['records'].items():
+                fact = record.get('fact')
+                if not fact or not fact.get('xbrl_body_sha256') or self._journal_existing_facts.get(code) == self._fact_hash(fact):
+                    continue
+                immutable = {'company': record['company'], 'status': 'available', 'invalidated': False,
+                             'descriptor': record['descriptor'], 'fact': fact}
+                try:
+                    saved = self.checkpoint_store.save_fact(deepcopy(immutable)) is True
+                except Exception:
+                    saved = False
+                if saved:
+                    saved_record = self._clean_record(code, getattr(self.checkpoint_store, 'last_saved_fact_record', None))
+                    old = saved_record.get('fact') if saved_record else None
+                    # A repeated fetch may only adopt the original stored time
+                    # after independent issuer validation and exact content /
+                    # original XBRL hash equality. Never mark a different
+                    # in-memory fingerprint as saved.
+                    if (old and {k: v for k, v in old.items() if k != 'fetched_at'} ==
+                            {k: v for k, v in fact.items() if k != 'fetched_at'}):
+                        with self._condition:
+                            current = self._records[code]
+                            if current.get('fact') == fact:
+                                current['fact'] = deepcopy(old)
+                                cache['records'][code]['fact'] = deepcopy(old)
+                        self._journal_existing_facts[code] = self._fact_hash(old)
+                        self._journal_saved_facts[code] = self._fact_hash(old)
+                        if getattr(self.checkpoint_store, 'last_fact_created', False) is True:
+                            self._journal_created_facts[code] = self._fact_hash(old)
+                            self._checkpoint_saved_at = self.clock()
+                            self._checkpoint_status = 'saved'
+                    else:
+                        saved = False
+                        journal_error = 'checkpoint_schema_invalid'
+                else:
+                    error = getattr(self.checkpoint_store, 'last_save_error', None)
+                    journal_error = (error if isinstance(error, str) and error in CHECKPOINT_ERROR_CODES
+                                     else 'checkpoint_save_failed')
+        self._write_local_cache(cache)
         if (self.checkpoint_store and self.configured and self._checkpoint_save_allowed
                 and self.clock() >= self._checkpoint_retry_at):
             try:
                 success = self.checkpoint_store.save(deepcopy(cache)) is True
                 self._checkpoint_status = 'saved' if success else 'save_failed'
+                code = getattr(self.checkpoint_store, 'last_save_error', None)
+                self._checkpoint_save_error = (None if success else
+                    code if isinstance(code, str) and code in CHECKPOINT_ERROR_CODES else 'checkpoint_save_failed')
                 if success:
                     self._checkpoint_saved_at = self.clock()
                     self._checkpoint_saved_facts = {
@@ -310,21 +454,30 @@ class RegionalEdinetDividends:
                         if record.get('fact')}
             except Exception:
                 success, self._checkpoint_status = False, 'save_failed'
+                self._checkpoint_save_error = 'checkpoint_save_failed'
             self._checkpoint_retry_at = 0 if success else self.clock() + 60
+        if journal_error:
+            self._checkpoint_save_error = journal_error
+            self._checkpoint_retry_at = self.clock() + 60
 
     def _persistence(self, code=None, fact=None):
-        fingerprint = self._fact_hash(fact) if fact else None
+        fingerprint = self._fact_hash(fact) if fact and fact.get('xbrl_body_sha256') else None
+        journal = self.checkpoint_store is not None and callable(getattr(type(self.checkpoint_store), 'save_fact', None))
+        saved = (self._journal_saved_facts.get(code) == fingerprint and
+                 (self._journal_created_facts.get(code) == fingerprint or
+                  self._checkpoint_saved_facts.get(code) == fingerprint)) if journal else self._checkpoint_saved_facts.get(code) == fingerprint
         return {'local_status': self._local_save_status,
                 'durable_status': self._checkpoint_status,
                 'restore_status': self._checkpoint_restore_status,
+                'restore_error': self._checkpoint_restore_error,
+                'save_error': self._checkpoint_save_error,
                 'restored_at': self._checkpoint_restored_at,
                 'saved_at': self._checkpoint_saved_at,
                 'restored_indexed_days': self._checkpoint_restored_days,
                 'restored_facts': len(self._checkpoint_restored_facts),
                 'selected_fact_restored': bool(fingerprint and
                     self._checkpoint_restored_facts.get(code) == fingerprint),
-                'selected_fact_saved': bool(fingerprint and
-                    self._checkpoint_saved_facts.get(code) == fingerprint),
+                'selected_fact_saved': bool(fingerprint and saved),
                 'snapshot_guaranteed': False, 'cross_instance_cas': False}
 
     def _coverage(self):
@@ -364,7 +517,8 @@ class RegionalEdinetDividends:
                            ('code', 'name', 'symbol', 'provider_symbol')}, 'status': 'identity_unconfirmed', 'invalidated': True}
             fact = record.get('fact')
             needs_work = (coverage['missing_days'] or coverage['stale_days']
-                          or not fact or self.clock() - fact['fetched_at'] >= 7 * 86400)
+                          or not fact or self.clock() - fact['fetched_at'] >= 7 * 86400
+                          or self._needs_fact_hash(fact))
             if (needs_work and code not in self._jobs and not self._closed and len(self._jobs) < MAX_QUEUE
                     and self.clock() >= record.get('warm_resume_after', 0)):
                 self._jobs[code] = {'company': deepcopy(record['company']), 'started_at': self.clock(),
@@ -399,9 +553,10 @@ class RegionalEdinetDividends:
                       'persistence': self._persistence(code, fact)}
             return result
 
-    def _selection(self, record):
+    def _selection(self, record, *, evidence=None):
         identity = match_identity(record['company'], self.identities)
-        selection = select_annual_filing(self._snapshots.values(), identity, self.clock())
+        selection = select_annual_filing(self._snapshots.values() if evidence is None else evidence,
+                                        identity, self.clock())
         fact = record.get('fact')
         if fact:
             doc_ids = {fact['doc_id'], fact.get('base_doc_id')}
@@ -416,6 +571,10 @@ class RegionalEdinetDividends:
                         return {'status': 'filing_invalidated', 'invalidated': True}
         return selection
 
+    def _needs_fact_hash(self, fact):
+        return bool(fact and not fact.get('xbrl_body_sha256') and self.checkpoint_store is not None
+                    and callable(getattr(type(self.checkpoint_store), 'save_fact', None)))
+
     def _action(self, code, job):
         record = self._records[code]
         selection = self._selection(record)
@@ -427,9 +586,18 @@ class RegionalEdinetDividends:
         # hint. The original metadata and XBRL checks still supply every amount.
         today = days[0]
         snapshot = self._snapshots.get(today)
+        restore_pending = (code not in self._journal_restore_done and not record.get('fact')
+                           and self.checkpoint_store is not None
+                           and callable(getattr(type(self.checkpoint_store), 'load_facts', None)))
+        today_threshold = job['started_at'] if restore_pending else job['started_at'] - 3600
         if (today not in job['visited'] and
-                (not snapshot or snapshot['fetched_at'] < job['started_at'] - 3600)):
+                (not snapshot or snapshot['fetched_at'] < today_threshold)):
             return ('day', today)
+        if restore_pending:
+            for day in self._journal_pending_dates.get(code, ()):
+                snapshot = self._snapshots.get(day)
+                if day in days and day not in job['visited'] and (not snapshot or snapshot['fetched_at'] < job['started_at']):
+                    return ('day', day)
         hint = self.filing_hints.get(code)
         fact = record.get('fact')
         if hint and (not fact or fact['fiscal_period']['end'] < hint['fiscal_period']['end']):
@@ -442,7 +610,11 @@ class RegionalEdinetDividends:
         if descriptor:
             fact = record.get('fact')
             attempted = record.get('attempted_doc_id') == descriptor['docID'] and self.clock() - record.get('last_attempt_at', 0) < 3600
-            if ((not fact or fact['doc_id'] != descriptor['docID'] or self.clock() - fact['fetched_at'] >= 7 * 86400)
+            needs_hash = self._needs_fact_hash(fact)
+            if needs_hash and record.get('status') not in {'fetch_error', 'invalid_source', 'rate_limited',
+                                                         'provider_waiting', 'source_missing'}:
+                attempted = False  # Upgrade a successful legacy observation once, within the same budgets.
+            if ((not fact or fact['doc_id'] != descriptor['docID'] or self.clock() - fact['fetched_at'] >= 7 * 86400 or needs_hash)
                     and not attempted):
                 return ('filing', descriptor)
         for day in days:
@@ -562,6 +734,8 @@ class RegionalEdinetDividends:
                         return
                     code = next(iter(self._jobs))
                     job = self._jobs[code]
+                self._restore_selected_fact(code, job)
+                with self._condition:
                     if (self.monotonic() - job['started_mono'] >= self.max_warm_seconds
                             or job['operations'] >= self.max_warm_operations):
                         self._records[code]['status'] = 'warm_budget_exhausted'
