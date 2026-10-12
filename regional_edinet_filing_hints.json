@@ -9,9 +9,42 @@
       "corporate_number": "9080401005540",
       "identity_as_of": "2026-10-11",
       "submitted_date": "2026-06-25",
-      "fiscal_period": {"start": "2025-04-01", "end": "2026-03-31"},
+      "fiscal_period": {
+        "start": "2025-04-01",
+        "end": "2026-03-31"
+      },
       "source_url": "https://www.yamazaki-iron.co.jp/ir/library/pdf/securitiesreport_2026_full.pdf",
       "verified_at": "2026-10-12T16:18:27.431469+09:00"
+    },
+    {
+      "code": "1832",
+      "edinet_code": "E01855",
+      "security_code": "18320",
+      "name": "株式会社北海電工",
+      "corporate_number": "7430001021532",
+      "identity_as_of": "2026-10-11",
+      "submitted_date": "2026-06-24",
+      "fiscal_period": {
+        "start": "2025-04-01",
+        "end": "2026-03-31"
+      },
+      "source_url": "https://www.hokkaidenko.co.jp/uploads/2026/06/%E7%AC%AC86%E6%9C%9F%E6%9C%89%E4%BE%A1%E8%A8%BC%E5%88%B8%E5%A0%B1%E5%91%8A%E6%9B%B8.pdf",
+      "verified_at": "2026-10-12T21:06:06.691217+09:00"
+    },
+    {
+      "code": "2058",
+      "edinet_code": "E00502",
+      "security_code": "20580",
+      "name": "株式会社ヒガシマル",
+      "corporate_number": "1340001000162",
+      "identity_as_of": "2026-10-11",
+      "submitted_date": "2026-06-24",
+      "fiscal_period": {
+        "start": "2025-04-01",
+        "end": "2026-03-31"
+      },
+      "source_url": "https://disclosure2dl.edinet-fsa.go.jp/searchdocument/pdf/S100YI3U.pdf",
+      "verified_at": "2026-10-12T21:06:06.691306+09:00"
     }
   ]
 }

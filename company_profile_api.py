@@ -9,6 +9,7 @@ import unicodedata
 
 from flask import jsonify, request
 from company_business import official_company_overview
+from regional_edinet import safe_edinet_diagnostic
 
 
 EDITORIAL_PATH = Path(__file__).with_name('static') / 'company-profile-editorial.json'
@@ -190,6 +191,7 @@ def annual_dividend_result(raw, company):
     elif state == 'available':
         state = 'unconfirmed'
     return dict(status=state, provider_status=reason, fact=fact, invalidated=invalidated,
+                diagnostic=safe_edinet_diagnostic(raw.get('diagnostic')),
                 error='fetch_error' if reason == 'fetch_error' else None,
                 refreshing=raw.get('refreshing') is True or state == 'loading',
                 coverage=edinet_coverage(raw.get('coverage')),
@@ -235,7 +237,7 @@ def read_editorial(path=EDITORIAL_PATH):
         document = json.loads(Path(path).read_text(encoding='utf-8'))
         clean = {}
         for item in document.get('items', []):
-            if not isinstance(item, dict) or not re.fullmatch(r'[0-9][A-Z0-9]{3}\.T', item.get('symbol', '')):
+            if not isinstance(item, dict) or not re.fullmatch(r'[0-9][A-Z0-9]{3}\.(?:T|JP)', item.get('symbol', '')):
                 continue
             if not all(isinstance(item.get(key), str) and 0 < len(item[key]) <= 400
                        for key in ('business', 'life', 'watch')):
@@ -461,6 +463,7 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                 payload['historical_dividend_refreshing'] = historical['refreshing']
                 payload['historical_dividend_invalidated'] = historical['invalidated']
                 payload['historical_dividend_error'] = historical['error']
+                payload['historical_dividend_diagnostic'] = historical['diagnostic']
                 payload['dividend_fact'] = historical['fact']
                 payload['refreshing'] = payload.get('refreshing') is True or historical['refreshing']
                 if historical['fact']:

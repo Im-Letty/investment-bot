@@ -21,7 +21,7 @@ import time
 
 from regional_edinet import (EdinetAnnualDividends, JST, _date, _descriptor_valid,
                             _issuer_valid, _active, _stamp, _DESCRIPTOR_FIELDS, TAG, load_identity_seed, load_filing_hints, match_identity,
-                            parse_daily_filings, select_annual_filing)
+                            parse_daily_filings, select_annual_filing, safe_edinet_diagnostic)
 from regional_edinet_storage import CHECKPOINT_ERROR_CODES
 
 MAX_CACHE_BYTES = 16_000_000
@@ -124,6 +124,9 @@ class RegionalEdinetDividends:
                    'invalid_source', 'filing_invalidated', 'correction_unconfirmed', 'identity_unconfirmed',
                    'warm_budget_exhausted'} else 'pending',
                   'invalidated': record.get('invalidated') is True}
+        diagnostic = safe_edinet_diagnostic(record.get('diagnostic'))
+        if diagnostic:
+            output['diagnostic'] = diagnostic
         for key in ('last_attempt_at', 'warm_finished_at', 'warm_resume_after', 'updated_at'):
             stamp = record.get(key)
             if type(stamp) in (int, float) and math.isfinite(stamp) and stamp >= 0:
@@ -544,6 +547,7 @@ class RegionalEdinetDividends:
             coverage = self._coverage()
             coverage['selection_status'] = status
             result = {'configured': True, 'status': status, 'refreshing': code in self._jobs,
+                      'diagnostic': safe_edinet_diagnostic(record.get('diagnostic')),
                       'invalidated': invalidated, 'data': {'historical_dividend_per_share': fact['value']} if fact else {},
                       'dividend_fact': deepcopy(fact), 'field_status': {'historical_dividend_per_share': field_status},
                       'coverage': coverage, 'retry_after_seconds': self.provider.retry_after_seconds(),
@@ -654,6 +658,11 @@ class RegionalEdinetDividends:
         with self._condition:
             record = self._records[code]
             status = result.get('status', 'fetch_error')
+            diagnostic = safe_edinet_diagnostic(getattr(self.provider, 'last_diagnostic', None))
+            if diagnostic:
+                record['diagnostic'] = diagnostic
+            elif status in ('indexed', 'available'):
+                record.pop('diagnostic', None)
             if kind == 'day' and status == 'indexed':
                 snapshot = result.get('snapshot')
                 # Validate injected providers / restored payloads through the same parser.
@@ -778,6 +787,7 @@ class RegionalEdinetDividends:
             with self._condition:
                 for code in self._jobs:
                     self._records[code]['status'] = 'fetch_error'
+                    self._records[code]['diagnostic'] = {'phase': 'checkpoint', 'reason': 'checkpoint_unavailable'}
                 self._jobs.clear()
                 self._condition.notify_all()
         finally:

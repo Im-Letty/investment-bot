@@ -626,6 +626,21 @@ def _retry_after(value, now):
     return max(30, delay)
 
 
+DIAGNOSTIC_REASONS = frozenset(('http_error', 'api_status', 'read_deadline', 'content_type',
+    'size_limit', 'network_timeout', 'transport_error', 'invalid_response', 'checkpoint_unavailable'))
+
+
+def safe_edinet_diagnostic(value):
+    if not isinstance(value, dict) or value.get('phase') not in ('daily_index', 'filing', 'checkpoint') or value.get('reason') not in DIAGNOSTIC_REASONS:
+        return None
+    clean = {key: value[key] for key in ('phase', 'reason')}
+    for key in ('http_status', 'api_status'):
+        status = value.get(key)
+        if type(status) is int and 100 <= status <= 599:
+            clean[key] = status
+    return clean
+
+
 class EdinetAnnualDividends:
     """One bounded request at a time; metadata and XBRL share a 60-second gate."""
     def __init__(self, api_key=None, *, identities=(), session_factory=requests.Session,
@@ -644,6 +659,7 @@ class EdinetAnnualDividends:
 
     def _reset_process(self):
         self._pid, self._lock, self._next_request = os.getpid(), threading.Lock(), 0
+        self.last_diagnostic = None
 
     @staticmethod
     def _result(status, fact=None):
@@ -712,6 +728,10 @@ class EdinetAnnualDividends:
         if not self._lock.acquire(blocking=False):
             return dict(status='provider_waiting')
         guard = None
+        self.last_diagnostic = None
+        def failed(reason, status='fetch_error', http_status=None, api_status=None):
+            self.last_diagnostic = safe_edinet_diagnostic(dict(phase='daily_index' if requested_date else 'filing', reason=reason, http_status=http_status, api_status=api_status))
+            return dict(status=status)
         try:
             now = self.clock()
             if self.cooldown_path:
@@ -738,22 +758,22 @@ class EdinetAnnualDividends:
                     if response.status_code != 200:
                         if response.headers.get('Retry-After'):
                             self._reserve(now + _retry_after(response.headers['Retry-After'], now))
-                        return dict(status='fetch_error')
+                        return failed('http_error', http_status=response.status_code)
                     content_type = response.headers.get('Content-Type', '').split(';')[0].strip().lower()
                     expected = ('application/json',) if requested_date else ('application/octet-stream', 'application/zip', 'application/json')
                     if content_type not in expected:
-                        return dict(status='invalid_source')
+                        return failed('content_type', status='invalid_source', http_status=response.status_code)
                     cap = MAX_LIST_BYTES if requested_date else (64_000 if content_type == 'application/json' else MAX_ZIP_BYTES)
                     blocks, size = [], 0
                     while True:
                         if self.monotonic() >= deadline:
-                            return dict(status='fetch_error')
+                            return failed('read_deadline', http_status=response.status_code)
                         block = response.raw.read1(64_000, decode_content=True)
                         if not block:
                             break
                         size += len(block)
                         if size > cap:
-                            return dict(status='invalid_source')
+                            return failed('size_limit', status='invalid_source', http_status=response.status_code)
                         blocks.append(block)
                     payload = b''.join(blocks)
                     if content_type == 'application/json':
@@ -766,13 +786,15 @@ class EdinetAnnualDividends:
                         if not requested_date or str(status) != '200':
                             if response.headers.get('Retry-After'):
                                 self._reserve(now + _retry_after(response.headers['Retry-After'], now))
-                            return dict(status='fetch_error')
+                            return failed('api_status', http_status=response.status_code, api_status=int(status) if str(status).isdigit() else None)
                         return dict(status='downloaded', payload=parsed)
             return dict(status='downloaded', payload=payload)
-        except (requests.RequestException, UpstreamReadError, OSError, TimeoutError,
+        except (requests.Timeout, TimeoutError):
+            return failed('network_timeout')
+        except (requests.RequestException, UpstreamReadError, OSError,
                 ValueError, TypeError, AttributeError):
             # Query credentials can appear in exceptions. Expose only fixed states.
-            return dict(status='fetch_error')
+            return failed('transport_error')
         finally:
             if guard:
                 guard.close()
