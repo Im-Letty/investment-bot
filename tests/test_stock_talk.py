@@ -1,6 +1,6 @@
 import unittest
 from flask import Flask
-from stock_talk import create_stock_talk_blueprint,StockRooms
+from stock_talk import create_stock_talk_blueprint,StockRooms,legacy_symbol_allowed
 from tests.test_community_api import FakeRPC,ALICE
 class Catalogue:
     def company(self,code):
@@ -26,6 +26,9 @@ class StockTests(unittest.TestCase):
             r=app.test_client().get('/api/stock-talk/rooms?q='+code)
             self.assertEqual(r.status_code,200)
             self.assertTrue(any(room['category']=='stock:'+code for room in r.json['rooms']))
+    def test_regional_legacy_read_accepts_valid_symbol_alias_without_inventing_unknown_rooms(self):
+        for symbol in ['1832.T','1832.JP','7203.T','N225']:self.assertTrue(legacy_symbol_allowed(symbol,Catalogue()))
+        for symbol in ['9999.T','1832.BAD','stock:1832']:self.assertFalse(legacy_symbol_allowed(symbol,Catalogue()))
     def test_write_and_management_remain_verified(self):
         self.assertEqual(self.c.post('/api/stock-talk/posts',json={'category':'stock:7203','body':'x'}).status_code,401)
         self.assertEqual(self.c.get('/api/stock-talk/moderation/reports').status_code,403)

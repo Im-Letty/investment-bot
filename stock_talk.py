@@ -3,6 +3,11 @@ import re
 from flask import jsonify,request
 from community_api import create_community_blueprint
 INDEX_ROOMS={'index:N225':'日経平均','index:SP500':'S&P500','index:DJI':'ダウ平均','index:IXIC':'ナスダック'}
+def legacy_symbol_allowed(symbol,catalogue):
+    if not isinstance(symbol,str):return False
+    if 'index:'+symbol in INDEX_ROOMS:return True
+    return bool(re.fullmatch(r'[0-9][0-9A-Z]{3}\.(T|JP)',symbol) and catalogue.company(symbol.rsplit('.',1)[0]))
+
 class StockRooms:
     def __init__(self,catalogue):self.catalogue=catalogue
     def __contains__(self,value):

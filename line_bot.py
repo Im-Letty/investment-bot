@@ -3606,7 +3606,7 @@ ALLOWED_SYMBOLS = {
 def api_stock_comments():
     if request.method == "GET":
         symbol = (request.args.get("symbol") or "").strip()
-        if symbol not in ALLOWED_SYMBOLS and not _stock_search.company(symbol):
+        if not legacy_symbol_allowed(symbol,_stock_search):
             return jsonify({"ok": False, "reason": "bad_symbol"}), 400
         try:
             res = supabase.table("stock_comments").select("id,symbol,name,body,created_at").eq("symbol", symbol).order("id", desc=True).limit(100).execute()
@@ -3629,7 +3629,7 @@ def check_admin(req):
 
 from community_api import register_community_routes
 register_community_routes(app, SUPABASE_URL, SUPABASE_KEY, check_admin=check_admin)
-from stock_talk import create_stock_talk_blueprint
+from stock_talk import create_stock_talk_blueprint, legacy_symbol_allowed
 app.register_blueprint(create_stock_talk_blueprint(SUPABASE_URL,SUPABASE_KEY,_stock_search,check_admin=check_admin))
 
 @app.route("/api/admin/stats", methods=["GET", "POST"])
