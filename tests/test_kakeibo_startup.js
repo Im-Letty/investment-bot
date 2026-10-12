@@ -87,7 +87,7 @@ function syncFixture(initial={},usePrototype=false){
   }
   const ls=usePrototype?new FixtureStorage({lineUserId:'fixture-user',...initial}):storage({lineUserId:'fixture-user',...initial});
   const requests=[],renders=[],timers=new Map(),events=new Map();let reloads=0,seq=0;
-  const context={console,localStorage:ls,document:{readyState:'interactive',addEventListener(){}},
+  const context={console,knLedgerSession:initial.lineUserId===''?null:{user:{id:'fixture-user'},access_token:'fixture-token'},localStorage:ls,document:{readyState:'interactive',addEventListener(){}},
     setTimeout(fn,ms){timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),addEventListener:(name,fn)=>events.set(name,fn),
     fetch(url,init){const req={url,init,resolved:false};requests.push(req);return new Promise(resolve=>{req.resolve=resolve;});},location:{reload(){reloads++;}},
     renderAll:()=>renders.push('summary'),renderCalendar:()=>renders.push('calendar'),renderDayModal:()=>renders.push('modal'),kkRenderCustomCats:()=>renders.push('categories')};
@@ -95,7 +95,7 @@ function syncFixture(initial={},usePrototype=false){
   const start=html.indexOf('/* ==== Kakeibo <-> Supabase sync'),end=html.indexOf('</script>',start);
   vm.runInNewContext(html.slice(start,end),context);
   return {context,ls,requests,renders,timers,events,get reloads(){return reloads;},
-    respond(data,ok=true){const req=requests.find(r=>!r.resolved&&r.url.includes('/load?'));assert.ok(req);req.resolved=true;req.resolve({ok,json:()=>Promise.resolve({data})});return context.kkRefreshRecords();},
+    respond(data,ok=true){const req=requests.find(r=>!r.resolved&&r.url.endsWith('/load'));assert.ok(req);req.resolved=true;req.resolve({ok,json:()=>Promise.resolve({data})});return context.kkRefreshRecords();},
     respondSave(ok=true,jsonOk=ok){const req=requests.find(r=>!r.resolved&&r.url.endsWith('/save'));assert.ok(req);req.resolved=true;req.resolve({ok,json:()=>Promise.resolve({ok:jsonOk})});},
     timer(ms){const found=[...timers].find(([,t])=>t.ms===ms);assert.ok(found);timers.delete(found[0]);return found[1].fn();}};
 }
@@ -112,7 +112,7 @@ test('cloud refresh preserves edits and removals made while its request is in fl
   assert.equal(h.ls.getItem(monthKey),local);assert.equal(h.ls.getItem('kb2_assets'),null);assert.equal(h.ls.getItem('kk_custom_cats'),'["架空分類"]');assert.equal(h.reloads,0);
 });
 test('a cloud response for a previous user is discarded and failed loads retain local records',async()=>{
-  const h=syncFixture({[monthKey]:'[]'});h.ls.setItem('lineUserId','different-fixture-user');await h.respond({[monthKey]:JSON.stringify(records)});
+  const h=syncFixture({[monthKey]:'[]'});h.context.knLedgerSession={user:{id:'different-fixture-user'},access_token:'different-token'};await h.respond({[monthKey]:JSON.stringify(records)});
   assert.equal(h.ls.getItem(monthKey),'[]');assert.equal(h.renders.length,0);
   const bad=syncFixture({[monthKey]:JSON.stringify(records)});await bad.respond({[monthKey]:'[]'},false);
   assert.equal(bad.ls.getItem(monthKey),JSON.stringify(records));assert.equal(bad.renders.length,0);assert.equal(bad.reloads,0);
@@ -143,7 +143,7 @@ test('retained local refresh redraws changes from another ledger window and dela
   h.ls.values.set(monthKey,JSON.stringify(records));const before=h.renders.length;
   const refresh=h.context.kkRefreshRecords();assert.equal(h.renders.length,before+4);await h.respond({[monthKey]:JSON.stringify(records)});await refresh;
   const delayed=syncFixture({lineUserId:''});assert.equal(delayed.requests.length,0);
-  delayed.ls.setItem('lineUserId','later-fixture-user');delayed.events.get('storage')({key:'lineUserId'});
+  delayed.context.knLedgerSession={user:{id:'later-fixture-user'},access_token:'later-token'};delayed.events.get('knLedgerAuth')();
   assert.equal(delayed.requests.length,1);await delayed.respond({[monthKey]:'[]'});
 });
 test('a successful response without ok true does not clear local write protection',async()=>{

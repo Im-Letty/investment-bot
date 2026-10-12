@@ -7,7 +7,9 @@
   <link rel="icon" type="image/png" href="/static/favicon.png">
   <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
   <script id="sw-register">if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("/sw.js",{scope:"/"}).catch(function(){});});}</script>
+  <style>html:not([data-ledger-private-ready="true"]) body > :not(#ledger-session-notice){visibility:hidden}#ledger-session-notice{padding:24px;font:16px sans-serif}</style>
   <title>資産分析・家計簿</title>
+  <script defer src="/static/ledger-session.js?v=20261012-private1"></script>
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261012-load1"></script>
@@ -1328,8 +1330,8 @@ function kkNavGo(tab, el){
 /* ==== Kakeibo <-> Supabase sync (auto-added) ==== */
 (function(){
   var KK_RE=/^(kb2|kbday_|kk_custom_cats|pg_kakeibo_day)/;
-  function kkUid(){ try{ if(typeof getUid==="function"){var u=getUid(); if(u) return u;} }catch(e){}
-    return localStorage.getItem("lineUserId")||localStorage.getItem("line_user_id")||localStorage.getItem("userId")||localStorage.getItem("kk_user_id")||""; }
+  function kkUid(){var s=window.knLedgerSession;return s&&s.user&&s.user.id||'';}
+  function kkHeaders(){var s=window.knLedgerSession;return {'Content-Type':'application/json','Authorization':'Bearer '+(s&&s.access_token||'')};}
   function kkSnapshot(){ var o={}; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(KK_RE.test(k)) o[k]=localStorage.getItem(k); } return o; }
   var _t=null,pushInFlight=null,pullInFlight=null,queuedPush=false;
   var dirtyVersions=Object.create(null),lastEdits=Object.create(null),editVersion=0,dirtyOwner=null;
@@ -1350,7 +1352,7 @@ function kkNavGo(tab, el){
     var uid=kkUid();if(!uid||(dirtyOwner&&dirtyOwner!==uid))return Promise.resolve(false);
     if(pushInFlight){queuedPush=true;return pushInFlight;}
     var snap=kkSnapshot(),versions=Object.assign({},dirtyVersions);
-    pushInFlight=fetch("/api/kakeibo/save",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({uid:uid,data:snap})}).then(function(r){
+    pushInFlight=fetch("/api/kakeibo/save",{method:"POST",headers:kkHeaders(),body:JSON.stringify({data:snap})}).then(function(r){
       if(!r.ok)throw new Error('ledger_save_failed');return r.json();
     }).then(function(j){
       if(!j||j.ok!==true||kkUid()!==uid)return false;
@@ -1381,10 +1383,12 @@ function kkNavGo(tab, el){
     var uid=kkUid();if(!uid)return Promise.resolve(false);
     if(pullInFlight)return pullInFlight;
     var before=kkSnapshot(),dirtyBefore=Object.assign({},dirtyVersions),startedVersion=editVersion;
-    pullInFlight=fetch("/api/kakeibo/load?uid="+encodeURIComponent(uid)).then(function(r){
+    pullInFlight=fetch("/api/kakeibo/load",{headers:kkHeaders()}).then(function(r){
       if(!r.ok)throw new Error('ledger_load_failed');return r.json();
     }).then(function(j){
-      if(kkUid()!==uid||!j||!j.data)return false;
+      if(kkUid()!==uid||!j)return false;
+      if(j.data===null){Object.keys(kkSnapshot()).forEach(function(k){if(!dirtyVersions[k])kkMarkChanged(k);});return false;}
+      if(!j.data)return false;
       var remote=j.data,changed=false;
       Object.keys(remote).forEach(function(k){
         if(!KK_RE.test(k)||typeof remote[k]!=='string')return;
@@ -1409,9 +1413,7 @@ function kkNavGo(tab, el){
     }
     if(identityChecks++<25)identityTimer=setTimeout(kkWaitForIdentity,1200);
   }
-  window.addEventListener('storage',function(event){
-    if(!event.key||/^(lineUserId|line_user_id|userId|kk_user_id)$/.test(event.key))kkWaitForIdentity();
-  });
+  window.addEventListener('knLedgerAuth',kkWaitForIdentity);
   if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",kkWaitForIdentity,{once:true});
   else kkWaitForIdentity();
 })();
