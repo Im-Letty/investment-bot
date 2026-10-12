@@ -4292,6 +4292,414 @@
       ],
       "reviewed_on": "2026-10-13",
       "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。"
+    },
+    {
+      "symbol": "2323.T",
+      "name": "ｆｏｎｆｕｎ",
+      "business": "企業向けの業務システムを開発する会社です。工程や予約の管理などを仕組みにし、SMSによる一斉連絡や、メール・電話をクラウドで使うサービスも提供します。",
+      "life": "施設の予約管理や、企業からのSMS連絡などの仕組みと接点があります。社員のシフトや作業工程を管理するシステムにも関わります。",
+      "watch": "企業ごとのシステム開発と、複数の企業へ提供する通信・業務ツールを分けて見ます。公式資料で、開発実績やSMS・メール・電話サービスの機能を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "DXソリューション（事業説明は当サイト作成）",
+          "url": "https://www.fonfun.co.jp/business/dxsolution/",
+          "fetched_at": 1791837483.290402
+        },
+        {
+          "title": "クラウドソリューション",
+          "url": "https://www.fonfun.co.jp/business/cloudsolution/",
+          "fetched_at": 1791837485.841928
+        },
+        {
+          "title": "よくある質問",
+          "url": "https://www.fonfun.co.jp/ir/faq/",
+          "fetched_at": 1791837480.692464
+        }
+      ]
+    },
+    {
+      "symbol": "2502.T",
+      "name": "アサヒグループホールディングス",
+      "business": "ビールや飲料、食品の事業会社をまとめ、グループの方針と経営を管理する会社です。グループは「アサヒスーパードライ」や「カルピス」などのブランドを展開し、日本や欧州、アジアパシフィックで事業を営みます。",
+      "life": "飲食店や家庭で飲むビール、日常の飲料や食品を通じて接点があります。商品を扱うのはグループの事業会社で、持株会社はその経営を管理します。",
+      "watch": "酒類、飲料、食品の仕事と、地域ごとのブランド展開を分けて確認します。持株会社の役割と各事業会社の商品を区別し、公式の事業紹介で主なブランドを見られます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "企業概要（事業説明は当サイト作成）",
+          "url": "https://www.asahigroup-holdings.com/company/profile/",
+          "fetched_at": 1791837487.451729
+        },
+        {
+          "title": "事業概要",
+          "url": "https://www.asahigroup-holdings.com/business/",
+          "fetched_at": 1791837489.016829
+        }
+      ]
+    },
+    {
+      "symbol": "2776.T",
+      "name": "新都ホールディングス",
+      "business": "グループで、使い終わった金属やプラスチックを集め、再利用できる素材へ加工する会社です。再生樹脂を電気機器や自動車部品のメーカーへ販売し、廃棄物の処理や不動産関連の仕事も行います。",
+      "life": "製品や設備から出る金属・プラスチックを回収し、素材として再び使う流れに関わります。再生した樹脂は、電気機器や車の部品をつくる企業などへ届けられます。",
+      "watch": "金属の回収・加工と、プラスチックの再生・販売を分けて確認します。公式の事業紹介では、取り扱う資源や再生素材の販売先、各子会社の担当業務を見られます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "会社概要（事業説明は当サイト作成）",
+          "url": "https://www.shintohd.co.jp/company/company-overview/",
+          "fetched_at": 1791837490.727355
+        },
+        {
+          "title": "金属リサイクル事業",
+          "url": "https://www.shintohd.co.jp/business_category/%E9%87%91%E5%B1%9E%E3%83%AA%E3%82%B5%E3%82%A4%E3%82%AF%E3%83%AB%E4%BA%8B%E6%A5%AD/",
+          "fetched_at": 1791837492.407181
+        },
+        {
+          "title": "プラスチック樹脂販売事業",
+          "url": "https://www.shintohd.co.jp/business/%E3%83%97%E3%83%A9%E3%82%B9%E3%83%81%E3%83%83%E3%82%AF%E6%A8%B9%E8%84%82%E8%B2%A9%E5%A3%B2%E4%BA%8B%E6%A5%AD/",
+          "fetched_at": 1791837494.10473
+        }
+      ]
+    },
+    {
+      "symbol": "3498.T",
+      "name": "霞ヶ関キャピタル",
+      "business": "ホテルや物流倉庫、医療・介護を受ける住宅などの不動産を企画し、開発を進める会社です。土地の取得から開発工程の管理、完成後の資産運用の支援まで関わり、グループで施設の運営も手がけます。",
+      "life": "旅先の宿泊施設や、食品を低温で保管する倉庫、療養のための住まいを整える仕事と接点があります。ホテル「fav」や冷凍倉庫「LOGI FLAG COLD」などを展開します。",
+      "watch": "不動産の企画・開発管理と、施設の運営や運用の役割を分けて確認します。物流倉庫の温度帯やホテルの客室用途など、公式資料にある施設の機能や使う人を見られます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "事業内容（事業説明は当サイト作成）",
+          "url": "https://kasumigaseki.co.jp/business/",
+          "fetched_at": 1791837628.689856
+        },
+        {
+          "title": "会社概要",
+          "url": "https://kasumigaseki.co.jp/company/outline/",
+          "fetched_at": 1791837627.106458
+        },
+        {
+          "title": "株主総会・株式情報",
+          "url": "https://kasumigaseki.co.jp/ir/stock/",
+          "fetched_at": 1791837625.520446
+        },
+        {
+          "title": "物流事業",
+          "url": "https://kasumigaseki.co.jp/business/assets/logistics/",
+          "fetched_at": 1791837630.26946
+        },
+        {
+          "title": "ホテル事業",
+          "url": "https://kasumigaseki.co.jp/business/assets/hotel/",
+          "fetched_at": 1791837631.856418
+        },
+        {
+          "title": "ヘルスケア事業",
+          "url": "https://kasumigaseki.co.jp/business/assets/healthcare/",
+          "fetched_at": 1791837633.42716
+        }
+      ]
+    },
+    {
+      "symbol": "4689.T",
+      "name": "ＬＩＮＥヤフー",
+      "business": "「LINE」のメッセージ・通話や、「Yahoo! JAPAN」の検索・ニュースなどを提供する会社です。ネット通販やオークション、企業向け広告も扱い、日常の連絡、情報収集、買い物に関わるサービスを運営します。",
+      "life": "家族や友人との連絡、天気やニュースの確認、ネットでの買い物などを通じて接点があります。検索や売り手への集客など、利用者と企業をつなぐ仕組みにも関わります。",
+      "watch": "連絡や情報収集のサービスと、通販・広告の仕事を分けて確認します。公式の一覧で現在提供中のサービスを見ながら、会社自身のサービスとグループ会社の事業を区別できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "サービス（事業説明は当サイト作成）",
+          "url": "https://www.lycorp.co.jp/ja/service/",
+          "fetched_at": 1791837638.194977
+        },
+        {
+          "title": "企業情報",
+          "url": "https://www.lycorp.co.jp/ja/company/",
+          "fetched_at": 1791837636.596824
+        },
+        {
+          "title": "よくあるご質問",
+          "url": "https://www.lycorp.co.jp/ja/ir/faq.html",
+          "fetched_at": 1791837635.027961
+        }
+      ]
+    },
+    {
+      "symbol": "4777.T",
+      "name": "ガーラ",
+      "business": "グループでオンラインゲームやスマートフォン向けアプリを開発し、運営を支える会社です。ブラウザーで遊ぶ「Flyff Universe」などを提供し、映像の特殊効果や3Dアニメーションの制作にも取り組んでいます。",
+      "life": "パソコンやスマートフォンで遊ぶゲーム、歩行やクイズを使うアプリと接点があります。映像では、撮影だけでつくれない場面やキャラクターを表現する制作の仕事に関わります。",
+      "watch": "ゲーム・アプリの開発や提供と、映像制作の仕事を分けて見ます。公式の商品一覧で、ブラウザー向けやスマートフォン向けの違い、提供タイトルや制作内容を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "会社概要（事業説明は当サイト作成）",
+          "url": "https://www.gala.biz/about-us/corporate-profile",
+          "fetched_at": 1791837641.338854
+        },
+        {
+          "title": "株式基本情報",
+          "url": "https://www.gala.biz/investor-relations/general-stock-information",
+          "fetched_at": 1791837639.775329
+        },
+        {
+          "title": "ゲーム & アプリ",
+          "url": "https://www.gala.biz/our-business/games-apps",
+          "fetched_at": 1791837642.902358
+        },
+        {
+          "title": "VFX",
+          "url": "https://www.gala.biz/our-business/vfx",
+          "fetched_at": 1791837644.464227
+        }
+      ]
+    },
+    {
+      "symbol": "5388.T",
+      "name": "クニミネ工業",
+      "business": "粘土資源のベントナイトを掘り出し、用途に合わせて加工・販売する会社です。金属部品の鋳型づくりや土木工事、ペットのトイレ砂に使う素材を供給し、精製粘土や環境向け処理剤も製造します。",
+      "life": "自動車部品をつくる鋳物の工程、建設現場の工事、ペットのトイレ用品などに素材を届けています。塗料・インキや化粧品に使う機能性粘土も、身近な製品との接点です。",
+      "watch": "資源の採掘・加工と、用途ごとの粘土製品の仕事を分けて確認します。公式の製品紹介で、鋳物や土木、ペット向けの役割、精製された粘土の使い道を見られます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "事業概要（事業説明は当サイト作成）",
+          "url": "https://www.kunimine.co.jp/company/business.html",
+          "fetched_at": 1791837651.695116
+        },
+        {
+          "title": "会社概要・沿革",
+          "url": "https://www.kunimine.co.jp/company/info.html",
+          "fetched_at": 1791837649.351353
+        },
+        {
+          "title": "よくあるご質問",
+          "url": "https://www.kunimine.co.jp/ir/shitsumon.html",
+          "fetched_at": 1791837646.847778
+        },
+        {
+          "title": "製品情報",
+          "url": "https://www.kunimine.co.jp/products/",
+          "fetched_at": 1791837654.673142
+        }
+      ]
+    },
+    {
+      "symbol": "244A.T",
+      "name": "グロースエクスパートナーズ",
+      "business": "大手企業が仕事の仕組みをデジタル化する際に、計画づくりからシステムの開発・運用まで支援するグループです。担当者の教育やソフトの導入を助け、顧客と新しいサービスを共同開発する仕事も行います。",
+      "life": "企業の社内業務や顧客向けサービスを、使いやすいシステムへ変える仕事に関わります。新しい仕組みを運営する組織や人材の育成も支援します。",
+      "watch": "顧客ごとのシステム開発、教育やソフト導入、共同サービス開発の違いを分けて見ます。公式の事業紹介で、各支援の範囲と具体的な取り組みを確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "Our Business - 私たちの事業 | グロースエクスパートナーズ株式会社（事業説明は当サイト作成）",
+          "url": "https://www.gxp-group.co.jp/our-business",
+          "fetched_at": 1791837503.7093482
+        },
+        {
+          "title": "Stock Information - 株式基本情報 | グロースエクスパートナーズ株式会社",
+          "url": "https://www.gxp-group.co.jp/ir/stock-information",
+          "fetched_at": 1791837505.7704058
+        }
+      ]
+    },
+    {
+      "symbol": "2503.T",
+      "name": "キリンホールディングス",
+      "business": "キリングループの方針を定め、事業会社の経営を管理する持株会社です。傘下にはキリンビール、キリンビバレッジ、協和キリンなどがあり、酒類、飲料、健康に関わる商品や医薬の事業を展開しています。",
+      "life": "家庭や飲食店で飲むビール、日常の飲料などがグループの商品です。医薬の仕事も傘下の会社が担い、持株会社はグループ全体の経営をまとめます。",
+      "watch": "商品をつくる事業会社と、それを統括する持株会社の役割を区別して見ます。公式の会社一覧や事業紹介で、酒類・飲料・医薬などの現在の担当会社を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "会社概要（事業説明は当サイト作成）",
+          "url": "https://www.kirinholdings.com/jp/company/overview/",
+          "fetched_at": 1791837507.488754
+        },
+        {
+          "title": "経営戦略",
+          "url": "https://www.kirinholdings.com/jp/company/strategy/",
+          "fetched_at": 1791837509.143615
+        },
+        {
+          "title": "グループ会社一覧",
+          "url": "https://www.kirinholdings.com/jp/company/group/",
+          "fetched_at": 1791837510.791668
+        },
+        {
+          "title": "よくあるご質問",
+          "url": "https://www.kirinholdings.com/jp/investors/other/faq/",
+          "fetched_at": 1791837514.392962
+        },
+        {
+          "title": "Four Roses社の持分譲渡完了について",
+          "url": "https://www.kirinholdings.com/jp/newsroom/release/2026/0402_01.pdf",
+          "fetched_at": 1791837594.085338,
+          "source_published_on": "2026-04-02"
+        }
+      ]
+    },
+    {
+      "symbol": "3168.T",
+      "name": "ＭＥＲＦ",
+      "business": "回収された銅などの金属を選り分けて加工し、素材として再び販売する会社です。再生原料を溶かして銅合金の塊も製造し、造船や住宅設備のメーカーなどへ供給します。金属の美術工芸品も扱います。",
+      "life": "船のプロペラや水道の金具に使う材料を供給します。使い終えた金属を次の製品の原料につなぐ仕事で、電線や金属素材をつくる企業にも関わります。",
+      "watch": "再生原料の加工・販売と、銅合金を製造する仕事を分けて見ます。公式の事業紹介で、取り扱う金属や、素材が使われる先を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "事業の内容 | 株主・投資家情報 | 株式会社MERF（事業説明は当サイト作成）",
+          "url": "https://www.merf.co.jp/ir/business.html",
+          "fetched_at": 1791837516.106584
+        },
+        {
+          "title": "株式情報 | 株主・投資家情報 | 株式会社MERF",
+          "url": "https://merf.co.jp/ir/stock.html",
+          "fetched_at": 1791837517.7952151
+        },
+        {
+          "title": "最新情報詳細 | 株式会社MERF",
+          "url": "https://www.merf.co.jp/news/20250101.html",
+          "fetched_at": 1791837519.441865,
+          "source_published_on": "2025-01-01"
+        }
+      ]
+    },
+    {
+      "symbol": "3826.T",
+      "name": "システムインテグレータ",
+      "business": "企業が使うソフトやクラウドのサービスを開発・販売する会社です。基幹業務、生産の管理、システム開発、案件の進み具合を管理するツールを扱い、AIを使う仕組みの導入や相談にも対応します。",
+      "life": "企業が生産やプロジェクトを管理したり、業務システムを設計・開発したりする際に使う道具を提供します。社内の仕事を支えるソフトを通じて接点があります。",
+      "watch": "ソフトの販売と、導入時の支援や相談の仕事を分けて見ます。公式の製品紹介で、生産管理、開発支援、案件管理などの用途を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "株式会社システムインテグレータ | 会社概要（事業説明は当サイト作成）",
+          "url": "https://corporate.sint.co.jp/company/profile",
+          "fetched_at": 1791837521.178016
+        },
+        {
+          "title": "株式会社システムインテグレータ | 株式基本情報",
+          "url": "https://corporate.sint.co.jp/ir/stock/basic",
+          "fetched_at": 1791837522.848139
+        }
+      ]
+    },
+    {
+      "symbol": "4751.T",
+      "name": "サイバーエージェント",
+      "business": "企業のネット広告を運用し、広告に使う画像や動画の制作などを支援する会社です。グループでは動画配信「ABEMA」、スマートフォンのゲーム、アニメや映像作品の企画・制作も手がけます。",
+      "life": "ネット上で見る広告、ABEMAの番組、スマートフォンのゲームなどを通じて接点があります。グループ各社がつくるアニメや映画・ドラマにも関わります。",
+      "watch": "広告主を支援する仕事と、視聴者やゲーム利用者に届けるサービスを分けて見ます。公式のサービス一覧で、各作品やゲームの提供会社も確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "インターネット広告 | 株式会社サイバーエージェント（事業説明は当サイト作成）",
+          "url": "https://www.cyberagent.co.jp/service/internetad/",
+          "fetched_at": 1791837528.120095
+        },
+        {
+          "title": "メディア&IP | 株式会社サイバーエージェント",
+          "url": "https://www.cyberagent.co.jp/service/media/",
+          "fetched_at": 1791837526.432066
+        },
+        {
+          "title": "ゲーム | 株式会社サイバーエージェント",
+          "url": "https://www.cyberagent.co.jp/service/game/",
+          "fetched_at": 1791837529.813486
+        },
+        {
+          "title": "株式基本情報 | 株式会社サイバーエージェント",
+          "url": "https://www.cyberagent.co.jp/ir/stock/stock_info/",
+          "fetched_at": 1791837524.7341938
+        }
+      ]
+    },
+    {
+      "symbol": "5290.T",
+      "name": "ベルテクスコーポレーション",
+      "business": "グループで、道路や下水道向けのコンクリート製品、コンクリート杭、防災用の製品などを製造・販売します。資材を納めるほか、杭を打つ工事や製品を据え付ける工事にも対応します。",
+      "life": "道路や下水道の整備、斜面の防災対策などに使う資材と関わります。製品をつくる仕事に加え、現場で設置する工事もグループが担います。",
+      "watch": "コンクリート製品、杭、防災製品の用途と担当会社を分けて見ます。公式の事業紹介で、各事業を担うグループ会社と設置工事の内容を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "IRよくあるご質問 | 株主・投資家情報 | 株式会社ベルテクスコーポレーション（事業説明は当サイト作成）",
+          "url": "https://www.vertex-grp.co.jp/ja/ir/faq.html",
+          "fetched_at": 1791837587.362714
+        },
+        {
+          "title": "事業内容 | 株式会社ベルテクスコーポレーション",
+          "url": "https://www.vertex-grp.co.jp/ja/business.html",
+          "fetched_at": 1791837531.5396821
+        },
+        {
+          "title": "会社概要 | 会社情報 | 株式会社ベルテクスコーポレーション",
+          "url": "https://www.vertex-grp.co.jp/ja/company/outline.html",
+          "fetched_at": 1791837533.204261
+        },
+        {
+          "title": "株式基本情報 | 株式情報 | 株主・投資家情報 | 株式会社ベルテクスコーポレーション",
+          "url": "https://www.vertex-grp.co.jp/ja/ir/stock/basic.html",
+          "fetched_at": 1791837589.038497
+        }
+      ]
+    },
+    {
+      "symbol": "544A.T",
+      "name": "ＧＭＳグループ",
+      "business": "日精樹脂工業とTOYOイノベックスの経営を管理する持株会社です。グループでは樹脂の射出成形機やダイカストマシン、周辺の装置を製造・販売し、成形作業に使う設備を提供します。",
+      "life": "工場で樹脂や金属を成形する設備を通じて、ものづくりの現場に関わります。持株会社は子会社の経営を管理し、機械の製造・販売はグループ会社が担当します。",
+      "watch": "持株会社の経営管理と、子会社の機械製造の仕事を分けて見ます。公式の商品一覧で、射出成形機やダイカストマシンの機種と担当会社を確認できます。",
+      "reviewed_on": "2026-10-13",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "GMSグループ株式会社の設立に関するお知らせ（事業説明は当サイト作成）",
+          "url": "https://www.globalmolding-solutions.com/ir/library/pdf/%EF%BC%A7%EF%BC%AD%EF%BC%B3%E3%82%B0%E3%83%AB%E3%83%BC%E3%83%97%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BE%E3%81%AE%E8%A8%AD%E7%AB%8B%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B.pdf",
+          "fetched_at": 1791837541.227226,
+          "source_published_on": "2026-04-01"
+        },
+        {
+          "title": "ソリューション｜GMSグループ",
+          "url": "https://www.globalmolding-solutions.com/solution/",
+          "fetched_at": 1791837590.7174652
+        },
+        {
+          "title": "企業情報｜GMSグループ",
+          "url": "https://www.globalmolding-solutions.com/about/",
+          "fetched_at": 1791837537.88398
+        },
+        {
+          "title": "株式の状況｜株主・投資家情報｜GMSグループ",
+          "url": "https://www.globalmolding-solutions.com/ir/situation/",
+          "fetched_at": 1791837539.525279
+        },
+        {
+          "title": "GMSグループ株式会社設立のご挨拶｜お知らせ｜GMSグループ",
+          "url": "https://www.globalmolding-solutions.com/topics/14.html",
+          "fetched_at": 1791837592.3550131,
+          "source_published_on": "2026-04-01"
+        }
+      ]
     }
   ]
 }

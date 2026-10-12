@@ -36162,6 +36162,2907 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791834793.873294,
       "pdf_sha256": "a94c04ae123782b53aecf4436694672adb2e55d5606d649d2642891dcdfa85da"
+    },
+    {
+      "symbol": "5832.T",
+      "identity": {
+        "symbol": "5832.T",
+        "code": "5832",
+        "name": "ちゅうぎんフィナンシャルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "中国銀行を核に金融各社を束ねる持株会社。グループは預金・融資や送金に加え、企業向けリース、証券取引、資産運用、人材紹介、地域の脱炭素支援を手掛ける。中国銀行では信託や企業のM&A仲介にも対応する。",
+      "proof": {
+        "code": "5832",
+        "exchange": "Tokyo",
+        "corporate_number": "1260001037279",
+        "edinet_code": "E37785",
+        "source_company_name": "株式会社ちゅうぎんフィナンシャルグループ",
+        "filing_company_name": "株式会社ちゅうぎんフィナンシャルグループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YB0D",
+        "current_edinet_code": "E37785",
+        "current_corporate_number": "1260001037279"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YB0D",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837417.786915,
+      "pdf_sha256": "5a595df48e397a9af0b83672ca3a49cf9ebff45b6102fd1397b59aaedac20794"
+    },
+    {
+      "symbol": "5932.T",
+      "identity": {
+        "symbol": "5932.T",
+        "code": "5932",
+        "name": "三協立山",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ビル・住宅向けの建材と外構製品をつくる企業グループ。アルミやマグネシウムを鋳造し、押し出し・加工した素材も供給する。店舗の陳列設備や看板の製作、設備保守を担い、海外拠点でもアルミ加工事業を展開する。",
+      "proof": {
+        "code": "5932",
+        "exchange": "Tokyo",
+        "corporate_number": "2230001010080",
+        "edinet_code": "E26831",
+        "source_company_name": "三協立山株式会社",
+        "filing_company_name": "三協立山株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YYN7",
+        "current_edinet_code": "E26831",
+        "current_corporate_number": "2230001010080"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YYN7",
+      "filed_on": "2026-08-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837423.7951858,
+      "pdf_sha256": "6323e046151f0ac0f0f31b567056cdb6ee59c5e1af19986590a769ea790de779"
+    },
+    {
+      "symbol": "6031.T",
+      "identity": {
+        "symbol": "6031.T",
+        "code": "6031",
+        "name": "ZETA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "通販サイトを運営する企業に、商品を探す機能やレビュー、おすすめ商品表示などのシステムを提供する。「ZETA SEARCH」などの商品群で購買体験を支え、検索データを使う広告にも対応。店舗情報の管理・発信を支援するサービスも運営する。",
+      "proof": {
+        "code": "6031",
+        "exchange": "Tokyo",
+        "corporate_number": "3010701018824",
+        "edinet_code": "E31089",
+        "source_company_name": "ＺＥＴＡ株式会社",
+        "filing_company_name": "ZETA株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XVUK",
+        "current_edinet_code": "E31089",
+        "current_corporate_number": "3010701018824"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XVUK",
+      "filed_on": "2026-03-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837429.70827,
+      "pdf_sha256": "7d65d34a1a79e1ec8b0c6aa65aaaf898854f1015ebf6f883a270bfde1e41a3c7"
+    },
+    {
+      "symbol": "6238.T",
+      "identity": {
+        "symbol": "6238.T",
+        "code": "6238",
+        "name": "フリュー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "プリントシール機を企画し、娯楽施設への販売・レンタルや直営店を展開する。撮影画像をスマホで受け取る「ピクトリンク」も運営。キャラクターのぬいぐるみ・フィギュア・くじを商品化し、グループで家庭用ゲーム、アニメ制作、衣料通販も手掛ける。",
+      "proof": {
+        "code": "6238",
+        "exchange": "Tokyo",
+        "corporate_number": "3011001049510",
+        "edinet_code": "E11661",
+        "source_company_name": "フリュー株式会社",
+        "filing_company_name": "フリュー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFJB",
+        "current_edinet_code": "E11661",
+        "current_corporate_number": "3011001049510"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFJB",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837437.275648,
+      "pdf_sha256": "3a4025f6dd96be08465ffcb5a4d11134ea80bda1912b041e7d3d353415415e43"
+    },
+    {
+      "symbol": "6366.T",
+      "identity": {
+        "symbol": "6366.T",
+        "code": "6366",
+        "name": "千代田化工建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "化学工場などの産業設備を受注し、設計から機器の手配、現地工事、試運転、保守まで担う。国内外のグループ拠点が工事や設計を分担し、エネルギー・環境設備や医薬品施設などにも対応する。子会社では技術コンサルティングや人材派遣も行う。",
+      "proof": {
+        "code": "6366",
+        "exchange": "Tokyo",
+        "corporate_number": "3020001018029",
+        "edinet_code": "E01569",
+        "source_company_name": "千代田化工建設株式会社",
+        "filing_company_name": "千代田化工建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEDH",
+        "current_edinet_code": "E01569",
+        "current_corporate_number": "3020001018029"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEDH",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837443.8774211,
+      "pdf_sha256": "0c22b5053b03c7f2d8f5e6a62c5086577073627c901fce76ae58fe989852ed8e"
+    },
+    {
+      "symbol": "6545.T",
+      "identity": {
+        "symbol": "6545.T",
+        "code": "6545",
+        "name": "インターネットインフィニティー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "高齢者の運動を支えるデイサービス「レコードブック」を直営と加盟店方式で展開する。介護専門職向けサイトや介護保険請求ソフト、企業の従業員向け介護相談も提供。グループで訪問介護、介護計画の作成、福祉用具の貸与・販売や住宅改修を担う。",
+      "proof": {
+        "code": "6545",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001088949",
+        "edinet_code": "E33005",
+        "source_company_name": "株式会社インターネットインフィニティー",
+        "filing_company_name": "株式会社インターネットインフィニティー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLGZ",
+        "current_edinet_code": "E33005",
+        "current_corporate_number": "2010001088949"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLGZ",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837449.2792478,
+      "pdf_sha256": "e612badfd935c3498b30d68a1701877cdebd310f69a5dae98c14b5515a8ce27a"
+    },
+    {
+      "symbol": "6572.T",
+      "identity": {
+        "symbol": "6572.T",
+        "code": "6572",
+        "name": "オープングループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業のパソコン作業を自動化する事業などを束ねる持株会社。「BizRobo!」「AUTORO」や、採用・給与計算・取引先確認を支える「RoboRobo」をグループで提供する。成果報酬型の広告「PRESCO」、営業の受託、短時間の仕事を結ぶサービスも展開する。",
+      "proof": {
+        "code": "6572",
+        "exchange": "Tokyo",
+        "corporate_number": "1010401098870",
+        "edinet_code": "E33881",
+        "source_company_name": "オープングループ株式会社",
+        "filing_company_name": "オープングループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y69Y",
+        "current_edinet_code": "E33881",
+        "current_corporate_number": "1010401098870"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y69Y",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837455.300904,
+      "pdf_sha256": "8fb5df3de2f07d99343082b83016fda64b7ffabd34005ee5a2ccd3f4b3b2793c"
+    },
+    {
+      "symbol": "6752.T",
+      "identity": {
+        "symbol": "6752.T",
+        "code": "6752",
+        "name": "パナソニックホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "事業会社を束ね、家庭の冷蔵庫・洗濯機から空調設備、照明、電池、電子部品まで幅広く扱う。グループ各社が開発・製造・販売を担い、航空機内の娯楽・通信システムや、工場の電子部品実装装置、企業の供給網を管理するソフトも提供する。",
+      "proof": {
+        "code": "6752",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001158218",
+        "edinet_code": "E01772",
+        "source_company_name": "パナソニックホールディングス株式会社",
+        "filing_company_name": "パナソニックホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YETA",
+        "current_edinet_code": "E01772",
+        "current_corporate_number": "5120001158218"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YETA",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837461.426108,
+      "pdf_sha256": "65622bfea8a0ce4431a509c2988330dff80dcde88de9dbf336405bc24e9cac1d"
+    },
+    {
+      "symbol": "6777.T",
+      "identity": {
+        "symbol": "6777.T",
+        "code": "6777",
+        "name": "santecHoldings",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "光通信の装置に使う部品と、光を測る機器を手掛けるグループの持株会社。子会社が光スイッチ、光の強さを調整する部品、波長を変えられる光源などを開発・製造する。通信部品の検査用機器に加え、目の内部を撮影・計測する医療用機器も販売する。",
+      "proof": {
+        "code": "6777",
+        "exchange": "Tokyo",
+        "corporate_number": "9180001075866",
+        "edinet_code": "E01870",
+        "source_company_name": "ｓａｎｔｅｃ　Ｈｏｌｄｉｎｇｓ株式会社",
+        "filing_company_name": "santecHoldings株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YH8U",
+        "current_edinet_code": "E01870",
+        "current_corporate_number": "9180001075866"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YH8U",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837467.3720589,
+      "pdf_sha256": "b2f76b054a37404f614e15c042d075fe5183275f5c8e8d86f3e22502d500bc9c"
+    },
+    {
+      "symbol": "7060.T",
+      "identity": {
+        "symbol": "7060.T",
+        "code": "7060",
+        "name": "ギークス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ITフリーランスと開発案件を結び、「GEECHS JOB」で仕事の獲得を支援する。海外では豪州のIT人材派遣・紹介を展開。グループのSeed Tech事業では、フィリピンの人材による開発受託やデジタル留学、企業向けのIT人材育成サービスも提供する。",
+      "proof": {
+        "code": "7060",
+        "exchange": "Tokyo",
+        "corporate_number": "2011001061870",
+        "edinet_code": "E34720",
+        "source_company_name": "ギークス株式会社",
+        "filing_company_name": "ギークス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJZ1",
+        "current_edinet_code": "E34720",
+        "current_corporate_number": "2011001061870"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJZ1",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837473.3836238,
+      "pdf_sha256": "6693ad0f7dbb2db5615afe82e96b7c4d60a49735c01057531aa3bdffa2c4f7da"
+    },
+    {
+      "symbol": "7150.T",
+      "identity": {
+        "symbol": "7150.T",
+        "code": "7150",
+        "name": "島根銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金の受け入れ、企業・個人への融資、国内送金などを行う銀行。子会社の松江リースが事業者向けリースを担い、しまぎん地域事業投資では企業への投資を行う。関連会社を通じたカードサービスや、まちづくりへの投資も展開する。",
+      "proof": {
+        "code": "7150",
+        "exchange": "Tokyo",
+        "corporate_number": "8280001000328",
+        "edinet_code": "E03679",
+        "source_company_name": "株式会社島根銀行",
+        "filing_company_name": "株式会社島根銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHPP",
+        "current_edinet_code": "E03679",
+        "current_corporate_number": "8280001000328"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHPP",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837480.953242,
+      "pdf_sha256": "c31821d298e3838964128c423da52565e006cf4b06249de2963c68748a7d7692"
+    },
+    {
+      "symbol": "7175.T",
+      "identity": {
+        "symbol": "7175.T",
+        "code": "7175",
+        "name": "今村証券",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "投資家の証券売買を仲介し、株式や債券などの取引、デリバティブ取引に対応する。証券の発行・募集に関わる引受けや販売も行い、資産運用と資金調達の両方を支える。投資一任契約の仲介や保険販売も手掛ける。",
+      "proof": {
+        "code": "7175",
+        "exchange": "Tokyo",
+        "corporate_number": "9220001001223",
+        "edinet_code": "E30982",
+        "source_company_name": "今村証券株式会社",
+        "filing_company_name": "今村証券株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCMX",
+        "current_edinet_code": "E30982",
+        "current_corporate_number": "9220001001223"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCMX",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837487.191998,
+      "pdf_sha256": "280a49c1b3092e9ad0cd092a62f721f26e829c5a960b280d6eaf4c2bfb45f17a"
+    },
+    {
+      "symbol": "7184.T",
+      "identity": {
+        "symbol": "7184.T",
+        "code": "7184",
+        "name": "富山第一銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資と国内外への送金を取り扱う銀行。富山ファースト・リースが設備などのリースを担い、グループでカード・信用保証や貸付サービスも提供する。ファーストバンク・キャピタルパートナーズでは投資ファンドの運営・管理を行う。",
+      "proof": {
+        "code": "7184",
+        "exchange": "Tokyo",
+        "corporate_number": "8230001002106",
+        "edinet_code": "E03646",
+        "source_company_name": "株式会社富山第一銀行",
+        "filing_company_name": "株式会社富山第一銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCB2",
+        "current_edinet_code": "E03646",
+        "current_corporate_number": "8230001002106"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCB2",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837493.094124,
+      "pdf_sha256": "987790c9898c5b529bb7268f98130d8f624ab13d73ffb16220bf3cc33963a8cc"
+    },
+    {
+      "symbol": "7292.T",
+      "identity": {
+        "symbol": "7292.T",
+        "code": "7292",
+        "name": "村上開明堂",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車の後方確認に使うバックミラーを、日本・アジア・北米のグループ拠点で製造・販売する。日本とアジアではファインガラスも扱う。子会社がミラーの設計・生産準備、金型製作、ランプ製造などを分担している。",
+      "proof": {
+        "code": "7292",
+        "exchange": "Tokyo",
+        "corporate_number": "3080001005194",
+        "edinet_code": "E02217",
+        "source_company_name": "株式会社村上開明堂",
+        "filing_company_name": "株式会社村上開明堂",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHRX",
+        "current_edinet_code": "E02217",
+        "current_corporate_number": "3080001005194"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHRX",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837499.036018,
+      "pdf_sha256": "5df28922d79019393c28b18fd88c4e4e6e066779f3da9227fd5af98b9dad21dd"
+    },
+    {
+      "symbol": "7352.T",
+      "identity": {
+        "symbol": "7352.T",
+        "code": "7352",
+        "name": "TWOSTONE&Sons",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "IT人材と企業の開発需要を結ぶ「Midworks」などを、グループ会社で展開する。プログラミング教育や転職支援、システム開発の受託にも対応。企業向けにはネット広告の運用・販促支援、経営戦略の相談、M&Aの助言なども提供する。",
+      "proof": {
+        "code": "7352",
+        "exchange": "Tokyo",
+        "corporate_number": "2011001096974",
+        "edinet_code": "E35767",
+        "source_company_name": "株式会社ＴＷＯＳＴＯＮＥ＆Ｓｏｎｓ",
+        "filing_company_name": "株式会社TWOSTONE&Sons",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X747",
+        "current_edinet_code": "E35767",
+        "current_corporate_number": "2011001096974"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X747",
+      "filed_on": "2025-11-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837510.334839,
+      "pdf_sha256": "5978cdeac9a59b2a16d882f0c1b865a62739fe4fbd715777b7250fbd6537db7b"
+    },
+    {
+      "symbol": "7412.T",
+      "identity": {
+        "symbol": "7412.T",
+        "code": "7412",
+        "name": "アトム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東北から関西を中心に、ステーキ、回転寿司、焼肉、とんかつやカフェなどの飲食店を運営する。直営店のほか、加盟店による店舗展開も行う。コロワイドグループに属し、現在の事業はレストランを中心とする。",
+      "proof": {
+        "code": "7412",
+        "exchange": "Tokyo",
+        "corporate_number": "3180001058182",
+        "edinet_code": "E03231",
+        "source_company_name": "株式会社アトム",
+        "filing_company_name": "株式会社アトム",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDI1",
+        "current_edinet_code": "E03231",
+        "current_corporate_number": "3180001058182"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDI1",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837525.627103,
+      "pdf_sha256": "daf147f5c08da00e8d7512897de8eea4ec1925a9ffff40286ac341e1720f5a48"
+    },
+    {
+      "symbol": "7441.JP",
+      "identity": {
+        "symbol": "7441.JP",
+        "code": "7441",
+        "name": "Misumi",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ガソリンやLPガスの卸売・小売を担い、グループでガスの充填・配送や設備工事も行う。書籍、携帯電話、車、住宅の販売や商業施設の運営に加え、ケンタッキーフライドチキンなどの店舗と野菜の生産・販売も手掛ける。",
+      "proof": {
+        "code": "7441",
+        "exchange": "Fukuoka",
+        "corporate_number": "4340001004160",
+        "edinet_code": "E02813",
+        "source_company_name": "株式会社Ｍｉｓｕｍｉ",
+        "filing_company_name": "株式会社Misumi",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHK6",
+        "current_edinet_code": "E02813",
+        "current_corporate_number": "4340001004160"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHK6",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837530.3693619,
+      "pdf_sha256": "3c16c1ca4d7acd4191346e7d79e76965659fede94279b00d61076b6f050547e4"
+    },
+    {
+      "symbol": "7485.JP",
+      "identity": {
+        "symbol": "7485.JP",
+        "code": "7485",
+        "name": "岡谷鋼機",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄鋼をはじめ、電子部材や工場設備などを国内外で取引する商社。鋼板・鋼管、半導体関連部品、工作機械、産業ロボットなどを扱い、グループで加工・製造やソフト開発も行う。住宅資材、食品、物流や不動産事業にも展開している。",
+      "proof": {
+        "code": "7485",
+        "exchange": "Nagoya",
+        "corporate_number": "7180001034964",
+        "edinet_code": "E02553",
+        "source_company_name": "岡谷鋼機株式会社",
+        "filing_company_name": "岡谷鋼機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5YH",
+        "current_edinet_code": "E02553",
+        "current_corporate_number": "7180001034964"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5YH",
+      "filed_on": "2026-05-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837536.4318411,
+      "pdf_sha256": "3e6c5dbb6ac02b369c40ec138cdfab430f0af0ceefd10ed8009d0a211e7120e8"
+    },
+    {
+      "symbol": "7514.T",
+      "identity": {
+        "symbol": "7514.T",
+        "code": "7514",
+        "name": "ヒマラヤ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "スポーツ用品を販売し、ネット通販にも対応する。グループ会社のコアブレインは、通販で必要になる注文処理、梱包・発送、代金の回収や顧客への問い合わせ対応を受託し、ヒマラヤの通販業務の一部も担う。",
+      "proof": {
+        "code": "7514",
+        "exchange": "Tokyo",
+        "corporate_number": "9200001004384",
+        "edinet_code": "E03271",
+        "source_company_name": "株式会社ヒマラヤ",
+        "filing_company_name": "株式会社ヒマラヤ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X67D",
+        "current_edinet_code": "E03271",
+        "current_corporate_number": "9200001004384"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X67D",
+      "filed_on": "2025-11-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837542.440319,
+      "pdf_sha256": "346f25d6bf9bf5c025be69cd944ad3f9ecd9a210d3dc9ac4a349a183fbf5f0fc"
+    },
+    {
+      "symbol": "7524.T",
+      "identity": {
+        "symbol": "7524.T",
+        "code": "7524",
+        "name": "マルシェ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "炭火串焼きの「八剣伝」、関西の食材を使う「酔虎伝」、自家製餃子の「餃子食堂マルケン」などを展開する。加盟店への経営支援を行って使用料を受け取り、直営店・加盟店向けの酒類や食材、設備の供給も担う。",
+      "proof": {
+        "code": "7524",
+        "exchange": "Tokyo",
+        "corporate_number": "2120001013697",
+        "edinet_code": "E03278",
+        "source_company_name": "マルシェ株式会社",
+        "filing_company_name": "マルシェ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YML0",
+        "current_edinet_code": "E03278",
+        "current_corporate_number": "2120001013697"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YML0",
+      "filed_on": "2026-06-29",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837548.4412138,
+      "pdf_sha256": "f3c7ba4708b6c0f8a5472c28f564e6b1077398f19e02e0f2e5963c6efcb13630"
+    },
+    {
+      "symbol": "7552.T",
+      "identity": {
+        "symbol": "7552.T",
+        "code": "7552",
+        "name": "ハピネット",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "おもちゃやカード、ゲーム機・ソフト、映像・音楽商品を、量販店や専門店、通販事業者などへ供給する。グループで映像作品の制作・配給やゲーム制作も行い、カプセル玩具の自販機や専門店の運営にも携わる。",
+      "proof": {
+        "code": "7552",
+        "exchange": "Tokyo",
+        "corporate_number": "5010501011416",
+        "edinet_code": "E02869",
+        "source_company_name": "株式会社ハピネット",
+        "filing_company_name": "株式会社ハピネット",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCH4",
+        "current_edinet_code": "E02869",
+        "current_corporate_number": "5010501011416"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCH4",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837554.5487418,
+      "pdf_sha256": "7d63188b1b09cf26a9dc7143f9081262721c743b194927d6018da2a281ceb91f"
+    },
+    {
+      "symbol": "7603.T",
+      "identity": {
+        "symbol": "7603.T",
+        "code": "7603",
+        "name": "ジーイエット",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "男性・女性・子ども向けの普段着を、全国の店舗とネット通販で販売する。子会社のAIオペレーションズでは、生成AIを使う研修や企業のデジタル人材育成を行う。金融・投資の分野では暗号資産を扱う事業にも参入している。",
+      "proof": {
+        "code": "7603",
+        "exchange": "Tokyo",
+        "corporate_number": "4011301006656",
+        "edinet_code": "E03313",
+        "source_company_name": "ジーイエット株式会社",
+        "filing_company_name": "ジーイエット株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5TM",
+        "current_edinet_code": "E03313",
+        "current_corporate_number": "4011301006656"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5TM",
+      "filed_on": "2026-05-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837562.357122,
+      "pdf_sha256": "32a0d0a68828980f316225a8581a0fb52c5e2e09c7bc6aecbf8a7c1f7bd78d61"
+    },
+    {
+      "symbol": "7624.T",
+      "identity": {
+        "symbol": "7624.T",
+        "code": "7624",
+        "name": "NaITO",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ものづくりで使う切削工具や計測器、産業用機器、工作機械を販売する。国内の本体に加え、ベトナムの子会社や海外の関連会社を含むグループで事業を展開する。",
+      "proof": {
+        "code": "7624",
+        "exchange": "Tokyo",
+        "corporate_number": "6011501003393",
+        "edinet_code": "E02903",
+        "source_company_name": "株式会社ＮａＩＴＯ",
+        "filing_company_name": "株式会社NaITO",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y4MW",
+        "current_edinet_code": "E02903",
+        "current_corporate_number": "6011501003393"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y4MW",
+      "filed_on": "2026-05-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837568.3611789,
+      "pdf_sha256": "c5150d4b6aa94e7fec81acd0e8c09f709a3ee0a0682aa29052174396f443b1df"
+    },
+    {
+      "symbol": "7646.T",
+      "identity": {
+        "symbol": "7646.T",
+        "code": "7646",
+        "name": "PLANT",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "都市部から離れた地域を主な商圏に、大型のスーパーセンターを運営する。野菜・肉・魚や惣菜、衣料、日用品をまとめて販売し、園芸・DIY用品、家具、医薬品なども扱う。車で来店する周辺の生活者の日常の買い物に対応する。",
+      "proof": {
+        "code": "7646",
+        "exchange": "Tokyo",
+        "corporate_number": "5210001007068",
+        "edinet_code": "E03343",
+        "source_company_name": "株式会社ＰＬＡＮＴ",
+        "filing_company_name": "株式会社PLANT",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XAET",
+        "current_edinet_code": "E03343",
+        "current_corporate_number": "5210001007068"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XAET",
+      "filed_on": "2025-12-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837574.454905,
+      "pdf_sha256": "b38a7404c7caf7e96b720cb477b278b6b1b2694dd8d188f2b9a5bf154732b56b"
+    },
+    {
+      "symbol": "7727.T",
+      "identity": {
+        "symbol": "7727.T",
+        "code": "7727",
+        "name": "オーバル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "液体や気体の流れる量を測る機器などを製造・販売する。グループで分析機器や流体の制御装置、工業用の制御・管理システムも手掛ける。納入後の部品交換・補修、機器の保守に加え、流量計の検定も行う。",
+      "proof": {
+        "code": "7727",
+        "exchange": "Tokyo",
+        "corporate_number": "4011101003936",
+        "edinet_code": "E02270",
+        "source_company_name": "株式会社オーバル",
+        "filing_company_name": "株式会社オーバル",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDYH",
+        "current_edinet_code": "E02270",
+        "current_corporate_number": "4011101003936"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDYH",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837580.426572,
+      "pdf_sha256": "b099cf913f9dbae1f69d6d78f223bec7900baead0b4e2f745e6c4f99ecbfb57c"
+    },
+    {
+      "symbol": "7844.T",
+      "identity": {
+        "symbol": "7844.T",
+        "code": "7844",
+        "name": "マーベラス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家庭用ゲーム機・スマホ・PC向けのゲームを作り、販売や運営を行う。他社のゲーム開発も受託する。娯楽施設向けのゲーム機・商品を供給し、グループでアニメや音楽、映像の制作、人気作品を原作とする舞台公演も手掛ける。",
+      "proof": {
+        "code": "7844",
+        "exchange": "Tokyo",
+        "corporate_number": "3010701022537",
+        "edinet_code": "E02467",
+        "source_company_name": "株式会社マーベラス",
+        "filing_company_name": "株式会社マーベラス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGG0",
+        "current_edinet_code": "E02467",
+        "current_corporate_number": "3010701022537"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGG0",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837586.4793038,
+      "pdf_sha256": "eec7ece741b83e1a7338edb2c5f81095476514c60f1ac0898cce3c3ed1bd9c86"
+    },
+    {
+      "symbol": "7860.T",
+      "identity": {
+        "symbol": "7860.T",
+        "code": "7860",
+        "name": "エイベックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "音楽の制作・販売・配信、アーティストの活動支援、コンサートやファンクラブの運営などをグループで担う。アニメ・映像作品の制作や映画配給、配信事業者へのアニメ供給も手掛け、海外拠点でも娯楽コンテンツを制作・流通させる。",
+      "proof": {
+        "code": "7860",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401004245",
+        "edinet_code": "E02453",
+        "source_company_name": "エイベックス株式会社",
+        "filing_company_name": "エイベックス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKQ4",
+        "current_edinet_code": "E02453",
+        "current_corporate_number": "7010401004245"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKQ4",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837592.492125,
+      "pdf_sha256": "9da5ed623289a95d626823ec83066673a56b73c68605f3dd73b63d24ebc5df03"
+    },
+    {
+      "symbol": "7911.T",
+      "identity": {
+        "symbol": "7911.T",
+        "code": "7911",
+        "name": "TOPPANホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "印刷・情報サービスを基盤とするグループの持株会社。事業会社が書籍や販促物、ICカード、包装材、建装材などを製造し、業務の代行や電子書籍サービスも提供する。ディスプレイ用のフィルム、半導体製造に使うフォトマスクや基板も扱う。",
+      "proof": {
+        "code": "7911",
+        "exchange": "Tokyo",
+        "corporate_number": "7010501016231",
+        "edinet_code": "E00692",
+        "source_company_name": "ＴＯＰＰＡＮホールディングス株式会社",
+        "filing_company_name": "TOPPANホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIAY",
+        "current_edinet_code": "E00692",
+        "current_corporate_number": "7010501016231"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIAY",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837598.549257,
+      "pdf_sha256": "2dfdaab443be9c509550a1ee0eb42eb75e8afda8ed56ba56bae1d8c2b0e0d8ac"
+    },
+    {
+      "symbol": "7972.T",
+      "identity": {
+        "symbol": "7972.T",
+        "code": "7972",
+        "name": "イトーキ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "オフィスの机・椅子・収納家具を供給し、空間設計、内装工事、移転支援や保守も担う。在宅勤務・家庭学習用の家具も販売。グループで自動倉庫や薬剤を取り出す装置、研究施設の機器、特殊扉など、物流・公共施設向けの設備も手掛ける。",
+      "proof": {
+        "code": "7972",
+        "exchange": "Tokyo",
+        "corporate_number": "9120001014301",
+        "edinet_code": "E02371",
+        "source_company_name": "株式会社イトーキ",
+        "filing_company_name": "株式会社イトーキ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XRIU",
+        "current_edinet_code": "E02371",
+        "current_corporate_number": "9120001014301"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XRIU",
+      "filed_on": "2026-03-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837604.568695,
+      "pdf_sha256": "c8f183fcc39df83f2d283de6183baf1f0db31ccdcf753c06e54323d7e35267d8"
+    },
+    {
+      "symbol": "8002.T",
+      "identity": {
+        "symbol": "8002.T",
+        "code": "8002",
+        "name": "丸紅",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "食品、金属資源、エネルギー、機械などを国内外で取引し、事業への投資・運営も行う総合商社。グループは穀物や食肉の調達・加工、農業資材の販売、発電やインフラ運営、航空機リース、通信・物流サービスなど幅広い分野を担う。",
+      "proof": {
+        "code": "8002",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001008776",
+        "edinet_code": "E02498",
+        "source_company_name": "丸紅株式会社",
+        "filing_company_name": "丸紅株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAY4",
+        "current_edinet_code": "E02498",
+        "current_corporate_number": "9010001008776"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAY4",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837610.8115342,
+      "pdf_sha256": "a6044bf120416713d9de3ffbe9fe652541f08c8cf9df2f702caad11060bd2678"
+    },
+    {
+      "symbol": "8031.T",
+      "identity": {
+        "symbol": "8031.T",
+        "code": "8031",
+        "name": "三井物産",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          },
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          },
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄鉱石・天然ガスなどの資源や、機械、化学品、食料などを世界各地で取引する総合商社。グループで商品の製造・輸送や金融サービスを担い、資源・発電・水などの事業開発にも投資する。医療、物流、ITや不動産関連の事業も展開する。",
+      "proof": {
+        "code": "8031",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001008767",
+        "edinet_code": "E02513",
+        "source_company_name": "三井物産株式会社",
+        "filing_company_name": "三井物産株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAVT",
+        "current_edinet_code": "E02513",
+        "current_corporate_number": "1010001008767"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAVT",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837618.18811,
+      "pdf_sha256": "2d56f7669a3f2676b3f3942d87c3e6b53c09e2dc0f5c1045022dc17b00cc2e9e"
+    },
+    {
+      "symbol": "8053.T",
+      "identity": {
+        "symbol": "8053.T",
+        "code": "8053",
+        "name": "住友商事",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鋼材や自動車、建設機械、化学品などを国内外で取引し、グループ企業への投資と事業運営を行う。資源開発・発電や不動産・工業団地の開発に加え、食品スーパー、ドラッグストア、通信・ITサービスなど、生活に近い事業も手掛ける。",
+      "proof": {
+        "code": "8053",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001008692",
+        "edinet_code": "E02528",
+        "source_company_name": "住友商事株式会社",
+        "filing_company_name": "住友商事株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YARD",
+        "current_edinet_code": "E02528",
+        "current_corporate_number": "1010001008692"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YARD",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837624.3999228,
+      "pdf_sha256": "044ebbe550a9416f8a3116bd493b38798fc0989c5487fda4fa0d8b4a26e20008"
+    },
+    {
+      "symbol": "8131.T",
+      "identity": {
+        "symbol": "8131.T",
+        "code": "8131",
+        "name": "ミツウロコグループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "LPガス・石油の供給を基盤とするグループの持株会社。事業会社が燃料販売、ガス設備工事、住宅改修や発電・電力販売を行う。飲料の製造、売店・カフェ・パン店の運営、不動産賃貸や温浴施設、海外のレンタル収納にも展開する。",
+      "proof": {
+        "code": "8131",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001034942",
+        "edinet_code": "E01074",
+        "source_company_name": "株式会社ミツウロコグループホールディングス",
+        "filing_company_name": "株式会社ミツウロコグループホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAZQ",
+        "current_edinet_code": "E01074",
+        "current_corporate_number": "4010001034942"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAZQ",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837633.497198,
+      "pdf_sha256": "2f2a0c611f06f5c690381f8fbcfab1bd30728a30e55f20f49e6967047d7565bb"
+    },
+    {
+      "symbol": "8136.T",
+      "identity": {
+        "symbol": "8136.T",
+        "code": "8136",
+        "name": "サンリオ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "キャラクターを商品などに使う権利の許諾・管理と、ギフト商品やカードの企画・販売を行う。国内外のグループ会社が商品化を担い、テーマパークや舞台公演、映像商品も展開する。子会社ではロボットの販売・貸出やデジタルグッズの制作も手掛ける。",
+      "proof": {
+        "code": "8136",
+        "exchange": "Tokyo",
+        "corporate_number": "5010701003956",
+        "edinet_code": "E02655",
+        "source_company_name": "株式会社サンリオ",
+        "filing_company_name": "株式会社サンリオ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YNR0",
+        "current_edinet_code": "E02655",
+        "current_corporate_number": "5010701003956"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YNR0",
+      "filed_on": "2026-06-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837639.5886269,
+      "pdf_sha256": "77f9ed6e2c989a9a06e5775499ef2fe36291e411790b62eda7789e9051a67058"
+    },
+    {
+      "symbol": "8198.T",
+      "identity": {
+        "symbol": "8198.T",
+        "code": "8198",
+        "name": "マックスバリュ東海",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "イオングループの食品スーパーとして、静岡・愛知・三重など東海周辺に店舗を展開する。トップバリュ商品も扱い、子会社のデリカ食品が寿司や惣菜、米飯を製造する。静岡・愛知ではミスタードーナツ、不二家の加盟店運営も行う。",
+      "proof": {
+        "code": "8198",
+        "exchange": "Tokyo",
+        "corporate_number": "1080101006499",
+        "edinet_code": "E03087",
+        "source_company_name": "マックスバリュ東海株式会社",
+        "filing_company_name": "マックスバリュ東海株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y494",
+        "current_edinet_code": "E03087",
+        "current_corporate_number": "1080101006499"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y494",
+      "filed_on": "2026-05-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837645.573013,
+      "pdf_sha256": "95894b08495a43ce68d2b0d6d0045c5cacfa5bae1413b749c3292e3c2d7b340c"
+    },
+    {
+      "symbol": "8304.T",
+      "identity": {
+        "symbol": "8304.T",
+        "code": "8304",
+        "name": "あおぞら銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資、国内外への送金や信託を扱う銀行。グループにはGMOあおぞらネット銀行があり、ネット経由の銀行サービスも提供する。子会社で債権の管理・回収、資産運用、M&Aの助言や成長企業への投資などを担う。",
+      "proof": {
+        "code": "8304",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001016861",
+        "edinet_code": "E03531",
+        "source_company_name": "株式会社あおぞら銀行",
+        "filing_company_name": "株式会社あおぞら銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCRO",
+        "current_edinet_code": "E03531",
+        "current_corporate_number": "9010001016861"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCRO",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837653.283904,
+      "pdf_sha256": "b1282e187616c763b4472f0735b38974d893dfb80cc063dbe71d39d372d3d720"
+    },
+    {
+      "symbol": "8308.T",
+      "identity": {
+        "symbol": "8308.T",
+        "code": "8308",
+        "name": "りそなホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "りそな銀行、埼玉りそな銀行、関西みらい銀行、みなと銀行などを束ねる金融グループ。銀行・信託のサービスに加え、各社でカード、リース、投資運用、企業への投資、売掛債権を資金化するファクタリングなどを提供する。",
+      "proof": {
+        "code": "8308",
+        "exchange": "Tokyo",
+        "corporate_number": "5010601039654",
+        "edinet_code": "E03610",
+        "source_company_name": "株式会社りそなホールディングス",
+        "filing_company_name": "株式会社りそなホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDP3",
+        "current_edinet_code": "E03610",
+        "current_corporate_number": "5010601039654"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDP3",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837659.279158,
+      "pdf_sha256": "928d11c345d856fea37cdc231f487a22cb72543b9cf056d0d6eca2bb09a6e23e"
+    },
+    {
+      "symbol": "8316.T",
+      "identity": {
+        "symbol": "8316.T",
+        "code": "8316",
+        "name": "三井住友フィナンシャルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "三井住友銀行を核に金融各社を束ねる持株会社。グループにはSMBC日興証券や三井住友カード、個人向け融資を扱うSMBCコンシューマーファイナンスなどがあり、銀行・証券取引、カード決済、リースを提供する。金融システムの開発・運営も手掛ける。",
+      "proof": {
+        "code": "8316",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001081053",
+        "edinet_code": "E03614",
+        "source_company_name": "株式会社三井住友フィナンシャルグループ",
+        "filing_company_name": "株式会社三井住友フィナンシャルグループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YERK",
+        "current_edinet_code": "E03614",
+        "current_corporate_number": "2010001081053"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YERK",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837665.307711,
+      "pdf_sha256": "facf18399c47dd86077ebbffadca1d6f0bcdd392b85ebb1a553f07e1ea74dfd2"
+    },
+    {
+      "symbol": "8334.T",
+      "identity": {
+        "symbol": "8334.T",
+        "code": "8334",
+        "name": "群馬銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "群馬県を主な営業基盤に、預金・融資や送金、信託、投資信託・保険の窓口販売を行う。グループでリースと証券取引、信用保証を担い、企業の経営相談、人材支援、販促支援や地域向けファンドの運営も提供する。",
+      "proof": {
+        "code": "8334",
+        "exchange": "Tokyo",
+        "corporate_number": "3070001003513",
+        "edinet_code": "E03554",
+        "source_company_name": "株式会社群馬銀行",
+        "filing_company_name": "株式会社群馬銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y8O1",
+        "current_edinet_code": "E03554",
+        "current_corporate_number": "3070001003513"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y8O1",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837671.32782,
+      "pdf_sha256": "ba0570cfd935b0a9ecbd46b158391176ec3215547fe6ab5e5ad48ced7c8563ab"
+    },
+    {
+      "symbol": "8338.T",
+      "identity": {
+        "symbol": "8338.T",
+        "code": "8338",
+        "name": "筑波銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "支店・出張所を通じて預金や融資、国内外への送金を提供する銀行。グループの子会社ではシステムを開発し、企業の経営に関する相談や投資事業も行う。銀行サービスとこれらの周辺業務を組み合わせて地域の顧客を支える。",
+      "proof": {
+        "code": "8338",
+        "exchange": "Tokyo",
+        "corporate_number": "4050001009057",
+        "edinet_code": "E03552",
+        "source_company_name": "株式会社筑波銀行",
+        "filing_company_name": "株式会社筑波銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDJN",
+        "current_edinet_code": "E03552",
+        "current_corporate_number": "4050001009057"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDJN",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837677.2975738,
+      "pdf_sha256": "2e24bf994ad0ce0423f89b66fc8bdfdce7b533d676c9a5944ea7138d1f9b92f6"
+    },
+    {
+      "symbol": "8343.T",
+      "identity": {
+        "symbol": "8343.T",
+        "code": "8343",
+        "name": "秋田銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資、国内外への送金を行い、国債などの公共債や投資信託、保険を窓口で取り扱う。グループにはリース会社があり、企業の経営相談、地域商品の取引、ファンド運営、個人ローンの保証やカード関連サービスも手掛ける。",
+      "proof": {
+        "code": "8343",
+        "exchange": "Tokyo",
+        "corporate_number": "1410001000221",
+        "edinet_code": "E03546",
+        "source_company_name": "株式会社秋田銀行",
+        "filing_company_name": "株式会社秋田銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YATN",
+        "current_edinet_code": "E03546",
+        "current_corporate_number": "1410001000221"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YATN",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837683.3504589,
+      "pdf_sha256": "f0b218eeb9b01454b844161e1125aeda49ebf440b877e5885364dc4a4caa05e9"
+    },
+    {
+      "symbol": "8345.T",
+      "identity": {
+        "symbol": "8345.T",
+        "code": "8345",
+        "name": "岩手銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資や送金のほか、信託、証券の売買、社債に関する受託業務を行う銀行。グループ会社がリース、カード、信用保証を担い、企業向けのコンサルティングや地域商社、投資事業にも取り組む。",
+      "proof": {
+        "code": "8345",
+        "exchange": "Tokyo",
+        "corporate_number": "7400001000423",
+        "edinet_code": "E03543",
+        "source_company_name": "株式会社岩手銀行",
+        "filing_company_name": "株式会社岩手銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD6A",
+        "current_edinet_code": "E03543",
+        "current_corporate_number": "7400001000423"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD6A",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837689.516165,
+      "pdf_sha256": "53c3e4e1074d9746a53b4f515da39928c1c49bfb7daa2f8738ff85632cd28356"
+    },
+    {
+      "symbol": "8349.T",
+      "identity": {
+        "symbol": "8349.T",
+        "code": "8349",
+        "name": "東北銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "岩手県を中心に、預金・融資や国内送金、国債・投資信託の窓口販売を行う。子会社のとうぎん総合リースが機械などの貸し出し・売買を担い、東北ジェーシービーカードが買い物やキャッシングのサービスを提供する。",
+      "proof": {
+        "code": "8349",
+        "exchange": "Tokyo",
+        "corporate_number": "7400001001891",
+        "edinet_code": "E03544",
+        "source_company_name": "株式会社東北銀行",
+        "filing_company_name": "株式会社東北銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEUT",
+        "current_edinet_code": "E03544",
+        "current_corporate_number": "7400001001891"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEUT",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837697.949365,
+      "pdf_sha256": "a0346b58eafeccec2f6199c51be0d73fe9d20dd4033f9b784297e9539931f9c8"
+    },
+    {
+      "symbol": "8359.T",
+      "identity": {
+        "symbol": "8359.T",
+        "code": "8359",
+        "name": "八十二長野銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資と国内外への送金を中心に銀行サービスを提供する。グループ会社がカード、ローン保証、債権回収、リース、証券取引や資産運用を担う。八十二Link Naganoでは地域の商品を扱う商社事業と発電も行う。",
+      "proof": {
+        "code": "8359",
+        "exchange": "Tokyo",
+        "corporate_number": "3100001002833",
+        "edinet_code": "E03563",
+        "source_company_name": "株式会社八十二長野銀行",
+        "filing_company_name": "株式会社八十二長野銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAUN",
+        "current_edinet_code": "E03563",
+        "current_corporate_number": "3100001002833"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAUN",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837702.79792,
+      "pdf_sha256": "9250fb5e1fbca67f7a4ba6d4761b4dde5187cc24728a590b73ffc94082b448c9"
+    },
+    {
+      "symbol": "8361.T",
+      "identity": {
+        "symbol": "8361.T",
+        "code": "8361",
+        "name": "大垣共立銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資や送金、信託を取り扱い、国債・投資信託・保険なども販売する。共友リースがリース、OKB信用保証が保証を担い、グループで証券・カードや企業への投資も提供する。海外拠点では進出企業への現地情報の提供を行う。",
+      "proof": {
+        "code": "8361",
+        "exchange": "Tokyo",
+        "corporate_number": "7200001013379",
+        "edinet_code": "E03568",
+        "source_company_name": "株式会社大垣共立銀行",
+        "filing_company_name": "株式会社大垣共立銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YELN",
+        "current_edinet_code": "E03568",
+        "current_corporate_number": "7200001013379"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YELN",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837708.8809102,
+      "pdf_sha256": "db39c9b472638b58ab27a26ea92b9c64557bcfcb8b20c4a88887863712ed7efb"
+    },
+    {
+      "symbol": "8364.T",
+      "identity": {
+        "symbol": "8364.T",
+        "code": "8364",
+        "name": "清水銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資や国内外への送金を行い、投資信託、保険、金融商品の仲介にも対応する銀行。子会社の清水リース＆カードがリースとクレジットカードのサービスを提供し、ほかのグループ会社では信用保証などを担う。",
+      "proof": {
+        "code": "8364",
+        "exchange": "Tokyo",
+        "corporate_number": "8080001001858",
+        "edinet_code": "E03572",
+        "source_company_name": "株式会社清水銀行",
+        "filing_company_name": "株式会社清水銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC9F",
+        "current_edinet_code": "E03572",
+        "current_corporate_number": "8080001001858"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC9F",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837714.84353,
+      "pdf_sha256": "f47fb22429a581d0e46064339401a2076e3d81cbb5131ecd39e9f1be414eaf86"
+    },
+    {
+      "symbol": "5838.T",
+      "identity": {
+        "symbol": "5838.T",
+        "code": "5838",
+        "name": "楽天銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "店舗を持たず、ネットやスマートフォンから個人・法人が取引する銀行。預金や振込、住宅・教育などのローンを提供し、楽天証券との口座連携や楽天ペイの支払いにも対応する。提携企業の利用者向けに専用支店を設ける仕組みでは、JRE BANKなどのサービスを展開している。",
+      "proof": {
+        "code": "5838",
+        "exchange": "Tokyo",
+        "corporate_number": "5010701022527",
+        "edinet_code": "E03621",
+        "source_company_name": "楽天銀行株式会社",
+        "filing_company_name": "楽天銀行株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGME",
+        "current_edinet_code": "E03621",
+        "current_corporate_number": "5010701022527"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGME",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837420.569328,
+      "pdf_sha256": "0d1062add10730e044d8348c852d66d51504d9f54313d02d5df99b0b1927cfc1"
+    },
+    {
+      "symbol": "5955.T",
+      "identity": {
+        "symbol": "5955.T",
+        "code": "5955",
+        "name": "ワイズホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "持株会社のもとで、ヤマシナなどが自動車や機械向けのねじ、LADVIKがプレス部品や精密ばねを製造する。三陽工業の電線・ケーブル、ヤマヤエレクトロニクスの半導体販売もグループ事業。樹脂や合成ゴムなどの販売に加え、持株会社自身は不動産賃貸や太陽光発電も行う。",
+      "proof": {
+        "code": "5955",
+        "exchange": "Tokyo",
+        "corporate_number": "2130001013473",
+        "edinet_code": "E01369",
+        "source_company_name": "株式会社ワイズホールディングス",
+        "filing_company_name": "株式会社ワイズホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDSY",
+        "current_edinet_code": "E01369",
+        "current_corporate_number": "2130001013473"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDSY",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837426.704468,
+      "pdf_sha256": "ebb4c6df2a5d07d6b4dd5dc5966bc57231f3d87ab86e0097040c457530600a82"
+    },
+    {
+      "symbol": "6184.T",
+      "identity": {
+        "symbol": "6184.T",
+        "code": "6184",
+        "name": "鎌倉新書",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "終活を進める高齢者や家族と、葬儀社・介護施設などの事業者をつなぐサービスを運営する。葬儀、お墓、仏壇の選択に加え、相続や不動産、介護、単身高齢者向けの支援を扱う。地方自治体とも連携し、人生の終盤に必要な情報や相談先を探す場を提供している。",
+      "proof": {
+        "code": "6184",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001040382",
+        "edinet_code": "E31871",
+        "source_company_name": "株式会社鎌倉新書",
+        "filing_company_name": "株式会社鎌倉新書",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y0J1",
+        "current_edinet_code": "E31871",
+        "current_corporate_number": "9010001040382"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y0J1",
+      "filed_on": "2026-04-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837432.87611,
+      "pdf_sha256": "53407796c6f860fe962e3f256ec551ab0a9bf12529c6ec1fee3ffb86891f05d5"
+    },
+    {
+      "symbol": "6332.T",
+      "identity": {
+        "symbol": "6332.T",
+        "code": "6332",
+        "name": "月島ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで浄水場や下水処理場を建設し、運転・補修も担う。汚泥を処理する脱水機や焼却炉、バイオマス利用設備などが水環境分野の製品。産業分野では化学・電池製造向けのプラント、ろ過や乾燥などの装置を手掛け、廃液・廃棄物の処理設備も供給する。",
+      "proof": {
+        "code": "6332",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001034856",
+        "edinet_code": "E01537",
+        "source_company_name": "月島ホールディングス株式会社",
+        "filing_company_name": "月島ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YH1A",
+        "current_edinet_code": "E01537",
+        "current_corporate_number": "8010001034856"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YH1A",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837440.298749,
+      "pdf_sha256": "5928dc155d51c6f4f1ae5ebb90f51291502742ed4ef9c85cb9dacf106643e2f2"
+    },
+    {
+      "symbol": "6482.T",
+      "identity": {
+        "symbol": "6482.T",
+        "code": "6482",
+        "name": "YUSHIN",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "プラスチック製品を成形機から取り出すロボットをつくる企業。取り出した後の工程を省力化する周辺機器やシステムも扱う。グループの日本・米国・アジア・欧州の拠点で開発や製造、販売を分担し、導入後のアフターサービスまで提供している。",
+      "proof": {
+        "code": "6482",
+        "exchange": "Tokyo",
+        "corporate_number": "3130001015997",
+        "edinet_code": "E01710",
+        "source_company_name": "ＹＵＳＨＩＮ株式会社",
+        "filing_company_name": "YUSHIN株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJC5",
+        "current_edinet_code": "E01710",
+        "current_corporate_number": "3130001015997"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJC5",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837446.276733,
+      "pdf_sha256": "b69868ab88ab31925119f4954af4dc619f296177896cbf25ab2fc2381b93d514"
+    },
+    {
+      "symbol": "6547.T",
+      "identity": {
+        "symbol": "6547.T",
+        "code": "6547",
+        "name": "グリーンズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "出張や観光で利用するホテルを運営する。「コンフォート」系のホテルに加え、三重県を中心に「ホテルエコノ」など独自のホテルを展開し、宿泊や食事、宴会のサービスを提供。建物を借りて運営する方式を多く採用し、子会社がコンフォート系の施設基準や販促を管理している。",
+      "proof": {
+        "code": "6547",
+        "exchange": "Tokyo",
+        "corporate_number": "5190001014736",
+        "edinet_code": "E32988",
+        "source_company_name": "株式会社グリーンズ",
+        "filing_company_name": "株式会社グリーンズ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3CG",
+        "current_edinet_code": "E32988",
+        "current_corporate_number": "5190001014736"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3CG",
+      "filed_on": "2026-09-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837452.301803,
+      "pdf_sha256": "862fa9e5e740aedf09aaeb03db9be93fc6ff25e2722438898e6d3beb3093f8ab"
+    },
+    {
+      "symbol": "6629.T",
+      "identity": {
+        "symbol": "6629.T",
+        "code": "6629",
+        "name": "テクノホライゾン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "映像・ITと工場などの自動化機器をグループで手掛ける。書画カメラや電子黒板、監視カメラを扱い、映像設備の設置やソフト開発も提供する。ロボティクス分野では車載・医療向け機器のほか、工作機械の制御装置、基板の検査やはんだ付けの装置を製造・販売している。",
+      "proof": {
+        "code": "6629",
+        "exchange": "Tokyo",
+        "corporate_number": "4180001088600",
+        "edinet_code": "E23871",
+        "source_company_name": "テクノホライゾン株式会社",
+        "filing_company_name": "テクノホライゾン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLV9",
+        "current_edinet_code": "E23871",
+        "current_corporate_number": "4180001088600"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLV9",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837458.3838131,
+      "pdf_sha256": "306124a05fbfebdaebec89371c6c77f7522a188b745efe204b8b74cf46bee631"
+    },
+    {
+      "symbol": "6758.T",
+      "identity": {
+        "symbol": "6758.T",
+        "code": "6758",
+        "name": "ソニーグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで家庭用ゲーム機とゲーム配信、音楽制作・楽曲管理、映画やテレビ番組の制作を手掛ける。カメラやヘッドホン、テレビなどの電子機器と、撮影に使うイメージセンサーも事業の柱。金融事業はパーシャル・スピンオフに伴い、報告書では非継続事業に区分されている。",
+      "proof": {
+        "code": "6758",
+        "exchange": "Tokyo",
+        "corporate_number": "5010401067252",
+        "edinet_code": "E01777",
+        "source_company_name": "ソニーグループ株式会社",
+        "filing_company_name": "ソニーグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE2C",
+        "current_edinet_code": "E01777",
+        "current_corporate_number": "5010401067252"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE2C",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837464.339593,
+      "pdf_sha256": "2ea839c2f71337fc2e68e3d21084e3ea0e37c81b3114a92ce57ebafb87a748e9"
+    },
+    {
+      "symbol": "6835.T",
+      "identity": {
+        "symbol": "6835.T",
+        "code": "6835",
+        "name": "アライドテレシスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "国内外のグループ会社を通じ、ネットワーク機器を開発・製造・販売する。通信をつなぐスイッチやルーター、無線LAN製品などを扱い、国内では自治体・教育分野にも供給。国内子会社のアライドテレシスなどが販売や開発、サービスを担い、海外にも製造・販売拠点を持つ。",
+      "proof": {
+        "code": "6835",
+        "exchange": "Tokyo",
+        "corporate_number": "4010701012116",
+        "edinet_code": "E01867",
+        "source_company_name": "アライドテレシスホールディングス株式会社",
+        "filing_company_name": "アライドテレシスホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XVFP",
+        "current_edinet_code": "E01867",
+        "current_corporate_number": "4010701012116"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XVFP",
+      "filed_on": "2026-03-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837470.421921,
+      "pdf_sha256": "031ef2e3221037e7bde5de5a13230a2e0761ba1c09c88bdec47dba0016266b2c"
+    },
+    {
+      "symbol": "7148.T",
+      "identity": {
+        "symbol": "7148.T",
+        "code": "7148",
+        "name": "FPG",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "航空機や船舶、コンテナを貸し出す投資案件を組み立て、投資家に持分を販売し管理する。不動産分野では国内物件を小口化した商品と、米国不動産への投資案件を扱う。グループでは富裕層・法人向けのプライベートジェットや、離島への医師搬送のチャーター便も運営している。",
+      "proof": {
+        "code": "7148",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001086522",
+        "edinet_code": "E24651",
+        "source_company_name": "株式会社ＦＰＧ",
+        "filing_company_name": "株式会社FPG",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBXT",
+        "current_edinet_code": "E24651",
+        "current_corporate_number": "3010001086522"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBXT",
+      "filed_on": "2025-12-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837477.9668548,
+      "pdf_sha256": "fcb8128dae7ef831960baa0e9b6c1c6f58ef47a1b9d702e931476f0717ef38d7"
+    },
+    {
+      "symbol": "7167.T",
+      "identity": {
+        "symbol": "7167.T",
+        "code": "7167",
+        "name": "めぶきフィナンシャルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "常陽銀行と足利銀行を傘下に置く銀行持株会社。両行が預金・融資や国内外の送金、投資信託・保険の販売を担う。グループのめぶきリースは地元事業者向けのリース、めぶき証券は有価証券の取引を扱い、保証やカードのサービスも提供している。",
+      "proof": {
+        "code": "7167",
+        "exchange": "Tokyo",
+        "corporate_number": "1060001007582",
+        "edinet_code": "E30103",
+        "source_company_name": "株式会社めぶきフィナンシャルグループ",
+        "filing_company_name": "株式会社めぶきフィナンシャルグループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAVM",
+        "current_edinet_code": "E30103",
+        "current_corporate_number": "1060001007582"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAVM",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837484.014258,
+      "pdf_sha256": "c3e20986eeca5c5e449e7b72ed1c0888ee104c44b349ff8fb35706fb23a5ba44"
+    },
+    {
+      "symbol": "7182.T",
+      "identity": {
+        "symbol": "7182.T",
+        "code": "7182",
+        "name": "ゆうちょ銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "直営店と郵便局の窓口、ATMやデジタルサービスを通じて貯金や送金を扱う銀行。預かった貯金を国債や外国債券などの有価証券で運用することが主な収益源となる。投資信託などの資産運用商品やカードを扱い、住宅ローンについては媒介を行う。",
+      "proof": {
+        "code": "7182",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001112730",
+        "edinet_code": "E31775",
+        "source_company_name": "株式会社ゆうちょ銀行",
+        "filing_company_name": "株式会社ゆうちょ銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9G1",
+        "current_edinet_code": "E31775",
+        "current_corporate_number": "5010001112730"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9G1",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837489.977721,
+      "pdf_sha256": "61d85593ac5a9a4f597be84ce4aad5f5dd88c9f24eade5298e19b0118d5ca352"
+    },
+    {
+      "symbol": "7228.T",
+      "identity": {
+        "symbol": "7228.T",
+        "code": "7228",
+        "name": "デイトナ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "バイク用の部品や用品を企画・開発し、卸売や小売で届ける。国内から北米・欧州に輸出するほか、インドネシアとフィリピンの子会社も現地で商品を開発・販売。グループでオフロード向けの店舗やネット販売を展開し、別の子会社が「MaxFritz」のバイク用ウエアを扱う。",
+      "proof": {
+        "code": "7228",
+        "exchange": "Tokyo",
+        "corporate_number": "3080401017525",
+        "edinet_code": "E02877",
+        "source_company_name": "株式会社デイトナ",
+        "filing_company_name": "株式会社デイトナ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XSX2",
+        "current_edinet_code": "E02877",
+        "current_corporate_number": "3080401017525"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XSX2",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837496.0077262,
+      "pdf_sha256": "c5bfb4e3b2288cc67ebc15402487af8035d11bfe73bbbb9c5d79e0b400c2d034"
+    },
+    {
+      "symbol": "7305.T",
+      "identity": {
+        "symbol": "7305.T",
+        "code": "7305",
+        "name": "新家工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "普通鋼やステンレスの管、型鋼、精密加工品、自転車用リムなどをグループで製造・販売する。金属フィルターの加工、機械部品・福祉機器の製造、不動産賃貸も行う。インドネシアにも鋼管の製造拠点を持つ。完成自転車の輸入販売は2025年12月末に終了している。",
+      "proof": {
+        "code": "7305",
+        "exchange": "Tokyo",
+        "corporate_number": "4120001077344",
+        "edinet_code": "E02258",
+        "source_company_name": "新家工業株式会社",
+        "filing_company_name": "新家工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y8QF",
+        "current_edinet_code": "E02258",
+        "current_corporate_number": "4120001077344"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y8QF",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837502.0513122,
+      "pdf_sha256": "480c2b1ff174a8af6a00680d9a96447e19a87121ce2e572791e8fe74c9cbd5f1"
+    },
+    {
+      "symbol": "7368.T",
+      "identity": {
+        "symbol": "7368.T",
+        "code": "7368",
+        "name": "表示灯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "駅や自治体施設などに、周辺地図と複数の広告を組み合わせた「ナビタ」を設置する。地図を利用する人に場所を案内し、掲載スポンサーから広告収入を得る仕組み。車両・屋外・ネットなどの広告も扱い、看板や案内表示、自治体窓口の番号案内システムを設計・施工する。",
+      "proof": {
+        "code": "7368",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001040070",
+        "edinet_code": "E36464",
+        "source_company_name": "表示灯株式会社",
+        "filing_company_name": "表示灯株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKV6",
+        "current_edinet_code": "E36464",
+        "current_corporate_number": "7180001040070"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKV6",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837521.8774989,
+      "pdf_sha256": "8f0f03e7a50f10377fffef0d1c9c4b7a87a699678dc2010da830d1cbfa0e0c90"
+    },
+    {
+      "symbol": "7417.T",
+      "identity": {
+        "symbol": "7417.T",
+        "code": "7417",
+        "name": "南陽",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "建設機械を販売・レンタルし、工場などで使う産業機器も扱う企業。南陽レンテックが国内の建機レンタルを、南陽重車輌が中古の産業用車両を担う。産業機器分野ではグループ会社が製造や海外での販売も行い、共立砕石所は砕石を製造している。",
+      "proof": {
+        "code": "7417",
+        "exchange": "Tokyo",
+        "corporate_number": "5290001015146",
+        "edinet_code": "E02792",
+        "source_company_name": "株式会社南陽",
+        "filing_company_name": "株式会社南陽",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCGG",
+        "current_edinet_code": "E02792",
+        "current_corporate_number": "5290001015146"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCGG",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837527.370384,
+      "pdf_sha256": "5d7590912e70c23abad2b8e9a5d0e3d12a624204076d8c1766793a5b8dfaf29e"
+    },
+    {
+      "symbol": "7453.T",
+      "identity": {
+        "symbol": "7453.T",
+        "code": "7453",
+        "name": "良品計画",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「無印良品」「MUJI」の商品を企画・調達し、直営店で販売するとともに提携店舗にも供給する。日本に加えアジアや欧米で店舗を展開し、グループが商品の調査や品質管理も担う。Café&Meal MUJIでの飲食、キャンプ場の運営、MUJI HOUSEによる住宅販売も行う。",
+      "proof": {
+        "code": "7453",
+        "exchange": "Tokyo",
+        "corporate_number": "5013301012443",
+        "edinet_code": "E03248",
+        "source_company_name": "株式会社良品計画",
+        "filing_company_name": "株式会社良品計画",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X5NI",
+        "current_edinet_code": "E03248",
+        "current_corporate_number": "5013301012443"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X5NI",
+      "filed_on": "2025-11-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837533.426998,
+      "pdf_sha256": "926555b79a6cf587ac33b21038f959c7313efb58425ceb8b7fcf919e0130a4c4"
+    },
+    {
+      "symbol": "7512.T",
+      "identity": {
+        "symbol": "7512.T",
+        "code": "7512",
+        "name": "イオン北海道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "北海道内で、衣料品や食品、住まい・余暇に関わる商品を販売するイオングループの企業。総合スーパーと食品スーパー、ディスカウントストア、小型スーパーを運営し、自転車専門店も展開する。イオンなどの関連会社から商品の供給を受け、店頭で消費者に届ける。",
+      "proof": {
+        "code": "7512",
+        "exchange": "Tokyo",
+        "corporate_number": "4430001015958",
+        "edinet_code": "E03268",
+        "source_company_name": "イオン北海道株式会社",
+        "filing_company_name": "イオン北海道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y36L",
+        "current_edinet_code": "E03268",
+        "current_corporate_number": "4430001015958"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y36L",
+      "filed_on": "2026-05-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837539.4253461,
+      "pdf_sha256": "dd651c0b68767a3e8b7bb6afd085ee51e7c9d5b67a25da2b2c24b07e9775b128"
+    },
+    {
+      "symbol": "7515.T",
+      "identity": {
+        "symbol": "7515.T",
+        "code": "7515",
+        "name": "マルヨシセンター",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "スーパーマーケットを運営する企業。子会社のフレッシュデポが店で売る食品を製造し、レックスが物流センターを運営することで販売を支える。自社ではレストランも運営し、関連会社の高松マリーナーはモーターボートの販売・保管を行っている。",
+      "proof": {
+        "code": "7515",
+        "exchange": "Tokyo",
+        "corporate_number": "3470001003902",
+        "edinet_code": "E03272",
+        "source_company_name": "株式会社マルヨシセンター",
+        "filing_company_name": "株式会社マルヨシセンター",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5AV",
+        "current_edinet_code": "E03272",
+        "current_corporate_number": "3470001003902"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5AV",
+      "filed_on": "2026-05-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837545.4354932,
+      "pdf_sha256": "dacff7ba86e28f47dba774391b35faaafd5ff323d13b1675ae2369f0b22b2c4b"
+    },
+    {
+      "symbol": "7532.T",
+      "identity": {
+        "symbol": "7532.T",
+        "code": "7532",
+        "name": "パン・パシフィック・インターナショナルホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「ドン・キホーテ」や「MEGAドン・キホーテ」、ユニーの「アピタ」「ピアゴ」などを傘下に置く持株会社。グループで総合小売や惣菜・弁当の製造、カード・電子マネーのサービスを行う。北米ではスーパーなど、アジアでは「DON DON DONKI」を展開している。",
+      "proof": {
+        "code": "7532",
+        "exchange": "Tokyo",
+        "corporate_number": "7013201016303",
+        "edinet_code": "E03280",
+        "source_company_name": "株式会社パン・パシフィック・インターナショナルホールディングス",
+        "filing_company_name": "株式会社パン・パシフィック・インターナショナルホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z42G",
+        "current_edinet_code": "E03280",
+        "current_corporate_number": "7013201016303"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z42G",
+      "filed_on": "2026-09-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837551.495856,
+      "pdf_sha256": "228b5b2fe99edbff6ce1803c2ea5bed8853a5a71ac2533db9fb947141a34a722"
+    },
+    {
+      "symbol": "7564.T",
+      "identity": {
+        "symbol": "7564.T",
+        "code": "7564",
+        "name": "ワークマン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "作業服や安全靴、手袋などの仕事用商品と、アウトドア・スポーツ向けの衣料を販売する。全国の加盟店と直営店で展開し、加盟店には商品や運営ノウハウを提供してチャージ収入を得る。作業用品に加え、普段着や肌着、雨具なども扱う。",
+      "proof": {
+        "code": "7564",
+        "exchange": "Tokyo",
+        "corporate_number": "1070001013828",
+        "edinet_code": "E03296",
+        "source_company_name": "株式会社ワークマン",
+        "filing_company_name": "株式会社ワークマン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGNI",
+        "current_edinet_code": "E03296",
+        "current_corporate_number": "1070001013828"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGNI",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837560.6067042,
+      "pdf_sha256": "b3e34ea83b0fb9c20c0e4e081b82310c7b6c4cebf1a87039e1de3e7738b119fe"
+    },
+    {
+      "symbol": "7604.T",
+      "identity": {
+        "symbol": "7604.T",
+        "code": "7604",
+        "name": "梅の花グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループの子会社が湯葉・豆腐料理の「梅の花」、すし半、さくら水産などの飲食店を運営する。持ち帰りでは古市庵の寿司や梅の花の弁当・惣菜を扱う。親会社は食材供給や経営・事務面で子会社を支え、水産加工品や自社ブランド商品を外部企業や通販でも販売している。",
+      "proof": {
+        "code": "7604",
+        "exchange": "Tokyo",
+        "corporate_number": "5290001048435",
+        "edinet_code": "E03314",
+        "source_company_name": "株式会社梅の花グループ",
+        "filing_company_name": "株式会社梅の花グループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YSIF",
+        "current_edinet_code": "E03314",
+        "current_corporate_number": "5290001048435"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YSIF",
+      "filed_on": "2026-07-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837565.343476,
+      "pdf_sha256": "22ee1f55277cbafb60c953fbfe0d534e2572f0ca899c4b18b64470631e32490b"
+    },
+    {
+      "symbol": "7625.T",
+      "identity": {
+        "symbol": "7625.T",
+        "code": "7625",
+        "name": "グローバルダイニング",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東京を中心に、イタリア料理やメキシコアメリカ料理、アジア料理、和食などのレストランを運営する。米国ではカリフォルニアの子会社がロサンゼルスの店舗を運営しており、国内外で飲食店の経営を行っている。",
+      "proof": {
+        "code": "7625",
+        "exchange": "Tokyo",
+        "corporate_number": "6010401005715",
+        "edinet_code": "E03327",
+        "source_company_name": "株式会社グローバルダイニング",
+        "filing_company_name": "株式会社グローバルダイニング",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XTRA",
+        "current_edinet_code": "E03327",
+        "current_corporate_number": "6010401005715"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XTRA",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837571.410528,
+      "pdf_sha256": "389b02b9727187d516d24837a15e8cc016a696bf79982fbcc8b62518ea2c3a2f"
+    },
+    {
+      "symbol": "7677.T",
+      "identity": {
+        "symbol": "7677.T",
+        "code": "7677",
+        "name": "ヤシマキザイ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道会社や車両メーカーに、電車のブレーキ、ドア装置、モーター、コネクタなどを供給する商社。部品を在庫し、車両や発変電設備の保守に必要な商材も販売する。鉄道以外では工場や自動車関連のメーカー向けに電子部品などを扱い、海外にも販売拠点を持つ。",
+      "proof": {
+        "code": "7677",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001059407",
+        "edinet_code": "E34499",
+        "source_company_name": "株式会社ヤシマキザイ",
+        "filing_company_name": "株式会社ヤシマキザイ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ1S",
+        "current_edinet_code": "E34499",
+        "current_corporate_number": "9010001059407"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ1S",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837577.4199,
+      "pdf_sha256": "b6b8ed89121b45f4b7a52bafc32534a8dead97b053e82f43137dd649a1a25f59"
+    },
+    {
+      "symbol": "7803.T",
+      "identity": {
+        "symbol": "7803.T",
+        "code": "7803",
+        "name": "ブシロード",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "トレーディングカードゲームやモバイル・家庭用ゲームを企画・開発する。グループで海外向けカードの製造・販売、音楽ライブや舞台公演、キャラクターグッズ、雑誌・書籍を手掛ける。声優事務所「響」や、女子プロレスの「スターダム」の運営もグループ事業となっている。",
+      "proof": {
+        "code": "7803",
+        "exchange": "Tokyo",
+        "corporate_number": "8011201012032",
+        "edinet_code": "E35004",
+        "source_company_name": "株式会社ブシロード",
+        "filing_company_name": "株式会社ブシロード",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z4J4",
+        "current_edinet_code": "E35004",
+        "current_corporate_number": "8011201012032"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z4J4",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837583.50163,
+      "pdf_sha256": "1e4b9592df9f21bf5608059db446cced5712add49bbd0da39de863cb6b388eaa"
+    },
+    {
+      "symbol": "7857.T",
+      "identity": {
+        "symbol": "7857.T",
+        "code": "7857",
+        "name": "セキ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "出版物や広告などの印刷、紙の箱の加工を行い、グループでデザインから印刷・発送までを担う。洋紙・板紙の販売のほか、雑誌・書籍の出版や広告も手掛ける。事業所向け用品のカタログ販売、美術館の運営、ネット通販事業者の売上向上支援にも取り組む。",
+      "proof": {
+        "code": "7857",
+        "exchange": "Tokyo",
+        "corporate_number": "9500001002341",
+        "edinet_code": "E00730",
+        "source_company_name": "セキ株式会社",
+        "filing_company_name": "セキ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YA1Y",
+        "current_edinet_code": "E00730",
+        "current_corporate_number": "9500001002341"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YA1Y",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837589.4716852,
+      "pdf_sha256": "c26bfc136ddb203d62ec259139535cc4350fe484a05349e1e1c0c7b54ce88e8d"
+    },
+    {
+      "symbol": "7901.T",
+      "identity": {
+        "symbol": "7901.T",
+        "code": "7901",
+        "name": "マツモト",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "学校の卒業アルバムを主力に、ポスターやパンフレットなどを印刷する。企画から製版、印刷、製本までの設備を自社に持つ。デジタル写真アルバムや自費出版、ネットでの印刷注文・写真プリントの販売も扱っている。",
+      "proof": {
+        "code": "7901",
+        "exchange": "Tokyo",
+        "corporate_number": "9290801005722",
+        "edinet_code": "E00715",
+        "source_company_name": "株式会社マツモト",
+        "filing_company_name": "株式会社マツモト",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YRR3",
+        "current_edinet_code": "E00715",
+        "current_corporate_number": "9290801005722"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YRR3",
+      "filed_on": "2026-07-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837595.5073311,
+      "pdf_sha256": "0834ec998059f0eebca981e097db139c4bc81020dd7f104fa1b318af20621043"
+    },
+    {
+      "symbol": "7928.T",
+      "identity": {
+        "symbol": "7928.T",
+        "code": "7928",
+        "name": "旭化学工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電動工具や自動車に使うプラスチック部品を製造し、成形に必要な金型の設計・製作も行う。日本の本体に加え、中国の旭日塑料制品とタイのAsahi Plusが加工・金型事業を担い、各地域に製造拠点を持っている。",
+      "proof": {
+        "code": "7928",
+        "exchange": "Tokyo",
+        "corporate_number": "5180301015006",
+        "edinet_code": "E01031",
+        "source_company_name": "旭化学工業株式会社",
+        "filing_company_name": "旭化学工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X6CC",
+        "current_edinet_code": "E01031",
+        "current_corporate_number": "5180301015006"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X6CC",
+      "filed_on": "2025-11-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837601.551639,
+      "pdf_sha256": "a5be7a4d607117450334bc0a57c6aa5c6c58c95cce8aed8ee6c0c1765d920ebc"
+    },
+    {
+      "symbol": "8001.T",
+      "identity": {
+        "symbol": "8001.T",
+        "code": "8001",
+        "name": "伊藤忠商事",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣料や食品、機械、金属、燃料などの取引と、関連事業への投資を行う総合商社。商品の調達・販売だけでなく物流や資金面、プロジェクトの組成にも関わる。グループの事業は資源開発から、食料の生産・流通、不動産、IT・金融、ファミリーマートなどの小売まで広がる。",
+      "proof": {
+        "code": "8001",
+        "exchange": "Tokyo",
+        "corporate_number": "7120001077358",
+        "edinet_code": "E02497",
+        "source_company_name": "伊藤忠商事株式会社",
+        "filing_company_name": "伊藤忠商事株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YA6H",
+        "current_edinet_code": "E02497",
+        "current_corporate_number": "7120001077358"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YA6H",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837607.594823,
+      "pdf_sha256": "0ca44e3e658983c557b93e70122a3ea969f205f0617e76c6f3d4c0a98cae81e4"
+    },
+    {
+      "symbol": "8023.T",
+      "identity": {
+        "symbol": "8023.T",
+        "code": "8023",
+        "name": "DAIKOXTECH",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "富士通製品などのハードウェアを販売し、ソフトの開発・保守やネットワーク工事も行う。グループでは保険・共済向けシステム、会計や生産管理のアプリ、セキュリティ製品AppGuardの導入支援などを扱い、機器やシステムの運用管理も提供している。",
+      "proof": {
+        "code": "8023",
+        "exchange": "Tokyo",
+        "corporate_number": "2011101011783",
+        "edinet_code": "E02683",
+        "source_company_name": "ＤＡＩＫＯ　ＸＴＥＣＨ株式会社",
+        "filing_company_name": "DAIKOXTECH株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIXP",
+        "current_edinet_code": "E02683",
+        "current_corporate_number": "2011101011783"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIXP",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837615.064048,
+      "pdf_sha256": "c011e06d02f23f45e4e346b5530c55180bc3c34211a8982bfe046c5f8295c1f8"
+    },
+    {
+      "symbol": "8050.T",
+      "identity": {
+        "symbol": "8050.T",
+        "code": "8050",
+        "name": "セイコーグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "時計や電子デバイス、ITシステムを手掛けるグループの持株会社。セイコーウオッチなどが時計の製造・卸売・小売を担い、和光は宝飾品などを扱う。セイコーインスツルの電子デバイスに加え、決済・IoT関連の製品やソフト開発、大型表示盤・スポーツ計時機器も展開する。",
+      "proof": {
+        "code": "8050",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001034797",
+        "edinet_code": "E02280",
+        "source_company_name": "セイコーグループ株式会社",
+        "filing_company_name": "セイコーグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHM2",
+        "current_edinet_code": "E02280",
+        "current_corporate_number": "9010001034797"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHM2",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837621.343564,
+      "pdf_sha256": "e36878dceb6f04a6a23c76b13f19d422e142c4ee86e5c694920f2f57bafa73af"
+    },
+    {
+      "symbol": "8074.T",
+      "identity": {
+        "symbol": "8074.T",
+        "code": "8074",
+        "name": "YUASA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場向けの工具・機械や自動化設備、住宅設備、配管・空調機器、建築資材などを販売する商社。グループで関連工事の設計・施工や建設機械のレンタルも行う。仮設のコンテナハウスの製造、イベント設営、石油製品の販売などにも事業を広げている。",
+      "proof": {
+        "code": "8074",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001034958",
+        "edinet_code": "E02525",
+        "source_company_name": "株式会社ＹＵＡＳＡ",
+        "filing_company_name": "株式会社YUASA",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGZX",
+        "current_edinet_code": "E02525",
+        "current_corporate_number": "5010001034958"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGZX",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837631.783154,
+      "pdf_sha256": "2a7566d27c6dc9cb86e1c25041d6a0ad8c52f0c8a99473e6a5a909822f5d57e3"
+    },
+    {
+      "symbol": "8135.T",
+      "identity": {
+        "symbol": "8135.T",
+        "code": "8135",
+        "name": "ゼット",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "スポーツ用品を仕入れ、全国の専門店や量販店に卸売する。子会社のゼットクリエイトは野球用バット・グラブなどをつくり、スポーツウエアも企画する。グループの直営店で一般客にも販売し、中国での野球用品販売や物流サービスも行う。",
+      "proof": {
+        "code": "8135",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001023916",
+        "edinet_code": "E03076",
+        "source_company_name": "ゼット株式会社",
+        "filing_company_name": "ゼット株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJPU",
+        "current_edinet_code": "E03076",
+        "current_corporate_number": "6120001023916"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJPU",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837636.767819,
+      "pdf_sha256": "75a3eb050115fb5ef78f12692421c6042f782ef31c057e902ef5bf7f2a5a54fe"
+    },
+    {
+      "symbol": "8147.T",
+      "identity": {
+        "symbol": "8147.T",
+        "code": "8147",
+        "name": "トミタ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工作機械や工具を仕入れ、国内と北米・アジア・欧州のグループ拠点で販売する。日本では新日本産業が計量・計測機器を扱い、ツールメールクラブが工具を通販する。ほかにグループで機械の配線や修理、ビル管理、保険代理業も行っている。",
+      "proof": {
+        "code": "8147",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001052494",
+        "edinet_code": "E02668",
+        "source_company_name": "株式会社トミタ",
+        "filing_company_name": "株式会社トミタ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJEU",
+        "current_edinet_code": "E02668",
+        "current_corporate_number": "8010001052494"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJEU",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837642.553353,
+      "pdf_sha256": "1f0480c1f79e2ec0f12590bd6e402f631637c2c49bb3e2bc27e2f095821eb91f"
+    },
+    {
+      "symbol": "8242.T",
+      "identity": {
+        "symbol": "8242.T",
+        "code": "8242",
+        "name": "エイチ・ツー・オーリテイリング",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "阪急・阪神の百貨店や、イズミヤ・阪急オアシス・関西スーパーの食品スーパーをグループで展開する。食品の製造や仕入れ、関西圏の個別宅配も担う。商業施設の開発・運営に加え、ホテル、飲食店、家具・化粧品の販売などを手掛けている。",
+      "proof": {
+        "code": "8242",
+        "exchange": "Tokyo",
+        "corporate_number": "1120001059683",
+        "edinet_code": "E03020",
+        "source_company_name": "エイチ・ツー・オーリテイリング株式会社",
+        "filing_company_name": "エイチ・ツー・オーリテイリング株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDD0",
+        "current_edinet_code": "E03020",
+        "current_corporate_number": "1120001059683"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDD0",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837648.607169,
+      "pdf_sha256": "e5061f288634182d44dfa090420e22720f5db0689cc8952573234c009a761413"
+    },
+    {
+      "symbol": "8306.T",
+      "identity": {
+        "symbol": "8306.T",
+        "code": "8306",
+        "name": "三菱UFJフィナンシャル・グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "三菱UFJ銀行や三菱UFJ信託銀行、証券会社を傘下に持つ金融グループの持株会社。グループで銀行取引、財産の受託管理、証券取引や資産運用を扱う。三菱UFJニコスのカード、アコムの貸金・保証なども展開し、国内と海外の会社が金融サービスを担う。",
+      "proof": {
+        "code": "8306",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001073486",
+        "edinet_code": "E03606",
+        "source_company_name": "株式会社三菱ＵＦＪフィナンシャル・グループ",
+        "filing_company_name": "株式会社三菱UFJフィナンシャル・グループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJQO",
+        "current_edinet_code": "E03606",
+        "current_corporate_number": "4010001073486"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJQO",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837656.219168,
+      "pdf_sha256": "a169f6100d8aafc4d60163a3ee7b88c025050ee7a10574d48fe7184678298def"
+    },
+    {
+      "symbol": "8309.T",
+      "identity": {
+        "symbol": "8309.T",
+        "code": "8309",
+        "name": "三井住友トラストグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "三井住友信託銀行を中核に、資産運用・管理や不動産分野の会社を傘下に置く持株会社。グループで企業の年金資産を運用・管理し、三井住友トラスト不動産が不動産の仲介を行う。運用会社による投資運用や、カード、保険代理、信用保証なども扱っている。",
+      "proof": {
+        "code": "8309",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001139555",
+        "edinet_code": "E03611",
+        "source_company_name": "三井住友トラストグループ株式会社",
+        "filing_company_name": "三井住友トラストグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBGM",
+        "current_edinet_code": "E03611",
+        "current_corporate_number": "9010001139555"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBGM",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837662.338196,
+      "pdf_sha256": "6a7539e51f3b96a4c8a24a06d67d1e844cf751fffc688c189acac9a798a9d00f"
+    },
+    {
+      "symbol": "8331.T",
+      "identity": {
+        "symbol": "8331.T",
+        "code": "8331",
+        "name": "千葉銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "千葉県を主な地盤とし、預金を受け入れ、地域の企業への融資や個人の住宅ローンを提供する銀行。グループで証券取引やリース、カード、資産運用を扱う。ソフト開発、企業向けコンサルティング、人材紹介、地域商社など、金融以外のサービスも展開している。",
+      "proof": {
+        "code": "8331",
+        "exchange": "Tokyo",
+        "corporate_number": "2040001000019",
+        "edinet_code": "E03556",
+        "source_company_name": "株式会社千葉銀行",
+        "filing_company_name": "株式会社千葉銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDSE",
+        "current_edinet_code": "E03556",
+        "current_corporate_number": "2040001000019"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDSE",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837668.249005,
+      "pdf_sha256": "1cfbacc19d41843aadd667dc90bae897aa33321c546e469ffecb0a6804de1da9"
+    },
+    {
+      "symbol": "8337.T",
+      "identity": {
+        "symbol": "8337.T",
+        "code": "8337",
+        "name": "千葉興業銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資と国内外の送金を扱う銀行。グループでは千葉総合リースがリースを担い、ほかの子会社がコンピュータシステムの開発・販売・保守を行う。地域商社や農業、コンサルティング、投資組合の運営・管理にも事業を広げている。",
+      "proof": {
+        "code": "8337",
+        "exchange": "Tokyo",
+        "corporate_number": "9040001000020",
+        "edinet_code": "E03557",
+        "source_company_name": "株式会社千葉興業銀行",
+        "filing_company_name": "株式会社千葉興業銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDK0",
+        "current_edinet_code": "E03557",
+        "current_corporate_number": "9040001000020"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDK0",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837674.443979,
+      "pdf_sha256": "e4682976553fae9c41672377fc3228250852a4db05abad0ade1f1fdfb325fc0f"
+    },
+    {
+      "symbol": "8341.T",
+      "identity": {
+        "symbol": "8341.T",
+        "code": "8341",
+        "name": "七十七銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資や国内外の送金に加え、国債・投資信託・保険の販売や信託を扱う銀行。七十七リースのリース、七十七証券の金融商品取引などをグループで提供する。子会社を通じたカード・保証や、企業へのコンサルティング、人材紹介、投資も展開している。",
+      "proof": {
+        "code": "8341",
+        "exchange": "Tokyo",
+        "corporate_number": "1370001003352",
+        "edinet_code": "E03545",
+        "source_company_name": "株式会社七十七銀行",
+        "filing_company_name": "株式会社七十七銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAM0",
+        "current_edinet_code": "E03545",
+        "current_corporate_number": "1370001003352"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAM0",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837680.329528,
+      "pdf_sha256": "30a498a06ddf99a86f50ec7cdd0601d401bf822bf2e75975178b2ac359113a55"
+    },
+    {
+      "symbol": "8344.T",
+      "identity": {
+        "symbol": "8344.T",
+        "code": "8344",
+        "name": "山形銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "国内の企業や個人への貸出、預金、送金や有価証券投資を扱う銀行。グループでは山銀リースがリース、山銀保証サービスが信用保証を担う。カードや情報処理のほか、TRYパートナーズによる地域商社・コンサルティングも展開している。",
+      "proof": {
+        "code": "8344",
+        "exchange": "Tokyo",
+        "corporate_number": "5390001002010",
+        "edinet_code": "E03549",
+        "source_company_name": "株式会社山形銀行",
+        "filing_company_name": "株式会社山形銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE2M",
+        "current_edinet_code": "E03549",
+        "current_corporate_number": "5390001002010"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE2M",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837686.439618,
+      "pdf_sha256": "f85f4f3cc5a32e8fe2626289731dbe81d42215f8d209e716c55e8507de89a11f"
+    },
+    {
+      "symbol": "8346.T",
+      "identity": {
+        "symbol": "8346.T",
+        "code": "8346",
+        "name": "東邦銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資や送金を提供する銀行。東邦リースが物品のリース・割賦販売、東邦信用保証が保証を担う。子会社を通じて事業承継やM&Aの相談、ITのコンサルティング、カード、システム開発などを扱い、企業の経営や業務も支援する。",
+      "proof": {
+        "code": "8346",
+        "exchange": "Tokyo",
+        "corporate_number": "9380001001018",
+        "edinet_code": "E03550",
+        "source_company_name": "株式会社東邦銀行",
+        "filing_company_name": "株式会社東邦銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9W6",
+        "current_edinet_code": "E03550",
+        "current_corporate_number": "9380001001018"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9W6",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837692.396107,
+      "pdf_sha256": "492c1e17c5d1b7b861d9dbc9dab373bd64aeb661c574b084fbe5c105a08345ab"
+    },
+    {
+      "symbol": "8358.T",
+      "identity": {
+        "symbol": "8358.T",
+        "code": "8358",
+        "name": "スルガ銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資、国内の送金に加え、投資信託や保険などを窓口で販売する銀行。グループではダイレクトワンの貸金・リース・保証や、スルガカードのカードを展開する。スルガビジネスソリューションは事務代行、システム開発、人材派遣を担う。",
+      "proof": {
+        "code": "8358",
+        "exchange": "Tokyo",
+        "corporate_number": "9080101000957",
+        "edinet_code": "E03571",
+        "source_company_name": "スルガ銀行株式会社",
+        "filing_company_name": "スルガ銀行株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCW1",
+        "current_edinet_code": "E03571",
+        "current_corporate_number": "9080101000957"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCW1",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837699.7093399,
+      "pdf_sha256": "3539e816e74fd7acf4e7b2c7b12037de20255564925d40ae783904ca5526c639"
+    },
+    {
+      "symbol": "8360.T",
+      "identity": {
+        "symbol": "8360.T",
+        "code": "8360",
+        "name": "山梨中央銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金や融資、国内外の送金、国債・投資信託・保険の販売を提供する銀行。グループで信用保証、リース、カード、経営コンサルティングや投資助言も扱う。やまなし地域デザインを通じ、観光、脱炭素、広告・マーケティングの事業にも取り組んでいる。",
+      "proof": {
+        "code": "8360",
+        "exchange": "Tokyo",
+        "corporate_number": "3090001002315",
+        "edinet_code": "E03562",
+        "source_company_name": "株式会社山梨中央銀行",
+        "filing_company_name": "株式会社山梨中央銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAZE",
+        "current_edinet_code": "E03562",
+        "current_corporate_number": "3090001002315"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAZE",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837705.77483,
+      "pdf_sha256": "fd27b872329eaaa36bf16b323988d7da99b9df7d830f941f4dec8932cb07b8b2"
+    },
+    {
+      "symbol": "8362.T",
+      "identity": {
+        "symbol": "8362.T",
+        "code": "8362",
+        "name": "福井銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "預金・融資と国内外の送金を提供する銀行。グループでリース、カード、信用保証、企業へのコンサルティングや人材紹介を行い、地場産品の販売や旅行のサービスも扱う。福邦銀行は2026年5月2日に吸収合併している。",
+      "proof": {
+        "code": "8362",
+        "exchange": "Tokyo",
+        "corporate_number": "9210001003641",
+        "edinet_code": "E03567",
+        "source_company_name": "株式会社福井銀行",
+        "filing_company_name": "株式会社福井銀行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFJC",
+        "current_edinet_code": "E03567",
+        "current_corporate_number": "9210001003641"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFJC",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791837711.788188,
+      "pdf_sha256": "3e6687febc3192e5df3eb4d20df25277e756aac83002fa251816341b0f9f4035"
     }
   ]
 }
