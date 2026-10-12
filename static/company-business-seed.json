@@ -2,7 +2,7 @@
   "version": 1,
   "license": "CC0-1.0",
   "source_url": "https://www.wikidata.org/wiki/Wikidata:Data_access",
-  "generated_at": 1791792359.556976,
+  "generated_at": 1791807351.215294,
   "catalogue_identity_sha256": "544a74378e97ea03947a01cc826b846017a6c8d4c9060e31fffffc3ec6aa196e",
   "discovered_at": 1791792202.854589,
   "candidate_hints": [
@@ -25959,29 +25959,28 @@
     }
   ],
   "coverage": {
-    "new_verified": 1115,
-    "unmapped": 1899,
-    "no_structured_facts": 629,
-    "pending_identity": 139,
-    "ambiguous": 14,
+    "new_verified": 1152,
+    "unmapped": 1913,
+    "no_structured_facts": 636,
+    "identity_unconfirmed": 95,
     "official_companies": 3796,
     "candidate_companies": 1883,
-    "available_records": 1126,
-    "verified_current_refresh": 1115,
+    "available_records": 1163,
+    "verified_current_refresh": 1152,
     "retained_previous_records": 11,
-    "short_description_records": 1070,
-    "generic_description_records": 83,
-    "company_specific_short_description_records": 987,
-    "industry_only_records": 41,
+    "short_description_records": 1103,
+    "generic_description_records": 86,
+    "company_specific_short_description_records": 1017,
+    "industry_only_records": 45,
     "product_facts_without_description": 15,
     "by_exchange": {
-      "Tokyo": 1115,
+      "Tokyo": 1152,
       "Sapporo": 4,
       "Fukuoka": 4,
       "Nagoya": 3
     },
     "missing_company_specific_descriptions_by_exchange": {
-      "Tokyo": 2710,
+      "Tokyo": 2680,
       "Sapporo": 13,
       "Nagoya": 62,
       "Fukuoka": 24
@@ -26577,6 +26576,31 @@
       "fetched_at": 1791789717.225399,
       "facts": {
         "description": "日本のモビリティ関連事業企業",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "1762.T",
+      "identity": {
+        "symbol": "1762.T",
+        "code": "1762",
+        "name": "高松コンストラクショングループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q420659",
+        "matched_name": "高松コンストラクショングループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "1762",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "大阪市淀川区に本社を置く事業持株会社であり、高松建設を中核として、金剛組や青木あすなろ建設を傘下に持つ",
         "industries": [],
         "products": []
       }
@@ -27820,6 +27844,36 @@
       "facts": {
         "description": "ソーシャルゲーム、インターネットサービスを提供する日本の企業",
         "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "2148.T",
+      "identity": {
+        "symbol": "2148.T",
+        "code": "2148",
+        "name": "アイティメディア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q618875",
+        "matched_name": "アイティメディア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "2148",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "IT系ニュースサイト",
+        "industries": [
+          {
+            "id": "Q11030",
+            "label": "報道"
+          }
+        ],
         "products": []
       }
     },
@@ -29664,6 +29718,31 @@
       }
     },
     {
+      "symbol": "256A.T",
+      "identity": {
+        "symbol": "256A.T",
+        "code": "256A",
+        "name": "飛島ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11665764",
+        "matched_name": "飛島ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "256A",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の建設会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "2573.T",
       "identity": {
         "symbol": "2573.T",
@@ -30098,6 +30177,36 @@
       }
     },
     {
+      "symbol": "2670.T",
+      "identity": {
+        "symbol": "2670.T",
+        "code": "2670",
+        "name": "エービーシー・マート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11188787",
+        "matched_name": "エービーシー・マート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "2670",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本の靴・衣料品チェーン店",
+        "industries": [
+          {
+            "id": "Q126793",
+            "label": "小売"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
       "symbol": "2678.T",
       "identity": {
         "symbol": "2678.T",
@@ -30122,6 +30231,61 @@
           {
             "id": "Q425779",
             "label": "通信販売"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
+      "symbol": "2681.T",
+      "identity": {
+        "symbol": "2681.T",
+        "code": "2681",
+        "name": "ゲオホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11301501",
+        "matched_name": "株式会社ゲオホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "2681",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本の愛知県名古屋市中区にあるセカンドリテイリンググループを統括する持株会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "268A.T",
+      "identity": {
+        "symbol": "268A.T",
+        "code": "268A",
+        "name": "リガク・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q7333352",
+        "matched_name": "リガク・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "268A",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": null,
+        "industries": [
+          {
+            "id": "Q350532",
+            "label": "精密機械"
           }
         ],
         "products": []
@@ -30751,6 +30915,31 @@
       }
     },
     {
+      "symbol": "2805.T",
+      "identity": {
+        "symbol": "2805.T",
+        "code": "2805",
+        "name": "ヱスビー食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11290090",
+        "matched_name": "ヱスビー食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "2805",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本の東京都中央区にある食品メーカー",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "2809.T",
       "identity": {
         "symbol": "2809.T",
@@ -31118,6 +31307,36 @@
             "label": "マルちゃん"
           }
         ]
+      }
+    },
+    {
+      "symbol": "287A.T",
+      "identity": {
+        "symbol": "287A.T",
+        "code": "287A",
+        "name": "黒田グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q10855501",
+        "matched_name": "黒田グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "287A",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": null,
+        "industries": [
+          {
+            "id": "Q220695",
+            "label": "卸売"
+          }
+        ],
+        "products": []
       }
     },
     {
@@ -31837,6 +32056,31 @@
       }
     },
     {
+      "symbol": "3010.T",
+      "identity": {
+        "symbol": "3010.T",
+        "code": "3010",
+        "name": "ポラリス・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11385568",
+        "matched_name": "ポラリス・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "3010",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の企業",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "3028.T",
       "identity": {
         "symbol": "3028.T",
@@ -31863,6 +32107,31 @@
       "fetched_at": 1791789728.864833,
       "facts": {
         "description": "日本のスポーツ用品販売会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "302A.T",
+      "identity": {
+        "symbol": "302A.T",
+        "code": "302A",
+        "name": "ビースタイルホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q55522610",
+        "matched_name": "ビースタイルホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "302A",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の人材派遣事業者",
         "industries": [],
         "products": []
       }
@@ -32725,6 +32994,61 @@
       }
     },
     {
+      "symbol": "3193.T",
+      "identity": {
+        "symbol": "3193.T",
+        "code": "3193",
+        "name": "エターナルホスピタリティグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11675129",
+        "matched_name": "エターナルホスピタリティグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "3193",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の大阪府大阪市にある外食企業、およびその運営する居酒屋チェーン",
+        "industries": [
+          {
+            "id": "Q41958",
+            "label": "外食産業"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
+      "symbol": "3196.T",
+      "identity": {
+        "symbol": "3196.T",
+        "code": "3196",
+        "name": "ホットランドホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11603490",
+        "matched_name": "ホットランドホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "3196",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本のたこ焼きのチェーン",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "3201.T",
       "identity": {
         "symbol": "3201.T",
@@ -33228,6 +33552,31 @@
       "fetched_at": 1791789672.0629902,
       "facts": {
         "description": "カー用品店",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "3358.T",
+      "identity": {
+        "symbol": "3358.T",
+        "code": "3358",
+        "name": "TrailheadGlobalHoldings",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11351161",
+        "matched_name": "Trailhead Global Holdings",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "3358",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "福岡県のラーメンチェーン",
         "industries": [],
         "products": []
       }
@@ -34048,6 +34397,31 @@
       "fetched_at": 1791789741.472137,
       "facts": {
         "description": "日本の北海道札幌市にある持株会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "3547.T",
+      "identity": {
+        "symbol": "3547.T",
+        "code": "3547",
+        "name": "ユニシアホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q27017115",
+        "matched_name": "ユニシアホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "3547",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の外食チェーン企業",
         "industries": [],
         "products": []
       }
@@ -35097,6 +35471,36 @@
       "facts": {
         "description": "企業",
         "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "3850.T",
+      "identity": {
+        "symbol": "3850.T",
+        "code": "3850",
+        "name": "エヌ・ティ・ティ・データ・イントラマート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11236076",
+        "matched_name": "エヌ・ティ・ティ・データ・イントラマート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "3850",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": null,
+        "industries": [
+          {
+            "id": "Q880371",
+            "label": "ソフトウェア産業"
+          }
+        ],
         "products": []
       }
     },
@@ -36371,6 +36775,31 @@
       }
     },
     {
+      "symbol": "4119.T",
+      "identity": {
+        "symbol": "4119.T",
+        "code": "4119",
+        "name": "日本ピグメントホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q124748765",
+        "matched_name": "日本ピグメントホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "4119",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の化学メーカー",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "4120.T",
       "identity": {
         "symbol": "4120.T",
@@ -36518,6 +36947,57 @@
       }
     },
     {
+      "symbol": "4182.T",
+      "identity": {
+        "symbol": "4182.T",
+        "code": "4182",
+        "name": "三菱瓦斯化学",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q1589451",
+        "matched_name": "三菱瓦斯化学",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "4182",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の東京都千代田区にある化学メーカー",
+        "industries": [
+          {
+            "id": "Q207652",
+            "label": "化学工業"
+          }
+        ],
+        "products": [
+          {
+            "id": "Q62246",
+            "label": "ポリカーボネート"
+          },
+          {
+            "id": "Q146139",
+            "label": "ポリアセタール"
+          },
+          {
+            "id": "Q14982",
+            "label": "メタノール"
+          },
+          {
+            "id": "Q382897",
+            "label": "メタクリル酸メチル"
+          },
+          {
+            "id": "Q171877",
+            "label": "過酸化水素"
+          }
+        ]
+      }
+    },
+    {
       "symbol": "4183.T",
       "identity": {
         "symbol": "4183.T",
@@ -36574,6 +37054,36 @@
             "label": "四フッ化炭素"
           }
         ]
+      }
+    },
+    {
+      "symbol": "4188.T",
+      "identity": {
+        "symbol": "4188.T",
+        "code": "4188",
+        "name": "三菱ケミカルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q3107966",
+        "matched_name": "三菱ケミカルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "4188",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の持株会社",
+        "industries": [
+          {
+            "id": "Q207652",
+            "label": "化学工業"
+          }
+        ],
+        "products": []
       }
     },
     {
@@ -40967,6 +41477,46 @@
       }
     },
     {
+      "symbol": "5344.T",
+      "identity": {
+        "symbol": "5344.T",
+        "code": "5344",
+        "name": "MARUWA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q11231060",
+        "matched_name": "MARUWA",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840",
+        "code": "5344",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "電子部品用セラミック製品のメーカー",
+        "industries": [
+          {
+            "id": "Q187939",
+            "label": "製造業"
+          },
+          {
+            "id": "Q126793",
+            "label": "小売"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
       "symbol": "5356.T",
       "identity": {
         "symbol": "5356.T",
@@ -41359,6 +41909,31 @@
       }
     },
     {
+      "symbol": "547A.T",
+      "identity": {
+        "symbol": "547A.T",
+        "code": "547A",
+        "name": "ムニノバホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q4696808",
+        "matched_name": "ムニノバホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "547A",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の消費者金融会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "5484.T",
       "identity": {
         "symbol": "5484.T",
@@ -41409,6 +41984,31 @@
       "fetched_at": 1791789751.000135,
       "facts": {
         "description": "日本のIT企業",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "549A.T",
+      "identity": {
+        "symbol": "549A.T",
+        "code": "549A",
+        "name": "ヒトトヒトホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11508861",
+        "matched_name": "ヒトトヒトホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "549A",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の警備・ビル運営管理会社",
         "industries": [],
         "products": []
       }
@@ -41484,6 +42084,31 @@
       "fetched_at": 1791789557.289873,
       "facts": {
         "description": "日本の企業",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "5571.T",
+      "identity": {
+        "symbol": "5571.T",
+        "code": "5571",
+        "name": "エキサイトホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11289700",
+        "matched_name": "エキサイトホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "5571",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本で検索エンジンやポータルサイト、ADSL・FTTHなどのブロードバンド接続サービスなどを展開する企業",
         "industries": [],
         "products": []
       }
@@ -50505,6 +51130,31 @@
       }
     },
     {
+      "symbol": "7777.T",
+      "identity": {
+        "symbol": "7777.T",
+        "code": "7777",
+        "name": "スリー・ディー・マトリックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q100956329",
+        "matched_name": "スリー・ディー・マトリックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "7777",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本の企業",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "7782.T",
       "identity": {
         "symbol": "7782.T",
@@ -53221,6 +53871,36 @@
       }
     },
     {
+      "symbol": "8233.T",
+      "identity": {
+        "symbol": "8233.T",
+        "code": "8233",
+        "name": "高島屋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q2058024",
+        "matched_name": "高島屋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "8233",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "日本の百貨店",
+        "industries": [
+          {
+            "id": "Q126793",
+            "label": "小売"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
       "symbol": "8242.T",
       "identity": {
         "symbol": "8242.T",
@@ -53411,6 +54091,46 @@
           {
             "id": "Q806718",
             "label": "銀行業"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
+      "symbol": "8306.T",
+      "identity": {
+        "symbol": "8306.T",
+        "code": "8306",
+        "name": "三菱UFJフィナンシャル・グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q1542175",
+        "matched_name": "三菱UFJフィナンシャル・グループ",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840",
+        "code": "8306",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "三菱UFJ銀行などを傘下に置く三菱グループの金融持株会社",
+        "industries": [
+          {
+            "id": "Q837171",
+            "label": "金融サービス"
+          },
+          {
+            "id": "Q57774188",
+            "label": "金融業"
           }
         ],
         "products": []
@@ -56534,6 +57254,31 @@
       }
     },
     {
+      "symbol": "9267.T",
+      "identity": {
+        "symbol": "9267.T",
+        "code": "9267",
+        "name": "GenkyDrugStores",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11301649",
+        "matched_name": "Genky DrugStores",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9267",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本の福井県坂井市に本社を置くドラッグストアチェーン",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "9279.T",
       "identity": {
         "symbol": "9279.T",
@@ -57604,6 +58349,230 @@
       }
     },
     {
+      "symbol": "9531.T",
+      "identity": {
+        "symbol": "9531.T",
+        "code": "9531",
+        "name": "東京瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q1813910",
+        "matched_name": "東京瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9531",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "東京都港区にあるガス会社",
+        "industries": [
+          {
+            "id": "Q1349255",
+            "label": "ガス田"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9532.T",
+      "identity": {
+        "symbol": "9532.T",
+        "code": "9532",
+        "name": "大阪瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q385775",
+        "matched_name": "大阪瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9532",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807348.4540071,
+      "facts": {
+        "description": "大阪市中央区にあるガス会社",
+        "industries": [],
+        "products": [
+          {
+            "id": "Q358333",
+            "label": "液化天然ガス"
+          }
+        ]
+      }
+    },
+    {
+      "symbol": "9533.T",
+      "identity": {
+        "symbol": "9533.T",
+        "code": "9533",
+        "name": "東邦瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q11528430",
+        "matched_name": "東邦瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9533",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の愛知県名古屋市熱田区にあるガス会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9534.T",
+      "identity": {
+        "symbol": "9534.T",
+        "code": "9534",
+        "name": "北海道瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q11402466",
+        "matched_name": "北海道瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9534",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の北海道を中心とするガス会社",
+        "industries": [
+          {
+            "id": "Q862571",
+            "label": "石油産業"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9536.T",
+      "identity": {
+        "symbol": "9536.T",
+        "code": "9536",
+        "name": "西部ガスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q11629593",
+        "matched_name": "西部ガスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9536",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の福岡県福岡市博多区にあるガス会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9537.T",
+      "identity": {
+        "symbol": "9537.T",
+        "code": "9537",
+        "name": "北陸瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11404389",
+        "matched_name": "北陸瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9537",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "新潟市のガス会社",
+        "industries": [
+          {
+            "id": "Q862571",
+            "label": "石油産業"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9539.T",
+      "identity": {
+        "symbol": "9539.T",
+        "code": "9539",
+        "name": "京葉瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11374726",
+        "matched_name": "京葉瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9539",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": null,
+        "industries": [
+          {
+            "id": "Q862571",
+            "label": "石油産業"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
       "symbol": "9560.T",
       "identity": {
         "symbol": "9560.T",
@@ -57871,6 +58840,37 @@
       }
     },
     {
+      "symbol": "9656.T",
+      "identity": {
+        "symbol": "9656.T",
+        "code": "9656",
+        "name": "グリーンランドリゾート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "proof": {
+        "entity_id": "Q10855658",
+        "matched_name": "グリーンランドリゾート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9656",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807340.25035,
+      "facts": {
+        "description": "日本の熊本県荒尾市にあるレジャーランド",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
       "symbol": "9679.T",
       "identity": {
         "symbol": "9679.T",
@@ -58031,6 +59031,36 @@
       }
     },
     {
+      "symbol": "9704.T",
+      "identity": {
+        "symbol": "9704.T",
+        "code": "9704",
+        "name": "アゴーラホスピタリティーグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q119658139",
+        "matched_name": "アゴーラホスピタリティーグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9704",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の企業",
+        "industries": [
+          {
+            "id": "Q120647861",
+            "label": "宿泊業"
+          }
+        ],
+        "products": []
+      }
+    },
+    {
       "symbol": "9706.T",
       "identity": {
         "symbol": "9706.T",
@@ -58181,6 +59211,31 @@
       "fetched_at": 1791789643.140805,
       "facts": {
         "description": "近鉄グループの旅行事業を統括する持株会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9731.T",
+      "identity": {
+        "symbol": "9731.T",
+        "code": "9731",
+        "name": "白洋舎",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11579995",
+        "matched_name": "白洋舎",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9731",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本のクリーニング会社",
         "industries": [],
         "products": []
       }
@@ -58894,6 +59949,31 @@
       "fetched_at": 1791789737.36746,
       "facts": {
         "description": "日本の東京都文京区にある持株会社",
+        "industries": [],
+        "products": []
+      }
+    },
+    {
+      "symbol": "9973.T",
+      "identity": {
+        "symbol": "9973.T",
+        "code": "9973",
+        "name": "KOZOホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "proof": {
+        "entity_id": "Q11459064",
+        "matched_name": "KOZOホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "code": "9973",
+        "rank": "normal",
+        "current_listing": true
+      },
+      "fetched_at": 1791807344.400382,
+      "facts": {
+        "description": "日本の持ち帰り寿司フランチャイズチェーン、および東京都中央区にあるその運営会社",
         "industries": [],
         "products": []
       }
