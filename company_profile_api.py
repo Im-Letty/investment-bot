@@ -275,7 +275,8 @@ def payment_schedule(symbol, today=None, path=SCHEDULE_PATH):
 
 
 def register_company_profiles(app, profiles, catalogue, dividends, editorial=None, *, quotes=None,
-                              quote_service=None, businesses=None, annual_dividends=None):
+                              quote_service=None, businesses=None, annual_dividends=None,
+                              public_businesses=None):
     reviewed = read_editorial() if editorial is None else editorial
 
     @app.get('/api/company-profile')
@@ -310,7 +311,11 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
             'listings': deepcopy(company.get('other_listings', company.get('listings', [])))}
         payload['company_overview'] = official_company_overview(symbol, company)
         payload['editorial'] = deepcopy(reviewed.get(symbol))
-        if businesses is not None and detail and not payload['editorial']:
+        public_business = (public_businesses.get(symbol, company)
+                           if public_businesses is not None and detail and not payload['editorial'] else None)
+        if public_business:
+            payload['business_overview'] = public_business
+        elif businesses is not None and detail and not payload['editorial']:
             payload['business_overview'] = deepcopy(businesses.get(symbol, company))
             payload['refreshing'] = payload.get('refreshing') is True or (
                 isinstance(payload['business_overview'], dict)

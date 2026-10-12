@@ -2,9 +2,9 @@
   "version": 1,
   "license": "CC0-1.0",
   "source_url": "https://www.wikidata.org/wiki/Wikidata:Data_access",
-  "generated_at": 1791807351.215294,
+  "generated_at": 1791815666.110294,
   "catalogue_identity_sha256": "544a74378e97ea03947a01cc826b846017a6c8d4c9060e31fffffc3ec6aa196e",
-  "discovered_at": 1791792202.854589,
+  "discovered_at": 1791815454.7533,
   "candidate_hints": [
     {
       "symbol": "1301.T",
@@ -255,7 +255,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11321723"
+        "Q11321723",
+        "Q137313242"
       ]
     },
     {
@@ -411,6 +412,19 @@
       },
       "entity_ids": [
         "Q119658577"
+      ]
+    },
+    {
+      "symbol": "156A.T",
+      "identity": {
+        "symbol": "156A.T",
+        "code": "156A",
+        "name": "マテリアルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q125659965"
       ]
     },
     {
@@ -795,6 +809,19 @@
       ]
     },
     {
+      "symbol": "1813.T",
+      "identity": {
+        "symbol": "1813.T",
+        "code": "1813",
+        "name": "不動テトラ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11361587"
+      ]
+    },
+    {
       "symbol": "1814.T",
       "identity": {
         "symbol": "1814.T",
@@ -960,6 +987,19 @@
       },
       "entity_ids": [
         "Q11455886"
+      ]
+    },
+    {
+      "symbol": "184A.T",
+      "identity": {
+        "symbol": "184A.T",
+        "code": "184A",
+        "name": "学びエイド",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q125660088"
       ]
     },
     {
@@ -1402,6 +1442,19 @@
       ]
     },
     {
+      "symbol": "2108.T",
+      "identity": {
+        "symbol": "2108.T",
+        "code": "2108",
+        "name": "日本甜菜製糖",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11508607"
+      ]
+    },
+    {
       "symbol": "2112.T",
       "identity": {
         "symbol": "2112.T",
@@ -1493,6 +1546,26 @@
       ]
     },
     {
+      "symbol": "212A.T",
+      "identity": {
+        "symbol": "212A.T",
+        "code": "212A",
+        "name": "フィットイージー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "entity_ids": [
+        "Q126735593",
+        "Q131344580"
+      ]
+    },
+    {
       "symbol": "2134.T",
       "identity": {
         "symbol": "2134.T",
@@ -1547,6 +1620,7 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
+        "Q137321860",
         "Q618875"
       ]
     },
@@ -1574,6 +1648,19 @@
       },
       "entity_ids": [
         "Q11314887"
+      ]
+    },
+    {
+      "symbol": "2158.T",
+      "identity": {
+        "symbol": "2158.T",
+        "code": "2158",
+        "name": "FRONTEO",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q119658129"
       ]
     },
     {
@@ -1971,6 +2058,19 @@
       ]
     },
     {
+      "symbol": "2268.T",
+      "identity": {
+        "symbol": "2268.T",
+        "code": "2268",
+        "name": "B-Rサーティワンアイスクリーム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321937"
+      ]
+    },
+    {
       "symbol": "2269.T",
       "identity": {
         "symbol": "2269.T",
@@ -2253,6 +2353,19 @@
       ]
     },
     {
+      "symbol": "2340.T",
+      "identity": {
+        "symbol": "2340.T",
+        "code": "2340",
+        "name": "極楽湯ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321923"
+      ]
+    },
+    {
       "symbol": "2341.T",
       "identity": {
         "symbol": "2341.T",
@@ -2431,6 +2544,19 @@
       },
       "entity_ids": [
         "Q11227822"
+      ]
+    },
+    {
+      "symbol": "2415.T",
+      "identity": {
+        "symbol": "2415.T",
+        "code": "2415",
+        "name": "ヒューマンホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11330257"
       ]
     },
     {
@@ -2795,6 +2921,20 @@
       ]
     },
     {
+      "symbol": "254A.T",
+      "identity": {
+        "symbol": "254A.T",
+        "code": "254A",
+        "name": "AIフュージョンキャピタルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11333419",
+        "Q136513060"
+      ]
+    },
+    {
       "symbol": "255A.T",
       "identity": {
         "symbol": "255A.T",
@@ -2817,7 +2957,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11665764"
+        "Q11665764",
+        "Q137321885"
       ]
     },
     {
@@ -3139,6 +3280,19 @@
       ]
     },
     {
+      "symbol": "2685.T",
+      "identity": {
+        "symbol": "2685.T",
+        "code": "2685",
+        "name": "アンドエスティHD",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321863"
+      ]
+    },
+    {
       "symbol": "2687.T",
       "identity": {
         "symbol": "2687.T",
@@ -3161,6 +3315,7 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
+        "Q137321906",
         "Q7333352"
       ]
     },
@@ -3359,6 +3514,19 @@
       ]
     },
     {
+      "symbol": "2751.T",
+      "identity": {
+        "symbol": "2751.T",
+        "code": "2751",
+        "name": "テンポスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321934"
+      ]
+    },
+    {
       "symbol": "2760.T",
       "identity": {
         "symbol": "2760.T",
@@ -3408,6 +3576,19 @@
       },
       "entity_ids": [
         "Q586260"
+      ]
+    },
+    {
+      "symbol": "2769.T",
+      "identity": {
+        "symbol": "2769.T",
+        "code": "2769",
+        "name": "ヴィレッジヴァンガードコーポレーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321911"
       ]
     },
     {
@@ -3505,6 +3686,19 @@
       },
       "entity_ids": [
         "Q11442062"
+      ]
+    },
+    {
+      "symbol": "2792.T",
+      "identity": {
+        "symbol": "2792.T",
+        "code": "2792",
+        "name": "ハニーズホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321891"
       ]
     },
     {
@@ -3697,7 +3891,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11384565"
+        "Q11384565",
+        "Q11384566"
       ]
     },
     {
@@ -3775,6 +3970,7 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
+        "Q137321871",
         "Q28840043"
       ]
     },
@@ -4190,7 +4386,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11331495"
+        "Q11331495",
+        "Q137321893"
       ]
     },
     {
@@ -4256,6 +4453,19 @@
       },
       "entity_ids": [
         "Q85874496"
+      ]
+    },
+    {
+      "symbol": "2982.T",
+      "identity": {
+        "symbol": "2982.T",
+        "code": "2982",
+        "name": "ADワークスグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321865"
       ]
     },
     {
@@ -4527,7 +4737,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11308974"
+        "Q11308974",
+        "Q137321864"
       ]
     },
     {
@@ -4570,6 +4781,20 @@
       ]
     },
     {
+      "symbol": "3053.T",
+      "identity": {
+        "symbol": "3053.T",
+        "code": "3053",
+        "name": "ペッパーフードサービス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q1016072",
+        "Q11337413"
+      ]
+    },
+    {
       "symbol": "3054.T",
       "identity": {
         "symbol": "3054.T",
@@ -4593,6 +4818,19 @@
       },
       "entity_ids": [
         "Q11277713"
+      ]
+    },
+    {
+      "symbol": "3058.T",
+      "identity": {
+        "symbol": "3058.T",
+        "code": "3058",
+        "name": "三洋堂ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321927"
       ]
     },
     {
@@ -5207,7 +5445,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11675129"
+        "Q11675129",
+        "Q137321867"
       ]
     },
     {
@@ -5220,7 +5459,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11603490"
+        "Q11603490",
+        "Q137321901"
       ]
     },
     {
@@ -5698,6 +5938,19 @@
       },
       "entity_ids": [
         "Q11327841"
+      ]
+    },
+    {
+      "symbol": "3353.T",
+      "identity": {
+        "symbol": "3353.T",
+        "code": "3353",
+        "name": "メディカル一光グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321943"
       ]
     },
     {
@@ -6373,6 +6626,19 @@
       ]
     },
     {
+      "symbol": "3536.T",
+      "identity": {
+        "symbol": "3536.T",
+        "code": "3536",
+        "name": "アクサスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321909"
+      ]
+    },
+    {
       "symbol": "3537.T",
       "identity": {
         "symbol": "3537.T",
@@ -6396,6 +6662,19 @@
       },
       "entity_ids": [
         "Q11288373"
+      ]
+    },
+    {
+      "symbol": "3539.T",
+      "identity": {
+        "symbol": "3539.T",
+        "code": "3539",
+        "name": "JMホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321881"
       ]
     },
     {
@@ -6447,6 +6726,25 @@
       },
       "entity_ids": [
         "Q27017115"
+      ]
+    },
+    {
+      "symbol": "3549.T",
+      "identity": {
+        "symbol": "3549.T",
+        "code": "3549",
+        "name": "クスリのアオキホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "entity_ids": [
+        "Q137321873"
       ]
     },
     {
@@ -6530,7 +6828,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11257037"
+        "Q11257037",
+        "Q137321896"
       ]
     },
     {
@@ -6582,6 +6881,19 @@
       },
       "entity_ids": [
         "Q30928524"
+      ]
+    },
+    {
+      "symbol": "3591.T",
+      "identity": {
+        "symbol": "3591.T",
+        "code": "3591",
+        "name": "ワコールホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321908"
       ]
     },
     {
@@ -7286,6 +7598,19 @@
       ]
     },
     {
+      "symbol": "3817.T",
+      "identity": {
+        "symbol": "3817.T",
+        "code": "3817",
+        "name": "SRAホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321866"
+      ]
+    },
+    {
       "symbol": "3825.T",
       "identity": {
         "symbol": "3825.T",
@@ -7387,6 +7712,20 @@
       },
       "entity_ids": [
         "Q11345753"
+      ]
+    },
+    {
+      "symbol": "3863.T",
+      "identity": {
+        "symbol": "3863.T",
+        "code": "3863",
+        "name": "日本製紙",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q10834647",
+        "Q1993312"
       ]
     },
     {
@@ -7598,6 +7937,19 @@
       ]
     },
     {
+      "symbol": "3921.T",
+      "identity": {
+        "symbol": "3921.T",
+        "code": "3921",
+        "name": "ネオジャパン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321890"
+      ]
+    },
+    {
       "symbol": "3923.T",
       "identity": {
         "symbol": "3923.T",
@@ -7776,6 +8128,19 @@
       },
       "entity_ids": [
         "Q119660009"
+      ]
+    },
+    {
+      "symbol": "3969.T",
+      "identity": {
+        "symbol": "3969.T",
+        "code": "3969",
+        "name": "エイトレッド",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321878"
       ]
     },
     {
@@ -8348,6 +8713,19 @@
       ]
     },
     {
+      "symbol": "416A.T",
+      "identity": {
+        "symbol": "416A.T",
+        "code": "416A",
+        "name": "富士ユナイトホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321939"
+      ]
+    },
+    {
       "symbol": "4172.T",
       "identity": {
         "symbol": "4172.T",
@@ -8358,6 +8736,19 @@
       },
       "entity_ids": [
         "Q102378714"
+      ]
+    },
+    {
+      "symbol": "417A.T",
+      "identity": {
+        "symbol": "417A.T",
+        "code": "417A",
+        "name": "ブルーゾーンホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321898"
       ]
     },
     {
@@ -8436,6 +8827,19 @@
       },
       "entity_ids": [
         "Q11332017"
+      ]
+    },
+    {
+      "symbol": "4194.T",
+      "identity": {
+        "symbol": "4194.T",
+        "code": "4194",
+        "name": "ビジョナル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321892"
       ]
     },
     {
@@ -8665,6 +9069,19 @@
       ]
     },
     {
+      "symbol": "4255.T",
+      "identity": {
+        "symbol": "4255.T",
+        "code": "4255",
+        "name": "THECOO",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q111599308"
+      ]
+    },
+    {
       "symbol": "4262.T",
       "identity": {
         "symbol": "4262.T",
@@ -8775,6 +9192,20 @@
       ]
     },
     {
+      "symbol": "4324.T",
+      "identity": {
+        "symbol": "4324.T",
+        "code": "4324",
+        "name": "電通グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q1189945",
+        "Q119658125"
+      ]
+    },
+    {
       "symbol": "4334.T",
       "identity": {
         "symbol": "4334.T",
@@ -8875,7 +9306,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11340702"
+        "Q11340702",
+        "Q137321941"
       ]
     },
     {
@@ -9024,7 +9456,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11307188"
+        "Q11307188",
+        "Q137321882"
       ]
     },
     {
@@ -9142,6 +9575,19 @@
       },
       "entity_ids": [
         "Q97311830"
+      ]
+    },
+    {
+      "symbol": "4433.T",
+      "identity": {
+        "symbol": "4433.T",
+        "code": "4433",
+        "name": "ヒト・コミュニケーションズ・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321894"
       ]
     },
     {
@@ -10086,6 +10532,20 @@
       ]
     },
     {
+      "symbol": "4679.T",
+      "identity": {
+        "symbol": "4679.T",
+        "code": "4679",
+        "name": "田谷",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11577266",
+        "Q128332306"
+      ]
+    },
+    {
       "symbol": "4680.T",
       "identity": {
         "symbol": "4680.T",
@@ -10141,6 +10601,20 @@
       },
       "entity_ids": [
         "Q11248393"
+      ]
+    },
+    {
+      "symbol": "4689.T",
+      "identity": {
+        "symbol": "4689.T",
+        "code": "4689",
+        "name": "LINEヤフー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q1146428",
+        "Q86734122"
       ]
     },
     {
@@ -10385,6 +10859,7 @@
         ]
       },
       "entity_ids": [
+        "Q17192255",
         "Q17192283"
       ]
     },
@@ -10525,6 +11000,19 @@
       ]
     },
     {
+      "symbol": "4816.T",
+      "identity": {
+        "symbol": "4816.T",
+        "code": "4816",
+        "name": "東映アニメーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q730179"
+      ]
+    },
+    {
       "symbol": "4825.T",
       "identity": {
         "symbol": "4825.T",
@@ -10574,6 +11062,19 @@
       },
       "entity_ids": [
         "Q11276057"
+      ]
+    },
+    {
+      "symbol": "4838.T",
+      "identity": {
+        "symbol": "4838.T",
+        "code": "4838",
+        "name": "スペースシャワーSKIYAKIホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11312991"
       ]
     },
     {
@@ -10665,6 +11166,20 @@
       },
       "entity_ids": [
         "Q119659219"
+      ]
+    },
+    {
+      "symbol": "4901.T",
+      "identity": {
+        "symbol": "4901.T",
+        "code": "4901",
+        "name": "富士フイルムホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11455891",
+        "Q164740"
       ]
     },
     {
@@ -10787,7 +11302,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11339469"
+        "Q11339469",
+        "Q137321900"
       ]
     },
     {
@@ -11245,6 +11761,19 @@
       ]
     },
     {
+      "symbol": "5133.T",
+      "identity": {
+        "symbol": "5133.T",
+        "code": "5133",
+        "name": "テリロジーホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321933"
+      ]
+    },
+    {
       "symbol": "5139.T",
       "identity": {
         "symbol": "5139.T",
@@ -11559,6 +12088,19 @@
       },
       "entity_ids": [
         "Q11672824"
+      ]
+    },
+    {
+      "symbol": "5284.T",
+      "identity": {
+        "symbol": "5284.T",
+        "code": "5284",
+        "name": "ヤマウホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321944"
       ]
     },
     {
@@ -12082,6 +12624,19 @@
       ]
     },
     {
+      "symbol": "5535.T",
+      "identity": {
+        "symbol": "5535.T",
+        "code": "5535",
+        "name": "ミガロホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321903"
+      ]
+    },
+    {
       "symbol": "5537.T",
       "identity": {
         "symbol": "5537.T",
@@ -12368,6 +12923,19 @@
       ]
     },
     {
+      "symbol": "5757.T",
+      "identity": {
+        "symbol": "5757.T",
+        "code": "5757",
+        "name": "CKサンエツ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321880"
+      ]
+    },
+    {
       "symbol": "5801.T",
       "identity": {
         "symbol": "5801.T",
@@ -12543,7 +13111,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11254699"
+        "Q11254699",
+        "Q137321947"
       ]
     },
     {
@@ -12735,6 +13304,19 @@
       ]
     },
     {
+      "symbol": "5929.T",
+      "identity": {
+        "symbol": "5929.T",
+        "code": "5929",
+        "name": "三和ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321879"
+      ]
+    },
+    {
       "symbol": "5932.T",
       "identity": {
         "symbol": "5932.T",
@@ -12771,6 +13353,26 @@
       },
       "entity_ids": [
         "Q11527599"
+      ]
+    },
+    {
+      "symbol": "5938.T",
+      "identity": {
+        "symbol": "5938.T",
+        "code": "5938",
+        "name": "LIXIL",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "entity_ids": [
+        "Q11229272",
+        "Q11229276"
       ]
     },
     {
@@ -13777,6 +14379,19 @@
       ]
     },
     {
+      "symbol": "6183.T",
+      "identity": {
+        "symbol": "6183.T",
+        "code": "6183",
+        "name": "ベルシステム24ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321899"
+      ]
+    },
+    {
       "symbol": "6184.T",
       "identity": {
         "symbol": "6184.T",
@@ -13884,6 +14499,19 @@
       },
       "entity_ids": [
         "Q11586358"
+      ]
+    },
+    {
+      "symbol": "6209.T",
+      "identity": {
+        "symbol": "6209.T",
+        "code": "6209",
+        "name": "リケンNPR",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321907"
       ]
     },
     {
@@ -14240,7 +14868,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11554393"
+        "Q11554393",
+        "Q96312661"
       ]
     },
     {
@@ -14648,7 +15277,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q17053973"
+        "Q17053973",
+        "Q2208172"
       ]
     },
     {
@@ -15286,6 +15916,19 @@
       },
       "entity_ids": [
         "Q11320908"
+      ]
+    },
+    {
+      "symbol": "6522.T",
+      "identity": {
+        "symbol": "6522.T",
+        "code": "6522",
+        "name": "アスタリスク",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q119659448"
       ]
     },
     {
@@ -16494,6 +17137,19 @@
       ]
     },
     {
+      "symbol": "6864.T",
+      "identity": {
+        "symbol": "6864.T",
+        "code": "6864",
+        "name": "エヌエフホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321915"
+      ]
+    },
+    {
       "symbol": "6869.T",
       "identity": {
         "symbol": "6869.T",
@@ -16970,6 +17626,7 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
+        "Q130324498",
         "Q7039614"
       ]
     },
@@ -17295,6 +17952,19 @@
       },
       "entity_ids": [
         "Q96313615"
+      ]
+    },
+    {
+      "symbol": "7079.T",
+      "identity": {
+        "symbol": "7079.T",
+        "code": "7079",
+        "name": "WDBココ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q97170804"
       ]
     },
     {
@@ -17732,6 +18402,19 @@
       ]
     },
     {
+      "symbol": "7242.T",
+      "identity": {
+        "symbol": "7242.T",
+        "code": "7242",
+        "name": "カヤバ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11294875"
+      ]
+    },
+    {
       "symbol": "7247.T",
       "identity": {
         "symbol": "7247.T",
@@ -17768,6 +18451,26 @@
       },
       "entity_ids": [
         "Q11554091"
+      ]
+    },
+    {
+      "symbol": "7259.T",
+      "identity": {
+        "symbol": "7259.T",
+        "code": "7259",
+        "name": "アイシン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "entity_ids": [
+        "Q116759721",
+        "Q409907"
       ]
     },
     {
@@ -18069,6 +18772,19 @@
       ]
     },
     {
+      "symbol": "7318.T",
+      "identity": {
+        "symbol": "7318.T",
+        "code": "7318",
+        "name": "セレンディップ・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q119659468"
+      ]
+    },
+    {
       "symbol": "7320.T",
       "identity": {
         "symbol": "7320.T",
@@ -18195,7 +18911,34 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11435637"
+        "Q11435637",
+        "Q137321932"
+      ]
+    },
+    {
+      "symbol": "7383.T",
+      "identity": {
+        "symbol": "7383.T",
+        "code": "7383",
+        "name": "ネットプロテクションズホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q109595968"
+      ]
+    },
+    {
+      "symbol": "7388.T",
+      "identity": {
+        "symbol": "7388.T",
+        "code": "7388",
+        "name": "FPパートナー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321869"
       ]
     },
     {
@@ -18665,6 +19408,19 @@
       ]
     },
     {
+      "symbol": "7516.T",
+      "identity": {
+        "symbol": "7516.T",
+        "code": "7516",
+        "name": "コーナン商事",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321876"
+      ]
+    },
+    {
       "symbol": "7521.T",
       "identity": {
         "symbol": "7521.T",
@@ -18714,6 +19470,20 @@
       },
       "entity_ids": [
         "Q11307189"
+      ]
+    },
+    {
+      "symbol": "7532.T",
+      "identity": {
+        "symbol": "7532.T",
+        "code": "7532",
+        "name": "パン・パシフィック・インターナショナルホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q1185381",
+        "Q16485533"
       ]
     },
     {
@@ -19038,7 +19808,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11374768"
+        "Q11374768",
+        "Q137321920"
       ]
     },
     {
@@ -19246,6 +20017,19 @@
       },
       "entity_ids": [
         "Q11257174"
+      ]
+    },
+    {
+      "symbol": "7679.T",
+      "identity": {
+        "symbol": "7679.T",
+        "code": "7679",
+        "name": "薬王堂ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321905"
       ]
     },
     {
@@ -19629,7 +20413,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11392763"
+        "Q11392763",
+        "Q137321921"
       ]
     },
     {
@@ -19808,6 +20593,19 @@
       ]
     },
     {
+      "symbol": "7839.T",
+      "identity": {
+        "symbol": "7839.T",
+        "code": "7839",
+        "name": "SHOEI",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q3288834"
+      ]
+    },
+    {
       "symbol": "7841.T",
       "identity": {
         "symbol": "7841.T",
@@ -19941,6 +20739,19 @@
       },
       "entity_ids": [
         "Q11333062"
+      ]
+    },
+    {
+      "symbol": "7872.T",
+      "identity": {
+        "symbol": "7872.T",
+        "code": "7872",
+        "name": "エステールホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321914"
       ]
     },
     {
@@ -20219,6 +21030,19 @@
       },
       "entity_ids": [
         "Q11645374"
+      ]
+    },
+    {
+      "symbol": "7921.T",
+      "identity": {
+        "symbol": "7921.T",
+        "code": "7921",
+        "name": "TAKARA&COMPANY",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321884"
       ]
     },
     {
@@ -20772,6 +21596,19 @@
       ]
     },
     {
+      "symbol": "8029.T",
+      "identity": {
+        "symbol": "8029.T",
+        "code": "8029",
+        "name": "ルックホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321946"
+      ]
+    },
+    {
       "symbol": "8030.T",
       "identity": {
         "symbol": "8030.T",
@@ -21197,6 +22034,19 @@
       },
       "entity_ids": [
         "Q17213086"
+      ]
+    },
+    {
+      "symbol": "8132.T",
+      "identity": {
+        "symbol": "8132.T",
+        "code": "8132",
+        "name": "シナネンホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11307354"
       ]
     },
     {
@@ -21851,6 +22701,25 @@
       ]
     },
     {
+      "symbol": "8392.T",
+      "identity": {
+        "symbol": "8392.T",
+        "code": "8392",
+        "name": "大分銀行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "entity_ids": [
+        "Q10933745"
+      ]
+    },
+    {
       "symbol": "8399.T",
       "identity": {
         "symbol": "8399.T",
@@ -22287,6 +23156,26 @@
       },
       "entity_ids": [
         "Q11551995"
+      ]
+    },
+    {
+      "symbol": "8725.T",
+      "identity": {
+        "symbol": "8725.T",
+        "code": "8725",
+        "name": "MS&ADインシュアランスグループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "entity_ids": [
+        "Q5215769",
+        "Q6883244"
       ]
     },
     {
@@ -23261,6 +24150,19 @@
       ]
     },
     {
+      "symbol": "9072.T",
+      "identity": {
+        "symbol": "9072.T",
+        "code": "9072",
+        "name": "ニッコンホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321887"
+      ]
+    },
+    {
       "symbol": "9073.T",
       "identity": {
         "symbol": "9073.T",
@@ -23374,6 +24276,19 @@
       },
       "entity_ids": [
         "Q1284698"
+      ]
+    },
+    {
+      "symbol": "9090.T",
+      "identity": {
+        "symbol": "9090.T",
+        "code": "9090",
+        "name": "AZ-COM丸和ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321862"
       ]
     },
     {
@@ -23604,6 +24519,20 @@
       ]
     },
     {
+      "symbol": "9202.T",
+      "identity": {
+        "symbol": "9202.T",
+        "code": "9202",
+        "name": "ANAホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11189379",
+        "Q204284"
+      ]
+    },
+    {
       "symbol": "9206.T",
       "identity": {
         "symbol": "9206.T",
@@ -23696,6 +24625,19 @@
       ]
     },
     {
+      "symbol": "9265.T",
+      "identity": {
+        "symbol": "9265.T",
+        "code": "9265",
+        "name": "ヤマシタヘルスケアホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321945"
+      ]
+    },
+    {
       "symbol": "9267.T",
       "identity": {
         "symbol": "9267.T",
@@ -23705,7 +24647,34 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11301649"
+        "Q11301649",
+        "Q137321875"
+      ]
+    },
+    {
+      "symbol": "9268.T",
+      "identity": {
+        "symbol": "9268.T",
+        "code": "9268",
+        "name": "オプティマスグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321918"
+      ]
+    },
+    {
+      "symbol": "9278.T",
+      "identity": {
+        "symbol": "9278.T",
+        "code": "9278",
+        "name": "ブックオフグループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321897"
       ]
     },
     {
@@ -23845,6 +24814,19 @@
       ]
     },
     {
+      "symbol": "9332.T",
+      "identity": {
+        "symbol": "9332.T",
+        "code": "9332",
+        "name": "NISSOホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321888"
+      ]
+    },
+    {
       "symbol": "9336.T",
       "identity": {
         "symbol": "9336.T",
@@ -23881,6 +24863,19 @@
       },
       "entity_ids": [
         "Q133858127"
+      ]
+    },
+    {
+      "symbol": "9347.T",
+      "identity": {
+        "symbol": "9347.T",
+        "code": "9347",
+        "name": "日本管財ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321889"
       ]
     },
     {
@@ -24338,6 +25333,19 @@
       ]
     },
     {
+      "symbol": "9446.T",
+      "identity": {
+        "symbol": "9446.T",
+        "code": "9446",
+        "name": "サカイホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321925"
+      ]
+    },
+    {
       "symbol": "9449.T",
       "identity": {
         "symbol": "9449.T",
@@ -24360,6 +25368,7 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
+        "Q1054765",
         "Q17224985"
       ]
     },
@@ -24405,7 +25414,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11514182"
+        "Q11514182",
+        "Q137321929"
       ]
     },
     {
@@ -24914,6 +25924,20 @@
       ]
     },
     {
+      "symbol": "9661.T",
+      "identity": {
+        "symbol": "9661.T",
+        "code": "9661",
+        "name": "歌舞伎座",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q125676659",
+        "Q3082575"
+      ]
+    },
+    {
       "symbol": "9672.T",
       "identity": {
         "symbol": "9672.T",
@@ -25183,7 +26207,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11343372"
+        "Q11343372",
+        "Q137321904"
       ]
     },
     {
@@ -25358,7 +26383,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q136681807"
+        "Q136681807",
+        "Q137321942"
       ]
     },
     {
@@ -25469,6 +26495,19 @@
       },
       "entity_ids": [
         "Q11392657"
+      ]
+    },
+    {
+      "symbol": "9850.T",
+      "identity": {
+        "symbol": "9850.T",
+        "code": "9850",
+        "name": "グルメ杵屋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q11300656"
       ]
     },
     {
@@ -25805,7 +26844,8 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
-        "Q11459064"
+        "Q11459064",
+        "Q137321924"
       ]
     },
     {
@@ -25819,6 +26859,19 @@
       },
       "entity_ids": [
         "Q11314230"
+      ]
+    },
+    {
+      "symbol": "9978.T",
+      "identity": {
+        "symbol": "9978.T",
+        "code": "9978",
+        "name": "文教堂グループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321940"
       ]
     },
     {
@@ -25844,6 +26897,7 @@
         "exchange_id": "Q217475"
       },
       "entity_ids": [
+        "Q137321917",
         "Q17210389"
       ]
     },
@@ -25906,6 +26960,19 @@
       ]
     },
     {
+      "symbol": "9990.T",
+      "identity": {
+        "symbol": "9990.T",
+        "code": "9990",
+        "name": "サックスバーホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "entity_ids": [
+        "Q137321877"
+      ]
+    },
+    {
       "symbol": "9993.T",
       "identity": {
         "symbol": "9993.T",
@@ -25959,15 +27026,16 @@
     }
   ],
   "coverage": {
-    "new_verified": 1152,
-    "unmapped": 1913,
-    "no_structured_facts": 636,
-    "identity_unconfirmed": 95,
+    "new_verified": 1138,
+    "unmapped": 1838,
+    "no_structured_facts": 629,
+    "pending_identity": 108,
+    "identity_unconfirmed": 83,
     "official_companies": 3796,
-    "candidate_companies": 1883,
+    "candidate_companies": 1958,
     "available_records": 1163,
-    "verified_current_refresh": 1152,
-    "retained_previous_records": 11,
+    "verified_current_refresh": 1138,
+    "retained_previous_records": 25,
     "short_description_records": 1103,
     "generic_description_records": 86,
     "company_specific_short_description_records": 1017,
@@ -25984,7 +27052,8 @@
       "Sapporo": 13,
       "Nagoya": 62,
       "Fukuoka": 24
-    }
+    },
+    "candidate_hints": 1959
   },
   "items": [
     {

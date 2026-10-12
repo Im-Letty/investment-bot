@@ -85,6 +85,39 @@ class BulkSeedTests(unittest.TestCase):
         self.assertEqual(seed['items'], [])
         self.assertEqual(report['coverage']['identity_unconfirmed'], 1)
 
+    def test_listing_provider_and_edinet_code_forms_are_verified_against_official_name(self):
+        rows = [company('4838', 'スペースシャワーSKIYAKIホールディングス'),
+                company('4255', 'THECOO')]
+        values = {}
+        bindings = []
+        for row, qid, ticker in zip(rows, ['Q1', 'Q2'], ['4838.T', '42550']):
+            raw = entity(row, qid)
+            raw['claims']['P414'][0]['qualifiers']['P249'][0] = snak('P249', ticker)
+            values[qid] = raw
+            bindings.append(dict(item=dict(value='http://www.wikidata.org/entity/' + qid),
+                exchange=dict(value='http://www.wikidata.org/entity/' + EXCHANGES['Tokyo']),
+                ticker=dict(value=ticker)))
+        hints, rejected = discovery_hints(dict(results=dict(bindings=bindings)), rows)
+        self.assertEqual(hints, {'4838.T': ['Q1'], '4255.T': ['Q2']})
+        (seed, state, report), _ = run(rows, hints, Provider(values))
+        self.assertEqual({r['symbol'] for r in seed['items']}, {'4838.T', '4255.T'})
+        self.assertEqual(report['coverage']['verified_current_refresh'], 2)
+
+    def test_name_discovery_cannot_replace_current_market_and_ticker_proof(self):
+        row = company()
+        document = dict(results=dict(bindings=[dict(item=dict(value='http://www.wikidata.org/entity/Q1'),
+            exchange=dict(value='http://www.wikidata.org/entity/' + EXCHANGES['Tokyo']),
+            name=dict(value='トヨタ自動車株式会社'))]))
+        hints, _ = discovery_hints(document, [row])
+        self.assertEqual(hints, {'7203.T': ['Q1']})
+        raw = entity(row, 'Q1')
+        del raw['claims']['P414'][0]['qualifiers']['P249']
+        (seed, state, report), _ = run([row], hints, Provider({'Q1': raw}))
+        self.assertEqual(seed['items'], [])
+        self.assertEqual(report['coverage']['identity_unconfirmed'], 1)
+        document['results']['bindings'][0]['exchange']['value'] = 'http://www.wikidata.org/entity/' + EXCHANGES['Fukuoka']
+        self.assertEqual(discovery_hints(document, [row])[0], {})
+
     def test_regional_industry_only_is_explicit_not_company_description(self):
         row = company('7441', 'ミスミ', 'Fukuoka')
         provider = Provider({'Q1': entity(row, 'Q1', description=False, industry=True),

@@ -171,3 +171,101 @@ JPXの東証上場銘柄一覧（2026年9月末）を取得し、4文字の証�
 | 6273.T SMC | [IRカレンダー](https://www.smcworld.com/ir/ja-jp/calendar.html)、[株式情報](https://www.smcworld.com/ir/ja-jp/holder.html)、[FAQ](https://www.smcworld.com/ir/ja-jp/faq.html)（調査2026-09-24） | 今後の決算発表予定日と配当の基準日は確認。次回の配当支払日や月の明記は確認できなかった。 | 次回支払時期は未確認のままとする。2026-11-13は決算発表の予定であり、配当支払日ではない。 |
 
 実装する場合は、NTTの月単位情報を `dividend_payment_period: "2026-11"` として、予定であること・出典URL・実際の確認日を一緒に扱えます。日を含む `dividend_payment_date` へ変換すると、確認していない日付をつくるため避けます。資料更新や日付経過に応じて再確認し、過去の予定を次回予定のまま残さないことが必要です。
+
+
+### 2026-10-12 会社説明の追加調査
+
+現在の上場会社名・コードを再照合し、次の20社を公式公開資料から独自に説明した。各社の事業・生活との関係を確認し、「これから見るところ」は編集上の確認点として扱う。業績や株価の予想ではない。
+
+| コード | 会社 | 公式資料 |
+| --- | --- | --- |
+| 2551.JP | マルサンアイ | [会社概要](https://www.marusanai.co.jp/company/profile/about/) |
+| 2919.JP | マルタイ | [企業情報・会社概要](https://www.marutai.co.jp/company/) |
+| 6565.JP | ＡＢホテル | [企業情報](https://www.ab-hotel.jp/company/)、[会社概要・沿革](https://ab-hotel.jp/company/corporate/history.php) |
+| 5343.JP | ニッコー | [事業紹介](https://www.nikko-company.co.jp/)、[陶磁器・ライフスタイル](https://www.nikko-company.co.jp/tabletop/) |
+| 5386.JP | 鶴弥 | [会社概要](https://www.try110.com/company/about/about1.html) |
+| 9471.JP | 文溪堂 | [会社を知る](https://www.bunkei.co.jp/recruit/company.html) |
+| 8190.JP | ヤマナカ | [新卒採用・会社と仕事の紹介](https://www.super-yamanaka.co.jp/newgraduate/)、[ヤマナカ紹介資料](https://www.super-yamanaka.co.jp/wp/company/wp-content/uploads/2024/04/2024_yamanaka.pdf) |
+| 6623.JP | 愛知電機 | [電力機器事業](https://www.aichidenki.jp/about/business.html)、[回転機事業](https://www.aichidenki.jp/about/business02.html) |
+| 9357.JP | 名港海運 | [会社概要](https://www.meiko-trans.co.jp/company/outline.html)、[2025年3月期決算短信・事業区分](https://www.meiko-trans.co.jp/pdf/tanshin20250513.pdf) |
+| 9359.JP | 伊勢湾海運 | [事業紹介](https://www.isewan.co.jp/business/)、[会社概要](https://www.isewan.co.jp/company/profile/) |
+| 9040.JP | 大宝運輸 | [グリーンハンド総合物流サービス](https://www.taiho-gh.com/business/buturyu.php) |
+| 9664.JP | 御園座 | [会社案内](https://www.misonoza.co.jp/about/)、[公演情報](https://www.misonoza.co.jp/) |
+| 9643.JP | 中日本興業 | [会社案内](https://www.nakanihonkogyo.co.jp/company/) |
+| 3504.JP | 丸八ホールディングス | [会社概要](https://www.maruhachi.co.jp/企業情報/会社概要)、[会社紹介・事業内容](https://www.maruhachi.co.jp/recruit/about) |
+| 2902.JP | 太陽化学 | [事業案内](https://www.taiyokagaku.com/corporate/business/)、[太陽化学とは](https://www.taiyokagaku.com/about/) |
+| 2928.JP | RIZAPグループ株式会社 | [事業内容・グループ会社](https://www.rizapgroup.com/)、[会社概要](https://www.rizapgroup.com/about/profile) |
+| 8398.JP | 筑邦銀行 | [商品・サービス](https://www.chikugin.co.jp/)、[筑邦銀行の沿革](https://www.chikugin.co.jp/about/prof/enkaku/)、[ごあいさつ](https://www.chikugin.co.jp/about/prof/goaisatsu/) |
+| 6076.JP | アメイズ | [事業内容](https://www.az-hotels.co.jp/business/)、[会社概要](https://www.az-hotels.co.jp/outline/) |
+| 2137.JP | 株式会社光ハイツ・ヴェラス | [会社概要](https://www.varus.co.jp/company/) |
+| 1449.JP | 株式会社FUJIジャパン | [事業内容・実績](https://www.fujijapan.net/company/business/) |
+
+ヤマナカは公式サイトの検索取得本文と2024年の会社紹介資料を安定した事業の確認に限って使った。ABホテルは東京上場終了後も名古屋上場を継続する現行 identity と照合し、6565.JP として扱った。全社説明の完了とは数えない。
+
+
+### 2026-10-13 公開事業情報による不足分の補完
+
+厚生労働省しょくばらぼの2026-10-12一括CSVを通常の公開ダウンロードで取得した。現行公式株式カタログの会社名・証券コードと、同日のEDINETコード一覧の会社名・法人番号を照合し、さらにCSVの同一法人番号・会社名を照合した。名前だけの同定、異なる証券コード、重複した法人候補は採用しない。確認できた事業概要は2,258社だが、既存説明との重複や資料不足を除き、今回の追加候補1,540社を個別に読んで独自短文1,538社を作成した。2社は具体的事業が不明なため採用しない。
+
+企業が作成した事業概要の文章は第三者の権利の例外があるため、その全文・長文をCC BYの転載として保存・公開しない。事業・製品・サービスという事実から独自の短文を作成し、当サイトが作成したことと出典を表示する。業種だけしか登録されていない会社は短い説明に限り、製品を推測しない。掲載情報の更新日と一括CSVの更新日、実ダウンロード確認時刻を区別する。今後の最新事業・全項目網羅を保証しない。
+
+- [公開CSVとデータ定義](https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do)
+- [コンテンツ利用条件](https://shokuba.mhlw.go.jp/080/020/20180302211639.html)
+- [掲載企業の権利を含む利用規約](https://shokuba.mhlw.go.jp/080/010/20180302211203.html)
+- [登録企業の同意事項](https://shokuba.mhlw.go.jp/080/agreement_20250227.pdf)
+- [EDINET公開コード一覧](https://disclosure2dl.edinet-fsa.go.jp/searchdocument/codelist/Edinetcode.zip)
+
+`company-public-business-seed.json` は独自の事業説明と照合情報の保存用で、CC0の `company-business-seed.json` と別に扱う。起動・閲覧時にしょくばらぼへ追加通信せず、会社情報画面で本人が選んだ会社だけを現在のidentityと再照合して表示する。既存の固有Wikidata説明と編集原稿は保持する。
+
+さらに、説明が空だった会社の法人番号で確認した公式ウェブサイト51件を一度ずつ調べ、現行事業が確認できた36社に次の独自編集原稿を追加した。残る15件は取得不能・人材制度や理念のみ・廃止事業・子会社の主体不明等で保留。4444は2026-10-01の事業承継後の親子関係を資料本文で確認し、子会社を通じたグループ事業として説明した。
+
+| コード | 会社 | 公式資料 |
+| --- | --- | --- |
+| 5247.T | ＢＴＭ | [会社公式サイト・事業情報（確認ページ）](https://www.b-tm.co.jp/) |
+| 7157.T | ライフネット生命保険 | [会社公式サイト・事業情報（確認ページ）](https://ir.lifenet-seimei.co.jp/ja/sustainability/employee.html) |
+| 3726.T | フォーシーズＨＤ | [会社公式サイト・事業情報（確認ページ）](https://www.4cs-holdings.co.jp/company/about/#number) |
+| 4069.T | ＢｌｕｅＭｅｍｅ | [会社公式サイト・事業情報（確認ページ）](https://www.bluememe.jp/) |
+| 262A.T | インターメスティック | [会社公式サイト・事業情報（確認ページ）](https://www.zoff.com/) |
+| 4736.T | 日本ラッド | [会社公式サイト・事業情報（確認ページ）](https://www.nippon-rad.co.jp) |
+| 8093.T | 極東貿易 | [会社公式サイト・事業情報（確認ページ）](https://www.kbk.co.jp/ja) |
+| 6977.T | 日本抵抗器製作所 | [会社公式サイト・事業情報（確認ページ）](https://www.jrm.co.jp/) |
+| 9250.T | ＧＲＣＳ | [会社公式サイト・事業情報（確認ページ）](https://www.grcs.co.jp/corporate/esg) |
+| 4442.T | バルテス・ホールディングス | [会社公式サイト・事業情報（確認ページ）](https://www.valtes-hd.co.jp/) |
+| 7358.T | ポピンズ | [会社公式サイト・事業情報（確認ページ）](https://www.poppins.co.jp/hldgs/about/) |
+| 4237.T | フジプレアム | [会社公式サイト・事業情報（確認ページ）](https://www.fujipream.co.jp) |
+| 6363.T | 酉島製作所 | [会社公式サイト・事業情報（確認ページ）](https://www.torishima.co.jp/sustainability/esg/hr/diversityinclusion/) |
+| 9857.T | 英和 | [会社公式サイト・事業情報（確認ページ）](https://www.eiwa-net.co.jp/company/sustainability/) |
+| 9073.T | 京極運輸商事 | [会社公式サイト・事業情報（確認ページ）](https://www.kyogoku.co.jp/) |
+| 623A.T | ベルテックス | [会社公式サイト・事業情報（確認ページ）](https://vertex-c.co.jp/) |
+| 3800.T | ユニリタ | [会社公式サイト・事業情報（確認ページ）](https://www.unirita.co.jp) |
+| 7215.T | ファルテック | [会社公式サイト・事業情報（確認ページ）](https://faltec.co.jp/sustainability/society/) |
+| 6525.T | ＫＯＫＵＳＡＩ　ＥＬＥＣＴＲＩＣ | [会社公式サイト・事業情報（確認ページ）](https://www.kokusai-electric.com/recruit/about/profile/) |
+| 9882.T | イエローハット | [会社公式サイト・事業情報（確認ページ）](https://www.yellowhat.jp/) |
+| 3958.T | 笹徳印刷 | [会社公式サイト・事業情報（確認ページ）](https://www.sasatoku.co.jp/) |
+| 2916.T | 仙波糖化工業 | [会社公式サイト・事業情報（確認ページ）](https://www.sembatohka.co.jp/) |
+| 2060.T | フィード・ワン | [会社公式サイト・事業情報（確認ページ）](https://www.feed-one.co.jp/csr/social/) |
+| 2975.T | スター・マイカ・ホールディングス | [会社公式サイト・事業情報（確認ページ）](https://www.starmica-holdings.co.jp/) |
+| 5527.T | ｐｒｏｐｅｒｔｙ　ｔｅｃｈｎｏｌｏｇｉｅｓ | [会社公式サイト・事業情報（確認ページ）](https://pptc.co.jp/) |
+| 6265.T | コンバム | [会社公式サイト・事業情報（確認ページ）](https://www.convum.co.jp/) |
+| 7138.T | ＴＯＲＩＣＯ | [会社公式サイト・事業情報（確認ページ）](https://www.torico-corp.com/) |
+| 4444.T | インフォネット | [会社公式サイト・事業情報（確認ページ）](https://www.e-infonet.jp/corporate/profile.html) |
+| 142A.T | ジンジブ | [会社公式サイト・事業情報（確認ページ）](https://jinjib.co.jp/) |
+| 7571.T | ヤマノホールディングス | [会社公式サイト・事業情報（確認ページ）](https://www.yamano-hd.com/) |
+| 3697.T | ＳＨＩＦＴ | [会社公式サイト・事業情報（確認ページ）](https://www.shiftinc.jp) |
+| 4463.T | 日華化学 | [会社公式サイト・事業情報（確認ページ）](https://www.nicca.co.jp/) |
+| 410A.T | ＧＭＯコマース | [会社公式サイト・事業情報（確認ページ）](https://www.gmo-c.jp/) |
+| 9252.T | ラストワンマイル | [会社公式サイト・事業情報（確認ページ）](https://lomgrp.co.jp/) |
+| 4270.T | ＢｅｅＸ | [会社公式サイト・事業情報（確認ページ）](https://www.beex-inc.com/careers_talk-session/01) |
+| 2170.T | リンクアンドモチベーション | [会社公式サイト・事業情報（確認ページ）](https://www.lmi.ne.jp/) |
+
+### 2026-10-12 地方銘柄の無料数値取得元調査
+
+地方単独等110社の現在株価・現在時価総額について、無料の機械取得と一般サイト表示の双方を確認できる共通取得元は今回確保できなかった。存在しないという断定ではない。取引所日報、Yahoo Japan、J-Quants個人版、みんかぶ、株探、TradingView、Stooq、Twelve Data、Alpha Vantage、FMP、IRBANK、GitHubの公開データを、公開閲覧と外部配信の条件を分けて調べた。無料閲覧可能でも再配信の許諾は別であり、古い株価・他市場の同コード・0円を代替して表示しない。
+
+- [Yahoo Japanの機械取得・外部配信の条件](https://support.yahoo-net.jp/SccFinance/s/article/H000011276)
+- [名証の外部配信契約・料金](https://www.nse.or.jp/market/pay/files/micm_ja.pdf)
+- [TradingViewのWidget対象市場](https://www.tradingview.com/widget-docs/markets/asia-pacific/)
+- [Twelve Dataの外部表示条件](https://twelvedata.com/terms)
+- [IRBANKの現行利用規約](https://corp.irbank.net/terms/)
+
+会社予想配当は株価と別に企業公式IRの少量の数値事実を個別確認できる。北海電工の2026-07-28短信で2027-03期年間20円、名工建設の2026-07-31短信で同66円、ヒガシマルの2026-08-12短信で同12円を確認した。これは共通の無料配信フィードや自動転載許諾の確保ではなく、予想値を本番へ取り込んだ実績にも数えない。将来の補完では対象年度・公表日・訂正を確認し、既存の過年度実績配当・年換算配当と分離する。株価を許諾未確認の経路で取り込んで時価総額を計算しない。

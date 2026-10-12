@@ -22,7 +22,7 @@ import requests
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from company_business import (BusinessFailure, EXCHANGES, TTL, WikidataBusinessProvider,
                               _japanese, _qid, _valid_record, fact_ids,
-                              official_identity, verify_entity)
+                              listing_ticker_code, normalize_name, official_identity, verify_entity)
 from stock_search import StockSearch
 
 JST = timezone(timedelta(hours=9))
@@ -32,12 +32,19 @@ PREFIX p: <http://www.wikidata.org/prop/>
 PREFIX ps: <http://www.wikidata.org/prop/statement/>
 PREFIX pq: <http://www.wikidata.org/prop/qualifier/>
 PREFIX wikibase: <http://wikiba.se/ontology#>
-SELECT DISTINCT ?item ?exchange ?ticker WHERE {
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX skos: <http://www.w3.org/2004/02/skos/core#>
+SELECT DISTINCT ?item ?exchange ?ticker ?name WHERE {
  VALUES ?exchange { wd:Q217475 wd:Q1188840 wd:Q11093491 wd:Q5507703 }
  ?item p:P414 ?listing .
- ?listing ps:P414 ?exchange ; pq:P249 ?ticker ; wikibase:rank ?rank .
+ ?listing ps:P414 ?exchange ; wikibase:rank ?rank .
  FILTER (?rank != wikibase:DeprecatedRank)
  FILTER NOT EXISTS { ?listing pq:P582 ?ended }
+ OPTIONAL { ?listing pq:P249 ?ticker }
+ OPTIONAL {
+  { ?item rdfs:label ?name } UNION { ?item skos:altLabel ?name }
+  FILTER(LANG(?name) = "ja")
+ }
 }
 LIMIT 10000'''
 MAX_BYTES = 8_000_000
@@ -144,9 +151,13 @@ def discovery_hints(document, companies):
     """Accept cached audit, saved hints or WDQS JSON; hints carry no trust."""
     by_symbol = {row['symbol']: row for row in companies}
     by_pair = {}
+    by_name = {}
     for row in companies:
         for exchange_id in _listing_ids(row):
             by_pair[(exchange_id, row['code'])] = row['symbol']
+            name = normalize_name(row.get('name'))
+            if name:
+                by_name.setdefault((exchange_id, name), set()).add(row['symbol'])
     hints, rejected = {}, set()
     if not isinstance(document, dict):
         raise ValueError('invalid_discovery_document')
@@ -174,10 +185,15 @@ def discovery_hints(document, companies):
                 continue
             qid = row.get('item', {}).get('value', '').rsplit('/', 1)[-1]
             exchange = row.get('exchange', {}).get('value', '').rsplit('/', 1)[-1]
-            code = row.get('ticker', {}).get('value', '')
-            symbol = by_pair.get((exchange, code.strip().upper())) if isinstance(code, str) else None
-            if symbol and _qid(qid):
-                hints.setdefault(symbol, set()).add(qid)
+            code = listing_ticker_code(row.get('ticker', {}).get('value'), exchange)
+            symbol = by_pair.get((exchange, code))
+            # Names only discover candidates; fresh entity verification still
+            # requires a current, explicitly paired market/ticker statement.
+            matched = by_name.get((exchange, normalize_name(row.get('name', {}).get('value'))), set())
+            symbols = ({symbol} if symbol else set()) | matched
+            if _qid(qid):
+                for candidate in symbols:
+                    hints.setdefault(candidate, set()).add(qid)
     return {symbol: sorted(ids) for symbol, ids in hints.items() if ids and symbol not in rejected}, sorted(rejected)
 
 

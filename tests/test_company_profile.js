@@ -447,3 +447,18 @@ test('minute quotes stay disabled unless a current API response explicitly enabl
   const h=dialogHarness(),requests=[];h.w.localStorage.setItem(PREFIX+KEY,JSON.stringify(fixture({quote_refresh_enabled:true})));h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
   api.open(KEY,'トヨタ',h.trigger);await flush();requests[0].resolve({ok:false,status:404});await flush();await h.time.advance(180000);assert.equal(requests.length,1,'A saved capability cannot arm a minute timer after a failed API request');api.close();
 });
+test('public business summaries preserve attribution and their distinct dates through cache normalization',()=>{
+  const overview={kind:'public_company_business',field_status:'available',text:'求人情報の提供と職業紹介を行う会社です。',source_url:'https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do',source_title:'厚生労働省・しょくばらぼ',source_updated_on:'2026-09-24',source_record_updated_on:'2026-05-28',use_basis:'independent_summary_of_business_facts',fetched_at:NOW/1000};
+  const clean=profile.normalize(fixture({editorial:null,business_overview:overview}),KEY,NOW);
+  assert.equal(clean.business_overview.text,overview.text);assert.equal(clean.business_overview.source_record_updated_on,'2026-05-28');assert.match(clean.business_overview.attribution_notice,/当サイトが説明を作成/);
+  assert.equal(profile.normalize(clean,KEY,NOW).business_overview.text,overview.text,'A saved summary retains its independently written provenance');
+  for(const patch of [{source_url:'https://example.com/'},{use_basis:'unreviewed_original'},{source_updated_on:'2026-09-25'},{source_record_updated_on:'2026-09-25'}])assert.equal(profile.normalize(fixture({editorial:null,business_overview:{...overview,...patch}}),KEY,NOW).business_overview,null);
+});
+test('public summary display keeps source attribution, update dates and existing prices apart',()=>{
+  const h=dialogHarness();h.view.open(KEY,'会社',h.trigger);
+  const overview={kind:'public_company_business',field_status:'available',text:'求人情報の提供と職業紹介を行う会社です。',source_url:'https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do',source_title:'厚生労働省・しょくばらぼ',source_updated_on:'2026-09-24',source_record_updated_on:'2026-05-28',use_basis:'independent_summary_of_business_facts',fetched_at:NOW/1000};
+  const data=profile.normalize(fixture({editorial:null,business_overview:overview}),KEY,NOW);h.view.render({symbol:KEY,status:'ready',updating:false,data});const refs=h.view.elements;
+  assert.equal(refs.business.body.textContent,overview.text);assert.equal(refs.businessSource.hidden,false);assert.equal(refs.businessSource.children.find(n=>n.tagName==='A').href,overview.source_url);
+  assert.match(refs.businessSource.children.map(n=>n.textContent).join(' '),/2026\/05\/28 企業掲載情報の更新/);assert.match(refs.businessSource.children.map(n=>n.textContent).join(' '),/2026\/09\/24 一括データ更新/);assert.match(refs.businessSource.children.at(-1).textContent,/事業情報をもとに当サイトが説明を作成/);
+  assert.equal(refs.life.section.hidden,true);assert.equal(data.data.price,fixture().data.price);
+});

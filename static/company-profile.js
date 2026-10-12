@@ -111,11 +111,17 @@
     }:null;
     const overviewInput=raw.business_overview&&typeof raw.business_overview==='object'?raw.business_overview:{};
     const overviewUrl=safeUrl(overviewInput.source_url),overviewStatus=['available','loading','source_missing','fetch_error','identity_unconfirmed'].includes(overviewInput.field_status)?overviewInput.field_status:'identity_unconfirmed';
-    const business_overview=overviewInput.kind==='structured_company_facts'?{
+    const recordUpdated=day(overviewInput.source_record_updated_on);
+    const publicOverview=overviewInput.kind==='public_company_business'&&overviewUrl==='https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do'&&overviewInput.use_basis==='independent_summary_of_business_facts'&&day(overviewInput.source_updated_on)&&overviewInput.source_updated_on<=today(now)&&(overviewInput.source_record_updated_on==null||recordUpdated&&recordUpdated<=overviewInput.source_updated_on);
+    const business_overview=overviewInput.kind==='structured_company_facts'||publicOverview?{
       kind:overviewInput.kind,text:overviewStatus==='available'&&overviewUrl?text(overviewInput.text,1200):'',field_status:overviewStatus==='available'&&!overviewUrl?'identity_unconfirmed':overviewStatus,
       source_url:overviewUrl,source_title:text(overviewInput.source_title,120)||'会社の情報の出典',fetched_at:timestamp(overviewInput.fetched_at,now),
       products:Array.isArray(overviewInput.products)?overviewInput.products.slice(0,15).map(value=>text(value,80)).filter(Boolean):[],
-      industry_labels:Array.isArray(overviewInput.industry_labels)?overviewInput.industry_labels.slice(0,15).map(value=>text(value,80)).filter(Boolean):[]
+      industry_labels:Array.isArray(overviewInput.industry_labels)?overviewInput.industry_labels.slice(0,15).map(value=>text(value,80)).filter(Boolean):[],
+      source_updated_on:publicOverview?day(overviewInput.source_updated_on):null,
+      source_record_updated_on:publicOverview?recordUpdated:null,
+      use_basis:publicOverview?overviewInput.use_basis:null,
+      attribution_notice:publicOverview?'職場情報総合サイト（しょくばらぼ）の事業情報をもとに当サイトが説明を作成。':''
     }:null;
     const identityInput=raw.identity&&typeof raw.identity==='object'?raw.identity:{};
     const identityUrl=safeUrl(identityInput.source_url),identityDate=day(identityInput.date);
@@ -361,12 +367,15 @@
       refs.business.section.hidden=!editorial&&!overview&&!refs.basic.hidden;
       refs.business.body.textContent=editorial?editorial.business:overview&&overview.text?overview.text:overview&&overview.field_status==='loading'?'会社の事業内容を確認しています…':overview?'会社の事業内容はまだ確認できていません。':record?'この会社の説明はまだ掲載されていません':failed?'この会社の説明は今は確認できません。':'会社の説明を確認しています…';
       refs.businessSource.hidden=!!editorial||!(overview&&overview.text);
-      const businessSignature=refs.businessSource.hidden?'':JSON.stringify([overview.fetched_at,overview.source_title,overview.source_url]);
+      const businessSignature=refs.businessSource.hidden?'':JSON.stringify([overview.fetched_at,overview.source_title,overview.source_url,overview.source_updated_on,overview.source_record_updated_on,overview.attribution_notice]);
       if(businessSignature!==businessSourceSignature){
         businessSourceSignature=businessSignature;refs.businessSource.replaceChildren();
         if(!refs.businessSource.hidden){
           if(overview.fetched_at)refs.businessSource.appendChild(el('span','',dates.label(overview.fetched_at/1000,'取得',true)+' '));
           const link=el('a','cp-source-link',overview.source_title+' ↗');link.href=overview.source_url;link.target='_blank';link.rel='noopener noreferrer';refs.businessSource.appendChild(link);
+          if(overview.source_record_updated_on)refs.businessSource.appendChild(el('span','',' / '+dates.label(overview.source_record_updated_on,'企業掲載情報の更新')));
+          if(overview.source_updated_on)refs.businessSource.appendChild(el('span','',' / '+dates.label(overview.source_updated_on,'一括データ更新')));
+          if(overview.attribution_notice)refs.businessSource.appendChild(el('p','cp-source-note',overview.attribution_notice));
         }
       }
       ['life','watch'].forEach(key=>{refs[key].section.hidden=!(editorial&&editorial[key]);refs[key].body.textContent=editorial&&editorial[key]||'';});

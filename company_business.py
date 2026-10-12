@@ -262,6 +262,26 @@ def _current_claim(claim, today, now=None):
     return all(_start_not_future(start, today, now) for start in starts)
 
 
+def listing_ticker_code(value, exchange_id):
+    """Normalize a ticker only inside an explicitly paired Japanese listing.
+
+    Entity data sometimes stores the Tokyo provider suffix or the EDINET
+    security code (the ordinary four-character issuer code plus a final 0).
+    No standalone ticker, foreign market, fuzzy code or arbitrary suffix is
+    accepted as identity evidence.
+    """
+    if exchange_id not in EXCHANGES.values() or not isinstance(value, str) or len(value) > 10:
+        return None
+    value = unicodedata.normalize('NFKC', value).strip().upper()
+    if re.fullmatch(r'[0-9][0-9A-Z]{3}', value):
+        return value
+    if re.fullmatch(r'[0-9][0-9A-Z]{3}0', value):
+        return value[:4]
+    if exchange_id == EXCHANGES['Tokyo'] and re.fullmatch(r'[0-9][0-9A-Z]{3}\.T', value):
+        return value[:4]
+    return None
+
+
 def verify_entity(entity, identity, today, now=None):
     """No name-only/code-only/entity-description match is sufficient."""
     if not isinstance(entity, dict) or not _qid(entity.get('id')):
@@ -296,9 +316,7 @@ def verify_entity(entity, identity, today, now=None):
             continue
         for snak in tickers:
             code = _snak_value(snak, 'P249')
-            if not isinstance(code, str) or len(code) > 10:
-                continue
-            if unicodedata.normalize('NFKC', code).strip().upper() == identity['code']:
+            if listing_ticker_code(code, exchange_id) == identity['code']:
                 return dict(entity_id=entity['id'], matched_name=matched,
                             exchange=exchanges[exchange_id], exchange_id=exchange_id,
                             code=identity['code'], rank=claim.get('rank', 'normal'),

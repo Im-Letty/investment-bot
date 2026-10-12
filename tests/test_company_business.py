@@ -116,6 +116,20 @@ class IdentityTests(unittest.TestCase):
         raw['claims']['P414'].append(entity(exchange='Nagoya')['claims']['P414'][0])
         self.assertIsNone(verify_entity(raw, identity, TODAY))
 
+    def test_only_paired_japanese_listing_code_forms_can_be_normalized(self):
+        identity = official_identity('7203.T', company())
+        for code in ['７２０３', '72030', '7203.T']:
+            raw = entity(code=code)
+            self.assertIsNotNone(verify_entity(raw, identity, TODAY), code)
+        for code in ['72031', '7203.JP', '7203.N', 'TYO:7203', '7203/T', '72030.T', 7203]:
+            self.assertIsNone(verify_entity(entity(code=code), identity, TODAY), code)
+        official = company('6147', 'ヤマザキ', 'Sapporo')
+        regional_identity = official_identity('6147.JP', official)
+        self.assertIsNotNone(verify_entity(entity(name='ヤマザキ', code='61470', exchange='Sapporo'),
+                                          regional_identity, TODAY))
+        self.assertIsNone(verify_entity(entity(name='ヤマザキ', code='6147.T', exchange='Sapporo'),
+                                       regional_identity, TODAY))
+
     def test_secondary_official_listing_can_prove_same_company_and_code(self):
         official = company('6147', 'ヤマザキ', 'Sapporo')
         official['other_listings'] = [dict(code='6147', name='（株）ヤマザキ', exchange='Fukuoka')]
