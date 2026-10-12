@@ -4,6 +4,37 @@
   "source_documents_published": false,
   "items": [
     {
+      "symbol": "1301.T",
+      "identity": {
+        "symbol": "1301.T",
+        "code": "1301",
+        "name": "極洋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで水産物を仕入れ、加工して販売するほか、カツオやマグロの漁獲・養殖も手がける。寿司用の魚介、冷凍食品、缶詰などを供給し、冷蔵倉庫を使った物流サービスも展開する。",
+      "proof": {
+        "code": "1301",
+        "exchange": "Tokyo",
+        "corporate_number": "1010401033225",
+        "edinet_code": "E00012",
+        "source_company_name": "株式会社極洋",
+        "filing_company_name": "株式会社極洋",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE8K",
+        "current_edinet_code": "E00012",
+        "current_corporate_number": "1010401033225"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE8K",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791828291.9672582,
+      "pdf_sha256": "be60e04c8c7d48f97d64417b103d6398bedd7dd91ac14aa68eba6e7a7ee1d0a0"
+    },
+    {
       "symbol": "130A.T",
       "identity": {
         "symbol": "130A.T",
@@ -32,6 +63,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819564.765579,
       "pdf_sha256": "70ead08ef9b3d8a41d2db59cd05a994148067a0d1dee91c3221d59f4eec62539"
+    },
+    {
+      "symbol": "1333.T",
+      "identity": {
+        "symbol": "1333.T",
+        "code": "1333",
+        "name": "Umios",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで漁業やマグロ・ブリなどの養殖、水産物の調達・流通を手がける。家庭向けの冷凍食品や缶詰を製造し、飲食店など向けの食材も供給する。",
+      "proof": {
+        "code": "1333",
+        "exchange": "Tokyo",
+        "corporate_number": "2010601040697",
+        "edinet_code": "E00015",
+        "source_company_name": "Ｕｍｉｏｓ株式会社",
+        "filing_company_name": "Umios株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCK1",
+        "current_edinet_code": "E00015",
+        "current_corporate_number": "2010601040697"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCK1",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791828298.076725,
+      "pdf_sha256": "78546df68dae1762f65137dbe6dbe8c1fe5d39027cca995c63ea44806607ace4"
     },
     {
       "symbol": "135A.T",
@@ -92,6 +154,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819570.215329,
       "pdf_sha256": "6061e805fa58ac48b908541b8ca095284366fb1f9ebc0099f053d2d243b215b7"
+    },
+    {
+      "symbol": "1382.T",
+      "identity": {
+        "symbol": "1382.T",
+        "code": "1382",
+        "name": "ホーブ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "夏から秋に収穫できる独自のいちご品種の苗を農家に販売し、収穫した果実を買い取って洋菓子メーカーに届ける。冬春のいちごも調達して年間を通じて供給するほか、種用のジャガイモなどを扱う。",
+      "proof": {
+        "code": "1382",
+        "exchange": "Tokyo",
+        "corporate_number": "9450001002677",
+        "edinet_code": "E00010",
+        "source_company_name": "株式会社ホーブ",
+        "filing_company_name": "株式会社ホーブ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3MP",
+        "current_edinet_code": "E00010",
+        "current_corporate_number": "9450001002677"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3MP",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829190.408751,
+      "pdf_sha256": "ce68f5e50cf2d5206544497ee1e77f69753c840489e9eeaf5b011bd3535efa84"
     },
     {
       "symbol": "1384.T",
@@ -250,6 +343,43 @@
       "pdf_sha256": "4695637a1589897ab48e88aa28ac3a1d36922e87cb16285cb0ee1536bf58067a"
     },
     {
+      "symbol": "1431.T",
+      "identity": {
+        "symbol": "1431.T",
+        "code": "1431",
+        "name": "LibWork",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅の建築や販売を行い、ウェブサイトや動画で集客するグループ。工務店などには住宅図面を探す「My Home Robo」や、住宅ブランドを使うためのライセンスを提供する。",
+      "proof": {
+        "code": "1431",
+        "exchange": "Tokyo",
+        "corporate_number": "7330001010363",
+        "edinet_code": "E31614",
+        "source_company_name": "株式会社Ｌｉｂ　Ｗｏｒｋ",
+        "filing_company_name": "株式会社LibWork",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3WK",
+        "current_edinet_code": "E31614",
+        "current_corporate_number": "7330001010363"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3WK",
+      "filed_on": "2026-09-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829219.135456,
+      "pdf_sha256": "59c4e34558ced9fd642de7a2663cf9dc9caaaa33f5dc6a41e361976850661d91"
+    },
+    {
       "symbol": "1434.T",
       "identity": {
         "symbol": "1434.T",
@@ -278,6 +408,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819587.936878,
       "pdf_sha256": "e50c4d9a0c01b46752a8890b95e8d271b36f4acbc18152e30785f25ec71daf44"
+    },
+    {
+      "symbol": "1435.T",
+      "identity": {
+        "symbol": "1435.T",
+        "code": "1435",
+        "name": "robothome",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループでアパート経営の「robot home」を提供し、物件の供給から賃貸管理、売却・再投資の支援までを手がける。賃貸管理を効率化するシステムを活用するほか、不動産業界などのデジタル化を支援する。",
+      "proof": {
+        "code": "1435",
+        "exchange": "Tokyo",
+        "corporate_number": "3290001025873",
+        "edinet_code": "E31925",
+        "source_company_name": "株式会社ｒｏｂｏｔ　ｈｏｍｅ",
+        "filing_company_name": "株式会社robothome",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XSYD",
+        "current_edinet_code": "E31925",
+        "current_corporate_number": "3290001025873"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XSYD",
+      "filed_on": "2026-03-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829225.100835,
+      "pdf_sha256": "529cc08835247b7867e04e8d1ce9274539c424aa73d5b4cdcd7955e443593cc1"
     },
     {
       "symbol": "143A.T",
@@ -524,6 +685,37 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819612.1572502,
       "pdf_sha256": "233e612680f9bbba6c1c31a1cd20ded03beea54c87d1730c9b02ff4a5e5d4b2e"
+    },
+    {
+      "symbol": "150A.T",
+      "identity": {
+        "symbol": "150A.T",
+        "code": "150A",
+        "name": "JSH",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "精神疾患のある人を中心に自宅での看護を提供し、医療機関の訪問診療導入を支援する。企業の障がい者雇用では、農園の就労場所や水耕栽培設備の貸し出し、定着支援を行う。",
+      "proof": {
+        "code": "150A",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001174841",
+        "edinet_code": "E39184",
+        "source_company_name": "株式会社ＪＳＨ",
+        "filing_company_name": "株式会社JSH",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFUO",
+        "current_edinet_code": "E39184",
+        "current_corporate_number": "9010001174841"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFUO",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829246.885102,
+      "pdf_sha256": "b10c246dbe708134feceeb682b8e2424ecffa680d50ddcf920f36d175168f57c"
     },
     {
       "symbol": "1514.T",
@@ -802,6 +994,68 @@
       "pdf_sha256": "af82f872c48d4169ce302cbd3a958ae683a2c3caa3d4bba0bb638efc3015f875"
     },
     {
+      "symbol": "1716.T",
+      "identity": {
+        "symbol": "1716.T",
+        "code": "1716",
+        "name": "第一カッター興業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループでダイヤモンド工具や高圧水を使い、道路・橋・建物などのコンクリートを切断したり穴を開けたりする専門工事を担う。本体では集合住宅やオフィスの排水管・貯水槽の清掃、給水設備の点検も行う。",
+      "proof": {
+        "code": "1716",
+        "exchange": "Tokyo",
+        "corporate_number": "5021001007060",
+        "edinet_code": "E00320",
+        "source_company_name": "第一カッター興業株式会社",
+        "filing_company_name": "第一カッター興業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3L6",
+        "current_edinet_code": "E00320",
+        "current_corporate_number": "5021001007060"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3L6",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829269.811689,
+      "pdf_sha256": "9373b449392f970579a2352ff21da0b29995345560064dc3fda75ce9e00be502"
+    },
+    {
+      "symbol": "1720.T",
+      "identity": {
+        "symbol": "1720.T",
+        "code": "1720",
+        "name": "東急建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東急グループの建設会社として建築・土木工事を請け負い、東急や東急電鉄からも受注する。グループ会社とインドネシアなど海外の工事に取り組むほか、自社で不動産を販売・賃貸する。",
+      "proof": {
+        "code": "1720",
+        "exchange": "Tokyo",
+        "corporate_number": "9011001040166",
+        "edinet_code": "E00316",
+        "source_company_name": "東急建設株式会社",
+        "filing_company_name": "東急建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFDZ",
+        "current_edinet_code": "E00316",
+        "current_corporate_number": "9011001040166"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFDZ",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829281.8231978,
+      "pdf_sha256": "55942d51f51af2058a007e3eae67a1e3a89fec618b066fc18fb9ccfd7105fff9"
+    },
+    {
       "symbol": "1721.T",
       "identity": {
         "symbol": "1721.T",
@@ -892,6 +1146,68 @@
       "pdf_sha256": "3d1032c4ab448a93cef475df057c36c58eb28e2dc5eccb460bd94ef4483b5e11"
     },
     {
+      "symbol": "175A.T",
+      "identity": {
+        "symbol": "175A.T",
+        "code": "175A",
+        "name": "WillSmart",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "交通・物流の企業や自治体向けに、システムの企画、開発、機器の提供、保守を行う。運行案内の画面配信、予約・販売システムのクラウド化、カーシェアの車両・予約管理などを提供する。",
+      "proof": {
+        "code": "175A",
+        "exchange": "Tokyo",
+        "corporate_number": "3010401103249",
+        "edinet_code": "E39487",
+        "source_company_name": "株式会社Ｗｉｌｌ　Ｓｍａｒｔ",
+        "filing_company_name": "株式会社WillSmart",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XT2X",
+        "current_edinet_code": "E39487",
+        "current_corporate_number": "3010401103249"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XT2X",
+      "filed_on": "2026-03-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829293.815722,
+      "pdf_sha256": "2e98ab528f853015a9cad46001029bc62bbc8810c7e0860f0e31c5515726f6f9"
+    },
+    {
+      "symbol": "1771.JP",
+      "identity": {
+        "symbol": "1771.JP",
+        "code": "1771",
+        "name": "日本乾溜工業",
+        "exchange": "Fukuoka",
+        "exchange_id": "Q5507703"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで交通安全設備の設置や斜面の保護工事を行い、道路・土木工事用の資材を販売する。自社では雑草を抑える舗装材を製造し、防災用品や作業現場の安全用品も扱う。",
+      "proof": {
+        "code": "1771",
+        "exchange": "Fukuoka",
+        "corporate_number": "1290001028382",
+        "edinet_code": "E00276",
+        "source_company_name": "日本乾溜工業株式会社",
+        "filing_company_name": "日本乾溜工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XB9B",
+        "current_edinet_code": "E00276",
+        "current_corporate_number": "1290001028382"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XB9B",
+      "filed_on": "2025-12-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829308.999223,
+      "pdf_sha256": "619f8771892471f01f070c8584314c9926f2227cb544a521bbddcecce27de3ee"
+    },
+    {
       "symbol": "1777.JP",
       "identity": {
         "symbol": "1777.JP",
@@ -920,6 +1236,74 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819651.870922,
       "pdf_sha256": "740bf68c7b70513a86f124cab8e65244bd1678a66c51845e09e265ae840bf1b0"
+    },
+    {
+      "symbol": "1780.T",
+      "identity": {
+        "symbol": "1780.T",
+        "code": "1780",
+        "name": "ヤマウラ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場・店舗・住宅などの建築に加え、橋や河川の護岸などの土木工事を行う。制御装置、水管理機器、小水力発電設備などは設計から製造、設置、保守まで担い、グループで不動産開発や発電事業も手がける。",
+      "proof": {
+        "code": "1780",
+        "exchange": "Tokyo",
+        "corporate_number": "6100001021418",
+        "edinet_code": "E00268",
+        "source_company_name": "株式会社ヤマウラ",
+        "filing_company_name": "株式会社ヤマウラ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK4B",
+        "current_edinet_code": "E00268",
+        "current_corporate_number": "6100001021418"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK4B",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829314.991591,
+      "pdf_sha256": "c7a41dd8bbb5ad33c7d4d632011fe6f7a6689190c2a482b32e87b988e1c20ef9"
+    },
+    {
+      "symbol": "1783.T",
+      "identity": {
+        "symbol": "1783.T",
+        "code": "1783",
+        "name": "fantasista",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで不動産の売買や権利関係の調整、保有物件の活用を行う。健康分野では5-ALAを含む商品を販売し、電力の需給調整に使う蓄電所の建設・運営にも取り組む。",
+      "proof": {
+        "code": "1783",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401066847",
+        "edinet_code": "E00263",
+        "source_company_name": "株式会社ｆａｎｔａｓｉｓｔａ",
+        "filing_company_name": "株式会社fantasista",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XC79",
+        "current_edinet_code": "E00263",
+        "current_corporate_number": "7010401066847"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XC79",
+      "filed_on": "2025-12-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829317.961843,
+      "pdf_sha256": "dbd189d96f20b9c605a1dfdf1643d5c59d854ef4dba748ebf1d075141a2d73c2"
     },
     {
       "symbol": "1787.T",
@@ -952,6 +1336,37 @@
       "pdf_sha256": "1ec7145a5ecf08729ca889c053bbac668a01b0531e7233d50637bc5d564d13d1"
     },
     {
+      "symbol": "1788.T",
+      "identity": {
+        "symbol": "1788.T",
+        "code": "1788",
+        "name": "三東工業社",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで道路や上下水道の工事、舗装、地盤改良、地下に壁や管を造る工事を行う。学校・病院・工場などの建築も請け負い、環境関連の施設や不動産の企画、管理などにも取り組む。",
+      "proof": {
+        "code": "1788",
+        "exchange": "Tokyo",
+        "corporate_number": "7160001005521",
+        "edinet_code": "E00259",
+        "source_company_name": "株式会社三東工業社",
+        "filing_company_name": "株式会社三東工業社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z43N",
+        "current_edinet_code": "E00259",
+        "current_corporate_number": "7160001005521"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z43N",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829324.017409,
+      "pdf_sha256": "3d45b1c12c730dd60bc1e18590ba696ca84ad76258d5caa926ebe5e0782d06f8"
+    },
+    {
       "symbol": "1795.T",
       "identity": {
         "symbol": "1795.T",
@@ -980,6 +1395,514 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819657.8966012,
       "pdf_sha256": "cebf7d72df022b6b331d0c22213198def7ea36a953f1478e570c95693735db09"
+    },
+    {
+      "symbol": "1798.T",
+      "identity": {
+        "symbol": "1798.T",
+        "code": "1798",
+        "name": "守谷商会",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "建築・土木を手がけ、省エネルギーを考えた建物の計画から施工まで支援する。地下水や地中の熱を使う冷暖房技術を展開し、土木の現場ではドローン測量やICT建機を活用する。",
+      "proof": {
+        "code": "1798",
+        "exchange": "Tokyo",
+        "corporate_number": "7100001003530",
+        "edinet_code": "E00251",
+        "source_company_name": "株式会社守谷商会",
+        "filing_company_name": "株式会社守谷商会",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDA3",
+        "current_edinet_code": "E00251",
+        "current_corporate_number": "7100001003530"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDA3",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829330.016549,
+      "pdf_sha256": "d19760baf5d0e9f3e05ebb7498fcf100c8933d0fb2343b2ba1d7a0df96214eb9"
+    },
+    {
+      "symbol": "1799.T",
+      "identity": {
+        "symbol": "1799.T",
+        "code": "1799",
+        "name": "第一建設工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "JR東日本を主要な取引先として建設工事を請け負う。グループ内の子会社は小規模な建築・土木工事を担当し、本体からも工事を発注する。本体と子会社では不動産の賃貸や仲介も行う。",
+      "proof": {
+        "code": "1799",
+        "exchange": "Tokyo",
+        "corporate_number": "4110001002922",
+        "edinet_code": "E00250",
+        "source_company_name": "第一建設工業株式会社",
+        "filing_company_name": "第一建設工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YILN",
+        "current_edinet_code": "E00250",
+        "current_corporate_number": "4110001002922"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YILN",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829333.051317,
+      "pdf_sha256": "70af859e9dcc0bd7de55b786cb888a8757080d22a3dba775ede80406eb866bb0"
+    },
+    {
+      "symbol": "1802.T",
+      "identity": {
+        "symbol": "1802.T",
+        "code": "1802",
+        "name": "大林組",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "国内外で建物や土木施設の工事を請け負う。グループでは内装・設備工事や建物管理、宅地開発、不動産の販売・賃貸も行い、子会社を通じて太陽光や風力などの発電事業を展開する。",
+      "proof": {
+        "code": "1802",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401088742",
+        "edinet_code": "E00055",
+        "source_company_name": "株式会社大林組",
+        "filing_company_name": "株式会社大林組",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YITC",
+        "current_edinet_code": "E00055",
+        "current_corporate_number": "7010401088742"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YITC",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829337.732736,
+      "pdf_sha256": "e77a5eeea668be63d1e4c1f7fa3b51389d445e12262e9a11f334fd73e83ca12d"
+    },
+    {
+      "symbol": "1803.T",
+      "identity": {
+        "symbol": "1803.T",
+        "code": "1803",
+        "name": "清水建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで建設と不動産開発を手がけ、日本道路が道路舗装を担う。建設資材の販売・リースや機械のレンタルを行う子会社も持ち、公共施設を建設して維持管理・運営まで担う事業を展開する。",
+      "proof": {
+        "code": "1803",
+        "exchange": "Tokyo",
+        "corporate_number": "1010401013565",
+        "edinet_code": "E00053",
+        "source_company_name": "清水建設株式会社",
+        "filing_company_name": "清水建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDXD",
+        "current_edinet_code": "E00053",
+        "current_corporate_number": "1010401013565"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDXD",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829340.68321,
+      "pdf_sha256": "a7f695e9e48e4febdeafa5b42fcc4887d012d0edf2c2e96673c24a3b2d5a9d25"
+    },
+    {
+      "symbol": "1807.T",
+      "identity": {
+        "symbol": "1807.T",
+        "code": "1807",
+        "name": "佐藤渡辺",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "舗装や土木の工事を請け負い、グループ会社と相互に工事を受発注する。自社と子会社ではアスファルトの混合材料や関連製品を作って販売し、グループ各社へも供給する。",
+      "proof": {
+        "code": "1807",
+        "exchange": "Tokyo",
+        "corporate_number": "5010401031200",
+        "edinet_code": "E00167",
+        "source_company_name": "株式会社佐藤渡辺",
+        "filing_company_name": "株式会社佐藤渡辺",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJEE",
+        "current_edinet_code": "E00167",
+        "current_corporate_number": "5010401031200"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJEE",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829343.7246678,
+      "pdf_sha256": "e28865c4f217a615f6b1713460106a530518f3b0b8db988f332d7f4efab85456"
+    },
+    {
+      "symbol": "1810.T",
+      "identity": {
+        "symbol": "1810.T",
+        "code": "1810",
+        "name": "松井建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "建築工事を請け負い、グループのリフォーム会社と連携して施工する。建設工事の設計や監理も担い、本体と子会社で土地・建物の取引や、住宅・事務所の賃貸を行う。",
+      "proof": {
+        "code": "1810",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001034956",
+        "edinet_code": "E00064",
+        "source_company_name": "松井建設株式会社",
+        "filing_company_name": "松井建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHYW",
+        "current_edinet_code": "E00064",
+        "current_corporate_number": "7010001034956"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHYW",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829349.670778,
+      "pdf_sha256": "3877f2f0c6295f81732e1ccb988787269e300aa002086de3b9052a8ee2e8a81b"
+    },
+    {
+      "symbol": "1812.T",
+      "identity": {
+        "symbol": "1812.T",
+        "code": "1812",
+        "name": "鹿島建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土木・建築工事の施工に加え、不動産開発や建物の意匠・構造設計を手がける。グループ会社は建設資材・機械の供給や建物管理を担い、北米・欧州・アジアなどで建設や開発を行う。",
+      "proof": {
+        "code": "1812",
+        "exchange": "Tokyo",
+        "corporate_number": "8010401006744",
+        "edinet_code": "E00058",
+        "source_company_name": "鹿島建設株式会社",
+        "filing_company_name": "鹿島建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGGI",
+        "current_edinet_code": "E00058",
+        "current_corporate_number": "8010401006744"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGGI",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829355.7678232,
+      "pdf_sha256": "e6d2d78e8f393f5a58227d31e3f9b18edd4d7423466f3c224288c482f4f701b1"
+    },
+    {
+      "symbol": "1813.T",
+      "identity": {
+        "symbol": "1813.T",
+        "code": "1813",
+        "name": "不動テトラ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで土木工事と地盤を改良する工事を担うほか、波を弱めたり地盤を保護したりするコンクリートブロックの鋼製型枠を貸し出す。本体と関係会社が工事を受注・施工する体制を持つ。",
+      "proof": {
+        "code": "1813",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001141053",
+        "edinet_code": "E00097",
+        "source_company_name": "株式会社不動テトラ",
+        "filing_company_name": "株式会社不動テトラ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDLY",
+        "current_edinet_code": "E00097",
+        "current_corporate_number": "4010001141053"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDLY",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829358.707443,
+      "pdf_sha256": "7456d8fcca85aaad5002ec4b1854138e1ec099e3e63ee222a066ae9510e2dcc6"
+    },
+    {
+      "symbol": "1814.T",
+      "identity": {
+        "symbol": "1814.T",
+        "code": "1814",
+        "name": "大末建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループの柱は建設事業で、自社と子会社で不動産事業も行う。子会社では建設に加えて人材の派遣や警備、保険代理業を手がけ、別の子会社が自宅療養者への看護を提供する。",
+      "proof": {
+        "code": "1814",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001083408",
+        "edinet_code": "E00093",
+        "source_company_name": "大末建設株式会社",
+        "filing_company_name": "大末建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK21",
+        "current_edinet_code": "E00093",
+        "current_corporate_number": "5120001083408"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK21",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829361.812704,
+      "pdf_sha256": "27259cc8936d3f4c95548173d3a5ce0dff00a6ac1122600d06fc893f51067a46"
+    },
+    {
+      "symbol": "1815.T",
+      "identity": {
+        "symbol": "1815.T",
+        "code": "1815",
+        "name": "鉄建建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土木・建築工事を請け負い、グループで資材の供給、専門工事、設計を分担する。不動産の売買や賃貸、土地の開発も手がけ、子会社では建築技術者の教育やいちご観光農園の運営、小水力発電などを行う。",
+      "proof": {
+        "code": "1815",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001008709",
+        "edinet_code": "E00065",
+        "source_company_name": "鉄建建設株式会社",
+        "filing_company_name": "鉄建建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGCF",
+        "current_edinet_code": "E00065",
+        "current_corporate_number": "2010001008709"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGCF",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829364.77421,
+      "pdf_sha256": "d2ed835998e9818d2af6ab83b85609c27761e5aeaff94da16b1e45a4109e7e97"
+    },
+    {
+      "symbol": "1820.T",
+      "identity": {
+        "symbol": "1820.T",
+        "code": "1820",
+        "name": "西松建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで国内外の土木・建築事業を手がけるほか、不動産の販売、賃貸や管理を行う。海外では収益物件に投資し、伊藤忠商事との間で工事や資材調達、不動産の共同開発・投資を進める。",
+      "proof": {
+        "code": "1820",
+        "exchange": "Tokyo",
+        "corporate_number": "8010401021454",
+        "edinet_code": "E00060",
+        "source_company_name": "西松建設株式会社",
+        "filing_company_name": "西松建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEDU",
+        "current_edinet_code": "E00060",
+        "current_corporate_number": "8010401021454"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEDU",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829367.915888,
+      "pdf_sha256": "d6962d2e687210839360197411a769c531ca72cc720b4416fdcb4d76d8d5c821"
+    },
+    {
+      "symbol": "1822.T",
+      "identity": {
+        "symbol": "1822.T",
+        "code": "1822",
+        "name": "大豊建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土木工事や建物の工事を請け負い、森本組などの子会社と協力して施工する。グループではタイでの建築にも取り組み、不動産、塗装工事、建設用資材の貸し出しを担う子会社も持つ。",
+      "proof": {
+        "code": "1822",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001034869",
+        "edinet_code": "E00095",
+        "source_company_name": "大豊建設株式会社",
+        "filing_company_name": "大豊建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI2K",
+        "current_edinet_code": "E00095",
+        "current_corporate_number": "3010001034869"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI2K",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829370.8130372,
+      "pdf_sha256": "e7d5acbd4fbefa0a405e4f4b92a2da33e1b953f4a8d9bdaec18adb45643e5d5d"
+    },
+    {
+      "symbol": "1826.T",
+      "identity": {
+        "symbol": "1826.T",
+        "code": "1826",
+        "name": "佐田建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "子会社とともに土木・建築の工事を受注して施工する。グループでは舗装に使うアスファルトの混合材料などを販売し、建設工事で使う資材や機材の貸し出しも行う。",
+      "proof": {
+        "code": "1826",
+        "exchange": "Tokyo",
+        "corporate_number": "9070001001420",
+        "edinet_code": "E00121",
+        "source_company_name": "佐田建設株式会社",
+        "filing_company_name": "佐田建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YILD",
+        "current_edinet_code": "E00121",
+        "current_corporate_number": "9070001001420"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YILD",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829373.789462,
+      "pdf_sha256": "da6230f377fa5efb7be4e9d40fab6e9ba619c7e1c24cec1e6144fe6e0092a78f"
+    },
+    {
+      "symbol": "1827.T",
+      "identity": {
+        "symbol": "1827.T",
+        "code": "1827",
+        "name": "ナカノフドー建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで日本と東南アジアの建設工事を手がけ、両地域で不動産を貸し出す。建設・賃貸を担う海外子会社に加え、本体では太陽光や風力を利用した発電事業も行う。",
+      "proof": {
+        "code": "1827",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001008731",
+        "edinet_code": "E00105",
+        "source_company_name": "株式会社ナカノフドー建設",
+        "filing_company_name": "株式会社ナカノフドー建設",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHMT",
+        "current_edinet_code": "E00105",
+        "current_corporate_number": "4010001008731"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHMT",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829376.832507,
+      "pdf_sha256": "1cc11ad82de84f1c9e621026381b61aa78fd2ca13e36130f2cc076e1226c2052"
+    },
+    {
+      "symbol": "1833.T",
+      "identity": {
+        "symbol": "1833.T",
+        "code": "1833",
+        "name": "奥村組",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土木・建築を中心に、自社と子会社で不動産を販売・賃貸する。グループの子会社は再生可能エネルギーで発電して電力を売るほか、建設用の資材や機材を作り、販売する事業も担う。",
+      "proof": {
+        "code": "1833",
+        "exchange": "Tokyo",
+        "corporate_number": "7120001004931",
+        "edinet_code": "E00083",
+        "source_company_name": "株式会社奥村組",
+        "filing_company_name": "株式会社奥村組",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y95Z",
+        "current_edinet_code": "E00083",
+        "current_corporate_number": "7120001004931"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y95Z",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829385.9122,
+      "pdf_sha256": "ad56dce68cd6aaffdf8162f9c5421dfffe37d489156cda7a0a545abff044be27"
+    },
+    {
+      "symbol": "1835.T",
+      "identity": {
+        "symbol": "1835.T",
+        "code": "1835",
+        "name": "東鉄工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "JR東日本を主要な顧客として土木・建築工事を手がけ、計画から設計、施工、監理まで担う。グループでは線路の保守に使う機械の製作・修理や鉄道関連製品を扱い、本体は商業ビルの賃貸や発電・緑化も行う。",
+      "proof": {
+        "code": "1835",
+        "exchange": "Tokyo",
+        "corporate_number": "6011101014147",
+        "edinet_code": "E00112",
+        "source_company_name": "東鉄工業株式会社",
+        "filing_company_name": "東鉄工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YA1U",
+        "current_edinet_code": "E00112",
+        "current_corporate_number": "6011101014147"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YA1U",
+      "filed_on": "2026-06-11",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829388.915345,
+      "pdf_sha256": "8333e69ce5634bbf2a71e729c4bc699b9ad1e00bfb73ec541b45a682889bc76b"
     },
     {
       "symbol": "1840.T",
@@ -1048,6 +1971,37 @@
       "pdf_sha256": "392957916212cebaf5cf48c06995afccab280c9ede9b5be2c2da4fd6db0ba88f"
     },
     {
+      "symbol": "1847.T",
+      "identity": {
+        "symbol": "1847.T",
+        "code": "1847",
+        "name": "イチケン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで建築や土木、舗装の工事を行い、建物の内装仕上げも手がける。自社では不動産の売買と賃貸を行うほか、グループに国内の建設子会社とベトナムの建設会社を持つ。",
+      "proof": {
+        "code": "1847",
+        "exchange": "Tokyo",
+        "corporate_number": "7010501028268",
+        "edinet_code": "E00117",
+        "source_company_name": "株式会社イチケン",
+        "filing_company_name": "株式会社イチケン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD9X",
+        "current_edinet_code": "E00117",
+        "current_corporate_number": "7010501028268"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD9X",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829391.8956008,
+      "pdf_sha256": "2c53c8cf9e69093e57c2242cb4a6392c1829862edd9153f4d6218af9e539359d"
+    },
+    {
       "symbol": "1848.T",
       "identity": {
         "symbol": "1848.T",
@@ -1114,6 +2068,99 @@
       "pdf_sha256": "ccf9724227873564bef8b165e50cc20b7e66d3727ce2b20cf17fa37eb34b6a1e"
     },
     {
+      "symbol": "1850.T",
+      "identity": {
+        "symbol": "1850.T",
+        "code": "1850",
+        "name": "南海辰村建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "親会社からも建設工事を受注し、グループの施工会社や仮設資材を扱う会社と連携して工事を進める。建設に加え、本体では不動産を売買したり、貸し出したりする事業も行う。",
+      "proof": {
+        "code": "1850",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001039386",
+        "edinet_code": "E00118",
+        "source_company_name": "南海辰村建設株式会社",
+        "filing_company_name": "南海辰村建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9NL",
+        "current_edinet_code": "E00118",
+        "current_corporate_number": "3120001039386"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9NL",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829394.892017,
+      "pdf_sha256": "48e097b5c45e58f1b1ed53843b4fa35a0dbc1a1edd0b414149c393f8d006f7ea"
+    },
+    {
+      "symbol": "1866.T",
+      "identity": {
+        "symbol": "1866.T",
+        "code": "1866",
+        "name": "北野建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土木・建築工事と太陽光発電を手がけ、長野市ではホテル事業も行う。グループの子会社は建物の管理や警備、ゴルフ場、海外ホテルの経営・投資、広告代理店などの事業を担う。",
+      "proof": {
+        "code": "1866",
+        "exchange": "Tokyo",
+        "corporate_number": "7100001000742",
+        "edinet_code": "E00175",
+        "source_company_name": "北野建設株式会社",
+        "filing_company_name": "北野建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YM22",
+        "current_edinet_code": "E00175",
+        "current_corporate_number": "7100001000742"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YM22",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829409.9861372,
+      "pdf_sha256": "f8e98ed91763e00ccf622d4a80ca5e3a7b964216a3145a7c867219e63d0767a2"
+    },
+    {
+      "symbol": "1867.T",
+      "identity": {
+        "symbol": "1867.T",
+        "code": "1867",
+        "name": "植木組",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで建設工事と不動産開発・賃貸を行い、本体は建設資材も製造して販売する。子会社ではソフトウェアの開発・販売、有料老人ホームやゴルフ場の運営などを手がける。",
+      "proof": {
+        "code": "1867",
+        "exchange": "Tokyo",
+        "corporate_number": "8110001017149",
+        "edinet_code": "E00179",
+        "source_company_name": "株式会社植木組",
+        "filing_company_name": "株式会社植木組",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIPR",
+        "current_edinet_code": "E00179",
+        "current_corporate_number": "8110001017149"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIPR",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829413.008332,
+      "pdf_sha256": "90aea19b955c4d2c4e814c26660a4f37cb6498b0e2436b784f33c7c44ac2f413"
+    },
+    {
       "symbol": "186A.T",
       "identity": {
         "symbol": "186A.T",
@@ -1144,6 +2191,37 @@
       "pdf_sha256": "3eac873022ed98fb4f57d13d355d84274d8a91b2aa47ec9837ff12d2d71dba9c"
     },
     {
+      "symbol": "1871.T",
+      "identity": {
+        "symbol": "1871.T",
+        "code": "1871",
+        "name": "ピーエス・コンストラクション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "大成建設グループの一員として、プレストレスト・コンクリートを使う土木・建築工事を請け負い、関連製品を製造する。大成建設からの工事も受注し、不動産の売買・賃貸や仲介を行う。",
+      "proof": {
+        "code": "1871",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001008742",
+        "edinet_code": "E01161",
+        "source_company_name": "ピーエス・コンストラクション株式会社",
+        "filing_company_name": "ピーエス・コンストラクション株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEO8",
+        "current_edinet_code": "E01161",
+        "current_corporate_number": "1010001008742"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEO8",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829422.063905,
+      "pdf_sha256": "5182b449862bc0aabdab93eee268ea95cf6ceb1ba28f97ff8d869f3694bfca4e"
+    },
+    {
       "symbol": "1873.T",
       "identity": {
         "symbol": "1873.T",
@@ -1172,6 +2250,43 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819676.169868,
       "pdf_sha256": "167f997d8886e0e6cefbc04b73f9980e841261c55ff9612ca1b00620cb0dbc3f"
+    },
+    {
+      "symbol": "1878.T",
+      "identity": {
+        "symbol": "1878.T",
+        "code": "1878",
+        "name": "大東建託",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土地所有者向けに賃貸建物の企画・設計・施工を行う。グループで家主からの一括借り上げ、入居者の募集、賃貸管理を担い、物流施設やホテル、マンションなどの開発・販売にも取り組む。",
+      "proof": {
+        "code": "1878",
+        "exchange": "Tokyo",
+        "corporate_number": "4010401016607",
+        "edinet_code": "E00218",
+        "source_company_name": "大東建託株式会社",
+        "filing_company_name": "大東建託株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFJK",
+        "current_edinet_code": "E00218",
+        "current_corporate_number": "4010401016607"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFJK",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829428.403698,
+      "pdf_sha256": "0694c149438c9156ed07c85fe779b24e9b87df71dd706dea4eb9f3e075b6df18"
     },
     {
       "symbol": "1885.T",
@@ -1208,6 +2323,136 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819679.049983,
       "pdf_sha256": "2e9f3203add86a7ce7127f05e49ab4723e2c1b5053df61a711ba6ea1320cf02e"
+    },
+    {
+      "symbol": "1887.T",
+      "identity": {
+        "symbol": "1887.T",
+        "code": "1887",
+        "name": "日本国土開発",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "道路・ダム・トンネルなどの工事を施工管理し、物流施設やオフィスなどの建築、既存建物の改修も手がける。不動産の開発・賃貸・販売に加え、グループで太陽光発電所の開発や売電を行う。",
+      "proof": {
+        "code": "1887",
+        "exchange": "Tokyo",
+        "corporate_number": "3010401022812",
+        "edinet_code": "E00059",
+        "source_company_name": "日本国土開発株式会社",
+        "filing_company_name": "日本国土開発株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YXXI",
+        "current_edinet_code": "E00059",
+        "current_corporate_number": "3010401022812"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YXXI",
+      "filed_on": "2026-08-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829434.680623,
+      "pdf_sha256": "828500ad6b40a4cd8a3715ac6ca17b5bc3806c6902f85de9362030a2e9c69b23"
+    },
+    {
+      "symbol": "1888.T",
+      "identity": {
+        "symbol": "1888.T",
+        "code": "1888",
+        "name": "若築建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "港湾を整備し、護岸の工事や浚渫など、海上で災害を防ぎ被害を抑えるための工事を主力とする。陸上の土木工事や建築も担い、グループで不動産事業を手がける。",
+      "proof": {
+        "code": "1888",
+        "exchange": "Tokyo",
+        "corporate_number": "6290801012011",
+        "edinet_code": "E00081",
+        "source_company_name": "若築建設株式会社",
+        "filing_company_name": "若築建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHAB",
+        "current_edinet_code": "E00081",
+        "current_corporate_number": "6290801012011"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHAB",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829437.646204,
+      "pdf_sha256": "2d212e4783106845b6f527b8b035c8718c1ba8d6221a80d71b94f6cbf560745d"
+    },
+    {
+      "symbol": "1893.T",
+      "identity": {
+        "symbol": "1893.T",
+        "code": "1893",
+        "name": "五洋建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで国内の土木・建築や海外の建設事業を行う。自社は不動産を開発・販売・賃貸し、子会社は大型の浚渫船の貸し出しと運航管理、船の建造、事務機器のリースを手がける。",
+      "proof": {
+        "code": "1893",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001000006",
+        "edinet_code": "E00086",
+        "source_company_name": "五洋建設株式会社",
+        "filing_company_name": "五洋建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF3Y",
+        "current_edinet_code": "E00086",
+        "current_corporate_number": "1010001000006"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF3Y",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829443.772064,
+      "pdf_sha256": "f0bc3af8ce4994b39586433679e97df4222ad62fa5efa612fa41f8efb90524fe"
+    },
+    {
+      "symbol": "1897.T",
+      "identity": {
+        "symbol": "1897.T",
+        "code": "1897",
+        "name": "金下建設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "建設工事をグループで分担し、本体はアスファルト製品や建設資材を供給する。産業廃棄物のリサイクルや回転寿司店の運営も手がけ、関係会社では生コンクリートの製造、公営住宅の維持管理などを行う。",
+      "proof": {
+        "code": "1897",
+        "exchange": "Tokyo",
+        "corporate_number": "8130001040495",
+        "edinet_code": "E00133",
+        "source_company_name": "金下建設株式会社",
+        "filing_company_name": "金下建設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XT0W",
+        "current_edinet_code": "E00133",
+        "current_corporate_number": "8130001040495"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XT0W",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829446.709986,
+      "pdf_sha256": "d6a94db4a4d12870d9a345b19aa08ab83447396e12e249d5edda43f45daf3cfe"
     },
     {
       "symbol": "1899.T",
@@ -1328,6 +2573,43 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791819691.255691,
       "pdf_sha256": "f31ed67601d4c7c4a2c6ecd6bf6b994bee723cf60baf353779afa82b7500d7ee"
+    },
+    {
+      "symbol": "1921.T",
+      "identity": {
+        "symbol": "1921.T",
+        "code": "1921",
+        "name": "巴コーポレーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "立体構造物や橋、建物の鉄骨、鉄塔を設計して製作・施工し、総合建設工事も請け負う。不動産では自社で売買、賃貸や管理を行い、取引の仲介も担いながら一部業務を関係会社に委託する。",
+      "proof": {
+        "code": "1921",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001034839",
+        "edinet_code": "E01394",
+        "source_company_name": "株式会社巴コーポレーション",
+        "filing_company_name": "株式会社巴コーポレーション",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLBY",
+        "current_edinet_code": "E01394",
+        "current_corporate_number": "9010001034839"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLBY",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829460.3073401,
+      "pdf_sha256": "73f2a7d386f335017ca083d2e8c96da3364caffc5b0b1fae7db86d936b493fe1"
     },
     {
       "symbol": "1939.T",
