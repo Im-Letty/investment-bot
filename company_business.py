@@ -25,6 +25,22 @@ from urllib3.exceptions import HTTPError as UpstreamReadError
 API_URL = 'https://www.wikidata.org/w/api.php'
 EXCHANGES = {'Tokyo': 'Q217475', 'Nagoya': 'Q1188840',
              'Sapporo': 'Q11093491', 'Fukuoka': 'Q5507703'}
+OFFICIAL_CATALOGUES = {
+    'Tokyo': ('https://www.jpx.co.jp/markets/statistics-equities/misc/01.html', '日本取引所グループ（JPX）'),
+    'Nagoya': ('https://www.nse.or.jp/listing/search/', '名古屋証券取引所'),
+    'Sapporo': ('https://www.sse.or.jp/listing/list', '札幌証券取引所'),
+    'Fukuoka': ('https://www.fse.or.jp/listed/index.php', '福岡証券取引所'),
+}
+OFFICIAL_CATALOGUE_URLS = {
+    'Tokyo': frozenset((OFFICIAL_CATALOGUES['Tokyo'][0],
+                       'https://www.jpx.co.jp/listing/stocks/new/index.html',
+                       'https://www.jpx.co.jp/listing/stocks/transfers/index.html')),
+    'Nagoya': frozenset((OFFICIAL_CATALOGUES['Nagoya'][0],
+                        'https://www.nse.or.jp/api/stock/search.json?dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1')),
+    'Sapporo': frozenset((OFFICIAL_CATALOGUES['Sapporo'][0],)),
+    'Fukuoka': frozenset((OFFICIAL_CATALOGUES['Fukuoka'][0],
+                         'https://www.fse.or.jp/investors/companies-and-brokers/')),
+}
 TTL = 7 * 86400
 RETRY = 3600
 RETAIN = 90 * 86400
@@ -89,6 +105,48 @@ def official_identity(symbol, company):
 def _identity_exchanges(identity):
     return {row['exchange_id']: row['exchange'] for row in
             [identity, *identity.get('listings', [])]}
+
+
+def official_company_overview(symbol, company, *, today=None):
+    """Basic official listing classification, never a verified business description.
+
+    This zero-network fallback uses only the official catalogue already loaded
+    by StockSearch. Keep it separate from CC0 company facts and their fetch time.
+    Unknown industries stay absent; no services or products are inferred.
+    """
+    identity = official_identity(symbol, company)
+    if identity is None:
+        return None
+    source_url = company.get('source_url')
+    source_title = OFFICIAL_CATALOGUES[identity['exchange']][1]
+    if not isinstance(source_url, str) or source_url not in OFFICIAL_CATALOGUE_URLS[identity['exchange']]:
+        return None
+    as_of = company.get('as_of', company.get('catalogue_as_of'))
+    try:
+        observed_day = today if today is not None else datetime.now(timezone(timedelta(hours=9))).date()
+        source_day = date.fromisoformat(as_of) if isinstance(as_of, str) else None
+        if (not isinstance(observed_day, date) or source_day is None
+                or source_day.isoformat() != as_of or source_day > observed_day):
+            return None
+    except ValueError:
+        return None
+    fields = {}
+    for field in ('market', 'industry'):
+        value = company.get(field)
+        if value is None and field == 'industry':
+            fields[field] = None
+            continue
+        if (not isinstance(value, str) or not 0 < len(value) <= 100
+                or any(unicodedata.category(char) == 'Cc' for char in value)):
+            return None
+        fields[field] = value
+    text = '上場市場：' + fields['market']
+    if fields['industry']:
+        text = '業種：' + fields['industry'] + '。' + text
+    return dict(text=text, kind='official_listing_overview', field_status='available',
+                specific_business_description=False, symbol=symbol,
+                market=fields['market'], industry=fields['industry'],
+                source_url=source_url, source_title=source_title, as_of=as_of)
 
 
 def _stored_identity(supplied):

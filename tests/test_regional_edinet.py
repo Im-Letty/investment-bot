@@ -3,6 +3,8 @@ from copy import deepcopy
 from datetime import datetime, timezone
 from io import BytesIO
 import json
+from pathlib import Path
+import tempfile
 import unittest
 from unittest.mock import Mock
 from zipfile import ZipFile, ZIP_DEFLATED
@@ -90,6 +92,35 @@ class IdentityTests(unittest.TestCase):
         company = dict(code='1738', symbol='1738.JP', name='ＮＩＴＴＯＨ')
         self.assertIsNone(match_identity(company, rows))
 
+    def test_officially_verified_spelling_requires_exact_corporation_and_date(self):
+        identity = EdinetIdentity('1738', 'E05065', '株式会社ニットー', '17380',
+                                   '1180001013107', '2026-10-12')
+        company = dict(code='1738', symbol='1738.JP', name='ＮＩＴＴＯＨ', provider_symbol=None)
+        self.assertEqual(match_identity(company, (identity,)), identity)
+        for field, value in (('edinet_code', 'E00000'), ('corporate_number', '1234567890123'),
+                             ('as_of', '2026-10-11'), ('name', '別会社')):
+            changed = {**identity.__dict__, field: value}
+            self.assertIsNone(match_identity(company, (EdinetIdentity(**changed),)))
+        self.assertIsNone(match_identity({**company, 'name': 'NITOH'}, (identity,)))
+
+    def test_actual_name_change_keeps_old_filing_name_on_same_verified_corporation(self):
+        identity = EdinetIdentity('3055', 'E03003', '株式会社ＴＳＵＭＵＧＵ　ＨＯＬＤＩＮＧＳ',
+                                   '30550', '2430001032501', '2026-10-12')
+        company = dict(code='3055', symbol='3055.JP', name='ほくやく・竹山ホールディングス',
+                       provider_symbol=None)
+        self.assertEqual(match_identity(company, (identity,)), identity)
+        row = {**DESCRIPTOR, 'edinetCode': identity.edinet_code, 'secCode': identity.security_code,
+               'JCN': identity.corporate_number, 'filerName': '株式会社ほくやく・竹山ホールディングス'}
+        payload = xbrl().replace(b'E01507', b'E03003').replace(b'61470', b'30550').replace(
+                  '株式会社ヤマザキ'.encode(), '株式会社ほくやく・竹山ホールディングス'.encode())
+        fact = parse_annual_dividend(payload, identity, row, NOW + 86400)
+        self.assertIsNotNone(fact)
+        self.assertEqual(fact['edinet_code'], 'E03003')
+        self.assertEqual(fact['security_code'], '30550')
+        # Even a verified historic name cannot override a different corporation.
+        self.assertIsNone(parse_annual_dividend(payload, identity,
+            {**row, 'JCN': '1234567890123'}, NOW + 86400))
+
     def test_ambiguous_malformed_and_oversize_code_lists_rejected(self):
         inputs = [b'not csv', self.code_list('E01507,ヤマザキ,61470,9080401005540\nE09999,ヤマザキ,61470,9080401005540\n'),
                   self.code_list().replace(b'E01507', b'E../07'), b'x' * (module.MAX_CODE_LIST_BYTES + 1),
@@ -97,6 +128,53 @@ class IdentityTests(unittest.TestCase):
         for payload in inputs:
             with self.subTest(payload=payload[:20]), self.assertRaises(ValueError):
                 parse_edinet_code_list(payload)
+
+
+class FilingHintTests(unittest.TestCase):
+    def test_current_public_seed_has_only_date_and_identity_not_amount(self):
+        observed = datetime(2026, 10, 12, 12, tzinfo=timezone.utc).timestamp()
+        hints = module.load_filing_hints(identities=module.load_identity_seed(observed_at=observed),
+                                         observed_at=observed)
+        self.assertEqual(len(hints), 1)
+        self.assertEqual(hints[0]['submitted_date'], '2026-06-25')
+        self.assertEqual(hints[0]['code'], '6147')
+        self.assertEqual(hints[0]['fiscal_period']['end'], '2026-03-31')
+        for key in ('value', 'amount', 'dividend', 'doc_id', 'latest_filing_guaranteed'):
+            self.assertNotIn(key, hints[0])
+
+    def hint_file(self, folder, **updates):
+        row = {'code': '6147', 'edinet_code': 'E01507', 'security_code': '61470',
+               'name': '株式会社ヤマザキ', 'corporate_number': '9080401005540',
+               'identity_as_of': '2026-10-11', 'submitted_date': '2026-06-25',
+               'fiscal_period': {'start': '2025-04-01', 'end': '2026-03-31'},
+               'source_url': 'https://www.yamazaki-iron.co.jp/ir/library/pdf/securitiesreport_2026_full.pdf',
+               'verified_at': '2026-10-11T21:00:00+09:00', **updates}
+        path = Path(folder) / 'hint.json'
+        path.write_text(json.dumps({'version': 1, 'hints': [row]}))
+        return path
+
+    def test_hint_reference_cannot_carry_credentials_queries_or_relative_urls(self):
+        with tempfile.TemporaryDirectory() as folder:
+            for url in ('https://secret@example.com/report.pdf', 'https://example.com/report.pdf?key=secret',
+                        'https://example.com/report.pdf#secret', '/report.pdf', 'http://example.com/report.pdf'):
+                path = self.hint_file(folder, source_url=url)
+                self.assertEqual(module.load_filing_hints(path, identities=(IDENTITY,), observed_at=NOW), ())
+
+    def test_extra_amount_or_oversize_hints_are_never_used(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.hint_file(folder, value=10)
+            self.assertEqual(module.load_filing_hints(path, identities=(IDENTITY,), observed_at=NOW), ())
+            path.write_bytes(b' ' * 100_001)
+            self.assertEqual(module.load_filing_hints(path, identities=(IDENTITY,), observed_at=NOW), ())
+
+    def test_changed_issuer_or_future_verification_invalidates_old_hint(self):
+        with tempfile.TemporaryDirectory() as folder:
+            path = self.hint_file(folder)
+            identities = (module.EdinetIdentity('6147', 'E01507', '別会社', '61470',
+                          '9080401005540', '2026-10-11'),)
+            self.assertEqual(module.load_filing_hints(path, identities=identities, observed_at=NOW), ())
+            path = self.hint_file(folder, verified_at='2026-10-12T21:00:00+09:00')
+            self.assertEqual(module.load_filing_hints(path, identities=(IDENTITY,), observed_at=NOW), ())
 
 
 class FactTests(unittest.TestCase):

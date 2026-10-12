@@ -225,6 +225,10 @@ class StockSearch:
     def _index(self):
         rows, self._closed_tokyo_codes = merge_companies(self.catalogue, self.supplement)
         self.index = [(row, normalize(row['code']), normalize(row['name'])) for row in rows]
+        self._aliases = {
+            row['code']: tuple(normalize(name) for name in row.get('aliases', [])
+                               if isinstance(name, str))
+            for row in rows}
         self._companies = {row['code']: row for row in rows}
         self._provider_items = [dict(code=row['code'], name=row['name'], symbol=row['symbol'],
                                      provider_symbol=row['provider_symbol'])
@@ -306,9 +310,11 @@ class StockSearch:
         matches = []
         with self._state_lock:
             for row, code, name in self.index:
-                score = (0 if code_key == code else 1 if key == name else
-                         2 if code.startswith(code_key) else 3 if name.startswith(key) else
-                         4 if key in name else None)
+                names = (name, *self._aliases.get(row['code'], ()))
+                score = (0 if code_key == code else 1 if key in names else
+                         2 if code.startswith(code_key) else
+                         3 if any(candidate.startswith(key) for candidate in names) else
+                         4 if any(key in candidate for candidate in names) else None)
                 if score is not None:
                     matches.append((score, row['code'], row))
             rows = [row for _, _, row in sorted(matches)[:20]]

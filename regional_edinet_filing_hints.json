@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "hints": [
+    {
+      "code": "6147",
+      "edinet_code": "E01507",
+      "security_code": "61470",
+      "name": "株式会社ヤマザキ",
+      "corporate_number": "9080401005540",
+      "identity_as_of": "2026-10-11",
+      "submitted_date": "2026-06-25",
+      "fiscal_period": {"start": "2025-04-01", "end": "2026-03-31"},
+      "source_url": "https://www.yamazaki-iron.co.jp/ir/library/pdf/securitiesreport_2026_full.pdf",
+      "verified_at": "2026-10-12T16:18:27.431469+09:00"
+    }
+  ]
+}

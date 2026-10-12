@@ -152,12 +152,26 @@ class ListSelectionTests(unittest.TestCase):
         self.assertTrue(self.select([descriptor(), changed])['invalidated'])
 
     def test_deployment_seed_is_public_bounded_and_strictly_dated(self):
-        rows = load_identity_seed(observed_at=NOW)
-        self.assertEqual(len(rows), 108)
+        rows = load_identity_seed(observed_at=NOW + 86400)
+        self.assertEqual(len(rows), 110)
         with tempfile.TemporaryDirectory() as folder:
             path = Path(folder) / 'seed.json'
             path.write_text('{"version":1,"source_url":"evil","identities":[]}')
             self.assertEqual(load_identity_seed(path, observed_at=NOW), ())
+
+    def test_all_regional_identities_match_the_bundled_catalogue_without_provider_aliases(self):
+        from stock_search import StockSearch
+        from regional_edinet import match_identity
+        with tempfile.TemporaryDirectory() as folder:
+            catalogue = StockSearch(runtime_path=Path(folder) / 'catalogue.json',
+                                    national_runtime_path=Path(folder) / 'national.json')
+            identities = load_identity_seed(observed_at=NOW + 86400)
+            self.assertEqual(len(identities), 110)
+            for identity in identities:
+                company = catalogue.company(identity.code)
+                self.assertIsNotNone(company)
+                self.assertEqual(match_identity(company, identities), identity)
+                self.assertIsNone(company['provider_symbol'])
 
 
 class FixtureProvider:
@@ -347,6 +361,96 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(target.get(COMPANY)['durable_checkpoint_status'], 'saved')
         self.assertEqual(store.save.call_args.args[0]['version'], 1)
         self.assertIn('next_request', store.save.call_args.args[0])
+        persistence = target.get(COMPANY)['persistence']
+        self.assertEqual(persistence['restore_status'], 'restored')
+        self.assertEqual(persistence['restored_at'], NOW)
+        self.assertEqual(persistence['saved_at'], NOW)
+        self.assertEqual(persistence['restored_indexed_days'], 2)
+        self.assertEqual(persistence['restored_facts'], 1)
+        self.assertTrue(persistence['selected_fact_restored'])
+        self.assertTrue(persistence['selected_fact_saved'])
+        self.assertFalse(persistence['snapshot_guaranteed'])
+        self.assertFalse(persistence['cross_instance_cas'])
+
+    def test_restored_fact_observation_does_not_follow_a_changed_amount(self):
+        source = self.service(FixtureProvider({'2026-10-10': [descriptor()]}))
+        source.get(COMPANY); self.assertTrue(source.wait_idle())
+        cache = json.loads(self.path.read_text())
+        source.close(); self.path.unlink()
+        store = Mock()
+        store.load.return_value = cache
+        store.save.return_value = True
+        target = self.service(FixtureProvider(), checkpoint_store=store)
+        target.get(COMPANY); self.assertTrue(target.wait_idle())
+        self.assertTrue(target.get(COMPANY)['persistence']['selected_fact_restored'])
+        target._records['6147']['fact']['value'] = 21
+        changed = target.get(COMPANY)['persistence']
+        self.assertFalse(changed['selected_fact_restored'])
+        self.assertFalse(changed['selected_fact_saved'])
+        target._save()
+        self.assertTrue(target.get(COMPANY)['persistence']['selected_fact_saved'])
+        self.assertFalse(target.get(COMPANY)['persistence']['selected_fact_restored'])
+
+    def test_checkpoint_with_revoked_fact_never_claims_fact_was_restored(self):
+        source = self.service(FixtureProvider({'2026-10-11': [descriptor()]}))
+        source.get(COMPANY); self.assertTrue(source.wait_idle())
+        cache = json.loads(self.path.read_text())
+        source.close(); self.path.unlink()
+        cache['snapshots']['2026-10-11']['rows'] = [descriptor(legalStatus='0')]
+        store = Mock()
+        store.load.return_value = cache
+        store.save.return_value = True
+        target = self.service(FixtureProvider(), checkpoint_store=store)
+        target.get(COMPANY); self.assertTrue(target.wait_idle())
+        result = target.get(COMPANY)
+        self.assertTrue(result['invalidated'])
+        self.assertEqual(result['persistence']['restore_status'], 'restored')
+        self.assertEqual(result['persistence']['restored_facts'], 0)
+        self.assertFalse(result['persistence']['selected_fact_restored'])
+        self.assertFalse(result['persistence']['selected_fact_saved'])
+
+    def filing_hint(self, **updates):
+        row = {'code': IDENTITY.code, 'edinet_code': IDENTITY.edinet_code,
+               'security_code': IDENTITY.security_code, 'name': IDENTITY.name,
+               'corporate_number': IDENTITY.corporate_number, 'identity_as_of': IDENTITY.as_of,
+               'submitted_date': '2026-10-09',
+               'fiscal_period': {'start': '2025-04-01', 'end': '2026-03-31'},
+               'source_url': 'https://www.yamazaki-iron.co.jp/ir/library/pdf/securitiesreport_2026_full.pdf',
+               'verified_at': '2026-10-11T21:00:00+09:00', **updates}
+        path = Path(self.folder.name) / 'hints.json'
+        path.write_text(json.dumps({'version': 1, 'hints': [row]}))
+        return path
+
+    def test_exact_filing_hint_discovers_amount_before_whole_range_is_indexed(self):
+        row = descriptor(submitDateTime='2026-10-09 09:00', opeDateTime='2026-10-09 09:00')
+        provider = FixtureProvider({'2026-10-09': [row]})
+        service = self.service(provider, filing_hint_path=self.filing_hint(), max_warm_operations=3)
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls, [('day', '2026-10-11'), ('day', '2026-10-09'),
+                                          ('filing', 'S100TEST')])
+        result = service.get(COMPANY)
+        self.assertEqual(result['data']['historical_dividend_per_share'], 20)
+        self.assertEqual(result['coverage']['missing_days'], 1)
+        self.assertFalse(result['dividend_fact']['latest_filing_guaranteed'])
+
+    def test_hint_cannot_provide_amount_when_metadata_has_no_matching_issuer(self):
+        provider = FixtureProvider({'2026-10-09': [descriptor(edinetCode='E99999')]})
+        service = self.service(provider, filing_hint_path=self.filing_hint())
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls[:2], [('day', '2026-10-11'), ('day', '2026-10-09')])
+        self.assertFalse(any(kind == 'filing' for kind, value in provider.calls))
+        self.assertEqual(service.get(COMPANY)['data'], {})
+
+    def test_future_or_wrong_identity_hint_cannot_change_normal_discovery_order(self):
+        for updates in ({'submitted_date': '2026-10-12'}, {'edinet_code': 'E99999'},
+                        {'identity_as_of': '2026-10-10'}, {'verified_at': '2026-10-12T21:00:00+09:00'}):
+            provider = FixtureProvider()
+            service = self.service(provider, filing_hint_path=self.filing_hint(**updates))
+            service.get(COMPANY); self.assertTrue(service.wait_idle())
+            self.assertEqual(provider.calls, [('day', '2026-10-11'), ('day', '2026-10-10'),
+                                              ('day', '2026-10-09')])
+            service.close()
+            self.path.unlink()
 
     def test_keyless_checkpoint_never_calls_load_or_save(self):
         store = Mock()
@@ -390,6 +494,11 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(store.load.call_count, 1)
         self.assertEqual(service.get(COMPANY)['durable_checkpoint_status'], 'load_failed')
         self.assertEqual(service.get(COMPANY)['data']['historical_dividend_per_share'], 20)
+        persistence = service.get(COMPANY)['persistence']
+        self.assertEqual(persistence['local_status'], 'saved')
+        self.assertEqual(persistence['restore_status'], 'load_failed')
+        self.assertIsNone(persistence['saved_at'])
+        self.assertFalse(persistence['selected_fact_saved'])
         # A later background attempt can resume saves only after verified load/missing.
         store.load.side_effect = None
         store.load.return_value = None
@@ -421,6 +530,10 @@ class ServiceTests(unittest.TestCase):
         self.assertEqual(result['data']['historical_dividend_per_share'], 20)
         self.assertEqual(result['durable_checkpoint_status'], 'save_failed')
         self.assertEqual(store.save.call_count, 1)
+        self.assertEqual(result['persistence']['restore_status'], 'missing')
+        self.assertIsNone(result['persistence']['restored_at'])
+        self.assertIsNone(result['persistence']['saved_at'])
+        self.assertFalse(result['persistence']['selected_fact_saved'])
 
     def test_cache_is_whitelisted_no_raw_prose_or_credentials_and_fork_does_not_boot(self):
         provider = FixtureProvider({'2026-10-11': [descriptor(docDescription='secret prose')]})

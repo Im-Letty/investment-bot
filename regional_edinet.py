@@ -22,6 +22,7 @@ import re
 import threading
 import time
 import unicodedata
+from urllib.parse import urlsplit
 from xml.etree import ElementTree as ET
 from zipfile import BadZipFile, ZipFile
 
@@ -45,6 +46,19 @@ MAX_XML_NODES = 100_000
 MAX_LIST_BYTES = 4_000_000
 MAX_LIST_ROWS = 20_000
 SEED_PATH = Path(__file__).with_name('regional_edinet_identities.json')
+FILING_HINT_PATH = Path(__file__).with_name('regional_edinet_filing_hints.json')
+# Closed, corporation-bound spellings verified against the 2026-10-12 official
+# EDINET code list and issuer sources. No transliteration or fuzzy matching.
+# NITTOH explicitly identifies its registered name as ニットー:
+# https://www.nittoh-info.co.jp/company/
+# The same 3055 corporation changed its name on 2026-09-29:
+# https://www.tsumuguhd.co.jp/company/message/
+_VERIFIED_NAMES = {
+    ('1738', 'E05065', '17380', '1180001013107'):
+        ('2026-10-12', ('ニットー', 'NITTOH')),
+    ('3055', 'E03003', '30550', '2430001032501'):
+        ('2026-10-12', ('TSUMUGU HOLDINGS', 'ほくやく・竹山ホールディングス')),
+}
 
 
 def _name(value):
@@ -61,6 +75,16 @@ def _date(value):
         return date.fromisoformat(value) if isinstance(value, str) else None
     except ValueError:
         return None
+
+
+def _same_issuer_name(value, identity):
+    if _name(value) == _name(identity.name):
+        return True
+    verified = _VERIFIED_NAMES.get((identity.code, identity.edinet_code,
+                                   identity.security_code, identity.corporate_number))
+    return bool(verified and _date(identity.as_of) and _date(identity.as_of) >= _date(verified[0])
+                and _name(identity.name) in {_name(name) for name in verified[1]}
+                and _name(value) in {_name(name) for name in verified[1]})
 
 
 @dataclass(frozen=True)
@@ -131,7 +155,7 @@ def match_identity(company, identities):
         return None
     found = [row for row in identities if isinstance(row, EdinetIdentity)
              and row.code == code and row.security_code == code + '0'
-             and _name(row.name) == _name(company['name'])
+             and _same_issuer_name(company['name'], row)
              and re.fullmatch(r'E[0-9]{5}', row.edinet_code) and _date(row.as_of)]
     if len(found) != 1:
         return None
@@ -183,11 +207,68 @@ def load_identity_seed(path=SEED_PATH, *, observed_at=None):
         return ()
 
 
+def load_filing_hints(path=FILING_HINT_PATH, *, identities=(), observed_at=None):
+    """Exact official filing dates can guide discovery, never supply amounts.
+
+    A hint is not an EDINET descriptor, proof of a latest filing, or permission
+    to skip metadata/XBRL identity checks. Reading this bounded local seed makes
+    no request to the reference URLs.
+    """
+    now = time.time() if observed_at is None else observed_at
+    try:
+        raw = Path(path).read_bytes()
+        if len(raw) > 100_000:
+            return ()
+        data = json.loads(raw)
+        fields = {'code', 'edinet_code', 'security_code', 'name', 'corporate_number',
+                  'identity_as_of', 'submitted_date', 'fiscal_period', 'source_url', 'verified_at'}
+        if (not isinstance(data, dict) or set(data) != {'version', 'hints'}
+                or data['version'] != 1 or not isinstance(data['hints'], list)
+                or len(data['hints']) > 110):
+            return ()
+        today, output, seen = datetime.fromtimestamp(now, JST).date(), [], set()
+        for row in data['hints']:
+            if not isinstance(row, dict) or set(row) != fields:
+                return ()
+            identity = [item for item in identities if item.code == row['code']]
+            if len(identity) != 1:
+                continue
+            identity = identity[0]
+            if (row['edinet_code'] != identity.edinet_code or row['security_code'] != identity.security_code
+                    or _name(row['name']) != _name(identity.name)
+                    or row['corporate_number'] != identity.corporate_number
+                    or row['identity_as_of'] != identity.as_of):
+                continue
+            submitted = _date(row['submitted_date'])
+            period = row['fiscal_period']
+            if not isinstance(period, dict) or set(period) != {'start', 'end'}:
+                continue
+            start, end = _date(period['start']), _date(period['end'])
+            verified = datetime.fromisoformat(row['verified_at']) if isinstance(row['verified_at'], str) else None
+            url = urlsplit(row['source_url']) if isinstance(row['source_url'], str) else None
+            if (not submitted or not start or not end or not 0 <= (end - start).days <= 550
+                    or not end <= submitted <= today or not _date(identity.as_of) <= today
+                    or not verified or verified.utcoffset() != timedelta(hours=9)
+                    or not 0 < verified.timestamp() <= now or verified.date() < submitted
+                    or verified.date() < _date(identity.as_of)
+                    or not url or url.scheme != 'https' or not url.hostname
+                    or not re.fullmatch(r'[a-z0-9.-]+', url.hostname) or '.' not in url.hostname
+                    or url.username or url.password or url.port or url.query or url.fragment
+                    or not url.path.endswith('.pdf') or len(row['source_url']) > 400
+                    or row['code'] in seen):
+                continue
+            output.append(dict(row))
+            seen.add(row['code'])
+        return tuple(output)
+    except (OSError, ValueError, TypeError, OverflowError, KeyError, AttributeError):
+        return ()
+
+
 def _issuer_valid(row, identity):
     return bool(identity and isinstance(row, dict)
                 and row.get('edinetCode') == identity.edinet_code
                 and row.get('secCode') == identity.security_code
-                and _name(row.get('filerName')) == _name(identity.name)
+                and _same_issuer_name(row.get('filerName'), identity)
                 and (not row.get('JCN') or row['JCN'] == identity.corporate_number))
 
 
@@ -427,7 +508,7 @@ def parse_annual_dividend(payload, identity, descriptor, observed_at):
     if (dei.get('EDINETCodeDEI') != {identity.edinet_code}
             or dei.get('SecurityCodeDEI') != {identity.security_code}
             or len(dei.get('FilerNameInJapaneseDEI', ())) != 1
-            or _name(next(iter(dei['FilerNameInJapaneseDEI']))) != _name(identity.name)):
+            or not _same_issuer_name(next(iter(dei['FilerNameInJapaneseDEI'])), identity)):
         return None
     contexts = set()
     for context in root.findall('{' + XBRLI + '}context'):

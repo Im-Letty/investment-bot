@@ -380,6 +380,16 @@ class FiledAnnualDividendRoutes(unittest.TestCase):
         self.annual.get.assert_called_once_with(self.company)
         self.assertNotIn('must not escape', json.dumps(body))
 
+    def test_official_listing_overview_is_separate_from_specific_business_description(self):
+        body = self.request().get_json()
+        overview = body['company_overview']
+        self.assertEqual(overview['kind'], 'official_listing_overview')
+        self.assertFalse(overview['specific_business_description'])
+        self.assertEqual(overview['industry'], '陸運業')
+        self.assertEqual(overview['source_url'], self.company['source_url'])
+        self.assertIsNone(body['editorial'])
+        self.assertNotIn('business_overview', body)
+
     def test_actual_zero_is_available_but_missing_is_not_zero(self):
         self.raw['data']['historical_dividend_per_share'] = self.fact['value'] = 0
         self.assertEqual(self.request().get_json()['data']['historical_dividend_per_share'], 0)
@@ -476,6 +486,57 @@ class FiledAnnualDividendRoutes(unittest.TestCase):
                        dict(stale_days=400), {'to': '2099-01-01'}):
             self.raw['coverage'] = dict(self.coverage, **change)
             self.assertIsNone(self.request().get_json()['historical_dividend_coverage'])
+
+    def persistence(self):
+        return dict(local_status='saved', durable_status='saved', restore_status='restored',
+                    restored_at=self.now+2, saved_at=self.now+1, restored_indexed_days=24,
+                    restored_facts=1, selected_fact_restored=True, selected_fact_saved=True,
+                    snapshot_guaranteed=False, cross_instance_cas=False)
+
+    def test_persistence_history_survives_new_save_without_exposing_internal_fields(self):
+        self.raw['persistence'] = dict(self.persistence(), path='private/bucket',
+                                       api_key='must not escape', hash='private fingerprint')
+        body = self.request().get_json()
+        actual = body['historical_dividend_persistence']
+        self.assertEqual(actual, self.persistence())
+        self.assertEqual(actual['restore_status'], 'restored')
+        self.assertEqual(actual['durable_status'], 'saved')
+        self.assertEqual(body['dividend_fact']['value'], 50.5)
+        self.assertNotIn('private/bucket', json.dumps(body))
+        self.assertNotIn('private fingerprint', json.dumps(body))
+        self.assertNotIn('must not escape', json.dumps(body))
+
+    def test_index_restore_does_not_prove_a_missing_or_invalidated_selected_value(self):
+        self.raw['persistence'] = self.persistence()
+        for change in (dict(status='loading', data={}, dividend_fact=None),
+                       dict(status='filing_invalidated', invalidated=True)):
+            with self.subTest(change=change):
+                self.raw.update(change)
+                body = self.request().get_json()
+                actual = body['historical_dividend_persistence']
+                self.assertEqual(actual['restored_indexed_days'], 24)
+                self.assertEqual(actual['restore_status'], 'restored')
+                self.assertFalse(actual['selected_fact_restored'])
+                self.assertFalse(actual['selected_fact_saved'])
+
+    def test_malformed_or_future_persistence_cannot_claim_durable_success(self):
+        for change in (dict(durable_status='raw credentials'), dict(local_status=[]),
+                       dict(restored_indexed_days=True), dict(restored_facts=111),
+                       dict(saved_at=self.now+3600), dict(restored_at=None),
+                       dict(selected_fact_saved=1), dict(snapshot_guaranteed=True),
+                       dict(cross_instance_cas=True)):
+            with self.subTest(change=change):
+                self.raw['persistence'] = dict(self.persistence(), **change)
+                body = self.request().get_json()
+                self.assertIsNone(body['historical_dividend_persistence'])
+                self.assertEqual(body['dividend_fact']['value'], 50.5)
+
+    def test_value_fetched_after_checkpoint_cannot_be_claimed_saved_or_restored(self):
+        self.raw['persistence'] = dict(self.persistence(), saved_at=self.now-1,
+                                       restored_at=self.now-2)
+        actual = self.request().get_json()['historical_dividend_persistence']
+        self.assertFalse(actual['selected_fact_saved'])
+        self.assertFalse(actual['selected_fact_restored'])
 
 
 if __name__ == '__main__':

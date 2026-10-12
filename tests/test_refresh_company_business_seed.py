@@ -187,6 +187,39 @@ class BulkSeedTests(unittest.TestCase):
         raw.read1(); raw.read1()
         self.assertEqual(observation, dict(http_status=200, api_error_code='maxlag', retry_after='5'))
 
+    def test_lag_observation_is_bounded_number_and_never_retains_host_or_info(self):
+        class Raw:
+            def __init__(self, lag):
+                self.parts = [json.dumps(dict(error=dict(code='maxlag', lag=lag,
+                                     info='diagnostic prose', host='database-name'))).encode(), b'']
+            def read1(self, *args, **kwargs):
+                return self.parts.pop(0)
+        for lag, expected in ((23.5, 23.5), (True, None), (-1, None), ('23.5', None), (1_000_001, None)):
+            observation = {}
+            raw = _ObservedRaw(Raw(lag), observation); raw.read1(); raw.read1()
+            self.assertEqual(observation.get('upstream_lag_seconds'), expected)
+            self.assertNotIn('host', observation); self.assertNotIn('info', observation)
+
+    def test_coverage_separates_generic_industry_only_and_retained_description(self):
+        one, two, three = company('1000', '会社A'), company('1001', '会社B'), company('1002', '会社C')
+        generic = entity(one, 'Q1'); generic['descriptions']['ja']['value'] = '日本の企業'
+        provider = Provider({'Q1': generic, 'Q2': entity(two, 'Q2', description=False, industry=True),
+                             'Q190': dict(id='Q190', labels=dict(ja=dict(language='ja', value='小売業')))})
+        (seed, state, report), _ = run([one, two, three], {one['symbol']: ['Q1'], two['symbol']: ['Q2']}, provider)
+        records = {r['symbol']: r for r in report['company_coverage']}
+        self.assertEqual(records[one['symbol']]['content_kind'], 'generic_description')
+        self.assertEqual(records[two['symbol']]['content_kind'], 'industry_facts_only')
+        self.assertEqual(records[three['symbol']]['refresh_status'], 'candidate_missing')
+        self.assertFalse(report['verified_whole_catalogue_descriptions'])
+        self.assertEqual(report['coverage']['company_specific_short_description_records'], 0)
+        self.assertEqual(report['coverage']['missing_company_specific_descriptions_by_exchange'], {'Tokyo': 3})
+        failing = Provider(failure=BusinessFailure('fetch_error', retry_after_seconds=3600))
+        (restored, _, pending), _ = run([one, two, three], {one['symbol']: ['Q1'], two['symbol']: ['Q2']},
+                                       failing, previous_seed=seed)
+        self.assertEqual(restored['items'], seed['items'])
+        self.assertTrue(all(row['retained_previous'] for row in pending['company_coverage'] if row['verified_available']))
+        self.assertFalse(pending['verified_whole_catalogue_descriptions'])
+
 
 if __name__ == '__main__':
     unittest.main()

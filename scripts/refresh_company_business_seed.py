@@ -42,6 +42,7 @@ SELECT DISTINCT ?item ?exchange ?ticker WHERE {
 LIMIT 10000'''
 MAX_BYTES = 8_000_000
 SEED_PATH = Path(__file__).resolve().parents[1] / 'static/company-business-seed.json'
+GENERIC_DESCRIPTIONS = frozenset(('日本の企業', '日本の会社', '日本の株式会社', '株式会社'))
 
 
 class _ObservedRaw:
@@ -58,9 +59,14 @@ class _ObservedRaw:
             self.complete = False
         if not chunk and self.complete:
             try:
-                code = json.loads(self.prefix).get('error', {}).get('code')
+                error = json.loads(self.prefix).get('error', {})
+                code = error.get('code')
                 if isinstance(code, str) and re.fullmatch(r'[A-Za-z0-9_-]{1,64}', code):
                     self.observation['api_error_code'] = code
+                lag = error.get('lag')
+                if (code == 'maxlag' and isinstance(lag, (int, float)) and not isinstance(lag, bool)
+                        and math.isfinite(lag) and 0 <= lag <= 1_000_000):
+                    self.observation['upstream_lag_seconds'] = lag
             except (ValueError, AttributeError, TypeError):
                 pass
         return chunk
@@ -79,6 +85,9 @@ class _ObservedSession(requests.Session):
         retry = response.headers.get('Retry-After')
         observation = dict(http_status=response.status_code, api_error_code=None,
                            retry_after=retry if isinstance(retry, str) and len(retry) <= 128 else None)
+        age = response.headers.get('Age')
+        if isinstance(age, str) and age.isdigit() and len(age) <= 9:
+            observation['http_cache_age_seconds'] = int(age)
         self.observations.append(observation)
         response.raw = _ObservedRaw(response.raw, observation)
         return response
@@ -273,24 +282,29 @@ def refresh(companies, hints, *, provider, state=None, previous_seed=None,
     def assemble():
         records = deepcopy(old)
         counts = Counter()
+        statuses = {}
         verified_symbols = set()
         ambiguous = set(rejected)
         for symbol, identity in identities.items():
             ids = hints.get(symbol, [])
             if symbol in rejected:
                 counts['ambiguous'] += 1
+                statuses[symbol] = 'ambiguous'
                 continue
             if not ids:
                 counts['unmapped'] += 1
+                statuses[symbol] = 'candidate_missing'
                 continue
             if not all(qid in targets and entity_ready(qid) for qid in ids):
                 counts['pending_identity'] += 1
+                statuses[symbol] = 'identity_pending'
                 continue
             drafts = [draft for qid in ids for draft in entities[qid].get('drafts', [])
                       if isinstance(draft, dict) and draft.get('symbol') == symbol
                       and draft.get('identity') == identity]
             if len(drafts) != 1:
                 counts['ambiguous' if len(drafts) > 1 else 'identity_unconfirmed'] += 1
+                statuses[symbol] = 'ambiguous' if len(drafts) > 1 else 'identity_unconfirmed'
                 if len(drafts) > 1:
                     ambiguous.add(symbol)
                 continue
@@ -311,17 +325,22 @@ def refresh(companies, hints, *, provider, state=None, previous_seed=None,
                 records[symbol] = clean
                 verified_symbols.add(symbol)
                 counts['new_verified'] += 1
+                statuses[symbol] = 'verified_facts'
             elif missing_labels:
                 counts['pending_fact_labels'] += 1
+                statuses[symbol] = 'fact_labels_pending'
             else:
                 counts['no_structured_facts'] += 1
+                statuses[symbol] = 'structured_facts_missing'
         coverage = dict(counts)
         coverage.update(official_companies=len(identities), candidate_companies=len(hints),
                         available_records=len(records), verified_current_refresh=len(verified_symbols),
                         retained_previous_records=len(set(records) - verified_symbols),
                         short_description_records=sum(bool(r['facts']['description']) for r in records.values()),
-                        generic_description_records=sum(r['facts']['description'] in
-                            ('日本の企業', '日本の会社', '日本の株式会社', '株式会社') for r in records.values()),
+                        generic_description_records=sum(r['facts']['description'] in GENERIC_DESCRIPTIONS
+                            for r in records.values()),
+                        company_specific_short_description_records=sum(bool(r['facts']['description'])
+                            and r['facts']['description'] not in GENERIC_DESCRIPTIONS for r in records.values()),
                         industry_only_records=sum(not r['facts']['description'] and bool(r['facts']['industries'])
                             and not r['facts']['products'] for r in records.values()),
                         product_facts_without_description=sum(not r['facts']['description']
@@ -333,10 +352,34 @@ def refresh(companies, hints, *, provider, state=None, previous_seed=None,
                     candidate_hints=[dict(symbol=symbol, identity=identities[symbol], entity_ids=sorted(ids))
                         for symbol, ids in sorted(hints.items()) if symbol in identities and symbol not in rejected],
                     coverage=coverage, items=[records[symbol] for symbol in sorted(records)])
+        company_coverage = []
+        for symbol, identity in sorted(identities.items()):
+            record = records.get(symbol)
+            facts = record['facts'] if record else {}
+            description = facts.get('description')
+            if description:
+                content_kind = ('generic_description' if description in GENERIC_DESCRIPTIONS
+                                else 'company_specific_short_description')
+            elif facts.get('products'):
+                content_kind = 'product_facts_only'
+            elif facts.get('industries'):
+                content_kind = 'industry_facts_only'
+            else:
+                content_kind = 'not_available'
+            company_coverage.append(dict(symbol=symbol, name=identity['name'], exchange=identity['exchange'],
+                refresh_status=statuses[symbol], candidate_count=len(hints.get(symbol, [])),
+                verified_available=bool(record), content_kind=content_kind,
+                fetched_at=record['fetched_at'] if record else None,
+                source_url=('https://www.wikidata.org/wiki/' + record['proof']['entity_id']) if record else None,
+                retained_previous=symbol in records and symbol not in verified_symbols))
+        coverage['missing_company_specific_descriptions_by_exchange'] = dict(Counter(
+            row['exchange'] for row in company_coverage if row['content_kind'] != 'company_specific_short_description'))
         report = dict(status=stop_reason or 'in_progress', phase=phase, requests_sent=requests_sent,
                       coverage=coverage, remaining_entities=sum(not entity_ready(qid) for qid in targets),
                       ambiguous_symbols=sorted(ambiguous), retry_after_seconds=provider.retry_after_seconds,
-                      verified_whole_catalogue_descriptions=False)
+                      company_coverage=company_coverage,
+                      verified_whole_catalogue_descriptions=bool(company_coverage) and all(
+                          row['content_kind'] == 'company_specific_short_description' for row in company_coverage))
         observations = getattr(provider, 'safe_read_observations', [])
         report['last_upstream_response'] = observations[-1] if observations else None
         saved_state = dict(version=1, catalogue_identity_sha256=generation, updated_at=now(),

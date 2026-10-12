@@ -8,6 +8,7 @@ import re
 import unicodedata
 
 from flask import jsonify, request
+from company_business import official_company_overview
 
 
 EDITORIAL_PATH = Path(__file__).with_name('static') / 'company-profile-editorial.json'
@@ -66,6 +67,48 @@ def edinet_coverage(value):
         if not observed_time(value['observed_at']):
             return None
         clean['observed_at'] = value['observed_at']
+    return clean
+
+
+def edinet_persistence(value, fact):
+    """Public fixed observations, without paths, hashes or credential material."""
+    if not isinstance(value, dict):
+        return None
+    enums = {
+        'local_status': {'pending', 'saved', 'save_failed'},
+        'durable_status': {'disabled', 'pending', 'missing', 'restored', 'invalid',
+                           'load_failed', 'saved', 'save_failed'},
+        'restore_status': {'disabled', 'pending', 'missing', 'restored', 'invalid', 'load_failed'},
+    }
+    if any(not isinstance(value.get(key), str) or value[key] not in allowed
+           for key, allowed in enums.items()):
+        return None
+    if value.get('snapshot_guaranteed') is not False or value.get('cross_instance_cas') is not False:
+        return None
+    for key, limit in (('restored_indexed_days', 400), ('restored_facts', 110)):
+        if type(value.get(key)) is not int or not 0 <= value[key] <= limit:
+            return None
+    for key in ('selected_fact_restored', 'selected_fact_saved'):
+        if type(value.get(key)) is not bool:
+            return None
+    for key in ('restored_at', 'saved_at'):
+        if value.get(key) is not None and not observed_time(value[key]):
+            return None
+    if (value['restore_status'] == 'restored' and not observed_time(value.get('restored_at'))
+            or value['durable_status'] == 'saved' and not observed_time(value.get('saved_at'))):
+        return None
+    clean = {key: value[key] for key in (*enums, 'restored_indexed_days', 'restored_facts',
+                                       'selected_fact_restored', 'selected_fact_saved')}
+    clean.update(restored_at=value.get('restored_at'), saved_at=value.get('saved_at'),
+                 snapshot_guaranteed=False, cross_instance_cas=False)
+    # Global index recovery is separate from recovery of this validated value.
+    for flag, timestamp_key in (('selected_fact_restored', 'restored_at'),
+                                ('selected_fact_saved', 'saved_at')):
+        at = clean[timestamp_key]
+        if not fact or not observed_time(at) or at < fact['fetched_at']:
+            clean[flag] = False
+    if clean['restore_status'] != 'restored' or not clean['restored_facts']:
+        clean['selected_fact_restored'] = False
     return clean
 
 
@@ -129,7 +172,8 @@ def annual_dividend_result(raw, company):
     return dict(status=state, provider_status=reason, fact=fact, invalidated=invalidated,
                 error='fetch_error' if reason == 'fetch_error' else None,
                 refreshing=raw.get('refreshing') is True or state == 'loading',
-                coverage=edinet_coverage(raw.get('coverage')))
+                coverage=edinet_coverage(raw.get('coverage')),
+                persistence=edinet_persistence(raw.get('persistence'), fact))
 
 
 def field_states(payload, fields):
@@ -242,6 +286,7 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
             'source_title': company.get('source_title') or '日本取引所グループ（JPX）',
             'exchange': company.get('exchange', 'Tokyo'), 'provider_symbol': provider_symbol,
             'listings': deepcopy(company.get('other_listings', company.get('listings', [])))}
+        payload['company_overview'] = official_company_overview(symbol, company)
         payload['editorial'] = deepcopy(reviewed.get(symbol))
         if businesses is not None and detail and not payload['editorial']:
             payload['business_overview'] = deepcopy(businesses.get(symbol, company))
@@ -392,6 +437,7 @@ def register_company_profiles(app, profiles, catalogue, dividends, editorial=Non
                 states[HISTORICAL_DIVIDEND] = historical['status']
                 payload['historical_dividend_status'] = historical['status']
                 payload['historical_dividend_coverage'] = historical['coverage']
+                payload['historical_dividend_persistence'] = historical['persistence']
                 payload['historical_dividend_refreshing'] = historical['refreshing']
                 payload['historical_dividend_invalidated'] = historical['invalidated']
                 payload['historical_dividend_error'] = historical['error']

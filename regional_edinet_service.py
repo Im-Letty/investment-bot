@@ -10,6 +10,7 @@ from collections import OrderedDict
 from copy import deepcopy
 from datetime import datetime, timedelta
 import fcntl
+from hashlib import sha256
 import json
 import math
 import os
@@ -19,7 +20,7 @@ import threading
 import time
 
 from regional_edinet import (EdinetAnnualDividends, JST, _date, _descriptor_valid,
-                            _issuer_valid, _stamp, _DESCRIPTOR_FIELDS, TAG, load_identity_seed, match_identity,
+                            _issuer_valid, _stamp, _DESCRIPTOR_FIELDS, TAG, load_identity_seed, load_filing_hints, match_identity,
                             parse_daily_filings, select_annual_filing)
 
 MAX_CACHE_BYTES = 16_000_000
@@ -36,10 +37,15 @@ FACT_KEYS = {'value', 'currency', 'unit', 'fiscal_period', 'tag', 'context_id', 
 class RegionalEdinetDividends:
     def __init__(self, cache_path, *, api_key=None, identities=None, provider=None,
                  clock=time.time, monotonic=time.monotonic, window_days=400,
-                 max_warm_operations=420, max_warm_seconds=8 * 3600, checkpoint_store=None):
+                 max_warm_operations=420, max_warm_seconds=8 * 3600, checkpoint_store=None,
+                 filing_hint_path=None):
         self.cache_path, self.clock, self.monotonic = Path(cache_path), clock, monotonic
         self.checkpoint_store = checkpoint_store
         self.identities = tuple(load_identity_seed(observed_at=clock()) if identities is None else identities)
+        hint_options = {'identities': self.identities, 'observed_at': clock()}
+        if filing_hint_path is not None:
+            hint_options['path'] = filing_hint_path
+        self.filing_hints = {row['code']: row for row in load_filing_hints(**hint_options)}
         self.window_days = min(400, max(1, int(window_days)))
         self.max_warm_operations = min(420, max(1, int(max_warm_operations)))
         self.max_warm_seconds = min(8 * 3600, max(1, float(max_warm_seconds)))
@@ -63,7 +69,19 @@ class RegionalEdinetDividends:
         self._checkpoint_status = 'disabled' if self.checkpoint_store is None else 'pending'
         self._checkpoint_retry_at = 0
         self._restored_next_request = 0
+        self._local_save_status = 'pending'
+        self._checkpoint_restore_status = self._checkpoint_status
+        self._checkpoint_restored_at = self._checkpoint_saved_at = None
+        self._checkpoint_restored_days = 0
+        self._checkpoint_restored_facts = {}
+        self._checkpoint_saved_facts = {}
         self._load()
+
+    @staticmethod
+    def _fact_hash(fact):
+        """Compare only validated public filing facts, never transport data."""
+        return sha256(json.dumps(fact, sort_keys=True, separators=(',', ':'),
+                                 ensure_ascii=False, allow_nan=False).encode()).hexdigest()
 
     def _days(self):
         today = datetime.fromtimestamp(self.clock(), JST).date()
@@ -148,7 +166,7 @@ class RegionalEdinetDividends:
         # Never persist arbitrary provider error strings, URLs, response bodies or keys.
         return output
 
-    def _merge_cache(self, cache):
+    def _merge_cache(self, cache, *, checkpoint_observation=None):
         try:
             if not isinstance(cache, dict) or set(cache) - {'version', 'snapshots', 'records', 'next_request'}:
                 return False
@@ -209,6 +227,14 @@ class RegionalEdinetDividends:
                 if selection.get('invalidated'):
                     current.update(status=selection['status'], invalidated=True)
                     current.pop('fact', None)
+            if checkpoint_observation is not None:
+                # Count validated remote observations, independent of whether a
+                # newer local observation wins. Only the exact accepted fact can
+                # later be marked as restored for the selected issuer.
+                checkpoint_observation['indexed_days'] = len(snapshots)
+                checkpoint_observation['facts'] = {
+                    code: self._fact_hash(record['fact']) for code, record in records.items()
+                    if record.get('fact') and self._records.get(code, {}).get('fact') == record['fact']}
             self._last_load = self.clock()
             return True
         except (OSError, ValueError, TypeError, AttributeError, OverflowError):
@@ -230,13 +256,21 @@ class RegionalEdinetDividends:
             if cache is None:
                 self._checkpoint_status = 'missing'
                 self._checkpoint_restored = self._checkpoint_save_allowed = True
+                self._checkpoint_restore_status = 'missing'
             else:
+                observation = {}
                 with self._condition:
-                    valid = self._merge_cache(cache)
+                    valid = self._merge_cache(cache, checkpoint_observation=observation)
                 self._checkpoint_status = 'restored' if valid else 'invalid'
                 self._checkpoint_restored = self._checkpoint_save_allowed = valid
+                self._checkpoint_restore_status = self._checkpoint_status
+                if valid:
+                    self._checkpoint_restored_at = self.clock()
+                    self._checkpoint_restored_days = observation['indexed_days']
+                    self._checkpoint_restored_facts = observation['facts']
         except Exception:
             self._checkpoint_status = 'load_failed'
+            self._checkpoint_restore_status = 'load_failed'
         if not self._checkpoint_restored:
             self._checkpoint_restore_retry_at = self.clock() + 60
 
@@ -260,16 +294,38 @@ class RegionalEdinetDividends:
             finally:
                 temporary.unlink(missing_ok=True)
             self._persistence_failed = False
+            self._local_save_status = 'saved'
         except (OSError, ValueError, TypeError):
             self._persistence_failed = True
+            self._local_save_status = 'save_failed'
         if (self.checkpoint_store and self.configured and self._checkpoint_save_allowed
                 and self.clock() >= self._checkpoint_retry_at):
             try:
                 success = self.checkpoint_store.save(deepcopy(cache)) is True
                 self._checkpoint_status = 'saved' if success else 'save_failed'
+                if success:
+                    self._checkpoint_saved_at = self.clock()
+                    self._checkpoint_saved_facts = {
+                        code: self._fact_hash(record['fact']) for code, record in cache['records'].items()
+                        if record.get('fact')}
             except Exception:
                 success, self._checkpoint_status = False, 'save_failed'
             self._checkpoint_retry_at = 0 if success else self.clock() + 60
+
+    def _persistence(self, code=None, fact=None):
+        fingerprint = self._fact_hash(fact) if fact else None
+        return {'local_status': self._local_save_status,
+                'durable_status': self._checkpoint_status,
+                'restore_status': self._checkpoint_restore_status,
+                'restored_at': self._checkpoint_restored_at,
+                'saved_at': self._checkpoint_saved_at,
+                'restored_indexed_days': self._checkpoint_restored_days,
+                'restored_facts': len(self._checkpoint_restored_facts),
+                'selected_fact_restored': bool(fingerprint and
+                    self._checkpoint_restored_facts.get(code) == fingerprint),
+                'selected_fact_saved': bool(fingerprint and
+                    self._checkpoint_saved_facts.get(code) == fingerprint),
+                'snapshot_guaranteed': False, 'cross_instance_cas': False}
 
     def _coverage(self):
         days = self._days()
@@ -290,12 +346,14 @@ class RegionalEdinetDividends:
             if not self.configured:
                 return {'configured': False, 'status': 'not_configured', 'refreshing': False,
                         'data': {}, 'dividend_fact': None, 'invalidated': False,
-                        'field_status': {'historical_dividend_per_share': 'unconfirmed'}, 'coverage': coverage}
+                        'field_status': {'historical_dividend_per_share': 'unconfirmed'}, 'coverage': coverage,
+                        'persistence': self._persistence()}
             identity = match_identity(company, self.identities)
             if identity is None or _date(identity.as_of) > datetime.fromtimestamp(self.clock(), JST).date():
                 return {'configured': True, 'status': 'identity_unconfirmed', 'refreshing': False,
                         'invalidated': True, 'data': {}, 'dividend_fact': None,
-                        'field_status': {'historical_dividend_per_share': 'unconfirmed'}, 'coverage': coverage}
+                        'field_status': {'historical_dividend_per_share': 'unconfirmed'}, 'coverage': coverage,
+                        'persistence': self._persistence()}
             if self.clock() - self._last_load >= 2:
                 self._load()
             code = identity.code
@@ -337,7 +395,8 @@ class RegionalEdinetDividends:
                       'coverage': coverage, 'retry_after_seconds': self.provider.retry_after_seconds(),
                       'persistence_complete': not self._persistence_failed,
                       'warm_progress': deepcopy(record.get('warm_progress')),
-                      'durable_checkpoint_status': self._checkpoint_status}
+                      'durable_checkpoint_status': self._checkpoint_status,
+                      'persistence': self._persistence(code, fact)}
             return result
 
     def _selection(self, record):
@@ -363,6 +422,22 @@ class RegionalEdinetDividends:
         if selection.get('invalidated'):
             record.update(status=selection['status'], invalidated=True)
             record.pop('fact', None)
+        days = self._days()
+        # Observe today's edits/withdrawals before using a historical discovery
+        # hint. The original metadata and XBRL checks still supply every amount.
+        today = days[0]
+        snapshot = self._snapshots.get(today)
+        if (today not in job['visited'] and
+                (not snapshot or snapshot['fetched_at'] < job['started_at'] - 3600)):
+            return ('day', today)
+        hint = self.filing_hints.get(code)
+        fact = record.get('fact')
+        if hint and (not fact or fact['fiscal_period']['end'] < hint['fiscal_period']['end']):
+            day = hint['submitted_date']
+            snapshot = self._snapshots.get(day)
+            if (day in days and day not in job['visited'] and
+                    (not snapshot or snapshot['fetched_at'] < job['started_at'] - 86400)):
+                return ('day', day)
         descriptor = selection.get('descriptor')
         if descriptor:
             fact = record.get('fact')
@@ -370,9 +445,9 @@ class RegionalEdinetDividends:
             if ((not fact or fact['doc_id'] != descriptor['docID'] or self.clock() - fact['fetched_at'] >= 7 * 86400)
                     and not attempted):
                 return ('filing', descriptor)
-        for day in self._days():
+        for day in days:
             snapshot = self._snapshots.get(day)
-            threshold = job['started_at'] - (3600 if day == self._days()[0] else 86400)
+            threshold = job['started_at'] - (3600 if day == today else 86400)
             if day not in job['visited'] and (not snapshot or snapshot['fetched_at'] < threshold):
                 return ('day', day)
         if not record.get('fact') and not record.get('invalidated'):

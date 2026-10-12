@@ -74,6 +74,21 @@ class StockSearchTests(unittest.TestCase):
             self.assertIn('7203.T',{x['symbol'] for x in self.search.search(query)['results']})
         self.session.get.assert_not_called()
 
+    def test_verified_former_name_finds_current_regional_company_without_a_quote(self):
+        rows = [dict(row) for row, _, _ in self.search.index]
+        company = next(row for row in rows if row['code'] == '3055')
+        company.update(name='株式会社TSUMUGU HOLDINGS', aliases=['ほくやく・竹山ホールディングス'])
+        with patch.object(module, 'merge_companies', return_value=(rows, set())):
+            self.search._index()
+        for query in ('TSUMUGU', 'ほくやく', '竹山ホールディングス', '3055.JP'):
+            with self.subTest(query=query):
+                hit = self.search.search(query)['results'][0]
+                self.assertEqual(hit['symbol'], '3055.JP')
+                self.assertEqual(hit['name'], '株式会社TSUMUGU HOLDINGS')
+                self.assertIsNone(hit['provider_symbol'])
+        self.assertEqual(self.search.search('3055.T')['results'], [])
+        self.session.get.assert_not_called()
+
     def test_company_list_and_search_have_same_verified_identity(self):
         data=self.search.all_items()
         self.assertEqual(data['count'],len(data['items']))

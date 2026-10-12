@@ -146,6 +146,40 @@ class CheckpointTests(unittest.TestCase):
             self.assertEqual(second.get(company)['coverage']['missing_days'], 0)
             second.close()
 
+    def test_actual_fixture_amount_and_dates_restore_through_compressed_transport(self):
+        from regional_edinet_service import RegionalEdinetDividends
+        from tests.test_regional_edinet_service import FixtureProvider, descriptor
+        from tests.test_regional_edinet import NOW, IDENTITY, COMPANY
+        with tempfile.TemporaryDirectory() as folder:
+            first = RegionalEdinetDividends(Path(folder) / 'first.json',
+                      provider=FixtureProvider({'2026-10-10': [descriptor()]}),
+                      identities=(IDENTITY,), clock=lambda: NOW, window_days=3,
+                      checkpoint_store=self.store)
+            first.get(COMPANY)
+            self.assertTrue(first.wait_idle())
+            fact = first.get(COMPANY)['dividend_fact']
+            self.assertEqual(fact['value'], 20)
+            self.assertTrue(first.get(COMPANY)['persistence']['selected_fact_saved'])
+            first.close()
+            self.assertFalse((Path(folder) / 'absent.json').exists())
+            provider = FixtureProvider()
+            second = RegionalEdinetDividends(Path(folder) / 'absent.json', provider=provider,
+                      identities=(IDENTITY,), clock=lambda: NOW, window_days=3,
+                      checkpoint_store=EdinetCheckpointStore(self.transport, clock=lambda: 10))
+            # A new process restores only in its selected-company worker.
+            second.get(COMPANY)
+            self.assertTrue(second.wait_idle())
+            restored = second.get(COMPANY)
+            self.assertEqual(provider.calls, [])
+            self.assertEqual(restored['dividend_fact'], fact)
+            self.assertEqual(restored['persistence']['restored_indexed_days'], 3)
+            self.assertEqual(restored['persistence']['restored_facts'], 1)
+            self.assertTrue(restored['persistence']['selected_fact_restored'])
+            self.assertTrue(restored['persistence']['selected_fact_saved'])
+            self.assertEqual(restored['persistence']['restore_status'], 'restored')
+            self.assertEqual(restored['persistence']['durable_status'], 'saved')
+            second.close()
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -15,7 +15,7 @@ import requests
 from company_business import (CompanyBusinesses, WikidataBusinessProvider, BusinessFailure,
                               EXCHANGES, TTL, RETAIN, RETRY, MAX_FACTS, normalize_name,
                               official_identity, verify_entity, fact_ids, _valid_record,
-                              read_candidate_hints)
+                              read_candidate_hints, official_company_overview)
 
 NOW = datetime(2026, 10, 11, 11, tzinfo=timezone.utc).timestamp()
 TODAY = date(2026, 10, 11)
@@ -212,6 +212,37 @@ class IdentityTests(unittest.TestCase):
         self.assertEqual(len(ids), MAX_FACTS)
         self.assertNotIn('Q1000', ids); self.assertNotIn('Q1001', ids); self.assertNotIn('Q1002', ids)
         self.assertEqual(fields['industries'], ['Q190'])
+
+
+class OfficialOverviewTests(unittest.TestCase):
+    def test_basic_classification_does_not_assert_specific_products_or_business(self):
+        row = dict(company(), market='プライム（内国株式）', industry='輸送用機器',
+                   as_of='2026-09-30', source_url='https://www.jpx.co.jp/markets/statistics-equities/misc/01.html')
+        result = official_company_overview('7203.T', row)
+        self.assertEqual(result['industry'], '輸送用機器')
+        self.assertEqual(result['kind'], 'official_listing_overview')
+        self.assertFalse(result['specific_business_description'])
+        self.assertNotIn('fetched_at', result)
+        self.assertNotIn('products', result)
+        self.assertNotIn('メーカー', result['text'])
+
+    def test_regional_missing_industry_remains_unknown_with_official_market(self):
+        row = dict(company('1449', '株式会社FUJIジャパン', 'Sapporo'), market='本則市場',
+                   as_of='2026-10-11', source_url='https://www.sse.or.jp/listing/list')
+        result = official_company_overview('1449.JP', row)
+        self.assertIsNone(result['industry'])
+        self.assertEqual(result['text'], '上場市場：本則市場')
+        self.assertFalse(result['specific_business_description'])
+
+    def test_wrong_symbol_exchange_unknown_source_and_invalid_dates_are_rejected(self):
+        row = dict(company(), market='プライム（内国株式）', industry='輸送用機器',
+                   as_of='2026-09-30', source_url='https://www.jpx.co.jp/markets/statistics-equities/misc/01.html')
+        self.assertIsNone(official_company_overview('7204.T', row))
+        self.assertIsNone(official_company_overview('7203.JP', row))
+        self.assertIsNone(official_company_overview('7203.T', dict(row, source_url='https://example.com/')))
+        self.assertIsNone(official_company_overview('7203.T', dict(row, as_of='2026-02-30')))
+        self.assertIsNone(official_company_overview('7203.T', dict(row, as_of='2026-10-12'), today=TODAY))
+        self.assertIsNone(official_company_overview('7203.T', dict(row, industry='bad\x00data')))
 
 
 class ProviderTests(unittest.TestCase):
