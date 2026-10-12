@@ -598,8 +598,23 @@ class RegionalEdinetDividends:
                 snapshot = self._snapshots.get(day)
                 if day in days and day not in job['visited'] and (not snapshot or snapshot['fetched_at'] < job['started_at']):
                     return ('day', day)
-        hint = self.filing_hints.get(code)
+        # A partial legacy checkpoint can retain a valid numeric record while
+        # losing its source-day rows. Do not let that amount skip the discovery
+        # hint and force a full 400-day scan before its XML hash can be upgraded.
+        # Refresh only the known actual submitted dates, then select from the
+        # current metadata as usual; the old descriptor never bypasses it.
         fact = record.get('fact')
+        legacy_descriptor = record.get('descriptor')
+        if self._needs_fact_hash(fact) and _descriptor_valid(
+                legacy_descriptor, match_identity(record['company'], self.identities),
+                datetime.fromtimestamp(self.clock(), JST)):
+            rows = ([legacy_descriptor['_annual_base'], *legacy_descriptor['_correction_chain']]
+                    if legacy_descriptor.get('_annual_base') else [legacy_descriptor])
+            for day in sorted({row['submitDateTime'][:10] for row in rows}, reverse=True):
+                snapshot = self._snapshots.get(day)
+                if day in days and day not in job['visited'] and (not snapshot or snapshot['fetched_at'] < job['started_at']):
+                    return ('day', day)
+        hint = self.filing_hints.get(code)
         if hint and (not fact or fact['fiscal_period']['end'] < hint['fiscal_period']['end']):
             day = hint['submitted_date']
             snapshot = self._snapshots.get(day)

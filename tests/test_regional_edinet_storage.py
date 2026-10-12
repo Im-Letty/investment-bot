@@ -439,6 +439,44 @@ class CheckpointTests(unittest.TestCase):
             self.assertFalse(result['persistence']['selected_fact_saved'])
             source.close()
 
+    def test_partial_legacy_checkpoint_prioritizes_real_submitted_date_before_hash_upgrade(self):
+        from regional_edinet_service import RegionalEdinetDividends
+        from tests.test_regional_edinet_service import FixtureProvider, descriptor, snapshot
+        from tests.test_regional_edinet import NOW, IDENTITY, COMPANY
+        with tempfile.TemporaryDirectory() as folder:
+            first = RegionalEdinetDividends(Path(folder) / 'first.json',
+                    provider=FixtureProvider({'2026-10-10': [descriptor()]}),
+                    identities=(IDENTITY,), clock=lambda: NOW, window_days=3)
+            first.get(COMPANY)
+            self.assertTrue(first.wait_idle())
+            cache = json.loads((Path(folder) / 'first.json').read_text())
+            first.close()
+            cache['records']['6147']['fact'].pop('xbrl_body_sha256')
+            cache['snapshots'] = {'2026-10-11': snapshot('2026-10-11')}
+            self.assertTrue(self.store.save(cache))
+            class CurrentProvider(FixtureProvider):
+                def fetch_day(self, day):
+                    self.calls.append(('day', day))
+                    return {'status': 'indexed', 'snapshot': {'date': day,
+                        'process_at': '2026-10-11 21:00', 'fetched_at': NOW + 10,
+                        'rows': [descriptor()] if day == '2026-06-26' else []}}
+            provider = CurrentProvider()
+            target = RegionalEdinetDividends(Path(folder) / 'absent.json', provider=provider,
+                    identities=(IDENTITY,), clock=lambda: NOW + 10, window_days=400,
+                    max_warm_operations=3,
+                    checkpoint_store=EdinetCheckpointStore(self.transport, clock=lambda: 10))
+            target.get(COMPANY)
+            self.assertTrue(target.wait_idle())
+            result = target.get(COMPANY)
+            self.assertEqual(provider.calls, [('day', '2026-06-26'), ('filing', 'S100TEST'),
+                                              ('day', '2026-10-10')])
+            self.assertEqual(result['dividend_fact']['value'], 20)
+            self.assertRegex(result['dividend_fact']['xbrl_body_sha256'], r'^[a-f0-9]{64}$')
+            self.assertTrue(result['persistence']['selected_fact_saved'])
+            self.assertEqual(len(self.transport.facts), 1)
+            self.assertGreater(result['coverage']['missing_days'], 0)
+            target.close()
+
     def test_resumable_progress_round_trip_and_unknown_progress_rejection(self):
         cache = {**self.cache, 'records': {'9085': {'company': {'code': '9085', 'symbol': '9085.JP',
                   'name': 'fixture', 'provider_symbol': None}, 'status': 'pending', 'invalidated': False,
