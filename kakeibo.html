@@ -1338,6 +1338,7 @@ function kkNavGo(tab, el){
   var storagePrototype=typeof Storage!=='undefined'?Storage.prototype:localStorage;
   var nativeSet=storagePrototype.setItem,nativeRemove=storagePrototype.removeItem;
   function _origSet(k,v){nativeSet.call(localStorage,k,v);}
+  window.kkLedgerChangeOwner=function(){if(_t)clearTimeout(_t);_t=null;dirtyVersions=Object.create(null);dirtyOwner=null;};
   function kkMarkChanged(k){
     if(!KK_RE.test(k))return;
     if(!Object.keys(dirtyVersions).length)dirtyOwner=kkUid()||null;

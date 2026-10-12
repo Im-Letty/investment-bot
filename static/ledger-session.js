@@ -9,6 +9,8 @@
   var changed=!w.knLedgerSession||w.knLedgerSession.user.id!==session.user.id;
   var id=session.user.id,old=localStorage.getItem('kn_ledger_owner');
   if(old!==id){
+   if(w.kkLedgerChangeOwner)w.kkLedgerChangeOwner();
+   w.knLedgerSession=null;
    if(old){
     localStorage.setItem('kn_ledger_backup:'+old,JSON.stringify(snapshot()));
     Object.keys(snapshot()).forEach(function(k){localStorage.removeItem(k);});
