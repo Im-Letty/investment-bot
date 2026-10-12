@@ -21,7 +21,7 @@
     'コミュニティ':'Community','みんな':'All topics','経済':'Economy','ニュース':'News','暮らしのお金':'Everyday money','学び':'Learning','雑談':'Conversation',
     '経済やニュース、暮らしのお金を気軽に話そう。':'Share thoughts about the economy, news and everyday money.',
     'いろいろな話題を、新しい投稿から。':'Explore every topic, with the newest posts first.',
-    'つぶやく':'Write a post','つぶやき':'Your post','ニックネーム':'Display name','投稿する話題':'Topic','投稿の言語':'Post language','投稿・返信には無料ログインが必要です。':'Sign in for free to post or reply.',
+    'つぶやく':'Write a post','つぶやき':'Your post','ニックネーム':'Display name','投稿する話題':'Topic','投稿の言語':'Post language','登録なしで投稿・返信できます。':'Post and reply without registration.',
     '投稿する':'Post','投稿を読み込み中…':'Loading posts…','まだ投稿はありません。':'No posts yet.','最初のひとことを、気軽にどうぞ。':'You can start the conversation.',
     'もっと見る':'Show more','読み込み中…':'Loading…','新しい投稿があります':'New posts are available','新しい投稿を表示しました。':'New posts are now displayed.',
     'いいね':'Like','いいね済み':'Liked','返信':'Reply','返信する':'Reply','投稿':'Posted','通報':'Report','削除':'Delete','投稿の操作':'Post options',
@@ -75,7 +75,7 @@
   function errorText(error) {
     var reason=error&&error.reason;
     if(reason==='storage_unavailable'||reason==='schema_unavailable'||reason==='not_configured')return 'ただいま準備中です。しばらくしてからもう一度お試しください。';
-    if(reason==='auth_required'||reason==='auth_unavailable')return 'ログインを確認できませんでした。ログインしてからもう一度お試しください。';
+    if(reason==='auth_required'||reason==='auth_unavailable')return '通信を確認できませんでした。もう一度お試しください。';
     if(reason==='rate_limited')return '少し時間を置いてからお試しください。';
     if(reason==='empty')return '投稿する内容を入力してください。';
     if(reason==='too_long')return '投稿は200文字以内にしてください。';
@@ -105,6 +105,7 @@
   }
   function alive(s,epoch) {return state===s&&current()&&(epoch==null||s.epoch===epoch);}
   async function token(s) {
+    if(w.knEnsureGuest){try{var guest=await w.knEnsureGuest();return guest.access_token;}catch(_){if(alive(s))message('通信を確認できませんでした。もう一度お試しください。',true);return null;}}
     if(w.knRequireAuth&&!w.knRequireAuth())return null;
     if(!w.sb||!w.sb.auth||!w.sb.auth.getSession){if(alive(s))message('ログインを確認できませんでした。しばらくしてからもう一度お試しください。',true);return null;}
     try {var result=await w.sb.auth.getSession(),session=result&&result.data&&result.data.session;
@@ -281,7 +282,7 @@
     var scroller=el('div','cw-scroll');s.scroller=scroller;var content=el('div','cw-content');scroller.appendChild(content);root.appendChild(scroller);
     content.appendChild(el('p','cw-intro','経済やニュース、暮らしのお金を気軽に話そう。'));
     var nav=el('nav','cw-categories');nav.setAttribute('aria-label','話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]==='all'));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});content.appendChild(nav);
-    var toolbar=el('div','cw-toolbar');s.categoryNote=el('p','cw-description','いろいろな話題を、新しい投稿から。');toolbar.appendChild(s.categoryNote);toolbar.appendChild(button('cw-primary','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;if(!s.composer.hidden)s.input.focus({preventScroll:true});}));content.appendChild(toolbar);content.appendChild(el('p','cw-small cw-login-hint','投稿・返信には無料ログインが必要です。'));
+    var toolbar=el('div','cw-toolbar');s.categoryNote=el('p','cw-description','いろいろな話題を、新しい投稿から。');toolbar.appendChild(s.categoryNote);toolbar.appendChild(button('cw-primary','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;if(!s.composer.hidden)s.input.focus({preventScroll:true});}));content.appendChild(toolbar);content.appendChild(el('p','cw-small cw-login-hint','登録なしで投稿・返信できます。'));
     var composer=el('form','cw-composer');composer.hidden=true;s.composer=composer;
     var fields=el('div','cw-composer-fields'),nicknameLabel=fieldLabel('ニックネーム'),nickname=el('input','cw-input');nickname.id='cmNick';nickname.type='text';nickname.maxLength=20;nickname.value=stored('cm_nick','');nickname.setAttribute('aria-label','ニックネーム（20文字まで）');nicknameLabel.appendChild(nickname);s.nickname=nickname;fields.appendChild(nicknameLabel);
     var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);fields.appendChild(categoryLabel);

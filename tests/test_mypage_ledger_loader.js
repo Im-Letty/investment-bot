@@ -58,7 +58,7 @@ test('readiness accepts only the owned same-origin household-ledger frame',()=>{
 });
 test('home navigation does not remove the ledger source and drawer opens it without a timer',()=>{
   const html=read('index.html');
-  assert.match(html,/mypage-ledger-loader\.js\?v=20261012-fast1/);
+  assert.match(html,/mypage-ledger-loader\.js\?v=20261012-guest1/);
   assert.doesNotMatch(html,/__kf2.*removeAttribute\('src'\)/);
   assert.match(html,/var kakeibo=mkItem\("📒 家計簿",function\(\)\{CD\(\);if\(window\.knOpenLedger\)window\.knOpenLedger\(\);\}\)/);
 });

@@ -3,7 +3,7 @@
   var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false;
   function account() {
     var user=window.knUser;
-    return user&&!user.is_anonymous&&user.id?String(user.id):'';
+    return user&&user.id?String(user.id):'';
   }
   function unload() {
     owner='';ready=false;
