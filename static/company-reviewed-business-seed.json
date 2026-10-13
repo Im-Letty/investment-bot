@@ -50203,6 +50203,2841 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791858018.777799,
       "pdf_sha256": "04180cde99fd797fb3afe2062162d0f42a32339ce30e12d80ea0428f82ee9578"
+    },
+    {
+      "symbol": "5715.T",
+      "identity": {
+        "symbol": "5715.T",
+        "code": "5715",
+        "name": "古河機械金属",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "機械と素材の事業会社を束ね、自ら不動産の賃貸や売買も行う事業持株会社。グループで破砕機やポンプ、トンネル・鉱山用機械、油圧ブレーカ、ユニッククレーンなどを製造し、工事や保守も請け負う。素材分野では海外の鉱石を委託製錬して得た銅・金・銀を販売し、高純度のヒ素、コイル、セラミックス、硫酸や酸化銅などを供給する。運送や鋳物を担う子会社も事業を支える。",
+      "proof": {
+        "code": "5715",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001008803",
+        "edinet_code": "E00032",
+        "source_company_name": "古河機械金属株式会社",
+        "filing_company_name": "古河機械金属株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIDC",
+        "current_edinet_code": "E00032",
+        "current_corporate_number": "7010001008803"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIDC",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861390.889979,
+      "pdf_sha256": "11322bd3efd15b4942ee4d71c2b78a33d47a448effcf2f3a37d91e856228839c"
+    },
+    {
+      "symbol": "5801.T",
+      "identity": {
+        "symbol": "5801.T",
+        "code": "5801",
+        "name": "古河電気工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "通信や電力、自動車、電子機器に使うケーブルと素材を供給する会社。光ファイバ・ケーブルや光通信用の部品、電力ケーブル、産業用の電線をグループで製造・販売する。自動車向けにはワイヤハーネスを扱い、電子用途の銅製品や銅合金も供給する。機能材料ではデータセンターの放熱・冷却製品、半導体製造用のテープ、高周波基板向けの銅箔を展開する。本体と事業会社が製造を分担し、水力発電や業務受託も行う。",
+      "proof": {
+        "code": "5801",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001008796",
+        "edinet_code": "E01332",
+        "source_company_name": "古河電気工業株式会社",
+        "filing_company_name": "古河電気工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCF0",
+        "current_edinet_code": "E01332",
+        "current_corporate_number": "5010001008796"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCF0",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861396.9752629,
+      "pdf_sha256": "184de2362c119bbf9cbaaa5628fe91ae3bc557e724798cca4e54ecae4093688d"
+    },
+    {
+      "symbol": "5858.T",
+      "identity": {
+        "symbol": "5858.T",
+        "code": "5858",
+        "name": "STG",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "カメラや自動車、プリンター、医療機器などに組み込む軽い金属部品を製造する会社。マグネシウムとアルミニウムの合金を用い、金型の設計から鋳造、機械加工、表面仕上げ、塗装、組立までをグループで扱う。顧客の求める強度や性能を踏まえ、部品形状や製造費の改善も提案する。日本、中国、タイ、マレーシアに生産拠点を持ち、金型製作や塗装などは工程と拠点に応じて外注も利用する。",
+      "proof": {
+        "code": "5858",
+        "exchange": "Tokyo",
+        "corporate_number": "2122001021985",
+        "edinet_code": "E36844",
+        "source_company_name": "株式会社ＳＴＧ",
+        "filing_company_name": "株式会社STG",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL7C",
+        "current_edinet_code": "E36844",
+        "current_corporate_number": "2122001021985"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL7C",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861402.873739,
+      "pdf_sha256": "dca5584cee65b0c0ef53ac5ff409466b1d5533e259d9b5db205afa17eba0e909"
+    },
+    {
+      "symbol": "5906.T",
+      "identity": {
+        "symbol": "5906.T",
+        "code": "5906",
+        "name": "エムケー精工",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "車の整備や食品の保存・加工、住まいに使う機器を製造し、販売と保守を行う会社。門型洗車機やオイル交換機、灯油を運ぶローリー、店舗・工事用のLED表示機を扱う。家庭向けには精米機、餅つき機、パン焼き機や米の保管庫を供給し、製菓・製パン用の設備も作る。子会社が断熱建具や防火扉の製造・工事を担い、グループでは運送、不動産賃貸、IoT機器の企画・販売も手がける。",
+      "proof": {
+        "code": "5906",
+        "exchange": "Tokyo",
+        "corporate_number": "2100001006100",
+        "edinet_code": "E02409",
+        "source_company_name": "エムケー精工株式会社",
+        "filing_company_name": "エムケー精工株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YA6U",
+        "current_edinet_code": "E02409",
+        "current_corporate_number": "2100001006100"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YA6U",
+      "filed_on": "2026-06-11",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861408.892032,
+      "pdf_sha256": "d06dabde073c6141327098e4e6603fc336669c84946b8c6a5ae6a85337aa4130"
+    },
+    {
+      "symbol": "5918.T",
+      "identity": {
+        "symbol": "5918.T",
+        "code": "5918",
+        "name": "瀧上工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "橋梁や建物の鉄骨などを注文に応じて設計・製作し、現場での施工まで手がける会社。子会社が鉄骨の加工、溶接、土木・建築工事、完成品の輸送を分担し、ベトナムの関連会社も鉄骨加工品を製造する。材料分野では子会社の丸定産業が鋼板の切断・加工や鉄筋・建材の販売を行う。本体と子会社による不動産の賃貸・管理に加え、本体が太陽光発電設備を運営する事業も持つ。",
+      "proof": {
+        "code": "5918",
+        "exchange": "Tokyo",
+        "corporate_number": "1180001089667",
+        "edinet_code": "E01364",
+        "source_company_name": "瀧上工業株式会社",
+        "filing_company_name": "瀧上工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJYC",
+        "current_edinet_code": "E01364",
+        "current_corporate_number": "1180001089667"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJYC",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861420.844555,
+      "pdf_sha256": "b5cf264f6226908a3257f6ba7edb5a681d2f84a8cb47e2b95109516008663066"
+    },
+    {
+      "symbol": "5938.T",
+      "identity": {
+        "symbol": "5938.T",
+        "code": "5938",
+        "name": "LIXIL",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅やビルの水回り設備と建材を供給する会社。温水洗浄便座、水栓、浴槽、ユニットバス、内外装のタイルを扱い、窓のサッシや玄関ドア、シャッター、カーポートも展開する。キッチン、洗面台、室内ドア、床や収納の製品もグループの事業に含む。国内外の関係会社と製品供給を担うほか、工務店の加盟店網づくり、建築の請負、不動産管理、太陽光発電システムなどのサービスも提供する。",
+      "proof": {
+        "code": "5938",
+        "exchange": "Tokyo",
+        "corporate_number": "5010601004914",
+        "edinet_code": "E01317",
+        "source_company_name": "株式会社ＬＩＸＩＬ",
+        "filing_company_name": "株式会社LIXIL",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD5L",
+        "current_edinet_code": "E01317",
+        "current_corporate_number": "5010601004914"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD5L",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861425.757271,
+      "pdf_sha256": "f3948db792ab8a461bcf607a2d5fe7b537f35a49389559db5c2b7d9131e3203b"
+    },
+    {
+      "symbol": "5943.T",
+      "identity": {
+        "symbol": "5943.T",
+        "code": "5943",
+        "name": "ノーリツ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "温水・空調機器や厨房機器をグループで作り、国内外へ販売する会社。本体に加え、ハーマン、多田スミスなどの子会社が製品や部品の製造を担い、中国のグループ会社も部品の調達・生産を行う。国内では各地の営業拠点から代理店を通じて届け、販売や施工、修理・保守を担当する子会社も持つ。中国とオーストラリアでは現地製造・販売を展開し、北米や香港などにも販売会社を置いている。",
+      "proof": {
+        "code": "5943",
+        "exchange": "Tokyo",
+        "corporate_number": "6140001010383",
+        "edinet_code": "E02379",
+        "source_company_name": "株式会社ノーリツ",
+        "filing_company_name": "株式会社ノーリツ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XUKL",
+        "current_edinet_code": "E02379",
+        "current_corporate_number": "6140001010383"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XUKL",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861433.190588,
+      "pdf_sha256": "6e6407d5dbfa60d8e8be221243e9258e5a3460677664f8fc280d1af801dc88bf"
+    },
+    {
+      "symbol": "5956.T",
+      "identity": {
+        "symbol": "5956.T",
+        "code": "5956",
+        "name": "トーソー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅を主な対象に、カーテンレールやブラインド、ロールスクリーン、間仕切りを開発・製造して販売する会社。国内とインドネシア、中国のグループ拠点で作った製品に仕入品も加え、代理店などを通じて供給する。トーソーサービスは装飾品や建築金物の販売と取付工事を担当し、本体も施工を委託する。福祉用品を扱う子会社フジホームは、ステッキなどをホームセンターや介護用品店へ届ける。",
+      "proof": {
+        "code": "5956",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001052315",
+        "edinet_code": "E02442",
+        "source_company_name": "トーソー株式会社",
+        "filing_company_name": "トーソー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHLG",
+        "current_edinet_code": "E02442",
+        "current_corporate_number": "6010001052315"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHLG",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861439.1825762,
+      "pdf_sha256": "4b434c300533a8509eb6770dfc78df794a1993830fa2ca395455ad2b57d9134b"
+    },
+    {
+      "symbol": "5983.T",
+      "identity": {
+        "symbol": "5983.T",
+        "code": "5983",
+        "name": "イワブチ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電線や通信ケーブル、信号機などを電柱に取り付ける金具と、コンクリート柱の用品を製造・販売する会社。電力会社やNTTなどの要望に応じた配電・通信線路の製品を供給し、道路標識や自治体の防災無線、CATV向けにも対応する。学校の防球ネットを支える金具、鉄道や工場の配電用品、防衛用の無線装置も扱う。国内と中国のグループ会社が製造や仕入れを分担し、本体や販売会社が顧客に届ける。",
+      "proof": {
+        "code": "5983",
+        "exchange": "Tokyo",
+        "corporate_number": "9040001034893",
+        "edinet_code": "E01439",
+        "source_company_name": "イワブチ株式会社",
+        "filing_company_name": "イワブチ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHYU",
+        "current_edinet_code": "E01439",
+        "current_corporate_number": "9040001034893"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHYU",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861445.183632,
+      "pdf_sha256": "45880ce9db83a61e6a374bbd169cef01c66762bf909809e988b92d8bad54e7e7"
+    },
+    {
+      "symbol": "6023.T",
+      "identity": {
+        "symbol": "6023.T",
+        "code": "6023",
+        "name": "ダイハツインフィニアース",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "船舶と陸上設備向けのディーゼル機関、ガスタービンやその部品を製造・販売する会社。本体と姫路の子会社が生産を担い、国内各地域やアジア、欧州、米国、中国の販売会社が製品を届ける。グループ内には部品の流通管理や運送を行う会社も持つ。そのほか、本体がアルミホイールの販売と太陽光発電を行い、子会社による精密部品の製造、梅田スカイビルの一部を用いた事務所賃貸も展開している。",
+      "proof": {
+        "code": "6023",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001083145",
+        "edinet_code": "E01477",
+        "source_company_name": "ダイハツインフィニアース株式会社",
+        "filing_company_name": "ダイハツインフィニアース株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCLQ",
+        "current_edinet_code": "E01477",
+        "current_corporate_number": "3120001083145"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCLQ",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861451.268481,
+      "pdf_sha256": "b76d0e93b90d9f3ddd81a8f7853c65223341d807683261fa9174d5f6aa2fde85"
+    },
+    {
+      "symbol": "6049.T",
+      "identity": {
+        "symbol": "6049.T",
+        "code": "6049",
+        "name": "イトクロ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "子どもの学習先や学校を選ぶための情報サイトを運営する会社。「塾ナビ」で塾・予備校を検索比較できるようにし、「コドモブースター」で習い事の比較や体験申込を受け付け、「みんなの学校情報」で学校ごとの情報や口コミを提供する。口コミを審査して蓄積し、サイトの企画、開発、運営を自社で行う。利用者からの問い合わせや資料請求などの成果に応じ、掲載する教育事業者から報酬を得る仕組みを主に採用する。",
+      "proof": {
+        "code": "6049",
+        "exchange": "Tokyo",
+        "corporate_number": "4010401062386",
+        "edinet_code": "E31424",
+        "source_company_name": "株式会社イトクロ",
+        "filing_company_name": "株式会社イトクロ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XHX1",
+        "current_edinet_code": "E31424",
+        "current_corporate_number": "4010401062386"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XHX1",
+      "filed_on": "2026-01-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861458.778493,
+      "pdf_sha256": "909f090593cb508a0e3c6d5a024127b4c277225b4b44b160adc1d31000ada701"
+    },
+    {
+      "symbol": "6055.T",
+      "identity": {
+        "symbol": "6055.T",
+        "code": "6055",
+        "name": "ジャパンマテリアル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体や液晶の工場で使うガス・水・薬液の供給と設備運用を支える会社。特殊ガスの供給装置を作り、配管の設計・施工、ボンベの交換や受発注管理まで行う。グループで超純水設備の運転、薬液の管理、製造装置や真空ポンプの保守、交換部品の供給も担当する。別の事業では外部メーカーの映像再生機器などを販売し、子会社が三次元データ処理ソフトの開発や映像制作を担う。太陽光発電も行う。",
+      "proof": {
+        "code": "6055",
+        "exchange": "Tokyo",
+        "corporate_number": "2190001015191",
+        "edinet_code": "E26124",
+        "source_company_name": "ジャパンマテリアル株式会社",
+        "filing_company_name": "ジャパンマテリアル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHDN",
+        "current_edinet_code": "E26124",
+        "current_corporate_number": "2190001015191"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHDN",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861464.829924,
+      "pdf_sha256": "a38211972e5b8251c7f2f365aac140e3b21fbab1a9a14489ba888129eec6691a"
+    },
+    {
+      "symbol": "6078.T",
+      "identity": {
+        "symbol": "6078.T",
+        "code": "6078",
+        "name": "バリューHR",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や健康保険組合に、健康管理のシステムと事務代行を提供する会社。「バリューカフェテリア」を基盤に、健診予約、結果の管理、医療費の明細、ストレスチェックなどをネット上で利用できるようにする。福利厚生のメニューや特定保健指導を扱い、健診費用の精算・結果のデータ化も請け負う。健保組合の設立や運営の相談にも対応し、グループでは健診機関の集客支援やオンライン診療を支えるシステムを提供する。",
+      "proof": {
+        "code": "6078",
+        "exchange": "Tokyo",
+        "corporate_number": "7011001036950",
+        "edinet_code": "E22470",
+        "source_company_name": "株式会社バリューＨＲ",
+        "filing_company_name": "株式会社バリューHR",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XT60",
+        "current_edinet_code": "E22470",
+        "current_corporate_number": "7011001036950"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XT60",
+      "filed_on": "2026-03-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861472.710526,
+      "pdf_sha256": "f70b392ae040a4e9c8c5b226cf46b101d85e3427ba1633d74720ddbdd323cd8a"
+    },
+    {
+      "symbol": "6147.JP",
+      "identity": {
+        "symbol": "6147.JP",
+        "code": "6147",
+        "name": "ヤマザキ",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "輸送機器に組み込む部品と、工場の専用工作機械を製造・販売する会社。輸送機器向けには変速・制御装置やエンジンの部品を扱い、本体とベトナムの子会社が生産と販売を担う。本体は子会社が受注した製品の生産工程について技術面でも支援する。工作機械ではインデックスマシンなどの専用機を供給し、ボーリングヘッドなどの省力化用ユニットも作る。部品の供給と生産設備の両面で顧客の製造を支えている。",
+      "proof": {
+        "code": "6147",
+        "exchange": "Sapporo",
+        "corporate_number": "9080401005540",
+        "edinet_code": "E01507",
+        "source_company_name": "株式会社ヤマザキ",
+        "filing_company_name": "株式会社ヤマザキ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGTK",
+        "current_edinet_code": "E01507",
+        "current_corporate_number": "9080401005540"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGTK",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861478.3995242,
+      "pdf_sha256": "0b420b08171bcf89f9aaf9c50a09a486227b8a648dbf9be01a0de4c3a47739ef"
+    },
+    {
+      "symbol": "6167.T",
+      "identity": {
+        "symbol": "6167.T",
+        "code": "6167",
+        "name": "冨士ダイス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "摩耗しにくい超硬合金を使い、工場で材料を成形する工具や金型を製造・販売する会社。線材やパイプの寸法を整えるダイス・プラグ、自動車部品の金型、飲料缶の製造用金型などを扱う。電池ケースやガラスレンズ向けの金型、工具の素材となる超硬合金チップも供給する。原料の混合、焼結、加工、検査をグループで担い、顧客の生産方法に合わせて多品種の工具を作る。鋼やセラミックスを使う製品も持つ。",
+      "proof": {
+        "code": "6167",
+        "exchange": "Tokyo",
+        "corporate_number": "4010801010218",
+        "edinet_code": "E31594",
+        "source_company_name": "冨士ダイス株式会社",
+        "filing_company_name": "冨士ダイス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEI1",
+        "current_edinet_code": "E31594",
+        "current_corporate_number": "4010801010218"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEI1",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861484.47128,
+      "pdf_sha256": "9aeb002fafcc12a6bc46b6b50f71ae37a54467cae72db1cab35dacbef4e9e476"
+    },
+    {
+      "symbol": "6183.T",
+      "identity": {
+        "symbol": "6183.T",
+        "code": "6183",
+        "name": "ベルシステム24ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の顧客窓口や事務業務を請け負うグループの持株会社。中核のベルシステム24などが、商品への問い合わせ対応、販促、IT製品の操作案内をコンタクトセンターで行う。経理・人事、データ入力、市場調査、医薬品・医療機器の開発支援なども受託し、業務の見直しやAIを使う自動化の導入・運用を支援する。国内外の子会社や関連会社でサービスを展開し、一般消費者向けの月額コンテンツ販売も行っている。",
+      "proof": {
+        "code": "6183",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001161381",
+        "edinet_code": "E31896",
+        "source_company_name": "株式会社ベルシステム２４ホールディングス",
+        "filing_company_name": "株式会社ベルシステム24ホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5Z2",
+        "current_edinet_code": "E31896",
+        "current_corporate_number": "4010001161381"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5Z2",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861493.4250371,
+      "pdf_sha256": "b6364936a950f60684940d434284c57e8220ae13fbb3ba13ee1831036429a837"
+    },
+    {
+      "symbol": "6200.T",
+      "identity": {
+        "symbol": "6200.T",
+        "code": "6200",
+        "name": "インソース",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の従業員や自治体の職員を対象に、研修と人材育成の仕組みを提供する会社。依頼先への講師派遣と公募の講座を対面・オンラインで実施し、自治体の年間研修を企画や受講管理ごと請け負う。クラウドの「Leaf」で学習履歴や人事評価、ストレスチェックなどを管理し、動画教材も提供する。グループではIT・DX研修、人材紹介、研修運営の代行や人事・組織のコンサルティングも手がける。",
+      "proof": {
+        "code": "6200",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001080795",
+        "edinet_code": "E32495",
+        "source_company_name": "株式会社インソース",
+        "filing_company_name": "株式会社インソース",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XAOQ",
+        "current_edinet_code": "E32495",
+        "current_corporate_number": "5010001080795"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XAOQ",
+      "filed_on": "2025-12-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861502.400576,
+      "pdf_sha256": "3deb29b5133eb29adcefc2d103e96ef452317e804516488106d17fc0a4e35df8"
+    },
+    {
+      "symbol": "6208.T",
+      "identity": {
+        "symbol": "6208.T",
+        "code": "6208",
+        "name": "石川製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "段ボール箱の製造・印刷機械、防衛向けの機器、他社から依頼される機械の生産を手がける会社。紙工機械は本体がレンゴーなどへ販売し、子会社が加工部品や機械に内蔵する制御盤を作る。防衛分野では機雷や航空機向けの電子機器を扱い、本体と関東航空計器が製造・販売を担う。受託生産でもイッセイとイシメックスが機械加工と電装部品を分担し、グループの製品づくりを支えている。",
+      "proof": {
+        "code": "6208",
+        "exchange": "Tokyo",
+        "corporate_number": "6220001007685",
+        "edinet_code": "E01518",
+        "source_company_name": "株式会社石川製作所",
+        "filing_company_name": "株式会社石川製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDE9",
+        "current_edinet_code": "E01518",
+        "current_corporate_number": "6220001007685"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDE9",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861508.419393,
+      "pdf_sha256": "8bf6050c754c1168804db8389acd85ae7cc7c25170214299dca4b1f8b4929e14"
+    },
+    {
+      "symbol": "6229.T",
+      "identity": {
+        "symbol": "6229.T",
+        "code": "6229",
+        "name": "オーケーエム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ビルや工場、船舶の配管で流れを調整・遮断するバルブを製造・販売する会社。主力のバタフライバルブは円板状の弁を回して開閉し、粉粒体などを止めるナイフゲートバルブやピンチバルブも扱う。空調、発電、化学、食品などの設備や造船所へ納入し、船の排ガス処理装置向け製品も供給する。寸法、材料、制御方法を顧客の条件に合わせて組み合わせ、国内本体とマレーシア・中国の子会社で製造と販売を担う。",
+      "proof": {
+        "code": "6229",
+        "exchange": "Tokyo",
+        "corporate_number": "5160001009813",
+        "edinet_code": "E36098",
+        "source_company_name": "株式会社オーケーエム",
+        "filing_company_name": "株式会社オーケーエム",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHR0",
+        "current_edinet_code": "E36098",
+        "current_corporate_number": "5160001009813"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHR0",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861514.485743,
+      "pdf_sha256": "e93be5291b73b6252a35eb149e09e18134eab17758b3bc6d13af60416befbf42"
+    },
+    {
+      "symbol": "6262.T",
+      "identity": {
+        "symbol": "6262.T",
+        "code": "6262",
+        "name": "PEGASUS",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "縫製工場向けの工業用ミシンと、自動車の部品を製造・販売する会社。ミシンでは糸を鎖状に組む環縫いの機種を中心に扱い、伸縮するニット衣料や装飾的な縫い目を使うジーンズなどの生産に利用される。本体に加え中国・ベトナムの子会社がミシンや部品を作り、アジア、米国、欧州の販売会社や代理店を通じて供給する。自動車分野は海外子会社がダイカスト部品やシートベルトの巻取り装置用部品を手がける。",
+      "proof": {
+        "code": "6262",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001036356",
+        "edinet_code": "E01731",
+        "source_company_name": "株式会社ＰＥＧＡＳＵＳ",
+        "filing_company_name": "株式会社PEGASUS",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGO3",
+        "current_edinet_code": "E01731",
+        "current_corporate_number": "6120001036356"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGO3",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861523.544702,
+      "pdf_sha256": "dd3b7cf2858eb05759f24e95549e33f5d678b119b3cf866f38b38ae3a9651129"
+    },
+    {
+      "symbol": "6292.T",
+      "identity": {
+        "symbol": "6292.T",
+        "code": "6292",
+        "name": "カワタ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "プラスチック製品の工場で原料を運び、乾燥・計量・混合する設備を供給する会社。成形機の周りに置く輸送機や乾燥機、混合機に加え、原料の貯蔵・分配システム、金型の温度調節機・冷却機、粉砕機を扱う。設備を組み合わせるシステムづくりや据付、販売後のサービスにも対応する。本体と国内子会社が製品ごとに生産を分担し、中国・インドネシアにも製造拠点を持つ。海外販売会社を通じアジアや北中米へ届ける。",
+      "proof": {
+        "code": "6292",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001042354",
+        "edinet_code": "E01694",
+        "source_company_name": "株式会社カワタ",
+        "filing_company_name": "株式会社カワタ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJHG",
+        "current_edinet_code": "E01694",
+        "current_corporate_number": "6120001042354"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJHG",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861531.30915,
+      "pdf_sha256": "2fc1cf8e73d2ead9140348e8585d009f6bd2c7aea7940d61b69afce411205755"
+    },
+    {
+      "symbol": "6302.T",
+      "identity": {
+        "symbol": "6302.T",
+        "code": "6302",
+        "name": "住友重機械工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の生産設備から建設・物流、エネルギー設備まで扱う機械メーカー。グループで減速機やモータ、極低温冷凍機、プラスチック加工機械、加速器、医療機器などを製造・販売する。子会社は油圧ショベルやクレーン、荷役・物流システム、半導体製造装置を担う。ボイラ、大気汚染防止・水処理の設備は供給に加えて運転業務も行い、タービン、ポンプ、食品機械や船舶などを国内外に展開する。",
+      "proof": {
+        "code": "6302",
+        "exchange": "Tokyo",
+        "corporate_number": "9010701005032",
+        "edinet_code": "E01533",
+        "source_company_name": "住友重機械工業株式会社",
+        "filing_company_name": "住友重機械工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XT1R",
+        "current_edinet_code": "E01533",
+        "current_corporate_number": "9010701005032"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XT1R",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861537.121608,
+      "pdf_sha256": "a4261b0693f9f03e9dc42f1fd728b4b078a05b8a0249c960b5b4392f2a03152e"
+    },
+    {
+      "symbol": "6333.T",
+      "identity": {
+        "symbol": "6333.T",
+        "code": "6333",
+        "name": "TEIKOKU",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "化学設備や高圧ガス、冷凍・空調、半導体・電力の機器向けにポンプを製造・販売する会社。キャンドモータポンプを中心に、定量ポンプや電力関連のポンプも供給する。国内では子会社に加工を委託して本体が製品を作り、販売後のサービスまで担当する。米国、中国、インドの子会社は現地で生産・販売を行い、台湾や欧州などでは販売会社が対応する。子会社が製造する減揺装置向けモータも本体が販売する。",
+      "proof": {
+        "code": "6333",
+        "exchange": "Tokyo",
+        "corporate_number": "3140001039376",
+        "edinet_code": "E01761",
+        "source_company_name": "株式会社ＴＥＩＫＯＫＵ",
+        "filing_company_name": "株式会社TEIKOKU",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL5Z",
+        "current_edinet_code": "E01761",
+        "current_corporate_number": "3140001039376"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL5Z",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861543.149287,
+      "pdf_sha256": "8ffcf5a362db40b8570a0e29d5d1384654a458384dd35a21d503cdbae3f40b1e"
+    },
+    {
+      "symbol": "6339.T",
+      "identity": {
+        "symbol": "6339.T",
+        "code": "6339",
+        "name": "新東工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "金属の表面を処理する装置や、鋳物づくりの設備を供給する会社。ブラスト・研磨装置と研磨材、表面の評価機器を扱い、表面処理の加工も受託する。鋳造分野では鋳型や中子を作る装置、砂の処理設備、注湯装置などを製造する。集じん・脱臭・排水処理の装置に加え、子会社による搬送設備も展開する。グループで有機ELパネルの製造ライン、検査・測定機器、精密プレスやセラミックスなども扱う。",
+      "proof": {
+        "code": "6339",
+        "exchange": "Tokyo",
+        "corporate_number": "5180001030627",
+        "edinet_code": "E01541",
+        "source_company_name": "新東工業株式会社",
+        "filing_company_name": "新東工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE4V",
+        "current_edinet_code": "E01541",
+        "current_corporate_number": "5180001030627"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE4V",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861549.324041,
+      "pdf_sha256": "2c53a2d541b10f3717617dc230a8c383f103ab007c304fe721606355cb1e9daf"
+    },
+    {
+      "symbol": "6360.T",
+      "identity": {
+        "symbol": "6360.T",
+        "code": "6360",
+        "name": "東京自働機械製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "菓子や食品などを包装する機械と、顧客向けの生産設備を製造・販売する会社。包装機械は本体が作るほか、関連会社の東京施設工業に加工を委託して供給する。生産機械は本体が担い、海外の特定顧客向け大型設備も扱う。Johnson&Johnson Vision社が主要な取引先となっている。千葉県の柏工場で両分野の生産を行い、流山市の設計開発部が設計、東京本社が販売などを担当する。",
+      "proof": {
+        "code": "6360",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001034205",
+        "edinet_code": "E01534",
+        "source_company_name": "株式会社東京自働機械製作所",
+        "filing_company_name": "株式会社東京自働機械製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHZL",
+        "current_edinet_code": "E01534",
+        "current_corporate_number": "7010001034205"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHZL",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861556.680784,
+      "pdf_sha256": "2e57a37361e2ebad9f886be1c1481d7baa8e277694ec1c45593a3855a23ed96d"
+    },
+    {
+      "symbol": "6365.T",
+      "identity": {
+        "symbol": "6365.T",
+        "code": "6365",
+        "name": "電業社機械製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "水を送るポンプや空気を動かす送風機を製造し、据付工事も行う会社。ポンプは工場の工程・冷却水、発電設備の取水、農業用水、上水道、雨水や下水の排出などに用いられる。送風機は発電・化学・鉄鋼設備と道路トンネルの換気に対応する。ダムの放流用バルブや海水淡水化用のエネルギー回収装置、電気制御の設備も扱う。子会社は製品の保守・点検、河川・湖沼の清掃や水底計測、インドでの製造・販売を分担する。",
+      "proof": {
+        "code": "6365",
+        "exchange": "Tokyo",
+        "corporate_number": "8010801007581",
+        "edinet_code": "E01544",
+        "source_company_name": "株式会社電業社機械製作所",
+        "filing_company_name": "株式会社電業社機械製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI72",
+        "current_edinet_code": "E01544",
+        "current_corporate_number": "8010801007581"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI72",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861562.723569,
+      "pdf_sha256": "bea458510f7269cdc58fdc5a23f0eb47d37adce69320fa52568e9c0ed3f65ab9"
+    },
+    {
+      "symbol": "6382.T",
+      "identity": {
+        "symbol": "6382.T",
+        "code": "6382",
+        "name": "トリニティ工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の塗装設備と自動車に組み込む部品を製造・販売する会社。設備では前処理や電着塗装の装置、塗装ブース、塗装機とシステム、空調、乾燥炉、熱処理炉を扱う。自動車部品ではセンタークラスターやコンソールのパネル、ドアのスイッチ部分、ステアリングホイール、ロッカーモールなどを供給する。国内外の子会社や関連会社と製造・販売を分担し、トヨタ自動車などの顧客へ製品を届けている。",
+      "proof": {
+        "code": "6382",
+        "exchange": "Tokyo",
+        "corporate_number": "6180301021663",
+        "edinet_code": "E01627",
+        "source_company_name": "トリニティ工業株式会社",
+        "filing_company_name": "トリニティ工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE9T",
+        "current_edinet_code": "E01627",
+        "current_corporate_number": "6180301021663"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE9T",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861568.742802,
+      "pdf_sha256": "9d14aacb5c9fd006c151c9a615dacedd3f2a34769128129f35ba2670f8d42808"
+    },
+    {
+      "symbol": "6393.T",
+      "identity": {
+        "symbol": "6393.T",
+        "code": "6393",
+        "name": "油研工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "産業機械を油圧で動かすための機器とシステムを製造・販売する会社。ポンプやモータ、圧力・流量・方向を制御する弁などを扱い、油圧ユニット、シリンダ、機械向けシステムは保守やサービスまで提供する。環境機械では加工時の切りくずを圧縮する装置、PETボトルの容積を減らす装置、各種圧縮機を作る。本体と日本・アジア・欧州の関係会社が供給を担い、子会社による油圧部品用の鋳物事業も持つ。",
+      "proof": {
+        "code": "6393",
+        "exchange": "Tokyo",
+        "corporate_number": "7021001028468",
+        "edinet_code": "E01612",
+        "source_company_name": "油研工業株式会社",
+        "filing_company_name": "油研工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ87",
+        "current_edinet_code": "E01612",
+        "current_corporate_number": "7021001028468"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ87",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861574.7798321,
+      "pdf_sha256": "3d2018d190b4ad1669dd8460ff674264d61a884931bd057c982b57a78002858a"
+    },
+    {
+      "symbol": "6402.T",
+      "identity": {
+        "symbol": "6402.T",
+        "code": "6402",
+        "name": "兼松エンジニアリング",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "道路や工事現場、工場などの清掃・廃棄物処理に使う機器を製造・販売する会社。強力吸引作業車で側溝の清掃、汚泥や乾いた粉の回収に対応し、高圧洗浄車は下水管やタンク、熱交換器などの洗浄に使われる。中間処理場向けには汚泥を脱水し容積を減らす装置を供給する。設計、組立、検査を本体が担い、部品製作や一部の組立・塗装は外注する。全国の営業拠点と指定工場を通じて販売後のサービスも行う。",
+      "proof": {
+        "code": "6402",
+        "exchange": "Tokyo",
+        "corporate_number": "5490001000318",
+        "edinet_code": "E01721",
+        "source_company_name": "兼松エンジニアリング株式会社",
+        "filing_company_name": "兼松エンジニアリング株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD22",
+        "current_edinet_code": "E01721",
+        "current_corporate_number": "5490001000318"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD22",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861580.799797,
+      "pdf_sha256": "d774029288ac049cb91cef16b158386fd4b39d55e329e13e54d3fa4891b6f05c"
+    },
+    {
+      "symbol": "6448.T",
+      "identity": {
+        "symbol": "6448.T",
+        "code": "6448",
+        "name": "ブラザー工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "印刷や文書処理、縫製、生産設備に使う機器を製造・販売する会社。プリンターと複合機、ラベルを作る機器、スキャナーを扱い、グループで産業用の印刷機器も展開する。工場向けには工作機械と工業用ミシンを供給し、家庭用ミシンも作る。子会社ニッセイは減速機や歯車を製造して販売し、不動産賃貸も行う。本体と海外の生産・販売会社が役割を分担して、事務所や家庭、産業用途へ製品を届けている。",
+      "proof": {
+        "code": "6448",
+        "exchange": "Tokyo",
+        "corporate_number": "8180001010997",
+        "edinet_code": "E01594",
+        "source_company_name": "ブラザー工業株式会社",
+        "filing_company_name": "ブラザー工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YECO",
+        "current_edinet_code": "E01594",
+        "current_corporate_number": "8180001010997"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YECO",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861586.846153,
+      "pdf_sha256": "b1ea3a4093ce339897967300949564b9c033865ccb9ab719a6f726d847eaddd9"
+    },
+    {
+      "symbol": "6464.T",
+      "identity": {
+        "symbol": "6464.T",
+        "code": "6464",
+        "name": "ツバキ・ナカシマ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "軸受などに使う精密な球とローラーを製造・販売する会社。鋼球やセラミック球を自動車、二輪車、家電、工作機械などの回転部分向けに供給し、ローラーは車の変速機やハブ軸受にも使われる。セラミック球は高速回転の機器や液体制御の定量ポンプにも対応する。ボールペンの先端、光学用途のガラス球、医療用途などのプラスチック球も扱う。国内の本体と海外の子会社が生産を担い、発電所や製鉄所向けの大型送風機も作る。",
+      "proof": {
+        "code": "6464",
+        "exchange": "Tokyo",
+        "corporate_number": "2150001014908",
+        "edinet_code": "E31954",
+        "source_company_name": "株式会社ツバキ・ナカシマ",
+        "filing_company_name": "株式会社ツバキ・ナカシマ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XTLM",
+        "current_edinet_code": "E31954",
+        "current_corporate_number": "2150001014908"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XTLM",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861594.3939571,
+      "pdf_sha256": "cf7a9c0922461c0203588e7ee104e38537f88b5d3d0ca2ab69ac0686deb6fef7"
+    },
+    {
+      "symbol": "6479.T",
+      "identity": {
+        "symbol": "6479.T",
+        "code": "6479",
+        "name": "ミネベアミツミ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "機械の回転部分や電子機器、自動車に組み込む部品を製造・販売する会社。ボールベアリング、HDD向けの機械部品、航空機用のねじを扱い、モータ、液晶バックライト、計測機器なども供給する。半導体や光デバイス、機構・電源部品を展開し、自動車向けにはキーセット、ドアラッチ、ドアハンドルなどを作る。本体とアジア・米国・欧州の子会社が製品ごとに生産を分担し、各地域の販売会社などを通じて届ける。",
+      "proof": {
+        "code": "6479",
+        "exchange": "Tokyo",
+        "corporate_number": "8100001007753",
+        "edinet_code": "E01607",
+        "source_company_name": "ミネベアミツミ株式会社",
+        "filing_company_name": "ミネベアミツミ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YISS",
+        "current_edinet_code": "E01607",
+        "current_corporate_number": "8100001007753"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YISS",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861600.474275,
+      "pdf_sha256": "960174ac7810019166ec79ef7e92e03924999ad1fdab1f6d73831347d66a2ed8"
+    },
+    {
+      "symbol": "6490.T",
+      "identity": {
+        "symbol": "6490.T",
+        "code": "6490",
+        "name": "PILLAR",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "液体や気体を扱う設備向けに、配管の部品や密封する部材を製造・販売する会社。ふっ素樹脂の「ピラフロン」製品は、半導体・液晶などの製造装置で薬液を循環させる継手、チューブ、ポンプ、バルブなどに使われる。産業用にはポンプや撹拌機のメカニカルシール、発電・化学設備のパッキンやガスケットを供給する。国内外のグループ会社で製造と販売を分担し、販売子会社などが製品の補修にも対応する。",
+      "proof": {
+        "code": "6490",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001059450",
+        "edinet_code": "E01645",
+        "source_company_name": "株式会社ＰＩＬＬＡＲ",
+        "filing_company_name": "株式会社PILLAR",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD79",
+        "current_edinet_code": "E01645",
+        "current_corporate_number": "3120001059450"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD79",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861606.500139,
+      "pdf_sha256": "124cad03f6ad0ecdffc28d02495f4005d51c76a1dc5a26d7634a99155c9d12f8"
+    },
+    {
+      "symbol": "6506.T",
+      "identity": {
+        "symbol": "6506.T",
+        "code": "6506",
+        "name": "安川電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "機械の動きを制御する機器と産業用ロボットを供給する会社。ACサーボ、モータ、コントローラ、インバータなどを扱い、溶接・塗装・搬送・研磨や半導体製造向けのロボット、周辺機器と自動化システムを製造・販売する。鉄鋼プラントや上下水道、港湾荷役の電気システム、産業用のモータ・発電機も提供する。国内本体と海外子会社が生産、据付、保守などを担い、販売会社や物流の子会社も事業を支える。",
+      "proof": {
+        "code": "6506",
+        "exchange": "Tokyo",
+        "corporate_number": "5290801010767",
+        "edinet_code": "E01741",
+        "source_company_name": "株式会社安川電機",
+        "filing_company_name": "株式会社安川電機",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y69H",
+        "current_edinet_code": "E01741",
+        "current_corporate_number": "5290801010767"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y69H",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861612.6663811,
+      "pdf_sha256": "bc6fe3d66bca4642d585ac799169b609f70fbb9bfa7cf3c6705a2c3fee7b019c"
+    },
+    {
+      "symbol": "6524.T",
+      "identity": {
+        "symbol": "6524.T",
+        "code": "6524",
+        "name": "湖北工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子機器のコンデンサに使う端子と、光通信の部品を製造・販売する会社。アルミ電解コンデンサ用のリード端子は車載機器、サーバー、産業機械、家電などの用途に供給し、溶接、プレス、洗浄、化成を一貫して行う。光通信では光ファイバ網や光モジュール向けの部品を扱い、海底ケーブルに用いる光アイソレータを中心に展開する。本体と中国、マレーシア、スリランカなどの子会社が、部品に応じて生産や販売を分担する。",
+      "proof": {
+        "code": "6524",
+        "exchange": "Tokyo",
+        "corporate_number": "9160001007235",
+        "edinet_code": "E37156",
+        "source_company_name": "湖北工業株式会社",
+        "filing_company_name": "湖北工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XT3K",
+        "current_edinet_code": "E37156",
+        "current_corporate_number": "9160001007235"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XT3K",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861620.107965,
+      "pdf_sha256": "49249939b278d8dd9f06ae6835d960983b13d2c8ce4971d678277175a7ed9fde"
+    },
+    {
+      "symbol": "6535.T",
+      "identity": {
+        "symbol": "6535.T",
+        "code": "6535",
+        "name": "アイモバイル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ふるさと納税のサイト「ふるなび」と、ネット広告のサービスを展開する会社。寄附の申込や返礼品選びをつなぎ、旅行の予約・決済、寄附ポイントでの旅行や食事の利用も扱う。広告分野ではウェブやアプリへ広告を配信し、クリック、動画の視聴完了、申込などの成果に応じた課金の仕組みを提供する。インフルエンサーと企業を結ぶ支援、媒体の広告収益改善、子会社による広告運用や懸賞付きパズルアプリも行う。",
+      "proof": {
+        "code": "6535",
+        "exchange": "Tokyo",
+        "corporate_number": "4011001059087",
+        "edinet_code": "E32687",
+        "source_company_name": "株式会社アイモバイル",
+        "filing_company_name": "株式会社アイモバイル",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100WW4T",
+        "current_edinet_code": "E32687",
+        "current_corporate_number": "4011001059087"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100WW4T",
+      "filed_on": "2025-10-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861626.222291,
+      "pdf_sha256": "5d01eaee65881cf088c7ca8c282d9a332bc2002ac539ea3f0ea1a7588a3f9db0"
+    },
+    {
+      "symbol": "6563.T",
+      "identity": {
+        "symbol": "6563.T",
+        "code": "6563",
+        "name": "みらいワークス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業に専門人材を紹介し、業務の受託や人材派遣を通じて経営課題の解決を支援する会社。金融、医療、製造、情報通信などの企業へ、ITシステム開発、戦略づくり、プロジェクト管理、業務改革を担う人材を提供する。正社員の採用やクリエイターの仕事探しも支援する。地方企業には都市部の副業・転職人材をつなぎ、自治体の移住施策も手伝う。研修と実務経験を組み合わせる学び直しや、新事業づくりの支援も行う。",
+      "proof": {
+        "code": "6563",
+        "exchange": "Tokyo",
+        "corporate_number": "4011001072890",
+        "edinet_code": "E33601",
+        "source_company_name": "株式会社みらいワークス",
+        "filing_company_name": "株式会社みらいワークス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBZI",
+        "current_edinet_code": "E33601",
+        "current_corporate_number": "4011001072890"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBZI",
+      "filed_on": "2025-12-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861632.138013,
+      "pdf_sha256": "37f921f6c6b4e5d817e3caeb65200ee2e77dd47ee1cdd6377b7456d737b561fd"
+    },
+    {
+      "symbol": "6588.T",
+      "identity": {
+        "symbol": "6588.T",
+        "code": "6588",
+        "name": "東芝テック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "店舗の販売業務を支えるPOSシステムと、文書を印刷・複写する複合機などを供給する会社。国内ではPOSやオートIDのシステムをTECブランドで扱い、複合機はTOSHIBAブランドで本体や代理店が販売する。海外では子会社や代理店を通じ、POS、複合機、オートIDの製品と関連サービスを展開する。グループの製造会社が機器を生産し、販売・サービス会社が顧客への供給と保守を担う。親会社は東芝。",
+      "proof": {
+        "code": "6588",
+        "exchange": "Tokyo",
+        "corporate_number": "8010701016022",
+        "edinet_code": "E01884",
+        "source_company_name": "東芝テック株式会社",
+        "filing_company_name": "東芝テック株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHCF",
+        "current_edinet_code": "E01884",
+        "current_corporate_number": "8010701016022"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHCF",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861641.1797602,
+      "pdf_sha256": "70dc48a42f4d6f943567a7e9298a8d8b2d7ee96c2d5cfb03c86db1d82d8ff685"
+    },
+    {
+      "symbol": "6614.T",
+      "identity": {
+        "symbol": "6614.T",
+        "code": "6614",
+        "name": "シキノハイテック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体の検査機器や回路設計、画像を扱う機器を提供する会社。工場向けに高温環境で半導体を試すバーンイン装置・ボード、検査用の基板、専用計測器を開発・製造し、装置のレンタルも行う。回路分野では電源ICや高速通信、画像処理などのLSIを設計し、回路部品のIPコアをライセンスする。産業向けの組込みカメラ、画像検査や認識を行うシステム、見守り機器も作り、設計から保守まで対応する。",
+      "proof": {
+        "code": "6614",
+        "exchange": "Tokyo",
+        "corporate_number": "3230001007092",
+        "edinet_code": "E36368",
+        "source_company_name": "株式会社シキノハイテック",
+        "filing_company_name": "株式会社シキノハイテック",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHLM",
+        "current_edinet_code": "E36368",
+        "current_corporate_number": "3230001007092"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHLM",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861645.928673,
+      "pdf_sha256": "8eb3fdc32a2c4ec1f4dc8d4e245a6c775633fd3c07e038eb0d64cf35362ccf98"
+    },
+    {
+      "symbol": "6617.T",
+      "identity": {
+        "symbol": "6617.T",
+        "code": "6617",
+        "name": "東光高岳",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電力を受け取り配る機器と、使用量を測る計器を製造・販売する会社。変圧器、開閉装置、監視・制御システムを供給し、据付や電気設備の工事、計器の交換も請け負う。東京電力パワーグリッドが電力機器・計量分野の主要販売先となっている。エネルギーの計測・制御や電気自動車の急速充電器、組込みソフト、スマートグリッド関連も展開する。本体と関係会社で事業を担い、三次元検査装置やビル賃貸も扱う。",
+      "proof": {
+        "code": "6617",
+        "exchange": "Tokyo",
+        "corporate_number": "5010601043417",
+        "edinet_code": "E26713",
+        "source_company_name": "株式会社東光高岳",
+        "filing_company_name": "株式会社東光高岳",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL24",
+        "current_edinet_code": "E26713",
+        "current_corporate_number": "5010601043417"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL24",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861652.020916,
+      "pdf_sha256": "52574eb24e9b57dd39065d0cc5e6d48ad96a9a79b96addc7f08b6be9310af6c0"
+    },
+    {
+      "symbol": "6632.T",
+      "identity": {
+        "symbol": "6632.T",
+        "code": "6632",
+        "name": "JVCケンウッド",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "車載機器、無線通信、映像・音響の製品を供給する会社。カーナビ、車載スピーカーやアンプ、ドライブレコーダーなどを扱い、業務用・アマチュア用の無線機、映像監視機器、医用画像のモニターも展開する。家庭向けにはプロジェクター、ヘッドホン、オーディオ、ポータブル電源を供給し、業務用ビデオカメラも製造する。国内外の子会社が生産・販売を分担し、ビクターエンタテインメントによる音楽・映像コンテンツも手がける。",
+      "proof": {
+        "code": "6632",
+        "exchange": "Tokyo",
+        "corporate_number": "8020001059159",
+        "edinet_code": "E21320",
+        "source_company_name": "株式会社ＪＶＣケンウッド",
+        "filing_company_name": "株式会社JVCケンウッド",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YG3R",
+        "current_edinet_code": "E21320",
+        "current_corporate_number": "8020001059159"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YG3R",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861658.193333,
+      "pdf_sha256": "e0b03f560d4c19a4ba6fc2481936bc77360e17a391b25d52c9cb6e0fbd9e01c1"
+    },
+    {
+      "symbol": "6643.T",
+      "identity": {
+        "symbol": "6643.T",
+        "code": "6643",
+        "name": "戸上電機製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "産業用の配電・制御機器と、樹脂・金属の加工品を供給する会社。本体が電子制御器、配電用の自動開閉器、配電盤やシステム機器を製造・販売し、子会社も機器の製造を分担する。東京戸上電機販売はグループ製品を販売する。自動車向けのプラスチック成形品は戸上化成、産業機械向けの金属加工品は戸上メタリックスが作る。成形品に使う金型の加工や、戸上電機ソフトによるソフトウェアの開発も行っている。",
+      "proof": {
+        "code": "6643",
+        "exchange": "Tokyo",
+        "corporate_number": "5300001000526",
+        "edinet_code": "E01747",
+        "source_company_name": "株式会社戸上電機製作所",
+        "filing_company_name": "株式会社戸上電機製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJNT",
+        "current_edinet_code": "E01747",
+        "current_corporate_number": "5300001000526"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJNT",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861664.0823302,
+      "pdf_sha256": "b7646b703477a1a7366d93b2a5777d04ff892baff9b238484a7dc44f0fdd77d0"
+    },
+    {
+      "symbol": "6653.T",
+      "identity": {
+        "symbol": "6653.T",
+        "code": "6653",
+        "name": "正興電機製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電力・インフラ設備の制御機器と業務システムを提供する会社。発電所や変電所の監視制御、配電の自動制御、電力業務のITシステムを開発し、機器製造から工事・エンジニアリングまで対応する。上下水道、道路、照明向けの受変電・制御設備や蓄電システム、再生可能エネルギー関連も扱う。グループで港湾、ヘルスケア、教育向けのクラウドやAI・IoTを使う業務支援を開発し、設備の保守、省エネ機器の販売も行う。",
+      "proof": {
+        "code": "6653",
+        "exchange": "Tokyo",
+        "corporate_number": "6290001014089",
+        "edinet_code": "E01760",
+        "source_company_name": "株式会社正興電機製作所",
+        "filing_company_name": "株式会社正興電機製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XU9B",
+        "current_edinet_code": "E01760",
+        "current_corporate_number": "6290001014089"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XU9B",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861670.1314838,
+      "pdf_sha256": "8914692fe536321fd08038d7dcb9ac401e5a6b46e79c7b1adf10f19d89ecafe4"
+    },
+    {
+      "symbol": "6675.T",
+      "identity": {
+        "symbol": "6675.T",
+        "code": "6675",
+        "name": "サクサ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "情報通信の機器・システムを扱うグループの事業持株会社。子会社システム・ケイはAIで画像を認識するネットワークカメラや映像管理システムを企画・開発して販売する。ソアーは有機ELデバイスを製造し、電子機器の開発・製造受託も行う。ニューテックなどはサーバーに接続するストレージ機器を開発・製造して、販売後の支援も担う。グループで通信機器の生産、基板の組立、テスターや金型の製作を分担する。",
+      "proof": {
+        "code": "6675",
+        "exchange": "Tokyo",
+        "corporate_number": "2010401060020",
+        "edinet_code": "E01874",
+        "source_company_name": "サクサ株式会社",
+        "filing_company_name": "サクサ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJLC",
+        "current_edinet_code": "E01874",
+        "current_corporate_number": "2010401060020"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJLC",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861676.1561222,
+      "pdf_sha256": "62233452c87d23d6068ab07745c781d42f61695920b5cb43253822890cb8a64a"
+    },
+    {
+      "symbol": "6702.T",
+      "identity": {
+        "symbol": "6702.T",
+        "code": "6702",
+        "name": "富士通",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や自治体などの業務を支えるITサービスと機器を提供する会社。経営・技術の相談からクラウド、システム構築・更新、業務アプリの開発、運用管理や問い合わせ窓口まで対応する。データセンター、ネットワーク、セキュリティ、事務業務の受託も扱う。機器ではサーバー、ストレージ、基幹システム、通信ネットワークの製品を供給し、保守・監視を行う。本体と国内外の関係会社でサービスを展開し、パソコンの販売も手がける。",
+      "proof": {
+        "code": "6702",
+        "exchange": "Tokyo",
+        "corporate_number": "1020001071491",
+        "edinet_code": "E01766",
+        "source_company_name": "富士通株式会社",
+        "filing_company_name": "富士通株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YM3K",
+        "current_edinet_code": "E01766",
+        "current_corporate_number": "1020001071491"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YM3K",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861682.2472398,
+      "pdf_sha256": "4277e83a0fac2d7d35e605af5548a631ead57ac778031683ba5bb619ba9305a6"
+    },
+    {
+      "symbol": "5726.T",
+      "identity": {
+        "symbol": "5726.T",
+        "code": "5726",
+        "name": "大阪チタニウムテクノロジーズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "金属チタンを製造する素材メーカー。スポンジ状のチタンや鋳塊を圧延・加工メーカーへ供給し、航空機、プラント、民生品などの材料につなげている。高機能材料では高純度チタン、球状のチタン粉末「TILOP」、SiO、四塩化チタンとその水溶液を製造・販売。半導体や環境材料のメーカーなどに向け、チタン・シリコンを利用した材料を提供している。",
+      "proof": {
+        "code": "5726",
+        "exchange": "Tokyo",
+        "corporate_number": "8140001052085",
+        "edinet_code": "E01327",
+        "source_company_name": "株式会社大阪チタニウムテクノロジーズ",
+        "filing_company_name": "株式会社大阪チタニウムテクノロジーズ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHFZ",
+        "current_edinet_code": "E01327",
+        "current_corporate_number": "8140001052085"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHFZ",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861393.892799,
+      "pdf_sha256": "14094b4b3a167eaae77ff47701552982428027f4d316e08c46838d9f8778daa8"
+    },
+    {
+      "symbol": "5802.T",
+      "identity": {
+        "symbol": "5802.T",
+        "code": "5802",
+        "name": "住友電気工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          },
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電線や電子材料を軸に、国内外のグループで製品の開発から製造・販売、工事まで手がける。送配電ケーブルや受変電設備、光ファイバーと通信機器に加え、住友電装などを通じて車両用ワイヤーハーネスを供給。電子機器向けの配線やフレキシブル基板、産業向けの超硬・ダイヤモンド工具、焼結部品も扱い、電力、通信、自動車などの用途に対応している。",
+      "proof": {
+        "code": "5802",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001077450",
+        "edinet_code": "E01333",
+        "source_company_name": "住友電気工業株式会社",
+        "filing_company_name": "住友電気工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL2M",
+        "current_edinet_code": "E01333",
+        "current_corporate_number": "5120001077450"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL2M",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861399.9131908,
+      "pdf_sha256": "a76b3a00811d102abe273f83a32159221fc89ec84c2253492fc98f2204211521"
+    },
+    {
+      "symbol": "5892.T",
+      "identity": {
+        "symbol": "5892.T",
+        "code": "5892",
+        "name": "yutori",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで衣料品や化粧品を企画し、店舗やネットで販売する。「9090」「HTH」など若年層向けの服に加え、ホームウェアの「PAMM」、小型コスメの「minum」、「Her lip to」の衣料・美容関連商品を展開。複数ブランドを扱う自社通販「YZ Store」や実店舗、他社通販、小売店への卸を組み合わせ、SNSで商品の認知や購買を促している。",
+      "proof": {
+        "code": "5892",
+        "exchange": "Tokyo",
+        "corporate_number": "1020003014176",
+        "edinet_code": "E39222",
+        "source_company_name": "株式会社ｙｕｔｏｒｉ",
+        "filing_company_name": "株式会社yutori",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC75",
+        "current_edinet_code": "E39222",
+        "current_corporate_number": "1020003014176"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC75",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861405.981749,
+      "pdf_sha256": "2e73db60fe01ee920cc456ee708a2d5d14317bed9dbc97366f9416867f906a4f"
+    },
+    {
+      "symbol": "5909.T",
+      "identity": {
+        "symbol": "5909.T",
+        "code": "5909",
+        "name": "コロナ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅向けの暖房、空調・家電、住宅設備をグループで製造し、販売や施工を行う。石油ファンヒーターやルームエアコンなどを供給し、グループ各社が製品や部品の製造、販売、物流を分担。管工事・電気工事の設計施工、製品の保守にも対応する。住宅のリフォームや清掃、不動産賃貸も手がけ、海外では中東や欧州などの代理店を通じて製品を販売している。",
+      "proof": {
+        "code": "5909",
+        "exchange": "Tokyo",
+        "corporate_number": "5110001014116",
+        "edinet_code": "E01444",
+        "source_company_name": "株式会社コロナ",
+        "filing_company_name": "株式会社コロナ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF55",
+        "current_edinet_code": "E01444",
+        "current_corporate_number": "5110001014116"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF55",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861411.950316,
+      "pdf_sha256": "2af599c194e41955f44a1d5af42e674b293fc4be8420fa87aa1f5f5399534643"
+    },
+    {
+      "symbol": "5922.T",
+      "identity": {
+        "symbol": "5922.T",
+        "code": "5922",
+        "name": "那須電機鉄工",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電力・通信や交通のインフラに使う設備材料を、グループで製作・販売する。送電・配電設備や通信設備の材料を供給し、通信鉄塔の設備工事も受注。交通システム向け材料に加え、道路設備や地中線設備の工事、表面処理を手がける。那須電材産業などの製造販売会社や販売会社、設計・受託研究を担う会社と分担し、設備材料の供給と関連工事を行っている。",
+      "proof": {
+        "code": "5922",
+        "exchange": "Tokyo",
+        "corporate_number": "5011101015468",
+        "edinet_code": "E01365",
+        "source_company_name": "那須電機鉄工株式会社",
+        "filing_company_name": "那須電機鉄工株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJYT",
+        "current_edinet_code": "E01365",
+        "current_corporate_number": "5011101015468"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJYT",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861422.639261,
+      "pdf_sha256": "6ae7ca8f28eafe28f15f253d3fad9081b8f17047bf40f3391a52845b26c87b7c"
+    },
+    {
+      "symbol": "5940.T",
+      "identity": {
+        "symbol": "5940.T",
+        "code": "5940",
+        "name": "不二サッシ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ビルや住宅の開口部に使うサッシ、ドア、カーテンウォールなどを国内外のグループで製造・販売する。新築用に加え、既存建物の改装用サッシ、室内建具、エクステリアも扱う。不二ライトメタルなどが外販用のアルミ形材や精密加工品を供給し、不二サッシ本体は一般・産業廃棄物の処理プラントも製造販売。グループでは製品物流や不動産事業も手がけている。",
+      "proof": {
+        "code": "5940",
+        "exchange": "Tokyo",
+        "corporate_number": "7020001070117",
+        "edinet_code": "E01422",
+        "source_company_name": "不二サッシ株式会社",
+        "filing_company_name": "不二サッシ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIDL",
+        "current_edinet_code": "E01422",
+        "current_corporate_number": "7020001070117"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIDL",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861430.3608499,
+      "pdf_sha256": "d6281a0f0740563656cddfd870561df61ea4768a74a8b05ad00ae1fa2dd8849c"
+    },
+    {
+      "symbol": "5946.T",
+      "identity": {
+        "symbol": "5946.T",
+        "code": "5946",
+        "name": "長府製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅向けに給湯、暖房、浴室などの機器をグループで製造・販売する。給湯では石油・ガスを使う機器や電気温水器、エコキュートを扱い、暖房ではストーブ、温水暖房、地中熱ヒートポンプや融雪設備を展開。システムバス、人工大理石の浴槽、システムキッチンのほか、太陽熱を利用する温水器や給湯設備も供給する。製造販売子会社と販売子会社を通じても製品を届けている。",
+      "proof": {
+        "code": "5946",
+        "exchange": "Tokyo",
+        "corporate_number": "8250001005924",
+        "edinet_code": "E01659",
+        "source_company_name": "株式会社長府製作所",
+        "filing_company_name": "株式会社長府製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XRH4",
+        "current_edinet_code": "E01659",
+        "current_corporate_number": "8250001005924"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XRH4",
+      "filed_on": "2026-03-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861436.2096052,
+      "pdf_sha256": "402a8d8fc51216b31930dc5fb5fb9049df23e0cb443a20c75e7eaefe4cb1eeca"
+    },
+    {
+      "symbol": "5957.T",
+      "identity": {
+        "symbol": "5957.T",
+        "code": "5957",
+        "name": "日東精工",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "精密ねじや冷間圧造部品と、工場の組立工程を自動化する機械をグループで製造・販売する。ねじ部品は設計から材料調達、加工、検査まで担い、機械では自動ねじ締め、リベットかしめ、搬送装置、ロボットを扱う。流量計、画像による検査選別装置、地盤調査装置、洗浄装置も製造。日東精工アナリテックの分析機器や、医療用照明機器なども事業に含む。",
+      "proof": {
+        "code": "5957",
+        "exchange": "Tokyo",
+        "corporate_number": "2130001041813",
+        "edinet_code": "E02296",
+        "source_company_name": "日東精工株式会社",
+        "filing_company_name": "日東精工株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XVV3",
+        "current_edinet_code": "E02296",
+        "current_corporate_number": "2130001041813"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XVV3",
+      "filed_on": "2026-03-31",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861442.2156029,
+      "pdf_sha256": "8cd13a1ed7c62a521d6d596b818e6dcbab4f89a3018d9e767edbe1509b4a98e8"
+    },
+    {
+      "symbol": "5990.T",
+      "identity": {
+        "symbol": "5990.T",
+        "code": "5990",
+        "name": "スーパーツール",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "レンチ、スパナ、プライヤー、配管工具などの作業工具と、工場や作業現場で使う治工具を製造・販売する。吊りクランプ、クレーン、マグネットなども製品に含み、国内外の販売代理店へ供給。グループのスーパーツールECOは太陽光パネルなどを仕入れ、販売と施工を行う。スーパーツール本体も太陽光発電設備を使った売電を手がけ、工具事業と環境関連事業を展開している。",
+      "proof": {
+        "code": "5990",
+        "exchange": "Tokyo",
+        "corporate_number": "1120101003608",
+        "edinet_code": "E01435",
+        "source_company_name": "株式会社スーパーツール",
+        "filing_company_name": "株式会社スーパーツール",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9PU",
+        "current_edinet_code": "E01435",
+        "current_corporate_number": "1120101003608"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9PU",
+      "filed_on": "2026-06-09",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861448.246748,
+      "pdf_sha256": "9e3cbfbb6be638b8e5e60b6831f18db41983748f299e700f118d7d0a91e706e2"
+    },
+    {
+      "symbol": "6038.T",
+      "identity": {
+        "symbol": "6038.T",
+        "code": "6038",
+        "name": "イード",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "専門分野のウェブメディアを運営し、広告やデータ・コンテンツの提供を通じて企業のマーケティングを支援する。グループでは通販サイト運営や通販業務の支援、金融機関向けの専門情報制作なども手がける。顧客企業向けにはネット調査、生活者の行動観察などの調査サービスと、通販サイトを構築する「marbleASP」を提供し、店舗との販売・ポイント連携にも対応する。",
+      "proof": {
+        "code": "6038",
+        "exchange": "Tokyo",
+        "corporate_number": "5011201013586",
+        "edinet_code": "E31343",
+        "source_company_name": "株式会社イード",
+        "filing_company_name": "株式会社イード",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z4I4",
+        "current_edinet_code": "E31343",
+        "current_corporate_number": "5011201013586"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z4I4",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861455.771024,
+      "pdf_sha256": "3072466bdaf783d6692dff9ec876dfe86890198a3d48bf6a0fd1f9754da0bb34"
+    },
+    {
+      "symbol": "6054.T",
+      "identity": {
+        "symbol": "6054.T",
+        "code": "6054",
+        "name": "リブセンス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "仕事探しや不動産取引に関するインターネットサービスを運営する。アルバイト求人の「マッハバイト」で採用を支援し、「転職会議」では企業の口コミや求人を掲載。「転職ドラフト」はITエンジニアに年収を示すスカウトや人材紹介を提供する。不動産の「IESHIL」は売買・賃貸履歴から価格や住環境情報を示し、子会社の専門アドバイザーによる相談とも連携している。",
+      "proof": {
+        "code": "6054",
+        "exchange": "Tokyo",
+        "corporate_number": "9011001063308",
+        "edinet_code": "E26032",
+        "source_company_name": "株式会社リブセンス",
+        "filing_company_name": "株式会社リブセンス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XSWS",
+        "current_edinet_code": "E26032",
+        "current_corporate_number": "9011001063308"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XSWS",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861461.774317,
+      "pdf_sha256": "0c7486392ed375991e8275d84825cb7d33b13087202b8c7ed20defdc5cd63033"
+    },
+    {
+      "symbol": "6069.T",
+      "identity": {
+        "symbol": "6069.T",
+        "code": "6069",
+        "name": "トレンダーズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループでSNSを使った企画を中心に、企業のマーケティングを支援する。Mimi BeautyやCARAFULなどと広告・販促の企画を行い、自由診療クリニック向けにも集客などのマーケティングを提供。子会社のしるし、ECのしるしは通販モールに特化した戦略づくりや運用代行を担う。これらのサービスに加え、トレンダーズ本体は社債や成長企業の株式取得による投資運用も手がけている。",
+      "proof": {
+        "code": "6069",
+        "exchange": "Tokyo",
+        "corporate_number": "7011001034194",
+        "edinet_code": "E26933",
+        "source_company_name": "トレンダーズ株式会社",
+        "filing_company_name": "トレンダーズ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YNGH",
+        "current_edinet_code": "E26933",
+        "current_corporate_number": "7011001034194"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YNGH",
+      "filed_on": "2026-06-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861469.361883,
+      "pdf_sha256": "b8f6c04a9c0d0278eda31c479754bf4426eb8bc088643cf1a2c98de5ca29cdd3"
+    },
+    {
+      "symbol": "6145.T",
+      "identity": {
+        "symbol": "6145.T",
+        "code": "6145",
+        "name": "NITTOKU",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子部品や自動車、家電などに使うコイルを巻く機械を中心に、グループで工場の自動化設備を開発・製造する。コイル・モーターの巻線機と周辺装置、組立ライン、フィルムや特殊なワイヤーの巻取り・搬送設備を販売し、保守も行う。海外各社を通じて製造、現地販売やメンテナンスに対応。別事業では日特コーセイが非接触ICタグ・カードを製造し、本体が販売している。",
+      "proof": {
+        "code": "6145",
+        "exchange": "Tokyo",
+        "corporate_number": "9030001006415",
+        "edinet_code": "E01981",
+        "source_company_name": "ＮＩＴＴＯＫＵ株式会社",
+        "filing_company_name": "NITTOKU株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKQX",
+        "current_edinet_code": "E01981",
+        "current_corporate_number": "9030001006415"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKQX",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861475.419699,
+      "pdf_sha256": "0ca725a7c5b3c08c6f7b723a4de8eb4ad3fde1a23dd2caaa2483ccd2b4ccc749"
+    },
+    {
+      "symbol": "6165.T",
+      "identity": {
+        "symbol": "6165.T",
+        "code": "6165",
+        "name": "パンチ工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車や家電などの製造に使う、プラスチック成形用・金属プレス用の金型部品をグループで製造・販売する。樹脂を金型へ流すスプルーブシュや、成形品を押し出すピン、プレス加工のパンチなどを供給。熱処理や研削を施す生産設備と協力工場を使い、カタログ品から顧客仕様の特注品まで対応する。国内に加え中国、東南アジアなどにも製造販売拠点を持つ。",
+      "proof": {
+        "code": "6165",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401054620",
+        "edinet_code": "E27063",
+        "source_company_name": "パンチ工業株式会社",
+        "filing_company_name": "パンチ工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE8P",
+        "current_edinet_code": "E27063",
+        "current_corporate_number": "7010401054620"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE8P",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861481.500996,
+      "pdf_sha256": "6706d1bfc6888e60260f165bb14adc134a4aa28405cc932f9a2d8c6fc928e527"
+    },
+    {
+      "symbol": "6178.T",
+      "identity": {
+        "symbol": "6178.T",
+        "code": "6178",
+        "name": "日本郵政",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "日本郵便、ゆうちょ銀行、かんぽ生命などの経営方針を定め、管理を行う持株会社。グループでは郵便や「ゆうパック」、企業の物流受託を手がけ、郵便局で郵便・貯金・保険などの窓口サービスを提供する。銀行の預金・決済や資産運用、生命保険の引受けに加え、Tollグループの国際輸送・倉庫管理、オフィスや住宅などの開発・賃貸も事業に含む。",
+      "proof": {
+        "code": "6178",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001112697",
+        "edinet_code": "E31748",
+        "source_company_name": "日本郵政株式会社",
+        "filing_company_name": "日本郵政株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE7T",
+        "current_edinet_code": "E31748",
+        "current_corporate_number": "5010001112697"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE7T",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861491.535131,
+      "pdf_sha256": "20649d48f455ea8776851ed7773d301e25bfd44b4da5608085502f5455952fcd"
+    },
+    {
+      "symbol": "6199.T",
+      "identity": {
+        "symbol": "6199.T",
+        "code": "6199",
+        "name": "セラク",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業向けにIT基盤の構築・運用や業務システムの開発を行う。グループの技術者が受託案件や顧客先での仕事に対応し、ネットワーク、サーバー、クラウドの監視・保守、営業支援などのクラウド利用定着を支援する。「みどりクラウド」では農業の環境データ収集・分析や作業記録を提供し、畜産向けの遠隔監視、青果の出荷業務支援、機械・金型の設計支援も手がける。",
+      "proof": {
+        "code": "6199",
+        "exchange": "Tokyo",
+        "corporate_number": "1011101032087",
+        "edinet_code": "E32397",
+        "source_company_name": "株式会社セラク",
+        "filing_company_name": "株式会社セラク",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X5OA",
+        "current_edinet_code": "E32397",
+        "current_corporate_number": "1011101032087"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X5OA",
+      "filed_on": "2025-11-20",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861497.8849869,
+      "pdf_sha256": "ffbe6afc7ce38bd0aa63b5ddae222b6290e244c476664af6eeb008a4f2091d98"
+    },
+    {
+      "symbol": "6203.T",
+      "identity": {
+        "symbol": "6203.T",
+        "code": "6203",
+        "name": "豊和工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工作機械、火器、清掃車両、建材を製造・販売する。工作機械ではマシニングセンタや専用機、空油圧機器を供給し、火器では小銃、迫撃砲、スポーツライフルを扱う。路面清掃車や床面の自動洗浄機に加え、アルミ・スチールのサッシやドア、防水板も製品に含む。グループ会社による鉄鋼などの販売、製品の荷造り・運送、土地・建物の賃貸も手がけている。",
+      "proof": {
+        "code": "6203",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001032621",
+        "edinet_code": "E01515",
+        "source_company_name": "豊和工業株式会社",
+        "filing_company_name": "豊和工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF38",
+        "current_edinet_code": "E01515",
+        "current_corporate_number": "7180001032621"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF38",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861505.589817,
+      "pdf_sha256": "3aaea3155c9a5f858a6d7e40a4d79d0173ca963a84c45c96e1f8eee5760dda34"
+    },
+    {
+      "symbol": "6224.T",
+      "identity": {
+        "symbol": "6224.T",
+        "code": "6224",
+        "name": "JRC",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "製鉄所、鉱山、発電所などで大量の物を運ぶ屋外ベルトコンベヤ向けに、ローラ、プーリ、ベルトクリーナなどを設計・製造する。グループのJRC E&Eなどは、ごみ処理・水処理や発電施設の搬送設備を設計し、製作、据付け、点検・保守まで対応。工場向けには産業用ロボットや周辺機器を組み合わせ、ライン設計、プログラム作成、導入時の調整などの自動化支援を行う。",
+      "proof": {
+        "code": "6224",
+        "exchange": "Tokyo",
+        "corporate_number": "2120001044197",
+        "edinet_code": "E38780",
+        "source_company_name": "株式会社ＪＲＣ",
+        "filing_company_name": "株式会社JRC",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y688",
+        "current_edinet_code": "E38780",
+        "current_corporate_number": "2120001044197"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y688",
+      "filed_on": "2026-05-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861511.43201,
+      "pdf_sha256": "05874732dd5a67e90bc6b1b78357318498a3fa977f92484637c82debee192357"
+    },
+    {
+      "symbol": "6247.T",
+      "identity": {
+        "symbol": "6247.T",
+        "code": "6247",
+        "name": "日阪製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "液体などの加熱・冷却に使うプレート式熱交換器を中心に、グループで機械・設備を製造し、設計なども行う。食品向けにはレトルト調理や殺菌、無菌米飯の製造設備を、医薬品向けには滅菌・濃縮・乾燥装置などを供給。繊維の染色・仕上げ機械、工場の流れを制御するボールバルブや衛生用途のバルブも扱い、食品、医療、化学、空調、発電などの分野に対応している。",
+      "proof": {
+        "code": "6247",
+        "exchange": "Tokyo",
+        "corporate_number": "1120001087750",
+        "edinet_code": "E01643",
+        "source_company_name": "株式会社日阪製作所",
+        "filing_company_name": "株式会社日阪製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJL5",
+        "current_edinet_code": "E01643",
+        "current_corporate_number": "1120001087750"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJL5",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861519.240316,
+      "pdf_sha256": "374be295706e227ab381149a7df5846d5c3fb8e05b5ab0761e34476a2480e0e8"
+    },
+    {
+      "symbol": "6287.T",
+      "identity": {
+        "symbol": "6287.T",
+        "code": "6287",
+        "name": "サトー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ラベルの印字や貼付けなど、物品を識別するための機器と消耗品をグループで製造・販売する。電子プリンター、ラベルを自動で貼る機械、ハンドラベラーに加え、ICタグやラベル、チケット、リボン、インクを供給。ソフトウェアや保守サービスも提供し、医療分野の識別業務を支援する子会社を持つ。国内のほか米州、欧州、アジアなどで製造と販売を展開している。",
+      "proof": {
+        "code": "6287",
+        "exchange": "Tokyo",
+        "corporate_number": "7013201017276",
+        "edinet_code": "E01685",
+        "source_company_name": "株式会社サトー",
+        "filing_company_name": "株式会社サトー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE10",
+        "current_edinet_code": "E01685",
+        "current_corporate_number": "7013201017276"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE10",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861527.9854279,
+      "pdf_sha256": "38378eb6da3d18aeaf885624515e0076fbc2984110a694f502dbd8b80eb9bbad"
+    },
+    {
+      "symbol": "6301.T",
+      "identity": {
+        "symbol": "6301.T",
+        "code": "6301",
+        "name": "小松製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "建設や鉱山、林業で使う機械をグループで開発・製造し、販売とサービスを行う。油圧ショベル、ブルドーザー、ダンプトラック、林業機械などに加え、無人ダンプの運行管理や建設現場向けのシステムを提供する。購入時の金融やリースにも対応。産業機械ではプレス、工作機械、レーザー加工機、半導体露光装置用のエキシマレーザーなどを国内外へ供給している。",
+      "proof": {
+        "code": "6301",
+        "exchange": "Tokyo",
+        "corporate_number": "1010401010455",
+        "edinet_code": "E01532",
+        "source_company_name": "株式会社小松製作所",
+        "filing_company_name": "株式会社小松製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD25",
+        "current_edinet_code": "E01532",
+        "current_corporate_number": "1010401010455"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD25",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861534.120173,
+      "pdf_sha256": "c6a17a52612bbcb7321516b010b05e503a63a7b55acb89121e49687737ebb6db"
+    },
+    {
+      "symbol": "6309.T",
+      "identity": {
+        "symbol": "6309.T",
+        "code": "6309",
+        "name": "巴工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "遠心分離機などを作る機械事業と、化学品・産業材料を仕入れて販売する商社事業を展開する。グループで分離機の製造、部品加工、納入後の保守を行い、化学・食品の工場や下水処理場などに対応。商社事業では合成樹脂、建設・自動車・鉄鋼向けの無機材料、塗料や接着剤向けの原料、半導体工程で使うセラミックなどを販売する。中国や東南アジア、欧州などにも営業拠点を持つ。",
+      "proof": {
+        "code": "6309",
+        "exchange": "Tokyo",
+        "corporate_number": "2010701018429",
+        "edinet_code": "E01705",
+        "source_company_name": "巴工業株式会社",
+        "filing_company_name": "巴工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XHQ6",
+        "current_edinet_code": "E01705",
+        "current_corporate_number": "2010701018429"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XHQ6",
+      "filed_on": "2026-01-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861540.2034009,
+      "pdf_sha256": "e8ff49b7ec17a47298b263c24d4f156e7dcc8d7a6bfe7de6e3766c5f1d8b2618"
+    },
+    {
+      "symbol": "6335.T",
+      "identity": {
+        "symbol": "6335.T",
+        "code": "6335",
+        "name": "東京機械製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "新聞社や新聞印刷の受託会社向けに輪転機を製造・販売し、印刷を制御するシステムや保守サービスを提供する。子会社KKSは新聞の発送設備など、印刷機械に付随する装置を製造販売。新たな分野では工場や倉庫の自動搬送ロボットの開発・提供に取り組み、加工組立事業でも電池製造機械の関連部品を受注する。食品向け昇降リフターの設計・製造受託も手がけている。",
+      "proof": {
+        "code": "6335",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401020496",
+        "edinet_code": "E01539",
+        "source_company_name": "株式会社東京機械製作所",
+        "filing_company_name": "株式会社東京機械製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI7P",
+        "current_edinet_code": "E01539",
+        "current_corporate_number": "9010401020496"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI7P",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861546.098177,
+      "pdf_sha256": "9a5aef64f1bc5d332c607949740a65a79e13ce169086f9db701ce26cf95a5d0e"
+    },
+    {
+      "symbol": "6343.T",
+      "identity": {
+        "symbol": "6343.T",
+        "code": "6343",
+        "name": "フリージア・マクロス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "樹脂を成形する押出機や土木試験機を製造・販売し、グループではプリント基板、紙・アルミの食品容器、地中掘削用の機械も扱う。住宅関連ではフリージアハウスがログハウスやスウェーデン住宅、マンションの企画・設計・施工・販売を担い、防蟻・防水などの工事も展開。不動産の売買・賃貸・管理に加え、投資先の再生支援、パソコン周辺機器や部品、ソフトの仕入販売も行う。",
+      "proof": {
+        "code": "6343",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001000012",
+        "edinet_code": "E01620",
+        "source_company_name": "フリージア・マクロス株式会社",
+        "filing_company_name": "フリージア・マクロス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIIQ",
+        "current_edinet_code": "E01620",
+        "current_corporate_number": "3010001000012"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIIQ",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861552.163954,
+      "pdf_sha256": "a285f9bbfbcccfa5b030d755c6ac028cc1fba3da4bd5b0f1b1a762643d5d9efc"
+    },
+    {
+      "symbol": "6361.T",
+      "identity": {
+        "symbol": "6361.T",
+        "code": "6361",
+        "name": "荏原製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ポンプを中心に、グループで機械やプラントの製造・販売、設置、運転・保守を行う。建物や産業設備向けの給水・水中ポンプ、冷熱機器、石油・ガス向けの圧縮機やタービン、水インフラの排水・上下水道ポンプを供給。ごみ焼却や水処理施設の設計・工事・運営にも対応する。半導体の製造工程では真空ポンプ、CMP装置、めっき装置、排ガスの処理装置などを扱う。",
+      "proof": {
+        "code": "6361",
+        "exchange": "Tokyo",
+        "corporate_number": "1010801001748",
+        "edinet_code": "E01542",
+        "source_company_name": "株式会社荏原製作所",
+        "filing_company_name": "株式会社荏原製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XS6E",
+        "current_edinet_code": "E01542",
+        "current_corporate_number": "1010801001748"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XS6E",
+      "filed_on": "2026-03-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861559.7366312,
+      "pdf_sha256": "037bb7b11d58f7155c4641f699aeaeaef8f95be2b4510ddca3bd92388aedc102"
+    },
+    {
+      "symbol": "6378.T",
+      "identity": {
+        "symbol": "6378.T",
+        "code": "6378",
+        "name": "木村化工機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "蒸発・蒸留・晶析などの化学プロセスに使う装置や圧力容器、配管設備を設計・製作し、据付け工事も行う。既存プラントの撤去、機械の設置、配管、保温、試運転の調整から保守工事まで受注。エネルギー・環境分野では核燃料の輸送容器や格納設備、濃縮関連機器、放射性廃棄物の処理装置、遮蔽・実験設備を供給する。子会社フォレコも同分野の製品製造や工事に携わる。",
+      "proof": {
+        "code": "6378",
+        "exchange": "Tokyo",
+        "corporate_number": "7140001048448",
+        "edinet_code": "E01546",
+        "source_company_name": "木村化工機株式会社",
+        "filing_company_name": "木村化工機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF9Q",
+        "current_edinet_code": "E01546",
+        "current_corporate_number": "7140001048448"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF9Q",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861565.702771,
+      "pdf_sha256": "0433d7c3cbed057db4df21d34e490f5bdf1581bf4dec3ba7d31c172451cb7794"
+    },
+    {
+      "symbol": "6392.T",
+      "identity": {
+        "symbol": "6392.T",
+        "code": "6392",
+        "name": "ヤマダコーポレーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "油やグリースなどの流体を送り出すポンプと周辺機器を製造・販売する。車両整備工場やガソリンスタンド向けには給油・給脂機器、タイヤ整備機器、排気ガスの排出設備などを供給。産業向けには塗料、接着剤、インク、化学薬品を圧送するエアポンプやダイアフラム式ポンプやシステムを扱う。グループで部品の販売や修理を行い、米国、欧州、中国、タイの現地法人を通じて海外にも販売する。",
+      "proof": {
+        "code": "6392",
+        "exchange": "Tokyo",
+        "corporate_number": "9010801012135",
+        "edinet_code": "E02180",
+        "source_company_name": "株式会社ヤマダコーポレーション",
+        "filing_company_name": "株式会社ヤマダコーポレーション",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJDP",
+        "current_edinet_code": "E02180",
+        "current_corporate_number": "9010801012135"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJDP",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861571.749949,
+      "pdf_sha256": "14517b2349750a57858f2e246c48a02e7f560a64fd24507f6290ce2f462b937d"
+    },
+    {
+      "symbol": "6396.T",
+      "identity": {
+        "symbol": "6396.T",
+        "code": "6396",
+        "name": "宇野澤組鐵工所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "生産や研究開発の装置向けに、真空ポンプ、送風機、圧縮機、空気力を使う輸送装置などを製造・販売する。主力のドライ真空ポンプなどを国内やアジア、欧州、米州へ供給し、修理も手がける。原材料を仕入れ、社内で機械加工から組立て、検査まで行って顧客へ販売。機械事業と並行して、保有するビルや駐車場の賃貸・管理を行う不動産事業も展開している。",
+      "proof": {
+        "code": "6396",
+        "exchange": "Tokyo",
+        "corporate_number": "4011001003103",
+        "edinet_code": "E01635",
+        "source_company_name": "株式会社宇野澤組鐵工所",
+        "filing_company_name": "株式会社宇野澤組鐵工所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF8O",
+        "current_edinet_code": "E01635",
+        "current_corporate_number": "4011001003103"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF8O",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861577.7585988,
+      "pdf_sha256": "52055ea96e0559171b09de6e64cbed22489fbb4b49c7449dedc7a35e717d5643"
+    },
+    {
+      "symbol": "6436.T",
+      "identity": {
+        "symbol": "6436.T",
+        "code": "6436",
+        "name": "アマノ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "勤怠や給与計算のシステム、タイムレコーダー、駐車場の管理機器をグループで製造・販売する。駐車場の運営管理も受託し、情報処理や機器の保守を提供。環境分野では工場の粉じんを集める装置、粉粒体の空気輸送、有害ガスの除去や脱臭の設備、清掃機器、電解水生成装置を扱う。作業環境の測定・相談や設備の設計・施工にも対応し、国内外で事業を展開している。",
+      "proof": {
+        "code": "6436",
+        "exchange": "Tokyo",
+        "corporate_number": "3020001019365",
+        "edinet_code": "E01590",
+        "source_company_name": "アマノ株式会社",
+        "filing_company_name": "アマノ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJFL",
+        "current_edinet_code": "E01590",
+        "current_corporate_number": "3020001019365"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJFL",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861583.835001,
+      "pdf_sha256": "6a445144f66b11bd84bf1394be7a39bf0bf1b945b4b4a71cb38a36f9c9ee0314"
+    },
+    {
+      "symbol": "6454.T",
+      "identity": {
+        "symbol": "6454.T",
+        "code": "6454",
+        "name": "マックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ホッチキスなどの事務用品と、建設・住宅関連の機器をグループで製造・販売する。事務分野ではタイムレコーダー、文字表示機器、自動でホチキス留めする機械を展開。産業分野では釘打機、エアコンプレッサ、鉄筋を結ぶ機械、充電工具を扱い、浴室の暖房・換気・乾燥機や住宅の換気設備も供給する。カワムラサイクルの車いす事業に加え、製品の物流、修理などのサービスも行う。",
+      "proof": {
+        "code": "6454",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001057739",
+        "edinet_code": "E02381",
+        "source_company_name": "マックス株式会社",
+        "filing_company_name": "マックス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHEY",
+        "current_edinet_code": "E02381",
+        "current_corporate_number": "2010001057739"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHEY",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861589.938497,
+      "pdf_sha256": "51c8c693ef18a7fad8bb5d270dbd9fe25440495b459c78e4d3957347e7499a60"
+    },
+    {
+      "symbol": "646A.T",
+      "identity": {
+        "symbol": "646A.T",
+        "code": "646A",
+        "name": "クラサスケミカル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "大分の石油化学コンビナートで、ナフサなどを原料にエチレン、プロピレン、ブタジエンなどの基礎化学品を製造する。同じコンビナートの企業へパイプラインで原料を供給し、酢酸ビニル、酢酸エチル、高純度アリルアルコールなどの誘導品は国内外へ販売。子会社サンアロマーは、自動車部品や食品容器、包装フィルムなどに使うポリプロピレンを製造販売している。",
+      "proof": {
+        "code": "646A",
+        "exchange": "Tokyo",
+        "corporate_number": "5320001020638",
+        "edinet_code": "E42126",
+        "source_company_name": "クラサスケミカル株式会社",
+        "filing_company_name": "クラサスケミカル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z0VF",
+        "current_edinet_code": "E42126",
+        "current_corporate_number": "5320001020638"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z0VF",
+      "filed_on": "2026-09-07",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861597.425367,
+      "pdf_sha256": "04c5b9138452104f754678ad616bbbd2fa53074d94b43c18cd879a39ef8177ff"
+    },
+    {
+      "symbol": "6481.T",
+      "identity": {
+        "symbol": "6481.T",
+        "code": "6481",
+        "name": "THK",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "機械の直線運動を支える直動システムなどの部品や産業機械を、グループで製造・販売する。転がりを利用して動きの摩擦を抑える部品を、工作機械や半導体を製造する装置、産業用ロボットのメーカーへ供給。精密な位置決めを要する機械に加え、アミューズメント機器や建物の免震・制震設備にも使われる。国内の顧客や代理店への販売と、米州、欧州、中国などでの製造販売を展開している。",
+      "proof": {
+        "code": "6481",
+        "exchange": "Tokyo",
+        "corporate_number": "3010701006176",
+        "edinet_code": "E01678",
+        "source_company_name": "ＴＨＫ株式会社",
+        "filing_company_name": "THK株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XRWN",
+        "current_edinet_code": "E01678",
+        "current_corporate_number": "3010701006176"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XRWN",
+      "filed_on": "2026-03-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861603.435178,
+      "pdf_sha256": "0a42e75df33e5cceed63811250dc0b236f3ca256dea49974e21e96581d527985"
+    },
+    {
+      "symbol": "6503.T",
+      "identity": {
+        "symbol": "6503.T",
+        "code": "6503",
+        "name": "三菱電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで電気・電子機器やシステムを開発・製造し、販売、設置、保守を行う。鉄道用機器や電力の設備、工場のFA制御機器、自動車向け機器を供給するほか、エレベーター・エスカレーター、空調設備、家電などを展開。IT分野では情報システムの構築、データセンターやネットワーク関連のサービスを提供し、電子機器向けのパワーデバイスや高周波・光デバイスも扱う。",
+      "proof": {
+        "code": "6503",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001008772",
+        "edinet_code": "E01739",
+        "source_company_name": "三菱電機株式会社",
+        "filing_company_name": "三菱電機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD3V",
+        "current_edinet_code": "E01739",
+        "current_corporate_number": "4010001008772"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD3V",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861609.6826649,
+      "pdf_sha256": "afe642697e692801798ff993821292a7930b692c9e99c7d0ea5b0fc42c8213bb"
+    },
+    {
+      "symbol": "6516.T",
+      "identity": {
+        "symbol": "6516.T",
+        "code": "6516",
+        "name": "山洋電気",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "冷却ファン、電源装置、モーターとその制御機器をグループで設計・製造する。ファンはネットワークや生成AI関連の機器などを冷却し、電源機器はサーバー、社会インフラ、再生可能エネルギーの設備などに使われる。サーボモーターやステッピングモーター、サーボアンプ、ドライバは工作機械や半導体製造装置などへ供給。国内と海外の製造・販売会社を組み合わせて製品を販売する。",
+      "proof": {
+        "code": "6516",
+        "exchange": "Tokyo",
+        "corporate_number": "1013301004808",
+        "edinet_code": "E01806",
+        "source_company_name": "山洋電気株式会社",
+        "filing_company_name": "山洋電気株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCEQ",
+        "current_edinet_code": "E01806",
+        "current_corporate_number": "1013301004808"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCEQ",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861617.031772,
+      "pdf_sha256": "6d0b884bd3d389234c571196a5299d225bdea1120078409a627f9350a3e4a3d4"
+    },
+    {
+      "symbol": "6532.T",
+      "identity": {
+        "symbol": "6532.T",
+        "code": "6532",
+        "name": "ベイカレント",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "コンサルティングとITサービスの子会社を持つ持株会社。グループで国内の大手企業などに対し、全社・事業戦略の立案、デジタル技術を使う業務運営の見直し、経営課題を解くための企画や実行を支援する。業界ごとの固定的な組織に限定せず、案件に必要な知識や経験を持つコンサルタントを組み合わせてチームを編成。本体は子会社にバックオフィスのサービスも提供している。",
+      "proof": {
+        "code": "6532",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401111553",
+        "edinet_code": "E32549",
+        "source_company_name": "株式会社ベイカレント",
+        "filing_company_name": "株式会社ベイカレント",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y69G",
+        "current_edinet_code": "E32549",
+        "current_corporate_number": "7010401111553"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y69G",
+      "filed_on": "2026-05-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861623.062391,
+      "pdf_sha256": "12441f5835a1b69045cc71f3a79d990e2ea42395d1296b8fecb0608ed289c232"
+    },
+    {
+      "symbol": "6543.T",
+      "identity": {
+        "symbol": "6543.T",
+        "code": "6543",
+        "name": "日宣",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "放送・通信、住宅、医療などの企業と直接取引し、広告や販売促進を企画・制作する。テレビ、新聞、ネットなどの媒体を選び、映像、ウェブ、カタログ、イベント、展示空間などを組み合わせて提供。ケーブルテレビ向けには月刊の番組情報誌を制作し、住宅メーカーの販促や製薬会社の学会・患者向け啓発も支援する。子会社アスティは都心の高級マンションなどの広告を手がける。",
+      "proof": {
+        "code": "6543",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001071429",
+        "edinet_code": "E32951",
+        "source_company_name": "株式会社日宣",
+        "filing_company_name": "株式会社日宣",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6L2",
+        "current_edinet_code": "E32951",
+        "current_corporate_number": "8010001071429"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6L2",
+      "filed_on": "2026-05-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861629.151762,
+      "pdf_sha256": "03fa4eb32860324c5e6470720710a475a6cd7776d022f864730d08dcf06a88db"
+    },
+    {
+      "symbol": "6568.T",
+      "identity": {
+        "symbol": "6568.T",
+        "code": "6568",
+        "name": "神戸天然物化学",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "医薬品や電子材料などを開発する企業向けに、有機化合物の合成と製造を受託する。研究段階の少量サンプルから、開発用の試作品、量産向けの製造方法の検討、販売用の製品や中間体の製造まで対応。表示材料、半導体向け化学品、医薬原薬、治験用原薬などを扱う。有機合成の方法や純度・収率、工場での生産条件を検討し、顧客の開発段階に応じた製品供給と技術支援を行う。",
+      "proof": {
+        "code": "6568",
+        "exchange": "Tokyo",
+        "corporate_number": "3140001022497",
+        "edinet_code": "E33794",
+        "source_company_name": "神戸天然物化学株式会社",
+        "filing_company_name": "神戸天然物化学株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YACF",
+        "current_edinet_code": "E33794",
+        "current_corporate_number": "3140001022497"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YACF",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861635.102849,
+      "pdf_sha256": "fc70e72f6782880c619c5d2a4b2c4ec15909131bacc2b05acb40359d8232c87e"
+    },
+    {
+      "symbol": "6594.T",
+      "identity": {
+        "symbol": "6594.T",
+        "code": "6594",
+        "name": "ニデック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで精密小型モーターや車載製品、家電・産業向けの機器を製造・販売する。HDD用モーターなどの小型製品に加え、自動車の駆動用モーターシステム、電動パワーステアリングやブレーキのモーターを供給。機械分野ではニデックマシンツールなどが工作機械や装置を手がけ、電子・光学部品も扱う。本体と国内外の子会社が製造や販売を分担し、各用途の顧客へ製品を提供している。",
+      "proof": {
+        "code": "6594",
+        "exchange": "Tokyo",
+        "corporate_number": "9130001002387",
+        "edinet_code": "E01975",
+        "source_company_name": "ニデック株式会社",
+        "filing_company_name": "ニデック株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z5CA",
+        "current_edinet_code": "E01975",
+        "current_corporate_number": "9130001002387"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z5CA",
+      "filed_on": "2026-09-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861642.987214,
+      "pdf_sha256": "2618cee153cba93b0eb03d2c8200182b04c856efe32fc078d87f8e18d24ea4a3"
+    },
+    {
+      "symbol": "6616.T",
+      "identity": {
+        "symbol": "6616.T",
+        "code": "6616",
+        "name": "トレックス・セミコンダクター",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子機器の電圧・電流を制御するアナログICを開発し、グループで製造・販売する。電圧を変えるDC/DCコンバータ、一定に保つレギュレータ、電圧を検出するICなどを、スマートフォン、車載機器、産業機器などへ供給。企画・設計を自社で行い、製造は外部への委託を活用する一方、子会社がウェハ加工やパッケージの組立てを一部担う。小型化と低消費電力の技術を軸に製品を展開する。",
+      "proof": {
+        "code": "6616",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001079907",
+        "edinet_code": "E30479",
+        "source_company_name": "トレックス・セミコンダクター株式会社",
+        "filing_company_name": "トレックス・セミコンダクター株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFAJ",
+        "current_edinet_code": "E30479",
+        "current_corporate_number": "2010001079907"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFAJ",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861649.0153658,
+      "pdf_sha256": "0161782996aff5be718ac26669589a9358ec78d9f7832e29712c6b9e5fec04f1"
+    },
+    {
+      "symbol": "6626.T",
+      "identity": {
+        "symbol": "6626.T",
+        "code": "6626",
+        "name": "SEMITEC",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "温度センサーを中心に、センサー素子や組み立てたセンサー製品をグループで製造・販売する。薄膜サーミスタの生産設備を持ち、国内の千葉工場で製造や研究開発を行う。海外ではフィリピンなどが素子を製造し、中国やタイ、ベトナム、インドなどの会社が組立てや製造・販売を分担。国内・欧州向けの販売に加え、米国、中国・東アジア、韓国や東南アジアの販売会社を通じて顧客に供給する。",
+      "proof": {
+        "code": "6626",
+        "exchange": "Tokyo",
+        "corporate_number": "5010601008733",
+        "edinet_code": "E25386",
+        "source_company_name": "ＳＥＭＩＴＥＣ株式会社",
+        "filing_company_name": "SEMITEC株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ3G",
+        "current_edinet_code": "E25386",
+        "current_corporate_number": "5010601008733"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ3G",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861655.01828,
+      "pdf_sha256": "4e4504d2862dd3029ed8ab5e43f3d4ec04ef5c8541dd10aa4436b240d23b305b"
+    },
+    {
+      "symbol": "6638.T",
+      "identity": {
+        "symbol": "6638.T",
+        "code": "6638",
+        "name": "ミマキエンジニアリング",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "看板、工業製品、衣類などへ印刷する産業用インクジェットプリンターとインク、カッティング装置をグループで開発・製造する。大型ポスターや車両ラッピング、記念品、操作パネル、生地などの製作に使う機器を販売し、保守も提供。UVインクを使う装置や立体物を作る3Dプリンターも扱う。アルファーデザインなどのグループ会社は工場の自動化、基板の実装・検査装置などを手がける。",
+      "proof": {
+        "code": "6638",
+        "exchange": "Tokyo",
+        "corporate_number": "5100001010883",
+        "edinet_code": "E02114",
+        "source_company_name": "株式会社ミマキエンジニアリング",
+        "filing_company_name": "株式会社ミマキエンジニアリング",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCRC",
+        "current_edinet_code": "E02114",
+        "current_corporate_number": "5100001010883"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCRC",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861661.111778,
+      "pdf_sha256": "127a1bf3b2ad6477a0658ea4852cdd11013db4e45257efa4c71cf1245b078cdb"
+    },
+    {
+      "symbol": "6645.T",
+      "identity": {
+        "symbol": "6645.T",
+        "code": "6645",
+        "name": "オムロン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループで工場の自動化機器、健康機器、社会インフラの設備やサービスを提供する。工場向けには制御装置、センサー、画像検査装置、産業用ロボットを供給し、家庭や医療向けには血圧計、体温計、ネブライザなどを展開。太陽光発電用の電力変換や蓄電システム、自動改札、交通管理設備も扱い、設計から運用・保守まで対応する。JMDCなどを通じた医療データのサービスも事業に含む。",
+      "proof": {
+        "code": "6645",
+        "exchange": "Tokyo",
+        "corporate_number": "1130001016824",
+        "edinet_code": "E01755",
+        "source_company_name": "オムロン株式会社",
+        "filing_company_name": "オムロン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YG81",
+        "current_edinet_code": "E01755",
+        "current_corporate_number": "1130001016824"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YG81",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861667.203514,
+      "pdf_sha256": "5a34953ec1b54eb0ad85e359e831e1c85eb50edeccaad5d4e8b3b9263ec30547"
+    },
+    {
+      "symbol": "6666.T",
+      "identity": {
+        "symbol": "6666.T",
+        "code": "6666",
+        "name": "リバーエレテック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子機器のタイミングや周波数の基準となる、水晶振動子と水晶発振器をグループで製造・販売する。スマートフォンやパソコン、IoTの無線モジュール、自動車向け機器、データセンターなどで使われる部品を供給。発振器は振動子と発振回路を組み合わせた製品で、用途や設計に応じて提供する。本体が主に研究開発と販売、青森や中国の子会社が製造を担い、台湾やシンガポールの会社も販売する。",
+      "proof": {
+        "code": "6666",
+        "exchange": "Tokyo",
+        "corporate_number": "4090001011240",
+        "edinet_code": "E02093",
+        "source_company_name": "リバーエレテック株式会社",
+        "filing_company_name": "リバーエレテック株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ84",
+        "current_edinet_code": "E02093",
+        "current_corporate_number": "4090001011240"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ84",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861673.132616,
+      "pdf_sha256": "f499216c8fdb478754331efd3f72cf28f8d02d984270e2eaecc0caa2b8df9ca4"
+    },
+    {
+      "symbol": "6701.T",
+      "identity": {
+        "symbol": "6701.T",
+        "code": "6701",
+        "name": "日本電気",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や社会インフラ向けに、ITシステムや通信機器、関連サービスをグループで提供する。IT分野ではシステムの構築・相談、ソフトウェアや機器の供給、クラウド、運用受託、保守を展開。通信分野では基幹ネットワーク、携帯電話基地局、光伝送の設備と通信事業者向けソフトを扱う。航空宇宙、防衛、海洋のシステムも供給し、本体と国内外の関係会社が設計・開発・製造・販売を分担する。",
+      "proof": {
+        "code": "6701",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401022916",
+        "edinet_code": "E01765",
+        "source_company_name": "日本電気株式会社",
+        "filing_company_name": "日本電気株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBFV",
+        "current_edinet_code": "E01765",
+        "current_corporate_number": "7010401022916"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBFV",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791861679.310903,
+      "pdf_sha256": "51d42925ff27f468d1b97bc34cec59be74c3d490631ade3cf748894a6284e2e0"
     }
   ]
 }
