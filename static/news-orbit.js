@@ -1,7 +1,7 @@
 /* Selected champagne orbit header. No account, market, or intro state changes. */
 (function(){
   'use strict';
-  var markup="<div class=\"kn-news-orbit\"><div class=\"kn-orbit-scene\" role=\"group\" aria-label=\"シャンパンのコイン・新聞・株価グラフが、やわらかな地球の周りを等間隔で巡るアニメーション\">\n<div class=\"kn-orbit-globe-halo\"></div><div class=\"kn-orbit-globe-orbit kn-orbit-orbit-back\"><span class=\"kn-orbit-ring-light\" aria-hidden=\"true\"></span></div><div class=\"kn-orbit-world-shadow\" data-knsoft=\"1\"></div>\n<img class=\"kn-orbit-globe kn-orbit-illustrated-earth\" src=\"/static/news-orbit/earth.webp\" alt=\"\" width=\"512\" height=\"512\" decoding=\"async\">\n<div class=\"kn-orbit-globe-orbit kn-orbit-orbit-front\"><span class=\"kn-orbit-ring-light\" aria-hidden=\"true\"></span></div>\n<div class=\"kn-orbit-news-orbiter kn-orbit-orbiter-one kn-orbit-orbiter-newspaper\"><button type=\"button\" class=\"kn-orbit-shortcut kn-orbit-news-shortcut\" aria-label=\"経済ニュース・企業ニュースを選ぶ\" aria-haspopup=\"dialog\" aria-controls=\"knOrbitNewsMenu\"><span class=\"kn-orbit-shortcut-art\" aria-hidden=\"true\"><img src=\"/static/news-orbit/newspaper.webp\" width=\"256\" height=\"256\" decoding=\"async\" alt=\"\"></span></button></div>\n<div class=\"kn-orbit-news-orbiter kn-orbit-orbiter-two kn-orbit-orbiter-coin\"><button type=\"button\" class=\"kn-orbit-guide\" aria-label=\"はじめてガイドを開く\" aria-controls=\"bgModal\"><span class=\"kn-orbit-coin-face\" aria-hidden=\"true\"><img class=\"kn-orbit-coordinated-coin\" src=\"/static/news-orbit/coin.webp\" width=\"192\" height=\"192\" decoding=\"async\" alt=\"\"><span class=\"kn-orbit-coin-question\">?</span></span></button></div>\n<div class=\"kn-orbit-news-orbiter kn-orbit-orbiter-three kn-orbit-orbiter-market\"><button type=\"button\" class=\"kn-orbit-shortcut kn-orbit-rank-shortcut\" aria-label=\"今日の銘柄のランキングへ\"><div class=\"kn-orbit-market-tile kn-orbit-tile-bars\" aria-hidden=\"true\"><svg viewBox=\"0 0 56 40\"><defs><linearGradient id=\"area-kn-home-orbit\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"var(--kn-orbit-chart-line)\" stop-opacity=\".30\"/><stop offset=\"1\" stop-color=\"var(--kn-orbit-chart-line)\" stop-opacity=\".01\"/></linearGradient><linearGradient id=\"bar-kn-home-orbit\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"var(--kn-orbit-chart-bar-light)\"/><stop offset=\"1\" stop-color=\"var(--kn-orbit-chart-bar)\"/></linearGradient></defs><path class=\"kn-orbit-chart-grid\" d=\"M7 12H49M7 22H49M7 32H49\"/><path class=\"kn-orbit-chart-axis\" d=\"M6 8V34H50\"/><rect x=\"12\" y=\"23\" width=\"6\" height=\"10\" rx=\"1.4\" fill=\"url(#bar-kn-home-orbit)\"/><rect x=\"24\" y=\"15\" width=\"6\" height=\"18\" rx=\"1.4\" fill=\"url(#bar-kn-home-orbit)\"/><rect x=\"36\" y=\"9\" width=\"6\" height=\"24\" rx=\"1.4\" fill=\"url(#bar-kn-home-orbit)\"/><path class=\"kn-orbit-chart-bar-shine\" d=\"M13.5 25V30M25.5 17V30M37.5 11V30\"/><path class=\"kn-orbit-chart-trace\" d=\"M9 21L20 17L28 20L39 10L48 13\"/><circle class=\"kn-orbit-chart-dot\" cx=\"48\" cy=\"13\" r=\"1.6\"/></svg></div></button></div>\n</div></div>";
+  var markup="<div class=\"kn-news-orbit\"><div class=\"kn-orbit-scene\" role=\"group\" aria-label=\"シャンパンのコイン・新聞・株価グラフが、やわらかな地球の周りを等間隔で巡るアニメーション\">\n<div class=\"kn-orbit-globe-halo\"></div><div class=\"kn-orbit-globe-orbit kn-orbit-orbit-back\"><span class=\"kn-orbit-ring-light\" aria-hidden=\"true\"></span></div><div class=\"kn-orbit-world-shadow\" data-knsoft=\"1\"></div>\n<img class=\"kn-orbit-globe kn-orbit-illustrated-earth\" src=\"/static/news-orbit/earth.webp\" alt=\"\" width=\"512\" height=\"512\" decoding=\"async\">\n<div class=\"kn-orbit-globe-orbit kn-orbit-orbit-front\"><span class=\"kn-orbit-ring-light\" aria-hidden=\"true\"></span></div>\n<div class=\"kn-orbit-news-orbiter kn-orbit-orbiter-one kn-orbit-orbiter-newspaper\"><button type=\"button\" class=\"kn-orbit-shortcut kn-orbit-news-shortcut\" aria-label=\"経済ニュース・企業ニュースを選ぶ\" aria-haspopup=\"dialog\" aria-controls=\"knOrbitNewsMenu\"><span class=\"kn-orbit-shortcut-art\" aria-hidden=\"true\"><img src=\"/static/news-orbit/newspaper.webp\" width=\"256\" height=\"256\" decoding=\"async\" alt=\"\"></span></button></div>\n<div class=\"kn-orbit-news-orbiter kn-orbit-orbiter-two kn-orbit-orbiter-coin\"><button type=\"button\" class=\"kn-orbit-guide\" aria-label=\"はじめてガイドを開く\" aria-controls=\"bgModal\"><span class=\"kn-orbit-coin-face\" aria-hidden=\"true\"><img class=\"kn-orbit-coordinated-coin\" src=\"/static/news-orbit/coin.webp\" width=\"192\" height=\"192\" decoding=\"async\" alt=\"\"><span class=\"kn-orbit-coin-question\">?</span></span></button></div>\n<div class=\"kn-orbit-news-orbiter kn-orbit-orbiter-three kn-orbit-orbiter-market\"><button type=\"button\" class=\"kn-orbit-shortcut kn-orbit-rank-shortcut\" aria-label=\"経済ニュースへ\"><div class=\"kn-orbit-market-tile kn-orbit-tile-bars\" aria-hidden=\"true\"><svg viewBox=\"0 0 56 40\"><defs><linearGradient id=\"area-kn-home-orbit\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"var(--kn-orbit-chart-line)\" stop-opacity=\".30\"/><stop offset=\"1\" stop-color=\"var(--kn-orbit-chart-line)\" stop-opacity=\".01\"/></linearGradient><linearGradient id=\"bar-kn-home-orbit\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\"><stop stop-color=\"var(--kn-orbit-chart-bar-light)\"/><stop offset=\"1\" stop-color=\"var(--kn-orbit-chart-bar)\"/></linearGradient></defs><path class=\"kn-orbit-chart-grid\" d=\"M7 12H49M7 22H49M7 32H49\"/><path class=\"kn-orbit-chart-axis\" d=\"M6 8V34H50\"/><rect x=\"12\" y=\"23\" width=\"6\" height=\"10\" rx=\"1.4\" fill=\"url(#bar-kn-home-orbit)\"/><rect x=\"24\" y=\"15\" width=\"6\" height=\"18\" rx=\"1.4\" fill=\"url(#bar-kn-home-orbit)\"/><rect x=\"36\" y=\"9\" width=\"6\" height=\"24\" rx=\"1.4\" fill=\"url(#bar-kn-home-orbit)\"/><path class=\"kn-orbit-chart-bar-shine\" d=\"M13.5 25V30M25.5 17V30M37.5 11V30\"/><path class=\"kn-orbit-chart-trace\" d=\"M9 21L20 17L28 20L39 10L48 13\"/><circle class=\"kn-orbit-chart-dot\" cx=\"48\" cy=\"13\" r=\"1.6\"/></svg></div></button></div>\n</div></div>";
   var labels={ja:['動きを止める','動きを再生','地球の周りを、コイン・新聞・株価グラフが巡るアニメーション'],en:['Pause animation','Play animation','A coin, newspaper and stock chart orbit the Earth'],ko:['애니메이션 일시 정지','애니메이션 재생','지구 주위를 도는 동전, 신문 및 주식 차트'],zh:['暂停动画','播放动画','硬币、报纸和股票图表围绕地球旋转']};
   function mount(host,options){
     var root=host.querySelector('.kn-news-orbit');
@@ -10,7 +10,7 @@
     var button=document.getElementById('knHomeOrbitMotion'),scene=root.querySelector('.kn-orbit-scene');
     var settingLabel=document.getElementById('knHomeOrbitMotionLabel');
     var guide=root.querySelector('.kn-orbit-guide');
-    var rankShortcut=root.querySelector('.kn-orbit-rank-shortcut'),newsShortcut=root.querySelector('.kn-orbit-news-shortcut');
+    var graphShortcut=root.querySelector('.kn-orbit-rank-shortcut'),newsShortcut=root.querySelector('.kn-orbit-news-shortcut');
     var newsMenu=null;
     var preference=window.matchMedia('(prefers-reduced-motion: reduce)');
     var reduced=preference.matches,savedPause=false,inView=true;
@@ -19,9 +19,9 @@
     function copyLanguage(){var lang=document.documentElement.lang;try{lang=localStorage.getItem('app_lang')||lang;}catch(_){}return lang;}
     function copy(){return labels[copyLanguage()]||labels.ja;}
     function shortcutCopy(){
-      return ({ja:['今日の銘柄のランキングへ','経済ニュース・企業ニュースを選ぶ','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる'],en:['Go to today’s stock ranking','Choose economic or company news','Choose news','Economic news','Company news','Close'],ko:['오늘의 종목 순위로 이동','경제 뉴스 또는 기업 뉴스 선택','뉴스 선택','경제 뉴스','기업 뉴스','닫기'],zh:['查看今日股票排行','选择经济新闻或企业新闻','选择新闻','经济新闻','企业新闻','关闭']})[copyLanguage()]||shortcutCopy.ja;
+      return ({ja:['経済ニュースへ','経済ニュース・企業ニュースを選ぶ','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる'],en:['Go to economic news','Choose economic or company news','Choose news','Economic news','Company news','Close'],ko:['경제 뉴스로 이동','경제 뉴스 또는 기업 뉴스 선택','뉴스 선택','경제 뉴스','기업 뉴스','닫기'],zh:['查看经济新闻','选择经济新闻或企业新闻','选择新闻','经济新闻','企业新闻','关闭']})[copyLanguage()]||shortcutCopy.ja;
     }
-    shortcutCopy.ja=['今日の銘柄のランキングへ','経済ニュース・企業ニュースを選ぶ','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる'];
+    shortcutCopy.ja=['経済ニュースへ','経済ニュース・企業ニュースを選ぶ','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる'];
     function syncNewsMenu(){
       if(!newsMenu)return;
       var words=shortcutCopy();
@@ -35,14 +35,6 @@
       section.scrollIntoView({behavior:reduced?'auto':'smooth',block:'start'});
       var heading=headingId?document.getElementById(headingId):section.querySelector('.kn-a-section-title');
       if(heading){if(!heading.hasAttribute('tabindex'))heading.setAttribute('tabindex','-1');heading.focus({preventScroll:true});}
-    }
-    function showRanking(){
-      var stock=document.querySelector('#knTabWrap [data-kn-tab="stock"]');
-      if(stock)stock.click();else if(typeof window.__knSetSub==='function')window.__knSetSub('movers');
-      // Existing view changes restore their scroll position over two frames.
-      // Scroll afterwards so that intentional shortcut navigation wins.
-      function navigate(){scrollToSection('knTabWrap');}
-      if(typeof window.requestAnimationFrame==='function')window.requestAnimationFrame(function(){window.requestAnimationFrame(navigate);});else navigate();
     }
     function closeNewsMenu(){if(typeof newsMenu.close==='function')newsMenu.close();else newsMenu.removeAttribute('open');}
     function showNewsMenu(){
@@ -68,7 +60,7 @@
       root.classList.toggle('kn-orbit-away',document.hidden||!inView);
       var words=copy(),label=words[paused?1:0];
       var navigationWords=shortcutCopy();
-      if(rankShortcut)rankShortcut.setAttribute('aria-label',navigationWords[0]);
+      if(graphShortcut)graphShortcut.setAttribute('aria-label',navigationWords[0]);
       if(newsShortcut)newsShortcut.setAttribute('aria-label',navigationWords[1]);
       syncNewsMenu();
       if(guide)guide.setAttribute('aria-label',({ja:'はじめてガイドを開く',en:'Open the beginner guide',ko:'시작 가이드 열기',zh:'打开入门指南'})[copyLanguage()]||'はじめてガイドを開く');
@@ -78,7 +70,7 @@
       scene.setAttribute('aria-label',descriptions?(descriptions[copyLanguage()]||descriptions.ja||words[2]):words[2]);
     }
     if(guide)guide.addEventListener('click',function(){if(typeof window.openBeginnerGuide==='function')window.openBeginnerGuide();});
-    if(rankShortcut)rankShortcut.addEventListener('click',showRanking);
+    if(graphShortcut)graphShortcut.addEventListener('click',function(){scrollToSection('morning-news-section','knNewsDigestTitle');});
     if(newsShortcut)newsShortcut.addEventListener('click',showNewsMenu);
     if(button)button.addEventListener('click',function(){if(reduced)reduced=false;paused=!paused;savedPause=paused;try{localStorage.setItem('kn_home_motion_paused',paused?'1':'0');}catch(_){}sync();});
     function changed(event){reduced=event.matches;paused=reduced||savedPause;sync();}

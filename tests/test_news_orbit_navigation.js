@@ -104,6 +104,8 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
   const context={window:w,document:doc,fetch:forbidden,localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},
     CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},wrap:stock,movers,_knMainTab:main,_knWatchTab:watch,_kndb:dividendTabs,_sM:node('button',{'data-sub':'movers'},stock)};
   vm.runInNewContext(controller,context);
+  if(view==='favorites')context._showStock('watch');
+  else {context._styleP(main,view==='stock');context._styleP(watch,false);dividendTabs.forEach(tab=>context._styleP(tab,tab.dataset.knTab===view));}
   main.onclick=function(){stockClicks++;log.push(['select','stock']);context._showStock();stock.setAttribute('data-cur','stock');home.scrollTop=900;};
   if(withFallback)w.__knSetSub=function(view){fallbackCalls++;context._showStock(view);};
   vm.runInNewContext(source,context);const host={querySelector:selector=>selector==='.kn-news-orbit'?root:null};w.KNNewsOrbit.mount(host);
@@ -120,27 +122,27 @@ test('newspaper and graph retain their artwork inside distinct native action but
   assert.equal((markup.match(/class="kn-orbit-news-orbiter /g)||[]).length,3);assert.equal(h.dialogs(),0,'Chooser remains lazy until clicked');
 });
 
-for(const view of ['favorites','div_top','div_cal'])test(`graph selects the existing ranking controller from ${view} before navigating`,()=>{
+for(const view of ['favorites','div_top','div_cal'])test(`graph reaches economic news without changing the selected ${view} view`,()=>{
   const h=harness({view}),saved=h.storage.get('kn_rank_conditions');
-  h.rank.click();assert.equal(h.stockClicks(),1);assert.equal(h.fallbackCalls(),0);
-  assert.equal(h.stock.dataset.stockMain,'stock');assert.equal(h.stock.dataset.stockView,'movers');assert.equal(h.stock.getAttribute('data-cur'),'stock');
-  assert.equal(h.main.getAttribute('aria-pressed'),'true');assert.equal(h.holder.style.display,'none');assert.equal(h.dividendBody.parentElement,h.modalBody);
-  assert.equal(h.log.filter(x=>x[0]==='navigate').length,0);h.frame();assert.equal(h.log.filter(x=>x[0]==='navigate').length,0);
-  h.frame();assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','knTabWrap','smooth']]);assert.equal(h.doc.activeElement,h.heading);
-  assert.equal(h.heading.getAttribute('tabindex'),'-1');assert.equal(h.storage.get('kn_rank_conditions'),saved);assert.equal(h.network(),0);assert.equal(h.auth(),0);
+  const before={main:h.stock.dataset.stockMain,view:h.stock.dataset.stockView,cur:h.stock.getAttribute('data-cur'),aria:h.main.getAttribute('aria-pressed'),holder:h.holder.style.display,parent:h.dividendBody.parentElement};
+  h.rank.click();h.frame();h.frame();assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),0);
+  assert.equal(h.stock.dataset.stockMain,before.main);assert.equal(h.stock.dataset.stockView,before.view);assert.equal(h.stock.getAttribute('data-cur'),before.cur);
+  assert.equal(h.main.getAttribute('aria-pressed'),before.aria);assert.equal(h.holder.style.display,before.holder);assert.equal(h.dividendBody.parentElement,before.parent);
+  assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','morning-news-section','smooth']]);assert.equal(h.doc.activeElement,h.economyHeading);
+  assert.equal(h.economyHeading.getAttribute('tabindex'),'-1');assert.equal(h.storage.get('kn_rank_conditions'),saved);assert.equal(h.network(),0);assert.equal(h.auth(),0);assert.equal(h.dialogs(),0);assert.equal(h.guideCalls(),0);
 });
 
-test('real view-stability restoration runs twice before the final graph destination',()=>{
-  const h=harness();h.rank.click();assert.equal(h.home.scrollTop,900);
-  h.frame();assert.equal(h.home.scrollTop,800);h.home.scrollTop=950;
-  h.frame();assert.equal(h.home.scrollTop,1000);assert.equal(h.frames(),0);
-  assert.deepEqual(h.log.filter(x=>x[0]==='restore'||x[0]==='navigate'),[['restore','morning-section',800],['restore','morning-section',800],['navigate','knTabWrap','smooth']]);
-  assert.equal(h.home.style.overflowAnchor,'auto');assert.deepEqual(h.log.at(-1),['focus','rankingHeading',true]);
+test('a graph user gesture cancels earlier view-stability restoration before reaching economic news',()=>{
+  const h=harness();h.main.click();assert.equal(h.home.scrollTop,900);assert.ok(h.frames()>0,'A previous stock control has scheduled a real restoration');
+  h.dispatch('pointerdown',{target:h.rank});h.rank.click();h.frame();h.frame();
+  assert.equal(h.home.scrollTop,500);assert.equal(h.frames(),0);
+  assert.deepEqual(h.log.filter(x=>x[0]==='restore'||x[0]==='navigate'),[['navigate','morning-news-section','smooth']]);
+  assert.equal(h.home.style.overflowAnchor,'auto');assert.deepEqual(h.log.at(-1),['focus','knNewsDigestTitle',true]);assert.equal(h.stockClicks(),1,'Graph must not add another stock click');assert.equal(h.fallbackCalls(),0);
 });
 
-test('the ranking compatibility fallback is used only when the native stock button is unavailable',()=>{
+test('graph never invokes the old ranking fallback even when the stock tab is unavailable',()=>{
   const h=harness({withStock:false,view:'favorites'});h.rank.click();h.frame();h.frame();
-  assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),1);assert.equal(h.stock.dataset.stockMain,'stock');assert.equal(h.network(),0);
+  assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),0);assert.equal(h.stock.dataset.stockMain,'favorites');assert.equal(h.doc.activeElement,h.economyHeading);assert.equal(h.network(),0);
 });
 
 test('news dialog is reused and every open/close handler remains single after remounting',()=>{
@@ -163,8 +165,8 @@ for(const [choice,id,heading]of [['economy','morning-news-section','knNewsDigest
 test('system reduced motion uses automatic shortcut scrolling and language changes update the open chooser',()=>{
   const h=harness({reduced:true});h.rank.click();h.frame();h.frame();assert.equal(h.log.find(x=>x[0]==='navigate')[2],'auto');
   h.news.click();const menu=h.menu();menu.querySelector('[data-news-target="company"]').click();assert.equal(h.log.filter(x=>x[0]==='navigate').at(-1)[2],'auto');
-  const copies=[['en','Choose news','Economic news','Company news','Close'],['ko','뉴스 선택','경제 뉴스','기업 뉴스','닫기'],['zh','选择新闻','经济新闻','企业新闻','关闭'],['ja','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる']];
-  for(const [lang,title,economy,company,close]of copies){h.doc.documentElement.lang=lang;h.dispatch('langChanged');h.news.click();assert.equal(menu.querySelector('h2').textContent,title);assert.equal(menu.querySelector('[data-news-target="economy"]').textContent,economy);assert.equal(menu.querySelector('[data-news-target="company"]').textContent,company);assert.equal(menu.querySelector('.kn-orbit-news-close').getAttribute('aria-label'),close);menu.close();}
+  const copies=[['en','Choose news','Economic news','Company news','Close','Go to economic news'],['ko','뉴스 선택','경제 뉴스','기업 뉴스','닫기','경제 뉴스로 이동'],['zh','选择新闻','经济新闻','企业新闻','关闭','查看经济新闻'],['ja','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる','経済ニュースへ']];
+  for(const [lang,title,economy,company,close,graph]of copies){h.doc.documentElement.lang=lang;h.dispatch('langChanged');assert.equal(h.rank.getAttribute('aria-label'),graph);h.news.click();assert.equal(menu.querySelector('h2').textContent,title);assert.equal(menu.querySelector('[data-news-target="economy"]').textContent,economy);assert.equal(menu.querySelector('[data-news-target="company"]').textContent,company);assert.equal(menu.querySelector('.kn-orbit-news-close').getAttribute('aria-label'),close);menu.close();}
   h.doc.documentElement.lang='unknown';h.dispatch('langChanged');h.news.click();assert.equal(menu.querySelector('h2').textContent,'ニュースを選ぶ');
   h.media(false);menu.querySelector('[data-news-target="economy"]').click();assert.equal(h.log.filter(x=>x[0]==='navigate').at(-1)[2],'smooth');assert.equal(h.network(),0);
 });
