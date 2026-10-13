@@ -56045,6 +56045,2893 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791866014.661697,
       "pdf_sha256": "7d83a717747ead8062e913f0f3c309519beb4c40f8df75a624053c0f99a52fb0"
+    },
+    {
+      "symbol": "7877.T",
+      "identity": {
+        "symbol": "7877.T",
+        "code": "7877",
+        "name": "永大化工",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車に敷くフロアマットや、家電・家具・住宅に使う樹脂製品をグループで作り、販売する会社。エアコンのダクト、冷蔵庫や事務机の部材、内装材、風呂のふたなどを供給する。産業資材では端子台のカバー、下水道の補修部材、合成木材も扱う。本体とベトナムの製造会社、国内のK&Mが生産・販売を分担し、ベトナムの商社子会社も自動車用品の販売に関わっている。",
+      "proof": {
+        "code": "7877",
+        "exchange": "Tokyo",
+        "corporate_number": "1120001019704",
+        "edinet_code": "E02441",
+        "source_company_name": "永大化工株式会社",
+        "filing_company_name": "永大化工株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJVJ",
+        "current_edinet_code": "E02441",
+        "current_corporate_number": "1120001019704"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJVJ",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869355.204308,
+      "pdf_sha256": "b404e6c0148c8ac8bf0fba0d787926f920b32d58db40918efa38ed496f5aad63"
+    },
+    {
+      "symbol": "7915.T",
+      "identity": {
+        "symbol": "7915.T",
+        "code": "7915",
+        "name": "NISSHA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "成形品の加飾やセンサー、医療機器の分野で製品と製造サービスを提供する会社。産業資材では転写箔、射出成形品、蒸着紙などを扱い、電子機器向けにはフィルム型のタッチセンサーや力・ガスを検知するセンサーを供給する。医療分野はグループで手術器具、身に着けるセンサー、電極の開発と製造を受託し、自社ブランド品も展開する。子会社では医薬品・化粧品や印刷事業も営む。",
+      "proof": {
+        "code": "7915",
+        "exchange": "Tokyo",
+        "corporate_number": "9130001023441",
+        "edinet_code": "E00703",
+        "source_company_name": "ＮＩＳＳＨＡ株式会社",
+        "filing_company_name": "NISSHA株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XS06",
+        "current_edinet_code": "E00703",
+        "current_corporate_number": "9130001023441"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XS06",
+      "filed_on": "2026-03-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869361.1855948,
+      "pdf_sha256": "e4d30bb1135357b1e178f37d55c571c8b922c815008b8436f13c422db7101975"
+    },
+    {
+      "symbol": "7981.T",
+      "identity": {
+        "symbol": "7981.T",
+        "code": "7981",
+        "name": "タカラスタンダード",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "キッチン、浴室、洗面台など住まいの設備を製造して販売する会社。ホーロー製と木製のシステムキッチンや洗面化粧台、システムバス、シャワーユニットを扱う。調理機器とレンジフード、壁に使うホーローパネル、収納機器、給湯器なども供給し、製品に関する研究開発も行う。本体とタカラ化工が住宅設備の製造を担い、本体では住宅設備に加えて不動産の賃貸も営んでいる。",
+      "proof": {
+        "code": "7981",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001015344",
+        "edinet_code": "E02373",
+        "source_company_name": "タカラスタンダード株式会社",
+        "filing_company_name": "タカラスタンダード株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE7H",
+        "current_edinet_code": "E02373",
+        "current_corporate_number": "5120001015344"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE7H",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869367.18193,
+      "pdf_sha256": "29a5d0ee3bddc98aec0f2fdecd8ff3b48605fc0e0182fe5962587de8a8d27c96"
+    },
+    {
+      "symbol": "8005.T",
+      "identity": {
+        "symbol": "8005.T",
+        "code": "8005",
+        "name": "スクロール",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣料品や生活雑貨を通信販売するとともに、他社のEC・通販業務を支える会社。本体はアパレルやインナーなどを販売し、子会社はブランドの服飾雑貨、アウトドア用品、化粧品、防災用品や旅行を個人向けに扱う。通販事業者向けには商品の物流、代金決済、販促、事務処理を代行するサービスをグループで提供する。通販の販売現場と、それを動かす物流・業務支援の両方を手がける。",
+      "proof": {
+        "code": "8005",
+        "exchange": "Tokyo",
+        "corporate_number": "9080401005367",
+        "edinet_code": "E03054",
+        "source_company_name": "株式会社スクロール",
+        "filing_company_name": "株式会社スクロール",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6S7",
+        "current_edinet_code": "E03054",
+        "current_corporate_number": "9080401005367"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6S7",
+      "filed_on": "2026-05-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869373.312696,
+      "pdf_sha256": "fdc30317c6f60ce93bb58d6778446c1b79b65e272d18e0349b1bd32009209249"
+    },
+    {
+      "symbol": "8020.T",
+      "identity": {
+        "symbol": "8020.T",
+        "code": "8020",
+        "name": "兼松",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子部品、食品、鋼材や機械などを国内外で取引する商社。半導体・液晶の製造装置、携帯端末、飼料原料や穀物、畜産品などを扱う。グループでは企業のIT基盤の構築・運用、クラウドやセキュリティのサービスも提供する。鉄鋼・化学原料やエネルギー設備のほか、車載部品、航空機とその部品、工作機械を供給し、商品の調達、販売先の開拓、物流などを組み合わせて事業を進める。",
+      "proof": {
+        "code": "8020",
+        "exchange": "Tokyo",
+        "corporate_number": "7140001005647",
+        "edinet_code": "E02506",
+        "source_company_name": "兼松株式会社",
+        "filing_company_name": "兼松株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGCZ",
+        "current_edinet_code": "E02506",
+        "current_corporate_number": "7140001005647"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGCZ",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869379.2998242,
+      "pdf_sha256": "82acf21667efa96049ba49ff31c8eef2a572b1f864f65ef110a7b64c54a8be02"
+    },
+    {
+      "symbol": "8035.T",
+      "identity": {
+        "symbol": "8035.T",
+        "code": "8035",
+        "name": "東京エレクトロン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体の製造工程で使う装置をグループで開発し、製造・販売と保守を行う会社。ウェーハへの塗布・現像、エッチング、膜の形成、洗浄、検査に用いる装置などの技術開発を進める。本体は国内の製造子会社から装置を仕入れて販売し、米国の子会社は製造と販売を担う。国内外のサービス会社が納入後の保守を支え、本体と研究開発拠点が次世代の製造技術にも取り組んでいる。",
+      "proof": {
+        "code": "8035",
+        "exchange": "Tokyo",
+        "corporate_number": "4010401020757",
+        "edinet_code": "E02652",
+        "source_company_name": "東京エレクトロン株式会社",
+        "filing_company_name": "東京エレクトロン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEOO",
+        "current_edinet_code": "E02652",
+        "current_corporate_number": "4010401020757"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEOO",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869386.833552,
+      "pdf_sha256": "5a7ea5925b301646fd92a7d0b439711f400311ebf61208a32e16860bb7a0fe61"
+    },
+    {
+      "symbol": "8061.T",
+      "identity": {
+        "symbol": "8061.T",
+        "code": "8061",
+        "name": "西華産業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "発電所や工場に使う設備・機器を国内外で販売し、保守も行う会社。電力向けの火力・原子力・水力などの設備や、製鉄・化学工場の自家発電設備を扱う。工場向けには省エネや作業の自動化に役立つ設備を供給し、グループで塗装、圧造、洗浄・コーティング装置の開発と製造も行う。計測機器、電子基板の実装設備、水中ポンプ、漁船用エンジン、バルブなどの製品も取り扱っている。",
+      "proof": {
+        "code": "8061",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001008696",
+        "edinet_code": "E02512",
+        "source_company_name": "西華産業株式会社",
+        "filing_company_name": "西華産業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y935",
+        "current_edinet_code": "E02512",
+        "current_corporate_number": "6010001008696"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y935",
+      "filed_on": "2026-06-05",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869392.909666,
+      "pdf_sha256": "1f4bc563f3065a75478f561606d5f8b5488de1375a1caf69bfca8a941c7119ff"
+    },
+    {
+      "symbol": "8076.T",
+      "identity": {
+        "symbol": "8076.T",
+        "code": "8076",
+        "name": "カノークス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車部品や建築部材に使う鋼板・鋼管などを仕入れ、必要な加工を加えて販売する会社。薄板のコイルを指定幅や板状に切り、鋼管は長さをそろえて穴開けや曲げ加工を行う。マフラー向けのステンレス材も扱い、本体の事業所、加工子会社、外部加工先で作業を分担する。鋼材の受発注から品質・在庫の管理、小口の納入まで対応し、取引先の生産や建設に合わせて供給する。",
+      "proof": {
+        "code": "8076",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001025105",
+        "edinet_code": "E02561",
+        "source_company_name": "株式会社カノークス",
+        "filing_company_name": "株式会社カノークス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAX9",
+        "current_edinet_code": "E02561",
+        "current_corporate_number": "7180001025105"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAX9",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869398.929621,
+      "pdf_sha256": "f968ab90de65d7b581592d1245b8cdbcd49d6089ea2bd071a11a037d8e315d6f"
+    },
+    {
+      "symbol": "8084.T",
+      "identity": {
+        "symbol": "8084.T",
+        "code": "8084",
+        "name": "RYODEN",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の自動化に使う機器、空調・ビル設備、半導体などを仕入れて販売する会社。製造業や設備業者向けの機器を扱い、グループで空調設備の保守サービスも提供する。ビル用や店舗用エアコン、低温機器、昇降機などの供給に加え、電子カルテに使う機器や映像管理システムを展開する。植物工場の分野では子会社が野菜を生産・販売し、設備システムの販売や栽培技術の支援も行う。",
+      "proof": {
+        "code": "8084",
+        "exchange": "Tokyo",
+        "corporate_number": "8013301012440",
+        "edinet_code": "E02518",
+        "source_company_name": "株式会社ＲＹＯＤＥＮ",
+        "filing_company_name": "株式会社RYODEN",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGNM",
+        "current_edinet_code": "E02518",
+        "current_corporate_number": "8013301012440"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGNM",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869404.96091,
+      "pdf_sha256": "ef56f04de28cd729fdd59aa62079f90d9ca842ee44b600667b109b1a9d45f0ed"
+    },
+    {
+      "symbol": "8086.T",
+      "identity": {
+        "symbol": "8086.T",
+        "code": "8086",
+        "name": "ニプロ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "病院や透析施設で使う医療機器と、医薬品・薬剤の包装材料をグループで供給する会社。注射針、輸液関連品、血液を浄化するダイアライザや透析装置、血管内治療のカテーテルなどを扱う。医薬品は販売に加えて他社製品の製造も受託する。包装分野では薬に使うガラス管・容器や在宅での自己注射用セットを供給し、国内外の製造販売拠点と透析センターの運営を通じて医療を支える。",
+      "proof": {
+        "code": "8086",
+        "exchange": "Tokyo",
+        "corporate_number": "8120001068678",
+        "edinet_code": "E02688",
+        "source_company_name": "ニプロ株式会社",
+        "filing_company_name": "ニプロ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJLK",
+        "current_edinet_code": "E02688",
+        "current_corporate_number": "8120001068678"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJLK",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869411.058419,
+      "pdf_sha256": "1f84f6fd9890399dfbaa35c99da233f4bf9d8f71c75355ccb35e1a5d6ca9d69c"
+    },
+    {
+      "symbol": "8095.T",
+      "identity": {
+        "symbol": "8095.T",
+        "code": "8095",
+        "name": "アステナホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "医薬品や化粧品の原料、健康食品、電子産業用の薬品を扱う事業会社を束ねる持株会社。グループで医薬品の研究開発・製造を受託し、ペプチド原薬の製造や関連技術の提供も行う。一般用・医療用の薬、サプリメント、化粧品の製造販売と原料の供給を展開する。化学品分野では表面処理用の薬品や電子工業用薬品、プリント配線板を製造するプラントを供給し、地方創生関連の事業にも携わる。",
+      "proof": {
+        "code": "8095",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001034748",
+        "edinet_code": "E02585",
+        "source_company_name": "アステナホールディングス株式会社",
+        "filing_company_name": "アステナホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XN2T",
+        "current_edinet_code": "E02585",
+        "current_corporate_number": "9010001034748"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XN2T",
+      "filed_on": "2026-02-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869417.026419,
+      "pdf_sha256": "ad382cdad5f2674ef5c74f4ec4d3a89eccb1a4bc062fc7161422e3632a5388ef"
+    },
+    {
+      "symbol": "8111.T",
+      "identity": {
+        "symbol": "8111.T",
+        "code": "8111",
+        "name": "ゴールドウイン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "登山や水泳、スキーなどのスポーツで使う衣料と用品を企画し、製造・販売する会社。アウトドアのウェアに加え、トレーニング、ラグビー、ゴルフ向けの服や機能性の肌着、工場で使う防塵服を扱う。本体が主にスポーツウェアの企画・製造・販売を担い、ナナミカなどの子会社はスポーツカジュアルの服を展開する。海外の販売会社や検品拠点、物流子会社と連携し、消費者へ商品を届ける。",
+      "proof": {
+        "code": "8111",
+        "exchange": "Tokyo",
+        "corporate_number": "3230001008974",
+        "edinet_code": "E00603",
+        "source_company_name": "株式会社ゴールドウイン",
+        "filing_company_name": "株式会社ゴールドウイン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGJI",
+        "current_edinet_code": "E00603",
+        "current_corporate_number": "3230001008974"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGJI",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869423.0845828,
+      "pdf_sha256": "767b0779aafef0e3865a8bd5f10e4e2e9ac4ed0c8e67be12bfaa67238202dfb1"
+    },
+    {
+      "symbol": "8137.T",
+      "identity": {
+        "symbol": "8137.T",
+        "code": "8137",
+        "name": "サンワテクノス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子部品や産業用機器を販売し、工場の自動化を支援する会社。半導体関連の製造設備、産業用・クリーン用のロボット、基板の装置、搬送設備や検査装置などを扱う。グループで電気設備工事、ロボットシステムや制御盤の設計・製作、機械を動かすソフトの開発も行う。海外拠点では現地企業と海外進出した企業へ製品を供給し、機器の調達、組立、販売後のメンテナンスにも対応する。",
+      "proof": {
+        "code": "8137",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001045369",
+        "edinet_code": "E02656",
+        "source_company_name": "サンワテクノス株式会社",
+        "filing_company_name": "サンワテクノス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ4F",
+        "current_edinet_code": "E02656",
+        "current_corporate_number": "5010001045369"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ4F",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869429.086993,
+      "pdf_sha256": "e2b0a16381d5a97bca69c8e0beb9ea2743dd450dee0cd0ad170062285b5399ca"
+    },
+    {
+      "symbol": "8154.T",
+      "identity": {
+        "symbol": "8154.T",
+        "code": "8154",
+        "name": "加賀電子",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体や電子部品を供給し、電子機器の生産を受託する会社。国内外のグループで部品の開発・製造・販売とEMSを展開する。パソコンと周辺機器、家電、写真・映像関連機器などの完成品も販売し、機器の修理やサポートを行う。子会社ではCG映像の制作、ゲームなどアミューズメント商品の企画開発、業務用の遊戯機器の製造販売も手がけ、電子部品から完成品・ソフトまでを扱っている。",
+      "proof": {
+        "code": "8154",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001001752",
+        "edinet_code": "E02676",
+        "source_company_name": "加賀電子株式会社",
+        "filing_company_name": "加賀電子株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YNQJ",
+        "current_edinet_code": "E02676",
+        "current_corporate_number": "4010001001752"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YNQJ",
+      "filed_on": "2026-06-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869435.143318,
+      "pdf_sha256": "3afc4aeea2bea55dffd31fc90168faa861ef507d5f1147727c370c377bf51ecd"
+    },
+    {
+      "symbol": "8159.T",
+      "identity": {
+        "symbol": "8159.T",
+        "code": "8159",
+        "name": "立花エレテック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の自動化設備や半導体・電子部品、建物の設備機器を販売する会社。機器の供給に加えて保守や修理も行い、グループでは電子デバイスの設計・開発・製造を担う。建物向けは子会社が空調、衛生、給排水の工事とメンテナンスを提供する。アジアの販売会社では日本と現地の取引先へ電子部品や産業機械を供給し、技術・品質の支援や電子機器の受託生産に関わる業務も扱っている。",
+      "proof": {
+        "code": "8159",
+        "exchange": "Tokyo",
+        "corporate_number": "2120001049007",
+        "edinet_code": "E02678",
+        "source_company_name": "株式会社立花エレテック",
+        "filing_company_name": "株式会社立花エレテック",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YG86",
+        "current_edinet_code": "E02678",
+        "current_corporate_number": "2120001049007"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YG86",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869441.134709,
+      "pdf_sha256": "45b8a1c2ccf6afbc6d638c76b7830a63523fd6d806d4da72b2c3a6b6f6264d08"
+    },
+    {
+      "symbol": "8214.T",
+      "identity": {
+        "symbol": "8214.T",
+        "code": "8214",
+        "name": "AOKIホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣料品店、複合カフェ、カラオケ、結婚式場などをグループで展開する持株会社。AOKIとORIHICAで仕事用や普段の服、服飾品を販売する。快活CLUBや自遊空間は複合カフェを運営し、FiT24は24時間型のジム、コート・ダジュールはカラオケを提供する。アニヴェルセルが挙式・披露宴の施設を運営し、本体では閉店した店舗や大型物件をグループ内外に貸す不動産事業も行う。",
+      "proof": {
+        "code": "8214",
+        "exchange": "Tokyo",
+        "corporate_number": "5020001091635",
+        "edinet_code": "E03116",
+        "source_company_name": "株式会社ＡＯＫＩホールディングス",
+        "filing_company_name": "株式会社AOKIホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFPQ",
+        "current_edinet_code": "E03116",
+        "current_corporate_number": "5020001091635"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFPQ",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869447.136189,
+      "pdf_sha256": "c1677b0c6cc3437ba082d9ae3a258c4540c7d11c82d2eda03382677d221ad338"
+    },
+    {
+      "symbol": "8226.T",
+      "identity": {
+        "symbol": "8226.T",
+        "code": "8226",
+        "name": "理経",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "IT設備や電子機器・部品を国内外から調達して販売し、システムの導入を支援する会社。学校や官公庁向けのIT基盤、高速無線網、映像配信、衛星通信の設備、Jアラートの受信機関連を扱う。製造現場のVRによるシミュレーションや、消防・防災の訓練用コンテンツも提供する。グループでは光ファイバ関連の商材を販売し、子会社エアロパートナーズが防衛向け航空機エンジンの修理を担う。",
+      "proof": {
+        "code": "8226",
+        "exchange": "Tokyo",
+        "corporate_number": "8011101022577",
+        "edinet_code": "E02699",
+        "source_company_name": "株式会社理経",
+        "filing_company_name": "株式会社理経",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK3T",
+        "current_edinet_code": "E02699",
+        "current_corporate_number": "8011101022577"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK3T",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869453.144317,
+      "pdf_sha256": "0388c1a760708555627d8e8fe89f2815441775e6a9de2971119fdb81e4dee8db"
+    },
+    {
+      "symbol": "8247.T",
+      "identity": {
+        "symbol": "8247.T",
+        "code": "8247",
+        "name": "大和",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "金沢と富山で百貨店を運営し、化粧品、時計、食品などを店頭で販売する会社。香林坊店と富山店の売り場に加え、食品の物産展や期間限定のブランド出店を通じて地域の買い物客に商品を届ける。グループには買い物券を扱う友の会があり、店舗内の食堂業務を担う会社、印刷物を作る会社、勁草書房の出版事業も持つ。金沢ニューグランドホテルの宿泊サービスや人材派遣・業務受託も展開する。",
+      "proof": {
+        "code": "8247",
+        "exchange": "Tokyo",
+        "corporate_number": "6220001003957",
+        "edinet_code": "E03025",
+        "source_company_name": "株式会社大和",
+        "filing_company_name": "株式会社大和",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y7D9",
+        "current_edinet_code": "E03025",
+        "current_corporate_number": "6220001003957"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y7D9",
+      "filed_on": "2026-05-29",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869460.712255,
+      "pdf_sha256": "a155dd2fec0d15a188d98a0d1c49ddfdca5f1ba0d425a82412a18a5de26f2bb8"
+    },
+    {
+      "symbol": "8254.T",
+      "identity": {
+        "symbol": "8254.T",
+        "code": "8254",
+        "name": "さいか屋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "横須賀と藤沢の百貨店、川崎のサテライト店舗で商品を販売する会社。グループでは時計や宝石、貴金属製品の卸売を行うアルファトレンドが百貨店へ商品を納め、さいか屋友の会が買い物のための前払い取引を扱う。百貨店を中心に、アパートの賃貸や不動産の仲介も手がける。非連結子会社のサンパール藤沢はビルの管理・運営を担い、店舗とその周辺のサービスを組み合わせている。",
+      "proof": {
+        "code": "8254",
+        "exchange": "Tokyo",
+        "corporate_number": "3020001074170",
+        "edinet_code": "E03044",
+        "source_company_name": "株式会社さいか屋",
+        "filing_company_name": "株式会社さいか屋",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X51A",
+        "current_edinet_code": "E03044",
+        "current_corporate_number": "3020001074170"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X51A",
+      "filed_on": "2025-11-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869468.4902248,
+      "pdf_sha256": "6a763b090bbc06b666ad4f31b6abbc6883fe4e6f1333fadb3939540804fcf8b3"
+    },
+    {
+      "symbol": "8276.T",
+      "identity": {
+        "symbol": "8276.T",
+        "code": "8276",
+        "name": "平和堂",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "総合スーパーを運営し、日々の買い物に必要な商品を販売する会社。グループのベストーネが米飯や惣菜を作り、肉と魚の加工を担って店舗へ供給する。子会社では中国の百貨店、書籍販売やフィットネス、飲食店も展開する。商業施設の運営管理、建物のメンテナンス、店舗駐車場の管理もグループで手がけ、商品の販売だけでなく、店の運営と食の供給を支える業務を持っている。",
+      "proof": {
+        "code": "8276",
+        "exchange": "Tokyo",
+        "corporate_number": "3160001008726",
+        "edinet_code": "E03081",
+        "source_company_name": "株式会社平和堂",
+        "filing_company_name": "株式会社平和堂",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y2FB",
+        "current_edinet_code": "E03081",
+        "current_corporate_number": "3160001008726"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y2FB",
+      "filed_on": "2026-05-11",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869474.343931,
+      "pdf_sha256": "fe48263cf298fd35e5356058060e97bbd79840494c176298f4e35271dbae002e"
+    },
+    {
+      "symbol": "8411.T",
+      "identity": {
+        "symbol": "8411.T",
+        "code": "8411",
+        "name": "みずほフィナンシャルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "みずほ銀行、みずほ信託銀行、みずほ証券などの経営を管理する金融持株会社。グループで個人や企業の預金・融資・決済、資産運用を扱い、大企業向けにはM&Aや不動産に関する金融サービスも提供する。海外企業の金融取引、投資家の運用、資金管理を支え、銀行・信託・証券の機能を組み合わせる。みずほ銀行はリサーチ、コンサルティング、IT・技術開発の事業も統合している。",
+      "proof": {
+        "code": "8411",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001081419",
+        "edinet_code": "E03615",
+        "source_company_name": "株式会社みずほフィナンシャルグループ",
+        "filing_company_name": "株式会社みずほフィナンシャルグループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF8Y",
+        "current_edinet_code": "E03615",
+        "current_corporate_number": "9010001081419"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF8Y",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869480.5405,
+      "pdf_sha256": "ce3e0e8c366d22a7ecb5114c2cab78257b81748c1d5da266db4054145da7e5a6"
+    },
+    {
+      "symbol": "8566.T",
+      "identity": {
+        "symbol": "8566.T",
+        "code": "8566",
+        "name": "リコーリース",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "事務機器、医療機器、工作機械や車両などの導入をリース・割賦で支える会社。法人向けの融資やマンションローン、計測機器とIT機器のレンタルも扱う。請求書の発行や売掛金の回収を代行し、医療・介護の報酬債権を使う資金調達サービスと債権保証を提供する。グループでは住宅ローンの保証、転勤者向け住居の管理、介護施設を運営し、本体は太陽光発電や住宅賃貸にも取り組む。",
+      "proof": {
+        "code": "8566",
+        "exchange": "Tokyo",
+        "corporate_number": "7010601037788",
+        "edinet_code": "E04946",
+        "source_company_name": "リコーリース株式会社",
+        "filing_company_name": "リコーリース株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF3N",
+        "current_edinet_code": "E04946",
+        "current_corporate_number": "7010601037788"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF3N",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869486.527891,
+      "pdf_sha256": "48ce997fee552fe9f0b2ae5e619aaab2894a1e596cae16eeac7762bc8456938b"
+    },
+    {
+      "symbol": "8593.T",
+      "identity": {
+        "symbol": "8593.T",
+        "code": "8593",
+        "name": "三菱HCキャピタル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や官公庁の設備導入を金融サービスで支え、さまざまな資産を貸し出す会社。グループで機器販売会社と連携した販売金融、省エネ支援、不動産向けの資金供給を行う。航空機とエンジン、海上コンテナ、鉄道貨車、自動車のリースも扱い、海外でも企業向けの金融サービスを展開する。再生可能エネルギー事業、不動産への投資と資産運用管理を組み合わせ、設備や資産の利用を支援している。",
+      "proof": {
+        "code": "8593",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001049866",
+        "edinet_code": "E04788",
+        "source_company_name": "三菱ＨＣキャピタル株式会社",
+        "filing_company_name": "三菱HCキャピタル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF4V",
+        "current_edinet_code": "E04788",
+        "current_corporate_number": "4010001049866"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF4V",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869499.978955,
+      "pdf_sha256": "224e99df21b46863514ea83b8364ab92c904f55a27115ba730a0d8d171946819"
+    },
+    {
+      "symbol": "8604.T",
+      "identity": {
+        "symbol": "8604.T",
+        "code": "8604",
+        "name": "野村ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "証券を中心に、顧客の投資と資金調達を支える金融グループの持株会社。グループで株式など有価証券の売買や取引の仲介、企業が発行する証券の引受け・販売を行う。野村證券による顧客向けのサービスと、野村アセットマネジメントなどによる資産運用を展開し、国内外の金融市場で機関投資家や企業にも対応する。自己資金を用いる投資や銀行業務も持ち、運用と調達の双方を扱う。",
+      "proof": {
+        "code": "8604",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001034881",
+        "edinet_code": "E03752",
+        "source_company_name": "野村ホールディングス株式会社",
+        "filing_company_name": "野村ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC5C",
+        "current_edinet_code": "E03752",
+        "current_corporate_number": "7010001034881"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC5C",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869504.900405,
+      "pdf_sha256": "d0b4403bf4b6590da54774059f0198d07b888d2bf48b3ddfaa9256386e28c801"
+    },
+    {
+      "symbol": "8729.T",
+      "identity": {
+        "symbol": "8729.T",
+        "code": "8729",
+        "name": "ソニーフィナンシャルグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "生命保険、損害保険、インターネット銀行を中心とする金融持株会社。ソニー生命は営業社員や代理店が顧客の生活設計を相談しながら生命保険を提供する。ソニー損保は自動車・火災・医療の保険をネットや電話で販売し、ソニー銀行は円・外貨の預金、住宅ローン、投資信託などをネットで扱う。グループには介護事業を管理するソニー・ライフケアと、企業への投資を担う会社もある。",
+      "proof": {
+        "code": "8729",
+        "exchange": "Tokyo",
+        "corporate_number": "4010401053410",
+        "edinet_code": "E05714",
+        "source_company_name": "ソニーフィナンシャルグループ株式会社",
+        "filing_company_name": "ソニーフィナンシャルグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCL0",
+        "current_edinet_code": "E05714",
+        "current_corporate_number": "4010401053410"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCL0",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869510.868997,
+      "pdf_sha256": "124dfe64b3a0c1ff6948994f373c3660c0e12e5a655e3de4f8327000df087901"
+    },
+    {
+      "symbol": "8897.T",
+      "identity": {
+        "symbol": "8897.T",
+        "code": "8897",
+        "name": "MIRARTHホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "マンションの開発・販売や管理、再生可能エネルギーの発電をグループで行う持株会社。タカラレーベンがLEBENやNEBELの分譲マンションを展開し、他の事業会社が戸建住宅、仲介、既存物件の改修再販、賃貸管理を担う。住宅やオフィスを開発してREITなどへ売却する事業も持つ。グループで発電施設や不動産の資産運用管理を行い、建設の請負やホテル事業も手がける。",
+      "proof": {
+        "code": "8897",
+        "exchange": "Tokyo",
+        "corporate_number": "6011101042313",
+        "edinet_code": "E03997",
+        "source_company_name": "ＭＩＲＡＲＴＨホールディングス株式会社",
+        "filing_company_name": "MIRARTHホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIRG",
+        "current_edinet_code": "E03997",
+        "current_corporate_number": "6011101042313"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIRG",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869516.959905,
+      "pdf_sha256": "e8877824c22071325f2f4a833669ea735b2db1da3e815ae4aade1b7d15818016"
+    },
+    {
+      "symbol": "9006.T",
+      "identity": {
+        "symbol": "9006.T",
+        "code": "9006",
+        "name": "京浜急行電鉄",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道による旅客輸送を中心に、バス、不動産、買い物や宿泊のサービスをグループで展開する会社。本体が鉄道を運営し、京浜急行バスなどがバス輸送を担う。土地・建物の販売と賃貸、京急イーエックスインなどのビジネスホテル、ゴルフ場やマリーナも扱う。京急百貨店と京急ストアを通じて商品を販売し、建設、車両修理、電気工事、建物管理など、交通と施設を支える業務も持つ。",
+      "proof": {
+        "code": "9006",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401009277",
+        "edinet_code": "E04089",
+        "source_company_name": "京浜急行電鉄株式会社",
+        "filing_company_name": "京浜急行電鉄株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK5J",
+        "current_edinet_code": "E04089",
+        "current_corporate_number": "7010401009277"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK5J",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869522.902455,
+      "pdf_sha256": "cff240addcd3db104696b468b77b7d466dbb96013fb900d116e93c835882ef4b"
+    },
+    {
+      "symbol": "9008.T",
+      "identity": {
+        "symbol": "9008.T",
+        "code": "9008",
+        "name": "京王電鉄",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "京王線や井の頭線で旅客を運び、バスやタクシー、不動産、ホテルなどをグループで展開する会社。本体と事業会社が土地・建物の販売や賃貸を行い、京王プラザホテルなどで宿泊サービスを提供する。百貨店、スーパー、生活雑貨の販売に加え、パンや菓子の製造、飲食店、旅行も扱う。子育て支援、高齢者向け住宅、葬祭などの生活サービスや、車両整備、建物の管理・工事も手がける。",
+      "proof": {
+        "code": "9008",
+        "exchange": "Tokyo",
+        "corporate_number": "3011101005999",
+        "edinet_code": "E04092",
+        "source_company_name": "京王電鉄株式会社",
+        "filing_company_name": "京王電鉄株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF0G",
+        "current_edinet_code": "E04092",
+        "current_corporate_number": "3011101005999"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF0G",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869528.901433,
+      "pdf_sha256": "fc9ae7b36622c1d717f47b3e6e257c0bf36fe7e9e02b97197473565fccb3e88c"
+    },
+    {
+      "symbol": "9012.T",
+      "identity": {
+        "symbol": "9012.T",
+        "code": "9012",
+        "name": "秩父鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "羽生から熊谷・秩父を通る鉄道を運営し、旅客と貨物を運ぶ会社。鉄道に加え、本体が不動産の賃貸・分譲・工事請負や、遊船、ロープウェー、動物園、飲食・土産品販売などの観光事業を行う。グループでは秩鉄商事が卸売・小売と資材の供給を、秩父鉄道観光バスがバス輸送を担う。秩父建設は建設・電気工事を手がけ、地域の交通と観光、鉄道や関連施設の運営を支えている。",
+      "proof": {
+        "code": "9012",
+        "exchange": "Tokyo",
+        "corporate_number": "6030001085016",
+        "edinet_code": "E04136",
+        "source_company_name": "秩父鉄道株式会社",
+        "filing_company_name": "秩父鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIV6",
+        "current_edinet_code": "E04136",
+        "current_corporate_number": "6030001085016"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIV6",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869534.906848,
+      "pdf_sha256": "9d59f73ba010f6cb1efe08d2191a830bee0de6463ef7ebba274726e6e5595d31"
+    },
+    {
+      "symbol": "9020.T",
+      "identity": {
+        "symbol": "9020.T",
+        "code": "9020",
+        "name": "東日本旅客鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "関東・東北などで在来線と新幹線を運営し、通勤・通学や都市間の移動を支える会社。グループにはバス、モノレール、旅行、鉄道車両の製造・整備を担う会社もある。駅の店舗や飲食、物流・広告を展開し、ルミネやアトレなどの商業施設、オフィス、ホテルを開発・運営する。Suicaやビューカードを通じる決済関連の事業と情報処理も持ち、鉄道輸送と駅を使う生活サービスを組み合わせる。",
+      "proof": {
+        "code": "9020",
+        "exchange": "Tokyo",
+        "corporate_number": "9011001029597",
+        "edinet_code": "E04147",
+        "source_company_name": "東日本旅客鉄道株式会社",
+        "filing_company_name": "東日本旅客鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC7N",
+        "current_edinet_code": "E04147",
+        "current_corporate_number": "9011001029597"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC7N",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869541.0457869,
+      "pdf_sha256": "e4c277455e5d2c0ee5881d32fb4555396eee9c77f16f2dca93e6ba3c5e3b1ee6"
+    },
+    {
+      "symbol": "9022.T",
+      "identity": {
+        "symbol": "9022.T",
+        "code": "9022",
+        "name": "東海旅客鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東海道新幹線と東海地方の在来線を運営し、都市間や地域内の旅客を輸送する会社。グループでバスも運行する。JRセントラルタワーズの百貨店や駅構内の店舗で商品を販売し、駅ビルの賃貸、不動産の分譲を行う。沿線のホテル、旅行、広告サービスも展開する。日本車輌製造などを通じて鉄道車両を製造し、線路・電気設備や車両の保守、検査、修繕までをグループで担っている。",
+      "proof": {
+        "code": "9022",
+        "exchange": "Tokyo",
+        "corporate_number": "3180001031569",
+        "edinet_code": "E04149",
+        "source_company_name": "東海旅客鉄道株式会社",
+        "filing_company_name": "東海旅客鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD7H",
+        "current_edinet_code": "E04149",
+        "current_corporate_number": "3180001031569"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD7H",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869546.994897,
+      "pdf_sha256": "735cb49392094560387f16ee33efbacd727206b7d5f429c7bb21820fbfcf3494"
+    },
+    {
+      "symbol": "9031.T",
+      "identity": {
+        "symbol": "9031.T",
+        "code": "9031",
+        "name": "西日本鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道やバスによる旅客輸送と、国内外の貨物物流を手がける会社。グループでタクシーも運行し、運輸関連のサービスを提供する。住宅の開発・販売や建物の賃貸を行い、西鉄ストアと生活雑貨店で商品を販売する。ホテル、旅行、飲食なども展開し、企業向けには国際物流と国内の貨物物流サービスを提供する。ICカードの事業、車両の整備、建設や金属リサイクルもグループに持つ。",
+      "proof": {
+        "code": "9031",
+        "exchange": "Tokyo",
+        "corporate_number": "4290001009413",
+        "edinet_code": "E04110",
+        "source_company_name": "西日本鉄道株式会社",
+        "filing_company_name": "西日本鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAAB",
+        "current_edinet_code": "E04110",
+        "current_corporate_number": "4290001009413"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAAB",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869556.123216,
+      "pdf_sha256": "f7ffd6bae44d6ca77d70b37b5fed1ee1058d0710a81d01fa1f91f46be58f348b"
+    },
+    {
+      "symbol": "9041.T",
+      "identity": {
+        "symbol": "9041.T",
+        "code": "9041",
+        "name": "近鉄グループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道、国際物流、不動産、ホテルなどを束ねる持株会社。近畿日本鉄道が鉄道を、バス・タクシー各社が旅客輸送を担い、近鉄エクスプレスなどが航空・海上貨物の輸送手配と物流サービスを提供する。グループで住宅などの販売、建物の賃貸・管理、百貨店や食品店の運営を行う。都ホテルズ、旅行会社、海遊館、志摩スペイン村なども持ち、移動、買い物、宿泊と観光のサービスを展開する。",
+      "proof": {
+        "code": "9041",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001023131",
+        "edinet_code": "E04102",
+        "source_company_name": "近鉄グループホールディングス株式会社",
+        "filing_company_name": "近鉄グループホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCLR",
+        "current_edinet_code": "E04102",
+        "current_corporate_number": "6120001023131"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCLR",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869562.18239,
+      "pdf_sha256": "f225cc5288cb02b2c89b4718775a73c84005dbe5cb3c11f5cfeb0e9a834afa99"
+    },
+    {
+      "symbol": "9046.T",
+      "identity": {
+        "symbol": "9046.T",
+        "code": "9046",
+        "name": "神戸電鉄",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道で旅客を運び、地域の交通や暮らしに関わる事業を展開する会社。グループでバスとタクシーを運行し、本体は土地・建物の販売や賃貸、保育、健康・介護のサービスも行う。神鉄エンタープライズが食品スーパー、神鉄観光がコンビニや飲食、旅行・広告を担う。子会社では建設、施設管理や警備、情報システムの業務を手がけ、関連会社を通じた温泉の給湯事業も持っている。",
+      "proof": {
+        "code": "9046",
+        "exchange": "Tokyo",
+        "corporate_number": "8140001015612",
+        "edinet_code": "E04109",
+        "source_company_name": "神戸電鉄株式会社",
+        "filing_company_name": "神戸電鉄株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAZT",
+        "current_edinet_code": "E04109",
+        "current_corporate_number": "8140001015612"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAZT",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869568.094827,
+      "pdf_sha256": "61fe1aa10d47b8cac7ceeedec8ab58e1d248f90b6c3fdd9c499eaac81a29d6cb"
+    },
+    {
+      "symbol": "9049.T",
+      "identity": {
+        "symbol": "9049.T",
+        "code": "9049",
+        "name": "京福電気鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道の旅客輸送を中心に、バスやタクシー、不動産、観光のサービスをグループで提供する会社。本体が鉄軌道事業を営み、京都バスと京福バスがバス運送、ケイカン交通と福井交通がタクシーを担う。本体と不動産会社が土地・建物を販売・賃貸し、物品の販売も行う。子会社ではホテル、水族館、広告代理店の事業を展開する。京阪ホールディングスのグループ内で交通と関連施設を運営している。",
+      "proof": {
+        "code": "9049",
+        "exchange": "Tokyo",
+        "corporate_number": "6130001020672",
+        "edinet_code": "E04108",
+        "source_company_name": "京福電気鉄道株式会社",
+        "filing_company_name": "京福電気鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEN3",
+        "current_edinet_code": "E04108",
+        "current_corporate_number": "6130001020672"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEN3",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869574.1338181,
+      "pdf_sha256": "dedc7a50c5d1019c8b83f87f5414c526559c2c493a4d5aed49002ca3de542b72"
+    },
+    {
+      "symbol": "9064.T",
+      "identity": {
+        "symbol": "9064.T",
+        "code": "9064",
+        "name": "ヤマトホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "宅急便などの物流サービスを営む事業会社を束ねる持株会社。ヤマト運輸などが個人や法人の荷物を国内で配送し、企業向けには物流センターの企画・運営と輸送を組み合わせた業務を提供する。海外では航空・海上輸送の手配、通関、現地物流を通じて企業の調達から配送までを支える。グループで運送会社の車両整備や燃料・再生可能エネルギーの電力供給も行い、物流の運営を支援する。",
+      "proof": {
+        "code": "9064",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001034964",
+        "edinet_code": "E04187",
+        "source_company_name": "ヤマトホールディングス株式会社",
+        "filing_company_name": "ヤマトホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAYL",
+        "current_edinet_code": "E04187",
+        "current_corporate_number": "7010001034964"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAYL",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869580.206263,
+      "pdf_sha256": "d51ba4aa284ac6d733c7e0326857ae5538a8d4bfb806b7aa935721e946063d82"
+    },
+    {
+      "symbol": "9068.T",
+      "identity": {
+        "symbol": "9068.T",
+        "code": "9068",
+        "name": "丸全昭和運輸",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の貨物を運び、保管や工場内作業までを受け持つ物流会社。トラック輸送、港での荷役、倉庫、通関をグループで組み合わせ、国内外で一貫した輸送を行う。工場の構内では原料や製品、重量物、精密機械を移動し、組立、充填、保管、出荷などの作業を担う。荷役用機械の賃貸も行い、地域ごとの運送会社や海外拠点が本体を補完する。建設、自動車の整備、警備などの関連業務も持つ。",
+      "proof": {
+        "code": "9068",
+        "exchange": "Tokyo",
+        "corporate_number": "8020001028881",
+        "edinet_code": "E04178",
+        "source_company_name": "丸全昭和運輸株式会社",
+        "filing_company_name": "丸全昭和運輸株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKCI",
+        "current_edinet_code": "E04178",
+        "current_corporate_number": "8020001028881"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKCI",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869586.250632,
+      "pdf_sha256": "139f6136c0a1613793261a27943625e46a944719807259189b74e62456d4d94b"
+    },
+    {
+      "symbol": "9075.T",
+      "identity": {
+        "symbol": "9075.T",
+        "code": "9075",
+        "name": "福山通運",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "貨物をトラックで運び、貸切輸送、倉庫保管、流通加工などを提供する会社。本体と全国のグループ運送会社が連携して輸送網をつくり、商品の配送に伴う代金の回収も代行する。海外の運送会社や国際物流の子会社と組み合わせて輸出入の輸送を手配し、通関にも対応する。港での貨物の積み卸し、不動産の賃貸、物品販売などもグループで行い、輸送と保管・関連作業をまとめて担う。",
+      "proof": {
+        "code": "9075",
+        "exchange": "Tokyo",
+        "corporate_number": "1240001032736",
+        "edinet_code": "E04334",
+        "source_company_name": "福山通運株式会社",
+        "filing_company_name": "福山通運株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIXL",
+        "current_edinet_code": "E04334",
+        "current_corporate_number": "1240001032736"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIXL",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869600.137811,
+      "pdf_sha256": "0543a25b1705131caa0ffa5eb6cf7edf29a2ed5b77ad5b3b08050d1ce4777831"
+    },
+    {
+      "symbol": "9083.T",
+      "identity": {
+        "symbol": "9083.T",
+        "code": "9083",
+        "name": "神姫バス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "路線バスなどの旅客輸送を軸に、地域の交通と生活サービスを担う会社。本体と子会社が乗合バスを運行し、運転・車両管理の受託、タクシー、貨物輸送も行う。グループで旅行と貸切バス、車両部品やタイヤの販売・修理、不動産の売買・賃貸・管理を展開する。高速道路の売店・飲食施設やAWAJI EARTH MUSEUM、公共施設の管理運営に加え、保育や介護の事業も持つ。",
+      "proof": {
+        "code": "9083",
+        "exchange": "Tokyo",
+        "corporate_number": "6140001059289",
+        "edinet_code": "E04160",
+        "source_company_name": "神姫バス株式会社",
+        "filing_company_name": "神姫バス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHAF",
+        "current_edinet_code": "E04160",
+        "current_corporate_number": "6140001059289"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHAF",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869607.1669068,
+      "pdf_sha256": "ce70b21eba41a3837fc62c57b15150689ac31fde485700fff746e4bb36609b19"
+    },
+    {
+      "symbol": "9104.T",
+      "identity": {
+        "symbol": "9104.T",
+        "code": "9104",
+        "name": "商船三井",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ばら積み船、タンカー、LNG船、自動車専用船などで貨物を海上輸送する会社。グループで船舶を保有・運航し、コンテナ船やターミナル、航空・海上貨物の輸送手配、陸上輸送・倉庫にも展開する。旅客・貨物を運ぶさんふらわあなどのフェリーやクルーズ、不動産の賃貸・管理も手がける。曳船、船の管理、燃料や舶用資材の販売など、船舶の運航と物流を支える関連サービスも提供する。",
+      "proof": {
+        "code": "9104",
+        "exchange": "Tokyo",
+        "corporate_number": "4010401082896",
+        "edinet_code": "E04236",
+        "source_company_name": "株式会社商船三井",
+        "filing_company_name": "株式会社商船三井",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI2T",
+        "current_edinet_code": "E04236",
+        "current_corporate_number": "4010401082896"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI2T",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869612.420213,
+      "pdf_sha256": "1fdd3b00853c330f57a164645dd236f144a86b1d48a90f0388ef9b5b637d90a5"
+    },
+    {
+      "symbol": "9115.T",
+      "identity": {
+        "symbol": "9115.T",
+        "code": "9115",
+        "name": "明海グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "外航船を保有して貸し出す事業を中心に、ホテルや不動産のサービスも展開する会社。国内外のグループ船舶オーナー会社がタンカー、自動車専用船、ばら積み船などを持ち、貸船料を得る。船舶の運航管理を担う会社もあり、船の保有と管理を組み合わせて海運事業を行う。国内ではホテルやゴルフ場を所有してサービスを提供し、所有ビルの事務所賃貸や、関連会社による仲介・管理も手がける。",
+      "proof": {
+        "code": "9115",
+        "exchange": "Tokyo",
+        "corporate_number": "6140001011266",
+        "edinet_code": "E04242",
+        "source_company_name": "明海グループ株式会社",
+        "filing_company_name": "明海グループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGYV",
+        "current_edinet_code": "E04242",
+        "current_corporate_number": "6140001011266"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGYV",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869618.209855,
+      "pdf_sha256": "decb83c3b3f37c5b5fbcfe72fee70240fa91646ccf00515d875277de779821c0"
+    },
+    {
+      "symbol": "9142.T",
+      "identity": {
+        "symbol": "9142.T",
+        "code": "9142",
+        "name": "九州旅客鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "九州の新幹線と在来線で通勤・通学や都市間の移動を支え、観光列車も運営する会社。ななつ星in九州などで旅行客を迎え、グループではバスを運行する。JR博多シティなどの駅ビル、RJRの賃貸住宅、MJRの分譲マンション、ホテルを展開し、駅の土産店やコンビニ、飲食店も営む。子会社では鉄道設備の工事・保守、一般の建設工事、建設機械の販売・レンタルや整備も手がける。",
+      "proof": {
+        "code": "9142",
+        "exchange": "Tokyo",
+        "corporate_number": "6290001012621",
+        "edinet_code": "E32679",
+        "source_company_name": "九州旅客鉄道株式会社",
+        "filing_company_name": "九州旅客鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6HR",
+        "current_edinet_code": "E32679",
+        "current_corporate_number": "6290001012621"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6HR",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869624.294796,
+      "pdf_sha256": "3811950b0c2deae30162195ddd2fa238d28229c71a212d17aaa3f75c5307ea81"
+    },
+    {
+      "symbol": "9166.T",
+      "identity": {
+        "symbol": "9166.T",
+        "code": "9166",
+        "name": "GENDA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ゲームセンターなどの娯楽施設と関連商品を展開するグループの持株会社。子会社がGiGOのクレーンゲームや各種アーケードゲーム、カラオケBanBan、写真スタジオを運営する。カラオケ機器の販売・レンタルや外貨両替機も扱う。キャラクターの景品・グッズを企画して販売し、映画の配給や関連商品の販売、VRなどの体験型コンテンツも手がける。本体は各社の経営管理と事業拡大を担う。",
+      "proof": {
+        "code": "9166",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001191817",
+        "edinet_code": "E38739",
+        "source_company_name": "株式会社ＧＥＮＤＡ",
+        "filing_company_name": "株式会社GENDA",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y1F9",
+        "current_edinet_code": "E38739",
+        "current_corporate_number": "4010001191817"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y1F9",
+      "filed_on": "2026-04-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869631.817626,
+      "pdf_sha256": "3e9ed2d767dc1abcf7ee1335a953e34f00118d35aeaed49025475c53435df1bc"
+    },
+    {
+      "symbol": "9201.T",
+      "identity": {
+        "symbol": "9201.T",
+        "code": "9201",
+        "name": "日本航空",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "国内・国際の航空路線で旅客と貨物を運ぶ会社。地域航空の子会社とともに都市や地方を結び、旅客機の貨物スペースと貨物専用機を使う輸送も行う。グループではZIPAIRやスプリング・ジャパンが低価格の航空サービスを展開する。JALのマイルを利用する仕組み、クレジットカード、航空商事を扱い、航空機の利用と結びつけた旅行商品の企画・販売やシステムの開発・運用も手がける。",
+      "proof": {
+        "code": "9201",
+        "exchange": "Tokyo",
+        "corporate_number": "7010701007666",
+        "edinet_code": "E04272",
+        "source_company_name": "日本航空株式会社",
+        "filing_company_name": "日本航空株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFIO",
+        "current_edinet_code": "E04272",
+        "current_corporate_number": "7010701007666"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFIO",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869637.893157,
+      "pdf_sha256": "66490608dff4c08255c1f8b2a2d2c149081a4d383bb0796ead4924fce4834df4"
+    },
+    {
+      "symbol": "9220.T",
+      "identity": {
+        "symbol": "9220.T",
+        "code": "9220",
+        "name": "エフビー介護サービス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "高齢者の在宅生活と施設での暮らしを支える介護会社。介護ベッド、車いす、歩行器などの福祉用具を貸し出し、販売や住宅の手すり設置などの改修も行う。有料老人ホームや認知症の人が共同生活するグループホーム、デイサービスを運営し、訪問介護・看護とケアプランの作成も提供する。相談から用具の選定・納品まで同じ担当者が対応し、回収した用具は管理センターで消毒・整備する。",
+      "proof": {
+        "code": "9220",
+        "exchange": "Tokyo",
+        "corporate_number": "2100001007791",
+        "edinet_code": "E37523",
+        "source_company_name": "エフビー介護サービス株式会社",
+        "filing_company_name": "エフビー介護サービス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK1M",
+        "current_edinet_code": "E37523",
+        "current_corporate_number": "2100001007791"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK1M",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869645.336884,
+      "pdf_sha256": "ffd6e42ea10240d1defbbe07cdc702d2cc318a1b42a7c099f9ec3f3d53abd8e8"
+    },
+    {
+      "symbol": "9235.T",
+      "identity": {
+        "symbol": "9235.T",
+        "code": "9235",
+        "name": "売れるネット広告社グループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "健康食品や化粧品などのネット通販企業を中心に、広告と販売の仕組みを支援する持株会社。グループで売れるD2Cつくーるを提供し、商品紹介ページ、申込フォーム、購入後のメールなどを作成・配信する。広告素材の制作、広告の配信・効果分析、通販の改善相談に加え、海外向けECも支援する。グループ会社が化粧品や健康食品の通販を手がけ、国内外で使えるWi-Fi機器も法人向けに貸し出す。",
+      "proof": {
+        "code": "9235",
+        "exchange": "Tokyo",
+        "corporate_number": "7290001037832",
+        "edinet_code": "E36421",
+        "source_company_name": "売れるネット広告社グループ株式会社",
+        "filing_company_name": "売れるネット広告社グループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100WX4A",
+        "current_edinet_code": "E36421",
+        "current_corporate_number": "7290001037832"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100WX4A",
+      "filed_on": "2025-10-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869651.3793228,
+      "pdf_sha256": "20a17051c3a5ba2783961c7efc9e88fac58ed65d90d752be618f22d792b24d82"
+    },
+    {
+      "symbol": "7908.T",
+      "identity": {
+        "symbol": "7908.T",
+        "code": "7908",
+        "name": "きもと",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "フィルムに表面加工を施し、用途に応じた機能を持つ工業用材料を作って販売する。もう一つの柱はデジタルツイン関連で、画像データの処理、地理情報のデータ作成、ソフトウェアの受託開発を手掛け、業務改善の提案や機器販売も行う。グループでは日本と米国が高機能材料を製造し、中国の子会社がデジタルツイン関連の製品を供給する。スイスにも販売拠点を置き、各地でグループ製品を販売している。",
+      "proof": {
+        "code": "7908",
+        "exchange": "Tokyo",
+        "corporate_number": "9011101005242",
+        "edinet_code": "E02425",
+        "source_company_name": "株式会社きもと",
+        "filing_company_name": "株式会社きもと",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5JR",
+        "current_edinet_code": "E02425",
+        "current_corporate_number": "9011101005242"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5JR",
+      "filed_on": "2026-05-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869358.1931882,
+      "pdf_sha256": "a8b2c39103e8249322336bba78929aa77c8dbdb399e9e81d43e7b26d78027fde"
+    },
+    {
+      "symbol": "7955.T",
+      "identity": {
+        "symbol": "7955.T",
+        "code": "7955",
+        "name": "クリナップ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅や店舗、事業所で使う厨房機器と、浴槽・洗面機器を製造して販売する設備メーカー。グループ会社が製品の販売、施工、購入後のサービスを担い、ステンレス素材の調達や切断・着色加工、製品の輸送と荷役まで支える。中国の子会社では現地などで生産した原材料や商品を販売する。周辺事業として、グループ向けの人材派遣、事務受託、ソフトウェアの開発・保守に加え、老人ホームや介護サービスも展開する。",
+      "proof": {
+        "code": "7955",
+        "exchange": "Tokyo",
+        "corporate_number": "6011501006231",
+        "edinet_code": "E02406",
+        "source_company_name": "クリナップ株式会社",
+        "filing_company_name": "クリナップ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHN2",
+        "current_edinet_code": "E02406",
+        "current_corporate_number": "6011501006231"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHN2",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869364.212548,
+      "pdf_sha256": "f099121b01a97481fe5e13a96756a129fc3b257cf91d4555c7b68e45d00cd995"
+    },
+    {
+      "symbol": "7988.T",
+      "identity": {
+        "symbol": "7988.T",
+        "code": "7988",
+        "name": "ニフコ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工業用のプラスチック製留め具や精密成形部品、それらに関わる金型を製造して販売する。国内のニフコ各社に加え、米国、欧州、中国、韓国、東南アジアなどの子会社が樹脂成形品や金型を供給し、グループ内でも製品を相互に仕入れて販売する。別の事業としてシモンズのベッドと家具を扱う。日本のシモンズがベッドの製造・販売と家具の輸入販売を担い、海外のグループ会社も寝具・家具の製造や販売を行う。",
+      "proof": {
+        "code": "7988",
+        "exchange": "Tokyo",
+        "corporate_number": "5020001007855",
+        "edinet_code": "E02386",
+        "source_company_name": "株式会社ニフコ",
+        "filing_company_name": "株式会社ニフコ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGQB",
+        "current_edinet_code": "E02386",
+        "current_corporate_number": "5020001007855"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGQB",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869370.428044,
+      "pdf_sha256": "0c59fb1e157790dc2e0efed0dc63aeff8ea44078559234a5d0729c3a2377ba52"
+    },
+    {
+      "symbol": "8014.T",
+      "identity": {
+        "symbol": "8014.T",
+        "code": "8014",
+        "name": "蝶理",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "繊維と化学品を中心に、国内外で商品の仕入れや販売を行う商社グループ。繊維では合成・天然繊維の原料から織物、編物、不織布、衣料品、産業向け資材まで扱う。化学品ではウレタンや樹脂の原料、添加剤、化粧品・ガラス・電子部品向けの原材料、医薬品や食品関連の素材などを供給する。機械分野では四輪車、二輪車、トラックと関連資材を取り扱う。海外の現地法人も繊維・化学品の取引を担い、各地域に販売網を持つ。",
+      "proof": {
+        "code": "8014",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001077485",
+        "edinet_code": "E02509",
+        "source_company_name": "蝶理株式会社",
+        "filing_company_name": "蝶理株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBIN",
+        "current_edinet_code": "E02509",
+        "current_corporate_number": "3120001077485"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBIN",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869376.3472629,
+      "pdf_sha256": "c87d685de11220134715c70cd60943a543e860e374a3107929c54b91f07dabae"
+    },
+    {
+      "symbol": "8025.T",
+      "identity": {
+        "symbol": "8025.T",
+        "code": "8025",
+        "name": "ツカモトコーポレーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣料や住まいで使う繊維製品を中心に、商品の企画、加工、販売を行う。洋装関連では本体のユニフォーム・販促関連部門やアパレル部門が商品を企画し、住まい向けのホームファニシング商品も扱う。和装関連の加工・販売は主に子会社のツカモト市田が担当する。健康・生活分野では、本体とツカモトウェルネスが健康や環境に関わる生活機器を企画して販売する。これらの商品事業に加え、本体が建物の賃貸も手掛ける。",
+      "proof": {
+        "code": "8025",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001034878",
+        "edinet_code": "E02588",
+        "source_company_name": "株式会社ツカモトコーポレーション",
+        "filing_company_name": "株式会社ツカモトコーポレーション",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDV3",
+        "current_edinet_code": "E02588",
+        "current_corporate_number": "2010001034878"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDV3",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869382.2815309,
+      "pdf_sha256": "cf1ea3e1aa72da515793e73e6a4c3545ba83f771a13f5da60f849bb1c3e64d5a"
+    },
+    {
+      "symbol": "8037.T",
+      "identity": {
+        "symbol": "8037.T",
+        "code": "8037",
+        "name": "カメイ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "石油製品やLPガス、米・食肉・酒類、住宅設備や鋼材などを販売する総合商社グループ。建設工事や住宅のリフォーム、食品スーパーの運営も手掛ける。子会社では国産車・輸入車の販売、レンタカーやカーリースを展開する。海外では食品の輸入卸やスーパーの運営、船舶用の燃料・潤滑油の供給を行う。さらに、ペット用品の販売、調剤薬局の運営や在宅医療・介護サービスなど、商品供給と生活に関わる事業を幅広く持つ。",
+      "proof": {
+        "code": "8037",
+        "exchange": "Tokyo",
+        "corporate_number": "5370001003340",
+        "edinet_code": "E02682",
+        "source_company_name": "カメイ株式会社",
+        "filing_company_name": "カメイ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKU0",
+        "current_edinet_code": "E02682",
+        "current_corporate_number": "5370001003340"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKU0",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869390.584943,
+      "pdf_sha256": "e19d67477766a6e61f8ef336b4a0e5f830af9835b17a06277ed00586951c238a"
+    },
+    {
+      "symbol": "8071.JP",
+      "identity": {
+        "symbol": "8071.JP",
+        "code": "8071",
+        "name": "東海エレクトロニクス",
+        "exchange": "Nagoya",
+        "exchange_id": "Q1188840"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体やセンサー、コネクター、モーター、制御機器などの電子部品・関連商品を販売する商社グループ。自動車、工場の自動化設備、情報通信、医療などの分野に商品や技術を提案する。国内では本体が販売を担い、東海テクノセンターがソフトウェアの開発・販売を行う。海外子会社を通じてアジア、米国、ドイツ周辺でも供給する。橋梁などの社会基盤に対するIoT活用や、課題に応じたシステムの提案も手掛ける。",
+      "proof": {
+        "code": "8071",
+        "exchange": "Nagoya",
+        "corporate_number": "4180001038563",
+        "edinet_code": "E02684",
+        "source_company_name": "東海エレクトロニクス株式会社",
+        "filing_company_name": "東海エレクトロニクス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIEJ",
+        "current_edinet_code": "E02684",
+        "current_corporate_number": "4180001038563"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIEJ",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869395.906039,
+      "pdf_sha256": "595b972cc4d6dc87a2a19266cecea2dba9ab91c388e3f763d6c7b0a0c768e831"
+    },
+    {
+      "symbol": "8081.T",
+      "identity": {
+        "symbol": "8081.T",
+        "code": "8081",
+        "name": "カナデン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "三菱電機の代理店として、工場の自動化機器や加工機、建物の設備、半導体・電子部品などを販売する。製造現場には制御機器、レーザー加工機や放電加工機を供給し、ビル向けには空調、昇降機、無停電電源などを扱う。交通事業者向けの電力設備や車両用電機品、防災・太陽光発電設備も販売する。映像やセキュリティのシステム、電子医療装置を含め、グループ会社とともに設計、開発、施工、据付後のサービスまで支援する。",
+      "proof": {
+        "code": "8081",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401007116",
+        "edinet_code": "E02580",
+        "source_company_name": "株式会社カナデン",
+        "filing_company_name": "株式会社カナデン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFEF",
+        "current_edinet_code": "E02580",
+        "current_corporate_number": "7010401007116"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFEF",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869402.024554,
+      "pdf_sha256": "370d24e1c6e6cb62babb6ae5325f570f6291cf8169b1e573ff79ee9b195ded93"
+    },
+    {
+      "symbol": "8085.T",
+      "identity": {
+        "symbol": "8085.T",
+        "code": "8085",
+        "name": "ナラサキ産業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "配電・制御機器、空調や冷凍冷蔵設備、加工機などを販売する商社。農業施設、産業機械、環境設備と関連する情報システムも扱う。建設分野ではセメント、生コンクリート、建築資材、道路工事用の機械を供給し、石油製品の販売も行う。グループ会社は船舶への給油や、港での貨物取扱い、陸上輸送、倉庫、通関などを担い、海と陸をつなぐ物流サービスを提供する。中国やベトナムの拠点では工場自動化システムを販売する。",
+      "proof": {
+        "code": "8085",
+        "exchange": "Tokyo",
+        "corporate_number": "2430001035966",
+        "edinet_code": "E02579",
+        "source_company_name": "ナラサキ産業株式会社",
+        "filing_company_name": "ナラサキ産業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHOM",
+        "current_edinet_code": "E02579",
+        "current_corporate_number": "2430001035966"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHOM",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869407.975882,
+      "pdf_sha256": "7d0b5f0d81198c3f1dc9c1cf65fb7927d359ab9948a1863a7dbdda19ade7b771"
+    },
+    {
+      "symbol": "8091.T",
+      "identity": {
+        "symbol": "8091.T",
+        "code": "8091",
+        "name": "ニチモウ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鮮魚や冷凍魚、魚卵、すり身などの水産食品を、グループで加工・輸入して販売する。漁業向けには子会社が漁網やロープを作り、漁具の仕立て・修理を行い、養殖用の資材や船舶機器も供給する。食品加工機械は子会社や取引先の製品を販売し、合成樹脂、包装材、農畜産向けの資材も扱う。別に、子会社が発酵大豆製品を製造し、健康食品とともに販売する事業を持つ。物流・運送、人材派遣、不動産などの関連サービスも展開する。",
+      "proof": {
+        "code": "8091",
+        "exchange": "Tokyo",
+        "corporate_number": "7010701011833",
+        "edinet_code": "E00570",
+        "source_company_name": "ニチモウ株式会社",
+        "filing_company_name": "ニチモウ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIWE",
+        "current_edinet_code": "E00570",
+        "current_corporate_number": "7010701011833"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIWE",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869414.29626,
+      "pdf_sha256": "120f2a1f6d542476825582b2c14d769961c1bbd2878d922544122dd8686763fd"
+    },
+    {
+      "symbol": "8101.T",
+      "identity": {
+        "symbol": "8101.T",
+        "code": "8101",
+        "name": "GSIクレオス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "繊維原料から衣料品、工業用の商品まで扱う商社グループ。原糸や医療用繊維を供給し、衣料・インナー製品の受託生産や企画、生地の開発、自社ブランドの販売も行う。工業分野では半導体製造装置の部材、塗料原料、機能性樹脂、フィルムを取り扱うほか、産業機械や理化学機器を輸入し、保守も担う。ホビー用品、化粧品原料、健康食品も販売する。グループでトリアセテート繊維やカーボンナノチューブなどの製造・開発も手掛ける。",
+      "proof": {
+        "code": "8101",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001008666",
+        "edinet_code": "E02549",
+        "source_company_name": "株式会社ＧＳＩクレオス",
+        "filing_company_name": "株式会社GSIクレオス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGXI",
+        "current_edinet_code": "E02549",
+        "current_corporate_number": "3010001008666"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGXI",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869420.042469,
+      "pdf_sha256": "354269be99809bc68155aa6a59634abc8fffabfac409e1e01228f1a587e87d49"
+    },
+    {
+      "symbol": "8133.T",
+      "identity": {
+        "symbol": "8133.T",
+        "code": "8133",
+        "name": "伊藤忠エネクス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家庭や企業、車や船の利用者に燃料と電力を供給する伊藤忠系のグループ。ガソリン、灯油、軽油などを販売し、自動車の販売、整備関連サービスやオークションも手掛ける。産業向けにはアスファルト、船舶燃料、工業用ガスを扱い、石油の輸出入や貯蔵タンクの賃貸も行う。発電、電力の小売、熱の供給に加え、太陽光発電設備や余剰電力の買取サービスも提供する。家庭向けにはLPガスや都市ガスを販売し、住宅設備のネット販売も展開する。",
+      "proof": {
+        "code": "8133",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401078551",
+        "edinet_code": "E02643",
+        "source_company_name": "伊藤忠エネクス株式会社",
+        "filing_company_name": "伊藤忠エネクス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC4K",
+        "current_edinet_code": "E02643",
+        "current_corporate_number": "9010401078551"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC4K",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869426.112372,
+      "pdf_sha256": "b5c8589da14175c9b7823d959c2ec5cb1b43807b148a00f1d073251ec0e6ef88"
+    },
+    {
+      "symbol": "8138.T",
+      "identity": {
+        "symbol": "8138.T",
+        "code": "8138",
+        "name": "三京化成",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "土木・建材、電子機器や自動車、日用品、化学工業向けの原料・資材を販売する。取扱品には土壌改良材の原料、コンクリート向け添加剤、電子部品の封止材、自動車部品用の材料、食品包装フィルム、合成樹脂の原料や水処理用の化学品などがある。もう一つの柱として住宅用部材や木工製品を供給する。子会社が住宅部材の保管、仕分け、梱包、出荷と木工製品の製造を担う。海外のグループ拠点と本体による直接取引で仕入れ・販売を行う。",
+      "proof": {
+        "code": "8138",
+        "exchange": "Tokyo",
+        "corporate_number": "8120001080385",
+        "edinet_code": "E02658",
+        "source_company_name": "三京化成株式会社",
+        "filing_company_name": "三京化成株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIC4",
+        "current_edinet_code": "E02658",
+        "current_corporate_number": "8120001080385"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIC4",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869432.1015801,
+      "pdf_sha256": "26c9658aee76fbfd74fc5d6546de4b9e53f0424b229a9917034ceb4906e3f107"
+    },
+    {
+      "symbol": "8157.T",
+      "identity": {
+        "symbol": "8157.T",
+        "code": "8157",
+        "name": "都築電気",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や官公庁の情報システムと通信ネットワークを整える。サーバーや記憶装置などの機器を販売し、相談・設計からソフトウェア開発、ネットワーク構築、導入後の運用と保守まで提供する。製造業、金融、サービス業や運輸業などを支援し、月額で使うクラウドサービスも展開する。物流向けには車両の動きや配送を管理するクラウドサービスを持つ。グループ会社が機器の保守、ソフト開発、通信設備の構築やクラウド関連の開発を分担する。",
+      "proof": {
+        "code": "8157",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401054908",
+        "edinet_code": "E00157",
+        "source_company_name": "都築電気株式会社",
+        "filing_company_name": "都築電気株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE5P",
+        "current_edinet_code": "E00157",
+        "current_corporate_number": "9010401054908"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE5P",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869438.131521,
+      "pdf_sha256": "c1dac22fe4de26fbdcd11ee49b7ec5f2765b68def4c3c84db8bdb05fb4d2631e"
+    },
+    {
+      "symbol": "8165.T",
+      "identity": {
+        "symbol": "8165.T",
+        "code": "8165",
+        "name": "千趣会",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "インターネットとカタログを通じて商品を販売する通信販売会社。グループで商品の調達、注文の受付、梱包や出荷を担い、購入者に商品を届ける。法人向けには物流業務の代行や株主優待品の受託など、商品とサービスを提供する。保険分野では顧客の保険選びを支援し、子会社を通じて保育施設や学童施設も運営する。通信販売ではネット販売を中心とする運営への転換を進めている。商品販売とその周辺業務、子育て支援を組み合わせた事業構成を持つ。",
+      "proof": {
+        "code": "8165",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001066081",
+        "edinet_code": "E03092",
+        "source_company_name": "株式会社千趣会",
+        "filing_company_name": "株式会社千趣会",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XRKS",
+        "current_edinet_code": "E03092",
+        "current_corporate_number": "5120001066081"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XRKS",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869444.2282019,
+      "pdf_sha256": "d5c0cfff3b3a2b6795c7c607c1da83645eba049c4425246280a5544666787dc2"
+    },
+    {
+      "symbol": "8217.T",
+      "identity": {
+        "symbol": "8217.T",
+        "code": "8217",
+        "name": "オークワ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "一般の買い物客に向けてスーパーマーケットを多店舗で運営する小売会社。グループでは、サンライズが農産物などを加工して配送し、和歌山大同青果が農産物の卸売を担う。本体はこれらの会社と商品の仕入れや供給を行う。オークフーズによる飲食店、マミーによる衣類などのクリーニング店は、スーパーの店内にも出店。さらに子会社が店舗などの施設管理を受託する。",
+      "proof": {
+        "code": "8217",
+        "exchange": "Tokyo",
+        "corporate_number": "2170001002092",
+        "edinet_code": "E03119",
+        "source_company_name": "株式会社オークワ",
+        "filing_company_name": "株式会社オークワ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y362",
+        "current_edinet_code": "E03119",
+        "current_corporate_number": "2170001002092"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y362",
+      "filed_on": "2026-05-13",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869450.2183318,
+      "pdf_sha256": "5bad29e1136e946b610595987e83e0dfbfa50e51e391a72af32991cd5a469a89"
+    },
+    {
+      "symbol": "8244.T",
+      "identity": {
+        "symbol": "8244.T",
+        "code": "8244",
+        "name": "近鉄百貨店",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣料、食品、家庭用品、雑貨などを売る百貨店を中核とする会社。保有する不動産の貸し出しも本体で行う。グループでは、近鉄友の会が買い物代金を前払いする会員向けの販売取次ぎを担当。シュテルン近鉄は輸入車を販売し、ジャパンフーズクリエイトは食品を製造・販売する。近創が店舗などの内装工事を手掛け、近畿配送サービスは販売商品の配送を担い、百貨店の営業を支える。",
+      "proof": {
+        "code": "8244",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001098201",
+        "edinet_code": "E03021",
+        "source_company_name": "株式会社近鉄百貨店",
+        "filing_company_name": "株式会社近鉄百貨店",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5TO",
+        "current_edinet_code": "E03021",
+        "current_corporate_number": "3120001098201"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5TO",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869457.768639,
+      "pdf_sha256": "785c6ad368dd7914a050ede88d89a7a7ab935af6ea9941d06130a9d053d0eed5"
+    },
+    {
+      "symbol": "8253.T",
+      "identity": {
+        "symbol": "8253.T",
+        "code": "8253",
+        "name": "クレディセゾン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "クレジットカードを通じた支払いサービスを中心に、顧客の資金需要に応える金融グループ。カード関連の業務に加え、リース、借入れに対する信用保証、各種融資を扱う。グループ会社を通じて債権の回収や不動産の取引・貸し出しにも携わる。海外ではインド、ブラジル、メキシコなどの拠点で貸付けと投資を展開。コンチェルトやイープラスを通じた娯楽関連の事業も持つ。",
+      "proof": {
+        "code": "8253",
+        "exchange": "Tokyo",
+        "corporate_number": "2013301002884",
+        "edinet_code": "E03041",
+        "source_company_name": "株式会社クレディセゾン",
+        "filing_company_name": "株式会社クレディセゾン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCDE",
+        "current_edinet_code": "E03041",
+        "current_corporate_number": "2013301002884"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCDE",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869465.278355,
+      "pdf_sha256": "1e63be4e892e5b89e0e463d9eea4b9850608fc907aaa8137c9b84dc0fb35fecc"
+    },
+    {
+      "symbol": "8260.T",
+      "identity": {
+        "symbol": "8260.T",
+        "code": "8260",
+        "name": "井筒屋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "小倉や山口で百貨店を展開し、来店客に婦人服・紳士服などの買い物の場を提供する。山口井筒屋とは商品供給や共通の商品券で連携。グループには、店内レストランの運営、慶弔用ギフトの販売、国内品や輸入品の卸売、店舗の清掃を担当する会社がある。井筒屋友の会は会員が代金を前払いする商品販売の取次ぎを行う。関連会社のニシコンは情報処理サービスを手掛ける。",
+      "proof": {
+        "code": "8260",
+        "exchange": "Tokyo",
+        "corporate_number": "7290801000329",
+        "edinet_code": "E03032",
+        "source_company_name": "株式会社井筒屋",
+        "filing_company_name": "株式会社井筒屋",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6HY",
+        "current_edinet_code": "E03032",
+        "current_corporate_number": "7290801000329"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6HY",
+      "filed_on": "2026-05-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869471.3280299,
+      "pdf_sha256": "84ad2a1756d1e267116525f43b54ff741bc51f90945526c9c1f848b03ee57881"
+    },
+    {
+      "symbol": "8278.T",
+      "identity": {
+        "symbol": "8278.T",
+        "code": "8278",
+        "name": "フジ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "中国・四国と兵庫県で店舗を展開する小売会社。総合小売の本体とスーパーを運営する子会社が、地域の買い物客に食品などを販売する。生鮮品や惣菜は店内や加工拠点でも製造・加工。グループでは青果や水産物の卸売、飲食店、電子マネー、フィットネスクラブ、旅行、介護なども扱う。さらに建物の管理、不動産の貸し出し、冷凍設備などの工事を通じ、店舗や地域の生活を支える。",
+      "proof": {
+        "code": "8278",
+        "exchange": "Tokyo",
+        "corporate_number": "9500001003505",
+        "edinet_code": "E03118",
+        "source_company_name": "株式会社フジ",
+        "filing_company_name": "株式会社フジ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y4CU",
+        "current_edinet_code": "E03118",
+        "current_corporate_number": "9500001003505"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y4CU",
+      "filed_on": "2026-05-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869477.499867,
+      "pdf_sha256": "c6f1e4a638aaef6611bb9db5ad9188bcc6f4989c3405c1022c5c1ea2c98785f4"
+    },
+    {
+      "symbol": "8425.T",
+      "identity": {
+        "symbol": "8425.T",
+        "code": "8425",
+        "name": "みずほリース",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の設備導入を支えるリース・金融グループ。不動産、工場の機械、情報機器、輸送機器、エネルギー設備などを貸し出し、分割払いでの販売も行う。不動産や船舶、航空機などに関する融資・出資、債権を使った資金調達にも対応。グループ会社は中古物件の売買、フォークリフトの貸出し・修理・販売、太陽光発電、使い終わったＩＴ資産の回収と再利用などを手掛ける。",
+      "proof": {
+        "code": "8425",
+        "exchange": "Tokyo",
+        "corporate_number": "3010401094447",
+        "edinet_code": "E05426",
+        "source_company_name": "みずほリース株式会社",
+        "filing_company_name": "みずほリース株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YESP",
+        "current_edinet_code": "E05426",
+        "current_corporate_number": "3010401094447"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YESP",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869483.398348,
+      "pdf_sha256": "9b894cf00ab6b7b8e52ae092da6d6eac6831617cfbcb5eb0f94f5f71c1723e8e"
+    },
+    {
+      "symbol": "8584.T",
+      "identity": {
+        "symbol": "8584.T",
+        "code": "8584",
+        "name": "ジャックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "買い物やサービス代金を加盟店に立て替え、利用者から分割払いなどで回収する信販会社。クレジットカードの発行、家賃の保証と集金、口座振替による収納代行も行う。投資用マンション購入や自動車・教育資金の借入れについて、金融機関向けに個人の債務を保証。グループは保険販売、リース、債権回収も担い、東南アジアでは二輪車や自動車を購入するためのローンを扱う。",
+      "proof": {
+        "code": "8584",
+        "exchange": "Tokyo",
+        "corporate_number": "2440001001001",
+        "edinet_code": "E04768",
+        "source_company_name": "株式会社ジャックス",
+        "filing_company_name": "株式会社ジャックス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEIM",
+        "current_edinet_code": "E04768",
+        "current_corporate_number": "2440001001001"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEIM",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869489.4502301,
+      "pdf_sha256": "148c769eb034d4379092544e1afe77690dbebf885864f01709b7db2dc3aab485"
+    },
+    {
+      "symbol": "8596.T",
+      "identity": {
+        "symbol": "8596.T",
+        "code": "8596",
+        "name": "九州リースサービス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "機械や設備を顧客に貸し出すリースと、代金を分けて支払う割賦販売を行う会社。融資、債権の買い取り、借入れなどの信用保証を通じた資金供給も手掛ける。グループでは不動産の販売や貸し出し、不動産事業への出資を展開。保険の販売代理や自動車リースの紹介も扱う。ケイ・エル・アイなどの子会社は、売電やＬＥＤ照明の貸し出しを含む環境関連サービスを提供する。",
+      "proof": {
+        "code": "8596",
+        "exchange": "Tokyo",
+        "corporate_number": "2290001012609",
+        "edinet_code": "E04821",
+        "source_company_name": "株式会社九州リースサービス",
+        "filing_company_name": "株式会社九州リースサービス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHO7",
+        "current_edinet_code": "E04821",
+        "current_corporate_number": "2290001012609"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHO7",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869501.754942,
+      "pdf_sha256": "e4ab7338074c7c0ee957c742151456369d847c2e531b607381efe3873b0e6d10"
+    },
+    {
+      "symbol": "8616.T",
+      "identity": {
+        "symbol": "8616.T",
+        "code": "8616",
+        "name": "東海東京フィナンシャル・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東海東京証券などを傘下に持つ金融グループの経営管理会社。グループの証券会社は有価証券の売買や注文の仲介、発行時の引受け、募集・売出しの取扱いを行い、顧客の運用と資金調達を支える。関連する事業には資産運用、ベンチャー投資、保険代理、金融情報の提供や研修、資産に関する相談がある。日本に加え、香港やロンドン、シンガポールなどにも拠点を置く。",
+      "proof": {
+        "code": "8616",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001034202",
+        "edinet_code": "E03764",
+        "source_company_name": "東海東京フィナンシャル・ホールディングス株式会社",
+        "filing_company_name": "東海東京フィナンシャル・ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGI5",
+        "current_edinet_code": "E03764",
+        "current_corporate_number": "1010001034202"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGI5",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869507.829442,
+      "pdf_sha256": "311ee132484482838718edb44122b6b46b9f7c16a19a2f48f0cb1bb3859c42ac"
+    },
+    {
+      "symbol": "8864.T",
+      "identity": {
+        "symbol": "8864.T",
+        "code": "8864",
+        "name": "空港施設",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "航空会社などに、空港内の事務所、航空機の格納庫、工場用の建物を貸し出す会社。空港外でもオフィス、集合住宅、ホテルなどの賃貸と不動産の販売を行う。東京空港冷暖房とともに、空港の冷暖房や給排水、共用の通信設備を運営する。グループではシンガポールやカナダに拠点を持ち、海外不動産の貸し出しも展開。資金の貸付け、動産リース、太陽光発電なども扱う。",
+      "proof": {
+        "code": "8864",
+        "exchange": "Tokyo",
+        "corporate_number": "8010801003218",
+        "edinet_code": "E03958",
+        "source_company_name": "空港施設株式会社",
+        "filing_company_name": "空港施設株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGNC",
+        "current_edinet_code": "E03958",
+        "current_corporate_number": "8010801003218"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGNC",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869513.835387,
+      "pdf_sha256": "3f1da1ab22211fb559bc50c3485cedea2e3a9a524f00403693bbe8bd88cf7c80"
+    },
+    {
+      "symbol": "9003.T",
+      "identity": {
+        "symbol": "9003.T",
+        "code": "9003",
+        "name": "相鉄ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "相模鉄道や相鉄バスなどを傘下に置き、グループの経営方針を定める持株会社。子会社が鉄道・バスによる移動を支え、相鉄ローゼンなどがスーパーや駅の店舗を運営する。不動産分野では分譲と貸し出しを扱い、建物の管理やメンテナンスも行う。ホテル各社は宿泊、宴会、婚礼などのサービスを提供し、韓国にも事業会社を持つ。熱供給やリフォーム工事、事務サービスもグループで手掛ける。",
+      "proof": {
+        "code": "9003",
+        "exchange": "Tokyo",
+        "corporate_number": "7020001014874",
+        "edinet_code": "E04097",
+        "source_company_name": "相鉄ホールディングス株式会社",
+        "filing_company_name": "相鉄ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFL1",
+        "current_edinet_code": "E04097",
+        "current_corporate_number": "7020001014874"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFL1",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869519.969238,
+      "pdf_sha256": "c84add9ddc6c0c026764136814fadc8e63530c7a261e99af2017d251c9e0083b"
+    },
+    {
+      "symbol": "9007.T",
+      "identity": {
+        "symbol": "9007.T",
+        "code": "9007",
+        "name": "小田急電鉄",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "新宿から小田原、江の島、多摩方面へつながる鉄道を運営する会社。本体は不動産の分譲や貸し出しも手掛ける。グループには小田急箱根や江ノ島電鉄などの鉄道会社に加え、バス、タクシー、船、ロープウェー、ケーブルカーを扱う会社がある。百貨店や小売店、ホテル、飲食店、旅行、ゴルフ場なども展開。鉄道設備の維持や建物の管理、食品製造、広告などの業務も担う。",
+      "proof": {
+        "code": "9007",
+        "exchange": "Tokyo",
+        "corporate_number": "1011001005060",
+        "edinet_code": "E04088",
+        "source_company_name": "小田急電鉄株式会社",
+        "filing_company_name": "小田急電鉄株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIM7",
+        "current_edinet_code": "E04088",
+        "current_corporate_number": "1011001005060"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIM7",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869525.9554,
+      "pdf_sha256": "8f8a8cde8a2eb2ad9f11f335ede57f0db3df6ef1aee927747fc0fb646c2ec3ec"
+    },
+    {
+      "symbol": "9009.T",
+      "identity": {
+        "symbol": "9009.T",
+        "code": "9009",
+        "name": "京成電鉄",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "東京側から千葉・成田空港方面へつながる鉄道網を運営する会社。本体は不動産の販売と貸し出しも行う。グループには北総鉄道や関東鉄道などがあり、バスとタクシーの会社も傘下に持つ。京成ストアなどの店舗、水戸京成百貨店、ホテルといった生活・観光関連事業を展開し、建設や建物管理、車両関連の業務も扱う。レジャー分野には持分法で取り込むオリエンタルランドが含まれる。",
+      "proof": {
+        "code": "9009",
+        "exchange": "Tokyo",
+        "corporate_number": "7010601012155",
+        "edinet_code": "E04091",
+        "source_company_name": "京成電鉄株式会社",
+        "filing_company_name": "京成電鉄株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL5Y",
+        "current_edinet_code": "E04091",
+        "current_corporate_number": "7010601012155"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL5Y",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869531.9740071,
+      "pdf_sha256": "c44a3691d71f4bf0d021eaa330112581809824c0658fe2bfc03a9a8e5945cb62"
+    },
+    {
+      "symbol": "9017.T",
+      "identity": {
+        "symbol": "9017.T",
+        "code": "9017",
+        "name": "新潟交通",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "バスによる旅客輸送を中心に、移動と旅行に関わるサービスを提供する会社。本体は不動産の貸し出しと売買、商品の販売、旅行、航空代理の業務も行う。グループでは新潟交通観光バスや新潟交通佐渡が旅客輸送を担い、佐渡ではタクシーも扱う。シルバーホテルと国際佐渡観光ホテルが宿泊サービスを提供。さらに商品の販売会社、航空運送の代理、広告代理、清掃の会社を持つ。",
+      "proof": {
+        "code": "9017",
+        "exchange": "Tokyo",
+        "corporate_number": "7110001003728",
+        "edinet_code": "E04155",
+        "source_company_name": "新潟交通株式会社",
+        "filing_company_name": "新潟交通株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI97",
+        "current_edinet_code": "E04155",
+        "current_corporate_number": "7110001003728"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI97",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869537.9135308,
+      "pdf_sha256": "4a5c1555a35fc5f40e733d446911875e15d09ea3ee9a2055fdff7e09c414958d"
+    },
+    {
+      "symbol": "9021.T",
+      "identity": {
+        "symbol": "9021.T",
+        "code": "9021",
+        "name": "西日本旅客鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "北陸から近畿、中国、九州北部にかけて鉄道を運営し、新幹線や在来線の特急による都市間移動と、京阪神などの都市圏輸送を担う会社。グループではバス、宮島へのフェリー、レンタカーも展開し、線路や車両の工事・保守を行う。駅の物販や飲食店、百貨店、ホテル、商業施設、不動産の販売・貸し出しも扱う。日本旅行を通じた旅行関連サービスのほか、広告や情報サービスの事業を持つ。",
+      "proof": {
+        "code": "9021",
+        "exchange": "Tokyo",
+        "corporate_number": "1120001059675",
+        "edinet_code": "E04148",
+        "source_company_name": "西日本旅客鉄道株式会社",
+        "filing_company_name": "西日本旅客鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCFK",
+        "current_edinet_code": "E04148",
+        "current_corporate_number": "1120001059675"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCFK",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869544.0514839,
+      "pdf_sha256": "3476c0be60d5f52343417c38b971e478ddab05762069f28a79dceae78b339e78"
+    },
+    {
+      "symbol": "9028.T",
+      "identity": {
+        "symbol": "9028.T",
+        "code": "9028",
+        "name": "ゼロ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車メーカーや販売会社、リース会社などから、新車・中古車を運ぶ仕事を受託する。本体と子会社で納車前の点検整備、大型車の整備、オークション会場内の検査や車両移動も扱う。グループでは病院・学校・企業向けの車両運行管理や運転手派遣、港での荷役、貨物の運送・保管を提供する。海外では中古車輸出、中国の車両輸送、タイの車両輸送と納車前検査にも取り組む。",
+      "proof": {
+        "code": "9028",
+        "exchange": "Tokyo",
+        "corporate_number": "4020001079978",
+        "edinet_code": "E04230",
+        "source_company_name": "株式会社ゼロ",
+        "filing_company_name": "株式会社ゼロ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z5AL",
+        "current_edinet_code": "E04230",
+        "current_corporate_number": "4020001079978"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z5AL",
+      "filed_on": "2026-09-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869553.010586,
+      "pdf_sha256": "c8685331d82000b3a89066e083e0d171336a3528d26a4fc1fffced16122a6482"
+    },
+    {
+      "symbol": "9036.T",
+      "identity": {
+        "symbol": "9036.T",
+        "code": "9036",
+        "name": "東部ネットワーク",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "本体と運送子会社が、飲料、セメント、日用品、産業用ガスなどを荷主から受けてトラックで運ぶ。輸送だけでなく荷役と倉庫での保管を組み合わせ、企業の物流業務を請け負う。本体は自社ビルや倉庫を貸し出し、自動車の整備も行う。グループの東北三光などと輸送を相互に委託するほか、石油製品、セメント、車両を販売し、各種リースの販売も扱う物流会社である。",
+      "proof": {
+        "code": "9036",
+        "exchange": "Tokyo",
+        "corporate_number": "9020001023915",
+        "edinet_code": "E04221",
+        "source_company_name": "東部ネットワーク株式会社",
+        "filing_company_name": "東部ネットワーク株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK2G",
+        "current_edinet_code": "E04221",
+        "current_corporate_number": "9020001023915"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK2G",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869559.1067488,
+      "pdf_sha256": "9626130fa08f38edca322275b542e638b3c72f9c66e5f3a07ea5f6102122be68"
+    },
+    {
+      "symbol": "9045.T",
+      "identity": {
+        "symbol": "9045.T",
+        "code": "9045",
+        "name": "京阪ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "持株会社として京阪グループをまとめ、本体も不動産事業を担う。京阪電気鉄道などの子会社が大阪・京都・滋賀を結ぶ鉄道やバスを運行し、地域住民や観光客の移動を支える。グループには不動産事業、建設、百貨店やスーパー、商業施設の運営がある。ホテルに加え、水上バスや琵琶湖の船、ゴルフ場、比叡山の交通施設も展開し、沿線の買物や旅行・余暇に対応する。",
+      "proof": {
+        "code": "9045",
+        "exchange": "Tokyo",
+        "corporate_number": "8120001149503",
+        "edinet_code": "E04105",
+        "source_company_name": "京阪ホールディングス株式会社",
+        "filing_company_name": "京阪ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCVR",
+        "current_edinet_code": "E04105",
+        "current_corporate_number": "8120001149503"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCVR",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869565.1581922,
+      "pdf_sha256": "9006b47bef6230bba16516c0d0e667083b13df74596f975c5f9c4d1a4a5e9148"
+    },
+    {
+      "symbol": "9048.T",
+      "identity": {
+        "symbol": "9048.T",
+        "code": "9048",
+        "name": "名古屋鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "本体が鉄道を運行し、グループのバスやタクシーとともに旅客の移動を担う。子会社にはトラック輸送やフェリーを担う会社もあり、貨物の運送まで扱う。本体とグループで不動産を貸し出し、子会社が物件の分譲や建物管理も行う。さらにホテル、観光施設、旅行販売、百貨店や物品販売を展開する。航空関連サービス、車両・設備の整備、情報処理などもグループの仕事である。",
+      "proof": {
+        "code": "9048",
+        "exchange": "Tokyo",
+        "corporate_number": "8180001031837",
+        "edinet_code": "E04101",
+        "source_company_name": "名古屋鉄道株式会社",
+        "filing_company_name": "名古屋鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHOL",
+        "current_edinet_code": "E04101",
+        "current_corporate_number": "8180001031837"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHOL",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869571.244023,
+      "pdf_sha256": "a8a1476b51b400d24471e88ae5fa0e0b66e873e2bf9ff0acb35cb9709818ddde"
+    },
+    {
+      "symbol": "9052.T",
+      "identity": {
+        "symbol": "9052.T",
+        "code": "9052",
+        "name": "山陽電気鉄道",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "本体が鉄道を運行し、山陽バスやタクシー子会社とともに旅客の移動を担う。本体は不動産の賃貸と分譲も行い、グループ会社が物件管理を受け持つ。子会社には百貨店、コンビニ、飲食店、スポーツ施設などがあり、沿線利用者の買物や余暇にも対応する。広告と保険の代理業務、情報処理、車両・設備の保守や工事、企業への人材派遣と請負もグループで展開する。",
+      "proof": {
+        "code": "9052",
+        "exchange": "Tokyo",
+        "corporate_number": "8140001016148",
+        "edinet_code": "E04125",
+        "source_company_name": "山陽電気鉄道株式会社",
+        "filing_company_name": "山陽電気鉄道株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD7X",
+        "current_edinet_code": "E04125",
+        "current_corporate_number": "8140001016148"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD7X",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869577.1559129,
+      "pdf_sha256": "79517420846a71dd92716f7dc7392d7180a19a36f02f5d1063b6ebaf226e8741"
+    },
+    {
+      "symbol": "9065.T",
+      "identity": {
+        "symbol": "9065.T",
+        "code": "9065",
+        "name": "山九",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の生産活動を支える物流と設備工事を、国内外で本体とグループ会社が担う。港で船の貨物を積み降ろしし、倉庫保管、トラック輸送、通関や国際複合輸送を提供するほか、顧客の工場内で原材料や製品の運搬・管理を受託する。製鉄、石油化学、電力などのプラントでは機器の建設・据付、配管、保守を行い、大型重量物の輸送や機械・橋梁の製作、人材派遣なども扱う。",
+      "proof": {
+        "code": "9065",
+        "exchange": "Tokyo",
+        "corporate_number": "7290801005328",
+        "edinet_code": "E04324",
+        "source_company_name": "山九株式会社",
+        "filing_company_name": "山九株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJRS",
+        "current_edinet_code": "E04324",
+        "current_corporate_number": "7290801005328"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJRS",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869583.272741,
+      "pdf_sha256": "74c5e8d63474d47997bea64fce4fd5e73cd6468f2ac65f6d2c57f97ec9074b1c"
+    },
+    {
+      "symbol": "9074.T",
+      "identity": {
+        "symbol": "9074.T",
+        "code": "9074",
+        "name": "日本石油輸送",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ガソリンや灯油などの石油製品を鉄道のタンク車やトラックで運び、液化天然ガスなどの高圧ガスも自動車で輸送する物流会社。グループで石油化学品の鉄道コンテナ輸送や国内外の複合輸送を担い、タンクコンテナや冷蔵・冷凍用コンテナを貸し出す。本体は関連会社へ石油輸送用タンク車をリースし、子会社では不動産の賃貸と太陽光発電も行う。エネルギーや化学品を扱う荷主が顧客となる。",
+      "proof": {
+        "code": "9074",
+        "exchange": "Tokyo",
+        "corporate_number": "3010701012439",
+        "edinet_code": "E04327",
+        "source_company_name": "日本石油輸送株式会社",
+        "filing_company_name": "日本石油輸送株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC3A",
+        "current_edinet_code": "E04327",
+        "current_corporate_number": "3010701012439"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC3A",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869598.3085382,
+      "pdf_sha256": "2dd3c54873e467b9b2281d9ac2d94cf04a72447baeb6fe5e84353dbbd45ca169"
+    },
+    {
+      "symbol": "9081.T",
+      "identity": {
+        "symbol": "9081.T",
+        "code": "9081",
+        "name": "神奈川中央交通",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "本体が乗合バスを運行し、グループの貸切バスやタクシーとともに地域住民や旅行者の移動を支える。本体とグループで不動産の賃貸・分譲を行い、子会社が商用車や輸入車の販売、自動車の整備を担う。さらにホテル、飲食、スポーツ、物品販売などの生活・余暇サービスを展開する。グループ会社はドライブレコーダーなどのバス向け機器を販売し、建物設備の点検や経理業務の受託も担う。",
+      "proof": {
+        "code": "9081",
+        "exchange": "Tokyo",
+        "corporate_number": "6021001036307",
+        "edinet_code": "E04158",
+        "source_company_name": "神奈川中央交通株式会社",
+        "filing_company_name": "神奈川中央交通株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF1P",
+        "current_edinet_code": "E04158",
+        "current_corporate_number": "6021001036307"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF1P",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869603.1481972,
+      "pdf_sha256": "9f685a37c18f306aede61107a03241dba2fc45a6e7cb75cb83953f0b2f04a7c4"
+    },
+    {
+      "symbol": "9085.JP",
+      "identity": {
+        "symbol": "9085.JP",
+        "code": "9085",
+        "name": "北海道中央バス",
+        "exchange": "Sapporo",
+        "exchange_id": "Q11093491"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "本体とニセコバスなどの子会社が乗合・貸切バスを運行し、北海道の住民や来訪者を運ぶ。本体は旅行、飲食、公衆浴場を運営し、グループで土地や建物の賃貸・仲介も行う。観光子会社はニセコアンヌプリと小樽天狗山のスキー場、ホテルや観光施設を運営する。ほかに建設、施設の清掃・警備、バスターミナルでの小売、自動車教習所、介護福祉などをグループ会社が担う。",
+      "proof": {
+        "code": "9085",
+        "exchange": "Sapporo",
+        "corporate_number": "4430001050451",
+        "edinet_code": "E04161",
+        "source_company_name": "北海道中央バス株式会社",
+        "filing_company_name": "北海道中央バス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YNFT",
+        "current_edinet_code": "E04161",
+        "current_corporate_number": "4430001050451"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YNFT",
+      "filed_on": "2026-06-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869609.171432,
+      "pdf_sha256": "ce50e8c006f29bcd0e7972fd4ea033d620531cd7cdd689ece4a978ddf8383271"
+    },
+    {
+      "symbol": "9107.T",
+      "identity": {
+        "symbol": "9107.T",
+        "code": "9107",
+        "name": "川崎汽船",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄鉱石や石炭などのばら積み貨物、液化天然ガス、液化ガス、原油、自動車などを船で運ぶ海運会社。本体と国内外のグループ会社で船舶の運航や貸船を行い、エネルギー・素材・自動車関連の荷主に輸送を提供する。グループには近海・内航輸送、港での荷役、倉庫や国際物流、船舶管理もある。コンテナ船は関連会社を通じて展開し、洋上風力発電向けの海洋作業支援にも取り組む。",
+      "proof": {
+        "code": "9107",
+        "exchange": "Tokyo",
+        "corporate_number": "8140001005720",
+        "edinet_code": "E04237",
+        "source_company_name": "川崎汽船株式会社",
+        "filing_company_name": "川崎汽船株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC6B",
+        "current_edinet_code": "E04237",
+        "current_corporate_number": "8140001005720"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC6B",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869615.2165818,
+      "pdf_sha256": "dc159b68ee4409e456ec24e9f6f5ed77311752a6fb31ccc875d5ef0b1ed843a3"
+    },
+    {
+      "symbol": "9130.T",
+      "identity": {
+        "symbol": "9130.T",
+        "code": "9130",
+        "name": "共栄タンカー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "大型原油タンカーを中心に、油槽船やばら積み船を保有して貸し出す外航海運会社。本体は船を運航・賃貸し、海外子会社が所有する船も借り受けて顧客へ提供する。長期の用船契約による貸船料を主な収入とし、海運会社や石油会社の輸送需要に対応する。液化石油ガスを運ぶ船も扱う。日本郵船との船舶共有や用船の関係を持ち、本体と子会社の間でも船を貸し借りする。",
+      "proof": {
+        "code": "9130",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001008667",
+        "edinet_code": "E04251",
+        "source_company_name": "共栄タンカー株式会社",
+        "filing_company_name": "共栄タンカー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK3U",
+        "current_edinet_code": "E04251",
+        "current_corporate_number": "2010001008667"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK3U",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869621.209671,
+      "pdf_sha256": "c33d4f53506fad9803a03133f74378cefd1c42b305dd498daa0ad2041a532dd0"
+    },
+    {
+      "symbol": "9147.T",
+      "identity": {
+        "symbol": "9147.T",
+        "code": "9147",
+        "name": "NIPPONEXPRESSホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "持株会社として日本通運などのグループ会社を管理する。グループは国内外の企業の貨物をトラック、鉄道、航空、海上輸送で運び、港での荷役や倉庫保管も提供する。国内では情報資産の管理や警備輸送を担い、重量物の運搬・架設・据付も扱う。物流機器や包装資材、車両、燃料の販売、車両整備、保険の代理、不動産などの物流を支える業務を展開し、人材派遣や金融サービスも行う。",
+      "proof": {
+        "code": "9147",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001223668",
+        "edinet_code": "E36706",
+        "source_company_name": "ＮＩＰＰＯＮ　ＥＸＰＲＥＳＳホールディングス株式会社",
+        "filing_company_name": "NIPPONEXPRESSホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XTG8",
+        "current_edinet_code": "E36706",
+        "current_corporate_number": "5010001223668"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XTG8",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869628.9208431,
+      "pdf_sha256": "9fa259972f8b99e82d9aeb4d12d251863e2b67886c020a768d1c662afb7077af"
+    },
+    {
+      "symbol": "9193.T",
+      "identity": {
+        "symbol": "9193.T",
+        "code": "9193",
+        "name": "東京汽船",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "本体とグループ会社が、港内や航路で船を曳航・護衛するタグボートのサービスを提供する。水先人の乗り降りを支える船や警戒船も運航し、船舶の安全な移動を支える。本体は洋上風力発電施設への作業員輸送船の運航、貸船、海上の防災業務を行う。子会社では交通船を運航し、東京湾フェリーが久里浜と金谷を結ぶカーフェリーを運営する。グループには観光船、船に伴う売店・食堂もある。",
+      "proof": {
+        "code": "9193",
+        "exchange": "Tokyo",
+        "corporate_number": "7020001027926",
+        "edinet_code": "E04336",
+        "source_company_name": "東京汽船株式会社",
+        "filing_company_name": "東京汽船株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEHQ",
+        "current_edinet_code": "E04336",
+        "current_corporate_number": "7020001027926"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEHQ",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869634.7795782,
+      "pdf_sha256": "a14903ff290ec7875b3a3579207ce41cb7352e62383b0779ba9766937da09193"
+    },
+    {
+      "symbol": "9202.T",
+      "identity": {
+        "symbol": "9202.T",
+        "code": "9202",
+        "name": "ANAホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "持株会社としてＡＮＡグループの戦略と経営管理を担う。全日本空輸やＰｅａｃｈなどの子会社が国内・国際線の旅客を運び、日本貨物航空などと航空貨物も輸送する。グループは空港での地上支援や航空機整備、電話による予約案内を提供し、外部の航空会社にもサービスを行う。航空券を組み込んだ旅行商品の企画販売、航空関連資材の輸出入、店舗・通販、建物管理や人材派遣も展開する。",
+      "proof": {
+        "code": "9202",
+        "exchange": "Tokyo",
+        "corporate_number": "6010401050876",
+        "edinet_code": "E04273",
+        "source_company_name": "ＡＮＡホールディングス株式会社",
+        "filing_company_name": "ANAホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKL4",
+        "current_edinet_code": "E04273",
+        "current_corporate_number": "6010401050876"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKL4",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869641.02339,
+      "pdf_sha256": "204eac78babc85cfb52a5def4617dbee358caea7ad86ada397521ecb3a836f2d"
+    },
+    {
+      "symbol": "9225.T",
+      "identity": {
+        "symbol": "9225.T",
+        "code": "9225",
+        "name": "ブリッジコンサルティンググループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "公認会計士などの経験を企業の経営課題に結び付けるコンサルティング会社。「会計士.job」の登録人材から担当者を選び、自社のコンサルタントと組んで現場の業務を支援する。上場準備、内部統制・内部監査、決算開示や会計システム導入、Ｍ＆Ａの調査・助言などを提供する。グループ会社は採用や人事の支援、ＣＦＯや経理部長など専門人材の紹介を担い、成長企業の管理体制づくりに対応する。",
+      "proof": {
+        "code": "9225",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401096413",
+        "edinet_code": "E37810",
+        "source_company_name": "ブリッジコンサルティンググループ株式会社",
+        "filing_company_name": "ブリッジコンサルティンググループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XC8K",
+        "current_edinet_code": "E37810",
+        "current_corporate_number": "9010401096413"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XC8K",
+      "filed_on": "2025-12-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791869648.457619,
+      "pdf_sha256": "423a05fa3325aedc1da34143dda28edda1a2354e2083ff9d015188bcd1a451af"
     }
   ]
 }
