@@ -373,7 +373,16 @@
     [['business','どんな会社？'],['life','暮らしとのつながり'],['watch','これから見るところ']].forEach(([key,title])=>{
       const section=el('section','cp-story'),body=el('p','cp-story-copy');append(section,el('h3','cp-heading',title),body);stories.appendChild(section);refs[key]={section,body};
     });
-    refs.businessSource=el('p','cp-source-time');refs.business.section.appendChild(refs.businessSource);
+    refs.businessSource=el('p','cp-source-time');
+    const overview=el('section','cp-overview'),description=el('div','cp-overview-description'),highlights=el('dl','cp-highlights');
+    overview.setAttribute('aria-label','会社説明と主要な数字');highlights.setAttribute('aria-label','主要な数字');
+    description.appendChild(refs.business.section);refs.overviewMetrics={};
+    [['price','株価'],['currentPer','現在のPER'],['dividend','予想配当（今後1年の目安）'],['cap','時価総額']].forEach(([key,label])=>{
+      const row=el('div','cp-highlight'),title=el('dt','cp-highlight-label',label),value=el('dd','cp-highlight-value','未確認'),note=el('p','cp-highlight-note');
+      append(row,title,value,note);highlights.appendChild(row);refs.overviewMetrics[key]={row,title,value,note};
+    });
+    const highlightedNumbers=el('div','cp-overview-numbers');refs.overviewNote=el('p','cp-highlights-note');
+    append(highlightedNumbers,highlights,refs.overviewNote);append(overview,description,highlightedNumbers);refs.overview=overview;
     const numbers=el('details','cp-numbers'),summary=el('summary','cp-numbers-toggle');
     const mark=el('i','cp-disclosure');mark.setAttribute('aria-hidden','true');append(summary,el('span','','数字・配当'),mark);numbers.appendChild(summary);
     const facts=el('div','cp-facts');numbers.appendChild(facts);
@@ -397,8 +406,8 @@
     refs.targetRange=el('p','cp-fact-note');refs.targetDate=el('p','cp-fact-note');append(targets.box,refs.targetRange,refs.targetDate);
     const reasonHelp=el('details','cp-reason-help');reasonHelp.hidden=true;
     append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
-    const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.identityDate,refs.reviewed,refs.sources);
-    append(content,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
+    const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.businessSource,refs.identityDate,refs.reviewed,refs.sources);
+    append(content,overview,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
     let sourcesSignature='',businessSourceSignature='',marketReferenceSignature='',historicalSourceSignature='',issuerForecastSourceSignature='';
     function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
@@ -463,6 +472,18 @@
       if(issuerForecastSignature!==issuerForecastSourceSignature){issuerForecastSourceSignature=issuerForecastSignature;refs.issuerForecast.source.replaceChildren();if(issuerForecast){const link=el('a','cp-source-link',issuerForecast.source_title+' ↗');link.href=issuerForecast.source_url;link.target='_blank';link.rel='noopener noreferrer';refs.issuerForecast.source.appendChild(link);}}refs.issuerForecast.source.hidden=!issuerForecast;
       const reportedSplit=issuerForecast&&issuerForecast.reported_split;
       refs.issuerForecast.note.textContent=issuerForecast?(issuerForecast.fiscal_period_expired?'対象年度は終了しています。資料当時の予想で、実績ではありません。 ':'')+(issuerForecast.status==='not_comparable'?'中間と期末で株式分割の基準が異なり、会社が年間額を示していないため合算しません。 ':'')+(reportedSplit?dates.date(reportedSplit.effective_on)+'の'+reportedSplit.before+'対'+reportedSplit.after+'の株式分割後の基準を会社が記載しています。 ':'')+'資料公表時点の会社予想です。最新の修正は保証されません。当サイトでは株式分割の換算を行っていません。':'';refs.issuerForecast.note.hidden=!issuerForecast;
+      ['price','currentPer','cap'].forEach(key=>{
+        const primary=refs.overviewMetrics[key],detail=refs[key];
+        primary.value.textContent=detail.unknown.hidden?detail.value.textContent:detail.unknown.textContent;
+        primary.row.dataset.unknown=String(!detail.unknown.hidden);primary.note.hidden=true;
+      });
+      const primaryDividend=refs.overviewMetrics.dividend,hasIssuerForecast=!!(record&&record.issuer_dividend_forecast_status!==null),dividendDetail=hasIssuerForecast?refs.issuerForecast:refs.forward;
+      primaryDividend.title.textContent=hasIssuerForecast?'会社の年度予想配当（1株）':'予想配当（今後1年の目安）';
+      primaryDividend.value.textContent=dividendDetail.unknown.hidden?dividendDetail.value.textContent:dividendDetail.unknown.textContent;
+      primaryDividend.row.dataset.unknown=String(!dividendDetail.unknown.hidden);
+      primaryDividend.note.textContent=issuerForecast?(dates.date(issuerForecast.fiscal_period.end)+'までの対象年度'+(issuerForecast.fiscal_period_expired?'・資料当時の予想':'')):'1株あたり。会社の年度予想とは異なります。';
+      primaryDividend.note.hidden=!issuerForecast&&hasIssuerForecast;
+      refs.overviewNote.textContent=refs.price.note.textContent;refs.overviewNote.hidden=refs.price.note.hidden;
       function schedule(value){return day(value)&&w.KNDividendDates?w.KNDividendDates.describe(value):null;}
       showMetric('exDate',schedule(data.ex_dividend_date),day(data.ex_dividend_date)?fetched('ex_dividend_date'):null);
       const paymentMonth=month(data.dividend_payment_period),paymentDate=day(data.dividend_payment_date);

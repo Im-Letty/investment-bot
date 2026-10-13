@@ -284,6 +284,39 @@ function dialogHarness({reduced=true}={}){
   return {w,doc,home,nav,trigger,time,events,vv,view,get retries(){return retries;},key(key,shiftKey=false){const event={key,shiftKey,prevented:false,stopped:false,preventDefault(){this.prevented=true;},stopImmediatePropagation(){this.stopped=true;}};for(const fn of events.keydown||[])fn(event);return event;}};
 }
 function state(raw=fixture(),extra={}){return {symbol:KEY,status:raw.status,data:profile.normalize(raw,KEY,NOW),updating:false,fromCache:false,...extra};}
+test('company explanation and actual primary figures are readable without opening dividend details',()=>{
+  const h=dialogHarness();h.view.open(KEY,'トヨタ',h.trigger);h.view.render(state(yearPerFixture()));const refs=h.view.elements;
+  assert.equal(refs.numbers.open,false);
+  assert.equal(refs.overview.contains(refs.business.body),true);
+  assert.equal(refs.overviewMetrics.price.value.textContent,refs.price.value.textContent);
+  assert.equal(refs.overviewMetrics.cap.value.textContent,refs.cap.value.textContent);
+  assert.equal(refs.overviewMetrics.currentPer.value.textContent,'未確認');
+  assert.doesNotMatch(refs.overviewMetrics.currentPer.row.textContent,/年度|実績|16\.7/);
+  assert.equal(refs.businessSource.closest('.cp-sources')!==null,true);
+  const summary=refs.overviewMetrics.dividend;
+  assert.equal(summary.title.textContent,'予想配当（今後1年の目安）');
+  assert.equal(summary.value.textContent,refs.forward.value.textContent);
+  assert.match(summary.note.textContent,/会社の年度予想とは異なります/);
+  assert.equal(refs.overviewMetrics.price.row.getClientRects().length,1,'Primary values remain visible when the detailed disclosure is closed');
+});
+test('primary company forecast preserves zero, undetermined and exact range without substituting an actual dividend',()=>{
+  const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);const raw=issuerForecastFixture();raw.data[ISSUER_FORECAST]=raw.issuer_dividend_forecast.value=0;
+  const show=()=>h.view.render({symbol:REGIONAL_KEY,status:'ready',data:profile.normalize(raw,REGIONAL_KEY,NOW),updating:false});show();
+  const primary=h.view.elements.overviewMetrics.dividend;
+  assert.equal(primary.title.textContent,'会社の年度予想配当（1株）');assert.equal(primary.value.textContent,'0円');assert.match(primary.note.textContent,/2027\/03\/31.*対象年度/);
+  raw.issuer_dividend_forecast_status=raw.issuer_dividend_forecast.status='undetermined';raw.issuer_dividend_forecast.value=null;delete raw.data[ISSUER_FORECAST];show();
+  assert.equal(primary.value.textContent,'未定');assert.doesNotMatch(primary.value.textContent,/50\.5|60円/);
+  raw.issuer_dividend_forecast_status=raw.issuer_dividend_forecast.status='range';raw.issuer_dividend_forecast.value_range={min:1.34,max:2.01};show();
+  assert.equal(primary.value.textContent,'1.34〜2.01円');assert.equal(h.view.elements.numbers.open,false);
+});
+test('changing companies clears primary forecast type and unavailable prices keep their own reasons',()=>{
+  const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);h.view.render({symbol:REGIONAL_KEY,status:'ready',data:profile.normalize(issuerForecastFixture(),REGIONAL_KEY,NOW),updating:false});
+  h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price=null;raw.field_status={price:'fetch_error'};h.view.render(state(raw));const refs=h.view.elements;
+  assert.equal(refs.overviewMetrics.price.value.textContent,'通信エラー');
+  assert.equal(refs.overviewMetrics.dividend.title.textContent,'予想配当（今後1年の目安）');assert.doesNotMatch(refs.overviewMetrics.dividend.note.textContent,/2027\/03\/31/);
+  h.view.render({symbol:KEY,status:'loading',data:null,updating:true});
+  assert.equal(refs.overviewMetrics.price.value.textContent,'取得中');assert.equal(refs.overviewMetrics.cap.value.textContent,'取得中');assert.equal(refs.overviewMetrics.currentPer.value.textContent,'未確認');
+});
 test('filed annual row has a separate label, exact fiscal period, submitted and fetched times, and EDINET attribution',()=>{
   const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);const raw=filedFixture(),viewState={symbol:REGIONAL_KEY,status:'ready',data:profile.normalize(raw,REGIONAL_KEY,NOW),updating:false};h.view.render(viewState);const refs=h.view.elements;
   assert.equal(refs.historical.row.hidden,false);assert.match(refs.historical.row.textContent,/年度の実績配当（1株）/);assert.equal(refs.historical.value.textContent,'50.5円');assert.equal(refs.historical.period.textContent,'2025/04/01〜2026/03/31 対象年度');assert.equal(refs.historical.time.textContent,'2026/06/30 09:00 提出 / 2026/09/24 14:59 取得');
