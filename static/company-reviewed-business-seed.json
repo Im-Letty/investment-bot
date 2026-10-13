@@ -58932,6 +58932,1950 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791869648.457619,
       "pdf_sha256": "423a05fa3325aedc1da34143dda28edda1a2354e2083ff9d015188bcd1a451af"
+    },
+    {
+      "symbol": "9249.T",
+      "identity": {
+        "symbol": "9249.T",
+        "code": "9249",
+        "name": "日本エコシステム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          },
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          },
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "高速道路の設備保守や補修、排水処理設備などをグループで手がける会社。道路照明、ETC、橋の点検や雪氷対策を担い、携帯電話の基地局工事も行う。公営競技場では投票を集計するシステムと場内運営を提供する。空調・給排水設備、防炎合板、太陽光発電設備も扱い、不動産の売買や賃貸、経営相談にも展開する。",
+      "proof": {
+        "code": "9249",
+        "exchange": "Tokyo",
+        "corporate_number": "8180001084777",
+        "edinet_code": "E36968",
+        "source_company_name": "日本エコシステム株式会社",
+        "filing_company_name": "日本エコシステム株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XCE0",
+        "current_edinet_code": "E36968",
+        "current_corporate_number": "8180001084777"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XCE0",
+      "filed_on": "2025-12-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877820.362148,
+      "pdf_sha256": "f5d2d57caff6928c85ae63229f6f436b52810213e68707c21a0ad39701dbeb15"
+    },
+    {
+      "symbol": "9258.T",
+      "identity": {
+        "symbol": "9258.T",
+        "code": "9258",
+        "name": "CS-C",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "飲食店、美容店、旅館・ホテルなど地域の店舗の集客を支援する。マーケティング用ソフト「C-mo」に加え、「C-mo Pro」で相談対応と業務代行を組み合わせ、広告運用やSNS活用も手掛ける。子会社では飲食店を運営し、実店舗で得たノウハウを店舗向けの支援サービスにも生かしている。",
+      "proof": {
+        "code": "9258",
+        "exchange": "Tokyo",
+        "corporate_number": "6011501017170",
+        "edinet_code": "E37199",
+        "source_company_name": "株式会社ＣＳ－Ｃ",
+        "filing_company_name": "株式会社CS-C",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBLU",
+        "current_edinet_code": "E37199",
+        "current_corporate_number": "6011501017170"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBLU",
+      "filed_on": "2025-12-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877823.329095,
+      "pdf_sha256": "e463307bd722dca38aa41de40cb2ba4fbdb06ec733942d7445af7b4d7200ca43"
+    },
+    {
+      "symbol": "9270.T",
+      "identity": {
+        "symbol": "9270.T",
+        "code": "9270",
+        "name": "バリュエンスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ブランド品や宝石、骨董品などを買い取り、再販売するグループの持株会社。子会社がなんぼや、古美術八光堂などで査定し、宅配や訪問での買取にも対応する。仕入れた品物を国内外の業者向けオークションやALLUの店舗・通販で販売し、時計やバッグの修理も扱う。本体はグループの戦略づくりと経営管理を担う。",
+      "proof": {
+        "code": "9270",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001168182",
+        "edinet_code": "E33807",
+        "source_company_name": "バリュエンスホールディングス株式会社",
+        "filing_company_name": "バリュエンスホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X6BK",
+        "current_edinet_code": "E33807",
+        "current_corporate_number": "6120001168182"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X6BK",
+      "filed_on": "2025-11-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877826.44909,
+      "pdf_sha256": "9ed137b75a2ffa5edc94a70f65d0bfe549fc5b240b0a0fa88e05259b46c407ef"
+    },
+    {
+      "symbol": "9271.T",
+      "identity": {
+        "symbol": "9271.T",
+        "code": "9271",
+        "name": "和心",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "かんざし、和柄の傘、箸、着物などを企画し、観光地の店舗やネット通販で販売する。商品デザインから製造、販売までを管理し、アニメ・ゲーム関連企業向けにキャラクターグッズの受託制作も行う。グループの別事業では、空き家を改修した宿泊施設の貸し出しや不動産賃貸を手掛ける。",
+      "proof": {
+        "code": "9271",
+        "exchange": "Tokyo",
+        "corporate_number": "6011001072625",
+        "edinet_code": "E33858",
+        "source_company_name": "株式会社和心",
+        "filing_company_name": "株式会社和心",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XUPT",
+        "current_edinet_code": "E33858",
+        "current_corporate_number": "6011001072625"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XUPT",
+      "filed_on": "2026-03-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877829.410347,
+      "pdf_sha256": "24e5b82119baf8abbe056f03977ba5f0f5b3e253f38c82e851d378fc4960d8f7"
+    },
+    {
+      "symbol": "9306.T",
+      "identity": {
+        "symbol": "9306.T",
+        "code": "9306",
+        "name": "東陽倉庫",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "荷主の貨物を預かり、保管から積み降ろし、運送までを引き受ける物流会社。税関への手続きや、複数の輸送手段を組み合わせた国際輸送も取り扱う。本体と子会社の東陽物流などが物流の作業や輸送を分担している。物流以外では、保有している建物や土地を貸し出す不動産事業を持つ。",
+      "proof": {
+        "code": "9306",
+        "exchange": "Tokyo",
+        "corporate_number": "5180001031666",
+        "edinet_code": "E04287",
+        "source_company_name": "東陽倉庫株式会社",
+        "filing_company_name": "東陽倉庫株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9SP",
+        "current_edinet_code": "E04287",
+        "current_corporate_number": "5180001031666"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9SP",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877832.35552,
+      "pdf_sha256": "269d645faf17b08800f46dab96759020a47925ff7d4511a3a03d474c070a48e6"
+    },
+    {
+      "symbol": "9311.T",
+      "identity": {
+        "symbol": "9311.T",
+        "code": "9311",
+        "name": "アサガミ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "貨物を倉庫で保管し、入出庫や荷さばき、トラック輸送を行う。海上・航空輸送の手続きや港湾・空港での積み降ろしにも対応し、大型の物流施設や商業施設の賃貸・管理も手掛ける。印刷子会社では、新聞の受託印刷や婚礼・年賀向けの印刷物を扱い、発送までを担っている。",
+      "proof": {
+        "code": "9311",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001035562",
+        "edinet_code": "E04323",
+        "source_company_name": "アサガミ株式会社",
+        "filing_company_name": "アサガミ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIGL",
+        "current_edinet_code": "E04323",
+        "current_corporate_number": "2010001035562"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIGL",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877835.908928,
+      "pdf_sha256": "3f2c23d438c28f7c49a1add1193cd549f1d691aa0f03d390076a7ed395cffffe"
+    },
+    {
+      "symbol": "9326.T",
+      "identity": {
+        "symbol": "9326.T",
+        "code": "9326",
+        "name": "関通ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ネット通販企業の倉庫・配送業務を支えるグループの持株会社。子会社などを通じて商品の受入れ、在庫の管理、出荷を引き受け、注文内容の確認や出荷指示づくりも代行する。倉庫管理のクラウドトーマス、作業手順を確認するアニーを提供し、物流現場の改善や自動化機器の導入も支援する。出版物の物流にも対応する。",
+      "proof": {
+        "code": "9326",
+        "exchange": "Tokyo",
+        "corporate_number": "7122001008714",
+        "edinet_code": "E35493",
+        "source_company_name": "関通ホールディングス株式会社",
+        "filing_company_name": "関通ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y7I7",
+        "current_edinet_code": "E35493",
+        "current_corporate_number": "7122001008714"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y7I7",
+      "filed_on": "2026-05-29",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877838.491928,
+      "pdf_sha256": "b72a480166d5f1fc376bdabf3a54d15c1c9a7cb5a7beded0c065dbce82a2166e"
+    },
+    {
+      "symbol": "9336.T",
+      "identity": {
+        "symbol": "9336.T",
+        "code": "9336",
+        "name": "大栄環境",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自治体やメーカー、建設会社、医療機関などから廃棄物処理を請け負う。グループの車両と処理施設で収集・運搬から選別、再資源化、焼却、埋め立てまでを扱う。汚染土壌の調査・処理や、ごみ処理施設の建設と運営管理も手掛け、廃プラスチックなどの再利用や廃棄物由来のエネルギー供給にも取り組む。",
+      "proof": {
+        "code": "9336",
+        "exchange": "Tokyo",
+        "corporate_number": "6120101041611",
+        "edinet_code": "E38148",
+        "source_company_name": "大栄環境株式会社",
+        "filing_company_name": "大栄環境株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKY3",
+        "current_edinet_code": "E38148",
+        "current_corporate_number": "6120101041611"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKY3",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877841.4726489,
+      "pdf_sha256": "a3688464bbf2a9c37f14d4181e425a4cbb69846cfcdff1f432d089d770505881"
+    },
+    {
+      "symbol": "9343.T",
+      "identity": {
+        "symbol": "9343.T",
+        "code": "9343",
+        "name": "アイビス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "絵を描くアプリibisPaintを開発し、作品を投稿できるオンラインの場も運営する会社。広告表示や有料機能、定額会員から収入を得る。企業向けにはスマホ・Webアプリの開発、クラウド環境の整備と保守、IT技術者の派遣を提供する。子会社テクノスピーチは歌声を合成するVoiSonaと、音声関連の受託開発を手がける。",
+      "proof": {
+        "code": "9343",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001050326",
+        "edinet_code": "E38440",
+        "source_company_name": "株式会社アイビス",
+        "filing_company_name": "株式会社アイビス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XS2D",
+        "current_edinet_code": "E38440",
+        "current_corporate_number": "7180001050326"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XS2D",
+      "filed_on": "2026-03-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877844.419117,
+      "pdf_sha256": "c38acc4144a74d89093860e5d9c110a0a5d5d30a49760b14209050e479319643"
+    },
+    {
+      "symbol": "9361.T",
+      "identity": {
+        "symbol": "9361.T",
+        "code": "9361",
+        "name": "伏木海陸運送",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "伏木港や富山新港で船の貨物を積み降ろしし、コンテナターミナルを運営する。通関、船による輸送、鉄道貨物の取り扱い、トラック配送、倉庫での保管までを担い、港から陸上輸送へつなぐ。グループでは不動産賃貸、木造住宅の建築・リフォーム、繊維製品の製造なども行っている。",
+      "proof": {
+        "code": "9361",
+        "exchange": "Tokyo",
+        "corporate_number": "4230001010772",
+        "edinet_code": "E04339",
+        "source_company_name": "伏木海陸運送株式会社",
+        "filing_company_name": "伏木海陸運送株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z59R",
+        "current_edinet_code": "E04339",
+        "current_corporate_number": "4230001010772"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z59R",
+      "filed_on": "2026-09-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877847.405547,
+      "pdf_sha256": "d2f20c501788bc48d69ac442dfc5bdede1a8892144d022d658a55a34a2d24e44"
+    },
+    {
+      "symbol": "9368.T",
+      "identity": {
+        "symbol": "9368.T",
+        "code": "9368",
+        "name": "キムラユニティー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "物流現場の作業と、企業の車両・情報システムを支える会社。グループで商品の包装、梱包、倉庫への出し入れを受託し、保管用の器具も製造する。車のリース、整備、販売や保険代理店業務を手がけ、システム開発・保守とネットワークのサービスも提供する。人材派遣や業務代行、海外での物流サービスにも展開している。",
+      "proof": {
+        "code": "9368",
+        "exchange": "Tokyo",
+        "corporate_number": "3180001035446",
+        "edinet_code": "E04357",
+        "source_company_name": "キムラユニティー株式会社",
+        "filing_company_name": "キムラユニティー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCXZ",
+        "current_edinet_code": "E04357",
+        "current_corporate_number": "3180001035446"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCXZ",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877851.962792,
+      "pdf_sha256": "19efd4ea8290bbe29b9b0e4cf3c6e9c2a46c11a0a7d4fd4ce61e1ce241ff542b"
+    },
+    {
+      "symbol": "9369.T",
+      "identity": {
+        "symbol": "9369.T",
+        "code": "9369",
+        "name": "キユーソー流通システム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "キユーピーグループや一般の取引先に、食品の保管、荷さばき、運送、情報処理をまとめて提供する。グループで食品の共同配送や油脂・食酢などのタンクローリー輸送を行い、コンビニ向け物流センターの運営も担う。中国やインドネシアでは倉庫・配送などを手掛け、車両や物流機器の販売も行う。",
+      "proof": {
+        "code": "9369",
+        "exchange": "Tokyo",
+        "corporate_number": "7012401007541",
+        "edinet_code": "E04213",
+        "source_company_name": "株式会社キユーソー流通システム",
+        "filing_company_name": "株式会社キユーソー流通システム",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XMO8",
+        "current_edinet_code": "E04213",
+        "current_corporate_number": "7012401007541"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XMO8",
+      "filed_on": "2026-02-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877853.753551,
+      "pdf_sha256": "7ab89cf25443d612fb979174eb35d76f9831bb0bb2a56b05fd7bbdf1951ab4b3"
+    },
+    {
+      "symbol": "9380.T",
+      "identity": {
+        "symbol": "9380.T",
+        "code": "9380",
+        "name": "東海運",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "港から倉庫、陸上・海上の輸送まで貨物の流れを支える物流会社。グループで港の積み降ろし、保管、通関や国際輸送を扱い、トラックやトレーラー、コンテナによる輸送、工場内の荷物の移動・梱包も受託する。海運ではセメントや石膏、石灰石などを船で運び、不動産の賃貸と農産物の生産管理・販売も手がける。",
+      "proof": {
+        "code": "9380",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001035123",
+        "edinet_code": "E04329",
+        "source_company_name": "東海運株式会社",
+        "filing_company_name": "東海運株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHD3",
+        "current_edinet_code": "E04329",
+        "current_corporate_number": "4010001035123"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHD3",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877858.313001,
+      "pdf_sha256": "5c69fa6b1ca6cea53e14be3f06cd60f3d9e31334e5fbec779428384ce21eca6e"
+    },
+    {
+      "symbol": "9433.T",
+      "identity": {
+        "symbol": "9433.T",
+        "code": "9433",
+        "name": "KDDI",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「au」「UQ mobile」「povo」で携帯電話の通信サービスを提供する。グループでは金融やエネルギーのサービスも扱う。法人向けには国内外でネットワーク、クラウド、スマートフォンなどを組み合わせ、「Telehouse」のデータセンターも展開する。通信設備の建設・保守も事業に含む。",
+      "proof": {
+        "code": "9433",
+        "exchange": "Tokyo",
+        "corporate_number": "9011101031552",
+        "edinet_code": "E04425",
+        "source_company_name": "ＫＤＤＩ株式会社",
+        "filing_company_name": "KDDI株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKG2",
+        "current_edinet_code": "E04425",
+        "current_corporate_number": "9011101031552"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKG2",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877862.236514,
+      "pdf_sha256": "9f9710b751bb2e931bd9572542e8de341672e4dd1edf90398b70d2a97279bbac"
+    },
+    {
+      "symbol": "9434.T",
+      "identity": {
+        "symbol": "9434.T",
+        "code": "9434",
+        "name": "ソフトバンク",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "個人向けにソフトバンク、ワイモバイル、LINEMOの携帯通信や、家庭のインターネット回線・電力を提供する会社。企業には通信回線のほか、クラウド、データセンター、セキュリティなどを提供する。グループではLINE・Yahoo!の広告や通販、PayPayの決済と金融サービスも展開する。ソフトやモバイル周辺商品もグループで販売する。",
+      "proof": {
+        "code": "9434",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401052465",
+        "edinet_code": "E04426",
+        "source_company_name": "ソフトバンク株式会社",
+        "filing_company_name": "ソフトバンク株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE76",
+        "current_edinet_code": "E04426",
+        "current_corporate_number": "9010401052465"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE76",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877866.096027,
+      "pdf_sha256": "2744bc1e105f16ee989aab5cab3e17924af5400401ee4a5f127c12941a2292b0"
+    },
+    {
+      "symbol": "9436.T",
+      "identity": {
+        "symbol": "9436.T",
+        "code": "9436",
+        "name": "沖縄セルラー電話",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "携帯電話の通信と端末販売に加え、国内・国際通信やインターネット接続を提供する。KDDIを親会社とし、グループではOTNetなどの子会社も通信サービスを担う。親会社から通信設備や端末を調達する関係を持つ。",
+      "proof": {
+        "code": "9436",
+        "exchange": "Tokyo",
+        "corporate_number": "5360001000413",
+        "edinet_code": "E04460",
+        "source_company_name": "沖縄セルラー電話株式会社",
+        "filing_company_name": "沖縄セルラー電話株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9T5",
+        "current_edinet_code": "E04460",
+        "current_corporate_number": "5360001000413"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9T5",
+      "filed_on": "2026-06-09",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877867.92881,
+      "pdf_sha256": "adbc0a9f12806eaecb340a8daa4853de80ba7f7d86ae9eafd01e3308c8a8d3c5"
+    },
+    {
+      "symbol": "9438.T",
+      "identity": {
+        "symbol": "9438.T",
+        "code": "9438",
+        "name": "エムティーアイ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "スマホで利用する健康管理や音楽・動画、書籍などのサービスを提供する会社。女性向けのルナルナを運営し、グループでは医療機関向けの電子カルテ、薬局向けの薬の記録や服薬指導、自治体の母子手帳アプリを提供する。学校向けには子会社がBLENDを展開し、企業のシステム開発や運用、AIの活用も支援する。",
+      "proof": {
+        "code": "9438",
+        "exchange": "Tokyo",
+        "corporate_number": "6011101023123",
+        "edinet_code": "E05049",
+        "source_company_name": "株式会社エムティーアイ",
+        "filing_company_name": "株式会社エムティーアイ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBLK",
+        "current_edinet_code": "E05049",
+        "current_corporate_number": "6011101023123"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBLK",
+      "filed_on": "2025-12-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877871.089535,
+      "pdf_sha256": "827de1215ff36dd740613bcfb19de29ae01588544561554b7a638d6ebea8eeef"
+    },
+    {
+      "symbol": "9467.T",
+      "identity": {
+        "symbol": "9467.T",
+        "code": "9467",
+        "name": "アルファポリス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自社の小説・漫画投稿サイトから作品を選び、編集して紙の書籍や電子書籍として販売する。読者の評価も作品選びに使い、ライトノベル、漫画、文庫などを扱う。作品の映像化などでは権利利用の窓口を担い、海外向け漫画アプリも運営する。子会社ではテレビや動画配信向けのアニメーションを制作する。",
+      "proof": {
+        "code": "9467",
+        "exchange": "Tokyo",
+        "corporate_number": "3011001035097",
+        "edinet_code": "E30908",
+        "source_company_name": "株式会社アルファポリス",
+        "filing_company_name": "株式会社アルファポリス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YET5",
+        "current_edinet_code": "E30908",
+        "current_corporate_number": "3011001035097"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YET5",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877873.8362439,
+      "pdf_sha256": "6cd673f9a8afe8746b283350d3325a04017a10a24913b7c409c6704cf4cf520c"
+    },
+    {
+      "symbol": "9474.T",
+      "identity": {
+        "symbol": "9474.T",
+        "code": "9474",
+        "name": "ゼンリン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅地図や車のナビに使う地図データを作り、販売・配信する会社。地域の調査、編集、データ作成から地図帳の印刷までを本体と子会社で分担し、スマホやインターネット向け、立体的な地図のデータも扱う。企業向けの地図を用いたシステム開発や販促の支援に加え、グループではリース業や不動産業向けのソフトも提供する。",
+      "proof": {
+        "code": "9474",
+        "exchange": "Tokyo",
+        "corporate_number": "5290801002046",
+        "edinet_code": "E00717",
+        "source_company_name": "株式会社ゼンリン",
+        "filing_company_name": "株式会社ゼンリン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD65",
+        "current_edinet_code": "E00717",
+        "current_corporate_number": "5290801002046"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD65",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877876.939879,
+      "pdf_sha256": "7fb63d0885c9f4f14e3fdf1c75d2863e03a14b29aff87743c9c52fb183199b3b"
+    },
+    {
+      "symbol": "9509.T",
+      "identity": {
+        "symbol": "9509.T",
+        "code": "9509",
+        "name": "北海道電力",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自社の発電事業と電気の小売を担う。送電・配電は子会社の北海道電力ネットワークが行い、同社は離島での発電も担当する。グループには電力設備の工事・保守や情報通信を担う会社もあり、発電から供給を支える業務を分担している。",
+      "proof": {
+        "code": "9509",
+        "exchange": "Tokyo",
+        "corporate_number": "4430001022351",
+        "edinet_code": "E04500",
+        "source_company_name": "北海道電力株式会社",
+        "filing_company_name": "北海道電力株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDWY",
+        "current_edinet_code": "E04500",
+        "current_corporate_number": "4430001022351"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDWY",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877879.922,
+      "pdf_sha256": "b5928211916230ffba9a8f20e7af5448d624272b2c181815f048f85c440a8206"
+    },
+    {
+      "symbol": "9531.T",
+      "identity": {
+        "symbol": "9531.T",
+        "code": "9531",
+        "name": "東京瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "都市ガスを作って販売し、LNGの売買や電力、設備に関する技術サービスを展開する会社。グループには発電・電力供給を担う会社や、ガスを導管で届ける東京ガスネットワークがある。海外では資源開発への投資やエネルギー供給にも取り組む。東京ガス不動産などを通じた物件の開発・賃貸も事業の一つ。",
+      "proof": {
+        "code": "9531",
+        "exchange": "Tokyo",
+        "corporate_number": "6010401020516",
+        "edinet_code": "E04514",
+        "source_company_name": "東京瓦斯株式会社",
+        "filing_company_name": "東京瓦斯株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YH8W",
+        "current_edinet_code": "E04514",
+        "current_corporate_number": "6010401020516"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YH8W",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877884.4709408,
+      "pdf_sha256": "ab8282cdc31c7c5bfc1ecda7a8af3cf2666975b9c8629dd67103998bd0503405"
+    },
+    {
+      "symbol": "9532.T",
+      "identity": {
+        "symbol": "9532.T",
+        "code": "9532",
+        "name": "大阪瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "都市ガスを製造・販売し、ガス機器や配管工事も扱う。グループでは電力供給を行い、家庭や企業へのガス・電気販売、設備保守、導管による供給を各社で分担する。海外では天然ガス開発やエネルギー事業への投資を手掛け、子会社が不動産、情報システム、活性炭などの材料事業も展開する。",
+      "proof": {
+        "code": "9532",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001077601",
+        "edinet_code": "E04520",
+        "source_company_name": "大阪瓦斯株式会社",
+        "filing_company_name": "大阪瓦斯株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFQT",
+        "current_edinet_code": "E04520",
+        "current_corporate_number": "3120001077601"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFQT",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877887.403498,
+      "pdf_sha256": "8c1eff207545d1f52a9baec5b0a51b72414a0c3c1e8f8d8e87812c71441d8afc"
+    },
+    {
+      "symbol": "9533.T",
+      "identity": {
+        "symbol": "9533.T",
+        "code": "9533",
+        "name": "東邦瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "愛知・三重・岐阜で都市ガスを作り、家庭や企業に販売する会社。電力やLNGの販売、熱の供給も行う。グループの東邦ガスネットワークが導管でガスを届け、他の子会社が住宅設備の販売、点検、配管工事などを担う。LPガスや設備の設計施工に加え、不動産の賃貸、情報処理、海外の天然ガス開発・投資にも展開する。",
+      "proof": {
+        "code": "9533",
+        "exchange": "Tokyo",
+        "corporate_number": "2180001022387",
+        "edinet_code": "E04517",
+        "source_company_name": "東邦瓦斯株式会社",
+        "filing_company_name": "東邦瓦斯株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGFW",
+        "current_edinet_code": "E04517",
+        "current_corporate_number": "2180001022387"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGFW",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877890.4147048,
+      "pdf_sha256": "51645c94675779f246553882865a5795cebac515ac1cba89d86120c2a4e3edc1"
+    },
+    {
+      "symbol": "9534.T",
+      "identity": {
+        "symbol": "9534.T",
+        "code": "9534",
+        "name": "北海道瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "札幌、小樽、函館、千歳、北見などにガスを供給し、北海道内では発電と電気の販売も行う。LNGの輸送、検針、保安点検などをグループ各社で分担し、ガス機器の販売や配管工事も扱う。札幌の一部地区では冷暖房に使う熱を供給し、グループでも熱・電力供給や設備工事を手掛ける。",
+      "proof": {
+        "code": "9534",
+        "exchange": "Tokyo",
+        "corporate_number": "5430001021815",
+        "edinet_code": "E04511",
+        "source_company_name": "北海道瓦斯株式会社",
+        "filing_company_name": "北海道瓦斯株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGOL",
+        "current_edinet_code": "E04511",
+        "current_corporate_number": "5430001021815"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGOL",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877893.454572,
+      "pdf_sha256": "8d6ce968294a9d9039849e6c054e98d4777222ae75d42937299b1f4e953fa24f"
+    },
+    {
+      "symbol": "9536.T",
+      "identity": {
+        "symbol": "9536.T",
+        "code": "9536",
+        "name": "西部ガスホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "西部ガスなどの子会社を通じて、都市ガスやLPガス、ガス機器を供給する持株会社。グループがガスの製造、導管での供給、家庭の配管工事や点検を担う。熱供給や太陽光などの発電に加え、住宅の建築・分譲、不動産の賃貸にも展開する。本体は各社の経営管理や資金の調達を行い、子会社には飲食店や化成品の事業もある。",
+      "proof": {
+        "code": "9536",
+        "exchange": "Tokyo",
+        "corporate_number": "6290001014048",
+        "edinet_code": "E04523",
+        "source_company_name": "西部ガスホールディングス株式会社",
+        "filing_company_name": "西部ガスホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE54",
+        "current_edinet_code": "E04523",
+        "current_corporate_number": "6290001014048"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE54",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877896.507673,
+      "pdf_sha256": "4230171f294a9c17d7b7067ebbb88b847dcf177cee230623268af1c62d8275d4"
+    },
+    {
+      "symbol": "9537.T",
+      "identity": {
+        "symbol": "9537.T",
+        "code": "9537",
+        "name": "北陸瓦斯",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "都市ガスを作って供給・販売し、利用先の配管工事やガス器具の販売も行う。子会社から原料の一部を仕入れ、設備の保安点検や検針、工事などをグループ各社に委託する。グループではLPGと関連機器、住宅設備の販売・施工も扱い、北陸ガス本体は太陽光発電事業も手掛ける。",
+      "proof": {
+        "code": "9537",
+        "exchange": "Tokyo",
+        "corporate_number": "5110001004983",
+        "edinet_code": "E04519",
+        "source_company_name": "北陸瓦斯株式会社",
+        "filing_company_name": "北陸瓦斯株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIW6",
+        "current_edinet_code": "E04519",
+        "current_corporate_number": "5110001004983"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIW6",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877899.4381309,
+      "pdf_sha256": "899dd9aa16de06043736198b9470ec67775c6cf713f93ab28846f947ecebd3de"
+    },
+    {
+      "symbol": "9601.T",
+      "identity": {
+        "symbol": "9601.T",
+        "code": "9601",
+        "name": "松竹",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          },
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "映画やテレビ向けの作品を作り、配給や映像の利用許諾、演劇の企画・上演を行う会社。グループの映画館で上映し、子会社が舞台の衣裳や大道具、音響を用意する。作品に関わるキャラクター商品や配信コンテンツも企画・販売する。本体とグループで所有する不動産を貸し出し、建物の管理・清掃も手がける。",
+      "proof": {
+        "code": "9601",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001034809",
+        "edinet_code": "E04582",
+        "source_company_name": "松竹株式会社",
+        "filing_company_name": "松竹株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y66K",
+        "current_edinet_code": "E04582",
+        "current_corporate_number": "6010001034809"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y66K",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877902.4317582,
+      "pdf_sha256": "37baa2963fb734cb9af26094cb2c29738c1b0aeddbe416c562c01820bc43610e"
+    },
+    {
+      "symbol": "9602.T",
+      "identity": {
+        "symbol": "9602.T",
+        "code": "9602",
+        "name": "東宝",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "映画を製作・配給し、グループのTOHOシネマズなどで上映する。アニメや映像の利用許諾、関連商品の販売、海外展開も手掛ける。東宝本体は演劇の製作・興行と不動産賃貸も行い、子会社では舞台・映像の美術制作やビル管理、道路の維持・清掃などを担っている。",
+      "proof": {
+        "code": "9602",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001008708",
+        "edinet_code": "E04583",
+        "source_company_name": "東宝株式会社",
+        "filing_company_name": "東宝株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5O3",
+        "current_edinet_code": "E04583",
+        "current_corporate_number": "3010001008708"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5O3",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877905.499809,
+      "pdf_sha256": "c281b3a2596649418111eb07748a08944c90f6dae7fb20658973e4e8d3270eae"
+    },
+    {
+      "symbol": "9605.T",
+      "identity": {
+        "symbol": "9605.T",
+        "code": "9605",
+        "name": "東映",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "劇場映画やテレビ作品を作って配給し、映像やキャラクターの利用権を提供する会社。アニメは主に子会社の東映アニメーションが制作する。グループで映画館や東映太秦映画村を運営し、作品に関連するショーや催事も企画する。DVD・ブルーレイの販売、撮影所での制作受託のほか、施設の賃貸、ホテルや建築内装も手がける。",
+      "proof": {
+        "code": "9605",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001034866",
+        "edinet_code": "E04585",
+        "source_company_name": "東映株式会社",
+        "filing_company_name": "東映株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI7S",
+        "current_edinet_code": "E04585",
+        "current_corporate_number": "6010001034866"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI7S",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877908.5040362,
+      "pdf_sha256": "190d72358d39e0ddb3793fbca611e0a83f0cb99966577a6f99ac456d143baae3"
+    },
+    {
+      "symbol": "9629.T",
+      "identity": {
+        "symbol": "9629.T",
+        "code": "9629",
+        "name": "ピー・シー・エー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の会計処理や給与計算、商品の販売・仕入れ管理を支えるソフトを開発する。「PCAクラウド」などの利用サービスと保守・導入支援を提供し、子会社は勤怠管理ソフトやメンタルヘルス支援も担当する。販売支援、ITサービス開発、スタートアップ投資などもグループで行う。",
+      "proof": {
+        "code": "9629",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001027327",
+        "edinet_code": "E04894",
+        "source_company_name": "ピー・シー・エー株式会社",
+        "filing_company_name": "ピー・シー・エー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGVP",
+        "current_edinet_code": "E04894",
+        "current_corporate_number": "4010001027327"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGVP",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877911.44663,
+      "pdf_sha256": "1769d8187e0a8a462bc8bbf898ca40fae607de6ae0631ed8e4998d4d70862c4c"
+    },
+    {
+      "symbol": "9633.T",
+      "identity": {
+        "symbol": "9633.T",
+        "code": "9633",
+        "name": "東京テアトル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "映画の配給・上映と、飲食店や不動産の事業を手がける会社。映画やドラマを企画・制作し、子会社が字幕や吹替も用意する。グループで飲食店の運営、食材の加工・販売を行う。不動産では建物を貸し出すほか、中古マンションを買い取り、改修して販売し、子会社が住宅のリフォームも受託する。",
+      "proof": {
+        "code": "9633",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001035000",
+        "edinet_code": "E04589",
+        "source_company_name": "東京テアトル株式会社",
+        "filing_company_name": "東京テアトル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL02",
+        "current_edinet_code": "E04589",
+        "current_corporate_number": "3010001035000"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL02",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877914.478594,
+      "pdf_sha256": "8534d5ac9956db7738d26fed5e8ad95c30f41d004227aacc974c274ea47c1604"
+    },
+    {
+      "symbol": "9639.T",
+      "identity": {
+        "symbol": "9639.T",
+        "code": "9639",
+        "name": "三協フロンテア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ユニットハウスを製造し、販売とレンタルを行う。出荷前の整備から配送、組み立て・解体にも対応し、トランクルームや貸しスペースを運営する。中国の子会社は原材料を製造し、ミャンマーやマレーシアの子会社は図面作成や販売・レンタルなどを担う。立体駐車装置なども扱う。",
+      "proof": {
+        "code": "9639",
+        "exchange": "Tokyo",
+        "corporate_number": "8040001065642",
+        "edinet_code": "E04890",
+        "source_company_name": "三協フロンテア株式会社",
+        "filing_company_name": "三協フロンテア株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF0N",
+        "current_edinet_code": "E04890",
+        "current_corporate_number": "8040001065642"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF0N",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877917.4661171,
+      "pdf_sha256": "0f7560e59eb6fcbdfb9cdd3e85ec9035cf4a1512815aa8f3cf236ece3ce516ba"
+    },
+    {
+      "symbol": "9640.T",
+      "identity": {
+        "symbol": "9640.T",
+        "code": "9640",
+        "name": "セゾンテクノロジー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業が持つデータを別のシステムへ届けたり、組み合わせたりするソフトを提供する会社。HULFTやDataSpiderを販売し、導入後の支援も行う。HULFT Squareではデータをつなぐ仕組みをクラウドで提供する。金融機関や流通・小売企業などの情報処理を受託し、システムの開発から運用まで支えている。",
+      "proof": {
+        "code": "9640",
+        "exchange": "Tokyo",
+        "corporate_number": "7013301005882",
+        "edinet_code": "E04889",
+        "source_company_name": "株式会社セゾンテクノロジー",
+        "filing_company_name": "株式会社セゾンテクノロジー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC54",
+        "current_edinet_code": "E04889",
+        "current_corporate_number": "7013301005882"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC54",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877920.4983091,
+      "pdf_sha256": "fb8a9e993b2e2a2ff47f11dadee91279d4176db46723945de626fdfcce3d0313"
+    },
+    {
+      "symbol": "9651.T",
+      "identity": {
+        "symbol": "9651.T",
+        "code": "9651",
+        "name": "日本プロセス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "エネルギープラントや交通向けの制御システム、自動運転・運転支援などの車載システムを開発する。防災、危機管理、宇宙・航空向けや、建設機械・医療機器などの組み込みソフトにも対応する。中国の開発子会社とともに、企業・公共向けのシステム構築も手掛ける。",
+      "proof": {
+        "code": "9651",
+        "exchange": "Tokyo",
+        "corporate_number": "2010401055029",
+        "edinet_code": "E04873",
+        "source_company_name": "日本プロセス株式会社",
+        "filing_company_name": "日本プロセス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YYEW",
+        "current_edinet_code": "E04873",
+        "current_corporate_number": "2010401055029"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YYEW",
+      "filed_on": "2026-08-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877923.540303,
+      "pdf_sha256": "4038b2d18b57107c99fb7d4f7425340ae5403d5073fc186aabfb9d35678e2733"
+    },
+    {
+      "symbol": "9682.T",
+      "identity": {
+        "symbol": "9682.T",
+        "code": "9682",
+        "name": "DTS",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の情報システムを、相談・設計から開発、運用まで支える会社。グループで業務用ソフトや機器に組み込むソフトを作り、他社製品の導入も支援する。サーバーやネットワーク、クラウド環境を整備し、顧客の現場や遠隔から監視・保守を行う。運用状況の診断や改善、システムを利用料で使うサービスも提供する。",
+      "proof": {
+        "code": "9682",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401018458",
+        "edinet_code": "E04861",
+        "source_company_name": "株式会社ＤＴＳ",
+        "filing_company_name": "株式会社DTS",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCT4",
+        "current_edinet_code": "E04861",
+        "current_corporate_number": "9010401018458"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCT4",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877926.572549,
+      "pdf_sha256": "5ed1c266294c5f8052eaf8bae324b52a622af9edebd9acd52fdf3bb75ebf12a2"
+    },
+    {
+      "symbol": "9684.T",
+      "identity": {
+        "symbol": "9684.T",
+        "code": "9684",
+        "name": "スクウェア・エニックス・ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "グループ会社を通じてゲームの企画・開発、販売、運営を行う。スクウェア・エニックスやタイトーなどが事業を担い、アミューズメント施設の運営と業務用ゲーム機の開発・販売も手掛ける。漫画やゲーム関連書籍の出版に加え、キャラクター等を使った商品の制作・販売や権利の許諾も展開する。",
+      "proof": {
+        "code": "9684",
+        "exchange": "Tokyo",
+        "corporate_number": "5011001027704",
+        "edinet_code": "E04859",
+        "source_company_name": "株式会社スクウェア・エニックス・ホールディングス",
+        "filing_company_name": "株式会社スクウェア・エニックス・ホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHJ4",
+        "current_edinet_code": "E04859",
+        "current_corporate_number": "5011001027704"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHJ4",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877929.577089,
+      "pdf_sha256": "34aac66f24967f64d4f94360dc6ec07428b3251f5aece7eff76c2b5deaea3a5f"
+    },
+    {
+      "symbol": "9698.T",
+      "identity": {
+        "symbol": "9698.T",
+        "code": "9698",
+        "name": "クレオ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "人事・給与や会計を扱うZeeMなどの業務ソフトを開発・販売する会社。富士通グループやアマノ向けのシステム開発も受託する。子会社は大手ポータルサイトの開発・運用、IT機器やソフトの問い合わせ対応を担う。グループにはコンタクトセンターの運営業務を行う会社もあり、企業の情報システムと利用者対応を支えている。",
+      "proof": {
+        "code": "9698",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401008436",
+        "edinet_code": "E04849",
+        "source_company_name": "株式会社クレオ",
+        "filing_company_name": "株式会社クレオ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGVQ",
+        "current_edinet_code": "E04849",
+        "current_corporate_number": "7010401008436"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGVQ",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877932.570705,
+      "pdf_sha256": "c0960d25a3e3524d8d50bc0553c1a7e8bf441ea0a3f84887d6b250cb39c593c7"
+    },
+    {
+      "symbol": "9706.T",
+      "identity": {
+        "symbol": "9706.T",
+        "code": "9706",
+        "name": "日本空港ビルデング",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "羽田空港の旅客ターミナルをグループで管理・運営し、航空会社などに施設を貸し出す。設備の保守、警備、清掃や旅客サービスも関係各社が担う。空港利用者向けの売店・飲食サービスを展開し、成田や関西、中部などでも物販を行う。子会社では国際線向けの機内食製造なども手掛ける。",
+      "proof": {
+        "code": "9706",
+        "exchange": "Tokyo",
+        "corporate_number": "7010801014496",
+        "edinet_code": "E03863",
+        "source_company_name": "日本空港ビルデング株式会社",
+        "filing_company_name": "日本空港ビルデング株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGGN",
+        "current_edinet_code": "E03863",
+        "current_corporate_number": "7010801014496"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGGN",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877935.595924,
+      "pdf_sha256": "ef3f04b6c8beeaec3e3382e7f449b0e6ebdc42ef2dff34329c0638fa01664d94"
+    },
+    {
+      "symbol": "9709.T",
+      "identity": {
+        "symbol": "9709.T",
+        "code": "9709",
+        "name": "NCS&A",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業のシステムを設計・開発し、導入後の運用を支える会社。グループで開発を受託し、業務用のパッケージソフトを顧客に合わせて変更・販売する。コンピューターや周辺機器、自社・他社のソフトも取り扱う。機器の保守やシステム利用者への支援を行い、子会社にも開発・サポート業務の一部を委託している。",
+      "proof": {
+        "code": "9709",
+        "exchange": "Tokyo",
+        "corporate_number": "8120001072787",
+        "edinet_code": "E04841",
+        "source_company_name": "ＮＣＳ＆Ａ株式会社",
+        "filing_company_name": "NCS&A株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAMN",
+        "current_edinet_code": "E04841",
+        "current_corporate_number": "8120001072787"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAMN",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877938.568883,
+      "pdf_sha256": "5014247b2b631f2cd1cd8a52dd83904ce27fa4ddf9d12881ebf7dc19198af40d"
+    },
+    {
+      "symbol": "9713.T",
+      "identity": {
+        "symbol": "9713.T",
+        "code": "9713",
+        "name": "ロイヤルホテル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「リーガ」ブランドなどのホテルをグループで経営し、宿泊、飲食、宴会などのサービスを提供する。京都のホテルは本体、広島・小倉・東京などは子会社が担い、リーガロイヤルホテル大阪は運営を受託する。ホテル内の付帯業務に加え、ホテル外のクラブやビルの食堂も営業している。",
+      "proof": {
+        "code": "9713",
+        "exchange": "Tokyo",
+        "corporate_number": "2120001072198",
+        "edinet_code": "E04540",
+        "source_company_name": "株式会社ロイヤルホテル",
+        "filing_company_name": "株式会社ロイヤルホテル",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHWF",
+        "current_edinet_code": "E04540",
+        "current_corporate_number": "2120001072198"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHWF",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877941.661145,
+      "pdf_sha256": "1b092bf1082c6b49df37963a3f9f058fedba1fc549bd5c563abd2718cd492ba7"
+    },
+    {
+      "symbol": "9715.T",
+      "identity": {
+        "symbol": "9715.T",
+        "code": "9715",
+        "name": "トランス・コスモス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の問い合わせ窓口や、社内の事務・IT業務を引き受ける会社。国内外のグループでコンタクトセンターを運営し、Webサイトの制作・運用やネット販売、データ分析も支援する。システムの開発・運用や利用者対応を受託し、国内では音声認識とAIで窓口担当者を助けるtranspeechなどの仕組みも提供している。",
+      "proof": {
+        "code": "9715",
+        "exchange": "Tokyo",
+        "corporate_number": "3011001041302",
+        "edinet_code": "E04837",
+        "source_company_name": "トランス・コスモス株式会社",
+        "filing_company_name": "トランス・コスモス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YENI",
+        "current_edinet_code": "E04837",
+        "current_corporate_number": "3011001041302"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YENI",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877944.6523252,
+      "pdf_sha256": "bc36ea1d4bbd80969fee1f4c10cf82e95fb3ff90c682177bfa99c2402e2503e5"
+    },
+    {
+      "symbol": "9720.T",
+      "identity": {
+        "symbol": "9720.T",
+        "code": "9720",
+        "name": "ホテル、ニューグランド",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ホテルニューグランドで宿泊サービスを提供し、館内のレストランや婚礼・宴会施設を運営する。髙島屋横浜店とそごう横浜店のレストランも営業している。もう一つの事業はオフィスビルなどの賃貸・管理で、ホテル・飲食と不動産の各事業を自社で行う。",
+      "proof": {
+        "code": "9720",
+        "exchange": "Tokyo",
+        "corporate_number": "7020001028858",
+        "edinet_code": "E04566",
+        "source_company_name": "株式会社ホテル、ニューグランド",
+        "filing_company_name": "株式会社ホテル、ニューグランド",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XMSL",
+        "current_edinet_code": "E04566",
+        "current_corporate_number": "7020001028858"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XMSL",
+      "filed_on": "2026-02-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877947.630306,
+      "pdf_sha256": "8429db13e31739f8f4d553e95f7a2f832e4231eb4187c50af3606e0df02472c4"
+    },
+    {
+      "symbol": "9726.T",
+      "identity": {
+        "symbol": "9726.T",
+        "code": "9726",
+        "name": "KNT-CTホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "旅行会社のクラブツーリズムや近畿日本ツーリストを傘下に持つ持株会社。子会社が個人向けのツアーを企画・販売し、企業や学校、自治体などの団体旅行を手配する。会議・展示会やスポーツ行事の運営、地域向けの受託業務にも対応する。グループはWebでの旅行・宿泊販売や海外での航空券手配も行い、本体が経営を管理する。",
+      "proof": {
+        "code": "9726",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001008671",
+        "edinet_code": "E04348",
+        "source_company_name": "ＫＮＴ－ＣＴホールディングス株式会社",
+        "filing_company_name": "KNT-CTホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y9UU",
+        "current_edinet_code": "E04348",
+        "current_corporate_number": "6010001008671"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y9UU",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877950.617633,
+      "pdf_sha256": "1f50c779c40a5e8c890e46df85fddf7080c0417860d4f2a006ffd7f4ca9c93ce"
+    },
+    {
+      "symbol": "9735.T",
+      "identity": {
+        "symbol": "9735.T",
+        "code": "9735",
+        "name": "セコム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "オンラインでつながる警備システムなどのセキュリティサービスを提供する。グループの国内外の会社も警備や安全機器の販売を担う。子会社では火災報知・消火設備、在宅医療や高齢者向け住宅、損害保険、測量・地理情報、情報セキュリティやデータセンター、業務代行などを展開する。",
+      "proof": {
+        "code": "9735",
+        "exchange": "Tokyo",
+        "corporate_number": "6011001035920",
+        "edinet_code": "E04773",
+        "source_company_name": "セコム株式会社",
+        "filing_company_name": "セコム株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YICV",
+        "current_edinet_code": "E04773",
+        "current_corporate_number": "6011001035920"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YICV",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877953.637245,
+      "pdf_sha256": "bd977097e7cb6cc006d3b9db2e2d2e77f53476118bb3defc3a0c6219b3cb464a"
+    },
+    {
+      "symbol": "9739.T",
+      "identity": {
+        "symbol": "9739.T",
+        "code": "9739",
+        "name": "NSW",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の業務システムと、製品に組み込むソフトや電子部品を作る会社。製造・小売・物流向けのシステム、Web通販、IoT・AIの活用を支援し、クラウドやデータセンターの運用も提供する。車や産業機器のソフトを開発し、画像・通信用の半導体や基板の設計、製造・試験までを手がける。IT機器の販売も行う。",
+      "proof": {
+        "code": "9739",
+        "exchange": "Tokyo",
+        "corporate_number": "1011001017717",
+        "edinet_code": "E04952",
+        "source_company_name": "ＮＳＷ株式会社",
+        "filing_company_name": "NSW株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ3Q",
+        "current_edinet_code": "E04952",
+        "current_corporate_number": "1011001017717"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ3Q",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877956.581305,
+      "pdf_sha256": "0229af69582fe6a8681096bf69119d4f126e6a33bc231a024acb348d4934c7c1"
+    },
+    {
+      "symbol": "9740.T",
+      "identity": {
+        "symbol": "9740.T",
+        "code": "9740",
+        "name": "セントラル警備保障",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "施設に人員を配置する常駐警備、機械警備、輸送時の警備を行い、防犯機器の販売・設置工事も手掛ける。グループ各社が警備を分担し、一部の子会社はコインパーキングのトラブル対応も担う。建物の清掃や電気設備の保安、賃貸不動産の管理もグループ事業として展開する。",
+      "proof": {
+        "code": "9740",
+        "exchange": "Tokyo",
+        "corporate_number": "9011101011216",
+        "edinet_code": "E04799",
+        "source_company_name": "セントラル警備保障株式会社",
+        "filing_company_name": "セントラル警備保障株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6FE",
+        "current_edinet_code": "E04799",
+        "current_corporate_number": "9011101011216"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6FE",
+      "filed_on": "2026-05-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877959.675691,
+      "pdf_sha256": "0b79f5984e01c61626a99d85e059b2631632e200f80800ad5302298d9dbe386b"
+    },
+    {
+      "symbol": "9742.T",
+      "identity": {
+        "symbol": "9742.T",
+        "code": "9742",
+        "name": "アイネス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や行政の情報システムを、企画・開発から運用、保守まで支える会社。グループでネットワークやサーバーを整備し、AWSなどのクラウド環境の構築・監視やIT機器の保守も行う。子会社は事務の代行やシステム運用を受託するほか、技術の動向や新しい事業モデルの調査も手がける。",
+      "proof": {
+        "code": "9742",
+        "exchange": "Tokyo",
+        "corporate_number": "2020001030067",
+        "edinet_code": "E04803",
+        "source_company_name": "株式会社アイネス",
+        "filing_company_name": "株式会社アイネス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF4O",
+        "current_edinet_code": "E04803",
+        "current_corporate_number": "2020001030067"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF4O",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877966.335596,
+      "pdf_sha256": "12f7f6f9a1f95ef3bf1b755f8148d0c9e7494e52ee6059a33fab807c2d81671b"
+    },
+    {
+      "symbol": "9744.T",
+      "identity": {
+        "symbol": "9744.T",
+        "code": "9744",
+        "name": "メイテックグループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "技術者の派遣や転職紹介を行う企業グループを管理する持株会社。子会社のメイテック、メイテックフィルダーズなどが技術者を派遣し、製造業向けの登録型派遣やシニア技術者の派遣も扱う。メイテックネクストは技術者向けの職業紹介を担い、事務業務の受託もグループで行う。",
+      "proof": {
+        "code": "9744",
+        "exchange": "Tokyo",
+        "corporate_number": "1180001027412",
+        "edinet_code": "E04804",
+        "source_company_name": "株式会社メイテックグループホールディングス",
+        "filing_company_name": "株式会社メイテックグループホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE6X",
+        "current_edinet_code": "E04804",
+        "current_corporate_number": "1180001027412"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE6X",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877968.260591,
+      "pdf_sha256": "e201c11138ad6680844acae8bfb8d23c95cd874a8e4c1f9f7915b4d39f9b7eea"
+    },
+    {
+      "symbol": "9766.T",
+      "identity": {
+        "symbol": "9766.T",
+        "code": "9766",
+        "name": "コナミグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ゲームやスポーツ施設の事業を子会社で展開する持株会社。eFootballなどの家庭用・PC・スマホゲームや遊戯王のカード商品を扱う。グループはゲームセンター向け機器、海外向けのスロットマシンとカジノ管理システムも製造・販売する。スポーツクラブや子ども向け運動教室を運営し、公共施設の運営や学校の水泳授業も受託する。",
+      "proof": {
+        "code": "9766",
+        "exchange": "Tokyo",
+        "corporate_number": "9010401070789",
+        "edinet_code": "E01956",
+        "source_company_name": "コナミグループ株式会社",
+        "filing_company_name": "コナミグループ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKX5",
+        "current_edinet_code": "E01956",
+        "current_corporate_number": "9010401070789"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKX5",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877971.1129699,
+      "pdf_sha256": "512489379852457e6c044508d2519ecc30cc1c8ce3381dafe6269e3f9c0e4cc0"
+    },
+    {
+      "symbol": "9782.T",
+      "identity": {
+        "symbol": "9782.T",
+        "code": "9782",
+        "name": "ディーエムエス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業のダイレクトメールを企画・制作し、宛名データの処理、封入、発送後の問い合わせ対応まで支援する。通販商品の出荷代行や販促品の保管・配送も行う。販売促進では広告物やノベルティの制作、調査、ウェブ施策を扱い、スポーツ・文化などのイベントも企画から運営まで担う。",
+      "proof": {
+        "code": "9782",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001023358",
+        "edinet_code": "E04940",
+        "source_company_name": "株式会社ディーエムエス",
+        "filing_company_name": "株式会社ディーエムエス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIWH",
+        "current_edinet_code": "E04940",
+        "current_corporate_number": "5010001023358"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIWH",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877974.110573,
+      "pdf_sha256": "f8d239aef18e2745e3f02818618d95dea44a9a208dda08ee951b2875b0ac1d52"
+    },
+    {
+      "symbol": "9799.T",
+      "identity": {
+        "symbol": "9799.T",
+        "code": "9799",
+        "name": "旭情報サービス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業のネットワークやサーバーを整備し、運用を支える会社。セキュリティ関連の支援やソフトの導入、利用者の問い合わせ・障害対応を行う。業務システムや機器に組み込むソフトの開発・検証、ERPの開発にも対応する。大型コンピューターの保守・運用を受託し、情報サービス企業などを通じて利用企業のIT業務を担う。",
+      "proof": {
+        "code": "9799",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001035087",
+        "edinet_code": "E04920",
+        "source_company_name": "旭情報サービス株式会社",
+        "filing_company_name": "旭情報サービス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHT5",
+        "current_edinet_code": "E04920",
+        "current_corporate_number": "7010001035087"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHT5",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877977.1457899,
+      "pdf_sha256": "ea19ae96e6dd1e0695cbf2c99a3ca364656a8f49d034205b26811aa0c42831fb"
+    },
+    {
+      "symbol": "9835.T",
+      "identity": {
+        "symbol": "9835.T",
+        "code": "9835",
+        "name": "ジュンテンドー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "中国・近畿地方でホームセンターを運営する。農業資材や園芸植物、工具・建材、家庭用品、家電、ペット用品などを販売し、地域の暮らしと作業に必要な商品を扱う。店舗では園芸機械や自転車の修理サービスも提供する。",
+      "proof": {
+        "code": "9835",
+        "exchange": "Tokyo",
+        "corporate_number": "5280001005032",
+        "edinet_code": "E03141",
+        "source_company_name": "株式会社ジュンテンドー",
+        "filing_company_name": "株式会社ジュンテンドー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6C2",
+        "current_edinet_code": "E03141",
+        "current_corporate_number": "5280001005032"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6C2",
+      "filed_on": "2026-05-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877980.153001,
+      "pdf_sha256": "d9564134ed973dffe7576a34866dea59a972f162fa9c41ada2173d76e37881a3"
+    },
+    {
+      "symbol": "9837.T",
+      "identity": {
+        "symbol": "9837.T",
+        "code": "9837",
+        "name": "モリト",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣服や生活用品に使う部材、自動車の内装部品をグループで作り、販売する会社。子会社が服飾資材、制服や雑貨を扱い、通販や店舗でも販売する。マリンスポーツやスノーボード用品の輸入・卸売、厨房機器の貸出し・販売・清掃にも展開する。国内外の事業会社が製造や販売を分担し、本体がグループの管理を行う。",
+      "proof": {
+        "code": "9837",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001077568",
+        "edinet_code": "E02703",
+        "source_company_name": "モリト株式会社",
+        "filing_company_name": "モリト株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XMFU",
+        "current_edinet_code": "E02703",
+        "current_corporate_number": "3120001077568"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XMFU",
+      "filed_on": "2026-02-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877983.209214,
+      "pdf_sha256": "02a16908f910f13b3723a6d08ee76b7440bc08826eb96dd3762a5cc669d77bb8"
+    },
+    {
+      "symbol": "9842.T",
+      "identity": {
+        "symbol": "9842.T",
+        "code": "9842",
+        "name": "アークランズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「ムサシ」「ビバホーム」などで工具、園芸用品、資材、家庭用品を販売し、一般消費者と業者の需要に応える。アート用品店やペット用品店、食品店の展開も行う。子会社はDIY用品の卸売と「かつや」「からやま」などの外食を担い、本体は不動産賃貸やフィットネス施設も運営する。",
+      "proof": {
+        "code": "9842",
+        "exchange": "Tokyo",
+        "corporate_number": "4110001013829",
+        "edinet_code": "E02706",
+        "source_company_name": "アークランズ株式会社",
+        "filing_company_name": "アークランズ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y5KN",
+        "current_edinet_code": "E02706",
+        "current_corporate_number": "4110001013829"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y5KN",
+      "filed_on": "2026-05-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877986.1541939,
+      "pdf_sha256": "7ba8fe0be903cdf9453147e17ff5dfb586e1d468461dadbe6b2f5a44356ea2c0"
+    },
+    {
+      "symbol": "9903.T",
+      "identity": {
+        "symbol": "9903.T",
+        "code": "9903",
+        "name": "カンセキ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ホームセンターと、アウトドア用品を売るWILD-1などを運営する会社。ホームセンターではDIY、家庭用品、カー用品、文具、食品を扱う。専門店の事業には中古品の再販売、業務用食材の販売、飲食店がある。店舗に使う物件などを貸し出す不動産事業も持ち、日用品の買い物から趣味や飲食まで複数の店づくりを手がける。",
+      "proof": {
+        "code": "9903",
+        "exchange": "Tokyo",
+        "corporate_number": "8060001001208",
+        "edinet_code": "E03179",
+        "source_company_name": "株式会社カンセキ",
+        "filing_company_name": "株式会社カンセキ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y67I",
+        "current_edinet_code": "E03179",
+        "current_corporate_number": "8060001001208"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y67I",
+      "filed_on": "2026-05-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877989.175019,
+      "pdf_sha256": "addb27c5dd490435a6a9801db73494cb46fe7b7cba8110507f610f1e95eb4112"
+    },
+    {
+      "symbol": "9932.T",
+      "identity": {
+        "symbol": "9932.T",
+        "code": "9932",
+        "name": "杉本商事",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場で使う測定器、機械工具、工作用の器具、空圧・油圧機器などを販売する。機械や工具だけでなく、工場用品や消耗品も扱う。地域に根差した営業所を通じて販売し、各営業所が採算と地域の需要を踏まえて営業活動を行う。グループは国内の地域別販売と海外向けの貿易部門で事業を分けている。",
+      "proof": {
+        "code": "9932",
+        "exchange": "Tokyo",
+        "corporate_number": "9120001044397",
+        "edinet_code": "E02760",
+        "source_company_name": "杉本商事株式会社",
+        "filing_company_name": "杉本商事株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBJ3",
+        "current_edinet_code": "E02760",
+        "current_corporate_number": "9120001044397"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBJ3",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877993.775388,
+      "pdf_sha256": "b772f3d9e3967cef584adbc7479ea462cb5201af52fdd5ce8ac909321d5381eb"
+    },
+    {
+      "symbol": "9972.T",
+      "identity": {
+        "symbol": "9972.T",
+        "code": "9972",
+        "name": "アルテック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "印刷・包装や食品、医薬品などに使う産業機械を仕入れ、販売する商社。機器に関する技術支援や保守も行い、3Dプリンター、物流ロボットなども扱う。グループの製造会社はペットボトルを成形するための部材やプラスチック製のふたを作る。国内外で製造を分担し、再生PET樹脂の加工や試作品づくりも手がける。",
+      "proof": {
+        "code": "9972",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001142875",
+        "edinet_code": "E02774",
+        "source_company_name": "アルテック株式会社",
+        "filing_company_name": "アルテック株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XMNZ",
+        "current_edinet_code": "E02774",
+        "current_corporate_number": "6010001142875"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XMNZ",
+      "filed_on": "2026-02-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877995.5393128,
+      "pdf_sha256": "82aa420e3a7a3524e588a181e7ab93b64e4b7e4239d8a54e5c5988b8fde0b0cd"
+    },
+    {
+      "symbol": "9979.T",
+      "identity": {
+        "symbol": "9979.T",
+        "code": "9979",
+        "name": "大庄",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「庄や」「大庄水産」などで和食を中心とする飲食店を展開する。グループで生鮮食材などを直営店、加盟店、一般の飲食店に卸し、倉庫と運送を組み合わせた物流も担う。本体は加盟店の運営支援、不動産の賃貸・管理、店舗の転貸を行い、「ミヤビパン」の製造・販売も手掛ける。",
+      "proof": {
+        "code": "9979",
+        "exchange": "Tokyo",
+        "corporate_number": "2010801006663",
+        "edinet_code": "E03223",
+        "source_company_name": "株式会社大庄",
+        "filing_company_name": "株式会社大庄",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X5DP",
+        "current_edinet_code": "E03223",
+        "current_corporate_number": "2010801006663"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X5DP",
+      "filed_on": "2025-11-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791877998.5941582,
+      "pdf_sha256": "8b96f43264119d42f28bbd6ed3e7843b747d279a6bddfa659ff8516f992bd042"
+    },
+    {
+      "symbol": "9982.T",
+      "identity": {
+        "symbol": "9982.T",
+        "code": "9982",
+        "name": "タキヒヨー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "婦人服や乳幼児・子ども向けの服、織物を企画し、製造・販売する会社。グループが衣服の型紙やサンプルづくり、縫製、海外での生産管理・品質確認を分担する。子会社は商品の仕分け、梱包、出荷などの物流も受託する。本体では不動産の賃貸、合成樹脂などの化学品販売に加え、加盟店としてコメダ珈琲店を運営する。",
+      "proof": {
+        "code": "9982",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001037793",
+        "edinet_code": "E02776",
+        "source_company_name": "タキヒヨー株式会社",
+        "filing_company_name": "タキヒヨー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y62Z",
+        "current_edinet_code": "E02776",
+        "current_corporate_number": "7180001037793"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y62Z",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791878001.574126,
+      "pdf_sha256": "02e55200111284114afa5b5cfcb9f9b5b04f4f743a8e8d9545da9c60ccefb81f"
+    },
+    {
+      "symbol": "9997.T",
+      "identity": {
+        "symbol": "9997.T",
+        "code": "9997",
+        "name": "ベルーナ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "カタログやネット通販で衣料品、生活雑貨、家具などを販売し、食料品・日本酒・ワインも扱う。子会社では化粧品、健康食品、看護師向け通販や人材紹介、着物販売・衣裳レンタルなどを展開する。グループで不動産開発・賃貸とホテル運営を行い、通販の封入・発送代行や物流も担う。",
+      "proof": {
+        "code": "9997",
+        "exchange": "Tokyo",
+        "corporate_number": "5030001041663",
+        "edinet_code": "E03229",
+        "source_company_name": "株式会社ベルーナ",
+        "filing_company_name": "株式会社ベルーナ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ5M",
+        "current_edinet_code": "E03229",
+        "current_corporate_number": "5030001041663"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ5M",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791878004.549352,
+      "pdf_sha256": "76833c292ce253be31cd92d5afc460e6b65fdaea6e5d1e841cb1b97c6aa6b03e"
     }
   ]
 }
