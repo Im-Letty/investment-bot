@@ -5390,6 +5390,158 @@
           "ordinal_not_physical_line_number": true
         }
       ]
+    },
+    {
+      "symbol": "145A.T",
+      "name": "Ｌ　ｉｓ　Ｂ",
+      "business": "社員や社外の相手が連絡を取り合う「direct」などのチャットサービスを提供する会社です。利用企業に合わせた調整と運用支援のほか、アプリやWebシステムの開発も手がけます。",
+      "life": "会社の中や外にいる相手と、チャットで連絡や情報交換をするためのサービスを提供しています。",
+      "watch": "サービスの運営サポートと、利用企業ごとのカスタマイズを組み合わせています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2019/08/28 08:13 ページ初公開・L is B会社概要（2026/10/05 11:42 ページ更新・説明は当サイト作成）",
+          "url": "https://l-is-b.com/ja/company/",
+          "fetched_at": 1791928262.0,
+          "source_published_on": "2019-08-28",
+          "source_publication_status": "page_initial_publication_metadata_not_current_business_announcement",
+          "source_original_publication_literal": "2019-08-27T23:13:43+00:00",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "fa4fc2c10682b195a3358510135640eab6ee13aa29562b6a2d74a38c06942253",
+          "actual_retrieved_at_jst": "2026-10-14T06:51:02+09:00",
+          "page_initial_published_at": "2019-08-27T23:13:43+00:00",
+          "page_initial_published_at_jst": "2019-08-28T08:13:43+09:00",
+          "page_modified_at": "2026-10-05T02:42:17+00:00",
+          "page_modified_at_jst": "2026-10-05T11:42:17+09:00"
+        },
+        {
+          "title": "2024/02/02 19:24 ページ初公開・L is B IR FAQ（2024/03/21 14:05 ページ更新・説明は当サイト作成）",
+          "url": "https://l-is-b.com/ja/ir/faq/",
+          "fetched_at": 1791928264.0,
+          "source_published_on": "2024-02-02",
+          "source_publication_status": "page_initial_publication_metadata_not_current_business_announcement",
+          "source_original_publication_literal": "2024-02-02T10:24:03+00:00",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "95879ff07f368c6052be1596cc7eb2ae3d5ef5bc333357d8031ffb8e709e7cd6",
+          "actual_retrieved_at_jst": "2026-10-14T06:51:04+09:00",
+          "page_initial_published_at": "2024-02-02T10:24:03+00:00",
+          "page_initial_published_at_jst": "2024-02-02T19:24:03+09:00",
+          "page_modified_at": "2024-03-21T05:05:44+00:00",
+          "page_modified_at_jst": "2024-03-21T14:05:44+09:00"
+        },
+        {
+          "title": "L is B公式サービス案内（ページ初公開日不明・説明は当サイト作成）",
+          "url": "https://l-is-b.com/ja/",
+          "fetched_at": 1791928265.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "c111b3e3ea49069f70ef4e689433014d09614e50edcaf56737d8c32097585d71",
+          "actual_retrieved_at_jst": "2026-10-14T06:51:05+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "2818.T",
+      "name": "ピエトロ",
+      "business": "ドレッシングやソースを作って販売する会社です。パスタを中心とするレストランを運営し、本社ビルなどの賃貸も行っています。",
+      "life": "食品を作って売る事業と、パスタ料理を提供するレストランの事業を併せて行っています。",
+      "watch": "商品づくりと店舗運営に加え、ビルを貸す事業も持っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "ピエトロ会社概要（公表日不明・説明は当サイト作成）",
+          "url": "https://www.pietro.co.jp/company/about/outline/",
+          "fetched_at": 1791928266.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "cef33167ddc189ddb885eca08b1a5053c349de7290a72cd9d905ec5894e29cbd",
+          "actual_retrieved_at_jst": "2026-10-14T06:51:06+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "3763.T",
+      "name": "プロシップ",
+      "business": "企業の固定資産やリース、賃貸借契約を管理する「ProPlus」などのソフトウェアを開発・販売する会社です。導入時の相談や、企業に合わせた機能の調整も行っています。",
+      "life": "企業の経理部門に向け、固定資産やリースを扱う会計システムを提供しています。",
+      "watch": "企業の業務に合わせて製品の機能を調整し、他社の会計システムと組み合わせる提案も行っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/03/03 11:50 ページ更新・プロシップ投資家向け事業案内（2016/09/23 13:49 ページ初公開・事業情報の公表日不明・説明は当サイト作成）",
+          "url": "https://www.proship.co.jp/ir/investor/",
+          "fetched_at": 1791928268.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "ef895871c0e9274ff6e218b23360c3639d0f0b79a13dae7fee81efd047647cae",
+          "actual_retrieved_at_jst": "2026-10-14T06:51:08+09:00",
+          "page_initial_published_at": "2016-09-23T04:49:33+00:00",
+          "page_initial_published_at_jst": "2016-09-23T13:49:33+09:00",
+          "page_modified_at": "2026-03-03T02:50:44+00:00",
+          "page_modified_at_jst": "2026-03-03T11:50:44+09:00",
+          "page_initial_published_metadata_kind": "JSON-LD WebPage.datePublished, known CMS page initial publication, not business fact announcement",
+          "source_publication_status_note": "事業情報の公表日は不明。ページ初公開日時はJSON-LD WebPageのCMS情報として別記。"
+        },
+        {
+          "title": "2026/05/12 公表・プロシップのリース会計製品に関する発表（2026/06/10 15:07 ページ更新・説明は当サイト作成）",
+          "url": "https://www.proship.co.jp/news/newlease_20260512/",
+          "fetched_at": 1791928269.0,
+          "source_published_on": "2026-05-12",
+          "source_publication_status": "issuer_release_visible_publication_day_time_unknown",
+          "source_original_publication_literal": "2026/05/12",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "1ff877bef006d6a8649e1142b577f178f8f548230976a215be19d2ac680dd017",
+          "actual_retrieved_at_jst": "2026-10-14T06:51:09+09:00",
+          "page_initial_published_at": "2026-05-12T06:05:41+00:00",
+          "page_initial_published_at_jst": "2026-05-12T15:05:41+09:00",
+          "page_modified_at": "2026-06-10T06:07:02+00:00",
+          "page_modified_at_jst": "2026-06-10T15:07:02+09:00",
+          "page_initial_published_metadata_kind": "JSON-LD WebPage.datePublished, CMS page initial publication; release announcement time unknown"
+        }
+      ]
+    },
+    {
+      "symbol": "6703.T",
+      "name": "沖電気工業",
+      "business": "電子通信・情報処理に関わる製品やソフトウェアを製造・販売する会社です。関連するシステムの構築や工事、保守などのサービスも行っています。",
+      "life": "通信や情報処理に関わるシステムを構築し、工事や保守のサービスも提供しています。",
+      "watch": "製造・販売する仕事と、システムの構築・工事・保守を分けて確認できます。個別の製品名や顧客向けの詳しいサービス内容は、掲載された事業概要には記載されていません。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "しょくばらぼの掲載事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/07/23 企業掲載情報の更新｜しょくばらぼ（説明は当サイト作成）",
+          "url": "https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do",
+          "fetched_at": 1791815572.6094642,
+          "source_kind": "employer_submitted_business_field",
+          "source_record_updated_on": "2026-07-23",
+          "source_record_updated_literal": "2026-07-23 12:00:07",
+          "source_dataset_on": "2026-10-12",
+          "source_published_on": null,
+          "business_field_publication_on": null,
+          "source_zip_sha256": "bea145d9ab4acfa5630d13cde64857f214d7dc14dbea6a015b841d2f9b7450c7",
+          "source_member": "shokuba_20261012.csv",
+          "source_csv_record_ordinal": 27401,
+          "ordinal_not_physical_line_number": true
+        }
+      ]
     }
   ]
 }
