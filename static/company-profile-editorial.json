@@ -5200,6 +5200,196 @@
           "source_published_on": "2026-04-09"
         }
       ]
+    },
+    {
+      "symbol": "4507.T",
+      "name": "塩野義製薬",
+      "business": "医薬品や臨床検査に使う薬剤・機器を研究開発し、製造・販売を行う会社です。",
+      "life": "医薬品に加え、検査に使う薬剤や機器にも関わっています。",
+      "watch": "医薬品と臨床検査用の薬剤・機器を分け、研究開発から製造・販売まで、どの仕事を担うかを確認できます。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/02/09 15:00 公表・塩野義製薬の企業発表（説明は当サイト作成）",
+          "url": "https://prtimes.jp/main/html/rd/p/000000015.000080873.html",
+          "fetched_at": 1791886426.0,
+          "source_published_on": "2026-02-09",
+          "source_original_publication_literal_jst": "2026-02-09 15:00:02",
+          "source_kind": "issuer_published_release",
+          "source_html_sha256": "c9c6c52c29b2d89ecd6fcc5f74e8ffe85febbe7104bf9f65d0c5c3e6ff4e8380"
+        }
+      ]
+    },
+    {
+      "symbol": "7012.T",
+      "name": "川崎重工業",
+      "business": "航空宇宙や造船、エネルギー・プラントなどの事業を展開する会社です。半導体製造装置向けロボットの販売・サービスも行っています。",
+      "life": "航空宇宙や船、エネルギー・プラントに関わる事業と、半導体製造装置向けロボットを扱っています。",
+      "watch": "航空宇宙や造船、エネルギー・プラントの分野と、ロボットの販売・サービスを分けて見られます。開発計画と、すでに行っている事業の違いも確認できます。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/05/22 14:10 公表・川崎重工業の企業発表（説明は当サイト作成）",
+          "url": "https://prtimes.jp/main/html/rd/p/000000033.000050413.html",
+          "fetched_at": 1791886264.0,
+          "source_published_on": "2026-05-22",
+          "source_original_publication_literal_jst": "2026-05-22 14:10:01",
+          "source_kind": "issuer_published_release",
+          "source_html_sha256": "a8a6b933f8f183a90838c9ff6ee89bcf894fe244ac88eeede29ae46d32a9cef2"
+        }
+      ]
+    },
+    {
+      "symbol": "8252.T",
+      "name": "丸井グループ",
+      "business": "カード、イベント、グッズを組み合わせた事業をグループで展開する会社です。提携先が企画したイベントの開催を受託するなど、店舗や顧客との接点を活かした支援も行っています。",
+      "life": "カードやイベント、グッズを通じて利用者との接点を持ちます。",
+      "watch": "グループで進める事業と、提携先が企画するイベントを区別します。イベントの受託開催など、支援を担う役割を確認できます。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/02/24 16:00 公表・丸井グループの企業発表（説明は当サイト作成）",
+          "url": "https://prtimes.jp/main/html/rd/p/000004047.000003860.html",
+          "fetched_at": 1791886315.0,
+          "source_published_on": "2026-02-24",
+          "source_original_publication_literal_jst": "2026-02-24 16:00:01",
+          "source_kind": "issuer_published_release",
+          "source_html_sha256": "8134f92527092d0f24ba62789df3b6ce0e2eef52c038b41bd9539c845e0605be"
+        }
+      ]
+    },
+    {
+      "symbol": "2209.T",
+      "name": "井村屋グループ",
+      "business": "グループ経営を立案し、資産を維持・管理する会社です。投資に関わる仕事も行っています。",
+      "life": "グループの経営計画に関わり、資産の維持・管理や投資を担っています。",
+      "watch": "経営の立案と資産管理、投資活動を分けて見られます。掲載された事業概要には、食品の商品名や製造工程は記載されていません。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "しょくばらぼの掲載事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/07/23 企業掲載情報の更新｜しょくばらぼ（説明は当サイト作成）",
+          "url": "https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do",
+          "fetched_at": 1791815572.6094642,
+          "source_kind": "employer_submitted_business_field",
+          "source_record_updated_on": "2026-07-23",
+          "source_record_updated_literal": "2026-07-23 11:56:59",
+          "source_dataset_on": "2026-10-12",
+          "source_published_on": null,
+          "business_field_publication_on": null,
+          "source_zip_sha256": "bea145d9ab4acfa5630d13cde64857f214d7dc14dbea6a015b841d2f9b7450c7",
+          "source_member": "shokuba_20261012.csv",
+          "source_csv_record_ordinal": 19793,
+          "ordinal_not_physical_line_number": true
+        }
+      ]
+    },
+    {
+      "symbol": "4182.T",
+      "name": "三菱瓦斯化学",
+      "business": "メタノールや過酸化水素、キシレンなどの化学品を開発・製造し、販売する会社です。電子材料やエンジニアリングプラスチック、脱酸素剤なども扱っています。",
+      "life": "化学品に加え、電子材料やプラスチック、脱酸素剤の開発・製造・加工・販売に関わっています。",
+      "watch": "基礎化学品と電子材料などの製品を分け、開発・製造・加工・販売という仕事を確認できます。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "しょくばらぼの掲載事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/09/25 企業掲載情報の更新｜しょくばらぼ（説明は当サイト作成）",
+          "url": "https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do",
+          "fetched_at": 1791815572.6094642,
+          "source_kind": "employer_submitted_business_field",
+          "source_record_updated_on": "2026-09-25",
+          "source_record_updated_literal": "2026-09-25 13:04:13",
+          "source_dataset_on": "2026-10-12",
+          "source_published_on": null,
+          "business_field_publication_on": null,
+          "source_zip_sha256": "bea145d9ab4acfa5630d13cde64857f214d7dc14dbea6a015b841d2f9b7450c7",
+          "source_member": "shokuba_20261012.csv",
+          "source_csv_record_ordinal": 8904,
+          "ordinal_not_physical_line_number": true
+        }
+      ]
+    },
+    {
+      "symbol": "6268.T",
+      "name": "ナブテスコ",
+      "business": "航空油圧用の機器を製造・販売する会社です。精密機器や輸送用機器、産業用機器も扱っています。",
+      "life": "航空油圧用の機器に加え、輸送用機器や精密機器、産業用機器をつくって販売しています。",
+      "watch": "航空油圧用、輸送用、精密機器、産業用という製品区分と、製造・販売の仕事を分けて確認できます。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "しょくばらぼの掲載事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/08/27 企業掲載情報の更新｜しょくばらぼ（説明は当サイト作成）",
+          "url": "https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do",
+          "fetched_at": 1791815572.6094642,
+          "source_kind": "employer_submitted_business_field",
+          "source_record_updated_on": "2026-08-27",
+          "source_record_updated_literal": "2026-08-27 13:50:27",
+          "source_dataset_on": "2026-10-12",
+          "source_published_on": null,
+          "business_field_publication_on": null,
+          "source_zip_sha256": "bea145d9ab4acfa5630d13cde64857f214d7dc14dbea6a015b841d2f9b7450c7",
+          "source_member": "shokuba_20261012.csv",
+          "source_csv_record_ordinal": 141731,
+          "ordinal_not_physical_line_number": true
+        }
+      ]
+    },
+    {
+      "symbol": "9023.T",
+      "name": "東京地下鉄",
+      "business": "旅客鉄道を運営する会社です。不動産の開発・賃貸、駅構内の店舗や商業施設の開発・運営のほか、広告媒体の販売や光ファイバーの貸し出しも行います。",
+      "life": "旅客鉄道を運営し、駅構内の店舗や商業施設の開発・運営にも関わっています。不動産の開発や貸し出しも行っています。",
+      "watch": "鉄道の運営と不動産・駅施設の事業を分けて見られます。広告媒体の販売と光ファイバーの貸し出しも、別の仕事として確認できます。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "しょくばらぼの掲載事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/09/25 企業掲載情報の更新｜しょくばらぼ（説明は当サイト作成）",
+          "url": "https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do",
+          "fetched_at": 1791815572.6094642,
+          "source_kind": "employer_submitted_business_field",
+          "source_record_updated_on": "2026-09-25",
+          "source_record_updated_literal": "2026-09-25 12:58:12",
+          "source_dataset_on": "2026-10-12",
+          "source_published_on": null,
+          "business_field_publication_on": null,
+          "source_zip_sha256": "bea145d9ab4acfa5630d13cde64857f214d7dc14dbea6a015b841d2f9b7450c7",
+          "source_member": "shokuba_20261012.csv",
+          "source_csv_record_ordinal": 5052,
+          "ordinal_not_physical_line_number": true
+        }
+      ]
+    },
+    {
+      "symbol": "9024.T",
+      "name": "西武ホールディングス",
+      "business": "西武グループの経営戦略を立て、事業会社の経営を管理する会社です。グループ全体の資金管理・調達、広報、コンプライアンスの推進も担っています。",
+      "life": "グループの事業会社を管理し、経営方針や資金、広報などをまとめる役割を担っています。",
+      "watch": "経営戦略、事業会社の管理、資金管理・調達を分けて見られます。広報やコンプライアンスも、グループ全体に関わる仕事です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "しょくばらぼの掲載事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/09/25 企業掲載情報の更新｜しょくばらぼ（説明は当サイト作成）",
+          "url": "https://shokuba.mhlw.go.jp/shokuba/utilize/utilize010.do",
+          "fetched_at": 1791815572.6094642,
+          "source_kind": "employer_submitted_business_field",
+          "source_record_updated_on": "2026-09-25",
+          "source_record_updated_literal": "2026-09-25 12:59:33",
+          "source_dataset_on": "2026-10-12",
+          "source_published_on": null,
+          "business_field_publication_on": null,
+          "source_zip_sha256": "bea145d9ab4acfa5630d13cde64857f214d7dc14dbea6a015b841d2f9b7450c7",
+          "source_member": "shokuba_20261012.csv",
+          "source_csv_record_ordinal": 45021,
+          "ordinal_not_physical_line_number": true
+        }
+      ]
     }
   ]
 }
