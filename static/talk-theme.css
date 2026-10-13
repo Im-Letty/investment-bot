@@ -289,7 +289,7 @@ body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card):focus-visible
 body.kn-home-a #knMyTalkHub .kt-hub-icon,
 body.kn-home-a #talkHubOv .thb-ico {
   display:flex;align-items:center;justify-content:center;flex:0 0 42px;
-  width:42px;height:42px;color:var(--kn-sh-button);
+  width:42px;height:42px;color:var(--kn-a-ink,var(--kn-sh-ink));
 }
 body.kn-home-a #knMyTalkHub .kt-hub-icon svg {width:32px;height:32px}
 body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-copy {flex:1;min-width:0}

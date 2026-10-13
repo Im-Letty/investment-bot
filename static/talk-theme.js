@@ -20,10 +20,9 @@
       if(event.key==='Enter'||event.key===' '){event.preventDefault();element.click();}
     });
   }
-  function icon(kind) {
+  function icon() {
     var span=document.createElement('span');span.className='kt-hub-icon';span.setAttribute('aria-hidden','true');
-    span.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">'+
-      (kind==='community'?'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>':'<path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8z"/>')+'</svg>';
+    span.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>';
     return span;
   }
   function closeHub() {
@@ -64,13 +63,13 @@
     close.textContent='×';close.setAttribute('aria-label','トークを閉じる');close.onclick=closeHub;
     header.appendChild(close);
     var body=document.createElement('div');body.className='kt-hub-body';
-    cards.forEach(function(card,index){
+    cards.forEach(function(card){
       card.classList.add('kt-hub-card');keyboardButton(card);
       var title=card.firstElementChild,subtitle=card.lastElementChild;
       var copy=document.createElement('div');copy.className='kt-hub-copy';
       if(title){title.classList.add('kt-hub-card-title');title.textContent=title.textContent.replace(/^(💬|👥)\s*/,'');copy.appendChild(title);}
       if(subtitle&&subtitle!==title){subtitle.classList.add('kt-hub-sub');copy.appendChild(subtitle);}
-      card.appendChild(icon(index===1?'community':'stock'));card.appendChild(copy);
+      card.appendChild(icon());card.appendChild(copy);
       var arrow=document.createElement('span');arrow.className='kt-hub-arrow';arrow.textContent='›';arrow.setAttribute('aria-hidden','true');card.appendChild(arrow);
       body.appendChild(card);
     });
