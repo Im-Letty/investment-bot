@@ -24,6 +24,8 @@ from official_news_sources import _publication, _now, _in_window, _body_text, _d
 from company_news_selection import priority, candidate_order
 import company_news_additional as additional
 import company_news_issuer_feeds as issuer_feeds
+from company_news_route_schedule import select_route_schedule
+from company_news_source_backoff import SourceHostBackoff
 
 SOURCES = {
     "NTT": {
@@ -58,6 +60,8 @@ FEEDS = {name: config["feed"] for name, config in SOURCES.items()}
 FEEDS.update(additional.FEEDS)
 FEEDS['PR TIMES'] = 'https://prtimes.jp/index.rdf'
 FEEDS.update(issuer_feeds.FEEDS)
+_SOURCE_BACKOFF = SourceHostBackoff({urlsplit(url).hostname for url in FEEDS.values()},
+                                  state_path='/tmp/kn-company-news-source-backoff.json')
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
 MAX_CANDIDATES = 8
@@ -65,12 +69,13 @@ MAX_ARTICLES = 3
 MIN_BODY_CHARS = 100
 MAX_BODY_CHARS = 20_000
 COLLECTION_SECONDS = 40
+FEED_COLLECTION_SECONDS = 30
 REQUEST_SECONDS = 10
 _DATE = re.compile(r"(\d{4})年\s*(\d{1,2})月\s*(\d{1,2})日")
 _ERROR_CODES = frozenset({"unapproved_source", "source_time_limit", "source_unavailable",
     "unapproved_redirect", "source_content_type", "source_size_limit", "source_size_or_time_limit",
     "unsupported_feed_declaration", "unsupported_feed_structure", "unsupported_source_encoding",
-    "invalid_verification_clock"})
+    "invalid_verification_clock", "source_rate_wait", "source_refused", "source_backoff_unavailable"})
 
 
 def _compact(value):
@@ -148,11 +153,17 @@ def _download(url, deadline):
     limit = min(deadline, time.monotonic() + REQUEST_SECONDS)
     if time.monotonic() >= limit:
         raise ValueError("source_time_limit")
+    wait = _SOURCE_BACKOFF.check(host)
+    if wait['blocked']:
+        raise ValueError(wait['error_code'])
     addresses = _public_addresses(host)[:2]
     for index, address in enumerate(addresses):
         remaining = limit - time.monotonic()
         if remaining <= 0:
             raise ValueError("source_time_limit")
+        wait = _SOURCE_BACKOFF.check(host)
+        if wait['blocked']:
+            raise ValueError(wait['error_code'])
         try:
             with requests.Session() as session:
                 session.trust_env = False
@@ -164,6 +175,10 @@ def _download(url, deadline):
                                           "Accept-Encoding": "identity", "Host": host}) as response:
                     if 300 <= response.status_code < 400:
                         raise ValueError("unapproved_redirect")
+                    if response.status_code in (403, 429, 503):
+                        wait = _SOURCE_BACKOFF.record_response(host, response.status_code,
+                            response.headers.get('Retry-After'))
+                        raise ValueError(wait['error_code'])
                     if response.status_code != 200:
                         raise ValueError("source_unavailable")
                     mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
@@ -391,6 +406,22 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at):
                                   "article_published_at": metadata_date["published_at"]}}
 
 
+def collection_schedule(now=None, *, until=None):
+    current = _now(now)
+    if until is not None:
+        current = min(current, _now(until))
+    expansion = {label: url for label, url in FEEDS.items()
+                 if label in issuer_feeds.EXPANSION_CHANNELS}
+    bases = {label: url for label, url in FEEDS.items() if label not in expansion}
+    return select_route_schedule(bases, expansion, current.timestamp())
+
+
+def registered_company_symbols():
+    return {row['symbol'] for row in SOURCES.values()} | {
+        row['symbol'] for row in additional.SOURCES.values()} | {
+        row['symbol'] for row in issuer_feeds.SOURCES.values()}
+
+
 def collect_company_articles(now=None, *, since=None, until=None, diagnostics=None, clock=None, exclude_urls=None):
     """Collect up to three verified announcements, defaulting to the last 72h.
 
@@ -419,8 +450,13 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
     elif type(since) is not date:
         since = date.fromisoformat(since) if isinstance(since, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", since) else _now(since)
     deadline = time.monotonic() + COLLECTION_SECONDS
+    feed_deadline = min(deadline, time.monotonic() + FEED_COLLECTION_SECONDS)
+    schedule = collection_schedule(now)
+    active_feeds = schedule['feeds']
     report = {source: {"feed_status": "not_completed", "status": "fetch_incomplete", "candidates": 0,
                       "selected": 0, "completed": 0, "accepted": 0, "errors": []} for source in FEEDS}
+    for source in set(FEEDS) - set(active_feeds):
+        report[source].update(feed_status='not_scheduled', status='not_scheduled')
 
     def error_code(exc):
         # Fixed transport categories reveal neither exception text, response
@@ -437,7 +473,7 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
 
     def read_feed(source):
         try:
-            payload, final = _download(FEEDS[source], deadline)
+            payload, final = _download(FEEDS[source], feed_deadline)
             if final != FEEDS[source]:
                 raise ValueError("unapproved_redirect")
             if source == 'PR TIMES':
@@ -452,7 +488,7 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
         except Exception as exc:
             return source, [], error_code(exc)
 
-    batches = _parallel(list(FEEDS), read_feed, deadline)
+    batches = _parallel(list(active_feeds), read_feed, feed_deadline)
     by_source = {source: [] for source in FEEDS}
     for source, items, error in batches:
         row = report[source]

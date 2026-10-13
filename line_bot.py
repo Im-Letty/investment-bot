@@ -2308,7 +2308,8 @@ from company_news_runtime import CompanyNewsRuntime, SupabaseNewsStorage as Comp
 
 
 def _collect_company_sources(**options):
-    from company_news_sources import collect_company_articles, FEEDS
+    from company_news_sources import (collect_company_articles, FEEDS, collection_schedule,
+                                      registered_company_symbols)
     from company_news_catalogue import current_catalogue
     from company_news_additional import direct_feed_company_count
     from datetime import datetime, timezone
@@ -2316,6 +2317,12 @@ def _collect_company_sources(**options):
     catalogue = current_catalogue(now=datetime.fromtimestamp(raw_now, timezone.utc) if raw_now else None)
     diagnostics = {}
     articles = collect_company_articles(diagnostics=diagnostics, **options)
+    schedule = collection_schedule(raw_now, until=options.get('until'))
+    scheduled = set(schedule['feeds'])
+    scheduled_healthy = bool(scheduled) and all(isinstance(diagnostics.get(name), dict)
+                  and diagnostics[name].get('feed_status') == 'ok'
+                  and diagnostics[name].get('status') in ('collected', 'no_matching_candidates')
+                  for name in scheduled)
     healthy = len(diagnostics) == len(FEEDS) and all(isinstance(item, dict)
                   and item.get('feed_status') == 'ok'
                   and item.get('status') in ('collected', 'no_matching_candidates')
@@ -2327,11 +2334,14 @@ def _collect_company_sources(**options):
     return {'articles': articles, 'status': 'source_empty' if not articles and healthy else
             'ready' if articles or readable_feed else 'error',
             'collection_health': 'complete' if healthy else 'partial',
+            'scheduled_collection_health': 'complete' if scheduled_healthy else 'partial',
             'diagnostics': diagnostics, 'catalogue': catalogue.snapshot(),
             'coverage': {'universe': 'nikkei225', 'candidate_company_count': len(catalogue.members),
                          'membership_as_of': catalogue.provenance['as_of'],
                          'direct_feed_company_count': direct_feed_company_count(),
                          'source_channel_count': len(FEEDS),
+                         'registered_company_count': len(registered_company_symbols() & set(catalogue.members)),
+                         **schedule['coverage'],
                          'distribution_scope': 'issuer_published_releases',
                          'all_company_announcements_covered': False}}
 

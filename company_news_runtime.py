@@ -40,14 +40,15 @@ CHANNEL_NAMES = (tuple(value[0] for value in SOURCES.values()) + ('PR TIMES',)
                  + tuple(ADDITIONAL_SOURCES) + tuple(ISSUER_SOURCES))
 PUBLIC_KEYS = ('symbol', 'name', 'sector', 'title', 'business', 'event', 'outlook',
                'source_url', 'published_date', 'published_at', 'article_id', 'reviewed_at')
-FEED_STATES = frozenset({'ok', 'failed', 'not_completed'})
+FEED_STATES = frozenset({'ok', 'failed', 'not_completed', 'not_scheduled'})
 COLLECTION_STATES = frozenset({'fetch_incomplete', 'feed_failed', 'no_matching_candidates',
-                              'collected', 'collected_partial', 'articles_unavailable'})
+                              'collected', 'collected_partial', 'articles_unavailable', 'not_scheduled'})
 SOURCE_ERROR_CODES = frozenset({'unapproved_source', 'source_time_limit', 'source_unavailable',
     'unapproved_redirect', 'source_content_type', 'source_size_limit', 'source_size_or_time_limit',
     'unsupported_feed_declaration', 'unsupported_feed_structure', 'unsupported_source_encoding',
     'invalid_verification_clock', 'source_read_failed', 'body_or_date_unverified',
-    'source_dns_failed', 'source_tls_failed', 'source_timeout', 'source_connection_failed'})
+    'source_dns_failed', 'source_tls_failed', 'source_timeout', 'source_connection_failed',
+    'source_rate_wait', 'source_refused', 'source_backoff_unavailable'})
 # Source count can grow without exceeding the existing clock's 8 KiB status
 # response budget. Real collectors normally record one feed/body failure; keep
 # a fixed bounded error summary for every channel instead of repeating every
@@ -75,6 +76,71 @@ def _safe_source_diagnostics(value):
                               else 'source_read_failed' for error in errors[:len(SOURCE_ERROR_CODES)]})[:MAX_DIAGNOSTIC_ERRORS],
         }
     return result
+
+
+def bounded_source_metadata(diagnostics):
+    """A compact operational view; omitted rows are never counted as success."""
+    rows = _safe_source_diagnostics(diagnostics)
+    counts = {'registered': len(rows), 'completed': 0, 'ok': 0, 'failed': 0,
+              'not_completed': 0, 'not_scheduled': 0}
+    for row in rows.values():
+        state = row['feed_status']
+        counts[state] += 1
+        if state in ('ok', 'failed'):
+            counts['completed'] += 1
+    if len(rows) <= 33:
+        selected = rows
+    else:
+        # Preserve the most actionable failures, then actual checked channels.
+        order = {'failed': 0, 'not_completed': 1, 'ok': 2, 'not_scheduled': 3}
+        selected = dict(sorted(rows.items(), key=lambda pair: (
+            order[pair[1]['feed_status']], pair[0]))[:6])
+    return {'source_diagnostics': selected, 'sources': list(selected),
+            'source_diagnostic_counts': counts,
+            'source_diagnostics_omitted_count': len(rows) - len(selected)}
+
+
+def bounded_operational_result(result):
+    """Keep the existing clock's actual ASCII-escaped 8 KiB wire envelope."""
+    while len(json.dumps(result, ensure_ascii=True, separators=(',', ':')).encode()) > 8000:
+        rows = result.get('source_diagnostics', {})
+        if not rows:
+            break
+        rows.pop(next(reversed(rows)))
+        result['sources'] = list(rows)
+        result['source_diagnostics_omitted_count'] += 1
+    return result
+
+
+def safe_rotation_coverage(value):
+    if not isinstance(value, dict):
+        return {}
+    fields = ('base_channel_count', 'additional_registered_channel_count',
+              'additional_scheduled_channel_count', 'additional_unscheduled_channel_count',
+              'registered_channel_count', 'scheduled_channel_count', 'additional_limit_per_poll',
+              'rotation_interval_seconds', 'rotation_batch_count', 'rotation_batch_index',
+              'rotation_full_cycle_seconds')
+    if any(type(value.get(key)) is not int or value[key] < 0 for key in fields):
+        return {}
+    base, added, scheduled, skipped, limit, batches, slot = (
+        value[key] for key in ('base_channel_count', 'additional_registered_channel_count',
+            'additional_scheduled_channel_count', 'additional_unscheduled_channel_count',
+            'additional_limit_per_poll', 'rotation_batch_count', 'rotation_batch_index'))
+    if (not 1 <= base <= 33 or not 0 <= added <= 194 or not 1 <= limit <= 6
+            or scheduled > limit or scheduled + skipped != added
+            or scheduled != min(limit, max(0, added - slot * limit))
+            or value['registered_channel_count'] != base + added
+            or value['scheduled_channel_count'] != base + scheduled
+            or value['rotation_interval_seconds'] != 900
+            or batches != (added + limit - 1) // limit
+            or not 0 <= slot < max(1, batches)
+            or value['rotation_full_cycle_seconds'] != batches * 900
+            or type(value.get('all_registered_routes_scheduled_this_poll')) is not bool
+            or value['all_registered_routes_scheduled_this_poll'] != (skipped == 0)
+            or value.get('all_company_announcements_covered') is not False):
+        return {}
+    return {key: value[key] for key in (*fields, 'all_registered_routes_scheduled_this_poll',
+                                       'all_company_announcements_covered')}
 
 
 def canonical_hash(value):
@@ -428,10 +494,14 @@ class CompanyNewsRuntime:
                           'membership_as_of': None,
                           'direct_feed_company_count': direct_feed_company_count(),
                           'issuer_feed_company_count': len({item['symbol'] for item in ISSUER_SOURCES.values()}),
+                          'registered_company_count': len(set(SOURCES) | {
+                              row['symbol'] for row in ADDITIONAL_SOURCES.values()} | {
+                              row['symbol'] for row in ISSUER_SOURCES.values()}),
                           'source_channel_count': len(CHANNEL_NAMES),
                           'distribution_scope': 'issuer_published_releases',
                           'all_company_announcements_covered': False}
         self._collection_health = 'unknown'
+        self._scheduled_collection_health = 'unknown'
         self._last_error_phase, self._last_error_code = None, None
         self._last_restore, self._restore_day = 0, None
         self._candidate_check, self._candidate_day = 0, None
@@ -568,10 +638,17 @@ class CompanyNewsRuntime:
                         verified_catalogue.provenance['source_sha256']), catalogue)
                     with self._lock:
                         self._coverage.update(candidate_company_count=len(verified_catalogue.members),
-                            membership_as_of=verified_catalogue.provenance['as_of'])
+                            membership_as_of=verified_catalogue.provenance['as_of'],
+                            registered_company_count=len((set(SOURCES) | {
+                                row['symbol'] for row in ADDITIONAL_SOURCES.values()} | {
+                                row['symbol'] for row in ISSUER_SOURCES.values()}) & set(verified_catalogue.members)))
                 with self._lock:
                     health = result.get('collection_health')
                     self._collection_health = health if health in ('complete', 'partial') else 'unknown'
+                    scheduled_health = result.get('scheduled_collection_health')
+                    self._scheduled_collection_health = (scheduled_health
+                        if scheduled_health in ('complete', 'partial') else 'unknown')
+                    self._coverage.update(safe_rotation_coverage(result.get('coverage')))
                 for source in sources:
                     if valid_source(source, now, catalogue=source_catalogue(self.storage, source)):
                         self.storage.create(f'{PREFIX}/candidates/{day}/{source_fingerprint(source)}.json', source)
@@ -629,15 +706,16 @@ class CompanyNewsRuntime:
                         and current.is_member(source.get('symbol')) and valid_source(source, now,
                         catalogue=source_catalogue(self.storage, source))]
             fingerprints = sorted(source_fingerprint(source) for source in pending)
-            return {'status': self._status, 'checked_at': self._checked,
-                    'source_diagnostics': deepcopy(self._source_diagnostics),
+            result = {'status': self._status, 'checked_at': self._checked,
+                    **bounded_source_metadata(self._source_diagnostics),
                     'coverage': deepcopy(self._coverage), 'collection_health': self._collection_health,
+                    'scheduled_collection_health': self._scheduled_collection_health,
                     'last_error_phase': self._last_error_phase, 'last_error_code': self._last_error_code,
                     'pending_count': len(pending),
                     'batch_id': canonical_hash(fingerprints) if fingerprints else None,
-                    'sources': list(CHANNEL_NAMES),
                     'writer_provider': 'codex_subscription', 'generation_owner': 'external',
                     'source_interval_seconds': 900, 'max_generation_attempts_per_day': 3}
+            return bounded_operational_result(result)
 
     def publication_observation(self):
         """Safe numeric reader diagnostics; never reads Storage or starts work."""
@@ -650,9 +728,10 @@ class CompanyNewsRuntime:
                     'source_status': self._source_status,
                     'checked_at': self._checked,
                     'worker_alive': bool(self._thread and self._thread.is_alive()),
-                    'source_diagnostics': deepcopy(self._source_diagnostics),
+                    **bounded_source_metadata(self._source_diagnostics),
                     'coverage': deepcopy(self._coverage),
                     'collection_health': self._collection_health,
+                    'scheduled_collection_health': self._scheduled_collection_health,
                     'record_count': len(self._records),
                     'valid_reviewed_count': len(companies),
                     'catalogue_required_record_count': sum(

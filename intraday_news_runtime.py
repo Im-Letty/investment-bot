@@ -268,7 +268,7 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
         if not isinstance(values, dict):
             return
         safe = {name: values[name] for name in
-                ("legacy_two_source_polls", "concurrent_read_records")
+                ("legacy_two_source_polls", "legacy_three_source_polls", "concurrent_read_records")
                 if type(values.get(name)) is int and 0 <= values[name] <= 128}
         if safe:
             report["source_cache_observations"] = safe

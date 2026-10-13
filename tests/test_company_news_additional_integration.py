@@ -214,7 +214,14 @@ class AdditionalIntegrationTests(unittest.TestCase):
             worker.run_once()
             worker._pending = [source(symbol) for symbol in ('9432.T', '9433.T', '6752.T')]
             result = worker.operational_snapshot()
-        self.assertEqual(set(result['sources']), set(runtime.CHANNEL_NAMES))
+        self.assertEqual(set(result['sources']), set(result['source_diagnostics']))
+        self.assertTrue(set(result['sources']).issubset(runtime.CHANNEL_NAMES))
+        self.assertLessEqual(len(result['sources']), 6 if len(runtime.CHANNEL_NAMES)>33 else 33)
+        self.assertEqual(result['source_diagnostic_counts']['registered'], len(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostic_counts']['failed'], 1)
+        self.assertEqual(result['source_diagnostic_counts']['ok'], len(runtime.CHANNEL_NAMES)-1)
+        self.assertEqual(result['source_diagnostics_omitted_count'],
+                         len(runtime.CHANNEL_NAMES)-len(result['sources']))
         self.assertEqual(result['coverage']['direct_feed_company_count'], additional.direct_feed_company_count())
         self.assertEqual(result['coverage']['source_channel_count'], len(runtime.CHANNEL_NAMES))
         self.assertEqual(result['coverage']['candidate_company_count'], 225)
@@ -245,7 +252,10 @@ class AdditionalIntegrationTests(unittest.TestCase):
             worker.run_once()
             worker._pending = [source(symbol) for symbol in ('9432.T', '9433.T', '6752.T')]
             result = worker.operational_snapshot()
-        self.assertEqual(set(result['source_diagnostics']), set(runtime.CHANNEL_NAMES))
+        self.assertTrue(set(result['source_diagnostics']).issubset(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostic_counts']['failed'], len(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostics_omitted_count'],
+                         len(runtime.CHANNEL_NAMES)-len(result['source_diagnostics']))
         self.assertEqual(result['pending_count'], 3)
         self.assertIsNotNone(result['batch_id'])
         self.assertTrue(all(row['errors'] == sorted(longest)[:1]
@@ -266,7 +276,11 @@ class AdditionalIntegrationTests(unittest.TestCase):
             worker.run_once()
             worker._pending = [source(symbol) for symbol in ('9432.T', '9433.T', '6752.T')]
             result = worker.operational_snapshot()
-        self.assertEqual(set(result['source_diagnostics']), set(runtime.CHANNEL_NAMES))
+        self.assertTrue(set(result['source_diagnostics']).issubset(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostic_counts']['registered'], len(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostic_counts']['failed'], len(runtime.CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostics_omitted_count'],
+                         len(runtime.CHANNEL_NAMES)-len(result['source_diagnostics']))
         self.assertTrue(all(row['errors'] == sorted(runtime.SOURCE_ERROR_CODES)[:runtime.MAX_DIAGNOSTIC_ERRORS]
                             for row in result['source_diagnostics'].values()))
         self.assertLess(len(json.dumps(result, ensure_ascii=False).encode()), 8192)

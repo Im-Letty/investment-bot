@@ -249,7 +249,8 @@ class CompanySourceTests(unittest.TestCase):
     def test_collector_verifies_three_bodies_and_keeps_actual_verification_clock(self):
         result, diagnostics, fetch = self.collect()
         self.assertEqual(len(result), 3)
-        self.assertEqual(fetch.call_count, len(sources.FEEDS) + 3)
+        self.assertEqual(fetch.call_count, len(sources.FEEDS)-len(sources.issuer_feeds.EXPANSION_CHANNELS)
+                         + min(6,len(sources.issuer_feeds.EXPANSION_CHANNELS)) + 3)
         self.assertEqual({item['symbol'] for item in result}, {'9432.T', '9433.T', '6752.T'})
         self.assertTrue(all(item['body_verified_at'] == NOW.timestamp() for item in result))
         self.assertTrue(all(diagnostics[name]['status'] == 'collected' for name in URLS))
@@ -258,7 +259,8 @@ class CompanySourceTests(unittest.TestCase):
     def test_known_urls_skip_bodies_without_claiming_unseen_site_has_no_news(self):
         result, diagnostics, fetch = self.collect(exclude_urls=set(URLS.values()))
         self.assertEqual(result, [])
-        self.assertEqual(fetch.call_count, len(sources.FEEDS))
+        self.assertEqual(fetch.call_count, len(sources.FEEDS)-len(sources.issuer_feeds.EXPANSION_CHANNELS)
+                         + min(6,len(sources.issuer_feeds.EXPANSION_CHANNELS)))
         self.assertTrue(all(diagnostics[name]['feed_status'] == 'ok' and diagnostics[name]['candidates'] == 1
                             and diagnostics[name]['selected'] == 0 for name in URLS))
 
@@ -283,7 +285,11 @@ class CompanySourceTests(unittest.TestCase):
         with patch.object(sources, '_download', side_effect=download):
             diagnostics = {}
             self.assertEqual(sources.collect_company_articles(NOW, diagnostics=diagnostics), [])
-        self.assertTrue(all(row['status'] == 'no_matching_candidates' and row['feed_status'] == 'ok' for row in diagnostics.values()))
+        scheduled = sources.collection_schedule(NOW)['feeds']
+        self.assertTrue(all(diagnostics[name]['status'] == 'no_matching_candidates'
+                            and diagnostics[name]['feed_status'] == 'ok' for name in scheduled))
+        self.assertTrue(all(row['status'] == 'not_scheduled' and row['feed_status'] == 'not_scheduled'
+                            for name,row in diagnostics.items() if name not in scheduled))
 
     def test_invalid_verification_clock_does_not_publish_verified_body(self):
         result, diagnostics, _ = self.collect(invalid_clock=True)
@@ -298,7 +304,8 @@ class CompanySourceTests(unittest.TestCase):
         with patch.object(sources, '_feed_items', side_effect=duplicate_candidates):
             result, diagnostics, fetch = self.collect()
         self.assertEqual(len(result), 3)
-        self.assertEqual(fetch.call_count, len(sources.FEEDS) + 3)
+        self.assertEqual(fetch.call_count, len(sources.FEEDS)-len(sources.issuer_feeds.EXPANSION_CHANNELS)
+                         + min(6,len(sources.issuer_feeds.EXPANSION_CHANNELS)) + 3)
         self.assertTrue(all(diagnostics[name]['selected'] == 1 for name in URLS))
 
 
@@ -447,11 +454,12 @@ class CompanyTransportFailoverTests(unittest.TestCase):
 
     def test_http_redirect_content_or_size_failure_never_retries_another_ip(self):
         for status, headers, code in ((302, {'Content-Type': 'text/html'}, 'unapproved_redirect'),
-                                      (403, {'Content-Type': 'text/html'}, 'source_unavailable'),
+                                      (403, {'Content-Type': 'text/html'}, 'source_refused'),
                                       (200, {'Content-Type': 'application/pdf'}, 'source_content_type'),
                                       (200, {'Content-Type': 'text/html', 'Content-Length': str(sources.MAX_BYTES + 1)}, 'source_size_limit')):
             first, _ = self.session(status=status, headers=headers)
             with self.subTest(code=code), patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                    patch.object(sources, '_SOURCE_BACKOFF', sources.SourceHostBackoff({'group.ntt'})), \
                     patch.object(sources.requests, 'Session', return_value=first) as sessions, \
                     patch.object(sources, '_PinnedHTTPSAdapter') as adapter, \
                     patch.object(sources.time, 'monotonic', return_value=100):
@@ -459,6 +467,22 @@ class CompanyTransportFailoverTests(unittest.TestCase):
                     sources._download(URLS['NTT'], 140)
                 self.assertEqual(sessions.call_count, 1)
                 self.assertEqual(adapter.call_count, 1)
+
+    def test_retry_after_response_stops_subsequent_host_call_before_DNS(self):
+        guard = sources.SourceHostBackoff({'group.ntt'}, clock=lambda: 1000.0)
+        first, _ = self.session(status=429, headers={'Retry-After': '3600', 'Content-Type': 'text/html'})
+        with patch.object(sources, '_SOURCE_BACKOFF', guard), \
+             patch.object(sources, '_public_addresses', return_value=self.ADDRESSES) as dns, \
+             patch.object(sources.requests, 'Session', return_value=first) as sessions, \
+             patch.object(sources, '_PinnedHTTPSAdapter'), \
+             patch.object(sources.time, 'monotonic', return_value=100):
+            with self.assertRaisesRegex(ValueError, 'source_rate_wait'):
+                sources._download(URLS['NTT'], 140)
+            with self.assertRaisesRegex(ValueError, 'source_rate_wait'):
+                sources._download(URLS['NTT'], 140)
+        self.assertEqual(dns.call_count, 1)
+        self.assertEqual(sessions.call_count, 1)
+        self.assertEqual(guard.check('group.ntt')['wait_until'], 4600.0)
 
     def test_only_two_verified_addresses_can_be_attempted(self):
         first, _ = self.session(failure=sources.requests.exceptions.ConnectTimeout('first simulated timeout'))

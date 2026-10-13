@@ -128,6 +128,7 @@ class CacheTests(unittest.TestCase):
         self.cache().collect(self.now)
         key = next(path for path in self.storage.values if '/polls/' in path and path.endswith('.json'))
         self.storage.values[key]['source_status'].pop('日本銀行')
+        self.storage.values[key]['source_status'].pop('金融庁')
         original = deepcopy(self.storage.values[key])
         restored = self.cache()
         snapshot = restored.snapshot(self.now)
@@ -150,6 +151,7 @@ class CacheTests(unittest.TestCase):
         self.cache().collect(self.now)
         key = next(path for path in self.storage.values if '/polls/' in path and path.endswith('.json'))
         self.storage.values[key]['source_status'].pop('日本銀行')
+        self.storage.values[key]['source_status'].pop('金融庁')
         self.now = at('2026-10-12')
         cache = self.cache()
         generator, preflight = Mock(), Mock()
@@ -172,6 +174,7 @@ class CacheTests(unittest.TestCase):
         key = next(path for path in self.storage.values if '/polls/' in path and path.endswith('.json'))
         original = deepcopy(self.storage.values[key])
         original['source_status'].pop('日本銀行')
+        original['source_status'].pop('金融庁')
         for mutate in (
             lambda rows: rows.pop('財務省'),
             lambda rows: rows.update({'unapproved': {}}),
@@ -270,7 +273,8 @@ class CacheTests(unittest.TestCase):
             cache._observe('concurrent_read_records', '2026-10-10', slot, 'poll')
         result = cache.operational_snapshot()['source_cache_observations']
         self.assertEqual(result['concurrent_read_records'], 128)
-        self.assertEqual(set(result), {'legacy_two_source_polls', 'concurrent_read_records'})
+        self.assertEqual(set(result), {'legacy_two_source_polls', 'legacy_three_source_polls',
+                                      'concurrent_read_records'})
         self.assertTrue(all(type(value) is int and 0 <= value <= 128 for value in result.values()))
 
     def test_revision_is_preserved_and_blocks_normal_morning_selection(self):

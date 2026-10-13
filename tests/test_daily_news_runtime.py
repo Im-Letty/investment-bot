@@ -318,7 +318,7 @@ class RuntimeTests(unittest.TestCase):
 
     def test_missing_enabled_source_is_an_outage_not_a_quiet_day_after_restart(self):
         from morning_news_window import morning_window
-        self.assertEqual(OFFICIAL_NEWS_SOURCES, ("総務省統計局", "財務省", "日本銀行"))
+        self.assertEqual(OFFICIAL_NEWS_SOURCES, ("総務省統計局", "財務省", "日本銀行", "金融庁"))
         self.write(self.baseline, [issue("2026-09-23")])
         self.now = at(hour=8, minute=0)
         healthy = {name: {"feed_status": "ok", "status": "no_matching_candidates"}

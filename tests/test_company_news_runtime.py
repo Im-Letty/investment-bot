@@ -124,7 +124,12 @@ class CompanyRuntimeTests(unittest.TestCase):
                 'articles': [], 'diagnostics': diagnostics}, clock=lambda: NOW, cache_path=temp + '/cache.json')
             runtime.run_once(); result = runtime.operational_snapshot()
         safe = result['source_diagnostics']
-        self.assertEqual(set(safe), set(CHANNEL_NAMES))
+        self.assertTrue(set(safe).issubset(CHANNEL_NAMES))
+        self.assertLessEqual(len(safe), 6 if len(CHANNEL_NAMES) > 33 else 33)
+        self.assertEqual(result['source_diagnostic_counts']['registered'], len(CHANNEL_NAMES))
+        self.assertEqual(result['source_diagnostic_counts']['not_completed'], 1)
+        self.assertEqual(result['source_diagnostic_counts']['ok'], len(CHANNEL_NAMES)-1)
+        self.assertEqual(result['source_diagnostics_omitted_count'], len(CHANNEL_NAMES)-len(safe))
         self.assertTrue(all(set(row) == {'feed_status', 'status', 'errors'} for row in safe.values()))
         self.assertEqual(safe['NTT']['errors'], ['body_or_date_unverified'])
         self.assertEqual(safe['KDDI']['feed_status'], 'not_completed')
@@ -201,7 +206,10 @@ class CompanyRuntimeTests(unittest.TestCase):
                 self.assertEqual(result['last_error_code'], expected_code)
                 self.assertNotIn('sk-private', json.dumps(result))
                 if failure == 'publication':
-                    self.assertEqual(result['source_diagnostics'], self.diagnostics())
+                    self.assertEqual(runtime._source_diagnostics, self.diagnostics())
+                    self.assertEqual(result['source_diagnostic_counts']['completed'], len(CHANNEL_NAMES))
+                    self.assertEqual(result['source_diagnostics_omitted_count'],
+                                     len(CHANNEL_NAMES)-len(result['source_diagnostics']))
 
     def test_company_collector_wrapper_distinguishes_partial_feed_coverage_without_blocking_verified_news(self):
         import company_news_sources

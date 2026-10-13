@@ -231,6 +231,7 @@ class OfficialSourceTests(unittest.TestCase):
         fixtures = {sources.FEEDS['総務省統計局']: feed([rss_item(STAT_URL, '労働力調査（基本集計）結果', '2026-10-02', rdf=True)], rdf=True),
                     sources.FEEDS['財務省']: feed([rss_item(MOF_URL, '財務大臣の記者会見', 'Fri, 02 Oct 2026 19:30:00 +0900')]),
                     sources.FEEDS['日本銀行']: feed([]),
+                    sources.FEEDS['金融庁']: feed([]),
                     STAT_URL: stat_html(), MOF_URL: mof_html()}
         def download(url, deadline):
             self.assertIn(url, fixtures)
@@ -239,7 +240,7 @@ class OfficialSourceTests(unittest.TestCase):
                 patch.object(sources.time, 'time', return_value=NOW.timestamp() + 11):
             records = sources.collect_official_articles(NOW)
         self.assertEqual(len(records), 2)
-        self.assertEqual(get.call_count, 5)
+        self.assertEqual(get.call_count, 6)
         self.assertEqual({row['source'] for row in records}, {'総務省統計局', '財務省'})
         self.assertTrue(all(row['observed_at'] == NOW.timestamp() + 11 for row in records))
         self.assertTrue(all(row['body_verified_at'] == NOW.timestamp() + 11 for row in records))
@@ -982,6 +983,7 @@ class BankOfJapanSourceTests(unittest.TestCase):
                 self.assertTrue(all(row['status'] == 'feed_failed' for row in report.values()))
 
     def test_three_sources_collected_together_and_failures_are_distinct(self):
+        legacy_sources = ('総務省統計局', '財務省', '日本銀行')
         documents = {sources.FEEDS['総務省統計局']: feed([rss_item(STAT_URL, '労働力調査の結果', '2026-10-02', rdf=True)], rdf=True),
                      sources.FEEDS['財務省']: feed([rss_item(MOF_URL, '財務大臣の記者会見', '2026-10-02')]),
                      sources.FEEDS['日本銀行']: feed([rss_item(BOJ_URL, BOJ_TITLE, '2026-10-02')]),
@@ -989,8 +991,8 @@ class BankOfJapanSourceTests(unittest.TestCase):
         report = {}
         with patch.object(sources, '_download', side_effect=lambda url, _: (documents[url], url)), \
                 patch.object(sources, '_pdf_text', return_value=BOJ_BODY):
-            rows = sources.collect_official_articles(NOW, diagnostics=report)
-        self.assertEqual({row['source'] for row in rows}, set(sources.FEEDS))
+            rows = sources.collect_official_articles(NOW, diagnostics=report, enabled_sources=legacy_sources)
+        self.assertEqual({row['source'] for row in rows}, set(legacy_sources))
         self.assertTrue(all(row['status'] == 'collected' for row in report.values()))
         def failed(url, _):
             if url == sources.FEEDS['財務省']:
@@ -999,7 +1001,8 @@ class BankOfJapanSourceTests(unittest.TestCase):
                 raise ValueError('pdf_unreadable_page')
             return (feed([]), url) if url == sources.FEEDS['総務省統計局'] else (documents[url], url)
         with patch.object(sources, '_download', side_effect=failed):
-            self.assertEqual(sources.collect_official_articles(NOW, diagnostics=report), [])
+            self.assertEqual(sources.collect_official_articles(NOW, diagnostics=report,
+                                                               enabled_sources=legacy_sources), [])
         self.assertEqual(report['総務省統計局']['status'], 'no_matching_candidates')
         self.assertEqual(report['財務省']['status'], 'feed_failed')
         self.assertEqual(report['日本銀行']['status'], 'articles_unavailable')

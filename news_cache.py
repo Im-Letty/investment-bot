@@ -32,7 +32,7 @@ NEWS_FEEDS = {
     "ロイター米国株": "https://feeds.reuters.com/reuters/companyNews",
 }
 WEB_NEWS_SOURCES = ("NHK経済", "ロイター経済")
-OFFICIAL_NEWS_SOURCES = ("総務省統計局", "財務省", "日本銀行")
+OFFICIAL_NEWS_SOURCES = ("総務省統計局", "財務省", "日本銀行", "金融庁")
 PUBLISHED_NEWS_SOURCES = WEB_NEWS_SOURCES + OFFICIAL_NEWS_SOURCES
 
 
@@ -287,7 +287,7 @@ def _official_ref(ref, window):
     if not isinstance(source, str):
         return None
     expected_host = {"総務省統計局": "www.stat.go.jp", "財務省": "www.mof.go.jp",
-                     "日本銀行": "www.boj.or.jp"}.get(source)
+                     "日本銀行": "www.boj.or.jp", "金融庁": "www.fsa.go.jp"}.get(source)
     try:
         parsed = urlsplit(url or "")
         allowed_url = (parsed.scheme == "https" and parsed.hostname == expected_host
@@ -295,6 +295,9 @@ def _official_ref(ref, window):
         if source == "日本銀行":
             allowed_url = allowed_url and bool(re.fullmatch(
                 r"/mopo/mpmdeci/(?:state_\d{4}/k\d{6}[a-z]?\.html?|mpr_\d{4}/k\d{6}[a-z]?\.pdf)", parsed.path))
+        if source == "金融庁":
+            from official_fsa_source import article_path, eligible_title
+            allowed_url = allowed_url and article_path(parsed.path) and eligible_title(title)
     except ValueError:
         return None
     if (not expected_host or not isinstance(title, str) or not title.strip() or len(title) > 1000
@@ -310,6 +313,11 @@ def _official_ref(ref, window):
         if published_day.isoformat() != ref["published_date"]:
             return None
     except (ValueError, TypeError):
+        return None
+    if source == "金融庁" and (ref.get("publication_precision") != "day"
+            or ref.get("published_at") is not None
+            or not re.search(r"/" + published_day.strftime("%Y%m%d") +
+                             r"(?:_[a-z0-9]+|[a-z]+)?\.html$", parsed.path)):
         return None
     edition_day = datetime.fromtimestamp(window["cutoff_at"], JST).date()
     previous_day = edition_day - timedelta(days=1)

@@ -1,4 +1,4 @@
-"""Bounded public-document collection from three fixed Japanese official sites.
+"""Bounded public-document collection from fixed Japanese official sites.
 
 No AI, publication, database, or LINE operations occur here. Callers must apply
 their source-use policy before enabling collection. Date-only releases keep
@@ -22,13 +22,16 @@ import requests
 
 from daily_news_sources import (JST, _Document, _PinnedHTTPSAdapter, _public_ip,
                                 _parallel, _jsonld)
+import official_fsa_source as fsa_source
 
 FEEDS = {
     "総務省統計局": "https://www.stat.go.jp/whatsnew/news.rdf",
     "財務省": "https://www.mof.go.jp/news.rss",
     "日本銀行": "https://www.boj.or.jp/rss/whatsnew.xml",
+    "金融庁": fsa_source.FEED_URL,
 }
-HOSTS = {"www.stat.go.jp": "総務省統計局", "www.mof.go.jp": "財務省", "www.boj.or.jp": "日本銀行"}
+HOSTS = {"www.stat.go.jp": "総務省統計局", "www.mof.go.jp": "財務省", "www.boj.or.jp": "日本銀行",
+         "www.fsa.go.jp": "金融庁"}
 # Individually inspected parent/attachment pairs, not a general PDF crawler.
 # The parent supplies publication metadata; the PDF's signing date is separate.
 MOF_SUPPORTING_PDFS = {
@@ -74,6 +77,8 @@ _JAPANESE_DATE = r"(?:(\d{4})年|令和(元|\d+)年)(\d{1,2})月(\d{1,2})日"
 
 
 def _article_path(host, path):
+    if host == "www.fsa.go.jp":
+        return fsa_source.article_path(path)
     if host == "www.boj.or.jp":
         return bool(re.fullmatch(r"/mopo/mpmdeci/(?:state_\d{4}/k\d{6}[a-z]?\.html?|mpr_\d{4}/k\d{6}[a-z]?\.pdf)", path))
     if host == "www.stat.go.jp":
@@ -299,13 +304,16 @@ def _feed_items(payload, feed_url, now, since):
         url = _safe_url(raw_url, base=feed_url)
         dates = ["".join(element.itertext()) for key in ("pubDate", "date", "published")
                  for element in fields.get(key, [])]
-        publication = _agree([_publication(value) for value in dates])
         host = urlsplit(feed_url).hostname
+        publication = _agree([(fsa_source.feed_publication(value) if host == "www.fsa.go.jp"
+                               else _publication(value)) for value in dates])
         topic = {"www.stat.go.jp": _STATS_TOPIC, "www.mof.go.jp": _MOF_TOPIC,
                  "www.boj.or.jp": _BOJ_TOPIC}.get(host)
+        topic_matches = (fsa_source.eligible_title(title) if host == "www.fsa.go.jp"
+                         else topic is not None and topic.search(title))
         if (not url or urlsplit(url).hostname != host or not _article_path(host, urlsplit(url).path)
                 or not title or len(title) > 1000 or _EXCLUDED_TITLE.search(title)
-                or topic is None or not topic.search(title)
+                or not topic_matches
                 or not publication or not _in_window(publication, now, since)):
             continue
         items.append({"source": HOSTS[host], "title": title, "url": url, **publication})
@@ -718,6 +726,32 @@ def _record(item, original, final, body, publication, observed_at, now, since):
             "observed_at": observed_at}
 
 
+def valid_fsa_record(value):
+    """Only the verified, date-only FSA HTML adapter record enters AI/storage."""
+    if not isinstance(value, dict):
+        return False
+    url = _safe_url(value.get("url"))
+    if (not url or value.get("url") != url or urlsplit(url).hostname != "www.fsa.go.jp"
+            or not fsa_source.article_path(urlsplit(url).path)
+            or value.get("source") != "金融庁" or value.get("evidence_url") != url
+            or not fsa_source.eligible_title(value.get("title"))
+            or value.get("source_scope") != "fsa_official_html_v1"
+            or value.get("source_adapter_scope") != "official_fsa_release_html"
+            or value.get("publication_evidence") != "visible_dateline_issuer_heading_url_and_rss_day"
+            or value.get("attachments_verified") is not False
+            or value.get("published_at") is not None or "published_at" not in value
+            or value.get("publication_precision") != "day"
+            or not isinstance(value.get("published_date"), str)):
+        return False
+    try:
+        published_day = date.fromisoformat(value["published_date"])
+    except ValueError:
+        return False
+    stamp = published_day.strftime("%Y%m%d")
+    return bool(value["published_date"] == published_day.isoformat()
+                and re.search(r"/" + stamp + r"(?:_[a-z0-9]+|[a-z]+)?\.html$", urlsplit(url).path))
+
+
 def _mof_supporting_body(record, document, body_node, payload_size, deadline):
     """Require the registered full PDF and preserve the parent's identity/date."""
     specification = MOF_SUPPORTING_PDFS.get(urlsplit(record["url"]).path)
@@ -785,6 +819,11 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
             publication = _agree([item, _boj_publication(body[:600])])
             return _record(item, original, final, body, publication, observed_at, now, since)
     document = _Document(_decode(payload))
+    if host == "www.fsa.go.jp":
+        record = fsa_source.extract_fsa_article(document, item, original, final, now, since, observed_at)
+        if record is not None:
+            record.update(source_adapter_scope=record["source_scope"], source_scope="fsa_official_html_v1")
+        return record
     main_id = {"www.stat.go.jp": "main_contents", "www.mof.go.jp": "main", "www.boj.or.jp": "contents"}[host]
     main = next((node for node in document.nodes if node.tag == "main" and node.attrs.get("id") == main_id), None)
     if main is None:
@@ -872,7 +911,7 @@ def collect_official_articles(now=None, *, since=None, until=None, diagnostics=N
     `until` optionally narrows the publication-time upper bound; it never makes
     future announcements eligible. `enabled_sources` selects a fixed subset of
     FEEDS without mutating the shared source configuration. Website callers
-    enable the three sources but replace BOJ prose with verified decision facts
+    enable the approved sources but replace BOJ prose with verified decision facts
     before storage or AI. This general reader itself grants no prose reuse.
     `body_verified_at` is the actual positive
     clock reading after extraction and date validation, not the supplied `now`.
@@ -917,7 +956,8 @@ def collect_official_articles(now=None, *, since=None, until=None, diagnostics=N
     def stable_order(item):
         # Within one publication day use a deterministic identity order, not a
         # guessed midnight timestamp for releases whose time is unknown.
-        return (-date.fromisoformat(item["published_date"]).toordinal(), item["source"], item["url"])
+        rank = fsa_source.priority(item) if item["source"] == "金融庁" else 0
+        return (-date.fromisoformat(item["published_date"]).toordinal(), item["source"], rank, item["url"])
     by_source = {source: [] for source in active_feeds}
     report = {source: {"feed_status": "not_completed", "status": "fetch_incomplete", "candidates": 0,
                        "selected": 0, "completed": 0, "accepted": 0, "errors": []} for source in active_feeds}

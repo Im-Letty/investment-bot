@@ -16,7 +16,7 @@ JST = timezone(timedelta(hours=9))
 SLOT_MINUTES = (0, 5, 10, 15, 20, 25, 29)
 COLLECTION_LEASE_SECONDS = 90
 MAX_ARTICLES = 8
-APPROVED_MORNING_SOURCES = ("総務省統計局", "財務省", "日本銀行")
+APPROVED_MORNING_SOURCES = ("総務省統計局", "財務省", "日本銀行", "金融庁")
 WINDOW_FIELDS = ("version", "edition_date", "window_start", "carryover_start", "cutoff_at")
 RECOVERY_WINDOW_FIELDS = ("version", "kind", "edition_date", "window_start", "carryover_start", "cutoff_at", "snapshot_at")
 RECOVERY_LEASE_SECONDS = 5 * 60

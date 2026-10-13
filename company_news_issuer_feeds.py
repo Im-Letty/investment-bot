@@ -54,6 +54,16 @@ SOURCES = {
     'PR TIMES / 大成建設': {'company_id': '179755', 'symbol': '1801.T',
         'name': '大成建設', 'issuer': '大成建設株式会社'},
 }
+BASE_SOURCES = tuple(SOURCES)
+from company_news_expanded_routes import SOURCES as EXPANDED_SOURCES
+if (set(SOURCES).intersection(EXPANDED_SOURCES)
+        or {value['symbol'] for value in SOURCES.values()}.intersection(
+            value['symbol'] for value in EXPANDED_SOURCES.values())
+        or {value['company_id'] for value in SOURCES.values()}.intersection(
+            value['company_id'] for value in EXPANDED_SOURCES.values())):
+    raise ValueError('company_expanded_routes_overlap')
+SOURCES.update(EXPANDED_SOURCES)
+EXPANSION_CHANNELS = frozenset(EXPANDED_SOURCES)
 FEEDS = {label: 'https://prtimes.jp/companyrdf.php?company_id=' + value['company_id']
          for label, value in SOURCES.items()}
 

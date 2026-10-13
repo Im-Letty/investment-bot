@@ -409,7 +409,7 @@ def review_passed(review):
 
 
 OFFICIAL_SOURCES = {'総務省統計局': 'www.stat.go.jp', '財務省': 'www.mof.go.jp',
-                    '日本銀行': 'www.boj.or.jp'}
+                    '日本銀行': 'www.boj.or.jp', '金融庁': 'www.fsa.go.jp'}
 OFFICIAL_EDITORIAL = '''
 今回はsource_windowに明示された対象期間の版です。window_startとcutoff_atを確認してください。
 version=1の朝版は前日の発表や明示的な繰越を含みます。kind=intradayの日中版は当日の発表だけが対象で、前日分や繰越を含みません。
@@ -419,6 +419,7 @@ published_dateは元ページの掲載・発表日です。event_date_kind=press
 publication_precision=dayの資料は発表時刻不明です。00:00や取得時刻を発表時刻にしないでください。
 内容の根拠は取得した公的機関の本文です。日付以外の説明を見出しだけから膨らませたり、未確認のリンク先PDFから情報を補ったりしません。
 日本銀行のsource_scope=boj_policy_rate_facts_v1は原文全文ではなく、原文から機械照合した発表日と決定金利目標だけの事実データです。決定理由、景気判断、適用開始日、将来予測、他制度の金利を補いません。直前の目標との比較がないため利上げ・利下げ・据え置きも断定しません。短く正確に書き、文字数を埋める説明は加えません。二社審査は同じ事実データと完成稿の照合であり、原文全文を審査したとは表現しません。
+金融庁のsource_scope=fsa_official_html_v1は発表ページのHTML本文だけを確認した資料です。RSSの配信時刻を発表時刻へ置き換えず、未取得の添付PDFや他機関へのリンク先の内容から条件・数値・結論を補いません。金融庁が発表した制度・要請・処分の内容を区別し、調査・疑いを確定した違反と断定しません。金融庁の原文をもとに当サイトが編集・作成した要約として出典を明示します。
 取得したbodyに紹介文と確認済みの添付資料本文が区切られて含まれる場合は、両方を根拠にできます。添付資料中の条件・留保も読み、対象や確実さを変えないでください。添付資料の署名日・会合日・適用日を、親ページのpublished_dateやPDFの公開日に置き換えてはいけません。リンクやファイル名だけがある資料は、本文を取得済みとは扱いません。
 会合の報告と添付文書の方針・協力分野は区別します。添付文書に挙がる分野を、その会合で実際に話し合った議題と結び付けるには、会合の資料にもその記載が必要です。
 確認できたのが紹介文だけの場合、「記載されていない」とする範囲もその紹介文に限定し、未確認のPDFや発表全体に情報がないとは断定しません。
@@ -529,6 +530,10 @@ def _official_articles(articles, window, now):
         if source == '日本銀行':
             from official_boj_facts import valid_policy_fact_record
             if not valid_policy_fact_record(row):
+                raise GenerationError('invalid_official_article')
+        if source == '金融庁':
+            from official_news_sources import valid_fsa_record
+            if not valid_fsa_record(row):
                 raise GenerationError('invalid_official_article')
         _official_event_fields(row)
         if window.get('kind') == 'intraday':
