@@ -106,7 +106,7 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
   vm.runInNewContext(controller,context);
   if(view==='favorites')context._showStock('watch');
   else {context._styleP(main,view==='stock');context._styleP(watch,false);dividendTabs.forEach(tab=>context._styleP(tab,tab.dataset.knTab===view));}
-  main.onclick=function(){stockClicks++;log.push(['select','stock']);context._showStock();stock.setAttribute('data-cur','stock');home.scrollTop=900;};
+  main.onclick=function(){stockClicks++;log.push(['select','stock']);context._showStock();home.scrollTop=900;};
   if(withFallback)w.__knSetSub=function(view){fallbackCalls++;context._showStock(view);};
   vm.runInNewContext(source,context);const host={querySelector:selector=>selector==='.kn-news-orbit'?root:null};w.KNNewsOrbit.mount(host);
   return{w,doc,root,host,main,rank,news,guide,stock,heading,home,economy,economyHeading,company,companyHeading,holder,modalBody,dividendBody,log,storage,dispatch,
@@ -114,59 +114,85 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
     menu:()=>doc.getElementById('knOrbitNewsMenu')};
 }
 
-test('newspaper and graph retain their artwork inside distinct native action buttons',()=>{
+test('newspaper and graph retain artwork and expose their distinct direct destinations',()=>{
   const h=harness();const markup=h.w.KNNewsOrbit.markup;
-  assert.match(markup,/<button type="button" class="kn-orbit-shortcut kn-orbit-news-shortcut"[^>]*aria-haspopup="dialog"[^>]*aria-controls="knOrbitNewsMenu"/);
+  assert.match(markup,/<button type="button" class="kn-orbit-shortcut kn-orbit-news-shortcut" aria-label="[^"]+">/);
   assert.match(markup,/<button type="button" class="kn-orbit-shortcut kn-orbit-rank-shortcut"/);
+  assert.doesNotMatch(markup,/knOrbitNewsMenu|aria-haspopup="dialog"/);
   assert.match(markup,/src="\/static\/news-orbit\/newspaper\.webp"/);assert.match(markup,/kn-orbit-market-tile kn-orbit-tile-bars/);
-  assert.equal((markup.match(/class="kn-orbit-news-orbiter /g)||[]).length,3);assert.equal(h.dialogs(),0,'Chooser remains lazy until clicked');
+  assert.equal((markup.match(/class="kn-orbit-news-orbiter /g)||[]).length,3);assert.equal(h.dialogs(),0);
 });
 
-for(const view of ['favorites','div_top','div_cal'])test(`graph reaches economic news without changing the selected ${view} view`,()=>{
+for(const view of ['favorites','div_top','div_cal'])test(`graph selects the actual rankings from ${view} and navigates after view restoration`,()=>{
   const h=harness({view}),saved=h.storage.get('kn_rank_conditions');
-  const before={main:h.stock.dataset.stockMain,view:h.stock.dataset.stockView,cur:h.stock.getAttribute('data-cur'),aria:h.main.getAttribute('aria-pressed'),holder:h.holder.style.display,parent:h.dividendBody.parentElement};
-  h.rank.click();h.frame();h.frame();assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),0);
-  assert.equal(h.stock.dataset.stockMain,before.main);assert.equal(h.stock.dataset.stockView,before.view);assert.equal(h.stock.getAttribute('data-cur'),before.cur);
-  assert.equal(h.main.getAttribute('aria-pressed'),before.aria);assert.equal(h.holder.style.display,before.holder);assert.equal(h.dividendBody.parentElement,before.parent);
-  assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','morning-news-section','smooth']]);assert.equal(h.doc.activeElement,h.economyHeading);
-  assert.equal(h.economyHeading.getAttribute('tabindex'),'-1');assert.equal(h.storage.get('kn_rank_conditions'),saved);assert.equal(h.network(),0);assert.equal(h.auth(),0);assert.equal(h.dialogs(),0);assert.equal(h.guideCalls(),0);
+  h.rank.click();assert.equal(h.stockClicks(),1);assert.equal(h.fallbackCalls(),0);
+  h.frame();h.frame();assert.equal(h.frames(),0);
+  assert.equal(h.stock.dataset.stockMain,'stock');assert.equal(h.stock.dataset.stockView,'movers');
+  assert.equal(h.main.getAttribute('aria-pressed'),'true');assert.equal(h.holder.style.display,'none');assert.equal(h.dividendBody.parentElement,h.modalBody);
+  assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','knTabWrap','smooth']]);assert.equal(h.doc.activeElement,h.heading);
+  assert.equal(h.heading.getAttribute('tabindex'),'-1');assert.equal(h.home.scrollTop,1000);assert.equal(h.home.style.overflowAnchor,'auto');
+  assert.equal(h.storage.get('kn_rank_conditions'),saved);assert.equal(h.network(),0);assert.equal(h.auth(),0);assert.equal(h.dialogs(),0);assert.equal(h.guideCalls(),0);
 });
 
-test('a graph user gesture cancels earlier view-stability restoration before reaching economic news',()=>{
-  const h=harness();h.main.click();assert.equal(h.home.scrollTop,900);assert.ok(h.frames()>0,'A previous stock control has scheduled a real restoration');
-  h.dispatch('pointerdown',{target:h.rank});h.rank.click();h.frame();h.frame();
-  assert.equal(h.home.scrollTop,500);assert.equal(h.frames(),0);
-  assert.deepEqual(h.log.filter(x=>x[0]==='restore'||x[0]==='navigate'),[['navigate','morning-news-section','smooth']]);
-  assert.equal(h.home.style.overflowAnchor,'auto');assert.deepEqual(h.log.at(-1),['focus','knNewsDigestTitle',true]);assert.equal(h.stockClicks(),1,'Graph must not add another stock click');assert.equal(h.fallbackCalls(),0);
+test('graph keyboard and pointer activation outlast an earlier view-stability restoration',()=>{
+  for(const input of ['Enter','pointerdown']){
+    const h=harness();h.main.click();assert.equal(h.home.scrollTop,900);assert.ok(h.frames()>0);
+    if(input==='Enter')h.dispatch('keydown',{target:h.rank,key:'Enter'});else h.dispatch('pointerdown',{target:h.rank});
+    h.rank.click();h.frame();h.frame();assert.equal(h.home.scrollTop,1000);assert.equal(h.frames(),0);
+    assert.equal(h.stockClicks(),2,'Graph must activate the real stock control once');assert.equal(h.fallbackCalls(),0);
+    assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','knTabWrap','smooth']]);assert.deepEqual(h.log.at(-1),['focus','rankingHeading',true]);
+    assert.equal(h.home.style.overflowAnchor,'auto');assert.equal(h.stock.dataset.stockMain,'stock');assert.equal(h.stock.dataset.stockView,'movers');
+  }
 });
 
-test('graph never invokes the old ranking fallback even when the stock tab is unavailable',()=>{
-  const h=harness({withStock:false,view:'favorites'});h.rank.click();h.frame();h.frame();
-  assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),0);assert.equal(h.stock.dataset.stockMain,'favorites');assert.equal(h.doc.activeElement,h.economyHeading);assert.equal(h.network(),0);
+test('graph uses the existing movers fallback when the stock tab is absent and otherwise fails safely',()=>{
+  for(const withFallback of [true,false]){
+    const h=harness({withStock:false,withFallback,view:'favorites'}),saved=h.storage.get('kn_rank_conditions');
+    assert.doesNotThrow(()=>h.rank.click());h.frame();h.frame();
+    assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),withFallback?1:0);
+    assert.equal(h.stock.dataset.stockMain,withFallback?'stock':'favorites');assert.equal(h.stock.dataset.stockView,withFallback?'movers':'watch');
+    assert.equal(h.doc.activeElement,h.heading);assert.equal(h.home.scrollTop,1000);assert.equal(h.storage.get('kn_rank_conditions'),saved);
+    assert.equal(h.network(),0);assert.equal(h.auth(),0);assert.equal(h.guideCalls(),0);assert.equal(h.dialogs(),0);
+  }
 });
 
-test('news dialog is reused and every open/close handler remains single after remounting',()=>{
-  const h=harness();h.news.click();const menu=h.menu();assert.ok(menu.open);assert.equal(h.dialogs(),1);
-  h.w.KNNewsOrbit.mount(h.host);h.news.click();assert.equal(menu.shows,1,'Already-open dialog is not shown twice');
+test('direct newspaper navigation remains single after repeated mounting and creates no chooser',()=>{
+  const h=harness();h.w.KNNewsOrbit.mount(h.host);h.w.KNNewsOrbit.mount(h.host);
   assert.equal(h.news.listenerCount('click'),1);assert.equal(h.rank.listenerCount('click'),1);
-  const close=menu.querySelector('.kn-orbit-news-close');assert.equal(close.listenerCount('click'),1);close.click();assert.equal(menu.closes,1);
-  h.news.click();assert.equal(h.menu(),menu);assert.equal(menu.shows,2);assert.equal(h.dialogs(),1);
-  menu.fire('click',{target:close});assert.ok(menu.open,'Inner dialog clicks must not act as backdrop clicks');
-  menu.fire('click',{target:menu});assert.equal(menu.closes,2);assert.equal(h.frames(),0);assert.equal(h.network(),0);
+  h.news.click();h.frame();h.frame();h.news.click();h.frame();h.frame();
+  assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','morning-news-section','smooth'],['navigate','morning-news-section','smooth']]);
+  assert.equal(h.menu(),null);assert.equal(h.dialogs(),0);assert.equal(h.guideCalls(),0);assert.equal(h.stockClicks(),0);assert.equal(h.network(),0);assert.equal(h.frames(),0);
 });
 
-for(const [choice,id,heading]of [['economy','morning-news-section','knNewsDigestTitle'],['company','knCompanyNewsSection','knCompanyNewsTitle']])test(`newspaper ${choice} choice reaches only its existing section`,()=>{
-  const h=harness({view:'favorites'});h.news.click();const menu=h.menu();menu.querySelector(`[data-news-target="${choice}"]`).click();
-  assert.equal(menu.open,false);assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate',id,'smooth']]);assert.equal(h.doc.activeElement.id,heading);
-  assert.equal(h.stock.dataset.stockMain,'favorites');assert.equal(h.stock.dataset.stockView,'watch');assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),0);
-  assert.equal(h.frames(),0,'Actual stability listener excludes dialog choices');assert.equal(h.network(),0);assert.equal(h.auth(),0);assert.equal(h.guideCalls(),0);
+test('newspaper goes directly to economic news without changing stock views or ranking conditions',()=>{
+  for(const view of ['favorites','div_top','div_cal']){
+    const h=harness({view}),saved=h.storage.get('kn_rank_conditions');
+    const before={main:h.stock.dataset.stockMain,view:h.stock.dataset.stockView,cur:h.stock.getAttribute('data-cur'),aria:h.main.getAttribute('aria-pressed'),holder:h.holder.style.display,parent:h.dividendBody.parentElement};
+    h.news.click();h.frame();h.frame();
+    assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','morning-news-section','smooth']]);assert.equal(h.doc.activeElement,h.economyHeading);assert.equal(h.home.scrollTop,500);
+    assert.equal(h.stock.dataset.stockMain,before.main);assert.equal(h.stock.dataset.stockView,before.view);assert.equal(h.stock.getAttribute('data-cur'),before.cur);
+    assert.equal(h.main.getAttribute('aria-pressed'),before.aria);assert.equal(h.holder.style.display,before.holder);assert.equal(h.dividendBody.parentElement,before.parent);
+    assert.equal(h.storage.get('kn_rank_conditions'),saved);assert.equal(h.stockClicks(),0);assert.equal(h.fallbackCalls(),0);assert.equal(h.dialogs(),0);assert.equal(h.guideCalls(),0);assert.equal(h.auth(),0);assert.equal(h.network(),0);
+  }
 });
 
-test('system reduced motion uses automatic shortcut scrolling and language changes update the open chooser',()=>{
+test('newspaper Enter navigation waits out a pending stock restoration without selecting a stock tab',()=>{
+  const h=harness();h.main.click();assert.equal(h.home.scrollTop,900);assert.ok(h.frames()>0);
+  const before={main:h.stock.dataset.stockMain,view:h.stock.dataset.stockView,aria:h.main.getAttribute('aria-pressed')};
+  h.dispatch('keydown',{target:h.news,key:'Enter'});h.news.click();h.frame();h.frame();
+  assert.equal(h.home.scrollTop,500);assert.equal(h.frames(),0);assert.equal(h.stockClicks(),1);assert.equal(h.fallbackCalls(),0);
+  assert.equal(h.stock.dataset.stockMain,before.main);assert.equal(h.stock.dataset.stockView,before.view);assert.equal(h.main.getAttribute('aria-pressed'),before.aria);
+  assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),[['navigate','morning-news-section','smooth']]);assert.deepEqual(h.log.at(-1),['focus','knNewsDigestTitle',true]);
+  assert.equal(h.home.style.overflowAnchor,'auto');assert.equal(h.dialogs(),0);assert.equal(h.guideCalls(),0);assert.equal(h.network(),0);
+});
+
+test('reduced motion and all four languages apply to the two direct shortcut destinations',()=>{
   const h=harness({reduced:true});h.rank.click();h.frame();h.frame();assert.equal(h.log.find(x=>x[0]==='navigate')[2],'auto');
-  h.news.click();const menu=h.menu();menu.querySelector('[data-news-target="company"]').click();assert.equal(h.log.filter(x=>x[0]==='navigate').at(-1)[2],'auto');
-  const copies=[['en','Choose news','Economic news','Company news','Close','Go to economic news'],['ko','뉴스 선택','경제 뉴스','기업 뉴스','닫기','경제 뉴스로 이동'],['zh','选择新闻','经济新闻','企业新闻','关闭','查看经济新闻'],['ja','ニュースを選ぶ','経済ニュース','企業ニュース','閉じる','経済ニュースへ']];
-  for(const [lang,title,economy,company,close,graph]of copies){h.doc.documentElement.lang=lang;h.dispatch('langChanged');assert.equal(h.rank.getAttribute('aria-label'),graph);h.news.click();assert.equal(menu.querySelector('h2').textContent,title);assert.equal(menu.querySelector('[data-news-target="economy"]').textContent,economy);assert.equal(menu.querySelector('[data-news-target="company"]').textContent,company);assert.equal(menu.querySelector('.kn-orbit-news-close').getAttribute('aria-label'),close);menu.close();}
-  h.doc.documentElement.lang='unknown';h.dispatch('langChanged');h.news.click();assert.equal(menu.querySelector('h2').textContent,'ニュースを選ぶ');
-  h.media(false);menu.querySelector('[data-news-target="economy"]').click();assert.equal(h.log.filter(x=>x[0]==='navigate').at(-1)[2],'smooth');assert.equal(h.network(),0);
+  h.news.click();h.frame();h.frame();assert.equal(h.log.filter(x=>x[0]==='navigate').at(-1)[2],'auto');
+  const copies=[["en", "Go to today's stock rankings", "Go to economic news"], ["ko", "오늘의 종목 순위로 이동", "경제 뉴스로 이동"], ["zh", "查看今日股票排名", "查看经济新闻"], ["ja", "今日の銘柄ランキングへ", "経済ニュースへ"]];
+  for(const [lang,graph,news]of copies){h.doc.documentElement.lang=lang;h.dispatch('langChanged');assert.equal(h.rank.getAttribute('aria-label'),graph);assert.equal(h.news.getAttribute('aria-label'),news);assert.ok(h.root.classList.contains('kn-orbit-reduced'));}
+  h.doc.documentElement.lang='unknown';h.dispatch('langChanged');assert.equal(h.rank.getAttribute('aria-label'),copies.at(-1)[1]);assert.equal(h.news.getAttribute('aria-label'),copies.at(-1)[2]);
+  h.storage.set('app_lang','en');h.doc.documentElement.lang='ja';h.dispatch('langChanged');assert.equal(h.rank.getAttribute('aria-label'),copies[0][1]);assert.equal(h.news.getAttribute('aria-label'),copies[0][2]);
+  h.media(false);h.news.click();h.frame();h.frame();assert.equal(h.log.filter(x=>x[0]==='navigate').at(-1)[2],'smooth');
+  assert.equal(h.dialogs(),0);assert.equal(h.auth(),0);assert.equal(h.guideCalls(),0);assert.equal(h.network(),0);
 });
