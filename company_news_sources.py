@@ -516,8 +516,7 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
             observed = clock()
             if item['source'] == 'PR TIMES':
                 article = extract_article(payload, item, final, now, since,
-                    observed_at=observed, catalogue=issuer_feeds.bound_catalogue(
-                        item.get('collection_channel'), catalogue))
+                    observed_at=observed, catalogue=issuer_feeds.bound_item_catalogue(item, catalogue))
             elif item['source'] in additional.SOURCES:
                 article = additional.extract_article(payload, item, final, now, since,
                                                      observed_at=observed, catalogue=catalogue)

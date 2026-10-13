@@ -42,6 +42,19 @@ class ExpandedRouteTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, 'company_expanded_routes_invalid'):
                 expanded.registered_routes(dict(schema_version=1, items=[route(), other]))
 
+    def test_visible_brand_requires_individual_hash_and_bounded_exact_labels(self):
+        value = dict(route(), verified_header_labels=['検証ブランド'],
+                     verified_header_labels_evidence_sha256='b'*64)
+        source = expanded.registered_routes(dict(schema_version=1,items=[value]))
+        self.assertEqual(source['PR TIMES / 日本郵船']['verified_header_labels'], ('検証ブランド',))
+        for labels, evidence in ((['検証ブランド'],None), ('検証ブランド','b'*64),
+                                 (['検証ブランド']*2,'b'*64), ([['untrusted']],'b'*64),
+                                 (['<script>'],'b'*64), ([' x'],'b'*64),
+                                 (['x','y','z','w'],'b'*64)):
+            with self.subTest(labels=labels),self.assertRaisesRegex(ValueError,'company_expanded_routes_invalid'):
+                expanded.registered_routes(dict(schema_version=1,items=[dict(value,
+                    verified_header_labels=labels,verified_header_labels_evidence_sha256=evidence)]))
+
     def test_rotation_fetches_only_scheduled_routes_and_retains_unscheduled_as_unknown(self):
         bases = {'base-' + str(i): 'https://fixture.example/base/' + str(i) for i in range(3)}
         extras = {'extra-' + str(i): 'https://fixture.example/new/' + str(i) for i in range(194)}

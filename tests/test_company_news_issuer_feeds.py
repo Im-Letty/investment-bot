@@ -78,6 +78,40 @@ class IssuerFeedTests(unittest.TestCase):
             catalogue=issuers.bound_catalogue(self.label, self.cat)))
 
 
+    def test_verified_brand_label_cannot_change_legal_author_or_profile_identity(self):
+        from company_news_prtimes import extract_article
+        config = dict(self.cfg, verified_header_labels=('検証ブランド',))
+        with patch.dict(issuers.SOURCES, {self.label:config}):
+            item = issuers.parse_feed(self.payload(), self.label, NOW, SINCE, self.cat)[0]
+            scoped = issuers.bound_item_catalogue(item, self.cat)
+            values = dict(author=self.cfg['issuer'],company_label='検証ブランド',company_id='21766')
+            self.assertIsNotNone(extract_article(article(**values),item,self.url,NOW,SINCE,catalogue=scoped))
+            self.assertIsNone(extract_article(article(**values),item,self.url,NOW,SINCE,catalogue=self.cat))
+            for changes in ({'author':'別会社株式会社'}, {'company_id':'9999'},
+                            {'company_label':'検証ブランドの子会社'}, {'company_label':'未確認ブランド'}):
+                self.assertIsNone(extract_article(article(**dict(values,**changes)),item,self.url,
+                                                 NOW,SINCE,catalogue=scoped))
+            self.assertIs(issuers.bound_item_catalogue(dict(item,company_id='9999'),self.cat),self.cat)
+            self.assertIs(issuers.bound_item_catalogue(dict(item,symbol='9101.T'),self.cat),self.cat)
+
+    def test_global_discovery_uses_only_same_registered_ID_brand_context(self):
+        config = dict(self.cfg, verified_header_labels=('検証ブランド',))
+        with patch.dict(issuers.SOURCES, {self.label:config}):
+            item = issuers.parse_feed(self.payload(),self.label,NOW,SINCE,self.cat)[0]
+            item['collection_channel']='PR TIMES'
+            payload=article(author=self.cfg['issuer'],company_label='検証ブランド',company_id='21766')
+            with patch.object(collection,'FEEDS',{'PR TIMES':collection.FEEDS['PR TIMES']}), \
+                 patch('company_news_catalogue.load_current_snapshot',return_value=self.cat), \
+                 patch('company_news_prtimes.parse_feed',return_value=[item]), \
+                 patch.object(collection,'_download',side_effect=lambda url,deadline:(payload,url)):
+                diagnostics={}
+                records=collection.collect_company_articles(NOW,since=SINCE,diagnostics=diagnostics,
+                                                            clock=lambda:NOW.timestamp())
+            self.assertEqual(len(records),1,diagnostics)
+            self.assertEqual(records[0]['symbol'],self.cfg['symbol'])
+            self.assertEqual(records[0]['related_company'],self.cfg['issuer'])
+
+
 class OsakaGroupTests(unittest.TestCase):
     def setUp(self):
         self.cat = catalogue()

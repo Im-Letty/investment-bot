@@ -259,8 +259,13 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
               and positions[id(n)] < positions[id(body_root)] and not _descends(n, body_root)]
     anchors = [n for n in header if n.tag == "a" and _profile_id(n.attrs.get("href"))]
     datelines = [n for n in header if n.tag == "time"]
+    header_issuer = _body_text(anchors[0]) if len(anchors) == 1 else ''
+    verified_header = getattr(catalogue, 'verified_header_publisher', None)
+    header_agrees = (_compact(header_issuer) == _compact(issuer)
+                     or (callable(verified_header)
+                         and verified_header(header_issuer, company_id) is True))
     if (len(anchors) != 1 or _profile_id(anchors[0].attrs.get("href")) != company_id
-            or _compact(_body_text(anchors[0])) != _compact(issuer) or len(datelines) != 1):
+            or not header_agrees or len(datelines) != 1):
         return None
     body = _body_text(body_root)
     if not MIN_BODY_CHARS <= len(body) <= MAX_BODY_CHARS:

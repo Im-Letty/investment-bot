@@ -45,8 +45,18 @@ def registered_routes(document):
         label = 'PR TIMES / ' + name
         if label in result:
             raise ValueError('company_expanded_routes_invalid')
+        header_labels = row.get('verified_header_labels', [])
+        header_evidence = row.get('verified_header_labels_evidence_sha256')
+        if (not isinstance(header_labels, list) or len(header_labels) > 3
+                or any(not isinstance(v, str) or not 1 <= len(v) <= 100
+                       or v != v.strip() or any(ord(c)<32 or ord(c)==127 for c in v)
+                       or '<' in v or '>' in v for v in header_labels)
+                or len(set(header_labels)) != len(header_labels)
+                or (header_labels and (not isinstance(header_evidence, str)
+                    or not re.fullmatch(r'[0-9a-f]{64}', header_evidence)))):
+            raise ValueError('company_expanded_routes_invalid')
         result[label] = dict(company_id=cid, symbol=symbol, name=name, issuer=issuer,
-                             expansion_route=True)
+                             expansion_route=True, verified_header_labels=tuple(header_labels))
         symbols.add(symbol); ids.add(cid)
     return result
 

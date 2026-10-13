@@ -103,9 +103,26 @@ class _BoundCatalogue:
         # normal registered issuers retain the original catalogue matcher.
         return member
 
+    def verified_header_publisher(self, raw, company_id):
+        return (company_id == self.config['company_id']
+                and self.match_issuer(self.config['issuer']) is not None
+                and isinstance(raw, str)
+                and raw.strip() in self.config.get('verified_header_labels', ()))
+
 
 def bound_catalogue(source, catalogue):
     return _BoundCatalogue(catalogue, SOURCES[source]) if source in SOURCES else catalogue
+
+
+def bound_item_catalogue(item, catalogue):
+    """A global-feed item may use only its exact individually registered issuer."""
+    if not isinstance(item, dict) or catalogue is None:
+        return catalogue
+    matches = [config for config in SOURCES.values()
+               if config['company_id'] == item.get('company_id')
+               and config['symbol'] == item.get('symbol') and config['name'] == item.get('name')
+               and _BoundCatalogue(catalogue, config).match_issuer(item.get('issuer')) is not None]
+    return _BoundCatalogue(catalogue, matches[0]) if len(matches) == 1 else catalogue
 
 
 def match_member(issuer, company_id, catalogue):

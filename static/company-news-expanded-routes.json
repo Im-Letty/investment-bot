@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-13T20:04:55.419770+09:00",
+  "reviewed_at": "2026-10-13T20:26:55.295670+09:00",
   "scope": "Individually verified issuer-published PR TIMES RSS routes; not all announcements or editorial publication.",
   "all_company_announcements_covered": false,
   "items": [
@@ -195,6 +195,22 @@
       "parent_issuer_identity_verified": true,
       "explicit_rss_link_verified": true,
       "evidence_sha256": "e47667a317cb4e89b8b7880bb71c2093232c7d2b09857475d56c11183dba6ad0"
+    },
+    {
+      "symbol": "2914.T",
+      "name": "日本たばこ産業",
+      "issuer": "日本たばこ産業株式会社",
+      "company_id": "31450",
+      "release_url": "https://prtimes.jp/main/html/rd/p/000000374.000031450.html",
+      "feed_url": "https://prtimes.jp/companyrdf.php?company_id=31450",
+      "verified_header_labels": [
+        "JT"
+      ],
+      "verified_header_labels_evidence_sha256": "db5883cb6b5f1289931e30f4893d14a946801383a9549c4413fb9cd0884ca613",
+      "status": "verified_issuer_rss_route",
+      "parent_issuer_identity_verified": true,
+      "explicit_rss_link_verified": true,
+      "evidence_sha256": "9a53cab0d4db29431cebd024e033a381204b93867f5e9adff16f15226b2b5a96"
     },
     {
       "symbol": "3086.T",
