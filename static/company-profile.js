@@ -477,7 +477,7 @@
         primary.value.textContent=detail.unknown.hidden?detail.value.textContent:detail.unknown.textContent;
         primary.row.dataset.unknown=String(!detail.unknown.hidden);primary.note.hidden=true;
       });
-      const primaryDividend=refs.overviewMetrics.dividend,hasIssuerForecast=!!(record&&record.issuer_dividend_forecast_status!==null),dividendDetail=hasIssuerForecast?refs.issuerForecast:refs.forward;
+      const primaryDividend=refs.overviewMetrics.dividend,hasIssuerForecast=!!issuerForecast||!!(record&&record.symbol.endsWith('.JP')&&record.issuer_dividend_forecast_status!==null),dividendDetail=hasIssuerForecast?refs.issuerForecast:refs.forward;
       primaryDividend.title.textContent=hasIssuerForecast?'会社の年度予想配当（1株）':'予想配当（今後1年の目安）';
       primaryDividend.value.textContent=dividendDetail.unknown.hidden?dividendDetail.value.textContent:dividendDetail.unknown.textContent;
       primaryDividend.row.dataset.unknown=String(!dividendDetail.unknown.hidden);

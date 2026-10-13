@@ -311,9 +311,9 @@ test('primary company forecast preserves zero, undetermined and exact range with
 });
 test('changing companies clears primary forecast type and unavailable prices keep their own reasons',()=>{
   const h=dialogHarness();h.view.open(REGIONAL_KEY,'表示テスト企業',h.trigger);h.view.render({symbol:REGIONAL_KEY,status:'ready',data:profile.normalize(issuerForecastFixture(),REGIONAL_KEY,NOW),updating:false});
-  h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price=null;raw.field_status={price:'fetch_error'};h.view.render(state(raw));const refs=h.view.elements;
+  h.view.open(KEY,'トヨタ',h.trigger);const raw=fixture();raw.data.price=null;raw.field_status={price:'fetch_error'};raw.issuer_dividend_forecast_status='unconfirmed';h.view.render(state(raw));const refs=h.view.elements;
   assert.equal(refs.overviewMetrics.price.value.textContent,'通信エラー');
-  assert.equal(refs.overviewMetrics.dividend.title.textContent,'予想配当（今後1年の目安）');assert.doesNotMatch(refs.overviewMetrics.dividend.note.textContent,/2027\/03\/31/);
+  assert.equal(refs.overviewMetrics.dividend.title.textContent,'予想配当（今後1年の目安）');assert.equal(refs.overviewMetrics.dividend.value.textContent,refs.forward.value.textContent,'An unconfirmed Tokyo issuer forecast does not obscure the separately confirmed annualized estimate');assert.doesNotMatch(refs.overviewMetrics.dividend.note.textContent,/2027\/03\/31/);
   h.view.render({symbol:KEY,status:'loading',data:null,updating:true});
   assert.equal(refs.overviewMetrics.price.value.textContent,'取得中');assert.equal(refs.overviewMetrics.cap.value.textContent,'取得中');assert.equal(refs.overviewMetrics.currentPer.value.textContent,'未確認');
 });
