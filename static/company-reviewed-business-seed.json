@@ -53038,6 +53038,3013 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791861679.310903,
       "pdf_sha256": "51d42925ff27f468d1b97bc34cec59be74c3d490631ade3cf748894a6284e2e0"
+    },
+    {
+      "symbol": "6724.T",
+      "identity": {
+        "symbol": "6724.T",
+        "code": "6724",
+        "name": "セイコーエプソン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家庭・事務所向けのプリンターから商業印刷の機器までを開発し、インクなどの消耗品と関連サービスを供給する会社。ラベル印刷やPOS関連機器、印刷用ソフトも扱う。学校や企業、家庭向けの液晶プロジェクターのほか、産業用ロボット、腕時計とその駆動部、水晶部品、半導体、金属粉末を展開する。本体が主に研究・製品開発を担い、国内外のグループ会社を中心に生産と販売を行う。",
+      "proof": {
+        "code": "6724",
+        "exchange": "Tokyo",
+        "corporate_number": "4011101010841",
+        "edinet_code": "E01873",
+        "source_company_name": "セイコーエプソン株式会社",
+        "filing_company_name": "セイコーエプソン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ6A",
+        "current_edinet_code": "E01873",
+        "current_corporate_number": "4011101010841"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ6A",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865722.1499908,
+      "pdf_sha256": "625ff9ee34a7c8397cbfc629494afb00ef14b4b1de4927c124f7c327313f6f8e"
+    },
+    {
+      "symbol": "6741.T",
+      "identity": {
+        "symbol": "6741.T",
+        "code": "6741",
+        "name": "日本信号",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "鉄道信号をはじめ、交通と駅の運営に使う電気・電子機器を製造し販売する会社。運賃を自動で収受するAFCや、ロボット・センシング関連の製品も扱う。部品の一部を製造子会社から調達し、日信電設などが信号設備に伴う工事の設計・施工を担当する。グループで製品の販売後の保守、駅務機器の工事、ソフト開発、IT基盤の構築・運用も手がけ、海外子会社を通じた販売と保守も行う。",
+      "proof": {
+        "code": "6741",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001110631",
+        "edinet_code": "E01769",
+        "source_company_name": "日本信号株式会社",
+        "filing_company_name": "日本信号株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAO1",
+        "current_edinet_code": "E01769",
+        "current_corporate_number": "9010001110631"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAO1",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865729.4720168,
+      "pdf_sha256": "77258891389ba061d1b0f8f0a8fe30d3fc9304f1727caa03da259ca374141507"
+    },
+    {
+      "symbol": "6754.T",
+      "identity": {
+        "symbol": "6754.T",
+        "code": "6754",
+        "name": "アンリツ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "通信設備や電子機器の性能を測る計測器を作り、販売と保守を行う会社。移動通信、光通信、IP網、高周波の測定に対応する。食品・医薬品の生産向けには、重量を選別する装置や異物を検出する機器、品質管理システムをグループで供給する。EV・電池の試験装置、電力の計測器、監視用のシステムも扱う。本体と国内外の事業会社が製造・販売を分担し、修理や校正を担う子会社も持つ。",
+      "proof": {
+        "code": "6754",
+        "exchange": "Tokyo",
+        "corporate_number": "2021001021865",
+        "edinet_code": "E01774",
+        "source_company_name": "アンリツ株式会社",
+        "filing_company_name": "アンリツ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YH5E",
+        "current_edinet_code": "E01774",
+        "current_corporate_number": "2021001021865"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YH5E",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865734.388692,
+      "pdf_sha256": "dcc668d44c4c68cd51e181e0691250c83e2c012f1d41d9dff4125be4f628dec8"
+    },
+    {
+      "symbol": "6763.T",
+      "identity": {
+        "symbol": "6763.T",
+        "code": "6763",
+        "name": "帝国通信工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "抵抗器やスイッチ、センサー、機器の前面操作部を構成する電子部品を製造・販売する会社。固定・可変抵抗器や機構部品などを、本体と国内子会社の連携した生産体制で供給する。タイ、中国、ベトナムでも子会社が製造し、国内は主に本体、東南アジア・北米・中国は現地販売会社が顧客に届ける。別の子会社では機械設備の販売と環境対応素材の製造・販売を行い、清掃業務を担う会社も持つ。",
+      "proof": {
+        "code": "6763",
+        "exchange": "Tokyo",
+        "corporate_number": "2020001069741",
+        "edinet_code": "E01782",
+        "source_company_name": "帝国通信工業株式会社",
+        "filing_company_name": "帝国通信工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDZX",
+        "current_edinet_code": "E01782",
+        "current_corporate_number": "2020001069741"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDZX",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865740.2766862,
+      "pdf_sha256": "0520b197250b4229ee5e1aaed9d8dfa06fddf159e3c92b579126c455080eeff9"
+    },
+    {
+      "symbol": "6772.T",
+      "identity": {
+        "symbol": "6772.T",
+        "code": "6772",
+        "name": "東京コスモス電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "可変抵抗器と自動車に搭載する電装部品をグループで作り、販売する会社。本体が製品の販売を担い、白河、中津、会津のコスモス電機など国内子会社が組立を受託する。中国の広州の子会社は両分野、煙台の子会社は車載用部品の組立を分担する。製品の一部は台湾、米国や中国の販売子会社を経由して顧客へ供給しており、本体の販売と国内外の関係会社による生産・流通を組み合わせている。",
+      "proof": {
+        "code": "6772",
+        "exchange": "Tokyo",
+        "corporate_number": "6021001028329",
+        "edinet_code": "E01811",
+        "source_company_name": "東京コスモス電機株式会社",
+        "filing_company_name": "東京コスモス電機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ3Z",
+        "current_edinet_code": "E01811",
+        "current_corporate_number": "6021001028329"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ3Z",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865746.349644,
+      "pdf_sha256": "c49c09592e3cd548cd8744cdf5ac52f23a2e57283c95a328bf9efa55c787e9d7"
+    },
+    {
+      "symbol": "6810.T",
+      "identity": {
+        "symbol": "6810.T",
+        "code": "6810",
+        "name": "マクセル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電池、産業向け材料、光学部品や家庭用機器をグループで製造し販売する会社。コイン形のリチウム電池、酸化銀電池、乾電池、全固体電池などを扱う。建材や半導体工程に用いる粘着テープ、工業用ゴム製品も供給する。車載カメラとヘッドランプ用のレンズ、半導体の設計・製造受託、RFID機器やICカードも展開し、健康・理美容用品や電設工具を担う子会社と海外の販売網を持つ。",
+      "proof": {
+        "code": "6810",
+        "exchange": "Tokyo",
+        "corporate_number": "9120901001761",
+        "edinet_code": "E01947",
+        "source_company_name": "マクセル株式会社",
+        "filing_company_name": "マクセル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJH7",
+        "current_edinet_code": "E01947",
+        "current_corporate_number": "9120901001761"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJH7",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865752.339086,
+      "pdf_sha256": "e19941c9cfeb8fc584a7267b95e5e18b651e91dc6ad4d230aa94a0252acbc206"
+    },
+    {
+      "symbol": "6841.T",
+      "identity": {
+        "symbol": "6841.T",
+        "code": "6841",
+        "name": "横河電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場やプラントの運転を支える制御システムと計測器を供給する会社。流量計、圧力を測る伝送器、工程の分析計、生産向けソフトなどを扱い、設備の運用から経営に至る課題に対応する。波形や光通信、電力、温度の測定器も展開する。国内外の製造子会社が機器を作り、販売会社が設計技術支援と導入後のサービスを担う。産業用IoTでは機器、ソフト、クラウドを組み合わせたサービスも提供する。",
+      "proof": {
+        "code": "6841",
+        "exchange": "Tokyo",
+        "corporate_number": "4012401012569",
+        "edinet_code": "E01878",
+        "source_company_name": "横河電機株式会社",
+        "filing_company_name": "横河電機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE3H",
+        "current_edinet_code": "E01878",
+        "current_corporate_number": "4012401012569"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE3H",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865758.5217621,
+      "pdf_sha256": "8a7b959a358c7f989c323534a1f27b0fad98cb91fb7ca000bcc1b68bfe718459"
+    },
+    {
+      "symbol": "6856.T",
+      "identity": {
+        "symbol": "6856.T",
+        "code": "6856",
+        "name": "堀場製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車の開発、環境監視、臨床検査、半導体工程や研究に使う測定・分析機器を供給する会社。排ガスや水質の測定器、エンジン・電池の試験設備、車両開発の技術サービスを扱う。医療向けには血球を数える装置や免疫・生化学検査の機器を展開する。半導体向けの流量制御器、薬液濃度の監視機器、異物検査装置に加え、分光・元素分析の機器もグループで製造し、販売とサービスを行う。",
+      "proof": {
+        "code": "6856",
+        "exchange": "Tokyo",
+        "corporate_number": "1130001011676",
+        "edinet_code": "E01901",
+        "source_company_name": "株式会社堀場製作所",
+        "filing_company_name": "株式会社堀場製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XSIJ",
+        "current_edinet_code": "E01901",
+        "current_corporate_number": "1130001011676"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XSIJ",
+      "filed_on": "2026-03-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865764.434121,
+      "pdf_sha256": "7c19afd21f80aa925cb7ec3a841403b649a73a1b77392f96f8b50da8bb461e37"
+    },
+    {
+      "symbol": "6864.T",
+      "identity": {
+        "symbol": "6864.T",
+        "code": "6864",
+        "name": "エヌエフホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子計測と電源制御の事業会社を束ねる持株会社。子会社のエヌエフ回路設計ブロックなどが信号発生器、周波数特性の分析器、微小信号やインピーダンスの測定器を開発・製造して販売する。増幅器やフィルターなどの機能部品、交流・直流電源、産業用や顧客仕様の電源、保護リレーの試験器も扱う。グループの製造・販売会社とサービス会社が機器の供給を分担し、校正や修理も提供する。",
+      "proof": {
+        "code": "6864",
+        "exchange": "Tokyo",
+        "corporate_number": "8020001019674",
+        "edinet_code": "E01847",
+        "source_company_name": "株式会社エヌエフホールディングス",
+        "filing_company_name": "株式会社エヌエフホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIMB",
+        "current_edinet_code": "E01847",
+        "current_corporate_number": "8020001019674"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIMB",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865770.4604511,
+      "pdf_sha256": "1e1d0114c8f0e968cab66191c83bc0924fd299f7632b43f46c3be1e4781431c7"
+    },
+    {
+      "symbol": "6888.T",
+      "identity": {
+        "symbol": "6888.T",
+        "code": "6888",
+        "name": "アクモス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "業務システムの開発からIT設備の構築、運用支援までを行う事業持株会社。グループでソフト開発やシステムの統合、消防防災向けの仕組み、地理情報を使うサービスを提供する。本体はネットワークやIT基盤の整備、クラウド関連業務も扱う。子会社が機器の第三者保守、病院情報システムの維持管理、調査・アンケートや事務の受託を分担し、顧客のIT導入後の日常業務も支えている。",
+      "proof": {
+        "code": "6888",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001009651",
+        "edinet_code": "E02324",
+        "source_company_name": "アクモス株式会社",
+        "filing_company_name": "アクモス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3H2",
+        "current_edinet_code": "E02324",
+        "current_corporate_number": "8010001009651"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3H2",
+      "filed_on": "2026-09-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865776.5602822,
+      "pdf_sha256": "a082b00d219de8e9c2091abc4e8e58403cdac1ecdaed1d6f31b14507c69fbeeb"
+    },
+    {
+      "symbol": "6894.T",
+      "identity": {
+        "symbol": "6894.T",
+        "code": "6894",
+        "name": "パルステック工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "計測や制御、データ処理に使う電子機器を顧客向けに製造・販売する会社。持ち運べるX線残留応力の測定装置や3Dスキャナーを扱い、測定業務の受託と装置のレンタルも行う。ヘルスケア・医療機器の分野では装置の開発と製造を受託する。光技術を使う特殊機器などは顧客の仕様に合わせて供給し、米国子会社が主に現地での応力測定装置の販売や、光応用・特殊機器の保守を担当する。",
+      "proof": {
+        "code": "6894",
+        "exchange": "Tokyo",
+        "corporate_number": "5080401004455",
+        "edinet_code": "E02021",
+        "source_company_name": "パルステック工業株式会社",
+        "filing_company_name": "パルステック工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDWK",
+        "current_edinet_code": "E02021",
+        "current_corporate_number": "5080401004455"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDWK",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865782.495561,
+      "pdf_sha256": "be062bd911e07ff27b88503cc75749c62a6328e9af615e880409470097591352"
+    },
+    {
+      "symbol": "6919.T",
+      "identity": {
+        "symbol": "6919.T",
+        "code": "6919",
+        "name": "ケル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子・電気機器の基板や機器同士をつなぐコネクターを中心に、製品を製造して販売する会社。工業機器や画像機器などに向け、電気的な接続と切り離しに使う部品を供給する。制御基板や周辺機器をまとめて収めるラック、ケーブルとコネクターを組み合わせたハーネスも扱う。本体の製品供給に加え、台湾・中国の子会社がコネクターの製造・販売を行い、海外の販売会社が各地域への販売を支える。",
+      "proof": {
+        "code": "6919",
+        "exchange": "Tokyo",
+        "corporate_number": "6013401001080",
+        "edinet_code": "E01992",
+        "source_company_name": "ケル株式会社",
+        "filing_company_name": "ケル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJK1",
+        "current_edinet_code": "E01992",
+        "current_corporate_number": "6013401001080"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJK1",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865788.584715,
+      "pdf_sha256": "d11e9c482025f0b3aef8de1311460f6fa081230621c41ed13d1ce6014c64b0b4"
+    },
+    {
+      "symbol": "6929.T",
+      "identity": {
+        "symbol": "6929.T",
+        "code": "6929",
+        "name": "日本セラミック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "センサーやモジュールなどの電子部品を研究・開発し、製造して販売する会社。本体とフィリピン、中国のグループ製造会社が製品を供給し、香港や欧州の販売子会社を通じても顧客に届ける。開発では家電向けの赤外線センサーとLED照明用モジュール、自動車向けの超音波・電流センサーの改良に取り組む。本体を中心に、センサー素子やセラミック素材を応用した製品の開発も行っている。",
+      "proof": {
+        "code": "6929",
+        "exchange": "Tokyo",
+        "corporate_number": "2270001000573",
+        "edinet_code": "E01988",
+        "source_company_name": "日本セラミック株式会社",
+        "filing_company_name": "日本セラミック株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XTCV",
+        "current_edinet_code": "E01988",
+        "current_corporate_number": "2270001000573"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XTCV",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865794.602536,
+      "pdf_sha256": "a3c838b930ebd3b6853eb3209a69caf1e9ff7c6027e90c8729996f1d82de1fea"
+    },
+    {
+      "symbol": "6951.T",
+      "identity": {
+        "symbol": "6951.T",
+        "code": "6951",
+        "name": "日本電子",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "研究や製造工程で使う電子顕微鏡と分析・検査装置を供給する会社。透過型・走査型の顕微鏡、核磁気共鳴装置、質量分析計、X線による微細構造の解析機器などを扱う。試料の加工・観察装置に加え、電子ビームの描画装置、蒸着用の電子銃や電源、金属3Dプリンターも展開する。本体と製造子会社が製品を作り、海外の販売会社や国内の関係会社を通じた流通、加工委託、保守サービスも行う。",
+      "proof": {
+        "code": "6951",
+        "exchange": "Tokyo",
+        "corporate_number": "9012801002438",
+        "edinet_code": "E01905",
+        "source_company_name": "日本電子株式会社",
+        "filing_company_name": "日本電子株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIDD",
+        "current_edinet_code": "E01905",
+        "current_corporate_number": "9012801002438"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIDD",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865800.855655,
+      "pdf_sha256": "c08d931b24a9a17e5cb14f4b3bc401353337da4b327908609459127b74c7f23f"
+    },
+    {
+      "symbol": "6954.T",
+      "identity": {
+        "symbol": "6954.T",
+        "code": "6954",
+        "name": "ファナック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の生産自動化に使う制御機器、ロボット、工作機械を供給する会社。CNCとサーボモーターを組み合わせた制御システム、レーザー、ロボットシステムを開発・製造し、販売と保守を行う。加工機では小型の切削機「ロボドリル」、電動射出成形機「ロボショット」、ワイヤ放電加工機「ロボカット」を扱う。国内子会社が部品やモーターを供給し、海外各地の関係会社が販売や製造、保守を分担する。",
+      "proof": {
+        "code": "6954",
+        "exchange": "Tokyo",
+        "corporate_number": "3090001010053",
+        "edinet_code": "E01946",
+        "source_company_name": "ファナック株式会社",
+        "filing_company_name": "ファナック株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YG3Q",
+        "current_edinet_code": "E01946",
+        "current_corporate_number": "3090001010053"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YG3Q",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865806.686133,
+      "pdf_sha256": "58629adc463f979261d65bee52ecae2c86c5411e44f5f2e2a0e312ab5b9cc562"
+    },
+    {
+      "symbol": "6961.T",
+      "identity": {
+        "symbol": "6961.T",
+        "code": "6961",
+        "name": "エンプラス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工業用プラスチックや複合材料を使った精密製品をグループで製造・加工し、販売する会社。半導体のテストやバーンインに用いるソケット、光通信の部品、LEDの光を拡散するレンズを扱う。高精度ギヤを軸に自動車、事務機器、計器、住宅機器向けの製品も供給し、ライフサイエンス関連品も展開する。本体と研究所が各分野の開発を担当し、国内外の子会社が製造・販売や地域統括を担う。",
+      "proof": {
+        "code": "6961",
+        "exchange": "Tokyo",
+        "corporate_number": "5030001074060",
+        "edinet_code": "E02390",
+        "source_company_name": "株式会社エンプラス",
+        "filing_company_name": "株式会社エンプラス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLHU",
+        "current_edinet_code": "E02390",
+        "current_corporate_number": "5030001074060"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLHU",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865812.801495,
+      "pdf_sha256": "f464d24e577af7543f4353344869b91f7d3927d3809298aeb7740864e3aa963f"
+    },
+    {
+      "symbol": "6963.T",
+      "identity": {
+        "symbol": "6963.T",
+        "code": "6963",
+        "name": "ローム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "LSIや半導体素子などの電子部品をグループで製造して販売する会社。アナログ・ロジック・メモリーの集積回路、トランジスター、ダイオード、電力用デバイス、LEDや半導体レーザーを扱う。モジュールではプリントヘッドと光関連製品を供給し、抵抗器も作る。国内と韓国、東南アジア、中国などの製造子会社が生産を分担し、海外の販売会社が各地域へ供給する。原材料の開発・販売を担う子会社も持つ。",
+      "proof": {
+        "code": "6963",
+        "exchange": "Tokyo",
+        "corporate_number": "9130001000052",
+        "edinet_code": "E01953",
+        "source_company_name": "ローム株式会社",
+        "filing_company_name": "ローム株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF41",
+        "current_edinet_code": "E01953",
+        "current_corporate_number": "9130001000052"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF41",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865818.813577,
+      "pdf_sha256": "70d64d7a4b0cf1608eca63ee90b82b048dd0ee386aa62f7b5d33ec786f8978c0"
+    },
+    {
+      "symbol": "6976.T",
+      "identity": {
+        "symbol": "6976.T",
+        "code": "6976",
+        "name": "太陽誘電",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "コンデンサー、インダクター、複合デバイスなどを製造し、機器メーカーへ供給する電子部品会社。本体は完成品の販売に加え、国内外の製造会社へ原材料や半製品を渡し、加工された製品を受け取る。グループの製造会社が完成品への加工を担い、販売会社が国内外の顧客に届ける。製造と販売の両方を担う関係会社は機器メーカーへの直接販売も行う。人材派遣や環境測定の相談業務を担当する子会社も持つ。",
+      "proof": {
+        "code": "6976",
+        "exchange": "Tokyo",
+        "corporate_number": "3010501016202",
+        "edinet_code": "E01824",
+        "source_company_name": "太陽誘電株式会社",
+        "filing_company_name": "太陽誘電株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHU5",
+        "current_edinet_code": "E01824",
+        "current_corporate_number": "3010501016202"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHU5",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865824.811965,
+      "pdf_sha256": "a53d79a91e02847ccac577d7b8acf89401cb3597fc71c43d70269d5671120440"
+    },
+    {
+      "symbol": "6986.T",
+      "identity": {
+        "symbol": "6986.T",
+        "code": "6986",
+        "name": "双葉電子工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子機器と工場の生産用器材をグループで製造し販売する会社。複合モジュール、産業用・趣味用のラジコン機器、ロボット関連製品、有機EL表示器を扱う。子会社では通信制御の技術を用いた機器やシステムの開発も受託する。生産用器材はプレート、金型の用品、成形や生産を効率化する機器などを供給する。本体と国内外の事業会社が製造・販売を分担し、ネットワークを用いた製造基盤の共同開発も行う。",
+      "proof": {
+        "code": "6986",
+        "exchange": "Tokyo",
+        "corporate_number": "9040001059420",
+        "edinet_code": "E01841",
+        "source_company_name": "双葉電子工業株式会社",
+        "filing_company_name": "双葉電子工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK0D",
+        "current_edinet_code": "E01841",
+        "current_corporate_number": "9040001059420"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK0D",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865830.7675252,
+      "pdf_sha256": "77572d816394fda95c50fdc4cdaa54233fb740ca7001f2dd1e6c497a79f50760"
+    },
+    {
+      "symbol": "6997.T",
+      "identity": {
+        "symbol": "6997.T",
+        "code": "6997",
+        "name": "日本ケミコン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "コンデンサーを中心とする電子部品と、その製造に使う材料を供給する会社。国内ではケミコン東日本やケミコンデバイスなどの子会社が製品を作り、本体が仕入れて販売する。海外では米国、インドネシア、中国などの製造・販売会社と、欧州や香港などの販売拠点を通じて供給する。材料は本体と国内外の子会社が製造し、アルミ電極箔などをKDK販売が取り扱う。その他の電子部品も子会社から調達して販売する。",
+      "proof": {
+        "code": "6997",
+        "exchange": "Tokyo",
+        "corporate_number": "7010701015586",
+        "edinet_code": "E01926",
+        "source_company_name": "日本ケミコン株式会社",
+        "filing_company_name": "日本ケミコン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YL3Z",
+        "current_edinet_code": "E01926",
+        "current_corporate_number": "7010701015586"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YL3Z",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865836.8780181,
+      "pdf_sha256": "15e549836a91815cbf5fce15afd2a9a6849722f36b1be039e7676034d880e203"
+    },
+    {
+      "symbol": "7004.T",
+      "identity": {
+        "symbol": "7004.T",
+        "code": "7004",
+        "name": "カナデビア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ごみ処理や水処理の施設、産業機械と社会基盤の設備を手がける会社。ごみの焼却発電・リサイクル設備、汚泥処理や海水淡水化のプラントを設計・製作し、据付から修理・運営までグループで対応する。食品・医薬品やプラスチックの製造機械、橋梁、水門、トンネル掘進機も扱う。脱硝触媒や圧力容器、原子力関連設備を供給し、子会社では廃棄物施設の運転受託や使用済核燃料の保管・輸送関連業務も担う。",
+      "proof": {
+        "code": "7004",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001031541",
+        "edinet_code": "E02124",
+        "source_company_name": "カナデビア株式会社",
+        "filing_company_name": "カナデビア株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGOR",
+        "current_edinet_code": "E02124",
+        "current_corporate_number": "3120001031541"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGOR",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865842.954746,
+      "pdf_sha256": "1beeac60af3e6e6dce8b0398d9f6baf45d1bf839e02903fc9cf273f24fa1b97e"
+    },
+    {
+      "symbol": "7013.T",
+      "identity": {
+        "symbol": "7013.T",
+        "code": "7013",
+        "name": "IHI",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "航空エンジン、エネルギー設備、橋梁や産業機械をグループで供給する会社。陸用・船用の原動機、ボイラー、貯蔵設備や原子力機器を扱い、橋梁・水門、トンネル掘削関連のシステムも展開する。産業向けには車両の過給機、駐車設備、圧縮機、熱処理・表面処理設備、物流システムを供給する。航空・宇宙分野のロケットや防衛システムも含め、本体と事業会社が製造、販売、技術支援、据付や保守を分担する。",
+      "proof": {
+        "code": "7013",
+        "exchange": "Tokyo",
+        "corporate_number": "4010601031604",
+        "edinet_code": "E02128",
+        "source_company_name": "株式会社ＩＨＩ",
+        "filing_company_name": "株式会社IHI",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YENT",
+        "current_edinet_code": "E02128",
+        "current_corporate_number": "4010601031604"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YENT",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865850.394719,
+      "pdf_sha256": "89bc5998fae00e5126ddc0b0bd45408f99b132a6fc0813e40496377caf3ec8ed"
+    },
+    {
+      "symbol": "7047.T",
+      "identity": {
+        "symbol": "7047.T",
+        "code": "7047",
+        "name": "ポート",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の採用や電気・ガス契約の獲得を、顧客の集客から契約成立まで支える会社。就職活動向けの「キャリアパーク！」や「就活会議」「みん就」をグループで運営し、若手人材を人材会社へ送客する業務と、求人企業へ直接紹介する業務を行う。エネルギー分野ではINEやFive Lineなどの子会社が料金の見直しや引越し時の手続きを案内し、電力・ガス会社との契約を支援する。成果に応じた報酬を主に受け取る。",
+      "proof": {
+        "code": "7047",
+        "exchange": "Tokyo",
+        "corporate_number": "8011001069074",
+        "edinet_code": "E34537",
+        "source_company_name": "ポート株式会社",
+        "filing_company_name": "ポート株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDYD",
+        "current_edinet_code": "E34537",
+        "current_corporate_number": "8011001069074"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDYD",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865856.475795,
+      "pdf_sha256": "8cb03290159a25d74d41382f728e36cb83738c039a20c435c3241e71d0af677d"
+    },
+    {
+      "symbol": "7067.T",
+      "identity": {
+        "symbol": "7067.T",
+        "code": "7067",
+        "name": "ブランディングテクノロジー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "中堅・中小企業のブランドづくりとインターネットでの集客を支援する会社。顧客の特徴や課題を整理し、Webサイト、パンフレット、記事や動画を制作する。公開後の解析や修正、経営・販売戦略の相談にも対応する。ネット広告の販売・運用、SEOの改善提案、解析ツールの販売も手がける。本体と制作・運用子会社が分担し、歯科医院の検索・予約サイト「歯科タウン」など自社媒体では成果に応じた収入を得る。",
+      "proof": {
+        "code": "7067",
+        "exchange": "Tokyo",
+        "corporate_number": "2011001038472",
+        "edinet_code": "E34975",
+        "source_company_name": "ブランディングテクノロジー株式会社",
+        "filing_company_name": "ブランディングテクノロジー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKT7",
+        "current_edinet_code": "E34975",
+        "current_corporate_number": "2011001038472"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKT7",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865862.445072,
+      "pdf_sha256": "10eff63a124c6708956582771d468f7f6b7fcf16e99bd170811947c482d720fb"
+    },
+    {
+      "symbol": "7090.T",
+      "identity": {
+        "symbol": "7090.T",
+        "code": "7090",
+        "name": "リグア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "接骨院の経営と日々の運営を支える機器・サービスを提供する会社。筋肉への電気刺激装置、施術用ベッド、低周波治療器や消耗品を販売し、経営相談、研修、決済システムも扱う。子会社が接骨院向けソフトの開発・販売、Webでの集客支援、療養費の請求代行と早期資金化の融資を担う。健康関連ブランドの商品販売も展開し、別の子会社FPデザインでは保険募集、財務相談やM&Aの仲介を行う。",
+      "proof": {
+        "code": "7090",
+        "exchange": "Tokyo",
+        "corporate_number": "7120001108848",
+        "edinet_code": "E33790",
+        "source_company_name": "株式会社リグア",
+        "filing_company_name": "株式会社リグア",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJLO",
+        "current_edinet_code": "E33790",
+        "current_corporate_number": "7120001108848"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJLO",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865868.5516522,
+      "pdf_sha256": "9d32440f51b7b58d7995da9e85ab7bbacef9c0375c83361f8790aaae49a75d63"
+    },
+    {
+      "symbol": "7130.T",
+      "identity": {
+        "symbol": "7130.T",
+        "code": "7130",
+        "name": "ヤマエグループホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "食品と住宅関連などの卸売グループを経営管理する持株会社。ヤマエ久野などの事業会社が加工食品、菓子、酒類、冷凍食品、食品原料や飼料を販売し、弁当・焼酎の製造や農水産物の加工、畜産農業も行う。日本ピザハットなどを通じた飲食配達も展開する。住宅分野では建材、設備機器、木材の販売、建設工事と不動産の売買・賃貸を担い、グループに燃料販売、レンタカー、運送の事業も持つ。",
+      "proof": {
+        "code": "7130",
+        "exchange": "Tokyo",
+        "corporate_number": "9290001094921",
+        "edinet_code": "E36756",
+        "source_company_name": "ヤマエグループホールディングス株式会社",
+        "filing_company_name": "ヤマエグループホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE2O",
+        "current_edinet_code": "E36756",
+        "current_corporate_number": "9290001094921"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE2O",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865876.007191,
+      "pdf_sha256": "8fe39a42645b42d65d22e5d8ff4bc89662a67525a469d6b54c4baba2a2c228c4"
+    },
+    {
+      "symbol": "7191.T",
+      "identity": {
+        "symbol": "7191.T",
+        "code": "7191",
+        "name": "イントラスト",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家賃や施設利用料などの未払いリスクを引き受け、保証料を得る会社。本体と子会社プレミアライフが家賃保証を行い、介護施設の費用、入院費、養育費の保証も提供する。不動産管理会社の入居申込受付、審査、支払案内や債権管理を受託し、SMS配信に決済機能を付けたサービスや保険募集業務も扱う。子会社キャロルシステムがWebや業務システムを開発・運用する。プレステージ・インターナショナルのグループに属する。",
+      "proof": {
+        "code": "7191",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001133718",
+        "edinet_code": "E32763",
+        "source_company_name": "株式会社イントラスト",
+        "filing_company_name": "株式会社イントラスト",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YECQ",
+        "current_edinet_code": "E32763",
+        "current_corporate_number": "6010001133718"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YECQ",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865883.511809,
+      "pdf_sha256": "70a31b83a4a093aa82253bd00d6a3774a1f450c48a91557f1e0ec32b0895faf8"
+    },
+    {
+      "symbol": "7235.T",
+      "identity": {
+        "symbol": "7235.T",
+        "code": "7235",
+        "name": "東京ラヂエーター製造",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車向けの熱交換器、燃料タンク、プレス板金の製品をグループで製造し販売する会社。本体は国内で製品を供給し、トーシンテクノを通じた部品調達や製品販売も行う。中国の重慶・無錫、インドネシア、タイの子会社が現地で自動車部品を製造・販売し、本体が部品の供給や技術支援を担う。グループ内で部品・完成品を融通するほか、本体と海外の製造拠点からそれぞれ顧客へ製品を届ける。",
+      "proof": {
+        "code": "7235",
+        "exchange": "Tokyo",
+        "corporate_number": "6021001002556",
+        "edinet_code": "E02158",
+        "source_company_name": "東京ラヂエーター製造株式会社",
+        "filing_company_name": "東京ラヂエーター製造株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YG1L",
+        "current_edinet_code": "E02158",
+        "current_corporate_number": "6021001002556"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YG1L",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865889.80796,
+      "pdf_sha256": "8069c299ba75dc9391b1b39d68334e9cd0b528e06fe500d2531c703267091cf8"
+    },
+    {
+      "symbol": "7246.T",
+      "identity": {
+        "symbol": "7246.T",
+        "code": "7246",
+        "name": "プレス工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "トラックなどの自動車と建設機械に使う部品をグループで製造し販売する会社。車体を支えるフレーム、車軸のアクスル、パネル、油圧ショベルなどの運転室にあたるキャビンを扱う。本体は一部製品の製造を子会社へ委託し、国内外の事業会社も顧客へ直接販売する。国内と米国、タイ、インドネシア、スウェーデンなどに製造・販売の体制を持ち、子会社が設計、部品の運送や資材の供給も担う。",
+      "proof": {
+        "code": "7246",
+        "exchange": "Tokyo",
+        "corporate_number": "5020001074318",
+        "edinet_code": "E02154",
+        "source_company_name": "プレス工業株式会社",
+        "filing_company_name": "プレス工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGAC",
+        "current_edinet_code": "E02154",
+        "current_corporate_number": "5020001074318"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGAC",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865897.104227,
+      "pdf_sha256": "1151cb7dd91a241e31cd41a5674f04d4f2689f2d1eb70506f14fdfdc328c089a"
+    },
+    {
+      "symbol": "7371.T",
+      "identity": {
+        "symbol": "7371.T",
+        "code": "7371",
+        "name": "Zenken",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業のWeb集客と海外人材の採用・定着を支援する会社。専門性のある商品やサービスを扱う企業向けに、集客用の媒体を制作・運用し、制作費と継続する運用料を得る。インドなどのエンジニアや介護・宿泊・外食向けの人材を日本企業へ紹介し、日本語教育や定着支援も提供する。法人向け語学研修、留学の斡旋、日本語学校の運営を行い、介護施設を担う子会社と、保有ビルの賃貸事業も持つ。",
+      "proof": {
+        "code": "7371",
+        "exchange": "Tokyo",
+        "corporate_number": "4011101011096",
+        "edinet_code": "E24465",
+        "source_company_name": "Ｚｅｎｋｅｎ株式会社",
+        "filing_company_name": "Zenken株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3YQ",
+        "current_edinet_code": "E24465",
+        "current_corporate_number": "4011101011096"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3YQ",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865903.137229,
+      "pdf_sha256": "5a1fc1c5c62b307fec57af127b1b38fce7115830e3d899dc51309bcb4fea9cd6"
+    },
+    {
+      "symbol": "7433.T",
+      "identity": {
+        "symbol": "7433.T",
+        "code": "7433",
+        "name": "伯東",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子部品や電子・電気機器を国内外から仕入れて販売する事業と、工業薬品の製造を行う会社。海外販売子会社を通じて各地域にも供給し、モルデックが電子部品の製造や本体から受けた加工を担う。薬品分野では石油・石油化学や紙・パルプ向け、化粧品の基剤などを製造し販売する。子会社クリアライズによる分析受託と水処理、物流会社の業務受託も展開し、本体は太陽光発電の事業も行う。",
+      "proof": {
+        "code": "7433",
+        "exchange": "Tokyo",
+        "corporate_number": "7011101017256",
+        "edinet_code": "E02802",
+        "source_company_name": "伯東株式会社",
+        "filing_company_name": "伯東株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI3S",
+        "current_edinet_code": "E02802",
+        "current_corporate_number": "7011101017256"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI3S",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865909.155863,
+      "pdf_sha256": "e9055483864fd34de4dd7f8123474f380a22db032d732cab3afa9189ae329387"
+    },
+    {
+      "symbol": "7446.T",
+      "identity": {
+        "symbol": "7446.T",
+        "code": "7446",
+        "name": "東北化学薬品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工業薬品、臨床検査の試薬、食品や農業用資材と関連機器を仕入れて販売する会社。半導体用の薬品、分析・計測機器、食品添加物や加工機器、農薬、肥料、種苗を扱う。医療向けには血液・生化学・免疫などの検査試薬、検体の検査機器や消耗品、介護用品を供給する。研究用の試薬や抗体も販売し、関連する保守サービスを行う。本体とあすなろ理研、日栄東海が工業・医療分野の流通を分担する。",
+      "proof": {
+        "code": "7446",
+        "exchange": "Tokyo",
+        "corporate_number": "5420001009282",
+        "edinet_code": "E02810",
+        "source_company_name": "東北化学薬品株式会社",
+        "filing_company_name": "東北化学薬品株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XAMG",
+        "current_edinet_code": "E02810",
+        "current_corporate_number": "5420001009282"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XAMG",
+      "filed_on": "2025-12-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865915.257916,
+      "pdf_sha256": "af8a4ce619c6f723e6660e65b61d767a1522d0341b1aceeec2a811bb4f83c594"
+    },
+    {
+      "symbol": "7472.T",
+      "identity": {
+        "symbol": "7472.T",
+        "code": "7472",
+        "name": "鳥羽洋行",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "製造現場の自動化や省力化に使う機器を販売する商社。空気圧機器、電子・圧力センサー、真空機器、継手など、工程や装置に組み込む部品を扱う。産業用ロボット、自動組立機、実装システム、レーザー加工機に加え、電動工具、無人搬送車、コンベヤーなども供給する。メーカーから仕入れた商品を生産現場へ直接届け、技術知識を持つ営業担当者が設備改善を提案する。国内子会社や海外拠点でも販売を行う。",
+      "proof": {
+        "code": "7472",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001005600",
+        "edinet_code": "E02833",
+        "source_company_name": "株式会社鳥羽洋行",
+        "filing_company_name": "株式会社鳥羽洋行",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC9S",
+        "current_edinet_code": "E02833",
+        "current_corporate_number": "9010001005600"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC9S",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865921.25013,
+      "pdf_sha256": "9c931d6d104a249d9b1598be48ce84155af1c8c7ffe838204d584ca2e2b15d3f"
+    },
+    {
+      "symbol": "7510.T",
+      "identity": {
+        "symbol": "7510.T",
+        "code": "7510",
+        "name": "たけびし",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場の自動化設備、半導体・電子部品と社会インフラ機器を販売する会社。産業機器のシステム、空調や住宅設備、ビル設備、重電機器、電子医療機器を扱う。情報通信分野では業務システムや携帯電話の販売、ソフト開発も手がける。本体と海外の販売会社が商品の供給を担い、子会社が空調設備の設計・施工・保守、携帯電話の流通、物流などを分担する。関連する工事や導入後のサービスも提供する。",
+      "proof": {
+        "code": "7510",
+        "exchange": "Tokyo",
+        "corporate_number": "1130001001272",
+        "edinet_code": "E02851",
+        "source_company_name": "株式会社たけびし",
+        "filing_company_name": "株式会社たけびし",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHGY",
+        "current_edinet_code": "E02851",
+        "current_corporate_number": "1130001001272"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHGY",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865927.2666152,
+      "pdf_sha256": "1524aba5d4a54ef5358402205ce9d031e3cbf2d98715c6e61ff4ec0c02879815"
+    },
+    {
+      "symbol": "7537.T",
+      "identity": {
+        "symbol": "7537.T",
+        "code": "7537",
+        "name": "丸文",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体と電子部品、電子応用機器を国内外から仕入れ、販売する商社。アナログICやメモリー、プロセッサー、水晶部品、コネクターなどを扱う。航空宇宙、製造・検査、レーザーや医療向けの機器も本体と国内子会社で供給する。ICTのサービス、AIロボット、ソフトや技術ライセンスの販売も展開し、フォーサイトテクノが据付・保守などの技術業務を担う。海外ではアジアの子会社と米国の関連会社を通じても販売する。",
+      "proof": {
+        "code": "7537",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001057337",
+        "edinet_code": "E02864",
+        "source_company_name": "丸文株式会社",
+        "filing_company_name": "丸文株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YIN7",
+        "current_edinet_code": "E02864",
+        "current_corporate_number": "8010001057337"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YIN7",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865933.358382,
+      "pdf_sha256": "19b73fe5e3ddecd79431530825852e9add59a485ddf828a801ed9d0b3014b0f7"
+    },
+    {
+      "symbol": "7602.T",
+      "identity": {
+        "symbol": "7602.T",
+        "code": "7602",
+        "name": "レダックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "中古車の買取・販売・輸出と自動車部品の流通をグループで行う会社。子会社カーチスが車両の買取や販売を担い、アガスタが中古車を輸出、タカトクが自動車用部品の卸売を行う。新興自動車は乗用車の整備、販売やレンタルを手がける。リースバックに関連する車両売却を行う会社にも出資しており、事業会社と投資先を組み合わせた体制を持つ。親会社は株式の保有・運用と経営相談を行うレダグループホールディングス。",
+      "proof": {
+        "code": "7602",
+        "exchange": "Tokyo",
+        "corporate_number": "2010601039038",
+        "edinet_code": "E02895",
+        "source_company_name": "株式会社レダックス",
+        "filing_company_name": "株式会社レダックス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKCQ",
+        "current_edinet_code": "E02895",
+        "current_corporate_number": "2010601039038"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKCQ",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865939.331653,
+      "pdf_sha256": "63a16a85c8a1d9761f7ac3b0edbf950b966b8c0fb91f66ac4dbe975aec86b367"
+    },
+    {
+      "symbol": "7637.T",
+      "identity": {
+        "symbol": "7637.T",
+        "code": "7637",
+        "name": "白銅",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "金属やプラスチックの材料を仕入れ、加工して顧客へ届ける会社。標準品を工場に常備し、注文に合わせて切断やフライス加工を行うほか、在庫にない特注品を材料メーカーなどから直接供給する。中国の上海の子会社も材料を在庫・加工して現地へ販売する。タイでは外部倉庫を使って現地企業へ届け、米国でも非鉄金属の加工・販売を展開する。本体と各地の子会社によって材料の調達から供給までを担う。",
+      "proof": {
+        "code": "7637",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001054158",
+        "edinet_code": "E03332",
+        "source_company_name": "白銅株式会社",
+        "filing_company_name": "白銅株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI9D",
+        "current_edinet_code": "E03332",
+        "current_corporate_number": "2010001054158"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI9D",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865945.446408,
+      "pdf_sha256": "7d21da69ac5aa89a4ad15c89d10b198bd40d5f0a8590137256d8a412ca0b2934"
+    },
+    {
+      "symbol": "7681.T",
+      "identity": {
+        "symbol": "7681.T",
+        "code": "7681",
+        "name": "レオクラン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "病院や福祉施設の新築・移転を企画段階から支え、医療機器と設備を販売する会社。機器の選定、建築計画の技術支援、予算と開業日程の管理、電子カルテや院内ネットワークの導入を本体と関係会社で担う。設置・内装工事、保守、医療材料の供給にも対応する。子会社京都プロメドはCTやMRI画像を専門医が遠隔で診断するサービスを提供し、ゲイトは介護・福祉施設へ調理済みのおかずや食事業務の受託を行う。",
+      "proof": {
+        "code": "7681",
+        "exchange": "Tokyo",
+        "corporate_number": "1120901010233",
+        "edinet_code": "E34455",
+        "source_company_name": "株式会社レオクラン",
+        "filing_company_name": "株式会社レオクラン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XACD",
+        "current_edinet_code": "E34455",
+        "current_corporate_number": "1120901010233"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XACD",
+      "filed_on": "2025-12-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865957.3737972,
+      "pdf_sha256": "b05b1293f3a302cef0d8a62671c7f9f25784c8690b0e1b7d215764a5922fe42e"
+    },
+    {
+      "symbol": "7701.T",
+      "identity": {
+        "symbol": "7701.T",
+        "code": "7701",
+        "name": "島津製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "分析・計測、医療画像、産業設備と航空機向けの機器をグループで供給する会社。クロマト分析、質量分析、材料試験、水質・排ガス測定の機器や、検査試薬などを扱う。医療分野では血管撮影やX線検査のシステムを展開する。産業向けの真空ポンプ、油圧機器、工業炉、航空機の操縦・空調・表示システムやエンジン補機も供給する。本体と国内外の関係会社が製造・販売を分担し、保守と分析受託も行う。",
+      "proof": {
+        "code": "7701",
+        "exchange": "Tokyo",
+        "corporate_number": "6130001021068",
+        "edinet_code": "E02265",
+        "source_company_name": "株式会社島津製作所",
+        "filing_company_name": "株式会社島津製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGJF",
+        "current_edinet_code": "E02265",
+        "current_corporate_number": "6130001021068"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGJF",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865963.520223,
+      "pdf_sha256": "453ef7f7c61886ca90e731ecaefe62452e8eaa433c3c35a309d24a0a6e637700"
+    },
+    {
+      "symbol": "7722.T",
+      "identity": {
+        "symbol": "7722.T",
+        "code": "7722",
+        "name": "国際計測器",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "モーターやタイヤなどの回転する部品のバランスを測り、ずれを修正する装置を製造・販売する会社。自動車や家電の生産に使うバランシングマシンを中心に、材料・部品の耐久性や走行時の振動を調べる試験機、軸の曲がりを自動で直す機器を扱う。コイルや歯車の検査機、地震計も供給する。本体と米国・韓国・中国の子会社などが製造・販売とサービスを分担し、東伸工業が材料試験機を担当する。",
+      "proof": {
+        "code": "7722",
+        "exchange": "Tokyo",
+        "corporate_number": "3013401001100",
+        "edinet_code": "E02335",
+        "source_company_name": "国際計測器株式会社",
+        "filing_company_name": "国際計測器株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ8C",
+        "current_edinet_code": "E02335",
+        "current_corporate_number": "3013401001100"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ8C",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865969.428009,
+      "pdf_sha256": "3e1341835d0154c68d1b5ffb17d3ef0fa185ae021d822b45a292831a5e3f1c9a"
+    },
+    {
+      "symbol": "7731.T",
+      "identity": {
+        "symbol": "7731.T",
+        "code": "7731",
+        "name": "ニコン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "光学と精密技術を使い、カメラ、露光装置、顕微鏡や検査機器を供給する会社。グループでカメラと交換レンズを製造・販売し、REDの業務用シネマカメラも扱う。半導体やフラットパネルの露光装置、眼科向け医療機器、顕微鏡、測定器、X線検査装置も展開する。子会社による再生医療用の細胞の受託生産や、積層造形に関わる事業も持ち、国内外の製造・販売会社が製品と保守サービスを届ける。",
+      "proof": {
+        "code": "7731",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001008763",
+        "edinet_code": "E02271",
+        "source_company_name": "株式会社ニコン",
+        "filing_company_name": "株式会社ニコン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKBP",
+        "current_edinet_code": "E02271",
+        "current_corporate_number": "5010001008763"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKBP",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865975.490121,
+      "pdf_sha256": "86e5ddf5adc4bda7a5bec0911aed274871af571afd17dc6d8ab1162e6d46d018"
+    },
+    {
+      "symbol": "7735.T",
+      "identity": {
+        "symbol": "7735.T",
+        "code": "7735",
+        "name": "SCREENホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体・印刷・ディスプレーの製造設備などを供給する企業群の持株会社。製品分野ごとの子会社が半導体の製造装置、印刷関連機器、表示器の製造装置と成膜装置、プリント基板関連機器を開発・製造し、販売と保守を行う。本体はグループの戦略と経営を管理し、国内外の製造・販売・サービス会社が供給を分担する。別の事業では文書の企画制作やソフト開発に加え、先端パッケージ、生命科学、水素関連の製品も扱う。",
+      "proof": {
+        "code": "7735",
+        "exchange": "Tokyo",
+        "corporate_number": "6130001003272",
+        "edinet_code": "E02288",
+        "source_company_name": "株式会社ＳＣＲＥＥＮホールディングス",
+        "filing_company_name": "株式会社SCREENホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK9N",
+        "current_edinet_code": "E02288",
+        "current_corporate_number": "6130001003272"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK9N",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865981.547373,
+      "pdf_sha256": "958ff5d90a44ea1f11a4b95b3633bda61eb55285878c61b36e676c9c9c32a95b"
+    },
+    {
+      "symbol": "7749.T",
+      "identity": {
+        "symbol": "7749.T",
+        "code": "7749",
+        "name": "メディキット",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "血管や血液に関わる医療機器を開発し、国内外へ販売する会社。透析で血液を取り出し戻す際の留置針、輸血・輸液に用いる静脈留置針、血管の検査・治療に使うカテーテルと挿入用のシースを扱う。「ハッピーキャス」「スーパーキャス」などの製品を供給し、誤って針を刺すことを防ぐ安全機構の製品も展開する。東郷メディキットとベトナムの子会社が製造を担い、本体が仕入れ、医療機関や卸売業者へ届ける。",
+      "proof": {
+        "code": "7749",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001007828",
+        "edinet_code": "E02354",
+        "source_company_name": "メディキット株式会社",
+        "filing_company_name": "メディキット株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI2W",
+        "current_edinet_code": "E02354",
+        "current_corporate_number": "9010001007828"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI2W",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865987.612522,
+      "pdf_sha256": "b0f2058ee8bdfa5e33d41f00659e7567751e0bd82755ac9d3df594685bfee6e5"
+    },
+    {
+      "symbol": "7760.T",
+      "identity": {
+        "symbol": "7760.T",
+        "code": "7760",
+        "name": "IMV",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "振動の再現・測定と環境試験を手がける会社。振動試験装置や複合環境試験装置をグループで製造・販売し、修理や保守も行う。顧客の試験品に振動などの環境試験を加え、結果を分析する業務も国内と東南アジアで受託する。工業機械の摩耗・劣化による異常振動や地震を監視する計測機器も供給する。本体と振研が製造や試験を担い、組立・加工の子会社、欧州・米国・アジアの販売・サービス拠点を持つ。",
+      "proof": {
+        "code": "7760",
+        "exchange": "Tokyo",
+        "corporate_number": "3120001059756",
+        "edinet_code": "E02352",
+        "source_company_name": "ＩＭＶ株式会社",
+        "filing_company_name": "IMV株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XAL6",
+        "current_edinet_code": "E02352",
+        "current_corporate_number": "3120001059756"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XAL6",
+      "filed_on": "2025-12-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865993.622608,
+      "pdf_sha256": "33097a88c3e2b447bb56b95cdeb0796ba02f9ef95bbb0a9b715543633e23213c"
+    },
+    {
+      "symbol": "7775.T",
+      "identity": {
+        "symbol": "7775.T",
+        "code": "7775",
+        "name": "大研医器",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "手術室や集中治療室、病棟で使う医療機器を自社で開発・製造し、販売する会社。排液を吸引して密閉し、凝固・廃棄できる容器や、麻酔剤・鎮痛剤などを少量ずつ投与する注入器を扱う。精密に薬液を送るシリンジ・輸液ポンプ、手洗い用の水を供給する装置、滅菌済みの使い捨てタオルも供給する。呼吸器手術用のチューブや汚物処理の使い捨て容器システムも展開し、医療機関へ直接または代理店を通じて届ける。",
+      "proof": {
+        "code": "7775",
+        "exchange": "Tokyo",
+        "corporate_number": "7120001083307",
+        "edinet_code": "E22509",
+        "source_company_name": "大研医器株式会社",
+        "filing_company_name": "大研医器株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCII",
+        "current_edinet_code": "E22509",
+        "current_corporate_number": "7120001083307"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCII",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865999.673911,
+      "pdf_sha256": "e6cc2bdc2c1ca8f6c97ea2693075f1cca4daa7314fcda2d8f6c3c6776f4deab2"
+    },
+    {
+      "symbol": "7792.T",
+      "identity": {
+        "symbol": "7792.T",
+        "code": "7792",
+        "name": "コラントッテ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家庭用の磁気治療器を企画・開発して販売する会社。「コラントッテ」のネックレスや腕用のループ、ウェア、サポーターを扱い、睡眠環境向けの枕や衣類、女性向けの商品も展開する。製造は外部企業へ委託し、国内外の代理店や小売店への卸売に加え、自社EC、通販モールと直営店で消費者に届ける。緊急時連絡サービスCSSも運営し、本人が連絡できないときに管理センターが登録先へ連絡する仕組みを提供する。",
+      "proof": {
+        "code": "7792",
+        "exchange": "Tokyo",
+        "corporate_number": "8120001073372",
+        "edinet_code": "E36670",
+        "source_company_name": "株式会社コラントッテ",
+        "filing_company_name": "株式会社コラントッテ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBZW",
+        "current_edinet_code": "E36670",
+        "current_corporate_number": "8120001073372"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBZW",
+      "filed_on": "2025-12-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791866005.599673,
+      "pdf_sha256": "b9d0fb50a7f9d504b3e21a11473194434584f16b212a5cee9e2bd7f9a73713f2"
+    },
+    {
+      "symbol": "7826.T",
+      "identity": {
+        "symbol": "7826.T",
+        "code": "7826",
+        "name": "フルヤ金属",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "プラチナやイリジウム、ルテニウムなどを用い、工業向けの貴金属製品を製造・販売する会社。結晶育成や光学ガラスの溶解に使うルツボ、記録媒体や半導体の薄膜用ターゲット、高温工程の温度を測る熱電対を供給する。触媒・電極や有機EL向けの化合物も作り、薄膜加工の受託、使用済み貴金属の再資源化と精製も行う。子会社を通じた販売・現地製造に加え、製品の受注に結び付かない貴金属原料の販売も担う。",
+      "proof": {
+        "code": "7826",
+        "exchange": "Tokyo",
+        "corporate_number": "8013301010956",
+        "edinet_code": "E02485",
+        "source_company_name": "株式会社フルヤ金属",
+        "filing_company_name": "株式会社フルヤ金属",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z403",
+        "current_edinet_code": "E02485",
+        "current_corporate_number": "8013301010956"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z403",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791866011.744255,
+      "pdf_sha256": "c4f8a7cd67183d730064ed2ebd9c37a6ed90c36c1b9b81a7595672c80a070b16"
+    },
+    {
+      "symbol": "7868.T",
+      "identity": {
+        "symbol": "7868.T",
+        "code": "7868",
+        "name": "広済堂ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "葬祭、情報、人材の事業会社を束ね、グループの戦略と経営を管理する持株会社。東京博善が火葬と斎場運営を行い、別の子会社も葬儀サービス、室内墓所、関連工事を担う。情報分野では印刷物やITの製品を製造・販売し、事務処理の受託も展開する。人材の紹介・派遣と日本語学校を運営する会社を国内外に持つ。資産相談の分野では金融サービス、不動産仲介や葬儀に関連する事業もグループで提供する。",
+      "proof": {
+        "code": "7868",
+        "exchange": "Tokyo",
+        "corporate_number": "7010401009665",
+        "edinet_code": "E00724",
+        "source_company_name": "株式会社広済堂ホールディングス",
+        "filing_company_name": "株式会社広済堂ホールディングス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLHM",
+        "current_edinet_code": "E00724",
+        "current_corporate_number": "7010401009665"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLHM",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791866019.1995552,
+      "pdf_sha256": "04fac1f45967a174818bbccf46d8ea845883ff7a273794bf5cddd886b246061a"
+    },
+    {
+      "symbol": "6730.T",
+      "identity": {
+        "symbol": "6730.T",
+        "code": "6730",
+        "name": "アクセル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "遊技機や組み込み機器に使う半導体と、AI関連のソフトウェアを開発・販売する。パチンコ・パチスロ向けでは画像処理を担うLSIやメモリモジュールを扱い、子会社と製品開発を進める。AI分野は自社技術のアイリアSDKを軸に、製品と導入支援を提供。ゲーム制作向けのAXIPシリーズ、暗号化製品、ブロックチェーン開発支援やマイニング用機器も事業範囲に含む。",
+      "proof": {
+        "code": "6730",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001072343",
+        "edinet_code": "E02077",
+        "source_company_name": "株式会社アクセル",
+        "filing_company_name": "株式会社アクセル",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC4Y",
+        "current_edinet_code": "E02077",
+        "current_corporate_number": "9010001072343"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC4Y",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865725.042956,
+      "pdf_sha256": "c2af2691d64780b16781e5abe868f00a0db1b18c87ba28875dc1ae42c8cf305b"
+    },
+    {
+      "symbol": "6753.T",
+      "identity": {
+        "symbol": "6753.T",
+        "code": "6753",
+        "name": "シャープ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家庭用機器からオフィス向け機器、電子部品までを扱うメーカー。グループで冷蔵庫、洗濯機、エアコンやテレビを製造・販売し、太陽電池と蓄電池も提供する。企業向けには複合機、業務用ディスプレイ、スマートフォン、パソコンと関連サービスを展開。ディスプレイ用モジュールや車載カメラ、各種センサーも扱い、国内外の生産会社・販売会社を通じて顧客へ供給している。",
+      "proof": {
+        "code": "6753",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001005484",
+        "edinet_code": "E01773",
+        "source_company_name": "シャープ株式会社",
+        "filing_company_name": "シャープ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHZV",
+        "current_edinet_code": "E01773",
+        "current_corporate_number": "6120001005484"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHZV",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865731.349534,
+      "pdf_sha256": "8d8b6a912e50f07de8227f07be7bee32959fbe092f027e6c630357e51af44a0a"
+    },
+    {
+      "symbol": "6762.T",
+      "identity": {
+        "symbol": "6762.T",
+        "code": "6762",
+        "name": "TDK",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子機器に組み込まれる部品と電源関連製品を、国内外のグループで製造・販売する。コンデンサやコイル、フェライト材料などの受動部品に加え、温度・圧力・磁気を検出するセンサーを扱う。磁気関連ではHDDの記録ヘッドやサスペンション、磁石を供給。二次電池と電源も主要事業で、製造設備やスマートフォンのカメラ向け微小アクチュエーターにも事業を広げている。",
+      "proof": {
+        "code": "6762",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001034849",
+        "edinet_code": "E01780",
+        "source_company_name": "ＴＤＫ株式会社",
+        "filing_company_name": "TDK株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD2Y",
+        "current_edinet_code": "E01780",
+        "current_corporate_number": "7010001034849"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD2Y",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865737.413532,
+      "pdf_sha256": "4193169275508c61b3cfe97aa580ad130c3c5544be90165a148cb2ee4ef5671a"
+    },
+    {
+      "symbol": "6770.T",
+      "identity": {
+        "symbol": "6770.T",
+        "code": "6770",
+        "name": "アルプスアルパイン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子部品と車載機器を製造・販売するグループ。機器の操作に使うスイッチやアクチュエーター、振動による触覚を伝える部品を扱い、センサーと通信デバイスも供給する。車載分野ではモジュール、情報・娯楽機能を担う機器、ディスプレイや音響機器を展開。アルプスアルパインと国内外の生産・販売会社が製品供給を担い、子会社ではシステム開発やオフィス関連サービスも行う。",
+      "proof": {
+        "code": "6770",
+        "exchange": "Tokyo",
+        "corporate_number": "3010801000723",
+        "edinet_code": "E01793",
+        "source_company_name": "アルプスアルパイン株式会社",
+        "filing_company_name": "アルプスアルパイン株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YB8V",
+        "current_edinet_code": "E01793",
+        "current_corporate_number": "3010801000723"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YB8V",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865743.356904,
+      "pdf_sha256": "ea5773aec78d58f481f469423132eb67aa952e018f28e92da372d4faffbc638f"
+    },
+    {
+      "symbol": "6775.T",
+      "identity": {
+        "symbol": "6775.T",
+        "code": "6775",
+        "name": "TBグループ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "店舗の販促や会計業務を支える機器を企画・開発する。LED表示機、デジタルサイネージ、照明を扱い、POSや電子レジスター、注文管理機器は国内の販売会社・代理店と海外代理店へ販売する。グループでは病院・介護施設向けシステム機器や、ホテル向け商品と有料放送サービスも提供。カプセル型宿泊施設用の商品を扱い、子会社のMAYUDAMAが宿泊施設の運営を担う。",
+      "proof": {
+        "code": "6775",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001005536",
+        "edinet_code": "E01795",
+        "source_company_name": "株式会社ＴＢグループ",
+        "filing_company_name": "株式会社TBグループ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK9X",
+        "current_edinet_code": "E01795",
+        "current_corporate_number": "7010001005536"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK9X",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865749.351517,
+      "pdf_sha256": "4651746ac8c5c8ce2e9ae7a4ebba17df83dbfb83ad3de5703564523d19261321"
+    },
+    {
+      "symbol": "6832.T",
+      "identity": {
+        "symbol": "6832.T",
+        "code": "6832",
+        "name": "アオイ電子",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "集積回路と機能部品を製造・販売する電子部品メーカー。IC、光学センサー、LEDやウェハー段階のパッケージを扱い、プリントヘッドと各種センサーも製品群に持つ。アオイ電子が販売や加工を担い、青森・青梅の子会社には半導体製品の製造を委託する。別の子会社はIC製造工程のめっき加工を担当し、グループ内で製造を分担。センサーの販売先には持分法を適用する関連会社もある。",
+      "proof": {
+        "code": "6832",
+        "exchange": "Tokyo",
+        "corporate_number": "3470001000263",
+        "edinet_code": "E02051",
+        "source_company_name": "アオイ電子株式会社",
+        "filing_company_name": "アオイ電子株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLRR",
+        "current_edinet_code": "E02051",
+        "current_corporate_number": "3470001000263"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLRR",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865755.434106,
+      "pdf_sha256": "0cc7e353994a7acab9cf5e2e378d3cf2e427cf7afe7db23d62d3ee4c7fdf9b70"
+    },
+    {
+      "symbol": "6849.T",
+      "identity": {
+        "symbol": "6849.T",
+        "code": "6849",
+        "name": "日本光電工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "医療現場で生体情報を測定・監視し、治療に用いる電子機器を供給する。グループの製品には心電計や脳波計、患者の状態を連続監視するモニタ、AED、除細動器、人工呼吸器がある。国内外で開発・製造から販売、修理・保守までを行い、電極やセンサーなどの消耗品も提供。子会社を通じて免疫化学製品や医療情報システム、頭蓋内電極も扱い、機器と情報システムの両面から診療を支える。",
+      "proof": {
+        "code": "6849",
+        "exchange": "Tokyo",
+        "corporate_number": "2011101016254",
+        "edinet_code": "E01903",
+        "source_company_name": "日本光電工業株式会社",
+        "filing_company_name": "日本光電工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHO8",
+        "current_edinet_code": "E01903",
+        "current_corporate_number": "2011101016254"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHO8",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865761.437003,
+      "pdf_sha256": "d0dd55d58caf2e4ceec17b6f76a80a89283fb7c9f4ee4f44093fa4bbd0516bf1"
+    },
+    {
+      "symbol": "6858.T",
+      "identity": {
+        "symbol": "6858.T",
+        "code": "6858",
+        "name": "小野測器",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "音や振動、回転数、速度、寸法、トルクなどを測る機器を開発・製造・販売する。各種センサーと計測機器、ソフトウェアを組み合わせたデータ解析装置や、自動車の性能を調べる機器を扱う。研究開発や品質管理に合わせた特注試験装置も供給し、音響・振動の相談、エンジニアリング、導入後のサービスを提供。海外子会社が販売・サービスを担い、国内子会社は音の分析などのクラウドサービスを展開する。",
+      "proof": {
+        "code": "6858",
+        "exchange": "Tokyo",
+        "corporate_number": "1020001001886",
+        "edinet_code": "E02306",
+        "source_company_name": "株式会社小野測器",
+        "filing_company_name": "株式会社小野測器",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XR77",
+        "current_edinet_code": "E02306",
+        "current_corporate_number": "1020001001886"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XR77",
+      "filed_on": "2026-03-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865767.453755,
+      "pdf_sha256": "ed91d78c1067590a04f7634781a683621d9be8698c1fe9d320435712a58d44fc"
+    },
+    {
+      "symbol": "6869.T",
+      "identity": {
+        "symbol": "6869.T",
+        "code": "6869",
+        "name": "シスメックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "医療機関向けに、血液や尿などの検体を調べる装置と試薬を開発・製造・販売する。検査機器だけでなく、ソフトウェア、装置の保守、検査に関する学術支援も組み合わせて提供する。シスメックスが製品開発・製造と国内の販売・サービスを担い、子会社も一部の開発と生産を担当。米州、欧州・中東・アフリカ、中国、アジア太平洋では、各地域の統括会社を中心に製造や販売を展開している。",
+      "proof": {
+        "code": "6869",
+        "exchange": "Tokyo",
+        "corporate_number": "9140001009530",
+        "edinet_code": "E02015",
+        "source_company_name": "シスメックス株式会社",
+        "filing_company_name": "シスメックス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YFAW",
+        "current_edinet_code": "E02015",
+        "current_corporate_number": "9140001009530"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YFAW",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865773.5358741,
+      "pdf_sha256": "52d96333ceebb9da0d5deb6eb713aee59d5f37b829e7c5426e1fa40994ab923c"
+    },
+    {
+      "symbol": "6890.T",
+      "identity": {
+        "symbol": "6890.T",
+        "code": "6890",
+        "name": "フェローテック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体やディスプレイを作る装置向けの部材と、電子デバイスを供給する。真空シール、石英・セラミックス製品、炭化ケイ素製品、シリコン部品や石英坩堝を扱い、子会社では装置部品の洗浄も行う。電子・車載分野には温度調整に使うサーモモジュール、パワー半導体用基板、磁性流体やセンサーを提供。フェローテックが開発・販売などを担い、国内外のグループ会社が製造と販売を分担する。",
+      "proof": {
+        "code": "6890",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001075980",
+        "edinet_code": "E02024",
+        "source_company_name": "株式会社フェローテック",
+        "filing_company_name": "株式会社フェローテック",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJVG",
+        "current_edinet_code": "E02024",
+        "current_corporate_number": "1010001075980"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJVG",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865779.532107,
+      "pdf_sha256": "53629bff89bb52ddcc4a3469daa6ef6b97ceb91ebbd1f743e46bcbe951fe96d4"
+    },
+    {
+      "symbol": "6897.T",
+      "identity": {
+        "symbol": "6897.T",
+        "code": "6897",
+        "name": "ツインバード",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "調理・生活家電と、独自の冷却技術を使う製品を製造・販売する。家電ではコーヒーメーカーやトースター、照明器具、クリーナー、理美容機器などを扱い、量販店やECサイトなどへ販売する。もう一つの柱はFPSCと呼ぶ冷却方式で、冷凍冷蔵庫や業務用の応用製品を展開。ツインバードが国内外の仕入先から製品・部材を調達し、国内と海外の顧客に供給する事業構造となっている。",
+      "proof": {
+        "code": "6897",
+        "exchange": "Tokyo",
+        "corporate_number": "7110001015665",
+        "edinet_code": "E02017",
+        "source_company_name": "株式会社ツインバード",
+        "filing_company_name": "株式会社ツインバード",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y6EN",
+        "current_edinet_code": "E02017",
+        "current_corporate_number": "7110001015665"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y6EN",
+      "filed_on": "2026-05-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865785.556874,
+      "pdf_sha256": "a77cff04f01d225ac87318d002332736edd4ed56767f75f209a4687dde9e95a1"
+    },
+    {
+      "symbol": "6925.T",
+      "identity": {
+        "symbol": "6925.T",
+        "code": "6925",
+        "name": "ウシオ電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "光源と光を利用する装置を、ウシオ電機と国内外のグループ会社で製造・販売する。産業用途では露光用ランプ、露光装置や光で硬化させる装置、半導体用マスクを検査するEUV光源などを扱う。映像分野では映画上映用ランプやデジタルシネマプロジェクター、映像関連機器を供給。環境衛生向け製品、紫外線治療機器、固体光源にも展開し、装置の保守・メンテナンスも提供している。",
+      "proof": {
+        "code": "6925",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001008651",
+        "edinet_code": "E01929",
+        "source_company_name": "ウシオ電機株式会社",
+        "filing_company_name": "ウシオ電機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKRT",
+        "current_edinet_code": "E01929",
+        "current_corporate_number": "1010001008651"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKRT",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865791.825665,
+      "pdf_sha256": "4368168843cee55303b248cea318295eab930ce45c882847b53a55bee818d684"
+    },
+    {
+      "symbol": "6941.T",
+      "identity": {
+        "symbol": "6941.T",
+        "code": "6941",
+        "name": "山一電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "半導体を検査するためのソケットと、電子機器用の接続部品を製造・販売する。検査分野ではバーンインソケットやテストソケットを扱い、子会社が検査用ボードなどの保守も担う。接続部品は高速信号用やカード用、基板用のコネクター、ケーブル、実装基板などを供給する。山一電機と海外子会社が生産・販売を分担し、光関連では子会社の光伸光学工業が各種フィルターや半導体レーザー光源を製造・販売する。",
+      "proof": {
+        "code": "6941",
+        "exchange": "Tokyo",
+        "corporate_number": "4010801012065",
+        "edinet_code": "E01979",
+        "source_company_name": "山一電機株式会社",
+        "filing_company_name": "山一電機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHIH",
+        "current_edinet_code": "E01979",
+        "current_corporate_number": "4010801012065"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHIH",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865797.619477,
+      "pdf_sha256": "64d08400b5b224dcf422e6fae80cbb36a9942f3a6ca6e7131c77c0a6849bde1b"
+    },
+    {
+      "symbol": "6952.T",
+      "identity": {
+        "symbol": "6952.T",
+        "code": "6952",
+        "name": "カシオ計算機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "時計と日常・学習・音楽に使う電子機器を開発し、国内外で販売する。製品は腕時計やクロック、電卓、電子楽器、電子文具などで、グループでは成形部品や金型も扱う。カシオ計算機が基礎研究や製品開発を中心に担い、国内とアジアの生産会社が部品供給を受けて組み立てる。国内は小売店・代理店、海外は地域の販売会社や代理店を通じて供給し、子会社と販売会社が製品の保守サービスを行う。",
+      "proof": {
+        "code": "6952",
+        "exchange": "Tokyo",
+        "corporate_number": "4011001030015",
+        "edinet_code": "E01935",
+        "source_company_name": "カシオ計算機株式会社",
+        "filing_company_name": "カシオ計算機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ1H",
+        "current_edinet_code": "E01935",
+        "current_corporate_number": "4011001030015"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ1H",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865803.672926,
+      "pdf_sha256": "15acc68ddcbb3c6bf6f5adb5b66f8211617c7d7430375414731004b7d49f5e54"
+    },
+    {
+      "symbol": "6960.T",
+      "identity": {
+        "symbol": "6960.T",
+        "code": "6960",
+        "name": "フクダ電子",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "循環器や呼吸器の診療に使う医療機器を製造・調達し、販売・レンタルする。心電計、血圧や脈波を調べる装置、超音波診断装置のほか、患者の状態を監視するモニタを扱う。治療分野ではカテーテル、除細動器、ペースメーカー、人工呼吸器や在宅酸素療法向け機器を供給。フクダ電子と生産子会社が製造を担い、地域の販売会社が医療機関・在宅療養者向けに販売やレンタルを展開し、消耗品と保守も提供する。",
+      "proof": {
+        "code": "6960",
+        "exchange": "Tokyo",
+        "corporate_number": "7010001006880",
+        "edinet_code": "E02304",
+        "source_company_name": "フクダ電子株式会社",
+        "filing_company_name": "フクダ電子株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLF7",
+        "current_edinet_code": "E02304",
+        "current_corporate_number": "7010001006880"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLF7",
+      "filed_on": "2026-06-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865809.651904,
+      "pdf_sha256": "43b2ab5b6fcde8267eec50a64064472f3107ff310fdf804a1b23e6bf5c21db82"
+    },
+    {
+      "symbol": "6962.T",
+      "identity": {
+        "symbol": "6962.T",
+        "code": "6962",
+        "name": "大真空",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "人工水晶を材料とする電子部品を、グループで製造・販売する水晶デバイスメーカー。一般的な水晶振動子、音叉型の振動子、水晶を応用した製品などを扱い、材料から部品までを事業範囲とする。大真空が自ら製造するほか、九州やインドネシア、中国、台湾の連結子会社にも製造を委託。海外では香港、米国、欧州、東南アジアなどの販売会社を通じて製品を供給し、各地域の顧客に対応する。",
+      "proof": {
+        "code": "6962",
+        "exchange": "Tokyo",
+        "corporate_number": "7140001043110",
+        "edinet_code": "E01952",
+        "source_company_name": "株式会社大真空",
+        "filing_company_name": "株式会社大真空",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKVO",
+        "current_edinet_code": "E01952",
+        "current_corporate_number": "7140001043110"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKVO",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865815.751074,
+      "pdf_sha256": "31906c38ab0c9bc7b35fd870872c02e96d933dad57dfe69dc29692ed391068cc"
+    },
+    {
+      "symbol": "6971.T",
+      "identity": {
+        "symbol": "6971.T",
+        "code": "6971",
+        "name": "京セラ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ファインセラミックスを基盤に、部品から機器・サービスまでを展開する。半導体装置用の部品やICを保護するパッケージ、車載カメラ、コンデンサ、水晶部品、コネクターなどを製造・販売する。機器分野では切削工具や電動工具を扱い、子会社を通じてプリンター・複合機と文書管理サービスも提供。通信端末、通信・ICTサービス、エネルギー関連製品なども事業範囲に持ち、国内外のグループで供給する。",
+      "proof": {
+        "code": "6971",
+        "exchange": "Tokyo",
+        "corporate_number": "4130001000049",
+        "edinet_code": "E01182",
+        "source_company_name": "京セラ株式会社",
+        "filing_company_name": "京セラ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF47",
+        "current_edinet_code": "E01182",
+        "current_corporate_number": "4130001000049"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF47",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865821.7643661,
+      "pdf_sha256": "138a9f920aa321fb59b614e93a91e1cf5d91e143f49c2a5291b66bccf047c2b4"
+    },
+    {
+      "symbol": "6981.T",
+      "identity": {
+        "symbol": "6981.T",
+        "code": "6981",
+        "name": "村田製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子機器に組み込まれる部品やモジュールを開発・製造・販売する。コンデンサ、インダクタ、電磁ノイズを抑えるフィルターのほか、高周波モジュールや表面波フィルター、リチウムイオン二次電池、センサーを扱う。村田製作所は中間段階の部品を生産してグループの工場へ供給し、完成品の販売も担当。国内外の生産会社が加工・組立を担い、地域の販売会社を通じて顧客へ届ける。ヘルスケア機器も事業に含む。",
+      "proof": {
+        "code": "6981",
+        "exchange": "Tokyo",
+        "corporate_number": "4130001030475",
+        "edinet_code": "E01914",
+        "source_company_name": "株式会社村田製作所",
+        "filing_company_name": "株式会社村田製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHPY",
+        "current_edinet_code": "E01914",
+        "current_corporate_number": "4130001030475"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHPY",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865827.850338,
+      "pdf_sha256": "83547b9950707af42895c97b551a28f5c9c5535c618028ec995fb9eb09464efd"
+    },
+    {
+      "symbol": "6994.T",
+      "identity": {
+        "symbol": "6994.T",
+        "code": "6994",
+        "name": "指月電機製作所",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "フィルムコンデンサを中心に、電子・電力機器用の部品と電力機器システムを供給する。コンデンサやモジュールは国内外の子会社が製造し、指月電機製作所が仕入れて販売する。自動車、家電、産業機器などに用いられる製品を扱い、省エネルギーや電力の品質改善に関する技術も活用。電力機器システムは指月電機製作所と子会社が製造し、国内のほか米国、中国、タイのグループを通じて製品を販売している。",
+      "proof": {
+        "code": "6994",
+        "exchange": "Tokyo",
+        "corporate_number": "9140001069021",
+        "edinet_code": "E01899",
+        "source_company_name": "株式会社指月電機製作所",
+        "filing_company_name": "株式会社指月電機製作所",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKEP",
+        "current_edinet_code": "E01899",
+        "current_corporate_number": "9140001069021"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKEP",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865833.8418272,
+      "pdf_sha256": "c95fbf9c0d92ce36cebe219435e7adfa7e29ca56e4dd52027cd879cd4e41e511"
+    },
+    {
+      "symbol": "6999.T",
+      "identity": {
+        "symbol": "6999.T",
+        "code": "6999",
+        "name": "KOA",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "抵抗器やIC、複数の機能を組み合わせた部品など、電子機器の回路に使う部品を開発・製造・販売する。日本ではKOAと製造子会社が生産し、営業所と販売子会社を通じて供給する。アジアにも製造会社を置き、台湾、中国、マレーシアなどで抵抗器の生産を分担。販売はアジアの現地会社、米国のグループ会社、欧州の販売子会社などを通じて展開し、国内外で作った部品を各地域の顧客に届けている。",
+      "proof": {
+        "code": "6999",
+        "exchange": "Tokyo",
+        "corporate_number": "1100001020696",
+        "edinet_code": "E01902",
+        "source_company_name": "ＫＯＡ株式会社",
+        "filing_company_name": "KOA株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDTW",
+        "current_edinet_code": "E01902",
+        "current_corporate_number": "1100001020696"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDTW",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865839.940431,
+      "pdf_sha256": "d878fa1e40f156959e43185613bc150dc431e9d0a62042e7221b93bb8d1a7fc5"
+    },
+    {
+      "symbol": "7011.T",
+      "identity": {
+        "symbol": "7011.T",
+        "code": "7011",
+        "name": "三菱重工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          },
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          },
+          {
+            "exchange": "Sapporo",
+            "exchange_id": "Q11093491"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "発電、産業インフラ、航空・防衛・宇宙などに使う大型機械や設備を設計・製造し、据付とサービスも担う。発電システム、航空機エンジンや圧縮機のほか、製鉄機械、商船、交通システム、化学プラントと環境設備を扱う。冷熱機器やエンジン、ターボチャージャー、カーエアコンも供給。民間・防衛航空機、艦船、宇宙機器なども事業範囲に持ち、三菱重工業と関連会社が連携して顧客に提供する。",
+      "proof": {
+        "code": "7011",
+        "exchange": "Tokyo",
+        "corporate_number": "8010401050387",
+        "edinet_code": "E02126",
+        "source_company_name": "三菱重工業株式会社",
+        "filing_company_name": "三菱重工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHZG",
+        "current_edinet_code": "E02126",
+        "current_corporate_number": "8010401050387"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHZG",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865845.819586,
+      "pdf_sha256": "6ccdc44282224ed13a6a931d4526eb44aed4b630a2e13fb816d1dc67830fb24d"
+    },
+    {
+      "symbol": "7035.T",
+      "identity": {
+        "symbol": "7035.T",
+        "code": "7035",
+        "name": "andfactory",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "スマートフォン向けのマンガ・占いサービスと、宿泊・不動産関連事業を展開する。出版社と共同で「マンガUP！」などを開発・運営し、電子マンガの課金や広告を収益源とする。占いは相談課金や月額利用料を受け取り、子会社ではゲーム・マンガの翻訳と海外配信支援も行う。宿泊分野は「＆AND HOSTEL」の企画・開発と運営を担い、不動産の売買仲介や所有者向けの開発コンサルティングも提供する。",
+      "proof": {
+        "code": "7035",
+        "exchange": "Tokyo",
+        "corporate_number": "7011001102001",
+        "edinet_code": "E34238",
+        "source_company_name": "ａｎｄ　ｆａｃｔｏｒｙ株式会社",
+        "filing_company_name": "andfactory株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X6AI",
+        "current_edinet_code": "E34238",
+        "current_corporate_number": "7011001102001"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X6AI",
+      "filed_on": "2025-11-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865853.394613,
+      "pdf_sha256": "c14a57a9c364f97bc56f115caf45c869c9a69816c1792bb4c6ff8fda4d41b109"
+    },
+    {
+      "symbol": "7064.T",
+      "identity": {
+        "symbol": "7064.T",
+        "code": "7064",
+        "name": "ハウテレビジョン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "学生や若手社会人の就職・転職と、企業の採用を支えるネットサービスを運営する。「外資就活ドットコム」は新卒向けの求人・インターン情報などを提供し、「外資就活ネクスト」は若手人材へのスカウトや求人検索を扱う。企業向けの掲載・利用料金や採用成功時の報酬が収益となる。子会社のログリオはエンジニア採用の戦略設計やスカウト代行を担い、グループでは質問・知見共有サービス「mond」も展開する。",
+      "proof": {
+        "code": "7064",
+        "exchange": "Tokyo",
+        "corporate_number": "4011601015654",
+        "edinet_code": "E34866",
+        "source_company_name": "株式会社ハウテレビジョン",
+        "filing_company_name": "株式会社ハウテレビジョン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XVTU",
+        "current_edinet_code": "E34866",
+        "current_corporate_number": "4011601015654"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XVTU",
+      "filed_on": "2026-04-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865859.504569,
+      "pdf_sha256": "a230aacd2fcce0e2a6aac2f56cc125da7d32b7a58d43647d4e09f6e2df530533"
+    },
+    {
+      "symbol": "7077.T",
+      "identity": {
+        "symbol": "7077.T",
+        "code": "7077",
+        "name": "ALiNKインターネット",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "日本気象協会と共同で天気情報メディア「tenki.jp」を運営する。協会が予報や気象データを提供し、ALiNKインターネットはサイト・アプリの設計、システムの保守、広告運用などを担う。天気、雨雲、防災情報や登山向け情報を提供し、広告と一部の定期購読を収益につなげる。子会社は「温泉むすめ」のグッズ販売・イベントなどを展開。別事業では太陽光発電設備の取得・売却や一時保有中の売電も行う。",
+      "proof": {
+        "code": "7077",
+        "exchange": "Tokyo",
+        "corporate_number": "6011001094074",
+        "edinet_code": "E35288",
+        "source_company_name": "株式会社ＡＬｉＮＫインターネット",
+        "filing_company_name": "株式会社ALiNKインターネット",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y69B",
+        "current_edinet_code": "E35288",
+        "current_corporate_number": "6011001094074"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y69B",
+      "filed_on": "2026-05-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865865.4903092,
+      "pdf_sha256": "b7e2534c8a0669b2a78c9fae0a9662d8f59402db901cd3ef01aec205d5a8d0b0"
+    },
+    {
+      "symbol": "7110.T",
+      "identity": {
+        "symbol": "7110.T",
+        "code": "7110",
+        "name": "クラシコム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "衣料、キッチン用品、インテリア雑貨などを自社サイト「北欧、暮らしの道具店」で販売する。独自に企画した商品と仕入商品を扱い、読み物、動画、ラジオなどのコンテンツも制作・配信して顧客との接点をつくる。企業向けにはサイトや動画を使った商品紹介、共同の商品企画などのマーケティング支援を提供。子会社のfoufouは洋服や時計、革製品などのブランドを展開し、自社サイトでの直接販売を行う。",
+      "proof": {
+        "code": "7110",
+        "exchange": "Tokyo",
+        "corporate_number": "6012401017913",
+        "edinet_code": "E37848",
+        "source_company_name": "株式会社クラシコム",
+        "filing_company_name": "株式会社クラシコム",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100WWW2",
+        "current_edinet_code": "E37848",
+        "current_corporate_number": "6012401017913"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100WWW2",
+      "filed_on": "2025-10-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865871.50809,
+      "pdf_sha256": "51275c422f4cf051320229e3f64e381d4bb4efdd4c65f2476b9649d1e93b1fb7"
+    },
+    {
+      "symbol": "7181.T",
+      "identity": {
+        "symbol": "7181.T",
+        "code": "7181",
+        "name": "かんぽ生命保険",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "個人向けの保険や年金保険を引き受け、保険契約に伴う資産を運用する生命保険会社。郵便局に保険の募集や契約の維持・管理を委託するほか、支店では自社商品と他の保険会社から受託した商品の販売を行う。旧公社から承継された簡易生命保険については、郵政管理・支援機構から管理業務を受託し、保険責任を再保険で引き受ける。子会社は情報システムの設計・開発・保守を担い、契約業務を支えている。",
+      "proof": {
+        "code": "7181",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001112696",
+        "edinet_code": "E31755",
+        "source_company_name": "株式会社かんぽ生命保険",
+        "filing_company_name": "株式会社かんぽ生命保険",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD29",
+        "current_edinet_code": "E31755",
+        "current_corporate_number": "6010001112696"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD29",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865880.559917,
+      "pdf_sha256": "4874f59210aa78b18537c087f5104f1253254ebf926a234c4be596e4567f8e23"
+    },
+    {
+      "symbol": "7213.T",
+      "identity": {
+        "symbol": "7213.T",
+        "code": "7213",
+        "name": "レシップホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "バス・鉄道向け機器と電源・電子機器の事業を傘下に持つ持株会社。子会社のレシップが運賃箱、ICカードシステム、行先・車内表示器、運行支援機器や車両用照明を製造・販売し、グループの技術会社が導入と修理を支える。産業向けにはフォークリフト用充電器や停電時に電力を補う装置を供給し、電子子会社は自動車用電装品などの基板実装を受託する。レシップホールディングスは経営指導と不動産賃貸を担う。",
+      "proof": {
+        "code": "7213",
+        "exchange": "Tokyo",
+        "corporate_number": "7200001010392",
+        "edinet_code": "E02105",
+        "source_company_name": "レシップホールディングス株式会社",
+        "filing_company_name": "レシップホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCPI",
+        "current_edinet_code": "E02105",
+        "current_corporate_number": "7200001010392"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCPI",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865886.608955,
+      "pdf_sha256": "454c6f95345d75d529521bfcd5db826e6273bed720a72bdf4c254d534629fba1"
+    },
+    {
+      "symbol": "7241.T",
+      "identity": {
+        "symbol": "7241.T",
+        "code": "7241",
+        "name": "フタバ産業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車の車体や排気系の部品を中心に、車両部品、環境機器用部品、生産設備を製造・販売する。フタバ産業が国内で生産し、一部の製造を子会社や関連会社へ委託するほか、海外のグループ会社も顧客に直接供給する。北米、欧州、中国、アジアに生産・販売の体制を持ち、トヨタ自動車などのメーカーへ部品を納める。車体の構造提案や軽量化、排気系の技術を生かした部品開発も事業に関わる。",
+      "proof": {
+        "code": "7241",
+        "exchange": "Tokyo",
+        "corporate_number": "3180301001916",
+        "edinet_code": "E02195",
+        "source_company_name": "フタバ産業株式会社",
+        "filing_company_name": "フタバ産業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YCHA",
+        "current_edinet_code": "E02195",
+        "current_corporate_number": "3180301001916"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YCHA",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865892.651668,
+      "pdf_sha256": "f020a4ab71798648a0a804eb0ed9020ed4a3298d909fb4e91579847e8d06808f"
+    },
+    {
+      "symbol": "7282.T",
+      "identity": {
+        "symbol": "7282.T",
+        "code": "7282",
+        "name": "豊田合成",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車に使う樹脂・ゴム系の部品を、豊田合成と国内外のグループ会社で製造・販売する。エアバッグやハンドルなどの安全関連製品、インストルメントパネルやグリルなどの内外装部品を扱う。燃料を送る樹脂製パイプ、空気を通すダクト、窓やドア周りの密閉に使うウェザストリップも供給。日本、米州、欧州・アフリカ、中国、アジア、インドに展開し、自動車以外では管路を補修する材料や消防用ホースも扱う。",
+      "proof": {
+        "code": "7282",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001045235",
+        "edinet_code": "E01108",
+        "source_company_name": "豊田合成株式会社",
+        "filing_company_name": "豊田合成株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC23",
+        "current_edinet_code": "E01108",
+        "current_corporate_number": "7180001045235"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC23",
+      "filed_on": "2026-06-17",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865900.2075279,
+      "pdf_sha256": "ba73004ed7f53c03b34af7e51acc7b87bbf8bb905ec90f35a5fa423cffe48f07"
+    },
+    {
+      "symbol": "7378.T",
+      "identity": {
+        "symbol": "7378.T",
+        "code": "7378",
+        "name": "アシロ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "法律分野の情報サイトと人材紹介を中心に、弁護士・企業と利用者を結ぶサービスを展開する。「ベンナビ」では離婚、相続、労働問題など分野別に法律情報と弁護士の広告を掲載し、広告料を受け取る。転職・探偵関連の情報サイトも運営し、問い合わせに応じた報酬を得る。人材紹介は弁護士、会計士、税理士や管理部門を対象とし、子会社では法人・個人事業主向けに弁護士費用を補う少額短期保険を販売する。",
+      "proof": {
+        "code": "7378",
+        "exchange": "Tokyo",
+        "corporate_number": "9011101076787",
+        "edinet_code": "E34994",
+        "source_company_name": "株式会社アシロ",
+        "filing_company_name": "株式会社アシロ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XHO2",
+        "current_edinet_code": "E34994",
+        "current_corporate_number": "9011101076787"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XHO2",
+      "filed_on": "2026-01-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865906.175696,
+      "pdf_sha256": "96a93dff449ba7f00b22655d77055d035b8605bee1720b4b1adc0ace511372a1"
+    },
+    {
+      "symbol": "7435.T",
+      "identity": {
+        "symbol": "7435.T",
+        "code": "7435",
+        "name": "ナ・デックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場で使う溶接・加工機器と、生産の自動化を支える設備を提供する。抵抗溶接の制御装置、レーザー加工や異なる材料の接合に関する技術を扱い、ロボット・FA機器の代理店販売も行う。グループの製造・設計機能を組み合わせ、単体装置から生産ラインまで顧客に合わせたシステムを構築する。電子・電気制御部品の販売、基板実装、制御盤製作も担い、北米子会社ではEV充電設備と監視システムを展開する。",
+      "proof": {
+        "code": "7435",
+        "exchange": "Tokyo",
+        "corporate_number": "5180001039239",
+        "edinet_code": "E02011",
+        "source_company_name": "株式会社ナ・デックス",
+        "filing_company_name": "株式会社ナ・デックス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YSCT",
+        "current_edinet_code": "E02011",
+        "current_corporate_number": "5180001039239"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YSCT",
+      "filed_on": "2026-07-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865912.17653,
+      "pdf_sha256": "196522bca6280a736abca4bc677e077632c4a65beabf0eb6eb22adad3e786c16"
+    },
+    {
+      "symbol": "7456.T",
+      "identity": {
+        "symbol": "7456.T",
+        "code": "7456",
+        "name": "松田産業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "貴金属の回収・精製と販売、食品原料の販売を二つの柱とする。貴金属分野では回収品から金属を取り出し、地金や電子材料として供給するとともに、産業廃棄物の収集・運搬・処理を行う。食品分野は食品加工向け原料を販売し、グループの物流会社が配送を担う。松田産業と国内外の子会社が地域や取扱分野を補い合って展開し、電子材料の一部は関連会社から仕入れて販売する仕組みとなっている。",
+      "proof": {
+        "code": "7456",
+        "exchange": "Tokyo",
+        "corporate_number": "2011101020140",
+        "edinet_code": "E02821",
+        "source_company_name": "松田産業株式会社",
+        "filing_company_name": "松田産業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGWM",
+        "current_edinet_code": "E02821",
+        "current_corporate_number": "2011101020140"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGWM",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865918.2476459,
+      "pdf_sha256": "3738c6907f9850f70a5713f109547d3ad128774117f8e7021051f042b2201bd4"
+    },
+    {
+      "symbol": "7483.T",
+      "identity": {
+        "symbol": "7483.T",
+        "code": "7483",
+        "name": "ドウシシャ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "家電、家庭用品、日用雑貨、衣料、食品などを企画・販売し、量販店や専門店へ供給する。自社で商品を開発する事業と、時計・鞄や詰め合わせギフトなどを仕入れ、加工・販売する卸売事業を持つ。子会社も均一価格商品や日用雑貨の販売を担い、物流会社が商品供給を支える。グループでは製品開発に関する回路・機構設計やソフトウェア開発、介護用品・機器の販売と貸与も行い、国内外の取引先に対応する。",
+      "proof": {
+        "code": "7483",
+        "exchange": "Tokyo",
+        "corporate_number": "8120001039126",
+        "edinet_code": "E02840",
+        "source_company_name": "株式会社ドウシシャ",
+        "filing_company_name": "株式会社ドウシシャ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGD2",
+        "current_edinet_code": "E02840",
+        "current_corporate_number": "8120001039126"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGD2",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865924.816043,
+      "pdf_sha256": "b3cb304ca4ec01e6fc663d261d7c291855db970a8277bea897ce133728ddb58e"
+    },
+    {
+      "symbol": "7525.T",
+      "identity": {
+        "symbol": "7525.T",
+        "code": "7525",
+        "name": "リックス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "工場向けの機械・部品を販売し、自社製品の製造も行う。高圧の液体を利用するポンプや洗浄機、ノズル、シール、バルブなどを扱い、計測・検査機器も仕入れて供給する。自社製品は固定配管から回転する機械へ流体を送る継手や、高圧・精密洗浄装置などで、鉄鋼、自動車、半導体、ゴム・タイヤ、工作機械といった分野の設備に使われる。リックスと国内外のグループ会社が製造、販売、修理・保守を分担する。",
+      "proof": {
+        "code": "7525",
+        "exchange": "Tokyo",
+        "corporate_number": "5290001017448",
+        "edinet_code": "E02856",
+        "source_company_name": "リックス株式会社",
+        "filing_company_name": "リックス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGQ4",
+        "current_edinet_code": "E02856",
+        "current_corporate_number": "5290001017448"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGQ4",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865930.337976,
+      "pdf_sha256": "ef043a7ffb21941c64a3813edbecf0705ea61bbdc5a5f9dbeb2fb721c5b99bbd"
+    },
+    {
+      "symbol": "7565.T",
+      "identity": {
+        "symbol": "7565.T",
+        "code": "7565",
+        "name": "萬世電機",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電気機器、工場の制御システム、半導体や情報通信機器を販売する商社。ロボット、センサー、インバーター、電源・配電機器などを扱い、工場や物流設備の制御、計測・検査に必要な機器を供給する。空調、照明、冷凍冷蔵設備などは機器販売に加え、設計・施工、据付、保守まで対応。電子機器の受託生産サービスも扱い、海外子会社は電子部品などを販売する。発電子会社では太陽光による電力販売を行う。",
+      "proof": {
+        "code": "7565",
+        "exchange": "Tokyo",
+        "corporate_number": "2120001036483",
+        "edinet_code": "E02875",
+        "source_company_name": "萬世電機株式会社",
+        "filing_company_name": "萬世電機株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YLNO",
+        "current_edinet_code": "E02875",
+        "current_corporate_number": "2120001036483"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YLNO",
+      "filed_on": "2026-06-29",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865936.297365,
+      "pdf_sha256": "546cac5b5150363d78d21b2980e6017c90b17464c546af53267bd8a41662cfe8"
+    },
+    {
+      "symbol": "7636.T",
+      "identity": {
+        "symbol": "7636.T",
+        "code": "7636",
+        "name": "ハンズマン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住まいや暮らしに使う商品を一般消費者へ販売するホームセンターを運営する。DIY向けには木材・建材、手工具や電動工具、金物、塗料、園芸資材、植物などを揃える。家庭用品では日用品、収納・インテリア用品、住宅設備や電気資材を扱い、カー用品、アウトドア・ペット用品、文具も販売する。ハンズマンが取引先から商品を仕入れて小売りする事業で、店舗では商品の選び方や用途に応じた相談にも対応する。",
+      "proof": {
+        "code": "7636",
+        "exchange": "Tokyo",
+        "corporate_number": "9350001008222",
+        "edinet_code": "E03331",
+        "source_company_name": "株式会社ハンズマン",
+        "filing_company_name": "株式会社ハンズマン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z3HP",
+        "current_edinet_code": "E03331",
+        "current_corporate_number": "9350001008222"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z3HP",
+      "filed_on": "2026-09-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865942.3350558,
+      "pdf_sha256": "aa540aa0f4ec9c598dac723b74219f23617bf765c778562a04788955cfe5b329"
+    },
+    {
+      "symbol": "7649.T",
+      "identity": {
+        "symbol": "7649.T",
+        "code": "7649",
+        "name": "スギホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "調剤薬局を併設するドラッグストアと、医療・ヘルスケア関連事業を傘下に持つ持株会社。スギ薬局が医薬品、健康食品、化粧品、日用品を販売し、処方箋の調剤や地域の医療機関と連携した在宅医療に取り組む。医療系の子会社群は訪問看護や医療機関の開業支援などを担い、別の子会社は国内商品の海外輸出と国内卸売を行う。スギホールディングスはグループの経営管理、店舗の企画開発、不動産の賃貸などを担う。",
+      "proof": {
+        "code": "7649",
+        "exchange": "Tokyo",
+        "corporate_number": "9180301013006",
+        "edinet_code": "E03344",
+        "source_company_name": "スギホールディングス株式会社",
+        "filing_company_name": "スギホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y3QN",
+        "current_edinet_code": "E03344",
+        "current_corporate_number": "9180301013006"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y3QN",
+      "filed_on": "2026-05-20",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865955.598002,
+      "pdf_sha256": "83eb2e754a075e617902c8a7e0217b12bf1fe54f5dbafb434fed0a72ff2a3229"
+    },
+    {
+      "symbol": "7685.T",
+      "identity": {
+        "symbol": "7685.T",
+        "code": "7685",
+        "name": "BuySellTechnologies",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "個人から中古品を買い取り、事業者や一般消費者へ再販売するリユース事業を展開する。出張訪問と店舗で買取を行い、グループの「バイセル」「福ちゃん」「タイムレス」などの窓口を通じて商品を集める。着物、ブランド品、時計、宝飾品、骨董品などを扱い、業者向けの市場・オークションと自社通販、ECモール、百貨店催事などを販売先に持つ。国内の買取網に加え、海外の店舗やライブ配信による販売も進める。",
+      "proof": {
+        "code": "7685",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001074187",
+        "edinet_code": "E35116",
+        "source_company_name": "株式会社ＢｕｙＳｅｌｌ　Ｔｅｃｈｎｏｌｏｇｉｅｓ",
+        "filing_company_name": "株式会社BuySellTechnologies",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XTBY",
+        "current_edinet_code": "E35116",
+        "current_corporate_number": "4010001074187"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XTBY",
+      "filed_on": "2026-03-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865960.398356,
+      "pdf_sha256": "ab23ff68a4089e2439e8f6504c463aed43aa1712ea1d91c4dfcbe8b64055f782"
+    },
+    {
+      "symbol": "7711.T",
+      "identity": {
+        "symbol": "7711.T",
+        "code": "7711",
+        "name": "助川電気工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "熱を加えたり温度を測ったりする電気・精密機器を、顧客の用途に合わせて製造・販売する。シース型熱電対やヒーター、信号ケーブル、溶融金属を送る電磁ポンプなどを扱う。発電分野では原子力・火力設備の温度制御や、研究機関の安全性確認試験設備に製品を供給する。産業向けには半導体やディスプレイ、自動車、鉄鋼などの製造設備へ加熱・計測関連製品を納め、付随する設備工事や飲食店の経営も行う。",
+      "proof": {
+        "code": "7711",
+        "exchange": "Tokyo",
+        "corporate_number": "6050001023279",
+        "edinet_code": "E01997",
+        "source_company_name": "助川電気工業株式会社",
+        "filing_company_name": "助川電気工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XAGE",
+        "current_edinet_code": "E01997",
+        "current_corporate_number": "6050001023279"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XAGE",
+      "filed_on": "2025-12-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865966.4290829,
+      "pdf_sha256": "b3337a064b8b8fee654c17f5560fdf589ebc9d0d18a108ec185209796655f8a7"
+    },
+    {
+      "symbol": "7730.T",
+      "identity": {
+        "symbol": "7730.T",
+        "code": "7730",
+        "name": "マニー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "外科・眼科の手術や歯科治療で使う小型医療機器を製造・販売する。手術関連では皮膚を留める器具、眼科用ナイフ、縫合針と針付き縫合糸などを扱う。歯科向けには歯の根管を処置するリーマ・ファイルや、歯を削る回転工具、歯の修復材料を供給する。マニーが開発・生産・販売を担い、ベトナム、ミャンマー、ラオスなどの子会社が加工を分担。国内外の販売会社と流通業者、縫合糸メーカーなどへ製品を届ける。",
+      "proof": {
+        "code": "7730",
+        "exchange": "Tokyo",
+        "corporate_number": "4060001005922",
+        "edinet_code": "E02340",
+        "source_company_name": "マニー株式会社",
+        "filing_company_name": "マニー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X59Q",
+        "current_edinet_code": "E02340",
+        "current_corporate_number": "4060001005922"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X59Q",
+      "filed_on": "2025-11-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865972.526456,
+      "pdf_sha256": "f3173116196662be821641a0e601dd3e9e6100d21bf4728a7f57a7ae3e002366"
+    },
+    {
+      "symbol": "7733.T",
+      "identity": {
+        "symbol": "7733.T",
+        "code": "7733",
+        "name": "オリンパス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "消化器の検査・治療に使う内視鏡と、手術などに用いる医療機器を供給する。グループの製品には消化器用内視鏡、処置具、外科用内視鏡、エネルギーを利用する手術機器があり、医療サービスも提供する。泌尿器、呼吸器、耳鼻咽喉科、婦人科向けの製品も扱う。オリンパスと国内外の製造会社が機器を生産し、各地域の販売会社などを通じて医療現場へ届ける体制で、持株・金融投資の機能を担う会社も置く。",
+      "proof": {
+        "code": "7733",
+        "exchange": "Tokyo",
+        "corporate_number": "5011001005222",
+        "edinet_code": "E02272",
+        "source_company_name": "オリンパス株式会社",
+        "filing_company_name": "オリンパス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDN3",
+        "current_edinet_code": "E02272",
+        "current_corporate_number": "5011001005222"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDN3",
+      "filed_on": "2026-06-18",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865978.6151721,
+      "pdf_sha256": "363ebfaa837d17b17bc142ccbb7ac45885259f7845ccba21464334dc7bda3248"
+    },
+    {
+      "symbol": "7740.T",
+      "identity": {
+        "symbol": "7740.T",
+        "code": "7740",
+        "name": "タムロン",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "写真撮影、監視・工場設備、車載や医療などに使う光学製品を製造・販売する。写真分野ではミラーレスカメラや一眼レフ向けの交換レンズを扱う。監視・FA分野は監視カメラ用レンズ、機械が画像を読み取るためのレンズ、テレビ会議用レンズやカメラモジュールを供給する。車載、ドローン、医療機器用レンズなども製品群に持ち、タムロンと中国・ベトナムの生産会社、各国の販売会社が国内外の顧客に対応する。",
+      "proof": {
+        "code": "7740",
+        "exchange": "Tokyo",
+        "corporate_number": "5030001011204",
+        "edinet_code": "E02308",
+        "source_company_name": "株式会社タムロン",
+        "filing_company_name": "株式会社タムロン",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XUB4",
+        "current_edinet_code": "E02308",
+        "current_corporate_number": "5030001011204"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XUB4",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865984.533848,
+      "pdf_sha256": "e3b34210efc3d6c52831caae4433cb3b3af4a8fc6670da95d4d8b047f77b64d8"
+    },
+    {
+      "symbol": "7752.T",
+      "identity": {
+        "symbol": "7752.T",
+        "code": "7752",
+        "name": "リコー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "オフィスの印刷・文書処理と、業務をデジタル化する機器・サービスを提供する。複合機、プリンター、スキャナーや消耗品を開発・生産し、販売と保守に加え、業務の自動化やITサービスを展開する。印刷業向けのデジタル印刷機、産業用のインクジェットヘッド・インク、バーコードラベル用の感熱紙も扱う。リコーと国内外の子会社が開発、生産、販売を分担し、カメラや自動化・検査設備なども事業に含む。",
+      "proof": {
+        "code": "7752",
+        "exchange": "Tokyo",
+        "corporate_number": "2010801012579",
+        "edinet_code": "E02275",
+        "source_company_name": "株式会社リコー",
+        "filing_company_name": "株式会社リコー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YBFF",
+        "current_edinet_code": "E02275",
+        "current_corporate_number": "2010801012579"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YBFF",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865990.692426,
+      "pdf_sha256": "0367f0bfde75818eae9071eb8073e836f6d116da0734dcbc6626642c9c4024e3"
+    },
+    {
+      "symbol": "7762.T",
+      "identity": {
+        "symbol": "7762.T",
+        "code": "7762",
+        "name": "シチズン時計",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "腕時計とその内部機構を中心に、工作機械や電子・精密部品をグループで製造・販売する。シチズン時計と時計系の子会社が完成品とムーブメントを供給し、国内外の販売会社を通じて展開する。工作機械は子会社のシチズンマシナリーを中心にCNC自動旋盤を扱う。デバイス分野では自動車部品、水晶デバイス、セラミックス、小型モーター、プリンター、健康機器、LEDなどを、各分野の子会社が生産・販売している。",
+      "proof": {
+        "code": "7762",
+        "exchange": "Tokyo",
+        "corporate_number": "5012701004744",
+        "edinet_code": "E02281",
+        "source_company_name": "シチズン時計株式会社",
+        "filing_company_name": "シチズン時計株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGYK",
+        "current_edinet_code": "E02281",
+        "current_corporate_number": "5012701004744"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGYK",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791865996.618411,
+      "pdf_sha256": "2d9279e0f82979cb9af8a14443994b73a4da10a0952579ee05073bcf7ce1ddad"
+    },
+    {
+      "symbol": "7782.T",
+      "identity": {
+        "symbol": "7782.T",
+        "code": "7782",
+        "name": "シンシア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "使い捨てコンタクトレンズを主力に、医療関連の運営支援とソフトウェア事業を展開する。透明、サークル、カラーのレンズを扱い、シリコーンハイドロゲル製品も供給する。シンシアが協力工場に製造を委託し、国内外の子会社や小売店・卸売業者を通じて販売する。医療脱毛クリニックには集客や運営管理の支援を提供。子会社のタロスシステムズは中古品流通の企業向けに、POSなどの業務システムを開発・販売し保守する。",
+      "proof": {
+        "code": "7782",
+        "exchange": "Tokyo",
+        "corporate_number": "5010001121120",
+        "edinet_code": "E32784",
+        "source_company_name": "株式会社シンシア",
+        "filing_company_name": "株式会社シンシア",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XUH3",
+        "current_edinet_code": "E32784",
+        "current_corporate_number": "5010001121120"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XUH3",
+      "filed_on": "2026-03-27",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791866002.582391,
+      "pdf_sha256": "46c51fe888ee82e5290a0c18d00606ff04b2c5b94e4fc3698c14ef2e1fb3f430"
+    },
+    {
+      "symbol": "7806.T",
+      "identity": {
+        "symbol": "7806.T",
+        "code": "7806",
+        "name": "MTG",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "美容と健康の分野でブランドや商品を開発し、通販・店舗・専門店などへ販売する。「ReFa」では美容機器、ヘアドライヤー、ヘアアイロンやシャワー製品などを扱い、「SIXPAD」では電気刺激を利用する運動機器やヘルスケア関連商品を展開する。自社のECや店舗に加え、美容室、エステ、量販店、百貨店、海外代理店などを販売先に持つ。グループでは決済用スマートリングや、電動車両の販売も行う。",
+      "proof": {
+        "code": "7806",
+        "exchange": "Tokyo",
+        "corporate_number": "6180001051390",
+        "edinet_code": "E34054",
+        "source_company_name": "株式会社ＭＴＧ",
+        "filing_company_name": "株式会社MTG",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XBX1",
+        "current_edinet_code": "E34054",
+        "current_corporate_number": "6180001051390"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XBX1",
+      "filed_on": "2025-12-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791866008.634916,
+      "pdf_sha256": "de059d26f2a0962237c76f29d283a64057ee6f55f03c64f1b9501fa4f28a1696"
+    },
+    {
+      "symbol": "7827.T",
+      "identity": {
+        "symbol": "7827.T",
+        "code": "7827",
+        "name": "オービス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "木材加工、プレハブ・建築、太陽光発電、ゴルフ場運営を行う。木材は輸入した松と国産杉を国内工場で製材し、梱包、パレット、ドラム向けの材や土木用材、木材チップとして販売する。建築分野ではプレハブハウスと鋼構造物を製造・販売し、仮設建物のリース、一般建築や太陽光発電システムの工事を請け負う。オービスは発電・売電とゴルフ場も運営し、鋼構造物は子会社の寿鉄工が重い鉄骨の製作などを担う。",
+      "proof": {
+        "code": "7827",
+        "exchange": "Tokyo",
+        "corporate_number": "1240001030054",
+        "edinet_code": "E00639",
+        "source_company_name": "株式会社オービス",
+        "filing_company_name": "株式会社オービス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XHFP",
+        "current_edinet_code": "E00639",
+        "current_corporate_number": "1240001030054"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XHFP",
+      "filed_on": "2026-01-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791866014.661697,
+      "pdf_sha256": "7d83a717747ead8062e913f0f3c309519beb4c40f8df75a624053c0f99a52fb0"
     }
   ]
 }
