@@ -5542,6 +5542,483 @@
           "ordinal_not_physical_line_number": true
         }
       ]
+    },
+    {
+      "symbol": "1491.T",
+      "name": "中外鉱業",
+      "business": "貴金属を回収して精製し、販売する会社です。宝飾品の仕入れ・販売、キャラクター商品の企画・販売、不動産の売買や賃貸管理も手がけます。",
+      "life": "貴金属の精製に加え、宝飾品やキャラクター商品、建物の賃貸などを扱っています。",
+      "watch": "貴金属、不動産、玩具・キャラクター商品という異なる事業を組み合わせています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2021/10/01 17:25 ページ初公開・中外鉱業会社概要（2026/06/29 16:02 ページ更新・説明は当サイト作成）",
+          "url": "https://www.chugaikogyo.co.jp/company/profile/",
+          "fetched_at": 1791929693.0,
+          "source_published_on": "2021-10-01",
+          "source_publication_status": "page_initial_publication_metadata_not_current_business_announcement",
+          "source_original_publication_literal": "2021-10-01T08:25:15+00:00",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "0f2109b7b4dc3c3cabbd0699af2f52880d1474b65cdecd3e88cde66b769bd513",
+          "actual_retrieved_at_jst": "2026-10-14T07:14:53+09:00",
+          "page_initial_published_at": "2021-10-01T08:25:15+00:00",
+          "page_initial_published_at_jst": "2021-10-01T17:25:15+09:00",
+          "page_modified_at": "2026-06-29T07:02:06+00:00",
+          "page_modified_at_jst": "2026-06-29T16:02:06+09:00"
+        }
+      ]
+    },
+    {
+      "symbol": "3222.T",
+      "name": "ユナイテッド・スーパーマーケット・ホールディングス",
+      "business": "マルエツ、カスミ、いなげや、イオンフードスタイルを傘下に持ち、スーパーマーケット事業を管理する持株会社です。グループの店舗では、生鮮食品や惣菜などを販売しています。",
+      "life": "グループ会社が食品などを売る店舗を運営し、本体はそのスーパーマーケット事業の管理を担っています。",
+      "watch": "本体の事業管理と、傘下4社による店舗運営を組み合わせています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2024/05/24 08:10 ページ初公開・U.S.M.H会社概要（2026/09/09 01:28 ページ更新・説明は当サイト作成）",
+          "url": "https://www.usmh.co.jp/company/profile",
+          "fetched_at": 1791929695.0,
+          "source_published_on": "2024-05-24",
+          "source_publication_status": "page_initial_publication_metadata_not_current_business_announcement",
+          "source_original_publication_literal": "2024-05-24T08:10:50+09:00",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "a9a32b83d5f5917298e57a76fe0c250e0a8135ceb370aafd48aba6ea16469e7f",
+          "actual_retrieved_at_jst": "2026-10-14T07:14:55+09:00",
+          "page_initial_published_at": "2024-05-24T08:10:50+09:00",
+          "page_initial_published_at_jst": "2024-05-24T08:10:50+09:00",
+          "page_modified_at": "2026-09-09T01:28:37+09:00",
+          "page_modified_at_jst": "2026-09-09T01:28:37+09:00"
+        },
+        {
+          "title": "2025/04/09 00:00 ページ初公開・U.S.M.Hグループ事業案内（2026/03/01 00:45 ページ更新・説明は当サイト作成）",
+          "url": "https://www.usmh.co.jp/about",
+          "fetched_at": 1791929696.0,
+          "source_published_on": "2025-04-09",
+          "source_publication_status": "page_initial_publication_metadata_not_current_business_announcement",
+          "source_original_publication_literal": "2025-04-09T00:00:45+09:00",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "23a543231db41ba2777c41ff18c215ab487dc3f1de478242d106554fba9a159d",
+          "actual_retrieved_at_jst": "2026-10-14T07:14:56+09:00",
+          "page_initial_published_at": "2025-04-09T00:00:45+09:00",
+          "page_initial_published_at_jst": "2025-04-09T00:00:45+09:00",
+          "page_modified_at": "2026-03-01T00:45:24+09:00",
+          "page_modified_at_jst": "2026-03-01T00:45:24+09:00"
+        }
+      ]
+    },
+    {
+      "symbol": "3904.T",
+      "name": "カヤック",
+      "business": "モバイル端末向けのゲームを企画・開発し、公開後の運営まで行う会社です。自社作品の開発・配信に加え、他社との共同開発も手がけます。",
+      "life": "携帯端末で遊ぶゲームを作り、リリース後も運用しています。",
+      "watch": "企画から開発、配信後の運用までを一貫して行っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・カヤック（説明は当サイト作成）",
+          "url": "https://www.kayac.com/company?kc=0031",
+          "fetched_at": 1791929698.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "c343ed13f0262c03a2d306fc5e4d93eaee542ece6aa05f5a2f336ec7c07c73fd",
+          "actual_retrieved_at_jst": "2026-10-14T07:14:58+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式事業案内・カヤックの自社ゲーム開発（説明は当サイト作成）",
+          "url": "https://www.kayac.com/service/game.html",
+          "fetched_at": 1791929699.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "289079b9f93f6649e9da2a83c64c6bb9872e88b2549e0b8bb3fbfc027388e840",
+          "actual_retrieved_at_jst": "2026-10-14T07:14:59+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4088.T",
+      "name": "エア・ウォーター",
+      "business": "酸素や窒素などの産業ガスを、グループの地域事業会社を通じて供給する会社です。半導体づくりに使う特殊ガスや薬品、ガス供給・処理装置も扱っています。",
+      "life": "工場などの使用条件に合わせ、ボンベやタンクローリーで運ぶ方法、配管で届ける方法を用意しています。",
+      "watch": "産業ガスに加え、医療用ガス、冷凍食品、物流サービスなどもグループで扱っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式事業案内・エア・ウォーターの産業事業（説明は当サイト作成）",
+          "url": "https://www.awi.co.jp/ja/business/industrial.html",
+          "fetched_at": 1791929701.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "0ad5aa1cf105111bae34a25e6c75d75fa48dbdb2a4fa5328e1202d7d971463a1",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:01+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式基本情報・エア・ウォーター（説明は当サイト作成）",
+          "url": "https://www.awi.co.jp/ja/company/outline/outline.html",
+          "fetched_at": 1791930236.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "6eb3c9d94a6799c2776a59087e22e99e7f629ad6bad2aa7dcb037aa5281f3237",
+          "actual_retrieved_at_jst": "2026-10-14T07:23:56+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4113.T",
+      "name": "田岡化学工業",
+      "business": "レジスト用原料、接着剤、紙の加工用樹脂などの化学材料を提供する会社です。ゴム用の添加剤や可塑剤なども扱っています。",
+      "life": "接着剤や紙の加工用樹脂、ゴム用添加剤など、製品づくりに使う材料を提供しています。",
+      "watch": "電子材料向けの原料から、紙やゴムに使う材料まで扱っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・田岡化学工業（説明は当サイト作成）",
+          "url": "https://www.taoka-chem.co.jp/company/outline.html",
+          "fetched_at": 1791929704.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "77f244a215221c9e566129ee8e01c4377a60f5cc9becd53ca7f634deb6abe29b",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:04+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式製品案内・田岡化学工業（説明は当サイト作成）",
+          "url": "https://www.taoka-chem.co.jp/business/",
+          "fetched_at": 1791929705.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "ba81c57912434cbb6b9fc5c1796c63399553ddec71c078614a8add228f9e997c",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:05+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式株主・株式情報・田岡化学工業（説明は当サイト作成）",
+          "url": "https://www.taoka-chem.co.jp/ir/shareholders.html",
+          "fetched_at": 1791930241.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "f98f0cb5c7c85fdba198aaa6b67850fc46715552f7efb67608a5e1cd0fcbfcdb",
+          "actual_retrieved_at_jst": "2026-10-14T07:24:01+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4224.T",
+      "name": "ロンシール工業",
+      "business": "建物の床材や防水シートなどのプラスチック製品を製造・販売する会社です。壁紙、鉄道やバスの床材、半導体・電子部品用の接着フィルムも手がけます。",
+      "life": "建物向けの床材や防水シートに加え、鉄道・バス向けの床材を扱っています。",
+      "watch": "建材と車両用床材に加え、電子部品向けの接着フィルムも製造・開発しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・ロンシール工業（説明は当サイト作成）",
+          "url": "https://www.lonseal.co.jp/company/outline/",
+          "fetched_at": 1791929707.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "3829a82b9566e08c47fc5ea0fa25f1a1fa9696b72c326cb9c9820cacbdd96f5d",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:07+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式製品・事業案内・ロンシール工業（説明は当サイト作成）",
+          "url": "https://www.lonseal.co.jp/",
+          "fetched_at": 1791929708.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "953039ca58edab5ed6673cc3bb9470f1061dd152d941903dd312f5c66bec976e",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:08+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4324.T",
+      "name": "電通グループ",
+      "business": "電通グループの国内外の企業を統括する持株会社です。日本を含む4つの事業地域の経営を管理し、各社の成長支援やグループ全体の統治を進めています。",
+      "life": "国内外のグループ企業が事業を進めるための支援と、全体の統治を担っています。",
+      "watch": "グローバル本社として、4つの事業地域を直接統括しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・事業案内・電通グループ（説明は当サイト作成）",
+          "url": "https://www.group.dentsu.com/jp/about-us/",
+          "fetched_at": 1791929710.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "11821144f4676dd8c559a0bd927eb5876f8d97f81432385466bf04bc42a7e295",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:10+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4377.T",
+      "name": "ワンキャリア",
+      "business": "就活体験の情報を提供する「ワンキャリア」や、転職を支援するサービスを運営する会社です。企業向けには、求人掲載、スカウト、採用改善のツールを提供しています。",
+      "life": "学生や転職を考える人の仕事選びを支え、企業の採用活動にもサービスを提供しています。",
+      "watch": "利用者への情報提供と、企業の求人・スカウト機能を組み合わせています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・ワンキャリア（説明は当サイト作成）",
+          "url": "https://onecareer.co.jp/about/",
+          "fetched_at": 1791929712.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "df99bc5bc7809c018e329adff28b780ff19b0763cb2d182247bc58e5e06155c3",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:12+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "2025/12/17 23:05 ページ初公開・ワンキャリアの事業・サービス案内（2026/03/04 12:22 ページ更新・説明は当サイト作成）",
+          "url": "https://recruit.onecareer.co.jp/jobs/",
+          "fetched_at": 1791929714.0,
+          "source_published_on": "2025-12-17",
+          "source_publication_status": "page_initial_publication_metadata_not_current_business_announcement",
+          "source_original_publication_literal": "2025-12-17T23:05:48+09:00",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "a515d18d06d14b83694e7ee8bbc9b9c6adaa840d704db97b7efa99f9f78ab9b3",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:14+09:00",
+          "page_initial_published_at": "2025-12-17T23:05:48+09:00",
+          "page_initial_published_at_jst": "2025-12-17T23:05:48+09:00",
+          "page_modified_at": "2026-03-04T12:22:15+09:00",
+          "page_modified_at_jst": "2026-03-04T12:22:15+09:00"
+        }
+      ]
+    },
+    {
+      "symbol": "4528.T",
+      "name": "小野薬品工業",
+      "business": "がんや糖尿病、関節リウマチなどの治療薬を扱う会社です。注射薬、飲み薬、貼り薬をそろえ、オプジーボなどを主要製品としています。",
+      "life": "さまざまな病気の治療に使う薬を、注射・内服・貼付の形で提供しています。",
+      "watch": "がんの治療薬を含め、糖尿病やパーキンソン病など複数の治療領域を扱っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・小野薬品工業（説明は当サイト作成）",
+          "url": "https://www.ono-pharma.com/ja/company/about/outline",
+          "fetched_at": 1791929714.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "46d9648ecdb0e9149267947037b837bb53d279e8223e41089f4249e5fbe127e9",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:14+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式主要製品案内・小野薬品工業（説明は当サイト作成）",
+          "url": "https://www.ono-pharma.com/ja/company/about/products",
+          "fetched_at": 1791929716.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "e5b71e8a9fc5f68100412006956e6b7656e90d13ae0ce793cecccf4b785c8093",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:16+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4882.T",
+      "name": "ペルセウスプロテオミクス",
+      "business": "抗体を利用する医薬品の開発を行う会社です。研究用の抗体や試薬を販売し、抗体を使った研究の支援も手がけます。",
+      "life": "医薬品の開発と、研究に使う抗体・試薬の提供を行っています。",
+      "watch": "治療薬の開発を進める事業と、研究支援・試薬販売の事業を持っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・事業案内・ペルセウスプロテオミクス（説明は当サイト作成）",
+          "url": "https://www.ppmx.com/corporate/outline/",
+          "fetched_at": 1791929717.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "b67945504a8ee8dd59a463a2eec4fe4f53584dc3aa4de9784b9924eee6e09a67",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:17+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "4933.T",
+      "name": "Ｉ－ｎｅ",
+      "business": "ヘアケアやスキンケアの商品、美容家電などを企画し、卸売り・小売りする会社です。自社ブランドの運営から広告、流通までをまとめて行っています。",
+      "life": "髪や肌の手入れに使う商品や美容家電を、オンラインと店舗の販売網に届けています。",
+      "watch": "ファブレスの体制を活かし、商品企画・ブランド運営・販売を組み合わせています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・I-ne（説明は当サイト作成）",
+          "url": "https://i-ne.co.jp/company/profile/",
+          "fetched_at": 1791929719.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "300259630475f7714d826608beb872d965a2c7b6412c7d8ba52d2a08a741f83c",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:19+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式事業案内・I-ne（説明は当サイト作成）",
+          "url": "https://i-ne.co.jp/business/",
+          "fetched_at": 1791929720.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "725bfc0b931514487e4904dc9fb0d83f04292f396d4df8144d85b0f15d4d0d17",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:20+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式株式情報・I-ne（説明は当サイト作成）",
+          "url": "https://i-ne.co.jp/ir/stock/",
+          "fetched_at": 1791930238.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "eb10322ac367f40fb4ea5c333e463bf35a6d7e8a5c759fc837b82d4c3425867f",
+          "actual_retrieved_at_jst": "2026-10-14T07:23:58+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式企業沿革・I-ne（説明は当サイト作成）",
+          "url": "https://i-ne.co.jp/company/history/",
+          "fetched_at": 1791930239.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "a6d75592b06c58ad224cae3200b8cb61ef4c53b877e88bd4f1a322c51a85077f",
+          "actual_retrieved_at_jst": "2026-10-14T07:23:59+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "5711.T",
+      "name": "三菱マテリアル",
+      "business": "銅や金などの製錬を手がける会社です。超硬製品などの製造・販売に加え、地熱・水力・太陽光による発電や、鉱山プロジェクトへの投資も行っています。",
+      "life": "金属の製錬や超硬製品づくり、再生可能エネルギーの発電を行っています。",
+      "watch": "金属を扱う事業に加え、発電や鉱山プロジェクトへの投資も持っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・事業案内・三菱マテリアル（説明は当サイト作成）",
+          "url": "https://www.mmc.co.jp/corporate/ja/company/aboutus/",
+          "fetched_at": 1791929722.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "d4c82851bc0b4535b03e7e335b981aca369fab6c42ab9625e98bae47ee366f99",
+          "actual_retrieved_at_jst": "2026-10-14T07:15:22+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
     }
   ]
 }
