@@ -8,19 +8,23 @@ const source=fs.readFileSync(path.join(__dirname,'../static/news-orbit.js'),'utf
 function harness(reduced=false,savedPause=false,options,withGuide=true){
   const storage=new Map(savedPause?[['kn_home_motion_paused','1']]:[]);let resets=0;
   const classes=new Set(),events={},buttonEvents={},guideEvents={},attrs={},guideAttrs={},sceneAttrs={};let mediaCallback,intersectionCallback,observations=0,guideCalls=0,networkCalls=0;
-  const root={dataset:{},classList:{toggle(name,value){if(value)classes.add(name);else classes.delete(name);}},querySelector(selector){return selector==='.kn-orbit-scene'?scene:selector==='.kn-orbit-guide'&&withGuide?guide:null;}};
+  let now=0,timerId=0;const timers=new Map();
+  function setTimer(fn,delay){const id=++timerId;timers.set(id,{fn,at:now+delay});return id;}
+  function advance(ms){const target=now+ms;for(;;){const due=[...timers].filter(([,t])=>t.at<=target).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;now=due[1].at;timers.delete(due[0]);due[1].fn();}now=target;}
+  function control(listeners={},attributes={}){const names=new Set();return{names,attributes,classList:{toggle(name,value){if(value)names.add(name);else names.delete(name);}},addEventListener(name,fn){(listeners[name]||=[]).push(fn);},setAttribute(name,value){attributes[name]=value;},fire(name,event={}){(listeners[name]||[]).forEach(fn=>fn(event));}};}
+  const guide=control(guideEvents,guideAttrs),graph=control(),news=control();
+  const root={dataset:{},classList:{toggle(name,value){if(value)classes.add(name);else classes.delete(name);}},querySelector(selector){return selector==='.kn-orbit-scene'?scene:selector==='.kn-orbit-guide'&&withGuide?guide:selector==='.kn-orbit-rank-shortcut'?graph:selector==='.kn-orbit-news-shortcut'?news:null;}};
   const button={addEventListener(name,fn){(buttonEvents[name]||=[]).push(fn);},setAttribute(name,value){attrs[name]=value;}};
-  const guide={addEventListener(name,fn){(guideEvents[name]||=[]).push(fn);},setAttribute(name,value){guideAttrs[name]=value;}};
   const scene={setAttribute(name,value){sceneAttrs[name]=value;}};
   const preference={matches:reduced,addEventListener(name,fn){mediaCallback=fn;}};
-  const document={hidden:false,documentElement:{lang:'ja'},getElementById(id){return id==='knHomeOrbitMotion'?button:null;},addEventListener(name,fn){(events[name]||=[]).push(fn);}};
+  const document={hidden:false,documentElement:{lang:'ja'},getElementById(id){return id==='knHomeOrbitMotion'?button:null;},querySelector(){return null;},addEventListener(name,fn){(events[name]||=[]).push(fn);}};
   function unexpectedNetwork(){networkCalls++;throw new Error('Orbit guide must not request AI/chat/network');}
-  const context={window:{matchMedia:()=>preference,dsReset(){resets++;},openBeginnerGuide(){guideCalls++;},fetch:unexpectedNetwork},fetch:unexpectedNetwork,document,localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},IntersectionObserver:class{constructor(cb){intersectionCallback=cb;}observe(){observations++;}}};
+  const context={window:{matchMedia:()=>preference,dsReset(){resets++;},openBeginnerGuide(){guideCalls++;},setTimeout:setTimer,clearTimeout:id=>timers.delete(id),fetch:unexpectedNetwork},fetch:unexpectedNetwork,document,localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},IntersectionObserver:class{constructor(cb){intersectionCallback=cb;}observe(){observations++;}}};
   context.window.IntersectionObserver=context.IntersectionObserver;
   vm.runInNewContext(source,context);
   const host={querySelector(){return root;}};
   context.window.KNNewsOrbit.mount(host,options);
-  return {classes,attrs,guideAttrs,sceneAttrs,document,host,root,context,storage,resets:()=>resets,guideCalls:()=>guideCalls,networkCalls:()=>networkCalls,
+  return {classes,attrs,guideAttrs,sceneAttrs,document,host,root,context,storage,controls:{guide,graph,news},advance,pendingTimers:()=>timers.size,resets:()=>resets,guideCalls:()=>guideCalls,networkCalls:()=>networkCalls,
     click(){(buttonEvents.click||[]).forEach(fn=>fn());},guideClick(){(guideEvents.click||[]).forEach(fn=>fn());},event(name){(events[name]||[]).forEach(fn=>fn());},
     visible(value){intersectionCallback([{target:root,isIntersecting:value}]);},
     preference(value){preference.matches=value;mediaCallback({matches:value});},
@@ -92,6 +96,7 @@ test('the coin opens the existing guide without changing motion preferences or r
 test('repeated mounting binds exactly one guide click handler and one motion handler',()=>{
   const a=harness();a.context.window.KNNewsOrbit.mount(a.host);a.context.window.KNNewsOrbit.mount(a.host);
   assert.equal(a.guideListeners('click'),1);assert.equal(a.motionListeners('click'),1);
+  for(const event of ['pointerdown','keydown','pointercancel'])assert.equal(a.guideListeners(event),1);
   a.guideClick();assert.equal(a.guideCalls(),1);assert.equal(a.networkCalls(),0);
   assert.equal(a.observations(),1);assert.equal(a.listeners('langChanged'),1);
 });
@@ -151,4 +156,38 @@ test('the coin calls the actual local beginner guide and preserves its checklist
   assert.equal(storage.get('bg_guide_v1'),'{"s0":true}');assert.equal(writes,0);
   context.closeBeginnerGuide();assert.ok(!names.has('bg-open'));
   assert.equal(networkCalls,0);assert.equal(a.networkCalls(),0);
+});
+
+test('all three native shortcut clicks light immediately and expire without changing motion or saved preferences',()=>{
+  const a=harness(true,true),before=[...a.classes].sort(),saved=new Map(a.storage);
+  for(const control of Object.values(a.controls)){
+    control.fire('click');assert.ok(control.names.has('kn-orbit-tapped'));assert.equal(a.pendingTimers(),1);
+    a.advance(479);assert.ok(control.names.has('kn-orbit-tapped'));
+    a.advance(1);assert.ok(!control.names.has('kn-orbit-tapped'));assert.equal(a.pendingTimers(),0);
+  }
+  assert.equal(a.guideCalls(),1,'The guide action runs immediately in its original click handler');
+  assert.deepEqual([...a.classes].sort(),before);assert.deepEqual(a.storage,saved);assert.equal(a.networkCalls(),0);
+});
+
+test('primary taps renew one bounded feedback timer and cancellation clears it',()=>{
+  const a=harness(),control=a.controls.news;
+  control.fire('pointerdown',{button:2,isPrimary:true});
+  assert.ok(!control.names.has('kn-orbit-tapped'));assert.equal(a.pendingTimers(),0);
+  control.fire('pointerdown',{button:0,isPrimary:true});a.advance(300);
+  control.fire('pointerdown',{button:0,isPrimary:true});assert.equal(a.pendingTimers(),1);
+  a.advance(180);assert.ok(control.names.has('kn-orbit-tapped'),'The earlier timer must not clear the newer tap');
+  control.fire('pointercancel');assert.ok(!control.names.has('kn-orbit-tapped'));assert.equal(a.pendingTimers(),0);
+  a.advance(1000);assert.ok(!control.names.has('kn-orbit-tapped'));assert.equal(a.guideCalls(),0);assert.equal(a.networkCalls(),0);
+});
+
+test('keyboard feedback does not invoke the guide before its native click and repeated keys do not renew it',()=>{
+  const a=harness(),control=a.controls.guide;
+  for(const key of ['Enter',' ']){
+    control.fire('keydown',{key,repeat:false});assert.ok(control.names.has('kn-orbit-tapped'));assert.equal(a.guideCalls(),key==='Enter'?0:1);
+    a.advance(300);control.fire('keydown',{key,repeat:true});assert.equal(a.pendingTimers(),1);
+    a.advance(180);assert.ok(!control.names.has('kn-orbit-tapped'));
+    control.fire('click');assert.ok(control.names.has('kn-orbit-tapped'));a.advance(480);
+  }
+  control.fire('keydown',{key:'Escape',repeat:false});assert.ok(!control.names.has('kn-orbit-tapped'));
+  assert.equal(a.guideCalls(),2);assert.equal(a.networkCalls(),0);assert.equal(a.pendingTimers(),0);
 });

@@ -98,6 +98,7 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
   htmlNode.lang='ja';
   function forbidden(){network++;throw new Error('Shortcut must not fetch or invoke chat');}
   w={document:doc,scrollX:0,scrollY:0,fetch:forbidden,
+    setTimeout:()=>1,clearTimeout(){},
     requestAnimationFrame:fn=>frames.push(fn),getComputedStyle:n=>({overflowY:n.style.overflowY}),scrollTo(options){this.scrollX=options.left;this.scrollY=options.top;},
     matchMedia:()=>({matches:reduced,addEventListener(type,fn){mediaChanged=fn;}}),openBeginnerGuide(){guideCalls++;},requireAuth(){auth++;throw new Error('Unexpected auth');}};
   createStability(w);

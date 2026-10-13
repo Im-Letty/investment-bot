@@ -11,6 +11,24 @@
     var settingLabel=document.getElementById('knHomeOrbitMotionLabel');
     var guide=root.querySelector('.kn-orbit-guide');
     var graphShortcut=root.querySelector('.kn-orbit-rank-shortcut'),newsShortcut=root.querySelector('.kn-orbit-news-shortcut');
+    function tapFeedback(control){
+      if(!control)return function(){};
+      var timer=0;
+      function clear(){
+        if(timer)window.clearTimeout(timer);timer=0;
+        control.classList.toggle('kn-orbit-tapped',false);
+      }
+      function light(){
+        if(timer)window.clearTimeout(timer);
+        control.classList.toggle('kn-orbit-tapped',true);
+        timer=window.setTimeout(clear,480);
+      }
+      control.addEventListener('pointerdown',function(event){if(event.button===0||event.button===undefined)light();});
+      control.addEventListener('pointercancel',clear);
+      control.addEventListener('keydown',function(event){if(!event.repeat&&(event.key==='Enter'||event.key===' '))light();});
+      return light;
+    }
+    var lightGuide=tapFeedback(guide),lightGraph=tapFeedback(graphShortcut),lightNews=tapFeedback(newsShortcut);
     var preference=window.matchMedia('(prefers-reduced-motion: reduce)');
     var reduced=preference.matches,savedPause=false,inView=true;
     try{savedPause=localStorage.getItem('kn_home_motion_paused')==='1';}catch(_){}
@@ -53,9 +71,9 @@
       var descriptions=options&&options.descriptions;
       scene.setAttribute('aria-label',descriptions?(descriptions[copyLanguage()]||descriptions.ja||words[2]):words[2]);
     }
-    if(guide)guide.addEventListener('click',function(){if(typeof window.openBeginnerGuide==='function')window.openBeginnerGuide();});
-    if(graphShortcut)graphShortcut.addEventListener('click',showRanking);
-    if(newsShortcut)newsShortcut.addEventListener('click',function(){navigateAfterView('morning-news-section','knNewsDigestTitle');});
+    if(guide)guide.addEventListener('click',function(){lightGuide();if(typeof window.openBeginnerGuide==='function')window.openBeginnerGuide();});
+    if(graphShortcut)graphShortcut.addEventListener('click',function(){lightGraph();showRanking();});
+    if(newsShortcut)newsShortcut.addEventListener('click',function(){lightNews();navigateAfterView('morning-news-section','knNewsDigestTitle');});
     if(button)button.addEventListener('click',function(){if(reduced)reduced=false;paused=!paused;savedPause=paused;try{localStorage.setItem('kn_home_motion_paused',paused?'1':'0');}catch(_){}sync();});
     function changed(event){reduced=event.matches;paused=reduced||savedPause;sync();}
     if(typeof window.dsReset==='function'){var reset=window.dsReset;window.dsReset=function(){var result=reset.apply(this,arguments);savedPause=false;reduced=preference.matches;paused=reduced;try{localStorage.removeItem('kn_home_motion_paused');}catch(_){}sync();return result;};}

@@ -50,6 +50,12 @@ body.kn-home-a .kn-orbit-coin-face {position:relative;display:block;width:54px;h
 body.kn-home-a .kn-orbit-shortcut-art {display:block;width:62px;height:62px;flex:none}
 body.kn-home-a .kn-orbit-coin-question {position:absolute;left:22%;top:22%;width:56%;height:56%;border-radius:50%;background:radial-gradient(ellipse at 30% 20%,#f0f3d8,#d4e7d6 56%,#b7d3c3);color:#687e58;font:500 23px/1.25 Georgia,serif;text-shadow:0 1px 1px #fff7;display:flex;align-items:center;justify-content:center}
 body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut):focus-visible {outline:2px solid var(--kn-orbit-ink);outline-offset:-12px}
+/* Light the artwork on contact, without moving its orbit or delaying the link. */
+body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut) {transition:filter .24s ease}
+body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut):is(:active,.kn-orbit-tapped) {filter:brightness(1.16) drop-shadow(0 0 6px #fffbdc) drop-shadow(0 0 12px #e6cc8e)}
+@media(prefers-reduced-motion:reduce) {
+  body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut) {transition:none}
+}
 body.kn-home-a .kn-orbit-orbiter-newspaper img {-webkit-mask-image:url('/static/news-orbit/newspaper.webp');mask-image:url('/static/news-orbit/newspaper.webp');-webkit-mask-size:98% 98%;mask-size:98% 98%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:center;mask-position:center;mask-mode:alpha}
 body.kn-home-a .kn-orbit-market-tile {width:56px;height:44px;box-sizing:border-box;flex-shrink:0;padding:3px;border:1px solid #d1bd86;border-radius:7px;background:linear-gradient(145deg,#fffefc,#fffdf4);box-shadow:inset 0 1px 0 #ffffffd9,2px 3px 0 #e9dfc6,4px 6px 8px #31554714;transform:rotate(-7deg)}
 body.kn-home-a .kn-a-masthead .kn-orbit-market-tile svg {display:block;width:100%;height:100%;overflow:visible;fill:none;stroke:none;stroke-linecap:round;stroke-linejoin:round}
