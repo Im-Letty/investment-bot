@@ -49,12 +49,17 @@ function harness({logged=true,storage=new Map(),language='ja',config}={}) {
   async function settle(){await new Promise(resolve=>setImmediate(resolve));}
   async function response(data,status=200,index=0){await settle();assert.ok(pending[index],'a request is queued');const [request]=pending.splice(index,1);request.resolve({ok:status<400,status,json:async()=>data});await settle();return request;}
   function nodes(selector){return document.body.querySelectorAll(selector);}function node(selector){const result=document.body.querySelector(selector);assert.ok(result,selector);return result;}
-  return {ui,window,document,calls,pending,storage,timers,hub,morning,node,nodes,response,settle,authPrompts:()=>authPrompts,prepared:()=>prepared};
+  return {ui,window,document,calls,pending,storage,timers,events,hub,morning,node,nodes,response,settle,authPrompts:()=>authPrompts,prepared:()=>prepared};
 }
 const post=(id,extra={})=>({id,name:'表示例',body:'表示用の投稿',category:'economy',language:'ja',created_at:'2026-10-12T00:00:00Z',parent_id:null,reply_count:0,like_count:0,is_mine:false,liked_by_me:false,...extra});
+function paired(h){
+  h.window.KNCommunity=h.ui;h.window.openCommunity=h.ui.open;
+  const stock=create(h.window,{stock:true,categories:[['stock:7203','トヨタ 7203'],['stock:6758','ソニー 6758']]});
+  h.window.KNStockTalk=stock;h.window.openStockTalk=stock.open;return stock;
+}
 
 test('public entrance is prepared before loading; guest GET never prompts login',async()=>{
-  const h=harness({logged:false});h.ui.open();assert.equal(h.prepared(),1);assert.equal(h.authPrompts(),0);await h.settle();assert.equal(h.calls.length,1);assert.equal(h.calls[0].options.headers,undefined);assert.equal(h.node('.cw-title').textContent,'コミュニティ');
+  const h=harness({logged:false});h.ui.open();assert.equal(h.prepared(),1);assert.equal(h.authPrompts(),0);await h.settle();assert.equal(h.calls.length,1);assert.equal(h.calls[0].options.headers,undefined);assert.equal(h.node('.cw-title').textContent,'トーク');assert.equal(h.node('#cmOv').getAttribute('aria-label'),'コミュニティ');
 });
 test('empty, loading and unavailable are different states',async()=>{
   const h=harness();h.ui.open();assert.equal(h.node('.cw-state').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);await h.response({ok:false,reason:'storage_unavailable'},503);
@@ -105,19 +110,23 @@ test('legacy conversations remain readonly and never appear under topic filters'
   const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const archive=h.node('.cw-archive');archive.open=true;archive.emit('toggle');await h.response({ok:true,messages:[{id:1,name:'以前の名前',body:'以前の会話',created_at:'2026-10-10T00:00:00Z'}]});assert.equal(h.nodes('.cw-legacy-post').length,1);assert.equal(h.node('.cw-legacy-post').querySelector('button'),null);h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(archive.hidden,true);
 });
 test('language change uses English fallback without translating user content',async()=>{
-  const h=harness();h.ui.open();await h.response({ok:true,posts:[post(2,{body:'ニュース',name:'ニュース'})],has_more:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Community');assert.equal(h.nodes('.cw-category')[2].textContent,'News');assert.equal(h.node('.cw-post-body').textContent,'ニュース');assert.equal(h.node('.cw-author').textContent,'ニュース');assert.match(h.node('.cw-post-date').textContent,/Posted/);
-  h.document.documentElement.lang='ko';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Community');
+  const h=harness();h.ui.open();await h.response({ok:true,posts:[post(2,{body:'ニュース',name:'ニュース'})],has_more:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Talk');assert.equal(h.nodes('.cw-category')[2].textContent,'News');assert.equal(h.node('.cw-post-body').textContent,'ニュース');assert.equal(h.node('.cw-author').textContent,'ニュース');assert.match(h.node('.cw-post-date').textContent,/Posted/);
+  h.document.documentElement.lang='ko';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Talk');
 });
 test('delayed language events preserve composer and reply controls and allow sending',async()=>{
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(20,{category:'life'})],has_more:false});
   const nickname=h.node('#cmNick'),body=h.node('#cmInput'),selects=h.node('.cw-composer').querySelectorAll('select');
   nickname.value='表示名';body.value='入力中の投稿';body.emit('input');selects[0].value='news';selects[1].value='ja';
   h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});let reply=h.node('.cw-reply-form').querySelector('textarea');reply.value='入力中の返信';reply.emit('input');
+  const search=h.node('.cw-community-search').querySelector('input');search.value='表示用';search.emit('input');
   for(const language of ['ja','en','ko','ja']){
     h.document.documentElement.lang=language;h.document.emit('langChanged');
     assert.equal(h.node('#cmNick'),nickname);assert.equal(h.node('#cmInput'),body);assert.equal(body.value,'入力中の投稿');assert.equal(nickname.value,'表示名');
     assert.deepEqual(h.node('.cw-composer').querySelectorAll('select'),selects);assert.equal(selects[0].value,'news');assert.equal(selects[1].value,'ja');
     assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'入力中の返信');assert.equal(h.nodes('label[data-cw-copy]').length,0);
+    assert.equal(h.node('.cw-community-search').querySelector('input'),search);assert.equal(search.value,'表示用');
+    assert.equal(search.placeholder,language==='ja'?'表示中の投稿を検索':'Search loaded posts');
+    assert.deepEqual(h.nodes('.cw-view-tab').map(node=>node.textContent),language==='ja'?['みんなの銘柄トーク','コミュニティ']:['Stock Talk','Community']);
   }
   h.node('.cw-composer').emit('submit');await h.settle();let payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.body,'入力中の投稿');assert.equal(payload.name,'表示名');assert.equal(payload.category,'news');
   await h.response({ok:true,post:post(21,{body:payload.body,category:'news',is_mine:true})});
@@ -125,7 +134,12 @@ test('delayed language events preserve composer and reply controls and allow sen
   await h.response({ok:true,post:post(22,{parent_id:20,category:'life',body:payload.body,is_mine:true})});assert.equal(h.nodes('.cw-reply-post').length,1);
 });
 test('close button restores the original morning scroll position',async()=>{
-  const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);assert.equal(h.document.getElementById('cmOv'),null);
+  const h=harness();h.document.body.classList.add('view-asaletter');h.ui.open();assert.equal(h.document.body.classList.contains('view-asaletter'),false);await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);assert.equal(h.document.getElementById('cmOv'),null);
+});
+test('entry can supply the morning position from before legacy cleanup while an active view keeps priority',async()=>{
+  const h=harness(),top=h.morning.scrollTop;h.morning.scrollTop=0;h.ui.open({morningTop:top});await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);
+  const stock=paired(h);stock.open({morningTop:177});await h.response({ok:true,posts:[],has_more:false});h.morning.scrollTop=0;h.ui.open({morningTop:999});await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177,'active view origin takes priority over a new entry hint');
+  h.morning.scrollTop=23;h.ui.open({morningTop:'999'});await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,23,'non-numeric entry hints use the original morning value');
 });
 test('expired optional read token falls back once to public reading without a login prompt',async()=>{
   const h=harness();h.ui.open();await h.response({ok:false,reason:'auth_required'},401);assert.equal(h.calls.length,2);assert.equal(h.calls[1].options.headers.Authorization,undefined);assert.equal(h.authPrompts(),0);await h.response({ok:true,posts:[post(3)],has_more:false});assert.equal(h.nodes('.cw-post').length,1);
@@ -166,9 +180,66 @@ test('stock conversation keeps catalogue room, draft and transport separate from
 
 test('catalogue search opens a regional company room and writes only to that selected room',async()=>{
  const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203']]}});h.ui.open();await h.response({ok:true,posts:[],has_more:false});
- h.node('.cw-stock-search').querySelector('input').value='1832';h.node('.cw-stock-search').emit('submit');
+ const finder=h.node('.cw-stock-search'),query=finder.querySelector('input');assert.ok(finder.classList.contains('cw-search'));assert.equal(finder.firstElementChild.tagName,'BUTTON');assert.equal(finder.firstElementChild.type,'submit');assert.equal(query.type,'search');assert.equal(finder.events.has('keydown'),false,'native Enter submission is not intercepted');
+ query.value='1832';let prevented=false;finder.emit('submit',{preventDefault(){prevented=true;}});assert.equal(prevented,true);
  await h.response({ok:true,rooms:[{category:'stock:1832',name:'北海電工',code:'1832'}]});h.node('.cw-stock-results').querySelector('button').click();
  await h.response({ok:true,posts:[],has_more:false});assert.match(h.calls.at(-1).url,/category=stock%3A1832/);
  h.node('.cw-compose-body').value='地方銘柄へのテスト';h.node('.cw-composer').emit('submit');await h.settle();
  assert.equal(JSON.parse(h.calls.at(-1).options.body).category,'stock:1832');
+});
+
+test('both real Talk views share two immediate tabs and close the previous instance completely',async()=>{
+ const h=harness(),stock=paired(h);stock.open();await h.settle();h.morning.scrollTop=0;
+ assert.equal(h.node('.cw-title').textContent,'トーク');assert.equal(h.node('#stockTalkOv').getAttribute('aria-label'),'みんなの銘柄トーク');
+ assert.deepEqual(h.nodes('.cw-view-tab').map(n=>[n.tagName,n.type,n.textContent,n.getAttribute('aria-pressed')]),[['BUTTON','button','みんなの銘柄トーク','true'],['BUTTON','button','コミュニティ','false']]);
+ const old=h.pending[0];h.node('#cmInput').value='銘柄の下書き';h.node('#cmInput').emit('input');h.nodes('.cw-view-tab')[1].click();await h.settle();
+ assert.equal(old.options.signal.aborted,true);assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.getElementById('stockTalkOv'),null);assert.equal(h.nodes('#cmInput').length,1);assert.equal(h.nodes('#cmNick').length,1);assert.equal(h.window.knTalkLastView,'community');assert.equal(h.timers.size,1);
+ assert.equal(h.document.activeElement,h.nodes('.cw-view-tab')[1],'keyboard focus follows the selected tab without scrolling');
+ for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,1);
+ await h.response({ok:true,posts:[post(999,{body:'古い銘柄の返答'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);
+ await h.response({ok:true,posts:[post(9)],has_more:false});assert.equal(h.node('.cw-post').dataset.postId,'9');assert.equal(h.nodes('.cw-view-tab')[1].getAttribute('aria-pressed'),'true');
+ const before=h.calls.length,root=h.node('#cmOv');h.nodes('.cw-view-tab')[1].click();h.ui.open();await h.settle();assert.equal(h.calls.length,before);assert.equal(h.node('#cmOv'),root);assert.equal(h.nodes('.cw-view-tabs').length,1);assert.equal(h.timers.size,1);
+ h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'銘柄の下書き');assert.equal(h.window.knTalkLastView,'stock');assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.activeElement,h.nodes('.cw-view-tab')[0]);h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177,'both tab transitions retain the original morning reading position');assert.equal(h.timers.size,0);
+ for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,0);
+});
+
+test('reply drafts remain separate by conversation and topic across tab switches without new persistent storage',async()=>{
+ const h=harness(),stock=paired(h);h.ui.open();await h.response({ok:true,posts:[post(7)],has_more:false});
+ h.node('#cmInput').value='一般の投稿下書き';h.node('#cmInput').emit('input');h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});let input=h.node('.cw-reply-form').querySelector('textarea');input.value='一般の返信下書き';input.emit('input');
+ h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});input=h.node('.cw-reply-form').querySelector('textarea');assert.equal(input.value,'');input.value='銘柄の返信下書き';input.emit('input');
+ h.nodes('.cw-view-tab')[1].click();await h.response({ok:true,posts:[post(7)],has_more:false});assert.equal(h.node('#cmInput').value,'一般の投稿下書き');h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'一般の返信下書き');
+ h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[post(7)],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'','same post ID in another feed does not inherit a draft');
+ h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[post(7)],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'一般の返信下書き');
+ h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'銘柄の返信下書き');
+ assert.ok([...h.storage.keys()].every(k=>['kn_community_drafts_v1','kn_community_requests_v1','kn_stock_talk_drafts_v1','kn_stock_talk_requests_v1','cm_nick'].includes(k)));assert.ok([...h.storage.values()].every(v=>!v.includes('返信下書き')));
+ h.node('.cw-reply-form').emit('submit');await h.response({ok:true,post:post(8,{parent_id:7,category:'stock:7203',body:'銘柄の返信下書き'})});stock.close();stock.open();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'','successful reply clears its memory draft');
+});
+
+test('community search only matches loaded parent body or name and remains local under native submit and clear',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(5,{body:'Alpha body',name:'匿名'}),post(4,{body:'別の本文',name:'BETA'}),post(3,{body:'ほか',name:'ほか',category:'news',language:'en'})],has_more:false});
+ const finder=h.node('.cw-community-search'),query=finder.querySelector('input'),before=h.calls.length;assert.equal(finder.firstElementChild.type,'submit');assert.equal(query.type,'search');assert.equal(query.getAttribute('aria-label'),'表示中の投稿を検索');assert.equal(finder.parentNode.children[0],finder);assert.match(h.node('.cw-search-scope').textContent,/読み込んだ投稿/);
+ query.value='beta';query.emit('input');assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['4']);assert.equal(h.calls.length,before);
+ query.value='news';let prevented=false;finder.emit('submit',{preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.nodes('.cw-post').length,0);assert.equal(h.node('.cw-search-empty').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);assert.equal(h.calls.length,before,'search never calls rooms or a new posts API');
+ query.value='';query.emit('search');assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['5','4','3']);assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.calls.length,before);
+ query.value='ALPHA';query.emit('input');assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['5']);
+});
+
+test('filtered community feed retains paging and distinguishes no match from loading, failure and no posts',async()=>{
+ const h=harness();h.ui.open();const query=h.node('.cw-community-search').querySelector('input');query.value='探したい';query.emit('input');assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.nodes('.cw-state')[1].hidden,true);
+ await h.response({ok:true,posts:[post(5)],has_more:true,next_cursor:5});assert.equal(h.node('.cw-search-empty').hidden,false);assert.equal(h.node('.cw-more').hidden,false);
+ h.node('.cw-more').click();await h.response({ok:true,posts:[post(4,{body:'探したい言葉'})],has_more:true,next_cursor:4});assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['4']);assert.match(h.calls.at(-1).url,/before=5/);assert.doesNotMatch(h.calls.at(-1).url,/[?&]q=/);assert.equal(h.node('.cw-search-empty').hidden,true);
+ query.value='一致なし';query.emit('input');h.node('.cw-more').click();await h.response({ok:false,reason:'storage_unavailable'},503);assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.node('.cw-error-state').hidden,false);
+ h.nodes('.cw-category')[2].click();assert.equal(h.node('.cw-search-empty').hidden,true);await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.nodes('.cw-state')[1].hidden,false);assert.equal(query.value,'一致なし');
+});
+
+test('stock search still ignores earlier matches after a second native form submission',async()=>{
+ const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203']]}});h.ui.open();await h.response({ok:true,posts:[],has_more:false});const finder=h.node('.cw-stock-search'),input=finder.querySelector('input');input.value='1832';finder.emit('submit');await h.settle();input.value='6758';finder.emit('submit');await h.settle();
+ await h.response({ok:true,rooms:[{category:'stock:1832',name:'北海電工',code:'1832'}]},200,0);assert.equal(h.node('.cw-stock-results').querySelector('button'),null);
+ await h.response({ok:true,rooms:[{category:'stock:6758',name:'ソニー',code:'6758'}]});assert.match(h.node('.cw-stock-results').querySelector('button').textContent,/ソニー/);assert.equal(finder.querySelector('input'),input);assert.equal(h.nodes('.cw-community-search').length,0);assert.equal(h.nodes('.cw-search-scope').length,0);
+});
+
+test('successful reply cannot regain a stale draft after language rerender, collapse and tab changes',async()=>{
+ const h=harness();paired(h);h.ui.open();await h.response({ok:true,posts:[post(11)],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});const oldInput=h.node('.cw-reply-form').querySelector('textarea');oldInput.value='送信中の返信';oldInput.emit('input');h.node('.cw-reply-form').emit('submit');await h.settle();
+ h.document.documentElement.lang='en';h.document.emit('langChanged');const rerendered=h.node('.cw-reply-form').querySelector('textarea');assert.notEqual(rerendered,oldInput);assert.equal(rerendered.value,'送信中の返信');h.node('.cw-reply-toggle').click();assert.equal(h.nodes('.cw-reply-form').length,0);
+ await h.response({ok:true,post:post(12,{parent_id:11,body:'送信中の返信'})});h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[],has_more:false});h.nodes('.cw-view-tab')[1].click();await h.response({ok:true,posts:[post(11,{reply_count:1})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[post(12,{parent_id:11,body:'送信中の返信'})],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'');assert.equal(h.nodes('.cw-reply-post').length,1);assert.equal(h.calls.filter(call=>call.options.method==='POST').length,1);
 });

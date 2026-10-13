@@ -41,12 +41,30 @@
 <script defer src="/static/mypage-ledger-loader.js?v=20261012-guest1"></script>
 <link rel="stylesheet" href="/static/stock-unified.css?v=20261012-mobile-layout1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261012-section-mincho1">
-<link rel="stylesheet" href="/static/community.css?v=20261012-world1">
-<script defer src="/static/community.js?v=20261012-stock1-20261012-guest1-20261012-world2"></script>
+<link rel="stylesheet" href="/static/community.css?v=20261014-talk-tabs1">
+<script defer src="/static/community.js?v=20261014-talk-tabs1"></script>
+<script>/* KN_TALK_TABS: Use the conversation views directly, preserving the legacy fallback. */
+window.openTalk=function(){
+  var current=document.querySelector('#cmOv.cw-screen,#stockTalkOv.cw-screen');
+  var morning=document.getElementById('morning-section'),origin=current?undefined:{morningTop:morning?morning.scrollTop:0};
+  // The existing navigation stops video and closes the other site screens.
+  if(!current){var button=document.querySelector('#knBottomNav [data-act="talk"]');if(button)button.click();}
+  if(typeof window.closeSaved==='function')window.closeSaved();
+  if(window.knTalkLastView==='community'&&typeof window.openCommunity==='function')return window.openCommunity(origin);
+  if(typeof window.openStockTalk==='function')return window.openStockTalk(origin);
+  if(typeof window.openCommunity==='function')return window.openCommunity(origin);
+};
+document.addEventListener('click',function(event){
+  var item=event.target&&event.target.closest?event.target.closest('#knBottomNav [data-act]'):null;
+  if(!item||item.getAttribute('data-act')==='talk')return;
+  if(window.KNStockTalk)window.KNStockTalk.close();
+  if(window.KNCommunity)window.KNCommunity.close();
+},true);
+</script>
 <script defer src="/static/view-stability.js?v=20261011-stable-views1"></script>
 <script defer src="/static/stock-search-common.js?v=20261011-shared-search1"></script>
 <script defer src="/static/market-carousel.js?v=20261011-six1"></script>
-<script defer src="/static/home-a.js?v=20261011-talk-header1"></script>
+<script defer src="/static/home-a.js?v=20261014-talk-tabs1"></script>
 <script defer src="/static/stock-focus.js?v=20261011-national-search1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();

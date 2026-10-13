@@ -2,6 +2,13 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 const market=require('../static/market-data.js');
 const source=fs.readFileSync(path.join(__dirname,'../static/home-a.js'),'utf8');
+test('home Talk entrance uses the direct route immediately and retains the old fallback',()=>{
+ const start=source.indexOf("document.getElementById('knHomeATalk').onclick=");assert.ok(start>=0);const handler=source.slice(start,source.indexOf('\n',start));
+ for(const direct of [true,false]){
+  const entrance={},calls=[];const context={window:direct?{openTalk(){calls.push('direct');}}:{},document:{getElementById(id){assert.equal(id,'knHomeATalk');return entrance;},querySelector(selector){assert.equal(selector,'#knBottomNav [data-act="talk"]');return {click(){calls.push('legacy');}};}}};
+  vm.runInNewContext(handler,context,{filename:'home-a.js: real Talk entrance'});entrance.onclick();assert.deepEqual(calls,[direct?'direct':'legacy']);
+ }
+});
 function harness(){
  let clock=Date.parse('2026-09-24T00:00:00Z'),timerId=0;const timers=new Map(),listeners={};
  class FakeDate extends Date {constructor(...args){super(...(args.length?args:[clock]));}static now(){return clock;}}

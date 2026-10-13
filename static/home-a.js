@@ -246,7 +246,7 @@
     if(window.ResizeObserver)new ResizeObserver(syncMenuGutter).observe(section);
     else window.addEventListener('resize',syncMenuGutter);
     // Reuse the existing Talk route, including its screen cleanup and lazy setup.
-    document.getElementById('knHomeATalk').onclick=function(){var b=document.querySelector('#knBottomNav [data-act="talk"]');if(b)b.click();};
+    document.getElementById('knHomeATalk').onclick=function(){if(typeof window.openTalk==='function'){window.openTalk();return;}var b=document.querySelector('#knBottomNav [data-act="talk"]');if(b)b.click();};
     document.getElementById('knMarketOpen').onclick=openPicker;
     document.getElementById('knMarketRetry').onclick=function(){return refreshMarkets(true);};
     window.openIndexCustomizer=openPicker;
