@@ -98,6 +98,10 @@ body.kn-home-a #knNewsDigest .editorial-detail .story-title {
 }
 body.kn-home-a #knNewsDigest .brief-headline {margin-bottom:15px}
 body.kn-home-a #knNewsDigest .brief p {color:var(--kn-a-ink)}
+/* News copy and controls use the Gothic default, with personal font choices intact. */
+body.kn-home-a :is(#knNewsDigest,#knCompanyNewsSection,#morning-news-content) :is(p,li,button,input,select,textarea,summary) {
+  font-family:var(--kn-a-sans,-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif)!important;
+}
 body.kn-home-a #knNewsDigest .read-more > summary {
   background:transparent;border:0;border-top:1px dashed var(--kn-a-line);
   border-radius:0;padding:15px 0;min-height:54px;
