@@ -1,0 +1,34 @@
+/* Shared guide sheet; its assistant body remains the original, single widget. */
+#bgModal.kn-guide-hub {z-index:100050!important;padding:16px;align-items:center;justify-content:center;background:rgba(20,25,28,.35);}
+#bgModal.kn-guide-hub [hidden] {display:none!important;}
+#bgModal.kn-guide-hub #bgSheet {display:flex;flex-direction:column;width:min(560px,100%);height:min(760px,calc(100dvh - 32px));max-height:calc(100dvh - 32px);padding:0;border:1px solid #e2e5e8;border-radius:20px;background:#fff;color:#171a1f;overflow:hidden;box-shadow:0 18px 60px rgba(20,25,28,.18);font:400 calc(14px * var(--kn-type-scale,1))/1.75 var(--kn-a-sans,system-ui,sans-serif);}
+#bgModal.kn-guide-hub .kn-guide-hub-head {display:flex;align-items:center;gap:12px;flex:0 0 auto;padding:12px 16px;border-bottom:1px solid #e4e6e9;}
+#bgModal.kn-guide-hub .kn-guide-hub-head h2 {flex:1;margin:0;font:600 calc(19px * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif);color:inherit;}
+#bgModal.kn-guide-hub .kn-guide-hub-close {width:44px;min-height:44px;padding:0;border:0;border-radius:50%;background:transparent;color:inherit;cursor:pointer;font:400 27px/1 system-ui,sans-serif;}
+#bgModal.kn-guide-hub .kn-guide-tabs {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex:0 0 auto;border-bottom:1px solid #e4e6e9;}
+#bgModal.kn-guide-hub .kn-guide-tab {position:relative;min-width:0;min-height:56px;padding:12px 8px;border:0;border-radius:0;background:transparent;color:#686e77;cursor:pointer;font:600 calc(14px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);overflow-wrap:anywhere;}
+#bgModal.kn-guide-hub .kn-guide-tab[aria-selected=true] {color:#171a1f;}
+#bgModal.kn-guide-hub .kn-guide-tab[aria-selected=true]::after {position:absolute;content:"";height:2px;background:currentColor;bottom:-1px;left:0;right:0;}
+#bgModal.kn-guide-hub .kn-guide-content {flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:18px 18px calc(20px + env(safe-area-inset-bottom,0px));}
+#bgModal.kn-guide-hub .kn-guide-content > .bg-sub {margin:0 0 18px;color:#686e77;font-size:calc(13px * var(--kn-type-scale,1));}
+#bgModal.kn-guide-hub .kn-guide-content .bg-box {border:1px solid #e4e6e9;border-radius:14px;background:#fff;}
+#bgModal.kn-guide-hub .kn-guide-content h3 {font:600 calc(15px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);color:#171a1f;}
+#bgModal.kn-guide-hub .kn-guide-content button {min-height:44px;font-family:var(--kn-a-sans,system-ui,sans-serif);}
+#bgModal.kn-guide-hub .kn-guide-content :is(.bg-q summary,.bg-a,.bg-step-t,.bg-step-d,.bg-pct,.bg-tip,.bg-note,.bg-cat,.bg-dict-note) {font-family:var(--kn-a-sans,system-ui,sans-serif);overflow-wrap:anywhere;}
+#bgModal.kn-guide-hub .kn-guide-content .bg-q summary {min-height:44px;font-size:calc(14px * var(--kn-type-scale,1));}
+#bgModal.kn-guide-hub .kn-guide-chat-host {flex:1;min-height:0;overflow:hidden;}
+#bgModal.kn-guide-hub #knChatPanel {position:static!important;inset:auto!important;transform:none!important;width:100%!important;height:100%!important;max-height:none!important;min-height:0;margin:0;border:0;border-radius:0;background:#fff;box-shadow:none;z-index:auto;font-family:var(--kn-a-sans,system-ui,sans-serif);}
+#bgModal.kn-guide-hub #knChatPanel .kn-chat-head {display:none!important;}
+#bgModal.kn-guide-hub #knGuideBtn {display:none!important;}
+#bgModal.kn-guide-hub #knChatSuggestRefresh {flex:0 0 auto;align-self:flex-start;margin:8px 14px 0;padding:8px 12px;min-height:44px;border:1px solid #e4e6e9;border-radius:999px;background:#f2f3f5;color:#3b434e;cursor:pointer;font:400 calc(13px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);}
+#bgModal.kn-guide-hub .kn-chat-body {min-height:0;flex:1;padding:16px 14px;overscroll-behavior:contain;}
+#bgModal.kn-guide-hub .kn-chat-bub {font-size:calc(14px * var(--kn-type-scale,1));line-height:1.8;overflow-wrap:anywhere;}
+#bgModal.kn-guide-hub .kn-chip {min-height:44px;font:400 calc(13px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);white-space:normal;}
+#bgModal.kn-guide-hub .kn-chat-foot {flex:0 0 auto;gap:8px;padding:12px 14px;border-top:1px solid #e4e6e9;background:#fff;}
+#bgModal.kn-guide-hub #knChatInput {font:400 max(16px,calc(16px * var(--kn-type-scale,1)))/1.5 var(--kn-a-sans,system-ui,sans-serif);min-height:44px;max-height:120px;}
+#bgModal.kn-guide-hub #knChatSend {min-height:44px;font:500 calc(14px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);}
+#bgModal.kn-guide-hub .kn-disclaimer {flex:0 0 auto;margin:0;padding:0 14px calc(12px + env(safe-area-inset-bottom,0px));color:#686e77;background:#fff;font-size:calc(11px * var(--kn-type-scale,1));line-height:1.6;}
+#bgModal.kn-guide-hub :is(button,input,textarea,select,summary,a):focus-visible {outline:2px solid #343b45;outline-offset:2px;}
+body.kn-guide-consolidated #knChatFab {display:none!important;}
+@media(max-width:640px) {#bgModal.kn-guide-hub {padding:10px;}#bgModal.kn-guide-hub #bgSheet {height:calc(100dvh - 20px);max-height:calc(100dvh - 20px);border-radius:18px;}#bgModal.kn-guide-hub .kn-guide-content {padding-left:14px;padding-right:14px;}}
+@media(prefers-reduced-motion:reduce) {#bgModal.kn-guide-hub #bgSheet {animation:none;}}

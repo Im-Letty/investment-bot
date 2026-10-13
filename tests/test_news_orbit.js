@@ -100,7 +100,7 @@ test('coin markup uses a named native button inside an accessible group',()=>{
   const a=harness();const markup=a.context.window.KNNewsOrbit.markup;
   assert.match(markup,/<div class="kn-orbit-scene" role="group"/);
   assert.doesNotMatch(markup,/<div class="kn-orbit-scene" role="img"/);
-  assert.match(markup,/<button type="button" class="kn-orbit-guide" aria-label="はじめてガイドを開く" aria-controls="bgModal">/);
+  assert.match(markup,/<button type="button" class="kn-orbit-guide" aria-label="ガイド・ロボット相談を開く" aria-controls="bgModal">/);
   assert.match(markup,/<span class="kn-orbit-coin-face" aria-hidden="true"><img class="kn-orbit-coordinated-coin" src="\/static\/news-orbit\/coin\.webp"/);
   assert.equal((markup.match(/class="kn-orbit-news-orbiter /g)||[]).length,3);
   assert.equal((markup.match(/class="kn-orbit-guide"/g)||[]).length,1);
@@ -110,14 +110,14 @@ test('coin markup uses a named native button inside an accessible group',()=>{
 
 test('guide labels translate while the saved pause and system reduced-motion state remain intact',()=>{
   const a=harness(true,true);
-  for(const [lang,label] of [['ja','はじめてガイドを開く'],['en','Open the beginner guide'],['ko','시작 가이드 열기'],['zh','打开入门指南'],['unknown','はじめてガイドを開く']]){
+  for(const [lang,label] of [['ja','ガイド・ロボット相談を開く'],['en','Open the guide and assistant'],['ko','가이드와 로봇 상담 열기'],['zh','打开指南与机器人咨询'],['unknown','ガイド・ロボット相談を開く']]){
     a.document.documentElement.lang=lang;a.event('langChanged');
     assert.equal(a.guideAttrs['aria-label'],label);
     assert.ok(a.classes.has('kn-orbit-reduced'));assert.ok(a.classes.has('kn-orbit-paused'));
     assert.equal(a.storage.get('kn_home_motion_paused'),'1');
   }
   a.storage.set('app_lang','en');a.document.documentElement.lang='ja';a.event('langChanged');
-  assert.equal(a.guideAttrs['aria-label'],'Open the beginner guide');
+  assert.equal(a.guideAttrs['aria-label'],'Open the guide and assistant');
   a.guideClick();assert.equal(a.guideCalls(),1);assert.equal(a.networkCalls(),0);
 });
 
