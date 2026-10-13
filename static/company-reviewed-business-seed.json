@@ -43010,6 +43010,1478 @@
       "checked_on": "2026-10-13",
       "fetched_at": 1791847359.495067,
       "pdf_sha256": "6f31166e94d7b7d60e0056c9c56e54cd0b54af5eadb819843c77dc12cd73e44b"
+    },
+    {
+      "symbol": "1332.T",
+      "identity": {
+        "symbol": "1332.T",
+        "code": "1332",
+        "name": "ニッスイ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "魚介類を漁獲・養殖して加工・販売し、加工食品やチルド食品も手がける会社です。国内外のグループ会社と水産物・食品を供給し、医薬品やサプリメント、乳児用粉ミルク向けにはEPA・DHAなどの原料を製造・販売します。健康食品の通信販売も行い、子会社では食品などを低温で保管する冷蔵倉庫、配送、通関を担います。",
+      "proof": {
+        "code": "1332",
+        "exchange": "Tokyo",
+        "corporate_number": "1010001016860",
+        "edinet_code": "E00014",
+        "source_company_name": "株式会社ニッスイ",
+        "filing_company_name": "株式会社ニッスイ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHOQ",
+        "current_edinet_code": "E00014",
+        "current_corporate_number": "1010001016860"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHOQ",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791828295.196335,
+      "pdf_sha256": "8431105d14947f4d3bcbbd40cabe2f40fb3ad94456cb4b34156bb63747996724"
+    },
+    {
+      "symbol": "1961.T",
+      "identity": {
+        "symbol": "1961.T",
+        "code": "1961",
+        "name": "三機工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ビルや工場で使う空調、衛生、電気などの設備を施工する会社です。建物の設備に加え、物を移動させる搬送システムや搬送機器をグループで製造・販売し、上下水道施設や廃棄物処理施設の設備も手がけます。国内外の子会社と各分野の設備工事を担うほか、保有する不動産の賃貸・管理や、保険代理、リース、人材派遣も行っています。",
+      "proof": {
+        "code": "1961",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001008683",
+        "edinet_code": "E00107",
+        "source_company_name": "三機工業株式会社",
+        "filing_company_name": "三機工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YH3A",
+        "current_edinet_code": "E00107",
+        "current_corporate_number": "2010001008683"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YH3A",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832623.679153,
+      "pdf_sha256": "2a755a5ebb8389d1fe4954a2b7f9a1b69495b6ea2f05f0fdbd46c397c4f6cae1"
+    },
+    {
+      "symbol": "2175.T",
+      "identity": {
+        "symbol": "2175.T",
+        "code": "2175",
+        "name": "エス・エム・エス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "医療・介護の働き手と事業者をつなぐ人材紹介や、事業者向けの経営支援サービスを提供します。介護職、看護師、保育士などの転職支援に加え、介護の資格取得スクールも運営。介護・障害福祉事業者には経営を支える情報サービスを提供し、健康保険組合への遠隔保健指導、企業への産業保健サービス、葬儀社やリフォーム事業者の紹介も手がけます。",
+      "proof": {
+        "code": "2175",
+        "exchange": "Tokyo",
+        "corporate_number": "2010001134117",
+        "edinet_code": "E05697",
+        "source_company_name": "株式会社エス・エム・エス",
+        "filing_company_name": "株式会社エス・エム・エス",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF7X",
+        "current_edinet_code": "E05697",
+        "current_corporate_number": "2010001134117"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF7X",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832755.404942,
+      "pdf_sha256": "2b3f8fe98238c910de6db84eb277d09e26370b01bc81c1ed6ff0d82441fc4ba8"
+    },
+    {
+      "symbol": "2206.T",
+      "identity": {
+        "symbol": "2206.T",
+        "code": "2206",
+        "name": "江崎グリコ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "チョコレートやビスケット、乳製品、アイスクリーム、レトルト食品などをグループで製造・販売する会社です。消費者向けの食品に加え、食品メーカーなどで使う小麦たんぱく、加工でんぷん、着色料といった原料も供給します。直営店舗や「オフィスグリコ」、卸販売を手がけるほか、海外のグループ会社でも菓子やアイスクリームを製造・販売しています。",
+      "proof": {
+        "code": "2206",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001049268",
+        "edinet_code": "E00373",
+        "source_company_name": "江崎グリコ株式会社",
+        "filing_company_name": "江崎グリコ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XRXN",
+        "current_edinet_code": "E00373",
+        "current_corporate_number": "5120001049268"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XRXN",
+      "filed_on": "2026-03-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832791.164675,
+      "pdf_sha256": "c7a6d429ecc19beac93fcb9fcc4cda7a64199c01923c401de3e30b0d4489a168"
+    },
+    {
+      "symbol": "2211.T",
+      "identity": {
+        "symbol": "2211.T",
+        "code": "2211",
+        "name": "不二家",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ケーキやデザートなどの洋菓子と、チョコレート、キャンディ、ビスケットを製造・販売する会社です。乳製品や飲料も扱い、グループで喫茶店や飲食店の運営も手がけます。国内の製造・販売に加え、中国やベトナムの子会社が菓子食品の事業を担います。キャラクターグッズの通信販売や使用許諾、不動産の賃貸・管理、事務業務の受託も行っています。",
+      "proof": {
+        "code": "2211",
+        "exchange": "Tokyo",
+        "corporate_number": "3010001034910",
+        "edinet_code": "E00374",
+        "source_company_name": "株式会社不二家",
+        "filing_company_name": "株式会社不二家",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XS9W",
+        "current_edinet_code": "E00374",
+        "current_corporate_number": "3010001034910"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XS9W",
+      "filed_on": "2026-03-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832801.665659,
+      "pdf_sha256": "14e8ca74575ae6a42bbe4dba3532b5a49f2d17e3f721daa39e957a88a5b30d7b"
+    },
+    {
+      "symbol": "2221.T",
+      "identity": {
+        "symbol": "2221.T",
+        "code": "2221",
+        "name": "岩塚製菓",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「田舎のおかき」「岩塚の黒豆せんべい」など、米を使った菓子を製造・販売する会社です。瑞花や新潟味のれん本舗などの子会社は、同社の製品を仕入れて顧客に販売しています。グループではかりんとうの製造・販売も手がけ、里山元気ファームでは菓子に加えて農産物やその加工品を扱います。製造会社と販売会社が役割を分担して商品を届けています。",
+      "proof": {
+        "code": "2221",
+        "exchange": "Tokyo",
+        "corporate_number": "5110001023736",
+        "edinet_code": "E00386",
+        "source_company_name": "岩塚製菓株式会社",
+        "filing_company_name": "岩塚製菓株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ2N",
+        "current_edinet_code": "E00386",
+        "current_corporate_number": "5110001023736"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ2N",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832822.731387,
+      "pdf_sha256": "380f8e25eb94f7c7e6e677aee4b4762fc896bb4ee0bd94967e70a2b0fa583c06"
+    },
+    {
+      "symbol": "2282.T",
+      "identity": {
+        "symbol": "2282.T",
+        "code": "2282",
+        "name": "日本ハム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ハム・ソーセージや加工食品を製造・販売し、豚や鶏の飼育から食肉の処理・加工、販売までグループで担う会社です。全国の販売会社を通じて国内に商品を供給し、海外でも食肉や加工食品を生産・販売しています。子会社では水産物や乳製品も扱います。食品以外では北海道日本ハムファイターズの興行、球場運営、北海道ボールパークFビレッジの管理を手がけます。",
+      "proof": {
+        "code": "2282",
+        "exchange": "Tokyo",
+        "corporate_number": "6120001077615",
+        "edinet_code": "E00334",
+        "source_company_name": "日本ハム株式会社",
+        "filing_company_name": "日本ハム株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEEQ",
+        "current_edinet_code": "E00334",
+        "current_corporate_number": "6120001077615"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEEQ",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832856.009321,
+      "pdf_sha256": "09d9d50c1b1542d6a588309f6af7145ce8503e7e5e8764bea62f6bb103171780"
+    },
+    {
+      "symbol": "2311.T",
+      "identity": {
+        "symbol": "2311.T",
+        "code": "2311",
+        "name": "エプコ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住宅会社向けに給排水・電気設備の図面や工事費の積算資料を作り、住宅設備の設計を支援します。引き渡し後の住まいについては問い合わせ窓口を受託し、修理の手配や図面・対応履歴などの顧客情報管理も担います。太陽光パネルの配置や発電量の試算も受託。子会社や東京電力グループなどとの合弁会社を通じ、住宅の太陽光発電・蓄電池の設置や省エネ工事も手がけます。",
+      "proof": {
+        "code": "2311",
+        "exchange": "Tokyo",
+        "corporate_number": "4011801000662",
+        "edinet_code": "E05293",
+        "source_company_name": "株式会社エプコ",
+        "filing_company_name": "株式会社エプコ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XSPG",
+        "current_edinet_code": "E05293",
+        "current_corporate_number": "4011801000662"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XSPG",
+      "filed_on": "2026-03-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843724.605098,
+      "pdf_sha256": "0e0356064d76f60fad8cb2e0728749d6c5befdad62017c5509b98473748d8b67"
+    },
+    {
+      "symbol": "2329.T",
+      "identity": {
+        "symbol": "2329.T",
+        "code": "2329",
+        "name": "東北新社",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業のCMや販促映像、映画・テレビ番組を制作し、映像のデジタル制作や日本語版の制作も担う会社です。グループでは「ファミリー劇場」「囲碁将棋チャンネル」などのCS放送を運営し、番組の編成・販売、放送業務の受託を行います。映像作品の共同企画、権利の管理・利用、劇場やテレビへの配給も手がけ、広告から制作、放送・配給までを扱っています。",
+      "proof": {
+        "code": "2329",
+        "exchange": "Tokyo",
+        "corporate_number": "3010401015790",
+        "edinet_code": "E05307",
+        "source_company_name": "株式会社東北新社",
+        "filing_company_name": "株式会社東北新社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YKO9",
+        "current_edinet_code": "E05307",
+        "current_corporate_number": "3010401015790"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YKO9",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843739.652779,
+      "pdf_sha256": "edca8eee09ecc8b8808501c96d71eaffad516b7bb2e258b886d28c0405ad005d"
+    },
+    {
+      "symbol": "2354.T",
+      "identity": {
+        "symbol": "2354.T",
+        "code": "2354",
+        "name": "YEDIGITAL",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業の販売・生産・購買管理システムや、携帯電話会社の加入者管理システムを開発し、運用・保守まで担います。物流や畜産の業務をデジタル化する仕組み、AIを使ったデータ分析、製品に組み込むソフトも提供。上下水道の流量・水質を管理する制御システムや自治体の通信網も構築します。グループの技術者とともに、企業や公共分野の情報システムを支える会社です。",
+      "proof": {
+        "code": "2354",
+        "exchange": "Tokyo",
+        "corporate_number": "7290801010765",
+        "edinet_code": "E05328",
+        "source_company_name": "株式会社ＹＥ　ＤＩＧＩＴＡＬ",
+        "filing_company_name": "株式会社YEDIGITAL",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y56T",
+        "current_edinet_code": "E05328",
+        "current_corporate_number": "7290801010765"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y56T",
+      "filed_on": "2026-05-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843763.835003,
+      "pdf_sha256": "39beb271d013e409d4e2e319c8ca69d49db5540871b676d933f4e816c7db22c1"
+    },
+    {
+      "symbol": "2435.T",
+      "identity": {
+        "symbol": "2435.T",
+        "code": "2435",
+        "name": "シダー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "介護が必要な人に、通所・入居・在宅のサービスを提供する会社です。デイサービスでは送迎、食事、入浴に加え、理学療法士などによるリハビリを行います。介護付き有料老人ホームや認知症の人向けのグループホームを運営し、自宅で暮らす人には訪問看護・介護・リハビリ、ケアプラン作成を提供。九州・山口や関東を中心に、グループで日常生活を支援します。",
+      "proof": {
+        "code": "2435",
+        "exchange": "Tokyo",
+        "corporate_number": "3290801004110",
+        "edinet_code": "E05478",
+        "source_company_name": "株式会社シダー",
+        "filing_company_name": "株式会社シダー",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJJS",
+        "current_edinet_code": "E05478",
+        "current_corporate_number": "3290801004110"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJJS",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843824.328205,
+      "pdf_sha256": "a5db9d598e730ce86ae50d4f6d3bea423dc782bb14da65184eab956f9d137fd4"
+    },
+    {
+      "symbol": "246A.T",
+      "identity": {
+        "symbol": "246A.T",
+        "code": "246A",
+        "name": "アスア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "物流会社の安全管理やドライバー教育を支援する会社です。「TRYESサポート」では燃費・事故データを分析し、専門スタッフが事業所を訪問して安全教育や活動の企画を手伝います。「TRYESレポート」ではクラウドで教材を配信し、教育計画や受講状況を管理。一般企業向けには、業務用電話、複合機、サーバー、ネットワーク機器の販売・設置・保守も行います。",
+      "proof": {
+        "code": "246A",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001043783",
+        "edinet_code": "E39936",
+        "source_company_name": "株式会社アスア",
+        "filing_company_name": "株式会社アスア",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Z433",
+        "current_edinet_code": "E39936",
+        "current_corporate_number": "7180001043783"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Z433",
+      "filed_on": "2026-09-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843857.535719,
+      "pdf_sha256": "aa1a30ca0489d4be304b2d43314506cdacacd72483312d3f99c8b765d37abb1a"
+    },
+    {
+      "symbol": "2480.T",
+      "identity": {
+        "symbol": "2480.T",
+        "code": "2480",
+        "name": "システム・ロケーション",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "自動車リース会社や販売会社向けに、車両の価値を算出するシステムや販売支援サービスを提供します。「RV Doctor」は中古車の販売実績を分析し、現在の価値や将来の売却価格を試算。「CA Doctor」は新車販売を支援します。車種・装備・価格などのデータや、将来の車両価値を織り込む見積作成システムも提供し、顧客企業の車の販売や金融業務を支えます。",
+      "proof": {
+        "code": "2480",
+        "exchange": "Tokyo",
+        "corporate_number": "7013201018258",
+        "edinet_code": "E05575",
+        "source_company_name": "システム・ロケーション株式会社",
+        "filing_company_name": "システム・ロケーション株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGTA",
+        "current_edinet_code": "E05575",
+        "current_corporate_number": "7013201018258"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGTA",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843870.791266,
+      "pdf_sha256": "9539d5194218f6e0e21f2a96945371ae50ab8c398cefb7e18bdcc64a5a496b2d"
+    },
+    {
+      "symbol": "2698.T",
+      "identity": {
+        "symbol": "2698.T",
+        "code": "2698",
+        "name": "キャンドゥ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "日用雑貨や加工食品を扱う「キャンドゥ」の店舗チェーンを運営する会社です。自社で商品の企画と調達を担い、直営店で消費者に販売するほか、フランチャイズ加盟店へ商品を卸して販売網を広げています。海外の小売業者にも商品を供給し、国内店舗での販売と卸売の両方を手がけます。イオンを親会社とし、グループで生活用品や食品の小売事業を展開しています。",
+      "proof": {
+        "code": "2698",
+        "exchange": "Tokyo",
+        "corporate_number": "6011101063012",
+        "edinet_code": "E03377",
+        "source_company_name": "株式会社キャンドゥ",
+        "filing_company_name": "株式会社キャンドゥ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y64P",
+        "current_edinet_code": "E03377",
+        "current_corporate_number": "6011101063012"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y64P",
+      "filed_on": "2026-05-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843983.080815,
+      "pdf_sha256": "2350ecaa70ec5f0a2d7299cdac527207e43bef9f2c128b64d191577814910883"
+    },
+    {
+      "symbol": "2782.T",
+      "identity": {
+        "symbol": "2782.T",
+        "code": "2782",
+        "name": "セリア",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "100円ショップを運営し、生活雑貨や菓子・食品を販売する会社です。調理道具、収納用品、掃除用品、文具、手芸用品、玩具など、日常生活や趣味に使う商品を直営店で消費者に届けます。店舗販売に加え、フランチャイズ契約先や大口顧客へ商品を卸し、海外店舗向けの輸出や国内代理店への卸売も行います。加盟先は同社の発注システムを使い、自分の店舗で商品を販売します。",
+      "proof": {
+        "code": "2782",
+        "exchange": "Tokyo",
+        "corporate_number": "4200001013662",
+        "edinet_code": "E03418",
+        "source_company_name": "株式会社セリア",
+        "filing_company_name": "株式会社セリア",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YH2R",
+        "current_edinet_code": "E03418",
+        "current_corporate_number": "4200001013662"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YH2R",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847383.499913,
+      "pdf_sha256": "8fcbc11ea6fe3629c5e2844c8d86a0c7b2b888d71b1aed32b9bcd3708a80564c"
+    },
+    {
+      "symbol": "2802.T",
+      "identity": {
+        "symbol": "2802.T",
+        "code": "2802",
+        "name": "味の素",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "調味料、加工食品、冷凍食品を国内外のグループ会社で製造・販売する会社です。食品分野に加え、医薬品や食品向けのアミノ酸、電子材料なども供給しています。海外子会社では医薬品の開発・製造を受託するサービスも展開。食品とその原料、医療・電子分野で使う素材を幅広く扱い、各地の製造会社・販売会社を通じて商品やサービスを届けています。",
+      "proof": {
+        "code": "2802",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001034740",
+        "edinet_code": "E00436",
+        "source_company_name": "味の素株式会社",
+        "filing_company_name": "味の素株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100Y992",
+        "current_edinet_code": "E00436",
+        "current_corporate_number": "8010001034740"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100Y992",
+      "filed_on": "2026-06-12",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847403.2375062,
+      "pdf_sha256": "02ecaa86aa42bb32d7666a0625ddc9f8afa2ca1cfcc4cc85816603d38a32f0c4"
+    },
+    {
+      "symbol": "2806.T",
+      "identity": {
+        "symbol": "2806.T",
+        "code": "2806",
+        "name": "ユタカフーズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "液体・粉体の食品を製造・販売し、親会社の東洋水産からは即席麺やチルド食品などの製造を受託する会社です。調味料の製造技術を持ち、自社製品の供給と親会社向けの受託生産を担います。麺や調味料の開発も行い、麺の食感や保存性の改良、スープ・つゆ・たれの味づくりなどに取り組みます。東洋水産グループの食品づくりを支える生産会社です。",
+      "proof": {
+        "code": "2806",
+        "exchange": "Tokyo",
+        "corporate_number": "7180001092285",
+        "edinet_code": "E00465",
+        "source_company_name": "ユタカフーズ株式会社",
+        "filing_company_name": "ユタカフーズ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHEX",
+        "current_edinet_code": "E00465",
+        "current_corporate_number": "7180001092285"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHEX",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847412.245034,
+      "pdf_sha256": "9411035543510961dac25507798398d1cd2f3f20c5fcdaa2e7f0045595c4f5e5"
+    },
+    {
+      "symbol": "2819.T",
+      "identity": {
+        "symbol": "2819.T",
+        "code": "2819",
+        "name": "エバラ食品工業",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "焼肉のたれ「黄金の味」、鍋料理向けの「プチッと鍋」、浅漬けの素など、家庭の調理に使う調味料を製造・販売する会社です。業務用には焼き鳥や丼のたれ、ラーメンスープ、がらスープなどを供給します。国内外のグループ会社で食品を製造・販売し、子会社のエバラ物流では倉庫や貨物輸送の手配も担います。グループには広告宣伝や人材派遣の事業もあります。",
+      "proof": {
+        "code": "2819",
+        "exchange": "Tokyo",
+        "corporate_number": "5020001022870",
+        "edinet_code": "E00514",
+        "source_company_name": "エバラ食品工業株式会社",
+        "filing_company_name": "エバラ食品工業株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJNX",
+        "current_edinet_code": "E00514",
+        "current_corporate_number": "5020001022870"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJNX",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847431.9821599,
+      "pdf_sha256": "c301eca1e9f823210c46d389e15bb4cd2d5a931af8d09cffa6eca31838db85ae"
+    },
+    {
+      "symbol": "2875.T",
+      "identity": {
+        "symbol": "2875.T",
+        "code": "2875",
+        "name": "東洋水産",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "カップ麺・袋麺を国内外で製造・販売し、米国やメキシコなどにも供給する会社です。国内では焼きそば、生ラーメン、うどん、冷凍麺に加え、パックご飯、スープ、だしの素なども扱います。水産食品の仕入れ・加工・販売や弁当・惣菜づくりもグループで展開。自社や子会社の冷蔵・冷凍倉庫では、食品の保管に加えて顧客から預かった貨物の保管も行っています。",
+      "proof": {
+        "code": "2875",
+        "exchange": "Tokyo",
+        "corporate_number": "2010401020321",
+        "edinet_code": "E00461",
+        "source_company_name": "東洋水産株式会社",
+        "filing_company_name": "東洋水産株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDW0",
+        "current_edinet_code": "E00461",
+        "current_corporate_number": "2010401020321"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDW0",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847450.0908558,
+      "pdf_sha256": "608fab6a47ccaf1e29226176eef1223ee7c7c9d285ddbfd5ed6eb1e8dc96dc54"
+    },
+    {
+      "symbol": "2892.T",
+      "identity": {
+        "symbol": "2892.T",
+        "code": "2892",
+        "name": "日本食品化工",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "とうもろこしなどを加工し、でんぷんや糖化製品、化学品向けの素材を製造・販売する会社です。食品メーカーや製紙会社などにでんぷんと加工製品を供給し、異性化糖、工業用素材、医薬品原料も扱います。原料のとうもろこしを主に米国から輸入し、自社で加工・販売するほか、関連会社への加工技術の提供も手がけます。子会社は原材料や製品に関わる業務を支えます。",
+      "proof": {
+        "code": "2892",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001133971",
+        "edinet_code": "E00442",
+        "source_company_name": "日本食品化工株式会社",
+        "filing_company_name": "日本食品化工株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF39",
+        "current_edinet_code": "E00442",
+        "current_corporate_number": "8010001133971"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF39",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847463.6189911,
+      "pdf_sha256": "7ff83c53622882573f471f658c1c8ed0f7e00439b9d46c710e6ed0da8d2a9ced"
+    },
+    {
+      "symbol": "2901.T",
+      "identity": {
+        "symbol": "2901.T",
+        "code": "2901",
+        "name": "ウェルディッシュ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "麦茶・健康茶、ビーフジャーキーなどの食品と、化粧品を販売する会社です。医療法人や社会福祉法人には健康食品・飲料を供給し、医療・福祉施設向けに介護用品の卸売や食事提供サービスの運営受託も行います。食品の一部は中国子会社が製造して本体に供給します。化粧品は企業向けの販売や、他社ブランドの商品供給も手がけ、食品販売に施設向けサービスを組み合わせています。",
+      "proof": {
+        "code": "2901",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001010603",
+        "edinet_code": "E00471",
+        "source_company_name": "株式会社ウェルディッシュ",
+        "filing_company_name": "株式会社ウェルディッシュ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X7C2",
+        "current_edinet_code": "E00471",
+        "current_corporate_number": "6010001010603"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X7C2",
+      "filed_on": "2025-11-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847469.727456,
+      "pdf_sha256": "8de726164b1bc9b1e966c985329a9c261cb184214b23d5f765b073745c1c34ee"
+    },
+    {
+      "symbol": "2911.T",
+      "identity": {
+        "symbol": "2911.T",
+        "code": "2911",
+        "name": "旭松食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「新あさひ豆腐」などの高野豆腐や、即席みそ汁を製造・販売する会社です。家庭向けの食品に加え、飲み込みが難しい人向けに、調理済みで食べやすい形に整えた医療用食材も供給します。病院や介護施設では、厨房の調理作業を減らす用途に使われます。グループ会社の旭松フレッシュシステムは、製品の輸送・保管や原材料の輸送・仕入れを担っています。",
+      "proof": {
+        "code": "2911",
+        "exchange": "Tokyo",
+        "corporate_number": "5100001022185",
+        "edinet_code": "E00487",
+        "source_company_name": "旭松食品株式会社",
+        "filing_company_name": "旭松食品株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YI4Q",
+        "current_edinet_code": "E00487",
+        "current_corporate_number": "5100001022185"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YI4Q",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847509.8408709,
+      "pdf_sha256": "320efaf1efd8aa44086022e7775888a59757ce99eecb2ba74d931fa11b6c31e4"
+    },
+    {
+      "symbol": "2923.T",
+      "identity": {
+        "symbol": "2923.T",
+        "code": "2923",
+        "name": "サトウ食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "電子レンジで温めて食べる「サトウのごはん」や、「サトウの切り餅」、鏡餅などを製造・販売する会社です。国内でパックご飯と包装した餅を供給し、日常の食事や買い置き、正月などの需要に対応します。切り餅には小さな個包装やスティック型の商品もあります。子会社のうさぎもちも包装餅を製造・販売し、グループの二社で米を使った食品を手がけています。",
+      "proof": {
+        "code": "2923",
+        "exchange": "Tokyo",
+        "corporate_number": "8110001002068",
+        "edinet_code": "E00510",
+        "source_company_name": "サトウ食品株式会社",
+        "filing_company_name": "サトウ食品株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YR44",
+        "current_edinet_code": "E00510",
+        "current_corporate_number": "8110001002068"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YR44",
+      "filed_on": "2026-07-21",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847533.4204779,
+      "pdf_sha256": "f03083f659b17d97666d3a9245bdc90155ae02483b868bdeaaaea86acfacc4ff"
+    },
+    {
+      "symbol": "173A.T",
+      "identity": {
+        "symbol": "173A.T",
+        "code": "173A",
+        "name": "ハンモック",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や官公庁のパソコン管理、営業活動、紙書類の入力作業を支えるソフトを自社で開発・販売します。「AssetView」で機器やソフトの利用状況、操作履歴、情報漏えい対策をまとめて管理。「ホットプロファイル」で名刺や商談、顧客への働きかけを一元化し、「AnyForm OCR」などで注文書や請求書の文字を読み取ってデータにします。導入・運用も支援し、クラウドと顧客の設備に設置する形で提供します。",
+      "proof": {
+        "code": "173A",
+        "exchange": "Tokyo",
+        "corporate_number": "7013301029898",
+        "edinet_code": "E39460",
+        "source_company_name": "株式会社ハンモック",
+        "filing_company_name": "株式会社ハンモック",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEGK",
+        "current_edinet_code": "E39460",
+        "current_corporate_number": "7013301029898"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEGK",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791829290.885041,
+      "pdf_sha256": "71e8554b8fcec86b117b0bd3a2cf7d5ef21f16924a7555dbb8b036ccf4c9bdcd"
+    },
+    {
+      "symbol": "2002.T",
+      "identity": {
+        "symbol": "2002.T",
+        "code": "2002",
+        "name": "日清製粉グループ本社",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "小麦粉やパスタ、弁当などを扱う食品グループの持株会社です。日清製粉などの子会社が小麦を製粉し、国内のほか北米・アジア・オセアニアで販売します。日清製粉ウェルナは家庭用小麦粉、パスタソース、冷凍食品などを供給。グループでは製パン用の素材、惣菜や調理麺も製造し、食品などの生産設備を設計・施工する事業や、メッシュ状の布・成形フィルターを作る事業も担います。",
+      "proof": {
+        "code": "2002",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001008736",
+        "edinet_code": "E00346",
+        "source_company_name": "株式会社日清製粉グループ本社",
+        "filing_company_name": "株式会社日清製粉グループ本社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YE6A",
+        "current_edinet_code": "E00346",
+        "current_corporate_number": "8010001008736"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YE6A",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832666.3883278,
+      "pdf_sha256": "dcec0d43b979a922c0bf73b6eb25088926e3082a3b2780efc5307d5b30ba85f4"
+    },
+    {
+      "symbol": "2204.T",
+      "identity": {
+        "symbol": "2204.T",
+        "code": "2204",
+        "name": "中村屋",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "和菓子、洋菓子、中華まんを作って販売する食品会社です。菓子づくりに加え、業務用の食材、市販用の食品、調理済みの缶詰を自社で製造し、取引先や消費者へ届けます。レストランも経営し、料理を提供する飲食の事業を手がけます。食品以外では商業ビルや土地を貸し出しており、菓子、食品、不動産賃貸の三つの事業を展開しています。",
+      "proof": {
+        "code": "2204",
+        "exchange": "Tokyo",
+        "corporate_number": "6011101015442",
+        "edinet_code": "E00372",
+        "source_company_name": "株式会社中村屋",
+        "filing_company_name": "株式会社中村屋",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF3Z",
+        "current_edinet_code": "E00372",
+        "current_corporate_number": "6011101015442"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF3Z",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832788.088206,
+      "pdf_sha256": "270530107a99be22d54f6592d3bbb3b768efb94ad49a7af4be7689b6d45bce68"
+    },
+    {
+      "symbol": "2207.T",
+      "identity": {
+        "symbol": "2207.T",
+        "code": "2207",
+        "name": "meito",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "チョコレート、粉末飲料、ゼリーなどの食品と、食品・医療向けの素材を作る会社です。グループではバウムクーヘンや芋菓子、アイスクリームなども製造・販売します。素材分野は、チーズを固める酵素や脂肪を分解する酵素、食品用の香料、医薬品やMRI検査などに使うデキストラン関連製品を供給。食品づくりや医療を支える材料を扱うほか、不動産を貸し、ゴルフ場も運営します。",
+      "proof": {
+        "code": "2207",
+        "exchange": "Tokyo",
+        "corporate_number": "5180001027409",
+        "edinet_code": "E00376",
+        "source_company_name": "株式会社ｍｅｉｔｏ",
+        "filing_company_name": "株式会社meito",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YHY5",
+        "current_edinet_code": "E00376",
+        "current_corporate_number": "5180001027409"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YHY5",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832794.094063,
+      "pdf_sha256": "0691bb6aca8ddbbd39c3983b38ceb1bd84aa1d1811d412f1948051915ac2aeb4"
+    },
+    {
+      "symbol": "2216.T",
+      "identity": {
+        "symbol": "2216.T",
+        "code": "2216",
+        "name": "カンロ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "のど飴やグミなどのお菓子を製造・販売します。「健康のど飴」「ノンシュガーのど飴」や「ピュレグミ」を展開し、「グミッツェル」は直営店「ヒトツブカンロ」とネットの「Kanro POCKeT」で販売します。卸先を通じて一般消費者に届ける経路と、自社の店舗・ネットで直接届ける経路を持ち、米国では販売子会社が「ピュレグミ」を扱います。素材を生かした菓子も供給しています。",
+      "proof": {
+        "code": "2216",
+        "exchange": "Tokyo",
+        "corporate_number": "9011201001240",
+        "edinet_code": "E00378",
+        "source_company_name": "カンロ株式会社",
+        "filing_company_name": "カンロ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XTWS",
+        "current_edinet_code": "E00378",
+        "current_corporate_number": "9011201001240"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XTWS",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832810.765172,
+      "pdf_sha256": "a1424f749b3859c6f658188f65f34858e457390817af9d6c11aed4d2da59f91b"
+    },
+    {
+      "symbol": "2281.T",
+      "identity": {
+        "symbol": "2281.T",
+        "code": "2281",
+        "name": "プリマハム",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ハムやソーセージなどの加工食品を作り、食肉の加工・販売も行う会社です。グループで豚の飼育から肉の処理、加工、物流、販売までを分担します。子会社のプライムデリカは、セブン－イレブン向けに調理パンや惣菜を製造。タイなどの海外子会社でも加工食品を作って販売します。食品の製造や供給に加え、グループには食品検査を受託する会社や、理化学機器を開発・製造する会社もあります。",
+      "proof": {
+        "code": "2281",
+        "exchange": "Tokyo",
+        "corporate_number": "6010701008888",
+        "edinet_code": "E00335",
+        "source_company_name": "プリマハム株式会社",
+        "filing_company_name": "プリマハム株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YDH8",
+        "current_edinet_code": "E00335",
+        "current_corporate_number": "6010701008888"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YDH8",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832852.916147,
+      "pdf_sha256": "7e691465bed376bd3d281e49d1d875993efc14ab16e5924bb5be3d1d06941341"
+    },
+    {
+      "symbol": "2288.T",
+      "identity": {
+        "symbol": "2288.T",
+        "code": "2288",
+        "name": "丸大食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ハム・ソーセージや調理済みの食品を製造・販売する会社です。自社と戸田フーズ、安曇野食品工房、トーラクなどの子会社が加工食品を作り、グループの販売会社を通じても顧客へ届けます。食肉では牛肉・豚肉・鶏肉などを加工して販売し、丸大ミートや丸大フードなどが供給を担います。食品の製造と肉の取扱いを中心に、グループ内では保険代行のサービスなども行います。",
+      "proof": {
+        "code": "2288",
+        "exchange": "Tokyo",
+        "corporate_number": "3120901012046",
+        "edinet_code": "E00458",
+        "source_company_name": "丸大食品株式会社",
+        "filing_company_name": "丸大食品株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YD4W",
+        "current_edinet_code": "E00458",
+        "current_corporate_number": "3120901012046"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YD4W",
+      "filed_on": "2026-06-19",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791832858.947387,
+      "pdf_sha256": "2a0338e534a0ff54245dc61240865d81cee25e040b04b22a06a7458d4281084d"
+    },
+    {
+      "symbol": "2327.T",
+      "identity": {
+        "symbol": "2327.T",
+        "code": "2327",
+        "name": "日鉄ソリューションズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Fukuoka",
+            "exchange_id": "Q5507703"
+          },
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "製造業、流通、金融、公共機関などの情報システムを作り、運用を支える会社です。工場の生産や物流の管理、通販サイト、銀行の取引・融資・リスク管理といった業務に合わせ、相談から設計、構築、保守までを受託します。日本製鉄グループの鉄鋼システムも担当。クラウドや通信基盤、セキュリティの整備に加え、文書管理や電子契約の仕組みを提供し、企業の情報システム業務を代行します。",
+      "proof": {
+        "code": "2327",
+        "exchange": "Tokyo",
+        "corporate_number": "9010001045803",
+        "edinet_code": "E05304",
+        "source_company_name": "日鉄ソリューションズ株式会社",
+        "filing_company_name": "日鉄ソリューションズ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YAEV",
+        "current_edinet_code": "E05304",
+        "current_corporate_number": "9010001045803"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YAEV",
+      "filed_on": "2026-06-15",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843736.735543,
+      "pdf_sha256": "c89eeeff3fd55b23fa46258f5362024833cf36e2e8d230cf30c24047541a103f"
+    },
+    {
+      "symbol": "2349.T",
+      "identity": {
+        "symbol": "2349.T",
+        "code": "2349",
+        "name": "エヌアイデイ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "金融、通信、公共・社会インフラ分野などの顧客に、業務や機器を動かすソフトを設計・開発する会社です。グループで組込みソフト、通信ソフト、金融業務用のソフトを受託開発し、自社はサーバーやネットワークの構築、セキュリティ対策、システムの保守・運用を担います。スマートフォンなどで使うアプリやパッケージ製品も開発し、子会社ではデータ入力サービスや人材派遣も行います。",
+      "proof": {
+        "code": "2349",
+        "exchange": "Tokyo",
+        "corporate_number": "8040001063472",
+        "edinet_code": "E05322",
+        "source_company_name": "株式会社エヌアイデイ",
+        "filing_company_name": "株式会社エヌアイデイ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YK0N",
+        "current_edinet_code": "E05322",
+        "current_corporate_number": "8040001063472"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YK0N",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843760.7405472,
+      "pdf_sha256": "3926dcdcfaa04ff43675da47412968acf14b4fe56419812494b4d3b63d4e2de1"
+    },
+    {
+      "symbol": "2373.T",
+      "identity": {
+        "symbol": "2373.T",
+        "code": "2373",
+        "name": "ケア21",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "高齢者などの生活を在宅と施設の両方で支える介護会社です。訪問介護で入浴・食事の介助や家事を行い、ケアプランの作成、デイサービス、有料老人ホーム、認知症の人向けのグループホームを運営します。グループでは訪問看護、介護職員の教育・紹介・派遣、施設への給食も提供。車いすや介護用ベッドの販売・貸出し、手すりの設置などの住宅改修、保育所や障がい者の就労支援も手がけます。",
+      "proof": {
+        "code": "2373",
+        "exchange": "Tokyo",
+        "corporate_number": "5120001101680",
+        "edinet_code": "E05353",
+        "source_company_name": "株式会社ケア２１",
+        "filing_company_name": "株式会社ケア21",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XHNL",
+        "current_edinet_code": "E05353",
+        "current_corporate_number": "5120001101680"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XHNL",
+      "filed_on": "2026-01-28",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843772.8413508,
+      "pdf_sha256": "c4146427ed2cc1147ac60b2bfce7e5dc5f6c725d210dc9d7212a690b5e900eee"
+    },
+    {
+      "symbol": "2436.T",
+      "identity": {
+        "symbol": "2436.T",
+        "code": "2436",
+        "name": "共同ピーアール",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や団体の情報を社会に伝える広報支援会社です。ニュース発表文の作成、記者への情報提供や取材調整、発表会・イベントの運営を支援し、不祥事などへの対応方針づくりや会見の練習も行います。子会社のVAZではSNSのクリエイターを通じて商品やサービスを紹介。グループにはネット上の情報を集めてAIなどで分析し、社内データと合わせて企業の市場調査や意思決定を助ける事業もあります。",
+      "proof": {
+        "code": "2436",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001041427",
+        "edinet_code": "E05477",
+        "source_company_name": "共同ピーアール株式会社",
+        "filing_company_name": "共同ピーアール株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XUFT",
+        "current_edinet_code": "E05477",
+        "current_corporate_number": "4010001041427"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XUFT",
+      "filed_on": "2026-03-26",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843827.696289,
+      "pdf_sha256": "8be5efb05da0abbfa39ad5e51875fa52be3bb3c49f69e38242c7070bf8b336b1"
+    },
+    {
+      "symbol": "2471.T",
+      "identity": {
+        "symbol": "2471.T",
+        "code": "2471",
+        "name": "エスプール",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "企業や自治体の仕事の一部を請け負い、人材の活用を支える会社です。子会社が障がい者の働く農園を企業に貸し、採用・教育・定着を支援するほか、通販商品の発送、アルバイト採用、自治体の行政業務などを受託します。コールセンター、店頭販売、ホテル向けの人材派遣では、子会社の社員とスタッフをチームで送り現場で育成。シニアの経験を企業の課題解決につなげ、温室効果ガスの算定・開示も支援します。",
+      "proof": {
+        "code": "2471",
+        "exchange": "Tokyo",
+        "corporate_number": "8010001072939",
+        "edinet_code": "E05555",
+        "source_company_name": "株式会社エスプール",
+        "filing_company_name": "株式会社エスプール",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XN00",
+        "current_edinet_code": "E05555",
+        "current_corporate_number": "8010001072939"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XN00",
+      "filed_on": "2026-02-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843860.534848,
+      "pdf_sha256": "f4b4a383770f1f855b674e2e43d24dfa2c233550a449bb4843a068cffb0f25c0"
+    },
+    {
+      "symbol": "2678.T",
+      "identity": {
+        "symbol": "2678.T",
+        "code": "2678",
+        "name": "アスクル",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "事業所の文具、事務用品、家具、工場で使う消耗品などを販売する通販会社です。「ASKUL」ではネットやFAXの注文を受け、自社から顧客へ商品を配送します。販売店が顧客開拓や代金回収を担う仕組みが特徴です。個人向けには「LOHACO」を運営し、グループで歯科材料やペット・園芸用品も扱います。物流子会社は商品の保管や配送を企業から請け負い、大企業の購買手続きの代行も子会社が支援します。",
+      "proof": {
+        "code": "2678",
+        "exchange": "Tokyo",
+        "corporate_number": "5010601030357",
+        "edinet_code": "E03363",
+        "source_company_name": "アスクル株式会社",
+        "filing_company_name": "アスクル株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YSYE",
+        "current_edinet_code": "E03363",
+        "current_corporate_number": "5010601030357"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YSYE",
+      "filed_on": "2026-07-30",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791843970.4986088,
+      "pdf_sha256": "a9df6beb0808752dc99c09ac15ddd57eead69be4607df631f9d29f5e2f223eb1"
+    },
+    {
+      "symbol": "2735.T",
+      "identity": {
+        "symbol": "2735.T",
+        "code": "2735",
+        "name": "ワッツ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "「Watts」「Watts with」「meets.」「silk」などの100円ショップを運営します。文具や掃除用品、台所用品、衛生用品といった日常の消耗品を中心に販売し、店舗の多くはスーパーや商業施設の中に出店しています。グループでは他の小売店への卸売も行い、メーカーや問屋から店舗への直送と物流センターを使って商品を補充。雑貨店、日用品の割引店、海外の均一価格店も展開します。",
+      "proof": {
+        "code": "2735",
+        "exchange": "Tokyo",
+        "corporate_number": "4120001106103",
+        "edinet_code": "E03391",
+        "source_company_name": "株式会社ワッツ",
+        "filing_company_name": "株式会社ワッツ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100X626",
+        "current_edinet_code": "E03391",
+        "current_corporate_number": "4120001106103"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100X626",
+      "filed_on": "2025-11-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791844003.868993,
+      "pdf_sha256": "00337daa504d540a23101ea3c3feb0e09dab00a8704901186d4c115a4133033a"
+    },
+    {
+      "symbol": "2790.T",
+      "identity": {
+        "symbol": "2790.T",
+        "code": "2790",
+        "name": "ナフコ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "住まいや仕事場で使う商品を販売する小売会社です。建築などの資材、DIY・園芸用品、日用品、家具や室内の装飾用品を扱い、一般家庭から専門業者までを顧客としています。九州・中国地方を中心に店舗を持ち、関西や中部、関東にも展開。広い駐車場を備えた郊外の大型店を中心に、家庭の買い物と作業用の材料調達に応える品ぞろえを組み合わせています。",
+      "proof": {
+        "code": "2790",
+        "exchange": "Tokyo",
+        "corporate_number": "7290801002705",
+        "edinet_code": "E03421",
+        "source_company_name": "株式会社ナフコ",
+        "filing_company_name": "株式会社ナフコ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ0H",
+        "current_edinet_code": "E03421",
+        "current_corporate_number": "7290801002705"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ0H",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847391.15292,
+      "pdf_sha256": "ed704824d322e21a7d9ff7b5456bbdc9461c4fbc3ca1125a2c0f4dbb9b045b29"
+    },
+    {
+      "symbol": "2805.T",
+      "identity": {
+        "symbol": "2805.T",
+        "code": "2805",
+        "name": "ヱスビー食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "料理の味付けに使う香辛料や、カレー製品などを製造・販売する会社です。国内では即席カレー、チューブ入りの商品、レトルトカレーなどを自社とグループで作ります。原料の輸入や国内調達を担う会社と、商品を製造して本体へ納める会社が役割を分担。海外では本体と米国・シンガポール・カナダの販売子会社が、日本から供給する香辛料やカレー製品などを現地の取引先へ届けます。",
+      "proof": {
+        "code": "2805",
+        "exchange": "Tokyo",
+        "corporate_number": "6010001034750",
+        "edinet_code": "E00452",
+        "source_company_name": "ヱスビー食品株式会社",
+        "filing_company_name": "ヱスビー食品株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGTZ",
+        "current_edinet_code": "E00452",
+        "current_corporate_number": "6010001034750"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGTZ",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847409.2254798,
+      "pdf_sha256": "d3e9d6895d9a087d67cc521389eb06c71cf217e8dd7013983a308b0635f1ca87"
+    },
+    {
+      "symbol": "2809.T",
+      "identity": {
+        "symbol": "2809.T",
+        "code": "2809",
+        "name": "キユーピー",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "マヨネーズやドレッシングを作り、家庭用と業務用に販売する食品会社です。グループでは惣菜、パッケージ詰めのサラダ、液卵や卵の加工品、食酢なども供給します。中国、米国、タイなどでもマヨネーズやドレッシングを製造・販売。子会社のアヲハタがジャムや加工した果物を扱うほか、ヒアルロン酸などの素材、食品製造機械も提供し、調味料から食材・製造に関わる商品まで幅広く手がけます。",
+      "proof": {
+        "code": "2809",
+        "exchange": "Tokyo",
+        "corporate_number": "6011001006277",
+        "edinet_code": "E00464",
+        "source_company_name": "キユーピー株式会社",
+        "filing_company_name": "キユーピー株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100XMJE",
+        "current_edinet_code": "E00464",
+        "current_corporate_number": "6011001006277"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100XMJE",
+      "filed_on": "2026-02-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847415.350476,
+      "pdf_sha256": "fe1c6a782f55ea2fd744050b53067a87ca2e17354bffdc350014573b8cdb8e01"
+    },
+    {
+      "symbol": "2831.T",
+      "identity": {
+        "symbol": "2831.T",
+        "code": "2831",
+        "name": "はごろもフーズ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "缶詰やレトルト食品、パスタ、包装されたご飯を製造・販売する食品会社です。削りぶし、のり、ふりかけなども扱い、幅広い種類の加工食品を取引先に供給します。ツナ製品の一部はインドネシアの関連会社に製造を委託。子会社のセントラルサービスは製品の出荷手配や運送会社への支払などの事務を担い、食品を届ける工程を支えます。食品の製造販売に加え、不動産の賃貸も行っています。",
+      "proof": {
+        "code": "2831",
+        "exchange": "Tokyo",
+        "corporate_number": "3080001008932",
+        "edinet_code": "E00508",
+        "source_company_name": "はごろもフーズ株式会社",
+        "filing_company_name": "はごろもフーズ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJSM",
+        "current_edinet_code": "E00508",
+        "current_corporate_number": "3080001008932"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJSM",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847438.005471,
+      "pdf_sha256": "83fc30cd2cecdd3448e79c0ec19dc00cf101e89928201f1f03c6a9e6b1141ec8"
+    },
+    {
+      "symbol": "2876.T",
+      "identity": {
+        "symbol": "2876.T",
+        "code": "2876",
+        "name": "デルソーレ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "ピザや海外の食文化に由来するパンを作って販売し、飲食店や持ち帰り店も展開する会社です。食品事業では自社でパン製品などを製造する一方、関連するヒガ・インダストリーズから商品や原材料も仕入れます。外食事業では串焼きや鶏肉の惣菜、たい焼きを販売し、直営店とフランチャイズ店を運営。食品の製造販売と、店頭で料理を提供する二つの形で顧客に商品を届けています。",
+      "proof": {
+        "code": "2876",
+        "exchange": "Tokyo",
+        "corporate_number": "7011001041298",
+        "edinet_code": "E00488",
+        "source_company_name": "株式会社デルソーレ",
+        "filing_company_name": "株式会社デルソーレ",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YC0N",
+        "current_edinet_code": "E00488",
+        "current_corporate_number": "7011001041298"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YC0N",
+      "filed_on": "2026-06-16",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847453.0636811,
+      "pdf_sha256": "07f2d415adfd1d56f9bfe58874623433a92469f822f85fee7ed6d45b34b41dc7"
+    },
+    {
+      "symbol": "2897.T",
+      "identity": {
+        "symbol": "2897.T",
+        "code": "2897",
+        "name": "日清食品ホールディングス",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "即席麺を中心に食品を扱うグループの持株会社です。日清食品や明星食品などの事業会社が商品を製造・販売し、グループでは冷蔵食品、冷凍食品、乳酸菌飲料、菓子なども手がけます。米州、中国、アジア、欧州の拠点でも現地の子会社や関連会社が即席麺を製造・販売。現地法人への技術支援を行うほか、食品事業に付随する物流なども含め、国内外の製造・供給を支える事業を展開します。",
+      "proof": {
+        "code": "2897",
+        "exchange": "Tokyo",
+        "corporate_number": "7120001057574",
+        "edinet_code": "E00457",
+        "source_company_name": "日清食品ホールディングス株式会社",
+        "filing_company_name": "日清食品ホールディングス株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YEWB",
+        "current_edinet_code": "E00457",
+        "current_corporate_number": "7120001057574"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YEWB",
+      "filed_on": "2026-06-22",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847466.8905432,
+      "pdf_sha256": "9510c14e7f9c8bf58506fd713972542e6ba6f2fe058eba139a68d8ab6d607fcc"
+    },
+    {
+      "symbol": "2908.T",
+      "identity": {
+        "symbol": "2908.T",
+        "code": "2908",
+        "name": "フジッコ",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "昆布や豆を使った食品、惣菜などを製造・販売する会社です。塩こんぶ「ふじっ子」、佃煮の「ふじっ子煮」、煮豆の「おまめさん」のほか、水煮や蒸し豆、日々のおかずを扱います。「カスピ海ヨーグルト」や大豆を使うヨーグルト、ナタデココ入りのデザート、サプリメントや機能性素材も供給。海外ではグループ会社がタイで冷凍惣菜を作って販売し、インドネシア向けの食品製造・販売も行います。",
+      "proof": {
+        "code": "2908",
+        "exchange": "Tokyo",
+        "corporate_number": "9140001010604",
+        "edinet_code": "E00481",
+        "source_company_name": "フジッコ株式会社",
+        "filing_company_name": "フジッコ株式会社",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YF97",
+        "current_edinet_code": "E00481",
+        "current_corporate_number": "9140001010604"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YF97",
+      "filed_on": "2026-06-24",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847499.005738,
+      "pdf_sha256": "54fda9d34dd039dbc4bda898a87b4177531c192f551eda12e55b9d4e9c675e03"
+    },
+    {
+      "symbol": "2922.T",
+      "identity": {
+        "symbol": "2922.T",
+        "code": "2922",
+        "name": "なとり",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "おつまみを中心に、魚介や肉、乳製品、ナッツなどを加工した食品を作って販売する会社です。さきいか、チーズかまぼこ、いかフライ、サラミ、「チーズ鱈」、梅や飴のほか、冷蔵で扱う商品も展開します。自社とメイホク食品、函館なとりなどの子会社が製造を担い、グループ各社が取引先への販売を分担。多様な素材を使った食品を常温や冷蔵の形で供給し、不動産を貸す事業も行います。",
+      "proof": {
+        "code": "2922",
+        "exchange": "Tokyo",
+        "corporate_number": "9011501003449",
+        "edinet_code": "E00506",
+        "source_company_name": "株式会社なとり",
+        "filing_company_name": "株式会社なとり",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YJ2U",
+        "current_edinet_code": "E00506",
+        "current_corporate_number": "9011501003449"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YJ2U",
+      "filed_on": "2026-06-25",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847530.436351,
+      "pdf_sha256": "4e6e0c95ce5aee42aaead4e6f5e81334796774897e35f4ef1717fe2f3b1ac92b"
+    },
+    {
+      "symbol": "2933.T",
+      "identity": {
+        "symbol": "2933.T",
+        "code": "2933",
+        "name": "紀文食品",
+        "exchange": "Tokyo",
+        "exchange_id": "Q217475"
+      },
+      "source_kind": "public_annual_report",
+      "use_basis": "independent_summary_of_business_facts",
+      "text": "魚のすり身を使う食品、惣菜、塩辛などの珍味を作り、販売する会社です。国内の自社工場などで製造し、海外ではタイの子会社と台湾の関連会社がカニカマなどを供給します。グループの商社はすり身や魚介、穀物などを調達し、食品メーカーや食品商社へ販売。物流子会社は冷蔵食品の物流や複数の荷主の共同配送を請け負い、物流システムの開発や食品の衛生検査もグループで行います。",
+      "proof": {
+        "code": "2933",
+        "exchange": "Tokyo",
+        "corporate_number": "4010001041880",
+        "edinet_code": "E36466",
+        "source_company_name": "株式会社紀文食品",
+        "filing_company_name": "株式会社紀文食品",
+        "official_code_match": true,
+        "current_company_name_match": true,
+        "doc_id": "S100YGHF",
+        "current_edinet_code": "E36466",
+        "current_corporate_number": "4010001041880"
+      },
+      "source_url": "https://info.gbiz.go.jp/hojin/edinetDownload?docId=S100YGHF",
+      "filed_on": "2026-06-23",
+      "checked_on": "2026-10-13",
+      "fetched_at": 1791847546.987554,
+      "pdf_sha256": "30135ebfbf5441764cdd2993d5f83e15b2d9b6949a105d5dafaf4b7d8a673087"
     }
   ]
 }
