@@ -1,4 +1,5 @@
 /* A: quiet list with a visible palette and the original features. */
+#sideDrawer #knSavedMenu{display:none!important;}
 body.kn-home-a #sideDrawer.kn-menu-a{width:min(350px,calc(100vw - 28px));left:0;transform:translateX(-105%);height:100dvh;display:flex;flex-direction:column;padding:0;overflow:hidden;transition:transform .25s ease;box-shadow:8px 0 30px #24352d20;font-family:var(--kn-a-sans);}
 body.kn-home-a #sideDrawer.kn-menu-a.open{transform:translateX(0)}
 #sideDrawer.kn-menu-a .kn-menu-header{display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:none;padding:18px 20px 14px;border-bottom:1px solid var(--kn-a-line);font:400 calc(22px * var(--kn-a-scale,1))/1.5 var(--kn-a-serif);color:var(--kn-a-ink);}
