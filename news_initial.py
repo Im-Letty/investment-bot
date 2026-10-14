@@ -209,7 +209,8 @@ def render_initial_market(html, data, *, now=None):
     return html.replace('</head>', '<script type="application/json" id="knInitialMarket">' + serialized + '</script></head>', 1)
 
 
-def news_index_response(html_path, cache, request, *, now=None, market_payload=None):
+def news_index_response(html_path, cache, request, *, now=None, market_payload=None,
+                        html_transform=None):
     # Start all feed refreshes before file reads/rendering, but never wait for
     # external traffic before returning the HTML and published edition.
     snapshot = cache.snapshot(wait=False)
@@ -217,7 +218,10 @@ def news_index_response(html_path, cache, request, *, now=None, market_payload=N
     edition = datetime.fromtimestamp(now, JST).date().isoformat()
     data = initial_news(snapshot, now=now, reviewed_digests=load_reviewed_digests(),
                         reviewed_supplements=load_reviewed_supplements())
-    html = render_initial_html(Path(html_path).read_text(encoding="utf-8"), data)
+    source = Path(html_path).read_text(encoding="utf-8")
+    if html_transform is not None:
+        source = html_transform(source)
+    html = render_initial_html(source, data)
     body = render_initial_market(html, market_payload, now=now).encode("utf-8")
     # Render's existing edge compression handles the wire representation.
     response = Response(body, mimetype="text/html")

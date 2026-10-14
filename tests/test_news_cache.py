@@ -891,6 +891,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         import re
         from flask import request, send_file
         from news_initial import news_index_response
+        from startup_assets import StartupAssets
         root = Path(__file__).parents[1]
         tree = ast.parse((root / 'line_bot.py').read_text())
         nodes = [node for node in tree.body if isinstance(node, ast.FunctionDef)
@@ -899,6 +900,7 @@ class RouteCompatibilityTests(unittest.TestCase):
         cache = Mock(); cache.snapshot.return_value = {'news': []}
         exec(compile(ast.Module(body=nodes, type_ignores=[]), 'file-routes', 'exec'),
              dict(app=app, request=request, send_file=send_file, re=re, os=os,
+                  startup_assets=StartupAssets(root),
                   initial_market_payload=lambda: {'market': {}},
                   news_index_response=news_index_response, website_news=cache))
         client = app.test_client()

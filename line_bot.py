@@ -19,6 +19,7 @@ from line_news import is_news_request, format_news_reply
 from news_cache import (NEWS_FEEDS, PUBLISHED_NEWS_SOURCES, OFFICIAL_NEWS_SOURCES, news_cache, HeadlineTranslations,
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
+from startup_assets import StartupAssets
 from flask import Flask, request, abort, jsonify, redirect, send_file
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -47,6 +48,8 @@ except Exception as _e_google:
     build = None
 
 app = Flask(__name__)
+startup_assets = StartupAssets(app.root_path)
+startup_assets.register(app)
 APP_START_TIME = datetime.now()
 APP_VERSION = "v46-isolated-morning-news"
 
@@ -2688,7 +2691,8 @@ def index():
     # The current published edition is part of the first HTML response; external
     # feed refreshes run in the background without delaying readable content.
     return news_index_response(os.path.join(app.root_path, "index.html"), website_news, request,
-                               market_payload=initial_market_payload())
+                               market_payload=initial_market_payload(),
+                               html_transform=startup_assets.transform)
 
 
 @app.after_request

@@ -561,7 +561,9 @@ class InitialResponseTests(unittest.TestCase):
         tree = ast.parse((ROOT / 'line_bot.py').read_text(encoding='utf-8'))
         node = next(node for node in tree.body if isinstance(node, ast.FunctionDef) and node.name == 'index')
         app = Flask('real-index-wrapper', root_path=str(ROOT))
+        from startup_assets import StartupAssets
         context = {'app': app, 'os': os, 'request': request, 'website_news': self.cache,
+                   'startup_assets': StartupAssets(ROOT),
                    'initial_market_payload': lambda: {'market': {}},
                    'news_index_response': lambda path, cache, req, **kwargs: news_index_response(path, cache, req, now=NOW, **kwargs)}
         exec(compile(ast.Module(body=[node], type_ignores=[]), 'index-wrapper', 'exec'), context)
