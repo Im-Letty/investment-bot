@@ -22,9 +22,12 @@ class CompanySelectionTests(unittest.TestCase):
         self.assertEqual(priority('関連会社の株式譲渡契約締結について'), (5, 'business_change'))
         self.assertEqual(priority('成長支援ファンドへの出資について'), (4, 'investment'))
         self.assertEqual(priority('出資先会社の株式譲渡について'), (5, 'business_change'))
+        self.assertEqual(priority('架空の関連会社の株式取得（完全子会社化）に関するお知らせ'),
+                         (5, 'business_change'))
+        self.assertEqual(priority('架空の子会社の完全子会社化を決定'), (5, 'business_change'))
 
     def test_new_keywords_do_not_override_routine_exclusion_or_add_forecasts(self):
-        for title in ['株式譲渡に関する説明会を開催', '出資先企業の役員人事について',
+        for title in ['株式譲渡に関する説明会を開催', '株式取得に関する説明会を開催', '出資先企業の役員人事について',
                       'ファンドへの出資状況に関するセミナー',
                       '次世代システムの名称を決定', '将来の株価上昇を予想']:
             self.assertEqual(priority(title), (0, None))

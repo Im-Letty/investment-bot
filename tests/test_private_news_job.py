@@ -330,8 +330,12 @@ class PrivateJobTests(unittest.TestCase):
         result = self.run_job()
         report = job.safe_report(result, at(), self.clock.now)
         self.assertEqual((report["status"], report["success"]), ("source_unavailable", False))
-        self.assertEqual(result["source_status"], rows)
-        self.assertEqual(report["source_status"], rows)
+        # A manifest made before FSA was added is incomplete for that source;
+        # retain its diagnostics and explicitly report the unobserved source.
+        expected = {**rows, "金融庁": {
+            "feed_status": "not_completed", "status": "fetch_incomplete", "errors": []}}
+        self.assertEqual(result["source_status"], expected)
+        self.assertEqual(report["source_status"], expected)
         self.assertEqual(report["source_article_count"], 0)
         self.assertEqual(report["source_date_counts"], {})
         self.build.assert_not_called()
@@ -567,6 +571,7 @@ class SafeResultTests(unittest.TestCase):
             "財務省": {"feed_status": "failed", "status": "articles_unavailable",
                 "errors": ["body_or_date_unverified", "supporting_pdf_identity_mismatch"]},
             "日本銀行": {"feed_status": "ok", "status": "collected", "errors": []},
+            "金融庁": {"feed_status": "not_completed", "status": "fetch_incomplete", "errors": []},
         }
         manifest = {"articles": [], "source_status": rows, "body": secrets[3], "api_key": secrets[0]}
         result = job._outcome("source_unavailable", "2026-10-06", manifest=manifest)

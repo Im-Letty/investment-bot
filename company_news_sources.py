@@ -183,8 +183,11 @@ def _download(url, deadline):
                         raise ValueError("source_unavailable")
                     mime = response.headers.get("Content-Type", "").split(";", 1)[0].lower().strip()
                     is_feed = url in FEEDS.values()
+                    is_html_index = any(config.get('discovery_format') == 'html'
+                                        and config['feed'] == url
+                                        for config in additional.SOURCES.values())
                     allowed = ({"text/xml", "application/xml", "application/rss+xml", "application/rdf+xml"}
-                               if is_feed else {"text/html", "application/xhtml+xml"})
+                               if is_feed and not is_html_index else {"text/html", "application/xhtml+xml"})
                     if mime not in allowed:
                         raise ValueError("source_content_type")
                     length = response.headers.get("Content-Length")
@@ -411,7 +414,8 @@ def collection_schedule(now=None, *, until=None):
     if until is not None:
         current = min(current, _now(until))
     expansion = {label: url for label, url in FEEDS.items()
-                 if label in issuer_feeds.EXPANSION_CHANNELS}
+                 if label in issuer_feeds.EXPANSION_CHANNELS
+                 or additional.SOURCES.get(label, {}).get('expansion_route') is True}
     bases = {label: url for label, url in FEEDS.items() if label not in expansion}
     return select_route_schedule(bases, expansion, current.timestamp())
 

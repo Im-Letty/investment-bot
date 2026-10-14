@@ -117,7 +117,7 @@ class AdditionalSourceTests(unittest.TestCase):
     def test_all_eight_inspected_templates_produce_catalogue_matched_private_inputs(self):
         self.assertEqual(sources.direct_feed_company_count(), 11)
         for label, cfg in sources.SOURCES.items():
-            if cfg['template'] == 'prtimes_group':
+            if cfg['template'] == 'prtimes_group' or cfg.get('discovery_format') == 'html':
                 continue  # The independent distribution route has separate issuer/actor fixtures.
             with self.subTest(label=label):
                 record = self.extract(label)

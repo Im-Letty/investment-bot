@@ -1,6 +1,6 @@
-"""Fixed, inspected official corporate RSS routes; no requests or AI calls.
+"""Fixed, inspected official corporate RSS/HTML routes; no requests or AI calls.
 
-RSS discovers candidates; an inspected original heading, visible date and
+RSS or a fixed HTML index discovers candidates; an original heading, visible date and
 announcing company are required before a private writing input is returned.
 Coverage is this registered subset, not every Nikkei 225 announcement.
 """
@@ -16,6 +16,7 @@ from daily_news_sources import JST, _Document, _jsonld
 from official_news_sources import (_agree, _body_text as _original_body_text, _descends, _in_window,
                                    _now, _publication, _visible_content)
 from company_news_selection import candidate_order, priority
+from company_news_official_html import FURUKAWA_CONFIG, TOSOH_CONFIG
 
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
@@ -80,12 +81,15 @@ SOURCES = {
         path=r'/main/html/rd/p/[0-9]{9}\.000139670\.html', template='prtimes_group',
         actors=('大阪ガス株式会社',), company_id='139670'),
 }
+SOURCES['古河電気工業'] = dict(FURUKAWA_CONFIG)
+SOURCES['東ソー'] = dict(TOSOH_CONFIG)
 FEEDS = {label: config['feed'] for label, config in SOURCES.items()}
 
 
 def direct_feed_company_count():
     """The three existing native routes plus unique additional issuers."""
-    return 3 + len({config['symbol'] for config in SOURCES.values()})
+    return 3 + len({config['symbol'] for config in SOURCES.values()
+                    if config.get('discovery_format') != 'html'})
 
 
 def _compact(value):
@@ -204,6 +208,9 @@ def parse_feed(payload, source, now, since, catalogue):
     now, since = _window(now, since)
     if not valid_identity(source, catalogue):
         return []
+    if SOURCES[source].get('discovery_format') == 'html':
+        from company_news_official_html import parse_index
+        return parse_index(payload, source, now, since, catalogue)
     text = _decode(payload)
     if re.search(r'<!DOCTYPE|<!ENTITY', text, re.I):
         raise ValueError('unsupported_feed_declaration')
@@ -322,6 +329,9 @@ def _declared_actor(actor, body, dateline=''):
 def _layout(document, config, now=None, expected_url=None):
     """Return heading, visible dateline, narrative and optional original clock."""
     template = config['template']
+    if template in ('furukawa_html', 'tosoh_html'):
+        from company_news_official_html import article_layout
+        return article_layout(document, config, expected_url)
     if template == 'toyota':
         root = _single(_nodes(document, tag='div', cls='contents_main'))
         header = _single(_nodes(document, root, tag='div', cls='article_info')) if root else None
@@ -509,6 +519,15 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
     actor = actors[0]
     business, business_url, mode = _context(member, body, url)
     provenance = catalogue.provenance
+    evidence = {'feed_published_at': None, 'feed_reported_at': feed_publication['published_at'],
+                'feed_timestamp_role': 'discovery', 'feed_date_fields': dict(fields),
+                'article_published_at': publication['published_at'], 'visible_original_date': _body_text(dateline),
+                'article_original_clock': original_clocks or None}
+    if config.get('discovery_format') == 'html':
+        evidence = {'discovery_format': 'html_index', 'index_url': config['feed'],
+                    'index_date_fields': dict(fields), 'index_timestamp_role': 'discovery',
+                    'article_published_at': publication['published_at'],
+                    'visible_original_date': _body_text(dateline), 'article_original_clock': original_clocks or None}
     return {'source': source, 'symbol': member['symbol'], 'name': member['name'], 'related_company': actor,
             'sector': member.get('sector') or '企業の取り組み', 'business': business,
             'business_url': business_url, 'business_context_mode': mode, 'title': title, 'url': url,
@@ -516,7 +535,4 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
             'catalogue_facts_sha256': catalogue.facts_sha256, 'body': body,
             'body_sha256': sha256(body.encode()).hexdigest(), 'body_verified_at': observed_at,
             'observed_at': observed_at, 'evidence_url': final_url, **publication,
-            'publication_evidence': {'feed_published_at': None, 'feed_reported_at': feed_publication['published_at'],
-                'feed_timestamp_role': 'discovery', 'feed_date_fields': dict(fields),
-                'article_published_at': publication['published_at'], 'visible_original_date': _body_text(dateline),
-                'article_original_clock': original_clocks or None}}
+            'publication_evidence': evidence}
