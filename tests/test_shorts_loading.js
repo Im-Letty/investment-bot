@@ -1,6 +1,6 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8'),scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
+const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8').replace(/\bvar K="[^"]+";/g,'var K="fixture-youtube-key";'),scripts=[...html.matchAll(/<script\b[^>]*>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
 const seedSource=scripts.find(s=>s.includes('var SRC=[')&&s.includes('knShortsBtn')),liveSource=scripts.find(s=>s.includes('var TOPICS=[[')&&s.includes('ksPool'));
 assert.ok(seedSource&&liveSource,'exercise both actual Shorts controllers');
 const searchSource=scripts.find(s=>s.includes('window.__ksFetchPatched'));
@@ -30,7 +30,7 @@ function harness({pool=[],managed=true}={}){
  function parseSlides(parent,value){for(const m of value.matchAll(/<div class="ks-slide"([^>]*)>([\s\S]*?)<\/span><\/div><\/div>/g)){const slide=new Node('div');slide.className='ks-slide';for(const a of m[1].matchAll(/([\w-]+)="([^"]*)"/g))slide.setAttribute(a[1],a[2]);const ph=new Node('div');ph.className='ks-ph';ph.textContent='読み込み中…';slide.appendChild(ph);parent.appendChild(slide);}}
  const document={readyState:'complete',hidden:false,body:new Node('body'),createElement:tag=>new Node(tag),getElementById(id){return this.body.querySelector('#'+id);},addEventListener(){}};
  const nav=new Node('nav');nav.id='knBottomNav';document.body.appendChild(nav);for(const action of ['home','morning']){const b=new Node('button');b.className='bn-item';b.setAttribute('data-act',action);nav.appendChild(b);}
- class IO{constructor(fn,options){this.fn=fn;this.options=options;this.targets=new Set();observers.push(this);}observe(n){this.targets.add(n);}disconnect(){this.targets.clear();}fire(node,on=true){this.fn([{target:node,isIntersecting:on,intersectionRatio:on?1:0}]);}}
+ class IO{constructor(fn,options){this.fn=fn;this.options=options;this.targets=new Set();observers.push(this);}observe(n){this.targets.add(n);}unobserve(n){this.targets.delete(n);}disconnect(){this.targets.clear();}fire(node,on=true){this.fn([{target:node,isIntersecting:on,intersectionRatio:on?1:0}]);}}
  const context={document,IntersectionObserver:IO,Date,Math,Promise,setTimeout(){return 1;},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},fetch(url,options){requests.push({url,options});return new Promise((resolve,reject)=>pending.push({resolve,reject}));}};context.window=context;
  const player={active:null,activate(slide){assert.ok(document.getElementById('ksFeed').contains(slide));actions.push({kind:'activate',slide});this.active=slide;mount(slide,true);if(slide.nextElementSibling)this.prepare(slide.nextElementSibling);},prepare(slide){actions.push({kind:'prepare',slide});mount(slide,false);},pause(slide){actions.push({kind:'pause',slide});},close(){actions.push({kind:'close'});const feed=document.getElementById('ksFeed');feed.querySelectorAll('iframe').forEach(n=>n.remove());feed.querySelectorAll('.ks-slide').forEach(n=>n.__m=false);this.active=null;}};
  function mount(slide,active){if(!slide.querySelector('iframe')){const iframe=new Node('iframe');iframe.src='fixture';iframe.active=active;slide.insertBefore(iframe,slide.firstChild);}slide.__m=true;}
@@ -42,6 +42,31 @@ function harness({pool=[],managed=true}={}){
  return {context,document,feed,sheet,button,player,actions,observers,storage,requests,pending,settle,reply,search,close:()=>document.getElementById('ksClose').click(),slides:()=>feed.querySelectorAll('.ks-slide')};
 }
 const result=(id,title='取得した説明')=>({id:{videoId:id},snippet:{title}});
+test('published native metadata joins the visible feed without entering the YouTube pool',()=>{
+ const h=harness();h.button.click();h.context.KNShortsPosting={feedRows:rows=>rows};
+ const before=h.slides().length,pool=h.storage.get('ksPool');
+ const row={id:'upload:51',postId:51,provider:'upload',mediaSrc:'/api/shorts/posts/51/media',cap:'<img onerror="bad">',tag:'#企業'};
+ assert.equal(h.context.KNShortsFeed.appendPublished([row],h.context.KNShortsFeed.captureContext()),1);
+ const published=h.slides().at(-1);assert.equal(h.slides().length,before+1);assert.equal(published.getAttribute('data-media-type'),'upload');assert.equal(published.getAttribute('data-vid'),null);
+ assert.equal(published.getAttribute('data-media-src'),'/api/shorts/posts/51/media');assert.match(h.feed.lastInsertedHTML,/&lt;img/);assert.equal(h.storage.get('ksPool'),pool);
+ assert.equal(h.context.KNShortsFeed.appendPublished([row],h.context.KNShortsFeed.captureContext()),0);
+ assert.equal(h.context.KNShortsFeed.appendPublished([{...row,id:'upload:52',postId:52,mediaSrc:'https://external.invalid/asset'}],h.context.KNShortsFeed.captureContext()),0);
+});
+test('late public posts cannot contaminate a changed search or a closed feed',()=>{
+ const h=harness();h.button.click();h.context.KNShortsPosting={feedRows:rows=>rows};const captured=h.context.KNShortsFeed.captureContext();
+ const row={id:'upload:51',postId:51,provider:'upload',mediaSrc:'/api/shorts/posts/51/media',cap:'投稿',tag:'#企業'};
+ h.search('銀行');assert.equal(h.context.KNShortsFeed.appendPublished([row],captured),0);assert.equal(h.context.KNShortsFeed.appendPublished([row],h.context.KNShortsFeed.captureContext()),0);
+ h.context.__ksKeyword='';h.close();assert.equal(h.context.KNShortsFeed.appendPublished([row],h.context.KNShortsFeed.captureContext()),0);
+});
+test('owner deletion removes only that published slide and its observer/player record',()=>{
+ const h=harness();h.button.click();h.context.KNShortsPosting={feedRows:rows=>rows};
+ const row={id:'upload:51',postId:51,provider:'upload',mediaSrc:'/api/shorts/posts/51/media',cap:'投稿',tag:'#企業'};
+ h.context.KNShortsFeed.appendPublished([row],h.context.KNShortsFeed.captureContext());const target=h.slides().at(-1),seed=h.slides()[0];
+ h.player.remove=slide=>h.actions.push({kind:'remove',slide});
+ assert.equal(h.context.KNShortsFeed.removePublished(51),1);assert.equal(h.feed.contains(target),false);assert.equal(h.feed.contains(seed),true);assert.equal(h.observers[1].targets.has(target),false);
+ assert.ok(h.actions.some(a=>a.kind==='remove'&&a.slide===target));assert.equal(h.context.KNShortsFeed.removePublished(51),0);
+ assert.equal(h.context.KNShortsFeed.appendPublished([row],h.context.KNShortsFeed.captureContext()),1,'a fresh verified feed can restore the id after local removal');
+});
 test('cold open keeps seed DOM and prepared iframe while just one background search is unresolved',()=>{
  const h=harness(),first=h.slides()[0],seedCount=h.slides().length;h.storage.set('ksPool',JSON.stringify([{id:first.getAttribute('data-vid'),cap:'重複',tag:'既存'},{id:'cachevid001',cap:'<img onerror="x">',tag:'" onload="x'},{id:'cachevid001',cap:'<img onerror="x">',tag:'" onload="x'},{id:'invalid"id',cap:'不正',tag:'不正'}]));h.button.click();assert.equal(h.slides()[0],first);assert.ok(first.querySelector('iframe'));assert.ok(first.nextElementSibling.querySelector('iframe'));assert.equal(h.requests.length,1);assert.equal(h.slides().length,seedCount+1);assert.equal(h.feed.lastInsertedHTML.includes('&lt;img'),true);assert.equal(h.feed.lastInsertedHTML.includes('&quot;'),true);assert.ok(h.observers[1].targets.has(first));h.observers.forEach(io=>io.fire(first));assert.equal(h.requests.length,1);
 });

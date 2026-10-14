@@ -272,7 +272,7 @@ class StartupAssetsTests(unittest.TestCase):
     def test_plain_html_without_eligible_tags_is_unchanged(self):
         self.assertEqual(self.assets.transform('<html><body>Original</body></html>'), '<html><body>Original</body></html>')
 
-    def test_current_repository_assets_compile_to_twenty_css_and_twenty_eight_js(self):
+    def test_current_repository_assets_bundle_posting_with_existing_startup_groups(self):
         html = (ROOT / 'index.html').read_text()
         assets = StartupAssets(ROOT)
         transformed = assets.transform(html)
@@ -280,7 +280,11 @@ class StartupAssetsTests(unittest.TestCase):
         app = Flask('actual_startup_assets', static_folder=None)
         assets.register(app)
         bundles = {url.rsplit('.', 1)[1]: app.test_client().get(url).data for url in self.urls(transformed)}
-        self.assertEqual(bundles['js'].count(b'catch (error) { setTimeout(function () { throw error; }, 0); }'), 28)
+        self.assertEqual(bundles['js'].count(b'catch (error) { setTimeout(function () { throw error; }, 0); }'), 29)
+        self.assertIn(b'KNShortsPosting', bundles['js'])
+        self.assertIn(b'.ks-post-overlay', bundles['css'])
+        self.assertNotIn('/static/shorts-posting.js?', transformed)
+        self.assertNotIn('/static/shorts-posting.css?', transformed)
         self.assertEqual(transformed.count('startup-css-'), 1)
         self.assertIn('/static/menu-a.css?', transformed)
         self.assertIn('/static/stock-watch.js?', transformed)
