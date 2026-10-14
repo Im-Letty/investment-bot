@@ -8793,6 +8793,1508 @@
           "actual_GET_receipt_sha256": "335deb073f4bc5898523d37ca26d82073365bd7b090938ee7e9854880c03f5c3"
         }
       ]
+    },
+    {
+      "symbol": "2681.T",
+      "name": "ゲオホールディングス",
+      "business": "2026年10月にセカンドリテイリングへ社名を変更し、グループの経営企画・管理などを担う会社です。グループの「セカンドストリート」では、衣料品やインテリア用品などの中古品を買い取り、販売しています。",
+      "life": "グループの「ゲオ」では映像・ゲーム・書籍を扱い、中古スマートフォンや家電の販売、レンタルなども提供しています。",
+      "watch": "グループでは、衣料品を中心に扱う店と、インテリア・アウトドア用品・楽器などの専門店を展開しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式IR情報・セカンドリテイリング（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://2nd-rtl.com/ir/",
+          "fetched_at": 1791937014.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "f178fbf617590a96e9b056632862eabc96f4cecccfcfbd6711f067f935419609",
+          "actual_retrieved_at_jst": "2026-10-14T09:16:54+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式グループ事業紹介・セカンドリテイリング（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://2nd-rtl.com/business/",
+          "fetched_at": 1791937015.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "56560d5e491db0ef170148775f75df4a44d249310ae0bfb49dbadd6e4bcec3a5",
+          "actual_retrieved_at_jst": "2026-10-14T09:16:55+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式会社概要・セカンドリテイリング（JSON-LD証券コード矛盾／初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://2nd-rtl.com/company/profile/",
+          "fetched_at": 1791937624.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "d291c26b0c4871f619a7e91ace14c29fa306c229f210983ba88a43c9d31236f3",
+          "actual_retrieved_at_jst": "2026-10-14T09:27:04+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "619A.T",
+      "name": "オリバー",
+      "business": "オフィスやホテルなどの空間づくりを、内装の設計・施工から家具の設計・調達まで支援する会社です。家具づくりは国内外の協力会社と進めています。",
+      "life": "仕事場や宿泊施設、医療施設などの内装・家具をまとめて計画し、施工や家具の納入まで手がけます。",
+      "watch": "複数店舗の受発注・配送・施工を管理する「OOS」も提供しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式IR FAQ・オリバー（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.oliverinc.co.jp/ir/faq/",
+          "fetched_at": 1791937017.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "fea127954acbda24383ab9d4fb9f2eddcd7813dfa6bad90c1945f615ea5de7e5",
+          "actual_retrieved_at_jst": "2026-10-14T09:16:57+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式会社概要・オリバー（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.oliverinc.co.jp/company/outline.html",
+          "fetched_at": 1791937020.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "cd30f01379a4d0754d40faccf4f23abd64eeb85b8e9c35e6dbf8b6f7e0d136e6",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:00+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "6460.T",
+      "name": "セガサミーホールディングス",
+      "business": "セガやサミーなどを含むグループの経営を管理する持株会社です。グループではゲームやアニメ、玩具を提供し、パチンコ・パチスロ機の開発と販売も行っています。",
+      "life": "セガを中心とする会社がゲームやアニメ、玩具などを提供し、サミーを中心とする会社がパチンコ・パチスロ機を開発しています。",
+      "watch": "グループは韓国の「パラダイスシティ」でホテルなどを含む複合リゾートを運営し、ゲーミング機器も開発しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式事業領域・セガサミー（ページ初公開不明／更新2026/04/01 10:10 JST／説明は当サイト作成）",
+          "url": "https://www.segasammy.co.jp/ja/corp/business/",
+          "fetched_at": 1791937021.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "5f39a6bf2609d1dfe7dcc1c75a3c24f2f92e37fd2be9f8f2446fcd6fb429384b",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:01+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": "2026-04-01T10:10:48+09:00",
+          "page_modified_at_jst": "2026-04-01T10:10:48+09:00"
+        },
+        {
+          "title": "公表日不明 公式会社概要・セガサミー（ページ初公開不明／更新2026/07/02 18:15 JST／説明は当サイト作成）",
+          "url": "https://www.segasammy.co.jp/ja/corp/profile/?ct=IR",
+          "fetched_at": 1791937021.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "d7bad39a6c0b298dff1d336addbae56b9c61748575293253a66d5035e9f949e0",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:01+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": "2026-07-02T18:15:20+09:00",
+          "page_modified_at_jst": "2026-07-02T18:15:20+09:00"
+        }
+      ]
+    },
+    {
+      "symbol": "7119.T",
+      "name": "ハルメクホールディングス",
+      "business": "雑誌「ハルメク」や通販を手がけるハルメクグループの会社です。グループでは主に50代からの女性に向けて、雑誌出版や商品の開発・販売、旅行・講座を提供しています。",
+      "life": "グループではカタログやインターネットで商品を販売し、店舗で衣料品や靴、化粧品なども扱っています。",
+      "watch": "グループは企業向けに調査、広告の出稿・運用、広告用の制作をまとめて提供しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式企業情報・ハルメクHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.halmek-holdings.co.jp/company/",
+          "fetched_at": 1791937023.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "413d192ff79103ed9568409a800d9d8112e08f43f31d674002a135d8f6a5439e",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:03+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式グループ事業・ハルメクHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.halmek-holdings.co.jp/business/",
+          "fetched_at": 1791937024.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "b7b925b2a119a1d690e92b0e95ab98e76f61e6461f79dc16b23adac1e9656d4a",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:04+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式企業概要・ハルメクHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.halmek-holdings.co.jp/company/profile/",
+          "fetched_at": 1791937626.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "16d57e98f7a721c3e177da19bf970c520170d82f06448185b145d21c2505190d",
+          "actual_retrieved_at_jst": "2026-10-14T09:27:06+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "7177.T",
+      "name": "ＧＭＯフィナンシャルホールディングス",
+      "business": "GMOクリック証券など、金融サービスを提供する子会社の経営を管理する持株会社です。グループでは株式やFX、暗号資産をインターネットで取引するサービスを提供しています。",
+      "life": "子会社のGMOクリック証券では株式・投資信託・FXなどを扱い、GMO外貨ではFXなどの取引サービスを提供しています。",
+      "watch": "子会社のGMOコインは、暗号資産を売買する取引所と販売所のサービスを提供しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社概要・GMOフィナンシャルHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.gmofh.com/company/profile.html",
+          "fetched_at": 1791937026.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "d1c4b2f33dcc8fac44d5337a28da3a3501c971e154b71cbc8a4ce5308a690f65",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:06+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式グループ事業・GMOフィナンシャルHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.gmofh.com/ourbusiness/",
+          "fetched_at": 1791937027.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "74f713613dcbf8f2ba3e4c8bf712e4a5dd9cd91f12375115bb752ed5702098fc",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:07+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "7832.T",
+      "name": "バンダイナムコホールディングス",
+      "business": "グループの戦略づくりと各社の事業管理を担う持株会社です。グループでは玩具・模型、ゲーム、アニメ制作、遊びの施設運営などを手がけています。",
+      "life": "玩具や家庭用ゲーム、アニメ、アミューズメント施設など、グループの商品・サービスを通じて日々の遊びや娯楽に関わっています。",
+      "watch": "グループでは、キャラクターなどの知的財産を軸に、玩具、ゲーム、映像など複数の分野で商品・サービスを展開する点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "原資料公表日不明・バンダイナムコHD会社概要（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.bandainamco.co.jp/about/profile.html",
+          "fetched_at": 1791937030.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "8805c78d26d2f5119688d22a636f97eedbc5a6e95879b08a16f530eb424ed56e",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:10+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "http-equiv": "Content-Type",
+                "content": "text/html; charset=UTF-8"
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width"
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "description",
+                "content": "株式会社バンダイナムコホールディングスの企業情報。"
+              },
+              {
+                "name": "keywords",
+                "content": "バンダイナムコホールディングス,バンダイナムコ,bandainamco,プレスリリース,IR,CSR,グループ,サステナビリティ,グループ採用情報,バンダイ,ナムコ,Bandai Namco Holdings,press releases,corporate profile,investor relations,IR,corporate social responsibility,CSR,sustainability"
+              },
+              {
+                "property": "og:title",
+                "content": "会社概要 | 会社情報 | 株式会社バンダイナムコホールディングス"
+              },
+              {
+                "property": "og:type",
+                "content": "article"
+              },
+              {
+                "property": "og:image",
+                "content": "https://www.bandainamco.co.jp/assets/img/snsThumbnail.png"
+              },
+              {
+                "property": "og:url",
+                "content": "https://www.bandainamco.co.jp/about/profile.html"
+              },
+              {
+                "property": "og:site_name",
+                "content": "株式会社バンダイナムコホールディングス"
+              },
+              {
+                "property": "og:description",
+                "content": "株式会社バンダイナムコホールディングスの企業情報。"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "add604ea4e5d6f9f2d09b0bde656605708d3043cfab925157f306f9163f723a1",
+          "original_page_title": "会社概要 | 会社情報 | 株式会社バンダイナムコホールディングス",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        },
+        {
+          "title": "原資料公表日不明・バンダイナムコグループ事業紹介（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.bandainamco.co.jp/ir/individual/about.html",
+          "fetched_at": 1791937032.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "4223ccd45447fb2321cfd036a1f01340bd1f9a7b73411d2129adf961a70f7e29",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:12+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "http-equiv": "Content-Type",
+                "content": "text/html; charset=UTF-8"
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width"
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "description",
+                "content": "株式会社バンダイナムコホールディングスの投資家様向け情報。経営方針、業績財務情報、株式債券情報、IR資料などを掲載しています"
+              },
+              {
+                "name": "keywords",
+                "content": "バンダイナムコホールディングス,バンダイナムコ,bandainamco,プレスリリース,IR,CSR,グループ,サステナビリティ,グループ採用情報,バンダイ,ナムコ,Bandai Namco Holdings,press releases,corporate profile,investor relations,IR,corporate social responsibility,CSR,sustainability"
+              },
+              {
+                "property": "og:title",
+                "content": "バンダイナムコグループ パクッと早わかり | 個人投資家のみなさまへ | IR・投資家情報 | 株式会社バンダイナムコホールディングス"
+              },
+              {
+                "property": "og:type",
+                "content": "article"
+              },
+              {
+                "property": "og:image",
+                "content": "https://www.bandainamco.co.jp/assets/img/snsThumbnail.png"
+              },
+              {
+                "property": "og:url",
+                "content": "https://www.bandainamco.co.jp/ir/individual/index.html"
+              },
+              {
+                "property": "og:site_name",
+                "content": "株式会社バンダイナムコホールディングス"
+              },
+              {
+                "property": "og:description",
+                "content": "株式会社バンダイナムコホールディングスの投資家様向け情報。経営方針、業績財務情報、株式債券情報、IR資料などを掲載しています"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "e9e35606b975c599669fba06cf46d711d163a51e49260ab9e17272afae9d1488",
+          "original_page_title": "バンダイナムコグループ パクッと早わかり | 個人投資家のみなさまへ | IR・投資家情報 | 株式会社バンダイナムコホールディングス",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        }
+      ]
+    },
+    {
+      "symbol": "8029.T",
+      "name": "ルックホールディングス",
+      "business": "グループ各社の経営を管理する持株会社です。グループでは婦人服や紳士服の輸入・企画・販売、皮革製品の生産・販売などを手がけています。",
+      "life": "グループで衣服や皮革製品を扱い、身に着けるものを企画・生産・販売する仕事に関わっています。",
+      "watch": "衣服の企画・販売に加え、生産の受託や商品の保管・検査もグループで手がける点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "原資料公表日不明・ルックHD会社概要（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.look-holdings.jp/sp/company/profile.html",
+          "fetched_at": 1791937033.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "c5a03bbc23e07ac03f552d11f747a13b5e4f17cd6a5669c32e0ff05c9fbaee71",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:13+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "UTF-8"
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width,initial-scale=1.0,user-scalable=no"
+              },
+              {
+                "name": "keywords",
+                "content": "株式会社ルックホールディングス,LOOK HOLDINGS INCORPORATED,ルックグループ,LOOK GROUP,婦人服,アパレル,ファッション,生活雑貨,会社情報,IR情報"
+              },
+              {
+                "name": "description",
+                "content": "株式会社ルックホールディングスの公式サイト。会社情報、投資家情報、取り扱いブランド、グループ会社をご紹介します。"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "14376700f882e418025e4fb375ea34454a5112ce203617bee4a624b127f2f404",
+          "original_page_title": "会社概要 | 会社情報 | 株式会社ルックホールディングス - LOOK HOLDINGS INCORPORATED -",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        },
+        {
+          "title": "原資料公表日不明・ルックHDグループ会社（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.look-holdings.jp/group/",
+          "fetched_at": 1791937035.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "f23c4b0691ef3419a3b875394b9502194d0b5f398b11cd126f6a2babdc0ed0cc",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:15+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "UTF-8"
+              },
+              {
+                "name": "keywords",
+                "content": "株式会社ルックホールディングス,株式会社LOOK HOLDINGS,ルックグループ,LOOK GROUP,婦人服,アパレル,ファッション,生活雑貨,会社情報,IR情報"
+              },
+              {
+                "name": "description",
+                "content": "株式会社ルックホールディングスの公式サイト。会社情報、投資家情報、取り扱いブランド、グループ会社をご紹介します。"
+              },
+              {
+                "name": "viewport",
+                "content": "width=1000px"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "c9ac7cfa6e27e4fc617b3e7424ad4e6a1967cdbee0f8bc2aa867abece8c5da81",
+          "original_page_title": "グループ会社 | 株式会社ルックホールディングス - LOOK HOLDINGS INCORPORATED -",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        }
+      ]
+    },
+    {
+      "symbol": "8233.T",
+      "name": "高島屋",
+      "business": "大阪店や横浜店などの百貨店と通信販売を営む会社です。グループでは日本橋・玉川などに、百貨店と専門店を組み合わせた商業施設も展開しています。",
+      "life": "大阪や横浜などの店舗での買い物と通信販売を通じて、商品を購入する場を提供しています。",
+      "watch": "百貨店単独の店舗に加え、専門店と組み合わせた商業施設をグループで展開し、国内だけでなくシンガポールなどにも拠点を持つ点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "原資料公表日不明・高島屋会社概要（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.takashimaya.co.jp/corp/info/outline/?msockid=286e1d1497e769b71ed10b6596f1684e",
+          "fetched_at": 1791937039.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "6d5410e400f2fdab6a678f8bc4a0cd37de783a421fb840cc8cebd48a44534192",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:19+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "http-equiv": "Content-Type",
+                "content": "text/html; charset=UTF-8"
+              },
+              {
+                "name": "author",
+                "content": ""
+              },
+              {
+                "name": "description",
+                "content": "株式会社高島屋の会社概要・役員を掲載しております。"
+              },
+              {
+                "name": "keywords",
+                "content": "高島屋,Takashimaya,企業情報,会社概要,会社案内,グループ企業,役員"
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "viewport",
+                "content": "initial-scale=1.0, width=device-width, user-scalable=no"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "a684458ee0cab97905936942472acd1c30739033f2ff110fce492907907c45cf",
+          "original_page_title": "会社概要・役員｜会社案内｜企業情報｜高島屋",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        },
+        {
+          "title": "原資料公表日不明・高島屋国内百貨店業（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.takashimaya.co.jp/corp/info/business/",
+          "fetched_at": 1791937629.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "a9fdc890a5267fa9434091c6b08fbbd541083d703360ad57da75e8e85403303e",
+          "actual_retrieved_at_jst": "2026-10-14T09:27:09+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "http-equiv": "Content-Type",
+                "content": "text/html; charset=UTF-8"
+              },
+              {
+                "name": "author",
+                "content": ""
+              },
+              {
+                "name": "description",
+                "content": "国内百貨店業は、当社のコア事業でありグループ売上の8割以上のシェアを占めています。"
+              },
+              {
+                "name": "keywords",
+                "content": "高島屋,Takashimaya,企業情報,会社概要,会社案内,グループ企業"
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "viewport",
+                "content": "initial-scale=1.0, width=device-width, user-scalable=no"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "1d91965fe4eb6e6bd84c8a3d2a5603357c950787feff15f30553ecb1dec37070",
+          "original_page_title": "国内百貨店業｜会社案内｜企業情報｜高島屋",
+          "original_receipt_container_sha256": "9e39fdf59bc8bf5e3919f36b156002fb312978505501018c5e2fdb65c83d998d"
+        },
+        {
+          "title": "原資料公表日不明・高島屋株式関連情報（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://www.takashimaya.co.jp/corp/shareholder/stock/",
+          "fetched_at": 1791937631.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "cdd676de87daa6f94c5cb61298d03797fa22c05458b340b427da47dc66b8e41b",
+          "actual_retrieved_at_jst": "2026-10-14T09:27:11+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "http-equiv": "Content-Type",
+                "content": "text/html; charset=UTF-8"
+              },
+              {
+                "name": "author",
+                "content": ""
+              },
+              {
+                "name": "description",
+                "content": "株式会社高島屋の株式情報、株主優待制度を掲載しております。"
+              },
+              {
+                "name": "keywords",
+                "content": ""
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "viewport",
+                "content": "initial-scale=1.0, width=device-width, user-scalable=no"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "c14c5deedc810b921b80c04dccc4983627e8b771a5fdfc6fcbc989e0409bff6e",
+          "original_page_title": "株式関連情報｜株主・投資家の皆様｜企業情報｜高島屋",
+          "original_receipt_container_sha256": "9e39fdf59bc8bf5e3919f36b156002fb312978505501018c5e2fdb65c83d998d"
+        }
+      ]
+    },
+    {
+      "symbol": "8237.T",
+      "name": "松屋",
+      "business": "銀座と浅草で百貨店を営み、通信販売も行う会社です。グループでは飲食店の運営や商業空間の設計・施工、建物の保守管理も手がけています。",
+      "life": "百貨店での買い物やグループの飲食店での食事に関わり、食品や衣料品などの品質検査もグループで行っています。",
+      "watch": "店舗での販売に加え、内装の設計・施工や清掃・警備、商品検査を担う会社をグループに持つ点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "原資料公表日不明・松屋会社概要（CMS初公開2023/02/20 05:43・CMS更新2026/07/16 14:34・説明は当サイト作成）",
+          "url": "https://www.matsuya.com/corp/company/profile/",
+          "fetched_at": 1791937042.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "f4f11cd23a413e2c0f1ac4fe8e80212009c1dc0ab518849353f02058f56c68b4",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:22+09:00",
+          "page_initial_published_at": "2023-02-19T20:43:08+00:00",
+          "page_initial_published_at_jst": "2023-02-20T05:43:08+09:00",
+          "page_initial_publication_status": "consistent_same_URL_CMS_metadata",
+          "page_modified_at": "2026-07-16T05:34:08+00:00",
+          "page_modified_at_jst": "2026-07-16T14:34:08+09:00",
+          "page_modified_status": "consistent_same_URL_CMS_metadata",
+          "page_initial_publication_evidence_literals": [
+            {
+              "kind": "OG_meta",
+              "position": 15,
+              "property": "article:published_time",
+              "literal": "2023-02-19T20:43:08+00:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2023-02-20T05:43:08+09:00"
+            },
+            {
+              "kind": "same_URL_WebPage_JSON_LD",
+              "script_index": 0,
+              "node_index": 2,
+              "property": "datePublished",
+              "url": "https://www.matsuya.com/corp/company/profile/",
+              "literal": "2023-02-20T05:43:08+09:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2023-02-20T05:43:08+09:00"
+            }
+          ],
+          "page_modified_evidence_literals": [
+            {
+              "kind": "OG_meta",
+              "position": 16,
+              "property": "article:modified_time",
+              "literal": "2026-07-16T05:34:08+00:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2026-07-16T14:34:08+09:00"
+            },
+            {
+              "kind": "same_URL_WebPage_JSON_LD",
+              "script_index": 0,
+              "node_index": 2,
+              "property": "dateModified",
+              "url": "https://www.matsuya.com/corp/company/profile/",
+              "literal": "2026-07-16T14:34:08+09:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2026-07-16T14:34:08+09:00"
+            }
+          ],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "utf-8"
+              },
+              {
+                "name": "format-detection",
+                "content": "telephone=no"
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "description",
+                "content": ""
+              },
+              {
+                "name": "keywords",
+                "content": ""
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+              },
+              {
+                "name": "description",
+                "content": "株式会社松屋 商号 株式会社松屋 Matsuya Co., Ltd. 創業 1869（明治2）年11月3日 設"
+              },
+              {
+                "name": "robots",
+                "content": "max-image-preview:large"
+              },
+              {
+                "name": "generator",
+                "content": "All in One SEO (AIOSEO) 4.8.9"
+              },
+              {
+                "property": "og:locale",
+                "content": "ja_JP"
+              },
+              {
+                "property": "og:site_name",
+                "content": "松屋-企業サイト -"
+              },
+              {
+                "property": "og:type",
+                "content": "article"
+              },
+              {
+                "property": "og:title",
+                "content": "会社概要 - 松屋-企業サイト"
+              },
+              {
+                "property": "og:description",
+                "content": "株式会社松屋 商号 株式会社松屋 Matsuya Co., Ltd. 創業 1869（明治2）年11月3日 設"
+              },
+              {
+                "property": "og:url",
+                "content": "https://www.matsuya.com/corp/company/profile/"
+              },
+              {
+                "property": "article:published_time",
+                "content": "2023-02-19T20:43:08+00:00"
+              },
+              {
+                "property": "article:modified_time",
+                "content": "2026-07-16T05:34:08+00:00"
+              },
+              {
+                "name": "twitter:card",
+                "content": "summary_large_image"
+              },
+              {
+                "name": "twitter:title",
+                "content": "会社概要 - 松屋-企業サイト"
+              },
+              {
+                "name": "twitter:description",
+                "content": "株式会社松屋 商号 株式会社松屋 Matsuya Co., Ltd. 創業 1869（明治2）年11月3日 設"
+              }
+            ],
+            "JSON_LD": [
+              {
+                "attributes": {
+                  "type": "application/ld+json",
+                  "class": "aioseo-schema"
+                },
+                "raw_text": "\n\t\t\t{\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/profile\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp#listItem\",\"position\":1,\"name\":\"\\u30db\\u30fc\\u30e0\",\"item\":\"https:\\/\\/www.matsuya.com\\/corp\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/#listItem\",\"name\":\"\\u4f01\\u696d\\u60c5\\u5831\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/#listItem\",\"position\":2,\"name\":\"\\u4f01\\u696d\\u60c5\\u5831\",\"item\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/profile\\/#listItem\",\"name\":\"\\u4f1a\\u793e\\u6982\\u8981\"},\"previousItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp#listItem\",\"name\":\"\\u30db\\u30fc\\u30e0\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/profile\\/#listItem\",\"position\":3,\"name\":\"\\u4f1a\\u793e\\u6982\\u8981\",\"previousItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/#listItem\",\"name\":\"\\u4f01\\u696d\\u60c5\\u5831\"}}]},{\"@type\":\"Organization\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#organization\",\"name\":\"\\u677e\\u5c4bCorp\",\"url\":\"https:\\/\\/www.matsuya.com\\/corp\\/\"},{\"@type\":\"WebPage\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/profile\\/#webpage\",\"url\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/profile\\/\",\"name\":\"\\u4f1a\\u793e\\u6982\\u8981 - \\u677e\\u5c4b-\\u4f01\\u696d\\u30b5\\u30a4\\u30c8\",\"description\":\"\\u682a\\u5f0f\\u4f1a\\u793e\\u677e\\u5c4b \\u5546\\u53f7 \\u682a\\u5f0f\\u4f1a\\u793e\\u677e\\u5c4b Matsuya Co., Ltd. \\u5275\\u696d 1869\\uff08\\u660e\\u6cbb2\\uff09\\u5e7411\\u67083\\u65e5 \\u8a2d\",\"inLanguage\":\"ja\",\"isPartOf\":{\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#website\"},\"breadcrumb\":{\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/profile\\/#breadcrumblist\"},\"datePublished\":\"2023-02-20T05:43:08+09:00\",\"dateModified\":\"2026-07-16T14:34:08+09:00\"},{\"@type\":\"WebSite\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#website\",\"url\":\"https:\\/\\/www.matsuya.com\\/corp\\/\",\"name\":\"\\u677e\\u5c4bCorp\",\"inLanguage\":\"ja\",\"publisher\":{\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#organization\"}}]}\n\t\t",
+                "parsed": {
+                  "@context": "https://schema.org",
+                  "@graph": [
+                    {
+                      "@type": "BreadcrumbList",
+                      "@id": "https://www.matsuya.com/corp/company/profile/#breadcrumblist",
+                      "itemListElement": [
+                        {
+                          "@type": "ListItem",
+                          "@id": "https://www.matsuya.com/corp#listItem",
+                          "position": 1,
+                          "name": "ホーム",
+                          "item": "https://www.matsuya.com/corp",
+                          "nextItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp/company/#listItem",
+                            "name": "企業情報"
+                          }
+                        },
+                        {
+                          "@type": "ListItem",
+                          "@id": "https://www.matsuya.com/corp/company/#listItem",
+                          "position": 2,
+                          "name": "企業情報",
+                          "item": "https://www.matsuya.com/corp/company/",
+                          "nextItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp/company/profile/#listItem",
+                            "name": "会社概要"
+                          },
+                          "previousItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp#listItem",
+                            "name": "ホーム"
+                          }
+                        },
+                        {
+                          "@type": "ListItem",
+                          "@id": "https://www.matsuya.com/corp/company/profile/#listItem",
+                          "position": 3,
+                          "name": "会社概要",
+                          "previousItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp/company/#listItem",
+                            "name": "企業情報"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "@type": "Organization",
+                      "@id": "https://www.matsuya.com/corp/#organization",
+                      "name": "松屋Corp",
+                      "url": "https://www.matsuya.com/corp/"
+                    },
+                    {
+                      "@type": "WebPage",
+                      "@id": "https://www.matsuya.com/corp/company/profile/#webpage",
+                      "url": "https://www.matsuya.com/corp/company/profile/",
+                      "name": "会社概要 - 松屋-企業サイト",
+                      "description": "株式会社松屋 商号 株式会社松屋 Matsuya Co., Ltd. 創業 1869（明治2）年11月3日 設",
+                      "inLanguage": "ja",
+                      "isPartOf": {
+                        "@id": "https://www.matsuya.com/corp/#website"
+                      },
+                      "breadcrumb": {
+                        "@id": "https://www.matsuya.com/corp/company/profile/#breadcrumblist"
+                      },
+                      "datePublished": "2023-02-20T05:43:08+09:00",
+                      "dateModified": "2026-07-16T14:34:08+09:00"
+                    },
+                    {
+                      "@type": "WebSite",
+                      "@id": "https://www.matsuya.com/corp/#website",
+                      "url": "https://www.matsuya.com/corp/",
+                      "name": "松屋Corp",
+                      "inLanguage": "ja",
+                      "publisher": {
+                        "@id": "https://www.matsuya.com/corp/#organization"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "87b92f1b877b8a814166811817a0c34c96b262ae2bf798e642358e9dcb7ac65d",
+          "original_page_title": "会社概要 - 松屋-企業サイト",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        },
+        {
+          "title": "原資料公表日不明・松屋グループ会社（CMS初公開2023/02/21 03:29・CMS更新2026/09/26 12:25・説明は当サイト作成）",
+          "url": "https://www.matsuya.com/corp/company/group/",
+          "fetched_at": 1791937043.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "8f894ace740087a8343ad1a0ae4a70ef7167668c8e2d7f5be02016bbebcfcd8a",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:23+09:00",
+          "page_initial_published_at": "2023-02-20T18:29:18+00:00",
+          "page_initial_published_at_jst": "2023-02-21T03:29:18+09:00",
+          "page_initial_publication_status": "consistent_same_URL_CMS_metadata",
+          "page_modified_at": "2026-09-26T03:25:18+00:00",
+          "page_modified_at_jst": "2026-09-26T12:25:18+09:00",
+          "page_modified_status": "consistent_same_URL_CMS_metadata",
+          "page_initial_publication_evidence_literals": [
+            {
+              "kind": "OG_meta",
+              "position": 13,
+              "property": "article:published_time",
+              "literal": "2023-02-20T18:29:18+00:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2023-02-21T03:29:18+09:00"
+            },
+            {
+              "kind": "same_URL_WebPage_JSON_LD",
+              "script_index": 0,
+              "node_index": 2,
+              "property": "datePublished",
+              "url": "https://www.matsuya.com/corp/company/group/",
+              "literal": "2023-02-21T03:29:18+09:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2023-02-21T03:29:18+09:00"
+            }
+          ],
+          "page_modified_evidence_literals": [
+            {
+              "kind": "OG_meta",
+              "position": 14,
+              "property": "article:modified_time",
+              "literal": "2026-09-26T03:25:18+00:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2026-09-26T12:25:18+09:00"
+            },
+            {
+              "kind": "same_URL_WebPage_JSON_LD",
+              "script_index": 0,
+              "node_index": 2,
+              "property": "dateModified",
+              "url": "https://www.matsuya.com/corp/company/group/",
+              "literal": "2026-09-26T12:25:18+09:00",
+              "literal_instant_as_JST_for_consistency_check_only": "2026-09-26T12:25:18+09:00"
+            }
+          ],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "utf-8"
+              },
+              {
+                "name": "format-detection",
+                "content": "telephone=no"
+              },
+              {
+                "http-equiv": "X-UA-Compatible",
+                "content": "IE=edge"
+              },
+              {
+                "name": "description",
+                "content": ""
+              },
+              {
+                "name": "keywords",
+                "content": ""
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no"
+              },
+              {
+                "name": "robots",
+                "content": "max-image-preview:large"
+              },
+              {
+                "name": "generator",
+                "content": "All in One SEO (AIOSEO) 4.8.9"
+              },
+              {
+                "property": "og:locale",
+                "content": "ja_JP"
+              },
+              {
+                "property": "og:site_name",
+                "content": "松屋-企業サイト -"
+              },
+              {
+                "property": "og:type",
+                "content": "article"
+              },
+              {
+                "property": "og:title",
+                "content": "松屋グループ会社 - 松屋-企業サイト"
+              },
+              {
+                "property": "og:url",
+                "content": "https://www.matsuya.com/corp/company/group/"
+              },
+              {
+                "property": "article:published_time",
+                "content": "2023-02-20T18:29:18+00:00"
+              },
+              {
+                "property": "article:modified_time",
+                "content": "2026-09-26T03:25:18+00:00"
+              },
+              {
+                "name": "twitter:card",
+                "content": "summary_large_image"
+              },
+              {
+                "name": "twitter:title",
+                "content": "松屋グループ会社 - 松屋-企業サイト"
+              }
+            ],
+            "JSON_LD": [
+              {
+                "attributes": {
+                  "type": "application/ld+json",
+                  "class": "aioseo-schema"
+                },
+                "raw_text": "\n\t\t\t{\"@context\":\"https:\\/\\/schema.org\",\"@graph\":[{\"@type\":\"BreadcrumbList\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/group\\/#breadcrumblist\",\"itemListElement\":[{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp#listItem\",\"position\":1,\"name\":\"\\u30db\\u30fc\\u30e0\",\"item\":\"https:\\/\\/www.matsuya.com\\/corp\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/#listItem\",\"name\":\"\\u4f01\\u696d\\u60c5\\u5831\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/#listItem\",\"position\":2,\"name\":\"\\u4f01\\u696d\\u60c5\\u5831\",\"item\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/\",\"nextItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/group\\/#listItem\",\"name\":\"\\u677e\\u5c4b\\u30b0\\u30eb\\u30fc\\u30d7\\u4f1a\\u793e\"},\"previousItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp#listItem\",\"name\":\"\\u30db\\u30fc\\u30e0\"}},{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/group\\/#listItem\",\"position\":3,\"name\":\"\\u677e\\u5c4b\\u30b0\\u30eb\\u30fc\\u30d7\\u4f1a\\u793e\",\"previousItem\":{\"@type\":\"ListItem\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/#listItem\",\"name\":\"\\u4f01\\u696d\\u60c5\\u5831\"}}]},{\"@type\":\"Organization\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#organization\",\"name\":\"\\u677e\\u5c4bCorp\",\"url\":\"https:\\/\\/www.matsuya.com\\/corp\\/\"},{\"@type\":\"WebPage\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/group\\/#webpage\",\"url\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/group\\/\",\"name\":\"\\u677e\\u5c4b\\u30b0\\u30eb\\u30fc\\u30d7\\u4f1a\\u793e - \\u677e\\u5c4b-\\u4f01\\u696d\\u30b5\\u30a4\\u30c8\",\"inLanguage\":\"ja\",\"isPartOf\":{\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#website\"},\"breadcrumb\":{\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/company\\/group\\/#breadcrumblist\"},\"datePublished\":\"2023-02-21T03:29:18+09:00\",\"dateModified\":\"2026-09-26T12:25:18+09:00\"},{\"@type\":\"WebSite\",\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#website\",\"url\":\"https:\\/\\/www.matsuya.com\\/corp\\/\",\"name\":\"\\u677e\\u5c4bCorp\",\"inLanguage\":\"ja\",\"publisher\":{\"@id\":\"https:\\/\\/www.matsuya.com\\/corp\\/#organization\"}}]}\n\t\t",
+                "parsed": {
+                  "@context": "https://schema.org",
+                  "@graph": [
+                    {
+                      "@type": "BreadcrumbList",
+                      "@id": "https://www.matsuya.com/corp/company/group/#breadcrumblist",
+                      "itemListElement": [
+                        {
+                          "@type": "ListItem",
+                          "@id": "https://www.matsuya.com/corp#listItem",
+                          "position": 1,
+                          "name": "ホーム",
+                          "item": "https://www.matsuya.com/corp",
+                          "nextItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp/company/#listItem",
+                            "name": "企業情報"
+                          }
+                        },
+                        {
+                          "@type": "ListItem",
+                          "@id": "https://www.matsuya.com/corp/company/#listItem",
+                          "position": 2,
+                          "name": "企業情報",
+                          "item": "https://www.matsuya.com/corp/company/",
+                          "nextItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp/company/group/#listItem",
+                            "name": "松屋グループ会社"
+                          },
+                          "previousItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp#listItem",
+                            "name": "ホーム"
+                          }
+                        },
+                        {
+                          "@type": "ListItem",
+                          "@id": "https://www.matsuya.com/corp/company/group/#listItem",
+                          "position": 3,
+                          "name": "松屋グループ会社",
+                          "previousItem": {
+                            "@type": "ListItem",
+                            "@id": "https://www.matsuya.com/corp/company/#listItem",
+                            "name": "企業情報"
+                          }
+                        }
+                      ]
+                    },
+                    {
+                      "@type": "Organization",
+                      "@id": "https://www.matsuya.com/corp/#organization",
+                      "name": "松屋Corp",
+                      "url": "https://www.matsuya.com/corp/"
+                    },
+                    {
+                      "@type": "WebPage",
+                      "@id": "https://www.matsuya.com/corp/company/group/#webpage",
+                      "url": "https://www.matsuya.com/corp/company/group/",
+                      "name": "松屋グループ会社 - 松屋-企業サイト",
+                      "inLanguage": "ja",
+                      "isPartOf": {
+                        "@id": "https://www.matsuya.com/corp/#website"
+                      },
+                      "breadcrumb": {
+                        "@id": "https://www.matsuya.com/corp/company/group/#breadcrumblist"
+                      },
+                      "datePublished": "2023-02-21T03:29:18+09:00",
+                      "dateModified": "2026-09-26T12:25:18+09:00"
+                    },
+                    {
+                      "@type": "WebSite",
+                      "@id": "https://www.matsuya.com/corp/#website",
+                      "url": "https://www.matsuya.com/corp/",
+                      "name": "松屋Corp",
+                      "inLanguage": "ja",
+                      "publisher": {
+                        "@id": "https://www.matsuya.com/corp/#organization"
+                      }
+                    }
+                  ]
+                }
+              }
+            ],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "1f670b9b0ded5c48dce3df79ff0905d876e36e6c8bd978d5175d26ca2c301a41",
+          "original_page_title": "松屋グループ会社 - 松屋-企業サイト",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        }
+      ]
+    },
+    {
+      "symbol": "9145.T",
+      "name": "ビーイングホールディングス",
+      "business": "物流の設計や改善を助言する会社です。グループで食品や日用品などを運び、物流センターの保管・包装や配送を受託しています。",
+      "life": "食品、医薬品、化粧品、日用品を扱い、スーパーやコンビニ、ドラッグストアへ商品を届ける物流をグループで支えています。",
+      "watch": "倉庫管理や配送管理のシステムを使い、在庫や作業・配送の進み具合を顧客と共有する仕組みをグループで提供しています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "原資料公表日不明・ビーイングHDグループ会社概要（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://being-group.jp/corporate/profile/",
+          "fetched_at": 1791937045.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "fa5d67b3cffe91a37437b95154d49b8640c3d9f69a241c7e228821797f459503",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:25+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "UTF-8"
+              },
+              {
+                "http-equiv": "X-UA-Comp0atible",
+                "content": "IE=Edge, chrome=1"
+              },
+              {
+                "name": "description",
+                "content": "ロジスティクスの未来を探求するビーインググループ。株式会社ビーイングホールディングスを主体とした総合物流輸送企業グループです。"
+              },
+              {
+                "content": "Being,Being Group,ビーイング グループ,運送会社,物流コンサル,安全輸送,総合物流,混載物流",
+                "name": "keywords"
+              },
+              {
+                "property": "og:type",
+                "content": "website"
+              },
+              {
+                "property": "og:title",
+                "content": "総合物流輸送企業グループBeing Group（ビーイング・グループ）"
+              },
+              {
+                "property": "og:description",
+                "content": "ロジスティクスの未来を探求するビーインググループ。株式会社ビーイングホールディングスを主体とした総合物流輸送企業グループです。"
+              },
+              {
+                "property": "og:image",
+                "content": "https://being-group.jp/renew/wp-content/themes/being2016/common/images/being_ogi.png"
+              },
+              {
+                "property": "og:url",
+                "content": "https://being-group.jp/"
+              },
+              {
+                "property": "og:site_name",
+                "content": "Being Group"
+              },
+              {
+                "name": "robots",
+                "content": "max-image-preview:large"
+              },
+              {
+                "name": "msapplication-TileImage",
+                "content": "https://being-group.jp/renew/wp-content/uploads/2021/01/cropped-favicon-270x270.png"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "d9fc89f20292a61c6ea6dde815ce14f12b59b8c8989fd6c3853ea72355e352d1",
+          "original_page_title": "グループ会社概要｜会社概要｜総合物流輸送企業グループBeing Group（ビーイング・グループ）",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        },
+        {
+          "title": "原資料公表日不明・ビーイングHD事業内容（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://being-group.jp/ir/management/business/",
+          "fetched_at": 1791937046.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "2585c6662494ffb7facb0b61fc5b616799469f6c673309b9c0be5bc7889e4c9f",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:26+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "UTF-8"
+              },
+              {
+                "http-equiv": "X-UA-Comp0atible",
+                "content": "IE=Edge, chrome=1"
+              },
+              {
+                "name": "description",
+                "content": "ロジスティクスの未来を探求するビーインググループ。株式会社ビーイングホールディングスを主体とした総合物流輸送企業グループです。"
+              },
+              {
+                "content": "Being,Being Group,ビーイング グループ,運送会社,物流コンサル,安全輸送,総合物流,混載物流",
+                "name": "keywords"
+              },
+              {
+                "property": "og:type",
+                "content": "website"
+              },
+              {
+                "property": "og:title",
+                "content": "総合物流輸送企業グループBeing Group（ビーイング・グループ）"
+              },
+              {
+                "property": "og:description",
+                "content": "ロジスティクスの未来を探求するビーインググループ。株式会社ビーイングホールディングスを主体とした総合物流輸送企業グループです。"
+              },
+              {
+                "property": "og:image",
+                "content": "/renew/wp-content/themes/being2016/common/images/being_ogi.png"
+              },
+              {
+                "property": "og:url",
+                "content": "https://being-group.jp/"
+              },
+              {
+                "property": "og:site_name",
+                "content": "Being Group"
+              }
+            ],
+            "JSON_LD": [],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "07d62180706c8bc583b1d0b6067479898a1154e0a7e32ca7057e2fc91232502f",
+          "original_page_title": "事業内容｜総合物流輸送企業グループBeing Group（ビーイング・グループ）",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        }
+      ]
+    },
+    {
+      "symbol": "9242.T",
+      "name": "メディア総研",
+      "business": "就職に関する事業を企画・運営する会社です。高専生が企業や進学先の情報を調べる「高専プラス」を運営しています。",
+      "life": "高専生が就職と進学の情報を一つのサイトで比べ、進路を選ぶための情報収集を支えています。低学年からのキャリア教育にも使えるサービスです。",
+      "watch": "企業を業界・職種や高専の採用実績校から探せるほか、進学先を学部・コース・研究室ごとに調べられる点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "原資料公表日不明・メディア総研会社概要（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://mediasouken.co.jp/company/overview/",
+          "fetched_at": 1791937048.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "303f5ad86fcdc4ea1c6d9807f6b863cb2966a5c9be904f5b8c517f47036f02c4",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:28+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "UTF-8"
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width,user-scalable=yes"
+              },
+              {
+                "name": "format-detection",
+                "content": "telephone=no"
+              },
+              {
+                "name": "theme-color",
+                "content": "#ffffff"
+              },
+              {
+                "name": "description",
+                "content": "メディア総研株式会社「会社概要」のページです。"
+              },
+              {
+                "property": "og:title",
+                "content": "会社概要-メディア総研株式会社 | 企業・学生・学校をつなぐ 【新卒採用支援・就職支援】"
+              },
+              {
+                "property": "og:url",
+                "content": "https://mediasouken.co.jp/company/overview/"
+              },
+              {
+                "property": "og:description",
+                "content": "メディア総研株式会社「会社概要」のページです。"
+              },
+              {
+                "property": "og:image",
+                "content": "/assets/img/common/ogp_img.png"
+              },
+              {
+                "property": "og:type",
+                "content": "article"
+              },
+              {
+                "property": "og:site_name",
+                "content": "メディア総研株式会社 | 企業・学生・学校をつなぐ 【新卒採用支援・就職支援】"
+              }
+            ],
+            "JSON_LD": [
+              {
+                "attributes": {
+                  "type": "application/ld+json"
+                },
+                "raw_text": "{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"TOP\",\"item\":\"https://mediasouken.co.jp\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"会社概要\"}]}",
+                "parsed": {
+                  "@context": "https://schema.org",
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "TOP",
+                      "item": "https://mediasouken.co.jp"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "会社概要"
+                    }
+                  ]
+                }
+              }
+            ],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "bbda19cc209d8b8bcbd4f39f7512e49b99a7712f6585ab5725a979f91a85b31c",
+          "original_page_title": "会社概要-メディア総研株式会社 | 企業・学生・学校をつなぐ 【新卒採用支援・就職支援】",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        },
+        {
+          "title": "原資料公表日不明・メディア総研「高専プラス」（CMS初公開日時不明・CMS更新日時不明・説明は当サイト作成）",
+          "url": "https://mediasouken.co.jp/service/kosen-plus/",
+          "fetched_at": 1791937049.0,
+          "source_published_on": null,
+          "source_publication_status": "original_business_publication_unknown_CMS_metadata_is_not_business_publication",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "5c5171e4dd716348ab85a56c86747dbbb29b22e495176bccdc5da69424edbc16",
+          "actual_retrieved_at_jst": "2026-10-14T09:17:29+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "meta_elements": [
+              {
+                "charset": "UTF-8"
+              },
+              {
+                "name": "viewport",
+                "content": "width=device-width,user-scalable=yes"
+              },
+              {
+                "name": "format-detection",
+                "content": "telephone=no"
+              },
+              {
+                "name": "theme-color",
+                "content": "#ffffff"
+              },
+              {
+                "name": "description",
+                "content": "高専生のための就職・進学情報サイト「高専プラス」についてのページです。高専生のキャリア支援を目的として、就職先の企業情報や、大学・大学院などの進学情報を閲覧できる、就職・進学情報サイト「高専プラス」を運営しています。"
+              },
+              {
+                "property": "og:title",
+                "content": "高専生のための就職・進学情報サイト「高専プラス」-メディア総研株式会社 | 企業・学生・学校をつなぐ 【新卒採用支援・就職支援】"
+              },
+              {
+                "property": "og:url",
+                "content": "https://mediasouken.co.jp/service/kosen-plus/"
+              },
+              {
+                "property": "og:description",
+                "content": "高専生のための就職・進学情報サイト「高専プラス」についてのページです。高専生のキャリア支援を目的として、就職先の企業情報や、大学・大学院などの進学情報を閲覧できる、就職・進学情報サイト「高専プラス」を運営しています。"
+              },
+              {
+                "property": "og:image",
+                "content": "/assets/img/common/ogp_img.png"
+              },
+              {
+                "property": "og:type",
+                "content": "article"
+              },
+              {
+                "property": "og:site_name",
+                "content": "メディア総研株式会社 | 企業・学生・学校をつなぐ 【新卒採用支援・就職支援】"
+              }
+            ],
+            "JSON_LD": [
+              {
+                "attributes": {
+                  "type": "application/ld+json"
+                },
+                "raw_text": "{\"@context\":\"https://schema.org\",\"@type\":\"BreadcrumbList\",\"itemListElement\":[{\"@type\":\"ListItem\",\"position\":1,\"name\":\"TOP\",\"item\":\"https://mediasouken.co.jp\"},{\"@type\":\"ListItem\",\"position\":2,\"name\":\"サービス\",\"item\":\"https://mediasouken.co.jp/service/\"},{\"@type\":\"ListItem\",\"position\":3,\"name\":\"高専生のための就職・進学情報サイト「高専プラス」\"}]}",
+                "parsed": {
+                  "@context": "https://schema.org",
+                  "@type": "BreadcrumbList",
+                  "itemListElement": [
+                    {
+                      "@type": "ListItem",
+                      "position": 1,
+                      "name": "TOP",
+                      "item": "https://mediasouken.co.jp"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 2,
+                      "name": "サービス",
+                      "item": "https://mediasouken.co.jp/service/"
+                    },
+                    {
+                      "@type": "ListItem",
+                      "position": 3,
+                      "name": "高専生のための就職・進学情報サイト「高専プラス」"
+                    }
+                  ]
+                }
+              }
+            ],
+            "time_elements": []
+          },
+          "actual_GET_receipt_sha256": "3e3104b7099e35d4c61bebdba391efa93d0f92581381900019def336ef593ad8",
+          "original_page_title": "高専生のための就職・進学情報サイト「高専プラス」-メディア総研株式会社 | 企業・学生・学校をつなぐ 【新卒採用支援・就職支援】",
+          "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
+        }
+      ]
     }
   ]
 }
