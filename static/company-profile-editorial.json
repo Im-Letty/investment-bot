@@ -10295,6 +10295,181 @@
           "original_receipt_container_sha256": "f2867c809c1d322150f189724c1432fa90080d12770d7d530017fd77fb5d89f2"
         }
       ]
+    },
+    {
+      "symbol": "593A.T",
+      "name": "ティアフォー",
+      "business": "自動運転システムを作る企業などに、ソフトウェアや開発・運用ツールを提供する会社です。「Pilot.Auto」「Web.Auto」「Edge.Auto」を通じ、設計・検証から車両の運用まで支援します。",
+      "life": "バスや物流車両などの自動運転を開発するためのシミュレーションや、車両の管理・遠隔操作に使うツールを提供しています。",
+      "watch": "オープンソースの「Autoware」を基盤に、ソフトウェア、クラウドの運用ツール、センサーやコンピューターを組み合わせています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "公表日不明 公式会社情報・ティアフォー（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://tier4.co.jp/about-us",
+          "fetched_at": 1791933351.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "96bf39345b21d8c0636659b3e5ae22284b8669acb73200eec955aeae674e0249",
+          "actual_retrieved_at_jst": "2026-10-14T08:15:51+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式製品案内・ティアフォー（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://tier4.co.jp/products",
+          "fetched_at": 1791933352.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "8d5c8707ea42918568aeaff0da3511e9fdbee355c122e0e09b91ca3ca20e8c3f",
+          "actual_retrieved_at_jst": "2026-10-14T08:15:52+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        },
+        {
+          "title": "公表日不明 公式株式基本情報・ティアフォー（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://tier4.co.jp/ir/stock-information",
+          "fetched_at": 1791941135.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown",
+          "source_original_publication_literal": null,
+          "source_kind": "issuer_official_website",
+          "source_html_sha256": "e09762fba002fd521a5c39f579cbdc31455e6a1edce27bcc8a690181e0f9020b",
+          "actual_retrieved_at_jst": "2026-10-14T10:25:35+09:00",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_modified_at": null,
+          "page_modified_at_jst": null
+        }
+      ]
+    },
+    {
+      "symbol": "7245.T",
+      "name": "大同メタル工業",
+      "business": "グループで、自動車のエンジンや船舶、産業用発電機に使う軸受を扱う会社です。コンプレッサー用軸受やアルミダイカスト製品も手がけています。",
+      "life": "グループの軸受は車や船のエンジン、発電機などに使われ、移動や電気づくりを支える機械に関わっています。",
+      "watch": "グループでは、エンジン用軸受に加え、ショックアブソーバーなど自動車部品向けの軸受や精密金属加工部品も扱う点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/03/10 時刻不明 公表・大同メタル第3四半期短信レビュー完了版（元短信2026/02/12 時刻不明・財務諸表変更なし・説明は当サイト作成）",
+          "url": "https://www2.jpx.co.jp/disc/72450/140120260217564052.pdf",
+          "fetched_at": 1791941549.0,
+          "source_published_on": "2026-03-10",
+          "source_publication_status": "current_acquired_PDF_cover_date_visible_original_referenced_release_separate_clock_unknown",
+          "source_original_publication_literal": "2026年３月10日",
+          "source_original_publication_time": "unknown",
+          "source_underlying_original_release_on": "2026-02-12",
+          "source_underlying_original_release_literal": "2026 年２月 12 日",
+          "source_underlying_original_release_time": "unknown",
+          "source_kind": "issuer_official_exchange_disclosure_PDF",
+          "source_pdf_sha256": "dd422ece1d684ec145b1023607d92419756e9932cde036e4b804b708b69bde2e",
+          "actual_retrieved_at_jst": "2026-10-14T10:32:29+09:00",
+          "actual_GET_receipt_sha256": "2b6bfd197bcc918f45c7b67dcdb3423772a5270e5b93bcb63be0b4a27cd4a629",
+          "original_receipt_container_sha256": "d705f4afad2ef3de89908f707a46c386f3f5490e2f8a8bab4717ebf55c4ab899",
+          "document_title": "2026年３月期 第３四半期決算短信〔日本基準〕（連結）（公認会計士等による期中レビューの完了）",
+          "document_fiscal_scope": {
+            "start": "2025-04-01",
+            "end": "2025-12-31",
+            "kind": "FY2026 March Q3 cumulative consolidated actual business"
+          },
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown_same_URL_CMS_unavailable_PDF_format",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown_same_URL_CMS_unavailable_PDF_format",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "PDF_technical_creation_literal": "D:20260306090504+09'00'",
+          "PDF_technical_modified_literal": "D:20260306090504+09'00'",
+          "PDF_technical_dates_are_not_original_publication_or_CMS": true,
+          "full_metadata_trace": {
+            "format": "PDF",
+            "PDF_raw_metadata": {
+              "CreationDate": "D:20260306090504+09'00'",
+              "Creator": "Word 用 Acrobat PDFMaker 25",
+              "ModDate": "D:20260306090504+09'00'",
+              "Producer": "Adobe Acrobat (32-bit) 25.1.21223",
+              "Title": ""
+            },
+            "PDF_pages": 17,
+            "CMS_WebPage_JSONLD_HTML_article_meta_unavailable_PDF_format": true
+          },
+          "publisher_host": "www2.jpx.co.jp",
+          "issuer_document_published_by_exchange": true
+        }
+      ]
+    },
+    {
+      "symbol": "9517.T",
+      "name": "イーレックス",
+      "business": "グループで電力の調達・取引、バイオマス発電、発電用燃料の販売を手がける会社です。電気の小売販売はエバーグリーンなどの販売子会社が担います。",
+      "life": "グループの販売子会社を通じて電気を供給し、国内の他社バイオマス発電所には木質ペレットなどの燃料も届けています。",
+      "watch": "グループでは、電気の販売に加え、バイオマス発電と燃料の調達・販売まで扱う点が特徴です。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式公開資料の事業情報をもとに当サイトが説明を作成。",
+      "sources": [
+        {
+          "title": "2026/05/12 時刻不明 原公表・イーレックス2026年3月期決算短信の事業説明（説明は当サイト作成）",
+          "url": "https://www2.jpx.co.jp/disc/95170/140120260512525627.pdf",
+          "fetched_at": 1791941547.0,
+          "source_published_on": "2026-05-12",
+          "source_publication_status": "current_acquired_PDF_cover_date_visible_original_referenced_release_separate_clock_unknown",
+          "source_original_publication_literal": "2026年５月12日",
+          "source_original_publication_time": "unknown",
+          "source_underlying_original_release_on": null,
+          "source_underlying_original_release_literal": null,
+          "source_underlying_original_release_time": null,
+          "source_kind": "issuer_official_exchange_disclosure_PDF",
+          "source_pdf_sha256": "4663c31366a57034983d61c592a573cb3bdad0ed84cfd12357f32cbcf7d9d7d2",
+          "actual_retrieved_at_jst": "2026-10-14T10:32:27+09:00",
+          "actual_GET_receipt_sha256": "77f57affd48604b995b8d34f949266d31f30110154cb33889f4ba1b1ea360b8c",
+          "original_receipt_container_sha256": "d705f4afad2ef3de89908f707a46c386f3f5490e2f8a8bab4717ebf55c4ab899",
+          "document_title": "2026年３月期 決算短信〔ＩＦＲＳ〕（連結）",
+          "document_fiscal_scope": {
+            "start": "2025-04-01",
+            "end": "2026-03-31",
+            "kind": "FY2026 March consolidated actual business"
+          },
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown_same_URL_CMS_unavailable_PDF_format",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown_same_URL_CMS_unavailable_PDF_format",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "PDF_technical_creation_literal": "D:20260512122641+09'00'",
+          "PDF_technical_modified_literal": "D:20260512122642+09'00'",
+          "PDF_technical_dates_are_not_original_publication_or_CMS": true,
+          "full_metadata_trace": {
+            "format": "PDF",
+            "PDF_raw_metadata": {
+              "Creator": "PRONEXUS WORKS",
+              "Producer": "PDFlib+PDI 9.2.0 (.NET/Win64)",
+              "CreationDate": "D:20260512122641+09'00'",
+              "ModDate": "D:20260512122642+09'00'"
+            },
+            "PDF_pages": 17,
+            "CMS_WebPage_JSONLD_HTML_article_meta_unavailable_PDF_format": true
+          },
+          "publisher_host": "www2.jpx.co.jp",
+          "issuer_document_published_by_exchange": true
+        }
+      ]
     }
   ]
 }
