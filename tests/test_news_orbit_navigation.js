@@ -120,7 +120,11 @@ test('newspaper and graph retain artwork and expose their distinct direct destin
   assert.match(markup,/<button type="button" class="kn-orbit-shortcut kn-orbit-news-shortcut" aria-label="[^"]+">/);
   assert.match(markup,/<button type="button" class="kn-orbit-shortcut kn-orbit-rank-shortcut"/);
   assert.doesNotMatch(markup,/knOrbitNewsMenu|aria-haspopup="dialog"/);
-  assert.match(markup,/src="\/static\/news-orbit\/newspaper\.webp"/);assert.match(markup,/kn-orbit-market-tile kn-orbit-tile-bars/);
+  const paper=markup.match(/src="data:image\/webp;base64,([^"]+)"[^>]+/);
+  assert.ok(paper,'Newspaper artwork must not wait for another request after the header mounts');
+  assert.deepEqual(Buffer.from(paper[1],'base64'),fs.readFileSync(path.join(__dirname,'../static/news-orbit/newspaper.webp')));
+  assert.match(paper[0],/decoding="sync" loading="eager"/);
+  assert.match(markup,/kn-orbit-market-tile kn-orbit-tile-bars/);
   assert.equal((markup.match(/class="kn-orbit-news-orbiter /g)||[]).length,3);assert.equal(h.dialogs(),0);
 });
 

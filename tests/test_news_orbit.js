@@ -5,15 +5,15 @@ const fs=require('node:fs');
 const vm=require('node:vm');
 const path=require('node:path');
 const source=fs.readFileSync(path.join(__dirname,'../static/news-orbit.js'),'utf8');
-function harness(reduced=false,savedPause=false,options,withGuide=true){
+function harness(reduced=false,savedPause=false,options,withGuide=true,pictures=[]){
   const storage=new Map(savedPause?[['kn_home_motion_paused','1']]:[]);let resets=0;
-  const classes=new Set(),events={},buttonEvents={},guideEvents={},attrs={},guideAttrs={},sceneAttrs={};let mediaCallback,intersectionCallback,observations=0,guideCalls=0,networkCalls=0;
+  const classes=new Set(pictures.length?['kn-orbit-art-pending']:[]),events={},buttonEvents={},guideEvents={},attrs={},guideAttrs={},sceneAttrs={};let mediaCallback,intersectionCallback,observations=0,guideCalls=0,networkCalls=0;
   let now=0,timerId=0;const timers=new Map();
   function setTimer(fn,delay){const id=++timerId;timers.set(id,{fn,at:now+delay});return id;}
   function advance(ms){const target=now+ms;for(;;){const due=[...timers].filter(([,t])=>t.at<=target).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;now=due[1].at;timers.delete(due[0]);due[1].fn();}now=target;}
   function control(listeners={},attributes={}){const names=new Set();return{names,attributes,classList:{toggle(name,value){if(value)names.add(name);else names.delete(name);}},addEventListener(name,fn){(listeners[name]||=[]).push(fn);},setAttribute(name,value){attributes[name]=value;},fire(name,event={}){(listeners[name]||[]).forEach(fn=>fn(event));}};}
   const guide=control(guideEvents,guideAttrs),graph=control(),news=control();
-  const root={dataset:{},classList:{toggle(name,value){if(value)classes.add(name);else classes.delete(name);}},querySelector(selector){return selector==='.kn-orbit-scene'?scene:selector==='.kn-orbit-guide'&&withGuide?guide:selector==='.kn-orbit-rank-shortcut'?graph:selector==='.kn-orbit-news-shortcut'?news:null;}};
+  const root={dataset:{},querySelectorAll(){return pictures;},classList:{toggle(name,value){if(value)classes.add(name);else classes.delete(name);}},querySelector(selector){return selector==='.kn-orbit-scene'?scene:selector==='.kn-orbit-guide'&&withGuide?guide:selector==='.kn-orbit-rank-shortcut'?graph:selector==='.kn-orbit-news-shortcut'?news:null;}};
   const button={addEventListener(name,fn){(buttonEvents[name]||=[]).push(fn);},setAttribute(name,value){attrs[name]=value;}};
   const scene={setAttribute(name,value){sceneAttrs[name]=value;}};
   const preference={matches:reduced,addEventListener(name,fn){mediaCallback=fn;}};
@@ -106,7 +106,15 @@ test('coin markup uses a named native button inside an accessible group',()=>{
   assert.match(markup,/<div class="kn-orbit-scene" role="group"/);
   assert.doesNotMatch(markup,/<div class="kn-orbit-scene" role="img"/);
   assert.match(markup,/<button type="button" class="kn-orbit-guide" aria-label="ガイド・ロボット相談を開く" aria-controls="bgModal">/);
-  assert.match(markup,/<span class="kn-orbit-coin-face" aria-hidden="true"><img class="kn-orbit-coordinated-coin" src="\/static\/news-orbit\/coin\.webp"/);
+  const coin=markup.match(/class="kn-orbit-coordinated-coin" src="data:image\/svg\+xml;base64,([^"]+)"[^>]+/);
+  assert.ok(coin,'The guide must paint one complete coin, without an asynchronous text/rim swap');
+  assert.match(coin[0],/decoding="sync" loading="eager"/);
+  const coinSVG=Buffer.from(coin[1],'base64').toString('utf8');
+  const originalCoin=coinSVG.match(/href="data:image\/webp;base64,([^"]+)"/);
+  assert.ok(originalCoin);
+  assert.deepEqual(Buffer.from(originalCoin[1],'base64'),fs.readFileSync(path.join(__dirname,'../static/news-orbit/coin.webp')));
+  assert.match(coinSVG,/<text[^>]*>\?<\/text>/);
+  assert.doesNotMatch(markup,/kn-orbit-coin-question/);
   assert.equal((markup.match(/class="kn-orbit-news-orbiter /g)||[]).length,3);
   assert.equal((markup.match(/class="kn-orbit-guide"/g)||[]).length,1);
   // Enter/Space activation comes from native button semantics; this VM test does
@@ -190,4 +198,18 @@ test('keyboard feedback does not invoke the guide before its native click and re
   }
   control.fire('keydown',{key:'Escape',repeat:false});assert.ok(!control.names.has('kn-orbit-tapped'));
   assert.equal(a.guideCalls(),2);assert.equal(a.networkCalls(),0);assert.equal(a.pendingTimers(),0);
+});
+
+
+test('the first visible scene waits for both inline pictures, then preserves the chosen pause',()=>{
+  function picture(complete){const events={};return{complete,addEventListener(name,fn){events[name]=fn;},fire(name){if(events[name])events[name]();}};}
+  const paper=picture(true),coin=picture(false),a=harness(false,true,undefined,true,[paper,coin]);
+  assert.ok(a.classes.has('kn-orbit-art-pending'),'Never show a partial question coin or a missing newspaper');
+  coin.complete=true;coin.fire('load');
+  assert.ok(!a.classes.has('kn-orbit-art-pending'));assert.ok(a.classes.has('kn-orbit-paused'));
+  assert.equal(a.storage.get('kn_home_motion_paused'),'1');assert.equal(a.networkCalls(),0);
+  const ready=harness(false,false,undefined,true,[picture(true),picture(true)]);
+  assert.ok(!ready.classes.has('kn-orbit-art-pending'),'Already decoded pictures reveal together immediately');
+  const bad=picture(false),fallback=harness(false,false,undefined,true,[picture(true),bad]);
+  bad.fire('error');bad.fire('load');assert.ok(!fallback.classes.has('kn-orbit-art-pending'),'A broken picture must not hide the whole scene forever');
 });
