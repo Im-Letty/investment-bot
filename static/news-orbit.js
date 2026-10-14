@@ -29,9 +29,10 @@
     var settingLabel=document.getElementById('knHomeOrbitMotionLabel');
     var guide=root.querySelector('.kn-orbit-guide');
     var graphShortcut=root.querySelector('.kn-orbit-rank-shortcut'),newsShortcut=root.querySelector('.kn-orbit-news-shortcut');
-    function tapFeedback(control){
-      if(!control)return function(){};
-      var timer=0;
+    var cancelActiveTouch=null;
+    function shortcut(control,activate){
+      if(!control)return;
+      var timer=0,contact=null,cancelledId=null,suppressClickUntil=0;
       function clear(){
         if(timer)window.clearTimeout(timer);timer=0;
         control.classList.toggle('kn-orbit-tapped',false);
@@ -41,12 +42,79 @@
         control.classList.toggle('kn-orbit-tapped',true);
         timer=window.setTimeout(clear,480);
       }
-      control.addEventListener('pointerdown',function(event){if(event.button===0||event.button===undefined)light();});
-      control.addEventListener('pointercancel',clear);
-      control.addEventListener('keydown',function(event){if(!event.repeat&&(event.key==='Enter'||event.key===' '))light();});
-      return light;
+      function cancel(){
+        if(contact)cancelledId=contact.id;
+        contact=null;if(cancelActiveTouch===cancel)cancelActiveTouch=null;
+        suppressClickUntil=Date.now()+800;clear();
+      }
+      function begin(id,x,y){
+        if(cancelActiveTouch)cancelActiveTouch();
+        cancelledId=null;suppressClickUntil=0;contact={id:id,x:x,y:y,started:Date.now(),moved:false};
+        cancelActiveTouch=cancel;light();
+      }
+      function moved(x,y){
+        if(!contact)return;
+        var dx=x-contact.x,dy=y-contact.y;
+        if(dx*dx+dy*dy>144){contact.moved=true;clear();}
+      }
+      function end(id,x,y){
+        if(!contact){
+          if(cancelledId===id){suppressClickUntil=Date.now()+800;cancelledId=null;}
+          return false;
+        }
+        if(contact.id!==id)return false;
+        moved(x,y);var tap=!contact.moved&&Date.now()-contact.started<750;
+        contact=null;if(cancelActiveTouch===cancel)cancelActiveTouch=null;
+        // The action already ran on release. Ignore only this tap's following
+        // compatibility click; a new mouse press or keyboard action clears it.
+        suppressClickUntil=Date.now()+800;
+        if(tap){light();activate();}else clear();
+        return tap;
+      }
+      control.addEventListener('pointerdown',function(event){
+        if(event.button!==0&&event.button!==undefined)return;
+        if(event.pointerType==='touch'||event.pointerType==='pen'){
+          if(event.isPrimary===false){if(cancelActiveTouch)cancelActiveTouch();return;}
+          begin(event.pointerId,event.clientX,event.clientY);
+          // Keep release on the button even while its parent continues orbiting.
+          try{control.setPointerCapture(event.pointerId);}catch(_){}
+        }else{cancelledId=null;suppressClickUntil=0;light();}
+      });
+      control.addEventListener('pointermove',function(event){if(contact&&contact.id===event.pointerId)moved(event.clientX,event.clientY);});
+      control.addEventListener('pointerup',function(event){end(event.pointerId,event.clientX,event.clientY);});
+      control.addEventListener('pointercancel',cancel);
+      control.addEventListener('lostpointercapture',function(){if(contact)cancel();});
+      control.addEventListener('contextmenu',function(){if(contact)cancel();});
+      // Older touch browsers retain their native mouse/keyboard click path.
+      if(!('PointerEvent' in window)){
+        control.addEventListener('touchstart',function(event){
+          if(event.touches.length!==1){if(cancelActiveTouch)cancelActiveTouch();return;}
+          var touch=event.changedTouches[0];begin(touch.identifier,touch.clientX,touch.clientY);
+        },{passive:true});
+        control.addEventListener('touchmove',function(event){
+          if(event.touches.length!==1){if(cancelActiveTouch)cancelActiveTouch();return;}
+          var touch=event.touches[0];if(contact&&touch.identifier===contact.id)moved(touch.clientX,touch.clientY);
+        },{passive:true});
+        control.addEventListener('touchend',function(event){
+          for(var i=0;i<event.changedTouches.length;i++){
+            var touch=event.changedTouches[i];
+            if(end(touch.identifier,touch.clientX,touch.clientY)&&event.cancelable)event.preventDefault();
+          }
+        },{passive:false});
+        control.addEventListener('touchcancel',cancel);
+      }
+      control.addEventListener('keydown',function(event){
+        if(!event.repeat&&(event.key==='Enter'||event.key===' ')){suppressClickUntil=0;light();}
+      });
+      control.addEventListener('click',function(event){
+        if(Date.now()<suppressClickUntil&&event&&(event.pointerType==='touch'||event.pointerType==='pen'||event.detail!==0)){
+          if(event.cancelable)event.preventDefault();return;
+        }
+        light();activate();
+      });
     }
-    var lightGuide=tapFeedback(guide),lightGraph=tapFeedback(graphShortcut),lightNews=tapFeedback(newsShortcut);
+    document.addEventListener('pointerdown',function(event){if(event.isPrimary===false&&cancelActiveTouch)cancelActiveTouch();});
+    if(!('PointerEvent' in window))document.addEventListener('touchstart',function(event){if(event.touches.length>1&&cancelActiveTouch)cancelActiveTouch();},{passive:true});
     var preference=window.matchMedia('(prefers-reduced-motion: reduce)');
     var reduced=preference.matches,savedPause=false,inView=true;
     try{savedPause=localStorage.getItem('kn_home_motion_paused')==='1';}catch(_){}
@@ -89,9 +157,9 @@
       var descriptions=options&&options.descriptions;
       scene.setAttribute('aria-label',descriptions?(descriptions[copyLanguage()]||descriptions.ja||words[2]):words[2]);
     }
-    if(guide)guide.addEventListener('click',function(){lightGuide();if(typeof window.openBeginnerGuide==='function')window.openBeginnerGuide();});
-    if(graphShortcut)graphShortcut.addEventListener('click',function(){lightGraph();showRanking();});
-    if(newsShortcut)newsShortcut.addEventListener('click',function(){lightNews();navigateAfterView('morning-news-section','knNewsDigestTitle');});
+    shortcut(guide,function(){if(typeof window.openBeginnerGuide==='function')window.openBeginnerGuide();});
+    shortcut(graphShortcut,showRanking);
+    shortcut(newsShortcut,function(){navigateAfterView('morning-news-section','knNewsDigestTitle');});
     if(button)button.addEventListener('click',function(){if(reduced)reduced=false;paused=!paused;savedPause=paused;try{localStorage.setItem('kn_home_motion_paused',paused?'1':'0');}catch(_){}sync();});
     function changed(event){reduced=event.matches;paused=reduced||savedPause;sync();}
     if(typeof window.dsReset==='function'){var reset=window.dsReset;window.dsReset=function(){var result=reset.apply(this,arguments);savedPause=false;reduced=preference.matches;paused=reduced;try{localStorage.removeItem('kn_home_motion_paused');}catch(_){}sync();return result;};}

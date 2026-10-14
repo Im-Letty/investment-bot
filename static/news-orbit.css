@@ -53,7 +53,8 @@ body.kn-home-a .kn-orbit-coin-face {position:relative;display:block;width:54px;h
 body.kn-home-a .kn-orbit-shortcut-art {display:block;width:62px;height:62px;flex:none}
 body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut):focus-visible {outline:2px solid var(--kn-orbit-ink);outline-offset:-12px}
 /* Light the artwork on contact, without moving its orbit or delaying the link. */
-body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut) {transition:filter .24s ease}
+body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut) {transition:filter .24s ease;touch-action:manipulation}
+body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut) * {pointer-events:none}
 body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut):is(:active,.kn-orbit-tapped) {filter:brightness(1.16) drop-shadow(0 0 6px #fffbdc) drop-shadow(0 0 12px #e6cc8e)}
 @media(prefers-reduced-motion:reduce) {
   body.kn-home-a :is(.kn-orbit-guide,.kn-orbit-shortcut) {transition:none}

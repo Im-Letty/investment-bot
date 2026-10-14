@@ -24,10 +24,10 @@ function existingFunction(name){
 }
 const controller=['_styleP','_setSub','_showStock'].map(existingFunction).join('\n');
 
-function harness({view='favorites',reduced=false,withStock=true,withFallback=true}={}){
+function harness({view='favorites',reduced=false,withStock=true,withFallback=true,pointerEvents=true}={}){
   const frames=[],events=new Map(),log=[],storage=new Map([['kn_rank_conditions','{"metric":"amount","market":"regional","direction":"down"}']]);
   let network=0,auth=0,guideCalls=0,dialogs=0,stockClicks=0,fallbackCalls=0,mediaChanged;
-  let doc,w;
+  let doc,w,now=1000;
   function node(tag='div',attrs={},parent=null){
     const listeners=new Map(),classes=new Set((attrs.class||'').split(' ').filter(Boolean));
     const n={tagName:tag.toUpperCase(),attrs:{...attrs},dataset:{},children:[],parentElement:null,isConnected:true,
@@ -51,6 +51,7 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
       addEventListener(type,fn){if(!listeners.has(type))listeners.set(type,new Set());listeners.get(type).add(fn);},
       listenerCount:type=>(listeners.get(type)||new Set()).size,
       fire(type,event={}){for(const fn of [...(listeners.get(type)||[])])fn({type,target:this,...event});},
+      setPointerCapture(id){this.capturedPointer=id;},
       click(){dispatch('click',{target:this});this.fire('click');if(this.onclick)this.onclick();},
       scrollTo(options){this.scrollTop=options.top;this.scrollLeft=options.left;log.push(['restore',this.id,options.top]);},
       scrollIntoView(options){home.scrollTop=this.offset||0;log.push(['navigate',this.id,options.behavior]);},
@@ -101,9 +102,10 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
     setTimeout:()=>1,clearTimeout(){},
     requestAnimationFrame:fn=>frames.push(fn),getComputedStyle:n=>({overflowY:n.style.overflowY}),scrollTo(options){this.scrollX=options.left;this.scrollY=options.top;},
     matchMedia:()=>({matches:reduced,addEventListener(type,fn){mediaChanged=fn;}}),openBeginnerGuide(){guideCalls++;},requireAuth(){auth++;throw new Error('Unexpected auth');}};
+  if(pointerEvents)w.PointerEvent=function(){};
   createStability(w);
   const context={window:w,document:doc,fetch:forbidden,localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value),removeItem:key=>storage.delete(key)},
-    CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},wrap:stock,movers,_knMainTab:main,_knWatchTab:watch,_kndb:dividendTabs,_sM:node('button',{'data-sub':'movers'},stock)};
+    Date:class extends Date{static now(){return now;}},CustomEvent:class{constructor(type,options){this.type=type;this.detail=options.detail;}},wrap:stock,movers,_knMainTab:main,_knWatchTab:watch,_kndb:dividendTabs,_sM:node('button',{'data-sub':'movers'},stock)};
   vm.runInNewContext(controller,context);
   if(view==='favorites')context._showStock('watch');
   else {context._styleP(main,view==='stock');context._styleP(watch,false);dividendTabs.forEach(tab=>context._styleP(tab,tab.dataset.knTab===view));}
@@ -112,8 +114,80 @@ function harness({view='favorites',reduced=false,withStock=true,withFallback=tru
   vm.runInNewContext(source,context);const host={querySelector:selector=>selector==='.kn-news-orbit'?root:null};w.KNNewsOrbit.mount(host);
   return{w,doc,root,host,main,rank,news,guide,stock,heading,home,economy,economyHeading,company,companyHeading,holder,modalBody,dividendBody,log,storage,dispatch,
     frame(){const current=frames.splice(0);current.forEach(fn=>fn());},frames:()=>frames.length,dialogs:()=>dialogs,stockClicks:()=>stockClicks,fallbackCalls:()=>fallbackCalls,network:()=>network,auth:()=>auth,guideCalls:()=>guideCalls,media(value){mediaChanged({matches:value});},
-    menu:()=>doc.getElementById('knOrbitNewsMenu')};
+    advance:ms=>now+=ms,menu:()=>doc.getElementById('knOrbitNewsMenu')};
 }
+
+function contact(control,type,values={}){
+  control.fire(type,{pointerType:'touch',pointerId:7,isPrimary:true,button:0,clientX:100,clientY:100,...values});
+}
+
+test('one touch release reaches each destination without requiring a browser click',()=>{
+  for(const name of ['guide','rank','news']){
+    const h=harness(),control=h[name],saved=h.storage.get('kn_rank_conditions');
+    contact(control,'pointerdown');assert.equal(control.capturedPointer,7);
+    assert.equal(h.guideCalls(),0);assert.equal(h.stockClicks(),0);assert.equal(h.log.filter(x=>x[0]==='navigate').length,0);
+    contact(control,'pointerup');h.frame();h.frame();
+    assert.equal(h.guideCalls(),name==='guide'?1:0);assert.equal(h.stockClicks(),name==='rank'?1:0);
+    assert.deepEqual(h.log.filter(x=>x[0]==='navigate'),name==='guide'?[]:[['navigate',name==='rank'?'knTabWrap':'morning-news-section','smooth']]);
+    if(name==='rank')assert.equal(h.doc.activeElement,h.heading);
+    if(name==='news')assert.equal(h.doc.activeElement,h.economyHeading);
+    assert.equal(h.storage.get('kn_rank_conditions'),saved);assert.equal(h.network(),0);assert.equal(h.auth(),0);
+  }
+});
+
+test('a touch compatibility click does not open twice and the next separate input still works',()=>{
+  const h=harness();
+  for(let i=1;i<=2;i++){
+    contact(h.guide,'pointerdown');contact(h.guide,'pointerup');
+    h.guide.fire('click',{detail:1,pointerType:'touch'});
+    h.guide.fire('click',{detail:1});assert.equal(h.guideCalls(),i);
+    h.advance(100);
+  }
+  h.guide.fire('click',{detail:0});assert.equal(h.guideCalls(),3,'Assistive technology native activation remains available');
+  contact(h.guide,'pointerdown',{pointerType:'mouse'});contact(h.guide,'pointerup',{pointerType:'mouse'});h.guide.fire('click',{detail:1,pointerType:'mouse'});
+  assert.equal(h.guideCalls(),4,'A new desktop mouse press must not be swallowed by the touch guard');
+  for(const key of ['Enter',' ']){
+    contact(h.guide,'pointerdown');contact(h.guide,'pointerup');
+    h.guide.fire('keydown',{key,repeat:false});h.guide.fire('click',{detail:0});
+  }
+  assert.equal(h.guideCalls(),8);assert.equal(h.network(),0);
+  contact(h.guide,'pointerdown');contact(h.guide,'pointercancel');
+  contact(h.guide,'pointerdown',{pointerType:'mouse'});contact(h.guide,'pointerup',{pointerType:'mouse'});h.guide.fire('click',{detail:1,pointerType:'mouse'});
+  assert.equal(h.guideCalls(),9,'A reused pointer ID after cancelled touch must not swallow the next mouse click');
+});
+
+test('scroll, cancelled contact, lost capture, long press and multiple fingers never open a shortcut',()=>{
+  const cases=[
+    h=>contact(h.guide,'pointermove',{clientY:130}),
+    h=>contact(h.guide,'pointerup',{clientX:125}),
+    h=>contact(h.guide,'pointercancel'),
+    h=>h.guide.fire('lostpointercapture'),
+    h=>h.guide.fire('contextmenu'),
+    h=>{h.guide.fire('contextmenu');h.advance(2000);},
+    h=>h.advance(800),
+    h=>contact(h.guide,'pointerdown',{pointerId:8,isPrimary:false}),
+    h=>h.dispatch('pointerdown',{pointerId:8,isPrimary:false,pointerType:'touch',target:h.body})
+  ];
+  for(const interrupt of cases){
+    const h=harness();contact(h.guide,'pointerdown');interrupt(h);contact(h.guide,'pointerup');
+    h.guide.fire('click',{detail:1,pointerType:'touch'});
+    assert.equal(h.guideCalls(),0);assert.equal(h.stockClicks(),0);assert.equal(h.network(),0);
+    h.advance(100);contact(h.guide,'pointerdown');contact(h.guide,'pointerup');assert.equal(h.guideCalls(),1,'The next independent tap recovers');
+  }
+});
+
+test('pen taps and older touch-only browsers activate once while retaining native scroll cancellation',()=>{
+  const pen=harness();contact(pen.guide,'pointerdown',{pointerType:'pen'});contact(pen.guide,'pointerup',{pointerType:'pen'});
+  pen.guide.fire('click',{detail:1,pointerType:'pen'});assert.equal(pen.guideCalls(),1);
+  const h=harness({pointerEvents:false}),touch={identifier:3,clientX:100,clientY:100};let prevented=0;
+  const start=()=>h.guide.fire('touchstart',{touches:[touch],changedTouches:[touch]});
+  const finish=()=>h.guide.fire('touchend',{touches:[],changedTouches:[touch],cancelable:true,preventDefault(){prevented++;}});
+  start();finish();h.guide.fire('click',{detail:1});assert.equal(h.guideCalls(),1);assert.equal(prevented,1);
+  start();h.guide.fire('touchmove',{touches:[{...touch,clientY:140}]});finish();h.guide.fire('click',{detail:1});assert.equal(h.guideCalls(),1);
+  start();h.dispatch('touchstart',{touches:[touch,{...touch,identifier:4}]});finish();assert.equal(h.guideCalls(),1);
+  start();h.guide.fire('touchcancel');finish();assert.equal(h.guideCalls(),1);
+  start();finish();assert.equal(h.guideCalls(),2);assert.equal(h.network(),0);
+});
 
 test('newspaper and graph retain artwork and expose their distinct direct destinations',()=>{
   const h=harness();const markup=h.w.KNNewsOrbit.markup;
