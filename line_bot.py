@@ -20,6 +20,7 @@ from news_cache import (NEWS_FEEDS, PUBLISHED_NEWS_SOURCES, OFFICIAL_NEWS_SOURCE
                         select_daily_news, load_reviewed_supplements, load_reviewed_digests)
 from news_initial import news_index_response
 from startup_assets import StartupAssets
+from request_scheduling import PublicReadScheduling
 from flask import Flask, request, abort, jsonify, redirect, send_file
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -48,6 +49,7 @@ except Exception as _e_google:
     build = None
 
 app = Flask(__name__)
+app.wsgi_app = PublicReadScheduling(app.wsgi_app)
 startup_assets = StartupAssets(app.root_path)
 startup_assets.register(app)
 APP_START_TIME = datetime.now()
