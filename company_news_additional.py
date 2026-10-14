@@ -87,7 +87,7 @@ FEEDS = {label: config['feed'] for label, config in SOURCES.items()}
 
 
 def direct_feed_company_count():
-    """The three existing native routes plus unique additional issuers."""
+    """The three base RSS issuers plus unique RSS additions, excluding HTML."""
     return 3 + len({config['symbol'] for config in SOURCES.values()
                     if config.get('discovery_format') != 'html'})
 
