@@ -26,11 +26,11 @@ body.kn-home-a .kn-news-orbit {position:relative;isolation:isolate;width:320px;m
 body.kn-home-a .kn-orbit-scene {position:absolute;inset:0;isolation:isolate;pointer-events:none}
 body.kn-home-a .kn-orbit-art-pending .kn-orbit-scene {visibility:hidden}
 body.kn-home-a .kn-orbit-art-pending .kn-orbit-scene * {animation-play-state:paused!important}
-/* The reference tilt is fixed: -15deg here plus the ring's -16deg.
+/* The ring tilt is fixed: -12deg here plus the ring's -16deg.
    The inverse tilt keeps the Earth and button artwork at their original angle. */
-body.kn-home-a .kn-orbit-plane {position:absolute;inset:0;transform-origin:50% 107px;transform:rotate(-15deg);pointer-events:none}
-body.kn-home-a .kn-orbit-earth-fixed {position:absolute;inset:0;z-index:5;transform-origin:50% 107px;transform:rotate(15deg);pointer-events:none}
-body.kn-home-a .kn-orbit-plane :is(.kn-orbit-guide,.kn-orbit-shortcut) {transform-origin:50% 50%;transform:rotate(15deg)}
+body.kn-home-a .kn-orbit-plane {position:absolute;inset:0;transform-origin:50% 107px;transform:rotate(-12deg);pointer-events:none}
+body.kn-home-a .kn-orbit-earth-fixed {position:absolute;inset:0;z-index:5;transform-origin:50% 107px;transform:rotate(12deg);pointer-events:none}
+body.kn-home-a .kn-orbit-plane :is(.kn-orbit-guide,.kn-orbit-shortcut) {transform-origin:50% 50%;transform:rotate(12deg)}
 body.kn-home-a .kn-orbit-globe-halo {position:absolute;width:215px;height:170px;left:50%;top:21px;transform:translateX(-50%);border-radius:50%;background:radial-gradient(ellipse,color-mix(in srgb,var(--kn-orbit-pale) 83%,#fff) 0,color-mix(in srgb,var(--kn-orbit-pale) 35%,transparent) 47%,transparent 74%)}
 body.kn-home-a .kn-orbit-globe {position:absolute;left:50%;top:6px;width:208px;height:208px;margin-left:-104px;object-fit:contain;z-index:5;clip-path:circle(43.25% at 50% 50%);animation:knNewsEarthSway 14s ease-in-out infinite}
 body.kn-home-a .kn-orbit-world-shadow {position:absolute;left:50%;top:189px;width:120px;height:15px;transform:translateX(-50%);background:radial-gradient(ellipse,color-mix(in srgb,var(--kn-orbit-ink) 20%,transparent),transparent 69%);animation:knNewsWorldShadow 14s ease-in-out infinite}
