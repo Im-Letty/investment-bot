@@ -104,15 +104,13 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {
 
 /* Two conversation views share a simple, mobile-first tab and search layout. */
 body.kn-home-a :is(#cmOv,#stockTalkOv).cw-screen {
-  --kn-sh-bg:#fff;--kn-sh-paper:#fff;--kn-sh-ink:#171a1f;
-  --kn-sh-muted:#686e77;--kn-sh-line:#e4e6e9;--kn-sh-button:#343b45;--kn-sh-chip:#f2f3f5;
   z-index:99999!important;
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {min-height:64px;padding-top:8px;padding-bottom:8px;border-bottom:0}
-:is(#cmOv,#stockTalkOv) .cw-title {font:600 calc(var(--kn-type-page,20px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif)}
+:is(#cmOv,#stockTalkOv) .cw-title {font:500 calc(var(--kn-type-page,20px) * var(--kn-type-scale,1))/1.4 var(--kn-a-sans,system-ui,sans-serif)}
 #stockTalkOv .cw-title {font-family:var(--kn-a-sans,system-ui,sans-serif)}
 :is(#cmOv,#stockTalkOv) .cw-view-tabs {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);flex:0 0 auto;width:100%;max-width:700px;margin:0 auto;border-bottom:1px solid var(--kn-sh-line)}
-:is(#cmOv,#stockTalkOv) .cw-view-tab {position:relative;min-width:0;min-height:58px;padding:12px 10px;border:0;border-radius:0;background:transparent;color:var(--kn-sh-muted);font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));font-weight:600;line-height:1.5;overflow-wrap:anywhere;text-wrap:balance}
+:is(#cmOv,#stockTalkOv) .cw-view-tab {position:relative;min-width:0;min-height:58px;padding:12px 10px;border:0;border-radius:0;background:transparent;color:var(--kn-sh-muted);font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));font-weight:500;line-height:1.5;overflow-wrap:anywhere;text-wrap:balance}
 :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed=true] {color:var(--kn-sh-ink)}
 :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed=true]::after {content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:currentColor}
 :is(#cmOv,#stockTalkOv) .cw-content {max-width:700px;padding:18px 20px 32px}
@@ -127,13 +125,13 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {min-height:64px;padding-top:8
 :is(#cmOv,#stockTalkOv) .cw-search-empty {margin:16px 0;padding:20px 12px;text-align:center;color:var(--kn-sh-muted)}
 :is(#cmOv,#stockTalkOv) .cw-categories,#stockTalkOv .cw-categories,:is(#cmOv,#stockTalkOv) .cw-stock-favorites {flex-wrap:nowrap;overflow-x:auto;overscroll-behavior-x:contain;gap:8px;padding:4px 0 12px;margin:8px 0 18px;border:0;scrollbar-width:thin}
 :is(#cmOv,#stockTalkOv) .cw-category {flex:0 0 auto;min-height:44px;padding:9px 14px;border-color:var(--kn-sh-line);border-radius:999px;font-size:calc(var(--kn-type-label,13px) * var(--kn-type-scale,1))}
-:is(#cmOv,#stockTalkOv) .cw-category[aria-pressed=true] {background:var(--kn-sh-ink);border-color:var(--kn-sh-ink);color:#fff;box-shadow:none}
+:is(#cmOv,#stockTalkOv) .cw-category[aria-pressed=true] {background:var(--kn-sh-ink);border-color:var(--kn-sh-ink);color:var(--kn-sh-paper);box-shadow:none}
 :is(#cmOv,#stockTalkOv) .cw-toolbar {align-items:center;margin-bottom:12px}
 :is(#cmOv,#stockTalkOv) .cw-toolbar .cw-primary {border-radius:999px;padding:10px 18px}
 :is(#cmOv,#stockTalkOv) .cw-login-hint {margin:0 0 20px}
 :is(#cmOv,#stockTalkOv) .cw-feed {gap:0}
 :is(#cmOv,#stockTalkOv) .cw-post,#stockTalkOv .cw-post {padding:20px 0;border:0;border-top:1px solid var(--kn-sh-line);border-radius:0;box-shadow:none}
-:is(#cmOv,#stockTalkOv) .cw-author {font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));font-weight:600}
+:is(#cmOv,#stockTalkOv) .cw-author {font-size:calc(var(--kn-type-body,14px) * var(--kn-type-scale,1));font-weight:500}
 :is(#cmOv,#stockTalkOv) .cw-post-head {flex-wrap:wrap;gap:6px 10px}
 :is(#cmOv,#stockTalkOv) .cw-topic {max-width:100%;overflow-wrap:anywhere;flex:0 1 auto}
 :is(#cmOv,#stockTalkOv) .cw-post-body {margin:10px 0;line-height:1.8}
@@ -146,4 +144,31 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {min-height:64px;padding-top:8
   :is(#cmOv,#stockTalkOv) .cw-content {padding:16px 16px 28px}
   :is(#cmOv,#stockTalkOv) .cw-back {min-width:44px}
   :is(#cmOv,#stockTalkOv) .cw-post {padding:18px 0}
+}
+
+/* Adopted design 4: square avatars, a quiet timeline and a visible first reply. */
+:is(#cmOv,#stockTalkOv) .cw-post {position:relative;background:transparent;padding-left:46px}
+:is(#cmOv,#stockTalkOv) .cw-post-head {flex-wrap:nowrap;min-height:36px}
+:is(#cmOv,#stockTalkOv) .cw-avatar {display:flex;align-items:center;justify-content:center;flex:0 0 36px;width:36px;height:36px;border-radius:10px;background:color-mix(in srgb,var(--kn-sh-ink) 9%,var(--kn-sh-paper));border:1px solid var(--kn-sh-line);color:var(--kn-sh-ink);font-size:15px;font-weight:500;position:absolute;left:0;top:23px}
+:is(#cmOv,#stockTalkOv) .cw-author {min-width:0;flex:1}
+:is(#cmOv,#stockTalkOv) .cw-post-date {font-size:11px}
+:is(#cmOv,#stockTalkOv) .cw-reply-preview {display:block;width:100%;min-height:44px;text-align:left;padding:8px 0 8px 12px;margin:12px 0 0;border:0;border-left:2px solid var(--kn-sh-line);border-radius:0;background:transparent;color:var(--kn-sh-muted);font-size:calc(13px * var(--kn-type-scale,1));line-height:1.7}
+:is(#cmOv,#stockTalkOv) .cw-preview-name {display:block;color:var(--kn-sh-ink);font-weight:500;overflow-wrap:anywhere}
+:is(#cmOv,#stockTalkOv) .cw-preview-body {display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;white-space:pre-wrap;overflow-wrap:anywhere}
+:is(#cmOv,#stockTalkOv) .cw-reply-post {position:relative;padding-left:40px;margin-left:0}
+:is(#cmOv,#stockTalkOv) .cw-reply-post .cw-avatar {width:30px;height:30px;flex-basis:30px;font-size:13px;top:11px;border-radius:9px}
+:is(#cmOv,#stockTalkOv) .cw-replies {margin-left:-34px}
+:is(#cmOv,#stockTalkOv) .cw-reply-form {padding:12px}
+:is(#cmOv,#stockTalkOv) .cw-composer-fields {grid-template-columns:1fr 1fr}
+:is(#cmOv,#stockTalkOv) .cw-saved-draft-label {margin-bottom:12px}
+:is(#cmOv,#stockTalkOv) .cw-room-picker {margin:0 0 10px;border-bottom:1px solid var(--kn-sh-line)}
+:is(#cmOv,#stockTalkOv) .cw-room-picker > summary {min-height:44px;cursor:pointer;color:var(--kn-sh-muted);padding:8px 0;font-size:13px}
+:is(#cmOv,#stockTalkOv) .cw-room-picker .cw-categories {margin-bottom:8px}
+:is(#cmOv,#stockTalkOv) .cw-guide summary,:is(#cmOv,#stockTalkOv) .cw-archive > summary,:is(#cmOv,#stockTalkOv) .cw-menu-item,:is(#cmOv,#stockTalkOv) .cw-text-button {min-height:44px}
+:is(#cmOv,#stockTalkOv) .cw-toolbar .cw-description {font-size:14px;color:var(--kn-sh-ink)}
+@media(max-width:640px) {
+  :is(#cmOv,#stockTalkOv) .cw-post {padding-left:44px}
+  :is(#cmOv,#stockTalkOv) .cw-avatar {top:21px}
+  :is(#cmOv,#stockTalkOv) .cw-composer-fields > :first-child {grid-column:auto}
+  :is(#cmOv,#stockTalkOv) .cw-view-tab {font-size:13px;min-height:52px}
 }

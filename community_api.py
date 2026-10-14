@@ -8,6 +8,7 @@ module does not change a shared Supabase client's session or log remote errors.
 from datetime import datetime
 import json
 import re
+import unicodedata
 import uuid
 
 from flask import Blueprint, jsonify, request
@@ -20,6 +21,8 @@ REPORT_REASONS = frozenset(('spam', 'abuse', 'privacy', 'misinformation', 'other
 MAX_REQUEST_BYTES = 8192
 MAX_ID = 9_007_199_254_740_991  # Exact JSON/JavaScript integer range.
 RPC_NAME = 'world_community_operation'
+FEED_RPC_NAME = 'talk_feed_read'
+MAX_SEARCH_LENGTH = 80
 ERROR_STATUSES = {
     'auth_required': 401, 'auth_unavailable': 503, 'storage_unavailable': 503,
     'invalid_request': 400, 'invalid_category': 400, 'invalid_language': 400,
@@ -75,15 +78,15 @@ class SupabaseCommunityRepository:
         except (ValueError, TypeError, AttributeError):
             raise CommunityError('auth_unavailable') from None
 
-    def call(self, action, actor=None, data=None):
+    def _rpc(self, rpc_name, payload):
         if not self.url or not self.key:
             raise CommunityError('storage_unavailable')
         try:
             response = self.transport.post(
-                self.url + '/rest/v1/rpc/' + self.rpc_name,
+                self.url + '/rest/v1/rpc/' + rpc_name,
                 headers={'apikey': self.key, 'Authorization': 'Bearer ' + self.key,
                          'Content-Type': 'application/json'},
-                json={'p_action': action, 'p_actor': actor, 'p_data': data or {}},
+                json=payload,
                 timeout=(2, 8), allow_redirects=False)
         except Exception:
             raise CommunityError('storage_unavailable') from None
@@ -96,6 +99,14 @@ class SupabaseCommunityRepository:
         if not result['ok']:
             raise CommunityError(result.get('reason'), result.get('retry_after'))
         return result
+
+    def call(self, action, actor=None, data=None):
+        return self._rpc(self.rpc_name, {'p_action': action, 'p_actor': actor, 'p_data': data or {}})
+
+    def read_feed(self, kind, actor=None, data=None):
+        if kind not in ('community', 'stock'):
+            raise CommunityError('invalid_request')
+        return self._rpc(FEED_RPC_NAME, {'p_kind': kind, 'p_actor': actor, 'p_data': data or {}})
 
 
 def _integer(value, reason, *, optional=False):
@@ -134,7 +145,23 @@ def _text(value, reason):
     return value.strip()
 
 
-def _public_post(raw, actor, categories=CATEGORIES):
+def _search_query(value):
+    """Plain, literal AND keywords: never SQL wildcards or regular expressions."""
+    if (not isinstance(value, str) or len(value) > MAX_SEARCH_LENGTH
+            or any(ord(c) < 32 or ord(c) == 127 for c in value)):
+        raise CommunityError('invalid_request')
+    value = ' '.join(unicodedata.normalize('NFKC', value).lower().split())
+    if len(value) > MAX_SEARCH_LENGTH:
+        raise CommunityError('invalid_request')
+    return value
+
+
+def _matches_query(post, query):
+    text = unicodedata.normalize('NFKC', post['name'] + ' ' + post['body']).lower()
+    return all(term in text for term in query.split())
+
+
+def _public_post(raw, actor, categories=CATEGORIES, *, with_preview=True):
     """Whitelist all public fields, including responses from a future RPC version."""
     if not isinstance(raw, dict):
         raise CommunityError('storage_unavailable')
@@ -154,15 +181,28 @@ def _public_post(raw, actor, categories=CATEGORIES):
         if any(isinstance(value, bool) or not isinstance(value, int) or not 0 <= value <= MAX_ID
                for value in counts.values()):
             raise ValueError('bad count')
-        return dict(id=post_id, name=name, body=body, category=raw['category'],
+        result = dict(id=post_id, name=name, body=body, category=raw['category'],
                     language=raw['language'], created_at=created, parent_id=parent,
                     **counts, is_mine=bool(actor) and raw.get('is_mine') is True,
                     liked_by_me=bool(actor) and raw.get('liked_by_me') is True)
+        if with_preview and 'reply_preview' in raw:
+            preview = raw['reply_preview']
+            if parent is not None:
+                raise ValueError('preview is only attached to a root')
+            result['reply_preview'] = None
+            if preview is not None:
+                reply = _public_post(preview, actor, categories, with_preview=False)
+                if (reply['parent_id'] != post_id or reply['category'] != raw['category']
+                        or reply['id'] == post_id or counts['reply_count'] < 1):
+                    raise ValueError('reply preview does not belong to visible root')
+                result['reply_preview'] = {key: reply[key] for key in
+                                           ('id', 'name', 'body', 'created_at', 'parent_id')}
+        return result
     except (KeyError, ValueError, TypeError, OverflowError):
         raise CommunityError('storage_unavailable') from None
 
 
-def create_community_blueprint(supabase_url, supabase_key, *, repository=None, check_admin=None, categories=None, api_prefix='/api/community', blueprint_name='world_community', rpc_name=RPC_NAME, allow_all=True):
+def create_community_blueprint(supabase_url, supabase_key, *, repository=None, check_admin=None, categories=None, api_prefix='/api/community', blueprint_name='world_community', rpc_name=RPC_NAME, allow_all=True, feed_kind='community'):
     """``repository`` is an offline test seam; no process-local post storage."""
     repo = repository or SupabaseCommunityRepository(supabase_url, supabase_key, rpc_name=rpc_name)
     allowed_categories = CATEGORIES if categories is None else categories
@@ -209,6 +249,45 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
             raise CommunityError('storage_unavailable')
         return jsonify(ok=True, posts=posts, has_more=value['has_more'], next_cursor=cursor)
 
+    def read_feed(owner, category, before, limit, query):
+        try:
+            value = repo.read_feed(feed_kind, owner, dict(category=category, before=before,
+                                                        limit=limit, query=query))
+        except CommunityError:
+            raise
+        except Exception:
+            raise CommunityError('storage_unavailable') from None
+        # An old/missing RPC must fail rather than silently ignore the query or
+        # claim that an unsearched feed contains no matching posts.
+        if (not isinstance(value, dict) or value.get('ok') is not True
+                or not isinstance(value.get('search_version'), int)
+                or value.get('search_version') != 1 or isinstance(value.get('search_version'), bool)
+                or value.get('query') != query or not isinstance(value.get('posts'), list)
+                or len(value['posts']) > limit or not isinstance(value.get('has_more'), bool)):
+            raise CommunityError('storage_unavailable')
+        for raw in value['posts']:
+            for projected in (raw, raw.get('reply_preview')) if isinstance(raw, dict) else (raw,):
+                if projected is not None and (not isinstance(projected, dict)
+                        or any(projected.get(key) is not None for key in ('hidden_at', 'deleted_at'))
+                        or any(projected.get(key) not in (None, False) for key in ('hidden', 'deleted'))):
+                    raise CommunityError('storage_unavailable')
+        posts = [public_post(raw, owner) for raw in value['posts']]
+        ids = [post['id'] for post in posts]
+        cursor = _integer(value.get('next_cursor'), 'storage_unavailable', optional=True)
+        if (len(set(ids)) != len(ids) or ids != sorted(ids, reverse=True)
+                or before is not None and any(post_id >= before for post_id in ids)
+                or any(post['parent_id'] is not None or 'reply_preview' not in post
+                       or bool(post['reply_count']) != (post.get('reply_preview') is not None)
+                       or category != 'all' and post['category'] != category for post in posts)
+                or value['has_more'] and (not ids or cursor != ids[-1])
+                or not value['has_more'] and cursor is not None
+                or query and any(not _matches_query(post, query)
+                                 and not (post['reply_preview'] is not None
+                                          and _matches_query(post['reply_preview'], query)) for post in posts)):
+            raise CommunityError('storage_unavailable')
+        return jsonify(ok=True, posts=posts, has_more=value['has_more'], next_cursor=cursor,
+                       query=query, search_version=1)
+
     @blueprint.errorhandler(CommunityError)
     def failed(error):
         payload = {'ok': False, 'reason': error.reason}
@@ -237,7 +316,10 @@ def create_community_blueprint(supabase_url, supabase_key, *, repository=None, c
             limit = _integer(request.args.get('limit', '20'), 'invalid_request')
             if limit > 20:
                 raise CommunityError('invalid_request')
-            return feed(operation('list', owner, dict(category=category, before=before, limit=limit)), owner, limit)
+            if len(request.args.getlist('q')) > 1:
+                raise CommunityError('invalid_request')
+            query = _search_query(request.args.get('q', ''))
+            return read_feed(owner, category, before, limit, query)
         data = _payload()
         body = _text(data.get('body'), 'empty')
         if not body:

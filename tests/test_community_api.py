@@ -9,6 +9,7 @@ import json
 from pathlib import Path
 import threading
 import unittest
+import unicodedata
 import uuid
 
 from flask import Flask
@@ -54,11 +55,46 @@ class FakeRPC:
         item = example(**deepcopy(row))
         item.update(is_mine=row['user_id'] == actor,
                     liked_by_me=(row['id'], actor) in self.likes,
-                    reply_count=sum(r.get('parent_id') == row['id'] and not r.get('deleted') for r in self.rows.values()),
+                    reply_count=sum(r.get('parent_id') == row['id'] and not r.get('deleted')
+                                    and not r.get('hidden') for r in self.rows.values()),
                     like_count=sum(post == row['id'] for post, _ in self.likes))
         # Deliberately adversarial extra fields: the app must remove these.
         item.update(email='private@example.invalid', phone='private-phone', token='private-token')
         return item
+
+    def read_feed(self, kind, actor=None, data=None):
+        # Offline contract seam; this is not evidence of installed/live SQL.
+        with self.lock:
+            data = data or {}
+            self.calls.append(('feed_read', actor, dict(deepcopy(data), kind=kind)))
+            if self.failure:
+                raise self.failure
+            if self.override is not None:
+                return deepcopy(self.override)
+            def matches(row):
+                text = unicodedata.normalize('NFKC', row['name'] + ' ' + row['body']).lower()
+                return all(term in text for term in data['query'].split())
+            pairs = []
+            for row in self.rows.values():
+                if (row.get('deleted') or row.get('hidden') or row['parent_id'] is not None
+                        or data['category'] != 'all' and row['category'] != data['category']
+                        or data['before'] is not None and row['id'] >= data['before']):
+                    continue
+                replies = sorted((reply for reply in self.rows.values()
+                                  if reply['parent_id'] == row['id'] and reply['category'] == row['category']
+                                  and not reply.get('deleted') and not reply.get('hidden')),
+                                 key=lambda reply: reply['id'])
+                matching = replies if matches(row) else [reply for reply in replies if matches(reply)]
+                if not matches(row) and not matching:
+                    continue
+                preview = self.public(matching[0], actor) if matching else None
+                pairs.append(dict(self.public(row, actor), reply_preview=preview, reply_count=len(replies)))
+            pairs.sort(key=lambda row: row['id'], reverse=True)
+            more = len(pairs) > data['limit']
+            pairs = pairs[:data['limit']]
+            return dict(ok=True, posts=pairs, has_more=more,
+                        next_cursor=pairs[-1]['id'] if more else None,
+                        query=data['query'], search_version=1)
 
     def call(self, action, actor=None, data=None):
         with self.lock:
@@ -258,6 +294,140 @@ class CommunityAPITests(unittest.TestCase):
         self.assertEqual([p['id'] for p in response.json['posts']],[4,5])
         response=self.client.get('/api/community/posts/1/replies?after=5&limit=2')
         self.assertEqual([p['id'] for p in response.json['posts']],[6])
+
+    def test_shared_feed_searches_literal_normalized_and_keywords_in_body_and_name(self):
+        self.write(body='ＮＩＳＡを学ぶ', name='Hana')
+        self.repo.now += 10
+        self.write(body='NISAは使っています', name='別の人', category='life')
+        self.repo.now += 10
+        self.write(body='投資を学ぶ', name='Hana', category='chat')
+        response = self.client.get('/api/community/posts', query_string={'q': ' ｈａｎａ NISA '})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual([post['id'] for post in response.json['posts']], [1])
+        self.assertEqual(response.json['query'], 'hana nisa')
+        self.assertEqual(self.repo.calls[-1], ('feed_read', None,
+                         dict(kind='community', category='all', before=None, limit=20, query='hana nisa')))
+
+    def test_reply_only_search_returns_its_parent_and_matching_reply_without_per_parent_reads(self):
+        self.write(body='最近の暮らしについて', category='life')
+        self.repo.now += 10
+        self.write(body='いつもの買い物です', parent_id=1)
+        self.repo.now += 10
+        self.write(body='物価の変化が気になる', parent_id=1)
+        start = len(self.repo.calls)
+        response = self.client.get('/api/community/posts', query_string={'q': '物価 変化'})
+        self.assertEqual(response.status_code, 200)
+        post = response.json['posts'][0]
+        self.assertEqual((post['id'], post['reply_count']), (1, 2))
+        self.assertEqual(post['reply_preview']['id'], 3)
+        self.assertEqual(set(post['reply_preview']), {'id', 'name', 'body', 'created_at', 'parent_id'})
+        self.assertEqual([call[0] for call in self.repo.calls[start:]], ['feed_read'])
+        unfiltered = self.client.get('/api/community/posts').json['posts'][0]
+        self.assertEqual(unfiltered['reply_preview']['id'], 2)
+
+    def test_hidden_deleted_replies_and_roots_never_enter_search_or_preview(self):
+        self.write(body='親の投稿')
+        for body in ('非表示の検索語', '削除の検索語', '見える返信'):
+            self.repo.now += 10
+            self.write(body=body, parent_id=1)
+        self.repo.rows[2]['hidden'] = True
+        self.repo.rows[3]['deleted'] = True
+        for word in ('非表示', '削除'):
+            response = self.client.get('/api/community/posts', query_string={'q': word})
+            self.assertEqual(response.json['posts'], [])
+            self.assertFalse(response.json['has_more'])
+        visible = self.client.get('/api/community/posts').json['posts'][0]
+        self.assertEqual(visible['reply_count'], 1)
+        self.assertEqual(visible['reply_preview']['id'], 4)
+        for state in ('hidden', 'deleted'):
+            self.repo.rows[1][state] = True
+            self.assertEqual(self.client.get('/api/community/posts?q=見える').json['posts'], [])
+            self.repo.rows[1][state] = False
+
+    def test_search_percent_underscore_and_punctuation_are_literal_not_wildcards(self):
+        for body in ('成長率100%です', 'name_one', 'ふつうの投稿', 'A OR B'):
+            self.write(body=body); self.repo.now += 10
+        for query, post_id in (('%', 1), ('_', 2), ('A OR B', 4)):
+            response = self.client.get('/api/community/posts', query_string={'q': query})
+            self.assertEqual([post['id'] for post in response.json['posts']], [post_id])
+
+    def test_matching_root_cursor_is_paged_without_duplicates_or_unrelated_posts(self):
+        for index in range(5):
+            self.write(body='検索語' if index % 2 == 0 else '別の投稿'); self.repo.now += 10
+        first = self.client.get('/api/community/posts?q=検索語&limit=2').json
+        self.assertEqual([post['id'] for post in first['posts']], [5, 3])
+        self.assertTrue(first['has_more'])
+        self.assertEqual(first['next_cursor'], 3)
+        second = self.client.get('/api/community/posts?q=検索語&limit=2&before=3').json
+        self.assertEqual([post['id'] for post in second['posts']], [1])
+        self.assertFalse(second['has_more'])
+        self.assertIsNone(second['next_cursor'])
+
+    def test_search_rejects_oversize_controls_duplicate_params_before_feed_rpc(self):
+        for query in ('あ' * 81, 'x\n', 'x\t', 'x\x7f', '\u337f' * 30):
+            response = self.client.get('/api/community/posts', query_string={'q': query})
+            self.assertEqual(response.status_code, 400)
+        self.assertEqual(self.client.get('/api/community/posts?q=a&q=b').status_code, 400)
+        self.assertEqual(self.repo.calls, [])
+        response = self.client.get('/api/community/posts', query_string={'q': 'あ' * 80})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json['query']), 80)
+
+    def test_search_never_accepts_legacy_ignored_queries_or_wrong_metadata_as_empty_success(self):
+        for extra in ({}, {'query': 'nisa', 'search_version': True},
+                      {'query': 'nisa', 'search_version': 1.0},
+                      {'query': 'wrong', 'search_version': 1}):
+            self.repo.override = dict(ok=True, posts=[], has_more=False, next_cursor=None, **extra)
+            response = self.client.get('/api/community/posts?q=nisa')
+            self.assertEqual((response.status_code, response.json['reason']), (503, 'storage_unavailable'))
+
+    def test_search_requires_matching_parent_or_preview_and_rejects_foreign_or_private_preview(self):
+        root = example(body='親の投稿', reply_count=1, reply_preview=example(id=2, parent_id=1, body='検索語'))
+        good = dict(ok=True, query='検索語', search_version=1, posts=[root], has_more=False, next_cursor=None)
+        self.repo.override = good
+        response = self.client.get('/api/community/posts?q=検索語')
+        self.assertEqual(response.status_code, 200)
+        for changes in (dict(parent_id=3), dict(category='life'), dict(id=True), dict(created_at='bad'),
+                        dict(body='一致しない'), dict(hidden_at='2026-10-12T00:00:00Z'), dict(deleted=True)):
+            self.repo.override = deepcopy(good)
+            self.repo.override['posts'][0]['reply_preview'].update(changes)
+            self.assertEqual(self.client.get('/api/community/posts?q=検索語').status_code, 503)
+        self.repo.override = deepcopy(good)
+        self.repo.override['posts'][0]['reply_preview'].update(user_id=ALICE, email='secret', token='secret')
+        response = self.client.get('/api/community/posts?q=検索語')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(set(response.json['posts'][0]['reply_preview']),
+                         {'id', 'name', 'body', 'created_at', 'parent_id'})
+
+    def test_feed_rejects_missing_preview_inconsistent_counts_order_and_foreign_category(self):
+        good = dict(ok=True, query='', search_version=1,
+                    posts=[example(reply_preview=None)], has_more=False, next_cursor=None)
+        malformed = []
+        for changes in (dict(reply_count=1), dict(parent_id=2), dict(hidden=True)):
+            value = deepcopy(good); value['posts'][0].update(changes); malformed.append(value)
+        value = deepcopy(good); del value['posts'][0]['reply_preview']; malformed.append(value)
+        value = deepcopy(good); value['posts'] += [example(id=2, reply_preview=None)]; malformed.append(value)
+        value = deepcopy(good); value['posts'] *= 2; malformed.append(value)
+        value = deepcopy(good); value['next_cursor'] = 1; malformed.append(value)
+        for value in malformed:
+            self.repo.override = value
+            self.assertEqual(self.client.get('/api/community/posts').status_code, 503)
+        self.repo.override = good
+        self.assertEqual(self.client.get('/api/community/posts?before=1').status_code, 503)
+        self.assertEqual(self.client.get('/api/community/posts?category=life').status_code, 503)
+
+    def test_whitespace_only_search_keeps_shared_feed_and_guest_flags_and_empty_result_contract(self):
+        self.write(category='chat')
+        response = self.client.get('/api/community/posts', query_string={'q': '　 '})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json['query'], '')
+        self.assertFalse(response.json['posts'][0]['is_mine'])
+        self.assertFalse(response.json['posts'][0]['liked_by_me'])
+        self.assertIsNone(response.json['posts'][0]['reply_preview'])
+        absent = self.client.get('/api/community/posts?q=存在しない')
+        self.assertEqual(absent.status_code, 200)
+        self.assertEqual(absent.json['posts'], [])
+        self.assertFalse(absent.json['has_more'])
 
     def test_incomplete_storage_is_never_a_successful_empty_feed(self):
         for bad in ({'ok':True}, {'ok':True,'posts':[],'has_more':'false'},
@@ -471,6 +641,30 @@ class RepositoryBoundaryTests(unittest.TestCase):
         self.assertEqual(options['timeout'],(2,8))
         self.assertFalse(options['allow_redirects'])
 
+    def test_feed_read_is_one_fixed_service_rpc_with_bounded_transport_and_no_user_tokens(self):
+        self.transport.response = Response(value=dict(ok=True, posts=[], has_more=False, next_cursor=None,
+                                                       query='nisa', search_version=1))
+        self.repo.read_feed('community', ALICE, dict(category='all', before=None, limit=20, query='nisa'))
+        self.assertEqual(len(self.transport.calls), 1)
+        method, url, options = self.transport.calls[0]
+        self.assertEqual((method, url), ('POST', 'https://example.supabase.co/rest/v1/rpc/talk_feed_read'))
+        self.assertEqual(options['headers']['Authorization'], 'Bearer test-service-key')
+        self.assertEqual(options['json']['p_actor'], ALICE)
+        self.assertEqual(options['json']['p_kind'], 'community')
+        self.assertEqual(options['timeout'], (2, 8))
+        self.assertFalse(options['allow_redirects'])
+        with self.assertRaises(CommunityError):
+            self.repo.read_feed('arbitrary-table')
+        self.assertEqual(len(self.transport.calls), 1)
+
+    def test_missing_read_rpc_fails_without_fallback_or_raw_error(self):
+        self.transport.response = Response(404, {'message': 'private-migration-error'})
+        with self.assertRaises(CommunityError) as caught:
+            self.repo.read_feed('stock', None, dict(category='stock:7203', query=''))
+        self.assertEqual(caught.exception.reason, 'storage_unavailable')
+        self.assertNotIn('private', str(caught.exception))
+        self.assertEqual(len(self.transport.calls), 1)
+
     def test_missing_migration_or_rpc_error_never_leaks_response_or_returns_empty(self):
         for status,value in ((404,{'message':'secret schema'}),(500,{'secret':'private'}),
                              (200,{'ok':False,'reason':['private-error']})):
@@ -480,6 +674,35 @@ class RepositoryBoundaryTests(unittest.TestCase):
 
 
 class SQLContractTests(unittest.TestCase):
+    def test_feed_followup_is_read_only_fixed_tables_and_equivalent_service_role_boundary(self):
+        sql = (Path(__file__).parents[1] / 'migrations/20261015_talk_feed_search.sql').read_text()
+        lowered = sql.lower()
+        self.assertEqual(lowered.count('create or replace function'), 1)
+        self.assertIn('public.talk_feed_read(', lowered)
+        self.assertIn('set search_path = public, pg_temp', lowered)
+        self.assertIn('language plpgsql stable security definer', lowered)
+        self.assertIn('revoke all on function public.talk_feed_read(text,uuid,jsonb) from public, anon, authenticated', lowered)
+        self.assertIn('grant execute on function public.talk_feed_read(text,uuid,jsonb) to service_role', lowered)
+        self.assertNotRegex(lowered, r'(?m)^\s*(?:alter|drop|insert|update|delete|create table|create policy|create role)\b')
+        self.assertNotRegex(lowered, r'\bexecute\s+(?!on\b)')
+        self.assertNotIn('create or replace function public.world_community_operation', lowered)
+        self.assertNotIn('create or replace function public.stock_talk_operation', lowered)
+        self.assertNotRegex(lowered, r'grant\s+.*to\s+(?:public|anon|authenticated)')
+        for table, projection in (('community_posts', 'world_community_public_post'),
+                                   ('stock_talk_posts', 'stock_talk_public_post')):
+            self.assertIn('from public.' + table + ' p where p.parent_id is null', lowered)
+            self.assertIn('public.' + projection + '(p.id,p_actor)', lowered)
+            self.assertIn('public.' + projection + '(r.id,p_actor)', lowered)
+        self.assertEqual(lowered.count('r.category=p.category and r.deleted_at is null and r.hidden_at is null'), 4)
+        self.assertEqual(lowered.count('where r.parent_id=p.id and r.category=p.category'), 2)
+        self.assertIn('v_limit not between 1 and 20', lowered)
+        self.assertIn('char_length(v_query)>80', lowered)
+        self.assertIn("v_category ~ '^stock:[0-9][0-9a-z]{3}$'", lowered)
+        self.assertIn('lower(normalize(', lowered)
+        self.assertIn('position(term in ', lowered)
+        self.assertNotRegex(lowered, r'\b(?:like|ilike|similar to)\b')
+        self.assertIn("'search_version',1", lowered)
+
     def test_new_private_tables_rpc_grants_and_concurrency_contract(self):
         sql=(Path(__file__).parents[1]/'migrations/20261012_world_community.sql').read_text()
         lowered=sql.lower()

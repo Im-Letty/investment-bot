@@ -15,7 +15,7 @@ class StockRooms:
         if value in INDEX_ROOMS:return True
         return bool(re.fullmatch(r'stock:[0-9][0-9A-Z]{3}',value) and self.catalogue.company(value[6:]))
 def create_stock_talk_blueprint(url,key,catalogue,*,repository=None,check_admin=None):
-    bp=create_community_blueprint(url,key,repository=repository,check_admin=check_admin,categories=StockRooms(catalogue),api_prefix='/api/stock-talk',blueprint_name='stock_talk',rpc_name='stock_talk_operation',allow_all=False)
+    bp=create_community_blueprint(url,key,repository=repository,check_admin=check_admin,categories=StockRooms(catalogue),api_prefix='/api/stock-talk',blueprint_name='stock_talk',rpc_name='stock_talk_operation',allow_all=False,feed_kind='stock')
     @bp.get('/api/stock-talk/rooms')
     def rooms():
         q=request.args.get('q','').strip()

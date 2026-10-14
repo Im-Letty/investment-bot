@@ -3,7 +3,7 @@ const test=require('node:test'),assert=require('node:assert/strict');
 const {create}=require('../static/community.js');
 
 function harness({logged=true,storage=new Map(),language='ja',config}={}) {
-  const calls=[],pending=[],timers=new Map(),events=new Map();let timerId=0,authPrompts=0,prepared=0;
+  const calls=[],pending=[],timers=new Map(),timeouts=new Map(),events=new Map();let timerId=0,authPrompts=0,prepared=0;
   function attrName(key){return 'data-'+key.replace(/[A-Z]/g,c=>'-'+c.toLowerCase());}
   function matches(node,selector){
     const tag=selector.match(/^[a-z]+/i)?.[0];if(tag&&node.tagName!==tag.toUpperCase())return false;
@@ -44,12 +44,13 @@ function harness({logged=true,storage=new Map(),language='ja',config}={}) {
   const hub=new Node('div');hub.id='knMyTalkHub';hub.style.display='none';document.body.appendChild(hub);
   const nav=new Node('nav');nav.id='knBottomNav';document.body.appendChild(nav);
   const morningButton=new Node('button');morningButton.setAttribute('data-act','morning');morningButton.addEventListener('click',()=>morning.scrollTop=0);nav.appendChild(morningButton);
-  const window={document,AbortController,crypto:{randomUUID:()=>`10000000-0000-4000-8000-${String(++timerId).padStart(12,'0')}`},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},setInterval(fn,ms){const id=++timerId;timers.set(id,{fn,ms});return id;},clearInterval(id){timers.delete(id);},knPrepareTalkScreen(){prepared++;},knRequireAuth(){if(!logged)authPrompts++;return logged;},openAuth(){authPrompts++;},sb:{auth:{getSession:async()=>({data:{session:logged?{access_token:'local-fixture-token'}:null}})}},fetch(url,options){calls.push({url,options});return new Promise((resolve,reject)=>pending.push({url,options,resolve,reject}));}};
+  const window={document,AbortController,crypto:{randomUUID:()=>`10000000-0000-4000-8000-${String(++timerId).padStart(12,'0')}`},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},setInterval(fn,ms){const id=++timerId;timers.set(id,{fn,ms});return id;},clearInterval(id){timers.delete(id);},setTimeout(fn,ms){const id=++timerId;timeouts.set(id,{fn,ms});return id;},clearTimeout(id){timeouts.delete(id);},knPrepareTalkScreen(){prepared++;},knRequireAuth(){if(!logged)authPrompts++;return logged;},openAuth(){authPrompts++;},sb:{auth:{getSession:async()=>({data:{session:logged?{access_token:'local-fixture-token'}:null}})}},fetch(url,options){calls.push({url,options});return new Promise((resolve,reject)=>pending.push({url,options,resolve,reject}));}};
   const ui=create(window,config);
   async function settle(){await new Promise(resolve=>setImmediate(resolve));}
+  async function runTimeouts(){const queued=[...timeouts.entries()];for(const [id,timer] of queued){if(timeouts.delete(id))timer.fn();}await settle();}
   async function response(data,status=200,index=0){await settle();assert.ok(pending[index],'a request is queued');const [request]=pending.splice(index,1);request.resolve({ok:status<400,status,json:async()=>data});await settle();return request;}
   function nodes(selector){return document.body.querySelectorAll(selector);}function node(selector){const result=document.body.querySelector(selector);assert.ok(result,selector);return result;}
-  return {ui,window,document,calls,pending,storage,timers,events,hub,morning,node,nodes,response,settle,authPrompts:()=>authPrompts,prepared:()=>prepared};
+  return {ui,window,document,calls,pending,storage,timers,timeouts,runTimeouts,events,hub,morning,node,nodes,response,settle,authPrompts:()=>authPrompts,prepared:()=>prepared};
 }
 const post=(id,extra={})=>({id,name:'表示例',body:'表示用の投稿',category:'economy',language:'ja',created_at:'2026-10-12T00:00:00Z',parent_id:null,reply_count:0,like_count:0,is_mine:false,liked_by_me:false,...extra});
 function paired(h){
@@ -70,10 +71,10 @@ test('existing session is sent on reads; ownership comes from server flags, neve
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(3,{is_mine:true,liked_by_me:true}),post(2,{name:'表示例'})],has_more:false});
   assert.equal(h.calls[0].options.headers.Authorization,'Bearer local-fixture-token');assert.equal(h.nodes('.cw-delete').length,1);assert.equal(h.nodes('.cw-like')[0].getAttribute('aria-pressed'),'true');
 });
-test('older category response cannot replace the selected category',async()=>{
-  const h=harness();h.ui.open();await h.settle();h.nodes('.cw-category')[2].click();await h.settle();assert.equal(h.calls[0].options.signal.aborted,true);
+test('older stock room response cannot replace the selected company',async()=>{
+  const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203'],['stock:6758','ソニー 6758']]}});h.ui.open();await h.settle();h.nodes('.cw-category')[1].click();await h.settle();assert.equal(h.calls[0].options.signal.aborted,true);
   await h.response({ok:true,posts:[post(9,{body:'古いカテゴリの返答'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);
-  await h.response({ok:true,posts:[post(8,{category:'news',body:'新しいカテゴリの返答'})],has_more:false});assert.equal(h.nodes('.cw-post-body')[0].textContent,'新しいカテゴリの返答');
+  await h.response({ok:true,posts:[post(8,{category:'stock:6758',body:'新しいカテゴリの返答'})],has_more:false});assert.equal(h.nodes('.cw-post-body')[0].textContent,'新しいカテゴリの返答');
 });
 test('post body is text; paging appends without moving reading position',async()=>{
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(4,{body:'<img src=x onerror=alert(1)>'})],has_more:true,next_cursor:4});
@@ -95,8 +96,8 @@ test('unknown-result retry keeps UUID across close and reopen and blocks double 
   const failed=h.pending.shift();failed.reject(new Error('connection lost'));await h.settle();h.ui.close();h.ui.open();await h.response({ok:true,posts:[post(50,{body:first.body,is_mine:true})],has_more:false});assert.equal(h.node('#cmInput').value,'再送する内容');h.ui.send();await h.settle();const second=JSON.parse(h.calls.at(-1).options.body);assert.equal(first.request_id,second.request_id);assert.equal(second.parent_id,null);
   await h.response({ok:true,post:post(50,{body:second.body,is_mine:true})});assert.equal(h.node('#cmInput').value,'');assert.equal(h.nodes('.cw-post').length,1);
 });
-test('drafts stay with their topic and close only cleans up, while Back returns to Talk',async()=>{
-  const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='全体の下書き';h.node('#cmInput').emit('input');h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='経済の下書き';h.node('#cmInput').emit('input');h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'全体の下書き');h.ui.close();assert.equal(h.hub.style.display,'none');assert.equal(h.timers.size,0);assert.equal(h.document.getElementById('cmOv'),null);
+test('stock drafts stay with their company and close only cleans up, while Back returns to Talk',async()=>{
+  const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203'],['stock:6758','ソニー 6758']]}});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='トヨタの下書き';h.node('#cmInput').emit('input');h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='ソニーの下書き';h.node('#cmInput').emit('input');h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'トヨタの下書き');h.ui.close();assert.equal(h.hub.style.display,'none');assert.equal(h.timers.size,0);assert.equal(h.document.getElementById('stockTalkOv'),null);
   h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-back').click();assert.equal(h.hub.style.display,'block');
 });
 test('guest report prompts login before opening a native modal',async()=>{
@@ -106,11 +107,11 @@ test('reply writes to the parent topic and server-owned replies can be deleted',
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(7,{category:'life'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});const field=h.node('.cw-reply-form').querySelector('textarea');field.value='返信例';field.emit('input');h.node('.cw-reply-form').emit('submit');await h.settle();const payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.parent_id,7);assert.equal(payload.category,'life');
   await h.response({ok:true,post:post(8,{parent_id:7,category:'life',body:'返信例',is_mine:true})});assert.equal(h.nodes('.cw-reply-post').length,1);assert.equal(h.nodes('.cw-delete').length,1);
 });
-test('legacy conversations remain readonly and never appear under topic filters',async()=>{
-  const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const archive=h.node('.cw-archive');archive.open=true;archive.emit('toggle');await h.response({ok:true,messages:[{id:1,name:'以前の名前',body:'以前の会話',created_at:'2026-10-10T00:00:00Z'}]});assert.equal(h.nodes('.cw-legacy-post').length,1);assert.equal(h.node('.cw-legacy-post').querySelector('button'),null);h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(archive.hidden,true);
+test('legacy conversations remain a separate readonly archive outside the shared searchable feed',async()=>{
+  const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const archive=h.node('.cw-archive');archive.open=true;archive.emit('toggle');await h.response({ok:true,messages:[{id:1,name:'以前の名前',body:'以前の会話',created_at:'2026-10-10T00:00:00Z'}]});assert.equal(h.nodes('.cw-legacy-post').length,1);assert.equal(h.node('.cw-legacy-post').querySelector('button'),null);assert.equal(h.nodes('.cw-feed')[0].querySelector('.cw-legacy-post'),null);assert.equal(h.nodes('.cw-categories').length,0);
 });
 test('language change uses English fallback without translating user content',async()=>{
-  const h=harness();h.ui.open();await h.response({ok:true,posts:[post(2,{body:'ニュース',name:'ニュース'})],has_more:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Talk');assert.equal(h.nodes('.cw-category')[2].textContent,'News');assert.equal(h.node('.cw-post-body').textContent,'ニュース');assert.equal(h.node('.cw-author').textContent,'ニュース');assert.match(h.node('.cw-post-date').textContent,/Posted/);
+  const h=harness();h.ui.open();await h.response({ok:true,posts:[post(2,{body:'ニュース',name:'ニュース'})],has_more:false});h.document.documentElement.lang='en';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Talk');assert.equal(h.nodes('.cw-category').length,0);assert.equal(h.node('.cw-post-body').textContent,'ニュース');assert.equal(h.node('.cw-author').textContent,'ニュース');assert.match(h.node('.cw-post-date').textContent,/Posted/);
   h.document.documentElement.lang='ko';h.document.emit('langChanged');assert.equal(h.node('.cw-title').textContent,'Talk');
 });
 test('delayed language events preserve composer and reply controls and allow sending',async()=>{
@@ -125,8 +126,8 @@ test('delayed language events preserve composer and reply controls and allow sen
     assert.deepEqual(h.node('.cw-composer').querySelectorAll('select'),selects);assert.equal(selects[0].value,'news');assert.equal(selects[1].value,'ja');
     assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'入力中の返信');assert.equal(h.nodes('label[data-cw-copy]').length,0);
     assert.equal(h.node('.cw-community-search').querySelector('input'),search);assert.equal(search.value,'表示用');
-    assert.equal(search.placeholder,language==='ja'?'表示中の投稿を検索':'Search loaded posts');
-    assert.deepEqual(h.nodes('.cw-view-tab').map(node=>node.textContent),language==='ja'?['みんなの銘柄トーク','コミュニティ']:['Stock Talk','Community']);
+    assert.equal(search.placeholder,language==='ja'?'投稿・返信を検索':'Search posts and replies');
+    assert.deepEqual(h.nodes('.cw-view-tab').map(node=>node.textContent),language==='ja'?['みんなの銘柄','コミュニティ']:['Stock Talk','Community']);
   }
   h.node('.cw-composer').emit('submit');await h.settle();let payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.body,'入力中の投稿');assert.equal(payload.name,'表示名');assert.equal(payload.category,'news');
   await h.response({ok:true,post:post(21,{body:payload.body,category:'news',is_mine:true})});
@@ -191,7 +192,7 @@ test('catalogue search opens a regional company room and writes only to that sel
 test('both real Talk views share two immediate tabs and close the previous instance completely',async()=>{
  const h=harness(),stock=paired(h);stock.open();await h.settle();h.morning.scrollTop=0;
  assert.equal(h.node('.cw-title').textContent,'トーク');assert.equal(h.node('#stockTalkOv').getAttribute('aria-label'),'みんなの銘柄トーク');
- assert.deepEqual(h.nodes('.cw-view-tab').map(n=>[n.tagName,n.type,n.textContent,n.getAttribute('aria-pressed')]),[['BUTTON','button','みんなの銘柄トーク','true'],['BUTTON','button','コミュニティ','false']]);
+ assert.deepEqual(h.nodes('.cw-view-tab').map(n=>[n.tagName,n.type,n.textContent,n.getAttribute('aria-pressed')]),[['BUTTON','button','みんなの銘柄','true'],['BUTTON','button','コミュニティ','false']]);
  const old=h.pending[0];h.node('#cmInput').value='銘柄の下書き';h.node('#cmInput').emit('input');h.nodes('.cw-view-tab')[1].click();await h.settle();
  assert.equal(old.options.signal.aborted,true);assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.getElementById('stockTalkOv'),null);assert.equal(h.nodes('#cmInput').length,1);assert.equal(h.nodes('#cmNick').length,1);assert.equal(h.window.knTalkLastView,'community');assert.equal(h.timers.size,1);
  assert.equal(h.document.activeElement,h.nodes('.cw-view-tab')[1],'keyboard focus follows the selected tab without scrolling');
@@ -208,28 +209,36 @@ test('reply drafts remain separate by conversation and topic across tab switches
  h.node('#cmInput').value='一般の投稿下書き';h.node('#cmInput').emit('input');h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});let input=h.node('.cw-reply-form').querySelector('textarea');input.value='一般の返信下書き';input.emit('input');
  h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});input=h.node('.cw-reply-form').querySelector('textarea');assert.equal(input.value,'');input.value='銘柄の返信下書き';input.emit('input');
  h.nodes('.cw-view-tab')[1].click();await h.response({ok:true,posts:[post(7)],has_more:false});assert.equal(h.node('#cmInput').value,'一般の投稿下書き');h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'一般の返信下書き');
- h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[post(7)],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'','same post ID in another feed does not inherit a draft');
- h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[post(7)],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'一般の返信下書き');
  h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'銘柄の返信下書き');
+ h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[post(7,{category:'stock:6758'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'','same post ID in another stock room does not inherit a draft');
+ h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'銘柄の返信下書き');
  assert.ok([...h.storage.keys()].every(k=>['kn_community_drafts_v1','kn_community_requests_v1','kn_stock_talk_drafts_v1','kn_stock_talk_requests_v1','cm_nick'].includes(k)));assert.ok([...h.storage.values()].every(v=>!v.includes('返信下書き')));
  h.node('.cw-reply-form').emit('submit');await h.response({ok:true,post:post(8,{parent_id:7,category:'stock:7203',body:'銘柄の返信下書き'})});stock.close();stock.open();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'','successful reply clears its memory draft');
 });
 
-test('community search only matches loaded parent body or name and remains local under native submit and clear',async()=>{
- const h=harness();h.ui.open();await h.response({ok:true,posts:[post(5,{body:'Alpha body',name:'匿名'}),post(4,{body:'別の本文',name:'BETA'}),post(3,{body:'ほか',name:'ほか',category:'news',language:'en'})],has_more:false});
- const finder=h.node('.cw-community-search'),query=finder.querySelector('input'),before=h.calls.length;assert.equal(finder.firstElementChild.type,'submit');assert.equal(query.type,'search');assert.equal(query.getAttribute('aria-label'),'表示中の投稿を検索');assert.equal(finder.parentNode.children[0],finder);assert.match(h.node('.cw-search-scope').textContent,/読み込んだ投稿/);
- query.value='beta';query.emit('input');assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['4']);assert.equal(h.calls.length,before);
- query.value='news';let prevented=false;finder.emit('submit',{preventDefault(){prevented=true;}});assert.equal(prevented,true);assert.equal(h.nodes('.cw-post').length,0);assert.equal(h.node('.cw-search-empty').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);assert.equal(h.calls.length,before,'search never calls rooms or a new posts API');
- query.value='';query.emit('search');assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['5','4','3']);assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.calls.length,before);
- query.value='ALPHA';query.emit('input');assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['5']);
+test('community is one shared feed with backend post and reply search, debounced and literal normalized',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(5)],has_more:false});
+ assert.equal(h.nodes('.cw-categories').length,0);assert.equal(h.nodes('.cw-category').length,0);assert.match(h.calls[0].url,/category=all/);
+ const finder=h.node('.cw-community-search'),query=finder.querySelector('input'),before=h.calls.length;assert.equal(finder.firstElementChild.type,'submit');assert.equal(query.type,'search');assert.equal(query.getAttribute('aria-label'),'投稿・返信を検索');assert.equal(query.maxLength,80);
+ query.value=' ＮＩＳＡ ';query.emit('input');query.value=' ＮＩＳＡ　学ぶ ';query.emit('input');assert.equal(h.timeouts.size,1);assert.equal([...h.timeouts.values()][0].ms,350);assert.equal(h.calls.length,before);assert.equal(h.timers.size,1,'debounce is separate from the existing poll interval');
+ await h.runTimeouts();assert.equal(h.calls.length,before+1);const params=new URL(h.calls.at(-1).url,'https://example.invalid').searchParams;assert.equal(params.get('q'),'nisa 学ぶ');assert.equal(params.get('category'),'all');
+ await h.response({ok:true,posts:[post(2,{body:'親の本文には検索語なし',reply_count:1,reply_preview:{id:3,parent_id:2,name:'返信者',body:'NISAを学ぶ',created_at:'2026-10-12T00:01:00Z'}})],has_more:false});assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['2'],'reply-only server match survives without the removed parent-only filter');assert.equal(h.node('.cw-preview-body').textContent,'NISAを学ぶ');
 });
 
-test('filtered community feed retains paging and distinguishes no match from loading, failure and no posts',async()=>{
- const h=harness();h.ui.open();const query=h.node('.cw-community-search').querySelector('input');query.value='探したい';query.emit('input');assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.nodes('.cw-state')[1].hidden,true);
- await h.response({ok:true,posts:[post(5)],has_more:true,next_cursor:5});assert.equal(h.node('.cw-search-empty').hidden,false);assert.equal(h.node('.cw-more').hidden,false);
- h.node('.cw-more').click();await h.response({ok:true,posts:[post(4,{body:'探したい言葉'})],has_more:true,next_cursor:4});assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['4']);assert.match(h.calls.at(-1).url,/before=5/);assert.doesNotMatch(h.calls.at(-1).url,/[?&]q=/);assert.equal(h.node('.cw-search-empty').hidden,true);
- query.value='一致なし';query.emit('input');h.node('.cw-more').click();await h.response({ok:false,reason:'storage_unavailable'},503);assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.node('.cw-error-state').hidden,false);
- h.nodes('.cw-category')[2].click();assert.equal(h.node('.cw-search-empty').hidden,true);await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.nodes('.cw-state')[1].hidden,false);assert.equal(query.value,'一致なし');
+test('native search submission and clear cancel debounce and search stored posts through q',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(5)],has_more:false});const finder=h.node('.cw-community-search'),query=finder.querySelector('input');
+ query.value='100% _';query.emit('input');let prevented=false;finder.emit('submit',{preventDefault(){prevented=true;}});await h.settle();assert.equal(prevented,true);assert.equal(h.timeouts.size,0);assert.equal(new URL(h.calls.at(-1).url,'https://example.invalid').searchParams.get('q'),'100% _');
+ await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-search-empty').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);
+ query.value='';query.emit('search');await h.settle();assert.doesNotMatch(h.calls.at(-1).url,/[?&]q=/);await h.response({ok:true,posts:[post(5)],has_more:false});assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.node('.cw-post').dataset.postId,'5');
+ const before=h.calls.length;finder.emit('submit');await h.settle();assert.equal(h.calls.length,before,'same normalized query does not issue another read');
+});
+
+test('searched feed paging and poll retain q and distinguish empty results from failure',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const finder=h.node('.cw-community-search'),query=finder.querySelector('input');query.value='探したい';finder.emit('submit');assert.equal(h.node('.cw-search-empty').hidden,true);await h.response({ok:true,posts:[post(5,{body:'探したい言葉'})],has_more:true,next_cursor:5});
+ h.node('.cw-scroll').scrollTop=213;h.node('.cw-more').click();await h.response({ok:true,posts:[post(4,{body:'探したい関連語'})],has_more:true,next_cursor:4});assert.deepEqual(h.nodes('.cw-post').map(n=>n.dataset.postId),['5','4']);const page=new URL(h.calls.at(-1).url,'https://example.invalid').searchParams;assert.equal(page.get('q'),'探したい');assert.equal(page.get('before'),'5');assert.equal(h.node('.cw-scroll').scrollTop,213);
+ [...h.timers.values()][0].fn();await h.settle();assert.equal(new URL(h.calls.at(-1).url,'https://example.invalid').searchParams.get('q'),'探したい');await h.response({ok:true,posts:[post(5,{body:'探したい更新'})],has_more:true,next_cursor:5});
+ query.value='一致なし';finder.emit('submit');await h.response({ok:false,reason:'storage_unavailable'},503);assert.equal(h.node('.cw-search-empty').hidden,true);assert.equal(h.node('.cw-error-state').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);
+ h.node('.cw-error-state').querySelector('button').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-search-empty').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);
 });
 
 test('stock search still ignores earlier matches after a second native form submission',async()=>{
@@ -242,4 +251,75 @@ test('successful reply cannot regain a stale draft after language rerender, coll
  const h=harness();paired(h);h.ui.open();await h.response({ok:true,posts:[post(11)],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});const oldInput=h.node('.cw-reply-form').querySelector('textarea');oldInput.value='送信中の返信';oldInput.emit('input');h.node('.cw-reply-form').emit('submit');await h.settle();
  h.document.documentElement.lang='en';h.document.emit('langChanged');const rerendered=h.node('.cw-reply-form').querySelector('textarea');assert.notEqual(rerendered,oldInput);assert.equal(rerendered.value,'送信中の返信');h.node('.cw-reply-toggle').click();assert.equal(h.nodes('.cw-reply-form').length,0);
  await h.response({ok:true,post:post(12,{parent_id:11,body:'送信中の返信'})});h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[],has_more:false});h.nodes('.cw-view-tab')[1].click();await h.response({ok:true,posts:[post(11,{reply_count:1})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[post(12,{parent_id:11,body:'送信中の返信'})],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'');assert.equal(h.nodes('.cw-reply-post').length,1);assert.equal(h.calls.filter(call=>call.options.method==='POST').length,1);
+});
+
+test('saved historical community topic drafts remain selectable without splitting the live feed',async()=>{
+ const original={all:{body:'コミュニティの下書き',category:'chat',language:'ja'},economy:{body:'以前の経済下書き',category:'economy',language:'en'},news:{body:'以前のニュース下書き',category:'news',language:'ja'}};
+ const storage=new Map([['kn_community_drafts_v1',JSON.stringify(original)]]),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ assert.equal(h.node('#cmInput').value,original.all.body);assert.equal(h.nodes('.cw-category').length,0);assert.equal(h.nodes('.cw-categories').length,0);assert.equal(h.node('.cw-composer').querySelectorAll('select')[1].parentNode.hidden,true,'legacy destination is not a visible genre selector');
+ const chooser=h.node('.cw-saved-draft-label').querySelector('select');chooser.value='economy';chooser.emit('change');assert.equal(h.node('#cmInput').value,original.economy.body);assert.equal(h.node('.cw-composer').querySelectorAll('select')[1].value,'economy');
+ h.node('#cmInput').value='編集した以前の下書き';h.node('#cmInput').emit('input');chooser.value='all';chooser.emit('change');assert.equal(h.node('#cmInput').value,original.all.body);const saved=JSON.parse(storage.get('kn_community_drafts_v1'));assert.equal(saved.economy.body,'編集した以前の下書き');assert.deepEqual(saved.news,original.news);assert.match(h.calls[0].url,/category=all/);assert.equal(h.calls.length,1,'choosing a saved draft does not switch the live feed');
+ h.ui.close();h.ui.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,original.all.body);assert.equal(JSON.parse(storage.get('kn_community_drafts_v1')).economy.body,'編集した以前の下書き');
+});
+
+test('reply-visible rows render avatars and safe excerpts, opening only the exact parent thread once',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(10,{name:'<img name>',body:'親の本文',reply_count:1,reply_preview:{id:12,parent_id:10,name:'<script>名前</script>',body:'<img src=x onerror=alert(1)>',created_at:'2026-10-12T00:01:00Z'}}),post(9,{reply_count:1,reply_preview:{id:11,parent_id:999,name:'別の人',body:'違う親の内容'}})],has_more:false});
+ assert.equal(h.nodes('.cw-avatar').length,2);assert.equal(h.node('.cw-avatar').getAttribute('aria-hidden'),'true');assert.equal(h.nodes('.cw-reply-preview').length,1);assert.equal(h.node('.cw-preview-name').textContent,'<script>名前</script>');assert.equal(h.node('.cw-preview-body').textContent,'<img src=x onerror=alert(1)>');assert.equal(h.calls.length,1,'initial excerpts share the feed GET and never create per-post reads');assert.equal(h.node('.cw-reply-preview').tagName,'BUTTON');assert.equal(h.node('.cw-reply-preview').getAttribute('aria-label'),'返信の続きを見る');
+ h.node('.cw-reply-preview').click();await h.settle();assert.equal(h.calls.length,2);assert.match(h.calls.at(-1).url,/\/posts\/10\/replies\?limit=50$/);await h.response({ok:true,posts:[post(12,{parent_id:10,body:'返信全文'})],has_more:false});assert.equal(h.nodes('.cw-reply-post').length,1);assert.equal(h.nodes('.cw-reply-preview').length,0);assert.equal(h.node('.cw-reply-post').querySelector('.cw-post-body').textContent,'返信全文');
+});
+
+test('poll explicitly clears an unavailable reply excerpt without additional thread reads',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(10,{reply_count:1,reply_preview:{id:11,parent_id:10,name:'表示名',body:'公開されていた返信'}})],has_more:false});assert.equal(h.nodes('.cw-reply-preview').length,1);
+ [...h.timers.values()][0].fn();await h.response({ok:true,posts:[post(10,{reply_count:0,reply_preview:null})],has_more:false});assert.equal(h.nodes('.cw-reply-preview').length,0);assert.equal(h.node('.cw-reply-toggle').querySelector('.cw-action-count').textContent,'0');assert.equal(h.calls.length,2);
+});
+
+test('out-of-order search responses cannot replace a new query and close cancels pending debounce',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(10)],has_more:false});const finder=h.node('.cw-community-search'),query=finder.querySelector('input');
+ query.value='古い検索';finder.emit('submit');await h.settle();const first=h.pending[0];query.value='新しい検索';finder.emit('submit');await h.settle();assert.equal(first.options.signal.aborted,true);assert.equal(h.pending.length,2);
+ await h.response({ok:true,posts:[post(9,{body:'古い検索の結果'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);await h.response({ok:true,posts:[post(8,{body:'新しい検索の結果'})],has_more:false});assert.equal(h.node('.cw-post-body').textContent,'新しい検索の結果');
+ query.value='まだ送らない';query.emit('input');assert.equal(h.timeouts.size,1);const before=h.calls.length;h.ui.close();assert.equal(h.timeouts.size,0);assert.equal(h.timers.size,0);await h.runTimeouts();assert.equal(h.calls.length,before);
+});
+
+test('stock keyword search stays in its selected room and room changes clear and abort the old query',async()=>{
+ const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203'],['stock:6758','ソニー 6758']]}});h.ui.open();await h.response({ok:true,posts:[],has_more:false});const finder=h.node('.cw-stock-post-search'),query=finder.querySelector('input');query.value='新製品';finder.emit('submit');await h.settle();const old=h.pending[0],params=new URL(h.calls.at(-1).url,'https://example.invalid').searchParams;assert.equal(params.get('category'),'stock:7203');assert.equal(params.get('q'),'新製品');assert.match(h.calls.at(-1).url,/\/api\/stock-talk\/posts/);
+ h.nodes('.cw-category')[1].click();await h.settle();assert.equal(old.options.signal.aborted,true);assert.equal(query.value,'');const selected=new URL(h.calls.at(-1).url,'https://example.invalid').searchParams;assert.equal(selected.get('category'),'stock:6758');assert.equal(selected.has('q'),false);
+ await h.response({ok:true,posts:[post(99,{category:'stock:7203',body:'古い銘柄の結果'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);await h.response({ok:true,posts:[post(98,{category:'stock:6758'})],has_more:false});assert.equal(h.node('.cw-post').dataset.postId,'98');
+});
+
+test('search queued during a write waits for success and cannot erase the published post with a stale query',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='検索を待つ投稿';h.node('#cmInput').emit('input');h.ui.send();await h.settle();const write=h.pending[0];assert.equal(write.options.method,'POST');
+ const finder=h.node('.cw-community-search'),query=finder.querySelector('input');query.value='検索を待つ';finder.emit('submit');await h.settle();assert.equal(h.pending.length,1,'search does not abort a pending write');assert.equal(write.options.signal.aborted,false);
+ await h.response({ok:true,post:post(30,{body:'検索を待つ投稿',is_mine:true})});assert.equal(h.node('#cmInput').value,'');assert.equal(h.pending.length,1);assert.equal(new URL(h.calls.at(-1).url,'https://example.invalid').searchParams.get('q'),'検索を待つ');await h.response({ok:true,posts:[post(30,{body:'検索を待つ投稿',is_mine:true})],has_more:false});assert.equal(h.nodes('.cw-post').length,1);assert.equal(h.node('.cw-post-body').textContent,'検索を待つ投稿');assert.equal(h.calls.filter(call=>call.options.method==='POST').length,1);
+});
+
+test('new shared-community posts use the retained chat destination and search errors preserve drafts',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='新しいつぶやき';h.node('#cmInput').emit('input');assert.equal(h.node('.cw-composer').querySelectorAll('select')[0].value,'chat');h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).category,'chat');await h.response({ok:true,post:post(30,{body:'新しいつぶやき',category:'chat',is_mine:true})});
+ h.node('#cmInput').value='検索中の下書き';h.node('#cmInput').emit('input');const finder=h.node('.cw-community-search'),query=finder.querySelector('input');const before=h.calls.length;query.value='あ'.repeat(81);finder.emit('submit');await h.settle();assert.equal(h.calls.length,before);assert.match(h.node('.cw-notice').textContent,/80文字/);assert.equal(h.node('#cmInput').value,'検索中の下書き');
+ query.value='検索語';finder.emit('submit');await h.response({ok:false,reason:'storage_unavailable'},503);assert.equal(h.node('#cmInput').value,'検索中の下書き');assert.equal(JSON.parse(h.storage.get('kn_community_drafts_v1')).all.body,'検索中の下書き');
+});
+
+test('same or invalid queued search still flushes the successful post refresh under the active query',async()=>{
+ for(const queued of [' ＮＩＳＡ　','あ'.repeat(81)]){
+  const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const finder=h.node('.cw-community-search'),query=finder.querySelector('input');query.value='nisa';finder.emit('submit');await h.response({ok:true,posts:[],has_more:false});
+  h.node('#cmInput').value='NISAの投稿';h.node('#cmInput').emit('input');h.ui.send();await h.settle();query.value=queued;finder.emit('submit');await h.settle();assert.equal(h.pending.length,1);
+  await h.response({ok:true,post:post(30,{body:'NISAの投稿',is_mine:true})});assert.equal(h.pending.length,1,'pending search no-op or invalid input cannot swallow the required fresh feed read');assert.equal(new URL(h.calls.at(-1).url,'https://example.invalid').searchParams.get('q'),'nisa');await h.response({ok:true,posts:[post(30,{body:'NISAの投稿',is_mine:true})],has_more:false});assert.equal(h.node('.cw-post-body').textContent,'NISAの投稿');
+ }
+});
+
+test('search restarts an open pending archive and does not leave it permanently loading',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[],has_more:false});const archive=h.node('.cw-archive');archive.open=true;archive.emit('toggle');await h.settle();const old=h.pending[0];const finder=h.node('.cw-community-search'),query=finder.querySelector('input');query.value='NISA';finder.emit('submit');await h.settle();assert.equal(old.options.signal.aborted,true);assert.equal(h.pending.length,3,'one aborted archive plus new feed and new archive');
+ await h.response({ok:true,messages:[{id:1,name:'古い返答',body:'破棄すべき内容'}]},200,0);assert.equal(h.nodes('.cw-legacy-post').length,0);await h.response({ok:true,posts:[],has_more:false},200,0);await h.response({ok:false,reason:'storage_unavailable'},503,0);
+ h.node('.cw-archive-body').querySelector('button').click();await h.settle();assert.equal(h.pending.length,1,'archive retry remains operational');assert.equal(h.calls.at(-1).url,'/api/messages');await h.response({ok:true,messages:[{id:2,name:'名前',body:'新しい履歴'}]});assert.equal(h.node('.cw-legacy-post').querySelector('.cw-post-body').textContent,'新しい履歴');
+});
+
+test('old draft picker is guarded while compose POST is pending and other stored drafts are never erased',async()=>{
+ const old={all:{body:'送る投稿',category:'chat',language:'ja'},economy:{body:'以前の下書き',category:'economy',language:'ja'}};const storage=new Map([['kn_community_drafts_v1',JSON.stringify(old)]]),h=harness({storage});h.ui.open();await h.response({ok:true,posts:[],has_more:false});const picker=h.node('.cw-saved-draft-label').querySelector('select');h.ui.send();await h.settle();assert.equal(picker.disabled,true);
+ picker.value='economy';picker.emit('change');assert.equal(picker.value,'all');assert.equal(h.node('#cmInput').value,'送る投稿');await h.response({ok:true,post:post(30,{body:'送る投稿',category:'chat',is_mine:true})});assert.equal(picker.disabled,false);assert.equal(h.node('#cmInput').value,'');assert.deepEqual(JSON.parse(storage.get('kn_community_drafts_v1')).economy,old.economy);
+ picker.value='economy';picker.emit('change');assert.equal(h.node('#cmInput').value,'以前の下書き');
+});
+
+test('typing the next compose or reply draft while a write is pending keeps the new text after success',async()=>{
+ const h=harness();h.ui.open();await h.response({ok:true,posts:[post(20)],has_more:false});h.node('#cmInput').value='送信中の投稿';h.node('#cmInput').emit('input');h.ui.send();await h.settle();h.node('#cmInput').value='次の投稿下書き';h.node('#cmInput').emit('input');await h.response({ok:true,post:post(30,{body:'送信中の投稿',is_mine:true})});assert.equal(h.node('#cmInput').value,'次の投稿下書き');assert.equal(JSON.parse(h.storage.get('kn_community_drafts_v1')).all.body,'次の投稿下書き');
+ h.nodes('.cw-reply-toggle')[1].click();await h.response({ok:true,posts:[],has_more:false});let input=h.node('.cw-reply-form').querySelector('textarea');input.value='送信中の返信';input.emit('input');h.node('.cw-reply-form').emit('submit');await h.settle();h.document.documentElement.lang='en';h.document.emit('langChanged');input=h.node('.cw-reply-form').querySelector('textarea');input.value='次の返信下書き';input.emit('input');await h.response({ok:true,post:post(21,{parent_id:20,body:'送信中の返信',is_mine:true})});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'次の返信下書き');assert.equal(h.node('.cw-reply-post').querySelector('.cw-post-body').textContent,'送信中の返信');
+ h.ui.close();h.ui.open();await h.response({ok:true,posts:[post(20,{reply_count:1})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[post(21,{parent_id:20,body:'送信中の返信',is_mine:true})],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'次の返信下書き');
 });

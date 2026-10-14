@@ -11,7 +11,7 @@
    var links=document.createElement('div');links.className='cw-stock-favorites';
    watched.slice(0,30).forEach(function(item){var raw=typeof item==='string'?item:item.symbol||item.code||'',code=raw.replace(/\.(T|JP)$/,'');if(!/^[0-9][0-9A-Z]{3}$/.test(code))return;
     var b=document.createElement('button');b.type='button';b.className='cw-category';b.textContent='♡ '+(item.name||code);b.addEventListener('click',async function(){try{var r=await w.fetch('/api/stock-talk/rooms?q='+encodeURIComponent(code),{cache:'no-store'}),d=await r.json();if(!s.root.isConnected)return;var room=(d.rooms||[]).find(function(v){return v.code===code;});if(room)s.chooseRoom(room);}catch(e){}});links.appendChild(b);});
-   if(links.children.length)s.categoryNote.parentNode.before(links);
+   if(links.children.length){if(s.roomPicker)s.roomPicker.appendChild(links);else s.categoryNote.parentNode.before(links);}
   }});
   w.KNStockTalk=conversation;w.openStockTalk=conversation.open;
   var card=document.createElement('button');card.type='button';card.id='talkCard';card.textContent='みんなの銘柄トーク';card.addEventListener('click',conversation.open);
