@@ -88,7 +88,7 @@ def _article_link(item):
 
 def _summary_info(item, source_rows=''):
     """Wrap source rows already escaped by the publication/link renderers."""
-    if item.get("source") not in ("財務省", "総務省統計局", "日本銀行"):
+    if item.get("source") not in ("財務省", "総務省統計局", "日本銀行", "金融庁"):
         return ''
     key = escape("summary-info:" + item["url"], quote=True)
     return (f'<details class="news-info" data-news-key="{key}">'

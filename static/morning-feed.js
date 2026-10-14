@@ -3,7 +3,7 @@
   'use strict';
   var newsCache={}, newsPending={}, newsTimers={}, newsAttempts={}, marketPending=null, marketRetry=null;
   var NEWS_TTL=120000, MAX_NEWS_AGE=900000, MAX_MARKET_AGE=7*86400000;
-  var officialSourceHosts={'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp','日本銀行':'www.boj.or.jp'};
+  var officialSourceHosts={'総務省統計局':'www.stat.go.jp','財務省':'www.mof.go.jp','日本銀行':'www.boj.or.jp','金融庁':'www.fsa.go.jp'};
   var shownLanguage=null, shownEdition=null, shownNews=null, shownState=null, newsLoadedAt={}, started=false;
   var initialNews=null, initialRead=false, publishedNews={}, publishedRead={}, newsPeriods={}, publishedFloors={};
   var copy={
@@ -40,6 +40,12 @@
     var url;try{url=new URL(item.url);}catch(_){return false;}
     if(url.protocol!=='https:'||url.hostname!==officialSourceHosts[item.source]||url.username||url.password||url.search||(url.port&&url.port!=='443'))return false;
     if(item.source==='日本銀行'&&!/^\/mopo\/mpmdeci\/(?:state_\d{4}\/k\d{6}[a-z]?\.html?|mpr_\d{4}\/k\d{6}[a-z]?\.pdf)$/.test(url.pathname))return false;
+    if(item.source==='金融庁'){
+      // Match the server's HTML-only FSA scope. Its RSS delivery time is not
+      // an original publication time, and the dated path must corroborate it.
+      var fsaPath=/^\/news\/r[1-9]\d?\/(?:hoken|sonota|shouken|ginkou)\/(?:(\d{8})\/)?(\d{8})(?:_[a-z0-9]+|[a-z]+)?\.html$/.exec(url.pathname);
+      if(!fsaPath||fsaPath[2]!==item.published_date.replace(/-/g,'')||item.publication_precision!=='day'||item.published_at!==null||typeof item.title!=='string'||!item.title.length||item.title.length>1000||!/金融|保険|預貯金|口座|証券|銀行|信用|資産運用|NISA|サイバーセキュリティ/.test(item.title)||/予定|募集|入札|採用|調達|公募|開催|会議|会合|連絡会|議事|パブリックコメント|意見募集|訂正|正誤表|更新しました|差替|差し替|取消|取り消し/.test(item.title))return false;
+    }
     if(w.kind==='intraday'){
       if(item.selection_route!=='intraday'||item.published_date!==w.edition_date||item.body_verified_at<w.window_start||typeof item.title!=='string'||!item.title.trim()||item.title.length>1000||Object.prototype.hasOwnProperty.call(item,'deferred_from')||Object.prototype.hasOwnProperty.call(item,'deferred_reason'))return false;
       if(item.publication_precision==='day')return item.published_at===null&&editionKey(item.body_verified_at)>=item.published_date;
@@ -178,7 +184,7 @@
   }
   function articleLink(item,l){var url=safeNewsURL(item.url),source=newsSource(item.source||'')||digestCopy[l].original,title=item.title||'';return url?'<a href="'+esc(url)+'" target="_blank" rel="noopener noreferrer" title="'+esc(title)+'" aria-label="'+esc((title?title+' · ':'')+source+' · '+digestCopy[l].original)+'">'+esc(source)+' ↗</a>':'';}
   function summaryInfo(item,l,sourceRows){
-    if(!['財務省','総務省統計局','日本銀行'].includes(item.source))return '';
+    if(!Object.prototype.hasOwnProperty.call(officialSourceHosts,item.source))return '';
     var key='summary-info:'+item.url;
     return '<details class="news-info" data-news-key="'+esc(key)+'"><summary data-news-focus="'+esc(key)+'" aria-label="'+esc({ja:'発表日時と出典',en:'Publication dates and sources',ko:'발표 날짜와 출처',zh:'发布日期与来源'}[l])+'"><span class="news-info-symbol" aria-hidden="true">i</span></summary><div class="news-info-content">'+(sourceRows||'')+'<p class="news-info-note">'+esc({ja:'公式発表をもとに要約',en:'Summarized from the official announcement',ko:'공식 발표를 바탕으로 요약',zh:'根据官方公告整理摘要'}[l])+'</p></div></details>';
   }

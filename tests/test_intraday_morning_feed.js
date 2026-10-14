@@ -219,3 +219,81 @@ test('morning v1 retains source precision and eight oclock minimum release',()=>
   data.digest.publish_at=stamp('2026-10-11T07:59:59');const b=app({},data);b.start();
   assert.doesNotMatch(b.html(),/朝版の公式記事/);assert.equal(b.storage.has('kn_published_news_v1_ja'),false);
 });
+
+function fsaPublication(options={}){
+  const data=publication({precise:false,headline:'金融庁の確認済み新記事',...options});
+  const day=data.news[0].published_date.replace(/-/g,'');
+  changeRef(data,'source','金融庁');
+  changeRef(data,'title','金融制度の運用について');
+  changeRef(data,'url','https://www.fsa.go.jp/news/r8/hoken/'+day+'/'+day+'.html');
+  return data;
+}
+
+test('reviewed FSA morning and intraday editions render from API and saved copy with real date-only metadata',async()=>{
+  for(const kind of ['morning','intraday']){
+    const data=fsaPublication({kind}),a=app();a.start();await a.reply(0,data);
+    assert.match(a.html(),/金融庁の確認済み新記事/);
+    assert.match(a.html(),/金融庁/);
+    assert.match(a.html(),new RegExp('datetime="'+data.news[0].published_date+'"'));
+    assert.doesNotMatch(a.html(),/2026\/10\/(?:10|11) 00:00/);
+    const saved=JSON.parse(a.storage.get('kn_published_news_v1_ja'));
+    assert.equal(saved.news[0].published_at,null);
+    assert.deepEqual(saved.digest,data.digest);
+    const embedded=app({},data);embedded.start();assert.match(embedded.html(),/金融庁の確認済み新記事/);
+    const restored=app({'kn_published_news_v1_ja':JSON.stringify(saved)});restored.start();
+    assert.match(restored.html(),/金融庁の確認済み新記事/);
+    assert.match(a.html(),/class="news-info"/,'FSA dates and source stay inside the existing information disclosure');
+    assert.match(a.html(),/発表日時と出典/);
+  }
+});
+
+test('FSA source identity, narrow paths, dated URL and title scope are not broadened for display',()=>{
+  const variants=[
+    d=>changeRef(d,'url','https://www.fsa.go.jp.evil.test/news/r8/hoken/20261011/20261011.html'),
+    d=>changeRef(d,'url','https://www.mof.go.jp/news/r8/hoken/20261011/20261011.html'),
+    d=>changeRef(d,'url','https://www.fsa.go.jp/ordinary/index.html'),
+    d=>changeRef(d,'url','https://www.fsa.go.jp/news/r8/hoken/20261011/01.pdf'),
+    d=>changeRef(d,'url','https://www.fsa.go.jp/news/r8/unknown/20261011/20261011.html'),
+    d=>changeRef(d,'url','https://www.fsa.go.jp/news/r8/hoken/20261010/20261010.html'),
+    d=>changeRef(d,'url',d.news[0].url+'?source=unverified'),
+    d=>changeRef(d,'title','金融制度の訂正について'),
+    d=>changeRef(d,'title','金融制度の説明会の開催予定'),
+    d=>changeRef(d,'title','金融制度を更新しました'),
+    d=>changeRef(d,'title','参考資料について'),
+    d=>changeRef(d,'title','金融'+'原'.repeat(1000))
+  ];
+  for(const mutate of variants){
+    const data=fsaPublication();mutate(data);const a=app({},data);a.start();
+    assert.doesNotMatch(a.html(),/金融庁の確認済み新記事/);
+    assert.equal(a.storage.has('kn_published_news_v1_ja'),false);
+  }
+});
+
+test('FSA display keeps publication precision, future and source-window review guards intact',async()=>{
+  const variants=[
+    d=>{changeRef(d,'publication_precision','second');changeRef(d,'published_at',stamp('2026-10-11T12:00:00'));},
+    d=>changeRef(d,'published_at',stamp('2026-10-11T00:00:00')),
+    d=>{changeRef(d,'published_date','2026-10-12');changeRef(d,'url','https://www.fsa.go.jp/news/r8/hoken/20261012/20261012.html');},
+    d=>changeRef(d,'body_verified_at',d.digest.source_window.cutoff_at+1),
+    d=>changeRef(d,'body_verified_at',d.digest.source_window.window_start-1),
+    d=>d.digest.reviewed_at=d.digest.source_window.cutoff_at-1,
+    d=>d.digest.publish_at=stamp('2026-10-11T18:00:01'),
+    d=>d.digest.article_summaries[0].body_sha256='b'.repeat(64),
+    d=>d.digest.source_window.extra='unreviewed'
+  ];
+  for(const mutate of variants){
+    const data=fsaPublication();mutate(data);const a=app({},data);a.start();await a.reply(0,data);
+    assert.doesNotMatch(a.html(),/金融庁の確認済み新記事/);
+    assert.equal(a.storage.has('kn_published_news_v1_ja'),false);
+  }
+});
+
+test('a newer FSA publication supersedes stored morning copy and an older API response cannot undo it',async()=>{
+  const morning=publication({kind:'morning',precise:false,headline:'朝の既存記事'});
+  const current=fsaPublication(),a=app({'kn_published_news_v1_ja':JSON.stringify(morning)});a.start();
+  assert.match(a.html(),/朝の既存記事/);await a.reply(0,current);
+  assert.match(a.html(),/金融庁の確認済み新記事/);assert.doesNotMatch(a.html(),/朝の既存記事/);
+  a.advance(121);a.context.loadMorningNews();await a.reply(2,morning);
+  assert.match(a.html(),/金融庁の確認済み新記事/);
+  assert.equal(JSON.parse(a.storage.get('kn_published_news_v1_ja')).digest.headline,current.digest.headline);
+});

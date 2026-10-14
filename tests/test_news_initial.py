@@ -279,6 +279,51 @@ class InitialSelectionTests(unittest.TestCase):
         self.assertEqual(ParsedInitial(markup, info_open=False).links, [])
         self.assertEqual(ParsedInitial(markup, info_open=False).times, [])
 
+    def test_fsa_initial_markup_keeps_date_only_source_inside_information_disclosure(self):
+        authored = official_review('day')
+        for ref in authored['article_refs'] + authored['article_summaries']:
+            ref.update(source='金融庁', title='金融制度の運用について',
+                       url='https://www.fsa.go.jp/news/r8/hoken/20260921/20260921.html')
+        original = deepcopy(authored)
+        data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
+        self.assertEqual(data['digest'], authored)
+        html = render_initial_html(NEWS_PLACEHOLDER, data)
+        self.assertIn('class="news-info"', html)
+        self.assertIn('発表日時と出典', html)
+        opened = ParsedInitial(html)
+        self.assertEqual(len(opened.links), 1)
+        self.assertEqual(opened.links[0]['attrs']['href'], authored['article_refs'][0]['url'])
+        self.assertEqual(opened.links[0]['text'], '金融庁 ↗')
+        self.assertEqual(opened.times[0]['attrs']['datetime'], '2026-09-21')
+        self.assertEqual(opened.times[0]['text'], '2026/09/21 発表')
+        closed = ParsedInitial(html, info_open=False)
+        self.assertEqual(closed.links, [])
+        self.assertEqual(closed.times, [])
+        self.assertEqual(json.loads(opened.json)['news'][0]['published_at'], None)
+        self.assertEqual(authored, original)
+
+    def test_fsa_initial_selection_rejects_wrong_source_dates_and_unreviewed_changes(self):
+        authored = official_review('day')
+        for ref in authored['article_refs'] + authored['article_summaries']:
+            ref.update(source='金融庁', title='金融制度の運用について',
+                       url='https://www.fsa.go.jp/news/r8/hoken/20260921/20260921.html')
+        variants = [
+            {'url': 'https://www.fsa.go.jp.evil.test/news/r8/hoken/20260921/20260921.html'},
+            {'url': 'https://www.fsa.go.jp/news/r8/hoken/20260920/20260920.html'},
+            {'title': '金融制度の訂正について'},
+            {'publication_precision': 'second', 'published_at': timestamp('2026-09-21T12:00:00+09:00')},
+            {'published_date': '2026-09-23', 'url': 'https://www.fsa.go.jp/news/r8/hoken/20260923/20260923.html'},
+        ]
+        for changes in variants:
+            invalid = deepcopy(authored)
+            for ref in invalid['article_refs'] + invalid['article_summaries']:
+                ref.update(changes)
+            with self.subTest(changes=changes):
+                self.assertIsNone(initial_news(cold(), now=NOW, reviewed_digests=[invalid]))
+        invalid = deepcopy(authored)
+        invalid['reviewed_at'] = NOW + 1
+        self.assertIsNone(initial_news(cold(), now=NOW, reviewed_digests=[invalid]))
+
     def test_nonofficial_summary_and_unsummarized_official_keep_existing_source_metadata(self):
         nonofficial = article()
         authored = review([nonofficial], article_summaries=[{**nonofficial,
