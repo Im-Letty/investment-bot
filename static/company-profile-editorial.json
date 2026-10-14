@@ -10470,6 +10470,233 @@
           "issuer_document_published_by_exchange": true
         }
       ]
+    },
+    {
+      "symbol": "9334.JP",
+      "name": "アイビスホールディングス",
+      "business": "グループで、障がいのある人が自分のペースで訓練する就労継続支援B型の施設を運営する会社です。利用者が手がけた製品の販売も行います。",
+      "life": "グループの就労支援施設では、訓練から一般の仕事に就くための支援を行います。利用者が手がけた品物の販路づくりにも取り組んでいます。",
+      "watch": "グループでは就労継続支援B型に加え、「Re:WORK lab 秋葉原」で復職・転職を支える事業も運営しています。働くための支援と製品販売の両方を扱っています。",
+      "reviewed_on": "2026-10-14",
+      "authorship_notice": "公式一次資料で確認した事業の事実を基に、当サイトが独自に説明を作成しました。",
+      "sources": [
+        {
+          "title": "公表日不明 福証上場会社情報・アイビスHD（同URL最終更新2026/10/13 時刻不明／説明は当サイト作成）",
+          "url": "https://www.fse.or.jp/market-info/listed-companies/detail.php?copid=173",
+          "fetched_at": 1791946462.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown_original_business_or_record_first_publication_not_derived_from_listing_event_CMS_or_fetch",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "official_exchange_current_ordinary_listing_HTML",
+          "source_raw_sha256": "1e2974f05676d35162897e3c6b04db92026a6e227a1a9980c9428202d53ba15c",
+          "actual_retrieved_at_jst": "2026-10-14T11:54:22+09:00",
+          "actual_GET_receipt_sha256": "d911e37805f3af1b32fac87233865971ac9d9b634b1b109fd31fb4c849e7dfba",
+          "original_receipt_container_sha256": "1b6ede31cedbf1fac45207e03068b151fa7fff16a5b5abf7b418f69d5aad49f9",
+          "document_title": "上場会社詳細情報｜マーケット・適時開示｜福岡証券取引所",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "same_URL_visible_record_last_update_day_known_clock_unknown",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [
+            {
+              "carrier": "visible_same_URL_record_last_update",
+              "literal": "最終更新日 : 2026.10.13",
+              "day": "2026-10-13",
+              "clock": "unknown"
+            }
+          ],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "format": "HTML",
+            "same_URL_publication_time_meta_literals": [],
+            "WebPage_publication_modified_date_nodes": [],
+            "JSONLD_parsed_original_order": [],
+            "full_original_metadata_private_artifact": "9334-original-source-fullmetadata-and-publication-trace-private.json",
+            "all_original_meta_tags_read_count": 5,
+            "no_copyright_or_generator_or_listing_event_date_substitution": true
+          },
+          "publisher_host": "www.fse.or.jp",
+          "same_URL_record_last_updated_on": "2026-10-13",
+          "same_URL_record_last_updated_time": "unknown",
+          "listing_identity_event_on": "2026-10-13",
+          "listing_event_not_original_publication_or_CMS_creation": true
+        },
+        {
+          "title": "公表日不明 公式会社概要・アイビスHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://ibisholdings.co.jp/company/",
+          "fetched_at": 1791946464.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown_original_business_or_record_first_publication_not_derived_from_listing_event_CMS_or_fetch",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_current_business_HTML",
+          "source_raw_sha256": "bb4056d2581deac5e3aeb9b10f2581ea303db0c88297667b3f642973cff78eb9",
+          "actual_retrieved_at_jst": "2026-10-14T11:54:24+09:00",
+          "actual_GET_receipt_sha256": "6c38e0e2c86c5d9108185a5f5bd741ecfe8aeab42a6b5e9d44433ab21d3f26b5",
+          "original_receipt_container_sha256": "1b6ede31cedbf1fac45207e03068b151fa7fff16a5b5abf7b418f69d5aad49f9",
+          "document_title": "会社概要｜株式会社アイビスホールディングス｜公式ホームページ 会社概要 | 株式会社アイビスホールディングス｜公式ホームページ",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "format": "HTML",
+            "same_URL_publication_time_meta_literals": [],
+            "WebPage_publication_modified_date_nodes": [],
+            "JSONLD_parsed_original_order": [
+              {
+                "@context": "https://schema.org",
+                "@graph": [
+                  {
+                    "@type": "Organization",
+                    "name": "株式会社アイビスホールディングス｜公式ホームページ",
+                    "url": "https://ibisholdings.co.jp/",
+                    "logo": "https://ibisholdings.co.jp/wp-content/themes/templatename/assets/images/logo/logo.png",
+                    "telephone": "+81-52-526-1590",
+                    "address": {
+                      "@type": "PostalAddress",
+                      "postalCode": "101-0021",
+                      "addressRegion": "東京都",
+                      "addressLocality": "千代田区",
+                      "streetAddress": "外神田二丁目15番12号 Hajime Hub gran+ chiyoda",
+                      "addressCountry": "JP"
+                    },
+                    "sameAs": [
+                      "https://www.instagram.com/ibis_free/",
+                      "https://www.tiktok.com/@ibis_group"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "full_original_metadata_private_artifact": "9334-original-source-fullmetadata-and-publication-trace-private.json",
+            "all_original_meta_tags_read_count": 24,
+            "no_copyright_or_generator_or_listing_event_date_substitution": true
+          },
+          "publisher_host": "ibisholdings.co.jp"
+        },
+        {
+          "title": "公表日不明 公式事業案内・アイビスHD（ページ初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://ibisholdings.co.jp/business/",
+          "fetched_at": 1791946757.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown_original_business_or_record_first_publication_not_derived_from_listing_event_CMS_or_fetch",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "issuer_official_current_business_HTML",
+          "source_raw_sha256": "ec491468288abb69bb981b6cf1675d2ab2ecda334afd83c338259be5f479f552",
+          "actual_retrieved_at_jst": "2026-10-14T11:59:17+09:00",
+          "actual_GET_receipt_sha256": "26eb75bab553086513e8ee41238127318399a687948603fdb390bfa96e2169a9",
+          "original_receipt_container_sha256": "c46947021a3196279476104d27bf2aa58f0557999012bf6cffcdc2b8d40c4dc8",
+          "document_title": "事業内容｜株式会社アイビスホールディングス｜公式ホームページ 業務内容 | 株式会社アイビスホールディングス｜公式ホームページ",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "format": "HTML",
+            "same_URL_publication_time_meta_literals": [],
+            "WebPage_publication_modified_date_nodes": [],
+            "JSONLD_parsed_original_order": [
+              {
+                "@context": "https://schema.org",
+                "@graph": [
+                  {
+                    "@type": "Organization",
+                    "name": "株式会社アイビスホールディングス｜公式ホームページ",
+                    "url": "https://ibisholdings.co.jp/",
+                    "logo": "https://ibisholdings.co.jp/wp-content/themes/templatename/assets/images/logo/logo.png",
+                    "telephone": "+81-52-526-1590",
+                    "address": {
+                      "@type": "PostalAddress",
+                      "postalCode": "101-0021",
+                      "addressRegion": "東京都",
+                      "addressLocality": "千代田区",
+                      "streetAddress": "外神田二丁目15番12号 Hajime Hub gran+ chiyoda",
+                      "addressCountry": "JP"
+                    },
+                    "sameAs": [
+                      "https://www.instagram.com/ibis_free/",
+                      "https://www.tiktok.com/@ibis_group"
+                    ]
+                  }
+                ]
+              }
+            ],
+            "full_original_metadata_private_artifact": "9334-original-source-fullmetadata-and-publication-trace-private.json",
+            "all_original_meta_tags_read_count": 24,
+            "no_copyright_or_generator_or_listing_event_date_substitution": true
+          },
+          "publisher_host": "ibisholdings.co.jp"
+        },
+        {
+          "title": "公表日不明 名証上場銘柄情報・アイビスHD（同URL初公開・更新日不明／説明は当サイト作成）",
+          "url": "https://www.nse.or.jp/api/stock/search.json?dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=4",
+          "fetched_at": 1791946761.0,
+          "source_published_on": null,
+          "source_publication_status": "unknown_original_business_or_record_first_publication_not_derived_from_listing_event_CMS_or_fetch",
+          "source_original_publication_literal": null,
+          "source_original_publication_time": "unknown",
+          "source_kind": "official_exchange_current_ordinary_listing_JSON",
+          "source_raw_sha256": "f5cfc0f88974f111b4604ca9b77a892c98f9bd73314ce8d5222acabbcbc032e6",
+          "actual_retrieved_at_jst": "2026-10-14T11:59:21+09:00",
+          "actual_GET_receipt_sha256": "ba6398027d0b9d6f71f09c6fc9c6f2a296754397d6f01fdcf7ccbd2a56b3d4d5",
+          "original_receipt_container_sha256": "c46947021a3196279476104d27bf2aa58f0557999012bf6cffcdc2b8d40c4dc8",
+          "document_title": "名古屋証券取引所 上場銘柄検索JSON page4",
+          "page_initial_published_at": null,
+          "page_initial_published_at_jst": null,
+          "page_initial_publication_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_modified_at": null,
+          "page_modified_at_jst": null,
+          "page_modified_status": "unknown_no_same_URL_WebPage_date_or_article_time_meta",
+          "page_initial_publication_evidence_literals": [],
+          "page_modified_evidence_literals": [],
+          "metadata_conflict_not_resolved_by_author": false,
+          "full_metadata_trace": {
+            "format": "JSON",
+            "same_URL_publication_time_meta_literals": [],
+            "WebPage_publication_modified_date_nodes": [],
+            "JSONLD_parsed_original_order": [],
+            "full_original_metadata_private_artifact": "9334-original-source-fullmetadata-and-publication-trace-private.json",
+            "all_original_meta_tags_read_count": 0,
+            "no_copyright_or_generator_or_listing_event_date_substitution": true,
+            "exact_current_ordinary_stock_record": {
+              "simpleListing": 0,
+              "stockCode": "93340",
+              "stockName_j": "アイビスホールディングス",
+              "stockName_e": "IBIS HOLDINGS Co., Ltd.",
+              "listedDivision": 3,
+              "industryName_j": "サービス業",
+              "industryName_e": "Services",
+              "stockUrl_e": "",
+              "accountingTerm": "1031",
+              "tradingUnit": "100"
+            },
+            "list_metadata": [
+              {
+                "listTotal": "325",
+                "listCount": "100",
+                "listPage": "4"
+              }
+            ]
+          },
+          "publisher_host": "www.nse.or.jp"
+        }
+      ]
     }
   ]
 }

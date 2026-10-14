@@ -18398,7 +18398,13 @@
         "code": "5363",
         "name": "東京窯業",
         "exchange": "Tokyo",
-        "exchange_id": "Q217475"
+        "exchange_id": "Q217475",
+        "listings": [
+          {
+            "exchange": "Nagoya",
+            "exchange_id": "Q1188840"
+          }
+        ]
       },
       "proof": {
         "code": "5363",
@@ -18415,7 +18421,7 @@
       "use_basis": "independent_summary_of_business_facts",
       "source_updated_on": "2026-10-12",
       "source_record_updated_on": "2026-09-25",
-      "identity_checked_on": "2026-10-13",
+      "identity_checked_on": "2026-10-14",
       "fetched_at": 1791815572.6094642
     },
     {

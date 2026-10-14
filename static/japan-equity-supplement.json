@@ -1572,8 +1572,8 @@
     },
     "nagoya_all": {
       "source_url": "https://www.nse.or.jp/api/stock/search.json?dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1",
-      "as_of": "2026-10-11",
-      "sha256": "06298898236c164caf4c8327d6f328bc5a0fe77aea89b6db1159f2445390d32a",
+      "as_of": "2026-10-14",
+      "sha256": "8c7d4278d8b405c776431cedf71653d8744ea7bc543fafa725d76a1e5d036c44",
       "items": [
         {
           "code": "138A",
@@ -2406,6 +2406,12 @@
         {
           "code": "5356",
           "name": "美濃窯業",
+          "market": "メイン市場",
+          "industry": "ガラス・土石製品"
+        },
+        {
+          "code": "5363",
+          "name": "東京窯業",
           "market": "メイン市場",
           "industry": "ガラス・土石製品"
         },
@@ -3382,6 +3388,12 @@
           "industry": "サービス業"
         },
         {
+          "code": "9334",
+          "name": "アイビスホールディングス",
+          "market": "ネクスト市場",
+          "industry": "サービス業"
+        },
+        {
           "code": "9357",
           "name": "名港海運",
           "market": "メイン市場",
@@ -4015,8 +4027,8 @@
     },
     "fukuoka_all": {
       "source_url": "https://www.fse.or.jp/investors/companies-and-brokers/",
-      "as_of": "2026-10-11",
-      "sha256": "9b8217baa6eeb5fd011001759d3660b40d26f3ae42373154ea95c51af4fa0a5b",
+      "as_of": "2026-10-14",
+      "sha256": "becbd3ee6eff2ef77e7406edb3a715d563f20471b9f8f4ae1ac0fd9e964008a6",
       "items": [
         {
           "code": "1401",
@@ -4577,6 +4589,11 @@
           "code": "9249",
           "name": "日本エコシステム",
           "market": "本則"
+        },
+        {
+          "code": "9334",
+          "name": "アイビスホールディングス",
+          "market": "Q-Board"
         },
         {
           "code": "9388",

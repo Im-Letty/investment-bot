@@ -64,7 +64,7 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         self.assertEqual(data['scope'], national.SCOPE)
         self.assertEqual(len(data['items']), len({row['code'] for row in data['items']}))
         self.assertEqual(set(data['exchanges']), {'Tokyo', 'Nagoya', 'Sapporo', 'Fukuoka'})
-        self.assertEqual(len(data['items']), 3796)
+        self.assertEqual(len(data['items']), 3797)
         self.assertEqual(len(search.provider_items()), 3686)
         for row in data['items']:
             identity = search.company(row['code'])
@@ -130,7 +130,7 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
         self.assertEqual(medrx['provider_symbol'], '4586.T')
         self.assertEqual(search.company('4475')['market'], 'グロース（内国株式）')
         self.assertNotIn('market_changed_on', search.company('4475'), 'Announced date window is not an actual change')
-        self.assertEqual(len(search.all_items()['items']), 3796)
+        self.assertEqual(len(search.all_items()['items']), 3797)
         self.assertEqual(len(search.provider_items()), 3686)
         search.session.get.assert_not_called()
 
@@ -150,9 +150,9 @@ class OfficialNationalCatalogueTests(unittest.TestCase):
 
     def test_full_regional_membership_has_market_provenance_and_excludes_other_products(self):
         supplement = national.read_supplement()
-        self.assertEqual(len(supplement['sources']['nagoya_all']['items']), 321)
+        self.assertEqual(len(supplement['sources']['nagoya_all']['items']), 323)
         self.assertEqual(len(supplement['sources']['sapporo_all']['items']), 68)
-        self.assertEqual(len(supplement['sources']['fukuoka_all']['items']), 122)
+        self.assertEqual(len(supplement['sources']['fukuoka_all']['items']), 123)
         search = StockSearch(runtime_path=None, session=Mock())
         for code in ('1319', '1553', '8968', '588A', '599A', '615A', '628A'):
             self.assertIsNone(search.company(code), code)
