@@ -5,7 +5,7 @@
 })(typeof window==='undefined'?null:window,function(w){
   'use strict';
   var topics=['#経済入門','#投資','#マーケット','#企業','#家計・節約','#税金','#副業・お金','#年金・老後','#不動産','#暗号資産','#経済ニュース','#世界経済','#経済史','#行動経済学','#テクノロジーと経済','#用語解説'];
-  var maxFile=20000000,modal=null,form=null,status=null,ownerList=null,submit=null,owner=null,requestId=null,busy=false,generation=0,feedGeneration=0,mineCursor=null;
+  var maxFile=20000000,modal=null,form=null,status=null,ownerList=null,submit=null,owner=null,requestId=null,busy=false,generation=0,feedGeneration=0,mineCursor=null,selectedFile=null,selectedURL=null,videoPreview=null,fileSummary=null,editButton=null,editorHandle=null;
   function validId(value){return Number.isSafeInteger(value)&&value>0;}
   function feedRows(posts){
     if(!Array.isArray(posts)||posts.length>20)return [];
@@ -31,24 +31,38 @@
   function say(text){if(status)status.textContent=text;}
   function node(tag,className,text){var n=w.document.createElement(tag);if(className)n.className=className;if(text!==undefined)n.textContent=text;return n;}
   function field(label,name,tag){var wrap=node('label','ks-post-field'),title=node('span','',label),input=node(tag||'input');input.name=name;wrap.appendChild(title);wrap.appendChild(input);form.appendChild(wrap);return input;}
-  function syncMethod(){var upload=form.elements.method.value==='upload';form.elements.url.parentNode.hidden=upload;form.elements.file.parentNode.hidden=!upload;form.elements.url.disabled=busy||!owner||upload;form.elements.file.disabled=busy||!owner||!upload;}
-  function setBusy(value){busy=value;if(!form)return;Array.from(form.elements).forEach(function(el){el.disabled=value||!owner;});syncMethod();submit.disabled=value||!owner;submit.textContent=value?'投稿しています…':'投稿する';}
+  function setBusy(value){busy=value;if(!form)return;Array.from(form.elements).forEach(function(el){el.disabled=value||(!owner&&el!==editButton);});submit.disabled=value||!owner||!selectedFile;submit.textContent=value?'投稿しています…':'投稿する';}
+  function clearVideo(){if(videoPreview){videoPreview.pause();videoPreview.removeAttribute('src');videoPreview.load();videoPreview.hidden=true;}if(selectedURL){w.URL.revokeObjectURL(selectedURL);selectedURL=null;}selectedFile=null;if(fileSummary)fileSummary.textContent='まだ動画を選んでいません。';}
+  function selectVideo(file,meta){
+    if(!file||typeof file.size!=='number'||file.size<=0||file.size>maxFile||typeof file.name!=='string'||!/\.(mp4|mov)$/i.test(file.name)){say(message('invalid_file'));return;}
+    clearVideo();selectedFile=file;selectedURL=w.URL.createObjectURL(file);videoPreview.src=selectedURL;videoPreview.hidden=false;requestId=null;
+    var seconds=meta&&Number.isFinite(meta.duration)?'・'+meta.duration.toFixed(1)+'秒':'';fileSummary.textContent=file.name+'（'+(file.size/1000000).toFixed(1)+'MB'+seconds+'）';
+    if(!form.elements.title.value)form.elements.title.value=file.name.replace(/\.(mp4|mov)$/i,'').slice(0,120);
+    say(owner?'動画を確認して、タイトルを付けて投稿できます。':message('login_required'));setBusy(false);
+  }
+  function editVideo(){
+    if(busy||editorHandle)return;
+    if(!w.KNShortsEditor||typeof w.KNShortsEditor.open!=='function'){say('動画編集を読み込めませんでした。ページを開き直してください。');return;}
+    var serial=generation;videoPreview.pause();modal.hidden=true;
+    function returnToForm(){if(serial!==generation)return false;editorHandle=null;modal.hidden=false;setBusy(false);editButton.focus();return true;}
+    try{editorHandle=w.KNShortsEditor.open({initialFile:selectedFile,onConfirm:function(file,meta){if(returnToForm())selectVideo(file,meta);},onCancel:function(){returnToForm();}});}
+    catch(_){editorHandle=null;modal.hidden=false;say('動画編集を開けませんでした。もう一度お試しください。');setBusy(false);}
+  }
   function create(){
     if(modal)return;
     modal=node('div','ks-post-overlay');modal.id='knShortsPublish';modal.hidden=true;
     var dialog=node('section','ks-post-dialog');dialog.setAttribute('role','dialog');dialog.setAttribute('aria-modal','true');dialog.setAttribute('aria-labelledby','ksPostTitle');
     var head=node('div','ks-post-head'),title=node('h2','','動画を投稿');title.id='ksPostTitle';var close=node('button','ks-post-close','閉じる');close.type='button';close.addEventListener('click',exit);head.appendChild(title);head.appendChild(close);dialog.appendChild(head);
-    dialog.appendChild(node('p','ks-post-intro','YouTubeの動画も、スマホやPCの動画も、このサイトのショートで見られます。'));
+    dialog.appendChild(node('p','ks-post-intro','自分の動画を選ぶか、このサイトで撮影・編集して、ショートに投稿できます。'));
     status=node('p','ks-post-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');dialog.appendChild(status);
     form=node('form','ks-post-form');dialog.appendChild(form);
-    var method=field('投稿する動画','method','select');[['youtube','YouTubeの動画'],['upload','動画ファイル']].forEach(function(item){var opt=node('option','',item[1]);opt.value=item[0];method.appendChild(opt);});
-    var url=field('YouTubeの共有リンク','url');url.type='url';url.inputMode='url';url.placeholder='https://youtu.be/…';url.maxLength=2048;
-    var file=field('動画ファイル（MP4・MOV、20MB以内・3分以内）','file');file.type='file';file.accept='.mp4,.mov,video/mp4,video/quicktime';file.parentNode.hidden=true;
+    editButton=node('button','ks-post-edit','動画を選ぶ・撮影する');editButton.type='button';editButton.addEventListener('click',editVideo);form.appendChild(editButton);
+    fileSummary=node('p','ks-post-file-summary','まだ動画を選んでいません。');form.appendChild(fileSummary);
+    videoPreview=node('video','ks-post-preview');videoPreview.controls=true;videoPreview.playsInline=true;videoPreview.muted=true;videoPreview.hidden=true;videoPreview.setAttribute('aria-label','投稿する動画のプレビュー');form.appendChild(videoPreview);
     var videoTitle=field('タイトル','title');videoTitle.maxLength=120;videoTitle.required=true;
     var caption=field('説明（任意）','caption','textarea');caption.maxLength=280;caption.rows=3;
     var topic=field('ジャンル','topic','select');topics.forEach(function(tag){var option=node('option','',tag);option.value=tag;topic.appendChild(option);});
     submit=node('button','ks-post-submit','投稿する');submit.type='submit';form.appendChild(submit);
-    method.addEventListener('change',function(){syncMethod();requestId=null;});
     form.addEventListener('input',function(){requestId=null;});form.addEventListener('change',function(){requestId=null;});form.addEventListener('submit',send);
     var ownTitle=node('h3','','自分の投稿');dialog.appendChild(ownTitle);ownerList=node('div','ks-post-mine');dialog.appendChild(ownerList);
     modal.appendChild(dialog);modal.addEventListener('click',function(e){if(e.target===modal)exit();});modal.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();exit();return;}if(e.key==='Tab'){var controls=Array.from(dialog.querySelectorAll('button,input,textarea,select,[tabindex]')).filter(function(n){return !n.disabled&&n.getClientRects().length>0;});if(!controls.length)return;var first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&w.document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&w.document.activeElement===last){e.preventDefault();first.focus();}}});w.document.body.appendChild(modal);
@@ -61,8 +75,8 @@
   function player(){var feed=w.document.getElementById('ksFeed'),sheet=w.document.getElementById('knShorts');return w.KNShortsPlayback&&feed&&sheet?w.KNShortsPlayback.get(feed,sheet):null;}
   function resumePlayback(){var sheet=w.document.getElementById('knShorts'),feed=w.document.getElementById('ksFeed'),managed=player();if(!managed||!sheet||!sheet.classList.contains('open')||w.document.hidden||!feed)return;var rect=feed.getBoundingClientRect(),selected=null,best=0;Array.from(feed.querySelectorAll('.ks-slide')).forEach(function(s){var r=s.getBoundingClientRect(),overlap=Math.max(0,Math.min(r.bottom,rect.bottom)-Math.max(r.top,rect.top));if(overlap>best){best=overlap;selected=s;}});if(selected)managed.activate(selected);}
   function open(){create();var managed=player();if(managed)managed.close();modal.hidden=false;session();var close=modal.querySelector('.ks-post-close');if(close&&close.focus)close.focus();}
-  function resetForm(){form.reset();syncMethod();}
-  function exit(resume){if(!modal||modal.hidden)return;modal.hidden=true;generation++;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');var sheet=w.document.getElementById('knShorts'),btn=w.document.getElementById('ksPublishBtn');if(resume!==false)resumePlayback();if(!w.document.hidden&&sheet&&sheet.classList.contains('open')&&btn&&btn.getClientRects().length&&btn.focus)btn.focus();}
+  function resetForm(){form.reset();clearVideo();}
+  function exit(resume){if(!modal||(modal.hidden&&!editorHandle))return;generation++;var activeEditor=editorHandle;editorHandle=null;if(activeEditor&&typeof activeEditor.close==='function')activeEditor.close();modal.hidden=true;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');var sheet=w.document.getElementById('knShorts'),btn=w.document.getElementById('ksPublishBtn');if(resume!==false)resumePlayback();if(!w.document.hidden&&sheet&&sheet.classList.contains('open')&&btn&&btn.getClientRects().length&&btn.focus)btn.focus();}
   async function api(path,options,authenticated){
     options=options||{};options.credentials='same-origin';options.cache='no-store';
     if(authenticated){var current=await getLoggedInSession(w.sb);if(current.user.id!==owner)throw new Error('login_required');options.headers=Object.assign({},options.headers,{Authorization:'Bearer '+current.access_token});}
@@ -95,12 +109,11 @@
     }catch(e){if(serial===generation&&!modal.hidden)say(message(e.message));}
   }
   async function send(event){
-    event.preventDefault();if(busy||!owner)return;var serial=generation,method=form.elements.method.value,options;
+    event.preventDefault();if(busy||!owner)return;var serial=generation,options;
     if(!requestId){if(!w.crypto||typeof w.crypto.randomUUID!=='function'){say('投稿を始められませんでした。ページを開き直してください。');return;}requestId=w.crypto.randomUUID();}
     var values={request_id:requestId,title:form.elements.title.value,caption:form.elements.caption.value,topic:form.elements.topic.value};
-    if(method==='upload'){var file=form.elements.file.files[0];if(!file){say('動画ファイルを選んでください。');return;}if(file.size>maxFile){say(message('file_too_large'));return;}
-      var body=new w.FormData();Object.keys(values).forEach(function(key){body.append(key,values[key]);});body.append('file',file);options={method:'POST',body:body};
-    }else{values.url=form.elements.url.value;options={method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(values)};}
+    var file=selectedFile;if(!file){say('動画を選ぶか撮影してください。');return;}if(file.size>maxFile){say(message('file_too_large'));return;}
+    var body=new w.FormData();Object.keys(values).forEach(function(key){body.append(key,values[key]);});body.append('file',file);options={method:'POST',body:body};
     setBusy(true);say('動画を投稿しています…');
     try{var data=await api('/api/shorts/posts',options,true);if(serial!==generation||modal.hidden)return;requestId=null;resetForm();say('動画を投稿しました。');loadMine(false,serial);
       var feed=w.KNShortsFeed;if(feed&&typeof feed.appendPublished==='function')feed.appendPublished([data.post],typeof feed.captureContext==='function'?feed.captureContext():null);
@@ -116,7 +129,8 @@
       shorts.addEventListener('click',loadPublished);
       if(typeof w.MutationObserver==='function'){var visibility=new w.MutationObserver(function(){if(!sheet.classList.contains('open'))exit(false);});visibility.observe(sheet,{attributes:true,attributeFilter:['class']});}
       w.document.addEventListener('visibilitychange',function(){if(w.document.hidden)exit(false);});
-      w.document.addEventListener('knAuthChange',function(){generation++;owner=null;requestId=null;if(ownerList)ownerList.textContent='';if(modal&&!modal.hidden){resetForm();session();}});
+      w.addEventListener('pagehide',function(){exit(false);});w.addEventListener('popstate',function(){exit(false);});
+      w.document.addEventListener('knAuthChange',function(){var visible=modal&&(!modal.hidden||editorHandle);if(editorHandle){generation++;var active=editorHandle;editorHandle=null;active.close();modal.hidden=false;}generation++;owner=null;requestId=null;if(ownerList)ownerList.textContent='';if(visible){resetForm();session();}});
     }install();
   }
   return {feedRows:feedRows,getLoggedInSession:getLoggedInSession,loadPublished:loadPublished,open:open,mount:mount};

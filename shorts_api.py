@@ -18,6 +18,7 @@ from shorts_contract import (
     SubmissionError, editorial_metadata, verified_login_owner, youtube_video_id, TOPICS,
 )
 from shorts_media import MediaError, MAX_FILE_BYTES, inspect_mp4
+from shorts_mp4 import normalize_mp4
 
 RPC_NAME = 'website_shorts_operation'
 BUCKET = 'website-shorts'
@@ -271,21 +272,9 @@ def create_shorts_blueprint(supabase_url, supabase_key, *, repository=None, chec
             return feed(value, None, limit)
         owner = actor(True)
         if request.mimetype == 'application/json':
-            if request.content_length is not None and request.content_length > MAX_JSON_BYTES:
-                raise ShortsError('invalid_request')
-            raw = request.stream.read(MAX_JSON_BYTES + 1)
-            if len(raw) > MAX_JSON_BYTES:
-                raise ShortsError('invalid_request')
-            try:
-                data = json.loads(raw)
-            except (ValueError, UnicodeError):
-                raise ShortsError('invalid_request') from None
-            if not isinstance(data, dict) or set(data) - {'request_id', 'title', 'caption', 'topic', 'url'}:
-                raise ShortsError('invalid_request')
-            video_id = youtube_video_id(data.pop('url', None))
-            meta = asdict(editorial_metadata(data))
-            value = operation('create_youtube', owner, dict(meta, video_id=video_id))
-            return jsonify(ok=True, post=_post(value.get('post'), owner)), 201
+            # Existing YouTube feed rows remain readable. New authors submit
+            # their recorded/edited file, never an external link.
+            raise ShortsError('invalid_request')
         if request.mimetype != 'multipart/form-data' or request.content_length is None:
             raise ShortsError('invalid_request')
         if allow_file_uploads is not True:
@@ -311,6 +300,7 @@ def create_shorts_blueprint(supabase_url, supabase_key, *, repository=None, chec
         if len(data) > MAX_FILE_BYTES:
             raise ShortsError('file_too_large')
         try:
+            data = normalize_mp4(data)
             info = asdict(inspect_mp4(data))
         except MediaError as error:
             raise ShortsError(str(error) if str(error) in STATUSES else 'invalid_file') from None

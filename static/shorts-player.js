@@ -12,7 +12,7 @@
     if(!feed||!sheet||!doc)return null;
     var active=null,records=new Map();
     function live(slide){return !!(slide&&feed.isConnected!==false&&sheet.isConnected!==false&&slide.isConnected!==false&&feed.contains(slide));}
-    function shown(){var editor=typeof doc.getElementById==='function'?doc.getElementById('knShortsPublish'):null;return !doc.hidden&&(!editor||editor.hidden)&&sheet.isConnected!==false&&sheet.classList.contains('open');}
+    function shown(){var editor=typeof doc.getElementById==='function'?doc.getElementById('knShortsPublish'):null,capture=typeof doc.getElementById==='function'?doc.getElementById('knShortsEditor'):null;return !doc.hidden&&(!editor||editor.hidden)&&!capture&&sheet.isConnected!==false&&sheet.classList.contains('open');}
     function nativeSource(slide){var src=slide&&slide.getAttribute('data-media-src');return slide&&slide.getAttribute('data-media-type')==='upload'&&/^\/api\/shorts\/posts\/[1-9][0-9]{0,15}\/media$/.test(src||'')?src:null;}
     function valid(slide){return live(slide)&&(nativeSource(slide)||/^[A-Za-z0-9_-]{11}$/.test(slide.getAttribute('data-vid')||''));}
     function next(slide){var all=Array.from(feed.querySelectorAll('.ks-slide')),index=all.indexOf(slide);return index>=0?all[index+1]||null:null;}

@@ -211,7 +211,7 @@ class ShortsAPITests(unittest.TestCase):
         self.assertEqual([], self.repo.uploads)
 
     def test_public_metadata_excludes_owner_and_remote_extra_fields(self):
-        result = self.client.post('/api/shorts/posts', json=payload(), headers=self.auth())
+        result = self.upload()
         self.assertEqual(201, result.status_code)
         self.assertEqual(ALICE, self.repo.calls[0][1])
         result = self.client.get('/api/shorts/posts')
@@ -223,20 +223,20 @@ class ShortsAPITests(unittest.TestCase):
         self.assertEqual('no-store', result.headers['Cache-Control'])
 
     def test_owner_cannot_be_injected_or_other_user_deleted(self):
-        response = self.client.post('/api/shorts/posts', json=payload(owner_id=BOB), headers=self.auth())
+        response = self.upload(owner_id=BOB)
         self.assertEqual(400, response.status_code)
         self.assertEqual([], self.repo.calls)
-        self.client.post('/api/shorts/posts', json=payload(), headers=self.auth())
+        self.upload()
         self.assertEqual([], self.client.get('/api/shorts/mine', headers=self.auth('bob')).json['posts'])
         self.assertEqual(404, self.client.delete('/api/shorts/posts/1', headers=self.auth('bob')).status_code)
         self.assertEqual(200, self.client.delete('/api/shorts/posts/1', headers=self.auth()).status_code)
         self.assertEqual([], self.client.get('/api/shorts/posts').json['posts'])
 
     def test_same_request_is_idempotent_but_changed_retry_conflicts(self):
-        first = self.client.post('/api/shorts/posts', json=payload(), headers=self.auth())
-        same = self.client.post('/api/shorts/posts', json=payload(), headers=self.auth())
+        first = self.upload()
+        same = self.upload()
         self.assertEqual(first.json['post']['id'], same.json['post']['id'])
-        changed = self.client.post('/api/shorts/posts', json=payload(title='変更'), headers=self.auth())
+        changed = self.upload(title='変更')
         self.assertEqual(409, changed.status_code)
         self.assertEqual(1, len(self.repo.rows))
 
@@ -302,12 +302,37 @@ class ShortsAPITests(unittest.TestCase):
         self.assertNotIn('private-fixture', response.get_data(as_text=True))
 
     def test_admin_gate_is_header_only_and_body_cannot_supply_password(self):
-        self.client.post('/api/shorts/posts', json=payload(), headers=self.auth())
+        self.upload()
         path = '/api/shorts/admin/posts/1/visibility'
         self.assertEqual(403, self.client.post(path + '?pass=fixture-admin', json={'hidden': True}).status_code)
         self.assertEqual(403, self.client.post(path, json={'hidden': True, 'pass': 'fixture-admin'}).status_code)
         self.assertEqual(200, self.client.post(path, json={'hidden': True}, headers={'X-Admin-Pass': 'fixture-admin'}).status_code)
         self.assertEqual([], self.client.get('/api/shorts/posts').json['posts'])
+
+    def test_link_post_creation_retired_but_existing_youtube_rows_remain_readable(self):
+        response = self.client.post('/api/shorts/posts', json=payload(), headers=self.auth())
+        self.assertEqual(400, response.status_code)
+        self.assertEqual('invalid_request', response.json['reason'])
+        self.assertEqual([], self.repo.calls)
+        old = payload()
+        old.pop('url')
+        self.repo.call('create_youtube', ALICE, dict(old, video_id='AAAAAAAAAAA'))
+        result = self.client.get('/api/shorts/posts')
+        self.assertEqual(200, result.status_code)
+        self.assertEqual('youtube', result.json['posts'][0]['provider'])
+        self.assertEqual('AAAAAAAAAAA', result.json['posts'][0]['video_id'])
+
+    def test_fragmented_recording_stored_hash_size_match_normalized_actual_bytes(self):
+        from tests.test_shorts_mp4 import fixture_fragmented
+        from shorts_mp4 import normalize_mp4
+        source = fixture_fragmented()
+        stored = normalize_mp4(source)
+        result = self.upload(source)
+        self.assertEqual(201, result.status_code)
+        self.assertEqual(stored, self.repo.uploads[0][1])
+        info = inspect_mp4(stored)
+        self.assertEqual(info.sha256, self.repo.calls[0][2]['sha256'])
+        self.assertEqual(info.file_bytes, self.repo.calls[0][2]['file_bytes'])
 
 
 class URLAndMediaTests(unittest.TestCase):

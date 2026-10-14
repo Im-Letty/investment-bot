@@ -3,8 +3,10 @@
 The parser verifies a non-fragmented ISO-BMFF container, H.264 NAL framing,
 sample tables and every sample's position in mdat. Browsers still perform the
 actual media decode; malformed/unsupported containers are rejected before any
-durable upload. Phone HEVC and fragmented MP4 require conversion by the
-author rather than server-side paid/transcoding services.
+durable upload. Supported browser fragments are first remuxed losslessly by
+shorts_mp4; this inspector still requires ordinary sample tables. Audio is
+limited to AAC-LC or mono/stereo Opus with explicit codec configuration.
+Phone HEVC requires conversion by the author.
 """
 
 from dataclasses import dataclass
@@ -122,6 +124,73 @@ def _sps_dimensions(nal):
     if not 1 <= width <= 3840 or not 1 <= height <= 3840:
         raise MediaError('unsupported_file')
     return width, height
+
+
+def _opus_packet_samples(packet):
+    """Validate RFC 6716 framing and return decoded duration at 48 kHz.
+
+    This reads packet boundaries/TOC only; browsers perform entropy decoding.
+    One mono/stereo stream, at most 48 frames/120 ms, and at most 1275 bytes
+    per encoded frame are supported. Padding is bounded with the packet.
+    """
+    if not 1 <= len(packet) <= 65_536:
+        raise MediaError('invalid_file')
+    config, code = packet[0] >> 3, packet[0] & 3
+    frame_samples = ((480, 960, 1920, 2880)[config & 3] if config < 12 else
+                     (480, 960)[config & 1] if config < 16 else
+                     (120, 240, 480, 960)[config & 3])
+    at, end, count = 1, len(packet), 1 if code == 0 else 2
+
+    def frame_length():
+        nonlocal at
+        if at >= end:
+            raise MediaError('invalid_file')
+        length, at = packet[at], at + 1
+        if length >= 252:
+            if at >= end:
+                raise MediaError('invalid_file')
+            length += 4 * packet[at]
+            at += 1
+        return length
+
+    if code == 0:
+        lengths = [end - at]
+    elif code == 1:
+        if (end - at) % 2:
+            raise MediaError('invalid_file')
+        lengths = [(end - at) // 2] * 2
+    elif code == 2:
+        first = frame_length()
+        lengths = [first, end - at - first]
+    else:
+        if at >= end:
+            raise MediaError('invalid_file')
+        control, at = packet[at], at + 1
+        count = control & 63
+        if not count or count > 48 or count * frame_samples > 5760:
+            raise MediaError('invalid_file')
+        if control & 64:
+            padding = 0
+            while True:
+                if at >= end:
+                    raise MediaError('invalid_file')
+                part, at = packet[at], at + 1
+                padding += 254 if part == 255 else part
+                if padding > end - at:
+                    raise MediaError('invalid_file')
+                if part != 255:
+                    break
+            end -= padding
+        if control & 128:
+            lengths = [frame_length() for _ in range(count - 1)]
+            lengths.append(end - at - sum(lengths))
+        else:
+            if (end - at) % count:
+                raise MediaError('invalid_file')
+            lengths = [(end - at) // count] * count
+    if count * frame_samples > 5760 or any(not 0 <= length <= 1275 for length in lengths):
+        raise MediaError('invalid_file')
+    return count * frame_samples
 
 
 def inspect_mp4(data):
@@ -254,8 +323,9 @@ def inspect_mp4(data):
         if sde - sds < 16 or data[sds:sds + 4] != b'\0\0\0\0' or u32(sds + 4) != 1:
             raise MediaError('unsupported_file')
         entries = boxes(sds + 8, sde)
-        if len(entries) != 1 or entries[0][0] != (b'avc1' if handler == b'vide' else b'mp4a'):
+        if len(entries) != 1 or entries[0][0] not in ((b'avc1',) if handler == b'vide' else (b'mp4a', b'Opus')):
             raise MediaError('unsupported_file')
+        opus_audio = handler == b'soun' and entries[0][0] == b'Opus'
         entry = entries[0]
         _, es, ee = entry
         if ee - es < 8 or struct.unpack_from('>H', data, es + 6)[0] != 1:
@@ -300,43 +370,58 @@ def inspect_mp4(data):
             if channels not in (1, 2):
                 raise MediaError('unsupported_file')
             audio_children = boxes(es + (44 if audio_version == 1 else 28), ee)
-            wave = [child for child in audio_children if child[0] == b'wave']
-            if wave:
-                if len(wave) != 1:
-                    raise MediaError('invalid_file')
-                audio_children = boxes(wave[0][1], wave[0][2])
-            _, acs, ace = one(audio_children, b'esds')
-            config = data[acs + 4:ace]
-            # A bounded MPEG-4 decoder config (object type 0x40) and AAC-LC
-            # AudioSpecificConfig are required; encrypted/other codecs fail.
-            def descriptor(blob, at, expected):
-                if at >= len(blob) or blob[at] != expected:
+            if opus_audio:
+                if (audio_version != 0 or scale != 48000 or struct.unpack_from('>H', data, es + 18)[0] != 16
+                        or u32(es + 24) != 48000 << 16
+                        or any(child[0] not in (b'dOps', b'btrt') for child in audio_children)):
                     raise MediaError('unsupported_file')
-                at += 1
-                size = 0
-                for _ in range(4):
-                    if at >= len(blob):
+                _, acs, ace = one(audio_children, b'dOps')
+                if ace - acs != 11:
+                    raise MediaError('invalid_file')
+                version, output_channels, pre_skip, input_rate, output_gain, mapping = struct.unpack_from('>BBHIhB', data, acs)
+                if version != 0 or output_channels != channels or mapping != 0 or input_rate > 192000:
+                    raise MediaError('unsupported_file')
+                bitrates = [child for child in audio_children if child[0] == b'btrt']
+                if len(bitrates) > 1 or any(end - start != 12 for _, start, end in bitrates):
+                    raise MediaError('invalid_file')
+            else:
+                wave = [child for child in audio_children if child[0] == b'wave']
+                if wave:
+                    if len(wave) != 1:
                         raise MediaError('invalid_file')
-                    part, at = blob[at], at + 1
-                    size = (size << 7) | (part & 127)
-                    if not part & 128:
-                        break
-                else:
-                    raise MediaError('invalid_file')
-                if size > len(blob) - at:
-                    raise MediaError('invalid_file')
-                return blob[at:at + size]
-            esd = descriptor(config, 0, 3)
-            if len(esd) < 3 or esd[2] & 224:
-                raise MediaError('unsupported_file')
-            decoder = descriptor(esd, 3, 4)
-            if len(decoder) < 13 or decoder[0] != 0x40:
-                raise MediaError('unsupported_file')
-            asc = descriptor(decoder, 13, 5)
-            if len(asc) < 2 or asc[0] >> 3 != 2 or ((asc[0] & 7) << 1 | asc[1] >> 7) > 12:
-                raise MediaError('unsupported_file')
-            if (asc[1] >> 3) & 15 not in (1, 2):
-                raise MediaError('unsupported_file')
+                    audio_children = boxes(wave[0][1], wave[0][2])
+                _, acs, ace = one(audio_children, b'esds')
+                config = data[acs + 4:ace]
+                # A bounded MPEG-4 decoder config (object type 0x40) and AAC-LC
+                # AudioSpecificConfig are required; encrypted/other codecs fail.
+                def descriptor(blob, at, expected):
+                    if at >= len(blob) or blob[at] != expected:
+                        raise MediaError('unsupported_file')
+                    at += 1
+                    size = 0
+                    for _ in range(4):
+                        if at >= len(blob):
+                            raise MediaError('invalid_file')
+                        part, at = blob[at], at + 1
+                        size = (size << 7) | (part & 127)
+                        if not part & 128:
+                            break
+                    else:
+                        raise MediaError('invalid_file')
+                    if size > len(blob) - at:
+                        raise MediaError('invalid_file')
+                    return blob[at:at + size]
+                esd = descriptor(config, 0, 3)
+                if len(esd) < 3 or esd[2] & 224:
+                    raise MediaError('unsupported_file')
+                decoder = descriptor(esd, 3, 4)
+                if len(decoder) < 13 or decoder[0] != 0x40:
+                    raise MediaError('unsupported_file')
+                asc = descriptor(decoder, 13, 5)
+                if len(asc) < 2 or asc[0] >> 3 != 2 or ((asc[0] & 7) << 1 | asc[1] >> 7) > 12:
+                    raise MediaError('unsupported_file')
+                if (asc[1] >> 3) & 15 not in (1, 2):
+                    raise MediaError('unsupported_file')
         _, zs, ze = one(stbl, b'stsz')
         if ze - zs < 12 or data[zs:zs + 4] != b'\0\0\0\0':
             raise MediaError('invalid_file')
@@ -411,7 +496,7 @@ def inspect_mp4(data):
             raise MediaError('invalid_file')
         if any(chunks[i][0] >= chunks[i + 1][0] for i in range(len(chunks) - 1)):
             raise MediaError('invalid_file')
-        sample, segment = 0, 0
+        sample, segment, opus_samples = 0, 0, 0
         for index, (offset,) in enumerate(offsets, 1):
             if segment + 1 < len(chunks) and index >= chunks[segment + 1][0]:
                 segment += 1
@@ -438,10 +523,21 @@ def inspect_mp4(data):
                         if unit == 7 and _sps_dimensions(data[at:at + length]) != (width, height):
                             raise MediaError('unsupported_file')
                         at += length
+                elif opus_audio:
+                    # Container clocks can jitter in MediaRecorder output.
+                    # Independently bound actual packet decode time so short
+                    # sample-table clocks cannot conceal more than 3 minutes.
+                    if size > 65_536:
+                        raise MediaError('invalid_file')
+                    opus_samples += _opus_packet_samples(data[offset:end])
+                    if opus_samples * 1000 > MAX_DURATION_MS * 48000:
+                        raise MediaError('file_too_long')
                 sample += 1
                 offset = end
         if sample != count:
             raise MediaError('invalid_file')
+        if opus_audio:
+            durations.append((opus_samples * 1000 + 47999) // 48000)
     if len(videos) != 1:
         raise MediaError('unsupported_file')
     ranges.sort()
