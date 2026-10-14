@@ -29,6 +29,6 @@
 #bgModal.kn-guide-hub #knChatSend {min-height:44px;font:500 calc(14px * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif);}
 #bgModal.kn-guide-hub .kn-disclaimer {flex:0 0 auto;margin:0;padding:0 14px calc(12px + env(safe-area-inset-bottom,0px));color:#686e77;background:#fff;font-size:calc(11px * var(--kn-type-scale,1));line-height:1.6;}
 #bgModal.kn-guide-hub :is(button,input,textarea,select,summary,a):focus-visible {outline:2px solid #343b45;outline-offset:2px;}
-body.kn-guide-consolidated #knChatFab {display:none!important;}
+#knChatFab {display:none!important;}
 @media(max-width:640px) {#bgModal.kn-guide-hub {padding:10px;}#bgModal.kn-guide-hub #bgSheet {height:calc(100dvh - 20px);max-height:calc(100dvh - 20px);border-radius:18px;}#bgModal.kn-guide-hub .kn-guide-content {padding-left:14px;padding-right:14px;}}
 @media(prefers-reduced-motion:reduce) {#bgModal.kn-guide-hub #bgSheet {animation:none;}}
