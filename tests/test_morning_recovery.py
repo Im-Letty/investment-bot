@@ -96,13 +96,17 @@ class RecoveryProtocolTests(unittest.TestCase):
                 raise AssertionError("pre-install guard imported application dependencies")
             return real_import(name, *args, **kwargs)
         status = {source: {"feed_status": "ok", "status": "no_matching_candidates", "errors": []}
-                  for source in ("財務省", "総務省統計局", "日本銀行")}
+                  for source in ("財務省", "総務省統計局", "日本銀行", "金融庁")}
         with patch("builtins.__import__", side_effect=only_stdlib):
             spec.loader.exec_module(standalone)
             window = standalone.recovery_window(self.now)
             manifest = {**window, "articles": [], "source_status": status}
             standalone.MorningNewsPreparer._validate_manifest(manifest, window)
             self.assertTrue(standalone.healthy_empty_manifest(manifest))
+            incomplete = {**manifest, "source_status": {
+                source: row for source, row in status.items() if source != "金融庁"}}
+            with self.assertRaises(ValueError):
+                standalone.MorningNewsPreparer._validate_manifest(incomplete, window)
             manifest["source_status"]["日本銀行"]["errors"] = ["source_time_limit"]
             with self.assertRaises(ValueError):
                 standalone.MorningNewsPreparer._validate_manifest(manifest, window)
