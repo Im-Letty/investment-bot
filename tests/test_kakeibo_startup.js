@@ -40,13 +40,14 @@ function fixture(initial={},embedded=true){
 }
 const now=new Date(),monthKey='kb2_'+now.getFullYear()+'_'+String(now.getMonth()+1).padStart(2,'0');
 const records=[{id:1,type:'inc',name:'架空の収入',amount:50000},{id:2,type:'exp',name:'架空の支出',cat:'食費',amount:1200}];
-test('legacy input links open the combined home and keep the monthly draft, selected month and totals',()=>{
+test('legacy input and graph links open home and keep the monthly draft, selected month and totals',()=>{
   const h=fixture({[monthKey]:JSON.stringify(records)});h.core();
-  const panes=['home','dashboard','assets','records','calendar'].map(key=>h.nodes.get('tab-'+key));
+  const panes=['home','assets','records','calendar'].map(key=>h.nodes.get('tab-'+key));
   const legacy=['dashboard','cashflow','assets','records','calendar'].map(()=>element());
-  const nav=['home','records','calendar','dashboard'].map(key=>{const n=element('button');n.setAttribute('data-kknav',key);return n;});
+  const nav=['home','records','calendar'].map(key=>{const n=element('button');n.setAttribute('data-kknav',key);return n;});
   h.document.querySelectorAll=selector=>selector==='.tn-item'?legacy:selector==='.tab-content'?panes:selector==='.kk-bottomnav .kk-nav-item'?nav:[];
   let focused=0;h.context.kkLayoutFocusInput=()=>focused++;
+  let expenseFocused=0;h.context.kkLayoutFocusExpenses=()=>expenseFocused++;
   h.context.kkLayoutTabChanged=tab=>h.document.body.setAttribute('data-kk-active-tab',tab);
   const sourceStart=html.indexOf('function kkNavGo(');
   vm.runInNewContext(html.slice(sourceStart,html.indexOf('</script>',sourceStart)),h.context);
@@ -57,6 +58,10 @@ test('legacy input links open the combined home and keep the monthly draft, sele
   assert.equal(h.document.body.getAttribute('data-kk-active-tab'),'home');
   assert.equal(nav.find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-kknav'),'home');
   assert.equal(focused,1);assert.equal(h.nodes.get('inc-name'),name);
+  h.context.switchTab('calendar');h.context.kkNavGo('dashboard');
+  assert.deepEqual(panes.filter(n=>n.classList.contains('active')).map(n=>n.id),['tab-home']);
+  assert.equal(nav.find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-kknav'),'home');
+  assert.equal(expenseFocused,1);
   assert.equal(name.value,'保存前の架空メモ');assert.equal(amount.value,'1234');
   assert.equal(h.context._year,year);assert.equal(h.context._month,month);
   assert.equal(h.nodes.get('d-income').textContent,'¥50,000');assert.equal(h.nodes.get('d-balance').textContent,'¥48,800');

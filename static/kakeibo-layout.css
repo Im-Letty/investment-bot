@@ -129,6 +129,9 @@ body.kn-ledger-letter.kn-ledger-paper .kk-home-trend {
 }
 body.kn-ledger-letter.kn-ledger-paper .kk-home-trend .card-title {margin-bottom:14px;font-size:calc(15px * var(--kn-ledger-scale,1))}
 body.kn-ledger-paper .kk-home-trend .kk-layout-note {margin-top:12px}
+body.kn-ledger-paper .kk-expense-chart {display:flex;gap:20px;align-items:center}
+body.kn-ledger-paper .kk-expense-canvas {flex:0 0 160px;width:160px;max-width:100%}
+body.kn-ledger-paper #donut-legend {flex:1;min-width:0;font-size:calc(12px * var(--kn-ledger-scale,1))}
 body.kn-ledger-paper .kk-pane-title {margin:0 0 16px;font:500 calc(18px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-ink)}
 body.kn-ledger-letter.kn-ledger-paper .card {border-radius:10px}
 body.kn-ledger-paper .kk-pane-links {display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}
@@ -146,6 +149,8 @@ body.kn-ledger-paper :is(.rec-del,.day-rec-del,.modal-close) {min-width:44px;min
 body.kn-ledger-paper .cal-grid {grid-template-columns:repeat(7,minmax(0,1fr))}
 body.kn-ledger-paper .cal-day {min-width:0}
 @media(max-width:480px) {
+  body.kn-ledger-paper .kk-expense-chart {flex-direction:column;align-items:stretch}
+  body.kn-ledger-paper .kk-expense-canvas {align-self:center;flex-basis:auto}
   body.kn-ledger-letter.kn-ledger-paper .kk-layout-header {padding-block:14px!important}
   body.kn-ledger-paper .kk-paper-overview {padding-inline:16px;padding-bottom:18px;margin-bottom:24px}
   body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-item {padding:16px 8px}

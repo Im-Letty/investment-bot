@@ -20,7 +20,7 @@ function fixture({embedded=false,helper,result=true,otherOrigin=false,throwOnOri
 test('back link has a native top-level home fallback and updated layout cache version',()=>{
   const html=read('kakeibo.html'),back=html.match(/<a\b[^>]*class="[^"]*\bback-btn\b[^\"]*"[^>]*>/)?.[0];
   assert.ok(back);assert.match(back,/\bhref="\/"/);assert.match(back,/\btarget="_top"/);
-  assert.match(html,/kakeibo-layout\.js\?v=20261015-note1/);
+  assert.match(html,/kakeibo-layout\.js\?v=20261015-homegraphs1/);
 });
 test('standalone and unsupported-parent back clicks keep the native top-level home fallback',()=>{
   for(const options of [{},{embedded:true,helper:false}]){

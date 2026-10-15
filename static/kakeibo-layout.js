@@ -31,6 +31,13 @@
       title.focus({preventScroll: true});
     }
   };
+  window.kkLayoutFocusExpenses = function () {
+    var title = document.getElementById('kkExpenseTitle');
+    if (title) {
+      title.scrollIntoView({block: 'start'});
+      title.focus({preventScroll: true});
+    }
+  };
 
   document.addEventListener('click', function (event) {
     var back = event.target.closest('.back-btn');

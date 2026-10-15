@@ -12,9 +12,9 @@
   <script defer src="/static/ledger-session.js?v=20261012-private1"></script>
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
-  <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-note1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261015-note1">
-  <script defer src="/static/kakeibo-layout.js?v=20261015-note1"></script>
+  <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261015-homegraphs1">
+  <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -245,7 +245,6 @@ body{padding-bottom:24px;}
   <button type="button" class="kk-nav-item active" data-kknav="home" aria-pressed="true" onclick="kkNavGo('home', this)"><span data-i18n="kk_layout_home">ホーム</span></button>
   <button type="button" class="kk-nav-item" data-kknav="records" aria-pressed="false" onclick="kkNavGo('records', this)"><span data-i18n="kk_layout_records_short">記録</span></button>
   <button type="button" class="kk-nav-item" data-kknav="calendar" aria-pressed="false" onclick="kkNavGo('calendar', this)"><span data-i18n="kk_layout_calendar">カレンダー</span></button>
-  <button type="button" class="kk-nav-item" data-kknav="dashboard" aria-pressed="false" onclick="kkNavGo('dashboard', this)"><span data-i18n="kk_layout_graphs">グラフ</span></button>
   <button type="button" class="kk-nav-item" data-kknav="settings" onclick="event.preventDefault();" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     設定
@@ -285,15 +284,13 @@ body{padding-bottom:24px;}
   <p class="kk-layout-note kk-input-note" data-i18n="kk_layout_input_note">月入力とカレンダーの日別記録は、別々に集計します。</p>
 </section>
   </section>
-  <div class="card kk-home-trend"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">6か月の収入と支出</h2><div class="chart-area"><canvas id="lineChart"></canvas></div><p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p></div>
-</div>
-<div class="tab-content" id="tab-dashboard">
-  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_graphs">グラフ</h2>
-  <div class="month-nav"><button type="button" class="mnav-btn" onclick="changeMonth(-1)" aria-label="前の月" data-kk-layout-label="kk_layout_previous_month">‹</button><div class="mnav-lbl" id="monthLabelGraph"></div><button type="button" class="mnav-btn" onclick="changeMonth(1)" aria-label="次の月" data-kk-layout-label="kk_layout_next_month">›</button></div>
-  <div class="kk-pane-links"><button type="button" data-kk-layout-go="home" data-kk-layout-anchor="kkTrendTitle" data-i18n="kk_layout_trend_link">収支推移を見る</button></div>
+<section id="tab-dashboard" aria-labelledby="kkExpenseTitle">
+  <span id="monthLabelGraph" hidden></span>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
-  <div class="card"><div class="card-title" data-i18n="kk_card_pie_expense">🥧 今月の支出内訳</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="donutChart"></canvas></div><div id="donut-legend" style="flex:1;font-size:12px"></div></div></div>
+  <div class="card"><h2 class="card-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title data-i18n="kk_card_pie_expense">🥧 今月の支出内訳</h2><div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart"></canvas></div><div id="donut-legend"></div></div></div>
+</section>
+  <div class="card kk-home-trend"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">6か月の収入と支出</h2><div class="chart-area"><canvas id="lineChart"></canvas></div><p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p></div>
 </div>
 <div class="tab-content" id="tab-assets">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
@@ -1025,7 +1022,7 @@ function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t)
 function addDayRecord(type){if(!_modalDate)return;var name,amount,cat='';if(type==='inc'){name=document.getElementById('m-inc-name').value.trim();amount=parseInt(document.getElementById('m-inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inc-name').value='';document.getElementById('m-inc-amount').value='';}else if(type==='exp'){name=document.getElementById('m-exp-name').value.trim();cat=document.getElementById('m-exp-cat').value;amount=parseInt(document.getElementById('m-exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-exp-name').value='';document.getElementById('m-exp-amount').value='';}else if(type==='inv'){name=document.getElementById('m-inv-name').value.trim();cat=document.getElementById('m-inv-cat').value;amount=parseInt(document.getElementById('m-inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inv-name').value='';document.getElementById('m-inv-amount').value='';}var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
 function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
 function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
-function switchTab(tab){var focusInput=tab==='cashflow';if(focusInput)tab='home';document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);if(focusInput&&window.kkLayoutFocusInput)window.kkLayoutFocusInput();}
+function switchTab(tab){var focusInput=tab==='cashflow',focusExpenses=tab==='dashboard';if(focusInput||focusExpenses)tab='home';document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);if(focusInput&&window.kkLayoutFocusInput)window.kkLayoutFocusInput();if(focusExpenses&&window.kkLayoutFocusExpenses)window.kkLayoutFocusExpenses();}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');btn.setAttribute('aria-pressed',String(t===f));});}
 function addRecord(type){var name,amount,cat='';if(type==='inc'){name=document.getElementById('inc-name').value.trim();amount=parseInt(document.getElementById('inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('inc-name').value='';document.getElementById('inc-amount').value='';}else if(type==='exp'){name=document.getElementById('exp-name').value.trim();cat=document.getElementById('exp-cat').value;amount=parseInt(document.getElementById('exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('exp-name').value='';document.getElementById('exp-amount').value='';}else if(type==='inv'){name=document.getElementById('inv-name').value.trim();cat=document.getElementById('inv-cat').value;amount=parseInt(document.getElementById('inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('inv-name').value='';document.getElementById('inv-amount').value='';}else if(type==='ast'){name=document.getElementById('ast-name').value.trim();cat=document.getElementById('ast-cat').value;amount=parseInt(document.getElementById('ast-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('ast-name').value='';document.getElementById('ast-amount').value='';var assets=getAssets();assets.push({id:Date.now(),name:name,cat:cat,amount:amount});saveAssets(assets);renderAll();return;}var data=getData();data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveData(data);renderAll();}
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
@@ -1427,7 +1424,7 @@ var f=window[n];if(typeof f==="function"){window[n]=function(){var r=f.apply(thi
 function kkNavGo(tab, el){
   try{ if(typeof switchTab==='function') switchTab(tab); }catch(e){}
   var items=document.querySelectorAll('.kk-bottomnav .kk-nav-item');
-  var activeTab=tab==='cashflow'?'home':tab;
+  var activeTab=(tab==='cashflow'||tab==='dashboard')?'home':tab;
   for(var i=0;i<items.length;i++){var active=items[i].getAttribute('data-kknav')===activeTab;items[i].classList.toggle('active',active);items[i].setAttribute('aria-pressed',String(active));}
 }
 </script>
