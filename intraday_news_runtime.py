@@ -14,7 +14,7 @@ import time
 from daily_news_runtime import BASELINE_PATH, StorageUnavailable, _safe_generation_error
 from morning_news_window import JST, _verified_article
 from news_cache import OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_digests
-from official_news_cache import OfficialNewsCache, _article, _diagnostics as source_diagnostics
+from official_news_cache import MAX_READ_SECONDS, OfficialNewsCache, _article, _diagnostics as source_diagnostics
 from website_news import collect_website_sources
 from official_boj_facts import valid_policy_fact_record
 
@@ -47,6 +47,24 @@ _SAFE_FAILURES = frozenset((
     "invalid_source_cache_verification", "invalid_source_cache_poll", "invalid_source_cache_index",
     "source_cache_read_deadline", "source_cache_deadline", "source_cache_capacity",
     "source_cache_index_unavailable"))
+
+
+def _safe_cache_reads(value):
+    """Only bounded numeric diagnostics; never a storage key or source body."""
+    if not isinstance(value, dict):
+        return {}
+    result = {}
+    for key, maximum in (("read_seconds", MAX_READ_SECONDS), ("elapsed_seconds", JOB_SECONDS)):
+        number = value.get(key)
+        if type(number) in (int, float) and math.isfinite(number) and 0 <= number <= maximum:
+            result[key] = number
+    for key, maximum in (("read_count", 1024), ("list_count", 32)):
+        number = value.get(key)
+        if type(number) is int and 0 <= number <= maximum:
+            result[key] = number
+    if type(value.get("deadline_exceeded")) is bool:
+        result["deadline_exceeded"] = value["deadline_exceeded"]
+    return result
 
 
 def _failure_code(error):
@@ -258,6 +276,14 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
         return deepcopy(report)
 
     def cache_observations():
+        reader = getattr(cache, "safe_read_diagnostics", None)
+        if callable(reader):
+            try:
+                values = _safe_cache_reads(reader())
+                if values:
+                    report["source_cache_reads"] = values
+            except Exception:
+                pass  # Advisory diagnostics cannot mask the original failure.
         observer = getattr(cache, "safe_observations", None)
         if not callable(observer):
             return
@@ -292,7 +318,11 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
     try:
         phase("storage_private_check")
         storage.ensure_private()
-        cache = cache if cache is not None else OfficialNewsCache(storage, collect_website_sources, clock=clock)
+        # A cold CLI process restores several days of immutable originals.
+        # Its read budget remains inside the caller's existing 180-second
+        # check deadline; interactive/morning cache readers keep 12 seconds.
+        cache = cache if cache is not None else OfficialNewsCache(
+            storage, collect_website_sources, clock=clock, read_seconds=MAX_READ_SECONDS)
         cache_observations()
         phase("source_collection")
         cache.collect(clock())

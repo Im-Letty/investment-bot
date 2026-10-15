@@ -467,6 +467,33 @@ class IntradayTests(unittest.TestCase):
         self.cache.safe_observations = Mock(side_effect=RuntimeError("secret"))
         self.assertEqual(self.job(check_only=True)["status"], "no_new_release")
 
+    def test_cold_cli_cache_uses_bounded_restore_allowance_before_authentication(self):
+        with patch("intraday_news_runtime.OfficialNewsCache", return_value=self.cache) as factory:
+            result = self.job(cache=None, check_only=True)
+        self.assertEqual(factory.call_args.kwargs["read_seconds"], 60)
+        self.assertEqual(result["status"], "ready")
+        self.assertEqual(self.storage.created, [])
+        self.preflight.assert_not_called()
+        self.generator.assert_not_called()
+
+    def test_cache_read_diagnostics_survive_snapshot_deadline_without_false_eligibility(self):
+        safe = {"read_seconds": 60, "read_count": 48, "list_count": 3,
+                "elapsed_seconds": 60.01, "deadline_exceeded": True}
+        self.cache.safe_read_diagnostics = lambda: {**safe, "path": "secret", "body": "secret"}
+        self.cache.snapshot = Mock(side_effect=ValueError("source_cache_read_deadline"))
+        updates = []
+        result = self.job(check_only=True, progress=updates.append)
+        self.assertEqual(result["source_cache_reads"], safe)
+        self.assertEqual(result["last_error"], "source_cache_read_deadline")
+        self.assertFalse(result["eligibility_checked"])
+        self.assertFalse(result["source_health_verified"])
+        self.assertEqual(result["attempt_count"], 0)
+        self.assertEqual(updates[-1], result)
+        self.assertNotIn("secret", repr(result))
+        self.preflight.assert_not_called()
+        self.generator.assert_not_called()
+        self.assertEqual(self.storage.created, [])
+
     def test_check_outside_window_expected_day_mismatch_and_private_storage_errors_are_safe(self):
         for hour in (8, 23):
             self.now = at(hour)

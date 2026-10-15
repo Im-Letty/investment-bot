@@ -170,6 +170,19 @@ class IntradayJobTests(unittest.TestCase):
         self.assertFalse(progress.fields()["eligibility_checked"])
         self.assertEqual(progress.fields()["source_cache_observations"], {})
 
+    def test_cache_read_progress_is_fixed_bounded_and_survives_safe_report_projection(self):
+        safe = {"read_seconds": 60, "read_count": 128, "list_count": 3,
+                "elapsed_seconds": 50.25, "deadline_exceeded": False}
+        progress = job.IntradayProgress()
+        progress.record({"source_cache_reads": {**safe, "url": "secret", "body": "secret"}})
+        self.assertEqual(progress.fields()["source_cache_reads"], safe)
+        value = job.safe_report({"status": "ready", **progress.fields()}, at(), at(), True, progress=progress)
+        self.assertEqual(value["source_cache_reads"], safe)
+        self.assertNotIn("secret", repr(value))
+        progress.record({"source_cache_reads": {"read_seconds": 61, "read_count": True,
+            "list_count": 10000, "elapsed_seconds": float('inf'), "deadline_exceeded": 1}})
+        self.assertEqual(progress.fields()["source_cache_reads"], {})
+
     def test_missing_hard_deadline_cannot_silently_start_live_processing(self):
         with patch("scripts.run_private_news_job.process_deadline", side_effect=DeadlineUnavailable()), \
                 patch.object(job, "run_job") as run, redirect_stdout(StringIO()) as output:

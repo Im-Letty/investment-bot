@@ -19,7 +19,7 @@ import time
 if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
-from intraday_news_runtime import JOB_SECONDS, MAX_ATTEMPTS, run_job as run_intraday
+from intraday_news_runtime import JOB_SECONDS, MAX_ATTEMPTS, _safe_cache_reads, run_job as run_intraday
 from news_cache import JST
 from daily_news_runtime import GENERATION_ERRORS, StorageUnavailable, _safe_generation_error
 from scripts.private_news_storage import PrivateNewsStorage
@@ -70,6 +70,8 @@ class IntradayProgress:
                 self.value[key] = state[key]
         if state.get("last_error") is not None:
             self.value["last_error"] = _safe_error(state["last_error"])
+        if isinstance(state.get("source_cache_reads"), dict):
+            self.value["source_cache_reads"] = _safe_cache_reads(state["source_cache_reads"])
         observations = state.get("source_cache_observations")
         if isinstance(observations, dict):
             self.value["source_cache_observations"] = {key: observations[key] for key in

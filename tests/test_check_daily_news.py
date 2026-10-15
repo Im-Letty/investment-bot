@@ -50,7 +50,7 @@ class DeliveryCheckTests(unittest.TestCase):
 
     def test_verified_empty_official_day_is_distinct_from_outage_and_publication(self):
         state = {'status': 'source_empty', 'source_mode': 'official', 'edition_date': '2026-10-04',
-                 'sources': ['総務省統計局', '財務省', '日本銀行'], 'last_error': None,
+                 'sources': ['総務省統計局', '財務省', '日本銀行', '金融庁'], 'last_error': None,
                  'cutoff_at': self.now.replace(hour=7, minute=30).timestamp()}
         empty = {'policy_version': 4, 'lang': 'ja', 'edition_date': '2026-10-04',
                  'news': [], 'digest': None, 'selection_status': 'unavailable'}
@@ -58,6 +58,8 @@ class DeliveryCheckTests(unittest.TestCase):
                                  ({'edition_date': '2026-10-03'}, False),
                                  ({'sources': ['財務省']}, False),
                                  ({'sources': ['総務省統計局', '財務省']}, False),
+                                 ({'sources': ['総務省統計局', '財務省', '日本銀行']}, False),
+                                 ({'last_error': 'source_unavailable'}, False),
                                  ({'cutoff_at': 0}, False)):
             with self.subTest(changes=changes), patch('scripts.check_daily_news.datetime') as date_mock, \
                     patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
@@ -144,6 +146,98 @@ class DeliveryCheckTests(unittest.TestCase):
                           'cutoff_at': self.now.replace(hour=10).timestamp()})
         data['news'] = [ref]
         return data
+
+    def fsa_published(self, *, intraday=False):
+        data = self.intraday_published(precision='day') if intraday else self.marked_official_published()
+        published_day = self.now.date() if intraday else (self.now - timedelta(days=1)).date()
+        for rows in (data['news'], data['digest']['article_refs'], data['digest']['article_summaries']):
+            rows[-1].update(source='金融庁', title='金融機関の監督指針を改正しました',
+                url='https://www.fsa.go.jp/news/r8/shouken/' + published_day.strftime('%Y%m%d') + '.html',
+                published_at=None, publication_precision='day',
+                selection_route='intraday' if intraday else 'date_only')
+        return data
+
+    def test_fsa_reviewed_html_delivery_is_accepted_without_inventing_publication_time(self):
+        for intraday in (False, True):
+            now = self.now.replace(hour=12) if intraday else self.now
+            data = self.fsa_published(intraday=intraday)
+            original = deepcopy(data)
+            with self.subTest(intraday=intraday):
+                self.assertEqual(current_delivery(data, now), 'published')
+                self.assertIsNone(data['news'][-1]['published_at'])
+                self.assertIsNone(current_delivery(data, now + timedelta(days=1)))
+                self.assertEqual(data, original)
+
+    def test_fsa_delivery_rejects_unapproved_or_unverified_references(self):
+        base = self.fsa_published()
+        changes = (
+            {'url': 'https://www.fsa.go.jp.evil.test/news/r8/shouken/20261003.html'},
+            {'url': 'http://www.fsa.go.jp/news/r8/shouken/20261003.html'},
+            {'url': 'https://www.fsa.go.jp/news/r8/shouken/20261003.pdf'},
+            {'url': 'https://www.fsa.go.jp/news/r8/other/20261003.html'},
+            {'url': 'https://www.fsa.go.jp/news/r8/shouken/20261002.html'},
+            {'url': 'https://www.fsa.go.jp/news/r8/shouken/20261002/20261003.html'},
+            {'title': '金融制度の公表予定'},
+            {'title': '金融制度を訂正しました'},
+            {'title': '対象外の発表'},
+            {'body_sha256': None},
+            {'body_verified_at': None},
+            {'body_verified_at': self.now.replace(hour=7, minute=31).timestamp()},
+            {'publication_precision': 'second', 'published_at': self.now.replace(hour=7).timestamp()},
+            {'published_at': self.now.replace(hour=0).timestamp()},
+        )
+        for change in changes:
+            data = deepcopy(base)
+            for rows in (data['news'], data['digest']['article_refs'], data['digest']['article_summaries']):
+                rows[-1].update(change)
+            with self.subTest(change=change):
+                self.assertIsNone(current_delivery(data, self.now))
+        mismatch = deepcopy(base)
+        mismatch['news'][-1]['body_sha256'] = 'b' * 64
+        self.assertIsNone(current_delivery(mismatch, self.now))
+
+    def test_observer_completes_for_a_current_reviewed_edition_containing_fsa(self):
+        data = self.fsa_published()
+        with patch('scripts.check_daily_news.datetime') as date_mock, \
+                patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
+                patch('scripts.check_daily_news.time.monotonic', return_value=0), \
+                patch('scripts.check_daily_news.time.sleep') as sleeper, \
+                patch('scripts.check_daily_news.urlopen', side_effect=[
+                    io.BytesIO(json.dumps({'status': 'ready'}).encode()),
+                    io.BytesIO(json.dumps(data).encode())]), \
+                patch('sys.stdout', new_callable=io.StringIO) as output:
+            date_mock.now.return_value = self.now
+            date_mock.strptime.side_effect = datetime.strptime
+            date_mock.fromtimestamp.side_effect = datetime.fromtimestamp
+            self.assertEqual(main(), 0)
+            sleeper.assert_not_called()
+        self.assertIn('Current Japan edition is publicly available.', output.getvalue())
+        self.assertNotIn(data['digest']['summary'], output.getvalue())
+
+    def test_four_source_quiet_day_keeps_historical_fsa_edition_without_claiming_new_publication(self):
+        data = self.fsa_published()
+        now = self.now + timedelta(days=1)
+        original = deepcopy(data)
+        state = {'status': 'source_empty', 'source_mode': 'official',
+                 'edition_date': now.date().isoformat(),
+                 'sources': ['総務省統計局', '財務省', '日本銀行', '金融庁'], 'last_error': None,
+                 'cutoff_at': now.replace(hour=7, minute=30).timestamp()}
+        with patch('scripts.check_daily_news.datetime') as date_mock, \
+                patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
+                patch('scripts.check_daily_news.time.monotonic', return_value=0), \
+                patch('scripts.check_daily_news.time.sleep') as sleeper, \
+                patch('scripts.check_daily_news.urlopen', side_effect=[
+                    io.BytesIO(json.dumps(state).encode()), io.BytesIO(json.dumps(data).encode())]), \
+                patch('sys.stdout', new_callable=io.StringIO) as output:
+            date_mock.now.return_value = now
+            date_mock.strptime.side_effect = datetime.strptime
+            date_mock.fromtimestamp.side_effect = datetime.fromtimestamp
+            self.assertEqual(main(), 0)
+            sleeper.assert_not_called()
+        self.assertIn('No AI edition was generated', output.getvalue())
+        self.assertNotIn('publicly available', output.getvalue())
+        self.assertNotIn('current_edition_first_observed', output.getvalue())
+        self.assertEqual(data, original)
 
     def test_intraday_publication_is_valid_and_keeps_unknown_source_time(self):
         now = self.now.replace(hour=12)

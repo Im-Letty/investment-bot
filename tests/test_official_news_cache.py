@@ -11,7 +11,8 @@ from unittest.mock import Mock, patch
 from morning_news_window import JST, MorningNewsPreparer, morning_window
 from daily_news_runtime import DailyNewsRuntime
 from news_cache import OFFICIAL_NEWS_SOURCES
-from official_news_cache import OfficialNewsCache, PREFIX, LEASE_SECONDS, POLL_SECONDS
+from official_news_cache import (OfficialNewsCache, PREFIX, LEASE_SECONDS, POLL_SECONDS,
+                                 READ_SECONDS, MAX_READ_SECONDS)
 from website_news import create_source_preparer
 
 
@@ -82,8 +83,9 @@ class CacheTests(unittest.TestCase):
                 "accepted": matched, "returned": matched}
         return [{**deepcopy(row), "body_verified_at": self.now} for row in self.rows]
 
-    def cache(self, collector=None):
-        return OfficialNewsCache(self.storage, collector or self.collector, clock=lambda: self.now)
+    def cache(self, collector=None, *, read_seconds=READ_SECONDS):
+        return OfficialNewsCache(self.storage, collector or self.collector,
+                                 clock=lambda: self.now, read_seconds=read_seconds)
 
     def test_all_day_poll_never_creates_generation_claim_or_edition(self):
         cache = self.cache()
@@ -509,10 +511,177 @@ class CacheTests(unittest.TestCase):
             return read(path)
         self.storage.reads.clear()
         self.storage.read = slow_read
+        restored = self.cache()
         with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
-            self.cache().snapshot(self.now)
+            restored.snapshot(self.now)
         self.assertLessEqual(len(self.storage.reads), 48)
         self.assertEqual(self.collector.call_count, before)
+        diagnostics = restored.safe_read_diagnostics()
+        self.assertEqual(diagnostics["read_seconds"], 12)
+        self.assertEqual(diagnostics["read_count"], len(self.storage.reads))
+        self.assertEqual(diagnostics["list_count"], 3)
+        self.assertGreaterEqual(diagnostics["elapsed_seconds"], 12)
+        self.assertTrue(diagnostics["deadline_exceeded"])
+
+    def test_explicit_read_budget_is_finite_positive_and_capped_without_io(self):
+        self.assertEqual(READ_SECONDS, 12)
+        self.assertEqual(MAX_READ_SECONDS, 60)
+        for value in (None, True, False, "60", 0, -1, 60.01, float("nan"),
+                      float("inf"), float("-inf"), 10 ** 400, object()):
+            with self.subTest(value=repr(value)):
+                with self.assertRaisesRegex(ValueError, "invalid_source_cache_configuration"):
+                    self.cache(read_seconds=value)
+        for value in (.01, 12, 60, 60.0):
+            with self.subTest(valid=value):
+                cache = self.cache(read_seconds=value)
+                self.assertEqual(cache.safe_read_diagnostics(), {"read_seconds": value,
+                    "read_count": 0, "list_count": 0, "elapsed_seconds": 0.0,
+                    "deadline_exceeded": False})
+        self.assertEqual(self.storage.reads, [])
+        self.assertEqual(self.storage.lists, [])
+        self.assertEqual(self.storage.values, {})
+        self.collector.assert_not_called()
+
+    def test_sixty_second_cold_restore_retains_all_versions_without_repolling(self):
+        cache = self.cache()
+        for number in range(9):
+            self.rows = [article(body=(f"公式原文 {number * 8 + index} の経済結果です。" * 15))
+                         for index in range(8)]
+            cache.collect(self.now)
+            self.now += POLL_SECONDS
+        expected = cache.snapshot(self.now)
+        stored = deepcopy(self.storage.values)
+        polls = self.collector.call_count
+        read = self.storage.read
+        def slow_read(path, **options):
+            self.now += .25
+            return read(path, **options)
+        self.storage.reads.clear()
+        self.storage.lists.clear()
+        self.storage.read = slow_read
+        restored = self.cache(read_seconds=60)
+        actual = restored.snapshot(self.now)
+        self.assertEqual(actual, expected)
+        self.assertEqual(len(actual["articles"]), 72)
+        self.assertEqual(self.collector.call_count, polls)
+        self.assertEqual(self.storage.values, stored)
+        diagnostics = restored.safe_read_diagnostics()
+        self.assertEqual(diagnostics["read_seconds"], 60)
+        self.assertEqual(diagnostics["read_count"], len(self.storage.reads))
+        self.assertEqual(diagnostics["list_count"], len(self.storage.lists))
+        self.assertGreater(diagnostics["elapsed_seconds"], READ_SECONDS)
+        self.assertLess(diagnostics["elapsed_seconds"], MAX_READ_SECONDS)
+        self.assertFalse(diagnostics["deadline_exceeded"])
+
+    def test_sixty_second_cold_restore_still_fails_closed_at_one_shared_limit(self):
+        cache = self.cache()
+        for number in range(9):
+            self.rows = [article(body=(f"公式原文 {number * 8 + index} の経済結果です。" * 15))
+                         for index in range(8)]
+            cache.collect(self.now)
+            self.now += POLL_SECONDS
+        stored = deepcopy(self.storage.values)
+        polls = self.collector.call_count
+        read = self.storage.read
+        def slow_read(path, **options):
+            self.now += .5
+            return read(path, **options)
+        self.storage.reads.clear()
+        self.storage.read = slow_read
+        restored = self.cache(read_seconds=60)
+        with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
+            restored.snapshot(self.now)
+        self.assertEqual(self.storage.values, stored)
+        self.assertEqual(self.collector.call_count, polls)
+        self.assertLessEqual(len(self.storage.reads), 120)
+        self.assertEqual(restored.operational_snapshot()["status"], "not_checked")
+        diagnostics = restored.safe_read_diagnostics()
+        self.assertEqual(diagnostics["read_seconds"], 60)
+        self.assertEqual(diagnostics["read_count"], len(self.storage.reads))
+        self.assertGreaterEqual(diagnostics["elapsed_seconds"], 60)
+        self.assertTrue(diagnostics["deadline_exceeded"])
+
+    def test_read_diagnostics_are_fixed_copied_and_reset_for_each_completed_budget(self):
+        cache = self.cache(read_seconds=60)
+        cache.snapshot(self.now)
+        diagnostics = cache.safe_read_diagnostics()
+        self.assertEqual(set(diagnostics), {"read_seconds", "read_count", "list_count",
+                                             "elapsed_seconds", "deadline_exceeded"})
+        self.assertEqual(diagnostics["read_count"], 0)
+        self.assertEqual(diagnostics["list_count"], 3)
+        self.assertTrue(all(type(diagnostics[key]) in (int, float) for key in
+                            ("read_seconds", "read_count", "list_count", "elapsed_seconds")))
+        self.assertIs(type(diagnostics["deadline_exceeded"]), bool)
+        diagnostics["list_count"] = -1
+        diagnostics["private_response"] = "synthetic private URL or error"
+        self.assertEqual(cache.safe_read_diagnostics()["list_count"], 3)
+        self.assertNotIn("private_response", cache.safe_read_diagnostics())
+        cache.snapshot(self.now)
+        diagnostics = cache.safe_read_diagnostics()
+        self.assertEqual(diagnostics["read_count"], 0)
+        self.assertEqual(diagnostics["list_count"], 0)
+        self.assertFalse(diagnostics["deadline_exceeded"])
+
+    def test_monotonic_limit_cannot_be_extended_by_successive_reads(self):
+        self.cache().collect(self.now)
+        self.now += POLL_SECONDS
+        tick, deadlines = [1000.0], []
+        read = self.storage.read
+        def slow_read(path, **options):
+            deadlines.append(options["deadline"])
+            tick[0] += 31
+            return read(path, **options)
+        self.storage.read = slow_read
+        restored = self.cache(read_seconds=60)
+        with patch("official_news_cache.time.monotonic", side_effect=lambda: tick[0]):
+            with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
+                restored.snapshot(self.now)
+        self.assertEqual(deadlines, [1060.0, 1060.0])
+        diagnostics = restored.safe_read_diagnostics()
+        self.assertEqual(diagnostics["read_count"], 2)
+        self.assertEqual(diagnostics["elapsed_seconds"], 62)
+        self.assertTrue(diagnostics["deadline_exceeded"])
+
+    def test_fully_cached_snapshot_cannot_return_after_final_processing_exceeds_budget(self):
+        for read_seconds in (READ_SECONDS, MAX_READ_SECONDS):
+            with self.subTest(read_seconds=read_seconds):
+                cache = self.cache(read_seconds=read_seconds)
+                cache.collect(self.now)
+                cache.snapshot(self.now)
+                self.storage.reads.clear()
+                self.storage.lists.clear()
+                stored = deepcopy(self.storage.values)
+                polls = self.collector.call_count
+                snapshot = cache._snapshot
+                def delayed_result(now, **options):
+                    result = snapshot(now, **options)
+                    self.now += read_seconds + .01
+                    return result
+                with patch.object(cache, "_snapshot", side_effect=delayed_result):
+                    with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
+                        cache.snapshot(self.now)
+                self.assertEqual(self.storage.reads, [])
+                self.assertEqual(self.storage.lists, [])
+                self.assertEqual(self.storage.values, stored)
+                self.assertEqual(self.collector.call_count, polls)
+                diagnostics = cache.safe_read_diagnostics()
+                self.assertEqual(diagnostics["read_seconds"], read_seconds)
+                self.assertEqual(diagnostics["read_count"], 0)
+                self.assertEqual(diagnostics["list_count"], 0)
+                self.assertGreater(diagnostics["elapsed_seconds"], read_seconds)
+                self.assertTrue(diagnostics["deadline_exceeded"])
+
+    def test_transport_list_deadline_records_one_attempt_without_paths_or_raw_error(self):
+        from daily_news_runtime import StorageUnavailable
+        self.storage._list = Mock(side_effect=StorageUnavailable("storage_deadline"))
+        restored = self.cache(read_seconds=60)
+        with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
+            restored.snapshot(self.now)
+        diagnostics = restored.safe_read_diagnostics()
+        self.assertEqual(diagnostics["read_count"], 0)
+        self.assertEqual(diagnostics["list_count"], 1)
+        self.assertTrue(diagnostics["deadline_exceeded"])
+        self.assertTrue(all(not isinstance(value, str) for value in diagnostics.values()))
 
     def test_read_deadline_is_passed_to_transport_and_fixed_error_propagates(self):
         from daily_news_runtime import StorageUnavailable
@@ -521,9 +690,14 @@ class CacheTests(unittest.TestCase):
         self.now = at(hour=12)
         self.storage.create(f"{PREFIX}/polls/2026-10-10/48.lock",
             {"version": 1, "day": "2026-10-10", "slot": 48, "started_at": self.now})
-        with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
-            self.cache().snapshot(self.now)
-        self.assertIsInstance(read.call_args.kwargs["deadline"], float)
+        for read_seconds in (READ_SECONDS, MAX_READ_SECONDS):
+            with self.subTest(read_seconds=read_seconds):
+                restored = self.cache(read_seconds=read_seconds)
+                with self.assertRaisesRegex(ValueError, "source_cache_read_deadline"):
+                    restored.snapshot(self.now)
+                self.assertIsInstance(read.call_args.kwargs["deadline"], float)
+                self.assertEqual(restored.safe_read_diagnostics()["read_count"], 1)
+                self.assertTrue(restored.safe_read_diagnostics()["deadline_exceeded"])
         self.collector.assert_not_called()
 
     def test_collect_restoration_shares_read_budget_and_does_not_fetch_on_timeout(self):

@@ -22,7 +22,7 @@ PUBLICATION_STATES = frozenset(('starting', 'waiting', 'disabled', 'collecting',
     'generating', 'generation_failed', 'daily_limit', 'storage_unavailable',
     'cache_unavailable', 'unavailable', 'invalid_edition', 'configuration_unavailable'))
 OFFICIAL_SOURCE_HOSTS = {'総務省統計局': 'www.stat.go.jp', '財務省': 'www.mof.go.jp',
-                         '日本銀行': 'www.boj.or.jp'}
+                         '日本銀行': 'www.boj.or.jp', '金融庁': 'www.fsa.go.jp'}
 
 
 def valid_official_delivery(data, now):
@@ -110,6 +110,20 @@ def valid_official_delivery(data, now):
             pubday = datetime.strptime(ref['published_date'], '%Y-%m-%d').date()
             if pubday.isoformat() != ref['published_date'] or pubday > datetime.fromtimestamp(verified, JST).date():
                 return False
+            if ref['source'] == '金融庁':
+                # Match the reviewed HTML-only adapter and browser contract.
+                # RSS delivery time is not an original publication timestamp.
+                fsa_path = re.fullmatch(
+                    r'/news/r[1-9]\d?/(?:hoken|sonota|shouken|ginkou)/'
+                    r'(?:(\d{8})/)?(\d{8})(?:_[a-z0-9]+|[a-z]+)?\.html', url.path)
+                if (not fsa_path or fsa_path.group(2) != pubday.strftime('%Y%m%d')
+                        or fsa_path.group(1) not in (None, pubday.strftime('%Y%m%d'))
+                        or ref['publication_precision'] != 'day' or ref['published_at'] is not None
+                        or not re.search(r'金融|保険|預貯金|口座|証券|銀行|信用|資産運用|NISA|サイバーセキュリティ', ref['title'])
+                        or re.search(r'予定|募集|入札|採用|調達|公募|開催|会議|会合|連絡会|議事|'
+                                     r'パブリックコメント|意見募集|訂正|正誤表|更新しました|差替|差し替|取消|取り消し',
+                                     ref['title'])):
+                    return False
             route, stamp = ref['selection_route'], ref['published_at']
             if intraday and (route != 'intraday' or pubday != day.date()
                     or verified < expected['window_start']

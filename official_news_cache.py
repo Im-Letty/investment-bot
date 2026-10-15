@@ -24,6 +24,7 @@ LEASE_SECONDS = 180
 READ_DAYS = 3
 MAX_VERSIONS = 128
 READ_SECONDS = 12
+MAX_READ_SECONDS = 60
 _HASH = re.compile(r"[0-9a-f]{64}")
 _FIELDS = ("source", "url", "title", "body_sha256", "published_date", "published_at",
            "publication_precision", "body_verified_at", "observed_at", "evidence_url",
@@ -137,14 +138,21 @@ def _version(row):
 
 
 class OfficialNewsCache:
-    def __init__(self, storage, collector, *, clock=time.time):
+    def __init__(self, storage, collector, *, clock=time.time, read_seconds=READ_SECONDS):
+        if type(read_seconds) not in (int, float) or not 0 < read_seconds <= MAX_READ_SECONDS:
+            raise ValueError("invalid_source_cache_configuration")
         self.storage, self.collector, self.clock = storage, collector, clock
+        self._read_seconds = read_seconds
         self._seen_slots, self._indexes, self._before_indexes = set(), {}, {}
         self._versions, self._bodies, self._identities = {}, {}, {}
         self._claims = {}
         self._observations = {"legacy_two_source_polls": set(), "legacy_three_source_polls": set(),
                               "concurrent_read_records": set()}
         self._read_deadline = self._monotonic_deadline = None
+        self._active_read_diagnostics = None
+        self._last_read_diagnostics = {"read_seconds": read_seconds, "read_count": 0,
+                                       "list_count": 0, "elapsed_seconds": 0.0,
+                                       "deadline_exceeded": False}
         self._status = {"status": "not_checked", "poll_seconds": POLL_SECONDS,
                         "read_days": READ_DAYS, "max_versions": MAX_VERSIONS,
                         "last_checked_at": None, "source_status": _diagnostics({})}
@@ -155,6 +163,10 @@ class OfficialNewsCache:
     def safe_observations(self):
         """Bounded counters only; never expose a source body, URL or record key."""
         return {key: len(records) for key, records in self._observations.items()}
+
+    def safe_read_diagnostics(self):
+        """Last completed budget's fixed counters; no record keys or error text."""
+        return dict(self._last_read_diagnostics)
 
     def _observe(self, kind, day, slot, record):
         records = self._observations[kind]
@@ -186,23 +198,41 @@ class OfficialNewsCache:
 
     @contextmanager
     def _read_budget(self):
-        previous = self._read_deadline, self._monotonic_deadline
-        self._read_deadline = self.clock() + READ_SECONDS
-        self._monotonic_deadline = time.monotonic() + READ_SECONDS
+        previous = self._read_deadline, self._monotonic_deadline, self._active_read_diagnostics
+        started, mono_started = self.clock(), time.monotonic()
+        self._read_deadline = started + self._read_seconds
+        self._monotonic_deadline = mono_started + self._read_seconds
+        diagnostics = {"read_seconds": self._read_seconds, "read_count": 0,
+                       "list_count": 0, "elapsed_seconds": 0.0,
+                       "deadline_exceeded": False}
+        self._active_read_diagnostics = diagnostics
         try:
             yield
+            self._check_read_budget()
+        except ValueError as error:
+            if str(error) == "source_cache_read_deadline":
+                diagnostics["deadline_exceeded"] = True
+            raise
         finally:
-            self._read_deadline, self._monotonic_deadline = previous
+            finished, mono_finished = self.clock(), time.monotonic()
+            wall_elapsed = finished - started if _number(finished) and _number(started) else 0.0
+            if not _number(wall_elapsed):
+                wall_elapsed = 0.0
+            diagnostics["elapsed_seconds"] = max(0.0, wall_elapsed, mono_finished - mono_started)
+            diagnostics["deadline_exceeded"] |= ((_number(finished) and finished >= self._read_deadline)
+                                                  or mono_finished >= self._monotonic_deadline)
+            self._last_read_diagnostics = diagnostics
+            self._read_deadline, self._monotonic_deadline, self._active_read_diagnostics = previous
 
     def _read_options(self):
         self._check_read_budget()
         if self._read_deadline is None:
             return {}
-        remaining = min(self._read_deadline - self.clock(),
-                        self._monotonic_deadline - time.monotonic())
+        mono_now = time.monotonic()
+        remaining = min(self._read_deadline - self.clock(), self._monotonic_deadline - mono_now)
         # The storage transport must stop in-flight I/O, not merely report
         # that an unbounded request exceeded the budget after it returns.
-        return {"deadline": time.monotonic() + remaining}
+        return {"deadline": min(self._monotonic_deadline, mono_now + remaining)}
 
     @staticmethod
     def _transport_read(operation, *args, **options):
@@ -214,13 +244,19 @@ class OfficialNewsCache:
             raise
 
     def _read(self, path):
-        value = self._transport_read(self.storage.read, path, **self._read_options())
+        options = self._read_options()
+        if self._active_read_diagnostics is not None:
+            self._active_read_diagnostics["read_count"] += 1
+        value = self._transport_read(self.storage.read, path, **options)
         self._check_read_budget()
         return value
 
     def _list(self, prefix, *, offset=0):
+        options = self._read_options()
+        if self._active_read_diagnostics is not None:
+            self._active_read_diagnostics["list_count"] += 1
         value = self._transport_read(self.storage._list, prefix, offset=offset,
-                                     **self._read_options())
+                                     **options)
         self._check_read_budget()
         return value
 
