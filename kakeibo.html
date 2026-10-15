@@ -13,6 +13,8 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261012-load1"></script>
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261015-paper1">
+  <script defer src="/static/kakeibo-layout.js?v=20261015-paper1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -155,14 +157,27 @@ body{padding-bottom:24px;}
 </style>
 
 <style>#kkRoboFab{bottom:96px !important;}</style></head>
-<body>
+<body class="kn-ledger-paper" data-kk-active-tab="home">
 
 
 
-<div class="header" style="background:none;background-color:transparent;padding:10px 12px;overflow:visible">
+<div class="header kk-layout-header" style="background:none;background-color:transparent;padding:10px 12px;overflow:visible">
   <div class="header-top" style="margin-bottom:0">
-    <a href="/" class="back-btn" data-i18n="kk_back_home" style="color:#5a5a5a;background:rgba(0,0,0,0.06)">←</a>
-    <span class="header-title" data-i18n="kk_title" style="display:none">💼 資産分析</span>
+    <a href="/" class="back-btn" data-i18n="kk_back_home" data-kk-layout-label="kk_layout_back" aria-label="サイトに戻る" style="color:#5a5a5a;background:rgba(0,0,0,0.06)">←</a>
+    <h1 class="header-title"><svg class="kk-title-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M20 8V6a2 2 0 0 0-2-2H6a3 3 0 0 0 0 6h14v10H6a3 3 0 0 1-3-3V7"></path><path d="M20 12h-5v4h5"></path></svg><span data-i18n="kk_layout_title">家計簿</span></h1>
+    <details class="kk-more" id="kkMore">
+      <summary id="kkMoreToggle" aria-controls="kkMorePanel" aria-expanded="false" aria-label="便利な機能" data-kk-layout-label="kk_layout_more">⋯</summary>
+      <div class="kk-more-panel" id="kkMorePanel">
+        <button type="button" data-kk-layout-go="assets" data-i18n="kk_layout_assets">資産管理</button>
+        <button type="button" data-kk-layout-go="records" data-i18n="kk_layout_records">月入力の記録一覧</button>
+        <div class="kk-export-tools">
+          <p class="kk-layout-note" data-i18n="kk_layout_export">データ出力</p>
+          <button type="button" onclick="kkExportData('csv')" data-i18n="kk_layout_csv">CSVで保存</button>
+          <button type="button" onclick="kkExportData('json')" data-i18n="kk_layout_json">JSONで保存</button>
+          <p class="kk-layout-note" data-i18n="kk_layout_export_note">過去25か月の日別記録と資産を出力します。月入力は含みません。</p>
+        </div>
+      </div>
+    </details>
     <select id="kk-lang-select" onchange="kkSetLang(this.value)" style="background:rgba(255,255,255,0.25);color:#fff;border:1px solid rgba(255,255,255,0.4);border-radius:8px;padding:4px 8px;font-size:13px;font-weight:600;outline:none;cursor:pointer;min-width:72px;;display:none">
       <option value="ja" style="color:#1a3325;">日本語</option>
       <option value="en" style="color:#1a3325;">English</option>
@@ -226,37 +241,41 @@ body{padding-bottom:24px;}
   <div class="tn-item" onclick="switchTab('records')" data-i18n="kk_tab_records" style="display:none">記録一覧</div>
   <div class="tn-item" onclick="switchTab('calendar')" data-i18n="kk_tab_calendar" style="display:none">📅 カレンダー</div>
 </div>
-<nav class="kk-bottomnav" id="kkBottomNav">
-  <button type="button" class="kk-nav-item active" data-kknav="cashflow" onclick="kkNavGo('cashflow', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
-    入力
-  </button>
-  <button type="button" class="kk-nav-item" data-kknav="calendar" onclick="kkNavGo('calendar', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
-    カレンダー
-  </button>
-  <button type="button" class="kk-nav-item" data-kknav="dashboard" onclick="kkNavGo('dashboard', this)">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path><path d="M22 12A10 10 0 0 0 12 2v10z"></path></svg>
-    グラフ
-  </button>
+<nav class="kk-bottomnav" id="kkBottomNav" aria-label="家計簿のメニュー" data-kk-layout-label="kk_layout_navigation">
+  <button type="button" class="kk-nav-item active" data-kknav="home" aria-pressed="true" onclick="kkNavGo('home', this)"><span data-i18n="kk_layout_home">ホーム</span></button>
+  <button type="button" class="kk-nav-item" data-kknav="cashflow" aria-pressed="false" onclick="kkNavGo('cashflow', this)"><span data-i18n="kk_layout_input">入力</span></button>
+  <button type="button" class="kk-nav-item" data-kknav="calendar" aria-pressed="false" onclick="kkNavGo('calendar', this)"><span data-i18n="kk_layout_calendar">カレンダー</span></button>
+  <button type="button" class="kk-nav-item" data-kknav="dashboard" aria-pressed="false" onclick="kkNavGo('dashboard', this)"><span data-i18n="kk_layout_graphs">グラフ</span></button>
   <button type="button" class="kk-nav-item" data-kknav="settings" onclick="event.preventDefault();" style="display:none">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
     設定
   </button>
 </nav>
-<div class="tab-content active" id="tab-dashboard">
-  <div class="month-nav"><button class="mnav-btn" onclick="changeMonth(-1)">◀</button><div class="mnav-lbl" id="monthLabel2"></div><button class="mnav-btn" onclick="changeMonth(1)">▶</button></div>
-  <div class="sum-grid">
-    <div class="sum-item"><div class="sum-lbl" data-i18n="kk_sum_income">💰 今月収入</div><div class="sum-num green" id="d-income">¥0</div></div>
-    <div class="sum-item"><div class="sum-lbl" data-i18n="kk_sum_expense">💸 今月支出</div><div class="sum-num red" id="d-expense">¥0</div></div>
-    <div class="sum-item"><div class="sum-lbl" data-i18n="kk_sum_balance">📊 収支残</div><div class="sum-num teal" id="d-balance">¥0</div></div>
-    <div class="sum-item"><div class="sum-lbl" data-i18n="kk_sum_invest">📈 今月投資</div><div class="sum-num sage" id="d-invest">¥0</div></div>
-  </div>
+<div class="tab-content active" id="tab-home">
+  <section class="kk-paper-overview" aria-label="月の収支" data-kk-layout-label="kk_layout_month_summary">
+    <div class="month-nav"><button type="button" class="mnav-btn" onclick="changeMonth(-1)" aria-label="前の月" data-kk-layout-label="kk_layout_previous_month">‹</button><div class="mnav-lbl" id="monthLabel2" data-kk-pane-title tabindex="-1" aria-live="polite"></div><button type="button" class="mnav-btn" onclick="changeMonth(1)" aria-label="次の月" data-kk-layout-label="kk_layout_next_month">›</button></div>
+    <div class="sum-grid" aria-live="polite">
+      <div class="sum-item"><div class="sum-lbl" data-i18n="kk_layout_income">収入</div><div class="sum-num green" id="d-income">¥0</div></div>
+      <div class="sum-item"><div class="sum-lbl" data-i18n="kk_layout_expense">支出</div><div class="sum-num red" id="d-expense">¥0</div></div>
+      <div class="sum-item"><div class="sum-lbl" data-i18n="kk_layout_balance">収支残</div><div class="sum-num teal" id="d-balance">¥0</div></div>
+      <div class="sum-item"><div class="sum-lbl" data-i18n="kk_layout_investment">投資</div><div class="sum-num sage" id="d-invest">¥0</div></div>
+    </div>
+    <p class="kk-layout-note kk-balance-rule" data-i18n="kk_layout_balance_rule">収支残 ＝ 収入 − 支出 − 投資</p>
+  </section>
+  <div class="card kk-home-trend"><h2 class="card-title" data-i18n="kk_layout_trend">6か月の収入と支出</h2><div class="chart-area"><canvas id="lineChart"></canvas></div><p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p></div>
+</div>
+<div class="tab-content" id="tab-dashboard">
+  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_graphs">グラフ</h2>
+  <div class="month-nav"><button type="button" class="mnav-btn" onclick="changeMonth(-1)" aria-label="前の月" data-kk-layout-label="kk_layout_previous_month">‹</button><div class="mnav-lbl" id="monthLabelGraph"></div><button type="button" class="mnav-btn" onclick="changeMonth(1)" aria-label="次の月" data-kk-layout-label="kk_layout_next_month">›</button></div>
+  <div class="kk-pane-links"><button type="button" data-kk-layout-go="home" data-i18n="kk_layout_trend_link">収支推移を見る</button></div>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_pie_expense">🥧 今月の支出内訳</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="donutChart"></canvas></div><div id="donut-legend" style="flex:1;font-size:12px"></div></div></div>
 </div>
-<div class="tab-content" id="tab-cashflow"><div id="kk-input-actions" style="display:flex;gap:10px;margin:0 0 14px;"><button onclick="document.getElementById('ocr-file').click()" class="kkb">
+<div class="tab-content" id="tab-cashflow">
+  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_input">入力</h2>
+  <p class="kk-layout-note kk-input-note" data-i18n="kk_layout_input_note">月入力とカレンダーの日別記録は、別々に集計します。</p>
+  <div id="kk-input-actions" style="display:flex;gap:10px;margin:0 0 14px;"><button onclick="document.getElementById('ocr-file').click()" class="kkb">
     <span class="kkb-icon">📷</span>
     <span class="kkb-label"><span class="kkb-title" data-i18n="kk_btn_scan_receipt">レシート撮影</span><span class="kkb-sub">タップして読み取り</span></span>
   </button><button style="display:none" onclick="switchTab('cashflow')" class="kkb">
@@ -274,19 +293,23 @@ body{padding-bottom:24px;}
     <div id="form-exp" style="display:none"><input class="inp" id="exp-name" type="text" data-i18n-placeholder="kk_ph_item_food" placeholder="項目名（例：食費）"><select class="inp" id="exp-cat" onchange="kkExpCatChange(this)"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option><option value="__kkadd__">➕ 新しいカテゴリ</option></select><input class="inp" id="exp-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
     <div id="form-inv" style="display:none"><input class="inp" id="inv-name" type="text" placeholder="銘柄・ファンド名"><select class="inp" id="inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="inv-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
-  <div class="card"><div class="card-title" data-i18n="kk_card_line_trend">📈 収支推移（折れ線グラフ）</div><div class="chart-area"><canvas id="lineChart"></canvas></div></div>
+  <div class="kk-pane-links"><button type="button" data-kk-layout-go="records" data-i18n="kk_layout_records">月入力の記録一覧</button><button type="button" data-kk-layout-go="home" data-i18n="kk_layout_trend_link">収支推移を見る</button></div>
 </div>
 <div class="tab-content" id="tab-assets">
+  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
   <div class="card"><div class="card-title" data-i18n="kk_card_register_asset">🏦 資産を登録</div><input class="inp" id="ast-name" type="text" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"><select class="inp" id="ast-cat"><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="ast-amount" type="number" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"><button class="submit-btn ast" onclick="addRecord('ast')" data-i18n="kk_btn_register_asset">＋ 資産を登録</button></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_pie">🥧 資産配分グラフ</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="assetPieChart"></canvas></div><div id="asset-legend" style="flex:1;font-size:12px"></div></div></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_list">📋 資産一覧</div><div id="asset-list-el"><div class="empty-state" data-i18n="kk_empty_no_assets">資産を登録してください</div></div></div>
 </div>
 <div class="tab-content" id="tab-records">
+  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">月入力の記録一覧</h2>
+  <div class="kk-pane-links"><button type="button" data-kk-layout-go="cashflow" data-i18n="kk_layout_input">入力</button></div>
   <div class="month-nav"><button class="mnav-btn" onclick="changeMonth(-1)">◀</button><div class="mnav-lbl" id="monthLabel4"></div><button class="mnav-btn" onclick="changeMonth(1)">▶</button></div>
   <div class="card"><div id="rec-list-el"><div class="empty-state" data-i18n="kk_empty_no_records">記録がありません</div></div></div>
 </div>
 
 <div class="tab-content" id="tab-calendar">
+  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_calendar">カレンダー</h2>
   <div class="month-nav"><button class="mnav-btn" onclick="calChangeMonth(-1)">◀</button><div class="mnav-lbl" id="calMonthLabel"></div><button class="mnav-btn" onclick="calChangeMonth(1)">▶</button></div>
   <div class="card" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_cat_summary">📊 今月のカテゴリ別支出</div><div id="calCatSummary"><div class="empty-state" data-i18n="kk_empty_input_expense_to_see">支出を入力するとここに表示されます</div></div></div>
@@ -308,6 +331,32 @@ body{padding-bottom:24px;}
 // ========= i18n SYSTEM (kakeibo) =========
 var KK_I18N = {
   ja: {
+    kk_layout_title: "家計簿",
+    kk_layout_home: "ホーム",
+    kk_layout_input: "入力",
+    kk_layout_calendar: "カレンダー",
+    kk_layout_graphs: "グラフ",
+    kk_layout_more: "便利な機能",
+    kk_layout_back: "サイトに戻る",
+    kk_layout_navigation: "家計簿のメニュー",
+    kk_layout_month_summary: "月の収支",
+    kk_layout_previous_month: "前の月",
+    kk_layout_next_month: "次の月",
+    kk_layout_income: "収入",
+    kk_layout_expense: "支出",
+    kk_layout_balance: "収支残",
+    kk_layout_investment: "投資",
+    kk_layout_balance_rule: "収支残 ＝ 収入 − 支出 − 投資",
+    kk_layout_trend: "6か月の収入と支出",
+    kk_layout_trend_note: "月入力の記録を集計。投資は折れ線に含めません。",
+    kk_layout_trend_link: "収支推移を見る",
+    kk_layout_input_note: "月入力とカレンダーの日別記録は、別々に集計します。",
+    kk_layout_assets: "資産管理",
+    kk_layout_records: "月入力の記録一覧",
+    kk_layout_export: "データ出力",
+    kk_layout_csv: "CSVで保存",
+    kk_layout_json: "JSONで保存",
+    kk_layout_export_note: "過去25か月の日別記録と資産を出力します。月入力は含みません。",
     kk_currency_symbol: "¥",
     kk_back_home: "←",
     kk_btn_scan_receipt: "📷 レシート撮影",
@@ -415,6 +464,32 @@ var KK_I18N = {
     kk_js_total: "合計"
   },
   en: {
+    kk_layout_title: "Household ledger",
+    kk_layout_home: "Home",
+    kk_layout_input: "Add",
+    kk_layout_calendar: "Calendar",
+    kk_layout_graphs: "Charts",
+    kk_layout_more: "More tools",
+    kk_layout_back: "Back to site",
+    kk_layout_navigation: "Household ledger menu",
+    kk_layout_month_summary: "Monthly summary",
+    kk_layout_previous_month: "Previous month",
+    kk_layout_next_month: "Next month",
+    kk_layout_income: "Income",
+    kk_layout_expense: "Spending",
+    kk_layout_balance: "Remaining",
+    kk_layout_investment: "Investments",
+    kk_layout_balance_rule: "Remaining = income − spending − investments",
+    kk_layout_trend: "6-month income and spending",
+    kk_layout_trend_note: "Based on monthly entries. The lines exclude investments.",
+    kk_layout_trend_link: "View income and spending trend",
+    kk_layout_input_note: "Monthly entries and calendar entries are totaled separately.",
+    kk_layout_assets: "Assets",
+    kk_layout_records: "Monthly entries",
+    kk_layout_export: "Export data",
+    kk_layout_csv: "Download CSV",
+    kk_layout_json: "Download JSON",
+    kk_layout_export_note: "Exports calendar entries from the past 25 months and assets. Monthly entries are excluded.",
     kk_currency_symbol: "$",
     kk_back_home: "←",
     kk_btn_scan_receipt: "📷 Scan Receipt",
@@ -522,6 +597,32 @@ var KK_I18N = {
     kk_js_total: "Total"
   },
   ko: {
+    kk_layout_title: "가계부",
+    kk_layout_home: "홈",
+    kk_layout_input: "입력",
+    kk_layout_calendar: "달력",
+    kk_layout_graphs: "그래프",
+    kk_layout_more: "추가 기능",
+    kk_layout_back: "사이트로 돌아가기",
+    kk_layout_navigation: "가계부 메뉴",
+    kk_layout_month_summary: "월별 요약",
+    kk_layout_previous_month: "이전 달",
+    kk_layout_next_month: "다음 달",
+    kk_layout_income: "수입",
+    kk_layout_expense: "지출",
+    kk_layout_balance: "잔액",
+    kk_layout_investment: "투자",
+    kk_layout_balance_rule: "잔액 = 수입 − 지출 − 투자",
+    kk_layout_trend: "6개월 수입과 지출",
+    kk_layout_trend_note: "월별 입력 기준입니다. 그래프에는 투자가 포함되지 않습니다.",
+    kk_layout_trend_link: "수입·지출 추이 보기",
+    kk_layout_input_note: "월별 입력과 달력의 일별 기록은 따로 합산합니다.",
+    kk_layout_assets: "자산 관리",
+    kk_layout_records: "월별 입력 목록",
+    kk_layout_export: "데이터 내보내기",
+    kk_layout_csv: "CSV 저장",
+    kk_layout_json: "JSON 저장",
+    kk_layout_export_note: "최근 25개월의 일별 기록과 자산을 내보냅니다. 월별 입력은 제외됩니다.",
     kk_currency_symbol: "₩",
     kk_back_home: "←",
     kk_btn_scan_receipt: "📷 영수증 스캔",
@@ -629,6 +730,32 @@ var KK_I18N = {
     kk_js_total: "합계"
   },
   zh: {
+    kk_layout_title: "家庭账本",
+    kk_layout_home: "首页",
+    kk_layout_input: "记账",
+    kk_layout_calendar: "日历",
+    kk_layout_graphs: "图表",
+    kk_layout_more: "更多功能",
+    kk_layout_back: "返回网站",
+    kk_layout_navigation: "家庭账本菜单",
+    kk_layout_month_summary: "月度收支",
+    kk_layout_previous_month: "上个月",
+    kk_layout_next_month: "下个月",
+    kk_layout_income: "收入",
+    kk_layout_expense: "支出",
+    kk_layout_balance: "结余",
+    kk_layout_investment: "投资",
+    kk_layout_balance_rule: "结余 = 收入 − 支出 − 投资",
+    kk_layout_trend: "6个月收入与支出",
+    kk_layout_trend_note: "按月度记录汇总，折线不包含投资。",
+    kk_layout_trend_link: "查看收支趋势",
+    kk_layout_input_note: "月度记录和日历中的每日记录分别汇总。",
+    kk_layout_assets: "资产管理",
+    kk_layout_records: "月度记录列表",
+    kk_layout_export: "导出数据",
+    kk_layout_csv: "保存 CSV",
+    kk_layout_json: "保存 JSON",
+    kk_layout_export_note: "导出过去25个月的每日记录和资产，不包含月度记录。",
     kk_currency_symbol: "元",
     kk_back_home: "←",
     kk_btn_scan_receipt: "📷 扫描小票",
@@ -783,6 +910,7 @@ function kkApplyLang(lang){
   try { if(typeof renderCalendar==="function") renderCalendar(); } catch(e){}
   var sel=document.getElementById("kk-lang-select");
   if(sel) sel.value=lang;
+  if(window.kkLayoutLanguageChanged)window.kkLayoutLanguageChanged();
 }
 function kkSetLang(lang){ kkApplyLang(lang); }
 window.kkApplyLang=kkApplyLang;
@@ -885,7 +1013,7 @@ function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t)
 function addDayRecord(type){if(!_modalDate)return;var name,amount,cat='';if(type==='inc'){name=document.getElementById('m-inc-name').value.trim();amount=parseInt(document.getElementById('m-inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inc-name').value='';document.getElementById('m-inc-amount').value='';}else if(type==='exp'){name=document.getElementById('m-exp-name').value.trim();cat=document.getElementById('m-exp-cat').value;amount=parseInt(document.getElementById('m-exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-exp-name').value='';document.getElementById('m-exp-amount').value='';}else if(type==='inv'){name=document.getElementById('m-inv-name').value.trim();cat=document.getElementById('m-inv-cat').value;amount=parseInt(document.getElementById('m-inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inv-name').value='';document.getElementById('m-inv-amount').value='';}var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
 function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
 function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
-function switchTab(tab){document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();}
+function switchTab(tab){document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');});}
 function addRecord(type){var name,amount,cat='';if(type==='inc'){name=document.getElementById('inc-name').value.trim();amount=parseInt(document.getElementById('inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('inc-name').value='';document.getElementById('inc-amount').value='';}else if(type==='exp'){name=document.getElementById('exp-name').value.trim();cat=document.getElementById('exp-cat').value;amount=parseInt(document.getElementById('exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('exp-name').value='';document.getElementById('exp-amount').value='';}else if(type==='inv'){name=document.getElementById('inv-name').value.trim();cat=document.getElementById('inv-cat').value;amount=parseInt(document.getElementById('inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('inv-name').value='';document.getElementById('inv-amount').value='';}else if(type==='ast'){name=document.getElementById('ast-name').value.trim();cat=document.getElementById('ast-cat').value;amount=parseInt(document.getElementById('ast-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('ast-name').value='';document.getElementById('ast-amount').value='';var assets=getAssets();assets.push({id:Date.now(),name:name,cat:cat,amount:amount});saveAssets(assets);renderAll();return;}var data=getData();data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveData(data);renderAll();}
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
@@ -893,7 +1021,7 @@ function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!=
 function renderAll(){
   var data=getData(),assets=getAssets();
   var lbl=_year+kkT("kk_js_year")+_month+kkT("kk_js_month");
-  ['monthLabel2','monthLabel3','monthLabel4'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
+  ['monthLabel2','monthLabel3','monthLabel4','monthLabelGraph'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
   var totalInc=0,totalExp=0,totalInv=0;
   data.forEach(function(e){if(e.type==='inc')totalInc+=e.amount;else if(e.type==='exp')totalExp+=e.amount;else if(e.type==='inv')totalInv+=e.amount;});
   var balance=totalInc-totalExp-totalInv;
@@ -1287,8 +1415,7 @@ var f=window[n];if(typeof f==="function"){window[n]=function(){var r=f.apply(thi
 function kkNavGo(tab, el){
   try{ if(typeof switchTab==='function') switchTab(tab); }catch(e){}
   var items=document.querySelectorAll('.kk-bottomnav .kk-nav-item');
-  for(var i=0;i<items.length;i++) items[i].classList.remove('active');
-  if(el) el.classList.add('active');
+  for(var i=0;i<items.length;i++){var active=items[i].getAttribute('data-kknav')===tab;items[i].classList.toggle('active',active);items[i].setAttribute('aria-pressed',String(active));}
 }
 </script>
 
