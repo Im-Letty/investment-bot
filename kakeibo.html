@@ -23,10 +23,11 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-expensepiggy1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-receipts1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-investmentcats1"></script>
+  <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -208,8 +209,16 @@ body{padding-bottom:24px;}
   
   
     <button type="button" onclick="kkAiAdvice()" style="background:#fff;color:#374151;border:1px solid #e5e7eb;border-radius:14px;padding:14px 22px;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);margin:8px 4px;;display:none"><span data-i18n="kk_btn_ai_advice">🤖 AI</span></button>
-  <input id="ocr-file" type="file" accept="image/*" capture="environment" style="display:none" onchange="kkOcrUpload(this.files[0])">
+  <input id="ocr-file" type="file" accept="image/*" capture="environment" hidden>
+  <input id="ocr-album-file" type="file" accept="image/*" hidden>
 </div>
+<dialog id="kk-receipt-camera-dialog" class="kk-receipt-camera-dialog" aria-labelledby="kk-receipt-camera-title" aria-describedby="kk-receipt-camera-status">
+  <div class="kk-receipt-camera-heading"><h3 id="kk-receipt-camera-title" data-i18n="kk_receipt_camera_title">レシートを撮影</h3><button type="button" id="kk-receipt-camera-close" data-i18n="kk_receipt_close">閉じる</button></div>
+  <video id="kk-receipt-video" autoplay muted playsinline></video>
+  <p id="kk-receipt-camera-status" class="kk-layout-note" role="status" data-i18n="kk_receipt_camera_starting">カメラを準備しています…</p>
+  <button type="button" id="kk-receipt-capture" class="kk-receipt-capture" disabled data-i18n="kk_receipt_capture">撮影して読み取る</button>
+  <div class="kk-receipt-camera-fallback"><button type="button" id="kk-receipt-native-camera" data-i18n="kk_receipt_native_camera">端末のカメラを開く</button><button type="button" id="kk-receipt-camera-album" data-i18n="kk_receipt_album">アルバムから選ぶ</button></div>
+</dialog>
 <div id="ocr-spinner" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:9998;align-items:center;justify-content:center;flex-direction:column;color:#fff;">
   <div style="width:48px;height:48px;border:4px solid #fff;border-top-color:#3da060;border-radius:50%;animation:ocrspin 1s linear infinite;"></div>
   <div data-i18n="kk_ocr_processing" style="margin-top:14px;font-size:14px;">解析中...</div>
@@ -277,10 +286,7 @@ body{padding-bottom:24px;}
     <p class="kk-layout-note kk-balance-rule" data-i18n="kk_layout_balance_rule">収支残 ＝ 収入 − 支出 − 投資</p>
 <section class="kk-monthly-entry" id="tab-cashflow" aria-labelledby="kkEntryTitle">
   <h2 class="kk-pane-title" id="kkEntryTitle" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_input">入力</h2>
-  <div id="kk-input-actions" style="display:flex;gap:10px;margin:0 0 14px;"><button onclick="document.getElementById('ocr-file').click()" class="kkb">
-    <span class="kkb-icon">📷</span>
-    <span class="kkb-label"><span class="kkb-title" data-i18n="kk_btn_scan_receipt">レシート撮影</span><span class="kkb-sub">タップして読み取り</span></span>
-  </button><button style="display:none" onclick="switchTab('cashflow')" class="kkb">
+  <div id="kk-input-actions" style="display:flex;gap:10px;margin:0 0 14px;"><details id="kk-receipt-sources" class="kk-receipt-sources"><summary><span data-i18n="kk_btn_scan_receipt">レシートを読み取る</span><span aria-hidden="true">⌄</span></summary><div class="kk-receipt-source-options"><button type="button" id="kk-receipt-album"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg><span data-i18n="kk_receipt_album">アルバムから選ぶ</span></button><button type="button" id="kk-receipt-camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 5 9 3h6l1 2h3a2 2 0 0 1 2 2v12H3V7a2 2 0 0 1 2-2Z"/><circle cx="12" cy="11" r="4"/></svg><span data-i18n="kk_receipt_camera">カメラで撮影</span></button></div></details><button style="display:none" onclick="switchTab('cashflow')" class="kkb">
     <span class="kkb-icon">✏️</span>
     <span class="kkb-label"><span class="kkb-title">手入力</span><span class="kkb-sub">自分で入力する</span></span>
   </button></div>
@@ -402,7 +408,18 @@ var KK_I18N = {
     kk_layout_export_note: "過去25か月の日別記録と資産を出力します。月入力は含みません。",
     kk_currency_symbol: "¥",
     kk_back_home: "←",
-    kk_btn_scan_receipt: "📷 レシート撮影",
+    kk_btn_scan_receipt: "レシートを読み取る",
+    kk_receipt_album: "アルバムから選ぶ",
+    kk_receipt_camera: "カメラで撮影",
+    kk_receipt_camera_title: "レシートを撮影",
+    kk_receipt_close: "閉じる",
+    kk_receipt_capture: "撮影して読み取る",
+    kk_receipt_native_camera: "端末のカメラを開く",
+    kk_receipt_camera_starting: "カメラを準備しています…",
+    kk_receipt_camera_ready: "レシート全体を映して、撮影ボタンを押してください。",
+    kk_receipt_camera_preparing: "写真を準備しています…",
+    kk_receipt_camera_unavailable: "カメラを使えません。アルバムから選ぶか、端末のカメラをお試しください。",
+    kk_receipt_capture_failed: "写真を読み込めませんでした。端末のカメラかアルバムからお試しください。",
     kk_ocr_link_asset: "💳 連動する資産 (任意)",
     kk_card_cat_stack: "📊 カテゴリ別月間推移（過去6ヶ月）",
     kk_btn_export_json: "📄 JSON",
@@ -560,7 +577,18 @@ var KK_I18N = {
     kk_layout_export_note: "Exports calendar entries from the past 25 months and assets. Monthly entries are excluded.",
     kk_currency_symbol: "$",
     kk_back_home: "←",
-    kk_btn_scan_receipt: "📷 Scan Receipt",
+    kk_btn_scan_receipt: "Read a receipt",
+    kk_receipt_album: "Choose from photos",
+    kk_receipt_camera: "Take a photo",
+    kk_receipt_camera_title: "Photograph your receipt",
+    kk_receipt_close: "Close",
+    kk_receipt_capture: "Take photo and read",
+    kk_receipt_native_camera: "Open device camera",
+    kk_receipt_camera_starting: "Preparing the camera…",
+    kk_receipt_camera_ready: "Fit the entire receipt in the frame, then take a photo.",
+    kk_receipt_camera_preparing: "Preparing the photo…",
+    kk_receipt_camera_unavailable: "Camera unavailable. Choose a photo or try the device camera.",
+    kk_receipt_capture_failed: "Could not read the photo. Try the device camera or choose a photo.",
     kk_ocr_link_asset: "💳 Link to asset (optional)",
     kk_card_cat_stack: "📊 Category trend (last 6 months)",
     kk_btn_export_json: "📄 JSON",
@@ -718,7 +746,18 @@ var KK_I18N = {
     kk_layout_export_note: "최근 25개월의 일별 기록과 자산을 내보냅니다. 월별 입력은 제외됩니다.",
     kk_currency_symbol: "₩",
     kk_back_home: "←",
-    kk_btn_scan_receipt: "📷 영수증 스캔",
+    kk_btn_scan_receipt: "영수증 읽기",
+    kk_receipt_album: "앨범에서 선택",
+    kk_receipt_camera: "카메라로 촬영",
+    kk_receipt_camera_title: "영수증 촬영",
+    kk_receipt_close: "닫기",
+    kk_receipt_capture: "촬영하고 읽기",
+    kk_receipt_native_camera: "기기 카메라 열기",
+    kk_receipt_camera_starting: "카메라를 준비하고 있습니다…",
+    kk_receipt_camera_ready: "영수증 전체가 보이도록 맞춘 후 촬영해 주세요.",
+    kk_receipt_camera_preparing: "사진을 준비하고 있습니다…",
+    kk_receipt_camera_unavailable: "카메라를 사용할 수 없습니다. 앨범에서 선택하거나 기기 카메라를 이용해 주세요.",
+    kk_receipt_capture_failed: "사진을 읽지 못했습니다. 기기 카메라나 앨범을 이용해 주세요.",
     kk_ocr_link_asset: "💳 연동할 자산 (선택)",
     kk_card_cat_stack: "📊 카테고리별 월간 추이(최근 6개월)",
     kk_btn_export_json: "📄 JSON",
@@ -876,7 +915,18 @@ var KK_I18N = {
     kk_layout_export_note: "导出过去25个月的每日记录和资产，不包含月度记录。",
     kk_currency_symbol: "元",
     kk_back_home: "←",
-    kk_btn_scan_receipt: "📷 扫描小票",
+    kk_btn_scan_receipt: "读取小票",
+    kk_receipt_album: "从相册选择",
+    kk_receipt_camera: "用相机拍摄",
+    kk_receipt_camera_title: "拍摄小票",
+    kk_receipt_close: "关闭",
+    kk_receipt_capture: "拍照并读取",
+    kk_receipt_native_camera: "打开设备相机",
+    kk_receipt_camera_starting: "正在准备相机…",
+    kk_receipt_camera_ready: "请让整张小票显示在画面中，然后拍照。",
+    kk_receipt_camera_preparing: "正在准备照片…",
+    kk_receipt_camera_unavailable: "相机无法使用。请从相册选择，或尝试设备相机。",
+    kk_receipt_capture_failed: "无法读取照片。请尝试设备相机或从相册选择。",
     kk_ocr_link_asset: "💳 关联资产（可选）",
     kk_card_cat_stack: "📊 分类月间趋势（近6个月）",
     kk_btn_export_json: "📄 JSON",

@@ -86,6 +86,26 @@ body.kn-ledger-paper .kk-monthly-entry .kk-pane-title {
   align-self:center;margin:0;font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:500;
 }
 body.kn-ledger-paper #kk-input-actions {margin:0!important;min-width:0}
+.kk-receipt-sources {position:relative;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,system-ui);color:var(--kn-ledger-ink,#1a3325)}
+.kk-receipt-sources summary {display:flex;align-items:center;justify-content:center;gap:8px;list-style:none;min-height:44px;padding:7px 10px;box-sizing:border-box;border:1px solid var(--kn-ledger-line,#d5dfd7);border-radius:8px;cursor:pointer;background:var(--kn-ledger-paper,#fffdf6)}
+.kk-receipt-sources summary::-webkit-details-marker {display:none}
+.kk-receipt-sources[open] summary {border-color:var(--kn-ledger-button,#42795d)}
+.kk-receipt-source-options {position:absolute;right:0;top:calc(100% + 8px);z-index:120;display:grid;gap:6px;width:min(280px,calc(100vw - 64px));padding:8px;border:1px solid var(--kn-ledger-line,#d5dfd7);border-radius:12px;background:var(--kn-ledger-paper,#fffdf6);box-shadow:0 8px 24px #00000014}
+.kk-receipt-source-options button {display:flex;align-items:center;gap:10px;min-height:48px;padding:10px 12px;border:0;border-radius:8px;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer}
+.kk-receipt-source-options button:hover {background:var(--kn-ledger-chip,#edf2ed)}
+.kk-receipt-source-options svg {flex:none;width:22px;height:22px}
+.kk-receipt-camera-dialog {box-sizing:border-box;width:min(520px,calc(100vw - 24px));max-height:calc(100dvh - 24px);margin:auto;padding:20px;border:1px solid var(--kn-ledger-line,#d5dfd7);border-radius:16px;background:var(--kn-ledger-paper,#fffdf6);color:var(--kn-ledger-ink,#1a3325);font:400 calc(14px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans,system-ui);overflow:auto}
+.kk-receipt-camera-dialog::backdrop {background:rgba(24,38,31,.45)}
+.kk-receipt-camera-heading {display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.kk-receipt-camera-heading h3 {margin:0;font:500 calc(18px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-serif,serif)}
+.kk-receipt-camera-dialog button {min-height:44px;padding:9px 12px;border:1px solid var(--kn-ledger-line,#d5dfd7);border-radius:9px;background:var(--kn-ledger-paper,#fffdf6);color:inherit;font:inherit;cursor:pointer;overflow-wrap:anywhere}
+.kk-receipt-camera-dialog video {display:block;width:100%;max-height:48dvh;aspect-ratio:4/3;object-fit:contain;border-radius:10px;background:#17251e}
+.kk-receipt-camera-dialog #kk-receipt-camera-status {margin:12px 0}
+.kk-receipt-camera-dialog .kk-receipt-capture {width:100%;background:var(--kn-ledger-button,#42795d);color:var(--kn-ledger-on-button,#fffdf6);border-color:var(--kn-ledger-button,#42795d)}
+.kk-receipt-camera-dialog .kk-receipt-capture:disabled {opacity:.5;cursor:default}
+.kk-receipt-camera-fallback {display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.kk-receipt-camera-fallback button {flex:1 1 160px;font-size:calc(12px * var(--kn-ledger-scale,1))}
+:is(.kk-receipt-sources summary,.kk-receipt-source-options button,.kk-receipt-camera-dialog button):focus-visible {outline:2px solid var(--kn-ledger-button,#42795d);outline-offset:3px}
 body.kn-ledger-letter.kn-ledger-paper #kk-input-actions .kkb {
   min-width:0;min-height:44px;padding:7px 10px!important;gap:6px;border-radius:8px;
   border:1px solid var(--kn-ledger-line)!important;background:transparent!important;
