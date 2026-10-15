@@ -143,27 +143,31 @@ test('missing asset name identifies the field while a corrected retry saves exac
   h.context.addRecord('ast');assert.equal(assets().length,1,'the empty second click must not duplicate the first record');assert.equal(h.writes.length,1);
 });
 
-test('each home record retains its fields and category, adds the selected date and leaves calendar records untouched',()=>{
+test('each home record saves once with its date and is visible in Calendar without rewriting legacy daily storage',()=>{
   for(const [type,amount,category] of [['inc','２０００．５',''],['exp','１，０００','独自カテゴリ'],['inv','－１２．５','国内株']]){
     const originalDay='[{"id":91,"type":"exp","name":"架空の日別","amount":3,"cat":"食費"}]';
-    const h=fixture({kbday_2026_10_15:originalDay});h.fill(type,amount,'架空の月入力',category);
-    const selectedDate=h.nodes.get('kkEntryDate').value;h.context.addRecord(type);
+    const h=fixture();h.fill(type,amount,'架空の月入力',category);
+    const selectedDate=h.nodes.get('kkEntryDate').value,[y,m,day]=selectedDate.split('-').map(Number),dayKey=h.context.getDayKey(y,m,day);h.values.set(dayKey,originalDay);h.context.addRecord(type);
     const rows=monthRows(h);assert.equal(rows.length,1);assert.deepEqual(Object.keys(rows[0]).sort(),['amount','cat','date','id','name','type']);
     assert.equal(rows[0].date,selectedDate);assert.match(selectedDate,/^\d{4}-\d{2}-\d{2}$/);
     assert.equal(rows[0].type,type);assert.equal(rows[0].cat,category);assert.equal(typeof rows[0].id,'number');
-    assert.equal(h.values.get('kbday_2026_10_15'),originalDay);assert.equal(h.renders,1);assert.equal(h.dayRenders,0);
+    assert.equal(h.values.get(dayKey),originalDay);assert.equal(h.writes.length,1);assert.equal(h.writes[0].key,h.context.getKey());
+    const daily=h.context.getDayData(y,m,day);assert.equal(daily.length,2);assert.ok(daily.some(row=>row.id===rows[0].id&&row.amount===rows[0].amount));
+    h.context.openDayModal(y,m,day);assert.match(h.nodes.get('dayRecList').innerHTML,/架空の日別/);assert.ok(h.nodes.get('dayRecList').innerHTML.includes(rows[0].name));
+    const reloaded=fixture(Object.fromEntries(h.values));assert.equal(reloaded.context.getDayData(y,m,day).length,2);assert.equal(reloaded.context.getData(y,m).length,2);assert.equal(reloaded.writes.length,0);
   }
 });
 
-test('day-modal entries retain the daily schema and date and never merge into the monthly ledger',()=>{
+test('Calendar entries save once to the monthly ledger with the selected day and immediately appear on Home',()=>{
   for(const [type,amount,expected,category] of [['inc','１０００',1000,''],['exp','１，０００円',1000,'食費'],['inv','－１２．５',-12.5,'国内株']]){
     const h=fixture();h.context._modalDate={y:2026,m:10,day:15};h.fill('m-'+type,amount,'架空の日入力',category);
-    h.context.addDayRecord(type);const rows=JSON.parse(h.values.get('kbday_2026_10_15')||'[]');
+    h.context.addDayRecord(type);const rows=JSON.parse(h.values.get('kb2_2026_10')||'[]');
     assert.equal(rows.length,1);assert.equal(rows[0].amount,expected);assert.equal(rows[0].type,type);assert.equal(rows[0].cat,category);
-    assert.deepEqual(Object.keys(rows[0]).sort(),['amount','cat','id','name','type']);assert.equal(monthRows(h).length,0);
-    assert.equal(h.dayRenders,1);assert.equal(h.renders,0);assert.equal(h.nodes.get('m-'+type+'-amount').value,'');
+    assert.deepEqual(Object.keys(rows[0]).sort(),['amount','cat','date','id','name','type']);assert.equal(rows[0].date,'2026-10-15');assert.equal(h.context.getData(2026,10).length,1);assert.equal(h.values.has('kbday_2026_10_15'),false);
+    assert.equal(h.nodes.get('m-'+type+'-amount').value,'');
     assert.match(h.nodes.get('dayRecList').innerHTML,/架空の日入力/);
-    h.context.addDayRecord(type);assert.equal(JSON.parse(h.values.get('kbday_2026_10_15')).length,1);assert.equal(h.writes.length,1);
+    h.context.addDayRecord(type);assert.equal(JSON.parse(h.values.get('kb2_2026_10')).length,1);assert.equal(h.writes.length,1);
+    const reloaded=fixture(Object.fromEntries(h.values));assert.equal(reloaded.context.getDayData(2026,10,15).length,1);assert.equal(reloaded.context.getData(2026,10).length,1);assert.equal(reloaded.writes.length,0);
   }
 });
 
@@ -231,7 +235,7 @@ test('asset and each calendar form still require a name before any valid amount 
     const save=()=>prefix.startsWith('m-')?h.context.addDayRecord(prefix.slice(2)):h.context.addRecord(prefix);
     save();assert.equal(h.writes.length,0,prefix);assert.equal(h.focused,prefix+'-name');assert.equal(h.nodes.get(prefix+'-name').getAttribute('aria-invalid'),'true');assert.ok(h.errorFor(prefix+'-name'));
     assert.equal(h.nodes.get(prefix+'-amount').value,'１０００');h.nodes.get(prefix+'-name').value='  架空の必須名称  ';save();
-    const key=prefix==='ast'?'kb2_assets':prefix.startsWith('m-')?'kbday_2026_10_15':h.context.getKey();
+    const key=prefix==='ast'?'kb2_assets':prefix.startsWith('m-')?'kb2_2026_10':h.context.getKey();
     const saved=JSON.parse(h.values.get(key));assert.equal(saved.length,1);assert.equal(saved[0].name,'架空の必須名称');assert.equal(saved[0].amount,1000);assert.equal(h.writes.length,1);
     assert.notEqual(h.nodes.get(prefix+'-name').getAttribute('aria-invalid'),'true');
   }
@@ -287,4 +291,67 @@ test('custom investment names stay raw in storage and render as escaped literal 
     if(category.startsWith('<')){assert.match(markup,/&lt;img/);assert.match(markup,/&lt;script&gt;/);assert.match(markup,/&amp;/);assert.match(markup,/&quot;synthetic\(\)&quot;/);assert.match(markup,/(?:&#39;|&#039;|&apos;)基金(?:&#39;|&#039;|&apos;)/);}
     else assert.ok(markup.includes(category));
   }
+});
+
+test('union references distinguish repeated IDs within and across original buckets and delete only the selected row',()=>{
+  const home=[{id:7,type:'inc',name:'架空の月収入',amount:100,date:'2026-10-15'},
+    {id:7,type:'exp',name:'架空の月支出',cat:'食費',amount:30,date:'2026-10-15'}];
+  const daily=[{id:7,type:'inv',name:'架空の日投資',cat:'ETF',amount:10}],dayRaw=JSON.stringify(daily);
+  const h=fixture({kb2_2026_10:JSON.stringify(home),kbday_2026_10_15:dayRaw});h.context._year=2026;h.context._month=10;h.context.renderAll();h.writes.length=0;
+  const united=h.context.getData();assert.equal(united.length,3);assert.ok(united.every(row=>typeof row._kkRef==='string'&&row._kkRef));assert.equal(new Set(united.map(row=>row._kkRef)).size,3);
+  h.context.deleteRecord(7);assert.equal(h.writes.length,0,'ambiguous legacy ID must not remove every matching row');
+  h.context.deleteRecord(united.find(row=>row.name==='架空の月支出')._kkRef);
+  assert.deepEqual(JSON.parse(h.values.get('kb2_2026_10')),[home[0]]);assert.equal(h.values.get('kbday_2026_10_15'),dayRaw);
+  assert.equal(h.context.getData().length,2);assert.equal(h.nodes.get('d-income').textContent,'¥100');assert.equal(h.nodes.get('d-expense').textContent,'¥0');assert.equal(h.nodes.get('d-invest').textContent,'¥10');
+  h.context.openDayModal(2026,10,15);const dayRow=h.context.getDayData(2026,10,15).find(row=>row.name==='架空の月収入');h.context.deleteDayRecord(dayRow._kkRef);
+  assert.deepEqual(JSON.parse(h.values.get('kb2_2026_10')),[]);assert.equal(h.values.get('kbday_2026_10_15'),dayRaw);assert.equal(h.context.getDayData(2026,10,15).length,1);assert.equal(h.nodes.get('d-income').textContent,'¥0');
+});
+
+test('fingerprinted references reject stale or foreign records without touching the current buckets',()=>{
+  const row={id:1,type:'inc',name:'架空の保存済み',amount:100,date:'2026-10-15'},original=JSON.stringify([row]);
+  const h=fixture({kb2_2026_10:original,kb2_2026_09:JSON.stringify([{...row,name:'別月の架空記録',date:'2026-09-15'}])});h.context._year=2026;h.context._month=10;
+  const stale=h.context.getData()[0]._kkRef,foreign=h.context.getData(2026,9)[0]._kkRef;
+  const changed=JSON.stringify([{...row,amount:101}]);h.values.set('kb2_2026_10',changed);h.writes.length=0;
+  h.context.deleteRecord(stale);assert.equal(h.context.kkSetRecordDate(stale,'2026-10-16'),false);
+  h.context.deleteRecord(foreign);assert.equal(h.context.kkSetRecordDate(foreign,'2026-10-16'),false);
+  assert.equal(h.values.get('kb2_2026_10'),changed);assert.equal(h.context.getData(2026,9)[0].name,'別月の架空記録');assert.equal(h.writes.length,0);
+});
+
+test('legacy Calendar dates move and clear through their source reference without losing fields or duplicating records',()=>{
+  const row={id:'legacy-day',type:'exp',name:'架空の旧日別',cat:'交通',amount:-12.5,t:123,extra:{keep:true}},original=JSON.stringify([row]);
+  const h=fixture({kbday_2026_10_15:original});h.context._year=2026;h.context._month=10;h.context.renderAll();
+  assert.equal(h.values.get('kbday_2026_10_15'),original,'rendering must not migrate legacy Calendar rows');assert.equal(h.writes.length,0);
+  h.nodes.get('inc-amount').value='保存前の架空下書き';h.nodes.get('kkEntryDate').value='2026-10-22';
+  assert.equal(h.context.kkSetRecordDate(h.context.getData()[0]._kkRef,'2026-10-20'),true);
+  assert.equal(h.context.getDayData(2026,10,15).length,0);assert.equal(h.context.getDayData(2026,10,20).length,1);assert.equal(h.context.getData().length,1);
+  let saved=h.context.getData()[0];for(const key of ['id','type','name','cat','amount','t'])assert.equal(saved[key],row[key]);assert.deepEqual(JSON.parse(JSON.stringify(saved.extra)),row.extra);
+  assert.equal(h.context.kkSetRecordDate(saved._kkRef,''),true);assert.equal(h.context.getDayData(2026,10,20).length,0);assert.equal(h.context.getData().length,1);
+  assert.deepEqual(JSON.parse(h.values.get('kbday_2026_10_15')),[{...row,date:''}]);assert.equal(h.values.has('kb2_2026_10'),false,'clearing a date must not create a second persisted copy');assert.equal(h.context.kkTrendData().undated.expense,-12.5);assert.equal(h.context.kkTrendData().undated.count,1);
+  assert.equal(h.nodes.get('inc-amount').value,'保存前の架空下書き');assert.equal(h.nodes.get('kkEntryDate').value,'2026-10-22');
+  const reloaded=fixture(Object.fromEntries(h.values));assert.equal(reloaded.context.getData(2026,10).length,1);assert.equal(reloaded.context.getDayData(2026,10,15).length,0);assert.equal(reloaded.context.getDayData(2026,10,20).length,0);
+  for(const value of h.values.values())assert.doesNotMatch(value,/_kkRef/,'internal references must never persist');
+});
+
+test('saveData and saveDayData union round trips retain origins and never copy the other source into a second bucket',()=>{
+  const home={id:1,type:'inc',name:'架空の月収入',amount:100,date:'2026-10-15'},daily={id:1,type:'exp',name:'架空の日支出',cat:'食費',amount:25};
+  const homeRaw=JSON.stringify([home],null,2),dayRaw='  '+JSON.stringify([daily])+'\n';
+  const h=fixture({kb2_2026_10:homeRaw,kbday_2026_10_15:dayRaw});
+  h.context.saveData(h.context.getData(2026,10),2026,10);h.context.saveDayData(2026,10,15,h.context.getDayData(2026,10,15));
+  assert.equal(h.values.get('kb2_2026_10'),homeRaw);assert.equal(h.values.get('kbday_2026_10_15'),dayRaw);assert.equal(h.writes.length,0,'read/save without edits must retain raw bytes and perform no writes');
+  assert.deepEqual(JSON.parse(h.values.get('kb2_2026_10')),[home]);assert.deepEqual(JSON.parse(h.values.get('kbday_2026_10_15')),[daily]);
+  const union=h.context.getData(2026,10);union.find(row=>row.name===daily.name).amount=30;h.context.saveData(union,2026,10);
+  assert.deepEqual(JSON.parse(h.values.get('kb2_2026_10')),[home]);assert.deepEqual(JSON.parse(h.values.get('kbday_2026_10_15')),[{...daily,amount:30}]);
+  const dayUnion=h.context.getDayData(2026,10,15);dayUnion.find(row=>row.name===home.name).amount=125;dayUnion.push({id:2,type:'inv',name:'架空の追加投資',cat:'ETF',amount:5});h.context.saveDayData(2026,10,15,dayUnion);
+  const monthly=JSON.parse(h.values.get('kb2_2026_10'));assert.equal(monthly.length,2);assert.deepEqual(monthly[0],{...home,amount:125});assert.equal(monthly[1].date,'2026-10-15');
+  assert.deepEqual(JSON.parse(h.values.get('kbday_2026_10_15')),[{...daily,amount:30}]);assert.equal(h.context.getData(2026,10).length,3);
+  const reloaded=fixture(Object.fromEntries(h.values));assert.equal(reloaded.context.getData(2026,10).length,3);assert.equal(reloaded.context.getDayData(2026,10,15).length,3);assert.equal(reloaded.writes.length,0);
+  for(const value of h.values.values())assert.doesNotMatch(value,/_kkRef/);
+});
+
+test('mixed-source edits and unreadable sources fail before any partial write and keep the valid input draft',()=>{
+  const monthRaw=JSON.stringify([{id:1,type:'inc',name:'架空の月収入',amount:100,date:'2026-10-15'}]),dayRaw=JSON.stringify([{id:2,type:'exp',name:'架空の日支出',cat:'食費',amount:25}]);
+  const h=fixture({kb2_2026_10:monthRaw,kbday_2026_10_15:dayRaw});h.context._year=2026;h.context._month=10;h.context.renderAll();
+  const edits=h.context.getData();edits.forEach(row=>row.amount+=1);assert.equal(h.context.saveData(edits),false);assert.equal(h.values.get('kb2_2026_10'),monthRaw);assert.equal(h.values.get('kbday_2026_10_15'),dayRaw);assert.equal(h.writes.length,0);
+  h.values.set('kbday_2026_10_15','{');h.fill('exp','１２．５','unused','交通');h.nodes.get('kkEntryDate').value='2026-10-15';h.context.addRecord('exp');
+  assert.equal(h.values.get('kb2_2026_10'),monthRaw);assert.equal(h.values.get('kbday_2026_10_15'),'{');assert.equal(h.writes.length,0);assert.equal(h.nodes.get('exp-amount').value,'１２．５');assert.equal(h.nodes.get('exp-cat').value,'交通');assert.equal(h.nodes.get('kkEntryDate').value,'2026-10-15');
 });

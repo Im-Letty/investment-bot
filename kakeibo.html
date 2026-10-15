@@ -185,12 +185,12 @@ body{padding-bottom:24px;}
       <summary id="kkMoreToggle" aria-controls="kkMorePanel" aria-expanded="false" aria-label="便利な機能" data-kk-layout-label="kk_layout_more">⋯</summary>
       <div class="kk-more-panel" id="kkMorePanel">
         <button type="button" data-kk-layout-go="assets" data-i18n="kk_layout_assets">資産管理</button>
-        <button type="button" data-kk-layout-go="records" data-i18n="kk_layout_records">月入力の記録一覧</button>
+        <button type="button" data-kk-layout-go="records" data-i18n="kk_layout_records">記録一覧</button>
         <div class="kk-export-tools">
           <p class="kk-layout-note" data-i18n="kk_layout_export">データ出力</p>
           <button type="button" onclick="kkExportData('csv')" data-i18n="kk_layout_csv">CSVで保存</button>
           <button type="button" onclick="kkExportData('json')" data-i18n="kk_layout_json">JSONで保存</button>
-          <p class="kk-layout-note" data-i18n="kk_layout_export_note">過去25か月の日別記録と資産を出力します。月入力は含みません。</p>
+          <p class="kk-layout-note" data-i18n="kk_layout_export_note">ホームとカレンダーの全期間の記録・資産を出力します。</p>
         </div>
       </div>
     </details>
@@ -292,6 +292,7 @@ body{padding-bottom:24px;}
   </button></div>
   <span id="monthLabel3" hidden></span>
   <div class="kk-monthly-form">
+    <p id="kkLedgerNotice" class="kk-layout-note" role="status" hidden></p>
     <div class="kk-entry-date"><label class="kk-entry-label" for="kkEntryDate" data-i18n="kk_entry_date">日付</label><input class="inp" id="kkEntryDate" type="date" oninput="kkClearEntryError(this)"></div>
     <div class="form-tabs" role="group" aria-labelledby="kkEntryTitle">
       <button class="ftab active-inc" id="ft-inc" onclick="switchForm('inc')" aria-pressed="true" data-i18n="kk_layout_income">収入</button>
@@ -326,7 +327,7 @@ body{padding-bottom:24px;}
     <div class="chart-area"><canvas id="lineChart" role="img" aria-describedby="kkTrendRange"></canvas></div>
     <p id="kkTrendDataNotice" class="kk-layout-note" data-i18n="kk_trend_unreadable" hidden>一部の記録を読み取れません。読み取れない日・期間は線を途切れさせ、日付未設定の記録は別に表示します。</p>
     <p id="kkTrendUndatedNotice" class="kk-layout-note" role="status" hidden></p>
-    <p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p>
+    <p class="kk-layout-note" data-i18n="kk_layout_trend_note">ホームとカレンダーの記録を集計。投資は折れ線に含めません。</p>
   </div>
 </div>
 <div class="tab-content" id="tab-assets">
@@ -336,7 +337,7 @@ body{padding-bottom:24px;}
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_list">📋 資産一覧</div><div id="asset-list-el"><div class="empty-state" data-i18n="kk_empty_no_assets">資産を登録してください</div></div></div>
 </div>
 <div class="tab-content" id="tab-records">
-  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">月入力の記録一覧</h2>
+  <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">記録一覧</h2>
   <div class="kk-pane-links"><button type="button" data-kk-layout-go="cashflow" data-i18n="kk_layout_input">入力</button></div>
   <div class="month-nav"><button class="mnav-btn" onclick="changeMonth(-1)">◀</button><div class="mnav-lbl" id="monthLabel4"></div><button class="mnav-btn" onclick="changeMonth(1)">▶</button></div>
   <div class="card"><div id="rec-list-el"><div class="empty-state" data-i18n="kk_empty_no_records">記録がありません</div></div></div>
@@ -346,7 +347,7 @@ body{padding-bottom:24px;}
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_calendar">カレンダー</h2>
   <div class="month-nav"><button class="mnav-btn" onclick="calChangeMonth(-1)">◀</button><div class="mnav-lbl" id="calMonthLabel"></div><button class="mnav-btn" onclick="calChangeMonth(1)">▶</button></div>
   <div class="card" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
-  <div class="card"><div class="card-title" data-i18n="kk_card_cat_summary">📊 今月のカテゴリ別支出</div><div id="calCatSummary"><div class="empty-state" data-i18n="kk_empty_input_expense_to_see">支出を入力するとここに表示されます</div></div></div>
+  <div class="card"><div class="card-title" data-i18n="kk_card_cat_summary">📊 今月のカテゴリ別支出</div><p id="kkCalUndatedNotice" class="kk-layout-note" role="status" hidden></p><div id="calCatSummary"><div class="empty-state" data-i18n="kk_empty_input_expense_to_see">支出を入力するとここに表示されます</div></div></div>
 </div>
 <div class="modal-overlay" id="dayModal" onclick="closeDayModal(event)">
   <div class="modal-box">
@@ -365,6 +366,9 @@ body{padding-bottom:24px;}
 // ========= i18n SYSTEM (kakeibo) =========
 var KK_I18N = {
   ja: {
+    kk_calendar_undated: "日付未設定の記録が{count}件あります。月の集計と記録一覧に含まれています。",
+    kk_alert_export_failed: "書き出しできませんでした。記録は変更していません。",
+    kk_ledger_save_error: "記録を保存できませんでした。入力は残しています。再読み込みしてから、もう一度お試しください。",
     kk_layout_title: "家計簿",
     kk_layout_item: "項目名",
     kk_layout_category: "カテゴリ",
@@ -404,15 +408,15 @@ var KK_I18N = {
     kk_trend_amount_unknown: "確認が必要",
     kk_trend_yearly: "年ごと",
     kk_trend_unreadable: "一部の記録を読み取れません。読み取れない日・期間は線を途切れさせ、日付未設定の記録は別に表示します。",
-    kk_layout_trend_note: "月入力の記録を集計。投資は折れ線に含めません。",
+    kk_layout_trend_note: "ホームとカレンダーの記録を集計。投資は折れ線に含めません。",
     kk_layout_trend_link: "収支推移を見る",
-    kk_layout_input_note: "月入力とカレンダーの日別記録は、別々に集計します。",
+    kk_layout_input_note: "ホームとカレンダーは、同じ記録と集計に反映されます。",
     kk_layout_assets: "資産管理",
-    kk_layout_records: "月入力の記録一覧",
+    kk_layout_records: "記録一覧",
     kk_layout_export: "データ出力",
     kk_layout_csv: "CSVで保存",
     kk_layout_json: "JSONで保存",
-    kk_layout_export_note: "過去25か月の日別記録と資産を出力します。月入力は含みません。",
+    kk_layout_export_note: "ホームとカレンダーの全期間の記録・資産を出力します。",
     kk_currency_symbol: "¥",
     kk_trend_yen_unit: "円",
     kk_back_home: "←",
@@ -535,6 +539,9 @@ var KK_I18N = {
     kk_js_total: "合計"
   },
   en: {
+    kk_calendar_undated: "{count} undated records are included in the monthly totals and records list.",
+    kk_alert_export_failed: "Could not export. Your records have not been changed.",
+    kk_ledger_save_error: "Could not save the record. Your input is kept. Reload and try again.",
     kk_layout_title: "Household ledger",
     kk_layout_item: "Item",
     kk_layout_category: "Category",
@@ -574,15 +581,15 @@ var KK_I18N = {
     kk_trend_amount_unknown: "Needs checking",
     kk_trend_yearly: "Yearly",
     kk_trend_unreadable: "Some records could not be read. Unreadable days or periods appear as gaps; undated entries are shown separately.",
-    kk_layout_trend_note: "Based on monthly entries. The lines exclude investments.",
+    kk_layout_trend_note: "Includes Home and Calendar entries. The lines exclude investments.",
     kk_layout_trend_link: "View income and spending trend",
-    kk_layout_input_note: "Monthly entries and calendar entries are totaled separately.",
+    kk_layout_input_note: "Home and Calendar share the same records and totals.",
     kk_layout_assets: "Assets",
-    kk_layout_records: "Monthly entries",
+    kk_layout_records: "Records",
     kk_layout_export: "Export data",
     kk_layout_csv: "Download CSV",
     kk_layout_json: "Download JSON",
-    kk_layout_export_note: "Exports calendar entries from the past 25 months and assets. Monthly entries are excluded.",
+    kk_layout_export_note: "Exports all Home and Calendar records and assets.",
     kk_currency_symbol: "$",
     kk_trend_yen_unit: " JPY",
     kk_back_home: "←",
@@ -705,6 +712,9 @@ var KK_I18N = {
     kk_js_total: "Total"
   },
   ko: {
+    kk_calendar_undated: "날짜가 없는 기록 {count}건은 월 합계와 기록 목록에 포함됩니다.",
+    kk_alert_export_failed: "내보내지 못했습니다. 기록은 변경되지 않았습니다.",
+    kk_ledger_save_error: "기록을 저장하지 못했습니다. 입력은 유지됩니다. 새로고침 후 다시 시도해 주세요.",
     kk_layout_title: "가계부",
     kk_layout_item: "항목명",
     kk_layout_category: "카테고리",
@@ -744,15 +754,15 @@ var KK_I18N = {
     kk_trend_amount_unknown: "확인 필요",
     kk_trend_yearly: "연도별",
     kk_trend_unreadable: "일부 기록을 읽을 수 없습니다. 해당 날짜·기간은 그래프가 끊기며, 날짜 미설정 기록은 별도로 표시됩니다.",
-    kk_layout_trend_note: "월별 입력 기준입니다. 그래프에는 투자가 포함되지 않습니다.",
+    kk_layout_trend_note: "홈과 달력의 기록을 합산합니다. 그래프에는 투자가 포함되지 않습니다.",
     kk_layout_trend_link: "수입·지출 추이 보기",
-    kk_layout_input_note: "월별 입력과 달력의 일별 기록은 따로 합산합니다.",
+    kk_layout_input_note: "홈과 달력에 같은 기록과 합계가 반영됩니다.",
     kk_layout_assets: "자산 관리",
-    kk_layout_records: "월별 입력 목록",
+    kk_layout_records: "기록 목록",
     kk_layout_export: "데이터 내보내기",
     kk_layout_csv: "CSV 저장",
     kk_layout_json: "JSON 저장",
-    kk_layout_export_note: "최근 25개월의 일별 기록과 자산을 내보냅니다. 월별 입력은 제외됩니다.",
+    kk_layout_export_note: "홈과 달력의 전체 기간 기록과 자산을 내보냅니다.",
     kk_currency_symbol: "₩",
     kk_trend_yen_unit: "엔",
     kk_back_home: "←",
@@ -875,6 +885,9 @@ var KK_I18N = {
     kk_js_total: "합계"
   },
   zh: {
+    kk_calendar_undated: "{count}条未设置日期的记录已计入月度汇总和记录列表。",
+    kk_alert_export_failed: "无法导出。记录未被更改。",
+    kk_ledger_save_error: "无法保存记录。输入已保留，请刷新后重试。",
     kk_layout_title: "家庭账本",
     kk_layout_item: "项目名称",
     kk_layout_category: "类别",
@@ -914,15 +927,15 @@ var KK_I18N = {
     kk_trend_amount_unknown: "需要核实",
     kk_trend_yearly: "按年",
     kk_trend_unreadable: "部分记录无法读取。对应日期或期间以断线显示，未设置日期的记录单独显示。",
-    kk_layout_trend_note: "按月度记录汇总，折线不包含投资。",
+    kk_layout_trend_note: "汇总主页和日历的记录，折线不包含投资。",
     kk_layout_trend_link: "查看收支趋势",
-    kk_layout_input_note: "月度记录和日历中的每日记录分别汇总。",
+    kk_layout_input_note: "主页和日历共享记录和汇总。",
     kk_layout_assets: "资产管理",
-    kk_layout_records: "月度记录列表",
+    kk_layout_records: "记录列表",
     kk_layout_export: "导出数据",
     kk_layout_csv: "保存 CSV",
     kk_layout_json: "保存 JSON",
-    kk_layout_export_note: "导出过去25个月的每日记录和资产，不包含月度记录。",
+    kk_layout_export_note: "导出主页和日历的全部期间记录和资产。",
     kk_currency_symbol: "元",
     kk_trend_yen_unit: "日元",
     kk_back_home: "←",
@@ -1101,7 +1114,7 @@ document.addEventListener("DOMContentLoaded", function(){ kkApplyLang(KK_LANG); 
 if(document.readyState!=="loading"){ kkApplyLang(KK_LANG); }
 
 var _year=new Date().getFullYear(),_month=new Date().getMonth()+1,_charts={},_currentForm='inc';
-var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth()+1,_modalDate=null;
+var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth()+1,_modalDate=null,_modalForm='inc';
 
 // Keep the raw text while typing: number inputs can discard full-width/IME text.
 function kkParseAmount(raw){
@@ -1145,7 +1158,7 @@ function kkClearEntry(prefix){
 }
 
 
-// Period settings stay in this iframe; only active home-entry ledger keys are read.
+// Period settings stay in this iframe; both active ledger entry sources are included.
 var _trendPeriod='1',_trendCustom=null;
 function kkTrendMonth(value){
   var match=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(value));
@@ -1178,8 +1191,8 @@ function kkTrendDailyData(){
   var undated={count:0,income:0,expense:0,bad:false};
   for(var day=1;day<=days;day++){labels.push(String(day));income.push(0);expense.push(0);bad.push(false);}
   try{
-    var rows=JSON.parse(localStorage.getItem('kb2_'+month.replace('-','_'))||'[]');
-    if(!Array.isArray(rows))throw new Error('monthly_records_shape');
+    var rows=getData(_year,_month);
+    if(rows._kkBrokenBuckets.length)throw new Error('monthly_records_shape');
     rows.forEach(function(row){
       var day=row?kkTrendMonthDay(row.date,_year,_month):null;
       if(!row||['inc','exp','inv'].indexOf(row.type)===-1||typeof row.amount!=='number'||!Number.isFinite(row.amount)){
@@ -1203,25 +1216,14 @@ function kkTrendData(){
   var end=_year*12+_month-1,start=end,rows=[],unreadable=false;
   if(_trendPeriod==='custom'&&_trendCustom){start=_trendCustom.from;end=_trendCustom.to;}
   else if(_trendPeriod!=='all'){start=Math.max(12,end-Number(_trendPeriod)+1);}
-  for(var i=0;i<localStorage.length;i++){
-    var key=localStorage.key(i),match=/^kb2_(\d{4})_(0[1-9]|1[0-2])$/.exec(key||'');
-    if(!match||Number(match[1])<1)continue;
-    var serial=Number(match[1])*12+Number(match[2])-1;
-    if(_trendPeriod!=='all'&&(serial<start||serial>end))continue;
-    var item={month:serial,income:0,expense:0,populated:false,bad:false};
-    try{
-      var values=JSON.parse(localStorage.getItem(key));
-      if(!Array.isArray(values))throw new Error('monthly_records_shape');
-      item.populated=values.length>0;
-      values.forEach(function(value){
-        if(!value||['inc','exp','inv'].indexOf(value.type)===-1||typeof value.amount!=='number'||!Number.isFinite(value.amount)){item.bad=true;return;}
-        if(value.type==='inc')item.income+=value.amount;
-        else if(value.type==='exp')item.expense+=value.amount;
-      });
-      if(!Number.isFinite(item.income)||!Number.isFinite(item.expense))item.bad=true;
-    }catch(ignore){item.populated=true;item.bad=true;}
+  kkLedgerMonths().forEach(function(ym){
+    var serial=ym.y*12+ym.m-1;
+    if(_trendPeriod!=='all'&&(serial<start||serial>end))return;
+    var values=getData(ym.y,ym.m),item={month:serial,income:0,expense:0,populated:values.length>0||values._kkUnreadable,bad:values._kkUnreadable};
+    values.forEach(function(value){if(value.type==='inc')item.income+=value.amount;else if(value.type==='exp')item.expense+=value.amount;});
+    if(!Number.isFinite(item.income)||!Number.isFinite(item.expense))item.bad=true;
     rows.push(item);
-  }
+  });
   if(_trendPeriod==='all'){
     var populated=rows.filter(function(row){return row.populated;});
     if(populated.length){start=Math.min.apply(null,populated.map(function(row){return row.month;}));end=Math.max.apply(null,populated.map(function(row){return row.month;}));}
@@ -1310,23 +1312,136 @@ function _chartEmpty(canvas,message,empty){
   if(empty&&!note){note=document.createElement('div');note.className='empty-state kk-chart-empty';parent.appendChild(note);}
   if(note){note.textContent=message;note.hidden=!empty;}
 }
-function getKey(y,m){return 'kb2_'+(y||_year)+'_'+((m||_month)<10?'0'+(m||_month):(m||_month));}
-function getData(y,m){return JSON.parse(localStorage.getItem(getKey(y,m))||'[]');}
-function saveData(d,y,m){localStorage.setItem(getKey(y,m),JSON.stringify(d));}
+// Both entry points read one view of the existing stores. Reading never migrates data.
+// References include the entire source bucket fingerprint so stale controls cannot
+// edit another record after its index changes. References are never persisted.
+function kkLedgerFingerprint(text){
+  var hash=2166136261;for(var i=0;i<text.length;i++){hash^=text.charCodeAt(i);hash=Math.imul(hash,16777619);}
+  return (hash>>>0).toString(16);
+}
+function kkLedgerKeyParts(key){
+  var match=/^(kb2|kbday)_(\d{4})_(0[1-9]|1[0-2])(?:_(0[1-9]|[12]\d|3[01]))?$/.exec(key||'');
+  if(!match||Number(match[2])<1||(match[1]==='kb2')!==!match[4])return null;
+  var y=Number(match[2]),m=Number(match[3]),day=match[4]?Number(match[4]):null;
+  if(day!==null&&day>kkTrendMonthDays(y,m))return null;
+  return {y:y,m:m,day:day,month:match[2]+'-'+match[3]};
+}
+function kkLedgerMonths(){
+  var months=Object.create(null);
+  for(var i=0;i<localStorage.length;i++){
+    var part=kkLedgerKeyParts(localStorage.key(i));if(part)months[part.month]={y:part.y,m:part.m};
+  }
+  return Object.keys(months).sort().map(function(key){return months[key];});
+}
+function kkLedgerBare(row){
+  var clean={};Object.keys(row).forEach(function(key){if(['_kkRef','_kkKey','_kkIndex'].indexOf(key)===-1)Object.defineProperty(clean,key,{value:row[key],writable:true,enumerable:true,configurable:true});});return clean;
+}
+function kkLedgerReadMonth(y,m){
+  var rows=[],keys=[getKey(y,m)],buckets=Object.create(null),unreadable=false,broken=[];
+  for(var i=0;i<localStorage.length;i++){
+    var key=localStorage.key(i),part=kkLedgerKeyParts(key);
+    if(part&&part.day!==null&&part.y===y&&part.m===m)keys.push(key);
+  }
+  keys.sort();
+  keys.forEach(function(key){
+    var raw=localStorage.getItem(key),part=kkLedgerKeyParts(key);
+    try{
+      var data=raw===null?[]:JSON.parse(raw);if(!Array.isArray(data))throw new Error('records_shape');
+      buckets[key]={raw:raw,data:data};
+      var fingerprint=kkLedgerFingerprint(raw===null?'[]':raw);
+      data.forEach(function(record,index){
+        if(!record||typeof record!=='object'||Array.isArray(record)||['inc','exp','inv'].indexOf(record.type)===-1||typeof record.amount!=='number'||!Number.isFinite(record.amount))unreadable=true;
+        var row=record&&typeof record==='object'&&!Array.isArray(record)?Object.assign({},record):{};
+        if(['inc','exp','inv'].indexOf(row.type)===-1)row.type='unknown';
+        // Only a legacy daily key proves an omitted date. Explicitly cleared dates stay undated.
+        if(part.day!==null&&!Object.prototype.hasOwnProperty.call(record||{},'date'))row.date=part.month+'-'+String(part.day).padStart(2,'0');
+        row._kkKey=key;row._kkIndex=index;row._kkRef=key+':'+index+':'+fingerprint;rows.push(row);
+      });
+    }catch(ignore){unreadable=true;broken.push(key);}
+  });
+  Object.defineProperty(rows,'_kkBrokenBuckets',{value:broken});
+  Object.defineProperty(rows,'_kkBuckets',{value:buckets});
+  Object.defineProperty(rows,'_kkUnreadable',{value:unreadable});
+  return rows;
+}
+function kkLedgerAllRecords(){
+  var rows=[];kkLedgerMonths().forEach(function(ym){var month=getData(ym.y,ym.m);if(month._kkUnreadable)throw new Error('ledger_records_unreadable');month.forEach(function(row){rows.push(Object.assign({},row,{month:kkTrendMonthValue(ym.y*12+ym.m-1)}));});});return rows;
+}
+var _kkLedgerSaveError=false;
+function kkLedgerShowNotice(unreadable){
+  var note=document.getElementById('kkLedgerNotice');
+  if(note){note.hidden=!unreadable&&!_kkLedgerSaveError;note.textContent=_kkLedgerSaveError?kkT('kk_ledger_save_error'):unreadable?kkT('kk_trend_unreadable'):'';}
+}
+function kkLedgerSaveMonth(next,y,m){
+  try{
+    var current=getData(y,m);if(current._kkUnreadable||!Array.isArray(next))throw new Error('records_unreadable');
+    var found=Object.create(null),byRef=Object.create(null),byPosition=Object.create(null),plans=Object.create(null),added=[];
+    current.forEach(function(row){byRef[row._kkRef]=row;(byPosition[row._kkKey]||(byPosition[row._kkKey]=[]))[row._kkIndex]=row;});
+    next.forEach(function(row){
+      if(!row||typeof row!=='object'||Array.isArray(row)||['inc','exp','inv'].indexOf(row.type)===-1||typeof row.amount!=='number'||!Number.isFinite(row.amount))throw new Error('record_invalid');
+      if(Object.prototype.hasOwnProperty.call(row,'_kkRef')){
+        if(typeof row._kkRef!=='string'||!byRef[row._kkRef]||found[row._kkRef])throw new Error('stale_record');
+        found[row._kkRef]=row;
+      }else added.push(kkLedgerBare(row));
+    });
+    Object.keys(current._kkBuckets).forEach(function(key){
+      var bucket=current._kkBuckets[key],result=[];
+      bucket.data.forEach(function(raw,index){
+        var old=byPosition[key]&&byPosition[key][index],updated=old&&found[old._kkRef];
+        if(!old)throw new Error('record_unreadable');
+        if(updated){
+          var clean=kkLedgerBare(updated);
+          if(JSON.stringify(clean)===JSON.stringify(kkLedgerBare(old)))result.push(raw);
+          else{
+            var part=kkLedgerKeyParts(key);
+            if(part.day!==null&&!Object.prototype.hasOwnProperty.call(raw,'date')&&clean.date===part.month+'-'+String(part.day).padStart(2,'0'))delete clean.date;
+            result.push(clean);
+          }
+        }
+      });
+      plans[key]=result;
+    });
+    var monthKey=getKey(y,m);plans[monthKey]=(plans[monthKey]||[]).concat(added);
+    var changed=Object.keys(plans).filter(function(key){return JSON.stringify(plans[key])!==JSON.stringify(current._kkBuckets[key]?current._kkBuckets[key].data:[]);});
+    // One user action changes one source bucket. Refuse a mixed stale/bulk rewrite
+    // rather than risk a partial cross-bucket save on a storage failure.
+    if(changed.length>1)throw new Error('multiple_source_changes');
+    if(changed.length)localStorage.setItem(changed[0],JSON.stringify(plans[changed[0]]));
+    _kkLedgerSaveError=false;kkLedgerShowNotice(false);return true;
+  }catch(ignore){_kkLedgerSaveError=true;kkLedgerShowNotice(false);return false;}
+}
+function kkLedgerFind(rows,refOrId){
+  var matches=rows.filter(function(row){return typeof refOrId==='string'&&refOrId.indexOf('kb')===0?row._kkRef===refOrId:row.id===refOrId;});
+  return matches.length===1?matches[0]:null;
+}
+function getKey(y,m){return 'kb2_'+String(y===undefined?_year:y).padStart(4,'0')+'_'+String(m===undefined?_month:m).padStart(2,'0');}
+function getData(y,m){return kkLedgerReadMonth(y===undefined?_year:y,m===undefined?_month:m);}
+function saveData(d,y,m){return kkLedgerSaveMonth(d,y===undefined?_year:y,m===undefined?_month:m);}
 function getAssets(){return JSON.parse(localStorage.getItem('kb2_assets')||'[]');}
 function saveAssets(d){localStorage.setItem('kb2_assets',JSON.stringify(d));}
-function fmt(n){return kkT('kk_currency_symbol')+Number(n||0).toLocaleString();}
+function fmt(n){return n!==null&&n!==undefined&&Number.isFinite(Number(n))?kkT('kk_currency_symbol')+Number(n).toLocaleString():'—';}
 function changeMonth(d){_month+=d;if(_month>12){_month=1;_year++;}if(_month<1){_month=12;_year--;}
-_trendPeriod='1';kkTrendClearError();
-var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth()+1,_modalDate=null,_modalForm='inc';
-function calChangeMonth(d){_calMonth+=d;if(_calMonth>12){_calMonth=1;_calYear++;}if(_calMonth<1){_calMonth=12;_calYear--;}renderCalendar();}
-function getDayKey(y,m,day){return 'kbday_'+y+'_'+(m<10?'0'+m:m)+'_'+(day<10?'0'+day:day);}
-function getDayData(y,m,day){return JSON.parse(localStorage.getItem(getDayKey(y,m,day))||'[]');}
-function saveDayData(y,m,day,d){localStorage.setItem(getDayKey(y,m,day),JSON.stringify(d));}
+  _calYear=_year;_calMonth=_month;_trendPeriod='1';kkTrendClearError();renderAll();
+}
+function getDayKey(y,m,day){return 'kbday_'+String(y).padStart(4,'0')+'_'+String(m).padStart(2,'0')+'_'+String(day).padStart(2,'0');}
+function getDayData(y,m,day){
+  var month=getData(y,m),rows=month.filter(function(row){return kkTrendMonthDay(row.date,y,m)===day;});
+  Object.defineProperty(rows,'_kkUnreadable',{value:month._kkUnreadable});
+  Object.defineProperty(rows,'_kkBrokenBuckets',{value:month._kkBrokenBuckets});return rows;
+}
+function saveDayData(y,m,day,d){
+  if(!Array.isArray(d)||day<1||day>kkTrendMonthDays(y,m))return false;
+  var date=kkTrendMonthValue(y*12+m-1)+'-'+String(day).padStart(2,'0');
+  var other=getData(y,m).filter(function(row){return kkTrendMonthDay(row.date,y,m)!==day;});
+  return saveData(other.concat(d.map(function(row){return Object.assign({},row,{date:date});})),y,m);
+}
+function calChangeMonth(d){_year=_calYear;_month=_calMonth;changeMonth(d);}
 function renderCalendar(){
   var lbl=_calYear+kkT("kk_js_year")+_calMonth+kkT("kk_js_month");
   var cl=document.getElementById('calMonthLabel');if(cl)cl.textContent=lbl;
-  var grid=document.getElementById('calGrid');if(!grid)return;
+  var grid=document.getElementById('calGrid');if(!grid||!_chartVisible(grid))return;
+  var monthRows=getData(_calYear,_calMonth),byDay=Object.create(null);
+  monthRows.forEach(function(row){var day=kkTrendMonthDay(row.date,_calYear,_calMonth);if(day!==null)(byDay[day]||(byDay[day]=[])).push(row);});
   var dnames=[kkT("kk_js_dow_sun"),kkT("kk_js_dow_mon"),kkT("kk_js_dow_tue"),kkT("kk_js_dow_wed"),kkT("kk_js_dow_thu"),kkT("kk_js_dow_fri"),kkT("kk_js_dow_sat")];
   var heads=dnames.map(function(d,i){return '<div class="cal-head'+(i===0?' sun':i===6?' sat':'')+'">'+ d+'</div>';}).join('');
   var firstDay=new Date(_calYear,_calMonth-1,1).getDay();
@@ -1335,7 +1450,7 @@ function renderCalendar(){
   var cells='';
   for(var i=0;i<firstDay;i++) cells+='<div class="cal-day empty"></div>';
   for(var dd=1;dd<=lastDate;dd++){
-    var dayData=getDayData(_calYear,_calMonth,dd);
+    var dayData=byDay[dd]||[];
     var isToday=today.getFullYear()===_calYear&&today.getMonth()+1===_calMonth&&today.getDate()===dd;
     var hasData=dayData.length>0;
     var totalExp=dayData.filter(function(e){return e.type==='exp';}).reduce(function(s,e){return s+e.amount;},0);
@@ -1344,10 +1459,13 @@ function renderCalendar(){
     cells+='<div class="'+cls+'" onclick="openDayModal('+_calYear+','+_calMonth+','+dd+')"><div class="cal-day-num">'+dd+'</div>'+(totalExp>0?'<div class="cal-day-total">-'+(totalExp>=10000?Math.floor(totalExp/10000)+kkT("kk_js_man"):totalExp)+'</div>':'')+'</div>';
   }
   grid.innerHTML=heads+cells;
-  var catTotals={};
-  for(var d2=1;d2<=lastDate;d2++){getDayData(_calYear,_calMonth,d2).filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catTotals[c]=(catTotals[c]||0)+e.amount;});}
+  var catTotals=Object.create(null);
+  monthRows.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catTotals[c]=(catTotals[c]||0)+e.amount;});
+  var undated=monthRows.filter(function(row){return kkTrendMonthDay(row.date,_calYear,_calMonth)===null;}).length,note=document.getElementById('kkCalUndatedNotice');
+  if(note){note.hidden=!undated;note.textContent=undated?kkT('kk_calendar_undated').replace('{count}',String(undated)):'';}
   var catEl=document.getElementById('calCatSummary');
-  if(catEl){var cats=Object.keys(catTotals);var total=cats.reduce(function(s,c){return s+catTotals[c];},0);catEl.innerHTML=cats.length===0?'<div class="empty-state">'+kkT("kk_empty_input_expense_to_see")+'</div>':'<div style="margin-bottom:12px;font-size:13px;font-weight:700;color:#1a3325">'+kkT("kk_js_total")+': '+fmt(total)+'</div>'+cats.sort(function(a,b){return catTotals[b]-catTotals[a];}).map(function(c){var pct=Math.round(catTotals[c]/total*100);var col=CAT_COLORS[c]||'#CED4DA';return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:#1a3325">'+kkCat(c)+'</span><span style="font-size:13px;font-weight:700;color:#e05050">'+fmt(catTotals[c])+'</span></div><div style="height:8px;background:var(--brand-haze);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width 0.4s"></div></div><div style="font-size:11px;color:#9ab5a5;margin-top:2px">'+pct+'%</div></div>';}).join('');}
+  if(catEl&&monthRows._kkUnreadable){catEl.textContent=kkT('kk_trend_unreadable');return;}
+  if(catEl){var cats=Object.keys(catTotals);var total=cats.reduce(function(s,c){return s+catTotals[c];},0);catEl.innerHTML=cats.length===0?'<div class="empty-state">'+kkT("kk_empty_input_expense_to_see")+'</div>':'<div style="margin-bottom:12px;font-size:13px;font-weight:700;color:#1a3325">'+kkT("kk_js_total")+': '+fmt(total)+'</div>'+cats.sort(function(a,b){return catTotals[b]-catTotals[a];}).map(function(c){var pct=Math.round(catTotals[c]/total*100);var col=CAT_COLORS[c]||'#CED4DA';return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:#1a3325">'+kkHtmlText(kkCat(c))+'</span><span style="font-size:13px;font-weight:700;color:#e05050">'+fmt(catTotals[c])+'</span></div><div style="height:8px;background:var(--brand-haze);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width 0.4s"></div></div><div style="font-size:11px;color:#9ab5a5;margin-top:2px">'+pct+'%</div></div>';}).join('');}
 }
 function openDayModal(y,m,day){_modalDate={y:y,m:m,day:day};var tEl=document.getElementById('modalDateTitle');if(tEl)tEl.textContent=y+kkT("kk_js_year")+m+kkT("kk_js_month")+day+kkT("kk_js_day");renderDayModal();var modal=document.getElementById('dayModal');if(modal)modal.classList.add('open');}
 function closeDayModal(e){if(e.target===document.getElementById('dayModal'))closeDayModalBtn();}
@@ -1359,74 +1477,28 @@ function addDayRecord(type){
   var cat=type==='inc'?'':document.getElementById(prefix+'-cat').value;
   var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);
   data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
-  saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);kkClearEntry(prefix);renderDayModal();
+  if(!saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data))return;kkClearEntry(prefix);renderAll();
 }
-function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
-function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
-
-renderAll();}
-function getDayKey(y,m,day){return 'kbday_'+y+'_'+(m<10?'0'+m:m)+'_'+(day<10?'0'+day:day);}
-function getDayData(y,m,day){return JSON.parse(localStorage.getItem(getDayKey(y,m,day))||'[]');}
-function saveDayData(y,m,day,d){localStorage.setItem(getDayKey(y,m,day),JSON.stringify(d));}
-function calChangeMonth(d){_calMonth+=d;if(_calMonth>12){_calMonth=1;_calYear++;}if(_calMonth<1){_calMonth=12;_calYear--;}renderCalendar();}
-function renderCalendar(){
-  var lbl=_calYear+kkT("kk_js_year")+_calMonth+kkT("kk_js_month");
-  var cl=document.getElementById('calMonthLabel');if(cl)cl.textContent=lbl;
-  var grid=document.getElementById('calGrid');if(!grid)return;
-  var dnames=[kkT("kk_js_dow_sun"),kkT("kk_js_dow_mon"),kkT("kk_js_dow_tue"),kkT("kk_js_dow_wed"),kkT("kk_js_dow_thu"),kkT("kk_js_dow_fri"),kkT("kk_js_dow_sat")];
-  var heads=dnames.map(function(d,i){return '<div class="cal-head'+(i===0?' sun':i===6?' sat':'')+'">'+ d+'</div>';}).join('');
-  var firstDay=new Date(_calYear,_calMonth-1,1).getDay();
-  var lastDate=new Date(_calYear,_calMonth,0).getDate();
-  var today=new Date();
-  var cells='';
-  for(var i=0;i<firstDay;i++) cells+='<div class="cal-day empty"></div>';
-  for(var dd=1;dd<=lastDate;dd++){
-    var dayData=getDayData(_calYear,_calMonth,dd);
-    var isToday=today.getFullYear()===_calYear&&today.getMonth()+1===_calMonth&&today.getDate()===dd;
-    var hasData=dayData.length>0;
-    var totalExp=dayData.filter(function(e){return e.type==='exp';}).reduce(function(s,e){return s+e.amount;},0);
-    var dow=(firstDay+dd-1)%7;
-    var cls='cal-day'+(isToday?' today':'')+(hasData?' has-data':'')+(dow===0?' sun':dow===6?' sat':'');
-    cells+='<div class="'+cls+'" onclick="openDayModal('+_calYear+','+_calMonth+','+dd+')"><div class="cal-day-num">'+dd+'</div>'+(totalExp>0?'<div class="cal-day-total">-'+(totalExp>=10000?Math.floor(totalExp/10000)+kkT("kk_js_man"):totalExp)+'</div>':'')+'</div>';
-  }
-  grid.innerHTML=heads+cells;
-  var catTotals={};
-  for(var d2=1;d2<=lastDate;d2++){getDayData(_calYear,_calMonth,d2).filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catTotals[c]=(catTotals[c]||0)+e.amount;});}
-  var catEl=document.getElementById('calCatSummary');
-  if(catEl){var cats=Object.keys(catTotals);var total=cats.reduce(function(s,c){return s+catTotals[c];},0);catEl.innerHTML=cats.length===0?'<div class="empty-state">'+kkT("kk_empty_input_expense_to_see")+'</div>':'<div style="margin-bottom:12px;font-size:13px;font-weight:700;color:#1a3325">'+kkT("kk_js_total")+': '+fmt(total)+'</div>'+cats.sort(function(a,b){return catTotals[b]-catTotals[a];}).map(function(c){var pct=Math.round(catTotals[c]/total*100);var col=CAT_COLORS[c]||'#CED4DA';return '<div style="margin-bottom:10px"><div style="display:flex;justify-content:space-between;margin-bottom:4px"><span style="font-size:13px;color:#1a3325">'+kkCat(c)+'</span><span style="font-size:13px;font-weight:700;color:#e05050">'+fmt(catTotals[c])+'</span></div><div style="height:8px;background:var(--brand-haze);border-radius:4px;overflow:hidden"><div style="height:100%;width:'+pct+'%;background:'+col+';border-radius:4px;transition:width 0.4s"></div></div><div style="font-size:11px;color:#9ab5a5;margin-top:2px">'+pct+'%</div></div>';}).join('');}
-}
-function openDayModal(y,m,day){_modalDate={y:y,m:m,day:day};var tEl=document.getElementById('modalDateTitle');if(tEl)tEl.textContent=y+kkT("kk_js_year")+m+kkT("kk_js_month")+day+kkT("kk_js_day");renderDayModal();var modal=document.getElementById('dayModal');if(modal)modal.classList.add('open');}
-function closeDayModal(e){if(e.target===document.getElementById('dayModal'))closeDayModalBtn();}
-function closeDayModalBtn(){var modal=document.getElementById('dayModal');if(modal)modal.classList.remove('open');renderCalendar();}
-function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t){var form=document.getElementById('modal-form-'+t);if(form)form.style.display=t===f?'':'none';var btn=document.getElementById('mft-'+t);if(btn)btn.className='type-tab'+(t===f?' sel-'+t:'');});}
-function addDayRecord(type){
-  if(!_modalDate||['inc','exp','inv'].indexOf(type)===-1)return;
-  var prefix='m-'+type,entry=kkReadEntry(prefix);if(!entry)return;
-  var cat=type==='inc'?'':document.getElementById(prefix+'-cat').value;
-  var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);
-  data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
-  saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);kkClearEntry(prefix);renderDayModal();
-}
-function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
-function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
+function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day),record=kkLedgerFind(data,id);if(record&&saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data.filter(function(e){return e._kkRef!==record._kkRef;})))renderAll();}
+function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+kkHtmlText(e.name)+'</div><div class="day-rec-cat">'+kkHtmlText(kkCat(sub))+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
 function switchTab(tab){var focusInput=tab==='cashflow',focusExpenses=tab==='dashboard';if(focusInput||focusExpenses)tab='home';document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);if(focusInput&&window.kkLayoutFocusInput)window.kkLayoutFocusInput();if(focusExpenses&&window.kkLayoutFocusExpenses)window.kkLayoutFocusExpenses();}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');btn.setAttribute('aria-pressed',String(t===f));});}
 function kkSetRecordDate(id,value,input){
   if(input&&input.validity&&input.validity.badInput){kkEntryError(input,'kk_entry_date_invalid');return false;}
   if(value!==''&&kkTrendMonthDay(value,_year,_month)===null){if(input)kkEntryError(input,'kk_entry_date_invalid');return false;}
-  var data=getData(),matches=data.filter(function(row){return row&&row.id===id;});
-  if(matches.length!==1)return false;
+  var data=getData(),record=kkLedgerFind(data,id);
+  if(!record)return false;
   if(input)kkClearEntryError(input);
-  if(value==='')delete matches[0].date;else matches[0].date=value;
-  saveData(data);renderAll();return true;
+  if(value===''){if(record._kkKey.indexOf('kbday_')===0)record.date='';else delete record.date;}else record.date=value;
+  if(!saveData(data))return false;renderAll();return true;
 }
 function kkRecordDateEdited(input){
-  var index=Number(input.getAttribute('data-kk-record-date')),data=getData();
-  if(Number.isInteger(index)&&index>=0&&data[index])kkSetRecordDate(data[index].id,input.value,input);
+  var ref=input.getAttribute('data-kk-record-ref');
+  if(ref)kkSetRecordDate(ref,input.value,input);
 }
 function kkRecordDateControl(row,index){
   var month=kkTrendMonthValue(_year*12+_month-1),date=kkTrendMonthDay(row.date,_year,_month)===null?'':row.date;
-  return '<label class="kk-record-date" for="kkRecordDate-'+index+'"><span>'+kkT('kk_entry_date')+'</span><input id="kkRecordDate-'+index+'" type="date" value="'+date+'" min="'+month+'-01" max="'+month+'-'+String(kkTrendMonthDays(_year,_month)).padStart(2,'0')+'" data-kk-record-date="'+index+'" oninput="kkClearEntryError(this)" onchange="kkRecordDateEdited(this)"></label>';
+  return '<label class="kk-record-date" for="kkRecordDate-'+index+'"><span>'+kkT('kk_entry_date')+'</span><input id="kkRecordDate-'+index+'" type="date" value="'+date+'" min="'+month+'-01" max="'+month+'-'+String(kkTrendMonthDays(_year,_month)).padStart(2,'0')+'" data-kk-record-date="'+index+'" data-kk-record-ref="'+kkHtmlText(row._kkRef)+'" oninput="kkClearEntryError(this)" onchange="kkRecordDateEdited(this)"></label>';
 }
 function addRecord(type){
   if(['inc','exp','inv','ast'].indexOf(type)===-1)return;
@@ -1440,9 +1512,9 @@ function addRecord(type){
   if(!dateInput||kkTrendMonthDay(dateInput.value,_year,_month)===null){if(dateInput){kkEntryError(dateInput,'kk_entry_date_invalid');dateInput.focus();}return;}
   kkClearEntryError(dateInput);
   var data=getData();data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount,date:dateInput.value});
-  saveData(data);kkClearEntry(type);renderAll();
+  if(!saveData(data))return;kkClearEntry(type);renderAll();
 }
-function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
+function deleteRecord(id){var data=getData(),record=kkLedgerFind(data,id);if(record&&saveData(data.filter(function(e){return e._kkRef!==record._kkRef;})))renderAll();}
 function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!==id;}));renderAll();}
 function kkTrendYen(value){
   if(typeof value!=='number'||!Number.isFinite(value))return '';
@@ -1459,45 +1531,46 @@ function kkTrendRender(){
 function renderAll(){
   kkEntryDateSync();
   kkTrendRender();
-  var data=getData(),assets=getAssets();
+  var data=getData(),assets=getAssets();kkLedgerShowNotice(data._kkUnreadable);
   var lbl=_year+kkT("kk_js_year")+_month+kkT("kk_js_month");
   ['monthLabel2','monthLabel3','monthLabel4','monthLabelGraph'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
   var totalInc=0,totalExp=0,totalInv=0;
   data.forEach(function(e){if(e.type==='inc')totalInc+=e.amount;else if(e.type==='exp')totalExp+=e.amount;else if(e.type==='inv')totalInv+=e.amount;});
   var balance=totalInc-totalExp-totalInv;
-  var di=document.getElementById('d-income');if(di)di.textContent=fmt(totalInc);
-  var de=document.getElementById('d-expense');if(de)de.textContent=fmt(totalExp);
-  var db=document.getElementById('d-balance');if(db){db.textContent=fmt(balance);db.className='sum-num '+(balance>=0?'teal':'red');}
-  var dv=document.getElementById('d-invest');if(dv)dv.textContent=fmt(totalInv);
+  var di=document.getElementById('d-income');if(di)di.textContent=data._kkUnreadable?'—':fmt(totalInc);
+  var de=document.getElementById('d-expense');if(de)de.textContent=data._kkUnreadable?'—':fmt(totalExp);
+  var db=document.getElementById('d-balance');if(db){db.textContent=data._kkUnreadable?'—':fmt(balance);db.className='sum-num '+(balance>=0?'teal':'red');}
+  var dv=document.getElementById('d-invest');if(dv)dv.textContent=data._kkUnreadable?'—':fmt(totalInv);
   var totalAst=assets.reduce(function(s,e){return s+e.amount;},0);
   var tv=document.getElementById('totalAssetVal');if(tv)tv.textContent=fmt(totalAst);
   var tc=document.getElementById('totalAssetChange');if(tc)tc.textContent=totalAst>0?kkT("kk_js_registered_asset")+assets.length+kkT("kk_js_items_balance")+fmt(balance):kkT("kk_pls_register_asset");
   var months=[],incArr=[],expArr=[],invArr=[];
-  for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+kkT("kk_js_month"));var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(a);expArr.push(b);invArr.push(c);}
+  for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+kkT("kk_js_month"));var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(d._kkUnreadable?null:a);expArr.push(d._kkUnreadable?null:b);invArr.push(d._kkUnreadable?null:c);}
   var bc=document.getElementById('barChart');
   _renderChart('barChart','bar',bc,{type:'bar',data:{labels:months,datasets:[{label:kkT("kk_js_income"),data:incArr,backgroundColor:'rgba(93,184,122,0.75)',borderRadius:6},{label:kkT("kk_js_expense"),data:expArr,backgroundColor:'rgba(224,80,80,0.7)',borderRadius:6},{label:kkT("kk_js_investment"),data:invArr,backgroundColor:'rgba(43,168,136,0.7)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
 
-  var catMap={};data.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catMap[c]=(catMap[c]||0)+e.amount;});
-  var dLabels=Object.keys(catMap),dVals=dLabels.map(function(c){return catMap[c];}),dColors=dLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
+  var catMap=Object.create(null);data.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catMap[c]=(catMap[c]||0)+e.amount;});
+  var dLabels=data._kkUnreadable?[]:Object.keys(catMap),dVals=dLabels.map(function(c){return catMap[c];}),dColors=dLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
   var dc=document.getElementById('donutChart');
   if(dc){
-    _chartEmpty(dc,kkT("kk_js_input_expense_to_chart"),dVals.length===0);
+    _chartEmpty(dc,kkT(data._kkUnreadable?'kk_trend_unreadable':'kk_js_input_expense_to_chart'),dVals.length===0);
     _renderChart('donutChart','donut',dc,dVals.length?{type:'pie',data:{labels:dLabels.map(kkCat),datasets:[{data:dVals,backgroundColor:dColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'65%'}}:null);
     var dl=document.getElementById('donut-legend');
-    if(dl){var total=dVals.reduce(function(a,b){return a+b;},0);dl.innerHTML=dLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+dColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkCat(c)+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(dVals[i]/total*100)+'%</span></div>';}).join('');}
+    if(dl){var total=dVals.reduce(function(a,b){return a+b;},0);dl.innerHTML=dLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+dColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkHtmlText(kkCat(c))+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(dVals[i]/total*100)+'%</span></div>';}).join('');}
   }
-  var astCatMap={};assets.forEach(function(a){var c=a.cat||'その他';astCatMap[c]=(astCatMap[c]||0)+a.amount;});
+  var astCatMap=Object.create(null);assets.forEach(function(a){var c=a.cat||'その他';astCatMap[c]=(astCatMap[c]||0)+a.amount;});
   var aLabels=Object.keys(astCatMap),aVals=aLabels.map(function(c){return astCatMap[c];}),aColors=aLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
   var pc=document.getElementById('assetPieChart');
   if(pc){
     _renderChart('assetPieChart','pie',pc,aVals.length?{type:'doughnut',data:{labels:aLabels.map(kkCat),datasets:[{data:aVals,backgroundColor:aColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'60%'}}:null);
     var al=document.getElementById('asset-legend');
-    if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aVals.length===0?'<div class="empty-state">'+kkT("kk_js_register_asset_to_chart")+'</div>':aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkCat(c)+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(aVals[i]/total2*100)+'%</span></div>';}).join('');}
+    if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aVals.length===0?'<div class="empty-state">'+kkT("kk_js_register_asset_to_chart")+'</div>':aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkHtmlText(kkCat(c))+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(aVals[i]/total2*100)+'%</span></div>';}).join('');}
   }
   var astEl=document.getElementById('asset-list-el');
   if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'<div class="empty-state">'+kkT("kk_empty_no_assets")+'</div>':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+a.name+'<br><span style="font-size:11px;color:#9ab5a5">'+a.cat+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+a.id+')">✕</button></div>';}).join('');}
   var recEl=document.getElementById('rec-list-el');
-  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+kkHtmlText(e.name)+'</div><div class="rec-meta">'+kkHtmlText(kkCat(sub))+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord('+e.id+')">✕</button></div>';}).join('');}
+  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+kkHtmlText(e.name)+'</div><div class="rec-meta">'+kkHtmlText(kkCat(sub))+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
+  renderCalendar();if(_modalDate)renderDayModal();
 }
 renderAll();
 renderCalendar();
@@ -1630,13 +1703,13 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
     var dateStr=document.getElementById('ocr-date').value;
     if(!dateStr){alertI('kk_ocr_need_date','\u65e5\u4ed8\u3092\u5165\u529b\u3057\u3066\u304f\u3060\u3055\u3044');return;}
     var parts=dateStr.split('-');var y=parseInt(parts[0]),m=parseInt(parts[1]),day=parseInt(parts[2]);
-    if(!y||!m||!day){alertI('kk_ocr_bad_date','\u65e5\u4ed8\u304c\u4e0d\u6b63\u3067\u3059');return;}
+    if(!y||kkTrendMonthDay(dateStr,y,m)===null){alertI('kk_ocr_bad_date','\u65e5\u4ed8\u304c\u4e0d\u6b63\u3067\u3059');return;}
     var store=(document.getElementById('ocr-store').value||'').trim();
     var items=_ocrData.items||[];var added=0;
     if(typeof getDayData!=='function'||typeof saveDayData!=='function'){alert('saveDayData not available');return;}
     var data=getDayData(y,m,day)||[];
     for(var i=0;i<items.length;i++){var it=items[i];var price=parseInt(it.price)||0;if(price<=0)continue;var nm=(it.name||'').trim();if(!nm)continue;var fullName=store?(nm+' ('+store+')'):nm;var cat=catLabel(it.category||'other');data.push({id:'ocr_'+Date.now()+'_'+i+'_'+Math.random().toString(36).slice(2,6),type:'exp',name:fullName,amount:price,cat:cat,t:Date.now()});added++;}
-    saveDayData(y,m,day,data);
+    if(saveDayData(y,m,day,data)===false)return;
     try{
       var assetSel=document.getElementById('ocr-asset');
       var assetId=assetSel?assetSel.value:'';
@@ -1657,80 +1730,108 @@ document.addEventListener('DOMContentLoaded', loadBrandColorK);
 })();
 </script>
 <script id="cat-stack-chart">(function(){
-  var _catStackChart=null;
-  var CAT_KEYS=['food','daily','hobby','transport','medical','other'];
-  var CAT_COLORS={food:'#e74c3c',daily:'#f39c12',hobby:'#9b59b6',transport:'#3498db',medical:'#1abc9c',other:'#95a5a6'};
-  function catLabel(c){try{return (typeof kkCat==='function')?kkCat(c):c;}catch(e){return c;}}
+  var chart=null;
+  var fallbackColors=['#e74c3c','#f39c12','#9b59b6','#3498db','#1abc9c','#95a5a6'];
+  function clear(){if(chart){try{chart.destroy();}catch(ignore){}chart=null;}}
   function renderCatStack(){
+    var canvas=document.getElementById('catStackChart');
+    if(!canvas||typeof Chart==='undefined'||!_chartVisible(canvas))return;
     try{
-      var canvas=document.getElementById('catStackChart');
-      if(!canvas||typeof Chart==='undefined'||!_chartVisible(canvas))return;
-      var now=new Date();var months=[];var labels=[];
-      for(var i=5;i>=0;i--){var d=new Date(now.getFullYear(),now.getMonth()-i,1);months.push({y:d.getFullYear(),m:d.getMonth()+1});labels.push(d.getFullYear()+'/'+(d.getMonth()+1));}
-      var perCat={};CAT_KEYS.forEach(function(k){perCat[k]=new Array(6).fill(0);});
-      months.forEach(function(ym,idx){
-        var daysIn=new Date(ym.y,ym.m,0).getDate();
-        for(var dd=1;dd<=daysIn;dd++){
-          var key='kbday_'+ym.y+'_'+(ym.m<10?'0'+ym.m:ym.m)+'_'+(dd<10?'0'+dd:dd);
-          var raw=localStorage.getItem(key);if(!raw)continue;
-          try{var arr=JSON.parse(raw)||[];arr.forEach(function(e){if(e.type==='exp'){var c=e.cat;if(CAT_KEYS.indexOf(c)<0)c='other';perCat[c][idx]+=(Number(e.amount)||0);}});}catch(e){}
-        }
+      var labels=[],perCat=Object.create(null),categories=[];
+      for(var index=0;index<6;index++){
+        var serial=_year*12+_month-1-(5-index),year=Math.floor(serial/12),month=serial%12+1;
+        labels.push(year+'/'+String(month).padStart(2,'0'));
+        var records=year<1?[]:getData(year,month);
+        if(!Array.isArray(records)||records._kkUnreadable)throw new Error('category_history_unavailable');
+        records.forEach(function(row){
+          if(!row||row.type!=='exp')return;
+          if(typeof row.amount!=='number'||!Number.isFinite(row.amount))throw new Error('category_history_unavailable');
+          var category=typeof row.cat==='string'&&row.cat?row.cat:'その他';
+          if(!Object.prototype.hasOwnProperty.call(perCat,category)){
+            categories.push(category);perCat[category]=[0,0,0,0,0,0];
+          }
+          perCat[category][index]+=row.amount;
+          if(!Number.isFinite(perCat[category][index]))throw new Error('category_history_unavailable');
+        });
+      }
+      var datasets=categories.map(function(category,index){
+        var known=typeof CAT_COLORS==='object'&&CAT_COLORS&&Object.prototype.hasOwnProperty.call(CAT_COLORS,category)?CAT_COLORS[category]:null;
+        return {label:typeof kkCat==='function'?kkCat(category):category,data:perCat[category],backgroundColor:typeof known==='string'?known:fallbackColors[index%fallbackColors.length]};
       });
-      var datasets=CAT_KEYS.map(function(k){return {label:catLabel(k),data:perCat[k],backgroundColor:CAT_COLORS[k]};});
-      var hasData=datasets.some(function(d){return d.data.some(function(v){return v>0;});});
-      if(_catStackChart){try{_catStackChart.destroy();}catch(e){}_catStackChart=null;}
-      if(!hasData)return;
-      _catStackChart=new Chart(canvas.getContext('2d'),{type:'bar',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom'}}}});
-    }catch(e){console.warn('catStack err',e);}
+      clear();
+      if(!datasets.some(function(dataset){return dataset.data.some(function(value){return value!==0;});}))return;
+      chart=new Chart(canvas.getContext('2d'),{type:'bar',data:{labels:labels,datasets:datasets},options:{responsive:true,maintainAspectRatio:false,scales:{x:{stacked:true},y:{stacked:true,beginAtZero:true}},plugins:{legend:{position:'bottom'}}}});
+    }catch(ignore){clear();}
   }
   function hookRender(){
-    if(typeof window.renderAll==='function' && !window._origRenderAll){
+    if(typeof window.renderAll==='function'&&!window._origRenderAll){
       window._origRenderAll=window.renderAll;
-      window.renderAll=function(){try{window._origRenderAll.apply(this,arguments);}catch(e){}renderCatStack();};
-      try{renderCatStack();}catch(e){}
+      window.renderAll=function(){try{window._origRenderAll.apply(this,arguments);}catch(ignore){}renderCatStack();};
+      renderCatStack();
     }else{setTimeout(hookRender,500);}
   }
-  if(document.readyState==='complete'||document.readyState==='interactive'){setTimeout(hookRender,300);}else{document.addEventListener('DOMContentLoaded',function(){setTimeout(hookRender,300);});}
-})();</script>
+  if(document.readyState==='complete'||document.readyState==='interactive')setTimeout(hookRender,300);
+  else document.addEventListener('DOMContentLoaded',function(){setTimeout(hookRender,300);});
+})();
+</script>
 <script id="export-data">(function(){
-  window.kkExportData=function(fmt){
+  window.kkExportData=function(format){
     try{
-      var assets=[];try{assets=JSON.parse(localStorage.getItem('kb2_assets')||'[]');}catch(e){}
-      var records=[];
-      var now=new Date();
-      for(var i=24;i>=0;i--){
-        var d=new Date(now.getFullYear(),now.getMonth()-i,1);
-        var daysIn=new Date(d.getFullYear(),d.getMonth()+1,0).getDate();
-        for(var dd=1;dd<=daysIn;dd++){
-          var key='kbday_'+d.getFullYear()+'_'+((d.getMonth()+1)<10?'0'+(d.getMonth()+1):(d.getMonth()+1))+'_'+(dd<10?'0'+dd:dd);
-          var raw=localStorage.getItem(key);if(!raw)continue;
-          try{var arr=JSON.parse(raw)||[];arr.forEach(function(e){records.push({date:d.getFullYear()+'-'+((d.getMonth()+1)<10?'0'+(d.getMonth()+1):(d.getMonth()+1))+'-'+(dd<10?'0'+dd:dd),type:e.type||'',name:e.name||'',amount:Number(e.amount)||0,category:e.cat||'',id:e.id||''});});}catch(e){}
-        }
-      }
-      var ts=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
-      var blob,fname;
-      if(fmt==='json'){
-        var out={exported_at:new Date().toISOString(),assets:assets,records:records,total_records:records.length};
-        blob=new Blob([JSON.stringify(out,null,2)],{type:'application/json'});
-        fname='kakeibo_'+ts+'.json';
+      var assets=[];try{assets=JSON.parse(localStorage.getItem('kb2_assets')||'[]');}catch(ignore){}
+      if(typeof kkLedgerAllRecords!=='function')throw new Error('ledger_export_unavailable');
+      var all=kkLedgerAllRecords();
+      if(!Array.isArray(all))throw new Error('ledger_export_unavailable');
+      var records=all.map(function(row){
+        if(!row||typeof row.amount!=='number'||!Number.isFinite(row.amount)||typeof row.month!=='string'||!/^\d{4}-(0[1-9]|1[0-2])$/.test(row.month))throw new Error('ledger_export_unavailable');
+        return {month:row.month,date:typeof row.date==='string'?row.date:'',type:row.type||'',name:row.name||'',amount:row.amount,category:row.cat||'',id:row.id==null?'':row.id};
+      });
+      var timestamp=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-'),blob,filename;
+      if(format==='json'){
+        blob=new Blob([JSON.stringify({exported_at:new Date().toISOString(),assets:assets,records:records,total_records:records.length},null,2)],{type:'application/json'});
+        filename='kakeibo_'+timestamp+'.json';
       }else{
-        var csvLines=['date,type,name,amount,category,id'];
-        records.forEach(function(r){
-          var line=[r.date,r.type,'"'+(r.name||'').replace(/"/g,'""')+'"',r.amount,'"'+(r.category||'').replace(/"/g,'""')+'"',r.id].join(',');
-          csvLines.push(line);
-        });
-        csvLines.push('');csvLines.push('# Assets');csvLines.push('id,name,type,amount');
-        assets.forEach(function(a){csvLines.push([a.id,'"'+(a.name||'').replace(/"/g,'""')+'"',a.type||'',Number(a.amount)||0].join(','));});
-        var csv='\uFEFF'+csvLines.join('\n');
-        blob=new Blob([csv],{type:'text/csv;charset=utf-8'});
-        fname='kakeibo_'+ts+'.csv';
+        function quote(value){return '"'+String(value==null?'':value).replace(/"/g,'""')+'"';}
+        var lines=['month,date,type,name,amount,category,id'];
+        records.forEach(function(row){lines.push([quote(row.month),quote(row.date),quote(row.type),quote(row.name),row.amount,quote(row.category),quote(row.id)].join(','));});
+        lines.push('');lines.push('# Assets');lines.push('id,name,type,amount');
+        assets.forEach(function(asset){lines.push([quote(asset.id),quote(asset.name),quote(asset.type),Number(asset.amount)||0].join(','));});
+        blob=new Blob(['\uFEFF'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
+        filename='kakeibo_'+timestamp+'.csv';
       }
-      var url=URL.createObjectURL(blob);
-      var a=document.createElement('a');a.href=url;a.download=fname;document.body.appendChild(a);a.click();setTimeout(function(){URL.revokeObjectURL(url);try{a.remove();}catch(e){}},100);
-    }catch(err){alert('Export failed: '+err.message);}
+      var url=URL.createObjectURL(blob),anchor=document.createElement('a');
+      anchor.href=url;anchor.download=filename;document.body.appendChild(anchor);anchor.click();
+      setTimeout(function(){URL.revokeObjectURL(url);try{anchor.remove();}catch(ignore){}},100);
+    }catch(ignore){alert(typeof kkT==='function'?kkT('kk_alert_export_failed'):'Export failed');}
   };
-})();</script>
-<script id="ai-advice-feature">window.kkAiAdvice=function(){try{var lang=(localStorage.getItem('kk_lang')||'ja').toLowerCase();var assets=[];try{assets=JSON.parse(localStorage.getItem('kb2_assets')||'[]');}catch(e){}var today=new Date();var byCat={};var byType={income:0,expense:0};var daysWithData=0;var recordCount=0;var monthly={};for(var i=0;i<30;i++){var d=new Date(today.getTime()-i*86400000);var key='kbday_'+d.getFullYear()+'_'+String(d.getMonth()+1).padStart(2,'0')+'_'+String(d.getDate()).padStart(2,'0');var raw=localStorage.getItem(key);if(!raw)continue;try{var data=JSON.parse(raw);if(data&&data.items&&data.items.length){daysWithData++;var ym=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0');if(!monthly[ym])monthly[ym]={income:0,expense:0};data.items.forEach(function(it){var amt=Number(it.amount)||0;var typ=it.type||'expense';byType[typ]=(byType[typ]||0)+amt;monthly[ym][typ]=(monthly[ym][typ]||0)+amt;recordCount++;if(typ==='expense'){var cat=it.category||'その他';byCat[cat]=(byCat[cat]||0)+amt;}});}}catch(e){}}var totalAssets=0;assets.forEach(function(a){totalAssets+=(Number(a.amount)||0);});var summary={lang:lang,period_days:30,days_with_data:daysWithData,record_count:recordCount,total_income:byType.income,total_expense:byType.expense,balance:byType.income-byType.expense,monthly:monthly,categories:byCat,total_assets:totalAssets,assets_count:assets.length,currency:lang==='en'?'USD':lang==='zh'?'CNY':lang==='ko'?'KRW':'JPY'};if(recordCount<3){alert(window.I18N&&window.I18N[lang]&&window.I18N[lang].kk_ai_no_data||'データ不足');return;}var modal=document.createElement('div');modal.id='kk-ai-modal';modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';var L=(window.I18N&&window.I18N[lang])||{};modal.innerHTML='<div class="kk-advice-panel" style="background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.3);"><div class="kk-advice-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h2 style="margin:0;font-size:20px;color:#2d7a4f;">'+(L.kk_ai_title||'🤖 AI家計アドバイス')+'</h2><button class="kk-advice-close" onclick="document.getElementById(\'kk-ai-modal\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888;">×</button></div><div id="kk-ai-body" style="text-align:center;padding:40px 20px;color:#666;">⏳ '+(L.kk_ai_loading||'分析中...')+'</div></div>';document.body.appendChild(modal);fetch('/api/ai-advice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lang:lang,summary:summary})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(res){var body=document.getElementById('kk-ai-body');if(!body)return;if(!res.ok||!res.j||!res.j.ok){if(res.j&&res.j.error==='monthly_limit'){body.innerHTML='<div class="kk-advice-error" style="padding:20px;color:#e74c3c;">'+(L.kk_ai_limit||'利用上限')+'</div>';return;}body.innerHTML='<div class="kk-advice-error" style="padding:20px;color:#e74c3c;">Error: '+((res.j&&res.j.error)||'unknown')+'</div>';return;}var d=res.j.data||{};var score=Math.max(0,Math.min(100,Number(d.score)||50));var scoreColor=score>=70?'#27ae60':score>=40?'#f39c12':'#e74c3c';var tipsHtml=(d.savings_tips||[]).map(function(t){return '<li style="margin:6px 0;">'+String(t).replace(/[<>]/g,'')+'</li>';}).join('');body.style.textAlign='left';body.style.padding='0';body.innerHTML='<div class="kk-advice-score" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:16px;border-radius:12px;margin-bottom:14px;text-align:center;"><div style="font-size:13px;opacity:0.9;">'+(L.kk_ai_score||'スコア')+'</div><div class="kk-advice-score-number" style="font-size:42px;font-weight:800;color:'+scoreColor+';background:#fff;border-radius:50%;width:90px;height:90px;line-height:90px;margin:8px auto;">'+score+'</div></div><div class="kk-advice-section" style="margin:14px 0;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📝 '+(L.kk_ai_summary||'概要')+'</div><div class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;">'+String(d.summary||'').replace(/[<>]/g,'')+'</div></div><div class="kk-advice-section" style="margin:14px 0;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📈 '+(L.kk_ai_trend||'傾向')+'</div><div class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;">'+String(d.trend||'').replace(/[<>]/g,'')+'</div></div><div class="kk-advice-section" style="margin:14px 0;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">💡 '+(L.kk_ai_tips||'アドバイス')+'</div><ul class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;padding-left:20px;margin:0;">'+tipsHtml+'</ul></div><div class="kk-advice-investment" style="margin:14px 0;background:#f0f8f4;padding:12px;border-radius:10px;border-left:4px solid #2d7a4f;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📈 '+(L.kk_ai_invest||'投資')+'</div><div class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;">'+String(d.investment_advice||'').replace(/[<>]/g,'')+'</div></div><div class="kk-advice-usage" style="text-align:center;margin-top:16px;font-size:12px;color:#888;">'+(res.j.usage||0)+' / '+(res.j.limit||20)+'</div><div style="text-align:center;margin-top:12px;"><button class="kk-advice-close" onclick="document.getElementById(\'kk-ai-modal\').remove()" style="background:#2d7a4f;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-weight:700;cursor:pointer;">'+(L.kk_ai_close||'閉じる')+'</button></div>';}).catch(function(err){var body=document.getElementById('kk-ai-body');if(body){body.innerHTML='<div class="kk-advice-error" style="padding:20px;color:#e74c3c;">Network error</div>';}});}catch(err){console.error('kkAiAdvice error',err);alert('Error: '+err.message);}};</script>
+})();
+</script>
+<script id="ai-advice-feature">window.kkAiAdvice=function(){try{
+  var lang=(localStorage.getItem('kk_lang')||'ja').toLowerCase();
+  var assets=[];try{assets=JSON.parse(localStorage.getItem('kb2_assets')||'[]');}catch(ignore){}
+  var today=new Date(),byCat=Object.create(null),byType={income:0,expense:0};
+  var daysWithData=0,recordCount=0,monthly=Object.create(null);
+  for(var i=0;i<30;i++){
+    var date=new Date(today.getFullYear(),today.getMonth(),today.getDate()-i);
+    var rows=getDayData(date.getFullYear(),date.getMonth()+1,date.getDate());
+    if(!Array.isArray(rows)||rows._kkUnreadable)throw new Error('ledger_advice_data_unavailable');
+    var yearMonth=date.getFullYear()+'-'+String(date.getMonth()+1).padStart(2,'0'),hasRecords=false;
+    rows.forEach(function(row){
+      if(!row||(row.type!=='inc'&&row.type!=='exp'))return;
+      if(typeof row.amount!=='number'||!Number.isFinite(row.amount))throw new Error('ledger_advice_data_unavailable');
+      var kind=row.type==='inc'?'income':'expense',amount=row.amount;
+      if(!monthly[yearMonth])monthly[yearMonth]={income:0,expense:0};
+      byType[kind]+=amount;monthly[yearMonth][kind]+=amount;recordCount++;hasRecords=true;
+      if(row.type==='exp'){
+        var category=typeof row.cat==='string'&&row.cat?row.cat:'その他';
+        byCat[category]=(byCat[category]||0)+amount;
+        if(!Number.isFinite(byCat[category]))throw new Error('ledger_advice_data_unavailable');
+      }
+      if(!Number.isFinite(byType[kind])||!Number.isFinite(monthly[yearMonth][kind]))throw new Error('ledger_advice_data_unavailable');
+    });
+    if(hasRecords)daysWithData++;
+  }
+  var totalAssets=0;assets.forEach(function(a){totalAssets+=(Number(a.amount)||0);});var summary={lang:lang,period_days:30,days_with_data:daysWithData,record_count:recordCount,total_income:byType.income,total_expense:byType.expense,balance:byType.income-byType.expense,monthly:monthly,categories:byCat,total_assets:totalAssets,assets_count:assets.length,currency:'JPY'};if(recordCount<3){alert(window.I18N&&window.I18N[lang]&&window.I18N[lang].kk_ai_no_data||'データ不足');return;}var modal=document.createElement('div');modal.id='kk-ai-modal';modal.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';var L=(window.I18N&&window.I18N[lang])||{};modal.innerHTML='<div class="kk-advice-panel" style="background:#fff;border-radius:18px;max-width:520px;width:100%;max-height:90vh;overflow:auto;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,0.3);"><div class="kk-advice-head" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;"><h2 style="margin:0;font-size:20px;color:#2d7a4f;">'+(L.kk_ai_title||'🤖 AI家計アドバイス')+'</h2><button class="kk-advice-close" onclick="document.getElementById(\'kk-ai-modal\').remove()" style="background:none;border:none;font-size:24px;cursor:pointer;color:#888;">×</button></div><div id="kk-ai-body" style="text-align:center;padding:40px 20px;color:#666;">⏳ '+(L.kk_ai_loading||'分析中...')+'</div></div>';document.body.appendChild(modal);fetch('/api/ai-advice',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({lang:lang,summary:summary})}).then(function(r){return r.json().then(function(j){return{ok:r.ok,j:j};});}).then(function(res){var body=document.getElementById('kk-ai-body');if(!body)return;if(!res.ok||!res.j||!res.j.ok){if(res.j&&res.j.error==='monthly_limit'){body.innerHTML='<div class="kk-advice-error" style="padding:20px;color:#e74c3c;">'+(L.kk_ai_limit||'利用上限')+'</div>';return;}body.innerHTML='<div class="kk-advice-error" style="padding:20px;color:#e74c3c;">Error: '+((res.j&&res.j.error)||'unknown')+'</div>';return;}var d=res.j.data||{};var score=Math.max(0,Math.min(100,Number(d.score)||50));var scoreColor=score>=70?'#27ae60':score>=40?'#f39c12':'#e74c3c';var tipsHtml=(d.savings_tips||[]).map(function(t){return '<li style="margin:6px 0;">'+String(t).replace(/[<>]/g,'')+'</li>';}).join('');body.style.textAlign='left';body.style.padding='0';body.innerHTML='<div class="kk-advice-score" style="background:linear-gradient(135deg,#9b59b6,#8e44ad);color:#fff;padding:16px;border-radius:12px;margin-bottom:14px;text-align:center;"><div style="font-size:13px;opacity:0.9;">'+(L.kk_ai_score||'スコア')+'</div><div class="kk-advice-score-number" style="font-size:42px;font-weight:800;color:'+scoreColor+';background:#fff;border-radius:50%;width:90px;height:90px;line-height:90px;margin:8px auto;">'+score+'</div></div><div class="kk-advice-section" style="margin:14px 0;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📝 '+(L.kk_ai_summary||'概要')+'</div><div class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;">'+String(d.summary||'').replace(/[<>]/g,'')+'</div></div><div class="kk-advice-section" style="margin:14px 0;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📈 '+(L.kk_ai_trend||'傾向')+'</div><div class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;">'+String(d.trend||'').replace(/[<>]/g,'')+'</div></div><div class="kk-advice-section" style="margin:14px 0;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">💡 '+(L.kk_ai_tips||'アドバイス')+'</div><ul class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;padding-left:20px;margin:0;">'+tipsHtml+'</ul></div><div class="kk-advice-investment" style="margin:14px 0;background:#f0f8f4;padding:12px;border-radius:10px;border-left:4px solid #2d7a4f;"><div class="kk-advice-heading" style="font-weight:700;color:#2d7a4f;margin-bottom:6px;">📈 '+(L.kk_ai_invest||'投資')+'</div><div class="kk-advice-text" style="color:#444;font-size:14px;line-height:1.6;">'+String(d.investment_advice||'').replace(/[<>]/g,'')+'</div></div><div class="kk-advice-usage" style="text-align:center;margin-top:16px;font-size:12px;color:#888;">'+(res.j.usage||0)+' / '+(res.j.limit||20)+'</div><div style="text-align:center;margin-top:12px;"><button class="kk-advice-close" onclick="document.getElementById(\'kk-ai-modal\').remove()" style="background:#2d7a4f;color:#fff;border:none;border-radius:10px;padding:10px 24px;font-weight:700;cursor:pointer;">'+(L.kk_ai_close||'閉じる')+'</button></div>';}).catch(function(err){var body=document.getElementById('kk-ai-body');if(body){body.innerHTML='<div class="kk-advice-error" style="padding:20px;color:#e74c3c;">Network error</div>';}});}catch(err){console.error('kkAiAdvice error',err);alert('Error: '+err.message);}};
+</script>
   <!-- メール転送連携 -->
   <section id="mailSection" style="display:none;max-width:680px;margin:24px auto;padding:18px;background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,.05);font-family:system-ui,-apple-system,sans-serif">
     <h2 style="margin:0 0 12px;font-size:18px;color:#222">📨 メール転送で出費を自動取り込み</h2>

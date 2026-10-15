@@ -86,7 +86,8 @@ test('legacy input and graph links open home and keep the monthly draft, selecte
 test('summary, list, calendar and editable records initialize even when graph loading never completes',()=>{
   const h=fixture({[monthKey]:JSON.stringify(records)});h.core();
   assert.equal(h.nodes.get('d-income').textContent,'¥50,000');assert.equal(h.nodes.get('d-expense').textContent,'¥1,200');assert.equal(h.nodes.get('d-balance').textContent,'¥48,800');
-  assert.match(h.nodes.get('rec-list-el').innerHTML,/架空の支出/);assert.match(h.nodes.get('calGrid').innerHTML,/cal-day/);
+  assert.match(h.nodes.get('rec-list-el').innerHTML,/架空の支出/);assert.equal(h.nodes.get('calGrid').innerHTML,'','hidden calendar waits until opened');
+  h.context.switchTab('calendar');assert.match(h.nodes.get('calGrid').innerHTML,/cal-day/);h.context.switchTab('home');
   assert.equal(h.document.documentElement.getAttribute('data-kn-ledger-ready'),'true');
   assert.deepEqual(JSON.parse(JSON.stringify(h.messages)),[{data:{type:'kn-kakeibo-ready'},origin:'https://example.test'}]);
   h.nodes.get('exp-amount').value='800';h.nodes.get('exp-cat').value='食費';h.context.addRecord('exp');
@@ -186,21 +187,22 @@ test('asset allocation is created on its first tab visit and a revealed legacy b
   h.context.localStorage.setItem('kb2_assets','[]');h.context.renderAll();
   assert.ok(h.destroyed.includes(pie));assert.equal(h.active.has('assetPieChart'),false,'empty assets invalidate a retained chart even when its tab is inactive');
 });
-test('a hidden category history performs no daily reads and its original six-month aggregation still works when revealed',()=>{
+test('hidden category history adds no reads while the revealed history aggregates both entry sources and literal categories',()=>{
   const dayKey='kbday_'+now.getFullYear()+'_'+String(now.getMonth()+1).padStart(2,'0')+'_01';
   const h=chartFixture({[monthKey]:JSON.stringify(records),[dayKey]:JSON.stringify([
     {type:'exp',cat:'food',amount:100},{type:'exp',cat:'食費',amount:200},{type:'inc',cat:'food',amount:900}
   ])});
   const read=h.context.localStorage.getItem;let dailyReads=0;
   h.context.localStorage.getItem=key=>{if(key.startsWith('kbday_'))dailyReads++;return read(key);};
+  h.context.renderAll();const baselineReads=dailyReads;dailyReads=0;
   h.document.readyState='interactive';h.context.setTimeout=fn=>{fn();return 1;};
   vm.runInNewContext(html.match(/<script id="cat-stack-chart">([\s\S]*?)<\/script>/)[1],h.context);
-  h.context.renderAll();assert.equal(dailyReads,0);assert.equal(h.active.has('catStackChart'),false);
+  h.context.renderAll();assert.equal(dailyReads,baselineReads);assert.equal(h.active.has('catStackChart'),false);
   const canvas=h.nodes.get('catStackChart');canvas.parentElement.parentElement.style.display='';h.context.renderAll();
-  const expectedDays=Array.from({length:6},(_,i)=>new Date(now.getFullYear(),now.getMonth()-i+1,0).getDate()).reduce((a,b)=>a+b,0);
-  assert.equal(dailyReads,expectedDays);const chart=h.active.get('catStackChart');assert.ok(chart);
+  assert.ok(dailyReads<=baselineReads*2+1,'only present daily buckets are read, without probing every empty day');const chart=h.active.get('catStackChart');assert.ok(chart);
   assert.equal(chart.data.labels.length,6);assert.equal(chart.data.datasets.find(d=>d.label==='food').data.at(-1),100);
-  assert.equal(chart.data.datasets.find(d=>d.label==='other').data.at(-1),200,'existing category fallback is preserved; monthly rows are not mixed in');
+  assert.equal(chart.data.datasets.find(d=>d.label==='食費').data.at(-1),1400,'monthly and daily expenses retain their category');
+  assert.equal(h.nodes.get('d-expense').textContent,'¥1,500');assert.equal(h.nodes.get('d-income').textContent,'¥50,900');
 });
 test('retired worker cleanup never registers or navigates and is safe when absent or rejected',async()=>{
   const source=html.match(/<script id="sw-register">([\s\S]*?)<\/script>/)[1];
