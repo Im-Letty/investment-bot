@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-investmentcats1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-expensepiggy1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-investmentcats1"></script>
@@ -304,7 +304,7 @@ body{padding-bottom:24px;}
   <span id="monthLabelGraph" hidden></span>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
-  <div class="card"><h2 class="card-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title data-i18n="kk_card_pie_expense">🥧 今月の支出内訳</h2><div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart"></canvas></div><div id="donut-legend"></div></div></div>
+  <div class="card"><h2 class="card-title kk-expense-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title><img class="kk-expense-illustration" src="/static/kakeibo-expense-piggy-20261016.webp" width="44" height="44" alt="" aria-hidden="true" decoding="async"><span data-i18n="kk_card_pie_expense">今月の支出内訳</span></h2><div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart"></canvas></div><div id="donut-legend"></div></div></div>
 </section>
   <div class="card kk-home-trend">
     <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><label class="kk-trend-period"><span data-i18n="kk_trend_period">表示期間</span><select id="kkTrendPeriod" onchange="kkTrendSetPeriod(this.value)"><option value="all" selected data-i18n="kk_trend_all">全期間</option><option value="1" data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select></label></div>
@@ -438,7 +438,7 @@ var KK_I18N = {
     kk_sum_balance: "📊 収支残",
     kk_sum_invest: "📈 今月投資",
     kk_card_bar6mo: "📊 月別収支グラフ（過去6ヶ月）",
-    kk_card_pie_expense: "🥧 今月の支出内訳",
+    kk_card_pie_expense: "今月の支出内訳",
     kk_card_line_trend: "📈 収支推移（折れ線グラフ）",
     kk_card_register_asset: "🏦 資産を登録",
     kk_card_asset_pie: "🥧 資産配分グラフ",
@@ -596,7 +596,7 @@ var KK_I18N = {
     kk_sum_balance: "📊 Net Balance",
     kk_sum_invest: "📈 This Month's Investment",
     kk_card_bar6mo: "📊 Monthly Cash Flow (Last 6 Months)",
-    kk_card_pie_expense: "🥧 This Month's Expense Breakdown",
+    kk_card_pie_expense: "This Month's Expense Breakdown",
     kk_card_line_trend: "📈 Cash Flow Trend (Line Chart)",
     kk_card_register_asset: "🏦 Register Assets",
     kk_card_asset_pie: "🥧 Asset Allocation Chart",
@@ -754,7 +754,7 @@ var KK_I18N = {
     kk_sum_balance: "📊 수지 잔액",
     kk_sum_invest: "📈 이번 달 투자",
     kk_card_bar6mo: "📊 월별 수지 그래프 (최근 6개월)",
-    kk_card_pie_expense: "🥧 이번 달 지출 내역",
+    kk_card_pie_expense: "이번 달 지출 내역",
     kk_card_line_trend: "📈 수지 추이 (꺾은선 그래프)",
     kk_card_register_asset: "🏦 자산 등록",
     kk_card_asset_pie: "🥧 자산 배분 그래프",
@@ -912,7 +912,7 @@ var KK_I18N = {
     kk_sum_balance: "📊 收支余额",
     kk_sum_invest: "📈 本月投资",
     kk_card_bar6mo: "📊 月度收支图表（近6个月）",
-    kk_card_pie_expense: "🥧 本月支出明细",
+    kk_card_pie_expense: "本月支出明细",
     kk_card_line_trend: "📈 收支趋势（折线图）",
     kk_card_register_asset: "🏦 登记资产",
     kk_card_asset_pie: "🥧 资产配置图",

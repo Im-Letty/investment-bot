@@ -175,6 +175,9 @@ body.kn-ledger-letter.kn-ledger-paper .kk-home-trend {
 }
 body.kn-ledger-letter.kn-ledger-paper .kk-home-trend .card-title {margin-bottom:14px;font-size:calc(15px * var(--kn-ledger-scale,1))}
 body.kn-ledger-paper .kk-home-trend .kk-layout-note {margin-top:12px}
+body.kn-ledger-paper .kk-expense-title {display:flex;align-items:center;gap:10px}
+body.kn-ledger-paper .kk-expense-illustration {flex:0 0 44px;width:44px;height:44px;object-fit:contain}
+body.kn-ledger-paper .kk-expense-title span {min-width:0;overflow-wrap:anywhere}
 body.kn-ledger-paper .kk-expense-chart {display:flex;gap:20px;align-items:center}
 body.kn-ledger-paper .kk-expense-canvas {flex:0 0 160px;width:160px;max-width:100%}
 body.kn-ledger-paper #donut-legend {flex:1;min-width:0;font-size:calc(12px * var(--kn-ledger-scale,1))}
