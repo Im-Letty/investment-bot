@@ -23,10 +23,26 @@ function fixture(initial={},embedded=true){
     if(node.tagName==='CANVAS')node.parentElement=element();
     nodes.set(node.id,node);
   }
-  const document={readyState:'loading',documentElement:element('html'),body:element('body'),head:{appendChild:n=>scripts.push(n)},getElementById:id=>nodes.get(id)||null,
-    createElement:tag=>element(tag),querySelectorAll:selector=>selector==='canvas'?[...nodes.values()].filter(n=>n.tagName==='CANVAS'):[],
+  // Use the actual static ancestry: inactive panes and the two hidden legacy
+  // cards must remain hidden in this fixture, just as they do in the browser.
+  const allNodes=[],stack=[],voidTags=new Set(['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr']);
+  const markup=html.replace(/<script\b[\s\S]*?<\/script>/gi,'').replace(/<style\b[\s\S]*?<\/style>/gi,'');
+  for(const match of markup.matchAll(/<(\/?)([a-z][\w-]*)\b([^>]*)>/gi)){
+    const tag=match[2].toLowerCase();
+    if(match[1]){for(let i=stack.length-1;i>=0;i--)if(stack[i].tagName===tag.toUpperCase()){stack.length=i;break;}continue;}
+    const attrs=match[3],id=attrs.match(/\bid="([^"]+)"/)?.[1]||'',node=nodes.get(id)||element(tag,id);
+    node.children=[];node.className=attrs.match(/\bclass="([^"]*)"/)?.[1]||'';
+    for(const name of node.className.split(/\s+/).filter(Boolean))node.classList.add(name);
+    node.hidden=/(?:^|\s)hidden(?:\s|=|$)/.test(attrs);
+    node.style.display=attrs.match(/\bstyle="[^"]*\bdisplay\s*:\s*([^;"\s]+)/)?.[1]||'';
+    if(stack.length)stack.at(-1).appendChild(node);allNodes.push(node);
+    if(id)nodes.set(id,node);
+    if(!voidTags.has(tag)&&!attrs.trimEnd().endsWith('/'))stack.push(node);
+  }
+  const document={readyState:'loading',documentElement:allNodes.find(n=>n.tagName==='HTML'),body:allNodes.find(n=>n.tagName==='BODY'),head:{appendChild:n=>scripts.push(n)},getElementById:id=>nodes.get(id)||null,
+    createElement:tag=>element(tag),querySelectorAll:selector=>selector==='canvas'?[...nodes.values()].filter(n=>n.tagName==='CANVAS'):['.tab-content','.tn-item'].includes(selector)?allNodes.filter(n=>n.classList.contains(selector.slice(1))):[],
     addEventListener(name,fn){const list=events.get('document:'+name)||[];list.push(fn);events.set('document:'+name,list);}};
-  const context={document,console,location:{origin:'https://example.test'},localStorage:storage(initial),kkT:key=>key==='kk_currency_symbol'?'¥':key,kkCat:value=>value,
+  const context={document,console,location:{origin:'https://example.test'},localStorage:storage(initial),KK_LANG:'ja',kkT:key=>key==='kk_currency_symbol'?'¥':key,kkCat:value=>value,
     setTimeout:()=>1,clearTimeout(){},Event:class{constructor(type){this.type=type;}},MutationObserver:class{observe(){}},
     requestAnimationFrame(fn){frames.set(++sequence,fn);return sequence;},
     getComputedStyle:()=>({fontFamily:'fixture-font',getPropertyValue:()=>''}),
@@ -85,8 +101,11 @@ test('late local graph loading preserves draft, selected month and canvas after 
   h.event('DOMContentLoaded');assert.equal(h.scripts.length,1);assert.equal(h.scripts[0].src,'/static/vendor/chart.umd-4.4.1.js');assert.equal(h.scripts[0].async,true);
   const charts=[],order=[];
   h.context.addEventListener('kkChartsReady',()=>order.push('theme'));
-  h.context.Chart=class{static getChart(){}constructor(canvas,config){order.push('chart');charts.push({canvas,config});}};
-  h.scripts[0].onload();assert.equal(order[0],'theme');assert.equal(charts.length,3,'original bar, line and nonempty expense graphs restored');
+  h.context.Chart=class{static getChart(){}constructor(canvas,config){this.canvas=canvas;order.push('chart');charts.push({canvas,config});}};
+  h.scripts[0].onload();assert.equal(order[0],'theme');assert.equal(charts.length,2,'only the visible line and nonempty expense charts initialize');
+  assert.deepEqual(charts.map(c=>c.canvas.id).sort(),['donutChart','lineChart']);
+  assert.equal(h.context._chartVisible(h.nodes.get('barChart')),false,'the original hidden card is represented in the fixture');
+  assert.equal(h.context._chartVisible(h.nodes.get('assetPieChart')),false,'the original inactive assets pane is represented in the fixture');
   assert.equal(h.nodes.get('inc-name').value,'保存前の架空メモ');assert.equal(h.nodes.get('inc-amount').value,'123');assert.equal(h.context._year,2024);assert.equal(h.context._month,3);
   assert.equal(canvas.hidden,false);assert.equal(canvas.parentElement.querySelector('.kk-chart-empty').hidden,true);
   assert.equal(h.nodes.get('d-expense').textContent,'¥900');
@@ -102,6 +121,98 @@ test('external fonts and graph library no longer block parsing of usable ledger 
   assert.match(html,/<link[^>]*fonts\.googleapis\.com[^>]*media="print"[^>]*onload="this\.media='all'"/);
   assert.doesNotMatch(html,/<script[^>]*src="https:\/\/cdn\.jsdelivr\.net\/npm\/chart/);
   assert.match(html,/script\.src='\/static\/vendor\/chart\.umd-4\.4\.1\.js';script\.async=true/);
+});
+function chartFixture(initial={},mutatePalette=false){
+  const h=fixture(initial),created=[],destroyed=[],active=new Map();
+  h.context.Chart=class{
+    static getChart(canvas){return active.get(typeof canvas==='string'?canvas:canvas.id);}
+    constructor(canvas,config){
+      this.canvas=canvas;this.config=config;this.data=config.data;created.push(this);active.set(canvas.id,this);
+      if(mutatePalette){config.data.datasets[0].backgroundColor='fixture-resolved-palette';config.options.plugins.legend.fixtureThemeApplied=true;}
+    }
+    destroy(){destroyed.push(this);if(active.get(this.canvas.id)===this)active.delete(this.canvas.id);}
+  };
+  h.core();return {...h,created,destroyed,active};
+}
+test('unchanged startup, language application and refresh renders retain charts even after the palette mutates their configs',()=>{
+  const h=chartFixture({[monthKey]:JSON.stringify(records)},true);
+  const line=h.active.get('lineChart'),pie=h.active.get('donutChart');
+  assert.equal(h.created.length,2);assert.equal(line.data.datasets[0].backgroundColor,'fixture-resolved-palette');
+  h.nodes.get('inc-name').value='保存前の架空メモ';h.nodes.get('inc-amount').value='1234';
+  for(let i=0;i<5;i++)h.context.renderAll();
+  assert.equal(h.created.length,2);assert.equal(h.destroyed.length,0);
+  assert.equal(h.active.get('lineChart'),line);assert.equal(h.active.get('donutChart'),pie);
+  assert.equal(h.nodes.get('inc-name').value,'保存前の架空メモ');assert.equal(h.nodes.get('inc-amount').value,'1234');
+  assert.deepEqual(JSON.parse(h.context.localStorage.getItem(monthKey)),records);
+  const replacement=element('canvas','lineChart');replacement.parentElement=line.canvas.parentElement;h.nodes.set('lineChart',replacement);
+  h.context.renderAll();assert.notEqual(h.active.get('lineChart'),line,'a replacement canvas cannot reuse the detached canvas chart');
+  assert.equal(h.active.get('lineChart').canvas,replacement);assert.ok(h.destroyed.includes(line));
+});
+test('expense removal destroys the old pie, shows its placeholder and recreates it only after a new expense',()=>{
+  const h=chartFixture({[monthKey]:JSON.stringify(records)}),oldPie=h.active.get('donutChart'),canvas=h.nodes.get('donutChart');
+  h.context.deleteRecord(2);
+  assert.ok(h.destroyed.includes(oldPie));assert.equal(h.active.has('donutChart'),false);assert.equal(h.context._charts.donut,null);
+  assert.equal(canvas.hidden,true);assert.equal(canvas.parentElement.querySelector('.kk-chart-empty').hidden,false);
+  h.context.renderAll();assert.equal(h.active.has('donutChart'),false);
+  h.nodes.get('exp-name').value='架空の新支出';h.nodes.get('exp-cat').value='食費';h.nodes.get('exp-amount').value='800';h.context.addRecord('exp');
+  assert.notEqual(h.active.get('donutChart'),oldPie);assert.equal(canvas.hidden,false);
+  assert.deepEqual(Array.from(h.active.get('donutChart').data.datasets[0].data),[800]);
+  assert.equal(canvas.parentElement.querySelector('.kk-chart-empty').hidden,true);
+});
+test('selected month, record edits and locale changes invalidate the raw chart signature',()=>{
+  const next=new Date(now.getFullYear(),now.getMonth()+1,1),nextKey='kb2_'+next.getFullYear()+'_'+String(next.getMonth()+1).padStart(2,'0');
+  const h=chartFixture({[monthKey]:JSON.stringify(records),[nextKey]:JSON.stringify([{id:7,type:'exp',name:'架空の翌月',cat:'食費',amount:2300}])});
+  const original=h.active.get('lineChart');h.context.changeMonth(1);
+  assert.notEqual(h.active.get('lineChart'),original);assert.equal(h.nodes.get('d-expense').textContent,'¥2,300');
+  assert.equal(h.active.get('lineChart').data.datasets[1].data.at(-1),2300);
+  assert.deepEqual(Array.from(h.active.get('donutChart').data.datasets[0].data),[2300]);
+  const nextLine=h.active.get('lineChart'),nextPie=h.active.get('donutChart');h.context.KK_LANG='en';h.context.renderAll();
+  assert.notEqual(h.active.get('lineChart'),nextLine);assert.notEqual(h.active.get('donutChart'),nextPie,'locale also invalidates callbacks omitted by JSON.stringify');
+  assert.equal(h.active.get('lineChart').data.datasets[1].data.at(-1),2300);
+});
+test('asset allocation is created on its first tab visit and a revealed legacy bar retains its original monthly calculation',()=>{
+  const assets=[{id:9,name:'架空の現金',cat:'現金',amount:8000}];
+  const h=chartFixture({[monthKey]:JSON.stringify([...records,{id:3,type:'inv',name:'架空の投資',amount:300}]),kb2_assets:JSON.stringify(assets)});
+  assert.equal(h.active.has('assetPieChart'),false);assert.equal(h.active.has('barChart'),false);
+  h.context.switchTab('assets');const pie=h.active.get('assetPieChart');
+  assert.deepEqual(Array.from(pie.data.datasets[0].data),[8000]);
+  h.context.switchTab('home');h.context.switchTab('assets');assert.equal(h.active.get('assetPieChart'),pie);
+  h.context.switchTab('home');const canvas=h.nodes.get('barChart'),card=canvas.parentElement.parentElement;
+  assert.ok(card.classList.contains('card'));assert.equal(card.style.display,'none');card.style.display='';h.context.renderAll();
+  const bar=h.active.get('barChart');assert.ok(bar);
+  assert.deepEqual(Array.from(bar.data.datasets,d=>d.data.at(-1)),[50000,1200,300]);
+  h.context.localStorage.setItem('kb2_assets','[]');h.context.renderAll();
+  assert.ok(h.destroyed.includes(pie));assert.equal(h.active.has('assetPieChart'),false,'empty assets invalidate a retained chart even when its tab is inactive');
+});
+test('a hidden category history performs no daily reads and its original six-month aggregation still works when revealed',()=>{
+  const dayKey='kbday_'+now.getFullYear()+'_'+String(now.getMonth()+1).padStart(2,'0')+'_01';
+  const h=chartFixture({[monthKey]:JSON.stringify(records),[dayKey]:JSON.stringify([
+    {type:'exp',cat:'food',amount:100},{type:'exp',cat:'食費',amount:200},{type:'inc',cat:'food',amount:900}
+  ])});
+  const read=h.context.localStorage.getItem;let dailyReads=0;
+  h.context.localStorage.getItem=key=>{if(key.startsWith('kbday_'))dailyReads++;return read(key);};
+  h.document.readyState='interactive';h.context.setTimeout=fn=>{fn();return 1;};
+  vm.runInNewContext(html.match(/<script id="cat-stack-chart">([\s\S]*?)<\/script>/)[1],h.context);
+  h.context.renderAll();assert.equal(dailyReads,0);assert.equal(h.active.has('catStackChart'),false);
+  const canvas=h.nodes.get('catStackChart');canvas.parentElement.parentElement.style.display='';h.context.renderAll();
+  const expectedDays=Array.from({length:6},(_,i)=>new Date(now.getFullYear(),now.getMonth()-i+1,0).getDate()).reduce((a,b)=>a+b,0);
+  assert.equal(dailyReads,expectedDays);const chart=h.active.get('catStackChart');assert.ok(chart);
+  assert.equal(chart.data.labels.length,6);assert.equal(chart.data.datasets.find(d=>d.label==='food').data.at(-1),100);
+  assert.equal(chart.data.datasets.find(d=>d.label==='other').data.at(-1),200,'existing category fallback is preserved; monthly rows are not mixed in');
+});
+test('retired worker cleanup never registers or navigates and is safe when absent or rejected',async()=>{
+  const source=html.match(/<script id="sw-register">([\s\S]*?)<\/script>/)[1];
+  for(const mode of ['old','absent','rejected','sync-throw','unsupported']){
+    let lookups=0,removed=0,registered=0,navigated=0;const h=fixture();
+    h.context.navigator=mode==='unsupported'?{}:{serviceWorker:{
+      register(){registered++;throw new Error('unexpected registration');},
+      getRegistration(scope){lookups++;assert.equal(scope,'/');if(mode==='sync-throw')throw new Error('fixture denied');if(mode==='rejected')return Promise.reject(new Error('fixture denied'));return Promise.resolve(mode==='old'?{unregister(){removed++;return Promise.resolve(true);}}:undefined);}
+    }};
+    h.context.location.reload=()=>navigated++;h.context.location.assign=()=>navigated++;
+    assert.doesNotThrow(()=>vm.runInNewContext(source,h.context));await Promise.resolve();await Promise.resolve();await Promise.resolve();
+    h.core();assert.equal(h.document.documentElement.getAttribute('data-kn-ledger-ready'),'true');
+    assert.equal(lookups,mode==='unsupported'?0:1);assert.equal(removed,mode==='old'?1:0);assert.equal(registered,0);assert.equal(navigated,0);
+  }
 });
 function syncFixture(initial={},usePrototype=false){
   class FixtureStorage{

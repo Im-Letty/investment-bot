@@ -1982,8 +1982,12 @@ def api_ai_advice():
         
 @app.route("/kakeibo")
 def kakeibo():
-    with open("kakeibo.html", encoding="utf-8") as f:
-        return f.read(), 200, {"Content-Type": "text/html; charset=utf-8"}
+    # This file is only the shared UI shell. Private records still come from
+    # the authenticated ledger API and are never included in this response.
+    response = send_file(os.path.join(app.root_path, "kakeibo.html"),
+                         mimetype="text/html", conditional=True, max_age=60)
+    response.headers["Cache-Control"] = "private, max-age=60, must-revalidate"
+    return response
             
 
 @app.route("/api/morning-data", methods=["GET"])
