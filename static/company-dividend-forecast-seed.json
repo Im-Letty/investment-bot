@@ -2143,14 +2143,14 @@
       "kind": "issuer_annual_dividend_forecast",
       "status": "available",
       "value": 0,
-      "source_url": "https://www.nse.or.jp/listing/search/files/140120260710591683.pdf",
-      "source_title": "2026年８月期 第３四半期決算短信〔日本基準〕（連結）",
-      "announcement_date": "2026-07-14",
-      "checked_on": "2026-10-13",
-      "fetched_at": 1791819409.956864,
+      "source_url": "https://www.nse.or.jp/listing/search/files/140120261013549861.pdf",
+      "source_title": "2026年８月期 決算短信〔日本基準〕（連結）",
+      "announcement_date": "2026-10-14",
+      "checked_on": "2026-10-15",
+      "fetched_at": 1792058617.089958,
       "fiscal_period": {
-        "start": "2025-09-01",
-        "end": "2026-08-31"
+        "start": "2026-09-01",
+        "end": "2027-08-31"
       },
       "currency": "JPY",
       "unit": "JPY/share",
@@ -2160,9 +2160,9 @@
       "proof": {
         "code": "6025",
         "source_security_code": "6025",
-        "issuer_name": "日本PCサービス",
+        "issuer_name": "日本ＰＣサービス株式会社",
         "exchange": "Nagoya",
-        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120260710591683.pdf",
+        "issuer_document_url": "https://www.nse.or.jp/listing/search/files/140120261013549861.pdf",
         "source_host": "www.nse.or.jp"
       }
     },
