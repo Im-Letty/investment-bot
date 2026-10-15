@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261015-trendrange1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-trenddaily1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -284,6 +284,7 @@ body{padding-bottom:24px;}
   </button></div>
   <span id="monthLabel3" hidden></span>
   <div class="kk-monthly-form">
+    <div class="kk-entry-date"><label class="kk-entry-label" for="kkEntryDate" data-i18n="kk_entry_date">日付</label><input class="inp" id="kkEntryDate" type="date" oninput="kkClearEntryError(this)"></div>
     <div class="form-tabs" role="group" aria-labelledby="kkEntryTitle">
       <button class="ftab active-inc" id="ft-inc" onclick="switchForm('inc')" aria-pressed="true" data-i18n="kk_layout_income">収入</button>
       <button class="ftab" id="ft-exp" onclick="switchForm('exp')" aria-pressed="false" data-i18n="kk_layout_expense">支出</button>
@@ -308,7 +309,8 @@ body{padding-bottom:24px;}
     <div id="kkTrendCustom" class="kk-trend-custom" hidden><label><span data-i18n="kk_trend_from">開始月</span><input id="kkTrendFrom" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><label><span data-i18n="kk_trend_to">終了月</span><input id="kkTrendTo" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><button type="button" onclick="kkTrendApplyRange()" data-i18n="kk_trend_apply">表示する</button><p id="kkTrendError" role="alert" data-i18n="kk_trend_invalid_range" hidden>開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。</p></div>
     <p id="kkTrendRange" class="kk-layout-note kk-trend-range" role="status" aria-live="polite"></p>
     <div class="chart-area"><canvas id="lineChart" role="img" aria-describedby="kkTrendRange"></canvas></div>
-    <p id="kkTrendDataNotice" class="kk-layout-note" data-i18n="kk_trend_unreadable" hidden>一部の記録を読み取れないため、該当期間はグラフの線を途切れさせて表示しています。</p>
+    <p id="kkTrendDataNotice" class="kk-layout-note" data-i18n="kk_trend_unreadable" hidden>一部の記録を読み取れません。読み取れない日・期間は線を途切れさせ、日付未設定の記録は別に表示します。</p>
+    <p id="kkTrendUndatedNotice" class="kk-layout-note" role="status" hidden></p>
     <p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p>
   </div>
 </div>
@@ -380,8 +382,13 @@ var KK_I18N = {
     kk_trend_apply: "表示する",
     kk_trend_invalid_range: "開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。",
     kk_trend_monthly: "月ごと",
+    kk_trend_daily: "日ごと",
+    kk_entry_date: "日付",
+    kk_entry_date_invalid: "表示中の月の日付を選んでください。",
+    kk_trend_undated: "日付未設定 {count}件（収入 {income}／支出 {expense}）。記録一覧で日付を追加できます。",
+    kk_trend_amount_unknown: "確認が必要",
     kk_trend_yearly: "年ごと",
-    kk_trend_unreadable: "一部の記録を読み取れないため、該当期間はグラフの線を途切れさせて表示しています。",
+    kk_trend_unreadable: "一部の記録を読み取れません。読み取れない日・期間は線を途切れさせ、日付未設定の記録は別に表示します。",
     kk_layout_trend_note: "月入力の記録を集計。投資は折れ線に含めません。",
     kk_layout_trend_link: "収支推移を見る",
     kk_layout_input_note: "月入力とカレンダーの日別記録は、別々に集計します。",
@@ -533,8 +540,13 @@ var KK_I18N = {
     kk_trend_apply: "Apply",
     kk_trend_invalid_range: "Enter valid months, with the end month on or after the start month.",
     kk_trend_monthly: "Monthly",
+    kk_trend_daily: "Daily",
+    kk_entry_date: "Date",
+    kk_entry_date_invalid: "Choose a valid date in the displayed month.",
+    kk_trend_undated: "{count} entries without a date (income {income} / spending {expense}). Add dates in Records.",
+    kk_trend_amount_unknown: "Needs checking",
     kk_trend_yearly: "Yearly",
-    kk_trend_unreadable: "Some records could not be read. Those periods are shown as gaps in the chart.",
+    kk_trend_unreadable: "Some records could not be read. Unreadable days or periods appear as gaps; undated entries are shown separately.",
     kk_layout_trend_note: "Based on monthly entries. The lines exclude investments.",
     kk_layout_trend_link: "View income and spending trend",
     kk_layout_input_note: "Monthly entries and calendar entries are totaled separately.",
@@ -686,8 +698,13 @@ var KK_I18N = {
     kk_trend_apply: "적용",
     kk_trend_invalid_range: "올바른 월을 입력해 주세요. 종료 월은 시작 월 이후여야 합니다.",
     kk_trend_monthly: "월별",
+    kk_trend_daily: "일별",
+    kk_entry_date: "날짜",
+    kk_entry_date_invalid: "표시 중인 달의 올바른 날짜를 선택해 주세요.",
+    kk_trend_undated: "날짜 미설정 {count}건 (수입 {income} / 지출 {expense}). 기록에서 날짜를 추가할 수 있습니다.",
+    kk_trend_amount_unknown: "확인 필요",
     kk_trend_yearly: "연도별",
-    kk_trend_unreadable: "일부 기록을 읽을 수 없어 해당 기간은 그래프가 끊겨 표시됩니다.",
+    kk_trend_unreadable: "일부 기록을 읽을 수 없습니다. 해당 날짜·기간은 그래프가 끊기며, 날짜 미설정 기록은 별도로 표시됩니다.",
     kk_layout_trend_note: "월별 입력 기준입니다. 그래프에는 투자가 포함되지 않습니다.",
     kk_layout_trend_link: "수입·지출 추이 보기",
     kk_layout_input_note: "월별 입력과 달력의 일별 기록은 따로 합산합니다.",
@@ -839,8 +856,13 @@ var KK_I18N = {
     kk_trend_apply: "显示",
     kk_trend_invalid_range: "请输入有效月份，结束月份须不早于开始月份。",
     kk_trend_monthly: "按月",
+    kk_trend_daily: "按日",
+    kk_entry_date: "日期",
+    kk_entry_date_invalid: "请选择当前显示月份的有效日期。",
+    kk_trend_undated: "{count}条记录未设置日期（收入 {income}／支出 {expense}）。可在记录列表中添加日期。",
+    kk_trend_amount_unknown: "需要核实",
     kk_trend_yearly: "按年",
-    kk_trend_unreadable: "部分记录无法读取，对应期间在图表中以断线显示。",
+    kk_trend_unreadable: "部分记录无法读取。对应日期或期间以断线显示，未设置日期的记录单独显示。",
     kk_layout_trend_note: "按月度记录汇总，折线不包含投资。",
     kk_layout_trend_link: "查看收支趋势",
     kk_layout_input_note: "月度记录和日历中的每日记录分别汇总。",
@@ -1057,7 +1079,7 @@ function kkClearEntry(prefix){
 }
 
 
-// Period settings stay in this iframe; only active monthly ledger keys are read.
+// Period settings stay in this iframe; only active home-entry ledger keys are read.
 var _trendPeriod='all',_trendCustom=null;
 function kkTrendMonth(value){
   var match=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(value));
@@ -1066,7 +1088,52 @@ function kkTrendMonth(value){
 function kkTrendMonthValue(serial){
   return String(Math.floor(serial/12)).padStart(4,'0')+'-'+String(serial%12+1).padStart(2,'0');
 }
+function kkTrendMonthDays(year,month){
+  if(!Number.isInteger(year)||year<1||year>9999||!Number.isInteger(month)||month<1||month>12)return 0;
+  return month===2?(year%4===0&&(year%100!==0||year%400===0)?29:28):([4,6,9,11].indexOf(month)!==-1?30:31);
+}
+function kkTrendMonthDay(value,year,month){
+  if(typeof value!=='string')return null;
+  var match=/^(\d{4})-(\d{2})-(\d{2})$/.exec(value),days=kkTrendMonthDays(year,month);
+  return match&&Number(match[1])===year&&Number(match[2])===month&&Number(match[3])>=1&&Number(match[3])<=days?Number(match[3]):null;
+}
+function kkEntryDateSync(){
+  var input=document.getElementById('kkEntryDate');if(!input)return;
+  var month=kkTrendMonthValue(_year*12+_month-1),last=kkTrendMonthDays(_year,_month);
+  input.setAttribute('min',month+'-01');input.setAttribute('max',month+'-'+String(last).padStart(2,'0'));
+  // Repaints, theme/language changes and failed submissions preserve the draft.
+  if(input.getAttribute('data-kk-month')!==month){
+    var today=new Date(),day=today.getFullYear()===_year&&today.getMonth()+1===_month?today.getDate():1;
+    input.value=month+'-'+String(day).padStart(2,'0');input.setAttribute('data-kk-month',month);kkClearEntryError(input);
+  }
+}
+function kkTrendDailyData(){
+  var month=kkTrendMonthValue(_year*12+_month-1),days=kkTrendMonthDays(_year,_month),labels=[],income=[],expense=[],bad=[],unreadable=false;
+  var undated={count:0,income:0,expense:0,bad:false};
+  for(var day=1;day<=days;day++){labels.push(String(day));income.push(0);expense.push(0);bad.push(false);}
+  try{
+    var rows=JSON.parse(localStorage.getItem('kb2_'+month.replace('-','_'))||'[]');
+    if(!Array.isArray(rows))throw new Error('monthly_records_shape');
+    rows.forEach(function(row){
+      var day=row?kkTrendMonthDay(row.date,_year,_month):null;
+      if(!row||['inc','exp','inv'].indexOf(row.type)===-1||typeof row.amount!=='number'||!Number.isFinite(row.amount)){
+        unreadable=true;
+        if(day!==null)bad[day-1]=true;else{undated.count++;undated.bad=true;}
+        return;
+      }
+      if(row.type==='inv')return;
+      if(day===null){undated.count++;undated[row.type==='inc'?'income':'expense']+=row.amount;return;}
+      var values=row.type==='inc'?income:expense;values[day-1]+=row.amount;
+      if(!Number.isFinite(values[day-1])){bad[day-1]=true;unreadable=true;}
+    });
+  }catch(ignore){unreadable=true;bad=bad.map(function(){return true;});}
+  if(!Number.isFinite(undated.income)||!Number.isFinite(undated.expense))undated.bad=true;
+  if(undated.bad){undated.income=null;undated.expense=null;unreadable=true;}
+  for(var i=0;i<days;i++){if(bad[i]){income[i]=null;expense[i]=null;}}
+  return {labels:labels,income:income,expense:expense,from:month,to:month,unit:'day',months:1,days:days,unreadable:unreadable,undated:undated};
+}
 function kkTrendData(){
+  if(_trendPeriod==='1')return kkTrendDailyData();
   var end=_year*12+_month-1,start=end,rows=[],unreadable=false;
   if(_trendPeriod==='custom'&&_trendCustom){start=_trendCustom.from;end=_trendCustom.to;}
   else if(_trendPeriod!=='all'){start=Math.max(12,end-Number(_trendPeriod)+1);}
@@ -1137,8 +1204,15 @@ function kkTrendSync(range){
   var select=document.getElementById('kkTrendPeriod');if(select)select.value=_trendPeriod;
   var custom=document.getElementById('kkTrendCustom');if(custom)custom.hidden=_trendPeriod!=='custom';
   var caption=document.getElementById('kkTrendRange');
-  if(caption)caption.textContent=range.from.replace('-','/')+' — '+range.to.replace('-','/')+' · '+kkT(range.unit==='year'?'kk_trend_yearly':'kk_trend_monthly');
+  var from=range.from.replace('-','/'),to=range.to.replace('-','/');
+  if(range.unit==='day'){from+='/01';to+='/'+String(range.days).padStart(2,'0');}
+  if(caption)caption.textContent=from+' — '+to+' · '+kkT(range.unit==='day'?'kk_trend_daily':range.unit==='year'?'kk_trend_yearly':'kk_trend_monthly');
   var notice=document.getElementById('kkTrendDataNotice');if(notice)notice.hidden=!range.unreadable;
+  var undated=document.getElementById('kkTrendUndatedNotice');
+  if(undated){
+    undated.hidden=range.unit!=='day'||!range.undated.count;
+    undated.textContent=undated.hidden?'':kkT('kk_trend_undated').replace('{count}',String(range.undated.count)).replace('{income}',range.undated.bad?kkT('kk_trend_amount_unknown'):kkT('kk_currency_symbol')+range.undated.income.toLocaleString(undefined,{maximumSignificantDigits:21})).replace('{expense}',range.undated.bad?kkT('kk_trend_amount_unknown'):kkT('kk_currency_symbol')+range.undated.expense.toLocaleString(undefined,{maximumSignificantDigits:21}));
+  }
   var canvas=document.getElementById('lineChart');if(canvas)canvas.setAttribute('aria-label',kkT('kk_layout_trend')+' '+(caption?caption.textContent:''));
 }
 
@@ -1269,6 +1343,23 @@ function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDat
 function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
 function switchTab(tab){var focusInput=tab==='cashflow',focusExpenses=tab==='dashboard';if(focusInput||focusExpenses)tab='home';document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);if(focusInput&&window.kkLayoutFocusInput)window.kkLayoutFocusInput();if(focusExpenses&&window.kkLayoutFocusExpenses)window.kkLayoutFocusExpenses();}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');btn.setAttribute('aria-pressed',String(t===f));});}
+function kkSetRecordDate(id,value,input){
+  if(input&&input.validity&&input.validity.badInput){kkEntryError(input,'kk_entry_date_invalid');return false;}
+  if(value!==''&&kkTrendMonthDay(value,_year,_month)===null){if(input)kkEntryError(input,'kk_entry_date_invalid');return false;}
+  var data=getData(),matches=data.filter(function(row){return row&&row.id===id;});
+  if(matches.length!==1)return false;
+  if(input)kkClearEntryError(input);
+  if(value==='')delete matches[0].date;else matches[0].date=value;
+  saveData(data);renderAll();return true;
+}
+function kkRecordDateEdited(input){
+  var index=Number(input.getAttribute('data-kk-record-date')),data=getData();
+  if(Number.isInteger(index)&&index>=0&&data[index])kkSetRecordDate(data[index].id,input.value,input);
+}
+function kkRecordDateControl(row,index){
+  var month=kkTrendMonthValue(_year*12+_month-1),date=kkTrendMonthDay(row.date,_year,_month)===null?'':row.date;
+  return '<label class="kk-record-date" for="kkRecordDate-'+index+'"><span>'+kkT('kk_entry_date')+'</span><input id="kkRecordDate-'+index+'" type="date" value="'+date+'" min="'+month+'-01" max="'+month+'-'+String(kkTrendMonthDays(_year,_month)).padStart(2,'0')+'" data-kk-record-date="'+index+'" oninput="kkClearEntryError(this)" onchange="kkRecordDateEdited(this)"></label>';
+}
 function addRecord(type){
   if(['inc','exp','inv','ast'].indexOf(type)===-1)return;
   var entry=kkReadEntry(type);if(!entry)return;
@@ -1277,7 +1368,10 @@ function addRecord(type){
     var assets=getAssets();assets.push({id:Date.now(),name:entry.name,cat:cat,amount:entry.amount});
     saveAssets(assets);kkClearEntry(type);renderAll();return;
   }
-  var data=getData();data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
+  var dateInput=document.getElementById('kkEntryDate');
+  if(!dateInput||kkTrendMonthDay(dateInput.value,_year,_month)===null){if(dateInput){kkEntryError(dateInput,'kk_entry_date_invalid');dateInput.focus();}return;}
+  kkClearEntryError(dateInput);
+  var data=getData();data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount,date:dateInput.value});
   saveData(data);kkClearEntry(type);renderAll();
 }
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
@@ -1285,9 +1379,10 @@ function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!=
 function kkTrendRender(){
   var trend=kkTrendData();kkTrendSync(trend);
   var lc=document.getElementById('lineChart');
-  _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:12,font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
+  _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
 }
 function renderAll(){
+  kkEntryDateSync();
   kkTrendRender();
   var data=getData(),assets=getAssets();
   var lbl=_year+kkT("kk_js_year")+_month+kkT("kk_js_month");
@@ -1327,7 +1422,7 @@ function renderAll(){
   var astEl=document.getElementById('asset-list-el');
   if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'<div class="empty-state">'+kkT("kk_empty_no_assets")+'</div>':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+a.name+'<br><span style="font-size:11px;color:#9ab5a5">'+a.cat+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+a.id+')">✕</button></div>';}).join('');}
   var recEl=document.getElementById('rec-list-el');
-  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+e.name+'</div><div class="rec-meta">'+kkCat(sub)+'</div></div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord('+e.id+')">✕</button></div>';}).join('');}
+  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+e.name+'</div><div class="rec-meta">'+kkCat(sub)+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord('+e.id+')">✕</button></div>';}).join('');}
 }
 renderAll();
 renderCalendar();

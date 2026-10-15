@@ -141,6 +141,12 @@ body.kn-ledger-paper .kk-pane-links button {
   font:400 calc(13px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);
 }
 body.kn-ledger-paper .kk-input-note {margin:0 0 16px}
+body.kn-ledger-paper .kk-entry-date {display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px;margin:0 0 16px}
+body.kn-ledger-paper .kk-entry-date .kk-entry-label {margin:0}
+body.kn-ledger-paper .kk-entry-date .kk-entry-error {grid-column:1/-1}
+body.kn-ledger-paper .kk-record-date {display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:6px;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
+body.kn-ledger-paper .kk-record-date input {width:10em;max-width:100%;min-height:44px;padding:6px;border:1px solid var(--kn-ledger-line);border-radius:6px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:inherit}
+body.kn-ledger-paper .kk-record-date .kk-entry-error {flex-basis:100%}
 body.kn-ledger-paper #kkRoboFab {display:none!important}
 body.kn-ledger-letter.kn-ledger-paper :is(input,select,textarea) {min-width:0;max-width:100%;font-size:max(16px,calc(16px * var(--kn-ledger-scale,1)))!important}
 body.kn-ledger-paper :is(.rec-item,.asset-item,.day-rec-item) {min-width:0;flex-wrap:wrap}

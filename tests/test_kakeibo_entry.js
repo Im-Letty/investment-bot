@@ -130,11 +130,13 @@ test('missing item name identifies the name field while a corrected retry saves 
   h.context.addRecord('exp');assert.equal(monthRows(h).length,1,'the empty second click must not duplicate the first record');assert.equal(h.writes.length,1);
 });
 
-test('each monthly record type keeps its existing schema and selected category while daily data is untouched',()=>{
+test('each home record retains its fields and category, adds the selected date and leaves calendar records untouched',()=>{
   for(const [type,amount,category] of [['inc','２０００．５',''],['exp','１，０００','独自カテゴリ'],['inv','－１２．５','国内株']]){
     const originalDay='[{"id":91,"type":"exp","name":"架空の日別","amount":3,"cat":"食費"}]';
-    const h=fixture({kbday_2026_10_15:originalDay});h.fill(type,amount,'架空の月入力',category);h.context.addRecord(type);
-    const rows=monthRows(h);assert.equal(rows.length,1);assert.deepEqual(Object.keys(rows[0]).sort(),['amount','cat','id','name','type']);
+    const h=fixture({kbday_2026_10_15:originalDay});h.fill(type,amount,'架空の月入力',category);
+    const selectedDate=h.nodes.get('kkEntryDate').value;h.context.addRecord(type);
+    const rows=monthRows(h);assert.equal(rows.length,1);assert.deepEqual(Object.keys(rows[0]).sort(),['amount','cat','date','id','name','type']);
+    assert.equal(rows[0].date,selectedDate);assert.match(selectedDate,/^\d{4}-\d{2}-\d{2}$/);
     assert.equal(rows[0].type,type);assert.equal(rows[0].cat,category);assert.equal(typeof rows[0].id,'number');
     assert.equal(h.values.get('kbday_2026_10_15'),originalDay);assert.equal(h.renders,1);assert.equal(h.dayRenders,0);
   }
