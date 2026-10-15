@@ -80,6 +80,9 @@
     .ftab.active-inv{background:linear-gradient(135deg,#2ba888,#3dc8a8);border-color:#2ba888;color:#fff;}
     .inp{width:100%;padding:12px 14px;border:1.5px solid var(--brand-mist);border-radius:14px;font-size:14px;font-family:inherit;margin-bottom:10px;outline:none;background:var(--brand-haze);color:#1a3325;}
     .inp:focus{border-color:var(--brand-color);background:#fff;box-shadow:0 0 0 3px rgba(61,160,96,0.1);}
+    .kk-entry-error{margin:-4px 0 12px;padding-left:10px;border-left:2px solid currentColor;color:var(--kn-ledger-ink,#1a3325);font:500 calc(13px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,inherit);overflow-wrap:anywhere;}
+    .kk-entry-error[hidden]{display:none;}
+    body.kn-ledger-letter .inp[aria-invalid="true"]{border-color:var(--kn-ledger-ink,#1a3325)!important;border-style:dashed;}
     .submit-btn{width:100%;padding:14px;border:none;border-radius:16px;font-size:15px;font-weight:700;cursor:pointer;color:#fff;font-family:inherit;}
     .submit-btn.inc{background:linear-gradient(135deg,var(--brand-color),var(--brand-light));}
     .submit-btn.exp{background:linear-gradient(135deg,#e05050,#f07070);}
@@ -286,9 +289,9 @@ body{padding-bottom:24px;}
       <button class="ftab" id="ft-exp" onclick="switchForm('exp')" aria-pressed="false" data-i18n="kk_layout_expense">支出</button>
       <button class="ftab" id="ft-inv" onclick="switchForm('inv')" aria-pressed="false" data-i18n="kk_layout_investment">投資</button>
     </div>
-    <div id="form-inc"><label class="kk-entry-label" for="inc-name" data-i18n="kk_layout_item">項目名</label><input class="inp" id="inc-name" type="text" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><label class="kk-entry-label" for="inc-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inc-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
-    <div id="form-exp" style="display:none"><label class="kk-entry-label" for="exp-name" data-i18n="kk_layout_item">項目名</label><input class="inp" id="exp-name" type="text" data-i18n-placeholder="kk_ph_item_food" placeholder="項目名（例：食費）"><label class="kk-entry-label" for="exp-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="exp-cat" onchange="kkExpCatChange(this)"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option><option value="__kkadd__">➕ 新しいカテゴリ</option></select><label class="kk-entry-label" for="exp-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="exp-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
-    <div id="form-inv" style="display:none"><label class="kk-entry-label" for="inv-name" data-i18n="kk_layout_item">項目名</label><input class="inp" id="inv-name" type="text" placeholder="銘柄・ファンド名"><label class="kk-entry-label" for="inv-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><label class="kk-entry-label" for="inv-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inv-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
+    <div id="form-inc"><label class="kk-entry-label" for="inc-name" data-i18n="kk_layout_item">項目名</label><input class="inp" id="inc-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><label class="kk-entry-label" for="inc-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inc-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
+    <div id="form-exp" style="display:none"><label class="kk-entry-label" for="exp-name" data-i18n="kk_layout_item">項目名</label><input class="inp" id="exp-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_food" placeholder="項目名（例：食費）"><label class="kk-entry-label" for="exp-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="exp-cat" onchange="kkExpCatChange(this)"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option><option value="__kkadd__">➕ 新しいカテゴリ</option></select><label class="kk-entry-label" for="exp-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="exp-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
+    <div id="form-inv" style="display:none"><label class="kk-entry-label" for="inv-name" data-i18n="kk_layout_item">項目名</label><input class="inp" id="inv-name" type="text" oninput="kkClearEntryError(this)" placeholder="銘柄・ファンド名"><label class="kk-entry-label" for="inv-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><label class="kk-entry-label" for="inv-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inv-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
   <div class="kk-pane-links"><button type="button" data-kk-layout-go="records" data-i18n="kk_layout_records">月入力の記録一覧</button><button type="button" data-kk-layout-go="home" data-kk-layout-anchor="kkTrendTitle" data-i18n="kk_layout_trend_link">収支推移を見る</button></div>
   <p class="kk-layout-note kk-input-note" data-i18n="kk_layout_input_note">月入力とカレンダーの日別記録は、別々に集計します。</p>
@@ -304,7 +307,7 @@ body{padding-bottom:24px;}
 </div>
 <div class="tab-content" id="tab-assets">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
-  <div class="card"><div class="card-title" data-i18n="kk_card_register_asset">🏦 資産を登録</div><input class="inp" id="ast-name" type="text" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"><select class="inp" id="ast-cat"><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="ast-amount" type="number" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"><button class="submit-btn ast" onclick="addRecord('ast')" data-i18n="kk_btn_register_asset">＋ 資産を登録</button></div>
+  <div class="card"><div class="card-title" data-i18n="kk_card_register_asset">🏦 資産を登録</div><input class="inp" id="ast-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"><select class="inp" id="ast-cat"><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="ast-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"><button class="submit-btn ast" onclick="addRecord('ast')" data-i18n="kk_btn_register_asset">＋ 資産を登録</button></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_pie">🥧 資産配分グラフ</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="assetPieChart"></canvas></div><div id="asset-legend" style="flex:1;font-size:12px"></div></div></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_list">📋 資産一覧</div><div id="asset-list-el"><div class="empty-state" data-i18n="kk_empty_no_assets">資産を登録してください</div></div></div>
 </div>
@@ -327,9 +330,9 @@ body{padding-bottom:24px;}
     <div id="dayRecList"></div>
     <div class="modal-form-title" style="margin-top:12px" data-i18n="kk_modal_add_record">＋ 記録を追加</div>
     <div class="type-tabs"><button class="type-tab sel-inc" id="mft-inc" onclick="switchModalForm('inc')" data-i18n="kk_btn_income">💰 収入</button><button class="type-tab" id="mft-exp" onclick="switchModalForm('exp')" data-i18n="kk_btn_expense">💸 支出</button><button class="type-tab" id="mft-inv" onclick="switchModalForm('inv')" data-i18n="kk_btn_investment">📈 投資</button></div>
-    <div id="modal-form-inc"><input class="inp" id="m-inc-name" type="text" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><input class="inp" id="m-inc-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addDayRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
-    <div id="modal-form-exp" style="display:none"><input class="inp" id="m-exp-name" type="text" data-i18n-placeholder="kk_ph_item_lunch" placeholder="項目名（例：ランチ代）"><select class="inp" id="m-exp-cat"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option></select><input class="inp" id="m-exp-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addDayRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
-    <div id="modal-form-inv" style="display:none"><input class="inp" id="m-inv-name" type="text" placeholder="銘柄・ファンド名"><select class="inp" id="m-inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="m-inv-amount" type="number" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addDayRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
+    <div id="modal-form-inc"><input class="inp" id="m-inc-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><input class="inp" id="m-inc-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addDayRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
+    <div id="modal-form-exp" style="display:none"><input class="inp" id="m-exp-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_lunch" placeholder="項目名（例：ランチ代）"><select class="inp" id="m-exp-cat"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option></select><input class="inp" id="m-exp-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addDayRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
+    <div id="modal-form-inv" style="display:none"><input class="inp" id="m-inv-name" type="text" oninput="kkClearEntryError(this)" placeholder="銘柄・ファンド名"><select class="inp" id="m-inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="m-inv-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addDayRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
 </div>
 
@@ -460,6 +463,9 @@ var KK_I18N = {
     kk_js_dow_sat: "土",
     kk_js_man: "万",
     kk_js_input_pls: "入力してください",
+    kk_input_name_required: "項目名を入力してください。",
+    kk_input_amount_required: "金額を入力してください。",
+    kk_input_amount_invalid: "金額を数字で入力してください（例：１０００、1,000）。0円は登録できません。",
     kk_js_income: "収入",
     kk_js_expense: "支出",
     kk_js_investment: "投資",
@@ -596,6 +602,9 @@ var KK_I18N = {
     kk_js_dow_sat: "Sat",
     kk_js_man: "0k",
     kk_js_input_pls: "Please fill in",
+    kk_input_name_required: "Enter an item name.",
+    kk_input_amount_required: "Enter an amount.",
+    kk_input_amount_invalid: "Enter a numeric amount (e.g. １０００ or 1,000). Zero cannot be added.",
     kk_js_income: "Income",
     kk_js_expense: "Expense",
     kk_js_investment: "Investment",
@@ -732,6 +741,9 @@ var KK_I18N = {
     kk_js_dow_sat: "토",
     kk_js_man: "만",
     kk_js_input_pls: "입력해 주세요",
+    kk_input_name_required: "항목명을 입력해 주세요.",
+    kk_input_amount_required: "금액을 입력해 주세요.",
+    kk_input_amount_invalid: "금액을 숫자로 입력해 주세요(예: １０００, 1,000). 0은 등록할 수 없습니다.",
     kk_js_income: "수입",
     kk_js_expense: "지출",
     kk_js_investment: "투자",
@@ -868,6 +880,9 @@ var KK_I18N = {
     kk_js_dow_sat: "六",
     kk_js_man: "万",
     kk_js_input_pls: "请输入",
+    kk_input_name_required: "请输入项目名称。",
+    kk_input_amount_required: "请输入金额。",
+    kk_input_amount_invalid: "请用数字输入金额（例如：１０００、1,000）。不能添加0元。",
     kk_js_income: "收入",
     kk_js_expense: "支出",
     kk_js_investment: "投资",
@@ -939,6 +954,45 @@ if(document.readyState!=="loading"){ kkApplyLang(KK_LANG); }
 
 var _year=new Date().getFullYear(),_month=new Date().getMonth()+1,_charts={},_currentForm='inc';
 var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth()+1,_modalDate=null;
+
+// Keep the raw text while typing: number inputs can discard full-width/IME text.
+function kkParseAmount(raw){
+  var text=String(raw==null?'':raw).normalize('NFKC').replace(/\u2212/g,'-').trim();
+  text=text.replace(/^¥\s*/,'').replace(/\s*円$/,'').trim();
+  // Validate the whole value before removing valid thousands separators.
+  if(!/^[+-]?(?:(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?$/.test(text))return null;
+  var amount=Number(text.replace(/,/g,''));
+  return Number.isFinite(amount)&&amount!==0&&Math.abs(amount)<=Number.MAX_SAFE_INTEGER?amount:null;
+}
+function kkClearEntryError(input){
+  var errorId=input.id+'-error',error=document.getElementById(errorId);
+  if(!error)return;
+  error.hidden=true;error.textContent='';input.removeAttribute('aria-invalid');
+  var described=(input.getAttribute('aria-describedby')||'').split(/\s+/).filter(function(id){return id&&id!==errorId;});
+  if(described.length)input.setAttribute('aria-describedby',described.join(' '));else input.removeAttribute('aria-describedby');
+}
+function kkEntryError(input,key){
+  var errorId=input.id+'-error',error=document.getElementById(errorId);
+  if(!error){error=document.createElement('p');error.id=errorId;error.className='kk-entry-error';error.setAttribute('role','alert');input.insertAdjacentElement('afterend',error);}
+  error.setAttribute('data-i18n',key);error.textContent=kkT(key);error.hidden=false;
+  input.setAttribute('aria-invalid','true');
+  var described=(input.getAttribute('aria-describedby')||'').split(/\s+/).filter(Boolean);
+  if(described.indexOf(errorId)===-1)described.push(errorId);
+  input.setAttribute('aria-describedby',described.join(' '));
+}
+function kkReadEntry(prefix){
+  var nameInput=document.getElementById(prefix+'-name'),amountInput=document.getElementById(prefix+'-amount');
+  var name=nameInput.value.trim(),amount=kkParseAmount(amountInput.value),firstInvalid=null;
+  kkClearEntryError(nameInput);kkClearEntryError(amountInput);
+  if(!name){kkEntryError(nameInput,'kk_input_name_required');firstInvalid=nameInput;}
+  if(amount===null){kkEntryError(amountInput,amountInput.value.trim()?'kk_input_amount_invalid':'kk_input_amount_required');if(!firstInvalid)firstInvalid=amountInput;}
+  if(firstInvalid){firstInvalid.focus();return null;}
+  return {name:name,amount:amount};
+}
+function kkClearEntry(prefix){
+  ['name','amount'].forEach(function(field){var input=document.getElementById(prefix+'-'+field);input.value='';kkClearEntryError(input);});
+}
+
 var CAT_COLORS={'食費':'#FF6B6B','住居':'#4D96FF','交通':'#FFA94D','光熱費':'#FFD43B','通信費':'#9775FA','娯楽':'#FF8FAB','医療':'#38D9A9','衣類':'#A0826D','その他':'#ADB5BD','現金':'#63E6BE','国内株':'#4D96FF','米国株':'#FF6B6B','投資信託':'#FFD43B','ETF':'#9775FA','債券':'#38D9A9','不動産':'#FFA94D','仮想通貨':'#F783AC'};
 function _safeChart(id){try{var ex=Chart.getChart(id);if(ex)ex.destroy();}catch(e){}}
 // Cache the source config before Chart/the reading palette can mutate it.
@@ -1008,7 +1062,14 @@ function openDayModal(y,m,day){_modalDate={y:y,m:m,day:day};var tEl=document.get
 function closeDayModal(e){if(e.target===document.getElementById('dayModal'))closeDayModalBtn();}
 function closeDayModalBtn(){var modal=document.getElementById('dayModal');if(modal)modal.classList.remove('open');renderCalendar();}
 function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t){var form=document.getElementById('modal-form-'+t);if(form)form.style.display=t===f?'':'none';var btn=document.getElementById('mft-'+t);if(btn)btn.className='type-tab'+(t===f?' sel-'+t:'');});}
-function addDayRecord(type){if(!_modalDate)return;var name,amount,cat='';if(type==='inc'){name=document.getElementById('m-inc-name').value.trim();amount=parseInt(document.getElementById('m-inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inc-name').value='';document.getElementById('m-inc-amount').value='';}else if(type==='exp'){name=document.getElementById('m-exp-name').value.trim();cat=document.getElementById('m-exp-cat').value;amount=parseInt(document.getElementById('m-exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-exp-name').value='';document.getElementById('m-exp-amount').value='';}else if(type==='inv'){name=document.getElementById('m-inv-name').value.trim();cat=document.getElementById('m-inv-cat').value;amount=parseInt(document.getElementById('m-inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inv-name').value='';document.getElementById('m-inv-amount').value='';}var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
+function addDayRecord(type){
+  if(!_modalDate||['inc','exp','inv'].indexOf(type)===-1)return;
+  var prefix='m-'+type,entry=kkReadEntry(prefix);if(!entry)return;
+  var cat=type==='inc'?'':document.getElementById(prefix+'-cat').value;
+  var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);
+  data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
+  saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);kkClearEntry(prefix);renderDayModal();
+}
 function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
 function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
 
@@ -1047,12 +1108,29 @@ function openDayModal(y,m,day){_modalDate={y:y,m:m,day:day};var tEl=document.get
 function closeDayModal(e){if(e.target===document.getElementById('dayModal'))closeDayModalBtn();}
 function closeDayModalBtn(){var modal=document.getElementById('dayModal');if(modal)modal.classList.remove('open');renderCalendar();}
 function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t){var form=document.getElementById('modal-form-'+t);if(form)form.style.display=t===f?'':'none';var btn=document.getElementById('mft-'+t);if(btn)btn.className='type-tab'+(t===f?' sel-'+t:'');});}
-function addDayRecord(type){if(!_modalDate)return;var name,amount,cat='';if(type==='inc'){name=document.getElementById('m-inc-name').value.trim();amount=parseInt(document.getElementById('m-inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inc-name').value='';document.getElementById('m-inc-amount').value='';}else if(type==='exp'){name=document.getElementById('m-exp-name').value.trim();cat=document.getElementById('m-exp-cat').value;amount=parseInt(document.getElementById('m-exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-exp-name').value='';document.getElementById('m-exp-amount').value='';}else if(type==='inv'){name=document.getElementById('m-inv-name').value.trim();cat=document.getElementById('m-inv-cat').value;amount=parseInt(document.getElementById('m-inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('m-inv-name').value='';document.getElementById('m-inv-amount').value='';}var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
+function addDayRecord(type){
+  if(!_modalDate||['inc','exp','inv'].indexOf(type)===-1)return;
+  var prefix='m-'+type,entry=kkReadEntry(prefix);if(!entry)return;
+  var cat=type==='inc'?'':document.getElementById(prefix+'-cat').value;
+  var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);
+  data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
+  saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);kkClearEntry(prefix);renderDayModal();
+}
 function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day).filter(function(e){return e.id!==id;});saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data);renderDayModal();}
 function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+e.name+'</div><div class="day-rec-cat">'+kkCat(sub)+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord('+e.id+')">✕</button></div>';}).join('');}
 function switchTab(tab){var focusInput=tab==='cashflow',focusExpenses=tab==='dashboard';if(focusInput||focusExpenses)tab='home';document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);if(focusInput&&window.kkLayoutFocusInput)window.kkLayoutFocusInput();if(focusExpenses&&window.kkLayoutFocusExpenses)window.kkLayoutFocusExpenses();}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');btn.setAttribute('aria-pressed',String(t===f));});}
-function addRecord(type){var name,amount,cat='';if(type==='inc'){name=document.getElementById('inc-name').value.trim();amount=parseInt(document.getElementById('inc-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('inc-name').value='';document.getElementById('inc-amount').value='';}else if(type==='exp'){name=document.getElementById('exp-name').value.trim();cat=document.getElementById('exp-cat').value;amount=parseInt(document.getElementById('exp-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('exp-name').value='';document.getElementById('exp-amount').value='';}else if(type==='inv'){name=document.getElementById('inv-name').value.trim();cat=document.getElementById('inv-cat').value;amount=parseInt(document.getElementById('inv-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('inv-name').value='';document.getElementById('inv-amount').value='';}else if(type==='ast'){name=document.getElementById('ast-name').value.trim();cat=document.getElementById('ast-cat').value;amount=parseInt(document.getElementById('ast-amount').value)||0;if(!name||!amount){alert(kkT("kk_js_input_pls"));return;}document.getElementById('ast-name').value='';document.getElementById('ast-amount').value='';var assets=getAssets();assets.push({id:Date.now(),name:name,cat:cat,amount:amount});saveAssets(assets);renderAll();return;}var data=getData();data.push({id:Date.now(),type:type,name:name,cat:cat,amount:amount});saveData(data);renderAll();}
+function addRecord(type){
+  if(['inc','exp','inv','ast'].indexOf(type)===-1)return;
+  var entry=kkReadEntry(type);if(!entry)return;
+  var cat=type==='inc'?'':document.getElementById(type+'-cat').value;
+  if(type==='ast'){
+    var assets=getAssets();assets.push({id:Date.now(),name:entry.name,cat:cat,amount:entry.amount});
+    saveAssets(assets);kkClearEntry(type);renderAll();return;
+  }
+  var data=getData();data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
+  saveData(data);kkClearEntry(type);renderAll();
+}
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
 function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!==id;}));renderAll();}
 function renderAll(){
