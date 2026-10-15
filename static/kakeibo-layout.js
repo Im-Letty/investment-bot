@@ -24,6 +24,13 @@
 
   window.kkLayoutLanguageChanged = languageChanged;
   window.kkLayoutTabChanged = tabChanged;
+  window.kkLayoutFocusInput = function () {
+    var title = document.getElementById('kkEntryTitle');
+    if (title) {
+      title.scrollIntoView({block: 'start'});
+      title.focus({preventScroll: true});
+    }
+  };
 
   document.addEventListener('click', function (event) {
     var back = event.target.closest('.back-btn');
@@ -39,7 +46,9 @@
     if (go) {
       var tab = go.getAttribute('data-kk-layout-go');
       if (typeof window.switchTab === 'function') window.switchTab(tab);
-      var first = document.querySelector('#tab-' + tab + ' [data-kk-pane-title]');
+      var anchor = document.getElementById(go.getAttribute('data-kk-layout-anchor'));
+      var first = anchor || document.querySelector('#tab-' + tab + ' [data-kk-pane-title]');
+      if (anchor) anchor.scrollIntoView({block: 'start'});
       if (first) first.focus({preventScroll: true});
       return;
     }

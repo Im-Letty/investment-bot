@@ -1,8 +1,8 @@
-/* The selected paper layout changes presentation, not the ledger data model. */
+/* Notebook surface with the selected two-by-two monthly summary and original entry controls. */
 body.kn-ledger-letter.kn-ledger-paper:not([data-kn-ledger-dark="true"]) {
-  --kn-ledger-bg:color-mix(in srgb,var(--kn-sh-bg,#f1f5f2) 16%,#fff);
-  --kn-ledger-paper:color-mix(in srgb,var(--kn-sh-paper,#fff) 8%,#fff);
-  --kn-ledger-chip:color-mix(in srgb,var(--kn-sh-button,#42795d) 6%,#fff);
+  --kn-ledger-bg:color-mix(in srgb,var(--kn-sh-bg,#f1f5f2) 10%,#fff);
+  --kn-ledger-paper:var(--kn-sh-paper,#fffdf6);
+  --kn-ledger-chip:color-mix(in srgb,var(--kn-sh-button,#42795d) 5%,var(--kn-ledger-paper));
 }
 body.kn-ledger-paper {overflow-wrap:break-word}
 body.kn-ledger-paper [hidden] {display:none!important}
@@ -10,7 +10,7 @@ body.kn-ledger-letter.kn-ledger-paper .kk-layout-header {border-bottom:0;padding
 body.kn-ledger-paper .header-top {position:relative;gap:12px;min-height:44px}
 body.kn-ledger-letter.kn-ledger-paper .header-title {
   flex:1;min-width:0;display:flex;align-items:center;gap:10px;margin:0;
-  font:500 calc(20px * var(--kn-ledger-scale,1))/1.4 var(--kn-ledger-sans);
+  font:500 calc(20px * var(--kn-ledger-scale,1))/1.4 var(--kn-ledger-serif);
 }
 body.kn-ledger-paper .kk-title-icon {width:22px;height:22px;flex:none}
 body.kn-ledger-letter.kn-ledger-paper .back-btn {
@@ -55,11 +55,11 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item.active {
 body.kn-ledger-letter.kn-ledger-paper .tab-content {padding-top:18px}
 body.kn-ledger-letter.kn-ledger-paper #tab-home {max-width:720px}
 body.kn-ledger-paper .kk-paper-overview {
-  padding:4px 18px 0;border:1px solid var(--kn-ledger-line);border-radius:10px;
-  background:var(--kn-ledger-paper);margin-bottom:28px;
+  padding:4px 20px 20px;border:1px solid var(--kn-ledger-line);border-radius:10px;
+  background:var(--kn-ledger-paper);margin-bottom:26px;
 }
 body.kn-ledger-paper .kk-paper-overview .month-nav {margin:0;padding:12px 0}
-body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .mnav-lbl {font:500 calc(16px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans)}
+body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .mnav-lbl {font:500 calc(16px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-serif)}
 body.kn-ledger-letter.kn-ledger-paper .mnav-btn {min-width:44px;min-height:44px}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-grid {grid-template-columns:repeat(2,minmax(0,1fr));gap:0;margin:0}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-item {
@@ -72,12 +72,58 @@ body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-num {
   margin-top:5px;font-size:calc(23px * var(--kn-ledger-scale,1));line-height:1.5;
   color:var(--kn-ledger-ink);font-weight:500;white-space:normal;overflow-wrap:anywhere;
 }
-body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview #d-balance {color:var(--kn-ledger-income)}
+body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview #d-balance {color:var(--kn-ledger-ink)}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview #d-balance.red {color:var(--kn-ledger-expense)}
 body.kn-ledger-paper .kk-layout-note {
   margin:0;color:var(--kn-ledger-muted);font:400 calc(12px * var(--kn-ledger-scale,1))/1.8 var(--kn-ledger-sans);
 }
 body.kn-ledger-paper .kk-balance-rule {padding:14px 10px 16px}
+body.kn-ledger-paper .kk-monthly-entry {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 12px;
+  border-top:1px solid var(--kn-ledger-line);padding-top:20px;scroll-margin-top:20px;
+}
+body.kn-ledger-paper .kk-monthly-entry .kk-pane-title {
+  align-self:center;margin:0;font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:500;
+}
+body.kn-ledger-paper #kk-input-actions {margin:0!important;min-width:0}
+body.kn-ledger-letter.kn-ledger-paper #kk-input-actions .kkb {
+  min-width:0;min-height:44px;padding:7px 10px!important;gap:6px;border-radius:8px;
+  border:1px solid var(--kn-ledger-line)!important;background:transparent!important;
+  color:var(--kn-ledger-ink)!important;box-shadow:none!important;transform:none;
+}
+body.kn-ledger-paper #kk-input-actions .kkb-icon {display:none}
+body.kn-ledger-letter.kn-ledger-paper #kk-input-actions .kkb-title {
+  color:var(--kn-ledger-ink)!important;font-size:calc(12px * var(--kn-ledger-scale,1));font-weight:400;
+}
+body.kn-ledger-paper #kk-input-actions .kkb-sub {display:none}
+body.kn-ledger-paper .kk-monthly-entry>:is(.kk-monthly-form,.kk-pane-links,.kk-input-note) {grid-column:1/-1}
+body.kn-ledger-paper .kk-monthly-entry .kk-pane-links {margin:2px 0 0}
+body.kn-ledger-paper .kk-monthly-entry .kk-input-note {margin:0;font-size:calc(11px * var(--kn-ledger-scale,1))}
+body.kn-ledger-paper .kk-monthly-form {min-width:0}
+body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .form-tabs {
+  gap:0;margin:0 0 20px;border-bottom:1px solid var(--kn-ledger-line);background:transparent;
+}
+body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .ftab {
+  min-width:0;min-height:44px;padding:10px 6px;border:0;border-radius:0;background:transparent;
+  color:var(--kn-ledger-muted);font-size:calc(14px * var(--kn-ledger-scale,1));font-weight:400;
+}
+body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .ftab[aria-pressed="true"] {
+  color:var(--kn-ledger-ink);background:transparent;box-shadow:inset 0 -2px 0 var(--kn-ledger-button);font-weight:500;
+}
+body.kn-ledger-paper .kk-entry-label {
+  display:block;margin:14px 0 4px;color:var(--kn-ledger-muted);
+  font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);
+}
+body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .inp {
+  border:0!important;border-bottom:1px solid var(--kn-ledger-line)!important;border-radius:0!important;
+  background:transparent!important;color:var(--kn-ledger-ink);padding:10px 0!important;margin:0!important;
+  min-height:48px;box-shadow:none;
+}
+body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .submit-btn {
+  min-height:48px;margin-top:20px;padding:11px 14px;border:0;border-radius:10px;
+  background:var(--kn-ledger-button)!important;color:var(--kn-ledger-on-button,var(--kn-ledger-paper))!important;
+  font-size:calc(14px * var(--kn-ledger-scale,1));font-weight:500;
+}
 body.kn-ledger-letter.kn-ledger-paper .kk-home-trend {
   padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;margin-bottom:4px;
 }
@@ -101,7 +147,7 @@ body.kn-ledger-paper .cal-grid {grid-template-columns:repeat(7,minmax(0,1fr))}
 body.kn-ledger-paper .cal-day {min-width:0}
 @media(max-width:480px) {
   body.kn-ledger-letter.kn-ledger-paper .kk-layout-header {padding-block:14px!important}
-  body.kn-ledger-paper .kk-paper-overview {padding-inline:12px;margin-bottom:24px}
+  body.kn-ledger-paper .kk-paper-overview {padding-inline:16px;padding-bottom:18px;margin-bottom:24px}
   body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-item {padding:16px 8px}
   body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-num {font-size:calc(21px * var(--kn-ledger-scale,1))}
   body.kn-ledger-paper .kk-paper-overview .month-nav {padding-block:8px}
