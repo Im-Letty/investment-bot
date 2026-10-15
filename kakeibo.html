@@ -313,14 +313,14 @@ body{padding-bottom:24px;}
   <div class="card kk-home-trend">
     <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><span class="kk-trend-period-label" id="kkTrendPeriodLabel" data-i18n="kk_trend_period">表示期間</span></div>
     <div class="kk-trend-periods" role="group" aria-labelledby="kkTrendPeriodLabel">
-      <button type="button" data-kk-trend-period="all" aria-pressed="true" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('all')" data-i18n="kk_trend_all">全期間</button>
-      <button type="button" data-kk-trend-period="1" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('1')" data-i18n="kk_trend_1">1か月</button>
+      <button type="button" data-kk-trend-period="all" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('all')" data-i18n="kk_trend_all">全期間</button>
+      <button type="button" data-kk-trend-period="1" aria-pressed="true" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('1')" data-i18n="kk_trend_1">1か月</button>
       <button type="button" data-kk-trend-period="6" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('6')" data-i18n="kk_trend_6">半年</button>
       <button type="button" data-kk-trend-period="12" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('12')" data-i18n="kk_trend_12">1年</button>
       <button type="button" data-kk-trend-period="36" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('36')" data-i18n="kk_trend_36">3年</button>
       <button type="button" data-kk-trend-period="custom" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('custom')" data-i18n="kk_trend_custom">期間を指定</button>
     </div>
-    <select id="kkTrendPeriod" aria-labelledby="kkTrendPeriodLabel" onchange="kkTrendSetPeriod(this.value)" hidden><option value="all" selected data-i18n="kk_trend_all">全期間</option><option value="1" data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select>
+    <select id="kkTrendPeriod" aria-labelledby="kkTrendPeriodLabel" onchange="kkTrendSetPeriod(this.value)" hidden><option value="all" data-i18n="kk_trend_all">全期間</option><option value="1" selected data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select>
     <div id="kkTrendCustom" class="kk-trend-custom" hidden><label><span data-i18n="kk_trend_from">開始月</span><input id="kkTrendFrom" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><label><span data-i18n="kk_trend_to">終了月</span><input id="kkTrendTo" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><button type="button" onclick="kkTrendApplyRange()" data-i18n="kk_trend_apply">表示する</button><p id="kkTrendError" role="alert" data-i18n="kk_trend_invalid_range" hidden>開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。</p></div>
     <p id="kkTrendRange" class="kk-layout-note kk-trend-range" role="status" aria-live="polite"></p>
     <div class="chart-area"><canvas id="lineChart" role="img" aria-describedby="kkTrendRange"></canvas></div>
@@ -1146,7 +1146,7 @@ function kkClearEntry(prefix){
 
 
 // Period settings stay in this iframe; only active home-entry ledger keys are read.
-var _trendPeriod='all',_trendCustom=null;
+var _trendPeriod='1',_trendCustom=null;
 function kkTrendMonth(value){
   var match=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(value));
   return match&&Number(match[1])>=1?Number(match[1])*12+Number(match[2])-1:null;
@@ -1317,6 +1317,7 @@ function getAssets(){return JSON.parse(localStorage.getItem('kb2_assets')||'[]')
 function saveAssets(d){localStorage.setItem('kb2_assets',JSON.stringify(d));}
 function fmt(n){return kkT('kk_currency_symbol')+Number(n||0).toLocaleString();}
 function changeMonth(d){_month+=d;if(_month>12){_month=1;_year++;}if(_month<1){_month=12;_year--;}
+_trendPeriod='1';kkTrendClearError();
 var _calYear=new Date().getFullYear(),_calMonth=new Date().getMonth()+1,_modalDate=null,_modalForm='inc';
 function calChangeMonth(d){_calMonth+=d;if(_calMonth>12){_calMonth=1;_calYear++;}if(_calMonth<1){_calMonth=12;_calYear--;}renderCalendar();}
 function getDayKey(y,m,day){return 'kbday_'+y+'_'+(m<10?'0'+m:m)+'_'+(day<10?'0'+day:day);}

@@ -81,13 +81,53 @@ function fixture(seed={},{charts=false,mutatePalette=false}={}){
   };
 }
 
+// Tests for full-history aggregation explicitly choose that mode.
+function allFixture(seed={},options={}){const h=fixture(seed,options);h.setPeriod('all');return h;}
+
+test('home initially graphs the selected month from day one and keeps undated records visible separately',()=>{
+  const records=[{id:1,type:'inc',amount:100,date:'2026-10-01'},{id:2,type:'exp',amount:25,date:'2026-10-31'},{id:3,type:'exp',amount:10}];
+  const h=fixture({...seedMonth(2026,10,records),...seedMonth(2026,11,rows(999,888))},{charts:true}),data=h.data();
+  assert.equal(h.context._trendPeriod,'1');assert.equal(data.unit,'day');assert.equal(data.from,'2026-10');assert.equal(data.to,'2026-10');assert.equal(data.labels.length,31);
+  assert.equal(data.income[0],100);assert.equal(data.expense.at(-1),25);assert.equal(data.undated.expense,10);
+  assert.equal(h.nodes.get('kkTrendPeriod').value,'1');assert.equal(h.nodes.get('kkTrendUndatedNotice').hidden,false);
+  assert.match(h.nodes.get('kkTrendRange').textContent,/2026\/10\/01.*2026\/10\/31/);assert.equal(h.writes.length,0);
+});
+test('upper month navigation links summary and daily graph through November and back without writing records or clearing amount drafts',()=>{
+  const october=[{id:1,type:'inc',amount:100,date:'2026-10-01'}],november=[{id:2,type:'exp',amount:75,date:'2026-11-30'}];
+  const seed={...seedMonth(2026,10,october),...seedMonth(2026,11,november)},h=fixture(seed,{charts:true});
+  h.nodes.get('exp-amount').value='１２３４';h.context.changeMonth(1);let data=h.data();
+  assert.equal(h.context._month,11);assert.equal(data.from,'2026-11');assert.equal(data.days,30);assert.equal(data.expense[29],75);assert.equal(total(data.income),0);
+  assert.equal(h.nodes.get('d-expense').textContent,'¥75');assert.match(h.nodes.get('kkTrendRange').textContent,/2026\/11\/01.*2026\/11\/30/);
+  assert.equal(h.nodes.get('exp-amount').value,'１２３４');h.context.changeMonth(-1);data=h.data();assert.equal(data.days,31);assert.equal(data.income[0],100);
+  for(const [key,value] of Object.entries(seed))assert.equal(h.values.get(key),value);assert.equal(h.writes.length,0);
+});
+test('changing the upper month returns every long-range mode to that month while all history and committed custom range remain selectable',()=>{
+  const h=fixture({...seedMonth(2020,1,rows(10,2)),...seedMonth(2026,10,rows(20,3)),...seedMonth(2029,1,rows(30,4))},{charts:true});
+  h.custom('2020-01','2029-01');const custom=copy(h.context._trendCustom);
+  for(const period of ['all','6','12','36','custom']){
+    h.setPeriod(period);h.context.changeMonth(1);const data=h.data();
+    assert.equal(h.context._trendPeriod,'1');assert.equal(h.nodes.get('kkTrendPeriod').value,'1');assert.equal(data.unit,'day');assert.equal(data.from,h.context.kkTrendMonthValue(h.context._year*12+h.context._month-1));
+    assert.equal(h.nodes.get('kkTrendCustom').hidden,true);assert.deepEqual(copy(h.context._trendCustom),custom);
+    assert.deepEqual(h.document.querySelectorAll('[data-kk-trend-period]').filter(b=>b.getAttribute('aria-pressed')==='true').map(b=>b.getAttribute('data-kk-trend-period')),['1']);
+  }
+  assert.equal(total(h.setPeriod('all').income),60);assert.deepEqual(copy(h.custom('2020-01','2029-01')).income.filter(Boolean),[10,20,30]);
+  assert.equal(h.writes.length,0);
+});
+test('month-linked view handles year rollover and leap-day bounds and does not reset long-range choices on ordinary redraws',()=>{
+  const h=fixture({}, {charts:true});h.context._year=2023;h.context._month=12;h.setPeriod('all');h.context.changeMonth(1);
+  assert.equal(h.data().from,'2024-01');assert.equal(h.data().days,31);h.context.changeMonth(1);assert.equal(h.data().from,'2024-02');assert.equal(h.data().days,29);
+  h.context.changeMonth(-1);assert.equal(h.data().from,'2024-01');h.context.changeMonth(-1);assert.equal(h.data().from,'2023-12');
+  h.setPeriod('12');const data=copy(h.data());h.context.renderAll();h.context.kkApplyLang('en');h.theme();h.fire('focus');h.flush();
+  assert.equal(h.context._trendPeriod,'12');assert.deepEqual(copy(h.data()),data);
+});
+
 test('strict month parsing and formatting reject impossible custom endpoints',()=>{
-  const h=fixture();
+  const h=allFixture();
   for(const value of ['0001-01','2026-01','2026-12','9999-12'])assert.equal(h.context.kkTrendMonthValue(h.context.kkTrendMonth(value)),value);
   for(const value of ['','2026-00','2026-13','2026-1','2026-001','2026/01','0000-01','10000-01','2026-01x',' 2026-01','２０２６-０１'])assert.equal(h.context.kkTrendMonth(value),null,value);
 });
 test('six, twelve and thirty-six month presets end at the selected month and cross years correctly',()=>{
-  const h=fixture({...seedMonth(2023,2,rows(3,1)),...seedMonth(2025,12,rows(100,20)),...seedMonth(2026,1,rows(200,30))});
+  const h=allFixture({...seedMonth(2023,2,rows(3,1)),...seedMonth(2025,12,rows(100,20)),...seedMonth(2026,1,rows(200,30))});
   h.context._year=2026;h.context._month=1;
   for(const [period,from,count] of [['6','2025-08',6],['12','2025-02',12],['36','2023-02',36]]){
     const data=h.setPeriod(period);assert.equal(data.from,from);assert.equal(data.to,'2026-01');assert.equal(data.months,count);assert.equal(data.unit,'month');assert.equal(data.labels.length,count);
@@ -98,7 +138,7 @@ test('six, twelve and thirty-six month presets end at the selected month and cro
 test('one-month preset spans day one through the actual last day, including Gregorian leap years',()=>{
   for(const [year,month,days] of [[2026,1,31],[2026,4,30],[2023,2,28],[2024,2,29],[1900,2,28],[2000,2,29]]){
     const value=String(year).padStart(4,'0')+'-'+String(month).padStart(2,'0');
-    const h=fixture(seedMonth(year,month,[{id:1,type:'inc',name:'架空の初日収入',amount:10,date:value+'-01'},{id:2,type:'inc',name:'架空の月末収入',amount:5,date:value+'-'+days}]));
+    const h=allFixture(seedMonth(year,month,[{id:1,type:'inc',name:'架空の初日収入',amount:10,date:value+'-01'},{id:2,type:'inc',name:'架空の月末収入',amount:5,date:value+'-'+days}]));
     h.context._year=year;h.context._month=month;const data=h.setPeriod('1');
     assert.equal(data.labels.length,days,year+'-'+month+' starts at day one and includes every calendar day');
     assert.equal(data.unit,'day');assert.equal(data.days,days);assert.equal(data.months,1);assert.equal(data.from,value);assert.equal(data.to,value);
@@ -106,17 +146,18 @@ test('one-month preset spans day one through the actual last day, including Greg
     assert.equal(data.income[0],10);assert.equal(data.income.at(-1),5);assert.equal(total(data.income),15);
   }
 });
-test('default all shows every stored past and future monthly input, with missing months zero and empty arrays excluded from bounds',()=>{
-  const h=fixture({...seedMonth(1900,1,[]),...seedMonth(2022,12,rows(10,2)),...seedMonth(2026,10,rows(20,3)),...seedMonth(2029,1,rows(30,4)),...seedMonth(9999,12,[])},{charts:true});
+test('explicit all shows every stored past and future monthly input, with missing months zero and empty arrays excluded from bounds',()=>{
+  const h=allFixture({...seedMonth(1900,1,[]),...seedMonth(2022,12,rows(10,2)),...seedMonth(2026,10,rows(20,3)),...seedMonth(2029,1,rows(30,4)),...seedMonth(9999,12,[])},{charts:true});
   const line=h.chartInstances.get('lineChart');assert.equal(line.data.labels.length,74,'the visible chart includes older and future input instead of only the selected six months');
   assert.equal(total(line.data.datasets[0].data),60);assert.equal(total(line.data.datasets[1].data),9);
   const data=h.data();assert.equal(h.context._trendPeriod,'all');assert.equal(data.from,'2022-12');assert.equal(data.to,'2029-01');assert.equal(data.months,74);
   assert.equal(data.labels.length,74);assert.equal(data.unit,'month');assert.equal(data.income[0],10);assert.equal(data.income.at(-1),30);assert.equal(data.income[1],0);
   assert.equal(total(data.income),60);assert.equal(total(data.expense),9);assert.equal(data.unreadable,false);
-  h.context.changeMonth(-20);assert.deepEqual(copy(h.data()),copy(data),'all is independent of the overview month cursor');
+  h.context.changeMonth(1);assert.equal(h.context._trendPeriod,'1');assert.equal(h.data().from,'2026-11');
+  assert.deepEqual(copy(h.setPeriod('all')),copy(data),'all stored history remains available after navigating to a month');
 });
 test('daily, assets, backups and malformed key names cannot enter or extend the trend',()=>{
-  const h=fixture({...seedMonth(2026,10,rows(20,3)),
+  const h=allFixture({...seedMonth(2026,10,rows(20,3)),
     kbday_1800_01_01:JSON.stringify(rows(999,999)),kb2_assets:JSON.stringify([{amount:8888}]),
     'kn_ledger_backup:other-owner':JSON.stringify(seedMonth(1700,1,rows(9999,9999))),
     kb2_2026_1:JSON.stringify(rows(7777,7777)),kb2_2026_13:JSON.stringify(rows(7777,7777)),kb2_2026_10_extra:JSON.stringify(rows(7777,7777))});
@@ -125,11 +166,11 @@ test('daily, assets, backups and malformed key names cannot enter or extend the 
   assert.ok(h.reads.every(key=>/^kb2_\d{4}_\d{2}$/.test(key)&&!key.endsWith('_13')),JSON.stringify(h.reads));
 });
 test('investment-only input months define all bounds but never become income or expense series',()=>{
-  const h=fixture({...seedMonth(2026,1,rows(0,0,10000)),...seedMonth(2026,3,rows(100,20,5000))}),data=h.data();
+  const h=allFixture({...seedMonth(2026,1,rows(0,0,10000)),...seedMonth(2026,3,rows(100,20,5000))}),data=h.data();
   assert.equal(data.from,'2026-01');assert.equal(data.to,'2026-03');assert.deepEqual(copy(data.income),[0,0,100]);assert.deepEqual(copy(data.expense),[0,0,20]);
 });
 test('custom endpoints are inclusive, keep committed data on invalid drafts and recover with an explicit apply',()=>{
-  const h=fixture({...seedMonth(2025,12,rows(1,2)),...seedMonth(2026,1,rows(3,4)),...seedMonth(2026,2,rows(5,6)),...seedMonth(2026,3,rows(7,8))},{charts:true});
+  const h=allFixture({...seedMonth(2025,12,rows(1,2)),...seedMonth(2026,1,rows(3,4)),...seedMonth(2026,2,rows(5,6)),...seedMonth(2026,3,rows(7,8))},{charts:true});
   const original=h.custom('2026-01','2026-02');assert.equal(original.from,'2026-01');assert.equal(original.to,'2026-02');assert.deepEqual(copy(original.income),[3,5]);assert.deepEqual(copy(original.expense),[4,6]);
   const committed=copy(h.context._trendCustom),chart=h.chartInstances.get('lineChart');
   for(const [from,to] of [['2026-03','2026-01'],['2026-13','2026-03'],['','2026-03'],['2026-1','2026-03']]){
@@ -143,7 +184,7 @@ test('custom endpoints are inclusive, keep committed data on invalid drafts and 
   assert.equal(h.data().months,4);assert.equal(total(h.data().income),16);assert.equal(total(h.data().expense),20);assert.equal(h.nodes.get('kkTrendError').hidden,true);
 });
 test('entering custom mode seeds the current effective range and later redraws do not overwrite drafts',()=>{
-  const h=fixture({...seedMonth(2025,1,rows(5,1)),...seedMonth(2026,10,rows(10,2))});
+  const h=allFixture({...seedMonth(2025,1,rows(5,1)),...seedMonth(2026,10,rows(10,2))});
   const data=h.setPeriod('6');h.setPeriod('custom');assert.equal(h.nodes.get('kkTrendFrom').value,data.from);assert.equal(h.nodes.get('kkTrendTo').value,data.to);
   h.nodes.get('kkTrendFrom').value='2026-13';h.nodes.get('kkTrendTo').value='';h.context.kkTrendApplyRange();
   h.context.renderAll();h.context.kkApplyLang('en');h.context.renderAll();
@@ -151,30 +192,30 @@ test('entering custom mode seeds the current effective range and later redraws d
 });
 test('120 months stay monthly and 121 months switch to annual buckets without dropping any record',()=>{
   const seed={};for(let year=2017;year<=2026;year++)for(let month=1;month<=12;month++)Object.assign(seed,seedMonth(year,month,rows(1,2)));
-  const h=fixture(seed);let data=h.data();assert.equal(data.months,120);assert.equal(data.unit,'month');assert.equal(data.labels.length,120);assert.equal(total(data.income),120);assert.equal(total(data.expense),240);
+  const h=allFixture(seed);let data=h.data();assert.equal(data.months,120);assert.equal(data.unit,'month');assert.equal(data.labels.length,120);assert.equal(total(data.income),120);assert.equal(total(data.expense),240);
   h.context.localStorage.setItem('kb2_2016_12',JSON.stringify(rows(3,4)));h.context.renderAll();data=h.data();
   assert.equal(data.from,'2016-12');assert.equal(data.to,'2026-12');assert.equal(data.months,121);assert.equal(data.unit,'year');assert.equal(data.labels.length,11);
   assert.equal(total(data.income),123);assert.equal(total(data.expense),244);assert.equal(data.income[0],3);assert.equal(data.expense[0],4);
   assert.match(h.nodes.get('kkTrendRange').textContent,/年/);
 });
 test('long custom ranges aggregate partial boundary years only within the inclusive endpoints',()=>{
-  const h=fixture({...seedMonth(2000,1,rows(9999,9999)),...seedMonth(2000,12,rows(3,4)),...seedMonth(2010,1,rows(5,6)),...seedMonth(2010,12,rows(9999,9999)),...seedMonth(2011,2,rows(9999,9999))});
+  const h=allFixture({...seedMonth(2000,1,rows(9999,9999)),...seedMonth(2000,12,rows(3,4)),...seedMonth(2010,1,rows(5,6)),...seedMonth(2010,12,rows(9999,9999)),...seedMonth(2011,2,rows(9999,9999))});
   const data=h.custom('2000-12','2010-12');assert.equal(data.unit,'year');assert.equal(total(data.income),10007);assert.equal(total(data.expense),10009);
   const partial=h.custom('2000-12','2011-01');assert.equal(partial.unit,'year');assert.equal(partial.labels.length,12);assert.equal(total(partial.income),10007);assert.equal(partial.income.at(-1),0);
 });
 test('all retains both distant past and future values across many decades without a rolling cap',()=>{
-  const h=fixture({...seedMonth(1970,1,rows(1,2)),...seedMonth(2026,10,rows(10,20)),...seedMonth(2099,12,rows(100,200))}),data=h.data();
+  const h=allFixture({...seedMonth(1970,1,rows(1,2)),...seedMonth(2026,10,rows(10,20)),...seedMonth(2099,12,rows(100,200))}),data=h.data();
   assert.equal(data.from,'1970-01');assert.equal(data.to,'2099-12');assert.equal(data.months,1560);assert.equal(data.unit,'year');assert.equal(data.labels.length,130);
   assert.equal(data.income[0],1);assert.equal(data.income.at(-1),100);assert.equal(total(data.income),111);assert.equal(total(data.expense),222);
 });
 test('unreadable monthly source stays a visible gap and boundary rather than becoming a false zero',()=>{
-  const h=fixture({...seedMonth(2025,1,rows(10,2)),kb2_2025_02:'{"synthetic-broken":',...seedMonth(2025,3,rows(20,3)),kb2_2025_04:'{}',...seedMonth(2025,5,[])});
+  const h=allFixture({...seedMonth(2025,1,rows(10,2)),kb2_2025_02:'{"synthetic-broken":',...seedMonth(2025,3,rows(20,3)),kb2_2025_04:'{}',...seedMonth(2025,5,[])});
   const data=h.data();assert.equal(data.from,'2025-01');assert.equal(data.to,'2025-04');assert.equal(data.unreadable,true);
   assert.deepEqual(copy(data.income),[10,null,20,null]);assert.deepEqual(copy(data.expense),[2,null,3,null]);assert.equal(h.nodes.get('kkTrendDataNotice').hidden,false);
 });
 test('period and custom controls render gaps even when the selected or recent summary month becomes unreadable',()=>{
   for(const [key,corrupt] of [['kb2_2026_10','{"synthetic-broken":'],['kb2_2026_08','{}']]){
-    const h=fixture({...seedMonth(2026,8,rows(10,2)),...seedMonth(2026,10,rows(20,3))},{charts:true});
+    const h=allFixture({...seedMonth(2026,8,rows(10,2)),...seedMonth(2026,10,rows(20,3))},{charts:true});
     h.nodes.get('m-inv-name').value='保存前の架空下書き';h.nodes.get('exp-amount').value='１０００';
     const year=h.context._year,month=h.context._month;h.context.localStorage.setItem(key,corrupt);
     assert.doesNotThrow(()=>h.setPeriod('6'),'trend controls must not depend on unrelated summary or hidden-bar JSON parsing');
@@ -187,11 +228,11 @@ test('period and custom controls render gaps even when the selected or recent su
   }
 });
 test('invalid row amounts produce a gap for the affected month without corrupting another month',()=>{
-  const h=fixture({kb2_2025_01:'[{"type":"inc","amount":1e309}]',kb2_2025_02:JSON.stringify([{type:'exp',amount:'synthetic-invalid'}]),...seedMonth(2025,3,rows(4,5))});
+  const h=allFixture({kb2_2025_01:'[{"type":"inc","amount":1e309}]',kb2_2025_02:JSON.stringify([{type:'exp',amount:'synthetic-invalid'}]),...seedMonth(2025,3,rows(4,5))});
   const data=h.data();assert.equal(data.unreadable,true);assert.deepEqual(copy(data.income),[null,null,4]);assert.deepEqual(copy(data.expense),[null,null,5]);
 });
 test('annual sum overflow is marked unreadable and never sent to the chart as infinity or a false zero',()=>{
-  const h=fixture({...seedMonth(1970,1,rows(1,2)),...seedMonth(2026,1,rows(1e308,1e308)),...seedMonth(2026,2,rows(1e308,1e308))},{charts:true});
+  const h=allFixture({...seedMonth(1970,1,rows(1,2)),...seedMonth(2026,1,rows(1e308,1e308)),...seedMonth(2026,2,rows(1e308,1e308))},{charts:true});
   const data=h.data();assert.equal(data.unit,'year');assert.equal(data.unreadable,true);
   assert.equal(data.income[0],1);assert.equal(data.income.at(-1),null);assert.equal(data.expense.at(-1),null);
   assert.ok([...data.income,...data.expense].every(value=>value===null||Number.isFinite(value)));
@@ -199,20 +240,20 @@ test('annual sum overflow is marked unreadable and never sent to the chart as in
   h.context._year=2026;h.context._month=1;const month=h.custom('2026-01','2026-01');assert.equal(month.income[0],1e308);assert.equal(month.unreadable,false);
 });
 test('empty all data is bounded, zero-valued and excludes empty historical arrays',()=>{
-  const h=fixture({...seedMonth(1900,1,[]),...seedMonth(9999,12,[])}),data=h.data();
+  const h=allFixture({...seedMonth(1900,1,[]),...seedMonth(9999,12,[])}),data=h.data();
   assert.equal(data.from,'2026-10');assert.equal(data.to,'2026-10');assert.equal(data.months,1);assert.equal(data.unit,'month');assert.equal(data.unreadable,false);
   assert.deepEqual(copy(data.income),[0]);assert.deepEqual(copy(data.expense),[0]);assert.equal(h.nodes.get('kkTrendDataNotice').hidden,true);
 });
 test('empty, investment-only and zero totals use a zero-based yen axis without inventing recorded amounts',()=>{
   for(const records of [[],rows(0,0,10000),[{id:1,type:'exp',name:'架空の0円',amount:0}]]){
-    const h=fixture(seedMonth(2026,10,records),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
+    const h=allFixture(seedMonth(2026,10,records),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
     assert.equal(axis.beginAtZero,true);assert.equal(axis.suggestedMax,1000);assert.equal(axis.ticks.maxTicksLimit,5);
     assert.deepEqual(copy(chart.data.datasets.map(d=>d.data)),[[0],[0]]);
     assert.equal(axis.ticks.callback(0),'0円');assert.equal(axis.ticks.callback(1000),'1,000円');assert.equal(h.writes.length,0);
   }
 });
 test('trend yen labels retain thousands, negative and fractional amounts instead of flooring to whole ten-thousands',()=>{
-  const h=fixture(seedMonth(2026,10,rows(12500.25,-2500.5)),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
+  const h=allFixture(seedMonth(2026,10,rows(12500.25,-2500.5)),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
   assert.equal(axis.beginAtZero,true);assert.equal(axis.suggestedMax,undefined);assert.equal(axis.min,undefined);assert.equal(axis.max,undefined);
   assert.equal(axis.ticks.precision,undefined);assert.equal(axis.ticks.stepSize,undefined);
   for(const [amount,text] of [[0,'0円'],[-0,'0円'],[1200,'1,200円'],[12500.25,'12,500.25円'],[-2500.5,'-2,500.5円'],[0.25,'0.25円'],[-0.25,'-0.25円'],[1e-25,'1e-25円'],[1e308,'1e+308円'],[NaN,''],[Infinity,''],[null,'']])assert.equal(axis.ticks.callback(amount),text,String(amount));
@@ -220,7 +261,7 @@ test('trend yen labels retain thousands, negative and fractional amounts instead
   assert.deepEqual(copy(chart.data.datasets.map(d=>d.data)),[[12500.25],[-2500.5]]);assert.equal(h.writes.length,0);
 });
 test('all-negative amounts and unreadable gaps are preserved when setting the trend axis bounds',()=>{
-  const h=fixture({...seedMonth(2026,8,rows(-1000,-250)),...seedMonth(2026,10,rows(-2000,-500))},{charts:true});
+  const h=allFixture({...seedMonth(2026,8,rows(-1000,-250)),...seedMonth(2026,10,rows(-2000,-500))},{charts:true});
   h.values.set('kb2_2026_09','broken');h.setPeriod('all');
   const chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
   assert.equal(axis.suggestedMax,undefined);assert.equal(axis.min,undefined);assert.equal(axis.beginAtZero,true);
@@ -228,7 +269,7 @@ test('all-negative amounts and unreadable gaps are preserved when setting the tr
   assert.equal(h.values.get('kb2_2026_09'),'broken');assert.equal(h.writes.length,0);
 });
 test('trend currencies stay JPY in all four languages and redraws retain the chosen period and source data',()=>{
-  const h=fixture(seedMonth(2026,10,rows(12500.25,1200)),{charts:true});h.setPeriod('6');const expected=copy(h.data());
+  const h=allFixture(seedMonth(2026,10,rows(12500.25,1200)),{charts:true});h.setPeriod('6');const expected=copy(h.data());
   for(const [lang,suffix] of [['ja','円'],['en',' JPY'],['zh','日元'],['ko','엔']]){
     h.context.kkApplyLang(lang);const chart=h.chartInstances.get('lineChart');assert.equal(chart.options.scales.y.ticks.callback(12500.25),'12,500.25'+suffix);
     assert.deepEqual(copy(h.data()),expected);h.context.renderAll();assert.equal(h.chartInstances.get('lineChart'),chart);
@@ -236,7 +277,7 @@ test('trend currencies stay JPY in all four languages and redraws retain the cho
   assert.equal(h.context._trendPeriod,'6');assert.equal(h.writes.filter(key=>key.startsWith('kb2')).length,0);
 });
 test('unchanged trend redraws reuse the chart while locale, palette and font changes preserve the selected range',()=>{
-  const h=fixture({...seedMonth(2026,8,rows(10,2)),...seedMonth(2026,10,rows(20,3))},{charts:true,mutatePalette:true});
+  const h=allFixture({...seedMonth(2026,8,rows(10,2)),...seedMonth(2026,10,rows(20,3))},{charts:true,mutatePalette:true});
   const first=h.chartInstances.get('lineChart');h.context.renderAll();h.context.renderAll();assert.equal(h.chartInstances.get('lineChart'),first);
   h.custom('2026-08','2026-10');const committed=copy(h.context._trendCustom);const current=h.chartInstances.get('lineChart');
   h.context.renderAll();assert.equal(h.chartInstances.get('lineChart'),current);
@@ -246,7 +287,7 @@ test('unchanged trend redraws reuse the chart while locale, palette and font cha
   assert.equal(h.nodes.get('kkTrendFrom').value,'2026-08');assert.equal(h.nodes.get('kkTrendTo').value,'2026-10');
 });
 test('full-width monthly additions update all-range data while keeping the range selection and daily records independent',()=>{
-  const daily=JSON.stringify(rows(8888,9999));const h=fixture({kbday_2026_10_15:daily},{charts:true});
+  const daily=JSON.stringify(rows(8888,9999));const h=allFixture({kbday_2026_10_15:daily},{charts:true});
   assert.equal(h.document.getElementById('inc-name'),null);assert.equal(h.document.getElementById('exp-name'),null);
   h.nodes.get('inc-amount').value='１０００';h.context.addRecord('inc');
   h.nodes.get('exp-amount').value='２００';h.nodes.get('exp-cat').value='食費';h.context.addRecord('exp');
@@ -255,7 +296,7 @@ test('full-width monthly additions update all-range data while keeping the range
 });
 
 test('daily dates must be strict real Gregorian dates inside the selected monthly key',()=>{
-  const h=fixture();
+  const h=allFixture();
   for(const [year,month,days] of [[2024,2,29],[2023,2,28],[1900,2,28],[2000,2,29],[2026,4,30],[2026,10,31]])assert.equal(h.context.kkTrendMonthDays(year,month),days);
   for(const [value,year,month,day] of [['2026-10-01',2026,10,1],['2026-10-31',2026,10,31],['2024-02-29',2024,2,29],['2000-02-29',2000,2,29],['0001-01-01',1,1,1]])assert.equal(h.context.kkTrendMonthDay(value,year,month),day,value);
   for(const value of ['',null,undefined,'2026-10-00','2026-10-32','2026-9-01','2026-10-1','2026/10/01','2026-09-30','2026-11-01','2026-10-01T00:00:00Z',' 2026-10-01','２０２６-１０-０１'])assert.equal(h.context.kkTrendMonthDay(value,2026,10),null,String(value));
@@ -268,7 +309,7 @@ test('daily income and spending combine same-day signed fractions while investme
   const seed={...seedMonth(2026,10,month),...seedMonth(2026,9,[{id:7,type:'inc',amount:88888,date:'2026-10-01'}]),
     kbday_2026_10_01:JSON.stringify(rows(77777,66666)),kb2_assets:JSON.stringify([{id:8,amount:55555}]),
     'kn_ledger_backup:other-owner':JSON.stringify(seedMonth(2026,10,rows(44444,33333)))};
-  const h=fixture(seed);h.reads.length=0;h.writes.length=0;const data=h.setPeriod('1');
+  const h=allFixture(seed);h.reads.length=0;h.writes.length=0;const data=h.setPeriod('1');
   assert.equal(data.income[0],17.75);assert.equal(data.expense[0],5);assert.equal(data.income[30],-10);
   assert.equal(data.expense[30],0);assert.equal(total(data.income),7.75);assert.equal(total(data.expense),5);
   assert.equal(data.undated.count,0);assert.equal(data.undated.bad,false);assert.equal(data.unreadable,false);
@@ -280,7 +321,7 @@ test('undated legacy and impossible or foreign-month dates retain explicit count
     {id:2,type:'inc',amount:5.5,date:'2026-10-32'},{id:3,type:'exp',amount:7.75,date:'2026-09-30'},
     {id:4,type:'exp',amount:-0.25,date:'2026-02-29'},{id:5,type:'inv',amount:1000},
     {id:6,type:'inc',amount:10,date:'2026-10-02'}];
-  const original=JSON.stringify(records),h=fixture({kb2_2026_10:original},{charts:true});h.writes.length=0;
+  const original=JSON.stringify(records),h=allFixture({kb2_2026_10:original},{charts:true});h.writes.length=0;
   const data=h.setPeriod('1');assert.deepEqual(copy(data.undated),{count:4,income:105.5,expense:7.5,bad:false});
   assert.equal(total(data.income),10);assert.equal(total(data.expense),0);assert.equal(data.income[14],0,'id timestamp must never become an inferred transaction day');
   assert.equal(h.nodes.get('kkTrendUndatedNotice').hidden,false);assert.match(h.nodes.get('kkTrendUndatedNotice').textContent,/105\.5/);assert.match(h.nodes.get('kkTrendUndatedNotice').textContent,/7\.5/);
@@ -292,7 +333,7 @@ test('known-day invalid amounts and overflow become local null gaps without hidi
     const records=[{id:1,type:'inc',amount:bad,date:'2026-10-03'},{id:2,type:'exp',amount:2,date:'2026-10-03'},
       {id:3,type:'inc',amount:7.25,date:'2026-10-04'},{id:4,type:'exp',amount:1.5,date:'2026-10-04'}];
     if(bad===1e308)records.push({id:5,type:'inc',amount:1e308,date:'2026-10-03'});
-    const h=fixture(seedMonth(2026,10,records)),data=h.setPeriod('1');
+    const h=allFixture(seedMonth(2026,10,records)),data=h.setPeriod('1');
     assert.equal(data.income[2],null);assert.equal(data.expense[2],null);assert.equal(data.income[3],7.25);assert.equal(data.expense[3],1.5);
     assert.equal(data.income[0],0);assert.equal(data.unreadable,true);assert.equal(h.nodes.get('kkTrendDataNotice').hidden,false);
     assert.ok([...data.income,...data.expense].every(value=>value===null||Number.isFinite(value)));
@@ -301,14 +342,14 @@ test('known-day invalid amounts and overflow become local null gaps without hidi
 test('unknown-day invalid amounts mark undated totals unknown while valid dated days remain visible',()=>{
   const records=[{id:1,type:'inc',amount:'invalid'},{id:2,type:'exp',amount:null,date:'2026-11-01'},
     {id:3,type:'inc',amount:9.5,date:'2026-10-07'},{id:4,type:'exp',amount:2.25,date:'2026-10-07'}];
-  const h=fixture(seedMonth(2026,10,records)),data=h.setPeriod('1');
+  const h=allFixture(seedMonth(2026,10,records)),data=h.setPeriod('1');
   assert.deepEqual(copy(data.undated),{count:2,income:null,expense:null,bad:true});
   assert.equal(data.income[6],9.5);assert.equal(data.expense[6],2.25);assert.equal(data.income[0],0);
   assert.equal(h.nodes.get('kkTrendUndatedNotice').hidden,false);assert.doesNotMatch(h.nodes.get('kkTrendUndatedNotice').textContent,/NaN|Infinity|undefined/);
 });
 test('unreadable monthly JSON produces all-day gaps through the isolated daily controls',()=>{
   for(const broken of ['{"synthetic-broken":','{}','null']){
-    const h=fixture(seedMonth(2026,10,rows(10,2)),{charts:true});h.values.set('kb2_2026_10',broken);
+    const h=allFixture(seedMonth(2026,10,rows(10,2)),{charts:true});h.values.set('kb2_2026_10',broken);
     const data=h.setPeriod('1');assert.equal(data.unreadable,true);assert.equal(data.labels.length,31);
     assert.ok(data.income.every(value=>value===null));assert.ok(data.expense.every(value=>value===null));
     assert.ok(h.chartInstances.get('lineChart').data.datasets[0].data.every(value=>value===null));
@@ -318,14 +359,14 @@ test('unreadable monthly JSON produces all-day gaps through the isolated daily c
 test('only preset one is daily; all and even a one-month custom range retain complete monthly totals',()=>{
   const records=[{id:1,type:'inc',amount:10,date:'2026-10-01'},{id:2,type:'inc',amount:20,date:'2026-10-99'},
     {id:3,type:'inc',amount:5},{id:4,type:'exp',amount:3,date:'2026-10-20'},{id:5,type:'exp',amount:2},{id:6,type:'inv',amount:1000}];
-  const h=fixture({...seedMonth(2026,10,records),...seedMonth(2026,9,rows(7,1))});
+  const h=allFixture({...seedMonth(2026,10,records),...seedMonth(2026,9,rows(7,1))});
   let data=h.setPeriod('1');assert.equal(data.unit,'day');assert.equal(total(data.income),10);assert.equal(data.undated.income,25);assert.equal(data.undated.expense,2);
   data=h.custom('2026-10','2026-10');assert.equal(data.unit,'month');assert.deepEqual(copy(data.income),[35]);assert.deepEqual(copy(data.expense),[5]);
   assert.equal(h.nodes.get('kkTrendUndatedNotice').hidden,true);
   for(const period of ['6','12','36','all']){data=h.setPeriod(period);assert.equal(data.unit,'month');assert.equal(total(data.income),42);assert.equal(total(data.expense),6);}
 });
 test('entry date defaults to today or the other selected month first day and changes no amount/name drafts',()=>{
-  const h=fixture(),date=h.nodes.get('kkEntryDate');assert.ok(date);assert.equal(date.value,'2026-10-15');
+  const h=allFixture(),date=h.nodes.get('kkEntryDate');assert.ok(date);assert.equal(date.value,'2026-10-15');
   assert.equal(date.getAttribute('min'),'2026-10-01');assert.equal(date.getAttribute('max'),'2026-10-31');
   h.nodes.get('m-inv-name').value='保存前の架空下書き';h.nodes.get('exp-amount').value='１２３４';h.setPeriod('1');h.context.changeMonth(-1);
   assert.equal(date.value,'2026-09-01');assert.equal(date.getAttribute('min'),'2026-09-01');assert.equal(date.getAttribute('max'),'2026-09-30');assert.equal(h.data().days,30);
@@ -333,7 +374,7 @@ test('entry date defaults to today or the other selected month first day and cha
   h.context._year=2024;h.context._month=2;h.context.renderAll();assert.equal(date.value,'2024-02-01');assert.equal(date.getAttribute('max'),'2024-02-29');assert.equal(h.data().days,29);
 });
 test('same-month trend, language and theme redraws preserve valid, blank and invalid entry-date drafts',()=>{
-  const h=fixture(seedMonth(2026,10,rows(10,2)),{charts:true});h.setPeriod('1');h.theme();
+  const h=allFixture(seedMonth(2026,10,rows(10,2)),{charts:true});h.setPeriod('1');h.theme();
   h.nodes.get('m-inv-name').value='保存前の架空項目';h.nodes.get('inc-amount').value='１０００';
   for(const draft of ['2026-10-23','','2026-10-99']){
     h.nodes.get('kkEntryDate').value=draft;h.context.renderAll();h.context.kkApplyLang('en');
@@ -343,7 +384,7 @@ test('same-month trend, language and theme redraws preserve valid, blank and inv
 });
 test('home additions save the chosen date without changing old rows or mixing separate calendar data',()=>{
   const legacy={id:1,type:'inc',name:'架空の旧行',amount:50,extra:'preserve'},daily=JSON.stringify(rows(9999,8888));
-  const h=fixture({...seedMonth(2026,10,[legacy]),kbday_2026_10_12:daily},{charts:true});h.setPeriod('1');
+  const h=allFixture({...seedMonth(2026,10,[legacy]),kbday_2026_10_12:daily},{charts:true});h.setPeriod('1');
   for(const [type,date,amount] of [['inc','2026-10-12','１０００'],['exp','2026-10-31','２００'],['inv','2026-10-30','１００']]){
     h.nodes.get('kkEntryDate').value=date;
     if(h.nodes.has(type+'-name'))h.nodes.get(type+'-name').value='架空の'+type;else assert.ok(['inc','exp','inv'].includes(type));
@@ -355,11 +396,11 @@ test('home additions save the chosen date without changing old rows or mixing se
   }
   const data=h.data();assert.equal(data.income[11],1000);assert.equal(data.expense[30],200);assert.equal(data.income[29],0);assert.equal(data.undated.income,50);assert.equal(data.undated.count,1);
   assert.equal(h.values.get('kbday_2026_10_12'),daily);assert.equal(h.nodes.get('d-income').textContent,'¥1,050');assert.equal(h.nodes.get('d-expense').textContent,'¥200');
-  const reloaded=fixture(Object.fromEntries(h.values));assert.deepEqual(copy(reloaded.setPeriod('1')),copy(data),'saved dated rows and undated legacy totals survive a fresh page context');
+  const reloaded=allFixture(Object.fromEntries(h.values));assert.deepEqual(copy(reloaded.setPeriod('1')),copy(data),'saved dated rows and undated legacy totals survive a fresh page context');
 });
 test('invalid home dates block a monthly save without clearing drafts while assets remain independent',()=>{
   for(const value of ['','2026-10-32','2026-09-30']){
-    const h=fixture(seedMonth(2026,10,rows(10,2))),before=h.values.get('kb2_2026_10');h.writes.length=0;
+    const h=allFixture(seedMonth(2026,10,rows(10,2))),before=h.values.get('kb2_2026_10');h.writes.length=0;
     h.nodes.get('kkEntryDate').value=value;h.nodes.get('m-inv-name').value='架空の未保存投資';h.nodes.get('exp-amount').value='１００';h.nodes.get('exp-cat').value='食費';h.context.addRecord('exp');
     assert.equal(h.values.get('kb2_2026_10'),before);assert.deepEqual(h.writes,[]);assert.equal(h.nodes.get('m-inv-name').value,'架空の未保存投資');assert.equal(h.nodes.get('exp-amount').value,'１００');assert.equal(h.nodes.get('kkEntryDate').value,value);assert.equal(h.nodes.get('kkEntryDate').getAttribute('aria-invalid'),'true');
     h.nodes.get('ast-name').value='架空の資産';h.nodes.get('ast-amount').value='２００';h.nodes.get('ast-cat').value='現金';h.context.addRecord('ast');
@@ -368,7 +409,7 @@ test('invalid home dates block a monthly save without clearing drafts while asse
 });
 test('record date set, change and clear update daily points and undated totals while preserving fields and drafts',()=>{
   const first={id:1,type:'inc',name:'架空の未日付収入',amount:100,extra:{kept:true}},second={id:2,type:'exp',name:'架空の支出',amount:20,date:'2026-10-10',cat:'食費'};
-  const h=fixture(seedMonth(2026,10,[first,second]),{charts:true});h.setPeriod('1');h.nodes.get('m-inv-name').value='架空の入力下書き';h.nodes.get('inc-amount').value='１２３';h.nodes.get('kkEntryDate').value='2026-10-22';
+  const h=allFixture(seedMonth(2026,10,[first,second]),{charts:true});h.setPeriod('1');h.nodes.get('m-inv-name').value='架空の入力下書き';h.nodes.get('inc-amount').value='１２３';h.nodes.get('kkEntryDate').value='2026-10-22';
   const oldChart=h.chartInstances.get('lineChart');assert.equal(h.context.kkSetRecordDate(1,'2026-10-07'),true);
   let saved=JSON.parse(h.values.get('kb2_2026_10'));assert.deepEqual(saved,[{...first,date:'2026-10-07'},second]);assert.equal(h.data().income[6],100);assert.equal(h.data().undated.count,0);assert.notEqual(h.chartInstances.get('lineChart'),oldChart);
   assert.match(h.nodes.get('rec-list-el').innerHTML,/type="date"/);assert.match(h.nodes.get('rec-list-el').innerHTML,/onchange="kkRecordDateEdited\(this\)"/);
@@ -379,7 +420,7 @@ test('record date set, change and clear update daily points and undated totals w
 });
 test('record-date invalid, unknown and ambiguous IDs never write or change stored data',()=>{
   for(const records of [[{id:1,type:'inc',amount:10}],[{id:1,type:'inc',amount:10},{id:1,type:'exp',amount:2}]]){
-    const h=fixture(seedMonth(2026,10,records)),before=h.values.get('kb2_2026_10');h.writes.length=0;
+    const h=allFixture(seedMonth(2026,10,records)),before=h.values.get('kb2_2026_10');h.writes.length=0;
     for(const [id,date] of [[1,'2026-10-32'],[1,'2026-11-01'],[999,'2026-10-01']])assert.equal(h.context.kkSetRecordDate(id,date),false);
     if(records.length===2)assert.equal(h.context.kkSetRecordDate(1,'2026-10-01'),false);
     assert.equal(h.values.get('kb2_2026_10'),before);assert.deepEqual(h.writes,[]);
@@ -387,7 +428,7 @@ test('record-date invalid, unknown and ambiguous IDs never write or change store
 });
 test('native incomplete date input cannot silently clear an existing date, while an explicit blank can',()=>{
   const row={id:1,type:'inc',name:'架空の日付付き収入',amount:100,date:'2026-10-07',extra:'preserve'};
-  const h=fixture(seedMonth(2026,10,[row])),before=h.values.get('kb2_2026_10');h.setPeriod('1');h.writes.length=0;
+  const h=allFixture(seedMonth(2026,10,[row])),before=h.values.get('kb2_2026_10');h.setPeriod('1');h.writes.length=0;
   const input=h.makeElement('input','fixture-incomplete-date');input.value='';input.validity={badInput:true};input.setAttribute('data-kk-record-date','0');h.document.body.appendChild(input);
   assert.equal(h.context.kkSetRecordDate(1,'',input),false);h.context.kkRecordDateEdited(input);
   assert.equal(h.values.get('kb2_2026_10'),before);assert.deepEqual(h.writes,[]);assert.equal(input.getAttribute('aria-invalid'),'true');
@@ -397,7 +438,7 @@ test('native incomplete date input cannot silently clear an existing date, while
   assert.equal(h.data().income[6],0);assert.equal(h.data().undated.count,1);assert.equal(h.data().undated.income,100);assert.equal(input.getAttribute('aria-invalid'),null);assert.equal(error.hidden,true);
 });
 test('daily chart and undated explanation survive all four languages and palette mutation without changing values',()=>{
-  const h=fixture(seedMonth(2026,10,[{id:1,type:'inc',amount:1000.5},{id:2,type:'exp',amount:20.25,date:'2026-10-03'}]),{charts:true,mutatePalette:true});h.setPeriod('1');
+  const h=allFixture(seedMonth(2026,10,[{id:1,type:'inc',amount:1000.5},{id:2,type:'exp',amount:20.25,date:'2026-10-03'}]),{charts:true,mutatePalette:true});h.setPeriod('1');
   const expected=copy(h.data()),notes=new Set();h.theme();
   for(const lang of ['ja','en','ko','zh']){
     h.context.kkApplyLang(lang);h.context.renderAll();h.fire('focus');h.flush();

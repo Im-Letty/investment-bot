@@ -159,17 +159,18 @@ test('expense removal destroys the old pie, shows its placeholder and recreates 
   assert.deepEqual(Array.from(h.active.get('donutChart').data.datasets[0].data),[800]);
   assert.equal(canvas.parentElement.querySelector('.kk-chart-empty').hidden,true);
 });
-test('selected month, record edits and locale changes invalidate an explicit six-month chart signature',()=>{
+test('month navigation switches a six-month chart to the selected month and retains undated totals through locale changes',()=>{
   const next=new Date(now.getFullYear(),now.getMonth()+1,1),nextKey='kb2_'+next.getFullYear()+'_'+String(next.getMonth()+1).padStart(2,'0');
   const h=chartFixture({[monthKey]:JSON.stringify(records),[nextKey]:JSON.stringify([{id:7,type:'exp',name:'架空の翌月',cat:'食費',amount:2300}])});
   h.context.kkTrendSetPeriod('6');
   const original=h.active.get('lineChart');h.context.changeMonth(1);
   assert.notEqual(h.active.get('lineChart'),original);assert.equal(h.nodes.get('d-expense').textContent,'¥2,300');
-  assert.equal(h.active.get('lineChart').data.datasets[1].data.at(-1),2300);
+  assert.equal(h.context._trendPeriod,'1');assert.ok(h.active.get('lineChart').data.datasets[1].data.every(value=>value===0));
+  assert.equal(h.context.kkTrendData().undated.expense,2300);assert.equal(h.nodes.get('kkTrendUndatedNotice').hidden,false);
   assert.deepEqual(Array.from(h.active.get('donutChart').data.datasets[0].data),[2300]);
   const nextLine=h.active.get('lineChart'),nextPie=h.active.get('donutChart');h.context.KK_LANG='en';h.context.renderAll();
   assert.notEqual(h.active.get('lineChart'),nextLine);assert.notEqual(h.active.get('donutChart'),nextPie,'locale also invalidates callbacks omitted by JSON.stringify');
-  assert.equal(h.active.get('lineChart').data.datasets[1].data.at(-1),2300);
+  assert.ok(h.active.get('lineChart').data.datasets[1].data.every(value=>value===0));assert.equal(h.context.kkTrendData().undated.expense,2300);
 });
 test('asset allocation is created on its first tab visit and a revealed legacy bar retains its original monthly calculation',()=>{
   const assets=[{id:9,name:'架空の現金',cat:'現金',amount:8000}];
