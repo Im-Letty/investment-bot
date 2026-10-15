@@ -414,6 +414,7 @@ var KK_I18N = {
     kk_layout_json: "JSONで保存",
     kk_layout_export_note: "過去25か月の日別記録と資産を出力します。月入力は含みません。",
     kk_currency_symbol: "¥",
+    kk_trend_yen_unit: "円",
     kk_back_home: "←",
     kk_btn_scan_receipt: "レシートを読み取る",
     kk_receipt_album: "アルバムから選ぶ",
@@ -583,6 +584,7 @@ var KK_I18N = {
     kk_layout_json: "Download JSON",
     kk_layout_export_note: "Exports calendar entries from the past 25 months and assets. Monthly entries are excluded.",
     kk_currency_symbol: "$",
+    kk_trend_yen_unit: " JPY",
     kk_back_home: "←",
     kk_btn_scan_receipt: "Read a receipt",
     kk_receipt_album: "Choose from photos",
@@ -752,6 +754,7 @@ var KK_I18N = {
     kk_layout_json: "JSON 저장",
     kk_layout_export_note: "최근 25개월의 일별 기록과 자산을 내보냅니다. 월별 입력은 제외됩니다.",
     kk_currency_symbol: "₩",
+    kk_trend_yen_unit: "엔",
     kk_back_home: "←",
     kk_btn_scan_receipt: "영수증 읽기",
     kk_receipt_album: "앨범에서 선택",
@@ -921,6 +924,7 @@ var KK_I18N = {
     kk_layout_json: "保存 JSON",
     kk_layout_export_note: "导出过去25个月的每日记录和资产，不包含月度记录。",
     kk_currency_symbol: "元",
+    kk_trend_yen_unit: "日元",
     kk_back_home: "←",
     kk_btn_scan_receipt: "读取小票",
     kk_receipt_album: "从相册选择",
@@ -1439,10 +1443,17 @@ function addRecord(type){
 }
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
 function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!==id;}));renderAll();}
+function kkTrendYen(value){
+  if(typeof value!=='number'||!Number.isFinite(value))return '';
+  var text=String(value===0?0:value),parts=text.split('.');
+  if(!/[eE]/.test(text))text=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',')+(parts.length>1?'.'+parts[1]:'');
+  return text+kkT('kk_trend_yen_unit');
+}
 function kkTrendRender(){
   var trend=kkTrendData();kkTrendSync(trend);
+  var hasAmount=trend.income.concat(trend.expense).some(function(value){return Number.isFinite(value)&&value!==0;});
   var lc=document.getElementById('lineChart');
-  _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
+  _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:function(context){return context.dataset.label+': '+kkTrendYen(context.parsed.y);}}},legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:11},color:'#7aaa8a'}},y:{beginAtZero:true,suggestedMax:hasAmount?undefined:1000,grid:{color:'var(--brand-haze)'},ticks:{maxTicksLimit:5,callback:kkTrendYen,font:{size:11},color:'#7aaa8a'}}}}});
 }
 function renderAll(){
   kkEntryDateSync();

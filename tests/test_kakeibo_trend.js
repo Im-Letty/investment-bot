@@ -203,6 +203,38 @@ test('empty all data is bounded, zero-valued and excludes empty historical array
   assert.equal(data.from,'2026-10');assert.equal(data.to,'2026-10');assert.equal(data.months,1);assert.equal(data.unit,'month');assert.equal(data.unreadable,false);
   assert.deepEqual(copy(data.income),[0]);assert.deepEqual(copy(data.expense),[0]);assert.equal(h.nodes.get('kkTrendDataNotice').hidden,true);
 });
+test('empty, investment-only and zero totals use a zero-based yen axis without inventing recorded amounts',()=>{
+  for(const records of [[],rows(0,0,10000),[{id:1,type:'exp',name:'架空の0円',amount:0}]]){
+    const h=fixture(seedMonth(2026,10,records),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
+    assert.equal(axis.beginAtZero,true);assert.equal(axis.suggestedMax,1000);assert.equal(axis.ticks.maxTicksLimit,5);
+    assert.deepEqual(copy(chart.data.datasets.map(d=>d.data)),[[0],[0]]);
+    assert.equal(axis.ticks.callback(0),'0円');assert.equal(axis.ticks.callback(1000),'1,000円');assert.equal(h.writes.length,0);
+  }
+});
+test('trend yen labels retain thousands, negative and fractional amounts instead of flooring to whole ten-thousands',()=>{
+  const h=fixture(seedMonth(2026,10,rows(12500.25,-2500.5)),{charts:true}),chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
+  assert.equal(axis.beginAtZero,true);assert.equal(axis.suggestedMax,undefined);assert.equal(axis.min,undefined);assert.equal(axis.max,undefined);
+  assert.equal(axis.ticks.precision,undefined);assert.equal(axis.ticks.stepSize,undefined);
+  for(const [amount,text] of [[0,'0円'],[-0,'0円'],[1200,'1,200円'],[12500.25,'12,500.25円'],[-2500.5,'-2,500.5円'],[0.25,'0.25円'],[-0.25,'-0.25円'],[1e-25,'1e-25円'],[1e308,'1e+308円'],[NaN,''],[Infinity,''],[null,'']])assert.equal(axis.ticks.callback(amount),text,String(amount));
+  assert.equal(chart.options.plugins.tooltip.callbacks.label({dataset:{label:'支出'},parsed:{y:-2500.5}}),'支出: -2,500.5円');
+  assert.deepEqual(copy(chart.data.datasets.map(d=>d.data)),[[12500.25],[-2500.5]]);assert.equal(h.writes.length,0);
+});
+test('all-negative amounts and unreadable gaps are preserved when setting the trend axis bounds',()=>{
+  const h=fixture({...seedMonth(2026,8,rows(-1000,-250)),...seedMonth(2026,10,rows(-2000,-500))},{charts:true});
+  h.values.set('kb2_2026_09','broken');h.setPeriod('all');
+  const chart=h.chartInstances.get('lineChart'),axis=chart.options.scales.y;
+  assert.equal(axis.suggestedMax,undefined);assert.equal(axis.min,undefined);assert.equal(axis.beginAtZero,true);
+  assert.deepEqual(copy(chart.data.datasets.map(d=>d.data)),[[-1000,null,-2000],[-250,null,-500]]);assert.equal(h.nodes.get('kkTrendDataNotice').hidden,false);
+  assert.equal(h.values.get('kb2_2026_09'),'broken');assert.equal(h.writes.length,0);
+});
+test('trend currencies stay JPY in all four languages and redraws retain the chosen period and source data',()=>{
+  const h=fixture(seedMonth(2026,10,rows(12500.25,1200)),{charts:true});h.setPeriod('6');const expected=copy(h.data());
+  for(const [lang,suffix] of [['ja','円'],['en',' JPY'],['zh','日元'],['ko','엔']]){
+    h.context.kkApplyLang(lang);const chart=h.chartInstances.get('lineChart');assert.equal(chart.options.scales.y.ticks.callback(12500.25),'12,500.25'+suffix);
+    assert.deepEqual(copy(h.data()),expected);h.context.renderAll();assert.equal(h.chartInstances.get('lineChart'),chart);
+  }
+  assert.equal(h.context._trendPeriod,'6');assert.equal(h.writes.filter(key=>key.startsWith('kb2')).length,0);
+});
 test('unchanged trend redraws reuse the chart while locale, palette and font changes preserve the selected range',()=>{
   const h=fixture({...seedMonth(2026,8,rows(10,2)),...seedMonth(2026,10,rows(20,3))},{charts:true,mutatePalette:true});
   const first=h.chartInstances.get('lineChart');h.context.renderAll();h.context.renderAll();assert.equal(h.chartInstances.get('lineChart'),first);
