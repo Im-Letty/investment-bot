@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-periodpills1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-calendarrecords1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-investmentcats1"></script>
@@ -347,6 +347,11 @@ body{padding-bottom:24px;}
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_calendar">カレンダー</h2>
   <div class="month-nav"><button class="mnav-btn" onclick="calChangeMonth(-1)">◀</button><div class="mnav-lbl" id="calMonthLabel"></div><button class="mnav-btn" onclick="calChangeMonth(1)">▶</button></div>
   <div class="card" style="padding:12px"><div class="cal-grid" id="calGrid"></div></div>
+  <section class="card kk-cal-log" aria-labelledby="kkCalendarRecordsTitle">
+    <h2 class="card-title" id="kkCalendarRecordsTitle" data-i18n="kk_calendar_records">入力した記録</h2>
+    <p id="kkCalendarRecordsNotice" class="kk-layout-note" role="status" hidden></p>
+    <div id="kkCalendarRecords"></div>
+  </section>
   <div class="card"><div class="card-title" data-i18n="kk_card_cat_summary">📊 今月のカテゴリ別支出</div><p id="kkCalUndatedNotice" class="kk-layout-note" role="status" hidden></p><div id="calCatSummary"><div class="empty-state" data-i18n="kk_empty_input_expense_to_see">支出を入力するとここに表示されます</div></div></div>
 </div>
 <div class="modal-overlay" id="dayModal" onclick="closeDayModal(event)">
@@ -366,6 +371,12 @@ body{padding-bottom:24px;}
 // ========= i18n SYSTEM (kakeibo) =========
 var KK_I18N = {
   ja: {
+    kk_calendar_records: "入力した記録",
+    kk_calendar_day_heading: "{month}月{day}日",
+    kk_calendar_no_dated_records: "この月の日付付きの記録はありません。",
+    kk_calendar_category_label: "カテゴリ",
+    kk_calendar_memo_label: "メモ",
+    kk_calendar_amount_label: "金額",
     kk_calendar_undated: "日付未設定の記録が{count}件あります。月の集計と記録一覧に含まれています。",
     kk_alert_export_failed: "書き出しできませんでした。記録は変更していません。",
     kk_ledger_save_error: "記録を保存できませんでした。入力は残しています。再読み込みしてから、もう一度お試しください。",
@@ -539,6 +550,12 @@ var KK_I18N = {
     kk_js_total: "合計"
   },
   en: {
+    kk_calendar_records: "Recorded entries",
+    kk_calendar_day_heading: "{month}/{day}",
+    kk_calendar_no_dated_records: "No dated entries for this month.",
+    kk_calendar_category_label: "Category",
+    kk_calendar_memo_label: "Memo",
+    kk_calendar_amount_label: "Amount",
     kk_calendar_undated: "{count} undated records are included in the monthly totals and records list.",
     kk_alert_export_failed: "Could not export. Your records have not been changed.",
     kk_ledger_save_error: "Could not save the record. Your input is kept. Reload and try again.",
@@ -712,6 +729,12 @@ var KK_I18N = {
     kk_js_total: "Total"
   },
   ko: {
+    kk_calendar_records: "입력한 기록",
+    kk_calendar_day_heading: "{month}월 {day}일",
+    kk_calendar_no_dated_records: "이 달에는 날짜가 있는 기록이 없습니다.",
+    kk_calendar_category_label: "카테고리",
+    kk_calendar_memo_label: "메모",
+    kk_calendar_amount_label: "금액",
     kk_calendar_undated: "날짜가 없는 기록 {count}건은 월 합계와 기록 목록에 포함됩니다.",
     kk_alert_export_failed: "내보내지 못했습니다. 기록은 변경되지 않았습니다.",
     kk_ledger_save_error: "기록을 저장하지 못했습니다. 입력은 유지됩니다. 새로고침 후 다시 시도해 주세요.",
@@ -885,6 +908,12 @@ var KK_I18N = {
     kk_js_total: "합계"
   },
   zh: {
+    kk_calendar_records: "已输入的记录",
+    kk_calendar_day_heading: "{month}月{day}日",
+    kk_calendar_no_dated_records: "本月没有设置日期的记录。",
+    kk_calendar_category_label: "类别",
+    kk_calendar_memo_label: "备注",
+    kk_calendar_amount_label: "金额",
     kk_calendar_undated: "{count}条未设置日期的记录已计入月度汇总和记录列表。",
     kk_alert_export_failed: "无法导出。记录未被更改。",
     kk_ledger_save_error: "无法保存记录。输入已保留，请刷新后重试。",
@@ -1436,12 +1465,39 @@ function saveDayData(y,m,day,d){
   return saveData(other.concat(d.map(function(row){return Object.assign({},row,{date:date});})),y,m);
 }
 function calChangeMonth(d){_year=_calYear;_month=_calMonth;changeMonth(d);}
+function kkCalendarMemo(row){
+  var fields=['memo','note','name'];
+  for(var i=0;i<fields.length;i++){var value=row[fields[i]];if(typeof value==='string'&&value.trim())return value;}
+  return '—';
+}
+function renderCalendarRecords(monthRows,byDay){
+  var list=document.getElementById('kkCalendarRecords');if(!list)return;
+  var notice=document.getElementById('kkCalendarRecordsNotice');
+  if(notice){notice.hidden=!monthRows._kkUnreadable;notice.textContent=monthRows._kkUnreadable?kkT('kk_trend_unreadable'):'';}
+  var days=Object.keys(byDay).map(Number).sort(function(a,b){return a-b;});
+  if(!days.length){list.innerHTML=monthRows._kkUnreadable?'':'<p class="empty-state">'+kkHtmlText(kkT('kk_calendar_no_dated_records'))+'</p>';return;}
+  list.innerHTML=days.map(function(day){
+    var date=kkTrendMonthValue(_calYear*12+_calMonth-1)+'-'+String(day).padStart(2,'0');
+    var heading=kkT('kk_calendar_day_heading').replace('{month}',String(_calMonth)).replace('{day}',String(day));
+    var rows=byDay[day].map(function(row){
+      var type=['inc','exp','inv'].indexOf(row.type)!==-1?row.type:'unknown';
+      var kind=type==='unknown'?kkT('kk_trend_amount_unknown'):kkT(type==='inc'?'kk_js_income':type==='exp'?'kk_js_expense':'kk_js_investment');
+      var category=typeof row.cat==='string'&&row.cat?kkCat(row.cat):kind;
+      return '<li class="kk-cal-record" data-type="'+type+'">'+
+        '<div class="kk-cal-category-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_category_label'))+'</span><span class="kk-cal-category">'+kkHtmlText(category)+'</span><span class="kk-cal-kind">'+kkHtmlText(kind)+'</span></div>'+
+        '<div class="kk-cal-memo-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_memo_label'))+'</span><p class="kk-cal-memo">'+kkHtmlText(kkCalendarMemo(row))+'</p></div>'+
+        '<div class="kk-cal-amount-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_amount_label'))+'</span><span class="kk-cal-amount">'+kkHtmlText(typeof row.amount==='number'&&Number.isFinite(row.amount)?fmt(row.amount):'—')+'</span></div></li>';
+    }).join('');
+    return '<section class="kk-cal-day" data-date="'+date+'" aria-labelledby="kkCalDate-'+day+'"><h3 class="kk-cal-day-title" id="kkCalDate-'+day+'"><time datetime="'+date+'">'+kkHtmlText(heading)+'</time></h3><ul class="kk-cal-records">'+rows+'</ul></section>';
+  }).join('');
+}
 function renderCalendar(){
   var lbl=_calYear+kkT("kk_js_year")+_calMonth+kkT("kk_js_month");
   var cl=document.getElementById('calMonthLabel');if(cl)cl.textContent=lbl;
   var grid=document.getElementById('calGrid');if(!grid||!_chartVisible(grid))return;
   var monthRows=getData(_calYear,_calMonth),byDay=Object.create(null);
   monthRows.forEach(function(row){var day=kkTrendMonthDay(row.date,_calYear,_calMonth);if(day!==null)(byDay[day]||(byDay[day]=[])).push(row);});
+  renderCalendarRecords(monthRows,byDay);
   var dnames=[kkT("kk_js_dow_sun"),kkT("kk_js_dow_mon"),kkT("kk_js_dow_tue"),kkT("kk_js_dow_wed"),kkT("kk_js_dow_thu"),kkT("kk_js_dow_fri"),kkT("kk_js_dow_sat")];
   var heads=dnames.map(function(d,i){return '<div class="cal-head'+(i===0?' sun':i===6?' sat':'')+'">'+ d+'</div>';}).join('');
   var firstDay=new Date(_calYear,_calMonth-1,1).getDay();

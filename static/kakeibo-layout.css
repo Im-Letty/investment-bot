@@ -258,3 +258,28 @@ body.kn-ledger-paper .kk-trend-custom input[aria-invalid="true"] {border-style:d
 body.kn-ledger-paper .kk-home-trend .kk-trend-range {margin:0 0 12px;font-variant-numeric:tabular-nums}
 @media(max-width:600px) {body.kn-ledger-paper .kk-trend-periods {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}body.kn-ledger-paper .kk-trend-periods button {padding:8px}}
 @media(max-width:480px) {body.kn-ledger-paper .kk-trend-custom {grid-template-columns:minmax(0,1fr)}}
+
+/* Calendar entries share the notebook's current palette, type and text scale. */
+body.kn-ledger-paper .kk-cal-log {min-width:0}
+body.kn-ledger-paper #kkCalendarRecordsNotice:not([hidden]) {margin:12px 0}
+body.kn-ledger-paper .kk-cal-day {margin-top:24px;min-width:0}
+body.kn-ledger-paper .kk-cal-day:first-child {margin-top:16px}
+body.kn-ledger-paper .kk-cal-day-title {margin:0;padding:0 0 10px;border-bottom:1px solid var(--kn-ledger-line);color:var(--kn-ledger-ink);font:500 calc(16px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-serif);font-variant-numeric:tabular-nums}
+body.kn-ledger-paper .kk-cal-records {margin:0;padding:0;list-style:none}
+body.kn-ledger-paper .kk-cal-record {display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.5fr) minmax(0,.8fr);gap:16px;padding:16px 0;border-bottom:1px solid var(--kn-ledger-line);min-width:0}
+body.kn-ledger-paper .kk-cal-record:last-child {border-bottom:0}
+body.kn-ledger-paper :is(.kk-cal-category-field,.kk-cal-memo-field,.kk-cal-amount-field) {display:flex;flex-direction:column;gap:4px;min-width:0;overflow-wrap:anywhere}
+body.kn-ledger-paper .kk-cal-field-label {color:var(--kn-ledger-muted);font:400 calc(11px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans)}
+body.kn-ledger-paper .kk-cal-category {color:var(--kn-ledger-ink);font:500 calc(14px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans)}
+body.kn-ledger-paper .kk-cal-kind {color:var(--kn-ledger-muted);font:400 calc(11px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans)}
+body.kn-ledger-paper .kk-cal-memo {margin:0;white-space:pre-wrap;color:var(--kn-ledger-ink);font:400 calc(14px * var(--kn-ledger-scale,1))/1.8 var(--kn-ledger-sans)}
+body.kn-ledger-paper .kk-cal-amount-field {text-align:right}
+body.kn-ledger-paper .kk-cal-amount {color:var(--kn-ledger-ink);font:500 calc(16px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans);font-variant-numeric:tabular-nums}
+body.kn-ledger-paper .kk-cal-record[data-type="inc"] .kk-cal-amount {color:var(--kn-ledger-income)}
+body.kn-ledger-paper .kk-cal-record[data-type="exp"] .kk-cal-amount {color:var(--kn-ledger-expense)}
+body.kn-ledger-paper .kk-cal-record[data-type="inv"] .kk-cal-amount {color:var(--kn-ledger-investment)}
+@media(max-width:600px) {
+  body.kn-ledger-paper .kk-cal-record {grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 16px}
+  body.kn-ledger-paper .kk-cal-memo-field {grid-column:1/-1;grid-row:2}
+  body.kn-ledger-paper .kk-cal-amount-field {grid-column:2;grid-row:1}
+}
