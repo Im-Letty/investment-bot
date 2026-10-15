@@ -26,6 +26,15 @@
   window.kkLayoutTabChanged = tabChanged;
 
   document.addEventListener('click', function (event) {
+    var back = event.target.closest('.back-btn');
+    if (back) {
+      try {
+        if (window.parent !== window && window.parent.location.origin === location.origin &&
+            typeof window.parent.knReturnFromLedger === 'function' &&
+            window.parent.knReturnFromLedger(window) === true) event.preventDefault();
+      } catch (ignore) { /* The link still returns the top-level page. */ }
+      return;
+    }
     var go = event.target.closest('[data-kk-layout-go]');
     if (go) {
       var tab = go.getAttribute('data-kk-layout-go');

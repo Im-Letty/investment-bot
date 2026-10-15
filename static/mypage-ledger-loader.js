@@ -1,12 +1,12 @@
 (function () {
   'use strict';
-  var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false;
+  var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false;
   function account() {
     var user=window.knUser;
     return user&&user.id?String(user.id):'';
   }
   function unload() {
-    owner='';ready=false;
+    owner='';ready=false;loaded=false;
     if(frame&&frame.getAttribute('src')){
       // Detach the old browsing context immediately, including pending save
       // timers. A new account must never resume the previous account's page.
@@ -15,7 +15,10 @@
   }
   function createFrame() {
     var item=document.createElement('iframe');item.className='kb-frame';item.dataset.kbsrc='/kakeibo';
-    item.setAttribute('title','家計簿');item.addEventListener('load',markReady);pane.appendChild(item);
+    item.setAttribute('title','家計簿');item.addEventListener('load',function(){
+      if(item!==frame)return;
+      loaded=true;ready=false;item.setAttribute('aria-busy','true');markReady();
+    });pane.appendChild(item);
     return item;
   }
   function markReady() {
@@ -39,9 +42,27 @@
     frame.setAttribute('loading','eager');
     frame.setAttribute('src',frame.dataset.kbsrc);
   }
+  function recoverWrongDocument() {
+    if(!loaded||!frame||!frame.getAttribute('src'))return;
+    try {
+      var doc=frame.contentDocument,where=frame.contentWindow.location;
+      if(!doc||doc.readyState!=='complete'||doc.documentElement.getAttribute('data-kn-ledger-ready')==='true')return;
+      if(where.origin===location.origin&&/^https?:$/.test(where.protocol)&&where.pathname!=='/kakeibo')unload();
+    } catch(ignore) {}
+  }
+  function returnFromLedger(source) {
+    if(!frame||source!==frame.contentWindow||!owner||owner!==account()||!page.classList.contains('open'))return false;
+    try {
+      if(!frame.contentDocument||frame.contentDocument.documentElement.getAttribute('data-kn-ledger-ready')!=='true')return false;
+      var close=page.querySelector('.mo-x');
+      if(!close)return false;
+      close.click();return true;
+    } catch(ignore) {return false;}
+  }
   function show(group) {
     if(group===1){
       if(!account())return;
+      recoverWrongDocument();
       prepare();
       markReady();
       if(ready)try {
@@ -84,6 +105,7 @@
     });
     new MutationObserver(prepare).observe(page,{attributes:true,attributeFilter:['class']});
     window.knPrepareLedger=prepare;
+    window.knReturnFromLedger=returnFromLedger;
     window.knOpenLedger=function(){
       var card=document.getElementById('myPageCard');if(card)card.click();
       if(page.classList.contains('open')&&account())show(1);
