@@ -241,8 +241,14 @@ body.kn-ledger-paper .cal-day {min-width:0}
 /* Compact period controls share the ledger palette and typography. */
 body.kn-ledger-paper .kk-trend-heading {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
 body.kn-ledger-letter.kn-ledger-paper .kk-trend-heading .card-title {margin:0}
-body.kn-ledger-paper .kk-trend-period,body.kn-ledger-paper .kk-trend-custom label {display:flex;align-items:center;gap:8px;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
-body.kn-ledger-paper .kk-trend-period select,body.kn-ledger-paper .kk-trend-custom input {min-height:44px;padding:8px 10px;border:1px solid var(--kn-ledger-line)!important;border-radius:8px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:inherit}
+body.kn-ledger-paper .kk-trend-period-label,body.kn-ledger-paper .kk-trend-custom label {display:flex;align-items:center;gap:8px;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
+body.kn-ledger-paper .kk-trend-periods {display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+body.kn-ledger-paper .kk-trend-periods button {flex:1 1 auto;min-width:0;min-height:44px;padding:8px 14px;border:1px solid var(--kn-ledger-line);border-radius:999px;background:var(--kn-ledger-paper);color:var(--kn-ledger-muted);font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);text-align:center;cursor:pointer;overflow-wrap:anywhere;transition:background-color .15s,color .15s,border-color .15s}
+body.kn-ledger-paper .kk-trend-periods button:hover {border-color:var(--kn-ledger-button);color:var(--kn-ledger-ink)}
+body.kn-ledger-paper .kk-trend-periods button[aria-pressed="true"] {border-color:var(--kn-ledger-button);background:var(--kn-ledger-button);color:var(--kn-ledger-on-button,var(--kn-ledger-paper));font-weight:500}
+body.kn-ledger-paper .kk-trend-periods button:focus-visible {outline:2px solid var(--kn-ledger-button);outline-offset:3px}
+body.kn-ledger-paper #kkTrendPeriod[hidden] {display:none!important}
+body.kn-ledger-paper .kk-trend-custom input {min-height:44px;padding:8px 10px;border:1px solid var(--kn-ledger-line)!important;border-radius:8px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:inherit}
 body.kn-ledger-paper .kk-trend-custom {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:12px;margin:0 0 12px;align-items:end}
 body.kn-ledger-paper .kk-trend-custom[hidden] {display:none}
 body.kn-ledger-paper .kk-trend-custom label {align-items:stretch;flex-direction:column;gap:5px;min-width:0}
@@ -250,4 +256,5 @@ body.kn-ledger-paper .kk-trend-custom button {min-height:44px;padding:8px 14px;b
 body.kn-ledger-paper #kkTrendError {grid-column:1/-1;font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-ink);border-left:2px solid currentColor;padding-left:10px}
 body.kn-ledger-paper .kk-trend-custom input[aria-invalid="true"] {border-style:dashed!important;border-color:var(--kn-ledger-ink)!important}
 body.kn-ledger-paper .kk-home-trend .kk-trend-range {margin:0 0 12px;font-variant-numeric:tabular-nums}
-@media(max-width:480px) {body.kn-ledger-paper .kk-trend-custom {grid-template-columns:minmax(0,1fr)}body.kn-ledger-paper .kk-trend-period {max-width:100%}}
+@media(max-width:600px) {body.kn-ledger-paper .kk-trend-periods {display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}body.kn-ledger-paper .kk-trend-periods button {padding:8px}}
+@media(max-width:480px) {body.kn-ledger-paper .kk-trend-custom {grid-template-columns:minmax(0,1fr)}}

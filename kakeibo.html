@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-receipts1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-periodpills1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-investmentcats1"></script>
@@ -311,7 +311,16 @@ body{padding-bottom:24px;}
   <div class="card"><h2 class="card-title kk-expense-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title><img class="kk-expense-illustration" src="/static/kakeibo-expense-piggy-20261016.webp" width="44" height="44" alt="" aria-hidden="true" decoding="async"><span data-i18n="kk_card_pie_expense">今月の支出内訳</span></h2><div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart"></canvas></div><div id="donut-legend"></div></div></div>
 </section>
   <div class="card kk-home-trend">
-    <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><label class="kk-trend-period"><span data-i18n="kk_trend_period">表示期間</span><select id="kkTrendPeriod" onchange="kkTrendSetPeriod(this.value)"><option value="all" selected data-i18n="kk_trend_all">全期間</option><option value="1" data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select></label></div>
+    <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><span class="kk-trend-period-label" id="kkTrendPeriodLabel" data-i18n="kk_trend_period">表示期間</span></div>
+    <div class="kk-trend-periods" role="group" aria-labelledby="kkTrendPeriodLabel">
+      <button type="button" data-kk-trend-period="all" aria-pressed="true" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('all')" data-i18n="kk_trend_all">全期間</button>
+      <button type="button" data-kk-trend-period="1" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('1')" data-i18n="kk_trend_1">1か月</button>
+      <button type="button" data-kk-trend-period="6" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('6')" data-i18n="kk_trend_6">半年</button>
+      <button type="button" data-kk-trend-period="12" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('12')" data-i18n="kk_trend_12">1年</button>
+      <button type="button" data-kk-trend-period="36" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('36')" data-i18n="kk_trend_36">3年</button>
+      <button type="button" data-kk-trend-period="custom" aria-pressed="false" onclick="if(this.getAttribute('aria-pressed')!=='true')kkTrendSetPeriod('custom')" data-i18n="kk_trend_custom">期間を指定</button>
+    </div>
+    <select id="kkTrendPeriod" aria-labelledby="kkTrendPeriodLabel" onchange="kkTrendSetPeriod(this.value)" hidden><option value="all" selected data-i18n="kk_trend_all">全期間</option><option value="1" data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select>
     <div id="kkTrendCustom" class="kk-trend-custom" hidden><label><span data-i18n="kk_trend_from">開始月</span><input id="kkTrendFrom" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><label><span data-i18n="kk_trend_to">終了月</span><input id="kkTrendTo" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><button type="button" onclick="kkTrendApplyRange()" data-i18n="kk_trend_apply">表示する</button><p id="kkTrendError" role="alert" data-i18n="kk_trend_invalid_range" hidden>開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。</p></div>
     <p id="kkTrendRange" class="kk-layout-note kk-trend-range" role="status" aria-live="polite"></p>
     <div class="chart-area"><canvas id="lineChart" role="img" aria-describedby="kkTrendRange"></canvas></div>
@@ -1255,6 +1264,7 @@ function kkTrendApplyRange(){
 }
 function kkTrendSync(range){
   var select=document.getElementById('kkTrendPeriod');if(select)select.value=_trendPeriod;
+  document.querySelectorAll('[data-kk-trend-period]').forEach(function(button){button.setAttribute('aria-pressed',String(button.getAttribute('data-kk-trend-period')===_trendPeriod));});
   var custom=document.getElementById('kkTrendCustom');if(custom)custom.hidden=_trendPeriod!=='custom';
   var caption=document.getElementById('kkTrendRange');
   var from=range.from.replace('-','/'),to=range.to.replace('-','/');
