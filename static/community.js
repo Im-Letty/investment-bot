@@ -31,7 +31,7 @@
     '投稿する':'Post','投稿を読み込み中…':'Loading posts…','まだ投稿はありません。':'No posts yet.','最初のひとことを、気軽にどうぞ。':'You can start the conversation.',
     'もっと見る':'Show more','読み込み中…':'Loading…','新しい投稿があります':'New posts are available','新しい投稿を表示しました。':'New posts are now displayed.',
     'いいね':'Like','いいね済み':'Liked','返信':'Reply','返信する':'Reply','投稿':'Posted','通報':'Report','削除':'Delete','投稿の操作':'Post options',
-    'トークに戻る':'Back to Talk','コミュニティを閉じて朝レターへ戻る':'Close community and return to the morning letter',
+    '朝レターに戻る':'Back to the morning letter','コミュニティを閉じて朝レターへ戻る':'Close community and return to the morning letter',
     'この投稿を通報する':'Report this post','自分の投稿を削除する':'Delete my post','いいねを取り消す':'Remove like','この投稿にいいねする':'Like this post','返信を読む・書く':'Read and write replies',
     '話題のジャンル':'Topics','コミュニティの投稿':'Community posts','もう一度読む':'Try again','返信を読み込み中…':'Loading replies…','返信をもっと見る':'More replies','まだ返信はありません。':'No replies yet.',
     'この場所の使い方':'How this community works','個人情報や、利益を保証する勧誘は書き込まないでください。':'Do not share personal details or promises of guaranteed returns.',
@@ -293,11 +293,6 @@
     });modal.button.querySelector('.cw-button-copy').textContent=t('削除する');modal.error=el('p','cw-small cw-error');modal.error.setAttribute('role','alert');modal.form.appendChild(modal.error);
   }
   function close() {if(!state)return;var s=state;persist();rememberReplies(s);state=null;sequence++;cancelRequests(s);if(s.searchTimer)w.clearTimeout(s.searchTimer);if(s.timer)w.clearInterval(s.timer);if(s.visibility)doc.removeEventListener('visibilitychange',s.visibility);if(s.languageChanged)doc.removeEventListener('langChanged',s.languageChanged);if(s.authChanged)doc.removeEventListener('knAuthChange',s.authChanged);s.root.remove();prepare();return {morningTop:s.morningTop};}
-  function back() {
-    close();var hub=doc.getElementById('knMyTalkHub'),other=doc.getElementById('talkHubOv');
-    if(hub){hub.style.display='block';if(other)other.classList.remove('open');}
-    else if(other)other.classList.add('open');else{var nav=doc.querySelector('#knBottomNav [data-act="talk"]');if(nav)nav.click();}prepare();
-  }
   function home() {
     var s=state,top=s&&s.morningTop||0;close();var nav=doc.querySelector('#knBottomNav [data-act="morning"]');if(nav)nav.click();else doc.body.classList.add('view-asaletter');
     var morning=doc.getElementById('morning-section');if(morning)morning.scrollTop=top;var entrance=doc.getElementById('knHomeATalk');if(entrance)entrance.focus({preventScroll:true});
@@ -313,7 +308,7 @@
     if(current())return;var morning=doc.getElementById('morning-section'),root=el('section','cw-screen');root.id=config.stock?'stockTalkOv':'cmOv';root.setAttribute('aria-label',t(config.stock?'みんなの銘柄トーク':'コミュニティ'));root.dataset.cwLabel=config.stock?'みんなの銘柄トーク':'コミュニティ';
     var savedRetries;try{savedRetries=JSON.parse(stored(retryKey,'{}'));}catch(_){savedRetries={};}
     var s={root:root,epoch:++sequence,category:config.stock?(config.lastCategory||categories[0][0]):'all',posts:[],replies:{},retries:savedRetries&&typeof savedRetries==='object'?savedRetries:{},pending:new Set(),controllers:new Set(),readControllers:new Set(),searchTerm:'',positions:{},writes:0,morningTop:origin&&Number.isFinite(origin.morningTop)?origin.morningTop:(morning?morning.scrollTop:0),loading:false,paging:false,polling:false,hasMore:false};state=s;doc.body.classList.remove('view-asaletter');
-    var header=el('header','cw-header');header.appendChild(button('cw-back','‹','トークに戻る',back));header.appendChild(el('h1','cw-title','トーク'));header.appendChild(button('cw-close','×',config.stock?'銘柄トークを閉じて朝レターへ戻る':'コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
+    var header=el('header','cw-header');header.appendChild(button('cw-back','‹','朝レターに戻る',home));header.appendChild(el('h1','cw-title','トーク'));header.appendChild(button('cw-close','×',config.stock?'銘柄トークを閉じて朝レターへ戻る':'コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
     var views=el('nav','cw-view-tabs');views.setAttribute('aria-label',t('トークの画面'));views.dataset.cwLabel='トークの画面';
     [['stock','みんなの銘柄'],['community','コミュニティ']].forEach(function(item){
       var selected=item[0]===(config.stock?'stock':'community'),tab=button('cw-view-tab',item[1],null,function(){if(selected)return;var next=item[0]==='stock'?w.openStockTalk:w.openCommunity;if(typeof next==='function'){next();var opened=doc.getElementById(item[0]==='stock'?'stockTalkOv':'cmOv'),active=opened&&opened.querySelector('.cw-view-tab[aria-pressed="true"]');if(active&&active.focus)active.focus({preventScroll:true});}});

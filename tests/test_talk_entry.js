@@ -4,14 +4,14 @@ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const start=html.indexOf('/* KN_TALK_TABS:');
 assert.ok(start>=0);
 const source=html.slice(start,html.indexOf('</script>',start));
-function harness({active=false,last,stock=true,community=true}={}) {
+function harness({active=false,last,stock=true,community=true,reentrant=false}={}) {
   const events=[],calls=[],morning={scrollTop:347},listeners=[];
   const window={knTalkLastView:last,closeSaved(){events.push('close-saved');}};
   if(stock)window.openStockTalk=origin=>{events.push('stock');calls.push({view:'stock',origin});};
   if(community)window.openCommunity=origin=>{events.push('community');calls.push({view:'community',origin});};
   const document={addEventListener(name,fn,capture){listeners.push({name,fn,capture});},getElementById(id){return id==='morning-section'?morning:null;},querySelector(selector){
     if(selector==='#cmOv.cw-screen,#stockTalkOv.cw-screen')return active?{}:null;
-    if(selector==='#knBottomNav [data-act="talk"]')return{click(){events.push('legacy-cleanup');morning.scrollTop=0;}};
+    if(selector==='#knBottomNav [data-act="talk"]')return{click(){events.push('legacy-cleanup');morning.scrollTop=0;if(reentrant)window.openTalk();}};
     return null;
   }};
   vm.runInNewContext(source,{window,document});
@@ -30,8 +30,8 @@ test('re-entering an active conversation avoids legacy navigation and does not o
 test('unavailable stock view falls back to the ready community route',()=>{
   const h=harness({stock:false});h.window.openTalk();assert.deepEqual(h.events,['legacy-cleanup','close-saved','community']);assert.equal(h.calls[0].origin.morningTop,347);
 });
-test('unavailable conversation modules leave the existing Talk entrance usable with one navigation click',()=>{
-  const h=harness({stock:false,community:false});h.window.openTalk();assert.deepEqual(h.events,['legacy-cleanup','close-saved']);assert.equal(h.calls.length,0);
+test('unavailable conversation modules leave all current screens and reading position untouched',()=>{
+  const h=harness({stock:false,community:false});h.window.openTalk();assert.deepEqual(h.events,[]);assert.equal(h.calls.length,0);assert.equal(h.morning.scrollTop,347);
 });
 test('bottom navigation away from Talk closes both factories through their draft and request cleanup',()=>{
   const h=harness({active:true});h.window.KNStockTalk={close(){h.events.push('close-stock');}};h.window.KNCommunity={close(){h.events.push('close-community');}};
@@ -41,4 +41,13 @@ test('bottom navigation away from Talk closes both factories through their draft
 test('Talk navigation and unrelated clicks do not discard the active conversation',()=>{
   const h=harness({active:true});h.window.KNStockTalk={close(){h.events.push('close-stock');}};h.window.KNCommunity={close(){h.events.push('close-community');}};
   h.navigate('talk');h.navigate(null);assert.deepEqual(h.events,[]);
+});
+test('legacy navigation reentry opens the ready conversation once instead of recursively navigating',()=>{
+  const h=harness({reentrant:true});assert.doesNotThrow(()=>h.window.openTalk());assert.deepEqual(h.events,['legacy-cleanup','close-saved','stock']);assert.equal(h.calls.length,1);assert.equal(h.calls[0].origin.morningTop,347);
+});
+test('a missing last community route falls back to ready stock without discarding its opening origin',()=>{
+  const h=harness({last:'community',community:false,reentrant:true});h.window.openTalk();assert.deepEqual(h.events,['legacy-cleanup','close-saved','stock']);assert.equal(h.calls[0].origin.morningTop,347);
+});
+test('a thrown ready route does not leave the preparation guard stuck for the next entry',()=>{
+  const h=harness({reentrant:true});let attempts=0;h.window.openStockTalk=()=>{if(++attempts===1)throw Error('synthetic route failure');};assert.throws(()=>h.window.openTalk(),/synthetic route failure/);assert.doesNotThrow(()=>h.window.openTalk());assert.equal(attempts,2);assert.equal(h.events.filter(event=>event==='legacy-cleanup').length,2);
 });

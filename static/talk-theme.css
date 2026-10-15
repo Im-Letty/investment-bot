@@ -251,66 +251,6 @@ body.kn-home-a :is(#talkOv, #cmOv, #teachOv) button:disabled {
   body.kn-home-a :is(#talkOv .tk-head, #cmOv .cm-top, #teachOv .to-head) { min-height: 54px; padding-top: 7px; padding-bottom: 7px; }
   body.kn-home-a :is(#talkOv .tk-syms, #talkOv .tk-foot, #cmOv .cm-bar, #teachOv .to-foot) { padding-top: 8px; padding-bottom: 8px; }
 }
-/* Both existing Talk entrances keep their click handlers and hidden items. */
-body.kn-home-a :is(#knMyTalkHub,#talkHubOv) {
-  background:var(--kn-sh-bg)!important;color:var(--kn-sh-ink)!important;
-  bottom:var(--kn-talk-nav-height,calc(58px + env(safe-area-inset-bottom,0px)))!important;
-  font-family:var(--kn-a-sans,system-ui,-apple-system,"Noto Sans JP",sans-serif);
-  overflow-y:auto;box-sizing:border-box;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-head,#talkHubOv .thb-head) {
-  display:flex!important;align-items:center;gap:12px;box-sizing:border-box;
-  min-height:72px;padding:16px max(24px,calc((100vw - 960px)/2))!important;
-  padding-left:max(54px,calc((100vw - 960px)/2))!important;
-  background:var(--kn-sh-bg)!important;color:var(--kn-sh-ink)!important;
-  border-bottom:1px solid var(--kn-sh-line);font-size:calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))!important;font-weight:500!important;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-title,#talkHubOv .thb-title) {
-  font:500 calc(var(--kn-type-page,22px) * var(--kn-type-scale,1))/1.3 var(--kn-a-serif,"Noto Serif JP","Yu Mincho",serif)!important;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-body,#talkHubOv .thb-body) {
-  display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;
-  max-width:960px;margin:28px auto;padding:0 24px;box-sizing:content-box;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card) {
-  display:flex;flex-direction:row;align-items:center;gap:18px;
-  margin:0!important;padding:28px 24px!important;min-height:150px;box-sizing:border-box;
-  border:1px solid var(--kn-sh-line)!important;border-radius:8px!important;
-  background:var(--kn-sh-paper)!important;color:var(--kn-sh-ink)!important;
-  box-shadow:0 3px 0 color-mix(in srgb,var(--kn-sh-line) 45%,transparent)!important;
-  cursor:pointer;transition:border-color .15s,background .15s;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card):hover {
-  border-color:var(--kn-sh-muted)!important;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card):focus-visible {
-  outline:2px solid var(--kn-sh-button);outline-offset:4px;
-}
-body.kn-home-a #knMyTalkHub .kt-hub-icon,
-body.kn-home-a #talkHubOv .thb-ico {
-  display:flex;align-items:center;justify-content:center;flex:0 0 42px;
-  width:42px;height:42px;color:var(--kn-a-ink,var(--kn-sh-ink));
-}
-body.kn-home-a #knMyTalkHub .kt-hub-icon svg {width:32px;height:32px}
-body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-copy {flex:1;min-width:0}
-body.kn-home-a #talkHubOv .kt-hub-copy > :is(.thb-tt,.thb-sub) {display:block}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-card-title,#talkHubOv .thb-tt) {
-  color:var(--kn-sh-ink)!important;font:500 calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))/1.5 var(--kn-a-sans,system-ui,sans-serif)!important;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-sub,#talkHubOv .thb-sub) {
-  color:var(--kn-sh-muted)!important;font:400 calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))/1.7 var(--kn-a-sans,system-ui,sans-serif)!important;
-  margin-top:6px!important;
-}
-body.kn-home-a :is(#knMyTalkHub,#talkHubOv) .kt-hub-arrow {font:300 26px/1 serif;color:var(--kn-sh-muted)}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-close,#talkHubOv .thb-x) {
-  display:flex;align-items:center;justify-content:center;flex:0 0 44px;
-  width:44px;height:44px;margin-left:auto;padding:0;box-sizing:border-box;
-  border:0;background:transparent;color:var(--kn-sh-ink);
-  font:400 30px/1 var(--kn-a-sans,system-ui,sans-serif);cursor:pointer;
-}
-body.kn-home-a :is(#knMyTalkHub .kt-hub-close,#talkHubOv .thb-x):focus-visible {
-  outline:2px solid var(--kn-sh-button);outline-offset:2px;
-}
 body.kn-home-a.kn-talk-active {
   --kn-talk-menu-left:max(var(--kn-a-header-min-inset,22px),calc((100% - var(--kn-a-header-scrollbar,0px) - var(--kn-a-header-content-width,1010px))/2));
 }
@@ -320,16 +260,8 @@ body.kn-home-a.kn-talk-active #knFloatHam {
   left:var(--kn-talk-menu-left);
 }
 /* Leave the same menu gutter in every Talk header, including the Back control. */
-body.kn-home-a.kn-talk-active :is(#knMyTalkHub .kt-hub-head,#talkHubOv .thb-head,#talkOv .tk-head,#cmOv .cm-top,#teachOv .to-head) {
+body.kn-home-a.kn-talk-active :is(#talkOv .tk-head,#cmOv .cm-top,#teachOv .to-head) {
   padding-left:calc(var(--kn-talk-menu-left) + 48px)!important;
 }
 body.kn-home-a.kn-talk-active #drawerOverlay {z-index:100010!important}
 body.kn-home-a.kn-talk-active #sideDrawer {z-index:100020!important}
-@media(max-width:640px) {
-  body.kn-home-a :is(#knMyTalkHub .kt-hub-head,#talkHubOv .thb-head) {min-height:62px;padding-top:14px!important;padding-bottom:14px!important}
-  body.kn-home-a :is(#knMyTalkHub .kt-hub-title,#talkHubOv .thb-title) {font-size:calc(var(--kn-type-page,19px) * var(--kn-type-scale,1))!important}
-  body.kn-home-a :is(#knMyTalkHub .kt-hub-body,#talkHubOv .thb-body) {grid-template-columns:1fr;margin:20px auto;padding:0 16px;gap:14px}
-  body.kn-home-a :is(#knMyTalkHub .kt-hub-card,#talkHubOv .thb-card) {min-height:120px;padding:24px 18px!important;gap:14px}
-  body.kn-home-a :is(#knMyTalkHub .kt-hub-card-title,#talkHubOv .thb-tt) {font-size:calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))!important}
-  body.kn-home-a :is(#knMyTalkHub .kt-hub-sub,#talkHubOv .thb-sub) {font-size:calc(var(--kn-type-caption,12px) * var(--kn-type-scale,1))!important}
-}

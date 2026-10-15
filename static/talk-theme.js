@@ -20,61 +20,6 @@
       if(event.key==='Enter'||event.key===' '){event.preventDefault();element.click();}
     });
   }
-  function icon() {
-    var span=document.createElement('span');span.className='kt-hub-icon';span.setAttribute('aria-hidden','true');
-    span.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5Z"/></svg>';
-    return span;
-  }
-  function closeHub() {
-    var morning=document.getElementById('morning-section'),scrollTop=morning?morning.scrollTop:0;
-    var button=document.querySelector('#knBottomNav [data-act="morning"]');
-    if(button)button.click();
-    else {
-      var hub=document.getElementById('knMyTalkHub');if(hub)hub.style.display='none';
-      var otherHub=document.getElementById('talkHubOv');if(otherHub)otherHub.classList.remove('open');
-      document.body.classList.add('view-asaletter');
-    }
-    if(morning)morning.scrollTop=scrollTop;
-    hydrate();
-    var entrance=document.getElementById('knHomeATalk');
-    if(entrance&&entrance.focus)entrance.focus({preventScroll:true});
-  }
-  function decorateHub() {
-    document.querySelectorAll('#talkHubOv .thb-card').forEach(function(card){
-      if(card.querySelector('.kt-hub-copy'))return;
-      var title=card.querySelector('.thb-tt'),subtitle=card.querySelector('.thb-sub');
-      if(!title||!subtitle)return;
-      var copy=document.createElement('div');copy.className='kt-hub-copy';
-      copy.appendChild(title);copy.appendChild(subtitle);card.appendChild(copy);
-      var arrow=document.createElement('span');arrow.className='kt-hub-arrow';arrow.textContent='›';arrow.setAttribute('aria-hidden','true');card.appendChild(arrow);
-    });
-    var officialTitle=document.querySelector('#talkHubOv .thb-title');
-    if(officialTitle&&/^📣\s*/.test(officialTitle.textContent))officialTitle.textContent=officialTitle.textContent.replace(/^📣\s*/,'');
-    var officialClose=document.querySelector('#talkHubOv .thb-x');
-    if(officialClose)officialClose.onclick=closeHub;
-    var hub=document.getElementById('knMyTalkHub');
-    if(!hub||hub.querySelector('.kt-hub-body'))return;
-    var header=hub.firstElementChild,cards=Array.from(hub.children).slice(1);
-    if(!header||cards.length!==2)return;
-    hub.classList.add('kt-hub');header.classList.add('kt-hub-head');
-    var heading=header.firstElementChild;
-    if(heading){heading.classList.add('kt-hub-title');heading.textContent=heading.textContent.replace(/^💬\s*/,'');}
-    var close=document.createElement('button');close.type='button';close.className='kt-hub-close';
-    close.textContent='×';close.setAttribute('aria-label','トークを閉じる');close.onclick=closeHub;
-    header.appendChild(close);
-    var body=document.createElement('div');body.className='kt-hub-body';
-    cards.forEach(function(card){
-      card.classList.add('kt-hub-card');keyboardButton(card);
-      var title=card.firstElementChild,subtitle=card.lastElementChild;
-      var copy=document.createElement('div');copy.className='kt-hub-copy';
-      if(title){title.classList.add('kt-hub-card-title');title.textContent=title.textContent.replace(/^(💬|👥)\s*/,'');copy.appendChild(title);}
-      if(subtitle&&subtitle!==title){subtitle.classList.add('kt-hub-sub');copy.appendChild(subtitle);}
-      card.appendChild(icon());card.appendChild(copy);
-      var arrow=document.createElement('span');arrow.className='kt-hub-arrow';arrow.textContent='›';arrow.setAttribute('aria-hidden','true');card.appendChild(arrow);
-      body.appendChild(card);
-    });
-    hub.appendChild(body);
-  }
   var stateObserver=new MutationObserver(hydrate);
   function hydrate() {
     syncNavHeight();
@@ -83,9 +28,8 @@
       observedNav=nav;if(navObserver)navObserver.observe(nav);
       stateObserver.observe(nav,{attributes:true,attributeFilter:['style','class']});
     }
-    decorateHub();
     var active=false;
-    ['knMyTalkHub','talkHubOv','talkOv','cmOv','stockTalkOv','teachOv'].forEach(function(id){
+    ['talkOv','cmOv','stockTalkOv','teachOv'].forEach(function(id){
       var screen=document.getElementById(id);if(!screen)return;
       if(getComputedStyle(screen).display!=='none')active=true;
       if(!watched.has(screen)){
@@ -102,7 +46,6 @@
       if(!watched.has(button)){watched.add(button);stateObserver.observe(button,{attributes:true,attributeFilter:['class']});}
     });
     keyboardButton(document.querySelector('#cmOv .cm-back'),'トークに戻る');
-    keyboardButton(document.querySelector('#talkHubOv .thb-x'),'トークを閉じる');
     keyboardButton(document.querySelector('#talkOv .tk-x'),'銘柄トークを閉じる');
     keyboardButton(document.querySelector('#teachOv .to-x'),'相談を閉じる');
     [['tkName','ニックネーム（任意）'],['tkInput','コメントを書く（200文字まで）'],['cmNick','ニックネーム'],['cmInput','メッセージを書く（200文字まで）']].forEach(function(item){
@@ -110,8 +53,7 @@
     });
     var message=document.getElementById('tkMsg');if(message)message.setAttribute('aria-live','polite');
   }
-  // Talk is built on the first click. Prepare it in that same event so the
-  // shared 300 ms observer throttle cannot expose the legacy layout first.
+  // Conversation open/close prepares active state before the shared observer runs.
   window.knPrepareTalkScreen=hydrate;
   // KN_MO_THROTTLE can provide empty records, so inspect the current screen.
   var structureObserver=new MutationObserver(hydrate);

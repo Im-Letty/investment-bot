@@ -41,6 +41,7 @@ function harness({logged=true,storage=new Map(),language='ja',config}={}) {
   }
   const document={hidden:false,activeElement:null,documentElement:{lang:language},createElement:tag=>new Node(tag),body:new Node('body'),getElementById(id){return this.body.querySelector('#'+id);},querySelector(selector){return this.body.querySelector(selector);},addEventListener(name,fn){if(!events.has(name))events.set(name,[]);events.get(name).push(fn);},removeEventListener(name,fn){events.set(name,(events.get(name)||[]).filter(item=>item!==fn));},emit(name){for(const fn of events.get(name)||[])fn();}};
   const morning=new Node('section');morning.id='morning-section';morning.scrollTop=177;document.body.appendChild(morning);
+  const entrance=new Node('button');entrance.id='knHomeATalk';document.body.appendChild(entrance);
   const hub=new Node('div');hub.id='knMyTalkHub';hub.style.display='none';document.body.appendChild(hub);
   const nav=new Node('nav');nav.id='knBottomNav';document.body.appendChild(nav);
   const morningButton=new Node('button');morningButton.setAttribute('data-act','morning');morningButton.addEventListener('click',()=>morning.scrollTop=0);nav.appendChild(morningButton);
@@ -96,9 +97,10 @@ test('unknown-result retry keeps UUID across close and reopen and blocks double 
   const failed=h.pending.shift();failed.reject(new Error('connection lost'));await h.settle();h.ui.close();h.ui.open();await h.response({ok:true,posts:[post(50,{body:first.body,is_mine:true})],has_more:false});assert.equal(h.node('#cmInput').value,'再送する内容');h.ui.send();await h.settle();const second=JSON.parse(h.calls.at(-1).options.body);assert.equal(first.request_id,second.request_id);assert.equal(second.parent_id,null);
   await h.response({ok:true,post:post(50,{body:second.body,is_mine:true})});assert.equal(h.node('#cmInput').value,'');assert.equal(h.nodes('.cw-post').length,1);
 });
-test('stock drafts stay with their company and close only cleans up, while Back returns to Talk',async()=>{
+test('stock drafts stay with their company and close only cleans up, while Back returns to the original morning position',async()=>{
   const h=harness({config:{stock:true,categories:[['stock:7203','トヨタ 7203'],['stock:6758','ソニー 6758']]}});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='トヨタの下書き';h.node('#cmInput').emit('input');h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='ソニーの下書き';h.node('#cmInput').emit('input');h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'トヨタの下書き');h.ui.close();assert.equal(h.hub.style.display,'none');assert.equal(h.timers.size,0);assert.equal(h.document.getElementById('stockTalkOv'),null);
-  h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-back').click();assert.equal(h.hub.style.display,'block');
+  h.ui.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-back').getAttribute('aria-label'),'朝レターに戻る');h.node('.cw-back').click();assert.equal(h.hub.style.display,'none');assert.equal(h.morning.scrollTop,177);assert.equal(h.document.activeElement,h.node('#knHomeATalk'));assert.equal(h.document.getElementById('stockTalkOv'),null);assert.equal(h.timers.size,0);
+  h.ui.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'トヨタの下書き');
 });
 test('guest report prompts login before opening a native modal',async()=>{
   const h=harness({logged:false});h.ui.open();await h.response({ok:true,posts:[post(1)],has_more:false});h.node('.cw-menu-item').click();await h.settle();assert.equal(h.authPrompts(),1);assert.equal(h.nodes('dialog').length,0);assert.equal(h.calls.length,1);
@@ -135,7 +137,7 @@ test('delayed language events preserve composer and reply controls and allow sen
   await h.response({ok:true,post:post(22,{parent_id:20,category:'life',body:payload.body,is_mine:true})});assert.equal(h.nodes('.cw-reply-post').length,1);
 });
 test('close button restores the original morning scroll position',async()=>{
-  const h=harness();h.document.body.classList.add('view-asaletter');h.ui.open();assert.equal(h.document.body.classList.contains('view-asaletter'),false);await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);assert.equal(h.document.getElementById('cmOv'),null);
+  const h=harness();h.document.body.classList.add('view-asaletter');h.ui.open();assert.equal(h.document.body.classList.contains('view-asaletter'),false);await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);assert.equal(h.document.getElementById('cmOv'),null);assert.equal(h.document.activeElement,h.node('#knHomeATalk'));assert.equal(h.hub.style.display,'none');
 });
 test('entry can supply the morning position from before legacy cleanup while an active view keeps priority',async()=>{
   const h=harness(),top=h.morning.scrollTop;h.morning.scrollTop=0;h.ui.open({morningTop:top});await h.response({ok:true,posts:[],has_more:false});h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177);
@@ -147,6 +149,16 @@ test('expired optional read token falls back once to public reading without a lo
 });
 test('opening Community hides both historical Talk entrances',async()=>{
   const h=harness();h.hub.style.display='block';const other=h.document.createElement('div');other.id='talkHubOv';other.classList.add('open');h.document.body.appendChild(other);h.ui.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.hub.style.display,'none');assert.equal(other.classList.contains('open'),false);
+});
+test('Back and close leave either real tab without reviving a legacy hub and abort pending reads while preserving drafts',async()=>{
+  for(const useStock of [false,true])for(const exit of ['.cw-back','.cw-close']){
+    const h=harness(),stock=paired(h),conversation=useStock?stock:h.ui,other=h.document.createElement('div');other.id='talkHubOv';other.classList.add('open');h.document.body.appendChild(other);
+    h.morning.scrollTop=0;conversation.open({morningTop:177});await h.settle();const request=h.pending[0];h.node('#cmInput').value='送信しない架空の下書き';h.node('#cmInput').emit('input');
+    h.node(exit).click();assert.equal(h.nodes('.cw-screen').length,0);assert.equal(h.hub.style.display,'none');assert.equal(other.classList.contains('open'),false);assert.equal(h.morning.scrollTop,177);assert.equal(h.document.activeElement,h.node('#knHomeATalk'));assert.equal(h.timers.size,0);assert.equal(request.options.signal.aborted,true);
+    for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,0);
+    await h.response({ok:true,posts:[post(99,{body:'終了後の古い応答'})],has_more:false});assert.equal(h.nodes('.cw-screen').length,0);assert.equal(h.calls.filter(call=>call.options.method==='POST').length,0);
+    conversation.open();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'送信しない架空の下書き');conversation.close();
+  }
 });
 test('in-flight poll cannot overwrite a successful like action',async()=>{
   const h=harness();h.ui.open();await h.response({ok:true,posts:[post(3)],has_more:false});[...h.timers.values()][0].fn();await h.settle();h.node('.cw-like').click();await h.settle();assert.equal(h.pending.length,2);
