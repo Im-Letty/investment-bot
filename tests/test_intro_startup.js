@@ -6,25 +6,37 @@ const path=require('node:path');
 const vm=require('node:vm');
 const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const start=html.indexOf('function startApprovedIntro(){');
-const end=html.indexOf("document.addEventListener('DOMContentLoaded',startApprovedIntro,{once:true});",start);
+const readyBootstrap="document.addEventListener('DOMContentLoaded',startApprovedIntro,{once:true});";
+const end=html.indexOf(readyBootstrap,start);
 const controller=html.slice(start,end);
-function harness({reduced=false,prepareThrows=false,startThrows=false}={}){
+const bootstrapController=html.slice(start,end+readyBootstrap.length);
+function harness({reduced=false,prepareThrows=false,startThrows=false,readyState,actualBootstrap=false,welcomeInitiallyAvailable=true}={}){
   let clock=0,seq=0,starts=0,prepares=0,events=0;
   const timers=new Map(),listeners={};
+  function listen(name,fn,options){const list=listeners[name]||(listeners[name]=[]);list.push({fn,once:!!(options&&options.once)});}
+  function unlisten(name,fn){if(!listeners[name])return;listeners[name]=listeners[name].filter(item=>item.fn!==fn);if(!listeners[name].length)delete listeners[name];}
   function element(){const classes=new Set();return {classes,inert:false,classList:{add:name=>classes.add(name)}};}
   const splash=element(),lp=element(),intro={startIntro(){starts++;if(startThrows)throw Error('canvas unavailable');}};
-  const document={hidden:false,getElementById:id=>id==='spl'?splash:id==='news-pastel-palettes'?intro:null,
-    addEventListener:(name,fn)=>listeners['doc:'+name]=fn,removeEventListener:name=>delete listeners['doc:'+name],
+  const document={hidden:false,readyState,getElementById:id=>id==='spl'?splash:id==='news-pastel-palettes'?intro:null,
+    addEventListener:(name,fn,options)=>listen('doc:'+name,fn,options),removeEventListener:(name,fn)=>unlisten('doc:'+name,fn),
     dispatchEvent(event){if(event.type==='knIntroComplete')events++;}};
   class ClockDate extends Date{static now(){return clock;}}
+  function prepareWelcome(){prepares++;if(prepareThrows)throw Error('welcome canvas unavailable');}
   const context={document,lpEl:lp,Date:ClockDate,Event:class{constructor(type){this.type=type;}},matchMedia:()=>({matches:reduced}),
     setTimeout(fn,ms){const id=++seq;timers.set(id,{fn,at:clock+ms});return id;},clearTimeout:id=>timers.delete(id),
-    addEventListener:(name,fn)=>listeners['window:'+name]=fn,removeEventListener:name=>delete listeners['window:'+name],
-    knPrepareWelcome(){prepares++;if(prepareThrows)throw Error('welcome canvas unavailable');}};
-  context.window=context;vm.runInNewContext(controller,context);context.startApprovedIntro();
+    addEventListener:(name,fn,options)=>listen('window:'+name,fn,options),removeEventListener:(name,fn)=>unlisten('window:'+name,fn),
+    knPrepareWelcome:welcomeInitiallyAvailable?prepareWelcome:undefined};
+  context.window=context;vm.runInNewContext(actualBootstrap?bootstrapController:controller,context);if(!actualBootstrap)context.startApprovedIntro();
   function advance(ms,run=true){clock+=ms;if(run){let due;while((due=[...timers].find(([,t])=>t.at<=clock))){timers.delete(due[0]);due[1].fn();}}}
   return {context,document,splash,lp,timers,listeners,advance,events:()=>events,starts:()=>starts,prepares:()=>prepares,
-    fire(name){if(listeners[name])listeners[name]();}};
+    makeWelcomeAvailable(){context.knPrepareWelcome=prepareWelcome;},
+    fire(name){
+      if(name==='doc:DOMContentLoaded')document.readyState='interactive';
+      for(const item of [...(listeners[name]||[])]){
+        if(!(listeners[name]||[]).includes(item))continue;
+        if(item.once)unlisten(name,item.fn);item.fn();
+      }
+    }};
 }
 test('intro exits after three seconds even without animation frames or mutation observers',()=>{
   const app=harness();assert.equal(app.starts(),1);assert.equal(app.lp.inert,true);
@@ -57,6 +69,46 @@ test('duplicate startup requests do not reset the deadline or complete twice',()
   const app=harness();app.advance(1500);app.context.startApprovedIntro();app.advance(1500);
   assert.equal(app.starts(),1);assert.equal(app.prepares(),1);assert.equal(app.events(),1);
   app.fire('window:pageshow');assert.equal(app.events(),1);
+});
+
+test('six seconds waiting for deferred dependencies do not add another three-second hold after DOM readiness',()=>{
+  const app=harness({readyState:'loading',actualBootstrap:true});
+  app.advance(6000);assert.equal(app.events(),0);assert.ok(!app.lp.classes.has('show'));
+  assert.notEqual(app.context.knIntroComplete,true);
+  app.fire('doc:DOMContentLoaded');
+  assert.equal(app.events(),1,'the body-inline deadline has already elapsed when DOMContentLoaded arrives');
+  assert.equal(app.starts(),1);assert.equal(app.prepares(),1);assert.ok(app.lp.classes.has('show'));
+  app.advance(700);assert.ok(app.splash.classes.has('done'));assert.equal(app.timers.size,0);
+});
+test('an early timer or page resume cannot expose the home before its DOM is ready',()=>{
+  const app=harness({readyState:'loading'});
+  app.advance(3000);assert.equal(app.events(),0);assert.equal(app.lp.inert,true);assert.ok(!app.lp.classes.has('show'));
+  assert.notEqual(app.context.knIntroComplete,true);
+  app.advance(3000,false);app.fire('window:pageshow');app.fire('doc:visibilitychange');
+  assert.equal(app.events(),0);assert.equal(app.lp.inert,true);assert.ok(!app.splash.classes.has('leaving'));
+  app.fire('doc:DOMContentLoaded');assert.equal(app.events(),1);assert.equal(app.lp.inert,false);
+});
+test('DOM readiness at one second keeps the original three-second deadline rather than restarting it',()=>{
+  const app=harness({readyState:'loading',actualBootstrap:true});
+  app.advance(1000);app.fire('doc:DOMContentLoaded');assert.equal(app.events(),0);
+  app.advance(1999);assert.equal(app.events(),0);assert.ok(!app.lp.classes.has('show'));
+  app.advance(1);assert.equal(app.events(),1);assert.equal(app.starts(),1);assert.equal(app.prepares(),1);
+  app.advance(700);assert.ok(app.splash.classes.has('done'));assert.equal(app.timers.size,0);
+});
+test('duplicate readiness and late restore events never restart an early intro and all listeners are cleaned up',()=>{
+  const app=harness({readyState:'loading',actualBootstrap:true});
+  app.advance(6000);app.fire('doc:DOMContentLoaded');app.fire('doc:DOMContentLoaded');app.context.startApprovedIntro();
+  assert.equal(app.events(),1);assert.equal(app.starts(),1);assert.equal(app.prepares(),1);
+  app.fire('window:pageshow');app.advance(700);
+  assert.ok(app.splash.classes.has('done'));assert.equal(Object.keys(app.listeners).length,0);
+  app.advance(60000,false);app.fire('window:pageshow');app.fire('doc:visibilitychange');app.fire('doc:DOMContentLoaded');app.context.startApprovedIntro();
+  assert.equal(app.events(),1);assert.equal(app.starts(),1);assert.equal(app.prepares(),1);assert.equal(app.timers.size,0);
+});
+test('welcome code becoming available during deferred loading prepares once at readiness without extending the deadline',()=>{
+  const app=harness({readyState:'loading',actualBootstrap:true,welcomeInitiallyAvailable:false});
+  assert.equal(app.prepares(),0);app.advance(1000);app.makeWelcomeAvailable();app.fire('doc:DOMContentLoaded');
+  assert.equal(app.prepares(),1);app.fire('doc:DOMContentLoaded');app.context.startApprovedIntro();assert.equal(app.prepares(),1);
+  app.advance(2000);assert.equal(app.events(),1);assert.equal(app.starts(),1);assert.equal(app.prepares(),1);
 });
 
 function deferred(){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}

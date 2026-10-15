@@ -944,15 +944,23 @@ function startApprovedIntro(){
   const spl=document.getElementById('spl'),intro=document.getElementById('news-pastel-palettes');
   const startedAt=Date.now();
   let completed=false,hidden=false,finishedAt=0,exitDuration=700,finishTimer,hideTimer;
+  let domReady=document.readyState!=='loading';
+  let welcomePrepared=false;
+  function prepareWelcome(){
+    if(welcomePrepared||typeof window.knPrepareWelcome!=='function')return;
+    welcomePrepared=true;
+    try{window.knPrepareWelcome();}catch(e){/* Welcome can rebuild after the intro. */}
+  }
   if(lpEl)lpEl.inert=true;
   function hide(){
     if(hidden)return;hidden=true;clearTimeout(hideTimer);
     if(spl)spl.classList.add('done');
+    document.removeEventListener('DOMContentLoaded',ready);
     document.removeEventListener('visibilitychange',resume);
     window.removeEventListener('pageshow',resume);
   }
   function finish(){
-    if(completed)return;completed=true;clearTimeout(finishTimer);
+    if(!domReady||completed)return;completed=true;clearTimeout(finishTimer);
     finishedAt=Date.now();exitDuration=matchMedia('(prefers-reduced-motion: reduce)').matches?0:700;
     window.knIntroComplete=true;
     if(lpEl){lpEl.classList.add('show');lpEl.inert=false;}
@@ -965,13 +973,21 @@ function startApprovedIntro(){
     if(Date.now()-startedAt>=3000)finish();
     if(completed&&Date.now()-finishedAt>=exitDuration)hide();
   }
-  // The intro has its own deadline; network and animation-frame progress never gate exit.
+  function ready(){
+    domReady=true;
+    prepareWelcome();
+    if(Date.now()-startedAt>=3000)finish();
+  }
+  // Overlap the approved three seconds with deferred-file loading. Keep home
+  // gated until its DOM startup handlers can finish in the same event task.
   finishTimer=setTimeout(finish,3000);
+  if(!domReady)document.addEventListener('DOMContentLoaded',ready,{once:true});
   document.addEventListener('visibilitychange',resume);
   window.addEventListener('pageshow',resume);
-  try{window.knPrepareWelcome?.();}catch(e){/* Welcome can rebuild after the intro. */}
+  prepareWelcome();
   try{intro?.startIntro?.();}catch(e){/* Keep the independent exit deadline. */}
 }
+startApprovedIntro();
 document.addEventListener('DOMContentLoaded',startApprovedIntro,{once:true});
 
       // ===== SIMULATOR OPEN/CLOSE =====
