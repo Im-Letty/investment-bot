@@ -175,7 +175,7 @@ test('unreadable monthly source stays a visible gap and boundary rather than bec
 test('period and custom controls render gaps even when the selected or recent summary month becomes unreadable',()=>{
   for(const [key,corrupt] of [['kb2_2026_10','{"synthetic-broken":'],['kb2_2026_08','{}']]){
     const h=fixture({...seedMonth(2026,8,rows(10,2)),...seedMonth(2026,10,rows(20,3))},{charts:true});
-    h.nodes.get('inv-name').value='保存前の架空下書き';h.nodes.get('exp-amount').value='１０００';
+    h.nodes.get('m-inv-name').value='保存前の架空下書き';h.nodes.get('exp-amount').value='１０００';
     const year=h.context._year,month=h.context._month;h.context.localStorage.setItem(key,corrupt);
     assert.doesNotThrow(()=>h.setPeriod('6'),'trend controls must not depend on unrelated summary or hidden-bar JSON parsing');
     let data=h.data();assert.equal(data.unreadable,true);assert.equal(h.nodes.get('kkTrendDataNotice').hidden,false);
@@ -183,7 +183,7 @@ test('period and custom controls render gaps even when the selected or recent su
     assert.doesNotThrow(()=>h.custom('2026-08','2026-10'));data=h.data();assert.equal(data.months,3);assert.equal(data.unreadable,true);
     assert.equal(data.income[key==='kb2_2026_08'?0:2],null);assert.equal(h.nodes.get('kkTrendError').hidden,true);
     assert.equal(h.context._year,year);assert.equal(h.context._month,month);
-    assert.equal(h.nodes.get('inv-name').value,'保存前の架空下書き');assert.equal(h.nodes.get('exp-amount').value,'１０００');
+    assert.equal(h.nodes.get('m-inv-name').value,'保存前の架空下書き');assert.equal(h.nodes.get('exp-amount').value,'１０００');
   }
 });
 test('invalid row amounts produce a gap for the affected month without corrupting another month',()=>{
@@ -295,18 +295,18 @@ test('only preset one is daily; all and even a one-month custom range retain com
 test('entry date defaults to today or the other selected month first day and changes no amount/name drafts',()=>{
   const h=fixture(),date=h.nodes.get('kkEntryDate');assert.ok(date);assert.equal(date.value,'2026-10-15');
   assert.equal(date.getAttribute('min'),'2026-10-01');assert.equal(date.getAttribute('max'),'2026-10-31');
-  h.nodes.get('inv-name').value='保存前の架空下書き';h.nodes.get('exp-amount').value='１２３４';h.setPeriod('1');h.context.changeMonth(-1);
+  h.nodes.get('m-inv-name').value='保存前の架空下書き';h.nodes.get('exp-amount').value='１２３４';h.setPeriod('1');h.context.changeMonth(-1);
   assert.equal(date.value,'2026-09-01');assert.equal(date.getAttribute('min'),'2026-09-01');assert.equal(date.getAttribute('max'),'2026-09-30');assert.equal(h.data().days,30);
-  assert.equal(h.nodes.get('inv-name').value,'保存前の架空下書き');assert.equal(h.nodes.get('exp-amount').value,'１２３４');
+  assert.equal(h.nodes.get('m-inv-name').value,'保存前の架空下書き');assert.equal(h.nodes.get('exp-amount').value,'１２３４');
   h.context._year=2024;h.context._month=2;h.context.renderAll();assert.equal(date.value,'2024-02-01');assert.equal(date.getAttribute('max'),'2024-02-29');assert.equal(h.data().days,29);
 });
 test('same-month trend, language and theme redraws preserve valid, blank and invalid entry-date drafts',()=>{
   const h=fixture(seedMonth(2026,10,rows(10,2)),{charts:true});h.setPeriod('1');h.theme();
-  h.nodes.get('inv-name').value='保存前の架空項目';h.nodes.get('inc-amount').value='１０００';
+  h.nodes.get('m-inv-name').value='保存前の架空項目';h.nodes.get('inc-amount').value='１０００';
   for(const draft of ['2026-10-23','','2026-10-99']){
     h.nodes.get('kkEntryDate').value=draft;h.context.renderAll();h.context.kkApplyLang('en');
     h.context.localStorage.setItem('userBrandColor','#725799');h.context.localStorage.setItem('ui_theme','dark');h.fire('focus');h.flush();h.context.renderAll();
-    assert.equal(h.nodes.get('kkEntryDate').value,draft);assert.equal(h.nodes.get('inv-name').value,'保存前の架空項目');assert.equal(h.nodes.get('inc-amount').value,'１０００');assert.equal(h.context._trendPeriod,'1');
+    assert.equal(h.nodes.get('kkEntryDate').value,draft);assert.equal(h.nodes.get('m-inv-name').value,'保存前の架空項目');assert.equal(h.nodes.get('inc-amount').value,'１０００');assert.equal(h.context._trendPeriod,'1');
   }
 });
 test('home additions save the chosen date without changing old rows or mixing separate calendar data',()=>{
@@ -314,7 +314,7 @@ test('home additions save the chosen date without changing old rows or mixing se
   const h=fixture({...seedMonth(2026,10,[legacy]),kbday_2026_10_12:daily},{charts:true});h.setPeriod('1');
   for(const [type,date,amount] of [['inc','2026-10-12','１０００'],['exp','2026-10-31','２００'],['inv','2026-10-30','１００']]){
     h.nodes.get('kkEntryDate').value=date;
-    if(h.nodes.has(type+'-name'))h.nodes.get(type+'-name').value='架空の'+type;else assert.ok(type==='inc'||type==='exp');
+    if(h.nodes.has(type+'-name'))h.nodes.get(type+'-name').value='架空の'+type;else assert.ok(['inc','exp','inv'].includes(type));
     h.nodes.get(type+'-amount').value=amount;
     if(type!=='inc')h.nodes.get(type+'-cat').value=type==='exp'?'食費':'国内株';
     h.context.addRecord(type);const saved=JSON.parse(h.values.get('kb2_2026_10'));
@@ -328,22 +328,22 @@ test('home additions save the chosen date without changing old rows or mixing se
 test('invalid home dates block a monthly save without clearing drafts while assets remain independent',()=>{
   for(const value of ['','2026-10-32','2026-09-30']){
     const h=fixture(seedMonth(2026,10,rows(10,2))),before=h.values.get('kb2_2026_10');h.writes.length=0;
-    h.nodes.get('kkEntryDate').value=value;h.nodes.get('inv-name').value='架空の未保存投資';h.nodes.get('exp-amount').value='１００';h.nodes.get('exp-cat').value='食費';h.context.addRecord('exp');
-    assert.equal(h.values.get('kb2_2026_10'),before);assert.deepEqual(h.writes,[]);assert.equal(h.nodes.get('inv-name').value,'架空の未保存投資');assert.equal(h.nodes.get('exp-amount').value,'１００');assert.equal(h.nodes.get('kkEntryDate').value,value);assert.equal(h.nodes.get('kkEntryDate').getAttribute('aria-invalid'),'true');
+    h.nodes.get('kkEntryDate').value=value;h.nodes.get('m-inv-name').value='架空の未保存投資';h.nodes.get('exp-amount').value='１００';h.nodes.get('exp-cat').value='食費';h.context.addRecord('exp');
+    assert.equal(h.values.get('kb2_2026_10'),before);assert.deepEqual(h.writes,[]);assert.equal(h.nodes.get('m-inv-name').value,'架空の未保存投資');assert.equal(h.nodes.get('exp-amount').value,'１００');assert.equal(h.nodes.get('kkEntryDate').value,value);assert.equal(h.nodes.get('kkEntryDate').getAttribute('aria-invalid'),'true');
     h.nodes.get('ast-name').value='架空の資産';h.nodes.get('ast-amount').value='２００';h.nodes.get('ast-cat').value='現金';h.context.addRecord('ast');
     const asset=JSON.parse(h.values.get('kb2_assets'))[0];assert.equal(asset.amount,200);assert.equal(Object.hasOwn(asset,'date'),false);assert.equal(h.values.get('kb2_2026_10'),before);
   }
 });
 test('record date set, change and clear update daily points and undated totals while preserving fields and drafts',()=>{
   const first={id:1,type:'inc',name:'架空の未日付収入',amount:100,extra:{kept:true}},second={id:2,type:'exp',name:'架空の支出',amount:20,date:'2026-10-10',cat:'食費'};
-  const h=fixture(seedMonth(2026,10,[first,second]),{charts:true});h.setPeriod('1');h.nodes.get('inv-name').value='架空の入力下書き';h.nodes.get('inc-amount').value='１２３';h.nodes.get('kkEntryDate').value='2026-10-22';
+  const h=fixture(seedMonth(2026,10,[first,second]),{charts:true});h.setPeriod('1');h.nodes.get('m-inv-name').value='架空の入力下書き';h.nodes.get('inc-amount').value='１２３';h.nodes.get('kkEntryDate').value='2026-10-22';
   const oldChart=h.chartInstances.get('lineChart');assert.equal(h.context.kkSetRecordDate(1,'2026-10-07'),true);
   let saved=JSON.parse(h.values.get('kb2_2026_10'));assert.deepEqual(saved,[{...first,date:'2026-10-07'},second]);assert.equal(h.data().income[6],100);assert.equal(h.data().undated.count,0);assert.notEqual(h.chartInstances.get('lineChart'),oldChart);
   assert.match(h.nodes.get('rec-list-el').innerHTML,/type="date"/);assert.match(h.nodes.get('rec-list-el').innerHTML,/onchange="kkRecordDateEdited\(this\)"/);
   const editor=h.makeElement('input','fixture-record-date');editor.setAttribute('data-kk-record-date','1');editor.value='2026-10-05';h.document.body.appendChild(editor);
   h.context.kkRecordDateEdited(editor);assert.equal(h.data().expense[4],20);assert.equal(h.data().expense[9],0);
   assert.equal(h.context.kkSetRecordDate(1,''),true);saved=JSON.parse(h.values.get('kb2_2026_10'));assert.deepEqual(saved[0],first);assert.equal(h.data().income[6],0);assert.equal(h.data().undated.count,1);assert.equal(h.data().undated.income,100);
-  assert.equal(h.context._year,2026);assert.equal(h.context._month,10);assert.equal(h.nodes.get('inv-name').value,'架空の入力下書き');assert.equal(h.nodes.get('inc-amount').value,'１２３');assert.equal(h.nodes.get('kkEntryDate').value,'2026-10-22');
+  assert.equal(h.context._year,2026);assert.equal(h.context._month,10);assert.equal(h.nodes.get('m-inv-name').value,'架空の入力下書き');assert.equal(h.nodes.get('inc-amount').value,'１２３');assert.equal(h.nodes.get('kkEntryDate').value,'2026-10-22');
 });
 test('record-date invalid, unknown and ambiguous IDs never write or change stored data',()=>{
   for(const records of [[{id:1,type:'inc',amount:10}],[{id:1,type:'inc',amount:10},{id:1,type:'exp',amount:2}]]){

@@ -47,7 +47,7 @@ function fixture(seed={}){
     get focused(){return focused;},get renders(){return renders;},get dayRenders(){return dayRenders;},
     fill(prefix,amount,name='架空の入力項目',category='食費'){
       const nameInput=nodes.get(prefix+'-name');
-      if(nameInput)nameInput.value=name;else assert.ok(prefix==='inc'||prefix==='exp','only Home income/spending omit their name field');
+      if(nameInput)nameInput.value=name;else assert.ok(['inc','exp','inv'].includes(prefix),'only Home income/spending/investment omit their name field');
       nodes.get(prefix+'-amount').value=amount;
       if(nodes.get(prefix+'-cat'))nodes.get(prefix+'-cat').value=category;
     },
@@ -57,13 +57,13 @@ function fixture(seed={}){
 }
 function monthRows(h){return JSON.parse(h.values.get(h.context.getKey())||'[]');}
 
-test('only Home income and spending item labels and inputs are removed from the real DOM',()=>{
+test('only Home income, spending and investment name labels and inputs are removed from the real DOM',()=>{
   const h=fixture();
-  for(const id of ['inc-name','exp-name']){
+  for(const id of ['inc-name','exp-name','inv-name']){
     assert.equal(h.document.getElementById(id),null);assert.equal(h.nodes.has(id),false);
     assert.doesNotMatch(html,new RegExp('\\b(?:id|for)="'+id+'"'));
   }
-  for(const id of ['inv-name','ast-name','m-inc-name','m-exp-name','m-inv-name'])assert.ok(h.nodes.has(id),id+' remains present and required');
+  for(const id of ['ast-name','m-inc-name','m-exp-name','m-inv-name'])assert.ok(h.nodes.has(id),id+' remains present and required');
 });
 
 test('all seven manual money fields retain full-width text and request a decimal keyboard',()=>{
@@ -114,33 +114,33 @@ test('the shared parser validates the whole normalized numeric value and preserv
 });
 
 test('the shared reader distinguishes missing name, missing amount and invalid amount while preserving other descriptions',()=>{
-  const h=fixture(),name=h.nodes.get('inv-name'),amount=h.nodes.get('inv-amount');
+  const h=fixture(),name=h.nodes.get('ast-name'),amount=h.nodes.get('ast-amount');
   name.setAttribute('aria-describedby','existing-name-help');amount.setAttribute('aria-describedby','existing-money-help');
-  h.fill('inv','','');assert.equal(h.context.kkReadEntry('inv'),null);
-  assert.equal(h.focused,'inv-name');
-  assert.equal(h.document.getElementById('inv-name-error').getAttribute('data-i18n'),'kk_input_name_required');
-  assert.equal(h.document.getElementById('inv-amount-error').getAttribute('data-i18n'),'kk_input_amount_required');
+  h.fill('ast','','');assert.equal(h.context.kkReadEntry('ast'),null);
+  assert.equal(h.focused,'ast-name');
+  assert.equal(h.document.getElementById('ast-name-error').getAttribute('data-i18n'),'kk_input_name_required');
+  assert.equal(h.document.getElementById('ast-amount-error').getAttribute('data-i18n'),'kk_input_amount_required');
   assert.ok(name.getAttribute('aria-describedby').split(/\s+/).includes('existing-name-help'));
   assert.ok(amount.getAttribute('aria-describedby').split(/\s+/).includes('existing-money-help'));
   amount.value='1,23';h.context.kkClearEntryError(amount);
-  assert.notEqual(amount.getAttribute('aria-invalid'),'true');assert.equal(h.errorFor('inv-amount'),null);
+  assert.notEqual(amount.getAttribute('aria-invalid'),'true');assert.equal(h.errorFor('ast-amount'),null);
   assert.equal(amount.getAttribute('aria-describedby'),'existing-money-help');
   assert.equal(name.getAttribute('aria-invalid'),'true','editing one field must not clear another field error');
   name.value='架空の修正';h.context.kkClearEntryError(name);assert.equal(name.getAttribute('aria-describedby'),'existing-name-help');
-  assert.equal(h.context.kkReadEntry('inv'),null);assert.equal(h.focused,'inv-amount');
-  assert.equal(h.document.getElementById('inv-amount-error').getAttribute('data-i18n'),'kk_input_amount_invalid');
+  assert.equal(h.context.kkReadEntry('ast'),null);assert.equal(h.focused,'ast-amount');
+  assert.equal(h.document.getElementById('ast-amount-error').getAttribute('data-i18n'),'kk_input_amount_invalid');
   amount.value='１０００';h.context.kkClearEntryError(amount);
-  assert.deepEqual(JSON.parse(JSON.stringify(h.context.kkReadEntry('inv'))),{name:'架空の修正',amount:1000});
+  assert.deepEqual(JSON.parse(JSON.stringify(h.context.kkReadEntry('ast'))),{name:'架空の修正',amount:1000});
 });
 
-test('missing investment name identifies the field while a corrected retry saves exactly once and clears its error',()=>{
-  const h=fixture();h.fill('inv','１０００','　 ','国内株');h.context.addRecord('inv');
-  assert.equal(h.nodes.get('inv-name').getAttribute('aria-invalid'),'true');assert.ok(h.errorFor('inv-name'));
-  assert.equal(h.focused,'inv-name');assert.equal(h.nodes.get('inv-amount').value,'１０００');assert.equal(h.writes.length,0);
-  h.nodes.get('inv-name').value='  架空の投資先  ';h.context.addRecord('inv');
-  assert.equal(monthRows(h).length,1);assert.equal(monthRows(h)[0].name,'架空の投資先');
-  assert.notEqual(h.nodes.get('inv-name').getAttribute('aria-invalid'),'true');assert.equal(h.errorFor('inv-name'),null);
-  h.context.addRecord('inv');assert.equal(monthRows(h).length,1,'the empty second click must not duplicate the first record');assert.equal(h.writes.length,1);
+test('missing asset name identifies the field while a corrected retry saves exactly once and clears its error',()=>{
+  const h=fixture(),assets=()=>JSON.parse(h.values.get('kb2_assets')||'[]');h.fill('ast','１０００','　 ','現金');h.context.addRecord('ast');
+  assert.equal(h.nodes.get('ast-name').getAttribute('aria-invalid'),'true');assert.ok(h.errorFor('ast-name'));
+  assert.equal(h.focused,'ast-name');assert.equal(h.nodes.get('ast-amount').value,'１０００');assert.equal(h.writes.length,0);
+  h.nodes.get('ast-name').value='  架空の資産名  ';h.context.addRecord('ast');
+  assert.equal(assets().length,1);assert.equal(assets()[0].name,'架空の資産名');
+  assert.notEqual(h.nodes.get('ast-name').getAttribute('aria-invalid'),'true');assert.equal(h.errorFor('ast-name'),null);
+  h.context.addRecord('ast');assert.equal(assets().length,1,'the empty second click must not duplicate the first record');assert.equal(h.writes.length,1);
 });
 
 test('each home record retains its fields and category, adds the selected date and leaves calendar records untouched',()=>{
@@ -177,11 +177,11 @@ test('assets retain the existing independent schema and signed fractional value'
 test('invalid daily and asset submissions mark their own fields and leave other forms and data alone',()=>{
   for(const prefix of ['m-inc','m-exp','m-inv','ast']){
     const h=fixture();h.context._modalDate={y:2026,m:10,day:15};h.fill(prefix,'１，２３','架空の保存前');h.fill('exp','５００','別の架空下書き');
-    h.nodes.get('inv-name').value='別の架空下書き';const date=h.nodes.get('kkEntryDate').value;
+    const otherName=prefix==='ast'?'m-inc-name':'ast-name';h.nodes.get(otherName).value='別の架空下書き';const date=h.nodes.get('kkEntryDate').value;
     if(prefix==='ast')h.context.addRecord('ast');else h.context.addDayRecord(prefix.slice(2));
     assert.equal(h.writes.length,0);assert.equal(h.nodes.get(prefix+'-amount').value,'１，２３');assert.equal(h.nodes.get(prefix+'-name').value,'架空の保存前');
     assert.equal(h.nodes.get(prefix+'-amount').getAttribute('aria-invalid'),'true');assert.ok(h.errorFor(prefix+'-amount'));
-    assert.equal(h.focused,prefix+'-amount');assert.equal(h.nodes.get('exp-amount').value,'５００');assert.equal(h.nodes.get('inv-name').value,'別の架空下書き');assert.equal(h.nodes.get('kkEntryDate').value,date);
+    assert.equal(h.focused,prefix+'-amount');assert.equal(h.nodes.get('exp-amount').value,'５００');assert.equal(h.nodes.get(otherName).value,'別の架空下書き');assert.equal(h.nodes.get('kkEntryDate').value,date);
   }
 });
 
@@ -197,12 +197,12 @@ test('a failed local write retains a valid draft for retry without a success red
   }
 });
 
-test('Home income and spending save without name inputs, reject an empty repeat and accept the next amount',()=>{
-  for(const type of ['inc','exp']){
+test('all Home entry types save without name inputs, reject an empty repeat and accept the next amount',()=>{
+  for(const type of ['inc','exp','inv']){
     const h=fixture();assert.equal(h.document.getElementById(type+'-name'),null);
-    h.fill(type,'１，０００．５','unused Home name','独自の食費');const date=h.nodes.get('kkEntryDate').value;h.context.addRecord(type);
+    const category=type==='inv'?'米国株':'独自の食費';h.fill(type,'１，０００．５','unused Home name',category);const date=h.nodes.get('kkEntryDate').value;h.context.addRecord(type);
     let rows=monthRows(h);assert.equal(rows.length,1);assert.equal(rows[0].amount,1000.5);assert.equal(rows[0].date,date);
-    assert.equal(rows[0].name,type==='inc'?h.context.kkT('kk_js_income'):'独自の食費');assert.equal(h.nodes.get(type+'-amount').value,'');
+    assert.equal(rows[0].name,type==='inc'?h.context.kkT('kk_js_income'):category);assert.equal(h.nodes.get(type+'-amount').value,'');
     const original=JSON.parse(JSON.stringify(rows[0]));h.context.addRecord(type);
     assert.deepEqual(monthRows(h),[original]);assert.equal(h.writes.length,1);assert.equal(h.nodes.get(type+'-amount').getAttribute('aria-invalid'),'true');
     h.nodes.get(type+'-amount').value='２００';h.context.addRecord(type);rows=monthRows(h);
@@ -211,12 +211,12 @@ test('Home income and spending save without name inputs, reject an empty repeat 
   }
 });
 
-test('automatic Home names use the current income translation or literal expense category and empty-category fallback',()=>{
+test('automatic Home names use current income translation and literal expense or investment categories',()=>{
   const incomeNames=new Set();
   for(const lang of ['ja','en','ko','zh']){
-    for(const [type,category] of [['inc',''],['exp','旅行・カフェ'],['exp','']]){
+    for(const [type,category] of [['inc',''],['exp','旅行・カフェ'],['exp',''],['inv','国内株'],['inv','ETF'],['inv','']]){
       const h=fixture();h.context.kkApplyLang(lang);h.writes.length=0;h.fill(type,'１０００','unused Home name',category);h.context.addRecord(type);
-      const saved=monthRows(h)[0],expected=type==='inc'?h.context.kkT('kk_js_income'):category||h.context.kkT('kk_js_expense');
+      const saved=monthRows(h)[0],expected=type==='inc'?h.context.kkT('kk_js_income'):category||h.context.kkT(type==='inv'?'kk_js_investment':'kk_js_expense');
       assert.equal(saved.name,expected);assert.equal(saved.cat,type==='inc'?'':category);assert.equal(saved.amount,1000);assert.ok(saved.name);assert.equal(h.writes.length,1);
       assert.equal(h.document.getElementById(type+'-name'),null);assert.equal(h.document.getElementById(type+'-name-error'),null);
       if(type==='inc')incomeNames.add(saved.name);
@@ -225,8 +225,8 @@ test('automatic Home names use the current income translation or literal expense
   assert.equal(incomeNames.size,4);
 });
 
-test('investment, asset and each calendar form still require a name before any valid amount can save',()=>{
-  for(const prefix of ['inv','ast','m-inc','m-exp','m-inv']){
+test('asset and each calendar form still require a name before any valid amount can save',()=>{
+  for(const prefix of ['ast','m-inc','m-exp','m-inv']){
     const h=fixture();h.context._modalDate={y:2026,m:10,day:15};h.fill(prefix,'１０００','　 ','現金');
     const save=()=>prefix.startsWith('m-')?h.context.addDayRecord(prefix.slice(2)):h.context.addRecord(prefix);
     save();assert.equal(h.writes.length,0,prefix);assert.equal(h.focused,prefix+'-name');assert.equal(h.nodes.get(prefix+'-name').getAttribute('aria-invalid'),'true');assert.ok(h.errorFor(prefix+'-name'));
@@ -243,20 +243,37 @@ test('removing Home item fields never rewrites old names, dates, signed values o
     {id:2,type:'exp',name:'以前の架空の買い物名',cat:'食費',amount:-12.25},
     {id:3,type:'inv',name:'以前の架空の投資名',cat:'国内株',amount:10,date}];
   const raw=JSON.stringify(legacy),h=fixture({[key]:raw});assert.equal(h.values.get(key),raw);assert.equal(h.writes.length,0);
-  h.context.renderAll();assert.equal(h.values.get(key),raw);h.fill('exp','５０','ignored','交通');h.context.addRecord('exp');
-  const saved=monthRows(h);assert.deepEqual(saved.slice(0,3),legacy);assert.equal(saved[3].name,'交通');assert.equal(saved[3].amount,50);
+  h.context.renderAll();assert.equal(h.values.get(key),raw);h.fill('inv','－５０．２５','ignored','ETF');const selectedDate=h.nodes.get('kkEntryDate').value;h.context.addRecord('inv');
+  const saved=monthRows(h);assert.deepEqual(saved.slice(0,3),legacy);assert.equal(saved[3].name,'ETF');assert.equal(saved[3].cat,'ETF');assert.equal(saved[3].amount,-50.25);assert.equal(saved[3].date,selectedDate);
   const reloaded=fixture(Object.fromEntries(h.values));assert.deepEqual(monthRows(reloaded),saved);
   for(const row of legacy)assert.match(reloaded.nodes.get('rec-list-el').innerHTML,new RegExp(row.name));
 });
 
 test('Home amount and date failures keep the selected category and remaining drafts without a phantom name error',()=>{
-  for(const type of ['inc','exp']){
-    const h=fixture();h.fill(type,'1,23','ignored','架空の分類');const date=h.nodes.get('kkEntryDate').value;
-    h.nodes.get('inv-name').value='保存前の投資名';h.context.addRecord(type);
+  for(const type of ['inc','exp','inv']){
+    const h=fixture();h.fill(type,'1,23','ignored',type==='inv'?'ETF':'架空の分類');const date=h.nodes.get('kkEntryDate').value;
+    h.nodes.get('ast-name').value='保存前の資産名';h.context.addRecord(type);
     assert.equal(h.writes.length,0);assert.equal(h.focused,type+'-amount');assert.equal(h.nodes.get(type+'-amount').value,'1,23');assert.equal(h.nodes.get('kkEntryDate').value,date);
     h.nodes.get(type+'-amount').value='１０００';h.nodes.get('kkEntryDate').value='';h.context.addRecord(type);
     assert.equal(h.writes.length,0);assert.equal(h.focused,'kkEntryDate');assert.equal(h.nodes.get(type+'-amount').value,'１０００');assert.equal(h.nodes.get('kkEntryDate').value,'');
-    assert.equal(h.nodes.get('exp-cat').value,type==='exp'?'架空の分類':'');assert.equal(h.nodes.get('inv-name').value,'保存前の投資名');assert.equal(h.document.getElementById(type+'-name-error'),null);
+    assert.equal(h.nodes.get('exp-cat').value,type==='exp'?'架空の分類':'');assert.equal(h.nodes.get('ast-name').value,'保存前の資産名');assert.equal(h.document.getElementById(type+'-name-error'),null);
+    if(type==='inv')assert.equal(h.nodes.get('inv-cat').value,'ETF');
     h.nodes.get('kkEntryDate').value=date;h.context.addRecord(type);assert.equal(monthRows(h).length,1);assert.equal(monthRows(h)[0].amount,1000);
+  }
+});
+
+test('Home investment rejects invalid amount and dates without a name field and saves the corrected signed fraction',()=>{
+  for(const value of ['','0','１，２３','NaN','1e309','9007199254740992']){
+    const h=fixture();assert.equal(h.document.getElementById('inv-name'),null);h.fill('inv',value,'ignored','投資信託');
+    const date=h.nodes.get('kkEntryDate').value;h.nodes.get('ast-name').value='保存前の資産名';h.context.addRecord('inv');
+    assert.equal(h.writes.length,0);assert.equal(h.focused,'inv-amount');assert.equal(h.nodes.get('inv-amount').value,value);assert.equal(h.nodes.get('inv-cat').value,'投資信託');assert.equal(h.nodes.get('kkEntryDate').value,date);assert.equal(h.nodes.get('ast-name').value,'保存前の資産名');assert.ok(h.errorFor('inv-amount'));
+    h.nodes.get('inv-amount').value='－１２．５';h.context.addRecord('inv');const saved=monthRows(h)[0];assert.equal(saved.name,'投資信託');assert.equal(saved.amount,-12.5);assert.equal(saved.date,date);assert.equal(h.writes.length,1);
+  }
+  for(const kind of ['blank','impossible','other-month']){
+    const h=fixture();h.fill('inv','１２．５','ignored','ETF');const date=h.nodes.get('kkEntryDate').value;
+    const serial=h.context._year*12+h.context._month,other=String(Math.floor(serial/12)).padStart(4,'0')+'-'+String(serial%12+1).padStart(2,'0')+'-01';
+    const invalid=kind==='blank'?'':kind==='impossible'?date.slice(0,8)+'32':other;h.nodes.get('kkEntryDate').value=invalid;h.context.addRecord('inv');
+    assert.equal(h.writes.length,0);assert.equal(h.focused,'kkEntryDate');assert.equal(h.nodes.get('inv-amount').value,'１２．５');assert.equal(h.nodes.get('inv-cat').value,'ETF');assert.equal(h.nodes.get('kkEntryDate').value,invalid);assert.ok(h.errorFor('kkEntryDate'));assert.equal(h.document.getElementById('inv-name-error'),null);
+    h.nodes.get('kkEntryDate').value=date;h.context.addRecord('inv');const saved=monthRows(h)[0];assert.equal(saved.name,'ETF');assert.equal(saved.amount,12.5);assert.equal(saved.date,date);assert.equal(h.writes.length,1);
   }
 });

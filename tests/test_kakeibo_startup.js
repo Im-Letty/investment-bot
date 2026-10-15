@@ -67,13 +67,13 @@ test('legacy input and graph links open home and keep the monthly draft, selecte
   h.context.kkLayoutTabChanged=tab=>h.document.body.setAttribute('data-kk-active-tab',tab);
   const sourceStart=html.indexOf('function kkNavGo(');
   vm.runInNewContext(html.slice(sourceStart,html.indexOf('</script>',sourceStart)),h.context);
-  const name=h.nodes.get('inv-name'),amount=h.nodes.get('inc-amount'),year=h.context._year,month=h.context._month;
+  const name=h.nodes.get('m-inv-name'),amount=h.nodes.get('inc-amount'),year=h.context._year,month=h.context._month;
   name.value='保存前の架空メモ';amount.value='1234';
   h.context.switchTab('records');h.context.kkNavGo('cashflow');
   assert.deepEqual(panes.filter(n=>n.classList.contains('active')).map(n=>n.id),['tab-home']);
   assert.equal(h.document.body.getAttribute('data-kk-active-tab'),'home');
   assert.equal(nav.find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-kknav'),'home');
-  assert.equal(focused,1);assert.equal(h.nodes.get('inv-name'),name);
+  assert.equal(focused,1);assert.equal(h.nodes.get('m-inv-name'),name);
   h.context.switchTab('calendar');h.context.kkNavGo('dashboard');
   assert.deepEqual(panes.filter(n=>n.classList.contains('active')).map(n=>n.id),['tab-home']);
   assert.equal(nav.find(n=>n.getAttribute('aria-pressed')==='true').getAttribute('data-kknav'),'home');
@@ -96,7 +96,7 @@ test('summary, list, calendar and editable records initialize even when graph lo
 test('late local graph loading preserves draft, selected month and canvas after an initially empty ledger',()=>{
   const h=fixture();h.core();h.loader();assert.equal(h.scripts.length,0,'graphs wait until critical HTML and theme are ready');
   const canvas=h.nodes.get('donutChart');assert.equal(canvas.hidden,true);assert.ok(canvas.parentElement.querySelector('.kk-chart-empty'));
-  h.nodes.get('inv-name').value='保存前の架空メモ';h.nodes.get('inc-amount').value='123';h.context._year=2024;h.context._month=3;
+  h.nodes.get('m-inv-name').value='保存前の架空メモ';h.nodes.get('inc-amount').value='123';h.context._year=2024;h.context._month=3;
   h.context.localStorage.setItem('kb2_2024_03',JSON.stringify([{id:4,type:'exp',name:'架空の三月支出',cat:'食費',amount:900}]));
   h.event('DOMContentLoaded');assert.equal(h.scripts.length,1);assert.equal(h.scripts[0].src,'/static/vendor/chart.umd-4.4.1.js');assert.equal(h.scripts[0].async,true);
   const charts=[],order=[];
@@ -106,7 +106,7 @@ test('late local graph loading preserves draft, selected month and canvas after 
   assert.deepEqual(charts.map(c=>c.canvas.id).sort(),['donutChart','lineChart']);
   assert.equal(h.context._chartVisible(h.nodes.get('barChart')),false,'the original hidden card is represented in the fixture');
   assert.equal(h.context._chartVisible(h.nodes.get('assetPieChart')),false,'the original inactive assets pane is represented in the fixture');
-  assert.equal(h.nodes.get('inv-name').value,'保存前の架空メモ');assert.equal(h.nodes.get('inc-amount').value,'123');assert.equal(h.context._year,2024);assert.equal(h.context._month,3);
+  assert.equal(h.nodes.get('m-inv-name').value,'保存前の架空メモ');assert.equal(h.nodes.get('inc-amount').value,'123');assert.equal(h.context._year,2024);assert.equal(h.context._month,3);
   assert.equal(canvas.hidden,false);assert.equal(canvas.parentElement.querySelector('.kk-chart-empty').hidden,true);
   assert.equal(h.nodes.get('d-expense').textContent,'¥900');
 });
@@ -138,11 +138,11 @@ test('unchanged startup, language application and refresh renders retain charts 
   const h=chartFixture({[monthKey]:JSON.stringify(records)},true);
   const line=h.active.get('lineChart'),pie=h.active.get('donutChart');
   assert.equal(h.created.length,2);assert.equal(line.data.datasets[0].backgroundColor,'fixture-resolved-palette');
-  h.nodes.get('inv-name').value='保存前の架空メモ';h.nodes.get('inc-amount').value='1234';
+  h.nodes.get('m-inv-name').value='保存前の架空メモ';h.nodes.get('inc-amount').value='1234';
   for(let i=0;i<5;i++)h.context.renderAll();
   assert.equal(h.created.length,2);assert.equal(h.destroyed.length,0);
   assert.equal(h.active.get('lineChart'),line);assert.equal(h.active.get('donutChart'),pie);
-  assert.equal(h.nodes.get('inv-name').value,'保存前の架空メモ');assert.equal(h.nodes.get('inc-amount').value,'1234');
+  assert.equal(h.nodes.get('m-inv-name').value,'保存前の架空メモ');assert.equal(h.nodes.get('inc-amount').value,'1234');
   assert.deepEqual(JSON.parse(h.context.localStorage.getItem(monthKey)),records);
   const replacement=element('canvas','lineChart');replacement.parentElement=line.canvas.parentElement;h.nodes.set('lineChart',replacement);
   h.context.renderAll();assert.notEqual(h.active.get('lineChart'),line,'a replacement canvas cannot reuse the detached canvas chart');
