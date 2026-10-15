@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261015-homegraphs1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261015-trendrange1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -303,7 +303,14 @@ body{padding-bottom:24px;}
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
   <div class="card"><h2 class="card-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title data-i18n="kk_card_pie_expense">🥧 今月の支出内訳</h2><div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart"></canvas></div><div id="donut-legend"></div></div></div>
 </section>
-  <div class="card kk-home-trend"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">6か月の収入と支出</h2><div class="chart-area"><canvas id="lineChart"></canvas></div><p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p></div>
+  <div class="card kk-home-trend">
+    <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><label class="kk-trend-period"><span data-i18n="kk_trend_period">表示期間</span><select id="kkTrendPeriod" onchange="kkTrendSetPeriod(this.value)"><option value="all" selected data-i18n="kk_trend_all">全期間</option><option value="1" data-i18n="kk_trend_1">1か月</option><option value="6" data-i18n="kk_trend_6">半年</option><option value="12" data-i18n="kk_trend_12">1年</option><option value="36" data-i18n="kk_trend_36">3年</option><option value="custom" data-i18n="kk_trend_custom">期間を指定</option></select></label></div>
+    <div id="kkTrendCustom" class="kk-trend-custom" hidden><label><span data-i18n="kk_trend_from">開始月</span><input id="kkTrendFrom" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><label><span data-i18n="kk_trend_to">終了月</span><input id="kkTrendTo" type="month" aria-describedby="kkTrendError" oninput="kkTrendClearError()"></label><button type="button" onclick="kkTrendApplyRange()" data-i18n="kk_trend_apply">表示する</button><p id="kkTrendError" role="alert" data-i18n="kk_trend_invalid_range" hidden>開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。</p></div>
+    <p id="kkTrendRange" class="kk-layout-note kk-trend-range" role="status" aria-live="polite"></p>
+    <div class="chart-area"><canvas id="lineChart" role="img" aria-describedby="kkTrendRange"></canvas></div>
+    <p id="kkTrendDataNotice" class="kk-layout-note" data-i18n="kk_trend_unreadable" hidden>一部の記録を読み取れないため、該当期間はグラフの線を途切れさせて表示しています。</p>
+    <p class="kk-layout-note" data-i18n="kk_layout_trend_note">月入力の記録を集計。投資は折れ線に含めません。</p>
+  </div>
 </div>
 <div class="tab-content" id="tab-assets">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
@@ -360,7 +367,21 @@ var KK_I18N = {
     kk_layout_balance: "収支残",
     kk_layout_investment: "投資",
     kk_layout_balance_rule: "収支残 ＝ 収入 − 支出 − 投資",
-    kk_layout_trend: "6か月の収入と支出",
+    kk_layout_trend: "収入と支出の推移",
+    kk_trend_period: "表示期間",
+    kk_trend_all: "全期間",
+    kk_trend_1: "1か月",
+    kk_trend_6: "半年",
+    kk_trend_12: "1年",
+    kk_trend_36: "3年",
+    kk_trend_custom: "期間を指定",
+    kk_trend_from: "開始月",
+    kk_trend_to: "終了月",
+    kk_trend_apply: "表示する",
+    kk_trend_invalid_range: "開始月と終了月を正しく指定してください。終了月は開始月以降にしてください。",
+    kk_trend_monthly: "月ごと",
+    kk_trend_yearly: "年ごと",
+    kk_trend_unreadable: "一部の記録を読み取れないため、該当期間はグラフの線を途切れさせて表示しています。",
     kk_layout_trend_note: "月入力の記録を集計。投資は折れ線に含めません。",
     kk_layout_trend_link: "収支推移を見る",
     kk_layout_input_note: "月入力とカレンダーの日別記録は、別々に集計します。",
@@ -499,7 +520,21 @@ var KK_I18N = {
     kk_layout_balance: "Remaining",
     kk_layout_investment: "Investments",
     kk_layout_balance_rule: "Remaining = income − spending − investments",
-    kk_layout_trend: "6-month income and spending",
+    kk_layout_trend: "Income and spending trend",
+    kk_trend_period: "Period",
+    kk_trend_all: "All time",
+    kk_trend_1: "1 month",
+    kk_trend_6: "6 months",
+    kk_trend_12: "1 year",
+    kk_trend_36: "3 years",
+    kk_trend_custom: "Custom period",
+    kk_trend_from: "From month",
+    kk_trend_to: "To month",
+    kk_trend_apply: "Apply",
+    kk_trend_invalid_range: "Enter valid months, with the end month on or after the start month.",
+    kk_trend_monthly: "Monthly",
+    kk_trend_yearly: "Yearly",
+    kk_trend_unreadable: "Some records could not be read. Those periods are shown as gaps in the chart.",
     kk_layout_trend_note: "Based on monthly entries. The lines exclude investments.",
     kk_layout_trend_link: "View income and spending trend",
     kk_layout_input_note: "Monthly entries and calendar entries are totaled separately.",
@@ -638,7 +673,21 @@ var KK_I18N = {
     kk_layout_balance: "잔액",
     kk_layout_investment: "투자",
     kk_layout_balance_rule: "잔액 = 수입 − 지출 − 투자",
-    kk_layout_trend: "6개월 수입과 지출",
+    kk_layout_trend: "수입·지출 추이",
+    kk_trend_period: "기간",
+    kk_trend_all: "전체 기간",
+    kk_trend_1: "1개월",
+    kk_trend_6: "6개월",
+    kk_trend_12: "1년",
+    kk_trend_36: "3년",
+    kk_trend_custom: "기간 지정",
+    kk_trend_from: "시작 월",
+    kk_trend_to: "종료 월",
+    kk_trend_apply: "적용",
+    kk_trend_invalid_range: "올바른 월을 입력해 주세요. 종료 월은 시작 월 이후여야 합니다.",
+    kk_trend_monthly: "월별",
+    kk_trend_yearly: "연도별",
+    kk_trend_unreadable: "일부 기록을 읽을 수 없어 해당 기간은 그래프가 끊겨 표시됩니다.",
     kk_layout_trend_note: "월별 입력 기준입니다. 그래프에는 투자가 포함되지 않습니다.",
     kk_layout_trend_link: "수입·지출 추이 보기",
     kk_layout_input_note: "월별 입력과 달력의 일별 기록은 따로 합산합니다.",
@@ -777,7 +826,21 @@ var KK_I18N = {
     kk_layout_balance: "结余",
     kk_layout_investment: "投资",
     kk_layout_balance_rule: "结余 = 收入 − 支出 − 投资",
-    kk_layout_trend: "6个月收入与支出",
+    kk_layout_trend: "收入与支出趋势",
+    kk_trend_period: "显示期间",
+    kk_trend_all: "全部期间",
+    kk_trend_1: "1个月",
+    kk_trend_6: "半年",
+    kk_trend_12: "1年",
+    kk_trend_36: "3年",
+    kk_trend_custom: "指定期间",
+    kk_trend_from: "开始月份",
+    kk_trend_to: "结束月份",
+    kk_trend_apply: "显示",
+    kk_trend_invalid_range: "请输入有效月份，结束月份须不早于开始月份。",
+    kk_trend_monthly: "按月",
+    kk_trend_yearly: "按年",
+    kk_trend_unreadable: "部分记录无法读取，对应期间在图表中以断线显示。",
     kk_layout_trend_note: "按月度记录汇总，折线不包含投资。",
     kk_layout_trend_link: "查看收支趋势",
     kk_layout_input_note: "月度记录和日历中的每日记录分别汇总。",
@@ -993,6 +1056,92 @@ function kkClearEntry(prefix){
   ['name','amount'].forEach(function(field){var input=document.getElementById(prefix+'-'+field);input.value='';kkClearEntryError(input);});
 }
 
+
+// Period settings stay in this iframe; only active monthly ledger keys are read.
+var _trendPeriod='all',_trendCustom=null;
+function kkTrendMonth(value){
+  var match=/^(\d{4})-(0[1-9]|1[0-2])$/.exec(String(value));
+  return match&&Number(match[1])>=1?Number(match[1])*12+Number(match[2])-1:null;
+}
+function kkTrendMonthValue(serial){
+  return String(Math.floor(serial/12)).padStart(4,'0')+'-'+String(serial%12+1).padStart(2,'0');
+}
+function kkTrendData(){
+  var end=_year*12+_month-1,start=end,rows=[],unreadable=false;
+  if(_trendPeriod==='custom'&&_trendCustom){start=_trendCustom.from;end=_trendCustom.to;}
+  else if(_trendPeriod!=='all'){start=Math.max(12,end-Number(_trendPeriod)+1);}
+  for(var i=0;i<localStorage.length;i++){
+    var key=localStorage.key(i),match=/^kb2_(\d{4})_(0[1-9]|1[0-2])$/.exec(key||'');
+    if(!match||Number(match[1])<1)continue;
+    var serial=Number(match[1])*12+Number(match[2])-1;
+    if(_trendPeriod!=='all'&&(serial<start||serial>end))continue;
+    var item={month:serial,income:0,expense:0,populated:false,bad:false};
+    try{
+      var values=JSON.parse(localStorage.getItem(key));
+      if(!Array.isArray(values))throw new Error('monthly_records_shape');
+      item.populated=values.length>0;
+      values.forEach(function(value){
+        if(!value||['inc','exp','inv'].indexOf(value.type)===-1||typeof value.amount!=='number'||!Number.isFinite(value.amount)){item.bad=true;return;}
+        if(value.type==='inc')item.income+=value.amount;
+        else if(value.type==='exp')item.expense+=value.amount;
+      });
+      if(!Number.isFinite(item.income)||!Number.isFinite(item.expense))item.bad=true;
+    }catch(ignore){item.populated=true;item.bad=true;}
+    rows.push(item);
+  }
+  if(_trendPeriod==='all'){
+    var populated=rows.filter(function(row){return row.populated;});
+    if(populated.length){start=Math.min.apply(null,populated.map(function(row){return row.month;}));end=Math.max.apply(null,populated.map(function(row){return row.month;}));}
+  }
+  var months=end-start+1,unit=months>120?'year':'month',first=unit==='year'?Math.floor(start/12):start,last=unit==='year'?Math.floor(end/12):end;
+  var buckets=Object.create(null),labels=[],income=[],expense=[];
+  rows.forEach(function(row){
+    if(row.month<start||row.month>end)return;
+    var key=unit==='year'?Math.floor(row.month/12):row.month;
+    var bucket=buckets[key]||(buckets[key]={income:0,expense:0,bad:false});
+    bucket.income+=row.income;bucket.expense+=row.expense;bucket.bad=bucket.bad||row.bad;
+    if(!Number.isFinite(bucket.income)||!Number.isFinite(bucket.expense))bucket.bad=true;
+    unreadable=unreadable||bucket.bad;
+  });
+  for(var value=first;value<=last;value++){
+    var bucket=buckets[value]||{income:0,expense:0,bad:false};
+    labels.push(unit==='year'?String(value):kkTrendMonthValue(value).replace('-','/'));
+    income.push(bucket.bad?null:bucket.income);expense.push(bucket.bad?null:bucket.expense);
+  }
+  return {labels:labels,income:income,expense:expense,from:kkTrendMonthValue(start),to:kkTrendMonthValue(end),unit:unit,months:months,unreadable:unreadable};
+}
+function kkTrendClearError(){
+  var error=document.getElementById('kkTrendError');if(error)error.hidden=true;
+  ['kkTrendFrom','kkTrendTo'].forEach(function(id){var input=document.getElementById(id);if(input)input.setAttribute('aria-invalid','false');});
+}
+function kkTrendSetPeriod(period){
+  if(['all','1','6','12','36','custom'].indexOf(String(period))===-1)return;
+  if(period==='custom'){
+    if(!_trendCustom){var range=kkTrendData();_trendCustom={from:kkTrendMonth(range.from),to:kkTrendMonth(range.to)};}
+    document.getElementById('kkTrendFrom').value=kkTrendMonthValue(_trendCustom.from);
+    document.getElementById('kkTrendTo').value=kkTrendMonthValue(_trendCustom.to);
+  }
+  _trendPeriod=String(period);kkTrendClearError();kkTrendRender();
+}
+function kkTrendApplyRange(){
+  var fromInput=document.getElementById('kkTrendFrom'),toInput=document.getElementById('kkTrendTo');
+  var from=kkTrendMonth(fromInput.value),to=kkTrendMonth(toInput.value);
+  if(from===null||to===null||from>to){
+    var error=document.getElementById('kkTrendError');error.hidden=false;
+    fromInput.setAttribute('aria-invalid',String(from===null||from>to));toInput.setAttribute('aria-invalid',String(to===null||from>to));
+    (from===null||from>to?fromInput:toInput).focus();return;
+  }
+  _trendCustom={from:from,to:to};_trendPeriod='custom';kkTrendClearError();kkTrendRender();
+}
+function kkTrendSync(range){
+  var select=document.getElementById('kkTrendPeriod');if(select)select.value=_trendPeriod;
+  var custom=document.getElementById('kkTrendCustom');if(custom)custom.hidden=_trendPeriod!=='custom';
+  var caption=document.getElementById('kkTrendRange');
+  if(caption)caption.textContent=range.from.replace('-','/')+' — '+range.to.replace('-','/')+' · '+kkT(range.unit==='year'?'kk_trend_yearly':'kk_trend_monthly');
+  var notice=document.getElementById('kkTrendDataNotice');if(notice)notice.hidden=!range.unreadable;
+  var canvas=document.getElementById('lineChart');if(canvas)canvas.setAttribute('aria-label',kkT('kk_layout_trend')+' '+(caption?caption.textContent:''));
+}
+
 var CAT_COLORS={'食費':'#FF6B6B','住居':'#4D96FF','交通':'#FFA94D','光熱費':'#FFD43B','通信費':'#9775FA','娯楽':'#FF8FAB','医療':'#38D9A9','衣類':'#A0826D','その他':'#ADB5BD','現金':'#63E6BE','国内株':'#4D96FF','米国株':'#FF6B6B','投資信託':'#FFD43B','ETF':'#9775FA','債券':'#38D9A9','不動産':'#FFA94D','仮想通貨':'#F783AC'};
 function _safeChart(id){try{var ex=Chart.getChart(id);if(ex)ex.destroy();}catch(e){}}
 // Cache the source config before Chart/the reading palette can mutate it.
@@ -1133,7 +1282,13 @@ function addRecord(type){
 }
 function deleteRecord(id){saveData(getData().filter(function(e){return e.id!==id;}));renderAll();}
 function deleteAsset(id){saveAssets(getAssets().filter(function(e){return e.id!==id;}));renderAll();}
+function kkTrendRender(){
+  var trend=kkTrendData();kkTrendSync(trend);
+  var lc=document.getElementById('lineChart');
+  _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{maxTicksLimit:12,font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
+}
 function renderAll(){
+  kkTrendRender();
   var data=getData(),assets=getAssets();
   var lbl=_year+kkT("kk_js_year")+_month+kkT("kk_js_month");
   ['monthLabel2','monthLabel3','monthLabel4','monthLabelGraph'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
@@ -1151,8 +1306,7 @@ function renderAll(){
   for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+kkT("kk_js_month"));var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(a);expArr.push(b);invArr.push(c);}
   var bc=document.getElementById('barChart');
   _renderChart('barChart','bar',bc,{type:'bar',data:{labels:months,datasets:[{label:kkT("kk_js_income"),data:incArr,backgroundColor:'rgba(93,184,122,0.75)',borderRadius:6},{label:kkT("kk_js_expense"),data:expArr,backgroundColor:'rgba(224,80,80,0.7)',borderRadius:6},{label:kkT("kk_js_investment"),data:invArr,backgroundColor:'rgba(43,168,136,0.7)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
-  var lc=document.getElementById('lineChart');
-  _renderChart('lineChart','line',lc,{type:'line',data:{labels:months,datasets:[{label:kkT("kk_js_income"),data:incArr,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:expArr,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
+
   var catMap={};data.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catMap[c]=(catMap[c]||0)+e.amount;});
   var dLabels=Object.keys(catMap),dVals=dLabels.map(function(c){return catMap[c];}),dColors=dLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
   var dc=document.getElementById('donutChart');

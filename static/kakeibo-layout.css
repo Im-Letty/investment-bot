@@ -162,3 +162,17 @@ body.kn-ledger-paper .cal-day {min-width:0}
   body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-num {font-size:min(calc(21px * var(--kn-ledger-scale,1)),23px)}
 }
 @media(prefers-reduced-motion:reduce) {body.kn-ledger-paper * {scroll-behavior:auto}}
+
+/* Compact period controls share the ledger palette and typography. */
+body.kn-ledger-paper .kk-trend-heading {display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:12px}
+body.kn-ledger-letter.kn-ledger-paper .kk-trend-heading .card-title {margin:0}
+body.kn-ledger-paper .kk-trend-period,body.kn-ledger-paper .kk-trend-custom label {display:flex;align-items:center;gap:8px;font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
+body.kn-ledger-paper .kk-trend-period select,body.kn-ledger-paper .kk-trend-custom input {min-height:44px;padding:8px 10px;border:1px solid var(--kn-ledger-line)!important;border-radius:8px!important;background:var(--kn-ledger-paper)!important;color:var(--kn-ledger-ink)!important;font:inherit}
+body.kn-ledger-paper .kk-trend-custom {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto;gap:12px;margin:0 0 12px;align-items:end}
+body.kn-ledger-paper .kk-trend-custom[hidden] {display:none}
+body.kn-ledger-paper .kk-trend-custom label {align-items:stretch;flex-direction:column;gap:5px;min-width:0}
+body.kn-ledger-paper .kk-trend-custom button {min-height:44px;padding:8px 14px;border:1px solid var(--kn-ledger-button);border-radius:8px;background:var(--kn-ledger-button);color:var(--kn-ledger-on-button,var(--kn-ledger-paper));font:400 calc(14px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);cursor:pointer}
+body.kn-ledger-paper #kkTrendError {grid-column:1/-1;font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-ink);border-left:2px solid currentColor;padding-left:10px}
+body.kn-ledger-paper .kk-trend-custom input[aria-invalid="true"] {border-style:dashed!important;border-color:var(--kn-ledger-ink)!important}
+body.kn-ledger-paper .kk-home-trend .kk-trend-range {margin:0 0 12px;font-variant-numeric:tabular-nums}
+@media(max-width:480px) {body.kn-ledger-paper .kk-trend-custom {grid-template-columns:minmax(0,1fr)}body.kn-ledger-paper .kk-trend-period {max-width:100%}}

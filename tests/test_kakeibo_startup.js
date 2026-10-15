@@ -159,9 +159,10 @@ test('expense removal destroys the old pie, shows its placeholder and recreates 
   assert.deepEqual(Array.from(h.active.get('donutChart').data.datasets[0].data),[800]);
   assert.equal(canvas.parentElement.querySelector('.kk-chart-empty').hidden,true);
 });
-test('selected month, record edits and locale changes invalidate the raw chart signature',()=>{
+test('selected month, record edits and locale changes invalidate an explicit six-month chart signature',()=>{
   const next=new Date(now.getFullYear(),now.getMonth()+1,1),nextKey='kb2_'+next.getFullYear()+'_'+String(next.getMonth()+1).padStart(2,'0');
   const h=chartFixture({[monthKey]:JSON.stringify(records),[nextKey]:JSON.stringify([{id:7,type:'exp',name:'架空の翌月',cat:'食費',amount:2300}])});
+  h.context.kkTrendSetPeriod('6');
   const original=h.active.get('lineChart');h.context.changeMonth(1);
   assert.notEqual(h.active.get('lineChart'),original);assert.equal(h.nodes.get('d-expense').textContent,'¥2,300');
   assert.equal(h.active.get('lineChart').data.datasets[1].data.at(-1),2300);
