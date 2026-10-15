@@ -144,6 +144,15 @@ body.kn-ledger-paper .kk-category-check svg {width:12px;height:12px}
 body.kn-ledger-paper .kk-category-option[aria-pressed="true"] .kk-category-check {display:flex}
 body.kn-ledger-paper .kk-category-add {grid-column:1/-1;border-style:dashed;color:var(--kn-ledger-muted)}
 body.kn-ledger-paper .kk-category-add .kk-category-icon {background:transparent;color:inherit}
+body.kn-ledger-paper .kk-category-editor {margin-top:10px;padding:16px;border:1px solid var(--kn-ledger-line);border-radius:14px;background:var(--kn-ledger-paper)}
+body.kn-ledger-paper .kk-category-editor label {display:block;margin-bottom:8px;color:var(--kn-ledger-muted);font-size:calc(12px * var(--kn-ledger-scale,1))}
+body.kn-ledger-paper .kk-category-name {box-sizing:border-box;width:100%;min-height:48px;padding:10px 12px;border:1px solid var(--kn-ledger-line);border-radius:10px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:inherit}
+body.kn-ledger-paper .kk-category-name:focus-visible {outline:2px solid var(--kn-ledger-button);outline-offset:2px}
+body.kn-ledger-paper .kk-category-actions {display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+body.kn-ledger-paper .kk-category-actions button {min-height:44px;padding:10px 18px;border:1px solid var(--kn-ledger-line);border-radius:10px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:inherit;cursor:pointer}
+body.kn-ledger-paper .kk-category-actions button:first-child {background:var(--kn-ledger-button);color:var(--kn-ledger-on-button,var(--kn-ledger-paper));border-color:var(--kn-ledger-button)}
+body.kn-ledger-paper .kk-category-actions button:focus-visible {outline:2px solid var(--kn-ledger-button);outline-offset:3px}
+body.kn-ledger-paper .kk-category-error {margin:8px 0 0;color:var(--kn-ledger-ink);font-size:calc(12px * var(--kn-ledger-scale,1))}
 body.kn-ledger-paper :is(.kk-category-toggle,.kk-category-option):focus-visible {outline:2px solid var(--kn-ledger-button);outline-offset:3px}
 @media (hover:hover) {body.kn-ledger-paper .kk-category-option:hover {background:var(--kn-ledger-chip)}}
 @media (max-width:520px) {

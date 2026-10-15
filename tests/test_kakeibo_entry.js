@@ -277,3 +277,14 @@ test('Home investment rejects invalid amount and dates without a name field and 
     h.nodes.get('kkEntryDate').value=date;h.context.addRecord('inv');const saved=monthRows(h)[0];assert.equal(saved.name,'ETF');assert.equal(saved.amount,12.5);assert.equal(saved.date,date);assert.equal(h.writes.length,1);
   }
 });
+
+test('custom investment names stay raw in storage and render as escaped literal name and category text',()=>{
+  for(const category of ['<img src=x onerror="synthetic()"> & \'基金\' <script>','__proto__','constructor','toString']){
+    const h=fixture();h.fill('inv','１２．５','unused Home name',category);h.context.addRecord('inv');
+    const saved=monthRows(h)[0],markup=h.nodes.get('rec-list-el').innerHTML;
+    assert.equal(saved.name,category);assert.equal(saved.cat,category);assert.equal(saved.amount,12.5);assert.equal(h.context.kkCat(category),category);
+    assert.doesNotMatch(markup,/<img\b|<script\b|\[object Object\]|function\s/);
+    if(category.startsWith('<')){assert.match(markup,/&lt;img/);assert.match(markup,/&lt;script&gt;/);assert.match(markup,/&amp;/);assert.match(markup,/&quot;synthetic\(\)&quot;/);assert.match(markup,/(?:&#39;|&#039;|&apos;)基金(?:&#39;|&#039;|&apos;)/);}
+    else assert.ok(markup.includes(category));
+  }
+});
