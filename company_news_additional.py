@@ -24,6 +24,7 @@ from company_news_mitsubishi_corp import MITSUBISHI_CORP_CONFIG
 from company_news_suzuki import SUZUKI_CONFIG
 from company_news_yokohama import YOKOHAMA_CONFIG
 from company_news_kline_mmc import KLINE_CONFIG, MMC_CONFIG
+from company_news_isuzu import ISUZU_CONFIG
 
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
@@ -98,6 +99,7 @@ SOURCES['スズキ'] = dict(SUZUKI_CONFIG)
 SOURCES['横浜ゴム'] = dict(YOKOHAMA_CONFIG)
 SOURCES['川崎汽船'] = dict(KLINE_CONFIG)
 SOURCES['三菱マテリアル'] = dict(MMC_CONFIG)
+SOURCES['いすゞ自動車'] = dict(ISUZU_CONFIG)
 FEEDS = {label: config['feed'] for label, config in SOURCES.items()}
 
 
@@ -237,6 +239,9 @@ def parse_feed(payload, source, now, since, catalogue):
         from company_news_mitsubishi_corp import parse_index
         return parse_index(payload, source, now, since, catalogue)
     if SOURCES[source].get('discovery_format') == 'html':
+        if SOURCES[source].get('template') == 'isuzu_html':
+            from company_news_isuzu import parse_index
+            return parse_index(payload, source, now, since, catalogue)
         if SOURCES[source].get('template') == 'yokohama_html':
             from company_news_yokohama import parse_index
             return parse_index(payload, source, now, since, catalogue)
@@ -368,6 +373,9 @@ def _declared_actor(actor, body, dateline='', *, allow_alias_parenthetical=False
 
 def _source_declared_actor(config, actor, body, dateline=''):
     """Keep inspected source-specific attribution grammars isolated."""
+    if config.get('template') == 'isuzu_html':
+        from company_news_isuzu import declared_actor
+        return config == ISUZU_CONFIG and declared_actor(actor, body, dateline)
     if config.get('template') == 'yokohama_html':
         from company_news_yokohama import YOKOHAMA_CONFIG, declared_actor
         return config == YOKOHAMA_CONFIG and declared_actor(actor, body, dateline)
@@ -379,6 +387,9 @@ def _source_declared_actor(config, actor, body, dateline=''):
 def _layout(document, config, now=None, expected_url=None):
     """Return heading, visible dateline, narrative and optional original clock."""
     template = config['template']
+    if template == 'isuzu_html':
+        from company_news_isuzu import article_layout
+        return article_layout(document, config, expected_url)
     if template == 'yokohama_html':
         from company_news_yokohama import article_layout
         return article_layout(document, config, expected_url)

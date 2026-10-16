@@ -42,6 +42,7 @@ SOURCE_FILES = (
     'official_news_sources.py', 'company_news_nintendo.py', 'company_news_kline_mmc.py',
     'company_news_cyberagent.py', 'company_news_komatsu.py', 'company_news_mitsubishi_corp.py',
     'company_news_suzuki.py', 'company_news_yokohama.py',
+    'company_news_isuzu.py',
     'static/company-news-expanded-routes.json',
 )
 OPTIONAL_ADAPTER_FILES = frozenset({'company_news_nintendo.py', 'company_news_kline_mmc.py',
