@@ -372,6 +372,7 @@ body{padding-bottom:24px;}
 // ========= i18n SYSTEM (kakeibo) =========
 var KK_I18N = {
   ja: {
+    kk_calendar_undated_heading: "日付未設定",
     kk_cat_salary: "給与",
     kk_cat_bonus: "賞与",
     kk_cat_side_income: "副業",
@@ -384,7 +385,7 @@ var KK_I18N = {
     kk_calendar_category_label: "カテゴリ",
     kk_calendar_memo_label: "メモ",
     kk_calendar_amount_label: "金額",
-    kk_calendar_undated: "日付未設定の記録が{count}件あります。月の集計と記録一覧に含まれています。",
+    kk_calendar_undated: "日付未設定の記録が{count}件あります。「入力した記録」に含まれています。",
     kk_alert_export_failed: "書き出しできませんでした。記録は変更していません。",
     kk_ledger_save_error: "記録を保存できませんでした。入力は残しています。再読み込みしてから、もう一度お試しください。",
     kk_layout_title: "家計簿",
@@ -557,6 +558,7 @@ var KK_I18N = {
     kk_js_total: "合計"
   },
   en: {
+    kk_calendar_undated_heading: "Date not set",
     kk_cat_salary: "Salary",
     kk_cat_bonus: "Bonus",
     kk_cat_side_income: "Side income",
@@ -569,7 +571,7 @@ var KK_I18N = {
     kk_calendar_category_label: "Category",
     kk_calendar_memo_label: "Memo",
     kk_calendar_amount_label: "Amount",
-    kk_calendar_undated: "{count} undated records are included in the monthly totals and records list.",
+    kk_calendar_undated: "{count} undated records are included in the recorded entries below the calendar.",
     kk_alert_export_failed: "Could not export. Your records have not been changed.",
     kk_ledger_save_error: "Could not save the record. Your input is kept. Reload and try again.",
     kk_layout_title: "Household ledger",
@@ -742,6 +744,7 @@ var KK_I18N = {
     kk_js_total: "Total"
   },
   ko: {
+    kk_calendar_undated_heading: "날짜 미설정",
     kk_cat_salary: "급여",
     kk_cat_bonus: "상여금",
     kk_cat_side_income: "부수입",
@@ -754,7 +757,7 @@ var KK_I18N = {
     kk_calendar_category_label: "카테고리",
     kk_calendar_memo_label: "메모",
     kk_calendar_amount_label: "금액",
-    kk_calendar_undated: "날짜가 없는 기록 {count}건은 월 합계와 기록 목록에 포함됩니다.",
+    kk_calendar_undated: "날짜가 없는 기록 {count}건은 캘린더 아래 입력한 기록에 포함됩니다.",
     kk_alert_export_failed: "내보내지 못했습니다. 기록은 변경되지 않았습니다.",
     kk_ledger_save_error: "기록을 저장하지 못했습니다. 입력은 유지됩니다. 새로고침 후 다시 시도해 주세요.",
     kk_layout_title: "가계부",
@@ -927,6 +930,7 @@ var KK_I18N = {
     kk_js_total: "합계"
   },
   zh: {
+    kk_calendar_undated_heading: "未设置日期",
     kk_cat_salary: "工资",
     kk_cat_bonus: "奖金",
     kk_cat_side_income: "副业收入",
@@ -939,7 +943,7 @@ var KK_I18N = {
     kk_calendar_category_label: "类别",
     kk_calendar_memo_label: "备注",
     kk_calendar_amount_label: "金额",
-    kk_calendar_undated: "{count}条未设置日期的记录已计入月度汇总和记录列表。",
+    kk_calendar_undated: "{count}条未设置日期的记录已包含在日历下方的输入记录中。",
     kk_alert_export_failed: "无法导出。记录未被更改。",
     kk_ledger_save_error: "无法保存记录。输入已保留，请刷新后重试。",
     kk_layout_title: "家庭账本",
@@ -1496,26 +1500,41 @@ function kkCalendarMemo(row){
   for(var i=0;i<fields.length;i++){var value=row[fields[i]];if(typeof value==='string'&&value.trim())return value;}
   return '—';
 }
+function kkRecordKind(row){
+  return kkT(row.type==='inc'?'kk_js_income':row.type==='exp'?'kk_js_expense':row.type==='inv'?'kk_js_investment':'kk_trend_amount_unknown');
+}
+function kkRecordCategory(row){
+  return typeof row.cat==='string'&&row.cat?kkCat(row.cat):kkRecordKind(row);
+}
+function kkRecordAmount(row){
+  if(typeof row.amount!=='number'||!Number.isFinite(row.amount))return '—';
+  if(['inc','exp','inv'].indexOf(row.type)===-1)return fmt(row.amount);
+  var signed=row.type==='inc'?row.amount:-row.amount;
+  return (signed>0?'+':signed<0?'-':'')+fmt(Math.abs(signed));
+}
 function renderCalendarRecords(monthRows,byDay){
   var list=document.getElementById('kkCalendarRecords');if(!list)return;
   var notice=document.getElementById('kkCalendarRecordsNotice');
   if(notice){notice.hidden=!monthRows._kkUnreadable;notice.textContent=monthRows._kkUnreadable?kkT('kk_trend_unreadable'):'';}
   var days=Object.keys(byDay).map(Number).sort(function(a,b){return a-b;});
-  if(!days.length){list.innerHTML=monthRows._kkUnreadable?'':'<p class="empty-state">'+kkHtmlText(kkT('kk_calendar_no_dated_records'))+'</p>';return;}
-  list.innerHTML=days.map(function(day){
-    var date=kkTrendMonthValue(_calYear*12+_calMonth-1)+'-'+String(day).padStart(2,'0');
-    var heading=kkT('kk_calendar_day_heading').replace('{month}',String(_calMonth)).replace('{day}',String(day));
-    var rows=byDay[day].map(function(row){
+  function items(records){
+    return records.map(function(row){
       var type=['inc','exp','inv'].indexOf(row.type)!==-1?row.type:'unknown';
-      var kind=type==='unknown'?kkT('kk_trend_amount_unknown'):kkT(type==='inc'?'kk_js_income':type==='exp'?'kk_js_expense':'kk_js_investment');
-      var category=typeof row.cat==='string'&&row.cat?kkCat(row.cat):kind;
+      var kind=kkRecordKind(row),category=kkRecordCategory(row);
       return '<li class="kk-cal-record" data-type="'+type+'">'+
         '<div class="kk-cal-category-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_category_label'))+'</span><span class="kk-cal-category">'+kkHtmlText(category)+'</span><span class="kk-cal-kind">'+kkHtmlText(kind)+'</span></div>'+
         '<div class="kk-cal-memo-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_memo_label'))+'</span><p class="kk-cal-memo">'+kkHtmlText(kkCalendarMemo(row))+'</p></div>'+
-        '<div class="kk-cal-amount-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_amount_label'))+'</span><span class="kk-cal-amount">'+kkHtmlText(typeof row.amount==='number'&&Number.isFinite(row.amount)?fmt(row.amount):'—')+'</span></div></li>';
+        '<div class="kk-cal-amount-field"><span class="kk-cal-field-label">'+kkHtmlText(kkT('kk_calendar_amount_label'))+'</span><span class="kk-cal-amount">'+kkHtmlText(kkRecordAmount(row))+'</span></div></li>';
     }).join('');
-    return '<section class="kk-cal-day" data-date="'+date+'" aria-labelledby="kkCalDate-'+day+'"><h3 class="kk-cal-day-title" id="kkCalDate-'+day+'"><time datetime="'+date+'">'+kkHtmlText(heading)+'</time></h3><ul class="kk-cal-records">'+rows+'</ul></section>';
-  }).join('');
+  }
+  var groups=days.map(function(day){
+    var date=kkTrendMonthValue(_calYear*12+_calMonth-1)+'-'+String(day).padStart(2,'0');
+    var heading=kkT('kk_calendar_day_heading').replace('{month}',String(_calMonth)).replace('{day}',String(day));
+    return '<section class="kk-cal-day" data-date="'+date+'" aria-labelledby="kkCalDate-'+day+'"><h3 class="kk-cal-day-title" id="kkCalDate-'+day+'"><time datetime="'+date+'">'+kkHtmlText(heading)+'</time></h3><ul class="kk-cal-records">'+items(byDay[day])+'</ul></section>';
+  });
+  var undated=monthRows.filter(function(row){return kkTrendMonthDay(row.date,_calYear,_calMonth)===null;});
+  if(undated.length)groups.push('<section class="kk-cal-day kk-cal-undated" data-undated="true" aria-labelledby="kkCalDate-undated"><h3 class="kk-cal-day-title" id="kkCalDate-undated">'+kkHtmlText(kkT('kk_calendar_undated_heading'))+'</h3><ul class="kk-cal-records">'+items(undated)+'</ul></section>');
+  list.innerHTML=groups.length?groups.join(''):monthRows._kkUnreadable?'':'<p class="empty-state">'+kkHtmlText(kkT('kk_js_no_records_this_month'))+'</p>';
 }
 function renderCalendar(){
   var lbl=_calYear+kkT("kk_js_year")+_calMonth+kkT("kk_js_month");
@@ -1562,7 +1581,7 @@ function addDayRecord(type){
   if(!saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data))return;kkClearEntry(prefix);renderAll();
 }
 function deleteDayRecord(id){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day),record=kkLedgerFind(data,id);if(record&&saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data.filter(function(e){return e._kkRef!==record._kkRef;})))renderAll();}
-function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+kkHtmlText(e.name)+'</div><div class="day-rec-cat">'+kkHtmlText(kkCat(sub))+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="day-rec-del" onclick="deleteDayRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
+function renderDayModal(){if(!_modalDate)return;var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);var listEl=document.getElementById('dayRecList');if(!listEl)return;var icons={inc:'💰',exp:'💸',inv:'📈'};var amtCls={inc:'color:var(--brand-color)',exp:'color:#e05050',inv:'color:#2ba888'};listEl.innerHTML=data.length===0?'<div class="empty-state" style="padding:12px 0">'+kkT("kk_js_no_records_yet")+'</div>':data.map(function(e){return '<div class="day-rec-item"><div style="font-size:20px">'+(icons[e.type]||'📦')+'</div><div style="flex:1"><div style="font-size:14px;font-weight:600;color:#1a3325">'+kkHtmlText(e.name)+'</div><div class="day-rec-cat">'+kkHtmlText(kkRecordCategory(e))+'</div></div><div style="font-size:14px;font-weight:800;font-family:Outfit,sans-serif;'+amtCls[e.type]+'">'+kkHtmlText(kkRecordAmount(e))+'</div><button class="day-rec-del" onclick="deleteDayRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
 function switchTab(tab){var focusInput=tab==='cashflow',focusExpenses=tab==='dashboard';if(focusInput||focusExpenses)tab='home';document.querySelectorAll('.tn-item').forEach(function(el,i){el.classList.toggle('active',['dashboard','cashflow','assets','records','calendar'][i]===tab);});document.querySelectorAll('.tab-content').forEach(function(el){el.classList.remove('active');});var el=document.getElementById('tab-'+tab);if(el)el.classList.add('active');renderAll();if(window.kkLayoutTabChanged)window.kkLayoutTabChanged(tab);if(focusInput&&window.kkLayoutFocusInput)window.kkLayoutFocusInput();if(focusExpenses&&window.kkLayoutFocusExpenses)window.kkLayoutFocusExpenses();}
 function switchForm(f){_currentForm=f;['inc','exp','inv'].forEach(function(t){document.getElementById('form-'+t).style.display=t===f?'':'none';var btn=document.getElementById('ft-'+t);btn.className='ftab'+(t===f?' active-'+t:'');btn.setAttribute('aria-pressed',String(t===f));});}
 function kkSetRecordDate(id,value,input){
@@ -1651,7 +1670,7 @@ function renderAll(){
   var astEl=document.getElementById('asset-list-el');
   if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'<div class="empty-state">'+kkT("kk_empty_no_assets")+'</div>':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+a.name+'<br><span style="font-size:11px;color:#9ab5a5">'+a.cat+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+a.id+')">✕</button></div>';}).join('');}
   var recEl=document.getElementById('rec-list-el');
-  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};var sign={inc:'+',exp:'-',inv:'-'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){var sub=e.cat||((e.type==='inc'?kkT("kk_js_income"):kkT("kk_js_expense")));return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+kkHtmlText(e.name)+'</div><div class="rec-meta">'+kkHtmlText(kkCat(sub))+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+(sign[e.type]||'')+fmt(e.amount)+'</div><button class="rec-del" onclick="deleteRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
+  if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+kkHtmlText(e.name)+'</div><div class="rec-meta">'+kkHtmlText(kkRecordCategory(e))+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+kkHtmlText(kkRecordAmount(e))+'</div><button class="rec-del" onclick="deleteRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
   renderCalendar();if(_modalDate)renderDayModal();
 }
 renderAll();

@@ -63,7 +63,8 @@ function fixture(initial={}){
   function groups(){const output=nodes.get('kkCalendarRecords');assert.ok(output,'calendar list exists in the real DOM');return markupTree(output.innerHTML).children.filter(node=>hasClass(node,'kk-cal-day'));}
   function records(){return groups().flatMap(group=>descendants(group).filter(node=>hasClass(node,'kk-cal-record')));}
   return {context,document,nodes,values,reads,writes,groups,records,
-    dates:()=>groups().map(group=>group.attrs['data-date']),
+    dates:()=>groups().map(group=>group.attrs['data-date']).filter(Boolean),
+    undated:()=>groups().filter(group=>hasClass(group,'kk-cal-undated')),
     memos:()=>records().map(record=>textOf(member(record,'kk-cal-memo'))),
     fill(prefix,amount,name='架空の入力',category='食費'){const input=nodes.get(prefix+'-name');if(input)input.value=name;nodes.get(prefix+'-amount').value=amount;if(nodes.has(prefix+'-cat'))nodes.get(prefix+'-cat').value=category;}};
 }
@@ -88,28 +89,36 @@ test('category and type labels remain explicit for income, spending and investme
   assert.deepEqual(rendered.map(record=>record.attrs['data-type']),['inc','exp','inv','inc']);assert.deepEqual(rendered.map(record=>textOf(member(record,'kk-cal-kind'))),['収入','支出','投資','収入']);
   assert.equal(textOf(member(rendered[0],'kk-cal-category')),'収入');assert.equal(textOf(member(rendered[1],'kk-cal-category')),h.context.kkCat('交通'));assert.equal(textOf(member(rendered[2],'kk-cal-category')),h.context.kkCat('ETF'));
 });
-test('signed fractional amounts preserve their stored value without an invented spending minus sign',()=>{
-  const h=fixture(seed([row(1,'inc','端数収入',.125,'2026-10-01'),row(2,'exp','支出',12.5,'2026-10-01'),row(3,'exp','返金',-2.25,'2026-10-01'),row(4,'inv','負の投資',-1.5,'2026-10-01')]));
-  assert.deepEqual(h.records().map(record=>textOf(member(record,'kk-cal-amount'))),['¥0.125','¥12.5','¥-2.25','¥-1.5']);
+test('income, expense and investment amounts consistently show direction and preserve refunds and fractions in all record views',()=>{
+  const monthly=[row(1,'inc','端数収入',.125,'2026-10-01'),row(2,'exp','支出',12.5,'2026-10-01'),row(3,'exp','返金',-2.25,'2026-10-01'),row(4,'inv','負の投資',-1.5,'2026-10-01'),row(5,'inc','収入取消',-100.25,'2026-10-01'),row(6,'inv','投資',25.125,'2026-10-01'),row(7,'other','原符号保持',-3.5,'2026-10-01')];
+  const h=fixture(seed(monthly)),expected=['+¥0.125','-¥12.5','+¥2.25','+¥1.5','-¥100.25','-¥25.125','¥-3.5'];
+  assert.deepEqual(h.records().map(record=>textOf(member(record,'kk-cal-amount'))),expected);
+  const recordRows=markupTree(h.nodes.get('rec-list-el').innerHTML).children.filter(node=>hasClass(node,'rec-item'));
+  assert.deepEqual(recordRows.map(record=>textOf(member(record,'rec-amt'))).reverse(),expected);
+  h.context.openDayModal(2026,10,1);const dayRows=markupTree(h.nodes.get('dayRecList').innerHTML).children.filter(node=>hasClass(node,'day-rec-item'));
+  assert.deepEqual(dayRows.map(record=>textOf(record.children.filter(node=>node.tag==='div')[2])),expected);assert.equal(h.writes.length,0);
 });
 test('arbitrary category and memo characters render only as escaped literal text',()=>{
   const payload='<img src=x onerror="synthetic()"> & \'引用\' <script>',h=fixture(seed([row(1,'inv','unused',10,'2026-10-01',{cat:payload,memo:payload}),row(2,'exp','constructor',5,'2026-10-02',{cat:'__proto__'})]));
   assert.equal(h.memos()[0],payload);assert.equal(textOf(member(h.records()[0],'kk-cal-category')),payload);assert.equal(textOf(member(h.records()[1],'kk-cal-category')),'__proto__');
   const markup=h.nodes.get('kkCalendarRecords').innerHTML;assert.doesNotMatch(markup,/<img\b|<script\b|\[object Object\]|function\s/);assert.match(markup,/&lt;img/);assert.match(markup,/&quot;/);assert.match(markup,/&amp;/);assert.match(markup,/&#39;/);assert.equal(h.writes.length,0);
 });
-test('undated and invalid dates are not inferred from IDs, timestamps or foreign monthly date values',()=>{
+test('all undated and invalid-date rows appear in the last undated group without inferring dates from IDs or foreign values',()=>{
   const records=[row(fixedTime,'inc','日付なし',10),row(2,'exp','不正な末日',20,'2026-10-32'),row(3,'inv','別月の日付',30,'2026-09-30'),row(4,'exp','時刻付き日付',40,'2026-10-02T00:00:00Z'),row(5,'inc','有効日',50,'2026-10-03')];
   const h=fixture(seed(records,{kbday_2026_10_04:JSON.stringify([row(6,'inc','明示的な空日付',60,'')]),kbday_2026_10_05:JSON.stringify([row(7,'exp','既存dayキーの日付',70)]),kbday_2026_02_30:JSON.stringify([row(8,'inc','不正キー',80)])}));
-  assert.deepEqual(h.dates(),['2026-10-03','2026-10-05']);assert.deepEqual(h.memos(),['有効日','既存dayキーの日付']);assert.equal(h.writes.length,0);
+  assert.deepEqual(h.dates(),['2026-10-03','2026-10-05']);assert.deepEqual(h.memos(),['有効日','既存dayキーの日付','日付なし','不正な末日','別月の日付','時刻付き日付','明示的な空日付']);assert.equal(h.records().length,7);
+  const undated=h.undated();assert.equal(undated.length,1);assert.equal(hasClass(h.groups().at(-1),'kk-cal-undated'),true);assert.equal(undated[0].attrs['data-undated'],'true');assert.equal(Object.hasOwn(undated[0].attrs,'data-date'),false);assert.equal(undated[0].attrs['aria-labelledby'],'kkCalDate-undated');
+  const heading=undated[0].children.find(node=>node.tag==='h3');assert.equal(heading.attrs.id,'kkCalDate-undated');assert.equal(textOf(heading),'日付未設定');assert.equal(descendants(heading).some(node=>node.tag==='time'),false);assert.equal(h.memos().includes('不正キー'),false);assert.equal(h.writes.length,0);
 });
 test('empty months show an honest empty message and no fabricated day group',()=>{
-  const h=fixture(seed([row(fixedTime,'inc','日付未設定だけ',10)]));assert.deepEqual(h.dates(),[]);assert.deepEqual(h.records(),[]);assert.match(h.nodes.get('kkCalendarRecords').innerHTML,/この月の日付付きの記録はありません。/);assert.equal(h.nodes.get('kkCalendarRecordsNotice').hidden,true);
+  const h=fixture(seed([]));assert.deepEqual(h.groups(),[]);assert.deepEqual(h.records(),[]);assert.match(h.nodes.get('kkCalendarRecords').innerHTML,/この月の記録はありません/);assert.equal(h.nodes.get('kkCalendarRecordsNotice').hidden,true);assert.equal(h.writes.length,0);
+  const undated=fixture(seed([row(fixedTime,'inc','日付未設定だけ',10)]));assert.deepEqual(undated.dates(),[]);assert.equal(undated.records().length,1);assert.equal(undated.undated().length,1);assert.deepEqual(undated.memos(),['日付未設定だけ']);assert.doesNotMatch(undated.nodes.get('kkCalendarRecords').innerHTML,/この月の記録はありません/);assert.equal(undated.writes.length,0);
 });
 test('broken buckets warn while known dated rows remain visible and malformed amount or type is never printed as a false value',()=>{
   const h=fixture(seed([row(1,'inc','読める収入',12.5,'2026-10-01'),row(2,'exp','壊れた金額','bad','2026-10-02'),row(3,'other','不明な種類',5,'2026-10-03')],{kbday_2026_10_04:'{'}));
   assert.equal(h.nodes.get('kkCalendarRecordsNotice').hidden,false);assert.ok(h.nodes.get('kkCalendarRecordsNotice').textContent);assert.deepEqual(h.dates(),['2026-10-01','2026-10-02','2026-10-03']);assert.equal(textOf(member(h.records()[1],'kk-cal-amount')),'—');assert.equal(h.records()[2].attrs['data-type'],'unknown');assert.equal(textOf(member(h.records()[2],'kk-cal-kind')),h.context.kkT('kk_trend_amount_unknown'));assert.equal(textOf(member(h.records()[2],'kk-cal-category')),h.context.kkT('kk_trend_amount_unknown'));
-  assert.doesNotMatch(h.nodes.get('kkCalendarRecords').innerHTML,/NaN|Infinity|undefined|この月の日付付きの記録はありません。/);assert.equal(h.values.get('kbday_2026_10_04'),'{');assert.equal(h.writes.length,0);
-  const emptyBroken=fixture({kb2_2026_10:'{'});assert.equal(emptyBroken.nodes.get('kkCalendarRecordsNotice').hidden,false);assert.deepEqual(emptyBroken.records(),[]);assert.doesNotMatch(emptyBroken.nodes.get('kkCalendarRecords').innerHTML,/この月の日付付きの記録はありません。/);assert.equal(emptyBroken.writes.length,0);
+  assert.doesNotMatch(h.nodes.get('kkCalendarRecords').innerHTML,/NaN|Infinity|undefined|この月の記録はありません/);assert.equal(h.values.get('kbday_2026_10_04'),'{');assert.equal(h.writes.length,0);
+  const emptyBroken=fixture({kb2_2026_10:'{'});assert.equal(emptyBroken.nodes.get('kkCalendarRecordsNotice').hidden,false);assert.deepEqual(emptyBroken.records(),[]);assert.doesNotMatch(emptyBroken.nodes.get('kkCalendarRecords').innerHTML,/この月の記録はありません/);assert.equal(emptyBroken.writes.length,0);
 });
 test('Home and Calendar additions immediately update the same list and source-aware deletion removes only the selected row',()=>{
   const h=fixture({kbday_2026_10_01:JSON.stringify([row(fixedTime,'exp','同IDの旧日別',3,undefined,{cat:'交通'})])});h.nodes.get('kkEntryDate').value='2026-10-01';h.fill('exp','１２．５','ignored','食費');h.context.addRecord('exp');assert.equal(h.records().length,2);assert.deepEqual(h.dates(),['2026-10-01']);
@@ -118,11 +127,26 @@ test('Home and Calendar additions immediately update the same list and source-aw
   h.context.deleteDayRecord(h.context.getDayData(2026,10,2)[0]._kkRef);assert.equal(h.records().length,1);assert.deepEqual(h.dates(),['2026-10-01']);
   const reloaded=fixture(Object.fromEntries(h.values));assert.equal(reloaded.records().length,1);assert.deepEqual(reloaded.memos(),['同IDの旧日別']);assert.equal(reloaded.writes.length,0);
 });
-test('date movement updates the date group and clearing keeps the stored legacy row outside guessed day groups after reload',()=>{
+test('legacy undated salary, standard income categories and Home income share the complete record count and displayed category/amount pairs',()=>{
+  const initial=seed([row(1,'inc','架空の旧給与',300000.25),row(2,'inc','架空の賞与',50000.5,'2026-10-01',{cat:'賞与'}),row(3,'inv','架空の投資',-20.125,'2026-10-02',{cat:'ETF'}),row(4,'inc','架空の別月日付',3,'2026-09-01',{cat:'年金'})],{kbday_2026_10_03:'  '+JSON.stringify([row(5,'exp','架空の支出',100.25,undefined,{cat:'交通'})])+'\n'});
+  const h=fixture(initial);assert.equal(h.records().length,5);assert.equal(h.undated().length,1);assert.equal(h.writes.length,0);h.nodes.get('kkEntryDate').value='2026-10-15';h.fill('inc','１２３４５．６７','ignored','給与');h.context.addRecord('inc');
+  assert.equal(h.records().length,6);assert.equal(h.context.getData().length,6);assert.deepEqual(h.dates(),['2026-10-01','2026-10-02','2026-10-03','2026-10-15']);
+  const salary=h.records().find(record=>textOf(member(record,'kk-cal-memo'))==='給与');assert.ok(salary,'new Home income appears immediately');assert.equal(textOf(member(salary,'kk-cal-category')),h.context.kkCat('給与'));assert.equal(textOf(member(salary,'kk-cal-amount')),'+¥12,345.67');
+  const legacy=h.records().find(record=>textOf(member(record,'kk-cal-memo'))==='架空の旧給与');assert.ok(legacy);assert.equal(hasClass(legacy.parent.parent,'kk-cal-undated'),true);assert.equal(textOf(member(legacy,'kk-cal-category')),h.context.kkT('kk_js_income'));assert.equal(textOf(member(legacy,'kk-cal-amount')),'+¥300,000.25');
+  function compareViews(target){
+    const recordRows=markupTree(target.nodes.get('rec-list-el').innerHTML).children.filter(node=>hasClass(node,'rec-item'));
+    const pairs=rows=>rows.map(record=>[textOf(member(record,'rec-meta')),textOf(member(record,'rec-amt'))]).sort();
+    const calendarPairs=target.records().map(record=>[textOf(member(record,'kk-cal-category')),textOf(member(record,'kk-cal-amount'))]).sort();
+    assert.equal(recordRows.length,target.records().length);assert.deepEqual(pairs(recordRows),calendarPairs);
+  }
+  compareViews(h);const saved=Object.fromEntries(h.values),writes=h.writes.length;h.context.renderAll();h.context.renderCalendar();assert.equal(h.writes.length,writes);assert.deepEqual(Object.fromEntries(h.values),saved);
+  const reloaded=fixture(saved);assert.equal(reloaded.records().length,6);assert.equal(reloaded.undated().length,1);compareViews(reloaded);assert.deepEqual(Object.fromEntries(reloaded.values),saved);assert.equal(reloaded.writes.length,0);
+});
+test('date movement updates the date group and clearing keeps the stored legacy row visible under undated after reload',()=>{
   const original=row(1,'exp','架空の旧日別',-2.5,undefined,{cat:'交通',extra:{keep:true}}),h=fixture({kbday_2026_10_01:JSON.stringify([original])});assert.deepEqual(h.dates(),['2026-10-01']);
   assert.equal(h.context.kkSetRecordDate(h.context.getData()[0]._kkRef,'2026-10-10'),true);assert.deepEqual(h.dates(),['2026-10-10']);assert.equal(h.records().length,1);assert.equal(h.memos()[0],original.name);
-  assert.equal(h.context.kkSetRecordDate(h.context.getData()[0]._kkRef,''),true);assert.deepEqual(h.dates(),[]);assert.equal(h.context.getData().length,1);assert.deepEqual(JSON.parse(h.values.get('kbday_2026_10_01')),[{...original,date:''}]);
-  const reloaded=fixture(Object.fromEntries(h.values));assert.deepEqual(reloaded.dates(),[]);assert.equal(reloaded.context.getData().length,1);assert.equal(reloaded.writes.length,0);
+  assert.equal(h.context.kkSetRecordDate(h.context.getData()[0]._kkRef,''),true);assert.deepEqual(h.dates(),[]);assert.equal(h.undated().length,1);assert.equal(h.records().length,1);assert.deepEqual(h.memos(),[original.name]);assert.equal(h.context.getData().length,1);assert.deepEqual(JSON.parse(h.values.get('kbday_2026_10_01')),[{...original,date:''}]);
+  const reloaded=fixture(Object.fromEntries(h.values));assert.deepEqual(reloaded.dates(),[]);assert.equal(reloaded.undated().length,1);assert.equal(reloaded.records().length,1);assert.deepEqual(reloaded.memos(),[original.name]);assert.equal(textOf(member(reloaded.records()[0],'kk-cal-amount')),'+¥2.5');assert.equal(reloaded.context.getData().length,1);assert.equal(reloaded.writes.length,0);
 });
 test('both month controls update the list immediately across year and leap-month boundaries without writing or clearing drafts',()=>{
   const h=fixture({kb2_2026_12:JSON.stringify([row(1,'inc','架空の十二月',10,'2026-12-31')]),kbday_2027_01_01:JSON.stringify([row(2,'exp','架空の一月',20)]),kbday_2024_02_29:JSON.stringify([row(3,'inc','架空のうるう日',30)])});
@@ -134,8 +158,8 @@ test('the new renderer reuses Calendar month data without extra storage reads an
   assert.deepEqual(h.reads.sort(),['kb2_2026_10','kbday_2026_10_02']);assert.equal(h.records().length,2);h.context.renderAll();h.context.renderCalendar();
   for(const [key,value] of Object.entries(initial))assert.equal(h.values.get(key),value);assert.equal(h.writes.length,0);
 });
-test('all four languages refresh heading, type and category text while keeping dates, exact memo and source values',()=>{
-  const initial=seed([row(1,'exp','literal fallback',12.5,'2026-10-01',{cat:'交通',memo:'架空の固定メモ'})]),h=fixture(initial),headings=new Set();
-  for(const lang of ['ja','en','ko','zh']){h.context.kkApplyLang(lang);const group=h.groups()[0],record=h.records()[0];assert.equal(group.attrs['data-date'],'2026-10-01');headings.add(textOf(group.children.find(node=>node.tag==='h3')));assert.equal(textOf(member(record,'kk-cal-kind')),h.context.kkT('kk_js_expense'));assert.equal(textOf(member(record,'kk-cal-category')),h.context.kkCat('交通'));assert.equal(textOf(member(record,'kk-cal-memo')),'架空の固定メモ');assert.doesNotMatch(h.nodes.get('kkCalendarRecords').innerHTML,/undefined|NaN|kk_calendar_/);assert.equal(h.values.get('kb2_2026_10'),initial.kb2_2026_10);}
-  assert.ok(headings.size>=3);assert.ok(h.writes.every(write=>['kk_lang','siteLang'].includes(write.key)));
+test('all four languages refresh dated/undated headings, type and category text while keeping dates, exact memo and source values',()=>{
+  const initial=seed([row(1,'exp','literal fallback',12.5,'2026-10-01',{cat:'交通',memo:'架空の固定メモ'}),row(2,'inc','架空の日付なし給与',100,undefined,{cat:'給与'})]),h=fixture(initial),headings=new Set(),undatedHeadings=new Set();
+  for(const lang of ['ja','en','ko','zh']){h.context.kkApplyLang(lang);const group=h.groups()[0],record=h.records()[0];assert.equal(group.attrs['data-date'],'2026-10-01');headings.add(textOf(group.children.find(node=>node.tag==='h3')));assert.equal(textOf(member(record,'kk-cal-kind')),h.context.kkT('kk_js_expense'));assert.equal(textOf(member(record,'kk-cal-category')),h.context.kkCat('交通'));assert.equal(textOf(member(record,'kk-cal-memo')),'架空の固定メモ');assert.equal(h.undated().length,1);const undatedHeading=textOf(h.undated()[0].children.find(node=>node.tag==='h3'));assert.equal(undatedHeading,h.context.kkT('kk_calendar_undated_heading'));undatedHeadings.add(undatedHeading);assert.equal(textOf(member(h.records()[1],'kk-cal-category')),h.context.kkCat('給与'));assert.equal(textOf(member(h.records()[1],'kk-cal-memo')),'架空の日付なし給与');assert.doesNotMatch(h.nodes.get('kkCalendarRecords').innerHTML,/undefined|NaN|kk_calendar_/);assert.equal(h.values.get('kb2_2026_10'),initial.kb2_2026_10);}
+  assert.ok(headings.size>=3);assert.equal(undatedHeadings.size,4);assert.ok(h.writes.every(write=>['kk_lang','siteLang'].includes(write.key)));
 });
