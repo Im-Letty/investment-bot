@@ -6,7 +6,9 @@ on:
     # Standard Ubuntu runners are free for this public repository.
     - cron: '47 19,20,21 * * *'
     - cron: '17,47 22 * * *'
-    - cron: '17 23,0 * * *'
+    # Continue observing late reviewed publication through 22:47 JST.
+    # Public reads never start a second private writer or bypass its limits.
+    - cron: '17,47 23,0-13 * * *'
   workflow_dispatch:
 permissions:
   contents: read

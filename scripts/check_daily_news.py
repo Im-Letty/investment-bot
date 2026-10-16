@@ -218,7 +218,9 @@ def edition_kind(digest):
         return 'unknown'
     if window['version'] == 2 and window.get('kind') == 'intraday':
         return 'intraday'
-    return 'morning' if window['version'] == 1 else 'unknown'
+    if window['version'] == 1 or (window['version'] == 3 and window.get('kind') == 'morning'):
+        return 'morning'
+    return 'unknown'
 
 
 def current_delivery(data, now):

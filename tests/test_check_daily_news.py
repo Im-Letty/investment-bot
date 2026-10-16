@@ -1,6 +1,6 @@
 import unittest
 from copy import deepcopy
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import io
 import json
 from pathlib import Path
@@ -9,7 +9,8 @@ import sys
 from unittest.mock import patch
 from news_copy_policy import COPY_LENGTH_POLICY
 from scripts.check_daily_news import (JST, check_window_seconds, current_delivery,
-                                     healthy_quiet_response, main, publication_observation)
+                                     edition_kind, healthy_quiet_response, main,
+                                     publication_observation)
 
 
 class CheckWindowTests(unittest.TestCase):
@@ -146,6 +147,100 @@ class DeliveryCheckTests(unittest.TestCase):
                           'cutoff_at': self.now.replace(hour=10).timestamp()})
         data['news'] = [ref]
         return data
+
+    def recovered_morning_published(self, *, publish_at=None, day_precision=False):
+        data = self.marked_official_published()
+        released = publish_at or self.now.replace(hour=9, minute=12)
+        snapshot = released - timedelta(minutes=2)
+        data['digest']['source_window'].update(version=3, kind='morning',
+                                                snapshot_at=snapshot.timestamp())
+        data['digest'].update(reviewed_at=(released - timedelta(seconds=30)).timestamp(),
+                              publish_at=released.timestamp())
+        for rows in (data['news'], data['digest']['article_refs'], data['digest']['article_summaries']):
+            for row in rows:
+                row['body_verified_at'] = (snapshot - timedelta(seconds=30)).timestamp()
+                if day_precision:
+                    row.update(published_at=None, publication_precision='day', selection_route='date_only')
+        return data
+
+    def test_recovered_morning_kind_requires_its_explicit_kind(self):
+        data = self.recovered_morning_published()
+        self.assertEqual(edition_kind(data['digest']), 'morning')
+        for window in ({'version': 3}, {'version': 3, 'kind': 'intraday'},
+                       {'version': True, 'kind': 'morning'}, {'version': 4, 'kind': 'morning'}):
+            with self.subTest(window=window):
+                self.assertEqual(edition_kind({'source_window': window}), 'unknown')
+
+    def test_late_morning_stays_in_japan_edition_without_changing_source_dates(self):
+        for released in (self.now.replace(hour=8, minute=30), self.now.replace(hour=9, minute=0),
+                         self.now.replace(hour=23, minute=59, second=59)):
+            for day_precision in (False, True):
+                data = self.recovered_morning_published(publish_at=released, day_precision=day_precision)
+                original = deepcopy(data)
+                with self.subTest(released=released, day_precision=day_precision):
+                    self.assertEqual(current_delivery(data, released), 'published')
+                    observation = publication_observation({}, data, released)
+                    self.assertEqual(observation['edition_kind'], 'morning')
+                    self.assertEqual(observation['edition_date'], '2026-10-04')
+                    self.assertEqual(data['news'][0]['published_date'], '2026-10-03')
+                    if day_precision:
+                        self.assertIsNone(data['news'][0]['published_at'])
+                    midnight = (self.now + timedelta(days=1)).replace(hour=0, minute=0, second=0)
+                    self.assertIsNone(current_delivery(data, midnight))
+                    self.assertEqual(data, original)
+
+    def test_late_recovery_observation_uses_jst_when_utc_date_is_yesterday(self):
+        released = self.now.replace(hour=8, minute=30, second=1)
+        data = self.recovered_morning_published(publish_at=released, day_precision=True)
+        utc_now = released.astimezone(timezone.utc)
+        self.assertEqual(utc_now.date().isoformat(), '2026-10-03')
+        with patch('scripts.check_daily_news.datetime') as date_mock, \
+                patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
+                patch('scripts.check_daily_news.time.monotonic', return_value=0), \
+                patch('scripts.check_daily_news.time.sleep') as sleeper, \
+                patch('scripts.check_daily_news.urlopen', side_effect=[
+                    io.BytesIO(json.dumps({'status': 'ready'}).encode()),
+                    io.BytesIO(json.dumps(data).encode())]), \
+                patch('sys.stdout', new_callable=io.StringIO) as output:
+            date_mock.now.side_effect = lambda tz: utc_now.astimezone(tz)
+            date_mock.strptime.side_effect = datetime.strptime
+            date_mock.fromtimestamp.side_effect = datetime.fromtimestamp
+            self.assertEqual(main(), 0)
+            sleeper.assert_not_called()
+        observation, first = map(json.loads, output.getvalue().splitlines()[:2])
+        self.assertEqual(observation['edition_kind'], 'morning')
+        self.assertEqual(first['event'], 'current_edition_first_observed')
+        self.assertEqual(first['edition_date'], '2026-10-04')
+        self.assertEqual(first['observed_at'], '2026-10-04T08:30:01+09:00')
+        self.assertEqual(first['seconds_since_scheduled_release'], 1801)
+        self.assertNotIn('intraday_edition_first_observed', output.getvalue())
+        self.assertNotIn(data['digest']['summary'], output.getvalue())
+
+    def test_late_recovery_response_crossing_jst_midnight_is_not_confirmed(self):
+        started = self.now.replace(hour=23, minute=59, second=59)
+        data = self.recovered_morning_published(publish_at=started)
+        clock = {'now': started}
+        def fetch(url, **options):
+            if '/api/news-publication' in url:
+                value = {'status': 'ready'}
+            else:
+                clock['now'] = started + timedelta(seconds=1)
+                value = data
+            return io.BytesIO(json.dumps(value).encode())
+        with patch('scripts.check_daily_news.datetime') as date_mock, \
+                patch('scripts.check_daily_news.check_window_seconds', return_value=1), \
+                patch('scripts.check_daily_news.time.monotonic', return_value=0), \
+                patch('scripts.check_daily_news.time.sleep') as sleeper, \
+                patch('scripts.check_daily_news.urlopen', side_effect=fetch), \
+                patch('sys.stdout', new_callable=io.StringIO) as output:
+            date_mock.now.side_effect = lambda tz: clock['now'].astimezone(tz)
+            date_mock.strptime.side_effect = datetime.strptime
+            date_mock.fromtimestamp.side_effect = datetime.fromtimestamp
+            with self.assertRaisesRegex(SystemExit, 'Japan date changed'):
+                main()
+            sleeper.assert_not_called()
+        self.assertNotIn('current_edition_first_observed', output.getvalue())
+        self.assertNotIn('publicly available', output.getvalue())
 
     def fsa_published(self, *, intraday=False):
         data = self.intraday_published(precision='day') if intraday else self.marked_official_published()

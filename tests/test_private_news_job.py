@@ -1,7 +1,7 @@
 """Private CI orchestration contracts; no sockets, credentials or CLI calls."""
 from contextlib import nullcontext, redirect_stdout
 from copy import deepcopy
-from datetime import datetime
+from datetime import datetime, timedelta
 import io
 import json
 from pathlib import Path
@@ -11,7 +11,8 @@ from unittest.mock import Mock, patch
 
 from codex_website_producer import CodexWebsiteProviders, generate_codex_website_edition
 from daily_news_producer import GenerationError
-from daily_news_runtime import DailyNewsRuntime, StorageUnavailable
+from daily_news_runtime import (ATTEMPT_INTERVAL, MAX_ATTEMPTS, PENDING_ATTEMPT_SECONDS,
+                                DailyNewsRuntime, StorageUnavailable)
 from morning_news_window import morning_window, select_articles
 from news_cache import JST, OFFICIAL_NEWS_SOURCES, select_daily_news
 from scripts import run_private_news_job as job
@@ -93,7 +94,9 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(result["processing_seconds"], 45 * 60)
         self.assertEqual(result["generation_job_seconds"], 35 * 60)
         self.assertEqual(result["generation_seconds"], 12 * 60)
-        self.assertEqual(result["generation_attempts"], 1)
+        self.assertEqual(result["generation_ticks_per_job"], 1)
+        self.assertEqual(result["daily_attempt_limit"], MAX_ATTEMPTS)
+        self.assertEqual(result["daily_attempts_default"], MAX_ATTEMPTS)
         for value in self.env.values():
             self.assertNotIn(value, out.getvalue())
 
@@ -143,7 +146,7 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual(self.storage.private_checks, 0)
         self.assertEqual(self.storage.created, [])
         self.preflight.assert_called_once_with(self.env)
-        self.assertEqual(self.build.call_args.kwargs["max_attempts"], 1)
+        self.assertEqual(self.build.call_args.kwargs["max_attempts"], MAX_ATTEMPTS)
         self.runtime.run_once.assert_called_once()
         self.runtime.stop.assert_called_once()
         copied = self.runtime.source_preparer.prepare(self.clock.now)
@@ -487,7 +490,83 @@ class PrivateJobTests(unittest.TestCase):
             self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
                              ["days/2026-10-06/attempt-1.lock"])
 
-    def test_real_failed_daily_claim_is_not_repeated_by_a_restarted_ci_job(self):
+    def test_restarted_job_waits_then_reviews_and_persists_a_late_second_attempt(self):
+        reviews, attempts = [], []
+        with TemporaryDirectory() as folder:
+            baseline = Path(folder) / "baseline.json"
+            baseline.write_text("[]")
+            def generate(now, **source_options):
+                attempts.append(deepcopy(source_options))
+                if len(attempts) == 1:
+                    raise GenerationError("editorial_review_failed_facts")
+                transport = MockTransport(reviewer=lambda name, data: reviews.append((name, data)) or approval())
+                issue = generate_codex_website_edition(now, **source_options,
+                    clock=lambda: self.clock.now,
+                    providers=CodexWebsiteProviders(ENV, transport.session, writer=Writer()))
+                self.clock.sleep(3 * 60)
+                return issue
+            generator = Mock(side_effect=generate)
+            def build(_env, **options):
+                return DailyNewsRuntime(options["storage"], generator, enabled=True,
+                    baseline_path=baseline, cache_path=options["cache_path"],
+                    max_attempts=options["max_attempts"], clock=lambda: self.clock.now)
+            first = self.run_job(runtime_factory=build)
+            first_claim = deepcopy(self.storage.values["days/2026-10-06/attempt-1.lock"])
+            first_result = deepcopy(self.storage.values["days/2026-10-06/attempt-1.result.json"])
+            self.clock = Clock(at(7, 30) + ATTEMPT_INTERVAL - 1)
+            waiting = self.run_job(runtime_factory=build)
+            self.assertEqual((waiting["status"], waiting["attempt_count"]), ("waiting", 1))
+            self.assertFalse(waiting["success"])
+            generator.assert_called_once()
+            self.clock = Clock(at(8, 11))
+            second = self.run_job(runtime_factory=build)
+            self.assertEqual((second["status"], second["success"], second["attempt_count"]),
+                             ("ready", True, 2))
+            self.assertEqual(second["publish_at"], at(8, 14))
+            self.assertEqual([name for name, _ in reviews], ["gemini", "openai"])
+            self.assertEqual(reviews[0][1], reviews[1][1])
+            self.assertEqual(attempts[0], attempts[1])
+            saved = self.storage.values["days/2026-10-06/edition.json"]
+            self.assertEqual(saved["publish_at"], at(8, 14))
+            self.assertEqual(saved["article_refs"][0]["published_date"], "2026-10-05")
+            self.assertEqual(select_daily_news({"news": []}, at(8, 14), reviewed_digests=[saved])
+                             ["digest"]["edition_date"], "2026-10-06")
+            self.clock = Clock(at(12))
+            self.assertTrue(self.run_job(runtime_factory=build)["success"])
+            self.assertEqual(generator.call_count, 2)
+            self.assertEqual(len(reviews), 2)
+            self.assertEqual(self.storage.values["days/2026-10-06/attempt-1.lock"], first_claim)
+            self.assertEqual(self.storage.values["days/2026-10-06/attempt-1.result.json"], first_result)
+        self.assertEqual((first["status"], first["success"]), ("generation_failed", False))
+        self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
+                         ["days/2026-10-06/attempt-1.lock", "days/2026-10-06/attempt-2.lock"])
+
+    def test_restarted_job_does_not_recover_an_unfinished_attempt_before_its_lease(self):
+        started = at(7, 30)
+        claim = {"version": 1, "edition_date": "2026-10-06", "attempt": 1, "started_at": started}
+        self.storage.values["days/2026-10-06/attempt-1.lock"] = deepcopy(claim)
+        with TemporaryDirectory() as folder:
+            baseline = Path(folder) / "baseline.json"
+            baseline.write_text("[]")
+            generator = Mock(side_effect=GenerationError("codex_writer_timeout"))
+            def build(_env, **options):
+                return DailyNewsRuntime(options["storage"], generator, enabled=True,
+                    baseline_path=baseline, cache_path=options["cache_path"],
+                    max_attempts=options["max_attempts"], clock=lambda: self.clock.now)
+            self.clock = Clock(started + PENDING_ATTEMPT_SECONDS - 1)
+            waiting = self.run_job(runtime_factory=build)
+            self.assertEqual((waiting["status"], waiting["attempt_count"]), ("waiting", 1))
+            generator.assert_not_called()
+            self.clock = Clock(started + PENDING_ATTEMPT_SECONDS)
+            recovered = self.run_job(runtime_factory=build)
+        self.assertEqual((recovered["status"], recovered["attempt_count"]), ("generation_failed", 2))
+        generator.assert_called_once()
+        self.assertEqual(self.storage.values["days/2026-10-06/attempt-1.lock"], claim)
+        self.assertNotIn("days/2026-10-06/attempt-1.result.json", self.storage.values)
+        self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
+                         ["days/2026-10-06/attempt-2.lock"])
+
+    def test_restarted_jobs_keep_the_six_attempt_daily_limit_including_failures(self):
         with TemporaryDirectory() as folder:
             baseline = Path(folder) / "baseline.json"
             baseline.write_text("[]")
@@ -496,16 +575,67 @@ class PrivateJobTests(unittest.TestCase):
                 return DailyNewsRuntime(options["storage"], generator, enabled=True,
                     baseline_path=baseline, cache_path=options["cache_path"],
                     max_attempts=options["max_attempts"], clock=lambda: self.clock.now)
-            first = self.run_job(runtime_factory=build)
-            self.clock = Clock(at(7, 50))
-            second = self.run_job(runtime_factory=build)
-        self.assertEqual((first["status"], first["success"]), ("generation_failed", False))
-        self.assertEqual((second["status"], second["success"]), ("daily_limit", False))
-        generator.assert_called_once()
-        self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
-                         ["days/2026-10-06/attempt-1.lock"])
+            for index in range(MAX_ATTEMPTS):
+                self.clock = Clock(at(7, 30) + index * ATTEMPT_INTERVAL)
+                result = self.run_job(runtime_factory=build)
+                self.assertEqual((result["status"], result["attempt_count"]), ("generation_failed", index + 1))
+                self.assertEqual(generator.call_count, index + 1)
+            claims = deepcopy(self.storage.values)
+            self.clock = Clock(at(12))
+            limited = self.run_job(runtime_factory=build)
+        self.assertEqual((limited["status"], limited["success"], limited["attempt_count"]),
+                         ("daily_limit", False, MAX_ATTEMPTS))
+        self.assertEqual(generator.call_count, MAX_ATTEMPTS)
+        self.assertEqual(self.storage.values, claims)
+        self.assertNotIn("days/2026-10-06/attempt-7.lock", self.storage.values)
 
-    def test_real_editorial_failure_reaches_durable_outcome_and_safe_report_without_retry(self):
+    def test_jst_next_day_selects_a_new_window_without_relabelling_old_sources(self):
+        attempts, reviews = [], []
+        with TemporaryDirectory() as folder:
+            baseline = Path(folder) / "baseline.json"
+            baseline.write_text("[]")
+            def generate(now, **source_options):
+                attempts.append(deepcopy(source_options))
+                if len(attempts) == 1:
+                    raise GenerationError("editorial_review_failed_facts")
+                transport = MockTransport(reviewer=lambda name, data: reviews.append((name, data)) or approval())
+                return generate_codex_website_edition(now, **source_options,
+                    clock=lambda: self.clock.now,
+                    providers=CodexWebsiteProviders(ENV, transport.session, writer=Writer()))
+            generator = Mock(side_effect=generate)
+            def build(_env, **options):
+                return DailyNewsRuntime(options["storage"], generator, enabled=True,
+                    baseline_path=baseline, cache_path=options["cache_path"],
+                    max_attempts=options["max_attempts"], clock=lambda: self.clock.now)
+            first = self.run_job(runtime_factory=build)
+            old_state = {key: deepcopy(value) for key, value in self.storage.values.items()
+                         if key.startswith("days/2026-10-06/")}
+            self.clock = Clock(at(8, 10) + timedelta(days=1).total_seconds())
+            window = morning_window(self.clock.now)
+            fresh = deepcopy(sources())
+            for row in fresh:
+                row.update(published_date="2026-10-06", body_verified_at=window["cutoff_at"] - 60)
+            selected = select_articles(self.manifest["articles"] + fresh, window)
+            self.assertEqual({row["published_date"] for row in selected}, {"2026-10-06"})
+            self.storage.values["days/2026-10-07/preparation/manifest.json"] = {
+                **window, "articles": selected, "source_status": deepcopy(self.manifest["source_status"])}
+            second = self.run_job(runtime_factory=build)
+        self.assertEqual(first["status"], "generation_failed")
+        self.assertEqual((second["status"], second["success"], second["edition_date"], second["attempt_count"]),
+                         ("ready", True, "2026-10-07", 1))
+        self.assertEqual(attempts[0]["source_window"]["edition_date"], "2026-10-06")
+        self.assertEqual(attempts[1]["source_window"]["edition_date"], "2026-10-07")
+        self.assertEqual([name for name, _ in reviews], ["gemini", "openai"])
+        self.assertEqual(reviews[0][1], reviews[1][1])
+        saved = self.storage.values["days/2026-10-07/edition.json"]
+        self.assertEqual({ref["published_date"] for ref in saved["article_refs"]}, {"2026-10-06"})
+        self.assertTrue(all(ref["published_at"] is None for ref in saved["article_refs"]))
+        self.assertEqual({key: value for key, value in self.storage.values.items()
+                          if key.startswith("days/2026-10-06/")}, old_state)
+        self.assertNotIn("days/2026-10-06/edition.json", self.storage.values)
+        self.assertNotIn("days/2026-10-06/attempt-2.lock", self.storage.values)
+
+    def test_real_editorial_failure_keeps_safe_diagnostics_while_waiting_to_retry(self):
         providers = []
         def reject(name, data):
             value = approval()
@@ -541,9 +671,9 @@ class PrivateJobTests(unittest.TestCase):
             self.assertNotIn('review_receipt', stored)
             self.assertNotIn('private reviewer prose', json.dumps(stored))
             self.assertNotIn('private reviewer prose', json.dumps(report))
-            self.clock = Clock(at(7, 50))
+            self.clock = Clock(at(7, 44))
             second = self.run_job(runtime_factory=build)
-            self.assertEqual(second['status'], 'daily_limit')
+            self.assertEqual(second['status'], 'waiting')
             self.assertEqual(second['editorial_review_diagnostics'], expected)
             self.assertEqual(len(providers), 1)
             self.assertEqual(len([path for path in self.storage.created if path.endswith('.lock')]), 1)

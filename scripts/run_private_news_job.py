@@ -1,7 +1,8 @@
 """One bounded morning writer job for a private, trusted CI environment.
 
 Default execution only reports configuration names. --run-live explicitly
-permits Codex subscription use, both review API charges and durable publication.
+permits one publishing tick within the durable daily attempt limit, Codex
+subscription use, both review API charges and durable publication.
 The unpaid private preparation step collects and freezes originals before this
 writer starts; this writer never fetches source bodies. It may prepare an
 edition before 08:00, while the existing runtime
@@ -27,7 +28,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from daily_news_producer import GenerationError
-from daily_news_runtime import StorageUnavailable, _safe_generation_error
+from daily_news_runtime import MAX_ATTEMPTS, StorageUnavailable, _safe_generation_error
 from news_review_diagnostics import safe_editorial_review_diagnostics
 from morning_news_window import MAX_ARTICLES, MorningNewsPreparer, morning_window, manifest_window
 from news_cache import JST, OFFICIAL_NEWS_SOURCES
@@ -503,7 +504,10 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
         # Cache contains reviewed copy only, never credentials or raw originals.
         with TemporaryDirectory(prefix="kn-private-news-job-") as folder:
             progress.phase = "runtime_startup"
-            runtime = runtime_factory(env, storage=storage, max_attempts=1,
+            # Each job runs one tick. Later jobs may resume a failed edition
+            # through the existing immutable claims and retry/lease intervals;
+            # a restart never grants a fresh daily budget.
+            runtime = runtime_factory(env, storage=storage, max_attempts=MAX_ATTEMPTS,
                         cache_path=str(Path(folder) / "reviewed.json"))
             runtime.source_preparer = frozen
             progress.phase = "generation"
@@ -542,7 +546,7 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--run-live", action="store_true",
-                        help="permit one durable daily attempt and review API charges")
+                        help="permit one publishing tick within the durable daily limit and review API charges")
     parser.add_argument("--result-file", help="save only a fixed private result to a new file; requires --run-live")
     args = parser.parse_args(argv)
     if args.result_file is not None and not args.run_live:
@@ -553,7 +557,9 @@ def main(argv=None):
                         generation_job_seconds=GENERATION_JOB_SECONDS,
                         manifest_wait_seconds=MANIFEST_WAIT_SECONDS,
                         generation_seconds=GENERATION_SECONDS,
-                        generation_attempts=1, start_window="07:00–23:00 Asia/Tokyo",
+                        generation_ticks_per_job=1, daily_attempt_limit=MAX_ATTEMPTS,
+                        daily_attempts_default=MAX_ATTEMPTS,
+                        start_window="07:00–23:00 Asia/Tokyo",
                         stop_by="same-day midnight Asia/Tokyo", target_release="08:00 Asia/Tokyo",
                         source_collection_allowed=False)
         print(json.dumps(settings, ensure_ascii=False))
