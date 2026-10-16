@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "assembled_at_jst": "2026-10-17T04:41:20.408960+09:00",
+  "evidence_kind": "primary_page_observation_note",
+  "not_raw_source_payload": true,
+  "original_observation_note_sha256": "8d321ceb96b6e1e470427d0f14bd5086836ec160f43a73b4f7d22815cb037b62",
+  "independent_review_sha256": "2efa2c47b38e5a3eda6b9ec9753d8bf742e8e00f7dd9c3868327b22dc12762b1",
+  "programme_observation": {
+    "schema_version": 1,
+    "recorded_at_jst": "2026-10-17T04:39:12.468056+09:00",
+    "issuer": {
+      "code": "1301",
+      "symbol": "1301.T",
+      "name": "極洋",
+      "official_name": "株式会社極洋",
+      "exchange": "Tokyo",
+      "market": "Prime"
+    },
+    "local_identity": {
+      "code": "1301",
+      "name": "極洋",
+      "market": "プライム（内国株式）",
+      "industry": "水産・農林業",
+      "exchange": "Tokyo",
+      "source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html",
+      "catalogue_as_of": "2026-09-30",
+      "symbol": "1301.T",
+      "provider_symbol": "1301.T",
+      "source_title": "日本取引所グループ（JPX）",
+      "scope": "japan-listed-domestic-common-equity",
+      "as_of": "2026-09-30"
+    },
+    "status": "candidate_pending_independent_review",
+    "evidence_kind": "primary_page_observation_note",
+    "hash_semantics": "This file SHA is a manually written observation-note SHA. It is not the raw HTML/PDF/source-page SHA. No raw-source payload digest is claimed.",
+    "source_observations": [
+      {
+        "url": "https://www.kyokuyo.co.jp/ir/forinvestors/index.html",
+        "observed_at_jst": "2026-10-17T04:36:27+09:00",
+        "role": "current_programme_HTML",
+        "facts": "March31 recurring record;100–299 shares products2500JPY equivalent;300+ products6000JPY equivalent; annual July planned grant. No holding-duration/continuity/application/choice/voucher-expiry details stated in this paragraph."
+      },
+      {
+        "url": "https://www.kyokuyo.co.jp/site_policy/index.html",
+        "observed_at_jst": "2026-10-17T04:36:38+09:00",
+        "role": "actual_footer_site_policy",
+        "facts": "Copyright/trademark statement reserves source works; permission needed beyond legally permitted use. No source prose, tables, images, marks or product art will be reproduced. Independent numeric-condition facts and an ordinary source link are separated from copyrighted expression; no blanket data licence inferred. No source-specific automated-collection or ordinary-link prohibition observed in this one policy page."
+      },
+      {
+        "url": "https://www.kyokuyo.co.jp/ir/stockinfo/index.html",
+        "observed_at_jst": "2026-10-17T04:36:44+09:00",
+        "role": "issuer_stock_information",
+        "facts": "Official Kyokuyo stock page states stock information as of2026-03-31. No shares/marketcap fetched or used as benefits facts."
+      },
+      {
+        "url": "https://www.kyokuyo.co.jp/news/index.html?c=ir",
+        "observed_at_jst": "2026-10-17T04:36:57+09:00",
+        "role": "bounded_change_announcement_check",
+        "facts": "HTML response exposes year/category controls but no actual IR-entry list to web text extraction. Not counted as zero announcements or proof that no amendments/split/abolition exists."
+      },
+      {
+        "url": "https://www.kyokuyo.co.jp/ir/concept/index.html",
+        "observed_at_jst": "2026-10-17T04:37:06+09:00",
+        "role": "current_official_programme_crosscheck_HTML",
+        "facts": "Independently reached from programme navigation; same100–299/300+ thresholds,2500/6000JPY product equivalent,March31 and planned annual July grant."
+      },
+      {
+        "url": "https://www.kyokuyo.co.jp/files/20260522.pdf",
+        "observed_at_jst": "2026-10-17T04:37:11+09:00",
+        "role": "supplementary_pdf_text_identity_and_programme_correspondence_only",
+        "facts": "Web PDF text43pages: cover saysTokyo Prime/securitycode1301; printed page30 describes sametwo benefit tiers/annualJuly. PDF screenshot tool returned references without exposed image pixels; visual verification unavailable. Not the tier authority for this candidate; amounts/conditions come from HTML. Raw PDF normal retrieval subsequently failed before any HTTP status, without retry."
+      }
+    ],
+    "programme_facts": {
+      "status": "active_current_HTML",
+      "recurring_record_date": "03-31",
+      "grant_frequency": "annual",
+      "benefit_kind": "company_products_not_a_voucher",
+      "tiers": [
+        {
+          "shares_min": 100,
+          "shares_max": 299,
+          "amount_jpy_equivalent": 2500
+        },
+        {
+          "shares_min": 300,
+          "shares_max": null,
+          "amount_jpy_equivalent": 6000
+        }
+      ],
+      "holding_months_min": null,
+      "same_shareholder_number_requirement": null,
+      "continuous_record_count": null,
+      "shares_at_each_historical_record": null,
+      "application_requirement": null,
+      "choice_or_exchange_requirement": null,
+      "one_time_offer": null,
+      "additional_long_holding_reward": null,
+      "non_additive_tiers": "Two mutually exclusive share ranges, not2500+6000. No duration additions stated.",
+      "delivery_wording": "Official states planned grant every July; does not specify dispatch date versus physical arrival completion.",
+      "voucher_expiry": null,
+      "product_best_before": null,
+      "effective_from": null,
+      "announced_on": null,
+      "schedules": []
+    },
+    "change_review": {
+      "current_official_programme_pages_agree": true,
+      "official_targeted_query": "site:kyokuyo.co.jp \"株主優待\" (\"変更\" OR \"廃止\" OR \"分割\") 2026",
+      "targeted_query_result": "empty_index_results_not_absence_proof",
+      "IR_news_HTML_entries_not_exposed": true,
+      "all_historical_and_future_announcements_exhausted": false,
+      "split_change_or_abolition_proven_absent": false,
+      "no_old_year_or_supplementary_PDF_overrides_current_HTML": true,
+      "shareholders_meeting_souvenir_abolition_search_hit_not_confused_with_regular_programme": true
+    },
+    "unconfirmed_or_not_stated": [
+      "保有期間、同一株主番号、連続名簿回数・各回株数条件は確認した現行本文に記載なし。0か月としない。",
+      "申請要否、商品選択、商品内訳、賞味期限は未確認。",
+      "毎年7月予定は贈呈時期。発送・到着日や2027年の購入締切日は未確認。",
+      "優待券ではなく自社製品の贈呈。券期限を作らない。",
+      "動的一覧・全過去IR・未掲載の将来改廃は網羅しない。",
+      "PDF画像の視覚照合およびrawPDF SHAは未確認。HTMLを制度数値の根拠に限定。"
+    ],
+    "site_conditions_review": {
+      "URL": "https://www.kyokuyo.co.jp/site_policy/index.html",
+      "copyright_scope_preserved": true,
+      "independent_facts_not_source_expression_reproduced": true,
+      "blanket_free_licence_claimed": false,
+      "ordinary_source_link_used": true,
+      "hold": "No explicit source-specific independent-fact or ordinary-link restriction identified in inspected copyright policy; root/independent reviewer must preserve this scope rather than infer unrestricted content reuse."
+    },
+    "network_audit": {
+      "discovery_queries": 3,
+      "unique_primary_URLs_opened": 6,
+      "unique_primary_URL_limit": 6,
+      "HTML_successful_document_reads": 5,
+      "web_PDF_text_read": 1,
+      "cached_PDF_screenshot_commands": 3,
+      "visual_PDF_pixels_observed": false,
+      "same_host_serial_minimum_delay_milliseconds": 1600,
+      "direct_normal_PDF_GET_attempts": 1,
+      "direct_normal_PDF_GET_success": false,
+      "origin_HTTP_status_for_failed_direct_get_observed": false,
+      "retry_After_observed": false,
+      "within_task_retries_or_refusal_bypass": 0,
+      "nonofficial_origins_opened": 0,
+      "registration_paid_AI_external_inquiry": 0
+    },
+    "pdf_source_status": {
+      "local_PDF_path": null,
+      "raw_pdf_sha256": null,
+      "note_sha_is_not_raw_pdf_sha": true,
+      "visual_review_required_if_PDF_tiers_used": true,
+      "PDF_tiers_used_as_manifest_authority": false
+    },
+    "actions": {
+      "R_ledger_queue_automation_changes": 0,
+      "only_this_company_work_outputs_written": true
+    }
+  },
+  "independent_review": {
+    "reviewed_at_jst": "2026-10-17T04:40:23.863911+09:00",
+    "independent_source_reviewer": true,
+    "fresh_primary_reads": [
+      {
+        "url": "https://www.kyokuyo.co.jp/ir/forinvestors/index.html",
+        "request_clock_before_jst": "2026-10-17T04:39:47+09:00",
+        "title": "個人投資家の皆様へ - 株式会社 極洋",
+        "status": "success_HTML",
+        "source_section": "株主優待 (1)対象株主および優待の内容、(2)贈呈時期",
+        "facts_independently_verified": [
+          "毎年3月31日の株主名簿に記載/記録された100株以上300株未満が2,500円相当の自社製品",
+          "同じ基準日で300株以上が6,000円相当の自社製品",
+          "毎年7月の贈呈予定"
+        ],
+        "other_condition_mentions_in_programme_section": "保有期間、同一株主番号、名簿連続回数、申請/選択、商品内訳・賞味期限の条件はこの制度本文に記載されていない。",
+        "actual_footer_source_conditions_link_visible": true
+      },
+      {
+        "url": "https://www.kyokuyo.co.jp/ir/concept/index.html",
+        "request_clock_before_jst": "2026-10-17T04:39:50+09:00",
+        "title": "株主還元に関する考え方 - 株式会社 極洋",
+        "status": "success_HTML",
+        "source_section": "株主優待 (1)対象株主および優待の内容、(2)贈呈時期",
+        "same_two_tiers_record_and_grant_as_primary_page": true,
+        "contradictory_benefit_condition_in_reviewed_page": false,
+        "actual_footer_site_policy_link_visible": true,
+        "dividend_table_not_used_as_benefit_schedule": true
+      }
+    ],
+    "manifest_field_assessment": {
+      "active_current_programme": "PASS:現に公式が現行制度として案内するHTML2ページが一致。開始時期や将来継続を新たに断定する意味ではない。",
+      "all_observed_share_tiers": "PASS:100〜299株2,500円相当、300株以上6,000円相当の2区分。双方該当や合算ではない。",
+      "holding_months_and_shareholder_number": "PASS:未記載をnullで保持し0か月/番号条件なしと保証していない。",
+      "annual_record_date": "PASS:毎年3月31日。次回の売買期限は生成しない。",
+      "grant_delivery": "PASS:毎年7月予定を贈呈として保持、具体的発送日・到着日・到着完了とはしない。",
+      "benefit_kind": "PASS:自社製品であり、現金/優待券と誤表示していない。",
+      "application_selection_or_expiry": "PASS:詳細未記載を未確認として保持。",
+      "one_time_or_additional_rewards": "PASS:年1回の2区分を独立表示。未確認の追加制度/初回/長期加算を作らない。",
+      "future_schedules": "PASS:empty。",
+      "source_and_issuer": "PASS:株式会社極洋の公式ドメイン2ページ。コード1301/1301.T/極洋の保存済みStockSearch-selected-identities.jsonと候補が一致。独立読取2ページ内では証券コードそのものは再表示されないため、コードと市場の公式確認は元担当の株式情報確認と保存済みidentityに依拠。"
+    },
+    "source_terms_link_review": {
+      "fresh_observation": "両HTML実footerにサイトポリシーリンクがあることを再確認。今回上限2readのためその3つ目の本文を再取得していない。",
+      "retained_first_reviewer_policy_observation": "元担当はhttps://www.kyokuyo.co.jp/site_policy/index.htmlを実読取し、著作物/商標と法律上許される利用を区別する記録を保存済み。自動取得/通常の出典リンクに関する個別禁止は観測していないという限定記録であり、万能なデータ許諾と扱わない。",
+      "copying_scope": "制度の数値・区分・時期を独立した短い説明へ編集。元の文章/表構成/写真/ロゴ/商品画像の転載は含めない。著作権表示だけで独立事実の利用全禁止と推定しない。",
+      "external_contact_registration_or_policy_acceptance": false
+    },
+    "PDF_and_change_review_limits": {
+      "PDF_used_as_eligibility_or_tier_authority": false,
+      "PDF_visual_failure_is_pass_evidence": false,
+      "PDF_retried": false,
+      "HTML_currentness_basis": "2つの現行公開制度ページが一致することを根拠。PDF補助テキストの値や表は根拠として不採用。",
+      "amendments_absence_proved": false,
+      "split_abolition_absence_proved": false,
+      "dynamic_IR_list_exhaustive": false,
+      "remaining_gap": "元担当のIR一覧本文は動的で項目が取れず、限定検索の空結果も不在証明ではない。全過去・未掲載の将来改廃/分割の不存在や制度の将来存続を保証しない。現在の公式HTMLから独立確認した現行条件だけを追加可能と判定する。"
+    },
+    "decision": {
+      "status": "PASS_CURRENT_HTML_BOUNDED_ADDITION",
+      "current_active_addition_supported_by_HTML_only": true,
+      "hold_required": false,
+      "numeric_or_condition_corrections": [],
+      "all_future_changes_cleared_claimed": false,
+      "independent_review_allows_schedules_generation": false,
+      "allows_raw_HTML_PDF_republication": false,
+      "authorizes_unrelated_repo_or_config_changes": false,
+      "root_must_run_merge_schema_tests_and_publication_checks": true
+    }
+  }
+}

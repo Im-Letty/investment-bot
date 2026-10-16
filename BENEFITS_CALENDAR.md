@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 16 companies: the original nine reviewed on 2026-09-25 and
-seven additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 17 companies: the original nine reviewed on 2026-09-25 and
+eight additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -177,3 +177,22 @@ record date, trading deadline and applicable tier. The UI shows coverage counts
 and keeps companies with no future schedule in the unconfirmed section. It must
 not silently drop them or manufacture the next cycle. Keep existing month navigation;
 do not restore the removed internal calendar search as part of data expansion.
+
+## Further bounded review on 2026-10-17
+
+- 1301 Kyokuyo: https://www.kyokuyo.co.jp/ir/forinvestors/index.html
+  The two current official HTML programme pages and a separate reviewer agree:
+  100–299 shares receive company products worth 2,500 yen; 300+ shares receive
+  6,000 yen equivalent. March 31 is the recurring record date; grant is planned
+  each July. Holding duration and application/selection details are unstated; no
+  trade date, precise dispatch/arrival date or product expiry is inferred.
+  The supplementary PDF could not be visually checked and is not the authority
+  for these conditions. Dynamic IR list completeness and future amendments are
+  unconfirmed. The existing nine records and seven additions remain unchanged.
+
+The same bounded batch reviewed 1777 Kawasaki Setsubi's explicit current statement
+that it offers no shareholder benefit. For 1832 Hokkai Denko, the observed
+October 2026 game invitation closed applications in June; current programme and
+recent amendment coverage remain unconfirmed, with a separate public-link hold.
+Neither company is added as an active programme, and an expired invitation is not
+classified as abolition or evidence that the company offers no other benefit.

@@ -584,6 +584,69 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1301",
+      "symbol": "1301.T",
+      "name": "極洋",
+      "category": "食品",
+      "aliases": "キョクヨー Kyokuyo 水産 缶詰",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.kyokuyo.co.jp/ir/forinvestors/index.html",
+            "title": "極洋 個人投資家の皆様へ 株主優待",
+            "security_code": "1301",
+            "issuer_name": "極洋",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T04:36:27+09:00",
+            "evidence_path": "evidence/reviewed-1301-observation-bundle-20261017.json",
+            "evidence_sha256": "bf01fec3d4bd598230b171057b81ee22fce2dd735d1017bb746515c4fb3adf55"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-review-and-independent-current-HTML-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "公式HTML2ページの現行制度と独立再確認が一致。IR動的一覧の全件や将来の無変更は未証明。PDF表は画像未確認のため制度数値の根拠に採用せず、購入締切日を生成しない。"
+          },
+          "period": "毎年3月31日（現行制度の基準日。次回の購入締切日は未確認）",
+          "conditions": "株数に該当する1区分の自社製品を年1回受け取る制度です。2,500円相当と6,000円相当を合算しません。確認した現行本文に保有期間や同一株主番号の条件は記載されていません。",
+          "use": "自社製品の贈呈です。優待券・現金ではありません。申請や商品選択の要否、商品の内訳・賞味期限は今回の制度本文で未確認です。",
+          "delivery": "会社は毎年7月の贈呈を予定しています。具体的な発送日・到着日や、次回の到着完了を確認したものではありません。",
+          "tiers": [
+            {
+              "id": "products-100",
+              "shares_min": 100,
+              "shares_max": 299,
+              "holding_months_min": null,
+              "holding_requirement": "確認した現行制度本文に保有期間条件の記載なし",
+              "reward": "自社製品2,500円相当（年1回）",
+              "conditions": "3月31日の株主名簿で100株以上300株未満。次回の購入締切日は未確認。"
+            },
+            {
+              "id": "products-300",
+              "shares_min": 300,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "確認した現行制度本文に保有期間条件の記載なし",
+              "reward": "自社製品6,000円相当（年1回）",
+              "conditions": "3月31日の株主名簿で300株以上。100〜299株の区分との合算はしません。次回の購入締切日は未確認。"
+            }
+          ],
+          "schedules": [],
+          "grant_summary": "毎年7月の贈呈予定（発送・到着日は未確認）"
+        }
+      ]
     }
   ]
 }
