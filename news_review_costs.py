@@ -36,6 +36,11 @@ _REASONS = frozenset(('usage_unavailable', 'usage_invalid', 'usage_incomplete',
 _BASES = frozenset(('unknown', 'standard_text', 'conservative_cache_write'))
 _TIERS = {'gemini': frozenset(('STANDARD', 'FLEX', 'PRIORITY', 'SERVICE_TIER_UNSPECIFIED')),
           'openai': frozenset(('default', 'standard', 'auto', 'flex', 'priority', 'scale'))}
+# generateContent's ServiceTier wire values are lowercase. Retain the existing
+# receipt canonical form and the historical standard rates; other tiers remain
+# explicitly unpriced. https://ai.google.dev/api/generate-content#ServiceTier
+_GEMINI_TIER_ALIASES = {'unspecified': 'SERVICE_TIER_UNSPECIFIED', 'standard': 'STANDARD',
+                       'flex': 'FLEX', 'priority': 'PRIORITY'}
 _USAGE_FIELDS = {'gemini': ('promptTokenCount', 'candidatesTokenCount', 'thoughtsTokenCount',
                           'cachedContentTokenCount', 'toolUsePromptTokenCount', 'totalTokenCount'),
                  'openai': ('input_tokens', 'output_tokens', 'total_tokens')}
@@ -68,10 +73,17 @@ def _numeric_tokens(provider, usage):
     return result
 
 
-def _safe_tier(provider, value):
+def normalize_service_tier(provider, value):
+    """Normalize documented enum aliases only; never retain arbitrary text."""
     if value is None:
         return None
+    if provider == 'gemini' and isinstance(value, str):
+        value = _GEMINI_TIER_ALIASES.get(value, value)
     return value if isinstance(value, str) and value in _TIERS.get(provider, ()) else 'unknown'
+
+
+def _safe_tier(provider, value):
+    return normalize_service_tier(provider, value)
 
 
 def _safe_run_context(value=None):
@@ -117,6 +129,7 @@ def estimate_cost(provider, model, usage, service_tier=None):
     breakdown uses the conservative write rate and is labelled accordingly.
     """
     unknown = {'usd_nanos': None, 'tokens': _numeric_tokens(provider, usage), 'basis': 'unknown'}
+    service_tier = normalize_service_tier(provider, service_tier)
     if not isinstance(usage, dict):
         return {**unknown, 'reason': 'usage_unavailable'}
     if provider == 'gemini' and model == 'gemini-2.5-flash':

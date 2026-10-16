@@ -115,11 +115,13 @@ class Providers:
         if not isinstance(result, dict):
             return None, None
         if provider == 'gemini':
+            from news_review_costs import normalize_service_tier
             raw = result.get('usageMetadata')
             fields = ('promptTokenCount', 'candidatesTokenCount', 'cachedContentTokenCount',
                       'thoughtsTokenCount', 'toolUsePromptTokenCount', 'totalTokenCount')
             detail_fields = {}
             tier = raw.get('serviceTier') if isinstance(raw, dict) else None
+            tier = normalize_service_tier('gemini', tier)
             tiers = ('STANDARD', 'FLEX', 'PRIORITY', 'SERVICE_TIER_UNSPECIFIED')
         elif provider == 'openai':
             raw = result.get('usage')
