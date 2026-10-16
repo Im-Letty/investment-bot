@@ -24,6 +24,7 @@ from news_cache import JST
 from daily_news_runtime import GENERATION_ERRORS, StorageUnavailable, _safe_generation_error
 from news_review_diagnostics import safe_editorial_review_diagnostics
 from scripts.private_news_storage import PrivateNewsStorage
+from scripts.review_cost_report import safe_review_cost
 
 REQUIRED = ("SUPABASE_URL", "SUPABASE_KEY", "GEMINI_API_KEY", "OPENAI_API_KEY")
 CHECK_SECONDS = 180
@@ -92,6 +93,9 @@ class IntradayProgress:
             if value.get("last_error") == "isolated_editorial_review_failed" else None)
         if diagnostics is not None:
             value["editorial_review_diagnostics"] = diagnostics
+        cost = safe_review_cost(value.pop("api_review_cost", None))
+        if cost is not None:
+            value["api_review_cost"] = cost
         return value
 
 
@@ -100,26 +104,7 @@ def _number(value):
 
 
 def _cost(value):
-    if not isinstance(value, dict):
-        return None
-    result = {}
-    for key in ("target_jpy", "estimated_cost_usd", "estimated_cost_jpy", "usd_to_jpy",
-                "request_count", "unknown_cost_count", "persistence_failures"):
-        item = value.get(key)
-        if _number(item) or isinstance(item, str) and re.fullmatch(r"[0-9]+(?:\.[0-9]+)?", item):
-            result[key] = item
-    for key in ("persistence_complete", "estimate_complete", "scan_complete", "snapshot_guaranteed", "invoice_amount"):
-        if type(value.get(key)) is bool:
-            result[key] = value[key]
-    for key, choices in {
-        "status": ("checked", "incomplete", "cost_unavailable", "not_connected"),
-        "scope": ("all", "economy", "company", "private_test"), "target_mode": ("soft",),
-        "target_state": ("above_target", "within_target", "unknown"),
-        "pricing_version": ("2026-10-11-text-standard",),
-    }.items():
-        if value.get(key) in choices:
-            result[key] = value[key]
-    return result
+    return safe_review_cost(value)
 
 
 def safe_report(result, started, finished, check_only, progress=None):
@@ -275,6 +260,14 @@ def run_job(environ=None, *, check_only=False, clock=time.time, storage_factory=
         progress.value["last_error"] = _safe_error(error)
         result = {**_base("job_unavailable", started, check_only), **progress.fields()}
     finally:
+        if recorder is not None:
+            try:
+                cost = safe_review_cost(recorder.safe_summary())
+                if cost is not None:
+                    progress.value["api_review_cost"] = cost
+            except (Exception, JobDeadline):
+                progress.value["api_review_cost"] = {"status": "cost_unavailable", "scope": "economy",
+                                                     "estimate_complete": False}
         if storage is not None:
             session = getattr(storage, "_session", None)
             if session is not None:
@@ -284,8 +277,6 @@ def run_job(environ=None, *, check_only=False, clock=time.time, storage_factory=
                     pass
     progress.record(result)
     result.update(progress.fields())
-    if recorder is not None:
-        result["api_review_cost"] = recorder.safe_summary()
     return result
 
 

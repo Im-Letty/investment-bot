@@ -34,6 +34,7 @@ from morning_news_window import MAX_ARTICLES, MorningNewsPreparer, morning_windo
 from news_cache import JST, OFFICIAL_NEWS_SOURCES
 from scripts.run_codex_news import build_runtime, configuration, preflight_subscription
 from scripts.private_news_storage import PrivateNewsStorage
+from scripts.review_cost_report import safe_review_cost
 from website_news_producer import GENERATION_SECONDS
 
 
@@ -93,6 +94,7 @@ class JobProgress:
         self.attempt_count = None
         self.editorial_review_diagnostics = None
         self.review_receipt = None
+        self.api_review_cost = None
 
     def runtime(self, state):
         if not isinstance(state, dict):
@@ -123,6 +125,9 @@ class JobProgress:
             value["editorial_review_diagnostics"] = safe_editorial_review_diagnostics(self.editorial_review_diagnostics)
         if self.review_receipt is not None:
             value["review_receipt"] = _safe_review_receipt(self.review_receipt)
+        cost = safe_review_cost(self.api_review_cost)
+        if cost is not None:
+            value["api_review_cost"] = cost
         return value
 
 
@@ -279,6 +284,9 @@ def safe_report(result, started, finished):
     runtime_status = result.get("runtime_status")
     if isinstance(runtime_status, str) and runtime_status in _RUNTIME_STATUSES:
         report["runtime_status"] = runtime_status
+    cost = safe_review_cost(result.get("api_review_cost"))
+    if cost is not None:
+        report["api_review_cost"] = cost
     return report
 
 
@@ -431,8 +439,11 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
     env = os.environ if environ is None else environ
     env = env if isinstance(env, Mapping) else {}
     progress = progress if isinstance(progress, JobProgress) else JobProgress()
+    last_outcome = None
     def outcome(status, day=None, **kwargs):
-        return _outcome(status, day, progress=progress, **kwargs)
+        nonlocal last_outcome
+        last_outcome = _outcome(status, day, progress=progress, **kwargs)
+        return last_outcome
     started, mono_started = wall_clock(), monotonic()
     morning = _morning(started)
     if morning is None:
@@ -551,6 +562,22 @@ source preparation. Exactly one synchronous publishing tick follows readiness.
         return outcome("job_unavailable", day)
     finally:
         if runtime is not None:
+            # Cost reporting is best effort and never starts another request or
+            # changes the already determined publication outcome. A hard job
+            # deadline still reaches this finally block and the outer progress.
+            try:
+                recorder = getattr(runtime, "review_usage_recorder", None)
+                if recorder is not None:
+                    cost = safe_review_cost(recorder.safe_summary())
+                    if cost is not None:
+                        progress.api_review_cost = cost
+                        if last_outcome is not None:
+                            last_outcome["api_review_cost"] = cost
+            except (Exception, JobDeadline):
+                cost = {"status": "cost_unavailable", "scope": "economy", "estimate_complete": False}
+                progress.api_review_cost = cost
+                if last_outcome is not None:
+                    last_outcome["api_review_cost"] = cost
             try:
                 progress.runtime(runtime.snapshot())
                 runtime.stop()
