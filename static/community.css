@@ -172,3 +172,62 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {min-height:64px;padding-top:8
   :is(#cmOv,#stockTalkOv) .cw-composer-fields > :first-child {grid-column:auto}
   :is(#cmOv,#stockTalkOv) .cw-view-tab {font-size:13px;min-height:52px}
 }
+
+/* Distinguish the two Talk views, posts, replies and input areas by surface color. */
+body.kn-home-a :is(#cmOv,#stockTalkOv).cw-screen {
+  --cw-stock-accent:color-mix(in srgb,#6086a2 65%,var(--kn-sh-button));
+  --cw-community-accent:color-mix(in srgb,#b18464 65%,var(--kn-sh-button));
+  --cw-reply-accent:color-mix(in srgb,#8b7ba5 65%,var(--kn-sh-button));
+  --cw-accent:var(--cw-stock-accent);
+}
+body.kn-home-a #cmOv.cw-screen {--cw-accent:var(--cw-community-accent)}
+:is(#cmOv,#stockTalkOv) .cw-view-tab[data-cw-view="stock"] {--cw-tab-accent:var(--cw-stock-accent)}
+:is(#cmOv,#stockTalkOv) .cw-view-tab[data-cw-view="community"] {--cw-tab-accent:var(--cw-community-accent)}
+:is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"] {
+  background:color-mix(in srgb,var(--cw-tab-accent) 24%,var(--kn-sh-paper));
+  color:var(--kn-sh-ink);
+}
+:is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"]::after {background:var(--cw-tab-accent)}
+:is(#cmOv,#stockTalkOv) .cw-search {
+  background:color-mix(in srgb,var(--cw-accent) 13%,var(--kn-sh-paper));
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--cw-accent) 45%,var(--kn-sh-line));
+}
+:is(#cmOv,#stockTalkOv) .cw-post {
+  background:var(--kn-sh-paper);
+  border-top-color:color-mix(in srgb,var(--cw-accent) 30%,var(--kn-sh-line));
+}
+:is(#cmOv,#stockTalkOv) .cw-avatar {
+  background:color-mix(in srgb,var(--cw-accent) 26%,var(--kn-sh-paper));
+  border-color:color-mix(in srgb,var(--cw-accent) 55%,var(--kn-sh-line));
+}
+:is(#cmOv,#stockTalkOv) .cw-reply-preview {
+  background:color-mix(in srgb,var(--cw-reply-accent) 14%,var(--kn-sh-paper));
+  border-left-color:var(--cw-reply-accent);
+}
+:is(#cmOv,#stockTalkOv) .cw-replies {
+  background:color-mix(in srgb,var(--cw-reply-accent) 7%,var(--kn-sh-paper));
+}
+:is(#cmOv,#stockTalkOv) .cw-reply-post .cw-avatar {
+  background:color-mix(in srgb,var(--cw-reply-accent) 25%,var(--kn-sh-paper));
+  border-color:color-mix(in srgb,var(--cw-reply-accent) 55%,var(--kn-sh-line));
+}
+:is(#cmOv,#stockTalkOv) .cw-composer {
+  background:color-mix(in srgb,var(--cw-accent) 12%,var(--kn-sh-paper));
+  border-color:color-mix(in srgb,var(--cw-accent) 65%,var(--kn-sh-line));
+}
+:is(#cmOv,#stockTalkOv) .cw-reply-form {
+  background:color-mix(in srgb,var(--cw-reply-accent) 14%,var(--kn-sh-paper));
+  border-color:color-mix(in srgb,var(--cw-reply-accent) 65%,var(--kn-sh-line));
+}
+body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) :is(.cw-input,.cw-select) {
+  background:var(--kn-sh-paper)!important;
+  border-color:color-mix(in srgb,var(--kn-sh-ink) 45%,var(--kn-sh-line));
+}
+
+/* Keep small text readable on tinted surfaces, including pale custom colors. */
+body.kn-home-a :is(#cmOv,#stockTalkOv).cw-screen {--cw-surface-ink:var(--kn-sh-ink)}
+body.kn-home-a:not([data-theme="dark"]) :is(#cmOv,#stockTalkOv).cw-screen {
+  --cw-surface-ink:color-mix(in srgb,var(--kn-sh-ink) 80%,#1b2420);
+}
+body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-view-tab[aria-pressed="true"],.cw-avatar,.cw-reply-preview,.cw-preview-name,.cw-composer,.cw-reply-form) {color:var(--cw-surface-ink)}
+body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-composer,.cw-reply-form) :is(.cw-field-label,.cw-description,.cw-small) {color:var(--cw-surface-ink)}
