@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "reviewed_at": "2026-10-13T20:26:55.295670+09:00",
+  "reviewed_at": "2026-10-17T03:06:01.249535+09:00",
   "scope": "Individually verified issuer-published PR TIMES RSS routes; not all announcements or editorial publication.",
   "all_company_announcements_covered": false,
   "items": [
@@ -159,6 +159,18 @@
       "parent_issuer_identity_verified": true,
       "explicit_rss_link_verified": true,
       "evidence_sha256": "94e514ccb78b00149da1bf842e037e2c8635e3ec53bb9a5f4d9a4c028436c08e"
+    },
+    {
+      "symbol": "2503.T",
+      "name": "キリンホールディングス",
+      "issuer": "キリンホールディングス株式会社",
+      "company_id": "73077",
+      "release_url": "https://prtimes.jp/main/html/rd/p/000001638.000073077.html",
+      "feed_url": "https://prtimes.jp/companyrdf.php?company_id=73077",
+      "status": "verified_issuer_rss_route",
+      "parent_issuer_identity_verified": true,
+      "explicit_rss_link_verified": true,
+      "evidence_sha256": "894ef702f13fce7e05bb05891b046539aa63d70c015d1aa2dde6c6763e9005a5"
     },
     {
       "symbol": "2768.T",

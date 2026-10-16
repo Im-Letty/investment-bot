@@ -50,6 +50,24 @@ class IssuerFeedTests(unittest.TestCase):
         empty = CompanyNewsCatalogue({}, self.cat.provenance)
         self.assertEqual(issuers.parse_feed(self.payload(), self.label, NOW, SINCE, empty), [])
 
+    def test_kirin_registered_route_binds_parent_ID_and_original_author(self):
+        from company_news_prtimes import extract_article
+        label = 'PR TIMES / キリンホールディングス'
+        cfg = issuers.SOURCES[label]
+        self.assertEqual((cfg['symbol'], cfg['company_id']), ('2503.T', '73077'))
+        url = 'https://prtimes.jp/main/html/rd/p/000001234.000073077.html'
+        payload = feed(feed_item(issuer=cfg['issuer'], url=url))
+        item = issuers.parse_feed(payload, label, NOW, SINCE, self.cat)[0]
+        scoped = issuers.bound_catalogue(label, self.cat)
+        original = article(author=cfg['issuer'], company_label=cfg['issuer'], company_id='73077')
+        result = extract_article(original, item, url, NOW, SINCE, catalogue=scoped)
+        self.assertEqual(result['related_company'], 'キリンホールディングス株式会社')
+        for issuer in ('キリンビバレッジ株式会社', 'キリンホールディングスの子会社株式会社'):
+            self.assertEqual(issuers.parse_feed(feed(feed_item(issuer=issuer, url=url)),
+                label, NOW, SINCE, self.cat), [])
+            bad = article(author=issuer, company_label=cfg['issuer'], company_id='73077')
+            self.assertIsNone(extract_article(bad, item, url, NOW, SINCE, catalogue=scoped))
+
     def test_wrong_company_feed_item_and_subsidiary_never_resolve_to_parent(self):
         for changes in ({'issuer': '東京ガスの子会社株式会社'},
                         {'url': self.url.replace('000021766', '000013970')},
