@@ -93,12 +93,29 @@ class CodexHandoffTests(unittest.TestCase):
     def test_failed_fresh_review_never_hands_off_or_retries_after_restart(self):
         self.reject = True
         local = self.runtime("local")
-        self.assertEqual(local.run_once()["status"], "generation_failed")
+        failed = local.run_once()
+        self.assertEqual(failed["status"], "generation_failed")
         self.assertNotIn(f"days/{self.day}/edition.json", self.storage.values)
-        self.assertEqual(self.runtime("external").run_once()["status"], "waiting_for_writer")
+        stored, created = deepcopy(self.storage.values), list(self.storage.created)
+        server = self.runtime("external")
+        observed = server.run_once()
+        self.assertEqual(observed["status"], "generation_failed")
+        self.assertEqual(observed["attempt_count"], 1)
+        self.assertEqual(observed["last_error"], "isolated_editorial_review_failed")
+        self.assertEqual(observed["editorial_review_diagnostics"], failed["editorial_review_diagnostics"])
+        before = initial_news(website_news.snapshot(), now=self.now, reviewed_digests=server.reviewed_digests())
+        self.assertEqual(before["edition_date"], "2026-10-05")
         self.now += 20 * 60
         self.assertEqual(self.runtime("local").run_once()["status"], "daily_limit")
+        restarted = self.runtime("external")
+        self.assertEqual(restarted.run_once()["status"], "generation_failed")
+        after = initial_news(website_news.snapshot(), now=self.now, reviewed_digests=restarted.reviewed_digests())
+        self.assertEqual(after["edition_date"], "2026-10-05")
+        self.assertEqual(self.storage.values, stored)
+        self.assertEqual(self.storage.created, created)
         self.assertEqual(len(self.transports), 1)
+        self.assertEqual(len(self.writers), 1)
+        self.assertEqual(len(self.writers[0].calls), 6)
         self.assertEqual([name for name, _, _ in self.transports[0].calls], ["gemini", "openai"] * 2)
 
 
