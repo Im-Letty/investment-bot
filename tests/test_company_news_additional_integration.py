@@ -307,8 +307,10 @@ class AdditionalIntegrationTests(unittest.TestCase):
                 return []
             expected = diagnostics
             with patch.object(company_news_catalogue, 'current_catalogue', return_value=self.catalogue), \
-                    patch.object(company_news_sources, 'collect_company_articles', side_effect=collect):
+                    patch.object(company_news_sources, 'collect_company_articles', side_effect=collect) as collection:
                 result = namespace['_collect_company_sources'](now=NOW)
+            self.assertIs(collection.call_args.kwargs['catalogue_snapshot'], result['catalogue'])
+            self.assertEqual(result['catalogue'], self.catalogue.snapshot())
             self.assertEqual(result['status'], 'ready' if failed else 'source_empty')
             self.assertEqual(result['collection_health'], 'partial' if failed else 'complete')
             self.assertEqual(result['coverage']['direct_feed_company_count'], additional.direct_feed_company_count())

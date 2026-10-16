@@ -12,7 +12,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from daily_news_runtime import SupabaseNewsStorage
 from company_news_runtime import (PREFIX, SOURCES, ADDITIONAL_SOURCES, article_id,
                                  candidate_records, pending_candidates, source_fingerprint,
-                                 valid_record, source_catalogue, _stamp)
+                                 valid_record, source_catalogue, _stamp, canonical_hash, source_hash)
 from company_news_producer import safe_company_diagnostic, safe_company_error
 from news_cache import JST
 
@@ -150,6 +150,17 @@ def run_job(storage, generator, *, clock=time.time, exclusion_urls=(), other_new
             diagnostic = safe_company_diagnostic(error)
             if isinstance(diagnostics, list) and diagnostic is not None:
                 diagnostics.append({'article_id': claim['article_id'], **diagnostic})
+            if diagnostic is not None:
+                # Keep failed-check evidence in the normal fixed result too.
+                # The separate legacy diagnostic contains rejected copy and is
+                # deliberately not required or uploaded for this observation.
+                report.setdefault('review_failures', []).append({
+                    'article_id': claim['article_id'], 'symbol': source['symbol'],
+                    'error_code': report['last_error'], 'observed_at': clock(),
+                    'content_sha256': canonical_hash(diagnostic['draft']),
+                    'source_sha256': source_hash(source),
+                    'checks': diagnostic['checks'],
+                })
         storage.create(f'{PREFIX}/days/{day}/result-{slot}.json', {
             'article_id': claim['article_id'], 'status': attempt_status,
             'finished_at': clock(), 'published_count': report['published_count']})

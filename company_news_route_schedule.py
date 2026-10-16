@@ -8,6 +8,8 @@ body candidates, three returned bodies and the separate daily review limit.
 
 Every base channel is scheduled in each poll. At most six additional routes
 are selected from stable sorted chunks, rotating by the UTC 15-minute slot.
+Selected additional routes enter the bounded worker queue first; base routes
+rotate within that queue so the same channels are not always at its tail.
 The full-cycle value describes scheduled coverage; transport failures and the
 collector deadline mean it cannot promise successful retrieval in that time.
 """
@@ -55,6 +57,13 @@ def _feeds(value, maximum, *, required):
     return result
 
 
+def _feed_dispatch_order(base_labels, selected_additional_labels, slot):
+    """Order validated scheduled labels without changing their selection."""
+    base = sorted(base_labels)
+    offset = slot % len(base)
+    return [*selected_additional_labels, *base[offset:], *base[:offset]]
+
+
 def select_route_schedule(base_feeds, additional_feeds, now, *,
                           additional_limit=DEFAULT_ADDITIONAL_LIMIT):
     """Return selected feeds and compact counts, without fetching anything.
@@ -81,8 +90,8 @@ def select_route_schedule(base_feeds, additional_feeds, now, *,
     batch_index = slot % batch_count if batch_count else 0
     start = batch_index * additional_limit
     selected = labels[start:start + additional_limit]
-    scheduled = dict(base)
-    scheduled.update((label, additional[label]) for label in selected)
+    scheduled = {label: additional[label] if label in additional else base[label]
+                 for label in _feed_dispatch_order(base, selected, slot)}
     coverage = {
         'base_channel_count': len(base),
         'additional_registered_channel_count': len(additional),

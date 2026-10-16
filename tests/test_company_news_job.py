@@ -315,7 +315,41 @@ class CompanyJobTests(unittest.TestCase):
         self.assertEqual(len(diagnostics), 1)
         self.assertEqual(diagnostics[0]['draft'], COPY)
         self.assertNotIn('draft', json.dumps(result))
+        self.assertEqual(len(result['review_failures']), 1)
+        failure = result['review_failures'][0]
+        self.assertEqual(set(failure), {'article_id', 'symbol', 'error_code', 'observed_at',
+                                       'content_sha256', 'source_sha256', 'checks'})
+        self.assertEqual(failure['symbol'], source()['symbol'])
+        self.assertEqual(failure['error_code'], 'company_review_failed_gemini_facts')
+        self.assertEqual(failure['observed_at'], NOW)
+        self.assertRegex(failure['content_sha256'], r'^[a-f0-9]{64}$')
+        self.assertRegex(failure['source_sha256'], r'^[a-f0-9]{64}$')
+        self.assertEqual(failure['checks'], diagnostics[0]['checks'])
+        for text in COPY.values():
+            self.assertNotIn(text, json.dumps(result, ensure_ascii=False))
         self.assertIsNone(storage.read(f'{PREFIX}/days/2026-10-08/published-1.json'))
+
+    def test_failure_observation_rejects_unvalidated_diagnostic_and_keeps_daily_limit(self):
+        from company_news_producer import CHECKS
+        from daily_news_producer import GenerationError
+        from tests.test_company_news_producer import COPY
+        for malformed in (True, False):
+            with self.subTest(malformed=malformed):
+                storage = MemoryStorage(); self.queue(storage, source())
+                def fail(*_, **__):
+                    error = GenerationError('company_review_failed_openai_company_identity')
+                    checks = {name: {key: True for key in CHECKS} for name in ('gemini', 'openai')}
+                    checks['openai']['company_identity'] = 'private provider response' if malformed else False
+                    error.company_diagnostic = {'draft': COPY, 'checks': checks}
+                    raise error
+                result = run_job(storage, fail, clock=lambda: NOW)
+                self.assertEqual(result['attempt_count'], 1)
+                self.assertEqual(result['published_count'], 0)
+                self.assertEqual(bool(result.get('review_failures')), not malformed)
+                if not malformed:
+                    self.assertIs(result['review_failures'][0]['checks']['openai']['company_identity'], False)
+                self.assertNotIn('private provider response', json.dumps(result))
+                self.assertEqual(run_job(storage, fail, clock=lambda: NOW)['attempt_count'], 0)
 
     def test_retry_requires_today_failed_result_exact_body_and_original_seen(self):
         def unused(*_, **__): raise AssertionError('must not invoke AI')

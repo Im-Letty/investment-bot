@@ -1,6 +1,6 @@
-"""Fixed, inspected official corporate RSS/HTML routes; no requests or AI calls.
+"""Fixed, inspected official corporate discovery routes; no requests or AI calls.
 
-RSS or a fixed HTML index discovers candidates; an original heading, visible date and
+RSS or a fixed source index discovers candidates; an original heading, visible date and
 announcing company are required before a private writing input is returned.
 Coverage is this registered subset, not every Nikkei 225 announcement.
 """
@@ -17,6 +17,13 @@ from official_news_sources import (_agree, _body_text as _original_body_text, _d
                                    _now, _publication, _visible_content)
 from company_news_selection import candidate_order, priority
 from company_news_official_html import FURUKAWA_CONFIG, TOSOH_CONFIG
+from company_news_nintendo import NINTENDO_CONFIG
+from company_news_cyberagent import CYBERAGENT_CONFIG
+from company_news_komatsu import KOMATSU_CONFIG
+from company_news_mitsubishi_corp import MITSUBISHI_CORP_CONFIG
+from company_news_suzuki import SUZUKI_CONFIG
+from company_news_yokohama import YOKOHAMA_CONFIG
+from company_news_kline_mmc import KLINE_CONFIG, MMC_CONFIG
 
 MAX_BYTES = 1_000_000
 MAX_FEED_ITEMS = 120
@@ -83,13 +90,21 @@ SOURCES = {
 }
 SOURCES['古河電気工業'] = dict(FURUKAWA_CONFIG)
 SOURCES['東ソー'] = dict(TOSOH_CONFIG)
+SOURCES['任天堂'] = dict(NINTENDO_CONFIG)
+SOURCES['サイバーエージェント'] = dict(CYBERAGENT_CONFIG)
+SOURCES['小松製作所'] = dict(KOMATSU_CONFIG)
+SOURCES['三菱商事'] = dict(MITSUBISHI_CORP_CONFIG)
+SOURCES['スズキ'] = dict(SUZUKI_CONFIG)
+SOURCES['横浜ゴム'] = dict(YOKOHAMA_CONFIG)
+SOURCES['川崎汽船'] = dict(KLINE_CONFIG)
+SOURCES['三菱マテリアル'] = dict(MMC_CONFIG)
 FEEDS = {label: config['feed'] for label, config in SOURCES.items()}
 
 
 def direct_feed_company_count():
     """The three base RSS issuers plus unique RSS additions, excluding HTML."""
     return 3 + len({config['symbol'] for config in SOURCES.values()
-                    if config.get('discovery_format') != 'html'})
+                    if config.get('discovery_format') in (None, 'rss')})
 
 
 def _compact(value):
@@ -104,6 +119,7 @@ def safe_url(value, source=None, base=None):
     """Only exact registered feeds and original release paths are fetchable."""
     if not isinstance(value, str):
         return None
+    original_value = value
     value = value.strip()  # Bridgestone's advertised RSS links contain edge whitespace.
     if (not value or len(value) > 2048 or '\\' in value
             or any(ord(char) < 33 or ord(char) == 127 for char in value)):
@@ -118,6 +134,9 @@ def safe_url(value, source=None, base=None):
             config = SOURCES[label]
             if parsed.hostname != config['host']:
                 continue
+            if config.get('template') == 'yokohama_html':
+                from company_news_yokohama import safe_url as yokohama_safe_url
+                return yokohama_safe_url(original_value, base) if config == YOKOHAMA_CONFIG else None
             normalized = urlunsplit(('https', config['host'], parsed.path, '', ''))
             full = urlunsplit(('https', config['host'], parsed.path, parsed.query, ''))
             if full == config['feed']:
@@ -157,7 +176,7 @@ def valid_identity(source, catalogue):
             or not isinstance(url, str) or safe_url(url, source['source']) != url or url == config['feed']
             or actor not in config['actors'] or not isinstance(body, str)
             or not MIN_BODY_CHARS <= len(body) <= MAX_BODY_CHARS
-            or not _declared_actor(actor, body)
+            or not _source_declared_actor(config, actor, body)
             or source.get('catalogue_as_of') != provenance['as_of']
             or source.get('catalogue_facts_sha256') != catalogue.facts_sha256
             or source.get('catalogue_source_sha256') != provenance['source_sha256']):
@@ -208,7 +227,28 @@ def parse_feed(payload, source, now, since, catalogue):
     now, since = _window(now, since)
     if not valid_identity(source, catalogue):
         return []
+    if SOURCES[source].get('template') == 'nintendo_rss':
+        from company_news_nintendo import normalize_feed_payload
+        payload = normalize_feed_payload(payload)
+    if SOURCES[source].get('template') == 'suzuki_xml':
+        from company_news_suzuki import parse_index
+        return parse_index(payload, source, now, since, catalogue)
+    if SOURCES[source].get('template') == 'mitsubishi_corp_json':
+        from company_news_mitsubishi_corp import parse_index
+        return parse_index(payload, source, now, since, catalogue)
     if SOURCES[source].get('discovery_format') == 'html':
+        if SOURCES[source].get('template') == 'yokohama_html':
+            from company_news_yokohama import parse_index
+            return parse_index(payload, source, now, since, catalogue)
+        if SOURCES[source].get('template') == 'komatsu_html':
+            from company_news_komatsu import parse_index
+            return parse_index(payload, source, now, since, catalogue)
+        if SOURCES[source].get('template') == 'cyberagent_html':
+            from company_news_cyberagent import parse_index
+            return parse_index(payload, source, now, since, catalogue)
+        if SOURCES[source].get('template') in ('kline_html', 'mmc_html'):
+            from company_news_kline_mmc import parse_index
+            return parse_index(payload, source, now, since, catalogue)
         from company_news_official_html import parse_index
         return parse_index(payload, source, now, since, catalogue)
     text = _decode(payload)
@@ -294,7 +334,7 @@ def _before_contact(children, stop):
     return '\n'.join(_body_text(node, excluded_classes=frozenset({'comp-sns', 'secShare'})) for node in roots)
 
 
-def _declared_actor(actor, body, dateline=''):
+def _declared_actor(actor, body, dateline='', *, allow_alias_parenthetical=False):
     """Require an issuer dateline or a leading announcing subject.
 
     A mention, possessive parent name, footer, or HondaJet brand cannot make
@@ -321,14 +361,45 @@ def _declared_actor(actor, body, dateline=''):
     for line in lines[:5]:
         if re.match(r'^\d{4}(?:年|[-./])|^PDFで見る$', line) or (legal and line.endswith('株式会社')):
             continue
-        prefix = re.escape(actor) + (r'(?:[（(][^（）()]{0,250}[）)])?' if legal else '')
+        prefix = re.escape(actor) + (r'(?:[（(][^（）()]{0,250}[）)])?' if legal or allow_alias_parenthetical else '')
         return bool(re.match(prefix + r'(?:は|が|と(?=[、,\s]|株式会社|有限会社|公益|学校|[A-Z])|、|,|および|及び)', line))
     return False
+
+
+def _source_declared_actor(config, actor, body, dateline=''):
+    """Keep inspected source-specific attribution grammars isolated."""
+    if config.get('template') == 'yokohama_html':
+        from company_news_yokohama import YOKOHAMA_CONFIG, declared_actor
+        return config == YOKOHAMA_CONFIG and declared_actor(actor, body, dateline)
+    komatsu_alias = (config == KOMATSU_CONFIG and actor == 'コマツ'
+                     and config.get('allow_alias_parenthetical') is True)
+    return _declared_actor(actor, body, dateline, allow_alias_parenthetical=komatsu_alias)
 
 
 def _layout(document, config, now=None, expected_url=None):
     """Return heading, visible dateline, narrative and optional original clock."""
     template = config['template']
+    if template == 'yokohama_html':
+        from company_news_yokohama import article_layout
+        return article_layout(document, config, expected_url)
+    if template == 'suzuki_xml':
+        from company_news_suzuki import article_layout
+        return article_layout(document, config, expected_url)
+    if template == 'komatsu_html':
+        from company_news_komatsu import article_layout
+        return article_layout(document, config, expected_url)
+    if template == 'mitsubishi_corp_json':
+        from company_news_mitsubishi_corp import article_layout
+        return article_layout(document, config, expected_url)
+    if template == 'cyberagent_html':
+        from company_news_cyberagent import article_layout
+        return article_layout(document, config, expected_url)
+    if template == 'nintendo_rss':
+        from company_news_nintendo import article_layout
+        return article_layout(document, config, expected_url)
+    if template in ('kline_html', 'mmc_html'):
+        from company_news_kline_mmc import article_layout
+        return article_layout(document, config, expected_url)
     if template in ('furukawa_html', 'tosoh_html'):
         from company_news_official_html import article_layout
         return article_layout(document, config, expected_url)
@@ -513,7 +584,7 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
             return None
     # A parent-hosted page alone never attributes a subsidiary's announcement
     # to the parent. Require the inspected actor in the dateline or narrative.
-    actors = [actor for actor in config['actors'] if _declared_actor(actor, body, _body_text(dateline))]
+    actors = [actor for actor in config['actors'] if _source_declared_actor(config, actor, body, _body_text(dateline))]
     if not actors:
         return None
     actor = actors[0]
@@ -523,8 +594,9 @@ def extract_article(payload, item, final_url, now, since, *, observed_at=None, c
                 'feed_timestamp_role': 'discovery', 'feed_date_fields': dict(fields),
                 'article_published_at': publication['published_at'], 'visible_original_date': _body_text(dateline),
                 'article_original_clock': original_clocks or None}
-    if config.get('discovery_format') == 'html':
-        evidence = {'discovery_format': 'html_index', 'index_url': config['feed'],
+    if config.get('discovery_format') in ('html', 'json', 'xml_custom'):
+        discovery = {'html': 'html_index', 'json': 'json_index', 'xml_custom': 'xml_index'}
+        evidence = {'discovery_format': discovery[config['discovery_format']], 'index_url': config['feed'],
                     'index_date_fields': dict(fields), 'index_timestamp_role': 'discovery',
                     'article_published_at': publication['published_at'],
                     'visible_original_date': _body_text(dateline), 'article_original_clock': original_clocks or None}

@@ -19,6 +19,82 @@ def item(index, ordinal=0):
 
 
 class CompanyCollectionBoundsTests(unittest.TestCase):
+    def test_frozen_membership_is_used_without_reading_a_changed_local_cache(self):
+        from company_news_catalogue import load_catalogue
+        frozen = load_catalogue(now=NOW).snapshot()
+        with patch.object(sources, 'FEEDS', {'PR TIMES': sources.FEEDS['PR TIMES']}), \
+             patch.object(sources, '_download', return_value=(b'fixture', sources.FEEDS['PR TIMES'])), \
+             patch('company_news_catalogue.load_current_snapshot', side_effect=AssertionError('changed local cache')), \
+             patch('company_news_prtimes.parse_feed', return_value=[]) as parse:
+            self.assertEqual(sources.collect_company_articles(NOW, catalogue_snapshot=frozen), [])
+        actual = parse.call_args.args[3]
+        expected = load_catalogue(snapshot=frozen, now=NOW)
+        self.assertEqual(actual.facts_sha256, expected.facts_sha256)
+        self.assertEqual(actual.provenance['source_sha256'], expected.provenance['source_sha256'])
+
+    def test_invalid_explicit_membership_never_falls_back_or_starts_source_get(self):
+        with patch('company_news_catalogue.load_current_snapshot', side_effect=AssertionError('fallback')), \
+             patch.object(sources, '_download', side_effect=AssertionError('source GET')) as download:
+            with self.assertRaises(ValueError):
+                sources.collect_company_articles(NOW, catalogue_snapshot={})
+        download.assert_not_called()
+
+    def test_short_feed_budget_tries_selected_expansion_first_and_rotates_base_tail(self):
+        base = {f'base-{index:03d}': f'https://fixture.example/base/{index}' for index in range(33)}
+        extra = {f'extra-{index:03d}': f'https://fixture.example/extra/{index}' for index in range(127)}
+        feeds = {**base, **extra}
+        reads, queues, clock = [], [], [0.0]
+
+        def download(url, deadline):
+            reads.append((url, deadline))
+            return b'fixture', url
+
+        def short_parallel(values, callback, deadline):
+            if not values:
+                return []
+            # A synthetic three-worker queue finishes nine slow feeds within
+            # the unchanged 30-second feed budget; the rest remain incomplete.
+            queues.append(list(values))
+            result = []
+            for start in range(0, len(values), 3):
+                if clock[0] + sources.REQUEST_SECONDS > deadline:
+                    break
+                result.extend(callback(value) for value in values[start:start + 3])
+                clock[0] += sources.REQUEST_SECONDS
+            return result
+
+        completed_base, completed_extra = set(), set()
+        first_slot = int(NOW.timestamp() // 900)
+        with patch.object(sources, 'FEEDS', feeds), \
+             patch.object(sources.issuer_feeds, 'EXPANSION_CHANNELS', frozenset(extra)), \
+             patch('company_news_catalogue.load_current_snapshot', return_value=object()), \
+             patch.object(sources, '_download', side_effect=download), \
+             patch.object(sources, '_feed_items', return_value=[]), \
+             patch.object(sources, '_parallel', side_effect=short_parallel), \
+             patch.object(sources.time, 'monotonic', side_effect=lambda: clock[0]):
+            for slot in range(first_slot, first_slot + len(base)):
+                clock[0] = 0.0
+                now = datetime.fromtimestamp(slot * 900, sources.JST)
+                report = {}
+                self.assertEqual(sources.collect_company_articles(now, diagnostics=report), [])
+                plan = sources.collection_schedule(now)
+                self.assertEqual(queues[-1], list(plan['feeds']))
+                selected_extra = set(plan['feeds']) & set(extra)
+                checked = {label for label, row in report.items() if row['feed_status'] == 'ok'}
+                self.assertTrue(selected_extra.issubset(checked))
+                self.assertLessEqual(len(queues[-1]), 39)
+                self.assertEqual(len(checked), 9)
+                self.assertTrue(all(report[label]['feed_status'] == 'not_scheduled'
+                                    for label in set(extra) - selected_extra))
+                self.assertTrue(any(row['feed_status'] == 'not_completed' for row in report.values()))
+                completed_base.update(checked & set(base))
+                completed_extra.update(checked & set(extra))
+        self.assertEqual(completed_base, set(base))
+        self.assertEqual(completed_extra, set(extra))
+        self.assertTrue(all(deadline == 30.0 for _, deadline in reads))
+        self.assertEqual((sources.FEED_COLLECTION_SECONDS, sources.COLLECTION_SECONDS,
+                          sources.MAX_CANDIDATES, sources.MAX_ARTICLES), (30, 40, 8, 3))
+
     def test_transport_failures_have_fixed_safe_codes_through_runtime(self):
         from company_news_runtime import _safe_source_diagnostics
         failures = (

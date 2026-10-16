@@ -52,6 +52,7 @@ class CompanyRouteScheduleTests(unittest.TestCase):
         for now in (slot_start, slot_start + 899.999):
             plan = reloaded.select_route_schedule(reordered_base, reordered_extra, now)
             self.assertEqual(plan, first)
+            self.assertEqual(list(plan['feeds']), list(first['feeds']))
         repeated = reloaded.select_route_schedule(self.base, self.extra, slot_start + 33 * 900)
         self.assertEqual(repeated, first)
 
@@ -71,6 +72,43 @@ class CompanyRouteScheduleTests(unittest.TestCase):
         self.assertEqual(plan['coverage']['additional_scheduled_channel_count'], 0)
         self.assertTrue(plan['coverage']['all_registered_routes_scheduled_this_poll'])
         self.assertFalse(plan['coverage']['all_company_announcements_covered'])
+
+    def test_selected_additional_chunk_precedes_the_rotating_base_worker_queue(self):
+        for slot in (100, 101, 132, 133):
+            with self.subTest(slot=slot):
+                plan = schedule.select_route_schedule(self.base, self.extra, slot * 900)
+                labels = list(plan['feeds'])
+                selected = sorted(set(labels) - set(self.base))
+                self.assertEqual(labels[:len(selected)], selected)
+                offset = slot % len(self.base)
+                base = sorted(self.base)
+                self.assertEqual(labels[len(selected):], base[offset:] + base[:offset])
+                self.assertEqual(set(labels), set(self.base) | set(selected))
+
+    def test_short_worker_budget_does_not_make_the_same_base_tail_permanent(self):
+        # Three workers finishing three ten-second waves can return only nine
+        # of the 39 scheduled feeds. This proves queue fairness, not live HTTP.
+        extra = feeds(127, 'extra')
+        base_seen, extra_seen = set(), set()
+        for slot in range(100, 133):
+            plan = schedule.select_route_schedule(self.base, extra, slot * 900)
+            completed_prefix = list(plan['feeds'])[:9]
+            base_seen.update(set(completed_prefix) & set(self.base))
+            extra_seen.update(set(completed_prefix) & set(extra))
+            self.assertEqual(plan['coverage']['additional_limit_per_poll'], 6)
+            self.assertEqual(plan['coverage']['rotation_interval_seconds'], 900)
+            self.assertLessEqual(len(plan['feeds']), 39)
+            self.assertFalse(plan['coverage']['all_company_announcements_covered'])
+        self.assertEqual(base_seen, set(self.base))
+        self.assertEqual(extra_seen, set(extra))
+
+    def test_base_only_queue_rotates_even_when_a_short_poll_sees_only_its_prefix(self):
+        seen = set()
+        for slot in range(100, 133):
+            plan = schedule.select_route_schedule(self.base, {}, slot * 900)
+            self.assertEqual(plan['feeds'], self.base)
+            seen.update(list(plan['feeds'])[:3])
+        self.assertEqual(seen, set(self.base))
 
     def test_single_and_partial_batches_do_not_duplicate_or_drop_routes(self):
         for count in (1, 5, 6, 7, 12, 13, 193, 194):

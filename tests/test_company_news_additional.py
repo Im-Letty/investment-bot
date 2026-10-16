@@ -7,6 +7,7 @@ from datetime import date, datetime
 from html import escape
 import json
 import unittest
+from unittest.mock import patch
 
 import company_news_additional as sources
 
@@ -98,6 +99,14 @@ def article(label, *, title=TITLE, text=None, visible=DAY, clock=STAMP, extra=''
 
 
 class AdditionalSourceTests(unittest.TestCase):
+    def test_direct_rss_count_excludes_html_json_and_custom_xml_routes(self):
+        self.assertEqual(sources.direct_feed_company_count(), 12)
+        excluded = ('html', 'json', 'xml_custom')
+        for number, discovery_format in enumerate(excluded):
+            with patch.dict(sources.SOURCES, {'fictional_non_rss': dict(
+                    symbol='TEST' + str(number), discovery_format=discovery_format)}):
+                self.assertEqual(sources.direct_feed_company_count(), 12)
+
     def setUp(self):
         self.catalogue = Catalogue()
         self.label = 'トヨタ自動車'
@@ -115,10 +124,10 @@ class AdditionalSourceTests(unittest.TestCase):
                                        catalogue=self.catalogue)
 
     def test_all_eight_inspected_templates_produce_catalogue_matched_private_inputs(self):
-        self.assertEqual(sources.direct_feed_company_count(), 11)
+        self.assertEqual(sources.direct_feed_company_count(), 12)
         for label, cfg in sources.SOURCES.items():
-            if cfg['template'] == 'prtimes_group' or cfg.get('discovery_format') == 'html':
-                continue  # The independent distribution route has separate issuer/actor fixtures.
+            if cfg['template'] not in PATHS:
+                continue  # Later source layouts have their own issuer/date fixtures.
             with self.subTest(label=label):
                 record = self.extract(label)
                 self.assertIsNotNone(record)

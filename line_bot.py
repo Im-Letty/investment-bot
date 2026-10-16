@@ -2324,8 +2324,9 @@ def _collect_company_sources(**options):
     from datetime import datetime, timezone
     raw_now = options.get('now')
     catalogue = current_catalogue(now=datetime.fromtimestamp(raw_now, timezone.utc) if raw_now else None)
+    frozen_catalogue = catalogue.snapshot()
     diagnostics = {}
-    articles = collect_company_articles(diagnostics=diagnostics, **options)
+    articles = collect_company_articles(diagnostics=diagnostics, catalogue_snapshot=frozen_catalogue, **options)
     schedule = collection_schedule(raw_now, until=options.get('until'))
     scheduled = set(schedule['feeds'])
     scheduled_healthy = bool(scheduled) and all(isinstance(diagnostics.get(name), dict)
@@ -2344,7 +2345,7 @@ def _collect_company_sources(**options):
             'ready' if articles or readable_feed else 'error',
             'collection_health': 'complete' if healthy else 'partial',
             'scheduled_collection_health': 'complete' if scheduled_healthy else 'partial',
-            'diagnostics': diagnostics, 'catalogue': catalogue.snapshot(),
+            'diagnostics': diagnostics, 'catalogue': frozen_catalogue,
             'coverage': {'universe': 'nikkei225', 'candidate_company_count': len(catalogue.members),
                          'membership_as_of': catalogue.provenance['as_of'],
                          'direct_feed_company_count': direct_feed_company_count(),

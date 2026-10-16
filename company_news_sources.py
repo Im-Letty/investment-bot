@@ -150,6 +150,14 @@ def _download(url, deadline):
     if safe != url:
         raise ValueError("unapproved_source")
     host = urlsplit(safe).hostname
+    # Only this inspected first-party discovery document is JSON. Other
+    # registered feeds and every original article keep their previous MIME
+    # boundaries; a JSON response never becomes a substitute article body.
+    json_discovery = (url == 'https://www.mitsubishicorp.com/jp/ja/data/news/json/list.json'
+                      and any(config.get('template') == 'mitsubishi_corp_json'
+                              and config.get('discovery_format') == 'json'
+                              and config['feed'] == url
+                              for config in additional.SOURCES.values()))
     limit = min(deadline, time.monotonic() + REQUEST_SECONDS)
     if time.monotonic() >= limit:
         raise ValueError("source_time_limit")
@@ -171,7 +179,8 @@ def _download(url, deadline):
                 with session.get(url, allow_redirects=False, stream=True, verify=True,
                                  timeout=(min(3, remaining), min(3, remaining)),
                                  headers={"User-Agent": "CompanyNewsOfficialCollector/1.0",
-                                          "Accept": "text/html,application/xml,application/rss+xml,application/rdf+xml",
+                                          "Accept": ("application/json" if json_discovery else
+                                                     "text/html,application/xml,application/rss+xml,application/rdf+xml"),
                                           "Accept-Encoding": "identity", "Host": host}) as response:
                     if 300 <= response.status_code < 400:
                         raise ValueError("unapproved_redirect")
@@ -188,6 +197,8 @@ def _download(url, deadline):
                                         for config in additional.SOURCES.values())
                     allowed = ({"text/xml", "application/xml", "application/rss+xml", "application/rdf+xml"}
                                if is_feed and not is_html_index else {"text/html", "application/xhtml+xml"})
+                    if json_discovery:
+                        allowed = {"application/json"}
                     if mime not in allowed:
                         raise ValueError("source_content_type")
                     length = response.headers.get("Content-Length")
@@ -426,7 +437,8 @@ def registered_company_symbols():
         row['symbol'] for row in issuer_feeds.SOURCES.values()}
 
 
-def collect_company_articles(now=None, *, since=None, until=None, diagnostics=None, clock=None, exclude_urls=None):
+def collect_company_articles(now=None, *, since=None, until=None, diagnostics=None, clock=None, exclude_urls=None,
+                             catalogue_snapshot=None):
     """Collect up to three verified announcements, defaulting to the last 72h.
 
     A failed feed/body is distinguishable from a successfully checked empty
@@ -444,9 +456,13 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
     else:
         raise ValueError("exclude_urls_requires_strings")
     now = _now(now)
-    from company_news_catalogue import load_current_snapshot
+    from company_news_catalogue import load_current_snapshot, load_catalogue
     from company_news_prtimes import parse_feed, extract_article
-    catalogue = load_current_snapshot(now=now)
+    # The server wrapper freezes its normal refreshed membership once. Use
+    # those same verified bytes for parsing and returned evidence, even if a
+    # different thread refreshes the local membership cache during this call.
+    catalogue = (load_current_snapshot(now=now) if catalogue_snapshot is None else
+                 load_catalogue(snapshot=catalogue_snapshot, now=now))
     if until is not None:
         now = min(now, _now(until))
     if since is None:
@@ -456,6 +472,8 @@ def collect_company_articles(now=None, *, since=None, until=None, diagnostics=No
     deadline = time.monotonic() + COLLECTION_SECONDS
     feed_deadline = min(deadline, time.monotonic() + FEED_COLLECTION_SECONDS)
     schedule = collection_schedule(now)
+    # The pure schedule prioritizes the selected expansion chunk and rotates
+    # the base queue. Preserve that order when submitting the same bounded set.
     active_feeds = schedule['feeds']
     report = {source: {"feed_status": "not_completed", "status": "fetch_incomplete", "candidates": 0,
                       "selected": 0, "completed": 0, "accepted": 0, "errors": []} for source in FEEDS}

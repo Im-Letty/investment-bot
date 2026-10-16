@@ -17,6 +17,9 @@ from daily_news_runtime import BUCKET, StorageUnavailable, SupabaseNewsStorage
 from company_news_additional import (SOURCES as ADDITIONAL_SOURCES,
                                      direct_feed_company_count, valid_identity)
 from company_news_issuer_feeds import SOURCES as ISSUER_SOURCES, match_member
+from company_news_collection_checks import (local_registry as collection_check_registry,
+    context_for_result as collection_result_context, project as project_collection_check,
+    write_once as write_collection_check)
 
 PREFIX = 'company-news/v1'
 # A single collector can persist at most 3 sources per 15-minute poll: 288/day.
@@ -507,6 +510,8 @@ class CompanyNewsRuntime:
         self._candidate_check, self._candidate_day = 0, None
         self._publication_checked = None
         self._publication_error_code = None
+        self._collection_check = {'status': 'not_observed', 'fingerprint': None, 'slot': None}
+        self._collection_check_record = None
         try:
             raw = json.loads(self.cache_path.read_text())
             records = raw if isinstance(raw, list) else raw.get('records', []) if isinstance(raw, dict) else []
@@ -569,6 +574,7 @@ class CompanyNewsRuntime:
     def run_once(self):
         now = self.clock()
         phase = 'storage_check'
+        collection_attempted, check_record = False, None
         try:
             self.storage.ensure_private()
             # Publication restoration is independent of the slower source
@@ -619,7 +625,26 @@ class CompanyNewsRuntime:
                 known_sources = candidate_records(self.storage, now)
                 known = [source['url'] for source in known_sources]
                 phase = 'source_collect'
-                result = self.collector(now=now, exclude_urls=known)
+                check_context = None
+                try:
+                    check_registry = collection_check_registry()
+                except Exception:
+                    check_registry = None
+                started_at = self.clock()
+                collection_attempted = True
+                raw_result = None
+                try:
+                    result = self.collector(now=now, exclude_urls=known)
+                    raw_result = result
+                finally:
+                    finished_at = self.clock()
+                    if check_registry is not None:
+                        try:
+                            check_context = collection_result_context(check_registry, raw_result, reference_at=now)
+                            check_record = project_collection_check(check_context, raw_result,
+                                reference_at=now, started_at=started_at, finished_at=finished_at)
+                        except Exception:
+                            pass
                 with self._lock:
                     self._source_diagnostics = _safe_source_diagnostics(result.get('diagnostics'))
                 sources = result['articles']
@@ -686,6 +711,27 @@ class CompanyNewsRuntime:
                 self._last_error_phase = phase
                 self._last_error_code = (str(error) if isinstance(error, StorageUnavailable)
                     and str(error) in STORAGE_ERROR_CODES else 'runtime_failed')
+        finally:
+            # Optional evidence is independent of publication/cache/queue work.
+            # One bounded immutable write, never an audit-induced source retry.
+            if collection_attempted:
+                try:
+                    status = (write_collection_check(self.storage, check_record, context=check_context)
+                              if check_record is not None else 'unavailable')
+                except Exception:
+                    status = 'unavailable'
+                with self._lock:
+                    self._collection_check_record = deepcopy(check_record)
+                    self._collection_check = {
+                        'status': status,
+                        'fingerprint': check_record['fingerprint'] if check_record is not None else None,
+                        'slot': f'{check_record["day"]}/{check_record["slot"]:02d}' if check_record is not None else None,
+                    }
+
+    def collection_check_snapshot(self):
+        """Private in-memory detail; no reads, collection, claims or reviews."""
+        with self._lock:
+            return {'write': dict(self._collection_check), 'record': deepcopy(self._collection_check_record)}
 
     def snapshot(self):
         with self._lock:
@@ -715,6 +761,7 @@ class CompanyNewsRuntime:
                     'batch_id': canonical_hash(fingerprints) if fingerprints else None,
                     'writer_provider': 'codex_subscription', 'generation_owner': 'external',
                     'source_interval_seconds': 900, 'max_generation_attempts_per_day': 3}
+            result['collection_check'] = dict(self._collection_check)
             return bounded_operational_result(result)
 
     def publication_observation(self):
@@ -724,7 +771,7 @@ class CompanyNewsRuntime:
             result = public_snapshot(deepcopy(self._records), now, self._status,
                 self._checked, storage=self.storage, catalogues_cached_only=True)
             companies = result['companies']
-            return {'read_only_cached': True, 'status': self._status,
+            return bounded_operational_result({'read_only_cached': True, 'status': self._status,
                     'source_status': self._source_status,
                     'checked_at': self._checked,
                     'worker_alive': bool(self._thread and self._thread.is_alive()),
@@ -741,4 +788,5 @@ class CompanyNewsRuntime:
                     'edition_date': result['edition_date'] if companies else None,
                     'valid_until': result['valid_until'] if companies else None,
                     'last_error_phase': self._last_error_phase,
-                    'last_error_code': self._last_error_code}
+                    'last_error_code': self._last_error_code,
+                    'collection_check': dict(self._collection_check)})

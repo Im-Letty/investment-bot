@@ -323,6 +323,34 @@ class CompanyTransportFailoverTests(unittest.TestCase):
             session.get.return_value = response
         return session, response
 
+    def test_json_mime_is_limited_to_the_exact_registered_mitsubishi_discovery(self):
+        feed = 'https://www.mitsubishicorp.com/jp/ja/data/news/json/list.json'
+        original = 'https://www.mitsubishicorp.com/jp/ja/news/release/2026/20260921001.html'
+        config = dict(feed=feed, host='www.mitsubishicorp.com', template='mitsubishi_corp_json',
+                      discovery_format='json', path=r'/jp/ja/news/release/20\d{2}/20\d{9}\.html')
+        for url, mime, discovery_format, accepted in (
+                (feed, 'application/json', 'json', True),
+                (feed, 'text/html', 'json', False),
+                (feed, 'application/json', 'html', False),
+                (original, 'application/json', 'json', False),
+                (URLS['NTT'], 'application/json', 'json', False)):
+            with self.subTest(url=url, mime=mime, format=discovery_format):
+                session, _ = self.session(chunks=[b'{}', b''], headers={'Content-Type': mime})
+                row = dict(config, discovery_format=discovery_format)
+                with patch.dict(sources.additional.SOURCES, {'三菱商事': row}), \
+                     patch.dict(sources.FEEDS, {'三菱商事': feed}), \
+                     patch.object(sources._SOURCE_BACKOFF, 'check', return_value={'blocked': False}), \
+                     patch.object(sources, '_public_addresses', return_value=self.ADDRESSES), \
+                     patch.object(sources.requests, 'Session', return_value=session), \
+                     patch.object(sources, '_PinnedHTTPSAdapter'), \
+                     patch.object(sources.time, 'monotonic', return_value=100):
+                    if accepted:
+                        self.assertEqual(sources._download(url, 140), (b'{}', url))
+                        self.assertEqual(session.get.call_args.kwargs['headers']['Accept'], 'application/json')
+                    else:
+                        with self.assertRaisesRegex(ValueError, '^source_content_type$'):
+                            sources._download(url, 140)
+
     def test_first_connect_read_or_connection_failure_uses_only_second_verified_ip(self):
         for error in (sources.requests.exceptions.ConnectTimeout, sources.requests.exceptions.ReadTimeout,
                       sources.requests.exceptions.ConnectionError):
