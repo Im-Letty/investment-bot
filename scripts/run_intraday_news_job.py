@@ -22,6 +22,7 @@ if __package__ in (None, ""):
 from intraday_news_runtime import JOB_SECONDS, MAX_ATTEMPTS, _safe_cache_reads, run_job as run_intraday
 from news_cache import JST
 from daily_news_runtime import GENERATION_ERRORS, StorageUnavailable, _safe_generation_error
+from news_review_diagnostics import safe_editorial_review_diagnostics
 from scripts.private_news_storage import PrivateNewsStorage
 
 REQUIRED = ("SUPABASE_URL", "SUPABASE_KEY", "GEMINI_API_KEY", "OPENAI_API_KEY")
@@ -70,6 +71,12 @@ class IntradayProgress:
                 self.value[key] = state[key]
         if state.get("last_error") is not None:
             self.value["last_error"] = _safe_error(state["last_error"])
+        diagnostics = safe_editorial_review_diagnostics(state.get("editorial_review_diagnostics")
+            if state.get("last_error") == "isolated_editorial_review_failed" else None)
+        if diagnostics is not None:
+            self.value["editorial_review_diagnostics"] = diagnostics
+        elif "last_error" in state or "editorial_review_diagnostics" in state:
+            self.value.pop("editorial_review_diagnostics", None)
         if isinstance(state.get("source_cache_reads"), dict):
             self.value["source_cache_reads"] = _safe_cache_reads(state["source_cache_reads"])
         observations = state.get("source_cache_observations")
@@ -79,7 +86,13 @@ class IntradayProgress:
                 and 0 <= observations[key] <= 128}
 
     def fields(self):
-        return dict(self.value)
+        value = dict(self.value)
+        raw = value.pop("editorial_review_diagnostics", None)
+        diagnostics = safe_editorial_review_diagnostics(raw
+            if value.get("last_error") == "isolated_editorial_review_failed" else None)
+        if diagnostics is not None:
+            value["editorial_review_diagnostics"] = diagnostics
+        return value
 
 
 def _number(value):
@@ -169,6 +182,11 @@ def safe_report(result, started, finished, check_only, progress=None):
         value["api_review_cost"] = _cost(result["api_review_cost"])
     if result.get("last_error") is not None:
         value["last_error"] = _safe_error(result["last_error"])
+    raw = value.pop("editorial_review_diagnostics", None)
+    diagnostics = safe_editorial_review_diagnostics(raw
+        if value.get("last_error") == "isolated_editorial_review_failed" else None)
+    if diagnostics is not None:
+        value["editorial_review_diagnostics"] = diagnostics
     value["job_started_at"] = datetime.fromtimestamp(started, JST).isoformat(timespec="seconds")
     original_start = result.get("job_started_at")
     if isinstance(original_start, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}", original_start):

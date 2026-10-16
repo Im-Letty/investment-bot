@@ -17,6 +17,7 @@ from news_cache import OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_d
 from official_news_cache import MAX_READ_SECONDS, OfficialNewsCache, _article, _diagnostics as source_diagnostics
 from website_news import collect_website_sources
 from official_boj_facts import valid_policy_fact_record
+from news_review_diagnostics import safe_editorial_review_diagnostics
 
 PREFIX = "intraday-news/v1"
 MAX_ATTEMPTS = 3
@@ -413,8 +414,13 @@ def run_job(storage, generator=None, *, cache=None, clock=time.time, preflight=N
             receipt = _receipt(issue, normalized, now)
         except Exception as error:
             code = _safe_generation_error(error)
-            save_result(result_path, {**claim, "attempt": slot, "status": "review_failed", "last_error": code})
-            return outcome("review_failed", last_error=code)
+            diagnostics = safe_editorial_review_diagnostics(getattr(error, "editorial_review_diagnostics", None)
+                if code == "isolated_editorial_review_failed" else None)
+            fields = {"last_error": code}
+            if diagnostics is not None:
+                fields["editorial_review_diagnostics"] = diagnostics
+            save_result(result_path, {**claim, "attempt": slot, "status": "review_failed", **fields})
+            return outcome("review_failed", **fields)
         # Both approvals are complete. A storage timeout now cannot truthfully
         # be called a review failure: the remote write may already have won.
         report.update(reviewed_at=normalized["reviewed_at"], review_receipt=receipt,

@@ -11,6 +11,7 @@ from scripts import run_intraday_news_job as job
 from scripts.run_private_news_job import DeadlineUnavailable, JobDeadline
 from daily_news_runtime import StorageUnavailable
 from tests.test_intraday_news_runtime import Cache, Storage, at, source
+from tests.test_news_review_diagnostics import diagnostic
 
 
 class IntradayJobTests(unittest.TestCase):
@@ -30,6 +31,31 @@ class IntradayJobTests(unittest.TestCase):
         self.assertFalse(value["publication_allowed"])
         self.assertEqual(value["target_mode"], "soft")
         self.assertNotIn("test-config-only", output.getvalue())
+
+    def test_editorial_projection_survives_progress_and_safe_report_without_private_text(self):
+        value = diagnostic()
+        value['raw_response'] = 'private reviewer prose'
+        value['rounds'][0]['openai']['issues'] = ['private reviewer prose']
+        state = {'status': 'review_failed', 'phase': 'generation', 'attempt_count': 1,
+                 'last_error': 'isolated_editorial_review_failed', 'editorial_review_diagnostics': value}
+        progress = job.IntradayProgress()
+        progress.record(state)
+        self.assertEqual(progress.fields()['editorial_review_diagnostics'], diagnostic())
+        fields = progress.fields()
+        fields['editorial_review_diagnostics']['rounds'].clear()
+        self.assertEqual(progress.fields()['editorial_review_diagnostics'], diagnostic())
+        report = job.safe_report(state, at(), at() + 1, False, progress)
+        self.assertEqual(report['editorial_review_diagnostics'], diagnostic())
+        self.assertEqual(report['status'], 'review_failed')
+        self.assertEqual(report['published_count'], 0)
+        self.assertNotIn('private reviewer prose', json.dumps(report))
+        for changes in ({'last_error': 'openai_unavailable'}, {'last_error': None},
+                        {'editorial_review_diagnostics': {'raw': 'private response'}}):
+            self.assertNotIn('editorial_review_diagnostics',
+                job.safe_report({**state, **changes}, at(), at() + 1, False))
+        # A later unrelated deadline must not carry the former editorial result.
+        progress.value['last_error'] = 'job_deadline'
+        self.assertNotIn('editorial_review_diagnostics', progress.fields())
 
     def test_check_needs_only_storage_and_never_restores_or_checks_login(self):
         env = {key: value for key, value in self.env.items() if key not in ("GEMINI_API_KEY", "OPENAI_API_KEY")}

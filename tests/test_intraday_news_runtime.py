@@ -2,6 +2,7 @@ from copy import deepcopy
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta
 from hashlib import sha256
+import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from threading import Barrier, Lock
@@ -15,6 +16,7 @@ from morning_news_window import JST
 from news_copy_policy import COPY_LENGTH_POLICY
 from news_cache import OFFICIAL_NEWS_SOURCES
 from news_review_receipt import completed_receipt
+from tests.test_news_review_diagnostics import diagnostic
 
 
 def at(hour=12, minute=0, day="2026-10-11"):
@@ -140,6 +142,50 @@ class IntradayTests(unittest.TestCase):
         self.assertEqual(self.job()["status"], "no_new_release")
         self.generator.assert_not_called()
         self.assertEqual(len([path for path in self.storage.created if "/attempt-" in path]), 1)
+
+    def test_editorial_diagnostics_survive_failure_without_receipt_publication_or_retry(self):
+        from scripts.run_intraday_news_job import IntradayProgress, safe_report
+        error = ValueError('isolated_editorial_review_failed')
+        value = diagnostic()
+        value['raw_response'] = 'private reviewer prose'
+        error.editorial_review_diagnostics = value
+        self.generator.side_effect = error
+        progress = IntradayProgress()
+        report = self.job(progress=progress.record)
+        stored = self.storage.values[f'{PREFIX}/days/2026-10-11/result-1.json']
+        self.assertEqual(report['status'], 'review_failed')
+        self.assertEqual(report['editorial_review_diagnostics'], diagnostic())
+        self.assertEqual(stored['editorial_review_diagnostics'], diagnostic())
+        self.assertEqual(progress.fields()['editorial_review_diagnostics'], diagnostic())
+        fixed = safe_report(report, self.now, self.now + 1, False, progress)
+        self.assertEqual(fixed['editorial_review_diagnostics'], diagnostic())
+        self.assertEqual(report['published_count'], 0)
+        self.assertNotIn('review_receipt', report)
+        self.assertNotIn('review_receipt', stored)
+        self.assertNotIn('private reviewer prose', json.dumps(stored))
+        self.assertFalse(any(path.startswith('days/') for path in self.storage.created))
+        report['editorial_review_diagnostics']['rounds'].clear()
+        self.assertEqual(stored['editorial_review_diagnostics'], diagnostic())
+        repeated = self.job()
+        self.assertEqual(repeated['status'], 'no_new_release')
+        self.assertNotIn('editorial_review_diagnostics', repeated)
+        self.generator.assert_called_once()
+        self.assertEqual(len([path for path in self.storage.created if '/attempt-' in path]), 1)
+
+    def test_missing_invalid_or_unrelated_error_diagnostics_are_not_invented(self):
+        for code, value in [('isolated_editorial_review_failed', None),
+                            ('isolated_editorial_review_failed', {'raw': 'private response'}),
+                            ('openai_unavailable', diagnostic())]:
+            with self.subTest(code=code):
+                error = ValueError(code)
+                error.editorial_review_diagnostics = value
+                generator = Mock(side_effect=error)
+                storage = Storage()
+                report = self.job(storage=storage, cache=Cache([source()]), generator=generator)
+                self.assertEqual(report['status'], 'review_failed')
+                self.assertNotIn('editorial_review_diagnostics', report)
+                self.assertNotIn('editorial_review_diagnostics',
+                    storage.values[f'{PREFIX}/days/2026-10-11/result-1.json'])
 
     def test_two_workers_selecting_same_story_buy_only_one_reviewed_draft(self):
         barrier = Barrier(2)
