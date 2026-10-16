@@ -647,6 +647,70 @@
           "grant_summary": "毎年7月の贈呈予定（発送・到着日は未確認）"
         }
       ]
+    },
+    {
+      "code": "1332",
+      "symbol": "1332.T",
+      "name": "ニッスイ",
+      "category": "食品",
+      "aliases": "Nissui ニッスイ 日本水産 水産 自社商品",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.nissui.co.jp/ir/share_information/shareholders_benefit.html",
+            "title": "ニッスイ 株主優待",
+            "security_code": "1332",
+            "issuer_name": "ニッスイ",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T06:46:36.912987+09:00",
+            "evidence_path": "evidence/reviewed-1332-observation-bundle-20261017.json",
+            "evidence_sha256": "c067389290694bc60f6a2af2be83d1f6fefc57f388975444532fe26d8008af07"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-source-research-plus-root-independent-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度本文と株式案内、保存済みQA/IR確認範囲、案内終了の区別を照合。動的IR一覧の全改廃・分割・同一URL差替えの不存在は未証明。future_changes review flag means this bounded review completed, never comprehensive future guarantee.",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年3月31日（現行制度の基準日。次回の購入締切日は未確認）",
+          "conditions": "株数に該当する1区分の自社商品を受け取る制度です。単元は100株ですが、優待には500株以上が必要です。確認した現行本文に保有期間・長期保有優遇・同一株主番号・連続名簿回数の条件は記載されていません。3,000円相当と5,000円相当の区分を合算しません。",
+          "use": "自社商品の贈呈です。申請や商品選択の要否、商品の内訳・賞味期限は今回の制度本文で未確認です。",
+          "delivery": "会社は7月中の発送を予定しています。株主名簿上の住所または常任代理人の住所へ届けられ、届け先や日時の指定はできません。住所変更は口座のある証券会社で手続きが必要です。具体的な次回発送日・到着日や発送済みの確認ではありません。",
+          "grant_summary": "7月中の発送予定（次回の具体日・到着日は未確認）",
+          "tiers": [
+            {
+              "id": "products-500",
+              "shares_min": 500,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "確認した現行制度本文に保有期間条件の記載なし",
+              "reward": "自社商品3,000円相当",
+              "conditions": "3月31日の株主名簿で500株以上1,000株未満。次回の購入締切日は未確認。"
+            },
+            {
+              "id": "products-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "確認した現行制度本文に保有期間条件の記載なし",
+              "reward": "自社商品5,000円相当",
+              "conditions": "3月31日の株主名簿で1,000株以上。500〜999株の区分との合算はしません。次回の購入締切日は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 17 companies: the original nine reviewed on 2026-09-25 and
-eight additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 18 companies: the original nine reviewed on 2026-09-25 and
+nine additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -126,7 +126,7 @@ future changes absent.
   grant; do not confuse a 100-share trading lot with benefit eligibility. The
   historical programme start is not used as today's tier effective date.
 
-All seven additions have `schedules: []`. Programme facts and delivery information
+These seven additions have `schedules: []`. Programme facts and delivery information
 appear under next-date-unconfirmed; purchase deadlines are not fabricated. The
 original 12 explicit schedules and all original nine deep values remain intact.
 
@@ -196,3 +196,21 @@ October 2026 game invitation closed applications in June; current programme and
 recent amendment coverage remain unconfirmed, with a separate public-link hold.
 Neither company is added as an active programme, and an expired invitation is not
 classified as abolition or evidence that the company offers no other benefit.
+
+## Latest bounded addition on 2026-10-17
+
+- 1332 Nissui: https://www.nissui.co.jp/ir/share_information/shareholders_benefit.html
+  All two current tiers: 500–999 shares receive company products worth 3,000 yen;
+  1,000+ shares receive 5,000 yen equivalent. The recurring record date is March 31
+  and dispatch is planned during July. The 100-share trading lot is separate from
+  the 500-share benefit minimum. Holding duration is unstated; tiers are not added
+  together. The ended paper-guide enclosure does not mean programme abolition.
+  No purchase deadline, exact dispatch/arrival date or expiry is inferred.
+  General/link terms and IR-specific disclaimers were read separately; only short
+  independently written facts are stored. Dynamic IR history and every future
+  amendment remain unverified. Existing 17 programmes and 12 schedules are intact.
+
+The same batch leaves 2137 Hikari Heights Varus as programme/explicit-absence
+unconfirmed. 2058 Higashimaru has an observed programme, but its usage-conditions
+page returned 429; host access is held and it is not published. These are distinct
+from an explicit statement that no benefit exists.
