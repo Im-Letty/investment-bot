@@ -1,4 +1,5 @@
 from datetime import date, datetime, timezone
+from copy import deepcopy
 from hashlib import sha256
 from html import escape
 from io import BytesIO
@@ -76,6 +77,126 @@ def mof_html(body=MOF_BODY, published='2026-10-02'):
             '<div class="content"><div class="content-inner"><div class="unique-block"><section><div class="inner">'
             f'<p>【質疑応答】</p><div><p>{escape(body)}</p></div></div></section></div></div></div>'
             '<footer>Footer and navigation are not evidence</footer></main></body></html>').encode()
+
+
+SHORT_NOW = datetime(2026, 10, 16, 7, 20, tzinfo=sources.JST)
+SHORT_URL = 'https://www.mof.go.jp/policy/international_policy/convention/dialogue/20261013112134.html'
+SHORT_TITLE = '架空の財務大臣の意見交換'
+# Fictional one-paragraph template; neither copied nor expanded public prose.
+SHORT_BODY = ('2026年10月15日\n財務大臣は架空の代表と経済政策について意見交換を行いました。'
+              'これは取得検証のための架空の資料であり、実際の会談や政策を示すものではありません。')
+
+
+def short_mof_item():
+    return {'source': '財務省', 'url': SHORT_URL, 'title': SHORT_TITLE,
+            **sources._publication('2026-10-15T15:00:00+09:00')}
+
+
+def short_mof_html(*, body=SHORT_BODY, title=SHORT_TITLE, url=SHORT_URL, day='2026-10-15'):
+    return (f'<html><head><meta charset="utf-8"><meta name="date" content="{day}">'
+            f'<link rel="canonical" href="{url}"><meta property="og:url" content="{url}"></head>'
+            f'<body><main id="main"><h1>{escape(title)}</h1><div class="unique-block">'
+            f'<p>{escape(body)}</p></div><input hidden></main></body></html>').encode()
+
+
+def short_mof_record():
+    row = sources._extract_article(short_mof_html(), short_mof_item(), SHORT_URL, SHORT_NOW,
+                                   date(2026, 10, 15), observed_at=SHORT_NOW.timestamp())
+    row['body_verified_at'] = SHORT_NOW.timestamp()
+    return row
+
+
+class MofShortSourceTests(unittest.TestCase):
+    def extract(self, payload, *, item=None, final=SHORT_URL):
+        return sources._extract_article(payload, item or short_mof_item(), final, SHORT_NOW,
+                                       date(2026, 10, 15), observed_at=SHORT_NOW.timestamp())
+
+    def test_exact_visible_paragraph_preserves_real_body_hash_date_and_cms_identity(self):
+        from official_mof_short_source import SHORT_EVIDENCE, valid_short_mof_record
+        row = self.extract(short_mof_html())
+        self.assertIsNotNone(row)
+        self.assertTrue(valid_short_mof_record(row))
+        self.assertTrue(80 <= len(SHORT_BODY) <= 99)
+        self.assertEqual(row['body'], SHORT_BODY)
+        self.assertEqual(row['body_sha256'], sha256(SHORT_BODY.encode()).hexdigest())
+        self.assertNotIn('html_sha256', row[SHORT_EVIDENCE])
+        self.assertEqual(row[SHORT_EVIDENCE]['verified_content_sha256'],
+                         sources.content_proof_sha256(row[SHORT_EVIDENCE]))
+        self.assertEqual(row['published_date'], '2026-10-15')
+        self.assertEqual(row['published_at'], short_mof_item()['published_at'])
+        self.assertIn('20261013', row['url'], 'CMS identity is not substituted for publication date')
+
+    def test_short_html_identity_visibility_dates_and_template_must_all_agree(self):
+        original = short_mof_html()
+        for payload in (
+                short_mof_html(title='別の架空発表'), short_mof_html(day='2026-10-14'),
+                short_mof_html(url=SHORT_URL + '?source=bad'),
+                original.replace(b'<link rel="canonical"', b'<link rel="alternate"'),
+                original.replace(b'property="og:url"', b'property="unknown"'),
+                original.replace(b'<p>', b'<p hidden>'),
+                original.replace(b'<h1>', b'<h1 aria-hidden="true">'),
+                original.replace(b'<main id="main">', b'<main id="main" style="display:none">'),
+                original.replace(b'<p>', b'<section><p>').replace(b'</p>', b'</p></section>'),
+                original.replace(b'</p>', b'</p><p>extra</p>'),
+                original.replace(b'<p>', b'<p><a href="/other">').replace(b'</p>', b'</a></p>'),
+                original.replace(b'<h1>', b'<h1>extra</h1><h1>'),
+                original.replace(b'</main>', b'</main><main id="main"></main>'),
+                short_mof_html(body=SHORT_TITLE * 4), short_mof_html(body=' '),
+                short_mof_html(body='2026年10月15日\n' + '資料一覧。関連リンク。' * 7)):
+            with self.subTest(payload_hash=sha256(payload).hexdigest()):
+                self.assertIsNone(self.extract(payload))
+        self.assertIsNone(self.extract(original, final=SHORT_URL.replace('112134', '112135')))
+
+    def test_photograph_and_alt_are_not_a_source_body_or_an_extra_download(self):
+        payload = short_mof_html().replace(b'<p>', b'<p><img src="photo.jpg" alt="photo only"><br>')
+        with patch.object(sources, '_download') as download:
+            row = self.extract(payload)
+        self.assertEqual(row['body'], SHORT_BODY)
+        self.assertEqual(row['body_sha256'], sha256(SHORT_BODY.encode()).hexdigest())
+        download.assert_not_called()
+        image_only = short_mof_html(body='').replace(b'<p>',
+            ('<p><img src="photo.jpg" alt="' + SHORT_BODY + '">').encode())
+        self.assertIsNone(self.extract(image_only))
+
+    def test_other_host_path_and_missing_rss_date_cannot_borrow_short_scope(self):
+        for url in (SHORT_URL.replace('www.mof.go.jp', 'www.stat.go.jp'),
+                    'https://www.mof.go.jp/public_relations/conference/my20261015.html',
+                    SHORT_URL.replace('dialogue/', 'ordinary/')):
+            with self.subTest(url=url):
+                item = {**short_mof_item(), 'url': url}
+                self.assertIsNone(self.extract(short_mof_html(url=url), item=item, final=url))
+        item = deepcopy(short_mof_item())
+        item.pop('published_at')
+        item.pop('published_date')
+        self.assertIsNone(self.extract(short_mof_html(), item=item))
+
+    def test_generic_hundred_character_minimum_is_unchanged(self):
+        self.assertEqual(sources.MIN_BODY_CHARS, 100)
+        item = {**short_mof_item(), 'url': MOF_URL, 'title': '財務大臣の記者会見'}
+        self.assertIsNone(self.extract(mof_html(body=SHORT_BODY, published='2026-10-15'),
+                                       item=item, final=MOF_URL))
+
+    def test_registered_supporting_pdf_parent_cannot_bypass_its_required_evidence(self):
+        from urllib.parse import urlsplit
+        with patch.dict(sources.MOF_SUPPORTING_PDFS, {urlsplit(SHORT_URL).path: {'path': '/fixture.pdf'}}), \
+                patch.object(sources, '_download') as download:
+            self.assertIsNone(self.extract(short_mof_html()))
+        download.assert_not_called()
+
+    def test_bounded_collection_marks_verified_short_source_complete(self):
+        fixtures = {sources.FEEDS['財務省']: feed([rss_item(SHORT_URL, SHORT_TITLE, '2026-10-15T15:00:00+09:00')]),
+                    SHORT_URL: short_mof_html()}
+        report = {}
+        with patch.object(sources, '_download', side_effect=lambda url, _: (fixtures[url], url)) as get:
+            rows = sources.collect_official_articles(SHORT_NOW, since=date(2026, 10, 15),
+                enabled_sources=['財務省'], clock=lambda: SHORT_NOW.timestamp(), diagnostics=report)
+        self.assertEqual(get.call_count, 2)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0]['body_verified_at'], SHORT_NOW.timestamp())
+        self.assertEqual(report['財務省']['status'], 'collected')
+        self.assertEqual(report['財務省']['errors'], [])
+        for name in ('candidates', 'selected', 'completed', 'accepted', 'returned'):
+            self.assertEqual(report['財務省'][name], 1)
 
 
 def boj_html(title=BOJ_TITLE, dateline='2026年10月2日\n日本銀行', body=BOJ_BODY):

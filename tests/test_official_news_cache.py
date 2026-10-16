@@ -87,6 +87,90 @@ class CacheTests(unittest.TestCase):
         return OfficialNewsCache(self.storage, collector or self.collector,
                                  clock=lambda: self.now, read_seconds=read_seconds)
 
+    def test_verified_short_mof_provenance_survives_immutable_cache_roundtrip(self):
+        from official_mof_short_source import SHORT_EVIDENCE, valid_short_mof_record
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW
+        self.now = SHORT_NOW.timestamp()
+        self.rows = [short_mof_record()]
+        self.cache().collect(self.now)
+        before = deepcopy(self.storage.values)
+        restored = self.cache().snapshot(self.now)
+        self.assertEqual(restored['articles'][0]['body'], self.rows[0]['body'])
+        self.assertEqual(restored['articles'][0]['body_sha256'], self.rows[0]['body_sha256'])
+        self.assertEqual(restored['articles'][0][SHORT_EVIDENCE], self.rows[0][SHORT_EVIDENCE])
+        self.assertTrue(valid_short_mof_record(restored['articles'][0]))
+        self.assertEqual(self.storage.values, before)
+        self.assertEqual(self.collector.call_count, 1)
+
+    def test_short_scope_or_proof_alone_never_bypasses_cache_minimum(self):
+        from official_news_cache import _article
+        from official_mof_short_source import SHORT_EVIDENCE
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW
+        original = short_mof_record()
+        invalid = []
+        for key in ('source_scope', SHORT_EVIDENCE, 'published_at'):
+            row = deepcopy(original)
+            del row[key]
+            invalid.append(row)
+        row = deepcopy(original)
+        row['body'] += '追加して百字を超えても既存のproofは使えません。'
+        row['body_sha256'] = sha256(row['body'].encode()).hexdigest()
+        invalid.append(row)
+        for row in invalid:
+            with self.subTest(fields=sorted(row)):
+                with self.assertRaisesRegex(ValueError, '^invalid_source_cache_article$'):
+                    _article(row, SHORT_NOW.timestamp())
+
+    def test_mutated_private_short_proof_and_source_are_rejected_on_restore(self):
+        from official_mof_short_source import SHORT_EVIDENCE
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW
+        self.now = SHORT_NOW.timestamp()
+        self.rows = [short_mof_record()]
+        self.cache().collect(self.now)
+        original = deepcopy(self.storage.values)
+        key = next(key for key in self.storage.values if '/versions/' in key and key.endswith('.json'))
+        for mutate in (
+                lambda row: row[SHORT_EVIDENCE].update(body_sha256='0' * 64),
+                lambda row: row[SHORT_EVIDENCE].update(published_date='2026-10-13'),
+                lambda row: row.update(title=row['title'] + '改変'),
+                lambda row: row.update(source='金融庁')):
+            self.storage.values = deepcopy(original)
+            mutate(self.storage.values[key]['article'])
+            with self.assertRaisesRegex(ValueError, '^invalid_source_cache_article$'):
+                self.cache().snapshot(self.now)
+
+    def test_short_page_decoration_does_not_create_revision_but_body_change_does(self):
+        import official_news_sources as sources
+        from official_news_cache import _article, _version
+        from datetime import date
+        from tests.test_official_news_sources import (short_mof_html, short_mof_item,
+                                                     SHORT_NOW, SHORT_URL, SHORT_BODY)
+        def version(payload):
+            row = sources._extract_article(payload, short_mof_item(), SHORT_URL, SHORT_NOW,
+                                           date(2026, 10, 15), observed_at=SHORT_NOW.timestamp())
+            row['body_verified_at'] = SHORT_NOW.timestamp()
+            return _version(_article(row, SHORT_NOW.timestamp()))
+        original = short_mof_html()
+        decorated = original.replace(b'<head>', b'<head><!-- changing decoration -->').replace(
+            b'<p>', b'<p><img src="different-photo.jpg" alt="different photo"><br>')
+        self.assertNotEqual(sha256(original).hexdigest(), sha256(decorated).hexdigest())
+        self.assertEqual(version(original), version(decorated))
+        changed = short_mof_html(body=SHORT_BODY.replace('架空の代表', '架空の相手'))
+        self.assertNotEqual(version(original), version(changed))
+
+    def test_required_pdf_parent_cannot_be_restored_as_a_short_cache_record(self):
+        import official_news_sources as sources
+        from official_news_cache import _article
+        from official_mof_short_source import MOF_SUPPORTING_PDFS
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW, SHORT_URL
+        from urllib.parse import urlsplit
+        row = short_mof_record()
+        self.assertIs(sources.MOF_SUPPORTING_PDFS, MOF_SUPPORTING_PDFS)
+        self.assertEqual(_article(row, SHORT_NOW.timestamp())['body'], row['body'])
+        with patch.dict(sources.MOF_SUPPORTING_PDFS, {urlsplit(SHORT_URL).path: {'path': '/fixture.pdf'}}):
+            with self.assertRaisesRegex(ValueError, '^invalid_source_cache_article$'):
+                _article(row, SHORT_NOW.timestamp())
+
     def test_all_day_poll_never_creates_generation_claim_or_edition(self):
         cache = self.cache()
         for hour in (0, 6, 12, 23):

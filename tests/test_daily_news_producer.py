@@ -43,6 +43,90 @@ def openai_response(value=None):
 
 
 class ProducerTests(unittest.TestCase):
+    def test_verified_short_mof_reaches_generator_without_padding_or_public_proof_fields(self):
+        from morning_news_window import morning_window
+        from official_mof_short_source import SHORT_EVIDENCE
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW
+        row, now = short_mof_record(), SHORT_NOW.timestamp() + 10 * 60
+        original = copy.deepcopy(row)
+        window = morning_window(now)
+        clean = news_producer._official_articles([row], window, now)
+        self.assertEqual(clean[0]['body'], row['body'])
+        self.assertEqual(clean[0][SHORT_EVIDENCE], row[SHORT_EVIDENCE])
+        value = {'headline': '架空の発表を確認', 'summary': '内容を確認しました。',
+                 'articles': [{'index': 0, 'headline': '架空の会談', 'summary': '架空の資料を説明します。'}]}
+        issue = build_issue(value, [row], now, source_window=window, copy_length_policy=COPY_LENGTH_POLICY)
+        for ref in issue['article_refs'] + issue['article_summaries']:
+            self.assertNotIn(SHORT_EVIDENCE, ref)
+            self.assertNotIn('source_scope', ref)
+            self.assertEqual(ref['published_date'], '2026-10-15')
+            self.assertEqual(ref['body_sha256'], row['body_sha256'])
+        self.assertEqual(row, original)
+
+    def test_invalid_short_proof_is_rejected_at_generator_even_with_rehashed_body(self):
+        from morning_news_window import morning_window
+        from official_mof_short_source import SHORT_EVIDENCE
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW
+        now = SHORT_NOW.timestamp() + 10 * 60
+        original = short_mof_record()
+        for change in ('marker_only', 'rehashed_body', 'title', 'date', 'other_path', 'oversize_marked'):
+            row = copy.deepcopy(original)
+            if change == 'marker_only':
+                del row[SHORT_EVIDENCE]
+            elif change == 'rehashed_body':
+                row['body'] = row['body'].replace('架空の代表', '架空の相手')
+                row['body_sha256'] = sha256(row['body'].encode()).hexdigest()
+            elif change == 'title':
+                row['title'] += '別件'
+            elif change == 'date':
+                row['published_date'] = '2026-10-13'
+            elif change == 'other_path':
+                row['url'] = row['evidence_url'] = 'https://www.mof.go.jp/public_relations/conference/my20261015.html'
+                row[SHORT_EVIDENCE]['canonical_url'] = row['url']
+            else:
+                row['body'] += '長く改変した本文でも従来の証拠は再利用できません。'
+                row['body_sha256'] = sha256(row['body'].encode()).hexdigest()
+            with self.subTest(change=change):
+                with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+                    news_producer._official_articles([row], morning_window(now), now)
+
+    def test_previous_day_mof_candidates_cannot_enter_intraday_window(self):
+        from intraday_news_runtime import intraday_window
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW
+        now = SHORT_NOW.replace(hour=11, minute=45).timestamp()
+        row = short_mof_record()
+        row['body_verified_at'] = now
+        for identity in ('20261013104336', '20261014103034', '20261013112134'):
+            value = copy.deepcopy(row)
+            value['url'] = value['evidence_url'] = row['url'].replace('20261013112134', identity)
+            value['short_html_evidence']['canonical_url'] = value['url']
+            with self.subTest(identity=identity):
+                with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+                    news_producer._official_articles([value], intraday_window(now), now)
+
+    def test_model_article_schema_cannot_supply_private_short_scope_or_proof(self):
+        from isolated_news_producer import _article_common
+        from tests.test_official_news_sources import short_mof_record
+        source = {**short_mof_record(), 'index': 0}
+        draft = {'index': 0, 'headline': '架空の発表', 'summary': '架空の説明',
+                 'facts': [{'text': '架空の事実', 'evidence_ids': ['0:0']}] * 2}
+        for key, value in (('source_scope', source['source_scope']),
+                           ('short_html_evidence', source['short_html_evidence'])):
+            with self.subTest(field=key):
+                with self.assertRaisesRegex(GenerationError, '^isolated_article_schema$'):
+                    _article_common({**draft, key: value}, source)
+
+    def test_required_pdf_parent_cannot_enter_generator_via_short_source_proof(self):
+        import official_news_sources as sources
+        from morning_news_window import morning_window
+        from tests.test_official_news_sources import short_mof_record, SHORT_NOW, SHORT_URL
+        from urllib.parse import urlsplit
+        row, now = short_mof_record(), SHORT_NOW.timestamp() + 10 * 60
+        self.assertEqual(len(news_producer._official_articles([row], morning_window(now), now)), 1)
+        with patch.dict(sources.MOF_SUPPORTING_PDFS, {urlsplit(SHORT_URL).path: {'path': '/fixture.pdf'}}):
+            with self.assertRaisesRegex(GenerationError, '^invalid_official_article$'):
+                news_producer._official_articles([row], morning_window(now), now)
+
     def test_flexible_policy_is_selected_by_code_not_draft_and_survives_normalization(self):
         value = draft(1)
         value.update(summary='要' * 330, copy_length_policy=COPY_LENGTH_POLICY)

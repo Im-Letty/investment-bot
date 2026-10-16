@@ -17,6 +17,7 @@ from morning_news_window import JST, MAX_ARTICLES, _number, _verified_article
 from news_cache import OFFICIAL_NEWS_SOURCES
 from official_boj_facts import valid_policy_fact_record
 from official_news_sources import HOSTS, _article_path, _safe_url, valid_fsa_record
+from official_mof_short_source import SCOPE as MOF_SHORT_SCOPE, SHORT_EVIDENCE, valid_short_mof_record
 
 PREFIX = "official-sources/v1"
 POLL_SECONDS = 15 * 60
@@ -30,7 +31,8 @@ _FIELDS = ("source", "url", "title", "body_sha256", "published_date", "published
            "publication_precision", "body_verified_at", "observed_at", "evidence_url",
            "source_scope", "supporting_documents", "publication_evidence",
            "event_date", "event_date_kind", "page_metadata_date",
-           "policy_rate_percent", "original_body_sha256", "source_adapter_scope", "attachments_verified")
+           "policy_rate_percent", "original_body_sha256", "source_adapter_scope", "attachments_verified",
+           SHORT_EVIDENCE)
 _ERRORS = frozenset(("unapproved_source", "source_time_limit", "unapproved_redirect",
     "source_unavailable", "source_content_type", "source_size_limit", "source_size_or_time_limit",
     "source_redirect_limit", "invalid_source_bytes", "unsupported_source_encoding",
@@ -106,8 +108,11 @@ def _stored_diagnostics(value):
 
 
 def _article(value, now):
+    short = valid_short_mof_record(value)
+    marked_short = isinstance(value, dict) and (value.get('source_scope') == MOF_SHORT_SCOPE or SHORT_EVIDENCE in value)
     if (not _verified_article(value) or value.get("source") not in OFFICIAL_NEWS_SOURCES
-            or not 100 <= len(value["body"]) <= 30_000 or len(value["title"]) > 1000
+            or not (short or not marked_short and 100 <= len(value["body"]) <= 30_000)
+            or len(value["title"]) > 1000
             or value["body_verified_at"] > now or _safe_url(value["url"]) != value["url"]
             or HOSTS.get(urlsplit(value["url"]).hostname) != value["source"]
             or not _article_path(urlsplit(value["url"]).hostname, urlsplit(value["url"]).path)):

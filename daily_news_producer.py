@@ -18,6 +18,7 @@ from news_cache import JST, _validated_digest
 from news_copy_policy import MONEY_DISPLAY_INSTRUCTION, summary_bounds
 from daily_news_sources import collect_articles
 from official_news_sources import _safe_url as _official_url
+from official_mof_short_source import SCOPE as MOF_SHORT_SCOPE, SHORT_EVIDENCE, valid_short_mof_record
 from urllib.parse import urlsplit
 from uuid import uuid4
 
@@ -516,11 +517,13 @@ def _official_articles(articles, window, now):
         except (TypeError, ValueError):
             raise GenerationError('invalid_official_article') from None
         evidence = _official_url(row.get('evidence_url'))
+        short = valid_short_mof_record(row)
+        marked_short = row.get('source_scope') == MOF_SHORT_SCOPE or SHORT_EVIDENCE in row
         if (not isinstance(source, str) or source not in OFFICIAL_SOURCES or not url or not evidence
                 or urlsplit(url).hostname != OFFICIAL_SOURCES[source]
                 or urlsplit(evidence).hostname != OFFICIAL_SOURCES[source]
                 or not isinstance(row.get('title'), str) or not 1 <= len(row['title'].strip()) <= 1000
-                or not isinstance(body, str) or not 100 <= len(body) <= 30000
+                or not isinstance(body, str) or not (short or not marked_short and 100 <= len(body) <= 30000)
                 or row.get('body_sha256') != sha256(body.encode('utf-8')).hexdigest()
                 or row['published_date'] != published_day.isoformat()
                 or not _positive_time(verified) or verified > window.get('snapshot_at', window['cutoff_at']) or verified > now

@@ -23,6 +23,8 @@ import requests
 from daily_news_sources import (JST, _Document, _PinnedHTTPSAdapter, _public_ip,
                                 _parallel, _jsonld)
 import official_fsa_source as fsa_source
+from official_mof_short_source import (MOF_SUPPORTING_PDFS, SCOPE as MOF_SHORT_SCOPE, SHORT_EVIDENCE,
+                                     content_proof_sha256, short_body_details, valid_short_mof_record)
 
 FEEDS = {
     "総務省統計局": "https://www.stat.go.jp/whatsnew/news.rdf",
@@ -32,24 +34,6 @@ FEEDS = {
 }
 HOSTS = {"www.stat.go.jp": "総務省統計局", "www.mof.go.jp": "財務省", "www.boj.or.jp": "日本銀行",
          "www.fsa.go.jp": "金融庁"}
-# Individually inspected parent/attachment pairs, not a general PDF crawler.
-# The parent supplies publication metadata; the PDF's signing date is separate.
-MOF_SUPPORTING_PDFS = {
-    "/policy/international_policy/convention/dialogue/20260925182123.html": {
-        "path": "/policy/international_policy/convention/dialogue/JointStrategicFinancingMemorandumofCooperation.pdf",
-        "title": "Japan-Australia Joint Strategic Financing Memorandum of Cooperation",
-        "document_date": "2026-10-02",
-        "signature": "Signed in duplicate at the Australian Embassy, Tokyo on 2 October 2026.",
-        "allow_empty_password_pdf": True,
-    },
-    "/policy/international_policy/convention/dialogue/20260925182036.html": {
-        "path": "/policy/international_policy/convention/dialogue/JP_MoU.pdf",
-        "title": "日本財務省と豪州財務省が代表する豪州政府との間の日豪財務大臣対話に関する協力覚書",
-        "document_date": "2026-10-05",
-        "signature": "本覚書は、2026年10月5日に東京において、英語により2通作成された。",
-        "allow_empty_password_pdf": True,
-    },
-}
 MAX_BYTES = 2_000_000
 MAX_BODY_CHARS = 30_000
 # Official statistical points can be shorter than a newspaper article (the
@@ -752,6 +736,54 @@ def valid_fsa_record(value):
                 and re.search(r"/" + stamp + r"(?:_[a-z0-9]+|[a-z]+)?\.html$", urlsplit(url).path))
 
 
+def _short_mof_record(document, main, headings, body_node, body, item, original, final,
+                      now, since, observed_at):
+    """Read the inspected one-paragraph MOF dialogue release without padding."""
+    if (original != final or urlsplit(original).path in MOF_SUPPORTING_PDFS
+            or item.get('source') != '財務省'
+            or not {'published_at', 'published_date', 'publication_precision'}.issubset(item)
+            or len(headings) != 1
+            or _compact(_body_text(headings[0])) != _compact(item['title'])
+            or not _visible_content(main) or not _visible_subtree(headings[0])
+            or not _visible_subtree(body_node)):
+        return None
+    mains = [node for node in document.nodes if node.tag == 'main' and node.attrs.get('id') == 'main']
+    bodies = [node for node in document.nodes if 'unique-block' in node.attrs.get('class', '').split()
+              and _descends(node, main)]
+    children = [node for node in body_node.children if not isinstance(node, str)]
+    if (len(mains) != 1 or len(bodies) != 1 or len(children) != 1 or children[0].tag != 'p'
+            or any(isinstance(node, str) and node.strip() for node in body_node.children)
+            or _body_text(children[0]) != body
+            # Photographs/alt text do not enter _body_text or satisfy any
+            # narrative requirement. They are never fetched as evidence.
+            or any(node.tag not in ('div', 'p', 'span', 'br', 'strong', 'b', 'em', 'i', 'abbr', 'img')
+                   for node in document.nodes if _descends(node, body_node))):
+        return None
+    canonical = [node.attrs.get('href') for node in document.nodes if node.tag == 'link'
+                 and 'canonical' in node.attrs.get('rel', '').lower().split()]
+    declared = [node.attrs.get('content') for node in document.nodes if node.tag == 'meta'
+                and node.attrs.get('property', '').lower() == 'og:url']
+    if (canonical != [original] or declared != [original]):
+        return None
+    publication = _agree([item, _html_date(document, body)])
+    if publication is None or not _in_window(publication, now, since):
+        return None
+    details = short_body_details(body, item['title'], publication['published_date'])
+    if details is None:
+        return None
+    body_hash = sha256(body.encode()).hexdigest()
+    record = {'source': '財務省', 'title': item['title'], 'url': original, 'evidence_url': final,
+              'body': body, 'body_sha256': body_hash, 'observed_at': observed_at,
+              **publication, 'source_scope': MOF_SHORT_SCOPE, SHORT_EVIDENCE: {
+                  'version': 1,
+                  'title_sha256': sha256(item['title'].encode()).hexdigest(), 'body_sha256': body_hash,
+                  'published_date': publication['published_date'], 'published_at': publication['published_at'],
+                  'publication_precision': publication['publication_precision'], 'canonical_url': original,
+                  'narrative_characters': details['narrative_characters']}}
+    record[SHORT_EVIDENCE]['verified_content_sha256'] = content_proof_sha256(record[SHORT_EVIDENCE])
+    return record if valid_short_mof_record(record) else None
+
+
 def _mof_supporting_body(record, document, body_node, payload_size, deadline):
     """Require the registered full PDF and preserve the parent's identity/date."""
     specification = MOF_SUPPORTING_PDFS.get(urlsplit(record["url"]).path)
@@ -859,6 +891,9 @@ def _extract_article(payload, item, final_url, now, since, *, observed_at, deadl
         r"/policy/international_policy/reference/balance_of_payments/preliminary/pg[12]\d{3}(?:0[1-9]|1[0-2])\.htm",
         urlsplit(final).path) else frozenset())
     body = _body_text(body_node, excluded_classes=boj_nonbody_classes, excluded_tags=nonbody_tags)
+    if host == 'www.mof.go.jp' and len(body) < MIN_BODY_CHARS:
+        return _short_mof_record(document, main, headings, body_node, body, item, original, final,
+                                 now, since, observed_at)
     if not MIN_BODY_CHARS <= len(body) <= MAX_BODY_CHARS:
         return None
     content = [node for node in document.nodes if node.tag in ("p", "table", "dl", "ul", "ol")
