@@ -1,0 +1,495 @@
+{
+  "schema_version": 1,
+  "checked_at_jst": "2026-10-17T03:25:25+09:00",
+  "scope": "three_free_official_programme_pages_and_actual_footer_conditions_bounded_review",
+  "motherlist_proof": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/saved-universe-3797-candidate.json",
+    "sha256": "d6b3a6845d5e1828aeae5d8b6dfa24639d9cb27b8274a06a3da2537516a99f8c",
+    "company_count": 3797,
+    "all_exchange_identity_freshness_on_today_verified": false
+  },
+  "official_discovery_and_change_queries": 10,
+  "unique_HTML_URLs_requested": 9,
+  "successful_HTML_pages": 8,
+  "cache_miss_policy_URLs": 1,
+  "terminal_HTTP_requests": 0,
+  "PDF_body_reads": 0,
+  "image_or_original_table_or_long_text_reproductions": 0,
+  "accounts_keys_paid_services_external_contact": 0,
+  "refusal_bypass_or_guessed_URLs": 0,
+  "source_raw_bytes_saved": false,
+  "source_raw_hash_not_invented": true,
+  "R_ledger_settings_writes": 0,
+  "independent_fact_candidates": [
+    "2590",
+    "2809"
+  ],
+  "conditional_homepage_citation_candidate": [],
+  "explicit_link_condition_holds": [
+    "2811"
+  ],
+  "items": [
+    {
+      "identity": {
+        "code": "2590",
+        "name": "ダイドーグループホールディングス",
+        "symbol": "2590.T",
+        "primary_exchange": "Tokyo",
+        "primary_market": "プライム（内国株式）",
+        "identity_as_of": "2026-09-30",
+        "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+      },
+      "issuer_body_name": "ダイドーグループホールディングス株式会社",
+      "identity_check": {
+        "official_name_matches_saved_issuer": true,
+        "official_code_evidence": {
+          "url": "https://holdings.dydo.co.jp/ir/stock/info.html",
+          "code": "2590",
+          "scope": "official_search_result_only",
+          "body_opened": false
+        }
+      },
+      "body_source": {
+        "url": "https://holdings.dydo.co.jp/ir/stock/dividend.html",
+        "title": "株主還元",
+        "evidence_line_ranges": [
+          [
+            189,
+            247
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "today",
+        "status": "read",
+        "discovery": "official_search_or_observed_anchor",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "programme_status": "active_official_current_page_verified",
+      "announcement_date": null,
+      "page_updated_on": null,
+      "core_benefit": {
+        "shares_minimum": 200,
+        "shares_maximum": null,
+        "holding_months_minimum": 6,
+        "same_shareholder_number_required": true,
+        "record_month_day": "01-20",
+        "required_previous_record_month_day": "07-20",
+        "required_half_year_records": 2,
+        "continuous_holding_through_period_required": true,
+        "entire_disposal_and_repurchase_disqualifies": true,
+        "grants_per_year": 1,
+        "reward_kind": "group_products",
+        "yen_equivalent_per_grant": 6000,
+        "shipping_timing": "June_late",
+        "shipping_change": {
+          "effective_year": 2026,
+          "previous_timing": "April_middle",
+          "current_timing": "June_late",
+          "basis": "explicit_current_programme_page_note",
+          "separate_original_change_notice_not_read": true
+        }
+      },
+      "anniversary_benefit": {
+        "qualifying_years": 5,
+        "one_time_only": true,
+        "same_shareholder_number_required": true,
+        "consecutive_half_year_records_minimum": 11,
+        "consecutive_half_year_records_maximum": 12,
+        "minimum_shares_until_2024_01_record": 100,
+        "minimum_shares_from_2024_07_20": 200,
+        "record_month_days": [
+          "01-20",
+          "07-20"
+        ],
+        "qualification_record_month": 7,
+        "delivery_month": 10,
+        "yen_value_not_stated": true,
+        "current_table_2026_qualification_month": "2026-07",
+        "current_table_2026_delivery_month": "2026-10",
+        "annual_recurring_anniversary_reward_inferred": false
+      },
+      "additional_privilege": {
+        "kind": "discounted_group_product_sales",
+        "eligibility": "all_shareholders",
+        "record_month_days": [
+          "01-20",
+          "07-20"
+        ],
+        "minimum_holding_period_requirement": "none_stated_as_no_year_limit",
+        "precise_discount_rate": "not_stated"
+      },
+      "terms_source": {
+        "url": "https://holdings.dydo.co.jp/terms/",
+        "title": "ご利用規約",
+        "evidence_line_ranges": [
+          [
+            156,
+            195
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "yesterday",
+        "status": "read",
+        "discovery": "actual_programme_footer_link",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "source_use_assessment": {
+        "independent_numeric_facts_and_original_short_description_only": true,
+        "original_tables_images_logos_long_text_excluded": true,
+        "general_copyright_clause_not_treated_as_blanket_fact_use_ban": true,
+        "express_public_reuse_license_claimed": false,
+        "legal_permission_guaranteed": false,
+        "copyright_republication_and_secondary_use_restriction_read": true,
+        "link_in_principle_allowed": true,
+        "homepage_URL_link_requested": true,
+        "deep_source_URL_used_for_internal_evidence_only_unless_root_resolves_citation": true,
+        "homepage_link_condition_satisfied_by_public_url": true,
+        "independent_fact_reuse_expressly_banned_in_reviewed_terms": false
+      },
+      "publication_candidate": "independent_fact_review_with_observed_official_homepage_citation",
+      "ready_for_root_independent_fact_review": true,
+      "citation_condition_required": true,
+      "preferred_public_source_link": "https://holdings.dydo.co.jp/",
+      "source_hold": false,
+      "unresolved_conditions": [],
+      "future_calendar_dates_generated": false,
+      "actual_delivery_verified": false,
+      "limited_change_review": {
+        "current_page_shipping_change_found": true,
+        "primary_search_recent_change_check_performed": true,
+        "entire_IR_feed_or_all_PDFs_reviewed": false,
+        "absence_of_other_changes_claimed": false
+      },
+      "draft_short_description_ja": "200株以上を同じ株主番号で半年以上継続保有すると、年1回6,000円相当のグループ商品が対象になります。発送時期は2026年から6月下旬へ変更。5年保有の記念品は1回限りの別制度です。",
+      "unconfirmed_ja": [
+        "制度発表日・ページ更新日は未確認。確認日時と区別する。",
+        "次回の実際の発送完了や記念品の円換算額は未確認。",
+        "優待価格販売と無料の商品贈呈、記念品を一つの年額へ合算しない。"
+      ],
+      "internal_source_url": "https://holdings.dydo.co.jp/ir/stock/dividend.html",
+      "public_url": "https://holdings.dydo.co.jp/",
+      "public_homepage_observation": {
+        "url": "https://holdings.dydo.co.jp/",
+        "title": "ダイドーグループホールディングス株式会社",
+        "observation_at_jst": "2026-10-17T03:25:25+09:00",
+        "status": "read",
+        "discovery": "actual_programme_page_issuer_home_anchor_clicked",
+        "observed_parent_url": "https://holdings.dydo.co.jp/ir/stock/dividend.html",
+        "guessed_url": false,
+        "source_bytes_sha256_available": false
+      },
+      "public_note_ja": "会社のリンク方針に合わせ、公開出典は公式トップページへ案内します。数値を確認した制度ページは内部の検証記録に保持します。原文・写真・表は転載しません。",
+      "root_citation_resolution": "Root authorized original factual text with homepage citation after distinguishing content reproduction restrictions from independent numeric facts."
+    },
+    {
+      "identity": {
+        "code": "2811",
+        "name": "カゴメ",
+        "symbol": "2811.T",
+        "primary_exchange": "Tokyo",
+        "primary_market": "プライム（内国株式）",
+        "identity_as_of": "2026-09-30",
+        "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+      },
+      "issuer_body_name": "カゴメ株式会社",
+      "identity_check": {
+        "official_name_matches_saved_issuer": true,
+        "official_code_evidence": {
+          "url": "https://www.kagome.co.jp/company/ir/stock/infomation/",
+          "code": "2811",
+          "scope": "official_search_result_only",
+          "body_opened": false
+        }
+      },
+      "body_source": {
+        "url": "https://www.kagome.co.jp/company/ir/fan/yutai/",
+        "title": "株主優待",
+        "evidence_line_ranges": [
+          [
+            219,
+            292
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "today",
+        "status": "read",
+        "discovery": "official_search_or_observed_anchor",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "programme_status": "active_verified_for_2026_record_cycle",
+      "announcement_date": null,
+      "page_updated_on": null,
+      "target_record_date": "2026-06-30",
+      "record_month_day": "06-30",
+      "required_previous_record": "previous_December_end",
+      "same_shareholder_number_required": true,
+      "holding_months_minimum": 6,
+      "consecutive_required_half_year_records": 2,
+      "grants_per_year": 1,
+      "base_tiers": [
+        {
+          "shares_minimum": 100,
+          "shares_maximum_exclusive": 1000,
+          "reward_kind": "company_products",
+          "yen_equivalent": 2000
+        },
+        {
+          "shares_minimum": 1000,
+          "shares_maximum_exclusive": null,
+          "reward_kind": "company_products",
+          "yen_equivalent": 6000
+        }
+      ],
+      "delivery_announced_date": "2026-10-15",
+      "actual_delivery_verified": false,
+      "delivery_cycle_2027_verified": false,
+      "anniversary_source": {
+        "url": "https://www.kagome.co.jp/company/ir/fan/shareholder/",
+        "title": "株主10年記念品",
+        "evidence_line_ranges": [
+          [
+            219,
+            279
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "today",
+        "status": "read",
+        "discovery": "official_search_or_observed_anchor",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "anniversary_benefit": {
+        "qualifying_years": 10,
+        "one_time_only": true,
+        "same_shareholder_number_and_continuous_registration_required": true,
+        "minimum_shares_not_independently_stated_in_anniversary_page": true,
+        "yen_value_not_stated": true,
+        "current_2026_initial_registration_range": "2015-07 through 2016-06-end",
+        "current_2026_qualification_month": "2026-06",
+        "current_2026_delivery_month": "2026-10",
+        "not_an_annual_bonus_after_tenth_year": true
+      },
+      "terms_source": {
+        "url": "https://www.kagome.co.jp/info/siteguide/",
+        "title": "ご利用ガイド",
+        "evidence_line_ranges": [
+          [
+            109,
+            122
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "6 days ago",
+        "status": "read",
+        "discovery": "actual_programme_footer_link",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "source_use_assessment": {
+        "independent_numeric_facts_and_original_short_description_only": true,
+        "original_tables_images_logos_long_text_excluded": true,
+        "general_copyright_clause_not_treated_as_blanket_fact_use_ban": true,
+        "express_public_reuse_license_claimed": false,
+        "legal_permission_guaranteed": false,
+        "copyright_lawful_use_exception_read": true,
+        "link_requires_prior_contact_and_consent": true,
+        "no_contact_or_consent_requested": true
+      },
+      "publication_candidate": "hold_for_explicit_link_condition",
+      "ready_for_root_independent_fact_review": false,
+      "source_hold": true,
+      "hold_reasons": [
+        "source_link_requires_prior_contact_and_consent"
+      ],
+      "limited_change_review": {
+        "current_2026_page_and_current_anniversary_page_reviewed": true,
+        "historic_2018_twice_yearly_smaller_tiers_not_carried_forward": true,
+        "old_2025_coupon_deadline_extension_not_current": true,
+        "entire_IR_feed_or_all_PDFs_reviewed": false,
+        "absence_of_other_changes_claimed": false
+      },
+      "future_calendar_dates_generated": false,
+      "unconfirmed_ja": [
+        "2026年度の品目・お届け日を2027年度へ繰り越さない。",
+        "一部の古い資料にある年2回・1,000円/3,000円は現在の確認値に使わない。",
+        "リンク条件が明示されているため、その条件を満たしていない状態で本番出典リンクを追加しない。独立事実すべての利用が禁止されたとの一般化はしない。"
+      ],
+      "internal_source_url": "https://www.kagome.co.jp/company/ir/fan/yutai/",
+      "public_url": null
+    },
+    {
+      "identity": {
+        "code": "2809",
+        "name": "キユーピー",
+        "symbol": "2809.T",
+        "primary_exchange": "Tokyo",
+        "primary_market": "プライム（内国株式）",
+        "identity_as_of": "2026-09-30",
+        "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+      },
+      "issuer_body_name": "キユーピー株式会社",
+      "identity_check": {
+        "official_name_matches_saved_issuer": true,
+        "official_code_evidence": {
+          "url": "https://www.kewpie.com/ir/",
+          "code": "2809",
+          "scope": "official_search_result_only",
+          "body_opened": false
+        }
+      },
+      "body_source": {
+        "url": "https://lp.kewpie.com/ir/stocks-information/benefit/",
+        "title": "株主優待情報",
+        "evidence_line_ranges": [
+          [
+            191,
+            277
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "4 days ago",
+        "status": "read",
+        "discovery": "official_search_or_observed_anchor",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "programme_status": "active_explicit_2026_record_and_2027_delivery_verified",
+      "announcement_date": null,
+      "page_updated_on": null,
+      "record_month_day": "11-30",
+      "target_record_date": "2026-11-30",
+      "grants_per_year": 1,
+      "minimum_shares": 100,
+      "minimum_holding_months": 6,
+      "same_shareholder_number_required": true,
+      "half_year_membership_dates": [
+        "05-31",
+        "11-30"
+      ],
+      "half_year_consecutive_records_minimum": 2,
+      "tiers": [
+        {
+          "shares_minimum": 100,
+          "shares_maximum_exclusive": 500,
+          "holding_months_minimum": 6,
+          "holding_months_maximum_exclusive": 36,
+          "reward_kind": "group_products",
+          "yen_equivalent": 1000
+        },
+        {
+          "shares_minimum": 100,
+          "shares_maximum_exclusive": 500,
+          "holding_months_minimum": 36,
+          "holding_months_maximum_exclusive": null,
+          "reward_kind": "group_products",
+          "yen_equivalent": 1500
+        },
+        {
+          "shares_minimum": 500,
+          "shares_maximum_exclusive": null,
+          "holding_months_minimum": 6,
+          "holding_months_maximum_exclusive": 36,
+          "reward_kind": "group_products",
+          "yen_equivalent": 3000
+        },
+        {
+          "shares_minimum": 500,
+          "shares_maximum_exclusive": null,
+          "holding_months_minimum": 36,
+          "holding_months_maximum_exclusive": null,
+          "reward_kind": "group_products",
+          "yen_equivalent": 5000
+        }
+      ],
+      "specific_2026_eligibility": {
+        "six_month_first_registration_on_or_before": "2026-05-31",
+        "three_year_first_registration_on_or_before": "2023-11-30",
+        "three_year_record_count_explicit_in_reviewed_page": false,
+        "three_year_record_count_not_invented": true
+      },
+      "delivery_announced_date": "2027-03-06",
+      "delivery_is_future_plan": true,
+      "actual_delivery_verified": false,
+      "delivery_year_not_inferred_from_shares": true,
+      "prior_2026_March_product_photos_not_republished": true,
+      "redemption_or_application_requirement": "no_application_requirement_stated_for_posted_delivery_cycle",
+      "expiry_for_food_products": "not_confirmed_do_not_infer_coupon_expiry",
+      "failed_footer_policy_url": {
+        "url": "https://lp.kewpie.com/policy/",
+        "status": "web_cache_miss",
+        "retried": false
+      },
+      "terms_source": {
+        "url": "https://www.kewpie.com/policy/",
+        "title": "サイトポリシー",
+        "evidence_line_ranges": [
+          [
+            191,
+            208
+          ],
+          [
+            249,
+            255
+          ]
+        ],
+        "observation_at_jst": "2026-10-17T03:24:56+09:00",
+        "web_crawl_label": "today",
+        "status": "read",
+        "discovery": "independently_observed_official_search_result_not_guessed_host_replacement",
+        "raw_response_sha256_available": false,
+        "source_bytes_saved": false,
+        "free_anonymous_read": true
+      },
+      "source_use_assessment": {
+        "independent_numeric_facts_and_original_short_description_only": true,
+        "original_tables_images_logos_long_text_excluded": true,
+        "general_copyright_clause_not_treated_as_blanket_fact_use_ban": true,
+        "express_public_reuse_license_claimed": false,
+        "legal_permission_guaranteed": false,
+        "copyright_lawful_use_exception_read": true,
+        "normal_link_in_principle_free": true,
+        "source_is_official_website_label_required": true,
+        "LP_specific_additional_restrictions_not_found_in_reviewed_scope": true,
+        "bulk_API_or_automated_republication_license_verified": false
+      },
+      "publication_candidate": "independent_fact_review_with_official_source_link",
+      "ready_for_root_independent_fact_review": true,
+      "source_hold": false,
+      "limited_change_review": {
+        "current_specific_2026_and_2027_page_reviewed": true,
+        "primary_search_recent_change_check_performed": true,
+        "old_2013_three_year_only_transition_not_current": true,
+        "entire_IR_feed_or_all_PDFs_reviewed": false,
+        "absence_of_other_changes_claimed": false
+      },
+      "future_calendar_dates_generated": false,
+      "draft_short_description_ja": "100株以上を半年以上継続保有する株主向けに、年1回グループ商品が届く制度です。株数と継続保有期間により1,000〜5,000円相当。2026年11月末の対象分は2027年3月6日お届け予定と案内されています。",
+      "unconfirmed_ja": [
+        "3年以上の区分について、半年ごとの名簿回数を計算して公式の明示値として追加しない。",
+        "500株を全期間継続していた必要があるかは本文だけで確定しない。",
+        "確認日時を制度発表日や株主名簿登録日と混同しない。"
+      ],
+      "public_url": "https://lp.kewpie.com/ir/stocks-information/benefit/",
+      "internal_source_url": "https://lp.kewpie.com/ir/stocks-information/benefit/",
+      "tiers_are_alternatives_not_additive": true
+    }
+  ],
+  "previous_notes": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/food-additions-2590-2811-2809-factnotes.json",
+    "sha256": "18432fb1ea9dea1a253baf4bf341189c31bfb71a858cd4eacfc57a2e76e9cd83",
+    "status": "preserved_before_root_home_citation_resolution"
+  },
+  "homepage_citation_conditions_resolved": [
+    "2590"
+  ]
+}

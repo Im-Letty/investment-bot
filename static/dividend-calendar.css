@@ -194,7 +194,7 @@
 #knDividendCalendar .bc-detail{margin:18px 0 0;font:400 calc(12px * var(--kn-a-scale,1))/1.9 var(--kn-a-sans,sans-serif);border-top:1px solid var(--dc-line);padding-top:18px}
 #knDividendCalendar .bc-detail dt{font:500 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);margin-top:14px}
 #knDividendCalendar .bc-detail dt:first-child{margin-top:0}
-#knDividendCalendar .bc-detail dd{margin:5px 0 0;overflow-wrap:anywhere}
+#knDividendCalendar .bc-detail dd{margin:5px 0 0;overflow-wrap:anywhere;white-space:pre-line}
 #knDividendCalendar .bc-pending{margin:22px 0;font:400 calc(13px * var(--kn-a-scale,1))/1.8 var(--kn-a-sans,sans-serif);color:var(--dc-muted)}
 #knDividendCalendar .bc-pending>summary{cursor:pointer;min-height:44px;padding:7px 0 10px;border-bottom:1px solid var(--dc-line)}
 #knDividendCalendar .dc-filters{flex-wrap:wrap}

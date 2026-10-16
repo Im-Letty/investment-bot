@@ -1,0 +1,391 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "primary_page_observation_note",
+  "not_original_webpage_bytes": true,
+  "code": "3387",
+  "initial_primary_observation": {
+    "identity": {
+      "code": "3387",
+      "name": "クリエイト・レストランツ・ホールディングス",
+      "symbol": "3387.T",
+      "primary_exchange": "Tokyo",
+      "primary_market": "プライム（内国株式）",
+      "identity_as_of": "2026-09-30",
+      "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+    },
+    "issuer_body_name": "株式会社クリエイト・レストランツ・ホールディングス",
+    "identity_match": "official_issuer_name_matches_saved_exchange_identity",
+    "additional_code_identity_source": {
+      "url": "https://www.createrestaurants.com/ir/stock/procedure/",
+      "evidence_scope": "official_search_result_text_only",
+      "code": "3387",
+      "market": "東京証券取引所プライム市場",
+      "HTML_body_opened": false
+    },
+    "body_source": {
+      "url": "https://www.createrestaurants.com/ir/stock/shareholder/",
+      "title": "株主優待制度のご案内",
+      "observation_at_jst": "2026-10-17T03:21:26+09:00",
+      "evidence_line_ranges": [
+        [
+          109,
+          118
+        ],
+        [
+          134,
+          198
+        ],
+        [
+          237,
+          242
+        ],
+        [
+          256,
+          275
+        ]
+      ],
+      "web_crawl_label": "today",
+      "raw_response_sha256_available": false,
+      "retrieval_method": "web_open_or_click",
+      "free_anonymous_body_read": true,
+      "discovery": "official_domain_search_result"
+    },
+    "programme_status": "active_official_page_verified",
+    "announcement_date": null,
+    "page_updated_on": null,
+    "record_months": [
+      2,
+      8
+    ],
+    "record_day_rule": "month_end",
+    "grants_per_year": 2,
+    "minimum_shares": 100,
+    "base_tiers": [
+      {
+        "shares_minimum": 100,
+        "shares_maximum_exclusive": 200,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 1500
+      },
+      {
+        "shares_minimum": 200,
+        "shares_maximum_exclusive": 300,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 3000
+      },
+      {
+        "shares_minimum": 300,
+        "shares_maximum_exclusive": 400,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 4000
+      },
+      {
+        "shares_minimum": 400,
+        "shares_maximum_exclusive": 500,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 5000
+      },
+      {
+        "shares_minimum": 500,
+        "shares_maximum_exclusive": 800,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 6000
+      },
+      {
+        "shares_minimum": 800,
+        "shares_maximum_exclusive": 1200,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 8000
+      },
+      {
+        "shares_minimum": 1200,
+        "shares_maximum_exclusive": 2000,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 10000
+      },
+      {
+        "shares_minimum": 2000,
+        "shares_maximum_exclusive": 6000,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 14000
+      },
+      {
+        "shares_minimum": 6000,
+        "shares_maximum_exclusive": 12000,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 20000
+      },
+      {
+        "shares_minimum": 12000,
+        "shares_maximum_exclusive": 18000,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 24000
+      },
+      {
+        "shares_minimum": 18000,
+        "shares_maximum_exclusive": null,
+        "reward_kind": "meal_e_ticket",
+        "yen_value_per_grant": 30000
+      }
+    ],
+    "base_holding_duration_requirement": "not_stated_in_basic_record_date_tiers",
+    "long_holding": {
+      "years_minimum": 1,
+      "shares_minimum": 800,
+      "same_shareholder_number_required": true,
+      "consecutive_half_year_record_count_minimum": 3,
+      "record_months": [
+        2,
+        8
+      ],
+      "share_basis": "minimum_number_of_shares_at_last_three_record_dates",
+      "bonus_tiers": [
+        {
+          "shares_minimum": 800,
+          "shares_maximum_exclusive": 6000,
+          "reward_kind": "additional_meal_e_ticket",
+          "yen_value_per_grant": 2000
+        },
+        {
+          "shares_minimum": 6000,
+          "shares_maximum_exclusive": 12000,
+          "reward_kind": "additional_meal_e_ticket",
+          "yen_value_per_grant": 4000
+        },
+        {
+          "shares_minimum": 12000,
+          "shares_maximum_exclusive": 18000,
+          "reward_kind": "additional_meal_e_ticket",
+          "yen_value_per_grant": 6000
+        },
+        {
+          "shares_minimum": 18000,
+          "shares_maximum_exclusive": null,
+          "reward_kind": "additional_meal_e_ticket",
+          "yen_value_per_grant": 8000
+        }
+      ],
+      "bonus_grants_per_year": 2,
+      "interrupted_number_or_any_record_below_800_disqualifies": true
+    },
+    "grant_timing": {
+      "February_record": "May_middle_approximately",
+      "August_record": "November_middle_approximately"
+    },
+    "validity": {
+      "February_record": "through_same_year_November_end",
+      "August_record": "through_following_year_May_end"
+    },
+    "use_limits": {
+      "paper_without_app_usable": true,
+      "some_group_stores_excluded": true,
+      "eat_in_and_store_takeout_only": true,
+      "cash_exchange_or_change": false,
+      "discount_coupon_combination": false,
+      "golf_restaurant_per_person_limit_yen": 2000,
+      "golf_and_restaurant_joint_use_required_at_golf_sites": true,
+      "resale_prohibited": true
+    },
+    "current_and_future_scope": {
+      "current_published_tiers_preserved": true,
+      "future_change_notice_found_in_reviewed_page": false,
+      "no_future_change_is_not_proven": true,
+      "future_calendar_dates_generated": false,
+      "split_date_and_ratio_not_independently_reviewed": true,
+      "old_pre_split_tiers_not_substituted": true
+    },
+    "terms_source": {
+      "url": "https://www.createrestaurants.com/terms/",
+      "title": "このサイトについて",
+      "observation_at_jst": "2026-10-17T03:21:26+09:00",
+      "evidence_line_ranges": [
+        [
+          109,
+          137
+        ]
+      ],
+      "web_crawl_label": "last month",
+      "raw_response_sha256_available": false,
+      "retrieval_method": "web_open_or_click",
+      "free_anonymous_body_read": true,
+      "discovery": "actual_benefit_page_footer_link"
+    },
+    "source_use_assessment": {
+      "copyright_and_lawful_use_clause_read": true,
+      "literal_copy_images_logos_and_original_table_layout_excluded": true,
+      "independent_numeric_facts_with_original_short_description_distinguished": true,
+      "explicit_ban_on_all_independent_fact_use_found": false,
+      "automatic_bulk_collection_license_verified": false,
+      "normal_hyperlink_explicitly_prohibited_in_reviewed_scope": false,
+      "legal_permission_guaranteed": false
+    },
+    "ready_for_root_independent_fact_review": true,
+    "source_hold": false,
+    "draft_short_description_ja": "対象店舗で使う食事優待です。100株の基本分は1回1,500円で、株数に応じて増えます。800株以上を所定の条件で1年以上保有すると追加分があります。紙のままでも使えます。",
+    "limitations_ja": [
+      "制度発表日とページ更新日は未確認。確認日で代用しない。",
+      "将来の基準日は現行の定期制度を基にした予定とし、年別の正式発表と区別する。",
+      "店舗の全件リストや商品・券面画像、原文の表を転載しない。"
+    ]
+  },
+  "bounded_IR_and_amendment_review": {
+    "code": "3387",
+    "issuer": "株式会社クリエイト・レストランツ・ホールディングス",
+    "symbol": "3387.T",
+    "identity": {
+      "catalogue_name": "クリエイト・レストランツ・ホールディングス",
+      "catalogue_as_of": "2026-09-30",
+      "name_matches": true,
+      "supporting_primary_PDF_code": "3387",
+      "supporting_primary_PDF_market": "東証プライム"
+    },
+    "programme_source": "https://www.createrestaurants.com/ir/stock/shareholder/",
+    "programme_recheck": {
+      "minimum_shares": 100,
+      "minimum_ordinary_amount_yen_per_grant": 1500,
+      "record_months": [
+        2,
+        8
+      ],
+      "record_day_rule": "month_end",
+      "grants_per_year": 2,
+      "base_tiers_minimum_shares_and_yen_per_grant": [
+        [
+          100,
+          1500
+        ],
+        [
+          200,
+          3000
+        ],
+        [
+          300,
+          4000
+        ],
+        [
+          400,
+          5000
+        ],
+        [
+          500,
+          6000
+        ],
+        [
+          800,
+          8000
+        ],
+        [
+          1200,
+          10000
+        ],
+        [
+          2000,
+          14000
+        ],
+        [
+          6000,
+          20000
+        ],
+        [
+          12000,
+          24000
+        ],
+        [
+          18000,
+          30000
+        ]
+      ],
+      "long_holding": {
+        "minimum_years": 1,
+        "same_shareholder_number": true,
+        "consecutive_february_august_register_entries_minimum": 3,
+        "shares_minimum_at_each_entry": 800,
+        "tier_basis": "直近3回のうち最少の保有株数",
+        "bonus_tiers_minimum_shares_and_yen_per_grant": [
+          [
+            800,
+            2000
+          ],
+          [
+            6000,
+            4000
+          ],
+          [
+            12000,
+            6000
+          ],
+          [
+            18000,
+            8000
+          ]
+        ],
+        "bonus_grants_per_year": 2
+      },
+      "matches_initial_factnotes": true
+    },
+    "official_IR_list": {
+      "url": "https://www.createrestaurants.com/ir/news/",
+      "discovery": "actual_IR_news_navigation_link_in_programme_page",
+      "newest_visible_announcement_date": "2026-10-16",
+      "oldest_visible_announcement_date": "2025-10-23",
+      "benefit_related_list_entries_observed": [
+        "2026-09-01 利用店舗の拡充",
+        "2026-07-01 合併で新規株主となる方向けの案内",
+        "2026-07-01 利用店舗の拡充",
+        "2026-06-29 一時停止案内",
+        "2026-06-01 利用店舗の拡充",
+        "2026-05-12 発送済み案内",
+        "2026-05-01 利用店舗の拡充",
+        "2026-02-02 一時停止案内",
+        "2025-11-12 発送済み案内",
+        "2025-11-04 利用店舗の拡充"
+      ],
+      "all_listed_documents_bodies_read": false,
+      "new_quantity_change_or_abolition_seen_in_reviewed_scope": false,
+      "older_years_comprehensively_reviewed": false
+    },
+    "additional_confirmed_facts": [
+      {
+        "announcement_date": "2026-07-01",
+        "primary_url": "https://www.createrestaurants.com/wp-content/uploads/2026/07/SFP%E3%83%9B%E3%83%BC%E3%83%AB%E3%83%87%E3%82%A3%E3%83%B3%E3%82%B0%E3%82%B9%E6%A0%AA%E5%BC%8F%E4%BC%9A%E7%A4%BE%E3%81%A8%E3%81%AE%E5%90%88%E4%BD%B5%E3%81%AB%E3%82%88%E3%82%8B%E6%96%B0%E8%A6%8F%E6%A0%AA%E4%B8%BB%E3%81%AE%E7%9A%86%E6%A7%98%E3%81%B8.pdf",
+        "discovery": "actual_link_in_official_IR_list",
+        "PDF_pages_text_checked": [
+          1,
+          2,
+          3
+        ],
+        "facts": [
+          "合併により新規株主になった場合も同社制度を適用",
+          "初回は2026年8月末100株以上を対象とし同年11月中旬発送予定",
+          "旧SFPの保有期間はクリレスの長期保有判定に算入しない",
+          "旧SFP券とクリレス券は合算不可。旧SFP券の対象店は別扱い"
+        ],
+        "future_hypothetical_long_holding_example_not_guaranteed": true
+      },
+      {
+        "announcement_date": "2026-09-01",
+        "primary_url": "https://ssl4.eir-parts.net/doc/3387/tdnet/2879865/00.pdf",
+        "discovery": "actual_link_in_official_IR_list",
+        "PDF_pages_text_checked": [
+          1
+        ],
+        "fact": "特定の高速道路施設内店舗の利用対象拡充を9月1日より案内",
+        "exact_store_list_not_republished": true
+      }
+    ],
+    "usage_scope_conflict": {
+      "unresolved": true,
+      "detail": "9月1日資料に対象として載る施設と、9月30日現在と表示された本文の除外施設に同じ施設名が含まれる。売場/店舗の細分や本文更新状況を今回解消できず、施設全体の利用可否を保証しない",
+      "numeric_reward_tier_conflict_found": false
+    },
+    "limitations": [
+      "基本金額と長期区分は現行本文を採用。古い株式分割前の区分へ置換しない",
+      "個々の対象店舗を網羅・保証しない",
+      "IR一覧タイトルと上記限定資料の照合であり、他の全IR本文内の将来変更を否定しない"
+    ]
+  },
+  "original_note_sha256": {
+    "restaurant-additions-3387-8200-9979-factnotes.json": "f0c42ca2f87e795e1c696eda43833a3b4e33ad5eb22c5b65d04b2ad8a34ec78c",
+    "three-adoptions-current-and-IR-scope-review.json": "1f9b6772ff6b79f43453620e26b2f337fff9854af9834ea25bd7d3d0ee14903f"
+  }
+}

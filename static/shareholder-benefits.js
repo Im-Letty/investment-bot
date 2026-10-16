@@ -19,13 +19,19 @@ function schedulesFor(company){
     seen.add(schedule.date);return true;
   }).map(schedule=>({...company,...schedule})).sort((a,b)=>a.date.localeCompare(b.date));
 }
-function rowsForMonth(month){return programmes.flatMap(schedulesFor).filter(row=>row.date.slice(0,7)===month);}
+function currentProgramme(company,today){
+  if(company.programmeStatus===undefined)return true;
+  const start=company.programmeEffectiveFrom,end=company.programmeEffectiveUntil;
+  return company.programmeStatus==='active'&&(start===null||validDay(start)&&start<=today)&&(end===null||validDay(end)&&end>=today);
+}
+function rowsForMonth(month,today=new Date(Date.now()+9*3600000).toISOString().slice(0,10)){return programmes.filter(company=>currentProgramme(company,today)).flatMap(schedulesFor).filter(row=>row.date.slice(0,7)===month);}
 function monthLabel(value){return value.slice(0,4)+'年'+Number(value.slice(5))+'月';}
 function shortDay(value){return Number(value.slice(5,7))+'/'+Number(value.slice(8));}
 function agendaLabel(value){return shortDay(value)+' '+['日','月','火','水','木','金','土'][new Date(value+'T00:00:00Z').getUTCDay()]+'曜日の予定';}
 function nextRow(company,today){
+  if(!currentProgramme(company,today))return {...company,date:null,record:null,programmeUnconfirmed:true,reward:'現在の優待内容は未確認',shares:'必要株数は未確認',holding:'保有条件は未確認',period:'現在の対象時期は未確認',use:'前回確認した制度の適用期間を過ぎているため、現在の内容は未確認です。',conditions:'最新の会社の優待案内で制度・株数・保有条件を確認してください。',delivery:'現在の付与日程は未確認です。',holdUntil:'次回の保有締切は確認中',grant:'次回の付与時期は確認中',holdExplanation:'現在の保有条件と締切は未確認です。'};
   const dates=schedulesFor(company),next=dates.find(row=>row.date>=today);
-  return next||{...company,date:null,record:null,holdUntil:'次回の保有締切は確認中',grant:'次回の付与時期は確認中',lastConfirmed:dates.length?dates[dates.length-1].date:null};
+  return next||{...company,date:null,record:null,holdUntil:'次回の保有締切は確認中',grant:company.grant||'発送・付与の案内は詳細を確認',lastConfirmed:dates.length?dates[dates.length-1].date:null};
 }
 function create(w,mount,cal){
   const doc=w.document;
@@ -54,8 +60,9 @@ function create(w,mount,cal){
   const pendingMore=btn('もっと見る','dc-more bc-pending-more',()=>{pendingLimit+=5;render();});
   [pendingHeading,pendingBody,pendingMore].forEach(node=>pending.appendChild(node));
   const note=el('p','dc-coverage','カレンダーは購入締切日です。現行制度に基づく予定を含みます。長期保有が必要な優待は、締切当日の購入だけでは対象になりません。空欄は、優待がないという意味ではありません。');
-  [nav,todayButton,layout,pending,note].forEach(node=>mount.appendChild(node));
-  function favorites(){try{const saved=JSON.parse(w.localStorage.getItem('alert_watchlist_v1')||'[]');return new Set(Array.isArray(saved)?saved.map(code=>String(code).normalize('NFKC').toUpperCase().replace(/\.T$/,'')):[]);}catch(_){return new Set();}}
+  const coverage=el('p','bc-coverage dc-coverage','優待制度を'+programmes.length+'社掲載。公式情報を確認して順次追加しています。全社の確認は継続中です。会社ごとに確認日が異なります。');
+  [nav,todayButton,layout,pending,coverage,note].forEach(node=>mount.appendChild(node));
+  function favorites(){try{const saved=JSON.parse(w.localStorage.getItem('alert_watchlist_v1')||'[]');return new Set(Array.isArray(saved)?saved.map(code=>String(code).normalize('NFKC').toUpperCase().replace(/\.(?:T|JP)$/,'')):[]);}catch(_){return new Set();}}
   function sortRows(rows){const saved=favorites();return rows.slice().sort((a,b)=>Number(saved.has(b.code))-Number(saved.has(a.code))||(a.date||'9999').localeCompare(b.date||'9999')||a.code.localeCompare(b.code));}
   function card(row,opened){
     const box=el('details','bc-card dc-disclosure'),summary=el('summary','bc-summary dc-event-summary');
@@ -72,11 +79,11 @@ function create(w,mount,cal){
     [['何がもらえる？',row.use],['保有はいつまで？',row.holdExplanation||'継続保有など会社所定の条件があります。会社の優待案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
     box.appendChild(details);
     if(row.lastConfirmed)box.appendChild(el('p','dc-coverage','前回掲載した締切：'+row.lastConfirmed.replaceAll('-','/')+'。次回の日程は未確認です。'));
-    const verified=dates.label(row.verified,'確認');
+    const verified=dates.label(row.programmeVerified||row.verified,'確認');
     if(verified)box.appendChild(el('p','dc-coverage bc-verified',verified));
     const link=el('a','dc-help-source','会社の優待案内 ↗');link.href=row.url;link.target='_blank';link.rel='noopener noreferrer';box.appendChild(link);
     const source=row.source,sourceUrl=typeof source==='string'?source:source&&source.url;
-    if(sourceUrl&&sourceUrl!==row.url){const dates=el('a','dc-help-source bc-date-source','購入締切の日程資料 ↗');dates.href=sourceUrl;dates.target='_blank';dates.rel='noopener noreferrer';box.appendChild(dates);}
+    if(sourceUrl&&sourceUrl!==row.url){if(row.programmeVerified&&row.date){const scheduleVerified=dates.label(row.verified,'購入締切日程の確認');if(scheduleVerified)box.appendChild(el('p','dc-coverage bc-schedule-verified',scheduleVerified));}const dateSource=el('a','dc-help-source bc-date-source','購入締切の日程資料 ↗');dateSource.href=sourceUrl;dateSource.target='_blank';dateSource.rel='noopener noreferrer';box.appendChild(dateSource);}
     return box;
   }
   function drawList(target,rows,count){
@@ -89,7 +96,7 @@ function create(w,mount,cal){
     if(!months.includes(month)){month=months[0];reset();}
     prev.disabled=month===months[0];next.disabled=month===months[months.length-1];todayButton.hidden=month===today.slice(0,7);
     label.textContent=monthLabel(month);
-    const events=rowsForMonth(month);
+    const events=rowsForMonth(month,today);
     grid.replaceChildren();dateButtons.clear();
     cal.calendarDays(month,events.map(row=>({date:row.date,precision:'day',kind:'benefit'})),today).forEach(day=>{
       if(!day){grid.appendChild(el('span'));return;}
@@ -104,7 +111,7 @@ function create(w,mount,cal){
     drawList(list,rows,limit);more.hidden=rows.length<=limit;
     if(!rows.length)list.appendChild(el('p','dc-empty','この月・日付の掲載日程はありません。優待がないという意味ではありません。'));
     const unknown=sortRows(programmes.map(company=>nextRow(company,today)).filter(row=>!row.date));
-    pending.hidden=!unknown.length;pendingHeading.textContent='制度を掲載済み・次回の日程は未確認 '+unknown.length+'社';
+    pending.hidden=!unknown.length;pendingHeading.textContent='制度を掲載済み・購入締切日は未確認 '+unknown.length+'社';
     drawList(pendingBody,unknown,pendingLimit);pendingMore.hidden=unknown.length<=pendingLimit;
   }
   if(doc.addEventListener)doc.addEventListener('visibilitychange',()=>{if(!doc.hidden)render();});

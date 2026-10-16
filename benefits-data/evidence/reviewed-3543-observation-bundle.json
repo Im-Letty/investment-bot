@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "primary_page_observation_note",
+  "not_original_webpage_bytes": true,
+  "code": "3543",
+  "initial_primary_observation": {
+    "code": "3543",
+    "symbol": "3543.T",
+    "name": "コメダホールディングス",
+    "catalogue_market": "プライム（内国株式）",
+    "source_url": "https://komeda-holdings.co.jp/benefit/",
+    "source_checked_at_jst": "2026-10-17T03:20:27+09:00",
+    "source_page_dates_observed": [
+      "2023-06-11",
+      "2026-05-13"
+    ],
+    "status_observed": "公式の現行案内に実施制度として掲載",
+    "record_dates": [
+      "02-last",
+      "08-last"
+    ],
+    "benefit_type": "株主用KOMECAへの入金",
+    "annual_grants": 2,
+    "tiers_per_grant": [
+      {
+        "shares_min": 100,
+        "shares_max": 299,
+        "normal_amount_yen": 1000,
+        "normal_minimum_holding_years": null
+      },
+      {
+        "shares_min": 300,
+        "shares_max": null,
+        "normal_amount_yen": 1000,
+        "normal_minimum_holding_years": null
+      }
+    ],
+    "long_holding_addition": {
+      "record_month": 2,
+      "current_shares_min": 300,
+      "minimum_years": 3,
+      "same_shareholder_number": true,
+      "consecutive_february_august_register_entries_min": 7,
+      "additional_amount_yen": 1000,
+      "annual_additions": 1,
+      "continuous_300_shares_requirement": false,
+      "rule_note": "300株は2月末の判定時。過去7回すべて300株保有との読み替えをしない"
+    },
+    "grant_timing": [
+      {
+        "record_month": 2,
+        "load_date": "06-01",
+        "new_card_delivery": "5月中旬"
+      },
+      {
+        "record_month": 8,
+        "load_date": "12-01",
+        "new_card_delivery": "11月下旬"
+      }
+    ],
+    "usage_facts": [
+      "対象店舗で利用。一部店舗は対象外",
+      "同一番号の継続株主には新たなカードを送らず最後の株主用カードへ入金",
+      "譲渡・転売は禁止",
+      "株主用カード再発行の手数料は500円"
+    ],
+    "faq_source": {
+      "url": "https://komeda-holdings.co.jp/ir/pdf/20260513_komeca_faq.pdf",
+      "updated_date": "2026-05-13",
+      "sha256": "b5f157743dadb32fbbffe39306f3b25ef5136382f5293cb7984482988f570570",
+      "relevant_pdf_page_visually_checked": 1,
+      "original_pdf_and_render_retained": false,
+      "fetched_date_jst": "2026-10-17",
+      "checked_at_jst": "2026-10-17T03:20:27+09:00"
+    },
+    "explicit_benefit_money_validity": [
+      {
+        "record_date": "2025-08-31",
+        "valid_from": "2025-12-01",
+        "valid_until": "2026-11-30"
+      },
+      {
+        "record_date": "2026-02-28",
+        "valid_from": "2026-06-01",
+        "valid_until": "2027-05-31"
+      }
+    ],
+    "future_unpublished_validity_rule_created": false,
+    "changes_and_abolition_check": {
+      "abolition_notice_seen_on_read_page": false,
+      "long_holding_start_record_date": "2021-02-last",
+      "all_ir_latest_disclosures_checked": false,
+      "new_future_purchase_deadline_created": false
+    },
+    "terms_review": {
+      "footer_observed": true,
+      "terms_url": "https://komeda-holdings.co.jp/disclaimer/",
+      "source_page_dates_observed": [
+        "2023-06-09",
+        "2023-08-03"
+      ],
+      "scope": "株式会社コメダホールディングスのIR情報・掲載情報・サイト運営に関する免責",
+      "collection_condition": "確認した実footer先に自動取得の包括許可はない。個人限定や事前許可を要する取得条件も今回確認した本文では見られない",
+      "public_display_condition": "確認した実footer先に転載許可の明示も公開/派生利用の包括禁止も確認できず。画像・表・原文は使わず独立した短い制度事実だけ候補とする",
+      "link_condition": "確認した実footer先にリンク事前承諾条件は見られない",
+      "decision": "candidate_independent_facts_only",
+      "explicit_redistribution_license_granted": false,
+      "public_seed_adoption": false
+    },
+    "source_fetched_date_jst": "2026-10-17",
+    "source_fetch_timestamp_precision": "date_only"
+  },
+  "bounded_IR_and_amendment_review": {
+    "code": "3543",
+    "issuer": "株式会社コメダホールディングス",
+    "symbol": "3543.T",
+    "identity": {
+      "catalogue_name": "コメダホールディングス",
+      "catalogue_as_of": "2026-09-30",
+      "name_matches": true,
+      "official_IR_document_links_code": "3543"
+    },
+    "programme_source": "https://komeda-holdings.co.jp/benefit/",
+    "programme_recheck": {
+      "minimum_shares": 100,
+      "ordinary_amount_yen_per_grant": 1000,
+      "ordinary_record_months": [
+        2,
+        8
+      ],
+      "record_day_rule": "month_end",
+      "ordinary_grants_per_year": 2,
+      "tiers_reconfirmed": [
+        {
+          "minimum_shares": 100,
+          "maximum_shares_exclusive": 300,
+          "ordinary_amount_yen": 1000
+        },
+        {
+          "minimum_shares": 300,
+          "maximum_shares_exclusive": null,
+          "ordinary_amount_yen": 1000
+        }
+      ],
+      "long_holding_reconfirmed": {
+        "current_february_shares_minimum": 300,
+        "minimum_years": 3,
+        "same_shareholder_number": true,
+        "consecutive_february_august_register_entries_minimum": 7,
+        "bonus_yen": 1000,
+        "bonus_record_month": 2,
+        "bonus_grants_per_year": 1,
+        "all_past_entries_300_shares_requirement_created": false
+      },
+      "matches_initial_factnotes": true
+    },
+    "official_IR_list": {
+      "url": "https://komeda-holdings.co.jp/news/",
+      "discovery": "actual_IR_news_navigation_link_in_programme_page",
+      "web_text_extraction_showed_list_entries": false,
+      "normal_browser_rendering_checked": true,
+      "selected_scope_label": "最新1年分",
+      "rendered_linked_documents_reviewed": 75,
+      "newest_visible_announcement_date": "2026-10-16",
+      "oldest_visible_announcement_date": "2025-10-21",
+      "benefit_split_abolition_title_matches": 0,
+      "statement": "見えている75件のタイトルでは優待・株式分割・優待廃止を示す項目を確認できず。各PDF本文内に変更記述がないことを証明したものではない",
+      "older_year_tabs_opened": false
+    },
+    "supporting_FAQ": {
+      "url": "https://komeda-holdings.co.jp/ir/pdf/20260513_komeca_faq.pdf",
+      "updated_date": "2026-05-13",
+      "read_in_previous_factnotes_review": true,
+      "new_fetch_this_recheck": false
+    },
+    "limitations": [
+      "最新1年分の表示タイトルの確認であり、全てのIR本文・過去年を網羅しない",
+      "2026年8月権利分の有効期限などFAQで未記載の日付は補わない",
+      "300株を3年間ずっと保有との誤条件に変更しない"
+    ]
+  },
+  "original_note_sha256": {
+    "factnotes-2702-3543-7550.json": "66f90147099b31b0ed18fa0e4e0fd19cbe911e7ad98f2912a1adea206931682a",
+    "three-adoptions-current-and-IR-scope-review.json": "1f9b6772ff6b79f43453620e26b2f337fff9854af9834ea25bd7d3d0ee14903f"
+  }
+}

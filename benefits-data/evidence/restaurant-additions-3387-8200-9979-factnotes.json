@@ -1,0 +1,515 @@
+{
+  "schema_version": 1,
+  "checked_at_jst": "2026-10-17T03:21:26+09:00",
+  "user_scope": "free_official_sources_incremental_expansion",
+  "motherlist_proof": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/saved-universe-3797-candidate.json",
+    "sha256": "d6b3a6845d5e1828aeae5d8b6dfa24639d9cb27b8274a06a3da2537516a99f8c",
+    "company_count": 3797,
+    "latest_all_listings_on_check_day_verified": false
+  },
+  "unique_HTML_pages_opened": 5,
+  "official_search_queries": 8,
+  "external_inquiries": 0,
+  "registrations_or_keys_or_paid_use": 0,
+  "PDF_body_reads": 0,
+  "images_ticket_or_table_reproductions": 0,
+  "raw_source_bytes_saved": false,
+  "response_sha256_not_invented": true,
+  "R_ledger_settings_writes": 0,
+  "facts_only_candidate_count": 2,
+  "source_hold_count": 1,
+  "items": [
+    {
+      "identity": {
+        "code": "3387",
+        "name": "クリエイト・レストランツ・ホールディングス",
+        "symbol": "3387.T",
+        "primary_exchange": "Tokyo",
+        "primary_market": "プライム（内国株式）",
+        "identity_as_of": "2026-09-30",
+        "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+      },
+      "issuer_body_name": "株式会社クリエイト・レストランツ・ホールディングス",
+      "identity_match": "official_issuer_name_matches_saved_exchange_identity",
+      "additional_code_identity_source": {
+        "url": "https://www.createrestaurants.com/ir/stock/procedure/",
+        "evidence_scope": "official_search_result_text_only",
+        "code": "3387",
+        "market": "東京証券取引所プライム市場",
+        "HTML_body_opened": false
+      },
+      "body_source": {
+        "url": "https://www.createrestaurants.com/ir/stock/shareholder/",
+        "title": "株主優待制度のご案内",
+        "observation_at_jst": "2026-10-17T03:21:26+09:00",
+        "evidence_line_ranges": [
+          [
+            109,
+            118
+          ],
+          [
+            134,
+            198
+          ],
+          [
+            237,
+            242
+          ],
+          [
+            256,
+            275
+          ]
+        ],
+        "web_crawl_label": "today",
+        "raw_response_sha256_available": false,
+        "retrieval_method": "web_open_or_click",
+        "free_anonymous_body_read": true,
+        "discovery": "official_domain_search_result"
+      },
+      "programme_status": "active_official_page_verified",
+      "announcement_date": null,
+      "page_updated_on": null,
+      "record_months": [
+        2,
+        8
+      ],
+      "record_day_rule": "month_end",
+      "grants_per_year": 2,
+      "minimum_shares": 100,
+      "base_tiers": [
+        {
+          "shares_minimum": 100,
+          "shares_maximum_exclusive": 200,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 1500
+        },
+        {
+          "shares_minimum": 200,
+          "shares_maximum_exclusive": 300,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 3000
+        },
+        {
+          "shares_minimum": 300,
+          "shares_maximum_exclusive": 400,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 4000
+        },
+        {
+          "shares_minimum": 400,
+          "shares_maximum_exclusive": 500,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 5000
+        },
+        {
+          "shares_minimum": 500,
+          "shares_maximum_exclusive": 800,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 6000
+        },
+        {
+          "shares_minimum": 800,
+          "shares_maximum_exclusive": 1200,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 8000
+        },
+        {
+          "shares_minimum": 1200,
+          "shares_maximum_exclusive": 2000,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 10000
+        },
+        {
+          "shares_minimum": 2000,
+          "shares_maximum_exclusive": 6000,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 14000
+        },
+        {
+          "shares_minimum": 6000,
+          "shares_maximum_exclusive": 12000,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 20000
+        },
+        {
+          "shares_minimum": 12000,
+          "shares_maximum_exclusive": 18000,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 24000
+        },
+        {
+          "shares_minimum": 18000,
+          "shares_maximum_exclusive": null,
+          "reward_kind": "meal_e_ticket",
+          "yen_value_per_grant": 30000
+        }
+      ],
+      "base_holding_duration_requirement": "not_stated_in_basic_record_date_tiers",
+      "long_holding": {
+        "years_minimum": 1,
+        "shares_minimum": 800,
+        "same_shareholder_number_required": true,
+        "consecutive_half_year_record_count_minimum": 3,
+        "record_months": [
+          2,
+          8
+        ],
+        "share_basis": "minimum_number_of_shares_at_last_three_record_dates",
+        "bonus_tiers": [
+          {
+            "shares_minimum": 800,
+            "shares_maximum_exclusive": 6000,
+            "reward_kind": "additional_meal_e_ticket",
+            "yen_value_per_grant": 2000
+          },
+          {
+            "shares_minimum": 6000,
+            "shares_maximum_exclusive": 12000,
+            "reward_kind": "additional_meal_e_ticket",
+            "yen_value_per_grant": 4000
+          },
+          {
+            "shares_minimum": 12000,
+            "shares_maximum_exclusive": 18000,
+            "reward_kind": "additional_meal_e_ticket",
+            "yen_value_per_grant": 6000
+          },
+          {
+            "shares_minimum": 18000,
+            "shares_maximum_exclusive": null,
+            "reward_kind": "additional_meal_e_ticket",
+            "yen_value_per_grant": 8000
+          }
+        ],
+        "bonus_grants_per_year": 2,
+        "interrupted_number_or_any_record_below_800_disqualifies": true
+      },
+      "grant_timing": {
+        "February_record": "May_middle_approximately",
+        "August_record": "November_middle_approximately"
+      },
+      "validity": {
+        "February_record": "through_same_year_November_end",
+        "August_record": "through_following_year_May_end"
+      },
+      "use_limits": {
+        "paper_without_app_usable": true,
+        "some_group_stores_excluded": true,
+        "eat_in_and_store_takeout_only": true,
+        "cash_exchange_or_change": false,
+        "discount_coupon_combination": false,
+        "golf_restaurant_per_person_limit_yen": 2000,
+        "golf_and_restaurant_joint_use_required_at_golf_sites": true,
+        "resale_prohibited": true
+      },
+      "current_and_future_scope": {
+        "current_published_tiers_preserved": true,
+        "future_change_notice_found_in_reviewed_page": false,
+        "no_future_change_is_not_proven": true,
+        "future_calendar_dates_generated": false,
+        "split_date_and_ratio_not_independently_reviewed": true,
+        "old_pre_split_tiers_not_substituted": true
+      },
+      "terms_source": {
+        "url": "https://www.createrestaurants.com/terms/",
+        "title": "このサイトについて",
+        "observation_at_jst": "2026-10-17T03:21:26+09:00",
+        "evidence_line_ranges": [
+          [
+            109,
+            137
+          ]
+        ],
+        "web_crawl_label": "last month",
+        "raw_response_sha256_available": false,
+        "retrieval_method": "web_open_or_click",
+        "free_anonymous_body_read": true,
+        "discovery": "actual_benefit_page_footer_link"
+      },
+      "source_use_assessment": {
+        "copyright_and_lawful_use_clause_read": true,
+        "literal_copy_images_logos_and_original_table_layout_excluded": true,
+        "independent_numeric_facts_with_original_short_description_distinguished": true,
+        "explicit_ban_on_all_independent_fact_use_found": false,
+        "automatic_bulk_collection_license_verified": false,
+        "normal_hyperlink_explicitly_prohibited_in_reviewed_scope": false,
+        "legal_permission_guaranteed": false
+      },
+      "ready_for_root_independent_fact_review": true,
+      "source_hold": false,
+      "draft_short_description_ja": "対象店舗で使う食事優待です。100株の基本分は1回1,500円で、株数に応じて増えます。800株以上を所定の条件で1年以上保有すると追加分があります。紙のままでも使えます。",
+      "limitations_ja": [
+        "制度発表日とページ更新日は未確認。確認日で代用しない。",
+        "将来の基準日は現行の定期制度を基にした予定とし、年別の正式発表と区別する。",
+        "店舗の全件リストや商品・券面画像、原文の表を転載しない。"
+      ]
+    },
+    {
+      "identity": {
+        "code": "8200",
+        "name": "リンガーハット",
+        "symbol": "8200.T",
+        "primary_exchange": "Tokyo",
+        "primary_market": "プライム（内国株式）",
+        "identity_as_of": "2026-09-30",
+        "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+      },
+      "issuer_body_name": "株式会社リンガーハット",
+      "identity_match": "official_issuer_name_matches_saved_exchange_identity",
+      "additional_code_identity_source": {
+        "url": "https://www.ringerhut.co.jp/corporate/outline/",
+        "evidence_scope": "official_search_result_text_only",
+        "code": "8200",
+        "HTML_body_opened": false
+      },
+      "body_source": {
+        "url": "https://www.ringerhut.co.jp/ir/investor/stocks_compliment.php",
+        "title": "株主優待制度",
+        "observation_at_jst": "2026-10-17T03:21:26+09:00",
+        "evidence_line_ranges": [
+          [
+            26,
+            72
+          ]
+        ],
+        "web_crawl_label": "today",
+        "raw_response_sha256_available": false,
+        "retrieval_method": "web_open_or_click",
+        "free_anonymous_body_read": true,
+        "discovery": "official_domain_search_result"
+      },
+      "programme_status": "active_official_page_verified",
+      "announcement_date": null,
+      "page_updated_on": null,
+      "record_months": [
+        2,
+        8
+      ],
+      "record_day_rule": "month_end",
+      "grants_per_year": 2,
+      "minimum_shares": 100,
+      "base_tiers": [
+        {
+          "shares_minimum": 100,
+          "shares_maximum_exclusive": 300,
+          "reward_kind": "shareholder_points_yen_equivalent",
+          "yen_value_per_grant": 1650
+        },
+        {
+          "shares_minimum": 300,
+          "shares_maximum_exclusive": 500,
+          "reward_kind": "shareholder_points_yen_equivalent",
+          "yen_value_per_grant": 3850
+        },
+        {
+          "shares_minimum": 500,
+          "shares_maximum_exclusive": 1000,
+          "reward_kind": "shareholder_points_yen_equivalent",
+          "yen_value_per_grant": 6600
+        },
+        {
+          "shares_minimum": 1000,
+          "shares_maximum_exclusive": 2000,
+          "reward_kind": "shareholder_points_yen_equivalent",
+          "yen_value_per_grant": 13750
+        },
+        {
+          "shares_minimum": 2000,
+          "shares_maximum_exclusive": null,
+          "reward_kind": "shareholder_points_yen_equivalent",
+          "yen_value_per_grant": 27500
+        }
+      ],
+      "base_holding_duration_requirement": "not_stated_in_basic_record_date_tiers",
+      "long_holding": {
+        "years_minimum": 3,
+        "same_shareholder_number_required": true,
+        "consecutive_half_year_record_count_minimum": 7,
+        "bonus_record_months": [
+          2
+        ],
+        "bonus_grants_per_year": 1,
+        "bonus_tiers": [
+          {
+            "shares_minimum": 100,
+            "shares_maximum_exclusive": 1000,
+            "reward_kind": "additional_shareholder_points_yen_equivalent",
+            "yen_value_per_grant": 1100
+          },
+          {
+            "shares_minimum": 1000,
+            "shares_maximum_exclusive": null,
+            "reward_kind": "additional_shareholder_points_yen_equivalent",
+            "yen_value_per_grant": 2200
+          }
+        ],
+        "interrupted_number_disqualifies": true
+      },
+      "grant_timing": {
+        "February_record": "May_late",
+        "August_record": "November_middle"
+      },
+      "use_limits": {
+        "smartphone_or_tablet_required": true,
+        "paper_meal_ticket_is_not_current_page_reward": true,
+        "domestic_group_restaurants": true,
+        "shareholder_EC_frozen_products": true,
+        "point_transfer_to_family_and_friends": true
+      },
+      "future_calendar_dates_generated": false,
+      "future_change_notice_found_in_reviewed_page": false,
+      "terms_source": {
+        "url": "https://www.ringerhut.co.jp/privacy_policy/siterule.php",
+        "title": "サイト利用規約",
+        "observation_at_jst": "2026-10-17T03:21:26+09:00",
+        "evidence_line_ranges": [
+          [
+            26,
+            30
+          ],
+          [
+            40,
+            57
+          ]
+        ],
+        "web_crawl_label": "yesterday",
+        "raw_response_sha256_available": false,
+        "retrieval_method": "web_open_or_click",
+        "free_anonymous_body_read": true,
+        "discovery": "actual_benefit_page_footer_link"
+      },
+      "source_use_assessment": {
+        "explicit_copy_restriction": true,
+        "explicit_quote_restriction": true,
+        "deep_link_requires_prior_contact": true,
+        "homepage_link_without_prior_contact_conditionally_allowed": true,
+        "independent_fact_legal_status_not_decided_by_this_audit": true,
+        "no_contact_or_permission_request_sent": true
+      },
+      "ready_for_root_independent_fact_review": false,
+      "source_hold": true,
+      "hold_reasons": [
+        "explicit_copy_quote_and_deep_link_conditions"
+      ],
+      "limitations_ja": [
+        "通常の食事券として追加せず、公式ページは現在ポイント制度である事実を保持する。",
+        "資料コピーと引用、深いリンクに明示制限があるため、本番追加候補からいったん保留する。",
+        "全事実が著作権の対象だという一般論には拡張せず、この取得元の明示利用条件として区別する。"
+      ]
+    },
+    {
+      "identity": {
+        "code": "9979",
+        "name": "大庄",
+        "symbol": "9979.T",
+        "primary_exchange": "Tokyo",
+        "primary_market": "スタンダード（内国株式）",
+        "identity_as_of": "2026-09-30",
+        "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+      },
+      "issuer_body_name": "株式会社大庄",
+      "identity_match": "official_issuer_name_matches_saved_exchange_identity",
+      "additional_code_identity_source": {
+        "url": "https://www.daisyo.co.jp/company/ir/wordpress/wp-content/uploads/2026/05/20260520_kabunushitsushin_gziHOofa.pdf",
+        "evidence_scope": "official_search_result_metadata_only",
+        "code": "9979",
+        "PDF_body_opened": false
+      },
+      "body_source": {
+        "url": "https://www.daisyo.co.jp/company/ir/invest.html",
+        "title": "株主優待情報",
+        "observation_at_jst": "2026-10-17T03:21:26+09:00",
+        "evidence_line_ranges": [
+          [
+            34,
+            49
+          ],
+          [
+            107,
+            108
+          ]
+        ],
+        "web_crawl_label": "today",
+        "raw_response_sha256_available": false,
+        "retrieval_method": "web_open_or_click",
+        "free_anonymous_body_read": true,
+        "discovery": "official_domain_search_result"
+      },
+      "programme_status": "active_official_page_verified",
+      "announcement_date": null,
+      "page_updated_on": null,
+      "record_months": [
+        2,
+        8
+      ],
+      "record_day_rule": "month_end",
+      "grants_per_year": 2,
+      "minimum_shares": 100,
+      "base_tiers": [
+        {
+          "shares_minimum": 100,
+          "shares_maximum_exclusive": 500,
+          "reward_kind": "meal_ticket",
+          "yen_value_per_grant": 3000
+        },
+        {
+          "shares_minimum": 500,
+          "shares_maximum_exclusive": 1000,
+          "reward_kind": "meal_ticket",
+          "yen_value_per_grant": 6000
+        },
+        {
+          "shares_minimum": 1000,
+          "shares_maximum_exclusive": null,
+          "reward_kind": "meal_ticket",
+          "yen_value_per_grant": 12000
+        }
+      ],
+      "ticket_denomination_yen": 500,
+      "ticket_counts_by_minimum_shares": {
+        "100": 6,
+        "500": 12,
+        "1000": 24
+      },
+      "base_holding_duration_requirement": "not_stated_on_reviewed_programme_page",
+      "long_holding_bonus": "not_stated_on_reviewed_programme_page",
+      "grant_timing": {
+        "February_record": "May_end_target",
+        "August_record": "early_December_after_shareholders_meeting"
+      },
+      "validity": "not_confirmed_from_current_HTML",
+      "redemption_detail_status": "not_confirmed_from_current_HTML",
+      "current_and_future_scope": {
+        "active_recurring_page_verified": true,
+        "future_change_notice_found_in_reviewed_page": false,
+        "no_future_change_is_not_proven": true,
+        "future_calendar_dates_generated": false
+      },
+      "terms_source": null,
+      "terms_discovery": {
+        "benefit_footer_reviewed": true,
+        "terms_link_found_in_reviewed_footer": false,
+        "official_domain_terms_search_performed": true,
+        "applicable_terms_document_located": false
+      },
+      "source_use_assessment": {
+        "general_copyright_footer_present": true,
+        "full_copy_images_logos_original_layout_excluded": true,
+        "copyright_footer_is_not_inferred_blanket_fact_use_ban": true,
+        "explicit_independent_fact_use_or_link_ban_found_in_reviewed_scope": false,
+        "applicable_additional_terms_unconfirmed": true,
+        "explicit_public_reuse_license_claimed": false,
+        "legal_permission_guaranteed": false
+      },
+      "ready_for_root_independent_fact_review": true,
+      "source_hold": false,
+      "draft_short_description_ja": "食事に使う優待券です。100〜499株は1回3,000円分、500〜999株は6,000円分、1,000株以上は12,000円分が対象です。年2回の基準日があります。",
+      "limitations_ja": [
+        "長期保有条件や券の有効期限・詳細な利用先を未確認のまま付け足さない。",
+        "利用条件文書を特定できていない。一般copyright表示だけを優待の独立事実利用すべての禁止とは扱わない。",
+        "将来の年別日程や未確認の廃止・改定は推測しない。"
+      ]
+    }
+  ]
+}

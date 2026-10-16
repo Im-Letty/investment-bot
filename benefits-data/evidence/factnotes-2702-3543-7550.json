@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "checked_date_jst": "2026-10-17",
+  "research_method": "発行体公式の優待本文と利用条件を閲覧し、数値・条件だけ独立抽出。公式原文・表・券面画像・連絡先は保存しない",
+  "repository_edits": 0,
+  "identity_catalogue": {
+    "path": "static/jpx-company-catalogue.json",
+    "as_of": "2026-09-30",
+    "all_three_code_name_matches": true
+  },
+  "facts": [
+    {
+      "code": "2702",
+      "symbol": "2702.T",
+      "name": "日本マクドナルドホールディングス",
+      "catalogue_market": "スタンダード（内国株式）",
+      "source_url": "https://www.mcd-holdings.co.jp/ir/individual/shareholder_benefits/",
+      "source_checked_at_jst": "2026-10-17T03:20:27+09:00",
+      "source_updated_date": null,
+      "status_observed": "公式の現行案内に実施制度として掲載",
+      "record_dates": [
+        "06-30",
+        "12-31"
+      ],
+      "annual_grants": 2,
+      "tiers_per_grant": [
+        {
+          "shares_min": 100,
+          "shares_max": 299,
+          "booklets": 1
+        },
+        {
+          "shares_min": 300,
+          "shares_max": 499,
+          "booklets": 3
+        },
+        {
+          "shares_min": 500,
+          "shares_max": null,
+          "booklets": 5
+        }
+      ],
+      "booklet_components": {
+        "burger_exchange_tickets": 6,
+        "side_exchange_tickets": 6,
+        "drink_exchange_tickets": 6
+      },
+      "holding_condition": {
+        "minimum_years": 1,
+        "same_shareholder_number": true,
+        "consecutive_june_december_entries_min": 3,
+        "shares_min_at_each_entry": 100
+      },
+      "delivery": [
+        {
+          "record_month": 6,
+          "timing": "9月下旬から順次発送"
+        },
+        {
+          "record_month": 12,
+          "timing": "翌年3月末から順次発送"
+        }
+      ],
+      "usage_facts": [
+        "国内対象店で利用。一部店舗は対象外",
+        "配達、モバイル注文、セルフ注文端末は対象外",
+        "商品区分ごとの引換券を分けて使用できる",
+        "一部商品・特典・ポイントは対象外",
+        "有効期限は券面で確認。一般的な期限日を推定しない",
+        "転売は禁止"
+      ],
+      "changes_and_abolition_check": {
+        "abolition_notice_seen_on_read_page": false,
+        "all_ir_latest_disclosures_checked": false,
+        "new_future_purchase_deadline_created": false
+      },
+      "terms_review": {
+        "footer_observed": true,
+        "terms_url": "https://www.mcdonalds.co.jp/policy/",
+        "terms_revision_date": "2025-09-24",
+        "other_footer_pages_read": [
+          "https://www.mcd-holdings.co.jp/disclaimer/",
+          "https://www.mcd-holdings.co.jp/instructions/"
+        ],
+        "scope": "持株会社の優待ページ実footerから規約へリンク。ただし規約のサービス定義はmcdonalds.co.jpとアプリを挙げ、mcd-holdings.co.jpは明示列挙されていない",
+        "collection_condition": "定義対象サービスで情報の複製・改変・公衆再提供等を制限。持株会社IRへの適用範囲は未解決",
+        "public_display_condition": "トップ以外へのリンクは事前連絡の条件。持株会社IRへのscopeを未解決のまま包括公開可とは扱わない",
+        "decision": "hold",
+        "reason_code": "linked_terms_scope_and_deep_link_condition_unresolved",
+        "public_seed_adoption": false
+      },
+      "source_fetched_date_jst": "2026-10-17",
+      "source_fetch_timestamp_precision": "date_only"
+    },
+    {
+      "code": "3543",
+      "symbol": "3543.T",
+      "name": "コメダホールディングス",
+      "catalogue_market": "プライム（内国株式）",
+      "source_url": "https://komeda-holdings.co.jp/benefit/",
+      "source_checked_at_jst": "2026-10-17T03:20:27+09:00",
+      "source_page_dates_observed": [
+        "2023-06-11",
+        "2026-05-13"
+      ],
+      "status_observed": "公式の現行案内に実施制度として掲載",
+      "record_dates": [
+        "02-last",
+        "08-last"
+      ],
+      "benefit_type": "株主用KOMECAへの入金",
+      "annual_grants": 2,
+      "tiers_per_grant": [
+        {
+          "shares_min": 100,
+          "shares_max": 299,
+          "normal_amount_yen": 1000,
+          "normal_minimum_holding_years": null
+        },
+        {
+          "shares_min": 300,
+          "shares_max": null,
+          "normal_amount_yen": 1000,
+          "normal_minimum_holding_years": null
+        }
+      ],
+      "long_holding_addition": {
+        "record_month": 2,
+        "current_shares_min": 300,
+        "minimum_years": 3,
+        "same_shareholder_number": true,
+        "consecutive_february_august_register_entries_min": 7,
+        "additional_amount_yen": 1000,
+        "annual_additions": 1,
+        "continuous_300_shares_requirement": false,
+        "rule_note": "300株は2月末の判定時。過去7回すべて300株保有との読み替えをしない"
+      },
+      "grant_timing": [
+        {
+          "record_month": 2,
+          "load_date": "06-01",
+          "new_card_delivery": "5月中旬"
+        },
+        {
+          "record_month": 8,
+          "load_date": "12-01",
+          "new_card_delivery": "11月下旬"
+        }
+      ],
+      "usage_facts": [
+        "対象店舗で利用。一部店舗は対象外",
+        "同一番号の継続株主には新たなカードを送らず最後の株主用カードへ入金",
+        "譲渡・転売は禁止",
+        "株主用カード再発行の手数料は500円"
+      ],
+      "faq_source": {
+        "url": "https://komeda-holdings.co.jp/ir/pdf/20260513_komeca_faq.pdf",
+        "updated_date": "2026-05-13",
+        "sha256": "b5f157743dadb32fbbffe39306f3b25ef5136382f5293cb7984482988f570570",
+        "relevant_pdf_page_visually_checked": 1,
+        "original_pdf_and_render_retained": false,
+        "fetched_date_jst": "2026-10-17",
+        "checked_at_jst": "2026-10-17T03:20:27+09:00"
+      },
+      "explicit_benefit_money_validity": [
+        {
+          "record_date": "2025-08-31",
+          "valid_from": "2025-12-01",
+          "valid_until": "2026-11-30"
+        },
+        {
+          "record_date": "2026-02-28",
+          "valid_from": "2026-06-01",
+          "valid_until": "2027-05-31"
+        }
+      ],
+      "future_unpublished_validity_rule_created": false,
+      "changes_and_abolition_check": {
+        "abolition_notice_seen_on_read_page": false,
+        "long_holding_start_record_date": "2021-02-last",
+        "all_ir_latest_disclosures_checked": false,
+        "new_future_purchase_deadline_created": false
+      },
+      "terms_review": {
+        "footer_observed": true,
+        "terms_url": "https://komeda-holdings.co.jp/disclaimer/",
+        "source_page_dates_observed": [
+          "2023-06-09",
+          "2023-08-03"
+        ],
+        "scope": "株式会社コメダホールディングスのIR情報・掲載情報・サイト運営に関する免責",
+        "collection_condition": "確認した実footer先に自動取得の包括許可はない。個人限定や事前許可を要する取得条件も今回確認した本文では見られない",
+        "public_display_condition": "確認した実footer先に転載許可の明示も公開/派生利用の包括禁止も確認できず。画像・表・原文は使わず独立した短い制度事実だけ候補とする",
+        "link_condition": "確認した実footer先にリンク事前承諾条件は見られない",
+        "decision": "candidate_independent_facts_only",
+        "explicit_redistribution_license_granted": false,
+        "public_seed_adoption": false
+      },
+      "source_fetched_date_jst": "2026-10-17",
+      "source_fetch_timestamp_precision": "date_only"
+    },
+    {
+      "code": "7550",
+      "symbol": "7550.T",
+      "name": "ゼンショーホールディングス",
+      "catalogue_market": "プライム（内国株式）",
+      "source_url": "https://www.zensho.co.jp/jp/ir/investor/complimentary.html",
+      "source_checked_at_jst": "2026-10-17T03:20:27+09:00",
+      "source_updated_date": "2026-06-05",
+      "status_observed": "公式の現行案内に実施制度として掲載",
+      "record_dates": [
+        "03-last",
+        "09-last"
+      ],
+      "annual_grants": 2,
+      "ticket_value_yen": 500,
+      "tiers_per_grant": [
+        {
+          "shares_min": 100,
+          "shares_max": 299,
+          "amount_yen": 1000,
+          "ticket_count": 2
+        },
+        {
+          "shares_min": 300,
+          "shares_max": 499,
+          "amount_yen": 3000,
+          "ticket_count": 6
+        },
+        {
+          "shares_min": 500,
+          "shares_max": 999,
+          "amount_yen": 6000,
+          "ticket_count": 12
+        },
+        {
+          "shares_min": 1000,
+          "shares_max": 4999,
+          "amount_yen": 12000,
+          "ticket_count": 24
+        },
+        {
+          "shares_min": 5000,
+          "shares_max": null,
+          "amount_yen": 30000,
+          "ticket_count": 60
+        }
+      ],
+      "minimum_holding_years": null,
+      "minimum_holding_note": "確認本文に継続保有期間の条件は見られない。無条件永続を保証するものではない",
+      "delivery": [
+        {
+          "record_month": 3,
+          "timing": "6月初旬、総会招集通知に同封"
+        },
+        {
+          "record_month": 9,
+          "timing": "12月"
+        }
+      ],
+      "usage_facts": [
+        "国内のグループ対象飲食店で利用。一部店舗は対象外",
+        "券の決済利用分はポイント付与対象外",
+        "使用済みQR券は再利用不可",
+        "有料の会員クラブは通常優待と分ける"
+      ],
+      "known_closed_alternative_goods_offer": {
+        "voucher_value_per_exchange_yen": 3000,
+        "eligible_voucher_expiry": "2026-12-31",
+        "application_open": "2026-06-05",
+        "application_close": "2026-07-10",
+        "offer_closed_as_of_check": true,
+        "future_offer_inferred": false
+      },
+      "changes_and_abolition_check": {
+        "delivery_method_change_effective_record_date": "2026-03-31",
+        "change_fact": "従来の6月末ごろから、6月初旬の招集通知同封へ変更",
+        "abolition_notice_seen_on_read_page": false,
+        "all_ir_latest_disclosures_checked": false,
+        "new_future_purchase_deadline_created": false
+      },
+      "terms_review": {
+        "footer_link_verified": false,
+        "footer_verification_note": "本文とトップページのwebテキストでは共通footerの条件リンクが抽出されず。条件ページは同一発行体公式ドメインへの検索で実在確認し直接閲覧した",
+        "terms_url": "https://www.zensho.co.jp/jp/terms/",
+        "scope": "株式会社ゼンショーホールディングスの企業情報を掲載する同サイト全般",
+        "collection_condition": "私的使用その他法令で認められる範囲を超えたコンテンツ利用に事前の文書許諾を求める",
+        "public_display_condition": "文書許諾なしの複製・改変・掲示・送信等を制限。これを独立数値事実の公表まで含む許諾と解釈しない",
+        "link_condition": "記載されたリンク説明は当サイトから他社へのリンクの責任について。他社から当サイトへリンクする包括許可とは扱わない",
+        "decision": "hold",
+        "reason_code": "prior_written_permission_condition",
+        "public_seed_adoption": false
+      },
+      "source_fetched_date_jst": "2026-10-17",
+      "source_fetch_timestamp_precision": "date_only"
+    }
+  ],
+  "safety_and_scope": {
+    "raw_body_or_table_retained": false,
+    "images_or_ticket_art_retained": false,
+    "contact_details_retained": false,
+    "third_party_summary_copied": false,
+    "external_inquiry_sent": false,
+    "new_credentials_or_paid_service_used": false,
+    "all_company_coverage_claimed": false
+  }
+}

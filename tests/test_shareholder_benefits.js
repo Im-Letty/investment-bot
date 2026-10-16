@@ -103,3 +103,41 @@ test('matching dividend typography keeps long-term benefit conditions and unknow
  assert.equal(h.mount.find('bc-pending-more').textContent,'もっと見る');
  assert.equal(card.find('bc-verified').textContent,'2026/09/24 確認');
 });
+
+// Synthetic integration cases, never production catalogue facts.
+test('expired generated programmes stay pending with no old current-reward claim',()=>{
+ const h=harness([company('130A',{reward:'旧制度9999円分',programmeStatus:'active',programmeEffectiveFrom:'2026-09-01',programmeEffectiveUntil:'2026-09-23'})]);
+ assert.equal(h.cards().length,0);const pending=h.mount.find('bc-pending-body');assert.match(pending.textContent,/現在の優待内容は未確認/);assert.doesNotMatch(pending.textContent,/旧制度9999円分/);assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);
+});
+test('generated programme verification and schedule verification stay distinct',()=>{
+ const h=harness([company('130A',{programmeStatus:'active',programmeEffectiveFrom:null,programmeEffectiveUntil:null,programmeVerified:'2026-09-22',verified:'2026-09-22',schedules:[schedule('2026-09-28',{verified:'2026-09-24'})]})]);
+ const row=h.cards()[0];assert.equal(row.find('bc-verified').textContent,'2026/09/22 確認');assert.equal(row.find('bc-schedule-verified').textContent,'2026/09/24 購入締切日程の確認');assert.ok(row.children.indexOf(row.find('bc-schedule-verified'))<row.children.indexOf(row.find('bc-date-source')));
+});
+test('regional JP favorites receive the same existing benefit priority and badge',()=>{
+ const h=harness([company('130A'),company('131A')],{favorites:['131A.JP']});assert.match(h.cards()[0].textContent,/会社131A/);assert.equal(h.cards()[0].find('dc-favorite').hidden,false);
+});
+
+test('coverage is a single bottom paragraph before the existing final caution and counts full catalogue',()=>{
+ const h=harness(Array.from({length:7},(_,i)=>company(String(1000+i))));const notice=h.mount.find('bc-coverage');assert.equal(notice.textContent,'優待制度を7社掲載。公式情報を確認して順次追加しています。全社の確認は継続中です。会社ごとに確認日が異なります。');assert.equal(h.cards().length,5);assert.equal(h.mount.children.at(-2),notice);assert.match(h.mount.children.at(-1).textContent,/空欄は、優待がないという意味ではありません/);assert.equal(h.mount.find('dc-search'),undefined);
+});
+
+test('unknown purchase deadline keeps a separately confirmed grant summary',()=>{
+ const h=harness([company('130A',{schedules:[],grant:'2027年3月6日お届け予定'})]);
+ const pending=h.mount.find('bc-pending'),card=h.mount.find('bc-pending-body').children[0];
+ assert.match(pending.textContent,/購入締切日は未確認 1社/);
+ assert.match(card.find('bc-summary').textContent,/いつもらえる？ 2027年3月6日お届け予定/);
+ assert.match(card.find('bc-summary').textContent,/次回の保有締切は確認中/);
+ assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);
+});
+test('unconfirmed grant timing links to details without declaring a known date unknown',()=>{
+ const h=harness([company('130A',{schedules:[],delivery:'発送時期は会社の案内を確認'})]);
+ const card=h.mount.find('bc-pending-body').children[0];
+ assert.match(card.find('bc-summary').textContent,/いつもらえる？ 発送・付与の案内は詳細を確認/);
+ assert.doesNotMatch(card.find('bc-summary').textContent,/次回の付与時期は確認中/);
+});
+test('expired generated programme does not retain its old grant date as current',()=>{
+ const h=harness([company('130A',{schedules:[],grant:'旧制度の2027年3月6日お届け予定',programmeStatus:'active',programmeEffectiveFrom:'2026-09-01',programmeEffectiveUntil:'2026-09-23'})]);
+ const card=h.mount.find('bc-pending-body').children[0];
+ assert.match(card.find('bc-summary').textContent,/次回の付与時期は確認中/);
+ assert.doesNotMatch(card.textContent,/2027年3月6日/);
+});

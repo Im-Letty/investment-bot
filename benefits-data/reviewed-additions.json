@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "companies": [
+    {
+      "code": "3543",
+      "symbol": "3543.T",
+      "name": "コメダホールディングス",
+      "category": "食事",
+      "aliases": "コメダ珈琲店 おかげ庵 KOMECA",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://komeda-holdings.co.jp/benefit/",
+            "title": "コメダホールディングス 株主優待",
+            "security_code": "3543",
+            "issuer_name": "コメダホールディングス",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T03:20:27+09:00",
+            "evidence_path": "evidence/reviewed-3543-observation-bundle.json",
+            "evidence_sha256": "79016a6e4f579d56065aaf5632f4a7230298896ee6637adad6dfd2aa21b5a7ae"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "manual-primary-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度本文と記録した範囲のIR一覧・関連改定資料を確認。全IR本文の網羅や将来の無変更は保証しない。"
+          },
+          "period": "2月末・8月末（現行制度の基準日。次回の購入締切日は未確認）",
+          "conditions": "基本分は各回1,000円を株主用KOMECAへ入金します。長期保有の追加は2月末だけです。300株は判定時点の条件で、過去7回すべてを300株以上と読み替えません。",
+          "use": "コメダ珈琲店などの対象店舗で支払いに使う株主用カードです。一部店舗は対象外です。譲渡・転売はできません。",
+          "delivery": "2月末分は6月1日、8月末分は12月1日の入金です。新規のカードはそれぞれ5月中旬・11月下旬の予定です。継続株主は最後に届いた株主用カードを使います。確認できた2026年2月末分の利用期限は2027年5月31日です。2026年8月末分の期限は推測していません。",
+          "tiers": [
+            {
+              "id": "base-100",
+              "shares_min": 100,
+              "shares_max": 299,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "株主用KOMECA1,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-300",
+              "shares_min": 300,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "株主用KOMECA1,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "long-february",
+              "shares_min": 300,
+              "shares_max": null,
+              "holding_months_min": 36,
+              "holding_requirement": "同じ株主番号で3年以上、2月末・8月末の株主名簿に7回以上連続記載",
+              "reward": "2月末分の基本額に1,000円を追加",
+              "conditions": "2月末の判定時点で300株以上が必要です。長期追加は年1回で、8月末分には付きません。"
+            }
+          ],
+          "schedules": [],
+          "grant_summary": "2月末分は6月1日、8月末分は12月1日に入金"
+        }
+      ]
+    },
+    {
+      "code": "3387",
+      "symbol": "3387.T",
+      "name": "クリエイト・レストランツ・ホールディングス",
+      "category": "食事",
+      "aliases": "クリレス クリエイトレストランツ 磯丸水産",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.createrestaurants.com/ir/stock/shareholder/",
+            "title": "クリエイト・レストランツ・ホールディングス 株主優待制度",
+            "security_code": "3387",
+            "issuer_name": "クリエイト・レストランツ・ホールディングス",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T03:21:26+09:00",
+            "evidence_path": "evidence/reviewed-3387-observation-bundle.json",
+            "evidence_sha256": "9942e04b752628c994d66d70a7b94bfe2ac6e6d9cadbc0b13dacd4d94de2fed4"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "manual-primary-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度本文と記録した範囲のIR一覧・関連改定資料を確認。全IR本文の網羅や将来の無変更は保証しない。"
+          },
+          "period": "2月末・8月末（現行制度の基準日。次回の購入締切日は未確認）",
+          "conditions": "株数に応じた食事優待が年2回あります。長期追加分は800株以上を所定の条件で1年以上保有した場合です。旧SFP株式の保有期間は、合併後の長期保有判定へ引き継ぎません。",
+          "use": "グループの対象店舗で飲食・店頭持ち帰りの支払いに使います。紙のままでも利用できます。対象外店舗があり、店舗別の利用可否は公式案内で確認してください。おつり・換金・転売はできません。値引き・割引券との併用には制限があるため、店舗別・券種別の条件を公式案内で確認してください。ゴルフ場内の店舗ではゴルフ利用が必要で、1人2,000円までです。",
+          "delivery": "2月末分は5月中旬、8月末分は11月中旬が目安です。利用期限はそれぞれ同年11月末・翌年5月末です。年別の購入締切日は別に確認します。",
+          "tiers": [
+            {
+              "id": "base-100",
+              "shares_min": 100,
+              "shares_max": 199,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券1,500円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-200",
+              "shares_min": 200,
+              "shares_max": 299,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券3,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-300",
+              "shares_min": 300,
+              "shares_max": 399,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券4,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-400",
+              "shares_min": 400,
+              "shares_max": 499,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券5,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-500",
+              "shares_min": 500,
+              "shares_max": 799,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券6,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-800",
+              "shares_min": 800,
+              "shares_max": 1199,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券8,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-1200",
+              "shares_min": 1200,
+              "shares_max": 1999,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券10,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-2000",
+              "shares_min": 2000,
+              "shares_max": 5999,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券14,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-6000",
+              "shares_min": 6000,
+              "shares_max": 11999,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券20,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-12000",
+              "shares_min": 12000,
+              "shares_max": 17999,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券24,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-18000",
+              "shares_min": 18000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "食事優待券30,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "long-800",
+              "shares_min": 800,
+              "shares_max": 5999,
+              "holding_months_min": 12,
+              "holding_requirement": "同じ株主番号で1年以上、2月末・8月末に3回以上連続記録",
+              "reward": "各回の基本額に食事優待券2,000円分を追加",
+              "conditions": "直近3回の最少株数で追加区分を判定します。どの回も800株以上が必要です。"
+            },
+            {
+              "id": "long-6000",
+              "shares_min": 6000,
+              "shares_max": 11999,
+              "holding_months_min": 12,
+              "holding_requirement": "同じ株主番号で1年以上、2月末・8月末に3回以上連続記録",
+              "reward": "各回の基本額に食事優待券4,000円分を追加",
+              "conditions": "直近3回の最少株数で追加区分を判定します。どの回も800株以上が必要です。"
+            },
+            {
+              "id": "long-12000",
+              "shares_min": 12000,
+              "shares_max": 17999,
+              "holding_months_min": 12,
+              "holding_requirement": "同じ株主番号で1年以上、2月末・8月末に3回以上連続記録",
+              "reward": "各回の基本額に食事優待券6,000円分を追加",
+              "conditions": "直近3回の最少株数で追加区分を判定します。どの回も800株以上が必要です。"
+            },
+            {
+              "id": "long-18000",
+              "shares_min": 18000,
+              "shares_max": null,
+              "holding_months_min": 12,
+              "holding_requirement": "同じ株主番号で1年以上、2月末・8月末に3回以上連続記録",
+              "reward": "各回の基本額に食事優待券8,000円分を追加",
+              "conditions": "直近3回の最少株数で追加区分を判定します。どの回も800株以上が必要です。"
+            }
+          ],
+          "schedules": [],
+          "grant_summary": "2月末分は5月中旬、8月末分は11月中旬が目安"
+        }
+      ]
+    },
+    {
+      "code": "9979",
+      "symbol": "9979.T",
+      "name": "大庄",
+      "category": "食事",
+      "aliases": "庄や 日本海庄や 大庄水産",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.daisyo.co.jp/company/ir/invest.html",
+            "title": "大庄 株主優待情報",
+            "security_code": "9979",
+            "issuer_name": "大庄",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T03:21:26+09:00",
+            "evidence_path": "evidence/reviewed-9979-observation-bundle.json",
+            "evidence_sha256": "c38f9f0817d0e4bd36885a22681b6b4d4bc6d8b5d1a2eff0132b4e2700c961a8"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "manual-primary-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度本文と記録した範囲のIR一覧・関連改定資料を確認。全IR本文の網羅や将来の無変更は保証しない。"
+          },
+          "period": "2月末・8月末（現行制度の基準日。次回の購入締切日は未確認）",
+          "conditions": "年2回、株数別の優待飲食券を受け取る制度です。確認した本文に長期保有の追加条件は記載されていません。券の有効期限や詳しい利用先は未確認です。",
+          "use": "飲食の支払いに使う500円単位の優待券です。利用店舗・対象外の商品など、詳しい使い方は会社の案内で確認してください。",
+          "delivery": "2月末分は5月末、8月末分は株主総会後の12月上旬が目安です。次回の具体的な発送日と券の有効期限は未確認です。",
+          "tiers": [
+            {
+              "id": "base-100",
+              "shares_min": 100,
+              "shares_max": 499,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "優待飲食券3,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-500",
+              "shares_min": 500,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "優待飲食券6,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            },
+            {
+              "id": "base-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "基本分の保有期間条件は公式本文に記載なし",
+              "reward": "優待飲食券12,000円分（各回）",
+              "conditions": "基準日の必要株数が対象です。次回の購入締切日は未確認です。"
+            }
+          ],
+          "schedules": [],
+          "grant_summary": "2月末分は5月末、8月末分は12月上旬が目安"
+        }
+      ]
+    },
+    {
+      "code": "2590",
+      "symbol": "2590.T",
+      "name": "ダイドーグループホールディングス",
+      "category": "食品・飲料",
+      "aliases": "ダイドー DyDo",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://holdings.dydo.co.jp/ir/stock/dividend.html",
+            "title": "ダイドーグループホールディングス公式サイト 株主還元",
+            "security_code": "2590",
+            "issuer_name": "ダイドーグループホールディングス",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T03:24:56+09:00",
+            "evidence_path": "evidence/food-additions-2590-2811-2809-factnotes-v2.json",
+            "evidence_sha256": "22e3948a20465321511daafbae4707d1096a6f8176565461a53ab09052f773a5",
+            "citation_url": "https://holdings.dydo.co.jp/"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "manual-primary-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度・関連ページと限定した公式一次検索を確認。全IR一覧や全PDF本文の確認ではなく、他の変更がないことを保証しない。"
+          },
+          "period": "基本の商品贈呈は1月20日。長期記念品・優待価格販売は別の条件です。次回の購入締切日は未確認です。",
+          "conditions": "基本の商品贈呈は年1回で、同じ株主番号の前年7月20日・1月20日の記録と継続保有が必要です。全株売却後の買い直しでは継続扱いになりません。1月20日・7月20日の全株主を対象とする優待価格販売は保有年数制限なしですが、無料贈呈と区別し金額へ合算していません。",
+          "use": "グループの食品・飲料などの商品を受け取る制度です。5年保有の記念品は別枠で1回限りで、毎年の追加ではありません。優待価格販売の割引率と記念品の円換算額は未確認です。",
+          "delivery": "基本分の発送時期は2026年から従来の4月中旬ではなく6月下旬へ変更されています。5年記念品は7月の判定後、10月の発送案内です。実際の到着完了や次回の個別発送日は未確認です。",
+          "tiers": [
+            {
+              "id": "base-200",
+              "shares_min": 200,
+              "shares_max": null,
+              "holding_months_min": 6,
+              "holding_requirement": "同じ株主番号で200株以上を半年以上継続保有",
+              "reward": "グループ商品6,000円相当（年1回）",
+              "conditions": "1月20日と前年7月20日の株主名簿の記録が必要です。単に1月20日まで持つだけでは対象になりません。"
+            },
+            {
+              "id": "one-time-five-years",
+              "shares_min": 200,
+              "shares_max": null,
+              "holding_months_min": 60,
+              "holding_requirement": "同じ株主番号で5年となる所定の継続記録が必要",
+              "reward": "基本分とは別の5年保有記念品（1回限り・金額未確認）",
+              "conditions": "1月20日・7月20日の名簿に11〜12回連続記録。2024年1月までは100株以上、同年7月20日以降は200株以上が条件です。2026年の案内は7月判定・10月発送で、翌年分の日程は作っていません。"
+            }
+          ],
+          "schedules": [],
+          "grant_summary": "基本の商品贈呈は6月下旬。5年記念品は別の10月発送案内"
+        }
+      ]
+    },
+    {
+      "code": "2809",
+      "symbol": "2809.T",
+      "name": "キユーピー",
+      "category": "食品",
+      "aliases": "キューピー マヨネーズ",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://lp.kewpie.com/ir/stocks-information/benefit/",
+            "title": "キユーピー公式サイト 株主優待情報",
+            "security_code": "2809",
+            "issuer_name": "キユーピー",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T03:24:56+09:00",
+            "evidence_path": "evidence/food-additions-2590-2811-2809-factnotes-v2.json",
+            "evidence_sha256": "22e3948a20465321511daafbae4707d1096a6f8176565461a53ab09052f773a5"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "manual-primary-source-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度・関連ページと限定した公式一次検索を確認。全IR一覧や全PDF本文の確認ではなく、他の変更がないことを保証しない。"
+          },
+          "period": "2026年11月30日の対象分を確認。現行制度は11月末が基準日で、購入締切日は別途確認中です。",
+          "conditions": "100株以上と半年以上の継続保有が必要です。株数・保有期間に応じて該当する1区分の金額であり、自由に選ぶ制度や基本分と長期分を足す制度ではありません。株数と保有期間の条件を合わせて確認してください。",
+          "use": "食品などのグループ商品を受け取る制度です。具体的なセット内容や賞味期限は未確認です。",
+          "delivery": "2026年11月末の対象分は2027年3月6日のお届け予定と公式に案内されています。到着済みとは扱っていません。",
+          "tiers": [
+            {
+              "id": "tier-1",
+              "shares_min": 100,
+              "shares_max": 499,
+              "holding_months_min": 6,
+              "holding_requirement": "同じ株主番号で半年以上3年未満の継続保有",
+              "reward": "グループ商品1,000円相当（年1回）",
+              "conditions": "2026年11月末基準（2027年3月贈呈分）の半年条件は5月末・11月末の2回連続記録です。今から買って11月末まで持つだけでは満たせません。"
+            },
+            {
+              "id": "tier-2",
+              "shares_min": 100,
+              "shares_max": 499,
+              "holding_months_min": 36,
+              "holding_requirement": "同じ株主番号で3年以上の継続保有",
+              "reward": "グループ商品1,500円相当（年1回）",
+              "conditions": "2026年11月末基準（2027年3月贈呈分）は2023年11月末までの初回登録が必要です。名簿の必要回数や500株を全期間保つ必要があるかは、本文で明記されていないため推測していません。"
+            },
+            {
+              "id": "tier-3",
+              "shares_min": 500,
+              "shares_max": null,
+              "holding_months_min": 6,
+              "holding_requirement": "同じ株主番号で半年以上3年未満の継続保有",
+              "reward": "グループ商品3,000円相当（年1回）",
+              "conditions": "2026年11月末基準（2027年3月贈呈分）の半年条件は5月末・11月末の2回連続記録です。今から買って11月末まで持つだけでは満たせません。"
+            },
+            {
+              "id": "tier-4",
+              "shares_min": 500,
+              "shares_max": null,
+              "holding_months_min": 36,
+              "holding_requirement": "同じ株主番号で3年以上の継続保有",
+              "reward": "グループ商品5,000円相当（年1回）",
+              "conditions": "2026年11月末基準（2027年3月贈呈分）は2023年11月末までの初回登録が必要です。名簿の必要回数や500株を全期間保つ必要があるかは、本文で明記されていないため推測していません。"
+            }
+          ],
+          "schedules": [],
+          "grant_summary": "2026年11月末対象分：2027年3月6日お届け予定"
+        }
+      ]
+    }
+  ]
+}

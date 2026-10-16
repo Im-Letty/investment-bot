@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "evidence_kind": "primary_page_observation_note",
+  "not_original_webpage_bytes": true,
+  "code": "9979",
+  "initial_primary_observation": {
+    "identity": {
+      "code": "9979",
+      "name": "大庄",
+      "symbol": "9979.T",
+      "primary_exchange": "Tokyo",
+      "primary_market": "スタンダード（内国株式）",
+      "identity_as_of": "2026-09-30",
+      "identity_source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html"
+    },
+    "issuer_body_name": "株式会社大庄",
+    "identity_match": "official_issuer_name_matches_saved_exchange_identity",
+    "additional_code_identity_source": {
+      "url": "https://www.daisyo.co.jp/company/ir/wordpress/wp-content/uploads/2026/05/20260520_kabunushitsushin_gziHOofa.pdf",
+      "evidence_scope": "official_search_result_metadata_only",
+      "code": "9979",
+      "PDF_body_opened": false
+    },
+    "body_source": {
+      "url": "https://www.daisyo.co.jp/company/ir/invest.html",
+      "title": "株主優待情報",
+      "observation_at_jst": "2026-10-17T03:21:26+09:00",
+      "evidence_line_ranges": [
+        [
+          34,
+          49
+        ],
+        [
+          107,
+          108
+        ]
+      ],
+      "web_crawl_label": "today",
+      "raw_response_sha256_available": false,
+      "retrieval_method": "web_open_or_click",
+      "free_anonymous_body_read": true,
+      "discovery": "official_domain_search_result"
+    },
+    "programme_status": "active_official_page_verified",
+    "announcement_date": null,
+    "page_updated_on": null,
+    "record_months": [
+      2,
+      8
+    ],
+    "record_day_rule": "month_end",
+    "grants_per_year": 2,
+    "minimum_shares": 100,
+    "base_tiers": [
+      {
+        "shares_minimum": 100,
+        "shares_maximum_exclusive": 500,
+        "reward_kind": "meal_ticket",
+        "yen_value_per_grant": 3000
+      },
+      {
+        "shares_minimum": 500,
+        "shares_maximum_exclusive": 1000,
+        "reward_kind": "meal_ticket",
+        "yen_value_per_grant": 6000
+      },
+      {
+        "shares_minimum": 1000,
+        "shares_maximum_exclusive": null,
+        "reward_kind": "meal_ticket",
+        "yen_value_per_grant": 12000
+      }
+    ],
+    "ticket_denomination_yen": 500,
+    "ticket_counts_by_minimum_shares": {
+      "100": 6,
+      "500": 12,
+      "1000": 24
+    },
+    "base_holding_duration_requirement": "not_stated_on_reviewed_programme_page",
+    "long_holding_bonus": "not_stated_on_reviewed_programme_page",
+    "grant_timing": {
+      "February_record": "May_end_target",
+      "August_record": "early_December_after_shareholders_meeting"
+    },
+    "validity": "not_confirmed_from_current_HTML",
+    "redemption_detail_status": "not_confirmed_from_current_HTML",
+    "current_and_future_scope": {
+      "active_recurring_page_verified": true,
+      "future_change_notice_found_in_reviewed_page": false,
+      "no_future_change_is_not_proven": true,
+      "future_calendar_dates_generated": false
+    },
+    "terms_source": null,
+    "terms_discovery": {
+      "benefit_footer_reviewed": true,
+      "terms_link_found_in_reviewed_footer": false,
+      "official_domain_terms_search_performed": true,
+      "applicable_terms_document_located": false
+    },
+    "source_use_assessment": {
+      "general_copyright_footer_present": true,
+      "full_copy_images_logos_original_layout_excluded": true,
+      "copyright_footer_is_not_inferred_blanket_fact_use_ban": true,
+      "explicit_independent_fact_use_or_link_ban_found_in_reviewed_scope": false,
+      "applicable_additional_terms_unconfirmed": true,
+      "explicit_public_reuse_license_claimed": false,
+      "legal_permission_guaranteed": false
+    },
+    "ready_for_root_independent_fact_review": true,
+    "source_hold": false,
+    "draft_short_description_ja": "食事に使う優待券です。100〜499株は1回3,000円分、500〜999株は6,000円分、1,000株以上は12,000円分が対象です。年2回の基準日があります。",
+    "limitations_ja": [
+      "長期保有条件や券の有効期限・詳細な利用先を未確認のまま付け足さない。",
+      "利用条件文書を特定できていない。一般copyright表示だけを優待の独立事実利用すべての禁止とは扱わない。",
+      "将来の年別日程や未確認の廃止・改定は推測しない。"
+    ]
+  },
+  "bounded_IR_and_amendment_review": {
+    "code": "9979",
+    "issuer": "株式会社大庄",
+    "symbol": "9979.T",
+    "identity": {
+      "catalogue_name": "大庄",
+      "catalogue_as_of": "2026-09-30",
+      "name_matches": true,
+      "latest_shareholder_report_code": "9979",
+      "latest_shareholder_report_company_name": "株式会社 大庄"
+    },
+    "programme_source": "https://www.daisyo.co.jp/company/ir/invest.html",
+    "programme_recheck": {
+      "minimum_shares": 100,
+      "minimum_amount_yen_per_grant": 3000,
+      "record_months": [
+        2,
+        8
+      ],
+      "record_day_rule": "month_end",
+      "grants_per_year": 2,
+      "ticket_denomination_yen": 500,
+      "tiers_minimum_shares_and_ticket_count": [
+        [
+          100,
+          6
+        ],
+        [
+          500,
+          12
+        ],
+        [
+          1000,
+          24
+        ]
+      ],
+      "base_minimum_holding_duration": "確認本文に記載なし",
+      "long_holding_bonus": "確認本文に記載なし",
+      "matches_initial_factnotes": true
+    },
+    "official_IR_list": {
+      "url": "https://www.daisyo.co.jp/company/ir/irnews/index.html",
+      "discovery": "actual_IR_news_link_in_programme_page",
+      "visible_year_navigation": "2026年",
+      "visible_announcement_count": 2,
+      "announcement_dates": [
+        "2026-10-09",
+        "2026-04-30"
+      ],
+      "benefit_change_or_abolition_title_seen": false,
+      "scope_warning": "見出しの画像代替文に2025年という不整合もあり、表示2件を全発表の完全な一覧と説明しない"
+    },
+    "official_shareholder_list": {
+      "url": "https://www.daisyo.co.jp/company/ir/stock.html",
+      "discovery": "actual_shareholder_link_in_programme_page",
+      "latest_visible_document_date": "2026-05-20",
+      "historical_benefit_change_title_date": "2021-01-14",
+      "historical_expiry_extension_title_date": "2022-04-18",
+      "historic_titles_not_treated_as_current_changes": true
+    },
+    "latest_shareholder_report": {
+      "url": "https://www.daisyo.co.jp/company/ir/wordpress/wp-content/uploads/2026/05/20260520_kabunushitsushin_gziHOofa.pdf",
+      "discovery": "actual_latest_link_in_official_shareholder_list",
+      "listing_date": "2026-05-20",
+      "report_period_end": "2026-02-28",
+      "PDF_text_pages_checked": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "relevant_fact": "同社コード9979と100株以上の半期ごとの食事優待を確認",
+      "new_abolition_or_future_amount_change_found": false
+    },
+    "limitations": [
+      "券の有効期限と詳しい利用対象/併用条件は今回の制度本文・最新通信から未確認",
+      "保有期間条件の記載が見えないことを将来も条件なしとの保証にしない",
+      "IRニュースの表示2件と株主向け一覧、最新通信だけの限定確認。全IRの全本文を網羅しない",
+      "2021年の変更と2022年の期限延長を本日の新発表や現行期限に読み替えない"
+    ]
+  },
+  "original_note_sha256": {
+    "restaurant-additions-3387-8200-9979-factnotes.json": "f0c42ca2f87e795e1c696eda43833a3b4e33ad5eb22c5b65d04b2ad8a34ec78c",
+    "three-adoptions-current-and-IR-scope-review.json": "1f9b6772ff6b79f43453620e26b2f337fff9854af9834ea25bd7d3d0ee14903f"
+  }
+}

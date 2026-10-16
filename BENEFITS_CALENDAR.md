@@ -1,9 +1,10 @@
 # Shareholder benefits calendar
 
-Company IR reviewed on 2026-09-25. The catalogue contains nine reviewed companies,
-including five with a September 2026 deadline. This is a partial, manually reviewed
-catalogue, not all Japanese listed companies, a popularity ranking or an automatic
-benefit-data updater. Missing search results must not be described as "no benefit".
+The catalogue contains 14 companies: the original nine reviewed on 2026-09-25 and
+five additions reviewed on 2026-10-17. The owner chose phased expansion using free
+official sources only. This remains a partial, manually reviewed catalogue, not a
+complete benefit-issuer list or automatic data updater. Missing records never mean
+"no benefit". A build does not refresh the original nine's confirmation dates.
 
 ## Data and scheduling
 
@@ -78,10 +79,90 @@ use the basic no-minimum-holding schedule helper.
 Excluded: Marui 8252 ended benefits after September 2022. Official notice:
 https://www.0101maruigroup.co.jp/pdf/settlement/22_0805/22_0805_3.pdf
 
+## Free official additions reviewed on 2026-10-17
+
+Only independently written factual summaries are used, without source prose,
+tables, photographs or voucher art. `benefits-data/reviewed-additions.json` and its
+observation notes retain actual review scope; note hashes are not raw-page hashes.
+The reviewed recent IR lists and linked amendments do not prove all past and
+future changes absent.
+
+- 3543 Komeda: https://komeda-holdings.co.jp/benefit/
+  100+ shares, KOMECA 1,000 yen each February/August end. February-only extra
+  1,000 yen requires 300+ current shares and the same shareholder number at seven
+  consecutive half-year records. Do not require 300 shares across all seven.
+  Confirmed 2026-February balance expiry is 2027-05-31; August expiry is unknown.
+- 3387 Create Restaurants: https://www.createrestaurants.com/ir/stock/shareholder/
+  All 11 basic tiers and four long-holding additions; current 100-share tier is
+  1,500 yen each February/August end. Long additions use the minimum shares across
+  three same-number half-year records, each with 800+ shares. Old SFP holding
+  periods do not carry over. Conflicting individual-store applicability is not
+  resolved or guaranteed.
+- 9979 Daisyo: https://www.daisyo.co.jp/company/ir/invest.html
+  All three tiers, 3,000/6,000/12,000 yen each February/August end. May-end and
+  early-December delivery are approximate. Expiry and detailed redemption remain
+  unconfirmed; an unstated holding condition is not converted to zero months.
+- 2590 DyDo: https://holdings.dydo.co.jp/
+  Public citation follows the homepage-link request; the actual programme URL
+  remains in the internal manifest. 200+ shares for six months, January 20 and
+  preceding July 20 same-number records: 6,000-yen products once a year. Shipping
+  changed to late June from 2026. The five-year anniversary gift is one-time;
+  discounted sales and gifts are not summed into an annual cash entitlement.
+- 2809 Kewpie: https://lp.kewpie.com/ir/stocks-information/benefit/
+  All four share/holding alternatives: 1,000/1,500/3,000/5,000 yen equivalent, not
+  additive or freely selectable. Explicit 2026-11-30 eligibility and planned
+  2027-03-06 delivery. Buying now cannot satisfy the earlier six-month registration.
+  Unstated three-year registration counts or continuous 500-share history are not
+  invented.
+
+All five additions have `schedules: []`. Programme facts and delivery information
+appear under next-date-unconfirmed; purchase deadlines are not fabricated. The
+original 12 explicit schedules and all original nine deep values remain intact.
+
+## Reviewed build and coverage
+
+`scripts/build_benefits_catalogue.py` is offline: it validates issuer identity,
+actual observation time/evidence hashes, manual review flags, effective versions,
+all share/holding tiers and explicit schedules. It rejects accidental replacement
+of the fixed original-nine snapshot. A deliberate amendment requires separate
+audited re-review. Public JS omits internal evidence paths, hashes, transport times
+and reviewer identities. Expired versions stop showing their old amounts as current.
+
+The existing saved domestic-common-equity catalogue contains 3,797 unique companies
+from Tokyo/Nagoya/Sapporo/Fukuoka sources dated 2026-09-30 through 2026-10-14. It is
+not an independently refreshed October 17 universe or a count of benefit issuers.
+Unreviewed, source-unavailable and held sources stay separate from explicit absence.
+
+Create the reduced identity input from the canonical saved files, with no network:
+
+```sh
+python3 -B - <<'PY'
+import json
+from pathlib import Path
+from japan_equity_catalogue import merge_companies
+rows, _ = merge_companies(
+    json.loads(Path('static/jpx-company-catalogue.json').read_text()),
+    json.loads(Path('static/japan-equity-supplement.json').read_text()))
+Path('/tmp/benefits-identities.json').write_text(json.dumps({
+    'schema_version': 1, 'as_of': min(row['as_of'] for row in rows),
+    'items': [{k: row[k] for k in ('code', 'symbol', 'name')} for row in rows]
+}, ensure_ascii=False))
+PY
+python3 -B scripts/build_benefits_catalogue.py \
+  --additions benefits-data/reviewed-additions.json \
+  --identities /tmp/benefits-identities.json --evidence-root benefits-data \
+  --as-of YYYY-MM-DD --output-dir /tmp/benefits-reviewed-build
+```
+
+Supply the actual JST review day. Review the generated diff and verification,
+copy the generated JS to `static/shareholder-benefits-data.js`, and run the benefits
+tests. This does not acquire new source facts, deploy or update confirmation dates.
+
 ## Maintenance
 
 Re-read official amendments, share splits, abolition and continuity requirements before
 changing terms or verification dates. Add each future schedule only after checking the
-record date, trading deadline and applicable tier. The UI shows coverage counts,
-searches across months, and keeps companies with no future schedule in the unconfirmed
-section. It must not silently drop those companies or manufacture the next cycle.
+record date, trading deadline and applicable tier. The UI shows coverage counts
+and keeps companies with no future schedule in the unconfirmed section. It must
+not silently drop them or manufacture the next cycle. Keep existing month navigation;
+do not restore the removed internal calendar search as part of data expansion.
