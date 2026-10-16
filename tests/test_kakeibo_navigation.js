@@ -17,9 +17,9 @@ function fixture({embedded=false,helper,result=true,otherOrigin=false,throwOnOri
   const childWindow=vm.runInNewContext('window',context);
   return {context,childWindow,back,calls,click({nested=false}={}){const target=nested?{closest:selector=>selector==='.back-btn'?back:null}:back;events.click({target,preventDefault(){prevented++;}});return prevented;}};
 }
-test('back link has a native top-level home fallback and updated layout cache version',()=>{
-  const html=read('kakeibo.html'),back=html.match(/<a\b[^>]*class="[^"]*\bback-btn\b[^\"]*"[^>]*>/)?.[0];
-  assert.ok(back);assert.match(back,/\bhref="\/"/);assert.match(back,/\btarget="_top"/);
+test('household header omits the retired back link and keeps its layout script',()=>{
+  const html=read('kakeibo.html');
+  assert.doesNotMatch(html,/<a\b[^>]*class="[^"]*\bback-btn\b/);
   assert.match(html,/kakeibo-layout\.js\?v=20261015-homegraphs1/);
 });
 test('standalone and unsupported-parent back clicks keep the native top-level home fallback',()=>{
