@@ -85,6 +85,30 @@ class OfflineCase(unittest.TestCase):
 
 
 class EstimateTests(OfflineCase):
+    def test_unknown_price_preserves_only_valid_numeric_usage_without_pricing_it(self):
+        usage = {**openai_usage(cached=25), 'private': 'private-secret-fixture'}
+        usage['input_tokens_details']['private'] = 'private-secret-fixture'
+        result = estimate_cost('openai', 'unlisted-model', usage)
+        self.assertIsNone(result['usd_nanos'])
+        self.assertEqual(result['reason'], 'pricing_unavailable')
+        self.assertEqual(result['tokens']['input_tokens'], 1000)
+        self.assertEqual(result['tokens']['input_tokens_details']['cached_tokens'], 25)
+        self.assertNotIn('private-secret-fixture', json.dumps(result))
+
+    def test_unknown_usage_never_replaces_invalid_counters_with_zero(self):
+        result = estimate_cost('gemini', 'gemini-2.5-flash', {
+            **gemini_usage(), 'promptTokenCount': True, 'thoughtsTokenCount': 'private-secret-fixture'})
+        self.assertIsNone(result['usd_nanos'])
+        self.assertNotIn('promptTokenCount', result['tokens'])
+        self.assertNotIn('thoughtsTokenCount', result['tokens'])
+        self.assertEqual(result['tokens']['totalTokenCount'], 1100)
+        self.assertNotIn('private-secret-fixture', json.dumps(result))
+
+    def test_auto_service_tier_is_still_unpriced_not_assumed_standard(self):
+        result = estimate_cost('openai', 'gpt-6-luna', openai_usage(), 'auto')
+        self.assertIsNone(result['usd_nanos'])
+        self.assertEqual(result['tokens'], openai_usage())
+
     def test_gemini_thinking_is_charged_once_in_total_minus_prompt(self):
         result = estimate_cost('gemini', 'gemini-2.5-flash', {
             'promptTokenCount': 1000, 'totalTokenCount': 1150,
@@ -178,6 +202,47 @@ class EstimateTests(OfflineCase):
 
 
 class RecorderTests(OfflineCase):
+    def test_unknown_tier_is_bounded_and_never_contains_raw_private_text(self):
+        recorder = self.recorder()
+        recorder.start_request(provider='openai', model='gpt-6-luna', request_id=identifier(1))
+        recorder.record_request(provider='openai', model='gpt-6-luna', request_id=identifier(1),
+                                usage=openai_usage(), service_tier='private-secret-fixture')
+        finish = next(v for k, v in self.storage.values.items() if k.endswith('.usage.json'))
+        self.assertEqual(finish['service_tier'], 'unknown')
+        self.assertEqual(finish['tokens'], openai_usage())
+        self.assertIsNone(finish['usd_nanos'])
+        self.assertNotIn('private-secret-fixture', json.dumps(self.storage.values))
+
+    def test_provider_reason_breakdown_and_hash_only_request_projection(self):
+        recorder = self.recorder()
+        self.record(recorder)
+        recorder.start_request(provider='openai', model='unlisted-model', request_id=identifier(2))
+        recorder.record_request(provider='openai', model='unlisted-model', request_id=identifier(2),
+                                usage=openai_usage(), service_tier='auto')
+        recorder.start_request(provider='gemini', model='gemini-2.5-flash', request_id=identifier(3))
+        result = recorder.safe_summary()
+        self.assertEqual(result['unknown_reasons'], {'pricing_unavailable': 1, 'usage_not_recorded': 1})
+        self.assertEqual(result['providers']['gemini']['request_count'], 2)
+        self.assertEqual(result['providers']['openai']['unknown_cost_count'], 1)
+        self.assertEqual(result['receipts'][1]['model'], 'unlisted_model')
+        self.assertEqual(result['receipts'][1]['tokens']['input_tokens'], 1000)
+        self.assertEqual(result['receipts'][1]['service_tier'], 'auto')
+        self.assertTrue(all(len(value['request_sha256']) == 64 for value in result['receipts']))
+        self.assertNotIn(identifier(2), json.dumps(result))
+
+    def test_numeric_only_run_context_is_retained_without_environment_secrets(self):
+        with patch.dict('os.environ', {'GITHUB_RUN_ID': '1234567', 'GITHUB_RUN_ATTEMPT': '2',
+                                      'UNRELATED_SECRET': 'private-secret-fixture'}):
+            recorder = self.recorder()
+        self.record(recorder)
+        result = recorder.safe_summary()
+        self.assertEqual(result['receipts'][0]['run_context'],
+                         {'github_run_id': 1234567, 'github_run_attempt': 2})
+        self.assertNotIn('private-secret-fixture', json.dumps(self.storage.values))
+        other = ReviewUsageRecorder(self.storage, scope='company', clock=lambda: self.now,
+                                    run_context={'github_run_id': True, 'github_run_attempt': 'secret'})
+        self.assertEqual(other.run_context, {})
+
     def test_each_http_has_private_immutable_start_and_usage_receipts(self):
         recorder = self.recorder()
         self.record(recorder)
@@ -348,6 +413,160 @@ class RecorderTests(OfflineCase):
 
 
 class AggregationTests(OfflineCase):
+    def test_same_day_complete_scan_exactly_matches_local_receipt_set_and_provider_subtotal(self):
+        recorder = self.recorder('company')
+        self.record(recorder)
+        self.record(recorder, 2, provider='openai', usage=openai_usage())
+        run = recorder.safe_summary()
+        daily = collect_daily_cost(self.storage, '2026-10-11')
+        company = daily['scopes']['company']
+        for key in ('request_count', 'estimated_cost_usd', 'unknown_cost_count',
+                    'request_set_sha256', 'receipt_set_sha256'):
+            self.assertEqual(run[key], company[key])
+        self.assertEqual(run['receipts'], daily['receipts'])
+        self.assertNotIn('receipts', company)
+        self.assertNotIn('receipts', daily['providers']['openai'])
+        self.assertEqual(daily['providers']['openai']['estimated_cost_usd'], '0.00015')
+        self.assertEqual(daily['scan']['reason_codes'], [])
+        self.assertEqual(daily['scan']['read_object_count'], 4)
+        self.assertFalse(daily['snapshot_guaranteed'])
+
+    def test_digest_is_stable_despite_listing_order_and_changes_with_finish_evidence(self):
+        recorder = self.recorder()
+        self.record(recorder)
+        self.record(recorder, 2)
+        original = collect_daily_cost(self.storage, '2026-10-11')
+        listing = self.storage._list
+        self.storage._list = lambda *a, **kw: list(reversed(listing(*a, **kw)))
+        reordered = collect_daily_cost(self.storage, '2026-10-11')
+        self.assertEqual(original['receipt_set_sha256'], reordered['receipt_set_sha256'])
+        del self.storage.values[f'{PREFIX}/2026-10-11/{identifier(2)}.usage.json']
+        missing = collect_daily_cost(self.storage, '2026-10-11')
+        self.assertEqual(original['request_set_sha256'], missing['request_set_sha256'])
+        self.assertNotEqual(original['receipt_set_sha256'], missing['receipt_set_sha256'])
+        self.assertEqual(missing['unknown_reasons'], {'usage_not_recorded': 1})
+
+    def test_default_120_second_scan_completes_synthetic_day_that_exceeded_old_12_seconds(self):
+        recorder = self.recorder()
+        for number in range(1, 7):
+            self.record(recorder, number)
+        elapsed = [0]
+        read = self.storage.read
+        def slow_read(path, *, deadline=None):
+            elapsed[0] += 2
+            return read(path, deadline=deadline)
+        self.storage.read = slow_read
+        result = collect_daily_cost(self.storage, '2026-10-11', clock=lambda: elapsed[0])
+        self.assertTrue(result['scan_complete'])
+        self.assertEqual(result['request_count'], 6)
+        self.assertEqual(result['scan']['elapsed_seconds'], 24)
+        self.assertEqual(result['scan']['time_budget_seconds'], 120)
+
+    def test_deadline_stops_reads_and_preserves_safe_partial_results(self):
+        recorder = self.recorder()
+        for number in range(1, 7):
+            self.record(recorder, number)
+        elapsed = [0]
+        read = self.storage.read
+        def slow_read(path, *, deadline=None):
+            elapsed[0] += 2
+            return read(path, deadline=deadline)
+        self.storage.read = slow_read
+        result = collect_daily_cost(self.storage, '2026-10-11', seconds=12, clock=lambda: elapsed[0])
+        self.assertFalse(result['scan_complete'])
+        self.assertFalse(result['estimate_complete'])
+        self.assertIn('scan_deadline', result['scan']['reason_codes'])
+        self.assertEqual(result['scan']['read_object_count'], 6)
+        self.assertGreater(result['scan']['unread_listed_count'], 0)
+        self.assertEqual(len(self.storage.values), 12)
+
+    def test_cancelled_scan_reads_no_storage_and_never_claims_zero_total_complete(self):
+        result = collect_daily_cost(self.storage, '2026-10-11', cancelled=lambda: True)
+        self.assertEqual(self.storage.operations, [])
+        self.assertFalse(result['scan_complete'])
+        self.assertEqual(result['scan']['reason_codes'], ['scan_cancelled'])
+        self.assertFalse(result['estimate_complete'])
+
+    def test_invalid_scan_budgets_fail_before_storage(self):
+        for kwargs in ({'seconds': 0}, {'seconds': 301}, {'seconds': float('nan')},
+                       {'seconds': True}, {'max_objects': 1}, {'max_objects': 1201},
+                       {'max_objects': True}, {'cancelled': 'secret'}, {'clock': 1}):
+            with self.subTest(kwargs=kwargs), self.assertRaises(ValueError):
+                collect_daily_cost(self.storage, '2026-10-11', **kwargs)
+        self.assertEqual(self.storage.operations, [])
+
+    def test_invalid_receipt_timestamp_provider_and_unsafe_fields_are_not_reflected(self):
+        for field, value in [('provider', ['private-secret-fixture']),
+                             ('started_at', '2026-10-11T12:00:00'),
+                             ('tokens', {'private': 'private-secret-fixture'}),
+                             ('reason', {'private': 'private-secret-fixture'}),
+                             ('service_tier', 'private-secret-fixture')]:
+            with self.subTest(field=field):
+                self.storage = MemoryStorage()
+                self.record(self.recorder())
+                self.storage.values[f'{PREFIX}/2026-10-11/{identifier(1)}.usage.json'][field] = value
+                result = collect_daily_cost(self.storage, '2026-10-11')
+                self.assertFalse(result['scan_complete'])
+                self.assertEqual(result['unknown_cost_count'], 1)
+                self.assertIn('invalid_record', result['scan']['reason_codes'])
+                self.assertNotIn('private-secret-fixture', json.dumps(result))
+
+    def test_object_limit_is_explicit_and_does_not_count_unread_records(self):
+        recorder = self.recorder()
+        for number in range(1, 7):
+            self.record(recorder, number)
+        result = collect_daily_cost(self.storage, '2026-10-11', max_objects=4)
+        self.assertFalse(result['scan_complete'])
+        self.assertIn('object_limit', result['scan']['reason_codes'])
+        self.assertEqual(result['scan']['read_object_count'], 4)
+        self.assertEqual(result['scan']['unread_listed_count'], 8)
+
+    def test_historical_saved_price_is_not_recomputed_at_current_rates(self):
+        self.record(self.recorder())
+        finish = self.storage.values[f'{PREFIX}/2026-10-11/{identifier(1)}.usage.json']
+        finish.update(pricing_version='2026-09-01-text-standard', usd_nanos=123456)
+        result = collect_daily_cost(self.storage, '2026-10-11')
+        self.assertTrue(result['scan_complete'])
+        self.assertEqual(result['estimated_cost_usd'], '0.000123456')
+        self.assertEqual(result['receipts'][0]['pricing_version'], '2026-09-01-text-standard')
+
+    def test_known_money_with_missing_or_inconsistent_tokens_is_not_accepted_as_complete(self):
+        for tokens in ({}, {**gemini_usage(), 'totalTokenCount': 1}):
+            with self.subTest(tokens=tokens):
+                self.storage = MemoryStorage()
+                self.record(self.recorder())
+                finish = self.storage.values[f'{PREFIX}/2026-10-11/{identifier(1)}.usage.json']
+                finish['tokens'] = tokens
+                result = collect_daily_cost(self.storage, '2026-10-11')
+                self.assertFalse(result['scan_complete'])
+                self.assertEqual(result['unknown_cost_count'], 1)
+                self.assertEqual(result['estimated_cost_usd'], '0')
+
+    def test_current_price_known_amount_must_match_saved_numeric_usage_and_basis(self):
+        for change in ({'usd_nanos': 1}, {'basis': 'conservative_cache_write'},
+                       {'service_tier': 'auto'}):
+            with self.subTest(change=change):
+                self.storage = MemoryStorage()
+                self.record(self.recorder())
+                finish = self.storage.values[f'{PREFIX}/2026-10-11/{identifier(1)}.usage.json']
+                finish.update(change)
+                result = collect_daily_cost(self.storage, '2026-10-11')
+                self.assertFalse(result['scan_complete'])
+                self.assertEqual(result['unknown_cost_count'], 1)
+                self.assertEqual(result['estimated_cost_usd'], '0')
+
+    def test_run_context_disagreement_is_incomplete_without_inventing_attribution(self):
+        recorder = ReviewUsageRecorder(self.storage, scope='company', clock=lambda: self.now,
+                                      run_context={'github_run_id': 123, 'github_run_attempt': 1})
+        self.record(recorder)
+        finish = self.storage.values[f'{PREFIX}/2026-10-11/{identifier(1)}.usage.json']
+        finish['run_context']['github_run_id'] = 456
+        result = collect_daily_cost(self.storage, '2026-10-11')
+        self.assertFalse(result['scan_complete'])
+        self.assertEqual(result['scan']['context_mismatch_count'], 1)
+        self.assertEqual(result['unknown_cost_count'], 1)
+        self.assertEqual(result['receipts'][0]['run_context']['github_run_id'], 123)
+
     def test_three_scopes_share_one_daily_total(self):
         for number, scope in enumerate(('economy', 'company', 'private_test'), 1):
             self.record(self.recorder(scope), number)
