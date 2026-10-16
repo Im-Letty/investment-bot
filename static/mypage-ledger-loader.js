@@ -1,12 +1,13 @@
 (function () {
   'use strict';
-  var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false;
+  var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false, personalScroll=0;
   function account() {
     var user=window.knUser;
     return user&&user.id?String(user.id):'';
   }
-  function unload() {
+  function unload(keepParentScroll) {
     owner='';ready=false;loaded=false;
+    if(!keepParentScroll){personalScroll=0;if(body)body.scrollTop=0;}
     if(frame&&frame.getAttribute('src')){
       // Detach the old browsing context immediately, including pending save
       // timers. A new account must never resume the previous account's page.
@@ -47,7 +48,7 @@
     try {
       var doc=frame.contentDocument,where=frame.contentWindow.location;
       if(!doc||doc.readyState!=='complete'||doc.documentElement.getAttribute('data-kn-ledger-ready')==='true')return;
-      if(where.origin===location.origin&&/^https?:$/.test(where.protocol)&&where.pathname!=='/kakeibo')unload();
+      if(where.origin===location.origin&&/^https?:$/.test(where.protocol)&&where.pathname!=='/kakeibo')unload(owner===account());
     } catch(ignore) {}
   }
   function returnFromLedger(source) {
@@ -60,6 +61,7 @@
     } catch(ignore) {return false;}
   }
   function show(group) {
+    var wasLedger=pane.classList.contains('on');
     if(group===1){
       if(!account())return;
       recoverWrongDocument();
@@ -71,11 +73,19 @@
         else if(child.renderAll)child.renderAll();
       } catch(ignore) {}
     }
+    if(group===1&&!wasLedger)personalScroll=body.scrollTop;
     personal.classList.toggle('on',group===0);ledger.classList.toggle('on',group===1);
-    tabs.style.display=group===0?'':'none';pane.classList.toggle('on',group===1);
+    // Reserve the same intrinsic tab-row height in both views, including large
+    // type and translated labels. Hidden tabs must not remain keyboard targets.
+    tabs.style.display='';tabs.style.visibility=group===0?'':'hidden';
+    if(group===1){tabs.setAttribute('inert','');tabs.setAttribute('aria-hidden','true');}
+    else {tabs.removeAttribute('inert');tabs.removeAttribute('aria-hidden');}
+    pane.classList.toggle('on',group===1);
     var inner=body.querySelectorAll('.mo-pane:not(.kb-pane)'), ti=tabs.querySelectorAll('.mo-tab');
     for(var i=0;i<inner.length;i++)
       inner[i].classList.toggle('on',group===0&&!!(ti[i]&&ti[i].classList.contains('on')));
+    if(group===1)body.scrollTop=0;
+    else if(wasLedger)body.scrollTop=personalScroll;
     // Keep the same authenticated document, its scroll position and unfinished
     // inputs when switching tabs. Authentication changes destroy it below.
   }

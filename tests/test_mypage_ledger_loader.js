@@ -15,7 +15,7 @@ function closeMySource(){
 function fixture(user={id:'account-A'}) {
   const events={},messages={},mutations=[],navigations=[];let refreshes=0,closes=0;
   class Element {
-    constructor(){this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};this.srcChanges=[];}
+    constructor(){this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};this.srcChanges=[];this.scrollTop=0;}
     set className(value){this.classes=new Set(value.split(' '));}
     get classList(){return {contains:k=>this.classes?.has(k),add:k=>this.classes.add(k),remove:k=>this.classes.delete(k),toggle:(k,on)=>on?this.classes.add(k):this.classes.delete(k)};}
     appendChild(el){el.parentNode=this;this.children.push(el);return el;}
@@ -44,7 +44,7 @@ function fixture(user={id:'account-A'}) {
   const frame=page.querySelector('.kb-frame'),top=page.querySelector('.mp-toptabs'),personal=top.children[0],ledger=top.children[1];
   documentInFrame(frame);
   card.listeners.click=()=>{if(context.knUser&&!context.knUser.is_anonymous){page.classList.add('open');context.knPrepareLedger();}};
-  return {context,page,close,get frame(){return page.querySelector('.kb-frame');},personal,ledger,mutations,navigations,refreshes:()=>refreshes,closes:()=>closes,auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
+  return {context,page,tabs,body,close,get frame(){return page.querySelector('.kb-frame');},personal,ledger,mutations,navigations,refreshes:()=>refreshes,closes:()=>closes,auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
 }
 test('no household ledger request before an authorized MyPage visit',()=>{
   const h=fixture();assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareLedger();assert.equal(h.frame.getAttribute('src'),null);
@@ -56,6 +56,28 @@ test('same-account tab and screen changes preserve one document, its draft and s
   h.personal.click();h.ledger.click();h.page.classList.remove('open');h.mutations.forEach(fn=>fn());h.context.knOpenLedger();
   assert.deepEqual(h.frame.srcChanges,['/kakeibo']);assert.equal(h.frame.draft,'unfinished');assert.equal(h.frame.scroll,400);assert.ok(h.refreshes()>0);
   assert.equal(h.frame.getAttribute('loading'),'eager');
+});
+test('switching groups reserves the personal subtab row while disabling its hidden controls only in the ledger',()=>{
+  const h=fixture(),subtabs=h.tabs.children.slice();
+  h.body.scrollTop=960;h.context.knOpenLedger();
+  assert.equal(h.tabs.style.display,'');assert.equal(h.tabs.style.visibility,'hidden');assert.equal(h.tabs.getAttribute('inert'),'');assert.equal(h.tabs.getAttribute('aria-hidden'),'true');
+  assert.deepEqual(h.tabs.children,subtabs);assert.equal(h.body.scrollTop,0);assert.equal(h.personal.classList.contains('on'),false);assert.equal(h.ledger.classList.contains('on'),true);
+  h.personal.click();assert.equal(h.tabs.style.display,'');assert.equal(h.tabs.style.visibility,'');assert.equal(h.tabs.getAttribute('inert'),null);assert.equal(h.tabs.getAttribute('aria-hidden'),null);assert.equal(h.body.scrollTop,960);
+  assert.deepEqual(h.tabs.children,subtabs);assert.equal(h.tabs.children[0].classList.contains('on'),true);assert.equal(h.tabs.children[1].classList.contains('on'),false);
+});
+test('long personal-page scroll is restored after repeated switches without reloading or changing the ledger document, draft or child scroll',()=>{
+  const h=fixture();h.body.scrollTop=740;h.context.knOpenLedger();h.ready();
+  const frame=h.frame,doc=frame.contentDocument,child=frame.contentWindow;doc.draft={amount:'12345.67',memo:'synthetic unfinished memo'};doc.documentElement.scrollTop=415;child.scrollY=415;
+  assert.equal(h.body.scrollTop,0);h.ledger.click();h.ledger.click();assert.equal(h.body.scrollTop,0);
+  h.personal.click();assert.equal(h.body.scrollTop,740);h.body.scrollTop=1065;h.personal.click();assert.equal(h.body.scrollTop,1065,'reselecting Personal must not restore a stale position');
+  for(let i=0;i<3;i++){h.ledger.click();assert.equal(h.body.scrollTop,0);h.ledger.click();h.personal.click();assert.equal(h.body.scrollTop,1065);}
+  assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.deepEqual(doc.draft,{amount:'12345.67',memo:'synthetic unfinished memo'});assert.equal(doc.documentElement.scrollTop,415);assert.equal(child.scrollY,415);assert.deepEqual(h.navigations,['/kakeibo']);assert.ok(h.refreshes()>0);
+});
+test('account changes reset the remembered parent position while replacing the private ledger context',()=>{
+  const h=fixture();h.body.scrollTop=1230;h.context.knOpenLedger();const old=h.frame;old.contentDocument.draft='account A only';
+  h.auth({id:'account-B'});assert.notEqual(h.frame,old);assert.equal(old.parentNode,null);assert.equal(h.body.scrollTop,0);assert.equal(h.personal.classList.contains('on'),true);assert.equal(h.tabs.style.visibility,'');assert.equal(h.tabs.getAttribute('inert'),null);assert.equal(h.tabs.getAttribute('aria-hidden'),null);
+  h.ledger.click();h.personal.click();assert.equal(h.body.scrollTop,0,'the new account must not inherit the previous personal scroll');assert.notEqual(h.frame.contentDocument.draft,'account A only');assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);
+  h.body.scrollTop=530;h.ledger.click();h.personal.click();assert.equal(h.body.scrollTop,530,'new-account positions are remembered independently');
 });
 test('token refresh retains the document, signout destroys it and closes private view',()=>{
   const h=fixture();h.context.knOpenLedger();h.auth({id:'account-A'});assert.deepEqual(h.frame.srcChanges,['/kakeibo']);
@@ -73,7 +95,7 @@ test('readiness accepts only the owned same-origin household-ledger frame',()=>{
 });
 test('home navigation does not remove the ledger source and drawer opens it without a timer',()=>{
   const html=read('index.html');
-  assert.match(html,/mypage-ledger-loader\.js\?v=20261015-return1/);
+  assert.match(html,/mypage-ledger-loader\.js\?v=20261016-stable1/);
   assert.doesNotMatch(html,/__kf2.*removeAttribute\('src'\)/);
   assert.match(html,/var kakeibo=mkItem\("📒 家計簿",function\(\)\{CD\(\);if\(window\.knOpenLedger\)window\.knOpenLedger\(\);\}\)/);
 });
@@ -120,6 +142,24 @@ test('opening a retained frame that completed on the wrong same-origin page reco
   assert.notEqual(h.frame,wrong);assert.equal(wrong.parentNode,null);
   assert.equal(h.frame.getAttribute('src'),'/kakeibo');assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);
   assert.equal(h.ledger.classList.contains('on'),true);
+});
+test('same-owner wrong-document recovery retains the personal scroll position whether recovered from Personal or Ledger',()=>{
+  for(const recoverFromPersonal of [true,false]){
+    const h=fixture();h.body.scrollTop=740;h.context.knOpenLedger();const wrong=h.frame;
+    wrong.contentDocument={readyState:'complete',documentElement:{getAttribute:()=>null}};wrong.contentWindow.location.pathname='/';wrong.listeners.load();
+    if(recoverFromPersonal){h.personal.click();assert.equal(h.body.scrollTop,740);}
+    h.ledger.click();assert.notEqual(h.frame,wrong);assert.equal(wrong.parentNode,null);assert.equal(h.body.scrollTop,0);assert.equal(h.frame.getAttribute('src'),'/kakeibo');
+    h.personal.click();assert.equal(h.body.scrollTop,740,'same-account recovery must retain the long personal-page position');assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);
+  }
+});
+test('an account change observed before its auth event resets parent scroll during either ordinary opening or wrong-document recovery',()=>{
+  for(const wrongDocument of [false,true]){
+    const h=fixture();h.body.scrollTop=740;h.context.knOpenLedger();const old=h.frame;h.personal.click();assert.equal(h.body.scrollTop,740);
+    if(wrongDocument){old.contentDocument={readyState:'complete',documentElement:{getAttribute:()=>null}};old.contentWindow.location.pathname='/';old.listeners.load();}
+    h.context.knUser={id:'account-B'};h.ledger.click();assert.notEqual(h.frame,old);assert.equal(old.parentNode,null);assert.equal(h.body.scrollTop,0);assert.equal(h.frame.getAttribute('src'),'/kakeibo');
+    h.personal.click();assert.equal(h.body.scrollTop,0,'an unannounced new owner must not inherit the previous personal position');assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);
+    h.body.scrollTop=415;h.ledger.click();h.personal.click();assert.equal(h.body.scrollTop,415,'the new owner can still retain its own position');
+  }
 });
 test('opening a pending, auth-waiting, initial blank or correct ready ledger preserves its browsing context and source',()=>{
   for(const state of [{readyState:'loading',path:'/',ready:false,loaded:true},{readyState:'interactive',path:'/',ready:false,loaded:true},{readyState:'complete',path:'/',ready:false,loaded:false},{readyState:'complete',path:'blank',protocol:'about:',ready:false,loaded:true},{readyState:'complete',path:'/kakeibo',ready:false,loaded:true},{readyState:'complete',path:'/kakeibo',ready:true,loaded:true}]){

@@ -124,6 +124,7 @@ body.kn-home-a #myPageOv .mo-body {
   padding: 24px var(--mypage-gutter);
   overflow-y: auto;
   overflow-x: hidden;
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   background: var(--kn-sh-bg, #f0eedf) !important;
 }
