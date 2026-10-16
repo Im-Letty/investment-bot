@@ -26,7 +26,8 @@
   <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-separatecards1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
-  <script defer src="/static/kakeibo-category-picker.js?v=20261016-investmentcats1"></script>
+  <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
+  <script defer src="/static/kakeibo-category-picker.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
@@ -300,7 +301,7 @@ body{padding-bottom:24px;}
       <button class="ftab" id="ft-exp" onclick="switchForm('exp')" aria-pressed="false" data-i18n="kk_layout_expense">支出</button>
       <button class="ftab" id="ft-inv" onclick="switchForm('inv')" aria-pressed="false" data-i18n="kk_layout_investment">投資</button>
     </div>
-    <div id="form-inc"><label class="kk-entry-label" for="inc-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inc-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
+    <div id="form-inc"><label class="kk-entry-label" for="inc-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="inc-cat" onchange="if(window.kkIncCatChange)kkIncCatChange(this)"><option value="給与" data-i18n="kk_cat_salary">給与</option><option value="賞与" data-i18n="kk_cat_bonus">賞与</option><option value="副業" data-i18n="kk_cat_side_income">副業</option><option value="年金" data-i18n="kk_cat_pension">年金</option><option value="配当" data-i18n="kk_cat_dividend">配当</option><option value="その他" data-i18n="kk_cat_other_box">その他</option><option value="__kkadd__">＋ 新しいカテゴリ</option></select><label class="kk-entry-label" for="inc-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inc-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
     <div id="form-exp" style="display:none"><label class="kk-entry-label" for="exp-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="exp-cat" onchange="kkExpCatChange(this)"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option><option value="__kkadd__">➕ 新しいカテゴリ</option></select><label class="kk-entry-label" for="exp-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="exp-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
     <div id="form-inv" style="display:none"><label class="kk-entry-label" for="inv-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="inv-cat" onchange="if(window.kkInvCatChange)kkInvCatChange(this)"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><label class="kk-entry-label" for="inv-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inv-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
@@ -360,7 +361,7 @@ body{padding-bottom:24px;}
     <div id="dayRecList"></div>
     <div class="modal-form-title" style="margin-top:12px" data-i18n="kk_modal_add_record">＋ 記録を追加</div>
     <div class="type-tabs"><button class="type-tab sel-inc" id="mft-inc" onclick="switchModalForm('inc')" data-i18n="kk_btn_income">💰 収入</button><button class="type-tab" id="mft-exp" onclick="switchModalForm('exp')" data-i18n="kk_btn_expense">💸 支出</button><button class="type-tab" id="mft-inv" onclick="switchModalForm('inv')" data-i18n="kk_btn_investment">📈 投資</button></div>
-    <div id="modal-form-inc"><input class="inp" id="m-inc-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><input class="inp" id="m-inc-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addDayRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
+    <div id="modal-form-inc"><input class="inp" id="m-inc-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_salary" placeholder="項目名（例：給与）"><label class="kk-entry-label" for="m-inc-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="m-inc-cat" onchange="if(window.kkIncCatChange)kkIncCatChange(this)"><option value="給与" data-i18n="kk_cat_salary">給与</option><option value="賞与" data-i18n="kk_cat_bonus">賞与</option><option value="副業" data-i18n="kk_cat_side_income">副業</option><option value="年金" data-i18n="kk_cat_pension">年金</option><option value="配当" data-i18n="kk_cat_dividend">配当</option><option value="その他" data-i18n="kk_cat_other_box">その他</option><option value="__kkadd__">＋ 新しいカテゴリ</option></select><input class="inp" id="m-inc-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inc" onclick="addDayRecord('inc')" data-i18n="kk_btn_add_income">＋ 収入を追加</button></div>
     <div id="modal-form-exp" style="display:none"><input class="inp" id="m-exp-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_item_lunch" placeholder="項目名（例：ランチ代）"><select class="inp" id="m-exp-cat"><option value="食費" data-i18n="kk_cat_food">🍱 食費</option><option value="住居" data-i18n="kk_cat_housing">🏠 住居費</option><option value="交通" data-i18n="kk_cat_transport">🚃 交通費</option><option value="光熱費" data-i18n="kk_cat_utility">💡 光熱費</option><option value="通信費" data-i18n="kk_cat_communication">📱 通信費</option><option value="娯楽" data-i18n="kk_cat_entertainment">🎮 娯楽</option><option value="医療" data-i18n="kk_cat_medical">🏥 医療</option><option value="衣類" data-i18n="kk_cat_clothing">👕 衣類</option><option value="教育" data-i18n="kk_cat_education">📚 教育</option><option value="その他" data-i18n="kk_cat_other_box">📦 その他</option></select><input class="inp" id="m-exp-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn exp" onclick="addDayRecord('exp')" data-i18n="kk_btn_add_expense">＋ 支出を追加</button></div>
     <div id="modal-form-inv" style="display:none"><input class="inp" id="m-inv-name" type="text" oninput="kkClearEntryError(this)" placeholder="銘柄・ファンド名"><select class="inp" id="m-inv-cat"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="m-inv-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addDayRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
@@ -371,6 +372,12 @@ body{padding-bottom:24px;}
 // ========= i18n SYSTEM (kakeibo) =========
 var KK_I18N = {
   ja: {
+    kk_cat_salary: "給与",
+    kk_cat_bonus: "賞与",
+    kk_cat_side_income: "副業",
+    kk_cat_pension: "年金",
+    kk_cat_dividend: "配当",
+
     kk_calendar_records: "入力した記録",
     kk_calendar_day_heading: "{month}月{day}日",
     kk_calendar_no_dated_records: "この月の日付付きの記録はありません。",
@@ -550,6 +557,12 @@ var KK_I18N = {
     kk_js_total: "合計"
   },
   en: {
+    kk_cat_salary: "Salary",
+    kk_cat_bonus: "Bonus",
+    kk_cat_side_income: "Side income",
+    kk_cat_pension: "Pension",
+    kk_cat_dividend: "Dividends",
+
     kk_calendar_records: "Recorded entries",
     kk_calendar_day_heading: "{month}/{day}",
     kk_calendar_no_dated_records: "No dated entries for this month.",
@@ -729,6 +742,12 @@ var KK_I18N = {
     kk_js_total: "Total"
   },
   ko: {
+    kk_cat_salary: "급여",
+    kk_cat_bonus: "상여금",
+    kk_cat_side_income: "부수입",
+    kk_cat_pension: "연금",
+    kk_cat_dividend: "배당금",
+
     kk_calendar_records: "입력한 기록",
     kk_calendar_day_heading: "{month}월 {day}일",
     kk_calendar_no_dated_records: "이 달에는 날짜가 있는 기록이 없습니다.",
@@ -908,6 +927,12 @@ var KK_I18N = {
     kk_js_total: "합계"
   },
   zh: {
+    kk_cat_salary: "工资",
+    kk_cat_bonus: "奖金",
+    kk_cat_side_income: "副业收入",
+    kk_cat_pension: "养老金",
+    kk_cat_dividend: "股息",
+
     kk_calendar_records: "已输入的记录",
     kk_calendar_day_heading: "{month}月{day}日",
     kk_calendar_no_dated_records: "本月没有设置日期的记录。",
@@ -1088,6 +1113,7 @@ var KK_I18N = {
   }
 };
 var KK_CAT_KEY_MAP = {
+  "給与":"kk_cat_salary","賞与":"kk_cat_bonus","副業":"kk_cat_side_income","年金":"kk_cat_pension","配当":"kk_cat_dividend",
   "食費":"kk_cat_food","住居":"kk_cat_housing","交通":"kk_cat_transport",
   "光熱費":"kk_cat_utility","通信費":"kk_cat_communication","娯楽":"kk_cat_entertainment",
   "医療":"kk_cat_medical","衣類":"kk_cat_clothing","教育":"kk_cat_education",
@@ -1173,8 +1199,8 @@ function kkEntryError(input,key){
 function kkHtmlText(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function kkReadEntry(prefix){
   var nameInput=document.getElementById(prefix+'-name'),amountInput=document.getElementById(prefix+'-amount');
-  var homeQuick=prefix==='inc'||prefix==='exp'||prefix==='inv',categoryInput=homeQuick&&prefix!=='inc'?document.getElementById(prefix+'-cat'):null;
-  var name=homeQuick?(prefix==='inc'?kkT('kk_js_income'):(categoryInput&&categoryInput.value&&categoryInput.value!=='__kkadd__'?categoryInput.value:kkT(prefix==='inv'?'kk_js_investment':'kk_js_expense'))):nameInput.value.trim();
+  var homeQuick=prefix==='inc'||prefix==='exp'||prefix==='inv',categoryInput=homeQuick?document.getElementById(prefix+'-cat'):null;
+  var name=homeQuick?(categoryInput&&categoryInput.value&&categoryInput.value!=='__kkadd__'?categoryInput.value:kkT(prefix==='inc'?'kk_js_income':prefix==='inv'?'kk_js_investment':'kk_js_expense')):nameInput.value.trim();
   var amount=kkParseAmount(amountInput.value),firstInvalid=null;
   if(nameInput)kkClearEntryError(nameInput);kkClearEntryError(amountInput);
   if(!homeQuick&&!name){kkEntryError(nameInput,'kk_input_name_required');firstInvalid=nameInput;}
@@ -1530,7 +1556,7 @@ function switchModalForm(f){_modalForm=f;['inc','exp','inv'].forEach(function(t)
 function addDayRecord(type){
   if(!_modalDate||['inc','exp','inv'].indexOf(type)===-1)return;
   var prefix='m-'+type,entry=kkReadEntry(prefix);if(!entry)return;
-  var cat=type==='inc'?'':document.getElementById(prefix+'-cat').value;
+  var cat=document.getElementById(prefix+'-cat').value;
   var data=getDayData(_modalDate.y,_modalDate.m,_modalDate.day);
   data.push({id:Date.now(),type:type,name:entry.name,cat:cat,amount:entry.amount});
   if(!saveDayData(_modalDate.y,_modalDate.m,_modalDate.day,data))return;kkClearEntry(prefix);renderAll();
@@ -1559,7 +1585,7 @@ function kkRecordDateControl(row,index){
 function addRecord(type){
   if(['inc','exp','inv','ast'].indexOf(type)===-1)return;
   var entry=kkReadEntry(type);if(!entry)return;
-  var cat=type==='inc'?'':document.getElementById(type+'-cat').value;
+  var cat=document.getElementById(type+'-cat').value;
   if(type==='ast'){
     var assets=getAssets();assets.push({id:Date.now(),name:entry.name,cat:cat,amount:entry.amount});
     saveAssets(assets);kkClearEntry(type);renderAll();return;

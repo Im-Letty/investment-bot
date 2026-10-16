@@ -204,9 +204,9 @@ test('a failed local write retains a valid draft for retry without a success red
 test('all Home entry types save without name inputs, reject an empty repeat and accept the next amount',()=>{
   for(const type of ['inc','exp','inv']){
     const h=fixture();assert.equal(h.document.getElementById(type+'-name'),null);
-    const category=type==='inv'?'米国株':'独自の食費';h.fill(type,'１，０００．５','unused Home name',category);const date=h.nodes.get('kkEntryDate').value;h.context.addRecord(type);
+    const category=type==='inc'?'給与':type==='inv'?'米国株':'独自の食費';h.fill(type,'１，０００．５','unused Home name',category);const date=h.nodes.get('kkEntryDate').value;h.context.addRecord(type);
     let rows=monthRows(h);assert.equal(rows.length,1);assert.equal(rows[0].amount,1000.5);assert.equal(rows[0].date,date);
-    assert.equal(rows[0].name,type==='inc'?h.context.kkT('kk_js_income'):category);assert.equal(h.nodes.get(type+'-amount').value,'');
+    assert.equal(rows[0].name,category);assert.equal(rows[0].cat,category);assert.equal(h.nodes.get(type+'-amount').value,'');
     const original=JSON.parse(JSON.stringify(rows[0]));h.context.addRecord(type);
     assert.deepEqual(monthRows(h),[original]);assert.equal(h.writes.length,1);assert.equal(h.nodes.get(type+'-amount').getAttribute('aria-invalid'),'true');
     h.nodes.get(type+'-amount').value='２００';h.context.addRecord(type);rows=monthRows(h);
@@ -215,18 +215,32 @@ test('all Home entry types save without name inputs, reject an empty repeat and 
   }
 });
 
-test('automatic Home names use current income translation and literal expense or investment categories',()=>{
+test('automatic Home names use literal categories and translate the fallback for uncategorized income',()=>{
   const incomeNames=new Set();
   for(const lang of ['ja','en','ko','zh']){
-    for(const [type,category] of [['inc',''],['exp','旅行・カフェ'],['exp',''],['inv','国内株'],['inv','ETF'],['inv','']]){
+    for(const [type,category] of [['inc',''],['inc','給与'],['inc','架空の返金'],['exp','旅行・カフェ'],['exp',''],['inv','国内株'],['inv','ETF'],['inv','']]){
       const h=fixture();h.context.kkApplyLang(lang);h.writes.length=0;h.fill(type,'１０００','unused Home name',category);h.context.addRecord(type);
-      const saved=monthRows(h)[0],expected=type==='inc'?h.context.kkT('kk_js_income'):category||h.context.kkT(type==='inv'?'kk_js_investment':'kk_js_expense');
-      assert.equal(saved.name,expected);assert.equal(saved.cat,type==='inc'?'':category);assert.equal(saved.amount,1000);assert.ok(saved.name);assert.equal(h.writes.length,1);
+      const saved=monthRows(h)[0],expected=category||h.context.kkT(type==='inc'?'kk_js_income':type==='inv'?'kk_js_investment':'kk_js_expense');
+      assert.equal(saved.name,expected);assert.equal(saved.cat,category);assert.equal(saved.amount,1000);assert.ok(saved.name);assert.equal(h.writes.length,1);
       assert.equal(h.document.getElementById(type+'-name'),null);assert.equal(h.document.getElementById(type+'-name-error'),null);
-      if(type==='inc')incomeNames.add(saved.name);
+      if(type==='inc'&&!category)incomeNames.add(saved.name);
     }
   }
   assert.equal(incomeNames.size,4);
+});
+
+test('categorized Home and calendar income remain shared while uncategorized legacy income stays untouched',()=>{
+  const old=[{id:1,type:'inc',name:'既存の収入',cat:'',amount:100,date:'2026-10-02'}];
+  const raw=JSON.stringify(old),h=fixture({kb2_2026_10:raw});h.context._year=2026;h.context._month=10;
+  h.context.renderAll();assert.equal(h.values.get('kb2_2026_10'),raw);assert.equal(h.writes.length,0);
+  h.nodes.get('kkEntryDate').value='2026-10-03';h.fill('inc','１２．５','unused','給与');h.context.addRecord('inc');
+  h.context._modalDate={y:2026,m:10,day:4};h.fill('m-inc','２０．２５','架空の振込','架空の返金');h.context.addDayRecord('inc');
+  const rows=h.context.getData();assert.equal(rows.length,3);assert.deepEqual(JSON.parse(JSON.stringify(rows.find(row=>row.id===1))).cat,'');
+  assert.equal(rows.find(row=>row.date==='2026-10-03').cat,'給与');assert.equal(rows.find(row=>row.date==='2026-10-04').cat,'架空の返金');
+  assert.equal(h.context.getDayData(2026,10,3)[0].cat,'給与');assert.equal(h.context.getDayData(2026,10,4)[0].name,'架空の振込');
+  assert.equal(h.nodes.get('d-income').textContent,'¥132.75');assert.match(h.nodes.get('rec-list-el').innerHTML,/架空の返金/);assert.match(h.nodes.get('kkCalendarRecords').innerHTML,/給与/);assert.match(h.nodes.get('kkCalendarRecords').innerHTML,/架空の返金/);
+  const reloaded=fixture(Object.fromEntries(h.values));reloaded.context._year=2026;reloaded.context._month=10;reloaded.context.renderAll();
+  assert.equal(reloaded.context.getData().length,3);assert.equal(reloaded.nodes.get('d-income').textContent,'¥132.75');assert.deepEqual(reloaded.writes,[]);
 });
 
 test('asset and each calendar form still require a name before any valid amount can save',()=>{

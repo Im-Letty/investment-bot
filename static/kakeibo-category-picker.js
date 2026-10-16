@@ -7,6 +7,11 @@
   if (!select || !label || document.getElementById(stem + 'Picker')) return;
 
   var paths = {
+    '給与': 'M4 7h16v14H4ZM8 7V3h8v4M4 12h16M10 12v3h4v-3',
+    '賞与': 'M3 8h18v4H3ZM5 12v9h14v-9M12 8v13M12 8C5 8 5 2 8 3c3 0 4 5 4 5Zm0 0c7 0 7-6 4-5-3 0-4 5-4 5Z',
+    '副業': 'M3 21h18M5 21V9l7-5 7 5v12M9 21v-7h6v7',
+    '年金': 'M12 3a9 9 0 1 1-9 9 9 9 0 0 1 9-9ZM12 7v5l3 2',
+    '配当': 'M4 21V11M10 21V7M16 21V3M3 7l6-3 5 1 7-4',
     '食費': 'M4 3v6a3 3 0 0 0 6 0V3M7 3v18M18 21V3c-4 3-4 9 0 9',
     '住居': 'm3 10 9-7 9 7M5 9v12h14V9M9 21v-8h6v8',
     '交通': 'M5 16V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2ZM5 10h14M8 21l2-3m6 3-2-3M8 14h.01M16 14h.01',
@@ -202,6 +207,8 @@
   select.hidden = true;
   new MutationObserver(refresh).observe(select, {childList:true, subtree:true, characterData:true, attributes:true, attributeFilter:['disabled', 'selected']});
   }
+  enhance({select:'inc-cat',stem:'kkIncomeCategory',create:typeof window.kkAddIncomeCategory === 'function' ? function (name) {return window.kkAddIncomeCategory(name, document.getElementById('inc-cat'));} : null});
+  enhance({select:'m-inc-cat',stem:'kkDayIncomeCategory',create:typeof window.kkAddIncomeCategory === 'function' ? function (name) {return window.kkAddIncomeCategory(name, document.getElementById('m-inc-cat'));} : null});
   enhance({select:'exp-cat',stem:'kkExpenseCategory'});
   enhance({select:'inv-cat',stem:'kkInvestmentCategory',create:typeof window.kkAddInvestmentCategory === 'function' ? window.kkAddInvestmentCategory : null});
 })();
