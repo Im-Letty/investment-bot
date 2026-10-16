@@ -12,6 +12,8 @@ from unittest.mock import Mock, patch
 from daily_news_runtime import (DailyNewsRuntime, StorageUnavailable, SupabaseNewsStorage,
                                 ATTEMPT_INTERVAL, PENDING_ATTEMPT_SECONDS, MAX_ATTEMPTS, start)
 from news_cache import JST, OFFICIAL_NEWS_SOURCES, load_reviewed_digests, select_daily_news
+from morning_news_window import morning_window
+from news_review_receipt import completed_receipt, valid_receipt
 from tests.test_news_review_diagnostics import diagnostic
 
 
@@ -30,6 +32,18 @@ def issue(day="2026-09-24", *, reviewed=None):
             "headline": "暮らしと経済のニュース", "summary": "文" * 240,
             "article_refs": refs,
             "article_summaries": [{**ref, "headline": "一つのニュース", "summary": "詳" * 240} for ref in refs]}
+
+
+def receipted_issue(*, reviewed):
+    window = morning_window(reviewed)
+    reference = {"source": "財務省", "title": "架空の発表", "url": "https://www.mof.go.jp/fixture.html",
+                 "published_at": None, "published_date": "2026-09-23", "publication_precision": "day",
+                 "body_verified_at": window["cutoff_at"] - 60, "body_sha256": "a" * 64,
+                 "selection_route": "date_only"}
+    value = {**issue(reviewed=reviewed), "source_window": window, "article_refs": [reference],
+             "article_summaries": [{**reference, "headline": "架空のニュース", "summary": "詳" * 240}]}
+    value["review_receipt"] = completed_receipt(value, {"draft": "fixed synthetic review payload"})
+    return value
 
 
 class MemoryStorage:
@@ -404,6 +418,88 @@ class RuntimeTests(unittest.TestCase):
         runtime = self.runtime()
         self.assertEqual(runtime.run_once()["status"], "ready")
         self.assertEqual(runtime.reviewed_digests()[0]["publish_at"], self.now)
+
+    def test_new_review_receipt_binds_saved_copy_once_and_is_not_recreated_by_restore(self):
+        candidate = receipted_issue(reviewed=self.now)
+        receipt = deepcopy(candidate["review_receipt"])
+        receipt["raw"] = "private reviewer response"
+        candidate["review_receipt"] = receipt
+        generator = Mock(return_value=candidate)
+        runtime = self.runtime(generator=generator)
+        state = runtime.run_once()
+        saved = self.storage.values["days/2026-09-24/edition.json"]
+        result = self.storage.values["days/2026-09-24/attempt-1.result.json"]
+        self.assertTrue(valid_receipt(state["review_receipt"], saved))
+        self.assertEqual(state["review_receipt"], saved["review_receipt"])
+        self.assertEqual(result["review_receipt"], saved["review_receipt"])
+        self.assertNotIn("private reviewer response", json.dumps([state, saved, result]))
+        state["review_receipt"]["source_body_sha256"].clear()
+        self.assertEqual(runtime.snapshot()["review_receipt"], saved["review_receipt"])
+        self.assertNotIn("review_receipt", runtime.reviewed_digests()[0])
+        self.assertNotIn("review_receipt", runtime.run_once())
+        restored = self.runtime(generator=generator)
+        self.assertNotIn("review_receipt", restored.run_once())
+        generator.assert_called_once()
+
+    def test_tampered_or_wrongly_typed_review_receipts_never_reach_storage(self):
+        mutations = (
+            lambda value: value.update(headline="異なる原稿"),
+            lambda value: value["review_receipt"].update(content_sha256="b" * 64),
+            lambda value: value["review_receipt"].update(review_payload_sha256="not-a-hash"),
+            lambda value: value["review_receipt"].update(gemini_approved=1),
+            lambda value: value["review_receipt"].update(openai_approved=False),
+            lambda value: value["review_receipt"].update(reviewed_at=True),
+            lambda value: value["review_receipt"].update(reviewed_at=float("nan")),
+            lambda value: value["review_receipt"].update(reviewed_at=self.now - 1),
+            lambda value: value["review_receipt"].update(source_body_sha256=["b" * 64]),
+            lambda value: value["review_receipt"].update(source_body_sha256=("a" * 64,)),
+            lambda value: value.update(review_receipt=None),
+        )
+        for mutate in mutations:
+            with self.subTest(mutate=mutate):
+                candidate = receipted_issue(reviewed=self.now)
+                mutate(candidate)
+                storage = MemoryStorage()
+                generator = Mock(return_value=candidate)
+                runtime = self.runtime(storage=storage, generator=generator)
+                state = runtime.run_once()
+                self.assertEqual(state["status"], "invalid_edition")
+                self.assertNotIn("review_receipt", state)
+                self.assertNotIn("days/2026-09-24/edition.json", storage.values)
+                self.assertNotIn("review_receipt", storage.values["days/2026-09-24/attempt-1.result.json"])
+                generator.assert_called_once()
+
+    def test_review_receipt_is_not_attributed_to_a_different_storage_winner(self):
+        candidate = receipted_issue(reviewed=self.now)
+        for different in (False, True):
+            with self.subTest(different=different):
+                winner = deepcopy(candidate)
+                winner.pop("review_receipt")
+                if different:
+                    winner["headline"] = "別の保存済み原稿"
+                storage = MemoryStorage()
+                def win(path, value):
+                    if path == "days/2026-09-24/edition.json":
+                        storage.values[path] = deepcopy(winner)
+                storage.before_create = win
+                state = self.runtime(storage=storage, generator=Mock(return_value=candidate)).run_once()
+                result = storage.values["days/2026-09-24/attempt-1.result.json"]
+                self.assertEqual(state["status"], "prepared")
+                self.assertEqual(storage.values["days/2026-09-24/edition.json"], winner)
+                self.assertEqual("review_receipt" in state, not different)
+                self.assertEqual("review_receipt" in result, not different)
+                if not different:
+                    self.assertTrue(valid_receipt(result["review_receipt"], winner))
+
+    def test_review_receipt_is_cleared_for_non_success_state_and_fork(self):
+        candidate = receipted_issue(reviewed=self.now)
+        for change in (lambda runtime: runtime._set("storage_unavailable"),
+                       lambda runtime: runtime._after_fork()):
+            with self.subTest(change=change):
+                runtime = self.runtime(storage=MemoryStorage(), generator=Mock(return_value=candidate))
+                self.assertIn("review_receipt", runtime.run_once())
+                change(runtime)
+                self.assertNotIn("review_receipt", runtime.snapshot())
 
     def test_preparer_factory_uses_resolved_storage_without_starting_work(self):
         factory = Mock(return_value=Mock())

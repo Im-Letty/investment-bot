@@ -12,6 +12,7 @@ from daily_news_runtime import _safe_generation_error
 from morning_news_window import morning_window
 from news_cache import JST
 from news_copy_policy import COPY_LENGTH_POLICY, summary_bounds
+from news_review_receipt import completed_receipt, valid_receipt
 
 
 NOW = datetime(2026, 10, 6, 7, 40, tzinfo=JST).timestamp()
@@ -110,13 +111,20 @@ class IsolatedProducerTests(unittest.TestCase):
         self.assertEqual(len(result['article_refs']), 3)
         self.assertEqual([row['url'] for row in result['article_summaries']],
                          [row['url'] for row in result['article_refs']])
+        self.assertEqual(result['review_receipt'], completed_receipt(result, reviews[0]))
+        self.assertTrue(valid_receipt(result['review_receipt'], result))
+        self.assertEqual(result['review_receipt']['source_body_sha256'],
+                         [row['body_sha256'] for row in result['article_refs']])
+        self.assertNotIn(CONDITION, json.dumps(result['review_receipt']))
 
     def test_model_cannot_select_reading_structure_and_unreviewed_copy_never_returns_one(self):
         source = {**sources(1)[0], 'index': 0}
         card = isolated._card(article_reply({'articles': [source]}), source)
         response = overview_reply({'article_cards': [card]})
-        with self.assertRaisesRegex(shared.GenerationError, '^isolated_overview_schema$'):
-            isolated._draft({**response, 'reading_structure': isolated.LEAD_OTHER_NEWS_STRUCTURE}, [card])
+        for field, value in (('reading_structure', isolated.LEAD_OTHER_NEWS_STRUCTURE),
+                             ('review_receipt', {'gemini_approved': True, 'openai_approved': True})):
+            with self.subTest(field=field), self.assertRaisesRegex(shared.GenerationError, '^isolated_overview_schema$'):
+                isolated._draft({**response, field: value}, [card])
         self.provider.reviewer = lambda name, data: {**approved(), 'approved': False,
             'checks': {**approved()['checks'], 'distinct_topics': False}, 'issues': ['同じ出来事です。']}
         with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$'):

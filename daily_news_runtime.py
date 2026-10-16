@@ -22,6 +22,7 @@ from urllib.parse import quote, urlsplit
 
 import requests
 from news_review_diagnostics import safe_editorial_review_diagnostics
+from news_review_receipt import valid_receipt
 
 from news_cache import JST, OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_digests
 from publish_news import MAX_ISSUES, _publication_lock, _replace_atomically
@@ -472,6 +473,25 @@ def _attempt_started(value, day, index, now):
     return started
 
 
+def _safe_review_receipt(value):
+    """Project hash-only proof; binding to canonical copy is checked separately."""
+    if type(value) is not dict:
+        return None
+    hashes = ("content_sha256", "review_payload_sha256")
+    if any(type(value.get(key)) is not str or not re.fullmatch(r"[0-9a-f]{64}", value[key])
+           for key in hashes):
+        return None
+    if any(value.get(key) is not True for key in ("gemini_approved", "openai_approved")):
+        return None
+    stamp, sources = value.get("reviewed_at"), value.get("source_body_sha256")
+    if (type(stamp) not in (int, float) or not math.isfinite(stamp) or not 0 < stamp <= 253402268399
+            or type(sources) is not list or not 1 <= len(sources) <= 3
+            or any(type(item) is not str or not re.fullmatch(r"[0-9a-f]{64}", item) for item in sources)):
+        return None
+    return {**{key: value[key] for key in hashes}, "gemini_approved": True, "openai_approved": True,
+            "reviewed_at": stamp, "source_body_sha256": list(sources)}
+
+
 class DailyNewsRuntime:
     """All public reads are in-memory; network/AI only runs in daemon workers."""
 
@@ -516,6 +536,7 @@ class DailyNewsRuntime:
         self._private = self._restored = False
         self._state = {**self._state, "status": "starting", "attempt_count": 0, "last_error": None}
         self._state.pop("editorial_review_diagnostics", None)
+        self._state.pop("review_receipt", None)
         self._source_history = None
         reset = getattr(self.storage, "after_fork", None)
         if callable(reset):
@@ -540,6 +561,7 @@ class DailyNewsRuntime:
         return [by_date[key] for key in sorted(by_date)[-MAX_ISSUES:]]
 
     def _set(self, status, **metadata):
+        receipt = _safe_review_receipt(metadata.pop("review_receipt", None))
         replace_diagnostics = "editorial_review_diagnostics" in metadata
         diagnostics = safe_editorial_review_diagnostics(metadata.pop("editorial_review_diagnostics", None))
         if "last_error" not in metadata:
@@ -549,6 +571,9 @@ class DailyNewsRuntime:
                 metadata["last_error"] = status
         with self._state_lock:
             self._state.update(status=status, **metadata)
+            self._state.pop("review_receipt", None)
+            if receipt is not None and status in ("ready", "prepared"):
+                self._state["review_receipt"] = receipt
             if replace_diagnostics or ("last_error" in metadata
                     and metadata["last_error"] != "isolated_editorial_review_failed"):
                 self._state.pop("editorial_review_diagnostics", None)
@@ -562,6 +587,8 @@ class DailyNewsRuntime:
             if "editorial_review_diagnostics" in result:
                 result["editorial_review_diagnostics"] = safe_editorial_review_diagnostics(
                     result["editorial_review_diagnostics"])
+            if "review_receipt" in result:
+                result["review_receipt"] = _safe_review_receipt(result["review_receipt"])
             return result
 
     def reviewed_digests(self):
@@ -661,12 +688,16 @@ class DailyNewsRuntime:
             editions.append(_valid_issue(self.storage.read(keys[0]), now, edition=day))
         return max(editions, key=lambda issue: issue["reviewed_at"]) if editions else None
 
-    def _ready(self, issue, now):
+    def _ready(self, issue, now, *, review_receipt=None):
         self._install([issue])
         issue = next(value for value in self.reviewed_digests() if value["edition_date"] == issue["edition_date"])
+        receipt = _safe_review_receipt(review_receipt)
+        if receipt is not None and not valid_receipt(receipt, issue):
+            receipt = None
         self._set("prepared" if issue.get("publish_at", issue["reviewed_at"]) > now else "ready",
                   edition_date=issue["edition_date"],
-                  publish_at=issue.get("publish_at", issue["reviewed_at"]), editorial_review_diagnostics=None)
+                  publish_at=issue.get("publish_at", issue["reviewed_at"]), editorial_review_diagnostics=None,
+                  review_receipt=receipt)
 
     def _result(self, path, value):
         # The immutable claim, not this advisory outcome, enforces the budget.
@@ -897,6 +928,11 @@ class DailyNewsRuntime:
             return
         try:
             issue = _valid_issue(generated, self.clock(), edition=day)
+            receipt = None
+            if isinstance(generated, dict) and "review_receipt" in generated:
+                receipt = _safe_review_receipt(generated["review_receipt"])
+                if receipt is None or not valid_receipt(receipt, issue):
+                    raise ValueError("invalid_edition")
             release = current.replace(hour=8, minute=0, second=0, microsecond=0).timestamp()
             issue["publish_at"] = max(release, issue["reviewed_at"], issue.get("publish_at", 0), self.clock())
             issue = _valid_issue(issue, self.clock(), edition=day)
@@ -906,11 +942,20 @@ class DailyNewsRuntime:
             return
         # Exactly one durable edition can win this date. On an ambiguous upload
         # failure, the next tick reads it before considering another paid call.
+        if receipt is not None:
+            issue["review_receipt"] = deepcopy(receipt)
         created = self.storage.create(prefix + "/edition.json", issue)
         if not created:
             issue = _valid_issue(self.storage.read(prefix + "/edition.json"), self.clock(), edition=day)
-        self._result(result_path, {**claim, "status": "persisted", "publish_at": issue["publish_at"]})
-        self._ready(issue, self.clock())
+        else:
+            issue = _valid_issue(issue, self.clock(), edition=day)
+        if receipt is not None and not valid_receipt(receipt, issue):
+            receipt = None
+        result = {**claim, "status": "persisted", "publish_at": issue["publish_at"]}
+        if receipt is not None:
+            result["review_receipt"] = deepcopy(receipt)
+        self._result(result_path, result)
+        self._ready(issue, self.clock(), review_receipt=receipt)
 
 
 def start(supabase=None, generator=None, *, enabled=False, url=None, key=None, storage=None,

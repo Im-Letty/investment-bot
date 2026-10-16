@@ -28,7 +28,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from daily_news_producer import GenerationError
-from daily_news_runtime import MAX_ATTEMPTS, StorageUnavailable, _safe_generation_error
+from daily_news_runtime import MAX_ATTEMPTS, StorageUnavailable, _safe_generation_error, _safe_review_receipt
 from news_review_diagnostics import safe_editorial_review_diagnostics
 from morning_news_window import MAX_ARTICLES, MorningNewsPreparer, morning_window, manifest_window
 from news_cache import JST, OFFICIAL_NEWS_SOURCES
@@ -92,6 +92,7 @@ class JobProgress:
         self.runtime_status = None
         self.attempt_count = None
         self.editorial_review_diagnostics = None
+        self.review_receipt = None
 
     def runtime(self, state):
         if not isinstance(state, dict):
@@ -105,6 +106,8 @@ class JobProgress:
         self.editorial_review_diagnostics = safe_editorial_review_diagnostics(
             state.get("editorial_review_diagnostics")
             if state.get("last_error") == "isolated_editorial_review_failed" else None)
+        self.review_receipt = _safe_review_receipt(state.get("review_receipt")
+            if status in ("ready", "prepared") and state.get("last_error") is None else None)
 
     def fields(self):
         value = {"phase": self.phase if self.phase in _PHASES else "starting",
@@ -118,6 +121,8 @@ class JobProgress:
             value["attempt_count"] = self.attempt_count
         if self.editorial_review_diagnostics is not None:
             value["editorial_review_diagnostics"] = safe_editorial_review_diagnostics(self.editorial_review_diagnostics)
+        if self.review_receipt is not None:
+            value["review_receipt"] = _safe_review_receipt(self.review_receipt)
         return value
 
 
@@ -245,6 +250,12 @@ def safe_report(result, started, finished):
         if report.get("last_error") == "isolated_editorial_review_failed" else None)
     if diagnostics is not None:
         report["editorial_review_diagnostics"] = diagnostics
+    receipt = _safe_review_receipt(result.get("review_receipt"))
+    if (receipt is not None and success and status in ("ready", "prepared")
+            and report.get("last_error") is None
+            and started <= receipt["reviewed_at"] <= finished
+            and datetime.fromtimestamp(receipt["reviewed_at"], JST).date().isoformat() == day):
+        report["review_receipt"] = receipt
     if "source_status" in result:
         report["source_status"] = _safe_source_diagnostics(result["source_status"])
     count, counts = result.get("source_article_count"), result.get("source_date_counts")
@@ -386,6 +397,10 @@ def _outcome(status, day=None, *, success=False, state=None, manifest=None, prog
             if value.get("last_error") == "isolated_editorial_review_failed" else None)
         if diagnostics is not None:
             value["editorial_review_diagnostics"] = diagnostics
+        receipt = _safe_review_receipt(state.get("review_receipt")
+            if state.get("status") in ("ready", "prepared") and state.get("last_error") is None else None)
+        if receipt is not None:
+            value["review_receipt"] = receipt
     if isinstance(manifest, dict) and "source_status" in manifest:
         value["source_status"] = _safe_source_diagnostics(manifest["source_status"])
     articles = manifest.get("articles") if isinstance(manifest, dict) else None

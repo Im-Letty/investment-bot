@@ -21,6 +21,7 @@ from tests.test_codex_website_producer import Writer
 from tests.test_daily_news_runtime import MemoryStorage
 from tests.test_website_news_producer import ENV, MockTransport, approval, sources
 from tests.test_news_review_diagnostics import diagnostic
+from news_review_receipt import completed_receipt, valid_receipt
 
 
 RESULT_TEMP_ROOT = Path(gettempdir()).resolve()
@@ -427,12 +428,26 @@ class PrivateJobTests(unittest.TestCase):
             issue = self.storage.values["days/2026-10-06/edition.json"]
             self.assertEqual(issue["publish_at"], at(8, 0))
             self.assertEqual(issue["reading_structure"], "lead-plus-other-news-v1")
+            receipt = issue["review_receipt"]
+            self.assertTrue(valid_receipt(receipt, issue))
+            self.assertEqual(receipt, completed_receipt(issue, reviews[0][1]))
+            self.assertEqual(result["review_receipt"], receipt)
+            self.assertEqual(self.storage.values["days/2026-10-06/attempt-1.result.json"]["review_receipt"], receipt)
+            report = job.safe_report(result, at(), self.clock.now)
+            self.assertEqual(report["review_receipt"], receipt)
+            self.assertFalse(report["public_delivery_confirmed"])
+            self.assertEqual(set(receipt), {"content_sha256", "review_payload_sha256", "source_body_sha256",
+                                           "gemini_approved", "openai_approved", "reviewed_at"})
+            self.assertNotIn("original_articles", json.dumps(report))
             self.assertIsNone(select_daily_news({"news": []}, at(7, 59, 59), reviewed_digests=[issue])
                               ["digest"])
             self.assertEqual(select_daily_news({"news": []}, at(8, 0), reviewed_digests=[issue])
                              ["digest"]["edition_date"], issue["edition_date"])
             self.clock = Clock(at(7, 40))
-            self.assertTrue(self.run_job(runtime_factory=build)["success"])
+            restored = self.run_job(runtime_factory=build)
+            self.assertTrue(restored["success"])
+            self.assertNotIn("review_receipt", restored)
+            self.assertNotIn("review_receipt", job.safe_report(restored, at(7, 40), at(7, 40)))
             self.assertEqual(len(calls), 1)
             self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
                              ["days/2026-10-06/attempt-1.lock"])
@@ -697,6 +712,42 @@ class SafeResultTests(unittest.TestCase):
         self.assertEqual(progress.fields()['editorial_review_diagnostics'], diagnostic())
         progress.runtime({'status': 'ready', 'last_error': None})
         self.assertNotIn('editorial_review_diagnostics', progress.fields())
+
+    def test_receipt_report_is_hash_only_current_job_proof_without_public_delivery_claim(self):
+        receipt = {"content_sha256": "a" * 64, "review_payload_sha256": "b" * 64,
+                   "source_body_sha256": ["c" * 64], "gemini_approved": True,
+                   "openai_approved": True, "reviewed_at": at(7, 30)}
+        result = {"status": "prepared", "success": True, "edition_date": "2026-10-06",
+                  "review_receipt": {**deepcopy(receipt), "raw": "private reviewer words",
+                                     "url": "https://private.invalid"}}
+        report = job.safe_report(result, at(), at(7, 40))
+        self.assertEqual(report["review_receipt"], receipt)
+        self.assertFalse(report["public_delivery_confirmed"])
+        report["review_receipt"]["source_body_sha256"].clear()
+        self.assertEqual(result["review_receipt"]["source_body_sha256"], ["c" * 64])
+        serialized = json.dumps(job.safe_report(result, at(), at(7, 40)))
+        self.assertNotIn("private reviewer words", serialized)
+        self.assertNotIn("private.invalid", serialized)
+        for changes in ({"success": False}, {"status": "source_empty"}, {"status": "generation_failed"},
+                        {"last_error": "generation_failed"}, {"edition_date": "2026-10-05"}):
+            with self.subTest(changes=changes):
+                self.assertNotIn("review_receipt", job.safe_report({**result, **changes}, at(), at(7, 40)))
+        for mutation in ({"content_sha256": "private response"}, {"review_payload_sha256": None},
+                         {"source_body_sha256": []}, {"source_body_sha256": ["invalid"]},
+                         {"source_body_sha256": ("c" * 64,)}, {"gemini_approved": 1},
+                         {"openai_approved": False}, {"reviewed_at": True}, {"reviewed_at": float("nan")},
+                         {"reviewed_at": at(7, 16)}, {"reviewed_at": at(7, 41)},
+                         {"reviewed_at": at(7, 30) - 86400}):
+            with self.subTest(mutation=mutation):
+                self.assertNotIn("review_receipt", job.safe_report(
+                    {**result, "review_receipt": {**receipt, **mutation}}, at(), at(7, 40)))
+        progress = job.JobProgress()
+        progress.runtime({"status": "prepared", "review_receipt": receipt})
+        self.assertEqual(progress.fields()["review_receipt"], receipt)
+        progress.runtime({"status": "prepared"})
+        self.assertNotIn("review_receipt", progress.fields())
+        progress.runtime({"status": "generation_failed", "review_receipt": receipt})
+        self.assertNotIn("review_receipt", progress.fields())
 
     def test_prepared_and_quiet_are_distinct_and_do_not_attest_public_delivery(self):
         for status, prepared, quiet in (("prepared", True, False), ("ready", True, False),

@@ -783,9 +783,8 @@ def _generate(now, articles, source_window, providers, clock):
             # reviewers approve the exact complete draft and all references.
             # Never accept a model-supplied marker or add one to saved editions.
             issue = {**issue, 'reading_structure': LEAD_OTHER_NEWS_STRUCTURE}
-            if window.get('kind') == 'intraday':
-                from news_review_receipt import completed_receipt
-                issue['review_receipt'] = completed_receipt(issue, review_data)
+            from news_review_receipt import completed_receipt
+            issue['review_receipt'] = completed_receipt(issue, review_data)
             return issue
         review_rounds.append(round_result)
         if attempt:
