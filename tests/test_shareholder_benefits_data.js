@@ -47,6 +47,19 @@ test('2026 share splits use current lowest-share tiers and discontinued programm
  assert.equal(byCode('9433').schedules.length,0);
  assert.ok(byCode('9202').schedules.every(s=>s.record==='2026-09-30'));
 });
+test('regional issuers keep JP identity, minimum benefit shares and partial abolition distinct',()=>{
+ const nittoh=byCode('1738'),kanryu=byCode('1771');
+ assert.equal(nittoh.symbol,'1738.JP');assert.equal(kanryu.symbol,'1771.JP');
+ assert.equal(nittoh.tiers[0].shares_min,1000);assert.match(nittoh.reward,/5kg/);
+ assert.match(nittoh.period,/3月31日/);assert.doesNotMatch(nittoh.period,/9月/);
+ assert.match(nittoh.conditions,/カレンダー贈呈は終了/);assert.match(nittoh.conditions,/米券は継続/);
+ assert.equal(nittoh.programmeEffectiveFrom,'2026-04-01');
+ assert.equal(kanryu.tiers[0].shares_min,1000);assert.match(kanryu.reward,/3,000円/);
+ assert.match(kanryu.tiers[1].reward,/5,000円/);assert.match(kanryu.tiers[1].holding_requirement,/四半期.*13回/);
+ assert.match(kanryu.tiers[1].conditions,/1,000株以上/);assert.match(kanryu.delivery,/12月下旬/);
+ assert.equal(kanryu.programmeEffectiveFrom,null);
+ for(const row of [nittoh,kanryu]){assert.equal(row.schedules.length,0);assert.equal(row.programmeVerified,'2026-10-17');}
+});
 test('company record dates stay distinct from non-trading month-end settlement dates',()=>{
  const december=byCode('3197').schedules[0];assert.equal(december.record,'2026-12-31');assert.equal(december.date,'2026-12-28');
  const february=byCode('8267').schedules[0];assert.equal(february.record,'2027-02-28');assert.equal(february.date,'2027-02-24');

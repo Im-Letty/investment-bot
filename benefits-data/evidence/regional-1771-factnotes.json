@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "checked_at_jst": "2026-10-17T03:33:58.041855+09:00",
+  "scope": "one assigned regional issuer only; bounded anonymous primary-source review",
+  "evidence_kind": "primary_page_observation_note",
+  "not_original_programme_page_bytes": true,
+  "identity": {
+    "saved": {
+      "code": "1771",
+      "symbol": "1771.JP",
+      "name": "日本乾溜工業"
+    },
+    "canonical_reduced_manifest_as_of": "2026-09-30",
+    "official_body_name": "日本乾溜工業株式会社",
+    "official_exchange": "福岡証券取引所",
+    "official_security_code": "1771",
+    "official_exchange_source": "https://www.fse.or.jp/market-info/listed-companies/detail.php?copid=4",
+    "exchange_page_last_update_label": "2026-05-31",
+    "issuer_stock_page_footer_code": "1771",
+    "identity_matches": true
+  },
+  "normal_access": {
+    "primary_URL_attempts": 6,
+    "successful_distinct_primary_URLs": 5,
+    "cached_find_reads_of_already_open_stock_page": 2,
+    "normal_search_queries": 1,
+    "per_issuer_page_attempt_budget": 6,
+    "same_host_gap_seconds_minimum": 1.5,
+    "terminal_HTTP_GETs": 1,
+    "terminal_HTTP_status": 200,
+    "terminal_HTTP_bytes": 33154,
+    "redirect_following": false,
+    "retries": 0,
+    "retry_after_seen": false,
+    "refusal_bypassed": false,
+    "no_more_requests_this_run": true
+  },
+  "sources": [
+    {
+      "url": "https://www.kanryu.co.jp/ir/stock/index.html",
+      "observed_at_jst": "2026-10-17T03:31:34+09:00",
+      "kind": "issuer_programme_HTML",
+      "web_result_reference": "turn1071view0",
+      "relevant_lines": [
+        [
+          133,
+          149
+        ],
+        [
+          169,
+          192
+        ],
+        [
+          208,
+          212
+        ],
+        [
+          232,
+          241
+        ]
+      ],
+      "programme_raw_response_saved": false
+    },
+    {
+      "url": "https://www.fse.or.jp/market-info/listed-companies/detail.php?copid=4",
+      "observed_at_jst": "2026-10-17T03:31:34+09:00",
+      "kind": "exchange_identity_and_disclosure_list",
+      "web_result_reference": "turn1071view1",
+      "relevant_lines": [
+        [
+          33,
+          46
+        ],
+        [
+          72,
+          193
+        ]
+      ],
+      "all_listed_PDF_bodies_read": false
+    },
+    {
+      "url": "https://www.kanryu.co.jp/ir/index.html",
+      "observed_at_jst": "2026-10-17T03:31:47+09:00",
+      "kind": "actual_IR_navigation_link",
+      "web_result_reference": "turn1075view0",
+      "relevant_lines": [
+        [
+          22,
+          24
+        ]
+      ]
+    },
+    {
+      "url": "https://www.kanryu.co.jp/privacy/index.html",
+      "observed_at_jst": "2026-10-17T03:31:54+09:00",
+      "kind": "actual_footer_policy_link_web_attempt",
+      "result": "web_cache_miss_not_HTTP_refusal",
+      "raw_error_not_preserved": true
+    },
+    {
+      "url": "https://www.kanryu.co.jp/news/?news_categ=pre-release",
+      "observed_at_jst": "2026-10-17T03:32:05+09:00",
+      "kind": "actual_IR_list_link",
+      "web_result_reference": "turn1079view0",
+      "relevant_lines": [
+        [
+          130,
+          146
+        ]
+      ],
+      "displayed_first_page_items": 10,
+      "newest_displayed_date": "2026-08-20",
+      "oldest_displayed_date": "2026-03-25",
+      "pagination_links_observed": 6,
+      "other_pages_opened": false
+    },
+    {
+      "url": "https://www.kanryu.co.jp/privacy/index.html",
+      "captured_file_at_jst": "2026-10-17T03:32:22.168888+09:00",
+      "capture_timestamp_kind": "actual_saved_response_file_mtime",
+      "kind": "one_normal_HTTPS_GET_after_tool_cache_miss",
+      "status": 200,
+      "response_bytes": 33154,
+      "private_payload_sha256": "73eac125e0cbca0fad121e52e4bd87ef234ee597237aae944e62106068e61f3d",
+      "private_payload_path": "privacy.source.html"
+    }
+  ],
+  "programme": {
+    "status": "active_programme_present_on_current_official_stock_page",
+    "record_month": 9,
+    "record_day": 30,
+    "grants_per_year": 1,
+    "minimum_shares": 1000,
+    "minimum_shares_are_not_the_100_share_trading_lot": true,
+    "tiers": [
+      {
+        "shares_min": 1000,
+        "shares_max": null,
+        "holding_period": "under_three_years",
+        "QUO_yen": 3000,
+        "undocumented_minimum_months_not_inferred": true
+      },
+      {
+        "shares_min": 1000,
+        "shares_max": null,
+        "holding_months_min": 36,
+        "QUO_yen": 5000,
+        "same_shareholder_number": true,
+        "quarterly_register_entries_min": 13,
+        "consecutive": true,
+        "shares_min_at_each_entry": 1000
+      }
+    ],
+    "amounts_are_alternative_not_added": true,
+    "usual_grant_timing": "late_December_each_year",
+    "published_programme_start_record_date": "2016-09-30",
+    "announcement_date_unconfirmed": true,
+    "next_specific_grant_day": null,
+    "next_verified_purchase_deadline": null,
+    "lending_warning": {
+      "share_lending_changes_registered_holder_and_can_remove_eligibility": true,
+      "automatic_benefit_lending_service_may_not_preserve_continuity": true
+    },
+    "redemption_places_and_expiry_not_confirmed_from_programme_HTML": true
+  },
+  "amendment_and_abolition_review": {
+    "issuer_IR_first_page_10_titles_reviewed": true,
+    "exchange_disclosure_list_visible_titles_reviewed": true,
+    "programme_or_abolition_or_split_title_found_in_reviewed_titles": false,
+    "all_IR_pages_or_all_PDF_bodies_reviewed": false,
+    "absence_of_all_future_changes_proven": false,
+    "old_search_results_for_book_cards_not_used_as_current_QUO_terms": true
+  },
+  "footer_conditions": {
+    "actual_footer_policy_url": "https://www.kanryu.co.jp/privacy/index.html",
+    "policy_fully_read_by_one_normal_GET": true,
+    "policy_subject": "handling_of_personal_information",
+    "general_copyright_footer_present": true,
+    "normal_link_prior_permission_clause_seen_in_reviewed_pages": false,
+    "independent_numeric_fact_publication_ban_seen_in_reviewed_pages": false,
+    "blanket_automatic_collection_or_republication_license_claimed": false,
+    "additional_site_use_terms_document_located": false,
+    "reuse_assessment": "candidate_independent_short_facts_only; root must review limited terms scope; no legal permission guarantee"
+  },
+  "safety": {
+    "R_edits": 0,
+    "ledger_edits": 0,
+    "queue_edits": 0,
+    "accounts_or_keys_or_paid_services": 0,
+    "external_inquiries": 0,
+    "images_or_voucher_art_or_original_table_or_long_body_reproduced": false,
+    "PDF_body_reads": 0,
+    "future_trade_dates_generated": false,
+    "no_benefit_inferred_from_missing_record": false
+  },
+  "adoption": "factual_candidate_ready_for_root_independent_review; limited_footer_terms_scope_explicit",
+  "limitations_ja": [
+    "制度本文は現行案内として確認。IRは先頭10件と福証一覧の表示タイトルだけで全本文の改廃不存在を証明しません。",
+    "次回の基準年別の正式案内、取引締切日、実際の発送日・到着日、券の利用先・有効期限は未確認です。",
+    "公式footerで見えた方針は個人情報保護方針だけで、追加のサイト利用条件文書を網羅したとはしません。",
+    "1単元100株であることを、優待最低株数100株へ読み替えません。",
+    "過去の図書カード情報は現在のQUOカード情報の代わりに使用しません。"
+  ]
+}

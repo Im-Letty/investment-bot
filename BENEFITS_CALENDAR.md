@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 14 companies: the original nine reviewed on 2026-09-25 and
-five additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 16 companies: the original nine reviewed on 2026-09-25 and
+seven additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -115,7 +115,18 @@ future changes absent.
   Unstated three-year registration counts or continuous 500-share history are not
   invented.
 
-All five additions have `schedules: []`. Programme facts and delivery information
+- 1738 NITTOH (Nagoya): https://www.nittoh-info.co.jp/ir/investor/
+  1,000+ shares at March 31, rice gift vouchers equivalent to 5 kg once yearly.
+  The September calendar component ended from fiscal 2026; the March rice benefit
+  continues. Do not infer voucher count/cash value, delivery date or validity.
+- 1771 Nippon Kanryu (Fukuoka): https://www.kanryu.co.jp/ir/stock/index.html
+  1,000+ shares at September 30, QUO 3,000 yen for under three years or 5,000 yen
+  for qualifying three-year holdings. Long eligibility needs the same number at
+  13 consecutive quarterly records, each holding 1,000+ shares. Late December
+  grant; do not confuse a 100-share trading lot with benefit eligibility. The
+  historical programme start is not used as today's tier effective date.
+
+All seven additions have `schedules: []`. Programme facts and delivery information
 appear under next-date-unconfirmed; purchase deadlines are not fabricated. The
 original 12 explicit schedules and all original nine deep values remain intact.
 

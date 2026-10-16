@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "observed_at_jst": "2026-10-17T03:35:43+09:00",
+  "source_fetched_date_jst": "2026-10-17",
+  "source_fetch_timestamp_precision": "date_only",
+  "identity": {
+    "code": "1738",
+    "symbol": "1738.JP",
+    "saved_original_name": "ＮＩＴＴＯＨ",
+    "official_legal_name_observed": "株式会社 ＮＩＴＴＯＨ",
+    "exchange": "Nagoya",
+    "market": "メイン市場",
+    "saved_identity_as_of": "2026-10-14",
+    "saved_identity_file": "saved-universe-3797-candidate.json",
+    "official_code_and_market_match": true,
+    "official_name_matches_saved_identity": true,
+    "upstream_merged_identity_sha256": "8f7e2782f08ace0b56b2a49667da75dca8226019b6ceb9120927f549daae1e7e",
+    "upstream_merged_identity_digest_scope": "母集団items中のmerged_identity_sha256フィールドから転記した上流digest。保存row全体または母集団documentのSHAではない",
+    "upstream_merged_identity_serialization_independently_verified": false,
+    "saved_identity_row_sha256": "3d21f8c7c2a4d3cafc2bf1788653ffc0675f1dae4c78bca159520fabdbc8ce22",
+    "saved_identity_row_scope": "saved_identity_fileのitems配列からcodeが1738の完全な1要素。merged_identity_sha256と優待確認状態等の注記も含む",
+    "saved_identity_row_serialization": {
+      "encoding": "UTF-8",
+      "format": "JSON",
+      "ensure_ascii": false,
+      "sort_keys": true,
+      "separators": [
+        ",",
+        ":"
+      ],
+      "trailing_newline": false,
+      "field_subset": false
+    },
+    "saved_identity_document_sha256": "d6b3a6845d5e1828aeae5d8b6dfa24639d9cb27b8274a06a3da2537516a99f8c",
+    "saved_identity_document_digest_scope": "saved_identity_fileの全bytes（整形・改行を含む）",
+    "digest_scope_clarified_at_jst": "2026-10-17T03:37:34+09:00"
+  },
+  "programme": {
+    "status": "active_official_programme_verified",
+    "current_primary_url": "https://www.nittoh-info.co.jp/ir/investor/",
+    "current_source_page_updated_date": null,
+    "record_months": [
+      3
+    ],
+    "record_date": "03-31",
+    "grants_per_year": 1,
+    "tiers": [
+      {
+        "shares_min": 1000,
+        "shares_max": null,
+        "reward_kind": "rice_gift_voucher",
+        "rice_kg_equivalent": 5,
+        "voucher_face_amount_yen": null,
+        "voucher_count": null,
+        "holding_period_requirement": "確認した本文と変更資料に記載なし",
+        "long_holding_bonus": "確認した本文と変更資料に記載なし"
+      }
+    ],
+    "delivery_timing": null,
+    "validity": null,
+    "application_requirement": null,
+    "detailed_redemption_conditions": null,
+    "unknowns_note": "5kg分を5枚や特定円額に変換しない。発送時期・利用期限・細かな交換条件・継続保有条件を未確認のまま追加しない"
+  },
+  "amendment": {
+    "announcement_date": "2025-11-07",
+    "announcement_primary_url": "https://www.nittoh-info.co.jp/irnews/%E6%A0%AA%E4%B8%BB%E5%84%AA%E5%BE%85%E5%88%B6%E5%BA%A6%E3%81%AE%E8%A6%8B%E7%9B%B4%E3%81%97%E5%A4%89%E6%9B%B4%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B-2/",
+    "actual_linked_primary_PDF_url": "https://www.nittoh-info.co.jp/wp-content/uploads/2025/11/%E6%A0%AA%E4%B8%BB%E5%84%AA%E5%BE%85%E5%88%B6%E5%BA%A6%E3%81%AE%E8%A6%8B%E7%9B%B4%E3%81%97%E5%A4%89%E6%9B%B4%E3%81%AB%E9%96%A2%E3%81%99%E3%82%8B%E3%81%8A%E7%9F%A5%E3%82%89%E3%81%9B.pdf",
+    "PDF_text_page_checked": 1,
+    "PDF_visual_table_check_performed": true,
+    "announced_applicable_fiscal_year": "2026年度（2027年3月期）",
+    "document_change_after_date": "2026-04-01",
+    "ceased_component": {
+      "record_date": "09-30",
+      "shares_min": 1000,
+      "reward": "オリジナルカレンダー",
+      "ceased_from_fiscal_year": 2026
+    },
+    "continued_component": {
+      "record_date": "03-31",
+      "shares_min": 1000,
+      "reward": "全国共通おこめギフト券5kg分"
+    },
+    "all_benefits_abolished": false,
+    "september_current_benefit_not_created": true,
+    "future_purchase_deadline_not_inferred": true,
+    "PDF_visual_table_checked_at_jst": "2026-10-17T03:35:43+09:00",
+    "PDF_visual_table_page": 1,
+    "PDF_rendering_method": "PDFium after bundled Poppler lacked Adobe-Japan1 CMap",
+    "PDF_payload_sha256": "559dcde95fc8ee8ccb1af530083e90500fb6e624d1f734ec44a42bba523a5734",
+    "PDF_payload_bytes": 12982,
+    "PDF_visual_correspondence_confirmed": {
+      "march_31_row": true,
+      "march_shares_minimum_1000": true,
+      "march_5kg_current_and_after_unchanged": true,
+      "september_30_calendar_after_removed": true,
+      "changed_column_after_2026_04_01": true,
+      "body_fiscal_year_2026_and_year_ending_march_2027": true
+    },
+    "numeric_corrections_after_visual_review": false,
+    "original_PDF_or_table_image_retained": false
+  },
+  "limited_latest_IR_review": {
+    "IR_top_url": "https://www.nittoh-info.co.jp/ir/",
+    "IR_list_url": "https://www.nittoh-info.co.jp/irnews/",
+    "discovery": "実際の株式・株主ページからIR TOP、実一覧リンクを辿った",
+    "list_visible_items": 5,
+    "latest_visible_announcement_date": "2026-08-07",
+    "oldest_visible_announcement_date": "2026-05-08",
+    "new_benefit_change_or_abolition_title_in_visible_five": false,
+    "list_pagination_observed": true,
+    "older_list_pages_reviewed": false,
+    "all_IR_documents_reviewed": false,
+    "future_changes_proven_absent": false
+  },
+  "source_conditions": {
+    "actual_footer_link": "https://www.nittoh-info.co.jp/site",
+    "actual_HEAD_redirect_status": 301,
+    "actual_HEAD_location": "https://www.nittoh-info.co.jp/site/",
+    "conditions_url_read": "https://www.nittoh-info.co.jp/site/",
+    "scope": "同社の当サイト利用条件。推奨閲覧環境・PDF/JavaScript/SSL・保証と責任制限を掲載",
+    "personal_use_only_requirement_seen": false,
+    "prior_permission_or_link_approval_requirement_seen": false,
+    "explicit_all_independent_numeric_fact_use_ban_seen": false,
+    "automatic_bulk_collection_permission_verified": false,
+    "explicit_public_redistribution_license_verified": false,
+    "assessment": "原文・表・券面・画像を使用しない短い独立数値事実の候補。掲載条件の確認を包括的な転載許可と説明しない",
+    "decision": "candidate_independent_facts_only"
+  },
+  "research_limits_and_transport": {
+    "search_calls": 1,
+    "successful_distinct_primary_pages": 6,
+    "same_host_parallel_fetches": false,
+    "same_host_calls_serial_with_at_least_1_5_seconds_between_call_starts": true,
+    "six_primary_page_budget_exceeded": false,
+    "source_refusal_or_Retry_After_observed": false,
+    "initial_footer_web_tool_result": "cache_miss_not_interpreted_as_source_refusal_or_empty_terms",
+    "initial_shell_transport_result": "sandbox_DNS_failure_retried_outside_sandbox_for_same_public_URL",
+    "empty_redirect_body_not_interpreted_as_no_terms": true,
+    "redirect_following_basis": "同一公式ホストへの実HEAD Locationを確認してからそのURLを閲覧。推測の末尾スラッシュ探索ではない",
+    "third_party_summary_used_as_factual_evidence": false,
+    "raw_source_payload_hash_invented": false,
+    "raw_tables_ticket_images_long_text_or_contact_details_retained": false,
+    "new_credentials_registration_payment_external_inquiry": false,
+    "repository_ledger_or_queue_edits": 0
+  },
+  "adoption_candidate": true,
+  "publicly_deployed": false,
+  "conclusion": "優待実施を確認。現行は3月末1,000株以上のおこめギフト券5kg分で、9月のカレンダーは終了済み。未確認項目と限定したIR調査範囲は維持する",
+  "initial_observed_at_jst": "2026-10-17T03:32:29+09:00"
+}
