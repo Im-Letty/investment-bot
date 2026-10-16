@@ -21,6 +21,7 @@ import time
 from urllib.parse import quote, urlsplit
 
 import requests
+from news_review_diagnostics import safe_editorial_review_diagnostics
 
 from news_cache import JST, OFFICIAL_NEWS_SOURCES, _validated_digest, load_reviewed_digests
 from publish_news import MAX_ISSUES, _publication_lock, _replace_atomically
@@ -495,6 +496,7 @@ class DailyNewsRuntime:
         self._thread = None
         self._private = self._restored = False
         self._state = {**self._state, "status": "starting", "attempt_count": 0, "last_error": None}
+        self._state.pop("editorial_review_diagnostics", None)
         self._source_history = None
         reset = getattr(self.storage, "after_fork", None)
         if callable(reset):
@@ -519,6 +521,8 @@ class DailyNewsRuntime:
         return [by_date[key] for key in sorted(by_date)[-MAX_ISSUES:]]
 
     def _set(self, status, **metadata):
+        replace_diagnostics = "editorial_review_diagnostics" in metadata
+        diagnostics = safe_editorial_review_diagnostics(metadata.pop("editorial_review_diagnostics", None))
         if "last_error" not in metadata:
             if status in ("ready", "prepared", "generating"):
                 metadata["last_error"] = None
@@ -526,11 +530,20 @@ class DailyNewsRuntime:
                 metadata["last_error"] = status
         with self._state_lock:
             self._state.update(status=status, **metadata)
+            if replace_diagnostics or ("last_error" in metadata
+                    and metadata["last_error"] != "isolated_editorial_review_failed"):
+                self._state.pop("editorial_review_diagnostics", None)
+                if diagnostics is not None and self._state.get("last_error") == "isolated_editorial_review_failed":
+                    self._state["editorial_review_diagnostics"] = diagnostics
 
     def snapshot(self):
         self._ensure_process()
         with self._state_lock:
-            return dict(self._state)
+            result = dict(self._state)
+            if "editorial_review_diagnostics" in result:
+                result["editorial_review_diagnostics"] = safe_editorial_review_diagnostics(
+                    result["editorial_review_diagnostics"])
+            return result
 
     def reviewed_digests(self):
         self._ensure_process()
@@ -634,7 +647,7 @@ class DailyNewsRuntime:
         issue = next(value for value in self.reviewed_digests() if value["edition_date"] == issue["edition_date"])
         self._set("prepared" if issue.get("publish_at", issue["reviewed_at"]) > now else "ready",
                   edition_date=issue["edition_date"],
-                  publish_at=issue.get("publish_at", issue["reviewed_at"]))
+                  publish_at=issue.get("publish_at", issue["reviewed_at"]), editorial_review_diagnostics=None)
 
     def _result(self, path, value):
         # The immutable claim, not this advisory outcome, enforces the budget.
@@ -725,7 +738,7 @@ class DailyNewsRuntime:
             self._ready(existing, now)
             self._poll_sources()
             return
-        self._set("waiting", attempt_count=0)
+        self._set("waiting", attempt_count=0, editorial_review_diagnostics=None)
         if not self.enabled:
             self._set("disabled")
             return
@@ -767,11 +780,6 @@ class DailyNewsRuntime:
             if datetime.fromtimestamp(now, JST).date().isoformat() != day:
                 self._set("waiting")
                 return
-        if self.generation_owner == "external":
-            # The source manifest is durable, but only the separate writer may
-            # claim a generation attempt. Keep polling for its reviewed edition.
-            self._set("waiting_for_writer", edition_date=day, cutoff_at=cutoff, last_error=None)
-            return
         attempts = []
         for index in range(1, MAX_ATTEMPTS + 1):
             claim = self.storage.read(prefix + f"/attempt-{index}.lock")
@@ -788,6 +796,7 @@ class DailyNewsRuntime:
             raise StorageUnavailable("storage_state")
         self._set("waiting", attempt_count=len(attempts))
         retry_interval = ATTEMPT_INTERVAL
+        finished_failure, code, diagnostics = False, None, None
         if attempts:
             result = self.storage.read(prefix + f"/attempt-{len(attempts)}.result.json")
             finished_failure = (isinstance(result, dict)
@@ -796,12 +805,26 @@ class DailyNewsRuntime:
                                 and result.get("started_at") == attempts[-1][1]
                                 and result.get("status") in ("generation_failed", "invalid_edition"))
             if finished_failure:
-                self._set("waiting", last_error=_safe_generation_error(result.get("last_error", result["status"])))
+                code = _safe_generation_error(result.get("last_error", result["status"]))
+                diagnostics = (result.get("editorial_review_diagnostics")
+                               if code == "isolated_editorial_review_failed" else None)
+                self._set("waiting", last_error=code, editorial_review_diagnostics=diagnostics)
             else:
                 # An absent result is not a failed attempt: another worker may
                 # still be generating. Recovery is longer than the producer's
                 # cooperative budget, including time to record its outcome.
                 retry_interval = PENDING_ATTEMPT_SECONDS
+        if self.generation_owner == "external":
+            # Observe the same validated durable outcome as the trusted writer.
+            # An absent/mismatched result can still be another worker in flight.
+            # This branch never claims an attempt or invokes the generator.
+            if datetime.fromtimestamp(self.clock(), JST).date().isoformat() != day:
+                self._set("waiting", last_error=None, editorial_review_diagnostics=None)
+                return
+            self._set(result["status"] if finished_failure else "waiting_for_writer",
+                      edition_date=day, cutoff_at=cutoff, attempt_count=len(attempts),
+                      last_error=code, editorial_review_diagnostics=diagnostics)
+            return
         # Storage lookups can span a window boundary. Use the actual invocation
         # time for both the retry decision and the durable attempt lease.
         now = self.clock()
@@ -818,7 +841,7 @@ class DailyNewsRuntime:
         claim = {"version": 1, "edition_date": day, "attempt": number, "started_at": now}
         if not self.storage.create(prefix + f"/attempt-{number}.lock", claim):
             return
-        self._set("generating", attempt_count=number)
+        self._set("generating", attempt_count=number, editorial_review_diagnostics=None)
         result_path = prefix + f"/attempt-{number}.result.json"
         try:
             if manifest is None:
@@ -833,8 +856,13 @@ class DailyNewsRuntime:
                 raise ValueError("generation_deadline")
         except Exception as error:
             code = _safe_generation_error(error)
-            self._result(result_path, {**claim, "status": "generation_failed", "last_error": code})
-            self._set("generation_failed", last_error=code)
+            diagnostics = safe_editorial_review_diagnostics(getattr(error, "editorial_review_diagnostics", None)
+                if code == "isolated_editorial_review_failed" else None)
+            result = {**claim, "status": "generation_failed", "last_error": code}
+            if diagnostics is not None:
+                result["editorial_review_diagnostics"] = diagnostics
+            self._result(result_path, result)
+            self._set("generation_failed", last_error=code, editorial_review_diagnostics=diagnostics)
             return
         try:
             issue = _valid_issue(generated, self.clock(), edition=day)

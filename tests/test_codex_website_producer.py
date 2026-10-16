@@ -1,11 +1,13 @@
 """No CLI or sockets: verify the writer swap retains the publication contract."""
 from copy import deepcopy
+import json
 import unittest
 from unittest.mock import patch
 
 import daily_news_producer as shared
 import codex_website_producer as codex
 import website_news_producer as website
+from news_review_diagnostics import REVIEW_CHECKS
 from tests.test_website_news_producer import ENV, NOW, WINDOW, MockTransport, approval, sources
 
 
@@ -103,10 +105,87 @@ class CodexWebsiteTests(unittest.TestCase):
                 result['issues'] = ['fixture-only rejection']
             return result
         provider, transport, writer = self.provider(MockTransport(reviewer=review))
-        with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$'):
+        with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$') as caught:
             self.generate(provider)
         self.assertEqual(len(transport.calls), 4)
         self.assertTrue(writer.closed)
+        diagnostics = caught.exception.editorial_review_diagnostics
+        self.assertEqual(tuple(shared.CHECKS), REVIEW_CHECKS)
+        self.assertEqual(diagnostics['failure_stage'], 'second_review_rejected')
+        self.assertEqual(diagnostics['call_counts'],
+                         {'writer_calls': 6, 'gemini_requests': 2, 'openai_requests': 2})
+        self.assertEqual([row['round'] for row in diagnostics['rounds']], [1, 2])
+        for row in diagnostics['rounds']:
+            self.assertTrue(row['gemini']['passed'])
+            self.assertFalse(row['openai']['passed'])
+            self.assertEqual(row['openai']['failed_checks'], ['facts'])
+            self.assertEqual(row['openai']['issue_count'], 1)
+        self.assertNotIn('fixture-only', json.dumps(diagnostics))
+
+    def test_repair_reservation_failure_preserves_first_dual_review_without_an_extra_call(self):
+        def review(name, data):
+            result = approval()
+            if name == 'openai':
+                result.update(approved=False, issues=['private reviewer prose'])
+                result['checks']['facts'] = False
+            return result
+        provider, transport, writer = self.provider(MockTransport(reviewer=review))
+        reserve = provider.reserve_drafting
+        def exhausted(calls):
+            if provider.http_counts.get('openai'):
+                raise shared.GenerationError('generation_call_limit')
+            return reserve(calls)
+        provider.reserve_drafting = exhausted
+        with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$') as caught:
+            self.generate(provider)
+        diagnostics = caught.exception.editorial_review_diagnostics
+        self.assertEqual(diagnostics['failure_stage'], 'repair_reservation_denied')
+        self.assertEqual(len(diagnostics['rounds']), 1)
+        self.assertEqual(diagnostics['call_counts'],
+                         {'writer_calls': 3, 'gemini_requests': 1, 'openai_requests': 1})
+        self.assertEqual(len(writer.calls), 3)
+        self.assertEqual(len(transport.calls), 2)
+        self.assertNotIn('private reviewer prose', json.dumps(diagnostics))
+
+    def test_overview_repair_budget_failure_has_a_distinct_fixed_stage(self):
+        def review(name, data):
+            result = approval()
+            if name == 'gemini':
+                result.update(approved=False, issues=['private duplicate reason'])
+                result['checks']['distinct_topics'] = False
+            return result
+        provider, transport, writer = self.provider(MockTransport(reviewer=review))
+        reserve = provider.reserve_drafting
+        def exhausted(calls):
+            if provider.http_counts.get('openai'):
+                raise shared.GenerationError('generation_call_limit')
+            return reserve(calls)
+        provider.reserve_drafting = exhausted
+        with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$') as caught:
+            self.generate(provider)
+        diagnostics = caught.exception.editorial_review_diagnostics
+        self.assertEqual(diagnostics['failure_stage'], 'overview_repair_budget_denied')
+        self.assertEqual(diagnostics['rounds'][0]['gemini']['failed_checks'], ['distinct_topics'])
+        self.assertTrue(diagnostics['rounds'][0]['openai']['passed'])
+        self.assertEqual(len(writer.calls), 3)
+        self.assertEqual(len(transport.calls), 2)
+
+    def test_issue_only_rejection_is_observable_without_recording_free_text(self):
+        def review(name, data):
+            result = approval()
+            if name == 'openai':
+                result['issues'] = ['private reason despite all checks being true']
+            return result
+        provider, transport, writer = self.provider(MockTransport(reviewer=review))
+        with self.assertRaisesRegex(shared.GenerationError, '^isolated_editorial_review_failed$') as caught:
+            self.generate(provider)
+        diagnostics = caught.exception.editorial_review_diagnostics
+        self.assertEqual(diagnostics['failure_stage'], 'second_review_rejected')
+        self.assertTrue(diagnostics['rounds'][-1]['openai']['approved'])
+        self.assertFalse(diagnostics['rounds'][-1]['openai']['passed'])
+        self.assertEqual(diagnostics['rounds'][-1]['openai']['failed_checks'], [])
+        self.assertEqual(diagnostics['rounds'][-1]['openai']['issue_count'], 1)
+        self.assertNotIn('private reason', json.dumps(diagnostics))
 
     def test_local_writing_failure_is_counted_and_never_calls_any_api(self):
         writer = Writer()

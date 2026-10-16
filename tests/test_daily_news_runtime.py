@@ -12,6 +12,7 @@ from unittest.mock import Mock, patch
 from daily_news_runtime import (DailyNewsRuntime, StorageUnavailable, SupabaseNewsStorage,
                                 ATTEMPT_INTERVAL, PENDING_ATTEMPT_SECONDS, MAX_ATTEMPTS, start)
 from news_cache import JST, OFFICIAL_NEWS_SOURCES, load_reviewed_digests, select_daily_news
+from tests.test_news_review_diagnostics import diagnostic
 
 
 def at(day="2026-09-24", hour=7, minute=45, second=0):
@@ -182,7 +183,7 @@ class RuntimeTests(unittest.TestCase):
         self.assertFalse(any("attempt-" in key for key in self.storage.values))
         self.assertNotIn("days/2026-09-24/edition.json", self.storage.values)
 
-    def test_external_owner_never_reads_claims_or_calls_accidental_generator(self):
+    def test_external_owner_rejects_malformed_claim_without_calling_accidental_generator(self):
         from morning_news_window import morning_window
         preparer = Mock()
         preparer.prepare.return_value = {**morning_window(self.now), "articles": [{"body": "固定原文"}],
@@ -191,11 +192,11 @@ class RuntimeTests(unittest.TestCase):
         self.storage.read = Mock(wraps=self.storage.read)
         runtime = self.runtime(source_preparer=preparer, generation_owner="external")
         for _ in range(2):
-            self.assertEqual(runtime.run_once()["status"], "waiting_for_writer")
+            self.assertEqual(runtime.run_once()["status"], "storage_unavailable")
         restarted = self.runtime(source_preparer=preparer, generation_owner="external")
-        self.assertEqual(restarted.run_once()["status"], "waiting_for_writer")
+        self.assertEqual(restarted.run_once()["status"], "storage_unavailable")
         self.generator.assert_not_called()
-        self.assertFalse(any("attempt-" in call.args[0] for call in self.storage.read.call_args_list))
+        self.assertTrue(any("attempt-" in call.args[0] for call in self.storage.read.call_args_list))
         self.assertEqual(self.storage.created, [])
 
     def test_external_owner_preserves_freezing_empty_and_failed_source_states(self):
@@ -824,6 +825,103 @@ class RuntimeTests(unittest.TestCase):
         self.assertNotIn('private-upstream-body', json.dumps(state))
         self.assertNotIn('private.invalid', json.dumps(self.storage.values))
         self.assertEqual(self.runtime().run_once()['last_error'], 'generation_failed')
+
+    def test_editorial_diagnostics_are_projected_copied_and_cleared_for_the_next_day(self):
+        error = ValueError('isolated_editorial_review_failed')
+        value = diagnostic()
+        value['raw'] = 'private raw reviewer response'
+        error.editorial_review_diagnostics = value
+        self.generator.side_effect = error
+        runtime = self.runtime(max_attempts=1)
+        first = runtime.run_once()
+        self.assertEqual(first['editorial_review_diagnostics'], diagnostic())
+        self.assertNotIn('private raw', json.dumps(self.storage.values))
+        first['editorial_review_diagnostics']['rounds'][0]['openai']['failed_checks'].clear()
+        self.assertEqual(runtime.snapshot()['editorial_review_diagnostics'], diagnostic())
+        restarted = self.runtime(max_attempts=1)
+        self.assertEqual(restarted.run_once()['editorial_review_diagnostics'], diagnostic())
+        self.generator.assert_called_once()
+        self.now = at('2026-09-25', hour=2)
+        self.assertNotIn('editorial_review_diagnostics', runtime.run_once())
+
+    def test_old_or_invalid_generation_failures_do_not_invent_editorial_diagnostics(self):
+        for code, value in [('isolated_editorial_review_failed', None),
+                            ('isolated_editorial_review_failed', {'private': 'raw response'}),
+                            ('openai_unavailable', diagnostic())]:
+            with self.subTest(code=code, value=value):
+                error = ValueError(code)
+                error.editorial_review_diagnostics = value
+                generator = Mock(side_effect=error)
+                runtime = self.runtime(storage=MemoryStorage(), generator=generator)
+                state = runtime.run_once()
+                self.assertNotIn('editorial_review_diagnostics', state)
+
+    def test_external_owner_observes_matching_durable_failure_without_claiming_or_generating(self):
+        previous = issue('2026-09-23')
+        self.write(self.baseline, [previous])
+        claim = {'version': 1, 'edition_date': '2026-09-24', 'attempt': 1,
+                 'started_at': self.now - 30}
+        result = {**claim, 'status': 'generation_failed', 'last_error': 'isolated_editorial_review_failed',
+                  'editorial_review_diagnostics': diagnostic()}
+        self.storage.values.update({'days/2026-09-24/attempt-1.lock': claim,
+                                    'days/2026-09-24/attempt-1.result.json': result})
+        preparer = Mock()
+        preparer.prepare.return_value = {'articles': [{'fixture': 'already validated original'}]}
+        runtime = self.runtime(generation_owner='external', source_preparer=preparer)
+        state = runtime.run_once()
+        self.assertEqual(state['status'], 'generation_failed')
+        self.assertEqual(state['edition_date'], '2026-09-24')
+        self.assertEqual(state['attempt_count'], 1)
+        self.assertEqual(state['last_error'], 'isolated_editorial_review_failed')
+        self.assertEqual(state['editorial_review_diagnostics'], diagnostic())
+        self.assertEqual(runtime.reviewed_digests(), [previous])
+        self.assertEqual(self.storage.created, [])
+        self.generator.assert_not_called()
+        self.assertNotIn('days/2026-09-24/edition.json', self.storage.values)
+        # Historical outcomes contain only the fixed error. Observe that error
+        # without reconstructing reviewer results that were never persisted.
+        self.storage.values['days/2026-09-24/attempt-1.result.json'].pop('editorial_review_diagnostics')
+        legacy = runtime.run_once()
+        self.assertEqual(legacy['status'], 'generation_failed')
+        self.assertEqual(legacy['attempt_count'], 1)
+        self.assertNotIn('editorial_review_diagnostics', legacy)
+        self.generator.assert_not_called()
+        self.assertEqual(self.storage.created, [])
+
+    def test_external_owner_does_not_call_unfinished_or_mismatched_outcomes_failures(self):
+        claim = {'version': 1, 'edition_date': '2026-09-24', 'attempt': 1,
+                 'started_at': self.now - 30}
+        result = {**claim, 'status': 'generation_failed', 'last_error': 'isolated_editorial_review_failed',
+                  'editorial_review_diagnostics': diagnostic()}
+        for outcome in (None, {**result, 'started_at': claim['started_at'] - 1},
+                        {**result, 'edition_date': '2026-09-23'}, {**result, 'attempt': 2},
+                        {**result, 'status': 'generating'}, {**result, 'status': 'prepared'}):
+            with self.subTest(outcome=outcome):
+                storage = MemoryStorage({'days/2026-09-24/attempt-1.lock': claim})
+                if outcome is not None:
+                    storage.values['days/2026-09-24/attempt-1.result.json'] = outcome
+                preparer = Mock()
+                preparer.prepare.return_value = {'articles': [{'fixture': 'already validated original'}]}
+                runtime = self.runtime(storage=storage, generation_owner='external', source_preparer=preparer)
+                state = runtime.run_once()
+                self.assertEqual(state['status'], 'waiting_for_writer')
+                self.assertEqual(state['attempt_count'], 1)
+                self.assertIsNone(state['last_error'])
+                self.assertNotIn('editorial_review_diagnostics', state)
+                self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
+
+    def test_external_owner_retains_the_local_claim_sequence_validation(self):
+        preparer = Mock()
+        preparer.prepare.return_value = {'articles': [{'fixture': 'already validated original'}]}
+        for claim in ({'edition_date': '2026-09-23', 'attempt': 1, 'started_at': self.now - 30},
+                      {'edition_date': '2026-09-24', 'attempt': 2, 'started_at': self.now - 30}):
+            number = claim['attempt']
+            storage = MemoryStorage({f'days/2026-09-24/attempt-{number}.lock': claim})
+            runtime = self.runtime(storage=storage, generation_owner='external', source_preparer=preparer)
+            self.assertEqual(runtime.run_once()['status'], 'storage_unavailable')
+            self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
 
     def test_missing_storage_never_calls_generator_and_keeps_baseline(self):
         self.write(self.baseline, [issue("2026-09-23")])

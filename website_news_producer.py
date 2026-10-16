@@ -296,6 +296,13 @@ class WebsiteProviders(shared.Providers):
         with self._lock:
             return dict(self._counts)
 
+    def safe_call_counts(self):
+        """Fixed attempt counters only; callable after provider cleanup."""
+        with self._lock:
+            return {'writer_calls': self._counts['claude'],
+                    'gemini_requests': self._counts['gemini'],
+                    'openai_requests': self._counts['openai']}
+
     def _check(self):
         shared._check_deadline()
         if time.monotonic() >= self._deadline:

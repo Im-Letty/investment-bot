@@ -39,6 +39,13 @@ class CodexWebsiteProviders(website.WebsiteProviders):
         with self._lock:
             return self._codex_calls
 
+    def safe_call_counts(self):
+        """Separate subscription writing from the two API review counters."""
+        with self._lock:
+            return {'writer_calls': self._codex_calls,
+                    'gemini_requests': self._counts['gemini'],
+                    'openai_requests': self._counts['openai']}
+
     def reserve_drafting(self, calls):
         """Reserve subscription writing and fresh reviews in separate budgets."""
         with self._lock:

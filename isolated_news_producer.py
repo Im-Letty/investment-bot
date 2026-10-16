@@ -12,6 +12,7 @@ import time
 import daily_news_producer as shared
 from news_copy_policy import COPY_LENGTH_POLICY, MONEY_DISPLAY_INSTRUCTION, summary_bounds
 from news_cache import LEAD_OTHER_NEWS_STRUCTURE
+from news_review_diagnostics import safe_editorial_review_diagnostics
 
 
 EDITORIAL_ACCURACY = '''以下は採用した主張の確認条件であり、すべてを記事に盛り込む指示ではありません。書く内容ごとに、誰が・何を対象に・何をしたか・どこまで決まったかを原文と照合します。facts.text、見出し、詳細、全体要約すべてに適用します。
@@ -709,6 +710,22 @@ def generate_isolated_edition(now=None, *, articles, source_window, providers=No
         shared._generation_deadline.reset(token)
 
 
+def _editorial_failure(stage, rounds, providers):
+    """Keep fixed rejection/budget evidence without persisting reviewer prose."""
+    value = {'schema_version': 1, 'failure_stage': stage, 'rounds': rounds}
+    counts = getattr(providers, 'safe_call_counts', None)
+    if callable(counts):
+        try:
+            value['call_counts'] = counts()
+        except Exception:
+            pass
+    error = shared.GenerationError('isolated_editorial_review_failed')
+    diagnostics = safe_editorial_review_diagnostics(value)
+    if diagnostics is not None:
+        error.editorial_review_diagnostics = diagnostics
+    return error
+
+
 def _generate(now, articles, source_window, providers, clock):
     now = clock() if now is None else now
     window = shared._source_window(source_window, now)
@@ -724,6 +741,7 @@ def _generate(now, articles, source_window, providers, clock):
     draft = _overview(cards, context, providers)
     instruction = (shared._edition_context(edition) + shared.REVIEW
                    + WEBSITE_OFFICIAL_EDITORIAL + SCOPED_REVIEW)
+    review_rounds = []
     for attempt in range(2):
         # Validate the same content that will be published before buying reviews.
         issue = shared.build_issue(draft, frozen, clock(), source_window=window,
@@ -742,13 +760,18 @@ def _generate(now, articles, source_window, providers, clock):
                                             for card in selected_cards]}
         failed = set()
         rejected = False
+        round_result = {'round': attempt + 1}
         for name in ('gemini', 'openai'):
             shared._check_deadline()
             review = getattr(providers, name)(instruction, deepcopy(review_data))
             shared._check_deadline()
             if not shared.review_valid(review):
                 raise shared.GenerationError('invalid_provider_json')
-            if not shared.review_passed(review):
+            passed = shared.review_passed(review)
+            round_result[name] = {'approved': review['approved'], 'passed': passed,
+                'failed_checks': [key for key in shared.CHECKS if review['checks'][key] is False],
+                'issue_count': len(review['issues'])}
+            if not passed:
                 rejected = True
                 failed.update(key for key in shared.CHECKS if review['checks'][key] is False)
         if not rejected:
@@ -764,8 +787,9 @@ def _generate(now, articles, source_window, providers, clock):
                 from news_review_receipt import completed_receipt
                 issue['review_receipt'] = completed_receipt(issue, review_data)
             return issue
+        review_rounds.append(round_result)
         if attempt:
-            raise shared.GenerationError('isolated_editorial_review_failed')
+            raise _editorial_failure('second_review_rejected', review_rounds, providers)
         failed = tuple(key for key in shared.CHECKS if key in failed)
         if failed == ('distinct_topics',):
             # Rebuild only the overview from one source; never merge evidence.
@@ -778,7 +802,7 @@ def _generate(now, articles, source_window, providers, clock):
                 _reserve(providers, len(selected_sources) + 1)
             except shared.GenerationError as error:
                 if str(error) == 'generation_call_limit':
-                    raise shared.GenerationError('isolated_editorial_review_failed') from error
+                    raise _editorial_failure('repair_reservation_denied', review_rounds, providers) from error
                 raise
             previous = {card['index']: card for card in selected_cards}
             cards = [_article(source, context, providers, len(selected_sources) - i + 1,
@@ -789,6 +813,6 @@ def _generate(now, articles, source_window, providers, clock):
             draft = _overview(cards, context, providers, previous=previous_overview, failed=failed)
         except shared.GenerationError as error:
             if str(error) == 'generation_call_limit':
-                raise shared.GenerationError('isolated_editorial_review_failed') from error
+                raise _editorial_failure('overview_repair_budget_denied', review_rounds, providers) from error
             raise
     raise AssertionError('unreachable')

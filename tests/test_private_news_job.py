@@ -19,6 +19,7 @@ from scripts import run_codex_news as original_runner
 from tests.test_codex_website_producer import Writer
 from tests.test_daily_news_runtime import MemoryStorage
 from tests.test_website_news_producer import ENV, MockTransport, approval, sources
+from tests.test_news_review_diagnostics import diagnostic
 
 
 RESULT_TEMP_ROOT = Path(gettempdir()).resolve()
@@ -504,8 +505,69 @@ class PrivateJobTests(unittest.TestCase):
         self.assertEqual([path for path in self.storage.created if path.endswith(".lock")],
                          ["days/2026-10-06/attempt-1.lock"])
 
+    def test_real_editorial_failure_reaches_durable_outcome_and_safe_report_without_retry(self):
+        providers = []
+        def reject(name, data):
+            value = approval()
+            if name == 'openai':
+                value.update(approved=False, issues=['private reviewer prose must not survive'])
+                value['checks']['readable'] = False
+            return value
+        with TemporaryDirectory() as folder:
+            baseline = Path(folder) / 'baseline.json'
+            baseline.write_text('[]')
+            def generate(now, **source_options):
+                transport = MockTransport(reviewer=reject)
+                provider = CodexWebsiteProviders(ENV, transport.session, writer=Writer())
+                providers.append(provider)
+                return generate_codex_website_edition(now, **source_options,
+                    clock=lambda: self.clock.now, providers=provider)
+            def build(_env, **options):
+                return DailyNewsRuntime(options['storage'], generate, enabled=True,
+                    baseline_path=baseline, cache_path=options['cache_path'],
+                    max_attempts=options['max_attempts'], clock=lambda: self.clock.now)
+            first = self.run_job(runtime_factory=build)
+            report = job.safe_report(first, at(), self.clock.now)
+            stored = self.storage.values['days/2026-10-06/attempt-1.result.json']
+            expected = first['editorial_review_diagnostics']
+            self.assertEqual(expected['failure_stage'], 'second_review_rejected')
+            self.assertEqual(expected, stored['editorial_review_diagnostics'])
+            self.assertEqual(expected, report['editorial_review_diagnostics'])
+            self.assertEqual(expected['call_counts'],
+                {'writer_calls': 6, 'gemini_requests': 2, 'openai_requests': 2})
+            self.assertFalse(report['success'])
+            self.assertFalse(report['new_edition_prepared'])
+            self.assertNotIn('days/2026-10-06/edition.json', self.storage.values)
+            self.assertNotIn('review_receipt', stored)
+            self.assertNotIn('private reviewer prose', json.dumps(stored))
+            self.assertNotIn('private reviewer prose', json.dumps(report))
+            self.clock = Clock(at(7, 50))
+            second = self.run_job(runtime_factory=build)
+            self.assertEqual(second['status'], 'daily_limit')
+            self.assertEqual(second['editorial_review_diagnostics'], expected)
+            self.assertEqual(len(providers), 1)
+            self.assertEqual(len([path for path in self.storage.created if path.endswith('.lock')]), 1)
+
 
 class SafeResultTests(unittest.TestCase):
+    def test_editorial_projection_drops_free_text_and_requires_the_matching_failure(self):
+        value = diagnostic()
+        value['raw_response'] = 'private original or reviewer prose'
+        value['rounds'][0]['gemini']['issues'] = ['private original or reviewer prose']
+        result = {'status': 'generation_failed', 'edition_date': '2026-10-06',
+                  'last_error': 'isolated_editorial_review_failed', 'editorial_review_diagnostics': value}
+        report = job.safe_report(result, at(), at(7, 40))
+        self.assertEqual(report['editorial_review_diagnostics'], diagnostic())
+        self.assertNotIn('private original', json.dumps(report))
+        for changes in ({'last_error': 'generation_failed'}, {'last_error': None},
+                        {'editorial_review_diagnostics': {'failure_stage': 'private original'}}):
+            self.assertNotIn('editorial_review_diagnostics', job.safe_report({**result, **changes}, at(), at(7, 40)))
+        progress = job.JobProgress()
+        progress.runtime(result)
+        self.assertEqual(progress.fields()['editorial_review_diagnostics'], diagnostic())
+        progress.runtime({'status': 'ready', 'last_error': None})
+        self.assertNotIn('editorial_review_diagnostics', progress.fields())
+
     def test_prepared_and_quiet_are_distinct_and_do_not_attest_public_delivery(self):
         for status, prepared, quiet in (("prepared", True, False), ("ready", True, False),
                                         ("source_empty", False, True)):

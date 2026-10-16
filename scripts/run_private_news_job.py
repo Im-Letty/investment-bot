@@ -28,6 +28,7 @@ if __package__ in (None, ""):
 
 from daily_news_producer import GenerationError
 from daily_news_runtime import StorageUnavailable, _safe_generation_error
+from news_review_diagnostics import safe_editorial_review_diagnostics
 from morning_news_window import MAX_ARTICLES, MorningNewsPreparer, morning_window, manifest_window
 from news_cache import JST, OFFICIAL_NEWS_SOURCES
 from scripts.run_codex_news import build_runtime, configuration, preflight_subscription
@@ -89,6 +90,7 @@ class JobProgress:
         self.manifest_version = None
         self.runtime_status = None
         self.attempt_count = None
+        self.editorial_review_diagnostics = None
 
     def runtime(self, state):
         if not isinstance(state, dict):
@@ -99,6 +101,9 @@ class JobProgress:
         count = state.get("attempt_count")
         if type(count) is int and 0 <= count <= 6:
             self.attempt_count = count
+        self.editorial_review_diagnostics = safe_editorial_review_diagnostics(
+            state.get("editorial_review_diagnostics")
+            if state.get("last_error") == "isolated_editorial_review_failed" else None)
 
     def fields(self):
         value = {"phase": self.phase if self.phase in _PHASES else "starting",
@@ -110,6 +115,8 @@ class JobProgress:
             value["runtime_status"] = self.runtime_status
         if self.attempt_count is not None:
             value["attempt_count"] = self.attempt_count
+        if self.editorial_review_diagnostics is not None:
+            value["editorial_review_diagnostics"] = safe_editorial_review_diagnostics(self.editorial_review_diagnostics)
         return value
 
 
@@ -233,6 +240,10 @@ def safe_report(result, started, finished):
         report["publish_at"] = datetime.fromtimestamp(publish, JST).isoformat(timespec="seconds")
     if result.get("last_error") is not None:
         report["last_error"] = _safe_generation_error(result["last_error"])
+    diagnostics = safe_editorial_review_diagnostics(result.get("editorial_review_diagnostics")
+        if report.get("last_error") == "isolated_editorial_review_failed" else None)
+    if diagnostics is not None:
+        report["editorial_review_diagnostics"] = diagnostics
     if "source_status" in result:
         report["source_status"] = _safe_source_diagnostics(result["source_status"])
     count, counts = result.get("source_article_count"), result.get("source_date_counts")
@@ -370,6 +381,10 @@ def _outcome(status, day=None, *, success=False, state=None, manifest=None, prog
             value["publish_at"] = publish
         if state.get("last_error") is not None:
             value["last_error"] = _safe_generation_error(state["last_error"])
+        diagnostics = safe_editorial_review_diagnostics(state.get("editorial_review_diagnostics")
+            if value.get("last_error") == "isolated_editorial_review_failed" else None)
+        if diagnostics is not None:
+            value["editorial_review_diagnostics"] = diagnostics
     if isinstance(manifest, dict) and "source_status" in manifest:
         value["source_status"] = _safe_source_diagnostics(manifest["source_status"])
     articles = manifest.get("articles") if isinstance(manifest, dict) else None
