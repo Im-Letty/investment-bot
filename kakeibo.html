@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-calendarrecords1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-separatecards1">
   <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-investmentcats1"></script>
@@ -284,6 +284,7 @@ body{padding-bottom:24px;}
       <div class="sum-item"><div class="sum-lbl" data-i18n="kk_layout_investment">投資</div><div class="sum-num sage" id="d-invest">¥0</div></div>
     </div>
     <p class="kk-layout-note kk-balance-rule" data-i18n="kk_layout_balance_rule">収支残 ＝ 収入 − 支出 − 投資</p>
+  </section>
 <section class="kk-monthly-entry" id="tab-cashflow" aria-labelledby="kkEntryTitle">
   <h2 class="kk-pane-title" id="kkEntryTitle" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_input">入力</h2>
   <div id="kk-input-actions" style="display:flex;gap:10px;margin:0 0 14px;"><details id="kk-receipt-sources" class="kk-receipt-sources"><summary><span data-i18n="kk_btn_scan_receipt">レシートを読み取る</span><span aria-hidden="true">⌄</span></summary><div class="kk-receipt-source-options"><button type="button" id="kk-receipt-album"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8" cy="8" r="1.5"/><path d="m3 17 5-5 4 4 3-3 6 6"/></svg><span data-i18n="kk_receipt_album">アルバムから選ぶ</span></button><button type="button" id="kk-receipt-camera"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 5 9 3h6l1 2h3a2 2 0 0 1 2 2v12H3V7a2 2 0 0 1 2-2Z"/><circle cx="12" cy="11" r="4"/></svg><span data-i18n="kk_receipt_camera">カメラで撮影</span></button></div></details><button style="display:none" onclick="switchTab('cashflow')" class="kkb">
@@ -304,7 +305,6 @@ body{padding-bottom:24px;}
     <div id="form-inv" style="display:none"><label class="kk-entry-label" for="inv-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="inv-cat" onchange="if(window.kkInvCatChange)kkInvCatChange(this)"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><label class="kk-entry-label" for="inv-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inv-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
 </section>
-  </section>
 <section id="tab-dashboard" aria-labelledby="kkExpenseTitle">
   <span id="monthLabelGraph" hidden></span>
   <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>

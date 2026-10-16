@@ -77,10 +77,11 @@ body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview #d-balance.red {color:v
 body.kn-ledger-paper .kk-layout-note {
   margin:0;color:var(--kn-ledger-muted);font:400 calc(12px * var(--kn-ledger-scale,1))/1.8 var(--kn-ledger-sans);
 }
-body.kn-ledger-paper .kk-balance-rule {padding:14px 10px 16px}
+body.kn-ledger-paper .kk-balance-rule {padding:14px 10px 0}
 body.kn-ledger-paper .kk-monthly-entry {
   display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px 12px;
-  border-top:1px solid var(--kn-ledger-line);padding-top:20px;scroll-margin-top:20px;
+  border:1px solid var(--kn-ledger-line);border-radius:10px;background:var(--kn-ledger-paper);
+  padding:20px;margin-bottom:26px;scroll-margin-top:20px;
 }
 body.kn-ledger-paper .kk-monthly-entry .kk-pane-title {
   align-self:center;margin:0;font-size:calc(15px * var(--kn-ledger-scale,1));font-weight:500;
@@ -228,6 +229,7 @@ body.kn-ledger-paper .cal-day {min-width:0}
   body.kn-ledger-paper .kk-expense-canvas {align-self:center;flex-basis:auto}
   body.kn-ledger-letter.kn-ledger-paper .kk-layout-header {padding-block:14px!important}
   body.kn-ledger-paper .kk-paper-overview {padding-inline:16px;padding-bottom:18px;margin-bottom:24px}
+  body.kn-ledger-paper .kk-monthly-entry {padding:18px 16px;margin-bottom:24px}
   body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-item {padding:16px 8px}
   body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .sum-num {font-size:calc(21px * var(--kn-ledger-scale,1))}
   body.kn-ledger-paper .kk-paper-overview .month-nav {padding-block:8px}
