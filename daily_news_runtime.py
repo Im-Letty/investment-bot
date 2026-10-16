@@ -453,6 +453,25 @@ def _valid_issue(value, now, *, edition=None):
     return issue
 
 
+def _attempt_started(value, day, index, now):
+    """Validate durable claim/result identity without reflecting stored data."""
+    started = value.get("started_at") if type(value) is dict else None
+    if (type(value) is not dict or type(value.get("version")) is not int or value["version"] != 1
+            or type(value.get("edition_date")) is not str or value["edition_date"] != day
+            or type(value.get("attempt")) is not int or value["attempt"] != index
+            or type(started) not in (int, float) or not math.isfinite(started)
+            or not 0 < started <= now):
+        raise StorageUnavailable("storage_state")
+    try:
+        actual = datetime.fromtimestamp(started, JST)
+        same_day = actual.date().isoformat() == day and 7 <= actual.hour < 23
+    except (ValueError, OverflowError, OSError):
+        same_day = False
+    if not same_day:
+        raise StorageUnavailable("storage_state")
+    return started
+
+
 class DailyNewsRuntime:
     """All public reads are in-memory; network/AI only runs in daemon workers."""
 
@@ -780,30 +799,41 @@ class DailyNewsRuntime:
             if datetime.fromtimestamp(now, JST).date().isoformat() != day:
                 self._set("waiting")
                 return
-        attempts = []
+        attempts, outcomes = [], []
         for index in range(1, MAX_ATTEMPTS + 1):
             claim = self.storage.read(prefix + f"/attempt-{index}.lock")
+            result = self.storage.read(prefix + f"/attempt-{index}.result.json")
             if claim is None:
+                if result is not None:
+                    raise StorageUnavailable("storage_state")
                 continue
-            started = claim.get("started_at") if isinstance(claim, dict) else None
-            if (not isinstance(claim, dict) or claim.get("edition_date") != day or claim.get("attempt") != index
-                    or isinstance(started, bool) or not isinstance(started, (int, float))
-                    or not math.isfinite(started)
-                    or datetime.fromtimestamp(started, JST).date().isoformat() != day):
+            started = _attempt_started(claim, day, index, self.clock())
+            if (set(claim) != {"version", "edition_date", "attempt", "started_at"}
+                    or index != len(attempts) + 1):
                 raise StorageUnavailable("storage_state")
+            if result is not None:
+                # Only explicit matching failures release the shorter retry
+                # interval. A persisted or unknown outcome with no readable
+                # edition is ambiguous; it must never buy another generation.
+                if (_attempt_started(result, day, index, self.clock()) != started
+                        or set(result) - {"version", "edition_date", "attempt", "started_at", "status",
+                                          "last_error", "editorial_review_diagnostics"}
+                        or type(result.get("status")) is not str
+                        or result["status"] not in ("generation_failed", "invalid_edition")
+                        or ("last_error" in result and type(result["last_error"]) is not str)):
+                    raise StorageUnavailable("storage_state")
+            if attempts:
+                interval = ATTEMPT_INTERVAL if outcomes[-1] is not None else PENDING_ATTEMPT_SECONDS
+                if started < attempts[-1][1] + interval:
+                    raise StorageUnavailable("storage_state")
             attempts.append((index, started))
-        if [index for index, _ in attempts] != list(range(1, len(attempts) + 1)):
-            raise StorageUnavailable("storage_state")
+            outcomes.append(result)
         self._set("waiting", attempt_count=len(attempts))
         retry_interval = ATTEMPT_INTERVAL
         finished_failure, code, diagnostics = False, None, None
         if attempts:
-            result = self.storage.read(prefix + f"/attempt-{len(attempts)}.result.json")
-            finished_failure = (isinstance(result, dict)
-                                and result.get("edition_date") == day
-                                and result.get("attempt") == len(attempts)
-                                and result.get("started_at") == attempts[-1][1]
-                                and result.get("status") in ("generation_failed", "invalid_edition"))
+            result = outcomes[-1]
+            finished_failure = result is not None
             if finished_failure:
                 code = _safe_generation_error(result.get("last_error", result["status"]))
                 diagnostics = (result.get("editorial_review_diagnostics")
@@ -816,7 +846,8 @@ class DailyNewsRuntime:
                 retry_interval = PENDING_ATTEMPT_SECONDS
         if self.generation_owner == "external":
             # Observe the same validated durable outcome as the trusted writer.
-            # An absent/mismatched result can still be another worker in flight.
+            # An absent result can still be another worker in flight; invalid
+            # or ambiguous durable outcomes have already failed closed above.
             # This branch never claims an attempt or invokes the generator.
             if datetime.fromtimestamp(self.clock(), JST).date().isoformat() != day:
                 self._set("waiting", last_error=None, editorial_review_diagnostics=None)

@@ -292,10 +292,11 @@ class RuntimeTests(unittest.TestCase):
         self.assertNotIn("days/2026-09-24/attempt-2.lock", self.storage.values)
 
     def test_lower_attempt_cap_still_inspects_all_existing_claims_and_gaps(self):
+        self.now = at(hour=10)
         for number in range(1, MAX_ATTEMPTS + 1):
             self.storage.values[f"days/2026-09-24/attempt-{number}.lock"] = {
                 "version": 1, "edition_date": "2026-09-24", "attempt": number,
-                "started_at": at(hour=7, minute=number)}
+                "started_at": at(hour=7, minute=0) + (number - 1) * PENDING_ATTEMPT_SECONDS}
         state = self.runtime(max_attempts=1).run_once()
         self.assertEqual(state["status"], "daily_limit")
         self.assertEqual(state["attempt_count"], MAX_ATTEMPTS)
@@ -611,18 +612,118 @@ class RuntimeTests(unittest.TestCase):
         self.assertEqual(load_reviewed_digests(self.cache)[0]["headline"], "回復した原稿")
         self.assertEqual(len([key for key in self.storage.values if key.endswith(".lock")]), 2)
 
-    def test_unmatched_failure_record_does_not_shorten_pending_lease(self):
+    def test_unmatched_failure_record_never_becomes_an_expired_pending_retry(self):
         started = at(hour=7, minute=0)
         claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1, "started_at": started}
         self.storage.values["days/2026-09-24/attempt-1.lock"] = claim
         self.storage.values["days/2026-09-24/attempt-1.result.json"] = {
             **claim, "started_at": started - 1, "status": "generation_failed"}
         self.now = started + ATTEMPT_INTERVAL
-        self.assertEqual(self.runtime().run_once()["status"], "waiting")
+        self.assertEqual(self.runtime().run_once()["status"], "storage_unavailable")
         self.generator.assert_not_called()
         self.now = started + PENDING_ATTEMPT_SECONDS
-        self.runtime().run_once()
-        self.generator.assert_called_once()
+        self.assertEqual(self.runtime().run_once()["status"], "storage_unavailable")
+        self.generator.assert_not_called()
+        self.assertEqual(self.storage.created, [])
+
+    def test_ambiguous_result_in_any_attempt_blocks_generation_even_after_a_later_failure(self):
+        self.now = at(hour=9)
+        for status in ("persisted", "generating", "prepared", "unknown", None, True):
+            for later_failure in (False, True):
+                for owner in ("local", "external"):
+                    with self.subTest(status=status, later_failure=later_failure, owner=owner):
+                        claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1,
+                                 "started_at": at(hour=7, minute=0)}
+                        values = {"days/2026-09-24/attempt-1.lock": claim,
+                                  "days/2026-09-24/attempt-1.result.json": {**claim, "status": status}}
+                        if later_failure:
+                            second = {**claim, "attempt": 2,
+                                      "started_at": claim["started_at"] + PENDING_ATTEMPT_SECONDS}
+                            values.update({"days/2026-09-24/attempt-2.lock": second,
+                                "days/2026-09-24/attempt-2.result.json": {
+                                    **second, "status": "generation_failed", "last_error": "no_eligible_topics"}})
+                        storage = MemoryStorage(values)
+                        preparer = Mock()
+                        preparer.prepare.return_value = {"articles": [{"fixture": "already validated original"}]}
+                        runtime = self.runtime(storage=storage, generation_owner=owner,
+                                               source_preparer=preparer)
+                        state = runtime.run_once()
+                        self.assertEqual(state["status"], "storage_unavailable")
+                        self.assertNotIn("editorial_review_diagnostics", state)
+                        self.assertEqual(storage.values, values)
+                        self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
+
+    def test_orphan_results_including_a_later_slot_fail_closed(self):
+        self.now = at(hour=9)
+        claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1,
+                 "started_at": at(hour=7, minute=0)}
+        failure = {**claim, "status": "generation_failed"}
+        for number in (1, MAX_ATTEMPTS):
+            with self.subTest(number=number):
+                result = {**failure, "attempt": number}
+                storage = MemoryStorage({f"days/2026-09-24/attempt-{number}.result.json": result})
+                self.assertEqual(self.runtime(storage=storage).run_once()["status"], "storage_unavailable")
+                self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
+
+    def test_claim_and_result_identity_types_and_actual_times_must_match(self):
+        self.now = at(hour=9)
+        claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1,
+                 "started_at": at(hour=7, minute=0)}
+        failure = {**claim, "status": "generation_failed", "last_error": "no_eligible_topics"}
+        changes = ({"version": True}, {"version": 2}, {"version": None}, {"attempt": True},
+                   {"attempt": 1.0}, {"attempt": 2}, {"edition_date": "2026-09-23"},
+                   {"started_at": True}, {"started_at": float("nan")},
+                   {"started_at": float("inf")}, {"started_at": self.now + 1},
+                   {"started_at": at(hour=6, minute=59)},
+                   {"started_at": at("2026-09-23", hour=7, minute=0)})
+        for target in ("claim", "result"):
+            for change in changes:
+                with self.subTest(target=target, change=change):
+                    current_claim = {**claim, **change} if target == "claim" else deepcopy(claim)
+                    result = {**failure, **change} if target == "result" else deepcopy(failure)
+                    storage = MemoryStorage({"days/2026-09-24/attempt-1.lock": current_claim,
+                        "days/2026-09-24/attempt-1.result.json": result})
+                    self.assertEqual(self.runtime(storage=storage).run_once()["status"], "storage_unavailable")
+                    self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
+
+    def test_historical_claim_spacing_keeps_failure_and_pending_lease_distinct(self):
+        self.now = at(hour=9)
+        claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1,
+                 "started_at": at(hour=7, minute=0)}
+        for finished, interval in ((True, ATTEMPT_INTERVAL), (False, PENDING_ATTEMPT_SECONDS)):
+            for elapsed in (-1, interval - 1):
+                with self.subTest(finished=finished, elapsed=elapsed):
+                    second = {**claim, "attempt": 2, "started_at": claim["started_at"] + elapsed}
+                    values = {"days/2026-09-24/attempt-1.lock": claim,
+                              "days/2026-09-24/attempt-2.lock": second,
+                              "days/2026-09-24/attempt-2.result.json": {**second, "status": "invalid_edition"}}
+                    if finished:
+                        values["days/2026-09-24/attempt-1.result.json"] = {**claim, "status": "generation_failed"}
+                    storage = MemoryStorage(values)
+                    self.assertEqual(self.runtime(storage=storage).run_once()["status"], "storage_unavailable")
+                    self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
+
+    def test_claim_and_failure_extra_fields_cannot_authorize_a_retry(self):
+        self.now = at(hour=9)
+        claim = {"version": 1, "edition_date": "2026-09-24", "attempt": 1,
+                 "started_at": at(hour=7, minute=0)}
+        failure = {**claim, "status": "generation_failed"}
+        for target in ("claim", "result"):
+            for extra in ({"publish_at": at(hour=8)}, {"raw": "private stored response"}):
+                with self.subTest(target=target, extra=extra):
+                    current_claim = {**claim, **extra} if target == "claim" else deepcopy(claim)
+                    result = {**failure, **extra} if target == "result" else deepcopy(failure)
+                    storage = MemoryStorage({"days/2026-09-24/attempt-1.lock": current_claim,
+                        "days/2026-09-24/attempt-1.result.json": result})
+                    state = self.runtime(storage=storage).run_once()
+                    self.assertEqual(state["status"], "storage_unavailable")
+                    self.assertNotIn("private stored response", json.dumps(state))
+                    self.assertEqual(storage.created, [])
+        self.generator.assert_not_called()
 
     def test_publication_gate_opens_at_eight_without_worker_tick_or_paid_call(self):
         self.write(self.baseline, [issue("2026-09-23")])
@@ -888,7 +989,7 @@ class RuntimeTests(unittest.TestCase):
         self.generator.assert_not_called()
         self.assertEqual(self.storage.created, [])
 
-    def test_external_owner_does_not_call_unfinished_or_mismatched_outcomes_failures(self):
+    def test_external_owner_distinguishes_unfinished_and_invalid_outcomes(self):
         claim = {'version': 1, 'edition_date': '2026-09-24', 'attempt': 1,
                  'started_at': self.now - 30}
         result = {**claim, 'status': 'generation_failed', 'last_error': 'isolated_editorial_review_failed',
@@ -904,9 +1005,12 @@ class RuntimeTests(unittest.TestCase):
                 preparer.prepare.return_value = {'articles': [{'fixture': 'already validated original'}]}
                 runtime = self.runtime(storage=storage, generation_owner='external', source_preparer=preparer)
                 state = runtime.run_once()
-                self.assertEqual(state['status'], 'waiting_for_writer')
-                self.assertEqual(state['attempt_count'], 1)
-                self.assertIsNone(state['last_error'])
+                self.assertEqual(state['status'], 'waiting_for_writer' if outcome is None else 'storage_unavailable')
+                if outcome is None:
+                    self.assertEqual(state['attempt_count'], 1)
+                    self.assertIsNone(state['last_error'])
+                else:
+                    self.assertEqual(state['last_error'], 'storage_unavailable')
                 self.assertNotIn('editorial_review_diagnostics', state)
                 self.assertEqual(storage.created, [])
         self.generator.assert_not_called()
