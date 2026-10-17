@@ -10,6 +10,9 @@ body.kn-ledger-letter.kn-ledger-paper:not([data-kn-ledger-dark="true"]) {
   --kn-ledger-paper:var(--kn-sh-paper,#fffdf6);
   --kn-ledger-chip:color-mix(in srgb,var(--kn-sh-button,#42795d) 5%,var(--kn-ledger-paper));
 }
+body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] {
+  --kn-ledger-bg:var(--kn-sh-bg,#f0eedf);
+}
 body.kn-ledger-paper {overflow-wrap:break-word}
 body.kn-ledger-paper [hidden] {display:none!important}
 body.kn-ledger-letter.kn-ledger-paper .kk-layout-header {border-bottom:0;padding-block:18px!important}

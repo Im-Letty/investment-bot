@@ -273,6 +273,12 @@ body.kn-home-a #myPageOv .kb-frame {
   background: var(--kn-sh-paper, #fdfcf6) !important;
 }
 
+body.kn-home-a #myPageOv[data-mp-view="ledger"] .kb-frame {
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+}
+
 body.kn-home-a #myPageOv :is(button, input, textarea, iframe, [role="button"], [role="checkbox"], [role="tab"]):focus-visible {
   outline: 2px solid var(--kn-sh-button, #607765) !important;
   outline-offset: 3px;
