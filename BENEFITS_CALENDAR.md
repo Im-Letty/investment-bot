@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 21 companies: the original nine reviewed on 2026-09-25 and
-twelve additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 22 companies: the original nine reviewed on 2026-09-25 and
+thirteen additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -287,3 +287,24 @@ unpublished candidate: the current HTML confirms a 100-share minimum and annual
 own products, while full tiers and reward details are unconfirmed. Its homepage
 link/new-window condition is separate from those factual gaps. Two historical
 PDFs were unavailable and were not retried or used as current numerical authority.
+
+
+## Further Tokyo addition reviewed on 2026-10-17
+
+- 1379 Hokuto: https://www.hokto-kinoko.co.jp/
+  Public citation follows the homepage-only link policy; the programme URL is
+  retained internally. At March 31, 100+ shares qualify for one product choice
+  worth 4,000/1,800/1,400 yen, without adding the three choices. An additional
+  3,000-yen Visa prepaid card requires 500+ shares at three consecutive half-year
+  records with the same shareholder number (one year), each holding at least 500.
+  Products are planned for late October–early November; qualifying cards for late
+  June. Card validity is two years from issuance. Application/choice cutoff, product
+  expiry, next exact dispatch/arrival and purchase deadline remain unconfirmed.
+  No future schedule is generated. Dynamic IR history and the programme's original
+  effective date remain unconfirmed; a completed bounded review is not an exhaustive
+  guarantee of future amendments. All prior 21 programmes and 12 schedules remain intact.
+
+The same batch retains 353A Elevator Communications as unknown: a historical one-time
+programme is not repeated into another year, and the timing amendment's body was
+unavailable. TRUCK-ONE 3047 has an explicit abolition notice; historical tiers are
+not treated as a current benefit. Neither is added to the active catalogue.

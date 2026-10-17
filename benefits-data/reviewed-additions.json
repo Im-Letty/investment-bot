@@ -939,6 +939,71 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1379",
+      "symbol": "1379.T",
+      "name": "ホクト",
+      "category": "食品",
+      "aliases": "HOKTO ホクト きのこ 自社商品 Visa ギフトカード",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.hokto-kinoko.co.jp/corporate/ir/yutai/",
+            "citation_url": "https://www.hokto-kinoko.co.jp/",
+            "title": "ホクト公式サイト（株主優待制度を確認）",
+            "security_code": "1379",
+            "issuer_name": "ホクト",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T15:15:22+09:00",
+            "evidence_path": "evidence/reviewed-1379-observation-bundle-20261017.json",
+            "evidence_sha256": "46d5cf9edcede8ca2797d20309bd7161974f4adf1bdc9c8a058df3a30da70b46"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-source-research-plus-independent-saved-fact-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行制度HTML・株式情報・FAQ・リンク方針と限定的な改定調査。動的IR一覧の全履歴・全改廃や将来変更の不存在を保証しない。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年3月31日（次回の購入締切日は未確認）",
+          "conditions": "100株以上で製品3種類から1点を選びます。通常枠の保有期間欄は「ー」で、今回確認した本文に追加の継続条件は記載されていません。500株以上を1年以上継続保有し、同じ株主番号で基準日の3月31日と前年3月31日・9月30日の3回すべてに500株以上の記録がある場合は、製品1点にVisaギフトカード3,000円分が加わります。",
+          "use": "製品は健康関連4,000円相当・レトルト1,800円相当・きのことレトルト1,400円相当のいずれか1点です。3種類を合算しません。カードはプリペイドで、有効期間は発行から2年間。申込方法・選択締切、製品の賞味期限、次回カードの具体的期限は未確認です。",
+          "delivery": "製品は10月下旬〜11月上旬、長期保有のカードは6月末の送付予定。株主名簿の住所へ送付されます。具体的な次回発送日・到着日や発送済みを確認した情報ではありません。",
+          "grant_summary": "製品は10月下旬〜11月上旬、対象者のカードは6月末の送付予定（具体日未確認）",
+          "tiers": [
+            {
+              "id": "products-100",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "通常枠の保有期間欄は「ー」。本文に追加の継続条件の記載なし",
+              "reward": "製品3種類から1点（4,000円・1,800円・1,400円相当の選択肢）",
+              "conditions": "基準日は毎年3月31日。通常枠は株数で製品価額を増やす制度ではありません。申込・選択締切、次回購入締切日は未確認。"
+            },
+            {
+              "id": "longholding-card-500",
+              "shares_min": 500,
+              "shares_max": null,
+              "holding_months_min": 12,
+              "holding_requirement": "同一株主番号で連続3回の半期名簿に各500株以上（1年以上）",
+              "reward": "通常の製品1点に加えVisaギフトカード3,000円分",
+              "conditions": "基準日の3月31日と前年3月31日・9月30日のすべてで各500株以上。100株以上の製品枠をもう1点重ねて受け取る制度ではありません。カードの有効期間は発行から2年間。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

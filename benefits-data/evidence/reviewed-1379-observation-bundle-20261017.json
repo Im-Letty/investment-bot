@@ -1,0 +1,211 @@
+{
+  "schema_version": 1,
+  "code": "1379",
+  "kind": "primary_page_observation_note",
+  "source_body_sha256": null,
+  "note_hash_is_raw_page_hash": false,
+  "authored_note_sha256": "7e8cd4a10823e347f2221e8e49ea0a56b77ae949573884c8f960ecefc89b2cff",
+  "observation_note": {
+    "schema_version": 1,
+    "author": "/root",
+    "code": "1379",
+    "observed_at_jst": "2026-10-17T15:15:22+09:00",
+    "recorded_at_jst": "2026-10-17T15:17:41.633376+09:00",
+    "issuer_identity": {
+      "code": "1379",
+      "name": "ホクト",
+      "symbol": "1379.T",
+      "exchange": "Tokyo",
+      "market": "Prime",
+      "trading_unit_shares": 100,
+      "official_identity_as_of": "2026-03-31",
+      "StockSearch_evidence_path": "../StockSearch-selected-identities.json",
+      "official_identity_and_saved_StockSearch_agree": true
+    },
+    "evidence_kind": "primary_page_observation_note",
+    "raw_page_sha256": null,
+    "note_hash_is_raw_page_hash": false,
+    "programme": {
+      "current_status": "active",
+      "recurring_record_date": "03-31",
+      "base": {
+        "shares_min": 100,
+        "shares_max": null,
+        "holding_months_min": null,
+        "holding_field_mark": "dash; no numeric duration inferred",
+        "choose_exactly_one": true,
+        "choices": [
+          {
+            "kind": "health_products",
+            "equivalent_yen": 4000
+          },
+          {
+            "kind": "retort_products",
+            "equivalent_yen": 1800
+          },
+          {
+            "kind": "mushrooms_and_retort_products",
+            "equivalent_yen": 1400
+          }
+        ]
+      },
+      "additional_long_holding": {
+        "shares_min": 500,
+        "holding_months_min": 12,
+        "same_number": true,
+        "consecutive_halfyear_records": 3,
+        "minimum_shares_at_each_record": 500,
+        "example_record_dates": [
+          "2025-03-31",
+          "2025-09-30",
+          "2026-03-31"
+        ],
+        "reward": "Visa prepaid gift card",
+        "yen": 3000,
+        "additional_to_one_base_choice": true,
+        "validity": "two years from issuance; exact next expiry unknown"
+      },
+      "product_dispatch_plan": "late October to early November",
+      "card_dispatch_plan": "late June",
+      "dispatch_is_actual_arrival": false,
+      "send_to": "shareholder-register address",
+      "application_method": null,
+      "choice_deadline": null,
+      "exact_next_dispatch_date": null,
+      "actual_arrival_date": null,
+      "product_expiry": null,
+      "next_purchase_deadline": null,
+      "schedules": [],
+      "announced_on": null,
+      "effective_from": null
+    },
+    "source_conditions": {
+      "source_url": "https://www.hokto-kinoko.co.jp/corporate/ir/yutai/",
+      "public_citation_url": "https://www.hokto-kinoko.co.jp/",
+      "link_policy_url": "https://www.hokto-kinoko.co.jp/corporate/link/",
+      "homepage_link_required": true,
+      "public_link_to_programme_planned": false,
+      "independent_short_facts_only": true,
+      "prose_table_images_voucherart_reproduced": false,
+      "copyright_is_blanket_fact_ban": false,
+      "blanket_reuse_licence_asserted": false,
+      "IR_list_provider": "Pronexus; no separate database extracted"
+    },
+    "review_limits": {
+      "current_HTML_programme_and_FAQ_checked": true,
+      "dynamic_IR_history_fully_exposed": false,
+      "all_amendments_or_splits_absent_verified": false,
+      "second_search_no_results_is_absence_proof": false,
+      "PDF_table_or_numeric_authority_used": false,
+      "annual_or_dividend_dates_used_to_construct_schedule": false,
+      "base_and_card_not_summed_as_single_annual_cash_value": true
+    },
+    "sources": [
+      {
+        "url": "https://www.hokto-kinoko.co.jp/corporate/ir/yutai/",
+        "tool_reference": "turn1357view0",
+        "kind": "official_HTML",
+        "observed_between_utc": [
+          "2026-10-17 06:15:20 UTC",
+          "2026-10-17 06:15:22 UTC"
+        ]
+      },
+      {
+        "url": "https://www.hokto-kinoko.co.jp/corporate/link/",
+        "tool_reference": "turn1360view0",
+        "kind": "official_HTML",
+        "observed_between_utc": [
+          "2026-10-17 06:15:29 UTC",
+          "2026-10-17 06:15:31 UTC"
+        ]
+      },
+      {
+        "url": "https://www.hokto-kinoko.co.jp/corporate/ir/kabushiki/jokyo/",
+        "tool_reference": "turn1362view0",
+        "kind": "official_HTML",
+        "observed_between_utc": [
+          "2026-10-17 06:15:42 UTC",
+          "2026-10-17 06:15:44 UTC"
+        ]
+      },
+      {
+        "url": "https://www.hokto-kinoko.co.jp/corporate/ir/news/",
+        "tool_reference": "turn1364view0",
+        "kind": "IR_dynamic_shell",
+        "observed_between_utc": [
+          "2026-10-17 06:15:54 UTC",
+          "2026-10-17 06:15:56 UTC"
+        ]
+      },
+      {
+        "url": "https://www.hokto-kinoko.co.jp/corporate/ir/faq/",
+        "tool_reference": "turn1366view0",
+        "kind": "official_HTML",
+        "observed_between_utc": [
+          "2026-10-17 06:16:13 UTC",
+          "2026-10-17 06:16:16 UTC"
+        ]
+      },
+      {
+        "url": "https://www.hokto-kinoko.co.jp/",
+        "tool_reference": "turn1367view0",
+        "kind": "official_HTML",
+        "observed_between_utc": [
+          "2026-10-17 06:16:21 UTC",
+          "2026-10-17 06:16:23 UTC"
+        ]
+      }
+    ],
+    "new_owner_action_required": false,
+    "notify": false,
+    "immutable_after_save": true,
+    "recording_time_kind": "authored note recording clock; separate from actual source tool bounds"
+  },
+  "independent_review": {
+    "sha256": "388529a33edfd040cbe58621d80ec5cd8eccc8e2a8b28e9c2c69b9d56f66e3c2",
+    "checked_at_jst": "2026-10-17T15:21:34.606824+09:00",
+    "checks": {
+      "source_author_and_reviewer_are_distinct": true,
+      "code_name_symbol_saved_StockSearch_match": true,
+      "official_market_and_saved_market_consistent": true,
+      "official_identity_asof_and_local_snapshot_not_redated": true,
+      "saved_StockSearch_direct_source_hashes_exact": true,
+      "active_HTML_observation_not_absence_inference": true,
+      "annual_March31_record_date_not_purchase_deadline": true,
+      "base_100_share_tier_and_null_duration_preserved": true,
+      "all_three_product_values_and_single_choice_preserved": true,
+      "long_holding_500_shares_12_months_preserved": true,
+      "same_number_three_records_each_500_preserved": true,
+      "past_example_dates_not_future_schedule": true,
+      "card_3000_is_addition_to_one_base_choice": true,
+      "no_three_choice_sum_or_annual_cash_total": true,
+      "card_validity_two_years_without_invented_expiry": true,
+      "product_and_card_dispatch_plans_preserved": true,
+      "dispatch_not_arrival_or_completed_dispatch": true,
+      "shareholder_register_address_preserved": true,
+      "unknown_application_cutoff_product_expiry_retained": true,
+      "no_invented_effective_announcement_or_trade_dates": true,
+      "current_HTML_bounded_amendment_review_not_all_history": true,
+      "search_no_result_not_absence_or_no_benefit": true,
+      "no_PDF_table_authority_used": true,
+      "homepage_only_public_citation_internal_primary_preserved": true,
+      "copyright_fact_link_and_permission_scopes_separated": true,
+      "six_unique_official_urls_six_document_calls_two_queries": true,
+      "dedicated_issuer_host_only_no_provider_fetch": true,
+      "document_source_bounds_match_authored_note": true,
+      "recorded_spacing_conservative_bound_above_minimum": true,
+      "no_origin_HTTP_RetryAfter_or_redirect_precision_overclaim": true,
+      "budget_closed_no_retry_or_transfer_or_paid_private_action": true,
+      "source_observation_recording_and_review_times_separate": true,
+      "authored_note_hash_not_raw_page_hash": true,
+      "candidate_is_still_pending_not_publication_success": true,
+      "final_wording_correction_and_hash_binding_required_not_silently_applied": true,
+      "source_files_immutable_and_unchanged_at_review_finish": true,
+      "builder_static_public_source_uses_citation_url": true
+    },
+    "all_checks_pass": true,
+    "scope": "Bounded independent factual review; not a blanket reuse licence or exhaustive amendment assurance."
+  },
+  "publication_wording_change": "Single-use qualifier removed; all other conditions retained.",
+  "original_source_or_table_images_reproduced": false
+}
