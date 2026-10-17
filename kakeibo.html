@@ -2110,16 +2110,30 @@ function kkNavGo(tab, el){
   function kkUid(){var s=window.knLedgerSession;return s&&s.user&&s.user.id||'';}
   function kkHeaders(){var s=window.knLedgerSession;return {'Content-Type':'application/json','Authorization':'Bearer '+(s&&s.access_token||'')};}
   function kkSnapshot(){ var o={}; for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(KK_RE.test(k)) o[k]=localStorage.getItem(k); } return o; }
-  var _t=null,pushInFlight=null,pullInFlight=null,queuedPush=false;
+  var _t=null,pushInFlight=null,pullInFlight=null,pullOwner='',queuedPush=false;
+  var myPageKey='kb2_mypage_v1',loadedOwner='',ownerGeneration=0,savedVersions=Object.create(null);
+  function kkMyPageOwner(expected){
+    if(typeof expected!=='string'||!expected||kkUid()!==expected)return false;
+    try{
+      if(!window.knLedgerSession.access_token||localStorage.getItem('kn_ledger_owner')!==expected)return false;
+      if(window.parent!==window&&(window.parent.location.origin!==location.origin||!window.parent.knUser||String(window.parent.knUser.id)!==expected))return false;
+      return true;
+    }catch(ignore){return false;}
+  }
+  function kkMyPageNotice(){
+    if(loadedOwner===kkUid()&&kkMyPageOwner(loadedOwner)&&typeof window.dispatchEvent==='function'&&typeof Event==='function')
+      window.dispatchEvent(new Event('knMyPageStoreChange'));
+  }
   var dirtyVersions=Object.create(null),lastEdits=Object.create(null),editVersion=0,dirtyOwner=null;
   var storagePrototype=typeof Storage!=='undefined'?Storage.prototype:localStorage;
   var nativeSet=storagePrototype.setItem,nativeRemove=storagePrototype.removeItem;
   function _origSet(k,v){nativeSet.call(localStorage,k,v);}
-  window.kkLedgerChangeOwner=function(){if(_t)clearTimeout(_t);_t=null;dirtyVersions=Object.create(null);dirtyOwner=null;};
+  window.kkLedgerChangeOwner=function(){if(_t)clearTimeout(_t);_t=null;dirtyVersions=Object.create(null);dirtyOwner=null;loadedOwner='';ownerGeneration++;savedVersions=Object.create(null);};
   function kkMarkChanged(k){
     if(!KK_RE.test(k))return;
     if(!Object.keys(dirtyVersions).length)dirtyOwner=kkUid()||null;
     dirtyVersions[k]=lastEdits[k]=++editVersion;kkPushDebounced();
+    if(k===myPageKey||k==='kb2_assets')kkMyPageNotice();
   }
   // Storage named properties do not reliably allow replacing an instance method.
   // This iframe's prototype intercepts its own edits without changing the parent.
@@ -2129,12 +2143,12 @@ function kkNavGo(tab, el){
     _t=null;
     var uid=kkUid();if(!uid||(dirtyOwner&&dirtyOwner!==uid))return Promise.resolve(false);
     if(pushInFlight){queuedPush=true;return pushInFlight;}
-    var snap=kkSnapshot(),versions=Object.assign({},dirtyVersions);
+    var snap=kkSnapshot(),versions=Object.assign({},dirtyVersions),generation=ownerGeneration;
     pushInFlight=fetch("/api/kakeibo/save",{method:"POST",headers:kkHeaders(),body:JSON.stringify({data:snap})}).then(function(r){
       if(!r.ok)throw new Error('ledger_save_failed');return r.json();
     }).then(function(j){
-      if(!j||j.ok!==true||kkUid()!==uid)return false;
-      Object.keys(versions).forEach(function(k){if(dirtyVersions[k]===versions[k])delete dirtyVersions[k];});
+      if(!j||j.ok!==true||kkUid()!==uid||ownerGeneration!==generation)return false;
+      Object.keys(versions).forEach(function(k){savedVersions[k]=Math.max(savedVersions[k]||0,versions[k]);if(dirtyVersions[k]===versions[k])delete dirtyVersions[k];});
       if(!Object.keys(dirtyVersions).length)dirtyOwner=null;
       return true;
     }).catch(function(){return false;}).then(function(ok){
@@ -2151,21 +2165,24 @@ function kkNavGo(tab, el){
     return keys.length!==Object.keys(renderedSnapshot).length||keys.some(function(k){return latest[k]!==renderedSnapshot[k];});
   }
   function kkRenderFresh(){
+    var previous=renderedSnapshot;
     if(typeof renderAll==='function')renderAll();
     if(typeof renderCalendar==='function')renderCalendar();
     if(typeof renderDayModal==='function')renderDayModal();
     if(typeof kkRenderCustomCats==='function')kkRenderCustomCats();
     renderedSnapshot=kkSnapshot();
+    if(previous[myPageKey]!==renderedSnapshot[myPageKey]||previous.kb2_assets!==renderedSnapshot.kb2_assets)kkMyPageNotice();
   }
   function kkPull(){
     var uid=kkUid();if(!uid)return Promise.resolve(false);
     if(pullInFlight)return pullInFlight;
-    var before=kkSnapshot(),dirtyBefore=Object.assign({},dirtyVersions),startedVersion=editVersion;
+    pullOwner=uid;
+    var before=kkSnapshot(),dirtyBefore=Object.assign({},dirtyVersions),startedVersion=editVersion,generation=ownerGeneration;
     pullInFlight=fetch("/api/kakeibo/load",{headers:kkHeaders()}).then(function(r){
       if(!r.ok)throw new Error('ledger_load_failed');return r.json();
     }).then(function(j){
-      if(kkUid()!==uid||!j)return false;
-      if(j.data===null){Object.keys(kkSnapshot()).forEach(function(k){if(!dirtyVersions[k])kkMarkChanged(k);});return false;}
+      if(kkUid()!==uid||ownerGeneration!==generation||!j)return false;
+      if(j.data===null){Object.keys(kkSnapshot()).forEach(function(k){if(!dirtyVersions[k])kkMarkChanged(k);});if(kkMyPageOwner(uid)){loadedOwner=uid;kkMyPageNotice();}return false;}
       if(!j.data)return false;
       var remote=j.data,changed=false;
       Object.keys(remote).forEach(function(k){
@@ -2177,11 +2194,57 @@ function kkNavGo(tab, el){
         _origSet(k,remote[k]);changed=true;
       });
       if(changed)kkRenderFresh();
+      if(typeof remote==='object'&&!Array.isArray(remote)&&kkMyPageOwner(uid)){loadedOwner=uid;kkMyPageNotice();}
       return changed;
-    }).catch(function(){return false;}).then(function(result){pullInFlight=null;return result;});
+    }).catch(function(){return false;}).then(function(result){pullInFlight=null;pullOwner='';return result;});
     return pullInFlight;
   }
   window.kkRefreshRecords=function(){if(kkSnapshotChanged())kkRenderFresh();return kkPull();};
+  // One private store shares the existing ledger owner, restore and save queue.
+  // DOM-ready is insufficient: a successful authenticated load must finish first.
+  window.kkMyPageStore={
+    load:async function(expected){
+      if(!kkMyPageOwner(expected))throw new Error('mypage_owner_unavailable');
+      var generation=ownerGeneration;
+      if(loadedOwner!==expected){
+        var pendingOwner=pullOwner;
+        if(pullInFlight)await pullInFlight;
+        else await kkPull();
+        if(!kkMyPageOwner(expected)||ownerGeneration!==generation)throw new Error('mypage_owner_changed');
+        if(loadedOwner!==expected&&pendingOwner&&pendingOwner!==expected)await kkPull();
+      }
+      if(!kkMyPageOwner(expected)||ownerGeneration!==generation)throw new Error('mypage_owner_changed');
+      if(loadedOwner!==expected)throw new Error('mypage_restore_unavailable');
+      var result;
+      try{result={raw:localStorage.getItem(myPageKey),assetsRaw:localStorage.getItem('kb2_assets')};}
+      catch(ignore){throw new Error('mypage_storage_unavailable');}
+      if(!kkMyPageOwner(expected)||ownerGeneration!==generation)throw new Error('mypage_owner_changed');
+      return result;
+    },
+    stage:function(expected,raw){
+      try{
+        if(!kkMyPageOwner(expected)||loadedOwner!==expected||typeof raw!=='string'||raw.length>1000000)return false;
+        var value=JSON.parse(raw);if(!value||Array.isArray(value)||value.version!==1)return false;
+        localStorage.setItem(myPageKey,raw);
+        return kkMyPageOwner(expected)&&localStorage.getItem(myPageKey)===raw;
+      }catch(ignore){return false;}
+    },
+    save:async function(expected,raw){
+      try{
+        if(!window.kkMyPageStore.stage(expected,raw))return false;
+        var generation=ownerGeneration;
+        var version=dirtyVersions[myPageKey],previous=pushInFlight;
+        if(_t){clearTimeout(_t);_t=null;}
+        if(previous)await previous;
+        if(!kkMyPageOwner(expected)||ownerGeneration!==generation||localStorage.getItem(myPageKey)!==raw)return false;
+        if((savedVersions[myPageKey]||0)<version){
+          if(_t){clearTimeout(_t);_t=null;}
+          await kkPush();
+        }
+        return kkMyPageOwner(expected)&&ownerGeneration===generation&&localStorage.getItem(myPageKey)===raw&&(savedVersions[myPageKey]||0)>=version;
+      }catch(ignore){return false;}
+    }
+  };
   var identityChecks=0,identityTimer=null;
   function kkWaitForIdentity(){
     if(identityTimer){clearTimeout(identityTimer);identityTimer=null;}
