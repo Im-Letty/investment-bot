@@ -1,0 +1,137 @@
+{
+  "schema_version": 1,
+  "code": "2218",
+  "issuer_name": "日糧製パン株式会社",
+  "symbol": "2218.JP",
+  "observed_at_jst": "2026-10-17T08:54:08+09:00",
+  "evidence_kind": "primary_page_observation_note",
+  "evidence_hash_is_note_hash_not_raw_page_hash": true,
+  "raw_page_sha256": null,
+  "local_identity_evidence": "../StockSearch-selected-identities.json",
+  "identity": {
+    "issuer_confirmed": true,
+    "security_code": "2218",
+    "exchange": "Sapporo",
+    "market": "本則市場",
+    "trading_unit_shares": 100,
+    "source_urls": [
+      "https://www.nichiryo-pan.co.jp/ir/memo.html",
+      "https://www.nichiryo-pan.co.jp/company/",
+      "https://www.sse.or.jp/listing/company2218"
+    ],
+    "local_StockSearch_identity_matches": true,
+    "market_basis": "札証会社ページの本則市場区分に2218を確認し、現行保存StockSearch identityと照合。"
+  },
+  "source_observations": [
+    {
+      "operation_id": "primary-1",
+      "url": "https://www.nichiryo-pan.co.jp/ir/memo.html",
+      "title": "日糧製パン 株主メモ",
+      "facts": "現行HTMLは1単元100株。毎年3月31日の名簿で1単元以上を保有する1記名に、自社製品を販売価格2,000円相当贈る案内。2026年7月の送付実績を記載。次回の送付予定とはしていない。",
+      "benefit_statement_found": true,
+      "lines_reviewed": "70-76,110-118"
+    },
+    {
+      "operation_id": "primary-2",
+      "url": "https://www.nichiryo-pan.co.jp/ir/news.html",
+      "title": "日糧製パン ニュースリリース",
+      "facts": "抽出された2026年1月29日〜10月1日と2025年の一覧見出しを確認した範囲に、優待の改廃・株式分割の見出しを認めなかった。各PDFや全過年度・将来の変更不存在は未確認。",
+      "announcement_list_readable": true,
+      "coverage_complete": false,
+      "latest_observed_announcement_date": "2026-10-01"
+    },
+    {
+      "operation_id": "primary-3",
+      "url": "https://www.nichiryo-pan.co.jp/other/privacy/",
+      "title": "日糧製パン プライバシーポリシー",
+      "facts": "個人情報の取扱方針。観測した本文に制度事実の利用・出典リンクに対する具体的禁止または明示許諾は確認できなかった。一般的著作権表示から独立した数値事実の全面禁止を推測しない。",
+      "facts_reuse_permission_confirmed": false,
+      "link_permission_confirmed": false,
+      "copyright_footer_only_as_blanket_fact_prohibition": false
+    },
+    {
+      "operation_id": "primary-4",
+      "url": "https://www.nichiryo-pan.co.jp/company/",
+      "title": "日糧製パン 企業情報",
+      "facts": "正式商号、札幌の本店、札証上場と証券コード2218を照合。",
+      "identity_matches": true
+    },
+    {
+      "operation_id": "primary-5",
+      "url": "https://www.nichiryo-pan.co.jp/sitemap/",
+      "title": "日糧製パン サイトマップ",
+      "facts": "IR・株主メモとその他の公開リンクを確認。一般的なサイト利用・リンク専用条件へのリンクは観測範囲で確認できなかった。キャンペーン応募規約の検索結果は対象が別であり制度転載の許諾に流用しない。",
+      "terms_location_comprehensive": false
+    },
+    {
+      "operation_id": "primary-6",
+      "url": "https://www.sse.or.jp/listing/company2218",
+      "title": "札幌証券取引所 日糧製パン株式会社",
+      "facts": "2218と発行体名称・住所・公式ドメインが一致し、本則市場の区分を確認。2026年10月1日を先頭とする直近開示見出しを補助確認し、数値制度の根拠は発行体の現行株主メモに限定。",
+      "identity_matches": true
+    }
+  ],
+  "programme": {
+    "status": "active",
+    "current_programme_verified": true,
+    "explicit_issuer_absence_verified": false,
+    "bounded_current_version_and_change_review_completed": true,
+    "all_amendment_abolition_split_history_verified": false,
+    "tiers": [
+      {
+        "shares_min": 100,
+        "shares_max": null,
+        "holding_months_min": null,
+        "reward_yen_equivalent": 2000,
+        "reward_type": "自社製品（販売価格相当額）",
+        "per_registered_name": true
+      }
+    ],
+    "holding_conditions": "現行本文に保有期間、同一株主番号、連続名簿回数、長期優遇の記載なし。0か月・無条件とは補っていない。",
+    "record_dates": [
+      {
+        "month": 3,
+        "day": 31,
+        "kind": "recurring_current_programme_record_date",
+        "specific_future_year_confirmed": false
+      }
+    ],
+    "schedules": [],
+    "delivery": {
+      "historical_issuer_dispatch_statement": {
+        "year": 2026,
+        "month": 7,
+        "kind": "過去の会社送付実績の表示",
+        "actual_recipient_arrival_confirmed": false
+      },
+      "next_dispatch_plan_confirmed": false,
+      "next_arrival_date_confirmed": false
+    },
+    "applications_choice_nonadditive_onetime_expiry": "申請・選択・申請期限・製品内訳/賞味期限は未確認。1記名に対する単一区分であり、複数株数による加算は案内されていない。",
+    "no_invented_purchase_deadline": true,
+    "no_invented_dispatch_or_arrival": true,
+    "effective_from": null,
+    "effective_until": null,
+    "announced_on": null,
+    "programme_start_not_inferred": true,
+    "observed_current_terms_not_a_new_announcement": true
+  },
+  "terms": {
+    "independent_factual_use": "短い制度数値・条件を独立して自作文にする範囲のみ。明示許諾があるとは判断せず、観測本文に具体的な数値事実利用禁止・リンク禁止は認めなかった。",
+    "source_prose_table_image_republication": "実施なし。商品写真・原文表・長文・券面を保存または転載しない。",
+    "source_link_conditions": "明示条件は限定観測では見つからず、出典は制度本文への通常リンクを候補とする。",
+    "copyright_footer_only_as_blanket_fact_prohibition": false,
+    "explicit_source_terms_hold_observed": false,
+    "source_terms_comprehensive": false
+  },
+  "limits": [
+    "固有一次URL6件・検索3回の範囲",
+    "最新の本文HTMLを確認したがorigin HTTP全traceやraw HTMLハッシュは未観測",
+    "制度適用開始日・発表日・次回購入締切と発送/到着日は未確定",
+    "過年度検索結果の1,000株を現行100株の代用にしない",
+    "検索の該当なしや一覧見出しの確認で全改定不存在を保証しない",
+    "2026年7月の送付済み表記から2027年7月や毎年7月の予定を作らない"
+  ],
+  "publish_candidate_created": true,
+  "independent_review_pending": true
+}

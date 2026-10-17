@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 18 companies: the original nine reviewed on 2026-09-25 and
-nine additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 19 companies: the original nine reviewed on 2026-09-25 and
+ten additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -214,3 +214,23 @@ The same batch leaves 2137 Hikari Heights Varus as programme/explicit-absence
 unconfirmed. 2058 Higashimaru has an observed programme, but its usage-conditions
 page returned 429; host access is held and it is not published. These are distinct
 from an explicit statement that no benefit exists.
+
+## Sapporo addition reviewed on 2026-10-17
+
+- 2218 Nichiryo Baking: https://www.nichiryo-pan.co.jp/ir/memo.html
+  The current single tier is 100+ shares (one trading lot is 100 shares), with
+  company products equivalent to a sales price of 2,000 yen per registered name
+  at March 31. Unstated holding duration, same-number/continuity requirements,
+  applications, selection and expiry remain unconfirmed. The July 2026 company
+  dispatch statement is historical; next dispatch/arrival and purchase deadline
+  are unknown. No future schedule is fabricated. Identity matches the issuer and
+  Sapporo listing. Short independent facts were reviewed separately; limited
+  terms/amendment observations do not establish a general reuse licence or
+  comprehensive absence of future changes. The authored observation-note SHA
+  is not a raw-page SHA. All previous 18 programmes and 12 schedules are retained.
+
+The same bounded batch holds 1333 UMIOS for unresolved commercial-purpose source
+conditions; its 2026 rewards are not projected into later years. 2467 VLC Security
+explicitly states in its current official FAQ that no shareholder benefit is
+provided. Failed searches, unstated conditions and old stock-information dates
+are not used to infer current absence.

@@ -711,6 +711,61 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "2218",
+      "symbol": "2218.JP",
+      "name": "日糧製パン株式会社",
+      "category": "食品",
+      "aliases": "日糧パン Nichiryo 日糧製パン 自社製品 パン",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.nichiryo-pan.co.jp/ir/memo.html",
+            "title": "日糧製パン 株主メモ",
+            "security_code": "2218",
+            "issuer_name": "日糧製パン株式会社",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T08:52:58+09:00",
+            "evidence_path": "evidence/reviewed-2218-observation-note-20261017.json",
+            "evidence_sha256": "4291110c96d2742f06514a7ac8e0913ffa7079dc9671db4db2f77bf30abf3a66"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "issuer-primary-research-plus-independent-offline-peer-and-root",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "公式現行株主メモ・会社同一性・限定した開示見出しと利用条件の観測を別レビューで照合。全改廃・分割や未記載条件、次回日程を確認済みとはしていません。future_changesは限定レビューを完了した意味です。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年3月31日（現行制度の基準日。次回の購入締切日は未確認）",
+          "conditions": "3月31日の株主名簿に記載された1記名につき、100株以上で自社製品を受け取る単一区分の制度です。1単元は100株です。確認した現行本文に、保有期間・同一株主番号・連続名簿回数や長期保有優遇の条件は記載されていません。",
+          "use": "販売価格2,000円相当の自社製品の贈呈です。申請や商品選択の要否、商品の内訳・賞味期限は今回の本文では未確認です。",
+          "delivery": "公式ページには2026年7月に送付した実績が記載されています。次回の発送予定・具体的な発送日と到着日は未確認です。",
+          "grant_summary": "次回の発送予定は未確認（2026年7月の会社送付実績あり）",
+          "tiers": [
+            {
+              "id": "products-100",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "確認した現行制度本文に保有期間条件の記載なし",
+              "reward": "自社製品2,000円相当（販売価格相当額）",
+              "conditions": "3月31日の株主名簿で1単元100株以上を保有する1記名が対象です。株数に応じた追加区分は現行本文に記載されていません。次回の購入締切日は未確認です。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
