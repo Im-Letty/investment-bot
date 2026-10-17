@@ -211,6 +211,12 @@ body.kn-ledger-paper .kk-expense-title span {min-width:0;overflow-wrap:anywhere}
 body.kn-ledger-paper .kk-expense-chart {display:flex;gap:20px;align-items:center}
 body.kn-ledger-paper .kk-expense-canvas {flex:0 0 160px;width:160px;max-width:100%}
 body.kn-ledger-paper #donut-legend {flex:1;min-width:0;font-size:calc(12px * var(--kn-ledger-scale,1))}
+body.kn-ledger-paper .kk-expense-info {margin:0 0 12px}
+body.kn-ledger-paper .kk-expense-legend-row {display:grid;grid-template-columns:8px minmax(0,1fr) minmax(0,1fr);gap:8px;align-items:center;margin-bottom:10px}
+body.kn-ledger-paper .kk-expense-dot {width:8px;height:8px;border-radius:50%}
+body.kn-ledger-paper .kk-expense-amount {color:var(--kn-ledger-ink);text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
+body.kn-ledger-paper .kk-expense-amount small {display:block;color:var(--kn-ledger-muted);font-size:inherit;font-weight:400}
+
 body.kn-ledger-paper .kk-pane-title {margin:0 0 16px;font:500 calc(18px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);color:var(--kn-ledger-ink)}
 body.kn-ledger-letter.kn-ledger-paper .card {border-radius:10px}
 body.kn-ledger-paper .kk-pane-links {display:flex;gap:8px;flex-wrap:wrap;margin:0 0 18px}

@@ -299,12 +299,6 @@ body{padding-bottom:24px;}
     <div id="form-inv" style="display:none"><label class="kk-entry-label" for="inv-cat" data-i18n="kk_layout_category">カテゴリ</label><select class="inp" id="inv-cat" onchange="if(window.kkInvCatChange)kkInvCatChange(this)"><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><label class="kk-entry-label" for="inv-amount" data-i18n="kk_ph_amount">金額（円）</label><input class="inp" id="inv-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_amount" placeholder="金額（円）"><button class="submit-btn inv" onclick="addRecord('inv')" data-i18n="kk_btn_add_investment">＋ 投資を追加</button></div>
   </div>
 </section>
-<section id="tab-dashboard" aria-labelledby="kkExpenseTitle">
-  <span id="monthLabelGraph" hidden></span>
-  <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>
-  <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
-  <div class="card"><h2 class="card-title kk-expense-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title><img class="kk-expense-illustration" src="/static/kakeibo-expense-wallet-20261016.webp" width="44" height="44" alt="" aria-hidden="true" decoding="async"><span data-i18n="kk_card_pie_expense">今月の支出内訳</span></h2><div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart"></canvas></div><div id="donut-legend"></div></div></div>
-</section>
   <div class="card kk-home-trend">
     <div class="kk-trend-heading"><h2 class="card-title" id="kkTrendTitle" tabindex="-1" data-i18n="kk_layout_trend">収入と支出の推移</h2><span class="kk-trend-period-label" id="kkTrendPeriodLabel" data-i18n="kk_trend_period">表示期間</span></div>
     <div class="kk-trend-periods" role="group" aria-labelledby="kkTrendPeriodLabel">
@@ -323,6 +317,20 @@ body{padding-bottom:24px;}
     <p id="kkTrendUndatedNotice" class="kk-layout-note" role="status" hidden></p>
     <p class="kk-layout-note" data-i18n="kk_layout_trend_note">ホームとカレンダーの記録を集計。投資は折れ線に含めません。</p>
   </div>
+<section id="tab-dashboard" aria-labelledby="kkExpenseTitle">
+  <span id="monthLabelGraph" hidden></span>
+  <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_bar6mo">📊 月別収支グラフ（過去6ヶ月）</div><div class="chart-area"><canvas id="barChart"></canvas></div></div>
+  <div class="card" style="display:none"><div class="card-title" data-i18n="kk_card_cat_stack">📊 カテゴリ別月間推移（過去6ヶ月）</div><div class="chart-area"><canvas id="catStackChart"></canvas></div></div>
+  <div class="card kk-expense-breakdown">
+    <h2 class="card-title kk-expense-title" id="kkExpenseTitle" tabindex="-1" data-kk-pane-title><img class="kk-expense-illustration" src="/static/kakeibo-expense-wallet-20261016.webp" width="44" height="44" alt="" aria-hidden="true" decoding="async"><span data-i18n="kk_card_pie_expense">支出内訳</span></h2>
+    <p class="kk-layout-note kk-expense-info" data-i18n="kk_expense_period_note">上の表示期間に連動します。日付未設定の記録も含みます。</p>
+    <p id="kkExpenseRange" class="kk-layout-note kk-expense-info" role="status" aria-live="polite"></p>
+    <p id="kkExpenseDataNotice" class="kk-layout-note kk-expense-info" data-i18n="kk_expense_unreadable" hidden>選択した期間の一部の記録を読み取れないため、支出内訳を表示できません。</p>
+    <p id="kkExpenseSignedNotice" class="kk-layout-note kk-expense-info" data-i18n="kk_expense_signed" hidden>マイナスのカテゴリを含むため、円グラフの代わりに金額を表示します。</p>
+    <div class="kk-expense-chart"><div class="kk-expense-canvas"><canvas id="donutChart" role="img" aria-describedby="kkExpenseRange"></canvas></div><div id="donut-legend"></div></div>
+  </div>
+</section>
+
 </div>
 <div class="tab-content" id="tab-assets">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
@@ -487,7 +495,11 @@ var KK_I18N = {
     kk_sum_balance: "📊 収支残",
     kk_sum_invest: "📈 今月投資",
     kk_card_bar6mo: "📊 月別収支グラフ（過去6ヶ月）",
-    kk_card_pie_expense: "今月の支出内訳",
+    kk_card_pie_expense: "支出内訳",
+    kk_expense_period_note: "上の表示期間に連動します。日付未設定の記録も含みます。",
+    kk_expense_unreadable: "選択した期間の一部の記録を読み取れないため、支出内訳を表示できません。",
+    kk_expense_signed: "マイナスのカテゴリを含むため、円グラフの代わりに金額を表示します。",
+    kk_expense_zero: "この期間の支出合計は0円です。",
     kk_card_line_trend: "📈 収支推移（折れ線グラフ）",
     kk_card_register_asset: "🏦 資産を登録",
     kk_card_asset_pie: "🥧 資産配分グラフ",
@@ -675,7 +687,11 @@ var KK_I18N = {
     kk_sum_balance: "📊 Net Balance",
     kk_sum_invest: "📈 This Month's Investment",
     kk_card_bar6mo: "📊 Monthly Cash Flow (Last 6 Months)",
-    kk_card_pie_expense: "This Month's Expense Breakdown",
+    kk_card_pie_expense: "Expense breakdown",
+    kk_expense_period_note: "Uses the period selected above, including entries without a day.",
+    kk_expense_unreadable: "The expense breakdown is unavailable because some records in this period could not be read.",
+    kk_expense_signed: "Some categories are negative. Amounts are shown instead of a pie chart.",
+    kk_expense_zero: "Total spending for this period is 0 yen.",
     kk_card_line_trend: "📈 Cash Flow Trend (Line Chart)",
     kk_card_register_asset: "🏦 Register Assets",
     kk_card_asset_pie: "🥧 Asset Allocation Chart",
@@ -863,7 +879,11 @@ var KK_I18N = {
     kk_sum_balance: "📊 수지 잔액",
     kk_sum_invest: "📈 이번 달 투자",
     kk_card_bar6mo: "📊 월별 수지 그래프 (최근 6개월)",
-    kk_card_pie_expense: "이번 달 지출 내역",
+    kk_card_pie_expense: "지출 내역",
+    kk_expense_period_note: "위에서 선택한 기간에 연동되며, 날짜 미설정 기록도 포함합니다.",
+    kk_expense_unreadable: "선택한 기간의 일부 기록을 읽을 수 없어 지출 내역을 표시할 수 없습니다.",
+    kk_expense_signed: "음수인 항목이 있어 원형 차트 대신 금액을 표시합니다.",
+    kk_expense_zero: "이 기간의 지출 합계는 0엔입니다.",
     kk_card_line_trend: "📈 수지 추이 (꺾은선 그래프)",
     kk_card_register_asset: "🏦 자산 등록",
     kk_card_asset_pie: "🥧 자산 배분 그래프",
@@ -1051,7 +1071,11 @@ var KK_I18N = {
     kk_sum_balance: "📊 收支余额",
     kk_sum_invest: "📈 本月投资",
     kk_card_bar6mo: "📊 月度收支图表（近6个月）",
-    kk_card_pie_expense: "本月支出明细",
+    kk_card_pie_expense: "支出明细",
+    kk_expense_period_note: "与上方选择的期间一致，包含未设置日期的记录。",
+    kk_expense_unreadable: "所选期间的部分记录无法读取，暂时无法显示支出明细。",
+    kk_expense_signed: "部分分类为负数，因此以金额代替饼图显示。",
+    kk_expense_zero: "此期间的支出合计为0日元。",
     kk_card_line_trend: "📈 收支趋势（折线图）",
     kk_card_register_asset: "🏦 登记资产",
     kk_card_asset_pie: "🥧 资产配置图",
@@ -1630,8 +1654,48 @@ function kkTrendYen(value){
   if(!/[eE]/.test(text))text=parts[0].replace(/\B(?=(\d{3})+(?!\d))/g,',')+(parts.length>1?'.'+parts[1]:'');
   return text+kkT('kk_trend_yen_unit');
 }
+
+function kkExpenseData(range){
+  range=range||kkTrendData();
+  var first=kkTrendMonth(range.from),last=kkTrendMonth(range.to),byCategory=Object.create(null),unreadable=false,total=0;
+  try{
+    kkLedgerMonths().forEach(function(ym){
+      var serial=ym.y*12+ym.m-1;if(serial<first||serial>last)return;
+      var rows=getData(ym.y,ym.m);if(rows._kkUnreadable){unreadable=true;return;}
+      rows.forEach(function(row){
+        if(row.type!=='exp')return;
+        var category=typeof row.cat==='string'&&row.cat?row.cat:'その他';
+        byCategory[category]=(byCategory[category]||0)+row.amount;total+=row.amount;
+        if(!Number.isFinite(byCategory[category])||!Number.isFinite(total))unreadable=true;
+      });
+    });
+  }catch(ignore){unreadable=true;}
+  var categories=unreadable?[]:Object.keys(byCategory),values=categories.map(function(category){return byCategory[category];});
+  return {from:range.from,to:range.to,categories:categories,values:values,total:unreadable?null:total,unreadable:unreadable,
+    canChart:!unreadable&&total>0&&values.every(function(value){return value>=0;})};
+}
+function kkExpenseRender(range){
+  var expense=kkExpenseData(range),caption=document.getElementById('kkExpenseRange');
+  if(caption)caption.textContent=expense.from.replace('-','/')+' — '+expense.to.replace('-','/')+' · '+kkT('kk_js_total')+' '+(expense.unreadable?kkT('kk_trend_amount_unknown'):kkTrendYen(expense.total));
+  var notice=document.getElementById('kkExpenseDataNotice');if(notice)notice.hidden=!expense.unreadable;
+  var signed=expense.values.some(function(value){return value<0;});
+  var signedNotice=document.getElementById('kkExpenseSignedNotice');if(signedNotice)signedNotice.hidden=expense.unreadable||!signed;
+  var colors=expense.categories.map(function(category){return Object.prototype.hasOwnProperty.call(CAT_COLORS,category)?CAT_COLORS[category]:'#CED4DA';});
+  var canvas=document.getElementById('donutChart');
+  if(canvas){
+    canvas.setAttribute('aria-label',kkT('kk_card_pie_expense')+' '+(caption?caption.textContent:''));
+    _chartEmpty(canvas,kkT(expense.unreadable?'kk_expense_unreadable':signed?'kk_expense_signed':'kk_expense_zero'),!expense.canChart);
+    _renderChart('donutChart','donut',canvas,expense.canChart?{type:'pie',data:{kkExpensePeriod:[expense.from,expense.to],labels:expense.categories.map(kkCat),datasets:[{data:expense.values,backgroundColor:colors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(context){return context.label+': '+kkTrendYen(context.parsed);}}}},cutout:'65%'}}:null);
+  }
+  var legend=document.getElementById('donut-legend');
+  if(legend)legend.innerHTML=expense.categories.map(function(category,index){
+    var share=expense.canChart?Math.round(expense.values[index]/expense.total*100)+'%':'—';
+    return '<div class="kk-expense-legend-row"><span class="kk-expense-dot" style="background:'+colors[index]+'"></span><span>'+kkHtmlText(kkCat(category))+'</span><span class="kk-expense-amount">'+kkHtmlText(kkTrendYen(expense.values[index]))+'<small>'+share+'</small></span></div>';
+  }).join('');
+}
+
 function kkTrendRender(){
-  var trend=kkTrendData();kkTrendSync(trend);
+  var trend=kkTrendData();kkTrendSync(trend);kkExpenseRender(trend);
   var hasAmount=trend.income.concat(trend.expense).some(function(value){return Number.isFinite(value)&&value!==0;});
   var lc=document.getElementById('lineChart');
   _renderChart('lineChart','line',lc,{type:'line',data:{kkTrendPeriod:[trend.from,trend.to,trend.unit],labels:trend.labels,datasets:[{label:kkT("kk_js_income"),data:trend.income,borderColor:'var(--brand-color)',backgroundColor:'rgba(93,184,122,0.1)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'var(--brand-color)',borderWidth:2.5},{label:kkT("kk_js_expense"),data:trend.expense,borderColor:'#e05050',backgroundColor:'rgba(224,80,80,0.07)',fill:true,tension:0.4,pointRadius:trend.labels.length>36?2:5,pointBackgroundColor:'#e05050',borderWidth:2.5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:function(context){return context.dataset.label+': '+kkTrendYen(context.parsed.y);}}},legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{includeBounds:true,maxTicksLimit:trend.unit==='day'?8:12,font:{size:11},color:'#7aaa8a'}},y:{beginAtZero:true,suggestedMax:hasAmount?undefined:1000,grid:{color:'var(--brand-haze)'},ticks:{maxTicksLimit:5,callback:kkTrendYen,font:{size:11},color:'#7aaa8a'}}}}});
@@ -1657,15 +1721,6 @@ function renderAll(){
   var bc=document.getElementById('barChart');
   _renderChart('barChart','bar',bc,{type:'bar',data:{labels:months,datasets:[{label:kkT("kk_js_income"),data:incArr,backgroundColor:'rgba(93,184,122,0.75)',borderRadius:6},{label:kkT("kk_js_expense"),data:expArr,backgroundColor:'rgba(224,80,80,0.7)',borderRadius:6},{label:kkT("kk_js_investment"),data:invArr,backgroundColor:'rgba(43,168,136,0.7)',borderRadius:6}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Noto Sans JP'},boxWidth:10,padding:10,color:'#4a7c5f'}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#7aaa8a'}},y:{grid:{color:'var(--brand-haze)'},ticks:{callback:function(v){return v>=10000?Math.floor(v/10000)+kkT("kk_js_man"):kkT('kk_currency_symbol')+v;},font:{size:10},color:'#7aaa8a'}}}}});
 
-  var catMap=Object.create(null);data.filter(function(e){return e.type==='exp';}).forEach(function(e){var c=e.cat||'その他';catMap[c]=(catMap[c]||0)+e.amount;});
-  var dLabels=data._kkUnreadable?[]:Object.keys(catMap),dVals=dLabels.map(function(c){return catMap[c];}),dColors=dLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
-  var dc=document.getElementById('donutChart');
-  if(dc){
-    _chartEmpty(dc,kkT(data._kkUnreadable?'kk_trend_unreadable':'kk_js_input_expense_to_chart'),dVals.length===0);
-    _renderChart('donutChart','donut',dc,dVals.length?{type:'pie',data:{labels:dLabels.map(kkCat),datasets:[{data:dVals,backgroundColor:dColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'65%'}}:null);
-    var dl=document.getElementById('donut-legend');
-    if(dl){var total=dVals.reduce(function(a,b){return a+b;},0);dl.innerHTML=dLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+dColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkHtmlText(kkCat(c))+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(dVals[i]/total*100)+'%</span></div>';}).join('');}
-  }
   var astCatMap=Object.create(null);assets.forEach(function(a){var c=a.cat||'その他';astCatMap[c]=(astCatMap[c]||0)+a.amount;});
   var aLabels=Object.keys(astCatMap),aVals=aLabels.map(function(c){return astCatMap[c];}),aColors=aLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
   var pc=document.getElementById('assetPieChart');

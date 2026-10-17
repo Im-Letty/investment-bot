@@ -496,3 +496,169 @@ test('Calendar changes invalidate the trend chart cache and preserve monthly, ye
   for(const period of ['6','12','36','all']){const data=h.setPeriod(period);assert.equal(total(data.income),12.5);assert.equal(total(data.expense),6.25);}
   const expected=copy(h.setPeriod('1')),reloaded=fixture(Object.fromEntries(h.values),{charts:true});assert.deepEqual(copy(reloaded.data()),expected);assert.equal(reloaded.context.getData().length,2);assert.equal(reloaded.writes.length,0);
 });
+
+// UI-98: the existing period selection is also the spending pie's range.
+function expenseData(h,range){return copy(range===undefined?h.context.kkExpenseData():h.context.kkExpenseData(range));}
+function expenseByCategory(data){return Object.fromEntries(data.categories.map((category,index)=>[category,data.values[index]]));}
+
+test('expense breakdown shares every period preset and inclusive custom bounds with the trend',()=>{
+  const seed={...seedMonth(2023,10,rows(0,1)),...seedMonth(2023,11,rows(0,2)),
+    ...seedMonth(2025,11,rows(0,4)),...seedMonth(2026,5,rows(0,8)),
+    ...seedMonth(2026,10,rows(0,16)),...seedMonth(2026,11,rows(0,32))},h=fixture(seed,{charts:true});
+  for(const [period,from,to,expected] of [
+    ['1','2026-10','2026-10',16],['6','2026-05','2026-10',24],
+    ['12','2025-11','2026-10',28],['36','2023-11','2026-10',30],
+    ['all','2023-10','2026-11',63]
+  ]){
+    const range=h.setPeriod(period),data=expenseData(h);
+    assert.equal(data.from,from,period);assert.equal(data.to,to,period);
+    assert.equal(data.from,range.from);assert.equal(data.to,range.to);assert.equal(data.total,expected);
+    assert.deepEqual(data.categories,['食費']);assert.deepEqual(data.values,[expected]);assert.equal(data.canChart,true);assert.equal(data.unreadable,false);
+    assert.deepEqual(copy(h.chartInstances.get('donutChart').data.datasets[0].data),[expected]);
+    assert.match(h.nodes.get('kkExpenseRange').textContent,new RegExp(from.replace('-','/')));
+    assert.match(h.nodes.get('kkExpenseRange').textContent,new RegExp(to.replace('-','/')));
+  }
+  const range=h.custom('2023-11','2026-05'),data=expenseData(h);
+  assert.equal(data.from,range.from);assert.equal(data.to,range.to);assert.equal(data.total,14);
+  for(const [key,value] of Object.entries(seed))assert.equal(h.values.get(key),value);assert.equal(h.writes.length,0);
+});
+
+test('expense breakdown includes both boundary months and month navigation resets the shared range across years',()=>{
+  const h=fixture({...seedMonth(2026,11,rows(0,99)),...seedMonth(2026,12,rows(0,12)),
+    ...seedMonth(2027,1,rows(0,3)),...seedMonth(2027,2,rows(0,88))},{charts:true});
+  h.custom('2026-12','2027-01');assert.equal(expenseData(h).total,15);
+  h.context._year=2026;h.context._month=12;h.setPeriod('all');h.context.changeMonth(1);
+  const data=expenseData(h);assert.equal(h.context._trendPeriod,'1');assert.equal(data.from,'2027-01');assert.equal(data.to,'2027-01');assert.equal(data.total,3);
+  assert.equal(h.data().from,data.from);assert.deepEqual(copy(h.chartInstances.get('donutChart').data.datasets[0].data),[3]);
+  assert.match(h.nodes.get('kkExpenseRange').textContent,/2027\/01/);assert.equal(h.writes.length,0);
+});
+
+test('expense aggregation reads each selected existing month once and includes independent Calendar and undated monthly entries',()=>{
+  const duplicate={id:7,type:'exp',name:'同じIDでも独立した架空入力',cat:'食費',amount:7.25,date:'2026-10-07'};
+  const seed={...seedMonth(2026,9,[{id:1,type:'exp',cat:'交通',amount:3}]),
+    ...seedMonth(2026,10,[duplicate,{id:8,type:'exp',cat:'食費',amount:2.5}]),
+    kbday_2026_10_07:JSON.stringify([duplicate]),...seedMonth(2026,11,rows(0,999))},h=fixture(seed);
+  const original=h.context.getData,calls=[];h.context.getData=function(year,month){calls.push([year,month]);return original(year,month);};
+  const data=expenseData(h,{from:'2026-09',to:'2026-10'});
+  assert.deepEqual(calls,[[2026,9],[2026,10]]);assert.deepEqual(expenseByCategory(data),{'交通':3,'食費':17});assert.equal(data.total,20);
+  for(const [key,value] of Object.entries(seed))assert.equal(h.values.get(key),value);assert.equal(h.writes.length,0);
+});
+
+test('expense categories exclude income, investments, assets, backup and foreign stores',()=>{
+  const seed={...seedMonth(2026,10,[...rows(900,12,800),{id:4,type:'exp',cat:'交通',amount:2.25}]),
+    kb2_assets:JSON.stringify([{id:1,amount:777,cat:'資産'}]),
+    kbday_2026_10_01:JSON.stringify([{id:5,type:'inc',amount:500},{id:6,type:'inv',amount:400}]),
+    'kn_ledger_backup:foreign-owner':JSON.stringify(seedMonth(2026,10,rows(0,8888))),
+    kb2_2026_10_extra:JSON.stringify(rows(0,9999)),kbday_2026_02_30:JSON.stringify(rows(0,9999))},h=fixture(seed);
+  const data=expenseData(h);assert.deepEqual(expenseByCategory(data),{'食費':12,'交通':2.25});assert.equal(data.total,14.25);
+  assert.equal(data.unreadable,false);assert.equal(data.canChart,true);
+  for(const [key,value] of Object.entries(seed))assert.equal(h.values.get(key),value);assert.equal(h.writes.length,0);
+});
+
+test('expense categories retain fractional refunds and only chart nonnegative category nets',()=>{
+  const h=fixture(seedMonth(2026,10,[
+    {id:1,type:'exp',cat:'食費',amount:12.75},{id:2,type:'exp',cat:'食費',amount:-2.5},
+    {id:3,type:'exp',cat:'交通',amount:3.25},{id:4,type:'exp',cat:'交通',amount:-3.25}
+  ]),{charts:true}),data=expenseData(h);
+  assert.deepEqual(expenseByCategory(data),{'食費':10.25,'交通':0});assert.equal(data.total,10.25);assert.equal(data.canChart,true);assert.equal(data.unreadable,false);
+  assert.equal(h.nodes.get('kkExpenseSignedNotice').hidden,true);assert.match(h.nodes.get('donut-legend').innerHTML,/10\.25/);
+  assert.doesNotMatch(h.nodes.get('donut-legend').innerHTML,/NaN|Infinity/);
+});
+
+test('a negative category keeps its signed total visible and suppresses pie ratios even when the grand total is positive',()=>{
+  const h=fixture(seedMonth(2026,10,[{id:1,type:'exp',cat:'食費',amount:20},{id:2,type:'exp',cat:'交通',amount:-.5}]),{charts:true}),data=expenseData(h);
+  assert.deepEqual(expenseByCategory(data),{'食費':20,'交通':-.5});assert.equal(data.total,19.5);assert.equal(data.unreadable,false);assert.equal(data.canChart,false);
+  assert.equal(h.chartInstances.has('donutChart'),false);assert.equal(h.nodes.get('donutChart').hidden,true);
+  assert.equal(h.nodes.get('kkExpenseSignedNotice').hidden,false);assert.equal(h.nodes.get('kkExpenseDataNotice').hidden,true);
+  const legend=h.nodes.get('donut-legend').innerHTML;assert.match(legend,/-0\.5/);assert.match(legend,/—/);assert.doesNotMatch(legend,/%|NaN|Infinity/);
+});
+
+test('zero, empty and negative grand totals cannot produce an invented spending pie',()=>{
+  for(const records of [[],[{id:1,type:'exp',cat:'食費',amount:0}],
+    [{id:1,type:'exp',cat:'食費',amount:-1.25}],
+    [{id:1,type:'exp',cat:'食費',amount:2.5},{id:2,type:'exp',cat:'交通',amount:-2.5}]]){
+    const h=fixture(seedMonth(2026,10,records),{charts:true}),data=expenseData(h);
+    assert.equal(data.unreadable,false);assert.equal(data.canChart,false);
+    assert.equal(h.chartInstances.has('donutChart'),false);assert.equal(h.nodes.get('donutChart').hidden,true);
+    assert.doesNotMatch(h.nodes.get('donut-legend').innerHTML,/%|NaN|Infinity/);
+    assert.equal(data.total,records.reduce((sum,row)=>sum+row.amount,0));assert.equal(h.writes.length,0);
+  }
+});
+
+test('unreadable selected buckets clear expense amounts while broken buckets outside the range are irrelevant',()=>{
+  const h=fixture({...seedMonth(2026,10,rows(0,12.5)),kb2_2026_09:'broken',kbday_2026_11_01:'{"not":"an array"}'},{charts:true});
+  let data=expenseData(h);assert.equal(data.total,12.5);assert.equal(data.unreadable,false);assert.equal(data.canChart,true);
+  h.custom('2026-09','2026-10');data=expenseData(h);
+  assert.equal(data.unreadable,true);assert.deepEqual(data.categories,[]);assert.deepEqual(data.values,[]);assert.equal(data.total,null);assert.equal(data.canChart,false);
+  assert.equal(h.nodes.get('kkExpenseDataNotice').hidden,false);assert.equal(h.nodes.get('donutChart').hidden,true);assert.equal(h.chartInstances.has('donutChart'),false);
+  h.custom('2026-10','2026-10');data=expenseData(h);
+  assert.equal(data.unreadable,false);assert.equal(data.total,12.5);assert.equal(h.nodes.get('kkExpenseDataNotice').hidden,true);assert.ok(h.chartInstances.has('donutChart'));
+  assert.equal(h.values.get('kb2_2026_09'),'broken');assert.equal(h.values.get('kbday_2026_11_01'),'{"not":"an array"}');assert.equal(h.writes.length,0);
+});
+
+test('nonfinite source amounts and category or total overflow are unreadable rather than zero or partial values',()=>{
+  const samples=[
+    '[{"id":1,"type":"exp","cat":"食費","amount":1e999}]',
+    JSON.stringify([{id:1,type:'exp',cat:'食費',amount:1e308},{id:2,type:'exp',cat:'食費',amount:1e308}]),
+    JSON.stringify([{id:1,type:'exp',cat:'食費',amount:1e308},{id:2,type:'exp',cat:'交通',amount:1e308}])
+  ];
+  for(const raw of samples){
+    const h=fixture({kb2_2026_10:raw},{charts:true}),data=expenseData(h);
+    assert.equal(data.unreadable,true);assert.equal(data.total,null);assert.deepEqual(data.categories,[]);assert.deepEqual(data.values,[]);assert.equal(data.canChart,false);
+    assert.equal(h.nodes.get('kkExpenseDataNotice').hidden,false);assert.equal(h.chartInstances.has('donutChart'),false);
+    assert.equal(h.values.get('kb2_2026_10'),raw);assert.equal(h.writes.length,0);
+  }
+});
+
+test('literal special category names remain independent amounts and are escaped in the legend',()=>{
+  const names=['__proto__','constructor','<img src=x onerror="alert(1)">'];
+  const h=fixture(seedMonth(2026,10,names.map((cat,index)=>({id:index,type:'exp',cat,amount:index+1}))),{charts:true}),data=expenseData(h);
+  assert.equal(data.total,6);assert.equal(data.unreadable,false);assert.equal(data.canChart,true);
+  for(let index=0;index<names.length;index++)assert.equal(data.values[data.categories.indexOf(names[index])],index+1);
+  const legend=h.nodes.get('donut-legend').innerHTML;assert.doesNotMatch(legend,/<img|onerror="/);assert.match(legend,/&lt;img/);
+  assert.doesNotMatch(legend,/NaN|Infinity|\[object Object\]/);assert.equal(h.writes.length,0);
+});
+
+test('period controls refresh both charts without calling the broad render and invalidate a same-value pie range',()=>{
+  const h=fixture(seedMonth(2026,10,rows(0,25)),{charts:true}),oldPie=h.chartInstances.get('donutChart'),oldLine=h.chartInstances.get('lineChart');
+  h.context.renderAll=()=>{throw Error('period controls must not repaint entry forms');};h.setPeriod('6');
+  const pie=h.chartInstances.get('donutChart');assert.ok(pie);assert.notEqual(pie,oldPie);assert.notEqual(h.chartInstances.get('lineChart'),oldLine);
+  assert.deepEqual(copy(pie.data.datasets[0].data),[25]);assert.equal(expenseData(h).from,'2026-05');
+  assert.match(h.nodes.get('kkExpenseRange').textContent,/2026\/05/);assert.match(h.nodes.get('kkExpenseRange').textContent,/2026\/10/);assert.equal(h.writes.length,0);
+});
+
+test('invalid custom period drafts preserve the committed expense pie, amounts and range caption',()=>{
+  const h=fixture({...seedMonth(2026,8,rows(0,5)),...seedMonth(2026,10,rows(0,7))},{charts:true});h.custom('2026-08','2026-10');
+  const expected=expenseData(h),pie=h.chartInstances.get('donutChart'),caption=h.nodes.get('kkExpenseRange').textContent;
+  for(const [from,to] of [['2026-10','2026-08'],['2026-13','2026-10'],['','2026-10']]){
+    h.nodes.get('kkTrendFrom').value=from;h.nodes.get('kkTrendTo').value=to;h.context.kkTrendApplyRange();
+    assert.deepEqual(expenseData(h),expected);assert.equal(h.chartInstances.get('donutChart'),pie);assert.equal(h.nodes.get('kkExpenseRange').textContent,caption);
+    assert.equal(h.nodes.get('kkTrendFrom').value,from);assert.equal(h.nodes.get('kkTrendTo').value,to);assert.equal(h.nodes.get('kkTrendError').hidden,false);
+  }
+  assert.equal(h.writes.length,0);
+});
+
+test('expense redraws preserve amounts, period, invalid range drafts and source bytes through language and theme changes',()=>{
+  const seed={...seedMonth(2026,8,rows(0,10)),...seedMonth(2026,10,rows(0,2.25))},h=fixture(seed,{charts:true,mutatePalette:true});
+  h.custom('2026-08','2026-10');h.nodes.get('kkTrendFrom').value='2026-13';h.nodes.get('kkTrendTo').value='';h.context.kkTrendApplyRange();
+  h.nodes.get('exp-amount').value='１２３．４';h.nodes.get('m-inv-name').value='架空の未保存メモ';
+  const expected=expenseData(h),committed=copy(h.context._trendCustom),captions=new Set();h.theme();
+  for(const lang of ['ja','en','zh','ko']){
+    h.context.kkApplyLang(lang);h.context.renderAll();h.fire('focus');h.flush();
+    assert.deepEqual(expenseData(h),expected);assert.deepEqual(copy(h.context._trendCustom),committed);assert.equal(h.context._trendPeriod,'custom');
+    assert.equal(h.nodes.get('kkTrendFrom').value,'2026-13');assert.equal(h.nodes.get('kkTrendTo').value,'');assert.equal(h.nodes.get('kkTrendError').hidden,false);
+    assert.equal(h.nodes.get('exp-amount').value,'１２３．４');assert.equal(h.nodes.get('m-inv-name').value,'架空の未保存メモ');
+    assert.deepEqual(copy(h.chartInstances.get('donutChart').data.datasets[0].data),expected.values);
+    assert.doesNotMatch(h.nodes.get('donut-legend').innerHTML,/undefined|NaN|Infinity/);captions.add(h.context.kkT('kk_card_pie_expense'));
+  }
+  assert.equal(captions.size,4);for(const [key,value] of Object.entries(seed))assert.equal(h.values.get(key),value);
+  assert.equal(h.writes.filter(key=>key.startsWith('kb2_')||key.startsWith('kbday_')).length,0);
+});
+
+test('the real household DOM places shared period controls before spending breakdown and uses a period-neutral heading',()=>{
+  const h=fixture(),ids=[];function visit(node){if(node.id)ids.push(node.id);for(const child of node.children)visit(child);}visit(h.document.body);
+  assert.ok(ids.indexOf('kkTrendTitle')>=0&&ids.indexOf('kkTrendTitle')<ids.indexOf('tab-dashboard'));
+  assert.ok(ids.indexOf('kkTrendPeriod')<ids.indexOf('donutChart'));
+  for(const id of ['kkExpenseRange','kkExpenseDataNotice','kkExpenseSignedNotice','donutChart','donut-legend'])assert.ok(h.nodes.has(id),id);
+  assert.equal(h.context.kkT('kk_card_pie_expense'),'支出内訳');
+});
