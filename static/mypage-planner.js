@@ -317,7 +317,7 @@
       var find=field('メモを検索','search',panes[3]);find.addEventListener('input',function(){search=find.value;renderNotes(true);});panes[3].appendChild(button('すべてのメモ',function(){notesFilter='';renderNotes(true);},'mp-link'));groupList=el('div','mp-groups');panes[3].appendChild(groupList);noteList=el('nav','mp-notes');noteList.setAttribute('aria-label','メモ一覧');panes[3].appendChild(noteList);
       var editor=el('div','mp-card mp-form');noteTitle=field('タイトル（任意）','text',editor);noteBody=field('自由メモ','textarea',editor);noteBody.id='mpMemo';noteBody.rows=14;
       function editNote(key,value){var n=doc&&selectedNote();if(!n||!editable)return;n[key]=value;renderNotes(true);changed();}
-      noteTitle.addEventListener('input',function(){editNote('title',noteTitle.value);});noteBody.addEventListener('input',function(){editNote('body',noteBody.value);});editor.appendChild(el('p','mp-caption','タイトルは空欄のままで使えます。書きかけも自動で保存します。'));
+      noteTitle.addEventListener('input',function(){editNote('title',noteTitle.value);});noteBody.addEventListener('input',function(){editNote('body',noteBody.value);});
       editor.appendChild(button('このメモを削除',function(){var n=doc&&selectedNote();if(!n||!w.confirm('このメモを削除しますか？'))return;doc.notes=doc.notes.filter(function(x){return x.id!==n.id;});doc.selectedNoteId='';renderNotes();changed();},'mp-link mp-danger'));panes[3].appendChild(editor);
       document.addEventListener('knAuthChange',function(){if(owner!==current())reset();load();});
       page.querySelectorAll('.mo-tab,.mp-toptab').forEach(function(t){t.addEventListener('click',load);});
