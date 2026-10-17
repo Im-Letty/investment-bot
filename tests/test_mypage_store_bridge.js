@@ -289,3 +289,58 @@ test('standalone or unavailable parent messaging cannot break a successfully ver
   await throwing.restore({});assert.equal((await throwing.bridge.load('alice')).raw,null);assert.equal(attempts,1);
   const refresh=throwing.context.kkRefreshRecords();await throwing.restore({});await refresh;assert.equal(attempts,1);
 });
+
+function reminderDocument(){
+  return {...planner.empty(),todos:[{id:'todo-1',text:'保持するやること',done:false,goalId:''}],
+    todoDraft:{text:'追加途中',goalId:''},todoEdits:{'todo-1':{text:'編集途中',goalId:''}}};
+}
+function reminderSlot(document,slot){return slot==='todos'?document.todos[0]:slot==='todoDraft'?document.todoDraft:document.todoEdits['todo-1'];}
+
+test('legacy reminders without optional fields retain unknown additions through journal replay and full-snapshot save',async()=>{
+  const doc=reminderDocument();doc.futureTop={keep:'top'};doc.todos[0].futureRow={keep:'row'};
+  doc.todoDraft.futureDraft=['keep','draft'];doc.todoEdits['todo-1'].futureEdit={keep:'edit'};
+  const pending=JSON.stringify(doc),old=raw('older confirmed document'),h=fixture({[KEY]:old,[JOURNAL+'alice']:pending});
+  const read=h.bridge.load('alice');await h.restore({[KEY]:old});assert.equal((await read).raw,pending);
+  assert.equal(h.ls.getItem(KEY),pending);assert.equal(h.ls.getItem(JOURNAL+'alice'),pending);
+  const saving=h.bridge.save('alice',pending);await settle();
+  assert.equal(JSON.parse(h.requests.at(-1).init.body).data[KEY],pending);h.respondSave();assert.equal(await saving,true);
+  assert.equal((await h.bridge.load('alice')).raw,pending);
+  assert.ok(['todos','todoDraft','todoEdits'].every(slot=>!Object.hasOwn(reminderSlot(doc,slot),'dueDate')&&!Object.hasOwn(reminderSlot(doc,slot),'flagged')));
+});
+
+test('valid reminder dates and boolean flags in rows and both draft locations survive replay without rewriting extras',async()=>{
+  for(const dueDate of ['', '2024-02-29', '2000-02-29', '2026-04-30', '2026-12-31']){
+    const doc=reminderDocument();
+    ['todos','todoDraft','todoEdits'].forEach((slot,index)=>Object.assign(reminderSlot(doc,slot),{dueDate,flagged:index!==1,futureReminder:{retained:slot}}));
+    const pending=JSON.stringify(doc),old=raw('cloud record'),h=fixture({[KEY]:old,[JOURNAL+'alice']:pending}),reading=h.bridge.load('alice');
+    await h.restore({[KEY]:old});assert.equal((await reading).raw,pending);assert.equal(h.ls.getItem(KEY),pending);
+    const save=h.bridge.save('alice',pending);await settle();assert.equal(JSON.parse(h.requests.at(-1).init.body).data[KEY],pending);
+    h.respondSave();assert.equal(await save,true);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);
+  }
+});
+
+test('invalid reminder dates in any row or draft block replay and preserve the original bytes',async()=>{
+  const dates=[null,0,false,[],{},'2026-02-29','2026-02-30','1900-02-29','2026-04-31','2026-13-01','2026-00-01','2026-01-00','2026-01-32','2026-1-01','2026-01-1','2026-01-01T00:00:00Z','2026-01-01\n',' 2026-01-01'];
+  for(const slot of ['todos','todoDraft','todoEdits'])for(const dueDate of dates){
+    const doc=reminderDocument();Object.assign(reminderSlot(doc,slot),{dueDate,flagged:true});
+    const pending=JSON.stringify(doc),saved=raw('confirmed bytes'),h=fixture({[KEY]:saved,[JOURNAL+'alice']:pending});
+    await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);
+    assert.equal(h.requests.length,0);assert.equal(h.messages.length,0);assert.equal(h.ls.getItem(KEY),saved);assert.equal(h.ls.getItem(JOURNAL+'alice'),pending);
+    assert.equal(h.bridge.stage('alice',pending),false);assert.equal(await h.bridge.save('alice',saved),false);
+  }
+});
+
+test('invalid flags never weaken the existing required reminder fields or permit pending replay',async()=>{
+  for(const slot of ['todos','todoDraft','todoEdits'])for(const flagged of [null,0,1,'false','true',[],{}]){
+    const doc=reminderDocument();Object.assign(reminderSlot(doc,slot),{dueDate:'2028-02-29',flagged});
+    const pending=JSON.stringify(doc),saved=raw('retained bytes'),h=fixture({[KEY]:saved,[JOURNAL+'alice']:pending});
+    await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);
+    assert.equal(h.requests.length,0);assert.equal(h.messages.length,0);assert.equal(h.ls.getItem(KEY),saved);assert.equal(h.ls.getItem(JOURNAL+'alice'),pending);
+  }
+  const h=fixture();await h.restore({});
+  for(const slot of ['todos','todoDraft','todoEdits'])for(const bad of [{text:null},{goalId:null},...(slot==='todos'?[{id:''},{done:1}]:[])]){
+    const doc=reminderDocument();Object.assign(reminderSlot(doc,slot),{dueDate:'2028-02-29',flagged:false},bad);
+    assert.equal(h.bridge.stage('alice',JSON.stringify(doc)),false);
+  }
+  assert.equal(h.requests.length,1);assert.equal(h.ls.getItem(KEY),null);
+});

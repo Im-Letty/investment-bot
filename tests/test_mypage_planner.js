@@ -1,6 +1,7 @@
 'use strict';
 const test = require('node:test');
 const assert = require('node:assert/strict');
+const {spawnSync} = require('node:child_process');
 const planner = require('../static/mypage-planner.js');
 
 const goal = (extra = {}) => ({id:'goal-1',title:'学ぶ・記録する',details:'',target:null,monthly:null,deadline:'',...extra});
@@ -184,7 +185,7 @@ test('missing optional planning fields and current or past deadlines do not inve
 // Geometry and real browser input behavior are checked separately by the parent.
 function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=true,readyState='complete',pagePresent=true}={}) {
   const documentEvents = {}, documentOptions = {}, childEvents = {}, windowEvents = {}, saves = [], stages = [];
-  const timers=new Map(),intervals=[];let clock=0,timerId=0,stored = raw,loads=0;
+  const timers=new Map(),intervals=[];let clock=0,timerId=0,stored = raw,loads=0,focused=null;
   function flushTimers(ms=1500) {
     const through=clock+ms;
     while(true){
@@ -211,7 +212,7 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     addEventListener(type,fn) {(this.listeners[type]??=[]).push(fn);}
     dispatch(type) {for(const fn of this.listeners[type]||[])fn({target:this,preventDefault(){}});}
     click() {if(!this.disabled)this.dispatch('click');}
-    focus() {}
+    focus() {focused=this;}
     matches(selector) {
       if(selector==='.mo-pane:not(.kb-pane)')return this.classes.has('mo-pane')&&!this.classes.has('kb-pane');
       if(selector.startsWith('[data-'))return Object.hasOwn(this.attributes,selector.slice(1,-1));
@@ -249,7 +250,7 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     showPage(){pagePresent=true;},
     domReady(){w.document.readyState='interactive';const listener=documentEvents.DOMContentLoaded;if(documentOptions.DOMContentLoaded?.once)delete documentEvents.DOMContentLoaded;listener?.();},
     get frame(){return page.querySelector('.kb-frame');},
-    get loads(){return loads;},get elapsed(){return clock;},
+    get loads(){return loads;},get elapsed(){return clock;},get focused(){return focused;},
     recordsReady(event={}){windowEvents.message({origin:w.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-mypage-records-ready'},...event});},
     replaceFrame(){const next=node('iframe','kb-frame');next.contentWindow={...page.querySelector('.kb-frame').contentWindow};const old=page.querySelector('.kb-frame');page.children.splice(page.children.indexOf(old),1,next);next.parentNode=page;old.parentNode=null;return next;},
     get memo(){return page.querySelectorAll('textarea').find(n=>n.id==='mpMemo');},
@@ -486,7 +487,7 @@ test('an identical owner refresh keeps existing todo handlers connected to the s
   originalCheck.checked=true;originalCheck.dispatch('change');await settle();
   h.flushTimers();await settle();
   assert.equal(JSON.parse(h.raw).todos[0].done,true,'the handler must update the live document, not a detached clone');
-  assert.equal(h.page.querySelector('.mp-tasks').children[0].querySelector('input').checked,true);
+  assert.equal(h.page.querySelector('.mp-completed-tasks').children[0].querySelector('input').checked,true);
 });
 
 test('an identical tab restore keeps existing group rename handlers connected to the saved document', async () => {
@@ -511,4 +512,163 @@ test('large valid fractional yen are retained without a 15-digit rounding rule',
 test('planned deposits use decimal addition without binary multiplication artifacts',()=>{
   const result=planner.plan(goal({deadline:'2027-01-31',monthly:0.1}),0,Date.UTC(2026,9,17));
   assert.equal(result.months,3);assert.equal(result.total,0.3);
+});
+
+const reminder=(id,extra={})=>({id,text:id,done:false,goalId:'',...extra});
+function reminderEditor(row){
+  const edit=row.querySelector('.mp-task-edit'),inputs=edit.querySelectorAll('input');
+  return {edit,title:edit.querySelector('summary'),text:inputs.find(n=>n.type==='text'),due:inputs.find(n=>n.type==='date'),flag:inputs.find(n=>n.type==='checkbox'),goal:edit.querySelector('select'),save:edit.querySelectorAll('button').find(n=>n.textContent==='変更を保存')};
+}
+const reminderInput=(h,id)=>h.page.querySelectorAll('input').find(n=>n.id===id);
+const taskRows=(h,completed=false)=>h.page.querySelector(completed?'.mp-completed-tasks':'.mp-tasks').children.filter(n=>n.classList.contains('mp-task'));
+
+test('legacy reminder rows and additive fields remain byte-for-byte unchanged when merely restored',async()=>{
+  const raw=encode({todos:[reminder('old',{extension:{preserve:'row'}})],todoDraft:{text:'書きかけ',goalId:'',extension:{preserve:'composer'}},todoEdits:{old:{text:'編集途中',goalId:'',extension:{preserve:'editor'}}}});
+  const decoded=planner.decode(raw);assert.equal(JSON.stringify(decoded),raw);
+  assert.equal(Object.hasOwn(decoded.todos[0],'dueDate'),false);assert.equal(Object.hasOwn(decoded.todoDraft,'flagged'),false);
+  const h=controller({raw});await settle();
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.focused,null);
+  assert.equal(reminderInput(h,'mpTodoInput').value,'書きかけ');
+  assert.equal(reminderEditor(taskRows(h)[0]).text.value,'編集途中');
+});
+
+test('optional reminder dates and flags reject invalid saved rows and both kinds of draft atomically',()=>{
+  const places=value=>[
+    {todos:[reminder('valid'),reminder('invalid',value)]},
+    {todoDraft:{text:'新規',goalId:'',...value}},
+    {todoEdits:{draft:{text:'編集',goalId:'',...value}}}
+  ];
+  for(const value of [{dueDate:null},{dueDate:7},{dueDate:'2026-02-29'},{dueDate:'2026-04-31'},{dueDate:'2026/10/18'},{flagged:'true'},{flagged:1},{flagged:null}])
+    for(const extra of places(value))assert.throws(()=>planner.decode(encode(extra)),undefined,JSON.stringify(extra));
+  for(const dueDate of ['', '2028-02-29'])for(const flagged of [false,true])
+    assert.equal(planner.decode(encode({todos:[reminder('valid',{dueDate,flagged})]})).todos[0].dueDate,dueDate);
+});
+
+test('reminder today follows the device calendar across time zones rather than a fixed financial timezone',()=>{
+  const modulePath=JSON.stringify(require.resolve('../static/mypage-planner.js'));
+  const code='process.stdout.write(require('+modulePath+').localDateKey("2026-10-17T15:30:00Z"))';
+  for(const [zone,expected] of [['Asia/Tokyo','2026-10-18'],['America/Los_Angeles','2026-10-17'],['Pacific/Honolulu','2026-10-17']]){
+    const run=spawnSync(process.execPath,['-e',code],{encoding:'utf8',env:{TZ:zone}});
+    assert.equal(run.status,0,run.stderr);assert.equal(run.stdout,expected,zone);
+  }
+  assert.throws(()=>planner.localDateKey('invalid'));
+});
+
+test('smart reminder filters preserve order, combine literal search and exclude completed items outside All',()=>{
+  const today='2026-10-18',rows=Object.freeze([
+    reminder('undated',{text:'税金の確認'}),reminder('overdue',{text:'Tax review',dueDate:'2026-10-17'}),
+    reminder('today',{text:'税金の支払',dueDate:today,flagged:true}),
+    reminder('future',{text:'Tax plan',dueDate:'2026-10-19',flagged:true}),
+    reminder('completed',{text:'Tax done',done:true,dueDate:today,flagged:true})
+  ].map(Object.freeze));
+  const before=JSON.stringify(rows),ids=(filter,search='')=>planner.filterTodos(rows,filter,search,today).map(t=>t.id);
+  assert.deepEqual(ids('all'),['undated','overdue','today','future','completed']);
+  assert.deepEqual(ids('today'),['today']);assert.deepEqual(ids('scheduled'),['overdue','today','future']);
+  assert.deepEqual(ids('flagged'),['today','future']);assert.deepEqual(ids('scheduled',' TAX '),['overdue','future']);
+  assert.deepEqual(ids('flagged','税金'),['today']);assert.deepEqual(ids('today','plan'),[]);
+  assert.equal(JSON.stringify(rows),before);assert.equal(planner.filterTodos(rows,'today','',today)[0],rows[2]);
+  assert.throws(()=>planner.filterTodos(rows,'unknown','',today));assert.throws(()=>planner.filterTodos(rows,'all','','2026-02-30'));
+});
+
+test('reminder row titles open native editing independently from completion and completed items start folded',async()=>{
+  const raw=encode({todos:[reminder('first',{text:'  <b>文字のまま</b>  '}),reminder('done',{done:true}),reminder('last')]});
+  const h=controller({raw});await settle();const rows=taskRows(h),row=rows[0],editor=reminderEditor(row),check=row.querySelector('.mp-task-check input');
+  assert.equal(rows.length,2);assert.equal(taskRows(h,true).length,1);
+  assert.equal(h.page.querySelector('.mp-completed').open,false);assert.equal(h.page.querySelector('.mp-completed').hidden,false);
+  assert.equal(h.page.querySelector('.mp-reminders-count').textContent,'2');
+  assert.equal(editor.edit.tagName,'DETAILS');assert.equal(editor.title.tagName,'SUMMARY');assert.equal(check.type,'checkbox');
+  assert.equal(row.querySelector('.mp-task-circle').getAttribute('aria-hidden'),'true');
+  assert.equal(editor.title.querySelector('.mp-task-text').textContent,'  <b>文字のまま</b>  ');
+  editor.title.click();assert.equal(editor.edit.open,true);assert.equal(h.focused,editor.text);
+  assert.equal(check.checked,false);assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
+});
+
+test('completing and restoring a reminder keeps its identity, original order and goal progress',async()=>{
+  const raw=encode({goals:[goal()],todos:[reminder('first',{goalId:'goal-1'}),reminder('already-done',{done:true,goalId:'goal-1'}),reminder('last')]});
+  const h=controller({raw,autoSave:true});await settle();
+  const firstCheck=taskRows(h)[0].querySelector('.mp-task-check input');firstCheck.checked=true;firstCheck.dispatch('change');
+  let saved=JSON.parse(h.raw);assert.deepEqual(saved.todos.map(t=>t.id),['first','already-done','last']);
+  assert.equal(saved.todos[0].done,true);assert.equal(taskRows(h).length,1);assert.equal(taskRows(h,true).length,2);
+  assert.equal(planner.progress(saved.goals[0],null,saved.todos).done,2);
+  const completed=h.page.querySelector('.mp-completed');completed.open=true;completed.dispatch('toggle');
+  const restore=taskRows(h,true)[0].querySelector('.mp-task-check input');restore.checked=false;restore.dispatch('change');
+  saved=JSON.parse(h.raw);assert.equal(saved.todos[0].done,false);assert.equal(saved.todos[0].goalId,'goal-1');
+  assert.equal(taskRows(h)[0].querySelector('.mp-task-text').textContent,'first');assert.equal(completed.open,true);
+  assert.equal(planner.progress(saved.goals[0],null,saved.todos).done,1);
+});
+
+test('reminder edit metadata and unknown draft fields survive another completion and a fresh controller',async()=>{
+  const raw=encode({goals:[goal(),goal({id:'goal-2',title:'別の目標'})],todos:[reminder('first',{text:'確定本文',goalId:'goal-1',dueDate:'2027-01-01',extension:{retain:'row'}}),reminder('second')],todoEdits:{first:{text:'編集中',goalId:'goal-1',dueDate:'2027-01-02',flagged:false,extension:{retain:'draft'}}}});
+  const h=controller({raw});await settle();let fields=reminderEditor(taskRows(h)[0]);assert.equal(h.focused,null);
+  h.type(fields.text,'途中の本文\n末尾  ');fields.goal.value='goal-2';fields.goal.dispatch('change');fields.due.value='2027-03-05';fields.due.dispatch('input');fields.flag.checked=true;fields.flag.dispatch('change');
+  const other=taskRows(h)[1].querySelector('.mp-task-check input');other.checked=true;other.dispatch('change');
+  fields=reminderEditor(taskRows(h)[0]);assert.equal(fields.edit.open,true);assert.equal(fields.text.value,'途中の本文\n末尾  ');
+  assert.equal(fields.goal.value,'goal-2');assert.equal(fields.due.value,'2027-03-05');assert.equal(fields.flag.checked,true);
+  const staged=JSON.parse(h.raw);assert.equal(staged.todos[0].text,'確定本文');assert.deepEqual(staged.todos[0].extension,{retain:'row'});assert.deepEqual(staged.todoEdits.first.extension,{retain:'draft'});
+  const restored=controller({raw:h.raw});await settle();const fresh=reminderEditor(taskRows(restored)[0]);
+  assert.equal(fresh.text.value,fields.text.value);assert.equal(fresh.due.value,'2027-03-05');assert.equal(fresh.flag.checked,true);assert.equal(restored.focused,null);
+  fresh.save.click();const saved=JSON.parse(restored.raw);
+  assert.equal(saved.todos[0].text,'途中の本文\n末尾  ');assert.equal(saved.todos[0].goalId,'goal-2');assert.equal(saved.todos[0].dueDate,'2027-03-05');assert.equal(saved.todos[0].flagged,true);assert.deepEqual(saved.todos[0].extension,{retain:'row'});assert.equal(saved.todoEdits.first,undefined);
+  restored.flushTimers();assert.equal(restored.saves.length,1);restored.saves[0].resolve(false);await settle();
+  assert.equal(JSON.parse(restored.raw).todos[0].dueDate,'2027-03-05');assert.equal(JSON.parse(restored.raw).todos[0].flagged,true);assert.doesNotMatch(restored.status,/保存しました/);
+});
+
+test('a completed reminder edit draft is discoverable on restore without moving focus into its editor',async()=>{
+  const h=controller({raw:encode({todos:[reminder('done',{done:true})],todoEdits:{done:{text:'完了後の編集途中',goalId:'',dueDate:'2027-03-05',flagged:true}}})});await settle();
+  assert.equal(h.page.querySelector('.mp-completed').open,true);const edit=reminderEditor(taskRows(h,true)[0]);
+  assert.equal(edit.edit.open,true);assert.equal(edit.text.value,'完了後の編集途中');assert.equal(edit.flag.checked,true);assert.equal(h.focused,null);
+});
+
+test('the new reminder line retains its draft fields and adds the exact text with goal, optional date and flag',async()=>{
+  const raw=encode({goals:[goal()],todoDraft:{text:'初期草稿',goalId:'goal-1',dueDate:'2027-01-02',flagged:true,extension:{retain:'composer'}}});
+  const h=controller({raw});await settle();const input=reminderInput(h,'mpTodoInput'),due=reminderInput(h,'mpTodoDueDate'),flag=reminderInput(h,'mpTodoFlagged');
+  assert.equal(input.value,'初期草稿');assert.equal(due.value,'2027-01-02');assert.equal(flag.checked,true);
+  h.type(input,'  追加する本文\n末尾  ');due.value='2027-05-06';due.dispatch('input');flag.checked=false;flag.dispatch('change');
+  assert.deepEqual(JSON.parse(h.raw).todoDraft.extension,{retain:'composer'});
+  const fresh=controller({raw:h.raw});await settle();assert.equal(reminderInput(fresh,'mpTodoInput').value,'  追加する本文\n末尾  ');assert.equal(reminderInput(fresh,'mpTodoDueDate').value,'2027-05-06');
+  fresh.page.querySelector('.mp-reminder-add').dispatch('submit');const saved=JSON.parse(fresh.raw),added=saved.todos[0];
+  assert.ok(added.id);assert.equal(added.text,'  追加する本文\n末尾  ');assert.equal(added.goalId,'goal-1');assert.equal(added.dueDate,'2027-05-06');assert.equal(added.flagged,false);assert.equal(added.done,false);
+  assert.equal(saved.todoDraft.text,'');assert.equal(saved.todoDraft.dueDate,'');assert.equal(saved.todoDraft.flagged,false);assert.deepEqual(saved.todoDraft.extension,{retain:'composer'});assert.equal(fresh.focused,reminderInput(fresh,'mpTodoInput'));
+});
+
+test('smart filters and search change only the view while an unrelated new reminder is always revealed',async()=>{
+  const today=planner.localDateKey(),raw=encode({todos:[reminder('today',{text:'今日の税金',dueDate:today}),reminder('future',{text:'Tax plan',dueDate:'2099-01-01',flagged:true}),reminder('undated')]});
+  const h=controller({raw});await settle();h.lookup('今日').click();assert.equal(taskRows(h).length,1);assert.equal(h.lookup('今日').getAttribute('aria-pressed'),'true');
+  h.lookup('予定あり').click();const search=h.page.querySelector('.mp-reminder-search');h.type(search,' TAX ');assert.equal(taskRows(h).length,1);assert.equal(taskRows(h)[0].querySelector('.mp-task-text').textContent,'Tax plan');
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+  h.type(reminderInput(h,'mpTodoInput'),'期限を決めない新規');h.page.querySelector('.mp-reminder-add').dispatch('submit');
+  assert.equal(h.lookup('すべて').getAttribute('aria-pressed'),'true');assert.equal(search.value,'');
+  const added=JSON.parse(h.raw).todos.at(-1);assert.equal(added.dueDate,'');assert.equal(added.flagged,false);assert.ok(taskRows(h).some(row=>row.querySelector('.mp-task-text').textContent==='期限を決めない新規'));
+});
+
+test('overdue dates are named in text and invalid composer or edit dates cannot alter saved records',async()=>{
+  const raw=encode({todos:[reminder('old',{dueDate:'2001-01-01'})]});const h=controller({raw});await settle();
+  assert.match(taskRows(h)[0].querySelector('.mp-task-overdue').textContent,/期限切れ/);
+  const input=reminderInput(h,'mpTodoInput'),due=reminderInput(h,'mpTodoDueDate');input.value='無効な期限';due.value='2026-02-30';due.dispatch('input');h.page.querySelector('.mp-reminder-add').dispatch('submit');
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.match(h.status,/期限の日付/);
+  const fields=reminderEditor(taskRows(h)[0]);fields.due.value='2026-02-30';fields.due.dispatch('input');fields.save.click();
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
+});
+
+test('new reminder controls stay read-only after restore failure and clear private drafts, filters and completed counts on signout',async()=>{
+  const raw=encode({todos:[reminder('private',{text:'owner-A の予定',done:true})],todoDraft:{text:'owner-A の草稿',goalId:'',dueDate:'2027-01-01',flagged:true}});
+  const failed=controller({raw,restoreOK:false});await settle();
+  for(const input of failed.page.querySelectorAll('.mp-reminders input'))assert.equal(input.disabled,true);
+  failed.page.querySelector('.mp-reminder-add').dispatch('submit');assert.equal(failed.raw,raw);assert.equal(failed.stages.length,0);
+  const h=controller({raw});await settle();h.lookup('フラグ').click();h.type(h.page.querySelector('.mp-reminder-search'),'owner-A');h.auth(null);await settle();
+  assert.equal(reminderInput(h,'mpTodoInput').value,'');assert.equal(reminderInput(h,'mpTodoDueDate').value,'');assert.equal(reminderInput(h,'mpTodoFlagged').checked,false);
+  assert.equal(h.page.querySelector('.mp-reminder-search').value,'');assert.equal(h.lookup('すべて').getAttribute('aria-pressed'),'true');
+  assert.equal(h.page.querySelector('.mp-reminders-count').textContent,'0');assert.equal(h.page.querySelector('.mp-completed').hidden,true);assert.equal(h.page.querySelector('.mp-completed').open,false);
+  assert.equal(taskRows(h).length,0);assert.equal(taskRows(h,true).length,0);assert.doesNotMatch(h.page.textContent,/owner-A/);assert.equal(h.raw,raw);
+});
+
+test('a queued reminder search or filter event cannot re-enable rows after a later restore failure',async()=>{
+  const raw=encode({todos:[reminder('retained',{text:'確認済みの本文',dueDate:'2027-01-01',flagged:true})]});
+  const h=controller({raw});await settle();const row=taskRows(h)[0];
+  h.bridge.load=async()=>{throw Error('fixture_restore_failed');};h.auth({id:'owner-A'});await settle();
+  assert.equal(h.lookup('今日').disabled,true);assert.equal(reminderEditor(row).due.disabled,true);
+  h.type(h.page.querySelector('.mp-reminder-search'),'該当しない検索');h.lookup('今日').dispatch('click');
+  assert.equal(taskRows(h)[0],row,'read-only events cannot rebuild fresh enabled controls');
+  assert.equal(reminderEditor(row).due.disabled,true);assert.equal(row.querySelector('.mp-task-check input').disabled,true);
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
 });

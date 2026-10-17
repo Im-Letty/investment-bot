@@ -2182,20 +2182,21 @@ function kkNavGo(tab, el){
       var d=JSON.parse(raw),used=Object.create(null);
       function str(x){return typeof x==='string';}
       function dateOK(s){if(!s)return true;if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;var date=new Date(s+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===s;}
+      function reminderFields(x){return (x.dueDate===undefined||str(x.dueDate)&&dateOK(x.dueDate))&&(x.flagged===undefined||typeof x.flagged==='boolean');}
       if(!d||d.version!==1||!['goals','todos','notes','groups'].every(function(k){return Array.isArray(d[k]);}))return false;
       ['goals','todos','notes','groups'].forEach(function(k){d[k].forEach(function(x){
         if(!x||!str(x.id)||!x.id||used[k+':'+x.id])throw Error();used[k+':'+x.id]=true;
         if(k==='goals'&&(!str(x.title)||!str(x.details)||!str(x.deadline)||!dateOK(x.deadline)||![x.target,x.monthly].every(function(n){return n===null||typeof n==='number'&&Number.isFinite(n)&&n>=0;})||x.target===0))throw Error();
-        if(k==='todos'&&(!str(x.text)||typeof x.done!=='boolean'||!str(x.goalId)))throw Error();
+        if(k==='todos'&&(!str(x.text)||typeof x.done!=='boolean'||!str(x.goalId)||!reminderFields(x)))throw Error();
         if(k==='notes'&&(!str(x.title)||!str(x.body)||!str(x.groupId)))throw Error();
         if(k==='groups'&&!str(x.name))throw Error();
       });});
       if(d.selectedGoalId!==undefined&&!str(d.selectedGoalId)||d.selectedNoteId!==undefined&&!str(d.selectedNoteId)||d.legacyImported!==undefined&&typeof d.legacyImported!=='boolean')return false;
-      if(d.todoDraft!==undefined&&(!d.todoDraft||!str(d.todoDraft.text)||!str(d.todoDraft.goalId)))return false;
+      if(d.todoDraft!==undefined&&(!d.todoDraft||!str(d.todoDraft.text)||!str(d.todoDraft.goalId)||!reminderFields(d.todoDraft)))return false;
       if(d.goalDraft!==undefined&&d.goalDraft!==null&&(!d.goalDraft||!['id','title','details','target','deadline','monthly'].every(function(k){return str(d.goalDraft[k]);})||!dateOK(d.goalDraft.deadline)))return false;
       if(d.todoEdits!==undefined){
         if(!d.todoEdits||typeof d.todoEdits!=='object'||Array.isArray(d.todoEdits))return false;
-        Object.keys(d.todoEdits).forEach(function(k){var t=d.todoEdits[k];if(!t||!str(t.text)||!str(t.goalId))throw Error();});
+        Object.keys(d.todoEdits).forEach(function(k){var t=d.todoEdits[k];if(!t||!str(t.text)||!str(t.goalId)||!reminderFields(t))throw Error();});
       }
       return true;
     }catch(ignore){return false;}
