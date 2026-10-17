@@ -60,6 +60,13 @@ test('undated and expired programmes remain discoverable without fabricated next
  assert.equal(h.mount.find('dc-grid').find('dc-day-count'),undefined);assert.equal(h.cards().length,0);
  assert.match(pending.textContent,/KDDI/);assert.match(pending.textContent,/次回の保有締切は確認中/);assert.match(pending.textContent,/1年以上の継続保有/);
 });
+test('an unknown holding deadline does not assert an unverified continuity requirement',()=>{
+ const h=harness([company('130A',{schedules:[],holding:'保有期間は本文に記載なし',conditions:'100株以上。保有期間の追加条件は本文に記載なし。'})]);
+ const card=h.mount.find('bc-pending-body').children[0],details=card.find('bc-detail');
+ assert.match(details.children[3].textContent,/次回の保有締切は未確認/);
+ assert.doesNotMatch(details.children[3].textContent,/継続保有など会社所定の条件があります/);
+ assert.match(details.textContent,/保有期間の追加条件は本文に記載なし/);
+});
 test('pending companies paginate independently and planned schedules retain their own period and source',()=>{
  const pending=harness(Array.from({length:7},(_,i)=>company(String(1000+i),{schedules:[]})));
  assert.equal(pending.mount.find('bc-pending-body').children.length,5);pending.mount.find('bc-pending-more').dispatch('click');assert.equal(pending.mount.find('bc-pending-body').children.length,7);

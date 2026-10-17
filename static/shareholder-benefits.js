@@ -76,7 +76,7 @@ function create(w,mount,cal){
     box.appendChild(summary);
     const details=el('dl','bc-detail');
     const period=(row.record?row.record.replaceAll('-','/')+'の株主名簿で確認。':'')+(row.period||'会社の案内で確認');
-    [['何がもらえる？',row.use],['保有はいつまで？',row.holdExplanation||'継続保有など会社所定の条件があります。会社の優待案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
+    [['何がもらえる？',row.use],['保有はいつまで？',row.holdExplanation||'次回の保有締切は未確認です。必要な株数・保有条件は「優待を受け取る条件」と会社の案内をご確認ください。'],['優待を受け取る条件',row.conditions],['いつもらえる？',row.delivery||'次回の詳しい付与日程は未確認です。会社の案内をご確認ください。'],['対象になる時期',period]].forEach(([title,text])=>{details.appendChild(el('dt','',title));details.appendChild(el('dd','',text||'会社の案内で確認'));});
     box.appendChild(details);
     if(row.lastConfirmed)box.appendChild(el('p','dc-coverage','前回掲載した締切：'+row.lastConfirmed.replaceAll('-','/')+'。次回の日程は未確認です。'));
     const verified=dates.label(row.programmeVerified||row.verified,'確認');
