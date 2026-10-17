@@ -16,18 +16,18 @@ function fixture(seed={},framed=true,failReadKey=null){
     setItem(k,v){if(this.failKey===k)throw new Error('synthetic storage failure');this.writes.push(String(k));this.values.set(String(k),String(v));}
     removeItem(k){this.values.delete(k);}
   }
-  const ls=new FixtureStorage(),requests=[],timers=new Map(),events=[],listeners=new Map();let seq=0;
+  const ls=new FixtureStorage(),requests=[],timers=new Map(),events=[],messages=[],listeners=new Map();let seq=0;
   const context={Storage:FixtureStorage,localStorage:ls,knLedgerSession:{user:{id:'alice'},access_token:'fixture-no-authority'},
     document:{readyState:'interactive',addEventListener(){}},location:{origin:'https://fixture.test'},Event:class{constructor(type){this.type=type;}},
     setTimeout(fn,ms){timers.set(++seq,{fn,ms});return seq;},clearTimeout:id=>timers.delete(id),
     addEventListener(name,fn){listeners.set(name,fn);},dispatchEvent(event){events.push(event.type);},
     fetch(url,init){const request={url,init,resolved:false};requests.push(request);return new Promise(resolve=>request.resolve=resolve);},
     renderAll(){},renderCalendar(){},renderDayModal(){},kkRenderCustomCats(){}};
-  context.window=context;context.parent=framed?{location:context.location,knUser:{id:'alice'}}:context;
+  context.window=context;context.parent=framed?{location:context.location,knUser:{id:'alice'},postMessage(data,targetOrigin){messages.push({data:JSON.parse(JSON.stringify(data)),targetOrigin});}}:context;
   vm.runInNewContext(source,context);
   const bridge=context.kkMyPageStore;
   function respond(path,body,ok=true){const r=requests.find(item=>!item.resolved&&item.url.endsWith(path));assert.ok(r,'pending '+path);r.resolved=true;r.resolve({ok,json:async()=>body});return r;}
-  return {context,ls,requests,timers,events,listeners,bridge,
+  return {context,ls,requests,timers,events,messages,listeners,bridge,
     failRead(key){failReadKey=key;},
     async restore(data,ok=true){respond('/load',{data},ok);await settle();},
     respondLoad:(data,ok=true)=>respond('/load',{data},ok),respondSave:(ok=true,json={ok})=>respond('/save',json,ok),
@@ -237,4 +237,55 @@ test('a newer edit and revert keeps its pending version even if an older snapsho
   h.bridge.stage('alice',b);h.bridge.stage('alice',a);h.respondSave();await saving;
   assert.equal(h.ls.getItem(KEY),a);assert.equal(h.ls.getItem(JOURNAL+'alice'),a,'raw equality does not replace a version acknowledgement');
   const later=h.bridge.save('alice',a);await settle();h.respondSave();assert.equal(await later,true);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);
+});
+
+test('only the first verified restore per owner generation tells the same-origin parent that records are ready',async()=>{
+  const saved=raw('private planner text'),assets='[{"name":"private asset name","amount":12.5}]',h=fixture();
+  assert.deepEqual(h.messages,[]);await h.restore({[KEY]:saved,kb2_assets:assets});
+  const notification={data:{type:'kn-mypage-records-ready'},targetOrigin:'https://fixture.test'};
+  assert.deepEqual(h.messages,[notification]);
+  assert.equal((await h.bridge.load('alice')).raw,saved);
+  for(let n=0;n<2;n++){const refresh=h.context.kkRefreshRecords();await h.restore({[KEY]:saved,kb2_assets:assets});await refresh;}
+  h.ls.setItem('kb2_assets','[{"amount":25}]');assert.equal(h.messages.length,1,'periodic reads and local edits keep the first-restore notification unique');
+  assert.doesNotMatch(JSON.stringify(h.messages),/private planner|private asset|12\.5|alice|Bearer/);
+  h.change('bob');const bob=h.bridge.load('bob');h.respondLoad({[KEY]:raw('private bob')});await bob;
+  assert.deepEqual(h.messages,[notification,notification]);
+  h.change('alice');const again=h.bridge.load('alice');h.respondLoad({[KEY]:saved});await again;
+  assert.deepEqual(h.messages,[notification,notification,notification],'a new owner generation can announce its first successful restore');
+});
+
+test('failed restoration does not announce readiness and successful recovery announces it once',async()=>{
+  const old=raw('retained after failure'),h=fixture({[KEY]:old}),read=h.bridge.load('alice');
+  const rejected=assert.rejects(read,/mypage_restore_unavailable/);await h.restore({},false);await rejected;
+  assert.deepEqual(h.messages,[]);assert.equal(h.ls.getItem(KEY),old);
+  const retry=h.bridge.load('alice');h.respondLoad({[KEY]:old});assert.equal((await retry).raw,old);
+  assert.equal(h.messages.length,1);assert.deepEqual(h.messages[0].data,{type:'kn-mypage-records-ready'});
+  const next=h.context.kkRefreshRecords();await h.restore({[KEY]:old});await next;assert.equal(h.messages.length,1);
+});
+
+test('a malformed pending journal cannot send readiness before a valid successful restore',async()=>{
+  const saved=raw('confirmed local'),pending=raw('recovered pending'),h=fixture({[KEY]:saved,[JOURNAL+'alice']:'{bad'});
+  await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);
+  assert.equal(h.requests.length,0);assert.deepEqual(h.messages,[]);assert.equal(h.ls.getItem(KEY),saved);
+  h.ls.values.set(JOURNAL+'alice',pending);const retry=h.bridge.load('alice');
+  h.respondLoad({[KEY]:saved});assert.equal((await retry).raw,pending);assert.equal(h.messages.length,1);
+});
+
+test('stale owner responses and mismatched parent, storage or origin never announce readiness',async()=>{
+  for(const change of [h=>{h.context.parent.knUser={id:'bob'};},h=>{h.ls.values.set('kn_ledger_owner','bob');},h=>{h.context.parent.location={origin:'https://foreign.test'};}]){
+    const h=fixture();change(h);await h.restore({[KEY]:raw('unaccepted owner')});
+    assert.deepEqual(h.messages,[]);await assert.rejects(h.bridge.load('alice'),/mypage_owner_unavailable/);
+  }
+  const changed=fixture();changed.change('bob');await changed.restore({[KEY]:raw('old alice')});assert.deepEqual(changed.messages,[]);
+  const current=changed.bridge.load('bob');changed.respondLoad({[KEY]:raw('current bob')});await current;assert.equal(changed.messages.length,1);
+});
+
+test('standalone or unavailable parent messaging cannot break a successfully verified restore',async()=>{
+  const standalone=fixture({},false);standalone.context.postMessage=()=>assert.fail('standalone must not message itself');
+  await standalone.restore({});assert.equal((await standalone.bridge.load('alice')).raw,null);assert.deepEqual(standalone.messages,[]);
+  const missing=fixture();delete missing.context.parent.postMessage;
+  await missing.restore({});assert.equal((await missing.bridge.load('alice')).raw,null);assert.deepEqual(missing.messages,[]);
+  const throwing=fixture();let attempts=0;throwing.context.parent.postMessage=()=>{attempts++;throw Error('synthetic unavailable parent messaging');};
+  await throwing.restore({});assert.equal((await throwing.bridge.load('alice')).raw,null);assert.equal(attempts,1);
+  const refresh=throwing.context.kkRefreshRecords();await throwing.restore({});await refresh;assert.equal(attempts,1);
 });

@@ -2231,9 +2231,14 @@ function kkNavGo(tab, el){
   }
   function kkMyPageLoaded(uid,raw){
     if(!kkMyPageOwner(uid))return;
+    var firstRestore=loadedOwner!==uid;
     acknowledgedMyPageRaw=typeof raw==='string'?raw:null;loadedOwner=uid;
     if(pendingMyPageRestore&&dirtyVersions[myPageKey])kkPushDebounced();
     pendingMyPageRestore=false;pendingMyPageBlocked=false;kkMyPageNotice();
+    if(firstRestore)try{
+      if(window.parent!==window&&window.parent.location.origin===location.origin&&typeof window.parent.postMessage==='function')
+        window.parent.postMessage({type:'kn-mypage-records-ready'},location.origin);
+    }catch(ignore){}
   }
   window.kkLedgerChangeOwner=function(){if(_t)clearTimeout(_t);_t=null;dirtyVersions=Object.create(null);dirtyOwner=null;loadedOwner='';ownerGeneration++;savedVersions=Object.create(null);acknowledgedMyPageRaw=undefined;pendingMyPageRestore=false;pendingMyPageBlocked=false;};
   function kkMarkChanged(k){

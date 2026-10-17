@@ -182,9 +182,9 @@ test('missing optional planning fields and current or past deadlines do not inve
 
 // A small controller fixture exercises actual mount handlers and save promises.
 // Geometry and real browser input behavior are checked separately by the parent.
-function controller({raw=null,stageOK=true,autoSave=false}={}) {
-  const documentEvents = {}, childEvents = {}, windowEvents = {}, saves = [], stages = [];
-  const timers=new Map();let clock=0,timerId=0,stored = raw;
+function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=true,readyState='complete',pagePresent=true}={}) {
+  const documentEvents = {}, documentOptions = {}, childEvents = {}, windowEvents = {}, saves = [], stages = [];
+  const timers=new Map(),intervals=[];let clock=0,timerId=0,stored = raw,loads=0;
   function flushTimers(ms=1500) {
     const through=clock+ms;
     while(true){
@@ -230,22 +230,28 @@ function controller({raw=null,stageOK=true,autoSave=false}={}) {
   for(let i=0;i<4;i++){tabs.appendChild(node('button','mo-tab'));body.appendChild(node('section','mo-pane'));}
   const frame=page.appendChild(node('iframe','kb-frame'));
   const bridge={
-    async load(){return {raw:stored,assetsRaw:'[{"amount":12.5,"cat":"現金"}]'};},
+    async load(){loads++;if(!restoreOK)throw Error('fixture_restore_unavailable');return {raw:stored,assetsRaw:'[{"amount":12.5,"cat":"現金"}]'};},
     stage(owner,value){stages.push({owner,raw:value});if(stageOK)stored=value;return stageOK;},
     save(owner,value){const operation={owner,raw:value};saves.push(operation);if(autoSave)return Promise.resolve(true);operation.promise=new Promise(resolve=>operation.resolve=resolve);return operation.promise;}
   };
-  frame.contentWindow={kkMyPageStore:bridge,knLedgerSession:{user:{id:'owner-A'}},localStorage:{getItem:()=> 'owner-A'},addEventListener:(type,fn)=>childEvents[type]=fn};
+  frame.contentWindow={kkMyPageStore:bridge,knLedgerSession:ready?{user:{id:'owner-A'}}:null,localStorage:{getItem:()=> 'owner-A'},addEventListener:(type,fn)=>childEvents[type]=fn};
   const w={
-    document:{readyState:'complete',getElementById:k=>k==='myPageOv'?page:null,createElement:tag=>new Element(tag),addEventListener:(type,fn)=>documentEvents[type]=fn},
-    knUser:{id:'owner-A'},localStorage:{getItem:()=>null},
+    document:{readyState,getElementById:k=>k==='myPageOv'&&pagePresent?page:null,createElement:tag=>new Element(tag),addEventListener(type,fn,options){documentEvents[type]=fn;documentOptions[type]=options;}},
+    knUser:{id:'owner-A'},localStorage:{getItem:()=>null},location:{origin:'https://planner.fixture.test'},
     confirm:()=>true,prompt:()=>null,MutationObserver:class {observe(){}},
-    addEventListener:(type,fn)=>windowEvents[type]=fn,setInterval(){},
+    addEventListener:(type,fn)=>windowEvents[type]=fn,setInterval(fn,ms){intervals.push({fn,ms});},
     setTimeout(fn,ms=0){timers.set(++timerId,{fn,at:clock+ms});return timerId;},
     clearTimeout(id){timers.delete(id);},
   };
   const lookup=text=>page.querySelectorAll('button').find(n=>n.textContent===text);
   planner.mount(w);
-  return {w,page,body,bridge,saves,stages,documentEvents,childEvents,lookup,flushTimers,
+  return {w,page,body,bridge,saves,stages,documentEvents,documentOptions,childEvents,lookup,flushTimers,intervals,
+    showPage(){pagePresent=true;},
+    domReady(){w.document.readyState='interactive';const listener=documentEvents.DOMContentLoaded;if(documentOptions.DOMContentLoaded?.once)delete documentEvents.DOMContentLoaded;listener?.();},
+    get frame(){return page.querySelector('.kb-frame');},
+    get loads(){return loads;},get elapsed(){return clock;},
+    recordsReady(event={}){windowEvents.message({origin:w.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-mypage-records-ready'},...event});},
+    replaceFrame(){const next=node('iframe','kb-frame');next.contentWindow={...page.querySelector('.kb-frame').contentWindow};const old=page.querySelector('.kb-frame');page.children.splice(page.children.indexOf(old),1,next);next.parentNode=page;old.parentNode=null;return next;},
     get memo(){return page.querySelectorAll('textarea').find(n=>n.id==='mpMemo');},
     get status(){return page.querySelector('.mp-status').textContent;},
     get raw(){return stored;},
@@ -253,6 +259,103 @@ function controller({raw=null,stageOK=true,autoSave=false}={}) {
     auth(user){w.knUser=user;documentEvents.knAuthChange();}};
 }
 const settle = async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
+
+test('interactive startup builds a later MyPage at DOMContentLoaded without waiting for the 200ms fallback',async()=>{
+  const raw=encode({notes:[note({body:'DOM準備後に復元する架空の本文'})]});
+  const h=controller({raw,readyState:'interactive',pagePresent:false});await settle();const frame=h.frame;
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,0);assert.equal(h.loads,0);assert.equal(h.intervals.length,0);
+  assert.equal(h.documentOptions.DOMContentLoaded.once,true);
+  h.showPage();h.domReady();await settle();
+  assert.equal(h.elapsed,0);assert.equal(h.loads,1);assert.equal(h.memo.value,'DOM準備後に復元する架空の本文');
+  const bar=h.page.querySelector('.mp-planner-bar');
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,3);assert.equal(h.intervals.length,1);
+  h.flushTimers(200);await settle();
+  assert.equal(h.page.querySelector('.mp-planner-bar'),bar);assert.equal(h.page.querySelectorAll('.mp-planner-bar').length,1);
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,3);assert.equal(h.loads,1);assert.equal(h.intervals.length,1);
+  assert.equal(h.frame,frame);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+});
+
+test('interactive startup mounts an existing MyPage immediately and DOMContentLoaded cannot mount it twice',async()=>{
+  const h=controller({readyState:'interactive'});await settle();
+  const bar=h.page.querySelector('.mp-planner-bar'),frame=h.frame;
+  assert.ok(bar);assert.equal(h.loads,1);assert.equal(h.elapsed,0);assert.equal(h.intervals.length,1);
+  assert.equal(h.documentOptions.DOMContentLoaded.once,true);
+  h.domReady();await settle();h.flushTimers(200);await settle();
+  assert.equal(h.page.querySelector('.mp-planner-bar'),bar);assert.equal(h.page.querySelectorAll('.mp-planner-bar').length,1);
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,3);assert.equal(h.loads,1);assert.equal(h.intervals.length,1);
+  assert.equal(h.frame,frame);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+});
+
+test('loading documents still wait for one DOMContentLoaded while complete documents build immediately',async()=>{
+  const loading=controller({readyState:'loading'});await settle();
+  assert.equal(loading.page.querySelectorAll('.mp-planner').length,0);assert.equal(loading.loads,0);
+  assert.equal(loading.documentOptions.DOMContentLoaded.once,true);
+  loading.domReady();await settle();loading.domReady();await settle();
+  assert.equal(loading.loads,1);assert.equal(loading.intervals.length,1);
+  assert.equal(loading.page.querySelectorAll('.mp-planner-bar').length,1);
+  const complete=controller();await settle();
+  assert.equal(complete.loads,1);assert.equal(complete.documentEvents.DOMContentLoaded,undefined);
+});
+
+test('a successful private restore notification enables a cold planner before its 1500ms fallback',async()=>{
+  const raw=encode({notes:[note({body:'復元された架空のメモ'})]});
+  const h=controller({raw,ready:false});await settle();const frame=h.frame;
+  assert.equal(h.loads,0);assert.equal(h.lookup('メモを追加').disabled,true);
+  assert.deepEqual(h.intervals.map(timer=>timer.ms),[1500]);
+  assert.equal(Object.keys(h.childEvents).length,0,'the cold child has not been subscribed yet');
+  h.frame.contentWindow.knLedgerSession={user:{id:'owner-A'}};
+  h.recordsReady();await settle();
+  assert.equal(h.elapsed,0,'no polling timer has advanced');assert.equal(h.loads,1);
+  assert.equal(h.status,'');assert.equal(h.lookup('メモを追加').disabled,false);
+  assert.equal(h.memo.value,'復元された架空のメモ');assert.equal(h.frame,frame);
+  assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+});
+
+test('private restore notifications reject foreign origins, unrelated or replaced frames and other types',async()=>{
+  const h=controller({ready:false});await settle();
+  const oldFrame=h.frame,oldSource=oldFrame.contentWindow;
+  oldSource.knLedgerSession={user:{id:'owner-A'}};
+  for(const event of [{origin:'https://foreign.fixture.test'},{source:{}},{data:{type:'kn-kakeibo-ready'}},{data:null}])h.recordsReady(event);
+  await settle();assert.equal(h.loads,0);assert.equal(h.lookup('メモを追加').disabled,true);
+  const frame=h.replaceFrame();assert.notEqual(frame,oldFrame);assert.equal(oldFrame.parentNode,null);
+  h.recordsReady({source:oldSource});await settle();
+  assert.equal(h.loads,0,'a detached frame cannot trigger a read for the replacement');
+  h.recordsReady();await settle();assert.equal(h.loads,1);assert.equal(h.lookup('メモを追加').disabled,false);
+});
+
+test('a restore notification cannot bypass missing identity or turn a failed restore into editable empty records',async()=>{
+  const raw=encode({notes:[note({body:'失敗時にも保持する架空の記録'})]});
+  const h=controller({raw,ready:false,restoreOK:false});await settle();
+  h.recordsReady();await settle();assert.equal(h.loads,0);assert.equal(h.lookup('メモを追加').disabled,true);
+  h.frame.contentWindow.knLedgerSession={user:{id:'owner-A'}};
+  h.recordsReady();await settle();
+  assert.equal(h.loads,1);assert.equal(h.lookup('メモを追加').disabled,true);assert.equal(h.lookup('目標を追加').disabled,true);
+  assert.match(h.status,/空の記録では上書きしません/);assert.equal(h.raw,raw);
+  assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+});
+
+test('a restore notification from a previous owner cannot reveal that owner after an account change or signout',async()=>{
+  const raw=encode({notes:[note({body:'owner-A だけの架空の本文'})]});
+  const h=controller({raw});await settle();assert.equal(h.memo.value,'owner-A だけの架空の本文');
+  const loads=h.loads;h.auth({id:'owner-B'});await settle();h.recordsReady();await settle();
+  assert.equal(h.loads,loads);assert.equal(h.memo.value,'');assert.equal(h.memo.disabled,true);
+  assert.doesNotMatch(h.page.textContent,/owner-A だけ/);
+  h.auth(null);await settle();h.recordsReady();await settle();
+  assert.equal(h.loads,loads);assert.equal(h.memo.value,'');assert.equal(h.lookup('メモを追加').disabled,true);
+});
+
+test('restore notifications preserve a pending local draft, its save and the same private frame',async()=>{
+  const raw=encode({notes:[note({body:'以前に保存した本文'})]});
+  const h=controller({raw});await settle();const frame=h.frame;
+  h.type(h.memo,'通信待ち中に書いた最新の本文');h.flushTimers();
+  assert.equal(h.saves.length,1);const staged=h.raw,loads=h.loads,stages=h.stages.length;
+  h.recordsReady();await settle();
+  assert.equal(h.loads,loads,'the existing unsaved-revision guard must still skip reloads');
+  assert.equal(h.frame,frame);assert.equal(h.memo.value,'通信待ち中に書いた最新の本文');
+  assert.equal(h.raw,staged);assert.equal(h.stages.length,stages);assert.equal(h.saves.length,1);
+  h.saves[0].resolve(false);await settle();
+  assert.equal(h.memo.value,'通信待ち中に書いた最新の本文');assert.doesNotMatch(h.status,/保存しました/);
+});
 
 test('every keystroke is staged while an earlier cloud save is pending', async () => {
   const h=controller();await settle();

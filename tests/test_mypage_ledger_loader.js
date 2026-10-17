@@ -13,9 +13,9 @@ function closeMySource(){
   throw Error('The actual MyPage close handler must be complete');
 }
 function fixture(user={id:'account-A'},options={}) {
-  const events={},messages={},mutations=[],navigations=[],views=[];let refreshes=0,closes=0;
+  const events={},messages={},mutations=[],navigations=[],views=[],registrations=[],fallbacks=[];let refreshes=0,closes=0,pageAvailable=!options.deferPage;
   class Element {
-    constructor(){this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};this.srcChanges=[];this.scrollTop=0;}
+    constructor(){this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};this.listenerCounts={};this.srcChanges=[];this.scrollTop=0;}
     set className(value){this.classes=new Set(value.split(' '));}
     get classList(){return {contains:k=>this.classes?.has(k),add:k=>this.classes.add(k),remove:k=>this.classes.delete(k),toggle:(k,on)=>on?this.classes.add(k):this.classes.delete(k)};}
     appendChild(el){el.parentNode=this;this.children.push(el);return el;}
@@ -23,7 +23,7 @@ function fixture(user={id:'account-A'},options={}) {
     insertBefore(el,other){el.parentNode=this;this.children.splice(this.children.indexOf(other),0,el);}
     querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
     querySelectorAll(selector){let descendants=this.children.flatMap(el=>[el,...el.querySelectorAll('*')]);return descendants.filter(el=>selector==='*'||(selector==='.mo-pane:not(.kb-pane)'?el.classList.contains('mo-pane')&&!el.classList.contains('kb-pane'):el.classList.contains(selector.slice(1))));}
-    addEventListener(name,fn){this.listeners[name]=fn;}
+    addEventListener(name,fn){this.listeners[name]=fn;this.listenerCounts[name]=(this.listenerCounts[name]||0)+1;}
     click(){this.onclick?.();this.listeners.click?.();}
     setAttribute(name,value){this.attributes[name]=value;if(name==='src'){this.srcChanges.push(value);navigations.push(value);}}
     getAttribute(name){return this.attributes[name]??null;}
@@ -40,15 +40,14 @@ function fixture(user={id:'account-A'},options={}) {
   };});
   const card=el('');
   function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;},kkSetMyPageView(view){views.push(view);}};}
-  const doc={readyState:'complete',body:el(''),querySelector:()=>null,getElementById:id=>({myPageOv:page,myPageCard:card}[id]),createElement:tag=>{const n=el('');if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn)=>events[name]=fn};
-  const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,setTimeout(){throw Error('setup should be immediate');},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>messages[name]=fn};context.window=context;
+  const doc={readyState:options.readyState||'complete',body:el(''),querySelector:()=>null,getElementById:id=>({myPageOv:pageAvailable?page:null,myPageCard:card}[id]),createElement:tag=>{const n=el('');if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn,settings)=>{events[name]=fn;registrations.push({target:'document',name,settings});}};
+  const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,setTimeout(fn,ms){if(!options.deferPage)throw Error('setup should be immediate');fallbacks.push({fn,ms});return fallbacks.length;},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>{messages[name]=fn;registrations.push({target:'window',name});}};context.window=context;
   card.listeners.click=()=>{if(context.knUser&&(!context.knUser.is_anonymous||options.allowAnonymous)){page.classList.add('open');context.knPrepareLedger();}};
   vm.runInNewContext(read('static/mypage-ledger-loader.js'),context);
   vm.runInNewContext(closeMySource(),context);
   close.onclick=()=>{closes++;context.closeMy();};
-  const frame=page.querySelector('.kb-frame'),top=page.querySelector('.mp-toptabs'),personal=top.children[0],ledger=top.children[1];
-  documentInFrame(frame);
-  return {context,page,tabs,body,close,get frame(){return page.querySelector('.kb-frame');},personal,ledger,mutations,navigations,views,refreshes:()=>refreshes,closes:()=>closes,auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
+  const frame=page.querySelector('.kb-frame');if(frame)documentInFrame(frame);
+  return {context,page,tabs,body,close,get frame(){return page.querySelector('.kb-frame');},get personal(){return page.querySelector('.mp-toptabs')?.children[0]||null;},get ledger(){return page.querySelector('.mp-toptabs')?.children[1]||null;},mutations,navigations,views,registrations,fallbacks,refreshes:()=>refreshes,closes:()=>closes,publishPage(){pageAvailable=true;},domReady(){doc.readyState='interactive';const listener=events.DOMContentLoaded;if(listener){const registration=registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded');if(registration?.settings?.once)delete events.DOMContentLoaded;listener();}},runFallbacks(){while(fallbacks.length)fallbacks.shift().fn();},auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
 }
 test('no household ledger request before an authorized MyPage visit',()=>{
   const h=fixture();assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareLedger();assert.equal(h.frame.getAttribute('src'),null);
@@ -214,4 +213,35 @@ test('the standalone link waits for the existing auth event before opening an an
   assert.equal(h.page.classList.contains('open'),false);assert.deepEqual(h.navigations,[]);
   h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.page.classList.contains('open'),true);
   assert.equal(h.views.at(-1),'assets');assert.deepEqual(h.navigations,['/kakeibo']);
+});
+
+test('interactive startup catches a MyPage created at DOM ready before the 300ms fallback',()=>{
+  const h=fixture({id:'account-A'},{readyState:'interactive',deferPage:true});
+  assert.equal(h.frame,null);assert.equal(h.fallbacks.length,1);assert.equal(h.fallbacks[0].ms,300);
+  const ready=h.registrations.filter(item=>item.target==='document'&&item.name==='DOMContentLoaded');
+  assert.equal(ready.length,1);assert.equal(ready[0].settings.once,true);
+  h.publishPage();h.domReady();assert.ok(h.frame,'DOM ready initializes the newly created page without waiting for the retry timer');
+  const frame=h.frame;assert.equal(frame.getAttribute('src'),null);assert.equal(h.fallbacks.length,1);
+  h.context.knOpenLedger();frame.draft='synthetic unfinished input';h.runFallbacks();h.domReady();
+  assert.equal(h.frame,frame);assert.equal(frame.draft,'synthetic unfinished input');assert.deepEqual(h.navigations,['/kakeibo']);
+  assert.equal(h.page.querySelectorAll('.kb-frame').length,1);assert.equal(h.page.querySelectorAll('.kb-pane').length,1);assert.equal(h.page.querySelectorAll('.mp-toptabs').length,1);
+  assert.equal(h.mutations.length,1);assert.equal(h.registrations.filter(item=>item.target==='document'&&item.name==='knAuthChange').length,1);
+  assert.equal(h.registrations.filter(item=>item.target==='window'&&item.name==='message').length,1);
+  assert.ok(h.tabs.children.every(tab=>tab.listenerCounts.click===1));
+});
+
+test('interactive startup uses an existing MyPage immediately and DOM ready does not duplicate its document or handlers',()=>{
+  const h=fixture({id:'account-A'},{readyState:'interactive'}),frame=h.frame;
+  assert.ok(frame);assert.equal(h.fallbacks.length,0);h.context.knOpenLedger();frame.draft='existing draft';h.domReady();
+  assert.equal(h.frame,frame);assert.equal(frame.draft,'existing draft');assert.deepEqual(h.navigations,['/kakeibo']);
+  assert.equal(h.page.querySelectorAll('.mp-toptabs').length,1);assert.equal(h.mutations.length,1);
+  assert.equal(h.registrations.filter(item=>item.target==='document'&&item.name==='knAuthChange').length,1);
+  assert.ok(h.tabs.children.every(tab=>tab.listenerCounts.click===1));
+});
+
+test('loading startup waits for DOM ready without starting a private iframe request',()=>{
+  const h=fixture({id:'account-A'},{readyState:'loading'});
+  assert.equal(h.frame,null);assert.equal(h.fallbacks.length,0);assert.deepEqual(h.navigations,[]);
+  h.domReady();assert.ok(h.frame);assert.equal(h.frame.getAttribute('src'),null);assert.equal(h.mutations.length,1);
+  assert.equal(h.registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded').settings.once,true);
 });

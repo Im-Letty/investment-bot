@@ -267,9 +267,14 @@
       page.querySelectorAll('.mo-tab,.mp-toptab').forEach(function(t){t.addEventListener('click',load);});
       new w.MutationObserver(function(){if(page.classList.contains('open'))load();}).observe(page,{attributes:true,attributeFilter:['class']});
       w.addEventListener('storage',function(e){if(!e.key||e.key==='kn_ledger_owner'){if(owner!==current())reset();load();}});
+      w.addEventListener('message',function(event){
+        var frame=page.querySelector('.kb-frame');
+        if(frame&&event.origin===w.location.origin&&event.source===frame.contentWindow&&event.data&&event.data.type==='kn-mypage-records-ready')load();
+      });
       reset();load();w.setInterval(function(){if(!doc&&page.classList.contains('open'))load();},1500);
     }
-    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',build);else build();
+    if(document.readyState!=='complete')document.addEventListener('DOMContentLoaded',build,{once:true});
+    if(document.readyState!=='loading')build();
   }
   return Object.freeze({empty:empty,decode:decode,amount:amount,assets:assets,money:money,percent:percent,progress:progress,plan:plan,importLegacy:importLegacy,mount:mount});
 });

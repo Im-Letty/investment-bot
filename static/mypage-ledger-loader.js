@@ -165,5 +165,6 @@
     show(0);
     if(typeof URLSearchParams==='function'&&new URLSearchParams(location.search||'').get('mypage')==='assets')openAssets();
   }
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
+  if(document.readyState!=='complete')document.addEventListener('DOMContentLoaded',setup,{once:true});
+  if(document.readyState!=='loading')setup();
 })();
