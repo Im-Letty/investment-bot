@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "checked_at_jst": "2026-10-17T10:56:08.817526+09:00",
+  "code": "1375",
+  "issuer_identity": {
+    "code": "1375",
+    "symbol": "1375.T",
+    "name": "ユキグニファクトリー株式会社",
+    "exchange": "Tokyo",
+    "market": "Prime",
+    "saved_StockSearch_name": "ユキグニファクトリー",
+    "saved_StockSearch_market": "プライム（内国株式）",
+    "saved_catalogue_as_of": "2026-09-30",
+    "current_day_full_catalogue_refresh_claimed": false,
+    "official_code_market_match": true,
+    "official_history_name_fact": "沿革に1983年の雪国まいたけ設立と2025年4月の現商号への変更が記載。改称の日付までは当該沿革本文で採用しない。",
+    "exact_name_change_day": null,
+    "StockSearch_reference": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-105056/StockSearch-selected-identities.json",
+      "sha256": "005fca1f6dc1c26f896020e52702c460c8f3928799857b8b70716902a32ca3c7"
+    }
+  },
+  "evidence_kind": "authored_primary_HTML_observation_note",
+  "raw_page_sha256": null,
+  "note_SHA_is_not_raw_page_SHA": true,
+  "raw_source_prose_table_images_or_voucher_art_saved": false,
+  "sources": [
+    {
+      "id": "programme",
+      "url": "https://www.yukiguni-factory.co.jp/ir/benefit/",
+      "title": "株主優待",
+      "observed_between_jst": [
+        "2026-10-17T10:52:42+09:00",
+        "2026-10-17T10:52:44+09:00"
+      ],
+      "tool_reference": "turn1266view0",
+      "body_scope": "Current eligibility, three share categories, examples, application and delivery Q&A.",
+      "raw_page_sha256": null
+    },
+    {
+      "id": "identity",
+      "url": "https://www.yukiguni-factory.co.jp/ir/stockinfo/",
+      "title": "株式基本情報",
+      "observed_between_jst": [
+        "2026-10-17T10:53:03+09:00",
+        "2026-10-17T10:53:05+09:00"
+      ],
+      "tool_reference": "turn1269view0",
+      "body_scope": "Issuer title, security1375, Tokyo Prime, trading lot100, six-month/two-register rule.",
+      "raw_page_sha256": null
+    },
+    {
+      "id": "history",
+      "url": "https://www.yukiguni-factory.co.jp/company/enkaku/",
+      "requested_link_url": "https://www.yukiguni-factory.co.jp/enkaku",
+      "title": "沿革",
+      "observed_between_jst": [
+        "2026-10-17T10:53:14+09:00",
+        "2026-10-17T10:53:16+09:00"
+      ],
+      "tool_reference": "turn1272view0",
+      "body_scope": "1983 former name and2025-April present trade name; automatic same-host canonical redirect.",
+      "raw_page_sha256": null
+    },
+    {
+      "id": "IR",
+      "url": "https://www.yukiguni-factory.co.jp/ir/news/",
+      "title": "IRニュース",
+      "observed_between_jst": [
+        "2026-10-17T10:53:49+09:00",
+        "2026-10-17T10:53:50+09:00"
+      ],
+      "tool_reference": "turn1279view0",
+      "body_scope": "Navigation and heading exposed; announcement rows not exposed. Not evidence of an empty announcement list.",
+      "raw_page_sha256": null
+    },
+    {
+      "id": "scoped_terms",
+      "url": "https://www.yukiguni-factory.co.jp/contact/",
+      "title": "お問い合わせ",
+      "observed_between_jst": [
+        "2026-10-17T10:54:08+09:00",
+        "2026-10-17T10:54:09+09:00"
+      ],
+      "tool_reference": "turn1282view0",
+      "body_scope": "The restriction concerns individual replies. Page read only, no form operation or inquiry.",
+      "raw_page_sha256": null
+    }
+  ],
+  "programme_status": "active_current_official_HTML_with2026_application_shipping_finished",
+  "conditions": {
+    "record_date_recurring": "毎年3月末日",
+    "holding_months_min": 6,
+    "same_shareholder_number": true,
+    "required_consecutive_registers": 2,
+    "required_register_dates": [
+      "前年9月末日",
+      "3月末日"
+    ],
+    "each_register_minimum_shares": 100,
+    "higher_reward_threshold_required_at_each_register": true,
+    "reward_selection_basis": "両基準日の株数で満たす区分を使う。増減の例示では両回で満たせる低い区分の金額となる。単一日だけの株数で上位区分を判定しない。",
+    "sets_per_shareholder": 1,
+    "tiers_additive": false,
+    "freely_selectable_reward_tier": false,
+    "one_time_only_programme": false,
+    "one_time_only_basis": "本文は毎年の基準日による制度として記載。別の一回限り贈呈は確認範囲に記載なし。",
+    "extra_long_holding_reward": "6か月の継続保有以外の長期加算は当該本文に記載なし。未記載を0か月へ変換しない。",
+    "sell_all_rebuy": "全売却後の再購入は株主番号変更により対象外となる場合がある。"
+  },
+  "tiers": [
+    {
+      "tier_id": "A",
+      "current_shares_min": 100,
+      "current_shares_max": null,
+      "shares_required_at_each_of_two_registers": 100,
+      "upper_threshold_not_both_satisfied": 300,
+      "holding_months_min": 6,
+      "reward_yen_equivalent": 3000,
+      "reward_kind": "自社製品セット",
+      "non_additive": true
+    },
+    {
+      "tier_id": "B",
+      "current_shares_min": 300,
+      "current_shares_max": null,
+      "shares_required_at_each_of_two_registers": 300,
+      "upper_threshold_not_both_satisfied": 1000,
+      "holding_months_min": 6,
+      "reward_yen_equivalent": 5000,
+      "reward_kind": "自社製品セット",
+      "non_additive": true
+    },
+    {
+      "tier_id": "C",
+      "current_shares_min": 1000,
+      "current_shares_max": null,
+      "shares_required_at_each_of_two_registers": 1000,
+      "upper_threshold_not_both_satisfied": null,
+      "holding_months_min": 6,
+      "reward_yen_equivalent": 7000,
+      "reward_kind": "自社製品セット",
+      "non_additive": true
+    }
+  ],
+  "application": {
+    "required": true,
+    "routes": [
+      "WEB",
+      "はがき"
+    ],
+    "guidance_expected_delivery": "4月下旬～5月上旬",
+    "application_deadline": null,
+    "WEB_shipping_date_selection": true,
+    "postal_shipping_order": "申込先着順",
+    "shipping_address_change_on_application": true,
+    "domestic_only": true,
+    "next_cycle_application_details_unconfirmed": true
+  },
+  "delivery": {
+    "recurring_shipping_plan": "6月～7月末",
+    "actual_arrival_date": null,
+    "2026_application_and_shipping_finished": true,
+    "scheduled_shipping_not_actual_arrival": true,
+    "product_composition_may_change": true,
+    "product_expiry": null,
+    "voucher_validity": null,
+    "voucher_validity_not_applicable_reason": "制度本文は製品セットであり券を確認していない。商品の賞味期限は別の未確認事項。"
+  },
+  "source_conditions": {
+    "copyright_notice_observed": true,
+    "copyright_alone_not_fact_use_prohibition": true,
+    "scoped_republication_restriction": "お問い合わせの個別返信に関する転載・二次利用の制限。今回の優待本文の独立事実全体やリンクへの一般禁止とは同一にしない。",
+    "individual_reply_not_requested_or_received": true,
+    "general_fact_reuse_or_link_prohibition_observed": false,
+    "general_site_and_link_terms_fully_verified": false,
+    "Google_reCAPTCHA_terms_not_issuer_general_content_licence": true
+  },
+  "amendment_and_split_review": {
+    "current_HTML_observed": true,
+    "IR_news_rows_exposed": false,
+    "IR_list_empty_claimed": false,
+    "all_amendments_abolitions_splits_verified_absent": false,
+    "future_effective_dates_fabricated": false
+  },
+  "gaps": [
+    "動的IR一覧のニュース行がツール本文に出ず、改廃・分割の全履歴と将来変更の不存在は未確認。現行優待HTMLの存在・記載条件を不明扱いにはしない。",
+    "一般のサイト利用・リンク条件は未確認。copyright表示だけで独立事実の利用禁止を推定しない。",
+    "次回の申込締切、具体的発送日・実到着日、商品の内訳と賞味期限は未確認。",
+    "制度開始日・現在の金額区分の改定発表日/適用日は未確認。2025年4月の商号変更を優待改定日としない。",
+    "2026年度申込・発送終了という本文表示は年次受付の終了であり、制度廃止とは扱わない。"
+  ],
+  "schedules": [],
+  "network_summary": {
+    "conservative_unique_primary_URLs": 6,
+    "document_tool_operations": 5,
+    "automatic_same_host_canonical_redirects": 1,
+    "search_queries": 2,
+    "PDF_opens": 0,
+    "PDF_screenshots": 0,
+    "source_plus_search_tool_calls": 7,
+    "origin_HTTP_trace_verified": false
+  },
+  "public_adoption_ready": false,
+  "independent_review_pending": true,
+  "immutable_after_save": true
+}

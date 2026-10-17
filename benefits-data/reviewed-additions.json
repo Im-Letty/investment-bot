@@ -766,6 +766,79 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "1375",
+      "symbol": "1375.T",
+      "name": "ユキグニファクトリー",
+      "category": "食品",
+      "aliases": "ユキグニファクトリー 雪国まいたけ きのこ 自社製品",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.yukiguni-factory.co.jp/ir/benefit/",
+            "title": "ユキグニファクトリー 株主優待",
+            "security_code": "1375",
+            "issuer_name": "ユキグニファクトリー",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T10:52:44+09:00",
+            "evidence_path": "evidence/reviewed-1375-observation-note-20261017.json",
+            "evidence_sha256": "5dc2a42836d2403a8a85a3256f58eb8888a961cb7fde6c3e906ae749db429057"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "independent-offline-source-fact-review:/root/per0939_saved_review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "保存した現行優待HTML、株式基本情報、沿革、限定したIR一覧・問い合わせ返信の利用条件を別レビューで照合。future_changesはこの限定確認を完了した意味で、全IR本文・全将来改定の不存在や一般的な転載許諾を確認した意味ではありません。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年3月末日（前年9月末との継続条件あり。次回の購入締切は未確認）",
+          "conditions": "前年9月末と3月末の株主名簿に、同じ株主番号で2回連続して記載され、6か月以上継続保有していることが共通条件です。両基準日に各100株以上が必要で、区分は二つの基準日のうち少ない保有株数を基に判定します。1株主1セットで、各区分の金額を加算したり任意に選んだりする制度ではありません。全売却後に買い直すと株主番号が変わり、対象外となる場合があります。",
+          "use": "WEBまたははがきによる申込が必要で、申込時に発送先住所を変更できます。区分に対応する自社製品セットを国内へ発送する制度です。セットの内容は変わる場合があり、商品の内訳と賞味期限は未確認です。",
+          "delivery": "制度の案内では、申込案内のお届け目安が4月下旬～5月上旬、製品の発送期間が6月～7月末です。WEBでは発送日を指定でき、はがきは申込先着順です。2026年度の申込・発送は終了しています。これは制度廃止や次回の申込締切・具体的な発送日・実到着日の確認ではありません。",
+          "grant_summary": "2026年度は申込・発送終了（制度上の発送時期は6月～7月末）",
+          "tiers": [
+            {
+              "id": "products-100",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": 6,
+              "holding_requirement": "前年9月末と3月末に同じ株主番号で連続2回、両基準日の株数条件を満たす6か月保有",
+              "reward": "自社製品セット3,000円相当",
+              "conditions": "前年9月末と3月末の両名簿で各100株以上。両回で各300株以上の上位条件を満たさない場合の区分です。同一株主番号で連続記載、6か月以上。1セットのみで他区分との加算・任意選択はできません。"
+            },
+            {
+              "id": "products-300",
+              "shares_min": 300,
+              "shares_max": null,
+              "holding_months_min": 6,
+              "holding_requirement": "前年9月末と3月末に同じ株主番号で連続2回、両基準日の株数条件を満たす6か月保有",
+              "reward": "自社製品セット5,000円相当",
+              "conditions": "前年9月末と3月末の両名簿で各300株以上。両回で各1,000株以上の上位条件を満たさない場合の区分です。同一株主番号で連続記載、6か月以上。1セットのみで他区分との加算・任意選択はできません。"
+            },
+            {
+              "id": "products-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": 6,
+              "holding_requirement": "前年9月末と3月末に同じ株主番号で連続2回、両基準日の株数条件を満たす6か月保有",
+              "reward": "自社製品セット7,000円相当",
+              "conditions": "前年9月末と3月末の両名簿で各1,000株以上。最上位区分です。同一株主番号で連続記載、6か月以上。1セットのみで他区分との加算・任意選択はできません。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

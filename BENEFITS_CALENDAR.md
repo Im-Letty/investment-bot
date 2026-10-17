@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 19 companies: the original nine reviewed on 2026-09-25 and
-ten additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 20 companies: the original nine reviewed on 2026-09-25 and
+eleven additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -234,3 +234,29 @@ conditions; its 2026 rewards are not projected into later years. 2467 VLC Securi
 explicitly states in its current official FAQ that no shareholder benefit is
 provided. Failed searches, unstated conditions and old stock-information dates
 are not used to infer current absence.
+
+## Tokyo addition reviewed on 2026-10-17
+
+- 1375 Yukiguni Factory: https://www.yukiguni-factory.co.jp/ir/benefit/
+  All three product-set tiers: 100+, 300+ and 1,000+ shares at both the prior
+  September-end and March-end records qualify for 3,000/5,000/7,000 yen equivalent.
+  The same shareholder number must appear at both consecutive records, with at
+  least six months of continuous ownership; use the lower of the two holdings.
+  One set per shareholder, without adding or freely selecting tiers. Selling all
+  shares and rebuying can change the shareholder number and invalidate eligibility.
+  WEB or postcard application is required; domestic shipping only. Guidance is
+  expected late April–early May and shipment June–July end. WEB permits dispatch
+  date selection; postcards are processed in order. The 2026 applications and
+  shipments have ended. Next deadlines, precise dispatch/arrival dates, product
+  contents and expiry remain unconfirmed, so no future schedule is generated.
+  Current HTML conditions and identity were reviewed separately. Unexposed dynamic
+  IR rows do not prove an empty history or absence of future changes. Observed
+  inquiry-reply restrictions are scoped separately from independent programme
+  facts; no general reuse licence is claimed. Only short independently written
+  facts and an actual source link are published. The observation-note SHA is not
+  a raw-page SHA. All previous 19 programmes and 12 explicit schedules are retained.
+
+The same bounded batch leaves 2928 RIZAP as a nonpublic candidate because further
+conditions remain unverified, and 272A Green Cross Holdings as programme/explicit
+absence unknown. Neither is classified as a benefit issuer with a published
+programme or as an explicit non-issuer.
