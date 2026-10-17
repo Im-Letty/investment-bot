@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 23 companies: the original nine reviewed on 2026-09-25 and
-fourteen additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 24 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -337,3 +337,28 @@ not treated as a current benefit. Neither is added to the active catalogue.
 The same batch leaves 3849 Nippon Techno Lab and 3824 Media Five as unknown.
 An unexplained exchange dash, unexposed dynamic IR rows and a 2025 shareholder
 social-event notice do not establish current absence or a recurring future benefit.
+
+## Further Sapporo review on 2026-10-17
+
+- 3977 Fusion: https://www.fusion.co.jp/ir/for-investor/yuutai
+  At the annual February-end record, exactly 100 shares receive a digital gift
+  worth 1,000 yen and 200+ shares receive 2,000 yen. The amount for 101–199 shares
+  is unconfirmed; it is not filled with zero or treated as ineligible. Holding
+  duration, same-number and continuity requirements are unstated. WEB selection
+  and completion of receipt within the selection period are required; the exact
+  cutoff, multiple/split exchanges and gift validity remain unknown. Late May is
+  the planned dispatch of guidance, not actual gift arrival. The February 18, 2026
+  announcement changes exchange destinations for the February 2026 record; it is
+  not used as the programme's original announcement or tier effective date.
+  All eight destinations remain in the record. No purchase deadline or future
+  schedule is created. The exact share boundaries and amendment scope were
+  corrected and independently reviewed before adoption. The evidence-bundle SHA
+  identifies authored observation notes, not raw primary-page bytes. All prior
+  23 programmes and 12 explicit schedules remain intact.
+
+The same batch classifies 137A Cocolive from its explicit current official FAQ
+statement that no shareholder benefit is provided. JB Eleven 3066 remains an
+unpublished active-programme candidate: unread usage-condition changes and their
+correction, plus detailed long-holding tests, still need review. A failed PDF
+render is not numerical-table authority. Neither company is added to the active
+catalogue, and source failures never imply programme absence.

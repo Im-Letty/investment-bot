@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "code": "3977",
+  "kind": "primary_page_observation_note",
+  "source_body_sha256": null,
+  "note_hash_is_raw_page_hash": false,
+  "authored_note_sha256": "5bb474e335f9191c5389c0c385f1a442fbb6aa7c5076f2c6cc0d646dc53faf0c",
+  "observation_note": {
+    "schema_version": 1,
+    "recorded_at_jst": "2026-10-17T17:34:51.669551+09:00",
+    "author": "/root/index0425_audit",
+    "company": {
+      "code": "3977",
+      "symbol": "3977.JP",
+      "name": "フュージョン株式会社",
+      "primary_exchange": "Sapporo",
+      "market": "アンビシャス市場"
+    },
+    "observation_kind": "independently_authored_short_facts_not_raw_page",
+    "source_observation_bounds_jst": {
+      "started_at": "2026-10-17T17:32:03+09:00",
+      "finished_at": "2026-10-17T17:33:18+09:00"
+    },
+    "issuer_identity": {
+      "official_issuer_name": "フュージョン株式会社",
+      "issuer_name_source_alias": "S5",
+      "official_code": "3977",
+      "official_market": "札幌証券取引所アンビシャス市場",
+      "official_unit_shares": 100,
+      "unit_source_alias": "S4",
+      "local_StockSearch_identity_exact": {
+        "code": "3977",
+        "name": "フュージョン株式会社",
+        "market": "アンビシャス市場",
+        "exchange": "Sapporo",
+        "source_url": "https://www.sse.or.jp/listing/list",
+        "catalogue_as_of": "2026-10-12",
+        "symbol": "3977.JP",
+        "provider_symbol": null,
+        "source_title": "札幌証券取引所",
+        "scope": "japan-listed-domestic-common-equity",
+        "as_of": "2026-10-12"
+      },
+      "StockSearch_checked_at_jst": "2026-10-17T17:33:12.466247+09:00",
+      "official_code_market_name_matches_saved_identity": true,
+      "all_current_day_issuer_identity_freshness_claimed": false,
+      "unit_is_not_substituted_for_benefit_minimum": true
+    },
+    "independently_authored_short_facts": [
+      {
+        "fact": "札証アンビシャス、コード3977、売買単位100株。",
+        "source_alias": "S4",
+        "locator": "25-32"
+      },
+      {
+        "fact": "毎年2月末の名簿に載る100株以上が対象。原文の100株区分はデジタルギフト1000円、200株以上は2000円。",
+        "source_alias": "S2",
+        "locator": "23-39"
+      },
+      {
+        "fact": "2026年2月末基準から交換先を見直し、楽天ポイントとWWFへの寄付を追加した構成。対象・金額等の他条件は不変とする。",
+        "source_alias": "S3",
+        "locator": "18-53"
+      },
+      {
+        "fact": "毎年5月下旬に案内を発送予定。案内に沿いWEBで希望品目を選び、選択期間内に受取手続き完了が必要。",
+        "source_alias": "S3",
+        "locator": "54-59"
+      },
+      {
+        "fact": "IR免責は内容保証/投資勧誘/将来見通し/運用に関する説明で、優待不実施や事実再利用の包括的許諾とはしない。",
+        "source_alias": "S5",
+        "locator": "43-60"
+      }
+    ],
+    "programme": {
+      "current_status": "active_official_HTML_observed_pending_independent_review",
+      "explicit_current_no_benefit_verified": false,
+      "annual_record_date": "毎年2月末日",
+      "registered_shareholders_required": true,
+      "minimum_shares": 100,
+      "current_tiers_source_exact": [
+        {
+          "shares_text": "100株",
+          "reward_yen": 1000
+        },
+        {
+          "shares_text": "200株以上",
+          "reward_yen": 2000
+        }
+      ],
+      "holding_months_min": null,
+      "same_shareholder_number": null,
+      "consecutive_record_count": null,
+      "each_record_minimum_shares": null,
+      "tier_addition": "株数区分ごとの額を記載。二つの区分額の加算を認める記載は未確認。",
+      "selection_required": true,
+      "selection_method": "案内に沿うWEB手続き",
+      "selection_specific_cutoff": null,
+      "split_or_multiple_redemption_allowed": null,
+      "annual_dispatch_plan": "毎年5月下旬に案内発送予定",
+      "actual_dispatch_verified": false,
+      "actual_arrival": null,
+      "gift_validity": null,
+      "programme_original_start": null,
+      "current_destination_amendment_announced_on": "2026-02-18",
+      "current_destination_amendment_applies_to_record_date": "2026-02-28",
+      "current_destination_options": [
+        "Amazonギフトカード",
+        "Google Playギフトコード",
+        "PayPayマネーライト",
+        "楽天ポイントギフト",
+        "QUOカードPay",
+        "dポイント",
+        "au PAYギフトカード",
+        "WWFジャパンへの寄付"
+      ],
+      "next_purchase_deadline": null,
+      "schedules": []
+    },
+    "proposed_tier_normalization_limit": "原文は100株/200株以上。候補の100〜199株は隣接しきい値によるschema区間正規化で、100〜199という字句そのものは本文にない。独立peerの確認対象であり、本文の直接転記や追加条件とは呼ばない。",
+    "source_and_link_conditions": {
+      "IR_disclaimer_source_alias": "S5",
+      "IR_information_disclaimer_read": true,
+      "copyright_footer_observed": true,
+      "explicit_general_link_policy_verified": false,
+      "explicit_commercial_or_deep_link_ban_observed": false,
+      "general_site_terms_complete": false,
+      "copyright_implies_all_independent_facts_banned": false,
+      "blanket_reuse_or_licence_permission_inferred": false,
+      "material_prose_tables_images_or_voucher_art_republished": false,
+      "unconfirmed_terms_are_not_verified_explicit_restriction": true
+    },
+    "source_pages": [
+      {
+        "alias": "S1",
+        "kind": "document",
+        "url": "https://www.fusion.co.jp/ir/",
+        "role": "issuer_IR_landing_actual_links",
+        "completed_sleep_seconds": 3.0049,
+        "operation_number": 2,
+        "started_at_jst": "2026-10-17T17:32:03+09:00",
+        "finished_at_jst": "2026-10-17T17:32:08+09:00",
+        "explicit_sleep_requested_ms": 3000,
+        "explicit_sleep_completed": true,
+        "origin_HTTP_status": null,
+        "raw_page_sha256": null,
+        "host": "www.fusion.co.jp",
+        "tool_reference": "turn1403view0",
+        "title": "IR",
+        "source_line_range": "21-46,71",
+        "body_format": "HTML",
+        "body_read_success": true,
+        "failure_safe_code": null,
+        "redirect_reported": false
+      },
+      {
+        "alias": "S2",
+        "kind": "document",
+        "url_discovered_via": "https://www.fusion.co.jp/ir/ link8",
+        "role": "current_shareholder_programme",
+        "completed_sleep_seconds": 3.0062,
+        "url": "https://www.fusion.co.jp/ir/for-investor/yuutai",
+        "operation_number": 3,
+        "started_at_jst": "2026-10-17T17:32:15+09:00",
+        "finished_at_jst": "2026-10-17T17:32:17+09:00",
+        "explicit_sleep_requested_ms": 3000,
+        "explicit_sleep_completed": true,
+        "origin_HTTP_status": null,
+        "raw_page_sha256": null,
+        "host": "www.fusion.co.jp",
+        "tool_reference": "turn1405view0",
+        "title": "株主優待制度",
+        "source_line_range": "23-43",
+        "body_format": "HTML",
+        "body_read_success": true,
+        "failure_safe_code": null,
+        "redirect_reported": false
+      },
+      {
+        "alias": "S3",
+        "kind": "document",
+        "url": "https://www.fusion.co.jp/news/20260218",
+        "role": "current2026_exchange_destination_amendment_and_receipt_procedure",
+        "completed_sleep_seconds": 3.0054,
+        "operation_number": 4,
+        "started_at_jst": "2026-10-17T17:32:25+09:00",
+        "finished_at_jst": "2026-10-17T17:32:28+09:00",
+        "explicit_sleep_requested_ms": 3000,
+        "explicit_sleep_completed": true,
+        "origin_HTTP_status": null,
+        "raw_page_sha256": null,
+        "host": "www.fusion.co.jp",
+        "tool_reference": "turn1408view0",
+        "title": "株主優待（デジタルギフト）の交換先変更（追加）",
+        "source_line_range": "16-59,65,83",
+        "body_format": "HTML",
+        "body_read_success": true,
+        "failure_safe_code": null,
+        "redirect_reported": false
+      },
+      {
+        "alias": "S4",
+        "kind": "document",
+        "url": "https://www.fusion.co.jp/ir/stock/",
+        "role": "issuer_code_market_unit_identity",
+        "completed_sleep_seconds": 3.0025,
+        "operation_number": 5,
+        "started_at_jst": "2026-10-17T17:32:40+09:00",
+        "finished_at_jst": "2026-10-17T17:32:42+09:00",
+        "explicit_sleep_requested_ms": 3000,
+        "explicit_sleep_completed": true,
+        "origin_HTTP_status": null,
+        "raw_page_sha256": null,
+        "host": "www.fusion.co.jp",
+        "tool_reference": "turn1412view0",
+        "title": "株式について",
+        "source_line_range": "25-32",
+        "body_format": "HTML",
+        "body_read_success": true,
+        "failure_safe_code": null,
+        "redirect_reported": false
+      },
+      {
+        "alias": "S5",
+        "kind": "document",
+        "url": "https://www.fusion.co.jp/ir/disclaimer/",
+        "role": "IR_information_disclaimer_and_bounded_usage_conditions",
+        "completed_sleep_seconds": 3.0044,
+        "operation_number": 7,
+        "started_at_jst": "2026-10-17T17:33:06+09:00",
+        "finished_at_jst": "2026-10-17T17:33:07+09:00",
+        "explicit_sleep_requested_ms": 3000,
+        "explicit_sleep_completed": true,
+        "origin_HTTP_status": null,
+        "raw_page_sha256": null,
+        "host": "www.fusion.co.jp",
+        "tool_reference": "turn1416view0",
+        "title": "免責事項",
+        "source_line_range": "43-60,133-135",
+        "body_format": "HTML",
+        "body_read_success": true,
+        "failure_safe_code": null,
+        "redirect_reported": false
+      },
+      {
+        "alias": "S6",
+        "kind": "document",
+        "url_discovered_via": "https://www.fusion.co.jp/ir/ link5",
+        "role": "bounded_IR_news_amendment_abolition_split_titles",
+        "completed_sleep_seconds": 3.0053,
+        "url": "https://www.fusion.co.jp/ir/news/",
+        "operation_number": 8,
+        "started_at_jst": "2026-10-17T17:33:16+09:00",
+        "finished_at_jst": "2026-10-17T17:33:18+09:00",
+        "explicit_sleep_requested_ms": 3000,
+        "explicit_sleep_completed": true,
+        "origin_HTTP_status": null,
+        "raw_page_sha256": null,
+        "host": "www.fusion.co.jp",
+        "tool_reference": "turn1418view0",
+        "title": "IRニュース",
+        "source_line_range": "11-13,36-38",
+        "body_format": "HTML",
+        "body_read_success": true,
+        "failure_safe_code": null,
+        "redirect_reported": false
+      }
+    ],
+    "coverage_and_limits": [
+      "長期保有月数・同一株主番号・連続名簿回数・各回必要株数は本文に記載がなく未確認。保有月数を0にしない。",
+      "選択期間内のWEB受取完了は必要だが具体的締切・選択点数・残高分割/複数交換可否・各交換先ギフト期限は未確認。",
+      "5月下旬は案内の発送予定であり、実発送・実到着・交換完了の確認ではない。",
+      "2026年2月末基準からの交換先改定を確認した。制度の最初の開始日、全改廃・分割の履歴や将来変更の不存在は未確認。",
+      "IRニュース本文は見出しのみで個別明細が露出せず、空一覧/改定なしとは扱わない。",
+      "IR免責とfooter権利表示は確認したが、一般リンク用途/営利/深いリンク等の条件は未確認。明示禁止や包括許諾を推測しない。",
+      "将来購入締切は算出せず、schedules=[]。"
+    ],
+    "local_preflight": {
+      "queue_state": "unreviewed",
+      "assigned_code_only": true,
+      "existing_issuer_specific_hold_found_in_narrow_queue_checkpoint_manifest_read": false,
+      "issuer_host_reported_to_root_before_document": true,
+      "shared_provider_exchange_host_opened": false
+    },
+    "evidenceSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/StockSearch-selected-identities.json": "07c8e298be8c7c34e2e9b264e29e7e6de900e715560db7b85bf5e2c5d9003648",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/selected-companies.json": "7028b6a661fd5af46aa06863e605a522f250fb487c427023c425fbd88c4e49c2"
+    },
+    "raw_primary_page_sha256": null,
+    "authored_note_SHA_is_raw_page_SHA": false,
+    "independent_review_pending": true,
+    "public_adoption_ready": false,
+    "candidate_manifest_created": false,
+    "proposed_record_created": true,
+    "immutable_after_save": true,
+    "new_owner_action_required": false,
+    "notify": false
+  },
+  "independent_review": {
+    "schema_version": 1,
+    "checked_at_jst": "2026-10-17T17:36:33.694828+09:00",
+    "reviewer": "/root/company1342_writer",
+    "company_code": "3977",
+    "company_symbol": "3977.JP",
+    "review_kind": "offline_independent_saved_numeric_condition_and_version_review",
+    "review_bounds_jst": {
+      "started_at_jst": "2026-10-17T17:36:33.693612+09:00",
+      "finished_at_jst": "2026-10-17T17:36:33.694828+09:00"
+    },
+    "scope": "Only the fixed four author files, selected/current StockSearch identity, frozen manifest schema example and static builder tier/date validation. No source HTTP/search, raw page reread, app execution, helpers, product changes or live metadata changes.",
+    "verdict": "corrections",
+    "all_checks_pass": true,
+    "checks": {
+      "four_fixed_author_artifacts_read_actual_SHA_and_all_internal_refs_match": true,
+      "issuer3977_Sapporo_Ambitious_and_actual_StockSearch_identity_match": true,
+      "official_identity_source_time_separate_from_StockSearch_time_and_catalogue_asof": true,
+      "current_active_programme_supported_by_saved_author_HTML_observations": true,
+      "raw_share_labels100_and200plus_and_values1000_2000_preserved": true,
+      "100_to199_extension_detected_as_material_unconfirmed_normalization": true,
+      "100_share_trading_unit_not_proof_of101to199_reward": true,
+      "exact100_and200plus_alternative_keeps101to199_unknown_not_ineligible_or_zero": true,
+      "20260218_destination_announcement_and20260228_application_separated": true,
+      "current_tier_original_announcement_or_programme_start_not_established": true,
+      "proposal_announcement_date_scope_requires_correction_or_explicit_destination_only_label": true,
+      "holding_duration_same_number_continuity_each_record_shares_not_zero_filled": true,
+      "WEB_selection_and_in_period_receipt_required_concrete_deadline_unknown": true,
+      "choice_count_multiple_split_redemption_and_expiry_unknown": true,
+      "lateMay_guidance_dispatch_plan_not_actual_shipping_arrival_or_gift_grant": true,
+      "annual_Feb_end_not_rolled_into_unverified_future_purchase_deadline": true,
+      "2026_destination_update_retained_without_tier_change_or_all_history_claim": true,
+      "IR_news_shell_limits_preserved_not_no_amendment_proof": true,
+      "IR_disclaimer_copyright_not_blanket_independent_fact_ban_or_reuse_grant": true,
+      "general_link_conditions_unconfirmed_not_new_explicit_hold": true,
+      "no_PDF_table_numeric_authority_used_or_required_for_saved_HTML_tiers": true,
+      "saved_source_budget6documents2queries8web_no_peer_HTTP_or_reread": true,
+      "current_manifest_schema_read_without_builder_execution": true,
+      "candidate_not_approved_as_written_original_four_files_unchanged": true,
+      "only_designated_independent_review_written_no_live_changes": true,
+      "no_global_completion_new_owner_or_notification_claim": true
+    },
+    "all_checks_pass_means": "The independent review checks completed and evidence bindings passed; it does not approve the uncorrected candidate or eliminate the material issues below.",
+    "candidate_approved_as_written": false,
+    "publication_approval_given": false,
+    "recommended_queue_state_until_root_decision": "candidate_needs_review",
+    "current_active_benefit_observed": true,
+    "verified_no_benefit": false,
+    "source_terms_hold_recommended_from_explicit_checked_restriction": false,
+    "issues": [
+      {
+        "code": "unverified_101_199_share_interval",
+        "severity": "material_publication_correction",
+        "field": "companies[0].versions[0].tiers[0].shares_max",
+        "candidate_value": 199,
+        "saved_primary_label": "100 shares",
+        "reason": "The author explicitly records that100-199 is schema normalization, not the primary wording. The separate100-share trading unit does not prove the entitlement of holders with101-199 shares. The global minimum100 statement does not itself assign their reward amount.",
+        "required_action": "Do not publish the current100-199 reward interval. Either retain the company as a reviewed candidate, or construct a separately root-reviewed partial fact record for exactly100 shares and200 or more, explicitly leaving101-199 reward unknown. Never mark that gap zero, ineligible or benefit-free."
+      },
+      {
+        "code": "destination_amendment_date_scope",
+        "severity": "version_metadata_correction",
+        "field": "companies[0].versions[0].announced_on",
+        "candidate_value": "2026-02-18",
+        "reason": "This is the announcement date of the2026 exchange-destination update. Saved evidence does not establish the original programme or current share-tier announcement date.",
+        "required_action": "Prefer announced_on:null for the whole tier version and explicitly retain2026-02-18 announcement /2026-02-28 record-date applicability as destination-update facts, or otherwise label the date unambiguously as that scoped amendment."
+      }
+    ],
+    "approved_bounded_facts": {
+      "issuer_code": "3977",
+      "issuer_market": "Sapporo Ambitious",
+      "trading_unit_shares": 100,
+      "annual_record_date": "毎年2月末日",
+      "registered_shareholders_required": true,
+      "overall_minimum_shares_stated": 100,
+      "primary_share_labels_and_rewards_exact": [
+        {
+          "shares_text": "100株",
+          "reward_yen": 1000
+        },
+        {
+          "shares_text": "200株以上",
+          "reward_yen": 2000
+        }
+      ],
+      "destination_update": {
+        "announcement_date": "2026-02-18",
+        "first_applicable_record_date": "2026-02-28",
+        "change_scope": "Exchange destinations updated, including Rakuten points and WWF donation. The saved author note reports other eligibility/amount conditions unchanged. This does not establish the original tier/start date.",
+        "source_observed_at_jst": "2026-10-17T17:32:28+09:00"
+      },
+      "WEB_selection_and_completion_within_selection_period_required": true,
+      "lateMay_is_guidance_dispatch_plan_only": true
+    },
+    "conservative_partial_encoding_for_root_review_only": {
+      "not_an_approved_new_manifest": true,
+      "tiers": [
+        {
+          "shares_min": 100,
+          "shares_max": 100,
+          "reward_yen": 1000
+        },
+        {
+          "shares_min": 200,
+          "shares_max": null,
+          "reward_yen": 2000
+        }
+      ],
+      "explicit_unknown_interval": {
+        "shares_min": 101,
+        "shares_max": 199,
+        "reward_yen": null,
+        "eligibility_or_noneligibility_not_adjudicated": true
+      },
+      "schema_can_represent_exact100_without_source_inference": true,
+      "builder_not_executed": true,
+      "requires_explicit_gap_text_in_public_conditions_if_root_adopts": true,
+      "automatic_post_correction_approval": false
+    },
+    "preserved_typed_unknowns": {
+      "holding_months_min": null,
+      "same_shareholder_number": null,
+      "consecutive_record_count": null,
+      "each_record_minimum_shares": null,
+      "selection_specific_cutoff": null,
+      "number_of_allowed_choices": null,
+      "split_or_multiple_redemption_allowed": null,
+      "tier_amount_addition_permission": null,
+      "gift_validity": null,
+      "actual_dispatch_date": null,
+      "actual_arrival_date": null,
+      "actual_gift_receipt_or_redemption_completion": null,
+      "programme_original_start_date": null,
+      "current_share_tier_original_announcement_date": null,
+      "current_share_tier_effective_date": null,
+      "next_purchase_deadline": null,
+      "all_historical_splits_amendments_and_future_changes_absent": false,
+      "general_link_policy_completely_verified": false
+    },
+    "source_terms_scope": "The saved IR disclaimer and copyright are reviewed only within their recorded bounds. No explicit commercial/deep-link prohibition is recorded, general link terms remain unconfirmed, and neither a blanket independent-fact ban nor unrestricted copying permission is inferred. No text, table, image or voucher reproduction is approved.",
+    "original_times_preserved": {
+      "author_recorded_at_jst": "2026-10-17T17:34:51.669551+09:00",
+      "current_programme_source_observed_at_jst": "2026-10-17T17:32:17+09:00",
+      "destination_update_source_observed_at_jst": "2026-10-17T17:32:28+09:00",
+      "identity_source_observed_at_jst": "2026-10-17T17:32:42+09:00",
+      "IR_disclaimer_source_observed_at_jst": "2026-10-17T17:33:07+09:00",
+      "StockSearch_read_at_jst": "2026-10-17T17:33:12.466247+09:00",
+      "StockSearch_catalogue_asof": "2026-10-12"
+    },
+    "evidenceSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/company-3977/observation-note.json": "5bb474e335f9191c5389c0c385f1a442fbb6aa7c5076f2c6cc0d646dc53faf0c",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/company-3977/network-observations.json": "a97d663e096d9f047f7bcd52e78e563f13203154ef9aac5f9bb7e3ebdc4728e6",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/company-3977/disposition.json": "ca4e7a9e5f5ecd1df237d1662b89027335812aba7cb86c4e23d5a9174e739537",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/company-3977/proposed-record.json": "b97abaa2111b5b9f5568f69c69597d5dcdbc55445710a64ec4045d0f5d24d4f8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/StockSearch-selected-identities.json": "07c8e298be8c7c34e2e9b264e29e7e6de900e715560db7b85bf5e2c5d9003648",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/selected-companies.json": "7028b6a661fd5af46aa06863e605a522f250fb487c427023c425fbd88c4e49c2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-173027/manifest-before.json": "621967d7c5cda8c1a47af86134a88ed500b285827f3986168fa91f3c3cf48ab3",
+      "/Users/remi/Documents/Codex/2026-09-10/https-github-com-im-letty-investment/work/investment-bot/scripts/build_benefits_catalogue.py": "fc5bd7e49a57ed61a73bb3fa82288eaf91ced436f2c232220f42830cbe4cba52"
+    },
+    "note_SHA_is_not_raw_page_SHA": true,
+    "source_acquisition_closed": true,
+    "reviewer_actions": {
+      "HTTP_search_source_rereads": 0,
+      "numeric_API_widget_annual_requests": 0,
+      "helper_builder_test_or_app_execution": 0,
+      "source_or_original_four_file_mutation": 0,
+      "repo_manifest_queue_checkpoint_ledger_automation_changes": 0,
+      "only_designated_independent_review_file_written": true
+    },
+    "current_original23_programmes_and12_schedules_changed": false,
+    "all_company_coverage_complete": false,
+    "new_owner_action_required": false,
+    "notify": false,
+    "immutable_after_save": true
+  },
+  "publication_wording_changes": [
+    {
+      "field": "tiers[0].shares_max",
+      "from": 199,
+      "to": 100,
+      "reason": "Only exact100 is stated; do not extend into101–199."
+    },
+    {
+      "field": "conditions_and_tiers",
+      "text": "101〜199株の優待額は本文で未確認です。0円や対象外とは判断していません。"
+    },
+    {
+      "field": "announced_on",
+      "from": "2026-02-18",
+      "to": null,
+      "reason": "Feb18 is exchange-destination amendment announcement, not original tier-programme announcement."
+    },
+    {
+      "field": "use",
+      "reason": "Retain all eight current destinations and Feb2026 amendment applicability separately from original dates."
+    }
+  ],
+  "original_source_or_table_images_reproduced": false
+}
