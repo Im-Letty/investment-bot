@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 24 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 25 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17 and one on 2026-10-18. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -362,3 +362,26 @@ unpublished active-programme candidate: unread usage-condition changes and their
 correction, plus detailed long-holding tests, still need review. A failed PDF
 render is not numerical-table authority. Neither company is added to the active
 catalogue, and source failures never imply programme absence.
+
+## Nagoya addition reviewed on 2026-10-18
+
+- 3419 ArtGreen: https://artgreen.co.jp/ir/benefit/
+  The single displayed tier is 100+ shares at the recurring October 31 record,
+  receiving one pink midi Phalaenopsis orchid pot with one stem, worth 4,500 yen
+  equivalent. A trading lot is separately confirmed as 100 shares. The dedicated
+  application form is enclosed with the shareholders-meeting notice planned for
+  mid-January; this is not the plant's dispatch date. Application cutoff, choice,
+  substitution, plant dispatch/arrival and unstated holding/continuity tests remain
+  unknown. The first programme record was October 31, 2018; it is not a current-tier
+  effective date or announcement date. No purchase deadline or schedule is created.
+  Current HTML/FAQ, stock identity and IR disclaimer were independently reviewed.
+  Dynamic IR announcement rows were not exposed; all amendments and future changes
+  are not guaranteed absent. The observation-bundle SHA is not a raw-page SHA.
+  All prior 24 programmes and 12 explicit schedules remain unchanged.
+
+The same batch leaves 5953 Showa Manufacturing as source-unavailable after a single
+issuer timeout, with a separate researcher wait. FSE identity facts and its source
+link-contact condition do not establish benefit absence. 1383 Bergearth remains
+unknown after two actual IR links returned 404; a readable 2022 benefit announcement
+is historical and is not promoted to a current programme. Neither failure means
+that the company offers no benefit.

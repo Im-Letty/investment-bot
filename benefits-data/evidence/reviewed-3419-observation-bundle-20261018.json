@@ -1,0 +1,322 @@
+{
+  "schema_version": 1,
+  "code": "3419",
+  "recorded_at_jst": "2026-10-18T03:53:59.499452+09:00",
+  "evidence_kind": "primary_page_observation_note",
+  "observed_at_jst": "2026-10-18T03:47:07+09:00",
+  "raw_document_sha256": null,
+  "hash_scope": "This file contains independently authored observations and a saved-fact peer review. Its SHA is not a raw primary-page SHA.",
+  "primary_observation": {
+    "schema_version": 1,
+    "code": "3419",
+    "symbol": "3419.JP",
+    "issuer": "アートグリーン株式会社",
+    "recorded_at_jst": "2026-10-18T03:51:39.980733+09:00",
+    "evidence_kind": "primary_page_observation_note",
+    "raw_document_sha256": null,
+    "raw_document_sha256_reason": "Web tool returned readable document text, not original bytes; authored-note SHA is not an original-page SHA.",
+    "identity": {
+      "official_code": "3419",
+      "official_name": "アートグリーン株式会社",
+      "official_market": "名古屋証券取引所ネクスト市場",
+      "official_trading_unit_shares": 100,
+      "sources": [
+        "https://artgreen.co.jp/ir/faq/",
+        "https://artgreen.co.jp/ir/stock/"
+      ],
+      "current_StockSearch_offline": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-034512/StockSearch-selected-identities.json",
+        "sha256": "1d94182bb3b83ce83bc724ae90554b8642dff55b29665c355a3aa20ef99d77f0",
+        "selected_identity": {
+          "code": "3419",
+          "name": "アートグリーン",
+          "market": "ネクスト市場",
+          "industry": "卸売業",
+          "exchange": "Nagoya",
+          "source_url": "https://www.nse.or.jp/api/stock/search.json?dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1",
+          "catalogue_as_of": "2026-10-14",
+          "symbol": "3419.JP",
+          "provider_symbol": null,
+          "source_title": "名古屋証券取引所",
+          "scope": "japan-listed-domestic-common-equity",
+          "as_of": "2026-10-14"
+        },
+        "issuer_and_local_identity_agree": true,
+        "parent_offline_lookup_HTTPs": 0
+      },
+      "current_day_full_universe_freshness_claimed": false
+    },
+    "programme": {
+      "status_observed": "active_in_readable_official_HTML_and_FAQ",
+      "primary_url": "https://artgreen.co.jp/ir/benefit/",
+      "observed_at_jst": "2026-10-18T03:47:07+09:00",
+      "source_publication_date": null,
+      "source_update_date": null,
+      "record_date_recurring": "10-31",
+      "minimum_shares": 100,
+      "trading_unit_shares": 100,
+      "eligibility": "毎年10月31日の名簿に載る100株以上が対象。",
+      "all_displayed_share_tiers": [
+        {
+          "shares_min": 100,
+          "shares_max": null,
+          "benefit": "ピンクのミディ胡蝶蘭1鉢（1本立、4,500円相当）",
+          "holding_months_min": null,
+          "holding_requirement": "保有月数・同番号・連続記録回数・各回必要株数は未記載"
+        }
+      ],
+      "displayed_tier_count": 1,
+      "duplicate_image_caption_is_not_a_second_grant": true,
+      "plant_variation": "花色の濃淡や花数は個体により異なる。",
+      "application_required": true,
+      "application_method": "招集通知と一緒に届く専用申込書で手続きする。",
+      "application_deadline": null,
+      "selection_substitution_partial_application_rules": null,
+      "application_form_dispatch_plan": "1月中旬頃に送る定時総会招集通知へ申込書を同封する予定。",
+      "application_form_actual_dispatch_or_arrival": null,
+      "plant_dispatch_plan": null,
+      "plant_actual_dispatch_or_arrival": null,
+      "voucher_expiry": null,
+      "application_form_dispatch_is_not_plant_dispatch": true,
+      "programme_start_record_date": "2018-10-31",
+      "current_tier_effective_from": null,
+      "original_announcement_date": null,
+      "start_date_scope": "制度開始時の対象基準日であり、現在区分の施行日や原始公表日ではない。",
+      "next_buy_by_date": null,
+      "next_specific_year_version_confirmed": false,
+      "schedules": [],
+      "amendment_scope": {
+        "change_abolition_split_search_queries": 1,
+        "IR_news_shell_observed": true,
+        "IR_news_announcement_rows_read": false,
+        "all_past_or_future_changes_verified_absent": false
+      }
+    },
+    "site_conditions": {
+      "url": "https://artgreen.co.jp/ir/disclaimer/",
+      "observed_at_jst": "2026-10-18T03:47:42+09:00",
+      "independent_facts": "読取範囲の免責は情報保証・投資判断・将来記述等の注意で、短い独立事実の利用を一律禁じる記述は確認していない。",
+      "copying": "標準copyrightはある。本文・画像・表は転載せず、包括的転載許諾も主張しない。",
+      "ordinary_source_link": "読取範囲で通常出典リンクの明示制限は未発見。全サイト規約の不存在や包括許可は主張しない。",
+      "copyright_alone_is_all_facts_prohibition": false,
+      "blanket_reuse_licence_claimed": false
+    },
+    "pdf_review": {
+      "PDF_open_count": 0,
+      "screenshot_count": 0,
+      "visual_review_completed": false,
+      "PDF_numerical_table_authority_used": false,
+      "authority": "readable official HTML only"
+    },
+    "unknowns": [
+      "保有月数・同番号・連続名簿回数・各回必要株数は本文未記載。0補完しない。",
+      "申込期限・選択/代替/分割申込・花の発送/到着・券の有効期限は未確認。",
+      "元公表日・現区分施行日・2026年個別対象版・次回購入締切は未確認。",
+      "動的IR一覧の実項目を読めず、全改廃の確認や将来不存在は保証しない。"
+    ],
+    "source_prose_images_tables_or_voucher_faces_copied": false,
+    "work_scope_only": true,
+    "read_first": {
+      "queue_before": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-034512/queue-before.json",
+        "sha256": "d1841b3117324ad3b2db04fb4ecf258efabaed3d12bf156d4721d390b8431fab",
+        "selected_3419_state": "unreviewed"
+      },
+      "checkpoint_before": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-034512/checkpoint-before.json",
+        "sha256": "5da89ff15ed7f0277532f28179d26e10357070ed73ad57b665f57f85dcda2c35",
+        "known_3419_hold_or_wait_in_selected_row": false,
+        "other_host_holds_preserved": true
+      }
+    }
+  },
+  "network_observations": {
+    "schema_version": 1,
+    "code": "3419",
+    "recorded_at_jst": "2026-10-18T03:51:39.980733+09:00",
+    "closed": true,
+    "primary_unique_page_limit": 6,
+    "primary_unique_pages_opened": 6,
+    "discovery_query_limit": 2,
+    "discovery_queries": 2,
+    "primary_open_or_click_tool_calls": 6,
+    "pdf_screenshot_tool_calls": 0,
+    "pdf_screenshot_exposed_image_count": 0,
+    "direct_shell_HTTP_requests": 0,
+    "discovery": [
+      {
+        "operation": "search_query",
+        "query": "アートグリーン 3419 株主優待 公式",
+        "observed_start_jst": "2026-10-18T03:46:50+09:00",
+        "observed_end_jst": "2026-10-18T03:46:51+09:00",
+        "kind": "discovery metadata, not direct primary verification"
+      },
+      {
+        "operation": "search_query",
+        "query": "site:artgreen.co.jp 株主優待 変更 廃止 分割",
+        "observed_start_jst": "2026-10-18T03:47:22+09:00",
+        "observed_end_jst": "2026-10-18T03:47:24+09:00",
+        "kind": "bounded discovery, not proof of amendment absence"
+      }
+    ],
+    "pages": [
+      {
+        "operation": "open",
+        "url": "https://artgreen.co.jp/ir/faq/",
+        "tool_reference": "turn1515view0",
+        "observed_start_jst": "2026-10-18T03:46:56+09:00",
+        "observed_end_jst": "2026-10-18T03:46:58+09:00",
+        "discovered_from": "turn1513search0",
+        "body_obtained": true,
+        "shell_only": false,
+        "host": "artgreen.co.jp",
+        "content_type_observed": "text/html",
+        "http_status_observed": null,
+        "RetryAfter_header_visibility": "not exposed; neither absence nor value asserted",
+        "raw_document_sha256": null
+      },
+      {
+        "operation": "click",
+        "url": "https://artgreen.co.jp/ir/benefit/",
+        "tool_reference": "turn1516view0",
+        "observed_start_jst": "2026-10-18T03:47:05+09:00",
+        "observed_end_jst": "2026-10-18T03:47:07+09:00",
+        "discovered_from": "FAQ actual link9",
+        "body_obtained": true,
+        "shell_only": false,
+        "host": "artgreen.co.jp",
+        "content_type_observed": "text/html",
+        "http_status_observed": null,
+        "RetryAfter_header_visibility": "not exposed; neither absence nor value asserted",
+        "raw_document_sha256": null,
+        "same_host_conservative_gap_seconds": 7.0
+      },
+      {
+        "operation": "open",
+        "url": "https://artgreen.co.jp/ir/stock/",
+        "tool_reference": "turn1519view0",
+        "observed_start_jst": "2026-10-18T03:47:27+09:00",
+        "observed_end_jst": "2026-10-18T03:47:29+09:00",
+        "discovered_from": "turn1513search1 and turn1518search4",
+        "body_obtained": true,
+        "shell_only": false,
+        "host": "artgreen.co.jp",
+        "content_type_observed": "text/html",
+        "http_status_observed": null,
+        "RetryAfter_header_visibility": "not exposed; neither absence nor value asserted",
+        "raw_document_sha256": null,
+        "same_host_conservative_gap_seconds": 20.0
+      },
+      {
+        "operation": "click",
+        "url": "https://artgreen.co.jp/ir/",
+        "tool_reference": "turn1521view0",
+        "observed_start_jst": "2026-10-18T03:47:35+09:00",
+        "observed_end_jst": "2026-10-18T03:47:36+09:00",
+        "discovered_from": "stock actual IR link4",
+        "body_obtained": true,
+        "shell_only": false,
+        "host": "artgreen.co.jp",
+        "content_type_observed": "text/html",
+        "http_status_observed": null,
+        "RetryAfter_header_visibility": "not exposed; neither absence nor value asserted",
+        "raw_document_sha256": null,
+        "same_host_conservative_gap_seconds": 6.0
+      },
+      {
+        "operation": "click",
+        "url": "https://artgreen.co.jp/ir/disclaimer/",
+        "tool_reference": "turn1523view0",
+        "observed_start_jst": "2026-10-18T03:47:40+09:00",
+        "observed_end_jst": "2026-10-18T03:47:42+09:00",
+        "discovered_from": "IR actual link19",
+        "body_obtained": true,
+        "shell_only": false,
+        "host": "artgreen.co.jp",
+        "content_type_observed": "text/html",
+        "http_status_observed": null,
+        "RetryAfter_header_visibility": "not exposed; neither absence nor value asserted",
+        "raw_document_sha256": null,
+        "same_host_conservative_gap_seconds": 4.0
+      },
+      {
+        "operation": "click",
+        "url": "https://artgreen.co.jp/ir/news/",
+        "tool_reference": "turn1525view0",
+        "observed_start_jst": "2026-10-18T03:47:48+09:00",
+        "observed_end_jst": "2026-10-18T03:47:50+09:00",
+        "discovered_from": "IR actual link10",
+        "body_obtained": true,
+        "shell_only": true,
+        "host": "artgreen.co.jp",
+        "content_type_observed": "text/html",
+        "http_status_observed": null,
+        "RetryAfter_header_visibility": "not exposed; neither absence nor value asserted",
+        "raw_document_sha256": null,
+        "same_host_conservative_gap_seconds": 6.0
+      }
+    ],
+    "actual_web_tool_invocations": 8,
+    "total_web_operations": 8,
+    "ordinary_document_attempts": 6,
+    "successful_HTML_bodies_or_shells": 6,
+    "successful_non_shell_HTML_bodies": 5,
+    "dynamic_news_shell_only": 1,
+    "successful_PDF_text_documents": 0,
+    "document_no_body_failures": 0,
+    "PDF_visual_reviews_completed": 0,
+    "host_policy": {
+      "issuer_host": "artgreen.co.jp",
+      "serial": true,
+      "minimum_required_seconds": 2,
+      "conservative_intervals_seconds": [
+        7.0,
+        20.0,
+        6.0,
+        4.0,
+        6.0
+      ],
+      "minimum_same_host_conservative_gap_seconds": 4.0,
+      "clock_precision": "second; surrounding observer-clock bounds, not exact origin HTTP timing",
+      "source_operation_scope": "one URL per open/click; search calls counted separately",
+      "RetryAfter": "not exposed; no absence or provider wait inferred",
+      "refusal_or_transport_failure_observed": false,
+      "known_held_or_refused_source_repeated": 0
+    },
+    "transfer_of_unused_budget": false,
+    "additional_primary_calls_permitted": false,
+    "actual_origin_HTTP_count_not_claimed": true,
+    "raw_errors_saved": false,
+    "raw_page_or_pdf_saved": false
+  },
+  "independent_review": {
+    "reviewer": "/root/benefits_3384_230009",
+    "classification": "approved_for_bounded_current_HTML_publication",
+    "checks": {
+      "one_displayed_tier100plus": true,
+      "lot100_separate": true,
+      "October31_record": true,
+      "one_pink_orchid4500yen_equivalent": true,
+      "application_required": true,
+      "January_application_form_not_plant_dispatch": true,
+      "unstated_holding_kept_null": true,
+      "2018_start_record_not_current_effective_or_announcement_date": true,
+      "no_purchase_deadline_or_schedule_invented": true,
+      "official_code_market_and_StockSearch_identity_match": true,
+      "independent_facts_copying_and_link_conditions_separate": true,
+      "copyright_not_all_facts_prohibition": true,
+      "unread_dynamic_IR_rows_and_future_change_limits_retained": true,
+      "authored_note_hash_not_raw_page_hash": true,
+      "six_pages_two_queries_and_minimum4second_gap_consistent": true
+    }
+  },
+  "independent_review_record_sha256": "465b344a6a38e3dfa24023a0da80cbcb3e3529b6c0137f3aa40821ed9292dd95",
+  "authored_input_sha256": {
+    "company-3419/observation-note.json": "2a85ca8d4537ec58cc24e94890661aeab0a5454cf871fbe2bd49427e7a1daca2",
+    "company-3419/network-observations.json": "9a9e5cd14302411542baba3ed7ccd98013a1868f121634f0b25006eefea68028",
+    "company-3419/disposition.json": "74fbe2236c15fd0c117056074dd609bea3f32f3bfcc2b283a5be267e6b8e0410",
+    "company-3419/candidate-record.json": "1bc59977eaca649bc855e8bbe0317c9865e8fc0259320378c4f5b46266526a5b"
+  },
+  "source_prose_images_tables_or_voucher_art_reproduced": false,
+  "all_future_amendments_verified_absent": false
+}
