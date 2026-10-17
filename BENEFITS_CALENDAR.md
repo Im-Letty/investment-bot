@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 20 companies: the original nine reviewed on 2026-09-25 and
-eleven additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 21 companies: the original nine reviewed on 2026-09-25 and
+twelve additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -260,3 +260,30 @@ The same bounded batch leaves 2928 RIZAP as a nonpublic candidate because furthe
 conditions remain unverified, and 272A Green Cross Holdings as programme/explicit
 absence unknown. Neither is classified as a benefit issuer with a published
 programme or as an explicit non-issuer.
+
+
+## Further Sapporo addition reviewed on 2026-10-17
+
+- 2976 Nippon Grande: https://www.nippon-grande.co.jp/ir/benefits.html
+  All six QUO-card alternatives at the recurring March 31 record date: 100–299
+  shares receive 1,000/2,000 yen, 300–499 receive 3,000/4,000 yen and 500+ receive
+  5,000/6,000 yen for under one year/at least one year respectively. Long eligibility
+  requires the same shareholder number at five consecutive March/June/September/
+  December-end records. The necessary historical share count at each record is
+  unstated; current 100/300/500-share brackets are not imposed retrospectively. A
+  changed shareholder number restarts counting at the following record. The amounts
+  are alternatives, without adding them or offering a free choice. Dispatch is
+  planned with the resolution notice after the June shareholders meeting; actual
+  dispatch/arrival, application requirements, expiry and the next purchase deadline
+  remain unconfirmed. No schedule is fabricated. The current HTML supplies the
+  numbers; historical disclosure titles and an unexposed dynamic IR list do not
+  prove complete amendment coverage. Short independent facts and ordinary source
+  links are distinct from reproducing protected content; no general reuse grant is
+  claimed. All previous 20 programmes and 12 schedules are retained.
+
+The same batch retains 259A K.UNO as a source-conditions hold after explicit
+information-use and prior-contact link requirements. 2919 Marutai remains an
+unpublished candidate: the current HTML confirms a 100-share minimum and annual
+own products, while full tiers and reward details are unconfirmed. Its homepage
+link/new-window condition is separate from those factual gaps. Two historical
+PDFs were unavailable and were not retried or used as current numerical authority.

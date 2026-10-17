@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "company_code": "2976",
+  "issuer_name": "日本グランデ株式会社",
+  "symbol": "2976.JP",
+  "checked_at_jst": "2026-10-17T12:06:47+09:00",
+  "observation_kind": "authored_short_facts_from_official_HTML",
+  "raw_page_sha256": null,
+  "hash_scope": "Note SHA identifies authored JSON only, never raw page bytes. No raw page SHA was acquired.",
+  "identity": {
+    "issuer_name": "日本グランデ株式会社",
+    "code": "2976",
+    "symbol": "2976.JP",
+    "official_market": "札幌証券取引所アンビシャス",
+    "stock_unit_shares": 100,
+    "primary_url": "https://www.nippon-grande.co.jp/ir/stock.html",
+    "saved_StockSearch_market": "アンビシャス市場",
+    "saved_StockSearch_exchange": "Sapporo",
+    "saved_catalogue_as_of": "2026-10-12",
+    "code_name_symbol_market_match": true,
+    "all_universe_freshness_claim": false
+  },
+  "sources": [
+    {
+      "url": "https://ir.sse.or.jp/company/156",
+      "role": "exchange_identity_and_disclosure_titles",
+      "tool_reference": "turn1289view0",
+      "observed_at_jst": "2026-10-17T12:03:27.000+09:00",
+      "observed_until_jst": "2026-10-17T12:03:30.000+09:00",
+      "outcome": "html_body_readable",
+      "raw_page_sha256": null,
+      "origin_headers_observed": false
+    },
+    {
+      "url": "https://www.nippon-grande.co.jp/ir/benefits.html",
+      "role": "current_programme",
+      "tool_reference": "turn1298view0",
+      "observed_at_jst": "2026-10-17T12:05:23.000+09:00",
+      "observed_until_jst": "2026-10-17T12:05:24.000+09:00",
+      "outcome": "html_body_readable",
+      "raw_page_sha256": null,
+      "origin_headers_observed": false
+    },
+    {
+      "url": "https://www.nippon-grande.co.jp/ir/stock.html",
+      "role": "issuer_stock_identity",
+      "tool_reference": "turn1300view0",
+      "observed_at_jst": "2026-10-17T12:05:38.000+09:00",
+      "observed_until_jst": "2026-10-17T12:05:40.000+09:00",
+      "outcome": "html_body_readable",
+      "raw_page_sha256": null,
+      "origin_headers_observed": false
+    },
+    {
+      "url": "https://www.nippon-grande.co.jp/site-policy/",
+      "role": "general_site_and_link_conditions",
+      "tool_reference": "turn1301view0",
+      "observed_at_jst": "2026-10-17T12:05:49.000+09:00",
+      "observed_until_jst": "2026-10-17T12:05:51.000+09:00",
+      "outcome": "html_body_readable",
+      "raw_page_sha256": null,
+      "origin_headers_observed": false
+    },
+    {
+      "url": "https://www.nippon-grande.co.jp/ir/irnews.html",
+      "role": "IR_news_listing",
+      "tool_reference": "turn1302view0",
+      "observed_at_jst": "2026-10-17T12:06:03.000+09:00",
+      "observed_until_jst": "2026-10-17T12:06:05.000+09:00",
+      "outcome": "html_readable_dynamic_announcement_rows_not_exposed",
+      "raw_page_sha256": null,
+      "origin_headers_observed": false
+    },
+    {
+      "url": "https://www.nippon-grande.co.jp/ir/disclaimer.html",
+      "role": "IR_disclaimer",
+      "tool_reference": "turn1303view0",
+      "observed_at_jst": "2026-10-17T12:06:13.000+09:00",
+      "observed_until_jst": "2026-10-17T12:06:15.000+09:00",
+      "outcome": "html_body_readable",
+      "raw_page_sha256": null,
+      "origin_headers_observed": false
+    }
+  ],
+  "programme": {
+    "status": "current_official_programme_present",
+    "authority_url": "https://www.nippon-grande.co.jp/ir/benefits.html",
+    "authority_lines": "85-94",
+    "record_date": "毎年3月31日",
+    "minimum_current_record_shares": 100,
+    "unit_shares": 100,
+    "reward_type": "QUOカード",
+    "brackets": [
+      {
+        "current_shares_min": 100,
+        "current_shares_max": 299,
+        "under_one_year_yen": 1000,
+        "one_year_or_more_yen": 2000
+      },
+      {
+        "current_shares_min": 300,
+        "current_shares_max": 499,
+        "under_one_year_yen": 3000,
+        "one_year_or_more_yen": 4000
+      },
+      {
+        "current_shares_min": 500,
+        "current_shares_max": null,
+        "under_one_year_yen": 5000,
+        "one_year_or_more_yen": 6000
+      }
+    ],
+    "holding": {
+      "under_one_year": {
+        "text": "1年未満",
+        "holding_months_min": null,
+        "no_zero_month_minimum_inferred": true
+      },
+      "one_year_or_more": {
+        "holding_months_min": 12,
+        "same_shareholder_number": true,
+        "consecutive_register_records": 5,
+        "register_month_days": [
+          "03-31",
+          "06-30",
+          "09-30",
+          "12-31"
+        ],
+        "number_change_restart": "相続や貸株等で番号が変わると、直後の基準日から起算。",
+        "historical_each_record_shares_min": null,
+        "historical_each_record_shares_status": "本文は同番号の連続記載を定義するが、各回に100/300/500株が必要とは明記していない。現在3月31日の株数を過去5回に拡張しない。"
+      }
+    },
+    "alternative_amounts": {
+      "not_additive": true,
+      "basis": "1人につき株数と保有期間に対応する金額区分と読めるため、6金額を加算しない。",
+      "free_choice_explicitly_observed": false
+    },
+    "application_required": null,
+    "application_scope": "申請・選択手続の要否は本文に明記不確認。不要とは断定しない。",
+    "delivery": {
+      "planned_dispatch": "6月予定の総会終了後に発送する決議通知に同封予定。",
+      "actual_dispatch_observed": false,
+      "actual_arrival_observed": false,
+      "next_specific_dispatch_date": null
+    },
+    "voucher_expiry": null,
+    "expiry_observed": false,
+    "recurring_annual": true,
+    "one_off_only_statement": false,
+    "dates": {
+      "original_announcement_from_full_notice": null,
+      "current_tier_effective_from": null,
+      "verified_on": "2026-10-17",
+      "schedules": [],
+      "next_purchase_deadline_confirmed": false
+    },
+    "amendment_scope": {
+      "exchange_disclosure_titles_observed": true,
+      "title_2021_11_12_programme_establishment": true,
+      "title_2020_02_14_commemorative_benefit": true,
+      "those_PDF_bodies_opened": 0,
+      "PDF_numerical_authority_used": false,
+      "all_amendments_abolitions_splits_verified_absent": false,
+      "issuer_IR_dynamic_rows_exposed": false
+    }
+  },
+  "source_conditions": {
+    "url": "https://www.nippon-grande.co.jp/site-policy/",
+    "content_reproduction_condition": "法的に認められる私用・引用等の範囲を超える複製・改変・販売・転載・貸与等には事前許諾が必要との制限。",
+    "link_condition": "掲載先の内容等によってリンクを断る場合がある。全面禁止や一律事前許可制とは断定しない。",
+    "copyright_alone_treated_as_blanket_fact_ban": false,
+    "independent_short_facts_separated_from_content_reproduction": true,
+    "blanket_fact_reuse_prohibition_observed": false,
+    "general_reuse_permission_confirmed": false,
+    "root_link_and_fact_adoption_review_required": true,
+    "IR_disclaimer": "投資勧誘ではなく、情報は予告なく変更・取りやめの場合がある。",
+    "permission_request_or_outreach": 0
+  },
+  "gaps": [
+    "過去各名簿の最低株数は明記不確認。",
+    "申請・選択・券期限、次回具体的発送日と実到着日は未確認。",
+    "原制度開始日・現行区分の適用日、全改廃・分割の有無は未確認。",
+    "IR一覧は動的明細非露出で、空リストや改廃なしを意味しない。",
+    "明示されたサイト/リンク条件について別レビューとrootの限定採用判断が必要。"
+  ],
+  "method": {
+    "long_original_text_tables_images_or_voucher_reproduction": false,
+    "short_authored_facts_only": true,
+    "PDF_body_or_screenshot_operations": 0,
+    "HTML_table_numerical_authority": true,
+    "web_observation_does_not_prove_fresh_origin_request": true,
+    "raw_errors_saved": false
+  },
+  "public_adoption_ready": false,
+  "review_status": "pending_independent_review",
+  "immutable_after_save": true
+}

@@ -839,6 +839,106 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "2976",
+      "symbol": "2976.JP",
+      "name": "日本グランデ株式会社",
+      "category": "金券",
+      "aliases": "日本グランデ グランファーレ QUOカード クオカード",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.nippon-grande.co.jp/ir/benefits.html",
+            "title": "日本グランデ 株主優待制度",
+            "security_code": "2976",
+            "issuer_name": "日本グランデ株式会社",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T12:05:23.000+09:00",
+            "evidence_path": "evidence/reviewed-2976-observation-note-20261017.json",
+            "evidence_sha256": "a076aebcf7fe603fbd0202b7d743fffe408245daabd6dbbd3557e0c0096959fd"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "independent-offline-source-fact-review:/root/per0939_saved_review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "保存した現行優待HTMLの6区分、株式基本情報、取引所の限定開示見出し、サイト条件・IR免責と明細非露出のIR一覧を別レビューで照合。future_changesはこの限定確認を完了した意味で、全改廃・分割履歴や将来変更の不存在、一般の再利用許諾を確認した意味ではありません。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年3月31日（次回購入締切日は未確認）",
+          "conditions": "3月31日の株数と保有期間で1人分を判定。1年以上は同一株主番号で四半期末の名簿5回連続。番号変更後は直後の基準日から起算。過去各回の最低株数は明記されず、現在の株数区分を各回へ拡張しない。",
+          "use": "QUOカードは6通りのうち該当する金額区分。加算・自由選択とはしない。申請要否と券期限は未確認。",
+          "delivery": "6月予定の総会終了後に発送する決議通知に同封予定。実発送・到着や次回具体日は未確認。",
+          "grant_summary": "6月予定の総会終了後、決議通知に同封予定",
+          "tiers": [
+            {
+              "id": "quo-100-under-year",
+              "shares_min": 100,
+              "shares_max": 299,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満区分。最低保有月数の数値は明記不確認。",
+              "reward": "QUOカード1,000円分",
+              "conditions": "3月31日現在100株以上300株未満、1年未満の区分。1人分の区分で、他金額に加算しない。"
+            },
+            {
+              "id": "quo-100-long",
+              "shares_min": 100,
+              "shares_max": 299,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上。同一株主番号で3/31・6/30・9/30・12/31の名簿に5回連続。各回最低株数は明記不確認。",
+              "reward": "QUOカード2,000円分",
+              "conditions": "3月31日現在100株以上300株未満、1年以上の区分。1人分の区分で、他金額に加算しない。"
+            },
+            {
+              "id": "quo-300-under-year",
+              "shares_min": 300,
+              "shares_max": 499,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満区分。最低保有月数の数値は明記不確認。",
+              "reward": "QUOカード3,000円分",
+              "conditions": "3月31日現在300株以上500株未満、1年未満の区分。1人分の区分で、他金額に加算しない。"
+            },
+            {
+              "id": "quo-300-long",
+              "shares_min": 300,
+              "shares_max": 499,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上。同一株主番号で3/31・6/30・9/30・12/31の名簿に5回連続。各回最低株数は明記不確認。",
+              "reward": "QUOカード4,000円分",
+              "conditions": "3月31日現在300株以上500株未満、1年以上の区分。1人分の区分で、他金額に加算しない。"
+            },
+            {
+              "id": "quo-500-under-year",
+              "shares_min": 500,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "1年未満区分。最低保有月数の数値は明記不確認。",
+              "reward": "QUOカード5,000円分",
+              "conditions": "3月31日現在500株以上、1年未満の区分。1人分の区分で、他金額に加算しない。"
+            },
+            {
+              "id": "quo-500-long",
+              "shares_min": 500,
+              "shares_max": null,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上。同一株主番号で3/31・6/30・9/30・12/31の名簿に5回連続。各回最低株数は明記不確認。",
+              "reward": "QUOカード6,000円分",
+              "conditions": "3月31日現在500株以上、1年以上の区分。1人分の区分で、他金額に加算しない。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
