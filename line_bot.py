@@ -1876,6 +1876,9 @@ def api_user_data():
 from ledger_api import create_ledger_blueprint
 app.register_blueprint(create_ledger_blueprint(SUPABASE_URL, SUPABASE_KEY))
 
+from portfolio_advice import create_portfolio_advice_blueprint
+app.register_blueprint(create_portfolio_advice_blueprint(SUPABASE_URL, SUPABASE_KEY))
+
 @app.route("/simulator")
 def simulator():
     with open("simulator.html", encoding="utf-8") as f:

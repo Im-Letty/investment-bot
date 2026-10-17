@@ -1,0 +1,33 @@
+/* Uses the same paper, ink and type as the surrounding portfolio. */
+body.kn-ledger-paper .pa-panel{position:relative;overflow-wrap:anywhere}
+body.kn-ledger-paper .pa-panel [hidden]{display:none!important}
+body.kn-ledger-paper .pa-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}
+body.kn-ledger-paper .pa-panel h2{margin:0;color:var(--kn-ledger-ink);font:600 calc(18px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans)}
+body.kn-ledger-paper .pa-panel h3,body.kn-ledger-paper .pa-panel h4{margin:18px 0 8px;color:var(--kn-ledger-ink);font:600 calc(15px * var(--kn-ledger-scale,1))/1.65 var(--kn-ledger-sans)}
+body.kn-ledger-paper .pa-lead,body.kn-ledger-paper .pa-caption,body.kn-ledger-paper .pa-notice{margin:8px 0;color:var(--kn-ledger-muted);font:400 calc(13px * var(--kn-ledger-scale,1))/1.8 var(--kn-ledger-sans)}
+body.kn-ledger-paper .pa-notice{padding:10px 12px;border:1px solid var(--kn-ledger-line);border-radius:6px}
+body.kn-ledger-paper .pa-info>summary{display:flex;align-items:center;justify-content:center;width:44px;height:44px;list-style:none;cursor:pointer;color:var(--kn-ledger-muted)}
+body.kn-ledger-paper .pa-info>summary::-webkit-details-marker{display:none}
+body.kn-ledger-paper .pa-info>p{position:absolute;z-index:2;top:60px;right:16px;left:16px;padding:16px;border:1px solid var(--kn-ledger-line);border-radius:6px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:400 calc(13px * var(--kn-ledger-scale,1))/1.8 var(--kn-ledger-sans);box-shadow:0 6px 18px #0001}
+body.kn-ledger-paper .pa-facts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 20px;margin:12px 0}
+body.kn-ledger-paper .pa-metric{display:flex;flex-direction:column;gap:6px;padding:14px 0;border-bottom:1px solid var(--kn-ledger-line);min-width:0}
+body.kn-ledger-paper .pa-metric>span{font:400 calc(12px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
+body.kn-ledger-paper .pa-metric>strong{font:500 calc(19px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);font-variant-numeric:tabular-nums;color:var(--kn-ledger-ink)}
+body.kn-ledger-paper .pa-context{margin:18px 0}
+body.kn-ledger-paper .pa-context>summary{cursor:pointer;min-height:44px;padding:10px 0;font:500 calc(14px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans);color:var(--kn-ledger-ink)}
+body.kn-ledger-paper .pa-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:10px 0}
+body.kn-ledger-paper .pa-field{display:flex;flex-direction:column;gap:8px;min-width:0;font:400 calc(13px * var(--kn-ledger-scale,1))/1.7 var(--kn-ledger-sans);color:var(--kn-ledger-ink)}
+body.kn-ledger-paper .pa-field input,body.kn-ledger-paper .pa-field select{display:block;width:100%;min-width:0;min-height:46px;padding:10px;border:1px solid var(--kn-ledger-line);border-radius:6px;background:var(--kn-ledger-paper);color:var(--kn-ledger-ink);font:400 max(16px,calc(16px * var(--kn-ledger-scale,1)))/1.5 var(--kn-ledger-sans)}
+body.kn-ledger-paper .pa-panel ul{margin:8px 0;padding-left:1.4em}
+body.kn-ledger-paper .pa-panel li{margin:9px 0;line-height:1.85}
+body.kn-ledger-paper .pa-checks,body.kn-ledger-paper .pa-result{font:400 calc(14px * var(--kn-ledger-scale,1))/1.85 var(--kn-ledger-sans);color:var(--kn-ledger-ink)}
+body.kn-ledger-paper .pa-ai{margin-top:20px;padding-top:2px;border-top:1px solid var(--kn-ledger-line)}
+body.kn-ledger-paper .pa-consent{display:flex;align-items:flex-start;gap:10px;margin:14px 0;font:400 calc(12px * var(--kn-ledger-scale,1))/1.8 var(--kn-ledger-sans);color:var(--kn-ledger-muted)}
+body.kn-ledger-paper .pa-consent input{width:20px;height:20px;flex:none;margin-top:3px;accent-color:var(--kn-ledger-button)}
+body.kn-ledger-paper .pa-run{min-height:46px;padding:11px 20px;border:1px solid var(--kn-ledger-button);border-radius:6px;background:var(--kn-ledger-button);color:var(--kn-ledger-on-button,var(--kn-ledger-paper));font:500 calc(14px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);cursor:pointer}
+body.kn-ledger-paper .pa-run:disabled{opacity:.55;cursor:default}
+body.kn-ledger-paper .pa-panel :focus-visible{outline:2px solid var(--kn-ledger-button);outline-offset:3px}
+body.kn-ledger-paper .pa-generated{color:var(--kn-ledger-muted);font-size:calc(12px * var(--kn-ledger-scale,1));margin-top:18px}
+body.kn-ledger-paper .pa-risk{margin:12px 0}
+body.kn-ledger-paper .pa-risk p{margin-top:4px}
+@media(max-width:420px){body.kn-ledger-paper .pa-facts,body.kn-ledger-paper .pa-fields{grid-template-columns:1fr}}
