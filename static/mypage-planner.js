@@ -103,8 +103,10 @@
       // Keep every keystroke locally, even while an earlier cloud save is pending.
       try{if(!bridge||!bridge.stage(owner,JSON.stringify(doc)))throw Error('stage_failed');}
       catch(ignore){message('この端末に保存できませんでした。画面の書きかけを保持しています。',true);return;}
-      persist();
+      message('この端末に保存しました。同期を待っています…');
+      queuePersist();
     }
+    function queuePersist(){w.clearTimeout(timer);timer=w.setTimeout(persist,1500);}
     async function persist(){
       if(saving||!doc||!validOwner()||!bridge)return;
       saving=true;var who=owner,token=revision,raw=JSON.stringify(doc),active=bridge,generation=epoch;
@@ -115,7 +117,7 @@
         if(ok){savedRevision=token;if(revision===token)message('保存しました');}
         else message('同期できませんでした。書きかけを保持しています。再試行してください。',true);
       }catch(ignore){if(who===owner&&validOwner())message('保存できませんでした。画面の書きかけを保持しています。',true);}
-      finally{if(generation===epoch){saving=false;if(who===owner&&validOwner()&&revision!==token)persist();}}
+      finally{if(generation===epoch){saving=false;if(who===owner&&validOwner()&&revision!==token)queuePersist();}}
     }
     function dateLabel(s){return w.KNDateDisplay?w.KNDateDisplay.date(s):s.replace(/-/g,'/');}
     function selectedGoal(){return doc.goals.find(function(g){return g.id===doc.selectedGoalId;})||doc.goals[0]||null;}
@@ -231,7 +233,7 @@
     }
     function renderAll(){renderGoals();fillGoal();renderTodos();renderNotes();legacyButton.hidden=!legacyAvailable();}
     function reset(){
-      epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();notesFilter='';search='';
+      w.clearTimeout(timer);epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();notesFilter='';search='';
       if(!page)return;overview.replaceChildren();goalList.replaceChildren();todoList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';todoText.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});todoGoal.replaceChildren();todoGoal.value='';noteGroup.replaceChildren();noteGroup.value='';var find=panes[3].querySelector('input[type=search]');if(find)find.value='';goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
       message(owner?'保存した記録を読み込んでいます…':'ログイン後に記録を表示します。');
     }

@@ -3,15 +3,17 @@ const test=require('node:test'),assert=require('node:assert/strict'),vm=require(
 const html=fs.readFileSync('kakeibo.html','utf8');
 const start=html.indexOf('/* ==== Kakeibo <-> Supabase sync'),source=html.slice(start,html.indexOf('</script>',start));
 const KEY='kb2_mypage_v1';
-const raw=label=>JSON.stringify({version:1,goals:[],todos:[],notes:[],label});
+const JOURNAL='kn_mypage_pending:';
+const planner=require('../static/mypage-planner.js');
+const raw=label=>JSON.stringify({...planner.empty(),label});
 async function settle(){for(let n=0;n<12;n++)await Promise.resolve();}
-function fixture(seed={},framed=true){
+function fixture(seed={},framed=true,failReadKey=null){
   class FixtureStorage{
-    constructor(){this.values=new Map(Object.entries({kn_ledger_owner:'alice',...seed}));}
+    constructor(){this.values=new Map(Object.entries({kn_ledger_owner:'alice',...seed}));this.writes=[];}
     get length(){return this.values.size;}
     key(i){return [...this.values.keys()][i]??null;}
-    getItem(k){return this.values.get(k)??null;}
-    setItem(k,v){this.values.set(String(k),String(v));}
+    getItem(k){if(k===failReadKey)throw new Error('synthetic private read failure');return this.values.get(k)??null;}
+    setItem(k,v){if(this.failKey===k)throw new Error('synthetic storage failure');this.writes.push(String(k));this.values.set(String(k),String(v));}
     removeItem(k){this.values.delete(k);}
   }
   const ls=new FixtureStorage(),requests=[],timers=new Map(),events=[],listeners=new Map();let seq=0;
@@ -26,6 +28,7 @@ function fixture(seed={},framed=true){
   const bridge=context.kkMyPageStore;
   function respond(path,body,ok=true){const r=requests.find(item=>!item.resolved&&item.url.endsWith(path));assert.ok(r,'pending '+path);r.resolved=true;r.resolve({ok,json:async()=>body});return r;}
   return {context,ls,requests,timers,events,listeners,bridge,
+    failRead(key){failReadKey=key;},
     async restore(data,ok=true){respond('/load',{data},ok);await settle();},
     respondLoad:(data,ok=true)=>respond('/load',{data},ok),respondSave:(ok=true,json={ok})=>respond('/save',json,ok),
     fireSave(){const entry=[...timers].find(([,timer])=>timer.ms===1500);assert.ok(entry);timers.delete(entry[0]);return entry[1].fn();},
@@ -130,4 +133,108 @@ test('bad writes retain prior bytes, failure retains new local bytes, and asset 
 
 test('standalone ledger uses the same verified owner without requiring a parent MyPage',async()=>{
   const h=fixture({},false);await h.restore({});assert.equal((await h.bridge.load('alice')).raw,null);
+});
+
+test('a draft staged before debounce survives a fresh document and an older remote snapshot',async()=>{
+  const old=raw('cloud old'),latest=raw('final unsent character'),first=fixture({[KEY]:old});await first.restore({[KEY]:old});
+  assert.equal(first.bridge.stage('alice',latest),true);assert.equal(first.requests.filter(r=>r.url.endsWith('/save')).length,0);
+  assert.equal(first.ls.getItem(JOURNAL+'alice'),latest);
+  const reload=fixture(Object.fromEntries(first.ls.values)),read=reload.bridge.load('alice');
+  assert.equal(reload.ls.getItem(KEY),latest);const tooEarly=reload.fireSave();await tooEarly;
+  assert.equal(reload.requests.filter(r=>r.url.endsWith('/save')).length,0,'pending replay cannot upload a full snapshot before restore succeeds');
+  await reload.restore({[KEY]:old,kb2_assets:'[{"amount":88.5}]'});assert.equal((await read).raw,latest);
+  const saving=reload.fireSave();const request=reload.requests.at(-1),data=JSON.parse(request.init.body).data;
+  assert.equal(data[KEY],latest);assert.equal(data.kb2_assets,'[{"amount":88.5}]');assert.equal(Object.hasOwn(data,JOURNAL+'alice'),false);
+  reload.respondSave();await saving;assert.equal(reload.ls.getItem(JOURNAL+'alice'),null);
+});
+
+test('an older acknowledgement cannot clear a newer pending journal',async()=>{
+  const h=fixture();await h.restore({});const first=raw('first'),latest=raw('second');
+  const saving=h.bridge.save('alice',first);await settle();assert.equal(h.ls.getItem(JOURNAL+'alice'),first);
+  assert.equal(h.bridge.stage('alice',latest),true);h.respondSave();assert.equal(await saving,false);
+  assert.equal(h.ls.getItem(JOURNAL+'alice'),latest);assert.equal(h.ls.getItem(KEY),latest);
+  const next=h.bridge.save('alice',latest);await settle();h.respondSave();assert.equal(await next,true);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);
+});
+
+test('pending replay reads only its verified owner and failed remote restoration keeps that journal',async()=>{
+  const alice=raw('private alice'),bob=raw('private bob'),h=fixture({kn_ledger_owner:'bob',[KEY]:bob,[JOURNAL+'alice']:alice});
+  h.context.knLedgerSession={user:{id:'bob'},access_token:'fixture-bob'};h.context.parent.knUser={id:'bob'};
+  // The initial alice session had no matching storage owner and could not read its journal.
+  assert.equal(h.ls.getItem(KEY),bob);await h.restore({[KEY]:bob});
+  const loaded=h.bridge.load('bob');h.respondLoad({[KEY]:bob});await settle();assert.equal((await loaded).raw,bob);
+  assert.equal(h.ls.getItem(JOURNAL+'alice'),alice);assert.equal(h.ls.getItem(JOURNAL+'bob'),null);
+  const failed=fixture({[KEY]:raw('stale'),[JOURNAL+'alice']:alice}),pending=failed.bridge.load('alice');
+  const rejection=assert.rejects(pending,/mypage_restore_unavailable/);await failed.restore({},false);await rejection;
+  assert.equal(failed.ls.getItem(KEY),alice);assert.equal(failed.ls.getItem(JOURNAL+'alice'),alice);
+  const blocked=failed.fireSave();await blocked;assert.equal(failed.requests.filter(r=>r.url.endsWith('/save')).length,0);
+});
+
+test('staging an unchanged acknowledged value leaves storage, dirty versions and debounce untouched',async()=>{
+  const old=raw('already saved'),h=fixture({[KEY]:old});await h.restore({[KEY]:old});const before=h.events.length,writes=h.ls.writes.length;
+  assert.equal(h.bridge.stage('alice',old),true);assert.equal(h.bridge.stage('alice',old),true);
+  assert.equal(h.events.length,before);assert.equal(h.timers.size,0);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);
+  assert.equal(h.ls.writes.length,writes,'same raw does not rewrite the journal or active key');
+  assert.equal(await h.bridge.save('alice',old),true);assert.equal(h.requests.length,1);
+  const newRaw=raw('pending'),pending=h.bridge.save('alice',newRaw);await settle();const count=h.events.length;
+  assert.equal(h.bridge.stage('alice',newRaw),true);assert.equal(h.events.length,count);h.respondSave();assert.equal(await pending,true);
+  assert.equal(h.ls.getItem(JOURNAL+'alice'),null,'same raw does not increment dirty version during its save');
+});
+
+test('malformed or unreadable pending journals retain old bytes and cannot initialise an empty planner',async()=>{
+  const old=raw('known local'),h=fixture({[KEY]:old,[JOURNAL+'alice']:'{bad'});
+  await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);assert.equal(h.requests.length,0);
+  assert.equal(h.ls.getItem(KEY),old);assert.equal(h.ls.getItem(JOURNAL+'alice'),'{bad');assert.equal(await h.bridge.save('alice',raw('empty')),false);
+});
+
+test('a version marker cannot make a corrupt journal replace valid cloud data or trigger upload',async()=>{
+  const valid=raw('valid saved'),badDocs=[{version:1,notes:'bad'},
+    {...planner.empty(),notes:[{id:'bad',title:'missing body'}]},
+    {...planner.empty(),goals:[{id:'g',title:'bad target',details:'',deadline:'',target:0,monthly:null}]},
+    {...planner.empty(),todoDraft:{text:'draft'}},
+    {...planner.empty(),goalDraft:{id:'g',title:'x',details:'',target:'1',deadline:'2026-02-30',monthly:''}},
+    {...planner.empty(),todoEdits:{bad:{text:4,goalId:''}}}];
+  for(const value of badDocs){
+    const broken=JSON.stringify(value),h=fixture({[KEY]:valid,[JOURNAL+'alice']:broken});
+    await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);
+    assert.equal(h.requests.length,0,'unvalidated replay never reaches save or load');assert.equal(h.ls.getItem(KEY),valid);
+    assert.equal(h.ls.getItem(JOURNAL+'alice'),broken);assert.equal(await h.bridge.save('alice',valid),false);
+    assert.equal(h.bridge.stage('alice',broken),false);assert.equal(h.timers.size,0);
+    h.ls.setItem('kb2_assets','[{"amount":1.25}]');await h.fireSave();assert.equal(h.requests.length,0,'normal asset edits cannot bypass the pending journal hold');
+  }
+});
+
+test('an unreadable journal blocks ordinary ledger autosave until a successful restore',async()=>{
+  const valid=raw('retained'),h=fixture({[KEY]:valid},true,JOURNAL+'alice');
+  await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);assert.equal(h.requests.length,0);
+  h.ls.setItem('kb2_assets','[{"amount":7.5}]');await h.fireSave();assert.equal(h.requests.length,0);
+  assert.equal(h.ls.getItem(KEY),valid);assert.equal(await h.bridge.save('alice',raw('new')),false);
+});
+
+test('a cached owner recovers through a fresh restore after a transient journal read failure clears',async()=>{
+  const valid=raw('retained'),h=fixture({[KEY]:valid,kb2_assets:'[]'});await h.restore({[KEY]:valid,kb2_assets:'[]'});
+  h.failRead(JOURNAL+'alice');assert.equal(await h.context.kkRefreshRecords(),false);
+  const rejection=assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);await rejection;
+  h.ls.setItem('kb2_assets','[{"amount":7.5}]');await h.fireSave();assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);
+  h.failRead(null);const retry=h.bridge.load('alice');await settle();
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/load')).length,2,'retry revalidates the same owner through a new normal load');
+  assert.equal(h.requests.filter(r=>r.url.endsWith('/save')).length,0);
+  h.respondLoad({[KEY]:valid,kb2_assets:'[]'});const result=await retry;
+  assert.equal(result.raw,valid);assert.equal(result.assetsRaw,'[{"amount":7.5}]');assert.equal(h.ls.getItem(KEY),valid);
+});
+
+test('journal is durable before the active key changes, and failed active writes remain recoverable',async()=>{
+  const old=raw('old'),newer=raw('newest'),h=fixture({[KEY]:old});await h.restore({[KEY]:old});
+  h.ls.failKey=JOURNAL+'alice';assert.equal(h.bridge.stage('alice',newer),false);
+  assert.equal(h.ls.getItem(KEY),old);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);
+  h.ls.failKey=KEY;assert.equal(h.bridge.stage('alice',newer),false);
+  assert.equal(h.ls.getItem(KEY),old);assert.equal(h.ls.getItem(JOURNAL+'alice'),newer);
+  const reload=fixture(Object.fromEntries(h.ls.values)),reading=reload.bridge.load('alice');await reload.restore({[KEY]:old});
+  assert.equal((await reading).raw,newer);assert.equal(reload.ls.getItem(JOURNAL+'alice'),newer);
+});
+
+test('a newer edit and revert keeps its pending version even if an older snapshot has the same raw bytes',async()=>{
+  const h=fixture();await h.restore({});const a=raw('a'),b=raw('b'),saving=h.bridge.save('alice',a);await settle();
+  h.bridge.stage('alice',b);h.bridge.stage('alice',a);h.respondSave();await saving;
+  assert.equal(h.ls.getItem(KEY),a);assert.equal(h.ls.getItem(JOURNAL+'alice'),a,'raw equality does not replace a version acknowledgement');
+  const later=h.bridge.save('alice',a);await settle();h.respondSave();assert.equal(await later,true);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);
 });

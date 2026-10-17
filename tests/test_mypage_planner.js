@@ -184,7 +184,16 @@ test('missing optional planning fields and current or past deadlines do not inve
 // Geometry and real browser input behavior are checked separately by the parent.
 function controller({raw=null,stageOK=true,autoSave=false}={}) {
   const documentEvents = {}, childEvents = {}, windowEvents = {}, saves = [], stages = [];
-  let stored = raw;
+  const timers=new Map();let clock=0,timerId=0,stored = raw;
+  function flushTimers(ms=1500) {
+    const through=clock+ms;
+    while(true){
+      const next=[...timers].filter(([,timer])=>timer.at<=through).sort((a,b)=>a[1].at-b[1].at||a[0]-b[0])[0];
+      if(!next)break;
+      clock=next[1].at;timers.delete(next[0]);next[1].fn();
+    }
+    clock=through;
+  }
   class Element {
     constructor(tag='div') {this.tagName=tag.toUpperCase();this.children=[];this.parentNode=null;this.attributes={};this.listeners={};this.classes=new Set();this.value='';this.disabled=false;this.hidden=false;this._text='';}
     set className(value) {this.classes=new Set(String(value).split(/\s+/).filter(Boolean));}
@@ -230,11 +239,13 @@ function controller({raw=null,stageOK=true,autoSave=false}={}) {
     document:{readyState:'complete',getElementById:k=>k==='myPageOv'?page:null,createElement:tag=>new Element(tag),addEventListener:(type,fn)=>documentEvents[type]=fn},
     knUser:{id:'owner-A'},localStorage:{getItem:()=>null},
     confirm:()=>true,prompt:()=>null,MutationObserver:class {observe(){}},
-    addEventListener:(type,fn)=>windowEvents[type]=fn,setInterval(){},setTimeout(){},
+    addEventListener:(type,fn)=>windowEvents[type]=fn,setInterval(){},
+    setTimeout(fn,ms=0){timers.set(++timerId,{fn,at:clock+ms});return timerId;},
+    clearTimeout(id){timers.delete(id);},
   };
   const lookup=text=>page.querySelectorAll('button').find(n=>n.textContent===text);
   planner.mount(w);
-  return {w,page,body,bridge,saves,stages,documentEvents,childEvents,lookup,
+  return {w,page,body,bridge,saves,stages,documentEvents,childEvents,lookup,flushTimers,
     get memo(){return page.querySelectorAll('textarea').find(n=>n.id==='mpMemo');},
     get status(){return page.querySelector('.mp-status').textContent;},
     get raw(){return stored;},
@@ -246,15 +257,36 @@ const settle = async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
 test('every keystroke is staged while an earlier cloud save is pending', async () => {
   const h=controller();await settle();
   h.lookup('メモを追加').click();
-  h.type(h.memo,'最初\n');h.type(h.memo,'最初\n通信待ち中の最後の入力');
+  h.type(h.memo,'最初\n');
+  assert.equal(h.saves.length,0,'local staging does not immediately start a cloud save');
+  h.flushTimers();
+  h.type(h.memo,'最初\n通信待ち中の最後の入力');
   assert.equal(h.saves.length,1,'one cloud save can remain pending');
   assert.equal(JSON.parse(h.raw).notes[0].body,'最初\n通信待ち中の最後の入力');
   assert.equal(JSON.parse(h.stages.at(-1).raw).notes[0].body,'最初\n通信待ち中の最後の入力');
   h.saves[0].resolve(false);await settle();
+  assert.equal(h.saves.length,1,'a revised draft still waits for the next idle flush');
+  h.flushTimers();
   assert.equal(h.saves.length,2,'latest staged revision is subsequently synchronized');
   h.saves[1].resolve(false);await settle();
   assert.equal(h.memo.value,'最初\n通信待ち中の最後の入力');
   assert.doesNotMatch(h.status,/保存しました/);
+});
+
+test('many keystrokes stage every latest character but share one cloud save after 1500 idle milliseconds', async () => {
+  const h=controller({autoSave:true});await settle();h.lookup('メモを追加').click();
+  const before=h.stages.length,values=[];
+  for(let i=1;i<=10;i++){
+    const value='自由なメモ'.repeat(i);values.push(value);h.type(h.memo,value);
+    assert.equal(JSON.parse(h.raw).notes[0].body,value,'each input is already retained locally');
+    h.flushTimers(100);
+    assert.equal(h.saves.length,0,'typing resets the cloud idle period');
+  }
+  assert.deepEqual(h.stages.slice(before).map(stage=>JSON.parse(stage.raw).notes[0].body),values);
+  h.flushTimers(1399);assert.equal(h.saves.length,0);
+  h.flushTimers(1);await settle();
+  assert.equal(h.saves.length,1);
+  assert.equal(JSON.parse(h.saves[0].raw).notes[0].body,values.at(-1));
 });
 
 test('same-owner token refresh retains a locally failed draft and never claims success', async () => {
@@ -277,11 +309,18 @@ test('an invalid stored document stays read-only and cannot be overwritten by an
 
 test('signing out clears the editor and an older save completion cannot reveal private text', async () => {
   const h=controller();await settle();h.lookup('メモを追加').click();h.type(h.memo,'owner-A の架空本文');
+  h.flushTimers();
   h.auth(null);await settle();
   assert.equal(h.memo.value,'');assert.equal(h.memo.disabled,true);
   h.saves[0].resolve(true);await settle();
   assert.equal(h.memo.value,'');assert.doesNotMatch(h.status,/保存しました/);
   assert.doesNotMatch(h.page.textContent,/owner-A の架空本文/);
+});
+
+test('signout cancels a not-yet-started owner cloud save while keeping staged bytes', async () => {
+  const h=controller();await settle();h.lookup('メモを追加').click();h.type(h.memo,'owner-A の端末保存途中');
+  const staged=h.raw;h.auth(null);await settle();h.flushTimers(3000);await settle();
+  assert.equal(h.raw,staged);assert.equal(h.saves.length,0);assert.equal(h.memo.value,'');
 });
 
 test('existing todo edit drafts survive another task checkbox and a fresh controller', async () => {
@@ -342,6 +381,7 @@ test('an identical owner refresh keeps existing todo handlers connected to the s
   h.auth({id:'owner-A'});await settle();
   assert.equal(h.page.querySelector('.mp-tasks').children[0].querySelector('input'),originalCheck,'same data retains the mounted row');
   originalCheck.checked=true;originalCheck.dispatch('change');await settle();
+  h.flushTimers();await settle();
   assert.equal(JSON.parse(h.raw).todos[0].done,true,'the handler must update the live document, not a detached clone');
   assert.equal(h.page.querySelector('.mp-tasks').children[0].querySelector('input').checked,true);
 });
@@ -353,6 +393,7 @@ test('an identical tab restore keeps existing group rename handlers connected to
   h.page.querySelectorAll('.mo-tab')[3].click();await settle();
   assert.equal(h.lookup('名前を変更'),rename,'same data retains the mounted group controls');
   h.w.prompt=()=> '名前を変えたまとめ';rename.click();await settle();
+  h.flushTimers();await settle();
   const saved=JSON.parse(h.raw);
   assert.equal(saved.groups[0].name,'名前を変えたまとめ','the retained handler must update the live group');
   assert.equal(saved.notes[0].body,'本文はそのまま\n');
