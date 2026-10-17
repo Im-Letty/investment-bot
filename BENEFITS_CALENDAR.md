@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 22 companies: the original nine reviewed on 2026-09-25 and
-thirteen additions reviewed on 2026-10-17. The owner chose phased expansion using free
+The catalogue contains 23 companies: the original nine reviewed on 2026-09-25 and
+fourteen additions reviewed on 2026-10-17. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -308,3 +308,32 @@ The same batch retains 353A Elevator Communications as unknown: a historical one
 programme is not repeated into another year, and the timing amendment's body was
 unavailable. TRUCK-ONE 3047 has an explicit abolition notice; historical tiers are
 not treated as a current benefit. Neither is added to the active catalogue.
+
+## Nagoya addition reviewed on 2026-10-17
+
+- 3032 Golf Do: https://www.golfdo.co.jp/ir/incentives/
+  Three nonadditive coupon tiers at March 31 and September 30: 100–499 shares
+  receive one coupon, 500–999 receive three and 1,000+ receive five. Holders of
+  500+ shares also receive one soap item; its type cannot be selected. Holding
+  duration and same-number/continuity conditions are unstated. Each coupon is
+  usable once for a 20% discount on one club and 10% on multiple equipment items
+  purchased together. Store and online redemption are alternatives; entering the
+  online code prevents later store use. Online redemption requires free membership.
+  Franchise stock, special orders, labour, shipping and fees are excluded, and
+  other discounts/coupons/campaigns cannot be combined. Coupons/codes are not reissued.
+  March-record coupons are valid July–December of that year; September-record
+  coupons January–June of the next year. Dispatch is planned for late June or
+  early–mid December, respectively, without claiming actual arrival. Returned
+  gifts are held for six months after dispatch and cannot be resent afterwards.
+  Gift applications/cutoffs and soap expiry remain unconfirmed. QUO eligibility
+  ends with September 30, 2026; it is not added to future normal tiers. October 1
+  is the usage-guide revision date, not the programme's original start or current
+  tier effective date. No purchase deadline or future schedule is fabricated.
+  Current HTML, issuer identity, FAQ and IR disclaimer were reviewed; dynamic
+  disclosure history and all future amendments remain unconfirmed. Only short
+  independent facts are published, without a general reuse-licence claim or source
+  prose/table/voucher art. All prior 22 programmes and 12 schedules remain intact.
+
+The same batch leaves 3849 Nippon Techno Lab and 3824 Media Five as unknown.
+An unexplained exchange dash, unexposed dynamic IR rows and a 2025 shareholder
+social-event notice do not establish current absence or a recurring future benefit.

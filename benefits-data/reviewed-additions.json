@@ -1004,6 +1004,79 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "3032",
+      "symbol": "3032.JP",
+      "name": "ゴルフ・ドゥ",
+      "category": "買い物",
+      "aliases": "ゴルフドゥ GOLF DO ルアンルアン",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261017",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-17",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.golfdo.co.jp/ir/incentives/",
+            "title": "ゴルフ・ドゥ公式 株主優待制度",
+            "security_code": "3032",
+            "issuer_name": "ゴルフ・ドゥ",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-17T16:28:57+09:00",
+            "evidence_path": "evidence/reviewed-3032-observation-bundle-20261017.json",
+            "evidence_sha256": "5d6128e88dead79bb445e969026ba62fa76bf4caf94eda3f1ff3093b592720dd"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-author-plus-independent-saved-fact-review-and-root-final-wording",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行HTMLの全区分・利用条件、株式情報・FAQ・IR免責を確認し、保存根拠を別レビュー。利用案内の10月1日改定を制度区分の適用開始日としない。動的IR一覧の全履歴・全改廃や将来変更の不存在は保証しない。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年3月31日・9月30日（次回購入締切日は未確認）",
+          "conditions": "売買単位と優待最低株数はいずれも100株です。株数の該当券区分1つを受け取り、500株以上にはせっけん1点も付きます。保有期間・同じ株主番号や連続記録回数は本文に記載がありません。",
+          "use": "券1枚1回。クラブ1点20%引と用品複数点10%引を同時購入可。対象直営店/ECの一方のみでECコード入力後は店頭不可、ECは無料会員登録が必要。FC店・EC内FC在庫、取り寄せ、工賃、送料・手数料等は対象外。買替え割、クーポン・キャンペーン併用不可。券・コード再発行なし。せっけん種類は選べず変更の場合があります。 贈呈申込の要否・締切と、せっけんの使用期限は未確認です。",
+          "delivery": "3月末分は6月下旬、9月末分は12月上旬〜中旬に発送予定。券期限は3月末分が当年7/1〜12/31、9月末分が翌年1/1〜6/30。次回の具体的発送/到着や発送済みは未確認。QUOは2026年9月末対象分で終了し、次回以降の通常区分には含めません。 返送された優待品は発送から6か月保管され、期間を過ぎると再送できません。",
+          "grant_summary": "3月末分6月下旬、9月末分12月上旬〜中旬の発送予定（具体日未確認）",
+          "tiers": [
+            {
+              "id": "current-100",
+              "shares_min": 100,
+              "shares_max": 499,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同じ株主番号・連続記録回数は本文に記載なし",
+              "reward": "割引券1枚",
+              "conditions": "各基準日の該当株数区分1つ。区分の枚数は合算しません。券は店頭/EC択一、利用対象/期限は公式案内を確認。次回購入締切未確認。"
+            },
+            {
+              "id": "current-500",
+              "shares_min": 500,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同じ株主番号・連続記録回数は本文に記載なし",
+              "reward": "割引券3枚とせっけん1点",
+              "conditions": "各基準日の該当株数区分1つ。区分の枚数は合算しません。券は店頭/EC択一、利用対象/期限は公式案内を確認。次回購入締切未確認。"
+            },
+            {
+              "id": "current-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同じ株主番号・連続記録回数は本文に記載なし",
+              "reward": "割引券5枚とせっけん1点",
+              "conditions": "各基準日の該当株数区分1つ。区分の枚数は合算しません。券は店頭/EC択一、利用対象/期限は公式案内を確認。次回購入締切未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

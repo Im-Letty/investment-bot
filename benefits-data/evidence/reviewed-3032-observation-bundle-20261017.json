@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "code": "3032",
+  "kind": "primary_page_observation_note",
+  "source_body_sha256": null,
+  "note_hash_is_raw_page_hash": false,
+  "authored_note_sha256": "94fd3e9bf08a8d874cc12e5849e7de954f0bffaa43256b074217084e1b6c7a0b",
+  "observation_note": {
+    "schema_version": 1,
+    "code": "3032",
+    "symbol": "3032.JP",
+    "issuer_name": "ゴルフ・ドゥ",
+    "primary_exchange": "Nagoya",
+    "classification": "candidate_needs_review",
+    "current_benefit_issuer_observed": true,
+    "programme_source": {
+      "url": "https://www.golfdo.co.jp/ir/incentives/",
+      "tool_ref": "turn1373view0",
+      "observed_at_jst": "2026-10-17T16:28:57+09:00",
+      "observation_time_precision": "Upper clock-tool second bound of read; source publication time unknown.",
+      "page_publication_date": null,
+      "usage_guide_revision_date": "2026-10-01",
+      "usage_revision_not_programme_tier_effective_date": true
+    },
+    "issuer_identity": {
+      "official_code": "3032",
+      "official_market": "名古屋証券取引所 ネクスト市場",
+      "stock_information_as_of": "2026-09-30",
+      "trading_unit_shares": 100,
+      "unit_source": "https://www.golfdo.co.jp/ir/faq/",
+      "programme_minimum_shares": 100,
+      "current_StockSearch_identity_read_time": "2026-10-17T16:31:04.628628+09:00",
+      "current_StockSearch_saved_catalogue_as_of": "2026-10-14",
+      "no_market_inference_from_symbol_suffix": true,
+      "current_StockSearch_identity_ref": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/StockSearch-selected-identities.json",
+        "sha256": "81a1077674c1f1214c6e7813fc41bf3e9104b5bce208773ddf3163f8d79578f1"
+      },
+      "current_StockSearch_identity_comparison": "official_code_market_name_match_current_saved_StockSearch",
+      "saved_selected_companies_ref": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/selected-companies.json",
+        "sha256": "6a69d6db64afa472d9857bacd30f226d97c2537f02afe92c6874ffef0b78477c"
+      }
+    },
+    "short_authored_facts": {
+      "record_dates": [
+        "03-31",
+        "09-30"
+      ],
+      "coupon_tiers": [
+        {
+          "shares_min": 100,
+          "shares_max": 499,
+          "coupons": 1
+        },
+        {
+          "shares_min": 500,
+          "shares_max": 999,
+          "coupons": 3
+        },
+        {
+          "shares_min": 1000,
+          "shares_max": null,
+          "coupons": 5
+        }
+      ],
+      "additional_skincare": {
+        "shares_min": 500,
+        "items": 1,
+        "kind": "生せっけんスティック",
+        "choice_allowed": false,
+        "may_change_without_prior_notice": true,
+        "not_cash_or_annual_coupon_total": true
+      },
+      "holding_months_min": null,
+      "holding_or_same_number_continuity": null,
+      "tier_relationship": "該当する券区分1つ。500株以上はせっけん1点も対象。1/3/5枚を足さない。",
+      "usage": "1枚1回。クラブ1点20%引、用品複数点10%引を同時購入可。店頭/EC択一、ECコード入力後は店頭不可。",
+      "usage_restrictions": "対象直営店/ECのみ。FC店・EC内FC在庫、工賃、送料、手数料、取り寄せ等対象外。買替え割/クーポン/キャンペーン併用不可。券/コード再発行なし。",
+      "online_redemption_registration": "EC利用は無料会員登録が必要。調査では登録しない。",
+      "coupon_validity": {
+        "March_record": "当年7/1〜12/31",
+        "September_record": "翌年1/1〜6/30"
+      },
+      "dispatch_plan": {
+        "March_record": "6月下旬予定",
+        "September_record": "12月上旬〜中旬予定"
+      },
+      "returned_gift_storage": "返送品は発送から6か月保管後再送不可。保有期間・券期限ではない。",
+      "QUO_retirement": "QUOは2026/9/30対象分まで。制度全体の廃止や最終分発送済みとは解釈せず、今後の通常区分にQUOを加えない。"
+    },
+    "source_conditions": {
+      "observed_documents": [
+        "https://www.golfdo.co.jp/ir/disclosure/"
+      ],
+      "independent_facts_vs_source_prose": "短い自作事実のみ。原文・表・画像・券面・長文を転載しない。",
+      "copyright_notice_observed": true,
+      "copyright_notice_is_blanket_independent_fact_ban": false,
+      "explicit_independent_factual_summary_prohibition_observed_in_opened_scope": false,
+      "explicit_inbound_link_prohibition_observed_in_opened_scope": false,
+      "general_reuse_licence_confirmed": false,
+      "source_terms_hold_asserted": false,
+      "limits": "IR目的・非勧誘・見通し免責/著作権を読んだ限定範囲。未知の規約不存在や一般利用許諾を主張しない。"
+    },
+    "scope_limits": [
+      "保有期間・同じ株主番号・連続記録回数は本文に不記載。0か月にしない。",
+      "贈呈申込の要否と締切、せっけんの使用期限は未確認。EC無料会員登録とは別。",
+      "制度開始日・分割適用時点・現行基本区分の適用開始日は未確認。2026-10-01は利用案内改定日。",
+      "動的IRの全開示・全改廃は未確認。8/13資料は第三者検索リードのみで根拠に採用しない。",
+      "次回購入締切、具体的発送/到着日、発送済み/到着済みは未確認。",
+      "未読の個人情報方針・EC規約等の全文網羅や一般的な利用許諾の確認ではない。"
+    ],
+    "evidence_boundary": "Authored note SHA is not raw-page SHA. Numeric authority is current issuer HTML; search snippets, PDFs and images are not programme authority.",
+    "source_proof_ready_for_independent_review": true,
+    "independent_review_completed": false,
+    "published": false,
+    "live_changes": 0,
+    "new_owner_action_required": false,
+    "notify": false,
+    "immutable_after_save": true,
+    "recorded_at_jst": "2026-10-17T16:32:21.040980+09:00",
+    "network_observations_ref": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/company-3032/network-observations.json",
+      "sha256": "2c30cfdc36766a12513880cb1a728debcf1761957afdece592bfcbcc0d63f591"
+    }
+  },
+  "independent_review": {
+    "schema_version": 1,
+    "checked_at_jst": "2026-10-17T16:35:26.263389+09:00",
+    "reviewer": "/root/per0939_saved_review",
+    "source_author_is_reviewer": false,
+    "review_kind": "independent_OFFLINE_saved_fact_and_conditional_adoption_review",
+    "scope": "Four fixed3032 author JSON records plus immutable selection/identity/manifest/baseline snapshots and static build-rule reading. Peer does not reread primary HTML or PDF, execute/import builder, or change live data. Facts are checked within saved authored-note scope.",
+    "all_checks_pass": true,
+    "checks": {
+      "author_four_frozen_SHA_exact": true,
+      "author_internal_evidence_refs_exact": true,
+      "issuer_code_symbol_name_NagoyaNext_matches_current_saved_StockSearch": true,
+      "stock_asofSep30_and_saved_identityOct14_not_full_today_universe": true,
+      "100share_trading_unit_separate_from100benefit_minimum": true,
+      "current3tiers_100to499_500to999_1000plus_1_3_5_exact": true,
+      "soap500plus_one_nonchoice_addition_not_cash_or_tier_sum": true,
+      "holding_same_number_continuity_unknown_not_zero": true,
+      "record_dates_March31_Sept30_schedule_empty_purchase_unknown": true,
+      "one_use_club_one20percent_goods_multiple10percent_exact": true,
+      "store_EC_choice_free_EC_membership_separate_gift_application": true,
+      "FC_inventory_ordering_work_shipping_fees_excluded_and_noncombination": true,
+      "coupon_two_validity_windows_current_relative_not_source_observation_date": true,
+      "dispatch_June_late_December_early_mid_planned_not_arrival_completed": true,
+      "QUO_finalSep2026_scope_not_whole_abolition_or_future_tier": true,
+      "Oct1_usage_revision_not_programme_start_effective_or_announcement": true,
+      "returned_gift_sixmonth_rule_omission_identified_distinct_holding_expiry": true,
+      "public_application_cutoff_soap_expiry_unknown_omission_identified": true,
+      "EC_input_setting_wording_correction_bound_to_saved_note": true,
+      "six_HTML_documents_two_queries_eight_calls_no_PDF_failure_retry": true,
+      "clock_gap_min3_conservative2_meets1point5_origin_status_unknown": true,
+      "limited_dynamic_IR_and_search_amendment_scope_not_all_future_absence": true,
+      "IR_copyright_disclaimer_not_general_fact_link_ban_or_reuse_grant": true,
+      "pending_review_placeholder_evidence_requires_real_final_bundle": true,
+      "candidate_shape_matches13company_manifest_and_static_builder_contract": true,
+      "current_manifest_unchanged_13_and_no3032": true,
+      "note_SHA_not_rawpage_no_rawtext_images_or_unreviewed_publication": true
+    },
+    "issues": [],
+    "result": "PASS_for_saved_fact_consistency_with_required_final_wording_and_proof_corrections",
+    "approval_status": "conditional_limited_factual_adoption_only",
+    "candidate_as_frozen_publishable": false,
+    "required_wording_changes": [
+      {
+        "field": "delivery",
+        "reason": "Returned-gift storage/redelivery policy is in the saved source note and missing from public proposal.",
+        "text": "返送された優待品は発送から6か月保管され、期間を過ぎると再送できません。",
+        "boundary": "Gift storage is not minimum stock holding or voucher expiry."
+      },
+      {
+        "field": "use_or_delivery",
+        "reason": "Gift application/cutoff and soap expiry unknowns must remain visible, separately from free EC membership.",
+        "text": "贈呈申込の要否・締切と、せっけんの使用期限は未確認です。"
+      },
+      {
+        "field": "use",
+        "reason": "Keep the exact trigger recorded in the source note.",
+        "replace_from": "ECコード設定後",
+        "replace_to": "ECコード入力後"
+      }
+    ],
+    "required_final_proof_changes": [
+      "Keep all four author files immutable. Root creates separately reviewed final record and evidence bundle.",
+      "Replace placeholder evidence path with a real evidence-root-relative bundle path and exact authored-bundle SHA; record kind remains observation note, not raw page.",
+      "Final review metadata must record actual completed bounded review and reviewer. future_changes=true may mean this bounded amendment review completed with recorded dynamic limits; all_future_amendments_verified_absent remains false.",
+      "Strict builder, relevant tests, normal commit/deploy, public asset bytes and actual UI verification are parent-stage requirements; this review claims none completed."
+    ],
+    "programme_assessment": {
+      "tiers": "100–499株1枚、500–999株3枚、1000株以上5枚。500株以上はせっけん1点追加。券区分は非加算。",
+      "holding_months_min": null,
+      "same_shareholder_number_or_continuity": null,
+      "record_dates": [
+        "03-31",
+        "09-30"
+      ],
+      "QUO_scope": "2026-09-30 last eligibility only; no future QUO addition or whole-programme abolition.",
+      "usage_guide_revision": "2026-10-01; not current tier effective/start date.",
+      "announced_on_or_effective_from": null,
+      "schedules": [],
+      "next_purchase_deadline": null
+    },
+    "terms_assessment": "The saved IR disclosure observation covers informational purpose, non-solicitation, forward-looking disclaimer and copyright. It records no explicit independent-fact or ordinary inbound-link prohibition in that opened scope, without proving a general reuse licence or absence of further EC/privacy terms. Only short independently authored facts can be considered; no original prose, table, image or voucher art is licensed by this review.",
+    "network_assessment": {
+      "primary_unique_URLs": 6,
+      "document_attempts": 6,
+      "HTML_bodies_or_shells": 6,
+      "queries": 2,
+      "web_calls": 8,
+      "PDF_screenshots_failures_retries": 0,
+      "minimum_recorded_same_host_gap_seconds": 3.0,
+      "conservative_whole_second_lower_bound_seconds": 2.0,
+      "origin_HTTP_status_or_RetryAfter_not_inferred": true
+    },
+    "evidenceSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/company-3032/observation-note.json": "94fd3e9bf08a8d874cc12e5849e7de954f0bffaa43256b074217084e1b6c7a0b",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/company-3032/network-observations.json": "2c30cfdc36766a12513880cb1a728debcf1761957afdece592bfcbcc0d63f591",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/company-3032/proposed-record.json": "5ea24dc530b122cf93e950b9d69730d768b0d2669bc08f0a68bdf9ace1521470",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/company-3032/disposition.json": "3ffd3cbaa36515da506ffab8b889cefb8274177e92fc69e0b700cf22fbc00785",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/StockSearch-selected-identities.json": "81a1077674c1f1214c6e7813fc41bf3e9104b5bce208773ddf3163f8d79578f1",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/selected-companies.json": "6a69d6db64afa472d9857bacd30f226d97c2537f02afe92c6874ffef0b78477c",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/manifest-before.json": "a823f8d43515e1a0c35c801e72f07cfb16d5929f736619510ecd9dfaff78772e",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261017-162757/baseline.json": "68e95b61bf67497f90ad9db00781f59be73510af7b6ce8409b9e99ff50b9a60e"
+    },
+    "observedLocalContractSHA256": {
+      "/Users/remi/Documents/Codex/2026-09-10/https-github-com-im-letty-investment/work/investment-bot/scripts/build_benefits_catalogue.py": "fc5bd7e49a57ed61a73bb3fa82288eaf91ced436f2c232220f42830cbe4cba52",
+      "/Users/remi/Documents/Codex/2026-09-10/https-github-com-im-letty-investment/work/investment-bot/benefits-data/reviewed-additions.json": "a823f8d43515e1a0c35c801e72f07cfb16d5929f736619510ecd9dfaff78772e"
+    },
+    "mutable_local_contract_files_not_in_immutable_evidence": true,
+    "reviewer_actions": {
+      "HTTP_search_UI_PDF_reread": 0,
+      "product_helper_import_execution_tests": 0,
+      "live_product_manifest_ledger_queue_checkpoint_Git_config_automation_changes": 0,
+      "only_designated_independent_review_file_written": true
+    },
+    "new_owner_action_required": false,
+    "notify": false,
+    "immutable_after_save": true
+  },
+  "publication_wording_changes": "Final authored summary includes returned-gift six-month storage/redelivery rule, application/cutoff and soap-expiry unknowns, and EC-code input trigger. Independent review covers saved facts; no new primary acquisition.",
+  "original_source_or_table_images_reproduced": false
+}
