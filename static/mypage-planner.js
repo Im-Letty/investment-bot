@@ -83,7 +83,7 @@
   }
   function mount(w){
     var document=w.document;if(!document)return;
-    var page,panes,overview,status,doc=null,stock=null,owner='',bridge=null,loading=false,revision=0,saving=false,savedRevision=0,timer,notesFilter='',search='',boundFrame=null,epoch=0,editable=false;
+    var page,panes,status,doc=null,stock=null,owner='',bridge=null,loading=false,revision=0,saving=false,savedRevision=0,timer,notesFilter='',search='',boundFrame=null,epoch=0,editable=false;
     var retryButton,goalList,goalForm,todoList,todoText,todoGoal,noteList,noteTitle,noteBody,noteGroup,groupList,legacyButton,formFields={},goalSummary;
     var claimKey='kn_mypage_legacy_owner_v1';
     function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
@@ -96,7 +96,7 @@
       try{c=f&&f.contentWindow;if(c&&c.kkMyPageStore&&c.knLedgerSession&&c.knLedgerSession.user.id===current()&&c.localStorage.getItem('kn_ledger_owner')===current())return c;}catch(ignore){}
       return null;
     }
-    function setEnabled(ok){editable=ok;page.querySelectorAll('.mp-planner input,.mp-planner textarea,.mp-planner select,.mp-planner button,.mp-overview button').forEach(function(n){n.disabled=!ok;});}
+    function setEnabled(ok){editable=ok;page.querySelectorAll('.mp-planner input,.mp-planner textarea,.mp-planner select,.mp-planner button').forEach(function(n){n.disabled=!ok;});}
     function changed(){
       if(!doc||!validOwner()||!editable)return;
       revision++;message('この端末に保存中…');
@@ -120,22 +120,9 @@
       finally{if(generation===epoch){saving=false;if(who===owner&&validOwner()&&revision!==token)queuePersist();}}
     }
     function dateLabel(s){return w.KNDateDisplay?w.KNDateDisplay.date(s):s.replace(/-/g,'/');}
-    function selectedGoal(){return doc.goals.find(function(g){return g.id===doc.selectedGoalId;})||doc.goals[0]||null;}
     function selectedNote(){return doc.notes.find(function(n){return n.id===doc.selectedNoteId;})||doc.notes[0]||null;}
-    function pickGoal(g){doc.selectedGoalId=g.id;renderSummary();renderGoals();changed();}
+    function pickGoal(g){doc.selectedGoalId=g.id;renderGoals();changed();}
     function goTab(i){var t=page.querySelectorAll('.mo-tab')[i];if(t)t.click();}
-    function renderSummary(){
-      overview.replaceChildren();
-      if(!doc)return;
-      var goal=selectedGoal();
-      overview.appendChild(el('div','mp-kicker','目標と今の状況'));
-      if(stock)overview.appendChild(el('p','mp-current','記録済み資産 '+money(stock.total)));
-      else overview.appendChild(el('p','mp-muted','資産の記録を確認できません。'));
-      if(goal){var p=progress(goal,stock,doc.todos);overview.appendChild(button(goal.title,function(){goTab(1);},'mp-link'));
-        overview.appendChild(el('p','mp-muted',p.assetRate?'資産の達成率 '+p.assetRate+' · やること '+p.done+'/'+p.tasks:'やること '+p.done+'/'+p.tasks));
-        overview.appendChild(button(p.next?'次の一歩：'+p.next.text:'やることを追加する',function(){goTab(2);},'mp-link'));
-      }else overview.appendChild(button('目標を追加する',function(){goTab(1);openGoal();},'mp-link'));
-    }
     function renderGoals(){
       goalList.replaceChildren();goalSummary.replaceChildren();
       if(!doc)return;
@@ -165,7 +152,6 @@
         }
         goalList.appendChild(card);
       });
-      renderSummary();
     }
     function field(label,type,parent){var wrap=el('label','mp-field'),n=el(type==='textarea'?'textarea':'input');if(type!=='textarea')n.type=type;wrap.appendChild(el('span',null,label));wrap.appendChild(n);parent.appendChild(wrap);return n;}
     function openGoal(g){
@@ -234,7 +220,7 @@
     function renderAll(){renderGoals();fillGoal();renderTodos();renderNotes();legacyButton.hidden=!legacyAvailable();}
     function reset(){
       w.clearTimeout(timer);epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();notesFilter='';search='';
-      if(!page)return;overview.replaceChildren();goalList.replaceChildren();todoList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';todoText.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});todoGoal.replaceChildren();todoGoal.value='';noteGroup.replaceChildren();noteGroup.value='';var find=panes[3].querySelector('input[type=search]');if(find)find.value='';goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
+      if(!page)return;goalList.replaceChildren();todoList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';todoText.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});todoGoal.replaceChildren();todoGoal.value='';noteGroup.replaceChildren();noteGroup.value='';var find=panes[3].querySelector('input[type=search]');if(find)find.value='';goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
       message(owner?'保存した記録を読み込んでいます…':'ログイン後に記録を表示します。');
     }
     async function load(){
@@ -261,7 +247,6 @@
       panes=page.querySelectorAll('.mo-pane:not(.kb-pane)');if(panes.length<4){w.setTimeout(build,200);return;}
       [1,2,3].forEach(function(i){panes[i].replaceChildren();panes[i].classList.add('mp-planner');panes[i].setAttribute('data-planner-ready','true');});
       var bar=el('div','mp-planner-bar');status=el('p','mp-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');bar.appendChild(status);retryButton=button('再試行',function(){if(doc&&revision>savedRevision)persist();else load();},'mp-link');retryButton.hidden=true;bar.appendChild(retryButton);page.querySelector('.mo-body').prepend(bar);
-      overview=el('section','mp-overview');overview.setAttribute('aria-label','目標と今の状況');page.querySelector('.mo-body').insertBefore(overview,bar.nextSibling);
       panes[1].appendChild(el('h2','mp-heading','目標と次の一歩'));goalSummary=el('div');panes[1].appendChild(goalSummary);panes[1].appendChild(button('目標を追加',function(){openGoal();}));goalForm=el('form','mp-card mp-form');goalForm.hidden=true;
       formFields.title=field('目標の名前','text',goalForm);formFields.details=field('内容・メモ（任意）','textarea',goalForm);formFields.target=field('目標資産額・円（任意）','text',goalForm);formFields.target.inputMode='decimal';formFields.deadline=field('期限（任意）','date',goalForm);formFields.monthly=field('毎月の積立予定・円（任意）','text',goalForm);formFields.monthly.inputMode='decimal';
       Object.keys(formFields).forEach(function(k){formFields[k].addEventListener('input',function(){if(doc&&doc.goalDraft){doc.goalDraft[k]=formFields[k].value;changed();}});});

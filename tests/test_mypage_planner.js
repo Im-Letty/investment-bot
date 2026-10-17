@@ -366,8 +366,8 @@ test('a later unsupported restore cannot be overwritten through an older valid e
   assert.equal(h.memo.value,'最後に確認できた本文','keep the last confirmed text visible');
   assert.equal(h.memo.disabled,true,'failed newer restore must make the old document read-only');
   assert.equal(h.lookup('メモを追加').disabled,true);
-  assert.equal(h.lookup('目標を追加する').disabled,true,'overview actions must also respect the failed restore');
-  h.lookup('目標を追加する').click();
+  assert.equal(h.lookup('目標を追加').disabled,true,'goal actions must also respect the failed restore');
+  h.lookup('目標を追加').click();
   h.lookup('メモを追加').click();
   assert.equal(h.stages.length,0);
   h.bridge.load=async()=>({raw:original,assetsRaw:null});h.lookup('再試行').click();await settle();
