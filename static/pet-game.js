@@ -1,0 +1,590 @@
+/* Independent pet game: UI only. State changes belong to PetGameCore. */
+(function (w, d) {
+  'use strict';
+  var host = null, store = null, options = null, mounting = null, unsubscribe = null;
+  var tab = 'care', busy = false, game = null, pendingFinish = null;
+  var notice = '', failure = '', nameDraft = null, quantities = {}, backupText = '', importText = '';
+  var lifecycleEpoch = 0, suspended = false, renderedDay = '';
+  var imageRoot = '/static/';
+  var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
+  var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
+
+  function node(tag, cls, text) {
+    var n = d.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = String(text);
+    return n;
+  }
+  function append(parent) {
+    for (var i = 1; i < arguments.length; i++) if (arguments[i]) parent.appendChild(arguments[i]);
+    return parent;
+  }
+  function number(n) { return Number(n || 0).toLocaleString('ja-JP', { maximumFractionDigits: 2 }); }
+  function signed(n) { return (n > 0 ? '+' : '') + number(n); }
+  function state() { return store.getState(); }
+  function core() { return w.PetGameCore; }
+  function items() { return core().items || core().catalogue || core().ITEMS || []; }
+  function item(id) { return items().filter(function (x) { return x.id === id; })[0]; }
+  function itemName(id) { var x = item(id); return x ? x.name : 'アイテム'; }
+  function limits() { return core().LIMITS || {}; }
+  function currentDay() {
+    var dt = new Date((options && options.now || Date.now)());
+    return dt.getFullYear() + '-' + String(dt.getMonth() + 1).padStart(2, '0') + '-' + String(dt.getDate()).padStart(2, '0');
+  }
+  function petMood(s) {
+    if (s.care.lastCareAt == null) return 'はじめまして。いっしょに過ごそう。';
+    var elapsed = Math.max(0, (options && options.now || Date.now)() - s.care.lastCareAt);
+    return elapsed >= 3 * 86400000 ? 'のんびり待っていたよ。今日は何をしよう？' :
+      elapsed >= 86400000 ? 'また会えてうれしい！お世話の時間かな。' : 'いいきもち。いっしょに過ごせてうれしいな。';
+  }
+  function button(label, fn, secondary, disabled) {
+    var b = node('button', 'ipg-button' + (secondary ? ' ipg-secondary' : ''), label);
+    b.type = 'button';
+    if (disabled) { b.disabled = true; b.dataset.ipgDisabled = '1'; }
+    b.addEventListener('click', fn);
+    return b;
+  }
+  function card(title, extra) {
+    var c = node('section', 'ipg-card' + (extra ? ' ' + extra : ''));
+    if (title) c.appendChild(node('h3', '', title));
+    return c;
+  }
+  function text(t, cls) { return node('p', cls || 'ipg-muted', t); }
+  function label(caption, input) {
+    var l = node('label', 'ipg-field');
+    append(l, node('span', '', caption), input);
+    return l;
+  }
+  function metric(caption, value) {
+    return append(node('div', 'ipg-metric'), node('dt', '', caption), node('dd', '', value));
+  }
+  function safeError(result) {
+    var e = result && result.error;
+    return e && typeof e.message === 'string' ? e.message.slice(0, 250) :
+      (typeof e === 'string' ? e.slice(0, 250) : '保存できませんでした。記録を保持したまま、もう一度お試しください。');
+  }
+  function rewardText(reward) {
+    if (!reward || typeof reward !== 'object') return '';
+    var bits = [];
+    if (typeof reward.coins === 'number' && reward.coins > 0) bits.push('+' + number(reward.coins) + 'コイン');
+    if (typeof reward.exp === 'number' && reward.exp > 0) bits.push('+' + number(reward.exp) + 'EXP');
+    if (Array.isArray(reward.items)) {
+      reward.items.forEach(function (x) { if (x.count > 0) bits.push(itemName(x.id) + ' ×' + number(x.count)); });
+    } else if (reward.items && typeof reward.items === 'object') {
+      Object.keys(reward.items).forEach(function (id) {
+        if (reward.items[id] > 0) bits.push(itemName(id) + ' ×' + number(reward.items[id]));
+      });
+    }
+    if (typeof reward.fee === 'number') bits.push('手数料 ' + number(reward.fee) + 'コイン');
+    if (typeof reward.dividend === 'number' && reward.dividend > 0) bits.push('配当 +' + number(reward.dividend) + 'コイン');
+    if (typeof reward.realizedProfit === 'number') bits.push('確定損益 ' + signed(reward.realizedProfit) + 'コイン');
+    return bits.length ? ' ' + bits.join(' / ') : '';
+  }
+  function setBusy(value) {
+    busy = value;
+    if (!host) return;
+    host.setAttribute('aria-busy', String(value));
+    host.querySelectorAll('button,input,select,textarea').forEach(function (n) {
+      n.disabled = value || n.dataset.ipgDisabled === '1';
+    });
+  }
+  async function run(action, message) {
+    if (!store || busy) return { ok: false, error: { code: 'ui_busy' } };
+    var previousStage = stage(state()).key;
+    setBusy(true);
+    var result;
+    try {
+      result = await store.dispatch(action);
+      if (result && result.ok) {
+        failure = ''; notice = (message || '保存しました。') + rewardText(result.reward);
+        var afterStage = stage(result.state || state());
+        if (afterStage.key !== previousStage) notice += ' ' + afterStage.label + 'へ進化しました！';
+      }
+      else { failure = safeError(result); notice = ''; }
+    } catch (_) {
+      result = { ok: false, error: { code: 'save_failed' } };
+      failure = '保存を確認できませんでした。記録を保持したまま、もう一度お試しください。';
+      notice = '';
+    } finally {
+      setBusy(false);
+      if (!game) render();
+    }
+    return result;
+  }
+  function stage(s) {
+    var fn = core().getStage || store.getStage;
+    return fn ? fn(s.pet.exp) : { key: 'egg', label: 'たまご', min: 0, next: null, progress: 0 };
+  }
+  function petImage(s) {
+    var key = stage(s).key, bunny = s.pet.species === 'bunny';
+    if (!stageLabels[key]) key = 'egg';
+    if (!bunny && s.pet.pixel) return imageRoot + 'pet_img_px_' + key + '.webp';
+    if (bunny && key === 'final' && s.pet.path === 'cool') return imageRoot + 'pet_bimg_cool.webp';
+    // There is no dragon cool asset; preserve the saved choice, displaying final.
+    return imageRoot + (bunny ? 'pet_bimg_' : 'pet_img_') + key + '.webp';
+  }
+  function renderCare(s, body) {
+    var info = stage(s), pet = card('', 'ipg-pet-card');
+    var scene = node('div', 'ipg-scene ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
+    var img = node('img', 'ipg-pet-image');
+    img.src = petImage(s); img.alt = (s.pet.name || 'ペット') + '（' + info.label + '）';
+    img.width = 240; img.height = 240; img.draggable = false;
+    var equipped = s.decorations.equipped, decor = item(equipped);
+    var decorText = decor ? decor.emoji || '🌿' : equipped ? String(equipped).slice(0, 40) : '';
+    var decoration = decorText ? node('span', 'ipg-pet-decoration', decorText) : null;
+    if (decoration) decoration.setAttribute('aria-label', '身につけているかざり：' + (decor ? decor.name : String(equipped).slice(0, 100)));
+    append(scene, node('span', 'ipg-sky', '✧'), img, decoration);
+    append(pet, scene, node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'),
+      text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'), text(petMood(s), 'ipg-pet-mood'));
+    var progress = node('progress', 'ipg-progress');
+    progress.max = 100; progress.value = info.progress;
+    progress.setAttribute('aria-label', '次の進化までの進み具合');
+    append(pet, progress, text(info.next == null ? 'ここまで育ててくれて、ありがとう。お世話はこれからも続けられます。' :
+      '次の進化まで あと' + number(Math.max(0, info.next - s.pet.exp)) + ' EXP'));
+    var care = node('div', 'ipg-care-buttons');
+    [['feed', 'ごはん', '🍎', 8], ['play', 'なでる', '♡', 5], ['rest', '休む', '☾', 4]].forEach(function (x) {
+      var used = s.care.day === currentDay() ? s.care.counts[x[0]] || 0 : 0, cap = (limits().care || {})[x[0]] || 3;
+      var b = button('', function () { run({ type: 'care', kind: x[0] }, 'お世話の記録を保存しました。'); }, false, used >= cap);
+      b.dataset.focusKey = 'care-' + x[0];
+      append(b, node('span', 'ipg-care-icon', x[2]), node('span', '', x[1]),
+        node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
+      care.appendChild(b);
+    });
+    append(pet, care, text(s.care.dailyRewardDay === currentDay() ?
+      '今日の育成報酬10コインは受け取り済み。お世話は残りの回数まで続けられます。' :
+      'その日最初のお世話で、育成報酬10コイン。お世話だけでも成長できます。'));
+    body.appendChild(pet);
+    var settings = node('details', 'ipg-card ipg-pet-settings');
+    settings.appendChild(node('summary', '', 'なまえ・ペットの種類'));
+    var form = node('form', 'ipg-form');
+    var input = node('input'); input.type = 'text'; input.maxLength = 20; input.autocomplete = 'off';
+    input.value = nameDraft == null ? s.pet.name : nameDraft;
+    input.addEventListener('input', function () { nameDraft = input.value; });
+    var save = node('button', 'ipg-button', 'なまえを保存'); save.type = 'submit';
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      var result = await run({ type: 'rename', name: input.value }, 'なまえを保存しました。');
+      if (result.ok) { nameDraft = null; render(); }
+    });
+    append(form, label('なまえ（20文字まで）', input), save);
+    var species = node('div', 'ipg-row');
+    [['dragon', 'りゅう'], ['bunny', 'うさぎ']].forEach(function (x) {
+      var b = button(x[1] + (s.pet.species === x[0] ? ' · 選択中' : ''), function () {
+        run({ type: 'chooseSpecies', species: x[0] }, 'ペットの種類を保存しました。');
+      }, true, s.pet.species === x[0]);
+      species.appendChild(b);
+    });
+    append(settings, form, text('ペットの種類'), species);
+    var appearance = node('div', 'ipg-row'), unlocked = s.pet.exp >= 110;
+    [['cute', 'かわいい'], ['cool', 'かっこいい']].forEach(function (x) {
+      appearance.appendChild(button(x[1] + (s.pet.path === x[0] ? ' · 選択中' : ''), function () {
+        run({ type: 'chooseAppearance', path: x[0], pixel: !!s.pet.pixel }, 'すがたを保存しました。');
+      }, true, !unlocked || s.pet.path === x[0]));
+    });
+    append(settings, text(unlocked ? '最終形のすがた' : '最終形のすがたは、110EXPで選べます。'), appearance);
+    if (s.pet.species === 'dragon') settings.appendChild(button(
+      s.pet.pixel ? 'りゅうを通常の絵にする' : 'りゅうをドット絵にする', function () {
+        run({ type: 'chooseAppearance', path: s.pet.path || 'cute', pixel: !s.pet.pixel }, '絵の設定を保存しました。');
+      }, true, !unlocked));
+    if (s.pet.species === 'dragon') settings.appendChild(text(
+      'りゅうの「かっこいい」専用画像は準備中です。選択は保存され、通常の最終画像を表示します。'));
+    body.appendChild(settings);
+  }
+  function renderPlay(s, body) {
+    var c = card('おにぎりキャッチ');
+    append(c, text('25秒で、おにぎりをキャッチ。左右に動かすか、← → キーでペットを動かせます。'),
+      text('1日3回まで。中止した回も1回に数えます。報酬は終了後、保存できたときに受け取れます。'));
+    var used = s.minigames.day === currentDay() ? s.minigames.started || 0 : 0, cap = limits().minigamesPerDay || 3;
+    append(c, text('今日 ' + number(used) + '/' + cap + '回 · 最高 ' + number(s.minigames.bestScore) + '個', 'ipg-stage'));
+    if (game) {
+      buildBoard(c);
+    } else if (pendingFinish) {
+      append(c, text('結果の保存を確認できていません。再試行しても同じ回の報酬が重複することはありません。'),
+        button('結果の保存を再試行', finishPending));
+    } else if (s.minigames.active) {
+      var interrupted = s.minigames.active.id;
+      append(c, text('前の回の中断記録が残っています。報酬を付けずに終了してから、新しいゲームを始められます。'),
+        button('前の回を終了する（報酬なし）', function () {
+          run({ type: 'cancelMinigame', sessionId: interrupted }, '中断した回を終了しました。');
+        }, true));
+    } else {
+      append(c, button('25秒のゲームをはじめる', startGame, false, used >= cap),
+        text('獲得コインやアイテムは、お店やお世話に使えます。'));
+    }
+    body.appendChild(c);
+  }
+  async function startGame() {
+    if (game || pendingFinish || busy) return;
+    var epoch = lifecycleEpoch;
+    var result = await run({ type: 'beginMinigame', kind: 'catch' }, 'ゲームを開始しました。');
+    if (!result.ok) return;
+    var active = state().minigames.active;
+    var id = result.reward && result.reward.sessionId || active && active.id;
+    if (!id) { failure = 'ゲームの開始記録を確認できませんでした。'; render(); return; }
+    if (suspended || epoch !== lifecycleEpoch || d.hidden) {
+      await run({ type: 'cancelMinigame', sessionId: id }, '画面を離れたためゲームを中止しました。');
+      return;
+    }
+    game = { id: id, score: 0, x: 50, drops: [], elapsed: 0, nextSpawn: 0, started: null, frame: null, events: [], finished: false };
+    tab = 'play'; notice = ''; render();
+  }
+  function onGame(target, type, fn, opts) {
+    target.addEventListener(type, fn, opts);
+    game.events.push(function () { target.removeEventListener(type, fn, opts); });
+  }
+  function cleanGame(g) {
+    if (!g) return;
+    if (g.frame != null) w.cancelAnimationFrame(g.frame);
+    g.events.forEach(function (remove) { remove(); });
+    g.events = []; g.finished = true;
+  }
+  function buildBoard(parent) {
+    var g = game;
+    var status = node('p', 'ipg-game-status', '残り25秒 · 0個');
+    status.setAttribute('aria-live', 'polite'); status.setAttribute('aria-atomic', 'true');
+    var board = node('div', 'ipg-catch-board');
+    board.tabIndex = 0; board.setAttribute('role', 'group');
+    board.setAttribute('aria-label', 'おにぎりキャッチ。左右に動かすか矢印キーで操作。');
+    var catcher = node('img', 'ipg-catcher'); catcher.src = petImage(state()); catcher.alt = '';
+    catcher.draggable = false; catcher.setAttribute('aria-hidden', 'true');
+    board.appendChild(catcher);
+    var controls = node('div', 'ipg-game-controls');
+    function move(delta) { if (game === g) { g.x = Math.max(8, Math.min(92, g.x + delta)); catcher.style.left = g.x + '%'; } }
+    append(controls, button('← 左へ', function () { move(-12); }, true),
+      button('右へ →', function () { move(12); }, true));
+    append(parent, status, board, controls, button('中止する（報酬なし）', function () { cancelGame('中止しました。この回の報酬はありません。'); }, true));
+    function pointer(e) {
+      if (game !== g) return;
+      var r = board.getBoundingClientRect();
+      if (r.width) { g.x = Math.max(8, Math.min(92, (e.clientX - r.left) / r.width * 100)); catcher.style.left = g.x + '%'; }
+      if (e.cancelable) e.preventDefault();
+    }
+    onGame(board, 'pointerdown', pointer);
+    onGame(board, 'pointermove', pointer);
+    onGame(board, 'keydown', function (e) {
+      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); move(e.key === 'ArrowLeft' ? -8 : 8); }
+    });
+    var announced = -1;
+    function tick(t) {
+      if (game !== g || g.finished) return;
+      if (g.started === null) g.started = t;
+      g.elapsed = t - g.started;
+      if (g.elapsed >= 25000) {
+        cleanGame(g); game = null; pendingFinish = { sessionId: g.id, score: Math.min(30, g.score) };
+        finishPending(); return;
+      }
+      if (g.elapsed >= g.nextSpawn) {
+        var drop = { x: 8 + Math.random() * 84, at: g.elapsed, el: node('span', 'ipg-drop', '🍙') };
+        drop.el.setAttribute('aria-hidden', 'true'); drop.el.style.left = drop.x + '%';
+        board.appendChild(drop.el); g.drops.push(drop); g.nextSpawn = g.elapsed + 620;
+      }
+      g.drops = g.drops.filter(function (drop) {
+        var y = (g.elapsed - drop.at) / 1900 * 100;
+        if (y >= 79 && y <= 95 && Math.abs(drop.x - g.x) <= 12) {
+          g.score = Math.min(30, g.score + 1); drop.el.remove(); return false;
+        }
+        if (y > 103) { drop.el.remove(); return false; }
+        drop.el.style.top = y + '%'; return true;
+      });
+      var seconds = Math.ceil((25000 - g.elapsed) / 1000);
+      if (seconds !== announced) { status.textContent = '残り' + seconds + '秒 · ' + g.score + '個'; announced = seconds; }
+      g.frame = w.requestAnimationFrame(tick);
+    }
+    g.frame = w.requestAnimationFrame(tick);
+  }
+  async function finishPending() {
+    if (!pendingFinish || busy) return;
+    var p = pendingFinish;
+    var result = await run({ type: 'finishMinigame', sessionId: p.sessionId, score: p.score }, 'ゲームの結果を保存しました。');
+    if (result.ok || !(state().minigames.active && state().minigames.active.id === p.sessionId)) pendingFinish = null;
+    render();
+  }
+  async function cancelGame(message) {
+    if (!game) return;
+    var g = game; cleanGame(g); game = null;
+    await run({ type: 'cancelMinigame', sessionId: g.id }, message || 'ゲームを中止しました。');
+  }
+  function owned(s, x) {
+    if (x.type === 'food') return s.inventory[x.id] || 0;
+    if (x.type === 'background') return (s.decorations.backgrounds || []).indexOf(x.id) >= 0 ||
+      (s.decorations.backgrounds || []).indexOf(x.id.replace(/^bg_/, '')) >= 0 || x.id === 'bg_meadow' ? 1 : 0;
+    return s.decorations.owned[x.id] ? 1 : 0;
+  }
+  function renderShop(s, body) {
+    var c = card('お店ともちもの');
+    append(c, text('おにぎりキャッチや毎日の育成で集めたコインを使えます。食べものは、もちものから使うとEXPになります。'));
+    var grid = node('div', 'ipg-shop-grid');
+    items().forEach(function (x) {
+      var count = owned(s, x), row = node('article', 'ipg-shop-item');
+      append(row, node('span', 'ipg-item-icon', x.emoji || '🌿'), node('h4', '', x.name),
+        text(x.type === 'food' ? '+' + number(x.exp) + 'EXP · 所持' + number(count) + '個' : count ? '持っています' : '未所持'),
+        text(number(x.price) + 'コイン', 'ipg-stage'));
+      if (x.type === 'food' || !count) row.appendChild(button('買う', function () {
+        run({ type: 'buyItem', itemId: x.id }, x.name + 'を購入しました。');
+      }, false, s.coins < x.price));
+      if (count) row.appendChild(button(x.type === 'food' ? '使う' : 'かざる', function () {
+        run({ type: x.type === 'food' ? 'useItem' : 'equip', itemId: x.id }, x.type === 'food' ? 'アイテムを使いました。' : 'かざりを保存しました。');
+      }, true));
+      grid.appendChild(row);
+    });
+    c.appendChild(grid);
+    if (s.decorations.equipped) c.appendChild(button('身につけているかざりを外す', function () {
+      run({ type: 'equip', itemId: null }, 'かざりを外しました。');
+    }, true));
+    body.appendChild(c);
+  }
+  function renderMarket(s, body) {
+    var market = s.market, stocks = core().STOCKS || core().stocks || [], invested = 0, cost = 0;
+    stocks.forEach(function (x) { var h = market.holdings[x.id] || {}; invested += (h.quantity || 0) * market.prices[x.id]; cost += h.costBasis || 0; });
+    var intro = card('コインで学ぶ、仮想マーケット');
+    append(intro, text('登場する会社・株価はすべて架空です。現実のお金は使いません。ゲーム内の時間で価格が動きます。'),
+      node('div', 'ipg-game-day', 'ゲーム内 ' + number(market.day) + '日目'));
+    var stats = node('dl', 'ipg-metrics');
+    append(stats, metric('手持ちコイン', number(s.coins)), metric('株の評価額', number(invested)),
+      metric('合計', number(s.coins + invested)), metric('保有株の原価', number(cost)),
+      metric('評価損益', signed(invested - cost)), metric('確定した売買損益', signed(market.realizedProfit)),
+      metric('受取配当 累計', number(market.dividends)), metric('支払手数料 累計', number(market.feesPaid)));
+    intro.appendChild(stats);
+    var cap = limits().marketAdvancesPerDay || 12, interval = limits().dividendEvery || 5;
+    append(intro, button('ゲーム内の時間を1日進める', function () {
+      run({ type: 'advanceMarketDay' }, 'ゲーム内の1日を進めました。');
+    }), text('現実の1日に最大' + cap + '回。' + interval + 'ゲーム日ごとに、保有株に応じた配当判定があります。'),
+      text('取引をしなくてもペットは育ちます。売るまでは評価損益、売って決まった分が確定損益です。'));
+    body.appendChild(intro);
+    var list = node('div', 'ipg-stock-list');
+    stocks.forEach(function (x) {
+      var h = market.holdings[x.id] || { quantity: 0, costBasis: 0 };
+      var price = market.prices[x.id], previous = market.previous[x.id];
+      var c = card('', 'ipg-stock');
+      append(c, node('h3', '', (x.emoji || '🌱') + ' ' + x.name), text('架空の会社', 'ipg-small'),
+        node('div', 'ipg-stock-price', number(price) + ' コイン / 株'),
+        text('前回比 ' + signed(price - (previous == null ? price : previous)) + 'コイン'),
+        text('保有 ' + number(h.quantity) + '株 · 原価 ' + number(h.costBasis) +
+          ' · 評価 ' + number(h.quantity * price) + ' · 評価損益 ' + signed(h.quantity * price - h.costBasis)));
+      var qty = node('input'); qty.type = 'number'; qty.min = '1'; qty.max = '1000000'; qty.step = '1';
+      qty.inputMode = 'numeric'; qty.value = quantities[x.id] || '1';
+      qty.addEventListener('input', function () { quantities[x.id] = qty.value; });
+      var trade = node('div', 'ipg-trade');
+      append(trade, label('株数', qty));
+      function transact(type) {
+        var n = Number(qty.value);
+        if (!Number.isSafeInteger(n) || n < 1) { failure = '株数は1以上の整数で入力してください。'; render(); return; }
+        run({ type: type, stockId: x.id, quantity: n }, type === 'buyStock' ? '購入を保存しました。' : '売却を保存しました。');
+      }
+      append(trade, button('買う', function () { transact('buyStock'); }),
+        button('売る', function () { transact('sellStock'); }, true, !h.quantity));
+      append(c, trade, text('売買には手数料' + number((limits().feeRate || 0) * 100) +
+        '%（最低' + number(limits().minFee || 0) + 'コイン）がかかります。', 'ipg-small'));
+      list.appendChild(c);
+    });
+    body.appendChild(list);
+    if (market.legacyPot) {
+      var reserve = card('旧ゲームの積立分');
+      append(reserve, text('旧積立の記録：残高 ' + number(market.legacyPot.value) +
+        'コイン / 元本 ' + number(market.legacyPot.basis) + 'コイン / ' + number(market.legacyPot.days) + 'ゲーム日。'));
+      if (market.legacyPot.value > 0) append(reserve,
+        text('手持ちコインへ引き出せます。旧積立の元データは保持され、同じ残高を重複して引き出すことはありません。'),
+        button('旧積立を手持ちコインへ引き出す', function () {
+          run({ type: 'withdrawLegacyPot' }, '旧積立の引出しを保存しました。');
+        }, true));
+      else reserve.appendChild(text('引出し済みの記録を保持しています。'));
+      body.appendChild(reserve);
+    }
+  }
+  function renderLegacy(s, body) {
+    var legacy = s.legacyReserve;
+    if (!legacy || !legacy.available || legacy.transferred) return;
+    var c = card('旧ゲームの記録を引き継ぐ');
+    if (legacy.name) c.appendChild(text('旧ゲームのなまえ：' + legacy.name));
+    append(c, text('旧ゲームのコイン・EXP・アイテム・かざり・保有株を、一度だけこのゲームへ移せます。旧ゲームの保存記録はそのまま残ります。'),
+      text('旧価格はゲーム内の整数コイン価格へ変換します。原額はバックアップに保持します。'),
+      text('引継ぎ候補：' + number(legacy.coins) + 'コイン / ' + number(legacy.exp) + 'EXP。旧積立分は別の記録として保持します。'),
+      button('旧ゲームの記録を一度だけ引き継ぐ', function () {
+        run({ type: 'transferLegacy' }, '旧ゲームの引継ぎを保存しました。');
+      }, true));
+    body.appendChild(c);
+  }
+  function renderPreserved(s, body) {
+    var names = {pet50:'なでなでマスター',feed20:'まんぷくしょくどう',mg15:'おにぎりハンター',deco3:'おにわデビュー',
+      deco7:'まちづくりめいじん',final:'でんせつのきずな',rich:'こつこつちょきん',letter:'朝レター（旧実績）',
+      first_trade:'はじめての売買',first_profit:'はじめての売買益',dividend:'配当を受け取った',all_six:'6社の株を保有'};
+    var details = node('details', 'ipg-card ipg-preserved');
+    details.appendChild(node('summary', '', '実績と引き継いだもちもの'));
+    var achievements = node('ul', 'ipg-preserved-list');
+    (s.achievements || []).forEach(function (id) {
+      achievements.appendChild(node('li', '', names[id] || '旧実績：' + String(id).slice(0, 60)));
+    });
+    if (achievements.children.length) append(details, node('h4', '', '獲得済み実績'), achievements);
+    else details.appendChild(text('実績は、これからのお世話やゲームで少しずつ集まります。'));
+    var extras = node('ul', 'ipg-preserved-list');
+    Object.keys(s.inventory).forEach(function (id) {
+      if (!item(id)) extras.appendChild(node('li', '', '旧アイテム ' + String(id).slice(0, 60) + ' ×' + number(s.inventory[id])));
+    });
+    Object.keys(s.decorations.owned).forEach(function (id) {
+      if (item(id)) return;
+      var row = node('li', '', '旧かざり ' + String(id).slice(0, 60) + ' ');
+      row.appendChild(button('身につける', function () {
+        run({ type: 'equip', itemId: id }, '旧かざりを身につけました。');
+      }, true));
+      extras.appendChild(row);
+    });
+    if (extras.children.length) append(details,
+      text('今のお店にない旧アイテムも、記録として保持しています。'), extras);
+    if (s.legacyReserve && s.legacyReserve.transferred) details.appendChild(text(
+      '別の旧ゲームから引継ぎ済み：' + number(s.legacyReserve.coins) + 'コイン / ' + number(s.legacyReserve.exp) + 'EXP。'));
+    if (s.legacyReserve && s.legacyReserve.name) details.appendChild(text('別の旧ゲームのなまえ：' + s.legacyReserve.name));
+    if (s.pet.path === 'cool' && s.pet.species === 'dragon') details.appendChild(text(
+      '旧「かっこいい」形態の選択を保持しています。専用画像がないため、りゅうの最終形態では通常の最終画像を表示します。'));
+    if (s.pet.pixel) details.appendChild(text('旧ドット絵の設定を保持しています。りゅうの表示に適用されます。'));
+    body.appendChild(details);
+  }
+  function renderBackup(body) {
+    var details = node('details', 'ipg-card ipg-backup');
+    details.appendChild(node('summary', '', 'ゲームのバックアップ'));
+    append(details, text('この端末のゲームをバックアップできます。復元すると、現在の独立ゲームの記録がバックアップの内容に置き換わります。'));
+    var out = node('div');
+    function showBackup() {
+      try {
+        var result = store.exportBackup();
+        backupText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+        out.replaceChildren();
+        var area = node('textarea'); area.readOnly = true; area.value = backupText; area.rows = 5;
+        area.setAttribute('aria-label', 'バックアップの内容');
+        append(out, area, button('ファイルとして保存', function () {
+          var url = w.URL.createObjectURL(new Blob([backupText], { type: 'application/json' }));
+          var a = node('a'); a.href = url; a.download = 'pet-game-backup.json';
+          d.body.appendChild(a); a.click(); a.remove(); w.setTimeout(function () { w.URL.revokeObjectURL(url); }, 1000);
+        }, true));
+      } catch (_) { failure = 'バックアップを作成できませんでした。'; render(); }
+    }
+    details.appendChild(button('バックアップを表示', showBackup, true));
+    details.appendChild(out);
+    var form = node('form', 'ipg-form');
+    var file = node('input'); file.type = 'file'; file.accept = '.json,application/json';
+    var area = node('textarea'); area.rows = 4; area.value = importText;
+    area.addEventListener('input', function () { importText = area.value; });
+    file.addEventListener('change', async function () {
+      var f = file.files && file.files[0];
+      if (!f) return;
+      if (f.size > 1000000) { failure = 'バックアップは1MB以下のファイルを選んでください。'; render(); return; }
+      try { importText = await f.text(); area.value = importText; }
+      catch (_) { failure = 'ファイルを読み込めませんでした。'; render(); }
+    });
+    var submit = node('button', 'ipg-button ipg-secondary', 'バックアップから復元');
+    submit.type = 'submit';
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      if (busy || !area.value.trim()) return;
+      if (!w.confirm('現在のゲームを、このバックアップの内容で復元しますか？')) return;
+      setBusy(true);
+      try {
+        var result = await store.importBackup(area.value);
+        if (result && result.ok) { importText = ''; nameDraft = null; pendingFinish = null; notice = 'バックアップから復元しました。'; failure = ''; }
+        else { failure = safeError(result); notice = ''; }
+      } catch (_) { failure = '復元を確認できませんでした。現在の記録を保持しています。'; notice = ''; }
+      finally { setBusy(false); render(); }
+    });
+    append(form, label('バックアップファイル', file), label('またはバックアップの内容を貼り付ける', area), submit);
+    details.appendChild(form); body.appendChild(details);
+  }
+  function render() {
+    if (!host || !store || game && host.querySelector('.ipg-catch-board')) return;
+    var focused = d.activeElement && d.activeElement.dataset && d.activeElement.dataset.focusKey;
+    var s = state(), root = node('div', 'ipg');
+    renderedDay = currentDay();
+    var head = node('header', 'ipg-header');
+    append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', 'そだてる')),
+      node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
+    root.appendChild(head);
+    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || 'おかえりなさい。今日は何をして過ごそう？');
+    status.setAttribute('role', failure ? 'alert' : 'status'); status.setAttribute('aria-live', failure ? 'assertive' : 'polite');
+    root.appendChild(status);
+    if (s.error && !failure) root.appendChild(text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error'));
+    var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
+    Object.keys(tabLabels).forEach(function (key) {
+      var b = button(tabLabels[key], async function () {
+        if (busy) return;
+        if (game) await cancelGame('ゲームを中止しました。この回の報酬はありません。');
+        tab = key; render();
+      }, true);
+      b.className += tab === key ? ' is-active' : '';
+      b.setAttribute('aria-current', tab === key ? 'page' : 'false');
+      b.dataset.focusKey = 'tab-' + key;
+      nav.appendChild(b);
+    });
+    root.appendChild(nav);
+    var body = node('div', 'ipg-body');
+    if (tab === 'care') renderCare(s, body);
+    else if (tab === 'play') renderPlay(s, body);
+    else if (tab === 'shop') renderShop(s, body);
+    else renderMarket(s, body);
+    if (!game) { renderLegacy(s, body); renderPreserved(s, body); renderBackup(body); }
+    root.appendChild(body);
+    host.replaceChildren(root);
+    setBusy(busy);
+    if (game) { var board = host.querySelector('.ipg-catch-board'); if (board) board.focus({ preventScroll: true }); }
+    if (focused && !game) {
+      var n = host.querySelector('[data-focus-key="' + focused + '"]');
+      if (n && !n.disabled) n.focus({ preventScroll: true });
+    }
+  }
+  function loading(message, retry) {
+    if (!host) return;
+    var c = card('そだてる');
+    append(c, text(message));
+    if (retry) c.appendChild(button('もう一度読み込む', function () { mount(host, options); }));
+    host.replaceChildren(append(node('div', 'ipg'), c));
+  }
+  async function mount(target, opts) {
+    if (typeof target === 'string') target = d.getElementById(target);
+    if (!target) return false;
+    suspended = false;
+    if (host === target && store) { render(); return true; }
+    if (mounting) return mounting;
+    if (game) await cancelGame();
+    host = target; options = opts || options || {};
+    loading('ゲームの記録を読み込んでいます…');
+    mounting = (async function () {
+      await Promise.resolve();
+      try {
+        if (!core() || typeof core().create !== 'function') throw new Error('core_unavailable');
+        if (w.__knGateReady) await w.__knGateReady;
+        var config = Object.assign({}, options);
+        if (!config.storage) {
+          if (w.__knGateReady) throw new Error('protected_storage_adapter_required');
+          config.storage = w.localStorage;
+        }
+        var candidate = core().create(config);
+        var readyResult = await candidate.ready;
+        if (readyResult && readyResult.ok === false) throw new Error('storage_read_failed');
+        store = candidate;
+        if (unsubscribe) unsubscribe();
+        unsubscribe = store.subscribe(function () { if (!busy && !game) render(); });
+        failure = ''; render(); return true;
+      } catch (_) {
+        store = null; loading('ゲームの記録を読み込めませんでした。保存先を確認して、もう一度お試しください。', true);
+        return false;
+      } finally { mounting = null; }
+    })();
+    return mounting;
+  }
+  function suspend() {
+    suspended = true; lifecycleEpoch++;
+    return cancelGame('画面を離れたためゲームを中止しました。');
+  }
+  d.addEventListener('visibilitychange', function () {
+    if (d.hidden) suspend();
+    else { suspended = false; if (store && !game && !busy) render(); }
+  });
+  w.addEventListener('pagehide', suspend);
+  w.addEventListener('pageshow', function () { suspended = false; if (store && !game && !busy) render(); });
+  w.addEventListener('focus', function () { if (store && !game && !busy) render(); });
+  w.setInterval(function () { if (store && !game && !busy && renderedDay !== currentDay()) render(); }, 60000);
+  w.IndependentPetGame = {
+    mount: mount,
+    open: function () { return mount(host || d.getElementById('pet-game-root'), options); },
+    render: render,
+    close: suspend,
+    suspend: suspend
+  };
+})(window, document);

@@ -1096,32 +1096,17 @@ test('simulator does not confuse an HTML tab with working calculations',()=>{
   assert.equal(app.status.hidden,false);assert.match(app.status.innerHTML,/もう一度/);
 });
 
-test('extended game code is preserved in order and loads only when opened',async()=>{
+test('legacy game asset remains archived while the independent game is loaded on demand',()=>{
   const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
   const before=require('node:child_process').execFileSync('git',['show','77ec036:index.html'],{cwd:path.join(__dirname,'..'),encoding:'utf8',maxBuffer:2e6});
   const marker=before.indexOf('if(window.__PETGAME_BOOTED)');
   const block=before.slice(before.lastIndexOf('<script>',marker),before.indexOf('<!-- ===== Release #9:',marker));
   const original=[...block.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m=>m[1]);
-  const assetPath=html.match(/script.src='(\/static\/pet-features-[a-f0-9]+\.js)'/)[1];
-  assert.equal(fs.readFileSync(path.join(__dirname,'..',assetPath),'utf8'),original.join('\n;\n')+'\n');
-  const start=html.indexOf('var petLoading=null;'),end=html.indexOf('window.closePetTab=',start);
-  const scripts=[],card={inert:false},body={insertBefore:()=>{}},nodes={},timers=new Map();let seq=0;
-  const overlay={classList:{add(){}}};
-  const context={Promise,moveCard(){},setTimeout:fn=>{timers.set(++seq,fn);return seq;},clearTimeout:id=>timers.delete(id),document:{
-    getElementById:id=>id==='pet-card'?card:id==='petOvBody'?body:id==='petOv'?overlay:nodes[id],
-    createElement(tag){if(tag==='script')return {remove(){}};const el={setAttribute(){},style:{},remove(){delete nodes.petLoadState;},querySelector(){return this.button||(this.button={});}};nodes.petLoadState=el;return el;},
-    head:{appendChild:s=>scripts.push(s)}
-  }};context.window=context;vm.runInNewContext(html.slice(start,end),context);
-  assert.equal(scripts.length,0);
-  context.openPetTab();context.openPetTab();assert.equal(scripts.length,1);assert.equal(card.inert,true);
-  [...timers.values()][0]();await flush();assert.match(nodes.petLoadState.innerHTML,/もう一度/);
-  nodes.petLoadState.button.onclick();assert.equal(scripts.length,2);
-  scripts[0].onload();await flush();assert.equal(card.inert,true,'Late result must not finish a newer attempt');
-  scripts[1].onerror();await flush();nodes.petLoadState.button.onclick();assert.equal(scripts.length,3);
-  context.__PG={open(){}};scripts[2].onload();await flush();assert.equal(card.inert,false);
-  context.openPetTab();assert.equal(scripts.length,3);assert.equal(timers.size,0);
-  // Login and news-view rewards belong to the original small card runtime.
-  assert.ok(html.includes('render(false);dailyLogin();startStroll()'));
+  assert.equal(fs.readFileSync(path.join(__dirname,'../static/pet-features-855cb201bd.js'),'utf8'),original.join('\n;\n')+'\n');
+  assert.doesNotMatch(html,/script\.src=['"]\/static\/pet-features-/);
+  assert.match(html,/\/static\/pet-game-core\.js/);
+  assert.match(html,/\/static\/pet-game\.js/);
+  assert.doesNotMatch(html,/render\(false\);dailyLogin\(\);startStroll\(\)/);
 });
 
 
