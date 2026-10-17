@@ -213,7 +213,7 @@
     syncColor();
     if(typeof window.applyBrandColor==='function'){var applyColor=window.applyBrandColor;window.applyBrandColor=function(){var result=applyColor.apply(this,arguments);syncColor();return result;};}
     function syncReading(){
-      var size='m',font='';try{size=localStorage.getItem('ui_fontscale')||'m';font=localStorage.getItem('ui_font')||'';}catch(_){}
+      var size='m',font='gothic';try{size=localStorage.getItem('ui_fontscale')||'m';font=localStorage.getItem('ui_font')||'gothic';}catch(_){}
       document.body.style.setProperty('--kn-a-scale',String(({s:.9,m:1,l:1.15,xl:1.3})[size]||1));
       document.body.dataset.knReadingSize=size;
       var fonts={gothic:'"Noto Sans JP",sans-serif',round:'"Hiragino Maru Gothic ProN","M PLUS Rounded 1c","Noto Sans JP",sans-serif',mincho:'"Hiragino Mincho ProN","Yu Mincho","Noto Serif JP",serif',klee:'"Klee One",cursive',pop:'"Shippori Mincho",serif'};

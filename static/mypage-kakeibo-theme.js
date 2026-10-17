@@ -141,8 +141,8 @@
       'color-mix(in srgb,'+color+' 6%,#f0eedf)'
     ]:defaults;
     colors.forEach(function(name,index){setToken(root,'--kn-sh-'+name,values[index]);});
-    setToken(root,'--kn-sh-sans',fonts[font]||'-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif');
-    setToken(root,'--kn-sh-serif',fonts[font]||'"Hiragino Mincho ProN","Yu Mincho",Georgia,serif');
+    setToken(root,'--kn-sh-sans',fonts[font]||fonts.gothic);
+    setToken(root,'--kn-sh-serif',fonts[font]||fonts.gothic);
     setToken(root,'--kn-sh-scale',String(({s:.9,m:1,l:1.15,xl:1.3})[size]||1));
     setDark('false');
     syncButtonForeground();

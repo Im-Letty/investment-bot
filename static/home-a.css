@@ -8,8 +8,9 @@ body.kn-home-a {
   --kn-a-ink:#184b3c; --kn-a-muted:#547467; --kn-a-paper:#fffdf6;
   --kn-a-bg:#f7fbf6; --kn-a-line:#dce6d7; --kn-a-button:#205c49;
   --kn-a-mint:#b0ddc7; --kn-a-pale:#def1e3; --kn-a-chip:#edf5e9;
-  --kn-a-serif:"Hiragino Mincho ProN","Yu Mincho",Georgia,serif;
-  --kn-a-sans:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN","Yu Gothic",sans-serif;
+  /* Use the same default Gothic face on desktop and mobile. */
+  --kn-a-serif:"Noto Sans JP",sans-serif;
+  --kn-a-sans:"Noto Sans JP",sans-serif;
 }
 body.kn-home-a[data-kn-a-custom-color] {
   --kn-a-ink:color-mix(in srgb,var(--brand-color) 38%,#10251d);
