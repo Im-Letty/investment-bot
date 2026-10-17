@@ -23,8 +23,8 @@
   <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261016-notitle1">
-  <script defer src="/static/kakeibo-layout.js?v=20261015-homegraphs1"></script>
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261017-assets1">
+  <script defer src="/static/kakeibo-layout.js?v=20261017-assets1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
   <script defer src="/static/kakeibo-category-picker.js?v=20261016-incomecats1"></script>
@@ -183,7 +183,7 @@ body{padding-bottom:24px;}
     <details class="kk-more" id="kkMore">
       <summary id="kkMoreToggle" aria-controls="kkMorePanel" aria-expanded="false" aria-label="便利な機能" data-kk-layout-label="kk_layout_more">⋯</summary>
       <div class="kk-more-panel" id="kkMorePanel">
-        <button type="button" data-kk-layout-go="assets" data-i18n="kk_layout_assets">資産管理</button>
+        <button type="button" data-kk-open-assets data-i18n="kk_layout_mypage_assets">マイページの資産管理</button>
         <button type="button" data-kk-layout-go="records" data-i18n="kk_layout_records">記録一覧</button>
         <div class="kk-export-tools">
           <p class="kk-layout-note" data-i18n="kk_layout_export">データ出力</p>
@@ -200,9 +200,6 @@ body{padding-bottom:24px;}
       <option value="zh" style="color:#1a3325;">中文</option>
     </select>
   </div>
-  <div class="total-asset-label" data-i18n="kk_total_asset" style="display:none">総資産</div>
-  <div class="total-asset-val" id="totalAssetVal" style="display:none">¥0</div>
-  <div class="total-asset-change" id="totalAssetChange" data-i18n="kk_pls_register_asset" style="display:none">資産を登録してください</div>
 </div>
 <div id="ocr-bar" style="padding:10px 12px 0;display:flex;justify-content:center;">
   
@@ -330,6 +327,12 @@ body{padding-bottom:24px;}
 </div>
 <div class="tab-content" id="tab-assets">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
+  <section class="kk-asset-summary" aria-labelledby="kkAssetTotalLabel">
+    <p id="kkAssetTotalLabel" class="kk-layout-note" data-i18n="kk_total_asset">総資産</p>
+    <p id="totalAssetVal" class="kk-asset-total">¥0</p>
+    <p id="totalAssetChange" class="kk-layout-note"></p>
+    <p class="kk-layout-note" data-i18n="kk_assets_manual_note">登録した評価額の合計です。価格の自動更新は行いません。</p>
+  </section>
   <div class="card"><div class="card-title" data-i18n="kk_card_register_asset">🏦 資産を登録</div><input class="inp" id="ast-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"><select class="inp" id="ast-cat"><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="ast-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"><button class="submit-btn ast" onclick="addRecord('ast')" data-i18n="kk_btn_register_asset">＋ 資産を登録</button></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_pie">🥧 資産配分グラフ</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="assetPieChart"></canvas></div><div id="asset-legend" style="flex:1;font-size:12px"></div></div></div>
   <div class="card"><div class="card-title" data-i18n="kk_card_asset_list">📋 資産一覧</div><div id="asset-list-el"><div class="empty-state" data-i18n="kk_empty_no_assets">資産を登録してください</div></div></div>
@@ -428,6 +431,9 @@ var KK_I18N = {
     kk_layout_trend_link: "収支推移を見る",
     kk_layout_input_note: "ホームとカレンダーは、同じ記録と集計に反映されます。",
     kk_layout_assets: "資産管理",
+    kk_layout_mypage_assets: "マイページの資産管理",
+    kk_asset_count: "登録資産 {count}件",
+    kk_assets_manual_note: "登録した評価額の合計です。価格の自動更新は行いません。",
     kk_layout_records: "記録一覧",
     kk_layout_export: "データ出力",
     kk_layout_csv: "CSVで保存",
@@ -614,6 +620,9 @@ var KK_I18N = {
     kk_layout_trend_link: "View income and spending trend",
     kk_layout_input_note: "Home and Calendar share the same records and totals.",
     kk_layout_assets: "Assets",
+    kk_layout_mypage_assets: "Assets in My Page",
+    kk_asset_count: "{count} registered assets",
+    kk_assets_manual_note: "The total uses your registered valuations. Prices do not update automatically.",
     kk_layout_records: "Records",
     kk_layout_export: "Export data",
     kk_layout_csv: "Download CSV",
@@ -800,6 +809,9 @@ var KK_I18N = {
     kk_layout_trend_link: "수입·지출 추이 보기",
     kk_layout_input_note: "홈과 달력에 같은 기록과 합계가 반영됩니다.",
     kk_layout_assets: "자산 관리",
+    kk_layout_mypage_assets: "마이페이지 자산 관리",
+    kk_asset_count: "등록 자산 {count}개",
+    kk_assets_manual_note: "등록한 평가액의 합계입니다. 가격은 자동으로 갱신되지 않습니다.",
     kk_layout_records: "기록 목록",
     kk_layout_export: "데이터 내보내기",
     kk_layout_csv: "CSV 저장",
@@ -986,6 +998,9 @@ var KK_I18N = {
     kk_layout_trend_link: "查看收支趋势",
     kk_layout_input_note: "主页和日历共享记录和汇总。",
     kk_layout_assets: "资产管理",
+    kk_layout_mypage_assets: "我的页面资产管理",
+    kk_asset_count: "已登记资产 {count}项",
+    kk_assets_manual_note: "合计使用已登记的估值。价格不会自动更新。",
     kk_layout_records: "记录列表",
     kk_layout_export: "导出数据",
     kk_layout_csv: "保存 CSV",
@@ -1641,7 +1656,7 @@ function renderAll(){
   var dv=document.getElementById('d-invest');if(dv)dv.textContent=data._kkUnreadable?'—':fmt(totalInv);
   var totalAst=assets.reduce(function(s,e){return s+e.amount;},0);
   var tv=document.getElementById('totalAssetVal');if(tv)tv.textContent=fmt(totalAst);
-  var tc=document.getElementById('totalAssetChange');if(tc)tc.textContent=totalAst>0?kkT("kk_js_registered_asset")+assets.length+kkT("kk_js_items_balance")+fmt(balance):kkT("kk_pls_register_asset");
+  var tc=document.getElementById('totalAssetChange');if(tc)tc.textContent=assets.length?kkT("kk_asset_count").replace("{count}",String(assets.length)):kkT("kk_pls_register_asset");
   var months=[],incArr=[],expArr=[],invArr=[];
   for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+kkT("kk_js_month"));var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(d._kkUnreadable?null:a);expArr.push(d._kkUnreadable?null:b);invArr.push(d._kkUnreadable?null:c);}
   var bc=document.getElementById('barChart');
@@ -1662,10 +1677,10 @@ function renderAll(){
   if(pc){
     _renderChart('assetPieChart','pie',pc,aVals.length?{type:'doughnut',data:{labels:aLabels.map(kkCat),datasets:[{data:aVals,backgroundColor:aColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'60%'}}:null);
     var al=document.getElementById('asset-legend');
-    if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aVals.length===0?'<div class="empty-state">'+kkT("kk_js_register_asset_to_chart")+'</div>':aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkHtmlText(kkCat(c))+'</span><span style="font-weight:700;color:#1a3325">'+Math.round(aVals[i]/total2*100)+'%</span></div>';}).join('');}
+    if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aVals.length===0?'<div class="empty-state">'+kkT("kk_js_register_asset_to_chart")+'</div>':aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkHtmlText(kkCat(c))+'</span><span style="font-weight:700;color:#1a3325">'+(total2>0?Math.round(aVals[i]/total2*100)+'%':'—')+'</span></div>';}).join('');}
   }
   var astEl=document.getElementById('asset-list-el');
-  if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'<div class="empty-state">'+kkT("kk_empty_no_assets")+'</div>':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+a.name+'<br><span style="font-size:11px;color:#9ab5a5">'+a.cat+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+a.id+')">✕</button></div>';}).join('');}
+  if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'<div class="empty-state">'+kkT("kk_empty_no_assets")+'</div>':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+kkHtmlText(a.name)+'<br><span style="font-size:11px;color:#9ab5a5">'+kkHtmlText(a.cat)+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+Number(a.id)+')">✕</button></div>';}).join('');}
   var recEl=document.getElementById('rec-list-el');
   if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+kkHtmlText(e.name)+'</div><div class="rec-meta">'+kkHtmlText(kkRecordCategory(e))+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+kkHtmlText(kkRecordAmount(e))+'</div><button class="rec-del" onclick="deleteRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
   renderCalendar();if(_modalDate)renderDayModal();

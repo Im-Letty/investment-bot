@@ -1,4 +1,10 @@
 /* Notebook surface with the selected two-by-two monthly summary and original entry controls. */
+/* Assets and the household ledger share one private document and storage owner. */
+body.kn-ledger-paper[data-kk-mypage-view="assets"] {padding:0!important}
+body.kn-ledger-paper[data-kk-mypage-view="assets"] > :not(#tab-assets):not(#ledger-session-notice):not(script):not(style) {display:none!important}
+body.kn-ledger-paper[data-kk-mypage-view="assets"] #tab-assets {display:block;max-width:720px;margin-inline:auto;padding:16px}
+body.kn-ledger-paper .kk-asset-summary {padding:20px;border:1px solid var(--kn-ledger-line);border-radius:10px;background:var(--kn-ledger-paper);margin-bottom:24px}
+body.kn-ledger-paper .kk-asset-total {margin:8px 0;color:var(--kn-ledger-ink);font:500 calc(30px * var(--kn-ledger-scale,1))/1.4 var(--kn-ledger-serif);font-variant-numeric:tabular-nums;overflow-wrap:anywhere}
 body.kn-ledger-letter.kn-ledger-paper:not([data-kn-ledger-dark="true"]) {
   --kn-ledger-bg:color-mix(in srgb,var(--kn-sh-bg,#f1f5f2) 10%,#fff);
   --kn-ledger-paper:var(--kn-sh-paper,#fffdf6);

@@ -12,8 +12,8 @@ function closeMySource(){
   }
   throw Error('The actual MyPage close handler must be complete');
 }
-function fixture(user={id:'account-A'}) {
-  const events={},messages={},mutations=[],navigations=[];let refreshes=0,closes=0;
+function fixture(user={id:'account-A'},options={}) {
+  const events={},messages={},mutations=[],navigations=[],views=[];let refreshes=0,closes=0;
   class Element {
     constructor(){this.children=[];this.dataset={};this.style={};this.attributes={};this.listeners={};this.srcChanges=[];this.scrollTop=0;}
     set className(value){this.classes=new Set(value.split(' '));}
@@ -24,7 +24,7 @@ function fixture(user={id:'account-A'}) {
     querySelector(selector){return this.querySelectorAll(selector)[0]||null;}
     querySelectorAll(selector){let descendants=this.children.flatMap(el=>[el,...el.querySelectorAll('*')]);return descendants.filter(el=>selector==='*'||(selector==='.mo-pane:not(.kb-pane)'?el.classList.contains('mo-pane')&&!el.classList.contains('kb-pane'):el.classList.contains(selector.slice(1))));}
     addEventListener(name,fn){this.listeners[name]=fn;}
-    click(){this.listeners.click?.();this.onclick?.();}
+    click(){this.onclick?.();this.listeners.click?.();}
     setAttribute(name,value){this.attributes[name]=value;if(name==='src'){this.srcChanges.push(value);navigations.push(value);}}
     getAttribute(name){return this.attributes[name]??null;}
     removeAttribute(name){delete this.attributes[name];}
@@ -34,17 +34,21 @@ function fixture(user={id:'account-A'}) {
   const close=page.appendChild(el('mo-x'));
   tabs.appendChild(el('mo-tab on'));tabs.appendChild(el('mo-tab'));
   body.appendChild(el('mo-pane on'));body.appendChild(el('mo-pane'));
+  tabs.children.forEach((tab,index)=>{tab.onclick=()=>{
+    tabs.children.forEach((item,i)=>item.classList.toggle('on',i===index));
+    body.querySelectorAll('.mo-pane:not(.kb-pane)').forEach((item,i)=>item.classList.toggle('on',i===index));
+  };});
   const card=el('');
-  function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;}};}
+  function documentInFrame(n){n.contentDocument={readyState:'complete',documentElement:{getAttribute:()=> 'true'}};n.contentWindow={location:{origin:'https://local.test',protocol:'https:',pathname:'/kakeibo'},kkRefreshRecords(){refreshes++;},kkSetMyPageView(view){views.push(view);}};}
   const doc={readyState:'complete',body:el(''),querySelector:()=>null,getElementById:id=>({myPageOv:page,myPageCard:card}[id]),createElement:tag=>{const n=el('');if(tag==='iframe')documentInFrame(n);return n;},addEventListener:(name,fn)=>events[name]=fn};
-  const context={document:doc,knUser:user,location:{origin:'https://local.test'},setTimeout(){throw Error('setup should be immediate');},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>messages[name]=fn};context.window=context;
+  const context={document:doc,knUser:user,location:{origin:'https://local.test',search:options.search||''},URLSearchParams,setTimeout(){throw Error('setup should be immediate');},MutationObserver:class {constructor(fn){mutations.push(fn);}observe(){}},addEventListener:(name,fn)=>messages[name]=fn};context.window=context;
+  card.listeners.click=()=>{if(context.knUser&&(!context.knUser.is_anonymous||options.allowAnonymous)){page.classList.add('open');context.knPrepareLedger();}};
   vm.runInNewContext(read('static/mypage-ledger-loader.js'),context);
   vm.runInNewContext(closeMySource(),context);
   close.onclick=()=>{closes++;context.closeMy();};
   const frame=page.querySelector('.kb-frame'),top=page.querySelector('.mp-toptabs'),personal=top.children[0],ledger=top.children[1];
   documentInFrame(frame);
-  card.listeners.click=()=>{if(context.knUser&&!context.knUser.is_anonymous){page.classList.add('open');context.knPrepareLedger();}};
-  return {context,page,tabs,body,close,get frame(){return page.querySelector('.kb-frame');},personal,ledger,mutations,navigations,refreshes:()=>refreshes,closes:()=>closes,auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
+  return {context,page,tabs,body,close,get frame(){return page.querySelector('.kb-frame');},personal,ledger,mutations,navigations,views,refreshes:()=>refreshes,closes:()=>closes,auth(user){context.knUser=user;events.knAuthChange();},ready(event={}){messages.message({origin:context.location.origin,source:page.querySelector('.kb-frame').contentWindow,data:{type:'kn-kakeibo-ready'},...event});}};
 }
 test('no household ledger request before an authorized MyPage visit',()=>{
   const h=fixture();assert.equal(h.frame.getAttribute('src'),null);h.context.knPrepareLedger();assert.equal(h.frame.getAttribute('src'),null);
@@ -95,7 +99,7 @@ test('readiness accepts only the owned same-origin household-ledger frame',()=>{
 });
 test('home navigation does not remove the ledger source and drawer opens it without a timer',()=>{
   const html=read('index.html');
-  assert.match(html,/mypage-ledger-loader\.js\?v=20261016-stable1/);
+  assert.match(html,/mypage-ledger-loader\.js\?v=20261017-assets1/);
   assert.doesNotMatch(html,/__kf2.*removeAttribute\('src'\)/);
   assert.match(html,/var kakeibo=mkItem\("📒 家計簿",function\(\)\{CD\(\);if\(window\.knOpenLedger\)window\.knOpenLedger\(\);\}\)/);
 });
@@ -171,4 +175,43 @@ test('opening a pending, auth-waiting, initial blank or correct ready ledger pre
     h.personal.click();h.ledger.click();
     assert.equal(h.frame,frame,JSON.stringify(state));assert.equal(frame.draft,'synthetic waiting draft');assert.deepEqual(h.navigations,['/kakeibo']);
   }
+});
+test('portfolio opens assets in the same private document and other personal tabs hide it',()=>{
+  const h=fixture();
+  assert.equal(h.context.knOpenAssets(),true);
+  const frame=h.frame;frame.draft='unfinished asset';h.ready();
+  assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.views.at(-1),'assets');
+  assert.equal(frame.parentNode.classList.contains('on'),true);
+  h.tabs.children[1].click();
+  assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.equal(frame.parentNode.classList.contains('on'),false);
+  h.tabs.children[0].click();
+  assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.views.at(-1),'assets');
+  h.ledger.click();assert.equal(h.views.at(-1),'ledger');h.personal.click();assert.equal(h.views.at(-1),'assets');
+  assert.equal(h.frame,frame);assert.equal(frame.draft,'unfinished asset');assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('household assets navigation reports acceptance and selects portfolio without a top-level reload',()=>{
+  const h=fixture();h.context.knOpenLedger();const frame=h.frame;frame.draft='unfinished household entry';
+  h.tabs.children[1].click();h.ledger.click();
+  assert.equal(h.context.knOpenAssets(),true);
+  assert.equal(h.personal.classList.contains('on'),true);assert.equal(h.tabs.children[0].classList.contains('on'),true);
+  assert.equal(h.views.at(-1),'assets');assert.equal(h.frame,frame);assert.equal(frame.draft,'unfinished household entry');assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('pending assets entry waits for authorized opening and never loads a private document while signed out',()=>{
+  const h=fixture(null);assert.equal(h.context.knOpenAssets(),false);
+  assert.equal(h.frame.getAttribute('src'),null);assert.equal(h.page.classList.contains('open'),false);
+  h.auth({id:'account-A'});
+  assert.equal(h.page.classList.contains('open'),true);assert.equal(h.context.knOpenAssets(),true);
+  assert.equal(h.views.at(-1),'assets');assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('standalone asset links open the portfolio for the existing anonymous owner without bypassing the normal entry',()=>{
+  const h=fixture({id:'guest-A',is_anonymous:true},{allowAnonymous:true,search:'?mypage=assets'});
+  assert.equal(h.page.classList.contains('open'),true);assert.equal(h.page.getAttribute('data-mp-view'),'assets');
+  assert.equal(h.views.at(-1),'assets');assert.deepEqual(h.navigations,['/kakeibo']);
+  h.context.knOpenAssets();assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('the standalone link waits for the existing auth event before opening an anonymous private portfolio',()=>{
+  const h=fixture(null,{allowAnonymous:true,search:'?mypage=assets'});
+  assert.equal(h.page.classList.contains('open'),false);assert.deepEqual(h.navigations,[]);
+  h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.page.classList.contains('open'),true);
+  assert.equal(h.views.at(-1),'assets');assert.deepEqual(h.navigations,['/kakeibo']);
 });

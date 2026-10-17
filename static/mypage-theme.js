@@ -82,7 +82,7 @@
     }
     var frame=page.querySelector('.kb-frame');
     if(frame&&!frames.has(frame)){
-      frames.add(frame);attribute(frame,'title','家計簿');frame.addEventListener('load',syncLedger);
+      frames.add(frame);attribute(frame,'title','資産管理・家計簿');frame.addEventListener('load',syncLedger);
     }
     syncLedger();
   }

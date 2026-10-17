@@ -1,6 +1,7 @@
 (function () {
   'use strict';
   var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false, personalScroll=0;
+  var group=0, pendingAssets=false;
   function account() {
     var user=window.knUser;
     return user&&user.id?String(user.id):'';
@@ -16,7 +17,7 @@
   }
   function createFrame() {
     var item=document.createElement('iframe');item.className='kb-frame';item.dataset.kbsrc='/kakeibo';
-    item.setAttribute('title','家計簿');item.addEventListener('load',function(){
+    item.setAttribute('title','資産管理・家計簿');item.addEventListener('load',function(){
       if(item!==frame)return;
       loaded=true;ready=false;item.setAttribute('aria-busy','true');markReady();
     });pane.appendChild(item);
@@ -27,8 +28,19 @@
     try {
       var doc=frame.contentDocument;
       if(!doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true')return;
-      ready=true;frame.removeAttribute('aria-busy');
+      ready=true;applyFrameView();frame.removeAttribute('aria-busy');
     } catch(ignore) {}
+  }
+  function portfolioSelected() {
+    var first=tabs&&tabs.querySelector('.mo-tab');
+    return !!(first&&first.classList.contains('on'));
+  }
+  function applyFrameView() {
+    if(!ready||!owner||owner!==account())return;
+    var view=group===1?'ledger':portfolioSelected()?'assets':null;
+    if(!view)return;
+    var child=frame.contentWindow;
+    if(typeof child.kkSetMyPageView==='function')child.kkSetMyPageView(view);
   }
   function prepare() {
     if(!page||!page.classList.contains('open'))return;
@@ -60,10 +72,13 @@
       close.click();return true;
     } catch(ignore) {return false;}
   }
-  function show(group) {
-    var wasLedger=pane.classList.contains('on');
-    if(group===1){
-      if(!account())return;
+  function show(nextGroup) {
+    if(nextGroup===1&&!account())return;
+    var wasLedger=group===1;
+    group=nextGroup;
+    var assets=group===0&&portfolioSelected()&&!!account();
+    page.setAttribute('data-mp-view',group===1?'ledger':assets?'assets':'personal');
+    if(group===1||assets){
       recoverWrongDocument();
       prepare();
       markReady();
@@ -80,7 +95,7 @@
     tabs.style.display='';tabs.style.visibility=group===0?'':'hidden';
     if(group===1){tabs.setAttribute('inert','');tabs.setAttribute('aria-hidden','true');}
     else {tabs.removeAttribute('inert');tabs.removeAttribute('aria-hidden');}
-    pane.classList.toggle('on',group===1);
+    pane.classList.toggle('on',group===1||assets);
     var inner=body.querySelectorAll('.mo-pane:not(.kb-pane)'), ti=tabs.querySelectorAll('.mo-tab');
     for(var i=0;i<inner.length;i++)
       inner[i].classList.toggle('on',group===0&&!!(ti[i]&&ti[i].classList.contains('on')));
@@ -88,6 +103,27 @@
     else if(wasLedger)body.scrollTop=personalScroll;
     // Keep the same authenticated document, its scroll position and unfinished
     // inputs when switching tabs. Authentication changes destroy it below.
+  }
+  function openAssets() {
+    pendingAssets=true;
+    var card=document.getElementById('myPageCard');if(card)card.click();
+    if(!page.classList.contains('open')||!account())return false;
+    pendingAssets=false;
+    var first=tabs.querySelector('.mo-tab');if(first)first.click();
+    show(0);
+    return true;
+  }
+  function preparePortfolioNote() {
+    var portfolio=body.querySelector('.mo-pane:not(.kb-pane)');
+    var field=portfolio&&portfolio.querySelector('textarea');
+    if(!field)return;
+    portfolio.classList.add('mp-portfolio-note');
+    var details=document.createElement('details'),summary=document.createElement('summary');
+    summary.textContent='ポートフォリオのメモ';details.appendChild(summary);
+    while(portfolio.firstChild)details.appendChild(portfolio.firstChild);
+    portfolio.appendChild(details);field.rows=4;
+    var lead=details.querySelector('.mo-lead');
+    if(lead)lead.textContent='資産の計画や補足をメモできます。';
   }
   function setup() {
     page=document.getElementById('myPageOv');
@@ -98,6 +134,7 @@
     if(!pane){pane=document.createElement('div');pane.className='mo-pane kb-pane';body.appendChild(pane);}
     frame=pane.querySelector('.kb-frame');
     if(!frame)frame=createFrame();
+    preparePortfolioNote();
     var old=tabs.querySelector('.kb-tab');if(old)old.parentNode.removeChild(old);
     var top=document.createElement('div');top.className='mp-toptabs';
     personal=document.createElement('div');personal.className='mp-toptab on';personal.textContent='マイページ';
@@ -105,22 +142,28 @@
     top.appendChild(personal);top.appendChild(ledger);page.insertBefore(top,tabs);
     personal.addEventListener('click',function(){show(0);});
     ledger.addEventListener('click',function(){show(1);});
+    tabs.querySelectorAll('.mo-tab').forEach(function(tab){
+      // The original tab handler still owns each note, goal and Todo pane.
+      tab.addEventListener('click',function(){show(0);});
+    });
     window.addEventListener('message',function(event){
       if(event.origin===location.origin&&event.source===frame.contentWindow&&event.data&&event.data.type==='kn-kakeibo-ready')markReady();
     });
     document.addEventListener('knAuthChange',function(){
       if(owner&&owner!==account()){unload();show(0);}
       if(!account())page.classList.remove('open');
-      else prepare();
+      else {show(group);prepare();if(pendingAssets)openAssets();}
     });
     new MutationObserver(prepare).observe(page,{attributes:true,attributeFilter:['class']});
     window.knPrepareLedger=prepare;
     window.knReturnFromLedger=returnFromLedger;
+    window.knOpenAssets=openAssets;
     window.knOpenLedger=function(){
       var card=document.getElementById('myPageCard');if(card)card.click();
       if(page.classList.contains('open')&&account())show(1);
     };
-    prepare();
+    show(0);
+    if(typeof URLSearchParams==='function'&&new URLSearchParams(location.search||'').get('mypage')==='assets')openAssets();
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })();

@@ -376,3 +376,17 @@ body.kn-home-a #knLogoutDlg button:focus-visible {
   outline: 2px solid var(--kn-sh-button, #607765) !important;
   outline-offset: 3px;
 }
+
+
+/* One private ledger document serves the portfolio and household views. */
+body.kn-home-a #myPageOv[data-mp-view="assets"] .mo-body {gap:0}
+body.kn-home-a #myPageOv .mp-portfolio-note {
+  order:1;flex:0 0 auto;min-height:0;padding:12px 16px 0;
+  border-top:1px solid var(--kn-sh-line,#dce6d7);
+}
+body.kn-home-a #myPageOv .mp-portfolio-note details {max-height:32vh;overflow:auto}
+body.kn-home-a #myPageOv .mp-portfolio-note summary {
+  cursor:pointer;min-height:32px;color:var(--kn-sh-ink,#184b3c);
+  font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));
+}
+body.kn-home-a #myPageOv .mp-portfolio-note textarea {min-height:80px}
