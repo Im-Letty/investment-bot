@@ -639,5 +639,101 @@
     "notify": false
   },
   "note_SHA_is_raw_programme_page_SHA": false,
-  "source_expression_tables_images_saved": false
+  "source_expression_tables_images_saved": false,
+  "public_timing_summary_correction": {
+    "scope": "Only compact timing text changes; complete prior numeric summary retained verbatim in long conditions. Original author observations and independent source records are unchanged.",
+    "initial_actual_public_UI_issue": {
+      "schema_version": 1,
+      "observed_at_jst": "2026-10-19T08:12:27.805582+09:00",
+      "browser_id": "3",
+      "tab_id": "41",
+      "revision": "6582b6f626c2af7ffdf320ec058caa5ff4a636e9",
+      "actual_public_UI_observed": true,
+      "published_count_visible": 29,
+      "new6025expanded": true,
+      "full_conditions_two_tiers_remote_service_restrictions_and_unknowns_visible": true,
+      "source_visible_AX_value": "j-pcs.jp/ir/benefits",
+      "confirmation_date_visible": "2026/10/19 確認",
+      "pre_finalization_issue": {
+        "field": "grant_summary",
+        "observed_compact_label": "いつもらえる？",
+        "observed_text": "サービス券の2株数区分と、500株以上のリモートサポート券1枚。リモートサポート券の現金価値は不明で、サービス券の額面合計に加算しない。",
+        "expanded_delivery_correct": "毎年11月の株主総会翌日に発送予定。実発送・到着日は未確認。",
+        "required_correction": "Use the separately known dispatch plan for the compact timing label; preserve all numerical tiers, source times and unknown purchase cutoff."
+      },
+      "final_publication_verified": false,
+      "source_link_clicked": false,
+      "source_HTTP_added": 0,
+      "private_Render_access": false,
+      "source_public_asset": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/public-assets-03.json",
+        "sha256": "f0bb44ae19bbdcdae23de498ee4b966772f8d15d45fb2807c50db32a7b7c2abc"
+      },
+      "no_raw_error_or_full_homepage_saved": true
+    },
+    "independent_correction_wording_review": {
+      "schema_version": 1,
+      "checked_at_jst": "2026-10-19T08:13:59.401968+09:00",
+      "reviewer": "/root/per_041612_gate_audit",
+      "source_author": "/root/benefits_1384_044613",
+      "original_candidate_and_correction_definition_author": "/root",
+      "mechanical_corrected_variant_writer": "/root/per_041612_gate_audit",
+      "scope": "Independent saved-source and actual-root-UI-learning review of the ROOT-authorized two-text-field correction only. Mechanical variant stored separately, no new programme facts or source observation.",
+      "all_checks_pass": true,
+      "checks": {
+        "actual_public_UI_learning_is_dated_root_observation_not_reviewers_new_UI": true,
+        "compact_label_when_received_requires_timing_summary_not_reward_composition": true,
+        "corrected_summary_exact_root_authorized_November_meeting_nextday_dispatch_plan": true,
+        "planned_dispatch_not_actual_send_or_arrival": true,
+        "complete_old_numeric_summary_verbatim_appended_to_long_conditions": true,
+        "remote_cash_value_unknown_and_no_facevalue_addition_retained_in_details": true,
+        "only_two_text_fields_differ_from_original_candidate": true,
+        "all_two_tiers_numeric_values_holding_nulls_nonaddition_and_use_exact": true,
+        "delivery_remote_period_and_general_coupon_unknown_expiry_exact": true,
+        "source_observation_time_verifiedon_identity_announced_effective_dates_exact": true,
+        "no_new_schedules_trade_dates_or_annual_edition_inferred": true,
+        "same_source_conditions_original_notes_and_prior_independent_approvals_preserved": true,
+        "new_candidate_evidence_SHA_remains_null_until_bundle_built": true,
+        "original_candidate_manifest_audits_public_attempts_not_overwritten": true,
+        "old_first_UI_attempt_is_not_final_publication_success": true,
+        "new_publicassets_and_actual_UI_reverification_still_required": true,
+        "no_source_HTTP_or_helper_entrypoint_or_live_edit_by_reviewer": true
+      },
+      "issues": [],
+      "immutable_after_save": true,
+      "public_wording_supported": true,
+      "correction_wording_supported": true,
+      "correction_fields": [
+        "candidate_payload.versions.0.grant_summary",
+        "candidate_payload.versions.0.conditions"
+      ],
+      "old_grant_summary": "サービス券の2株数区分と、500株以上のリモートサポート券1枚。リモートサポート券の現金価値は不明で、サービス券の額面合計に加算しない。",
+      "new_grant_summary": "毎年11月の株主総会翌日に発送予定（実発送・到着日は未確認）",
+      "new_conditions": "500株以上。単元100株（公式FAQ）と優待最低500株を区別。株数区分は非加算。保有期間・同番号・連続名簿回数・申請選択の追加条件は未記載。 サービス券の2株数区分と、500株以上のリモートサポート券1枚。リモートサポート券の現金価値は不明で、サービス券の額面合計に加算しない。",
+      "source_observation_clock_refreshed": false,
+      "future_schedule_approved": false,
+      "new_publication_already_verified": false,
+      "evidenceSHA256": {
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/manifest-candidate-timing-correction.json": "41e9ea12bd6483c7bc672387383b0ddbac39f5ce69e7ae3ec73950ffc87e907b",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/manifest-candidate.json": "12c28d2897da793e61c7fad0d44ee866546e9c316e3cbb4b5336623e6dffee99",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/source-observation-notes.json": "6b44d721b6ae23fa86785ae4170fdb237cb2b3cb087f085114a647a9a406a80b",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/source-network-log.json": "767a6e9c17bab1b095dd53287938bff02e5170892ff4ed59947f93b9f7fdd582",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/benefit-review-result.json": "5f0bfb3929dbfe446b56ad0561f690e1a9e5ae6b08adcb599272d23bd9af3f7d",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/independent-review.json": "cff9d1ddda89c1f6458a67f0e02a6063631d83de4c52978ca0d73db0def9755d",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/company-6025/independent-wording-review.json": "a2a8833ea164813e934ad6af7901e3407ace28e197377def63700c8be13662e6",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/initial-public-ui-issue.json": "cd8442e9b31e9429194f48e421140fa60240b29efb08935c5a4d1ab4b04e0193",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/public-assets-03.json": "f0bb44ae19bbdcdae23de498ee4b966772f8d15d45fb2807c50db32a7b7c2abc",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/publication-candidate-selection.json": "32cb52d1ba85addda31ce276b8c02ac463f268e71ed3739710f2121c6c3155cb",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/isolated-candidate-verification.json": "4af89de250d31f295cd000ea6cde205ba5b464f51c34674153c35d275d3b5fa0",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/commit-verification.json": "d73ee4243280934a46c97759382cab51368fdbbd3ba7836eff2b1bf50c465087",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/push-verification.json": "594f63bb125bb611456489144958890048f46ab3c10498f58e57691c03e7ed40",
+        "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-074419/main-integration-preservation-verification.json": "a23725e13bf01bba9183ae5f9e3928b47f317dfa423729370124865111423253"
+      },
+      "HTTP": 0,
+      "helper_imports_or_entrypoints": 0,
+      "live_changes": 0
+    },
+    "previous_bundle_sha256": "66cb5cfe59d7cc10356719a9bc06c7f966152a0d0ada3f982df0e46879152977",
+    "source_observation_clock_refreshed": false
+  }
 }
