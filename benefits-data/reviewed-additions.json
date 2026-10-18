@@ -1252,6 +1252,72 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "8554",
+      "symbol": "8554.JP",
+      "name": "南日本銀行",
+      "category": "預金金利優遇",
+      "aliases": "株式会社南日本銀行 なんぎん Minami Nippon Bank",
+      "versions": [
+        {
+          "id": "official-2026-edition-reviewed-20261018",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": "2027-06-30",
+          "announced_on": null,
+          "verified_on": "2026-10-18",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://nangin.jp/ir/cat3833/post_4.html",
+            "citation_url": "https://nangin.jp/",
+            "title": "南日本銀行公式 株主優遇定期預金（2026年版）",
+            "security_code": "8554",
+            "issuer_name": "南日本銀行",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-18T13:16:34+09:00",
+            "observed_at_kind": "actual_web_tool_after_clock_upper_bound_not_origin_HTTP",
+            "evidence_path": "evidence/reviewed-8554-observation-bundle-20261018.json",
+            "evidence_sha256": "e8163fb613c6aa87a28a6f96d3cca6d682dc0b0bdaf220b3fc3b8ac1d568b1a3"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-root-author-plus-independent-source-and-public-wording-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行2026年7月1日表示のHTML全2区分・利用条件、福証の発行体/8554/本則/100株と現行StockSearchを照合。基準日は2026年3月31日だけを採用し翌年へ反復しない。取扱終了2027年6月30日までの版。限定IR一覧は全改廃や将来変更の不存在を保証しない。表現転載と短い独立事実を分け、公開出典はホームページ指定に従う。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "2026年3月31日の名簿対象分（取扱は2026/7/1〜2027/6/30。次回対象日・購入締切未確認）",
+          "conditions": "2026年3月31日の株主名簿に載る100株以上の個人・法人株主本人が対象。100〜999株は1枚、1,000株以上は2枚で、枚数を合算しません。売買単位も100株。保有期間・同番号・連続記録回数の追加条件は本文に記載がありません。今からの購入でこの過去の基準日を満たすことはできません。",
+          "use": "1枚につき10万〜500万円を一括で、期間1年の自動継続スーパー定期預金（利払式）へ預入。預入時の1年物店頭表示金利に年0.3ポイント上乗せし、初回満期まで適用（固定の総利率0.3%ではありません）。2枚を合わせた大口定期にはできません。店舗窓口のみ・ATM不可、1株主1店舗で普通預金口座が必要。遠方では希望どおり取り扱えない場合があります。券は預入時回収、譲渡・再発行不可。中途解約は上乗せなしで所定解約利率、満期後の自動継続は満期日の店頭表示利率。個人利息の税率は20.315%（所得税等15.315%・地方税5%）、法人は総合課税との案内です。預金保険対象。総合口座の担保にでき、当座貸越利率は担保預金約定利率に年0.5ポイント加算（預金の上乗せ利息ではありません）。",
+          "delivery": "銀行は総会決議通知への同封による発送済みと案内。正確な実発送日・各人の到着日は未確認。取扱は2026/7/1〜2027/6/30で、券面の有効期限を別に確認した情報ではありません。翌年度の発送・対象日や申込締切は未確認です。",
+          "grant_summary": "2026年分は発送済みとの公式案内（実発送日・個別到着日は未確認）",
+          "tiers": [
+            {
+              "id": "2026-100",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有月数・同番号・連続名簿条件は本文に記載なし",
+              "reward": "株主優遇定期預金の優遇券1枚",
+              "conditions": "2026年3月31日の名簿対象分。1枚で10万〜500万円を1年物へ一括預入、基準金利に年0.3ポイント上乗せは初回満期まで。本人利用・取扱期限等の条件あり。"
+            },
+            {
+              "id": "2026-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有月数・同番号・連続名簿条件は本文に記載なし",
+              "reward": "株主優遇定期預金の優遇券2枚",
+              "conditions": "2026年3月31日の名簿対象分。1枚区分との合算なし。各券10万〜500万円の一括預入で、2枚を合わせた大口定期にはできません。上乗せは初回満期まで。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

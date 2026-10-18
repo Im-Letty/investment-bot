@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 26 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17 and two on 2026-10-18. The owner chose phased expansion using free
+The catalogue contains 27 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17 and three on 2026-10-18. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -410,3 +410,29 @@ that the company offers no benefit.
 The same bounded batch keeps 8398 Chikuho Bank and 1417 Mirait One under distinct
 source-conditions holds. A hold or an unread programme is not benefit absence, and
 these companies are not added to the active catalogue.
+
+
+## Fukuoka year-specific addition reviewed on 2026-10-18
+
+- 8554 Minami Nippon Bank: https://nangin.jp/
+  Public citation follows the homepage-only link request; the actual programme
+  page remains internal. This is the July 1, 2026 edition, for the March 31, 2026
+  register only: 100–999 shares receive one coupon and 1,000+ receive two,
+  without adding brackets. Each coupon allows one lump-sum deposit of 100,000 to
+  5,000,000 yen into a one-year Super time deposit. The first term adds 0.3
+  percentage points to the applicable base rate, not a fixed total rate of 0.3%.
+  Handling runs July 1, 2026–June 30, 2027. Keep account, single-branch/counter,
+  nontransfer/reissue, renewal, early-termination, tax and separate collateral
+  overdraft conditions in the public detail. The issuer reports coupons already
+  sent; exact dispatch, individual arrival and separately printed expiry are
+  unknown. Buying now cannot meet the past register. No annual repetition, 2027
+  entitlement or next purchase deadline is inferred. Holding duration is unstated.
+  Copyright/content-use consent and source expression are separate from short
+  independent facts; no general reuse grant is claimed. Only limited IR-list
+  labels were checked, not every amendment. All previous 26 records and 12
+  explicit schedules are preserved; this record has no schedule.
+
+The same bounded batch verifies Interlife 1418's explicit abolition after its
+February 2023 register benefit. It leaves OKWEB 3808 unknown: missing programme
+information is not explicit nonimplementation, and media-service terms are not
+expanded into a corporate IR prohibition or licence.
