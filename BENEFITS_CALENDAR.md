@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 25 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17 and one on 2026-10-18. The owner chose phased expansion using free
+The catalogue contains 26 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17 and two on 2026-10-18. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -385,3 +385,28 @@ link-contact condition do not establish benefit absence. 1383 Bergearth remains
 unknown after two actual IR links returned 404; a readable 2022 benefit announcement
 is historical and is not promoted to a current programme. Neither failure means
 that the company offers no benefit.
+
+## Further Nagoya addition reviewed on 2026-10-18
+
+- 377A Agent IG Holdings: https://a-gent.co.jp/ir/stock/
+  The single displayed tier grants a 3,000-yen digital gift to holders of 100+
+  shares on the December-end register. Nagoya Main identity and the separate
+  100-share trading unit agree with saved StockSearch identity. Holding duration,
+  same-number, continuous-register and historical share-count tests are unstated;
+  they remain unknown rather than zero. The advertised exchange destinations are
+  examples, not additive gifts or a guaranteed closed list. Application, selection,
+  split-exchange rules, deadlines and gift expiry remain unconfirmed. Guidance is
+  planned with the shareholders-meeting notice in early March of the following
+  year; this is not the gift's actual dispatch or arrival. Announcement, first
+  programme year and current-tier effective dates remain unknown. Dynamic IR news
+  rows were not exposed, so the limited history review does not establish absence
+  of amendments. No purchase deadline or year-specific schedule is fabricated.
+  The read IR disclaimer is not a blanket reuse grant; unlocated general terms
+  are not treated as permission or prohibition. Only short independent facts and
+  the source link are adopted after a separate saved-fact review. The evidence
+  bundle hashes authored notes, not primary-page bytes. All prior 25 programmes,
+  nine fixed records and 12 explicit schedules remain unchanged.
+
+The same bounded batch keeps 8398 Chikuho Bank and 1417 Mirait One under distinct
+source-conditions holds. A hold or an unread programme is not benefit absence, and
+these companies are not added to the active catalogue.

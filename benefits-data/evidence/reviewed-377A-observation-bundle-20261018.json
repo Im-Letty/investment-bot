@@ -1,0 +1,553 @@
+{
+  "schema_version": 1,
+  "code": "377A",
+  "recorded_at_jst": "2026-10-18T12:02:44.678568+09:00",
+  "evidence_kind": "primary_page_observation_note",
+  "observed_at_jst": "2026-10-18T11:52:38+09:00",
+  "observed_at_kind": "actual_web_tool_after_clock_upper_bound_not_origin_HTTP",
+  "raw_document_sha256": null,
+  "hash_scope": "This JSON bundles short independently authored observations, network accounting and a saved-fact peer review. Its SHA identifies this bundle, not original primary-page bytes.",
+  "primary_observation": {
+    "schema_version": 1,
+    "code": "377A",
+    "symbol": "377A.JP",
+    "issuer": "株式会社エージェントＩＧホールディングス",
+    "recorded_at_jst": "2026-10-18T11:55:50.926179+09:00",
+    "observer_role": "Original source author only377A; independent review and publication approval are separate.",
+    "evidence_kind": "short_authored_primary_page_observation_note",
+    "raw_document_sha256": null,
+    "raw_document_sha256_reason": "Rendered text was provided, not source bytes. Actual note SHA is not a raw-page SHA.",
+    "read_first": [
+      {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/selected-queue-row.json",
+        "sha256": "5bfa74311f947b6f4beb14c7acedd612cbaa3a9e1c5c03076dcaccf01e85e5ff"
+      },
+      {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/StockSearch-selected-identities.json",
+        "sha256": "2f9c8ad1a743111d76967b05853712a2f9c21218646a1b415c9035bfbd3deb92"
+      },
+      {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/source_gate.py",
+        "sha256": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace"
+      },
+      {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/queue-before.json",
+        "sha256": "881044ab337957a5f4953ade631e6b541612a5d7c9974d8474f113da3d7c96fd"
+      },
+      {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/checkpoint-before.json",
+        "sha256": "dc4300a9041611ccc7d23789fe8392947639b6dfdc7711b431b62f7342041951"
+      },
+      {
+        "path": "/Users/remi/Documents/Codex/2026-09-10/https-github-com-im-letty-investment/work/investment-bot/BENEFITS_CALENDAR.md",
+        "sha256": "d3fc60dba57f745a0abce066a2c1d72bdcb536fcbe17dc32d37038e35da92f3f"
+      },
+      {
+        "path": "/Users/remi/Documents/Codex/2026-09-10/https-github-com-im-letty-investment/work/investment-bot/benefits-data/reviewed-additions.json",
+        "sha256": "a935099ef43c4af303a8b5516108ffa27fddec9e47d5d712c116a637ec2ac0db"
+      }
+    ],
+    "network_log": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/network-operations.json",
+      "sha256": "708d881514009966a6ec7854df1e91febbd460463dafbca627b57a9609130b26"
+    },
+    "existing_catalogue_retained": {
+      "published_companies": 25,
+      "reviewed_additions": 16,
+      "legacy_companies": 9,
+      "explicit_schedules": 12,
+      "377A_present_in_manifest": false,
+      "existing_facts_dates_or_product_files_changed": false
+    },
+    "identity": {
+      "official_name": "株式会社エージェントＩＧホールディングス",
+      "official_code": "377A",
+      "official_exchange": "Nagoya",
+      "official_market": "Main",
+      "official_unit_shares": 100,
+      "official_source_URL": "https://a-gent.co.jp/ir/stock/",
+      "tool_reference": "turn1664view0",
+      "StockSearch_evidence": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/StockSearch-selected-identities.json",
+        "sha256": "2f9c8ad1a743111d76967b05853712a2f9c21218646a1b415c9035bfbd3deb92"
+      },
+      "StockSearch_selected_identity": {
+        "code": "377A",
+        "name": "エージェントＩＧホールディングス",
+        "market": "メイン市場",
+        "industry": "保険業",
+        "exchange": "Nagoya",
+        "source_url": "https://www.nse.or.jp/api/stock/search.json?dispType=stockCode&dispOrder=ASC&dispCount=100&dispPage=1",
+        "catalogue_as_of": "2026-10-14",
+        "symbol": "377A.JP",
+        "provider_symbol": null,
+        "source_title": "名古屋証券取引所",
+        "scope": "japan-listed-domestic-common-equity",
+        "as_of": "2026-10-14"
+      },
+      "StockSearch_comparison": {
+        "canonical_equals_actual_StockSearch": true,
+        "code_symbol_exchange_equal": true
+      },
+      "issuer_code_market_match": true,
+      "current_day_universe_freshness_claimed": false,
+      "minimum_benefit_shares_not_inferred_from_unit": true
+    },
+    "programme": {
+      "primary_current_HTML_body_obtained": true,
+      "source_URL": "https://a-gent.co.jp/ir/stock/",
+      "tool_reference": "turn1664view0",
+      "actual_web_tool_outer_bounds_jst": [
+        "2026-10-18T11:52:36+09:00",
+        "2026-10-18T11:52:38+09:00"
+      ],
+      "current_status": "active_official_HTML_programme",
+      "recurring_record_month_day": "12-31",
+      "register_requirement": "Registered shareholders at December-end.",
+      "minimum_shares": 100,
+      "tiers": [
+        {
+          "shares_min": 100,
+          "shares_max": null,
+          "gift_type": "Digital gift",
+          "total_value_yen": 3000
+        }
+      ],
+      "all_displayed_share_tiers_read": true,
+      "holding_duration_months": null,
+      "same_shareholder_number_requirement": null,
+      "consecutive_register_count": null,
+      "shares_required_at_each_previous_register": null,
+      "application_required": null,
+      "application_cutoff": null,
+      "selection_and_split_exchange_rules": null,
+      "one_time_only_rule": null,
+      "gift_destinations_examples": [
+        "PayPay money-light",
+        "Amazon gift card",
+        "d points",
+        "Rakuten points",
+        "QUO Card Pay",
+        "au PAY gift card",
+        "Toshocard NEXT",
+        "Skylark benefit voucher",
+        "Google Play gift code",
+        "PlayStation Store ticket",
+        "Uber Taxi gift card",
+        "Uber Eats gift card",
+        "Visa e gift vanilla",
+        "DMM prepaid card",
+        "FamiPay gift code",
+        "Ponta point code",
+        "WAON POINT e gift",
+        "nanaco gift",
+        "V-preca gift"
+      ],
+      "additional_unnamed_destinations_advertised": true,
+      "destination_list_not_closed_or_guaranteed_unchanged": true,
+      "value_not_multiplied_by_destination_count": true,
+      "guidance_dispatch_plan": {
+        "month": 3,
+        "timing": "early",
+        "relative_year": "following eligible December-end",
+        "enclosure": "Shareholders-meeting convocation notice etc.",
+        "gift_itself_dispatch_or_arrival": false
+      },
+      "gift_actual_dispatch": null,
+      "gift_actual_arrival": null,
+      "gift_expiry": null,
+      "programme_original_announcement_date": null,
+      "programme_original_start_date": null,
+      "current_tier_effective_date": null,
+      "year_specific_record_date_verified": null,
+      "purchase_deadline": null,
+      "schedules": []
+    },
+    "amendment_and_source_version_review": {
+      "official_IR_news_URL": "https://a-gent.co.jp/ir/news/",
+      "tool_reference": "turn1667view0",
+      "actual_web_tool_outer_bounds_jst": [
+        "2026-10-18T11:53:18+09:00",
+        "2026-10-18T11:53:20+09:00"
+      ],
+      "dynamic_news_rows_exposed": false,
+      "not_an_empty_history_or_no_amendment_finding": true,
+      "no_abolition_or_split_inferred_from_missing_rows": true,
+      "source_current_HTML_not_source_original_publication_time": true,
+      "unverified_search_metadata": "Secondary-distribution search results describe a May2026 introduction and first December2026 record. Neither date is promoted to primary-confirmed programme/version facts; no secondary PDF or quote source opened.",
+      "all_past_and_future_changes_verified_absent": false
+    },
+    "source_conditions": {
+      "source_URL": "https://a-gent.co.jp/ir/disclaimer/",
+      "tool_reference": "turn1666view0",
+      "actual_body_obtained": true,
+      "actual_web_tool_outer_bounds_jst": [
+        "2026-10-18T11:53:01+09:00",
+        "2026-10-18T11:53:03+09:00"
+      ],
+      "review_scope": "IR information warranties, forward-looking statements, site operation, outside-link responsibility and insider-trading notices.",
+      "ordinary_links": "The read footer contains IR disclaimer/privacy/security links, not an observed separate general site-use/link-terms URL. No contact/consent or homepage-only link requirement observed in the read disclaimer.",
+      "copyright_alone_facts_blanket_ban_inferred": false,
+      "fulltext_table_image_or_voucher_reproduction_permitted": false,
+      "short_independent_facts_separate_from_source_expression": true,
+      "sitewide_terms_completely_verified": false,
+      "unread_policy_inferred_as_permission_or_prohibition": false,
+      "source_specific_explicit_use_or_link_hold_found": false,
+      "blanket_reuse_permission_claimed": false
+    },
+    "PDF_review": {
+      "PDF_text_documents": 0,
+      "PDF_visual_attempts": 0,
+      "PDF_images": 0,
+      "PDF_numerical_table_authority": false,
+      "numerical_authority_is_current_issuer_HTML": true
+    },
+    "unknowns": [
+      "Holding period, same-number/continuity and past-record share requirements unstated; null, not zero.",
+      "Application/selection/split-exchange cutoff and gift expiry unconfirmed.",
+      "Guidance early-March plan is separate from gift actual dispatch/arrival.",
+      "Announcement, first year/current-tier effective dates and dynamic IR amendment history unconfirmed.",
+      "Separate general sitewide use/link terms not located in the limited read footer/disclaimer; neither permission nor restriction inferred."
+    ],
+    "unknowns_are_disclosed_not_automatic_publication_block": true,
+    "source_recheck_waits": [],
+    "source_operations_closed": true,
+    "additional_source_HTTP_allowed_this_batch": false,
+    "paid_AI_signup_keys_contact_private_access": 0,
+    "repository_manifest_live_ledger_CP_queue_automation_edits": 0,
+    "raw_source_prose_tables_images_vouchers_errors_or_keys_saved": false,
+    "allcompany_coverage_complete": false
+  },
+  "network_observations": {
+    "schema_version": 1,
+    "code": "377A",
+    "symbol": "377A.JP",
+    "recorded_at_jst": "2026-10-18T11:54:56.172731+09:00",
+    "researcher": "/root/per_041612_gate_audit; original source author only377A",
+    "source_operations_closed": true,
+    "additional_source_HTTP_allowed_this_batch": false,
+    "company_primary_operation_limit": 6,
+    "company_primary_URL_spelling_limit": 6,
+    "primary_source_operations": 3,
+    "ordinary_document_operations": 3,
+    "primary_unique_actual_URLs": 3,
+    "conservative_resource_charge": 3,
+    "unused_primary_operation_budget": 3,
+    "unused_budget_transferred": false,
+    "discovery_search_calls": 2,
+    "discovery_queries": 4,
+    "discovery": [
+      {
+        "queries": [
+          "エージェントIGホールディングス 377A 株主優待 公式",
+          "エージェントIGホールディングス 377A 株式情報 サイトポリシー"
+        ],
+        "actual_web_tool_outer_clock_bounds_jst": [
+          "2026-10-18T11:51:12+09:00",
+          "2026-10-18T11:51:14+09:00"
+        ],
+        "source_references": [
+          "turn1661search0",
+          "turn1661search1",
+          "turn1661search2",
+          "turn1661search11"
+        ],
+        "official_URL_discovery_only": true
+      },
+      {
+        "queries": [
+          "site:a-gent.co.jp \"リンク\" \"著作権\"",
+          "\"エージェントＩＧホールディングス\" \"株主優待制度の導入\" \"2026\" 公式"
+        ],
+        "actual_web_tool_outer_clock_bounds_jst": [
+          "2026-10-18T11:53:40+09:00",
+          "2026-10-18T11:53:42+09:00"
+        ],
+        "source_references": [
+          "turn1669search12",
+          "turn1669search13"
+        ],
+        "scope": "Secondary-distribution notice metadata not primary date/version authority; no additional source URL opened."
+      }
+    ],
+    "operations": [
+      {
+        "gate_ticket": "2",
+        "operation": "open",
+        "requested_URL": "https://a-gent.co.jp/ir/stock/",
+        "actual_observed_URL": "https://a-gent.co.jp/ir/stock/",
+        "tool_reference": "turn1664view0",
+        "role": "issuer_code_current_market_unit_and_single_programme_tier",
+        "actual_web_tool_outer_clock_bounds_jst": [
+          "2026-10-18T11:52:36+09:00",
+          "2026-10-18T11:52:38+09:00"
+        ],
+        "clock_kind": "second_precision_explicit_clock_before_and_after_web_call_not_origin_HTTP_time",
+        "gate_operation": {
+          "ticket": "2",
+          "code": "377A",
+          "URL": "https://a-gent.co.jp/ir/stock/",
+          "host": "a-gent.co.jp",
+          "kind": "document",
+          "started_outer_bound_jst": "2026-10-18T11:52:32.244209+09:00",
+          "pending_extra_reservation": 0,
+          "finished_outer_bound_jst": "2026-10-18T11:52:55.140687+09:00",
+          "outcome_code": "official_stock_HTML_identity377A_NagoyaMain_unit100_single_active_gift_tier_observed",
+          "extra_observed_URLs": [],
+          "retry_after_seconds": null,
+          "retry_after_exposed": false
+        },
+        "gate_finish_evidence": {
+          "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-2.json",
+          "sha256": "0765f54912684bd371dc3be84d7d21b7e55650ec1155955998a41bb421b9ffe2"
+        },
+        "content_type_observed": "text/html",
+        "body_obtained": true,
+        "raw_document_sha256": null,
+        "HTTP_status_observed": null,
+        "RetryAfter_visibility": "not_exposed_no_value_or_absence_asserted",
+        "extra_observed_URLs": []
+      },
+      {
+        "gate_ticket": "4",
+        "operation": "open",
+        "requested_URL": "https://a-gent.co.jp/ir/disclaimer/",
+        "actual_observed_URL": "https://a-gent.co.jp/ir/disclaimer/",
+        "tool_reference": "turn1666view0",
+        "role": "IR_disclaimer_and_link_responsibility_scope",
+        "actual_web_tool_outer_clock_bounds_jst": [
+          "2026-10-18T11:53:01+09:00",
+          "2026-10-18T11:53:03+09:00"
+        ],
+        "clock_kind": "second_precision_explicit_clock_before_and_after_web_call_not_origin_HTTP_time",
+        "gate_operation": {
+          "ticket": "4",
+          "code": "377A",
+          "URL": "https://a-gent.co.jp/ir/disclaimer/",
+          "host": "a-gent.co.jp",
+          "kind": "document",
+          "started_outer_bound_jst": "2026-10-18T11:52:58.521666+09:00",
+          "pending_extra_reservation": 0,
+          "finished_outer_bound_jst": "2026-10-18T11:53:11.026997+09:00",
+          "outcome_code": "official_IR_disclaimer_HTML_body_no_general_reuse_or_link_grant_inferred",
+          "extra_observed_URLs": [],
+          "retry_after_seconds": null,
+          "retry_after_exposed": false
+        },
+        "gate_finish_evidence": {
+          "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-4.json",
+          "sha256": "295b73fce73e2a75913497e819935b2d53afdd0b51edbf40fcc07db752821df6"
+        },
+        "content_type_observed": "text/html",
+        "body_obtained": true,
+        "raw_document_sha256": null,
+        "HTTP_status_observed": null,
+        "RetryAfter_visibility": "not_exposed_no_value_or_absence_asserted",
+        "extra_observed_URLs": []
+      },
+      {
+        "gate_ticket": "5",
+        "operation": "open",
+        "requested_URL": "https://a-gent.co.jp/ir/news/",
+        "actual_observed_URL": "https://a-gent.co.jp/ir/news/",
+        "tool_reference": "turn1667view0",
+        "role": "IR_news_dynamic_rows_unexposed_not_empty",
+        "actual_web_tool_outer_clock_bounds_jst": [
+          "2026-10-18T11:53:18+09:00",
+          "2026-10-18T11:53:20+09:00"
+        ],
+        "clock_kind": "second_precision_explicit_clock_before_and_after_web_call_not_origin_HTTP_time",
+        "gate_operation": {
+          "ticket": "5",
+          "code": "377A",
+          "URL": "https://a-gent.co.jp/ir/news/",
+          "host": "a-gent.co.jp",
+          "kind": "document",
+          "started_outer_bound_jst": "2026-10-18T11:53:14.888573+09:00",
+          "pending_extra_reservation": 0,
+          "finished_outer_bound_jst": "2026-10-18T11:53:36.086360+09:00",
+          "outcome_code": "official_IR_news_HTML_dynamic_rows_not_exposed_not_empty_or_no_amendments",
+          "extra_observed_URLs": [],
+          "retry_after_seconds": null,
+          "retry_after_exposed": false
+        },
+        "gate_finish_evidence": {
+          "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-5.json",
+          "sha256": "90436c8baaa216dc9fb374b8d969c5ec6aa5f9df816fe1f288a7cf2c1c882469"
+        },
+        "content_type_observed": "text/html",
+        "body_obtained": true,
+        "raw_document_sha256": null,
+        "HTTP_status_observed": null,
+        "RetryAfter_visibility": "not_exposed_no_value_or_absence_asserted",
+        "extra_observed_URLs": []
+      }
+    ],
+    "source_gate_denials": [],
+    "unknown_target_link_or_resolver_operations": 0,
+    "actual_web_tool_invocations": 5,
+    "total_web_operations": 7,
+    "successful_HTML_operations": 3,
+    "successful_HTML_unique_resources": 3,
+    "PDF_text_documents": 0,
+    "PDF_visual_attempts": 0,
+    "PDF_visual_successes": 0,
+    "PDF_numerical_table_authority": false,
+    "source_operation_outer_bounds_jst": [
+      "2026-10-18T11:52:32.244209+09:00",
+      "2026-10-18T11:53:36.086360+09:00"
+    ],
+    "gate_finish_to_next_begin_seconds": [
+      3.380979,
+      3.861576
+    ],
+    "minimum_gate_host_gap_seconds": 3.380979,
+    "source_gate_helper_actual_SHA256_at_author_close": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace",
+    "all_own_host_operations_serial": true,
+    "actual_origin_HTTP_count_unmeasured": true,
+    "no_other_company_HTTP": true,
+    "no_direct_shell_HTTP": true,
+    "raw_source_prose_tables_images_vouchers_errors_or_incidental_quote_values_saved": false,
+    "paid_AI_calls": 0,
+    "registration_keys_external_contact": 0,
+    "closure_reason": "Current stock/benefit HTML, separate disclaimer and limited IR news read. Stop bounded review without spending unused3operations on guessed or unexposed targets."
+  },
+  "independent_review": {
+    "schema_version": 1,
+    "checked_at_jst": "2026-10-18T12:01:27.421900+09:00",
+    "all_checks_pass": true,
+    "checks": {
+      "author3_real_inputSHA_unchanged_and_reviewer_distinct": true,
+      "single_current_HTML_tier100plus3000_all_boundaries": true,
+      "minimum100_benefit_separate_official_unit100": true,
+      "December_end_no_year_specific_record_or_purchase_deadline_schedulesempty": true,
+      "19_example_destinations_open_ended_not_value_times19": true,
+      "holding_sameID_continuity_each_record_share_unknown_null_not0": true,
+      "application_selection_cutoff_onceonly_expiry_unconfirmed": true,
+      "early_March_guidance_plan_not_actual_gift_dispatch_arrival": true,
+      "announcement_start_effective_unknown_no_secondary_metadata_promotion": true,
+      "official377A_NagoyaMain_unit100_matches_current_saved_StockSearch": true,
+      "limited_IR_disclaimer_no_complete_general_terms_or_blanket_grant": true,
+      "independent_facts_vs_reproduction_separate_unread_policy_not_permission": true,
+      "readiness_is_conditional_author_candidate_not_approval_or_deploysuccess": true,
+      "3419_structure_matched_review_futureflag_limited_scope_not_absence_guarantee": true,
+      "existing25_16reviewed9legacy12schedules_and_public0_preserved": true,
+      "3primaryops3URLs_2search4queries_unused3nottransferred": true,
+      "PDF0_HTML_is_numeric_authority_not_unseen_PDFtable": true,
+      "three_actual_gate_records_match_dated_shared_scope": true,
+      "samehost_serial3point380979minimum_ge1point5": true,
+      "source_observed_upperbounds_distinct_note_result_and_gatefinish_times": true,
+      "actual_noteSHA_distinct_unknown_primary_pageSHA_refs_exact": true,
+      "RetryAfter_unexposed_not_absent_no_refusal_wait_or_denial": true,
+      "source_closed_no_more_HTTP_no_crosscompany_private_paid_or_live": true,
+      "raw_prose_tables_images_vouchers_errors_keys_not_saved_quiet": true,
+      "immutable_evidence_no_live_Rmanifest_or_wholemutable_sharedstate": true
+    },
+    "issues": [],
+    "inputSHA": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/StockSearch-selected-identities.json": "2f9c8ad1a743111d76967b05853712a2f9c21218646a1b415c9035bfbd3deb92",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/checkpoint-before.json": "dc4300a9041611ccc7d23789fe8392947639b6dfdc7711b431b62f7342041951",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-2.json": "0765f54912684bd371dc3be84d7d21b7e55650ec1155955998a41bb421b9ffe2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-4.json": "295b73fce73e2a75913497e819935b2d53afdd0b51edbf40fcc07db752821df6",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-5.json": "90436c8baaa216dc9fb374b8d969c5ec6aa5f9df816fe1f288a7cf2c1c882469",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/network-operations.json": "708d881514009966a6ec7854df1e91febbd460463dafbca627b57a9609130b26",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/review-result.json": "794bd9c58e205a890e77d0ada14d37ed0a9383b771e00694463dd7f5a5dac446",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/selected-queue-row.json": "5bfa74311f947b6f4beb14c7acedd612cbaa3a9e1c5c03076dcaccf01e85e5ff",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/source-observation-notes.json": "7f8987071722238444119e470cd2367bb9987eea64bc714d53549b5fbf46fc9e",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/manifest-before.json": "a935099ef43c4af303a8b5516108ffa27fddec9e47d5d712c116a637ec2ac0db",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/queue-before.json": "881044ab337957a5f4953ade631e6b541612a5d7c9974d8474f113da3d7c96fd",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/source_gate.py": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace"
+    },
+    "evidenceSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/StockSearch-selected-identities.json": "2f9c8ad1a743111d76967b05853712a2f9c21218646a1b415c9035bfbd3deb92",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/checkpoint-before.json": "dc4300a9041611ccc7d23789fe8392947639b6dfdc7711b431b62f7342041951",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-2.json": "0765f54912684bd371dc3be84d7d21b7e55650ec1155955998a41bb421b9ffe2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-4.json": "295b73fce73e2a75913497e819935b2d53afdd0b51edbf40fcc07db752821df6",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/gate-finish-5.json": "90436c8baaa216dc9fb374b8d969c5ec6aa5f9df816fe1f288a7cf2c1c882469",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/network-operations.json": "708d881514009966a6ec7854df1e91febbd460463dafbca627b57a9609130b26",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/review-result.json": "794bd9c58e205a890e77d0ada14d37ed0a9383b771e00694463dd7f5a5dac446",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/selected-queue-row.json": "5bfa74311f947b6f4beb14c7acedd612cbaa3a9e1c5c03076dcaccf01e85e5ff",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/company-377A/source-observation-notes.json": "7f8987071722238444119e470cd2367bb9987eea64bc714d53549b5fbf46fc9e",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/manifest-before.json": "a935099ef43c4af303a8b5516108ffa27fddec9e47d5d712c116a637ec2ac0db",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/queue-before.json": "881044ab337957a5f4953ade631e6b541612a5d7c9974d8474f113da3d7c96fd",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/source_gate.py": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace"
+    },
+    "independent_reviewer": "/root/benefits_1384_044613;1417 author, not377A author",
+    "source_author": "/root/per_041612_gate_audit; original source author only377A",
+    "scope": "Offline comparison of sealed original-author notes/network/candidate and immutable local identity/schema evidence. No fresh primary page, licence or terms verification.",
+    "candidate_recommendation": "The saved note supports the disclosed100+ shares/3000-yen digital-gift candidate. Unstated conditions stay unknown. Author readiness is conditional; this saved-source review is not root publication approval, strict build, deployment or UI confirmation.",
+    "actual_facts": {
+      "code": "377A",
+      "exchange": "Nagoya",
+      "market": "Main",
+      "unit_shares": 100,
+      "minimum_benefit_shares": 100,
+      "single_tier_value_yen": 3000,
+      "record_month_day": "12-31",
+      "destination_examples_count": 19,
+      "destinations_open_ended_not_closedlist": true,
+      "early_March_guidance_not_gift_actual_arrival": true,
+      "unstated_holding_sameID_count_eachrecord_application_expiry_retained_null": true,
+      "schedules": []
+    },
+    "limitations": {
+      "general_sitewide_terms_not_located": true,
+      "limited_IR_disclaimer_not_blanket_permission": true,
+      "all_amendments_and_future_changes_absence_verified": false,
+      "candidate_review_status_as_authored": "pending_independent",
+      "public_approval_and_production_success": false,
+      "unseen_PDF_used": false,
+      "note_SHA_is_primary_page_SHA": false
+    },
+    "dated_shared_gate_comparison": {
+      "own_ticket_ids": [
+        "2",
+        "4",
+        "5"
+      ],
+      "own_records_match_at_local_review": true,
+      "mutable_whole_state_not_in_inputSHA": true,
+      "root_final_closed_state_integration_audit_separate": true
+    },
+    "R_paths_recorded_in_original_note": "Historical author-observation SHA references, not current immutable inputs for intentional root publication edits. Schema comparison bound to W/manifest-before.json.",
+    "actual_minimum_host_gap_seconds": 3.380979,
+    "new_publications_approved_by_this_review": 0,
+    "repository_manifest_ledger_queue_CP_or_automation_changes": 0,
+    "reviewer_HTTP_search_GH_API_browser_or_source_operations": 0,
+    "reviewer_helper_import_or_entrypoint_executions": 0,
+    "original_author_files_modified": false,
+    "notification_needed": false,
+    "immutable_after_save": true
+  },
+  "independent_review_record_sha256": "a4f76596322567db8281a433241db59670d80047772e38531cccea1a4fad299a",
+  "authored_input_sha256": {
+    "source_observation_note": "7f8987071722238444119e470cd2367bb9987eea64bc714d53549b5fbf46fc9e",
+    "network_operations": "708d881514009966a6ec7854df1e91febbd460463dafbca627b57a9609130b26",
+    "original_candidate_result": "794bd9c58e205a890e77d0ada14d37ed0a9383b771e00694463dd7f5a5dac446",
+    "independent_review": "a4f76596322567db8281a433241db59670d80047772e38531cccea1a4fad299a"
+  },
+  "dated_input_reference_bindings": {
+    "original_R_BENEFITS_CALENDAR_reference": {
+      "historical_SHA256": "d3fc60dba57f745a0abce066a2c1d72bdcb536fcbe17dc32d37038e35da92f3f",
+      "immutable_snapshot_path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/BENEFITS_CALENDAR-before.md"
+    },
+    "original_R_manifest_reference": {
+      "historical_SHA256": "a935099ef43c4af303a8b5516108ffa27fddec9e47d5d712c116a637ec2ac0db",
+      "immutable_snapshot_path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261018-114944/manifest-before.json"
+    },
+    "scope": "Original author note read_first R paths retain dated historical hashes. Intentional future product edits do not invalidate those observations; snapshots bind the historical bytes."
+  },
+  "root_final_scope": {
+    "publication_preparation_authorized_by": "/root after independent saved-fact PASS",
+    "root_final_fact_scope": "Current issuer HTML single100+share/3000yen digital-gift tier, Nagoya Main identity and100share unit; December-end recurrence only. Early March is guidance dispatch plan, not actual gift dispatch/arrival. Holding/sameID/continuity/past-record shares, application/selection/expiry, announcement/effective year and complete amendment history remain unconfirmed.",
+    "independent_facts_not_reproduced_source_expression": true,
+    "limited_IR_disclaimer_not_blanket_reuse_grant": true,
+    "unread_sitewide_terms_not_permission_or_prohibition": true,
+    "all_amendments_or_future_changes_verified_absent": false,
+    "next_purchase_deadline_inferred": false,
+    "schedules": [],
+    "production_success_claimed": false
+  },
+  "source_prose_images_tables_or_voucher_art_reproduced": false,
+  "all_future_amendments_verified_absent": false
+}

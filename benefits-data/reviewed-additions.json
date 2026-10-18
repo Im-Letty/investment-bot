@@ -1196,6 +1196,62 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "377A",
+      "symbol": "377A.JP",
+      "name": "エージェントＩＧホールディングス",
+      "category": "デジタルギフト",
+      "aliases": "株式会社エージェントＩＧホールディングス Agent IG Holdings",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261018",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-18",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://a-gent.co.jp/ir/stock/",
+            "title": "エージェントＩＧホールディングス公式 株式情報・株主優待",
+            "security_code": "377A",
+            "issuer_name": "エージェントＩＧホールディングス",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-18T11:52:38+09:00",
+            "observed_at_kind": "actual_web_tool_after_clock_upper_bound_not_origin_HTTP",
+            "evidence_path": "evidence/reviewed-377A-observation-bundle-20261018.json",
+            "evidence_sha256": "84b1d1a6858b6a3216182045485c4a07878087f488e59834f3c813d59f72cae8"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-author-plus-independent-saved-fact-review-and-root-final-wording",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行公式HTMLの全1区分・単元・案内発送予定、現在StockSearchとの発行体・市場照合、公式IR免責を別レビュー。IRニュースは動的行が未露出で、改廃履歴の網羅や将来変更の不存在は確認していない。未記載条件は未確認、一般サイト利用・リンク条件は限定調査で未発見の条項を許可や禁止と推定しない。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "毎年12月末（次回購入締切未確認）",
+          "conditions": "12月末の株主名簿に載る100株以上が対象で、売買単位も100株です。保有期間・同番号・連続記録回数や過去各回の株数条件は本文に記載がありません。",
+          "use": "交換先の例は案内されていますが、申込方法・期限、分割交換や選択の詳細、ギフトの有効期限は未確認です。交換先の数だけ金額を加算する特典ではありません。",
+          "delivery": "案内は翌年3月上旬に発送予定の定時株主総会招集通知等へ同封されます。ギフト自体の実発送・実到着日は未確認です。",
+          "grant_summary": "案内は翌年3月上旬の発送予定（ギフト実到着は未確認）",
+          "tiers": [
+            {
+              "id": "current-100",
+              "shares_min": 100,
+              "shares_max": null,
+              "reward": "デジタルギフト3,000円分",
+              "holding_months_min": null,
+              "holding_requirement": "保有月数・同番号・連続名簿回数・過去各回株数の追加条件は本文に記載なし",
+              "conditions": "100株以上の単一区分。申込期限、交換条件の詳細と有効期限は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
