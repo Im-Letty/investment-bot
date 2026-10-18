@@ -1,0 +1,634 @@
+{
+  "schema_version": 1,
+  "kind": "independently_authored_observation_bundle_not_raw_page",
+  "code": "9942",
+  "observed_programme_at_jst": "2026-10-19T01:36:19.358769+09:00",
+  "observation_clock_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+  "source_scope_clarifications": [
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-scope-clarification.json",
+      "sha256": "1307a254e5005336bf01d526c91353cd7dc946eb63dea1b9c5d9526ae9752b64",
+      "record": {
+        "recorded_at_jst": "2026-10-19T01:49:50.136209+09:00",
+        "author": "/root",
+        "code": "9942",
+        "kind": "authored_observation_scope_clarification_not_new_source_observation",
+        "source_ref": "turn1769view0",
+        "original_observed_at_jst": "2026-10-19T01:36:19.358769+09:00",
+        "clarification": "公式の1回につき1枚という範囲に合わせ、1会計1枚という著作ノート/未公開draft表現を公開稿では1回の利用につき1枚へ狭める。会計単位の追加事実を認定しない。",
+        "original_files_preserved": true,
+        "new_source_HTTP": 0,
+        "all_other_candidate_fields_deep_equal": true,
+        "author_public_adoption_ready_meaning": "Source-author recommendation only; separate independent source/wording/build/public proof remains mandatory. Not a publication success flag.",
+        "evidenceSHA256": {
+          "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft.json": "992f75a436fa9e9b6e26df255ce8cc516aa2a9995c09c917bf3127dff97ad68a",
+          "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814",
+          "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-observation-notes.json": "1b3293dcf4885d7a4cb76b346585cc9d790735b97bd3453e2f1da669f03616a5",
+          "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/network-operations.json": "fc581ef9343417840efda003b67f2daf47209361b4a31214f9ec05cdae41bbb9",
+          "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/review-result.json": "4902401fc0a2572d331248fe8017d4f680d0eed1fe7b8240d74437914c5e0103",
+          "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket3.json": "da0574469efdc639f0f00121309931d0448a61fdd3c22410340654d1d9359aaf"
+        },
+        "note_SHA_is_raw_page_SHA": false
+      }
+    }
+  ],
+  "historical_author_notes_are_superseded_in_clarified_scope": true,
+  "source_observation": {
+    "schema_version": 1,
+    "recorded_at_jst": "2026-10-19T01:46:13.859090+09:00",
+    "author": "/root",
+    "code": "9942",
+    "name": "ジョイフル",
+    "symbol": "9942.JP",
+    "evidence_kind": "short_independently_authored_observation_note_not_raw_page",
+    "scope": "Current issuer HTML programme three share tiers plus FAQ; official Fukuoka identity and limited current IR labels. Unstated continuity and dates retained.",
+    "sources": [
+      {
+        "URL": "https://corporate.joyfull.co.jp/ir-complimentary",
+        "source_ref": "turn1769view0",
+        "ticket": "3",
+        "actual_observed_at_jst": "2026-10-19T01:36:19.358769+09:00",
+        "clock_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+        "facts": {
+          "issuer": "株式会社ジョイフル",
+          "record_dates_recurring": [
+            "2月末",
+            "8月末"
+          ],
+          "benefit_min_shares": 100,
+          "tiers": [
+            {
+              "min": 100,
+              "max": 499,
+              "discount_percent": 15,
+              "coupons": 5
+            },
+            {
+              "min": 500,
+              "max": 999,
+              "discount_percent": 15,
+              "coupons": 10
+            },
+            {
+              "min": 1000,
+              "max": null,
+              "meal_coupon_yen": 500,
+              "coupons": 20
+            }
+          ],
+          "planned_distribution": {
+            "2月末分": "5月中旬",
+            "8月末分": "10月下旬"
+          },
+          "validity": "両券種とも発効日から1年間",
+          "usage": [
+            "割引券は1会計1枚",
+            "食事券は複数枚と現金を併用可、換金・釣銭不可",
+            "割引券と食事券は併用不可",
+            "売店品など一部対象外",
+            "ジョイフル、喜楽や、並木街珈琲、二五十、キッチンジローで使用可、フレンドリー除外"
+          ],
+          "holding_duration_sameID_and_register_count": "not_stated",
+          "application_and_selection_details": "not_stated",
+          "announcement_and_current_tier_effective_dates": null
+        },
+        "unverified": [
+          "株式code/市場/売買単位は別照合前",
+          "サイト利用・リンク条件は未確認",
+          "限定改廃・分割履歴は未確認",
+          "正確な発送・到着日、券面ごとの期限日は未確認",
+          "次回購入締切と年度指定対象日は未確認"
+        ]
+      },
+      {
+        "URL": "https://www.fse.or.jp/market-info/listed-companies/detail.php?copid=103",
+        "source_ref": "turn1781view0",
+        "ticket": "12",
+        "actual_observed_at_jst": "2026-10-19T01:43:02.251739+09:00",
+        "clock_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+        "facts": {
+          "issuer": "ジョイフル",
+          "security_code": "9942",
+          "market": "福岡証券取引所 本則",
+          "trading_unit_shares_displayed": 100,
+          "displayed_page_last_updated": "2018-03-17",
+          "displayed_update_is_not_observation_or_current_effective_date": true,
+          "issuer_address_matches_programme": true,
+          "listing_date_displayed": "1993-06-08",
+          "bounded_disclosure_label_scope": "Displayed labels 2019–2026 read; latest 2026-09-25 articles change. 2026-08-10 50th-anniversary dividend is not a benefit; January2026 Friendly consolidation concerns a subsidiary. Historical2021-05-17 benefit-validity extension label was not opened or adopted."
+        },
+        "unverified": [
+          "Full amendment/abolition/split PDF bodies not read; bounded labels do not establish comprehensive absence.",
+          "Displayed2018 update does not establish current unit effective date."
+        ]
+      },
+      {
+        "URL": "https://corporate.joyfull.co.jp/ir",
+        "source_ref": "turn1782view0",
+        "ticket": "14",
+        "actual_observed_at_jst": "2026-10-19T01:43:43.087739+09:00",
+        "clock_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+        "facts": {
+          "issuer": "株式会社ジョイフル",
+          "current_IR_programme_link_present": true,
+          "latest_labels_read": "2026-10-06 monthly data;2026-10-01 subsidiary accounting notices. Current IR library links benefit programme. No benefit change/abolition/split in this limited latest10 labels."
+        },
+        "unverified": [
+          "Pagination/allhistorical amendment bodies not read; no comprehensive negative claim."
+        ]
+      },
+      {
+        "URL": "https://www.joyfull.co.jp/privacy",
+        "source_ref": "turn1783view0",
+        "ticket": "15",
+        "actual_observed_at_jst": "2026-10-19T01:44:03.427498+09:00",
+        "clock_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+        "facts": {
+          "issuer_identity_address_match": true,
+          "scope": "Privacy handling, cookies, analytics and revisions; footer copyright. No general commercial-fact or prior-consent-link restriction visible in this read scope.",
+          "copyright_alone_facts_blanket_ban_inferred": false,
+          "blanket_reuse_permission_inferred": false
+        },
+        "unverified": [
+          "Privacy is not comprehensive general site terms; unseen terms not inferred either way."
+        ]
+      },
+      {
+        "URL": "https://www.joyfull.co.jp/faq",
+        "source_ref": "turn1784view0",
+        "ticket": "16",
+        "actual_observed_at_jst": "2026-10-19T01:44:40.222291+09:00",
+        "clock_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+        "facts": {
+          "shareholder_vouchers": "500円券又は15%割引券。優待500円券は釣銭なし。期限は券の表に記載、期限後利用不可。デジタルジョイカフェチケット及びジェフグルメカードとの併用可。",
+          "separate_purchasable_meal_vouchers": "一般販売の食事券の釣銭あり・期限なしは株主優待券へ適用しない。"
+        },
+        "unverified": [
+          "Individual printed validity dates and actual dispatch/arrival not observed."
+        ]
+      }
+    ],
+    "outline_href_resolution": {
+      "source_URL": "https://corporate.joyfull.co.jp/ir-complimentary",
+      "explicit_normal_GET_attempts": 1,
+      "request_started_outer_bound_jst": "2026-10-19T01:43:10.154876+09:00",
+      "read_success": true,
+      "raw_HTML_saved": false,
+      "raw_error_saved": false,
+      "maximum_response_bytes": 1048576,
+      "redirects_followed": 0,
+      "default_TLS_verification": true,
+      "retry_after_seconds": null,
+      "retry_after_header_exposed": false,
+      "retry_after_unparseable_redacted": false,
+      "RetryAfter_absence_claimed": false,
+      "links": [
+        {
+          "observed_anchor_label": "IR情報",
+          "observed_href": "https://corporate.joyfull.co.jp/ir",
+          "resolved_actual_href_URL": "https://corporate.joyfull.co.jp/ir",
+          "target_body_fetched": false
+        },
+        {
+          "observed_anchor_label": "サイトマップ",
+          "observed_href": "https://corporate.joyfull.co.jp/sitemap",
+          "resolved_actual_href_URL": "https://corporate.joyfull.co.jp/sitemap",
+          "target_body_fetched": false
+        },
+        {
+          "observed_anchor_label": "全てのIR情報を見る",
+          "observed_href": "https://corporate.joyfull.co.jp/ir",
+          "resolved_actual_href_URL": "https://corporate.joyfull.co.jp/ir",
+          "target_body_fetched": false
+        },
+        {
+          "observed_anchor_label": "個人情報保護方針",
+          "observed_href": "https://www.joyfull.co.jp/privacy",
+          "resolved_actual_href_URL": "https://www.joyfull.co.jp/privacy",
+          "target_body_fetched": false
+        }
+      ],
+      "HTTP_status": 200,
+      "outcome_code": "known_outline_HTML_actual_observed_anchor_hrefs_resolved",
+      "source_bytes_sha256": "127a3ba6959c738bd81c576c5bdea181ea9e0d120deca4eb023d212c20679f44",
+      "source_bytes_SHA_kind": "Actual complete response HTML bytes in RAM; not authored-note SHA",
+      "response_bytes": 14782,
+      "extracted_hrefs_are_not_target_GETs": true,
+      "request_finished_outer_bound_jst": "2026-10-19T01:43:10.223154+09:00"
+    },
+    "source_conditions": {
+      "scope": "Actual programme/IR/footer,linked privacy and FAQ read; privacy is not comprehensive general site-use policy.",
+      "express_prior_consent_link_clause_observed": false,
+      "explicit_independent_fact_use_prohibition_observed": false,
+      "sitewide_terms_completely_verified": false,
+      "copyright_alone_facts_blanket_ban_inferred": false,
+      "blanket_reuse_permission_claimed": false,
+      "source_terms_hold": false,
+      "original_expression_tables_voucher_images_or_long_text_republication": false,
+      "public_citation": "https://corporate.joyfull.co.jp/ir-complimentary",
+      "external_contact_registration_paid_action": false
+    },
+    "gaps": [
+      "発表日・現区分の適用開始日は本文で特定できない。",
+      "保有月数・同番号・連続名簿回数・申請や選択の追加条件は本文記載なし。未記載を0月や条件なしと断定しない。",
+      "次回の対象年月日・購入締切・取引日程は未確認。反復月から日付を作らない。",
+      "発送は一般的予定のみ。実発送日・個別到着日・実券面の期限日は未確認。",
+      "限定IR最新欄と福証表示ラベルのみ。全改廃・分割の不存在を保証しない。",
+      "福証はcode9942/本則/売買単位100を表示するがページ更新表示は2018-03-17であり現単元の改定日・全面的鮮度は未確認。StockSearch identityは2026-10-14版。",
+      "privacy/footer読取は全サイト条件の完全確認や包括転載許可ではない。"
+    ],
+    "note_SHA_is_raw_page_SHA": false,
+    "raw_source_expression_tables_images_saved": false,
+    "inputSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observations-working.json": "b679c932cf2c09c08c60cc54a2237fb88c5eaad98e686cfb8729c53f15a76eac",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observed-outline-links.json": "99cdb2ecdfe0be8f608a94d0a0010598c45fecf30b196c582f7c4e292c8f6863",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/StockSearch-selected-identities.json": "85ecca2d381e2eb83ef25b3af4a793664830410eae779912031bc786d8c3402f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-resolver-code-review.json": "8caf4a3af83d3b929466ea1baba5a4694a4cb8796c905c8872cc61eee51e9ae7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-discovery-metadata.json": "f67c31db625edd4c127f44241ff672c3d743970ccaf8a85156ef33a0d2978444",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket3.json": "da0574469efdc639f0f00121309931d0448a61fdd3c22410340654d1d9359aaf",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket12.json": "034807784d7c086f378a07b0b5480ecc2ceddfc9ca38ffa128000b41984bee0d",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket13.json": "56640ac9287913ea3cf97f2a6ce2b3c072665295992ace6e2853813c3e3fc006",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket14.json": "5e42a43c019941067fb80852a6656194c0237cb46d111e3a5f5095ab854ddf86",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket15.json": "3a2443443898e41829503a8538c4703d367b432ea9fe34fbe800ccb6305cf7c8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket16.json": "c592797c74f3903849664876f15820453c3ddd5c8a448af8e12f564bc8685ad9"
+    }
+  },
+  "source_network": {
+    "schema_version": 1,
+    "recorded_at_jst": "2026-10-19T01:46:13.859090+09:00",
+    "researcher": "/root",
+    "code": "9942",
+    "symbol": "9942.JP",
+    "primary_source_operations": 6,
+    "ordinary_document_operations": 6,
+    "visual_operations": 0,
+    "primary_unique_actual_resources": 5,
+    "primary_unique_actual_URLs": [
+      "https://corporate.joyfull.co.jp/ir-complimentary",
+      "https://www.fse.or.jp/market-info/listed-companies/detail.php?copid=103",
+      "https://corporate.joyfull.co.jp/ir",
+      "https://www.joyfull.co.jp/privacy",
+      "https://www.joyfull.co.jp/faq"
+    ],
+    "maximum_primary_operations": 6,
+    "source_operations_closed": true,
+    "additional_source_HTTP_allowed_this_batch": false,
+    "unused_company_operations": 0,
+    "unused_budget_transferred": false,
+    "search_calls": 1,
+    "search_queries": 2,
+    "root_global_discovery_calls_excluded_from_author_search_counts": true,
+    "searches": [
+      {
+        "query_strings": [
+          "site:corporate.joyfull.co.jp \"IR情報\" \"株式情報\"",
+          "site:corporate.joyfull.co.jp \"利用\" \"規約\" \"リンク\""
+        ],
+        "tool_refs": [
+          "turn1774search0"
+        ],
+        "purpose": "Discovery metadata only; year2025 IR URL not adopted, actual /ir subsequently resolved from observed anchor."
+      }
+    ],
+    "operations": [
+      {
+        "ticket": "3",
+        "code": "9942",
+        "URL": "https://corporate.joyfull.co.jp/ir-complimentary",
+        "host": "corporate.joyfull.co.jp",
+        "kind": "document",
+        "started_outer_bound_jst": "2026-10-19T01:35:42.262628+09:00",
+        "pending_extra_reservation": 0,
+        "finished_outer_bound_jst": "2026-10-19T01:36:19.422756+09:00",
+        "outcome_code": "official_HTML_body_observed",
+        "extra_observed_URLs": [],
+        "retry_after_seconds": null,
+        "retry_after_exposed": false
+      },
+      {
+        "ticket": "12",
+        "code": "9942",
+        "URL": "https://www.fse.or.jp/market-info/listed-companies/detail.php?copid=103",
+        "host": "www.fse.or.jp",
+        "kind": "document",
+        "started_outer_bound_jst": "2026-10-19T01:38:38.297430+09:00",
+        "pending_extra_reservation": 0,
+        "finished_outer_bound_jst": "2026-10-19T01:43:02.313215+09:00",
+        "outcome_code": "official_exchange_HTML_issuer_code_market_unit_and_bounded_disclosure_labels_read",
+        "extra_observed_URLs": [],
+        "retry_after_seconds": null,
+        "retry_after_exposed": false
+      },
+      {
+        "ticket": "13",
+        "code": "9942",
+        "URL": "https://corporate.joyfull.co.jp/ir-complimentary",
+        "host": "corporate.joyfull.co.jp",
+        "kind": "document",
+        "started_outer_bound_jst": "2026-10-19T01:43:02.372892+09:00",
+        "pending_extra_reservation": 0,
+        "finished_outer_bound_jst": "2026-10-19T01:43:19.252263+09:00",
+        "outcome_code": "known_outline_HTML_actual_observed_anchor_hrefs_resolved",
+        "extra_observed_URLs": [],
+        "retry_after_seconds": null,
+        "retry_after_exposed": false
+      },
+      {
+        "ticket": "14",
+        "code": "9942",
+        "URL": "https://corporate.joyfull.co.jp/ir",
+        "host": "corporate.joyfull.co.jp",
+        "kind": "document",
+        "started_outer_bound_jst": "2026-10-19T01:43:22.930062+09:00",
+        "pending_extra_reservation": 0,
+        "finished_outer_bound_jst": "2026-10-19T01:43:43.150094+09:00",
+        "outcome_code": "official_current_IR_latest_labels_and_programme_link_read",
+        "extra_observed_URLs": [],
+        "retry_after_seconds": null,
+        "retry_after_exposed": false
+      },
+      {
+        "ticket": "15",
+        "code": "9942",
+        "URL": "https://www.joyfull.co.jp/privacy",
+        "host": "www.joyfull.co.jp",
+        "kind": "document",
+        "started_outer_bound_jst": "2026-10-19T01:43:43.211032+09:00",
+        "pending_extra_reservation": 0,
+        "finished_outer_bound_jst": "2026-10-19T01:44:03.489546+09:00",
+        "outcome_code": "official_privacy_policy_body_and_footer_read_no_express_link_consent_clause_in_read_scope",
+        "extra_observed_URLs": [],
+        "retry_after_seconds": null,
+        "retry_after_exposed": false
+      },
+      {
+        "ticket": "16",
+        "code": "9942",
+        "URL": "https://www.joyfull.co.jp/faq",
+        "host": "www.joyfull.co.jp",
+        "kind": "document",
+        "started_outer_bound_jst": "2026-10-19T01:44:07.326733+09:00",
+        "pending_extra_reservation": 0,
+        "finished_outer_bound_jst": "2026-10-19T01:44:40.286130+09:00",
+        "outcome_code": "official_FAQ_shareholder_voucher_section_read_purchase_gift_vouchers_kept_separate",
+        "extra_observed_URLs": [],
+        "retry_after_seconds": null,
+        "retry_after_exposed": false
+      }
+    ],
+    "physical_origin_HTTP_count_measured": false,
+    "web_tool_header_visibility": "unexposed; not asserted absent",
+    "bounded_ordinary_GET_complete_HTML_SHA_report": "observed-outline-links.json",
+    "failed_unknown_target_link_reservation_HTTP": 0,
+    "unknown_link_hold_preserved": true,
+    "RetryAfter_waits_and_1_5sec_gate_obeyed": true,
+    "force_or_cache_reset": false,
+    "paid_AI_or_registration_or_external_contact": false,
+    "raw_errors_keys_source_body_saved": false
+  },
+  "independent_source_review": {
+    "checked_at_jst": "2026-10-19T01:52:44.080225+09:00",
+    "reviewer": "/root/benefits_6076_044613",
+    "source_author": "/root",
+    "scope": "Independent saved-source/note/network/result and narrowed-v2 consistency review only. No original source/body was fetched by reviewer. Confirmed short current programme facts support the proposed v2 record subject to separate wording/build/commit/public verification. This review grants no sitewide reuse licence or publication success.",
+    "all_checks_pass": true,
+    "checks": {
+      "full_sealed_author3_v1_v2_clarification_read_all_actualSHA_match": true,
+      "independent_reviewer_distinct_source_author_root_no_primary_reopen": true,
+      "actual9942_Joyfull_Fukuoka_identity_matches_dated_StockSearch_not_JoyfulHonda": true,
+      "current_HTML_all3_sharebands_100499_500999_1000plus_and_rewards_exact": true,
+      "benefit_min100_separate_FSE100unit_display_with2018_03_17_label_not_today_effective_date": true,
+      "two_recurring_register_months_not_invented_yearspecific_eligibility_or_cutoff": true,
+      "5discount15percent_10discount15percent_20meal500_nonadditive_tiers": true,
+      "15percent_coupon_limit_narrowed_to_one_per_use_not_accounting_unit_inference": true,
+      "original1会計_authored_shorthand_preserved_and_immutable_clarification_bound": true,
+      "meal_voucher_multiple_plus_cash_no_change_no_cash_exchange_discount_and_meal_not_combinable": true,
+      "applicable_brands_exclusions_and_FAQ_app_card_combination_consistent_saved_notes": true,
+      "ordinary_purchased_meal_voucher_change_and_noexpiry_not_transferred_to_shareholder_vouchers": true,
+      "May_mid_Oct_late_plan_not_actual_dispatch_or_arrival": true,
+      "one_year_from_effective_date_not_from_verification_or_shipping_date": true,
+      "holding_sameID_registercount_application_selection_unstated_not_zero_or_no_conditions": true,
+      "announcement_currenttier_effectivedates_unknown_not_observationdate": true,
+      "bounded_IR_and_exchange_labels_not_exhaustive_future_amendment_split_abolition_absence": true,
+      "privacy_footer_scope_not_comprehensive_terms_or_reuse_grant_or_copyright_factsban": true,
+      "source_citation_actual_programme_URL_no_unseen_link_permission_claim": true,
+      "six_primarydocs_five_URLs_including_one_ordinaryresolver_no_PDF_table_authority_claim": true,
+      "all_own_gate_records_finishes_clocks_exact_minhost3_677799": true,
+      "metadata_own1call2queries_and_sharedroot1call3queries_separate_not_factauthority": true,
+      "denied_unknown_link_local0HTTP_not_holdrelease_or_charge_and_no_target_resolverGET": true,
+      "complete_HTML_RAM_SHA_only_resolver_not_numeric_parser_or_note_SHA": true,
+      "firstprogrammeclock_013619_retained_not_resolver_or_lastFAQclock": true,
+      "source_closed6_no_moreHTTP_unused0_not_transferred": true,
+      "author_readiness_true_only_recommendation_pending_actual_payload_not_publication": true,
+      "candidate_v2_three_tiers_holdingnull_schedules_empty_sourceSHA_pending_review_status_pending": true,
+      "immutableW_before_refs_avoid_future_live_manifest_or_doc_hashconflict": true,
+      "no_HTTP_PDF_browser_import_entrypoint_live_or_product_changes_by_peer": true
+    },
+    "issues": [],
+    "immutable_after_save": true,
+    "evidenceSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-observation-notes.json": "1b3293dcf4885d7a4cb76b346585cc9d790735b97bd3453e2f1da669f03616a5",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/network-operations.json": "fc581ef9343417840efda003b67f2daf47209361b4a31214f9ec05cdae41bbb9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/review-result.json": "4902401fc0a2572d331248fe8017d4f680d0eed1fe7b8240d74437914c5e0103",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft.json": "992f75a436fa9e9b6e26df255ce8cc516aa2a9995c09c917bf3127dff97ad68a",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-scope-clarification.json": "1307a254e5005336bf01d526c91353cd7dc946eb63dea1b9c5d9526ae9752b64",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observations-working.json": "b679c932cf2c09c08c60cc54a2237fb88c5eaad98e686cfb8729c53f15a76eac",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observed-outline-links.json": "99cdb2ecdfe0be8f608a94d0a0010598c45fecf30b196c582f7c4e292c8f6863",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/StockSearch-selected-identities.json": "85ecca2d381e2eb83ef25b3af4a793664830410eae779912031bc786d8c3402f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-resolver-code-review.json": "8caf4a3af83d3b929466ea1baba5a4694a4cb8796c905c8872cc61eee51e9ae7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-discovery-metadata.json": "f67c31db625edd4c127f44241ff672c3d743970ccaf8a85156ef33a0d2978444",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket3.json": "da0574469efdc639f0f00121309931d0448a61fdd3c22410340654d1d9359aaf",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket12.json": "034807784d7c086f378a07b0b5480ecc2ceddfc9ca38ffa128000b41984bee0d",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket13.json": "56640ac9287913ea3cf97f2a6ce2b3c072665295992ace6e2853813c3e3fc006",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket14.json": "5e42a43c019941067fb80852a6656194c0237cb46d111e3a5f5095ab854ddf86",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket15.json": "3a2443443898e41829503a8538c4703d367b432ea9fe34fbe800ccb6305cf7c8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket16.json": "c592797c74f3903849664876f15820453c3ddd5c8a448af8e12f564bc8685ad9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source_gate.py": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/shared-host-state-initial.json": "53ed4a5c359d83ca81e8dbdae3ee6afd996e1e3d40870efa7cbefee2799abc4f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source-gate-initialization.json": "0f3c56791357c1113e43049621c7bfdc4aa3816777fb2d26f54b34ac0ceb2ae0",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-gate-and-identity-code-review.json": "c05a800fb81ea9f5e27b00a5e10faf057bb2cd022048c7d7faf332becf8d5619",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/selected-queue-row.json": "946596f435d253c971860fd35a4b48a59bbc80fbf69b59b59d76ef7b16a465b8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/manifest-before.json": "805c5342146f9a700067eda79946739d09af69e3d429bdd0458bf475693face2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/BENEFITS_CALENDAR-before.md": "8364653f0e842310d194189509ef9cdf44671620e12eee96c74822a0e3ab97d2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/queue-before.json": "0b9c9dbab87261d42f73aee96f7662a726ad591d1bec2f515b27d5dc992968a8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/checkpoint-before.json": "10c3fcb5b618ccf28bf8c98970e98af0046209812445454aa5805b8a475728b7"
+    },
+    "inputSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-observation-notes.json": "1b3293dcf4885d7a4cb76b346585cc9d790735b97bd3453e2f1da669f03616a5",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/network-operations.json": "fc581ef9343417840efda003b67f2daf47209361b4a31214f9ec05cdae41bbb9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/review-result.json": "4902401fc0a2572d331248fe8017d4f680d0eed1fe7b8240d74437914c5e0103",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft.json": "992f75a436fa9e9b6e26df255ce8cc516aa2a9995c09c917bf3127dff97ad68a",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-scope-clarification.json": "1307a254e5005336bf01d526c91353cd7dc946eb63dea1b9c5d9526ae9752b64",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observations-working.json": "b679c932cf2c09c08c60cc54a2237fb88c5eaad98e686cfb8729c53f15a76eac",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observed-outline-links.json": "99cdb2ecdfe0be8f608a94d0a0010598c45fecf30b196c582f7c4e292c8f6863",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/StockSearch-selected-identities.json": "85ecca2d381e2eb83ef25b3af4a793664830410eae779912031bc786d8c3402f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-resolver-code-review.json": "8caf4a3af83d3b929466ea1baba5a4694a4cb8796c905c8872cc61eee51e9ae7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-discovery-metadata.json": "f67c31db625edd4c127f44241ff672c3d743970ccaf8a85156ef33a0d2978444",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket3.json": "da0574469efdc639f0f00121309931d0448a61fdd3c22410340654d1d9359aaf",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket12.json": "034807784d7c086f378a07b0b5480ecc2ceddfc9ca38ffa128000b41984bee0d",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket13.json": "56640ac9287913ea3cf97f2a6ce2b3c072665295992ace6e2853813c3e3fc006",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket14.json": "5e42a43c019941067fb80852a6656194c0237cb46d111e3a5f5095ab854ddf86",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket15.json": "3a2443443898e41829503a8538c4703d367b432ea9fe34fbe800ccb6305cf7c8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket16.json": "c592797c74f3903849664876f15820453c3ddd5c8a448af8e12f564bc8685ad9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source_gate.py": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/shared-host-state-initial.json": "53ed4a5c359d83ca81e8dbdae3ee6afd996e1e3d40870efa7cbefee2799abc4f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source-gate-initialization.json": "0f3c56791357c1113e43049621c7bfdc4aa3816777fb2d26f54b34ac0ceb2ae0",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-gate-and-identity-code-review.json": "c05a800fb81ea9f5e27b00a5e10faf057bb2cd022048c7d7faf332becf8d5619",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/selected-queue-row.json": "946596f435d253c971860fd35a4b48a59bbc80fbf69b59b59d76ef7b16a465b8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/manifest-before.json": "805c5342146f9a700067eda79946739d09af69e3d429bdd0458bf475693face2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/BENEFITS_CALENDAR-before.md": "8364653f0e842310d194189509ef9cdf44671620e12eee96c74822a0e3ab97d2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/queue-before.json": "0b9c9dbab87261d42f73aee96f7662a726ad591d1bec2f515b27d5dc992968a8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/checkpoint-before.json": "10c3fcb5b618ccf28bf8c98970e98af0046209812445454aa5805b8a475728b7"
+    },
+    "classification_reviewed": "candidate_needs_review",
+    "source_fact_adoption_supported": true,
+    "recommended_public_wording_payload": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json",
+      "sha256": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814"
+    },
+    "author_readiness_flag_scope": "Source-author recommendation only; pending canonical review/evidenceSHA and publication gates remain mandatory.",
+    "resolved_narrowing": {
+      "original_unpublished_draft": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft.json",
+        "sha256": "992f75a436fa9e9b6e26df255ce8cc516aa2a9995c09c917bf3127dff97ad68a"
+      },
+      "active_v2_draft": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json",
+        "sha256": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814"
+      },
+      "clarification": {
+        "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-scope-clarification.json",
+        "sha256": "1307a254e5005336bf01d526c91353cd7dc946eb63dea1b9c5d9526ae9752b64"
+      },
+      "old_phrase_not_adopted": "1会計1枚",
+      "adoptable_narrow_phrase": "1回の利用につき1枚"
+    },
+    "source_clock_refreshed": false,
+    "primary_programme_observed_at_jst": "2026-10-19T01:36:19.358769+09:00",
+    "last_source_observed_at_jst": "2026-10-19T01:44:40.222291+09:00",
+    "minimum_same_host_gate_interval_seconds": 3.677799,
+    "primary_operations": 6,
+    "unique_URLs": 5,
+    "web_primary_operations": 5,
+    "ordinary_exec_primary_GETs": 1,
+    "fresh_publication_verified": false,
+    "new_HTTP": 0,
+    "helper_imports": 0,
+    "entrypoints": 0,
+    "live_changes": 0,
+    "notify": false
+  },
+  "independent_public_wording_review": {
+    "checked_at_jst": "2026-10-19T01:52:44.080758+09:00",
+    "reviewer": "/root/benefits_6076_044613",
+    "draft_author": "/root",
+    "scope": "Independent saved-source-backed public wording review of v2 only. Original v1 and source note remain dated; source clarification narrows one-use coupon scope. Passing wording review supports preparation but is not a strict build, deployment/publication proof or general source reuse grant.",
+    "all_checks_pass": true,
+    "checks": {
+      "actual_v2_9bce_and_clarification1307_original_v1_allrefs_bound": true,
+      "only_use_scope_narrowing_and_lineage_metadata_changed_v1_immutable": true,
+      "source_peer_review_pass_actualSHA_bound_and_source_not_refetched": true,
+      "all_three_exact_sharebands_nonadditive_rewards_preserved": true,
+      "all_holding_months_null_unstated_conditions_not_zero": true,
+      "recurring_months_and_current_eligibility_not_next_yearspecific_purchase_promise": true,
+      "official_FSE100unit_display_2018label_exposed_not_today_effective_or_freshcensus": true,
+      "application_sameID_continuity_unknown_publicly_retained": true,
+      "coupon_limit_one_per_use_without_unproved_accounting_unit_rule": true,
+      "meal_coupon_multiple_cash_no_change_and_noncombination_conditions_complete": true,
+      "brands_Friendly_exclusion_partial_item_exclusions_and_FAQ_combination_retained": true,
+      "generic_sold_voucher_noexpiry_change_rules_explicitly_excluded": true,
+      "dispatch_plan_vs_arrival_and_effective_date_yearvalidity_vs_printed_deadline_distinct": true,
+      "announcement_and_effective_dates_null_verified_date19_not_announcement": true,
+      "firstprogramme_actualobservation_clock_not_resolver_RAM_SHA_timestamp": true,
+      "source_evidence_path_relative_bundle_SHA_pending_not_raw_page_SHA": true,
+      "review_pending_not_already_reviewed_or_published": true,
+      "limited_future_change_review_not_comprehensive_noamendment_claim": true,
+      "privacy_footer_no_comprehensive_reuse_or_link_grant_claim": true,
+      "schedules_empty_no_unverified_cutoff_or_future_edition_generated": true,
+      "short_independent_facts_no_original_table_art_longprose_or_voucher_image": true,
+      "original27_18_9_12_catalogue_untouched_no_live_manifest_edit": true,
+      "publication_requires_reviewed_evidence_bundle_strictbuild_tests_normalcommit_publicassets_actualUI": true,
+      "no_HTTP_helper_import_entrypoint_or_live_edit_by_wording_peer": true
+    },
+    "issues": [],
+    "immutable_after_save": true,
+    "evidenceSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-observation-notes.json": "1b3293dcf4885d7a4cb76b346585cc9d790735b97bd3453e2f1da669f03616a5",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/network-operations.json": "fc581ef9343417840efda003b67f2daf47209361b4a31214f9ec05cdae41bbb9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/review-result.json": "4902401fc0a2572d331248fe8017d4f680d0eed1fe7b8240d74437914c5e0103",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft.json": "992f75a436fa9e9b6e26df255ce8cc516aa2a9995c09c917bf3127dff97ad68a",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-scope-clarification.json": "1307a254e5005336bf01d526c91353cd7dc946eb63dea1b9c5d9526ae9752b64",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observations-working.json": "b679c932cf2c09c08c60cc54a2237fb88c5eaad98e686cfb8729c53f15a76eac",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observed-outline-links.json": "99cdb2ecdfe0be8f608a94d0a0010598c45fecf30b196c582f7c4e292c8f6863",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/StockSearch-selected-identities.json": "85ecca2d381e2eb83ef25b3af4a793664830410eae779912031bc786d8c3402f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-resolver-code-review.json": "8caf4a3af83d3b929466ea1baba5a4694a4cb8796c905c8872cc61eee51e9ae7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-discovery-metadata.json": "f67c31db625edd4c127f44241ff672c3d743970ccaf8a85156ef33a0d2978444",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket3.json": "da0574469efdc639f0f00121309931d0448a61fdd3c22410340654d1d9359aaf",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket12.json": "034807784d7c086f378a07b0b5480ecc2ceddfc9ca38ffa128000b41984bee0d",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket13.json": "56640ac9287913ea3cf97f2a6ce2b3c072665295992ace6e2853813c3e3fc006",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket14.json": "5e42a43c019941067fb80852a6656194c0237cb46d111e3a5f5095ab854ddf86",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket15.json": "3a2443443898e41829503a8538c4703d367b432ea9fe34fbe800ccb6305cf7c8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket16.json": "c592797c74f3903849664876f15820453c3ddd5c8a448af8e12f564bc8685ad9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source_gate.py": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/shared-host-state-initial.json": "53ed4a5c359d83ca81e8dbdae3ee6afd996e1e3d40870efa7cbefee2799abc4f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source-gate-initialization.json": "0f3c56791357c1113e43049621c7bfdc4aa3816777fb2d26f54b34ac0ceb2ae0",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-gate-and-identity-code-review.json": "c05a800fb81ea9f5e27b00a5e10faf057bb2cd022048c7d7faf332becf8d5619",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/selected-queue-row.json": "946596f435d253c971860fd35a4b48a59bbc80fbf69b59b59d76ef7b16a465b8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/manifest-before.json": "805c5342146f9a700067eda79946739d09af69e3d429bdd0458bf475693face2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/BENEFITS_CALENDAR-before.md": "8364653f0e842310d194189509ef9cdf44671620e12eee96c74822a0e3ab97d2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/queue-before.json": "0b9c9dbab87261d42f73aee96f7662a726ad591d1bec2f515b27d5dc992968a8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/checkpoint-before.json": "10c3fcb5b618ccf28bf8c98970e98af0046209812445454aa5805b8a475728b7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/independent-9942-source-review.json": "a60c6f30510eef63fc4533fa8ff5dfe3b6482e01d82ef9381baf59e5250f9e6f"
+    },
+    "inputSHA256": {
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-observation-notes.json": "1b3293dcf4885d7a4cb76b346585cc9d790735b97bd3453e2f1da669f03616a5",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/network-operations.json": "fc581ef9343417840efda003b67f2daf47209361b4a31214f9ec05cdae41bbb9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/review-result.json": "4902401fc0a2572d331248fe8017d4f680d0eed1fe7b8240d74437914c5e0103",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft.json": "992f75a436fa9e9b6e26df255ce8cc516aa2a9995c09c917bf3127dff97ad68a",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/source-scope-clarification.json": "1307a254e5005336bf01d526c91353cd7dc946eb63dea1b9c5d9526ae9752b64",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observations-working.json": "b679c932cf2c09c08c60cc54a2237fb88c5eaad98e686cfb8729c53f15a76eac",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/observed-outline-links.json": "99cdb2ecdfe0be8f608a94d0a0010598c45fecf30b196c582f7c4e292c8f6863",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/StockSearch-selected-identities.json": "85ecca2d381e2eb83ef25b3af4a793664830410eae779912031bc786d8c3402f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-resolver-code-review.json": "8caf4a3af83d3b929466ea1baba5a4694a4cb8796c905c8872cc61eee51e9ae7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-discovery-metadata.json": "f67c31db625edd4c127f44241ff672c3d743970ccaf8a85156ef33a0d2978444",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket3.json": "da0574469efdc639f0f00121309931d0448a61fdd3c22410340654d1d9359aaf",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket12.json": "034807784d7c086f378a07b0b5480ecc2ceddfc9ca38ffa128000b41984bee0d",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket13.json": "56640ac9287913ea3cf97f2a6ce2b3c072665295992ace6e2853813c3e3fc006",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket14.json": "5e42a43c019941067fb80852a6656194c0237cb46d111e3a5f5095ab854ddf86",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket15.json": "3a2443443898e41829503a8538c4703d367b432ea9fe34fbe800ccb6305cf7c8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/finish-ticket16.json": "c592797c74f3903849664876f15820453c3ddd5c8a448af8e12f564bc8685ad9",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source_gate.py": "9acd381841098e13e329d0ae847ffd15134db335993642c4e29102a3efb07ace",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/shared-host-state-initial.json": "53ed4a5c359d83ca81e8dbdae3ee6afd996e1e3d40870efa7cbefee2799abc4f",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/source-gate-initialization.json": "0f3c56791357c1113e43049621c7bfdc4aa3816777fb2d26f54b34ac0ceb2ae0",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/root-gate-and-identity-code-review.json": "c05a800fb81ea9f5e27b00a5e10faf057bb2cd022048c7d7faf332becf8d5619",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/company-9942/selected-queue-row.json": "946596f435d253c971860fd35a4b48a59bbc80fbf69b59b59d76ef7b16a465b8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/manifest-before.json": "805c5342146f9a700067eda79946739d09af69e3d429bdd0458bf475693face2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/BENEFITS_CALENDAR-before.md": "8364653f0e842310d194189509ef9cdf44671620e12eee96c74822a0e3ab97d2",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/queue-before.json": "0b9c9dbab87261d42f73aee96f7662a726ad591d1bec2f515b27d5dc992968a8",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/checkpoint-before.json": "10c3fcb5b618ccf28bf8c98970e98af0046209812445454aa5805b8a475728b7",
+      "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/independent-9942-source-review.json": "a60c6f30510eef63fc4533fa8ff5dfe3b6482e01d82ef9381baf59e5250f9e6f"
+    },
+    "reviewed_candidate_payload": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-012847/9942-candidate-record-draft-v2.json",
+      "sha256": "9bce1a1116840024634e56a77c82ce7eaf9b3a40cb7cb9709c353282037f3814"
+    },
+    "original_unpublished_v1_preserved": true,
+    "v1_accounting_unit_phrase_not_adopted": true,
+    "source_adoption_scope": "Current observed three-tier programme with explicit unknown dates/holding tests and limited source/identity/history scope.",
+    "public_wording_supported_after_source_scope_narrowing": true,
+    "build_or_publication_already_verified": false,
+    "future_schedule_approved": false,
+    "source_observation_clock_refreshed": false,
+    "HTTP": 0,
+    "helper_imports": 0,
+    "entrypoints": 0,
+    "live_changes": 0,
+    "notify": false
+  },
+  "note_SHA_is_raw_programme_page_SHA": false,
+  "source_expression_tables_images_saved": false
+}

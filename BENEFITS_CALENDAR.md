@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 27 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17 and three on 2026-10-18. The owner chose phased expansion using free
+The catalogue contains 28 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17 and three on 2026-10-18, plus 1 on 2026-10-19. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -436,3 +436,19 @@ The same bounded batch verifies Interlife 1418's explicit abolition after its
 February 2023 register benefit. It leaves OKWEB 3808 unknown: missing programme
 information is not explicit nonimplementation, and media-service terms are not
 expanded into a corporate IR prohibition or licence.
+
+
+## Further independently reviewed additions on 2026-10-19
+
+- 9942 ジョイフル: https://corporate.joyfull.co.jp/ir-complimentary
+  100–499 shares: 15%割引の優待券5枚.
+  500–999 shares: 15%割引の優待券10枚.
+  1000+ shares: 500円の優待食事券20枚.
+  2月末分は5月中旬、8月末分は10月下旬の送付予定。実発送日・個別到着日は未確認。優待券は発効日から1年間有効で、券面記載の期限を過ぎると利用できません。個々の券の発効日・期限日は未確認です。
+  Holding duration remains unknown wherever its value is null; conditions are
+  retained in the reviewed catalogue. No next purchase deadline or new schedule
+  is inferred, and the bounded amendment review is not a claim of no future change.
+
+All previous27 companies,18 reviewed additions,nine fixed records and12 explicit
+schedules retain their original facts and confirmation dates. This remains partial
+coverage. Other companies in this bounded batch are not added by this publication.

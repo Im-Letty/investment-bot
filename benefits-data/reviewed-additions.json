@@ -1318,6 +1318,80 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "9942",
+      "symbol": "9942.JP",
+      "name": "ジョイフル",
+      "category": "飲食券・割引券",
+      "aliases": "株式会社ジョイフル Joyfull",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261019",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-19",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://corporate.joyfull.co.jp/ir-complimentary",
+            "title": "ジョイフル公式 株主優待情報",
+            "security_code": "9942",
+            "issuer_name": "ジョイフル",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-19T01:36:19.358769+09:00",
+            "observed_at_kind": "actual_after_web_tool_upper_bound_not_origin_HTTP_or_publication_date",
+            "evidence_path": "evidence/reviewed-9942-observation-bundle-20261019.json",
+            "evidence_sha256": "8dee18951aad8ed3682a348c9d276630f94127b64c0432d5e0cc9fecb1203fca"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-author-plus-independent-source-and-public-wording-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行公式HTMLの全3株数区分と利用条件、公式FAQ、福証のcode9942/本則/100株表示とStockSearch2026-10-14 identityを照合。福証の更新表示2018-03-17を現在の制度適用日と扱わない。最新IR10件と福証ラベルの限定読取で全改廃不存在を保証しない。保有条件未記載・発表日/適用開始未確認・次回日程未確認を保持。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "2月末・8月末の名簿（次回の対象年月日・購入締切は未確認）",
+          "conditions": "各基準日の名簿に載る100株以上が対象。100〜499株、500〜999株、1,000株以上の3区分で、区分を合算しません。福証は売買単位100株を表示（同ページの更新表示は2018/3/17）。保有期間・同番号・連続名簿回数や申請・選択の追加条件は本文に記載がありません。未記載を0か月とせず、今からの購入で対象となる日付も確定していません。",
+          "use": "15%割引券は1回の利用につき1枚。500円の優待食事券は複数枚と現金を併用でき、換金・釣銭は不可。優待割引券と優待食事券は併用できず、売店品など一部対象外です。ジョイフル、喜楽や、並木街珈琲、二五十、キッチンジローで利用可、フレンドリーは対象外。デジタルジョイカフェチケットやジェフグルメカードとは併用可。一般販売の食事券の「釣銭あり・期限なし」は株主優待券に適用しません。",
+          "delivery": "2月末分は5月中旬、8月末分は10月下旬の送付予定。実発送日・個別到着日は未確認。優待券は発効日から1年間有効で、券面記載の期限を過ぎると利用できません。個々の券の発効日・期限日は未確認です。",
+          "grant_summary": "2月末分は5月中旬、8月末分は10月下旬に送付予定（到着実績ではありません）",
+          "tiers": [
+            {
+              "id": "current-100",
+              "shares_min": 100,
+              "shares_max": 499,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号・連続名簿回数の追加条件は本文に記載なし",
+              "reward": "15%割引の優待券5枚",
+              "conditions": "2月末・8月末の各名簿対象分。株数区分は非加算。利用・送付予定・期限は共通条件を参照。次回購入締切は未確認。"
+            },
+            {
+              "id": "current-500",
+              "shares_min": 500,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号・連続名簿回数の追加条件は本文に記載なし",
+              "reward": "15%割引の優待券10枚",
+              "conditions": "2月末・8月末の各名簿対象分。株数区分は非加算。利用・送付予定・期限は共通条件を参照。次回購入締切は未確認。"
+            },
+            {
+              "id": "current-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号・連続名簿回数の追加条件は本文に記載なし",
+              "reward": "500円の優待食事券20枚",
+              "conditions": "2月末・8月末の各名簿対象分。株数区分は非加算。利用・送付予定・期限は共通条件を参照。次回購入締切は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
