@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 28 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17 and three on 2026-10-18, plus 1 on 2026-10-19. The owner chose phased expansion using free
+The catalogue contains 29 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17 and three on 2026-10-18, plus 2 on 2026-10-19. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -450,5 +450,20 @@ expanded into a corporate IR prohibition or licence.
   is inferred, and the bounded amendment review is not a claim of no future change.
 
 All previous27 companies,18 reviewed additions,nine fixed records and12 explicit
+schedules retain their original facts and confirmation dates. This remains partial
+coverage. Other companies in this bounded batch are not added by this publication.
+
+
+## Additional independently reviewed company on 2026-10-19
+
+- 6025 日本ＰＣサービス: https://www.j-pcs.jp/ir/benefits
+  500–999 shares: 5,000円引きサービス券6枚（額面合計30,000円相当）とリモートサポート券1枚.
+  1000+ shares: 5,000円引きサービス券10枚（額面合計50,000円相当）とリモートサポート券1枚.
+  毎年11月の株主総会翌日に発送予定。実発送・到着日は未確認。サービス券の具体的期限・譲渡条件は未記載。リモートサポート券は総会開催月の翌月1日から1年間、会員証に記載の期限内で繰り返し利用可。
+  Holding duration remains unknown wherever its value is null; conditions are
+  retained in the reviewed catalogue. No next purchase deadline or new schedule
+  is inferred, and the bounded amendment review is not a claim of no future change.
+
+All previous28 companies,19 reviewed additions,nine fixed records and12 explicit
 schedules retain their original facts and confirmation dates. This remains partial
 coverage. Other companies in this bounded batch are not added by this publication.

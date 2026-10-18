@@ -1392,6 +1392,71 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "6025",
+      "symbol": "6025.JP",
+      "name": "日本ＰＣサービス",
+      "category": "サービス利用券・割引券",
+      "aliases": "日本PCサービス株式会社 Japan PC Service",
+      "versions": [
+        {
+          "id": "official-current-reviewed-20261019",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-19",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.j-pcs.jp/ir/benefits",
+            "title": "日本PCサービス公式 株主優待",
+            "security_code": "6025",
+            "issuer_name": "日本ＰＣサービス",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-19T07:48:49.725167+09:00",
+            "observed_at_kind": "actual_after_web_tool_outer_bound_not_origin_HTTP_or_publication_date",
+            "evidence_path": "evidence/reviewed-6025-observation-bundle-20261019.json",
+            "evidence_sha256": "66cb5cfe59d7cc10356719a9bc06c7f966152a0d0ada3f982df0e46879152977"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-author-plus-independent-source-and-public-wording-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行公式HTML全2株数区分・別建てリモートサポート券と利用条件を確認。IR一覧は見出しまでの限定確認で、全改廃不存在や次回日程は未確認。保有期間等の未記載を補完しない。",
+            "all_future_amendments_verified_absent": false
+          },
+          "period": "8月末に関する対象判定。公式本文は権利付き最終日と基準日の2営業日前を併記しており、次回の対象年・具体日・購入締切は未確認。",
+          "conditions": "500株以上。単元100株（公式FAQ）と優待最低500株を区別。株数区分は非加算。保有期間・同番号・連続名簿回数・申請選択の追加条件は未記載。",
+          "use": "サービス券1枚につき5,000円引き。予約電話時の申告が必要で、後日の申告、換金、釣銭は不可。他の割引・キャンペーンと併用不可、優待券同士は複数同時に利用可。ハウスクリーニングと通常の部品代は対象外（スマホ・タブレット・ゲーム機修理の附属商品代は例外）。会員・保証サービスは対象外。地域・時間の制約が生じる場合があり、対応機種は店舗で異なる場合あり。スマホ・ゲーム機修理はグループ会社の店舗または郵送で受付。リモートサポート券は本人が個人所有する指定機器が対象で、本人確認が必要。第三者への譲渡・転売による利用は不可。",
+          "delivery": "毎年11月の株主総会翌日に発送予定。実発送・到着日は未確認。サービス券の具体的期限・譲渡条件は未記載。リモートサポート券は総会開催月の翌月1日から1年間、会員証に記載の期限内で繰り返し利用可。",
+          "grant_summary": "サービス券の2株数区分と、500株以上のリモートサポート券1枚。リモートサポート券の現金価値は不明で、サービス券の額面合計に加算しない。",
+          "tiers": [
+            {
+              "id": "current-500",
+              "shares_min": 500,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号等は本文未記載",
+              "reward": "5,000円引きサービス券6枚（額面合計30,000円相当）とリモートサポート券1枚",
+              "conditions": "共通の利用範囲・期限・発送予定と未確認事項を参照。"
+            },
+            {
+              "id": "current-1000",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号等は本文未記載",
+              "reward": "5,000円引きサービス券10枚（額面合計50,000円相当）とリモートサポート券1枚",
+              "conditions": "共通の利用範囲・期限・発送予定と未確認事項を参照。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
