@@ -163,7 +163,6 @@ function updateFill(el){
     <button class="tab"        onclick="pop(this);switchTab('monthly')" id="tab-btn-m">毎月積立</button>
     <button class="tab"        onclick="pop(this);switchTab('lump')"    id="tab-btn-l">初期投資</button>
     <button class="tab"        onclick="pop(this);switchTab('goal')"    id="tab-btn-g">目標資産</button>
-    <button class="tab"        onclick="pop(this);switchTab('mypage')"  id="tab-btn-p">マイページ</button>
   </div>
 
   <!-- 毎日積立 -->
@@ -526,7 +525,7 @@ function setLang(lang){
   const sel=document.getElementById('lang-select');if(sel)sel.value=lang;
   const t=T[lang];
   document.getElementById('title').textContent=t.title;
-  document.getElementById('tab-btn-d').textContent=t.tab1;document.getElementById('tab-btn-m').textContent=t.tab2;document.getElementById('tab-btn-l').textContent=t.tab3;document.getElementById('tab-btn-g').textContent=t.tab4;document.getElementById('tab-btn-p').textContent=t.tab5;
+  document.getElementById('tab-btn-d').textContent=t.tab1;document.getElementById('tab-btn-m').textContent=t.tab2;document.getElementById('tab-btn-l').textContent=t.tab3;document.getElementById('tab-btn-g').textContent=t.tab4;
   document.getElementById('l-daily').textContent=t.daily;document.getElementById('l-rate-d').textContent=t.rate;document.getElementById('l-years-d').textContent=t.yearsD;
   document.getElementById('l-total-d').textContent=t.total;document.getElementById('l-gain-d').textContent=t.gain;document.getElementById('l-final-d').textContent=t.final;document.getElementById('l-chart-d').textContent=t.chart;var _g2n=document.getElementById('g2sim-note');if(_g2n&&t.longnote)_g2n.textContent=t.longnote;
   document.getElementById('l-monthly').textContent=t.monthly;document.getElementById('l-rate-m').textContent=t.rate;document.getElementById('l-years-m').textContent=t.yearsM;
