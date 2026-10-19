@@ -828,7 +828,7 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
       '<div class="sim-analysis-checks" style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,.1);font-size:12px;color:#555;">'+
       '<div>'+tt('yearly_limit')+': '+(withinYearly?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
       '<div>'+tt('lifetime_limit')+': '+(withinLifetime?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
-      (monthlyEq>0?'<div>'+tt('monthly_eq')+': '+fmtJPY(monthlyEq)+'/m</div>':'')+
+      (monthlyEq>0?'<div>'+tt('monthly_eq')+': <span class="sim-analysis-value">'+fmtJPY(monthlyEq)+'/m</span></div>':'')+
       '</div></div>';
   }
   function getTabValues(tabId){var tab=document.getElementById(tabId);if(!tab)return null;var ranges=tab.querySelectorAll('input[type="range"]');var vals=[];ranges.forEach(function(r){vals.push(parseFloat(r.value)||0);});return vals;}
@@ -912,8 +912,9 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 <script src="/static/simulator-theme.js?v=20261012-tint1"></script>
 
 <link rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type2">
-<link rel="stylesheet" href="/static/simulator-inputs.css?v=20261012-fine1">
+<link rel="stylesheet" href="/static/simulator-inputs.css?v=20261019-amounts1">
 <script src="/static/simulator-inputs.js?v=20261012-fine1"></script>
+<script src="/static/simulator-amounts.js?v=20261019-amounts1"></script>
 
 </body>
 </html>

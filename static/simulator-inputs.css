@@ -91,15 +91,65 @@ body .row.sim-adjust-row input[type="range"]::-moz-range-thumb {
 }
 
 body .metric .mval {
-  width: max-content;
+  width: 100%;
   max-width: 100%;
   margin-inline: auto;
-  font-size: calc(var(--kn-type-value, 20px) * .9 * var(--kn-type-scale, 1));
-  text-align: left;
+  font-size: var(--sim-amount-size, calc(var(--kn-type-value, 20px) * .9 * var(--kn-type-scale, 1)));
+  text-align: center;
+  overflow-wrap: anywhere;
+  overflow: visible;
+}
+
+body .result-grid {
+  grid-template-columns: repeat(var(--sim-result-columns, 3), minmax(0, 1fr));
+}
+
+body.sim-amount-fitting :is(.mval, .sim-analysis-value, .mp-card-value) {
   white-space: nowrap;
   overflow-wrap: normal;
-  overflow-x: auto;
-  scrollbar-width: thin;
+}
+
+body .sim-analysis-value {
+  display: block;
+  min-width: 0;
+  max-width: 100%;
+  font-size: var(--sim-amount-size, inherit);
+}
+
+body .mp-summary-card .mp-card-value {
+  font-size: var(--sim-amount-size, calc(var(--kn-type-value, 20px) * var(--kn-type-scale, 1)));
+}
+
+body .mp-summary-grid {
+  grid-template-columns: repeat(var(--sim-summary-columns, 2), minmax(0, 1fr));
+}
+
+body .sim-analysis > div[style*="grid"] {
+  grid-template-columns: repeat(var(--sim-analysis-columns, 2), minmax(0, 1fr)) !important;
+}
+
+body .row.sim-adjust-row .val-input {
+  font-size: var(--sim-amount-size, max(16px, calc(var(--kn-type-input, 16px) * var(--kn-type-scale, 1))));
+}
+
+body .row.sim-adjust-row.sim-wide-input label,
+body .row.sim-adjust-row.sim-wide-input .right {
+  grid-column: 1 / -1;
+}
+
+body .row.sim-adjust-row.sim-wide-input .right {
+  grid-row: 2;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  width: 100%;
+}
+
+body .row.sim-adjust-row.sim-wide-input .val-input {
+  width: 100%;
+}
+
+body .row.sim-adjust-row.sim-wide-input input[type="range"] {
+  grid-row: 3;
 }
 
 @media (max-width: 540px) {
@@ -123,9 +173,22 @@ body .metric .mval {
   }
 
   body .metric .mval {
+    flex: 1 1 0;
     min-width: 0;
+    width: auto;
     margin-inline: 0;
     margin-left: auto;
+    text-align: right;
+  }
+
+  body .metric.sim-stacked-amount {
+    display: block;
+    text-align: left;
+  }
+
+  body .metric.sim-stacked-amount .mval {
+    width: 100%;
+    margin-top: 4px;
   }
 
   body .row.sim-adjust-row {
