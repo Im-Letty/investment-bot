@@ -147,7 +147,7 @@
   function safeCount(value) {return Number.isFinite(Number(value))?Math.max(0,Number(value)):0;}
   function postNode(post,reply) {
     var s=state,article=el('article',reply?'cw-reply-post':'cw-post');article.dataset.postId=String(post.id);
-    var head=el('div','cw-post-head'),name=el('span','cw-author',post.name||'名無しさん'),avatar=el('span','cw-avatar',Array.from(post.name||'名無しさん')[0]);avatar.setAttribute('aria-hidden','true');head.appendChild(avatar);head.appendChild(name);
+    var head=el('div','cw-post-head'),name=el('span','cw-author',post.name||'名無しさん'),avatar=el('span','cw-avatar',Array.from(post.name||'名無しさん')[0]);avatar.setAttribute('aria-hidden','true');head.appendChild(avatar);head.appendChild(name);head.appendChild(el('span','cw-post-date',date(post.created_at,reply?'返信':'投稿')));
     var menu=el('details','cw-post-menu'),summary=el('summary','cw-menu-trigger','…');summary.setAttribute('aria-label','投稿の操作');menu.appendChild(summary);
     var menuBody=el('div','cw-menu-body');
     menuBody.appendChild(button('cw-menu-item','通報','この投稿を通報する',function(){menu.open=false;report(post);}));
@@ -157,7 +157,7 @@
     var actions=el('div','cw-post-actions'),like=button('cw-like',post.liked_by_me?'いいね済み':'いいね',post.liked_by_me?'いいねを取り消す':'この投稿にいいねする',function(){toggleLike(post);});
     like.setAttribute('aria-pressed',String(!!post.liked_by_me));like.disabled=s.pending.has('like:'+post.id);like.appendChild(el('span','cw-action-count',String(safeCount(post.like_count))));actions.appendChild(like);
     if(!reply){var replyButton=button('cw-reply-toggle','返信','返信を読む・書く',function(){toggleReplies(post);});replyButton.appendChild(el('span','cw-action-count',String(safeCount(post.reply_count))));replyButton.setAttribute('aria-expanded',String(!!(s.replies[post.id]&&s.replies[post.id].open)));actions.appendChild(replyButton);}
-    article.appendChild(actions);article.appendChild(el('p','cw-post-date',date(post.created_at,reply?'返信':'投稿')));
+    article.appendChild(actions);
     if(!reply&&s.replies[post.id]&&s.replies[post.id].open)article.appendChild(replyNode(post,s.replies[post.id]));
     else if(!reply&&post.reply_preview&&String(post.reply_preview.parent_id)===String(post.id)){
       var preview=post.reply_preview,excerpt=button('cw-reply-preview',null,'返信の続きを見る',function(){toggleReplies(post);});excerpt.replaceChildren();excerpt.appendChild(el('span','cw-preview-name',preview.name||'名無しさん'));excerpt.appendChild(el('span','cw-preview-body',preview.body||''));article.appendChild(excerpt);
@@ -331,8 +331,8 @@
     postQuery.addEventListener('input',queueSearch);postQuery.addEventListener('search',function(){searchNow(s);});search.addEventListener('submit',function(event){event.preventDefault();searchNow(s);});
 
 
-    var toolbar=el('div','cw-toolbar');s.categoryNote=el('p','cw-description','みんなのつぶやき、新しい順。');toolbar.appendChild(s.categoryNote);toolbar.appendChild(button('cw-primary','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;if(!s.composer.hidden)s.input.focus({preventScroll:true});}));content.appendChild(toolbar);content.appendChild(el('p','cw-small cw-login-hint','登録なしで投稿・返信できます。'));
-    var composer=el('form','cw-composer');composer.hidden=true;s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
+    var toolbar=el('div','cw-toolbar');s.categoryNote=el('p','cw-description','みんなのつぶやき、新しい順。');toolbar.appendChild(s.categoryNote);var composeToggle=button('cw-primary cw-compose-toggle','つぶやく',null,function(){s.composer.hidden=!s.composer.hidden;composeToggle.setAttribute('aria-expanded',String(!s.composer.hidden));if(!s.composer.hidden)s.input.focus({preventScroll:true});});composeToggle.setAttribute('aria-expanded','false');composeToggle.setAttribute('aria-controls',root.id+'Composer');toolbar.appendChild(composeToggle);content.appendChild(toolbar);content.appendChild(el('p','cw-small cw-login-hint','登録なしで投稿・返信できます。'));
+    var composer=el('form','cw-composer');composer.id=root.id+'Composer';composer.hidden=true;s.composer=composer;if(config.stock){s.destination=el('p','cw-description','投稿先：'+title(s.category));composer.appendChild(s.destination);}
     var fields=el('div','cw-composer-fields'),nicknameLabel=fieldLabel('ニックネーム'),nickname=el('input','cw-input');nickname.id='cmNick';nickname.type='text';nickname.maxLength=20;nickname.value=stored('cm_nick','');nickname.setAttribute('aria-label','ニックネーム（20文字まで）');nicknameLabel.appendChild(nickname);s.nickname=nickname;fields.appendChild(nicknameLabel);
     var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(config.stock?categories:categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);categoryLabel.hidden=true;fields.appendChild(categoryLabel);if(config.stock)s.categoryInput.disabled=true;
     var languageLabel=fieldLabel('投稿の言語');s.languageInput=select(languages,'投稿の言語');languageLabel.appendChild(s.languageInput);fields.appendChild(languageLabel);composer.appendChild(fields);
