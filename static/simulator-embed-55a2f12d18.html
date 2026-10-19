@@ -559,7 +559,20 @@ function setLang(lang){
   if(userData)renderMyPage(userData);
 }
 
+function openSiteMyPage(){
+  // Use the same entry as the site's bottom navigation, including its session
+  // checks. Do not copy a LINE UID or profile into the private MyPage store.
+  try{
+    if(window.parent!==window && window.parent.location.origin===location.origin){
+      const host=window.parent.document.getElementById('knSimEmbedFrame');
+      const entry=window.parent.document.querySelector('#knBottomNav .bn-item[data-act="mypage"]');
+      if(host && host.contentWindow===window && entry){entry.click();return;}
+    }
+  }catch(ignore){}
+  window.location.assign('/?mypage=assets');
+}
 function switchTab(name){
+  if(name==='mypage')return openSiteMyPage();
   ['daily','monthly','lump','goal','mypage'].forEach(n=>{
     const el=document.getElementById('tab-'+n);
     if(n===name){el.style.display='';el.classList.remove('tab-panel');void el.offsetWidth;el.classList.add('tab-panel');}
