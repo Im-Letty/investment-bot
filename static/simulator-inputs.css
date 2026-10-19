@@ -1,8 +1,12 @@
 /* The slider covers broad changes; adjacent buttons make one-step changes. */
 body .row.sim-adjust-row {
   grid-template-columns: minmax(0, 1fr) max-content;
-  gap: 4px 12px;
-  margin-bottom: 18px;
+  gap: 0 8px;
+  margin-bottom: 8px;
+}
+
+body .row.sim-adjust-row:last-child {
+  margin-bottom: 0;
 }
 
 body .row.sim-adjust-row label {
@@ -13,7 +17,7 @@ body .row.sim-adjust-row label {
 body .row.sim-adjust-row .right {
   grid-column: 2;
   grid-row: 1;
-  gap: 6px;
+  gap: 4px;
 }
 
 body .sim-step-value {
@@ -25,7 +29,7 @@ body .sim-step-value {
 }
 
 body .row.sim-adjust-row .val-input {
-  width: calc(112px * max(1, var(--kn-type-scale, 1)));
+  width: calc(100px * max(1, var(--kn-type-scale, 1)));
   min-height: 44px;
   text-align: center;
 }
@@ -44,7 +48,7 @@ body .sim-step-button {
   border-radius: 8px;
   background: var(--sim-chip);
   color: var(--sim-ink);
-  font: 400 22px/1 var(--sim-font);
+  font: 400 18px/1 var(--sim-font);
   cursor: pointer;
   touch-action: manipulation;
 }
@@ -74,16 +78,28 @@ body .row.sim-adjust-row input[type="range"] {
 }
 
 body .row.sim-adjust-row input[type="range"]::-webkit-slider-thumb {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
-  margin-top: -11.5px;
+  margin-top: -8.5px;
 }
 
 body .row.sim-adjust-row input[type="range"]::-moz-range-thumb {
-  width: 26px;
-  height: 26px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
+}
+
+body .metric .mval {
+  width: max-content;
+  max-width: 100%;
+  margin-inline: auto;
+  font-size: calc(var(--kn-type-value, 20px) * .9 * var(--kn-type-scale, 1));
+  text-align: left;
+  white-space: nowrap;
+  overflow-wrap: normal;
+  overflow-x: auto;
+  scrollbar-width: thin;
 }
 
 @media (max-width: 540px) {
@@ -96,8 +112,8 @@ body .row.sim-adjust-row input[type="range"]::-moz-range-thumb {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 12px 14px;
+    gap: 8px;
+    padding: 10px 12px;
     text-align: left;
   }
 
@@ -108,21 +124,34 @@ body .row.sim-adjust-row input[type="range"]::-moz-range-thumb {
 
   body .metric .mval {
     min-width: 0;
-    text-align: right;
+    margin-inline: 0;
+    margin-left: auto;
   }
 
-  body .row.sim-adjust-row label {
-    grid-column: 1 / -1;
+  body .row.sim-adjust-row {
+    grid-template-columns: minmax(64px, 1fr) minmax(0, 200px);
   }
 
   body .row.sim-adjust-row .right {
-    grid-column: 1 / -1;
-    grid-row: 2;
     display: grid;
     grid-template-columns: 44px minmax(0, 1fr) 44px;
   }
 
-  body .row.sim-adjust-row input[type="range"] {
+  body .row.sim-adjust-row .val-input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  body[data-kn-sim-large-text="true"] .row.sim-adjust-row label {
+    grid-column: 1 / -1;
+  }
+
+  body[data-kn-sim-large-text="true"] .row.sim-adjust-row .right {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  body[data-kn-sim-large-text="true"] .row.sim-adjust-row input[type="range"] {
     grid-row: 3;
   }
 }
