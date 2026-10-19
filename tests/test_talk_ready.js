@@ -78,31 +78,35 @@ function harness({stock=true,community=true,last}={}){
   vm.runInNewContext(read('static/talk-theme.js'),context,{filename:'static/talk-theme.js'});
   return {context,document,body,nav,talkButton,morningButton,entrance,morning,timers,intervals,observers,requests,storage,Element,html,closeSaved:()=>closeSaved,settle:()=>new Promise(resolve=>setImmediate(resolve))};
 }
-function ready(h,id='stockTalkOv'){
+function ready(h,id='cmOv'){
   const screen=h.document.getElementById(id);assert.ok(screen,'new conversation is synchronous before any observer or timer');assert.equal(h.body.querySelectorAll('.cw-screen').length,1);assert.equal(screen.classList.contains('cw-screen'),true);
-  assert.equal(screen.querySelectorAll('.cw-view-tab').length,2);assert.equal(screen.querySelectorAll('.cw-view-tab[aria-pressed="true"]').length,1);assert.equal(h.document.getElementById('knMyTalkHub'),null);assert.equal(h.document.getElementById('talkHubOv'),null);
+  assert.equal(screen.querySelectorAll('.cw-view-tab').length,id==='stockTalkOv'?2:0);assert.equal(screen.querySelectorAll('.cw-view-tab[aria-pressed="true"]').length,id==='stockTalkOv'?1:0);assert.equal(h.document.getElementById('knMyTalkHub'),null);assert.equal(h.document.getElementById('talkHubOv'),null);
   assert.ok(h.body.classList.contains('kn-talk-active'));
   assert.equal(h.document.documentElement.style['--kn-talk-nav-height'],'58px');
   return screen;
 }
 
-test('the real upper Talk click opens the new two-tab screen synchronously without delivering observers or timers',async()=>{
+test('the real upper Talk click opens the general feed with an inline composer before observers or timers',async()=>{
   const h=harness();assert.equal(h.document.getElementById('knMyTalkHub'),null);
-  h.entrance.click();const screen=ready(h);assert.equal(screen.querySelector('.cw-title').textContent,'トーク');assert.deepEqual(screen.querySelectorAll('.cw-view-tab').map(node=>node.textContent),['みんなの銘柄','コミュニティ']);await h.settle();assert.equal(h.requests.length,1);assert.ok(h.requests.every(request=>!request.options.method||request.options.method==='GET'),'opening never sends a comment');assert.equal(h.closeSaved(),1);
+  h.entrance.click();const screen=ready(h);assert.equal(screen.querySelector('.cw-title').textContent,'トーク');assert.equal(screen.querySelector('.cw-composer').hidden,false);assert.equal(screen.querySelectorAll('.cw-compose-toggle').length,0);assert.equal(screen.querySelectorAll('.cw-categories').length,0);assert.equal(screen.querySelector('.cw-intro').textContent,'話題は自由。いま気になっていることを、気軽に話そう。');assert.equal(h.document.activeElement,null,'initial entry leaves the keyboard closed');assert.ok(screen.querySelector('details.cw-guide').contains(screen.querySelector('.cw-stock-talk-link')));await h.settle();assert.equal(h.requests.length,1);assert.ok(h.requests.every(request=>!request.options.method||request.options.method==='GET'),'opening never sends a comment');assert.equal(h.closeSaved(),1);
 });
 test('repeated upper and real legacy bottom clicks preserve the active root, composer and single loading request',async()=>{
   const h=harness();h.entrance.click();const root=ready(h),input=root.querySelector('#cmInput');input.value='保存前の架空下書き';input.dispatch('input');await h.settle();
   for(let index=0;index<4;index++){h.talkButton.click();h.entrance.click();}assert.equal(ready(h),root);assert.equal(root.querySelector('#cmInput'),input);assert.equal(input.value,'保存前の架空下書き');await h.settle();assert.equal(h.requests.length,1);assert.equal(h.intervals.size,1);
 });
-test('the real legacy bottom navigation opens the remembered community directly and both native tabs retain focus and drafts',async()=>{
-  const h=harness({last:'community'});h.talkButton.click();const community=ready(h,'cmOv'),input=community.querySelector('#cmInput');input.value='架空の一般下書き';input.dispatch('input');await h.settle();assert.equal(h.requests.length,1);
-  const tabs=community.querySelectorAll('.cw-view-tab');assert.ok(tabs.every(tab=>tab.tagName==='BUTTON'&&tab.type==='button'));tabs[0].click();const stock=ready(h);assert.equal(h.document.activeElement,stock.querySelectorAll('.cw-view-tab')[0]);stock.querySelectorAll('.cw-view-tab')[1].click();const restored=ready(h,'cmOv');assert.equal(restored.querySelector('#cmInput').value,'架空の一般下書き');assert.equal(h.document.activeElement,restored.querySelectorAll('.cw-view-tab')[1]);assert.equal(h.intervals.size,1);
+test('real entry prefers general; its guide link and stock tab retain focus, origin, drafts and one poll',async()=>{
+  const h=harness({last:'stock'});h.storage.set('alert_watchlist_v1',JSON.stringify([{symbol:'1832.JP',name:'北海電工'}]));h.talkButton.click();const community=ready(h),input=community.querySelector('#cmInput');input.value='架空の一般下書き';input.dispatch('input');await h.settle();assert.equal(h.requests.length,1);
+  const link=community.querySelector('.cw-stock-talk-link');assert.equal(link.tagName,'BUTTON');assert.equal(link.type,'button');assert.equal(link.textContent,'銘柄ごとの会話を読む');link.click();const stock=ready(h,'stockTalkOv');assert.equal(h.document.activeElement,stock.querySelectorAll('.cw-view-tab')[0]);const stockInput=stock.querySelector('#cmInput');stockInput.value='架空の銘柄下書き';stockInput.dispatch('input');await h.settle();assert.equal(h.requests[0].options.signal.aborted,true);assert.equal(h.intervals.size,1);assert.ok(stock.querySelector('.cw-room-picker'));assert.ok(stock.querySelector('.cw-stock-search'));assert.ok(stock.querySelector('.cw-archive'));assert.ok(stock.querySelector('.cw-compose-toggle'));assert.equal(stock.querySelector('.cw-stock-favorites').querySelector('button').textContent,'♡ 北海電工');
+  h.context.knTalkLastView='community';h.entrance.click();h.talkButton.click();assert.equal(ready(h,'stockTalkOv'),stock);assert.equal(stock.querySelector('#cmInput'),stockInput);assert.equal(stockInput.value,'架空の銘柄下書き');await h.settle();assert.equal(h.requests.length,2,'re-entering active stock does not create another loading request');assert.equal(h.intervals.size,1);
+  stock.querySelectorAll('.cw-view-tab')[1].click();const restored=ready(h);assert.equal(restored.querySelector('#cmInput').value,'架空の一般下書き');assert.equal(h.document.activeElement,restored.querySelector('.cw-title'));assert.equal(restored.querySelector('.cw-title').tabIndex,-1);assert.equal(h.intervals.size,1);await h.settle();assert.equal(h.requests.length,3);
+  restored.querySelector('.cw-stock-talk-link').click();const closingStock=ready(h,'stockTalkOv');assert.equal(closingStock.querySelector('#cmInput').value,'架空の銘柄下書き');closingStock.querySelector('.cw-close').click();assert.equal(h.morning.scrollTop,347,'switching and reentry keep the pre-cleanup origin');assert.equal(h.intervals.size,0);assert.equal(h.context.knTalkLastView,'stock');h.entrance.click();assert.equal(ready(h).querySelector('#cmInput').value,'架空の一般下書き','a closed stock view never overrides the general entry');assert.equal(h.intervals.size,1);
 });
 test('all four index rooms and four existing company rooms remain available through the new conversation instance',()=>{
  const h=harness();assert.deepEqual(Array.from(h.context.KNStockTalk.categories, r=>r[0]),['stock:7203','stock:6758','stock:9984','stock:8306','index:N225','index:SP500','index:DJI','index:IXIC']);
 });
 test('a single ready module opens directly and no ready module leaves existing screens untouched',async()=>{
   const fallback=harness({stock:false});fallback.entrance.click();ready(fallback,'cmOv');await fallback.settle();assert.equal(fallback.requests.length,1);
+  const stockFallback=harness({community:false});stockFallback.entrance.click();ready(stockFallback,'stockTalkOv');await stockFallback.settle();assert.equal(stockFallback.requests.length,1);
   const h=harness({stock:false,community:false}),saved=new h.Element('section');saved.id='syntheticSaved';h.body.appendChild(saved);assert.doesNotThrow(()=>h.entrance.click());assert.equal(h.closeSaved(),0);assert.equal(h.document.getElementById('syntheticSaved'),saved);assert.equal(h.morning.scrollTop,347);assert.equal(h.body.querySelectorAll('.cw-screen').length,0);await h.settle();assert.equal(h.requests.length,0);
 });
 test('neither removed legacy builder nor delayed theme work can reconstruct a two-card Talk hub',()=>{
