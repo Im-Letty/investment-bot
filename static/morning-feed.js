@@ -243,7 +243,10 @@
     if(l!==lang())return;
     var el=document.getElementById('morning-news-content');if(!el)return;
     var c=copy[l],status;
-    if(d.delivery==='published')status=failed?({ja:'最新情報を確認できませんでした。',en:'Unable to check for updates.',ko:'최신 정보를 확인하지 못했습니다.',zh:'暂时无法检查更新。'}[l]):'';
+    if(d.delivery==='published'){
+      status=d.edition_date<publicationPeriod()?({ja:'新しい経済ニュースを確認できていません。前回分を表示しています。',en:'A newer economic news edition has not been confirmed. Showing the previous edition.',ko:'새 경제 뉴스를 확인하지 못했습니다. 이전 기사를 표시하고 있습니다.',zh:'尚未确认新一期经济新闻，当前显示上一期内容。'}[l]):'';
+      if(failed)status+=(status?' ':'')+({ja:'最新情報を確認できませんでした。',en:'Unable to check for updates.',ko:'최신 정보를 확인하지 못했습니다.',zh:'暂时无法检查更新。'}[l]);
+    }
     else{
       var stamp=window.KNDateDisplay.label(d.fetched_at,c.updated,true);
       status=stamp+(failed?' · '+c.failed:d.translation_pending?' · '+c.pending:d.stale?' · '+c.stale:'');

@@ -1,6 +1,6 @@
 """Render the published daily edition before any external feed request completes."""
 from copy import deepcopy
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from hashlib import sha256
 from html import escape
 from pathlib import Path
@@ -109,7 +109,7 @@ def _article_meta(item, *, summarized=False, source_link=True):
             f'{_publication(item, compact=True)}{_article_link(item) if source_link else ""}</div></div>')
 
 
-def render_news_markup(data):
+def render_news_markup(data, *, now=None):
     """Use the existing E-front/A-details structure, without waiting for JS."""
     esc = lambda value: escape(str(value), quote=True)
     edition = datetime.fromisoformat(data["edition_date"])
@@ -175,7 +175,10 @@ def render_news_markup(data):
              '<span class="read-toggle" aria-hidden="true"></span></summary><div class="stories editorial-detail">'
              + "".join(stories) + source_row + '</div></details>') if stories or source_row else '')
     if data.get("delivery") == "published":
-        status = ''
+        current_period = (datetime.fromtimestamp(time.time() if now is None else now, JST)
+                          - timedelta(hours=8)).date()
+        status = ('新しい経済ニュースを確認できていません。前回分を表示しています。'
+                  if edition.date() < current_period else '')
     else:
         status = _stamp(data["fetched_at"]) + " 取得" + (" · 最新情報を確認中" if data.get("stale") else "")
     tail = (f'<div class="news-tail">{more}</div>'
@@ -186,14 +189,14 @@ def render_news_markup(data):
             '<div class="news-content"><div class="brief">' + brief + '</div>' + tail + footer + '</div></article>')
 
 
-def render_initial_html(html, data):
+def render_initial_html(html, data, *, now=None):
     if data is None:
         return html
     # Escape script terminators and JS line separators even though this is
     # inert JSON; HTML parsing still recognizes a literal closing script tag.
     payload = json.dumps(data, ensure_ascii=False, separators=(",", ":"), allow_nan=False)
     payload = payload.replace("<", "\\u003c").replace("\u2028", "\\u2028").replace("\u2029", "\\u2029")
-    replacement = ('<div id="morning-news-content" aria-busy="false">' + render_news_markup(data) + '</div>'
+    replacement = ('<div id="morning-news-content" aria-busy="false">' + render_news_markup(data, now=now) + '</div>'
                    '<script type="application/json" id="knInitialNews">' + payload + '</script>')
     return html.replace(NEWS_PLACEHOLDER, replacement, 1)
 
@@ -221,7 +224,7 @@ def news_index_response(html_path, cache, request, *, now=None, market_payload=N
     source = Path(html_path).read_text(encoding="utf-8")
     if html_transform is not None:
         source = html_transform(source)
-    html = render_initial_html(source, data)
+    html = render_initial_html(source, data, now=now)
     body = render_initial_market(html, market_payload, now=now).encode("utf-8")
     # Render's existing edge compression handles the wire representation.
     response = Response(body, mimetype="text/html")

@@ -316,6 +316,38 @@ function curated(app,lang='ja'){
   data.digest=reviewed(data,{publication_mode:'curated',reviewed_at:app.now()/1000});return data;
 }
 
+test('a retained economic edition gets a notice at 08:00 JST that clears on a current publication',async()=>{
+  const app=harness(),old=curated(app),original=JSON.stringify(old);
+  app.advance(Date.parse('2026-09-13T07:59:59+09:00')-app.now());
+  app.nodes.knInitialNews={textContent:original};app.event('DOMContentLoaded');
+  await app.reply(app.requests[0],old);
+  const html=()=>app.nodes['morning-news-content'].innerHTML;
+  assert.doesNotMatch(html(),/前回分を表示/,'Yesterday is the expected edition before the release time');
+  app.advance(1000);for(const timer of app.intervals.values())timer.fn();
+  await app.reply(app.requests.findLast(r=>r.url.includes('morning-news')),old);
+  assert.match(html(),/新しい経済ニュースを確認できていません。前回分を表示しています。/);
+  assert.match(html(),/掲載対象日 2026-09-12/);
+  assert.ok(html().includes(old.digest.summary));
+  assert.equal(JSON.stringify(old),original,'The notice must not rewrite publication facts');
+  app.context.loadMorningNews(true);app.requests.at(-1).reject(new Error('offline'));await flush();
+  assert.match(html(),/前回分を表示/);assert.match(html(),/最新情報を確認できませんでした/);
+  assert.doesNotMatch(html(),/掲載されていません/,'A failed fetch cannot prove that no newer edition was published');
+  app.context.loadMorningNews(true);const current=curated(app);
+  await app.reply(app.requests.at(-1),current);
+  assert.doesNotMatch(html(),/前回分を表示|最新情報を確認できませんでした/);
+  assert.match(html(),/掲載対象日 2026-09-13/);
+});
+
+test('the retained-edition notice follows the selected display language',async()=>{
+  for(const [language,notice] of [['en','Showing the previous edition.'],['ko','이전 기사를 표시하고 있습니다.'],['zh','当前显示上一期内容。']]){
+    const app=harness(),old=curated(app,language);
+    app.language(language);app.advance(86400000);app.event('DOMContentLoaded');
+    await app.reply(app.requests[0],old);
+    assert.ok(app.nodes['morning-news-content'].innerHTML.includes(notice));
+    assert.doesNotMatch(app.nodes['morning-news-content'].innerHTML,/前回分を表示/);
+  }
+});
+
 function currentHeadlines(app,lang='ja',extra={}){
   return app.news(lang,{delivery:'headlines',fallback_reason:'current_edition_unavailable',digest:null,...extra});
 }

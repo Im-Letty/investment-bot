@@ -128,6 +128,33 @@ class ParsedInitial(HTMLParser):
 
 
 class InitialSelectionTests(unittest.TestCase):
+    def test_previous_edition_notice_starts_at_eight_without_changing_published_copy(self):
+        data = initial_news(cold(), now=NOW, reviewed_digests=[official_review('day')])
+        original = deepcopy(data)
+        notice = '新しい経済ニュースを確認できていません。前回分を表示しています。'
+        for now, expected in (
+                ('2026-09-22T13:00:00+09:00', False),
+                ('2026-09-23T07:59:59.999999+09:00', False),
+                ('2026-09-23T08:00:00+09:00', True)):
+            with self.subTest(now=now):
+                html = render_initial_html(NEWS_PLACEHOLDER, data, now=timestamp(now))
+                self.assertEqual(notice in html, expected)
+                self.assertEqual('class="news-footer"' in html, expected)
+                self.assertEqual(json.loads(ParsedInitial(html).json), original)
+                self.assertIn(original['digest']['headline'], html)
+                self.assertIn(original['digest']['summary'], html)
+                self.assertIn('aria-label="掲載対象日 2026-09-22 ', html)
+                self.assertEqual(ParsedInitial(html).links[0]['attrs']['href'], original['news'][0]['url'])
+                self.assertEqual(ParsedInitial(html).times[0]['attrs']['datetime'], '2026-09-21')
+                self.assertEqual(data, original)
+
+    def test_previous_edition_notice_does_not_label_headlines_as_published_copy(self):
+        data = initial_news(live(), now=NOW)
+        self.assertEqual(data['delivery'], 'headlines')
+        markup = render_news_markup(data, now=timestamp('2026-09-23T08:00:00+09:00'))
+        self.assertNotIn('新しい経済ニュースを確認できていません。前回分を表示しています。', markup)
+        self.assertIn(' 取得</p>', markup)
+
     def test_lead_and_other_news_structure_shows_only_other_stories_and_keeps_all_embedded_copy(self):
         for count, precision in ((count, precision) for count in (1, 2, 3) for precision in ('day', 'second')):
             with self.subTest(count=count, precision=precision):
@@ -148,7 +175,7 @@ class InitialSelectionTests(unittest.TestCase):
                     for i, item in enumerate(authored['article_refs'])]
                 original = deepcopy(authored)
                 data = initial_news(cold(), now=NOW, reviewed_digests=[authored])
-                html = render_initial_html(NEWS_PLACEHOLDER, data)
+                html = render_initial_html(NEWS_PLACEHOLDER, data, now=NOW)
                 markup = html.split('<script type="application/json"', 1)[0]
                 self.assertIn(authored['summary'], markup)
                 self.assertNotIn('独立した見出し0', markup)
@@ -583,6 +610,24 @@ class InitialResponseTests(unittest.TestCase):
         self.assertNotIn('Content-Encoding', accepted.headers)
         self.assertEqual(accepted.data, plain.data)
         self.assertEqual(accepted.headers['ETag'], plain.headers['ETag'])
+
+    def test_previous_edition_notice_uses_response_clock_and_revalidates_at_eight(self):
+        self.reviews = [official_review('day')]
+        original = deepcopy(self.reviews)
+        notice = '新しい経済ニュースを確認できていません。前回分を表示しています。'
+        self.now = timestamp('2026-09-23T07:59:59.999999+09:00')
+        with patch('news_initial.time.time', return_value=timestamp('2026-09-24T12:00:00+09:00')):
+            before = self.client.get('/')
+        self.assertNotIn(notice, before.get_data(as_text=True))
+        self.now = timestamp('2026-09-23T08:00:00+09:00')
+        with patch('news_initial.time.time', return_value=timestamp('2026-09-22T12:00:00+09:00')):
+            after = self.client.get('/', headers={'If-None-Match': before.headers['ETag']})
+        self.assertEqual(after.status_code, 200)
+        self.assertIn(notice, after.get_data(as_text=True))
+        self.assertNotEqual(after.headers['ETag'], before.headers['ETag'])
+        self.assertEqual(json.loads(ParsedInitial(after.get_data(as_text=True)).json),
+                         json.loads(ParsedInitial(before.get_data(as_text=True)).json))
+        self.assertEqual(self.reviews, original)
 
     def test_conditional_response_changes_with_publication_and_midnight(self):
         first = self.client.get('/')
