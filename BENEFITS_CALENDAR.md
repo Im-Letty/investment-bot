@@ -1,7 +1,7 @@
 # Shareholder benefits calendar
 
-The catalogue contains 29 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17 and three on 2026-10-18, plus 2 on 2026-10-19. The owner chose phased expansion using free
+The catalogue contains 30 companies: the original nine reviewed on 2026-09-25 and
+fifteen additions reviewed on 2026-10-17 and three on 2026-10-18, plus 3 on 2026-10-19. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -467,3 +467,29 @@ coverage. Other companies in this bounded batch are not added by this publicatio
 All previous28 companies,19 reviewed additions,nine fixed records and12 explicit
 schedules retain their original facts and confirmation dates. This remains partial
 coverage. Other companies in this bounded batch are not added by this publication.
+
+
+## Additional current-HTML review on 2026-10-19
+
+- 6623 愛知電機: https://www.aichidenki.jp/ir/shareholder-benefits.html
+  The single displayed tier grants a3,000-yen catalogue gift for100+ shares
+  at the recurring March31 record after at least one year of continuous holding.
+  The same shareholder number must show at least100 shares at3 consecutive
+  March/September-end registers; changing the number loses continuity eligibility.
+  The number can change after lending, selling all and repurchasing, cross-broker
+  transactions, identity/address/inheritance/legal-representative changes or a
+  broker transfer; the examples do not claim a number change is inevitable.
+  Application/selection procedures, dispatch/arrival and expiry are unstated in
+  the currentHTML. No year-specific purchase deadline or new schedule is created.
+  Supplemental amendmentPDF text was read, but its tables were not visually
+  verified, so it supplies no adopted numerical or version-date authority.
+  Issuer/code/market agree with the dated official sources and saved StockSearch
+  identity; the2024 trading-unit observation is not a current-day refresh and is
+  not published as a fresh unit fact. The observation-bundle SHA is not a raw-page
+  SHA. Privacy/footer observations do not establish a general reuse licence or
+  blanket independent-fact prohibition. Only short original programme facts are
+  published; limited latestIR headings do not prove complete amendment coverage.
+
+All previous29 companies,20 reviewed additions,nine fixed records and12 explicit
+schedules retain their original facts and confirmation dates. This remains partial
+coverage; the other2 reviewed companies are not active-programme additions.

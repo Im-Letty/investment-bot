@@ -1457,6 +1457,67 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "6623",
+      "symbol": "6623.JP",
+      "name": "愛知電機",
+      "category": "カタログギフト",
+      "aliases": "愛知電機株式会社 AICHI ELECTRIC",
+      "versions": [
+        {
+          "id": "official-current-html-reviewed-20261019",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-19",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.aichidenki.jp/ir/shareholder-benefits.html",
+            "title": "愛知電機公式 株主優待",
+            "security_code": "6623",
+            "issuer_name": "愛知電機",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-19T16:25:24+09:00",
+            "observed_at_kind": "whole_second_post_tool_clock_sample_not_exact_origin_or_publication",
+            "evidence_path": "evidence/reviewed-6623-observation-bundle-20261019.json",
+            "evidence_sha256": "7c0d28ef7aafc6ac494ea66fa8f55a2f8c1e15b8d6c19bf253376d59261f5f68",
+            "observed_time_exclusive_upper_bound_jst": "2026-10-19T16:25:25+09:00"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-author-plus-independent-saved-source-and-public-wording-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行公式HTMLの単一株数区分・継続保有条件を確認。IR最新見出しまでの限定確認で、全改廃不存在・将来日程は未確認。補助PDFの条件表は視覚未確認で数値・適用日の採用根拠にしない。",
+            "all_future_amendments_verified_absent": false,
+            "independent_review_evidence": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261019-162309/independent-source-review.json",
+              "sha256": "346b797be6ee578a1f603cb8e6165c3d693498954bc3aac742dfa01520b38c71"
+            }
+          },
+          "period": "毎年3月31日の株主名簿を基準に判定。次回の具体的な購入締切日は未確認。",
+          "conditions": "100株以上を1年以上継続保有。3月31日と9月30日の株主名簿に、同じ株主番号で100株以上の保有記録が3回以上連続することが必要。株主番号が変わると継続保有の対象から外れます。",
+          "use": "3,000円相当のカタログギフト。申込・商品選択の方法、利用上の追加条件は現行本文で確認できていません。貸株、全株売却後の買戻し、他社口座での売買、氏名・住所の変更、相続、法定代理人の変更、預託証券会社の変更などで株主番号が変わる場合があります。",
+          "delivery": "現行の優待本文では、具体的な発送予定・実際の発送日や到着日・ギフトの有効期限は未確認。",
+          "grant_summary": "発送予定・到着日・有効期限は未確認",
+          "tiers": [
+            {
+              "id": "current-100-continuous-1year",
+              "shares_min": 100,
+              "shares_max": null,
+              "holding_months_min": 12,
+              "holding_requirement": "1年以上。同じ株主番号で3月末・9月末の名簿に100株以上を3回以上連続記載",
+              "reward": "3,000円相当のカタログギフト",
+              "conditions": "株主番号の変更に注意。申込・選択方法や有効期限は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
