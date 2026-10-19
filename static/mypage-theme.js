@@ -43,6 +43,11 @@
         if(value&&doc.documentElement.style.getPropertyValue('--kn-sh-'+name)!==value)
           doc.documentElement.style.setProperty('--kn-sh-'+name,value);
       });
+      var backdrop=getComputedStyle(document.body).getPropertyValue('--kn-nav-mypage-bg').trim();
+      if(backdrop&&doc.body.style.getPropertyValue('--kn-ledger-bg')!==backdrop)
+        doc.body.style.setProperty('--kn-ledger-bg',backdrop);
+      else if(!backdrop&&doc.body.style.getPropertyValue('--kn-ledger-bg'))
+        doc.body.style.removeProperty('--kn-ledger-bg');
       ['sans','serif'].forEach(function(name){
         var value=getComputedStyle(document.body).getPropertyValue('--kn-a-'+name).trim();
         if(value&&doc.documentElement.style.getPropertyValue('--kn-sh-'+name)!==value)

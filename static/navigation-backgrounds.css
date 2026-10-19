@@ -1,0 +1,25 @@
+/* Keep the morning letter's selected hue while moving gently toward the right.
+   A positive share of the original background remains on every page. */
+body.kn-home-a:not([data-theme="dark"]) {
+  --kn-nav-simulator-bg: color-mix(in srgb, var(--kn-a-bg) 85%, #fff);
+  --kn-nav-shorts-bg: color-mix(in srgb, var(--kn-a-bg) 70%, #fff);
+  --kn-nav-pet-bg: color-mix(in srgb, var(--kn-a-bg) 55%, #fff);
+  --kn-nav-mypage-bg: color-mix(in srgb, var(--kn-a-bg) 40%, #fff);
+}
+
+body.kn-home-a:not([data-theme="dark"]) #knSimEmbedOv {
+  background: var(--kn-nav-simulator-bg) !important;
+}
+
+/* Scoped tokens leave cards, text, and the dark video player unchanged. */
+body.kn-home-a:not([data-theme="dark"]) :is(#knShorts, #ksSearchPanel, #knSavedOv) {
+  --kn-sh-bg: var(--kn-nav-shorts-bg);
+}
+
+body.kn-home-a:not([data-theme="dark"]) :is(#sect-pet, #sect-pet .ipg-shell-head) {
+  background: var(--kn-nav-pet-bg) !important;
+}
+
+body.kn-home-a:not([data-theme="dark"]) #myPageOv {
+  --kn-sh-bg: var(--kn-nav-mypage-bg);
+}

@@ -32,27 +32,36 @@
   function contrast(a,b) {var x=luminance(a),y=luminance(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);}
   function fallbackPalette() {
     var result=Object.assign({},defaults), brand, custom;
+    var morningBg='#f7fbf6';
     try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1'||(brand&&brand!=='#3da060');} catch (_) {}
     if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
       brand=normalize(brand,'#3da060');
       result.tint=brand;
-      if(custom) result.button=mix(brand,'#4c6150',.45);
+      if(custom) {
+        result.button=mix(brand,'#4c6150',.45);
+        morningBg=mix(brand,'#fcfdf8',.03);
+      }
     }
+    result.bg=mix(morningBg,'#ffffff',.85);
     return result;
   }
   function readPalette() {
-    var result=fallbackPalette();
+    var result=fallbackPalette(), backdrop, parentDark=false;
     try {
       if(window.parent!==window && window.parent.location.origin===location.origin) {
         var source=window.parent.document.getElementById('morning-section');
         if(source && window.parent.document.body.classList.contains('kn-home-a')) {
           var style=window.parent.getComputedStyle(source);
           result.button=normalize(style.getPropertyValue('--kn-a-button').trim(),result.button);
+          parentDark=window.parent.document.body.getAttribute('data-theme')==='dark';
+          if(!parentDark) backdrop=normalize(style.getPropertyValue('--kn-nav-simulator-bg').trim(),null);
         }
       }
     } catch (_) {}
-    // Tint only the backdrop before adjusting control/chart contrast.
-    result.bg=mix(result.tint||result.button,result.paper,.08);
+    // The embedded canvas and its parent use the same morning-based backdrop.
+    // Keep the existing dark-mode reading surfaces and contrast unchanged.
+    if(parentDark) result.bg=mix(result.tint||result.button,result.paper,.08);
+    else if(backdrop) result.bg=backdrop;
     // A very light selected color still needs a visible control/chart outline.
     for(var step=0;contrast(result.button,result.paper)<3.5 && step<12;step++)
       result.button=mix(result.button,'#303638',.85);
