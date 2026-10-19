@@ -32,14 +32,14 @@
   function contrast(a,b) {var x=luminance(a),y=luminance(b);return (Math.max(x,y)+0.05)/(Math.min(x,y)+0.05);}
   function fallbackPalette() {
     var result=Object.assign({},defaults), brand, custom;
-    var morningBg='#f7fbf6';
+    var morningBg='#f0eedf';
     try {brand=localStorage.getItem('userBrandColor');custom=localStorage.getItem('userBrandColorCustom')==='1'||(brand&&brand!=='#3da060');} catch (_) {}
     if(/^#(?:[0-9a-f]{3}|[0-9a-f]{6})$/i.test(brand||'')) {
       brand=normalize(brand,'#3da060');
       result.tint=brand;
       if(custom) {
         result.button=mix(brand,'#4c6150',.45);
-        morningBg=mix(brand,'#fcfdf8',.03);
+        morningBg=mix(brand,'#f5f2e9',.10);
       }
     }
     result.bg=mix(morningBg,'#ffffff',.85);
