@@ -62,7 +62,7 @@ function paired(h){
 
 test('public entrance is prepared before loading; guest GET never prompts login',async()=>{
   const h=harness({logged:false});h.ui.open();assert.equal(h.prepared(),1);assert.equal(h.authPrompts(),0);await h.settle();assert.equal(h.calls.length,1);assert.equal(h.calls[0].options.headers,undefined);assert.equal(h.node('.cw-title').textContent,'トーク');assert.equal(h.node('#cmOv').getAttribute('aria-label'),'コミュニティ');
-  assert.equal(h.node('.cw-composer').hidden,false);assert.equal(h.document.activeElement,null,'opening does not focus a field or summon the mobile keyboard');assert.equal(h.nodes('.cw-compose-toggle').length,0);assert.equal(h.nodes('.cw-view-tabs').length,0);assert.equal(h.nodes('.cw-categories').length,0);assert.equal(h.node('.cw-intro').textContent,'話題は自由。いま気になっていることを、気軽に話そう。');
+  assert.equal(h.node('.cw-composer').hidden,false);assert.equal(h.document.activeElement,null,'opening does not focus a field or summon the mobile keyboard');assert.equal(h.nodes('.cw-compose-toggle').length,0);assert.equal(h.nodes('.cw-view-tabs').length,1);assert.deepEqual(h.nodes('.cw-view-tab').map(n=>[n.tagName,n.type,n.textContent,n.getAttribute('aria-pressed')]),[['BUTTON','button','銘柄トーク','false'],['BUTTON','button','みんなのトーク','true']]);assert.equal(h.nodes('.cw-categories').length,0);assert.equal(h.node('.cw-intro').textContent,'話題は自由。いま気になっていることを、気軽に話そう。');
 });
 test('empty, loading and unavailable are different states',async()=>{
   const h=harness();h.ui.open();assert.equal(h.node('.cw-state').hidden,false);assert.equal(h.nodes('.cw-state')[1].hidden,true);await h.response({ok:false,reason:'storage_unavailable'},503);
@@ -131,7 +131,7 @@ test('delayed language events preserve composer and reply controls and allow sen
     assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'入力中の返信');assert.equal(h.nodes('label[data-cw-copy]').length,0);
     assert.equal(h.node('.cw-community-search').querySelector('input'),search);assert.equal(search.value,'表示用');
     assert.equal(search.placeholder,language==='ja'?'投稿・返信を検索':'Search posts and replies');
-    assert.equal(h.nodes('.cw-view-tab').length,0);assert.equal(h.node('.cw-stock-talk-link').type,'button');assert.equal(h.node('.cw-composer').hidden,false);
+    assert.deepEqual(h.nodes('.cw-view-tab').map(n=>n.textContent),language==='ja'?['銘柄トーク','みんなのトーク']:['Stock Talk','Everyone’s Talk']);assert.deepEqual(h.nodes('.cw-view-tab').map(n=>n.getAttribute('aria-pressed')),['false','true']);assert.equal(h.node('.cw-stock-talk-link').type,'button');assert.equal(h.node('.cw-composer').hidden,false);
   }
   h.node('.cw-composer').emit('submit');await h.settle();let payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.body,'入力中の投稿');assert.equal(payload.name,'表示名');assert.equal(payload.category,'news');
   await h.response({ok:true,post:post(21,{body:payload.body,category:'news',is_mine:true})});
@@ -203,16 +203,16 @@ test('catalogue search opens a regional company room and writes only to that sel
  assert.equal(JSON.parse(h.calls.at(-1).options.body).category,'stock:1832');
 });
 
-test('stock tabs and the general guide link switch views while cleaning up reads and retaining drafts',async()=>{
+test('both Talk views keep their tabs and guide link while cleaning up reads and retaining drafts',async()=>{
  const h=harness(),stock=paired(h);stock.open();await h.settle();h.morning.scrollTop=0;
  assert.equal(h.node('.cw-title').textContent,'トーク');assert.equal(h.node('#stockTalkOv').getAttribute('aria-label'),'みんなの銘柄トーク');
- assert.deepEqual(h.nodes('.cw-view-tab').map(n=>[n.tagName,n.type,n.textContent,n.getAttribute('aria-pressed')]),[['BUTTON','button','みんなの銘柄','true'],['BUTTON','button','コミュニティ','false']]);
+ assert.deepEqual(h.nodes('.cw-view-tab').map(n=>[n.tagName,n.type,n.textContent,n.getAttribute('aria-pressed')]),[['BUTTON','button','銘柄トーク','true'],['BUTTON','button','みんなのトーク','false']]);
  const old=h.pending[0];h.node('#cmInput').value='銘柄の下書き';h.node('#cmInput').emit('input');h.nodes('.cw-view-tab')[1].click();await h.settle();
  assert.equal(old.options.signal.aborted,true);assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.getElementById('stockTalkOv'),null);assert.equal(h.nodes('#cmInput').length,1);assert.equal(h.nodes('#cmNick').length,1);assert.equal(h.window.knTalkLastView,'community');assert.equal(h.timers.size,1);
- assert.equal(h.document.activeElement,h.node('.cw-title'),'returning to the tab-free general view focuses its heading');assert.equal(h.node('.cw-title').tabIndex,-1);
+ assert.equal(h.document.activeElement,h.nodes('.cw-view-tab')[1],'switching to the general view focuses its selected tab');assert.equal(h.nodes('.cw-view-tab')[1].getAttribute('aria-pressed'),'true');
  for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,1);
  await h.response({ok:true,posts:[post(999,{body:'古い銘柄の返答'})],has_more:false},200,0);assert.equal(h.nodes('.cw-post').length,0);
- await h.response({ok:true,posts:[post(9)],has_more:false});assert.equal(h.node('.cw-post').dataset.postId,'9');assert.equal(h.nodes('.cw-view-tabs').length,0);
+ await h.response({ok:true,posts:[post(9)],has_more:false});assert.equal(h.node('.cw-post').dataset.postId,'9');assert.equal(h.nodes('.cw-view-tabs').length,1);assert.equal(h.nodes('.cw-categories').length,0);
  const before=h.calls.length,root=h.node('#cmOv');h.ui.open();await h.settle();assert.equal(h.calls.length,before);assert.equal(h.node('#cmOv'),root);assert.equal(h.node('.cw-composer').hidden,false);assert.equal(h.timers.size,1);
  const link=h.node('.cw-stock-talk-link');assert.equal(link.tagName,'BUTTON');assert.equal(link.type,'button');assert.equal(link.textContent,'銘柄ごとの会話を読む');assert.ok(h.node('details.cw-guide').contains(link));link.click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('#cmInput').value,'銘柄の下書き');assert.equal(h.window.knTalkLastView,'stock');assert.equal(h.nodes('.cw-screen').length,1);assert.equal(h.document.activeElement,h.nodes('.cw-view-tab')[0]);h.node('.cw-close').click();assert.equal(h.morning.scrollTop,177,'both view transitions retain the original morning reading position');assert.equal(h.timers.size,0);
  for(const event of ['visibilitychange','langChanged','knAuthChange'])assert.equal(h.events.get(event).length,0);
@@ -221,9 +221,9 @@ test('stock tabs and the general guide link switch views while cleaning up reads
 test('reply drafts remain separate by conversation and topic across tab switches without new persistent storage',async()=>{
  const h=harness(),stock=paired(h);h.ui.open();await h.response({ok:true,posts:[post(7)],has_more:false});
  h.node('#cmInput').value='一般の投稿下書き';h.node('#cmInput').emit('input');h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});let input=h.node('.cw-reply-form').querySelector('textarea');input.value='一般の返信下書き';input.emit('input');
- h.node('.cw-stock-talk-link').click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});input=h.node('.cw-reply-form').querySelector('textarea');assert.equal(input.value,'');input.value='銘柄の返信下書き';input.emit('input');
+ h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});input=h.node('.cw-reply-form').querySelector('textarea');assert.equal(input.value,'');input.value='銘柄の返信下書き';input.emit('input');
  h.nodes('.cw-view-tab')[1].click();await h.response({ok:true,posts:[post(7)],has_more:false});assert.equal(h.node('#cmInput').value,'一般の投稿下書き');h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'一般の返信下書き');
- h.node('.cw-stock-talk-link').click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'銘柄の返信下書き');
+ h.nodes('.cw-view-tab')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'銘柄の返信下書き');
  h.nodes('.cw-category')[1].click();await h.response({ok:true,posts:[post(7,{category:'stock:6758'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'','same post ID in another stock room does not inherit a draft');
  h.nodes('.cw-category')[0].click();await h.response({ok:true,posts:[post(7,{category:'stock:7203'})],has_more:false});h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});assert.equal(h.node('.cw-reply-form').querySelector('textarea').value,'銘柄の返信下書き');
  assert.ok([...h.storage.keys()].every(k=>['kn_community_drafts_v1','kn_community_requests_v1','kn_stock_talk_drafts_v1','kn_stock_talk_requests_v1','cm_nick'].includes(k)));assert.ok([...h.storage.values()].every(v=>!v.includes('返信下書き')));

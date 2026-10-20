@@ -20,7 +20,7 @@
   var reasons=[['spam','広告・勧誘'],['abuse','攻撃的な投稿'],['privacy','個人情報'],['misinformation','誤った情報'],['other','その他']];
   var draftKey=config.stock?'kn_stock_talk_drafts_v1':'kn_community_drafts_v1',retryKey=config.stock?'kn_stock_talk_requests_v1':'kn_community_requests_v1';
   var english={
-    'トーク':'Talk','みんなの銘柄':'Stock Talk','みんなの銘柄トーク':'Stock Talk','トークの画面':'Talk views',
+    'トーク':'Talk','みんなの銘柄':'Stock Talk','みんなの銘柄トーク':'Stock Talk','銘柄トーク':'Stock Talk','みんなのトーク':'Everyone’s Talk','トークの画面':'Talk views',
     '検索':'Search','会社名・銘柄コード':'Company name or stock code','投稿・返信を検索':'Search posts and replies','この銘柄の投稿・返信を検索':'Search this stock’s posts and replies',
     '投稿と返信から、関連する言葉を探せます。':'Find matching words in posts and replies.','返信の続きを見る':'Read the replies','検索は80文字以内にしてください。':'Keep your search within 80 characters.',
     '一致する投稿はありません。':'No posts or replies match your search.',
@@ -317,10 +317,10 @@
     var header=el('header','cw-header');header.appendChild(button('cw-back','‹','朝レターに戻る',home));var heading=el('h1','cw-title','トーク');heading.tabIndex=-1;header.appendChild(heading);header.appendChild(button('cw-close','×',config.stock?'銘柄トークを閉じて朝レターへ戻る':'コミュニティを閉じて朝レターへ戻る',home));root.appendChild(header);
     function openView(view){var next=view==='stock'?w.openStockTalk:w.openCommunity;if(typeof next!=='function')return;next();var opened=doc.getElementById(view==='stock'?'stockTalkOv':'cmOv'),active=opened&&(opened.querySelector('.cw-view-tab[aria-pressed="true"]')||opened.querySelector('.cw-title'));if(active&&active.focus)active.focus({preventScroll:true});}
     var views=el('nav','cw-view-tabs');views.setAttribute('aria-label',t('トークの画面'));views.dataset.cwLabel='トークの画面';
-    [['stock','みんなの銘柄'],['community','コミュニティ']].forEach(function(item){
+    [['stock','銘柄トーク'],['community','みんなのトーク']].forEach(function(item){
       var selected=item[0]===(config.stock?'stock':'community'),tab=button('cw-view-tab',item[1],null,function(){if(!selected)openView(item[0]);});
       tab.dataset.cwView=item[0];tab.setAttribute('aria-pressed',String(selected));views.appendChild(tab);
-    });if(config.stock)root.appendChild(views);
+    });root.appendChild(views);
     var scroller=el('div','cw-scroll');s.scroller=scroller;var content=el('div','cw-content');scroller.appendChild(content);root.appendChild(scroller);
     var intro=el('p','cw-intro',config.stock?'会社名・銘柄コードで選び、その銘柄について話そう。':'話題は自由。いま気になっていることを、気軽に話そう。');content.appendChild(intro);
     var nav=el('nav','cw-categories');nav.setAttribute('aria-label',config.stock?'銘柄・指数を選ぶ':'話題のジャンル');s.categoryButtons=[];categories.forEach(function(item){var b=button('cw-category',item[1],null,function(){switchCategory(item[0]);});b.setAttribute('aria-pressed',String(item[0]===s.category));nav.appendChild(b);s.categoryButtons.push({code:item[0],button:b});});if(config.stock)content.appendChild(nav);
