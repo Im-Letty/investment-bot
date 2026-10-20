@@ -17,6 +17,21 @@
     {key:'adult',label:'おとな',min:400},
     {key:'companion',label:'なかよしの姿',min:800}
   ].map(function(stage){return Object.freeze(stage);}));
+  // Finer appearance steps never become saved evolution milestones. The six
+  // canonical growth rows above remain authoritative for history and colors.
+  var lilacAppearanceStages = Object.freeze([
+    {key:'egg',label:'たまご',min:0},
+    {key:'egg_cracked',label:'ひびのたまご',min:5},
+    {key:'hatching',label:'もうすぐうまれる',min:10},
+    {key:'newborn',label:'うまれたて',min:15},
+    {key:'baby',label:'あかちゃん',min:30},
+    {key:'toddler',label:'よちよち',min:45},
+    {key:'child',label:'こども',min:75},
+    {key:'juvenile',label:'わかもの',min:110},
+    {key:'grown',label:'育った姿',min:200},
+    {key:'adult',label:'おとな',min:400},
+    {key:'companion',label:'なかよしの姿',min:800}
+  ].map(function(stage){return Object.freeze(stage);}));
   var lilacEvolutionPaths = Object.freeze([
     {key:'balanced',label:'のんびり',colorName:'薄紫',color:'#b5a0d9',description:'毎日のふれあいを大切にする、のんびりした姿。',hint:'日を分けて続けたり、ごはん・なでる・休むを組み合わせよう。'},
     {key:'fruit',label:'はなほっぺ',colorName:'桃色',color:'#d99eae',description:'くだもののお世話から育つ、はなやかなほっぺの姿。',hint:'いつものごはんや、りんご・いちごが好き。'},
@@ -115,6 +130,14 @@
     exp=typeof exp==='number'&&Number.isFinite(exp)?Math.max(0,Math.min(MAX,exp)):0;
     var i=0;while(i+1<lilacGrowthStages.length&&exp>=lilacGrowthStages[i+1].min)i++;
     var s=clone(lilacGrowthStages[i]);s.next=i+1<lilacGrowthStages.length?lilacGrowthStages[i+1].min:null;
+    if(s.key==='companion'){s.min=Math.floor(exp/800)*800;s.next=s.min<=MAX-800?s.min+800:null;}
+    s.progress=s.next===null?100:Math.max(0,Math.min(100,Math.round((exp-s.min)/(s.next-s.min)*100)));
+    s.remaining=s.next===null?0:s.next-exp;return s;
+  }
+  function getLilacAppearance(exp) {
+    exp=typeof exp==='number'&&Number.isFinite(exp)?Math.max(0,Math.min(MAX,exp)):0;
+    var i=0;while(i+1<lilacAppearanceStages.length&&exp>=lilacAppearanceStages[i+1].min)i++;
+    var s=clone(lilacAppearanceStages[i]);s.next=i+1<lilacAppearanceStages.length?lilacAppearanceStages[i+1].min:null;
     if(s.key==='companion'){s.min=Math.floor(exp/800)*800;s.next=s.min<=MAX-800?s.min+800:null;}
     s.progress=s.next===null?100:Math.max(0,Math.min(100,Math.round((exp-s.min)/(s.next-s.min)*100)));
     s.remaining=s.next===null?0:s.next-exp;return s;
@@ -447,12 +470,12 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacEvolution:getLilacEvolution,
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
   }
-  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
+  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
 }));

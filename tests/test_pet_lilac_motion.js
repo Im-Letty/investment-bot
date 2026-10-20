@@ -50,7 +50,7 @@ function fixture(config = {}) {
   gl.shaderSource = (_, text) => shaders.push(text);
   gl.getShaderParameter = () => !config.compileFailure;
   gl.getProgramParameter = () => !config.linkFailure;
-  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : name === 'a_coverage'?3:name==='a_part'?4:-1;
+  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : name === 'a_coverage'?3:name==='a_part'?4:name==='a_sourceRect'?5:-1;
   gl.bindAttribLocation = (_,index,name) => { bindings.push([index,name]); };
   gl.disableVertexAttribArray = index => { disabledAttributes.push(index); };
   gl.vertexAttrib4f = (index,...values) => { constants[index]=values; };
@@ -79,7 +79,7 @@ function fixture(config = {}) {
     packedNames[key]?.forEach((name, index) => { uniforms['u_' + name] = values[index]; });
   };
   gl.texImage2D = (...args) => { if (config.textureFailure) throw new Error('raw private driver detail'); uploads.push(args.at(-1)); };
-  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],texture4:boundTextures[4],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
+  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],sourceRect:constants[5]?.slice(),texture4:boundTextures[4],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
   const canvas = events({ ownerDocument: doc, hidden: true, isConnected: true, width: 240, height: 240,
     clientWidth: config.cssWidth || 320,
     getBoundingClientRect: () => ({ width: config.cssWidth || 320 }),
@@ -124,6 +124,81 @@ test('UMD exposes browser API and CommonJS pure helpers without loading assets',
 });
 
 const growthKeys = ['egg', 'baby', 'child', 'final', 'adult', 'companion'];
+const babyAppearances=['newborn','baby','toddler','child','juvenile'];
+
+test('eleven read-only appearances separate real egg/baby sources from the unchanged canonical six milestones',()=>{
+  assert.deepEqual(Motion.appearanceCatalogue.map(row=>[row.key,row.min]),[['egg',0],['egg_cracked',5],['hatching',10],['newborn',15],['baby',30],['toddler',45],['child',75],['juvenile',110],['grown',200],['adult',400],['companion',800]]);
+  for(const row of Motion.appearanceCatalogue){assert.equal(Object.isFrozen(row),true);assert.equal(Motion.appearanceProfile(row.key),row);assert.ok(row.stillAsset);assert.equal(Object.isFrozen(Motion.appearanceAssets(row.key)),true);}
+  for(const key of['egg','egg_cracked','hatching']){const p=Motion.appearanceProfile(key);assert.equal(p.family,'egg');assert.equal(p.stillRect.length,4);assert.equal(Object.isFrozen(p.stillRect),true);assert.equal(Motion.feedingAnchor('egg','balanced',key).foodVisible,false);}
+  for(const key of babyAppearances)assert.equal(Motion.appearanceProfile(key).family,'baby');
+  for(const key of[null,'unknown','__proto__','grown','adult','companion'])assert.equal(Motion.appearanceProfile(key).family,'mature');
+  assert.deepEqual(growthKeys.map(key=>Motion.growthProfile(key).key),growthKeys);
+});
+
+test('each family loads only its own required textures and never samples an adult asset in the nursery',()=>{
+  for(const key of Motion.appearanceCatalogue.map(row=>row.key)){
+    const family=Motion.appearanceProfile(key).family,f=fixture({options:{appearanceKey:key}});f.complete();assert.deepEqual(f.errors,[],key);assert.equal(f.ready,1,key);
+    const count=family==='egg'?1:family==='baby'?3:10;assert.equal(f.images.length,count);assert.equal(f.uploads.length,count);assert.equal(f.created.filter(row=>row.type==='Texture').length,count);
+    assert.deepEqual(f.images.map(row=>row.url),Motion.appearanceAssets(key).map(name=>'/static/'+name));assert.equal(f.draws,family==='egg'?1:9);assert.equal(f.maxActiveUnit,7);
+    assert.equal(Object.keys(f.samplers).length,8);assert.equal(Object.keys(f.uniforms).filter(key=>/^u_(motion[A-C]|body|gesture|face|effect|detail)$/.test(key)).length,family==='egg'?1:8);
+    if(family==='baby')assert.equal(f.bindings.at(-1)[0],5);
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length,key);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+  }
+});
+
+test('nursery facial registration maps the actual new eyes and nose into each independent expression cell',()=>{
+  const sourceEyes=[[.4431803679,.435337801],[.6843505769,.4067696169]],nose=[.57697,.48134];
+  const expected={0:[[.421676804,.470586115],[.683406799,.446380506],[.55618,.52681]],3:[[.413877404,.468511330],[.679477371,.444298213],[.55256,.52543]],4:[[.401685561,.472800731],[.663248021,.456263035],[.53496,.52700]]};
+  assert.equal(Motion.nurseryFaceMaps.length,9);
+  for(const [key,points]of Object.entries(expected)){const cell=Number(key);for(let i=0;i<3;i++){const input=i<2?sourceEyes[i]:nose,p=Motion.nurseryFaceUV(cell,...input);assert.ok(Math.abs(p.x-(cell%3+points[i][0])/3)<.00002);assert.ok(Math.abs(p.y-(Math.floor(cell/3)+points[i][1])/3)<.00002);}}
+  for(const row of Motion.nurseryFaceMaps){assert.equal(Object.isFrozen(row.matrix),true);assert.equal(Object.isFrozen(row.sourceRect),true);for(const [x,y]of[[0,0],[.5,.5],[1,1]]){const p=Motion.nurseryFaceUV(row.cell,x,y);assert.ok(p.x>=row.sourceRect[0]&&p.x<=row.sourceRect[2]&&p.y>=row.sourceRect[1]&&p.y<=row.sourceRect[3]);}}
+  assert.ok(Motion.nurseryFaceUV(7,.55,.67).y>2/3+.65/3,'cleanplate samples below its own chin');
+});
+
+test('every baby appearance has its own finite, unfolded geometry and follows the same 100 acts and body rig',()=>{
+  const names=Motion.situations.concat(Motion.bodyCatalogue.map(row=>row.id));
+  for(const key of babyAppearances)for(const path of Motion.evolutionCatalogue){
+    for(let y=0;y<24;y++)for(let x=0;x<24;x++){
+      const a=Motion.appearancePoint(key,x/24,y/24,path.key),b=Motion.appearancePoint(key,x/24,(y+1)/24,path.key),c=Motion.appearancePoint(key,(x+1)/24,y/24,path.key),d=Motion.appearancePoint(key,(x+1)/24,(y+1)/24,path.key);
+      for(const [ta,tb,tc]of[[a,b,c],[c,b,d]])assert.ok((tb.x-ta.x)*(tc.y-ta.y)-(tb.y-ta.y)*(tc.x-ta.x)<0,key+path.key+': no folds');
+    }
+    assert.equal(Motion.appearancePoint(key,.5,Motion.nurseryLandmarks.floor,path.key).y,.92);
+    for(const name of names){const d=(Motion.durations[name]||1)/1000;for(const age of[0,d*.2,d*.55,d*.9,d]){
+      const frame=Motion.rigPose(2.3,name,age,'child',path.key,1.15,key);assert.equal(frame.appearanceKey,key);
+      for(const part of Motion.nurseryRigParts)for(const [x,y]of part.polygon){const p=Motion.rigPoint(frame,part.id,x,y,'child',path.key);assert.ok(Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=-.001&&p.x<=1.001&&p.y>=-.001&&p.y<=1.001,key+name+part.id);}
+    }}
+  }
+});
+
+test('baby meals share the actual new mouth anchor while egg cues never draw food or a garment',()=>{
+  for(const key of babyAppearances)for(const path of Motion.evolutionCatalogue){const frames=[],f=fixture({options:{appearanceKey:key,evolutionPath:path.key,onPose:p=>frames.push(p),outfit:'cloth_rose_cape'}});f.complete();f.api.setSituation('feeding',{elapsedMs:2200});assert.deepEqual(f.errors,[]);assert.equal(frames.length,1);
+    const rig=Motion.rigPose(0,'feeding',2.2,'child',path.key,1,key);assert.ok(Math.abs(frames[0].mouthX-rig.mouth.x)<1e-12&&Math.abs(frames[0].mouthY-rig.mouth.y)<1e-12);assert.equal(frames[0].foodTop,frames[0].mouthY+.005);assert.equal(Math.floor(f.uniforms.u_anger/2),2);f.api.destroy();}
+  for(const key of['egg','egg_cracked','hatching']){const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p),outfit:'cloth_flower_dress'}});f.complete();for(const name of['feeding','cry','angry','body_hands','direction_back']){const before=f.draws;f.api.setSituation(name,{elapsedMs:1800});assert.equal(f.draws-before,1);assert.equal(f.drawCalls.at(-1).part,0);}assert.equal(frames.length,0);assert.equal(f.created.filter(row=>row.type==='Texture').length,1);f.api.destroy();}
+});
+
+test('all sixteen baby directions use measured expanded rectangles and retain their source ground at every appearance',()=>{
+  assert.ok(Motion.nurseryDirectionViews[5].eyes[0]>=0,'the tiny baby side eye is protected');for(let i=6;i<=11;i++)assert.ok(Motion.nurseryDirectionViews[i].eyes.every(n=>n<0));
+  for(const key of babyAppearances)for(const path of Motion.evolutionCatalogue)for(let index=0;index<16;index++){
+    const view=Motion.nurseryDirectionViews[index],frame=Motion.rigPose(0,'idle',0,'child',path.key,1.15,key),fit=Motion.directionProjection(index,'child',path.key,frame.matrices.torso,key),m=fit.matrix;
+    for(let i=0;i<=12;i++)assert.ok(Math.abs(Motion.directionPoint(index,i/12,view.groundY,'child',path.key,key).y-.92)<1e-6);
+    for(let y=0;y<=12;y++)for(let x=0;x<=12;x++){const p=Motion.directionPoint(index,view.bounds[0]+(view.bounds[2]-view.bounds[0])*x/12,view.bounds[1]+(view.bounds[3]-view.bounds[1])*y/12,'child',path.key,key),u=m[0]*p.x+m[2]*p.y+m[4],v=m[1]*p.x+m[3]*p.y+m[5];assert.ok(u>=.0119&&u<=.9881&&v>=.0179&&v<=.9601);}
+  }
+  const f=fixture({options:{appearanceKey:'newborn'}});f.complete();f.api.setSituation('direction_back',{elapsedMs:2800});assert.equal(f.drawCalls.at(-1).part,18);assert.deepEqual(f.drawCalls.at(-1).sourceRect,Motion.nurseryDirectionViews[8].sourceRect);f.api.setSituation('sad',{elapsedMs:1400});assert.equal(f.drawCalls.at(-1).part,8);assert.ok(f.uniforms.u_faceSad>.9);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});
+
+test('nursery silhouette retains measured newborn fur and every real garment remains a torso layer',()=>{
+  const asset=fs.readFileSync(require.resolve('../static/pet_lilac_newborn_v1.png'));assert.equal(require('node:crypto').createHash('sha256').update(asset).digest('hex'),'eb7cf4baf38c97f42b47ec638e55b0983732f26dc534f379d210f90dd0700ef2');
+  const pixels=[[321,288],[337,294],[539,211],[748,187],[771,192],[810,207],[844,219],[981,285],[1204,470],[303,708],[361,760],[375,852],[407,873],[415,1041],[851,1131]];
+  function inside(x,y,p){let hit=false;for(let i=0,j=p.length-1;i<p.length;j=i++){const a=p[i],b=p[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;}return hit;}
+  for(const [x,y]of pixels)assert.ok(Motion.nurseryRigParts.some(part=>inside((x+.5)/1254,(y+.5)/1254,part.polygon)),x+','+y+': original baby fur');
+  for(const outfit of Motion.outfitCatalogue){let area=0,peak=0;for(let y=68;y<=90;y++)for(let x=30;x<=80;x++){const amount=Motion.nurseryClothingCoverage(outfit.id,x/100,y/100);area+=amount;peak=Math.max(peak,amount);}assert.ok(area>50&&peak>.5,outfit.id+': visible garment area (cape center stays open)');for(const [x,y]of[[.55,.45],[.18,.35],[.85,.34],[.45,.92]])assert.equal(Motion.nurseryClothingCoverage(outfit.id,x,y),0);
+    const f=fixture({options:{appearanceKey:'baby',outfit:outfit.id}});f.complete();f.api.setSituation('feeding',{elapsedMs:2200});assert.deepEqual(f.errors,[]);assert.equal(Math.floor(f.uniforms.u_anger/2),outfit.index);f.api.setSituation('direction_back',{elapsedMs:2800});assert.equal(f.drawCalls.at(-1).uniforms.u_motionA[3],outfit.index);f.api.destroy();assert.equal(f.created.length,f.deleted.length);}
+});
+
+test('nursery load failures and slow reduced turns retain the proper static fallback without expiry loops',()=>{
+  for(const key of['egg','newborn']){const f=fixture({options:{appearanceKey:key}});f.images.at(-1).onerror(new Error('private source path'));assert.deepEqual(f.errors,['image_failed']);assert.equal(f.ready,0);assert.equal(f.canvas.hidden,true);assert.equal(f.created.length,f.deleted.length);assert.equal(f.timers.size,0);}
+  const f=fixture({reduced:true,options:{appearanceKey:'newborn',situation:'direction_back'}});assert.equal(f.timers.size,1);f.advance(7000);f.complete();assert.equal(f.ready,1);assert.equal(f.timers.size,0);assert.equal(f.drawCalls.at(-1).part,8);f.api.setSituation('direction_left');assert.equal(f.timers.size,1);f.advance(6001);f.timeout();assert.equal(f.timers.size,0);assert.equal(f.drawCalls.at(-1).part,8);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});
 
 test('six growth profiles are deterministic, physically sized and keep the original child proportions', () => {
   const signatures = new Set();

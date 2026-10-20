@@ -77,6 +77,58 @@ test('reading lilac growth and reopening a 373 EXP record grants no EXP, coins o
   assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
 });
 
+test('eleven appearance steps are pure immutable metadata independent of the six canonical growth and reward stages',()=>{
+  const expected=[['egg','たまご',0],['egg_cracked','ひびのたまご',5],['hatching','もうすぐうまれる',10],
+    ['newborn','うまれたて',15],['baby','あかちゃん',30],['toddler','よちよち',45],['child','こども',75],
+    ['juvenile','わかもの',110],['grown','育った姿',200],['adult','おとな',400],['companion','なかよしの姿',800]];
+  assert.deepEqual(Core.lilacAppearanceStages.map(({key,label,min})=>[key,label,min]),expected);
+  assert.ok(Object.isFrozen(Core.lilacAppearanceStages));
+  expected.forEach(([key,label,min],i)=>{
+    assert.ok(Object.isFrozen(Core.lilacAppearanceStages[i]));const next=expected[i+1]?.[2]??1600;
+    assert.deepEqual(Core.getLilacAppearance(min),{key,label,min,next,progress:0,remaining:next-min});
+    assert.equal(Core.getLilacAppearance(next-1).key,key);assert.equal(Core.getLilacAppearance(next-1).remaining,1);
+  });
+  assert.throws(()=>{Core.lilacAppearanceStages[0].min=1;},TypeError);
+  const view=Core.getLilacAppearance(386);view.key='newborn';view.label='changed';
+  assert.deepEqual(Core.getLilacAppearance(386),{key:'grown',label:'育った姿',min:200,next:400,progress:93,remaining:14});
+  assert.equal(Core.getLilacGrowth(386).key,'final');assert.equal(Core.getLilacGrowth(386).min,110);
+  assert.equal(Core.getStage(386).key,'final');assert.equal(Core.getLilacGrowth(32).min,15);
+  assert.equal(Core.getLilacAppearance(32).min,30);
+});
+
+test('appearance input normalization and ongoing companion goals are read-only calculations',()=>{
+  const initial=Core.getLilacAppearance(0);
+  for(const invalid of [undefined,null,false,true,'400',{},[],NaN,Infinity,-Infinity,Symbol('exp'),400n])assert.deepEqual(Core.getLilacAppearance(invalid),initial);
+  assert.deepEqual(Core.getLilacAppearance(-5),initial);
+  assert.deepEqual(Core.getLilacAppearance(1605),{key:'companion',label:'なかよしの姿',min:1600,next:2400,progress:1,remaining:795});
+  assert.deepEqual(Core.getLilacAppearance(Number.MAX_VALUE),{key:'companion',label:'なかよしの姿',min:9000000000000,next:null,progress:100,remaining:0});
+});
+
+test('new appearance metadata does not rewrite an existing 386 EXP save, backfill history, or grant anything on reload and backup',async()=>{
+  const source=await evolutionGame(378);await command(source,'care',{kind:'feed'});
+  const record=persisted(source.storage);assert.equal(record.pet.exp,386);record.coins=355;
+  const raw=JSON.stringify(record),g=await game({[Core.KEY]:raw}),before=g.app.getState();
+  assert.deepEqual(g.app.getLilacAppearance(386),Core.getLilacAppearance(386));assert.equal(g.app.getLilacAppearance(386).key,'grown');
+  assert.equal(g.app.getLilacEvolution(before).nextAt,400);assert.equal(g.storage.writes.length,0);
+  const reopened=Core.create(g.options);assert.equal((await reopened.ready).ok,true);
+  assert.deepEqual(reopened.getState(),before);assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,0);
+  assert.deepEqual(JSON.parse(reopened.exportBackup()).state,record);
+});
+
+test('crossing extra appearance thresholds neither resets evolution scores nor creates noncanonical saved milestones',async()=>{
+  const young=await evolutionGame(14);await command(young,'care',{kind:'feed'});
+  const first=JSON.parse(JSON.stringify(persisted(young.storage).evolution.history));assert.deepEqual(first.map(row=>[row.stageKey,row.min]),[['baby',15]]);
+  await command(young,'care',{kind:'play'});await command(young,'care',{kind:'play'});
+  assert.equal(young.app.getState().pet.exp,32);assert.equal(Core.getLilacAppearance(32).key,'baby');
+  assert.deepEqual(persisted(young.storage).evolution.history,first);
+  assert.equal(evolution(young).scores.active,6,'a visual step at 30 EXP does not consume or reset evolution scores');
+  assert.equal(evolution(young).nextAt,45);assert.equal(evolution(young).current.key,'fruit');
+  const older=await evolutionGame(197);await command(older,'care',{kind:'feed'});
+  assert.equal(older.app.getState().pet.exp,205);assert.equal(Core.getLilacAppearance(205).key,'grown');
+  assert.deepEqual(evolution(older).history,[]);assert.equal(evolution(older).nextAt,400);assert.equal(evolution(older).scores.fruit,2);
+  const saved=older.storage.data.get(Core.KEY),reloaded=await game({[Core.KEY]:saved});assert.deepEqual(evolution(reloaded),evolution(older));
+});
+
 async function evolutionGame(exp=373,extra={}) {
   return game({pg_exp:String(exp),pg_coins:'355',pg_name:'そのまま',pg_items:'{"apple":30,"berry":30,"cake":30,"rice":30,"feast":30}',...extra});
 }

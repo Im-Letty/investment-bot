@@ -1066,6 +1066,36 @@
     companion: Object.freeze({ key: 'companion', label: 'なかよしの姿', overallScale: 1, headWidth: 1.02, headHeight: .99, bodyWidth: 1.11, bodyHeight: 1.08, earScale: 1.03, tailScale: 1.18, cadence: .84, movingCadence: .90 })
   });
   function growthProfile(name) { return Object.prototype.hasOwnProperty.call(growthProfiles, name) ? growthProfiles[name] : growthProfiles.child; }
+  // Appearance is read-only presentation. Canonical EXP milestones and their
+  // saved evolution history remain owned by the game core.
+  var eggSourceRects=Object.freeze([[116,82,536,591],[720,82,1140,591],[99,648,721,1189],[721,678,1142,1189]].map(function(row){return Object.freeze(row.map(function(n){return n/1254;}));}));
+  var appearanceCatalogue=Object.freeze([
+    ['egg','たまご',0,'egg',0,.64],['egg_cracked','ひびのたまご',5,'egg',1,.64],['hatching','もうすぐうまれる',10,'egg',2,.67],
+    ['newborn','うまれたて',15,'baby',null,.62],['baby','あかちゃん',30,'baby',null,.72],['toddler','よちよち',45,'baby',null,.81],
+    ['child','こども',75,'baby',null,.90],['juvenile','わかもの',110,'baby',null,.96],
+    ['grown','育った姿',200,'mature',null,null],['adult','おとな',400,'mature',null,null],['companion','なかよしの姿',800,'mature',null,null]
+  ].map(function(row){return Object.freeze({key:row[0],label:row[1],min:row[2],family:row[3],stillCell:row[4],overallScale:row[5],
+    stillRect:row[3]==='egg'?eggSourceRects[row[4]]:null,
+    stillAsset:row[3]==='egg'?'pet_lilac_egg_stages_v1.png':row[3]==='baby'?'pet_lilac_newborn_v1.png':'pet_lilac_original.webp'});}));
+  var legacyAppearance=Object.freeze({key:null,label:'育った姿',min:null,family:'mature',stillCell:null,overallScale:null,stillAsset:'pet_lilac_original.webp'});
+  function appearanceProfile(key){if(typeof key==='string')for(var i=0;i<appearanceCatalogue.length;i++)if(appearanceCatalogue[i].key===key)return appearanceCatalogue[i];return legacyAppearance;}
+  var nurseryLandmarks=Object.freeze({floor:.923445,headPivot:Object.freeze([.55,.645]),mouth:Object.freeze([.58051,.52638]),
+    eyes:Object.freeze([.44318,.43534,.68435,.40677]),torso:Object.freeze([.55,.78,.185,.13]),tail:Object.freeze([.285,.756,.085,.11])});
+  function appearancePoint(key,inputX,inputY,path){
+    var appearance=appearanceProfile(key),x=finite(inputX,.5),y=finite(inputY,.5);
+    if(appearance.family!=='baby')return {x:x,y:y};
+    var index=['newborn','baby','toddler','child','juvenile'].indexOf(appearance.key),age=index/4,branch=evolutionProfile(path);
+    var head=1-smooth((y-.60)/.12),width=(.89+.14*age)*(1-head)+(1.035-.055*age)*head;
+    var floor=nurseryLandmarks.floor,dx=(x-.55)*(width-1),dy=(y-floor)*(-.15+.18*age)*(1-head);
+    var ears=regionWeight(x,y,.17,.35,.15,.16)+regionWeight(x,y,.85,.34,.14,.15),earScale=(.86+.16*age)*branch.earScale;
+    dx+=(x-.55)*(earScale-1)*ears*.65;dy+=((y-.40)*(earScale-1)+branch.earDrop)*ears*.65;
+    var cheek=regionWeight(x,y,.55,.555,.30,.15),belly=regionWeight(x,y,.55,.79,.20,.14),tail=regionWeight(x,y,.285,.756,.095,.12);
+    dx+=(x-.55)*(branch.cheekWidth-1)*cheek*.6+(x-.55)*(branch.bodyWidth-1)*belly*.7+(x-.34)*((.76+.25*age)*branch.tailScale-1)*tail*.65;
+    dy+=(y-.55)*(branch.cheekRound-1)*cheek*.6+(y-floor)*(branch.bodyHeight-1)*belly*.7+((y-.756)*(branch.tailScale-1)+branch.tailLift)*tail*.6;
+    var edge=smooth(x/.04)*smooth((1-x)/.04)*smooth(y/.04)*smooth((1-y)/.04),ground=smooth(Math.abs(y-floor)/.05);
+    return {x:x+dx*edge,y:.92+(y-floor+dy*edge*ground)};
+  }
+  function nurseryClothingCoverage(outfit,x,y){var b=nurseryLandmarks.torso;return outfitCoverage(outfit,.525+(x-b[0])*.258/b[2],.79+(y-b[1])*.125/b[3],true);}
   function regionWeight(x, y, cx, cy, rx, ry) { var dx = (x - cx) / rx, dy = (y - cy) / ry; return Math.exp(-2 * (dx * dx + dy * dy)); }
   // Forward normalized coordinates. Boundary taper fixes all four frame edges, and
   // the foot line remains grounded. The exact same map positions the food prop.
@@ -1087,7 +1117,13 @@
     var grounded = smooth(Math.abs(y - .92) / .055);
     return { x: x + dx * edge, y: y + dy * edge * grounded };
   }
-  function feedingAnchor(stage, evolutionPath) {
+  function feedingAnchor(stage, evolutionPath, appearanceKey) {
+    var appearance=appearanceProfile(appearanceKey);
+    if(appearance.family==='egg')return {x:.5,y:.5,foodLeft:.39,foodTop:.505,foodVisible:false};
+    if(appearance.family==='baby'){
+      var baby=appearancePoint(appearance.key,nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1],evolutionPath),amount=appearance.overallScale*.88;
+      var bx=.5+(baby.x-.5)*amount,by=.92+(baby.y-.92)*amount;return {x:bx,y:by,foodLeft:bx-.11,foodTop:by+.005};
+    }
     var profile = growthProfile(stage);
     var point = growthPoint(profile.key, .5 + (.628 - .5) * .88, .92 + (.499 - .92) * .88, evolutionPath);
     var x = .5 + (point.x - .5) * profile.overallScale, y = .92 + (point.y - .92) * profile.overallScale;
@@ -1097,6 +1133,9 @@
   // WebGL 1 guarantees eight fragment texture units. Every expression keeps original cutout alpha.
   var assets = ['pet_lilac_original.webp', 'pet_lilac_half.webp', 'pet_lilac_closed.webp', 'pet_lilac_cutout.webp',
     'pet_lilac_sad.webp', 'pet_lilac_angry.webp', 'pet_lilac_surprise.webp', 'pet_lilac_delighted.webp', 'pet_lilac_torso_cleanplate_v1.png', 'pet_lilac_turnaround_v1.png'];
+  var babyAssets=Object.freeze(['pet_lilac_newborn_v1.png','pet_lilac_baby_expressions_v1.png','pet_lilac_baby_turnaround_v1.png']);
+  var eggAssets=Object.freeze(['pet_lilac_egg_stages_v1.png']);
+  function appearanceAssets(key){var family=appearanceProfile(key).family;return family==='baby'?babyAssets:family==='egg'?eggAssets:Object.freeze(assets.slice());}
   var packedUniforms = {
     motionA: ['breath', 'tilt', 'ear', 'tail'], motionB: ['wave', 'wiggle', 'blink', 'chew'],
     motionC: ['bounce', 'step', 'scale', 'presence'], body: ['bodyAngle', 'shiftX', 'shiftY', 'squash'],
@@ -1151,14 +1190,19 @@
       torso:row[5],eyes:row[6],eyeRadii:row[7],paws:row[8],tail:row[9],mouth:row[10],bounds:row[11]};
     ['torso','eyes','eyeRadii','paws','tail','mouth','bounds'].forEach(function(key){Object.freeze(result[key]);});return Object.freeze(result);
   }));
-  function directionView(index) { return directionViews[((Math.round(finite(index,0))%16)+16)%16]; }
-  function directionCellUV(index,x,y,width,height) {
-    var i=directionView(index).index,w=Math.max(4,finite(width,1254)),h=Math.max(4,finite(height,w));
+  var nurseryDirectionViews=Object.freeze([[0.5,0.923445,0.060606,0.55,0.645,[0.55,0.78,0.185,0.13],[0.44318,0.43534,0.68435,0.40677],[0.13,0.12,0.12,0.12],[0.376,0.75,0.73,0.75],[0.285,0.756,0.085,0.11],[0.58051,0.52638,0.09,0.085],[0.06459,0.06061,0.96332,0.92743],[0,0,1,1],1],[0.5,0.9866666666666667,0.006666666666666667,0.5680633802816901,0.6739333333333334,[0.5680633802816901,0.8306833333333333,0.25389084507042253,0.151525],[0.5309274776648641,0.4583544303797468,0.7826372552014909,0.4210050614605929],[0.15588908450704222,0.13557499999999992,0.12102992957746482,0.13857500000000006],[0.3472887323943662,0.7888833333333334,0.722605633802817,0.7784333333333333],[0.2479401408450703,0.8202333333333333,0.12142605633802817,0.15675],[0.7446830985915494,0.5276333333333334,0.09934859154929578,0.08360000000000001],[0.007042253521126761,0.006666666666666667,0.9929577464788732,0.9933333333333333],[0.266347687400319,0.008771929824561403,0.49282296650717705,0.24800637958532695],0.9466666666666667],[0.5,0.9900990099009901,0.006600660066006601,0.62201171875,0.6771617161716171,[0.62201171875,0.8323597359735974,0.28166015625,0.15002475247524752],[0.6316046851432882,0.46395273011464044,0.8723112824675323,0.4212528395696713],[0.162392578125,0.14314356435643566,0.10965820312500006,0.13423267326732674],[0.3403515625,0.790973597359736,0.7567187500000001,0.7806270627062706],[0.23013671874999986,0.822013201320132,0.13470703125,0.1551980198019802],[0.7812109375,0.5323102310231024,0.11021484375,0.08277227722772278],[0.0078125,0.006600660066006601,0.9921875,0.9933993399339934],[0.5255183413078149,0.006379585326953748,0.7296650717703349,0.24800637958532695],0.8448844884488449],[0.5,0.9900332225913622,0.006644518272425249,0.6030180180180176,0.6783388704318937,[0.6030180180180176,0.8345681063122923,0.32479729729729734,0.15102159468438536],[0.7680699567492026,0.4576777617584989,0.9234234234234234,0.40339220143381715],[0.15077702702702694,0.14110465116279075,0.10591216216216216,0.12498338870431892],[0.7301126126126127,0.7929069767441861,-2,-2],[0.15112612612612591,0.8241528239202658,0.15533783783783783,0.15622923588039866],[0.9701801801801807,0.5325249169435217,0.1270945945945946,0.08332225913621263],[0.009009009009009009,0.006644518272425249,0.990990990990991,0.9933554817275747],[0.7982456140350878,0.007177033492822967,0.9752791068580542,0.24720893141945774],0.7375415282392026],[0.5,0.9900332225913622,0.006644518272425249,0.5913636363636363,0.6932890365448507,[0.5913636363636363,0.8495182724252489,0.32775000000000004,0.15102159468438536],[0.8415909090909092,0.45138930836605257,-2,-2],[0.11123863636363641,0.1411046511627907,0.1,0.12],[0.7481136363636363,0.8078571428571427,-2,-2],[0.13536363636363644,0.8391029900332224,0.15675,0.15622923588039866],[0.9903636363636363,0.5474750830564785,0.12825,0.08332225913621263],[0.00909090909090909,0.006644518272425249,0.990909090909091,0.9933554817275747],[0.046251993620414676,0.2535885167464115,0.22169059011164274,0.49362041467304624],0.7308970099667774],[0.5,0.9932659932659933,0.006734006734006734,0.5945021645021644,0.6958922558922561,[0.5945021645021644,0.854225589225589,0.31214285714285717,0.15305555555555556],[0.9138075854493763,0.4179104477611941,-2,-2],[0.10178571428571428,0.12666666666666665,0.1,0.12],[0.7709307359307361,0.8120033670033668,-2,-2],[0.21450216450216456,0.8436700336700335,0.14928571428571427,0.15833333333333333],[-2,-2,0.09,0.08],[0.008658008658008658,0.006734006734006734,0.9913419913419913,0.9932659932659933],[0.28548644338118023,0.2551834130781499,0.4696969696969697,0.4920255183413078],0.7777777777777778],[0.5,0.9932659932659933,0.006734006734006734,0.5328838174273857,0.6958922558922561,[0.5328838174273857,0.854225589225589,0.2991908713692946,0.15305555555555556],[-2,-2,-2,-2],[0.1,0.12,0.1,0.12],[0.7410165975103736,0.8120033670033668,-2,-2],[0.22068464730290432,0.8436700336700335,0.14309128630705395,0.15833333333333333],[-2,-2,0.09,0.08],[0.008298755186721992,0.006734006734006734,0.991701244813278,0.9932659932659933],[0.5350877192982456,0.2551834130781499,0.7272727272727273,0.4920255183413078],0.8114478114478114],[0.5,0.9932659932659933,0.006734006734006734,0.5123265306122449,0.6958922558922561,[0.5123265306122449,0.854225589225589,0.29430612244897963,0.15305555555555556],[-2,-2,-2,-2],[0.1,0.12,0.1,0.12],[-2,-2,-2,-2],[0.3971632653061227,0.8436700336700335,0.14075510204081632,0.15833333333333333],[-2,-2,0.09,0.08],[0.00816326530612245,0.006734006734006734,0.9918367346938776,0.9932659932659933],[0.7799043062200957,0.2551834130781499,0.9752791068580542,0.4920255183413078],0.8249158249158249],[0.5,0.9933554817275747,0.006644518272425249,0.4654340836012862,0.7082392026578075,[0.4654340836012862,0.8644684385382058,0.23184887459807074,0.15102159468438536],[-2,-2,-2,-2],[0.1,0.12,0.1,0.12],[-2,-2,-2,-2],[0.47551446945337617,0.8540531561461792,0.11088424437299035,0.15622923588039866],[-2,-2,0.09,0.08],[0.006430868167202572,0.006644518272425249,0.9935691318327974,0.9933554817275747],[0.009569377990430622,0.5,0.25757575757575757,0.7400318979266348],1.0332225913621262],[0.5,0.9931972789115646,0.006802721088435374,0.3877566539923955,0.701292517006803,[0.3877566539923955,0.8612414965986392,0.2741634980988593,0.1546173469387755],[-2,-2,-2,-2],[0.1,0.12,0.1,0.12],[-2,-2,-2,-2],[0.5784790874524715,0.8505782312925168,0.13112167300380229,0.15994897959183674],[-2,-2,0.09,0.08],[0.0076045627376425855,0.006802721088435374,0.9923954372623575,0.9931972789115646],[0.2886762360446571,0.5055821371610846,0.4984051036682616,0.7400318979266348],0.8945578231292517],[0.5,0.9931972789115646,0.006802721088435374,0.32587500000000014,0.701292517006803,[0.32587500000000014,0.8612414965986392,0.3004375,0.1546173469387755],[-2,-2,-2,-2],[0.1,0.12,0.1,0.12],[0.07768749999999992,0.8185884353741495,-2,-2],[0.6785625000000001,0.8505782312925168,0.1436875,0.15994897959183674],[-2,-2,0.09,0.08],[0.008333333333333333,0.006802721088435374,0.9916666666666667,0.9931972789115646],[0.5526315789473685,0.5055821371610846,0.7440191387559809,0.7400318979266348],0.8163265306122449],[0.5,0.9931972789115646,0.006802721088435374,0.34141393442622975,0.701292517006803,[0.34141393442622975,0.8612414965986392,0.29551229508196725,0.1546173469387755],[-2,-2,-2,-2],[0.1,0.12,0.1,0.12],[0.13584016393442616,0.8185884353741495,-2,-2],[0.7782581967213114,0.8505782312925168,0.14133196721311475,0.15994897959183674],[-0.069733606557377,0.5520068027210883,0.11563524590163934,0.0853061224489796],[0.00819672131147541,0.006802721088435374,0.9918032786885246,0.9931972789115646],[0.7910685805422647,0.5055821371610846,0.9856459330143541,0.7400318979266348],0.8299319727891157],[0.5,0.9933333333333333,0.006666666666666667,0.382266355140187,0.7222666666666668,[0.382266355140187,0.8790166666666664,0.3369392523364486,0.151525],[0.20984792062081062,0.4449100257069411,-2,-2],[0.13959112149532715,0.138575,0.1,0.12],[0.147873831775701,0.8372166666666665,-2,-2],[0.895,0.8685666666666665,0.1611448598130841,0.15675],[-0.08651869158878504,0.5759666666666665,0.13184579439252336,0.08360000000000001],[0.009345794392523364,0.006666666666666667,0.9906542056074766,0.9933333333333333],[0.04226475279106858,0.7472089314194578,0.21291866028708134,0.9864433811802232],0.7133333333333334],[0.5,0.99,0.006666666666666667,0.348734693877551,0.7256000000000002,[0.348734693877551,0.8823499999999997,0.29430612244897963,0.151525],[0.3610064691375676,0.4391418563922942,0.1379473528541852,0.41062801932367166],[0.16233673469387752,0.14157499999999998,0.1109081632653061,0.12657500000000002],[0.2719591836734694,0.8405499999999999,0.7070204081632654,0.8301],[0.7965918367346937,0.8718999999999998,0.14075510204081632,0.15675],[0.1567959183673468,0.5792999999999999,0.11516326530612245,0.08360000000000001],[0.00816326530612245,0.006666666666666667,0.9918367346938776,0.9933333333333333],[0.291866028708134,0.7464114832535885,0.48724082934609253,0.9856459330143541],0.8166666666666667],[0.5,0.99,0.006666666666666667,0.37876923076923086,0.7222666666666668,[0.37876923076923086,0.8790166666666664,0.2773269230769231,0.151525],[0.40707156767283376,0.45978375527426124,0.16558704453441306,0.4104729214340197],[0.15989423076923076,0.138575,0.12527884615384619,0.135575],[0.25819230769230767,0.8372166666666665,0.6681538461538462,0.8267666666666665],[0.7646153846153845,0.8685666666666665,0.13263461538461538,0.15675],[0.14967307692307677,0.5759666666666665,0.10851923076923077,0.08360000000000001],[0.007692307692307693,0.006666666666666667,0.9923076923076923,0.9933333333333333],[0.5414673046251993,0.7472089314194578,0.7488038277511961,0.9864433811802232],0.8666666666666667],[0.5,0.9899328859060402,0.006711409395973154,0.47994642857142855,0.7204026845637586,[0.47994642857142855,0.878204697986577,0.25751785714285713,0.1525419463087248],[0.5030778164924511,0.44630326840181156,0.24170400632577785,0.4475160355630398],[0.15168749999999995,0.13648489932885907,0.1291875,0.13346476510067112],[0.33439285714285755,0.8361241610738254,0.7150714285714287,0.8256040268456375],[-2,-2,0.1,0.1],[0.23362499999999986,0.5731208053691274,0.10076785714285715,0.08416107382550336],[0.007142857142857143,0.006711409395973154,0.9928571428571429,0.9932885906040269],[0.7703349282296651,0.7488038277511961,0.9936204146730463,0.9864433811802232],0.9395973154362416]].map(function(row,index){var result={index:index,centerX:row[0],groundY:row[1],topY:row[2],headX:row[3],neckY:row[4],torso:row[5],eyes:row[6],eyeRadii:row[7],paws:row[8],tail:row[9],mouth:row[10],bounds:row[11],sourceRect:row[12],aspect:row[13]};['torso','eyes','eyeRadii','paws','tail','mouth','bounds','sourceRect'].forEach(function(key){Object.freeze(result[key]);});return Object.freeze(result);}));
+  var nurseryFaceMaps=Object.freeze([[0,[1.0647591684,-0.1729827803,0.0251023871,0.0330269307,1.1261030946,-0.0342860172],[0.01036682615629984,0.015151515151515152,0.3333333333333333,0.3365231259968102]],[1,[1.047080786,-0.1924878425,0.0298734068,-0.0052243861,0.6040465978,0.2436360001],[0.34290271132376393,0.015151515151515152,0.6634768740031898,0.3365231259968102]],[2,[1.3099708821,-0.1978539475,-0.1305808407,0.0022551161,0.7415470213,0.1699570315],[0.671451355661882,0.012759170653907496,0.9936204146730463,0.3365231259968102]],[3,[1.0847026788,-0.1400857484,-0.005856907,0.0343448755,1.137491903,-0.0419028684],[0.008771929824561403,0.3444976076555024,0.33413078149920256,0.6666666666666666]],[4,[1.0618886863,-0.1913507539,0.0143795583,0.0527992294,1.0246117345,0.0033489294],[0.34210526315789475,0.34609250398724084,0.664274322169059,0.6666666666666666]],[5,[1.0516329358,-0.1078085494,-0.0187971521,0.0216179767,1.1262723402,-0.0371055076],[0.6698564593301436,0.34290271132376393,0.9944178628389154,0.6666666666666666]],[6,[1.3450105391,-0.1483080234,-0.1470273353,-0.0502662886,0.897470783,0.0861091732],[0.008771929824561403,0.6738437001594896,0.3373205741626794,0.9944178628389154]],[7,[1.0674356699,0.0,-0.0378487155,0.0,1.0929162833,-0.039921561],[0.34210526315789475,0.6738437001594896,0.6650717703349283,0.992822966507177]],[8,[1.0704410155,-0.1039007366,-0.0316395183,0.0092802989,1.0884784622,-0.0273580128],[0.6698564593301436,0.6738437001594896,0.9944178628389154,0.9944178628389154]]].map(function(row){return Object.freeze({cell:row[0],matrix:Object.freeze(row[1]),sourceRect:Object.freeze(row[2])});}));
+  function nurseryFaceUV(cell,x,y){var row=nurseryFaceMaps[Math.max(0,Math.min(8,Math.round(finite(cell,0))))],m=row.matrix,r=row.sourceRect;var u=(row.cell%3+m[0]*x+m[1]*y+m[2])/3,v=(Math.floor(row.cell/3)+m[3]*x+m[4]*y+m[5])/3;return {x:clamp(u,r[0],r[2]),y:clamp(v,r[1],r[3])};}
+  function directionView(index,appearanceKey) { var views=appearanceProfile(appearanceKey).family==='baby'?nurseryDirectionViews:directionViews;return views[((Math.round(finite(index,0))%16)+16)%16]; }
+  function directionCellUV(index,x,y,width,height,appearanceKey) {
+    var view=directionView(index,appearanceKey),i=view.index,w=Math.max(4,finite(width,1254)),h=Math.max(4,finite(height,w));
+    if(view.sourceRect){var r=view.sourceRect;return {x:r[0]+clamp(finite(x,.5),.0001,.9999)*(r[2]-r[0]),y:r[1]+clamp(finite(y,.5),.0001,.9999)*(r[3]-r[1])};}
     return {x:(i%4+clamp(finite(x,.5),2/w,1-2/w))/4,y:(Math.floor(i/4)+clamp(finite(y,.5),2/h,1-2/h))/4};
   }
-  function directionPoint(index,inputX,inputY,stage,path) {
-    var view=directionView(index),x=finite(inputX,.5),y=finite(inputY,.5),profile=growthProfile(stage),branch=evolutionProfile(path);
-    if(!view.index)return growthPoint(stage,x,y,path);
+  function directionPoint(index,inputX,inputY,stage,path,appearanceKey) {
+    var view=directionView(index,appearanceKey),x=finite(inputX,.5),y=finite(inputY,.5),profile=growthProfile(stage),branch=evolutionProfile(path),appearance=appearanceProfile(appearanceKey);
+    if(!view.index)return appearance.family==='baby'?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);
+    if(appearance.family==='baby'){var age=['newborn','baby','toddler','child','juvenile'].indexOf(appearance.key)/4;profile={headWidth:1.035-.055*age,headHeight:1,bodyWidth:.89+.14*age,bodyHeight:.85+.18*age,earScale:.86+.16*age,tailScale:.76+.25*age};}
     var head=1-smooth((y-view.neckY+.08)/.18),center=view.torso[0]+(view.headX-view.torso[0])*head;
     var width=profile.bodyWidth+(profile.headWidth-profile.bodyWidth)*head;
     var dx=(x-center)*(width-1),dy=(y-view.groundY)*(profile.bodyHeight-1)+(y-view.neckY)*(profile.headHeight-profile.bodyHeight)*head;
@@ -1175,18 +1219,18 @@
     var ground=smooth(Math.abs(y-view.groundY)/.05),normal=.89/(view.groundY-view.topY);
     // Atlas views have different silhouettes. A gentler local shape field keeps
     // tiny ears and narrow side profiles unfolded at every growth/path pairing.
-    return {x:.4875+(x+dx*.55-(view.bounds[0]+view.bounds[2])*.5)*normal,y:.92+(y+dy*.55*ground-view.groundY)*normal};
+    return {x:.4875+(x+dx*.55-(view.bounds[0]+view.bounds[2])*.5)*normal*(view.aspect||1),y:.92+(y+dy*.55*ground-view.groundY)*normal};
   }
-  function directionMesh(index,stage,path) {
+  function directionMesh(index,stage,path,appearanceKey) {
     var columns=24,values=new Float32Array(columns*columns*6*5),cursor=0;
-    function vertex(x,y){var point=directionPoint(index,x,y,stage,path);values[cursor++]=point.x;values[cursor++]=point.y;values[cursor++]=x;values[cursor++]=y;values[cursor++]=1;}
+    function vertex(x,y){var point=directionPoint(index,x,y,stage,path,appearanceKey);values[cursor++]=point.x;values[cursor++]=point.y;values[cursor++]=x;values[cursor++]=y;values[cursor++]=1;}
     for(var row=0;row<columns;row++)for(var col=0;col<columns;col++){var x=col/columns,y=row/columns,right=(col+1)/columns,bottom=(row+1)/columns;vertex(x,y);vertex(x,bottom);vertex(right,y);vertex(right,y);vertex(x,bottom);vertex(right,bottom);}
     return values;
   }
-  function directionBounds(index,stage,path) {
-    var source=directionView(index).bounds,bounds={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
+  function directionBounds(index,stage,path,appearanceKey) {
+    var source=directionView(index,appearanceKey).bounds,bounds={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
     for(var row=0;row<=24;row++)for(var col=0;col<=24;col++){
-      var point=directionPoint(index,source[0]+(source[2]-source[0])*col/24,source[1]+(source[3]-source[1])*row/24,stage,path);
+      var point=directionPoint(index,source[0]+(source[2]-source[0])*col/24,source[1]+(source[3]-source[1])*row/24,stage,path,appearanceKey);
       bounds.minX=Math.min(bounds.minX,point.x);bounds.minY=Math.min(bounds.minY,point.y);bounds.maxX=Math.max(bounds.maxX,point.x);bounds.maxY=Math.max(bounds.maxY,point.y);
     }return bounds;
   }
@@ -1199,17 +1243,17 @@
     });
     return {matrix:fit<1?multiply(bone({x:.5,y:.92},0,0,0,fit,fit),matrix):matrix.slice(),fitScale:fit,bounds:bounds};
   }
-  function directionProjection(index,stage,path,matrix) {return fitDirectionMatrix(matrix||identity(),directionBounds(index,stage,path));}
-  function directionClothingCoverage(index,outfit,x,y) {
-    var view=directionView(index),b=view.torso,shear=Math.sin(view.index*TAU/16)*.12;
+  function directionProjection(index,stage,path,matrix,appearanceKey) {return fitDirectionMatrix(matrix||identity(),directionBounds(index,stage,path,appearanceKey));}
+  function directionClothingCoverage(index,outfit,x,y,appearanceKey) {
+    var view=directionView(index,appearanceKey),b=view.torso,shear=Math.sin(view.index*TAU/16)*.12;
     var qx=.525+(x-b[0]+shear*(y-b[1]))*.258/b[2],qy=.79+(y-b[1])*.125/b[3];
     var mask=outfitCoverage(outfit,qx,qy,true,view.index>4&&view.index<12);
     var paws=Math.max(clothEllipse(x,y,view.paws[0],view.paws[1],b[2]*.58,b[3]*.72),clothEllipse(x,y,view.paws[2],view.paws[3],b[2]*.48,b[3]*.68));
     var tail=view.tail[0]>=0?clothEllipse(x,y,view.tail[0],view.tail[1],view.tail[2],view.tail[3]):0;
     return mask*(1-Math.max(paws,tail));
   }
-  function directionFurColor(index,path,x,y,source) {
-    var view=directionView(index),profile=evolutionProfile(path),color=source.slice(0,3);
+  function directionFurColor(index,path,x,y,source,appearanceKey) {
+    var view=directionView(index,appearanceKey),profile=evolutionProfile(path),color=source.slice(0,3);
     if(!profile.index)return color;
     var eyes=Math.max(clothEllipse(x,y,view.eyes[0],view.eyes[1],view.eyeRadii[0],view.eyeRadii[1]),clothEllipse(x,y,view.eyes[2],view.eyes[3],view.eyeRadii[2],view.eyeRadii[3]));
     var mouth=clothEllipse(x,y,view.mouth[0],view.mouth[1],view.mouth[2],view.mouth[3]),amount=furChroma(color)*(1-Math.max(eyes,mouth))*.92;
@@ -1670,6 +1714,19 @@
     {id:'arm_l',parent:'root',pivot:[.374,.705],polygon:[[.366,.704],[.397,.682],[.44,.689],[.489,.696],[.536,.688],[.584,.673],[.615,.656],[.639,.662],[.655,.681],[.664,.708],[.663,.738],[.648,.774],[.625,.798],[.59,.817],[.546,.828],[.5,.828],[.457,.819],[.42,.8],[.391,.77],[.373,.739]]},
     {id:'arm_r',parent:'root',pivot:[.794,.65],polygon:[[.792,.591],[.814,.614],[.823,.64],[.829,.67],[.837,.711],[.831,.749],[.805,.777],[.778,.796],[.746,.804],[.714,.797],[.689,.779],[.672,.751],[.66,.72],[.655,.693],[.665,.671],[.691,.657],[.723,.655],[.754,.65]]}
   ].map(function(part,index){part.index=index;Object.freeze(part.pivot);part.polygon.forEach(Object.freeze);Object.freeze(part.polygon);return Object.freeze(part);}));
+  // The nursery drawing has its own silhouette and attachment points. None of
+  // the adult's cropped paws, eyes or face imagery is used for this family.
+  var nurseryRigParts=Object.freeze([
+    {id:'tail',parent:'root',pivot:[.345,.80],polygon:[[.36,.705],[.368,.82],[.34,.858],[.295,.858],[.255,.845],[.228,.821],[.216,.776],[.214,.728],[.219,.69],[.246,.666],[.282,.66],[.321,.67],[.347,.689]]},
+    {id:'torso',parent:'root',pivot:[.55,.79],polygon:[[.332,.65],[.39,.623],[.51,.625],[.65,.631],[.704,.66],[.735,.725],[.742,.793],[.716,.866],[.67,.902],[.58,.916],[.459,.913],[.385,.89],[.344,.848],[.326,.778]]},
+    {id:'foot_l',parent:'root',pivot:[.452,.898],polygon:[[.397,.888],[.432,.877],[.478,.883],[.506,.901],[.509,.924],[.489,.937],[.442,.937],[.409,.928],[.397,.909]]},
+    {id:'foot_r',parent:'root',pivot:[.628,.897],polygon:[[.568,.883],[.614,.876],[.665,.883],[.692,.903],[.691,.932],[.657,.943],[.604,.939],[.572,.925]]},
+    {id:'ear_l',parent:'head',pivot:[.28,.32],polygon:[[.316,.267],[.292,.349],[.255,.417],[.217,.488],[.166,.512],[.12,.496],[.09,.453],[.079,.417],[.056,.392],[.053,.353],[.063,.316],[.084,.289],[.104,.254],[.139,.224],[.183,.211],[.232,.218],[.294,.235]]},
+    {id:'ear_r',parent:'head',pivot:[.76,.31],polygon:[[.724,.253],[.763,.217],[.816,.204],[.869,.201],[.916,.21],[.949,.238],[.95,.272],[.971,.301],[.978,.34],[.97,.371],[.979,.4],[.967,.443],[.93,.474],[.882,.483],[.834,.466],[.793,.422],[.762,.372]]},
+    {id:'head',parent:'root',pivot:[.55,.645],polygon:[[.212,.44],[.216,.365],[.23,.305],[.25,.26],[.286,.22],[.335,.185],[.395,.157],[.434,.139],[.408,.145],[.41,.109],[.427,.08],[.458,.055],[.502,.047],[.55,.053],[.59,.079],[.617,.12],[.611,.147],[.648,.148],[.689,.164],[.737,.212],[.784,.254],[.822,.306],[.85,.365],[.871,.425],[.883,.49],[.877,.549],[.849,.592],[.803,.626],[.746,.655],[.713,.671],[.675,.676],[.601,.676],[.527,.679],[.451,.676],[.379,.667],[.317,.643],[.269,.607],[.233,.558],[.217,.499]]},
+    {id:'arm_l',parent:'root',pivot:[.411,.666],polygon:[[.389,.65],[.417,.641],[.443,.657],[.456,.694],[.453,.734],[.439,.771],[.421,.796],[.398,.813],[.368,.814],[.342,.797],[.321,.769],[.319,.738],[.332,.709],[.353,.687],[.374,.671]]},
+    {id:'arm_r',parent:'root',pivot:[.675,.659],polygon:[[.648,.641],[.685,.642],[.72,.665],[.752,.7],[.779,.736],[.797,.765],[.796,.794],[.774,.816],[.736,.82],[.706,.798],[.688,.766],[.673,.736],[.66,.706]]}
+  ].map(function(part,index){part.index=index;Object.freeze(part.pivot);part.polygon.forEach(Object.freeze);Object.freeze(part.polygon);return Object.freeze(part);}));
   function identity() { return [1,0,0,1,0,0]; }
   function multiply(a,b) { return [a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]]; }
   function transform(m,p) { return {x:m[0]*p.x+m[2]*p.y+m[4],y:m[1]*p.x+m[3]*p.y+m[5]}; }
@@ -1680,9 +1737,11 @@
   function isIn(name,list) { return list.indexOf(name)>=0; }
   // A pure frame of the hierarchical cutout rig. Matrices operate on coordinates
   // after growth/evolution, before the final normalized canvas projection.
-  function rigFrame(p,seconds,age,stage,path,scale) {
+  function rigFrame(p,seconds,age,stage,path,scale,appearanceKey) {
+    var appearance=appearanceProfile(appearanceKey),nursery=appearance.family==='baby',parts=nursery?nurseryRigParts:rigParts;
+    function point(x,y){return nursery?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);}
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
-    var amount=profile.overallScale*clamp(finite(scale,1),.35,1.15)*(1-.12*e);
+    var amount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15)*(1-.12*e);
     var root=bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-p.bounce*.055+p.crouch*.012,
       1+.085*p.squash+.003*p.breath,1-.075*p.squash+.07*p.stretch-.055*p.crouch+.004*p.breath);
     var project=bone({x:.5,y:.92},0,0,0,amount,amount);root=multiply(project,root);
@@ -1725,13 +1784,13 @@
     earR=base.earR+(earR-base.earR)*e;tail=base.tail+(tail-base.tail)*e;
     armL=base.armL+(armL-base.armL)*e;armR=base.armR+(armR-base.armR)*e;footStep=base.step+(footStep-base.step)*e;
     var matrices={},angles={head:headAngle,ear_l:earL,ear_r:earR,tail:tail,arm_l:clamp(armL,-1.7,1.1),arm_r:clamp(armR,-1.1,1.7)};
-    var headPivot=growthPoint(stage,.62,.675,path),head=multiply(root,bone(headPivot,headAngle));
-    rigParts.forEach(function(part){
-      var pivot=growthPoint(stage,part.pivot[0],part.pivot[1],path),angle=angles[part.id]||0,local=bone(pivot,angle);
+    var headPivot=nursery?point(nurseryLandmarks.headPivot[0],nurseryLandmarks.headPivot[1]):point(.62,.675),head=multiply(root,bone(headPivot,headAngle));
+    parts.forEach(function(part){
+      var pivot=point(part.pivot[0],part.pivot[1]),angle=angles[part.id]||0,local=bone(pivot,angle);
       if(part.id==='head')matrices[part.id]=head;
       else if(part.parent==='head')matrices[part.id]=multiply(head,local);
       else if(part.id==='foot_l'||part.id==='foot_r'){
-        var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),sole=growthPoint(stage,part.pivot[0],.92,path);
+        var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),sole=point(part.pivot[0],nursery?nurseryLandmarks.floor:.92);
         local=bone(pivot,side*.42*lift,side*.018*footStep,-.025*lift);
         var m=multiply(root,local),current=transform(m,sole),targetY=.92-p.bounce*.055*amount-lift*(feetDemo ? .035 : .025)*amount;
         m[5]+=targetY-current.y;matrices[part.id]=m;
@@ -1740,28 +1799,29 @@
     // Fit only when an unusually tall combined gesture needs it. The correction
     // is shared by every bone and anchored at the floor, including planted feet.
     var bounds={minX:1,minY:1,maxX:0,maxY:0};
-    rigParts.forEach(function(part){part.polygon.forEach(function(uv){var point=transform(matrices[part.id],growthPoint(stage,uv[0],uv[1],path));bounds.minX=Math.min(bounds.minX,point.x);bounds.minY=Math.min(bounds.minY,point.y);bounds.maxX=Math.max(bounds.maxX,point.x);bounds.maxY=Math.max(bounds.maxY,point.y);});});
+    parts.forEach(function(part){part.polygon.forEach(function(uv){var p=transform(matrices[part.id],point(uv[0],uv[1]));bounds.minX=Math.min(bounds.minX,p.x);bounds.minY=Math.min(bounds.minY,p.y);bounds.maxX=Math.max(bounds.maxX,p.x);bounds.maxY=Math.max(bounds.maxY,p.y);});});
     var fitScale=1;
     if(bounds.minY<.018)fitScale=Math.min(fitScale,(.92-.018)/(.92-bounds.minY));
     if(bounds.minX<.012)fitScale=Math.min(fitScale,(.5-.012)/(.5-bounds.minX));
     if(bounds.maxX>.988)fitScale=Math.min(fitScale,(.988-.5)/(bounds.maxX-.5));
     if(bounds.maxY>.96)fitScale=Math.min(fitScale,(.96-.92)/(bounds.maxY-.92));
     if(fitScale<1){var fit=bone({x:.5,y:.92},0,0,0,fitScale,fitScale);Object.keys(matrices).forEach(function(key){matrices[key]=multiply(fit,matrices[key]);});}
-    var mouth=transform(matrices.head,growthPoint(stage,.628,.499-.010*p.chew,path));
-    return {situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale};
+    var mouth=transform(matrices.head,nursery?point(nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1]-.010*p.chew):point(.628,.499-.010*p.chew));
+    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale};if(nursery)result.appearanceKey=appearance.key;return result;
   }
-  function rigPose(seconds,situation,elapsedSeconds,stage,path,scale) {
+  function rigPose(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey) {
     var age=Math.max(0,finite(elapsedSeconds,finite(seconds,0)));
-    return rigFrame(pose(seconds,situation,age,stage,path),finite(seconds,0),age,stage,path,scale);
+    return rigFrame(pose(seconds,situation,age,stage,path),finite(seconds,0),age,stage,path,scale,appearanceKey);
   }
   function rigPoint(frame,partId,x,y,stage,path) {
     var matrix=frame&&frame.matrices&&frame.matrices[partId];
-    return transform(matrix||identity(),growthPoint(stage,finite(x,.5),finite(y,.5),path));
+    return transform(matrix||identity(),frame&&frame.appearanceKey?appearancePoint(frame.appearanceKey,x,y,path):growthPoint(stage,finite(x,.5),finite(y,.5),path));
   }
   function torsoMaterialPoint(x,y) { return {x:clamp(finite(x,.5),0,1),y:clamp(finite(y,.7),.7,1)}; }
   // Ear clipping plus a one-pixel feather ring makes cropped meshes without
   // fragment polygon loops. Subdivision retains the existing growth curvature.
-  function rigMesh(part,stage,path) {
+  function rigMesh(part,stage,path,appearanceKey) {
+    function point(x,y){return appearanceProfile(appearanceKey).family==='baby'?appearancePoint(appearanceKey,x,y,path):growthPoint(stage,x,y,path);}
     var poly=part.polygon.map(function(v){return {x:v[0],y:v[1]};}),area=0,cx=0,cy=0;
     poly.forEach(function(v,i){var next=poly[(i+1)%poly.length];area+=v.x*next.y-next.x*v.y;cx+=v.x;cy+=v.y;});
     if(area>0)poly.reverse();cx/=poly.length;cy/=poly.length;
@@ -1771,7 +1831,7 @@
     function add(a,b,c,aa,ba,ca,depth){
       if(cross(a,b,c)>0){var swap=b;b=c;c=swap;swap=ba;ba=ca;ca=swap;}
       var abLength=Math.hypot(a.x-b.x,a.y-b.y),acLength=Math.hypot(a.x-c.x,a.y-c.y),bcLength=Math.hypot(b.x-c.x,b.y-c.y),length=Math.max(abLength,acLength,bcLength);
-      var grown=[growthPoint(stage,a.x,a.y,path),growthPoint(stage,b.x,b.y,path),growthPoint(stage,c.x,c.y,path)];
+      var grown=[point(a.x,a.y),point(b.x,b.y),point(c.x,c.y)];
       // Long thin triangles may cross a curved growth field even when that
       // field is unfolded. Refine those until their straight edges agree.
       if(depth<14&&(length>.065||cross(grown[0],grown[1],grown[2])>=0)){
@@ -1946,6 +2006,43 @@
     'float a=texture2D(u_alpha,uv).a*v_coverage;if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb*a,a);}'
   ].join('\n');
 
+  function nurseryFragmentSource(){
+    // These substitutions are source-family landmarks, not another drawing of
+    // the adult face. Each sampler below points only at nursery assets.
+    var replacements=[
+      ['vec2(.4665,.429)','vec2(.44318,.43534)'],['vec2(.7281,.3405)','vec2(.68435,.40677)'],
+      ['vec2(.628,.499)','vec2(.58051,.52638)'],['vec2(.625,.48)','vec2(.58051,.51638)'],
+      ['vec2(.621,.453)','vec2(.57697,.48134)'],['vec2(.60,.415)','vec2(.555,.435)'],['vec2(.255,.215)','vec2(.315,.265)'],
+      ['vec2(.135,.125)','vec2(.112,.115)'],['vec2(.115,.12)','vec2(.111,.119)'],
+      ['p.y-.499','p.y-.52638'],['p.x-.628','p.x-.58051'],['p.x-.621','p.x-.57697'],['p.y-.429','p.y-.43534'],['p.y-.3405','p.y-.40677'],
+      ['vec2(.405,.55)','vec2(.342,.553)'],['vec2(.80,.445)','vec2(.775,.521)'],
+      ['vec2(.414,.51+','vec2(.397,.497+'],['vec2(.78,.415+','vec2(.740,.477+'],['vec2(.84,.31+','vec2(.83,.34+'],['vec2(.62,.245)','vec2(.58,.28)'],
+      ['vec2(.518,.742),vec2(.215,.137)','vec2(.382,.737),vec2(.105,.105)'],['vec2(.742,.716),vec2(.14,.136)','vec2(.725,.735),vec2(.095,.10)'],
+      ['smoothstep(.695,.708,p.y)','smoothstep(.65,.666,p.y)'],['max(.7,uv.y)','max(.67,uv.y)'],
+      ['vec2(.414,.907),vec2(.09,.035)','vec2(.452,.914),vec2(.062,.03)'],['vec2(.692,.897),vec2(.065,.035)','vec2(.628,.912),vec2(.058,.03)']
+    ];
+    var result=fragmentSource;replacements.forEach(function(row){result=result.split(row[0]).join(row[1]);});
+    var maps=nurseryFaceMaps.map(function(row){var m=row.matrix,r=row.sourceRect;return 'if(cell>'+((row.cell-.5).toFixed(1))+'&&cell<'+((row.cell+.5).toFixed(1))+'){q=vec2(dot(vec3(p,1.),vec3('+m.slice(0,3).join(',')+')),dot(vec3(p,1.),vec3('+m.slice(3).join(',')+')));rect=vec4('+r.join(',')+');}';}).join('\n');
+    var helper='varying vec4 v_sourceRect;\nvec4 nurserySample(sampler2D im,vec2 p,float cell){vec2 q=p;vec4 rect=vec4(0.,0.,1.,1.);'+maps+'vec2 tile=vec2(mod(cell,3.),floor(cell/3.));return texture2D(im,clamp((tile+q)/3.,rect.xy,rect.zw));}\n';
+    // Unit four is the expression sheet for the front and the separate 16-view
+    // sheet only while turning. Expanded view rectangles preserve overhanging fur.
+    result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');
+    [['half',1],['closed',2],['sad',3],['angry',4],['surprise',5],['delighted',6]].forEach(function(row){result=result.split('texture2D(u_'+row[0]+',uv).rgb').join('nurserySample(u_'+row[0]+',uv,'+row[1]+'.).rgb');});
+    result=result.replace('texture2D(u_sad,plateUV).rgb','nurserySample(u_sad,plateUV,7.).rgb');
+    result=result.replace('original=mix(original,nurserySample(u_sad,plateUV,7.).rgb,patch);','original=nurserySample(u_sad,plateUV,7.).rgb;');
+    result=result.replace('vec4 garment=clothing(p,original,u_outfit);','vec2 dressUV=vec2(.525+(p.x-.55)*.258/.185,.79+(p.y-.78)*.125/.13);vec4 garment=clothing(dressUV,original,u_outfit);');
+    result=result.replace('float a=texture2D(u_alpha,uv).a*v_coverage;','float a=texture2D(u_alpha,uv).a*v_coverage;if(torsoPart>.5)a=min(a,nurserySample(u_sad,vec2(uv.x,max(.67,uv.y)),7.).a*v_coverage);');
+    return result.replace('float region(vec2 p,vec2 c,vec2 r){',helper+'float region(vec2 p,vec2 c,vec2 r){');
+  }
+  var eggFragmentSource=[
+    'precision mediump float;varying vec2 v_uv;varying vec4 v_evolution;varying float v_coverage;varying float v_part;',
+    'uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
+    'uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail;',
+    'void main(){if(v_part<0.||v_evolution.a<-.5)discard;vec4 rect=vec4('+eggSourceRects[0].join(',')+');',
+    'if(u_motionA.x>.5&&u_motionA.x<1.5)rect=vec4('+eggSourceRects[1].join(',')+');if(u_motionA.x>1.5)rect=vec4('+eggSourceRects[2].join(',')+');',
+    'vec4 source=texture2D(u_sad,mix(rect.xy,rect.zw,clamp(v_uv,vec2(.0001),vec2(.9999))));if(source.a<.01)discard;float a=source.a*v_coverage;gl_FragColor=vec4(source.rgb*a,a);}'
+  ].join('\n');
+
   function mount(canvas, options) {
     options = options || {};
     if (mounted && canvas && mounted.has(canvas)) mounted.get(canvas).destroy();
@@ -1955,6 +2052,9 @@
     var media = null, removers = [], images = [], resources = [], locations = {};
     var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
     var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit);
+    var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey);
+    var sourceSlots=family==='baby'?[0,1,1,0,1,1,1,1,1,2]:family==='egg'?[0,0,0,0,0,0,0,0,0,0]:[0,1,2,3,4,5,6,7,8,9];
+    var assetTextures=[],textureImages=[],sourceRectAttribute=null;
     var rigGeometry=[],restVertices=null,drawVertices=null,partAttribute=null,buffer=null,textures=[];
     var turnBuffer=null,turnVertices=null,turnMeshes={},turnBounds={},boundVertexBuffer=null,position=null,uv=null,coverage=null;
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
@@ -2051,8 +2151,8 @@
       gl.blendFunc(gl.ONE,gl.ONE);
       [[frame.currentIndex,1-frame.blend],[frame.nextIndex,frame.blend]].forEach(function(entry){
         var index=entry[0],weight=entry[1];if(weight<=0)return;
-        var view=directionView(index),mesh=turnMeshes[index]||(turnMeshes[index]=directionMesh(index,stageProfile.key,branchProfile.key));
-        var bounds=turnBounds[index]||(turnBounds[index]=directionBounds(index,stageProfile.key,branchProfile.key));
+        var view=directionView(index,appearance.key),mesh=turnMeshes[index]||(turnMeshes[index]=directionMesh(index,stageProfile.key,branchProfile.key,appearance.key));
+        var bounds=turnBounds[index]||(turnBounds[index]=directionBounds(index,stageProfile.key,branchProfile.key,appearance.key));
         var matrix=fitDirectionMatrix(rig.matrices.torso,bounds).matrix;
         turnVertices.set(mesh);
         for(var offset=0;offset<mesh.length;offset+=5){var point=transform(matrix,{x:mesh[offset],y:mesh[offset+1]});turnVertices[offset]=point.x*2-1;turnVertices[offset+1]=1-point.y*2;}
@@ -2064,11 +2164,19 @@
         gl.uniform4f(locations.gesture,view.paws[0],view.paws[1],view.paws[2],view.paws[3]);
         gl.uniform4f(locations.face,view.eyeRadii[0],view.eyeRadii[1],view.eyeRadii[2],view.eyeRadii[3]);
         gl.uniform4f(locations.effect,view.tail[0],view.tail[1],view.tail[2],view.tail[3]);
-        gl.uniform4f(locations.detail,2/images[9].naturalWidth,2/images[9].naturalHeight,Math.sin(index*TAU/16)*.12,0);
+        gl.uniform4f(locations.detail,2/textureImages[9].naturalWidth,2/textureImages[9].naturalHeight,Math.sin(index*TAU/16)*.12,0);
+        if(sourceRectAttribute!==null){var rect=view.sourceRect||[0,0,1,1];gl.vertexAttrib4f(sourceRectAttribute,rect[0],rect[1],rect[2],rect[3]);}
         gl.vertexAttrib1f(partAttribute,10+index);gl.drawArrays(gl.TRIANGLES,0,mesh.length/5);
       });
       gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[4]);
       gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);bindVertices(buffer);
+    }
+    function paintEgg(p,elapsed,reduced){
+      var rect=appearance.stillRect,aspect=(rect[2]-rect[0])/(rect[3]-rect[1]),turn=directionFrame(cue,elapsed*1000,reduced);
+      var rock=reduced?0:p.tilt*.55+p.wave*.055+p.wiggle*.025,angle=rock+(turn.id?Math.sin(turn.yawDeg*PI/180)*.12:0);
+      var amount=appearance.overallScale*scale*(1-.06*p.presence),matrix=multiply(bone({x:.5,y:.92},0,0,0,amount,amount),bone({x:.5,y:.92},angle,p.shiftX*.6,p.shiftY*.5-p.bounce*.04,1+.025*p.squash,1-.025*p.squash+.003*p.breath));
+      for(var i=0;i<restVertices.length;i+=5){var point=transform(matrix,{x:.5+(restVertices[i+2]-.5)*.89*aspect,y:.92+(restVertices[i+3]-.996)*.89});drawVertices[i]=point.x*2-1;drawVertices[i+1]=1-point.y*2;}
+      bindVertices(buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,drawVertices);gl.uniform4f(locations.motionA,appearance.stillCell,0,0,0);gl.vertexAttrib1f(partAttribute,0);gl.drawArrays(gl.TRIANGLES,0,6);
     }
     function paint() {
       if (dead || !loaded || !pageVisible || doc.hidden || canvas.isConnected === false) return;
@@ -2080,11 +2188,12 @@
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
         var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key, branchProfile.key);
         if (reduced) { p.tail = 0; }
-        var rig=rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale);
+        var rig=family==='egg'?null:rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale,appearance.key);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
         var turn=directionFrame(cue,elapsed*1000,reduced);
-        if(turn.id&&!turn.front&&!turn.done)paintTurn(turn,rig);
+        if(family==='egg')paintEgg(p,elapsed,reduced);
+        else if(turn.id&&!turn.front&&!turn.done)paintTurn(turn,rig);
         else {
         rigGeometry.forEach(function(part){
           var matrix=rig.matrices[part.id];
@@ -2111,7 +2220,7 @@
           readyNotified = true;
           if (typeof options.onReady === 'function') { try { options.onReady(); } catch (_) {} }
         }
-        if(!dead&&cue==='feeding'&&feedingPhase(elapsed*1000).foodVisible&&typeof options.onPose==='function'){
+        if(!dead&&family!=='egg'&&cue==='feeding'&&feedingPhase(elapsed*1000).foodVisible&&typeof options.onPose==='function'){
           try{options.onPose({situation:'feeding',elapsedMs:elapsed*1000,mouthX:clamp(rig.mouth.x,0,1),mouthY:clamp(rig.mouth.y,0,1),
             foodLeft:clamp(rig.mouth.x-.11,0,1),foodTop:clamp(rig.mouth.y+.005,0,1)});}catch(_){}
         }
@@ -2134,8 +2243,9 @@
       if (!gl) { fail('webgl_unavailable'); return controller; }
       gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
       var program = own('createProgram');
-      gl.attachShader(program, shader(gl.VERTEX_SHADER, vertexSource));
-      gl.attachShader(program, shader(gl.FRAGMENT_SHADER, fragmentSource));
+      var vertex=family==='baby'?vertexSource.replace('void main(){','attribute vec4 a_sourceRect;varying vec4 v_sourceRect;void main(){v_sourceRect=a_sourceRect;'):vertexSource;
+      gl.attachShader(program, shader(gl.VERTEX_SHADER, vertex));
+      gl.attachShader(program, shader(gl.FRAGMENT_SHADER, family==='baby'?nurseryFragmentSource():family==='egg'?eggFragmentSource:fragmentSource));
       // Attribute zero always remains an enabled position array. The branch is
       // a constant attribute, leaving all fragment sampler/uniform limits intact.
       gl.bindAttribLocation(program, 0, 'a_position');
@@ -2143,13 +2253,15 @@
       gl.bindAttribLocation(program, 2, 'a_evolution');
       gl.bindAttribLocation(program, 3, 'a_coverage');
       gl.bindAttribLocation(program, 4, 'a_part');
+      if(family==='baby')gl.bindAttribLocation(program,5,'a_sourceRect');
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link');
       gl.useProgram(program);
       buffer = own('createBuffer'); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      var parts=rigParts.map(function(part){return rigMesh(part,stageProfile.key,branchProfile.key);}),floatCount=parts.reduce(function(n,array){return n+array.length;},0),cursor=0;
+      var selectedParts=family==='baby'?nurseryRigParts:rigParts;
+      var parts=family==='egg'?[new Float32Array([0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1])]:selectedParts.map(function(part){return rigMesh(part,stageProfile.key,branchProfile.key,appearance.key);}),floatCount=parts.reduce(function(n,array){return n+array.length;},0),cursor=0;
       restVertices=new Float32Array(floatCount);
-      parts.forEach(function(values,index){rigGeometry.push({id:rigParts[index].id,index:index,start:cursor/5,count:values.length/5});restVertices.set(values,cursor);cursor+=values.length;});
+      parts.forEach(function(values,index){rigGeometry.push({id:family==='egg'?'egg':selectedParts[index].id,index:index,start:cursor/5,count:values.length/5});restVertices.set(values,cursor);cursor+=values.length;});
       drawVertices=new Float32Array(restVertices);gl.bufferData(gl.ARRAY_BUFFER,drawVertices,gl.DYNAMIC_DRAW);
       position = gl.getAttribLocation(program, 'a_position'); uv = gl.getAttribLocation(program, 'a_uv');
       gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 20, 0);
@@ -2159,9 +2271,11 @@
       var branchAttribute = gl.getAttribLocation(program, 'a_evolution');
       gl.disableVertexAttribArray(branchAttribute);
       gl.vertexAttrib4f(branchAttribute, branchProfile.rgb[0], branchProfile.rgb[1], branchProfile.rgb[2], branchProfile.index);
+      if(family==='baby'){sourceRectAttribute=gl.getAttribLocation(program,'a_sourceRect');gl.disableVertexAttribArray(sourceRectAttribute);gl.vertexAttrib4f(sourceRectAttribute,0,0,1,1);}
       Object.keys(packedUniforms).forEach(function (key) { locations[key] = gl.getUniformLocation(program, 'u_' + key); });
       var samplerNames = ['u_original', 'u_half', 'u_closed', 'u_alpha', 'u_sad', 'u_angry', 'u_surprise', 'u_delighted'];
-      textures = assets.map(function (_, i) { if(i<8)gl.uniform1i(gl.getUniformLocation(program, samplerNames[i]), i); return own('createTexture'); });
+      samplerNames.forEach(function(name,i){gl.uniform1i(gl.getUniformLocation(program,name),i);});
+      assetTextures=assetFiles.map(function(){return own('createTexture');});textures=sourceSlots.map(function(index){return assetTextures[index];});
       if (typeof win.matchMedia === 'function') media = win.matchMedia('(prefers-reduced-motion: reduce)');
       function preference() { cancel(); paint(); armCueExpiry();schedule(); }
       if (media) {
@@ -2175,32 +2289,34 @@
       if (typeof win.ResizeObserver === 'function') { observer = new win.ResizeObserver(function () { paint(); }); observer.observe(canvas); }
       else listen(win, 'resize', paint);
       function load() {
-        if (dead || loaded || images.length !== assets.length || !images.every(function (im) { return im.complete && im.naturalWidth > 0; })) return;
+        if (dead || loaded || images.length !== assetFiles.length || !images.every(function (im) { return im.complete && im.naturalWidth > 0; })) return;
         try {
           var first = images[0];
-          if (images.slice(0,8).some(function (im) { return im.naturalWidth !== first.naturalWidth || im.naturalHeight !== first.naturalHeight; })||images.slice(8).some(function(im){return im.naturalWidth!==im.naturalHeight;})) { fail('image_dimensions_mismatch'); return; }
+          if (family==='mature'?(images.slice(0,8).some(function (im) { return im.naturalWidth !== first.naturalWidth || im.naturalHeight !== first.naturalHeight; })||images.slice(8).some(function(im){return im.naturalWidth!==im.naturalHeight;})):images.some(function(im){return im.naturalWidth!==im.naturalHeight||im.naturalWidth<4;})) { fail('image_dimensions_mismatch'); return; }
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
           images.forEach(function (im, i) {
-            gl.activeTexture(gl.TEXTURE0 + (i<8?i:4)); gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+            gl.activeTexture(gl.TEXTURE0 + (i<8?i:4)); gl.bindTexture(gl.TEXTURE_2D, assetTextures[i]);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
           });
-          gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[4]);
+          textureImages=sourceSlots.map(function(index){return images[index];});
+          for(var unit=0;unit<8;unit++){gl.activeTexture(gl.TEXTURE0+unit);gl.bindTexture(gl.TEXTURE_2D,textures[unit]);}
           loaded = true; canvas.hidden = false;
           if (timer !== null) { win.clearTimeout(timer); timer = null; }
           paint();armCueExpiry();schedule();
         } catch (_) { fail('texture_failed'); }
       }
-      assets.forEach(function () { var im = new win.Image(); im.onload = load; im.onerror = function () { fail('image_failed'); }; images.push(im); });
+      assetFiles.forEach(function () { var im = new win.Image(); im.onload = load; im.onerror = function () { fail('image_failed'); }; images.push(im); });
       setSituation(options.situation || 'idle', options);
       timer = win.setTimeout(function () { fail('image_timeout'); }, 15000);
-      images.forEach(function (im, i) { if (!dead) im.src = assetRoot + assets[i]; });
+      images.forEach(function (im, i) { if (!dead) im.src = assetRoot + assetFiles[i]; });
       load();
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
+  return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
+    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,nurseryLandmarks:nurseryLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
     catalogue: catalogue, bodyCatalogue: bodyCatalogue, directionCatalogue: directionCatalogue, directionFrame: directionFrame,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
