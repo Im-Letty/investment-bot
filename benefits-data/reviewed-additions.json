@@ -1518,6 +1518,80 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "160A",
+      "symbol": "160A.T",
+      "name": "アズパートナーズ",
+      "category": "介護施設利用割引",
+      "aliases": "株式会社アズパートナーズ AS PARTNERS",
+      "versions": [
+        {
+          "id": "official-current-html-reviewed-20261020",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-20",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.as-partners.co.jp/ir/stock/shareholder/",
+            "title": "アズパートナーズ公式 株主優待",
+            "security_code": "160A",
+            "issuer_name": "アズパートナーズ",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-20T11:03:04.207159+09:00",
+            "observed_at_kind": "actual_post_tool_clock_sample_not_exact_origin_publication_or_programme_start",
+            "evidence_path": "evidence/reviewed-160A-observation-note-20261020.json",
+            "evidence_sha256": "54ab7581c79d96576a59004397b5e44e97db596be3321cf262c00311725657f0",
+            "official_legal_name": "株式会社アズパートナーズ"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "primary-author-plus-independent-saved-source-and-revised-public-wording-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現行公式HTMLの全2区分・対象者・施設範囲・新規契約条件・契約対象期間、公式主体・市場・単元、出典利用とリンク条件を限定確認。IR一覧HTMLは記事項目が不露出で全改廃不存在は未確認。導入・現行区分施行日、未記載の保有継続・申請・併用・複数契約・発送・券期限は補わない。",
+            "all_future_amendments_verified_absent": false,
+            "independent_review_evidence": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-105704/independent-source-review.json",
+              "sha256": "829118b98f0f33846e14f4582cd833cc553e28fdb6f9424b9e83cbf37a294a33"
+            },
+            "independent_public_wording_review": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-105704/revised-public-record-160A-review.json",
+              "sha256": "5ef2866da8e120e046e287a21b49556f0afc1f8d43385f274ed7c06cb6d36235"
+            }
+          },
+          "period": "毎年3月末・9月末の名簿で判定。3月末分は同年4月1日～9月30日、9月末分は10月1日～翌年3月31日の新規入居契約が対象。次回購入締切日は未確認。",
+          "conditions": "優待の対象は100株以上。売買単位は100株。対象は、同社が運営する介護付きホームへ新たに入居する株主本人または三親等以内の親族。既に入居している方と、高齢者向け住まいの紹介事業者（Web経由の紹介を含む）を利用した申込みは対象外。保有期間・同じ株主番号・連続する名簿記載回数の要件は未記載。",
+          "use": "契約する料金方式に応じた割引。100～199株は、月払いプランAなら管理費2か月分、入居一時金プランB/Cなら20万円。200株以上は、月払いプランAなら管理費3か月分、入居一時金プランB/Cなら30万円。料金プランごとの優待で、両方式の割引は加算しません。申請方法・他割引との併用・複数契約や繰返し利用の条件は未確認。",
+          "delivery": "発送予定・実発送日・到着日・券の有効期限は未確認。契約対象期間とは区別する。",
+          "grant_summary": "新規入居契約時の方式別料金割引。発送・券期限は未確認。",
+          "tiers": [
+            {
+              "id": "current-100-199-new-admission",
+              "shares_min": 100,
+              "shares_max": 199,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号・連続名簿回数は未記載。",
+              "reward": "月払いAは管理費2か月分、入居一時金B/Cは20万円の割引（方式別・非加算）。",
+              "conditions": "同社が運営する介護付きホームへの、本人または三親等以内の親族の新規入居契約が対象。既入居と、高齢者向け住まいの紹介事業者（Web経由を含む）を利用した申込みは除外。3月末分は同年4月1日～9月30日、9月末分は10月1日～翌年3月31日の契約が対象。"
+            },
+            {
+              "id": "current-200plus-new-admission",
+              "shares_min": 200,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同番号・連続名簿回数は未記載。",
+              "reward": "月払いAは管理費3か月分、入居一時金B/Cは30万円の割引（方式別・非加算）。",
+              "conditions": "同社が運営する介護付きホームへの、本人または三親等以内の親族の新規入居契約が対象。既入居と、高齢者向け住まいの紹介事業者（Web経由を含む）を利用した申込みは除外。3月末分は同年4月1日～9月30日、9月末分は10月1日～翌年3月31日の契約が対象。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

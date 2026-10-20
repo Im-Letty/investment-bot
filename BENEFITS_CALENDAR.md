@@ -493,3 +493,30 @@ coverage. Other companies in this bounded batch are not added by this publicatio
 All previous29 companies,20 reviewed additions,nine fixed records and12 explicit
 schedules retain their original facts and confirmation dates. This remains partial
 coverage; the other2 reviewed companies are not active-programme additions.
+
+
+## Additional current-HTML review on 2026-10-20
+
+- 160A アズパートナーズ: https://www.as-partners.co.jp/ir/stock/shareholder/
+  100–199 shares receive, according to the contracted payment plan, a discount
+  of two months of management fees under monthly plan A or 200,000 yen under
+  initial-payment plan B/C. At 200+ shares these become three months or
+  300,000 yen. The alternatives are not added together. The trading unit is
+  separately observed as 100 shares. The issuer-operated care home's new
+  admission must be for the shareholder or a relative within the third degree;
+  existing residents and applications through senior-housing referral businesses,
+  including online referrals, are excluded. March-end records apply to new
+  contracts from April 1 to September 30; September-end records apply from
+  October 1 to the following March 31. These are contract windows, not shipping
+  dates or voucher expiry dates. Holding duration, same-number/register tests,
+  applications, stacking with other discounts, multiple/repeated contracts,
+  dispatch/arrival, voucher expiry and programme/current-tier start dates remain
+  unknown. No purchase deadline or schedule is inferred. Current HTML, stock
+  identity, company outline and source/link conditions were independently
+  reviewed; the dynamic IR index exposed no article rows, which does not prove
+  absence of amendments. Only short independent facts are used. The evidence
+  SHA identifies the authored observation note, not the original page bytes.
+
+All previous 30 companies, 21 reviewed additions, nine fixed records and 12
+explicit schedules retain their facts and confirmation dates. Coverage remains
+partial; the other company in the bounded review is not an active addition.

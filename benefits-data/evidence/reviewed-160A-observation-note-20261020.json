@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "code": "160A",
+  "company_name": "アズパートナーズ",
+  "recorded_at_jst": "2026-10-20T11:17:22.916600+09:00",
+  "independently_authored": true,
+  "source_original_prose_tables_images_saved": false,
+  "authored_note_hash_is_raw_page_hash": false,
+  "raw_primary_page_SHA_claimed": false,
+  "raw_response_byte_SHA_scope_is_operation_2_only": true,
+  "current_local_identity": {
+    "code": "160A",
+    "name": "アズパートナーズ",
+    "market": "スタンダード（内国株式）",
+    "industry": "サービス業",
+    "exchange": "Tokyo",
+    "source_url": "https://www.jpx.co.jp/markets/statistics-equities/misc/01.html",
+    "catalogue_as_of": "2026-09-30",
+    "symbol": "160A.T",
+    "provider_symbol": "160A.T",
+    "source_title": "日本取引所グループ（JPX）",
+    "scope": "japan-listed-domestic-common-equity",
+    "as_of": "2026-09-30"
+  },
+  "local_identity_input": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-105704/StockSearch-selected-identities.json",
+    "sha256": "803d90baec877a8a1cb46cef62bb36d0da63f24440d29ef16d9d9d7d10771796"
+  },
+  "initial_source_constraints": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-105704/company-160A/source-constraint-preflight.json",
+    "sha256": "19e667783a67cdce33e857f50ad3a55c930047d9238f044fdf5b33f35c18d598"
+  },
+  "full_prior_constraints_loaded_before_first_HTTP": true,
+  "prior_constraints_counts": {
+    "hosts": 104,
+    "blocked_URLs": 33,
+    "source_condition_holds": 22,
+    "checkpoint_host_waits": 34,
+    "checkpoint_document_waits": 13
+  },
+  "official_identity_body_assessment": {
+    "issuer": "株式会社アズパートナーズ",
+    "code": "160A",
+    "exchange": "Tokyo",
+    "market": "Standard",
+    "trading_unit_shares": 100,
+    "matches_saved_StockSearch_identity": true,
+    "source_operation_numbers": [
+      4,
+      6
+    ],
+    "dated_local_snapshot_not_refreshed_universe": true
+  },
+  "observations": [
+    {
+      "actual_URL": "https://www.as-partners.co.jp/ir/stock/shareholder/",
+      "operation_number": 1,
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:03:02.440191+00:00",
+          "jst": "2026-10-20T11:03:02.440191+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:03:04.207159+00:00",
+          "jst": "2026-10-20T11:03:04.207159+09:00"
+        }
+      },
+      "observation_scope": "Current official HTML programme body and both share tiers; no PDF or external application page used.",
+      "independently_authored_facts": [
+        "3月末または9月末の名簿で100株以上の株主を対象とする介護付きホームの新規入居契約向け割引が現行HTMLに掲載されている。",
+        "100～199株は月払い方式の管理費2か月分、または入居一時金方式B/Cの20万円割引。200株以上は同じ区別で管理費3か月分、または30万円割引。方式別であり加算しない。",
+        "利用者は株主本人または三親等以内の親族。既入居者および高齢者向け住まい紹介事業者（Web経由を含む）経由の申込みは対象外。",
+        "3月末の対象株主の契約期間は同年4月1日～9月30日、9月末の対象株主は10月1日～翌年3月31日。これは新規契約の対象期間であり発送日や券の期限ではない。"
+      ],
+      "published_on": null,
+      "programme_started_on": null,
+      "current_tier_effective_from": null
+    },
+    {
+      "actual_URL": "https://www.as-partners.co.jp/ir/stock/shareholder/",
+      "operation_number": 2,
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:03:50.438675+00:00",
+          "jst": "2026-10-20T11:03:50.438675+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:03:50.694924+00:00",
+          "jst": "2026-10-20T11:03:50.694924+09:00"
+        }
+      },
+      "observation_scope": "Ordinary same-successful-page GET solely resolved real hrefs, with HTTP200, no redirect and Retry-After absence actually exposed. No body persisted.",
+      "primary_response_byte_SHA256": "5212ccc5dbd793464362f370a85f2bbbba3df0ffc56ce0937eb84eb7dbf7b4c9",
+      "authored_note_SHA_is_this_byte_SHA": false
+    },
+    {
+      "actual_URL": "https://www.as-partners.co.jp/termsofuse/",
+      "operation_number": 3,
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:04:13.462674+00:00",
+          "jst": "2026-10-20T11:04:13.462674+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:04:15.225329+00:00",
+          "jst": "2026-10-20T11:04:15.225329+09:00"
+        }
+      },
+      "observation_scope": "Independent factual-use and source expression/link conditions reviewed separately.",
+      "short_terms_assessment": "商用転載や内容を変えた複製には事前許可が必要。適法なリンクは認められる。原文・表・画像は転載せず、自作の短い制度事実だけを扱う。独立した事実全体の禁止は推定しない。"
+    },
+    {
+      "actual_URL": "https://www.as-partners.co.jp/ir/stock/overview/",
+      "operation_number": 4,
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:04:38.057087+00:00",
+          "jst": "2026-10-20T11:04:38.057087+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:04:39.897748+00:00",
+          "jst": "2026-10-20T11:04:39.897748+09:00"
+        }
+      },
+      "independently_authored_facts": [
+        "証券コード160A、上場区分スタンダード、売買単位100株を公式本文で確認。配当基準日や一般の株主確定日を優待基準日の代用にしない。"
+      ]
+    },
+    {
+      "actual_URL": "https://www.as-partners.co.jp/ir/news/",
+      "operation_number": 5,
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:05:02.833658+00:00",
+          "jst": "2026-10-20T11:05:02.833658+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:05:04.564999+00:00",
+          "jst": "2026-10-20T11:05:04.564999+09:00"
+        }
+      },
+      "observation_scope": "IR index HTML returned navigation/heading but no article items in the exposed body; no empty-news/no-change inference.",
+      "article_items_exposed": false,
+      "origin_refusal_or_unavailability_inferred": false,
+      "new_source_hold_inferred": false
+    },
+    {
+      "actual_URL": "https://as-partners.co.jp/company/company_outline/",
+      "operation_number": 6,
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:05:47.409644+00:00",
+          "jst": "2026-10-20T11:05:47.409644+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:05:49.581526+00:00",
+          "jst": "2026-10-20T11:05:49.581526+09:00"
+        }
+      },
+      "independently_authored_facts": [
+        "会社名・東証スタンダード・160Aを公式会社概要本文で照合。本文中の2026年7月末資本金時点を制度開始日や現在区分施行日に使わない。"
+      ]
+    }
+  ],
+  "programme_facts": {
+    "programme_status": "active_current_official_HTML_observed_pending_independent_review",
+    "record_dates_recurring": [
+      {
+        "month": 3,
+        "day": 31
+      },
+      {
+        "month": 9,
+        "day": "month_end"
+      }
+    ],
+    "minimum_shares": 100,
+    "trading_unit_shares": 100,
+    "trading_unit_source": {
+      "URL": "https://www.as-partners.co.jp/ir/stock/overview/",
+      "actual_tool_outer_bounds": {
+        "before": {
+          "utc": "2026-10-20T02:04:38.057087+00:00",
+          "jst": "2026-10-20T11:04:38.057087+09:00"
+        },
+        "after": {
+          "utc": "2026-10-20T02:04:39.897748+00:00",
+          "jst": "2026-10-20T11:04:39.897748+09:00"
+        }
+      }
+    },
+    "holding_months_min": null,
+    "same_shareholder_number_requirement": null,
+    "consecutive_register_count": null,
+    "historical_per_record_share_minimum": null,
+    "tiers": [
+      {
+        "shares_min": 100,
+        "shares_max": 199,
+        "payment_plan_A_management_fee_months_discounted": 2,
+        "payment_plan_B_or_C_initial_payment_discount_yen": 200000
+      },
+      {
+        "shares_min": 200,
+        "shares_max": null,
+        "payment_plan_A_management_fee_months_discounted": 3,
+        "payment_plan_B_or_C_initial_payment_discount_yen": 300000
+      }
+    ],
+    "beneficiaries": "Shareholder or relative within the third degree",
+    "eligible_contract": "A new admission contract for an issuer-operated care home",
+    "excluded": [
+      "Existing residents",
+      "Applications via senior-housing placement businesses, including online placement businesses"
+    ],
+    "payment_plan_alternatives_not_additive": true,
+    "choice_is_based_on_payment_plan_not_assumed_freely_stackable": true,
+    "march_record_contract_window": "Same year April 1 through September 30",
+    "september_record_contract_window": "October 1 through following March 31",
+    "application_process": null,
+    "other_discount_stackability": null,
+    "multiple_contract_or_repeated_use_limit": null,
+    "one_time_eligibility_or_long_term_reward": null,
+    "announcement_date": null,
+    "programme_start_date": null,
+    "current_tier_effective_from": null,
+    "planned_shipping_date": null,
+    "actual_shipping_date": null,
+    "actual_arrival_date": null,
+    "voucher_expiry_date": null,
+    "contract_window_is_not_voucher_expiry": true,
+    "next_purchase_cutoff": null,
+    "schedules": []
+  },
+  "terms": {
+    "source_URL": "https://www.as-partners.co.jp/termsofuse/",
+    "source_clock": {
+      "before": {
+        "utc": "2026-10-20T02:04:13.462674+00:00",
+        "jst": "2026-10-20T11:04:13.462674+09:00"
+      },
+      "after": {
+        "utc": "2026-10-20T02:04:15.225329+00:00",
+        "jst": "2026-10-20T11:04:15.225329+09:00"
+      }
+    },
+    "commercial_republication_or_modified_reproduction_requires_prior_permission": true,
+    "lawful_linking_is_expressly_allowed_subject_to_stated_legal_and_public_order_limits": true,
+    "no_full_original_prose_tables_images_or_art_republished": true,
+    "independent_short_factual_summary_distinguished_from_protected_expression": true,
+    "explicit_blanket_ban_on_independent_facts_observed": false,
+    "copyright_alone_not_treated_as_blanket_fact_ban": true,
+    "explicit_extra_site_registration_payment_or_key_required_for_reading": false,
+    "new_source_condition_hold_created": false,
+    "legal_permission_not_inferred_for_original_content_reuse": true
+  },
+  "gaps": [
+    "制度の導入発表日、制度開始日、現在の各区分の施行開始日は現行HTMLで未記載。検索で見えた過去の導入日を採用日へ転用しない。",
+    "IR一覧のページ本文は読めたが記事一覧が不露出。改定・廃止・分割の全履歴や今後の変更が不存在とは断定しない。",
+    "最低保有期間、同一株主番号、連続名簿回数や過去各回の保有株数は本文で未記載。0か月・条件なしに置き換えない。",
+    "申請手順、他割引との併用、複数契約や複数回利用、優待証明書の交付・発送・実到着・券の有効期限は未確認。契約対象の半年期間とは別に保持する。",
+    "次回購入締切日と個別年度の日程・取引日程は未確認。schedulesは空のまま。"
+  ],
+  "new_waits": [],
+  "new_document_waits": [],
+  "new_researcher_waits": [],
+  "new_source_condition_holds": [],
+  "source_conditions_holds": [],
+  "source_closure": {
+    "source_operations_closed": true,
+    "further_HTTP_allowed": false,
+    "counts": {
+      "primary_operations": 6,
+      "unique_primary_resources": 5,
+      "document_operations": 6,
+      "visual_operations": 0,
+      "search_calls": 1,
+      "search_queries": 2,
+      "metadata_rows": 18,
+      "unused_allocated_operations_closed": 0,
+      "unused_allocated_unique_resource_capacity_closed": 1,
+      "unused_metadata_calls_closed": 1,
+      "unused_metadata_queries_closed": 2,
+      "unused_budget_transferred": false,
+      "after_closure_HTTP_operations": 0
+    },
+    "all_begin_calls_isolated_and_allowed_true_inspected_before_separate_fetch": true,
+    "old_nested_protocol_incident_or_conditions_not_repaired": true,
+    "no_publication_or_product_change": true
+  }
+}
