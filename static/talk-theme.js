@@ -48,7 +48,7 @@
     keyboardButton(document.querySelector('#cmOv .cm-back'),'トークに戻る');
     keyboardButton(document.querySelector('#talkOv .tk-x'),'銘柄トークを閉じる');
     keyboardButton(document.querySelector('#teachOv .to-x'),'相談を閉じる');
-    [['tkName','ニックネーム（任意）'],['tkInput','コメントを書く（200文字まで）'],['cmNick','ニックネーム'],['cmInput','メッセージを書く（200文字まで）']].forEach(function(item){
+    [['tkName','ニックネーム（任意）'],['tkInput','コメントを書く（200文字まで）'],['cmInput','メッセージを書く（200文字まで）']].forEach(function(item){
       var field=document.getElementById(item[0]);if(field)field.setAttribute('aria-label',item[1]);
     });
     var message=document.getElementById('tkMsg');if(message)message.setAttribute('aria-live','polite');
