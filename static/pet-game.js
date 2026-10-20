@@ -114,6 +114,8 @@
     motionRequests.forEach(function (request) {
       if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
       request.cueTimer = null;
+      if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame);
+      request.revealFrame = null;
       if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
       if (request.food) request.food.hidden = true;
       request.wrap.dataset.cuePhase = 'idle';
@@ -166,7 +168,7 @@
     wrap.appendChild(food);
     var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
     wrap.appendChild(effect);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', growthStage: growthStage, evolutionPath: path, outfit: dress, visualAlt: still.alt + (pathRow ? '・' + pathRow.label + '・' + pathRow.colorName : '') + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, ready: false });
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', growthStage: growthStage, evolutionPath: path, outfit: dress, visualAlt: still.alt + (pathRow ? '・' + pathRow.label + '・' + pathRow.colorName : '') + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, revealFrame: null, ready: false });
     return wrap;
   }
   function requestCue(request) {
@@ -215,6 +217,7 @@
     request.ready = false; request.canvas.hidden = true; request.still.hidden = false;
     request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = ''; request.wrap.dataset.cuePhase = 'idle';
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
+    if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame); request.revealFrame = null;
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     if (request.food) request.food.hidden = true;
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
@@ -338,13 +341,8 @@
       updateMotionPresentation(request, null);
     }, Math.max(16, nextAge - age));
   }
-  function playMotionReference(request, entry, preview) {
-    if (!request || !request.controller || !request.ready || !motionsVisible()) return;
-    var cue = { situation: entry.id, durationMs: entry.durationMs, startedAt: Date.now() };
-    if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; } else reaction = cue;
-    try { request.controller.setSituation(entry.id); updateMotionPresentation(request, cue); }
-    catch (_) { motionFallback(request); }
-    // Keep the acting character visible when its controls need a longer page.
+  function keepMotionVisible(request) {
+    // The same whole-wrapper bounds protect active poses and the larger idle pose.
     try {
       var rect = request.wrap.getBoundingClientRect(), height = Number(w.innerHeight) || 0;
       if (height) {
@@ -370,6 +368,22 @@
         if ((rect.top < top || rect.top + rect.height > bottom) && typeof request.wrap.scrollIntoView === 'function') request.wrap.scrollIntoView({ block: 'center', behavior: 'auto' });
       }
     } catch (_) { /* Scrolling must not reject a valid preview. */ }
+  }
+  function revealAfterDrawerLayout(request) {
+    if (!request || !request.ready || !request.canvas.isConnected || !motionsVisible()) return;
+    if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame);
+    request.revealFrame = w.requestAnimationFrame(function () {
+      request.revealFrame = null;
+      if (request.ready && request.canvas.isConnected && motionsVisible()) keepMotionVisible(request);
+    });
+  }
+  function playMotionReference(request, entry, preview) {
+    if (!request || !request.controller || !request.ready || !motionsVisible()) return;
+    var cue = { situation: entry.id, durationMs: entry.durationMs, startedAt: Date.now() };
+    if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; } else reaction = cue;
+    try { request.controller.setSituation(entry.id); updateMotionPresentation(request, cue); }
+    catch (_) { motionFallback(request); }
+    keepMotionVisible(request);
   }
   function referenceMotionDrawer(request, preview, kind) {
     var mode = preview ? 'preview' : 'pet', rows = referenceCatalogue(kind), drawer = node('details', 'ipg-' + kind + '-motion');
@@ -402,6 +416,7 @@
         try { if (request.controller && request.ready) request.controller.setSituation('idle'); updateMotionPresentation(request, null); }
         catch (_) { motionFallback(request); }
       }
+      if (!drawer.open) revealAfterDrawerLayout(request);
     });
     return drawer;
   }

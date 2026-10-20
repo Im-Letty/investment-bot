@@ -599,6 +599,66 @@ test('unavailable shell measurements use conservative margins without rejecting 
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
+test('closing a direction drawer recenters the actor after layout without restarting a body, ordinary emotion or meal deadline', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  f.window.innerHeight = 720; shellBounds(f, { top: 0, height: 69 }, { top: 662, height: 58 });
+  let actorTop = 269; const visual = f.host.querySelector('.ipg-lilac-visual'), controller = f.mounts[0];
+  visual.getBoundingClientRect = () => ({ top: actorTop, height: 260 });
+  const originalScroll = visual.scrollIntoView.bind(visual);
+  visual.scrollIntoView = options => { originalScroll(options); actorTop = 269; };
+  for (const id of ['body_tail', 'cry', 'feeding']) {
+    await f.directionDrawer();
+    if (id === 'body_tail') { await f.bodyDrawer(); await f.click(f.focusButton('pet-body-motion-' + id)); }
+    else await f.click(await f.revealEmotion(id));
+    f.advance(1500); await f.fireTimers();
+    const deadline = [...f.timers.values()][0].at, changes = controller.changes.length;
+    const phase = visual.dataset.cuePhase, foodHidden = f.host.querySelector('.ipg-feeding-food').hidden;
+    const effects = f.host.querySelector('.ipg-emotion-effect'), effectClass = effects.className, effectHidden = effects.hidden;
+    actorTop = 30; const scrolls = f.scrolls().length; await f.directionDrawer(false);
+    assert.equal(f.raf.size, 1, 'one layout check is queued, not a permanent animation loop');
+    assert.equal(controller.changes.length, changes); assert.equal([...f.timers.values()][0].at, deadline);
+    await f.frame(); assert.equal(f.raf.size, 0); assert.equal(actorTop, 269); assert.equal(f.scrolls().length, scrolls + 1);
+    assert.equal(visual.dataset.situation, id); assert.equal(visual.dataset.cuePhase, phase);
+    assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, foodHidden);
+    assert.equal(effects.className, effectClass); assert.equal(effects.hidden, effectHidden);
+    assert.equal(controller.changes.length, changes); assert.equal([...f.timers.values()][0].at, deadline);
+    f.advance(Motion.durations[id] - 1500); await f.fireTimers();
+    assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.scrolls().length, scrolls + 1);
+    assert.equal(f.raf.size, 0); assert.equal(f.timers.size, 0); assert.equal(f.mounts.length, 1);
+  }
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+});
+
+test('closing its own direction returns to idle and checks the larger front wrapper exactly once after the drawer shrinks', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  f.window.innerHeight = 720; shellBounds(f, { top: 0, height: 69 }, { top: 662, height: 58 });
+  let actorTop = 269; const visual = f.host.querySelector('.ipg-lilac-visual');
+  visual.getBoundingClientRect = () => ({ top: actorTop, height: 260 });
+  await f.directionDrawer(); await f.click(f.focusButton('pet-direction-motion-direction_back'));
+  actorTop = 30; await f.directionDrawer(false);
+  assert.equal(f.mounts[0].changes.at(-1).name, 'idle'); assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.timers.size, 0);
+  assert.equal(f.scrolls().length, 0); assert.equal(f.raf.size, 1);
+  await f.frame(); assert.equal(f.scrolls().length, 1); assert.equal(f.raf.size, 0);
+  await f.frame(10000); assert.equal(f.scrolls().length, 1, 'no later timer or frame can keep recentring');
+  assert.equal(f.mounts.length, 1); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('rapid drawer closes share one layout frame which hide, fallback and rerender cancel before touching an old visual', async () => {
+  for (const cleanup of ['hide', 'fallback', 'render']) {
+    const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+    f.window.innerHeight = 720; shellBounds(f, { top: 0, height: 69 }, { top: 662, height: 58 });
+    const visual = f.host.querySelector('.ipg-lilac-visual'); visual.getBoundingClientRect = () => ({ top: 30, height: 260 });
+    await f.directionDrawer(); await f.bodyDrawer();
+    await f.directionDrawer(false); await f.bodyDrawer(false);
+    assert.equal(f.raf.size, 1, cleanup + ': both close events coalesce on the same actor');
+    if (cleanup === 'hide') { f.document.hidden = true; f.document.emit('visibilitychange'); await flush(); }
+    else if (cleanup === 'fallback') f.mounts[0].options.onError();
+    else f.ui.render();
+    assert.equal(f.raf.size, 0, cleanup + ': the pending one-shot is cancelled'); await f.frame();
+    assert.equal(f.scrolls().length, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  }
+});
+
 test('six full-body references share the actual clothed actor without changing the 100-expression catalogue or any saved progress', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' }, setup: async store => {
     await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });

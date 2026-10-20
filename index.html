@@ -4287,7 +4287,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
     moduleLoading=loadScript('/static/pet-game-core.js?v=ea96fff6273d',function(){return !!window.PetGameCore;}).then(function(){
       return loadScript('/static/pet-lilac-motion.js?v=10d476c0cd5a',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     }).then(function(){
-      return loadScript('/static/pet-game.js?v=66188272ed56',apiReady);
+      return loadScript('/static/pet-game.js?v=59198b70a587',apiReady);
     }).catch(function(error){moduleLoading=null;throw error;});
     return moduleLoading;
   }
