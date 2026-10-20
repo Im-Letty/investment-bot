@@ -16,7 +16,7 @@ function events(target = {}) {
 }
 function fixture(config = {}) {
   let clock = 0, id = 0, draws = 0, ready = 0, released = 0;
-  const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [];
+  const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [];
   const media = events({ matches: !!config.reduced });
   const doc = events({ hidden: !!config.hidden });
   const win = events({ document: doc, devicePixelRatio: config.dpr || 3,
@@ -48,7 +48,9 @@ function fixture(config = {}) {
   gl.shaderSource = (_, text) => shaders.push(text);
   gl.getShaderParameter = () => !config.compileFailure;
   gl.getProgramParameter = () => !config.linkFailure;
-  gl.getAttribLocation = () => 0;
+  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : -1;
+  gl.bufferData = (target, data, usage) => { buffers.push({ target, data: new Float32Array(data), usage }); };
+  gl.vertexAttribPointer = (index, size, type, normalized, stride, offset) => { attributes.push({ index, size, type, normalized, stride, offset }); };
   gl.getUniformLocation = (_, key) => key;
   gl.uniform1f = (key, value) => { uniforms[key] = value; };
   gl.uniform2f = (key, a, b) => { uniforms[key] = [a, b]; };
@@ -63,14 +65,14 @@ function fixture(config = {}) {
     packedNames[key]?.forEach((name, index) => { uniforms['u_' + name] = values[index]; });
   };
   gl.texImage2D = (...args) => { if (config.textureFailure) throw new Error('raw private driver detail'); uploads.push(args.at(-1)); };
-  gl.drawArrays = () => { if (config.drawFailure) throw new Error('raw private driver detail'); draws++; };
+  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count }); draws++; };
   const canvas = events({ ownerDocument: doc, hidden: true, isConnected: true, width: 240, height: 240,
     clientWidth: config.cssWidth || 320,
     getBoundingClientRect: () => ({ width: config.cssWidth || 320 }),
     getContext: (_, options) => { canvas.contextOptions = options; return config.noWebGL ? null : gl; }
   });
   const api = Motion.mount(canvas, { onError: code => errors.push(code), onReady: () => ready++, ...config.options });
-  return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders,
+  return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders, buffers, attributes, drawCalls,
     get draws() { return draws; }, get ready() { return ready; }, get released() { return released; },
     complete() { images.forEach(im => { im.complete = true; im.naturalWidth = im.naturalHeight = 1000; im.onload?.(); }); },
     advance(ms = 40) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); },
@@ -97,6 +99,95 @@ test('UMD exposes browser API and CommonJS pure helpers without loading assets',
     assert.ok(item.label && item.groupLabel); groups.set(item.group, (groups.get(item.group) || 0) + 1);
   }
   assert.equal(groups.size, 6); assert.ok([...groups.values()].every(n => n === 6));
+});
+
+const growthKeys = ['egg', 'baby', 'child', 'final', 'adult', 'companion'];
+
+test('six growth profiles are deterministic, physically sized and keep the original child proportions', () => {
+  const signatures = new Set();
+  for (const key of growthKeys) {
+    const p = Motion.growthProfile(key);
+    assert.equal(p.key, key); assert.ok(p.label); assert.equal(Object.isFrozen(p), true);
+    assert.ok(p.overallScale >= .7 && p.overallScale <= 1);
+    signatures.add(JSON.stringify(p));
+    for (let step = 0; step <= 100; step++) {
+      const n = step / 100;
+      for (const [x, y] of [[0,n],[1,n],[n,0],[n,1],[n,.92]]) {
+        const point = Motion.growthPoint(key, x, y);
+        assert.ok(point.x >= 0 && point.x <= 1 && point.y >= 0 && point.y <= 1, key);
+        if (y === .92) assert.equal(point.y, .92, key + ': grounded');
+        else assert.deepEqual(point, { x, y }, key + ': frame edge');
+      }
+      assert.deepEqual(Motion.growthPoint('child', n, 1-n), { x:n, y:1-n });
+    }
+  }
+  assert.equal(signatures.size, 6);
+  assert.equal(Motion.growthProfile('egg').headWidth > Motion.growthProfile('child').headWidth, true);
+  assert.ok(Motion.growthProfile('adult').bodyHeight > Motion.growthProfile('child').bodyHeight);
+  assert.ok(Motion.growthProfile('companion').tailScale > Motion.growthProfile('adult').tailScale);
+  assert.deepEqual(Motion.growthProfile('__proto__'), Motion.growthProfile('child'));
+  assert.deepEqual(Motion.growthPoint('unknown', NaN, Infinity), { x:.5, y:.5 });
+});
+
+test('growth mesh has separate UVs, bounded vertices and no folded or reversed triangles for any stage', () => {
+  for (const stage of growthKeys) {
+    const f = fixture({ options: { growthStage:stage } }); f.complete();
+    const mesh = f.buffers[0].data, profile = Motion.growthProfile(stage);
+    assert.equal(mesh.length, 24 * 24 * 6 * 4);
+    assert.deepEqual(f.attributes.map(a => [a.index,a.size,a.stride,a.offset]), [[0,2,16,0],[1,2,16,8]]);
+    assert.deepEqual(f.drawCalls[0], { mode:f.gl.TRIANGLES, first:0, count:3456 });
+    assert.equal(f.uploads.length, 8);
+    for (let i = 0; i < mesh.length; i += 4) {
+      const [x,y,u,v] = mesh.subarray(i,i+4);
+      assert.ok([x,y,u,v].every(Number.isFinite));
+      assert.ok(Math.abs(x) <= 1 && Math.abs(y) <= 1 && u >= 0 && u <= 1 && v >= 0 && v <= 1, stage);
+      const point = Motion.growthPoint(stage,u,v);
+      const projected = { x:.5 + (point.x-.5)*profile.overallScale, y:.92 + (point.y-.92)*profile.overallScale };
+      assert.ok(Math.abs((x+1)/2 - projected.x) < .000001 && Math.abs((1-y)/2 - projected.y) < .000001, stage);
+    }
+    for (let i = 0; i < mesh.length; i += 12) {
+      const [ax,ay,,,bx,by,,,cx,cy] = mesh.subarray(i,i+12);
+      assert.ok((bx-ax)*(cy-ay) - (by-ay)*(cx-ax) > 0, stage + ': winding');
+    }
+    f.api.destroy(); assert.equal(f.created.length, f.deleted.length);
+  }
+});
+
+test('food anchors follow the same growth mesh and active cue inset rather than the old fixed mouth', () => {
+  const anchors = new Set();
+  for (const stage of growthKeys) {
+    const anchor = Motion.feedingAnchor(stage), profile = Motion.growthProfile(stage);
+    const u = .5 + (.628-.5)*.88, v = .92 + (.499-.92)*.88;
+    const point = Motion.growthPoint(stage,u,v);
+    assert.equal(anchor.x, .5 + (point.x-.5)*profile.overallScale);
+    assert.equal(anchor.y, .92 + (point.y-.92)*profile.overallScale);
+    assert.equal(anchor.foodLeft, anchor.x-.11); assert.equal(anchor.foodTop, anchor.y-.09);
+    const f = fixture({ options:{ growthStage:stage } });
+    const mesh=f.buffers[0].data, col=Math.floor(u*24), row=Math.floor(v*24), a=(row*24+col)*24;
+    const fx=u*24-col, fy=v*24-row;
+    const indices=fx+fy<=1 ? [a,a+8,a+4] : [a+12,a+16,a+20];
+    const weights=fx+fy<=1 ? [1-fx-fy,fx,fy] : [1-fy,1-fx,fx+fy-1];
+    const projected={x:0,y:0};
+    indices.forEach((offset,i)=>{ projected.x+=(mesh[offset]+1)/2*weights[i]; projected.y+=(1-mesh[offset+1])/2*weights[i]; });
+    assert.ok(Math.abs(projected.x-anchor.x)<.001 && Math.abs(projected.y-anchor.y)<.001, stage + ': rendered mouth');
+    anchors.add(JSON.stringify(anchor)); f.api.destroy();
+  }
+  assert.equal(anchors.size, 6);
+});
+
+test('growth changes idle and walking cadence while every meal phase and emotion deadline stays unchanged', () => {
+  const idle = new Set(), walks = new Set(), neutralMeal = Motion.pose(2.2,'feeding',2.2,'child');
+  for (const stage of growthKeys) {
+    idle.add(Motion.pose(1.2,'idle',0,stage).breath); walks.add(Motion.pose(.33,'moving',.33,stage).step);
+    assert.equal(Motion.pose(2.2,'feeding',2.2,stage).chew, neutralMeal.chew);
+    assert.equal(Motion.pose(5.5,'feeding',5.5,stage).faceDelighted, 1);
+    for (const situation of Motion.situations) {
+      const duration = Motion.durations[situation]/1000;
+      if (duration) assert.deepEqual(Motion.pose(9,situation,duration,stage), Motion.pose(9,'idle',0,stage));
+    }
+  }
+  assert.equal(idle.size,6); assert.equal(walks.size,6);
+  assert.deepEqual(Motion.pose(1.2,'idle',0),Motion.pose(1.2,'idle',0,'child'));
 });
 
 test('all profiles stay finite, differ at meaningful samples and finish at the same idle', () => {

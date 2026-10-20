@@ -8,6 +8,15 @@
   // One record contains the entire economy. A rejected write never publishes a
   // candidate state. The host may supply an awaited encrypted storage adapter.
   var KEY = 'pet_game_v3', MAX = 9000000000000, MAX_BYTES = 1000000;
+  // Visual growth information is separate from the existing reward/unlock stages.
+  var lilacGrowthStages = Object.freeze([
+    {key:'egg',label:'うまれたて',min:0},
+    {key:'baby',label:'よちよち',min:15},
+    {key:'child',label:'こども',min:45},
+    {key:'final',label:'わかもの',min:110},
+    {key:'adult',label:'おとな',min:400},
+    {key:'companion',label:'なかよしの姿',min:800}
+  ].map(function(stage){return Object.freeze(stage);}));
   var LIMITS = {care:{feed:3,play:3,rest:3},minigamesPerDay:3,maxScore:30,minigameDurationMs:25000,
     marketAdvancesPerDay:12,feeRate:0.01,minFee:1,dividendEvery:5};
   var STOCKS = [
@@ -87,6 +96,13 @@
     var i=0;while(i+1<a.length&&exp>=a[i+1].min)i++;
     var s=clone(a[i]);s.next=i+1<a.length?a[i+1].min:null;
     s.progress=s.next===null?100:Math.max(0,Math.min(100,Math.round((exp-s.min)/(s.next-s.min)*100)));return s;
+  }
+  function getLilacGrowth(exp) {
+    exp=typeof exp==='number'&&Number.isFinite(exp)?Math.max(0,Math.min(MAX,exp)):0;
+    var i=0;while(i+1<lilacGrowthStages.length&&exp>=lilacGrowthStages[i+1].min)i++;
+    var s=clone(lilacGrowthStages[i]);s.next=i+1<lilacGrowthStages.length?lilacGrowthStages[i+1].min:null;
+    s.progress=s.next===null?100:Math.max(0,Math.min(100,Math.round((exp-s.min)/(s.next-s.min)*100)));
+    s.remaining=s.next===null?0:s.next-exp;return s;
   }
   function market() {
     var m={day:1,prices:{},previous:{},holdings:{},realizedProfit:0,dividends:0,feesPaid:0,
@@ -318,12 +334,12 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
   }
-  return {create:create,getStage:getStage,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
+  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
 }));

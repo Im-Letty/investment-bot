@@ -81,7 +81,7 @@ async function fixture(config = {}) {
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue, feedingPhase: Motion.feedingPhase,
+    durations: Motion.durations, catalogue: Motion.catalogue, feedingPhase: Motion.feedingPhase, feedingAnchor: Motion.feedingAnchor, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -543,4 +543,123 @@ test('pending or failed meal saves cannot show food or happy meal feedback, and 
   assert.equal(wrap.querySelector('.ipg-feeding-food').hidden, true); assert.equal(wrap.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.timers.size, 0);
   f.advance(7200); await f.fireTimers(); assert.equal(wrap.querySelector('.ipg-feeding-food').hidden, true);
   assert.equal(wrap.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), after);
+});
+
+test('a 373 EXP B has an honest next goal of 400 EXP without changing any saved progress', async () => {
+  assert.equal(typeof Core.getLilacGrowth, 'function');
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373' } }), before = f.saved(), writes = f.writes.length;
+  assert.equal(f.host.querySelector('.ipg-stage').textContent, 'わかもの · 373 EXP');
+  assert.ok(f.host.textContent.includes('次の成長まで あと27 EXP'));
+  assert.equal(f.host.querySelector('progress').value, Core.getLilacGrowth(373).progress);
+  assert.equal(f.mounts.at(-1).options.growthStage, 'final');
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.growthStage, 'final');
+  assert.equal(f.store.getState().stage.key, 'final', 'old core appearance/reward stage still remains readable');
+  f.window.emit('focus'); await flush();
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+});
+
+test('growth album previews all six stages in one canvas and future views never grant EXP, coins or an unlock', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373' } }), before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle'));
+  assert.equal(f.focusButton('growth-album-toggle').getAttribute('aria-expanded'), 'true');
+  assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelectorAll('canvas').length, 1);
+  assert.equal(f.mounts.at(-1).options.growthStage, 'final'); assert.equal(f.mounts.at(-1).options.situation, 'idle');
+  assert.match(f.host.querySelector('.ipg-growth-caption').textContent, /わかもの.*いまの姿/);
+  assert.equal(f.host.querySelectorAll('button').filter(button => button.dataset.growthStage).length, 6);
+  for (const entry of Core.lilacGrowthStages) {
+    const previous = f.mounts.at(-1); await f.click(f.focusButton('growth-stage-' + entry.key));
+    assert.equal(previous.destroyed, true); assert.equal(f.activeMotions().length, 2);
+    assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelectorAll('canvas').length, 1);
+    assert.equal(f.mounts.at(-1).options.growthStage, entry.key); assert.equal(f.mounts.at(-1).options.situation, 'idle');
+    assert.equal(f.focusButton('growth-stage-' + entry.key).getAttribute('aria-pressed'), 'true');
+    const caption = f.host.querySelector('.ipg-growth-caption').textContent;
+    assert.ok(caption.includes(entry.label)); assert.ok(caption.includes(entry.min > 373 ? 'これからの姿・見本' : entry.key === 'final' ? 'いまの姿' : '育った姿の見本'));
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+    assert.equal(f.host.querySelector('.ipg-stage').textContent, 'わかもの · 373 EXP');
+  }
+  assert.match(f.focusButton('growth-stage-adult').textContent, /400 EXP.*これから/);
+  assert.match(f.focusButton('growth-stage-companion').textContent, /800 EXP.*これから/);
+  await f.click(f.focusButton('growth-album-toggle'));
+  assert.equal(f.host.querySelector('.ipg-growth-gallery'), null); assert.equal(f.activeMotions().length, 1);
+  await f.click(f.focusButton('growth-album-toggle')); assert.equal(f.mounts.at(-1).options.growthStage, 'final', 'reopen starts at the real current stage');
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush(); assert.equal(f.activeMotions().length, 0); assert.equal(f.timers.size, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.host.querySelector('.ipg-growth-gallery'), null); assert.equal(f.activeMotions().length, 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('crossing 400 EXP adopts the new visible growth only after a confirmed save and never cuts off the meal', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '397' } });
+  f.advance(10000); f.ui.render(); const before = f.saved(), gate = deferred();
+  f.control.pending = gate; f.control.outcome = 'false'; await f.click(f.focusButton('care-rest'));
+  assert.equal(f.host.querySelector('.ipg-stage').textContent, 'わかもの · 397 EXP');
+  assert.equal(f.mounts.at(-1).options.growthStage, 'final'); assert.deepEqual(f.saved(), before);
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.equal(f.host.querySelector('.ipg-stage').textContent, 'わかもの · 397 EXP'); assert.deepEqual(f.saved(), before);
+  assert.equal(f.mounts.at(-1).options.situation, 'idle');
+  f.control.outcome = 'ok'; await f.click(f.focusButton('care-rest'));
+  assert.equal(f.saved().pet.exp, 401); assert.equal(f.saved().coins, before.coins + 10);
+  assert.equal(f.mounts.at(-1).options.growthStage, 'adult'); assert.equal(f.mounts.at(-1).options.situation, 'joy');
+  assert.equal(f.host.querySelector('.ipg-stage').textContent, 'おとな · 401 EXP'); assert.ok(f.host.textContent.includes('あと399 EXP'));
+  const meal = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '397' } }), old = meal.saved();
+  await meal.click(meal.focusButton('care-feed'));
+  assert.equal(meal.saved().pet.exp, 405); assert.equal(meal.saved().coins, old.coins + 10);
+  assert.equal(meal.mounts.at(-1).options.growthStage, 'adult'); assert.equal(meal.mounts.at(-1).options.situation, 'feeding');
+  assert.equal(meal.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'anticipation');
+  meal.advance(4400); await meal.fireTimers(); assert.equal(meal.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'joy');
+});
+
+test('all six growth stages reach the renderer and attach food to that stage mouth without CSS scaling twice', async () => {
+  assert.equal(typeof Motion.feedingAnchor, 'function');
+  for (const entry of Core.lilacGrowthStages) {
+    const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: String(entry.min) } });
+    await f.click(f.focusButton('care-feed'));
+    const food = f.host.querySelector('.ipg-feeding-food'), anchor = Motion.feedingAnchor(entry.key);
+    assert.equal(f.mounts.at(-1).options.growthStage, entry.key); assert.equal(food.hidden, false);
+    assert.equal(food.style.left, String(anchor.foodLeft * 100) + '%'); assert.equal(food.style.top, String(anchor.foodTop * 100) + '%');
+    assert.equal(f.saved().pet.exp, entry.min + 8);
+  }
+  const css = fs.readFileSync(require.resolve('../static/pet-game.css'), 'utf8');
+  assert.doesNotMatch(css, /\.ipg-lilac-stage-(?:egg|baby|child)\{transform:scale/);
+});
+
+test('growth album isolates its idle preview and preserves the current meal age and pending food deadline', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373' } });
+  await f.click(f.focusButton('care-feed')); f.advance(1500); await f.fireTimers();
+  const after = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle'));
+  assert.equal(f.activeMotions().length, 2); assert.equal(f.activeMotions()[0].options.situation, 'feeding');
+  assert.equal(f.activeMotions()[0].options.elapsedMs, 1500); assert.equal(f.activeMotions()[0].options.growthStage, 'final');
+  assert.equal(f.mounts.at(-1).options.situation, 'idle'); assert.equal(f.mounts.at(-1).options.growthStage, 'final');
+  assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelector('.ipg-feeding-food').hidden, true);
+  assert.equal(f.timers.size, 1);
+  await f.click(f.focusButton('growth-stage-companion'));
+  assert.equal(f.activeMotions()[0].options.situation, 'feeding'); assert.equal(f.activeMotions()[0].options.elapsedMs, 1500);
+  assert.equal(f.mounts.at(-1).options.growthStage, 'companion'); assert.equal(f.mounts.at(-1).options.situation, 'idle');
+  assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelector('.ipg-feeding-food').hidden, true); assert.equal(f.timers.size, 1);
+  f.advance(2900); await f.fireTimers();
+  assert.equal(f.host.querySelector('.ipg-emotion-stage').querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'joy');
+  assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelector('.ipg-lilac-visual').dataset.situation, 'idle');
+  assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes);
+  await f.ui.close(); assert.equal(f.activeMotions().length, 0); assert.equal(f.timers.size, 0);
+});
+
+test('switching a grown bunny to B uses existing EXP without calling the species change a new growth event', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_species: 'bunny', pg_exp: '800' } }), before = f.saved();
+  await f.click(f.button('薄紫のこ（B）'));
+  assert.equal(f.saved().pet.species, 'lilac'); assert.equal(f.saved().pet.exp, 800); assert.equal(f.saved().coins, before.coins);
+  assert.equal(f.mounts.at(-1).options.growthStage, 'companion'); assert.equal(f.mounts.at(-1).options.situation, 'greeting');
+  assert.ok(!f.host.querySelector('.ipg-notice').textContent.includes('進化しました'));
+  assert.equal(f.host.querySelector('.ipg-stage').textContent, 'なかよしの姿 · 800 EXP');
+  assert.equal(f.saved().revision, before.revision + 1);
+});
+
+test('growth drawing failure labels its reference fallback honestly and keeps all progress intact', async () => {
+  const f = await fixture({ rendererMode: 'error', species: 'lilac', seed: { pg_exp: '373' } }), before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle'));
+  await f.click(f.focusButton('growth-stage-companion'));
+  const gallery = f.host.querySelector('.ipg-growth-gallery');
+  assert.equal(gallery.querySelector('canvas').hidden, true); assert.equal(gallery.querySelector('.ipg-lilac-still').hidden, false);
+  assert.match(gallery.querySelector('.ipg-growth-caption').textContent, /成長の動きを表示できないため、基準の絵/);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.timers.size, 0);
 });

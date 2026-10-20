@@ -18,6 +18,58 @@
     return list.concat(group[2].map(function (item) { return Object.freeze({ id: item[0], label: item[1], group: group[0], groupLabel: group[1], durationMs: item[2] }); }));
   }, []));
   var durations = Object.freeze(catalogue.reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {}));
+  // Geometry stages use the same original and facial textures. No stage grants EXP.
+  var growthProfiles = Object.freeze({
+    egg: Object.freeze({ key: 'egg', label: 'うまれたて', overallScale: .70, headWidth: 1.12, headHeight: 1.08, bodyWidth: .86, bodyHeight: .72, earScale: .78, tailScale: .68, cadence: 1.18, movingCadence: 1.16 }),
+    baby: Object.freeze({ key: 'baby', label: 'よちよち', overallScale: .82, headWidth: 1.07, headHeight: 1.04, bodyWidth: .96, bodyHeight: .86, earScale: .89, tailScale: .84, cadence: 1.10, movingCadence: 1.08 }),
+    child: Object.freeze({ key: 'child', label: 'こども', overallScale: .92, headWidth: 1, headHeight: 1, bodyWidth: 1, bodyHeight: 1, earScale: 1, tailScale: 1, cadence: 1, movingCadence: 1 }),
+    final: Object.freeze({ key: 'final', label: 'わかもの', overallScale: .98, headWidth: .98, headHeight: .98, bodyWidth: 1.03, bodyHeight: 1.05, earScale: 1.04, tailScale: 1.06, cadence: .96, movingCadence: .97 }),
+    adult: Object.freeze({ key: 'adult', label: 'おとな', overallScale: 1, headWidth: .95, headHeight: .96, bodyWidth: 1.08, bodyHeight: 1.10, earScale: 1.08, tailScale: 1.12, cadence: .90, movingCadence: .94 }),
+    companion: Object.freeze({ key: 'companion', label: 'なかよしの姿', overallScale: 1, headWidth: 1.02, headHeight: .99, bodyWidth: 1.11, bodyHeight: 1.08, earScale: 1.03, tailScale: 1.18, cadence: .84, movingCadence: .90 })
+  });
+  function growthProfile(name) { return Object.prototype.hasOwnProperty.call(growthProfiles, name) ? growthProfiles[name] : growthProfiles.child; }
+  function regionWeight(x, y, cx, cy, rx, ry) { var dx = (x - cx) / rx, dy = (y - cy) / ry; return Math.exp(-2 * (dx * dx + dy * dy)); }
+  // Forward normalized coordinates. Boundary taper fixes all four frame edges, and
+  // the foot line remains grounded. The exact same map positions the food prop.
+  function growthPoint(stage, inputX, inputY) {
+    var profile = growthProfile(stage), x = clamp(finite(inputX, .5), 0, 1), y = clamp(finite(inputY, .5), 0, 1);
+    if (profile.key === 'child') return { x: x, y: y };
+    var head = 1 - smooth((y - .58) / .20);
+    var width = profile.bodyWidth + (profile.headWidth - profile.bodyWidth) * head;
+    var dx = (x - .59) * (width - 1) * Math.sin(PI * x);
+    var dy = (y - .92) * (profile.bodyHeight - 1) + (y - .66) * (profile.headHeight - profile.bodyHeight) * head;
+    var leftEar = regionWeight(x, y, .17, .345, .18, .15), rightEar = regionWeight(x, y, .82, .16, .15, .17);
+    dx += (profile.earScale - 1) * ((x - .29) * leftEar + (x - .76) * rightEar);
+    dy += (profile.earScale - 1) * ((y - .39) * leftEar + (y - .25) * rightEar);
+    var tail = regionWeight(x, y, .155, .728, .13, .18);
+    dx += (profile.tailScale - 1) * (x - .25) * tail;
+    dy += (profile.tailScale - 1) * (y - .72) * tail;
+    var edge = smooth(x / .06) * smooth((1 - x) / .06) * smooth(y / .06) * smooth((1 - y) / .06);
+    // Regional ear/tail displacement also settles at the feet instead of lifting them.
+    var grounded = smooth(Math.abs(y - .92) / .055);
+    return { x: x + dx * edge, y: y + dy * edge * grounded };
+  }
+  function feedingAnchor(stage) {
+    var profile = growthProfile(stage);
+    var point = growthPoint(profile.key, .5 + (.628 - .5) * .88, .92 + (.499 - .92) * .88);
+    var x = .5 + (point.x - .5) * profile.overallScale, y = .92 + (point.y - .92) * profile.overallScale;
+    return { x: x, y: y, foodLeft: x - .11, foodTop: y - .09 };
+  }
+  function growthMesh(stage) {
+    var profile = growthProfile(stage), columns = 24, values = new Float32Array(columns * columns * 6 * 4), cursor = 0;
+    function vertex(x, y) {
+      var point = growthPoint(stage, x, y);
+      var targetX = .5 + (point.x - .5) * profile.overallScale, targetY = .92 + (point.y - .92) * profile.overallScale;
+      values[cursor++] = targetX * 2 - 1; values[cursor++] = 1 - targetY * 2;
+      values[cursor++] = x; values[cursor++] = y;
+    }
+    for (var row = 0; row < columns; row++) for (var col = 0; col < columns; col++) {
+      var x = col / columns, y = row / columns, right = (col + 1) / columns, bottom = (row + 1) / columns;
+      vertex(x, y); vertex(x, bottom); vertex(right, y);
+      vertex(right, y); vertex(x, bottom); vertex(right, bottom);
+    }
+    return values;
+  }
   var mounted = typeof WeakMap === 'function' ? new WeakMap() : null;
   // WebGL 1 guarantees eight fragment texture units. Every expression keeps original cutout alpha.
   var assets = ['pet_lilac_original.webp', 'pet_lilac_half.webp', 'pet_lilac_closed.webp', 'pet_lilac_cutout.webp',
@@ -54,9 +106,10 @@
       nextBoundaryMs: end, done: end === null };
   }
   // Pure profiles in seconds. Emotions ease in and settle to the exact underlying idle pose.
-  function pose(seconds, situation, elapsedSeconds) {
-    var s = Math.max(0, finite(seconds, 0)), t = s % 12, name = known(situation);
-    var age = Math.max(0, finite(elapsedSeconds, s)), duration = durations[name] / 1000;
+  function pose(seconds, situation, elapsedSeconds, growthStage) {
+    var profile = growthProfile(growthStage), rawSeconds = Math.max(0, finite(seconds, 0));
+    var s = rawSeconds * profile.cadence, t = s % 12, name = known(situation);
+    var age = Math.max(0, finite(elapsedSeconds, rawSeconds)), duration = durations[name] / 1000;
     if (name !== 'idle' && age >= duration) name = 'idle';
     var tilt = Math.sin((t - 2.8) / 4.2 * PI) * envelope(t - 2.8, 4.2);
     if (t < 2.8 || t > 7) tilt = 0;
@@ -137,7 +190,7 @@
         p.blush = .35 * celebrating;
         break;
       }
-      case 'moving': p.step = Math.sin(age * TAU * 2); p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step; p.shiftX = .018 * Math.sin(age * PI * 1.2); p.wave = .25; p.ear += .4 * p.step; break;
+      case 'moving': p.step = Math.sin(age * TAU * 2 * profile.movingCadence); p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step; p.shiftX = .018 * Math.sin(age * PI * 1.2); p.wave = .25; p.ear += .4 * p.step; break;
       case 'caught': p.bounce = .75 * Math.pow(Math.sin(age * PI * 1.4), 2); p.wave = 1; p.pawSpread = -.3; p.faceDelighted = .8; p.ear += .85; p.tail += .7; p.stretch = .5; break;
       case 'dance': p.faceDelighted = .75; p.bodyAngle = .085 * Math.sin(age * PI * 1.3); p.shiftX = .025 * Math.sin(age * PI * 1.3); p.step = Math.sin(age * TAU * 1.3); p.bounce = .35 * Math.abs(p.step); p.wave = .7; p.wiggle = fast; p.pawSpread = .8 * beat; p.tail += 1.1 * beat; break;
       case 'celebrate': p.faceDelighted = 1; p.bounce = .95 * hop; p.wave = 1.15; p.pawSpread = 1.1; p.stretch = .65; p.bodyAngle = .05 * beat; p.ear += 1; p.tail += 1.2 * fast; p.mouthOpen = .6; break;
@@ -148,7 +201,7 @@
       'faceSad', 'faceAngry', 'faceSurprise', 'faceDelighted', 'tear', 'blush', 'sweat', 'anger', 'eyeNarrow', 'mouthOpen'].forEach(function (key) { p[key] *= e; });
     p.tilt *= e;
     // Retain the idle motion while releasing a cue; no frozen hold or sudden final snap.
-    var idle = pose(s, 'idle', 0);
+    var idle = pose(rawSeconds, 'idle', 0, profile.key);
     p.tilt += idle.tilt * (1 - e);
     p.breath = idle.breath + (p.breath - idle.breath) * e;
     p.ear = idle.ear + (p.ear - idle.ear) * e;
@@ -177,7 +230,7 @@
     return name ? { situation: name, durationMs: durations[name] } : null;
   }
 
-  var vertexSource = 'attribute vec2 a_position; varying vec2 v_uv; void main(){v_uv=vec2(a_position.x*.5+.5,.5-a_position.y*.5);gl_Position=vec4(a_position,0.,1.);}';
+  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; varying vec2 v_uv; void main(){v_uv=a_uv;gl_Position=vec4(a_position,0.,1.);}';
   var fragmentSource = [
     '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
     'varying vec2 v_uv; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
@@ -249,7 +302,7 @@
     var gl, dead = false, loaded = false, readyNotified = false, pageVisible = true, frame = null, timer = null, observer = null;
     var media = null, removers = [], images = [], resources = [], locations = {};
     var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
-    var scale = clamp(finite(options.scale, 1), .35, 1.15);
+    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), vertexCount = 0;
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
     function listen(target, type, callback) {
       if (!target || typeof target.addEventListener !== 'function') return;
@@ -326,7 +379,7 @@
         var age = cueMs + Math.max(0, finite(clock(), cueAnchor) - cueAnchor);
         if (cue !== 'idle' && age >= cueDuration) { cue = 'idle'; cueMs = 0; cueDuration = 0; }
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
-        var p = reduced ? pose(0, 'idle', 0) : pose(phaseMs / 1000, cue, elapsed);
+        var p = reduced ? pose(0, 'idle', 0, stageProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key);
         if (reduced) { p.tail = 0; }
         gl.viewport(0, 0, canvas.width, canvas.height);
         p.scale = scale;
@@ -334,7 +387,7 @@
           var fields = packedUniforms[key];
           gl.uniform4f(locations[key], p[fields[0]], p[fields[1]], p[fields[2]], p[fields[3]]);
         });
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
         if (!readyNotified) {
           readyNotified = true;
           if (typeof options.onReady === 'function') { try { options.onReady(); } catch (_) {} }
@@ -363,9 +416,11 @@
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link');
       gl.useProgram(program);
       var buffer = own('createBuffer'); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
-      var position = gl.getAttribLocation(program, 'a_position');
-      gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+      var mesh = growthMesh(stageProfile.key); vertexCount = mesh.length / 4;
+      gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
+      var position = gl.getAttribLocation(program, 'a_position'), uv = gl.getAttribLocation(program, 'a_uv');
+      gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 16, 0);
+      gl.enableVertexAttribArray(uv); gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 16, 8);
       Object.keys(packedUniforms).forEach(function (key) { locations[key] = gl.getUniformLocation(program, 'u_' + key); });
       var samplerNames = ['u_original', 'u_half', 'u_closed', 'u_alpha', 'u_sad', 'u_angry', 'u_surprise', 'u_delighted'];
       var textures = assets.map(function (_, i) { gl.uniform1i(gl.getUniformLocation(program, samplerNames[i]), i); return own('createTexture'); });
@@ -406,6 +461,6 @@
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, feedingPhase: feedingPhase, situationForAction: situationForAction,
+  return Object.freeze({ mount: mount, pose: pose, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, situationForAction: situationForAction,
     catalogue: catalogue, durations: durations, situations: Object.freeze(Object.keys(durations)), sourceType: '2d_image_motion' });
 });

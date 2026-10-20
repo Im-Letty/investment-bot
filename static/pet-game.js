@@ -8,6 +8,7 @@
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
   var emotionGroup = 'bright', previewEmotionGroup = 'bright';
+  var growthAlbumOpen = false, growthPreviewStage = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
@@ -110,7 +111,7 @@
     if (!result || !result.ok || !after || displaySpecies(after) !== 'lilac') return;
     var engine = w.PetLilacMotion, cue = null;
     try { if (engine && typeof engine.situationForAction === 'function') cue = engine.situationForAction(action, before, after, result); } catch (_) {}
-    if (stage(before).key !== stage(after).key && (!cue || cue.situation !== 'feeding')) cue = { situation: 'joy', durationMs: 3500 };
+    if (after.pet.exp > before.pet.exp && stage(before).key !== stage(after).key && (!cue || cue.situation !== 'feeding')) cue = { situation: 'joy', durationMs: 3500 };
     if (cue) reaction = { situation: cue.situation, durationMs: cue.durationMs, startedAt: Date.now() };
   }
   function currentReaction() {
@@ -124,7 +125,9 @@
       old.width = 240; old.height = 240; old.draggable = false;
       return old;
     }
-    var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + stage(s).key + (extraClass ? ' ' + extraClass : ''));
+    var growthStage = stage(s).key;
+    var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + growthStage + (extraClass ? ' ' + extraClass : ''));
+    wrap.dataset.growthStage = growthStage;
     var still = node('img', 'ipg-lilac-still');
     still.src = imageRoot + 'pet_lilac_cutout.webp';
     still.alt = (s.pet.name || '薄紫のこ') + '（' + stage(s).label + '）';
@@ -137,8 +140,11 @@
     wrap.appendChild(food);
     var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
     wrap.appendChild(effect);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, controller: null, cueTimer: null, ready: false });
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', growthStage: growthStage, controller: null, cueTimer: null, ready: false });
     return wrap;
+  }
+  function requestCue(request) {
+    return request.growthPreview ? null : request.preview ? previewCue() : currentReaction();
   }
   function startMotions() {
     if (!motionsVisible() || !w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') return;
@@ -146,18 +152,19 @@
       greeted = true;
       if (!currentReaction()) reaction = { situation: 'greeting', durationMs: 2500, startedAt: Date.now() };
     }
-    var cue = currentReaction();
+    currentReaction();
     motionRequests.forEach(function (request) {
       if (request.canvas.isConnected === false) return;
       try {
-        var localCue = request.preview ? previewCue() : cue;
+        var localCue = requestCue(request);
         updateMotionPresentation(request, localCue);
         var controller = w.PetLilacMotion.mount(request.canvas, {
           assetRoot: imageRoot,
+          growthStage: request.growthStage,
           situation: localCue ? localCue.situation : 'idle',
           durationMs: localCue ? localCue.durationMs : 0,
           elapsedMs: localCue ? Math.max(0, Date.now() - localCue.startedAt) : 0,
-          onReady: function () { request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, request.preview ? previewCue() : currentReaction()); },
+          onReady: function () { request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); },
           releaseContextOnDestroy: true,
           onError: function () { motionFallback(request); }
         });
@@ -175,6 +182,7 @@
     if (request.food) request.food.hidden = true;
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
     if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。';
+    if (request.growthCaption) request.growthCaption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。';
   }
   // The catalogue is shared with the renderer. A missing optional renderer keeps
   // the original static pet and a readable, disabled emotion selector.
@@ -229,6 +237,10 @@
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
     if (request.food) {
       request.food.hidden = !(meal && meal.foodVisible && request.ready && motionsVisible());
+      var anchor = w.PetLilacMotion && typeof w.PetLilacMotion.feedingAnchor === 'function' ? w.PetLilacMotion.feedingAnchor(request.growthStage) : null;
+      if (anchor && Number.isFinite(anchor.foodLeft) && Number.isFinite(anchor.foodTop)) {
+        request.food.style.left = String(anchor.foodLeft * 100) + '%'; request.food.style.top = String(anchor.foodTop * 100) + '%';
+      }
       request.food.dataset.bites = !meal || meal.foodProgress < .34 ? '0' : meal.foodProgress < .68 ? '1' : '2';
       request.food.style.animationDelay = meal ? String(-(meal.phase === 'chewing' ? age - 1200 : age) / 1000) + 's' : '0s';
     }
@@ -316,7 +328,7 @@
         failure = ''; notice = (message || '保存しました。') + rewardText(result.reward);
         var afterStage = stage(result.state || state());
         rememberReaction(action, before, result.state || state(), result);
-        if (afterStage.key !== previousStage) notice += ' ' + afterStage.label + 'へ進化しました！';
+        if ((result.state || state()).pet.exp > before.pet.exp && afterStage.key !== previousStage) notice += ' ' + afterStage.label + 'へ進化しました！';
       }
       else { failure = safeError(result); notice = ''; }
     } catch (_) {
@@ -330,6 +342,7 @@
     return result;
   }
   function stage(s) {
+    if (displaySpecies(s) === 'lilac' && typeof core().getLilacGrowth === 'function') return core().getLilacGrowth(s.pet.exp);
     var fn = core().getStage || store.getStage;
     var info = fn ? fn(s.pet.exp) : { key: 'egg', label: 'たまご', min: 0, next: null, progress: 0 };
     return displaySpecies(s) === 'lilac' && info.key === 'egg' ? Object.assign({}, info, { label: 'うまれたて' }) : info;
@@ -340,6 +353,43 @@
     if (!bunny) return imageRoot + 'pet_lilac_cutout.webp';
     if (bunny && key === 'final' && s.pet.path === 'cool') return imageRoot + 'pet_bimg_cool.webp';
     return imageRoot + 'pet_bimg_' + key + '.webp';
+  }
+  function renderGrowthAlbum(s, parent) {
+    var stages = core().lilacGrowthStages;
+    if (displaySpecies(s) !== 'lilac' || !Array.isArray(stages) || !stages.length) return;
+    var album = node('section', 'ipg-growth-album');
+    var toggle = button(growthAlbumOpen ? '成長のすがたを閉じる' : '成長のすがたを見る', function () {
+      growthAlbumOpen = !growthAlbumOpen; growthPreviewStage = growthAlbumOpen ? stage(state()).key : null; render();
+    }, true);
+    toggle.dataset.focusKey = 'growth-album-toggle'; toggle.setAttribute('aria-expanded', String(growthAlbumOpen));
+    album.appendChild(toggle);
+    if (growthAlbumOpen) {
+      var current = stage(s), selected = stages.filter(function (entry) { return entry.key === growthPreviewStage; })[0] || current;
+      growthPreviewStage = selected.key;
+      var future = selected.min > s.pet.exp, currentView = selected.key === current.key;
+      var viewing = node('div', 'ipg-growth-gallery');
+      var sample = Object.assign({}, s, { pet: Object.assign({}, s.pet, { exp: selected.min }) });
+      var visual = petVisual(sample, 'ipg-growth-sample', 'growth');
+      var request = motionRequests[motionRequests.length - 1];
+      var preview = node('div', 'ipg-growth-preview');
+      var caption = text(selected.label + ' · ' + (future ? 'これからの姿・見本' : currentView ? 'いまの姿' : '育った姿の見本'), 'ipg-growth-caption');
+      caption.setAttribute('aria-live', 'polite');
+      request.growthCaption = caption;
+      append(preview, visual, caption);
+      var choices = node('div', 'ipg-growth-choices'); choices.setAttribute('role', 'group'); choices.setAttribute('aria-label', '成長のすがた・6段階');
+      stages.forEach(function (entry) {
+        var entryFuture = entry.min > s.pet.exp, entryCurrent = entry.key === current.key;
+        var choice = button('', function () { growthPreviewStage = entry.key; render(); }, true);
+        choice.dataset.growthStage = entry.key; choice.dataset.focusKey = 'growth-stage-' + entry.key;
+        choice.setAttribute('aria-pressed', String(entry.key === selected.key));
+        append(choice, node('span', 'ipg-growth-label', entry.label), node('small', '', number(entry.min) + ' EXP · ' +
+          (entryFuture ? 'これから・見本' : entryCurrent ? 'いまの姿' : '到達済み')));
+        choices.appendChild(choice);
+      });
+      append(viewing, preview, choices); album.appendChild(viewing);
+      album.appendChild(text('これからの姿も、見本で見られます。', 'ipg-small'));
+    }
+    parent.appendChild(album);
   }
   function renderCare(s, body) {
     var info = stage(s), pet = card('', 'ipg-pet-card');
@@ -356,9 +406,10 @@
       text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'), text(petMood(s), 'ipg-pet-mood'));
     var progress = node('progress', 'ipg-progress');
     progress.max = 100; progress.value = info.progress;
-    progress.setAttribute('aria-label', '次の進化までの進み具合');
+    progress.setAttribute('aria-label', '次の成長までの進み具合');
     append(pet, progress, text(info.next == null ? 'ここまで育ててくれて、ありがとう。お世話はこれからも続けられます。' :
-      '次の進化まで あと' + number(Math.max(0, info.next - s.pet.exp)) + ' EXP'));
+      '次の成長まで あと' + number(Math.max(0, info.next - s.pet.exp)) + ' EXP'));
+    renderGrowthAlbum(s, pet);
     var care = node('div', 'ipg-care-buttons');
     [['feed', 'ごはん', '🍎', 8], ['play', 'なでる', '♡', 5], ['rest', '休む', '☾', 4]].forEach(function (x) {
       var used = s.care.day === currentDay() ? s.care.counts[x[0]] || 0 : 0, cap = (limits().care || {})[x[0]] || 3;
@@ -803,7 +854,7 @@
   }
   function suspend() {
     suspended = true; lifecycleEpoch++;
-    stopMotions(); reaction = null; greeted = false; appearancePreview = false;
+    stopMotions(); reaction = null; greeted = false; appearancePreview = false; growthAlbumOpen = false; growthPreviewStage = null;
     return cancelGame('画面を離れたためゲームを中止しました。');
   }
   d.addEventListener('visibilitychange', function () {

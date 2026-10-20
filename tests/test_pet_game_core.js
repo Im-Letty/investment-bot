@@ -23,6 +23,60 @@ async function play(g,score=20) {
   const end=await command(g,'finishMinigame',{sessionId:begin.reward.sessionId,score});return {begin,end};
 }
 
+test('lilac visual growth exposes all six boundaries without changing legacy stages',()=>{
+  const expected=[['egg','うまれたて',0],['baby','よちよち',15],['child','こども',45],
+    ['final','わかもの',110],['adult','おとな',400],['companion','なかよしの姿',800]];
+  assert.deepEqual(Core.lilacGrowthStages.map(({key,label,min})=>[key,label,min]),expected);
+  expected.forEach(([key,label,min],i)=>{
+    const next=i+1<expected.length?expected[i+1][2]:null;
+    assert.deepEqual(Core.getLilacGrowth(min),{key,label,min,next,progress:next===null?100:0,remaining:next===null?0:next-min});
+    if(next!==null){
+      const before=Core.getLilacGrowth(next-1);
+      assert.equal(before.key,key);assert.equal(before.remaining,1);
+      assert.equal(before.progress,Math.round((next-min-1)/(next-min)*100));
+    }
+  });
+  assert.deepEqual(Core.getLilacGrowth(373),{key:'final',label:'わかもの',min:110,next:400,progress:91,remaining:27});
+  assert.deepEqual(Core.getStage(373),{key:'final',label:'さいしゅうしんか',min:110,next:null,progress:100});
+  assert.equal(Core.getStage(400).key,'final');assert.equal(Core.getStage(800).key,'final');
+});
+
+test('lilac growth metadata is immutable and returned growth views are independent',()=>{
+  assert.equal(Object.isFrozen(Core.lilacGrowthStages),true);
+  Core.lilacGrowthStages.forEach(stage=>assert.equal(Object.isFrozen(stage),true));
+  assert.throws(()=>Core.lilacGrowthStages.push({key:'extra',label:'extra',min:900}),TypeError);
+  assert.throws(()=>{Core.lilacGrowthStages[0].min=900;},TypeError);
+  const view=Core.getLilacGrowth(373);view.label='changed';view.min=1;view.remaining=0;
+  assert.equal(Core.getLilacGrowth(373).label,'わかもの');
+  assert.equal(Core.getLilacGrowth(373).min,110);assert.equal(Core.getLilacGrowth(373).remaining,27);
+});
+
+test('lilac growth accepts finite numbers and safely normalizes invalid or out of range inputs',()=>{
+  const initial=Core.getLilacGrowth(0);
+  for(const invalid of [undefined,null,false,true,'400',{},[],NaN,Infinity,-Infinity,Symbol('exp'),400n]){
+    assert.deepEqual(Core.getLilacGrowth(invalid),initial);
+  }
+  assert.deepEqual(Core.getLilacGrowth(-1),initial);assert.deepEqual(Core.getLilacGrowth(-Number.MAX_VALUE),initial);
+  assert.deepEqual(Core.getLilacGrowth(Number.MAX_VALUE),{key:'companion',label:'なかよしの姿',min:800,next:null,progress:100,remaining:0});
+  assert.deepEqual(Core.getLilacGrowth(45.5),{key:'child',label:'こども',min:45,next:110,progress:1,remaining:64.5});
+});
+
+test('reading lilac growth and reopening a 373 EXP record grants no EXP, coins or achievements',async()=>{
+  const fresh=await game();const record=persisted(fresh.storage);
+  record.pet.exp=373;record.coins=765;
+  const raw=JSON.stringify(record);const g=await game({[Core.KEY]:raw});
+  assert.equal(g.storage.writes.length,0);
+  const before=g.app.getState();
+  assert.deepEqual(g.app.getLilacGrowth(before.pet.exp),Core.getLilacGrowth(373));
+  assert.equal(g.app.getLilacGrowth(before.pet.exp).remaining,27);
+  const reopened=Core.create(g.options);assert.equal((await reopened.ready).ok,true);
+  assert.deepEqual(reopened.getState(),before);
+  assert.equal(reopened.getState().stage.key,'final');
+  assert.equal(reopened.getState().pet.exp,373);assert.equal(reopened.getState().coins,765);
+  assert.deepEqual(reopened.getState().achievements,record.achievements);
+  assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+});
+
 test('fresh independent game has one durable record and no outside rewards',async()=>{
   const g=await game();assert.equal(g.app.getState().coins,100);assert.equal(g.app.getState().pet.exp,0);
   assert.equal(g.storage.writes.length,1);assert.equal(g.storage.writes[0][0],Core.KEY);
