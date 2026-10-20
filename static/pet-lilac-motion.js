@@ -946,7 +946,15 @@
     return Object.freeze({ id: entry.id, label: entry.label, group: entry.group, groupLabel: group[1], durationMs: entry.durationMs,
       face: entry.face, motion: entry.motion, keywords: Object.freeze(entry.keywords.slice()), effect: entry.effect });
   }));
-  var durations = Object.freeze(catalogue.reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {}));
+  var bodyCatalogue = Object.freeze([
+    {id:'body_hands',label:'手と腕',face:'自然に前を見る',motion:'左右の腕を順に持ち上げて大きく手を振る'},
+    {id:'body_feet',label:'足と歩調',face:'前を見て歩調を合わせる',motion:'片足を地面につけたまま反対の足を上げ交互に踏み出す'},
+    {id:'body_ears',label:'耳',face:'耳の動きを気にする',motion:'左と右の耳を順に伏せてからぴんと立てる'},
+    {id:'body_tail',label:'しっぽ',face:'振り返るように横を見る',motion:'付根をつないだまま尾を大きく左右へ振る'},
+    {id:'body_head',label:'顔と首',face:'視線を左右へ移す',motion:'肩と手足を落ち着かせ頭だけを左右へかしげる'},
+    {id:'body_joy',label:'全身でよろこぶ',face:'目を細め口を開いて笑う',motion:'手を広げて跳び耳と尾を弾ませ着地して落ち着く'}
+  ].map(function(row){row.durationMs=6000;row.effect='none';return Object.freeze(row);}));
+  var durations = Object.freeze(catalogue.concat(bodyCatalogue).reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {}));
   var outfitCatalogue = Object.freeze([
     { id: 'cloth_cream_vest', label: 'はじめてベスト', price: 0, style: 'vest', color: [.94,.88,.75], trim: [.70,.59,.43] },
     { id: 'cloth_rose_cape', label: 'ももいろケープ', price: 30, style: 'cape', color: [.87,.61,.70], trim: [.63,.37,.47] },
@@ -969,12 +977,12 @@
     var vx=bx-ax, vy=by-ay, t=clamp(((x-ax)*vx+(y-ay)*vy)/(vx*vx+vy*vy),0,1);
     return 1-ramp(width,width+.003,Math.hypot(x-ax-vx*t,y-ay-vy*t));
   }
-  function outfitCoverage(id, inputX, inputY) {
+  function outfitCoverage(id, inputX, inputY, torsoLayer) {
     var entry=outfitProfile(id), x=finite(inputX,-1), y=finite(inputY,-1), b=clothBounds;
     if (!entry) return 0;
     var mask=clothEllipse(x,y,b.x,b.y,b.rx,b.ry)*ramp(b.top,b.top+.008,y)*(1-ramp(b.hem-.006,b.hem,y));
     var paws=Math.max(clothEllipse(x,y,b.pawLX,b.pawLY,b.pawLRX,b.pawLRY),clothEllipse(x,y,b.pawRX,b.pawRY,b.pawRRX,b.pawRRY));
-    mask*=1-paws;
+    if(!torsoLayer)mask*=1-paws;
     if (entry.style === 'vest') {
       var neck=1-ramp(.005,.012,Math.abs(x-.58)-Math.max(0,.755-y)*1.05);
       mask*=1-neck;
@@ -1079,25 +1087,10 @@
     var x = .5 + (point.x - .5) * profile.overallScale, y = .92 + (point.y - .92) * profile.overallScale;
     return { x: x, y: y, foodLeft: x - .11, foodTop: y + .005 };
   }
-  function growthMesh(stage, evolutionPath) {
-    var profile = growthProfile(stage), columns = 24, values = new Float32Array(columns * columns * 6 * 4), cursor = 0;
-    function vertex(x, y) {
-      var point = growthPoint(stage, x, y, evolutionPath);
-      var targetX = .5 + (point.x - .5) * profile.overallScale, targetY = .92 + (point.y - .92) * profile.overallScale;
-      values[cursor++] = targetX * 2 - 1; values[cursor++] = 1 - targetY * 2;
-      values[cursor++] = x; values[cursor++] = y;
-    }
-    for (var row = 0; row < columns; row++) for (var col = 0; col < columns; col++) {
-      var x = col / columns, y = row / columns, right = (col + 1) / columns, bottom = (row + 1) / columns;
-      vertex(x, y); vertex(x, bottom); vertex(right, y);
-      vertex(right, y); vertex(x, bottom); vertex(right, bottom);
-    }
-    return values;
-  }
   var mounted = typeof WeakMap === 'function' ? new WeakMap() : null;
   // WebGL 1 guarantees eight fragment texture units. Every expression keeps original cutout alpha.
   var assets = ['pet_lilac_original.webp', 'pet_lilac_half.webp', 'pet_lilac_closed.webp', 'pet_lilac_cutout.webp',
-    'pet_lilac_sad.webp', 'pet_lilac_angry.webp', 'pet_lilac_surprise.webp', 'pet_lilac_delighted.webp'];
+    'pet_lilac_sad.webp', 'pet_lilac_angry.webp', 'pet_lilac_surprise.webp', 'pet_lilac_delighted.webp', 'pet_lilac_torso_cleanplate_v1.png'];
   var packedUniforms = {
     motionA: ['breath', 'tilt', 'ear', 'tail'], motionB: ['wave', 'wiggle', 'blink', 'chew'],
     motionC: ['bounce', 'step', 'scale', 'presence'], body: ['bodyAngle', 'shiftX', 'shiftY', 'squash'],
@@ -1446,6 +1439,12 @@
         p.crouch = .7 + .15 * Math.abs(p.step); p.wave = -.75; p.pawSpread = -.25;
         p.bodyAngle = .018 * Math.sin(stride); p.shiftX = .01 * Math.sin(age * PI * .28);
         p.ear -= 1.05; p.tail -= .85; p.tilt = .075; p.bounce = .05 * Math.abs(p.step); break;
+      case 'body_head': p.lookX=.014*Math.sin(age*TAU*.4);p.lookY=.005*Math.cos(age*TAU*.4);break;
+      case 'body_tail': p.lookX=-.012;p.lookY=.002;break;
+      case 'body_joy':
+        q=Math.pow(Math.max(0,Math.sin((age-.65)*TAU*.9)),2)*lift;
+        p.faceDelighted=1;p.bounce=.9*q;p.squash=.45*(1-q)*hold;p.wave=1.2*lift;
+        p.pawSpread=1.1*lift;p.ear+=.8*q;p.tail+=Math.sin(age*TAU*1.1);break;
     }
   }
   // Pure profiles in seconds. Emotions ease in and settle to the exact underlying idle pose.
@@ -1564,6 +1563,145 @@
     p.effectPhase *= e;
     return p;
   }
+  // Every limb has its own cutout mesh and pivot. Source UVs never move with a
+  // different limb; only vertices move. Rear layers overlap at their sockets.
+  var rigParts = Object.freeze([
+    {id:'tail',parent:'root',pivot:[.266,.786],polygon:[[.295,.722],[.285,.835],[.225,.846],[.17,.835],[.115,.813],[.083,.781],[.07,.736],[.064,.687],[.051,.659],[.073,.623],[.109,.611],[.146,.617],[.182,.631],[.212,.654],[.239,.688],[.27,.713]]},
+    {id:'torso',parent:'root',pivot:[.56,.79],polygon:[[.212,.695],[.23,.636],[.289,.607],[.406,.624],[.546,.639],[.712,.601],[.79,.62],[.829,.68],[.835,.751],[.81,.817],[.767,.873],[.714,.9],[.615,.915],[.476,.917],[.344,.918],[.271,.897],[.224,.835],[.208,.756]]},
+    {id:'foot_l',parent:'root',pivot:[.414,.884],polygon:[[.352,.879],[.404,.876],[.453,.881],[.478,.899],[.477,.918],[.454,.93],[.4,.929],[.365,.92],[.348,.902]]},
+    {id:'foot_r',parent:'root',pivot:[.69,.876],polygon:[[.65,.873],[.686,.864],[.717,.871],[.738,.891],[.728,.91],[.699,.918],[.67,.911],[.649,.896]]},
+    {id:'ear_l',parent:'head',pivot:[.281,.355],polygon:[[0.328833,0.299868],[0.304453,0.383608],[0.269473,0.440848],[0.221773,0.484308],[0.175133,0.502328],[0.121073,0.491728],[0.073373,0.463108],[0.039453,0.420708],[0.028853,0.376188],[0.036273,0.324248],[0.068073,0.280788],[0.068073,0.242628],[0.089273,0.209768],[0.126373,0.190688],[0.175133,0.189628],[0.230253,0.199168],[0.281133,0.238388]]},
+    {id:'ear_r',parent:'head',pivot:[.77,.258],polygon:[[0.707697,0.238609],[0.701427,0.177999],[0.703517,0.104849],[0.724417,0.056779],[0.756812,0.037969],[0.787117,0.035879],[0.813242,0.053644],[0.832052,0.067229],[0.863402,0.067229],[0.895797,0.084994],[0.912517,0.116344],[0.908337,0.149784],[0.930282,0.173819],[0.944912,0.207259],[0.934462,0.241744],[0.911472,0.269959],[0.873852,0.285634],[0.816377,0.291904],[0.768307,0.279364]]},
+    {id:'head',parent:'root',pivot:[.62,.675],polygon:[[.211,.53],[.21,.455],[.222,.368],[.248,.299],[.287,.25],[.337,.203],[.396,.162],[.449,.139],[.4,.116],[.401,.086],[.418,.052],[.453,.026],[.493,.026],[.536,.043],[.564,.076],[.575,.12],[.636,.118],[.7,.132],[.752,.162],[.789,.195],[.832,.235],[.865,.277],[.897,.316],[.922,.359],[.937,.41],[.947,.463],[.941,.509],[.929,.543],[.886,.573],[.831,.611],[.767,.64],[.708,.644],[.674,.652],[.646,.648],[.616,.646],[.58,.662],[.537,.679],[.518,.686],[.438,.687],[.356,.683],[.287,.663],[.251,.642],[.231,.611],[.219,.575]]},
+    {id:'arm_l',parent:'root',pivot:[.374,.705],polygon:[[.366,.704],[.397,.682],[.44,.689],[.489,.696],[.536,.688],[.584,.673],[.615,.656],[.639,.662],[.655,.681],[.664,.708],[.663,.738],[.648,.774],[.625,.798],[.59,.817],[.546,.828],[.5,.828],[.457,.819],[.42,.8],[.391,.77],[.373,.739]]},
+    {id:'arm_r',parent:'root',pivot:[.794,.65],polygon:[[.792,.591],[.814,.614],[.823,.64],[.829,.67],[.837,.711],[.831,.749],[.805,.777],[.778,.796],[.746,.804],[.714,.797],[.689,.779],[.672,.751],[.66,.72],[.655,.693],[.665,.671],[.691,.657],[.723,.655],[.754,.65]]}
+  ].map(function(part,index){part.index=index;Object.freeze(part.pivot);part.polygon.forEach(Object.freeze);Object.freeze(part.polygon);return Object.freeze(part);}));
+  function identity() { return [1,0,0,1,0,0]; }
+  function multiply(a,b) { return [a[0]*b[0]+a[2]*b[1],a[1]*b[0]+a[3]*b[1],a[0]*b[2]+a[2]*b[3],a[1]*b[2]+a[3]*b[3],a[0]*b[4]+a[2]*b[5]+a[4],a[1]*b[4]+a[3]*b[5]+a[5]]; }
+  function transform(m,p) { return {x:m[0]*p.x+m[2]*p.y+m[4],y:m[1]*p.x+m[3]*p.y+m[5]}; }
+  function bone(pivot,angle,dx,dy,sx,sy) {
+    var c=Math.cos(angle),s=Math.sin(angle),a=c*(sx||1),b=s*(sx||1),d=c*(sy||1),cc=-s*(sy||1);
+    return [a,b,cc,d,pivot.x-a*pivot.x-cc*pivot.y+(dx||0),pivot.y-b*pivot.x-d*pivot.y+(dy||0)];
+  }
+  function isIn(name,list) { return list.indexOf(name)>=0; }
+  // A pure frame of the hierarchical cutout rig. Matrices operate on coordinates
+  // after growth/evolution, before the final normalized canvas projection.
+  function rigFrame(p,seconds,age,stage,path,scale) {
+    var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
+    var amount=profile.overallScale*clamp(finite(scale,1),.35,1.15)*(1-.12*e);
+    var root=bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-p.bounce*.055+p.crouch*.012,
+      1+.085*p.squash+.003*p.breath,1-.075*p.squash+.07*p.stretch-.055*p.crouch+.004*p.breath);
+    var project=bone({x:.5,y:.92},0,0,0,amount,amount);root=multiply(project,root);
+    var headAngle=-p.tilt*1.15,earL=.22*p.ear,earR=-.18*p.ear+.025*Math.sin(s*TAU*.7),tail=.28*p.tail;
+    var armL=-.58*p.wave-.18*p.pawSpread+.16*p.wiggle,armR=.83*p.wave+.2*p.pawSpread+.3*p.wiggle;
+    var footStep=p.step,feetDemo=false;
+    var base={head:headAngle,earL:earL,earR:earR,tail:tail,armL:armL,armR:armR,step:footStep};
+    if(isIn(name,['love','grateful','cry','sulky','shy','apology','touched','admiring','bittersweet','jealous','guilty','regretful','holding_tears','anxious','anticipating','nostalgic','awkward','longing','heartflutter','savoring','meditating','patient','asking','disagreeing'])){
+      armL=-.13*p.wave+.1*p.wiggle;armR=.18*p.wave+.14*p.wiggle;
+    }
+    if(isIn(name,['sad','lonely','disappointed','frustrated','regretful','empathic','deep_sleep','tired','walk_sad'])){armL=.55*e+.08*p.wiggle;armR=-.52*e+.08*p.wiggle;}
+    if(isIn(name,['moving','walk_joy','walk_angry','walk_sad'])){
+      var stride=footStep;armL=.45*stride;armR=.45*stride;
+      if(name==='walk_joy'){armL-=.3*e;armR+=.4*e;}
+      if(name==='walk_angry'){armL=.17*stride+.3*e;armR=.17*stride-.25*e;}
+      if(name==='walk_sad'){armL=.5*e+.12*stride;armR=-.5*e+.12*stride;}
+    }
+    if(name==='greeting'){armL=-.12*e;armR=e*(1.05+.35*Math.sin(a*TAU*1.6));}
+    if(name==='feeding'){
+      var phase=feedingPhase(a*1000),chewing=phase.phase==='chewing';
+      if(phase.phase==='anticipation'||chewing){armL=-.25*e+(chewing ? .06*p.chew : 0);armR=.48*e+(chewing ? .1*p.chew : 0);}
+    }
+    if(name==='body_hands'){
+      var left=pulse(a,.45,2.25),right=pulse(a,2.55,2.5);
+      armL=-1.6*left*e;armR=1.6*right*e;headAngle=0;earL=0;earR=0;tail=0;footStep=0;
+    }else if(name==='body_feet'){
+      footStep=Math.sin(a*TAU*.85)*e;feetDemo=true;armL=0;armR=0;headAngle=0;earL=0;earR=0;tail=0;
+    }else if(name==='body_ears'){
+      earL=(-.8*pulse(a,.4,1.6)+.36*pulse(a,3.9,1.3))*e;
+      earR=(.8*pulse(a,2.2,1.6)-.36*pulse(a,3.9,1.3))*e;
+      armL=0;armR=0;headAngle=0;tail=0;footStep=0;
+    }else if(name==='body_tail'){
+      tail=.72*Math.sin(a*TAU*.72)*e;armL=0;armR=0;headAngle=0;earL=0;earR=0;footStep=0;
+    }else if(name==='body_head'){
+      headAngle=.19*Math.sin(a*TAU*.4)*e;armL=0;armR=0;earL=0;earR=0;tail=0;footStep=0;
+    }
+    // The underlying idle may already be waving when a cue arrives. Fade the
+    // cue-specific limb routing too, rather than snapping those idle bones away.
+    headAngle=base.head+(headAngle-base.head)*e;earL=base.earL+(earL-base.earL)*e;
+    earR=base.earR+(earR-base.earR)*e;tail=base.tail+(tail-base.tail)*e;
+    armL=base.armL+(armL-base.armL)*e;armR=base.armR+(armR-base.armR)*e;footStep=base.step+(footStep-base.step)*e;
+    var matrices={},angles={head:headAngle,ear_l:earL,ear_r:earR,tail:tail,arm_l:clamp(armL,-1.7,1.1),arm_r:clamp(armR,-1.1,1.7)};
+    var headPivot=growthPoint(stage,.62,.675,path),head=multiply(root,bone(headPivot,headAngle));
+    rigParts.forEach(function(part){
+      var pivot=growthPoint(stage,part.pivot[0],part.pivot[1],path),angle=angles[part.id]||0,local=bone(pivot,angle);
+      if(part.id==='head')matrices[part.id]=head;
+      else if(part.parent==='head')matrices[part.id]=multiply(head,local);
+      else if(part.id==='foot_l'||part.id==='foot_r'){
+        var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),sole=growthPoint(stage,part.pivot[0],.92,path);
+        local=bone(pivot,side*.42*lift,side*.018*footStep,-.025*lift);
+        var m=multiply(root,local),current=transform(m,sole),targetY=.92-p.bounce*.055*amount-lift*(feetDemo ? .035 : .025)*amount;
+        m[5]+=targetY-current.y;matrices[part.id]=m;
+      }else matrices[part.id]=multiply(root,local);
+    });
+    // Fit only when an unusually tall combined gesture needs it. The correction
+    // is shared by every bone and anchored at the floor, including planted feet.
+    var bounds={minX:1,minY:1,maxX:0,maxY:0};
+    rigParts.forEach(function(part){part.polygon.forEach(function(uv){var point=transform(matrices[part.id],growthPoint(stage,uv[0],uv[1],path));bounds.minX=Math.min(bounds.minX,point.x);bounds.minY=Math.min(bounds.minY,point.y);bounds.maxX=Math.max(bounds.maxX,point.x);bounds.maxY=Math.max(bounds.maxY,point.y);});});
+    var fitScale=1;
+    if(bounds.minY<.018)fitScale=Math.min(fitScale,(.92-.018)/(.92-bounds.minY));
+    if(bounds.minX<.012)fitScale=Math.min(fitScale,(.5-.012)/(.5-bounds.minX));
+    if(bounds.maxX>.988)fitScale=Math.min(fitScale,(.988-.5)/(bounds.maxX-.5));
+    if(bounds.maxY>.96)fitScale=Math.min(fitScale,(.96-.92)/(bounds.maxY-.92));
+    if(fitScale<1){var fit=bone({x:.5,y:.92},0,0,0,fitScale,fitScale);Object.keys(matrices).forEach(function(key){matrices[key]=multiply(fit,matrices[key]);});}
+    var mouth=transform(matrices.head,growthPoint(stage,.628,.499-.010*p.chew,path));
+    return {situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale};
+  }
+  function rigPose(seconds,situation,elapsedSeconds,stage,path,scale) {
+    var age=Math.max(0,finite(elapsedSeconds,finite(seconds,0)));
+    return rigFrame(pose(seconds,situation,age,stage,path),finite(seconds,0),age,stage,path,scale);
+  }
+  function rigPoint(frame,partId,x,y,stage,path) {
+    var matrix=frame&&frame.matrices&&frame.matrices[partId];
+    return transform(matrix||identity(),growthPoint(stage,finite(x,.5),finite(y,.5),path));
+  }
+  function torsoMaterialPoint(x,y) { return {x:clamp(finite(x,.5),0,1),y:clamp(finite(y,.7),.7,1)}; }
+  // Ear clipping plus a one-pixel feather ring makes cropped meshes without
+  // fragment polygon loops. Subdivision retains the existing growth curvature.
+  function rigMesh(part,stage,path) {
+    var poly=part.polygon.map(function(v){return {x:v[0],y:v[1]};}),area=0,cx=0,cy=0;
+    poly.forEach(function(v,i){var next=poly[(i+1)%poly.length];area+=v.x*next.y-next.x*v.y;cx+=v.x;cy+=v.y;});
+    if(area>0)poly.reverse();cx/=poly.length;cy/=poly.length;
+    function cross(a,b,c){return (b.x-a.x)*(c.y-a.y)-(b.y-a.y)*(c.x-a.x);}
+    function inset(v,amount){var dx=cx-v.x,dy=cy-v.y,l=Math.hypot(dx,dy)||1;return {x:v.x+dx*amount/l,y:v.y+dy*amount/l};}
+    var inner=poly.map(function(v){return inset(v,.0008);}),outer=poly.map(function(v){return inset(v,-.0008);}),indices=inner.map(function(_,i){return i;}),vertices=[];
+    function add(a,b,c,aa,ba,ca,depth){
+      if(cross(a,b,c)>0){var swap=b;b=c;c=swap;swap=ba;ba=ca;ca=swap;}
+      var abLength=Math.hypot(a.x-b.x,a.y-b.y),acLength=Math.hypot(a.x-c.x,a.y-c.y),bcLength=Math.hypot(b.x-c.x,b.y-c.y),length=Math.max(abLength,acLength,bcLength);
+      var grown=[growthPoint(stage,a.x,a.y,path),growthPoint(stage,b.x,b.y,path),growthPoint(stage,c.x,c.y,path)];
+      // Long thin triangles may cross a curved growth field even when that
+      // field is unfolded. Refine those until their straight edges agree.
+      if(depth<14&&(length>.065||cross(grown[0],grown[1],grown[2])>=0)){
+        if(abLength===length){var ab={x:(a.x+b.x)/2,y:(a.y+b.y)/2};add(a,ab,c,aa,(aa+ba)/2,ca,depth+1);add(ab,b,c,(aa+ba)/2,ba,ca,depth+1);}
+        else if(acLength===length){var ac={x:(a.x+c.x)/2,y:(a.y+c.y)/2};add(a,b,ac,aa,ba,(aa+ca)/2,depth+1);add(ac,b,c,(aa+ca)/2,ba,ca,depth+1);}
+        else{var bc={x:(b.x+c.x)/2,y:(b.y+c.y)/2};add(a,b,bc,aa,ba,(ba+ca)/2,depth+1);add(a,bc,c,aa,(ba+ca)/2,ca,depth+1);}return;
+      }
+      [a,b,c].forEach(function(v,i){var point=grown[i];vertices.push(point.x,point.y,v.x,v.y,[aa,ba,ca][i]);});
+    }
+    var attempts=0;
+    while(indices.length>3&&attempts++<poly.length*poly.length){
+      var found=false;
+      for(var i=0;i<indices.length;i++){
+        var ai=indices[(i+indices.length-1)%indices.length],bi=indices[i],ci=indices[(i+1)%indices.length],a=inner[ai],b=inner[bi],c=inner[ci];
+        if(cross(a,b,c)>=-.00000001)continue;
+        var contains=indices.some(function(j){var v=inner[j];return j!==ai&&j!==bi&&j!==ci&&cross(a,b,v)<=0&&cross(b,c,v)<=0&&cross(c,a,v)<=0;});
+        if(contains)continue;add(a,b,c,1,1,1,0);indices.splice(i,1);found=true;break;
+      }
+      if(!found)throw new Error('rig_polygon');
+    }
+    if(indices.length===3)add(inner[indices[0]],inner[indices[1]],inner[indices[2]],1,1,1,0);
+    poly.forEach(function(_,i){var next=(i+1)%poly.length;add(outer[i],outer[next],inner[i],0,0,1,0);add(inner[i],outer[next],inner[next],1,0,1,0);});
+    return new Float32Array(vertices);
+  }
   function growth(exp) { return exp >= 110 ? 3 : exp >= 45 ? 2 : exp >= 15 ? 1 : 0; }
   // Returning null is deliberate: rejected/unconfirmed saves must not look successful.
   function situationForAction(action, before, after, result) {
@@ -1588,7 +1726,7 @@
     'float cf(vec2 p,vec2 c){float petals=0.;for(int i=0;i<5;i++){float a=float(i)*6.2831853/5.;vec2 offset=vec2(cos(a),sin(a))*.010;petals=max(petals,ce(p,c+offset,vec2(.0075)));}return petals;}',
     'float clothingMask(vec2 p,float kind){',
     'float mask=ce(p,vec2('+clothBounds.x+','+clothBounds.y+'),vec2('+clothBounds.rx+','+clothBounds.ry+'))*smoothstep('+clothBounds.top+','+(clothBounds.top+.008)+',p.y)*(1.-smoothstep('+(clothBounds.hem-.006)+','+clothBounds.hem+',p.y));',
-    'float paws=max(ce(p,vec2('+clothBounds.pawLX+','+clothBounds.pawLY+'),vec2('+clothBounds.pawLRX+','+clothBounds.pawLRY+')),ce(p,vec2('+clothBounds.pawRX+','+clothBounds.pawRY+'),vec2('+clothBounds.pawRRX+','+clothBounds.pawRRY+')));mask*=1.-paws;',
+    'float paws=max(ce(p,vec2('+clothBounds.pawLX+','+clothBounds.pawLY+'),vec2('+clothBounds.pawLRX+','+clothBounds.pawLRY+')),ce(p,vec2('+clothBounds.pawRX+','+clothBounds.pawRY+'),vec2('+clothBounds.pawRRX+','+clothBounds.pawRRY+')));if(v_part<.5||v_part>1.5)mask*=1.-paws;',
     'if(kind<1.5){float neck=1.-smoothstep(.005,.012,abs(p.x-.58)-max(0.,.755-p.y)*1.05);mask*=1.-neck;}',
     'else if(kind<2.5){float opening=1.-smoothstep(.0,.008,abs(p.x-.58)-max(0.,p.y-.70)*.52-.018);mask*=1.-opening;mask*=1.-smoothstep(.866+.006*cos((p.x-.28)*6.2831853*9.),.874+.006*cos((p.x-.28)*6.2831853*9.),p.y);}',
     'else if(kind<3.5){float straps=max(cl(p,vec2(.375,.69),vec2(.455,.81),.014),cl(p,vec2(.735,.69),vec2(.69,.81),.014));float bib=smoothstep(.77,.778,p.y)*(1.-smoothstep(.145,.155,abs(p.x-.58)));mask*=max(straps,bib);}',
@@ -1635,10 +1773,10 @@
     'float lum=dot(painted,vec3(.299,.587,.114));float targetLum=max(.2,dot(v_evolution.rgb,vec3(.299,.587,.114)));',
     'vec3 tinted=clamp(v_evolution.rgb*lum/targetLum,vec3(0.),vec3(1.));return mix(painted,tinted,amount);}'
   ].join('\n');
-  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; attribute vec4 a_evolution; varying vec2 v_uv; varying vec4 v_evolution; void main(){v_uv=a_uv;v_evolution=a_evolution;gl_Position=vec4(a_position,0.,1.);}';
+  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; attribute vec4 a_evolution; attribute float a_coverage; attribute float a_part; varying vec2 v_uv; varying vec4 v_evolution; varying float v_coverage; varying float v_part; void main(){v_uv=a_uv;v_evolution=a_evolution;v_coverage=a_coverage;v_part=a_part;gl_Position=vec4(a_position,0.,1.);}';
   var fragmentSource = [
     '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
-    'varying vec2 v_uv; varying vec4 v_evolution; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
+    'varying vec2 v_uv; varying vec4 v_evolution; varying float v_coverage; varying float v_part; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
     'uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail;',
     '#define u_breath u_motionA.x', '#define u_tilt u_motionA.y', '#define u_ear u_motionA.z', '#define u_tail u_motionA.w',
     '#define u_wave u_motionB.x', '#define u_wiggle u_motionB.y', '#define u_blink u_motionB.z', '#define u_chew u_motionB.w',
@@ -1652,22 +1790,8 @@
     'float eyeMask(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.85,1.1,length(rotation(.28)*(p-c)/r));}',
     'float droplet(vec2 p,vec2 c,vec2 r){vec2 q=(p-c)/r;return 1.-smoothstep(.75,1.05,dot(q,q));}',
     clothingShader, evolutionShader,
-    'void main(){vec2 anchor=vec2(.5,.92);float margin=1.-.12*u_presence;',
-    'vec2 p=(v_uv-anchor)/(u_scale*margin)+anchor;p-=vec2(u_shiftX,u_shiftY);p=anchor+rotation(u_bodyAngle)*(p-anchor);',
-    'p=(p-anchor)/vec2(1.+.085*u_squash,1.-.075*u_squash+.07*u_stretch-.055*u_crouch)+anchor;',
-    'p.y+=u_bounce*.055-u_crouch*.012;',
-    'float body=region(p,vec2(.56,.57),vec2(.56,.56));float above=clamp((.91-p.y)/.33,0.,1.);',
-    'p.y+=u_breath*.0042*body*above;p.x-=(p.x-.58)*u_breath*.003*body;',
-    'vec2 neck=vec2(.62,.675);float head=(1.-smoothstep(.64,.79,p.y))*(1.-smoothstep(.94,1.,p.x));',
-    'p=mix(p,neck+rotation(u_tilt)*(p-neck),head);',
-    'p+=vec2(u_ear*.012,u_ear*.024)*region(p,vec2(.17,.345),vec2(.18,.15));',
-    'p+=vec2(-u_ear*.01,u_ear*.018)*region(p,vec2(.82,.16),vec2(.15,.17));',
-    'p.x+=u_ear*.014*region(p,vec2(.50,.12),vec2(.105,.14));',
-    'float pawR=region(p,vec2(.728,.729),vec2(.099,.115));float pawL=region(p,vec2(.50,.755),vec2(.11,.11));',
-    'p.y+=u_wave*.038*max(pawR,pawL);p.x-=(u_wiggle*.018+u_wave*.006)*pawR;',
-    'p.x+=u_wiggle*.009*pawL+u_pawSpread*.025*(pawL-pawR);',
-    'float tail=region(p,vec2(.155,.728),vec2(.115,.19));p.x+=u_tail*.014*tail;p.y-=u_tail*.024*tail;',
-    'float mouth=region(p,vec2(.628,.499),vec2(.080,.055));p.y+=u_chew*.010*mouth;',
+    'void main(){vec2 p=v_uv;float headPart=1.-step(.1,abs(v_part-6.));float torsoPart=1.-step(.1,abs(v_part-1.));',
+    'float mouth=region(p,vec2(.628,.499),vec2(.080,.055))*headPart;p.y+=u_chew*.010*mouth;',
     'p.y+=(p.y-.499)*u_mouthOpen*.22*mouth;',
     // Negative narrowing is a one-eye glance with a crooked mouth, rather than
     // stretching both eyes open. The original positive range is unchanged.
@@ -1676,20 +1800,24 @@
     // Values above the original squint range add a small nose/mouth scrunch.
     'float scrunch=max(0.,squint-1.);float nose=region(p,vec2(.621,.453),vec2(.07,.045));',
     'p.x+=(p.x-.621)*scrunch*.24*nose;p.y+=scrunch*.008*nose;',
-    'p.y+=u_step*.013*(region(p,vec2(.413,.905),vec2(.067,.043))-region(p,vec2(.690,.905),vec2(.060,.043)));',
-    'float eyeL=eyeMask(p,vec2(.4665,.429),vec2(.135,.125));float eyeR=eyeMask(p,vec2(.7281,.3405),vec2(.115,.12));float eye=max(eyeL,eyeR);',
+    'float eyeL=eyeMask(p,vec2(.4665,.429),vec2(.135,.125));float eyeR=eyeMask(p,vec2(.7281,.3405),vec2(.115,.12));eyeL*=headPart;eyeR*=headPart;float eye=max(eyeL,eyeR);',
     'p.y+=.35*((p.y-.429)*(squint+oneEye)*eyeL+(p.y-.3405)*squint*eyeR);',
     'float iris=region(p,vec2(.4665,.429),vec2(.052,.059))+region(p,vec2(.7281,.3405),vec2(.045,.065));',
     'p-=u_look*iris*(1.-u_blink);vec2 uv=clamp(p,vec2(.0001),vec2(.9999));',
-    'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)));',
-    'vec3 original=texture2D(u_original,uv).rgb;vec3 rgb=original;',
+    'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)))*headPart;',
+    'vec3 original=texture2D(u_original,uv).rgb;',
+    // Only the area hidden by the old arms uses generated material. The original
+    // head, fur outside that patch and all source cutout alpha remain unchanged.
+    'if(torsoPart>.5){float patch=max(ce(p,vec2(.518,.742),vec2(.215,.137)),ce(p,vec2(.742,.716),vec2(.14,.136)));patch=max(patch,1.-smoothstep(.695,.708,p.y));vec2 plateUV=vec2(uv.x,max(.7,uv.y));original=mix(original,texture2D(u_sad,plateUV).rgb,patch);',
+    'float toes=smoothstep(.874,.89,p.y)*max(ce(p,vec2(.414,.907),vec2(.09,.035)),ce(p,vec2(.692,.897),vec2(.065,.035)));vec3 under=texture2D(u_original,vec2(uv.x,min(uv.y,.872))).rgb;original=mix(original,under,toes);}',
+    'vec3 rgb=original;',
     // Pose scores select one face, not a permanent opacity. A held expression must
     // replace the old eyes completely; only the cue envelope fades between faces.
     'vec3 expression=rgb;float strongest=0.;float delighted=0.;',
-    'if(u_face.x>strongest){strongest=u_face.x;expression=texture2D(u_sad,uv).rgb;}',
-    'if(u_face.y>strongest){strongest=u_face.y;expression=texture2D(u_angry,uv).rgb;}',
-    'if(u_face.z>strongest){strongest=u_face.z;expression=texture2D(u_surprise,uv).rgb;}',
-    'if(u_face.w>strongest){strongest=u_face.w;expression=texture2D(u_delighted,uv).rgb;delighted=1.;}',
+    'if(headPart>.5&&u_face.x>strongest){strongest=u_face.x;expression=texture2D(u_sad,uv).rgb;}',
+    'if(headPart>.5&&u_face.y>strongest){strongest=u_face.y;expression=texture2D(u_angry,uv).rgb;}',
+    'if(headPart>.5&&u_face.z>strongest){strongest=u_face.z;expression=texture2D(u_surprise,uv).rgb;}',
+    'if(headPart>.5&&u_face.w>strongest){strongest=u_face.w;expression=texture2D(u_delighted,uv).rgb;delighted=1.;}',
     'float weight=strongest>0.?u_presence:0.;rgb=mix(rgb,expression,face*weight);',
     // Delighted already has closed eyes. Neutral half-open blink frames would
     // paint the old pupils over that expression and create ghost eyes.
@@ -1700,13 +1828,13 @@
     'float blush=region(p,vec2(.405,.55),vec2(.062,.04))+region(p,vec2(.80,.445),vec2(.047,.037));',
     'rgb=mix(rgb,vec3(.99,.48,.67),clamp(blush*u_blush*.25,0.,.3));',
     'float fall=fract(u_phase*.85);float tears=max(droplet(p,vec2(.414,.51+.085*fall),vec2(.009,.018)),droplet(p,vec2(.78,.415+.07*fall),vec2(.008,.016)));',
-    'rgb=mix(rgb,vec3(.43,.76,.98),tears*u_tear*.9);',
-    'float sweat=droplet(p,vec2(.84,.31+.025*fract(u_phase*.7)),vec2(.011,.023));rgb=mix(rgb,vec3(.6,.83,1.),sweat*u_sweat*.85);',
+    'rgb=mix(rgb,vec3(.43,.76,.98),tears*u_tear*.9*headPart);',
+    'float sweat=droplet(p,vec2(.84,.31+.025*fract(u_phase*.7)),vec2(.011,.023));rgb=mix(rgb,vec3(.6,.83,1.),sweat*u_sweat*.85*headPart);',
     'vec2 mark=rotation(.3)*(p-vec2(.62,.245));float redMark=(1.-smoothstep(.003,.006,abs(abs(mark.x)-.012)))*(1.-smoothstep(.014,.02,abs(mark.y)));',
     'redMark=max(redMark,(1.-smoothstep(.003,.006,abs(abs(mark.y)-.012)))*(1.-smoothstep(.014,.02,abs(mark.x))));',
-    'rgb=mix(rgb,vec3(.76,.13,.35),redMark*u_anger*.8);',
-    'if(u_outfit>.5){vec4 garment=clothing(p,original,u_outfit);rgb=mix(rgb,garment.rgb,garment.a);}',
-    'float a=texture2D(u_alpha,uv).a;if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb,a);}'
+    'rgb=mix(rgb,vec3(.76,.13,.35),redMark*u_anger*.8*headPart);',
+    'if(torsoPart>.5&&u_outfit>.5){vec4 garment=clothing(p,original,u_outfit);rgb=mix(rgb,garment.rgb,garment.a);}',
+    'float a=texture2D(u_alpha,uv).a*v_coverage;if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb*a,a);}'
   ].join('\n');
 
   function mount(canvas, options) {
@@ -1717,7 +1845,8 @@
     var gl, dead = false, loaded = false, readyNotified = false, pageVisible = true, frame = null, timer = null, observer = null;
     var media = null, removers = [], images = [], resources = [], locations = {};
     var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
-    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit), vertexCount = 0;
+    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit);
+    var rigGeometry=[],restVertices=null,drawVertices=null,partAttribute=null,buffer=null,textures=[];
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
     function listen(target, type, callback) {
       if (!target || typeof target.addEventListener !== 'function') return;
@@ -1796,16 +1925,36 @@
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
         var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key, branchProfile.key);
         if (reduced) { p.tail = 0; }
+        var rig=rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale);
         gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
+        rigGeometry.forEach(function(part){
+          var matrix=rig.matrices[part.id];
+          for(var offset=part.start*5;offset<(part.start+part.count)*5;offset+=5){
+            var point=transform(matrix,{x:restVertices[offset],y:restVertices[offset+1]});
+            drawVertices[offset]=point.x*2-1;drawVertices[offset+1]=1-point.y*2;
+          }
+        });
+        gl.bindBuffer(gl.ARRAY_BUFFER,buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,drawVertices);
         p.scale = scale; p.anger = outfitUniform(selectedOutfit && selectedOutfit.id, p.anger);
         Object.keys(packedUniforms).forEach(function (key) {
           var fields = packedUniforms[key];
           gl.uniform4f(locations[key], p[fields[0]], p[fields[1]], p[fields[2]], p[fields[3]]);
         });
-        gl.drawArrays(gl.TRIANGLES, 0, vertexCount);
+        rigGeometry.forEach(function(part){
+          // A ninth texture is stored, never a ninth simultaneously active unit.
+          // Only torso material temporarily borrows the unused sad-face sampler.
+          if(part.id==='torso'){gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[8]);}
+          gl.vertexAttrib1f(partAttribute,part.index);gl.drawArrays(gl.TRIANGLES,part.start,part.count);
+          if(part.id==='torso'){gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[4]);}
+        });
         if (!readyNotified) {
           readyNotified = true;
           if (typeof options.onReady === 'function') { try { options.onReady(); } catch (_) {} }
+        }
+        if(!dead&&cue==='feeding'&&feedingPhase(elapsed*1000).foodVisible&&typeof options.onPose==='function'){
+          try{options.onPose({situation:'feeding',elapsedMs:elapsed*1000,mouthX:clamp(rig.mouth.x,0,1),mouthY:clamp(rig.mouth.y,0,1),
+            foodLeft:clamp(rig.mouth.x-.11,0,1),foodTop:clamp(rig.mouth.y+.005,0,1)});}catch(_){}
         }
       } catch (_) { fail('render_failed'); }
     }
@@ -1822,8 +1971,9 @@
       paint(); schedule();
     }
     try {
-      gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: false, antialias: false });
+      gl = canvas.getContext('webgl', { alpha: true, premultipliedAlpha: true, antialias: false });
       if (!gl) { fail('webgl_unavailable'); return controller; }
+      gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
       var program = own('createProgram');
       gl.attachShader(program, shader(gl.VERTEX_SHADER, vertexSource));
       gl.attachShader(program, shader(gl.FRAGMENT_SHADER, fragmentSource));
@@ -1832,21 +1982,27 @@
       gl.bindAttribLocation(program, 0, 'a_position');
       gl.bindAttribLocation(program, 1, 'a_uv');
       gl.bindAttribLocation(program, 2, 'a_evolution');
+      gl.bindAttribLocation(program, 3, 'a_coverage');
+      gl.bindAttribLocation(program, 4, 'a_part');
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link');
       gl.useProgram(program);
-      var buffer = own('createBuffer'); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      var mesh = growthMesh(stageProfile.key, branchProfile.key); vertexCount = mesh.length / 4;
-      gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
+      buffer = own('createBuffer'); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      var parts=rigParts.map(function(part){return rigMesh(part,stageProfile.key,branchProfile.key);}),floatCount=parts.reduce(function(n,array){return n+array.length;},0),cursor=0;
+      restVertices=new Float32Array(floatCount);
+      parts.forEach(function(values,index){rigGeometry.push({id:rigParts[index].id,index:index,start:cursor/5,count:values.length/5});restVertices.set(values,cursor);cursor+=values.length;});
+      drawVertices=new Float32Array(restVertices);gl.bufferData(gl.ARRAY_BUFFER,drawVertices,gl.DYNAMIC_DRAW);
       var position = gl.getAttribLocation(program, 'a_position'), uv = gl.getAttribLocation(program, 'a_uv');
-      gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 16, 0);
-      gl.enableVertexAttribArray(uv); gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 16, 8);
+      gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 20, 0);
+      gl.enableVertexAttribArray(uv); gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 20, 8);
+      var coverage=gl.getAttribLocation(program,'a_coverage');gl.enableVertexAttribArray(coverage);gl.vertexAttribPointer(coverage,1,gl.FLOAT,false,20,16);
+      partAttribute=gl.getAttribLocation(program,'a_part');gl.disableVertexAttribArray(partAttribute);
       var branchAttribute = gl.getAttribLocation(program, 'a_evolution');
       gl.disableVertexAttribArray(branchAttribute);
       gl.vertexAttrib4f(branchAttribute, branchProfile.rgb[0], branchProfile.rgb[1], branchProfile.rgb[2], branchProfile.index);
       Object.keys(packedUniforms).forEach(function (key) { locations[key] = gl.getUniformLocation(program, 'u_' + key); });
       var samplerNames = ['u_original', 'u_half', 'u_closed', 'u_alpha', 'u_sad', 'u_angry', 'u_surprise', 'u_delighted'];
-      var textures = assets.map(function (_, i) { gl.uniform1i(gl.getUniformLocation(program, samplerNames[i]), i); return own('createTexture'); });
+      textures = assets.map(function (_, i) { if(i<8)gl.uniform1i(gl.getUniformLocation(program, samplerNames[i]), i); return own('createTexture'); });
       if (typeof win.matchMedia === 'function') media = win.matchMedia('(prefers-reduced-motion: reduce)');
       function preference() { cancel(); paint(); schedule(); }
       if (media) {
@@ -1863,14 +2019,15 @@
         if (dead || loaded || images.length !== assets.length || !images.every(function (im) { return im.complete && im.naturalWidth > 0; })) return;
         try {
           var first = images[0];
-          if (images.some(function (im) { return im.naturalWidth !== first.naturalWidth || im.naturalHeight !== first.naturalHeight; })) { fail('image_dimensions_mismatch'); return; }
+          if (images.slice(0,8).some(function (im) { return im.naturalWidth !== first.naturalWidth || im.naturalHeight !== first.naturalHeight; })||images[8].naturalWidth!==images[8].naturalHeight) { fail('image_dimensions_mismatch'); return; }
           gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
           images.forEach(function (im, i) {
-            gl.activeTexture(gl.TEXTURE0 + i); gl.bindTexture(gl.TEXTURE_2D, textures[i]);
+            gl.activeTexture(gl.TEXTURE0 + (i<8?i:4)); gl.bindTexture(gl.TEXTURE_2D, textures[i]);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
           });
+          gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[4]);
           loaded = true; canvas.hidden = false;
           if (timer !== null) { win.clearTimeout(timer); timer = null; }
           paint(); schedule();
@@ -1884,6 +2041,6 @@
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
-    catalogue: catalogue, durations: durations, situations: Object.freeze(Object.keys(durations)), sourceType: '2d_image_motion' });
+  return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
+    catalogue: catalogue, bodyCatalogue: bodyCatalogue, durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
 });

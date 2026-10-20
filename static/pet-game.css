@@ -190,3 +190,8 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-emotion-name{font-size:.94em;font-weight:600}.ipg-emotion-description{display:block;text-align:left;font-size:.68em;line-height:1.4;margin-top:5px;color:inherit}
 .ipg-emotion-pages{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:9px}.ipg-emotion-pages>[hidden],.ipg-emotion-pages[hidden],.ipg-emotion-empty[hidden]{display:none!important}.ipg .ipg-emotion-pages .ipg-button{min-height:36px;padding:6px 13px;font-size:.83em}.ipg-emotion-page{font-size:.78em;white-space:nowrap}
 @media(max-width:420px){.ipg .ipg-emotion-search{font-size:16px}.ipg-emotion-grid>.ipg-button{min-height:94px}.ipg-emotion-description{font-size:.65em}.ipg-emotion-groups{gap:4px;margin-bottom:7px}.ipg .ipg-emotion-groups .ipg-button{font-size:.69em;min-height:40px}}
+
+/* Part-by-part references share the same actor and never join the 100 moods. */
+.ipg-body-motion{margin-top:12px;border-top:1px solid var(--ipg-line);padding-top:9px}.ipg-body-motion>summary{cursor:pointer;padding:4px 0;font-size:.86em;font-weight:600}.ipg-body-motion>.ipg-small{margin:7px 0;line-height:1.5}.ipg-body-motion>[hidden]{display:none!important}
+.ipg-body-motion-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.ipg .ipg-body-motion-grid .ipg-button{min-width:0;min-height:96px;padding:8px 5px;display:flex;flex-direction:column;justify-content:flex-start;font-size:.88em}
+@media(max-width:420px){.ipg-body-motion-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.ipg .ipg-body-motion-grid .ipg-button{min-height:94px}}

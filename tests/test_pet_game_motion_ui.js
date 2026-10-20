@@ -84,7 +84,7 @@ async function fixture(config = {}) {
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path) { anchorCalls.push({ stage, path }); return Motion.feedingAnchor(stage, path); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
+    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path) { anchorCalls.push({ stage, path }); return Motion.feedingAnchor(stage, path); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -129,6 +129,10 @@ async function fixture(config = {}) {
       let choice = this.focusButton(mode + '-emotion-' + id), remaining = 20;
       while (choice.hidden && remaining--) await this.click(this.focusButton(mode + '-emotion-next'));
       assert.equal(choice.hidden, false, id + ' must be on its visible page'); return choice;
+    },
+    async bodyDrawer(open = true, preview = false) {
+      const drawer = this.focusButton((preview ? 'preview' : 'pet') + '-body-motion');
+      drawer.open = open; drawer.emit('toggle'); await flush(); return drawer;
     },
     advance(ms) { clock += ms; },
     async fireTimers() {
@@ -527,6 +531,106 @@ test('an offscreen selected gesture reveals the actor while browsing stays still
   await f.click(choice); assert.equal(controller.changes.at(-1).name, 'furious'); assert.equal(visual.dataset.cuePhase, 'enter');
   f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
   assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), before);
+});
+
+test('six full-body references share the actual clothed actor without changing the 100-expression catalogue or any saved progress', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' }, setup: async store => {
+    await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });
+  } }), before = f.saved(), writes = f.writes.length;
+  const controller = f.mounts[0], visual = f.host.querySelector('.ipg-lilac-visual');
+  assert.equal(controller.options.outfit, 'cloth_cream_vest'); assert.equal(controller.options.growthStage, 'final');
+  const drawer = await f.bodyDrawer(); assert.equal(drawer.open, true);
+  const choices = drawer.querySelectorAll('button'); assert.equal(choices.length, 6);
+  assert.deepEqual(choices.map(button => button.dataset.bodyMotion), ['body_hands', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy']);
+  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100);
+  assert.equal(f.host.querySelector('.ipg-emotion-panel').getAttribute('aria-label'), 'きもちとしぐさ・100種類');
+  for (const row of Motion.bodyCatalogue) {
+    const choice = f.focusButton('pet-body-motion-' + row.id);
+    assert.equal(choice.getAttribute('aria-label'), row.label);
+    assert.equal(choice.getAttribute('aria-description'), '顔：' + row.face + '。動き：' + row.motion);
+    await f.click(choice); assert.equal(controller.changes.at(-1).name, row.id);
+    assert.equal(visual.dataset.cuePhase, 'enter'); assert.equal(choice.getAttribute('aria-pressed'), 'true');
+    assert.equal(choices.filter(button => button.getAttribute('aria-pressed') === 'true').length, 1);
+    assert.equal(f.host.querySelector('.ipg-emotion-caption').textContent, row.label + 'の見本');
+    assert.ok(visual.querySelector('canvas').getAttribute('aria-label').includes(row.label));
+    assert.equal(f.host.querySelector('.ipg-emotion-effect').hidden, true, 'part demonstrations do not add distracting emotion accents');
+    f.advance(450); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'acting');
+    f.advance(4750); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'settling');
+    f.advance(800); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.timers.size, 0);
+    assert.equal(f.mounts.length, 1); assert.equal(f.raf.size, 0);
+  }
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+});
+
+test('closing the full-body drawer stops only its active reference while ordinary emotions and saved meals retain their deadlines', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.bodyDrawer(); await f.click(f.focusButton('pet-body-motion-body_tail')); f.advance(700); f.ui.render();
+  assert.equal(f.mounts.at(-1).options.situation, 'body_tail'); assert.equal(f.mounts.at(-1).options.elapsedMs, 700);
+  assert.equal(f.focusButton('pet-body-motion').open, true, 'ordinary rendering keeps only the drawer preference and original cue age');
+  await f.bodyDrawer(false);
+  assert.equal(f.mounts.at(-1).changes.at(-1).name, 'idle'); assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.cuePhase, 'idle');
+  assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.bodyDrawer(); await f.click(await f.revealEmotion('angry'));
+  const controller = f.mounts.at(-1), changes = controller.changes.length, deadline = [...f.timers.values()][0].at;
+  await f.bodyDrawer(false); assert.equal(controller.changes.length, changes); assert.equal([...f.timers.values()][0].at, deadline);
+  await f.click(f.focusButton('care-feed')); await f.bodyDrawer();
+  const mealController = f.mounts.at(-1), mealChanges = mealController.changes.length, mealDeadline = [...f.timers.values()][0].at;
+  const afterMeal = f.saved(), mealWrites = f.writes.length; await f.bodyDrawer(false);
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.situation, 'feeding');
+  assert.equal(mealController.changes.length, mealChanges); assert.equal([...f.timers.values()][0].at, mealDeadline);
+  assert.deepEqual(f.saved(), afterMeal); assert.equal(f.writes.length, mealWrites); assert.equal(afterMeal.pet.exp, before.pet.exp + 8);
+});
+
+test('main and appearance-reference body drawers keep their cues independent and drawing failure or hide stops every body control safely', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.bodyDrawer(); await f.click(f.focusButton('pet-body-motion-body_hands')); f.advance(600);
+  await f.click(f.button('薄紫のこのしぐさを見る')); await f.bodyDrawer(true, true);
+  const main = f.activeMotions().find(controller => !controller.canvas.parentNode.parentNode.className.includes('ipg-appearance-preview'));
+  const preview = f.mounts.at(-1); await f.click(f.focusButton('preview-body-motion-body_ears'));
+  assert.equal(main.options.situation, 'body_hands'); assert.equal(main.options.elapsedMs, 600);
+  assert.equal(preview.changes.at(-1).name, 'body_ears'); await f.bodyDrawer(false, true);
+  assert.equal(preview.changes.at(-1).name, 'idle'); assert.equal(main.changes.length, 0);
+  await f.bodyDrawer(true, true); await f.click(f.focusButton('preview-body-motion-body_head'));
+  preview.options.onError();
+  const panel = f.host.querySelector('.ipg-appearance-preview');
+  assert.ok(panel.querySelectorAll('button').filter(button => button.dataset.bodyMotion).every(button => button.disabled));
+  assert.equal(panel.querySelector('.ipg-body-motion').querySelectorAll('p').find(node => node.textContent.includes('この環境では')).hidden, false);
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.focusButton('pet-body-motion').open, false);
+  assert.notEqual(f.mounts.at(-1).options.situation, 'body_hands');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('older optional motion modules keep 100 emotions without claiming to support unavailable full-body references', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  delete f.window.PetLilacMotion.bodyCatalogue; f.ui.render(); const drawer = await f.bodyDrawer();
+  assert.equal(drawer.querySelectorAll('button').length, 0); assert.match(drawer.textContent, /この環境では全身の動きの見本を表示できません/);
+  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100);
+  await f.click(await f.revealEmotion('cry')); assert.equal(f.mounts.at(-1).changes.at(-1).name, 'cry');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('renderer mouth frames move only visible food on a ready live meal and never schedule a second loop or write progress', async () => {
+  const f = await fixture({ species: 'lilac' }); await f.click(f.focusButton('care-feed'));
+  const controller = f.mounts.at(-1), food = f.host.querySelector('.ipg-feeding-food'), before = f.saved(), writes = f.writes.length;
+  const fallback = { left: food.style.left, top: food.style.top }, pose = { situation: 'feeding', elapsedMs: 1500, mouthX: .31, mouthY: .405, foodLeft: .2, foodTop: .41 };
+  controller.options.onPose(pose); assert.deepEqual({ left: food.style.left, top: food.style.top }, fallback, 'pending drawing keeps the static fallback anchor');
+  f.advance(1500); controller.options.onReady(); assert.equal(food.hidden, false); assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'chewing');
+  const timer = [...f.timers.values()][0].at;
+  controller.options.onPose(pose); assert.equal(food.style.left, '20%'); assert.equal(food.style.top, '41%');
+  controller.options.onPose({ ...pose, situation: 'body_hands', foodLeft: .9 }); assert.equal(food.style.left, '20%');
+  controller.options.onPose({ ...pose, foodLeft: NaN }); assert.equal(food.style.left, '20%');
+  assert.equal([...f.timers.values()][0].at, timer); assert.equal(f.raf.size, 0);
+  f.advance(2900); await f.fireTimers(); assert.equal(food.hidden, true);
+  const hiddenAnchor = { left: food.style.left, top: food.style.top }; controller.options.onPose({ ...pose, foodLeft: .9 });
+  assert.deepEqual({ left: food.style.left, top: food.style.top }, hiddenAnchor);
+  await f.click(f.focusButton('pet-emotion-joy')); controller.options.onPose({ ...pose, foodLeft: .8 }); assert.equal(food.style.left, hiddenAnchor.left);
+  f.ui.render(); controller.options.onPose({ ...pose, foodLeft: .7 }); assert.equal(food.style.left, hiddenAnchor.left, 'disconnected old canvas callbacks cannot move old food');
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
+  f.mounts.at(-1).options.onPose(pose); assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
 test('emotion effects, deadlines and drawing are cleaned on hide, close and fallback', async () => {
