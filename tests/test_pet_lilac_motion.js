@@ -89,19 +89,26 @@ test('UMD exposes browser API and CommonJS pure helpers without loading assets',
   const sandbox = { window: {} }; vm.runInNewContext(source, sandbox);
   assert.equal(typeof sandbox.window.PetLilacMotion.mount, 'function');
   assert.equal(Motion.sourceType, '2d_image_motion');
-  assert.deepEqual(Motion.situations, [
+  assert.deepEqual(Motion.situations.slice(0, 36), [
     'joy', 'laugh', 'excited', 'proud', 'love', 'grateful', 'sad', 'cry', 'lonely', 'disappointed', 'angry', 'sulky',
     'surprise', 'scared', 'nervous', 'confused', 'curious', 'thinking', 'greeting', 'petted', 'shy', 'embarrassed', 'apology', 'cheer',
     'idle', 'resting', 'sleepy', 'yawn', 'relaxed', 'bored', 'feeding', 'moving', 'caught', 'dance', 'celebrate', 'determined'
   ]);
-  assert.equal(Motion.catalogue.length, 36);
+  assert.equal(Motion.catalogue.length, 100); assert.equal(new Set(Motion.situations).size, 100);
   assert.equal(Object.isFrozen(Motion.catalogue), true);
   const groups = new Map();
   for (const item of Motion.catalogue) {
     assert.equal(Object.isFrozen(item), true); assert.equal(item.durationMs, Motion.durations[item.id]);
-    assert.ok(item.label && item.groupLabel); groups.set(item.group, (groups.get(item.group) || 0) + 1);
+    assert.ok(item.label && item.groupLabel && item.face && item.motion);
+    assert.ok(Array.isArray(item.keywords) && item.keywords.length >= 2 && item.keywords.every(word => typeof word === 'string' && word.length));
+    assert.equal(Object.isFrozen(item.keywords), true);
+    assert.ok(['none','hearts','tears','anger','sweat','wonder','sleep','quiet','sparkle'].includes(item.effect));
+    groups.set(item.group, (groups.get(item.group) || 0) + 1);
   }
-  assert.equal(groups.size, 6); assert.ok([...groups.values()].every(n => n === 6));
+  assert.deepEqual(Object.fromEntries(groups), { happy:17, feeling:16, wonder:16, social:16, calm:16, action:19 });
+  assert.equal(Motion.catalogue.find(row => row.id === 'jealous').label, 'うらやましがる');
+  assert.equal(Motion.catalogue.find(row => row.id === 'jealous').keywords.includes('envy'), true);
+  assert.equal(Motion.catalogue.find(row => row.id === 'affectionate').keywords.includes('adoration'), false);
 });
 
 const growthKeys = ['egg', 'baby', 'child', 'final', 'adult', 'companion'];
@@ -392,7 +399,7 @@ test('no outfit, null and unknown outfits keep identical textures, geometry and 
   base.api.destroy();
 });
 
-test('every outfit works through all six growth meshes and 36 cues without extra textures, vectors or loops', () => {
+test('every outfit works through all six growth meshes and 100 cues without extra textures, vectors or loops', () => {
   for(const stage of growthKeys)for(const outfit of Motion.outfitCatalogue) {
     const f=fixture({options:{growthStage:stage,outfit:outfit.id}}); f.complete();
     assert.equal(f.uploads.length,8); assert.equal(f.created.filter(x=>x.type==='Texture').length,8);
@@ -429,11 +436,11 @@ test('all profiles stay finite, differ at meaningful samples and finish at the s
       signatures.add(JSON.stringify(acting));
     }
   }
-  assert.equal(signatures.size, 35);
+  assert.equal(signatures.size, 99);
   assert.deepEqual(Motion.pose(NaN, 'unknown', Infinity), Motion.pose(0, 'idle', 0));
 });
 
-test('all 35 finite acts ease in and release every transform and face to the underlying idle', () => {
+test('all 99 finite acts ease in and release every transform and face to the underlying idle', () => {
   for (const name of Motion.situations.filter(name => name !== 'idle')) {
     const duration = Motion.durations[name] / 1000;
     for (const age of [0, .00001, duration - .00001]) {
@@ -449,6 +456,117 @@ test('all 35 finite acts ease in and release every transform and face to the und
       assert.ok(p.faceSad >= 0 && p.faceAngry >= 0 && p.faceSurprise >= 0 && p.faceDelighted >= 0);
       assert.ok(Math.abs(p.shiftX) <= .026 && Math.abs(p.bodyAngle) <= .09, name);
     }
+  }
+});
+
+// Face scores select a photograph, not opacity. Compare the selected face and
+// coarse visible motion channels; a .7 versus 1 score cannot distinguish acts.
+function faceWinner(p) {
+  let face = 'original', score = 0;
+  for (const key of ['faceSad','faceAngry','faceSurprise','faceDelighted']) {
+    if (p[key] > score) { face = key; score = p[key]; }
+  }
+  return face;
+}
+const visibleSteps = { blink:.2, eyeNarrow:.2, mouthOpen:.2, tilt:.02, bodyAngle:.02,
+  shiftX:.006, shiftY:.006, crouch:.15, stretch:.15, squash:.15, bounce:.15,
+  step:.2, wave:.2, wiggle:.25, ear:.3, tail:.3, lookX:.004, lookY:.004, breath:.3 };
+function visibleSignature(p) {
+  return JSON.stringify([faceWinner(p), ...Object.entries(visibleSteps).map(([key, step]) => Math.round(p[key] / step))]);
+}
+function trajectory(name) {
+  const duration = Motion.durations[name] / 1000;
+  return [.08,.2,.4,.6,.82,.95].map(fraction => visibleSignature(Motion.pose(duration*fraction,name,duration*fraction)));
+}
+
+test('all 64 additions change face and body, use visible distinct trajectories, and recover through an afterglow', () => {
+  const signatures = new Map();
+  for (const row of Motion.catalogue.slice(36)) {
+    const duration = row.durationMs / 1000, samples = [.7,1.3,duration*.5,duration*.75].map(age => Motion.pose(age,row.id,age));
+    assert.ok(samples.some(p => faceWinner(p) !== 'original' || p.blink>.9 || Math.abs(p.eyeNarrow) > .1 || Math.abs(p.mouthOpen) > .1 || Math.abs(p.lookY) > .006), row.id+': face');
+    assert.ok(samples.some(p => ['crouch','stretch','bounce','wave','pawSpread','bodyAngle'].some(key => Math.abs(p[key]) > (key==='bodyAngle'?.015:.2))), row.id+': body');
+    const path = trajectory(row.id); assert.ok(new Set(path).size >= 3, row.id+': anticipation/acting/recovery');
+    const signature = JSON.stringify(path); assert.equal(signatures.has(signature),false,row.id+' equals '+signatures.get(signature)); signatures.set(signature,row.id);
+    const fading = Motion.pose(duration-.15,row.id,duration-.15), idle = Motion.pose(duration-.15,'idle',0);
+    assert.ok(fading.presence > 0 && fading.presence < .15, row.id+': natural release');
+    assert.deepEqual(Motion.pose(duration,row.id,duration),Motion.pose(duration,'idle',0));
+    assert.notEqual(visibleSignature(samples[1]),visibleSignature(idle),row.id+': not a renamed idle');
+  }
+  assert.equal(signatures.size,64);
+});
+
+test('nearby emotions differ in selected face, gaze, posture and event timing rather than face-score strength', () => {
+  const families = [
+    ['disgusted','refusing'], ['repulsed','disgusted'], ['contempt','suspicious'], ['content','full'],
+    ['relieved','peaceful','secure','relaxed'], ['joy','excited','ecstatic','celebrate'], ['proud','triumphant'],
+    ['trusting','compassionate','comforting'], ['lonely','longing','empathic'], ['guilty','regretful','holding_tears']
+  ];
+  for (const family of families) {
+    const paths=family.map(name=>JSON.stringify(trajectory(name)));
+    assert.equal(new Set(paths).size,family.length,family.join('/'));
+  }
+  const at=(name,t=1.4)=>Motion.pose(t,name,t);
+  assert.equal(faceWinner(at('disgusted')),'faceAngry'); assert.ok(at('disgusted').eyeNarrow>1);
+  assert.equal(faceWinner(at('refusing')),'original'); assert.ok(at('refusing').pawSpread>.5);
+  assert.ok(at('disgusted').shiftX<-.015); assert.equal(at('refusing').shiftX,0);
+  assert.ok(at('contempt').eyeNarrow<0 && at('contempt').lookY>0 && at('contempt').bodyAngle<0);
+  assert.ok(at('suspicious').eyeNarrow>0 && at('suspicious').bodyAngle>0);
+  assert.ok(at('suspicious',1.2).lookX*at('suspicious',3.2).lookX<0);
+  assert.ok(at('content').stretch>.3 && at('content').bodyAngle===0);
+  assert.ok(at('full').bodyAngle<-.05 && at('full').squash>.3);
+  assert.ok(at('relieved',.7).stretch>at('relieved',2.8).stretch);
+  assert.ok(at('relieved',.7).crouch<at('relieved',2.8).crouch);
+  assert.equal(at('peaceful').bodyAngle,0); assert.ok(at('secure').bodyAngle>.03);
+  assert.equal(faceWinner(at('peaceful')),'original'); assert.equal(faceWinner(at('relaxed')),'faceDelighted');
+});
+
+test('triumph is one prepared victory while ecstatic and celebration repeat different large jumps', () => {
+  const countPeaks=name=>{
+    const duration=Motion.durations[name]/1000, values=Array.from({length:180},(_,i)=>Motion.pose(i*duration/180,name,i*duration/180).bounce);
+    return values.filter((value,i)=>i>0&&i<values.length-1&&value>.35&&value>values[i-1]&&value>=values[i+1]).length;
+  };
+  assert.equal(countPeaks('triumphant'),1);
+  assert.ok(countPeaks('ecstatic')>=3); assert.ok(countPeaks('celebrate')>=3);
+  const proud=Motion.pose(2.2,'proud',2.2), victory=Motion.pose(2.2,'triumphant',2.2);
+  assert.equal(proud.bounce,0); assert.ok(victory.wave>proud.wave+.8&&victory.stretch>proud.stretch+.3);
+  assert.notDeepEqual(trajectory('ecstatic'),trajectory('celebrate'));
+});
+
+test('joy, anger and sadness walking have different cadence, arms, head, weight and expression', () => {
+  function changes(name) {
+    let count=0,previous=0;
+    for(let i=1;i<=200;i++){
+      const age=.65+i*.02,step=Motion.pose(age,name,age).step;
+      if(previous<0&&step>=0)count++; previous=step;
+    }
+    return count;
+  }
+  assert.ok(changes('walk_angry')>changes('walk_joy'));
+  assert.ok(changes('walk_joy')>changes('walk_sad'));
+  const joy=Motion.pose(1.1,'walk_joy',1.1),angry=Motion.pose(1.1,'walk_angry',1.1),sad=Motion.pose(1.1,'walk_sad',1.1);
+  assert.equal(faceWinner(joy),'faceDelighted');assert.equal(faceWinner(angry),'faceAngry');assert.equal(faceWinner(sad),'faceSad');
+  const arms=Array.from({length:80},(_,i)=>Motion.pose(1+i*.03,'walk_joy',1+i*.03).wave);
+  assert.ok(Math.max(...arms)-Math.min(...arms)>1);
+  assert.ok(sad.wave<-.6&&angry.pawSpread>sad.pawSpread+1);
+  assert.ok(joy.tilt<0&&sad.tilt>0&&sad.crouch>.6&&sad.lookY>.01);
+  assert.ok(angry.anger>.7&&sad.ear<-.5&&joy.ear>sad.ear);
+});
+
+test('mixed emotions transition between complete face keyframes while stillness, sleep and surprise remain distinct', () => {
+  assert.equal(faceWinner(Motion.pose(1.4,'bittersweet',1.4)),'faceSad');
+  assert.equal(faceWinner(Motion.pose(3.4,'bittersweet',3.4)),'faceDelighted');
+  assert.equal(faceWinner(Motion.pose(1.1,'forgiving',1.1)),'faceAngry');
+  assert.equal(faceWinner(Motion.pose(3.1,'forgiving',3.1)),'original');
+  assert.equal(faceWinner(Motion.pose(1.2,'realization',1.2)),'faceSurprise');
+  assert.equal(faceWinner(Motion.pose(2.4,'realization',2.4)),'original');
+  assert.equal(Motion.pose(2.1,'deep_sleep',2.1).blink,1);
+  assert.ok(Motion.pose(2.1,'deep_sleep',2.1).crouch>1);
+  assert.ok(Motion.pose(2.1,'meditating',2.1).stretch>.6);
+  assert.ok(Motion.pose(2.8,'refreshed',2.8).blink<.01);
+  assert.ok(Motion.pose(1,'startled',1).bounce>Motion.pose(1.8,'startled',1.8).bounce);
+  for(const row of Motion.catalogue.filter(row=>['calm','feeling'].includes(row.group))) {
+    if(['refreshed','proud','joy'].includes(row.id))continue;
+    assert.notEqual(row.effect,'sparkle',row.id+': no generic glitter for sadness or repose');
   }
 });
 
@@ -557,7 +675,7 @@ test('all eight matching textures are required before onReady and expression fai
   assert.equal(f.ready, 0); assert.equal(f.raf.size, 0); assert.equal(f.deleted.length, f.created.length);
 });
 
-test('36 cues can be interrupted or replaced without extra RAF loops, writes or stale face uniforms', () => {
+test('100 cues can be interrupted or replaced without extra RAF loops, writes or stale face uniforms', () => {
   const f = fixture(); f.complete();
   for (const name of Motion.situations) {
     f.api.setSituation(name, { elapsedMs: 1100 });

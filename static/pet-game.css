@@ -183,3 +183,10 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-evolution-choices small{font-size:.8em}.ipg .ipg-evolution-choices [aria-pressed=true]{background:var(--ipg-green);border-color:var(--ipg-green);color:var(--kn-sh-on-button,#fffdf6)}
 .ipg-evolution-unavailable[hidden]{display:none!important}
 @media(max-width:540px){.ipg-evolution-status{padding:11px 12px}.ipg-evolution-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.ipg .ipg-evolution-choices .ipg-button{min-height:63px;font-size:.8em}}
+
+/* Search and six-card pages keep a large expression catalogue beside one actor. */
+.ipg-emotion-search-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;margin-bottom:8px}.ipg .ipg-emotion-search{min-height:40px;padding:7px 10px;font-size:14px}.ipg-emotion-search-row>.ipg-button{min-height:40px;padding:6px 10px;font-size:.85em}.ipg-emotion-search-row>[hidden]{display:none!important}
+.ipg-emotion-count{min-height:1.5em;margin:0 0 7px!important}.ipg-emotion-grid>.ipg-button{display:flex;flex-direction:column;justify-content:flex-start;min-height:92px}.ipg-emotion-grid>[hidden]{display:none!important}
+.ipg-emotion-name{font-size:.94em;font-weight:600}.ipg-emotion-description{display:block;text-align:left;font-size:.68em;line-height:1.4;margin-top:5px;color:inherit}
+.ipg-emotion-pages{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:9px}.ipg-emotion-pages>[hidden],.ipg-emotion-pages[hidden],.ipg-emotion-empty[hidden]{display:none!important}.ipg .ipg-emotion-pages .ipg-button{min-height:36px;padding:6px 13px;font-size:.83em}.ipg-emotion-page{font-size:.78em;white-space:nowrap}
+@media(max-width:420px){.ipg .ipg-emotion-search{font-size:16px}.ipg-emotion-grid>.ipg-button{min-height:94px}.ipg-emotion-description{font-size:.65em}.ipg-emotion-groups{gap:4px;margin-bottom:7px}.ipg .ipg-emotion-groups .ipg-button{font-size:.69em;min-height:40px}}

@@ -14,9 +14,938 @@
     ['calm', 'くつろぎ', [['idle', 'ふだん', 0], ['resting', 'おやすみ', 6500], ['sleepy', 'うとうと', 6200], ['yawn', 'あくび', 5600], ['relaxed', 'のんびり', 6200], ['bored', 'ひま', 6000]]],
     ['action', 'アクション', [['feeding', 'ごはん', 8400], ['moving', '移動', 1600], ['caught', 'キャッチ', 1500], ['dance', 'ダンス', 6500], ['celebrate', 'お祝い', 6000], ['determined', 'やるぞ', 5400]]]
   ];
-  var catalogue = Object.freeze(groups.reduce(function (list, group) {
-    return list.concat(group[2].map(function (item) { return Object.freeze({ id: item[0], label: item[1], group: group[0], groupLabel: group[1], durationMs: item[2] }); }));
-  }, []));
+  var existingDescriptions = {"joy":{"face":"目を細めて明るく笑う","motion":"両手を開いて小さく跳ね耳と尾を弾ませる","keywords":["喜び","うれしい","歓喜","joy"],"effect":"sparkle"},"laugh":{"face":"目を閉じ口を大きく開いて笑う","motion":"肩とおなかを揺らし笑い声に合わせて体を弾ませる","keywords":["笑う","爆笑","大笑い","laugh"],"effect":"sparkle"},"excited":{"face":"楽しみで顔をほころばせる","motion":"手を上げて細かく弾み尾をすばやく振る","keywords":["わくわく","興奮","楽しみ","excited"],"effect":"sparkle"},"proud":{"face":"目を細めて得意そうに笑う","motion":"胸を張りあごを上げ両手を開く","keywords":["誇らしい","得意","自信","proud"],"effect":"sparkle"},"love":{"face":"うれしそうに笑い頬を染める","motion":"胸へ手を集め体をゆっくり寄せる","keywords":["愛情","好き","大好き","love"],"effect":"hearts"},"grateful":{"face":"目をやさしく閉じて笑う","motion":"両手を揃え何度かおじぎをする","keywords":["感謝","ありがとう","お礼","grateful"],"effect":"hearts"},"sad":{"face":"悲しげに目と口元を下げる","motion":"うつむきながら体を沈め耳と尾を下げる","keywords":["悲しみ","かなしい","しょんぼり","sad"],"effect":"tears"},"cry":{"face":"泣き顔になり涙を流す","motion":"胸へ手を寄せしゃくり上げるように肩を震わせる","keywords":["泣く","涙","号泣","cry"],"effect":"tears"},"lonely":{"face":"さびしげに遠くを探す","motion":"体を傾け小さく首を動かし手を胸へ集める","keywords":["寂しい","さみしい","孤独","lonely"],"effect":"quiet"},"disappointed":{"face":"目と口元を落とし下を見る","motion":"体がしゅんと沈み手と耳が垂れる","keywords":["失望","がっかり","落胆","disappointed"],"effect":"quiet"},"angry":{"face":"目と眉をしかめてにらむ","motion":"両手を広げて足踏みし尾を強く動かす","keywords":["怒り","おこる","ぷんぷん","angry"],"effect":"anger"},"sulky":{"face":"半目で横を向いてすねる","motion":"手を胸に寄せ体を斜めに背ける","keywords":["すねる","不満","ふてくされる","sulky"],"effect":"anger"},"surprise":{"face":"目と口を丸く大きく開く","motion":"一度跳ねて両手と耳を立てる","keywords":["驚き","びっくり","驚く","surprise"],"effect":"wonder"},"scared":{"face":"こわがって目と口を開く","motion":"身を縮め手を集めて細かく震える","keywords":["怖い","こわい","恐れ","scared"],"effect":"sweat"},"nervous":{"face":"緊張して視線を左右に動かす","motion":"足を踏み替え耳と手を落ち着かなく動かす","keywords":["緊張","そわそわ","落ち着かない","nervous"],"effect":"sweat"},"confused":{"face":"目を丸くして考え込む","motion":"首を左右にかしげ手を少し開く","keywords":["困る","混乱","わからない","confused"],"effect":"wonder"},"curious":{"face":"気になるものへ目を向ける","motion":"耳を立て首をかしげながら前へ寄る","keywords":["好奇心","きになる","興味","curious"],"effect":"wonder"},"thinking":{"face":"目を細め少し上を見つめる","motion":"胸の前へ手を上げ首をかしげて考える","keywords":["考える","思案","思考","thinking"],"effect":"wonder"},"greeting":{"face":"会えてうれしそうに笑う","motion":"首をかしげ手と尾を振って迎える","keywords":["挨拶","あいさつ","おかえり","greeting"],"effect":"sparkle"},"petted":{"face":"うれしそうに目を閉じる","motion":"首を傾け体を寄せ耳をゆっくり動かす","keywords":["なでる","なでられる","撫でる","petted"],"effect":"hearts"},"shy":{"face":"頬を染めてはにかむ","motion":"胸の前へ手を集め小さく左右に揺れる","keywords":["照れる","恥ずかしい","はにかみ","shy"],"effect":"hearts"},"embarrassed":{"face":"焦って目を丸くし頬を染める","motion":"手をばたつかせ小さく足を踏み替える","keywords":["焦る","あせる","赤面","embarrassed"],"effect":"sweat"},"apology":{"face":"申し訳なさそうに目を伏せる","motion":"手を揃え耳を下げて深くおじぎする","keywords":["謝る","ごめん","謝罪","apology"],"effect":"quiet"},"cheer":{"face":"笑顔で元気よく応援する","motion":"両手を大きく上げ小さく跳ねる","keywords":["応援","がんばれ","声援","cheer"],"effect":"sparkle"},"idle":{"face":"自然にまばたきして見回す","motion":"呼吸しながら時々首と手を動かす","keywords":["通常","待機","ふつう","ふだん","idle"],"effect":"none"},"resting":{"face":"静かに目を閉じる","motion":"体を丸め呼吸をゆっくりにして休む","keywords":["休む","おやすみ","休息","resting"],"effect":"sleep"},"sleepy":{"face":"まぶたが重くなり目を閉じる","motion":"首と体が少しずつ下がってうとうとする","keywords":["眠い","うとうと","眠気","sleepy"],"effect":"sleep"},"yawn":{"face":"目を閉じ口を大きく動かす","motion":"背と手を伸ばしながらあくびをする","keywords":["あくび","欠伸","眠たい","yawn"],"effect":"sleep"},"relaxed":{"face":"目を閉じてくつろぐ","motion":"体をゆったり傾け尾と耳の力を抜く","keywords":["のんびり","リラックス","くつろぐ","relaxed"],"effect":"sleep"},"bored":{"face":"半目で視線を左右へ向ける","motion":"体を沈め手を寄せて片足を小さく動かす","keywords":["ひま","退屈","つまらない","bored"],"effect":"quiet"},"feeding":{"face":"食べものを見てから満面の笑顔になる","motion":"手を寄せてもぐもぐ食べ喜んで跳ねて落ち着く","keywords":["食事","ごはん","食べる","もぐもぐ","feeding"],"effect":"none"},"moving":{"face":"前を見て歩く","motion":"左右の足を交互に動かし体と耳が上下する","keywords":["歩く","移動","歩行","moving"],"effect":"sparkle"},"caught":{"face":"うれしそうに笑う","motion":"手を寄せて受け取り短く跳ねる","keywords":["キャッチ","受け取る","成功","caught"],"effect":"sparkle"},"dance":{"face":"楽しそうに目を細めて笑う","motion":"足を踏み替え両手と体を左右へ大きく振る","keywords":["ダンス","踊る","おどる","dance"],"effect":"sparkle"},"celebrate":{"face":"口を開いて晴れやかに笑う","motion":"両手と耳を大きく広げ繰り返し跳ねる","keywords":["祝う","お祝い","パーティー","celebrate"],"effect":"sparkle"},"determined":{"face":"目を細めてきりっと前を見る","motion":"耳を立て身を沈めてから胸を張る","keywords":["決意","やる気","がんばる","determined"],"effect":"anger"}};
+  var addedPerformances = [
+  {
+    "id": "content",
+    "label": "満足する",
+    "group": "happy",
+    "durationMs": 5400,
+    "face": "目をやさしく細める",
+    "motion": "おなかへ手を添えてゆっくり息を吐く",
+    "keywords": [
+      "満足",
+      "充実",
+      "satisfaction"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "relieved",
+    "label": "ほっとする",
+    "group": "happy",
+    "durationMs": 5600,
+    "face": "目を閉じて口元をゆるめる",
+    "motion": "力を抜き耳と肩をすっと下げる",
+    "keywords": [
+      "安堵",
+      "安心",
+      "relief"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "gentlesmile",
+    "label": "にっこり",
+    "group": "happy",
+    "durationMs": 4800,
+    "face": "小さくやさしく笑う",
+    "motion": "跳ねずに首をかしげて手を開く",
+    "keywords": [
+      "微笑み",
+      "穏やかな笑顔",
+      "enjoyment"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "ecstatic",
+    "label": "大はしゃぎ",
+    "group": "happy",
+    "durationMs": 5800,
+    "face": "目を細め大きく笑う",
+    "motion": "しゃがむ予備動作から大きく連続で跳ねる",
+    "keywords": [
+      "歓喜",
+      "大喜び",
+      "ecstasy"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "amused",
+    "label": "くすくす笑う",
+    "group": "happy",
+    "durationMs": 5200,
+    "face": "笑いをこらえて目を細める",
+    "motion": "胸元に手を寄せ肩を小さく揺らす",
+    "keywords": [
+      "おかしい",
+      "面白い",
+      "amusement"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "hopeful",
+    "label": "希望をふくらませる",
+    "group": "happy",
+    "durationMs": 6000,
+    "face": "目を上げて期待する",
+    "motion": "胸を開き少しずつ背を伸ばす",
+    "keywords": [
+      "希望",
+      "期待",
+      "hope"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "triumphant",
+    "label": "勝ち誇る",
+    "group": "happy",
+    "durationMs": 5600,
+    "face": "きりっと笑う",
+    "motion": "身を沈めてから両手を高く広げる",
+    "keywords": [
+      "勝利",
+      "達成",
+      "triumph"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "touched",
+    "label": "感動する",
+    "group": "happy",
+    "durationMs": 6200,
+    "face": "うるんだ目で笑う",
+    "motion": "胸に手を寄せ静かに震えてうなずく",
+    "keywords": [
+      "感動",
+      "胸がいっぱい",
+      "感激"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "admiring",
+    "label": "あこがれる",
+    "group": "happy",
+    "durationMs": 6000,
+    "face": "尊敬のまなざしで見上げる",
+    "motion": "手を合わせて前へ身を乗り出す",
+    "keywords": [
+      "憧れ",
+      "称賛",
+      "admiration"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "beauty",
+    "label": "美しさに見とれる",
+    "group": "happy",
+    "durationMs": 6400,
+    "face": "目をやわらかく見開く",
+    "motion": "ゆっくり見上げ開いた手を止める",
+    "keywords": [
+      "きれい",
+      "美しい",
+      "美的感動",
+      "aesthetic appreciation"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "bittersweet",
+    "label": "泣き笑い",
+    "group": "happy",
+    "durationMs": 6400,
+    "face": "涙から笑顔へ移る",
+    "motion": "縮こまった体を少しずつ開く",
+    "keywords": [
+      "嬉し泣き",
+      "うれし泣き",
+      "複雑",
+      "bittersweet"
+    ],
+    "effect": "tears"
+  },
+  {
+    "id": "annoyed",
+    "label": "いらいらする",
+    "group": "feeling",
+    "durationMs": 5400,
+    "face": "目を細め口を結ぶ",
+    "motion": "手を腰へ寄せ片足を小刻みに動かす",
+    "keywords": [
+      "イライラ",
+      "苛立ち",
+      "annoyance"
+    ],
+    "effect": "anger"
+  },
+  {
+    "id": "frustrated",
+    "label": "くやしがる",
+    "group": "feeling",
+    "durationMs": 5800,
+    "face": "しかめ顔で下を見る",
+    "motion": "小さく足を踏み握った手を下げる",
+    "keywords": [
+      "悔しい",
+      "もどかしい",
+      "frustration"
+    ],
+    "effect": "anger"
+  },
+  {
+    "id": "furious",
+    "label": "カンカンに怒る",
+    "group": "feeling",
+    "durationMs": 5400,
+    "face": "強くにらむ",
+    "motion": "大きく足踏みし耳としっぽを張る",
+    "keywords": [
+      "激怒",
+      "怒り",
+      "憤り",
+      "fury"
+    ],
+    "effect": "anger"
+  },
+  {
+    "id": "disgusted",
+    "label": "いやがる",
+    "group": "feeling",
+    "durationMs": 5200,
+    "face": "目と鼻元をしかめる",
+    "motion": "顔をそむけ手で押し返す",
+    "keywords": [
+      "嫌悪",
+      "嫌",
+      "disgust"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "repulsed",
+    "label": "うえっとする",
+    "group": "feeling",
+    "durationMs": 4200,
+    "face": "口をすぼめて目を閉じる",
+    "motion": "大きくのけぞりすぐ顔をそらす",
+    "keywords": [
+      "強い嫌悪",
+      "うえっ",
+      "ぞわっ",
+      "revulsion"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "contempt",
+    "label": "あきれる",
+    "group": "feeling",
+    "durationMs": 5600,
+    "face": "半目で横を見る",
+    "motion": "片側に傾きゆっくり首を振る",
+    "keywords": [
+      "呆れる",
+      "軽蔑",
+      "うんざり",
+      "contempt"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "jealous",
+    "label": "うらやましがる",
+    "group": "feeling",
+    "durationMs": 5800,
+    "face": "横目でじっと見る",
+    "motion": "横目で相手を見て手を自分の胸へ集める",
+    "keywords": [
+      "羨望",
+      "うらやましい",
+      "envy"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "guilty",
+    "label": "うしろめたい",
+    "group": "feeling",
+    "durationMs": 5800,
+    "face": "目を伏せてちらっと見る",
+    "motion": "背中を丸め手をもじもじさせる",
+    "keywords": [
+      "罪悪感",
+      "後ろめたい",
+      "guilt"
+    ],
+    "effect": "sweat"
+  },
+  {
+    "id": "regretful",
+    "label": "後悔する",
+    "group": "feeling",
+    "durationMs": 6200,
+    "face": "悲しい顔で下を見る",
+    "motion": "手を胸に寄せ深くうなだれる",
+    "keywords": [
+      "後悔",
+      "しまった",
+      "regret"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "holding_tears",
+    "label": "涙をこらえる",
+    "group": "feeling",
+    "durationMs": 6200,
+    "face": "まばたきして口を結ぶ",
+    "motion": "こみ上げる動きを抑えて肩を震わせる",
+    "keywords": [
+      "我慢泣き",
+      "悲しみ",
+      "涙目"
+    ],
+    "effect": "tears"
+  },
+  {
+    "id": "awed",
+    "label": "圧倒される",
+    "group": "wonder",
+    "durationMs": 6200,
+    "face": "目を大きくして見上げる",
+    "motion": "後ろへ重心を移し手をゆっくり開く",
+    "keywords": [
+      "畏敬",
+      "畏怖",
+      "圧巻",
+      "awe"
+    ],
+    "effect": "wonder"
+  },
+  {
+    "id": "entranced",
+    "label": "夢中で見入る",
+    "group": "wonder",
+    "durationMs": 6600,
+    "face": "視線を一点に止める",
+    "motion": "前へ身を乗り出し耳を立てて静止する",
+    "keywords": [
+      "夢中",
+      "没頭",
+      "魅了",
+      "entrancement"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "anxious",
+    "label": "心配する",
+    "group": "wonder",
+    "durationMs": 6200,
+    "face": "眉を寄せて見回す",
+    "motion": "両手を胸へ寄せ小さく縮こまる",
+    "keywords": [
+      "不安",
+      "心配",
+      "anxiety"
+    ],
+    "effect": "sweat"
+  },
+  {
+    "id": "panic",
+    "label": "あわてふためく",
+    "group": "wonder",
+    "durationMs": 4800,
+    "face": "目を大きく開く",
+    "motion": "左右へすばやく踏み替え手をばたつかせる",
+    "keywords": [
+      "パニック",
+      "慌てる",
+      "panic"
+    ],
+    "effect": "sweat"
+  },
+  {
+    "id": "horrified",
+    "label": "ぞっとする",
+    "group": "wonder",
+    "durationMs": 5000,
+    "face": "口と目を開いて固まる",
+    "motion": "耳と尾を下げて後ずさりする",
+    "keywords": [
+      "恐怖",
+      "戦慄",
+      "horror"
+    ],
+    "effect": "sweat"
+  },
+  {
+    "id": "suspicious",
+    "label": "うたがう",
+    "group": "wonder",
+    "durationMs": 6000,
+    "face": "目を細めて横を見る",
+    "motion": "片側へゆっくり傾き距離を取る",
+    "keywords": [
+      "疑い",
+      "疑念",
+      "不信",
+      "suspicion"
+    ],
+    "effect": "wonder"
+  },
+  {
+    "id": "realization",
+    "label": "ひらめく",
+    "group": "wonder",
+    "durationMs": 4200,
+    "face": "目をぱっと開いて笑う",
+    "motion": "沈んだ姿勢から顔と片手を上げる",
+    "keywords": [
+      "気づき",
+      "なるほど",
+      "発見",
+      "ひらめき"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "anticipating",
+    "label": "待ちきれない",
+    "group": "wonder",
+    "durationMs": 5800,
+    "face": "目を輝かせて前を見る",
+    "motion": "つま先で小さく弾み手を胸へ集める",
+    "keywords": [
+      "期待",
+      "わくわく待ち",
+      "anticipation"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "nostalgic",
+    "label": "なつかしむ",
+    "group": "wonder",
+    "durationMs": 6600,
+    "face": "遠くを見て微笑む",
+    "motion": "ゆっくり体を傾け胸へ手を添える",
+    "keywords": [
+      "懐かしい",
+      "思い出",
+      "nostalgia"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "startled",
+    "label": "びくっとする",
+    "group": "wonder",
+    "durationMs": 2800,
+    "face": "一瞬大きく目を見開く",
+    "motion": "短く跳ねて素早く身を縮める",
+    "keywords": [
+      "びっくり反射",
+      "驚愕",
+      "startle"
+    ],
+    "effect": "wonder"
+  },
+  {
+    "id": "trusting",
+    "label": "しんらいする",
+    "group": "social",
+    "durationMs": 6200,
+    "face": "目をやさしく細める",
+    "motion": "前へ寄り手をそっと差し出す",
+    "keywords": [
+      "信頼",
+      "任せる",
+      "trust"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "affectionate",
+    "label": "あまえる",
+    "group": "social",
+    "durationMs": 6000,
+    "face": "うれしそうに見上げる",
+    "motion": "体をすり寄せ耳をゆるめる",
+    "keywords": [
+      "甘える",
+      "愛情"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "empathic",
+    "label": "いっしょに悲しむ",
+    "group": "social",
+    "durationMs": 6400,
+    "face": "悲しげに相手を見る",
+    "motion": "身を低くして相手へ手を差し出す",
+    "keywords": [
+      "共感",
+      "共苦",
+      "empathic pain"
+    ],
+    "effect": "tears"
+  },
+  {
+    "id": "compassionate",
+    "label": "いたわる",
+    "group": "social",
+    "durationMs": 6400,
+    "face": "やさしく心配する",
+    "motion": "両手で包むように前へ伸ばす",
+    "keywords": [
+      "思いやり",
+      "慈しみ",
+      "sympathy",
+      "compassion"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "comforting",
+    "label": "なぐさめる",
+    "group": "social",
+    "durationMs": 6000,
+    "face": "おだやかに微笑む",
+    "motion": "ゆっくり手を上下させ相手へうなずく",
+    "keywords": [
+      "慰め",
+      "よしよし",
+      "comfort"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "awkward",
+    "label": "きまずそうにする",
+    "group": "social",
+    "durationMs": 5800,
+    "face": "視線をそらして口を結ぶ",
+    "motion": "手を寄せ左右へそわそわ動く",
+    "keywords": [
+      "気まずい",
+      "居心地",
+      "awkwardness"
+    ],
+    "effect": "sweat"
+  },
+  {
+    "id": "respectful",
+    "label": "うやまう",
+    "group": "social",
+    "durationMs": 5800,
+    "face": "まっすぐ見てから目を伏せる",
+    "motion": "背筋を伸ばして丁寧に深くおじぎする",
+    "keywords": [
+      "尊敬",
+      "敬意",
+      "respect"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "forgiving",
+    "label": "ゆるす",
+    "group": "social",
+    "durationMs": 6000,
+    "face": "少ししかめた顔から笑顔になる",
+    "motion": "閉じた手を広げてゆっくりうなずく",
+    "keywords": [
+      "許す",
+      "仲直り",
+      "forgiveness"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "longing",
+    "label": "会いたがる",
+    "group": "social",
+    "durationMs": 6400,
+    "face": "遠くを探してさびしげに見る",
+    "motion": "手を伸ばしてから胸へ戻す",
+    "keywords": [
+      "会いたい",
+      "恋しい",
+      "longing"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "heartflutter",
+    "label": "ときめく",
+    "group": "social",
+    "durationMs": 5800,
+    "face": "頬を染めて見つめる",
+    "motion": "胸を押さえて小さく弾む",
+    "keywords": [
+      "恋",
+      "ときめき",
+      "romance"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "peaceful",
+    "label": "やすらぐ",
+    "group": "calm",
+    "durationMs": 6800,
+    "face": "やわらかく目を閉じる",
+    "motion": "肩を落としゆっくり一定に呼吸する",
+    "keywords": [
+      "平穏",
+      "穏やか",
+      "peace"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "secure",
+    "label": "安心しきる",
+    "group": "calm",
+    "durationMs": 6600,
+    "face": "警戒を解いて笑う",
+    "motion": "耳と手をゆるめ少し前にもたれる",
+    "keywords": [
+      "安全",
+      "安心感",
+      "security"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "savoring",
+    "label": "味わう",
+    "group": "calm",
+    "durationMs": 5800,
+    "face": "目を閉じて口元をゆるめる",
+    "motion": "手を揃えゆっくり小さくうなずく",
+    "keywords": [
+      "おいしさ",
+      "味",
+      "満喫",
+      "savor"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "meditating",
+    "label": "じっと集中する",
+    "group": "calm",
+    "durationMs": 6400,
+    "face": "目を閉じて静かに集中する",
+    "motion": "手を揃えて背を伸ばし動きを鎮める",
+    "keywords": [
+      "瞑想",
+      "集中",
+      "meditation"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "deep_sleep",
+    "label": "ぐっすり眠る",
+    "group": "calm",
+    "durationMs": 7000,
+    "face": "しっかり目を閉じる",
+    "motion": "体を深く丸めゆったり寝息を立てる",
+    "keywords": [
+      "熟睡",
+      "睡眠",
+      "すやすや",
+      "sleep"
+    ],
+    "effect": "sleep"
+  },
+  {
+    "id": "stretching",
+    "label": "のびをする",
+    "group": "calm",
+    "durationMs": 5200,
+    "face": "目を閉じ口を少し開く",
+    "motion": "両手を上げて大きく背を伸ばす",
+    "keywords": [
+      "伸び",
+      "ストレッチ",
+      "stretch"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "tired",
+    "label": "ぐったりする",
+    "group": "calm",
+    "durationMs": 6200,
+    "face": "重たいまぶたで下を見る",
+    "motion": "手と耳を下げ体を重く沈める",
+    "keywords": [
+      "疲れ",
+      "疲労",
+      "くたくた",
+      "tired"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "bored_fidget",
+    "label": "退屈でそわそわ",
+    "group": "calm",
+    "durationMs": 6000,
+    "face": "半目で横を見回す",
+    "motion": "片足としっぽを小さく揺らす",
+    "keywords": [
+      "退屈",
+      "落ち着かない",
+      "fidget"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "patient",
+    "label": "おとなしく待つ",
+    "group": "calm",
+    "durationMs": 6400,
+    "face": "前を見て静かにまばたきする",
+    "motion": "手を揃えて姿勢を保つ",
+    "keywords": [
+      "辛抱",
+      "待機",
+      "待つ",
+      "patience"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "refreshed",
+    "label": "すっきり目覚める",
+    "group": "calm",
+    "durationMs": 5400,
+    "face": "閉じた目を開いて笑う",
+    "motion": "耳を立てて背伸びし手を開く",
+    "keywords": [
+      "すっきり",
+      "起きる",
+      "目覚め",
+      "refresh"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "hungry",
+    "label": "おなかぺこぺこ",
+    "group": "action",
+    "durationMs": 5800,
+    "face": "食べものを探して見回す",
+    "motion": "おなかへ手を当てて前かがみになる",
+    "keywords": [
+      "空腹",
+      "食欲",
+      "craving",
+      "hungry"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "thirsty",
+    "label": "のどがかわく",
+    "group": "action",
+    "durationMs": 5400,
+    "face": "口を少し開いて前を見る",
+    "motion": "手を少し上げ口を開けて控えめに揺れる",
+    "keywords": [
+      "喉",
+      "水",
+      "渇き",
+      "thirst"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "asking",
+    "label": "おねだりする",
+    "group": "action",
+    "durationMs": 5600,
+    "face": "目を丸くして見上げる",
+    "motion": "両手を合わせて小さく身を乗り出す",
+    "keywords": [
+      "お願い",
+      "おねだり",
+      "欲しい",
+      "beg"
+    ],
+    "effect": "hearts"
+  },
+  {
+    "id": "refusing",
+    "label": "いらないよ",
+    "group": "action",
+    "durationMs": 5000,
+    "face": "しかめ顔で横を向く",
+    "motion": "手を前へ伸ばして押し返す",
+    "keywords": [
+      "拒否",
+      "遠慮",
+      "拒む",
+      "refuse"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "agreeing",
+    "label": "うなずく",
+    "group": "action",
+    "durationMs": 4200,
+    "face": "目を合わせて微笑む",
+    "motion": "ゆっくり二度うなずく",
+    "keywords": [
+      "賛成",
+      "同意",
+      "納得",
+      "yes"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "disagreeing",
+    "label": "いやいや首振り",
+    "group": "action",
+    "durationMs": 4400,
+    "face": "目を閉じて口を結ぶ",
+    "motion": "首を左右に振り手を胸へ戻す",
+    "keywords": [
+      "反対",
+      "否定",
+      "いいえ",
+      "no"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "mischievous",
+    "label": "いたずら顔",
+    "group": "action",
+    "durationMs": 5800,
+    "face": "横目でにやっと笑う",
+    "motion": "首をかしげてそっと手を伸ばす",
+    "keywords": [
+      "いたずら",
+      "にやり",
+      "悪戯",
+      "mischief"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "playful",
+    "label": "遊びにさそう",
+    "group": "action",
+    "durationMs": 5800,
+    "face": "期待した顔で目を丸くする",
+    "motion": "身を低くしてから手を伸ばし弾む",
+    "keywords": [
+      "遊ぼう",
+      "遊び心",
+      "playful"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "sneezing",
+    "label": "くしゃみする",
+    "group": "action",
+    "durationMs": 3600,
+    "face": "目を閉じて口を開く",
+    "motion": "息を吸ってから短く前へはねる",
+    "keywords": [
+      "くしゃみ",
+      "ハクション",
+      "sneeze"
+    ],
+    "effect": "none"
+  },
+  {
+    "id": "full",
+    "label": "おなかいっぱい",
+    "group": "action",
+    "durationMs": 6200,
+    "face": "目を細め満足そうに笑う",
+    "motion": "おなかをなでて後ろへゆったりもたれる",
+    "keywords": [
+      "満腹",
+      "食後",
+      "satiated"
+    ],
+    "effect": "quiet"
+  },
+  {
+    "id": "walk_joy",
+    "label": "うれしく歩く",
+    "group": "action",
+    "durationMs": 6200,
+    "face": "明るく笑う",
+    "motion": "腕を振り軽く弾んで歩く",
+    "keywords": [
+      "スキップ",
+      "喜び歩き",
+      "joyful walk"
+    ],
+    "effect": "sparkle"
+  },
+  {
+    "id": "walk_angry",
+    "label": "怒って歩く",
+    "group": "action",
+    "durationMs": 6200,
+    "face": "目を細めてにらむ",
+    "motion": "肩を張り速く硬い足取りで歩く",
+    "keywords": [
+      "怒り歩き",
+      "足踏み",
+      "angry walk"
+    ],
+    "effect": "anger"
+  },
+  {
+    "id": "walk_sad",
+    "label": "悲しく歩く",
+    "group": "action",
+    "durationMs": 6600,
+    "face": "目を伏せてうつむく",
+    "motion": "頭と手を下げ重たく歩く",
+    "keywords": [
+      "とぼとぼ",
+      "悲しみ歩き",
+      "sad walk"
+    ],
+    "effect": "quiet"
+  }
+];
+  var basePerformances = groups.reduce(function (list, group) {
+    return list.concat(group[2].map(function (item) {
+      var detail = existingDescriptions[item[0]];
+      return { id: item[0], label: item[1], group: group[0], groupLabel: group[1], durationMs: item[2],
+        face: detail.face, motion: detail.motion, keywords: detail.keywords, effect: detail.effect };
+    }));
+  }, []);
+  var catalogue = Object.freeze(basePerformances.concat(addedPerformances).map(function (entry) {
+    var group = groups.filter(function (row) { return row[0] === entry.group; })[0];
+    return Object.freeze({ id: entry.id, label: entry.label, group: entry.group, groupLabel: group[1], durationMs: entry.durationMs,
+      face: entry.face, motion: entry.motion, keywords: Object.freeze(entry.keywords.slice()), effect: entry.effect });
+  }));
   var durations = Object.freeze(catalogue.reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {}));
   var outfitCatalogue = Object.freeze([
     { id: 'cloth_cream_vest', label: 'はじめてベスト', price: 0, style: 'vest', color: [.94,.88,.75], trim: [.70,.59,.43] },
@@ -200,6 +1129,325 @@
       foodProgress: clamp((age - 1200) / 3200, 0, 1), phaseProgress: end === null ? 1 : clamp((age - start) / (end - start), 0, 1),
       nextBoundaryMs: end, done: end === null };
   }
+  // These performances use the same cutout and face keyframes, but have their own
+  // anticipation, posture, gaze and recovery. A low face score still selects a
+  // whole keyframe; differences in its score alone are never an acting choice.
+  function additionalPose(p, name, age, duration, profile, branch) {
+    var lift = smooth((age - .45) / .75), release = smooth((age - duration + 1.65) / .9);
+    var hold = lift * (1 - release), slow = Math.sin(age * TAU * .32);
+    var settle = 1 - release, q, r, stride;
+    switch (name) {
+      case 'content':
+        p.eyeNarrow = .65; p.mouthOpen = .35; p.stretch = .38; p.pawSpread = -.5; p.wave = .25;
+        p.tilt = .036 * (pulse(age, 1.4, 1.1) + pulse(age, 3.15, 1.15));
+        p.breath = .55 * Math.sin(age * TAU / 5); p.ear -= .25; p.tail += .15 * slow; break;
+      case 'relieved':
+        q = smooth((age - 1.1) / 1.1); p.blink = q;
+        p.faceSad = age < 1.1 ? .5 : 0; p.eyeNarrow = .45 * q; p.mouthOpen = .35 * q;
+        p.stretch = .45 * (1 - q); p.crouch = .55 * q; p.squash = .35 * pulse(age, 1.05, 2.2);
+        p.wave = .7 * (1 - q) - .3 * q; p.pawSpread = -.4 * (1 - q) + .4 * q;
+        p.ear -= .85 * q; p.tail -= .5 * q; p.breath = Math.sin(Math.min(1, age / 3.4) * TAU) * .95; break;
+      case 'gentlesmile':
+        p.eyeNarrow = .48; p.blush = .3; p.mouthOpen = .25; p.tilt = -.055;
+        p.pawSpread = .65 * lift; p.wave = .4; p.bodyAngle = -.022 * hold;
+        p.ear += .15; p.tail += .3 * slow; p.bounce = 0; break;
+      case 'ecstatic':
+        q = Math.pow(Math.max(0, Math.sin((age - .8) * TAU * .92)), 2) * lift;
+        p.faceDelighted = 1; p.crouch = .95 * (1 - lift); p.bounce = 1.12 * q * settle;
+        p.squash = .7 * (1 - q) * hold; p.stretch = .9 * q; p.wave = 1.45 * lift;
+        p.pawSpread = 1.2 * lift; p.bodyAngle = .055 * Math.sin(age * TAU * .46);
+        p.ear += 1.1 * q; p.tail += 1.3 * Math.sin(age * TAU * 1.84); p.mouthOpen = -.45; break;
+      case 'amused':
+        p.faceDelighted = 1; p.eyeNarrow = .2; p.mouthOpen = .9;
+        q = Math.sin(age * TAU * 3.2) * (.55 + .45 * Math.sin(age * PI * .7));
+        p.squash = .22 * q; p.tilt = .035; p.bodyAngle = .016 * q; p.wave = .9;
+        p.pawSpread = -.65; p.ear += .25 * q; p.tail *= .35; p.crouch = .24; break;
+      case 'hopeful':
+        p.lookY = -.014; p.lookX = -.002; p.eyeNarrow = -.08; p.mouthOpen = -.15;
+        p.stretch = 1.05 * lift; p.wave = .45 + .45 * lift; p.pawSpread = .75 * lift;
+        p.tilt = -.07 * lift; p.bodyAngle = -.015; p.ear += .95 * lift;
+        p.tail += .4 * slow; p.crouch = .3 * (1 - lift); break;
+      case 'triumphant':
+        q = pulse(age, .8, 1.8); p.faceDelighted = 1; p.eyeNarrow = .3; p.mouthOpen = -.25;
+        p.crouch = .8 * (1 - lift); p.bounce = 1.05 * q; p.stretch = 1.25 * lift;
+        p.wave = 1.55 * lift; p.pawSpread = 1.3 * lift; p.tilt = -.09 * lift;
+        p.ear += 1.1; p.tail += .85 * lift; p.bodyAngle = -.025; break;
+      case 'touched':
+        p.faceSad = age < 1.7 ? 1 : 0; p.faceDelighted = age >= 1.7 ? 1 : 0;
+        p.blink = Math.max(p.blink, pulse(age, 1.42, .5)); p.tear = .3; p.blush = .3;
+        p.wave = .95; p.pawSpread = -.95; p.crouch = .2;
+        p.bodyAngle = .008 * Math.sin(age * TAU * 3.5); p.tilt = .04 * pulse(age, 2.4, 2.1);
+        p.ear -= .4; p.tail *= .4; break;
+      case 'admiring':
+        p.lookY = -.014; p.lookX = -.008; p.stretch = .45; p.bodyAngle = .035;
+        p.tilt = -.06; p.wave = .85; p.pawSpread = -.85; p.shiftX = .01 * lift;
+        p.ear += 1.05; p.tail += .35; p.eyeNarrow = .12; p.blush = .25; break;
+      case 'beauty':
+        q = smooth((age - .8) / 2.4); p.lookX = .011 * Math.cos(q * PI); p.lookY = -.013 * q;
+        p.faceSurprise = .3; p.mouthOpen = .95; p.wave = .35 + .35 * q; p.pawSpread = .85 * q;
+        p.tilt = -.045 * q; p.stretch = .3; p.bodyAngle = -.018; p.ear += .6;
+        p.tail *= .25; p.breath *= .5; break;
+      case 'bittersweet':
+        q = smooth((age - 2.0) / 1.2); p.faceSad = age < 2.6 ? 1 : 0; p.faceDelighted = age >= 2.6 ? 1 : 0;
+        p.blink = Math.max(p.blink, pulse(age, 2.35, .55)); p.tear = .85 * (1 - .6 * q);
+        p.crouch = .8 * (1 - q); p.stretch = .55 * q; p.wave = .9; p.pawSpread = -.85 + 1.55 * q;
+        p.ear -= .9 * (1 - q); p.tail += -.6 + q; p.tilt = .075 * (1 - q) - .025 * q;
+        p.bodyAngle = .012 * Math.sin(age * TAU * 2.2) * (1 - q); break;
+      case 'annoyed':
+        p.faceAngry = 1; p.eyeNarrow = .68; p.mouthOpen = .6; p.anger = .3;
+        p.step = .55 * Math.pow(Math.max(0, Math.sin(age * TAU * 1.6)), 3);
+        p.tilt = -.035; p.pawSpread = .65; p.wave = -.15; p.ear += .3;
+        p.tail += 1.05 * Math.sin(age * TAU * .8); p.bodyAngle = -.018; break;
+      case 'frustrated':
+        q = pulse(age, .8, 1.0) + pulse(age, 2.25, 1.0) + pulse(age, 3.7, .9);
+        p.faceAngry = 1; p.lookY = .014; p.eyeNarrow = .35; p.mouthOpen = .65;
+        p.crouch = .45 + .4 * q; p.step = -.8 * q; p.squash = .4 * q;
+        p.wave = -.75; p.pawSpread = -.5; p.tilt = .08; p.ear -= .65; p.anger = .6; p.tail -= .4; break;
+      case 'furious':
+        q = Math.sin(age * TAU * 2.1); p.faceAngry = 1; p.eyeNarrow = .9; p.anger = 1;
+        p.step = q; p.squash = .8 * Math.abs(q); p.bodyAngle = .065 * q;
+        p.wave = .65; p.pawSpread = 1.2; p.stretch = .35; p.tilt = -.06;
+        p.ear += 1.5; p.tail += 1.2; p.mouthOpen = -.3; break;
+      case 'disgusted':
+        q = smooth((age - .5) / .3); p.faceAngry = 1; p.eyeNarrow = 1.4; p.mouthOpen = 1.2;
+        p.tilt = -.085 * q; p.bodyAngle = -.065 * q; p.shiftX = -.022 * q;
+        p.stretch = .2; p.wave = 1.0; p.pawSpread = 1.05; p.ear -= .95; p.tail -= .85;
+        p.crouch = .3 * pulse(age, .45, 1.1); p.lookX = .014; break;
+      case 'repulsed':
+        q = pulse(age, .5, 1.0); p.faceSurprise = 1; p.blink = 1; p.eyeNarrow = 1.6; p.mouthOpen = 1.8;
+        p.bodyAngle = -.08 * q; p.shiftX = -.025 * q; p.crouch = .75 * q;
+        p.tilt = -.082 * (q + .25 * settle); p.squash = .55 * q; p.wave = .95;
+        p.pawSpread = 1.15; p.ear -= 1.3; p.tail -= 1.0; break;
+      case 'contempt':
+        p.eyeNarrow = -1.15; p.mouthOpen = .65; p.lookX = .014; p.lookY = .01;
+        p.bodyAngle = -.055; p.stretch = .5; p.shiftX = -.012; p.tilt = -.075 + .018 * slow;
+        p.wave = -.3; p.pawSpread = .25; p.ear -= .35; p.tail *= .2; break;
+      case 'jealous':
+        p.faceSad = 1; p.eyeNarrow = .38; p.lookX = .015; p.lookY = -.003;
+        p.wave = .95; p.pawSpread = -.95 * lift; p.shiftX = .013 * lift;
+        p.tilt = -.05; p.bodyAngle = .035; p.crouch = .25; p.ear -= .45;
+        p.tail += .4 * Math.sin(age * PI * .8); break;
+      case 'guilty':
+        q = pulse(age, 1.6, .65) + pulse(age, 3.8, .65); p.faceSad = 1;
+        p.lookY = .014 - .018 * q; p.lookX = -.01 + .012 * q; p.sweat = .6;
+        p.crouch = .65; p.tilt = .065; p.wave = .75; p.pawSpread = -.7;
+        p.wiggle = .35 * Math.sin(age * TAU * 1.3); p.ear -= .9; p.tail -= .55; break;
+      case 'regretful':
+        q = smooth((age - .6) / 1.7); p.faceSad = 1; p.lookY = .018; p.eyeNarrow = .5;
+        p.tilt = .105 * q; p.crouch = 1.1 * q; p.stretch = -.4 * q;
+        p.wave = .9; p.pawSpread = -.85; p.ear -= 1.4 * q; p.tail -= 1.1 * q;
+        p.breath *= .4; p.bodyAngle = .03 * q; break;
+      case 'holding_tears':
+        q = pulse(age, .8, .4) + pulse(age, 2.2, .4) + pulse(age, 3.6, .4);
+        p.faceSad = 1; p.blink = Math.max(p.blink, q); p.mouthOpen = 1.25; p.tear = .2;
+        p.bodyAngle = .009 * Math.sin(age * TAU * 4.4); p.squash = .10 * Math.sin(age * TAU * 3.3);
+        p.wave = .25; p.pawSpread = -.4; p.crouch = .45; p.ear -= .95; p.tail -= .85; break;
+      case 'awed':
+        p.faceSurprise = 1; p.mouthOpen = .5; p.lookY = -.016;
+        p.stretch = .65; p.bodyAngle = -.04; p.shiftX = -.012; p.wave = .25 + .6 * lift;
+        p.pawSpread = .9 * lift; p.tilt = -.07; p.ear += .85; p.tail *= .1; p.breath *= .4; break;
+      case 'entranced':
+        p.eyeNarrow = -.12; p.lookX = -.01; p.lookY = -.003; p.stretch = .6;
+        p.bodyAngle = .045; p.shiftX = .02 * lift; p.tilt = -.035;
+        p.wave = .1; p.pawSpread = -.2; p.ear += 1.2; p.tail *= .05; p.breath *= .3; break;
+      case 'anxious':
+        p.faceSad = 1; p.eyeNarrow = .25; p.lookX = .012 * Math.sin(age * PI * .75); p.lookY = .004;
+        p.sweat = .8; p.crouch = .7; p.wave = .95; p.pawSpread = -.9; p.tilt = .035;
+        p.ear -= .7; p.tail -= .7; p.breath *= 1.25; p.bodyAngle = .012 * slow; break;
+      case 'panic':
+        q = Math.sin(age * TAU * 2.7); p.faceSurprise = 1; p.mouthOpen = -.45; p.sweat = 1;
+        p.step = q; p.shiftX = .025 * Math.sin(age * TAU * 1.35); p.bodyAngle = .075 * q;
+        p.wave = .6 + .65 * Math.sin(age * TAU * 3.4); p.pawSpread = .95;
+        p.ear += .9 * q; p.tail += 1.15 * q; p.bounce = .25 * Math.abs(q); break;
+      case 'horrified':
+        q = smooth((age - .5) / .5); p.faceSurprise = 1; p.mouthOpen = -.65; p.sweat = .85;
+        p.shiftX = -.022 * q; p.bodyAngle = -.045; p.crouch = .75 * q; p.tilt = -.025;
+        p.wave = -.45; p.pawSpread = -.65; p.ear -= 1.5 * q; p.tail -= 1.4 * q;
+        p.breath = .1 * Math.sin(age * TAU * .8); break;
+      case 'suspicious':
+        p.eyeNarrow = .85; p.mouthOpen = .5; p.lookX = .015 * Math.sin(age * PI * .52);
+        p.lookY = -.002; p.tilt = .045 * Math.sin(age * PI * .52); p.stretch = .35;
+        p.bodyAngle = .04; p.shiftX = .014 * Math.sin(age * PI * .52);
+        p.wave = .1; p.pawSpread = -.3; p.ear += .25; p.tail *= .2; break;
+      case 'realization':
+        q = smooth((age - .9) / .35); p.faceSurprise = age < 1.8 ? 1 : 0;
+        p.eyeNarrow = .3 * smooth((age - 1.8) / .4); p.blink = Math.max(p.blink, pulse(age, 1.58, .45));
+        p.crouch = .65 * (1 - q); p.stretch = .9 * q; p.tilt = .06 - .13 * q;
+        p.wave = .25 + .95 * q; p.wiggle = .7 * q; p.pawSpread = .15;
+        p.ear += .85 * q; p.tail += .65 * q; p.bounce = .3 * pulse(age, 1.0, .8); break;
+      case 'anticipating':
+        q = Math.sin(age * TAU * 1.45); p.lookY = -.009; p.lookX = -.003;
+        p.step = .65 * q; p.bounce = .32 * Math.pow(Math.max(0, q), 2);
+        p.wave = .9; p.pawSpread = -.9; p.stretch = .25; p.tilt = -.045;
+        p.ear += .75 + .25 * q; p.tail += .8 * Math.sin(age * TAU * .73); break;
+      case 'nostalgic':
+        p.eyeNarrow = .45; p.mouthOpen = .25; p.lookX = .012; p.lookY = -.007;
+        p.bodyAngle = -.03 * Math.sin(age * PI * .25); p.tilt = -.05;
+        p.wave = .75; p.pawSpread = -.4; p.ear -= .35; p.tail += .2 * slow;
+        p.breath = .5 * Math.sin(age * TAU / 6.4); break;
+      case 'startled':
+        q = pulse(age, .35, .85); r = smooth((age - .95) / .5); p.faceSurprise = 1;
+        p.bounce = .9 * q; p.stretch = .7 * q; p.crouch = .7 * r; p.wave = .9 * q - .3 * r;
+        p.pawSpread = 1.05 * q - .7 * r; p.ear += 1.0 * q - .9 * r;
+        p.tail += .7 * q - .5 * r; p.tilt = -.06 * q + .055 * r; p.mouthOpen = .25; break;
+      case 'trusting':
+        p.eyeNarrow = .45; p.mouthOpen = .25; p.bodyAngle = .045 * lift; p.shiftX = .01 * lift;
+        p.wave = 1.0 * lift; p.pawSpread = .55 * lift; p.tilt = -.025;
+        p.ear -= .3; p.tail += .4 * Math.sin(age * PI * .6); p.stretch = .25; break;
+      case 'affectionate':
+        p.faceDelighted = 1; p.blush = .6; p.lookY = -.01;
+        p.bodyAngle = .055 * Math.sin(age * PI * .6); p.shiftX = .018 * Math.sin(age * PI * .6);
+        p.tilt = -.065; p.wave = .65; p.pawSpread = -.75; p.ear -= .75;
+        p.tail += .65 * Math.sin(age * TAU * .6); p.crouch = .3; break;
+      case 'empathic':
+        p.faceSad = 1; p.lookX = -.01; p.lookY = .008; p.tear = .25;
+        p.crouch = .8; p.tilt = .065; p.bodyAngle = .035; p.shiftX = .01;
+        p.wave = .65 * lift; p.pawSpread = .35; p.ear -= .95; p.tail -= .65; break;
+      case 'compassionate':
+        p.eyeNarrow = .35; p.lookY = .009; p.tilt = .045;
+        p.crouch = .4; p.bodyAngle = .025; p.wave = .95; p.pawSpread = .65 * (1 - .5 * lift);
+        p.wiggle = .15 * Math.sin(age * PI * .6); p.ear -= .5; p.tail *= .4; break;
+      case 'comforting':
+        p.eyeNarrow = .5; p.mouthOpen = .3;
+        q = .5 - .5 * Math.cos(age * TAU * .55); p.wave = .45 + .55 * q;
+        p.wiggle = .25 * Math.sin(age * TAU * .55); p.pawSpread = .5;
+        p.tilt = .045 * q; p.ear -= .25; p.tail += .15 * slow; p.crouch = .15; break;
+      case 'awkward':
+        q = Math.sin(age * TAU * .85); p.eyeNarrow = .2; p.mouthOpen = .9;
+        p.lookX = -.012; p.lookY = .008; p.sweat = .6; p.pawSpread = -.85; p.wave = .55;
+        p.step = .45 * q; p.shiftX = .012 * q; p.bodyAngle = .025 * q;
+        p.tilt = .05; p.ear -= .7; p.tail += .3 * q; break;
+      case 'respectful':
+        q = smooth((age - .9) / .9) * (1 - smooth((age - 3.9) / .75));
+        p.lookY = .014 * q; p.eyeNarrow = .2 * q; p.blink = q;
+        p.stretch = .6 * (1 - q); p.crouch = 1.15 * q; p.tilt = .11 * q;
+        p.bodyAngle = .045 * q; p.wave = .15; p.pawSpread = -.8; p.ear -= 1.0 * q; p.tail -= .4; break;
+      case 'forgiving':
+        q = smooth((age - 1.6) / 1.2); p.faceAngry = age < 1.9 ? 1 : 0;
+        p.eyeNarrow = .45 * (1 - q); p.blink = Math.max(p.blink, pulse(age, 1.65, .55));
+        p.pawSpread = -.8 + 1.7 * q; p.wave = .6; p.tilt = .035 * pulse(age, 3.2, 1.5);
+        p.crouch = .25 * (1 - q); p.ear += -.4 + .65 * q; p.tail += .4 * q; break;
+      case 'longing':
+        q = pulse(age, .75, 3.6); p.faceSad = 1; p.lookX = .014; p.lookY = -.008;
+        p.wave = .3 + .8 * q; p.pawSpread = -.8 + 1.45 * q; p.shiftX = .014 * q;
+        p.bodyAngle = .04 * q; p.tilt = -.04 + .06 * (1 - q);
+        p.ear -= .65; p.tail -= .7; p.crouch = .3; break;
+      case 'heartflutter':
+        q = pulse(age, 1.15, .75) + .6 * pulse(age, 3.2, .65);
+        p.blush = 1; p.eyeNarrow = .25; p.lookY = -.009; p.wave = .95; p.pawSpread = -1;
+        p.bounce = .65 * q; p.squash = .25 * (1 - q); p.bodyAngle = .018 * Math.sin(age * TAU * 1.7);
+        p.tilt = -.04; p.ear += .35 * q; p.tail += .65 * q; break;
+      case 'peaceful':
+        p.blink = 1; p.breath = .8 * Math.sin(age * TAU / 6.2); p.eyeNarrow = .15;
+        p.ear -= .55; p.tail *= .08; p.wave = -.25; p.pawSpread = .35;
+        p.crouch = .25; p.tilt = 0; p.bodyAngle = 0; break;
+      case 'secure':
+        p.eyeNarrow = .65; p.mouthOpen = .3; p.bodyAngle = .05 * lift; p.shiftX = .011 * lift;
+        p.tilt = .025; p.crouch = .45; p.wave = -.55; p.pawSpread = .3;
+        p.ear -= 1.0; p.tail -= .35; p.breath = .65 * Math.sin(age * TAU / 5.5); break;
+      case 'savoring':
+        q = pulse(age, 1.1, 1.55) + pulse(age, 3.05, 1.55);
+        p.blink = 1; p.mouthOpen = .7; p.tilt = .055 * q; p.wave = .85; p.pawSpread = -.9;
+        p.ear -= .35; p.tail += .35 * slow; p.chew = .18 * Math.sin(age * TAU * .6);
+        p.crouch = .15; p.squash = .08 * q; break;
+      case 'meditating':
+        p.blink = 1; p.eyeNarrow = .2; p.stretch = .65; p.tilt = -.012;
+        p.wave = .65; p.pawSpread = -.8; p.ear += .15; p.tail = 0;
+        p.breath = .45 * Math.sin(age * TAU / 5); p.bodyAngle = 0; break;
+      case 'deep_sleep':
+        p.blink = 1; p.breath = 1.1 * Math.sin(age * TAU / 5.8);
+        p.crouch = 1.2; p.squash = .55; p.stretch = -.35; p.tilt = .09;
+        p.bodyAngle = .025; p.wave = -.6; p.pawSpread = -.35; p.ear -= 1.3; p.tail -= .8; break;
+      case 'stretching':
+        q = pulse(age, .55, 3.75); p.blink = 1; p.mouthOpen = -.35 * q;
+        p.stretch = 1.4 * q; p.squash = -.25 * q; p.wave = 1.45 * q; p.pawSpread = 1.1 * q;
+        p.tilt = -.10 * q; p.bodyAngle = -.025 * q; p.ear += .7 * q; p.tail += .6 * q; break;
+      case 'tired':
+        q = smooth((age - .5) / 2); p.eyeNarrow = .95; p.lookY = .016; p.mouthOpen = .45;
+        p.crouch = 1.15 * q; p.stretch = -.45 * q; p.tilt = .10 * q; p.wave = -.85;
+        p.pawSpread = .25; p.ear -= 1.45 * q; p.tail -= 1.0; p.breath *= .55; break;
+      case 'bored_fidget':
+        q = Math.sin(age * TAU * 1.2); p.eyeNarrow = .8; p.mouthOpen = .65;
+        p.lookX = .014 * Math.sin(age * PI * .65); p.tilt = -.045; p.wave = -.2;
+        p.pawSpread = .3; p.step = .55 * Math.pow(Math.max(0, q), 3);
+        p.tail += .95 * Math.sin(age * TAU * .6); p.crouch = .3; p.ear -= .55; break;
+      case 'patient':
+        p.eyeNarrow = .15; p.mouthOpen = .5; p.lookX = 0; p.lookY = 0;
+        p.wave = .45; p.pawSpread = -.65; p.stretch = .3; p.ear += .25;
+        p.tail *= .1; p.breath *= .55; p.tilt = 0; p.bodyAngle = 0; break;
+      case 'refreshed':
+        q = smooth((age - 1.0) / 1.2); p.blink = 1 - q; p.eyeNarrow = .15 * q;
+        p.stretch = 1.1 * pulse(age, .75, 2.8); p.wave = 1.15 * q; p.pawSpread = .95 * q;
+        p.tilt = .06 * (1 - q) - .05 * q; p.ear += -.6 + 1.6 * q;
+        p.tail += .7 * q; p.crouch = .65 * (1 - q); p.bodyAngle = -.02 * q; break;
+      case 'hungry':
+        p.lookX = .014 * Math.sin(age * PI * .55); p.lookY = .01; p.mouthOpen = -.15;
+        p.wave = .35; p.pawSpread = -.6; p.crouch = .55; p.tilt = .055;
+        p.bodyAngle = .04; p.shiftX = .012; p.ear -= .45;
+        p.squash = .2 * Math.sin(age * TAU * .7); p.tail -= .45; break;
+      case 'thirsty':
+        p.faceSurprise = 1; p.mouthOpen = .7; p.lookY = -.003; p.eyeNarrow = .35;
+        p.wave = .65; p.pawSpread = -.2; p.bodyAngle = .028 * Math.sin(age * PI * .55);
+        p.tilt = -.035; p.ear -= .65; p.tail -= .4; p.crouch = .35; break;
+      case 'asking':
+        q = pulse(age, .8, 1.5) + pulse(age, 3.0, 1.5); p.lookY = -.015;
+        p.wave = .95; p.pawSpread = -1; p.bodyAngle = .045; p.shiftX = .012;
+        p.tilt = -.055 + .035 * q; p.crouch = .35 * q; p.ear += .6;
+        p.tail += .55 * slow; p.eyeNarrow = .05; break;
+      case 'refusing':
+        q = .5 + .5 * Math.sin(age * TAU * .8); p.eyeNarrow = .45; p.mouthOpen = .85;
+        p.tilt = .075 * Math.sin(age * TAU * .8); p.wave = .9; p.pawSpread = .6 + .55 * q;
+        p.wiggle = .4 * Math.sin(age * TAU * .8); p.bodyAngle = -.025;
+        p.ear -= .15; p.tail *= .3; break;
+      case 'agreeing':
+        q = pulse(age, .55, 1.25) + pulse(age, 2.05, 1.25);
+        p.eyeNarrow = .3; p.mouthOpen = .3; p.tilt = .085 * q; p.crouch = .25 * q;
+        p.wave = .35; p.pawSpread = -.25; p.ear -= .2 * q; p.tail += .35; break;
+      case 'disagreeing':
+        p.blink = 1; p.mouthOpen = 1.0; p.tilt = .10 * Math.sin(age * TAU * .9);
+        p.wave = .65; p.pawSpread = -.65; p.ear -= .35; p.tail -= .25;
+        p.bodyAngle = -.02 * Math.sin(age * TAU * .9); break;
+      case 'mischievous':
+        q = pulse(age, 1.2, 2.4); p.eyeNarrow = -.85; p.mouthOpen = .3; p.lookX = -.013;
+        p.tilt = .075; p.bodyAngle = .045 * q; p.shiftX = .016 * q;
+        p.wave = .3 + .75 * q; p.wiggle = .8 * q; p.pawSpread = .55 * q;
+        p.ear += .45; p.tail += .85 * Math.sin(age * PI * .65); break;
+      case 'playful':
+        q = pulse(age, .9, 1.3) + .65 * pulse(age, 3.25, 1.2); p.lookY = -.007;
+        p.crouch = .8 * (1 - lift); p.bounce = .75 * q; p.wave = 1.2 * q;
+        p.pawSpread = 1.05 * q; p.tilt = -.06; p.bodyAngle = .04 * Math.sin(age * PI * .65);
+        p.ear += .85; p.tail += 1.1 * Math.sin(age * TAU * .85); break;
+      case 'sneezing':
+        q = pulse(age, 1.15, .55); r = pulse(age, .35, 1.25);
+        p.blink = Math.max(p.blink, pulse(age, .95, .9)); p.mouthOpen = -1.1 * q;
+        p.stretch = .6 * r - .45 * q; p.crouch = 1.1 * q; p.squash = .7 * q;
+        p.tilt = -.055 * r + .11 * q; p.bodyAngle = .065 * q; p.wave = .35 + .6 * q;
+        p.pawSpread = -.6; p.ear += .5 * r - 1.0 * q; p.tail -= .6 * q; break;
+      case 'full':
+        p.eyeNarrow = .75; p.mouthOpen = .4; p.bodyAngle = -.065; p.shiftX = -.014;
+        p.crouch = .55; p.squash = .35; p.tilt = -.055; p.wave = .15;
+        p.pawSpread = -.65; p.wiggle = .4 * Math.sin(age * TAU * .6);
+        p.ear -= .6; p.tail -= .3; p.breath = .95 * Math.sin(age * TAU / 4.5); break;
+      case 'walk_joy':
+        stride = age * TAU * 1.65 * profile.movingCadence * branch.movingCadence;
+        p.faceDelighted = 1; p.step = Math.sin(stride); p.bounce = .65 * Math.pow(Math.max(0, Math.sin(stride)), 2);
+        p.wave = .4 + .6 * Math.sin(stride); p.wiggle = .7 * Math.cos(stride); p.pawSpread = .65;
+        p.bodyAngle = .035 * Math.sin(stride); p.shiftX = .018 * Math.sin(age * PI * .55);
+        p.ear += .7 * Math.sin(stride); p.tail += .9 * Math.sin(stride * .5); p.tilt = -.035; break;
+      case 'walk_angry':
+        stride = age * TAU * 2.35 * profile.movingCadence * branch.movingCadence;
+        p.faceAngry = 1; p.eyeNarrow = .55; p.anger = .8; p.step = Math.sin(stride);
+        p.squash = .45 * Math.pow(Math.max(0, Math.sin(stride)), 2); p.wave = -.25;
+        p.pawSpread = 1.15; p.bodyAngle = .055 * Math.sin(stride); p.stretch = .35;
+        p.shiftX = .024 * Math.sin(age * PI * .7); p.ear += 1.0; p.tail += 1.1; p.tilt = -.05; break;
+      case 'walk_sad':
+        stride = age * TAU * .78 * profile.movingCadence * branch.movingCadence;
+        p.faceSad = 1; p.lookY = .016; p.eyeNarrow = .3; p.step = .65 * Math.sin(stride);
+        p.crouch = .7 + .15 * Math.abs(p.step); p.wave = -.75; p.pawSpread = -.25;
+        p.bodyAngle = .018 * Math.sin(stride); p.shiftX = .01 * Math.sin(age * PI * .28);
+        p.ear -= 1.05; p.tail -= .85; p.tilt = .075; p.bounce = .05 * Math.abs(p.step); break;
+    }
+  }
   // Pure profiles in seconds. Emotions ease in and settle to the exact underlying idle pose.
   function pose(seconds, situation, elapsedSeconds, growthStage, evolutionPath) {
     var profile = growthProfile(growthStage), branch=evolutionProfile(evolutionPath), rawSeconds = Math.max(0, finite(seconds, 0));
@@ -290,6 +1538,12 @@
       case 'dance': p.faceDelighted = .75; p.bodyAngle = .085 * Math.sin(age * PI * 1.3); p.shiftX = .025 * Math.sin(age * PI * 1.3); p.step = Math.sin(age * TAU * 1.3); p.bounce = .35 * Math.abs(p.step); p.wave = .7; p.wiggle = fast; p.pawSpread = .8 * beat; p.tail += 1.1 * beat; break;
       case 'celebrate': p.faceDelighted = 1; p.bounce = .95 * hop; p.wave = 1.15; p.pawSpread = 1.1; p.stretch = .65; p.bodyAngle = .05 * beat; p.ear += 1; p.tail += 1.2 * fast; p.mouthOpen = .6; break;
       case 'determined': p.faceAngry = .4; p.eyeNarrow = .25; p.crouch = .65 * nod; p.stretch = .55 * (1 - nod); p.pawSpread = .35; p.wave = .85; p.ear += .9; p.tilt = -.045; p.squash = .3 * nod; p.tail += .7; break;
+      default: {
+        var originalBlink = p.blink;
+        additionalPose(p, name, age, duration, profile, branch);
+        p.blink = originalBlink + (p.blink - originalBlink) * e;
+        break;
+      }
     }
     // All acting offsets, including facial keyframes, share the same release envelope.
     ['bounce', 'step', 'chew', 'bodyAngle', 'shiftX', 'shiftY', 'squash', 'stretch', 'crouch', 'pawSpread',
@@ -415,9 +1669,16 @@
     'float tail=region(p,vec2(.155,.728),vec2(.115,.19));p.x+=u_tail*.014*tail;p.y-=u_tail*.024*tail;',
     'float mouth=region(p,vec2(.628,.499),vec2(.080,.055));p.y+=u_chew*.010*mouth;',
     'p.y+=(p.y-.499)*u_mouthOpen*.22*mouth;',
+    // Negative narrowing is a one-eye glance with a crooked mouth, rather than
+    // stretching both eyes open. The original positive range is unchanged.
+    'float oneEye=max(0.,-u_eyeNarrow);float squint=max(0.,u_eyeNarrow);',
+    'p.y+=oneEye*(p.x-.628)*.25*mouth;',
+    // Values above the original squint range add a small nose/mouth scrunch.
+    'float scrunch=max(0.,squint-1.);float nose=region(p,vec2(.621,.453),vec2(.07,.045));',
+    'p.x+=(p.x-.621)*scrunch*.24*nose;p.y+=scrunch*.008*nose;',
     'p.y+=u_step*.013*(region(p,vec2(.413,.905),vec2(.067,.043))-region(p,vec2(.690,.905),vec2(.060,.043)));',
     'float eyeL=eyeMask(p,vec2(.4665,.429),vec2(.135,.125));float eyeR=eyeMask(p,vec2(.7281,.3405),vec2(.115,.12));float eye=max(eyeL,eyeR);',
-    'p.y+=u_eyeNarrow*.35*((p.y-.429)*eyeL+(p.y-.3405)*eyeR);',
+    'p.y+=.35*((p.y-.429)*(squint+oneEye)*eyeL+(p.y-.3405)*squint*eyeR);',
     'float iris=region(p,vec2(.4665,.429),vec2(.052,.059))+region(p,vec2(.7281,.3405),vec2(.045,.065));',
     'p-=u_look*iris*(1.-u_blink);vec2 uv=clamp(p,vec2(.0001),vec2(.9999));',
     'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)));',

@@ -7,7 +7,8 @@
   var lifecycleEpoch = 0, suspended = false, renderedDay = '';
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
-  var emotionGroup = 'bright', previewEmotionGroup = 'bright';
+  var emotionBrowse = { pet: { group: 'bright', query: '', page: 0 }, preview: { group: 'bright', query: '', page: 0 } };
+  var emotionCacheKey, emotionCacheRows;
   var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null;
   var fittingOpen = false, fittingOutfit = null;
   var imageRoot = '/static/';
@@ -113,6 +114,7 @@
       request.cueTimer = null;
       if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
       if (request.food) request.food.hidden = true;
+      request.wrap.dataset.cuePhase = 'idle';
     });
     motionControllers.forEach(function (controller) { try { controller.destroy(); } catch (_) {} });
     motionControllers = []; motionRequests = [];
@@ -149,7 +151,7 @@
     var dress = preview === 'fitting' ? fittingOverride : outfit(s);
     var dressItem = item(dress); dress = dressItem && dressItem.type === 'clothing' ? dressItem.id : null;
     var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + growthStage + (extraClass ? ' ' + extraClass : ''));
-    wrap.dataset.growthStage = growthStage; wrap.dataset.evolutionPath = path; wrap.dataset.outfit = dress || 'none';
+    wrap.dataset.cuePhase = 'idle'; wrap.dataset.growthStage = growthStage; wrap.dataset.evolutionPath = path; wrap.dataset.outfit = dress || 'none';
     var still = node('img', 'ipg-lilac-still');
     still.src = imageRoot + 'pet_lilac_cutout.webp';
     still.alt = (s.pet.name || '薄紫のこ') + '（' + stage(s).label + '）';
@@ -200,7 +202,7 @@
   }
   function motionFallback(request) {
     request.ready = false; request.canvas.hidden = true; request.still.hidden = false;
-    request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = '';
+    request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = ''; request.wrap.dataset.cuePhase = 'idle';
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     if (request.food) request.food.hidden = true;
@@ -222,14 +224,29 @@
     ['action','あそぶ・がんばる',[['feeding','ごはん'],['moving','移動'],['caught','キャッチ'],['dance','ダンス'],['celebrate','お祝い'],['determined','やるぞ']]]
   ];
   function emotionCatalogue() {
-    var shared = w.PetLilacMotion && w.PetLilacMotion.catalogue;
-    return emotionFallback.reduce(function (all, group) {
-      return all.concat(group[2].map(function (entry) {
-        var detail = Array.isArray(shared) && shared.filter(function (x) { return x.id === entry[0]; })[0];
-        return { id: entry[0], label: detail && detail.label || entry[1], group: group[0], groupLabel: group[1],
-          durationMs: w.PetLilacMotion && w.PetLilacMotion.durations[entry[0]] || 0 };
-      }));
+    var engine = w.PetLilacMotion, shared = engine && engine.catalogue, key = Array.isArray(shared) && shared.length ? shared : engine || null;
+    if (key === emotionCacheKey && emotionCacheRows) return emotionCacheRows;
+    var aliases = { happy: 'bright', feeling: 'deep', social: 'together', bright: 'bright', deep: 'deep', together: 'together', wonder: 'wonder', calm: 'calm', action: 'action' };
+    var source = Array.isArray(shared) && shared.length ? shared : emotionFallback.reduce(function (all, group) {
+      return all.concat(group[2].map(function (entry) { return { id: entry[0], label: entry[1], group: group[0], effect: 'none' }; }));
     }, []);
+    var seen = {};
+    emotionCacheRows = source.filter(function (entry) {
+      if (!entry || typeof entry.id !== 'string' || typeof entry.label !== 'string' || !aliases[entry.group] || seen[entry.id]) return false;
+      seen[entry.id] = true; return true;
+    }).map(function (entry) {
+      var group = emotionFallback.filter(function (row) { return row[0] === aliases[entry.group]; })[0];
+      return { id: entry.id, label: entry.label, group: group[0], groupLabel: group[1],
+        durationMs: Number.isFinite(entry.durationMs) ? entry.durationMs : engine && engine.durations && engine.durations[entry.id] || 0,
+        face: typeof entry.face === 'string' && entry.face ? entry.face : '顔の見本',
+        motion: typeof entry.motion === 'string' && entry.motion ? entry.motion : '動きは未表示です',
+        keywords: Array.isArray(entry.keywords) ? entry.keywords.filter(function (word) { return typeof word === 'string'; }) : [],
+        effect: typeof entry.effect === 'string' ? entry.effect : 'none' };
+    });
+    emotionCacheKey = key; return emotionCacheRows;
+  }
+  function emotionSearchText(value) {
+    return String(value || '').normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g, function (letter) { return String.fromCharCode(letter.charCodeAt(0) - 96); });
   }
   function previewCue() {
     var duration = w.PetLilacMotion && w.PetLilacMotion.durations[previewSituation] || 0;
@@ -237,15 +254,10 @@
     return { situation: previewSituation, durationMs: duration, startedAt: previewStartedAt };
   }
   function effectFor(situation) {
-    if (['sad','cry'].indexOf(situation) >= 0) return { kind: 'tears', marks: ['', '', '', ''] };
-    if (['angry','sulky','determined'].indexOf(situation) >= 0) return { kind: 'anger', marks: ['╬','☁','☁'] };
-    if (['love','grateful','petted','shy'].indexOf(situation) >= 0) return { kind: 'hearts', marks: ['♡','♡','♡'] };
-    if (['scared','nervous','embarrassed'].indexOf(situation) >= 0) return { kind: 'sweat', marks: ['', '〰', ''] };
-    if (['surprise','confused','curious','thinking'].indexOf(situation) >= 0) return { kind: 'wonder', marks: [situation === 'surprise' ? '！' : '？','·','·'] };
-    if (['resting','sleepy','yawn','relaxed'].indexOf(situation) >= 0) return { kind: 'sleep', marks: ['z','Z','·'] };
-    if (['lonely','disappointed','bored','apology'].indexOf(situation) >= 0) return { kind: 'quiet', marks: ['·','·','·'] };
-    if (situation === 'idle') return null;
-    return { kind: 'sparkle', marks: ['✦','♪','✧','✦'] };
+    var entry = emotionCatalogue().filter(function (row) { return row.id === situation; })[0];
+    var marks = { tears: ['', '', '', ''], anger: ['╬','☁','☁'], hearts: ['♡','♡','♡'], sweat: ['', '〰', ''],
+      wonder: [situation === 'surprise' || situation === 'startled' ? '！' : '？','·','·'], sleep: ['z','Z','·'], quiet: ['·','·','·'], sparkle: ['✦','♪','✧','✦'] };
+    return entry && Object.prototype.hasOwnProperty.call(marks, entry.effect) ? { kind: entry.effect, marks: marks[entry.effect] } : null;
   }
   function updateMotionPresentation(request, cue) {
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
@@ -262,6 +274,8 @@
     request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? meal.label : entry ? entry.label : 'ふだん'));
     request.wrap.dataset.situation = name;
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
+    var entryEnd = Math.min(450, duration * .22), releaseStart = duration - Math.min(800, duration * .28);
+    request.wrap.dataset.cuePhase = name === 'idle' ? 'idle' : meal ? meal.phase : age < entryEnd ? 'enter' : age >= releaseStart ? 'settling' : 'acting';
     if (request.food) {
       request.food.hidden = !(meal && meal.foodVisible && request.ready && motionsVisible());
       var anchor = w.PetLilacMotion && typeof w.PetLilacMotion.feedingAnchor === 'function' ? w.PetLilacMotion.feedingAnchor(request.growthStage, request.evolutionPath) : null;
@@ -287,60 +301,90 @@
         });
       }
     }
-    var nextAge = meal && meal.nextBoundaryMs != null ? Math.min(duration, meal.nextBoundaryMs) : duration;
+    var nextAge = meal && meal.nextBoundaryMs != null ? Math.min(duration, meal.nextBoundaryMs) : age < entryEnd ? entryEnd : age < releaseStart ? releaseStart : duration;
     if (meal && meal.phase === 'chewing') nextAge = Math.min(nextAge, 1200 + (meal.foodProgress < .34 ? .34 : meal.foodProgress < .68 ? .68 : 1) * 3200);
     if (name !== 'idle' && motionsVisible()) request.cueTimer = w.setTimeout(function () {
       request.cueTimer = null;
       if (!request.canvas.isConnected || !motionsVisible()) return;
-      if (meal && Date.now() - cue.startedAt < duration) { updateMotionPresentation(request, cue); return; }
+      if (Date.now() - cue.startedAt < duration) { updateMotionPresentation(request, cue); return; }
       if (request.preview) previewSituation = 'idle';
       else if (reaction && reaction.startedAt === cue.startedAt) reaction = null;
       updateMotionPresentation(request, null);
     }, Math.max(16, nextAge - age));
   }
   function emotionPalette(request, preview) {
+    var all = emotionCatalogue(), count = all.length, mode = preview ? 'preview' : 'pet', browse = emotionBrowse[mode];
+    var available = !!request && !!w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function';
     var box = node('section', 'ipg-emotion-panel');
-    box.setAttribute('aria-label', preview ? 'しぐさの見本・36種類' : 'きもちとしぐさ・36種類');
-    append(box, node('h4', '', preview ? '36種類のしぐさの見本' : 'きもちとしぐさ · 36種類'),
-      text('好きなきもちを選んで、もう一度タップすると繰り返せます。', 'ipg-small'));
+    box.setAttribute('aria-label', (preview ? 'しぐさの見本・' : 'きもちとしぐさ・') + count + '種類');
+    append(box, node('h4', '', preview ? count + '種類のしぐさの見本' : 'きもちとしぐさ · ' + count + '種類'));
     var caption = text('ふだんのしぐさ', 'ipg-emotion-caption'); caption.setAttribute('aria-live', 'polite');
+    var search = node('input', 'ipg-emotion-search'); search.type = 'search'; search.placeholder = '名前・顔・動きで探す';
+    search.value = browse.query; search.dataset.focusKey = mode + '-emotion-search'; search.setAttribute('aria-label', '全' + count + '種類からしぐさを検索');
+    var clear = button('クリア', function () { browse.query = ''; browse.page = 0; search.value = ''; refreshChoices(); search.focus({ preventScroll: true }); }, true);
+    clear.dataset.focusKey = mode + '-emotion-clear';
+    var searchRow = append(node('div', 'ipg-emotion-search-row'), search, clear);
     var tabs = node('div', 'ipg-emotion-groups'); tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'きもちのグループ');
-    var choices = node('div', 'ipg-emotion-choices'), groups = [], groupButtons = [];
-    var selected = preview ? previewEmotionGroup : emotionGroup;
-    if (!emotionFallback.some(function (x) { return x[0] === selected; })) selected = 'bright';
+    var grid = node('div', 'ipg-emotion-grid'); grid.setAttribute('role', 'group'); grid.setAttribute('aria-label', 'しぐさを選ぶ');
+    var resultCount = text('', 'ipg-emotion-count ipg-small'); resultCount.setAttribute('role', 'status'); resultCount.setAttribute('aria-live', 'polite');
+    var empty = text('見つかりませんでした。別の言葉で探すか、クリアしてください。', 'ipg-emotion-empty ipg-small'); empty.hidden = true;
+    var groupButtons = [], choiceRows = [];
     var activeName = preview ? previewCue().situation : (currentReaction() || {}).situation || 'idle';
-    var all = emotionCatalogue(), available = !!request && !!w.PetLilacMotion;
     if (request) { request.controls = []; request.caption = caption; }
     emotionFallback.forEach(function (group) {
-      var groupBox = node('div', 'ipg-emotion-grid'); groupBox.hidden = selected !== group[0];
-      groupBox.setAttribute('role', 'group'); groupBox.setAttribute('aria-label', group[1]);
-      var groupButton = button(group[1], function () {
-        if (preview) previewEmotionGroup = group[0]; else emotionGroup = group[0];
-        groupButtons.forEach(function (x) { x.button.setAttribute('aria-pressed', String(x.id === group[0])); });
-        groups.forEach(function (x) { x.box.hidden = x.id !== group[0]; });
+      var size = all.filter(function (entry) { return entry.group === group[0]; }).length;
+      var groupButton = button(group[1] + ' ' + size, function () {
+        browse.group = group[0]; browse.query = ''; browse.page = 0; search.value = ''; refreshChoices();
       }, true);
-      groupButton.setAttribute('aria-pressed', String(selected === group[0]));
-      groupButton.dataset.focusKey = (preview ? 'preview-' : 'pet-') + 'emotion-group-' + group[0];
+      groupButton.dataset.focusKey = mode + '-emotion-group-' + group[0];
       groupButtons.push({ id: group[0], button: groupButton }); tabs.appendChild(groupButton);
-      all.filter(function (entry) { return entry.group === group[0]; }).forEach(function (entry) {
-        var choice = button(entry.label, function () {
-          if (!request || !request.controller || !request.ready || !motionsVisible()) return;
-          var cue = { situation: entry.id, durationMs: entry.durationMs, startedAt: Date.now() };
-          if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; }
-          else reaction = cue;
-          try { request.controller.setSituation(entry.id); updateMotionPresentation(request, cue); }
-          catch (_) { motionFallback(request); }
-        }, true, !available);
-        choice.dataset.emotion = entry.id;
-        choice.dataset.focusKey = (preview ? 'preview-' : 'pet-') + 'emotion-' + entry.id;
-        choice.setAttribute('aria-pressed', String(entry.id === activeName));
-        if (request) request.controls.push(choice);
-        groupBox.appendChild(choice);
-      });
-      groups.push({ id: group[0], box: groupBox }); choices.appendChild(groupBox);
     });
-    append(box, caption, tabs, choices);
-    if (!request) box.appendChild(text('たまごがかえったら、きもちを選べるようになります。', 'ipg-small'));
+    all.forEach(function (entry) {
+      var choice = button('', function () {
+        if (!request || !request.controller || !request.ready || !motionsVisible()) return;
+        var cue = { situation: entry.id, durationMs: entry.durationMs, startedAt: Date.now() };
+        if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; } else reaction = cue;
+        try { request.controller.setSituation(entry.id); updateMotionPresentation(request, cue); }
+        catch (_) { motionFallback(request); }
+        // A long description/search result must not leave the acting character offscreen.
+        try {
+          var rect = request.wrap.getBoundingClientRect(), height = Number(w.innerHeight) || 0;
+          if (height && (rect.top < 0 || rect.top + rect.height > height) && typeof request.wrap.scrollIntoView === 'function') request.wrap.scrollIntoView({ block: 'center', behavior: 'auto' });
+        } catch (_) { /* Scrolling must not reject a valid preview. */ }
+      }, true, !available);
+      append(choice, node('span', 'ipg-emotion-name', entry.label), node('small', 'ipg-emotion-description', '顔：' + entry.face + '／動き：' + entry.motion));
+      choice.dataset.emotion = entry.id; choice.dataset.focusKey = mode + '-emotion-' + entry.id;
+      choice.setAttribute('aria-label', entry.label); choice.setAttribute('aria-description', '顔：' + entry.face + '。動き：' + entry.motion);
+      choice.setAttribute('aria-pressed', String(entry.id === activeName));
+      if (request) request.controls.push(choice);
+      choiceRows.push({ entry: entry, button: choice }); grid.appendChild(choice);
+    });
+    var previous = button('前へ', function () { browse.page--; refreshChoices(); }, true);
+    previous.dataset.focusKey = mode + '-emotion-previous';
+    var pageInfo = node('span', 'ipg-emotion-page');
+    var next = button('次へ', function () { browse.page++; refreshChoices(); }, true); next.dataset.focusKey = mode + '-emotion-next';
+    var pages = append(node('div', 'ipg-emotion-pages'), previous, pageInfo, next);
+    function refreshChoices() {
+      var query = emotionSearchText(browse.query).trim(), words = query.split(/\s+/).filter(Boolean);
+      var results = all.filter(function (entry) {
+        if (!query) return entry.group === browse.group;
+        var haystack = emotionSearchText([entry.id, entry.label, entry.face, entry.motion].concat(entry.keywords).join(' '));
+        return words.every(function (word) { return haystack.indexOf(word) >= 0; });
+      });
+      var totalPages = Math.max(1, Math.ceil(results.length / 6)); browse.page = Math.max(0, Math.min(totalPages - 1, browse.page));
+      var visible = results.slice(browse.page * 6, browse.page * 6 + 6);
+      choiceRows.forEach(function (row) { row.button.hidden = visible.indexOf(row.entry) < 0; });
+      groupButtons.forEach(function (group) { group.button.setAttribute('aria-pressed', String(!query && group.id === browse.group)); });
+      resultCount.textContent = '全' + count + '種類 · ' + (query ? '検索' : 'このグループ') + results.length + '件 · ' + visible.length + '件表示';
+      empty.hidden = !!results.length; clear.hidden = !browse.query;
+      pageInfo.textContent = (browse.page + 1) + ' / ' + totalPages + 'ページ';
+      previous.disabled = browse.page === 0; previous.dataset.ipgDisabled = previous.disabled ? '1' : '';
+      next.disabled = browse.page >= totalPages - 1; next.dataset.ipgDisabled = next.disabled ? '1' : '';
+      pages.hidden = !results.length;
+    }
+    search.addEventListener('input', function () { browse.query = search.value; browse.page = 0; refreshChoices(); });
+    refreshChoices();
+    append(box, caption, searchRow, tabs, resultCount, grid, empty, pages);
     if (!w.PetLilacMotion) caption.textContent = '絵の見本を表示しています。' + (request && request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request && request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     return box;
   }
@@ -558,7 +602,7 @@
       append(preview, visual, emotionPalette(request, true)); settings.appendChild(preview);
     }
     if (displaySpecies(s) === 'lilac') {
-      settings.appendChild(text('薄紫のこは、成長に合わせて少しずつ大きくなります。ごはんをもぐもぐ食べたら、うれしくてぴょん！36種類のきもちやしぐさも好きに選べます。'));
+      settings.appendChild(text('薄紫のこは、成長に合わせて少しずつ大きくなります。ごはんをもぐもぐ食べたら、うれしくてぴょん！' + emotionCatalogue().length + '種類のきもちやしぐさも好きに選べます。'));
     }
     var appearance = node('div', 'ipg-row'), unlocked = s.pet.exp >= 110;
     [['cute', 'かわいい'], ['cool', 'かっこいい']].forEach(function (x) {

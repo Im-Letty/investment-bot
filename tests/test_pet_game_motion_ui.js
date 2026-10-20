@@ -122,6 +122,14 @@ async function fixture(config = {}) {
     button(text) { const found = this.buttons().find(b => b.textContent === text || b.textContent.startsWith(text)); assert.ok(found, 'button: ' + text); return found; },
     focusButton(key) { const found = host.querySelector('[data-focus-key="' + key + '"]'); assert.ok(found, key); return found; },
     async click(button) { if (!button.disabled) button.emit('click'); await flush(); },
+    async revealEmotion(id, preview = false) {
+      const mode = preview ? 'preview' : 'pet', entry = Motion.catalogue.find(row => row.id === id); assert.ok(entry, id);
+      const group = { happy: 'bright', feeling: 'deep', social: 'together' }[entry.group] || entry.group;
+      await this.click(this.focusButton(mode + '-emotion-group-' + group));
+      let choice = this.focusButton(mode + '-emotion-' + id), remaining = 20;
+      while (choice.hidden && remaining--) await this.click(this.focusButton(mode + '-emotion-next'));
+      assert.equal(choice.hidden, false, id + ' must be on its visible page'); return choice;
+    },
     advance(ms) { clock += ms; },
     async fireTimers() {
       for (const [id, timer] of [...timers]) if (timer.at <= clock) { timers.delete(id); timer.fn(); }
@@ -270,7 +278,7 @@ test('an initially hidden document or pane cannot start drawing on focus or rend
   }
 });
 
-test('all 36 B preview modes work for an old egg without selecting B or writing any progress', async () => {
+test('all 100 B preview modes work for an old egg without selecting B or writing any progress', async () => {
   const f = await fixture({ seed: { pg_species: 'bunny', pg_exp: '0' } }), before = f.saved(), writes = f.writes.length;
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const panel = f.host.querySelector('.ipg-appearance-preview'), controller = f.mounts.at(-1);
@@ -278,23 +286,20 @@ test('all 36 B preview modes work for an old egg without selecting B or writing 
   assert.ok(f.host.querySelector('.ipg-pet-image').src.endsWith('pet_bimg_egg.webp'));
   assert.equal(panel.querySelector('.ipg-lilac-still').hidden, false); assert.equal(panel.querySelector('canvas').hidden, true);
   controller.options.onReady(); assert.equal(panel.querySelector('canvas').hidden, false);
-  const choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion); assert.equal(choices.length, 36);
-  assert.equal(panel.querySelectorAll('.ipg-emotion-grid').length, 6);
+  const choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion); assert.equal(choices.length, 100);
+  assert.equal(panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button').length, 6);
   for (const [i, name] of Motion.situations.entries()) {
-    const groups = panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button');
-    await f.click(groups[Math.floor(i / 6)]);
-    assert.equal(choices[i].parentNode.hidden, false);
-    await f.click(choices[i]);
+    await f.click(await f.revealEmotion(name, true));
     assert.equal(controller.changes.at(-1).name, name);
     assert.match(panel.querySelector('.ipg-emotion-caption').textContent, /の見本$/);
-    assert.ok(panel.querySelector('canvas').getAttribute('aria-label').includes(choices[i].textContent));
+    assert.ok(panel.querySelector('canvas').getAttribute('aria-label').includes(choices[i].getAttribute('aria-label')));
     assert.equal(choices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(choices.filter(b => b.getAttribute('aria-pressed') === 'true').length, 1);
     assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
   }
   f.advance(700); f.ui.render();
   assert.equal(controller.destroyed, true); assert.equal(f.activeMotions().length, 1);
-  assert.equal(f.mounts.at(-1).options.situation, 'determined'); assert.equal(f.mounts.at(-1).options.elapsedMs, 700);
+  assert.equal(f.mounts.at(-1).options.situation, Motion.situations.at(-1)); assert.equal(f.mounts.at(-1).options.elapsedMs, 700);
   assert.equal(f.host.querySelector('.ipg-pet-settings').open, true);
   await f.click(f.button('しぐさの見本を閉じる'));
   assert.equal(f.host.querySelector('.ipg-appearance-preview'), null); assert.equal(f.activeMotions().length, 0);
@@ -357,17 +362,15 @@ test('B catcher movement and catches are transient; a failed result grants nothi
   assert.equal(f.activeMotions().length, 1);
 });
 
-test('care offers all 36 expressive choices without saving, awarding or starting an animation loop', async () => {
+test('care offers all 100 expressive choices without saving, awarding or starting an animation loop', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
   const panel = f.host.querySelector('.ipg-emotion-panel'), controller = f.mounts.at(-1);
   const choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion);
-  assert.equal(choices.length, 36); assert.equal(panel.querySelectorAll('.ipg-emotion-grid').length, 6);
+  assert.equal(choices.length, 100); assert.equal(panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button').length, 6);
   for (const [i, id] of Motion.situations.entries()) {
-    await f.click(panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button')[Math.floor(i / 6)]);
-    assert.equal(choices[i].parentNode.hidden, false);
-    await f.click(choices[i]);
+    await f.click(await f.revealEmotion(id));
     assert.equal(controller.changes.at(-1).name, id);
-    assert.ok(f.host.querySelector('canvas').getAttribute('aria-label').includes(choices[i].textContent));
+    assert.ok(f.host.querySelector('canvas').getAttribute('aria-label').includes(choices[i].getAttribute('aria-label')));
     assert.equal(choices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(choices.filter(b => b.getAttribute('aria-pressed') === 'true').length, 1);
     assert.ok(f.timers.size <= 1, 'one cue deadline, no timer accumulation');
@@ -376,7 +379,7 @@ test('care offers all 36 expressive choices without saving, awarding or starting
   }
   f.advance(725); f.ui.render();
   assert.equal(controller.destroyed, true); assert.equal(f.activeMotions().length, 1);
-  assert.equal(f.mounts.at(-1).options.situation, 'determined');
+  assert.equal(f.mounts.at(-1).options.situation, Motion.situations.at(-1));
   assert.equal(f.mounts.at(-1).options.elapsedMs, 725, 'rerender keeps the original cue age');
   assert.equal(f.focusButton('pet-emotion-group-action').getAttribute('aria-pressed'), 'true');
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
@@ -403,6 +406,129 @@ test('sadness and anger get distinct finite accents; replay resets only the tran
   assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
+test('all six groups page through the 100 labelled descriptions without remounting or restarting a live cue', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.click(await f.revealEmotion('sad'));
+  const controller = f.mounts[0], changes = controller.changes.length, mounts = f.mounts.length;
+  const deadline = [...f.timers.values()][0].at, ids = new Set();
+  const groups = [['bright', 17], ['deep', 16], ['wonder', 16], ['together', 16], ['calm', 16], ['action', 19]];
+  const visible = () => f.buttons().filter(button => button.dataset.emotion && !button.hidden);
+  for (const [group, count] of groups) {
+    const tab = f.focusButton('pet-emotion-group-' + group);
+    assert.ok(tab.textContent.endsWith(' ' + count)); await f.click(tab);
+    assert.equal(tab.getAttribute('aria-pressed'), 'true');
+    assert.equal(f.focusButton('pet-emotion-previous').disabled, true);
+    let seen = 0;
+    for (let page = 0; page < Math.ceil(count / 6); page++) {
+      const choices = visible(); assert.equal(choices.length, Math.min(6, count - seen));
+      for (const choice of choices) {
+        const row = Motion.catalogue.find(entry => entry.id === choice.dataset.emotion);
+        assert.equal(choice.getAttribute('aria-label'), row.label, 'descriptions must not lengthen the accessible name');
+        assert.equal(choice.getAttribute('aria-description'), '顔：' + row.face + '。動き：' + row.motion);
+        assert.ok(choice.querySelector('.ipg-emotion-description').textContent.includes(row.motion));
+        assert.equal(ids.has(row.id), false, row.id + ' appears once'); ids.add(row.id);
+      }
+      seen += choices.length;
+      assert.equal(f.host.querySelector('.ipg-emotion-page').textContent, (page + 1) + ' / ' + Math.ceil(count / 6) + 'ページ');
+      await f.click(f.focusButton('pet-emotion-next'));
+    }
+    assert.equal(seen, count); assert.equal(f.focusButton('pet-emotion-next').disabled, true);
+    await f.click(f.focusButton('pet-emotion-previous'));
+    assert.ok(visible().length <= 6);
+  }
+  assert.equal(ids.size, 100); assert.equal(f.mounts.length, mounts); assert.equal(controller.changes.length, changes);
+  assert.equal([...f.timers.values()][0].at, deadline, 'browsing cannot restart the sad cue');
+  assert.equal(f.raf.size, 0); assert.equal(f.scrolls().length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('Japanese search spans every group, normalizes kana and full-width text, and has an honest zero-result clear flow', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.click(await f.revealEmotion('cry'));
+  const controller = f.mounts[0], changes = controller.changes.length, mounts = f.mounts.length;
+  const deadline = [...f.timers.values()][0].at, input = f.focusButton('pet-emotion-search');
+  const visible = () => f.buttons().filter(button => button.dataset.emotion && !button.hidden).map(button => button.dataset.emotion);
+  async function search(query) { input.value = query; input.emit('input'); await flush(); }
+  await search('ニッコリ'); assert.deepEqual(visible(), ['gentlesmile']);
+  await search('ｿﾜｿﾜ'); assert.deepEqual(visible(), ['nervous', 'awkward', 'bored_fidget']);
+  assert.equal(f.host.querySelector('.ipg-emotion-count').textContent, '全100種類 · 検索3件 · 3件表示');
+  assert.ok(f.host.querySelector('.ipg-emotion-groups').querySelectorAll('button').every(button => button.getAttribute('aria-pressed') === 'false'));
+  await search('ＦＵＲＹ'); assert.deepEqual(visible(), ['furious']);
+  await search('存在しないしぐさ'); assert.deepEqual(visible(), []);
+  assert.equal(f.host.querySelector('.ipg-emotion-empty').hidden, false);
+  assert.equal(f.host.querySelector('.ipg-emotion-pages').hidden, true);
+  assert.match(f.host.querySelector('.ipg-emotion-count').textContent, /検索0件/);
+  await f.click(f.focusButton('pet-emotion-clear'));
+  assert.equal(input.value, ''); assert.equal(f.document.activeElement, input);
+  assert.equal(f.host.querySelector('.ipg-emotion-empty').hidden, true); assert.equal(visible().length, 6);
+  assert.equal(f.focusButton('pet-emotion-group-deep').getAttribute('aria-pressed'), 'true');
+  assert.equal(f.mounts.length, mounts); assert.equal(controller.changes.length, changes);
+  assert.equal([...f.timers.values()][0].at, deadline); assert.equal(f.scrolls().length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('the optional module fallback names only the original 36 static references and never promises the expanded motion catalogue', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  delete f.window.PetLilacMotion; f.ui.render();
+  const panel = f.host.querySelector('.ipg-emotion-panel'), choices = panel.querySelectorAll('button').filter(button => button.dataset.emotion);
+  assert.equal(choices.length, 36); assert.equal(panel.getAttribute('aria-label'), 'きもちとしぐさ・36種類');
+  assert.ok(choices.every(button => button.disabled));
+  assert.deepEqual(choices.map(button => button.dataset.emotion), Motion.situations.slice(0, 36));
+  assert.match(panel.querySelector('.ipg-emotion-caption').textContent, /絵の見本/);
+  assert.equal(panel.textContent.includes('100種類'), false);
+  const input = f.focusButton('pet-emotion-search'); input.value = '悲しい'; input.emit('input'); await flush();
+  assert.deepEqual(choices.filter(button => !button.hidden).map(button => button.dataset.emotion), ['sad']);
+  assert.equal(f.activeMotions().length, 0); assert.equal(f.timers.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('expanded negative emotions use their declared accents and unknown effect metadata stays empty rather than sparkling', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  for (const id of ['furious', 'disgusted', 'repulsed', 'contempt', 'jealous', 'guilty', 'regretful', 'horrified']) {
+    const row = Motion.catalogue.find(entry => entry.id === id); assert.ok(row, id);
+    await f.click(await f.revealEmotion(id));
+    const effect = f.host.querySelector('.ipg-emotion-effect');
+    assert.equal(effect.hidden, row.effect === 'none');
+    if (row.effect !== 'none') assert.ok(effect.className.includes('ipg-effect-' + row.effect));
+    assert.equal(effect.className.includes('ipg-effect-sparkle'), false, id + ' must not inherit happy fallback accents');
+  }
+  f.window.PetLilacMotion.catalogue = Motion.catalogue.map(row => ({ ...row, effect: row.id === 'sad' ? 'not-a-known-effect' : row.effect }));
+  f.ui.render(); await f.click(await f.revealEmotion('sad'));
+  const effect = f.host.querySelector('.ipg-emotion-effect');
+  assert.equal(effect.hidden, true); assert.equal(effect.children.length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('every nonmeal cue has observable finite enter, acting, settling and idle phases with one deadline and no save or RAF', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  const controller = f.mounts[0], visual = f.host.querySelector('.ipg-lilac-visual');
+  for (const row of Motion.catalogue.filter(entry => !['idle', 'feeding'].includes(entry.id))) {
+    await f.click(await f.revealEmotion(row.id));
+    assert.equal(visual.dataset.cuePhase, 'enter', row.id); assert.equal(f.timers.size, 1);
+    const enter = Math.min(450, row.durationMs * .22), release = row.durationMs - Math.min(800, row.durationMs * .28);
+    f.advance(enter); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'acting', row.id);
+    f.advance(release - enter); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'settling', row.id);
+    f.advance(row.durationMs - release); await f.fireTimers();
+    assert.equal(visual.dataset.cuePhase, 'idle', row.id); assert.equal(visual.dataset.situation, 'idle');
+    assert.equal(f.host.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.timers.size, 0);
+    assert.equal(f.raf.size, 0); assert.equal(f.mounts.length, 1); assert.equal(controller.destroyed, false);
+  }
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+});
+
+test('an offscreen selected gesture reveals the actor while browsing stays still and an unsupported scroll cannot reject playback', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved();
+  const visual = f.host.querySelector('.ipg-lilac-visual'), controller = f.mounts[0];
+  f.window.innerHeight = 500; visual.getBoundingClientRect = () => ({ top: -120, height: 260 });
+  const choice = await f.revealEmotion('furious'); assert.equal(f.scrolls().length, 0);
+  await f.click(choice); assert.equal(f.scrolls().length, 1);
+  assert.equal(f.scrolls()[0].node, visual); assert.deepEqual(copy(f.scrolls()[0].options), { block: 'center', behavior: 'auto' });
+  visual.scrollIntoView = () => { throw new Error('scroll unavailable'); };
+  await f.click(choice); assert.equal(controller.changes.at(-1).name, 'furious'); assert.equal(visual.dataset.cuePhase, 'enter');
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
+  assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), before);
+});
+
 test('emotion effects, deadlines and drawing are cleaned on hide, close and fallback', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
   await f.click(f.focusButton('pet-emotion-love'));
@@ -420,20 +546,19 @@ test('emotion effects, deadlines and drawing are cleaned on hide, close and fall
   await f.ui.close(); assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
 });
 
-test('zero-EXP B starts visible with all 36 emotions enabled and safe preview adds no growth or rewards', async () => {
+test('zero-EXP B starts visible with all 100 emotions enabled and safe preview adds no growth or rewards', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '0' } }), before = f.saved(), writes = f.writes.length;
   const panel = f.host.querySelector('.ipg-emotion-panel'), choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion);
-  assert.equal(choices.length, 36); assert.ok(choices.every(b => !b.disabled));
+  assert.equal(choices.length, 100); assert.ok(choices.every(b => !b.disabled));
   assert.equal(f.mounts.length, 1); assert.equal(f.store.getState().stage.key, 'egg');
   assert.equal(f.saved().pet.exp, 0); assert.match(f.host.querySelector('.ipg-lilac-still').src, /pet_lilac_cutout\.webp$/);
   for (const [i, id] of Motion.situations.entries()) {
-    await f.click(panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button')[Math.floor(i / 6)]);
-    await f.click(choices[i]); assert.equal(f.mounts[0].changes.at(-1).name, id);
+    await f.click(await f.revealEmotion(id)); assert.equal(f.mounts[0].changes.at(-1).name, id);
     assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
   }
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const preview = f.host.querySelector('.ipg-appearance-preview');
-  assert.equal(preview.querySelectorAll('button').filter(b => b.dataset.emotion).length, 36);
+  assert.equal(preview.querySelectorAll('button').filter(b => b.dataset.emotion).length, 100);
   assert.equal(f.activeMotions().length, 2); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
