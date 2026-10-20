@@ -53,7 +53,7 @@
     var profile = growthProfile(stage);
     var point = growthPoint(profile.key, .5 + (.628 - .5) * .88, .92 + (.499 - .92) * .88);
     var x = .5 + (point.x - .5) * profile.overallScale, y = .92 + (point.y - .92) * profile.overallScale;
-    return { x: x, y: y, foodLeft: x - .11, foodTop: y - .09 };
+    return { x: x, y: y, foodLeft: x - .11, foodTop: y + .005 };
   }
   function growthMesh(stage) {
     var profile = growthProfile(stage), columns = 24, values = new Float32Array(columns * columns * 6 * 4), cursor = 0;

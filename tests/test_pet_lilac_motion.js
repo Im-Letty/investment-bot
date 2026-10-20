@@ -161,7 +161,11 @@ test('food anchors follow the same growth mesh and active cue inset rather than 
     const point = Motion.growthPoint(stage,u,v);
     assert.equal(anchor.x, .5 + (point.x-.5)*profile.overallScale);
     assert.equal(anchor.y, .92 + (point.y-.92)*profile.overallScale);
-    assert.equal(anchor.foodLeft, anchor.x-.11); assert.equal(anchor.foodTop, anchor.y-.09);
+    assert.equal(anchor.foodLeft, anchor.x-.11); assert.equal(anchor.foodTop, anchor.y+.005);
+    // The apple begins below the mouth, rather than covering the nose or eyes.
+    // Its upper edge stays within one tenth of the .14-high prop from the mouth.
+    assert.ok(anchor.foodTop >= anchor.y && anchor.foodTop-anchor.y <= .14*.1, stage + ': upper bite edge');
+    assert.ok(anchor.x >= anchor.foodLeft && anchor.x <= anchor.foodLeft+.16, stage + ': mouth over apple');
     const f = fixture({ options:{ growthStage:stage } });
     const mesh=f.buffers[0].data, col=Math.floor(u*24), row=Math.floor(v*24), a=(row*24+col)*24;
     const fx=u*24-col, fy=v*24-row;
