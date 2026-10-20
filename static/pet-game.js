@@ -344,6 +344,15 @@
     if (!w.PetLilacMotion) caption.textContent = '絵の見本を表示しています。' + (request && request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request && request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     return box;
   }
+  function showSavedCareReaction(action, result) {
+    if (!result || !result.ok || !action || action.type !== 'care' || ['feed', 'play', 'rest'].indexOf(action.kind) < 0 ||
+      !host || !store || tab !== 'care' || game || !motionsVisible()) return;
+    var saved = state(); if (saved.readOnly || displaySpecies(saved) !== 'lilac' || !currentReaction()) return;
+    var scene = host.querySelector('.ipg-scene');
+    if (scene && typeof scene.scrollIntoView === 'function') {
+      try { scene.scrollIntoView({ block: 'center', behavior: 'auto' }); } catch (_) { /* Viewing must not reject a confirmed save. */ }
+    }
+  }
   async function run(action, message) {
     if (!store || busy) return { ok: false, error: { code: 'ui_busy' } };
     var before = state();
@@ -364,7 +373,7 @@
       notice = '';
     } finally {
       setBusy(false);
-      if (!game) render();
+      if (!game) { render(); showSavedCareReaction(action, result); }
     }
     return result;
   }

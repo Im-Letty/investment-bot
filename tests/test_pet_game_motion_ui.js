@@ -39,7 +39,8 @@ class Element {
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name] ?? null; }
   focus(options) { this.lastFocusOptions = options; this.ownerDocument.activeElement = this; }
-  scrollIntoView(options) { this.scrollCalls = this.scrollCalls || []; this.scrollCalls.push(options); }
+  scrollIntoView(options) { this.scrollCalls = this.scrollCalls || []; this.scrollCalls.push(options);
+    this.ownerDocument.scrollEvents = this.ownerDocument.scrollEvents || []; this.ownerDocument.scrollEvents.push({ node: this, options }); }
   getBoundingClientRect() { return { left: 0, top: 0, width: 300, height: 300 }; }
   matches(selector) {
     if (selector.startsWith('.')) return this.className.split(/\s+/).includes(selector.slice(1));
@@ -127,7 +128,8 @@ async function fixture(config = {}) {
       await flush();
     },
     async frame(ms = 0) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); await flush(); },
-    activeMotions() { return mounts.filter(m => !m.destroyed && m.canvas.isConnected); }
+    activeMotions() { return mounts.filter(m => !m.destroyed && m.canvas.isConnected); },
+    scrolls() { return document.scrollEvents || []; }
   };
 }
 
@@ -971,4 +973,61 @@ test('growth and color continue past 800 EXP while the current companion body is
   assert.ok(next.host.querySelector('.ipg-notice').textContent.includes('進化しました'));
   const meal = await fixture({ rendererMode: 'ready', seed: { pg_exp: '1597' } }); await meal.click(meal.focusButton('care-feed'));
   assert.equal(meal.saved().pet.exp, 1605); assert.equal(meal.mounts.at(-1).options.evolutionPath, 'fruit'); assert.equal(meal.mounts.at(-1).options.situation, 'feeding');
+});
+
+test('each confirmed B care scrolls its actor into view once after rendering, while ordinary rerenders and navigation stay still', async () => {
+  for (const [kind, exp] of [['feed', 8], ['play', 5], ['rest', 4]]) {
+    const f = await fixture({ rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+    assert.equal(f.scrolls().length, 0); const oldScene = f.host.querySelector('.ipg-scene');
+    await f.click(f.focusButton('care-' + kind));
+    assert.equal(f.saved().pet.exp, before.pet.exp + exp); assert.equal(f.writes.length, writes + 1);
+    assert.equal(f.scrolls().length, 1); assert.notEqual(f.scrolls()[0].node, oldScene);
+    assert.equal(f.scrolls()[0].node, f.host.querySelector('.ipg-scene'));
+    assert.equal(f.scrolls()[0].options.block, 'center'); assert.equal(f.scrolls()[0].options.behavior, 'auto');
+    assert.ok(f.scrolls()[0].node.querySelector('canvas'), 'the actual actor is the scroll target');
+    f.advance(500); f.ui.render(); f.window.emit('focus'); await flush();
+    await f.click(f.focusButton('pet-emotion-love')); await f.click(f.focusButton('tab-shop'));
+    assert.equal(f.scrolls().length, 1, 'no repeat from render, focus, manual emotions or navigation');
+  }
+});
+
+test('failed, capped, read-only, hidden or bunny care never auto-scrolls the B actor', async () => {
+  for (const outcome of ['false', 'throw']) {
+    const f = await fixture({ rendererMode: 'ready' }), before = f.saved(); f.control.outcome = outcome;
+    await f.click(f.focusButton('care-feed')); assert.deepEqual(f.saved(), before); assert.equal(f.scrolls().length, 0);
+  }
+  const capped = await fixture({ rendererMode: 'ready' });
+  for (let i = 0; i < 3; i++) await capped.click(capped.focusButton('care-feed'));
+  const beforeCap = capped.saved(), scrolls = capped.scrolls().length;
+  await capped.click(capped.focusButton('care-feed')); capped.focusButton('care-feed').emit('click'); await flush();
+  assert.deepEqual(capped.saved(), beforeCap); assert.equal(capped.scrolls().length, scrolls);
+  const readonly = await fixture({ rendererMode: 'ready' }), beforeReadOnly = readonly.saved();
+  readonly.store.dispatch = async () => ({ ok: false, error: { code: 'read_only', message: '記録を確認してください。' } });
+  await readonly.click(readonly.focusButton('care-rest')); assert.deepEqual(readonly.saved(), beforeReadOnly); assert.equal(readonly.scrolls().length, 0);
+  const hidden = await fixture({ rendererMode: 'ready' }), gate = deferred(); hidden.control.pending = gate;
+  await hidden.click(hidden.focusButton('care-feed')); assert.equal(hidden.scrolls().length, 0);
+  hidden.pane.hidden = true; gate.resolve(); await flush(); hidden.control.pending = null;
+  assert.equal(hidden.saved().pet.exp, 38); assert.equal(hidden.scrolls().length, 0);
+  hidden.pane.hidden = false; await hidden.ui.open(); assert.equal(hidden.scrolls().length, 0);
+  const bunny = await fixture({ rendererMode: 'ready', species: 'bunny' });
+  await bunny.click(bunny.focusButton('care-feed')); assert.equal(bunny.scrolls().length, 0); assert.equal(bunny.saved().pet.species, 'bunny');
+});
+
+test('delayed first drawing keeps the meal elapsed time and never re-scrolls or restarts a completed cue', async () => {
+  for (const delay of [1500, 9000]) {
+    const f = await fixture({ rendererMode: 'pending' }); f.advance(10000); f.ui.render();
+    const gate = deferred(); f.control.pending = gate;
+    await f.click(f.focusButton('care-feed')); assert.equal(f.scrolls().length, 0, 'pending persistence does not move the view');
+    gate.resolve(); await flush(); f.control.pending = null;
+    const after = f.saved(), writes = f.writes.length, controller = f.mounts.at(-1);
+    assert.equal(f.scrolls().length, 1); assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true);
+    f.advance(delay); controller.options.onReady();
+    const wrap = f.host.querySelector('.ipg-lilac-visual');
+    assert.equal(wrap.dataset.situation, delay < Motion.durations.feeding ? 'feeding' : 'idle');
+    assert.equal(wrap.dataset.feedingPhase, delay < Motion.durations.feeding ? 'chewing' : '');
+    assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, delay >= Motion.durations.feeding);
+    assert.equal(f.scrolls().length, 1, 'onReady only resumes the current age, never scrolls again');
+    f.ui.render(); assert.equal(f.mounts.at(-1).options.elapsedMs, delay < Motion.durations.feeding ? delay : 0);
+    assert.equal(f.scrolls().length, 1); assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes);
+  }
 });
