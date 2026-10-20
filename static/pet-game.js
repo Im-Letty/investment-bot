@@ -7,6 +7,7 @@
   var lifecycleEpoch = 0, suspended = false, renderedDay = '';
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
+  var emotionGroup = 'bright', previewEmotionGroup = 'bright';
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
@@ -91,6 +92,11 @@
     });
   }
   function stopMotions() {
+    motionRequests.forEach(function (request) {
+      if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
+      request.cueTimer = null;
+      if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
+    });
     motionControllers.forEach(function (controller) { try { controller.destroy(); } catch (_) {} });
     motionControllers = []; motionRequests = [];
   }
@@ -125,7 +131,9 @@
     canvas.width = canvas.height = 512; canvas.hidden = true;
     canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', still.alt);
     append(wrap, still, canvas);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, preview: !!preview, controller: null });
+    var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(effect);
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, effect: effect, preview: !!preview, controller: null, cueTimer: null, ready: false });
     return wrap;
   }
   function startMotions() {
@@ -138,13 +146,14 @@
     motionRequests.forEach(function (request) {
       if (request.canvas.isConnected === false) return;
       try {
-        var localCue = request.preview ? { situation: previewSituation, durationMs: w.PetLilacMotion.durations[previewSituation], startedAt: previewStartedAt } : cue;
+        var localCue = request.preview ? previewCue() : cue;
+        updateMotionPresentation(request, localCue);
         var controller = w.PetLilacMotion.mount(request.canvas, {
           assetRoot: imageRoot,
           situation: localCue ? localCue.situation : 'idle',
           durationMs: localCue ? localCue.durationMs : 0,
           elapsedMs: localCue ? Math.max(0, Date.now() - localCue.startedAt) : 0,
-          onReady: function () { request.canvas.hidden = false; request.still.hidden = true; },
+          onReady: function () { request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, request.preview ? previewCue() : currentReaction()); },
           releaseContextOnDestroy: true,
           onError: function () { motionFallback(request); }
         });
@@ -155,9 +164,124 @@
     });
   }
   function motionFallback(request) {
-    request.canvas.hidden = true; request.still.hidden = false;
+    request.ready = false; request.canvas.hidden = true; request.still.hidden = false;
+    if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
+    if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
     if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。';
+  }
+  // The catalogue is shared with the renderer. A missing optional renderer keeps
+  // the original static pet and a readable, disabled emotion selector.
+  var emotionFallback = [
+    ['bright','うれしい・だいすき',[['joy','喜ぶ'],['laugh','大笑い'],['excited','わくわく'],['proud','得意げ'],['love','だいすき'],['grateful','ありがとう']]],
+    ['deep','かなしい・おこる',[['sad','悲しい'],['cry','泣く'],['lonely','さみしい'],['disappointed','がっかり'],['angry','怒る'],['sulky','すねる']]],
+    ['wonder','びっくり・かんがえる',[['surprise','びっくり'],['scared','こわい'],['nervous','そわそわ'],['confused','困る'],['curious','きになる'],['thinking','考える']]],
+    ['together','ふれあい',[['greeting','おかえり'],['petted','なでられる'],['shy','はにかむ'],['embarrassed','あせる'],['apology','ごめんね'],['cheer','応援']]],
+    ['calm','のんびり・おやすみ',[['idle','ふだん'],['resting','おやすみ'],['sleepy','うとうと'],['yawn','あくび'],['relaxed','のんびり'],['bored','ひま']]],
+    ['action','あそぶ・がんばる',[['feeding','ごはん'],['moving','移動'],['caught','キャッチ'],['dance','ダンス'],['celebrate','お祝い'],['determined','やるぞ']]]
+  ];
+  function emotionCatalogue() {
+    var shared = w.PetLilacMotion && w.PetLilacMotion.catalogue;
+    return emotionFallback.reduce(function (all, group) {
+      return all.concat(group[2].map(function (entry) {
+        var detail = Array.isArray(shared) && shared.filter(function (x) { return x.id === entry[0]; })[0];
+        return { id: entry[0], label: detail && detail.label || entry[1], group: group[0], groupLabel: group[1],
+          durationMs: w.PetLilacMotion && w.PetLilacMotion.durations[entry[0]] || 0 };
+      }));
+    }, []);
+  }
+  function previewCue() {
+    var duration = w.PetLilacMotion && w.PetLilacMotion.durations[previewSituation] || 0;
+    if (previewSituation !== 'idle' && Date.now() - previewStartedAt >= duration) previewSituation = 'idle';
+    return { situation: previewSituation, durationMs: duration, startedAt: previewStartedAt };
+  }
+  function effectFor(situation) {
+    if (['sad','cry'].indexOf(situation) >= 0) return { kind: 'tears', marks: ['', '', '', ''] };
+    if (['angry','sulky','determined'].indexOf(situation) >= 0) return { kind: 'anger', marks: ['╬','☁','☁'] };
+    if (['love','grateful','petted','shy'].indexOf(situation) >= 0) return { kind: 'hearts', marks: ['♡','♡','♡'] };
+    if (['scared','nervous','embarrassed'].indexOf(situation) >= 0) return { kind: 'sweat', marks: ['', '〰', ''] };
+    if (['surprise','confused','curious','thinking'].indexOf(situation) >= 0) return { kind: 'wonder', marks: [situation === 'surprise' ? '！' : '？','·','·'] };
+    if (['resting','sleepy','yawn','relaxed'].indexOf(situation) >= 0) return { kind: 'sleep', marks: ['z','Z','·'] };
+    if (['lonely','disappointed','bored','apology'].indexOf(situation) >= 0) return { kind: 'quiet', marks: ['·','·','·'] };
+    if (situation === 'idle') return null;
+    return { kind: 'sparkle', marks: ['✦','♪','✧','✦'] };
+  }
+  function updateMotionPresentation(request, cue) {
+    if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
+    request.cueTimer = null;
+    var name = cue && cue.situation || 'idle', duration = cue && cue.durationMs || 0;
+    var age = cue ? Math.max(0, Date.now() - cue.startedAt) : 0;
+    if (name !== 'idle' && age >= duration) name = 'idle';
+    var entry = emotionCatalogue().filter(function (x) { return x.id === name; })[0];
+    (request.controls || []).forEach(function (control) { control.setAttribute('aria-pressed', String(control.dataset.emotion === name)); });
+    if (request.caption) request.caption.textContent = (entry ? entry.label : 'ふだん') + (request.preview ? 'の見本' : 'のしぐさ');
+    request.canvas.setAttribute('aria-label', request.still.alt + '・' + (entry ? entry.label : 'ふだん'));
+    if (request.effect) {
+      request.effect.replaceChildren();
+      var effect = request.ready && motionsVisible() ? effectFor(name) : null;
+      request.effect.hidden = !effect;
+      if (effect) {
+        request.effect.className = 'ipg-emotion-effect ipg-effect-' + effect.kind;
+        effect.marks.forEach(function (mark, i) {
+          var mote = node('span', 'ipg-emotion-mote ipg-mote-' + i, mark);
+          mote.style.animationDelay = String(-age / 1000 + i * .13) + 's';
+          request.effect.appendChild(mote);
+        });
+      }
+    }
+    if (name !== 'idle' && motionsVisible()) request.cueTimer = w.setTimeout(function () {
+      request.cueTimer = null;
+      if (!request.canvas.isConnected || !motionsVisible()) return;
+      if (request.preview) previewSituation = 'idle';
+      else if (reaction && reaction.startedAt === cue.startedAt) reaction = null;
+      updateMotionPresentation(request, null);
+    }, Math.max(0, duration - age));
+  }
+  function emotionPalette(request, preview) {
+    var box = node('section', 'ipg-emotion-panel');
+    box.setAttribute('aria-label', preview ? 'しぐさの見本・36種類' : 'きもちとしぐさ・36種類');
+    append(box, node('h4', '', preview ? '36種類のしぐさの見本' : 'きもちとしぐさ · 36種類'),
+      text('好きなきもちを選んで、もう一度タップすると繰り返せます。', 'ipg-small'));
+    var caption = text('ふだんのしぐさ', 'ipg-emotion-caption'); caption.setAttribute('aria-live', 'polite');
+    var tabs = node('div', 'ipg-emotion-groups'); tabs.setAttribute('role', 'group'); tabs.setAttribute('aria-label', 'きもちのグループ');
+    var choices = node('div', 'ipg-emotion-choices'), groups = [], groupButtons = [];
+    var selected = preview ? previewEmotionGroup : emotionGroup;
+    if (!emotionFallback.some(function (x) { return x[0] === selected; })) selected = 'bright';
+    var activeName = preview ? previewCue().situation : (currentReaction() || {}).situation || 'idle';
+    var all = emotionCatalogue(), available = !!request && !!w.PetLilacMotion;
+    if (request) { request.controls = []; request.caption = caption; }
+    emotionFallback.forEach(function (group) {
+      var groupBox = node('div', 'ipg-emotion-grid'); groupBox.hidden = selected !== group[0];
+      groupBox.setAttribute('role', 'group'); groupBox.setAttribute('aria-label', group[1]);
+      var groupButton = button(group[1], function () {
+        if (preview) previewEmotionGroup = group[0]; else emotionGroup = group[0];
+        groupButtons.forEach(function (x) { x.button.setAttribute('aria-pressed', String(x.id === group[0])); });
+        groups.forEach(function (x) { x.box.hidden = x.id !== group[0]; });
+      }, true);
+      groupButton.setAttribute('aria-pressed', String(selected === group[0]));
+      groupButton.dataset.focusKey = (preview ? 'preview-' : 'pet-') + 'emotion-group-' + group[0];
+      groupButtons.push({ id: group[0], button: groupButton }); tabs.appendChild(groupButton);
+      all.filter(function (entry) { return entry.group === group[0]; }).forEach(function (entry) {
+        var choice = button(entry.label, function () {
+          if (!request || !request.controller || !request.ready || !motionsVisible()) return;
+          var cue = { situation: entry.id, durationMs: entry.durationMs, startedAt: Date.now() };
+          if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; }
+          else reaction = cue;
+          try { request.controller.setSituation(entry.id); updateMotionPresentation(request, cue); }
+          catch (_) { motionFallback(request); }
+        }, true, !available);
+        choice.dataset.emotion = entry.id;
+        choice.dataset.focusKey = (preview ? 'preview-' : 'pet-') + 'emotion-' + entry.id;
+        choice.setAttribute('aria-pressed', String(entry.id === activeName));
+        if (request) request.controls.push(choice);
+        groupBox.appendChild(choice);
+      });
+      groups.push({ id: group[0], box: groupBox }); choices.appendChild(groupBox);
+    });
+    append(box, caption, tabs, choices);
+    if (!request) box.appendChild(text('たまごがかえったら、きもちを選べるようになります。', 'ipg-small'));
+    if (!w.PetLilacMotion) caption.textContent = '絵の見本を表示しています。';
+    return box;
   }
   async function run(action, message) {
     if (!store || busy) return { ok: false, error: { code: 'ui_busy' } };
@@ -200,6 +324,7 @@
     var info = stage(s), pet = card('', 'ipg-pet-card');
     var scene = node('div', 'ipg-scene ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
     var img = petVisual(s);
+    var careRequest = s.pet.species === 'lilac' && info.key !== 'egg' ? motionRequests[motionRequests.length - 1] : null;
     var equipped = s.decorations.equipped, decor = item(equipped);
     var decorText = decor ? decor.emoji || '🌿' : equipped ? String(equipped).slice(0, 40) : '';
     var decoration = decorText ? node('span', 'ipg-pet-decoration', decorText) : null;
@@ -221,6 +346,7 @@
         node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
     });
+    if (s.pet.species === 'lilac') pet.appendChild(emotionPalette(careRequest, false));
     append(pet, care, text(s.care.dailyRewardDay === currentDay() ?
       '今日の育成報酬10コインは受け取り済み。お世話は残りの回数まで続けられます。' :
       'その日最初のお世話で、育成報酬10コイン。お世話だけでも成長できます。'));
@@ -258,23 +384,10 @@
       var sample = Object.assign({}, s, { pet: Object.assign({}, s.pet, { species: 'lilac', exp: 45 }) });
       var visual = petVisual(sample, 'ipg-lilac-sample', true);
       var request = motionRequests[motionRequests.length - 1];
-      var caption = text(w.PetLilacMotion ? '見るだけのしぐさの見本です。' : '絵の見本を表示しています。', 'ipg-small');
-      caption.setAttribute('aria-live', 'polite'); request.caption = caption; request.controls = [];
-      var modes = node('div', 'ipg-row');
-      [['idle','ふだん'],['greeting','おかえり'],['feeding','ごはん'],['petted','なでる'],['resting','おやすみ'],['joy','うれしい'],['moving','移動'],['caught','キャッチ']].forEach(function (entry) {
-        var choice = button(entry[1], function () {
-          previewSituation = entry[0]; previewStartedAt = Date.now();
-          request.controls.forEach(function (control) { control.setAttribute('aria-pressed', String(control === choice)); });
-          caption.textContent = entry[1] + 'のしぐさ';
-          if (request.controller) request.controller.setSituation(entry[0]);
-        }, true, !w.PetLilacMotion);
-        choice.setAttribute('aria-pressed', String(previewSituation === entry[0]));
-        request.controls.push(choice); modes.appendChild(choice);
-      });
-      append(preview, visual, caption, modes); settings.appendChild(preview);
+      append(preview, visual, emotionPalette(request, true)); settings.appendChild(preview);
     }
     if (s.pet.species === 'lilac') {
-      settings.appendChild(text('薄紫のこは、成長に合わせて少しずつ大きくなります。ごはん・なでる・休むで、表情やしぐさも変わります。'));
+      settings.appendChild(text('薄紫のこは、成長に合わせて少しずつ大きくなります。ごはん・なでる・休むに反応し、36種類のきもちやしぐさも好きに選べます。'));
     }
     var appearance = node('div', 'ipg-row'), unlocked = s.pet.exp >= 110;
     [['cute', 'かわいい'], ['cool', 'かっこいい']].forEach(function (x) {

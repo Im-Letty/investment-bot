@@ -92,3 +92,35 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-appearance-preview .ipg-row{justify-content:center}
 .ipg-appearance-preview [aria-pressed=true]{background:var(--ipg-green);color:var(--kn-sh-on-button,#fffdf6)}
 @media(max-width:420px){.ipg-lilac-visual{width:200px;height:200px}.ipg-lilac-visual.ipg-lilac-compact,img.ipg-lilac-compact{width:62px;height:62px}.ipg-lilac-visual.ipg-catcher{width:74px;height:74px}}
+
+/* B's emotions are transient play controls; no progress or reward is attached. */
+.ipg-emotion-panel{max-width:580px;margin:16px auto;padding:16px;border:1px solid var(--ipg-line);border-radius:15px;text-align:left;background:var(--ipg-bg)}
+.ipg-emotion-panel h4{margin:0 0 4px;font-size:1.05em}
+.ipg-emotion-panel>.ipg-small{margin-bottom:8px}
+.ipg-emotion-caption{min-height:1.7em;margin:0 0 10px!important;text-align:center;color:var(--ipg-ink);font-weight:600}
+.ipg-emotion-groups{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;margin-bottom:12px}
+.ipg .ipg-emotion-groups .ipg-button{min-width:0;min-height:44px;padding:7px 4px;font-size:.83em;border-radius:8px;line-height:1.4}
+.ipg-emotion-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.ipg-emotion-grid[hidden]{display:none!important}
+.ipg .ipg-emotion-grid .ipg-button{min-width:0;padding:10px 5px;background:var(--ipg-paper)}
+.ipg .ipg-emotion-panel [aria-pressed=true]{background:var(--ipg-green);color:var(--kn-sh-on-button,#fffdf6);border-color:var(--ipg-green)}
+.ipg-lilac-visual>.ipg-emotion-effect{position:absolute;inset:0;pointer-events:none;overflow:visible;color:#d887ae;font-family:system-ui,sans-serif;font-weight:700;font-size:26px;filter:drop-shadow(0 1px 1px #fff8)}
+.ipg-emotion-mote{position:absolute;left:15%;top:38%;line-height:1;animation:ipg-emotion-float 1.45s ease-in-out infinite;will-change:transform,opacity}
+.ipg-mote-1{left:73%;top:17%;font-size:1.2em;animation-duration:1.8s}
+.ipg-mote-2{left:82%;top:48%;font-size:.8em;animation-duration:1.65s}
+.ipg-mote-3{left:10%;top:63%;font-size:.7em;animation-duration:1.3s}
+.ipg-effect-tears .ipg-emotion-mote,.ipg-effect-sweat .ipg-mote-0,.ipg-effect-sweat .ipg-mote-2{width:.32em;height:.6em;background:#80bbd1;border-radius:75% 45% 75% 45%;transform:rotate(-30deg);animation:ipg-emotion-drop 1.1s ease-in infinite}
+.ipg-effect-tears .ipg-mote-0{left:31%;top:44%}.ipg-effect-tears .ipg-mote-1{left:63%;top:44%}.ipg-effect-tears .ipg-mote-2{left:28%;top:48%}.ipg-effect-tears .ipg-mote-3{left:67%;top:47%}
+.ipg-effect-anger{color:#bb647e!important}.ipg-effect-anger .ipg-mote-0{left:74%;top:21%;font-size:1.2em;animation:ipg-emotion-pop .55s ease-in-out infinite}.ipg-effect-anger .ipg-mote-1{left:5%;top:55%;font-size:1.3em;color:#c6afc8}.ipg-effect-anger .ipg-mote-2{left:83%;top:61%;color:#c6afc8}
+.ipg-effect-hearts{color:#df8daa!important}.ipg-effect-hearts .ipg-mote-0{left:10%;top:30%}
+.ipg-effect-sweat{color:#99b8c4!important}.ipg-effect-sweat .ipg-mote-0{left:72%;top:31%}.ipg-effect-sweat .ipg-mote-1{left:15%;top:48%;font-size:.8em}.ipg-effect-sweat .ipg-mote-2{left:79%;top:40%}
+.ipg-effect-wonder{color:#b39865!important}.ipg-effect-wonder .ipg-mote-0{left:69%;top:16%;font-size:1.4em;animation:ipg-emotion-pop 1.6s ease-in-out infinite}
+.ipg-effect-sleep{color:#978caf!important}.ipg-effect-sleep .ipg-mote-0{left:72%;top:31%}.ipg-effect-sleep .ipg-mote-1{left:82%;top:16%}.ipg-effect-sleep .ipg-mote-2{left:87%;top:7%}
+.ipg-effect-quiet{color:#a4a0b3!important}.ipg-effect-quiet .ipg-emotion-mote{top:18%;font-size:1.3em;animation-duration:2.5s}.ipg-effect-quiet .ipg-mote-0{left:67%}.ipg-effect-quiet .ipg-mote-1{left:75%}.ipg-effect-quiet .ipg-mote-2{left:83%}
+.ipg-effect-sparkle{color:#caa66c!important}.ipg-effect-sparkle .ipg-mote-1{color:#b89ac9}
+.ipg-lilac-compact .ipg-emotion-effect,.ipg-catcher .ipg-emotion-effect{font-size:11px}
+@keyframes ipg-emotion-float{0%{opacity:0;transform:translateY(8px) scale(.65) rotate(-8deg)}25%,65%{opacity:1}100%{opacity:0;transform:translateY(-25px) scale(1.1) rotate(8deg)}}
+@keyframes ipg-emotion-drop{0%{opacity:0;transform:translate(0,-5px) rotate(-30deg) scale(.6)}20%,65%{opacity:.9}100%{opacity:0;transform:translate(4px,25px) rotate(-30deg) scale(.8)}}
+@keyframes ipg-emotion-pop{0%,100%{opacity:.6;transform:scale(.8) rotate(-8deg)}50%{opacity:1;transform:scale(1.16) rotate(8deg)}}
+@media(max-width:420px){.ipg-emotion-panel{padding:12px 9px}.ipg .ipg-emotion-groups .ipg-button{font-size:.76em}.ipg-emotion-grid{gap:6px}.ipg .ipg-emotion-grid .ipg-button{font-size:.92em}.ipg-lilac-visual>.ipg-emotion-effect{font-size:23px}.ipg-lilac-compact>.ipg-emotion-effect,.ipg-catcher>.ipg-emotion-effect{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.ipg-lilac-visual>.ipg-emotion-effect{display:none!important}.ipg-emotion-mote{animation:none;will-change:auto}}

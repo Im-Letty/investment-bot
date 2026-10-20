@@ -78,10 +78,10 @@ async function fixture(config = {}) {
   const pane = document.createElement('section'), host = document.createElement('div');
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
-  const raf = new Map(), intervals = new Map(), mounts = [], actionCues = [];
+  const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations,
+    durations: Motion.durations, catalogue: Motion.catalogue,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -103,7 +103,8 @@ async function fixture(config = {}) {
     requestAnimationFrame(fn) { const id = ++sequence; raf.set(id, fn); return id; },
     cancelAnimationFrame(id) { raf.delete(id); },
     setInterval(fn) { const id = ++sequence; intervals.set(id, fn); return id; },
-    setTimeout() { return ++sequence; }, clearTimeout() {}, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
+    setTimeout(fn, ms) { const id = ++sequence; timers.set(id, { fn, at: clock + Math.max(0, ms || 0) }); return id; },
+    clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
   class Clock extends Date { constructor(...args) { super(...(args.length ? args : [clock])); } static now() { return clock; } }
   const math = Object.create(Math); math.random = () => .5;
@@ -111,7 +112,7 @@ async function fixture(config = {}) {
   vm.runInContext(source, context);
   const ui = window.IndependentPetGame;
   const opening = ui.mount(host, coreOptions); assert.equal(await opening, true); await flush();
-  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, raf,
+  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, raf, timers,
     get store() { return store; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
     buttons() { return host.querySelectorAll('button'); },
@@ -119,6 +120,10 @@ async function fixture(config = {}) {
     focusButton(key) { const found = host.querySelector('[data-focus-key="' + key + '"]'); assert.ok(found, key); return found; },
     async click(button) { if (!button.disabled) button.emit('click'); await flush(); },
     advance(ms) { clock += ms; },
+    async fireTimers() {
+      for (const [id, timer] of [...timers]) if (timer.at <= clock) { timers.delete(id); timer.fn(); }
+      await flush();
+    },
     async frame(ms = 0) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); await flush(); },
     activeMotions() { return mounts.filter(m => !m.destroyed && m.canvas.isConnected); }
   };
@@ -252,7 +257,7 @@ test('an initially hidden document or pane cannot start drawing on focus or rend
   }
 });
 
-test('all eight B preview modes work for an old egg without selecting B or writing any progress', async () => {
+test('all 36 B preview modes work for an old egg without selecting B or writing any progress', async () => {
   const f = await fixture({ seed: { pg_species: 'dragon', pg_exp: '0' } }), before = f.saved(), writes = f.writes.length;
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const panel = f.host.querySelector('.ipg-appearance-preview'), controller = f.mounts.at(-1);
@@ -260,17 +265,23 @@ test('all eight B preview modes work for an old egg without selecting B or writi
   assert.ok(f.host.querySelector('.ipg-pet-image').src.endsWith('pet_img_px_egg.webp'));
   assert.equal(panel.querySelector('.ipg-lilac-still').hidden, false); assert.equal(panel.querySelector('canvas').hidden, true);
   controller.options.onReady(); assert.equal(panel.querySelector('canvas').hidden, false);
-  const choices = panel.querySelectorAll('button'); assert.equal(choices.length, 8);
+  const choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion); assert.equal(choices.length, 36);
+  assert.equal(panel.querySelectorAll('.ipg-emotion-grid').length, 6);
   for (const [i, name] of Motion.situations.entries()) {
+    const groups = panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button');
+    await f.click(groups[Math.floor(i / 6)]);
+    assert.equal(choices[i].parentNode.hidden, false);
     await f.click(choices[i]);
     assert.equal(controller.changes.at(-1).name, name);
+    assert.match(panel.querySelector('.ipg-emotion-caption').textContent, /の見本$/);
+    assert.ok(panel.querySelector('canvas').getAttribute('aria-label').includes(choices[i].textContent));
     assert.equal(choices[i].getAttribute('aria-pressed'), 'true');
     assert.equal(choices.filter(b => b.getAttribute('aria-pressed') === 'true').length, 1);
     assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
   }
   f.advance(700); f.ui.render();
   assert.equal(controller.destroyed, true); assert.equal(f.activeMotions().length, 1);
-  assert.equal(f.mounts.at(-1).options.situation, 'caught'); assert.equal(f.mounts.at(-1).options.elapsedMs, 700);
+  assert.equal(f.mounts.at(-1).options.situation, 'determined'); assert.equal(f.mounts.at(-1).options.elapsedMs, 700);
   assert.equal(f.host.querySelector('.ipg-pet-settings').open, true);
   await f.click(f.button('しぐさの見本を閉じる'));
   assert.equal(f.host.querySelector('.ipg-appearance-preview'), null); assert.equal(f.activeMotions().length, 0);
@@ -283,7 +294,7 @@ test('B preview keeps static fallback and disables its controls when drawing fai
     await f.click(f.button('薄紫のこのしぐさを見る'));
     const panel = f.host.querySelector('.ipg-appearance-preview');
     assert.equal(panel.querySelector('.ipg-lilac-still').hidden, false); assert.equal(panel.querySelector('canvas').hidden, true);
-    assert.ok(panel.querySelectorAll('button').every(b => b.disabled), mode + ': preview actions unavailable');
+    assert.ok(panel.querySelectorAll('button').filter(b => b.dataset.emotion).every(b => b.disabled), mode + ': preview actions unavailable');
     assert.match(panel.textContent, /絵で表示/); assert.deepEqual(f.saved(), before);
   }
 });
@@ -293,7 +304,7 @@ test('B preview is a disabled static reference if the optional motion module is 
   delete f.window.PetLilacMotion;
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const panel = f.host.querySelector('.ipg-appearance-preview');
-  assert.ok(panel.querySelectorAll('button').every(b => b.disabled)); assert.equal(f.mounts.length, 0);
+  assert.ok(panel.querySelectorAll('button').filter(b => b.dataset.emotion).every(b => b.disabled)); assert.equal(f.mounts.length, 0);
   assert.equal(panel.querySelector('.ipg-lilac-still').hidden, false); assert.deepEqual(f.saved(), before);
 });
 
@@ -331,4 +342,85 @@ test('B catcher movement and catches are transient; a failed result grants nothi
   assert.equal(f.actionCues.filter(row => row.action.type === 'finishMinigame').length, 1);
   assert.equal(f.actionCues.at(-1).cue.situation, 'caught'); assert.equal(f.raf.size, 0);
   assert.equal(f.activeMotions().length, 1);
+});
+
+test('care offers all 36 expressive choices without saving, awarding or starting an animation loop', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  const panel = f.host.querySelector('.ipg-emotion-panel'), controller = f.mounts.at(-1);
+  const choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion);
+  assert.equal(choices.length, 36); assert.equal(panel.querySelectorAll('.ipg-emotion-grid').length, 6);
+  for (const [i, id] of Motion.situations.entries()) {
+    await f.click(panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button')[Math.floor(i / 6)]);
+    assert.equal(choices[i].parentNode.hidden, false);
+    await f.click(choices[i]);
+    assert.equal(controller.changes.at(-1).name, id);
+    assert.ok(f.host.querySelector('canvas').getAttribute('aria-label').includes(choices[i].textContent));
+    assert.equal(choices[i].getAttribute('aria-pressed'), 'true');
+    assert.equal(choices.filter(b => b.getAttribute('aria-pressed') === 'true').length, 1);
+    assert.ok(f.timers.size <= 1, 'one cue deadline, no timer accumulation');
+    assert.equal(f.raf.size, 0, 'UI effect uses CSS rather than a second render loop');
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+  }
+  f.advance(725); f.ui.render();
+  assert.equal(controller.destroyed, true); assert.equal(f.activeMotions().length, 1);
+  assert.equal(f.mounts.at(-1).options.situation, 'determined');
+  assert.equal(f.mounts.at(-1).options.elapsedMs, 725, 'rerender keeps the original cue age');
+  assert.equal(f.focusButton('pet-emotion-group-action').getAttribute('aria-pressed'), 'true');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('sadness and anger get distinct finite accents; replay resets only the transient cue', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('pet-emotion-group-deep'));
+  await f.click(f.focusButton('pet-emotion-cry'));
+  let effect = f.host.querySelector('.ipg-emotion-effect');
+  assert.equal(effect.hidden, false); assert.ok(effect.className.includes('ipg-effect-tears')); assert.equal(effect.children.length, 4);
+  f.advance(500); f.ui.render();
+  effect = f.host.querySelector('.ipg-emotion-effect');
+  assert.equal(f.mounts.at(-1).options.elapsedMs, 500);
+  assert.match(effect.children[0].style.animationDelay, /^-0\.5s$/);
+  await f.click(f.focusButton('pet-emotion-angry'));
+  assert.ok(effect.className.includes('ipg-effect-anger')); assert.equal(effect.children.length, 3);
+  f.advance(300); await f.click(f.focusButton('pet-emotion-angry'));
+  assert.equal(f.mounts.at(-1).changes.filter(c => c.name === 'angry').length, 2);
+  f.advance(Motion.durations.angry + 1); await f.fireTimers();
+  assert.equal(effect.hidden, true); assert.equal(effect.children.length, 0);
+  assert.equal(f.focusButton('pet-emotion-idle').getAttribute('aria-pressed'), 'true');
+  assert.match(f.host.querySelector('.ipg-emotion-caption').textContent, /ふだん/);
+  assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('emotion effects, deadlines and drawing are cleaned on hide, close and fallback', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
+  await f.click(f.focusButton('pet-emotion-love'));
+  const effect = f.host.querySelector('.ipg-emotion-effect'), controller = f.mounts.at(-1);
+  assert.equal(effect.hidden, false); assert.equal(f.timers.size, 1);
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
+  assert.equal(effect.hidden, true); assert.equal(effect.children.length, 0); assert.equal(f.timers.size, 0); assert.equal(controller.destroyed, true);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  await f.click(f.focusButton('pet-emotion-love'));
+  const nextEffect = f.host.querySelector('.ipg-emotion-effect');
+  f.mounts.at(-1).options.onError();
+  assert.equal(nextEffect.hidden, true); assert.equal(nextEffect.children.length, 0); assert.equal(f.timers.size, 0);
+  assert.ok(f.host.querySelectorAll('button').filter(b => b.dataset.emotion).every(b => b.disabled));
+  assert.equal(f.host.querySelector('canvas').hidden, true); assert.equal(f.host.querySelector('.ipg-lilac-still').hidden, false);
+  await f.ui.close(); assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
+});
+
+test('B eggs keep their own static art and disabled care emotions while the full safe preview remains available', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '0' } }), before = f.saved();
+  const panel = f.host.querySelector('.ipg-emotion-panel');
+  assert.equal(panel.querySelectorAll('button').filter(b => b.dataset.emotion).length, 36);
+  assert.ok(panel.querySelectorAll('button').filter(b => b.dataset.emotion).every(b => b.disabled));
+  assert.equal(f.mounts.length, 0); assert.match(f.host.querySelector('.ipg-pet-image').src, /pet_lilac_egg\.webp$/);
+  await f.click(f.button('薄紫のこのしぐさを見る'));
+  const preview = f.host.querySelector('.ipg-appearance-preview');
+  assert.equal(preview.querySelectorAll('button').filter(b => b.dataset.emotion).length, 36);
+  assert.equal(f.mounts.length, 1); assert.deepEqual(f.saved(), before);
+});
+
+test('reduced-motion CSS suppresses accent animation and hidden groups are removed from layout', () => {
+  const css = fs.readFileSync(require.resolve('../static/pet-game.css'), 'utf8');
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\.ipg-lilac-visual>\.ipg-emotion-effect\{display:none!important\}\.ipg-emotion-mote\{animation:none/);
+  assert.match(css, /\.ipg-emotion-grid\[hidden\]\{display:none!important\}/);
 });
