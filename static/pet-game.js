@@ -7,11 +7,11 @@
   var lifecycleEpoch = 0, suspended = false, renderedDay = '';
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
-  var emotionBrowse = { pet: { group: 'bright', query: '', page: 0 }, preview: { group: 'bright', query: '', page: 0 } };
-  var bodyDrawerOpen = { pet: false, preview: false };
-  var directionDrawerOpen = { pet: false, preview: false };
+  var emotionBrowse = { pet: { group: 'bright', query: '', page: 0 }, preview: { group: 'bright', query: '', page: 0 }, growth: { group: 'bright', query: '', page: 0 } };
+  var bodyDrawerOpen = { pet: false, preview: false, growth: false };
+  var directionDrawerOpen = { pet: false, preview: false, growth: false };
   var emotionCacheKey, emotionCacheRows;
-  var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null;
+  var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null, growthEmotionOpen = false;
   var fittingOpen = false, fittingOutfit = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
@@ -195,11 +195,15 @@
     wrap.appendChild(food);
     var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
     wrap.appendChild(effect);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', growthStage: growthStage, appearanceKey: appearance.key, appearanceFamily: profile.family, evolutionPath: path, outfit: dress, visualAlt: still.alt + (pathRow ? '・' + pathRow.label + '・' + pathRow.colorName : '') + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, revealFrame: null, ready: false });
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', localCue: null, growthStage: growthStage, appearanceKey: appearance.key, appearanceFamily: profile.family, evolutionPath: path, outfit: dress, visualAlt: still.alt + (pathRow ? '・' + pathRow.label + '・' + pathRow.colorName : '') + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, revealFrame: null, ready: false, failed: false });
     return wrap;
   }
   function requestCue(request) {
-    return request.growthPreview || request.fittingPreview ? null : request.preview ? previewCue() : currentReaction();
+    if (request.growthPreview) {
+      if (request.localCue && Date.now() - request.localCue.startedAt >= request.localCue.durationMs) request.localCue = null;
+      return request.localCue;
+    }
+    return request.fittingPreview ? null : request.preview ? previewCue() : currentReaction();
   }
   function startMotions() {
     if (!motionsVisible() || !w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') return;
@@ -242,7 +246,7 @@
     });
   }
   function motionFallback(request) {
-    request.ready = false; request.canvas.hidden = true; request.still.hidden = false;
+    request.ready = false; request.failed = true; request.canvas.hidden = true; request.still.hidden = false;
     request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = ''; request.wrap.dataset.cuePhase = 'idle';
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
     if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame); request.revealFrame = null;
@@ -365,7 +369,8 @@
       request.cueTimer = null;
       if (!request.canvas.isConnected || !motionsVisible()) return;
       if (Date.now() - cue.startedAt < duration) { updateMotionPresentation(request, cue); return; }
-      if (request.preview) previewSituation = 'idle';
+      if (request.growthPreview) request.localCue = null;
+      else if (request.preview) previewSituation = 'idle';
       else if (reaction && reaction.startedAt === cue.startedAt) reaction = null;
       updateMotionPresentation(request, null);
     }, Math.max(16, nextAge - age));
@@ -409,13 +414,14 @@
   function playMotionReference(request, entry, preview) {
     if (!request || !request.controller || !request.ready || !motionsVisible()) return;
     var cue = { situation: entry.id, durationMs: entry.durationMs, startedAt: Date.now() };
-    if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; } else reaction = cue;
+    if (request.growthPreview) request.localCue = cue;
+    else if (preview) { previewSituation = entry.id; previewStartedAt = cue.startedAt; } else reaction = cue;
     try { request.controller.setSituation(entry.id); updateMotionPresentation(request, cue); }
     catch (_) { motionFallback(request); }
     keepMotionVisible(request);
   }
   function referenceMotionDrawer(request, preview, kind) {
-    var mode = preview ? 'preview' : 'pet', rows = referenceCatalogue(kind), drawer = node('details', 'ipg-' + kind + '-motion');
+    var mode = request && request.growthPreview ? 'growth' : preview ? 'preview' : 'pet', rows = referenceCatalogue(kind), drawer = node('details', 'ipg-' + kind + '-motion');
     var direction = kind === 'direction', open = direction ? directionDrawerOpen : bodyDrawerOpen;
     drawer.open = open[mode]; drawer.dataset.focusKey = mode + '-' + kind + '-motion';
     drawer.appendChild(node('summary', '', direction ? '向きと回転を見る' : '全身の動きを見る'));
@@ -441,7 +447,8 @@
       open[mode] = drawer.open;
       var cue = request && requestCue(request);
       if (!drawer.open && cue && referenceCatalogue(kind).some(function (entry) { return entry.id === cue.situation; })) {
-        if (preview) previewSituation = 'idle'; else reaction = null;
+        if (request.growthPreview) request.localCue = null;
+        else if (preview) previewSituation = 'idle'; else reaction = null;
         try { if (request.controller && request.ready) request.controller.setSituation('idle'); updateMotionPresentation(request, null); }
         catch (_) { motionFallback(request); }
       }
@@ -450,7 +457,7 @@
     return drawer;
   }
   function emotionPalette(request, preview) {
-    var all = emotionCatalogue(), count = all.length, mode = preview ? 'preview' : 'pet', browse = emotionBrowse[mode];
+    var all = emotionCatalogue(), count = all.length, mode = request && request.growthPreview ? 'growth' : preview ? 'preview' : 'pet', browse = emotionBrowse[mode];
     var available = !!request && !!w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function';
     var box = node('section', 'ipg-emotion-panel');
     box.setAttribute('aria-label', (preview ? 'しぐさの見本・' : 'きもちとしぐさ・') + count + '種類');
@@ -466,7 +473,7 @@
     var resultCount = text('', 'ipg-emotion-count ipg-small'); resultCount.setAttribute('role', 'status'); resultCount.setAttribute('aria-live', 'polite');
     var empty = text('見つかりませんでした。別の言葉で探すか、クリアしてください。', 'ipg-emotion-empty ipg-small'); empty.hidden = true;
     var groupButtons = [], choiceRows = [];
-    var activeName = preview ? previewCue().situation : (currentReaction() || {}).situation || 'idle';
+    var activeName = ((request ? requestCue(request) : preview ? previewCue() : currentReaction()) || {}).situation || 'idle';
     if (request) { request.controls = []; request.caption = caption; }
     emotionFallback.forEach(function (group) {
       var size = all.filter(function (entry) { return entry.group === group[0]; }).length;
@@ -613,7 +620,7 @@
     if (displaySpecies(s) !== 'lilac' || !Array.isArray(stages) || !stages.length) return;
     var album = node('section', 'ipg-growth-album');
     var toggle = button(growthAlbumOpen ? '成長のすがたを閉じる' : '成長のすがたを見る', function () {
-      growthAlbumOpen = !growthAlbumOpen; growthPreviewStage = growthAlbumOpen ? stage(state()).key : null; growthPreviewPath = growthAlbumOpen ? evolutionPath(state()) : null; render();
+      growthAlbumOpen = !growthAlbumOpen; growthPreviewStage = growthAlbumOpen ? stage(state()).key : null; growthPreviewPath = growthAlbumOpen ? evolutionPath(state()) : null; if (!growthAlbumOpen) growthEmotionOpen = false; render();
     }, true);
     toggle.dataset.focusKey = 'growth-album-toggle'; toggle.setAttribute('aria-expanded', String(growthAlbumOpen));
     album.appendChild(toggle);
@@ -633,6 +640,27 @@
       request.growthCaption = caption;
       if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
       append(preview, visual, caption);
+      var motions = node('details', 'ipg-growth-motions'); motions.open = growthEmotionOpen; motions.dataset.focusKey = 'growth-motions-toggle';
+      motions.appendChild(node('summary', '', 'この姿のしぐさを見る'));
+      var motionPalette = null;
+      function ensureMotionPalette() {
+        if (!motionPalette) { motionPalette = emotionPalette(request, true); motions.appendChild(motionPalette); }
+      }
+      if (growthEmotionOpen) ensureMotionPalette();
+      motions.addEventListener('toggle', function () {
+        if (!motions.isConnected) return;
+        growthEmotionOpen = motions.open;
+        if (motions.open) {
+          ensureMotionPalette();
+          if (request.failed) motionFallback(request);
+          else if (request.ready) updateMotionPresentation(request, requestCue(request));
+        } else {
+          request.localCue = null;
+          try { if (request.ready && request.controller) request.controller.setSituation('idle'); updateMotionPresentation(request, null); }
+          catch (_) { motionFallback(request); }
+          revealAfterDrawerLayout(request);
+        }
+      });
       var choices = node('div', 'ipg-growth-choices'); choices.setAttribute('role', 'group'); choices.setAttribute('aria-label', '成長のすがた・' + stages.length + '段階');
       stages.forEach(function (entry) {
         var entryFuture = entry.min > s.pet.exp, entryCurrent = entry.key === current.key;
@@ -657,7 +685,7 @@
         });
         selectors.appendChild(branchChoices);
       }
-      append(viewing, preview, selectors); album.appendChild(viewing);
+      append(viewing, preview, selectors, motions); album.appendChild(viewing);
       album.appendChild(text('これからの姿も、見本で見られます。', 'ipg-small'));
     }
     parent.appendChild(album);
@@ -1200,7 +1228,7 @@
   }
   function suspend() {
     suspended = true; lifecycleEpoch++;
-    stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = false; directionDrawerOpen.pet = directionDrawerOpen.preview = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; fittingOpen = false; fittingOutfit = null;
+    stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = bodyDrawerOpen.growth = false; directionDrawerOpen.pet = directionDrawerOpen.preview = directionDrawerOpen.growth = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; growthEmotionOpen = false; fittingOpen = false; fittingOutfit = null;
     return cancelGame('画面を離れたためゲームを中止しました。');
   }
   d.addEventListener('visibilitychange', function () {

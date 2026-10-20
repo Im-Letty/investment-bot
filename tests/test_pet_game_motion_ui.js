@@ -123,7 +123,7 @@ async function fixture(config = {}) {
     focusButton(key) { const found = host.querySelector('[data-focus-key="' + key + '"]'); assert.ok(found, key); return found; },
     async click(button) { if (!button.disabled) button.emit('click'); await flush(); },
     async revealEmotion(id, preview = false) {
-      const mode = preview ? 'preview' : 'pet', entry = Motion.catalogue.find(row => row.id === id); assert.ok(entry, id);
+      const mode = typeof preview === 'string' ? preview : preview ? 'preview' : 'pet', entry = Motion.catalogue.find(row => row.id === id); assert.ok(entry, id);
       const group = { happy: 'bright', feeling: 'deep', social: 'together' }[entry.group] || entry.group;
       await this.click(this.focusButton(mode + '-emotion-group-' + group));
       let choice = this.focusButton(mode + '-emotion-' + id), remaining = 20;
@@ -131,12 +131,15 @@ async function fixture(config = {}) {
       assert.equal(choice.hidden, false, id + ' must be on its visible page'); return choice;
     },
     async bodyDrawer(open = true, preview = false) {
-      const drawer = this.focusButton((preview ? 'preview' : 'pet') + '-body-motion');
+      const drawer = this.focusButton((typeof preview === 'string' ? preview : preview ? 'preview' : 'pet') + '-body-motion');
       drawer.open = open; drawer.emit('toggle'); await flush(); return drawer;
     },
     async directionDrawer(open = true, preview = false) {
-      const drawer = this.focusButton((preview ? 'preview' : 'pet') + '-direction-motion');
+      const drawer = this.focusButton((typeof preview === 'string' ? preview : preview ? 'preview' : 'pet') + '-direction-motion');
       drawer.open = open; drawer.emit('toggle'); await flush(); return drawer;
+    },
+    async growthMotions(open = true) {
+      const drawer = this.focusButton('growth-motions-toggle'); drawer.open = open; drawer.emit('toggle'); await flush(); return drawer;
     },
     advance(ms) { clock += ms; },
     async fireTimers() {
@@ -1180,6 +1183,95 @@ test('growth album previews all eleven appearances in one canvas while future vi
   f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
   assert.equal(f.host.querySelector('.ipg-growth-gallery'), null); assert.equal(f.activeMotions().length, 1);
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('every growth appearance offers food, faces, body parts and directions on that same gallery canvas without changing the real 386 EXP pet', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '386', pg_coins: '355' } });
+  f.advance(10000); f.ui.render(); const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle')); const details = f.focusButton('growth-motions-toggle');
+  assert.equal(details.open, false); assert.equal(details.querySelector('.ipg-emotion-panel'), null, 'the large palette is created only when requested');
+  await f.growthMotions();
+  for (const row of Core.lilacAppearanceStages) {
+    await f.click(f.focusButton('growth-stage-' + row.key));
+    const gallery = f.host.querySelector('.ipg-growth-gallery'), visual = gallery.querySelector('.ipg-lilac-visual'), controller = f.mounts.at(-1);
+    const mountCount = f.mounts.length, main = f.activeMotions()[0]; assert.equal(f.focusButton('growth-motions-toggle').open, true);
+    assert.equal(controller.options.appearanceKey, row.key); assert.equal(controller.options.situation, 'idle');
+    assert.equal(gallery.querySelectorAll('canvas').length, 1);
+    assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.emotion).length, 100);
+    assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.bodyMotion).length, 6);
+    assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.directionMotion).length, 4);
+    await f.click(await f.revealEmotion('feeding', 'growth'));
+    assert.equal(controller.changes.at(-1).name, 'feeding'); assert.equal(visual.querySelector('.ipg-feeding-food').hidden, row.min < 15);
+    await f.click(await f.revealEmotion('cry', 'growth')); assert.equal(controller.changes.at(-1).name, 'cry');
+    await f.bodyDrawer(true, 'growth'); await f.click(f.focusButton('growth-body-motion-body_hands')); assert.equal(controller.changes.at(-1).name, 'body_hands');
+    await f.directionDrawer(true, 'growth'); await f.click(f.focusButton('growth-direction-motion-direction_back')); assert.equal(controller.changes.at(-1).name, 'direction_back');
+    assert.equal(f.mounts.length, mountCount, 'choosing gestures does not remount the selected appearance');
+    assert.equal(main.options.appearanceKey, 'grown'); assert.equal(main.changes.length, 0); assert.equal(f.activeMotions().length, 2);
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0); assert.ok(f.timers.size <= 1);
+  }
+  f.advance(6500); await f.fireTimers(); assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelector('.ipg-lilac-visual').dataset.situation, 'idle');
+  assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0); assert.deepEqual(f.saved(), before);
+});
+
+test('a gallery meal has its own full timeline and closing its controls cannot alter the ongoing main or settings-preview cues', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '386', pg_coins: '355' } }), before = f.saved(), writes = f.writes.length;
+  await f.click(await f.revealEmotion('feeding')); f.advance(1500); await f.fireTimers();
+  await f.click(f.focusButton('growth-album-toggle')); await f.click(f.button('薄紫のこのしぐさを見る'));
+  await f.click(await f.revealEmotion('cry', true)); await f.click(f.focusButton('growth-stage-newborn')); await f.growthMotions();
+  const main = f.activeMotions()[0], gallery = f.host.querySelector('.ipg-growth-gallery'), visual = gallery.querySelector('.ipg-lilac-visual');
+  const galleryController = f.activeMotions().find(controller => controller.canvas === visual.querySelector('canvas'));
+  const settings = f.host.querySelector('.ipg-appearance-preview'), settingsController = f.activeMotions().find(controller => controller.canvas === settings.querySelector('canvas'));
+  assert.equal(main.options.situation, 'feeding'); assert.equal(main.options.elapsedMs, 1500); assert.equal(settingsController.options.situation, 'cry');
+  await f.click(await f.revealEmotion('feeding', 'growth'));
+  assert.equal(visual.dataset.feedingPhase, 'anticipation'); assert.equal(visual.querySelector('.ipg-feeding-food').hidden, false);
+  f.advance(1200); await f.fireTimers(); assert.equal(visual.dataset.feedingPhase, 'chewing');
+  f.advance(3200); await f.fireTimers(); assert.equal(visual.dataset.feedingPhase, 'joy'); assert.equal(visual.querySelector('.ipg-feeding-food').hidden, true);
+  assert.match(gallery.querySelector('.ipg-emotion-caption').textContent, /おいしい！の見本/);
+  f.advance(4000); await f.fireTimers(); assert.equal(visual.dataset.situation, 'idle'); assert.equal(galleryController.changes.at(-1).name, 'feeding');
+  assert.equal(main.changes.length, 0); assert.equal(settingsController.changes.length, 0); assert.equal(f.timers.size, 0);
+  await f.click(await f.revealEmotion('feeding')); await f.click(await f.revealEmotion('cry', true));
+  const ids = new Set(f.timers.keys()); await f.click(await f.revealEmotion('feeding', 'growth'));
+  const localId = [...f.timers.keys()].find(id => !ids.has(id)); assert.ok(localId);
+  f.advance(800); await f.fireTimers(); const otherDeadlines = [...f.timers].filter(([id]) => id !== localId).map(([id, timer]) => [id, timer.at]);
+  await f.growthMotions(false); assert.equal(visual.dataset.situation, 'idle'); assert.equal(galleryController.changes.at(-1).name, 'idle');
+  assert.deepEqual([...f.timers].map(([id, timer]) => [id, timer.at]), otherDeadlines);
+  assert.equal(main.changes.at(-1).name, 'feeding'); assert.equal(settingsController.changes.at(-1).name, 'cry');
+  await f.frame(); assert.equal(f.raf.size, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('stage and path changes discard a gallery-only cue while keeping the palette open and preserving main saved appearance', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '386', pg_coins: '355' } });
+  f.advance(10000); f.ui.render(); const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle')); await f.click(f.focusButton('growth-stage-newborn')); await f.growthMotions();
+  await f.click(await f.revealEmotion('feeding', 'growth')); f.advance(1500); await f.fireTimers();
+  const old = f.mounts.at(-1), oldFood = f.host.querySelector('.ipg-growth-gallery').querySelector('.ipg-feeding-food');
+  assert.equal(oldFood.hidden, false); await f.click(f.focusButton('growth-path-fruit'));
+  assert.equal(old.destroyed, true); assert.equal(oldFood.hidden, true); assert.equal(f.mounts.at(-1).options.situation, 'idle');
+  assert.equal(f.mounts.at(-1).options.appearanceKey, 'newborn'); assert.equal(f.mounts.at(-1).options.evolutionPath, 'fruit');
+  assert.equal(f.focusButton('growth-motions-toggle').open, true); assert.equal(f.timers.size, 0);
+  await f.directionDrawer(true, 'growth'); await f.click(f.focusButton('growth-direction-motion-direction_spin'));
+  const turn = f.mounts.at(-1); await f.click(f.focusButton('growth-stage-hatching'));
+  assert.equal(turn.destroyed, true); assert.equal(f.mounts.at(-1).options.situation, 'idle'); assert.equal(f.mounts.at(-1).options.appearanceKey, 'hatching');
+  assert.equal(f.activeMotions()[0].options.appearanceKey, 'grown'); assert.equal(f.activeMotions()[0].options.evolutionPath, 'balanced'); assert.equal(f.timers.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('a lazy gallery palette stays disabled after renderer failure or module absence, and hiding a live gallery clears only transient resources', async () => {
+  for (const mode of ['error', 'missing']) {
+    const f = await fixture({ species: 'lilac', rendererMode: mode === 'error' ? 'error' : 'ready', seed: { pg_exp: '386' } }), before = f.saved(), writes = f.writes.length;
+    if (mode === 'missing') { delete f.window.PetLilacMotion; f.ui.render(); }
+    await f.click(f.focusButton('growth-album-toggle')); await f.click(f.focusButton('growth-stage-newborn')); await f.growthMotions();
+    const gallery = f.host.querySelector('.ipg-growth-gallery'), choices = gallery.querySelectorAll('button').filter(button => button.dataset.emotion);
+    assert.equal(choices.length, mode === 'error' ? 100 : 36); assert.ok(choices.every(button => button.disabled));
+    assert.match(gallery.querySelector('.ipg-emotion-caption').textContent, /絵/); assert.equal(gallery.querySelector('canvas').hidden, true);
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  }
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '386' } }), before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle')); await f.growthMotions(); await f.click(await f.revealEmotion('cry', 'growth'));
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0); assert.equal(f.activeMotions().length, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.host.querySelector('.ipg-growth-gallery'), null); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
 test('crossing 400 EXP adopts the new visible growth only after a confirmed save and never cuts off the meal', async () => {
