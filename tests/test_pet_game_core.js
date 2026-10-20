@@ -72,6 +72,76 @@ test('final appearance changes are saved without reducing growth or replacing le
   const again=Core.create(g.options);await again.ready;assert.equal(again.getState().pet.path,'cute');assert.equal(again.getState().pet.exp,110);
 });
 
+test('lilac selection, reload and backup preserve the full grown pet and active economy',async()=>{
+  const seed={pg_exp:'167',pg_name:'こはる',pg_species:'bunny',pg_path:'cool',pg_px:'1',pg_coins:'2000',
+    pg_items:'{"apple":2,"rice":3}',pg_deco:'{"house":{"x":13},"lantern":{"x":32}}',
+    pg_bgs:'["meadow","beach"]',pg_bg:'beach',pg_ach:'["old-ach"]',pg_cnt_feed:'24',pg_cnt_pet:'52',
+    pet_game:'{"name":"別の子","coins":70,"exp":11,"foods":{"🍎":2},"pot":55,"potBasis":50,"potDays":3}'};
+  const g=await game(seed,()=>0.99);
+  for(const [type,values] of [['care',{kind:'feed'}],['buyItem',{itemId:'cake'}],['useItem',{itemId:'rice'}],
+    ['equip',{itemId:'house'}],['buyItem',{itemId:'bg_room'}],['equip',{itemId:'bg_room'}],['buyStock',{stockId:'grn',quantity:5}]]){
+    assert.equal((await command(g,type,values)).ok,true);
+  }
+  assert.equal((await play(g,20)).end.ok,true);
+  for(let i=0;i<4;i++)assert.equal((await command(g,'advanceMarketDay')).ok,true);
+  assert.equal((await command(g,'sellStock',{stockId:'grn',quantity:1})).ok,true);
+  assert.equal((await command(g,'beginMinigame')).ok,true);
+  const before=persisted(g.storage);
+  assert.ok(before.market.dividends>0);assert.ok(before.market.feesPaid>0);
+  assert.ok(before.minigames.active);assert.ok(before.minigames.completed.length);
+  assert.ok(before.legacyReserve.available);assert.ok(before.pet.exp>167);
+  g.tick(1234);
+  const selected=await command(g,'chooseSpecies',{species:'lilac'});assert.equal(selected.ok,true);
+  const expected={...before,pet:{...before.pet,species:'lilac'},revision:before.revision+1,updatedAt:g.options.now()};
+  assert.deepEqual(persisted(g.storage),expected);
+  assert.equal(selected.state.stage.key,'final');
+  Object.entries(seed).forEach(([key,value])=>assert.equal(g.storage.data.get(key),value));
+  const writes=g.storage.writes.length,reloaded=Core.create(g.options);
+  assert.equal((await reloaded.ready).ok,true);assert.deepEqual(reloaded.getState(),selected.state);
+  assert.equal(g.storage.writes.length,writes);
+  const other=await game(),otherBefore=persisted(other.storage);
+  assert.equal((await other.app.importBackup(reloaded.exportBackup())).ok,true);
+  assert.deepEqual(persisted(other.storage),{...expected,revision:otherBefore.revision+1,updatedAt:other.options.now()});
+  const restored=Core.create(other.options);assert.equal((await restored.ready).ok,true);
+  assert.deepEqual(restored.getState(),other.app.getState());
+});
+
+test('lilac can be selected at every growth boundary and old species remain selectable',async()=>{
+  const fresh=await game();assert.equal(fresh.app.getState().pet.species,'dragon');
+  for(const species of ['dragon','bunny'])for(const exp of [0,14,15,44,45,109,110,98765]){
+    const g=await game({pg_species:species,pg_exp:String(exp),pg_name:'もとの子',pg_path:'cool',pg_px:'1'});
+    const before=g.app.getState().pet;
+    assert.equal((await command(g,'chooseSpecies',{species:'lilac'})).ok,true);
+    assert.deepEqual(g.app.getState().pet,{...before,species:'lilac'});
+    const reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);
+    assert.deepEqual(reload.getState().pet,{...before,species:'lilac'});
+    assert.equal((await command(g,'chooseSpecies',{species})).ok,true);
+    assert.deepEqual(g.app.getState().pet,before);
+    assert.equal(g.storage.data.get('pg_species'),species);
+  }
+});
+
+test('failed lilac saves never publish a selection or alter the durable state',async()=>{
+  for(const mode of ['throw','false']){
+    const g=await game({pg_exp:'167',pg_name:'もとの子',pg_species:'bunny',pg_path:'cool',pg_px:'1',pg_coins:'500',pg_items:'{"rice":2}'});
+    assert.equal((await command(g,'buyStock',{stockId:'apl',quantity:2})).ok,true);
+    const raw=g.storage.data.get(Core.KEY),before=g.app.getState(),observed=[];
+    g.app.subscribe(s=>observed.push(s));
+    const set=g.storage.setItem.bind(g.storage);
+    g.storage.setItem=async()=>{if(mode==='throw')throw new Error('private failure');return false;};
+    const rejected=await command(g,'chooseSpecies',{species:'lilac'});
+    assert.equal(rejected.ok,false);assert.equal(rejected.error.code,'storage_failed');
+    assert.equal(g.storage.data.get(Core.KEY),raw);
+    assert.deepEqual({...rejected.state,error:null},before);
+    assert.ok(observed.length>0);assert.ok(observed.every(s=>s.pet.species==='bunny'));
+    const reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);
+    assert.deepEqual(reload.getState(),before);
+    g.storage.setItem=set;
+    assert.equal((await command(g,'chooseSpecies',{species:'lilac'})).ok,true);
+    assert.equal(g.app.getState().pet.species,'lilac');
+  }
+});
+
 test('legacy decoration arrays and old current-day game limits are preserved',async()=>{
   const day=new Date(2026,9,18);const k=day.getFullYear()+'-'+(day.getMonth()+1)+'-'+day.getDate();
   const g=await game({pg_deco:'["house","flower"]',pg_day:k,pg_feed:'3',pg_pet:'8',pg_play:'3'});
@@ -122,7 +192,7 @@ test('legacy fractional price and total basis remain archived and do not revert 
 
 test('malformed or unsupported legacy/v3 records are never overwritten with defaults',async()=>{
   const cases=[{pet_game:'{'},{pet_game:'[]'},{pg_exp:'-1'},{pg_coins:'NaN'},{pg_deco:'null'},
-    {pg_bgs:'{}'},{pg_ach:'{'},{pg_species:'unknown'},{pet_game:'{"coins":-1}'},
+    {pg_bgs:'{}'},{pg_ach:'{'},{pg_species:'unknown'},{pg_species:'lilac'},{pet_game:'{"coins":-1}'},
     {[Core.KEY]:'{'},{[Core.KEY]:'null'},{[Core.KEY]:'{"version":9}'},
     {pet_game:'{"_mkt":{"price":{"apl":30},"hold":{"apl":1},"cost":{"apl":-1}}}'}];
   for(const seed of cases){const storage=memory(seed);const app=Core.create({storage});const r=await app.ready;

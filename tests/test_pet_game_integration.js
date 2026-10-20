@@ -74,6 +74,7 @@ function loaderFixture(options = {}) {
     window, document, pane, host, focus, scripts, timers, listeners, ui, context,
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
     coreLoaded() { window.PetGameCore = {}; scripts.at(-1).onload(); },
+    motionLoaded() { window.PetLilacMotion = {}; scripts.at(-1).onload(); },
     uiLoaded() { window.IndependentPetGame = ui; scripts.at(-1).onload(); },
     click(action) {
       const button = new Element('button'); button.setAttribute('data-act', action);
@@ -155,14 +156,16 @@ test('first open loads core then UI once and shares concurrent open requests', a
   assert.equal(f.pane.hidden, false); assert.equal(f.scripts.length, 1);
   assert.match(f.scripts[0].src, /pet-game-core\.js/);
   f.coreLoaded(); await flush();
-  assert.equal(f.scripts.length, 2); assert.match(f.scripts[1].src, /pet-game\.js/);
+  assert.equal(f.scripts.length, 2); assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
+  f.motionLoaded(); await flush();
+  assert.equal(f.scripts.length, 3); assert.match(f.scripts[2].src, /pet-game\.js/);
   f.uiLoaded(); assert.equal(await first, true);
   assert.equal(f.mounts, 1); assert.equal(f.received.target, f.host);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.mounts, 1, 'already-visible game is not rebuilt during an active minigame');
   f.window.closePetTab(); assert.equal(f.pane.hidden, true); assert.equal(f.focus.focused, true);
   assert.equal(await f.window.openPetTab(), true);
-  assert.equal(f.scripts.length, 2); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
+  assert.equal(f.scripts.length, 3); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
 });
 
 test('mount waits for protected hydration and storage adapter awaits durable writes', async () => {
@@ -200,14 +203,28 @@ test('failed script load allows retry without leaking raw failure or reloading c
   const f = loaderFixture();
   const opening = f.window.openPetTab();
   f.coreLoaded(); await flush();
-  f.scripts[1].onerror(new Error('do not display this synthetic raw detail'));
+  f.motionLoaded(); await flush();
+  f.scripts[2].onerror(new Error('do not display this synthetic raw detail'));
   assert.equal(await opening, false); assert.equal(f.mounts, 0);
   assert.doesNotMatch(f.host.textContent, /synthetic raw detail/);
   assert.match(f.host.textContent, /もう一度読み込む/);
   const retry = f.window.openPetTab();
   await flush();
-  assert.equal(f.scripts.length, 3); assert.match(f.scripts[2].src, /pet-game\.js/);
+  assert.equal(f.scripts.length, 4); assert.match(f.scripts[3].src, /pet-game\.js/);
   f.uiLoaded(); assert.equal(await retry, true);
+});
+
+test('optional motion download failure keeps the game and saved records available', async () => {
+  const f = loaderFixture();
+  const opening = f.window.openPetTab();
+  f.coreLoaded(); await flush();
+  assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
+  f.scripts[1].onerror(new Error('private transport details must stay hidden'));
+  await flush();
+  assert.match(f.scripts[2].src, /pet-game\.js/);
+  f.uiLoaded(); assert.equal(await opening, true);
+  assert.equal(f.mounts, 1);
+  assert.doesNotMatch(f.host.textContent, /private transport details/);
 });
 
 test('closing before hydration prevents hidden mount; reopen and nav use one handler', async () => {

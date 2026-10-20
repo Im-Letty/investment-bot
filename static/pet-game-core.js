@@ -103,7 +103,7 @@
   function validate(s) {
     check(plain(s)&&s.version===3&&integer(s.revision),'corrupt_data');finiteTree(s,0);
     check(integer(s.createdAt)&&integer(s.updatedAt),'corrupt_data');
-    check(plain(s.pet)&&text(s.pet.name,40)&&['dragon','bunny'].indexOf(s.pet.species)>=0&&integer(s.pet.exp),'corrupt_data');
+    check(plain(s.pet)&&text(s.pet.name,40)&&['dragon','bunny','lilac'].indexOf(s.pet.species)>=0&&integer(s.pet.exp),'corrupt_data');
     check(s.pet.path===undefined||['cute','cool'].indexOf(s.pet.path)>=0,'corrupt_data');check(s.pet.pixel===undefined||typeof s.pet.pixel==='boolean','corrupt_data');
     check(integer(s.coins),'corrupt_data');counts(s.inventory);
     var d=s.decorations;check(plain(d)&&plain(d.owned)&&text(d.background,100)&&Array.isArray(d.backgrounds)&&d.backgrounds.length<=200,'corrupt_data');
@@ -230,7 +230,7 @@
       } else if(a.type==='rename') {
         check(text(a.name,40),'invalid_name');next.pet.name=a.name.trim();
       } else if(a.type==='chooseSpecies') {
-        check(['dragon','bunny'].indexOf(a.species)>=0,'invalid_species');next.pet.species=a.species;
+        check(['dragon','bunny','lilac'].indexOf(a.species)>=0,'invalid_species');next.pet.species=a.species;
       } else if(a.type==='chooseAppearance') {
         check(next.pet.exp>=110,'appearance_locked');check(['cute','cool'].indexOf(a.path)>=0&&typeof a.pixel==='boolean','invalid_appearance');
         next.pet.path=a.path;next.pet.pixel=a.pixel;

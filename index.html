@@ -4245,7 +4245,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 })();
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
-<link rel="stylesheet" href="/static/pet-game.css?v=54ced2dc3e2c">
+<link rel="stylesheet" href="/static/pet-game.css?v=caf73ed789ad">
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
 #sect-pet[hidden]{display:none}
@@ -4269,11 +4269,11 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   function section(){return document.getElementById('sect-pet');}
   function host(){return document.getElementById('pet-game-root');}
   function apiReady(){return !!(window.PetGameCore&&window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
-  function loadScript(src,ready){
+  function loadScript(src,ready,timeout){
     if(ready())return Promise.resolve();
     return new Promise(function(resolve,reject){
       var script=document.createElement('script'),settled=false;
-      var timer=setTimeout(function(){finish(false);},15000);
+      var timer=setTimeout(function(){finish(false);},timeout||15000);
       function finish(ok){if(settled)return;settled=true;clearTimeout(timer);if(ok)resolve();else{script.remove();reject(new Error('Game unavailable'));}}
       script.src=src;script.async=true;
       script.onload=function(){finish(ready());};
@@ -4284,8 +4284,10 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   function loadModules(){
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
-    moduleLoading=loadScript('/static/pet-game-core.js?v=cbe9dd04fa45',function(){return !!window.PetGameCore;}).then(function(){
-      return loadScript('/static/pet-game.js?v=84977bc1c1b0',apiReady);
+    moduleLoading=loadScript('/static/pet-game-core.js?v=9c6b3b4deac3',function(){return !!window.PetGameCore;}).then(function(){
+      return loadScript('/static/pet-lilac-motion.js?v=ab77bd9be054',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
+    }).then(function(){
+      return loadScript('/static/pet-game.js?v=d52f62900c34',apiReady);
     }).catch(function(error){moduleLoading=null;throw error;});
     return moduleLoading;
   }
