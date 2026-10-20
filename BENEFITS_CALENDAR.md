@@ -1,7 +1,8 @@
 # Shareholder benefits calendar
 
-The catalogue contains 30 companies: the original nine reviewed on 2026-09-25 and
-fifteen additions reviewed on 2026-10-17 and three on 2026-10-18, plus 3 on 2026-10-19. The owner chose phased expansion using free
+The catalogue contains 32 companies: the original nine reviewed on 2026-09-25,
+fifteen additions reviewed on 2026-10-17, three on 2026-10-18, three on
+2026-10-19 and two on 2026-10-20. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -520,3 +521,31 @@ coverage; the other2 reviewed companies are not active-programme additions.
 All previous 30 companies, 21 reviewed additions, nine fixed records and 12
 explicit schedules retain their facts and confirmation dates. Coverage remains
 partial; the other company in the bounded review is not an active addition.
+
+
+## Further current-HTML addition reviewed on 2026-10-20
+
+- 8228 Maruichi Sansho: https://www.maruichi.com/ir/stock_information/benefit/
+  Four nonadditive September-end brackets: 100-199 shares receive 2,000 yen
+  equivalent in curry products; 200-499 receive 3,000 yen in processed foods;
+  500-999 choose one of three 4,000-yen product options; 1,000+ choose either a
+  two-item food-and-product combination or one of four 7,000-yen product options.
+  The same shareholder number must appear at the March and September records
+  with at least 100 shares at each, for the stated six-month holding test.
+  The September share count determines the tier; its higher tier need not be
+  held at March. Gifts are planned from mid-December; actual dispatch/arrival,
+  application deadlines and food expiry remain unconfirmed. Announcement and
+  tier-start dates are unknown, and no future purchase deadline or schedule is
+  inferred. Numeric authority is the current issuer HTML, with a separate
+  review of the authored factual note and numeric transcription. Stock identity
+  and the 100-share trading unit are dated March 31, 2026. General copyright and
+  normal new-window link conditions were read; no blanket reuse grant is claimed.
+  The IR-specific disclaimer and complete amendment history remain unconfirmed.
+  An unverified third-party PDF was not executed after automatic approval review
+  rejected it; none of its dates, text or values is used. No source prose, table,
+  image or voucher art is reproduced. The note SHA is not a raw-page SHA.
+
+All previous 31 companies, 22 reviewed additions, nine fixed records and 12
+explicit schedules retain their original values and confirmation dates. This
+addition has no schedule and does not establish all-company coverage. Public
+publication is verified separately from this reviewed repository build.

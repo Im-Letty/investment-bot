@@ -1,0 +1,184 @@
+{
+  "schema_version": 1,
+  "code": "8228",
+  "name": "マルイチ産商",
+  "note_recorded_at_jst": "2026-10-20T20:27:44.911835+09:00",
+  "evidence_kind": "authored_short_independent_factual_observation_note_not_raw_page",
+  "raw_primary_page_SHA_claimed": false,
+  "primary_HTML_observed_by": "root",
+  "sources": [
+    {
+      "URL": "https://www.maruichi.com/ir/stock_information/benefit/",
+      "tool_reference": "turn2121view0",
+      "lines": "31-111",
+      "observation_bounds_jst": [
+        "2026-10-20T20:19:40+09:00",
+        "2026-10-20T20:19:43+09:00"
+      ],
+      "role": "current_programme_HTML_all_numeric_tier_authority"
+    },
+    {
+      "URL": "https://www.maruichi.com/ir/stock_information/shareholder/",
+      "tool_reference": "turn2123view0",
+      "lines": "30-39,96-99",
+      "observation_bounds_jst": [
+        "2026-10-20T20:21:00+09:00",
+        "2026-10-20T20:21:03+09:00"
+      ],
+      "role": "issuer_code_market_unit_dated20260331"
+    },
+    {
+      "URL": "https://www.maruichi.com/aboutus/",
+      "tool_reference": "turn2124view0",
+      "lines": "28-54",
+      "observation_bounds_jst": [
+        "2026-10-20T20:21:58+09:00",
+        "2026-10-20T20:22:01+09:00"
+      ],
+      "role": "general_site_use_and_link_conditions"
+    },
+    {
+      "URL": "https://www.maruichi.com/ir/ir_news/",
+      "tool_reference": "turn2125view0",
+      "lines": "24-60",
+      "observation_bounds_jst": [
+        "2026-10-20T20:22:53+09:00",
+        "2026-10-20T20:22:56+09:00"
+      ],
+      "role": "dynamic_IR_index_no_article_rows_exposed_not_amendment_absence"
+    }
+  ],
+  "identity": {
+    "legal_name": "株式会社マルイチ産商",
+    "code": "8228",
+    "market": "名古屋証券取引所メイン市場",
+    "trading_unit_shares": 100,
+    "stock_information_as_of": "2026-03-31",
+    "local_StockSearch_agrees": true,
+    "local_StockSearch_is_not_fresh_allmarket_census": true
+  },
+  "programme_facts": {
+    "implemented": true,
+    "recurring_record_date": "09-30",
+    "minimum_benefit_shares": 100,
+    "minimum_holding_months": 6,
+    "same_shareholder_number_required": true,
+    "consecutive_register_count": 2,
+    "registers": [
+      "same_year_03-31",
+      "09-30"
+    ],
+    "minimum_shares_at_each_register": 100,
+    "tier_is_determined_from": "09-30_shares_only",
+    "March_holding_does_not_need_to_equal_September_tier": true,
+    "tiers_nonadditive": [
+      {
+        "min_shares": 100,
+        "max_shares": 199,
+        "value_yen_equivalent": 2000,
+        "fact": "自社加工のレトルトカレー詰め合わせ。"
+      },
+      {
+        "min_shares": 200,
+        "max_shares": 499,
+        "value_yen_equivalent": 3000,
+        "fact": "自社加工の食品詰め合わせ。"
+      },
+      {
+        "min_shares": 500,
+        "max_shares": 999,
+        "value_yen_equivalent": 4000,
+        "fact": "魚の漬け加工品2種類又は畜産加工のハンバーグの3候補から1品を選択。"
+      },
+      {
+        "min_shares": 1000,
+        "max_shares": null,
+        "value_yen_equivalent": 7000,
+        "fact": "食品詰め合わせと魚の漬け加工品又はハンバーグ1品の計2品を受け取る構成、又は魚介加工品・魚料理・牛肉加工品の4候補から1品の構成を選ぶ。両構成は加算しない。"
+      }
+    ],
+    "choice_detail_independent_facts": {
+      "4000_candidates": [
+        "銀鱈と銀鮭の漬け魚セット",
+        "鯛の漬け魚セット",
+        "牛肉と豚肉を使ったハンバーグ"
+      ],
+      "7000_two_item_configuration": [
+        "加工食品の詰め合わせ",
+        "4000区分と同じ3候補から1品"
+      ],
+      "7000_single_item_configuration": [
+        "かつおのタタキ",
+        "鯛のアラ付きセット",
+        "鯛の塩釜焼き",
+        "牛肉のローストビーフ"
+      ]
+    },
+    "benefit_is_cash": false,
+    "shipping_plan": "毎年12月中旬以降の贈呈予定。実発送日・個別到着日は未確認。",
+    "example_products_not_guaranteed_fixed_contents": true,
+    "announced_on": null,
+    "programme_original_start": null,
+    "current_tier_effective_from": null,
+    "amendment_dates_or_PDF_metadata_not_adopted": true,
+    "application_required": null,
+    "application_deadline": null,
+    "exact_shipping_date": null,
+    "actual_arrival_date": null,
+    "product_or_coupon_expiry": null,
+    "stacking_or_repeat_gifts": null,
+    "next_purchase_deadline": null,
+    "next_explicit_schedule": null
+  },
+  "terms_review": {
+    "general_source_policy_read": true,
+    "IR_specific_disclaimer_not_read": true,
+    "IR_disclaimer_gate_denied_due_resource_reservation_budget": true,
+    "no_fetch_after_denied_gate": true,
+    "copyright_content_expression_permission_and_independent_numeric_facts_separate": true,
+    "no_general_reuse_licence_claimed": true,
+    "source_expression_images_tables_voucher_art_not_reproduced": true,
+    "source_link_condition": "Complete navigation to issuer site or new browser window; no framing, logo copying or misleading attribution.",
+    "source_link_can_use_ordinary_new_window": true,
+    "copying_permission_required_not_inferred_as_all_fact_prohibition": true
+  },
+  "amendment_review": {
+    "current_HTML_is_numeric_authority": true,
+    "dynamic_index_article_rows_exposed": false,
+    "all_past_future_amendments_verified_absent": false,
+    "thirdparty_PDF_execution_rejected_before_start": true,
+    "PDF_HTTP_attempts": 0,
+    "PDF_body_numerics_dates_or_conditions_used": false,
+    "PDF_issuer_authority_unconfirmed": true,
+    "PDF_retry_or_workaround_performed": false,
+    "PDF_is_not_required_to_present_current_HTML_facts_with_unknown_version_start": true
+  },
+  "source_op_refs": [
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/op-01-result.json",
+      "sha256": "8788e078a965e9fc283a86c71cbba3d636536e07a451c093a75adb1af8346121"
+    },
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/op-02-result.json",
+      "sha256": "26a9a2099c8f994986999bc947c49080561c2129d4416dceb09e4318ed18c71a"
+    },
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/op-03-result.json",
+      "sha256": "808dadc1243f0376ee4a5d9f5db466732a09e0caf5e0d640cb4a94eaf172f06a"
+    },
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/op-04-result.json",
+      "sha256": "85dd663c7f7d391fc531003a169e235db0f478b684bedca7a08d1c28020b80a6"
+    },
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/op-05-result.json",
+      "sha256": "db60c76dab1a3943562366aa66ab45462dba3b001912bd6107459bcb6cd262a7"
+    }
+  ],
+  "source_gate_denial_ref": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/op-06-gate-begin.json",
+    "sha256": "5ddf31d36c10730f8f3379501818270d77ac3138f582652e8fddadbf05c960af"
+  },
+  "all_relevant_unsupported_fields_remain_unknown": true,
+  "raw_source_body_original_table_images_or_long_quotes_saved": false
+}

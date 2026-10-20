@@ -1592,6 +1592,98 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "8228",
+      "symbol": "8228.JP",
+      "name": "マルイチ産商",
+      "category": "食品・商品選択",
+      "aliases": "株式会社マルイチ産商",
+      "versions": [
+        {
+          "id": "official-current-html-reviewed-20261020",
+          "status": "active",
+          "effective_from": null,
+          "effective_until": null,
+          "announced_on": null,
+          "verified_on": "2026-10-20",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://www.maruichi.com/ir/stock_information/benefit/",
+            "title": "マルイチ産商公式 株主優待",
+            "security_code": "8228",
+            "issuer_name": "マルイチ産商",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-20T20:19:42+09:00",
+            "observed_at_kind": "actual_post_web_tool_whole_second_clock_sample_not_exact_origin_publication_or_programme_start",
+            "observed_time_exclusive_upper_bound_jst": "2026-10-20T20:19:43+09:00",
+            "evidence_path": "evidence/reviewed-8228-observation-note-20261020.json",
+            "evidence_sha256": "92f63ef05264067557e7d2f9c5771d465bba0a78c7b1d85fe3be729d295dc93a",
+            "official_legal_name": "株式会社マルイチ産商"
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-primary-observation-plus-independent-authored-note-numeric-condition-schema-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "現在の発行体HTMLを読んだrootの短い独立事実ノート・キーフレーズ・数値転記について、別担当が4区分と各回100株・同番号2回・半年・9月株数による区分選択・非加算を照合。別担当による原HTMLの再取得・直接再読ではない。IR一覧は記事行が不露出で、全改廃の不存在は未確認。IR専用免責は取得予算のgateで未取得、第三者PDFは実行開始前拒否で本文未読。公表日・制度開始・現在区分の適用開始・次回購入締切は補完しない。",
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "IR_specific_disclaimer_read": false,
+            "supplemental_PDF_used_as_authority": false,
+            "independent_review_evidence": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261020-201519/company-8228/independent-current-HTML-review.json",
+              "sha256": "5304e7bd7cb251a6f7f6501db5aedf2d39466a5b1bc28f9d8531729c3a42d468"
+            }
+          },
+          "period": "毎年9月30日の名簿で対象と区分を判定。継続保有の判定には同じ年の3月31日の名簿も使用。次回の対象年・具体的な購入締切日は未確認。",
+          "conditions": "優待最低100株、売買単位も100株。6か月以上。同じ株主番号で3月31日と9月30日の名簿に2回続けて記載され、各回100株以上が必要。優待区分は9月30日の保有株数で決定。3月末にも各区分と同じ株数を保有する条件ではなく、100株以上が必要。各区分の内容は加算しない。",
+          "use": "食品の贈呈で、表示額は商品相当額。現金の支給ではありません。100～199株はカレーの詰め合わせ、200～499株は加工食品の詰め合わせ、500～999株は3候補から1品を選択。1,000株以上は2品の組合せ又は別の4候補から1品を選びます。掲載商品は例で、内容が変わる場合があります。申込方法・申込締切・繰返し受取などの追加条件は未確認。",
+          "delivery": "毎年12月中旬以降の贈呈予定。実際の発送日・個別到着日・商品の賞味期限や消費期限は未確認。",
+          "grant_summary": "12月中旬以降に贈呈予定（実発送・到着日は未確認）",
+          "tiers": [
+            {
+              "id": "current-100-199",
+              "shares_min": 100,
+              "shares_max": 199,
+              "holding_months_min": 6,
+              "holding_requirement": "6か月以上。同じ株主番号で3月31日と9月30日の名簿に2回続けて記載され、各回100株以上が必要。",
+              "reward": "2,000円相当のレトルトカレーの詰め合わせ。",
+              "conditions": "優待区分は9月30日の保有株数で決定。3月末にも各区分と同じ株数を保有する条件ではなく、100株以上が必要。各区分の内容は加算しない。申込方法・締切・有効期限は未確認。"
+            },
+            {
+              "id": "current-200-499",
+              "shares_min": 200,
+              "shares_max": 499,
+              "holding_months_min": 6,
+              "holding_requirement": "6か月以上。同じ株主番号で3月31日と9月30日の名簿に2回続けて記載され、各回100株以上が必要。",
+              "reward": "3,000円相当の加工食品の詰め合わせ。",
+              "conditions": "優待区分は9月30日の保有株数で決定。3月末にも各区分と同じ株数を保有する条件ではなく、100株以上が必要。各区分の内容は加算しない。申込方法・締切・有効期限は未確認。"
+            },
+            {
+              "id": "current-500-999",
+              "shares_min": 500,
+              "shares_max": 999,
+              "holding_months_min": 6,
+              "holding_requirement": "6か月以上。同じ株主番号で3月31日と9月30日の名簿に2回続けて記載され、各回100株以上が必要。",
+              "reward": "4,000円相当。銀鱈・銀鮭の漬け魚セット、鯛の漬け魚セット、牛肉・豚肉のハンバーグから1品を選択。",
+              "conditions": "優待区分は9月30日の保有株数で決定。3月末にも各区分と同じ株数を保有する条件ではなく、100株以上が必要。各区分の内容は加算しない。申込方法・締切・有効期限は未確認。"
+            },
+            {
+              "id": "current-1000plus",
+              "shares_min": 1000,
+              "shares_max": null,
+              "holding_months_min": 6,
+              "holding_requirement": "6か月以上。同じ株主番号で3月31日と9月30日の名簿に2回続けて記載され、各回100株以上が必要。",
+              "reward": "7,000円相当。加工食品の詰め合わせに4,000円区分の3候補から1品を組み合わせる2品構成、又は、かつおのタタキ・鯛のアラ付きセット・鯛の塩釜焼き・牛肉のローストビーフから1品の構成を選択。両構成を加算しない。",
+              "conditions": "優待区分は9月30日の保有株数で決定。3月末にも各区分と同じ株数を保有する条件ではなく、100株以上が必要。各区分の内容は加算しない。申込方法・締切・有効期限は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }
