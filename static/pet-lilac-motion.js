@@ -178,10 +178,19 @@
     'p-=u_look*iris*(1.-u_blink);vec2 uv=clamp(p,vec2(.0001),vec2(.9999));',
     'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)));',
     'vec3 rgb=texture2D(u_original,uv).rgb;',
-    'vec3 expression=texture2D(u_sad,uv).rgb*u_face.x+texture2D(u_angry,uv).rgb*u_face.y+texture2D(u_surprise,uv).rgb*u_face.z+texture2D(u_delighted,uv).rgb*u_face.w;',
-    'float weight=clamp(dot(u_face,vec4(1.)),0.,1.);rgb=mix(rgb,expression/max(.001,weight),face*weight);',
-    'rgb=mix(rgb,texture2D(u_half,uv).rgb,eye*smoothstep(0.,.5,u_blink));',
-    'rgb=mix(rgb,texture2D(u_closed,uv).rgb,eye*smoothstep(.5,1.,u_blink));',
+    // Pose scores select one face, not a permanent opacity. A held expression must
+    // replace the old eyes completely; only the cue envelope fades between faces.
+    'vec3 expression=rgb;float strongest=0.;float delighted=0.;',
+    'if(u_face.x>strongest){strongest=u_face.x;expression=texture2D(u_sad,uv).rgb;}',
+    'if(u_face.y>strongest){strongest=u_face.y;expression=texture2D(u_angry,uv).rgb;}',
+    'if(u_face.z>strongest){strongest=u_face.z;expression=texture2D(u_surprise,uv).rgb;}',
+    'if(u_face.w>strongest){strongest=u_face.w;expression=texture2D(u_delighted,uv).rgb;delighted=1.;}',
+    'float weight=strongest>0.?u_presence:0.;rgb=mix(rgb,expression,face*weight);',
+    // Delighted already has closed eyes. Neutral half-open blink frames would
+    // paint the old pupils over that expression and create ghost eyes.
+    'float blink=u_blink*(1.-delighted*u_presence);',
+    'rgb=mix(rgb,texture2D(u_half,uv).rgb,eye*smoothstep(0.,.5,blink));',
+    'rgb=mix(rgb,texture2D(u_closed,uv).rgb,eye*smoothstep(.5,1.,blink));',
     'float blush=region(p,vec2(.405,.55),vec2(.062,.04))+region(p,vec2(.80,.445),vec2(.047,.037));',
     'rgb=mix(rgb,vec3(.99,.48,.67),clamp(blush*u_blush*.25,0.,.3));',
     'float fall=fract(u_phase*.85);float tears=max(droplet(p,vec2(.414,.51+.085*fall),vec2(.009,.018)),droplet(p,vec2(.78,.415+.07*fall),vec2(.008,.016)));',
