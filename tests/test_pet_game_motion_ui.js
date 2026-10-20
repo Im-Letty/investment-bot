@@ -149,6 +149,16 @@ async function fixture(config = {}) {
   };
 }
 
+function shellBounds(f, headerRect, footerRect) {
+  const header = f.document.createElement('header'); header.className = 'ipg-shell-head';
+  header.getBoundingClientRect = () => headerRect; f.pane.appendChild(header);
+  const footer = f.document.createElement('nav'); footer.getBoundingClientRect = () => footerRect;
+  f.document.body.appendChild(footer);
+  const originalGet = f.document.getElementById;
+  f.document.getElementById = id => id === 'knBottomNav' ? footer : originalGet(id);
+  return { header, footer };
+}
+
 test('choosing B waits for persistence, preserves the economy and reveals canvas only when ready', async () => {
   const f = await fixture({ seed: { pg_exp: '167', pg_species: 'bunny' } });
   assert.equal((await f.store.dispatch({ type: 'buyStock', stockId: 'apl', quantity: 2 })).ok, true);
@@ -535,6 +545,58 @@ test('an offscreen selected gesture reveals the actor while browsing stays still
   await f.click(choice); assert.equal(controller.changes.at(-1).name, 'furious'); assert.equal(visual.dataset.cuePhase, 'enter');
   f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
   assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), before);
+});
+
+test('a direction reference keeps the complete idle wrapper clear of the fixed game header and footer with only one scroll', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  f.window.innerHeight = 720; shellBounds(f, { top: 0, height: 69 }, { top: 662, height: 58 });
+  const visual = f.host.querySelector('.ipg-lilac-visual'), controller = f.mounts[0];
+  visual.getBoundingClientRect = () => ({ top: 31, height: 260 });
+  await f.directionDrawer(); await f.click(f.focusButton('pet-direction-motion-direction_left'));
+  assert.equal(f.scrolls().length, 1, 'the whole actor is occluded even if the smaller turning head appears below the header');
+  assert.equal(f.scrolls()[0].node, visual); assert.deepEqual(copy(f.scrolls()[0].options), { block: 'center', behavior: 'auto' });
+  assert.equal(visual.style.scrollMarginTop, '81px'); assert.equal(visual.style.scrollMarginBottom, '70px');
+  f.advance(6000); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'idle');
+  assert.equal(f.scrolls().length, 1, 'phase boundaries and idle recovery cannot keep moving the page');
+  assert.equal(f.mounts.length, 1); assert.equal(controller.destroyed, false); assert.equal(f.raf.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('footer occlusion also reveals the actor but an actor entirely within the safe area stays still', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  f.window.innerHeight = 720; shellBounds(f, { top: 0, height: 69, bottom: 69 }, { top: 662, height: 58, bottom: 720 });
+  const visual = f.host.querySelector('.ipg-lilac-visual');
+  visual.getBoundingClientRect = () => ({ top: 420, height: 260 });
+  await f.click(f.focusButton('pet-emotion-joy')); assert.equal(f.scrolls().length, 1, 'feet behind the bottom navigation are not fully visible');
+  visual.getBoundingClientRect = () => ({ top: 100, height: 260 });
+  await f.click(f.focusButton('pet-emotion-love')); assert.equal(f.scrolls().length, 1, 'a safely placed actor needs no new scroll');
+  assert.equal(f.mounts.length, 1); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('hidden or zero-height shell bars do not cause an unnecessary actor scroll and CSS supplies safe scroll margins', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(); f.window.innerHeight = 720;
+  const chrome = shellBounds(f, { top: 0, height: 69 }, { top: 662, height: 58 });
+  chrome.header.hidden = true; chrome.footer.hidden = true;
+  const visual = f.host.querySelector('.ipg-lilac-visual'); visual.getBoundingClientRect = () => ({ top: 31, height: 260 });
+  await f.click(f.focusButton('pet-emotion-joy')); assert.equal(f.scrolls().length, 0);
+  chrome.header.hidden = false; chrome.footer.hidden = false;
+  chrome.header.getBoundingClientRect = chrome.footer.getBoundingClientRect = () => ({ top: 0, height: 0 });
+  await f.click(f.focusButton('pet-emotion-love')); assert.equal(f.scrolls().length, 0); assert.deepEqual(f.saved(), before);
+  const css = fs.readFileSync(require.resolve('../static/pet-game.css'), 'utf8');
+  assert.match(css, /\.ipg-lilac-visual,\.ipg-emotion-stage>\.ipg-scene\{scroll-margin-top:calc\(82px \+ env\(safe-area-inset-top,0px\)\);scroll-margin-bottom:calc\(82px \+ env\(safe-area-inset-bottom,0px\)\)/);
+});
+
+test('unavailable shell measurements use conservative margins without rejecting a valid gesture or adding drawing work', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  f.window.innerHeight = 720; const chrome = shellBounds(f, { top: 0, height: 69 }, { top: 662, height: 58 });
+  chrome.header.getBoundingClientRect = () => { throw new Error('layout unavailable'); };
+  chrome.footer.getBoundingClientRect = () => ({ top: NaN, height: 58 });
+  const visual = f.host.querySelector('.ipg-lilac-visual'); visual.getBoundingClientRect = () => ({ top: 31, height: 260 });
+  await f.click(f.focusButton('pet-emotion-joy'));
+  assert.equal(f.mounts[0].changes.at(-1).name, 'joy'); assert.equal(f.scrolls().length, 1);
+  assert.equal(visual.style.scrollMarginTop, '94px'); assert.equal(visual.style.scrollMarginBottom, '94px');
+  assert.equal(f.mounts.length, 1); assert.equal(f.raf.size, 0); assert.equal(f.timers.size, 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
 test('six full-body references share the actual clothed actor without changing the 100-expression catalogue or any saved progress', async () => {

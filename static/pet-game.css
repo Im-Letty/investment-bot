@@ -135,6 +135,7 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 @media(prefers-reduced-motion:reduce){.ipg-lilac-visual>.ipg-emotion-effect{display:none!important}.ipg-emotion-mote,.ipg-feeding-food{animation:none!important;will-change:auto}}
 
 /* Keep B's face and the selected emotion controls in the same viewport row. */
+.ipg-lilac-visual,.ipg-emotion-stage>.ipg-scene{scroll-margin-top:calc(82px + env(safe-area-inset-top,0px));scroll-margin-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
 .ipg-emotion-stage,.ipg-appearance-preview{display:grid;grid-template-columns:260px minmax(0,1fr);align-items:center;gap:16px;width:100%;max-width:900px;margin:8px auto 16px}
 .ipg-emotion-stage>.ipg-scene{width:100%;max-width:none;min-height:280px;margin:0}
 .ipg-emotion-stage>.ipg-emotion-panel,.ipg-appearance-preview>.ipg-emotion-panel{width:100%;margin:0}

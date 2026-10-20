@@ -347,7 +347,28 @@
     // Keep the acting character visible when its controls need a longer page.
     try {
       var rect = request.wrap.getBoundingClientRect(), height = Number(w.innerHeight) || 0;
-      if (height && (rect.top < 0 || rect.top + rect.height > height) && typeof request.wrap.scrollIntoView === 'function') request.wrap.scrollIntoView({ block: 'center', behavior: 'auto' });
+      if (height) {
+        var pane = d.getElementById('sect-pet'), head = pane && pane.querySelector('.ipg-shell-head'), top = 0, bottom = height;
+        function bounds(element) {
+          if (!element || element.hidden) return null;
+          try {
+            var box = element.getBoundingClientRect(), start = Number(box.top), size = Number(box.height);
+            if (!Number.isFinite(start) || !Number.isFinite(size)) return { unavailable: true };
+            if (size <= 0 || start >= height || start + size <= 0) return null;
+            return { top: start, bottom: Number.isFinite(box.bottom) ? box.bottom : start + size };
+          } catch (_) { return { unavailable: true }; }
+        }
+        var header = bounds(head);
+        if (header) top = Math.max(top, header.unavailable ? 82 : header.bottom);
+        [pane && pane.querySelector('.ipg-shell-foot'), d.getElementById('knBottomNav')].forEach(function (element) {
+          var footer = bounds(element); if (footer) bottom = Math.min(bottom, footer.unavailable ? height - 82 : footer.top);
+        });
+        top = Math.min(height, top + 12); bottom = Math.max(top, bottom - 12);
+        request.wrap.style.scrollMarginTop = String(top) + 'px';
+        request.wrap.style.scrollMarginBottom = String(height - bottom) + 'px';
+        // Use the whole fixed-size wrapper, including the larger idle pose.
+        if ((rect.top < top || rect.top + rect.height > bottom) && typeof request.wrap.scrollIntoView === 'function') request.wrap.scrollIntoView({ block: 'center', behavior: 'auto' });
+      }
     } catch (_) { /* Scrolling must not reject a valid preview. */ }
   }
   function referenceMotionDrawer(request, preview, kind) {
