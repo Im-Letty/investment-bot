@@ -124,3 +124,10 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 @keyframes ipg-emotion-pop{0%,100%{opacity:.6;transform:scale(.8) rotate(-8deg)}50%{opacity:1;transform:scale(1.16) rotate(8deg)}}
 @media(max-width:420px){.ipg-emotion-panel{padding:12px 9px}.ipg .ipg-emotion-groups .ipg-button{font-size:.76em}.ipg-emotion-grid{gap:6px}.ipg .ipg-emotion-grid .ipg-button{font-size:.92em}.ipg-lilac-visual>.ipg-emotion-effect{font-size:23px}.ipg-lilac-compact>.ipg-emotion-effect,.ipg-catcher>.ipg-emotion-effect{font-size:10px}}
 @media(prefers-reduced-motion:reduce){.ipg-lilac-visual>.ipg-emotion-effect{display:none!important}.ipg-emotion-mote{animation:none;will-change:auto}}
+
+/* Keep B's face and the selected emotion controls in the same viewport row. */
+.ipg-emotion-stage,.ipg-appearance-preview{display:grid;grid-template-columns:260px minmax(0,1fr);align-items:center;gap:16px;width:100%;max-width:900px;margin:8px auto 16px}
+.ipg-emotion-stage>.ipg-scene{width:100%;max-width:none;min-height:280px;margin:0}
+.ipg-emotion-stage>.ipg-emotion-panel,.ipg-appearance-preview>.ipg-emotion-panel{width:100%;margin:0}
+.ipg-appearance-preview>.ipg-lilac-visual{margin:0 auto}
+@media(max-width:760px){.ipg-emotion-stage,.ipg-appearance-preview{grid-template-columns:minmax(0,1fr);gap:4px;max-width:580px;margin:4px auto 12px}.ipg-emotion-stage>.ipg-scene{width:min(100%,420px);min-height:200px;max-height:200px;margin:0 auto}.ipg-emotion-stage .ipg-lilac-visual,.ipg-appearance-preview>.ipg-lilac-visual{width:200px;height:200px}.ipg-emotion-stage>.ipg-emotion-panel,.ipg-appearance-preview>.ipg-emotion-panel{padding:12px 9px}}

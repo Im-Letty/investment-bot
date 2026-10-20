@@ -330,7 +330,8 @@
     var decoration = decorText ? node('span', 'ipg-pet-decoration', decorText) : null;
     if (decoration) decoration.setAttribute('aria-label', '身につけているかざり：' + (decor ? decor.name : String(equipped).slice(0, 100)));
     append(scene, node('span', 'ipg-sky', '✧'), img, decoration);
-    append(pet, scene, node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'),
+    var emotionStage = careRequest ? append(node('div', 'ipg-emotion-stage'), scene, emotionPalette(careRequest, false)) : scene;
+    append(pet, emotionStage, node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'),
       text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'), text(petMood(s), 'ipg-pet-mood'));
     var progress = node('progress', 'ipg-progress');
     progress.max = 100; progress.value = info.progress;
@@ -346,7 +347,7 @@
         node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
     });
-    if (s.pet.species === 'lilac') pet.appendChild(emotionPalette(careRequest, false));
+    if (s.pet.species === 'lilac' && !careRequest) pet.appendChild(emotionPalette(null, false));
     append(pet, care, text(s.care.dailyRewardDay === currentDay() ?
       '今日の育成報酬10コインは受け取り済み。お世話は残りの回数まで続けられます。' :
       'その日最初のお世話で、育成報酬10コイン。お世話だけでも成長できます。'));

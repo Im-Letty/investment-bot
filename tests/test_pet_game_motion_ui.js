@@ -424,3 +424,21 @@ test('reduced-motion CSS suppresses accent animation and hidden groups are remov
   assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\.ipg-lilac-visual>\.ipg-emotion-effect\{display:none!important\}\.ipg-emotion-mote\{animation:none/);
   assert.match(css, /\.ipg-emotion-grid\[hidden\]\{display:none!important\}/);
 });
+
+test('B care keeps its face and emotion controls together before progress while old layouts stay intact', async () => {
+  const b = await fixture({ species: 'lilac', rendererMode: 'ready' });
+  const card = b.host.querySelector('.ipg-pet-card'), stage = card.querySelector('.ipg-emotion-stage');
+  assert.ok(stage); assert.equal(card.children[0], stage);
+  assert.equal(stage.children[0], stage.querySelector('.ipg-scene'));
+  assert.equal(stage.children[1], stage.querySelector('.ipg-emotion-panel'));
+  assert.ok(stage.querySelector('canvas'), 'face remains alongside the emotion palette');
+  assert.equal(card.querySelectorAll('.ipg-emotion-panel').length, 1);
+  assert.ok(card.children.indexOf(card.querySelector('.ipg-pet-name')) > card.children.indexOf(stage));
+  assert.ok(card.children.indexOf(card.querySelector('.ipg-care-buttons')) > card.children.indexOf(stage));
+  await b.click(b.focusButton('pet-emotion-group-deep'));
+  await b.click(b.focusButton('pet-emotion-angry'));
+  assert.equal(stage.querySelector('.ipg-emotion-caption').textContent, '怒るのしぐさ');
+  const old = await fixture({ seed: { pg_species: 'bunny', pg_exp: '167' } });
+  assert.equal(old.host.querySelector('.ipg-emotion-stage'), null);
+  assert.equal(old.host.querySelector('.ipg-pet-card').children[0], old.host.querySelector('.ipg-scene'));
+});
