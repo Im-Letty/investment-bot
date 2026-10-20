@@ -15,7 +15,7 @@ function events(target = {}) {
   return target;
 }
 function fixture(config = {}) {
-  let clock = 0, id = 0, draws = 0, ready = 0, released = 0, clears=0, updates=0, liveVertices=null, activeUnit=0, maxActiveUnit=0;
+  let clock = 0, id = 0, draws = 0, ready = 0, released = 0, clears=0, updates=0, liveVertices=null, activeUnit=0, maxActiveUnit=0, activeBuffer=null;
   const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [], bindings = [], constants = {}, disabledAttributes = [];
   const boundTextures={},samplers={},enabled=[],blend=[];
   const media = events({ matches: !!config.reduced });
@@ -61,7 +61,8 @@ function fixture(config = {}) {
   gl.activeTexture = unit => { activeUnit=unit-gl.TEXTURE0;maxActiveUnit=Math.max(maxActiveUnit,activeUnit);assert.ok(activeUnit>=0&&activeUnit<=7,'WebGL 1 eight texture units'); };
   gl.bindTexture = (_,texture) => { boundTextures[activeUnit]=texture; };
   gl.uniform1i = (key,value) => { samplers[key]=value; };
-  gl.bufferData = (target, data, usage) => { buffers.push({ target, data: new Float32Array(data), usage }); };
+  gl.bindBuffer = (_,value) => { activeBuffer=value; };
+  gl.bufferData = (target, data, usage) => { buffers.push({ target, buffer:activeBuffer, data: new Float32Array(data), usage }); };
   gl.bufferSubData = (_,offset,data) => { assert.equal(offset,0);if(!liveVertices||liveVertices.length!==data.length)liveVertices=new Float32Array(data.length);liveVertices.set(data);updates++; };
   gl.vertexAttribPointer = (index, size, type, normalized, stride, offset) => { attributes.push({ index, size, type, normalized, stride, offset }); };
   gl.getUniformLocation = (_, key) => key;
@@ -78,7 +79,7 @@ function fixture(config = {}) {
     packedNames[key]?.forEach((name, index) => { uniforms['u_' + name] = values[index]; });
   };
   gl.texImage2D = (...args) => { if (config.textureFailure) throw new Error('raw private driver detail'); uploads.push(args.at(-1)); };
-  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],texture4:boundTextures[4],frame:clears }); draws++; };
+  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],texture4:boundTextures[4],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
   const canvas = events({ ownerDocument: doc, hidden: true, isConnected: true, width: 240, height: 240,
     clientWidth: config.cssWidth || 320,
     getBoundingClientRect: () => ({ width: config.cssWidth || 320 }),
@@ -88,11 +89,11 @@ function fixture(config = {}) {
   return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders, buffers, attributes, drawCalls, bindings, constants, disabledAttributes, samplers,boundTextures,blend,enabled,
     get draws() { return draws; }, get ready() { return ready; }, get released() { return released; },
     get clears(){return clears;},get updates(){return updates;},get liveVertices(){return liveVertices;},get maxActiveUnit(){return maxActiveUnit;},
-    complete() { images.forEach((im,i) => { im.complete = true; im.naturalWidth = im.naturalHeight = i===8?1254:1000; im.onload?.(); }); },
+    complete() { images.forEach((im,i) => { im.complete = true; im.naturalWidth = im.naturalHeight = i>=8?1254:1000; im.onload?.(); }); },
     advance(ms = 40) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); },
     hide(value) { doc.hidden = value; doc.emit('visibilitychange'); },
     reduce(value) { media.matches = value; media.emit('change'); },
-    timeout() { [...timers.values()].forEach(fn => fn()); }
+    timeout() { const callbacks=[...timers.values()];timers.clear();callbacks.forEach(fn=>fn()); }
   };
 }
 
@@ -154,7 +155,7 @@ function inspectRigMesh(f,stage,path='balanced') {
   const rest=f.buffers[0].data,live=f.liveVertices,frame=Motion.rigPose(0,'idle',0,stage,path);
   assert.ok(rest.length>0&&rest.length/5<20000);assert.equal(rest.length%15,0);
   assert.deepEqual(f.attributes.map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
-  assert.equal(f.drawCalls.length,9);assert.equal(f.uploads.length,9);
+  assert.equal(f.drawCalls.length,9);assert.equal(f.uploads.length,10);
   let total=0;
   for(const call of f.drawCalls){
     const part=Motion.rigParts[call.part];assert.equal(call.first,total);total+=call.count;
@@ -204,6 +205,151 @@ test('six body demonstrations remain separate from the 100 emotions and end at t
     assert.equal(Motion.durations[row.id],6000);assert.equal(Motion.situations.includes(row.id),false);
     assert.deepEqual(Motion.rigPose(9,row.id,6),Motion.rigPose(9,'idle',6));
   }
+});
+
+test('four real-view directions stay separate from the 100 emotions and six body demonstrations',()=>{
+  assert.deepEqual(Motion.directionCatalogue.map(row=>[row.id,row.durationMs]),[['direction_left',6000],['direction_right',6000],['direction_back',6500],['direction_spin',6800]]);
+  assert.equal(Object.isFrozen(Motion.directionCatalogue),true);
+  for(const row of Motion.directionCatalogue){assert.equal(Object.isFrozen(row),true);assert.equal(row.effect,'none');assert.ok(row.face&&row.motion);assert.equal(Motion.durations[row.id],row.durationMs);assert.equal(Motion.situations.includes(row.id),false);}
+  assert.equal(Motion.catalogue.length,100);assert.equal(Motion.bodyCatalogue.length,6);
+});
+
+test('direction timelines show the intended real side/back, hold one crisp frame, and return to front',()=>{
+  for(const [id,yaw,index]of[['direction_left',-90,12],['direction_right',90,4],['direction_back',180,8]]){
+    const d=Motion.durations[id];assert.equal(Motion.directionFrame(id,0).front,true);
+    for(const age of[2400,3000,3800]){const p=Motion.directionFrame(id,age);assert.equal(p.yawDeg,yaw);assert.equal(p.currentIndex,index);assert.equal(p.blend,0);assert.equal(p.front,false);}
+    assert.equal(Motion.directionFrame(id,d-1).front,true);assert.equal(Motion.directionFrame(id,d).done,true);
+    assert.equal(Motion.directionFrame(id,1000,true).currentIndex,index);assert.equal(Motion.directionFrame(id,d,true).front,true);
+  }
+  let previous=0;const indices=new Set();
+  for(let age=0;age<6800;age+=10){const p=Motion.directionFrame('direction_spin',age);assert.ok(p.yawDeg>=previous&&p.yawDeg<=360);previous=p.yawDeg;indices.add(p.blend>.5?p.nextIndex:p.currentIndex);}
+  assert.equal(indices.size,16);assert.equal(Motion.directionFrame('direction_spin',6800).front,true);assert.equal(Motion.directionFrame('direction_spin',2000,true).front,true);
+  for(const id of['__proto__','missing',null])assert.deepEqual(Motion.directionFrame(id,Infinity),{id:null,yawDeg:0,currentIndex:0,nextIndex:1,blend:0,front:true,done:true});
+});
+
+test('all sixteen half-pixel atlas cells keep samples inside their own half-texel guard',()=>{
+  assert.equal(Motion.directionViews.length,16);assert.equal(Object.isFrozen(Motion.directionViews),true);
+  for(let i=0;i<16;i++){
+    const view=Motion.directionViews[i];assert.equal(view.index,i);assert.equal(Object.isFrozen(view),true);
+    for(const x of[-1,0,.1,.5,.9,1,2])for(const y of[-1,0,.5,1,2]){
+      const p=Motion.directionCellUV(i,x,y,1254,1254),left=i%4/4,top=Math.floor(i/4)/4;
+      assert.ok(p.x>=left+.5/1254-1e-12&&p.x<=left+.25-.5/1254+1e-12);
+      assert.ok(p.y>=top+.5/1254-1e-12&&p.y<=top+.25-.5/1254+1e-12);
+    }
+    for(const key of['torso','eyes','eyeRadii','paws','tail','mouth','bounds'])assert.equal(Object.isFrozen(view[key]),true);
+  }
+});
+
+test('direction shapes keep every 6x6 growth/path grid unfolded and source soles grounded',()=>{
+  for(const stage of growthKeys)for(const path of Motion.evolutionCatalogue)for(let index=0;index<16;index++){
+    const view=Motion.directionViews[index];
+    for(let step=0;step<=24;step++)assert.ok(Math.abs(Motion.directionPoint(index,step/24,view.groundY,stage,path.key).y-.92)<1e-12);
+    for(let y=0;y<24;y++)for(let x=0;x<24;x++){
+      const a=Motion.directionPoint(index,x/24,y/24,stage,path.key),b=Motion.directionPoint(index,x/24,(y+1)/24,stage,path.key),c=Motion.directionPoint(index,(x+1)/24,y/24,stage,path.key),d=Motion.directionPoint(index,(x+1)/24,(y+1)/24,stage,path.key);
+      for(const [ta,tb,tc]of[[a,b,c],[c,b,d]]){assert.ok([ta.x,ta.y,tb.x,tb.y,tc.x,tc.y].every(Number.isFinite));assert.ok((tb.x-ta.x)*(tc.y-ta.y)-(tb.y-ta.y)*(tc.x-ta.x)<0,stage+path.key+index+': unfolded');}
+    }
+    for(const [x,y]of[[.3,.2],[.5,.7],[.8,.91]])assert.deepEqual(Motion.directionPoint(0,x,y,stage,path.key),Motion.growthPoint(stage,x,y,path.key));
+  }
+});
+
+test('per-view projection safely fits opaque source bounds at maximum supported size',()=>{
+  for(const stage of growthKeys)for(const path of Motion.evolutionCatalogue){
+    const root=Motion.rigPose(0,'idle',0,stage,path.key,1.15).matrices.torso;
+    for(let index=0;index<16;index++){
+      const fit=Motion.directionProjection(index,stage,path.key,root),b=Motion.directionViews[index].bounds,m=fit.matrix;
+      assert.ok(fit.fitScale>0&&fit.fitScale<=1);
+      for(let y=0;y<=12;y++)for(let x=0;x<=12;x++){
+        const p=Motion.directionPoint(index,b[0]+(b[2]-b[0])*x/12,b[1]+(b[3]-b[1])*y/12,stage,path.key),px=m[0]*p.x+m[2]*p.y+m[4],py=m[1]*p.x+m[3]*p.y+m[5];
+        assert.ok(px>=.012-1e-9&&px<=.988+1e-9&&py>=.018-1e-9&&py<=.96+1e-9,stage+path.key+index+': visible silhouette fits');
+      }
+    }
+  }
+});
+
+test('view-local fur palettes protect real eyes, mouths and cream while coloring side/back fur',()=>{
+  const purple=[.8,.65,.83],cream=[.96,.89,.78];
+  for(const view of Motion.directionViews){
+    const colors=new Set();for(const path of Motion.evolutionCatalogue){
+      const sample=Motion.directionFurColor(view.index,path.key,.5,.24,purple);assert.ok(sample.every(c=>c>=0&&c<=1));colors.add(sample.map(c=>c.toFixed(3)).join(','));
+      assert.deepEqual(Motion.directionFurColor(view.index,path.key,.5,.75,cream),cream);
+      for(let offset=0;offset<4;offset+=2)if(view.eyes[offset]>=0)assert.deepEqual(Motion.directionFurColor(view.index,path.key,view.eyes[offset],view.eyes[offset+1],purple),purple);
+      if(view.mouth[0]>=0)assert.deepEqual(Motion.directionFurColor(view.index,path.key,view.mouth[0],view.mouth[1],purple),purple);
+    }assert.equal(colors.size,6,view.index+': distinct fur');
+    if(view.index>=5&&view.index<=10)assert.ok(view.eyes.every(n=>n<0)&&view.mouth[0]<0,view.index+': no frontal eyes/mouth on the back');
+  }
+});
+
+test('all six garments have bounded per-view torso coverage without painting paws, tails or heads',()=>{
+  for(const view of Motion.directionViews)for(const outfit of Motion.outfitCatalogue){
+    let visible=0;
+    for(let y=0;y<=40;y++)for(let x=0;x<=40;x++){const amount=Motion.directionClothingCoverage(view.index,outfit.id,x/40,y/40);assert.ok(amount>=0&&amount<=1);visible+=amount;}
+    assert.ok(visible>0,outfit.id+': view '+view.index+' has real cloth area');
+    for(let offset=0;offset<4;offset+=2)if(view.paws[offset]>=0)assert.equal(Motion.directionClothingCoverage(view.index,outfit.id,view.paws[offset],view.paws[offset+1]),0);
+    if(view.tail[0]>=0)assert.equal(Motion.directionClothingCoverage(view.index,outfit.id,view.tail[0],view.tail[1]),0);
+    assert.equal(Motion.directionClothingCoverage(view.index,outfit.id,view.headX,.3),0);
+    assert.equal(Motion.directionClothingCoverage(view.index,'unknown',view.torso[0],view.torso[1]),0);
+  }
+  assert.ok(Motion.outfitCoverage('cloth_cream_vest',.58,.72,true,true)>Motion.outfitCoverage('cloth_cream_vest',.58,.72,true,false));
+});
+
+test('turn drawing borrows unit four for at most two cells then restores the frontal VBO and materials',()=>{
+  const f=fixture();f.complete();const textures=f.created.filter(row=>row.type==='Texture'),frontBuffer=f.drawCalls[0].buffer;
+  assert.equal(f.buffers.length,1);assert.equal(f.updates,1);f.advance();assert.equal(f.buffers.length,1);assert.equal(f.updates,2);
+  for(const [id,index]of[['direction_left',12],['direction_right',4],['direction_back',8]]){
+    const before=f.draws;f.api.setSituation(id,{elapsedMs:2800});const calls=f.drawCalls.slice(before);
+    assert.equal(calls.length,1);assert.equal(calls[0].part,index+10);assert.equal(calls[0].first,0);assert.equal(calls[0].count,3456);assert.strictEqual(calls[0].texture4,textures[9]);
+    assert.equal(calls[0].uniforms.u_motionA[0],1);assert.equal(calls[0].uniforms.u_motionA[1],index);
+    assert.equal(calls[0].uniforms.u_motionA[2],index>4&&index<12?1:0);
+    assert.notStrictEqual(calls[0].buffer,frontBuffer);assert.strictEqual(f.boundTextures[4],textures[4]);assert.equal(f.raf.size,1);
+  }
+  assert.equal(f.buffers.length,2);assert.deepEqual(f.blend.at(-1),[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]);assert.equal(f.maxActiveUnit,7);
+  const before=f.draws;f.api.setSituation('angry',{elapsedMs:1500});const calls=f.drawCalls.slice(before);assert.equal(calls.length,9);assert.strictEqual(calls[0].buffer,frontBuffer);assert.ok(f.uniforms.u_faceAngry>.9);
+  for(const call of calls)assert.strictEqual(call.texture4,call.part===1?textures[8]:textures[4]);
+  assert.deepEqual(f.attributes.slice(-3).map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
+  f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);
+});
+
+test('short adjacent-view transitions use complementary premultiplied weights, never a held double eye',()=>{
+  let age=0;for(;age<6000;age++)if(Motion.directionFrame('direction_right',age).blend>.1&&Motion.directionFrame('direction_right',age).blend<.9)break;
+  const frame=Motion.directionFrame('direction_right',age),f=fixture();f.complete();const before=f.draws;f.api.setSituation('direction_right',{elapsedMs:age});const calls=f.drawCalls.slice(before);
+  assert.equal(calls.length,2);assert.deepEqual(calls.map(c=>c.part),[frame.currentIndex+10,frame.nextIndex+10]);assert.ok(Math.abs(calls[0].uniforms.u_motionA[0]+calls[1].uniforms.u_motionA[0]-1)<1e-12);
+  assert.deepEqual(f.blend.at(-2),[f.gl.ONE,f.gl.ONE]);assert.deepEqual(f.blend.at(-1),[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]);f.api.destroy();
+});
+
+test('turns replace food callbacks, expire while hidden, and reduced motion shows one static target',()=>{
+  const frames=[],f=fixture({options:{onPose:p=>frames.push(p)}});f.complete();f.api.setSituation('feeding',{elapsedMs:2200});assert.equal(frames.length,1);
+  f.api.setSituation('direction_back',{elapsedMs:2800});f.advance(100);assert.equal(frames.length,1);f.hide(true);const n=f.draws;f.advance(10000);assert.equal(f.draws,n);f.hide(false);assert.deepEqual(f.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));assert.equal(frames.length,1);f.api.destroy();
+  const reduced=fixture({reduced:true,options:{situation:'direction_left'}});reduced.complete();assert.equal(reduced.draws,1);assert.equal(reduced.drawCalls[0].part,22);assert.equal(reduced.raf.size,0);
+  reduced.api.setSituation('direction_spin',{elapsedMs:2500});assert.deepEqual(reduced.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));reduced.api.destroy();assert.equal(reduced.created.length,reduced.deleted.length);
+});
+
+test('a reduced-motion static side/back has one finite expiry repaint and cancels it on replacement or destroy',()=>{
+  const f=fixture({reduced:true});f.complete();assert.equal(f.timers.size,0);
+  f.api.setSituation('direction_back',{elapsedMs:3000});assert.equal(f.drawCalls.at(-1).part,18);assert.equal(f.raf.size,0);assert.equal(f.timers.size,1);
+  f.advance(3501);f.timeout();assert.equal(f.timers.size,0);assert.deepEqual(f.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));
+  f.api.setSituation('direction_left',{elapsedMs:2000});assert.equal(f.timers.size,1);f.api.setSituation('feeding',{elapsedMs:2000});assert.equal(f.timers.size,0);
+  f.api.setSituation('direction_right',{elapsedMs:2000});assert.equal(f.timers.size,1);f.reduce(false);assert.equal(f.timers.size,0);assert.equal(f.raf.size,1);
+  f.reduce(true);assert.equal(f.timers.size,1);f.hide(true);assert.equal(f.timers.size,0);const before=f.draws;f.advance(5000);assert.equal(f.draws,before);f.hide(false);assert.equal(f.timers.size,0);assert.deepEqual(f.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));
+  f.api.setSituation('direction_back',{elapsedMs:2000});const stale=[...f.timers.values()][0];f.api.setSituation('direction_left',{elapsedMs:2000});const current=f.draws;stale();assert.equal(f.draws,current);assert.equal(f.timers.size,1);
+  f.win.emit('pagehide');assert.equal(f.timers.size,0);f.advance(5000);f.win.emit('pageshow');assert.equal(f.timers.size,0);assert.deepEqual(f.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));
+  f.api.setSituation('direction_right');assert.equal(f.timers.size,1);f.api.destroy();assert.equal(f.timers.size,0);assert.equal(f.raf.size,0);assert.equal(f.created.length,f.deleted.length);
+});
+
+test('reduced directions never schedule expiry loops before loading or while the canvas is disconnected',()=>{
+  const slow=fixture({reduced:true,options:{situation:'direction_back'}});
+  assert.equal(slow.timers.size,1,'only the image load timeout exists before decoding');
+  slow.advance(7000);assert.equal(slow.draws,0);assert.equal(slow.timers.size,1);
+  slow.complete();assert.equal(slow.ready,1);assert.equal(slow.timers.size,0);assert.equal(slow.raf.size,0);
+  assert.deepEqual(slow.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));slow.api.destroy();assert.equal(slow.created.length,slow.deleted.length);
+  const detached=fixture({reduced:true});detached.complete();detached.api.setSituation('direction_left');assert.equal(detached.timers.size,1);
+  detached.canvas.isConnected=false;detached.advance(7000);const before=detached.draws;detached.timeout();assert.equal(detached.draws,before);assert.equal(detached.timers.size,0);assert.equal(detached.raf.size,0);
+  detached.api.setSituation('direction_right');assert.equal(detached.timers.size,0);detached.api.destroy();assert.equal(detached.created.length,detached.deleted.length);
+});
+
+test('the final real-view atlas is required and failures keep the explicit static fallback honest',()=>{
+  const f=fixture();for(const [i,image]of f.images.entries())if(i<9){image.complete=true;image.naturalWidth=image.naturalHeight=i>=8?1254:1000;image.onload();}
+  assert.equal(f.ready,0);assert.equal(f.draws,0);f.images[9].onerror(new Error('private atlas path'));assert.deepEqual(f.errors,['image_failed']);assert.equal(f.canvas.hidden,true);assert.equal(f.created.length,f.deleted.length);
+  const atlas=fs.readFileSync(require.resolve('../static/pet_lilac_turnaround_v1.png'));assert.equal(require('node:crypto').createHash('sha256').update(atlas).digest('hex'),'2db0cac26e020a68cec910f9ff9f34d992547065d8e7a4948c72046eeb7e9f7c');
 });
 
 test('left and right hands move as rigid cutouts by large independent arcs',()=>{
@@ -449,7 +595,7 @@ test('evolution paths keep fallbacks and resource cleanup intact without extra i
   const image=fixture({options:{evolutionPath:'calm'}});image.images[7].onerror();assert.deepEqual(image.errors,['image_failed']);assert.equal(image.canvas.hidden,true);
   const f=fixture({options:{evolutionPath:'fruit',releaseContextOnDestroy:true}});f.complete();
   f.api.setSituation('feeding',{elapsedMs:2200});f.hide(true);const draws=f.draws;f.advance(30000);assert.equal(f.draws,draws);
-  f.hide(false);assert.equal(f.uniforms.u_chew,0);assert.equal(f.images.length,9);f.api.destroy();assert.equal(f.released,1);assert.equal(f.raf.size,0);
+  f.hide(false);assert.equal(f.uniforms.u_chew,0);assert.equal(f.images.length,10);f.api.destroy();assert.equal(f.released,1);assert.equal(f.raf.size,0);
 });
 
 test('clothing allowlist is frozen, has six real garment styles and never accepts arbitrary outfit values', () => {
@@ -517,7 +663,7 @@ test('no outfit, null and unknown outfits keep identical textures, geometry and 
 test('every outfit works through all six growth meshes and 100 cues without extra textures, vectors or loops', () => {
   for(const stage of growthKeys)for(const outfit of Motion.outfitCatalogue) {
     const f=fixture({options:{growthStage:stage,outfit:outfit.id}}); f.complete();
-    assert.equal(f.uploads.length,9); assert.equal(f.created.filter(x=>x.type==='Texture').length,9);
+    assert.equal(f.uploads.length,10); assert.equal(f.created.filter(x=>x.type==='Texture').length,10);
     assert.equal(Object.values(f.uniforms).filter(x=>Array.isArray(x)&&x.length===4).length,8);
     for(const name of Motion.situations) {
       f.api.setSituation(name,{elapsedMs:Math.min(1000,Motion.durations[name]/2)});
@@ -765,18 +911,18 @@ test('feeding anticipates, chews with original eyes, celebrates visibly and sett
   }
 });
 
-test('nine-image load draws original cutout layers with eight sampler units and fires ready once', () => {
+test('ten-image load draws original cutout layers with eight sampler units and fires ready once', () => {
   const f = fixture(); assert.equal(f.ready, 0); assert.equal(f.draws, 0);
-  assert.deepEqual(f.images.map(im => im.url), ['/static/pet_lilac_original.webp', '/static/pet_lilac_half.webp', '/static/pet_lilac_closed.webp', '/static/pet_lilac_cutout.webp', '/static/pet_lilac_sad.webp', '/static/pet_lilac_angry.webp', '/static/pet_lilac_surprise.webp', '/static/pet_lilac_delighted.webp', '/static/pet_lilac_torso_cleanplate_v1.png']);
+  assert.deepEqual(f.images.map(im => im.url), ['/static/pet_lilac_original.webp', '/static/pet_lilac_half.webp', '/static/pet_lilac_closed.webp', '/static/pet_lilac_cutout.webp', '/static/pet_lilac_sad.webp', '/static/pet_lilac_angry.webp', '/static/pet_lilac_surprise.webp', '/static/pet_lilac_delighted.webp', '/static/pet_lilac_torso_cleanplate_v1.png', '/static/pet_lilac_turnaround_v1.png']);
   f.complete(); assert.equal(f.ready, 1); assert.equal(f.draws, 9); assert.equal(f.canvas.hidden, false);
-  assert.equal(f.uploads.length, 9); assert.equal(f.canvas.contextOptions.alpha, true); assert.equal(f.canvas.contextOptions.premultipliedAlpha, true);
+  assert.equal(f.uploads.length, 10); assert.equal(f.canvas.contextOptions.alpha, true); assert.equal(f.canvas.contextOptions.premultipliedAlpha, true);
   assert.match(f.shaders[1], /texture2D\(u_alpha,uv\)\.a/);
   assert.match(f.shaders[1], /texture2D\(u_half,uv\)\.rgb/);
   assert.match(f.shaders[1], /GL_FRAGMENT_PRECISION_HIGH/);
   for (const name of ['sad', 'angry', 'surprise', 'delighted']) assert.match(f.shaders[1], new RegExp('texture2D\\(u_' + name + ',uv\\)\\.rgb'));
   assert.match(f.shaders[1], /face\*weight/);
   assert.match(f.shaders[1], /uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail/);
-  f.images[0].onload(); f.advance(); assert.equal(f.ready, 1); assert.equal(f.uploads.length, 9);
+  f.images[0].onload(); f.advance(); assert.equal(f.ready, 1); assert.equal(f.uploads.length, 10);
   f.api.destroy();
 });
 

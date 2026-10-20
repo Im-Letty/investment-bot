@@ -84,7 +84,7 @@ async function fixture(config = {}) {
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path) { anchorCalls.push({ stage, path }); return Motion.feedingAnchor(stage, path); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
+    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path) { anchorCalls.push({ stage, path }); return Motion.feedingAnchor(stage, path); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -132,6 +132,10 @@ async function fixture(config = {}) {
     },
     async bodyDrawer(open = true, preview = false) {
       const drawer = this.focusButton((preview ? 'preview' : 'pet') + '-body-motion');
+      drawer.open = open; drawer.emit('toggle'); await flush(); return drawer;
+    },
+    async directionDrawer(open = true, preview = false) {
+      const drawer = this.focusButton((preview ? 'preview' : 'pet') + '-direction-motion');
       drawer.open = open; drawer.emit('toggle'); await flush(); return drawer;
     },
     advance(ms) { clock += ms; },
@@ -630,6 +634,102 @@ test('renderer mouth frames move only visible food on a ready live meal and neve
   f.ui.render(); controller.options.onPose({ ...pose, foodLeft: .7 }); assert.equal(food.style.left, hiddenAnchor.left, 'disconnected old canvas callbacks cannot move old food');
   f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
   f.mounts.at(-1).options.onPose(pose); assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('four direction references keep the 100 moods and six body controls separate while returning to idle without savings or remounts', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' }, setup: async store => {
+    await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });
+  } }), before = f.saved(), writes = f.writes.length;
+  const drawer = await f.directionDrawer(), controller = f.mounts[0], visual = f.host.querySelector('.ipg-lilac-visual');
+  assert.equal(drawer.querySelector('summary').textContent, '向きと回転を見る'); assert.match(drawer.textContent, /終わると正面に戻ります/);
+  assert.deepEqual(drawer.querySelectorAll('button').map(button => button.dataset.directionMotion), ['direction_left', 'direction_right', 'direction_back', 'direction_spin']);
+  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100); assert.equal(f.buttons().filter(button => button.dataset.bodyMotion).length, 6);
+  assert.equal(controller.options.growthStage, 'final'); assert.equal(controller.options.outfit, 'cloth_cream_vest');
+  for (const [i, row] of Motion.directionCatalogue.entries()) {
+    assert.equal(row.durationMs, [6000, 6000, 6500, 6800][i]);
+    const choice = f.focusButton('pet-direction-motion-' + row.id);
+    assert.equal(choice.getAttribute('aria-label'), row.label); assert.equal(choice.getAttribute('aria-description'), '顔：' + row.face + '。動き：' + row.motion);
+    await f.click(choice); assert.equal(controller.changes.at(-1).name, row.id); assert.equal(visual.dataset.cuePhase, 'enter');
+    assert.equal(choice.getAttribute('aria-pressed'), 'true'); assert.equal(f.host.querySelector('.ipg-emotion-caption').textContent, row.label + 'の見本');
+    assert.ok(visual.querySelector('canvas').getAttribute('aria-label').includes(row.label));
+    assert.equal(f.host.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true);
+    f.advance(450); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'acting');
+    f.advance(row.durationMs - 1250); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'settling');
+    f.advance(800); await f.fireTimers(); assert.equal(visual.dataset.situation, 'idle'); assert.equal(visual.dataset.cuePhase, 'idle');
+    assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0); assert.equal(f.mounts.length, 1);
+  }
+  const input = f.focusButton('pet-emotion-search'); input.value = 'direction_spin'; input.emit('input'); await flush();
+  assert.match(f.host.querySelector('.ipg-emotion-count').textContent, /全100種類 · 検索0件/);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+});
+
+test('closing a direction drawer cancels only that kind of reference and leaves body, ordinary emotion and meal deadlines intact', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.directionDrawer(); await f.click(f.focusButton('pet-direction-motion-direction_left')); await f.directionDrawer(false);
+  assert.equal(f.mounts[0].changes.at(-1).name, 'idle'); assert.equal(f.timers.size, 0);
+  for (const id of ['body_tail', 'cry', 'feeding']) {
+    await f.directionDrawer();
+    if (id === 'body_tail') { await f.bodyDrawer(); await f.click(f.focusButton('pet-body-motion-' + id)); }
+    else await f.click(await f.revealEmotion(id));
+    const changes = f.mounts[0].changes.length, deadline = [...f.timers.values()][0].at;
+    await f.directionDrawer(false); assert.equal(f.mounts[0].changes.length, changes);
+    assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.situation, id); assert.equal([...f.timers.values()][0].at, deadline);
+  }
+  await f.directionDrawer(); await f.click(f.focusButton('pet-direction-motion-direction_back'));
+  const deadline = [...f.timers.values()][0].at, changes = f.mounts[0].changes.length;
+  await f.bodyDrawer(false); assert.equal(f.mounts[0].changes.length, changes); assert.equal([...f.timers.values()][0].at, deadline);
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.situation, 'direction_back');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('main and preview directions preserve elapsed ages on delayed drawing, remain separate and do not replay after hide', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.directionDrawer(); await f.click(f.focusButton('pet-direction-motion-direction_spin')); f.advance(900);
+  f.rendererControl.mode = 'pending'; f.ui.render();
+  const main = f.mounts.at(-1); assert.equal(main.options.situation, 'direction_spin'); assert.equal(main.options.elapsedMs, 900);
+  assert.equal(f.focusButton('pet-direction-motion').open, true); f.advance(400); main.options.onReady();
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.cuePhase, 'acting'); assert.equal(main.changes.length, 0);
+  f.rendererControl.mode = 'ready'; await f.click(f.button('薄紫のこのしぐさを見る')); await f.directionDrawer(true, true);
+  const mainLive = f.activeMotions()[0], preview = f.mounts.at(-1); await f.click(f.focusButton('preview-direction-motion-direction_right'));
+  assert.equal(mainLive.options.situation, 'direction_spin'); assert.equal(mainLive.options.elapsedMs, 1300); assert.equal(mainLive.changes.length, 0);
+  assert.equal(preview.changes.at(-1).name, 'direction_right'); await f.directionDrawer(false, true);
+  assert.equal(preview.changes.at(-1).name, 'idle'); assert.equal(mainLive.changes.length, 0);
+  await f.directionDrawer(true, true); await f.click(f.focusButton('preview-direction-motion-direction_left'));
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush(); assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.focusButton('pet-direction-motion').open, false); assert.equal(f.host.querySelector('.ipg-appearance-preview'), null);
+  assert.notEqual(f.mounts.at(-1).options.situation, 'direction_spin'); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('switching a meal reference to a direction hides food immediately and rejects old mouth frames throughout turning and after cleanup', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  await f.click(await f.revealEmotion('feeding')); f.advance(1500); await f.fireTimers();
+  const controller = f.mounts[0], food = f.host.querySelector('.ipg-feeding-food'); assert.equal(food.hidden, false);
+  await f.directionDrawer(); await f.click(f.focusButton('pet-direction-motion-direction_back'));
+  assert.equal(food.hidden, true); assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, '');
+  const anchor = { left: food.style.left, top: food.style.top };
+  controller.options.onPose({ situation: 'feeding', elapsedMs: 1600, foodLeft: .1, foodTop: .2 });
+  assert.deepEqual({ left: food.style.left, top: food.style.top }, anchor);
+  f.advance(6500); await f.fireTimers(); assert.equal(food.hidden, true); assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.situation, 'idle');
+  await f.click(f.focusButton('pet-direction-motion-direction_spin')); await f.ui.close();
+  controller.options.onPose({ situation: 'feeding', elapsedMs: 1900, foodLeft: .2, foodTop: .3 });
+  assert.deepEqual({ left: food.style.left, top: food.style.top }, anchor); assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('missing direction support or a drawing failure is labelled honestly without disabling the older 100 and body APIs', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  const catalogue = f.window.PetLilacMotion.directionCatalogue; delete f.window.PetLilacMotion.directionCatalogue; f.ui.render();
+  let drawer = await f.directionDrawer(); assert.equal(drawer.querySelectorAll('button').length, 0);
+  assert.match(drawer.textContent, /この環境では向きと回転の見本を表示できません/);
+  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100); assert.equal(f.buttons().filter(button => button.dataset.bodyMotion).length, 6);
+  await f.bodyDrawer(); await f.click(f.focusButton('pet-body-motion-body_ears')); assert.equal(f.mounts.at(-1).changes.at(-1).name, 'body_ears');
+  f.window.PetLilacMotion.directionCatalogue = catalogue; f.ui.render(); drawer = await f.directionDrawer();
+  await f.click(f.focusButton('pet-direction-motion-direction_back')); f.mounts.at(-1).options.onError();
+  assert.ok(drawer.querySelectorAll('button').every(button => button.disabled)); assert.equal(f.timers.size, 0);
+  assert.equal(drawer.querySelectorAll('p').find(node => node.textContent.includes('この環境では')).hidden, false);
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.cuePhase, 'idle'); assert.equal(f.host.querySelector('canvas').hidden, true);
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 

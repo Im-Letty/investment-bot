@@ -9,6 +9,7 @@
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
   var emotionBrowse = { pet: { group: 'bright', query: '', page: 0 }, preview: { group: 'bright', query: '', page: 0 } };
   var bodyDrawerOpen = { pet: false, preview: false };
+  var directionDrawerOpen = { pet: false, preview: false };
   var emotionCacheKey, emotionCacheRows;
   var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null;
   var fittingOpen = false, fittingOutfit = null;
@@ -191,7 +192,7 @@
           situation: localCue ? localCue.situation : 'idle',
           durationMs: localCue ? localCue.durationMs : 0,
           elapsedMs: localCue ? Math.max(0, Date.now() - localCue.startedAt) : 0,
-          onReady: function () { if (request.evolutionNotice) request.evolutionNotice.hidden = true; if (request.outfitNotice) request.outfitNotice.hidden = true; if (request.bodyNotice && bodyCatalogue().length) request.bodyNotice.hidden = true; request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); },
+          onReady: function () { if (request.evolutionNotice) request.evolutionNotice.hidden = true; if (request.outfitNotice) request.outfitNotice.hidden = true; if (request.bodyNotice && bodyCatalogue().length) request.bodyNotice.hidden = true; if (request.directionNotice && directionCatalogue().length) request.directionNotice.hidden = true; request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); },
           onPose: function (frame) {
             if (!request.ready || !request.canvas.isConnected || !motionsVisible() || !request.food || request.food.hidden ||
               request.wrap.dataset.situation !== 'feeding' || !frame || frame.situation !== 'feeding' ||
@@ -221,6 +222,7 @@
     if (request.outfitNotice) request.outfitNotice.hidden = false;
     if (request.evolutionNotice) request.evolutionNotice.hidden = false;
     if (request.bodyNotice) request.bodyNotice.hidden = false;
+    if (request.directionNotice) request.directionNotice.hidden = false;
     if (request.growthCaption) request.growthCaption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     if (request.fittingCaption) request.fittingCaption.textContent = '試着の表示を確認できないため、服を描かない基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '');
   }
@@ -259,15 +261,18 @@
   function emotionSearchText(value) {
     return String(value || '').normalize('NFKC').toLowerCase().replace(/[ァ-ヶ]/g, function (letter) { return String.fromCharCode(letter.charCodeAt(0) - 96); });
   }
-  function bodyCatalogue() {
-    var engine = w.PetLilacMotion, rows = engine && engine.bodyCatalogue;
-    var ids = ['body_hands', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy'];
+  function referenceCatalogue(kind) {
+    var engine = w.PetLilacMotion, rows = engine && engine[kind + 'Catalogue'];
+    var ids = kind === 'direction' ? ['direction_left', 'direction_right', 'direction_back', 'direction_spin'] :
+      ['body_hands', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy'];
     return Array.isArray(rows) ? rows.filter(function (entry) {
       return entry && ids.indexOf(entry.id) >= 0 && typeof entry.label === 'string' && Number.isFinite(entry.durationMs) && entry.durationMs > 0;
     }) : [];
   }
+  function bodyCatalogue() { return referenceCatalogue('body'); }
+  function directionCatalogue() { return referenceCatalogue('direction'); }
   function motionEntry(situation) {
-    return emotionCatalogue().concat(bodyCatalogue()).filter(function (row) { return row.id === situation; })[0];
+    return emotionCatalogue().concat(bodyCatalogue(), directionCatalogue()).filter(function (row) { return row.id === situation; })[0];
   }
   function previewCue() {
     var duration = w.PetLilacMotion && w.PetLilacMotion.durations[previewSituation] || 0;
@@ -288,10 +293,10 @@
     if (name !== 'idle' && age >= duration) name = 'idle';
     var meal = name === 'feeding' && w.PetLilacMotion && typeof w.PetLilacMotion.feedingPhase === 'function' ?
       w.PetLilacMotion.feedingPhase(age) : null;
-    var entry = motionEntry(name), bodyReference = name.indexOf('body_') === 0;
-    (request.controls || []).forEach(function (control) { control.setAttribute('aria-pressed', String((control.dataset.emotion || control.dataset.bodyMotion) === name)); });
+    var entry = motionEntry(name), fullReference = name.indexOf('body_') === 0 || name.indexOf('direction_') === 0;
+    (request.controls || []).forEach(function (control) { control.setAttribute('aria-pressed', String((control.dataset.emotion || control.dataset.bodyMotion || control.dataset.directionMotion) === name)); });
     if (request.caption) request.caption.textContent = meal ? meal.label + (request.preview ? 'の見本' : '') :
-      (entry ? entry.label : 'ふだん') + (request.preview || bodyReference ? 'の見本' : 'のしぐさ');
+      (entry ? entry.label : 'ふだん') + (request.preview || fullReference ? 'の見本' : 'のしぐさ');
     request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? meal.label : entry ? entry.label : 'ふだん'));
     request.wrap.dataset.situation = name;
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
@@ -345,19 +350,21 @@
       if (height && (rect.top < 0 || rect.top + rect.height > height) && typeof request.wrap.scrollIntoView === 'function') request.wrap.scrollIntoView({ block: 'center', behavior: 'auto' });
     } catch (_) { /* Scrolling must not reject a valid preview. */ }
   }
-  function bodyMotionDrawer(request, preview) {
-    var mode = preview ? 'preview' : 'pet', rows = bodyCatalogue(), drawer = node('details', 'ipg-body-motion');
-    drawer.open = bodyDrawerOpen[mode]; drawer.dataset.focusKey = mode + '-body-motion';
-    drawer.appendChild(node('summary', '', '全身の動きを見る'));
-    drawer.appendChild(text('手・足・耳・しっぽ・頭の動きを、ひとつずつ確かめられます。見本の再生で、育成の記録は変わりません。', 'ipg-small'));
-    var unavailable = text('この環境では全身の動きの見本を表示できません。', 'ipg-small');
+  function referenceMotionDrawer(request, preview, kind) {
+    var mode = preview ? 'preview' : 'pet', rows = referenceCatalogue(kind), drawer = node('details', 'ipg-' + kind + '-motion');
+    var direction = kind === 'direction', open = direction ? directionDrawerOpen : bodyDrawerOpen;
+    drawer.open = open[mode]; drawer.dataset.focusKey = mode + '-' + kind + '-motion';
+    drawer.appendChild(node('summary', '', direction ? '向きと回転を見る' : '全身の動きを見る'));
+    drawer.appendChild(text(direction ? '左・右・後ろを向いたり、一周回ったりする見本です。終わると正面に戻ります。育成の記録は変わりません。' :
+      '手・足・耳・しっぽ・頭の動きを、ひとつずつ確かめられます。見本の再生で、育成の記録は変わりません。', 'ipg-small'));
+    var unavailable = text(direction ? 'この環境では向きと回転の見本を表示できません。' : 'この環境では全身の動きの見本を表示できません。', 'ipg-small');
     unavailable.hidden = !!rows.length; drawer.appendChild(unavailable);
-    if (request) request.bodyNotice = unavailable;
-    var choices = node('div', 'ipg-body-motion-grid'); choices.setAttribute('role', 'group'); choices.setAttribute('aria-label', '全身の動きの見本');
+    if (request) request[kind + 'Notice'] = unavailable;
+    var choices = node('div', 'ipg-' + kind + '-motion-grid'); choices.setAttribute('role', 'group'); choices.setAttribute('aria-label', direction ? '向きと回転の見本' : '全身の動きの見本');
     rows.forEach(function (entry) {
       var choice = button('', function () { if (drawer.open) playMotionReference(request, entry, preview); }, true,
         !request || !w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function');
-      choice.dataset.bodyMotion = entry.id; choice.dataset.focusKey = mode + '-body-motion-' + entry.id;
+      choice.dataset[kind + 'Motion'] = entry.id; choice.dataset.focusKey = mode + '-' + kind + '-motion-' + entry.id;
       choice.setAttribute('aria-label', entry.label); choice.setAttribute('aria-description', '顔：' + entry.face + '。動き：' + entry.motion);
       choice.setAttribute('aria-pressed', String(((request && requestCue(request)) || {}).situation === entry.id));
       append(choice, node('span', 'ipg-emotion-name', entry.label), node('small', 'ipg-emotion-description', '顔：' + entry.face + '／動き：' + entry.motion));
@@ -367,9 +374,9 @@
     drawer.appendChild(choices);
     drawer.addEventListener('toggle', function () {
       if (!drawer.isConnected) return;
-      bodyDrawerOpen[mode] = drawer.open;
+      open[mode] = drawer.open;
       var cue = request && requestCue(request);
-      if (!drawer.open && cue && bodyCatalogue().some(function (entry) { return entry.id === cue.situation; })) {
+      if (!drawer.open && cue && referenceCatalogue(kind).some(function (entry) { return entry.id === cue.situation; })) {
         if (preview) previewSituation = 'idle'; else reaction = null;
         try { if (request.controller && request.ready) request.controller.setSituation('idle'); updateMotionPresentation(request, null); }
         catch (_) { motionFallback(request); }
@@ -438,7 +445,7 @@
     }
     search.addEventListener('input', function () { browse.query = search.value; browse.page = 0; refreshChoices(); });
     refreshChoices();
-    append(box, caption, searchRow, tabs, resultCount, grid, empty, pages, bodyMotionDrawer(request, preview));
+    append(box, caption, searchRow, tabs, resultCount, grid, empty, pages, referenceMotionDrawer(request, preview, 'body'), referenceMotionDrawer(request, preview, 'direction'));
     if (!w.PetLilacMotion) caption.textContent = '絵の見本を表示しています。' + (request && request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request && request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     return box;
   }
@@ -1120,7 +1127,7 @@
   }
   function suspend() {
     suspended = true; lifecycleEpoch++;
-    stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; fittingOpen = false; fittingOutfit = null;
+    stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = false; directionDrawerOpen.pet = directionDrawerOpen.preview = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; fittingOpen = false; fittingOutfit = null;
     return cancelGame('画面を離れたためゲームを中止しました。');
   }
   d.addEventListener('visibilitychange', function () {
