@@ -25,6 +25,7 @@
   function number(n) { return Number(n || 0).toLocaleString('ja-JP', { maximumFractionDigits: 2 }); }
   function signed(n) { return (n > 0 ? '+' : '') + number(n); }
   function state() { return store.getState(); }
+  function displaySpecies(s) { return s.pet.species === 'dragon' ? 'lilac' : s.pet.species; }
   function core() { return w.PetGameCore; }
   function items() { return core().items || core().catalogue || core().ITEMS || []; }
   function item(id) { return items().filter(function (x) { return x.id === id; })[0]; }
@@ -96,6 +97,7 @@
       if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
       request.cueTimer = null;
       if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
+      if (request.food) request.food.hidden = true;
     });
     motionControllers.forEach(function (controller) { try { controller.destroy(); } catch (_) {} });
     motionControllers = []; motionRequests = [];
@@ -105,10 +107,10 @@
     return !suspended && !d.hidden && !(pane && pane.hidden);
   }
   function rememberReaction(action, before, after, result) {
-    if (!result || !result.ok || !after || after.pet.species !== 'lilac') return;
+    if (!result || !result.ok || !after || displaySpecies(after) !== 'lilac') return;
     var engine = w.PetLilacMotion, cue = null;
     try { if (engine && typeof engine.situationForAction === 'function') cue = engine.situationForAction(action, before, after, result); } catch (_) {}
-    if (stage(before).key !== stage(after).key) cue = { situation: 'joy', durationMs: 3500 };
+    if (stage(before).key !== stage(after).key && (!cue || cue.situation !== 'feeding')) cue = { situation: 'joy', durationMs: 3500 };
     if (cue) reaction = { situation: cue.situation, durationMs: cue.durationMs, startedAt: Date.now() };
   }
   function currentReaction() {
@@ -116,7 +118,7 @@
     return reaction;
   }
   function petVisual(s, extraClass, preview) {
-    if (s.pet.species !== 'lilac' || stage(s).key === 'egg') {
+    if (displaySpecies(s) !== 'lilac') {
       var old = node('img', extraClass || 'ipg-pet-image');
       old.src = petImage(s); old.alt = (s.pet.name || 'ペット') + '（' + stage(s).label + '）';
       old.width = 240; old.height = 240; old.draggable = false;
@@ -131,14 +133,16 @@
     canvas.width = canvas.height = 512; canvas.hidden = true;
     canvas.setAttribute('role', 'img'); canvas.setAttribute('aria-label', still.alt);
     append(wrap, still, canvas);
+    var food = node('span', 'ipg-feeding-food'); food.hidden = true; food.setAttribute('aria-hidden', 'true');
+    wrap.appendChild(food);
     var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
     wrap.appendChild(effect);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, effect: effect, preview: !!preview, controller: null, cueTimer: null, ready: false });
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, controller: null, cueTimer: null, ready: false });
     return wrap;
   }
   function startMotions() {
     if (!motionsVisible() || !w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') return;
-    if (!greeted && state().pet.species === 'lilac') {
+    if (!greeted && displaySpecies(state()) === 'lilac') {
       greeted = true;
       if (!currentReaction()) reaction = { situation: 'greeting', durationMs: 2500, startedAt: Date.now() };
     }
@@ -165,8 +169,10 @@
   }
   function motionFallback(request) {
     request.ready = false; request.canvas.hidden = true; request.still.hidden = false;
+    request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = '';
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
+    if (request.food) request.food.hidden = true;
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
     if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。';
   }
@@ -212,13 +218,26 @@
     var name = cue && cue.situation || 'idle', duration = cue && cue.durationMs || 0;
     var age = cue ? Math.max(0, Date.now() - cue.startedAt) : 0;
     if (name !== 'idle' && age >= duration) name = 'idle';
+    var meal = name === 'feeding' && w.PetLilacMotion && typeof w.PetLilacMotion.feedingPhase === 'function' ?
+      w.PetLilacMotion.feedingPhase(age) : null;
     var entry = emotionCatalogue().filter(function (x) { return x.id === name; })[0];
     (request.controls || []).forEach(function (control) { control.setAttribute('aria-pressed', String(control.dataset.emotion === name)); });
-    if (request.caption) request.caption.textContent = (entry ? entry.label : 'ふだん') + (request.preview ? 'の見本' : 'のしぐさ');
-    request.canvas.setAttribute('aria-label', request.still.alt + '・' + (entry ? entry.label : 'ふだん'));
+    if (request.caption) request.caption.textContent = meal ? meal.label + (request.preview ? 'の見本' : '') :
+      (entry ? entry.label : 'ふだん') + (request.preview ? 'の見本' : 'のしぐさ');
+    request.canvas.setAttribute('aria-label', request.still.alt + '・' + (meal ? meal.label : entry ? entry.label : 'ふだん'));
+    request.wrap.dataset.situation = name;
+    request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
+    if (request.food) {
+      request.food.hidden = !(meal && meal.foodVisible && request.ready && motionsVisible());
+      request.food.dataset.bites = !meal || meal.foodProgress < .34 ? '0' : meal.foodProgress < .68 ? '1' : '2';
+      request.food.style.animationDelay = meal ? String(-(meal.phase === 'chewing' ? age - 1200 : age) / 1000) + 's' : '0s';
+    }
     if (request.effect) {
       request.effect.replaceChildren();
       var effect = request.ready && motionsVisible() ? effectFor(name) : null;
+      if (meal) effect = request.ready && motionsVisible() ?
+        (meal.phase === 'joy' || meal.phase === 'settling' ? { kind: 'hearts', marks: ['♡','♡','♪','♡'] } :
+          meal.phase === 'chewing' ? { kind: 'crumbs', marks: ['·','·','·'] } : null) : null;
       request.effect.hidden = !effect;
       if (effect) {
         request.effect.className = 'ipg-emotion-effect ipg-effect-' + effect.kind;
@@ -229,13 +248,16 @@
         });
       }
     }
+    var nextAge = meal && meal.nextBoundaryMs != null ? Math.min(duration, meal.nextBoundaryMs) : duration;
+    if (meal && meal.phase === 'chewing') nextAge = Math.min(nextAge, 1200 + (meal.foodProgress < .34 ? .34 : meal.foodProgress < .68 ? .68 : 1) * 3200);
     if (name !== 'idle' && motionsVisible()) request.cueTimer = w.setTimeout(function () {
       request.cueTimer = null;
       if (!request.canvas.isConnected || !motionsVisible()) return;
+      if (meal && Date.now() - cue.startedAt < duration) { updateMotionPresentation(request, cue); return; }
       if (request.preview) previewSituation = 'idle';
       else if (reaction && reaction.startedAt === cue.startedAt) reaction = null;
       updateMotionPresentation(request, null);
-    }, Math.max(0, duration - age));
+    }, Math.max(16, nextAge - age));
   }
   function emotionPalette(request, preview) {
     var box = node('section', 'ipg-emotion-panel');
@@ -309,22 +331,21 @@
   }
   function stage(s) {
     var fn = core().getStage || store.getStage;
-    return fn ? fn(s.pet.exp) : { key: 'egg', label: 'たまご', min: 0, next: null, progress: 0 };
+    var info = fn ? fn(s.pet.exp) : { key: 'egg', label: 'たまご', min: 0, next: null, progress: 0 };
+    return displaySpecies(s) === 'lilac' && info.key === 'egg' ? Object.assign({}, info, { label: 'うまれたて' }) : info;
   }
   function petImage(s) {
     var key = stage(s).key, bunny = s.pet.species === 'bunny';
     if (!stageLabels[key]) key = 'egg';
-    if (s.pet.species === 'lilac') return imageRoot + (key === 'egg' ? 'pet_lilac_egg.webp' : 'pet_lilac_cutout.webp');
-    if (!bunny && s.pet.pixel) return imageRoot + 'pet_img_px_' + key + '.webp';
+    if (!bunny) return imageRoot + 'pet_lilac_cutout.webp';
     if (bunny && key === 'final' && s.pet.path === 'cool') return imageRoot + 'pet_bimg_cool.webp';
-    // There is no dragon cool asset; preserve the saved choice, displaying final.
-    return imageRoot + (bunny ? 'pet_bimg_' : 'pet_img_') + key + '.webp';
+    return imageRoot + 'pet_bimg_' + key + '.webp';
   }
   function renderCare(s, body) {
     var info = stage(s), pet = card('', 'ipg-pet-card');
     var scene = node('div', 'ipg-scene ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
     var img = petVisual(s);
-    var careRequest = s.pet.species === 'lilac' && info.key !== 'egg' ? motionRequests[motionRequests.length - 1] : null;
+    var careRequest = displaySpecies(s) === 'lilac' ? motionRequests[motionRequests.length - 1] : null;
     var equipped = s.decorations.equipped, decor = item(equipped);
     var decorText = decor ? decor.emoji || '🌿' : equipped ? String(equipped).slice(0, 40) : '';
     var decoration = decorText ? node('span', 'ipg-pet-decoration', decorText) : null;
@@ -347,7 +368,7 @@
         node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
     });
-    if (s.pet.species === 'lilac' && !careRequest) pet.appendChild(emotionPalette(null, false));
+    if (displaySpecies(s) === 'lilac' && !careRequest) pet.appendChild(emotionPalette(null, false));
     append(pet, care, text(s.care.dailyRewardDay === currentDay() ?
       '今日の育成報酬10コインは受け取り済み。お世話は残りの回数まで続けられます。' :
       'その日最初のお世話で、育成報酬10コイン。お世話だけでも成長できます。'));
@@ -366,10 +387,10 @@
     });
     append(form, label('なまえ（20文字まで）', input), save);
     var species = node('div', 'ipg-row');
-    [['dragon', 'りゅう'], ['bunny', 'うさぎ'], ['lilac', '薄紫のこ（B）']].forEach(function (x) {
-      var b = button(x[1] + (s.pet.species === x[0] ? ' · 選択中' : ''), function () {
+    [['lilac', '薄紫のこ（B）'], ['bunny', 'うさぎ']].forEach(function (x) {
+      var b = button(x[1] + (displaySpecies(s) === x[0] ? ' · 選択中' : ''), function () {
         run({ type: 'chooseSpecies', species: x[0] }, 'ペットの種類を保存しました。');
-      }, true, s.pet.species === x[0]);
+      }, true, displaySpecies(s) === x[0]);
       species.appendChild(b);
     });
     append(settings, form, text('ペットの種類'), species);
@@ -387,8 +408,8 @@
       var request = motionRequests[motionRequests.length - 1];
       append(preview, visual, emotionPalette(request, true)); settings.appendChild(preview);
     }
-    if (s.pet.species === 'lilac') {
-      settings.appendChild(text('薄紫のこは、成長に合わせて少しずつ大きくなります。ごはん・なでる・休むに反応し、36種類のきもちやしぐさも好きに選べます。'));
+    if (displaySpecies(s) === 'lilac') {
+      settings.appendChild(text('薄紫のこは、成長に合わせて少しずつ大きくなります。ごはんをもぐもぐ食べたら、うれしくてぴょん！36種類のきもちやしぐさも好きに選べます。'));
     }
     var appearance = node('div', 'ipg-row'), unlocked = s.pet.exp >= 110;
     [['cute', 'かわいい'], ['cool', 'かっこいい']].forEach(function (x) {
@@ -396,13 +417,7 @@
         run({ type: 'chooseAppearance', path: x[0], pixel: !!s.pet.pixel }, 'すがたを保存しました。');
       }, true, !unlocked || s.pet.path === x[0]));
     });
-    if (s.pet.species !== 'lilac') append(settings, text(unlocked ? '最終形のすがた' : '最終形のすがたは、110EXPで選べます。'), appearance);
-    if (s.pet.species === 'dragon') settings.appendChild(button(
-      s.pet.pixel ? 'りゅうを通常の絵にする' : 'りゅうをドット絵にする', function () {
-        run({ type: 'chooseAppearance', path: s.pet.path || 'cute', pixel: !s.pet.pixel }, '絵の設定を保存しました。');
-      }, true, !unlocked));
-    if (s.pet.species === 'dragon') settings.appendChild(text(
-      'りゅうの「かっこいい」専用画像は準備中です。選択は保存され、通常の最終画像を表示します。'));
+    if (displaySpecies(s) !== 'lilac') append(settings, text(unlocked ? '最終形のすがた' : '最終形のすがたは、110EXPで選べます。'), appearance);
     body.appendChild(settings);
   }
   function renderPlay(s, body) {
@@ -649,9 +664,7 @@
     if (s.legacyReserve && s.legacyReserve.transferred) details.appendChild(text(
       '別の旧ゲームから引継ぎ済み：' + number(s.legacyReserve.coins) + 'コイン / ' + number(s.legacyReserve.exp) + 'EXP。'));
     if (s.legacyReserve && s.legacyReserve.name) details.appendChild(text('別の旧ゲームのなまえ：' + s.legacyReserve.name));
-    if (s.pet.path === 'cool' && s.pet.species === 'dragon') details.appendChild(text(
-      '旧「かっこいい」形態の選択を保持しています。専用画像がないため、りゅうの最終形態では通常の最終画像を表示します。'));
-    if (s.pet.pixel) details.appendChild(text('旧ドット絵の設定を保持しています。りゅうの表示に適用されます。'));
+    if (s.pet.pixel) details.appendChild(text('以前のドット絵の設定も記録に保持しています。'));
     body.appendChild(details);
   }
   function renderBackup(body) {
@@ -710,7 +723,7 @@
     var s = state(), root = node('div', 'ipg');
     renderedDay = currentDay();
     var head = node('header', 'ipg-header');
-    if (tab !== 'care' && !game && s.pet.species === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
+    if (tab !== 'care' && !game && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
     append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', 'そだてる')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);

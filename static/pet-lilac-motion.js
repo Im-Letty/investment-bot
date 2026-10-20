@@ -12,7 +12,7 @@
     ['wonder', '驚き・考え', [['surprise', 'びっくり', 4200], ['scared', 'こわい', 5200], ['nervous', 'そわそわ', 5600], ['confused', '困る', 5500], ['curious', 'きになる', 5400], ['thinking', '考える', 6200]]],
     ['social', 'ふれあい', [['greeting', 'おかえり', 4200], ['petted', 'なでられる', 4600], ['shy', 'はにかむ', 5400], ['embarrassed', 'あせる', 5000], ['apology', 'ごめんね', 5400], ['cheer', '応援', 5200]]],
     ['calm', 'くつろぎ', [['idle', 'ふだん', 0], ['resting', 'おやすみ', 6500], ['sleepy', 'うとうと', 6200], ['yawn', 'あくび', 5600], ['relaxed', 'のんびり', 6200], ['bored', 'ひま', 6000]]],
-    ['action', 'アクション', [['feeding', 'ごはん', 5000], ['moving', '移動', 1600], ['caught', 'キャッチ', 1500], ['dance', 'ダンス', 6500], ['celebrate', 'お祝い', 6000], ['determined', 'やるぞ', 5400]]]
+    ['action', 'アクション', [['feeding', 'ごはん', 8400], ['moving', '移動', 1600], ['caught', 'キャッチ', 1500], ['dance', 'ダンス', 6500], ['celebrate', 'お祝い', 6000], ['determined', 'やるぞ', 5400]]]
   ];
   var catalogue = Object.freeze(groups.reduce(function (list, group) {
     return list.concat(group[2].map(function (item) { return Object.freeze({ id: item[0], label: item[1], group: group[0], groupLabel: group[1], durationMs: item[2] }); }));
@@ -39,6 +39,19 @@
   }
   function envelope(t, duration) {
     return smooth(t / Math.min(.45, duration * .22)) * smooth((duration - t) / Math.min(.8, duration * .28));
+  }
+  // Public cue timeline uses absolute elapsed milliseconds, including when a view resumes.
+  // The caller can schedule one boundary timer; this helper never starts a timer or changes a pet.
+  function feedingPhase(elapsedMs) {
+    var age = Math.max(0, finite(elapsedMs, 0)), phase, label, start, end;
+    if (age < 1200) { phase = 'anticipation'; label = 'ごはん、うれしいな'; start = 0; end = 1200; }
+    else if (age < 4400) { phase = 'chewing'; label = 'もぐもぐ…'; start = 1200; end = 4400; }
+    else if (age < 7200) { phase = 'joy'; label = 'おいしい！'; start = 4400; end = 7200; }
+    else if (age < durations.feeding) { phase = 'settling'; label = 'ごちそうさま'; start = 7200; end = durations.feeding; }
+    else { phase = 'idle'; label = 'ふだん'; start = durations.feeding; end = null; }
+    return { phase: phase, label: label, foodVisible: phase === 'anticipation' || phase === 'chewing',
+      foodProgress: clamp((age - 1200) / 3200, 0, 1), phaseProgress: end === null ? 1 : clamp((age - start) / (end - start), 0, 1),
+      nextBoundaryMs: end, done: end === null };
   }
   // Pure profiles in seconds. Emotions ease in and settle to the exact underlying idle pose.
   function pose(seconds, situation, elapsedSeconds) {
@@ -97,7 +110,33 @@
       case 'yawn': p.faceSurprise = .7 * nod; p.blink = Math.max(p.blink, e * .9); p.mouthOpen = nod; p.stretch = .9 * nod; p.pawSpread = .8 * nod; p.wave = .8; p.tilt = -.065 * nod; p.ear += .55 * nod; break;
       case 'relaxed': p.blink = Math.max(p.blink, e * .75); p.tilt = -.045; p.bodyAngle = .035 * Math.sin(age * PI * .4); p.crouch = .35; p.ear -= .45; p.tail += .4 * Math.sin(age * PI * .5); p.faceDelighted = .25; p.breath *= .6; break;
       case 'bored': p.faceSad = .25; p.eyeNarrow = .8; p.tilt = .075; p.crouch = .65; p.wave = .65; p.pawSpread = -.25; p.lookX = .014 * Math.sin(age * PI * .45); p.ear -= .9; p.step = .2 * Math.sin(age * TAU * .65); break;
-      case 'feeding': p.chew = Math.sin(age * TAU * 1.7); p.wave = .75 + .12 * beat; p.pawSpread = -.65; p.tilt = .025 * beat; p.faceDelighted = .3; p.squash = .12 * beat; break;
+      case 'feeding': {
+        var reach = 1 - smooth((age - 1.1) / .6);
+        var munch = smooth((age - 1.05) / .45) * (1 - smooth((age - 4.05) / .55));
+        var celebrating = smooth((age - 4.4) / .35) * (1 - smooth((age - 7.0) / .8));
+        var settle = smooth((age - 7.0) / .8), jaw = Math.sin((age - 1.2) * TAU * 2.2);
+        var happyBeat = Math.sin((age - 4.4) * TAU * 1.2), happyHop = Math.pow(Math.max(0, happyBeat), 2);
+        p.chew = munch > 0 ? munch * jaw : 0;
+        p.wave = .35 * reach + munch * (.8 + .12 * beat) + 1.15 * celebrating + .4 * settle;
+        p.pawSpread = -.4 * reach - .9 * munch + .95 * celebrating - .25 * settle;
+        p.wiggle = .15 * munch * beat + .8 * celebrating * happyBeat;
+        p.tilt = -.035 * reach + .028 * munch * jaw - .035 * celebrating + .035 * settle * nod;
+        p.bounce = .95 * celebrating * happyHop;
+        p.bodyAngle = .065 * celebrating * happyBeat;
+        p.squash = .12 * munch * beat + .3 * celebrating * (1 - happyHop) + .08 * settle;
+        p.stretch = .3 * reach + .55 * celebrating;
+        p.crouch = .25 * reach + .16 * munch + .15 * settle;
+        p.ear += .35 * reach + .2 * munch * jaw + .9 * celebrating;
+        p.tail += .25 * reach + .3 * munch * beat + 1.2 * celebrating * happyBeat;
+        p.lookX = .008 * reach; p.lookY = .01 * reach + .006 * munch;
+        p.mouthOpen = .25 * reach + .3 * munch * (.5 + .5 * jaw) + .55 * celebrating;
+        // Close the original eyes just before the happy face appears. The happy
+        // keyframe stays whole and crisp, then the normal cue envelope releases it.
+        p.blink = Math.max(p.blink, pulse(age, 4.12, .5) * e);
+        p.faceDelighted = age >= 4.4 ? 1 : 0;
+        p.blush = .35 * celebrating;
+        break;
+      }
       case 'moving': p.step = Math.sin(age * TAU * 2); p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step; p.shiftX = .018 * Math.sin(age * PI * 1.2); p.wave = .25; p.ear += .4 * p.step; break;
       case 'caught': p.bounce = .75 * Math.pow(Math.sin(age * PI * 1.4), 2); p.wave = 1; p.pawSpread = -.3; p.faceDelighted = .8; p.ear += .85; p.tail += .7; p.stretch = .5; break;
       case 'dance': p.faceDelighted = .75; p.bodyAngle = .085 * Math.sin(age * PI * 1.3); p.shiftX = .025 * Math.sin(age * PI * 1.3); p.step = Math.sin(age * TAU * 1.3); p.bounce = .35 * Math.abs(p.step); p.wave = .7; p.wiggle = fast; p.pawSpread = .8 * beat; p.tail += 1.1 * beat; break;
@@ -127,10 +166,10 @@
   function situationForAction(action, before, after, result) {
     if (!result || result.ok !== true || !action || typeof action.type !== 'string') return null;
     var name = null;
-    if (before && before.pet && after && after.pet &&
+    if ((action.type === 'care' && action.kind === 'feed') || action.type === 'useItem') name = 'feeding';
+    else if (before && before.pet && after && after.pet &&
         growth(finite(after.pet.exp, 0)) > growth(finite(before.pet.exp, 0))) name = 'joy';
-    else if (action.type === 'care') name = action.kind === 'feed' ? 'feeding' : action.kind === 'play' ? 'petted' : action.kind === 'rest' ? 'resting' : null;
-    else if (action.type === 'useItem') name = 'feeding';
+    else if (action.type === 'care') name = action.kind === 'play' ? 'petted' : action.kind === 'rest' ? 'resting' : null;
     else if (action.type === 'finishMinigame' && action.score > 0) name = 'caught';
     else if (action.type === 'chooseSpecies' || action.type === 'rename') name = 'greeting';
     else if (['buyItem', 'equip', 'chooseAppearance', 'transferLegacy'].indexOf(action.type) >= 0) name = 'joy';
@@ -367,6 +406,6 @@
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, situationForAction: situationForAction,
+  return Object.freeze({ mount: mount, pose: pose, feedingPhase: feedingPhase, situationForAction: situationForAction,
     catalogue: catalogue, durations: durations, situations: Object.freeze(Object.keys(durations)), sourceType: '2d_image_motion' });
 });

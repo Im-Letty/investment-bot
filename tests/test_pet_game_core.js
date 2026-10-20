@@ -26,6 +26,7 @@ async function play(g,score=20) {
 test('fresh independent game has one durable record and no outside rewards',async()=>{
   const g=await game();assert.equal(g.app.getState().coins,100);assert.equal(g.app.getState().pet.exp,0);
   assert.equal(g.storage.writes.length,1);assert.equal(g.storage.writes[0][0],Core.KEY);
+  assert.equal(g.app.getState().pet.species,'lilac');
   assert.equal(g.app.getState().care.lastCareAt,null);
   assert.equal(g.storage.reads.includes('sk_last'),false);
   g.storage.reads=[];g.storage.data.set('sk_total','999');g.storage.data.set('pg_kakeibo_day','2026-10-18');
@@ -106,8 +107,8 @@ test('lilac selection, reload and backup preserve the full grown pet and active 
   assert.deepEqual(restored.getState(),other.app.getState());
 });
 
-test('lilac can be selected at every growth boundary and old species remain selectable',async()=>{
-  const fresh=await game();assert.equal(fresh.app.getState().pet.species,'dragon');
+test('lilac can be selected at every growth boundary while the retired dragon remains archived',async()=>{
+  const fresh=await game();assert.equal(fresh.app.getState().pet.species,'lilac');
   for(const species of ['dragon','bunny'])for(const exp of [0,14,15,44,45,109,110,98765]){
     const g=await game({pg_species:species,pg_exp:String(exp),pg_name:'もとの子',pg_path:'cool',pg_px:'1'});
     const before=g.app.getState().pet;
@@ -115,7 +116,9 @@ test('lilac can be selected at every growth boundary and old species remain sele
     assert.deepEqual(g.app.getState().pet,{...before,species:'lilac'});
     const reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);
     assert.deepEqual(reload.getState().pet,{...before,species:'lilac'});
-    assert.equal((await command(g,'chooseSpecies',{species})).ok,true);
+    const again=await command(g,'chooseSpecies',{species});
+    assert.equal(again.ok,species!=='dragon');
+    if(species==='dragon')assert.equal(again.error.code,'invalid_species');
     assert.deepEqual(g.app.getState().pet,before);
     assert.equal(g.storage.data.get('pg_species'),species);
   }
@@ -336,4 +339,95 @@ test('subscribers receive detached states and exceptions cannot roll back a save
   assert.equal((await command(g,'care',{kind:'feed'})).ok,true);assert.equal(observed,1);assert.equal(g.app.getState().coins,110);
   const detached=g.app.getState();detached.inventory.feast=999;assert.equal(g.app.getState().inventory.feast,undefined);
   stop();await command(g,'care',{kind:'rest'});assert.equal(observed,1);
+});
+
+async function retiredDragonRecord() {
+  const g=await game({pg_exp:'167',pg_name:'もとのりゅう',pg_species:'dragon',pg_path:'cool',pg_px:'1',pg_coins:'2000',
+    pg_items:'{"rice":3}',pg_deco:'{"house":{"x":13}}',pg_bg:'beach',pg_bgs:'["meadow","beach"]',pg_ach:'["old-ach"]',
+    pet_game:'{"name":"保管している子","coins":70,"exp":11,"foods":{"🍎":2},"pot":55,"potBasis":50,"potDays":3}'},()=>.99);
+  for(const [type,a] of [['care',{kind:'play'}],['buyStock',{stockId:'grn',quantity:5}],['advanceMarketDay',{}],['buyItem',{itemId:'cake'}],['beginMinigame',{}]])
+    assert.equal((await command(g,type,a)).ok,true);
+  const old=persisted(g.storage);old.pet.species='dragon';old.futureField={history:['leave','unchanged']};
+  const raw=JSON.stringify(old);g.storage.data.set(Core.KEY,raw);g.tick(1234);
+  return {g,old,raw};
+}
+
+test('retired v3 dragon becomes B with exactly one durable species revision and keeps every progress field',async()=>{
+  const {g,old}=await retiredDragonRecord(),writes=g.storage.writes.length;
+  const next=Core.create(g.options);assert.equal((await next.ready).ok,true);
+  const expected={...old,pet:{...old.pet,species:'lilac'},revision:old.revision+1,updatedAt:g.options.now()};
+  assert.deepEqual(persisted(g.storage),expected);assert.equal(g.storage.writes.length,writes+1);
+  assert.equal(next.getState().pet.species,'lilac');assert.equal(next.getState().pet.exp,old.pet.exp);
+  assert.deepEqual(next.getState().market,old.market);assert.deepEqual(next.getState().legacyReserve,old.legacyReserve);
+  assert.equal(g.storage.data.get('pg_species'),'dragon');assert.equal(next.getState().migration.legacyRaw.pg_species,'dragon');
+  assert.equal(JSON.parse(next.exportBackup()).state.pet.species,'lilac');
+  const reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);
+  assert.deepEqual(reload.getState(),next.getState());assert.equal(g.storage.writes.length,writes+1);
+  const before=g.storage.data.get(Core.KEY);assert.equal((await reload.dispatch({type:'chooseSpecies',species:'dragon'})).error.code,'invalid_species');
+  assert.equal(g.storage.data.get(Core.KEY),before);assert.equal((await reload.dispatch({type:'chooseSpecies',species:'bunny'})).ok,true);
+});
+
+test('retired v3 dragon conversion awaits storage and never publishes B before confirmed persistence',async()=>{
+  const {g,old,raw}=await retiredDragonRecord();let release,entered;
+  const waiting=new Promise(resolve=>{entered=resolve;}),set=g.storage.setItem.bind(g.storage);
+  g.storage.setItem=(k,v)=>new Promise(resolve=>{release=()=>{set(k,v);resolve();};entered();});
+  const app=Core.create(g.options),observed=[];app.subscribe(s=>observed.push(s));await waiting;
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(app.getState().readOnly,true);
+  assert.deepEqual(app.getState().pet,old.pet);assert.deepEqual(app.getState().market,old.market);
+  assert.ok(observed.every(s=>s.pet.species!=='lilac'));
+  release();assert.equal((await app.ready).ok,true);assert.equal(app.getState().pet.species,'lilac');
+  assert.equal(app.getState().readOnly,false);assert.equal(JSON.parse(g.storage.data.get(Core.KEY)).pet.species,'lilac');
+});
+
+test('rejected dragon conversion blocks writes and keeps the original live and durable progress',async()=>{
+  for(const mode of ['throw','false','result']){
+    const {g,old,raw}=await retiredDragonRecord(),set=g.storage.setItem.bind(g.storage);
+    g.storage.setItem=async()=>{if(mode==='throw')throw new Error('private key=https://hidden.invalid');return mode==='false'?false:{ok:false};};
+    const app=Core.create(g.options),result=await app.ready;
+    assert.equal(result.ok,false);assert.equal(result.error.code,'storage_failed');assert.equal(app.getState().readOnly,true);
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.deepEqual(app.getState().pet,old.pet);
+    assert.deepEqual(app.getState().market,old.market);assert.deepEqual(app.getState().inventory,old.inventory);
+    assert.deepEqual(app.getState().legacyReserve,old.legacyReserve);assert.doesNotMatch(JSON.stringify(result.error),/private|https:|key=/);
+    assert.equal((await app.dispatch({type:'care',kind:'feed'})).error.code,'read_only');assert.equal(g.storage.data.get(Core.KEY),raw);
+    assert.throws(()=>app.exportBackup());
+    g.storage.setItem=set;const retry=Core.create(g.options);assert.equal((await retry.ready).ok,true);
+    assert.deepEqual(persisted(g.storage),{...old,pet:{...old.pet,species:'lilac'},revision:old.revision+1,updatedAt:g.options.now()});
+  }
+});
+
+test('legacy dragon conversion is part of the first write and leaves archived source keys intact on success or failure',async()=>{
+  const seed={pg_species:'dragon',pg_exp:'14',pg_name:'昔の子',pg_coins:'71',pg_path:'cool',pg_px:'1',pg_items:'{"rice":3}'};
+  const g=await game(seed);assert.equal(g.storage.writes.length,1);assert.equal(g.app.getState().pet.species,'lilac');
+  assert.equal(g.app.getState().pet.exp,14);assert.equal(g.app.getState().coins,71);assert.equal(g.app.getState().revision,0);
+  assert.equal(g.app.getState().migration.legacyRaw.pg_species,'dragon');
+  for(const [key,value] of Object.entries(seed))assert.equal(g.storage.data.get(key),value);
+  for(const mode of ['false','throw']){
+    const storage=memory(seed);storage.setItem=async()=>{if(mode==='throw')throw new Error('private');return false;};
+    const app=Core.create({storage});assert.equal((await app.ready).ok,false);assert.equal(storage.data.has(Core.KEY),false);
+    assert.equal(app.getState().readOnly,true);for(const [key,value] of Object.entries(seed))assert.equal(storage.data.get(key),value);
+  }
+});
+
+test('old dragon backups remain importable, adopt B only on the one successful import and export current B',async()=>{
+  const {old}=await retiredDragonRecord(),backup=JSON.stringify({format:'PetGameBackup',version:3,exportedAt:old.updatedAt,state:old});
+  const g=await game({pg_species:'bunny',pg_exp:'45',pg_name:'今の子',pg_coins:'123'}),before=persisted(g.storage),raw=g.storage.data.get(Core.KEY);
+  const set=g.storage.setItem.bind(g.storage);g.storage.setItem=async()=>false;
+  const rejected=await g.app.importBackup(backup);assert.equal(rejected.ok,false);assert.equal(g.storage.data.get(Core.KEY),raw);
+  assert.deepEqual(rejected.state.pet,before.pet);assert.equal(rejected.state.coins,before.coins);
+  g.storage.setItem=set;assert.equal((await g.app.importBackup(backup)).ok,true);
+  assert.deepEqual(persisted(g.storage),{...old,pet:{...old.pet,species:'lilac'},revision:before.revision+1,updatedAt:g.options.now()});
+  assert.equal(JSON.parse(backup).state.pet.species,'dragon');assert.equal(JSON.parse(g.app.exportBackup()).state.pet.species,'lilac');
+});
+
+test('two simultaneous loads convert a retired dragon once and CAS rejects an intervening update',async()=>{
+  const {g,old,raw}=await retiredDragonRecord(),writes=g.storage.writes.length;
+  const first=Core.create(g.options),second=Core.create(g.options);
+  assert.equal((await first.ready).ok,true);assert.equal((await second.ready).ok,true);
+  assert.deepEqual(first.getState(),second.getState());assert.equal(g.storage.writes.length,writes+1);
+  g.storage.data.set(Core.KEY,raw);const newer={...old,coins:old.coins+17,revision:old.revision+1},newRaw=JSON.stringify(newer);
+  const get=g.storage.getItem.bind(g.storage);let reads=0;
+  g.storage.getItem=k=>{if(k===Core.KEY&&++reads===2)g.storage.data.set(Core.KEY,newRaw);return get(k);};
+  const stale=Core.create(g.options);const result=await stale.ready;
+  assert.equal(result.ok,false);assert.equal(result.error.code,'stale_state');assert.equal(g.storage.data.get(Core.KEY),newRaw);
+  assert.equal(stale.getState().readOnly,true);assert.deepEqual(stale.getState().pet,old.pet);
 });

@@ -152,7 +152,7 @@ test('face and acting channels communicate sadness, anger, surprise and joy beyo
   assert.ok(p('love').blush > .9 && p('love').pawSpread < -.6);
   assert.ok(p('apology').faceSad > .6 && p('apology').pawSpread < -.8);
   assert.ok(p('dance').faceDelighted > .7 && Math.abs(p('dance').bodyAngle) > .05);
-  assert.notEqual(p('feeding').chew, 0);
+  assert.notEqual(Motion.pose(2.2, 'feeding', 2.2).chew, 0);
 });
 
 test('idle covers blink, breathing, head, ears, paw and tail without resetting the loop', () => {
@@ -162,20 +162,59 @@ test('idle covers blink, breathing, head, ears, paw and tail without resetting t
   for (const key of Object.keys(a).filter(k => k !== 'situation')) assert.ok(Math.abs(a[key] - b[key]) < 1e-12, key);
 });
 
-test('only confirmed successful actions return a transient cue; growth wins without mutating state', () => {
+test('only confirmed successful actions return a transient cue; feeding includes its own joy before growth overrides', () => {
   const before = { pet: { exp: 20 }, coins: 100 }, after = { pet: { exp: 28 }, coins: 110 };
   const original = JSON.stringify([before, after]);
   for (const result of [null, {}, { ok: false }, { ok: 1 }]) assert.equal(Motion.situationForAction({ type: 'care', kind: 'feed' }, before, after, result), null);
   for (const [kind, name] of [['feed', 'feeding'], ['play', 'petted'], ['rest', 'resting']]) {
     assert.deepEqual(Motion.situationForAction({ type: 'care', kind }, before, after, { ok: true }), { situation: name, durationMs: Motion.durations[name] });
   }
-  assert.equal(Motion.situationForAction({ type: 'care', kind: 'feed' }, before, { pet: { exp: 45 } }, { ok: true }).situation, 'joy');
+  assert.equal(Motion.situationForAction({ type: 'care', kind: 'feed' }, before, { pet: { exp: 45 } }, { ok: true }).situation, 'feeding');
+  assert.equal(Motion.situationForAction({ type: 'useItem' }, before, { pet: { exp: 45 } }, { ok: true }).situation, 'feeding');
+  for (const action of [{ type: 'care', kind: 'play' }, { type: 'care', kind: 'rest' }, { type: 'finishMinigame', score: 3 }]) {
+    assert.equal(Motion.situationForAction(action, before, { pet: { exp: 45 } }, { ok: true }).situation, 'joy');
+  }
   assert.equal(Motion.situationForAction({ type: 'useItem' }, before, after, { ok: true }).situation, 'feeding');
   assert.equal(Motion.situationForAction({ type: 'finishMinigame', score: 3 }, before, after, { ok: true }).situation, 'caught');
   assert.equal(Motion.situationForAction({ type: 'cancelMinigame' }, before, after, { ok: true }), null);
   assert.equal(Motion.situationForAction({ type: 'care', kind: '__proto__' }, before, after, { ok: true }), null);
   assert.equal(Motion.situationForAction({ type: 'unrelated' }, before, after, { ok: true }), null);
   assert.equal(JSON.stringify([before, after]), original);
+});
+
+test('feeding timeline exposes one coherent food-to-joy sequence and safe absolute timer boundaries', () => {
+  assert.equal(Motion.durations.feeding, 8400);
+  const samples = [
+    [0, 'anticipation', true, 0, 1200], [1199, 'anticipation', true, 0, 1200],
+    [1200, 'chewing', true, 0, 4400], [2800, 'chewing', true, .5, 4400],
+    [4400, 'joy', false, 1, 7200], [7199, 'joy', false, 1, 7200],
+    [7200, 'settling', false, 1, 8400], [8400, 'idle', false, 1, null], [100000, 'idle', false, 1, null]
+  ];
+  for (const [age, phase, foodVisible, foodProgress, nextBoundaryMs] of samples) {
+    const value = Motion.feedingPhase(age);
+    assert.equal(value.phase, phase); assert.equal(value.foodVisible, foodVisible); assert.equal(value.foodProgress, foodProgress);
+    assert.equal(value.nextBoundaryMs, nextBoundaryMs); assert.equal(value.done, phase === 'idle'); assert.ok(value.label);
+    assert.ok(value.phaseProgress >= 0 && value.phaseProgress <= 1);
+    if (!value.done) assert.ok(value.nextBoundaryMs > age);
+  }
+  for (const bad of [-100, NaN, Infinity, undefined, '1200']) assert.deepEqual(Motion.feedingPhase(bad), Motion.feedingPhase(0));
+  const a = Motion.feedingPhase(2800); a.phase = 'changed'; assert.equal(Motion.feedingPhase(2800).phase, 'chewing');
+});
+
+test('feeding anticipates, chews with original eyes, celebrates visibly and settles to idle', () => {
+  const waiting = Motion.pose(.7, 'feeding', .7), chewing = Motion.pose(2.2, 'feeding', 2.2);
+  const joy = Motion.pose(5.5, 'feeding', 5.5), settled = Motion.pose(8.4, 'feeding', 8.4);
+  assert.equal(waiting.chew, 0); assert.equal(waiting.faceDelighted, 0); assert.ok(waiting.lookY > .005);
+  assert.ok(Math.abs(chewing.chew) > .4); assert.equal(chewing.faceDelighted, 0); assert.ok(chewing.pawSpread < -.8);
+  assert.equal(joy.chew, 0); assert.equal(joy.faceDelighted, 1); assert.ok(joy.wave > 1);
+  assert.ok(joy.pawSpread > .8 && joy.bounce > .5 && joy.blush > .3);
+  assert.deepEqual(settled, Motion.pose(8.4, 'idle', 0));
+  for (const boundary of [1.2, 4.4, 7.2]) {
+    const before = Motion.pose(boundary, 'feeding', boundary - .00001), after = Motion.pose(boundary, 'feeding', boundary + .00001);
+    for (const key of ['chew', 'wave', 'pawSpread', 'tilt', 'bounce', 'bodyAngle', 'squash', 'ear', 'tail']) {
+      assert.ok(Math.abs(before[key] - after[key]) < .001, boundary + ':' + key);
+    }
+  }
 });
 
 test('local eight-image load draws expressive RGB keyframes with original cutout alpha and fires ready once', () => {

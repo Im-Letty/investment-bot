@@ -94,7 +94,7 @@
     STOCKS.forEach(function(x){m.prices[x.id]=x.base;m.previous[x.id]=x.base;m.holdings[x.id]={quantity:0,costBasis:0};});return m;
   }
   function fresh(ms) { return {version:3,revision:0,createdAt:ms,updatedAt:ms,
-    pet:{name:'',species:'dragon',exp:0,path:'cute',pixel:false},coins:100,inventory:{},
+    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false},coins:100,inventory:{},
     decorations:{owned:{},equipped:null,background:'meadow',backgrounds:['meadow']},achievements:[],
     care:{day:dayKey(ms),counts:{feed:0,play:0,rest:0},lastCareAt:null,dailyRewardDay:'',total:{feed:0,play:0,rest:0}},
     minigames:{day:dayKey(ms),started:0,active:null,completed:[],bestScore:0},market:market(),
@@ -149,7 +149,7 @@
       s.pet.exp=legacyNumber(raw,'pg_exp')+total*10+Math.floor(streak/7)*10;check(integer(s.pet.exp),'corrupt_legacy');
       s.coins=legacyNumber(raw,'pg_coins');
       if(raw.pg_name!==null){check(text(raw.pg_name,40),'corrupt_legacy');s.pet.name=raw.pg_name;}
-      if(raw.pg_species){check(['dragon','bunny'].indexOf(raw.pg_species)>=0,'corrupt_legacy');s.pet.species=raw.pg_species;}
+      if(raw.pg_species){check(['dragon','bunny'].indexOf(raw.pg_species)>=0,'corrupt_legacy');s.pet.species=raw.pg_species==='dragon'?'lilac':raw.pg_species;}
       if(raw.pg_path){check(['cute','cool'].indexOf(raw.pg_path)>=0,'corrupt_legacy');s.pet.path=raw.pg_path;}
       if(raw.pg_px!==null){check(raw.pg_px==='0'||raw.pg_px==='1','corrupt_legacy');s.pet.pixel=raw.pg_px==='1';}
       var deco=legacyJSON(raw,'pg_deco',{});check(plain(deco)||Array.isArray(deco),'corrupt_legacy');
@@ -213,7 +213,14 @@
       try {
         check(storage&&typeof storage.getItem==='function'&&typeof storage.setItem==='function'&&legacy&&typeof legacy.getItem==='function','storage_unavailable');
         baseRaw=await read(KEY,storage);
-        if(baseRaw!==null)state=validate(parse(baseRaw));
+        if(baseRaw!==null) {
+          state=validate(parse(baseRaw));
+          // Retired dragon records remain readable. Adopt B only after the
+          // same awaited/CAS write used by every real game transition succeeds.
+          if(state.pet.species==='dragon') {
+            var updated=clone(state);updated.pet.species='lilac';updated.revision++;updated.updatedAt=time();await commit(updated);
+          }
+        }
         else {var raw={};for(var i=0;i<LEGACY_KEYS.length;i++)raw[LEGACY_KEYS[i]]=await read(LEGACY_KEYS[i],legacy);var initial=migrate(raw,time());await commit(initial);}
         loading=false;lastError=null;notify();return result(true);
       } catch(e){loading=false;blocked=true;return failure(e);}
@@ -230,7 +237,7 @@
       } else if(a.type==='rename') {
         check(text(a.name,40),'invalid_name');next.pet.name=a.name.trim();
       } else if(a.type==='chooseSpecies') {
-        check(['dragon','bunny','lilac'].indexOf(a.species)>=0,'invalid_species');next.pet.species=a.species;
+        check(['bunny','lilac'].indexOf(a.species)>=0,'invalid_species');next.pet.species=a.species;
       } else if(a.type==='chooseAppearance') {
         check(next.pet.exp>=110,'appearance_locked');check(['cute','cool'].indexOf(a.path)>=0&&typeof a.pixel==='boolean','invalid_appearance');
         next.pet.path=a.path;next.pet.pixel=a.pixel;
@@ -307,7 +314,7 @@
     async function importBackup(raw) {
       await ready;return operation(storage||{},async function(){
         try {check(!blocked,'read_only');var backup=parse(raw);check(plain(backup)&&backup.format==='PetGameBackup'&&backup.version===3,'invalid_backup');
-          var next=validate(backup.state);next=clone(next);next.revision=state.revision+1;next.updatedAt=time();await commit(next);return result(true);}
+          var next=validate(backup.state);next=clone(next);if(next.pet.species==='dragon')next.pet.species='lilac';next.revision=state.revision+1;next.updatedAt=time();await commit(next);return result(true);}
         catch(e){return failure(e);}
       });
     }

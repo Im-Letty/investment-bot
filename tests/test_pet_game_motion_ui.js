@@ -81,7 +81,7 @@ async function fixture(config = {}) {
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue,
+    durations: Motion.durations, catalogue: Motion.catalogue, feedingPhase: Motion.feedingPhase,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -212,22 +212,31 @@ test('using owned shop food and resting cue finite actions only after their real
   f.advance(Motion.durations.resting + 1); f.ui.render(); assert.equal(f.mounts.at(-1).options.situation, 'idle');
 });
 
-test('an egg keeps the static asset and hatching gets one post-save joy cue', async () => {
-  const f = await fixture({ species: 'lilac', seed: { pg_exp: '14' } });
-  assert.equal(f.mounts.length, 0); assert.equal(f.host.querySelector('canvas'), null);
-  assert.match(f.host.querySelector('.ipg-pet-image').src, /pet_lilac_egg\.webp$/);
+test('B is already visible before 15 EXP and the first growth-boundary meal keeps its full feeding cue', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '14' } }), before = f.saved();
+  assert.equal(f.mounts.length, 1); assert.ok(f.host.querySelector('canvas'));
+  assert.match(f.host.querySelector('.ipg-lilac-still').src, /pet_lilac_cutout\.webp$/);
+  assert.equal(before.pet.exp, 14); assert.equal(f.store.getState().stage.key, 'egg');
+  assert.ok(f.host.querySelector('.ipg-stage').textContent.includes('うまれたて'));
   await f.click(f.focusButton('care-feed'));
-  assert.equal(f.saved().pet.exp, 22); assert.equal(f.mounts.length, 1);
-  assert.equal(f.mounts[0].options.situation, 'joy'); assert.equal(f.actionCues.length, 1);
+  assert.equal(f.saved().pet.exp, 22); assert.equal(f.mounts.length, 2); assert.equal(f.activeMotions().length, 1);
+  assert.equal(f.mounts.at(-1).options.situation, 'feeding'); assert.equal(f.actionCues.length, 1);
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'anticipation');
 });
 
-test('old species use their prior images with no motion mounts or economy changes', async () => {
-  for (const [seed, expected] of [
-    [{ pg_species: 'dragon', pg_exp: '167' }, 'pet_img_px_final.webp'],
-    [{ pg_species: 'bunny', pg_exp: '167' }, 'pet_bimg_cool.webp'],
-    [{ pg_species: 'dragon', pg_exp: '0' }, 'pet_img_px_egg.webp']
-  ]) {
-    const f = await fixture({ seed }), before = f.saved();
+test('retired dragons display B with preserved progress and no red dragon choices; bunny images remain unchanged', async () => {
+  for (const exp of ['0', '167']) {
+    const f = await fixture({ seed: { pg_species: 'dragon', pg_exp: exp }, rendererMode: 'ready' }), before = f.saved();
+    assert.equal(before.pet.species, 'lilac'); assert.equal(before.pet.exp, Number(exp));
+    assert.equal(before.pet.path, 'cool'); assert.equal(before.pet.pixel, true);
+    assert.equal(before.migration.legacyRaw.pg_species, 'dragon'); assert.equal(f.data.get('pg_species'), 'dragon');
+    assert.ok(f.host.querySelector('canvas')); assert.equal(f.mounts.length, 1);
+    assert.ok(f.host.querySelectorAll('img').every(img => !/pet_img_|pet_lilac_egg/.test(img.src)));
+    assert.ok(f.buttons().every(button => !button.textContent.startsWith('りゅう')));
+    f.window.emit('focus'); await flush(); assert.deepEqual(f.saved(), before); assert.equal(f.activeMotions().length, 1);
+  }
+  for (const [exp, expected] of [['167', 'pet_bimg_cool.webp'], ['0', 'pet_bimg_egg.webp']]) {
+    const f = await fixture({ seed: { pg_species: 'bunny', pg_exp: exp } }), before = f.saved();
     assert.ok(f.host.querySelector('.ipg-pet-image').src.endsWith(expected));
     assert.equal(f.host.querySelector('canvas'), null); assert.equal(f.mounts.length, 0);
     f.window.emit('focus'); await flush(); assert.deepEqual(f.saved(), before); assert.equal(f.mounts.length, 0);
@@ -258,11 +267,11 @@ test('an initially hidden document or pane cannot start drawing on focus or rend
 });
 
 test('all 36 B preview modes work for an old egg without selecting B or writing any progress', async () => {
-  const f = await fixture({ seed: { pg_species: 'dragon', pg_exp: '0' } }), before = f.saved(), writes = f.writes.length;
+  const f = await fixture({ seed: { pg_species: 'bunny', pg_exp: '0' } }), before = f.saved(), writes = f.writes.length;
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const panel = f.host.querySelector('.ipg-appearance-preview'), controller = f.mounts.at(-1);
   assert.ok(panel); assert.equal(f.host.querySelector('.ipg-pet-settings').open, true);
-  assert.ok(f.host.querySelector('.ipg-pet-image').src.endsWith('pet_img_px_egg.webp'));
+  assert.ok(f.host.querySelector('.ipg-pet-image').src.endsWith('pet_bimg_egg.webp'));
   assert.equal(panel.querySelector('.ipg-lilac-still').hidden, false); assert.equal(panel.querySelector('canvas').hidden, true);
   controller.options.onReady(); assert.equal(panel.querySelector('canvas').hidden, false);
   const choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion); assert.equal(choices.length, 36);
@@ -290,7 +299,7 @@ test('all 36 B preview modes work for an old egg without selecting B or writing 
 
 test('B preview keeps static fallback and disables its controls when drawing fails', async () => {
   for (const mode of ['error', 'throw']) {
-    const f = await fixture({ seed: { pg_species: 'dragon', pg_exp: '0' }, rendererMode: mode }), before = f.saved();
+    const f = await fixture({ seed: { pg_species: 'bunny', pg_exp: '0' }, rendererMode: mode }), before = f.saved();
     await f.click(f.button('薄紫のこのしぐさを見る'));
     const panel = f.host.querySelector('.ipg-appearance-preview');
     assert.equal(panel.querySelector('.ipg-lilac-still').hidden, false); assert.equal(panel.querySelector('canvas').hidden, true);
@@ -300,7 +309,7 @@ test('B preview keeps static fallback and disables its controls when drawing fai
 });
 
 test('B preview is a disabled static reference if the optional motion module is unavailable', async () => {
-  const f = await fixture({ seed: { pg_species: 'dragon', pg_exp: '0' } }), before = f.saved();
+  const f = await fixture({ seed: { pg_species: 'bunny', pg_exp: '0' } }), before = f.saved();
   delete f.window.PetLilacMotion;
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const panel = f.host.querySelector('.ipg-appearance-preview');
@@ -407,21 +416,26 @@ test('emotion effects, deadlines and drawing are cleaned on hide, close and fall
   await f.ui.close(); assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
 });
 
-test('B eggs keep their own static art and disabled care emotions while the full safe preview remains available', async () => {
-  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '0' } }), before = f.saved();
-  const panel = f.host.querySelector('.ipg-emotion-panel');
-  assert.equal(panel.querySelectorAll('button').filter(b => b.dataset.emotion).length, 36);
-  assert.ok(panel.querySelectorAll('button').filter(b => b.dataset.emotion).every(b => b.disabled));
-  assert.equal(f.mounts.length, 0); assert.match(f.host.querySelector('.ipg-pet-image').src, /pet_lilac_egg\.webp$/);
+test('zero-EXP B starts visible with all 36 emotions enabled and safe preview adds no growth or rewards', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '0' } }), before = f.saved(), writes = f.writes.length;
+  const panel = f.host.querySelector('.ipg-emotion-panel'), choices = panel.querySelectorAll('button').filter(b => b.dataset.emotion);
+  assert.equal(choices.length, 36); assert.ok(choices.every(b => !b.disabled));
+  assert.equal(f.mounts.length, 1); assert.equal(f.store.getState().stage.key, 'egg');
+  assert.equal(f.saved().pet.exp, 0); assert.match(f.host.querySelector('.ipg-lilac-still').src, /pet_lilac_cutout\.webp$/);
+  for (const [i, id] of Motion.situations.entries()) {
+    await f.click(panel.querySelectorAll('.ipg-emotion-groups')[0].querySelectorAll('button')[Math.floor(i / 6)]);
+    await f.click(choices[i]); assert.equal(f.mounts[0].changes.at(-1).name, id);
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  }
   await f.click(f.button('薄紫のこのしぐさを見る'));
   const preview = f.host.querySelector('.ipg-appearance-preview');
   assert.equal(preview.querySelectorAll('button').filter(b => b.dataset.emotion).length, 36);
-  assert.equal(f.mounts.length, 1); assert.deepEqual(f.saved(), before);
+  assert.equal(f.activeMotions().length, 2); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
 test('reduced-motion CSS suppresses accent animation and hidden groups are removed from layout', () => {
   const css = fs.readFileSync(require.resolve('../static/pet-game.css'), 'utf8');
-  assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\.ipg-lilac-visual>\.ipg-emotion-effect\{display:none!important\}\.ipg-emotion-mote\{animation:none/);
+  assert.match(css, /@media\(prefers-reduced-motion:reduce\)\{\.ipg-lilac-visual>\.ipg-emotion-effect\{display:none!important\}\.ipg-emotion-mote,\.ipg-feeding-food\{animation:none!important/);
   assert.match(css, /\.ipg-emotion-grid\[hidden\]\{display:none!important\}/);
 });
 
@@ -441,4 +455,92 @@ test('B care keeps its face and emotion controls together before progress while 
   const old = await fixture({ seed: { pg_species: 'bunny', pg_exp: '167' } });
   assert.equal(old.host.querySelector('.ipg-emotion-stage'), null);
   assert.equal(old.host.querySelector('.ipg-pet-card').children[0], old.host.querySelector('.ipg-scene'));
+});
+
+test('one confirmed meal shows food, shrinking bites, then happy hearts and returns to idle without further rewards', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '0' } });
+  f.advance(10000); f.ui.render(); const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('care-feed'));
+  const after = f.saved(), wrap = f.host.querySelector('.ipg-lilac-visual'), food = wrap.querySelector('.ipg-feeding-food');
+  const effect = wrap.querySelector('.ipg-emotion-effect'), caption = f.host.querySelector('.ipg-emotion-caption');
+  assert.equal(after.pet.exp, 8); assert.equal(after.coins, before.coins + 10); assert.equal(f.writes.length, writes + 1);
+  assert.equal(wrap.dataset.situation, 'feeding'); assert.equal(wrap.dataset.feedingPhase, 'anticipation');
+  assert.equal(food.hidden, false); assert.equal(food.dataset.bites, '0'); assert.equal(effect.hidden, true);
+  assert.match(caption.textContent, /ごはん、うれしいな/); assert.equal(f.timers.size, 1);
+  const steps = [
+    [1200, 'chewing', true, '0', 'もぐもぐ'], [1088, 'chewing', true, '1', 'もぐもぐ'],
+    [1088, 'chewing', true, '2', 'もぐもぐ'], [1024, 'joy', false, '2', 'おいしい！'],
+    [2800, 'settling', false, '2', 'ごちそうさま']
+  ];
+  for (const [ms, phase, visible, bites, label] of steps) {
+    f.advance(ms); await f.fireTimers();
+    assert.equal(wrap.dataset.feedingPhase, phase); assert.equal(food.hidden, !visible); assert.equal(food.dataset.bites, bites);
+    assert.ok(caption.textContent.includes(label)); assert.equal(f.timers.size, 1);
+    assert.equal(effect.hidden, false); assert.ok(effect.className.includes(phase === 'chewing' ? 'ipg-effect-crumbs' : 'ipg-effect-hearts'));
+    assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes + 1); assert.equal(f.actionCues.length, 1);
+  }
+  f.advance(1200); await f.fireTimers();
+  assert.equal(wrap.dataset.situation, 'idle'); assert.equal(wrap.dataset.feedingPhase, '');
+  assert.equal(food.hidden, true); assert.equal(effect.hidden, true); assert.equal(effect.children.length, 0);
+  assert.match(caption.textContent, /ふだん/); assert.equal(f.focusButton('pet-emotion-idle').getAttribute('aria-pressed'), 'true');
+  assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0); assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes + 1);
+});
+
+test('using owned food gets the same finite food-to-happiness timeline with only its confirmed item write', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
+  await f.click(f.focusButton('tab-shop')); const before = f.saved(), writes = f.writes.length;
+  const rice = f.host.querySelectorAll('article').find(row => row.querySelector('h4')?.textContent === 'おにぎり');
+  await f.click(rice.querySelectorAll('button').find(b => b.textContent === '使う'));
+  const after = f.saved(), wrap = f.host.querySelector('.ipg-lilac-visual'), food = wrap.querySelector('.ipg-feeding-food');
+  assert.equal(after.pet.exp, before.pet.exp + 4); assert.equal(after.inventory.rice, before.inventory.rice - 1); assert.equal(after.coins, before.coins);
+  assert.equal(food.hidden, false); assert.equal(wrap.dataset.feedingPhase, 'anticipation');
+  f.advance(4400); await f.fireTimers();
+  assert.equal(wrap.dataset.feedingPhase, 'joy'); assert.equal(food.hidden, true);
+  assert.ok(wrap.querySelector('.ipg-emotion-effect').className.includes('ipg-effect-hearts'));
+  assert.match(wrap.querySelector('canvas').getAttribute('aria-label'), /おいしい！/);
+  f.advance(4000); await f.fireTimers(); assert.equal(wrap.dataset.situation, 'idle'); assert.equal(food.hidden, true);
+  assert.equal(wrap.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.timers.size, 0);
+  assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes + 1); assert.equal(f.actionCues.length, 1);
+});
+
+test('replacing a meal removes stale food; rerender keeps its elapsed phase and hide or reopen does not replay it', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
+  await f.click(f.focusButton('care-feed')); let mealWrap = f.host.querySelector('.ipg-lilac-visual');
+  const firstFood = mealWrap.querySelector('.ipg-feeding-food'); assert.equal(firstFood.hidden, false);
+  f.advance(500); await f.click(f.focusButton('pet-emotion-angry'));
+  assert.equal(firstFood.hidden, true); assert.equal(mealWrap.dataset.situation, 'angry'); assert.equal(mealWrap.dataset.feedingPhase, '');
+  f.advance(8401); await f.fireTimers(); assert.equal(firstFood.hidden, true); assert.equal(mealWrap.dataset.situation, 'idle');
+  await f.click(f.focusButton('care-feed')); f.advance(1200); await f.fireTimers();
+  const before = f.saved(), writes = f.writes.length, oldController = f.mounts.at(-1), oldWrap = f.host.querySelector('.ipg-lilac-visual');
+  assert.equal(oldWrap.dataset.feedingPhase, 'chewing'); f.ui.render();
+  mealWrap = f.host.querySelector('.ipg-lilac-visual'); assert.equal(oldController.destroyed, true);
+  assert.equal(oldWrap.querySelector('.ipg-feeding-food').hidden, true); assert.equal(f.mounts.at(-1).options.elapsedMs, 1200);
+  assert.equal(mealWrap.dataset.feedingPhase, 'chewing'); assert.equal(mealWrap.querySelector('.ipg-feeding-food').hidden, false);
+  assert.equal(f.timers.size, 1); assert.equal(f.activeMotions().length, 1);
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush();
+  assert.equal(mealWrap.querySelector('.ipg-feeding-food').hidden, true); assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  const resumed = f.host.querySelector('.ipg-lilac-visual');
+  assert.notEqual(resumed.dataset.situation, 'feeding'); assert.equal(resumed.dataset.feedingPhase, '');
+  assert.equal(resumed.querySelector('.ipg-feeding-food').hidden, true); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.ui.close(); f.pane.hidden = true; assert.equal(f.timers.size, 0);
+  f.pane.hidden = false; await f.ui.open(); assert.notEqual(f.host.querySelector('.ipg-lilac-visual').dataset.situation, 'feeding');
+  assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true); assert.deepEqual(f.saved(), before);
+});
+
+test('pending or failed meal saves cannot show food or happy meal feedback, and drawing fallback clears every meal phase', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' }); f.advance(10000); f.ui.render();
+  const before = f.saved(), gate = deferred(), count = f.actionCues.length;
+  f.control.pending = gate; f.control.outcome = 'false'; await f.click(f.focusButton('care-feed'));
+  assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true); assert.equal(f.host.querySelector('.ipg-emotion-effect').hidden, true);
+  assert.equal(f.actionCues.length, count); assert.deepEqual(f.saved(), before);
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true); assert.equal(f.host.querySelector('.ipg-emotion-effect').hidden, true);
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.situation, 'idle'); assert.deepEqual(f.saved(), before);
+  f.control.outcome = 'ok'; await f.click(f.focusButton('care-feed'));
+  const after = f.saved(), wrap = f.host.querySelector('.ipg-lilac-visual'); assert.equal(wrap.querySelector('.ipg-feeding-food').hidden, false);
+  f.advance(1200); await f.fireTimers(); f.mounts.at(-1).options.onError();
+  assert.equal(wrap.querySelector('.ipg-feeding-food').hidden, true); assert.equal(wrap.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.timers.size, 0);
+  f.advance(7200); await f.fireTimers(); assert.equal(wrap.querySelector('.ipg-feeding-food').hidden, true);
+  assert.equal(wrap.querySelector('.ipg-emotion-effect').hidden, true); assert.equal(f.timers.size, 0); assert.deepEqual(f.saved(), after);
 });
