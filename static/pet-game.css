@@ -171,3 +171,15 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 @media(max-width:640px){.ipg-clothing-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ipg-clothing-item{padding:12px 8px}.ipg-outfit-fitting{grid-template-columns:minmax(0,1fr);gap:7px;padding:10px;text-align:center}.ipg-outfit-fitting>.ipg-lilac-visual{width:200px;height:200px}.ipg-clothing-item h4{font-size:.92em}}
 
 .ipg-outfit-unavailable{flex:1 0 100%;max-width:540px;text-align:center}.ipg-outfit-unavailable[hidden]{display:none!important}
+
+/* Recorded evolution and future previews have distinct labels and no controls that save a branch. */
+.ipg-evolution-status{max-width:600px;margin:14px auto;padding:14px 16px;border:1px solid var(--ipg-line);border-radius:13px;text-align:left;background:var(--ipg-bg)}
+.ipg-evolution-status p{margin:0 0 7px}.ipg-evolution-current{display:flex;align-items:center;gap:8px;font-weight:600}.ipg-evolution-tendency{font-size:.94em}
+.ipg-evolution-color{display:inline-block;flex:0 0 auto;width:15px;height:15px;border-radius:50%;border:1px solid #00000018}
+.ipg-evolution-status summary{font-size:.88em;min-height:38px}.ipg-evolution-status ul,.ipg-evolution-status ol{padding-left:1.4em;margin:4px 0;font-size:.85em}.ipg-evolution-status li{margin:5px 0}
+.ipg-evolution-explanation{max-width:580px;margin:12px auto!important;text-align:left}.ipg-food-evolution-hint{font-size:.77em;line-height:1.45}
+.ipg-growth-selectors{min-width:0}.ipg-growth-selectors>.ipg-small{margin:10px 0 5px!important;text-align:left}
+.ipg-evolution-choices{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.ipg .ipg-evolution-choices .ipg-button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:0;min-height:68px;padding:7px 3px;font-size:.82em;line-height:1.3;background:var(--ipg-paper)}
+.ipg-evolution-choices small{font-size:.8em}.ipg .ipg-evolution-choices [aria-pressed=true]{background:var(--ipg-green);border-color:var(--ipg-green);color:var(--kn-sh-on-button,#fffdf6)}
+.ipg-evolution-unavailable[hidden]{display:none!important}
+@media(max-width:540px){.ipg-evolution-status{padding:11px 12px}.ipg-evolution-choices{grid-template-columns:repeat(3,minmax(0,1fr))}.ipg .ipg-evolution-choices .ipg-button{min-height:63px;font-size:.8em}}

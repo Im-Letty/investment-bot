@@ -16,7 +16,7 @@ function events(target = {}) {
 }
 function fixture(config = {}) {
   let clock = 0, id = 0, draws = 0, ready = 0, released = 0;
-  const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [];
+  const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [], bindings = [], constants = {}, disabledAttributes = [];
   const media = events({ matches: !!config.reduced });
   const doc = events({ hidden: !!config.hidden });
   const win = events({ document: doc, devicePixelRatio: config.dpr || 3,
@@ -48,7 +48,10 @@ function fixture(config = {}) {
   gl.shaderSource = (_, text) => shaders.push(text);
   gl.getShaderParameter = () => !config.compileFailure;
   gl.getProgramParameter = () => !config.linkFailure;
-  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : -1;
+  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : -1;
+  gl.bindAttribLocation = (_,index,name) => { bindings.push([index,name]); };
+  gl.disableVertexAttribArray = index => { disabledAttributes.push(index); };
+  gl.vertexAttrib4f = (index,...values) => { constants[index]=values; };
   gl.bufferData = (target, data, usage) => { buffers.push({ target, data: new Float32Array(data), usage }); };
   gl.vertexAttribPointer = (index, size, type, normalized, stride, offset) => { attributes.push({ index, size, type, normalized, stride, offset }); };
   gl.getUniformLocation = (_, key) => key;
@@ -72,7 +75,7 @@ function fixture(config = {}) {
     getContext: (_, options) => { canvas.contextOptions = options; return config.noWebGL ? null : gl; }
   });
   const api = Motion.mount(canvas, { onError: code => errors.push(code), onReady: () => ready++, ...config.options });
-  return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders, buffers, attributes, drawCalls,
+  return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders, buffers, attributes, drawCalls, bindings, constants, disabledAttributes,
     get draws() { return draws; }, get ready() { return ready; }, get released() { return released; },
     complete() { images.forEach(im => { im.complete = true; im.naturalWidth = im.naturalHeight = 1000; im.onload?.(); }); },
     advance(ms = 40) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); },
@@ -192,6 +195,106 @@ test('growth changes idle and walking cadence while every meal phase and emotion
   }
   assert.equal(idle.size,6); assert.equal(walks.size,6);
   assert.deepEqual(Motion.pose(1.2,'idle',0),Motion.pose(1.2,'idle',0,'child'));
+});
+
+test('six evolution palettes are frozen and unknown paths keep the original balanced B', () => {
+  assert.deepEqual(Motion.evolutionCatalogue.map(x=>[x.key,x.label,x.colorName,x.color]),[
+    ['balanced','のんびり','薄紫','#b5a0d9'],['fruit','はなほっぺ','桃色','#d99eae'],
+    ['hearty','ぽかぽか','はちみつ色','#d2ad70'],['sweet','おやつっこ','杏色','#dfa88b'],
+    ['active','そよかぜ','空色','#92b4d1'],['calm','まどろみ','ミント色','#9dbfb0']
+  ]);
+  assert.equal(Object.isFrozen(Motion.evolutionCatalogue),true);
+  const shapes=new Set();
+  Motion.evolutionCatalogue.forEach((profile,index)=>{
+    assert.equal(profile.index,index); assert.equal(Object.isFrozen(profile),true); assert.equal(Object.isFrozen(profile.rgb),true);
+    assert.deepEqual(profile.rgb,[1,3,5].map(start=>parseInt(profile.color.slice(start,start+2),16)/255));
+    assert.strictEqual(Motion.evolutionProfile(profile.key),profile);
+    shapes.add(JSON.stringify([Motion.growthPoint('child',.16,.34,profile.key),Motion.growthPoint('child',.78,.49,profile.key),Motion.growthPoint('child',.14,.75,profile.key)]));
+  });
+  assert.equal(shapes.size,6);
+  for(const bad of [null,undefined,'unknown','__proto__',{},1])assert.strictEqual(Motion.evolutionProfile(bad),Motion.evolutionCatalogue[0]);
+});
+
+test('balanced and unknown paths preserve the previous geometry, motion, food anchor and outfit values exactly', () => {
+  const base=fixture({options:{growthStage:'adult',outfit:'cloth_flower_dress'}}); base.complete(); base.api.setSituation('feeding',{elapsedMs:2200});
+  for(const evolutionPath of ['balanced','unknown',null]){
+    const f=fixture({options:{growthStage:'adult',outfit:'cloth_flower_dress',evolutionPath}}); f.complete(); f.api.setSituation('feeding',{elapsedMs:2200});
+    assert.deepEqual(f.buffers[0].data,base.buffers[0].data); assert.deepEqual(f.uniforms,base.uniforms); assert.deepEqual(f.constants,base.constants);
+    assert.deepEqual(Motion.feedingAnchor('adult',evolutionPath),Motion.feedingAnchor('adult'));
+    for(const name of Motion.situations)assert.deepEqual(Motion.pose(.73,name,.73,'adult',evolutionPath),Motion.pose(.73,name,.73,'adult'));
+    f.api.destroy();
+  }
+  base.api.destroy();
+});
+
+test('all evolution and growth combinations stay grounded and unfolded with shared UVs and food below the mouth', () => {
+  for(const stage of growthKeys)for(const path of Motion.evolutionCatalogue){
+    const outfit=Motion.outfitCatalogue[path.index], f=fixture({options:{growthStage:stage,evolutionPath:path.key,outfit:outfit.id}}); f.complete();
+    assert.deepEqual(f.bindings,[[0,'a_position'],[1,'a_uv'],[2,'a_evolution']]);
+    assert.deepEqual(f.disabledAttributes,[2]); assert.deepEqual(f.constants[2],[...path.rgb,path.index]);
+    assert.deepEqual(f.attributes.map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,16,0],[1,2,16,8]]);
+    assert.equal(f.uploads.length,8); assert.equal(Object.values(f.uniforms).filter(x=>Array.isArray(x)&&x.length===4).length,8);
+    const mesh=f.buffers[0].data, profile=Motion.growthProfile(stage);
+    for(let i=0;i<mesh.length;i+=4){
+      const [x,y,u,v]=mesh.subarray(i,i+4),point=Motion.growthPoint(stage,u,v,path.key);
+      assert.ok([x,y,u,v].every(Number.isFinite)); assert.ok(Math.abs(x)<=1&&Math.abs(y)<=1,path.key+stage);
+      assert.ok(Math.abs((x+1)/2-(.5+(point.x-.5)*profile.overallScale))<.000001);
+      assert.ok(Math.abs((1-y)/2-(.92+(point.y-.92)*profile.overallScale))<.000001);
+    }
+    for(let i=0;i<mesh.length;i+=12){
+      const [ax,ay,,,bx,by,,,cx,cy]=mesh.subarray(i,i+12);
+      assert.ok((bx-ax)*(cy-ay)-(by-ay)*(cx-ax)>0,path.key+stage+': winding');
+    }
+    for(let i=0;i<=100;i++){
+      const n=i/100;
+      assert.equal(Motion.growthPoint(stage,n,.92,path.key).y,.92);
+      for(const [x,y]of[[0,n],[1,n],[n,0],[n,1]])assert.deepEqual(Motion.growthPoint(stage,x,y,path.key),{x,y});
+    }
+    const anchor=Motion.feedingAnchor(stage,path.key),u=.5+(.628-.5)*.88,v=.92+(.499-.92)*.88;
+    const col=Math.floor(u*24),row=Math.floor(v*24),a=(row*24+col)*24,fx=u*24-col,fy=v*24-row;
+    const indices=fx+fy<=1?[a,a+8,a+4]:[a+12,a+16,a+20],weights=fx+fy<=1?[1-fx-fy,fx,fy]:[1-fy,1-fx,fx+fy-1];
+    const projected={x:0,y:0};indices.forEach((offset,i)=>{projected.x+=(mesh[offset]+1)/2*weights[i];projected.y+=(1-mesh[offset+1])/2*weights[i];});
+    assert.ok(Math.abs(projected.x-anchor.x)<.001&&Math.abs(projected.y-anchor.y)<.001,path.key+stage+': food mesh');
+    assert.equal(anchor.foodTop,anchor.y+.005); assert.equal(anchor.foodLeft,anchor.x-.11);
+    for(const name of Motion.situations){
+      f.api.setSituation(name,{elapsedMs:Math.min(1000,Motion.durations[name]/2)});
+      assert.equal(Math.floor(f.uniforms.u_effect[3]/2),outfit.index); assert.equal(f.raf.size,1);
+      for(const values of Object.values(f.uniforms))assert.ok((Array.isArray(values)?values:[values]).every(Number.isFinite));
+      const p=Motion.pose(1,name,1,stage,path.key);
+      for(const [key,value]of Object.entries(p))if(key!=='situation')assert.ok(Number.isFinite(value));
+      if(Motion.durations[name])assert.deepEqual(Motion.pose(10,name,Motion.durations[name]/1000,stage,path.key),Motion.pose(10,'idle',0,stage,path.key));
+    }
+    assert.equal(Motion.pose(2.2,'feeding',2.2,stage,path.key).chew,Motion.pose(2.2,'feeding',2.2,stage,'balanced').chew);
+    f.reduce(true);assert.equal(f.raf.size,0);assert.equal(f.uniforms.u_presence,0);assert.deepEqual(f.constants[2],[...path.rgb,path.index]);
+    f.api.destroy();assert.equal(f.deleted.length,f.created.length);
+  }
+});
+
+test('fur palettes preserve source shading and protect cream cheeks, eyes, mouth and expressive features', () => {
+  const fur=[.77,.66,.86],cream=[.96,.89,.78],iris=[.19,.10,.4],mouth=[.76,.25,.36],colors=new Set();
+  const lum=rgb=>rgb[0]*.299+rgb[1]*.587+rgb[2]*.114;
+  for(const path of Motion.evolutionCatalogue){
+    const tinted=Motion.evolutionFurColor(path.key,.30,.8,fur); colors.add(JSON.stringify(tinted));
+    assert.ok(tinted.every(x=>Number.isFinite(x)&&x>=0&&x<=1)); assert.ok(Math.abs(lum(tinted)-lum(fur))<1e-12);
+    for(const [x,y]of[[.397,.575],[.795,.482]])assert.deepEqual(Motion.evolutionFurColor(path.key,x,y,cream),cream);
+    for(const [x,y]of[[.4665,.429],[.7281,.3405]])assert.deepEqual(Motion.evolutionFurColor(path.key,x,y,iris),iris);
+    assert.deepEqual(Motion.evolutionFurColor(path.key,.628,.499,mouth),mouth);
+    // A brown expressive eyebrow is retained even when the base image there was fur.
+    assert.deepEqual(Motion.evolutionFurColor(path.key,.45,.28,fur,[.48,.29,.27]),[.48,.29,.27]);
+    assert.deepEqual(fur,[.77,.66,.86]);
+  }
+  assert.equal(colors.size,6);
+  const dark=Motion.evolutionFurColor('active',.30,.8,fur.map(x=>x*.65)),light=Motion.evolutionFurColor('active',.30,.8,fur);
+  assert.ok(lum(light)>lum(dark));
+});
+
+test('evolution paths keep fallbacks and resource cleanup intact without extra image loads', () => {
+  const failed=fixture({compileFailure:true,options:{evolutionPath:'active',outfit:'cloth_mint_knit'}});
+  assert.equal(failed.errors.length,1);assert.equal(failed.deleted.length,failed.created.length);assert.equal(failed.images.length,0);
+  const image=fixture({options:{evolutionPath:'calm'}});image.images[7].onerror();assert.deepEqual(image.errors,['image_failed']);assert.equal(image.canvas.hidden,true);
+  const f=fixture({options:{evolutionPath:'fruit',releaseContextOnDestroy:true}});f.complete();
+  f.api.setSituation('feeding',{elapsedMs:2200});f.hide(true);const draws=f.draws;f.advance(30000);assert.equal(f.draws,draws);
+  f.hide(false);assert.equal(f.uniforms.u_chew,0);assert.equal(f.images.length,8);f.api.destroy();assert.equal(f.released,1);assert.equal(f.raf.size,0);
 });
 
 test('clothing allowlist is frozen, has six real garment styles and never accepts arbitrary outfit values', () => {

@@ -69,6 +69,46 @@
   }
   function outfitUniform(id, anger) { var entry=outfitProfile(id); return (entry ? entry.index*2 : 0)+clamp(finite(anger,0),0,1); }
   function vecColor(values) { return 'vec3('+values.map(function (v) { return v.toFixed(3); }).join(',')+')'; }
+  var evolutionCatalogue = Object.freeze([
+    { key: 'balanced', label: 'のんびり', colorName: '薄紫', color: '#b5a0d9', earScale: 1, earDrop: 0, cheekWidth: 1, cheekRound: 1, bodyWidth: 1, bodyHeight: 1, tailScale: 1, tailLift: 0, cadence: 1, movingCadence: 1, bounce: 1 },
+    { key: 'fruit', label: 'はなほっぺ', colorName: '桃色', color: '#d99eae', earScale: .96, earDrop: .004, cheekWidth: 1.18, cheekRound: 1.12, bodyWidth: 1.01, bodyHeight: 1, tailScale: 1.05, tailLift: -.003, cadence: 1.01, movingCadence: 1, bounce: 1.02 },
+    { key: 'hearty', label: 'ぽかぽか', colorName: 'はちみつ色', color: '#d2ad70', earScale: 1.01, earDrop: 0, cheekWidth: 1.07, cheekRound: 1.06, bodyWidth: 1.12, bodyHeight: 1.04, tailScale: 1.12, tailLift: 0, cadence: .97, movingCadence: .97, bounce: .98 },
+    { key: 'sweet', label: 'おやつっこ', colorName: '杏色', color: '#dfa88b', earScale: .88, earDrop: .014, cheekWidth: 1.12, cheekRound: 1.10, bodyWidth: 1.06, bodyHeight: .96, tailScale: .94, tailLift: .009, cadence: .99, movingCadence: .98, bounce: 1.01 },
+    { key: 'active', label: 'そよかぜ', colorName: '空色', color: '#92b4d1', earScale: 1.12, earDrop: -.012, cheekWidth: .97, cheekRound: .98, bodyWidth: .97, bodyHeight: 1.04, tailScale: 1.17, tailLift: -.012, cadence: 1.08, movingCadence: 1.08, bounce: 1.08 },
+    { key: 'calm', label: 'まどろみ', colorName: 'ミント色', color: '#9dbfb0', earScale: 1.04, earDrop: .020, cheekWidth: 1.07, cheekRound: 1.07, bodyWidth: 1.06, bodyHeight: .96, tailScale: 1.12, tailLift: .005, cadence: .88, movingCadence: .92, bounce: .90 }
+  ].map(function (entry,index) { entry.index=index; entry.rgb=Object.freeze([1,3,5].map(function(start){return parseInt(entry.color.slice(start,start+2),16)/255;})); return Object.freeze(entry); }));
+  function evolutionProfile(key) {
+    if (typeof key === 'string') for (var i=0;i<evolutionCatalogue.length;i++) if(evolutionCatalogue[i].key===key)return evolutionCatalogue[i];
+    return evolutionCatalogue[0];
+  }
+  function evolutionPoint(path,inputX,inputY) {
+    var profile=evolutionProfile(path), x=clamp(finite(inputX,.5),0,1), y=clamp(finite(inputY,.5),0,1);
+    if(!profile.index)return {x:x,y:y};
+    var leftEar=regionWeight(x,y,.17,.345,.18,.15), rightEar=regionWeight(x,y,.82,.16,.15,.17);
+    var dx=(profile.earScale-1)*((x-.29)*leftEar+(x-.76)*rightEar);
+    var dy=(profile.earScale-1)*((y-.39)*leftEar+(y-.25)*rightEar)+profile.earDrop*(leftEar+rightEar);
+    var leftCheek=regionWeight(x,y,.397,.575,.145,.105), rightCheek=regionWeight(x,y,.795,.482,.13,.105);
+    dx+=(x-.59)*(profile.cheekWidth-1)*Math.max(leftCheek,rightCheek);
+    dy+=(profile.cheekRound-1)*((y-.575)*leftCheek+(y-.482)*rightCheek);
+    var belly=regionWeight(x,y,.53,.80,.26,.18);
+    dx+=(x-.55)*(profile.bodyWidth-1)*belly;
+    dy+=(y-.92)*(profile.bodyHeight-1)*belly;
+    var tail=regionWeight(x,y,.155,.728,.13,.18);
+    dx+=(profile.tailScale-1)*(x-.25)*tail;
+    dy+=((profile.tailScale-1)*(y-.72)+profile.tailLift)*tail;
+    var edge=smooth(x/.06)*smooth((1-x)/.06)*smooth(y/.06)*smooth((1-y)/.06);
+    return {x:x+dx*edge,y:y+dy*edge*smooth(Math.abs(y-.92)/.055)};
+  }
+  // Reference color sampling is also useful for verifying protected face features.
+  function furChroma(rgb) { return ramp(.015,.100,rgb[2]-rgb[1])*ramp(-.025,.035,rgb[2]-rgb[0]); }
+  function evolutionFurColor(path,x,y,source,painted) {
+    var profile=evolutionProfile(path), original=source.slice(0,3), color=(painted||source).slice(0,3);
+    if(!profile.index)return color;
+    var features=Math.max(clothEllipse(x,y,.4665,.429,.16,.145),clothEllipse(x,y,.7281,.3405,.137,.14),clothEllipse(x,y,.625,.48,.105,.095));
+    var amount=furChroma(original)*furChroma(color)*(1-features)*.92;
+    var lum=color[0]*.299+color[1]*.587+color[2]*.114, paletteLum=profile.rgb[0]*.299+profile.rgb[1]*.587+profile.rgb[2]*.114;
+    return color.map(function(value,i){return value+(clamp(profile.rgb[i]*lum/Math.max(.2,paletteLum),0,1)-value)*amount;});
+  }
   // Geometry stages use the same original and facial textures. No stage grants EXP.
   var growthProfiles = Object.freeze({
     egg: Object.freeze({ key: 'egg', label: 'うまれたて', overallScale: .70, headWidth: 1.12, headHeight: 1.08, bodyWidth: .86, bodyHeight: .72, earScale: .78, tailScale: .68, cadence: 1.18, movingCadence: 1.16 }),
@@ -82,8 +122,8 @@
   function regionWeight(x, y, cx, cy, rx, ry) { var dx = (x - cx) / rx, dy = (y - cy) / ry; return Math.exp(-2 * (dx * dx + dy * dy)); }
   // Forward normalized coordinates. Boundary taper fixes all four frame edges, and
   // the foot line remains grounded. The exact same map positions the food prop.
-  function growthPoint(stage, inputX, inputY) {
-    var profile = growthProfile(stage), x = clamp(finite(inputX, .5), 0, 1), y = clamp(finite(inputY, .5), 0, 1);
+  function growthPoint(stage, inputX, inputY, evolutionPath) {
+    var profile = growthProfile(stage), branchPoint=evolutionPoint(evolutionPath,inputX,inputY), x=branchPoint.x, y=branchPoint.y;
     if (profile.key === 'child') return { x: x, y: y };
     var head = 1 - smooth((y - .58) / .20);
     var width = profile.bodyWidth + (profile.headWidth - profile.bodyWidth) * head;
@@ -100,16 +140,16 @@
     var grounded = smooth(Math.abs(y - .92) / .055);
     return { x: x + dx * edge, y: y + dy * edge * grounded };
   }
-  function feedingAnchor(stage) {
+  function feedingAnchor(stage, evolutionPath) {
     var profile = growthProfile(stage);
-    var point = growthPoint(profile.key, .5 + (.628 - .5) * .88, .92 + (.499 - .92) * .88);
+    var point = growthPoint(profile.key, .5 + (.628 - .5) * .88, .92 + (.499 - .92) * .88, evolutionPath);
     var x = .5 + (point.x - .5) * profile.overallScale, y = .92 + (point.y - .92) * profile.overallScale;
     return { x: x, y: y, foodLeft: x - .11, foodTop: y + .005 };
   }
-  function growthMesh(stage) {
+  function growthMesh(stage, evolutionPath) {
     var profile = growthProfile(stage), columns = 24, values = new Float32Array(columns * columns * 6 * 4), cursor = 0;
     function vertex(x, y) {
-      var point = growthPoint(stage, x, y);
+      var point = growthPoint(stage, x, y, evolutionPath);
       var targetX = .5 + (point.x - .5) * profile.overallScale, targetY = .92 + (point.y - .92) * profile.overallScale;
       values[cursor++] = targetX * 2 - 1; values[cursor++] = 1 - targetY * 2;
       values[cursor++] = x; values[cursor++] = y;
@@ -157,9 +197,9 @@
       nextBoundaryMs: end, done: end === null };
   }
   // Pure profiles in seconds. Emotions ease in and settle to the exact underlying idle pose.
-  function pose(seconds, situation, elapsedSeconds, growthStage) {
-    var profile = growthProfile(growthStage), rawSeconds = Math.max(0, finite(seconds, 0));
-    var s = rawSeconds * profile.cadence, t = s % 12, name = known(situation);
+  function pose(seconds, situation, elapsedSeconds, growthStage, evolutionPath) {
+    var profile = growthProfile(growthStage), branch=evolutionProfile(evolutionPath), rawSeconds = Math.max(0, finite(seconds, 0));
+    var s = rawSeconds * profile.cadence * branch.cadence, t = s % 12, name = known(situation);
     var age = Math.max(0, finite(elapsedSeconds, rawSeconds)), duration = durations[name] / 1000;
     if (name !== 'idle' && age >= duration) name = 'idle';
     var tilt = Math.sin((t - 2.8) / 4.2 * PI) * envelope(t - 2.8, 4.2);
@@ -241,7 +281,7 @@
         p.blush = .35 * celebrating;
         break;
       }
-      case 'moving': p.step = Math.sin(age * TAU * 2 * profile.movingCadence); p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step; p.shiftX = .018 * Math.sin(age * PI * 1.2); p.wave = .25; p.ear += .4 * p.step; break;
+      case 'moving': p.step = Math.sin(age * TAU * 2 * profile.movingCadence * branch.movingCadence); p.bounce = .25 * Math.abs(p.step); p.bodyAngle = .035 * p.step; p.shiftX = .018 * Math.sin(age * PI * 1.2); p.wave = .25; p.ear += .4 * p.step; break;
       case 'caught': p.bounce = .75 * Math.pow(Math.sin(age * PI * 1.4), 2); p.wave = 1; p.pawSpread = -.3; p.faceDelighted = .8; p.ear += .85; p.tail += .7; p.stretch = .5; break;
       case 'dance': p.faceDelighted = .75; p.bodyAngle = .085 * Math.sin(age * PI * 1.3); p.shiftX = .025 * Math.sin(age * PI * 1.3); p.step = Math.sin(age * TAU * 1.3); p.bounce = .35 * Math.abs(p.step); p.wave = .7; p.wiggle = fast; p.pawSpread = .8 * beat; p.tail += 1.1 * beat; break;
       case 'celebrate': p.faceDelighted = 1; p.bounce = .95 * hop; p.wave = 1.15; p.pawSpread = 1.1; p.stretch = .65; p.bodyAngle = .05 * beat; p.ear += 1; p.tail += 1.2 * fast; p.mouthOpen = .6; break;
@@ -252,7 +292,8 @@
       'faceSad', 'faceAngry', 'faceSurprise', 'faceDelighted', 'tear', 'blush', 'sweat', 'anger', 'eyeNarrow', 'mouthOpen'].forEach(function (key) { p[key] *= e; });
     p.tilt *= e;
     // Retain the idle motion while releasing a cue; no frozen hold or sudden final snap.
-    var idle = pose(rawSeconds, 'idle', 0, profile.key);
+    var idle = pose(rawSeconds, 'idle', 0, profile.key, branch.key);
+    p.bounce *= branch.bounce;
     p.tilt += idle.tilt * (1 - e);
     p.breath = idle.breath + (p.breath - idle.breath) * e;
     p.ear = idle.ear + (p.ear - idle.ear) * e;
@@ -328,10 +369,18 @@
     '}',
     'cloth=mix(cloth,trim,clamp(seam,0.,1.)*.48);return vec4(cloth,mask);}'
   ].join('\n');
-  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; varying vec2 v_uv; void main(){v_uv=a_uv;gl_Position=vec4(a_position,0.,1.);}';
+  var evolutionShader = [
+    'float furSelect(vec3 c){return smoothstep(.015,.100,c.b-c.g)*smoothstep(-.025,.035,c.b-c.r);}',
+    'vec3 evolvedFur(vec2 p,vec3 original,vec3 painted){if(v_evolution.a<.5)return painted;',
+    'float features=max(max(ce(p,vec2(.4665,.429),vec2(.16,.145)),ce(p,vec2(.7281,.3405),vec2(.137,.14))),ce(p,vec2(.625,.48),vec2(.105,.095)));',
+    'float amount=furSelect(original)*furSelect(painted)*(1.-features)*.92;',
+    'float lum=dot(painted,vec3(.299,.587,.114));float targetLum=max(.2,dot(v_evolution.rgb,vec3(.299,.587,.114)));',
+    'vec3 tinted=clamp(v_evolution.rgb*lum/targetLum,vec3(0.),vec3(1.));return mix(painted,tinted,amount);}'
+  ].join('\n');
+  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; attribute vec4 a_evolution; varying vec2 v_uv; varying vec4 v_evolution; void main(){v_uv=a_uv;v_evolution=a_evolution;gl_Position=vec4(a_position,0.,1.);}';
   var fragmentSource = [
     '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
-    'varying vec2 v_uv; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
+    'varying vec2 v_uv; varying vec4 v_evolution; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
     'uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail;',
     '#define u_breath u_motionA.x', '#define u_tilt u_motionA.y', '#define u_ear u_motionA.z', '#define u_tail u_motionA.w',
     '#define u_wave u_motionB.x', '#define u_wiggle u_motionB.y', '#define u_blink u_motionB.z', '#define u_chew u_motionB.w',
@@ -344,7 +393,7 @@
     'mat2 rotation(float a){return mat2(cos(a),-sin(a),sin(a),cos(a));}',
     'float eyeMask(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.85,1.1,length(rotation(.28)*(p-c)/r));}',
     'float droplet(vec2 p,vec2 c,vec2 r){vec2 q=(p-c)/r;return 1.-smoothstep(.75,1.05,dot(q,q));}',
-    clothingShader,
+    clothingShader, evolutionShader,
     'void main(){vec2 anchor=vec2(.5,.92);float margin=1.-.12*u_presence;',
     'vec2 p=(v_uv-anchor)/(u_scale*margin)+anchor;p-=vec2(u_shiftX,u_shiftY);p=anchor+rotation(u_bodyAngle)*(p-anchor);',
     'p=(p-anchor)/vec2(1.+.085*u_squash,1.-.075*u_squash+.07*u_stretch-.055*u_crouch)+anchor;',
@@ -368,7 +417,7 @@
     'float iris=region(p,vec2(.4665,.429),vec2(.052,.059))+region(p,vec2(.7281,.3405),vec2(.045,.065));',
     'p-=u_look*iris*(1.-u_blink);vec2 uv=clamp(p,vec2(.0001),vec2(.9999));',
     'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)));',
-    'vec3 rgb=texture2D(u_original,uv).rgb;',
+    'vec3 original=texture2D(u_original,uv).rgb;vec3 rgb=original;',
     // Pose scores select one face, not a permanent opacity. A held expression must
     // replace the old eyes completely; only the cue envelope fades between faces.
     'vec3 expression=rgb;float strongest=0.;float delighted=0.;',
@@ -382,6 +431,7 @@
     'float blink=u_blink*(1.-delighted*u_presence);',
     'rgb=mix(rgb,texture2D(u_half,uv).rgb,eye*smoothstep(0.,.5,blink));',
     'rgb=mix(rgb,texture2D(u_closed,uv).rgb,eye*smoothstep(.5,1.,blink));',
+    'rgb=evolvedFur(p,original,rgb);',
     'float blush=region(p,vec2(.405,.55),vec2(.062,.04))+region(p,vec2(.80,.445),vec2(.047,.037));',
     'rgb=mix(rgb,vec3(.99,.48,.67),clamp(blush*u_blush*.25,0.,.3));',
     'float fall=fract(u_phase*.85);float tears=max(droplet(p,vec2(.414,.51+.085*fall),vec2(.009,.018)),droplet(p,vec2(.78,.415+.07*fall),vec2(.008,.016)));',
@@ -390,7 +440,7 @@
     'vec2 mark=rotation(.3)*(p-vec2(.62,.245));float redMark=(1.-smoothstep(.003,.006,abs(abs(mark.x)-.012)))*(1.-smoothstep(.014,.02,abs(mark.y)));',
     'redMark=max(redMark,(1.-smoothstep(.003,.006,abs(abs(mark.y)-.012)))*(1.-smoothstep(.014,.02,abs(mark.x))));',
     'rgb=mix(rgb,vec3(.76,.13,.35),redMark*u_anger*.8);',
-    'if(u_outfit>.5){vec4 garment=clothing(p,texture2D(u_original,uv).rgb,u_outfit);rgb=mix(rgb,garment.rgb,garment.a);}',
+    'if(u_outfit>.5){vec4 garment=clothing(p,original,u_outfit);rgb=mix(rgb,garment.rgb,garment.a);}',
     'float a=texture2D(u_alpha,uv).a;if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb,a);}'
   ].join('\n');
 
@@ -402,7 +452,7 @@
     var gl, dead = false, loaded = false, readyNotified = false, pageVisible = true, frame = null, timer = null, observer = null;
     var media = null, removers = [], images = [], resources = [], locations = {};
     var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
-    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), selectedOutfit = outfitProfile(options.outfit), vertexCount = 0;
+    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit), vertexCount = 0;
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
     function listen(target, type, callback) {
       if (!target || typeof target.addEventListener !== 'function') return;
@@ -479,7 +529,7 @@
         var age = cueMs + Math.max(0, finite(clock(), cueAnchor) - cueAnchor);
         if (cue !== 'idle' && age >= cueDuration) { cue = 'idle'; cueMs = 0; cueDuration = 0; }
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
-        var p = reduced ? pose(0, 'idle', 0, stageProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key);
+        var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key, branchProfile.key);
         if (reduced) { p.tail = 0; }
         gl.viewport(0, 0, canvas.width, canvas.height);
         p.scale = scale; p.anger = outfitUniform(selectedOutfit && selectedOutfit.id, p.anger);
@@ -512,15 +562,23 @@
       var program = own('createProgram');
       gl.attachShader(program, shader(gl.VERTEX_SHADER, vertexSource));
       gl.attachShader(program, shader(gl.FRAGMENT_SHADER, fragmentSource));
+      // Attribute zero always remains an enabled position array. The branch is
+      // a constant attribute, leaving all fragment sampler/uniform limits intact.
+      gl.bindAttribLocation(program, 0, 'a_position');
+      gl.bindAttribLocation(program, 1, 'a_uv');
+      gl.bindAttribLocation(program, 2, 'a_evolution');
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link');
       gl.useProgram(program);
       var buffer = own('createBuffer'); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-      var mesh = growthMesh(stageProfile.key); vertexCount = mesh.length / 4;
+      var mesh = growthMesh(stageProfile.key, branchProfile.key); vertexCount = mesh.length / 4;
       gl.bufferData(gl.ARRAY_BUFFER, mesh, gl.STATIC_DRAW);
       var position = gl.getAttribLocation(program, 'a_position'), uv = gl.getAttribLocation(program, 'a_uv');
       gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 16, 0);
       gl.enableVertexAttribArray(uv); gl.vertexAttribPointer(uv, 2, gl.FLOAT, false, 16, 8);
+      var branchAttribute = gl.getAttribLocation(program, 'a_evolution');
+      gl.disableVertexAttribArray(branchAttribute);
+      gl.vertexAttrib4f(branchAttribute, branchProfile.rgb[0], branchProfile.rgb[1], branchProfile.rgb[2], branchProfile.index);
       Object.keys(packedUniforms).forEach(function (key) { locations[key] = gl.getUniformLocation(program, 'u_' + key); });
       var samplerNames = ['u_original', 'u_half', 'u_closed', 'u_alpha', 'u_sad', 'u_angry', 'u_surprise', 'u_delighted'];
       var textures = assets.map(function (_, i) { gl.uniform1i(gl.getUniformLocation(program, samplerNames[i]), i); return own('createTexture'); });
@@ -561,6 +619,6 @@
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
+  return Object.freeze({ mount: mount, pose: pose, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     catalogue: catalogue, durations: durations, situations: Object.freeze(Object.keys(durations)), sourceType: '2d_image_motion' });
 });

@@ -17,6 +17,14 @@
     {key:'adult',label:'おとな',min:400},
     {key:'companion',label:'なかよしの姿',min:800}
   ].map(function(stage){return Object.freeze(stage);}));
+  var lilacEvolutionPaths = Object.freeze([
+    {key:'balanced',label:'のんびり',colorName:'薄紫',color:'#b5a0d9',description:'毎日のふれあいを大切にする、のんびりした姿。',hint:'日を分けて続けたり、ごはん・なでる・休むを組み合わせよう。'},
+    {key:'fruit',label:'はなほっぺ',colorName:'桃色',color:'#d99eae',description:'くだもののお世話から育つ、はなやかなほっぺの姿。',hint:'いつものごはんや、りんご・いちごが好き。'},
+    {key:'hearty',label:'ぽかぽか',colorName:'はちみつ色',color:'#d2ad70',description:'しっかりしたごはんから育つ、あたたかな姿。',hint:'おにぎりや、ごちそうのお世話をしてみよう。'},
+    {key:'sweet',label:'おやつっこ',colorName:'杏色',color:'#dfa88b',description:'おやつのお世話から育つ、やさしい杏色の姿。',hint:'ケーキのお世話をしてみよう。'},
+    {key:'active',label:'そよかぜ',colorName:'空色',color:'#92b4d1',description:'いっしょに遊んで育つ、軽やかな姿。',hint:'なでたり、ミニゲームで遊んでみよう。'},
+    {key:'calm',label:'まどろみ',colorName:'ミント色',color:'#9dbfb0',description:'休むお世話から育つ、おだやかな姿。',hint:'ゆっくり休む時間を作ってみよう。'}
+  ].map(function(path){return Object.freeze(path);}));
   var LIMITS = {care:{feed:3,play:3,rest:3},minigamesPerDay:3,maxScore:30,minigameDurationMs:25000,
     marketAdvancesPerDay:12,feeRate:0.01,minFee:1,dividendEvery:5};
   var STOCKS = [
@@ -107,8 +115,81 @@
     exp=typeof exp==='number'&&Number.isFinite(exp)?Math.max(0,Math.min(MAX,exp)):0;
     var i=0;while(i+1<lilacGrowthStages.length&&exp>=lilacGrowthStages[i+1].min)i++;
     var s=clone(lilacGrowthStages[i]);s.next=i+1<lilacGrowthStages.length?lilacGrowthStages[i+1].min:null;
+    if(s.key==='companion'){s.min=Math.floor(exp/800)*800;s.next=s.min<=MAX-800?s.min+800:null;}
     s.progress=s.next===null?100:Math.max(0,Math.min(100,Math.round((exp-s.min)/(s.next-s.min)*100)));
     s.remaining=s.next===null?0:s.next-exp;return s;
+  }
+  function evolutionPath(key) {return lilacEvolutionPaths.find(function(path){return path.key===key;});}
+  function evolutionScores() {var scores={};lilacEvolutionPaths.forEach(function(path){scores[path.key]=0;});return scores;}
+  function exactKeys(value,keys) {return plain(value)&&Object.keys(value).length===keys.length&&keys.every(function(key){return own(value,key);});}
+  function dayOrdinal(day) {var parts=day.split('-').map(Number);return Math.floor(Date.UTC(parts[0],parts[1]-1,parts[2])/86400000);}
+  function validateEvolution(e,s) {
+    check(exactKeys(e,['version','startedAt','startedDay','baselineExp','lastAt','lastDay','activeDays','routineDays','meals','care','scores','day','history'])&&e.version===1,'corrupt_data');
+    check(integer(e.startedAt)&&integer(e.lastAt)&&e.startedAt>=s.createdAt&&e.lastAt>=e.startedAt,'corrupt_data');
+    check(integer(e.baselineExp)&&e.baselineExp<=s.pet.exp&&validDay(e.startedDay,false)&&validDay(e.lastDay,false)&&e.lastDay>=e.startedDay,'corrupt_data');
+    check(integer(e.activeDays)&&e.activeDays>=1&&e.activeDays<=dayOrdinal(e.lastDay)-dayOrdinal(e.startedDay)+1,'corrupt_data');
+    check(integer(e.routineDays)&&e.routineDays<e.activeDays&&integer(e.meals)&&e.meals<=e.activeDays*3,'corrupt_data');
+    check(exactKeys(e.care,['feed','play','rest']),'corrupt_data');
+    ['feed','play','rest'].forEach(function(key){check(integer(e.care[key])&&e.care[key]<=e.activeDays*3,'corrupt_data');});
+    check(e.care.feed<=e.meals&&e.meals+e.care.play+e.care.rest>=e.activeDays,'corrupt_data');
+    var scoreKeys=lilacEvolutionPaths.map(function(path){return path.key;});check(exactKeys(e.scores,scoreKeys),'corrupt_data');
+    scoreKeys.forEach(function(key){check(integer(e.scores[key]),'corrupt_data');});
+    check(e.scores.fruit+e.scores.hearty+e.scores.sweet<=e.meals*3-e.care.feed&&e.scores.active<=e.care.play*3&&e.scores.calm<=e.care.rest*3,'corrupt_data');
+    check(e.scores.balanced<=e.routineDays*3+Math.min(e.activeDays,e.meals,e.care.play,e.care.rest)*4,'corrupt_data');
+    check(exactKeys(e.day,['meals','play','rest']),'corrupt_data');
+    ['meals','play','rest'].forEach(function(key){check(integer(e.day[key])&&e.day[key]<=3,'corrupt_data');});
+    check(e.day.meals+e.day.play+e.day.rest>0&&e.day.meals<=e.meals&&e.day.play<=e.care.play&&e.day.rest<=e.care.rest,'corrupt_data');
+    check(Array.isArray(e.history)&&e.history.length<=12,'corrupt_data');var previousMin=e.baselineExp,previousAt=e.startedAt;
+    e.history.forEach(function(entry){
+      check(exactKeys(entry,['stageKey','min','branch','at']),'corrupt_data');
+      var stage=lilacGrowthStages.find(function(row){return row.key===entry.stageKey;});
+      check(stage&&stage.min>0&&integer(entry.min)&&(stage.key==='companion'?entry.min>=800&&entry.min%800===0:entry.min===stage.min)&&entry.min>previousMin&&entry.min<=s.pet.exp&&!!evolutionPath(entry.branch),'corrupt_data');
+      check(integer(entry.at)&&entry.at>=previousAt&&entry.at<=e.lastAt,'corrupt_data');previousMin=entry.min;previousAt=entry.at;
+    });
+    return e;
+  }
+  function bestEvolution(scores,previous) {
+    var max=0,winners=[];lilacEvolutionPaths.forEach(function(path){var score=scores[path.key];if(score>max){max=score;winners=[path.key];}else if(score===max&&score>0)winners.push(path.key);});
+    return max===0?previous:winners.length===1?winners[0]:'balanced';
+  }
+  function getLilacEvolution(s) {
+    var e=s&&s.evolution,exp=s&&s.pet?s.pet.exp:0;
+    if(e){try{validateEvolution(e,s);}catch(_){e=null;}}
+    var previous=e&&e.history.length?e.history[e.history.length-1].branch:'balanced';
+    var scores=e?clone(e.scores):evolutionScores(),hasScores=lilacEvolutionPaths.some(function(path){return scores[path.key]>0;});
+    return {current:clone(evolutionPath(previous)),tendency:hasScores?clone(evolutionPath(bestEvolution(scores,previous))):null,
+      tracked:!!e,activeDays:e?e.activeDays:0,routineDays:e?e.routineDays:0,meals:e?e.meals:0,
+      care:e?clone(e.care):{feed:0,play:0,rest:0},scores:scores,startedAt:e?e.startedAt:null,baselineExp:e?e.baselineExp:null,
+      history:e?clone(e.history):[],nextAt:getLilacGrowth(exp).next};
+  }
+  // Only future, successfully saved B care contributes. Older totals are never
+  // reconstructed into meals or daily frequency, and interval resets keep caps.
+  function recordEvolution(next,beforeExp,kind,ms) {
+    if(next.pet.species!=='lilac'||next.pet.exp<=beforeExp)return;
+    check(ms>=next.updatedAt&&ms>=next.createdAt,'clock_moved_back');
+    var day=dayKey(ms),e=next.evolution;
+    if(!e)e=next.evolution={version:1,startedAt:ms,startedDay:day,baselineExp:beforeExp,lastAt:ms,lastDay:day,
+      activeDays:1,routineDays:0,meals:0,care:{feed:0,play:0,rest:0},scores:evolutionScores(),day:{meals:0,play:0,rest:0},history:[]};
+    else {
+      check(ms>=e.lastAt&&day>=e.lastDay,'clock_moved_back');
+      if(day!==e.lastDay){
+        if(dayOrdinal(day)-dayOrdinal(e.lastDay)===1){e.routineDays++;e.scores.balanced+=3;}
+        e.activeDays++;e.day={meals:0,play:0,rest:0};e.lastDay=day;
+      }
+      e.lastAt=ms;
+    }
+    var allKinds=e.day.meals>0&&e.day.play>0&&e.day.rest>0;
+    if(kind==='play'){if(e.day.play<3){e.day.play++;e.care.play++;e.scores.active+=3;}}
+    else if(kind==='rest'){if(e.day.rest<3){e.day.rest++;e.care.rest++;e.scores.calm+=3;}}
+    else if(e.day.meals<3){e.day.meals++;e.meals++;if(kind==='feed')e.care.feed++;e.scores[kind==='feed'?'fruit':kind]+=kind==='feed'?2:3;}
+    if(!allKinds&&e.day.meals>0&&e.day.play>0&&e.day.rest>0)e.scores.balanced+=4;
+    var boundary=getLilacGrowth(beforeExp).next;
+    if(boundary!==null&&boundary<=next.pet.exp){
+      var previous=e.history.length?e.history[e.history.length-1].branch:'balanced';
+      var stage=boundary>=800?'companion':lilacGrowthStages.find(function(row){return row.min===boundary;}).key;
+      e.history.push({stageKey:stage,min:boundary,branch:bestEvolution(e.scores,previous),at:ms});
+      if(e.history.length>12)e.history.shift();e.scores=evolutionScores();
+    }
   }
   function market() {
     var m={day:1,prices:{},previous:{},holdings:{},realizedProfit:0,dividends:0,feesPaid:0,
@@ -128,6 +209,7 @@
     check(plain(s.pet)&&text(s.pet.name,40)&&['dragon','bunny','lilac'].indexOf(s.pet.species)>=0&&integer(s.pet.exp),'corrupt_data');
     check(s.pet.path===undefined||['cute','cool'].indexOf(s.pet.path)>=0,'corrupt_data');check(s.pet.pixel===undefined||typeof s.pet.pixel==='boolean','corrupt_data');
     check(integer(s.coins),'corrupt_data');counts(s.inventory);
+    if(own(s,'evolution'))validateEvolution(s.evolution,s);
     // Older v3 records/backups need no write merely to add an empty wardrobe.
     if(own(s,'wardrobe')) {
       var wardrobe=s.wardrobe;
@@ -255,7 +337,7 @@
       } catch(e){loading=false;blocked=true;return failure(e);}
     });
     function act(next,a,ms) {
-      check(plain(a)&&text(a.type,40),'invalid_action');var day=dayKey(ms),reward={};
+      check(plain(a)&&text(a.type,40),'invalid_action');var day=dayKey(ms),reward={},beforeExp=next.pet.exp,evolutionKind=null;
       if(a.type==='care') {
         check(own(LIMITS.care,a.kind),'invalid_action');var c=next.care;
         if(day!==c.day){check(day>c.day,'clock_moved_back');c.day=day;c.counts={feed:0,play:0,rest:0};}
@@ -263,6 +345,7 @@
         var xp={feed:8,play:5,rest:4}[a.kind];next.pet.exp+=xp;c.lastCareAt=ms;reward.exp=xp;reward.coins=0;
         if(c.dailyRewardDay!==day){check(!c.dailyRewardDay||day>c.dailyRewardDay,'clock_moved_back');c.dailyRewardDay=day;next.coins+=10;reward.coins=10;}
         if(c.total.feed>=20)achievement(next,'feed20');if(c.total.play>=50)achievement(next,'pet50');
+        evolutionKind=a.kind==='feed'?'feed':a.kind;
       } else if(a.type==='rename') {
         check(text(a.name,40),'invalid_name');next.pet.name=a.name.trim();
       } else if(a.type==='chooseSpecies') {
@@ -284,6 +367,7 @@
         else {var bg=it.id.slice(3);check(next.decorations.backgrounds.indexOf(bg)<0,'already_owned');next.coins-=it.price;next.decorations.backgrounds.push(bg);}
       } else if(a.type==='useItem') {
         var food=item(a.itemId);check(food&&food.type==='food','invalid_item');check(next.inventory[a.itemId]>0,'not_owned');next.inventory[a.itemId]--;next.pet.exp+=food.exp;next.care.lastCareAt=ms;reward.exp=food.exp;
+        evolutionKind=food.id==='apple'||food.id==='berry'?'fruit':food.id==='cake'?'sweet':'hearty';
       } else if(a.type==='equip') {
         if(a.itemId===null)next.decorations.equipped=null;
         else if(typeof a.itemId==='string'&&a.itemId.indexOf('bg_')===0){var bgid=a.itemId.slice(3);check(next.decorations.backgrounds.indexOf(bgid)>=0,'not_owned');next.decorations.background=bgid;}
@@ -307,6 +391,7 @@
           reward.coins=a.score;reward.exp=Math.min(10,Math.ceil(a.score/2));next.coins+=reward.coins;next.pet.exp+=reward.exp;next.care.lastCareAt=ms;mg.bestScore=Math.max(mg.bestScore,a.score);
           if(a.score>=15)achievement(next,'mg15');
           if(a.score>0){var foods=['apple','cake','berry','rice'];var foodId=foods[Math.floor(random()*foods.length)];next.inventory[foodId]=(next.inventory[foodId]||0)+1;reward.items=[{id:foodId,count:1}];}
+          if(a.score>0&&reward.exp>0)evolutionKind='play';
         }
         mg.completed.push(mg.active.id);if(mg.completed.length>64)mg.completed.shift();mg.active=null;
       } else if(a.type==='advanceMarketDay') {
@@ -344,6 +429,7 @@
           h.quantity+=q;h.costBasis+=r.market.cost[x.id];});next.market.legacyPriceSnapshot=clone(r.market.price);}
         next.market.legacyPot=clone(r.pot);r.transferred=true;r.available=false;reward.coins=r.coins;reward.exp=r.exp;
       } else fail('invalid_action','この操作には対応していません。');
+      if(evolutionKind)recordEvolution(next,beforeExp,evolutionKind,ms);
       if(next.pet.exp>=110)achievement(next,'final');if(next.coins>=100)achievement(next,'rich');
       if(Object.keys(next.decorations.owned).length>=3)achievement(next,'deco3');if(Object.keys(next.decorations.owned).length>=7)achievement(next,'deco7');
       return reward;
@@ -361,12 +447,12 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacEvolution:getLilacEvolution,
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
   }
-  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
+  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
 }));

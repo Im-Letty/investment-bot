@@ -28,7 +28,7 @@ test('lilac visual growth exposes all six boundaries without changing legacy sta
     ['final','わかもの',110],['adult','おとな',400],['companion','なかよしの姿',800]];
   assert.deepEqual(Core.lilacGrowthStages.map(({key,label,min})=>[key,label,min]),expected);
   expected.forEach(([key,label,min],i)=>{
-    const next=i+1<expected.length?expected[i+1][2]:null;
+    const next=i+1<expected.length?expected[i+1][2]:1600;
     assert.deepEqual(Core.getLilacGrowth(min),{key,label,min,next,progress:next===null?100:0,remaining:next===null?0:next-min});
     if(next!==null){
       const before=Core.getLilacGrowth(next-1);
@@ -57,7 +57,7 @@ test('lilac growth accepts finite numbers and safely normalizes invalid or out o
     assert.deepEqual(Core.getLilacGrowth(invalid),initial);
   }
   assert.deepEqual(Core.getLilacGrowth(-1),initial);assert.deepEqual(Core.getLilacGrowth(-Number.MAX_VALUE),initial);
-  assert.deepEqual(Core.getLilacGrowth(Number.MAX_VALUE),{key:'companion',label:'なかよしの姿',min:800,next:null,progress:100,remaining:0});
+  assert.deepEqual(Core.getLilacGrowth(Number.MAX_VALUE),{key:'companion',label:'なかよしの姿',min:9000000000000,next:null,progress:100,remaining:0});
   assert.deepEqual(Core.getLilacGrowth(45.5),{key:'child',label:'こども',min:45,next:110,progress:1,remaining:64.5});
 });
 
@@ -75,6 +75,211 @@ test('reading lilac growth and reopening a 373 EXP record grants no EXP, coins o
   assert.equal(reopened.getState().pet.exp,373);assert.equal(reopened.getState().coins,765);
   assert.deepEqual(reopened.getState().achievements,record.achievements);
   assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+});
+
+async function evolutionGame(exp=373,extra={}) {
+  return game({pg_exp:String(exp),pg_coins:'355',pg_name:'そのまま',pg_items:'{"apple":30,"berry":30,"cake":30,"rice":30,"feast":30}',...extra});
+}
+function evolution(g) {return Core.getLilacEvolution(g.app.getState());}
+
+test('evolution paths are frozen independent metadata and old 373 EXP records have no invented care history',async()=>{
+  assert.deepEqual(Core.lilacEvolutionPaths.map(p=>[p.key,p.label,p.colorName,p.color]),[
+    ['balanced','のんびり','薄紫','#b5a0d9'],['fruit','はなほっぺ','桃色','#d99eae'],
+    ['hearty','ぽかぽか','はちみつ色','#d2ad70'],['sweet','おやつっこ','杏色','#dfa88b'],
+    ['active','そよかぜ','空色','#92b4d1'],['calm','まどろみ','ミント色','#9dbfb0']]);
+  assert.ok(Object.isFrozen(Core.lilacEvolutionPaths));
+  Core.lilacEvolutionPaths.forEach(p=>{assert.ok(Object.isFrozen(p));assert.ok(p.description&&p.hint);});
+  assert.throws(()=>{Core.lilacEvolutionPaths[0].color='changed';},TypeError);
+  const base=await evolutionGame(),old=persisted(base.storage);old.care.total={feed:50,play:55,rest:70};
+  old.wardrobe={owned:{cloth_rose_cape:true},equipped:'cloth_rose_cape'};
+  const raw=JSON.stringify(old),g=await game({[Core.KEY]:raw}),summary=evolution(g);
+  assert.equal(summary.current.key,'balanced');assert.equal(summary.tendency,null);assert.equal(summary.tracked,false);
+  assert.equal(summary.activeDays,0);assert.equal(summary.routineDays,0);assert.equal(summary.meals,0);
+  assert.deepEqual(summary.care,{feed:0,play:0,rest:0});assert.deepEqual(summary.history,[]);
+  assert.equal(summary.startedAt,null);assert.equal(summary.baselineExp,null);assert.equal(summary.nextAt,400);
+  summary.current.color='changed';assert.equal(evolution(g).current.color,'#b5a0d9');
+  assert.equal(g.app.getState().pet.exp,373);assert.equal(g.app.getState().coins,355);
+  assert.deepEqual(g.app.getState().wardrobe,old.wardrobe);assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+  const reopened=Core.create(g.options);assert.equal((await reopened.ready).ok,true);assert.equal(g.storage.writes.length,0);
+  assert.equal(reopened.getLilacEvolution(reopened.getState()).tracked,false);assert.equal(g.storage.data.get(Core.KEY),raw);
+});
+
+test('first real B care starts prospectively and current colour changes only at the next future boundary',async()=>{
+  const g=await evolutionGame(),before=persisted(g.storage);
+  const first=await command(g,'care',{kind:'feed'});assert.equal(first.ok,true);assert.equal(first.state.pet.exp,381);
+  const hint=evolution(g);assert.equal(hint.baselineExp,373);assert.equal(hint.startedAt,g.options.now());
+  assert.equal(hint.current.key,'balanced');assert.equal(hint.tendency.key,'fruit');assert.equal(hint.meals,1);assert.equal(hint.care.feed,1);
+  assert.equal(hint.scores.fruit,2);assert.equal(hint.activeDays,1);assert.deepEqual(hint.history,[]);assert.equal(hint.nextAt,400);
+  assert.equal(first.state.coins,before.coins+10);assert.deepEqual(first.state.wardrobe,before.wardrobe);
+  await command(g,'care',{kind:'feed'});await command(g,'care',{kind:'feed'});assert.equal(g.app.getState().pet.exp,397);
+  await command(g,'useItem',{itemId:'apple'});
+  assert.deepEqual(evolution(g).history,[{stageKey:'adult',min:400,branch:'fruit',at:g.options.now()}]);
+  assert.equal(evolution(g).current.key,'fruit');assert.equal(evolution(g).tendency,null);assert.equal(evolution(g).nextAt,800);
+  assert.equal(evolution(g).meals,3,'the fourth meal still gives its existing EXP but no extra evolution credit');
+});
+
+test('food and care choices independently select every evolution branch with the specified weights',async()=>{
+  for(const [exp,type,value,key] of [[397,'useItem','apple','fruit'],[398,'useItem','berry','fruit'],
+    [396,'useItem','rice','hearty'],[380,'useItem','feast','hearty'],[394,'useItem','cake','sweet'],
+    [395,'care','play','active'],[396,'care','rest','calm'],[392,'care','feed','fruit']]){
+    const g=await evolutionGame(exp);const r=await command(g,type,type==='care'?{kind:value}:{itemId:value});assert.equal(r.ok,true,value);
+    const info=evolution(g);assert.equal(info.current.key,key,value);assert.equal(info.history.length,1);assert.equal(info.history[0].min,400);
+    assert.equal(info.tendency,null);assert.ok(Object.values(info.scores).every(n=>n===0));
+  }
+  const balanced=await evolutionGame(383);
+  for(const kind of ['feed','play','rest'])assert.equal((await command(balanced,'care',{kind})).ok,true);
+  assert.equal(balanced.app.getState().pet.exp,400);assert.equal(evolution(balanced).current.key,'balanced');
+});
+
+test('daily meal and play caps survive interval resets without limiting existing EXP, consumption or care',async()=>{
+  const g=await evolutionGame(0),before=persisted(g.storage);
+  for(let i=0;i<4;i++)assert.equal((await command(g,'useItem',{itemId:'apple'})).ok,true);
+  assert.equal(g.app.getState().pet.exp,12);assert.equal(g.app.getState().inventory.apple,before.inventory.apple-4);
+  assert.equal(evolution(g).meals,3);assert.equal(evolution(g).scores.fruit,9);
+  assert.equal((await command(g,'care',{kind:'feed'})).ok,true);assert.equal(g.app.getState().pet.exp,20);
+  assert.equal(evolution(g).meals,3);assert.equal(evolution(g).care.feed,0);assert.equal(evolution(g).current.key,'fruit');
+  assert.ok(Object.values(evolution(g).scores).every(n=>n===0));
+  await command(g,'useItem',{itemId:'cake'});assert.ok(Object.values(evolution(g).scores).every(n=>n===0));
+  for(let i=0;i<3;i++)assert.equal((await command(g,'care',{kind:'play'})).ok,true);
+  assert.equal(evolution(g).scores.active,9);
+  const plays=evolution(g).care.play,played=await play(g,8);assert.equal(played.end.ok,true);
+  assert.equal(evolution(g).care.play,plays);assert.equal(evolution(g).scores.active,0,'45 EXP commits the interval without resetting its daily cap');
+  assert.equal(evolution(g).current.key,'active');
+  assert.equal(played.end.reward.exp,4,'mini-game economy is unchanged when evolution play credits are capped');
+  assert.equal(evolution(g).scores.balanced,0);await command(g,'care',{kind:'rest'});
+  assert.equal(evolution(g).scores.balanced,4);await command(g,'care',{kind:'rest'});
+  assert.equal(evolution(g).scores.balanced,4,'the three kinds bonus is once per day');
+  g.day();await command(g,'useItem',{itemId:'cake'});assert.equal(evolution(g).meals,4);
+  assert.equal(evolution(g).activeDays,2);assert.equal(evolution(g).routineDays,1);assert.equal(evolution(g).scores.balanced,7);
+});
+
+test('the same actions on consecutive days can evolve differently and an unvisited gap never subtracts points',async()=>{
+  const results=[];
+  for(const spaced of [false,true]){
+    const g=await evolutionGame();
+    for(let i=0;i<3;i++){if(spaced&&i)g.day();await command(g,'care',{kind:'feed'});}
+    assert.equal(g.app.getState().pet.exp,397);const finish=await play(g,6);assert.equal(finish.end.ok,true);
+    assert.equal(g.app.getState().pet.exp,400);results.push(evolution(g));
+  }
+  assert.equal(results[0].current.key,'fruit');assert.equal(results[0].activeDays,1);assert.equal(results[0].routineDays,0);
+  assert.equal(results[1].current.key,'balanced');assert.equal(results[1].activeDays,3);assert.equal(results[1].routineDays,2);
+  const g=await evolutionGame(110);await command(g,'useItem',{itemId:'cake'});const before=evolution(g);
+  g.tick(10*86400000);const raw=g.storage.data.get(Core.KEY),reopened=Core.create(g.options);await reopened.ready;
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.deepEqual(evolution(g),before);
+  await command(g,'useItem',{itemId:'cake'});assert.equal(evolution(g).activeDays,2);assert.equal(evolution(g).routineDays,0);
+  assert.equal(evolution(g).scores.sweet,before.scores.sweet+3);assert.equal(evolution(g).scores.balanced,0);
+});
+
+test('another interval can select a different path while unrelated legacy transfers neither score nor manufacture milestones',async()=>{
+  const g=await evolutionGame(397,{pet_game:'{"exp":385}'});await command(g,'useItem',{itemId:'apple'});
+  assert.equal(evolution(g).current.key,'fruit');const before=JSON.parse(JSON.stringify(persisted(g.storage).evolution));
+  assert.equal((await command(g,'transferLegacy')).ok,true);assert.equal(g.app.getState().pet.exp,785);
+  assert.deepEqual(persisted(g.storage).evolution,before);
+  g.day();for(let i=0;i<3;i++)assert.equal((await command(g,'useItem',{itemId:'cake'})).ok,true);
+  assert.equal(g.app.getState().pet.exp,803);assert.equal(evolution(g).current.key,'sweet');
+  assert.deepEqual(evolution(g).history.map(row=>[row.min,row.branch]),[[400,'fruit'],[800,'sweet']]);
+  assert.equal(persisted(g.storage).evolution.day.meals,3);assert.equal(evolution(g).nextAt,1600);
+});
+
+test('zero-score boundaries retain the last path and ties choose balanced even without balanced points',async()=>{
+  const g=await evolutionGame(0);
+  await command(g,'useItem',{itemId:'apple'});await command(g,'useItem',{itemId:'rice'});
+  assert.equal(evolution(g).scores.balanced,0);assert.equal(evolution(g).tendency.key,'balanced');
+  const base=await evolutionGame(397);await command(base,'useItem',{itemId:'apple'});
+  const record=persisted(base.storage);record.pet.exp=797;record.evolution.meals=3;record.evolution.day.meals=3;
+  const full=await game({[Core.KEY]:JSON.stringify(record)});await command(full,'useItem',{itemId:'feast'});
+  assert.equal(full.app.getState().pet.exp,817);assert.equal(evolution(full).current.key,'fruit');
+  assert.deepEqual(evolution(full).history.map(row=>row.branch),['fruit','fruit']);assert.equal(evolution(full).meals,3);
+});
+
+test('companion growth continues in 800 EXP intervals and the twelve-entry history is bounded',async()=>{
+  for(const [exp,min,next,remaining,progress] of [[800,800,1600,800,0],[1599,800,1600,1,100],[1600,1600,2400,800,0],[1999,1600,2400,401,50]]){
+    assert.deepEqual(Core.getLilacGrowth(exp),{key:'companion',label:'なかよしの姿',min,next,remaining,progress});
+  }
+  const old=await evolutionGame(800);await command(old,'care',{kind:'feed'});
+  assert.equal(evolution(old).baselineExp,800);assert.deepEqual(evolution(old).history,[]);assert.equal(evolution(old).nextAt,1600);
+  const g=await evolutionGame(797);await command(g,'useItem',{itemId:'apple'});const record=persisted(g.storage);
+  record.pet.exp=10397;record.evolution.history=Array.from({length:12},(_,i)=>({stageKey:'companion',min:(i+1)*800,branch:'fruit',at:record.evolution.startedAt}));
+  const many=await game({[Core.KEY]:JSON.stringify(record)});await command(many,'useItem',{itemId:'apple'});
+  const history=evolution(many).history;assert.equal(history.length,12);assert.equal(history[0].min,1600);assert.equal(history.at(-1).min,10400);
+  assert.equal(evolution(many).current.key,'fruit');assert.equal(evolution(many).nextAt,11200);
+  const terminal=persisted(many.storage);terminal.pet.exp=9000000000000-3;
+  const end=await game({[Core.KEY]:JSON.stringify(terminal)});assert.equal((await command(end,'useItem',{itemId:'apple'})).ok,true);
+  assert.equal(evolution(end).history.at(-1).min,9000000000000);assert.equal(evolution(end).nextAt,null);
+});
+
+test('unrelated actions, no-score mini-games and other species never initialize or backfill B evolution',async()=>{
+  const g=await evolutionGame(373,{pg_species:'bunny',pet_game:'{"exp":500}'});
+  await command(g,'care',{kind:'feed'});await command(g,'useItem',{itemId:'apple'});await play(g,8);
+  assert.equal(Object.hasOwn(persisted(g.storage),'evolution'),false);
+  await command(g,'chooseSpecies',{species:'lilac'});await command(g,'rename',{name:'かわらない'});
+  await command(g,'buyItem',{itemId:'cloth_cream_vest'});await command(g,'equipClothing',{itemId:'cloth_cream_vest'});
+  await command(g,'transferLegacy');await play(g,0);
+  assert.equal(Object.hasOwn(persisted(g.storage),'evolution'),false);
+  const before=g.app.getState().pet.exp;await command(g,'care',{kind:'rest'});
+  assert.equal(evolution(g).baselineExp,before);assert.deepEqual(evolution(g).history,[]);
+  assert.equal(evolution(g).care.feed,0);assert.equal(evolution(g).care.play,0);assert.equal(evolution(g).care.rest,1);
+  const mini=await evolutionGame(390);const result=await play(mini,20);assert.equal(result.end.ok,true);
+  assert.equal(evolution(mini).baselineExp,390);assert.equal(evolution(mini).current.key,'active');assert.equal(evolution(mini).care.play,1);
+});
+
+test('evolution starts and changes only after awaited persistence and rejected writes or stale stores keep the old record',async()=>{
+  const g=await evolutionGame(397),set=g.storage.setItem.bind(g.storage);let release;
+  g.storage.setItem=(k,v)=>new Promise(resolve=>{release=()=>{set(k,v);resolve();};});
+  const raw=g.storage.data.get(Core.KEY),pending=command(g,'useItem',{itemId:'apple'});
+  while(!release)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(evolution(g).tracked,false);assert.equal(g.app.getState().pet.exp,397);assert.equal(g.storage.data.get(Core.KEY),raw);
+  release();assert.equal((await pending).ok,true);g.storage.setItem=set;assert.equal(evolution(g).current.key,'fruit');
+  const second=Core.create(g.options);await second.ready;await command(g,'care',{kind:'rest'});const saved=g.storage.data.get(Core.KEY);
+  assert.equal((await second.dispatch({type:'useItem',itemId:'cake'})).error.code,'stale_state');assert.equal(g.storage.data.get(Core.KEY),saved);
+  for(const failure of ['throw','false'])for(const existing of [false,true]){
+    const f=await evolutionGame(397);if(existing)await command(f,'useItem',{itemId:'apple'});
+    const before=persisted(f.storage),bytes=f.storage.data.get(Core.KEY);
+    f.storage.setItem=async()=>{if(failure==='throw')throw new Error('private write failure');return false;};
+    const r=await command(f,'useItem',{itemId:'cake'});assert.equal(r.ok,false);assert.equal(f.storage.data.get(Core.KEY),bytes);
+    Object.keys(before).forEach(key=>assert.deepEqual(r.state[key],before[key],key));
+    assert.equal(Object.hasOwn(r.state,'evolution'),Object.hasOwn(before,'evolution'));
+    assert.equal(evolution(f).tracked,existing);
+  }
+});
+
+test('backward target timestamps are rejected without consuming food or rewriting evolution history',async()=>{
+  const first=await evolutionGame(),record=persisted(first.storage);record.updatedAt++;
+  const pending=await game({[Core.KEY]:JSON.stringify(record)}),raw=pending.storage.data.get(Core.KEY);
+  assert.equal((await command(pending,'useItem',{itemId:'apple'})).error.code,'clock_moved_back');assert.equal(pending.storage.data.get(Core.KEY),raw);
+  const g=await evolutionGame();await command(g,'care',{kind:'feed'});const saved=g.storage.data.get(Core.KEY);g.tick(-1);
+  assert.equal((await command(g,'useItem',{itemId:'cake'})).error.code,'clock_moved_back');assert.equal(g.storage.data.get(Core.KEY),saved);
+  g.tick(-86400000);assert.equal((await command(g,'useItem',{itemId:'cake'})).error.code,'clock_moved_back');assert.equal(g.storage.data.get(Core.KEY),saved);
+});
+
+test('strict evolution validation rejects unknown branches, unordered history and impossible caps without overwrites',async()=>{
+  const source=await evolutionGame(397);await command(source,'useItem',{itemId:'apple'});const valid=persisted(source.storage);
+  const mutations=[s=>{s.evolution=null;},s=>{s.evolution.version=2;},s=>{s.evolution.scores.fruit=-1;},
+    s=>{s.evolution.scores.other=1;},s=>{delete s.evolution.care.feed;},s=>{s.evolution.day.meals=4;},
+    s=>{s.evolution.routineDays=s.evolution.activeDays;},s=>{s.evolution.meals=4;},s=>{s.evolution.care.feed=2;},
+    s=>{s.evolution.baselineExp=s.pet.exp+1;},s=>{s.evolution.lastAt=s.evolution.startedAt-1;},
+    s=>{s.evolution.history[0].branch='unknown';},s=>{s.evolution.history[0].stageKey='egg';},s=>{s.evolution.history[0].min=399;},
+    s=>{s.evolution.history[0].at=s.evolution.startedAt-1;},s=>{s.evolution.history.push({...s.evolution.history[0]});},
+    s=>{s.evolution.history=Array(13).fill(s.evolution.history[0]);},
+    s=>{s.pet.exp=1600;s.evolution.history[0]={stageKey:'companion',min:1599,branch:'fruit',at:s.evolution.startedAt};}];
+  for(const mutate of mutations){
+    const state=JSON.parse(JSON.stringify(valid));mutate(state);const raw=JSON.stringify(state),storage=memory({[Core.KEY]:raw});
+    const app=Core.create({storage,now:source.options.now});assert.equal((await app.ready).ok,false);
+    assert.equal(storage.data.get(Core.KEY),raw);assert.equal(storage.writes.length,0);assert.equal(app.getState().readOnly,true);
+  }
+});
+
+test('new evolution histories round-trip backups and missing old histories remain absent without automatic saves',async()=>{
+  const source=await evolutionGame(397);await command(source,'useItem',{itemId:'apple'});const backup=source.app.exportBackup();
+  const target=await game();assert.equal((await target.app.importBackup(backup)).ok,true);
+  assert.deepEqual(evolution(target),evolution(source));assert.deepEqual(target.app.getState().wardrobe,source.app.getState().wardrobe);
+  const raw=target.storage.data.get(Core.KEY),writes=target.storage.writes.length,reopened=Core.create(target.options);await reopened.ready;
+  assert.equal(target.storage.data.get(Core.KEY),raw);assert.equal(target.storage.writes.length,writes);
+  const old=JSON.parse(backup);delete old.state.evolution;assert.equal((await target.app.importBackup(JSON.stringify(old))).ok,true);
+  const oldRaw=target.storage.data.get(Core.KEY),oldWrites=target.storage.writes.length,oldReopen=Core.create(target.options);await oldReopen.ready;
+  assert.equal(evolution(target).tracked,false);assert.equal(target.storage.data.get(Core.KEY),oldRaw);assert.equal(target.storage.writes.length,oldWrites);
+  const corrupt=JSON.parse(backup);corrupt.state.evolution.history[0].branch='unknown';
+  assert.equal((await target.app.importBackup(JSON.stringify(corrupt))).ok,false);assert.equal(target.storage.data.get(Core.KEY),oldRaw);
 });
 
 test('fresh independent game has one durable record and no outside rewards',async()=>{

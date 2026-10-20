@@ -80,10 +80,10 @@ async function fixture(config = {}) {
   const pane = document.createElement('section'), host = document.createElement('div');
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
-  const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [];
+  const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue, feedingPhase: Motion.feedingPhase, feedingAnchor: Motion.feedingAnchor, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
+    durations: Motion.durations, catalogue: Motion.catalogue, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path) { anchorCalls.push({ stage, path }); return Motion.feedingAnchor(stage, path); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -114,7 +114,7 @@ async function fixture(config = {}) {
   vm.runInContext(source, context);
   const ui = window.IndependentPetGame;
   const opening = ui.mount(host, coreOptions); assert.equal(await opening, true); await flush();
-  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, raf, timers,
+  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, raf, timers,
     get store() { return store; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
     buttons() { return host.querySelectorAll('button'); },
@@ -837,4 +837,138 @@ test('trying a lower-row garment immediately shows the fitting and moves focus t
   assert.equal(caption.tabIndex, -1); assert.equal(f.document.activeElement, caption); assert.equal(caption.lastFocusOptions.preventScroll, true);
   assert.ok(caption.textContent.includes('お花のワンピース')); assert.ok(caption.textContent.includes('未購入・試着の見本'));
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.mounts.at(-1).options.situation, 'idle');
+});
+
+test('old EXP and care totals keep the original lilac appearance without inventing food, frequency or evolution history', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355', pg_cnt_feed: '900', pg_cnt_pet: '700' } }), before = f.saved(), writes = f.writes.length;
+  assert.equal(typeof Core.getLilacEvolution, 'function'); assert.equal(before.evolution, undefined);
+  assert.equal(f.mounts.at(-1).options.evolutionPath, 'balanced');
+  assert.match(f.host.querySelector('.ipg-evolution-current').textContent, /のんびり・薄紫/);
+  assert.match(f.host.querySelector('.ipg-evolution-tendency').textContent, /まだこれから/);
+  assert.match(f.host.querySelector('.ipg-evolution-recorded').textContent, /ここからのお世話から始まります/);
+  assert.equal(f.host.querySelector('.ipg-evolution-history'), null); assert.equal(before.pet.exp, 373); assert.equal(before.coins, 355);
+  assert.match(f.host.querySelector('.ipg-evolution-help').textContent, /日を分けて続ける/);
+  assert.match(f.host.querySelector('.ipg-evolution-help').textContent, /800 EXPから先も、800 EXPごと/);
+  f.window.emit('focus'); await flush(); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('a failed first meal never creates a tendency; future confirmed care records only the new observations and locks color at 400', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' } });
+  f.advance(10000); f.ui.render(); const before = f.saved(), gate = deferred();
+  f.control.pending = gate; f.control.outcome = 'false'; await f.click(f.focusButton('care-feed'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.mounts.at(-1).options.evolutionPath, 'balanced');
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.equal(f.saved().evolution, undefined); assert.match(f.host.querySelector('.ipg-evolution-tendency').textContent, /まだこれから/);
+  f.control.outcome = 'ok'; await f.click(f.focusButton('care-feed'));
+  assert.equal(f.saved().pet.exp, 381); assert.equal(f.saved().coins, 365); assert.equal(f.saved().evolution.baselineExp, 373);
+  assert.equal(f.mounts.at(-1).options.evolutionPath, 'balanced', 'predicted fruit is not the current saved color');
+  assert.match(f.host.querySelector('.ipg-evolution-current').textContent, /のんびり・薄紫/);
+  assert.match(f.host.querySelector('.ipg-evolution-tendency').textContent, /予想.*はなほっぺ・桃色/);
+  assert.match(f.host.querySelector('.ipg-evolution-recorded').textContent, /新しく記録した育成日数：1日/);
+  assert.equal(f.host.querySelector('.ipg-evolution-history'), null);
+  await f.click(f.focusButton('care-feed')); await f.click(f.focusButton('care-feed'));
+  assert.equal(f.saved().pet.exp, 397); assert.equal(f.mounts.at(-1).options.evolutionPath, 'balanced');
+  await f.click(f.focusButton('care-rest'));
+  assert.equal(f.saved().pet.exp, 401); assert.equal(f.saved().coins, 365);
+  assert.equal(f.mounts.at(-1).options.evolutionPath, 'fruit'); assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.evolutionPath, 'fruit');
+  assert.match(f.host.querySelector('.ipg-evolution-current').textContent, /はなほっぺ・桃色/);
+  const records = f.host.querySelector('.ipg-evolution-history').querySelectorAll('li');
+  assert.equal(records.length, 1); assert.match(records[0].textContent, /おとな.*400 EXP.*はなほっぺ・桃色.*JST/);
+  assert.equal(Core.getLilacEvolution(f.saved()).history.length, 1); assert.equal(f.saved().evolution.history[0].min, 400);
+});
+
+test('all six evolution previews stay read only, preserve the saved outfit and never recolor the real pet or tendency', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' }, setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' })).ok, true);
+  } }), before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('growth-album-toggle'));
+  assert.equal(f.host.querySelectorAll('button').filter(button => button.dataset.focusKey?.startsWith('growth-path-')).length, 6);
+  for (const path of Core.lilacEvolutionPaths) {
+    await f.click(f.focusButton('growth-path-' + path.key));
+    assert.equal(f.activeMotions().length, 2); assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelectorAll('canvas').length, 1);
+    assert.equal(f.activeMotions()[0].options.evolutionPath, 'balanced'); assert.equal(f.mounts.at(-1).options.evolutionPath, path.key);
+    assert.equal(f.mounts.at(-1).options.situation, 'idle'); assert.ok(f.activeMotions().every(controller => controller.options.outfit === 'cloth_cream_vest'));
+    const caption = f.host.querySelector('.ipg-growth-caption'); assert.ok(caption.textContent.includes(path.label));
+    assert.ok(caption.textContent.includes(path.colorName)); assert.ok(caption.textContent.includes('見本'));
+    assert.equal(f.document.activeElement, caption); assert.equal(f.focusButton('growth-path-' + path.key).getAttribute('aria-pressed'), 'true');
+    assert.match(f.host.querySelector('.ipg-evolution-current').textContent, /のんびり・薄紫/);
+    assert.match(f.host.querySelector('.ipg-evolution-tendency').textContent, /まだこれから/);
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+  }
+  await f.click(f.focusButton('growth-stage-companion')); assert.equal(f.mounts.at(-1).options.evolutionPath, 'calm');
+  assert.equal(f.mounts.at(-1).options.growthStage, 'companion'); assert.match(f.host.querySelector('.ipg-growth-caption').textContent, /これからの姿・見本/);
+  await f.click(f.focusButton('growth-album-toggle')); assert.equal(f.activeMotions().length, 1);
+  assert.equal(f.mounts.at(-1).options.evolutionPath, 'balanced'); assert.deepEqual(f.saved(), before);
+});
+
+test('a recorded color follows clothing, 36-emotion references, fitting and the correct feeding anchor', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_exp: '397' }, setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'care', kind: 'feed' })).ok, true);
+  } });
+  assert.equal(f.saved().pet.exp, 405); assert.equal(f.mounts.at(-1).options.evolutionPath, 'fruit');
+  await f.click(f.button('薄紫のこのしぐさを見る'));
+  assert.equal(f.mounts.at(-1).options.growthStage, 'child'); assert.equal(f.mounts.at(-1).options.evolutionPath, 'fruit', 'reference EXP must not invalidate the saved color');
+  assert.ok(f.activeMotions().every(controller => controller.options.outfit === 'cloth_cream_vest'));
+  const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('preview-emotion-cry')); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.click(f.focusButton('care-feed'));
+  assert.equal(f.activeMotions()[0].options.evolutionPath, 'fruit'); assert.equal(f.activeMotions()[0].options.situation, 'feeding');
+  assert.ok(f.anchorCalls.some(call => call.stage === 'adult' && call.path === 'fruit'));
+  const food = f.host.querySelector('.ipg-emotion-stage').querySelector('.ipg-feeding-food'), anchor = Motion.feedingAnchor('adult', 'fruit');
+  assert.equal(food.style.left, String(anchor.foodLeft * 100) + '%'); assert.equal(food.style.top, String(anchor.foodTop * 100) + '%');
+  await f.click(f.focusButton('tab-shop')); const saved = f.saved(); await f.click(f.focusButton('outfit-try-cloth_flower_dress'));
+  assert.equal(f.activeMotions()[0].options.evolutionPath, 'fruit'); assert.equal(f.mounts.at(-1).options.evolutionPath, 'fruit');
+  assert.equal(f.activeMotions()[0].options.outfit, 'cloth_cream_vest'); assert.equal(f.mounts.at(-1).options.outfit, 'cloth_flower_dress'); assert.deepEqual(f.saved(), saved);
+});
+
+test('food cards explain B-specific diet tendencies while bunny care does not show or create B evolution', async () => {
+  const f = await fixture({ rendererMode: 'ready' }); await f.click(f.focusButton('tab-shop'));
+  for (const [name, target] of [['りんご', '桃色'], ['いちご', '桃色'], ['おにぎり', 'はちみつ色'], ['ごちそう', 'はちみつ色'], ['ケーキ', '杏色']]) {
+    const row = f.host.querySelectorAll('.ipg-shop-item').find(entry => entry.querySelector('h4')?.textContent === name);
+    assert.ok(row); assert.ok(row.querySelector('.ipg-food-evolution-hint').textContent.includes('Bの育ち方'));
+    assert.ok(row.querySelector('.ipg-food-evolution-hint').textContent.includes(target));
+  }
+  const bunny = await fixture({ rendererMode: 'ready', species: 'bunny' });
+  assert.equal(bunny.host.querySelector('.ipg-evolution-status'), null); await bunny.click(bunny.focusButton('care-feed'));
+  assert.equal(bunny.saved().evolution, undefined); await bunny.click(bunny.focusButton('tab-shop'));
+  assert.equal(bunny.host.querySelector('.ipg-food-evolution-hint'), null);
+});
+
+test('missing evolution APIs retain the earlier game, and failed color drawing labels the original reference honestly', async () => {
+  const legacy = await fixture({ rendererMode: 'ready' }), before = legacy.saved(), writes = legacy.writes.length;
+  delete legacy.window.PetGameCore.getLilacEvolution; delete legacy.window.PetGameCore.lilacEvolutionPaths;
+  legacy.ui.render(); assert.equal(legacy.host.querySelector('.ipg-evolution-status'), null);
+  assert.equal(legacy.mounts.at(-1).options.evolutionPath, 'balanced');
+  await legacy.click(legacy.focusButton('growth-album-toggle')); assert.equal(legacy.host.querySelector('.ipg-evolution-choices'), null);
+  assert.equal(legacy.host.querySelector('.ipg-growth-gallery').querySelectorAll('canvas').length, 1); assert.deepEqual(legacy.saved(), before); assert.equal(legacy.writes.length, writes);
+  const f = await fixture({ rendererMode: 'error', seed: { pg_exp: '397' }, setup: async app => { assert.equal((await app.dispatch({ type: 'care', kind: 'feed' })).ok, true); } }), saved = f.saved();
+  assert.equal(f.host.querySelector('.ipg-evolution-unavailable').hidden, false);
+  assert.match(f.host.querySelector('.ipg-evolution-unavailable').textContent, /記録は保存されています.*色・姿を表示できません/);
+  await f.click(f.focusButton('growth-album-toggle')); await f.click(f.focusButton('growth-path-calm'));
+  assert.match(f.host.querySelector('.ipg-growth-caption').textContent, /育ち方の色・姿は表示できません/);
+  assert.equal(f.host.querySelector('.ipg-growth-gallery').querySelector('canvas').hidden, true); assert.deepEqual(f.saved(), saved);
+});
+
+test('growth and color continue past 800 EXP while the current companion body is labelled from its first 800 EXP stage', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_exp: '1605' } }), before = f.saved();
+  assert.equal(Core.getLilacGrowth(1605).next, 2400); assert.ok(f.host.textContent.includes('次の成長まで あと795 EXP'));
+  await f.click(f.focusButton('growth-album-toggle'));
+  assert.ok(f.host.querySelector('.ipg-growth-caption').textContent.includes('見本'));
+  assert.match(f.host.querySelector('.ipg-growth-caption').textContent, /いまの姿の見本/);
+  assert.match(f.focusButton('growth-stage-companion').textContent, /800 EXP〜.*いまの姿/);
+  assert.ok(!f.host.querySelector('.ipg-growth-gallery').textContent.includes('1600'), 'body reference does not invent a 1600 EXP picture or history');
+  assert.deepEqual(f.saved(), before); assert.equal(f.host.querySelector('.ipg-evolution-history'), null);
+  const next = await fixture({ rendererMode: 'ready', seed: { pg_exp: '1597' } }); next.advance(10000); next.ui.render();
+  const old = next.saved(), gate = deferred(); next.control.pending = gate; next.control.outcome = 'false';
+  await next.click(next.focusButton('care-rest')); gate.resolve(); await flush(); next.control.pending = null;
+  assert.deepEqual(next.saved(), old); assert.equal(next.mounts.at(-1).options.situation, 'idle');
+  next.control.outcome = 'ok'; await next.click(next.focusButton('care-rest'));
+  assert.equal(next.saved().pet.exp, 1601); assert.equal(next.mounts.at(-1).options.growthStage, 'companion');
+  assert.equal(next.mounts.at(-1).options.evolutionPath, 'calm'); assert.equal(next.mounts.at(-1).options.situation, 'joy');
+  assert.ok(next.host.querySelector('.ipg-notice').textContent.includes('進化しました'));
+  const meal = await fixture({ rendererMode: 'ready', seed: { pg_exp: '1597' } }); await meal.click(meal.focusButton('care-feed'));
+  assert.equal(meal.saved().pet.exp, 1605); assert.equal(meal.mounts.at(-1).options.evolutionPath, 'fruit'); assert.equal(meal.mounts.at(-1).options.situation, 'feeding');
 });
