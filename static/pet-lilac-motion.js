@@ -100,7 +100,11 @@
     return {x:x+dx*edge,y:y+dy*edge*smooth(Math.abs(y-.92)/.055)};
   }
   // Reference color sampling is also useful for verifying protected face features.
-  function furChroma(rgb) { return ramp(.015,.100,rgb[2]-rgb[1])*ramp(-.025,.035,rgb[2]-rgb[0]); }
+  function furChroma(rgb) {
+    // B's hands and crown are pink-lilac: red can exceed blue there. Green
+    // separation catches that fur while the warm skin gate retains cream/pink ears.
+    return ramp(.012,.045,Math.min(rgb[0],rgb[2])-rgb[1])*(1-ramp(.16,.26,rgb[0]-rgb[2]));
+  }
   function evolutionFurColor(path,x,y,source,painted) {
     var profile=evolutionProfile(path), original=source.slice(0,3), color=(painted||source).slice(0,3);
     if(!profile.index)return color;
@@ -370,7 +374,7 @@
     'cloth=mix(cloth,trim,clamp(seam,0.,1.)*.48);return vec4(cloth,mask);}'
   ].join('\n');
   var evolutionShader = [
-    'float furSelect(vec3 c){return smoothstep(.015,.100,c.b-c.g)*smoothstep(-.025,.035,c.b-c.r);}',
+    'float furSelect(vec3 c){return smoothstep(.012,.045,min(c.r,c.b)-c.g)*(1.-smoothstep(.16,.26,c.r-c.b));}',
     'vec3 evolvedFur(vec2 p,vec3 original,vec3 painted){if(v_evolution.a<.5)return painted;',
     'float features=max(max(ce(p,vec2(.4665,.429),vec2(.16,.145)),ce(p,vec2(.7281,.3405),vec2(.137,.14))),ce(p,vec2(.625,.48),vec2(.105,.095)));',
     'float amount=furSelect(original)*furSelect(painted)*(1.-features)*.92;',

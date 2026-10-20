@@ -288,6 +288,39 @@ test('fur palettes preserve source shading and protect cream cheeks, eyes, mouth
   assert.ok(lum(light)>lum(dark));
 });
 
+test('actual original pink-lilac crown, both paws and torso receive the full pastel fur change', () => {
+  // Read-only samples from the fixed 1000px pet_lilac_original.webp. In these
+  // fur regions red exceeds blue, so a blue-minus-red gate left them unchanged.
+  const samples=[
+    {name:'left paw',x:.527,y:.743,rgb:[204,168,205]},
+    {name:'right paw',x:.718,y:.729,rgb:[218,182,194]},
+    {name:'crown highlight',x:.60,y:.20,rgb:[237,204,225]},
+    {name:'crown',x:.58,y:.23,rgb:[234,201,221]},
+    {name:'torso',x:.50,y:.67,rgb:[164,123,151]}
+  ];
+  const lum=rgb=>rgb[0]*.299+rgb[1]*.587+rgb[2]*.114;
+  for(const sample of samples){
+    const source=sample.rgb.map(x=>x/255);
+    assert.deepEqual(Motion.evolutionFurColor('balanced',sample.x,sample.y,source),source);
+    for(const path of Motion.evolutionCatalogue.filter(p=>p.key!=='balanced')){
+      const rendered=Motion.evolutionFurColor(path.key,sample.x,sample.y,source);
+      const target=path.rgb.map(x=>Math.max(0,Math.min(1,x*lum(source)/lum(path.rgb))));
+      const expected=source.map((x,i)=>x+(target[i]-x)*.92);
+      rendered.forEach((x,i)=>assert.ok(Math.abs(x-expected[i])<1e-12,path.key+': '+sample.name));
+      assert.ok(Math.hypot(...rendered.map((x,i)=>x-source[i]))>.04,path.key+': visible '+sample.name);
+    }
+  }
+});
+
+test('actual cream cheek and warm inner ear samples remain unchanged after the broader fur selection', () => {
+  const samples=[{x:.40,y:.58,rgb:[228,157,147]},{x:.20,y:.34,rgb:[228,171,158]},
+    {x:.58,y:.86,rgb:[197,162,149]},{x:.62,y:.44,rgb:[211,130,137]}];
+  for(const path of Motion.evolutionCatalogue)for(const sample of samples){
+    const source=sample.rgb.map(x=>x/255);
+    assert.deepEqual(Motion.evolutionFurColor(path.key,sample.x,sample.y,source),source,path.key);
+  }
+});
+
 test('evolution paths keep fallbacks and resource cleanup intact without extra image loads', () => {
   const failed=fixture({compileFailure:true,options:{evolutionPath:'active',outfit:'cloth_mint_knit'}});
   assert.equal(failed.errors.length,1);assert.equal(failed.deleted.length,failed.created.length);assert.equal(failed.images.length,0);
