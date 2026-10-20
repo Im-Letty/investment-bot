@@ -38,7 +38,8 @@ class Element {
   remove() { if (this.parentNode) this.parentNode.children = this.parentNode.children.filter(child => child !== this); this.parentNode = null; }
   setAttribute(name, value) { this.attributes[name] = String(value); }
   getAttribute(name) { return this.attributes[name] ?? null; }
-  focus() { this.ownerDocument.activeElement = this; }
+  focus(options) { this.lastFocusOptions = options; this.ownerDocument.activeElement = this; }
+  scrollIntoView(options) { this.scrollCalls = this.scrollCalls || []; this.scrollCalls.push(options); }
   getBoundingClientRect() { return { left: 0, top: 0, width: 300, height: 300 }; }
   matches(selector) {
     if (selector.startsWith('.')) return this.className.split(/\s+/).includes(selector.slice(1));
@@ -72,6 +73,7 @@ async function fixture(config = {}) {
   const coreOptions = { storage, now: () => clock, random: () => .5 };
   const setup = Core.create(coreOptions); assert.equal((await setup.ready).ok, true);
   if (config.species) assert.equal((await setup.dispatch({ type: 'chooseSpecies', species: config.species })).ok, true);
+  if (config.setup) await config.setup(setup);
   const document = events({ hidden: !!config.hidden, activeElement: null });
   document.createElement = tag => new Element(tag, document);
   document.body = new Element('body', document);
@@ -662,4 +664,177 @@ test('growth drawing failure labels its reference fallback honestly and keeps al
   assert.equal(gallery.querySelector('canvas').hidden, true); assert.equal(gallery.querySelector('.ipg-lilac-still').hidden, false);
   assert.match(gallery.querySelector('.ipg-growth-caption').textContent, /成長の動きを表示できないため、基準の絵/);
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.timers.size, 0);
+});
+
+test('the clothes shop preserves old absent wardrobe records and fits all six unowned clothes with one preview only', async () => {
+  const original = await fixture(), old = original.saved(); delete old.wardrobe;
+  const f = await fixture({ rendererMode: 'ready', seed: { [Core.KEY]: JSON.stringify(old) } }), before = f.saved(), writes = f.writes.length;
+  assert.equal(before.wardrobe, undefined); assert.equal(f.mounts.at(-1).options.outfit, null);
+  await f.click(f.focusButton('tab-shop'));
+  const clothes = Core.items.filter(entry => entry.type === 'clothing'); assert.equal(clothes.length, 6);
+  assert.equal(f.host.querySelectorAll('.ipg-clothing-item').length, 6); assert.equal(f.host.querySelector('.ipg-outfit-fitting'), null);
+  assert.ok(f.host.querySelector('.ipg-clothes-shop').textContent.includes('薄紫のこ（B）のお洋服'));
+  assert.ok(f.host.querySelectorAll('.ipg-shop-item').every(row => !clothes.some(entry => row.textContent.includes(entry.name))));
+  for (const entry of clothes) {
+    const oldControllers = f.activeMotions(); await f.click(f.focusButton('outfit-try-' + entry.id));
+    assert.ok(oldControllers.every(controller => controller.destroyed));
+    const fitting = f.host.querySelector('.ipg-outfit-fitting'); assert.ok(fitting);
+    assert.equal(fitting.querySelectorAll('canvas').length, 1); assert.equal(f.activeMotions().length, 2);
+    assert.equal(f.activeMotions()[0].options.outfit, null); assert.equal(f.mounts.at(-1).options.outfit, entry.id);
+    assert.equal(f.mounts.at(-1).options.situation, 'idle'); assert.equal(f.mounts.at(-1).options.growthStage, 'baby');
+    assert.ok(fitting.querySelector('.ipg-fitting-caption').textContent.includes('未購入・試着の見本'));
+    assert.ok(fitting.querySelector('.ipg-fitting-caption').textContent.includes(entry.name));
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, 0);
+  }
+  await f.click(f.button('試着を閉じる')); assert.equal(f.host.querySelector('.ipg-outfit-fitting'), null); assert.equal(f.activeMotions().length, 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('buying even the zero-coin starter vest waits for a confirmed write and never equips automatically', async () => {
+  for (const outcome of ['false', 'throw']) {
+    const f = await fixture({ rendererMode: 'ready' }); await f.click(f.focusButton('tab-shop'));
+    const before = f.saved(), writes = f.writes.length, gate = deferred();
+    f.control.pending = gate; f.control.outcome = outcome; await f.click(f.focusButton('outfit-buy-cloth_cream_vest'));
+    assert.deepEqual(f.saved(), before); assert.equal(f.activeMotions()[0].options.outfit, null);
+    gate.resolve(); await flush(); f.control.pending = null;
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.activeMotions()[0].options.outfit, null);
+    assert.ok(f.focusButton('outfit-buy-cloth_cream_vest')); f.control.outcome = 'ok';
+    await f.click(f.focusButton('outfit-buy-cloth_cream_vest'));
+    const bought = f.saved(); assert.equal(bought.wardrobe.owned.cloth_cream_vest, true); assert.equal(bought.wardrobe.equipped, null);
+    assert.equal(bought.coins, before.coins); assert.equal(bought.pet.exp, before.pet.exp); assert.equal(f.writes.length, writes + 1);
+    assert.equal(f.activeMotions()[0].options.outfit, null); assert.equal(f.focusButton('outfit-wear-cloth_cream_vest').textContent, '着る');
+  }
+});
+
+test('paid clothing uses the same wallet exactly once; ownership and wearing are separate saved transitions', async () => {
+  const f = await fixture({ rendererMode: 'ready' }); await f.click(f.focusButton('tab-shop'));
+  const before = f.saved(), writes = f.writes.length, oldBuy = f.focusButton('outfit-buy-cloth_sky_overalls');
+  await f.click(oldBuy); const bought = f.saved();
+  assert.equal(bought.coins, before.coins - 45); assert.equal(bought.pet.exp, before.pet.exp);
+  assert.deepEqual(bought.market, before.market); assert.deepEqual(bought.inventory, before.inventory); assert.deepEqual(bought.decorations, before.decorations);
+  assert.equal(bought.wardrobe.owned.cloth_sky_overalls, true); assert.equal(bought.wardrobe.equipped, null);
+  assert.equal(f.writes.length, writes + 1); oldBuy.emit('click'); await flush();
+  assert.deepEqual(f.saved(), bought); assert.equal(f.writes.length, writes + 1, 'queued duplicate purchase cannot charge twice');
+  const gate = deferred(); f.control.pending = gate; await f.click(f.focusButton('outfit-wear-cloth_sky_overalls'));
+  assert.deepEqual(f.saved(), bought); assert.equal(f.activeMotions()[0].options.outfit, null);
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.equal(f.saved().wardrobe.equipped, 'cloth_sky_overalls'); assert.equal(f.saved().coins, bought.coins); assert.equal(f.saved().pet.exp, bought.pet.exp);
+  assert.equal(f.activeMotions()[0].options.outfit, 'cloth_sky_overalls'); assert.equal(f.writes.length, writes + 2);
+  assert.equal(f.focusButton('outfit-wear-cloth_sky_overalls').disabled, true);
+  assert.ok(f.host.querySelector('.ipg-worn-outfit').textContent.includes('そらいろサロペット'));
+});
+
+test('failed changing or removing clothes retains the actual saved outfit, wallet and independent decoration', async () => {
+  for (const outcome of ['false', 'throw']) {
+    const f = await fixture({ rendererMode: 'ready', setup: async app => {
+      for (const id of ['cloth_cream_vest', 'cloth_rose_cape', 'house']) assert.equal((await app.dispatch({ type: 'buyItem', itemId: id })).ok, true);
+      assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' })).ok, true);
+      assert.equal((await app.dispatch({ type: 'equip', itemId: 'house' })).ok, true);
+    } });
+    await f.click(f.focusButton('tab-shop')); const before = f.saved(), writes = f.writes.length, gate = deferred();
+    f.control.pending = gate; f.control.outcome = outcome; await f.click(f.focusButton('outfit-wear-cloth_rose_cape'));
+    assert.equal(f.activeMotions()[0].options.outfit, 'cloth_cream_vest'); assert.deepEqual(f.saved(), before);
+    gate.resolve(); await flush(); f.control.pending = null;
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.activeMotions()[0].options.outfit, 'cloth_cream_vest');
+    await f.click(f.focusButton('outfit-remove')); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+    f.control.outcome = 'ok'; await f.click(f.focusButton('outfit-wear-cloth_rose_cape'));
+    const changed = f.saved(); assert.equal(changed.wardrobe.equipped, 'cloth_rose_cape'); assert.equal(changed.coins, before.coins);
+    assert.equal(changed.pet.exp, before.pet.exp); assert.deepEqual(changed.decorations, before.decorations); assert.equal(changed.decorations.equipped, 'house');
+    assert.equal(f.activeMotions()[0].options.outfit, 'cloth_rose_cape');
+    await f.click(f.focusButton('outfit-remove')); assert.equal(f.saved().wardrobe.equipped, null);
+    assert.equal(f.saved().wardrobe.owned.cloth_rose_cape, true); assert.equal(f.saved().wardrobe.owned.cloth_cream_vest, true);
+    assert.deepEqual(f.saved().decorations, before.decorations); assert.equal(f.activeMotions()[0].options.outfit, null);
+  }
+});
+
+test('saved clothes survive growth, emotions, feeding, navigation and reload while every preview stays read only', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_exp: '397' }, setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'cloth_rose_cape' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_rose_cape' })).ok, true);
+  } });
+  const before = f.saved(), writes = f.writes.length; assert.equal(f.mounts.at(-1).options.outfit, 'cloth_rose_cape');
+  await f.click(f.focusButton('pet-emotion-angry')); assert.equal(f.saved().wardrobe.equipped, 'cloth_rose_cape');
+  await f.click(f.focusButton('growth-album-toggle')); await f.click(f.focusButton('growth-stage-companion'));
+  assert.ok(f.activeMotions().every(controller => controller.options.outfit === 'cloth_rose_cape'));
+  await f.click(f.button('薄紫のこのしぐさを見る')); assert.equal(f.activeMotions().length, 3);
+  assert.ok(f.activeMotions().every(controller => controller.options.outfit === 'cloth_rose_cape'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.click(f.focusButton('care-feed')); assert.equal(f.saved().pet.exp, 405);
+  assert.equal(f.activeMotions()[0].options.growthStage, 'adult'); assert.equal(f.activeMotions()[0].options.outfit, 'cloth_rose_cape');
+  f.advance(4400); await f.fireTimers(); assert.equal(f.host.querySelector('.ipg-emotion-stage').querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'joy');
+  for (const tab of ['play', 'market', 'shop', 'care']) {
+    await f.click(f.focusButton('tab-' + tab)); assert.equal(f.activeMotions()[0].options.outfit, 'cloth_rose_cape');
+  }
+  const after = f.saved(), raw = f.data.get(Core.KEY), reload = await fixture({ rendererMode: 'ready', seed: { [Core.KEY]: raw } });
+  assert.equal(reload.saved().wardrobe.equipped, 'cloth_rose_cape'); assert.equal(reload.mounts.at(-1).options.outfit, 'cloth_rose_cape');
+  assert.deepEqual(reload.saved(), after); assert.equal(reload.writes.length, 0);
+});
+
+test('a bunny can browse B-only fittings without changing its species, real image or saved wardrobe', async () => {
+  const f = await fixture({ rendererMode: 'ready', species: 'bunny', setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' })).ok, true);
+  } }), before = f.saved(), image = f.host.querySelector('.ipg-pet-image').src;
+  assert.equal(f.mounts.length, 0); await f.click(f.focusButton('tab-shop'));
+  await f.click(f.focusButton('outfit-try-cloth_flower_dress'));
+  assert.equal(f.activeMotions().length, 1); assert.equal(f.mounts.at(-1).options.outfit, 'cloth_flower_dress');
+  assert.ok(f.host.querySelector('.ipg-fitting-caption').textContent.includes('未購入・試着'));
+  assert.equal(f.saved().pet.species, 'bunny'); assert.equal(f.saved().wardrobe.equipped, 'cloth_cream_vest'); assert.deepEqual(f.saved(), before);
+  await f.click(f.focusButton('tab-care')); assert.equal(f.host.querySelector('.ipg-pet-image').src, image);
+  assert.equal(f.activeMotions().length, 0); assert.equal(f.host.querySelector('.ipg-outfit-fitting'), null);
+  await f.click(f.focusButton('tab-shop')); assert.equal(f.host.querySelector('.ipg-outfit-fitting'), null);
+  assert.deepEqual(f.saved(), before);
+});
+
+test('failed clothing drawing keeps saved wearing state but honestly labels the bare fallback and stops fittings on hide', async () => {
+  const f = await fixture({ rendererMode: 'error', setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' })).ok, true);
+  } }), before = f.saved(), writes = f.writes.length;
+  assert.equal(f.host.querySelector('.ipg-outfit-unavailable').hidden, false);
+  assert.match(f.host.querySelector('.ipg-outfit-unavailable').textContent, /着用設定は保存されています.*服の見た目を表示できません/);
+  assert.ok(!f.host.querySelector('.ipg-lilac-still').alt.includes('お洋服：'));
+  await f.click(f.focusButton('tab-shop')); await f.click(f.focusButton('outfit-try-cloth_mint_knit'));
+  const fitting = f.host.querySelector('.ipg-outfit-fitting'); assert.equal(fitting.querySelector('canvas').hidden, true);
+  assert.equal(fitting.querySelector('.ipg-lilac-still').hidden, false); assert.match(fitting.querySelector('.ipg-fitting-caption').textContent, /服を描かない基準の絵/);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  f.document.hidden = true; f.document.emit('visibilitychange'); await flush(); assert.equal(f.activeMotions().length, 0); assert.equal(f.timers.size, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush(); assert.equal(f.host.querySelector('.ipg-outfit-fitting'), null);
+  assert.deepEqual(f.saved(), before);
+});
+
+test('insufficient coins disable paid purchases while trial remains free and never grants ownership', async () => {
+  const f = await fixture({ rendererMode: 'ready', seed: { pg_coins: '0' } }); await f.click(f.focusButton('tab-shop'));
+  const before = f.saved(), writes = f.writes.length;
+  assert.equal(f.focusButton('outfit-buy-cloth_cream_vest').disabled, false);
+  assert.equal(f.focusButton('outfit-buy-cloth_flower_dress').disabled, true);
+  await f.click(f.focusButton('outfit-buy-cloth_flower_dress')); assert.deepEqual(f.saved(), before);
+  await f.click(f.focusButton('outfit-try-cloth_flower_dress')); assert.equal(f.mounts.at(-1).options.outfit, 'cloth_flower_dress');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  assert.ok(!f.saved().wardrobe?.owned?.cloth_flower_dress);
+});
+
+test('an unavailable optional renderer never presents the bare reference as visibly wearing saved clothes', async () => {
+  const f = await fixture({ rendererMode: 'ready', setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' })).ok, true);
+  } }), before = f.saved(), writes = f.writes.length;
+  delete f.window.PetLilacMotion; f.ui.render();
+  assert.equal(f.host.querySelector('.ipg-outfit-unavailable').hidden, false);
+  await f.click(f.focusButton('growth-album-toggle'));
+  assert.match(f.host.querySelector('.ipg-growth-caption').textContent, /服の見た目を表示できません/);
+  await f.click(f.button('薄紫のこのしぐさを見る'));
+  assert.match(f.host.querySelector('.ipg-appearance-preview').querySelector('.ipg-emotion-caption').textContent, /服の見た目を表示できません/);
+  assert.equal(f.activeMotions().length, 0); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('trying a lower-row garment immediately shows the fitting and moves focus to its caption without saving', async () => {
+  const f = await fixture({ rendererMode: 'ready' }); await f.click(f.focusButton('tab-shop'));
+  const before = f.saved(), writes = f.writes.length, choice = f.focusButton('outfit-try-cloth_flower_dress');
+  choice.focus(); await f.click(choice);
+  const shown = f.host.querySelector('.ipg-outfit-fitting'), caption = shown.querySelector('.ipg-fitting-caption');
+  assert.equal(shown.scrollCalls.length, 1); assert.equal(shown.scrollCalls[0].block, 'center'); assert.equal(shown.scrollCalls[0].behavior, 'auto');
+  assert.equal(caption.tabIndex, -1); assert.equal(f.document.activeElement, caption); assert.equal(caption.lastFocusOptions.preventScroll, true);
+  assert.ok(caption.textContent.includes('お花のワンピース')); assert.ok(caption.textContent.includes('未購入・試着の見本'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.mounts.at(-1).options.situation, 'idle');
 });

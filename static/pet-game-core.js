@@ -43,7 +43,13 @@
     {id:'bg_meadow',name:'そうげん',emoji:'🌿',type:'background',price:0},
     {id:'bg_beach',name:'うみべ',emoji:'🏖️',type:'background',price:40},
     {id:'bg_snow',name:'ゆきやま',emoji:'🏔️',type:'background',price:40},
-    {id:'bg_room',name:'おへや',emoji:'🏠',type:'background',price:40}
+    {id:'bg_room',name:'おへや',emoji:'🏠',type:'background',price:40},
+    {id:'cloth_cream_vest',name:'はじめてベスト',emoji:'🦺',type:'clothing',price:0},
+    {id:'cloth_rose_cape',name:'ももいろケープ',emoji:'🧣',type:'clothing',price:30},
+    {id:'cloth_sky_overalls',name:'そらいろサロペット',emoji:'👖',type:'clothing',price:45},
+    {id:'cloth_mint_knit',name:'ミントのニット',emoji:'🧶',type:'clothing',price:40},
+    {id:'cloth_star_pajamas',name:'星のおやすみ服',emoji:'🌙',type:'clothing',price:55},
+    {id:'cloth_flower_dress',name:'お花のワンピース',emoji:'🌼',type:'clothing',price:65}
   ];
   var LEGACY_KEYS = ['pg_exp','pg_coins','pg_name','pg_species','pg_deco','pg_bg','pg_bgs',
     'pg_ach','pg_day','pg_feed','pg_pet','pg_play','pg_cnt_feed','pg_cnt_pet','pg_mg_best',
@@ -110,7 +116,7 @@
     STOCKS.forEach(function(x){m.prices[x.id]=x.base;m.previous[x.id]=x.base;m.holdings[x.id]={quantity:0,costBasis:0};});return m;
   }
   function fresh(ms) { return {version:3,revision:0,createdAt:ms,updatedAt:ms,
-    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false},coins:100,inventory:{},
+    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false},coins:100,inventory:{},wardrobe:{owned:{},equipped:null},
     decorations:{owned:{},equipped:null,background:'meadow',backgrounds:['meadow']},achievements:[],
     care:{day:dayKey(ms),counts:{feed:0,play:0,rest:0},lastCareAt:null,dailyRewardDay:'',total:{feed:0,play:0,rest:0}},
     minigames:{day:dayKey(ms),started:0,active:null,completed:[],bestScore:0},market:market(),
@@ -122,6 +128,13 @@
     check(plain(s.pet)&&text(s.pet.name,40)&&['dragon','bunny','lilac'].indexOf(s.pet.species)>=0&&integer(s.pet.exp),'corrupt_data');
     check(s.pet.path===undefined||['cute','cool'].indexOf(s.pet.path)>=0,'corrupt_data');check(s.pet.pixel===undefined||typeof s.pet.pixel==='boolean','corrupt_data');
     check(integer(s.coins),'corrupt_data');counts(s.inventory);
+    // Older v3 records/backups need no write merely to add an empty wardrobe.
+    if(own(s,'wardrobe')) {
+      var wardrobe=s.wardrobe;
+      check(plain(wardrobe)&&Object.keys(wardrobe).every(function(k){return k==='owned'||k==='equipped';})&&plain(wardrobe.owned),'corrupt_data');
+      Object.keys(wardrobe.owned).forEach(function(k){var clothing=item(k);check(clothing&&clothing.type==='clothing'&&wardrobe.owned[k]===true,'corrupt_data');});
+      check(wardrobe.equipped===null||typeof wardrobe.equipped==='string'&&own(wardrobe.owned,wardrobe.equipped)&&wardrobe.owned[wardrobe.equipped]===true,'corrupt_data');
+    }
     var d=s.decorations;check(plain(d)&&plain(d.owned)&&text(d.background,100)&&Array.isArray(d.backgrounds)&&d.backgrounds.length<=200,'corrupt_data');
     Object.keys(d.owned).forEach(function(k){check(text(k,100)&&plain(d.owned[k]),'corrupt_data');});
     check(d.equipped===null || text(d.equipped,100)&&own(d.owned,d.equipped),'corrupt_data');
@@ -258,7 +271,14 @@
         check(next.pet.exp>=110,'appearance_locked');check(['cute','cool'].indexOf(a.path)>=0&&typeof a.pixel==='boolean','invalid_appearance');
         next.pet.path=a.path;next.pet.pixel=a.pixel;
       } else if(a.type==='buyItem') {
-        var it=item(a.itemId);check(!!it,'invalid_item');check(next.coins>=it.price,'insufficient_coins');
+        var it=item(a.itemId);check(!!it,'invalid_item');
+        if(it.type==='clothing') {
+          var wardrobe=next.wardrobe||{owned:{},equipped:null};
+          check(!own(wardrobe.owned,it.id),'already_owned');check(next.coins>=it.price,'insufficient_coins');
+          next.coins-=it.price;wardrobe.owned[it.id]=true;next.wardrobe=wardrobe;
+          return reward;
+        }
+        check(next.coins>=it.price,'insufficient_coins');
         if(it.type==='food'){next.coins-=it.price;next.inventory[it.id]=(next.inventory[it.id]||0)+1;}
         else if(it.type==='decoration'){check(!own(next.decorations.owned,it.id),'already_owned');next.coins-=it.price;next.decorations.owned[it.id]={};}
         else {var bg=it.id.slice(3);check(next.decorations.backgrounds.indexOf(bg)<0,'already_owned');next.coins-=it.price;next.decorations.backgrounds.push(bg);}
@@ -268,6 +288,13 @@
         if(a.itemId===null)next.decorations.equipped=null;
         else if(typeof a.itemId==='string'&&a.itemId.indexOf('bg_')===0){var bgid=a.itemId.slice(3);check(next.decorations.backgrounds.indexOf(bgid)>=0,'not_owned');next.decorations.background=bgid;}
         else {check(typeof a.itemId==='string'&&own(next.decorations.owned,a.itemId),'not_owned');next.decorations.equipped=a.itemId;}
+      } else if(a.type==='equipClothing') {
+        if(a.itemId===null) {if(next.wardrobe)next.wardrobe.equipped=null;}
+        else {
+          var clothing=item(a.itemId);check(clothing&&clothing.type==='clothing','invalid_item');
+          check(next.wardrobe&&next.wardrobe.owned[a.itemId]===true,'not_owned');next.wardrobe.equipped=a.itemId;
+        }
+        return reward;
       } else if(a.type==='beginMinigame') {
         var g=next.minigames;check(!g.active,'game_active');check(a.kind===undefined||a.kind==='catch','invalid_action');
         if(g.day!==day){check(day>g.day,'clock_moved_back');g.day=day;g.started=0;}

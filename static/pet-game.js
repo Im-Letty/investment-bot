@@ -9,6 +9,7 @@
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
   var emotionGroup = 'bright', previewEmotionGroup = 'bright';
   var growthAlbumOpen = false, growthPreviewStage = null;
+  var fittingOpen = false, fittingOutfit = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
@@ -31,6 +32,12 @@
   function items() { return core().items || core().catalogue || core().ITEMS || []; }
   function item(id) { return items().filter(function (x) { return x.id === id; })[0]; }
   function itemName(id) { var x = item(id); return x ? x.name : 'アイテム'; }
+  function clothingItems() { return items().filter(function (x) { return x.type === 'clothing'; }); }
+  function wardrobe(s) { return s.wardrobe || { owned: {}, equipped: null }; }
+  function outfit(s) {
+    var worn = wardrobe(s), entry = item(worn.equipped);
+    return entry && entry.type === 'clothing' && worn.owned && worn.owned[entry.id] === true ? entry.id : null;
+  }
   function limits() { return core().LIMITS || {}; }
   function currentDay() {
     var dt = new Date((options && options.now || Date.now)());
@@ -118,7 +125,7 @@
     if (reaction && Date.now() - reaction.startedAt >= reaction.durationMs) reaction = null;
     return reaction;
   }
-  function petVisual(s, extraClass, preview) {
+  function petVisual(s, extraClass, preview, fittingOverride) {
     if (displaySpecies(s) !== 'lilac') {
       var old = node('img', extraClass || 'ipg-pet-image');
       old.src = petImage(s); old.alt = (s.pet.name || 'ペット') + '（' + stage(s).label + '）';
@@ -126,8 +133,10 @@
       return old;
     }
     var growthStage = stage(s).key;
+    var dress = preview === 'fitting' ? fittingOverride : outfit(s);
+    var dressItem = item(dress); dress = dressItem && dressItem.type === 'clothing' ? dressItem.id : null;
     var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + growthStage + (extraClass ? ' ' + extraClass : ''));
-    wrap.dataset.growthStage = growthStage;
+    wrap.dataset.growthStage = growthStage; wrap.dataset.outfit = dress || 'none';
     var still = node('img', 'ipg-lilac-still');
     still.src = imageRoot + 'pet_lilac_cutout.webp';
     still.alt = (s.pet.name || '薄紫のこ') + '（' + stage(s).label + '）';
@@ -140,11 +149,11 @@
     wrap.appendChild(food);
     var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
     wrap.appendChild(effect);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', growthStage: growthStage, controller: null, cueTimer: null, ready: false });
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', growthStage: growthStage, outfit: dress, visualAlt: still.alt + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, ready: false });
     return wrap;
   }
   function requestCue(request) {
-    return request.growthPreview ? null : request.preview ? previewCue() : currentReaction();
+    return request.growthPreview || request.fittingPreview ? null : request.preview ? previewCue() : currentReaction();
   }
   function startMotions() {
     if (!motionsVisible() || !w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') return;
@@ -161,10 +170,11 @@
         var controller = w.PetLilacMotion.mount(request.canvas, {
           assetRoot: imageRoot,
           growthStage: request.growthStage,
+          outfit: request.outfit,
           situation: localCue ? localCue.situation : 'idle',
           durationMs: localCue ? localCue.durationMs : 0,
           elapsedMs: localCue ? Math.max(0, Date.now() - localCue.startedAt) : 0,
-          onReady: function () { request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); },
+          onReady: function () { if (request.outfitNotice) request.outfitNotice.hidden = true; request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); },
           releaseContextOnDestroy: true,
           onError: function () { motionFallback(request); }
         });
@@ -181,8 +191,10 @@
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     if (request.food) request.food.hidden = true;
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
-    if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。';
-    if (request.growthCaption) request.growthCaption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。';
+    if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。' + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
+    if (request.outfitNotice) request.outfitNotice.hidden = false;
+    if (request.growthCaption) request.growthCaption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
+    if (request.fittingCaption) request.fittingCaption.textContent = '試着の表示を確認できないため、服を描かない基準の絵を表示しています。';
   }
   // The catalogue is shared with the renderer. A missing optional renderer keeps
   // the original static pet and a readable, disabled emotion selector.
@@ -232,7 +244,7 @@
     (request.controls || []).forEach(function (control) { control.setAttribute('aria-pressed', String(control.dataset.emotion === name)); });
     if (request.caption) request.caption.textContent = meal ? meal.label + (request.preview ? 'の見本' : '') :
       (entry ? entry.label : 'ふだん') + (request.preview ? 'の見本' : 'のしぐさ');
-    request.canvas.setAttribute('aria-label', request.still.alt + '・' + (meal ? meal.label : entry ? entry.label : 'ふだん'));
+    request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? meal.label : entry ? entry.label : 'ふだん'));
     request.wrap.dataset.situation = name;
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
     if (request.food) {
@@ -314,7 +326,7 @@
     });
     append(box, caption, tabs, choices);
     if (!request) box.appendChild(text('たまごがかえったら、きもちを選べるようになります。', 'ipg-small'));
-    if (!w.PetLilacMotion) caption.textContent = '絵の見本を表示しています。';
+    if (!w.PetLilacMotion) caption.textContent = '絵の見本を表示しています。' + (request && request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     return box;
   }
   async function run(action, message) {
@@ -375,6 +387,7 @@
       var caption = text(selected.label + ' · ' + (future ? 'これからの姿・見本' : currentView ? 'いまの姿' : '育った姿の見本'), 'ipg-growth-caption');
       caption.setAttribute('aria-live', 'polite');
       request.growthCaption = caption;
+      if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
       append(preview, visual, caption);
       var choices = node('div', 'ipg-growth-choices'); choices.setAttribute('role', 'group'); choices.setAttribute('aria-label', '成長のすがた・6段階');
       stages.forEach(function (entry) {
@@ -409,6 +422,7 @@
     progress.setAttribute('aria-label', '次の成長までの進み具合');
     append(pet, progress, text(info.next == null ? 'ここまで育ててくれて、ありがとう。お世話はこれからも続けられます。' :
       '次の成長まで あと' + number(Math.max(0, info.next - s.pet.exp)) + ' EXP'));
+    if (displaySpecies(s) === 'lilac') renderWornOutfit(s, pet);
     renderGrowthAlbum(s, pet);
     var care = node('div', 'ipg-care-buttons');
     [['feed', 'ごはん', '🍎', 8], ['play', 'なでる', '♡', 5], ['rest', '休む', '☾', 4]].forEach(function (x) {
@@ -588,15 +602,83 @@
   }
   function owned(s, x) {
     if (x.type === 'food') return s.inventory[x.id] || 0;
+    if (x.type === 'clothing') return wardrobe(s).owned && wardrobe(s).owned[x.id] === true ? 1 : 0;
     if (x.type === 'background') return (s.decorations.backgrounds || []).indexOf(x.id) >= 0 ||
       (s.decorations.backgrounds || []).indexOf(x.id.replace(/^bg_/, '')) >= 0 || x.id === 'bg_meadow' ? 1 : 0;
     return s.decorations.owned[x.id] ? 1 : 0;
   }
+  function renderWornOutfit(s, parent) {
+    var worn = outfit(s), row = node('div', 'ipg-worn-outfit');
+    row.appendChild(text(worn ? (displaySpecies(s) === 'lilac' ? '着用中：' : '薄紫のこの着用設定：') + itemName(worn) : 'お洋服：まだ着ていません。', 'ipg-small'));
+    if (worn) {
+      var remove = button('服を脱ぐ', function () { run({ type: 'equipClothing', itemId: null }, 'お洋服を脱ぎました。'); }, true);
+      remove.dataset.focusKey = 'outfit-remove'; row.appendChild(remove);
+      if (displaySpecies(s) === 'lilac') {
+        var unavailable = text('着用設定は保存されています。この環境では服の見た目を表示できません。', 'ipg-outfit-unavailable ipg-small');
+        unavailable.hidden = !!(w.PetLilacMotion && typeof w.PetLilacMotion.mount === 'function');
+        var current = motionRequests.filter(function (request) { return !request.preview && request.outfit === worn; }).slice(-1)[0];
+        if (current) current.outfitNotice = unavailable; row.appendChild(unavailable);
+      }
+    }
+    parent.appendChild(row);
+  }
+  function renderClothesShop(s, body) {
+    var clothes = clothingItems(); if (!clothes.length) return;
+    var section = card('お洋服', 'ipg-clothes-shop');
+    append(section, text('薄紫のこ（B）のお洋服です。まずは試着して、お気に入りを見つけよう。', 'ipg-small'));
+    renderWornOutfit(s, section);
+    if (fittingOpen) {
+      var selected = item(fittingOutfit);
+      if (!selected || selected.type !== 'clothing') { fittingOpen = false; fittingOutfit = null; }
+      else {
+        var fitting = node('div', 'ipg-outfit-fitting');
+        var sample = Object.assign({}, s, { pet: Object.assign({}, s.pet, { species: 'lilac' }) });
+        var visual = petVisual(sample, 'ipg-fitting-sample', 'fitting', selected.id);
+        var request = motionRequests[motionRequests.length - 1];
+        var fittingInfo = node('div', 'ipg-fitting-info');
+        var caption = text(selected.name + ' · ' + (owned(s, selected) ? '購入済み・試着の見本' : '未購入・試着の見本'), 'ipg-fitting-caption');
+        caption.setAttribute('aria-live', 'polite'); caption.tabIndex = -1; request.fittingCaption = caption;
+        if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = 'この画面では試着の動きを表示できないため、服を描かない基準の絵を表示しています。';
+        append(fittingInfo, caption, text('試着ではコインを使いません。', 'ipg-small'), button('試着を閉じる', function () {
+          fittingOpen = false; fittingOutfit = null; render();
+        }, true));
+        append(fitting, visual, fittingInfo); section.appendChild(fitting);
+      }
+    }
+    var grid = node('div', 'ipg-clothing-grid');
+    var styles = { cloth_cream_vest: 'vest', cloth_rose_cape: 'cape', cloth_sky_overalls: 'overalls', cloth_mint_knit: 'knit', cloth_star_pajamas: 'pajamas', cloth_flower_dress: 'dress' };
+    clothes.forEach(function (entry) {
+      var has = !!owned(s, entry), wearing = outfit(s) === entry.id;
+      var row = node('article', 'ipg-clothing-item'); row.dataset.clothing = entry.id;
+      var icon = node('span', 'ipg-clothing-swatch ipg-cloth-' + (styles[entry.id] || 'vest')); icon.setAttribute('aria-hidden', 'true');
+      append(row, icon, node('h4', '', entry.name), text(number(entry.price) + 'コイン', 'ipg-stage'),
+        text(wearing ? '着用中' : has ? '購入済み' : '未購入', 'ipg-small'));
+      var tryOn = button('試着', function () {
+        fittingOpen = true; fittingOutfit = entry.id; render();
+        var shown = host && host.querySelector('.ipg-outfit-fitting');
+        if (shown && motionsVisible()) {
+          if (typeof shown.scrollIntoView === 'function') shown.scrollIntoView({ block: 'center', behavior: 'auto' });
+          var title = shown.querySelector('.ipg-fitting-caption'); if (title && typeof title.focus === 'function') title.focus({ preventScroll: true });
+        }
+      }, true);
+      tryOn.dataset.focusKey = 'outfit-try-' + entry.id; tryOn.setAttribute('aria-label', entry.name + 'を試着'); row.appendChild(tryOn);
+      if (!has) {
+        var buy = button('買う', function () { run({ type: 'buyItem', itemId: entry.id }, entry.name + 'を購入しました。着るときは「着る」を選んでね。'); }, false, s.coins < entry.price);
+        buy.dataset.focusKey = 'outfit-buy-' + entry.id; buy.setAttribute('aria-label', entry.name + 'を買う・' + number(entry.price) + 'コイン'); row.appendChild(buy);
+      } else {
+        var wear = button(wearing ? '着用中' : '着る', function () { run({ type: 'equipClothing', itemId: entry.id }, entry.name + 'に着替えました。'); }, true, wearing);
+        wear.dataset.focusKey = 'outfit-wear-' + entry.id; wear.setAttribute('aria-label', entry.name + (wearing ? 'を着用中' : 'を着る')); row.appendChild(wear);
+      }
+      grid.appendChild(row);
+    });
+    section.appendChild(grid); body.appendChild(section);
+  }
   function renderShop(s, body) {
+    renderClothesShop(s, body);
     var c = card('お店ともちもの');
     append(c, text('おにぎりキャッチや毎日の育成で集めたコインを使えます。食べものは、もちものから使うとEXPになります。'));
     var grid = node('div', 'ipg-shop-grid');
-    items().forEach(function (x) {
+    items().filter(function (x) { return x.type !== 'clothing'; }).forEach(function (x) {
       var count = owned(s, x), row = node('article', 'ipg-shop-item');
       append(row, node('span', 'ipg-item-icon', x.emoji || '🌿'), node('h4', '', x.name),
         text(x.type === 'food' ? '+' + number(x.exp) + 'EXP · 所持' + number(count) + '個' : count ? '持っています' : '未所持'),
@@ -787,7 +869,7 @@
       var b = button(tabLabels[key], async function () {
         if (busy) return;
         if (game) await cancelGame('ゲームを中止しました。この回の報酬はありません。');
-        tab = key; render();
+        tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
       }, true);
       b.className += tab === key ? ' is-active' : '';
       b.setAttribute('aria-current', tab === key ? 'page' : 'false');
@@ -854,7 +936,7 @@
   }
   function suspend() {
     suspended = true; lifecycleEpoch++;
-    stopMotions(); reaction = null; greeted = false; appearancePreview = false; growthAlbumOpen = false; growthPreviewStage = null;
+    stopMotions(); reaction = null; greeted = false; appearancePreview = false; growthAlbumOpen = false; growthPreviewStage = null; fittingOpen = false; fittingOutfit = null;
     return cancelGame('画面を離れたためゲームを中止しました。');
   }
   d.addEventListener('visibilitychange', function () {

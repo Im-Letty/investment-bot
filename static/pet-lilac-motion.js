@@ -18,6 +18,57 @@
     return list.concat(group[2].map(function (item) { return Object.freeze({ id: item[0], label: item[1], group: group[0], groupLabel: group[1], durationMs: item[2] }); }));
   }, []));
   var durations = Object.freeze(catalogue.reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {}));
+  var outfitCatalogue = Object.freeze([
+    { id: 'cloth_cream_vest', label: 'はじめてベスト', price: 0, style: 'vest', color: [.94,.88,.75], trim: [.70,.59,.43] },
+    { id: 'cloth_rose_cape', label: 'ももいろケープ', price: 30, style: 'cape', color: [.87,.61,.70], trim: [.63,.37,.47] },
+    { id: 'cloth_sky_overalls', label: 'そらいろサロペット', price: 45, style: 'overalls', color: [.58,.75,.84], trim: [.31,.48,.59] },
+    { id: 'cloth_mint_knit', label: 'ミントのニット', price: 40, style: 'knit', color: [.63,.78,.69], trim: [.33,.51,.42] },
+    { id: 'cloth_star_pajamas', label: '星のおやすみ服', price: 55, style: 'pajamas', color: [.64,.65,.81], trim: [.38,.39,.57] },
+    { id: 'cloth_flower_dress', label: 'お花のワンピース', price: 65, style: 'dress', color: [.94,.78,.66], trim: [.66,.46,.35] }
+  ].map(function (entry, index) { entry.index = index + 1; Object.freeze(entry.color); Object.freeze(entry.trim); return Object.freeze(entry); }));
+  function outfitProfile(id) {
+    if (typeof id !== 'string') return null;
+    for (var i = 0; i < outfitCatalogue.length; i++) if (outfitCatalogue[i].id === id) return outfitCatalogue[i];
+    return null;
+  }
+  // Shared bounds drive both shader constants and the pure coverage QA helper.
+  var clothBounds = Object.freeze({ x: .525, y: .79, rx: .258, ry: .125, top: .688, hem: .891,
+    pawLX: .527, pawLY: .743, pawLRX: .153, pawLRY: .100, pawRX: .718, pawRY: .729, pawRRX: .091, pawRRY: .091 });
+  function ramp(a, b, value) { return smooth((value-a)/(b-a)); }
+  function clothEllipse(x, y, cx, cy, rx, ry) { var dx=(x-cx)/rx, dy=(y-cy)/ry; return 1-ramp(.96,1.02,Math.sqrt(dx*dx+dy*dy)); }
+  function clothLine(x, y, ax, ay, bx, by, width) {
+    var vx=bx-ax, vy=by-ay, t=clamp(((x-ax)*vx+(y-ay)*vy)/(vx*vx+vy*vy),0,1);
+    return 1-ramp(width,width+.003,Math.hypot(x-ax-vx*t,y-ay-vy*t));
+  }
+  function outfitCoverage(id, inputX, inputY) {
+    var entry=outfitProfile(id), x=finite(inputX,-1), y=finite(inputY,-1), b=clothBounds;
+    if (!entry) return 0;
+    var mask=clothEllipse(x,y,b.x,b.y,b.rx,b.ry)*ramp(b.top,b.top+.008,y)*(1-ramp(b.hem-.006,b.hem,y));
+    var paws=Math.max(clothEllipse(x,y,b.pawLX,b.pawLY,b.pawLRX,b.pawLRY),clothEllipse(x,y,b.pawRX,b.pawRY,b.pawRRX,b.pawRRY));
+    mask*=1-paws;
+    if (entry.style === 'vest') {
+      var neck=1-ramp(.005,.012,Math.abs(x-.58)-Math.max(0,.755-y)*1.05);
+      mask*=1-neck;
+    } else if (entry.style === 'cape') {
+      var opening=1-ramp(.0,.008,Math.abs(x-.58)-Math.max(0,y-.70)*.52-.018);
+      mask*=1-opening; mask*=1-ramp(.866+.006*Math.cos((x-.28)*TAU*9),.874+.006*Math.cos((x-.28)*TAU*9),y);
+    } else if (entry.style === 'overalls') {
+      var straps=Math.max(clothLine(x,y,.375,.69,.455,.81,.014),clothLine(x,y,.735,.69,.69,.81,.014));
+      var bib=ramp(.77,.778,y)*(1-ramp(.145,.155,Math.abs(x-.58)));
+      mask*=Math.max(straps,bib);
+    } else if (entry.style === 'knit' || entry.style === 'pajamas') {
+      var collar=clothEllipse(x,y,.58,.69,.079,.025);
+      mask*=1-collar;
+    } else if (entry.style === 'dress') {
+      var shoulder=Math.max(clothLine(x,y,.38,.69,.44,.78,.017),clothLine(x,y,.738,.69,.69,.78,.017));
+      var width=.132+Math.max(0,y-.766)*.65;
+      var skirt=ramp(.756,.766,y)*(1-ramp(width,width+.008,Math.abs(x-.56)));
+      mask*=Math.max(shoulder,skirt);
+    }
+    return clamp(mask,0,1);
+  }
+  function outfitUniform(id, anger) { var entry=outfitProfile(id); return (entry ? entry.index*2 : 0)+clamp(finite(anger,0),0,1); }
+  function vecColor(values) { return 'vec3('+values.map(function (v) { return v.toFixed(3); }).join(',')+')'; }
   // Geometry stages use the same original and facial textures. No stage grants EXP.
   var growthProfiles = Object.freeze({
     egg: Object.freeze({ key: 'egg', label: 'うまれたて', overallScale: .70, headWidth: 1.12, headHeight: 1.08, bodyWidth: .86, bodyHeight: .72, earScale: .78, tailScale: .68, cadence: 1.18, movingCadence: 1.16 }),
@@ -225,11 +276,58 @@
     else if (action.type === 'care') name = action.kind === 'play' ? 'petted' : action.kind === 'rest' ? 'resting' : null;
     else if (action.type === 'finishMinigame' && action.score > 0) name = 'caught';
     else if (action.type === 'chooseSpecies' || action.type === 'rename') name = 'greeting';
-    else if (['buyItem', 'equip', 'chooseAppearance', 'transferLegacy'].indexOf(action.type) >= 0) name = 'joy';
+    else if (['buyItem', 'equip', 'equipClothing', 'chooseAppearance', 'transferLegacy'].indexOf(action.type) >= 0) name = 'joy';
     else if (action.type === 'advanceMarketDay' && result.reward && result.reward.dividend > 0) name = 'joy';
     return name ? { situation: name, durationMs: durations[name] } : null;
   }
 
+  var clothingShader = [
+    'float ce(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.96,1.02,length((p-c)/r));}',
+    'float cl(vec2 p,vec2 a,vec2 b,float w){vec2 v=b-a;float t=clamp(dot(p-a,v)/dot(v,v),0.,1.);return 1.-smoothstep(w,w+.003,length(p-a-v*t));}',
+    'float cb(vec2 p,vec2 c,vec2 h,float r){vec2 q=abs(p-c)-h+vec2(r);float d=length(max(q,vec2(0.)))+min(max(q.x,q.y),0.)-r;return 1.-smoothstep(-.002,.002,d);}',
+    'float cs(vec2 p,vec2 c,float size){vec2 q=(p-c)/size;float angle=atan(q.y+.000001,q.x+.000001);float edge=.46+.24*cos(5.*angle);return 1.-smoothstep(edge-.04,edge+.04,length(q));}',
+    'float cf(vec2 p,vec2 c){float petals=0.;for(int i=0;i<5;i++){float a=float(i)*6.2831853/5.;vec2 offset=vec2(cos(a),sin(a))*.010;petals=max(petals,ce(p,c+offset,vec2(.0075)));}return petals;}',
+    'float clothingMask(vec2 p,float kind){',
+    'float mask=ce(p,vec2('+clothBounds.x+','+clothBounds.y+'),vec2('+clothBounds.rx+','+clothBounds.ry+'))*smoothstep('+clothBounds.top+','+(clothBounds.top+.008)+',p.y)*(1.-smoothstep('+(clothBounds.hem-.006)+','+clothBounds.hem+',p.y));',
+    'float paws=max(ce(p,vec2('+clothBounds.pawLX+','+clothBounds.pawLY+'),vec2('+clothBounds.pawLRX+','+clothBounds.pawLRY+')),ce(p,vec2('+clothBounds.pawRX+','+clothBounds.pawRY+'),vec2('+clothBounds.pawRRX+','+clothBounds.pawRRY+')));mask*=1.-paws;',
+    'if(kind<1.5){float neck=1.-smoothstep(.005,.012,abs(p.x-.58)-max(0.,.755-p.y)*1.05);mask*=1.-neck;}',
+    'else if(kind<2.5){float opening=1.-smoothstep(.0,.008,abs(p.x-.58)-max(0.,p.y-.70)*.52-.018);mask*=1.-opening;mask*=1.-smoothstep(.866+.006*cos((p.x-.28)*6.2831853*9.),.874+.006*cos((p.x-.28)*6.2831853*9.),p.y);}',
+    'else if(kind<3.5){float straps=max(cl(p,vec2(.375,.69),vec2(.455,.81),.014),cl(p,vec2(.735,.69),vec2(.69,.81),.014));float bib=smoothstep(.77,.778,p.y)*(1.-smoothstep(.145,.155,abs(p.x-.58)));mask*=max(straps,bib);}',
+    'else if(kind<5.5){mask*=1.-ce(p,vec2(.58,.69),vec2(.079,.025));}',
+    'else{float shoulder=max(cl(p,vec2(.38,.69),vec2(.44,.78),.017),cl(p,vec2(.738,.69),vec2(.69,.78),.017));float width=.132+max(0.,p.y-.766)*.65;float skirt=smoothstep(.756,.766,p.y)*(1.-smoothstep(width,width+.008,abs(p.x-.56)));mask*=max(shoulder,skirt);}',
+    'return clamp(mask,0.,1.);}',
+    'vec4 clothing(vec2 p,vec3 original,float kind){',
+    'if(p.x<.26||p.x>.79||p.y<.688||p.y>.891)return vec4(0.);',
+    'float mask=clothingMask(p,kind);if(mask<=0.)return vec4(0.);vec3 base='+vecColor(outfitCatalogue[0].color)+';vec3 trim='+vecColor(outfitCatalogue[0].trim)+';',
+    outfitCatalogue.slice(1).map(function(entry){return 'if(kind>'+((entry.index-.5).toFixed(1))+'&&kind<'+((entry.index+.5).toFixed(1))+'){base='+vecColor(entry.color)+';trim='+vecColor(entry.trim)+';}';}).join(''),
+    'float light=.85+.15*dot(original,vec3(.299,.587,.114));float weave=.006*sin(p.y*240.)*sin(p.x*190.);vec3 cloth=base*(light+weave);float seam=0.;',
+    'if(kind<1.5){',
+    'seam=max(cl(p,vec2(.405,.72),vec2(.43,.86),.0035),cl(p,vec2(.724,.725),vec2(.714,.858),.0035));',
+    'seam=max(seam,cl(p,vec2(.579,.785),vec2(.579,.878),.0032));seam=max(seam,cl(p,vec2(.32,.87),vec2(.735,.87),.0035));',
+    'float lapel=max(cb(p,vec2(.365,.728),vec2(.021,.032),.004),cb(p,vec2(.748,.727),vec2(.018,.029),.004));cloth=mix(cloth,base*.90,lapel*.35);',
+    'float buttons=max(ce(p,vec2(.592,.841),vec2(.006)),ce(p,vec2(.592,.867),vec2(.006)));cloth=mix(cloth,trim,buttons*.75);',
+    '}else if(kind<2.5){',
+    'seam=max(cl(p,vec2(.54,.70),vec2(.465,.865),.004),cl(p,vec2(.62,.70),vec2(.71,.865),.004));',
+    'float hem=cl(p,vec2(.295,.856),vec2(.44,.867),.0035)+cl(p,vec2(.72,.866),vec2(.773,.84),.0035);seam=max(seam,hem);',
+    'float tie=max(ce(p,vec2(.372,.727),vec2(.016,.009)),ce(p,vec2(.399,.733),vec2(.016,.009)));cloth=mix(cloth,vec3(.96,.83,.83),tie*.9);',
+    '}else if(kind<3.5){',
+    'seam=max(cl(p,vec2(.578,.827),vec2(.578,.882),.003),cl(p,vec2(.438,.88),vec2(.72,.88),.0035));',
+    'float pocket=cb(p,vec2(.583,.846),vec2(.05,.023),.008);float pocketIn=cb(p,vec2(.583,.844),vec2(.044,.017),.006);seam=max(seam,pocket*(1.-pocketIn));',
+    'seam=max(seam,cl(p,vec2(.371,.697),vec2(.447,.806),.0028));float buttons=max(ce(p,vec2(.448,.801),vec2(.006)),ce(p,vec2(.69,.801),vec2(.006)));cloth=mix(cloth,vec3(.94,.85,.63),buttons*.8);',
+    '}else if(kind<4.5){',
+    'float ribs=.5+.5*sin(p.x*6.2831853*24.);cloth*=.97+.035*ribs;',
+    'seam=max(cl(p,vec2(.315,.866),vec2(.741,.866),.003),cl(p,vec2(.332,.843),vec2(.337,.878),.003));',
+    'float cable=cl(p,vec2(.346,.77),vec2(.367,.80),.0032)+cl(p,vec2(.367,.80),vec2(.346,.83),.0032)+cl(p,vec2(.346,.83),vec2(.367,.86),.0032);seam=max(seam,cable*.7);',
+    '}else if(kind<5.5){',
+    'float stars=max(max(cs(p,vec2(.337,.797),.029),cs(p,vec2(.407,.858),.025)),max(cs(p,vec2(.657,.859),.027),cs(p,vec2(.751,.817),.022)));cloth=mix(cloth,vec3(.97,.91,.73),stars*.9);',
+    'seam=max(cl(p,vec2(.578,.745),vec2(.578,.88),.0035),cl(p,vec2(.32,.875),vec2(.745,.875),.0035));float buttons=max(ce(p,vec2(.59,.838),vec2(.0045)),ce(p,vec2(.59,.866),vec2(.0045)));cloth=mix(cloth,vec3(.94,.9,.84),buttons*.95);',
+    '}else{',
+    'float flowers=max(cf(p,vec2(.352,.813)),max(cf(p,vec2(.454,.862)),cf(p,vec2(.692,.846))));cloth=mix(cloth,vec3(.99,.95,.87),flowers*.95);',
+    'float centers=max(ce(p,vec2(.352,.813),vec2(.0045)),max(ce(p,vec2(.454,.862),vec2(.0045)),ce(p,vec2(.692,.846),vec2(.0045))));cloth=mix(cloth,vec3(.87,.66,.29),centers*.9);',
+    'seam=max(cl(p,vec2(.33,.877),vec2(.73,.877),.0035),cl(p,vec2(.406,.804),vec2(.731,.804),.004));',
+    '}',
+    'cloth=mix(cloth,trim,clamp(seam,0.,1.)*.48);return vec4(cloth,mask);}'
+  ].join('\n');
   var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; varying vec2 v_uv; void main(){v_uv=a_uv;gl_Position=vec4(a_position,0.,1.);}';
   var fragmentSource = [
     '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
@@ -240,12 +338,13 @@
     '#define u_bounce u_motionC.x', '#define u_step u_motionC.y', '#define u_scale u_motionC.z', '#define u_presence u_motionC.w',
     '#define u_bodyAngle u_body.x', '#define u_shiftX u_body.y', '#define u_shiftY u_body.z', '#define u_squash u_body.w',
     '#define u_stretch u_gesture.x', '#define u_crouch u_gesture.y', '#define u_pawSpread u_gesture.z', '#define u_mouthOpen u_gesture.w',
-    '#define u_tear u_effect.x', '#define u_blush u_effect.y', '#define u_sweat u_effect.z', '#define u_anger u_effect.w',
+    '#define u_tear u_effect.x', '#define u_blush u_effect.y', '#define u_sweat u_effect.z', '#define u_anger mod(u_effect.w,2.)', '#define u_outfit floor(u_effect.w/2.)',
     '#define u_eyeNarrow u_detail.x', '#define u_look u_detail.yz', '#define u_phase u_detail.w',
     'float region(vec2 p,vec2 c,vec2 r){vec2 q=(p-c)/r;return exp(-dot(q,q)*2.);}',
     'mat2 rotation(float a){return mat2(cos(a),-sin(a),sin(a),cos(a));}',
     'float eyeMask(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.85,1.1,length(rotation(.28)*(p-c)/r));}',
     'float droplet(vec2 p,vec2 c,vec2 r){vec2 q=(p-c)/r;return 1.-smoothstep(.75,1.05,dot(q,q));}',
+    clothingShader,
     'void main(){vec2 anchor=vec2(.5,.92);float margin=1.-.12*u_presence;',
     'vec2 p=(v_uv-anchor)/(u_scale*margin)+anchor;p-=vec2(u_shiftX,u_shiftY);p=anchor+rotation(u_bodyAngle)*(p-anchor);',
     'p=(p-anchor)/vec2(1.+.085*u_squash,1.-.075*u_squash+.07*u_stretch-.055*u_crouch)+anchor;',
@@ -291,6 +390,7 @@
     'vec2 mark=rotation(.3)*(p-vec2(.62,.245));float redMark=(1.-smoothstep(.003,.006,abs(abs(mark.x)-.012)))*(1.-smoothstep(.014,.02,abs(mark.y)));',
     'redMark=max(redMark,(1.-smoothstep(.003,.006,abs(abs(mark.y)-.012)))*(1.-smoothstep(.014,.02,abs(mark.x))));',
     'rgb=mix(rgb,vec3(.76,.13,.35),redMark*u_anger*.8);',
+    'if(u_outfit>.5){vec4 garment=clothing(p,texture2D(u_original,uv).rgb,u_outfit);rgb=mix(rgb,garment.rgb,garment.a);}',
     'float a=texture2D(u_alpha,uv).a;if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb,a);}'
   ].join('\n');
 
@@ -302,7 +402,7 @@
     var gl, dead = false, loaded = false, readyNotified = false, pageVisible = true, frame = null, timer = null, observer = null;
     var media = null, removers = [], images = [], resources = [], locations = {};
     var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
-    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), vertexCount = 0;
+    var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), selectedOutfit = outfitProfile(options.outfit), vertexCount = 0;
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
     function listen(target, type, callback) {
       if (!target || typeof target.addEventListener !== 'function') return;
@@ -382,7 +482,7 @@
         var p = reduced ? pose(0, 'idle', 0, stageProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key);
         if (reduced) { p.tail = 0; }
         gl.viewport(0, 0, canvas.width, canvas.height);
-        p.scale = scale;
+        p.scale = scale; p.anger = outfitUniform(selectedOutfit && selectedOutfit.id, p.anger);
         Object.keys(packedUniforms).forEach(function (key) {
           var fields = packedUniforms[key];
           gl.uniform4f(locations[key], p[fields[0]], p[fields[1]], p[fields[2]], p[fields[3]]);
@@ -461,6 +561,6 @@
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, situationForAction: situationForAction,
+  return Object.freeze({ mount: mount, pose: pose, growthProfile: growthProfile, growthPoint: growthPoint, feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     catalogue: catalogue, durations: durations, situations: Object.freeze(Object.keys(durations)), sourceType: '2d_image_motion' });
 });

@@ -194,6 +194,87 @@ test('growth changes idle and walking cadence while every meal phase and emotion
   assert.deepEqual(Motion.pose(1.2,'idle',0),Motion.pose(1.2,'idle',0,'child'));
 });
 
+test('clothing allowlist is frozen, has six real garment styles and never accepts arbitrary outfit values', () => {
+  assert.deepEqual(Motion.outfitCatalogue.map(x=>[x.id,x.price]), [
+    ['cloth_cream_vest',0],['cloth_rose_cape',30],['cloth_sky_overalls',45],
+    ['cloth_mint_knit',40],['cloth_star_pajamas',55],['cloth_flower_dress',65]
+  ]);
+  assert.equal(Object.isFrozen(Motion.outfitCatalogue),true);
+  const appearances=new Set();
+  Motion.outfitCatalogue.forEach((entry,index)=>{
+    assert.equal(entry.index,index+1); assert.ok(entry.label && entry.style);
+    assert.equal(Object.isFrozen(entry),true); assert.equal(Object.isFrozen(entry.color),true);
+    assert.strictEqual(Motion.outfitProfile(entry.id),entry);
+    appearances.add(JSON.stringify([entry.style,entry.color,entry.trim]));
+  });
+  assert.equal(appearances.size,6);
+  for(const bad of [null,undefined,'unknown','__proto__',1,{},['cloth_cream_vest']]) {
+    assert.equal(Motion.outfitProfile(bad),null); assert.equal(Motion.outfitCoverage(bad,.5,.85),0);
+  }
+});
+
+test('garment coverage stays on the torso while face, ears, paws, feet and fur outline stay clear', () => {
+  const protectedPoints=[[.61,.50],[.46,.43],[.73,.34],[.17,.345],[.82,.16],[.155,.728],
+    [.527,.743],[.718,.729],[.41,.905],[.69,.905],[.23,.78],[.80,.80],[.50,.68]];
+  for(const outfit of Motion.outfitCatalogue) {
+    let visible=0;
+    for(let row=0;row<=100;row++) for(let col=0;col<=100;col++) {
+      const x=col/100,y=row/100,coverage=Motion.outfitCoverage(outfit.id,x,y);
+      assert.ok(Number.isFinite(coverage) && coverage>=0 && coverage<=1,outfit.id);
+      if(coverage>.5)visible++;
+      if(x<.26||x>.79||y<.688||y>.891)assert.equal(coverage,0,outfit.id+': outside torso');
+    }
+    assert.ok(visible>150 && visible<500,outfit.id+': actual torso garment');
+    for(const [x,y]of protectedPoints)assert.equal(Motion.outfitCoverage(outfit.id,x,y),0,outfit.id+': protected area');
+    assert.equal(Motion.outfitCoverage(outfit.id,NaN,Infinity),0);
+  }
+});
+
+test('outfit and anger share one existing lane with exact integer decode and preserve all other effects', () => {
+  for(const outfit of [null,...Motion.outfitCatalogue.map(x=>x.id)]) {
+    const expected=Motion.outfitProfile(outfit)?.index||0, f=fixture({options:{outfit}}); f.complete();
+    for(const [age,anger]of [[0,0],[225,.5],[1000,1]]) {
+      const neutral=fixture(); neutral.complete(); neutral.api.setSituation('angry',{elapsedMs:age});
+      f.api.setSituation('angry',{elapsedMs:age});
+      const packed=f.uniforms.u_effect[3];
+      assert.equal(Math.floor(packed/2),expected); assert.equal(packed%2,anger);
+      for(const key of ['u_motionA','u_motionB','u_motionC','u_body','u_gesture','u_face','u_detail'])assert.deepEqual(f.uniforms[key],neutral.uniforms[key],key);
+      assert.deepEqual(f.uniforms.u_effect.slice(0,3),neutral.uniforms.u_effect.slice(0,3));
+      neutral.api.destroy();
+    }
+    f.api.destroy(); assert.equal(f.deleted.length,f.created.length);
+  }
+});
+
+test('no outfit, null and unknown outfits keep identical textures, geometry and all uniform values', () => {
+  const base=fixture(); base.complete(); base.api.setSituation('feeding',{elapsedMs:2200});
+  for(const outfit of [null,'missing',{},1]) {
+    const f=fixture({options:{outfit}}); f.complete(); f.api.setSituation('feeding',{elapsedMs:2200});
+    assert.deepEqual(f.uniforms,base.uniforms); assert.deepEqual(f.buffers[0].data,base.buffers[0].data);
+    assert.deepEqual(f.images.map(x=>x.url),base.images.map(x=>x.url)); f.api.destroy();
+  }
+  base.api.destroy();
+});
+
+test('every outfit works through all six growth meshes and 36 cues without extra textures, vectors or loops', () => {
+  for(const stage of growthKeys)for(const outfit of Motion.outfitCatalogue) {
+    const f=fixture({options:{growthStage:stage,outfit:outfit.id}}); f.complete();
+    assert.equal(f.uploads.length,8); assert.equal(f.created.filter(x=>x.type==='Texture').length,8);
+    assert.equal(Object.values(f.uniforms).filter(x=>Array.isArray(x)&&x.length===4).length,8);
+    for(const name of Motion.situations) {
+      f.api.setSituation(name,{elapsedMs:Math.min(1000,Motion.durations[name]/2)});
+      assert.equal(Math.floor(f.uniforms.u_effect[3]/2),outfit.index);
+      assert.ok(f.uniforms.u_effect[3]%2>=0 && f.uniforms.u_effect[3]%2<=1);
+      assert.equal(f.raf.size,1);
+      for(const values of Object.values(f.uniforms))assert.ok((Array.isArray(values)?values:[values]).every(Number.isFinite));
+    }
+    f.reduce(true); assert.equal(f.raf.size,0); assert.equal(f.uniforms.u_blink,0);
+    assert.equal(f.uniforms.u_effect[3],outfit.index*2); assert.equal(f.uniforms.u_presence,0);
+    f.api.destroy(); assert.equal(f.deleted.length,f.created.length);
+  }
+  assert.equal(Motion.durations.feeding,8400);
+});
+
 test('all profiles stay finite, differ at meaningful samples and finish at the same idle', () => {
   const signatures = new Set();
   for (const name of Motion.situations) {
@@ -274,6 +355,9 @@ test('only confirmed successful actions return a transient cue; feeding includes
   assert.equal(Motion.situationForAction({ type: 'cancelMinigame' }, before, after, { ok: true }), null);
   assert.equal(Motion.situationForAction({ type: 'care', kind: '__proto__' }, before, after, { ok: true }), null);
   assert.equal(Motion.situationForAction({ type: 'unrelated' }, before, after, { ok: true }), null);
+  assert.equal(Motion.situationForAction({ type: 'equipClothing', id: 'cloth_cream_vest' },before,after,{ok:true}).situation,'joy');
+  assert.equal(Motion.situationForAction({ type: 'equipClothing', id: 'cloth_cream_vest' },before,after,{ok:false}),null);
+  assert.equal(Motion.situationForAction({ type: 'previewClothing', id: 'cloth_cream_vest' },before,after,{ok:true}),null);
   assert.equal(JSON.stringify([before, after]), original);
 });
 

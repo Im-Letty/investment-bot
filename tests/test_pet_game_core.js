@@ -314,6 +314,143 @@ test('shop, food and equipment all use the same persisted wallet',async()=>{
   const reload=Core.create(g.options);await reload.ready;assert.equal(reload.getState().decorations.equipped,'house');assert.equal(reload.getState().pet.exp,20);
 });
 
+test('clothing catalogue has six fixed prices and purchases never equip or grant growth or achievements',async()=>{
+  const expected=[['cloth_cream_vest','はじめてベスト',0],['cloth_rose_cape','ももいろケープ',30],
+    ['cloth_sky_overalls','そらいろサロペット',45],['cloth_mint_knit','ミントのニット',40],
+    ['cloth_star_pajamas','星のおやすみ服',55],['cloth_flower_dress','お花のワンピース',65]];
+  assert.deepEqual(Core.items.filter(it=>it.type==='clothing').map(it=>[it.id,it.name,it.price]),expected);
+  const g=await game(),before=persisted(g.storage);
+  assert.deepEqual(before.wardrobe,{owned:{},equipped:null});
+  const free=await command(g,'buyItem',{itemId:'cloth_cream_vest',price:-100,exp:999});
+  assert.equal(free.ok,true);assert.deepEqual(free.reward,{});assert.equal(free.state.coins,100);
+  assert.deepEqual(free.state.wardrobe,{owned:{cloth_cream_vest:true},equipped:null});
+  const paid=await command(g,'buyItem',{itemId:'cloth_rose_cape',price:0,exp:999});
+  assert.equal(paid.ok,true);assert.deepEqual(paid.reward,{});assert.equal(paid.state.coins,70);
+  const after=persisted(g.storage);
+  assert.deepEqual(after,{...before,coins:70,wardrobe:{owned:{cloth_cream_vest:true,cloth_rose_cape:true},equipped:null},revision:before.revision+2});
+  assert.deepEqual(after.achievements,[],'even the free vest must not trigger the generic rich achievement');
+});
+
+test('old v3 records without wardrobes load byte for byte and only a real purchase initializes the field',async()=>{
+  const base=await game(),old=persisted(base.storage);delete old.wardrobe;
+  const raw=JSON.stringify(old),g=await game({[Core.KEY]:raw});
+  assert.equal(g.storage.writes.length,0);assert.equal(Object.hasOwn(g.app.getState(),'wardrobe'),false);
+  const reopened=Core.create(g.options);assert.equal((await reopened.ready).ok,true);
+  assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+  assert.equal((await command(g,'equipClothing',{itemId:'cloth_cream_vest'})).error.code,'not_owned');
+  assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+  g.storage.fail=true;
+  assert.equal((await command(g,'buyItem',{itemId:'cloth_cream_vest'})).ok,false);
+  assert.equal(Object.hasOwn(g.app.getState(),'wardrobe'),false);assert.equal(g.storage.data.get(Core.KEY),raw);
+  g.storage.fail=false;
+  const bought=await command(g,'buyItem',{itemId:'cloth_cream_vest'});assert.equal(bought.ok,true);
+  assert.deepEqual(persisted(g.storage),{...old,wardrobe:{owned:{cloth_cream_vest:true},equipped:null},revision:old.revision+1});
+});
+
+test('insufficient funds, repeat purchases, unknown items and unowned clothing cannot write progress',async()=>{
+  const g=await game({pg_coins:'29',pg_exp:'45'});
+  for(const [type,itemId,code] of [['buyItem','cloth_rose_cape','insufficient_coins'],['buyItem','cloth_unknown','invalid_item'],
+    ['equipClothing','cloth_rose_cape','not_owned'],['equipClothing','apple','invalid_item'],['equipClothing',undefined,'invalid_item']]){
+    const raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+    const r=await command(g,type,{itemId});assert.equal(r.ok,false);assert.equal(r.error.code,code);
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
+  }
+  assert.equal((await command(g,'buyItem',{itemId:'cloth_cream_vest'})).ok,true);
+  const raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+  assert.equal((await command(g,'buyItem',{itemId:'cloth_cream_vest'})).error.code,'already_owned');
+  assert.equal((await command(g,'useItem',{itemId:'cloth_cream_vest'})).error.code,'invalid_item');
+  assert.equal((await command(g,'equip',{itemId:'cloth_cream_vest'})).error.code,'not_owned');
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
+});
+
+test('all clothes can be changed and removed independently of food, decorations, backgrounds and achievements',async()=>{
+  const g=await game({pg_coins:'1000',pg_exp:'167',pg_items:'{"rice":2}',pg_deco:'{"house":{}}',pg_ach:'["old-ach"]'});
+  assert.equal((await command(g,'equip',{itemId:'house'})).ok,true);
+  assert.equal((await command(g,'buyItem',{itemId:'bg_beach'})).ok,true);
+  assert.equal((await command(g,'equip',{itemId:'bg_beach'})).ok,true);
+  const before=persisted(g.storage),clothes=Core.items.filter(it=>it.type==='clothing');
+  for(const it of clothes){
+    assert.equal((await command(g,'buyItem',{itemId:it.id})).ok,true);
+    assert.equal(g.app.getState().wardrobe.equipped,null,'purchases leave the pet undressed');
+  }
+  for(const it of clothes){
+    const r=await command(g,'equipClothing',{itemId:it.id});assert.equal(r.ok,true);assert.deepEqual(r.reward,{});
+    assert.equal(r.state.wardrobe.equipped,it.id);
+    for(const key of ['pet','inventory','decorations','achievements','care','minigames','market','legacyReserve','migration'])assert.deepEqual(r.state[key],before[key],key);
+  }
+  const dressed=persisted(g.storage);assert.equal(dressed.coins,before.coins-235);
+  const removed=await command(g,'equipClothing',{itemId:null});assert.equal(removed.ok,true);assert.equal(removed.state.wardrobe.equipped,null);
+  assert.deepEqual(persisted(g.storage),{...dressed,wardrobe:{...dressed.wardrobe,equipped:null},revision:dressed.revision+1});
+});
+
+test('clothing ownership and wearing wait for durable storage before appearing in live state',async()=>{
+  const g=await game(),set=g.storage.setItem.bind(g.storage);let release;
+  g.storage.setItem=(k,v)=>new Promise(resolve=>{release=()=>{set(k,v);resolve();};});
+  const before=persisted(g.storage),buying=command(g,'buyItem',{itemId:'cloth_rose_cape'});
+  while(!release)await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(persisted(g.storage),before);assert.deepEqual(g.app.getState().wardrobe,before.wardrobe);assert.equal(g.app.getState().coins,100);
+  release();assert.equal((await buying).ok,true);release=null;
+  const owned=persisted(g.storage),wearing=command(g,'equipClothing',{itemId:'cloth_rose_cape'});
+  while(!release)await new Promise(resolve=>setImmediate(resolve));
+  assert.deepEqual(persisted(g.storage),owned);assert.equal(g.app.getState().wardrobe.equipped,null);
+  release();assert.equal((await wearing).ok,true);assert.equal(g.app.getState().wardrobe.equipped,'cloth_rose_cape');
+});
+
+test('rejected clothing purchase, wear and removal retain every durable and live progress field',async()=>{
+  for(const mode of ['throw','false','object_false'])for(const action of [
+    {type:'buyItem',itemId:'cloth_rose_cape'},{type:'equipClothing',itemId:'cloth_cream_vest'},{type:'equipClothing',itemId:null}]){
+    const g=await game();assert.equal((await command(g,'buyItem',{itemId:'cloth_cream_vest'})).ok,true);
+    if(action.itemId===null)assert.equal((await command(g,'equipClothing',{itemId:'cloth_cream_vest'})).ok,true);
+    const before=persisted(g.storage),raw=g.storage.data.get(Core.KEY);
+    g.storage.setItem=async()=>{if(mode==='throw')throw new Error('private storage failure');return mode==='false'?false:{ok:false};};
+    const r=await g.app.dispatch(action);assert.equal(r.ok,false);assert.equal(r.error.code,'storage_failed');
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.doesNotMatch(JSON.stringify(r.error),/private/);
+    Object.keys(before).forEach(key=>assert.deepEqual(r.state[key],before[key],mode+': '+key));
+  }
+});
+
+test('concurrent clothing purchases charge once and stale stores cannot overwrite a newer outfit',async()=>{
+  const g=await game(),results=await Promise.all([1,2,3].map(()=>command(g,'buyItem',{itemId:'cloth_rose_cape'})));
+  assert.equal(results.filter(r=>r.ok).length,1);assert.equal(g.app.getState().coins,70);
+  assert.ok(results.filter(r=>!r.ok).every(r=>r.error.code==='already_owned'));
+  assert.equal((await command(g,'buyItem',{itemId:'cloth_cream_vest'})).ok,true);
+  const second=Core.create(g.options);assert.equal((await second.ready).ok,true);
+  assert.equal((await command(g,'equipClothing',{itemId:'cloth_rose_cape'})).ok,true);
+  const raw=g.storage.data.get(Core.KEY);
+  const stale=await second.dispatch({type:'equipClothing',itemId:'cloth_cream_vest'});
+  assert.equal(stale.ok,false);assert.equal(stale.error.code,'stale_state');assert.equal(g.storage.data.get(Core.KEY),raw);
+  assert.equal(g.app.getState().wardrobe.equipped,'cloth_rose_cape');assert.equal(second.getState().wardrobe.equipped,null);
+});
+
+test('strict wardrobe validation rejects malformed ownership and equipped values without overwriting old data',async()=>{
+  const base=await game(),valid=persisted(base.storage);
+  for(const wardrobe of [null,[],{}, {owned:{},equipped:'cloth_cream_vest'}, {owned:[],equipped:null},
+    {owned:{cloth_unknown:true},equipped:null},{owned:{apple:true},equipped:null},
+    {owned:{cloth_cream_vest:false},equipped:null},{owned:{cloth_cream_vest:1},equipped:null},
+    {owned:{cloth_cream_vest:true},equipped:'cloth_rose_cape'}, {owned:{cloth_cream_vest:true}},
+    {owned:{},equipped:null,unexpected:true}]){
+    const raw=JSON.stringify({...valid,wardrobe}),storage=memory({[Core.KEY]:raw}),app=Core.create({storage,now:base.options.now});
+    const result=await app.ready;assert.equal(result.ok,false,JSON.stringify(wardrobe));assert.equal(result.error.code,'corrupt_data');
+    assert.equal(storage.data.get(Core.KEY),raw);assert.equal(storage.writes.length,0);assert.equal(app.getState().readOnly,true);
+  }
+});
+
+test('wardrobes and independent economy round-trip backups while old backups without wardrobes remain compatible',async()=>{
+  const g=await game();await command(g,'buyItem',{itemId:'cloth_rose_cape'});await command(g,'equipClothing',{itemId:'cloth_rose_cape'});
+  const record=persisted(g.storage),backup=g.app.exportBackup(),other=await game();
+  assert.equal((await other.app.importBackup(backup)).ok,true);
+  for(const key of ['wardrobe','pet','coins','inventory','decorations','achievements','care','minigames','market'])assert.deepEqual(other.app.getState()[key],record[key],key);
+  const reloaded=Core.create(other.options),writes=other.storage.writes.length;assert.equal((await reloaded.ready).ok,true);
+  assert.equal(other.storage.writes.length,writes);assert.deepEqual(reloaded.getState().wardrobe,record.wardrobe);
+  const old=JSON.parse(backup);delete old.state.wardrobe;
+  assert.equal((await other.app.importBackup(JSON.stringify(old))).ok,true);
+  assert.equal(Object.hasOwn(persisted(other.storage),'wardrobe'),false);
+  const raw=other.storage.data.get(Core.KEY),oldReopened=Core.create(other.options),oldWrites=other.storage.writes.length;
+  assert.equal((await oldReopened.ready).ok,true);assert.equal(other.storage.writes.length,oldWrites);assert.equal(other.storage.data.get(Core.KEY),raw);
+  const invalid=JSON.parse(backup);invalid.state.wardrobe.equipped='cloth_star_pajamas';
+  assert.equal((await other.app.importBackup(JSON.stringify(invalid))).ok,false);assert.equal(other.storage.data.get(Core.KEY),raw);
+});
+
 test('trade fees, average basis, partial sale and realized loss balance exactly',async()=>{
   const g=await game();let r=await command(g,'buyStock',{stockId:'apl',quantity:2});assert.equal(r.ok,true);
   assert.equal(r.reward.fee,1);assert.equal(r.state.coins,19);assert.deepEqual(r.state.market.holdings.apl,{quantity:2,costBasis:81});
