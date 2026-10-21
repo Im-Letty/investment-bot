@@ -4254,7 +4254,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 })();
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
-<link rel="stylesheet" href="/static/pet-game.css?v=cbf197c2a9aa">
+<link rel="stylesheet" href="/static/pet-game.css?v=20261022-egg-choice1">
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
 #sect-pet[hidden]{display:none}
@@ -4293,12 +4293,12 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   function loadModules(){
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
-    moduleLoading=loadScript('/static/pet-game-core.js?v=b5433aa73486',function(){return !!window.PetGameCore;}).then(function(){
-      return loadScript('/static/pet-lilac-motion.js?v=ff3837df4be3',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
+    moduleLoading=loadScript('/static/pet-game-core.js?v=20261022-egg-choice1',function(){return !!window.PetGameCore;}).then(function(){
+      return loadScript('/static/pet-lilac-motion.js?v=20261022-egg-choice1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     }).then(function(){
       return loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
     }).then(function(){
-      return loadScript('/static/pet-game.js?v=fc0c1f915aae',apiReady);
+      return loadScript('/static/pet-game.js?v=20261022-egg-choice1',apiReady);
     }).catch(function(error){moduleLoading=null;throw error;});
     return moduleLoading;
   }

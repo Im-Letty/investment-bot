@@ -1028,8 +1028,28 @@
     if (typeof key === 'string') for (var i=0;i<evolutionCatalogue.length;i++) if(evolutionCatalogue[i].key===key)return evolutionCatalogue[i];
     return evolutionCatalogue[0];
   }
-  function evolutionPoint(path,inputX,inputY) {
-    var profile=evolutionProfile(path), x=clamp(finite(inputX,.5),0,1), y=clamp(finite(inputY,.5),0,1);
+  // A birth origin belongs to the chosen egg for the pet's whole life. Care
+  // evolution remains a separate input; neither one rewrites the other.
+  var eggOrigins=Object.freeze([
+    {key:'lilac',label:'すみれのたまご',colorName:'薄紫',color:'#b5a0d9',earScale:1,earDrop:0,cheekWidth:1,cheekRound:1,bodyWidth:1,bodyHeight:1,tailScale:1,tailLift:0},
+    {key:'mint',label:'しずくのたまご',colorName:'ミント',color:'#98c8be',earScale:1.07,earDrop:-.003,cheekWidth:.99,cheekRound:1,bodyWidth:.96,bodyHeight:1.015,tailScale:1.08,tailLift:-.002},
+    {key:'apricot',label:'ひだまりのたまご',colorName:'杏色',color:'#e6bb8e',earScale:.94,earDrop:.003,cheekWidth:1.06,cheekRound:1.035,bodyWidth:1.06,bodyHeight:.99,tailScale:.93,tailLift:.002}
+  ].map(function(entry,index){entry.index=index;entry.rgb=Object.freeze([1,3,5].map(function(start){return parseInt(entry.color.slice(start,start+2),16)/255;}));return Object.freeze(entry);}));
+  function eggOriginProfile(key){if(typeof key==='string')for(var i=0;i<eggOrigins.length;i++)if(eggOrigins[i].key===key)return eggOrigins[i];return eggOrigins[0];}
+  var eggVisualProfiles={};
+  function eggVisualProfile(path,eggOrigin){
+    var origin=eggOriginProfile(eggOrigin),care=evolutionProfile(path);if(!origin.index)return care;
+    var key=origin.key+':'+care.key;if(eggVisualProfiles[key])return eggVisualProfiles[key];
+    var result={};Object.keys(care).forEach(function(field){result[field]=care[field];});
+    [['earScale',.82,1.16],['cheekWidth',.94,1.24],['cheekRound',.95,1.15],['bodyWidth',.94,1.17],['bodyHeight',.95,1.06],['tailScale',.87,1.22]].forEach(function(row){result[row[0]]=clamp(care[row[0]]*origin[row[0]],row[1],row[2]);});
+    result.earDrop=clamp(care.earDrop+origin.earDrop,-.015,.026);result.tailLift=clamp(care.tailLift+origin.tailLift,-.018,.018);
+    // Birth hue remains dominant; care adds a small, persistent variation.
+    result.rgb=Object.freeze(origin.rgb.map(function(value,i){return care.index?value*.78+care.rgb[i]*.22:value;}));
+    result.color='#'+result.rgb.map(function(value){return Math.round(value*255).toString(16).padStart(2,'0');}).join('');
+    result.index=care.index||1;result.eggOrigin=origin.key;result.colorName=origin.colorName;return eggVisualProfiles[key]=Object.freeze(result);
+  }
+  function evolutionPoint(path,inputX,inputY,eggOrigin) {
+    var profile=eggVisualProfile(path,eggOrigin), x=clamp(finite(inputX,.5),0,1), y=clamp(finite(inputY,.5),0,1);
     if(!profile.index)return {x:x,y:y};
     var leftEar=regionWeight(x,y,.17,.345,.18,.15), rightEar=regionWeight(x,y,.82,.16,.15,.17);
     var dx=(profile.earScale-1)*((x-.29)*leftEar+(x-.76)*rightEar);
@@ -1052,13 +1072,19 @@
     // separation catches that fur while the warm skin gate retains cream/pink ears.
     return ramp(.012,.045,Math.min(rgb[0],rgb[2])-rgb[1])*(1-ramp(.16,.26,rgb[0]-rgb[2]));
   }
-  function evolutionFurColor(path,x,y,source,painted) {
-    var profile=evolutionProfile(path), original=source.slice(0,3), color=(painted||source).slice(0,3);
+  function evolutionFurColor(path,x,y,source,painted,eggOrigin) {
+    var profile=eggVisualProfile(path,eggOrigin), original=source.slice(0,3), color=(painted||source).slice(0,3);
     if(!profile.index)return color;
     var features=Math.max(clothEllipse(x,y,.4665,.429,.16,.145),clothEllipse(x,y,.7281,.3405,.137,.14),clothEllipse(x,y,.625,.48,.105,.095));
     var amount=furChroma(original)*furChroma(color)*(1-features)*.92;
     var lum=color[0]*.299+color[1]*.587+color[2]*.114, paletteLum=profile.rgb[0]*.299+profile.rgb[1]*.587+profile.rgb[2]*.114;
     return color.map(function(value,i){return value+(clamp(profile.rgb[i]*lum/Math.max(.2,paletteLum),0,1)-value)*amount;});
+  }
+  function eggOriginColor(eggOrigin,cell,x,y,source) {
+    var origin=eggOriginProfile(eggOrigin),color=source.slice(0,3);if(!origin.index)return color;
+    var features=cell===2?Math.max(clothEllipse(x,y,.238,.661,.061,.063),clothEllipse(x,y,.339,.653,.061,.063),clothEllipse(x,y,.295,.705,.052,.040)):0;
+    var amount=furChroma(color)*(1-features)*.92,lum=color[0]*.299+color[1]*.587+color[2]*.114,targetLum=Math.max(.2,origin.rgb[0]*.299+origin.rgb[1]*.587+origin.rgb[2]*.114);
+    return color.map(function(value,i){return value+(clamp(origin.rgb[i]*lum/targetLum,0,1)-value)*amount;});
   }
   // Geometry stages use the same original and facial textures. No stage grants EXP.
   var growthProfiles = Object.freeze({
@@ -1094,10 +1120,10 @@
   function appearanceProfile(key){if(typeof key==='string')for(var i=0;i<appearanceCatalogue.length;i++)if(appearanceCatalogue[i].key===key)return appearanceCatalogue[i];return legacyAppearance;}
   var nurseryLandmarks=Object.freeze({floor:.923445,headPivot:Object.freeze([.55,.645]),mouth:Object.freeze([.58051,.52638]),
     eyes:Object.freeze([.44318,.43534,.68435,.40677]),torso:Object.freeze([.55,.78,.185,.13]),tail:Object.freeze([.285,.756,.085,.11])});
-  function appearancePoint(key,inputX,inputY,path){
+  function appearancePoint(key,inputX,inputY,path,eggOrigin){
     var appearance=appearanceProfile(key),x=finite(inputX,.5),y=finite(inputY,.5);
     if(appearance.family!=='baby')return {x:x,y:y};
-    var age=appearance.visualAge,branch=evolutionProfile(path);
+    var age=appearance.visualAge,branch=eggVisualProfile(path,eggOrigin);
     var head=1-smooth((y-.60)/.12),width=(.89+.14*age)*(1-head)+(1.035-.055*age)*head;
     var floor=nurseryLandmarks.floor,dx=(x-.55)*(width-1),dy=(y-floor)*(-.15+.18*age)*(1-head);
     var ears=regionWeight(x,y,.17,.35,.15,.16)+regionWeight(x,y,.85,.34,.14,.15),earScale=(.86+.16*age)*branch.earScale;
@@ -1112,8 +1138,8 @@
   function regionWeight(x, y, cx, cy, rx, ry) { var dx = (x - cx) / rx, dy = (y - cy) / ry; return Math.exp(-2 * (dx * dx + dy * dy)); }
   // Forward normalized coordinates. Boundary taper fixes all four frame edges, and
   // the foot line remains grounded. The exact same map positions the food prop.
-  function growthPoint(stage, inputX, inputY, evolutionPath) {
-    var profile = growthProfile(stage), branchPoint=evolutionPoint(evolutionPath,inputX,inputY), x=branchPoint.x, y=branchPoint.y;
+  function growthPoint(stage, inputX, inputY, evolutionPath, eggOrigin) {
+    var profile = growthProfile(stage), branchPoint=evolutionPoint(evolutionPath,inputX,inputY,eggOrigin), x=branchPoint.x, y=branchPoint.y;
     if (profile.key === 'child') return { x: x, y: y };
     var head = 1 - smooth((y - .58) / .20);
     var width = profile.bodyWidth + (profile.headWidth - profile.bodyWidth) * head;
@@ -1130,12 +1156,12 @@
     var grounded = smooth(Math.abs(y - .92) / .055);
     return { x: x + dx * edge, y: y + dy * edge * grounded };
   }
-  function feedingAnchor(stage, evolutionPath, appearanceKey) {
+  function feedingAnchor(stage, evolutionPath, appearanceKey, eggOrigin) {
     var appearance=appearanceProfile(appearanceKey);
     if(appearance.family==='egg')return {x:.5,y:.5,foodLeft:.39,foodTop:.505,foodVisible:false};
     // Use the same neck attachment and fixed camera as the drawn mouth. The
     // former cue-wide .88 inset no longer exists in the independent rig.
-    var mouth=rigPose(0,'idle',0,stage,evolutionPath,1,appearanceKey).mouth,x=mouth.x,y=mouth.y;
+    var mouth=rigPose(0,'idle',0,stage,evolutionPath,1,appearanceKey,eggOrigin).mouth,x=mouth.x,y=mouth.y;
     return { x: x, y: y, foodLeft: x - .11, foodTop: y + .005 };
   }
   var mounted = typeof WeakMap === 'function' ? new WeakMap() : null;
@@ -1258,9 +1284,9 @@
     if(view.sourceRect){var r=view.sourceRect;return {x:r[0]+clamp(finite(x,.5),.0001,.9999)*(r[2]-r[0]),y:r[1]+clamp(finite(y,.5),.0001,.9999)*(r[3]-r[1])};}
     return {x:(i%4+clamp(finite(x,.5),2/w,1-2/w))/4,y:(Math.floor(i/4)+clamp(finite(y,.5),2/h,1-2/h))/4};
   }
-  function rawDirectionPoint(index,inputX,inputY,stage,path,appearanceKey) {
-    var view=directionView(index,appearanceKey),x=finite(inputX,.5),y=finite(inputY,.5),profile=growthProfile(stage),branch=evolutionProfile(path),appearance=appearanceProfile(appearanceKey);
-    if(!view.index)return appearance.family==='baby'?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);
+  function rawDirectionPoint(index,inputX,inputY,stage,path,appearanceKey,eggOrigin) {
+    var view=directionView(index,appearanceKey),x=finite(inputX,.5),y=finite(inputY,.5),profile=growthProfile(stage),branch=eggVisualProfile(path,eggOrigin),appearance=appearanceProfile(appearanceKey);
+    if(!view.index)return appearance.family==='baby'?appearancePoint(appearance.key,x,y,path,eggOrigin):growthPoint(stage,x,y,path,eggOrigin);
     if(appearance.family==='baby'){var age=appearance.visualAge;profile={headWidth:1.035-.055*age,headHeight:1,bodyWidth:.89+.14*age,bodyHeight:.85+.18*age,earScale:.86+.16*age,tailScale:.76+.25*age};}
     var head=1-smooth((y-view.neckY+.08)/.18),center=view.torso[0]+(view.headX-view.torso[0])*head;
     var width=profile.bodyWidth+(profile.headWidth-profile.bodyWidth)*head;
@@ -1283,20 +1309,20 @@
   // Align each measured source silhouette to the same front-pose height once
   // per appearance/path. Camera direction changes width, never character size.
   var directionHeightCache={};
-  function directionHeight(index,stage,path,appearanceKey) {
-    var view=directionView(index,appearanceKey),key=[view.index,stage,path,appearanceKey].join(':');
+  function directionHeight(index,stage,path,appearanceKey,eggOrigin) {
+    var view=directionView(index,appearanceKey),key=[view.index,stage,path,appearanceKey,eggOriginProfile(eggOrigin).key].join(':');
     if(directionHeightCache[key])return directionHeightCache[key];
     var min=Infinity,max=-Infinity;
     for(var row=0;row<=24;row++)for(var col=0;col<=24;col++){
-      var b=view.bounds,p=rawDirectionPoint(index,b[0]+(b[2]-b[0])*col/24,b[1]+(b[3]-b[1])*row/24,stage,path,appearanceKey);
+      var b=view.bounds,p=rawDirectionPoint(index,b[0]+(b[2]-b[0])*col/24,b[1]+(b[3]-b[1])*row/24,stage,path,appearanceKey,eggOrigin);
       min=Math.min(min,p.y);max=Math.max(max,p.y);
     }
     return directionHeightCache[key]=max-min;
   }
-  function directionPoint(index,inputX,inputY,stage,path,appearanceKey) {
-    var point=rawDirectionPoint(index,inputX,inputY,stage,path,appearanceKey),view=directionView(index,appearanceKey);
+  function directionPoint(index,inputX,inputY,stage,path,appearanceKey,eggOrigin) {
+    var point=rawDirectionPoint(index,inputX,inputY,stage,path,appearanceKey,eggOrigin),view=directionView(index,appearanceKey);
     if(view.index&&appearanceProfile(appearanceKey).family==='baby'){
-      var factor=directionHeight(0,stage,path,appearanceKey)/directionHeight(index,stage,path,appearanceKey);
+      var factor=directionHeight(0,stage,path,appearanceKey,eggOrigin)/directionHeight(index,stage,path,appearanceKey,eggOrigin);
       point={x:.4875+(point.x-.4875)*factor,y:.92+(point.y-.92)*factor};
     }
     return point;
@@ -1330,22 +1356,22 @@
     // before the sole line, while source UVs/alpha stay on the same continuous mesh.
     return {x:point.x+dx,y:point.y-lift-.005*Math.abs(step)*speed*(1-lower)};
   }
-  function roomWalkPoint(index,x,y,frame,stage,path,appearanceKey) {
-    return roomWalkDeform(index,x,y,directionPoint(index,x,y,stage,path,appearanceKey),frame,appearanceKey);
+  function roomWalkPoint(index,x,y,frame,stage,path,appearanceKey,eggOrigin) {
+    return roomWalkDeform(index,x,y,directionPoint(index,x,y,stage,path,appearanceKey,eggOrigin),frame,appearanceKey);
   }
   function roomWalkBounds(bounds,frame) {
     return frame&&frame.id?{minX:bounds.minX-.022,minY:bounds.minY-.007,maxX:bounds.maxX+.022,maxY:bounds.maxY}:bounds;
   }
-  function directionMesh(index,stage,path,appearanceKey) {
+  function directionMesh(index,stage,path,appearanceKey,eggOrigin) {
     var columns=24,values=new Float32Array(columns*columns*6*5),cursor=0;
-    function vertex(x,y){var point=directionPoint(index,x,y,stage,path,appearanceKey);values[cursor++]=point.x;values[cursor++]=point.y;values[cursor++]=x;values[cursor++]=y;values[cursor++]=1;}
+    function vertex(x,y){var point=directionPoint(index,x,y,stage,path,appearanceKey,eggOrigin);values[cursor++]=point.x;values[cursor++]=point.y;values[cursor++]=x;values[cursor++]=y;values[cursor++]=1;}
     for(var row=0;row<columns;row++)for(var col=0;col<columns;col++){var x=col/columns,y=row/columns,right=(col+1)/columns,bottom=(row+1)/columns;vertex(x,y);vertex(x,bottom);vertex(right,y);vertex(right,y);vertex(x,bottom);vertex(right,bottom);}
     return values;
   }
-  function directionBounds(index,stage,path,appearanceKey) {
+  function directionBounds(index,stage,path,appearanceKey,eggOrigin) {
     var source=directionView(index,appearanceKey).bounds,bounds={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
     for(var row=0;row<=24;row++)for(var col=0;col<=24;col++){
-      var point=directionPoint(index,source[0]+(source[2]-source[0])*col/24,source[1]+(source[3]-source[1])*row/24,stage,path,appearanceKey);
+      var point=directionPoint(index,source[0]+(source[2]-source[0])*col/24,source[1]+(source[3]-source[1])*row/24,stage,path,appearanceKey,eggOrigin);
       bounds.minX=Math.min(bounds.minX,point.x);bounds.minY=Math.min(bounds.minY,point.y);bounds.maxX=Math.max(bounds.maxX,point.x);bounds.maxY=Math.max(bounds.maxY,point.y);
     }return bounds;
   }
@@ -1361,13 +1387,13 @@
   // A single camera fit includes every view and the room gait allowance.
   // Apply it to the frontal rig too, so changing source cannot refit the pet.
   var nurseryPresentationBounds={};
-  function nurseryPresentationScale(stage,path,appearanceKey,amount) {
-    var key=[stage,path,appearanceKey].join(':'),bounds=nurseryPresentationBounds[key];
+  function nurseryPresentationScale(stage,path,appearanceKey,amount,eggOrigin) {
+    var key=[stage,path,appearanceKey,eggOriginProfile(eggOrigin).key].join(':'),bounds=nurseryPresentationBounds[key];
     if(!bounds){
       bounds={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
       function include(p){bounds.minX=Math.min(bounds.minX,p.x);bounds.minY=Math.min(bounds.minY,p.y);bounds.maxX=Math.max(bounds.maxX,p.x);bounds.maxY=Math.max(bounds.maxY,p.y);}
-      for(var index=0;index<16;index++){var b=directionBounds(index,stage,path,appearanceKey);include({x:b.minX,y:b.minY});include({x:b.maxX,y:b.maxY});}
-      nurseryRigParts.forEach(function(part){part.polygon.forEach(function(p){include(appearancePoint(appearanceKey,p[0],p[1],path));});});
+      for(var index=0;index<16;index++){var b=directionBounds(index,stage,path,appearanceKey,eggOrigin);include({x:b.minX,y:b.minY});include({x:b.maxX,y:b.maxY});}
+      nurseryRigParts.forEach(function(part){part.polygon.forEach(function(p){include(appearancePoint(appearanceKey,p[0],p[1],path,eggOrigin));});});
       // One fixed camera also reserves room for outstretched arms and jumps.
       // Starting a hand gesture must never shrink the entire pet toward its feet.
       bounds={minX:bounds.minX-.085,minY:bounds.minY-.080,maxX:bounds.maxX+.085,maxY:bounds.maxY+.012};
@@ -1375,7 +1401,7 @@
     }
     return fitDirectionMatrix(bone({x:.5,y:.92},0,0,0,amount,amount),bounds).fitScale;
   }
-  function directionProjection(index,stage,path,matrix,appearanceKey,roomFrame) {return fitDirectionMatrix(matrix||identity(),roomWalkBounds(directionBounds(index,stage,path,appearanceKey),roomFrame));}
+  function directionProjection(index,stage,path,matrix,appearanceKey,roomFrame,eggOrigin) {return fitDirectionMatrix(matrix||identity(),roomWalkBounds(directionBounds(index,stage,path,appearanceKey,eggOrigin),roomFrame));}
   function directionClothingCoverage(index,outfit,x,y,appearanceKey) {
     var view=directionView(index,appearanceKey),b=view.torso,shear=Math.sin(view.index*TAU/16)*.12;
     var qx=.525+(x-b[0]+shear*(y-b[1]))*.258/b[2],qy=.79+(y-b[1])*.125/b[3];
@@ -1396,8 +1422,8 @@
     var target=[lum+red,lum-(.299*red+.114*blue)/.587,lum+blue];
     return color.map(function(value,i){return value+(clamp(target[i],0,1)-value)*amount;});
   }
-  function directionFurColor(index,path,x,y,source,appearanceKey) {
-    var view=directionView(index,appearanceKey),profile=evolutionProfile(path),color=directionMaterialColor(index,x,y,source,appearanceKey);
+  function directionFurColor(index,path,x,y,source,appearanceKey,eggOrigin) {
+    var view=directionView(index,appearanceKey),profile=eggVisualProfile(path,eggOrigin),color=directionMaterialColor(index,x,y,source,appearanceKey);
     if(!profile.index)return color;
     var eyes=Math.max(clothEllipse(x,y,view.eyes[0],view.eyes[1],view.eyeRadii[0],view.eyeRadii[1]),clothEllipse(x,y,view.eyes[2],view.eyes[3],view.eyeRadii[2],view.eyeRadii[3]));
     var mouth=clothEllipse(x,y,view.mouth[0],view.mouth[1],view.mouth[2],view.mouth[3]),amount=furChroma(color)*(1-Math.max(eyes,mouth))*.92;
@@ -1944,12 +1970,12 @@
   }
   // A pure frame of the hierarchical cutout rig. Matrices operate on coordinates
   // after growth/evolution, before the final normalized canvas projection.
-  function rigFrame(p,seconds,age,stage,path,scale,appearanceKey) {
+  function rigFrame(p,seconds,age,stage,path,scale,appearanceKey,eggOrigin) {
     var appearance=appearanceProfile(appearanceKey),nursery=appearance.family==='baby',parts=nursery?nurseryRigParts:rigParts;
-    function point(x,y){return nursery?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);}
+    function point(x,y){return nursery?appearancePoint(appearance.key,x,y,path,eggOrigin):growthPoint(stage,x,y,path,eggOrigin);}
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
     var baseAmount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15);
-    if(nursery)baseAmount*=nurseryPresentationScale(stage,path,appearance.key,baseAmount);
+    if(nursery)baseAmount*=nurseryPresentationScale(stage,path,appearance.key,baseAmount,eggOrigin);
     var amount=baseAmount,flight=flightAmount(p);
     // Only genuine flight is shared by every body part. Breathing, posture and
     // squash belong to the torso; a raised hand cannot resize the head or feet.
@@ -2032,15 +2058,15 @@
     if(bounds.maxY>.96)fitScale=Math.min(fitScale,(.96-.92)/(bounds.maxY-.92));
     if(fitScale<1){var fit=bone({x:.5,y:.92},0,0,0,fitScale,fitScale);Object.keys(matrices).forEach(function(key){matrices[key]=multiply(fit,matrices[key]);});}
     var mouth=transform(matrices.head,nursery?point(nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1]-.010*p.chew):point(.628,.499-.010*p.chew));
-    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale,flight:flight};if(nursery){result.appearanceKey=appearance.key;result.lowerBody=lower;}return result;
+    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale,flight:flight,eggOrigin:eggOriginProfile(eggOrigin).key};if(nursery){result.appearanceKey=appearance.key;result.lowerBody=lower;}return result;
   }
-  function rigPose(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey) {
+  function rigPose(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey,eggOrigin) {
     var age=Math.max(0,finite(elapsedSeconds,finite(seconds,0)));
-    return rigFrame(pose(seconds,situation,age,stage,path),finite(seconds,0),age,stage,path,scale,appearanceKey);
+    return rigFrame(pose(seconds,situation,age,stage,path),finite(seconds,0),age,stage,path,scale,appearanceKey,eggOrigin);
   }
-  function rigPoint(frame,partId,x,y,stage,path) {
-    var matrix=frame&&frame.matrices&&frame.matrices[partId];
-    var point=frame&&frame.appearanceKey?appearancePoint(frame.appearanceKey,x,y,path):growthPoint(stage,finite(x,.5),finite(y,.5),path);
+  function rigPoint(frame,partId,x,y,stage,path,eggOrigin) {
+    var matrix=frame&&frame.matrices&&frame.matrices[partId];eggOrigin=eggOrigin===undefined&&frame?frame.eggOrigin:eggOrigin;
+    var point=frame&&frame.appearanceKey?appearancePoint(frame.appearanceKey,x,y,path,eggOrigin):growthPoint(stage,finite(x,.5),finite(y,.5),path,eggOrigin);
     if(partId==='torso')point=lowerBodyTorsoPoint(frame&&frame.lowerBody,x,y,point);
     return transform(matrix||identity(),point);
   }
@@ -2098,13 +2124,13 @@
     else if(name==='feeding')yaw=sign*(age<4.4?.72+.20*p.chew:1.35*Math.sin((age-4.4)*TAU*.65))*e;
     return clamp(yaw,-2.25,2.25);
   }
-  function handVolumeState(rig,seconds,age,stage,path,appearanceKey) {
+  function handVolumeState(rig,seconds,age,stage,path,appearanceKey,eggOrigin) {
     return {rig:rig,seconds:seconds,age:age,stage:stage,path:path,appearanceKey:appearanceKey,
-      family:appearanceProfile(appearanceKey).family,twists:{arm_l:handWristTwist(rig,seconds,age,'arm_l'),arm_r:handWristTwist(rig,seconds,age,'arm_r')}};
+      family:appearanceProfile(appearanceKey).family,eggOrigin:eggOriginProfile(eggOrigin).key,twists:{arm_l:handWristTwist(rig,seconds,age,'arm_l'),arm_r:handWristTwist(rig,seconds,age,'arm_r')}};
   }
-  function handVolumeFrame(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey) {
+  function handVolumeFrame(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey,eggOrigin) {
     var s=Math.max(0,finite(seconds,0)),age=Math.max(0,finite(elapsedSeconds,s));
-    return handVolumeState(rigPose(s,situation,age,stage,path,scale,appearanceKey),s,age,stage,path,appearanceKey);
+    return handVolumeState(rigPose(s,situation,age,stage,path,scale,appearanceKey,eggOrigin),s,age,stage,path,appearanceKey,eggOrigin);
   }
   var handVolumeRows=20,handVolumeColumns=24,handVolumeMaxFloats=(handVolumeRows*handVolumeColumns*6+12000)*9;
   var handSphereTemplate=(function(){var data=new Float64Array((handVolumeRows+1)*handVolumeColumns*4),i=0;for(var row=0;row<=handVolumeRows;row++){var along=2*row/handVolumeRows-1,radius=Math.sqrt(Math.max(0,1-along*along));for(var col=0;col<handVolumeColumns;col++){var theta=col/handVolumeColumns*TAU;data[i++]=along;data[i++]=radius;data[i++]=Math.cos(theta);data[i++]=Math.sin(theta);}}return data;}());
@@ -2123,7 +2149,7 @@
     }
     var rows=handVolumeRows,columns=handVolumeColumns,grid=frame.scratch||new Float64Array((rows+1)*columns*10),out=target||new Float32Array(handVolumeMaxFloats),cursor=0;
     var source=frame.family==='baby'?null:frame.sourceMeshes&&frame.sourceMeshes[side];
-    if(frame.family!=='baby'&&!source)source=rigMesh(rigParts[side==='arm_l'?7:8],frame.stage,frame.path,frame.appearanceKey);
+    if(frame.family!=='baby'&&!source)source=rigMesh(rigParts[side==='arm_l'?7:8],frame.stage,frame.path,frame.appearanceKey,frame.eggOrigin);
     // Only the legacy chest-facing hand keeps a proximal image. Born B never
     // emits this second flat layer, including while waving or turning its wrist.
     if(source)
@@ -2138,7 +2164,7 @@
       var offset=n*4,g=n*10,along=handSphereTemplate[offset],radius=handSphereTemplate[offset+1],cos=handSphereTemplate[offset+2],sin=handSphereTemplate[offset+3];
       var halfMajor=along<0&&profile.proximalMajor?profile.proximalMajor:profile.major;
       var a=profile.minor*radius*cos,b=profile.depth*radius*sin,cross=a*co-b*si,x=profile.center[0]+ax*halfMajor*along+nx*cross,y=profile.center[1]+ay*halfMajor*along+ny*cross;
-      var point=frame.family==='baby'?appearancePoint(frame.appearanceKey,x,y,frame.path):growthPoint(frame.stage,x,y,frame.path);
+      var point=frame.family==='baby'?appearancePoint(frame.appearanceKey,x,y,frame.path,frame.eggOrigin):growthPoint(frame.stage,x,y,frame.path,frame.eggOrigin);
       grid[g]=m[0]*point.x+m[2]*point.y+m[4];grid[g+1]=m[1]*point.x+m[3]*point.y+m[5];grid[g+2]=(a*si+b*co)*depthScale;
       grid[g+3]=profile.center[0]+ax*halfMajor*along+nx*a;grid[g+4]=profile.center[1]+ay*halfMajor*along+ny*a;grid[g+5]=1-smooth((sin+.15)/.3);
       var na=along/halfMajor,nn=radius*cos/profile.minor,nz=radius*sin/profile.depth,nCross=nn*co-nz*si,localX=ax*na+nx*nCross,localY=ay*na+ny*nCross;
@@ -2151,8 +2177,8 @@
     if(cursor>out.length)throw new RangeError('hand_mesh_capacity');
     return out.subarray(0,cursor);
   }
-  function rigMesh(part,stage,path,appearanceKey) {
-    function point(x,y){return appearanceProfile(appearanceKey).family==='baby'?appearancePoint(appearanceKey,x,y,path):growthPoint(stage,x,y,path);}
+  function rigMesh(part,stage,path,appearanceKey,eggOrigin) {
+    function point(x,y){return appearanceProfile(appearanceKey).family==='baby'?appearancePoint(appearanceKey,x,y,path,eggOrigin):growthPoint(stage,x,y,path,eggOrigin);}
     var poly=part.polygon.map(function(v){return {x:v[0],y:v[1]};}),area=0,cx=0,cy=0;
     poly.forEach(function(v,i){var next=poly[(i+1)%poly.length];area+=v.x*next.y-next.x*v.y;cx+=v.x;cy+=v.y;});
     if(area>0)poly.reverse();cx/=poly.length;cy/=poly.length;
@@ -2387,9 +2413,11 @@
     'precision mediump float;varying vec2 v_uv;varying vec4 v_evolution;varying float v_coverage;varying float v_part;',
     'uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
     'uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail;',
+    'float eggRegion(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.96,1.02,length((p-c)/r));}',
+    'vec3 eggColor(vec2 p,vec3 color){if(v_evolution.a<16.)return color;float features=0.;if(u_motionA.x>1.5)features=max(max(eggRegion(p,vec2(.238,.661),vec2(.061,.063)),eggRegion(p,vec2(.339,.653),vec2(.061,.063))),eggRegion(p,vec2(.295,.705),vec2(.052,.040)));float fur=smoothstep(.012,.045,min(color.r,color.b)-color.g)*(1.-smoothstep(.16,.26,color.r-color.b));float amount=fur*(1.-features)*.92;float lum=dot(color,vec3(.299,.587,.114));float targetLum=max(.2,dot(v_evolution.rgb,vec3(.299,.587,.114)));return mix(color,clamp(v_evolution.rgb*lum/targetLum,vec3(0.),vec3(1.)),amount);}',
     'void main(){if(v_part<0.||v_evolution.a<-.5)discard;vec4 rect=vec4('+eggSourceRects[0].join(',')+');',
     'if(u_motionA.x>.5&&u_motionA.x<1.5)rect=vec4('+eggSourceRects[1].join(',')+');if(u_motionA.x>1.5)rect=vec4('+eggSourceRects[2].join(',')+');',
-    'vec2 p=mix(rect.xy,rect.zw,clamp(v_uv,vec2(.0001),vec2(.9999)));vec4 source=texture2D(u_sad,p);if(source.a<.01)discard;float mask=0.;if(u_motionA.x>1.5){vec2 q=(p-vec2(.295,.705))/vec2(.045,.03);mask=(1.-smoothstep(.96,1.02,length(q)))*smoothstep(.697,.705,p.y);}source.rgb=mix(source.rgb,texture2D(u_angry,p).rgb,mask);float a=source.a*v_coverage;gl_FragColor=vec4(source.rgb*a,a);}'
+    'vec2 p=mix(rect.xy,rect.zw,clamp(v_uv,vec2(.0001),vec2(.9999)));vec4 source=texture2D(u_sad,p);if(source.a<.01)discard;float mask=0.;if(u_motionA.x>1.5){vec2 q=(p-vec2(.295,.705))/vec2(.045,.03);mask=(1.-smoothstep(.96,1.02,length(q)))*smoothstep(.697,.705,p.y);}source.rgb=mix(source.rgb,texture2D(u_angry,p).rgb,mask);source.rgb=eggColor(p,source.rgb);float a=source.a*v_coverage;gl_FragColor=vec4(source.rgb*a,a);}'
   ].join('\n');
 
   function mount(canvas, options) {
@@ -2401,7 +2429,9 @@
     var media = null, removers = [], images = [], resources = [], locations = {};
     var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
     var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit);
-    var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey);
+    var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey),eggOrigin=eggOriginProfile(options.eggOrigin).key;
+    var materialProfile=eggVisualProfile(branchProfile.key,eggOrigin),originProfile=eggOriginProfile(eggOrigin);
+    if(family==='egg'&&originProfile.index)materialProfile=originProfile;
     var sourceSlots=family==='baby'?[0,1,1,0,1,1,1,1,1,2]:family==='egg'?[0,0,0,0,0,0,0,0,0,0]:[0,1,2,3,4,5,6,7,8,9];
     var assetTextures=[],textureImages=[],sourceRectAttribute=null,mouthAttribute=null,volumeAttribute=null;
     var rigGeometry=[],restVertices=null,drawVertices=null,partAttribute=null,buffer=null,textures=[];
@@ -2491,7 +2521,7 @@
         }
         return null;
       }
-      var hands=handVolumeState(painted.rig,painted.seconds,painted.elapsed,stageProfile.key,branchProfile.key,appearance.key);
+      var hands=handVolumeState(painted.rig,painted.seconds,painted.elapsed,stageProfile.key,branchProfile.key,appearance.key,eggOrigin);
       hands.sourceMeshes=handSourceMeshes;hands.projected=drawVertices;hands.starts=handSourceStarts;hands.scratch=handScratch;
       for(var side=1;side>=0;side--){
         var id=side?'arm_r':'arm_l',hand=handVolumeMesh(hands,id,handVertices),profile=handVolumeProfiles[family][id];
@@ -2571,8 +2601,8 @@
       [[directionSourceIndex(frame),1]].forEach(function(entry){
         var index=entry[0],weight=entry[1];if(weight<=0)return;
         gl.activeTexture(gl.TEXTURE0+5);gl.bindTexture(gl.TEXTURE_2D,assetTextures[index===0?(family==='baby'?3:10):(family==='baby'?5:13)]);
-        var view=directionView(index,appearance.key),mesh=turnMeshes[index]||(turnMeshes[index]=directionMesh(index,stageProfile.key,branchProfile.key,appearance.key));
-        var bounds=turnBounds[index]||(turnBounds[index]=directionBounds(index,stageProfile.key,branchProfile.key,appearance.key));
+        var view=directionView(index,appearance.key),mesh=turnMeshes[index]||(turnMeshes[index]=directionMesh(index,stageProfile.key,branchProfile.key,appearance.key,eggOrigin));
+        var bounds=turnBounds[index]||(turnBounds[index]=directionBounds(index,stageProfile.key,branchProfile.key,appearance.key,eggOrigin));
         var matrix=fitDirectionMatrix(rig.matrices.torso,roomWalkBounds(bounds,frame.roomWalk)).matrix;
         turnVertices.set(mesh);
         for(var offset=0;offset<mesh.length;offset+=5){var rest={x:mesh[offset],y:mesh[offset+1]};if(frame.roomWalk)rest=roomWalkDeform(index,mesh[offset+2],mesh[offset+3],rest,frame.roomWalk,appearance.key);var point=transform(matrix,rest);turnVertices[offset]=point.x*2-1;turnVertices[offset+1]=1-point.y*2;}
@@ -2612,7 +2642,7 @@
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
         var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key, branchProfile.key);
         if (reduced) { p.tail = 0; }
-        var rig=family==='egg'?null:rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale,appearance.key);
+        var rig=family==='egg'?null:rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale,appearance.key,eggOrigin);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
         var turn=directionFrame(cue,elapsed*1000,reduced);
@@ -2635,7 +2665,7 @@
           var fields = packedUniforms[key];
           gl.uniform4f(locations[key], p[fields[0]], p[fields[1]], p[fields[2]], p[fields[3]]);
         });
-        var hands=handVolumeState(rig,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,appearance.key);
+        var hands=handVolumeState(rig,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,appearance.key,eggOrigin);
         hands.sourceMeshes=handSourceMeshes;hands.projected=drawVertices;hands.starts=handSourceStarts;
         rigGeometry.forEach(function(part){
           if(part.id==='arm_l'||part.id==='arm_r'){paintHand(hands,part);return;}
@@ -2712,7 +2742,7 @@
       gl.useProgram(program);
       buffer = own('createBuffer'); gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
       var selectedParts=family==='baby'?nurseryRigParts:rigParts;
-      var parts=family==='egg'?[new Float32Array([0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1])]:selectedParts.map(function(part){return rigMesh(part,stageProfile.key,branchProfile.key,appearance.key);}),floatCount=parts.reduce(function(n,array){return n+array.length;},0),cursor=0;
+      var parts=family==='egg'?[new Float32Array([0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1])]:selectedParts.map(function(part){return rigMesh(part,stageProfile.key,branchProfile.key,appearance.key,eggOrigin);}),floatCount=parts.reduce(function(n,array){return n+array.length;},0),cursor=0;
       restVertices=new Float32Array(floatCount);
       parts.forEach(function(values,index){var id=family==='egg'?'egg':selectedParts[index].id;rigGeometry.push({id:id,index:index,start:cursor/5,count:values.length/5});if(id==='arm_l'||id==='arm_r'){handSourceMeshes[id]=values;handSourceStarts[id]=cursor;}restVertices.set(values,cursor);cursor+=values.length;});
       drawVertices=new Float32Array(restVertices);gl.bufferData(gl.ARRAY_BUFFER,drawVertices,gl.DYNAMIC_DRAW);
@@ -2723,7 +2753,7 @@
       partAttribute=gl.getAttribLocation(program,'a_part');gl.disableVertexAttribArray(partAttribute);
       var branchAttribute = gl.getAttribLocation(program, 'a_evolution');
       gl.disableVertexAttribArray(branchAttribute);
-      gl.vertexAttrib4f(branchAttribute, branchProfile.rgb[0], branchProfile.rgb[1], branchProfile.rgb[2], branchProfile.index);
+      gl.vertexAttrib4f(branchAttribute, materialProfile.rgb[0], materialProfile.rgb[1], materialProfile.rgb[2], family==='egg'&&originProfile.index?16+originProfile.index:materialProfile.index);
       if(family==='baby'){sourceRectAttribute=gl.getAttribLocation(program,'a_sourceRect');gl.disableVertexAttribArray(sourceRectAttribute);gl.vertexAttrib4f(sourceRectAttribute,0,0,1,1);}
       if(family!=='egg'){mouthAttribute=gl.getAttribLocation(program,'a_mouthMode');if(mouthAttribute>=0){gl.disableVertexAttribArray(mouthAttribute);gl.vertexAttrib1f(mouthAttribute,0);}else mouthAttribute=null;}
       if(family!=='egg'){volumeAttribute=gl.getAttribLocation(program,'a_handVolume');if(volumeAttribute<0)throw new Error('volume_attribute');gl.disableVertexAttribArray(volumeAttribute);gl.vertexAttrib4f(volumeAttribute,0,0,1,0);}
@@ -2770,7 +2800,7 @@
     } catch (_) { fail('webgl_setup_failed'); }
     return controller;
   }
-  return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
+  return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, eggOrigins:eggOrigins,eggOriginProfile:eggOriginProfile,eggVisualProfile:eggVisualProfile,eggOriginColor:eggOriginColor,evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
     catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,

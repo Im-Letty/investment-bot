@@ -13,6 +13,7 @@
   var emotionCacheKey, emotionCacheRows;
   var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null, growthEmotionOpen = false;
   var fittingOpen = false, fittingOutfit = null;
+  var eggDraft = null, eggConfirm = false;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
@@ -35,6 +36,57 @@
   function developerPreview() { return !!options && options.developerPreview === true; }
   function displaySpecies(s) { return s.pet.species === 'dragon' ? 'lilac' : s.pet.species; }
   function core() { return w.PetGameCore; }
+  function needsEggChoice(s) { return typeof core().needsEggChoice === 'function' && core().needsEggChoice(s); }
+  function eggOrigin(s) { return typeof core().getEggOrigin === 'function' ? core().getEggOrigin(s) : 'lilac'; }
+  function eggProfile(key) {
+    return typeof core().eggProfile === 'function' ? core().eggProfile(key) : { key: 'lilac', eggLabel: 'すみれのたまご', characterName: 'ふわり', colorName: '薄紫', color: '#b5a0d9', description: 'ふわっとした耳と、ふっくらしたほっぺのこ。' };
+  }
+  function chosenEgg(s) { return s.pet && Object.prototype.hasOwnProperty.call(s.pet, 'eggOrigin') && s.pet.eggOrigin !== null; }
+  function eggIcon(profile) {
+    var icon = node('span', 'ipg-egg-icon ipg-egg-icon-' + profile.key);
+    icon.style.color = profile.color; icon.setAttribute('aria-hidden', 'true');
+    return icon;
+  }
+  function renderEggChoice(s, body) {
+    var box = card('', 'ipg-egg-welcome'), rows = Array.isArray(core().eggCatalogue) ? core().eggCatalogue : [];
+    append(box, node('p', 'ipg-eyebrow', 'はじめての出会い'), node('h3', '', eggConfirm ? 'このたまごと、暮らそうか。' : 'いっしょに暮らすたまごを選ぼう'),
+      text('たまごによって、うまれてくるこの色や耳、体つきが変わります。お世話を重ねて、少しずつ育てていこう。'));
+    var selected = rows.filter(function (row) { return row.key === eggDraft; })[0];
+    if (eggConfirm && selected) {
+      var review = node('div', 'ipg-egg-review');
+      append(review, eggIcon(selected), node('h4', '', selected.eggLabel), text(selected.characterName + ' · ' + selected.colorName, 'ipg-egg-character'), text(selected.description));
+      box.appendChild(review);
+      box.appendChild(text('迎えたあとは、このたまごを選び直せません。色や個性を大切に育てていこう。', 'ipg-small'));
+      var actions = node('div', 'ipg-egg-actions');
+      var back = button('選び直す', function () { if (busy) return; eggConfirm = false; render(); var focus = host.querySelector('[data-focus-key="egg-choice-' + eggDraft + '"]'); if (focus) focus.focus({ preventScroll: true }); }, true, s.readOnly);
+      back.dataset.focusKey = 'egg-back';
+      var confirm = button('このたまごと暮らす', async function () {
+        if (busy) return;
+        tab = 'care';
+        var result = await run({ type: 'chooseEgg', eggOrigin: selected.key }, 'たまごをおへやへ迎えました。');
+        if (result && result.ok) { var heading = host.querySelector('.ipg-pet-name'); if (heading) { heading.tabIndex = -1; heading.focus({ preventScroll: true }); } }
+      }, false, s.readOnly);
+      confirm.dataset.focusKey = 'egg-confirm'; append(actions, back, confirm); box.appendChild(actions);
+    } else {
+      eggConfirm = false;
+      var choices = node('div', 'ipg-egg-choices'); choices.setAttribute('role', 'group'); choices.setAttribute('aria-label', 'はじめてのたまご');
+      rows.forEach(function (row) {
+        var choice = button('', function () { if (busy) return; eggDraft = row.key; render(); }, true, s.readOnly);
+        choice.className += ' ipg-egg-choice' + (selected && selected.key === row.key ? ' is-selected' : '');
+        choice.dataset.focusKey = 'egg-choice-' + row.key; choice.dataset.eggOrigin = row.key;
+        choice.setAttribute('aria-pressed', String(!!selected && selected.key === row.key));
+        var words = node('span', 'ipg-egg-choice-words');
+        append(words, node('strong', '', row.eggLabel), node('span', 'ipg-egg-character', row.characterName + ' · ' + row.colorName), node('small', '', row.description),
+          node('span', 'ipg-egg-selected', selected && selected.key === row.key ? '✓ 選択中' : 'このたまごを見る'));
+        append(choice, eggIcon(row), words); choices.appendChild(choice);
+      });
+      box.appendChild(choices);
+      var next = button('このたまごを見てみる', function () { if (busy || !eggDraft) return; eggConfirm = true; render(); var focus = host.querySelector('[data-focus-key="egg-confirm"]'); if (focus) focus.focus({ preventScroll: true }); }, false, !selected || s.readOnly);
+      next.dataset.focusKey = 'egg-review'; box.appendChild(next);
+      box.appendChild(text('選ぶだけでは、まだお世話やコインの記録は変わりません。', 'ipg-small'));
+    }
+    body.appendChild(box);
+  }
   function items() { return core().items || core().catalogue || core().ITEMS || []; }
   function item(id) { return items().filter(function (x) { return x.id === id; })[0]; }
   function itemName(id) { var x = item(id); return x ? x.name : 'アイテム'; }
@@ -51,6 +103,13 @@
   function evolutionPaths() { return Array.isArray(core().lilacEvolutionPaths) ? core().lilacEvolutionPaths : []; }
   function evolutionPath(s) { var view = evolution(s); return view && view.current ? view.current.key : 'balanced'; }
   function evolutionRow(key) { return evolutionPaths().filter(function (entry) { return entry.key === key; })[0] || null; }
+  function evolutionLook(s, row) {
+    if (!row) return null;
+    var origin = eggOrigin(s) || 'lilac', engine = w.PetLilacMotion;
+    if (origin !== 'lilac' && engine && typeof engine.eggVisualProfile === 'function') return engine.eggVisualProfile(row.key, origin);
+    if (origin !== 'lilac') { var born = eggProfile(origin); return { color: born.color, colorName: row.key === 'balanced' ? born.colorName : born.colorName + 'を基調に' + row.colorName + '寄り' }; }
+    return row;
+  }
   function limits() { return core().LIMITS || {}; }
   function currentDay() {
     var dt = new Date((options && options.now || Date.now)());
@@ -186,17 +245,26 @@
       return old;
     }
     var appearance = stage(s), growthStage = canonicalStage(s).key, profile = appearanceProfile(appearance.key);
+    var origin = eggOrigin(s) || 'lilac', originRow = eggProfile(origin), originPlaceholder = origin !== 'lilac';
     var pathRow = evolutionRow(preview && evolutionOverride ? evolutionOverride : evolutionPath(s));
     var path = pathRow ? pathRow.key : 'balanced';
     var dress = preview === 'fitting' ? fittingOverride : outfit(s);
     var dressItem = item(dress); dress = dressItem && dressItem.type === 'clothing' ? dressItem.id : null;
     var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + growthStage + (extraClass ? ' ' + extraClass : ''));
     wrap.dataset.cuePhase = 'idle'; wrap.dataset.growthStage = growthStage; wrap.dataset.appearanceKey = appearance.key; wrap.dataset.evolutionPath = path; wrap.dataset.outfit = dress || 'none';
+    wrap.dataset.eggOrigin = origin;
     var still = node('div', 'ipg-lilac-still' + (profile.family === 'egg' ? ' ipg-egg-still' : ' ipg-tooth-still'));
     var stillAsset = profile.stillBaseAsset || (profile.family === 'egg' ? 'pet_lilac_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_reference_v2.png' : 'pet_lilac_cutout.webp');
-    still.alt = (s.pet.name || '薄紫のこ') + '（' + appearance.label + '）';
+    still.alt = (s.pet.name || (origin === 'lilac' ? '薄紫のこ' : originRow.characterName)) + '（' + appearance.label + '）';
     still.setAttribute('role', 'img'); still.setAttribute('aria-label', still.alt);
-    if (profile.family === 'egg') {
+    if (originPlaceholder) {
+      still.className += ' ipg-origin-placeholder'; still.setAttribute('role', 'group');
+      still.setAttribute('aria-label', originRow.eggLabel + 'のこ');
+      var originNote = text('この子の姿を準備しています…', 'ipg-origin-placeholder-note');
+      var retry = button('もう一度表示する', function () { if (!busy) render(); }, true); retry.hidden = true;
+      retry.dataset.focusKey = 'pet-appearance-retry';
+      append(still, eggIcon(originRow), node('strong', '', originRow.eggLabel), originNote, retry);
+    } else if (profile.family === 'egg') {
       still.setAttribute('role', 'img'); still.setAttribute('aria-label', still.alt); still.dataset.eggCell = String(profile.stillCell);
       var rect = profile.stillRect;
       if (!Array.isArray(rect) || rect.length !== 4 || !rect.every(Number.isFinite) || rect[0] < 0 || rect[1] < 0 || rect[2] > 1 || rect[3] > 1 || rect[2] <= rect[0] || rect[3] <= rect[1]) rect = eggStillRect(profile.stillCell);
@@ -220,7 +288,7 @@
       base.alt = ''; base.draggable = false; base.setAttribute('aria-hidden', 'true');
       still.appendChild(base); still.appendChild(stillMouthPatch(profile));
     }
-    if (Number.isFinite(profile.overallScale)) { still.style.transform = 'scale(' + profile.overallScale + ')'; still.style.transformOrigin = '50% 92%'; }
+    if (!originPlaceholder && Number.isFinite(profile.overallScale)) { still.style.transform = 'scale(' + profile.overallScale + ')'; still.style.transformOrigin = '50% 92%'; }
     still.width = still.height = 300; still.draggable = false;
     var canvas = node('canvas', 'ipg-lilac-canvas');
     canvas.width = canvas.height = 512; canvas.hidden = true;
@@ -230,7 +298,7 @@
     wrap.appendChild(food);
     var effect = node('div', 'ipg-emotion-effect'); effect.hidden = true; effect.setAttribute('aria-hidden', 'true');
     wrap.appendChild(effect);
-    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', localCue: null, growthStage: growthStage, appearanceKey: appearance.key, appearanceFamily: profile.family, evolutionPath: path, outfit: dress, visualAlt: still.alt + (pathRow ? '・' + pathRow.label + '・' + pathRow.colorName : '') + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, revealFrame: null, ready: false, failed: false });
+    motionRequests.push({ canvas: canvas, still: still, wrap: wrap, food: food, effect: effect, preview: !!preview, growthPreview: preview === 'growth', fittingPreview: preview === 'fitting', localCue: null, growthStage: growthStage, appearanceKey: appearance.key, appearanceFamily: profile.family, eggOrigin: origin, originNote: originPlaceholder ? originNote : null, originRetry: originPlaceholder ? retry : null, evolutionPath: path, outfit: dress, visualAlt: still.alt + (pathRow ? '・' + pathRow.label + '・' + evolutionLook(s, pathRow).colorName : '') + (dress ? '・お洋服：' + itemName(dress) : ''), controller: null, cueTimer: null, revealFrame: null, ready: false, failed: false });
     return wrap;
   }
   function requestCue(request) {
@@ -398,6 +466,7 @@
           assetRoot: imageRoot,
           growthStage: request.growthStage,
           appearanceKey: request.appearanceKey,
+          eggOrigin: request.eggOrigin,
           evolutionPath: request.evolutionPath,
           outfit: request.outfit,
           situation: localCue ? localCue.situation : 'idle',
@@ -433,12 +502,14 @@
     if (request.roomBehavior) request.roomBehavior.destroy();
     request.roomBehavior = null; request.roomCue = null;
     request.ready = false; request.failed = true; request.canvas.hidden = true; request.still.hidden = false;
+    if (request.originNote) request.originNote.textContent = 'この子の姿を表示できませんでした。卵の選択と育成の記録は保存されています。';
+    if (request.originRetry) request.originRetry.hidden = false;
     request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = ''; request.wrap.dataset.cuePhase = 'idle';
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
     if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame); request.revealFrame = null;
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     if (request.food) request.food.hidden = true;
-    if (request.room) { request.roomSettlingUntil = 0; placeInRoom(request, 0, false); request.wrap.dataset.facing = 'front'; request.wrap.dataset.roomWalkPhase = ''; request.room.dataset.activity = 'idle'; request.roomBubble.textContent = 'ここで、いっしょに過ごそう。'; request.roomStatus.textContent = '絵で表示しています。お世話の記録はいつもどおり保存できます。'; }
+    if (request.room) { request.roomSettlingUntil = 0; placeInRoom(request, 0, false); request.wrap.dataset.facing = 'front'; request.wrap.dataset.roomWalkPhase = ''; request.room.dataset.activity = 'idle'; request.roomBubble.textContent = 'ここで、いっしょに過ごそう。'; request.roomStatus.textContent = request.originNote ? 'この子の姿を表示できませんでした。卵の選択と育成の記録は保存されています。お世話は続けられます。' : '絵で表示しています。お世話の記録はいつもどおり保存できます。'; }
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
     if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     if (request.outfitNotice) request.outfitNotice.hidden = false;
@@ -447,6 +518,9 @@
     if (request.directionNotice) request.directionNotice.hidden = false;
     if (request.growthCaption) request.growthCaption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     if (request.fittingCaption) request.fittingCaption.textContent = '試着の表示を確認できないため、服を描かない基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '');
+    if (request.originNote) [request.caption, request.growthCaption, request.fittingCaption].forEach(function (caption) {
+      if (caption) caption.textContent = 'この子の姿を表示できませんでした。卵の選択と育成の記録は保存されています。';
+    });
   }
   // The catalogue is shared with the renderer. A missing optional renderer keeps
   // the original static pet and a readable, disabled emotion selector.
@@ -546,7 +620,7 @@
     refreshRoomTouch(request);
     if (request.food) {
       request.food.hidden = !(meal && !egg && meal.foodVisible && request.ready && motionsVisible());
-      var anchor = w.PetLilacMotion && typeof w.PetLilacMotion.feedingAnchor === 'function' ? w.PetLilacMotion.feedingAnchor(request.growthStage, request.evolutionPath, request.appearanceKey) : null;
+      var anchor = w.PetLilacMotion && typeof w.PetLilacMotion.feedingAnchor === 'function' ? w.PetLilacMotion.feedingAnchor(request.growthStage, request.evolutionPath, request.appearanceKey, request.eggOrigin) : null;
       if (anchor && Number.isFinite(anchor.foodLeft) && Number.isFinite(anchor.foodTop)) {
         request.food.style.left = String(anchor.foodLeft * 100) + '%'; request.food.style.top = String(anchor.foodTop * 100) + '%';
       }
@@ -796,14 +870,15 @@
     var view = evolution(s); if (!view || !view.current) return;
     var section = node('section', 'ipg-evolution-status'); section.setAttribute('aria-label', '育ち方と次の進化の傾向');
     var heading = node('p', 'ipg-evolution-current');
-    var color = node('span', 'ipg-evolution-color'); color.style.backgroundColor = view.current.color; color.setAttribute('aria-hidden', 'true');
-    append(heading, color, node('span', '', 'いまの育ち方：' + view.current.label + '・' + view.current.colorName)); section.appendChild(heading);
-    section.appendChild(text('次の進化の傾向（予想）：' + (view.tendency ? view.tendency.label + '・' + view.tendency.colorName : 'まだこれから'), 'ipg-evolution-tendency'));
+    var currentLook = evolutionLook(s, view.current), tendencyLook = evolutionLook(s, view.tendency);
+    var color = node('span', 'ipg-evolution-color'); color.style.backgroundColor = currentLook.color; color.setAttribute('aria-hidden', 'true');
+    append(heading, color, node('span', '', 'いまの育ち方：' + view.current.label + '・' + currentLook.colorName)); section.appendChild(heading);
+    section.appendChild(text('次の進化の傾向（予想）：' + (view.tendency ? view.tendency.label + '・' + tendencyLook.colorName : 'まだこれから'), 'ipg-evolution-tendency'));
     if (view.nextAt != null) section.appendChild(text(number(view.nextAt) + ' EXPで、その時の育ち方が決まります。', 'ipg-small'));
     section.appendChild(text(view.tracked ? '新しく記録した育成日数：' + number(view.activeDays) + '日' :
       '育ち方の記録は、ここからのお世話から始まります。これまでのEXPやもちものは、そのままです。', 'ipg-evolution-recorded ipg-small'));
     var help = node('details', 'ipg-evolution-help'); help.appendChild(node('summary', '', '育ち方のヒント'));
-    var hints = node('ul'); evolutionPaths().forEach(function (entry) { hints.appendChild(node('li', '', entry.label + '・' + entry.colorName + '：' + entry.hint)); });
+    var hints = node('ul'); evolutionPaths().forEach(function (entry) { hints.appendChild(node('li', '', entry.label + '・' + evolutionLook(s, entry).colorName + '：' + entry.hint)); });
     append(help, text('食べものやお世話の種類に加えて、日を分けて続けることも育ち方につながります。800 EXPから先も、800 EXPごとに次の育ち方へ変わっていきます。', 'ipg-small'), hints); section.appendChild(help);
     if (Array.isArray(view.history) && view.history.length) {
       var history = node('details', 'ipg-evolution-history'); history.appendChild(node('summary', '', '記録できた進化（' + number(view.history.length) + '）'));
@@ -812,7 +887,7 @@
         var growth = (core().lilacGrowthStages || []).filter(function (row) { return row.key === entry.stageKey; })[0];
         var appearance = typeof core().getLilacAppearance === 'function' ? core().getLilacAppearance(entry.min) : growth;
         var branch = evolutionRow(entry.branch), stamp = typeof entry.at === 'number' ? new Date(entry.at).toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' }) + ' JST' : '';
-        list.appendChild(node('li', '', (appearance ? appearance.label : entry.stageKey) + ' · ' + number(entry.min) + ' EXP · ' + (branch ? branch.label + '・' + branch.colorName : entry.branch) + (stamp ? ' · ' + stamp : '')));
+        list.appendChild(node('li', '', (appearance ? appearance.label : entry.stageKey) + ' · ' + number(entry.min) + ' EXP · ' + (branch ? branch.label + '・' + evolutionLook(s, branch).colorName : entry.branch) + (stamp ? ' · ' + stamp : '')));
       }); history.appendChild(list); section.appendChild(history);
     }
     if (view.current.key !== 'balanced') {
@@ -856,7 +931,7 @@
       var visual = petVisual(sample, 'ipg-growth-sample', 'growth', undefined, growthPreviewPath);
       var request = motionRequests[motionRequests.length - 1];
       var preview = node('div', 'ipg-growth-preview');
-      var caption = text(selected.label + (selectedPath ? '・' + selectedPath.label + '・' + selectedPath.colorName : '') + ' · ' + (future ? 'これからの姿・見本' : currentView ? 'いまの姿の見本' : growthPreviewPath !== actualPath ? '育ち方・色の見本' : '育った姿の見本'), 'ipg-growth-caption');
+      var caption = text(selected.label + (selectedPath ? '・' + selectedPath.label + '・' + evolutionLook(s, selectedPath).colorName : '') + ' · ' + (future ? 'これからの姿・見本' : currentView ? 'いまの姿の見本' : growthPreviewPath !== actualPath ? '育ち方・色の見本' : '育った姿の見本'), 'ipg-growth-caption');
       caption.setAttribute('aria-live', 'polite'); caption.tabIndex = -1;
       request.growthCaption = caption;
       if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = '成長の動きを表示できないため、基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
@@ -901,8 +976,8 @@
           var branch = button('', function () { growthPreviewPath = entry.key; render(); showGrowthGallery(); }, true);
           branch.dataset.evolutionPath = entry.key; branch.dataset.focusKey = 'growth-path-' + entry.key;
           branch.setAttribute('aria-pressed', String(entry.key === growthPreviewPath));
-          var color = node('span', 'ipg-evolution-color'); color.style.backgroundColor = entry.color; color.setAttribute('aria-hidden', 'true');
-          append(branch, color, node('span', '', entry.label), node('small', '', entry.colorName + '・見本')); branchChoices.appendChild(branch);
+          var look = evolutionLook(s, entry), color = node('span', 'ipg-evolution-color'); color.style.backgroundColor = look.color; color.setAttribute('aria-hidden', 'true');
+          append(branch, color, node('span', '', entry.label), node('small', '', look.colorName + '・見本')); branchChoices.appendChild(branch);
         });
         selectors.appendChild(branchChoices);
       }
@@ -970,7 +1045,7 @@
     }
     body.appendChild(pet);
     var settings = node('details', 'ipg-card ipg-pet-settings');
-    settings.appendChild(node('summary', '', 'なまえ・ペットの種類'));
+    settings.appendChild(node('summary', '', chosenEgg(s) ? 'なまえ・この子のたまご' : 'なまえ・ペットの種類'));
     var form = node('form', 'ipg-form');
     var input = node('input'); input.type = 'text'; input.maxLength = 20; input.autocomplete = 'off';
     input.value = nameDraft == null ? s.pet.name : nameDraft;
@@ -982,14 +1057,21 @@
       if (result.ok) { nameDraft = null; render(); }
     });
     append(form, label('なまえ（20文字まで）', input), save);
-    var species = node('div', 'ipg-row');
-    [['lilac', '薄紫のこ（B）'], ['bunny', 'うさぎ']].forEach(function (x) {
-      var b = button(x[1] + (displaySpecies(s) === x[0] ? ' · 選択中' : ''), function () {
-        run({ type: 'chooseSpecies', species: x[0] }, 'ペットの種類を保存しました。');
-      }, true, displaySpecies(s) === x[0]);
-      species.appendChild(b);
-    });
-    append(settings, form, text('ペットの種類'), species);
+    settings.appendChild(form);
+    if (chosenEgg(s)) {
+      var born = eggProfile(eggOrigin(s)), origin = node('div', 'ipg-egg-origin'); origin.dataset.eggOrigin = born.key;
+      append(origin, eggIcon(born), node('div', 'ipg-egg-origin-words', born.eggLabel + ' · ' + born.characterName + ' · ' + born.colorName), text(born.description, 'ipg-small'));
+      settings.appendChild(origin);
+    } else {
+      var species = node('div', 'ipg-row');
+      [['lilac', '薄紫のこ（B）'], ['bunny', 'うさぎ']].forEach(function (x) {
+        var b = button(x[1] + (displaySpecies(s) === x[0] ? ' · 選択中' : ''), function () {
+          run({ type: 'chooseSpecies', species: x[0] }, 'ペットの種類を保存しました。');
+        }, true, displaySpecies(s) === x[0]);
+        species.appendChild(b);
+      });
+      append(settings, text('ペットの種類'), species);
+    }
     if (developerPreview()) {
     var previewToggle = button(appearancePreview ? 'しぐさの見本を閉じる' : '薄紫のこのしぐさを見る', function () {
       appearancePreview = !appearancePreview; previewSituation = 'idle'; previewStartedAt = Date.now(); render();
@@ -1377,7 +1459,7 @@
       setBusy(true);
       try {
         var result = await store.importBackup(area.value);
-        if (result && result.ok) { importText = ''; nameDraft = null; pendingFinish = null; notice = 'バックアップから復元しました。'; failure = ''; }
+        if (result && result.ok) { importText = ''; nameDraft = null; pendingFinish = null; eggDraft = null; eggConfirm = false; tab = 'care'; notice = 'バックアップから復元しました。'; failure = ''; }
         else { failure = safeError(result); notice = ''; }
       } catch (_) { failure = '復元を確認できませんでした。現在の記録を保持しています。'; notice = ''; }
       finally { setBusy(false); render(); }
@@ -1391,10 +1473,11 @@
     roomCarryX = tab === 'care' && priorRoom && Number.isFinite(priorRoom.roomPixelX) ? priorRoom.roomPixelX : 0;
     stopMotions();
     var focused = d.activeElement && d.activeElement.dataset && d.activeElement.dataset.focusKey;
-    var s = state(), root = node('div', 'ipg ipg-view-' + tab);
+    var s = state(), choosing = !developerPreview() && needsEggChoice(s), root = node('div', 'ipg ipg-view-' + tab);
+    if (!needsEggChoice(s)) { eggDraft = null; eggConfirm = false; }
     renderedDay = currentDay();
     var head = node('header', 'ipg-header');
-    if (tab !== 'care' && !game && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
+    if (!choosing && tab !== 'care' && !game && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
     append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', 'そだてる')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);
@@ -1402,6 +1485,12 @@
     status.setAttribute('role', failure ? 'alert' : 'status'); status.setAttribute('aria-live', failure ? 'assertive' : 'polite');
     root.appendChild(status);
     if (s.error && !failure) root.appendChild(text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error'));
+    if (choosing) {
+      var welcome = node('div', 'ipg-body'); renderEggChoice(s, welcome); renderBackup(welcome); root.appendChild(welcome);
+      host.replaceChildren(root); setBusy(busy);
+      if (focused) { var choiceFocus = host.querySelector('[data-focus-key="' + focused + '"]'); if (choiceFocus && !choiceFocus.disabled) choiceFocus.focus({ preventScroll: true }); }
+      return;
+    }
     var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
     Object.keys(tabLabels).forEach(function (key) {
       var b = button(tabLabels[key], async function () {

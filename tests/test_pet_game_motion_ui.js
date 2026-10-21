@@ -61,8 +61,8 @@ class Element {
 // shipped modules, with the same asynchronous storage boundary as the product.
 async function fixture(config = {}) {
   let clock = new Date(2026, 9, 21, 12).getTime(), sequence = 0, store;
-  const data = new Map(Object.entries({ pg_exp: '30', pg_coins: '500', pg_name: 'もとの子', pg_path: 'cool', pg_px: '1',
-    pg_items: '{"rice":2}', pg_ach: '["old-ach"]', ...(config.seed || {}) }));
+  const data = new Map(Object.entries({ ...(config.fresh ? {} : { pg_exp: '30', pg_coins: '500', pg_name: 'もとの子', pg_path: 'cool', pg_px: '1',
+    pg_items: '{"rice":2}', pg_ach: '["old-ach"]' }), ...(config.seed || {}) }));
   const writes = [], control = { outcome: 'ok', pending: null };
   const storage = {
     getItem: key => data.has(key) ? data.get(key) : null,
@@ -86,7 +86,7 @@ async function fixture(config = {}) {
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey) { anchorCalls.push({ stage, path, appearanceKey }); return Motion.feedingAnchor(stage, path, appearanceKey); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
+    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, eggVisualProfile: Motion.eggVisualProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey, eggOrigin) { anchorCalls.push({ stage, path, appearanceKey, eggOrigin }); return Motion.feedingAnchor(stage, path, appearanceKey, eggOrigin); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -2104,4 +2104,112 @@ test('reduced-motion touch keeps readable finite responses without autonomous mo
   await finishTouch(f, 'laugh'); assert.equal(f.focusButton('touch-hand').disabled, false);
   assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
   f.ui.close(); assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0);
+});
+
+async function chooseFirstEgg(f, key) {
+  await f.click(f.focusButton('egg-choice-' + key));
+  await f.click(f.focusButton('egg-review'));
+  await f.click(f.focusButton('egg-confirm'));
+}
+
+test('new visitors choose and review one of three eggs without drawing or changing progress until the confirmed save', async () => {
+  for (const row of Core.eggCatalogue) {
+    const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+    assert.equal(Core.needsEggChoice(before), true); assert.equal(before.pet.exp, 0); assert.equal(before.coins, 100);
+    assert.equal(f.host.querySelectorAll('.ipg-egg-choice').length, 3);
+    assert.equal(f.host.querySelector('.ipg-tabs'), null); assert.equal(f.host.querySelector('.ipg-care-room'), null);
+    assert.equal(f.host.querySelector('.ipg-backup') !== null, true); assert.equal(f.mounts.length, 0); assert.equal(f.timers.size, 0);
+    assert.equal(f.focusButton('egg-review').disabled, true);
+    await f.click(f.focusButton('egg-choice-' + row.key));
+    assert.equal(f.focusButton('egg-choice-' + row.key).getAttribute('aria-pressed'), 'true');
+    assert.equal(f.focusButton('egg-review').disabled, false); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+    await f.click(f.focusButton('egg-review'));
+    assert.ok(f.host.querySelector('.ipg-egg-review').textContent.includes(row.eggLabel));
+    assert.equal(f.document.activeElement, f.focusButton('egg-confirm'));
+    await f.click(f.focusButton('egg-back')); assert.equal(f.focusButton('egg-choice-' + row.key).getAttribute('aria-pressed'), 'true');
+    await f.click(f.focusButton('egg-review'));
+    const pending = deferred(); f.control.pending = pending;
+    await f.click(f.focusButton('egg-confirm'));
+    assert.equal(f.focusButton('egg-confirm').disabled, true); assert.equal(f.host.getAttribute('aria-busy'), 'true');
+    assert.deepEqual(f.saved(), before); assert.equal(f.mounts.length, 0);
+    f.focusButton('egg-confirm').emit('click'); await flush();
+    pending.resolve(); await flush(); f.control.pending = null;
+    const after = f.saved(); assert.equal(after.pet.eggOrigin, row.key); assert.equal(after.pet.exp, 0); assert.equal(after.coins, 100);
+    assert.deepEqual(after.care, before.care); assert.equal(f.writes.length, writes + 1);
+    assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); assert.ok(f.host.querySelector('.ipg-care-room'));
+    assert.equal(f.mounts.at(-1).options.eggOrigin, row.key); assert.equal(f.mounts.at(-1).options.appearanceKey, 'egg');
+    assert.ok(f.focusButton('care-feed').textContent.includes('あたためる'));
+    assert.ok(f.host.querySelector('.ipg-egg-origin').textContent.includes(row.eggLabel));
+    assert.equal(f.buttons().some(button => button.textContent === 'うさぎ'), false, 'the confirmed origin cannot be changed by a species selector');
+    const reloaded = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready', seed: { [Core.KEY]: JSON.stringify(after) } });
+    assert.equal(reloaded.host.querySelector('.ipg-egg-welcome'), null); assert.equal(reloaded.mounts.at(-1).options.eggOrigin, row.key);
+    assert.deepEqual(reloaded.saved(), after); f.ui.close(); reloaded.ui.close();
+  }
+});
+
+test('a rejected egg confirmation keeps its draft and every existing field and can retry the same choice', async () => {
+  for (const outcome of ['false', 'throw']) {
+    const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+    await f.click(f.focusButton('egg-choice-mint')); await f.click(f.focusButton('egg-review'));
+    f.control.outcome = outcome; await f.click(f.focusButton('egg-confirm'));
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.mounts.length, 0);
+    assert.ok(f.host.querySelector('.ipg-egg-review').textContent.includes('しずくのたまご'));
+    assert.ok(f.host.querySelector('.ipg-error')); assert.equal(f.focusButton('egg-confirm').disabled, false);
+    f.control.outcome = 'ok'; await f.click(f.focusButton('egg-confirm'));
+    assert.equal(f.saved().pet.eggOrigin, 'mint'); assert.equal(f.saved().pet.exp, 0); assert.equal(f.saved().coins, 100);
+    f.ui.close();
+  }
+});
+
+test('old zero-EXP and grown saves bypass new selection while the explicit local developer preview remains read only', async () => {
+  for (const exp of [0, 678]) {
+    const f = await fixture({ developerPreview: false, rendererMode: 'ready', seed: { pg_exp: String(exp) } }), before = f.saved(), writes = f.writes.length;
+    assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); assert.ok(f.host.querySelector('.ipg-care-room'));
+    assert.equal(Object.hasOwn(before.pet, 'eggOrigin'), false); assert.equal(f.mounts.at(-1).options.eggOrigin, 'lilac');
+    f.ui.render(); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+  }
+  const f = await fixture({ fresh: true, developerPreview: true, rendererMode: 'ready' }), before = f.saved(), writes = f.writes.length;
+  assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); assert.ok(f.host.querySelector('.ipg-emotion-panel'));
+  await f.click(f.focusButton('pet-emotion-joy')); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('the pending egg welcome retains backup restore and an old restored pet never becomes a new selection', async () => {
+  const old = await fixture({ developerPreview: false, seed: { pg_exp: '678' } }), preserved = old.saved(), backup = old.store.exportBackup(); old.ui.close();
+  const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready' });
+  await f.click(f.focusButton('egg-choice-apricot')); await f.click(f.focusButton('egg-review'));
+  const form = f.host.querySelector('.ipg-backup').querySelector('form'), area = form.querySelector('textarea');
+  area.value = backup; area.emit('input'); form.emit('submit'); await flush();
+  assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); assert.equal(f.store.getState().pet.exp, 678);
+  assert.equal(f.store.getState().coins, preserved.coins); assert.equal(Object.hasOwn(f.saved().pet, 'eggOrigin'), false);
+  assert.equal(f.mounts.at(-1).options.eggOrigin, 'lilac'); f.ui.close();
+});
+
+test('a chosen birth follows real saved hatching, food anchors and free fittings without reopening the selection', async () => {
+  for (const key of ['mint', 'apricot']) {
+    const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready' }); await chooseFirstEgg(f, key);
+    await f.click(f.focusButton('care-feed')); assert.equal(f.saved().pet.exp, 8); assert.equal(f.mounts.at(-1).options.appearanceKey, 'egg_cracked');
+    await f.click(f.focusButton('care-play')); assert.equal(f.saved().pet.exp, 13); assert.equal(f.mounts.at(-1).options.appearanceKey, 'hatching');
+    await f.click(f.focusButton('care-rest')); assert.equal(f.saved().pet.exp, 17); assert.equal(f.mounts.at(-1).options.appearanceKey, 'newborn');
+    await f.click(f.focusButton('care-feed')); assert.equal(f.mounts.at(-1).options.eggOrigin, key);
+    assert.ok(f.anchorCalls.some(call => call.eggOrigin === key && call.appearanceKey === 'newborn'));
+    const saved = f.saved(), writes = f.writes.length;
+    await f.click(f.focusButton('tab-shop')); await f.click(f.focusButton('outfit-try-cloth_cream_vest'));
+    assert.ok(f.activeMotions().every(request => request.options.eggOrigin === key));
+    assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes); assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); f.ui.close();
+  }
+});
+
+test('an unavailable chosen mint or apricot appears as its egg placeholder instead of the other purple character and retries without saving', async () => {
+  for (const key of ['mint', 'apricot']) {
+    const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'error' }); await chooseFirstEgg(f, key);
+    const before = f.saved(), writes = f.writes.length, placeholder = f.host.querySelector('.ipg-origin-placeholder');
+    assert.ok(placeholder); assert.equal(placeholder.hidden, false); assert.equal(placeholder.querySelectorAll('img').length, 0);
+    assert.ok(placeholder.textContent.includes(Core.eggProfile(key).eggLabel));
+    assert.ok(placeholder.textContent.includes('卵の選択と育成の記録は保存されています'));
+    assert.equal(f.host.querySelector('.ipg-lilac-canvas').hidden, true);
+    assert.equal(f.focusButton('pet-appearance-retry').hidden, false);
+    f.rendererControl.mode = 'ready'; await f.click(f.focusButton('pet-appearance-retry'));
+    assert.equal(f.host.querySelector('.ipg-origin-placeholder').hidden, true); assert.equal(f.host.querySelector('.ipg-lilac-canvas').hidden, false);
+    assert.equal(f.mounts.at(-1).options.eggOrigin, key); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+  }
 });

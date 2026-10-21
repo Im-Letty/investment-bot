@@ -628,7 +628,7 @@ test('hatching alone samples the new mouth sheet and keeps every egg silhouette 
   for(const key of ['egg','egg_cracked','hatching']){
     const f=fixture({options:{appearanceKey:key}});f.complete();const textures=f.created.filter(row=>row.type==='Texture'),call=f.drawCalls[0];
     assert.strictEqual(call.texture4,textures[0]);assert.strictEqual(call.texture5,textures[1]);assert.strictEqual(f.boundTextures[5],textures[0]);
-    assert.match(f.shaders[1],/float mask=0\.;if\(u_motionA.x>1.5\)/);assert.match(f.shaders[1],/source.rgb=mix\(source.rgb,texture2D\(u_angry,p\)\.rgb,mask\);float a=source.a\*v_coverage/);
+    assert.match(f.shaders[1],/float mask=0\.;if\(u_motionA.x>1.5\)/);assert.match(f.shaders[1],/source.rgb=mix\(source.rgb,texture2D\(u_angry,p\)\.rgb,mask\);source.rgb=eggColor\(p,source.rgb\);float a=source.a\*v_coverage/);
     assert.equal(call.uniforms.u_motionA[0],Motion.appearanceProfile(key).stillCell);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
   }
 });
@@ -2016,4 +2016,121 @@ test('external asset roots are refused without starting any image load', () => {
 test('module does not reach game storage, widget state, analytics or external fetch', () => {
   assert.doesNotMatch(source, /\b(?:localStorage|sessionStorage|fetch|XMLHttpRequest|setWidgetState|sendBeacon)\b/);
   assert.doesNotMatch(source, /https?:\/\//);
+});
+
+
+test('egg origins are immutable birth traits composed independently with the care path',()=>{
+  assert.deepEqual(Motion.eggOrigins.map(row=>row.key),['lilac','mint','apricot']);
+  assert.deepEqual(Motion.eggOrigins.map(row=>row.color),['#b5a0d9','#98c8be','#e6bb8e']);
+  assert.ok(Object.isFrozen(Motion.eggOrigins));
+  for(const origin of Motion.eggOrigins){assert.ok(Object.isFrozen(origin)&&Object.isFrozen(origin.rgb));assert.strictEqual(Motion.eggOriginProfile(origin.key),origin);}
+  for(const invalid of [undefined,null,'__proto__','constructor','missing',{}])assert.strictEqual(Motion.eggOriginProfile(invalid),Motion.eggOrigins[0]);
+  for(const care of Motion.evolutionCatalogue){
+    assert.strictEqual(Motion.eggVisualProfile(care.key,'lilac'),care,'default B preserves every existing coefficient');
+    for(const origin of Motion.eggOrigins.slice(1)){
+      const visual=Motion.eggVisualProfile(care.key,origin.key);assert.equal(visual.eggOrigin,origin.key);assert.ok(Object.isFrozen(visual)&&Object.isFrozen(visual.rgb));
+      assert.equal(visual.cadence,care.cadence);assert.equal(visual.bounce,care.bounce,'birth does not change care behavior');
+      assert.ok(visual.earScale>=.82&&visual.earScale<=1.16);assert.ok(visual.cheekWidth<=1.24&&visual.bodyWidth<=1.17&&visual.tailScale<=1.22);
+      const other=Motion.eggVisualProfile(care.key,origin.key==='mint'?'apricot':'mint');
+      assert.ok(Math.hypot(...visual.rgb.map((v,i)=>v-other.rgb[i]))>.15,'egg identity survives every later care palette');
+    }
+  }
+  assert.ok(Motion.eggVisualProfile('balanced','mint').earScale>1&&Motion.eggVisualProfile('balanced','mint').bodyWidth<1);
+  assert.ok(Motion.eggVisualProfile('balanced','apricot').cheekWidth>1&&Motion.eggVisualProfile('balanced','apricot').tailScale<1);
+});
+
+test('omitted and explicit lilac origins keep identical old B geometry materials and behavior',()=>{
+  for(const key of bornAppearances)for(const care of Motion.evolutionCatalogue){
+    for(const cue of ['idle','feeding','body_flap','sad','direction_spin']){
+      const age=1.6,a=Motion.rigPose(age,cue,age,'adult',care.key,1,key),b=Motion.rigPose(age,cue,age,'adult',care.key,1,key,'lilac');assert.deepEqual(a,b);
+    }
+    for(let view=0;view<16;view++)for(const [x,y]of [[.22,.26],[.55,.53],[.75,.8]])assert.deepEqual(Motion.directionPoint(view,x,y,'adult',care.key,key),Motion.directionPoint(view,x,y,'adult',care.key,key,'lilac'));
+  }
+  for(const key of ['egg','hatching','adult',null]){
+    const a=fixture({captureVolumes:true,options:{appearanceKey:key,evolutionPath:'fruit'}}),b=fixture({captureVolumes:true,options:{appearanceKey:key,evolutionPath:'fruit',eggOrigin:'lilac'}});a.complete();b.complete();
+    assert.deepEqual(a.buffers.map(row=>row.data),b.buffers.map(row=>row.data));assert.deepEqual(a.constants,b.constants);assert.deepEqual(a.uniforms,b.uniforms);a.api.destroy();b.api.destroy();
+  }
+});
+
+test('all birth origins preserve fixed framing welded joints and planted support across every B performance',()=>{
+  for(const origin of Motion.eggOrigins.slice(1))for(const key of bornAppearances)for(const care of Motion.evolutionCatalogue)for(const row of Motion.catalogue.concat(Motion.bodyCatalogue)){
+    for(let tick=0;tick<=8;tick++){
+      const age=Motion.durations[row.id]/1000*tick/8,f=Motion.rigPose(age,row.id,age,'adult',care.key,1.15,key,origin.key);
+      assert.equal(f.fitScale,1,origin.key+key+row.id+': birth traits do not cause camera pumping');
+      for(const id of ['arm_l','arm_r','tail']){const part=Motion.nurseryRigParts.find(p=>p.id===id),a=Motion.rigPoint(f,id,...part.pivot,'adult',care.key),b=Motion.rigPoint(f,'torso',...part.pivot,'adult',care.key);assert.ok(Math.hypot(a.x-b.x,a.y-b.y)<1e-12,'same origin at both sides of every socket');}
+      const soles=nurseryActualSoles(f,care.key),scale=Math.hypot(...f.matrices.head.slice(0,2));assert.ok(Math.abs(Math.max(...soles.map(p=>p.y))-(.92-f.flight*.055*scale))<1e-10,'support foot is planted unless genuinely airborne');
+    }
+  }
+});
+
+test('birth morphs are finite through sixteen real directions and origin caches cannot leak between pets',()=>{
+  for(const key of bornAppearances)for(const care of Motion.evolutionCatalogue){
+    const baseline=[];for(let view=0;view<16;view++)baseline.push(Motion.directionPoint(view,.27,.27,'adult',care.key,key,'lilac'));
+    const signatures=[];
+    for(const origin of Motion.eggOrigins){let changed=0;const signature=[];
+      for(let view=0;view<16;view++){
+        for(const [x,y]of [[.17,.28],[.55,.55],[.28,.78],[.75,.83]]){
+          const p=Motion.directionPoint(view,x,y,'adult',care.key,key,origin.key);assert.ok(Number.isFinite(p.x)&&Number.isFinite(p.y));signature.push(p.x,p.y);
+        }
+        const p=Motion.directionPoint(view,.27,.27,'adult',care.key,key,origin.key);if(Math.hypot(p.x-baseline[view].x,p.y-baseline[view].y)>.00001)changed++;
+      }
+      signatures.push(JSON.stringify(signature));if(origin.index)assert.ok(changed>=12,'a birth shape exists beyond the front view');
+    }
+    assert.equal(new Set(signatures).size,3);
+    for(let view=0;view<16;view++)assert.deepEqual(Motion.directionPoint(view,.27,.27,'adult',care.key,key,'lilac'),baseline[view],'querying other origins never overwrites the default camera cache');
+  }
+});
+
+test('birth fur colors protect face features and shell cream while hatching keeps its original eyes and teeth',()=>{
+  const purple=[.72,.61,.84],cream=[.94,.89,.82];
+  for(const origin of Motion.eggOrigins){
+    for(const [x,y]of [[.44318,.43534],[.68435,.40677],[.58051,.52638]])assert.deepEqual(Motion.directionFurColor(0,'balanced',x,y,purple,'adult',origin.key),purple,'original B eye/mouth pigment is protected');
+    assert.deepEqual(Motion.directionFurColor(0,'balanced',.5,.82,cream,'adult',origin.key),cream);
+    for(const [x,y]of [[.238,.661],[.339,.653],[.295,.705]])assert.deepEqual(Motion.eggOriginColor(origin.key,2,x,y,purple),purple);
+    for(const cell of [0,1,2]){
+      assert.deepEqual(Motion.eggOriginColor(origin.key,cell,.3,.3,cream),cream);
+      const tint=Motion.eggOriginColor(origin.key,cell,.2,.25,purple);assert.equal(tint.length,3);assert.ok(tint.every(v=>Number.isFinite(v)&&v>=0&&v<=1));if(origin.index)assert.notDeepEqual(tint,purple,'the shell spots identify the selected birth color');
+    }
+  }
+  for(const care of Motion.evolutionCatalogue){
+    const colors=Motion.eggOrigins.map(origin=>Motion.directionFurColor(0,care.key,.55,.2,purple,'adult',origin.key));
+    assert.equal(new Set(colors.map(c=>c.map(v=>Math.round(v*255)).join(','))).size,3,'every care route keeps distinct egg colors');
+  }
+});
+
+test('origin-correct rendering and touch picking share one 3D arm and mouth frame without more textures',()=>{
+  for(const origin of Motion.eggOrigins)for(const key of ['newborn','adult','companion'])for(const care of ['balanced','fruit','active']){
+    const f=fixture({hitPixels:'png',captureVolumes:true,options:{growthStage:'adult',appearanceKey:key,evolutionPath:care,eggOrigin:origin.key,outfit:'cloth_cream_vest'}});f.complete();
+    assert.equal(f.ready,1);assert.deepEqual(f.errors,[]);assert.equal(f.maxActiveUnit,7);assert.equal(Object.keys(f.samplers).length,8);assert.equal(f.images.length,6);
+    const rig=Motion.rigPose(0,'idle',0,'adult',care,1,key,origin.key),crown=Motion.rigPoint(rig,'head',.55,.24,'adult',care);assert.deepEqual(f.api.hitTest(crown.x,crown.y),{part:'head',side:null});
+    for(const id of ['arm_l','arm_r']){const profile=Motion.handVolumeProfiles.baby[id],p=Motion.rigPoint(rig,id,...profile.center,'adult',care);assert.equal(f.api.hitTest(p.x,p.y)?.part,'hand','visible origin-specific hand reacts');}
+    const anchor=Motion.feedingAnchor('adult',care,key,origin.key);assert.equal(anchor.x,rig.mouth.x);assert.equal(anchor.y,rig.mouth.y);
+    const visual=Motion.eggVisualProfile(care,origin.key);assert.deepEqual(f.constants[2],[...visual.rgb,visual.index]);
+    f.api.setSituation('body_flap',{elapsedMs:1800});const hands=f.drawCalls.slice(-9).filter(c=>c.volume);assert.equal(hands.length,2);for(const hand of hands)for(let i=8;i<hand.volumeData.length;i+=9)assert.ok(hand.volumeData[i]>.5,'no flat duplicate arm returns');
+    f.api.setSituation('direction_spin',{elapsedMs:2200});assert.equal(f.drawCalls.at(-1).volume,false);assert.equal(f.drawCalls.at(-1).uniforms.u_motionA[0],1,'one opaque turnaround source');
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+  for(const origin of Motion.eggOrigins)for(const key of ['egg','egg_cracked','hatching']){
+    const f=fixture({options:{appearanceKey:key,evolutionPath:'fruit',eggOrigin:origin.key}});f.complete();assert.equal(f.ready,1);assert.equal(f.images.length,2);assert.equal(f.maxActiveUnit,7);assert.equal(f.draws,1);assert.equal(Object.keys(f.uniforms).length,5,'only the existing packed egg motion vector is needed');
+    assert.equal(f.constants[2][3],origin.index?16+origin.index:Motion.evolutionProfile('fruit').index);assert.match(f.shaders[1],/eggColor/);f.api.destroy();
+  }
+});
+
+test('birth-specific 3D arms stay continuous finite and inside the fixed camera at strong gesture extremes',()=>{
+  for(const origin of ['mint','apricot'])for(const key of ['newborn','adult','companion'])for(const care of Motion.evolutionCatalogue)for(const [cue,age]of [['body_flap',1.2],['body_flap',2.4],['body_flap',3.8],['body_hands',1.2],['feeding',2]]){
+    const f=Motion.handVolumeFrame(age,cue,age,'adult',care.key,1.15,key,origin);
+    for(const side of ['arm_l','arm_r']){
+      const mesh=Motion.handVolumeMesh(f,side);assert.ok(mesh.length>0&&mesh.length%27===0);
+      for(let at=0;at<mesh.length;at+=9){
+        for(let field=0;field<9;field++)assert.ok(Number.isFinite(mesh[at+field]));
+        assert.ok(mesh[at]>=-1&&mesh[at]<=1&&mesh[at+1]>=-1&&mesh[at+1]<=1,'one origin cannot clip the hand beyond the shared camera');
+        assert.ok(mesh[at+8]>.5,'no old flat upper-arm copy');
+      }
+      const profile=Motion.handVolumeProfiles.baby[side],dx=profile.center[0]-profile.shoulder[0],dy=profile.center[1]-profile.shoulder[1],length=Math.hypot(dx,dy),sx=profile.shoulder[0]-.012*dx/length,sy=profile.shoulder[1]-.012*dy/length;
+      for(let t=.2;t<=.9;t+=.14){
+        const p=Motion.rigPoint(f.rig,side,sx+(profile.center[0]-sx)*t,sy+(profile.center[1]-sy)*t,'adult',care.key);
+        assert.ok(palmAlphaAt(mesh,p.x*2-1,1-p.y*2)>.97,'birth shape keeps an opaque continuous forearm');
+      }
+    }
+  }
 });

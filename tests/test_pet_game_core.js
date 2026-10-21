@@ -10,10 +10,13 @@ function memory(seed={}) {
     setItem(k,v) {this.writes.push([k,v]);if(this.fail)throw new Error('private failure must not appear');data.set(k,v);}
   };
 }
-async function game(seed={},random=()=>0.5) {
+async function game(seed={},random=()=>0.5,selectEgg=true) {
   const storage=memory(seed);let clock=new Date(2026,9,18,12).getTime();
   const options={storage,now:()=>clock,random};
   const app=Core.create(options);const ready=await app.ready;assert.equal(ready.ok,true,JSON.stringify(ready.error));
+  // Existing economy tests start after the user's successful egg confirmation.
+  // Onboarding tests explicitly pass false and exercise the untouched first-run record.
+  if(selectEgg&&Core.needsEggChoice(app.getState()))assert.equal((await app.dispatch({type:'chooseEgg',eggOrigin:'lilac'})).ok,true);
   return {app,storage,options,tick(ms=25000){clock+=ms;},day(){clock+=86400000;}};
 }
 function persisted(storage) {return JSON.parse(storage.data.get(Core.KEY));}
@@ -22,6 +25,112 @@ async function play(g,score=20) {
   const begin=await command(g,'beginMinigame',{kind:'catch'});assert.equal(begin.ok,true);g.tick();
   const end=await command(g,'finishMinigame',{sessionId:begin.reward.sessionId,score});return {begin,end};
 }
+
+test('three frozen birth origins are separate from the six care-driven evolution paths',()=>{
+  assert.equal(Object.isFrozen(Core.eggCatalogue),true);
+  assert.deepEqual(Core.eggCatalogue.map(row=>[row.key,row.eggLabel,row.characterName,row.colorName,row.color]),[
+    ['lilac','すみれのたまご','ふわり','薄紫','#b5a0d9'],
+    ['mint','しずくのたまご','しずく','ミント','#98c8be'],
+    ['apricot','ひだまりのたまご','まる','杏色','#e6bb8e']
+  ]);
+  for(const row of Core.eggCatalogue){assert.equal(Object.isFrozen(row),true);assert.strictEqual(Core.eggProfile(row.key),row);assert.ok(row.description.length>0);}
+  for(const bad of[undefined,null,'unknown','__proto__',{},[]])assert.strictEqual(Core.eggProfile(bad),Core.eggCatalogue[0]);
+  assert.deepEqual(Core.lilacEvolutionPaths.map(row=>row.key),['balanced','fruit','hearty','sweet','active','calm']);
+});
+
+test('a true first run persists an unchosen egg and cannot mutate the game before confirmation',async()=>{
+  const g=await game({},()=>.5,false),s=g.app.getState(),raw=g.storage.data.get(Core.KEY);
+  assert.equal(g.storage.writes.length,1);assert.equal(s.pet.eggOrigin,null);assert.equal(s.pet.exp,0);assert.equal(s.coins,100);
+  assert.deepEqual(s.achievements,[]);assert.equal(Core.getEggOrigin(s),null);assert.equal(Core.needsEggChoice(s),true);
+  assert.equal(g.app.getEggOrigin(s),null);assert.equal(g.app.needsEggChoice(s),true);assert.equal(s.readOnly,false);
+  for(const action of[{type:'care',kind:'feed'},{type:'rename',name:'まだ選べない'},{type:'chooseSpecies',species:'bunny'},
+    {type:'chooseAppearance',path:'cool',pixel:false},{type:'buyItem',itemId:'cloth_cream_vest'},{type:'equip',itemId:'house'},
+    {type:'beginMinigame'},{type:'buyStock',stockId:'grn',quantity:1},{type:'advanceMarketDay'},{type:'transferLegacy'},{type:'withdrawLegacyPot'}]){
+    const r=await g.app.dispatch(action);assert.equal(r.ok,false,action.type);assert.equal(r.error.code,'egg_required',action.type);
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(r.state.pet.exp,0);assert.equal(r.state.coins,100);
+  }
+  const reload=Core.create(g.options),writes=g.storage.writes.length;assert.equal((await reload.ready).ok,true);
+  assert.equal(Core.needsEggChoice(reload.getState()),true);assert.equal(g.storage.writes.length,writes);assert.equal(g.storage.data.get(Core.KEY),raw);
+});
+
+test('each egg is confirmed exactly once with identity only, then survives reload and backups',async()=>{
+  for(const egg of Core.eggCatalogue){
+    const g=await game({},()=>.5,false),before=persisted(g.storage);g.tick(234);
+    const r=await command(g,'chooseEgg',{eggOrigin:egg.key,exp:99999,coins:99999,price:-100,species:'bunny'});
+    assert.equal(r.ok,true);assert.deepEqual(r.reward,{});assert.equal(Core.needsEggChoice(r.state),false);assert.equal(Core.getEggOrigin(r.state),egg.key);
+    const expected={...before,pet:{...before.pet,eggOrigin:egg.key},revision:before.revision+1,updatedAt:g.options.now()};
+    assert.deepEqual(persisted(g.storage),expected);assert.deepEqual(r.state.achievements,[]);assert.equal(r.state.pet.exp,0);assert.equal(r.state.coins,100);
+    assert.equal(Object.hasOwn(r.state,'evolution'),false);assert.deepEqual(r.state.care,before.care);
+    const raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length,reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);
+    assert.equal(Core.getEggOrigin(reload.getState()),egg.key);assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
+    for(const key of Core.eggCatalogue.map(row=>row.key)){const rejected=await command(g,'chooseEgg',{eggOrigin:key});assert.equal(rejected.error.code,'egg_already_chosen');assert.equal(g.storage.data.get(Core.KEY),raw);}
+    const other=await game({},()=>.5,false);assert.equal((await other.app.importBackup(reload.exportBackup())).ok,true);
+    assert.equal(Core.getEggOrigin(other.app.getState()),egg.key);assert.equal(Core.needsEggChoice(other.app.getState()),false);assert.equal(other.app.getState().coins,100);
+  }
+});
+
+test('invalid egg keys and rejected writes never choose or reward an egg',async()=>{
+  for(const value of[undefined,null,'unknown','__proto__','constructor',{},[],0]){
+    const g=await game({},()=>.5,false),raw=g.storage.data.get(Core.KEY),r=await command(g,'chooseEgg',{eggOrigin:value});
+    assert.equal(r.ok,false);assert.equal(r.error.code,'invalid_egg');assert.equal(Core.needsEggChoice(r.state),true);assert.equal(g.storage.data.get(Core.KEY),raw);
+  }
+  for(const mode of['throw','false','object']){
+    const g=await game({},()=>.5,false),raw=g.storage.data.get(Core.KEY),write=g.storage.setItem.bind(g.storage);
+    g.storage.setItem=async()=>{if(mode==='throw')throw new Error('key=https://private.invalid');return mode==='false'?false:{ok:false};};
+    const r=await command(g,'chooseEgg',{eggOrigin:'mint'});assert.equal(r.error.code,'storage_failed');assert.equal(Core.needsEggChoice(r.state),true);
+    assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(r.state.coins,100);assert.deepEqual(r.state.achievements,[]);assert.doesNotMatch(JSON.stringify(r.error),/private|https:|key=/);
+    g.storage.setItem=write;assert.equal((await command(g,'chooseEgg',{eggOrigin:'apricot'})).ok,true);assert.equal(Core.getEggOrigin(g.app.getState()),'apricot');
+  }
+});
+
+test('an egg becomes visible as selected only after its awaited durable write',async()=>{
+  const g=await game({},()=>.5,false),before=persisted(g.storage),raw=g.storage.data.get(Core.KEY),observed=[];g.app.subscribe(s=>observed.push(s));
+  const write=g.storage.setItem.bind(g.storage);let release;g.storage.setItem=(key,value)=>new Promise(resolve=>{release=()=>{write(key,value);resolve();};});
+  const pending=command(g,'chooseEgg',{eggOrigin:'mint'});while(!release)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(Core.needsEggChoice(g.app.getState()),true);assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(observed.length,0);assert.deepEqual(persisted(g.storage),before);
+  release();assert.equal((await pending).ok,true);assert.equal(Core.getEggOrigin(g.app.getState()),'mint');assert.equal(observed.length,1);assert.equal(Core.getEggOrigin(observed[0]),'mint');
+});
+
+test('simultaneous confirmations serialize and a stale screen cannot replace the chosen egg',async()=>{
+  const g=await game({},()=>.5,false),other=Core.create(g.options);assert.equal((await other.ready).ok,true);
+  const results=await Promise.all([command(g,'chooseEgg',{eggOrigin:'mint'}),other.dispatch({type:'chooseEgg',eggOrigin:'apricot'})]);
+  assert.equal(results.filter(r=>r.ok).length,1);assert.equal(results[1].error.code,'stale_state');assert.equal(persisted(g.storage).pet.eggOrigin,'mint');
+  const raw=g.storage.data.get(Core.KEY);assert.equal((await command(g,'chooseEgg',{eggOrigin:'lilac'})).error.code,'egg_already_chosen');assert.equal(g.storage.data.get(Core.KEY),raw);
+  assert.equal(persisted(g.storage).pet.exp,0);assert.equal(persisted(g.storage).coins,100);
+});
+
+test('old v3 and legacy pets remain outside onboarding without origin backfill or progress reset',async()=>{
+  const old=await game(),record=persisted(old.storage);delete record.pet.eggOrigin;record.pet.exp=678;record.coins=564;record.futureField={kept:true};
+  const raw=JSON.stringify(record),g=await game({[Core.KEY]:raw});assert.equal(g.storage.writes.length,0);assert.equal(Core.needsEggChoice(g.app.getState()),false);
+  assert.equal(Core.getEggOrigin(g.app.getState()),'lilac');assert.equal(Object.hasOwn(g.app.getState().pet,'eggOrigin'),false);assert.equal(g.app.getState().pet.exp,678);assert.equal(g.app.getState().coins,564);
+  assert.equal((await command(g,'chooseEgg',{eggOrigin:'mint'})).error.code,'egg_already_chosen');assert.equal(g.storage.data.get(Core.KEY),raw);
+  const target=await game({},()=>.5,false);assert.equal((await target.app.importBackup(g.app.exportBackup())).ok,true);assert.equal(Core.needsEggChoice(target.app.getState()),false);
+  assert.equal(Object.hasOwn(target.app.getState().pet,'eggOrigin'),false);assert.equal(target.app.getState().pet.exp,678);assert.equal(target.app.getState().coins,564);
+  for(const seed of[{pg_exp:'0'},{pg_species:'bunny',pg_exp:'12'},{pet_game:'{"coins":72,"exp":29,"name":"昔のこ"}'}]){
+    const legacy=await game(seed);assert.equal(Core.needsEggChoice(legacy.app.getState()),false);assert.equal(Object.hasOwn(legacy.app.getState().pet,'eggOrigin'),false);
+  }
+  const notPet=await game({sk_total:'99',sk_streak:'7',pg_kakeibo_day:'2026-10-18'},()=>.5,false);assert.equal(Core.needsEggChoice(notPet.app.getState()),true);
+});
+
+test('birth origin survives care evolution and prevents species substitution for newly chosen pets',async()=>{
+  for(const key of Core.eggCatalogue.map(row=>row.key)){
+    const g=await game({},()=>.5,false);await command(g,'chooseEgg',{eggOrigin:key});
+    await command(g,'care',{kind:'feed'});await command(g,'care',{kind:'feed'});
+    const state=g.app.getState();assert.equal(state.pet.exp,16);assert.equal(Core.getLilacEvolution(state).current.key,'fruit');assert.equal(Core.getEggOrigin(state),key);
+    const raw=g.storage.data.get(Core.KEY);assert.equal((await command(g,'chooseSpecies',{species:'bunny'})).error.code,'egg_species_locked');assert.equal(g.storage.data.get(Core.KEY),raw);
+    assert.equal((await command(g,'chooseSpecies',{species:'lilac'})).ok,true);assert.equal(Core.getEggOrigin(g.app.getState()),key);
+  }
+});
+
+test('malformed optional birth origins are rejected rather than guessed or overwritten',async()=>{
+  const good=await game(),record=persisted(good.storage);
+  for(const mutate of[s=>s.pet.eggOrigin='unknown',s=>s.pet.eggOrigin={},s=>s.pet.eggOrigin=[],s=>s.pet.eggOrigin=9,
+    s=>{s.pet.eggOrigin=null;s.pet.exp=15;},s=>{s.pet.eggOrigin='mint';s.pet.species='bunny';}]){
+    const bad=structuredClone(record);mutate(bad);
+    const raw=JSON.stringify(bad),storage=memory({[Core.KEY]:raw}),app=Core.create({storage});const result=await app.ready;
+    assert.equal(result.ok,false);assert.equal(result.error.code,'corrupt_data');assert.equal(result.state.readOnly,true);assert.equal(storage.data.get(Core.KEY),raw);assert.equal(storage.writes.length,0);
+  }
+});
 
 test('lilac visual growth exposes all six boundaries without changing legacy stages',()=>{
   const expected=[['egg','うまれたて',0],['baby','よちよち',15],['child','こども',45],
@@ -334,9 +443,9 @@ test('new evolution histories round-trip backups and missing old histories remai
   assert.equal((await target.app.importBackup(JSON.stringify(corrupt))).ok,false);assert.equal(target.storage.data.get(Core.KEY),oldRaw);
 });
 
-test('fresh independent game has one durable record and no outside rewards',async()=>{
+test('a newly selected independent game has one durable key and no outside rewards',async()=>{
   const g=await game();assert.equal(g.app.getState().coins,100);assert.equal(g.app.getState().pet.exp,0);
-  assert.equal(g.storage.writes.length,1);assert.equal(g.storage.writes[0][0],Core.KEY);
+  assert.equal(g.storage.writes.length,2);assert.ok(g.storage.writes.every(row=>row[0]===Core.KEY));
   assert.equal(g.app.getState().pet.species,'lilac');
   assert.equal(g.app.getState().care.lastCareAt,null);
   assert.equal(g.storage.reads.includes('sk_last'),false);

@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const vm = require('node:vm');
 const { webcrypto } = require('node:crypto');
+const Core = require('../static/pet-game-core.js');
 
 const root = path.join(__dirname, '..');
 const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
@@ -117,6 +118,24 @@ function gateFixture(seed = {}, controls = {}, sharedMap) {
   vm.runInContext(gate, context);
   return { window, storage, map, controls };
 }
+
+test('egg selection persists through the existing encrypted storage boundary and fresh reload', async () => {
+  const first=gateFixture();await first.window.__knGateReady;
+  const adapter=gate=>({getItem:key=>gate.window.__knReadGameStorage(key),setItem:(key,value)=>gate.window.__knPersistLocalSetting(key,value)});
+  const clock=()=>new Date(2026,9,22,12).getTime();
+  const game=Core.create({storage:adapter(first),now:clock});assert.equal((await game.ready).ok,true);
+  assert.equal(Core.needsEggChoice(game.getState()),true);
+  assert.equal((await game.dispatch({type:'chooseEgg',eggOrigin:'mint'})).ok,true);
+  const selected=game.getState();assert.equal(selected.pet.eggOrigin,'mint');assert.equal(selected.pet.exp,0);assert.equal(selected.coins,100);
+  assert.equal(first.map.has(Core.KEY),false);assert.match(first.map.get('knenc:'+Core.KEY),/^knv1:/);
+  const ciphertext=first.map.get('knenc:'+Core.KEY),second=gateFixture({}, {}, first.map);await second.window.__knGateReady;
+  const reopened=Core.create({storage:adapter(second),now:clock});assert.equal((await reopened.ready).ok,true);
+  assert.equal(reopened.getState().pet.eggOrigin,'mint');assert.equal(Core.needsEggChoice(reopened.getState()),false);
+  assert.equal(second.map.get('knenc:'+Core.KEY),ciphertext,'reading the selected egg does not rewrite its encrypted save');
+  assert.equal((await reopened.dispatch({type:'care',kind:'feed'})).ok,true);
+  assert.equal(reopened.getState().pet.eggOrigin,'mint','care changes growth without replacing the birth origin');
+  const exported=JSON.parse(reopened.exportBackup());assert.equal(exported.state.pet.eggOrigin,'mint');
+});
 
 test('new section is reachable and only independent game modules are loaded', () => {
   assert.match(html, /<section id="sect-pet"[^>]*hidden[^>]*>[\s\S]*?<div id="pet-game-root">/);

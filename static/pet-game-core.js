@@ -8,6 +8,13 @@
   // One record contains the entire economy. A rejected write never publishes a
   // candidate state. The host may supply an awaited encrypted storage adapter.
   var KEY = 'pet_game_v3', MAX = 9000000000000, MAX_BYTES = 1000000;
+  // Birth origin is chosen once, independently of later care-driven evolution.
+  // Older records omit it and keep their existing B without an initialization write.
+  var eggCatalogue = Object.freeze([
+    {key:'lilac',eggLabel:'すみれのたまご',characterName:'ふわり',colorName:'薄紫',color:'#b5a0d9',description:'ふっくらした頬とふわ耳'},
+    {key:'mint',eggLabel:'しずくのたまご',characterName:'しずく',colorName:'ミント',color:'#98c8be',description:'少し長い耳とすらりとした姿'},
+    {key:'apricot',eggLabel:'ひだまりのたまご',characterName:'まる',colorName:'杏色',color:'#e6bb8e',description:'小さな耳とぽってりしたおなか'}
+  ].map(function(egg){return Object.freeze(egg);}));
   // Visual growth information is separate from the existing reward/unlock stages.
   var lilacGrowthStages = Object.freeze([
     {key:'egg',label:'うまれたて',min:0},
@@ -89,6 +96,8 @@
     daily_limit:'今日の回数を使い切りました。また明日あそぼう。',clock_moved_back:'日付が以前に戻っています。端末の日付を確認してください。',
     invalid_clock:'端末の日時を確認してください。',invalid_random:'値動きを作成できませんでした。',invalid_action:'この操作には対応していません。',
     invalid_name:'名前は40文字までで入力してください。',invalid_species:'キャラクターを選んでください。',invalid_item:'アイテムを確認してください。',
+    invalid_egg:'たまごを選んでください。',egg_required:'最初にいっしょに育つたまごを選んでください。',
+    egg_already_chosen:'このこのたまごは選択済みです。',egg_species_locked:'選んだたまごから生まれた子を育ててください。',
     appearance_locked:'さいしゅうしんかすると姿を選べます。',invalid_appearance:'姿と表示方法を確認してください。',
     insufficient_coins:'コインが足りません。',already_owned:'すでに持っています。',not_owned:'このアイテムを持っていません。',
     game_active:'進行中のミニゲームを終えてから開始してください。',invalid_session:'このミニゲームは終了済み、または確認できません。',
@@ -100,6 +109,10 @@
   function clone(v) { return JSON.parse(JSON.stringify(v)); }
   function own(o,k) { return Object.prototype.hasOwnProperty.call(o,k); }
   function plain(v) { return !!v && typeof v === 'object' && !Array.isArray(v); }
+  function eggProfile(key) { return eggCatalogue.find(function(egg){return egg.key===key;})||eggCatalogue[0]; }
+  function validEggKey(key) { return typeof key==='string'&&eggCatalogue.some(function(egg){return egg.key===key;}); }
+  function needsEggChoice(s) { return !!(plain(s)&&plain(s.pet)&&own(s.pet,'eggOrigin')&&s.pet.eggOrigin===null); }
+  function getEggOrigin(s) { return needsEggChoice(s)?null:plain(s)&&plain(s.pet)&&validEggKey(s.pet.eggOrigin)?s.pet.eggOrigin:'lilac'; }
   function fail(code, message) { var e = new Error(message); e.code = code; throw e; }
   function check(ok, code) { if (!ok) fail(code || 'invalid_data','保存内容または入力を確認してください。'); }
   function amount(n, signed) { return typeof n === 'number' && Number.isFinite(n) && Math.abs(n) <= MAX && (signed || n >= 0); }
@@ -220,7 +233,7 @@
     STOCKS.forEach(function(x){m.prices[x.id]=x.base;m.previous[x.id]=x.base;m.holdings[x.id]={quantity:0,costBasis:0};});return m;
   }
   function fresh(ms) { return {version:3,revision:0,createdAt:ms,updatedAt:ms,
-    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false},coins:100,inventory:{},wardrobe:{owned:{},equipped:null},
+    pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false,eggOrigin:null},coins:100,inventory:{},wardrobe:{owned:{},equipped:null},
     decorations:{owned:{},equipped:null,background:'meadow',backgrounds:['meadow']},achievements:[],
     care:{day:dayKey(ms),counts:{feed:0,play:0,rest:0},lastCareAt:null,dailyRewardDay:'',total:{feed:0,play:0,rest:0}},
     minigames:{day:dayKey(ms),started:0,active:null,completed:[],bestScore:0},market:market(),
@@ -230,6 +243,7 @@
     check(plain(s)&&s.version===3&&integer(s.revision),'corrupt_data');finiteTree(s,0);
     check(integer(s.createdAt)&&integer(s.updatedAt),'corrupt_data');
     check(plain(s.pet)&&text(s.pet.name,40)&&['dragon','bunny','lilac'].indexOf(s.pet.species)>=0&&integer(s.pet.exp),'corrupt_data');
+    if(own(s.pet,'eggOrigin'))check(s.pet.species==='lilac'&&(s.pet.eggOrigin===null?s.pet.exp===0:validEggKey(s.pet.eggOrigin)),'corrupt_data');
     check(s.pet.path===undefined||['cute','cool'].indexOf(s.pet.path)>=0,'corrupt_data');check(s.pet.pixel===undefined||typeof s.pet.pixel==='boolean','corrupt_data');
     check(integer(s.coins),'corrupt_data');counts(s.inventory);
     if(own(s,'evolution'))validateEvolution(s.evolution,s);
@@ -277,6 +291,9 @@
     // Site streaks and household/morning producer markers alone are not proof
     // that a pet existed. Preserve their raw records without granting new EXP.
     var s=fresh(ms),has=PG_RECORD_KEYS.some(function(k){return raw[k]!==null;});
+    // A preexisting pet, including the earlier pet_game reserve, must not be
+    // sent back through the new-pet choice or assigned an invented birth origin.
+    if(has||raw.pet_game!==null)delete s.pet.eggOrigin;
     s.migration.source=has?'pg_legacy':'new';s.migration.legacyRaw=clone(raw);
     if(has) {
       var total=legacyNumber(raw,'sk_total'),streak=legacyNumber(raw,'sk_streak');
@@ -361,6 +378,13 @@
     });
     function act(next,a,ms) {
       check(plain(a)&&text(a.type,40),'invalid_action');var day=dayKey(ms),reward={},beforeExp=next.pet.exp,evolutionKind=null;
+      if(a.type==='chooseEgg') {
+        check(validEggKey(a.eggOrigin),'invalid_egg');check(needsEggChoice(next),'egg_already_chosen');
+        next.pet.eggOrigin=a.eggOrigin;
+        // Selection changes identity only: no care, evolution, rewards or generic achievements.
+        return reward;
+      }
+      check(!needsEggChoice(next),'egg_required');
       if(a.type==='care') {
         check(own(LIMITS.care,a.kind),'invalid_action');var c=next.care;
         if(day!==c.day){check(day>c.day,'clock_moved_back');c.day=day;c.counts={feed:0,play:0,rest:0};}
@@ -372,7 +396,8 @@
       } else if(a.type==='rename') {
         check(text(a.name,40),'invalid_name');next.pet.name=a.name.trim();
       } else if(a.type==='chooseSpecies') {
-        check(['bunny','lilac'].indexOf(a.species)>=0,'invalid_species');next.pet.species=a.species;
+        check(['bunny','lilac'].indexOf(a.species)>=0,'invalid_species');
+        check(!own(next.pet,'eggOrigin')||a.species===next.pet.species,'egg_species_locked');next.pet.species=a.species;
       } else if(a.type==='chooseAppearance') {
         check(next.pet.exp>=110,'appearance_locked');check(['cute','cool'].indexOf(a.path)>=0&&typeof a.pixel==='boolean','invalid_appearance');
         next.pet.path=a.path;next.pet.pixel=a.pixel;
@@ -470,12 +495,12 @@
         catch(e){return failure(e);}
       });
     }
-    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,
+    api={ready:ready,getState:visible,dispatch:dispatch,getStage:getStage,getLilacGrowth:getLilacGrowth,getLilacAppearance:getLilacAppearance,getLilacEvolution:getLilacEvolution,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,
       subscribe:function(fn){check(typeof fn==='function','invalid_listener');listeners.push(fn);return function(){listeners=listeners.filter(function(x){return x!==fn;});};},
       exportBackup:function(){check(!loading&&!blocked,'read_only');return JSON.stringify({format:'PetGameBackup',version:3,exportedAt:time(),state:clone(state)});},
       importBackup:importBackup};return api;
   }
-  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,KEY:KEY,STORAGE_KEY:KEY,
+  return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
 }));
