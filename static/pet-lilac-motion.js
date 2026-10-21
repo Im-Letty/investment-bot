@@ -1133,13 +1133,9 @@
   function feedingAnchor(stage, evolutionPath, appearanceKey) {
     var appearance=appearanceProfile(appearanceKey);
     if(appearance.family==='egg')return {x:.5,y:.5,foodLeft:.39,foodTop:.505,foodVisible:false};
-    if(appearance.family==='baby'){
-      var baby=appearancePoint(appearance.key,nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1],evolutionPath),amount=appearance.overallScale*.88*nurseryPresentationScale(stage,evolutionPath,appearance.key,appearance.overallScale);
-      var bx=.5+(baby.x-.5)*amount,by=.92+(baby.y-.92)*amount;return {x:bx,y:by,foodLeft:bx-.11,foodTop:by+.005};
-    }
-    var profile = growthProfile(stage);
-    var point = growthPoint(profile.key, .5 + (.628 - .5) * .88, .92 + (.499 - .92) * .88, evolutionPath);
-    var x = .5 + (point.x - .5) * profile.overallScale, y = .92 + (point.y - .92) * profile.overallScale;
+    // Use the same neck attachment and fixed camera as the drawn mouth. The
+    // former cue-wide .88 inset no longer exists in the independent rig.
+    var mouth=rigPose(0,'idle',0,stage,evolutionPath,1,appearanceKey).mouth,x=mouth.x,y=mouth.y;
     return { x: x, y: y, foodLeft: x - .11, foodTop: y + .005 };
   }
   var mounted = typeof WeakMap === 'function' ? new WeakMap() : null;
@@ -1372,8 +1368,9 @@
       function include(p){bounds.minX=Math.min(bounds.minX,p.x);bounds.minY=Math.min(bounds.minY,p.y);bounds.maxX=Math.max(bounds.maxX,p.x);bounds.maxY=Math.max(bounds.maxY,p.y);}
       for(var index=0;index<16;index++){var b=directionBounds(index,stage,path,appearanceKey);include({x:b.minX,y:b.minY});include({x:b.maxX,y:b.maxY});}
       nurseryRigParts.forEach(function(part){part.polygon.forEach(function(p){include(appearancePoint(appearanceKey,p[0],p[1],path));});});
-      // Reserve gentle idle motion as well as the largest side-view foot stride.
-      bounds={minX:bounds.minX-.034,minY:bounds.minY-.019,maxX:bounds.maxX+.034,maxY:bounds.maxY+.012};
+      // One fixed camera also reserves room for outstretched arms and jumps.
+      // Starting a hand gesture must never shrink the entire pet toward its feet.
+      bounds={minX:bounds.minX-.085,minY:bounds.minY-.080,maxX:bounds.maxX+.085,maxY:bounds.maxY+.012};
       nurseryPresentationBounds[key]=bounds;
     }
     return fitDirectionMatrix(bone({x:.5,y:.92},0,0,0,amount,amount),bounds).fitScale;
@@ -1727,11 +1724,11 @@
       case 'body_head': p.lookX=.014*Math.sin(age*TAU*.4);p.lookY=.005*Math.cos(age*TAU*.4);break;
       case 'body_tail': p.lookX=-.012;p.lookY=.002;break;
       case 'body_flap':
-        var flap=armFlapPhase(age),follow=Math.sin((age-1.01)*TAU*1.85)*flap.drive;
+        var flap=armFlapPhase(age);
         p.wave=0;p.wiggle=0;p.faceDelighted=.65*flap.drive;
-        p.crouch=.32*pulse(age,.04,.85)+.06*Math.max(0,-follow);
-        p.squash=.12*Math.max(0,-follow);p.stretch=.04*Math.max(0,follow);p.tilt=.018*follow;
-        p.ear+=.42*follow;p.tail+=.25*follow;break;
+        p.crouch=.10*pulse(age,.04,.85);p.tilt=.012*Math.sin(age*TAU*.43)*flap.open;
+        p.ear+=.12*Math.sin(age*TAU*.63-.7)*flap.open;
+        p.tail+=.20*Math.sin(age*TAU*.45-.9)*flap.open;break;
       case 'body_joy':
         q=Math.pow(Math.max(0,Math.sin((age-.65)*TAU*.9)),2)*lift;
         p.faceDelighted=1;p.bounce=.9*q;p.squash=.45*(1-q)*hold;p.wave=1.2*lift;
@@ -1793,7 +1790,7 @@
       case 'shy': p.faceDelighted = .2; p.blush = .9; p.pawSpread = -1; p.wave = 1.1; p.tilt = .065; p.bodyAngle = .045 * Math.sin(age * PI * .65); p.lookY = .007; p.ear -= .85; p.crouch = .3; break;
       case 'embarrassed': p.faceSurprise = .55; p.blush = .85; p.sweat = .65; p.wiggle = Math.sin(age * TAU * 2); p.wave = .9; p.pawSpread = .5; p.tilt = -.055; p.step = .45 * fast; p.ear += .45 * fast; break;
       case 'apology': p.faceSad = .65; p.blink = Math.max(p.blink, e * .8); p.crouch = .85 * nod; p.tilt = .095 * nod; p.bodyAngle = .04 * nod; p.ear -= 1.1; p.wave = .3; p.pawSpread = -.85; break;
-      case 'cheer': p.faceDelighted = .85; p.wave = .65 + .45 * Math.abs(fast); p.pawSpread = 1; p.bounce = .6 * hop; p.bodyAngle = .035 * beat; p.tail += .9 * beat; p.stretch = .4; break;
+      case 'cheer': p.faceDelighted = .85; p.wave = .65 + .45 * Math.abs(fast); p.pawSpread = 1; p.tilt = -.025 + .012 * Math.sin(age * TAU * .6); p.tail += .5 * Math.sin(age * TAU * .55); p.stretch = .15; break;
       case 'resting': p.blink = Math.max(p.blink, e); p.breath = (1 - e) * p.breath + e * .55 * Math.sin(s * TAU / 6); p.tilt = .065; p.ear -= .7; p.tail *= .2; p.crouch = .8; p.squash = .25; break;
       case 'sleepy': p.blink = Math.max(p.blink, e * (.65 + .35 * nod)); p.tilt = .10 * nod; p.crouch = .45 + .35 * nod; p.ear -= .85; p.bodyAngle = .025 * Math.sin(age * PI * .5); p.eyeNarrow = .55; break;
       case 'yawn': p.faceSurprise = .7 * nod; p.blink = Math.max(p.blink, e * .9); p.mouthOpen = nod; p.stretch = .9 * nod; p.pawSpread = .8 * nod; p.wave = .8; p.tilt = -.065 * nod; p.ear += .55 * nod; break;
@@ -1891,6 +1888,15 @@
     return [a,b,cc,d,pivot.x-a*pivot.x-cc*pivot.y+(dx||0),pivot.y-b*pivot.x-d*pivot.y+(dy||0)];
   }
   function isIn(name,list) { return list.indexOf(name)>=0; }
+  // A limb follows its socket position, not the torso's changing proportions.
+  // The head and hands keep their own rotation and rigid, uniform scale.
+  function socketMatrix(root,torso,pivot,angle,anchor) {
+    var matrix=multiply(root,bone(pivot,angle)),socket=transform(torso,anchor||pivot),rest=transform(matrix,pivot);
+    matrix[4]+=socket.x-rest.x;matrix[5]+=socket.y-rest.y;return matrix;
+  }
+  function flightAmount(p) {
+    return isIn(p.situation,['joy','excited','ecstatic','triumphant','surprise','startled','caught','celebrate','playful','body_joy','feeding'])?p.bounce:0;
+  }
   // The little body carries weight over two separate feet. Quiet standing has
   // occasional small transfers; emotions have their own knees and footwork.
   function lowerBodyFrame(p,seconds,age,step) {
@@ -1901,23 +1907,25 @@
     if(Object.prototype.hasOwnProperty.call(roomWalkDurations,name))return {step:0,sway:0,drop:0,bend:0,toeIn:0,lift:.055};
     var authoredStep=isIn(name,['angry','nervous','embarrassed','bored','moving','dance','annoyed','frustrated','furious','panic','anticipating','awkward','bored_fidget','walk_joy','walk_angry','walk_sad']);
     var focused=name.indexOf('body_')===0||name.indexOf('direction_')===0;
-    var active={step:authoredStep?step:focused?0:.18*Math.sin(a*TAU*.65),sway:focused?0:.004*Math.sin(a*TAU*.65),drop:0,bend:.012*p.crouch,toeIn:0,lift:.055};
+    var active={step:authoredStep?step:0,sway:focused?0:.002*Math.sin(a*TAU*.37),drop:0,bend:.012*p.crouch,toeIn:0,lift:.055};
     if(name==='body_feet'){active.step=Math.sin(a*TAU*.85);active.sway=.012*active.step;active.drop=.008*Math.abs(active.step);active.bend=.010*Math.abs(active.step);}
-    else if(isIn(name,['joy','laugh','excited','cheer','celebrate','dance','body_joy','greeting','proud','victory','playful','delighted','grateful','petted'])){
+    else if(isIn(name,['body_hands','body_flap','body_head','body_ears','body_tail','cheer','greeting','proud','grateful','petted','thinking','confused','asking','refusing','agreeing','disagreeing','laugh','amused','love','shy','trusting','affectionate','compassionate','comforting','mischievous','hungry','thirsty','savoring','full','content','heartflutter','forgiving','curious','gentlesmile','admiring','beauty','awed','entranced','contempt','suspicious','nostalgic','patient'])){
+      active.step=0;active.sway=0;active.drop=0;active.bend=0;
+    }else if(isIn(name,['joy','laugh','excited','celebrate','dance','body_joy','victory','playful','delighted'])){
       active.step=authoredStep?step:.68*Math.sin(a*TAU*1.35)*(1-.75*p.bounce);
       active.sway=.013*active.step;active.bend=.015*(1-p.bounce);active.drop=.004*Math.abs(active.step);
     }else if(isIn(name,['angry','frustrated','furious','walk_angry','stubborn','disagreeing'])){
       active.step=authoredStep?step:.72*Math.sin(a*TAU*1.6);active.sway=.010*active.step;active.bend=.014;active.drop=.008*Math.max(0,-Math.sin(a*TAU*3.2));
     }else if(isIn(name,['sad','cry','lonely','disappointed','sulky','regretful','empathic','walk_sad','holding_tears','guilty','longing'])){
-      active.step=authoredStep?step:.28*Math.sin(a*TAU*.48);active.toeIn=.12;active.sway=.006*active.step;active.bend=.020;active.drop=.010;active.lift=.035;
+      active.step=authoredStep?step:0;active.toeIn=.12;active.sway=.003*Math.sin(a*TAU*.31);active.bend=.020;active.drop=.010;active.lift=.035;
     }else if(isIn(name,['resting','deep_sleep','sleepy','tired','meditating','relaxed'])){
       active.step=0;active.toeIn=.10;active.bend=.026;active.drop=.012;
     }else if(isIn(name,['scared','nervous','anxious','worried','startled','embarrassed'])){
       active.step=authoredStep?step:.35*Math.sin(a*TAU*2);active.sway=.005*Math.sin(a*TAU*3);active.bend=.019;active.toeIn=.06;active.lift=.035;
     }else if(name==='feeding'){
-      var reach=1-smooth((a-1.1)/.6),happy=smooth((a-4.4)/.35)*(1-smooth((a-7)/.8));
-      active.step=.38*reach*Math.sin(a*TAU)+.62*happy*Math.sin((a-4.4)*TAU*1.4);
-      active.sway=.013*active.step;active.bend=.005+.007*happy;active.drop=.006*happy*Math.abs(active.step)+.003*(1-happy)*(1+Math.sin(a*TAU*.9));
+      var happy=smooth((a-4.4)/.35)*(1-smooth((a-7)/.8));
+      active.step=.62*happy*Math.sin((a-4.4)*TAU*1.4);
+      active.sway=.013*active.step;active.bend=.005+.007*happy;active.drop=.006*happy*Math.abs(active.step);
     }else if(isIn(name,['moving','walk_joy','hop','jump','run','skip'])){
       active.sway=.014*step;active.bend=.014*Math.abs(step);active.drop=.006*Math.abs(step);
     }
@@ -1940,15 +1948,15 @@
     var appearance=appearanceProfile(appearanceKey),nursery=appearance.family==='baby',parts=nursery?nurseryRigParts:rigParts;
     function point(x,y){return nursery?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);}
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
-    var turning=directionFrame(name,0).id;
     var baseAmount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15);
     if(nursery)baseAmount*=nurseryPresentationScale(stage,path,appearance.key,baseAmount);
-    var amount=baseAmount*(1-.12*(turning?0:e));
-    // Reserve the widest flap up front; the figure must not resize on each beat.
-    if(name==='body_flap')amount*=1-(.035+(nursery?Math.max(0,appearance.overallScale-1)*.7:0))*e;
-    var root=bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-p.bounce*.055+p.crouch*.012,
-      1+.085*p.squash+.003*p.breath,1-.075*p.squash+.07*p.stretch-.055*p.crouch+.004*p.breath);
+    var amount=baseAmount,flight=flightAmount(p);
+    // Only genuine flight is shared by every body part. Breathing, posture and
+    // squash belong to the torso; a raised hand cannot resize the head or feet.
+    var root=bone({x:.5,y:.92},0,0,-flight*.055);
     var project=bone({x:.5,y:.92},0,0,0,amount,amount);root=multiply(project,root);
+    var posture=multiply(root,bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-(p.bounce-flight)*.010,
+      1+.085*p.squash+.003*p.breath,1-.075*p.squash+.07*p.stretch-.055*p.crouch+.004*p.breath));
     var headAngle=-p.tilt*1.15,earL=.22*p.ear,earR=-.18*p.ear+.025*Math.sin(s*TAU*.7),tail=.28*p.tail;
     var armL=-.58*p.wave-.18*p.pawSpread+.16*p.wiggle,armR=.83*p.wave+.2*p.pawSpread+.3*p.wiggle;
     var footStep=p.step,feetDemo=false;
@@ -1996,25 +2004,22 @@
     armL=base.armL+(armL-base.armL)*e;armR=base.armR+(armR-base.armR)*e;footStep=base.step+(footStep-base.step)*e;
     var lower=nursery?lowerBodyFrame(p,s,a,footStep):null;
     if(lower)footStep=lower.step;
-    var bodyRoot=lower?multiply(root,bone(point(.55,.79),-.4*lower.sway,lower.sway,lower.drop+lower.bend,1,1-lower.bend*.6)):root;
+    var bodyRoot=lower?multiply(posture,bone(point(.55,.79),-.4*lower.sway,lower.sway,lower.drop+lower.bend,1,1-lower.bend*.6)):posture;
     var flapDemo=name==='body_flap';
     var matrices={},angles={head:headAngle,ear_l:earL,ear_r:earR,tail:tail,
       arm_l:clamp(armL,flapDemo?-4.05:-1.7,flapDemo?1.9:1.1),arm_r:clamp(armR,flapDemo?-3.05:-1.1,1.7)};
-    var headPivot=nursery?point(nurseryLandmarks.headPivot[0],nurseryLandmarks.headPivot[1]):point(.62,.675),head=multiply(bodyRoot,bone(headPivot,headAngle));
+    var headPivot=nursery?point(nurseryLandmarks.headPivot[0],nurseryLandmarks.headPivot[1]):point(.62,.675),head=socketMatrix(root,bodyRoot,headPivot,headAngle);
     parts.forEach(function(part){
       var pivot=point(part.pivot[0],part.pivot[1]),angle=angles[part.id]||0,local=bone(pivot,angle);
-      if(flapDemo&&!nursery&&part.id==='arm_l'){
-        var open=armFlapPhase(a).open*e;
-        local=bone(pivot,angle,0,0,1-.14*open,1-.10*open);
-      }
       if(part.id==='head')matrices[part.id]=head;
       else if(part.parent==='head')matrices[part.id]=multiply(head,local);
       else if(part.id==='foot_l'||part.id==='foot_r'){
         var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),footLandmark=nursery?(part.id==='foot_l'?nurseryFootLandmarks[0].left:nurseryFootLandmarks[0].right):null,sole=point(footLandmark?footLandmark.x:part.pivot[0],footLandmark?footLandmark.soleY:.92);
         local=lower?bone(point(part.pivot[0],.865),side*(.28*lift+lower.toeIn),-side*.020*lift,0,1-.12*lift,1-.15*lift):bone(pivot,side*.42*lift,side*.018*footStep,-.025*lift);
-        var m=multiply(root,local),current=transform(m,sole),targetY=.92-p.bounce*.055*amount-lift*(lower?lower.lift:feetDemo ? .035 : .025)*amount;
+        var m=multiply(root,local),current=transform(m,sole),targetY=.92-flight*.055*amount-lift*(lower?lower.lift:feetDemo ? .035 : .025)*amount;
         m[5]+=targetY-current.y;matrices[part.id]=m;
-      }else matrices[part.id]=multiply(bodyRoot,local);
+      }else if(part.id==='arm_l'||part.id==='arm_r'||part.id==='tail')matrices[part.id]=socketMatrix(root,bodyRoot,pivot,angle,lowerBodyTorsoPoint(lower,part.pivot[0],part.pivot[1],pivot));
+      else matrices[part.id]=multiply(bodyRoot,local);
     });
     // Fit only when an unusually tall combined gesture needs it. The correction
     // is shared by every bone and anchored at the floor, including planted feet.
@@ -2027,7 +2032,7 @@
     if(bounds.maxY>.96)fitScale=Math.min(fitScale,(.96-.92)/(bounds.maxY-.92));
     if(fitScale<1){var fit=bone({x:.5,y:.92},0,0,0,fitScale,fitScale);Object.keys(matrices).forEach(function(key){matrices[key]=multiply(fit,matrices[key]);});}
     var mouth=transform(matrices.head,nursery?point(nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1]-.010*p.chew):point(.628,.499-.010*p.chew));
-    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale};if(nursery){result.appearanceKey=appearance.key;result.lowerBody=lower;}return result;
+    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale,flight:flight};if(nursery){result.appearanceKey=appearance.key;result.lowerBody=lower;}return result;
   }
   function rigPose(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey) {
     var age=Math.max(0,finite(elapsedSeconds,finite(seconds,0)));

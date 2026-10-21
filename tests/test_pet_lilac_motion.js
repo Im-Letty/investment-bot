@@ -1017,12 +1017,75 @@ test('left and right hands move as rigid cutouts by large independent arcs',()=>
     const moved=Motion.rigPoint(frame,id,x,y,'final'),rest=Motion.rigPoint(torsoFrame(frame),id,x,y,'final');
     assert.ok(Math.hypot(moved.x-rest.x,moved.y-rest.y)>.08,id+': visible hand travel');
   }
-  function undo(m,p){const det=m[0]*m[3]-m[1]*m[2],x=p.x-m[4],y=p.y-m[5];return{x:(m[3]*x-m[2]*y)/det,y:(-m[1]*x+m[0]*y)/det};}
   for(const frame of [left,right])for(const id of ['arm_l','arm_r','ear_l','ear_r','tail']){
     const part=Motion.rigParts.find(row=>row.id===id),a=part.polygon[2],b=part.polygon[5];
-    const wa=undo(frame.matrices.torso,Motion.rigPoint(frame,id,...a,'final')),wb=undo(frame.matrices.torso,Motion.rigPoint(frame,id,...b,'final'));
+    const wa=Motion.rigPoint(frame,id,...a,'final'),wb=Motion.rigPoint(frame,id,...b,'final'),m=frame.matrices[id],scale=Math.hypot(m[0],m[1]);
     const ra=Motion.growthPoint('final',...a),rb=Motion.growthPoint('final',...b);
-    assert.ok(Math.abs(Math.hypot(wa.x-wb.x,wa.y-wb.y)-Math.hypot(ra.x-rb.x,ra.y-rb.y))<1e-12,id+': no rubber stretch');
+    assert.ok(Math.abs(scale-Math.hypot(m[2],m[3]))<1e-12,id+': uniform scale independent of torso breathing');
+    assert.ok(Math.abs(Math.hypot(wa.x-wb.x,wa.y-wb.y)/scale-Math.hypot(ra.x-rb.x,ra.y-rb.y))<1e-12,id+': no rubber stretch');
+  }
+});
+
+test('hand acting keeps the camera steady instead of shrinking the whole pet at cue entry',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const idle=Motion.rigPose(0,'idle',0,'adult',path.key,1,key),scale=Math.hypot(...idle.matrices.head.slice(0,2));
+    const torso=[],head=[],tips=[];
+    for(const age of[0,.25,.45,.8,1.3,1.58,1.85,2.4,3.2,5.1,6.6]){
+      const f=Motion.rigPose(0,'body_flap',age,'adult',path.key,1,key);
+      for(const id of['head','arm_l','arm_r'])assert.ok(Math.abs(Math.hypot(...f.matrices[id].slice(0,2))-scale)<1e-12,key+id+': no cue resizing');
+      torso.push(Motion.rigPoint(f,'torso',.55,.75,'adult',path.key).y);
+      head.push(Motion.rigPoint(f,'head',.55,.45,'adult',path.key).y);
+      if(age===1.58||age===1.85)tips.push(Motion.rigPoint(f,'arm_r',.774,.786,'adult',path.key).y);
+      assert.ok(nurseryActualSoles(f,path.key).every(p=>Math.abs(p.y-.92)<1e-12));
+    }
+    assert.ok(Math.max(...torso)-Math.min(...torso)<.002,key+': torso does not ride the arm beat');
+    assert.ok(Math.max(...head)-Math.min(...head)<.004,key+': no head drop at entry');
+    assert.ok(Math.abs(tips[1]-tips[0])>.03,key+': hands still travel visibly');
+  }
+});
+
+test('body posture bends the torso while preserving rigid face and hand proportions',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const base=Motion.rigPose(0,'idle',0,'adult',path.key,1,key),scale=Math.hypot(...base.matrices.head.slice(0,2));
+    let torsoChanges=false;
+    for(const cue of['laugh','cry','stretching','feeding','sad','cheer'])for(const age of[.7,1.3,2.2,3.4]){
+      const f=Motion.rigPose(age,cue,age,'adult',path.key,1,key);
+      torsoChanges ||= Math.abs(Math.hypot(...f.matrices.torso.slice(0,2))-scale)>.001;
+      for(const id of['head','arm_l','arm_r']){
+        const m=f.matrices[id];
+        assert.ok(Math.abs(Math.hypot(m[0],m[1])-scale)<1e-12,key+cue+id+': independent rigid width');
+        assert.ok(Math.abs(Math.hypot(m[2],m[3])-scale)<1e-12,key+cue+id+': independent rigid height');
+      }
+    }
+    assert.equal(torsoChanges,true,'torso retains expressive breathing/posture');
+  }
+});
+
+test('all B performances retain welded sockets and fixed framing; only genuine jumps lift both feet',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue)for(const row of Motion.catalogue.concat(Motion.bodyCatalogue)){
+    const duration=Motion.durations[row.id]/1000;
+    for(let tick=0;tick<=16;tick++){
+      const age=duration*tick/16,f=Motion.rigPose(age,row.id,age,'adult',path.key,1.15,key);
+      assert.equal(f.fitScale,1,key+row.id+': no per-frame camera resize');
+      for(const id of['arm_l','arm_r','tail']){
+        const part=Motion.nurseryRigParts.find(p=>p.id===id),a=Motion.rigPoint(f,id,...part.pivot,'adult',path.key),b=Motion.rigPoint(f,'torso',...part.pivot,'adult',path.key);
+        assert.ok(Math.hypot(a.x-b.x,a.y-b.y)<1e-12,key+row.id+id+': attached socket');
+      }
+      const scale=Math.hypot(...f.matrices.head.slice(0,2)),soles=nurseryActualSoles(f,path.key);
+      assert.ok(Math.abs(Math.max(...soles.map(p=>p.y))-(.92-f.flight*.055*scale))<1e-10,key+row.id+': support foot follows actual flight only');
+    }
+  }
+});
+
+test('waving and head gestures stand on their feet while prepared joy can still jump',()=>{
+  for(const key of bornAppearances){
+    for(const cue of['greeting','cheer','thinking','body_hands','body_flap','body_head'])for(const age of[1.2,1.8,2.4,3.4]){
+      const f=Motion.rigPose(0,cue,age,'adult','balanced',1,key);
+      assert.equal(f.flight,0);assert.equal(f.lowerBody.step,0);
+      assert.ok(nurseryActualSoles(f,'balanced').every(p=>Math.abs(p.y-.92)<1e-12));
+    }
+    const flight=Array.from({length:30},(_,i)=>Motion.rigPose(i/10,'body_joy',i/10,'adult','balanced',1,key).flight);
+    assert.ok(Math.max(...flight)>.5,'a deliberate joy jump still leaves the floor');
   }
 });
 
@@ -1355,14 +1418,12 @@ test('the original eight facial images and the independent clean torso must all 
   assert.deepEqual(f.errors,['image_failed']);assert.equal(f.ready,0);assert.equal(f.created.length,f.deleted.length);
 });
 
-test('food anchors follow the same growth mesh and active cue inset rather than the old fixed mouth', () => {
+test('food anchors follow the measured mouth through growth and the fixed camera without an obsolete cue inset', () => {
   const anchors = new Set();
   for (const stage of growthKeys) {
-    const anchor = Motion.feedingAnchor(stage), profile = Motion.growthProfile(stage);
-    const u = .5 + (.628-.5)*.88, v = .92 + (.499-.92)*.88;
-    const point = Motion.growthPoint(stage,u,v);
-    assert.equal(anchor.x, .5 + (point.x-.5)*profile.overallScale);
-    assert.equal(anchor.y, .92 + (point.y-.92)*profile.overallScale);
+    const anchor = Motion.feedingAnchor(stage),rig=Motion.rigPose(0,'idle',0,stage);
+    const mouth=Motion.rigPoint(rig,'head',.628,.499,stage);
+    assert.equal(anchor.x,mouth.x);assert.equal(anchor.y,mouth.y);
     assert.equal(anchor.foodLeft, anchor.x-.11); assert.equal(anchor.foodTop, anchor.y+.005);
     // The apple begins below the mouth, rather than covering the nose or eyes.
     // Its upper edge stays within one tenth of the .14-high prop from the mouth.
@@ -1371,6 +1432,11 @@ test('food anchors follow the same growth mesh and active cue inset rather than 
     anchors.add(JSON.stringify(anchor));
   }
   assert.equal(anchors.size, 6);
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const anchor=Motion.feedingAnchor('adult',path.key,key),rig=Motion.rigPose(0,'idle',0,'adult',path.key,1,key);
+    const mouth=Motion.rigPoint(rig,'head',...Motion.nurseryLandmarks.mouth,'adult',path.key);
+    assert.equal(anchor.x,mouth.x);assert.equal(anchor.y,mouth.y);assert.equal(anchor.foodTop,mouth.y+.005);
+  }
 });
 
 test('growth changes idle and walking cadence while every meal phase and emotion deadline stays unchanged', () => {
