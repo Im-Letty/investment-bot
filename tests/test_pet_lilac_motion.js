@@ -1095,7 +1095,7 @@ test('flapping keeps one rig, real clothes and reduced-motion idle without extra
   }
 });
 
-test('frontal palms replace the old flat distal hand while original proximal fur and shoulder coverage remain',()=>{
+test('born B draws continuous solid arms without a second flat proximal crop',()=>{
   assert.equal(Motion.armFlapCoverage(.374,.705),1);assert.equal(Motion.armFlapCoverage(.55,.75),1);
   for(const key of bornAppearances.concat(null)){
     const f=fixture({captureVolumes:true,options:{appearanceKey:key,outfit:'cloth_cream_vest'}});f.complete();const resources=f.created.length;
@@ -1104,7 +1104,9 @@ test('frontal palms replace the old flat distal hand while original proximal fur
       assert.equal(hands.length,2);assert.equal(calls.filter(row=>row.volume).length,2);
       for(const hand of hands){assert.equal(hand.first,0);assert.notStrictEqual(hand.buffer,f.buffers[0].buffer);const data=hand.volumeData;let proximal=0,palm=0;
         for(let i=0;i<data.length;i+=9){if(data[i+8]===0)proximal++;else palm++;}
-        assert.ok(proximal>30,'the original upper arm remains attached');assert.ok(palm>300,'one rounded 3D palm replaces its distal cutout');
+        if(key)assert.equal(proximal,0,'no dangling flat upper-arm copy remains behind the solid arm');
+        else assert.ok(proximal>30,'legacy chest-facing shoulders keep their separate layout');
+        assert.ok(palm>300,'one rounded 3D surface carries the hand');
       }
     }
     assert.equal(f.created.length,resources);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
@@ -1143,7 +1145,8 @@ test('baby and mature palms have real thickness and distinguish front, side and 
       frame.twists[side]=twist;const mesh=Motion.handVolumeMesh(frame,side);summaries.push(palmSummary(mesh));
       proximal.push(Array.from(mesh).filter((_,i)=>mesh[Math.floor(i/9)*9+8]===0));
     }
-    assert.deepEqual(proximal[0],proximal[1],'wrist rotation leaves the original shoulder drawing fixed');assert.deepEqual(proximal[0],proximal[2]);
+    if(key)assert.ok(proximal.every(p=>p.length===0),'born arms have no second flat surface');
+    else {assert.deepEqual(proximal[0],proximal[1],'legacy wrist rotation leaves the original shoulder drawing fixed');assert.deepEqual(proximal[0],proximal[2]);}
     assert.ok(summaries[1].area/summaries[0].area>.6&&summaries[1].area/summaries[0].area<.94,'side view retains visible thickness while becoming narrower');
     assert.ok(Math.abs(summaries[2].area/summaries[0].area-1)<.001,'turning the palm over preserves its mitten size');
     assert.ok(summaries[0].material<1.02&&summaries[1].material>1.4&&summaries[1].material<1.6&&summaries[2].material>1.98,'the visible surface changes from palm through side to back');
@@ -1153,10 +1156,14 @@ test('baby and mature palms have real thickness and distinguish front, side and 
 test('convex palm meshes have opaque interiors with feathered edges and no twisted white stripe',()=>{
   for(const key of bornAppearances.concat(null))for(const side of['arm_l','arm_r'])for(const twist of[0,1.05,2.08,Math.PI]){
     const frame=Motion.handVolumeFrame(3.8,'body_flap',3.8,'final','balanced',1,key);frame.twists[side]=twist;
-    const mesh=Motion.handVolumeMesh(frame,side),box=palmSummary(mesh),profile=Motion.handVolumeProfiles[frame.family][side];
+    const mesh=Motion.handVolumeMesh(frame,side),profile=Motion.handVolumeProfiles[frame.family][side];
     const center=Motion.rigPoint(frame.rig,side,...profile.center,'final','balanced'),cx=center.x*2-1,cy=1-center.y*2;
     for(const dx of[-.3,0,.3])for(const dy of[-.3,0,.3]){
-      const x=cx+dx*(box.maxX-box.minX)/2,y=cy+dy*(box.maxY-box.minY)/2;
+      // Sample the measured palm itself; the continuous forearm is now longer
+      // than that palm and must not enlarge this interior test rectangle.
+      const radius=Math.min(profile.minor,profile.depth)*.9;
+      const p=Motion.rigPoint(frame.rig,side,profile.center[0]+dx*radius,profile.center[1]+dy*radius,'final','balanced');
+      const x=p.x*2-1,y=1-p.y*2;
       assert.ok(palmAlphaAt(mesh,x,y)>.97,key+side+twist+': no hole through the central palm');
     }
     let solid=0,feather=0;
@@ -1170,6 +1177,53 @@ test('convex palm meshes have opaque interiors with feathered edges and no twist
       const cross=(mesh[i+9]-mesh[i])*(mesh[i+19]-mesh[i+1])-(mesh[i+10]-mesh[i+1])*(mesh[i+18]-mesh[i]);assert.ok(cross<0,'one consistently visible convex surface');
     }
   }
+});
+
+test('born arms stay opaque from shoulder to fingertips, with fixed sockets through wrist twists',()=>{
+  for(const key of ['newborn','adult','grown'])for(const side of ['arm_l','arm_r'])for(const cue of ['idle','body_hands','body_flap','feeding']){
+    const frame=Motion.handVolumeFrame(2.3,cue,2.3,'final','balanced',1,key),profile=Motion.handVolumeProfiles.baby[side];
+    const dx=profile.center[0]-profile.shoulder[0],dy=profile.center[1]-profile.shoulder[1],length=Math.hypot(dx,dy),ux=dx/length,uy=dy/length;
+    const start=[profile.shoulder[0]-.012*ux,profile.shoulder[1]-.012*uy],end=[profile.center[0]+profile.major*ux,profile.center[1]+profile.major*uy];
+    const expected=Motion.rigPoint(frame.rig,side,...start,'final','balanced');
+    for(const twist of [-2.25,0,2.25]){
+      frame.twists[side]=twist;const mesh=Motion.handVolumeMesh(frame,side);let socket=0;
+      for(let at=0;at<mesh.length;at+=9){
+        assert.ok(mesh[at+8]>.5,'only one connected volume is drawn');
+        if(Math.hypot(mesh[at+2]-start[0],mesh[at+3]-start[1])<1e-6){
+          assert.ok(Math.hypot((mesh[at]+1)/2-expected.x,(1-mesh[at+1])/2-expected.y)<1e-6);socket++;
+        }
+      }
+      assert.ok(socket>0,'the actual socket vertices are present, not an empty proximal array');
+      for(let t=.12;t<.96;t+=.04){
+        const x=start[0]+(end[0]-start[0])*t,y=start[1]+(end[1]-start[1])*t,p=Motion.rigPoint(frame.rig,side,x,y,'final','balanced');
+        assert.ok(palmAlphaAt(mesh,p.x*2-1,1-p.y*2)>.97,`${key} ${side} ${cue} ${twist}: no gap along the arm`);
+      }
+    }
+  }
+});
+
+test('the head owns the cheeks and chin without collecting separate original shoulder pixels',()=>{
+  const polygon=Motion.nurseryRigParts.find(p=>p.id==='head').polygon;
+  function inside(x,y){let hit=false;for(let i=0,j=polygon.length-1;i<polygon.length;j=i++){
+    const a=polygon[i],b=polygon[j];if((a[1]>y)!==(b[1]>y)&&x<(b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0])hit=!hit;
+  }return hit;}
+  for(const [x,y]of [[.400,.665],[.700,.660],[.713,.665]]){
+    assert.ok(pngPixel('pet_lilac_reference_v2.png',x,y)[3]>128,'the original shoulder really contains visible pixels');
+    assert.equal(inside(x,y),false,'a head tilt cannot move a second shoulder/arm');
+  }
+  for(const [x,y]of [[.400,.640],[.700,.620],[.550,.640],[.450,.648]])assert.equal(inside(x,y),true,'visible cheek and central chin remain intact');
+});
+
+test('the armless torso keeps its own alpha rather than inheriting the original arm-shaped cutout',()=>{
+  for(const [x,y]of [[.724,.794],[.730,.820],[.346,.846],[.378,.882]]){
+    const uv=Motion.nurseryFaceUV(7,x,y);
+    assert.equal(pngPixel('pet_lilac_reference_v2.png',x,y)[3],0);
+    assert.ok(pngPixel('pet_lilac_baby_expressions_v1.png',uv.x,uv.y)[3]>230,'registered armless body fills the old cutout');
+  }
+  const baby=fixture({options:{appearanceKey:'adult'}});baby.complete();
+  assert.match(baby.shaders[1],/if\(torsoPart>\.5\)a=nurserySample\(u_sad,/);
+  assert.doesNotMatch(baby.shaders[1],/if\(torsoPart>\.5\)a=min\(a,nurserySample/);baby.api.destroy();
+  const legacy=fixture();legacy.complete();assert.doesNotMatch(legacy.shaders[1],/a=nurserySample/);legacy.api.destroy();
 });
 
 test('rounded hands stay finite and inside the canvas across born appearances, fur paths and strong cue extremes',()=>{

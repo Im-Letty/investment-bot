@@ -1879,7 +1879,7 @@
     {id:'foot_r',parent:'root',pivot:[.628,.897],polygon:[[.568,.883],[.614,.876],[.665,.883],[.692,.903],[.691,.932],[.657,.943],[.604,.939],[.572,.925]]},
     {id:'ear_l',parent:'head',pivot:[.28,.32],polygon:[[.316,.267],[.292,.349],[.255,.417],[.217,.488],[.166,.512],[.12,.496],[.09,.453],[.079,.417],[.056,.392],[.053,.353],[.063,.316],[.084,.289],[.104,.254],[.139,.224],[.183,.211],[.232,.218],[.294,.235]]},
     {id:'ear_r',parent:'head',pivot:[.76,.31],polygon:[[.724,.253],[.763,.217],[.816,.204],[.869,.201],[.916,.21],[.949,.238],[.95,.272],[.971,.301],[.978,.34],[.97,.371],[.979,.4],[.967,.443],[.93,.474],[.882,.483],[.834,.466],[.793,.422],[.762,.372]]},
-    {id:'head',parent:'root',pivot:[.55,.645],polygon:[[.212,.44],[.216,.365],[.23,.305],[.25,.26],[.286,.22],[.335,.185],[.395,.157],[.434,.139],[.408,.145],[.41,.109],[.427,.08],[.458,.055],[.502,.047],[.55,.053],[.59,.079],[.617,.12],[.611,.147],[.648,.148],[.689,.164],[.737,.212],[.784,.254],[.822,.306],[.85,.365],[.871,.425],[.883,.49],[.877,.549],[.849,.592],[.803,.626],[.746,.655],[.713,.671],[.675,.676],[.601,.676],[.527,.679],[.451,.676],[.379,.667],[.317,.643],[.269,.607],[.233,.558],[.217,.499]]},
+    {id:'head',parent:'root',pivot:[.55,.645],polygon:[[.212,.44],[.216,.365],[.23,.305],[.25,.26],[.286,.22],[.335,.185],[.395,.157],[.434,.139],[.408,.145],[.41,.109],[.427,.08],[.458,.055],[.502,.047],[.55,.053],[.59,.079],[.617,.12],[.611,.147],[.648,.148],[.689,.164],[.737,.212],[.784,.254],[.822,.306],[.85,.365],[.871,.425],[.883,.49],[.877,.549],[.849,.592],[.803,.594],[.77,.612],[.74,.624],[.713,.633],[.70,.636],[.685,.639],[.675,.646],[.65,.650],[.60,.650],[.55,.652],[.50,.657],[.45,.658],[.42,.659],[.40,.653],[.379,.653],[.35,.647],[.32,.638],[.269,.607],[.233,.558],[.217,.499]]},
     {id:'arm_l',parent:'root',pivot:[.411,.666],polygon:[[.389,.65],[.417,.641],[.443,.657],[.456,.694],[.453,.734],[.439,.771],[.421,.796],[.398,.813],[.368,.814],[.342,.797],[.321,.769],[.319,.738],[.332,.709],[.353,.687],[.374,.671]]},
     {id:'arm_r',parent:'root',pivot:[.675,.659],polygon:[[.648,.641],[.685,.642],[.72,.665],[.752,.7],[.779,.736],[.797,.765],[.796,.794],[.774,.816],[.736,.82],[.706,.798],[.688,.766],[.673,.736],[.66,.706]]}
   ].map(function(part,index){part.index=index;Object.freeze(part.pivot);part.polygon.forEach(Object.freeze);Object.freeze(part.polygon);return Object.freeze(part);}));
@@ -2072,8 +2072,8 @@
     return {part:'head',side:null};
   }
   function torsoMaterialPoint(x,y) { return {x:clamp(finite(x,.5),0,1),y:clamp(finite(y,.7),.7,1)}; }
-  // A small local 3D surface replaces the distal frontal paws. The original
-  // proximal arms and body stay drawn; no second hand image is layered on.
+  // Born B uses one continuous 3D arm from its shoulder to its fingertip.
+  // The legacy mature drawing retains its separate chest-facing palm layout.
   var handVolumeProfiles=Object.freeze({
     mature:Object.freeze({
       arm_l:Object.freeze({center:Object.freeze([.533,.748]),major:.117,minor:.070,depth:.058,angle:-.28,shoulder:Object.freeze([.374,.705]),proximal:.104}),
@@ -2108,11 +2108,20 @@
   function handVolumeMesh(frame,side,target) {
     if(!frame||!frame.rig||frame.family==='egg'||(side!=='arm_l'&&side!=='arm_r'))return new Float32Array(0);
     var profile=handVolumeProfiles[frame.family==='baby'?'baby':'mature'][side],m=frame.rig.matrices[side],twist=frame.twists[side];
+    if(frame.family==='baby'){
+      // Preserve the measured fingertip and socket. Extending the same convex
+      // surface through the forearm removes the dangling flat crop behind it.
+      var dx=profile.center[0]-profile.shoulder[0],dy=profile.center[1]-profile.shoulder[1],length=Math.hypot(dx,dy);
+      // The two half-ellipsoids share their widest ring at the original palm.
+      // Only the shoulder half extends; fingertip, palm width and UVs stay put.
+      profile={center:profile.center,major:profile.major,proximalMajor:length+.012,minor:profile.minor,depth:profile.depth,angle:Math.atan2(dy,dx)};
+    }
     var rows=handVolumeRows,columns=handVolumeColumns,grid=frame.scratch||new Float64Array((rows+1)*columns*10),out=target||new Float32Array(handVolumeMaxFloats),cursor=0;
-    var source=frame.sourceMeshes&&frame.sourceMeshes[side];
-    if(!source){var parts=frame.family==='baby'?nurseryRigParts:rigParts;source=rigMesh(parts[side==='arm_l'?7:8],frame.stage,frame.path,frame.appearanceKey);}
-    // Keep the shoulder/elbow drawing, then overlap it with one convex palm.
-    // There is no distal copy of the old flat hand beneath the new surface.
+    var source=frame.family==='baby'?null:frame.sourceMeshes&&frame.sourceMeshes[side];
+    if(frame.family!=='baby'&&!source)source=rigMesh(rigParts[side==='arm_l'?7:8],frame.stage,frame.path,frame.appearanceKey);
+    // Only the legacy chest-facing hand keeps a proximal image. Born B never
+    // emits this second flat layer, including while waving or turning its wrist.
+    if(source)
     for(var i=0;i<source.length;i+=15){
       var w0=source[i+4]*handProximalCoverage(profile,source[i+2],source[i+3]),w1=source[i+9]*handProximalCoverage(profile,source[i+7],source[i+8]),w2=source[i+14]*handProximalCoverage(profile,source[i+12],source[i+13]);
       if(Math.max(w0,w1,w2)<=0)continue;
@@ -2122,11 +2131,12 @@
     var ax=Math.cos(profile.angle),ay=Math.sin(profile.angle),nx=-ay,ny=ax,co=Math.cos(twist),si=Math.sin(twist),det=m[0]*m[3]-m[1]*m[2],depthScale=Math.sqrt(Math.abs(det));
     for(var n=0;n<handSphereTemplate.length/4;n++){
       var offset=n*4,g=n*10,along=handSphereTemplate[offset],radius=handSphereTemplate[offset+1],cos=handSphereTemplate[offset+2],sin=handSphereTemplate[offset+3];
-      var a=profile.minor*radius*cos,b=profile.depth*radius*sin,cross=a*co-b*si,x=profile.center[0]+ax*profile.major*along+nx*cross,y=profile.center[1]+ay*profile.major*along+ny*cross;
+      var halfMajor=along<0&&profile.proximalMajor?profile.proximalMajor:profile.major;
+      var a=profile.minor*radius*cos,b=profile.depth*radius*sin,cross=a*co-b*si,x=profile.center[0]+ax*halfMajor*along+nx*cross,y=profile.center[1]+ay*halfMajor*along+ny*cross;
       var point=frame.family==='baby'?appearancePoint(frame.appearanceKey,x,y,frame.path):growthPoint(frame.stage,x,y,frame.path);
       grid[g]=m[0]*point.x+m[2]*point.y+m[4];grid[g+1]=m[1]*point.x+m[3]*point.y+m[5];grid[g+2]=(a*si+b*co)*depthScale;
-      grid[g+3]=profile.center[0]+ax*profile.major*along+nx*a;grid[g+4]=profile.center[1]+ay*profile.major*along+ny*a;grid[g+5]=1-smooth((sin+.15)/.3);
-      var na=along/profile.major,nn=radius*cos/profile.minor,nz=radius*sin/profile.depth,nCross=nn*co-nz*si,localX=ax*na+nx*nCross,localY=ay*na+ny*nCross;
+      grid[g+3]=profile.center[0]+ax*halfMajor*along+nx*a;grid[g+4]=profile.center[1]+ay*halfMajor*along+ny*a;grid[g+5]=1-smooth((sin+.15)/.3);
+      var na=along/halfMajor,nn=radius*cos/profile.minor,nz=radius*sin/profile.depth,nCross=nn*co-nz*si,localX=ax*na+nx*nCross,localY=ay*na+ny*nCross;
       var wx=(m[3]*localX-m[1]*localY)/det,wy=(-m[2]*localX+m[0]*localY)/det,wz=(nn*si+nz*co)/depthScale,length=Math.hypot(wx,wy,wz);
       grid[g+6]=wx/length;grid[g+7]=wy/length;grid[g+8]=Math.abs(wz/length);grid[g+9]=smooth(wz/length/.09);
     }
@@ -2365,7 +2375,7 @@
     result=result.replace('texture2D(u_sad,plateUV).rgb','nurserySample(u_sad,plateUV,7.).rgb');
     result=result.replace('original=mix(original,nurserySample(u_sad,plateUV,7.).rgb,patch);','original=nurserySample(u_sad,plateUV,7.).rgb;');
     result=result.replace('vec4 garment=clothing(p,original,u_outfit);','vec2 dressUV=vec2(.525+(p.x-.55)*.258/.185,.79+(p.y-.78)*.125/.13);vec4 garment=clothing(dressUV,original,u_outfit);');
-    result=result.replace('float a=texture2D(u_alpha,uv).a*v_coverage;','float a=texture2D(u_alpha,uv).a*v_coverage;if(torsoPart>.5)a=min(a,nurserySample(u_sad,vec2(uv.x,max(.67,uv.y)),7.).a*v_coverage);');
+    result=result.replace('float a=texture2D(u_alpha,uv).a*v_coverage;','float a=texture2D(u_alpha,uv).a*v_coverage;if(torsoPart>.5)a=nurserySample(u_sad,vec2(uv.x,max(.67,uv.y)),7.).a*v_coverage;');
     return result.replace('float region(vec2 p,vec2 c,vec2 r){',helper+'float region(vec2 p,vec2 c,vec2 r){');
   }
   var eggFragmentSource=[
