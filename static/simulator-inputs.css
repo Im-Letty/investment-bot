@@ -42,12 +42,17 @@ body .sim-step-button {
   flex: 0 0 44px;
   width: 44px;
   min-width: 44px;
+  height: 44px;
   min-height: 44px;
+  align-self: center;
   padding: 0;
   border: 1px solid var(--sim-line);
-  border-radius: 8px;
-  background: var(--sim-chip);
-  color: var(--sim-ink);
+  border-color: color-mix(in srgb, var(--sim-button) 18%, var(--sim-paper));
+  border-radius: 50%;
+  background: var(--sim-paper);
+  background: color-mix(in srgb, var(--sim-button) 5%, var(--sim-paper));
+  color: var(--sim-button);
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--sim-button) 8%, transparent);
   font: 400 18px/1 var(--sim-font);
   cursor: pointer;
   touch-action: manipulation;
@@ -55,10 +60,12 @@ body .sim-step-button {
 
 body .sim-step-button:hover:not(:disabled) {
   border-color: var(--sim-button);
+  background: color-mix(in srgb, var(--sim-button) 11%, var(--sim-paper));
 }
 
 body .sim-step-button:active:not(:disabled) {
-  background: var(--sim-paper);
+  background: color-mix(in srgb, var(--sim-button) 18%, var(--sim-paper));
+  box-shadow: inset 0 1px 3px color-mix(in srgb, var(--sim-button) 12%, transparent);
 }
 
 body .sim-step-button:disabled {
