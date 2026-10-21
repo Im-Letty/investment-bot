@@ -162,6 +162,130 @@ function facingProjectedBounds(matrix,bounds){
     .map(([x,y])=>({x:matrix[0]*x+matrix[2]*y+matrix[4],y:matrix[1]*x+matrix[3]*y+matrix[5]}));
   return {height:Math.max(...points.map(p=>p.y))-Math.min(...points.map(p=>p.y)),points};
 }
+function nurseryActualSoles(frame,path='balanced'){
+  return ['left','right'].map((side,i)=>{
+    const foot=Motion.nurseryFootLandmarks[0][side];
+    return Motion.rigPoint(frame,i?'foot_r':'foot_l',foot.x,foot.soleY,'child',path);
+  });
+}
+
+test('nursery lower-body anchors identify actual opaque toe lobes in every measured source view',()=>{
+  assert.equal(Motion.nurseryFootLandmarks.length,16);assert.equal(Object.isFrozen(Motion.nurseryFootLandmarks),true);
+  for(let index=0;index<16;index++){
+    const feet=Motion.nurseryFootLandmarks[index];assert.equal(Object.isFrozen(feet),true);assert.ok(feet.left.x<feet.right.x);
+    for(const foot of Object.values(feet)){
+      assert.equal(Object.isFrozen(foot),true);assert.ok(foot.minX<foot.x&&foot.x<foot.maxX&&foot.y<foot.soleY&&foot.soleY<1);
+      const uv=index?Motion.directionCellUV(index,foot.x,foot.y,1254,1254,'grown'):{x:foot.x,y:foot.y};
+      assert.ok(pngPixel(index?'pet_lilac_baby_turnaround_v1.png':'pet_lilac_reference_v2.png',uv.x,uv.y)[3]>128,index+': the moving toe is present in its own source image');
+    }
+  }
+  assert.ok(Math.abs(Motion.nurseryFootLandmarks[0].left.soleY-1164/1254)<.000001);
+  assert.ok(Math.abs(Motion.nurseryFootLandmarks[0].right.soleY-1161/1254)<.000001);
+});
+
+test('nursery idle visibly transfers weight and occasionally lifts real feet without losing a planted sole',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const soles=[[],[]],hip=[];
+    for(let tick=0;tick<=120;tick++){
+      const frame=Motion.rigPose(tick/10,'idle',0,'child',path.key,1,key),feet=nurseryActualSoles(frame,path.key);
+      feet.forEach((p,i)=>soles[i].push(p.y));assert.ok(Math.abs(Math.max(...feet.map(p=>p.y))-.92)<1e-10,key+path.key+': a support foot remains grounded');
+      const low=Motion.rigPoint(frame,'torso',.46,.89,'child',path.key),chest=Motion.rigPoint(frame,'torso',.55,.75,'child',path.key);hip.push(low.y-chest.y);
+    }
+    for(const values of soles)assert.ok(Math.max(...values)-Math.min(...values)>.004,key+path.key+': visible motion replaces the former fixed foot');
+    assert.ok(Math.max(...hip)-Math.min(...hip)>.001,key+path.key+': lower torso moves relative to the chest');
+  }
+});
+
+test('nursery footwork alternates the actual sole contacts at every age and fur path',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const phases=[1.25/.85,1.75/.85].map(age=>Motion.rigPose(0,'body_feet',age,'child',path.key,1,key));
+    for(const [i,frame]of phases.entries()){
+      const feet=nurseryActualSoles(frame,path.key),swing=i===0?0:1,stance=1-swing;
+      assert.ok(Math.abs(feet[stance].y-.92)<1e-10,key+path.key+': actual stance sole is pinned');
+      assert.ok(feet[stance].y-feet[swing].y>.02,key+path.key+': the swing foot clears the floor visibly');
+      assert.ok(frame.lowerBody&&Math.abs(frame.lowerBody.step)>.99);assert.equal(frame.angles.arm_l,0);assert.equal(frame.angles.arm_r,0);
+    }
+  }
+});
+
+test('nursery joy, anger, sadness, sleep and meals have distinct grounded leg acting and settle softly',()=>{
+  const cues=['joy','angry','sad','deep_sleep','feeding'];
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const signatures=new Set();
+    for(const cue of cues){
+      const frames=[1.1,1.8,2.2,5.1].filter(age=>age<Motion.durations[cue]/1000).map(age=>Motion.rigPose(0,cue,age,'child',path.key,1,key));
+      signatures.add(JSON.stringify(frames.map(f=>Object.values(f.lowerBody).map(n=>n.toFixed(4)))));
+      for(const frame of frames){
+        const feet=nurseryActualSoles(frame,path.key);assert.ok(feet.every(p=>Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.y<=.92+1e-10));
+        if(frame.pose.bounce<1e-12)assert.ok(Math.abs(Math.max(...feet.map(p=>p.y))-.92)<1e-10,key+cue+': nonjumping acting has a support foot');
+      }
+      if(cue==='deep_sleep')assert.ok(frames.every(f=>Math.abs(f.lowerBody.step)<1e-12),'sleep bends quietly without stepping');
+      const duration=Motion.durations[cue]/1000,idle=Motion.rigPose(2.7,'idle',0,'child',path.key,1,key);
+      for(const age of[0,duration-.00001,duration]){
+        const frame=Motion.rigPose(2.7,cue,age,'child',path.key,1,key);
+        for(const [id,x,y]of[['torso',.46,.89],['torso',.55,.75],['head',.55,.45]]){
+          const a=Motion.rigPoint(frame,id,x,y,'child',path.key),b=Motion.rigPoint(idle,id,x,y,'child',path.key);
+          assert.ok(Math.hypot(a.x-b.x,a.y-b.y)<.00001,key+cue+': cue entry/release returns to the running idle body');
+        }
+        nurseryActualSoles(frame,path.key).forEach((p,i)=>{const q=nurseryActualSoles(idle,path.key)[i];assert.ok(Math.hypot(p.x-q.x,p.y-q.y)<.00001);});
+      }
+    }
+    assert.equal(signatures.size,cues.length,'different feelings retain different knee and foot timing');
+  }
+});
+
+test('nursery lower-body fields stay continuous across angry threshold crossings and meal phase boundaries',()=>{
+  const threshold=Math.asin(.1/.8),angry=[(4*Math.PI+threshold)/(Math.PI*2*1.7),(5*Math.PI+threshold)/(Math.PI*2*1.7)];
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue)for(const [cue,at]of[...angry.map(at=>['angry',at]),['feeding',4.4],['feeding',7.2]]){
+    const [a,b]=[-.000001,.000001].map(delta=>Motion.rigPose(2.7,cue,at+delta,'child',path.key,1,key));
+    for(const field of Object.keys(a.lowerBody))assert.ok(Math.abs(a.lowerBody[field]-b.lowerBody[field])<.0001,key+cue+field+': no branch jump');
+    for(const [id,x,y]of[['torso',.46,.89],['torso',.64,.88],['head',.55,.45]]){
+      const p=Motion.rigPoint(a,id,x,y,'child',path.key),q=Motion.rigPoint(b,id,x,y,'child',path.key);assert.ok(Math.hypot(p.x-q.x,p.y-q.y)<.0001);
+    }
+    nurseryActualSoles(a,path.key).forEach((p,i)=>{const q=nurseryActualSoles(b,path.key)[i];assert.ok(Math.hypot(p.x-q.x,p.y-q.y)<.0001);});
+  }
+});
+
+test('nursery knee deformation is continuous and unfolded while the face has no local lower-body warp',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue)for(const [cue,age]of[['body_feet',1.25/.85],['body_feet',1.75/.85],['joy',1.1],['angry',1.8],['sad',1.8],['deep_sleep',2.2],['feeding',5.1]]){
+    const frame=Motion.rigPose(0,cue,age,'child',path.key,1,key),plain={...frame,lowerBody:null};
+    for(const [x,y]of[[.44318,.43534],[.68435,.40677],[.58051,.52638]])assert.deepEqual(Motion.rigPoint(frame,'head',x,y,'child',path.key),Motion.rigPoint(plain,'head',x,y,'child',path.key));
+    assert.deepEqual(Motion.rigPoint(frame,'torso',.55,.70,'child',path.key),Motion.rigPoint(plain,'torso',.55,.70,'child',path.key),'upper torso keeps the same local shape');
+    const point=(x,y)=>Motion.rigPoint(frame,'torso',.33+x/16*.42,.76+y/12*.185,'child',path.key);
+    for(let y=0;y<12;y++)for(let x=0;x<16;x++){
+      const a=point(x,y),b=point(x,y+1),c=point(x+1,y),d=point(x+1,y+1);
+      for(const [u,v,w]of[[a,b,c],[c,b,d]])assert.ok((v.x-u.x)*(w.y-u.y)-(v.y-u.y)*(w.x-u.x)<-1e-10,key+path.key+cue+': no folded knee/hip cells');
+    }
+  }
+});
+
+test('actual nursery uploads articulate lower torso and feet while retaining UVs, clothing, material resources and one frame loop',()=>{
+  for(const key of bornAppearances){
+    const f=fixture({options:{appearanceKey:key,evolutionPath:'fruit',outfit:'cloth_star_pajamas'}});f.complete();const resources=f.created.length;
+    const age=1.25/.85;f.api.setSituation('body_feet',{elapsedMs:age*1000});const a=new Float32Array(f.liveVertices),calls=f.drawCalls.slice(-9),frame=Motion.rigPose(0,'body_feet',age,'child','fruit',1,key);
+    let deformed=0;
+    for(const call of calls.filter(c=>c.part===1))for(let v=call.first;v<call.first+call.count;v++){
+      const at=v*5,x=a[at+2],y=a[at+3],p=Motion.rigPoint(frame,'torso',x,y,'child','fruit'),plain=Motion.rigPoint({...frame,lowerBody:null},'torso',x,y,'child','fruit');
+      assert.ok(Math.abs(a[at]-(p.x*2-1))<.000002&&Math.abs(a[at+1]-(1-p.y*2))<.000002,'uploaded torso follows the tested continuous leg field');
+      if(y>.84&&Math.hypot(p.x-plain.x,p.y-plain.y)>.003)deformed++;
+    }
+    assert.ok(deformed>5,key+': lower torso has real independently moving vertices');
+    f.api.setSituation('body_feet',{elapsedMs:1.75/.85*1000});const b=f.liveVertices;assert.equal(a.length,b.length);
+    for(let at=0;at<a.length;at+=5){assert.equal(a[at+2],b[at+2]);assert.equal(a[at+3],b[at+3]);assert.equal(a[at+4],b[at+4]);}
+    assert.equal(Math.floor(f.uniforms.u_anger/2),5);assert.equal(f.created.length,resources);assert.equal(f.maxActiveUnit,7);assert.equal(f.raf.size,1);
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+  }
+});
+
+test('reduced motion keeps the nursery lower body neutral and releases every existing resource',()=>{
+  for(const key of bornAppearances){
+    const f=fixture({reduced:true,options:{appearanceKey:key}});f.complete();const neutral=new Float32Array(f.liveVertices),resources=f.created.length;
+    for(const cue of['body_feet','joy','angry','sad','deep_sleep','feeding']){
+      f.api.setSituation(cue,{elapsedMs:1800});assert.deepEqual(f.liveVertices,neutral);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);assert.equal(f.created.length,resources);
+    }
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+  }
+});
 
 test('all born directions match the reference fur chroma without flattening its light and shade',()=>{
   for(const key of bornAppearances)for(let index=0;index<16;index++)for(const luma of [.40,.60,.76]){
@@ -554,11 +678,12 @@ test('private room walks turn, travel out, stop to reverse, walk home and finish
 
 test('side-view walking lifts opposite real feet while the stance sole stays grounded and the head follows gently',()=>{
   for(const key of bornAppearances.concat(null))for(const id of ['room_walk_left','room_walk_right']){
-    const age=1500,f=Motion.roomWalkFrame(id,age),index=Motion.directionFrame(id,age).currentIndex,view=(Motion.appearanceProfile(key).family==='baby'?Motion.nurseryDirectionViews:Motion.directionViews)[index],center=view.torso[0],points=[[center-.10,view.groundY],[center+.10,view.groundY]];
+    const baby=Motion.appearanceProfile(key).family==='baby',age=1500,f=Motion.roomWalkFrame(id,age),index=Motion.directionFrame(id,age).currentIndex,view=(baby?Motion.nurseryDirectionViews:Motion.directionViews)[index],center=view.torso[0];
+    const points=baby?['left','right'].map(side=>{const foot=Motion.nurseryFootLandmarks[index][side];return[foot.x,foot.soleY];}):[[center-.10,view.groundY],[center+.10,view.groundY]];
     for(const phase of[Math.PI/2,Math.PI*1.5]){
       const frame={...f,walking:true,speed:1,footPhase:phase},left=Motion.roomWalkPoint(index,...points[0],frame,'child','balanced',key),right=Motion.roomWalkPoint(index,...points[1],frame,'child','balanced',key),a=Motion.directionPoint(index,...points[0],'child','balanced',key),b=Motion.directionPoint(index,...points[1],'child','balanced',key);
       if(phase<Math.PI){assert.ok(a.y-left.y>.025);assert.ok(Math.abs(b.y-right.y)<1e-12);}else{assert.ok(b.y-right.y>.025);assert.ok(Math.abs(a.y-left.y)<1e-12);}
-      const head=Motion.roomWalkPoint(index,center,.4,frame,'child','balanced',key),old=Motion.directionPoint(index,center,.4,'child','balanced',key);assert.ok(old.y-head.y>.0049&&old.y-head.y<.0051);
+      const head=Motion.roomWalkPoint(index,center,.4,frame,'child','balanced',key),old=Motion.directionPoint(index,center,.4,'child','balanced',key),bob=baby?.008:.005;assert.ok(Math.abs(old.y-head.y-bob)<1e-10);
     }
     const stopped=Motion.roomWalkFrame(id,2775);for(const p of points)assert.deepEqual(Motion.roomWalkPoint(index,...p,stopped,'child','balanced',key),Motion.directionPoint(index,...p,'child','balanced',key));
   }
@@ -784,7 +909,8 @@ test('flapping opens both real shoulders outward and raises and lowers both hand
       assert.ok(a.y<-.015&&b.y>.015&&b.y-a.y>.045,appearance.key+id+': visible simultaneous vertical travel');
     }
     for(const frame of[high,low])for(const id of['foot_l','foot_r']){
-      const part=parts.find(row=>row.id===id),sole=Motion.rigPoint(frame,id,part.pivot[0],baby?Motion.nurseryLandmarks.floor:.92,stage,path.key);
+      const part=parts.find(row=>row.id===id),foot=baby?Motion.nurseryFootLandmarks[0][id==='foot_l'?'left':'right']:null;
+      const sole=Motion.rigPoint(frame,id,foot?foot.x:part.pivot[0],foot?foot.soleY:.92,stage,path.key);
       assert.ok(Math.abs(sole.y-.92)<1e-12,appearance.key+': both feet remain planted');
     }
   }

@@ -1300,9 +1300,26 @@
     }
     return point;
   }
+  // Opaque toe/sole landmarks measured in each real source rectangle. The
+  // partially hidden far foot stays hidden; no extra leg image is invented.
+  var nurseryFootLandmarks=Object.freeze([[[0.457367,0.914188,0.92823,0.408293,0.507177],[0.63036,0.91183,0.925837,0.57815,0.681021]],[[0.506947,0.977598,0.993333,0.443662,0.566901],[0.69049,0.972103,0.986667,0.626761,0.753521]],[[0.539872,0.978766,0.993399,0.453125,0.617188],[0.726649,0.97152,0.986799,0.652344,0.800781]],[[0.544225,0.978776,0.993355,0.441441,0.63964],[0.71156,0.96315,0.976744,0.648649,0.779279]],[[0.504648,0.978834,0.993355,0.395455,0.609091],[0.652408,0.966009,0.980066,0.613636,0.695455]],[[0.454758,0.974222,0.986532,0.398268,0.510823],[0.669206,0.980774,0.993266,0.5671,0.770563]],[[0.455095,0.974261,0.986532,0.39834,0.510373],[0.665781,0.980819,0.993266,0.568465,0.763485]],[[0.420031,0.976779,0.989899,0.359184,0.481633],[0.643421,0.980441,0.993266,0.55102,0.734694]],[[0.419541,0.979072,0.993355,0.360129,0.4791],[0.600559,0.979042,0.993355,0.533762,0.665595]],[[0.396449,0.98042,0.993197,0.315589,0.479087],[0.59548,0.976228,0.989796,0.539924,0.657795]],[[0.339986,0.980648,0.993197,0.25,0.425],[0.552691,0.976531,0.989796,0.491667,0.620833]],[[0.342487,0.980584,0.993197,0.254098,0.42623],[0.550149,0.976602,0.989796,0.491803,0.614754]],[[0.30546,0.962544,0.976667,0.252336,0.350467],[0.451798,0.978905,0.993333,0.35514,0.551402]],[[0.273536,0.962873,0.976667,0.208163,0.338776],[0.452099,0.977644,0.993333,0.371429,0.538776]],[[0.272168,0.965893,0.98,0.211538,0.334615],[0.433109,0.978454,0.993333,0.357692,0.515385]],[[0.361427,0.973097,0.986577,0.3,0.425],[0.532556,0.98049,0.993289,0.464286,0.607143]]].map(function(row){
+    function foot(v){return Object.freeze({x:v[0],y:v[1],soleY:v[2],minX:v[3],maxX:v[4]});}
+    return Object.freeze({left:foot(row[0]),right:foot(row[1])});
+  }));
   function roomWalkDeform(index,x,y,point,frame,appearanceKey) {
     if(!frame||!frame.walking||appearanceProfile(appearanceKey).family==='egg')return {x:point.x,y:point.y};
     var view=directionView(index,appearanceKey),speed=clamp(finite(frame.speed,0),0,1),step=Math.sin(finite(frame.footPhase,0)),swing=Math.cos(finite(frame.footPhase,0));
+    if(appearanceProfile(appearanceKey).family==='baby'){
+      var feet=nurseryFootLandmarks[view.index],middle=(feet.left.x+feet.right.x)/2,gap=feet.right.x-feet.left.x;
+      var right=smooth((x-middle+gap*.32)/(gap*.64)),left=1-right;
+      var within=smooth((x-feet.left.minX+.07)/.07)*(1-smooth((x-feet.right.maxX)/.07));
+      var legL=smooth((y-feet.left.soleY+.22)/.17)*within*left,legR=smooth((y-feet.right.soleY+.22)/.17)*within*right;
+      var lower=clamp(legL+legR,0,1),lift=.045*speed*(legL*Math.max(0,step)+legR*Math.max(0,-step));
+      var hips=smooth((y-view.neckY)/.18)*(1-smooth((y-view.groundY+.10)/.09));
+      return {x:point.x+finite(frame.travel,0)*.014*swing*speed*(legR-legL)+.006*step*speed*hips,
+        y:point.y-lift-.008*Math.abs(step)*speed*(1-lower)};
+    }
+
     var lower=smooth((y-(view.groundY-.145))/.10),center=view.torso[0],width=view.torso[2];
     var within=1-smooth((Math.abs(x-center)-width*.95)/(width*.65));
     var right=smooth((x-center+.07)/.14),left=1-right,feet=lower*within;
@@ -1869,6 +1886,49 @@
     return [a,b,cc,d,pivot.x-a*pivot.x-cc*pivot.y+(dx||0),pivot.y-b*pivot.x-d*pivot.y+(dy||0)];
   }
   function isIn(name,list) { return list.indexOf(name)>=0; }
+  // The little body carries weight over two separate feet. Quiet standing has
+  // occasional small transfers; emotions have their own knees and footwork.
+  function lowerBodyFrame(p,seconds,age,step) {
+    var name=p.situation,e=p.presence,s=Math.max(0,seconds),a=Math.max(0,age),cycle=s%9;
+    var idleStep=.34*Math.sin((cycle-2)*TAU/2.8)*pulse(cycle,2,2.8);
+    var idle={step:idleStep,sway:.004*Math.sin(s*TAU/6)+.007*idleStep,drop:.002*(1-Math.cos(s*TAU/6)),bend:0,toeIn:0,lift:.045};
+    if(name==='idle')return idle;
+    if(Object.prototype.hasOwnProperty.call(roomWalkDurations,name))return {step:0,sway:0,drop:0,bend:0,toeIn:0,lift:.055};
+    var authoredStep=isIn(name,['angry','nervous','embarrassed','bored','moving','dance','annoyed','frustrated','furious','panic','anticipating','awkward','bored_fidget','walk_joy','walk_angry','walk_sad']);
+    var focused=name.indexOf('body_')===0||name.indexOf('direction_')===0;
+    var active={step:authoredStep?step:focused?0:.18*Math.sin(a*TAU*.65),sway:focused?0:.004*Math.sin(a*TAU*.65),drop:0,bend:.012*p.crouch,toeIn:0,lift:.055};
+    if(name==='body_feet'){active.step=Math.sin(a*TAU*.85);active.sway=.012*active.step;active.drop=.008*Math.abs(active.step);active.bend=.010*Math.abs(active.step);}
+    else if(isIn(name,['joy','laugh','excited','cheer','celebrate','dance','body_joy','greeting','proud','victory','playful','delighted','grateful','petted'])){
+      active.step=authoredStep?step:.68*Math.sin(a*TAU*1.35)*(1-.75*p.bounce);
+      active.sway=.013*active.step;active.bend=.015*(1-p.bounce);active.drop=.004*Math.abs(active.step);
+    }else if(isIn(name,['angry','frustrated','furious','walk_angry','stubborn','disagreeing'])){
+      active.step=authoredStep?step:.72*Math.sin(a*TAU*1.6);active.sway=.010*active.step;active.bend=.014;active.drop=.008*Math.max(0,-Math.sin(a*TAU*3.2));
+    }else if(isIn(name,['sad','cry','lonely','disappointed','sulky','regretful','empathic','walk_sad','holding_tears','guilty','longing'])){
+      active.step=authoredStep?step:.28*Math.sin(a*TAU*.48);active.toeIn=.12;active.sway=.006*active.step;active.bend=.020;active.drop=.010;active.lift=.035;
+    }else if(isIn(name,['resting','deep_sleep','sleepy','tired','meditating','relaxed'])){
+      active.step=0;active.toeIn=.10;active.bend=.026;active.drop=.012;
+    }else if(isIn(name,['scared','nervous','anxious','worried','startled','embarrassed'])){
+      active.step=authoredStep?step:.35*Math.sin(a*TAU*2);active.sway=.005*Math.sin(a*TAU*3);active.bend=.019;active.toeIn=.06;active.lift=.035;
+    }else if(name==='feeding'){
+      var reach=1-smooth((a-1.1)/.6),happy=smooth((a-4.4)/.35)*(1-smooth((a-7)/.8));
+      active.step=.38*reach*Math.sin(a*TAU)+.62*happy*Math.sin((a-4.4)*TAU*1.4);
+      active.sway=.013*active.step;active.bend=.005+.007*happy;active.drop=.006*happy*Math.abs(active.step)+.003*(1-happy)*(1+Math.sin(a*TAU*.9));
+    }else if(isIn(name,['moving','walk_joy','hop','jump','run','skip'])){
+      active.sway=.014*step;active.bend=.014*Math.abs(step);active.drop=.006*Math.abs(step);
+    }
+    var result={};Object.keys(idle).forEach(function(key){result[key]=idle[key]*(1-e)+active[key]*e;});return result;
+  }
+  function lowerBodyTorsoPoint(lower,x,y,point) {
+    if(!lower)return point;
+    var knee=smooth((y-.79)/.12),right=smooth((x-.49)/.12),leftLift=Math.max(0,lower.step),rightLift=Math.max(0,-lower.step);
+    // The same continuous belly mesh follows the lifted leg at its socket.
+    // UVs and the garment stay attached; there is no extra foot painted on it.
+    // A bent knee lowers the hips, not the planted belly/ankle edge. Compress
+    // the lower body back toward the same floor instead of sinking through it.
+    var planted=smooth((y-.78)/.12),settle=(lower.drop+lower.bend)/Math.max(.9,1-lower.bend*.6);
+    return {x:point.x+(-.012*leftLift*(1-right)+.012*rightLift*right)*knee,
+      y:point.y-.030*(leftLift*(1-right)+rightLift*right)*knee-settle*planted};
+  }
   // A pure frame of the hierarchical cutout rig. Matrices operate on coordinates
   // after growth/evolution, before the final normalized canvas projection.
   function rigFrame(p,seconds,age,stage,path,scale,appearanceKey) {
@@ -1929,10 +1989,13 @@
     headAngle=base.head+(headAngle-base.head)*e;earL=base.earL+(earL-base.earL)*e;
     earR=base.earR+(earR-base.earR)*e;tail=base.tail+(tail-base.tail)*e;
     armL=base.armL+(armL-base.armL)*e;armR=base.armR+(armR-base.armR)*e;footStep=base.step+(footStep-base.step)*e;
+    var lower=nursery?lowerBodyFrame(p,s,a,footStep):null;
+    if(lower)footStep=lower.step;
+    var bodyRoot=lower?multiply(root,bone(point(.55,.79),-.4*lower.sway,lower.sway,lower.drop+lower.bend,1,1-lower.bend*.6)):root;
     var flapDemo=name==='body_flap';
     var matrices={},angles={head:headAngle,ear_l:earL,ear_r:earR,tail:tail,
       arm_l:clamp(armL,flapDemo?-4.05:-1.7,flapDemo?1.9:1.1),arm_r:clamp(armR,flapDemo?-3.05:-1.1,1.7)};
-    var headPivot=nursery?point(nurseryLandmarks.headPivot[0],nurseryLandmarks.headPivot[1]):point(.62,.675),head=multiply(root,bone(headPivot,headAngle));
+    var headPivot=nursery?point(nurseryLandmarks.headPivot[0],nurseryLandmarks.headPivot[1]):point(.62,.675),head=multiply(bodyRoot,bone(headPivot,headAngle));
     parts.forEach(function(part){
       var pivot=point(part.pivot[0],part.pivot[1]),angle=angles[part.id]||0,local=bone(pivot,angle);
       if(flapDemo&&!nursery&&part.id==='arm_l'){
@@ -1942,16 +2005,16 @@
       if(part.id==='head')matrices[part.id]=head;
       else if(part.parent==='head')matrices[part.id]=multiply(head,local);
       else if(part.id==='foot_l'||part.id==='foot_r'){
-        var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),sole=point(part.pivot[0],nursery?nurseryLandmarks.floor:.92);
-        local=bone(pivot,side*.42*lift,side*.018*footStep,-.025*lift);
-        var m=multiply(root,local),current=transform(m,sole),targetY=.92-p.bounce*.055*amount-lift*(feetDemo ? .035 : .025)*amount;
+        var side=part.id==='foot_l'?1:-1,lift=Math.max(0,side*footStep),footLandmark=nursery?(part.id==='foot_l'?nurseryFootLandmarks[0].left:nurseryFootLandmarks[0].right):null,sole=point(footLandmark?footLandmark.x:part.pivot[0],footLandmark?footLandmark.soleY:.92);
+        local=lower?bone(point(part.pivot[0],.865),side*(.28*lift+lower.toeIn),-side*.020*lift,0,1-.12*lift,1-.15*lift):bone(pivot,side*.42*lift,side*.018*footStep,-.025*lift);
+        var m=multiply(root,local),current=transform(m,sole),targetY=.92-p.bounce*.055*amount-lift*(lower?lower.lift:feetDemo ? .035 : .025)*amount;
         m[5]+=targetY-current.y;matrices[part.id]=m;
-      }else matrices[part.id]=multiply(root,local);
+      }else matrices[part.id]=multiply(bodyRoot,local);
     });
     // Fit only when an unusually tall combined gesture needs it. The correction
     // is shared by every bone and anchored at the floor, including planted feet.
     var bounds={minX:1,minY:1,maxX:0,maxY:0};
-    parts.forEach(function(part){part.polygon.forEach(function(uv){var p=transform(matrices[part.id],point(uv[0],uv[1]));bounds.minX=Math.min(bounds.minX,p.x);bounds.minY=Math.min(bounds.minY,p.y);bounds.maxX=Math.max(bounds.maxX,p.x);bounds.maxY=Math.max(bounds.maxY,p.y);});});
+    parts.forEach(function(part){part.polygon.forEach(function(uv){var rest=point(uv[0],uv[1]);if(part.id==='torso')rest=lowerBodyTorsoPoint(lower,uv[0],uv[1],rest);var p=transform(matrices[part.id],rest);bounds.minX=Math.min(bounds.minX,p.x);bounds.minY=Math.min(bounds.minY,p.y);bounds.maxX=Math.max(bounds.maxX,p.x);bounds.maxY=Math.max(bounds.maxY,p.y);});});
     var fitScale=1;
     if(bounds.minY<.018)fitScale=Math.min(fitScale,(.92-.018)/(.92-bounds.minY));
     if(bounds.minX<.012)fitScale=Math.min(fitScale,(.5-.012)/(.5-bounds.minX));
@@ -1959,7 +2022,7 @@
     if(bounds.maxY>.96)fitScale=Math.min(fitScale,(.96-.92)/(bounds.maxY-.92));
     if(fitScale<1){var fit=bone({x:.5,y:.92},0,0,0,fitScale,fitScale);Object.keys(matrices).forEach(function(key){matrices[key]=multiply(fit,matrices[key]);});}
     var mouth=transform(matrices.head,nursery?point(nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1]-.010*p.chew):point(.628,.499-.010*p.chew));
-    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale};if(nursery)result.appearanceKey=appearance.key;return result;
+    var result={situation:name,elapsedMs:age*1000,matrices:matrices,angles:angles,mouth:mouth,pose:p,fitScale:fitScale};if(nursery){result.appearanceKey=appearance.key;result.lowerBody=lower;}return result;
   }
   function rigPose(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey) {
     var age=Math.max(0,finite(elapsedSeconds,finite(seconds,0)));
@@ -1967,7 +2030,9 @@
   }
   function rigPoint(frame,partId,x,y,stage,path) {
     var matrix=frame&&frame.matrices&&frame.matrices[partId];
-    return transform(matrix||identity(),frame&&frame.appearanceKey?appearancePoint(frame.appearanceKey,x,y,path):growthPoint(stage,finite(x,.5),finite(y,.5),path));
+    var point=frame&&frame.appearanceKey?appearancePoint(frame.appearanceKey,x,y,path):growthPoint(stage,finite(x,.5),finite(y,.5),path);
+    if(partId==='torso')point=lowerBodyTorsoPoint(frame&&frame.lowerBody,x,y,point);
+    return transform(matrix||identity(),point);
   }
   function torsoMaterialPoint(x,y) { return {x:clamp(finite(x,.5),0,1),y:clamp(finite(y,.7),.7,1)}; }
   // A small local 3D surface replaces the distal frontal paws. The original
@@ -2446,7 +2511,9 @@
         rigGeometry.forEach(function(part){
           var matrix=rig.matrices[part.id];
           for(var offset=part.start*5;offset<(part.start+part.count)*5;offset+=5){
-            var point=transform(matrix,{x:restVertices[offset],y:restVertices[offset+1]});
+            var rest={x:restVertices[offset],y:restVertices[offset+1]};
+            if(part.id==='torso')rest=lowerBodyTorsoPoint(rig.lowerBody,restVertices[offset+2],restVertices[offset+3],rest);
+            var point=transform(matrix,rest);
             drawVertices[offset]=point.x*2-1;drawVertices[offset+1]=1-point.y*2;
             drawVertices[offset+4]=restVertices[offset+4];
           }
@@ -2592,7 +2659,7 @@
     return controller;
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
-    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
+    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
     catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });

@@ -4285,9 +4285,9 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
     moduleLoading=loadScript('/static/pet-game-core.js?v=b5433aa73486',function(){return !!window.PetGameCore;}).then(function(){
-      return loadScript('/static/pet-lilac-motion.js?v=e26b5511da67',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
+      return loadScript('/static/pet-lilac-motion.js?v=965e2d34c1fd',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     }).then(function(){
-      return loadScript('/static/pet-room-behavior.js?v=e05f4299d8dc',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
+      return loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
     }).then(function(){
       return loadScript('/static/pet-game.js?v=40e548dd5675',apiReady);
     }).catch(function(error){moduleLoading=null;throw error;});

@@ -42,12 +42,13 @@ test('a newborn begins in quiet idle, uses one timer, and rotates real finite cu
   assert.equal(f.controller.start(), true); assert.equal(f.controller.start(), true); assert.equal(f.timers.size, 1);
   f.advance(8499); assert.equal(f.cues.length, 0); f.advance(1); assert.equal(f.cues[0].situation, 'direction_left');
   const actual = [];
-  for (let n = 0; n < 28; n++) {
+  for (let n = 0; n < 30; n++) {
     const current = f.cues.at(-1);
     if (current.situation !== 'idle') { actual.push(current); assert.equal(current.durationMs, Motion.durations[current.situation]); assert.ok(current.message); assert.ok(['looking','ears','hands','walking','resting','idle'].includes(current.activity)); }
     assert.equal(f.timers.size, 1); f.next();
   }
-  assert.deepEqual(actual.slice(0, 13).map(row => row.situation), ['direction_left','body_ears','room_walk_right','direction_back','body_hands','room_walk_left','relaxed','body_head','direction_right','body_tail','gentlesmile','body_flap','direction_spin']);
+  assert.deepEqual(actual.slice(0, 14).map(row => row.situation), ['direction_left','body_feet','body_ears','room_walk_right','direction_back','body_hands','room_walk_left','relaxed','body_head','direction_right','body_tail','gentlesmile','body_flap','direction_spin']);
+  assert.equal(actual[14].situation, 'direction_left', 'the full sequence repeats after the added finite cue');
   for (let i = 1; i < actual.length; i++) { const gap = actual[i].at - actual[i-1].at - actual[i-1].durationMs; assert.ok(gap >= 7000 && gap <= 12000); assert.notEqual(actual[i].situation, actual[i-1].situation); }
   f.controller.destroy(); assert.equal(f.timers.size, 0);
 });
@@ -55,13 +56,39 @@ test('a newborn begins in quiet idle, uses one timer, and rotates real finite cu
 test('every egg remains in egg-compatible reactions while all eight born appearances retain expressive body cues', () => {
   for (const appearanceKey of ['egg','egg_cracked','hatching']) {
     const f = fixture({ appearanceKey }); f.controller.start(); f.advance(150000);
-    assert.ok(f.cues.some(row => row.situation === 'curious')); assert.ok(f.cues.some(row => row.situation === 'relaxed'));
+    const active = f.cues.filter(row => row.situation !== 'idle');
+    assert.deepEqual(active.slice(0, 2).map(({ situation, message, activity }) => ({ situation, message, activity })), [
+      { situation: 'curious', message: 'たまごが、そっとゆれた', activity: 'looking' },
+      { situation: 'relaxed', message: 'あたたかそうに、ゆらゆら', activity: 'resting' }
+    ]);
+    assert.ok(active.every((row, index) => row.situation === ['curious','relaxed'][index % 2]));
     assert.ok(f.cues.every(row => ['idle','curious','relaxed'].includes(row.situation))); for (const row of f.cues) assert.equal(row.durationMs, Motion.durations[row.situation]); f.controller.destroy();
   }
   for (const appearanceKey of ['newborn','baby','toddler','child','juvenile','grown','adult','companion',undefined,'unknown']) {
     const f = fixture({ appearanceKey }); f.controller.start(); f.advance(230000);
+    const expected = ['newborn','baby','toddler','child','juvenile'].includes(appearanceKey)
+      ? ['direction_left','body_feet','body_ears','room_walk_right','direction_back','body_hands','room_walk_left','relaxed','body_head','direction_right','body_tail','gentlesmile','body_flap','direction_spin']
+      : ['direction_left','body_feet','room_walk_left','direction_back','body_tail','room_walk_right','body_hands','body_ears','direction_right','relaxed','body_head','gentlesmile','body_flap','direction_spin'];
+    assert.deepEqual(f.cues.filter(row => row.situation !== 'idle').slice(0, 14).map(row => row.situation), expected, appearanceKey);
     assert.ok(f.cues.some(row => row.situation === 'body_ears')); assert.ok(f.cues.some(row => row.situation === 'body_hands')); assert.ok(f.cues.some(row => row.situation === 'room_walk_left')); assert.ok(f.cues.some(row => row.situation === 'room_walk_right')); assert.ok(f.cues.some(row => row.situation === 'direction_back'));
     assert.ok(f.cues.every(row => !['feeding','cry','angry','scared','celebrate'].includes(row.situation))); f.controller.destroy();
+  }
+});
+
+test('both born sequences step their feet second, then return to idle and keep the next long rest', () => {
+  for (const [appearanceKey, nextCue] of [['newborn','body_ears'],['grown','room_walk_left']]) {
+    const f = fixture({ appearanceKey }); f.controller.start(); f.advance(23499);
+    assert.deepEqual(f.cues.map(row => row.situation), ['direction_left','idle']);
+    assert.equal(f.timers.size, 1); f.advance(1);
+    const feet = f.cues.at(-1);
+    assert.deepEqual(feet, { situation: 'body_feet', durationMs: Motion.durations.body_feet, message: 'あんよを交互に、ぱたぱた', activity: 'walking', at: 123500 });
+    assert.equal(feet.durationMs, 6000);
+    assert.equal(Motion.pose(0, feet.situation, feet.durationMs / 1000, 'child', 'balanced').situation, 'idle', 'the room cue uses the finite renderer act');
+    f.advance(5999); assert.equal(f.cues.length, 3); assert.equal(f.timers.size, 1);
+    f.advance(1); assert.deepEqual(f.cues.at(-1), { situation: 'idle', durationMs: 0, message: '', activity: 'idle', at: 129500 });
+    f.advance(10999); assert.equal(f.cues.length, 4); assert.equal(f.timers.size, 1);
+    f.advance(1); assert.equal(f.cues.at(-1).situation, nextCue); assert.equal(f.cues.at(-1).at, 140500);
+    f.controller.destroy(); assert.equal(f.timers.size, 0);
   }
 });
 
@@ -70,8 +97,20 @@ test('care cancels the pending action and its old neutral return, then restarts 
   const oldEnd = f.callbacks.at(-1), start = f.now; assert.equal(f.cues.at(-1).situation, 'direction_left');
   assert.equal(f.controller.suspendFor(8400), true); oldEnd(); assert.equal(f.cues.length, 1); assert.equal(f.timers.size, 1);
   f.advance(8399); assert.equal(f.cues.length, 1); f.advance(1); assert.deepEqual(f.cues.at(-1), { situation: 'idle', durationMs: 0, message: '', activity: 'idle', at: start + 8400 });
-  f.advance(8499); assert.equal(f.cues.length, 2); f.advance(1); assert.equal(f.cues.at(-1).situation, 'body_ears', 'restart avoids immediately repeating the previous turn');
+  f.advance(8499); assert.equal(f.cues.length, 2); f.advance(1); assert.equal(f.cues.at(-1).situation, 'body_feet', 'restart avoids immediately repeating the previous turn');
   f.controller.destroy();
+});
+
+test('care during foot stepping cancels its stale return and preserves the full hold before resuming', () => {
+  const f = fixture({ appearanceKey: 'companion' }); f.controller.start(); f.advance(23500);
+  assert.equal(f.cues.at(-1).situation, 'body_feet'); const oldEnd = f.callbacks.at(-1), started = f.now, count = f.cues.length;
+  assert.equal(f.controller.suspendFor(8400), true); oldEnd(); assert.equal(f.cues.length, count); assert.equal(f.timers.size, 1);
+  f.advance(8399); assert.equal(f.cues.length, count); f.advance(1);
+  assert.deepEqual(f.cues.at(-1), { situation: 'idle', durationMs: 0, message: '', activity: 'idle', at: started + 8400 });
+  oldEnd(); assert.equal(f.cues.length, count + 1); assert.equal(f.timers.size, 1);
+  f.advance(8499); assert.equal(f.cues.length, count + 1); f.advance(1);
+  assert.equal(f.cues.at(-1).situation, 'direction_left'); assert.equal(f.timers.size, 1);
+  f.controller.destroy(); assert.equal(f.timers.size, 0);
 });
 
 test('repeated care cannot shorten a longer meal, and stopped care never starts hidden autonomy', () => {
@@ -123,9 +162,10 @@ test('invalid suspensions leave the current deadline intact and early timers can
 
 test('born room visitors see side and back views before a long frontal-only loop', () => {
   for (const appearanceKey of ['newborn','baby','grown','companion']) {
-    const f = fixture({ appearanceKey }); f.controller.start(); f.advance(70000);
+    const f = fixture({ appearanceKey }); f.controller.start(); f.advance(85000);
     const turns = f.cues.filter(row => row.situation !== 'idle');
     assert.equal(turns[0].situation, 'direction_left');
+    assert.equal(turns[1].situation, 'body_feet'); assert.equal(turns[1].at - turns[0].at, 15000);
     assert.ok(turns.some(row => row.situation === 'direction_back'));
     assert.ok(turns.some(row => row.situation.startsWith('room_walk_')));
     f.controller.destroy();

@@ -19,6 +19,7 @@
   ]);
   var youngSequence = Object.freeze([
     cue('direction_left', 6000, '窓のほうを見ている', 'looking'),
+    cue('body_feet', 6000, 'あんよを交互に、ぱたぱた', 'walking'),
     cue('body_ears', 6000, 'お耳をぴくぴく', 'ears'),
     cue('room_walk_right', 6000, 'とことこ、向こうまでおさんぽ', 'walking'),
     cue('direction_back', 6500, '後ろが、ちょっときになるみたい', 'looking'),
@@ -33,9 +34,9 @@
     cue('direction_spin', 6800, 'くるっと回って、ごきげん', 'looking')
   ]);
   var matureSequence = Object.freeze([
-    youngSequence[0], youngSequence[5], youngSequence[3], youngSequence[9],
-    youngSequence[2], youngSequence[4], youngSequence[1], youngSequence[8],
-    youngSequence[6], youngSequence[7], youngSequence[10], youngSequence[11], youngSequence[12]
+    youngSequence[0], youngSequence[1], youngSequence[6], youngSequence[4], youngSequence[10],
+    youngSequence[3], youngSequence[5], youngSequence[2], youngSequence[9],
+    youngSequence[7], youngSequence[8], youngSequence[11], youngSequence[12], youngSequence[13]
   ]);
 
   function create(options) {
