@@ -6,7 +6,7 @@ assert.ok(seedSource&&liveSource,'exercise both actual Shorts controllers');
 const searchSource=scripts.find(s=>s.includes('window.__ksFetchPatched'));
 const patchStart=searchSource.indexOf('(function(){if(!window.__ksFetchPatched)'),patchEnd=searchSource.indexOf('})();',patchStart)+5;
 assert.ok(patchStart>=0&&patchEnd>patchStart);const keywordPatch=searchSource.slice(patchStart,patchEnd);
-function harness({pool=[],managed=true,followingRows=[]}={}){
+function harness({pool=[],managed=true,followingRows=[],realFollowing=false}={}){
  const storage=new Map([['ksPool',JSON.stringify(pool)]]),requests=[],pending=[],observers=[],actions=[],remembered=[],modeChanges=[];
  let currentFollowing=followingRows.slice(),followingReads=0;
  const following={rows(){followingReads++;return currentFollowing.slice();},emptyMessage(){return 'フォローした投稿者の動画はまだありません。';},remember(rows){remembered.push(rows.map(row=>({...row})));},modeChanged(mode){modeChanges.push(mode);}};
@@ -26,13 +26,13 @@ function harness({pool=[],managed=true,followingRows=[]}={}){
   scrollIntoView(){actions.push({kind:'scroll',slide:this});}
   addEventListener(k,f){if(!this.events.has(k))this.events.set(k,[]);this.events.get(k).push(f);}
   click(){for(const f of this.events.get('click')||[])f({target:this});}
-  querySelectorAll(sel){const result=[],match=n=>sel.startsWith('.')?n._classes.has(sel.slice(1)):sel.startsWith('#')?n.id===sel.slice(1):n.tagName===sel.toUpperCase();function walk(n){for(const c of n.children){if(match(c))result.push(c);walk(c);}}walk(this);return result;}
+  querySelectorAll(sel){const result=[],parts=sel.trim().split(/\s+/),match=(n,s)=>s.startsWith('.')?n._classes.has(s.slice(1)):s.startsWith('#')?n.id===s.slice(1):n.tagName===s.toUpperCase();function matches(n){if(!match(n,parts.at(-1)))return false;let ancestor=n.parentNode;for(let i=parts.length-2;i>=0;i--){while(ancestor&&!match(ancestor,parts[i]))ancestor=ancestor.parentNode;if(!ancestor)return false;ancestor=ancestor.parentNode;}return true;}function walk(n){for(const c of n.children){if(matches(c))result.push(c);walk(c);}}walk(this);return result;}
   querySelector(sel){return this.querySelectorAll(sel)[0]||null;}
-  set innerHTML(value){this.children.forEach(n=>n.parentNode=null);this.children=[];this._text='';this.lastHTML=value;if(this.id==='knShorts'){const top=new Node('div');top.className='ks-top';const close=new Node('button');close.id='ksClose';top.appendChild(close);this.appendChild(top);const feed=new Node('div');feed.id='ksFeed';feed.className='ks-feed';this.appendChild(feed);parseSlides(feed,value);}else parseSlides(this,value);}
+  set innerHTML(value){this.children.forEach(n=>n.parentNode=null);this.children=[];this._text='';this.lastHTML=value;if(this.id==='knShorts'){const top=new Node('div');top.className='ks-top';const title=new Node('div');title.className='ks-title';title.textContent='経済ショート';top.appendChild(title);const close=new Node('button');close.id='ksClose';top.appendChild(close);this.appendChild(top);const feed=new Node('div');feed.id='ksFeed';feed.className='ks-feed';this.appendChild(feed);parseSlides(feed,value);}else parseSlides(this,value);}
   insertAdjacentHTML(_where,value){this.lastInsertedHTML=value;parseSlides(this,value);}
  }
- function parseSlides(parent,value){for(const m of value.matchAll(/<div class="ks-slide"([^>]*)>([\s\S]*?)<\/span><\/div><\/div>/g)){const slide=new Node('div');slide.className='ks-slide';for(const a of m[1].matchAll(/([\w-]+)="([^"]*)"/g))slide.setAttribute(a[1],a[2]);const ph=new Node('div');ph.className='ks-ph';ph.textContent='読み込み中…';slide.appendChild(ph);parent.appendChild(slide);}}
- const document={readyState:'complete',hidden:false,body:new Node('body'),createElement:tag=>new Node(tag),getElementById(id){return this.body.querySelector('#'+id);},addEventListener(){}};
+ function parseSlides(parent,value){for(const m of value.matchAll(/<div class="ks-slide"([^>]*)>([\s\S]*?)<\/span><\/div><\/div>/g)){const slide=new Node('div');slide.className='ks-slide';for(const a of m[1].matchAll(/([\w-]+)="([^"]*)"/g))slide.setAttribute(a[1],a[2]);const ph=new Node('div');ph.className='ks-ph';ph.textContent='読み込み中…';slide.appendChild(ph);const meta=new Node('div');meta.className='ks-meta';for(const [tag,className] of [['div','ks-cap'],['span','ks-tag']]){const child=new Node(tag);child.className=className;meta.appendChild(child);}slide.appendChild(meta);parent.appendChild(slide);}}
+ const document={readyState:'complete',hidden:false,body:new Node('body'),createElement:tag=>new Node(tag),getElementById(id){return this.body.querySelector('#'+id);},querySelector(sel){return this.body.querySelector(sel);},addEventListener(){}};
  const nav=new Node('nav');nav.id='knBottomNav';document.body.appendChild(nav);for(const action of ['home','morning']){const b=new Node('button');b.className='bn-item';b.setAttribute('data-act',action);nav.appendChild(b);}
  class IO{constructor(fn,options){this.fn=fn;this.options=options;this.targets=new Set();observers.push(this);}observe(n){this.targets.add(n);}unobserve(n){this.targets.delete(n);}disconnect(){this.targets.clear();}fire(node,on=true){this.fn([{target:node,isIntersecting:on,intersectionRatio:on?1:0}]);}}
  const context={KNShortsFollowing:following,document,IntersectionObserver:IO,Date,Math,Promise,setTimeout(){return 1;},localStorage:{getItem:k=>storage.get(k)||null,setItem:(k,v)=>storage.set(k,v)},fetch(url,options){requests.push({url,options});return new Promise((resolve,reject)=>pending.push({resolve,reject}));}};context.window=context;
@@ -40,6 +40,7 @@ function harness({pool=[],managed=true,followingRows=[]}={}){
  function mount(slide,active){if(!slide.querySelector('iframe')){const iframe=new Node('iframe');iframe.src='fixture';iframe.active=active;slide.insertBefore(iframe,slide.firstChild);}slide.__m=true;}
  if(managed)context.KNShortsPlayback={get(feed,sh){assert.equal(feed.id,'ksFeed');assert.equal(sh.id,'knShorts');return player;}};
  vm.runInNewContext(seedSource,context,{filename:'actual-shorts-seed.js'});vm.runInNewContext(keywordPatch,context,{filename:'actual-keyword-wrapper.js'});vm.runInNewContext(liveSource,context,{filename:'actual-shorts-live.js'});
+ if(realFollowing){context.KNShortsFollowing=require('../static/shorts-following.js').create(context);context.KNShortsFollowing.mount();}
  const feed=document.getElementById('ksFeed'),sheet=document.getElementById('knShorts'),button=document.getElementById('knShortsBtn');
  const settle=()=>new Promise(resolve=>setImmediate(resolve));async function reply(data,index=0){await settle();assert.ok(pending[index]);pending.splice(index,1)[0].resolve({json:async()=>data});await settle();}
  function search(keyword,genre){if(genre)storage.set('ksWeights',JSON.stringify({[genre]:100}));context.__ksKeyword=keyword||'';context.__ksTag=genre||'';feed.innerHTML='';feed.__live=false;button.click();}
@@ -47,7 +48,7 @@ function harness({pool=[],managed=true,followingRows=[]}={}){
 }
 
 // These cases exercise the actual inline seed, live-feed and keyword controllers.
-// Creator storage/follow membership has its own module tests; only that boundary is stubbed here.
+// Creator storage/follow membership is stubbed except where the real module is requested.
 const followed=(id='followed001')=>({id,cap:'フォロー中の投稿者の動画',tag:'#企業',channelId:'UC_followed_fixture',channelTitle:'フォローした投稿者'});
 const result=(id,extra={})=>({id:{videoId:id},snippet:{title:'取得した説明',...extra}});
 const ids=h=>h.slides().map(sl=>sl.getAttribute('data-vid'));
@@ -208,6 +209,19 @@ test('fresh YouTube creator metadata reaches the bounded Following module but is
  assert.equal(h.remembered.flat().some(row=>row.id==='cachevid001'),false);
  const persisted=JSON.parse(h.storage.get('ksPool')).find(row=>row.id==='current0001');assert.ok(persisted);
  for(const key of ['channelId','channelTitle','fetchedAt'])assert.equal(Object.hasOwn(persisted,key),false,'generic ksPool must not retain creator cache fields: '+key);
+});
+
+test('the real Following module decorates newly fetched creator rows immediately without an observer or a tab click',async()=>{
+ const h=harness({realFollowing:true});
+ assert.equal(h.context.MutationObserver,undefined,'the controller must explicitly hydrate inserted metadata rows');
+ assert.equal(h.feed.querySelectorAll('.ks-creator-row').length,0);h.button.click();
+ await h.reply({items:[result('current0001',{channelId:'UC_fresh_fixture',channelTitle:'新しく確認した投稿者'})]});
+ const current=h.slides().find(sl=>sl.getAttribute('data-vid')==='current0001');assert.ok(current);
+ const creator=current.querySelector('.ks-creator-row');assert.ok(creator,'creator controls appear on the actual inserted slide without selecting Recommended again');
+ assert.equal(creator.querySelector('.ks-creator-name').textContent,'新しく確認した投稿者');
+ const button=creator.querySelector('.ks-follow-toggle');assert.ok(button);assert.equal(button.textContent,'フォロー');
+ assert.equal(button.getAttribute('aria-pressed'),'false');assert.equal(button.getAttribute('aria-label'),'新しく確認した投稿者をフォロー');
+ assert.equal(h.feed.querySelectorAll('.ks-creator-row').length,1);assert.equal(api(h).getMode(),'recommended');assert.equal(h.requests.length,1);
 });
 
 test('a delayed failed YouTube search does not replace Follow with a search error or cached recommendations',async()=>{

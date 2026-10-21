@@ -32,14 +32,14 @@
 <link rel="stylesheet" href="/static/stock-search-common.css?v=20261011-stable-search2">
 <link rel="stylesheet" href="/static/stock-reading.css?v=20261011-no-price-time1">
 <link rel="stylesheet" href="/static/home-h.css?v=20261013-news-gothic1">
-<link rel="stylesheet" href="/static/shorts-theme.css?v=20261021-follow1">
+<link rel="stylesheet" href="/static/shorts-theme.css?v=20261021-follow2">
 <script defer src="/static/shorts-player.js?v=20261014-loading1"></script>
 <script defer src="/static/shorts-theme.js?v=20261011-immersive1"></script>
-<script defer src="/static/shorts-following.js?v=20261021-follow1"></script>
+<script defer src="/static/shorts-following.js?v=20261021-follow2"></script>
 <link rel="stylesheet" href="/static/shorts-editor.css?v=20261015-edit1">
 <link rel="stylesheet" href="/static/shorts-posting.css?v=20261015-edit1">
 <script defer src="/static/shorts-editor.js?v=20261015-edit1"></script>
-<script defer src="/static/shorts-posting.js?v=20261021-follow1"></script>
+<script defer src="/static/shorts-posting.js?v=20261021-follow2"></script>
 <link rel="stylesheet" href="/static/talk-theme.css?v=20261016-direct-talk1">
 <script defer src="/static/talk-theme.js?v=20261020-site-nickname1"></script>
 <link rel="stylesheet" href="/static/mypage-theme.css?v=20261017-assets1">
@@ -3136,7 +3136,7 @@ function ensureObserver(){if(!io)io=new IntersectionObserver(function(ents){ents
 function pool(){try{var value=JSON.parse(localStorage.getItem("ksPool")||"[]");return Array.isArray(value)?value:[];}catch(e){return [];}}
 function addPool(vs){try{var p=pool();vs.forEach(function(v){if(validId(v.id)&&!p.some(function(x){return x&&x.id===v.id;}))p.push({id:v.id,cap:v.cap,tag:v.tag});});if(p.length>300)p=p.slice(p.length-300);localStorage.setItem("ksPool",JSON.stringify(p));}catch(e){}}
 function fromPool(n){var p=pool().filter(function(v){return v&&validId(v.id);});if(!p.length)return [];var a=p.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a.slice(0,n);}
-function render(vs){var count=0;vs.forEach(function(v){if(!validRow(v)||seen[v.id])return;seen[v.id]=true;feed.insertAdjacentHTML("beforeend",slideHTML(v));var el=feed.lastElementChild;io.observe(el);count++;});return count;}
+function render(vs){var count=0;vs.forEach(function(v){if(!validRow(v)||seen[v.id])return;seen[v.id]=true;feed.insertAdjacentHTML("beforeend",slideHTML(v));var el=feed.lastElementChild;io.observe(el);count++;});if(count)notifyMode();return count;}
 function searchNotice(failed){var prior=feed.querySelector(".ks-search-status");if(prior)prior.remove();if(!feed.querySelector(".ks-slide")){var notice=document.createElement("div");notice.className="ks-ph ks-search-status";notice.setAttribute("role","status");notice.textContent=failed?"検索結果を取得できませんでした。もう一度検索してください。":"検索結果が見つかりませんでした。別の言葉やジャンルでお試しください。";feed.appendChild(notice);}}
 function applyResult(vs,serial){if(serial!==generation||viewMode!=="recommended")return 0;var count=0,hadSlides=!!feed.querySelector(".ks-slide");if(vs&&vs.length){try{var following=window.KNShortsFollowing;if(following&&typeof following.remember==="function")following.remember(vs);}catch(_){}addPool(vs);count=render(vs);}else if(!searchMode){count=render(fromPool(15));}else searchNotice(vs===null);var first=feed.querySelector(".ks-slide");if(first&&!hadSlides)mountIframe(first);return count;}
 function appendBatch(){if(viewMode!=="recommended"||loading||!visible())return Promise.resolve(0);var serial=generation;loading=true;return fetchBatch().then(function(vs){if(serial!==generation)return 0;if(!visible()){waiting={generation:serial,rows:vs};return 0;}return applyResult(vs,serial);}).finally(function(){if(serial===generation)loading=false;});}
