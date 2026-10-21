@@ -42,7 +42,7 @@ function loaderFixture(options = {}) {
   const pane = new Element('section'); pane.hidden = true;
   const host = new Element(), focus = new Element('button');
   const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
-  let timerId = 0, mounts = 0, closes = 0, received;
+  let timerId = 0, mounts = 0, closes = 0, reloads = 0, received;
   const ui = {
     mount: async function (target, config) {
       mounts++; received = { target, config };
@@ -62,7 +62,8 @@ function loaderFixture(options = {}) {
     __knGateReady: options.gate ?? Promise.resolve(true),
     __knReadGameStorage: options.read || (() => null),
     __knPersistLocalSetting: options.persist || (async () => undefined),
-    addEventListener: (name, fn) => { (listeners.window[name] ||= []).push(fn); }
+    addEventListener: (name, fn) => { (listeners.window[name] ||= []).push(fn); },
+    location: { reload: () => { reloads++; } }
   };
   if (options.preloaded) { window.PetGameCore = {}; window.IndependentPetGame = ui; }
   const context = vm.createContext({
@@ -74,10 +75,18 @@ function loaderFixture(options = {}) {
   return {
     window, document, pane, host, focus, scripts, timers, listeners, ui, context,
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
-    coreLoaded() { window.PetGameCore = {}; scripts.at(-1).onload(); },
-    motionLoaded() { window.PetLilacMotion = {}; scripts.at(-1).onload(); },
-    roomLoaded() { window.PetRoomBehavior = {}; scripts.at(-1).onload(); },
-    uiLoaded() { window.IndependentPetGame = ui; scripts.at(-1).onload(); },
+    get reloads() { return reloads; },
+    asset(name) { return scripts.findLast(script => script.src.includes('/' + name + '.js?')); },
+    coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
+    motionLoaded() { window.PetLilacMotion = {}; this.asset('pet-lilac-motion').onload(); },
+    roomLoaded() { window.PetRoomBehavior = {}; this.asset('pet-room-behavior').onload(); },
+    uiLoaded() { window.IndependentPetGame = ui; this.asset('pet-game').onload(); },
+    fireTimers(delay) {
+      const pending = Array.from(timers).filter(([, timer]) => timer.delay === delay);
+      for (const [id, timer] of pending) { timers.delete(id); timer.fn(); }
+      return pending.length;
+    },
+    retryButton() { return host.children[0].children.find(child => child.tagName === 'BUTTON'); },
     click(action) {
       const button = new Element('button'); button.setAttribute('data-act', action);
       for (const fn of listeners.document.click || []) fn({ target: { closest: () => button } });
@@ -170,20 +179,19 @@ test('household recording remains but it does not produce game rewards', () => {
   }
 });
 
-test('first open loads core then UI once and shares concurrent open requests', async () => {
+test('UI downloads after core without waiting for optional visuals; concurrent opens share work', async () => {
   const f = loaderFixture();
   assert.equal(f.scripts.length, 0); assert.equal(f.mounts, 0);
   const first = f.window.openPetTab(), second = f.window.openPetTab();
   assert.equal(first, second);
-  assert.equal(f.pane.hidden, false); assert.equal(f.scripts.length, 1);
+  assert.equal(f.pane.hidden, false); assert.equal(f.scripts.length, 3);
   assert.match(f.scripts[0].src, /pet-game-core\.js/);
+  assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
+  assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
   f.coreLoaded(); await flush();
-  assert.equal(f.scripts.length, 2); assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
-  f.motionLoaded(); await flush();
-  assert.equal(f.scripts.length, 3); assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
-  f.roomLoaded(); await flush();
   assert.equal(f.scripts.length, 4); assert.match(f.scripts[3].src, /pet-game\.js/);
-  f.uiLoaded(); assert.equal(await first, true);
+  f.uiLoaded(); await flush(); assert.equal(f.mounts, 0, 'mount still allows optional visuals to become ready');
+  f.motionLoaded(); f.roomLoaded(); assert.equal(await first, true);
   assert.equal(f.mounts, 1); assert.equal(f.received.target, f.host);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.mounts, 1, 'already-visible game is not rebuilt during an active minigame');
@@ -223,20 +231,111 @@ test('durable adapter rejects a failed persistence result and has no fallback pa
   assert.match(broken.host.textContent, /ゲームを読み込めませんでした/);
 });
 
-test('failed script load allows retry without leaking raw failure or reloading core', async () => {
+test('a download error retries once, then offers manual retry without reloading core or leaking details', async () => {
   const f = loaderFixture();
   const opening = f.window.openPetTab();
   f.coreLoaded(); await flush();
   f.motionLoaded(); await flush();
   f.roomLoaded(); await flush();
   f.scripts[3].onerror(new Error('do not display this synthetic raw detail'));
+  await flush(); assert.equal(f.mounts, 0); assert.equal(f.scripts.length, 4);
+  assert.equal(f.fireTimers(1200), 1); await flush();
+  assert.equal(f.scripts.length, 5); assert.equal(f.scripts[4].src, f.scripts[3].src);
+  f.scripts[4].onerror(new Error('second failure'));
   assert.equal(await opening, false); assert.equal(f.mounts, 0);
+  assert.equal(f.fireTimers(1200), 0, 'automatic retry stops after one additional request');
   assert.doesNotMatch(f.host.textContent, /synthetic raw detail/);
   assert.match(f.host.textContent, /もう一度読み込む/);
   const retry = f.window.openPetTab();
   await flush();
-  assert.equal(f.scripts.length, 5); assert.match(f.scripts[4].src, /pet-game\.js/);
+  assert.equal(f.scripts.length, 6); assert.match(f.scripts[5].src, /pet-game\.js/);
   f.uiLoaded(); assert.equal(await retry, true);
+});
+
+test('a transient core download failure recovers automatically at the same URL', async () => {
+  const f = loaderFixture(), opening = f.window.openPetTab();
+  const original = f.asset('pet-game-core');
+  original.onerror(); f.motionLoaded(); f.roomLoaded(); await flush();
+  assert.equal(f.fireTimers(1200), 1); await flush();
+  assert.notEqual(f.asset('pet-game-core'), original);
+  assert.equal(f.asset('pet-game-core').src, original.src);
+  f.coreLoaded(); await flush(); f.uiLoaded();
+  assert.equal(await opening, true); assert.equal(f.mounts, 1);
+  assert.equal(f.scripts.length, 5); assert.equal(f.reloads, 0);
+});
+
+test('a slow core is shared on manual retry and may finish late without duplicate execution', async () => {
+  const f = loaderFixture(), first = f.window.openPetTab();
+  f.motionLoaded(); f.roomLoaded();
+  assert.equal(f.fireTimers(15000), 1); assert.equal(await first, false);
+  const original = f.asset('pet-game-core'), second = f.window.openPetTab();
+  assert.equal(f.scripts.length, 3); assert.equal(f.fireTimers(1200), 0);
+  assert.equal(f.asset('pet-game-core'), original);
+  f.coreLoaded(); await flush(); f.uiLoaded();
+  assert.equal(await second, true); assert.equal(f.mounts, 1);
+  assert.equal(f.scripts.filter(script => script.src === original.src).length, 1);
+});
+
+test('a slow UI is retained on retry and ready globals at timeout do not trigger reinjection', async () => {
+  const f = loaderFixture(), first = f.window.openPetTab();
+  f.coreLoaded(); f.motionLoaded(); f.roomLoaded(); await flush();
+  const original = f.asset('pet-game');
+  assert.equal(f.fireTimers(15000), 1); assert.equal(await first, false);
+  const second = f.window.openPetTab(); await flush();
+  assert.equal(f.scripts.length, 4); assert.equal(f.asset('pet-game'), original);
+  f.window.IndependentPetGame = f.ui;
+  assert.equal(f.fireTimers(15000), 1); assert.equal(await second, true);
+  original.onload(); await flush(); assert.equal(f.mounts, 1); assert.equal(f.scripts.length, 4);
+});
+
+test('partially executed UI is never reinjected and explicit page reload preserves saved storage', async () => {
+  const writes = [], f = loaderFixture({ persist: (...args) => writes.push(args) });
+  const first = f.window.openPetTab();
+  f.coreLoaded(); f.motionLoaded(); f.roomLoaded(); await flush();
+  f.asset('pet-game').onload(); assert.equal(await first, false);
+  assert.match(f.host.textContent, /ページを読み直す/); assert.equal(f.fireTimers(1200), 0);
+  assert.equal(await f.window.openPetTab(), false); assert.equal(f.scripts.length, 4);
+  assert.equal(f.reloads, 0); f.retryButton().onclick();
+  assert.equal(f.reloads, 1); assert.equal(f.mounts, 0); assert.deepEqual(writes, []);
+});
+
+test('late invalid UI after timeout moves the shared retry to explicit page reload', async () => {
+  const f = loaderFixture(), first = f.window.openPetTab();
+  f.coreLoaded(); f.motionLoaded(); f.roomLoaded(); await flush();
+  f.fireTimers(15000); assert.equal(await first, false);
+  const second = f.window.openPetTab(); await flush();
+  f.asset('pet-game').onload(); assert.equal(await second, false);
+  assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 0);
+  assert.match(f.host.textContent, /ページを読み直す/);
+  f.retryButton().onclick(); assert.equal(f.reloads, 1);
+});
+
+test('close and reopen during downloads share scripts and only mount the current generation', async () => {
+  const f = loaderFixture(), first = f.window.openPetTab();
+  f.window.closePetTab(false); const second = f.window.openPetTab();
+  assert.equal(f.scripts.length, 3);
+  f.coreLoaded(); f.motionLoaded(); f.roomLoaded(); await flush(); f.uiLoaded();
+  assert.equal(await first, false); assert.equal(await second, true);
+  assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 1); assert.equal(f.pane.hidden, false);
+});
+
+test('optional timeouts share a five second window and never prevent required UI download', async () => {
+  const f = loaderFixture(), opening = f.window.openPetTab();
+  assert.equal(Array.from(f.timers.values()).filter(timer => timer.delay === 5000).length, 2);
+  f.coreLoaded(); await flush(); f.uiLoaded(); await flush();
+  assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 0);
+  assert.equal(f.fireTimers(5000), 2); assert.equal(await opening, true);
+  assert.equal(f.mounts, 1); assert.equal(f.fireTimers(1200), 0);
+});
+
+test('a rejected protected-storage gate fails closed and offers explicit page reload', async () => {
+  const hydration = deferred(), writes = [];
+  const f = loaderFixture({ preloaded: true, gate: hydration.promise, persist: (...args) => writes.push(args) });
+  const opening = f.window.openPetTab(); hydration.reject(new Error('private storage detail'));
+  assert.equal(await opening, false); assert.equal(f.mounts, 0); assert.deepEqual(writes, []);
+  assert.doesNotMatch(f.host.textContent, /private storage detail/);
+  assert.match(f.host.textContent, /ページを読み直す/); assert.equal(f.reloads, 0);
+  f.retryButton().onclick(); assert.equal(f.reloads, 1);
 });
 
 test('optional motion download failure keeps the game and saved records available', async () => {

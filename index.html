@@ -4276,39 +4276,74 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   if(window.__independentPetLoader) return;
   window.__independentPetLoader=true;
   var moduleLoading=null,openLoading=null,generation=0,returnFocus=null,viewReady=false;
+  var scriptLoads=Object.create(null);
   function section(){return document.getElementById('sect-pet');}
   function host(){return document.getElementById('pet-game-root');}
   function apiReady(){return !!(window.PetGameCore&&window.IndependentPetGame&&typeof window.IndependentPetGame.mount==='function'&&typeof window.IndependentPetGame.close==='function');}
+  function assetFailure(kind){var error=new Error('Game unavailable');error.petAssetFailure=kind;return error;}
   function loadScript(src,ready,timeout){
     if(ready())return Promise.resolve();
-    return new Promise(function(resolve,reject){
-      var script=document.createElement('script'),settled=false;
-      var timer=setTimeout(function(){finish(false);},timeout||15000);
-      function finish(ok){if(settled)return;settled=true;clearTimeout(timer);if(ok)resolve();else{script.remove();reject(new Error('Game unavailable'));}}
+    var record=scriptLoads[src],fresh=!record;
+    if(record&&record.invalid)return Promise.reject(assetFailure('invalid'));
+    if(fresh){
+      var script=document.createElement('script');
+      record={script:script,waiters:[],done:false};scriptLoads[src]=record;
+      function finish(kind){
+        if(record.done)return;
+        record.done=true;
+        var ok=ready();
+        if(!ok&&kind==='load')record.invalid=true;
+        else if(scriptLoads[src]===record)delete scriptLoads[src];
+        var waiters=record.waiters.slice();record.waiters.length=0;
+        waiters.forEach(function(waiter){waiter.finish(ok,kind==='error'?'network':'invalid');});
+        if(!ok)script.remove();
+      }
       script.src=src;script.async=true;
-      script.onload=function(){finish(ready());};
-      script.onerror=function(){finish(false);};
-      document.head.appendChild(script);
+      script.onload=function(){finish('load');};
+      script.onerror=function(){finish('error');};
+    }
+    return new Promise(function(resolve,reject){
+      var settled=false,timer;
+      var waiter={finish:function(ok,kind){
+        if(settled)return;settled=true;clearTimeout(timer);
+        var at=record.waiters.indexOf(waiter);if(at>=0)record.waiters.splice(at,1);
+        if(ok)resolve();else reject(assetFailure(kind));
+      }};
+      record.waiters.push(waiter);
+      // A slow script can still execute after removal. Retain and share it on retry.
+      timer=setTimeout(function(){waiter.finish(ready(),'timeout');},timeout||15000);
+      if(fresh)document.head.appendChild(record.script);
+    });
+  }
+  function loadRequired(src,ready){
+    return loadScript(src,ready).catch(function(error){
+      // Only a definitive download error permits one new request at the same URL.
+      if(error.petAssetFailure!=='network')throw error;
+      return new Promise(function(resolve){setTimeout(resolve,1200);}).then(function(){return loadScript(src,ready);});
     });
   }
   function loadModules(){
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
-    moduleLoading=loadScript('/static/pet-game-core.js?v=20261022-egg-choice1',function(){return !!window.PetGameCore;}).then(function(){
-      return loadScript('/static/pet-lilac-motion.js?v=20261022-laugh-face1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
-    }).then(function(){
-      return loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
-    }).then(function(){
-      return loadScript('/static/pet-game.js?v=20261022-egg-choice1',apiReady);
-    }).catch(function(error){moduleLoading=null;throw error;});
+    var required=loadRequired('/static/pet-game-core.js?v=20261022-egg-choice1',function(){return !!window.PetGameCore;}).then(function(){
+      return loadRequired('/static/pet-game.js?v=20261022-egg-choice1',apiReady);
+    });
+    var motion=loadScript('/static/pet-lilac-motion.js?v=20261022-laugh-face1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
+    var room=loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
+    // Optional visuals never block the required UI download.
+    moduleLoading=Promise.all([required,motion,room]).catch(function(error){moduleLoading=null;throw error;});
     return moduleLoading;
   }
-  function notice(failed){
+  function notice(failed,error){
     var target=host();if(!target)return;
     target.textContent='';
     var box=document.createElement('div');box.className='ipg-load-state';box.setAttribute('role','status');
     var text=document.createElement('p');text.textContent=failed?'ゲームを読み込めませんでした。':'ゲームを読み込んでいます…';box.appendChild(text);
-    if(failed){var retry=document.createElement('button');retry.type='button';retry.textContent='もう一度読み込む';retry.onclick=function(){window.openPetTab();};box.appendChild(retry);}
+    if(failed){
+      var reloadPage=!error||!error.petAssetFailure||error.petAssetFailure==='invalid';
+      var retry=document.createElement('button');retry.type='button';retry.textContent=reloadPage?'ページを読み直す':'もう一度読み込む';
+      retry.onclick=function(){if(reloadPage)window.location.reload();else window.openPetTab();};box.appendChild(retry);
+    }
     target.appendChild(box);
   }
   var storage={
@@ -4338,7 +4373,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
         if(mounted===false)return false;
         viewReady=true;return true;
       }catch(error){
-        if(epoch===generation&&!pane.hidden)notice(true);
+        if(epoch===generation&&!pane.hidden)notice(true,error);
         return false;
       }finally{if(epoch===generation)openLoading=null;}
     })();
