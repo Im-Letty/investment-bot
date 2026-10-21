@@ -5,6 +5,7 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const Core = require('../static/pet-game-core.js');
 const Motion = require('../static/pet-lilac-motion.js');
+const Room = require('../static/pet-room-behavior.js');
 const source = fs.readFileSync(require.resolve('../static/pet-game.js'), 'utf8');
 
 const copy = value => JSON.parse(JSON.stringify(value));
@@ -71,7 +72,7 @@ async function fixture(config = {}) {
       data.set(key, value); writes.push([key, value]);
     }
   };
-  const coreOptions = { storage, now: () => clock, random: () => .5 };
+  const coreOptions = { storage, now: () => clock, random: () => .5, developerPreview: config.developerPreview !== false };
   const setup = Core.create(coreOptions); assert.equal((await setup.ready).ok, true);
   if (config.species) assert.equal((await setup.dispatch({ type: 'chooseSpecies', species: config.species })).ok, true);
   if (config.setup) await config.setup(setup);
@@ -101,7 +102,7 @@ async function fixture(config = {}) {
       return controller;
     }
   };
-  const window = events({ document, PetLilacMotion: renderer, confirm: () => true,
+  const window = events({ document, PetLilacMotion: renderer, PetRoomBehavior: config.roomUnavailable ? undefined : Room, matchMedia: () => ({ matches: !!config.reducedMotion }), confirm: () => true,
     PetGameCore: { ...Core, create(opts) { store = Core.create(opts); return store; } },
     requestAnimationFrame(fn) { const id = ++sequence; raf.set(id, fn); return id; },
     cancelAnimationFrame(id) { raf.delete(id); },
@@ -1749,4 +1750,88 @@ test('delayed first drawing keeps the meal elapsed time and never re-scrolls or 
     f.ui.render(); assert.equal(f.mounts.at(-1).options.elapsedMs, delay < Motion.durations.feeding ? delay : 0);
     assert.equal(f.scrolls().length, 1); assert.deepEqual(f.saved(), after); assert.equal(f.writes.length, writes);
   }
+});
+
+
+test('normal care room has no motion inspector, settings preview or future appearance selectors', async () => {
+  const f = await fixture({ developerPreview: false, rendererMode: 'ready' });
+  assert.ok(f.host.querySelector('.ipg-care-room'));
+  assert.ok(f.host.querySelector('.ipg-room-window'));
+  assert.equal(f.host.querySelector('.ipg-emotion-panel'), null);
+  assert.equal(f.host.querySelector('.ipg-body-motion'), null);
+  assert.equal(f.host.querySelector('.ipg-growth-gallery'), null);
+  assert.equal(f.host.querySelector('[data-focus-key="lilac-preview"]'), null);
+  assert.equal(f.host.querySelector('[data-focus-key="growth-stage-companion"]'), null);
+  assert.ok(f.host.querySelector('.ipg-growth-milestones'));
+  assert.ok(!f.host.textContent.includes('100種類'));
+  assert.ok(!f.host.textContent.includes('好きに選べます'));
+  const before = f.saved(), writes = f.writes.length;
+  for (const tab of ['shop', 'play', 'market', 'care']) {
+    await f.click(f.focusButton('tab-' + tab));
+    assert.equal(f.host.querySelector('.ipg-emotion-panel'), null);
+    assert.equal(f.host.querySelector('.ipg-growth-gallery'), null);
+  }
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('newborn and baby show autonomous body emotion without changing saved growth, wallet or care counts', async () => {
+  for (const exp of [15, 30]) {
+    const f = await fixture({ developerPreview: false, rendererMode: 'ready', seed: { pg_exp: String(exp) } });
+    const before = f.saved(), writes = f.writes.length;
+    f.advance(3000); await f.fireTimers(); f.advance(9000); await f.fireTimers();
+    assert.ok(f.activeMotions()[0].changes.some(cue => cue.name !== 'idle'));
+    assert.notEqual(f.host.querySelector('.ipg-care-room').dataset.activity, 'idle');
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+    f.ui.close(); assert.equal(f.timers.size, 0);
+  }
+});
+
+test('normal room care waits for successful persistence and protects the complete feeding reaction from autonomy', async () => {
+  const f = await fixture({ developerPreview: false, rendererMode: 'ready', seed: { pg_exp: '15' } });
+  const gate = deferred(), before = f.saved(); f.control.pending = gate;
+  await f.click(f.focusButton('care-feed'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true);
+  f.advance(16000); await f.fireTimers();
+  assert.equal(f.activeMotions()[0].changes.some(cue => cue.name === 'feeding'), false);
+  gate.resolve(); f.control.pending = null; await flush();
+  assert.equal(f.saved().pet.exp, before.pet.exp + 8);
+  assert.equal(f.activeMotions()[0].options.situation, 'feeding');
+  const room = f.host.querySelector('.ipg-care-room'); assert.equal(room.dataset.activity, 'feeding');
+  f.advance(2000); await f.fireTimers(); assert.equal(room.dataset.activity, 'feeding');
+  assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, false);
+  const snapshot = f.saved(), writes = f.writes.length;
+  f.advance(3000); await f.fireTimers(); assert.equal(room.dataset.activity, 'feeding');
+  assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'joy');
+  assert.equal(f.host.querySelector('.ipg-room-bubble').textContent, 'おいしい！');
+  f.advance(4000); await f.fireTimers(); assert.equal(room.dataset.activity, 'idle');
+  assert.deepEqual(f.saved(), snapshot); assert.equal(f.writes.length, writes);
+});
+
+test('room save rejection, reduced motion, unavailable behavior and renderer failure stay safe', async () => {
+  const failed = await fixture({ developerPreview: false, rendererMode: 'ready' }), before = failed.saved();
+  failed.control.outcome = 'false'; await failed.click(failed.focusButton('care-feed'));
+  assert.deepEqual(failed.saved(), before); assert.notEqual(failed.activeMotions()[0].options.situation, 'feeding');
+  for (const config of [{ reducedMotion: true }, { roomUnavailable: true }, { rendererMode: 'error' }]) {
+    const f = await fixture({ developerPreview: false, rendererMode: 'ready', ...config }), saved = f.saved(), writes = f.writes.length;
+    f.advance(3000); await f.fireTimers(); f.advance(60000); await f.fireTimers();
+    assert.equal(f.activeMotions().some(m => m.changes.some(c => c.name !== 'idle')), false);
+    assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
+    f.ui.close(); assert.equal(f.timers.size, 0);
+  }
+});
+
+test('room autonomy cleans up on tab switch, visibility and re-render without stale callbacks', async () => {
+  const f = await fixture({ developerPreview: false, rendererMode: 'ready' });
+  f.advance(3000); await f.fireTimers(); f.advance(9000); await f.fireTimers();
+  const old = f.activeMotions()[0], before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('tab-shop')); assert.equal(old.destroyed, true);
+  f.advance(20000); await f.fireTimers(); assert.equal(f.timers.size, 0);
+  await f.click(f.focusButton('tab-care'));
+  f.document.hidden = true; f.document.emit('visibilitychange');
+  assert.equal(f.timers.size, 0); assert.equal(f.activeMotions().length, 0);
+  f.document.hidden = false; f.document.emit('visibilitychange'); await flush();
+  assert.equal(f.activeMotions().length, 1);
+  f.ui.render(); assert.equal(f.activeMotions().length, 1);
+  f.ui.close(); assert.equal(f.timers.size, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });

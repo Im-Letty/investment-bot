@@ -75,6 +75,7 @@ function loaderFixture(options = {}) {
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
     coreLoaded() { window.PetGameCore = {}; scripts.at(-1).onload(); },
     motionLoaded() { window.PetLilacMotion = {}; scripts.at(-1).onload(); },
+    roomLoaded() { window.PetRoomBehavior = {}; scripts.at(-1).onload(); },
     uiLoaded() { window.IndependentPetGame = ui; scripts.at(-1).onload(); },
     click(action) {
       const button = new Element('button'); button.setAttribute('data-act', action);
@@ -122,6 +123,8 @@ test('new section is reachable and only independent game modules are loaded', ()
   assert.match(html, /href="\/static\/pet-game\.css\?v=/);
   assert.match(loader, /\/static\/pet-game-core\.js\?v=/);
   assert.match(loader, /\/static\/pet-game\.js\?v=/);
+  assert.match(loader, /\/static\/pet-room-behavior\.js\?v=/);
+  assert.doesNotMatch(loader, /developerPreview/);
   assert.match(html, /class="bn-item" data-act="pet"/);
   assert.doesNotMatch(html, /pet-features-855cb201bd\.js|id="pet-card"|id="petOv"/);
   assert.doesNotMatch(html, /function\s+(?:hookMorning|kakeiboBonus|dailyLogin|calcExp)\s*\(/);
@@ -158,14 +161,16 @@ test('first open loads core then UI once and shares concurrent open requests', a
   f.coreLoaded(); await flush();
   assert.equal(f.scripts.length, 2); assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
   f.motionLoaded(); await flush();
-  assert.equal(f.scripts.length, 3); assert.match(f.scripts[2].src, /pet-game\.js/);
+  assert.equal(f.scripts.length, 3); assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
+  f.roomLoaded(); await flush();
+  assert.equal(f.scripts.length, 4); assert.match(f.scripts[3].src, /pet-game\.js/);
   f.uiLoaded(); assert.equal(await first, true);
   assert.equal(f.mounts, 1); assert.equal(f.received.target, f.host);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.mounts, 1, 'already-visible game is not rebuilt during an active minigame');
   f.window.closePetTab(); assert.equal(f.pane.hidden, true); assert.equal(f.focus.focused, true);
   assert.equal(await f.window.openPetTab(), true);
-  assert.equal(f.scripts.length, 3); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
+  assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
 });
 
 test('mount waits for protected hydration and storage adapter awaits durable writes', async () => {
@@ -204,13 +209,14 @@ test('failed script load allows retry without leaking raw failure or reloading c
   const opening = f.window.openPetTab();
   f.coreLoaded(); await flush();
   f.motionLoaded(); await flush();
-  f.scripts[2].onerror(new Error('do not display this synthetic raw detail'));
+  f.roomLoaded(); await flush();
+  f.scripts[3].onerror(new Error('do not display this synthetic raw detail'));
   assert.equal(await opening, false); assert.equal(f.mounts, 0);
   assert.doesNotMatch(f.host.textContent, /synthetic raw detail/);
   assert.match(f.host.textContent, /もう一度読み込む/);
   const retry = f.window.openPetTab();
   await flush();
-  assert.equal(f.scripts.length, 4); assert.match(f.scripts[3].src, /pet-game\.js/);
+  assert.equal(f.scripts.length, 5); assert.match(f.scripts[4].src, /pet-game\.js/);
   f.uiLoaded(); assert.equal(await retry, true);
 });
 
@@ -221,7 +227,9 @@ test('optional motion download failure keeps the game and saved records availabl
   assert.match(f.scripts[1].src, /pet-lilac-motion\.js/);
   f.scripts[1].onerror(new Error('private transport details must stay hidden'));
   await flush();
-  assert.match(f.scripts[2].src, /pet-game\.js/);
+  assert.match(f.scripts[2].src, /pet-room-behavior\.js/);
+  f.scripts[2].onerror(new Error('optional room behavior unavailable')); await flush();
+  assert.match(f.scripts[3].src, /pet-game\.js/);
   f.uiLoaded(); assert.equal(await opening, true);
   assert.equal(f.mounts, 1);
   assert.doesNotMatch(f.host.textContent, /private transport details/);

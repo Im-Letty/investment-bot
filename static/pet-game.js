@@ -30,6 +30,9 @@
   function number(n) { return Number(n || 0).toLocaleString('ja-JP', { maximumFractionDigits: 2 }); }
   function signed(n) { return (n > 0 ? '+' : '') + number(n); }
   function state() { return store.getState(); }
+  // Only an explicit developer harness may mount the motion inspection UI.
+  // No URL, saved preference or production loader enables it.
+  function developerPreview() { return !!options && options.developerPreview === true; }
   function displaySpecies(s) { return s.pet.species === 'dragon' ? 'lilac' : s.pet.species; }
   function core() { return w.PetGameCore; }
   function items() { return core().items || core().catalogue || core().ITEMS || []; }
@@ -112,6 +115,8 @@
   }
   function stopMotions() {
     motionRequests.forEach(function (request) {
+      if (request.roomBehavior) request.roomBehavior.destroy();
+      request.roomBehavior = null; request.roomCue = null;
       if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
       request.cueTimer = null;
       if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame);
@@ -229,7 +234,35 @@
       if (request.localCue && Date.now() - request.localCue.startedAt >= request.localCue.durationMs) request.localCue = null;
       return request.localCue;
     }
-    return request.fittingPreview ? null : request.preview ? previewCue() : currentReaction();
+    if (request.fittingPreview) return null;
+    if (request.preview) return previewCue();
+    var savedCue = currentReaction();
+    if (savedCue) return savedCue;
+    if (request.roomCue && Date.now() - request.roomCue.startedAt >= request.roomCue.durationMs) request.roomCue = null;
+    return request.roomCue || null;
+  }
+  function startRoomBehavior(request) {
+    if (!request.room || request.roomBehavior || !request.ready || !request.controller || !motionsVisible() ||
+      !w.PetRoomBehavior || typeof w.PetRoomBehavior.create !== 'function') return;
+    try {
+      request.roomBehavior = w.PetRoomBehavior.create({
+        appearanceKey: request.appearanceKey, now: Date.now,
+        setTimeout: function (fn, ms) { return w.setTimeout(fn, ms); }, clearTimeout: function (id) { w.clearTimeout(id); },
+        visible: function () { return request.ready && request.canvas.isConnected && motionsVisible() && !busy; },
+        reducedMotion: function () { return !!(w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches); },
+        onCue: function (entry) {
+          if (!request.ready || !request.canvas.isConnected || !motionsVisible() || currentReaction() || busy) return;
+          var cue = entry.situation === 'idle' ? null : { situation: entry.situation, durationMs: entry.durationMs,
+            message: entry.message, activity: entry.activity, startedAt: Date.now() };
+          request.roomCue = cue;
+          try { request.controller.setSituation(cue ? cue.situation : 'idle', { durationMs: cue ? cue.durationMs : 0 }); updateMotionPresentation(request, cue); }
+          catch (_) { motionFallback(request); }
+        }
+      });
+      request.roomBehavior.start();
+      var active = currentReaction();
+      if (active) request.roomBehavior.suspendFor(Math.max(0, active.durationMs - (Date.now() - active.startedAt)));
+    } catch (_) { /* Care and its saved reactions remain available without autonomy. */ }
   }
   function startMotions() {
     if (!motionsVisible() || !w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') return;
@@ -252,7 +285,7 @@
           situation: localCue ? localCue.situation : 'idle',
           durationMs: localCue ? localCue.durationMs : 0,
           elapsedMs: localCue ? Math.max(0, Date.now() - localCue.startedAt) : 0,
-          onReady: function () { if (request.evolutionNotice) request.evolutionNotice.hidden = true; if (request.outfitNotice) request.outfitNotice.hidden = true; if (request.bodyNotice && bodyCatalogue().length) request.bodyNotice.hidden = true; if (request.directionNotice && directionCatalogue().length) request.directionNotice.hidden = true; request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); },
+          onReady: function () { if (request.evolutionNotice) request.evolutionNotice.hidden = true; if (request.outfitNotice) request.outfitNotice.hidden = true; if (request.bodyNotice && bodyCatalogue().length) request.bodyNotice.hidden = true; if (request.directionNotice && directionCatalogue().length) request.directionNotice.hidden = true; request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); startRoomBehavior(request); },
           onPose: function (frame) {
             if (!request.ready || !request.canvas.isConnected || !motionsVisible() || !request.food || request.food.hidden ||
               request.wrap.dataset.situation !== 'feeding' || !frame || frame.situation !== 'feeding' ||
@@ -267,17 +300,21 @@
         });
         request.controller = controller;
         motionControllers.push(controller);
+        startRoomBehavior(request);
         if (game && request.wrap.className.indexOf('ipg-catcher') >= 0) game.motion = controller;
       } catch (_) { motionFallback(request); }
     });
   }
   function motionFallback(request) {
+    if (request.roomBehavior) request.roomBehavior.destroy();
+    request.roomBehavior = null; request.roomCue = null;
     request.ready = false; request.failed = true; request.canvas.hidden = true; request.still.hidden = false;
     request.wrap.dataset.situation = 'idle'; request.wrap.dataset.feedingPhase = ''; request.wrap.dataset.cuePhase = 'idle';
     if (request.cueTimer != null) w.clearTimeout(request.cueTimer); request.cueTimer = null;
     if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame); request.revealFrame = null;
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     if (request.food) request.food.hidden = true;
+    if (request.room) { request.room.dataset.activity = 'idle'; request.roomBubble.textContent = 'ここで、いっしょに過ごそう。'; request.roomStatus.textContent = '絵で表示しています。お世話の記録はいつもどおり保存できます。'; }
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
     if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     if (request.outfitNotice) request.outfitNotice.hidden = false;
@@ -362,6 +399,12 @@
     request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? mealLabel : entry ? entry.label : 'ふだん'));
     request.wrap.dataset.situation = name;
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
+    if (request.room) {
+      var roomMessage = meal ? mealLabel : cue && cue.message || ({ greeting: '会えてうれしいな。', petted: 'なでなで、だいすき。', resting: 'すやすや…安心しておやすみ。', joy: 'うれしくて、ぴょん！' })[name] || 'ここで、いっしょに過ごそう。';
+      request.room.dataset.activity = name === 'idle' ? 'idle' : meal ? 'feeding' : name === 'petted' ? 'affection' : name === 'resting' ? 'resting' : cue && cue.activity || 'looking';
+      request.roomBubble.textContent = roomMessage;
+      request.roomStatus.textContent = name === 'idle' ? (request.appearanceFamily === 'egg' ? 'そっと見守りながら、お世話してみよう。' : 'のんびり過ごしています。お世話をすると反応するよ。') : roomMessage;
+    }
     var entryEnd = Math.min(450, duration * .22), releaseStart = duration - Math.min(800, duration * .28);
     request.wrap.dataset.cuePhase = name === 'idle' ? 'idle' : meal ? meal.phase : age < entryEnd ? 'enter' : age >= releaseStart ? 'settling' : 'acting';
     if (request.food) {
@@ -395,6 +438,7 @@
       request.cueTimer = null;
       if (!request.canvas.isConnected || !motionsVisible()) return;
       if (Date.now() - cue.startedAt < duration) { updateMotionPresentation(request, cue); return; }
+      if (request.roomCue && request.roomCue.startedAt === cue.startedAt) request.roomCue = null;
       if (request.growthPreview) request.localCue = null;
       else if (request.preview) previewSituation = 'idle';
       else if (reaction && reaction.startedAt === cue.startedAt) reaction = null;
@@ -644,6 +688,19 @@
   function renderGrowthAlbum(s, parent) {
     var stages = core().lilacAppearanceStages || core().lilacGrowthStages;
     if (displaySpecies(s) !== 'lilac' || !Array.isArray(stages) || !stages.length) return;
+    if (!developerPreview()) {
+      var record = node('details', 'ipg-growth-album ipg-growth-record');
+      record.appendChild(node('summary', '', '成長のあゆみ'));
+      var milestones = node('ol', 'ipg-growth-milestones'), current = stage(s);
+      stages.forEach(function (entry) {
+        var reached = entry.min <= s.pet.exp, row = node('li', reached ? 'is-reached' : 'is-future');
+        if (entry.key === current.key) row.setAttribute('aria-current', 'step');
+        append(row, node('span', '', reached ? entry.label : 'これから'), node('small', '', number(entry.min) + ' EXP' + (entry.key === current.key ? ' · いまここ' : reached ? ' · 到達済み' : '')));
+        milestones.appendChild(row);
+      });
+      append(record, text('ごはんやふれあいを重ねて、少しずつ育っていきます。', 'ipg-small'), milestones);
+      parent.appendChild(record); return;
+    }
     var album = node('section', 'ipg-growth-album');
     var toggle = button(growthAlbumOpen ? '成長のすがたを閉じる' : '成長のすがたを見る', function () {
       growthAlbumOpen = !growthAlbumOpen; growthPreviewStage = growthAlbumOpen ? stage(state()).key : null; growthPreviewPath = growthAlbumOpen ? evolutionPath(state()) : null; if (!growthAlbumOpen) growthEmotionOpen = false; render();
@@ -718,17 +775,31 @@
   }
   function renderCare(s, body) {
     var info = stage(s), pet = card('', 'ipg-pet-card');
-    var scene = node('div', 'ipg-scene ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
+    var scene = node('div', 'ipg-scene' + (!developerPreview() ? ' ipg-care-room' : '') + ' ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
     var img = petVisual(s);
     var careRequest = displaySpecies(s) === 'lilac' ? motionRequests[motionRequests.length - 1] : null;
     var equipped = s.decorations.equipped, decor = item(equipped);
     var decorText = decor ? decor.emoji || '🌿' : equipped ? String(equipped).slice(0, 40) : '';
     var decoration = decorText ? node('span', 'ipg-pet-decoration', decorText) : null;
     if (decoration) decoration.setAttribute('aria-label', '身につけているかざり：' + (decor ? decor.name : String(equipped).slice(0, 100)));
-    append(scene, node('span', 'ipg-sky', '✧'), img, decoration);
-    var emotionStage = careRequest ? append(node('div', 'ipg-emotion-stage'), scene, emotionPalette(careRequest, false)) : scene;
-    append(pet, emotionStage, node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'),
-      text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'), text(petMood(s), 'ipg-pet-mood'));
+    if (!developerPreview()) {
+      scene.setAttribute('role', 'group'); scene.setAttribute('aria-label', (s.pet.name || 'このこ') + 'のおへや'); scene.dataset.activity = 'idle';
+      var window = append(node('span', 'ipg-room-window'), node('span', 'ipg-room-sun'), node('span', 'ipg-room-curtain'));
+      var shelf = append(node('span', 'ipg-room-shelf'), node('span', 'ipg-room-book'), node('span', 'ipg-room-book'), node('span', 'ipg-room-book'), node('span', 'ipg-room-plant'));
+      [window, shelf].forEach(function (n) { n.setAttribute('aria-hidden', 'true'); scene.appendChild(n); });
+      ['rug', 'bed', 'bowl', 'toy'].forEach(function (part) { var prop = node('span', 'ipg-room-' + part); prop.setAttribute('aria-hidden', 'true'); if (part === 'bed') prop.appendChild(node('span', 'ipg-room-pillow')); scene.appendChild(prop); });
+      img.className += ' ipg-room-pet';
+      var bubble = node('span', 'ipg-room-bubble', 'ここで、いっしょに過ごそう。');
+      var roomStatus = node('p', 'ipg-room-status', 'のんびり過ごしています。お世話をすると反応するよ。');
+      append(scene, img, decoration, bubble);
+      var heading = append(node('div', 'ipg-room-heading'), node('p', 'ipg-eyebrow', 'いっしょのおへや'), node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'), text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'));
+      append(pet, heading, scene, roomStatus);
+      if (careRequest) { careRequest.room = scene; careRequest.roomBubble = bubble; careRequest.roomStatus = roomStatus; }
+    } else {
+      append(scene, node('span', 'ipg-sky', '✧'), img, decoration);
+      var emotionStage = careRequest ? append(node('div', 'ipg-emotion-stage'), scene, emotionPalette(careRequest, false)) : scene;
+      append(pet, emotionStage, node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'), text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'), text(petMood(s), 'ipg-pet-mood'));
+    }
     var egg = displaySpecies(s) === 'lilac' && appearanceProfile(info.key).family === 'egg';
     if (egg) pet.appendChild(text('15 EXPで、たまごから赤ちゃんがうまれます。今は殻の揺れで反応します。元気を届けたり、そっとなでて育てよう。', 'ipg-nursery-note ipg-small'));
     var progress = node('progress', 'ipg-progress');
@@ -736,8 +807,10 @@
     progress.setAttribute('aria-label', '次の成長までの進み具合');
     append(pet, progress, text(info.next == null ? 'ここまで育ててくれて、ありがとう。お世話はこれからも続けられます。' :
       '次の成長まで あと' + number(Math.max(0, info.next - s.pet.exp)) + ' EXP'));
-    if (displaySpecies(s) === 'lilac') { renderEvolutionStatus(s, pet); renderWornOutfit(s, pet); }
-    renderGrowthAlbum(s, pet);
+    if (developerPreview()) {
+      if (displaySpecies(s) === 'lilac') { renderEvolutionStatus(s, pet); renderWornOutfit(s, pet); }
+      renderGrowthAlbum(s, pet);
+    }
     var care = node('div', 'ipg-care-buttons');
     [['feed', 'ごはん', '🍎', 8], ['play', 'なでる', '♡', 5], ['rest', '休む', '☾', 4]].forEach(function (x) {
       var used = s.care.day === currentDay() ? s.care.counts[x[0]] || 0 : 0, cap = (limits().care || {})[x[0]] || 3;
@@ -747,11 +820,15 @@
         node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
     });
-    if (displaySpecies(s) === 'lilac' && !careRequest) pet.appendChild(emotionPalette(null, false));
+    if (developerPreview() && displaySpecies(s) === 'lilac' && !careRequest) pet.appendChild(emotionPalette(null, false));
     append(pet, care, text(s.care.dailyRewardDay === currentDay() ?
       '今日の育成報酬10コインは受け取り済み。お世話は残りの回数まで続けられます。' :
       'その日最初のお世話で、育成報酬10コイン。お世話だけでも成長できます。'));
     if (displaySpecies(s) === 'lilac' && evolution(s)) pet.appendChild(text('いつものごはんは、りんご。食べものの種類や、なでる・休む、日を分けて続けるお世話で育ち方が変わります。同じ日にたくさん繰り返しても、進化の傾向への反映には上限があります。', 'ipg-evolution-explanation ipg-small'));
+    if (!developerPreview()) {
+      if (displaySpecies(s) === 'lilac') { renderEvolutionStatus(s, pet); renderWornOutfit(s, pet); }
+      renderGrowthAlbum(s, pet);
+    }
     body.appendChild(pet);
     var settings = node('details', 'ipg-card ipg-pet-settings');
     settings.appendChild(node('summary', '', 'なまえ・ペットの種類'));
@@ -774,6 +851,7 @@
       species.appendChild(b);
     });
     append(settings, form, text('ペットの種類'), species);
+    if (developerPreview()) {
     var previewToggle = button(appearancePreview ? 'しぐさの見本を閉じる' : '薄紫のこのしぐさを見る', function () {
       appearancePreview = !appearancePreview; previewSituation = 'idle'; previewStartedAt = Date.now(); render();
     }, true);
@@ -788,8 +866,9 @@
       var request = motionRequests[motionRequests.length - 1];
       append(preview, visual, emotionPalette(request, true)); settings.appendChild(preview);
     }
+    }
     if (displaySpecies(s) === 'lilac') {
-      settings.appendChild(text('たまごで出会い、赤ちゃんから少しずつ育っていきます。孵化したら、ごはんをもぐもぐ、うれしくてぴょん！' + emotionCatalogue().length + '種類のきもちやしぐさも好きに選べます。'));
+      settings.appendChild(text('たまごで出会い、赤ちゃんから少しずつ育っていきます。孵化したら、ごはんをもぐもぐ、うれしくてぴょん！' + '幼いころから、表情や手足・耳・しっぽの動きで気持ちを伝えてくれます。'));
     }
     var appearance = node('div', 'ipg-row'), unlocked = s.pet.exp >= 110;
     [['cute', 'かわいい'], ['cool', 'かっこいい']].forEach(function (x) {
@@ -1171,14 +1250,14 @@
     if (!host || !store || game && host.querySelector('.ipg-catch-board')) return;
     stopMotions();
     var focused = d.activeElement && d.activeElement.dataset && d.activeElement.dataset.focusKey;
-    var s = state(), root = node('div', 'ipg');
+    var s = state(), root = node('div', 'ipg ipg-view-' + tab);
     renderedDay = currentDay();
     var head = node('header', 'ipg-header');
     if (tab !== 'care' && !game && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
     append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', 'そだてる')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);
-    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || 'おかえりなさい。今日は何をして過ごそう？');
+    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
     status.setAttribute('role', failure ? 'alert' : 'status'); status.setAttribute('aria-live', failure ? 'assertive' : 'polite');
     root.appendChild(status);
     if (s.error && !failure) root.appendChild(text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error'));
