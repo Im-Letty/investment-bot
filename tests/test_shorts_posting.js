@@ -64,3 +64,9 @@ test('the open posting dialog prevents background observers from mounting or res
   assert.equal(h.player.activate(current),false);assert.equal(h.player.prepare(next),false);assert.equal(h.players().length,0);assert.equal(h.plays.length,0);
   h.doc.editor.hidden=true;assert.equal(h.player.activate(current),true);assert.ok(current.querySelector('video'));
 });
+
+test('video author name passes as plain bounded display text and never imports full profile metadata',()=>{
+ const rows=feedRows([published({author_name:'<b>名前</b>',email:'private@example.invalid',user_metadata:{name:'never'}})]);
+ assert.equal(rows[0].authorName,'<b>名前</b>');assert.equal(rows[0].email,undefined);assert.equal(rows[0].user_metadata,undefined);
+ for(const author_name of ['x'.repeat(21),'bad\u0000name','bad\u0085name',{},null])assert.equal(feedRows([published({author_name})])[0].authorName,'');
+});

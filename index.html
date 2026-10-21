@@ -41,7 +41,7 @@
 <link rel="stylesheet" href="/static/shorts-posting.css?v=20261021-capture1">
 <script defer src="/static/shorts-photo-movie.js?v=20261021-capture1"></script>
 <script defer src="/static/shorts-editor.js?v=20261021-capture1"></script>
-<script defer src="/static/shorts-posting.js?v=20261021-capture1"></script>
+<script defer src="/static/shorts-posting.js?v=20261022-shared-profile1"></script>
 <link rel="stylesheet" href="/static/talk-theme.css?v=20261016-direct-talk1">
 <script defer src="/static/talk-theme.js?v=20261020-site-nickname1"></script>
 <link rel="stylesheet" href="/static/mypage-theme.css?v=20261017-assets1">
@@ -52,7 +52,9 @@
 <link rel="stylesheet" href="/static/stock-unified.css?v=20261012-mobile-layout1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261012-section-mincho1">
 <link rel="stylesheet" href="/static/community.css?v=20261016-talk-colors1">
-<script defer src="/static/community.js?v=20261020-site-nickname1"></script>
+<link rel="stylesheet" href="/static/user-profile.css?v=20261022-shared-profile1">
+<script defer src="/static/user-profile.js?v=20261022-shared-profile1"></script>
+<script defer src="/static/community.js?v=20261022-shared-profile1"></script>
 <link rel="stylesheet" href="/static/guide-hub.css?v=20261014-guide-hub1">
 <script defer src="/static/guide-hub.js?v=20261014-guide-hub1"></script>
 <script>/* KN_TALK_TABS: Open the current conversation directly. */
@@ -3125,7 +3127,7 @@ function validPublishedUpload(v){return !!(v&&v.provider==="upload"&&Number.isSa
 function validRow(v){return !!(v&&(validId(v.id)||validPublishedUpload(v)));}
 function validSlide(sl){if(!sl||!feed||!feed.contains(sl))return false;if(sl.getAttribute("data-media-type")==="upload"){var id=sl.getAttribute("data-post-id");return /^[1-9][0-9]{0,15}$/.test(id||"")&&sl.getAttribute("data-media-src")==="/api/shorts/posts/"+id+"/media";}return validId(sl.getAttribute("data-vid"));}
 function esc(value){return String(value==null?"":value).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
-function slideHTML(v){var media=validPublishedUpload(v)?' data-media-type="upload" data-media-src="'+esc(v.mediaSrc)+'"':' data-vid="'+esc(v.id)+'"';var post=Number.isSafeInteger(v.postId)&&v.postId>0?' data-post-id="'+v.postId+'"':'';return '<div class="ks-slide"'+media+post+' data-tag="'+esc(v.tag)+'"><div class="ks-ph" style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">読み込み中…</div><div class="ks-meta"><div class="ks-cap">'+esc(v.cap)+'</div><span class="ks-tag">'+esc(v.tag)+'</span></div></div>';}
+function slideHTML(v){var media=validPublishedUpload(v)?' data-media-type="upload" data-media-src="'+esc(v.mediaSrc)+'"':' data-vid="'+esc(v.id)+'"';var post=Number.isSafeInteger(v.postId)&&v.postId>0?' data-post-id="'+v.postId+'"':'';return '<div class="ks-slide"'+media+post+' data-tag="'+esc(v.tag)+'"><div class="ks-ph" style="display:flex;align-items:center;justify-content:center;height:100%;color:#888;">読み込み中…</div><div class="ks-meta">'+(v.authorName?'<div class="ks-post-author">'+esc(v.authorName)+'</div>':'')+'<div class="ks-cap">'+esc(v.cap)+'</div><span class="ks-tag">'+esc(v.tag)+'</span></div></div>';}
 var feed=null,io=null;
 function sheet(){return document.getElementById("knShorts");}
 function visible(){var sh=sheet();return !!(feed&&sh&&sh.classList.contains("open")&&!document.hidden);}
@@ -4877,7 +4879,7 @@ setInterval(apply,500);
 
 </script>
 
-<script src="/static/menu-a.js?v=20261022-saved-in-shorts1" defer></script>
+<script src="/static/menu-a.js?v=20261022-shared-profile1" defer></script>
 
 </script>
 

@@ -75,7 +75,9 @@
   function title(code) {var found=categories.find(function(item){return item[0]===code;});return found?found[1]:'みんな';}
   function stored(key,fallback) {try {return w.localStorage.getItem(key)||fallback;}catch(_){return fallback;}}
   function save(key,value) {try {w.localStorage.setItem(key,value);}catch(_) {}}
-  function savedNickname(fallback) {try {return Array.from((w.localStorage.getItem('cm_nick')||'').trim()).slice(0,20).join('');}catch(_){return fallback||'';}}
+  function profileAccount(){return w.KNUserProfile?String(w.knUser&&w.knUser.id||''):null;}
+  function profileAccountUnchanged(expected){return profileAccount()===expected||(expected===''&&w.knUser&&w.knUser.is_anonymous===true);}
+  function savedNickname(fallback) {if(w.KNUserProfile&&typeof w.KNUserProfile.username==='function')return w.KNUserProfile.username();try {return Array.from((w.localStorage.getItem('cm_nick')||'').trim()).slice(0,20).join('');}catch(_){return fallback||'';}}
   function drafts() {try {var value=JSON.parse(stored(draftKey,'{}'));return value&&typeof value==='object'&&!Array.isArray(value)?value:{};}catch(_){return {};}}
   function current() {return state&&state.root.isConnected!==false;}
   function prepare() {if(w.knPrepareTalkScreen)w.knPrepareTalkScreen();}
@@ -244,21 +246,23 @@
   }
   function count() {if(!current())return;var n=chars(state.input.value);state.counter.textContent=n+' / 200';state.counter.classList.toggle('cw-error',n>200);}
   function retryId(key,payload) {
-    var s=state,old=s.retries[key],previous;
+    var s=state,old=s.retries[key],previous,account=profileAccount();
     try {previous=old&&JSON.parse(old.identity);}catch(_) {}
     // A changed saved nickname must not turn an unknown-outcome retry into a
     // second post. Names remain part of the original idempotent payload.
     if(previous&&typeof previous.name==='string'&&chars(previous.name)<=20&&!/[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(previous.name)&&['body','category','language','parent_id'].every(function(field){return previous[field]===payload[field];})){
-      payload.name=previous.name;return old.id;
+      if(old.owner!==undefined&&old.owner!==account)return null;payload.name=previous.name;return old.id;
     }
-    var identity=JSON.stringify(payload);if(!old||old.identity!==identity)s.retries[key]={identity:identity,id:uuid()};return s.retries[key].id;
+    var identity=JSON.stringify(payload);if(!old||old.identity!==identity)s.retries[key]={identity:identity,id:uuid(),owner:account};return s.retries[key].id;
   }
   async function submitPost(parent,replyModel) {
     if(!current())return;var s=state,epoch=s.epoch,key=parent?'reply:'+parent.id:'compose:'+s.category,input=parent?replyModel.input:s.input,submittedInput=input.value,body=input.value.trim();
     if(s.pending.has(key))return;if(!body){message('投稿する内容を入力してください。',true);return;}if(chars(body)>200){message('投稿は200文字以内にしてください。',true);return;}
-    s.syncNickname();var payload={name:s.committedNickname,body:body,category:parent?parent.category:s.categoryInput.value,language:s.languageInput.value,parent_id:parent?parent.id:null},currentName=payload.name;
-    payload.request_id=retryId(key,payload);s.pending.add(key);s.writes++;var sendButton=parent?replyModel.send:s.sendButton;sendButton.disabled=true;if(!parent&&s.draftSelect)s.draftSelect.disabled=true;persist();if(payload.name!==currentName)message('前回と同じニックネームで再送します。');
-    try {var access=await token(s);if(!access||!alive(s,epoch))return;
+    if(w.KNUserProfile&&typeof w.KNUserProfile.ready==='function'){if(s.preparingName)return;s.preparingName=true;var preparingAccount=profileAccount();try{await w.KNUserProfile.ready();if(!profileAccountUnchanged(preparingAccount))throw new Error('account_changed');}catch(_){if(alive(s,epoch))message('ユーザー名を確認できませんでした。メニューのプロフィールを確認してください。',true);return;}finally{s.preparingName=false;}if(!alive(s,epoch))return;}
+    var postingAccount=profileAccount();s.syncNickname();var payload={name:s.committedNickname,body:body,category:parent?parent.category:s.categoryInput.value,language:s.languageInput.value,parent_id:parent?parent.id:null},currentName=payload.name;
+    s.pending.add(key);s.writes++;var sendButton=parent?replyModel.send:s.sendButton;sendButton.disabled=true;if(!parent&&s.draftSelect)s.draftSelect.disabled=true;persist();
+    try {var access=await token(s);if(!access||!alive(s,epoch))return;if(!profileAccountUnchanged(postingAccount)){message('アカウントが切り替わりました。内容を確認して、もう一度投稿してください。',true);return;}
+      payload.request_id=retryId(key,payload);if(!payload.request_id){message('別のアカウントで送信を確認中の内容です。元のアカウントで確認してください。',true);return;}persist();if(payload.name!==currentName)message('前回と同じニックネームで再送します。');
       var result=await request('/api/community/posts',jsonOptions('POST',payload,access),s);if(!alive(s,epoch))return;
       s.writes++;delete s.retries[key];var unchanged=parent?replyModel.draft===submittedInput:input.value===submittedInput;if(unchanged)input.value='';
       if(parent){if(result.post&&!parent.reply_preview)parent.reply_preview={id:result.post.id,name:result.post.name,body:result.post.body,created_at:result.post.created_at,parent_id:parent.id};if(unchanged){replyModel.draft='';delete replyDrafts[s.category+'|'+parent.id];}if(result.post){var existingReply=replyModel.posts.find(function(post){return String(post.id)===String(result.post.id);});if(existingReply)Object.assign(existingReply,result.post);else{replyModel.posts.push(result.post);parent.reply_count=safeCount(parent.reply_count)+1;}}}
@@ -314,7 +318,7 @@
       catch(error){if(alive(s,epoch)&&error.name!=='AbortError'){modal.error.textContent=t(errorText(error));message(errorText(error),true);}}finally{go.disabled=false;flushRefreshes(s,epoch);}
     });modal.button.querySelector('.cw-button-copy').textContent=t('削除する');modal.error=el('p','cw-small cw-error');modal.error.setAttribute('role','alert');modal.form.appendChild(modal.error);
   }
-  function close() {if(!state)return;var s=state;persist();rememberReplies(s);state=null;sequence++;cancelRequests(s);if(s.searchTimer)w.clearTimeout(s.searchTimer);if(s.timer)w.clearInterval(s.timer);if(s.visibility)doc.removeEventListener('visibilitychange',s.visibility);if(s.languageChanged)doc.removeEventListener('langChanged',s.languageChanged);if(s.authChanged)doc.removeEventListener('knAuthChange',s.authChanged);s.root.remove();prepare();return {morningTop:s.morningTop};}
+  function close() {if(!state)return;var s=state;persist();rememberReplies(s);state=null;sequence++;cancelRequests(s);if(s.searchTimer)w.clearTimeout(s.searchTimer);if(s.timer)w.clearInterval(s.timer);if(s.visibility)doc.removeEventListener('visibilitychange',s.visibility);if(s.languageChanged)doc.removeEventListener('langChanged',s.languageChanged);if(s.authChanged)doc.removeEventListener('knAuthChange',s.authChanged);if(s.profileChanged)doc.removeEventListener('knProfileChange',s.profileChanged);s.root.remove();prepare();return {morningTop:s.morningTop};}
   function home() {
     var s=state,top=s&&s.morningTop||0;close();var nav=doc.querySelector('#knBottomNav [data-act="morning"]');if(nav)nav.click();else doc.body.classList.add('view-asaletter');
     var morning=doc.getElementById('morning-section');if(morning)morning.scrollTop=top;var entrance=doc.getElementById('knHomeATalk');if(entrance)entrance.focus({preventScroll:true});
@@ -363,15 +367,15 @@
     s.syncNickname=function(){s.committedNickname=savedNickname(s.committedNickname);nicknameValue.textContent=s.committedNickname||t('名無しさん');};
     function editNickname(edit){nicknameSummary.hidden=edit;nicknameEditor.hidden=!edit;}
     var nicknameChange=button('cw-text-button cw-nickname-change','変更',null,function(){s.syncNickname();nickname.value=s.committedNickname;nicknameNotice('',false);editNickname(true);nickname.focus({preventScroll:true});});
-    function saveNickname(){
+    async function saveNickname(){
       var value=nickname.value.trim();if(!value){nicknameNotice('ニックネームを入力してください。',true);return;}if(chars(value)>20){nicknameNotice('ニックネームは20文字以内にしてください。',true);return;}
-      try {w.localStorage.setItem('cm_nick',value);if(w.localStorage.getItem('cm_nick')!==value)throw new Error('nickname_not_saved');}
-      catch(_){nicknameNotice('この端末に保存できませんでした。入力した名前は残しています。',true);return;}
-      s.committedNickname=value;nickname.value=value;nicknameValue.textContent=value;editNickname(false);nicknameNotice('この端末に保存しました。',false);nicknameChange.focus({preventScroll:true});
+      try {if(w.KNUserProfile&&typeof w.KNUserProfile.saveUsername==='function'){if(nicknameSave.disabled)return;nicknameSave.disabled=true;await w.KNUserProfile.saveUsername(value);if(!alive(s))return;}else{w.localStorage.setItem('cm_nick',value);if(w.localStorage.getItem('cm_nick')!==value)throw new Error('nickname_not_saved');}}
+      catch(_){if(alive(s))nicknameNotice('保存できませんでした。入力した名前は残しています。',true);return;}finally{nicknameSave.disabled=false;}
+      s.committedNickname=value;nickname.value=value;nicknameValue.textContent=value;editNickname(false);nicknameNotice(w.KNUserProfile?'プロフィールに保存しました。':'この端末に保存しました。',false);nicknameChange.focus({preventScroll:true});
     }
     var nicknameSave=button('cw-primary cw-nickname-save','保存',null,saveNickname),nicknameCancel=button('cw-text-button cw-nickname-cancel','やめる',null,function(){s.syncNickname();nickname.value=s.committedNickname;nicknameNotice('',false);editNickname(false);nicknameChange.focus({preventScroll:true});}),nicknameActions=el('div','cw-nickname-actions');
     nickname.addEventListener('keydown',function(event){if(event.key==='Enter'&&!event.isComposing&&event.keyCode!==229){event.preventDefault();if(event.stopPropagation)event.stopPropagation();saveNickname();}});
-    nicknameSummary.appendChild(el('span','cw-nickname-caption','経済ニュース共通のニックネーム'));nicknameSummary.appendChild(nicknameValue);nicknameSummary.appendChild(nicknameChange);nicknameEditor.appendChild(nicknameLabel);nicknameActions.appendChild(nicknameSave);nicknameActions.appendChild(nicknameCancel);nicknameEditor.appendChild(nicknameActions);nicknameBox.appendChild(nicknameSummary);nicknameBox.appendChild(nicknameEditor);nicknameBox.appendChild(el('p','cw-small cw-nickname-scope','一度保存すると、同じブラウザで共通して使えます。'));nicknameBox.appendChild(nicknameStatus);fields.appendChild(nicknameBox);s.syncNickname();editNickname(!s.committedNickname);
+    nicknameSummary.appendChild(el('span','cw-nickname-caption','経済ニュース共通のニックネーム'));nicknameSummary.appendChild(nicknameValue);nicknameSummary.appendChild(nicknameChange);nicknameEditor.appendChild(nicknameLabel);nicknameActions.appendChild(nicknameSave);nicknameActions.appendChild(nicknameCancel);nicknameEditor.appendChild(nicknameActions);nicknameBox.appendChild(nicknameSummary);nicknameBox.appendChild(nicknameEditor);nicknameBox.appendChild(el('p','cw-small cw-nickname-scope',w.KNUserProfile?'メニューのプロフィールと共通のユーザー名です。':'一度保存すると、同じブラウザで共通して使えます。'));nicknameBox.appendChild(nicknameStatus);fields.appendChild(nicknameBox);s.syncNickname();editNickname(!s.committedNickname);
     var categoryLabel=fieldLabel('投稿する話題');s.categoryInput=select(config.stock?categories:categories.slice(1),'投稿する話題');categoryLabel.appendChild(s.categoryInput);categoryLabel.hidden=true;fields.appendChild(categoryLabel);if(config.stock)s.categoryInput.disabled=true;
     var languageLabel=fieldLabel('投稿の言語');s.languageInput=select(languages,'投稿の言語');languageLabel.appendChild(s.languageInput);fields.appendChild(languageLabel);composer.appendChild(fields);
     var inputLabel=fieldLabel('つぶやき'),input=el('textarea','cw-input cw-compose-body');input.id='cmInput';input.rows=3;var composePlaceholder=config.stock?'気になったことや、みんなへの質問を書いてみよう。':'気になることを、自由につぶやこう。';input.placeholder=t(composePlaceholder);input.dataset.cwPlaceholder=composePlaceholder;input.setAttribute('aria-label','つぶやき（200文字まで）');inputLabel.appendChild(input);if(config.stock)composer.appendChild(inputLabel);else composer.insertBefore(inputLabel,fields);s.input=input;
@@ -388,7 +392,7 @@
     s.archive=el('details','cw-archive');s.archive.appendChild(el('summary','','これまでの会話'));s.archiveBody=el('div','cw-archive-body');s.archive.appendChild(s.archiveBody);s.archiveLoaded=false;s.archive.addEventListener('toggle',function(){if(s.archive.open&&!s.archiveLoaded)loadArchive();});content.appendChild(s.archive);
     if(!config.stock){var oldDrafts=drafts(),savedTopics=categories.slice(1).filter(function(item){return oldDrafts[item[0]]&&oldDrafts[item[0]].body;});if(savedTopics.length){var draftChooser=el('label','cw-field-label cw-saved-draft-label','保存した下書き'),draftSelect=select([['all','いまの下書き']].concat(savedTopics.map(function(item,index){return [item[0],t('以前の下書き')+' '+(index+1)];})),'保存した下書き');draftSelect.querySelectorAll('option').forEach(function(option,index){if(index)option.dataset.cwDraftNumber=String(index);});draftChooser.appendChild(draftSelect);composer.insertBefore(draftChooser,fields);s.draftSelect=draftSelect;draftSelect.addEventListener('change',function(){if(s.pending.has('compose:'+s.category)){draftSelect.value=s.legacyDraft||'all';return;}persist();s.legacyDraft=draftSelect.value==='all'?null:draftSelect.value;restoreDraft();});}}
     doc.body.appendChild(root);restoreDraft();if(config.stock){s.archive.hidden=false;s.categoryNote.textContent=title(s.category);if(config.onReady)config.onReady(s);}w.knTalkLastView=config.stock?'stock':'community';prepare();load(false);s.timer=w.setInterval(poll,30000);s.visibility=function(){if(!doc.hidden)poll();};doc.addEventListener('visibilitychange',s.visibility);
-    s.languageChanged=function(){if(!alive(s))return;s.root.querySelectorAll('[data-cw-copy]').forEach(function(node){node.textContent=t(node.dataset.cwCopy);});s.root.querySelectorAll('[data-cw-label]').forEach(function(node){node.setAttribute('aria-label',t(node.dataset.cwLabel));});s.root.querySelectorAll('[data-cw-placeholder]').forEach(function(node){node.placeholder=t(node.dataset.cwPlaceholder);});s.root.querySelectorAll('[data-cw-draft-number]').forEach(function(node){node.textContent=t('以前の下書き')+' '+node.dataset.cwDraftNumber;});s.syncNickname();s.categoryNote.textContent=config.stock?title(s.category):s.category==='all'?t('みんなのつぶやき、新しい順。'):(lang()==='ja'?title(s.category)+'について、気軽に話そう。':'Talk about '+t(title(s.category)).toLowerCase()+'.');render();};doc.addEventListener('langChanged',s.languageChanged);s.authChanged=poll;doc.addEventListener('knAuthChange',s.authChanged);
+    s.languageChanged=function(){if(!alive(s))return;s.root.querySelectorAll('[data-cw-copy]').forEach(function(node){node.textContent=t(node.dataset.cwCopy);});s.root.querySelectorAll('[data-cw-label]').forEach(function(node){node.setAttribute('aria-label',t(node.dataset.cwLabel));});s.root.querySelectorAll('[data-cw-placeholder]').forEach(function(node){node.placeholder=t(node.dataset.cwPlaceholder);});s.root.querySelectorAll('[data-cw-draft-number]').forEach(function(node){node.textContent=t('以前の下書き')+' '+node.dataset.cwDraftNumber;});s.syncNickname();s.categoryNote.textContent=config.stock?title(s.category):s.category==='all'?t('みんなのつぶやき、新しい順。'):(lang()==='ja'?title(s.category)+'について、気軽に話そう。':'Talk about '+t(title(s.category)).toLowerCase()+'.');render();};doc.addEventListener('langChanged',s.languageChanged);s.authChanged=poll;doc.addEventListener('knAuthChange',s.authChanged);s.profileChanged=function(){if(alive(s))s.syncNickname();};doc.addEventListener('knProfileChange',s.profileChanged);
   }
   async function loadArchive() {
     if(!current()||state.archiveLoading)return;var s=state,epoch=s.epoch;s.archiveLoading=true;s.archiveBody.replaceChildren(el('p','cw-small','これまでの会話を読み込み中…'));

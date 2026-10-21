@@ -185,3 +185,23 @@ test('a late author session after final form close cannot reopen metadata or ret
   h.postingNode('.ks-post-close').click();auth.resolve({data:{session:realSession()}});await settle();
   assert.equal(h.postingNode('#knShortsPublish').hidden,true);assert.equal(h.urls.size,0);assert.equal(h.requests.length,0);assert.equal(h.posts().length,0);assert.strictEqual(h.document.activeElement,h.postingNode('#ksPublishBtn'));
 });
+
+test('shared profile is shown for a video post while private profile data never enters multipart',async()=>{
+ const h=postingHarness({session:realSession()});let name='共通の動画名';h.window.KNUserProfile={username:()=>name,ready:async()=>{},snapshot:()=>({username:name,email:'private@example.invalid',bio:'private sample'})};
+ await settle();await choose(h);assert.equal(h.postingNode('.ks-post-author-summary').textContent,'投稿者：'+name);
+ name='変更後の名前';h.document.emit('knProfileChange');assert.equal(h.postingNode('.ks-post-author-summary').textContent,'投稿者：'+name);
+ const form=h.postingNode('form');form.elements.title.value='Profile fixture';form.elements.topic.value='#投資';form.emit('submit');await settle();assert.equal(h.posts().length,1);
+ assert.deepEqual([...h.posts()[0].init.body.keys()].sort(),['caption','file','request_id','title','topic']);assert.equal(h.posts()[0].init.body.get('email'),null);
+});
+test('missing or unavailable shared profile prevents upload without losing the selected video',async()=>{
+ const h=postingHarness({session:realSession()});h.window.KNUserProfile={username:()=>'',ready:async()=>{}};await settle();await choose(h);
+ const preview=h.postingNode('.ks-post-preview').src,form=h.postingNode('form');form.elements.title.value='Retained fixture';form.emit('submit');await settle();assert.equal(h.posts().length,0);assert.match(h.postingNode('.ks-post-status').textContent,/ユーザー名を保存/);assert.equal(h.postingNode('.ks-post-preview').src,preview);
+ h.window.KNUserProfile.ready=async()=>{throw new Error('offline');};form.emit('submit');await settle();assert.equal(h.posts().length,0);assert.match(h.postingNode('.ks-post-status').textContent,/プロフィールを確認できません/);assert.equal(h.postingNode('.ks-post-preview').src,preview);assert.equal(form.elements.title.value,'Retained fixture');
+});
+
+test('same-owner profile updates preserve the edited video and metadata while actual identity changes reset them',async()=>{
+ const session=realSession(),h=postingHarness({session});h.window.knUser=session.user;let name='前の名前';h.window.KNUserProfile={username:()=>name,ready:async()=>{}};await settle();await choose(h);
+ const form=h.postingNode('form'),preview=h.postingNode('.ks-post-preview').src;form.elements.title.value='保存する下書き';name='新しい共通名';h.document.emit('knAuthChange');h.document.emit('knProfileChange');await settle();
+ assert.equal(h.postingNode('.ks-post-preview').src,preview);assert.equal(form.elements.title.value,'保存する下書き');assert.equal(h.postingNode('.ks-post-author-summary').textContent,'投稿者：'+name);assert.equal(h.posts().length,0);
+ h.window.knUser={id:'other-owner',is_anonymous:false};h.setSession({user:h.window.knUser,access_token:'fixture-other'});h.document.emit('knAuthChange');await settle();assert.equal(h.urls.size,0);assert.equal(form.elements.title.value,'');
+});

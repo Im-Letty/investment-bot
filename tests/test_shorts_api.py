@@ -82,6 +82,7 @@ class FakeRepository:
         self.sign_fail = False
         self.override = None
         self.last_id = 0
+        self.profile_names = {}
 
     def verify_login(self, token):
         self.auth_calls.append(token)
@@ -117,7 +118,7 @@ class FakeRepository:
                 return dict(ok=True, published=bool(row['published_at']), post_id=row['id'], object_path=row['object_path'], post=self.public(row, actor))
             self.last_id += 1
             row = dict(deepcopy(data), id=self.last_id, provider='youtube' if action == 'create_youtube' else 'upload',
-                       owner_id=actor, created_at=STAMP, published_at=STAMP if action == 'create_youtube' else None,
+                       owner_id=actor, author_name=self.profile_names.get(actor), created_at=STAMP, published_at=STAMP if action == 'create_youtube' else None,
                        object_path=None if action == 'create_youtube' else actor + '/44444444-4444-4444-8444-444444444444.' + ('mov' if data['content_type'] == 'video/quicktime' else 'mp4'), input=deepcopy(data))
             self.rows[row['id']], self.requests[key] = row, row['id']
             return dict(ok=True, published=bool(row['published_at']), post_id=row['id'], object_path=row['object_path'], post=self.public(row, actor))
@@ -221,6 +222,73 @@ class ShortsAPITests(unittest.TestCase):
             self.assertNotIn(key, post)
         self.assertFalse(post['is_mine'])
         self.assertEqual('no-store', result.headers['Cache-Control'])
+
+    def test_public_author_snapshot_is_shared_without_exposing_profile_fields(self):
+        self.repo.profile_names[ALICE] = 'Public name'
+        result = self.upload()
+        self.assertEqual(201, result.status_code)
+        self.assertEqual('Public name', result.json['post']['author_name'])
+        self.repo.rows[1]['kn_profile_v1'] = dict(username='not-the-snapshot',
+            bio='private fixture', email='private@example.invalid')
+        self.repo.rows[1]['raw_user_meta_data'] = dict(name='provider legal name')
+        post = self.client.get('/api/shorts/posts').json['posts'][0]
+        self.assertEqual('Public name', post['author_name'])
+        for key in ('kn_profile_v1', 'raw_user_meta_data', 'email', 'bio', 'owner_id', 'user_id'):
+            self.assertNotIn(key, post)
+        self.assertNotIn('author_name', self.repo.calls[0][2])
+
+    def test_old_posts_and_accounts_without_public_name_remain_readable(self):
+        self.assertIsNone(self.upload().json['post']['author_name'])
+        del self.repo.rows[1]['author_name']  # pre-migration RPC or older row fixture
+        result = self.client.get('/api/shorts/posts')
+        self.assertEqual(200, result.status_code)
+        self.assertIsNone(result.json['posts'][0]['author_name'])
+
+    def test_snapshot_comes_from_verified_owner_and_cannot_be_injected(self):
+        for changes in [dict(author_name='Forged'), dict(kn_profile_v1='Forged'),
+                        dict(raw_user_meta_data='Forged')]:
+            self.assertEqual(400, self.upload(**changes).status_code)
+        self.assertEqual([], self.repo.calls)
+        self.repo.profile_names.update({ALICE: 'Alice public', BOB: 'Bob public'})
+        alice = self.upload()
+        bob = self.upload(owner='bob')
+        self.assertEqual('Alice public', alice.json['post']['author_name'])
+        self.assertEqual('Bob public', bob.json['post']['author_name'])
+        self.assertEqual(ALICE, self.repo.rows[1]['owner_id'])
+        self.assertEqual(BOB, self.repo.rows[2]['owner_id'])
+
+    def test_retry_keeps_first_reserved_name_after_profile_change(self):
+        self.repo.profile_names[ALICE] = 'First name'
+        self.repo.upload_fail = True
+        self.assertEqual(503, self.upload().status_code)
+        self.assertEqual('First name', self.repo.rows[1]['author_name'])
+        self.repo.profile_names[ALICE] = 'Changed name'
+        self.repo.upload_fail = False
+        retry = self.upload()
+        self.assertEqual(201, retry.status_code)
+        self.assertEqual(1, retry.json['post']['id'])
+        self.assertEqual('First name', retry.json['post']['author_name'])
+        next_post = self.upload(request_id='55555555-5555-4555-8555-555555555555')
+        self.assertEqual('Changed name', next_post.json['post']['author_name'])
+        self.assertEqual(2, len(self.repo.rows))
+        self.assertEqual('First name', self.repo.rows[1]['author_name'])
+
+    def test_public_author_is_bounded_by_unicode_characters_and_fails_closed(self):
+        self.upload()
+        accepted = ['<b>plain text</b>', '\U0001f423' * 20]
+        for name in accepted:
+            with self.subTest(name=name):
+                self.repo.rows[1]['author_name'] = name
+                response = self.client.get('/api/shorts/posts')
+                self.assertEqual(200, response.status_code)
+                self.assertEqual(name, response.json['posts'][0]['author_name'])
+        for name in ['', 'a' * 21, '\U0001f423' * 21, 'a\x00b', 'a\tb',
+                     'a\nb', 'a\x7fb', 'a\x85b', '\ud800', False, 123, {}]:
+            with self.subTest(name=repr(name)):
+                self.repo.rows[1]['author_name'] = name
+                response = self.client.get('/api/shorts/posts')
+                self.assertEqual(503, response.status_code)
+                self.assertEqual(dict(ok=False, reason='storage_unavailable'), response.json)
 
     def test_owner_cannot_be_injected_or_other_user_deleted(self):
         response = self.upload(owner_id=BOB)
@@ -373,6 +441,42 @@ class URLAndMediaTests(unittest.TestCase):
         self.assertIn('purged_at is null)+v_bytes>500000000', sql)
         self.assertIn('upload_count>0 and v_row.upload_lease_until>=clock_timestamp()', sql)
         self.assertIn('revoke all on function public.website_shorts_operation', sql)
+
+
+    def test_author_migration_snapshots_only_explicit_name_after_retry_return(self):
+        sql = (Path(__file__).parents[1] / 'migrations/20261022_shorts_author_profile.sql').read_text()
+        self.assertIn('add column if not exists author_name text', sql)
+        self.assertIn('check(author_name is null or (char_length(author_name) between 1 and 20', sql)
+        self.assertIn("jsonb_typeof(raw_user_meta_data->'kn_profile_v1'->'username')='string'", sql)
+        self.assertIn("from auth.users where id=p_actor and is_anonymous=false", sql)
+        self.assertIn("'author_name',author_name,'is_mine'", sql)
+        self.assertNotIn("p_data->>'author_name'", sql)
+        self.assertNotIn("p_data->'kn_profile_v1'", sql)
+        self.assertNotIn('update auth.users', sql.lower())
+        self.assertNotIn('update public.shorts_posts set author_name', sql.lower())
+        retry_start = sql.index('    if found then', sql.index("where owner_id=p_actor and request_id=v_request;"))
+        snapshot_start = sql.index('    -- Snapshot only')
+        retry = sql[retry_start:snapshot_start]
+        self.assertIn("'post',public.website_shorts_public_post(v_row.id,p_actor)", retry)
+        self.assertNotIn('v_author_name', retry)
+        insert = sql[sql.index('    insert into public.shorts_posts('):sql.index('    insert into public.shorts_post_limits')]
+        self.assertIn('video_id,author_name,', insert)
+        self.assertIn('v_video,v_author_name,', insert)
+
+    def test_author_migration_preserves_original_authorization_quotas_and_storage(self):
+        sql = (Path(__file__).parents[1] / 'migrations/20261022_shorts_author_profile.sql').read_text()
+        self.assertIn('and is_anonymous=false', sql)
+        self.assertIn('where id=v_id and owner_id=p_actor for update', sql)
+        self.assertIn("pg_advisory_xact_lock(hashtextextended('website-shorts:quota',0))", sql)
+        self.assertIn('purged_at is null)+v_bytes>500000000', sql)
+        self.assertIn('owner_id=p_actor and purged_at is null)+v_bytes>100000000', sql)
+        self.assertIn('upload_count>0 and v_row.upload_lease_until>=clock_timestamp()', sql)
+        self.assertIn('revoke all on function public.website_shorts_operation(text,uuid,jsonb) from public,anon,authenticated;', sql)
+        self.assertIn('grant execute on function public.website_shorts_operation(text,uuid,jsonb) to service_role;', sql)
+        self.assertIn('revoke all on function public.website_shorts_public_post(bigint,uuid) from public,anon,authenticated;', sql)
+        self.assertNotIn('storage.buckets', sql)
+        self.assertNotIn('storage.objects', sql)
+        self.assertNotIn('create table', sql.lower())
 
 
 class RepositoryTransportTests(unittest.TestCase):

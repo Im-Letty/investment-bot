@@ -409,3 +409,33 @@ test('saving a name during a pending post leaves its captured payload unchanged'
  const h=harness({storage:new Map([['cm_nick','送信時の名前']])});h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='送信中';h.ui.send();await h.settle();const sent=h.calls.at(-1),payload=JSON.parse(sent.options.body);
  h.node('.cw-nickname-change').click();h.node('#cmNick').value='次回からの名前';h.node('.cw-nickname-save').click();assert.deepEqual(JSON.parse(sent.options.body),payload);assert.equal(payload.name,'送信時の名前');await h.response({ok:true,post:post(1,{name:'送信時の名前'})});h.node('#cmInput').value='次の投稿';h.ui.send();await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'次回からの名前');
 });
+
+test('menu profile name is shared by both chat composers and replies without sending other profile fields',async()=>{
+ const h=harness({storage:new Map([['cm_nick','別アカウントの旧名']])});let name='メニューの名前';
+ h.window.KNUserProfile={username:()=>name,ready:async()=>{},saveUsername:async value=>{name=value;h.document.emit('knProfileChange');}};
+ h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ assert.equal(h.node('.cw-nickname-value').textContent,name);h.node('#cmInput').value='共通名の投稿';h.ui.send();await h.settle();
+ const payload=JSON.parse(h.calls.at(-1).options.body);assert.equal(payload.name,name);assert.deepEqual(Object.keys(payload).sort(),['body','category','language','name','parent_id','request_id']);
+ await h.response({ok:true,post:post(30,{name})});h.node('.cw-nickname-change').click();h.node('#cmNick').value='プロフィールの新名';h.node('.cw-nickname-save').click();await h.settle();assert.equal(name,'プロフィールの新名');
+ const stock=paired(h);stock.open();await h.response({ok:true,posts:[post(40,{category:'stock:7203'})],has_more:false});assert.equal(h.node('.cw-nickname-value').textContent,name);
+ h.node('.cw-reply-toggle').click();await h.response({ok:true,posts:[],has_more:false});h.node('.cw-reply-form').querySelector('textarea').value='共通名の返信';h.node('.cw-reply-form').emit('submit');await h.settle();assert.equal(JSON.parse(h.calls.at(-1).options.body).name,name);
+});
+test('profile loading blocks duplicate sends and failure preserves the draft instead of using another account name',async()=>{
+ const h=harness({storage:new Map([['cm_nick','以前のアカウント']])});let resolve;
+ h.window.KNUserProfile={username:()=>'',ready:()=>new Promise(r=>{resolve=r;})};h.ui.open();await h.response({ok:true,posts:[],has_more:false});
+ h.node('#cmInput').value='消さない下書き';h.ui.send();h.ui.send();await h.settle();assert.equal(h.calls.filter(c=>c.options.method==='POST').length,0);
+ h.ui.close();resolve();await h.settle();assert.equal(h.calls.filter(c=>c.options.method==='POST').length,0);
+ h.window.KNUserProfile.ready=async()=>{throw new Error('offline');};h.ui.open();await h.response({ok:true,posts:[],has_more:false});await h.ui.send();assert.match(h.node('.cw-notice').textContent,/ユーザー名を確認できません/);assert.equal(h.node('#cmInput').value,'消さない下書き');assert.equal(h.calls.filter(c=>c.options.method==='POST').length,0);
+});
+
+test('account switching while token lookup is pending cannot send an old profile name with the new account',async()=>{
+ const h=harness();let name='アカウントA',resolve;h.window.knUser={id:'account-A',is_anonymous:false};h.window.KNUserProfile={username:()=>name,ready:async()=>{}};
+ h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.window.sb.auth.getSession=()=>new Promise(r=>{resolve=r;});h.node('#cmInput').value='アカウントをまたがない下書き';h.ui.send();await h.settle();
+ h.window.knUser={id:'account-B',is_anonymous:false};name='アカウントB';resolve({data:{session:{access_token:'fixture-B'}}});await h.settle();assert.equal(h.calls.filter(c=>c.options.method==='POST').length,0);assert.equal(h.node('#cmInput').value,'アカウントをまたがない下書き');assert.match(h.node('.cw-notice').textContent,/アカウントが切り替わり/);
+ h.window.sb.auth.getSession=async()=>({data:{session:{access_token:'fixture-B'}}});h.ui.send();await h.settle();assert.equal(h.calls.filter(c=>c.options.method==='POST').length,1,'the next explicit send is a fresh B request because A never reached transport');assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'アカウントB');
+});
+
+test('first anonymous session initialization may submit the current guest name without looking like an account switch',async()=>{
+ const h=harness();h.window.KNUserProfile={username:()=>'初回の名前',ready:async()=>{}};h.window.knEnsureGuest=async()=>{h.window.knUser={id:'first-guest',is_anonymous:true};return {access_token:'first-guest-fixture'};};
+ h.ui.open();await h.response({ok:true,posts:[],has_more:false});h.node('#cmInput').value='はじめての投稿';h.ui.send();await h.settle();assert.equal(h.calls.filter(c=>c.options.method==='POST').length,1);assert.equal(JSON.parse(h.calls.at(-1).options.body).name,'初回の名前');
+});

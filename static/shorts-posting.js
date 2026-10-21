@@ -5,12 +5,13 @@
 })(typeof window==='undefined'?null:window,function(w){
   'use strict';
   var topics=['#経済入門','#投資','#マーケット','#企業','#家計・節約','#税金','#副業・お金','#年金・老後','#不動産','#暗号資産','#経済ニュース','#世界経済','#経済史','#行動経済学','#テクノロジーと経済','#用語解説'];
-  var maxFile=20000000,modal=null,form=null,status=null,ownerList=null,submit=null,owner=null,requestId=null,busy=false,generation=0,feedGeneration=0,mineCursor=null,selectedFile=null,selectedURL=null,videoPreview=null,fileSummary=null,editButton=null,editorHandle=null,workflowOpen=false;
+  var maxFile=20000000,modal=null,form=null,status=null,ownerList=null,submit=null,owner=null,requestId=null,busy=false,generation=0,feedGeneration=0,mineCursor=null,selectedFile=null,selectedURL=null,videoPreview=null,fileSummary=null,editButton=null,editorHandle=null,workflowOpen=false,authorLabel=null,workflowOwnerId=null;
   function validId(value){return Number.isSafeInteger(value)&&value>0;}
   function feedRows(posts){
     if(!Array.isArray(posts)||posts.length>20)return [];
     return posts.filter(function(p){return p&&validId(p.id)&&typeof p.title==='string'&&p.title.length>0&&Array.from(p.title).length<=120&&topics.indexOf(p.topic)>=0&&typeof p.published_at==='string'&&p.published_at.length>0;}).map(function(p){
-      var row={id:null,cap:p.title,tag:p.topic,provider:p.provider,postId:p.id};
+      var author=typeof p.author_name==='string'&&Array.from(p.author_name).length<=20&&!/[\u0000-\u001f\u007f-\u009f]/.test(p.author_name)?p.author_name:'';
+      var row={id:null,cap:p.title,tag:p.topic,provider:p.provider,postId:p.id,authorName:author};
       if(p.provider==='youtube'&&/^[A-Za-z0-9_-]{11}$/.test(p.video_id||''))row.id=p.video_id;
       if(p.provider==='upload'&&p.media_url==='/api/shorts/posts/'+p.id+'/media'){row.id='upload:'+p.id;row.mediaSrc=p.media_url;}
       return row;
@@ -56,6 +57,7 @@
     dialog.appendChild(node('p','ks-post-intro','自分の動画を選ぶか、このサイトで撮影・編集して、ショートに投稿できます。'));
     status=node('p','ks-post-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');dialog.appendChild(status);
     form=node('form','ks-post-form');dialog.appendChild(form);
+    authorLabel=node('p','ks-post-author-summary');authorLabel.setAttribute('aria-live','polite');form.appendChild(authorLabel);syncAuthor();
     editButton=node('button','ks-post-edit','動画を選ぶ・撮影する');editButton.type='button';editButton.addEventListener('click',editVideo);form.appendChild(editButton);
     fileSummary=node('p','ks-post-file-summary','まだ動画を選んでいません。');form.appendChild(fileSummary);
     videoPreview=node('video','ks-post-preview');videoPreview.controls=true;videoPreview.playsInline=true;videoPreview.muted=true;videoPreview.hidden=true;videoPreview.setAttribute('aria-label','投稿する動画のプレビュー');form.appendChild(videoPreview);
@@ -67,14 +69,15 @@
     var ownTitle=node('h3','','自分の投稿');dialog.appendChild(ownTitle);ownerList=node('div','ks-post-mine');dialog.appendChild(ownerList);
     modal.appendChild(dialog);modal.addEventListener('click',function(e){if(e.target===modal)exit();});modal.addEventListener('keydown',function(e){if(e.key==='Escape'){e.preventDefault();exit();return;}if(e.key==='Tab'){var controls=Array.from(dialog.querySelectorAll('button,input,textarea,select,[tabindex]')).filter(function(n){return !n.disabled&&n.getClientRects().length>0;});if(!controls.length)return;var first=controls[0],last=controls[controls.length-1];if(e.shiftKey&&w.document.activeElement===first){e.preventDefault();last.focus();}else if(!e.shiftKey&&w.document.activeElement===last){e.preventDefault();first.focus();}}});w.document.body.appendChild(modal);
   }
+  function syncAuthor(){if(!authorLabel)return;var name=w.KNUserProfile&&w.KNUserProfile.username();authorLabel.textContent=name?'投稿者：'+name:'投稿者名はメニューのプロフィールで設定できます。';}
   async function session(){
     var serial=++generation;owner=null;setBusy(false);ownerList.textContent='';mineCursor=null;
-    try{var current=await getLoggedInSession(w.sb);if(serial!==generation||modal.hidden)return;owner=current.user.id;say('');setBusy(false);loadMine(false,serial);}
+    try{var current=await getLoggedInSession(w.sb);if(serial!==generation||modal.hidden)return;owner=current.user.id;workflowOwnerId=owner;say('');setBusy(false);syncAuthor();loadMine(false,serial);}
     catch(_){if(serial===generation&&!modal.hidden)say(message('login_required'));}
   }
   function player(){var feed=w.document.getElementById('ksFeed'),sheet=w.document.getElementById('knShorts');return w.KNShortsPlayback&&feed&&sheet?w.KNShortsPlayback.get(feed,sheet):null;}
   function resumePlayback(){var sheet=w.document.getElementById('knShorts'),feed=w.document.getElementById('ksFeed'),managed=player();if(!managed||!sheet||!sheet.classList.contains('open')||w.document.hidden||!feed)return;var rect=feed.getBoundingClientRect(),selected=null,best=0;Array.from(feed.querySelectorAll('.ks-slide')).forEach(function(s){var r=s.getBoundingClientRect(),overlap=Math.max(0,Math.min(r.bottom,rect.bottom)-Math.max(r.top,rect.top));if(overlap>best){best=overlap;selected=s;}});if(selected)managed.activate(selected);}
-  function open(){create();if(workflowOpen)return;workflowOpen=true;generation++;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');setBusy(false);var managed=player();if(managed)managed.close();modal.hidden=true;editVideo(true);}
+  function open(){create();if(workflowOpen)return;workflowOpen=true;workflowOwnerId=w.knUser&&w.knUser.is_anonymous===false?w.knUser.id:null;generation++;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');setBusy(false);var managed=player();if(managed)managed.close();modal.hidden=true;editVideo(true);}
   function resetForm(){form.reset();clearVideo();}
   function exit(resume){if(!modal||!workflowOpen)return;generation++;workflowOpen=false;var activeEditor=editorHandle;editorHandle=null;if(activeEditor&&typeof activeEditor.close==='function')activeEditor.close();modal.hidden=true;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');var sheet=w.document.getElementById('knShorts'),btn=w.document.getElementById('ksPublishBtn');if(resume!==false)resumePlayback();if(!w.document.hidden&&sheet&&sheet.classList.contains('open')&&btn&&btn.getClientRects().length&&btn.focus)btn.focus();}
   async function api(path,options,authenticated){
@@ -110,6 +113,7 @@
   }
   async function send(event){
     event.preventDefault();if(busy||!owner)return;var serial=generation,options;
+    if(w.KNUserProfile&&typeof w.KNUserProfile.ready==='function'){setBusy(true);try{await w.KNUserProfile.ready();if(serial!==generation||modal.hidden)return;if(!w.KNUserProfile.username()){say('メニューのプロフィールからユーザー名を保存してください。');return;}}catch(_){if(serial===generation&&!modal.hidden)say('プロフィールを確認できませんでした。少し後にお試しください。');return;}finally{if(serial===generation&&!modal.hidden)setBusy(false);}syncAuthor();}
     if(!requestId){if(!w.crypto||typeof w.crypto.randomUUID!=='function'){say('投稿を始められませんでした。ページを開き直してください。');return;}requestId=w.crypto.randomUUID();}
     var values={request_id:requestId,title:form.elements.title.value,caption:form.elements.caption.value,topic:form.elements.topic.value};
     var file=selectedFile;if(!file){say('動画を選ぶか撮影してください。');return;}if(file.size>maxFile){say(message('file_too_large'));return;}
@@ -131,9 +135,10 @@
       else{btn.textContent='投稿';top.appendChild(btn);} // Keep the existing entry when the main navigation is unavailable.
       shorts.addEventListener('click',loadPublished);
       if(typeof w.MutationObserver==='function'){var visibility=new w.MutationObserver(function(){if(!sheet.classList.contains('open'))exit(false);});visibility.observe(sheet,{attributes:true,attributeFilter:['class']});}
+      w.document.addEventListener('knProfileChange',syncAuthor);
       w.document.addEventListener('visibilitychange',function(){if(w.document.hidden)exit(false);});
       w.addEventListener('pagehide',function(){exit(false);});w.addEventListener('popstate',function(){exit(false);});
-      w.document.addEventListener('knAuthChange',function(){var visible=modal&&workflowOpen;if(editorHandle){generation++;var active=editorHandle;editorHandle=null;active.close();modal.hidden=false;}generation++;owner=null;requestId=null;if(ownerList)ownerList.textContent='';if(visible){resetForm();session();}});
+      w.document.addEventListener('knAuthChange',function(){var user=w.knUser;if(workflowOwnerId&&user&&user.is_anonymous===false&&user.id===workflowOwnerId){syncAuthor();return;}workflowOwnerId=user&&user.is_anonymous===false?user.id:null;var visible=modal&&workflowOpen;if(editorHandle){generation++;var active=editorHandle;editorHandle=null;active.close();modal.hidden=false;}generation++;owner=null;requestId=null;if(ownerList)ownerList.textContent='';if(visible){resetForm();session();}});
     }install();
   }
   return {feedRows:feedRows,getLoggedInSession:getLoggedInSession,loadPublished:loadPublished,open:open,mount:mount};

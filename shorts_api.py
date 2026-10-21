@@ -10,6 +10,7 @@ from dataclasses import asdict
 import json
 import re
 import uuid
+import unicodedata
 
 from flask import Blueprint, jsonify, redirect, request
 import requests
@@ -180,6 +181,16 @@ def _post(raw, owner=None, *, private=False):
     out = dict(id=post_id, title=title, caption=caption, topic=topic, provider=provider,
         created_at=_timestamp(raw.get('created_at')), published_at=published,
         is_mine=bool(owner) and raw.get('is_mine') is True)
+    # Only the bounded public snapshot crosses the API boundary. Account
+    # metadata, profile details and ownership IDs never enter this projection.
+    author_name = raw.get('author_name')
+    if author_name is not None:
+        if (not isinstance(author_name, str) or not 1 <= len(author_name) <= 20
+                or any(unicodedata.category(c) in ('Cc', 'Cs') for c in author_name)):
+            raise ShortsError('storage_unavailable')
+        out['author_name'] = author_name
+    else:
+        out['author_name'] = None
     if private:
         state = raw.get('state')
         if state not in ('pending', 'published', 'hidden', 'deleted'):
