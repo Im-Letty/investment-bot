@@ -183,17 +183,17 @@ body.kn-home-a #knShorts.open .ks-top {
   position:absolute;top:0;left:50%;right:auto;transform:translateX(-50%);
   width:var(--kn-sh-stage-width);min-height:72px;
   padding:18px 16px 12px!important;gap:8px!important;flex-wrap:nowrap;
-  background:var(--kn-sh-video-bg)!important;color:#fff;border:0;z-index:5;
+  background:var(--kn-sh-bg)!important;color:var(--kn-sh-ink);border:0;z-index:5;
 }
 body.kn-home-a #knShorts.open .ks-title {
   font:500 calc(var(--kn-type-item,16px) * var(--kn-type-scale,1))/1.4 system-ui,sans-serif!important;
-  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--kn-sh-ink)!important;
 }
 body.kn-home-a #knShorts.open #kgShortsSaved,
 body.kn-home-a #knShorts.open #ksSearchBtn {
   width:42px!important;min-width:42px;height:42px!important;min-height:42px;
-  padding:0!important;flex:0 0 42px;color:#fff!important;
-  background:rgba(0,0,0,.18)!important;border:0!important;
+  padding:0!important;flex:0 0 42px;color:var(--kn-sh-ink)!important;
+  background:transparent!important;border:0!important;
   border-radius:50%!important;
 }
 body.kn-home-a #knShorts.open #kgShortsSaved span,
@@ -226,13 +226,18 @@ body.kn-home-a #knShorts .ks-save {
 }
 body.kn-home-a #knShorts .ks-save.on {background:rgba(5,15,12,.7);color:#fff}
 body.kn-home-a #knShorts button:focus-visible {outline:2px solid #fff!important;outline-offset:2px}
+body.kn-home-a #knShorts.open .ks-top button:focus-visible {outline-color:var(--kn-sh-button)!important}
+body.kn-home-a #knShorts.open .ks-top :is(#kgShortsSaved,#ksSearchBtn):hover {background:var(--kn-sh-chip)!important}
+body.kn-home-a #knShorts.open .ks-top .ks-publish-btn {
+  background:var(--kn-sh-paper);color:var(--kn-sh-ink);border-color:var(--kn-sh-line);
+}
 @media(max-width:640px) {
   body.kn-home-a #knShorts {--kn-sh-stage-width:100%}
   body.kn-home-a #knShorts.open .ks-top {
     padding-left:calc(var(--kn-a-menu-left) + 48px)!important;
     padding-right:12px!important;
   }
-  body.kn-home-a:has(#knShorts.open) #knFloatHam {color:#fff!important}
+  body.kn-home-a:has(#knShorts.open) #knFloatHam {color:var(--kn-sh-ink)!important}
 }
 @media(max-width:360px) {
   body.kn-home-a #knShorts.open .ks-top {gap:5px!important}
