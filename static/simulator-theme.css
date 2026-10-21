@@ -207,7 +207,21 @@ body .kakeibo-entry {
 }
 
 /* Error messages, delete actions, income/expense colors and warning icons retain meaning. */
-body :is(.tab, .btn, .btn-apply, .btn-add, .val-input, .row input[type="range"]):focus-visible {
+body :is(.tab, .btn, .btn-apply, .btn-add, .row input[type="range"]):focus-visible {
   outline: 2px solid var(--sim-button);
   outline-offset: 2px;
+}
+
+/* Keep numbers open on the page; an underline marks the field being edited. */
+body .val-input:focus {
+  outline: none;
+  box-shadow: inset 0 -2px 0 var(--sim-button);
+  caret-color: var(--sim-button);
+}
+
+@media (forced-colors: active) {
+  body .val-input:focus {
+    box-shadow: none;
+    border-bottom: 2px solid Highlight;
+  }
 }
