@@ -251,6 +251,23 @@ test('touch picking uses each rendered direction mesh and its visible face and p
   }
 });
 
+test('source-switch touch picking reads only the visible view alpha, including the front wrap boundary',()=>{
+  for(const key of ['newborn','adult'])for(const yaw of [11.24,11.26,348.74,348.76]){
+    let lo=650,hi=6150;
+    for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(Motion.directionFrame('direction_spin',mid).yawDeg<yaw)lo=mid;else hi=mid;}
+    const age=(lo+hi)/2,frame=Motion.directionFrame('direction_spin',age),index=frame.blend<.5?frame.currentIndex:frame.nextIndex,view=Motion.nurseryDirectionViews[index];
+    const f=fixture({hitPixels:'png',options:{appearanceKey:key}});f.complete();
+    // Cache both adjacent meshes first, so a stale hidden mesh could be picked.
+    for(const neighbour of [frame.currentIndex,frame.nextIndex])f.api.setSituation('direction_spin',{elapsedMs:touchDirectionAge(neighbour)});
+    f.api.setSituation('direction_spin',{elapsedMs:age});
+    const crown=touchDirectionPoint(key,index,view.headX,.25,age);
+    assert.deepEqual(f.api.hitTest(crown.x,crown.y),{part:'head',side:null});
+    for(let y=.08;y<.96;y+=.055)for(let x=.08;x<.96;x+=.055)f.api.hitTest(x,y);
+    assert.deepEqual(f.hitReads,[index?'pet_lilac_baby_turnaround_v1.png':'pet_lilac_reference_v2.png'],'invisible adjacent view is never eligible for a touch');
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
 test('touch picking rejects transparent cutout pixels and noninteractive body rather than accepting a head bounding box',()=>{
   const key='grown',f=fixture({hitPixels:'png',options:{appearanceKey:key}});f.complete();const head=f.drawCalls.find(c=>c.part===6),data=f.liveVertices;let transparent;
   for(let v=head.first;v<head.first+head.count;v+=3){
@@ -918,7 +935,7 @@ test('all six garments have bounded per-view torso coverage without painting paw
   assert.ok(Motion.outfitCoverage('cloth_cream_vest',.58,.72,true,true)>Motion.outfitCoverage('cloth_cream_vest',.58,.72,true,false));
 });
 
-test('turn drawing borrows unit four for at most two cells then restores the frontal VBO and materials',()=>{
+test('turn drawing borrows unit four for one cell then restores the frontal VBO and materials',()=>{
   const f=fixture();f.complete();const textures=f.created.filter(row=>row.type==='Texture'),frontBuffer=f.drawCalls[0].buffer;
   assert.equal(f.buffers.length,2);assert.equal(f.updates,3);f.advance();assert.equal(f.buffers.length,2);assert.equal(f.updates,6);
   for(const [id,index]of[['direction_left',12],['direction_right',4],['direction_back',8]]){
@@ -935,11 +952,24 @@ test('turn drawing borrows unit four for at most two cells then restores the fro
   f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);
 });
 
-test('short adjacent-view transitions use complementary premultiplied weights, never a held double eye',()=>{
-  let age=0;for(;age<6000;age++)if(Motion.directionFrame('direction_right',age).blend>.1&&Motion.directionFrame('direction_right',age).blend<.9)break;
-  const frame=Motion.directionFrame('direction_right',age),f=fixture();f.complete();const before=f.draws;f.api.setSituation('direction_right',{elapsedMs:age});const calls=f.drawCalls.slice(before);
-  assert.equal(calls.length,2);assert.deepEqual(calls.map(c=>c.part),[frame.currentIndex+10,frame.nextIndex+10]);assert.ok(Math.abs(calls[0].uniforms.u_motionA[0]+calls[1].uniforms.u_motionA[0]-1)<1e-12);
-  assert.deepEqual(f.blend.at(-2),[f.gl.ONE,f.gl.ONE]);assert.deepEqual(f.blend.at(-1),[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]);f.api.destroy();
+test('intermediate turns draw one opaque source, including both sides of each source boundary',()=>{
+  for(const appearanceKey of ['newborn','adult','grown',null]){
+    const f=fixture({options:{appearanceKey}});f.complete();
+    for(const situation of ['direction_left','direction_right','direction_back','direction_spin','room_walk_left','room_walk_right']){
+      let transitions=0;
+      for(let age=1;age<Motion.durations[situation];age+=17){
+        const frame=Motion.directionFrame(situation,age);
+        if(frame.front||frame.done||frame.blend<=.02||frame.blend>=.98)continue;
+        const before=f.draws;f.api.setSituation(situation,{elapsedMs:age});const calls=f.drawCalls.slice(before);
+        assert.equal(calls.length,1,`${appearanceKey} ${situation} ${age}: a single silhouette`);
+        assert.equal(calls[0].part,10+(frame.blend<.5?frame.currentIndex:frame.nextIndex));
+        assert.equal(calls[0].uniforms.u_motionA[0],1,'source alpha is not attenuated');transitions++;
+      }
+      assert.ok(transitions>0,`${situation} exercised source transitions`);
+    }
+    assert.deepEqual(f.blend,[[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]],'never add a second full-body drawing');
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
 });
 
 test('turns replace food callbacks, expire while hidden, and reduced motion shows one static target',()=>{

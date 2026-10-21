@@ -1241,6 +1241,11 @@
       blend:reducedMotion?0:smooth((fraction-.46)/.08),front:normalized<.000001||normalized>359.999999,done:done};
     if(room.id)result.roomWalk=room;return result;
   }
+  // Adjacent drawings have different eye, mouth and silhouette positions.
+  // Crossfading whole drawings makes a translucent second pet, even with
+  // premultiplied additive blending. Drawing and touch picking must own the
+  // same single, fully opaque view throughout every turn.
+  function directionSourceIndex(frame) { return frame.blend < .5 ? frame.currentIndex : frame.nextIndex; }
   // Materials and landmarks belong to each real view, never to a flattened
   // frontal face. View zero deliberately uses the unchanged original B image.
   var directionViews=Object.freeze([[0.55,0.92,0.03,0.6,0.675,[0.525,0.79,0.258,0.125],[0.4665,0.429,0.7281,0.3405],[0.16,0.145,0.137,0.14],[0.527,0.743,0.718,0.729],[0.155,0.728,0.115,0.19],[0.625,0.48,0.105,0.095],[0.03,0.025,0.945,0.93]],[0.5177411,0.953748,0.0733652,0.57,0.68,[0.54,0.8,0.26,0.135],[0.5128357,0.4497756,0.7367077,0.3978536],[0.13622,0.12,0.107512,0.12],[0.48,0.73,0.71,0.71],[0.22,0.76,0.14,0.17],[0.68,0.51,0.09,0.08],[0.0685805,0.0733652,0.9106858,0.9569378]],[0.5363906,0.953748,0.0701754,0.61,0.68,[0.57,0.8,0.26,0.135],[0.6164672,0.4537189,0.8091025,0.4049876],[0.130478,0.121124,0.087416,0.12],[0.57,0.73,0.77,0.7],[0.22,0.75,0.15,0.19],[0.79,0.51,0.09,0.08],[0.0988836,0.0701754,0.9314195,0.9569378]],[0.5623347,0.9569378,0.076555,0.67,0.69,[0.61,0.8,0.25,0.135],[0.7314195,0.4664469,0.8675954,0.4251034],[0.110383,0.121124,0.075,0.12],[0.7,0.73,0.86,0.7],[0.25,0.75,0.18,0.18],[0.92,0.52,0.07,0.08],[0.1004785,0.076555,0.9425837,0.9569378]],[0.5470762,0.9489633,0.0558214,0.65,0.69,[0.58,0.8,0.26,0.135],[0.7812299,0.4414894,-2,-2],[0.075933,0.12,0.1,0.13],[0.68,0.75,-2,-2],[0.23,0.72,0.16,0.19],[0.88,0.53,0.08,0.08],[0.0861244,0.0558214,0.8867624,0.9489633]],[0.5251596,0.9457735,0.0366826,0.58,0.69,[0.6,0.8,0.26,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.82,0.77,-2,-2],[0.28,0.72,0.18,0.19],[-2,-2,0.08,0.08],[0.122807,0.0366826,0.8979266,0.9457735]],[0.5329364,0.9457735,0.046252,0.57,0.69,[0.58,0.81,0.26,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.87,0.78,-2,-2],[0.29,0.72,0.18,0.19],[-2,-2,0.08,0.08],[0.1339713,0.046252,0.9601276,0.9457735]],[0.5351673,0.9425837,0.062201,0.56,0.69,[0.56,0.81,0.27,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[-2,-2,-2,-2],[0.425,0.74,0.15,0.19],[-2,-2,0.08,0.08],[0.1164274,0.062201,0.9457735,0.9457735]],[0.5153392,0.9441786,0.0510367,0.51,0.69,[0.51,0.82,0.27,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[-2,-2,-2,-2],[0.55,0.77,0.135,0.2],[-2,-2,0.08,0.08],[0.0637959,0.0510367,0.969697,0.9441786]],[0.5127876,0.9505582,0.0669856,0.46,0.69,[0.46,0.81,0.27,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.15,0.77,-2,-2],[0.69,0.77,0.16,0.2],[-2,-2,0.08,0.08],[0.1068581,0.0669856,0.8724083,0.9505582]],[0.499275,0.9505582,0.0574163,0.45,0.69,[0.45,0.81,0.26,0.135],[-2,-2,-2,-2],[0.1,0.13,0.1,0.13],[0.16,0.77,-2,-2],[0.76,0.75,0.18,0.2],[-2,-2,0.08,0.08],[0.1371611,0.0574163,0.9314195,0.9505582]],[0.4968049,0.953748,0.0669856,0.41,0.69,[0.42,0.81,0.26,0.135],[0.1888764,0.4297058,-2,-2],[0.075,0.12,0.1,0.13],[0.19,0.76,-2,-2],[0.78,0.75,0.17,0.2],[0.1,0.54,0.07,0.08],[0.1323764,0.0669856,0.9266348,0.953748]],[0.4638351,0.9362041,0.0398724,0.41,0.69,[0.44,0.81,0.26,0.135],[0.2525561,0.3982873,-2,-2],[0.081675,0.12,0.1,0.13],[0.32,0.76,-2,-2],[0.84,0.72,0.12,0.18],[0.12,0.53,0.08,0.08],[0.1403509,0.0398724,0.9282297,0.9362041]],[0.4761936,0.9393939,0.0334928,0.44,0.69,[0.45,0.81,0.26,0.135],[0.2255743,0.376582,0.4075728,0.4150417],[0.084545,0.123995,0.127608,0.123995],[0.29,0.76,0.48,0.73],[0.82,0.73,0.12,0.17],[0.28,0.54,0.09,0.08],[0.1132376,0.0334928,0.9138756,0.9393939]],[0.4846426,0.9362041,0.0334928,0.5,0.69,[0.5,0.81,0.27,0.135],[0.2512477,0.394183,0.4801505,0.4271089],[0.116124,0.123995,0.139091,0.132608],[0.38,0.76,0.61,0.75],[0.81,0.74,0.1,0.15],[0.47,0.54,0.1,0.08],[0.1052632,0.0334928,0.9441786,0.9393939]],[0.5246005,0.9362041,0.0366826,0.52,0.69,[0.52,0.81,0.27,0.135],[0.4078037,0.4390801,0.6547938,0.3940143],[0.139091,0.123995,0.130478,0.132608],[0.39,0.76,0.66,0.75],[-2,-2,0.1,0.1],[0.49,0.53,0.1,0.08],[0.0398724,0.0366826,0.923445,0.9362041]]].map(function(row,index){
@@ -2452,8 +2457,7 @@
       if(dead||!loaded||!lastHitFrame||family==='egg'||!pageVisible||doc.hidden||canvas.hidden||canvas.isConnected===false||!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>1||y<0||y>1)return null;
       var painted=lastHitFrame,px=x*2-1,py=1-y*2;
       if(painted.turn){
-        var entries=[[painted.turn.currentIndex,1-painted.turn.blend],[painted.turn.nextIndex,painted.turn.blend]];
-        if(entries[1][1]>entries[0][1])entries.reverse();
+        var entries=[[directionSourceIndex(painted.turn),1]];
         for(var entry=0;entry<entries.length;entry++){
           var index=entries[entry][0],weight=entries[entry][1];if(weight<.2)continue;
           var mesh=turnMeshes[index],bounds=turnBounds[index];if(!mesh||!bounds)continue;
@@ -2545,14 +2549,11 @@
       gl.bufferSubData(gl.ARRAY_BUFFER,0,vertices);gl.vertexAttrib1f(partAttribute,part.index);gl.drawArrays(gl.TRIANGLES,0,vertices.length/9);bindVertices(buffer);
     }
     function paintTurn(frame,rig) {
-      // Only the at-most-two visible views have working vertices. Ordinary
+      // Only the visible view has working vertices. Ordinary
       // frontal frames never build or upload a turnaround mesh.
       if(!turnBuffer){turnBuffer=own('createBuffer');turnVertices=new Float32Array(24*24*6*5);bindVertices(turnBuffer);gl.bufferData(gl.ARRAY_BUFFER,turnVertices,gl.DYNAMIC_DRAW);}
       gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[9]);
-      // Weighted premultiplied images add to one opaque silhouette, rather than
-      // darkening a half-alpha overlap with an ordinary over operation.
-      gl.blendFunc(gl.ONE,gl.ONE);
-      [[frame.currentIndex,1-frame.blend],[frame.nextIndex,frame.blend]].forEach(function(entry){
+      [[directionSourceIndex(frame),1]].forEach(function(entry){
         var index=entry[0],weight=entry[1];if(weight<=0)return;
         gl.activeTexture(gl.TEXTURE0+5);gl.bindTexture(gl.TEXTURE_2D,assetTextures[index===0?(family==='baby'?3:10):(family==='baby'?5:13)]);
         var view=directionView(index,appearance.key),mesh=turnMeshes[index]||(turnMeshes[index]=directionMesh(index,stageProfile.key,branchProfile.key,appearance.key));
@@ -2574,7 +2575,7 @@
       });
       gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[4]);
       gl.activeTexture(gl.TEXTURE0+5);gl.bindTexture(gl.TEXTURE_2D,textures[5]);
-      gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);bindVertices(buffer);
+      bindVertices(buffer);
     }
     function paintEgg(p,elapsed,reduced){
       var rect=appearance.stillRect,aspect=(rect[2]-rect[0])/(rect[3]-rect[1]),turn=directionFrame(cue,elapsed*1000,reduced);
