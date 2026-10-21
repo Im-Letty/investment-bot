@@ -711,7 +711,6 @@ root.drawOuterOrbit=draw;draw(3000);
       </div>
       <div class="drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
       <div class="content">
-        <div id="skBanner" onclick="openMyRecord()"></div>
       <div class="section-label" data-i18n="sect_features">機能</div>
       <div class="mgrid"><div class="mc" onclick="openSimulator()"><div class="mi">📊</div><div class="mn" data-i18n="menu_simulator" data-help-key="menu_simulator" data-help-subtitle="1">シミュレーター</div><div class="md" data-i18n="card_sim_desc">毎日・毎月積立で将来資産を計算</div></div>
       <a href="#" class="mc" onclick="openMorningSection();return false;"><div class="mi">☀️</div><div class="mn" data-i18n="menu_morning" data-help-key="menu_morning" data-help-subtitle="1">朝の相場レター</div><div class="md" data-i18n="card_morn_desc">毎朝8時にAIが市場を分析 ▶</div></a>
@@ -4263,13 +4262,22 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 #sect-pet .ipg-shell-head h2{font:inherit;font-size:18px;font-weight:600;line-height:1.4;margin:0}
 #sect-pet .ipg-shell-back{min-width:44px;min-height:44px;border:1px solid rgba(100,130,110,.3);border-radius:12px;background:transparent;color:inherit;font:inherit;cursor:pointer}
 #sect-pet .ipg-shell-back:focus-visible,#sect-pet .ipg-load-state button:focus-visible{outline:2px solid currentColor;outline-offset:3px}
-#pet-game-root{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+#sect-pet .ipg-shell-content{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding-bottom:calc(82px + env(safe-area-inset-bottom,0px))}
+#sect-pet .ipg-check-in{max-width:1000px;margin:0 auto;padding:16px 20px 0;box-sizing:border-box}
+#sect-pet #skBanner{margin:0!important;box-shadow:none!important;transform:none!important}
+#sect-pet #skBanner:focus-visible{outline:2px solid currentColor;outline-offset:3px}
+#pet-game-root{min-width:0}
+body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
+@media(max-width:420px){#sect-pet .ipg-check-in{padding:12px 12px 0}}
 #sect-pet .ipg-load-state{padding:24px 16px;text-align:center;font:14px/1.8 system-ui,sans-serif}
 #sect-pet .ipg-load-state button{min-height:44px;margin-top:12px;padding:8px 16px;font:inherit;cursor:pointer}
 </style>
 <section id="sect-pet" hidden aria-labelledby="independent-pet-title">
   <header class="ipg-shell-head"><button class="ipg-shell-back" type="button" onclick="closePetTab()" aria-label="ゲームを閉じる">←</button><h2 id="independent-pet-title">育成ゲーム</h2></header>
-  <div id="pet-game-root"><p class="ipg-load-state" role="status">ゲームを開くと読み込みます。</p></div>
+  <div class="ipg-shell-content">
+    <div class="ipg-check-in"><div id="skBanner" role="button" tabindex="0" onclick="openMyRecord()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMyRecord();}"></div></div>
+    <div id="pet-game-root"><p class="ipg-load-state" role="status">ゲームを開くと読み込みます。</p></div>
+  </div>
 </section>
 <script id="independent-pet-loader">
 (function(){
@@ -4382,6 +4390,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
   window.closePetTab=function(restoreFocus){
     var pane=section();if(!pane)return;
     var wasOpen=!pane.hidden;pane.hidden=true;generation++;openLoading=null;viewReady=false;
+    if(wasOpen&&typeof window.mrClose==='function')window.mrClose();
     if(window.IndependentPetGame&&typeof window.IndependentPetGame.close==='function'){
       try{Promise.resolve(window.IndependentPetGame.close()).catch(function(){});}catch(error){}
     }
@@ -4392,7 +4401,12 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
     if(!button)return;
     if(button.getAttribute('data-act')==='pet')window.openPetTab();else window.closePetTab(false);
   },true);
-  document.addEventListener('keydown',function(event){var pane=section();if(event.key==='Escape'&&pane&&!pane.hidden)window.closePetTab();});
+  document.addEventListener('keydown',function(event){
+    var pane=section();if(event.key!=='Escape'||!pane||pane.hidden)return;
+    var record=document.getElementById('mrOv');
+    if(record&&record.classList.contains('on')&&typeof window.mrClose==='function')window.mrClose();
+    else window.closePetTab();
+  });
   window.addEventListener('pagehide',function(){window.closePetTab(false);});
 })();
 </script>

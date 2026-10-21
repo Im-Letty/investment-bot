@@ -42,7 +42,8 @@ function loaderFixture(options = {}) {
   const pane = new Element('section'); pane.hidden = true;
   const host = new Element(), focus = new Element('button');
   const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
-  let timerId = 0, mounts = 0, closes = 0, reloads = 0, received;
+  let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, received;
+  const record = { open: !!options.recordOpen, classList: { contains: () => record.open } };
   const ui = {
     mount: async function (target, config) {
       mounts++; received = { target, config };
@@ -53,7 +54,7 @@ function loaderFixture(options = {}) {
   };
   const document = {
     activeElement: focus,
-    getElementById: id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null,
+    getElementById: id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : id === 'mrOv' ? record : null,
     createElement: tag => new Element(tag),
     addEventListener: (name, fn) => { (listeners.document[name] ||= []).push(fn); },
     head: { appendChild: script => { scripts.push(script); } }
@@ -63,7 +64,8 @@ function loaderFixture(options = {}) {
     __knReadGameStorage: options.read || (() => null),
     __knPersistLocalSetting: options.persist || (async () => undefined),
     addEventListener: (name, fn) => { (listeners.window[name] ||= []).push(fn); },
-    location: { reload: () => { reloads++; } }
+    location: { reload: () => { reloads++; } },
+    mrClose: () => { record.open = false; recordCloses++; }
   };
   if (options.preloaded) { window.PetGameCore = {}; window.IndependentPetGame = ui; }
   const context = vm.createContext({
@@ -75,7 +77,7 @@ function loaderFixture(options = {}) {
   return {
     window, document, pane, host, focus, scripts, timers, listeners, ui, context,
     get mounts() { return mounts; }, get closes() { return closes; }, get received() { return received; },
-    get reloads() { return reloads; },
+    get reloads() { return reloads; }, get recordCloses() { return recordCloses; }, record,
     asset(name) { return scripts.findLast(script => script.src.includes('/' + name + '.js?')); },
     coreLoaded() { window.PetGameCore = {}; this.asset('pet-game-core').onload(); },
     motionLoaded() { window.PetLilacMotion = {}; this.asset('pet-lilac-motion').onload(); },
@@ -162,7 +164,14 @@ test('simulator routes and shared study check-in remain, with no old game writes
   for (const marker of ['__PG_SPA_BOOTED', '__PG_SIM_IFRAME_BOOTED', '__PG_SIM_UNIFY_BOOTED']) {
     assert.ok(html.includes(marker), marker + ' remains');
   }
-  assert.ok(html.includes('skBanner'));
+  const petSection = html.match(/<section id="sect-pet"[\s\S]*?<\/section>/)?.[0];
+  assert.equal((html.match(/id="skBanner"/g) || []).length, 1, 'one existing banner owns the check-in display');
+  assert.match(petSection, /class="ipg-shell-content"[\s\S]*?class="ipg-check-in"[\s\S]*?id="skBanner"[\s\S]*?<\/div><\/div>\s*<div id="pet-game-root">/,
+    'check-in shares the game scroller but stays outside the replaceable loading/render root');
+  assert.match(petSection, /id="skBanner"[^>]*role="button"[^>]*tabindex="0"[^>]*onclick="openMyRecord\(\)"/);
+  assert.match(html, /\.ipg-shell-content\{[^}]*overflow:auto/);
+  assert.match(html, /body:has\(#sect-pet:not\(\[hidden\]\)\)\s+#mrOv\{z-index:100002\}/,
+    'record overlay opens in front of the game and its navigation');
   assert.match(html, /setItem\(['"]sk_total['"]/);
   assert.doesNotMatch(html, /localStorage\.setItem\(\s*['"]pg_(?:exp|coins|login_day|morning_day|kakeibo_rwd)['"]/);
   assert.doesNotMatch(html, /localStorage\.removeItem\(\s*['"](?:pg_[^'"]+|pet_game)['"]/);
@@ -364,6 +373,23 @@ test('closing before hydration prevents hidden mount; reopen and nav use one han
   vm.runInContext(loader, f.context);
   assert.equal(f.listeners.document.click.length, 1);
   assert.equal(f.listeners.document.keydown.length, 1);
+});
+
+test('Escape closes the check-in record first and returns to the same game without remounting', async () => {
+  const f = loaderFixture({ preloaded: true, recordOpen: true });
+  assert.equal(await f.window.openPetTab(), true);
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.record.open, false); assert.equal(f.recordCloses, 1);
+  assert.equal(f.pane.hidden, false); assert.equal(f.mounts, 1); assert.equal(f.closes, 0);
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1);
+});
+
+test('leaving the game closes the record overlay so it cannot remain over another route', async () => {
+  const f = loaderFixture({ preloaded: true, recordOpen: true });
+  await f.window.openPetTab(); f.click('mypage');
+  assert.equal(f.pane.hidden, true); assert.equal(f.record.open, false); assert.equal(f.recordCloses, 1);
+  assert.equal(await f.window.openPetTab(), true); assert.equal(f.record.open, false);
 });
 
 test('pending old mount does not close a newly reopened visible game', async () => {
