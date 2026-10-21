@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const files=['static/simulator-embed-55a2f12d18.html','simulator.html'];
+const files=['static/simulator-embed-9438e6695a.html','simulator.html'];
 function read(file){return fs.readFileSync(path.join(__dirname,'..',file),'utf8');}
 function calculator(file,{uid='',embedded=true}={}){
   const html=read(file),nodes=new Map(),events=new Map(),timers=new Map(),frames=new Map(),messages=[],requests=[];
@@ -38,11 +38,11 @@ for(const file of files){
     h.context.currentLang='en';assert.equal(h.context.fmt(123456),'123K');
     assert.doesNotMatch(read(file),/LINEアプリで開くとより快適です/);
   });
-  test(`${file}: all four modes initialize and report ready without a graph library or user-data response`,()=>{
+  test(`${file}: all four modes calculate without waiting for styling, a graph library or user-data response`,()=>{
     const h=calculator(file,{uid:'fixture-user'});h.settleNumbers();
     assert.equal(h.context.__KN_SIMULATOR_READY,true);
     assert.equal(h.context.__KN_SIMULATOR_READY_TOKEN,'attempt-7');
-    assert.deepEqual(JSON.parse(JSON.stringify(h.messages)),[{data:{type:'kn-simulator-ready',attempt:'attempt-7'},origin:'https://example.test'}]);
+    assert.deepEqual(h.messages,[],'calculation initialization must not expose an unfinished view');
     assert.equal(h.requests.length,1,'existing user-data fetch remains independent of readiness');
     for(const id of ['d-total','d-final','m-total','m-final','lp-principal','lp-final','g-monthly','g-total'])assert.match(h.nodes.get(id).textContent,/\d/);
     assert.equal(h.context.makeChart('chart-d',[],[],[]),null);
@@ -87,6 +87,71 @@ for(const file of files){
     assert.doesNotMatch(html,/<base href="https:\/\/investment-bot-ta24/);
   });
 }
+function viewReady(file,{embedded=true,readyState='loading',calculationReady=true,
+  missingStyle='',themeReady=true,inputsReady=true,amountsReady=true,rowsReady=true,
+  missingDecoratedRow=false,prepareAtDOMContentLoaded=false}={}){
+  const h=calculator(file,{embedded}),html=read(file),document=h.context.document,listeners=[],flagsAtMessage=[];
+  const styles=['simulator-theme-style','simulator-site-type-style','simulator-type-style','simulator-inputs-style'];
+  for(const id of styles){assert.ok(h.nodes.has(id),file+' must include '+id);h.nodes.get(id).sheet=id===missingStyle?null:{};}
+  const state={rowsReady,amountsReady},ranges=[...h.nodes.values()].filter(n=>n.type==='range');
+  assert.ok(ranges.length>0);
+  ranges.forEach((range,index)=>{range.closest=()=>({classList:{contains:name=>name==='sim-adjust-row'&&state.rowsReady&&!(missingDecoratedRow&&index===0)}});});
+  document.body={classList:{contains:name=>name==='sim-amount-fitting'&&state.amountsReady}};
+  document.readyState=readyState;
+  document.querySelectorAll=selector=>selector==='.row input[type="range"]'?ranges:[];
+  document.addEventListener=(name,fn)=>{assert.equal(name,'DOMContentLoaded');listeners.push(fn);};
+  h.context.KNSimulatorTheme=themeReady?{applyChart(){}}:undefined;
+  h.context.__KN_SIMULATOR_INPUTS=inputsReady;
+  h.context.__KN_SIMULATOR_READY=calculationReady;
+  if(embedded)h.context.parent.postMessage=(data,origin)=>{
+    flagsAtMessage.push(h.context.__KN_SIMULATOR_VIEW_READY);h.messages.push({data,origin});
+  };
+  if(prepareAtDOMContentLoaded){
+    state.rowsReady=false;state.amountsReady=false;
+    // Model the existing input/amount script listeners registered before the
+    // finalizer. The finalizer must run after both decorations complete.
+    document.addEventListener('DOMContentLoaded',()=>{state.rowsReady=true;});
+    document.addEventListener('DOMContentLoaded',()=>{state.amountsReady=true;});
+  }
+  const match=html.match(/<script id="simulator-view-ready">([\s\S]*?)<\/script>/);
+  assert.ok(match,'view-ready gate must exist');
+  assert.ok(html.indexOf('<script id="simulator-view-ready">')>html.indexOf('<script src="/static/simulator-amounts.js'));
+  vm.runInNewContext(match[1],h.context,{filename:file+':view-ready'});
+  return {...h,state,listeners,flagsAtMessage,domReady(){document.readyState='interactive';listeners.forEach(fn=>fn());}};
+}
+for(const file of files){
+  test(file+': calculation-ready does not reveal the legacy view before DOM and decorations are ready',()=>{
+    const h=viewReady(file,{prepareAtDOMContentLoaded:true});
+    assert.equal(h.context.__KN_SIMULATOR_READY,true);
+    assert.equal(h.context.__KN_SIMULATOR_VIEW_READY,undefined);
+    assert.deepEqual(h.messages,[]);
+    assert.equal(h.listeners.length,3,'view finalizer follows input and amount initialization');
+    h.domReady();
+    assert.equal(h.context.__KN_SIMULATOR_VIEW_READY,true);
+    assert.deepEqual(JSON.parse(JSON.stringify(h.messages)),[{data:{type:'kn-simulator-ready',attempt:'attempt-7'},origin:'https://example.test'}]);
+    assert.deepEqual(h.flagsAtMessage,[true],'the view flag is set before notifying the parent');
+    h.domReady();assert.equal(h.messages.length,1,'repeated completion cannot send duplicate readiness');
+  });
+  test(file+': a missing current stylesheet cannot expose the legacy view',()=>{
+    for(const missingStyle of ['simulator-theme-style','simulator-site-type-style','simulator-type-style','simulator-inputs-style']){
+      const h=viewReady(file,{missingStyle});h.domReady();
+      assert.equal(h.context.__KN_SIMULATOR_VIEW_READY,undefined,missingStyle);
+      assert.equal(h.messages.length,0,missingStyle);
+    }
+  });
+  test(file+': missing theme or partial input/amount initialization stays unavailable for parent retry',()=>{
+    for(const options of [{calculationReady:false},{themeReady:false},{inputsReady:false},{amountsReady:false},{rowsReady:false},{missingDecoratedRow:true}]){
+      const h=viewReady(file,options);h.domReady();
+      assert.equal(h.context.__KN_SIMULATOR_VIEW_READY,undefined,JSON.stringify(options));
+      assert.equal(h.messages.length,0,JSON.stringify(options));
+    }
+  });
+  test(file+': an already prepared standalone view becomes ready without messaging itself',()=>{
+    const h=viewReady(file,{embedded:false,readyState:'complete'});
+    assert.equal(h.context.__KN_SIMULATOR_VIEW_READY,true);
+    assert.equal(h.messages.length,0);assert.equal(h.listeners.length,0);
+  });
+}
 function background(file,embedded){
   const html=read(file),events=new Map(),docEvents=new Map(),frames=new Map();let seq=0;
   const ctx={clearRect(){},beginPath(){},arc(){},stroke(){},fill(){},save(){},fillText(){},restore(){}};
@@ -121,4 +186,12 @@ for(const file of files){
 test('the exact existing Chart version and MIT license are kept locally',()=>{
   assert.match(read('static/vendor/chart.umd-4.4.1.js'),/Chart\.js v4\.4\.1/);
   assert.match(read('static/vendor/Chart.js-4.4.1-LICENSE.md'),/MIT License/);
+});
+
+test('the current immutable simulator filename is bound to its actual content hash',()=>{
+  const html=read('index.html'),url=html.match(/var SIM_URL="([^"]+)"/)[1];
+  const name=new URL(url,'https://example.test').pathname;
+  const content=fs.readFileSync(path.join(__dirname,'..',name));
+  const hash=require('node:crypto').createHash('sha256').update(content).digest('hex').slice(0,10);
+  assert.equal(name,'/static/simulator-embed-'+hash+'.html');
 });

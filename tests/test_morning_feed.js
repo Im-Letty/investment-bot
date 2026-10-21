@@ -1079,7 +1079,7 @@ function simulatorShellHarness(idle = true){
   context.window=context;vm.runInNewContext(code,context);
   return {html,context,get frame(){return nodes.knSimEmbedFrame;},get child(){return nodes.knSimEmbedFrame.contentWindow;},status,classes,timers,messages,callbacks,loads:()=>loads,
     token:()=>new URLSearchParams(new URL(nodes.knSimEmbedFrame.url,'https://example.test').hash.slice(1)).get('sim_attempt'),
-    ready(overrides={}){callbacks.message({source:this.child,origin:context.location.origin,data:{type:'kn-simulator-ready',attempt:this.token()},...overrides});},
+    ready(overrides={}){this.child.__KN_SIMULATOR_READY=true;this.child.__KN_SIMULATOR_VIEW_READY=true;this.child.__KN_SIMULATOR_READY_TOKEN=this.token();callbacks.message({source:this.child,origin:context.location.origin,data:{type:'kn-simulator-ready',attempt:this.token()},...overrides});},
     nav(act){callbacks.nav({target:{closest:()=>({getAttribute:()=>act})}});}};
 }
 
@@ -1118,8 +1118,26 @@ test('simulator first click shares preload; failed attempts retry explicitly and
   oldLoad();oldError();oldTimeout();app.ready({source:oldChild});app.ready({data:{type:'kn-simulator-ready',attempt:oldToken}});
   assert.equal(app.status.hidden,false,'Old attempt cannot finish or fail a newer attempt');
   app.frame.contentDocument={URL:app.frame.url};
-  app.child.__KN_SIMULATOR_READY=true;app.child.__KN_SIMULATOR_READY_TOKEN=app.token();app.frame.onload();
+  app.child.__KN_SIMULATOR_READY=true;app.child.__KN_SIMULATOR_VIEW_READY=true;app.child.__KN_SIMULATOR_READY_TOKEN=app.token();app.frame.onload();
   assert.equal(app.status.hidden,true);app.context.openSimulator();assert.equal(app.loads(),2);
+});
+
+test('simulator keeps loading visible until both calculations and current design are prepared',()=>{
+  const app=simulatorShellHarness();app.context.openSimulator();
+  app.child.__KN_SIMULATOR_READY=true;app.child.__KN_SIMULATOR_READY_TOKEN=app.token();
+  const message={source:app.child,origin:app.context.location.origin,data:{type:'kn-simulator-ready',attempt:app.token()}};
+  app.callbacks.message(message);
+  assert.equal(app.status.hidden,false,'Calculation readiness alone cannot expose the old design');
+  app.child.__KN_SIMULATOR_VIEW_READY=true;app.callbacks.message(message);
+  assert.equal(app.status.hidden,true,'Prepared controls and styles may be shown without waiting for fonts or graphs');
+});
+
+test('iframe load with only calculations ready offers retry rather than exposing an unprepared design',()=>{
+  const app=simulatorShellHarness();app.context.openSimulator();
+  app.frame.contentDocument={URL:app.frame.url};
+  app.child.__KN_SIMULATOR_READY=true;app.child.__KN_SIMULATOR_READY_TOKEN=app.token();
+  app.frame.onload();
+  assert.equal(app.status.hidden,false);assert.match(app.status.innerHTML,/もう一度/);
 });
 
 test('simulator does not confuse an HTML tab with working calculations',()=>{

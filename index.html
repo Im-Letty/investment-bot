@@ -4734,7 +4734,7 @@ setInterval(apply,500);
 <script>
 (function(){
   if(window.__KN_SIM_EMBED4_BOOTED) return; window.__KN_SIM_EMBED4_BOOTED=true;
-  var SIM_URL="/static/simulator-embed-55a2f12d18.html?v=20261021-focus1";
+  var SIM_URL="/static/simulator-embed-9438e6695a.html?v=20261022-view1";
   var ov,frame,fham,state='idle',attempt='',sequence=0,timer;
   function els(){ov=document.getElementById("knSimEmbedOv");frame=document.getElementById("knSimEmbedFrame");fham=document.getElementById("knFloatHam");}
   function visibility(){
@@ -4743,6 +4743,7 @@ setInterval(apply,500);
   }
   function finish(token){
     if(token!==attempt||state!=='loading')return;
+    try{if(!frame||!frame.contentWindow.__KN_SIMULATOR_READY||!frame.contentWindow.__KN_SIMULATOR_VIEW_READY||frame.contentWindow.__KN_SIMULATOR_READY_TOKEN!==token)return;}catch(e){return;}
     clearTimeout(timer);state='ready';
     var status=document.getElementById('knSimLoadState');if(status)status.hidden=true;
     ov.setAttribute('aria-busy','false');visibility();
@@ -4768,7 +4769,7 @@ setInterval(apply,500);
       if(token!==attempt||state!=='loading')return;
       try{var doc=frame.contentDocument;if(doc&&doc.URL==='about:blank')return;
         if(doc&&new URLSearchParams(new URL(doc.URL,location.origin).hash.slice(1)).get('sim_attempt')!==token)return;
-        if(frame.contentWindow.__KN_SIMULATOR_READY&&frame.contentWindow.__KN_SIMULATOR_READY_TOKEN===token){finish(token);}else{fail();}
+        if(frame.contentWindow.__KN_SIMULATOR_READY&&frame.contentWindow.__KN_SIMULATOR_VIEW_READY&&frame.contentWindow.__KN_SIMULATOR_READY_TOKEN===token){finish(token);}else{fail();}
       }catch(e){fail();}
     };
     frame.onerror=fail;

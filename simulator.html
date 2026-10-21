@@ -720,9 +720,6 @@ async function init(){
   setLang(savedLang);
   window.__KN_SIMULATOR_READY=true;
   window.__KN_SIMULATOR_READY_TOKEN=SIM_ATTEMPT;
-  if(window.parent!==window){
-    window.parent.postMessage({type:'kn-simulator-ready',attempt:window.__KN_SIMULATOR_READY_TOKEN},location.origin);
-  }
   if(UID){
     try{
       const res=await fetch(`/api/user-data?uid=${encodeURIComponent(UID)}`);
@@ -915,14 +912,42 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
 
 
 
-<link rel="stylesheet" href="/static/simulator-theme.css?v=20261021-focus1">
-<link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
+<link id="simulator-theme-style" rel="stylesheet" href="/static/simulator-theme.css?v=20261021-focus1">
+<link id="simulator-site-type-style" rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
 <script src="/static/simulator-theme.js?v=20261019-backgrounds2"></script>
 
-<link rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type2">
-<link rel="stylesheet" href="/static/simulator-inputs.css?v=20261019-amounts1">
+<link id="simulator-type-style" rel="stylesheet" href="/static/simulator-typography.css?v=20261011-type2">
+<link id="simulator-inputs-style" rel="stylesheet" href="/static/simulator-inputs.css?v=20261019-amounts1">
 <script src="/static/simulator-inputs.js?v=20261012-fine1"></script>
 <script src="/static/simulator-amounts.js?v=20261019-amounts1"></script>
+<script id="simulator-view-ready">
+(function(){
+  'use strict';
+  function finish(){
+    if(window.__KN_SIMULATOR_VIEW_READY || !window.__KN_SIMULATOR_READY)return;
+    try{
+      // The base HTML keeps legacy styles. Reveal it only after the current
+      // styles and their input/amount decorators have finished initializing.
+      var styles=['simulator-theme-style','simulator-site-type-style','simulator-type-style','simulator-inputs-style'];
+      if(styles.some(function(id){var link=document.getElementById(id);return !link || !link.sheet;}))return;
+      if(!window.KNSimulatorTheme || typeof window.KNSimulatorTheme.applyChart!=='function' ||
+        !window.__KN_SIMULATOR_INPUTS || !document.body.classList.contains('sim-amount-fitting'))return;
+      var ranges=Array.from(document.querySelectorAll('.row input[type="range"]'));
+      if(!ranges.length || ranges.some(function(range){
+        var row=range.closest('.row');
+        return !row || !row.classList.contains('sim-adjust-row');
+      }))return;
+    }catch(_){return;}
+    window.__KN_SIMULATOR_VIEW_READY=true;
+    if(window.parent!==window){
+      window.parent.postMessage({type:'kn-simulator-ready',attempt:window.__KN_SIMULATOR_READY_TOKEN},location.origin);
+    }
+  }
+  // Registered after the input and amount scripts' own DOMContentLoaded hooks.
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',finish,{once:true});
+  else finish();
+})();
+</script>
 
 </body>
 </html>

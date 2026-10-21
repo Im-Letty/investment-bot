@@ -2,7 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
 
-for(const file of ['simulator.html','static/simulator-embed-55a2f12d18.html']){
+for(const file of ['simulator.html','static/simulator-embed-9438e6695a.html']){
   const html=fs.readFileSync(path.join(__dirname,'..',file),'utf8');
   const start=html.indexOf('function openSiteMyPage(){');
   const end=html.indexOf('\nasync function loadMyPage()',start);
