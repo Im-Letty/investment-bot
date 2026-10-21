@@ -86,7 +86,7 @@
   }
   async function loadPublished(){
     var serial=++feedGeneration,keyword=w.__ksKeyword||'',feed=w.KNShortsFeed,context=feed&&typeof feed.captureContext==='function'?feed.captureContext():null;
-    if(keyword)return;
+    if(keyword||(feed&&typeof feed.getMode==='function'&&feed.getMode()==='following'))return;
     try{var data=await api('/api/shorts/posts?limit=20');var sheet=w.document.getElementById('knShorts');
       if(serial!==feedGeneration||!sheet||!sheet.classList.contains('open')||w.document.hidden||(w.__ksKeyword||'')!==keyword)return;
       if(w.KNShortsFeed&&typeof w.KNShortsFeed.appendPublished==='function')w.KNShortsFeed.appendPublished(data.posts,context);

@@ -289,3 +289,41 @@ body.kn-home-a:has(#knShorts.open) #knBottomNav button:focus-visible {outline:2p
   body.kn-home-a #knBottomNav .ks-publish-mark {transition:transform .15s ease}
   body.kn-home-a #knBottomNav #ksPublishBtn:active .ks-publish-mark {transform:scale(.94)}
 }
+
+/* The two feeds share playback controls, but never mix their rows. */
+body.kn-home-a #knShorts.open .ks-title:has(.ks-feed-tabs) {
+  flex:1 1 0;white-space:normal;overflow:visible;text-overflow:clip;
+}
+body.kn-home-a #knShorts .ks-feed-tabs {display:flex;align-items:stretch;gap:10px;flex:1;min-width:0}
+body.kn-home-a #knShorts.open .ks-feed-tabs [role="tab"] {
+  position:relative;display:flex;align-items:center;justify-content:center;
+  flex:1 1 0;min-width:0;min-height:42px;padding:4px 2px 8px!important;
+  border:0!important;background:transparent!important;color:#fff!important;
+  font:inherit!important;font-weight:600!important;line-height:1.3!important;
+  white-space:normal;text-align:center;opacity:.65;cursor:pointer;
+}
+body.kn-home-a #knShorts.open .ks-feed-tabs [aria-selected="true"] {opacity:1}
+body.kn-home-a #knShorts.open .ks-feed-tabs [aria-selected="true"]::after {
+  content:"";position:absolute;left:50%;bottom:1px;transform:translateX(-50%);
+  width:24px;height:2px;background:#fff;border-radius:2px;
+}
+body.kn-home-a #knShorts.open .ks-feed-tabs [role="tab"]:focus-visible {outline-offset:-2px}
+body.kn-home-a #knShorts .ks-creator-row {display:flex;align-items:center;gap:10px;min-width:0;margin-bottom:8px}
+body.kn-home-a #knShorts .ks-creator-name {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:#fff;font-size:14px;font-weight:600}
+body.kn-home-a #knShorts .ks-follow-toggle {
+  flex:none;min-height:36px;padding:6px 10px;border:1px solid rgba(255,255,255,.8);
+  border-radius:999px;background:transparent;color:#fff;font:500 13px/1.4 system-ui,sans-serif;cursor:pointer;
+}
+body.kn-home-a #knShorts .ks-follow-toggle[aria-pressed="true"] {background:rgba(255,255,255,.18)}
+body.kn-home-a #knShorts .ks-follow-empty {
+  display:flex;align-items:center;justify-content:center;min-height:100%;box-sizing:border-box;
+  padding:88px 24px 32px;color:#fff;text-align:center;white-space:pre-line;
+  font:400 calc(var(--kn-type-body,14px) * var(--kn-type-scale,1))/1.9 system-ui,sans-serif;
+}
+body.kn-home-a #knShorts .ks-follow-status[hidden] {display:none!important}
+body.kn-home-a #knShorts .ks-follow-status {
+  position:absolute;z-index:7;left:50%;bottom:20px;transform:translateX(-50%);
+  width:min(calc(100% - 32px),520px);box-sizing:border-box;padding:12px 16px;
+  background:rgba(0,0,0,.92);border:1px solid rgba(255,255,255,.5);border-radius:12px;
+  color:#fff;font:400 14px/1.6 system-ui,sans-serif;
+}
