@@ -125,7 +125,10 @@
     var tries=0;
     function install(){var sheet=w.document.getElementById('knShorts'),shorts=w.document.getElementById('knShortsBtn'),top=sheet&&sheet.querySelector('.ks-top');
       if(!top||!shorts){if(++tries<30)w.setTimeout(install,500);return;}
-      var btn=node('button','ks-publish-btn','投稿');btn.id='ksPublishBtn';btn.type='button';btn.setAttribute('aria-label','動画を投稿');btn.addEventListener('click',open);top.appendChild(btn);
+      var nav=w.document.getElementById('knBottomNav'),inNav=nav&&shorts.parentNode===nav;
+      var btn=node('button','ks-publish-btn'+(inNav?' ks-publish-nav':''));btn.id='ksPublishBtn';btn.type='button';btn.setAttribute('aria-label','動画を投稿');btn.addEventListener('click',open);
+      if(inNav){var mark=node('span','ks-publish-mark','+');mark.setAttribute('aria-hidden','true');btn.appendChild(mark);nav.appendChild(btn);}
+      else{btn.textContent='投稿';top.appendChild(btn);} // Keep the existing entry when the main navigation is unavailable.
       shorts.addEventListener('click',loadPublished);
       if(typeof w.MutationObserver==='function'){var visibility=new w.MutationObserver(function(){if(!sheet.classList.contains('open'))exit(false);});visibility.observe(sheet,{attributes:true,attributeFilter:['class']});}
       w.document.addEventListener('visibilitychange',function(){if(w.document.hidden)exit(false);});

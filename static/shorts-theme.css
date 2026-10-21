@@ -250,3 +250,42 @@ body.kn-home-a #knShorts.open .ks-top .ks-publish-btn {
   /* A short, wide screen needs room for the caption and player controls. */
   body.kn-home-a #knShorts {--kn-sh-stage-width:min(100%,640px)}
 }
+
+/* A single center posting entry, with the existing destinations around it. */
+#ksPublishBtn.ks-publish-nav {display:none!important}
+body.kn-home-a #knShorts.open {
+  background:#0b0c0d!important;--kn-sh-video-bg:#0b0c0d;
+}
+body.kn-home-a #knShorts.open .ks-top {
+  background:linear-gradient(180deg,rgba(0,0,0,.5),rgba(0,0,0,.12) 78%,transparent)!important;
+  color:#fff;pointer-events:none;
+}
+body.kn-home-a #knShorts.open .ks-title {
+  color:#fff!important;text-shadow:0 1px 5px rgba(0,0,0,.65);
+}
+body.kn-home-a #knShorts.open .ks-top button {pointer-events:auto}
+body.kn-home-a #knShorts.open :is(#kgShortsSaved,#ksSearchBtn) {
+  color:#fff!important;background:transparent!important;
+}
+body.kn-home-a #knShorts.open .ks-top :is(#kgShortsSaved,#ksSearchBtn):hover {background:rgba(255,255,255,.15)!important}
+body.kn-home-a #knShorts.open .ks-top button:focus-visible {outline-color:#fff!important}
+body.kn-home-a:has(#knShorts.open) #knFloatHam {color:#fff!important;background:transparent!important}
+body.kn-home-a:has(#knShorts.open) #knBottomNav {
+  background:#0b0c0d!important;border-top-color:#0b0c0d!important;
+}
+body.kn-home-a:has(#knShorts.open) #knBottomNav .bn-item {color:#fff!important}
+body.kn-home-a:has(#knShorts.open) #knBottomNav:has(> #ksPublishBtn.ks-publish-nav) #knShortsBtn {display:none!important}
+body.kn-home-a:has(#knShorts.open) #knBottomNav #ksPublishBtn.ks-publish-nav {
+  display:flex!important;align-items:center;justify-content:center;order:3;
+  flex:1 1 0;min-width:0;height:46px;min-height:46px;box-sizing:border-box;margin:0;padding:6px 0;
+  border:0;border-radius:0;background:transparent;color:#111;box-shadow:none;cursor:pointer;
+}
+body.kn-home-a #knBottomNav .ks-publish-mark {
+  display:grid;place-items:center;width:50px;height:34px;border-radius:10px;
+  background:#fff;color:#111;font:600 30px/1 system-ui,sans-serif;
+}
+body.kn-home-a:has(#knShorts.open) #knBottomNav button:focus-visible {outline:2px solid #fff!important;outline-offset:-3px}
+@media(prefers-reduced-motion:no-preference) {
+  body.kn-home-a #knBottomNav .ks-publish-mark {transition:transform .15s ease}
+  body.kn-home-a #knBottomNav #ksPublishBtn:active .ks-publish-mark {transform:scale(.94)}
+}
