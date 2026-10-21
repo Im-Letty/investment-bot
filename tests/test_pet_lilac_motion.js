@@ -173,7 +173,7 @@ test('every baby appearance has its own finite, unfolded geometry and follows th
 test('baby meals share the actual new mouth anchor while egg cues never draw food or a garment',()=>{
   for(const key of babyAppearances)for(const path of Motion.evolutionCatalogue){const frames=[],f=fixture({options:{appearanceKey:key,evolutionPath:path.key,onPose:p=>frames.push(p),outfit:'cloth_rose_cape'}});f.complete();f.api.setSituation('feeding',{elapsedMs:2200});assert.deepEqual(f.errors,[]);assert.equal(frames.length,1);
     const rig=Motion.rigPose(0,'feeding',2.2,'child',path.key,1,key);assert.ok(Math.abs(frames[0].mouthX-rig.mouth.x)<1e-12&&Math.abs(frames[0].mouthY-rig.mouth.y)<1e-12);assert.equal(frames[0].foodTop,frames[0].mouthY+.005);assert.equal(Math.floor(f.uniforms.u_anger/2),2);f.api.destroy();}
-  for(const key of['egg','egg_cracked','hatching']){const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p),outfit:'cloth_flower_dress'}});f.complete();for(const name of['feeding','cry','angry','body_hands','direction_back']){const before=f.draws;f.api.setSituation(name,{elapsedMs:1800});assert.equal(f.draws-before,1);assert.equal(f.drawCalls.at(-1).part,0);}assert.equal(frames.length,0);assert.equal(f.created.filter(row=>row.type==='Texture').length,1);f.api.destroy();}
+  for(const key of['egg','egg_cracked','hatching']){const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p),outfit:'cloth_flower_dress'}});f.complete();for(const name of['feeding','cry','angry','body_hands','body_flap','direction_back']){const before=f.draws;f.api.setSituation(name,{elapsedMs:1800});assert.equal(f.draws-before,1);assert.equal(f.drawCalls.at(-1).part,0);}assert.equal(frames.length,0);assert.equal(f.created.filter(row=>row.type==='Texture').length,1);f.api.destroy();}
 });
 
 test('all sixteen baby directions use measured expanded rectangles and retain their source ground at every appearance',()=>{
@@ -271,22 +271,23 @@ test('neutral part coverage retains opaque original fur at the cheek, armpit, ta
   for(const [x,y]of pixels)assert.ok(Motion.rigParts.some(part=>inside((x+.5)/1000,(y+.5)/1000,part.polygon)),x+','+y+': original fur must be drawable');
 });
 
-test('six body demonstrations remain separate from the 100 emotions and end at the real idle rig',()=>{
+test('seven body demonstrations remain separate from the 100 emotions and end at the real idle rig',()=>{
   assert.equal(Motion.catalogue.length,100);assert.equal(Motion.situations.length,100);
-  assert.deepEqual(Motion.bodyCatalogue.map(row=>row.id),['body_hands','body_feet','body_ears','body_tail','body_head','body_joy']);
+  assert.deepEqual(Motion.bodyCatalogue.map(row=>row.id),['body_hands','body_flap','body_feet','body_ears','body_tail','body_head','body_joy']);
   assert.equal(Object.isFrozen(Motion.bodyCatalogue),true);
   for(const row of Motion.bodyCatalogue){
-    assert.equal(Object.isFrozen(row),true);assert.equal(row.durationMs,6000);assert.equal(row.effect,'none');assert.ok(row.face&&row.motion);
-    assert.equal(Motion.durations[row.id],6000);assert.equal(Motion.situations.includes(row.id),false);
-    assert.deepEqual(Motion.rigPose(9,row.id,6),Motion.rigPose(9,'idle',6));
+    const duration=row.id==='body_flap'?6600:6000;
+    assert.equal(Object.isFrozen(row),true);assert.equal(row.durationMs,duration);assert.equal(row.effect,'none');assert.ok(row.face&&row.motion);
+    assert.equal(Motion.durations[row.id],duration);assert.equal(Motion.situations.includes(row.id),false);
+    assert.deepEqual(Motion.rigPose(9,row.id,duration/1000),Motion.rigPose(9,'idle',duration/1000));
   }
 });
 
-test('four real-view directions stay separate from the 100 emotions and six body demonstrations',()=>{
+test('four real-view directions stay separate from the 100 emotions and seven body demonstrations',()=>{
   assert.deepEqual(Motion.directionCatalogue.map(row=>[row.id,row.durationMs]),[['direction_left',6000],['direction_right',6000],['direction_back',6500],['direction_spin',6800]]);
   assert.equal(Object.isFrozen(Motion.directionCatalogue),true);
   for(const row of Motion.directionCatalogue){assert.equal(Object.isFrozen(row),true);assert.equal(row.effect,'none');assert.ok(row.face&&row.motion);assert.equal(Motion.durations[row.id],row.durationMs);assert.equal(Motion.situations.includes(row.id),false);}
-  assert.equal(Motion.catalogue.length,100);assert.equal(Motion.bodyCatalogue.length,6);
+  assert.equal(Motion.catalogue.length,100);assert.equal(Motion.bodyCatalogue.length,7);
 });
 
 test('direction timelines show the intended real side/back, hold one crisp frame, and return to front',()=>{
@@ -445,6 +446,100 @@ test('left and right hands move as rigid cutouts by large independent arcs',()=>
   }
 });
 
+test('flapping opens both real shoulders outward and raises and lowers both hands on the same beat',()=>{
+  const up=.9+1.25/1.85,down=.9+1.75/1.85;
+  const born=Motion.appearanceCatalogue.filter(row=>row.family!=='egg');
+  for(const appearance of born)for(const path of Motion.evolutionCatalogue){
+    const baby=appearance.family==='baby',stage=baby?'child':appearance.key==='grown'?'final':appearance.key;
+    const parts=baby?Motion.nurseryRigParts:Motion.rigParts;
+    const tips=baby?[[.368,.77],[.774,.786]]:[[.606,.741],[.704,.758]];
+    const high=Motion.rigPose(up,'body_flap',up,stage,path.key,1,appearance.key);
+    const low=Motion.rigPose(down,'body_flap',down,stage,path.key,1,appearance.key);
+    assert.ok(high.angles.arm_l-low.angles.arm_l>1.15,appearance.key+': full left flap');
+    assert.ok(low.angles.arm_r-high.angles.arm_r>1.15,appearance.key+': full right flap');
+    assert.ok(Math.abs((high.angles.arm_l-low.angles.arm_l)+(high.angles.arm_r-low.angles.arm_r))<1e-12,'same beat, opposite shoulder rotations');
+    for(const [i,id]of['arm_l','arm_r'].entries()){
+      const part=parts.find(row=>row.id===id),side=i===0?-1:1;
+      const offsets=frame=>{
+        const palm=Motion.rigPoint(frame,id,...tips[i],stage,path.key),socket=Motion.rigPoint(frame,'torso',...part.pivot,stage,path.key);
+        const joint=Motion.rigPoint(frame,id,...part.pivot,stage,path.key);
+        assert.ok(Math.hypot(joint.x-socket.x,joint.y-socket.y)<1e-12,id+': attached shoulder');
+        return{x:palm.x-socket.x,y:palm.y-socket.y};
+      };
+      const a=offsets(high),b=offsets(low);
+      assert.ok(a.x*side>.035&&b.x*side>.035,appearance.key+id+': reaches outside its shoulder');
+      assert.ok(a.y<-.015&&b.y>.015&&b.y-a.y>.045,appearance.key+id+': visible simultaneous vertical travel');
+    }
+    for(const frame of[high,low])for(const id of['foot_l','foot_r']){
+      const part=parts.find(row=>row.id===id),sole=Motion.rigPoint(frame,id,part.pivot[0],baby?Motion.nurseryLandmarks.floor:.92,stage,path.key);
+      assert.ok(Math.abs(sole.y-.92)<1e-12,appearance.key+': both feet remain planted');
+    }
+  }
+  const alternating=Motion.rigPose(1.2,'body_hands',1.2,'final');
+  assert.ok(Math.abs(alternating.angles.arm_r)<.01,'the original alternating demonstration is unchanged');
+});
+
+test('flapping anticipates and settles to idle, with finite unclipped parts at every born appearance',()=>{
+  const duration=Motion.durations.body_flap/1000;
+  assert.equal(duration,6.6);
+  for(const appearance of Motion.appearanceCatalogue.filter(row=>row.family!=='egg'))for(const path of Motion.evolutionCatalogue){
+    const baby=appearance.family==='baby',stage=baby?'child':appearance.key==='grown'?'final':appearance.key,parts=baby?Motion.nurseryRigParts:Motion.rigParts;
+    for(const age of[0,.00001,.25,.65,1.03,1.58,1.85,3.2,5.5,6.1,duration-.00001,duration]){
+      const frame=Motion.rigPose(7.8,'body_flap',age,stage,path.key,1.15,appearance.key);
+      if(age>=1&&age<=5.5)assert.equal(frame.fitScale,1,appearance.key+': fixed acting margin, no per-beat resizing');
+      for(const part of parts)for(const [x,y]of part.polygon){
+        const p=Motion.rigPoint(frame,part.id,x,y,stage,path.key);
+        assert.ok(Number.isFinite(p.x)&&Number.isFinite(p.y)&&p.x>=.0119&&p.x<=.9881&&p.y>=.0179&&p.y<=.9601,appearance.key+part.id+age+': visible canvas bounds');
+      }
+      if(age===0||age===.00001||age===duration-.00001||age===duration){
+        const idle=Motion.rigPose(7.8,'idle',age,stage,path.key,1.15,appearance.key);
+        for(const id of Object.keys(idle.matrices))for(let i=0;i<6;i++)assert.ok(Math.abs(frame.matrices[id][i]-idle.matrices[id][i])<.001,appearance.key+': no entry or exit snap');
+      }
+    }
+    const start=Motion.rigPose(1,'body_flap',.1,stage,path.key,1,appearance.key),spread=Motion.rigPose(1,'body_flap',1.5,stage,path.key,1,appearance.key);
+    assert.ok(Math.abs(start.angles.arm_l)<Math.abs(spread.angles.arm_l),appearance.key+': anticipation before opening');
+    assert.deepEqual(Motion.rigPose(9,'body_flap',duration,stage,path.key,1,appearance.key),Motion.rigPose(9,'idle',duration,stage,path.key,1,appearance.key));
+  }
+});
+
+test('flapping keeps one rig, real clothes and reduced-motion idle without extra resources or loops',()=>{
+  for(const appearance of Motion.appearanceCatalogue.filter(row=>row.family!=='egg')){
+    const f=fixture({options:{appearanceKey:appearance.key,outfit:'cloth_rose_cape'}});f.complete();
+    const resources=f.created.length;f.api.setSituation('body_flap',{elapsedMs:1600});
+    assert.equal(f.drawCalls.at(-1).part,8);assert.equal(f.created.length,resources);assert.equal(f.maxActiveUnit,7);assert.equal(f.raf.size,1);
+    assert.equal(Math.floor(f.uniforms.u_effect[3]/2),2);assert.equal(f.uniforms.u_presence,1);
+    f.reduce(true);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);assert.equal(f.uniforms.u_presence,0);
+    f.api.setSituation('body_flap',{elapsedMs:3000});assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);assert.equal(f.uniforms.u_presence,0);
+    f.api.destroy();assert.equal(f.deleted.length,f.created.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+  }
+});
+
+test('only the mature flap rounds its broad source palm while preserving shoulder coverage, UVs and all other cues',()=>{
+  assert.equal(Motion.armFlapCoverage(.374,.705),1,'opaque shoulder overlap');
+  assert.equal(Motion.armFlapCoverage(.55,.75),1,'the actual palm stays opaque');
+  assert.ok(Motion.armFlapCoverage(.606,.741)>.95,'the measured fingertip remains visible');
+  assert.equal(Motion.armFlapCoverage(.64,.70),0,'the exposed straight upper crop is rounded away');
+  for(const key of['newborn','grown','companion']){
+    const f=fixture({options:{appearanceKey:key,outfit:'cloth_cream_vest'}});f.complete();
+    const rest=f.buffers[0].data,resources=f.created.length;f.api.setSituation('body_flap',{elapsedMs:1600});
+    const hand=f.drawCalls.slice(-9).find(row=>row.part===7);let trimmed=0;
+    for(let i=0;i<rest.length;i+=5){
+      assert.equal(f.liveVertices[i+2],rest[i+2]);assert.equal(f.liveVertices[i+3],rest[i+3]);
+      const inside=i>=hand.first*5&&i<(hand.first+hand.count)*5;
+      if(key!=='newborn'&&inside){
+        assert.ok(Math.abs(f.liveVertices[i+4]-rest[i+4]*Motion.armFlapCoverage(rest[i+2],rest[i+3]))<1e-7);
+        if(rest[i+4]>.99&&f.liveVertices[i+4]<.5)trimmed++;
+      }else assert.equal(f.liveVertices[i+4],rest[i+4]);
+    }
+    if(key!=='newborn')assert.ok(trimmed>20,'rounded coverage reaches the actual GPU vertex data');
+    for(const cue of['body_hands','feeding','idle']){
+      f.api.setSituation(cue,{elapsedMs:1600});
+      for(let i=4;i<rest.length;i+=5)assert.equal(f.liveVertices[i],rest[i],'old cue coverage restored exactly');
+    }
+    assert.equal(f.created.length,resources);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
 test('ear and tail sockets stay attached while head parenting and independent demonstrations are visible',()=>{
   const ears=Motion.rigPose(1.1,'body_ears',1.1),head=Motion.rigPose(1.1,'body_head',1.1),tail=Motion.rigPose(1.1,'body_tail',1.1);
   assert.ok(Math.abs(ears.angles.ear_l-ears.angles.ear_r)>.3);assert.equal(ears.angles.head,0);
@@ -471,7 +566,7 @@ test('alternating feet keep the stance sole on the floor while the other foot li
   }
 });
 
-test('all 106 rig cues enter and settle without erasing an in-progress idle hand wave',()=>{
+test('all 107 rig cues enter and settle without erasing an in-progress idle hand wave',()=>{
   for(const name of [...Motion.situations,...Motion.bodyCatalogue.map(row=>row.id)].filter(name=>name!=='idle')){
     const duration=Motion.durations[name]/1000;
     for(const age of [0,.00001,duration-.00001]){

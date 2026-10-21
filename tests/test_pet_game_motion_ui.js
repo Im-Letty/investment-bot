@@ -800,15 +800,15 @@ test('rapid drawer closes share one layout frame which hide, fallback and rerend
   }
 });
 
-test('six full-body references share the actual clothed actor without changing the 100-expression catalogue or any saved progress', async () => {
+test('seven full-body references share the actual clothed actor without changing the 100-expression catalogue or any saved progress', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' }, setup: async store => {
     await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });
   } }), before = f.saved(), writes = f.writes.length;
   const controller = f.mounts[0], visual = f.host.querySelector('.ipg-lilac-visual');
   assert.equal(controller.options.outfit, 'cloth_cream_vest'); assert.equal(controller.options.growthStage, 'final');
   const drawer = await f.bodyDrawer(); assert.equal(drawer.open, true);
-  const choices = drawer.querySelectorAll('button'); assert.equal(choices.length, 6);
-  assert.deepEqual(choices.map(button => button.dataset.bodyMotion), ['body_hands', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy']);
+  const choices = drawer.querySelectorAll('button'); assert.equal(choices.length, 7);
+  assert.deepEqual(choices.map(button => button.dataset.bodyMotion), ['body_hands', 'body_flap', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy']);
   assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100);
   assert.equal(f.host.querySelector('.ipg-emotion-panel').getAttribute('aria-label'), 'きもちとしぐさ・100種類');
   for (const row of Motion.bodyCatalogue) {
@@ -822,7 +822,7 @@ test('six full-body references share the actual clothed actor without changing t
     assert.ok(visual.querySelector('canvas').getAttribute('aria-label').includes(row.label));
     assert.equal(f.host.querySelector('.ipg-emotion-effect').hidden, true, 'part demonstrations do not add distracting emotion accents');
     f.advance(450); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'acting');
-    f.advance(4750); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'settling');
+    f.advance(row.durationMs - 1250); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'settling');
     f.advance(800); await f.fireTimers(); assert.equal(visual.dataset.cuePhase, 'idle'); assert.equal(f.timers.size, 0);
     assert.equal(f.mounts.length, 1); assert.equal(f.raf.size, 0);
   }
@@ -900,14 +900,14 @@ test('renderer mouth frames move only visible food on a ready live meal and neve
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
 });
 
-test('four direction references keep the 100 moods and six body controls separate while returning to idle without savings or remounts', async () => {
+test('four direction references keep the 100 moods and seven body controls separate while returning to idle without savings or remounts', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '373', pg_coins: '355' }, setup: async store => {
     await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });
   } }), before = f.saved(), writes = f.writes.length;
   const drawer = await f.directionDrawer(), controller = f.mounts[0], visual = f.host.querySelector('.ipg-lilac-visual');
   assert.equal(drawer.querySelector('summary').textContent, '向きと回転を見る'); assert.match(drawer.textContent, /終わると正面に戻ります/);
   assert.deepEqual(drawer.querySelectorAll('button').map(button => button.dataset.directionMotion), ['direction_left', 'direction_right', 'direction_back', 'direction_spin']);
-  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100); assert.equal(f.buttons().filter(button => button.dataset.bodyMotion).length, 6);
+  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100); assert.equal(f.buttons().filter(button => button.dataset.bodyMotion).length, 7);
   assert.equal(controller.options.growthStage, 'final'); assert.equal(controller.options.outfit, 'cloth_cream_vest');
   for (const [i, row] of Motion.directionCatalogue.entries()) {
     assert.equal(row.durationMs, [6000, 6000, 6500, 6800][i]);
@@ -986,7 +986,7 @@ test('missing direction support or a drawing failure is labelled honestly withou
   const catalogue = f.window.PetLilacMotion.directionCatalogue; delete f.window.PetLilacMotion.directionCatalogue; f.ui.render();
   let drawer = await f.directionDrawer(); assert.equal(drawer.querySelectorAll('button').length, 0);
   assert.match(drawer.textContent, /この環境では向きと回転の見本を表示できません/);
-  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100); assert.equal(f.buttons().filter(button => button.dataset.bodyMotion).length, 6);
+  assert.equal(f.buttons().filter(button => button.dataset.emotion).length, 100); assert.equal(f.buttons().filter(button => button.dataset.bodyMotion).length, 7);
   await f.bodyDrawer(); await f.click(f.focusButton('pet-body-motion-body_ears')); assert.equal(f.mounts.at(-1).changes.at(-1).name, 'body_ears');
   f.window.PetLilacMotion.directionCatalogue = catalogue; f.ui.render(); drawer = await f.directionDrawer();
   await f.click(f.focusButton('pet-direction-motion-direction_back')); f.mounts.at(-1).options.onError();
@@ -1198,12 +1198,13 @@ test('every growth appearance offers food, faces, body parts and directions on t
     assert.equal(controller.options.appearanceKey, row.key); assert.equal(controller.options.situation, 'idle');
     assert.equal(gallery.querySelectorAll('canvas').length, 1);
     assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.emotion).length, 100);
-    assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.bodyMotion).length, 6);
+    assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.bodyMotion).length, 7);
     assert.equal(gallery.querySelectorAll('button').filter(button => button.dataset.directionMotion).length, 4);
     await f.click(await f.revealEmotion('feeding', 'growth'));
     assert.equal(controller.changes.at(-1).name, 'feeding'); assert.equal(visual.querySelector('.ipg-feeding-food').hidden, row.min < 15);
     await f.click(await f.revealEmotion('cry', 'growth')); assert.equal(controller.changes.at(-1).name, 'cry');
     await f.bodyDrawer(true, 'growth'); await f.click(f.focusButton('growth-body-motion-body_hands')); assert.equal(controller.changes.at(-1).name, 'body_hands');
+    await f.click(f.focusButton('growth-body-motion-body_flap')); assert.equal(controller.changes.at(-1).name, 'body_flap');
     await f.directionDrawer(true, 'growth'); await f.click(f.focusButton('growth-direction-motion-direction_back')); assert.equal(controller.changes.at(-1).name, 'direction_back');
     assert.equal(f.mounts.length, mountCount, 'choosing gestures does not remount the selected appearance');
     assert.equal(main.options.appearanceKey, 'grown'); assert.equal(main.changes.length, 0); assert.equal(f.activeMotions().length, 2);

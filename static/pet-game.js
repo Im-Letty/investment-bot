@@ -299,7 +299,7 @@
   function referenceCatalogue(kind) {
     var engine = w.PetLilacMotion, rows = engine && engine[kind + 'Catalogue'];
     var ids = kind === 'direction' ? ['direction_left', 'direction_right', 'direction_back', 'direction_spin'] :
-      ['body_hands', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy'];
+      ['body_hands', 'body_flap', 'body_feet', 'body_ears', 'body_tail', 'body_head', 'body_joy'];
     return Array.isArray(rows) ? rows.filter(function (entry) {
       return entry && ids.indexOf(entry.id) >= 0 && typeof entry.label === 'string' && Number.isFinite(entry.durationMs) && entry.durationMs > 0;
     }) : [];

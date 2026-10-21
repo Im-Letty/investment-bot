@@ -948,12 +948,13 @@
   }));
   var bodyCatalogue = Object.freeze([
     {id:'body_hands',label:'手と腕',face:'自然に前を見る',motion:'左右の腕を順に持ち上げて大きく手を振る'},
+    {id:'body_flap',label:'両手をバタバタ',durationMs:6600,face:'うれしそうに前を見て笑う',motion:'両腕を同時に左右へ大きく広げ上下にバタバタ振ってから落ち着く'},
     {id:'body_feet',label:'足と歩調',face:'前を見て歩調を合わせる',motion:'片足を地面につけたまま反対の足を上げ交互に踏み出す'},
     {id:'body_ears',label:'耳',face:'耳の動きを気にする',motion:'左と右の耳を順に伏せてからぴんと立てる'},
     {id:'body_tail',label:'しっぽ',face:'振り返るように横を見る',motion:'付根をつないだまま尾を大きく左右へ振る'},
     {id:'body_head',label:'顔と首',face:'視線を左右へ移す',motion:'肩と手足を落ち着かせ頭だけを左右へかしげる'},
     {id:'body_joy',label:'全身でよろこぶ',face:'目を細め口を開いて笑う',motion:'手を広げて跳び耳と尾を弾ませ着地して落ち着く'}
-  ].map(function(row){row.durationMs=6000;row.effect='none';return Object.freeze(row);}));
+  ].map(function(row){row.durationMs=row.durationMs||6000;row.effect='none';return Object.freeze(row);}));
   var directionCatalogue=Object.freeze([
     {id:'direction_left',label:'左を向く',durationMs:6000,face:'左側の本当の横顔を見せる',motion:'左へ向いて少し止まり正面へ戻る'},
     {id:'direction_right',label:'右を向く',durationMs:6000,face:'右側の本当の横顔を見せる',motion:'右へ向いて少し止まり正面へ戻る'},
@@ -1153,6 +1154,20 @@
   }
   function envelope(t, duration) {
     return smooth(t / Math.min(.45, duration * .22)) * smooth((duration - t) / Math.min(.8, duration * .28));
+  }
+  function armFlapPhase(age) {
+    var open=smooth((age-.2)/.7)*(1-smooth((age-5.7)/.5));
+    var drive=smooth((age-.9)/.4)*(1-smooth((age-5.2)/.55));
+    return {open:open,drive:drive,flap:.64*Math.sin((age-.9)*TAU*1.85)*drive};
+  }
+  // The mature source has a broad chest-facing palm. Its straight crop becomes
+  // exposed when turned outward, so this cue rounds only that palm's coverage.
+  // Sampling and source RGB stay unchanged; the shoulder end remains opaque.
+  function armFlapCoverage(x,y) {
+    var ax=.39,ay=.721,dx=.158,dy=.029;
+    var t=clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy),0,1),radius=.04+.027*smooth(t);
+    var distance=Math.hypot(x-ax-dx*t,y-ay-dy*t)/radius;
+    return 1-smooth((distance-.86)/.17);
   }
   // Public cue timeline uses absolute elapsed milliseconds, including when a view resumes.
   // The caller can schedule one boundary timer; this helper never starts a timer or changes a pet.
@@ -1579,6 +1594,12 @@
         p.ear -= 1.05; p.tail -= .85; p.tilt = .075; p.bounce = .05 * Math.abs(p.step); break;
       case 'body_head': p.lookX=.014*Math.sin(age*TAU*.4);p.lookY=.005*Math.cos(age*TAU*.4);break;
       case 'body_tail': p.lookX=-.012;p.lookY=.002;break;
+      case 'body_flap':
+        var flap=armFlapPhase(age),follow=Math.sin((age-1.01)*TAU*1.85)*flap.drive;
+        p.wave=0;p.wiggle=0;p.faceDelighted=.65*flap.drive;
+        p.crouch=.32*pulse(age,.04,.85)+.06*Math.max(0,-follow);
+        p.squash=.12*Math.max(0,-follow);p.stretch=.04*Math.max(0,follow);p.tilt=.018*follow;
+        p.ear+=.42*follow;p.tail+=.25*follow;break;
       case 'body_joy':
         q=Math.pow(Math.max(0,Math.sin((age-.65)*TAU*.9)),2)*lift;
         p.faceDelighted=1;p.bounce=.9*q;p.squash=.45*(1-q)*hold;p.wave=1.2*lift;
@@ -1742,6 +1763,8 @@
     function point(x,y){return nursery?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);}
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
     var amount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15)*(1-.12*e);
+    // Reserve the widest flap up front; the figure must not resize on each beat.
+    if(name==='body_flap')amount*=1-.035*e;
     var root=bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-p.bounce*.055+p.crouch*.012,
       1+.085*p.squash+.003*p.breath,1-.075*p.squash+.07*p.stretch-.055*p.crouch+.004*p.breath);
     var project=bone({x:.5,y:.92},0,0,0,amount,amount);root=multiply(project,root);
@@ -1767,6 +1790,13 @@
     if(name==='body_hands'){
       var left=pulse(a,.45,2.25),right=pulse(a,2.55,2.5);
       armL=-1.6*left*e;armR=1.6*right*e;headAngle=0;earL=0;earR=0;tail=0;footStep=0;
+    }else if(name==='body_flap'){
+      var flap=armFlapPhase(a);
+      // The adult's paws begin across its chest; the baby's hang downward.
+      // Rotate each real cutout from its own shoulder toward the outside,
+      // then use one shared beat so both hands rise and fall together.
+      armL=(nursery?1.18:-3.296)*flap.open+flap.flap;
+      armR=(nursery?-.91:-2.266)*flap.open-flap.flap;footStep=0;
     }else if(name==='body_feet'){
       footStep=Math.sin(a*TAU*.85)*e;feetDemo=true;armL=0;armR=0;headAngle=0;earL=0;earR=0;tail=0;
     }else if(name==='body_ears'){
@@ -1783,10 +1813,16 @@
     headAngle=base.head+(headAngle-base.head)*e;earL=base.earL+(earL-base.earL)*e;
     earR=base.earR+(earR-base.earR)*e;tail=base.tail+(tail-base.tail)*e;
     armL=base.armL+(armL-base.armL)*e;armR=base.armR+(armR-base.armR)*e;footStep=base.step+(footStep-base.step)*e;
-    var matrices={},angles={head:headAngle,ear_l:earL,ear_r:earR,tail:tail,arm_l:clamp(armL,-1.7,1.1),arm_r:clamp(armR,-1.1,1.7)};
+    var flapDemo=name==='body_flap';
+    var matrices={},angles={head:headAngle,ear_l:earL,ear_r:earR,tail:tail,
+      arm_l:clamp(armL,flapDemo?-4.05:-1.7,flapDemo?1.9:1.1),arm_r:clamp(armR,flapDemo?-3.05:-1.1,1.7)};
     var headPivot=nursery?point(nurseryLandmarks.headPivot[0],nurseryLandmarks.headPivot[1]):point(.62,.675),head=multiply(root,bone(headPivot,headAngle));
     parts.forEach(function(part){
       var pivot=point(part.pivot[0],part.pivot[1]),angle=angles[part.id]||0,local=bone(pivot,angle);
+      if(flapDemo&&!nursery&&part.id==='arm_l'){
+        var open=armFlapPhase(a).open*e;
+        local=bone(pivot,angle,0,0,1-.14*open,1-.10*open);
+      }
       if(part.id==='head')matrices[part.id]=head;
       else if(part.parent==='head')matrices[part.id]=multiply(head,local);
       else if(part.id==='foot_l'||part.id==='foot_r'){
@@ -2197,9 +2233,11 @@
         else {
         rigGeometry.forEach(function(part){
           var matrix=rig.matrices[part.id];
+          var roundPalm=family==='mature'&&p.situation==='body_flap'&&part.id==='arm_l'?armFlapPhase(elapsed).open*p.presence:0;
           for(var offset=part.start*5;offset<(part.start+part.count)*5;offset+=5){
             var point=transform(matrix,{x:restVertices[offset],y:restVertices[offset+1]});
             drawVertices[offset]=point.x*2-1;drawVertices[offset+1]=1-point.y*2;
+            drawVertices[offset+4]=roundPalm?restVertices[offset+4]*(1-roundPalm+roundPalm*armFlapCoverage(restVertices[offset+2],restVertices[offset+3])):restVertices[offset+4];
           }
         });
         bindVertices(buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,drawVertices);
@@ -2317,7 +2355,7 @@
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,nurseryLandmarks:nurseryLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
-    catalogue: catalogue, bodyCatalogue: bodyCatalogue, directionCatalogue: directionCatalogue, directionFrame: directionFrame,
+    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
 });
