@@ -3673,7 +3673,7 @@ def check_admin(req):
 from community_api import register_community_routes
 register_community_routes(app, SUPABASE_URL, SUPABASE_KEY, check_admin=check_admin)
 from shorts_api import create_shorts_blueprint
-app.register_blueprint(create_shorts_blueprint(SUPABASE_URL, SUPABASE_KEY, check_admin=check_admin))
+app.register_blueprint(create_shorts_blueprint(SUPABASE_URL, SUPABASE_KEY, check_admin=check_admin, allow_file_uploads=True))
 from stock_talk import create_stock_talk_blueprint, legacy_symbol_allowed
 app.register_blueprint(create_stock_talk_blueprint(SUPABASE_URL,SUPABASE_KEY,_stock_search,check_admin=check_admin))
 
