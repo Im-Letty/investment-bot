@@ -398,6 +398,72 @@ test('four real-view directions stay separate from the 100 emotions and seven bo
   assert.equal(Motion.catalogue.length,100);assert.equal(Motion.bodyCatalogue.length,7);
 });
 
+test('private room walks turn, travel out, stop to reverse, walk home and finish front without changing any public catalogue',()=>{
+  assert.equal(Motion.catalogue.length,100);assert.equal(Motion.bodyCatalogue.length,7);assert.equal(Motion.directionCatalogue.length,4);
+  for(const id of ['room_walk_left','room_walk_right']){
+    assert.equal(Motion.durations[id],6000);assert.equal(Motion.situations.includes(id),false);assert.equal(Motion.bodyCatalogue.some(row=>row.id===id),false);assert.equal(Motion.directionCatalogue.some(row=>row.id===id),false);
+    const sign=id==='room_walk_left'?-1:1;
+    for(const [age,phase,x,yaw]of [[0,'turning_out',0,0],[650,'walking_out',0,sign*90],[1525,'walking_out',sign*.5,sign*90],[2400,'turning_back',sign,sign*90],[2775,'turning_back',sign,0],[3150,'walking_back',sign,-sign*90],[4025,'walking_back',sign*.5,-sign*90],[4900,'settling',0,-sign*90],[6000,'idle',0,0]]){
+      const f=Motion.roomWalkFrame(id,age);assert.equal(f.phase,phase);assert.ok(Math.abs(f.x-x)<1e-10);assert.ok(Math.abs(f.yawDeg-yaw)<1e-10);assert.equal(Motion.directionFrame(id,age).yawDeg,f.yawDeg);assert.equal(f.durationMs,6000);
+    }
+    for(let age=0;age<=6000;age+=25){const f=Motion.roomWalkFrame(id,age),g=Motion.roomWalkFrame(id,age+1);assert.ok(f.x>=-1&&f.x<=1&&f.speed>=0&&f.speed<=1);assert.ok([f.x,f.speed,f.footPhase,f.yawDeg].every(Number.isFinite));if(Math.abs(g.x-f.x)>1e-12){assert.equal(Math.abs(f.yawDeg),90);assert.equal(Math.sign(g.x-f.x),Math.sign(f.yawDeg));}if(f.phase==='turning_back')assert.equal(f.x,sign);}
+    for(const at of[650,2400,3150,4900,6000]){const a=Motion.roomWalkFrame(id,at-.00001),b=Motion.roomWalkFrame(id,at+.00001);assert.ok(Math.abs(a.x-b.x)<.0001);assert.ok(Math.abs(a.yawDeg-b.yawDeg)<.0001);assert.ok(Math.abs(a.speed-b.speed)<.0001);}
+    assert.equal(Motion.pose(6,id,6).situation,'idle');
+  }
+  assert.deepEqual(Motion.roomWalkFrame('room_walk_left',NaN),Motion.roomWalkFrame('room_walk_left',0));assert.equal(Motion.roomWalkFrame('unknown',2000).id,null);
+});
+
+test('side-view walking lifts opposite real feet while the stance sole stays grounded and the head follows gently',()=>{
+  for(const key of ['newborn','grown'])for(const id of ['room_walk_left','room_walk_right']){
+    const age=1500,f=Motion.roomWalkFrame(id,age),index=Motion.directionFrame(id,age).currentIndex,view=(key==='newborn'?Motion.nurseryDirectionViews:Motion.directionViews)[index],center=view.torso[0],points=[[center-.10,view.groundY],[center+.10,view.groundY]];
+    for(const phase of[Math.PI/2,Math.PI*1.5]){
+      const frame={...f,walking:true,speed:1,footPhase:phase},left=Motion.roomWalkPoint(index,...points[0],frame,'child','balanced',key),right=Motion.roomWalkPoint(index,...points[1],frame,'child','balanced',key),a=Motion.directionPoint(index,...points[0],'child','balanced',key),b=Motion.directionPoint(index,...points[1],'child','balanced',key);
+      if(phase<Math.PI){assert.ok(a.y-left.y>.025);assert.ok(Math.abs(b.y-right.y)<1e-12);}else{assert.ok(b.y-right.y>.025);assert.ok(Math.abs(a.y-left.y)<1e-12);}
+      const head=Motion.roomWalkPoint(index,center,.4,frame,'child','balanced',key),old=Motion.directionPoint(index,center,.4,'child','balanced',key);assert.ok(old.y-head.y>.0049&&old.y-head.y<.0051);
+    }
+    const stopped=Motion.roomWalkFrame(id,2775);for(const p of points)assert.deepEqual(Motion.roomWalkPoint(index,...p,stopped,'child','balanced',key),Motion.directionPoint(index,...p,'child','balanced',key));
+  }
+});
+
+test('room gait meshes remain unfolded and projected inside the canvas across every born appearance and evolution color',()=>{
+  for(const key of ['newborn','baby','toddler','child','juvenile','grown','adult','companion'])for(const branch of Motion.evolutionCatalogue)for(const id of ['room_walk_left','room_walk_right'])for(const age of[1250,2000,3750,4500]){
+    const stage=key==='adult'?'adult':key==='companion'?'companion':key==='grown'?'final':'child',walk=Motion.roomWalkFrame(id,age),index=Motion.directionFrame(id,age).currentIndex,view=(Motion.appearanceProfile(key).family==='baby'?Motion.nurseryDirectionViews:Motion.directionViews)[index];
+    const rig=Motion.rigPose(1,id,age/1000,stage,branch.key,1.15,key),fit=Motion.directionProjection(index,stage,branch.key,rig.matrices.torso,key,walk),m=fit.matrix;
+    for(let y=0;y<24;y++)for(let x=0;x<24;x++){
+      const p=(u,v)=>Motion.roomWalkPoint(index,u/24,v/24,walk,stage,branch.key,key),a=p(x,y),b=p(x,y+1),c=p(x+1,y),d=p(x+1,y+1);
+      for(const [u,v,w]of[[a,b,c],[c,b,d]])assert.ok((v.x-u.x)*(w.y-u.y)-(v.y-u.y)*(w.x-u.x)<0,key+branch.key+id+': no folded leg cells');
+    }
+    for(let y=0;y<=8;y++)for(let x=0;x<=8;x++){
+      const p=Motion.roomWalkPoint(index,view.bounds[0]+(view.bounds[2]-view.bounds[0])*x/8,view.bounds[1]+(view.bounds[3]-view.bounds[1])*y/8,walk,stage,branch.key,key),u=m[0]*p.x+m[2]*p.y+m[4],v=m[1]*p.x+m[3]*p.y+m[5];
+      assert.ok(Number.isFinite(u)&&Number.isFinite(v)&&u>=.0119&&u<=.9881&&v>=.0179&&v<=.9601,key+branch.key+id+': bounded silhouette');
+    }
+  }
+});
+
+test('actual room draws change lower-leg vertices with original UVs, clothes, tooth donors and one existing frame loop',()=>{
+  for(const key of ['newborn','grown']){
+    const frames=[],f=fixture({options:{appearanceKey:key,outfit:'cloth_star_pajamas',evolutionPath:'fruit',onPose:p=>frames.push(p)}});f.complete();const resources=f.created.length,files=f.images.map(im=>im.url),textures=f.created.filter(row=>row.type==='Texture');
+    f.api.setSituation('room_walk_left',{elapsedMs:1250});const a=new Float32Array(f.liveVertices),packet=frames.at(-1);assert.equal(f.drawCalls.at(-1).part,22);assert.equal(packet.situation,'room_walk_left');assert.equal(packet.yawDeg,-90);assert.equal(packet.roomX,Motion.roomWalkFrame('room_walk_left',1250).x);assert.equal(packet.walking,true);
+    f.api.setSituation('room_walk_left',{elapsedMs:1850});const b=f.liveVertices;let upper=0,lower=0;
+    for(let i=0;i<a.length;i+=5){assert.equal(a[i+2],b[i+2]);assert.equal(a[i+3],b[i+3]);assert.equal(a[i+4],b[i+4]);const delta=Math.hypot(a[i]-b[i],a[i+1]-b[i+1]);if(a[i+3]>.88)lower=Math.max(lower,delta);else if(a[i+3]<.6)upper=Math.max(upper,delta);}
+    assert.ok(lower>.015,'visible foot motion beyond a full-image slide');assert.ok(lower>upper*2,'legs move independently from the upper-body bob');
+    assert.equal(f.drawCalls.at(-1).uniforms.u_motionA[3],5);assert.strictEqual(f.drawCalls.at(-1).texture5,textures[key==='newborn'?5:13]);assert.equal(f.maxActiveUnit,7);assert.equal(Object.values(f.uniforms).filter(value=>Array.isArray(value)&&value.length===4).length,8);
+    f.api.setSituation('feeding',{elapsedMs:2200});assert.equal(frames.at(-1).situation,'feeding');assert.ok(Number.isFinite(frames.at(-1).foodTop));assert.equal('roomX'in frames.at(-1),false);assert.deepEqual(f.images.map(im=>im.url),files);assert.equal(f.created.length,resources+1,'only the existing lazily-created turn buffer is added');assert.equal(f.raf.size,1);
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+  }
+});
+
+test('room direction callbacks end at center, respect interruption and hidden time, and keep old direction yaw observable',()=>{
+  const frames=[],f=fixture({options:{onPose:p=>frames.push(p)}});f.complete();f.api.setSituation('room_walk_right',{elapsedMs:4800});assert.ok(frames.at(-1).roomX>0);f.advance(1201);assert.equal(frames.at(-1).roomX,0);assert.equal(frames.at(-1).yawDeg,0);assert.equal(frames.at(-1).done,true);assert.deepEqual(f.drawCalls.slice(-9).map(row=>row.part),Motion.rigParts.map(row=>row.index));
+  f.api.setSituation('room_walk_left',{elapsedMs:1500});f.api.setSituation('body_flap',{elapsedMs:1300});const count=frames.length;f.advance(100);assert.equal(frames.length,count);f.api.setSituation('direction_back',{elapsedMs:2800});assert.equal(frames.at(-1).yawDeg,180);assert.equal('roomX'in frames.at(-1),false);
+  f.api.setSituation('room_walk_right',{elapsedMs:1000});f.hide(true);const hidden=frames.length;f.advance(12000);assert.equal(frames.length,hidden);f.hide(false);assert.equal(frames.at(-1).roomX,0);assert.equal(frames.at(-1).done,true);f.api.destroy();
+});
+
+test('eggs never walk sideways and reduced room routes remain centered with finite expiry and full cleanup',()=>{
+  for(const key of ['egg','egg_cracked','hatching']){const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p)}});f.complete();for(const id of['room_walk_left','room_walk_right']){f.api.setSituation(id,{elapsedMs:1800});assert.equal(f.drawCalls.at(-1).part,0);assert.equal(frames.length,0);assert.equal(f.uniforms.u_motionA[0],Motion.appearanceProfile(key).stillCell);}f.api.destroy();assert.equal(f.created.length,f.deleted.length);}
+  for(const key of['newborn','grown']){const frames=[],f=fixture({reduced:true,options:{appearanceKey:key,onPose:p=>frames.push(p)}});f.complete();f.api.setSituation('room_walk_left',{elapsedMs:1700});assert.equal(frames.at(-1).roomX,0);assert.equal(frames.at(-1).yawDeg,0);assert.equal(frames.at(-1).walking,false);assert.equal(f.raf.size,0);assert.equal(f.timers.size,1);f.advance(4400);f.timeout();assert.equal(frames.at(-1).roomX,0);assert.equal(frames.at(-1).done,true);assert.equal(f.timers.size,0);f.api.destroy();assert.equal(f.created.length,f.deleted.length);}
+});
+
 test('direction timelines show the intended real side/back, hold one crisp frame, and return to front',()=>{
   for(const [id,yaw,index]of[['direction_left',-90,12],['direction_right',90,4],['direction_back',180,8]]){
     const d=Motion.durations[id];assert.equal(Motion.directionFrame(id,0).front,true);
@@ -502,7 +568,7 @@ test('short adjacent-view transitions use complementary premultiplied weights, n
 
 test('turns replace food callbacks, expire while hidden, and reduced motion shows one static target',()=>{
   const frames=[],f=fixture({options:{onPose:p=>frames.push(p)}});f.complete();f.api.setSituation('feeding',{elapsedMs:2200});assert.equal(frames.length,1);
-  f.api.setSituation('direction_back',{elapsedMs:2800});f.advance(100);assert.equal(frames.length,1);f.hide(true);const n=f.draws;f.advance(10000);assert.equal(f.draws,n);f.hide(false);assert.deepEqual(f.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));assert.equal(frames.length,1);f.api.destroy();
+  f.api.setSituation('direction_back',{elapsedMs:2800});f.advance(100);assert.equal(frames.filter(row=>row.situation==='feeding').length,1);assert.equal(frames.at(-1).yawDeg,180);assert.equal('roomX'in frames.at(-1),false);f.hide(true);const n=f.draws,count=frames.length;f.advance(10000);assert.equal(f.draws,n);assert.equal(frames.length,count);f.hide(false);assert.deepEqual(f.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));assert.equal(frames.at(-1).yawDeg,0);assert.equal(frames.at(-1).done,true);f.api.destroy();
   const reduced=fixture({reduced:true,options:{situation:'direction_left'}});reduced.complete();assert.equal(reduced.draws,1);assert.equal(reduced.drawCalls[0].part,22);assert.equal(reduced.raf.size,0);
   reduced.api.setSituation('direction_spin',{elapsedMs:2500});assert.deepEqual(reduced.drawCalls.slice(-9).map(c=>c.part),Motion.rigParts.map(p=>p.index));reduced.api.destroy();assert.equal(reduced.created.length,reduced.deleted.length);
 });

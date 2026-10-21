@@ -85,7 +85,7 @@ async function fixture(config = {}) {
   const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [];
   const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
   const renderer = {
-    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey) { anchorCalls.push({ stage, path, appearanceKey }); return Motion.feedingAnchor(stage, path, appearanceKey); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
+    durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey) { anchorCalls.push({ stage, path, appearanceKey }); return Motion.feedingAnchor(stage, path, appearanceKey); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
       if (rendererControl.mappingThrows) throw new Error('private renderer failure');
       const cue = Motion.situationForAction(action, before, after, result);
@@ -1834,4 +1834,49 @@ test('room autonomy cleans up on tab switch, visibility and re-render without st
   f.ui.render(); assert.equal(f.activeMotions().length, 1);
   f.ui.close(); assert.equal(f.timers.size, 0);
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+
+test('room walking uses renderer frames for position and heading, and returns to center before a saved care reaction', async () => {
+  for (const exp of [15, 386]) {
+    const f = await fixture({ developerPreview: false, rendererMode: 'ready', seed: { pg_exp: String(exp) } });
+    const before = f.saved(), writes = f.writes.length;
+    // Finish greeting, then follow finite room actions until the first walk.
+    f.advance(3000); await f.fireTimers();
+    for (let i = 0; i < 30 && !f.activeMotions()[0].changes.some(c => /^room_walk_/.test(c.name)); i++) { f.advance(10000); await f.fireTimers(); }
+    const motion = f.activeMotions()[0], cue = motion.changes.filter(c => /^room_walk_/.test(c.name)).at(-1);
+    assert.ok(cue, 'a private room walk is reached naturally');
+    const visual = f.host.querySelector('.ipg-room-pet');
+    const frame = Motion.roomWalkFrame(cue.name, 1800, false);
+    motion.options.onPose({ situation: cue.name, roomX: frame.x, yawDeg: frame.yawDeg, phase: frame.phase });
+    assert.equal(visual.dataset.facing, frame.x > 0 ? 'right' : 'left');
+    assert.ok(!visual.style.transform.includes('+ 0.000px'));
+    assert.equal(visual.style.transition, 'none');
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+    await f.click(f.focusButton('care-play'));
+    const next = f.host.querySelector('.ipg-room-pet');
+    assert.equal(f.activeMotions()[0].options.situation, 'petted');
+    assert.equal(next.dataset.facing, 'front');
+    assert.equal(next.style.transform, 'translateX(calc(-50% + 0.000px))');
+    assert.equal(next.style.transition, 'transform 400ms ease-out');
+    const after = f.saved(); assert.equal(after.pet.exp, before.pet.exp + 5);
+    const stable = next.style.transform;
+    motion.options.onPose({ situation: cue.name, roomX: 1, yawDeg: 90, phase: 'outbound' });
+    assert.equal(next.style.transform, stable); assert.deepEqual(f.saved(), after);
+    f.ui.close(); assert.equal(f.timers.size, 0);
+  }
+});
+
+test('room directions keep side and back headings isolated from food and hidden motion controls', async () => {
+  const f = await fixture({ developerPreview: false, rendererMode: 'ready' });
+  f.advance(3000); await f.fireTimers(); f.advance(9000); await f.fireTimers();
+  const m = f.activeMotions()[0], v = f.host.querySelector('.ipg-room-pet');
+  assert.equal(m.changes.at(-1).name, 'direction_left');
+  m.options.onPose({ situation: 'direction_left', yawDeg: -90 });
+  assert.equal(v.dataset.facing, 'left'); assert.equal(v.querySelector('.ipg-feeding-food').hidden, true);
+  assert.equal(f.host.querySelector('.ipg-emotion-panel'), null);
+  f.advance(6500); await f.fireTimers();
+  assert.equal(v.dataset.facing, 'front');
+  assert.equal(v.style.transform, 'translateX(calc(-50% + 0.000px))');
+  f.ui.close();
 });

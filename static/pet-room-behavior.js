@@ -18,19 +18,24 @@
     cue('relaxed', 6200, 'あたたかそうに、ゆらゆら', 'resting')
   ]);
   var youngSequence = Object.freeze([
-    cue('curious', 5400, 'なにか、きになるみたい', 'looking'),
+    cue('direction_left', 6000, '窓のほうを見ている', 'looking'),
     cue('body_ears', 6000, 'お耳をぴくぴく', 'ears'),
-    cue('relaxed', 6200, 'ほっとひとやすみ', 'resting'),
+    cue('room_walk_right', 6000, 'とことこ、向こうまでおさんぽ', 'walking'),
+    cue('direction_back', 6500, '後ろが、ちょっときになるみたい', 'looking'),
     cue('body_hands', 6000, '小さな手をふっている', 'hands'),
-    cue('moving', 1600, 'とことこ、おさんぽ', 'walking'),
+    cue('room_walk_left', 6000, '窓のほうまで、とことこ', 'walking'),
+    cue('relaxed', 6200, 'ほっとひとやすみ', 'resting'),
     cue('body_head', 6000, 'こてん、と首をかしげた', 'looking'),
+    cue('direction_right', 6000, 'となりを見て、こちらに気づいた', 'looking'),
     cue('body_tail', 6000, 'しっぽをゆらゆら', 'idle'),
     cue('gentlesmile', 4800, 'こちらを見て、にっこり', 'resting'),
-    cue('body_flap', 6600, 'おててを広げて、ぱたぱた', 'hands')
+    cue('body_flap', 6600, 'おててを広げて、ぱたぱた', 'hands'),
+    cue('direction_spin', 6800, 'くるっと回って、ごきげん', 'looking')
   ]);
   var matureSequence = Object.freeze([
-    youngSequence[0], youngSequence[6], youngSequence[2], youngSequence[4],
-    youngSequence[3], youngSequence[1], youngSequence[5], youngSequence[7], youngSequence[8]
+    youngSequence[0], youngSequence[5], youngSequence[3], youngSequence[9],
+    youngSequence[2], youngSequence[4], youngSequence[1], youngSequence[8],
+    youngSequence[6], youngSequence[7], youngSequence[10], youngSequence[11], youngSequence[12]
   ]);
 
   function create(options) {

@@ -4245,7 +4245,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 })();
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
-<link rel="stylesheet" href="/static/pet-game.css?v=5c2a4a226ed1">
+<link rel="stylesheet" href="/static/pet-game.css?v=6d7a78aa28f2">
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
 #sect-pet[hidden]{display:none}
@@ -4285,11 +4285,11 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
     moduleLoading=loadScript('/static/pet-game-core.js?v=b5433aa73486',function(){return !!window.PetGameCore;}).then(function(){
-      return loadScript('/static/pet-lilac-motion.js?v=d6c183b197f8',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
+      return loadScript('/static/pet-lilac-motion.js?v=4f4d80285e7d',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     }).then(function(){
-      return loadScript('/static/pet-room-behavior.js?v=42b1206d6158',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
+      return loadScript('/static/pet-room-behavior.js?v=e05f4299d8dc',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
     }).then(function(){
-      return loadScript('/static/pet-game.js?v=83c6e77fbbbe',apiReady);
+      return loadScript('/static/pet-game.js?v=b41cecc09bf9',apiReady);
     }).catch(function(error){moduleLoading=null;throw error;});
     return moduleLoading;
   }

@@ -961,7 +961,10 @@
     {id:'direction_back',label:'後ろを向く',durationMs:6500,face:'目や口のない後ろ姿を見せる',motion:'背中を向けて少し止まり正面へ戻る'},
     {id:'direction_spin',label:'ぐるっと一周',durationMs:6800,face:'横顔と後ろ姿を順に見せる',motion:'同じ向きへ一周回って正面へ戻る'}
   ].map(function(row){row.effect='none';return Object.freeze(row);}));
-  var durations = Object.freeze(catalogue.concat(bodyCatalogue,directionCatalogue).reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {}));
+  // Room routes are presentation-only and do not appear in the public emotion,
+  // body demonstration or direction catalogues.
+  var roomWalkDurations = Object.freeze({room_walk_left:6000,room_walk_right:6000});
+  var durations = Object.freeze(catalogue.concat(bodyCatalogue,directionCatalogue).reduce(function (result, item) { result[item.id] = item.durationMs; return result; }, {room_walk_left:6000,room_walk_right:6000}));
   var outfitCatalogue = Object.freeze([
     { id: 'cloth_cream_vest', label: 'はじめてベスト', price: 0, style: 'vest', color: [.94,.88,.75], trim: [.70,.59,.43] },
     { id: 'cloth_rose_cape', label: 'ももいろケープ', price: 30, style: 'cape', color: [.87,.61,.70], trim: [.63,.37,.47] },
@@ -1206,10 +1209,23 @@
       foodProgress: clamp((age - 1200) / 3200, 0, 1), phaseProgress: end === null ? 1 : clamp((age - start) / (end - start), 0, 1),
       nextBoundaryMs: end, done: end === null };
   }
+  function roomWalkFrame(name,elapsedMs,reducedMotion) {
+    var valid=Object.prototype.hasOwnProperty.call(roomWalkDurations,name),age=Math.max(0,finite(elapsedMs,0)),direction=name==='room_walk_left'?-1:1;
+    var done=!valid||age>=6000,x=0,yaw=0,progress=0,speed=0,footPhase=0,travel=0,phase='idle';
+    if(!done&&!reducedMotion){
+      if(age<650){phase='turning_out';yaw=direction*90*smooth(age/650);}
+      else if(age<2400){phase='walking_out';progress=(age-650)/1750;var out=smooth(progress);x=direction*out;yaw=direction*90;speed=4*progress*(1-progress);footPhase=TAU*3.5*out;travel=direction;}
+      else if(age<3150){phase='turning_back';x=direction;yaw=direction*90*(1-2*smooth((age-2400)/750));footPhase=TAU*3.5;}
+      else if(age<4900){phase='walking_back';progress=(age-3150)/1750;var back=smooth(progress);x=direction*(1-back);yaw=-direction*90;speed=4*progress*(1-progress);footPhase=TAU*(3.5+3.5*back);travel=-direction;}
+      else{phase='settling';yaw=-direction*90*(1-smooth((age-4900)/1100));footPhase=TAU*7;}
+    }
+    return {id:valid?name:null,durationMs:valid?6000:0,done:done,x:x,walking:speed>0,speed:speed,phase:phase,yawDeg:yaw,footPhase:footPhase,travel:travel};
+  }
   function directionFrame(name,elapsedMs,reducedMotion) {
-    var row=directionCatalogue.filter(function(item){return item.id===name;})[0],age=Math.max(0,finite(elapsedMs,0));
+    var room=roomWalkFrame(name,elapsedMs,reducedMotion),row=room.id?{id:room.id,durationMs:6000}:directionCatalogue.filter(function(item){return item.id===name;})[0],age=Math.max(0,finite(elapsedMs,0));
     var done=!row||age>=row.durationMs,yaw=0;
-    if(!done){
+    if(room.id)yaw=room.yawDeg;
+    else if(!done){
       var target=name==='direction_left'?-90:name==='direction_right'?90:name==='direction_back'?180:360;
       if(reducedMotion)yaw=name==='direction_spin'?0:target;
       else if(name==='direction_spin')yaw=360*smooth((age-650)/5500);
@@ -1219,8 +1235,9 @@
       }
     }
     var normalized=((yaw%360)+360)%360,index=normalized/22.5,current=Math.floor(index)%16,fraction=index-Math.floor(index);
-    return {id:row?row.id:null,yawDeg:yaw,currentIndex:current,nextIndex:(current+1)%16,
+    var result={id:row?row.id:null,yawDeg:yaw,currentIndex:current,nextIndex:(current+1)%16,
       blend:reducedMotion?0:smooth((fraction-.46)/.08),front:normalized<.000001||normalized>359.999999,done:done};
+    if(room.id)result.roomWalk=room;return result;
   }
   // Materials and landmarks belong to each real view, never to a flattened
   // frontal face. View zero deliberately uses the unchanged original B image.
@@ -1260,6 +1277,24 @@
     // tiny ears and narrow side profiles unfolded at every growth/path pairing.
     return {x:.4875+(x+dx*.55-(view.bounds[0]+view.bounds[2])*.5)*normal*(view.aspect||1),y:.92+(y+dy*.55*ground-view.groundY)*normal};
   }
+  function roomWalkDeform(index,x,y,point,frame,appearanceKey) {
+    if(!frame||!frame.walking||appearanceProfile(appearanceKey).family==='egg')return {x:point.x,y:point.y};
+    var view=directionView(index,appearanceKey),speed=clamp(finite(frame.speed,0),0,1),step=Math.sin(finite(frame.footPhase,0)),swing=Math.cos(finite(frame.footPhase,0));
+    var lower=smooth((y-(view.groundY-.145))/.10),center=view.torso[0],width=view.torso[2];
+    var within=1-smooth((Math.abs(x-center)-width*.95)/(width*.65));
+    var right=smooth((x-center+.07)/.14),left=1-right,feet=lower*within;
+    var dx=finite(frame.travel,0)*.018*swing*speed*feet*(right-left);
+    var lift=.027*speed*feet*(left*Math.max(0,step)+right*Math.max(0,-step));
+    // Only the lifted foot leaves the floor. The upper-body bounce fades away
+    // before the sole line, while source UVs/alpha stay on the same continuous mesh.
+    return {x:point.x+dx,y:point.y-lift-.005*Math.abs(step)*speed*(1-lower)};
+  }
+  function roomWalkPoint(index,x,y,frame,stage,path,appearanceKey) {
+    return roomWalkDeform(index,x,y,directionPoint(index,x,y,stage,path,appearanceKey),frame,appearanceKey);
+  }
+  function roomWalkBounds(bounds,frame) {
+    return frame&&frame.id?{minX:bounds.minX-.022,minY:bounds.minY-.007,maxX:bounds.maxX+.022,maxY:bounds.maxY}:bounds;
+  }
   function directionMesh(index,stage,path,appearanceKey) {
     var columns=24,values=new Float32Array(columns*columns*6*5),cursor=0;
     function vertex(x,y){var point=directionPoint(index,x,y,stage,path,appearanceKey);values[cursor++]=point.x;values[cursor++]=point.y;values[cursor++]=x;values[cursor++]=y;values[cursor++]=1;}
@@ -1282,7 +1317,7 @@
     });
     return {matrix:fit<1?multiply(bone({x:.5,y:.92},0,0,0,fit,fit),matrix):matrix.slice(),fitScale:fit,bounds:bounds};
   }
-  function directionProjection(index,stage,path,matrix,appearanceKey) {return fitDirectionMatrix(matrix||identity(),directionBounds(index,stage,path,appearanceKey));}
+  function directionProjection(index,stage,path,matrix,appearanceKey,roomFrame) {return fitDirectionMatrix(matrix||identity(),roomWalkBounds(directionBounds(index,stage,path,appearanceKey),roomFrame));}
   function directionClothingCoverage(index,outfit,x,y,appearanceKey) {
     var view=directionView(index,appearanceKey),b=view.torso,shear=Math.sin(view.index*TAU/16)*.12;
     var qx=.525+(x-b[0]+shear*(y-b[1]))*.258/b[2],qy=.79+(y-b[1])*.125/b[3];
@@ -1651,6 +1686,9 @@
       faceSad: 0, faceAngry: 0, faceSurprise: 0, faceDelighted: 0, tear: 0, blush: 0, sweat: 0, anger: 0,
       eyeNarrow: 0, mouthOpen: 0, effectPhase: 0 };
     if (name === 'idle') return p;
+    // The side-view room mesh owns its gait. Keep the frontal idle and original
+    // size intact while turning, instead of applying a second body translation.
+    if(Object.prototype.hasOwnProperty.call(roomWalkDurations,name))return p;
     var e = envelope(age, duration), beat = Math.sin(age * TAU), fast = Math.sin(age * TAU * 2.4);
     var hop = Math.pow(Math.max(0, Math.sin(age * TAU * 1.15)), 2);
     var nod = .5 - .5 * Math.cos(age * TAU * .65);
@@ -2161,6 +2199,7 @@
     function setSituation(name, values) {
       if (dead) return;
       values = values || {}; cue = known(name);
+      if(family==='egg'&&Object.prototype.hasOwnProperty.call(roomWalkDurations,cue))cue='idle';
       cueDuration = cue === 'idle' ? 0 : clamp(finite(values.durationMs, durations[cue]), 0, 30000);
       cueMs = Math.max(0, finite(values.elapsedMs, 0)); cueAnchor = finite(clock(), 0);
       if (cue !== 'idle' && cueMs >= cueDuration) { cue = 'idle'; cueMs = 0; }
@@ -2223,9 +2262,9 @@
         gl.activeTexture(gl.TEXTURE0+5);gl.bindTexture(gl.TEXTURE_2D,assetTextures[index===0?(family==='baby'?3:10):(family==='baby'?5:13)]);
         var view=directionView(index,appearance.key),mesh=turnMeshes[index]||(turnMeshes[index]=directionMesh(index,stageProfile.key,branchProfile.key,appearance.key));
         var bounds=turnBounds[index]||(turnBounds[index]=directionBounds(index,stageProfile.key,branchProfile.key,appearance.key));
-        var matrix=fitDirectionMatrix(rig.matrices.torso,bounds).matrix;
+        var matrix=fitDirectionMatrix(rig.matrices.torso,roomWalkBounds(bounds,frame.roomWalk)).matrix;
         turnVertices.set(mesh);
-        for(var offset=0;offset<mesh.length;offset+=5){var point=transform(matrix,{x:mesh[offset],y:mesh[offset+1]});turnVertices[offset]=point.x*2-1;turnVertices[offset+1]=1-point.y*2;}
+        for(var offset=0;offset<mesh.length;offset+=5){var rest={x:mesh[offset],y:mesh[offset+1]};if(frame.roomWalk)rest=roomWalkDeform(index,mesh[offset+2],mesh[offset+3],rest,frame.roomWalk,appearance.key);var point=transform(matrix,rest);turnVertices[offset]=point.x*2-1;turnVertices[offset+1]=1-point.y*2;}
         bindVertices(turnBuffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,turnVertices);
         gl.uniform4f(locations.motionA,weight,index,index>4&&index<12?1:0,selectedOutfit?selectedOutfit.index:0);
         gl.uniform4f(locations.motionB,view.eyes[0],view.eyes[1],view.eyes[2],view.eyes[3]);
@@ -2255,7 +2294,9 @@
       try {
         resize();
         var reduced = media && media.matches;
+        var observedCue=cue,observedAnchor=cueAnchor,observedDuration=cueDuration;
         var age = cueMs + Math.max(0, finite(clock(), cueAnchor) - cueAnchor);
+        var endedDirection=cue!=='idle'&&age>=cueDuration?directionFrame(cue,0).id:null;
         if (cue !== 'idle' && age >= cueDuration) { cue = 'idle'; cueMs = 0; cueDuration = 0; }
         var elapsed = cueDuration ? age / cueDuration * durations[cue] / 1000 : 0;
         var p = reduced ? pose(0, 'idle', 0, stageProfile.key, branchProfile.key) : pose(phaseMs / 1000, cue, elapsed, stageProfile.key, branchProfile.key);
@@ -2303,9 +2344,20 @@
           readyNotified = true;
           if (typeof options.onReady === 'function') { try { options.onReady(); } catch (_) {} }
         }
-        if(!dead&&family!=='egg'&&cue==='feeding'&&feedingPhase(elapsed*1000).foodVisible&&typeof options.onPose==='function'){
+        if(!dead&&family!=='egg'&&cue===observedCue&&cueAnchor===observedAnchor&&cue==='feeding'&&feedingPhase(elapsed*1000).foodVisible&&typeof options.onPose==='function'){
           try{options.onPose({situation:'feeding',elapsedMs:elapsed*1000,mouthX:clamp(rig.mouth.x,0,1),mouthY:clamp(rig.mouth.y,0,1),
             foodLeft:clamp(rig.mouth.x-.11,0,1),foodTop:clamp(rig.mouth.y+.005,0,1)});}catch(_){}
+        }
+        if(!dead&&family!=='egg'&&cueAnchor===observedAnchor&&typeof options.onPose==='function'){
+          if(cue===observedCue&&turn.id&&!turn.done){
+            var packet={situation:cue,elapsedMs:elapsed*1000,yawDeg:turn.yawDeg};
+            if(turn.roomWalk){var walk=turn.roomWalk;packet.roomX=walk.x;packet.walking=walk.walking;packet.speed=walk.speed;packet.phase=walk.phase;packet.footPhase=walk.footPhase;}
+            try{options.onPose(packet);}catch(_){}
+          }else if(endedDirection&&cue==='idle'){
+            var endPacket={situation:endedDirection,elapsedMs:observedDuration,yawDeg:0,done:true};
+            if(Object.prototype.hasOwnProperty.call(roomWalkDurations,endedDirection)){endPacket.roomX=0;endPacket.walking=false;endPacket.speed=0;endPacket.phase='idle';endPacket.footPhase=TAU*7;}
+            try{options.onPose(endPacket);}catch(_){}
+          }
         }
       } catch (_) { fail('render_failed'); }
     }
@@ -2402,7 +2454,7 @@
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,nurseryLandmarks:nurseryLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
-    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,
+    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
 });

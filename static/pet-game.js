@@ -4,7 +4,7 @@
   var host = null, store = null, options = null, mounting = null, unsubscribe = null;
   var tab = 'care', busy = false, game = null, pendingFinish = null;
   var notice = '', failure = '', nameDraft = null, quantities = {}, backupText = '', importText = '';
-  var lifecycleEpoch = 0, suspended = false, renderedDay = '';
+  var lifecycleEpoch = 0, suspended = false, renderedDay = '', roomCarryX = 0;
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
   var emotionBrowse = { pet: { group: 'bright', query: '', page: 0 }, preview: { group: 'bright', query: '', page: 0 }, growth: { group: 'bright', query: '', page: 0 } };
@@ -241,6 +241,31 @@
     if (request.roomCue && Date.now() - request.roomCue.startedAt >= request.roomCue.durationMs) request.roomCue = null;
     return request.roomCue || null;
   }
+  function roomWalk(name) { return name === 'room_walk_left' || name === 'room_walk_right'; }
+  function placeInRoom(request, pixels, settling) {
+    if (!request.room) return;
+    pixels = Number.isFinite(pixels) ? Math.max(-64, Math.min(64, pixels)) : 0;
+    // Ready/phase callbacks may repeat in the same frame; keep a care interruption's return intact.
+    if (!settling && pixels === 0 && request.roomPixelX === 0 && request.roomSettlingUntil > Date.now()) return;
+    request.roomSettlingUntil = settling ? Date.now() + 400 : 0;
+    if (settling && request.wrap.isConnected) { try { request.wrap.getBoundingClientRect(); } catch (_) {} }
+    request.roomPixelX = pixels;
+    request.wrap.style.transition = settling ? 'transform 400ms ease-out' : 'none';
+    request.wrap.style.transform = 'translateX(calc(-50% + ' + pixels.toFixed(3) + 'px))';
+  }
+  function showRoomPose(request, frame) {
+    if (!request.room || !frame || !request.ready || !request.canvas.isConnected || !motionsVisible()) return;
+    var active = requestCue(request);
+    if (!active || active.situation !== frame.situation || Date.now() - active.startedAt >= active.durationMs) return;
+    if (Number.isFinite(frame.yawDeg)) {
+      var yaw = ((frame.yawDeg % 360) + 360) % 360;
+      request.wrap.dataset.facing = yaw >= 135 && yaw <= 225 ? 'back' : yaw > 45 && yaw < 135 ? 'right' : yaw > 225 && yaw < 315 ? 'left' : 'front';
+    }
+    if (roomWalk(frame.situation) && request.appearanceFamily !== 'egg' && Number.isFinite(frame.roomX)) {
+      placeInRoom(request, Math.max(-1, Math.min(1, frame.roomX)) * request.roomWalkDistance, false);
+      request.wrap.dataset.roomWalkPhase = typeof frame.phase === 'string' ? frame.phase : '';
+    }
+  }
   function startRoomBehavior(request) {
     if (!request.room || request.roomBehavior || !request.ready || !request.controller || !motionsVisible() ||
       !w.PetRoomBehavior || typeof w.PetRoomBehavior.create !== 'function') return;
@@ -287,6 +312,7 @@
           elapsedMs: localCue ? Math.max(0, Date.now() - localCue.startedAt) : 0,
           onReady: function () { if (request.evolutionNotice) request.evolutionNotice.hidden = true; if (request.outfitNotice) request.outfitNotice.hidden = true; if (request.bodyNotice && bodyCatalogue().length) request.bodyNotice.hidden = true; if (request.directionNotice && directionCatalogue().length) request.directionNotice.hidden = true; request.ready = true; request.canvas.hidden = false; request.still.hidden = true; updateMotionPresentation(request, requestCue(request)); startRoomBehavior(request); },
           onPose: function (frame) {
+            showRoomPose(request, frame);
             if (!request.ready || !request.canvas.isConnected || !motionsVisible() || !request.food || request.food.hidden ||
               request.wrap.dataset.situation !== 'feeding' || !frame || frame.situation !== 'feeding' ||
               !Number.isFinite(frame.foodLeft) || !Number.isFinite(frame.foodTop)) return;
@@ -314,7 +340,7 @@
     if (request.revealFrame != null) w.cancelAnimationFrame(request.revealFrame); request.revealFrame = null;
     if (request.effect) { request.effect.hidden = true; request.effect.replaceChildren(); }
     if (request.food) request.food.hidden = true;
-    if (request.room) { request.room.dataset.activity = 'idle'; request.roomBubble.textContent = 'ここで、いっしょに過ごそう。'; request.roomStatus.textContent = '絵で表示しています。お世話の記録はいつもどおり保存できます。'; }
+    if (request.room) { request.roomSettlingUntil = 0; placeInRoom(request, 0, false); request.wrap.dataset.facing = 'front'; request.wrap.dataset.roomWalkPhase = ''; request.room.dataset.activity = 'idle'; request.roomBubble.textContent = 'ここで、いっしょに過ごそう。'; request.roomStatus.textContent = '絵で表示しています。お世話の記録はいつもどおり保存できます。'; }
     (request.controls || []).forEach(function (control) { control.disabled = true; control.dataset.ipgDisabled = '1'; });
     if (request.caption) request.caption.textContent = 'この画面では動きを表示できないため、絵で表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '') + (request.outfit ? 'この環境では服の見た目を表示できません。' : '');
     if (request.outfitNotice) request.outfitNotice.hidden = false;
@@ -396,10 +422,21 @@
     (request.controls || []).forEach(function (control) { control.setAttribute('aria-pressed', String((control.dataset.emotion || control.dataset.bodyMotion || control.dataset.directionMotion) === name)); });
     if (request.caption) request.caption.textContent = meal ? mealLabel + (request.preview ? 'の見本' : '') :
       (entry ? entry.label : 'ふだん') + (request.preview || fullReference ? 'の見本' : 'のしぐさ');
-    request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? mealLabel : entry ? entry.label : 'ふだん'));
+    request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? mealLabel : cue && cue.message || (entry ? entry.label : 'ふだん')));
     request.wrap.dataset.situation = name;
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
     if (request.room) {
+      if (roomWalk(name)) {
+        if (request.roomWalkCueAt !== (cue && cue.startedAt)) {
+          request.roomWalkCueAt = cue && cue.startedAt;
+          var width = 0; try { width = request.room.getBoundingClientRect().width; } catch (_) {}
+          request.roomWalkDistance = Math.max(20, Math.min(64, (Number.isFinite(width) ? width : 300) * .09));
+        }
+      } else {
+        request.roomWalkCueAt = null; request.wrap.dataset.roomWalkPhase = '';
+        placeInRoom(request, 0, Math.abs(request.roomPixelX || 0) > .01);
+        if (name.indexOf('direction_') !== 0) request.wrap.dataset.facing = 'front';
+      }
       var roomMessage = meal ? mealLabel : cue && cue.message || ({ greeting: '会えてうれしいな。', petted: 'なでなで、だいすき。', resting: 'すやすや…安心しておやすみ。', joy: 'うれしくて、ぴょん！' })[name] || 'ここで、いっしょに過ごそう。';
       request.room.dataset.activity = name === 'idle' ? 'idle' : meal ? 'feeding' : name === 'petted' ? 'affection' : name === 'resting' ? 'resting' : cue && cue.activity || 'looking';
       request.roomBubble.textContent = roomMessage;
@@ -794,7 +831,7 @@
       append(scene, img, decoration, bubble);
       var heading = append(node('div', 'ipg-room-heading'), node('p', 'ipg-eyebrow', 'いっしょのおへや'), node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'), text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'));
       append(pet, heading, scene, roomStatus);
-      if (careRequest) { careRequest.room = scene; careRequest.roomBubble = bubble; careRequest.roomStatus = roomStatus; }
+      if (careRequest) { careRequest.room = scene; careRequest.roomBubble = bubble; careRequest.roomStatus = roomStatus; careRequest.roomWalkDistance = 27; careRequest.wrap.dataset.facing = 'front'; careRequest.wrap.dataset.roomWalkPhase = ''; placeInRoom(careRequest, roomCarryX, false); }
     } else {
       append(scene, node('span', 'ipg-sky', '✧'), img, decoration);
       var emotionStage = careRequest ? append(node('div', 'ipg-emotion-stage'), scene, emotionPalette(careRequest, false)) : scene;
@@ -1248,6 +1285,8 @@
   }
   function render() {
     if (!host || !store || game && host.querySelector('.ipg-catch-board')) return;
+    var priorRoom = motionRequests.filter(function (request) { return !!request.room; })[0];
+    roomCarryX = tab === 'care' && priorRoom && Number.isFinite(priorRoom.roomPixelX) ? priorRoom.roomPixelX : 0;
     stopMotions();
     var focused = d.activeElement && d.activeElement.dataset && d.activeElement.dataset.focusKey;
     var s = state(), root = node('div', 'ipg ipg-view-' + tab);

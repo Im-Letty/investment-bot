@@ -40,14 +40,14 @@ test('standalone UMD exposes only a controller and performs no work at import or
 test('a newborn begins in quiet idle, uses one timer, and rotates real finite cues with long rests', () => {
   const f = fixture({ appearanceKey: 'newborn' });
   assert.equal(f.controller.start(), true); assert.equal(f.controller.start(), true); assert.equal(f.timers.size, 1);
-  f.advance(8499); assert.equal(f.cues.length, 0); f.advance(1); assert.equal(f.cues[0].situation, 'curious');
+  f.advance(8499); assert.equal(f.cues.length, 0); f.advance(1); assert.equal(f.cues[0].situation, 'direction_left');
   const actual = [];
-  for (let n = 0; n < 20; n++) {
+  for (let n = 0; n < 28; n++) {
     const current = f.cues.at(-1);
     if (current.situation !== 'idle') { actual.push(current); assert.equal(current.durationMs, Motion.durations[current.situation]); assert.ok(current.message); assert.ok(['looking','ears','hands','walking','resting','idle'].includes(current.activity)); }
     assert.equal(f.timers.size, 1); f.next();
   }
-  assert.deepEqual(actual.slice(0, 9).map(row => row.situation), ['curious','body_ears','relaxed','body_hands','moving','body_head','body_tail','gentlesmile','body_flap']);
+  assert.deepEqual(actual.slice(0, 13).map(row => row.situation), ['direction_left','body_ears','room_walk_right','direction_back','body_hands','room_walk_left','relaxed','body_head','direction_right','body_tail','gentlesmile','body_flap','direction_spin']);
   for (let i = 1; i < actual.length; i++) { const gap = actual[i].at - actual[i-1].at - actual[i-1].durationMs; assert.ok(gap >= 7000 && gap <= 12000); assert.notEqual(actual[i].situation, actual[i-1].situation); }
   f.controller.destroy(); assert.equal(f.timers.size, 0);
 });
@@ -59,18 +59,18 @@ test('every egg remains in egg-compatible reactions while all eight born appeara
     assert.ok(f.cues.every(row => ['idle','curious','relaxed'].includes(row.situation))); for (const row of f.cues) assert.equal(row.durationMs, Motion.durations[row.situation]); f.controller.destroy();
   }
   for (const appearanceKey of ['newborn','baby','toddler','child','juvenile','grown','adult','companion',undefined,'unknown']) {
-    const f = fixture({ appearanceKey }); f.controller.start(); f.advance(180000);
-    assert.ok(f.cues.some(row => row.situation === 'body_ears')); assert.ok(f.cues.some(row => row.situation === 'body_hands')); assert.ok(f.cues.some(row => row.situation === 'moving'));
+    const f = fixture({ appearanceKey }); f.controller.start(); f.advance(230000);
+    assert.ok(f.cues.some(row => row.situation === 'body_ears')); assert.ok(f.cues.some(row => row.situation === 'body_hands')); assert.ok(f.cues.some(row => row.situation === 'room_walk_left')); assert.ok(f.cues.some(row => row.situation === 'room_walk_right')); assert.ok(f.cues.some(row => row.situation === 'direction_back'));
     assert.ok(f.cues.every(row => !['feeding','cry','angry','scared','celebrate'].includes(row.situation))); f.controller.destroy();
   }
 });
 
 test('care cancels the pending action and its old neutral return, then restarts after the full care and idle wait', () => {
   const f = fixture({ appearanceKey: 'newborn' }); f.controller.start(); f.next();
-  const oldEnd = f.callbacks.at(-1), start = f.now; assert.equal(f.cues.at(-1).situation, 'curious');
+  const oldEnd = f.callbacks.at(-1), start = f.now; assert.equal(f.cues.at(-1).situation, 'direction_left');
   assert.equal(f.controller.suspendFor(8400), true); oldEnd(); assert.equal(f.cues.length, 1); assert.equal(f.timers.size, 1);
   f.advance(8399); assert.equal(f.cues.length, 1); f.advance(1); assert.deepEqual(f.cues.at(-1), { situation: 'idle', durationMs: 0, message: '', activity: 'idle', at: start + 8400 });
-  f.advance(8499); assert.equal(f.cues.length, 2); f.advance(1); assert.equal(f.cues.at(-1).situation, 'body_ears', 'restart avoids immediately repeating the previous curious action');
+  f.advance(8499); assert.equal(f.cues.length, 2); f.advance(1); assert.equal(f.cues.at(-1).situation, 'body_ears', 'restart avoids immediately repeating the previous turn');
   f.controller.destroy();
 });
 
@@ -99,7 +99,7 @@ test('hidden or reduced-motion rooms are quiet and need an explicit visible resu
 });
 
 test('reentrant care and stopping inside onCue preserve a single owner of the next deadline', () => {
-  let f; f = fixture({ onCue(value) { f.cues.push({ ...value, at: f.now }); if (value.situation === 'curious') f.controller.suspendFor(8400); } });
+  let f; f = fixture({ onCue(value) { f.cues.push({ ...value, at: f.now }); if (value.situation === 'direction_left') f.controller.suspendFor(8400); } });
   f.controller.start(); f.next(); assert.equal(f.timers.size, 1); f.advance(6000); assert.equal(f.cues.length, 1); f.advance(2400); assert.equal(f.cues.at(-1).situation, 'idle'); f.controller.destroy();
   let g; g = fixture({ onCue(value) { g.cues.push(value); g.controller.stop(); } }); g.controller.start(); g.next(); assert.equal(g.timers.size, 0); assert.equal(g.cues.length, 1); g.controller.destroy();
 });
@@ -118,4 +118,16 @@ test('invalid suspensions leave the current deadline intact and early timers can
   assert.deepEqual([...f.timers.keys()], before); f.controller.suspendFor(8400); f.shift(-1000); f.early(); assert.equal(f.cues.length, 0); assert.equal(f.timers.size, 1);
   f.advance(8400); assert.equal(f.cues.length, 0); assert.equal(f.timers.size, 1); f.advance(1000); assert.equal(f.cues.at(-1).situation, 'idle');
   f.controller.destroy();
+});
+
+
+test('born room visitors see side and back views before a long frontal-only loop', () => {
+  for (const appearanceKey of ['newborn','baby','grown','companion']) {
+    const f = fixture({ appearanceKey }); f.controller.start(); f.advance(70000);
+    const turns = f.cues.filter(row => row.situation !== 'idle');
+    assert.equal(turns[0].situation, 'direction_left');
+    assert.ok(turns.some(row => row.situation === 'direction_back'));
+    assert.ok(turns.some(row => row.situation.startsWith('room_walk_')));
+    f.controller.destroy();
+  }
 });

@@ -229,16 +229,16 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-care-room~.ipg-care-buttons{margin-top:12px}
 .ipg-pet-card:has(.ipg-care-room) .ipg-care-buttons{max-width:720px;margin:14px auto}
 .ipg-pet-card:has(.ipg-care-room) .ipg-care-buttons .ipg-button{border-radius:15px;background:#f5f0e8;border-color:#e2d8ca}
-.ipg-care-room[data-activity=walking] .ipg-room-pet{animation:ipg-room-stroll 1.6s ease-in-out 1}
+.ipg-care-room[data-activity=walking] .ipg-room-pet{animation:none;will-change:transform}
 .ipg-care-room[data-activity=feeding] .ipg-room-bowl{background:#e5c69e;border-color:#bea47f}
 .ipg-care-room[data-activity=resting] .ipg-room-window{filter:saturate(.65)}
 .ipg-growth-record{text-align:left;max-width:720px;margin:16px auto 0;border-top:1px solid var(--ipg-line);padding-top:8px}
 .ipg-growth-milestones{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;list-style:none;padding:0;margin:12px 0}
 .ipg-growth-milestones li{padding:8px 10px;border-radius:10px;background:var(--ipg-bg);font-size:.87em;display:flex;flex-direction:column;gap:3px}
 .ipg-growth-milestones small{font-size:.8em;color:var(--ipg-muted)}.ipg-growth-milestones .is-future{opacity:.55}.ipg-growth-milestones [aria-current=step]{outline:1px solid #bba5c9;background:#e9e0ee;color:#65516e}
-@keyframes ipg-room-stroll{0%,100%{transform:translateX(-50%)}35%{transform:translateX(calc(-50% - 18px))}70%{transform:translateX(calc(-50% + 14px))}}
+
 @media(max-width:540px){.ipg-pet-card:has(.ipg-care-room){padding:14px 10px}.ipg-scene.ipg-care-room{height:290px;min-height:290px;border-radius:17px}.ipg-care-room .ipg-room-pet{width:235px;height:235px;bottom:13px}.ipg-room-window{left:7%;top:24px;width:72px;height:88px;border-width:5px}.ipg-room-shelf{right:7%;top:82px;width:75px;gap:3px;padding-left:6px;padding-right:6px}.ipg-room-book{flex-basis:9px}.ipg-room-plant{flex-basis:16px;margin-left:2px}.ipg-room-bed{right:3%;bottom:34px;width:72px;height:38px;border-width:5px}.ipg-room-pillow{width:30px;height:17px;right:4px;top:-13px}.ipg-room-bowl{left:6%;width:37px;height:19px;bottom:27px}.ipg-room-rug{width:78%;height:65px;bottom:17px}.ipg-room-toy{left:19%;width:20px;height:20px}.ipg-room-bubble{font-size:.74em;top:14px;padding:6px 9px;max-width:57%;transform:translateX(-12%)}.ipg-growth-milestones{grid-template-columns:repeat(2,minmax(0,1fr))}.ipg-care-room .ipg-pet-decoration{right:13%;bottom:29px;font-size:30px}}
-@media(prefers-reduced-motion:reduce){.ipg-care-room[data-activity] .ipg-room-pet{animation:none!important}}
+@media(prefers-reduced-motion:reduce){.ipg-care-room[data-activity] .ipg-room-pet{animation:none!important;transition:none!important;transform:translateX(-50%)!important}}
 @media(prefers-color-scheme:dark){.ipg-scene.ipg-care-room{border-color:#65574f;background:repeating-linear-gradient(90deg,transparent 0 58px,#15121118 59px 60px),linear-gradient(180deg,#4b4547 0 68%,#6b5e52 68% 69%,#756652 69%)}.ipg-room-bubble{background:#5b4f62f0;color:#f1e5ef}.ipg-room-rug{background:#807087;border-color:#9985a1}.ipg-room-window{border-color:#b4a4a1;box-shadow:0 2px 0 3px #756153}.ipg-room-heading .ipg-eyebrow{color:#c9b2d5}.ipg-pet-card:has(.ipg-care-room) .ipg-care-buttons .ipg-button{background:var(--ipg-bg);border-color:var(--ipg-line)}.ipg-growth-milestones [aria-current=step]{background:#574b5d;color:#eee2f4}}
 
 .ipg-scene-beach.ipg-care-room .ipg-room-window{background:linear-gradient(#b8dce4 0 60%,#9ac4c8 61% 76%,#e5d8af 77%)}
