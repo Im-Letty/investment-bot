@@ -544,6 +544,44 @@ test('nursery facial registration maps the actual new eyes and nose into each in
   assert.ok(Motion.nurseryFaceUV(7,.55,.67).y>2/3+.65/3,'cleanplate samples below its own chin');
 });
 
+test('the smile borrows eyes and mouth without painting a second cheek, chin or brow outline',()=>{
+  for(const [x,y] of [[.32,.60],[.37,.63],[.50,.645],[.70,.63],[.79,.58],[.29,.50],[.82,.51],[.55,.24],[.417,.302],[.682,.274]]){
+    assert.ok(pngPixel('pet_lilac_reference_v2.png',x,y)[3]>240,'protected original fur is opaque');
+    assert.equal(Motion.nurserySmileCoverage(x,y),0,'the original outline and brows stay owned by B');
+  }
+  for(const point of [[.44318,.43534],[.68435,.40677],[.58051,.55]])assert.equal(Motion.nurserySmileCoverage(...point),1);
+  for(const bad of [NaN,Infinity,undefined,'0.5'])assert.equal(Motion.nurserySmileCoverage(bad,.5),0);
+});
+
+test('registered smile material fully covers real old pupils and the outer lash that previously remained as a second black line',()=>{
+  // These are opaque dark pixels in the original image, including its outer lash.
+  for(const [px,py] of [[445,593],[550,552],[855,510]]){
+    const x=px/1253,y=py/1253,old=pngPixel('pet_lilac_reference_v2.png',x,y),uv=Motion.nurseryFaceUV(6,x,y);
+    const donor=pngPixel('pet_lilac_baby_expressions_v1.png',uv.x,uv.y);
+    assert.ok(Math.max(...old.slice(0,3))<180&&old[3]>250,'the probe is an actual old eye/lash');
+    assert.equal(Motion.nurserySmileCoverage(x,y),1,'old eye pixels cannot survive a feathered mask');
+    assert.ok(donor[3]>=252,'replacement comes from the opaque registered smile');
+  }
+  const f=fixture({options:{appearanceKey:'adult'}});f.complete();
+  assert.match(f.shaders[1],/donorEye=max\(eyeMask\(uv,vec2\(\.44318,\.43534\),vec2\(\.120,\.124\)\),eyeMask\(uv,vec2\(\.68435,\.40677\),vec2\(\.111,\.119\)\)\)/,'fur rejection must exempt the entire real eye, including its old outer lash');
+  f.api.destroy();
+});
+
+test('smiles switch one opaque expression at a closed blink while body cue easing remains continuous',()=>{
+  for(const cue of ['laugh','joy','feeding','petted','celebrate','body_flap']){
+    const duration=Motion.durations[cue];let seenNeutral=false,seenSmile=false;
+    for(let ms=0;ms<=duration;ms+=20){
+      const pose=Motion.pose(0,cue,ms/1000,'adult'),phase=Motion.nurserySmilePhase(pose.presence,pose.faceDelighted>Math.max(pose.faceSad,pose.faceAngry,pose.faceSurprise));
+      assert.ok(phase.weight===0||phase.weight===1,'no original-pupil/smile RGB crossfade');
+      assert.ok(phase.blink>=0&&phase.blink<=1);if(phase.weight)seenSmile=true;else seenNeutral=true;
+    }
+    assert.ok(seenNeutral&&seenSmile,cue+' enters and releases the smile');
+  }
+  assert.ok(Motion.nurserySmilePhase(.499,true).blink>.99);
+  assert.deepEqual(Motion.nurserySmilePhase(.5,true),{weight:1,blink:0});
+  assert.deepEqual(Motion.nurserySmilePhase(.5,false),{weight:0,blink:0});
+});
+
 test('D mouth fallback descriptors retain old alpha bases and cannot repaint eyes, nose, paws or mouthless eggs',()=>{
   for(const key of Motion.appearanceCatalogue.map(row=>row.key).concat(null)){
     const p=Motion.appearanceProfile(key),m=p.stillMouthMask;
@@ -607,6 +645,8 @@ test('mouth shaders keep old silhouette alpha, registered nursery cells and orig
     if(Motion.appearanceProfile(key).family==='baby'){
       for(const cell of [3,4,5,6])assert.match(shader,new RegExp('vec4 expressionDonor=nurserySample\\(u_sad,uv,'+cell+'\\.\\)'));
       assert.match(shader,/expression=mix\(rgb,expressionDonor.rgb,smoothstep\(\.90,\.99,expressionDonor.a\)\)/);
+      assert.match(shader,/if\(u_face.w>max\(max\(u_face.x,u_face.y\),u_face.z\)\)face=max/,'only the smiling donor gets the local feature mask');
+      assert.match(shader,/delighted>\.5\?step\(\.5,u_presence\):u_presence/,'other facial cues retain their existing easing');
       assert.match(shader,/toothExpression=nurserySample\(u_surprise,uv,v_mouthMode>\.5\?2\.:toothCell\)\.rgb/);
       assert.match(shader,/tooth=texture2D\(u_angry,mix\(v_sourceRect.xy,v_sourceRect.zw,safe\)\)\.rgb/);
     }else assert.match(shader,/toothExpression=texture2D\(u_surprise,uv\)\.rgb/);

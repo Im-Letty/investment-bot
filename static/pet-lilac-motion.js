@@ -1135,6 +1135,25 @@
     return {x:x+dx*edge,y:.92+(y-floor+dy*edge*ground)};
   }
   function nurseryClothingCoverage(outfit,x,y){var b=nurseryLandmarks.torso;return outfitCoverage(outfit,.525+(x-b[0])*.258/b[2],.79+(y-b[1])*.125/b[3],true);}
+  // The smile sheet has a different cheek outline from the adopted B. Borrow
+  // only its eyes and mouth, retaining B's own brows, fur, chin and silhouette.
+  var nurserySmileRegions=Object.freeze([
+    [.44318,.43534,.140,.145,.28], [.68435,.40677,.133,.145,.28],
+    [.58051,.523,.093,.077,0]
+  ].map(function(row){return Object.freeze(row);}));
+  function nurserySmileCoverage(x,y){
+    if(!Number.isFinite(x)||!Number.isFinite(y))return 0;
+    return nurserySmileRegions.reduce(function(mask,r,index){
+      var dx=x-r[0],dy=y-r[1],c=Math.cos(r[4]),s=Math.sin(r[4]);
+      var weight=1-ramp(.85,1.1,Math.hypot((c*dx+s*dy)/r[2],(-s*dx+c*dy)/r[3]));
+      if(index===0)weight*=ramp(.325,.340,y);if(index===1)weight*=ramp(.295,.310,y);
+      return Math.max(mask,weight);
+    },0);
+  }
+  function nurserySmilePhase(presence,active){
+    var amount=clamp(finite(presence,0),0,1),weight=active&&amount>=.5?1:0;
+    return {weight:weight,blink:active&&!weight?1-Math.abs(amount*2-1):0};
+  }
   function regionWeight(x, y, cx, cy, rx, ry) { var dx = (x - cx) / rx, dy = (y - cy) / ry; return Math.exp(-2 * (dx * dx + dy * dy)); }
   // Forward normalized coordinates. Boundary taper fixes all four frame edges, and
   // the foot line remains grounded. The exact same map positions the food prop.
@@ -2389,6 +2408,18 @@
       ['vec2(.414,.907),vec2(.09,.035)','vec2(.452,.914),vec2(.062,.03)'],['vec2(.692,.897),vec2(.065,.035)','vec2(.628,.912),vec2(.058,.03)']
     ];
     var result=fragmentSource;replacements.forEach(function(row){result=result.split(row[0]).join(row[1]);});
+    var featureMask=nurserySmileRegions.map(function(r){return 'eyeMask(p,vec2('+r[0]+','+r[1]+'),vec2('+r[2]+','+r[3]+'))';});
+    featureMask[0]+='*smoothstep(.325,.340,p.y)';featureMask[1]+='*smoothstep(.295,.310,p.y)';
+    // eyeMask uses a .28-radian registration; the mouth keeps unrotated UVs.
+    featureMask[2]='1.-smoothstep(.85,1.1,length((p-vec2(.58051,.523))/vec2(.093,.077)))';
+    var oldFace='float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.555,.435))/vec2(.315,.265)))*headPart;';
+    result=result.replace(oldFace,oldFace+'if(u_face.w>max(max(u_face.x,u_face.y),u_face.z))face=max(max('+featureMask[0]+','+featureMask[1]+'),'+featureMask[2]+')*headPart;');
+    // Hand over one opaque set of eyes at a closed blink, rather than fading
+    // open pupils through the smile. Body motion keeps its smooth cue envelope.
+    result=result.replace('float weight=strongest>0.?u_presence:0.;',
+      'float weight=strongest>0.?(delighted>.5?step(.5,u_presence):u_presence):0.;');
+    result=result.replace('float blink=u_blink*(1.-delighted*u_presence);',
+      'float handover=delighted>.5?(1.-abs(u_presence*2.-1.))*(1.-weight):0.;float blink=max(u_blink*(1.-delighted*weight),handover);');
     result=result.replace(handUpperShader('mature'),handUpperShader('baby'));
     var maps=nurseryFaceMaps.map(function(row){var m=row.matrix,r=row.sourceRect;return 'if(cell>'+((row.cell-.5).toFixed(1))+'&&cell<'+((row.cell+.5).toFixed(1))+'){q=vec2(dot(vec3(p,1.),vec3('+m.slice(0,3).join(',')+')),dot(vec3(p,1.),vec3('+m.slice(3).join(',')+')));rect=vec4('+r.join(',')+');}';}).join('\n');
     var helper='varying vec4 v_sourceRect;\nvec4 nurserySample(sampler2D im,vec2 p,float cell){vec2 q=p;vec4 rect=vec4(0.,0.,1.,1.);'+maps+'vec2 tile=vec2(mod(cell,3.),floor(cell/3.));return texture2D(im,clamp((tile+q)/3.,rect.xy,rect.zw));}\n';
@@ -2401,7 +2432,10 @@
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));tooth=texture2D(u_angry,(tile+safe)/4.).rgb;','tooth=texture2D(u_angry,mix(v_sourceRect.xy,v_sourceRect.zw,safe)).rgb;');
     [['half',1],['closed',2]].forEach(function(row){result=result.split('texture2D(u_'+row[0]+',uv).rgb').join('nurserySample(u_'+row[0]+',uv,'+row[1]+'.).rgb');});
-    [3,4,5,6].forEach(function(cell){result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','vec4 expressionDonor=nurserySample(u_sad,uv,'+cell+'.);expression=mix(rgb,expressionDonor.rgb,smoothstep(.90,.99,expressionDonor.a));toothCell='+cell+'.;');});
+    [3,4,5,6].forEach(function(cell){
+      var guard=cell===6?'float donorEye=max(eyeMask(uv,vec2(.44318,.43534),vec2(.120,.124)),eyeMask(uv,vec2(.68435,.40677),vec2(.111,.119)));float donorFur=max(furSelect(expressionDonor.rgb)*smoothstep(.25,.50,dot(expressionDonor.rgb,vec3(.299,.587,.114))),furSelect(original)*smoothstep(.50,.65,dot(original,vec3(.299,.587,.114))))*(1.-donorEye);':'';
+      result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','vec4 expressionDonor=nurserySample(u_sad,uv,'+cell+'.);'+guard+'expression=mix(rgb,expressionDonor.rgb,smoothstep(.90,.99,expressionDonor.a)'+(cell===6?'*(1.-donorFur)':'')+');toothCell='+cell+'.;');
+    });
     result=result.replace('vec3 toothExpression=texture2D(u_surprise,uv).rgb;','vec3 toothExpression=nurserySample(u_surprise,uv,v_mouthMode>.5?2.:toothCell).rgb;');
     result=result.replace('texture2D(u_sad,plateUV).rgb','nurserySample(u_sad,plateUV,7.).rgb');
     result=result.replace('original=mix(original,nurserySample(u_sad,plateUV,7.).rgb,patch);','original=nurserySample(u_sad,plateUV,7.).rgb;');
@@ -2801,7 +2835,7 @@
     return controller;
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, eggOrigins:eggOrigins,eggOriginProfile:eggOriginProfile,eggVisualProfile:eggVisualProfile,eggOriginColor:eggOriginColor,evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
-    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
+    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,nurserySmileCoverage:nurserySmileCoverage,nurserySmilePhase:nurserySmilePhase,
     catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
