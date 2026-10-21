@@ -156,9 +156,9 @@
   function appearanceProfile(key) {
     var engine = w.PetLilacMotion;
     if (engine && typeof engine.appearanceProfile === 'function') return engine.appearanceProfile(key);
-    var eggs = ['egg', 'egg_cracked', 'hatching'], babies = ['newborn', 'baby', 'toddler', 'child', 'juvenile'];
-    return eggs.indexOf(key) >= 0 ? { family: 'egg', stillAsset: 'pet_lilac_tooth_egg_stages_v1.png', stillCell: eggs.indexOf(key), stillRect: eggStillRect(eggs.indexOf(key)), overallScale: [.64, .64, .67][eggs.indexOf(key)] } :
-      babies.indexOf(key) >= 0 ? { family: 'baby', stillAsset: 'pet_lilac_tooth_newborn_v1.png', stillCell: null, overallScale: [.62, .72, .81, .90, .96][babies.indexOf(key)] } : { family: 'mature', stillAsset: 'pet_lilac_tooth_original_v1.png', stillCell: null };
+    var eggs = ['egg', 'egg_cracked', 'hatching'], babies = ['newborn', 'baby', 'toddler', 'child', 'juvenile', 'grown', 'adult', 'companion'];
+    return eggs.indexOf(key) >= 0 ? { family: 'egg', stillBaseAsset: 'pet_lilac_egg_stages_v1.png', stillAsset: 'pet_lilac_tooth_egg_stages_v1.png', stillCell: eggs.indexOf(key), stillRect: eggStillRect(eggs.indexOf(key)), overallScale: [.64, .64, .67][eggs.indexOf(key)] } :
+      babies.indexOf(key) >= 0 ? { family: 'baby', stillBaseAsset: 'pet_lilac_reference_v2.png', stillAsset: 'pet_lilac_reference_v2.png', stillMouthMask: { x: .58051, y: .54, rx: .085, ry: .057, floor: .505 }, stillCell: null, overallScale: [.62, .72, .81, .90, .96, 1, 1.04, 1.07][babies.indexOf(key)] } : { family: 'mature', stillBaseAsset: 'pet_lilac_cutout.webp', stillAsset: 'pet_lilac_tooth_original_v1.png', stillCell: null };
   }
   function stillMouthPatch(profile) {
     if (profile.family === 'egg' && profile.stillCell !== 2) return null;
@@ -167,7 +167,7 @@
     var mask = profile.stillMouthMask;
     if (!mask || ![mask.x, mask.y, mask.rx, mask.ry, mask.floor].every(Number.isFinite)) mask = { x: defaults[0], y: defaults[1], rx: defaults[2], ry: defaults[3], floor: defaults[4] };
     var patch = node('img', 'ipg-lilac-mouth-patch');
-    patch.src = imageRoot + (profile.stillAsset || (profile.family === 'egg' ? 'pet_lilac_tooth_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_tooth_newborn_v1.png' : 'pet_lilac_tooth_original_v1.png'));
+    patch.src = imageRoot + (profile.stillAsset || (profile.family === 'egg' ? 'pet_lilac_tooth_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_reference_v2.png' : 'pet_lilac_tooth_original_v1.png'));
     patch.alt = ''; patch.draggable = false; patch.setAttribute('aria-hidden', 'true');
     var gradient = 'radial-gradient(ellipse ' + mask.rx * 100 + '% ' + mask.ry * 100 + '% at ' + mask.x * 100 + '% ' + mask.y * 100 + '%,#000 62%,transparent 100%)';
     patch.style.maskImage = gradient; patch.style.webkitMaskImage = gradient;
@@ -189,7 +189,7 @@
     var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + growthStage + (extraClass ? ' ' + extraClass : ''));
     wrap.dataset.cuePhase = 'idle'; wrap.dataset.growthStage = growthStage; wrap.dataset.appearanceKey = appearance.key; wrap.dataset.evolutionPath = path; wrap.dataset.outfit = dress || 'none';
     var still = node('div', 'ipg-lilac-still' + (profile.family === 'egg' ? ' ipg-egg-still' : ' ipg-tooth-still'));
-    var stillAsset = profile.stillBaseAsset || (profile.family === 'egg' ? 'pet_lilac_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_newborn_v1.png' : 'pet_lilac_cutout.webp');
+    var stillAsset = profile.stillBaseAsset || (profile.family === 'egg' ? 'pet_lilac_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_reference_v2.png' : 'pet_lilac_cutout.webp');
     still.alt = (s.pet.name || '薄紫のこ') + '（' + appearance.label + '）';
     still.setAttribute('role', 'img'); still.setAttribute('aria-label', still.alt);
     if (profile.family === 'egg') {
@@ -674,7 +674,7 @@
   function petImage(s) {
     var key = stage(s).key, bunny = s.pet.species === 'bunny';
     if (!stageLabels[key]) key = 'egg';
-    if (!bunny) return imageRoot + 'pet_lilac_cutout.webp';
+    if (!bunny) return imageRoot + 'pet_lilac_reference_v2.png';
     if (bunny && key === 'final' && s.pet.path === 'cool') return imageRoot + 'pet_bimg_cool.webp';
     return imageRoot + 'pet_bimg_' + key + '.webp';
   }

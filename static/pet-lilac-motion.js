@@ -1078,16 +1078,18 @@
     baby:Object.freeze({x:.58051,y:.54,rx:.085,ry:.057,floor:.505}),
     egg:Object.freeze({x:.295,y:.705,rx:.045,ry:.03,floor:.697})
   });
+  var referenceAsset='pet_lilac_reference_v2.png';
   var appearanceCatalogue=Object.freeze([
     ['egg','たまご',0,'egg',0,.64],['egg_cracked','ひびのたまご',5,'egg',1,.64],['hatching','もうすぐうまれる',10,'egg',2,.67],
-    ['newborn','うまれたて',15,'baby',null,.62],['baby','あかちゃん',30,'baby',null,.72],['toddler','よちよち',45,'baby',null,.81],
-    ['child','こども',75,'baby',null,.90],['juvenile','わかもの',110,'baby',null,.96],
-    ['grown','育った姿',200,'mature',null,null],['adult','おとな',400,'mature',null,null],['companion','なかよしの姿',800,'mature',null,null]
+    ['newborn','うまれたて',15,'baby',null,.62,0],['baby','あかちゃん',30,'baby',null,.72,.2],['toddler','よちよち',45,'baby',null,.81,.4],
+    ['child','こども',75,'baby',null,.90,.6],['juvenile','わかもの',110,'baby',null,.96,.8],
+    ['grown','育った姿',200,'baby',null,1,1],['adult','おとな',400,'baby',null,1.04,1.08],['companion','なかよしの姿',800,'baby',null,1.07,1.16]
   ].map(function(row){return Object.freeze({key:row[0],label:row[1],min:row[2],family:row[3],stillCell:row[4],overallScale:row[5],
+    visualAge:row[3]==='baby'?row[6]:null,
     stillRect:row[3]==='egg'?eggSourceRects[row[4]]:null,
-    stillBaseAsset:row[3]==='egg'?'pet_lilac_egg_stages_v1.png':row[3]==='baby'?'pet_lilac_newborn_v1.png':'pet_lilac_cutout.webp',
+    stillBaseAsset:row[3]==='egg'?'pet_lilac_egg_stages_v1.png':referenceAsset,
     stillMouthMask:row[3]==='egg'&&row[4]!==2?null:toothMouthMasks[row[3]],
-    stillAsset:row[3]==='egg'?'pet_lilac_tooth_egg_stages_v1.png':row[3]==='baby'?'pet_lilac_tooth_newborn_v1.png':'pet_lilac_tooth_original_v1.png'});}));
+    stillAsset:row[3]==='egg'?'pet_lilac_tooth_egg_stages_v1.png':referenceAsset});}));
   var legacyAppearance=Object.freeze({key:null,label:'育った姿',min:null,family:'mature',stillCell:null,overallScale:null,stillBaseAsset:'pet_lilac_cutout.webp',stillMouthMask:toothMouthMasks.mature,stillAsset:'pet_lilac_tooth_original_v1.png'});
   function appearanceProfile(key){if(typeof key==='string')for(var i=0;i<appearanceCatalogue.length;i++)if(appearanceCatalogue[i].key===key)return appearanceCatalogue[i];return legacyAppearance;}
   var nurseryLandmarks=Object.freeze({floor:.923445,headPivot:Object.freeze([.55,.645]),mouth:Object.freeze([.58051,.52638]),
@@ -1095,7 +1097,7 @@
   function appearancePoint(key,inputX,inputY,path){
     var appearance=appearanceProfile(key),x=finite(inputX,.5),y=finite(inputY,.5);
     if(appearance.family!=='baby')return {x:x,y:y};
-    var index=['newborn','baby','toddler','child','juvenile'].indexOf(appearance.key),age=index/4,branch=evolutionProfile(path);
+    var age=appearance.visualAge,branch=evolutionProfile(path);
     var head=1-smooth((y-.60)/.12),width=(.89+.14*age)*(1-head)+(1.035-.055*age)*head;
     var floor=nurseryLandmarks.floor,dx=(x-.55)*(width-1),dy=(y-floor)*(-.15+.18*age)*(1-head);
     var ears=regionWeight(x,y,.17,.35,.15,.16)+regionWeight(x,y,.85,.34,.14,.15),earScale=(.86+.16*age)*branch.earScale;
@@ -1145,8 +1147,8 @@
   var assets = ['pet_lilac_original.webp', 'pet_lilac_half.webp', 'pet_lilac_closed.webp', 'pet_lilac_cutout.webp',
     'pet_lilac_sad.webp', 'pet_lilac_angry.webp', 'pet_lilac_surprise.webp', 'pet_lilac_delighted.webp', 'pet_lilac_torso_cleanplate_v1.png', 'pet_lilac_turnaround_v1.png',
     'pet_lilac_tooth_original_v1.png','pet_lilac_tooth_surprise_v1.png','pet_lilac_tooth_delighted_v1.png','pet_lilac_tooth_turnaround_v1.png','pet_lilac_tooth_sleep_v1.png'];
-  var babyAssets=Object.freeze(['pet_lilac_newborn_v1.png','pet_lilac_baby_expressions_v1.png','pet_lilac_baby_turnaround_v1.png',
-    'pet_lilac_tooth_newborn_v1.png','pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png']);
+  var babyAssets=Object.freeze([referenceAsset,'pet_lilac_baby_expressions_v1.png','pet_lilac_baby_turnaround_v1.png',
+    referenceAsset,'pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png']);
   var eggAssets=Object.freeze(['pet_lilac_egg_stages_v1.png','pet_lilac_tooth_egg_stages_v1.png']);
   function appearanceAssets(key){var family=appearanceProfile(key).family;return family==='baby'?babyAssets:family==='egg'?eggAssets:Object.freeze(assets.slice());}
   function toothFaceBinding(p,situation,appearanceKey){
@@ -1258,7 +1260,7 @@
   function directionPoint(index,inputX,inputY,stage,path,appearanceKey) {
     var view=directionView(index,appearanceKey),x=finite(inputX,.5),y=finite(inputY,.5),profile=growthProfile(stage),branch=evolutionProfile(path),appearance=appearanceProfile(appearanceKey);
     if(!view.index)return appearance.family==='baby'?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);
-    if(appearance.family==='baby'){var age=['newborn','baby','toddler','child','juvenile'].indexOf(appearance.key)/4;profile={headWidth:1.035-.055*age,headHeight:1,bodyWidth:.89+.14*age,bodyHeight:.85+.18*age,earScale:.86+.16*age,tailScale:.76+.25*age};}
+    if(appearance.family==='baby'){var age=appearance.visualAge;profile={headWidth:1.035-.055*age,headHeight:1,bodyWidth:.89+.14*age,bodyHeight:.85+.18*age,earScale:.86+.16*age,tailScale:.76+.25*age};}
     var head=1-smooth((y-view.neckY+.08)/.18),center=view.torso[0]+(view.headX-view.torso[0])*head;
     var width=profile.bodyWidth+(profile.headWidth-profile.bodyWidth)*head;
     var dx=(x-center)*(width-1),dy=(y-view.groundY)*(profile.bodyHeight-1)+(y-view.neckY)*(profile.headHeight-profile.bodyHeight)*head;
@@ -1826,7 +1828,7 @@
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
     var amount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15)*(1-.12*e);
     // Reserve the widest flap up front; the figure must not resize on each beat.
-    if(name==='body_flap')amount*=1-.035*e;
+    if(name==='body_flap')amount*=1-(.035+(nursery?Math.max(0,appearance.overallScale-1)*.7:0))*e;
     var root=bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-p.bounce*.055+p.crouch*.012,
       1+.085*p.squash+.003*p.breath,1-.075*p.squash+.07*p.stretch-.055*p.crouch+.004*p.breath);
     var project=bone({x:.5,y:.92},0,0,0,amount,amount);root=multiply(project,root);
@@ -2200,7 +2202,7 @@
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));tooth=texture2D(u_angry,(tile+safe)/4.).rgb;','tooth=texture2D(u_angry,mix(v_sourceRect.xy,v_sourceRect.zw,safe)).rgb;');
     [['half',1],['closed',2]].forEach(function(row){result=result.split('texture2D(u_'+row[0]+',uv).rgb').join('nurserySample(u_'+row[0]+',uv,'+row[1]+'.).rgb');});
-    [3,4,5,6].forEach(function(cell){result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','expression=nurserySample(u_sad,uv,'+cell+'.).rgb;toothCell='+cell+'.;');});
+    [3,4,5,6].forEach(function(cell){result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','vec4 expressionDonor=nurserySample(u_sad,uv,'+cell+'.);expression=mix(rgb,expressionDonor.rgb,smoothstep(.90,.99,expressionDonor.a));toothCell='+cell+'.;');});
     result=result.replace('vec3 toothExpression=texture2D(u_surprise,uv).rgb;','vec3 toothExpression=nurserySample(u_surprise,uv,v_mouthMode>.5?2.:toothCell).rgb;');
     result=result.replace('texture2D(u_sad,plateUV).rgb','nurserySample(u_sad,plateUV,7.).rgb');
     result=result.replace('original=mix(original,nurserySample(u_sad,plateUV,7.).rgb,patch);','original=nurserySample(u_sad,plateUV,7.).rgb;');

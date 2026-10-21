@@ -177,13 +177,13 @@ test('choosing B waits for persistence, preserves the economy and reveals canvas
   assert.equal(f.mounts.length, 1); assert.equal(f.actionCues.length, 1);
   assert.equal(f.actionCues[0].cue.situation, 'greeting');
   const still = f.host.querySelector('.ipg-lilac-still'), canvas = f.host.querySelector('canvas');
-  assert.match(still.querySelector('.ipg-lilac-still-base').src, /pet_lilac_newborn_v1\.png$/); assert.equal(still.hidden, false); assert.equal(canvas.hidden, true);
+  assert.match(still.querySelector('.ipg-lilac-still-base').src, /pet_lilac_reference_v2\.png$/); assert.equal(still.hidden, false); assert.equal(canvas.hidden, true);
   f.mounts[0].options.onReady(); assert.equal(still.hidden, true); assert.equal(canvas.hidden, false);
   assert.ok(f.host.textContent.includes('もとの子'));
 });
 
-test('all eleven fallback appearances keep the original silhouette with the selected mouth patch', async () => {
-  for (const exp of [0, 5, 10, 15, 30, 45, 75, 110, 200, 400, 800]) {
+test('all eleven fallback appearances and mature boundaries retain the selected reference with no save writes', async () => {
+  for (const exp of [0, 5, 10, 15, 30, 45, 75, 110, 199, 200, 399, 400, 799, 800]) {
     const f = await fixture({ species: 'lilac', rendererMode: 'error', seed: { pg_exp: String(exp) } });
     const state = f.saved(), writes = f.writes.length;
     const appearance = Core.getLilacAppearance(exp), profile = Motion.appearanceProfile(appearance.key);
@@ -193,6 +193,8 @@ test('all eleven fallback appearances keep the original silhouette with the sele
     assert.equal(still.getAttribute('role'), 'img');
     const base = still.querySelector(profile.family === 'egg' ? '.ipg-egg-sheet' : '.ipg-lilac-still-base');
     assert.equal(base.src, '/static/' + profile.stillBaseAsset, appearance.key);
+    assert.equal(still.style.transform, 'scale(' + profile.overallScale + ')');
+    if (exp >= 15) { assert.equal(base.src, '/static/pet_lilac_reference_v2.png'); assert.equal(profile.family, 'baby'); }
     if (exp < 10) assert.equal(patch, null, 'unhatched eggs must not have a mouth');
     else {
       assert.equal(patch.src, '/static/' + profile.stillAsset, appearance.key);
@@ -206,14 +208,37 @@ test('all eleven fallback appearances keep the original silhouette with the sele
 });
 
 test('a missing motion module still renders the chosen mouth below the protected nose', async () => {
-  for (const [exp, family] of [[10, 'egg'], [30, 'baby'], [386, 'mature']]) {
+  for (const exp of [0, 5, 10, 15, 30, 45, 75, 110, 199, 200, 399, 400, 799, 800]) {
     const f = await fixture({ species: 'lilac', rendererUnavailable: true, seed: { pg_exp: String(exp) } });
+    const state = f.saved(), writes = f.writes.length, profile = Motion.appearanceProfile(Core.getLilacAppearance(exp).key);
     const still = f.host.querySelector('.ipg-lilac-still'), patch = still.querySelector('.ipg-lilac-mouth-patch');
     assert.equal(still.hidden, false); assert.equal(f.mounts.length, 0);
-    assert.match(patch.src, /pet_lilac_tooth_/);
-    const floor = Number(/^inset\(([\d.]+)%/.exec(patch.style.clipPath)?.[1]) / 100;
-    assert.ok(floor > (family === 'mature' ? .453 : family === 'baby' ? .49 : .69));
-    assert.ok(floor < (family === 'mature' ? .464 : family === 'baby' ? .52 : .71));
+    const base = still.querySelector(profile.family === 'egg' ? '.ipg-egg-sheet' : '.ipg-lilac-still-base');
+    assert.equal(base.src, '/static/' + profile.stillBaseAsset);assert.equal(still.style.transform, 'scale(' + profile.overallScale + ')');
+    if (exp < 10) assert.equal(patch, null);
+    else {
+      assert.equal(patch.src, '/static/' + profile.stillAsset);
+      const floor = Number(/^inset\(([\d.]+)%/.exec(patch.style.clipPath)?.[1]) / 100;
+      assert.ok(Math.abs(floor - profile.stillMouthMask.floor) < 1e-12);
+      assert.ok(patch.style.maskImage.includes(profile.stillMouthMask.x * 100 + '% ' + profile.stillMouthMask.y * 100 + '%'));
+    }
+    f.ui.render();assert.deepEqual(f.saved(), state);assert.equal(f.writes.length, writes);
+  }
+});
+
+test('room, gallery, compact header and free fittings share the selected reference at every born stage without writing data', async () => {
+  for (const exp of [15, 30, 45, 75, 110, 200, 400, 800]) {
+    const f = await fixture({ species: 'lilac', rendererUnavailable: true, seed: { pg_exp: String(exp) } });
+    const before = f.saved(), writes = f.writes.length, key = Core.getLilacAppearance(exp).key;
+    const reference = container => {
+      const base = container.querySelector('.ipg-lilac-still-base'), mouth = container.querySelector('.ipg-lilac-mouth-patch');
+      assert.equal(base.src, '/static/pet_lilac_reference_v2.png', key);assert.equal(mouth.src, base.src);
+    };
+    reference(f.host.querySelector('.ipg-emotion-stage'));
+    await f.click(f.focusButton('growth-album-toggle'));reference(f.host.querySelector('.ipg-growth-gallery'));
+    await f.click(f.focusButton('tab-shop'));reference(f.host.querySelector('.ipg-lilac-compact'));
+    await f.click(f.focusButton('outfit-try-cloth_flower_dress'));reference(f.host.querySelector('.ipg-outfit-fitting'));
+    assert.deepEqual(f.saved(), before);assert.equal(f.writes.length, writes);assert.equal(f.mounts.length, 0);
   }
 });
 
@@ -293,7 +318,7 @@ test('B begins as a real hatching egg and the confirmed 15 EXP boundary reveals 
   assert.equal(f.saved().pet.exp, 22); assert.equal(f.mounts.length, 2); assert.equal(f.activeMotions().length, 1);
   assert.equal(f.mounts.at(-1).options.situation, 'feeding'); assert.equal(f.actionCues.length, 1);
   assert.equal(f.mounts.at(-1).options.appearanceKey, 'newborn'); assert.equal(f.mounts.at(-1).options.growthStage, 'baby');
-  assert.match(f.host.querySelector('.ipg-lilac-still-base').src, /pet_lilac_newborn_v1\.png$/);
+  assert.match(f.host.querySelector('.ipg-lilac-still-base').src, /pet_lilac_reference_v2\.png$/);
   assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'anticipation');
 });
 
@@ -369,12 +394,12 @@ test('pending or rejected warmth keeps the previous egg and every saved field, w
   assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true); assert.deepEqual(f.saved().evolution.history, []); assert.ok(f.host.textContent.includes('あと3 EXP'));
 });
 
-test('a saved 386 EXP pet retains the original grown B, outfit, canonical history and exact economy while browsing all earlier appearances', async () => {
+test('a saved 386 EXP pet adopts the selected reference B and retains its outfit, canonical history and exact economy while browsing all earlier appearances', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '386', pg_coins: '355' }, setup: async store => {
     await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });
   } }), before = f.saved(), writes = f.writes.length;
   assert.equal(before.pet.exp, 386); assert.equal(before.coins, 355); assert.equal(f.mounts[0].options.appearanceKey, 'grown'); assert.equal(f.mounts[0].options.growthStage, 'final');
-  assert.equal(f.mounts[0].options.outfit, 'cloth_cream_vest'); assert.match(f.host.querySelector('.ipg-lilac-still-base').src, /pet_lilac_cutout\.webp$/);
+  assert.equal(f.mounts[0].options.outfit, 'cloth_cream_vest'); assert.match(f.host.querySelector('.ipg-lilac-still-base').src, /pet_lilac_reference_v2\.png$/);
   assert.equal(f.host.querySelector('.ipg-stage').textContent, '育った姿 · 386 EXP'); assert.ok(f.host.textContent.includes('あと14 EXP'));
   await f.click(f.focusButton('growth-album-toggle'));
   assert.equal(f.host.querySelector('.ipg-growth-choices').getAttribute('aria-label'), '成長のすがた・11段階');
@@ -1639,7 +1664,7 @@ test('a recorded color follows clothing, 36-emotion references, fitting and the 
   await f.click(f.focusButton('care-feed'));
   assert.equal(f.activeMotions()[0].options.evolutionPath, 'fruit'); assert.equal(f.activeMotions()[0].options.situation, 'feeding');
   assert.ok(f.anchorCalls.some(call => call.stage === 'adult' && call.path === 'fruit'));
-  const food = f.host.querySelector('.ipg-emotion-stage').querySelector('.ipg-feeding-food'), anchor = Motion.feedingAnchor('adult', 'fruit');
+  const food = f.host.querySelector('.ipg-emotion-stage').querySelector('.ipg-feeding-food'), anchor = Motion.feedingAnchor('adult', 'fruit', 'adult');
   assert.equal(food.style.left, String(anchor.foodLeft * 100) + '%'); assert.equal(food.style.top, String(anchor.foodTop * 100) + '%');
   await f.click(f.focusButton('tab-shop')); const saved = f.saved(); await f.click(f.focusButton('outfit-try-cloth_flower_dress'));
   assert.equal(f.activeMotions()[0].options.evolutionPath, 'fruit'); assert.equal(f.mounts.at(-1).options.evolutionPath, 'fruit');
