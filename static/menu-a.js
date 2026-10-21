@@ -76,7 +76,6 @@
     var header=document.createElement('div');header.className='kn-menu-header';header.innerHTML='<button type="button" class="kn-menu-close" aria-label="'+text('close')+'"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg></button>';drawer.insertBefore(header,drawer.firstChild);header.querySelector('button').onclick=close;
     nav.replaceChildren();
     var panel=document.createElement('div');panel.className='knAccPanel kn-menu-content';nav.appendChild(panel);
-    panel.appendChild(group(['alert']));
     panel.appendChild(group(['account','kakeibo','memo','saved']));
     panel.appendChild(group(['guide']));
     var colors=drawer.querySelector('.drawer-color-wrap:has(.drawer-color-presets)');
