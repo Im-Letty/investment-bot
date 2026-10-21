@@ -4282,8 +4282,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
 #sect-pet .ipg-load-state{padding:24px 16px;text-align:center;font:14px/1.8 system-ui,sans-serif}
 #sect-pet .ipg-load-state button{min-height:44px;margin-top:12px;padding:8px 16px;font:inherit;cursor:pointer}
 </style>
-<section id="sect-pet" hidden aria-labelledby="independent-pet-title">
-  <header class="ipg-shell-head"><button class="ipg-shell-back" type="button" onclick="closePetTab()" aria-label="ゲームを閉じる">←</button><h2 id="independent-pet-title">育成ゲーム</h2></header>
+<section id="sect-pet" hidden aria-label="育成ゲーム">
   <div class="ipg-shell-content">
     <div class="ipg-check-in"><div id="skBanner" role="button" tabindex="0" onclick="openMyRecord()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openMyRecord();}"></div></div>
     <div id="pet-game-root"><p class="ipg-load-state" role="status">ゲームを開くと読み込みます。</p></div>
