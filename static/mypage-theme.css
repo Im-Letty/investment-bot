@@ -19,6 +19,7 @@ body.kn-home-a #myPageOv {
 }
 
 body.kn-home-a #myPageOv .mo-head {
+  display: none !important;
   flex: 0 0 auto;
   min-width: 0;
   min-height: 76px;
@@ -58,6 +59,8 @@ body.kn-home-a #myPageOv .mp-toptabs {
   gap: 8px;
   box-sizing: border-box;
   padding: 12px var(--mypage-gutter);
+  /* The floating menu now shares the first row with these tabs. */
+  padding-left: max(var(--mypage-gutter), calc(var(--kn-a-menu-left) + 48px));
   background: var(--kn-sh-bg, #f0eedf) !important;
   border-bottom: 1px solid var(--kn-sh-line, #d5d6c3);
   overflow-x: auto;
