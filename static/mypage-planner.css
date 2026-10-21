@@ -74,9 +74,40 @@ body.kn-home-a[data-theme="dark"] #myPageOv :is(.mp-task-edit,.mp-add-details) i
 body.kn-home-a #myPageOv .mp-flag-field input[type="checkbox"]{width:22px;height:22px;min-height:22px;flex:0 0 auto;padding:0;accent-color:var(--kn-sh-button,#607765)}
 #myPageOv .mp-reminder-empty{padding:18px 8px;color:var(--kn-sh-muted,#606b57);line-height:1.7}
 @media(max-width:520px){#myPageOv .mp-reminder-filters{grid-template-columns:repeat(2,minmax(0,1fr))}#myPageOv .mp-task{padding-right:10px}}
-#myPageOv .mp-notes{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
-#myPageOv .mp-note-pick{background:transparent;border:1px solid var(--kn-sh-line,#d5d6c3);color:inherit}
-#myPageOv .mp-note-pick.on{background:var(--kn-sh-chip,#eeeddf);border-color:var(--kn-sh-button,#607765)}
+/* Notes: a quiet list and a separate writing surface, sharing the user's palette. */
+#myPageOv .mp-notebook{max-width:820px;margin-inline:auto;width:100%;box-sizing:border-box}
+#myPageOv .mp-note-head{display:flex;align-items:center;justify-content:space-between;gap:16px;margin-bottom:14px}
+body.kn-home-a #myPageOv .mp-note-head .mp-heading{margin:0;font-size:calc(28px * var(--kn-type-scale,1))!important;font-weight:600!important;overflow-wrap:anywhere}
+#myPageOv :is(.mp-note-compose,.mp-note-back,.mp-note-folder-pick){min-height:44px;max-width:100%;box-sizing:border-box;border:0;background:transparent;color:var(--kn-sh-button,#607765);font:inherit;cursor:pointer;padding:10px 8px;text-align:left;overflow-wrap:anywhere}
+#myPageOv .mp-note-compose{flex:0 0 auto;font-size:.9em;font-weight:600}
+#myPageOv .mp-note-compose::before{content:'＋';font-size:1.35em;vertical-align:-.04em;margin-right:4px}
+body.kn-home-a #myPageOv .mp-notebook .mp-note-search{border:0;border-radius:12px;background:var(--kn-sh-chip,#eeeddf);padding:10px 14px;font-size:max(16px,1em)}
+#myPageOv .mp-note-folders{margin:8px 0 12px}
+#myPageOv :is(.mp-note-folders,.mp-note-folder-options)>summary{min-height:44px;box-sizing:border-box;padding:11px 8px;cursor:pointer;color:var(--kn-sh-muted,#606b57)}
+#myPageOv .mp-note-folder{display:flex;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px solid var(--kn-sh-line,#d5d6c3);padding-left:12px}
+#myPageOv .mp-note-folder-pick{flex:1;min-width:0;color:inherit}
+#myPageOv .mp-note-folder-pick[aria-pressed="true"]{font-weight:600;color:var(--kn-sh-button,#607765)}
+#myPageOv .mp-note-folder-count{color:var(--kn-sh-muted,#606b57);font-size:.85em}
+#myPageOv .mp-note-folder-options[open]{flex-basis:100%}
+#myPageOv .mp-notes{display:grid;gap:0;overflow:hidden;border-radius:14px;background:var(--kn-sh-paper,#fdfcf6)}
+#myPageOv .mp-note-pick{display:grid;gap:5px;width:100%;max-width:100%;min-height:84px;margin:0;padding:16px 20px;border:0;border-radius:0;background:transparent;color:inherit;text-align:left;font:inherit;cursor:pointer;box-sizing:border-box;overflow-wrap:anywhere;white-space:normal}
+#myPageOv .mp-note-pick+.mp-note-pick{border-top:1px solid var(--kn-sh-line,#d5d6c3)}
+#myPageOv .mp-note-pick:hover{background:var(--kn-sh-chip,#eeeddf)}
+body.kn-home-a #myPageOv .mp-note-pick:focus-visible{outline-offset:-3px}
+#myPageOv .mp-note-name{font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#myPageOv .mp-note-excerpt{font-size:.88em;color:var(--kn-sh-muted,#606b57);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+#myPageOv .mp-note-count{text-align:center;font-size:.8em;color:var(--kn-sh-muted,#606b57);margin:16px 0}
+#myPageOv .mp-note-empty{padding:40px 18px;text-align:center;line-height:1.7;color:var(--kn-sh-muted,#606b57)}
+#myPageOv .mp-note-empty strong{font-weight:500;color:var(--kn-sh-ink,#3d4b3c)}
+#myPageOv .mp-note-empty p{font-size:.85em;margin:8px 0 0}
+#myPageOv .mp-note-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+#myPageOv .mp-note-back::before{content:'‹';font-size:1.6em;line-height:1;vertical-align:-.06em;margin-right:6px}
+#myPageOv .mp-note-toolbar .mp-danger{font-size:.8em;text-decoration:none}
+body.kn-home-a #myPageOv .mp-notebook :is(.mp-note-title,.mp-note-body){background:transparent;border:0;border-radius:0;padding:8px 4px;font-size:max(16px,1em)}
+body.kn-home-a #myPageOv .mp-notebook .mp-note-title{font-size:max(22px,1.4em);font-weight:600;line-height:1.5}
+body.kn-home-a #myPageOv .mp-notebook .mp-note-body{background:transparent!important;font:400 max(16px,calc(var(--kn-type-input,16px) * var(--kn-type-scale,1)))/1.9 var(--kn-a-sans,sans-serif)!important;display:block;min-height:360px;min-height:45dvh;line-height:1.9;resize:vertical}
+#myPageOv .mp-notebook button:disabled{opacity:.5;cursor:default}
+@media(max-width:520px){#myPageOv .mp-note-pick{padding:15px 16px}#myPageOv .mp-note-toolbar{gap:4px}#myPageOv .mp-note-compose{padding-right:0}}
 #myPageOv .mp-danger{color:#b1443b}
 #myPageOv :is(input,select,textarea,button,summary):focus-visible{outline:2px solid var(--kn-sh-button,#607765);outline-offset:3px}
 @media(max-width:640px){#myPageOv .mp-card{padding:14px}}

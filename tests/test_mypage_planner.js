@@ -672,3 +672,135 @@ test('a queued reminder search or filter event cannot re-enable rows after a lat
   assert.equal(reminderEditor(row).due.disabled,true);assert.equal(row.querySelector('.mp-task-check input').disabled,true);
   assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
 });
+
+
+test('note excerpts are display-only and never normalise the saved text or additive fields',()=>{
+  const original=note({title:'  ',body:'\n  最初の行  \n\n二行目\n 三行目  ',extension:{keep:'yes'}});
+  const before=JSON.stringify(original);
+  assert.deepEqual(planner.notePreview(original),{title:'最初の行',excerpt:'二行目 三行目'});
+  assert.equal(JSON.stringify(original),before);
+  assert.deepEqual(planner.notePreview(note({title:' 別の題名 ',body:' 本文の先頭\n続き'})),{title:'別の題名',excerpt:'本文の先頭 続き'});
+  assert.deepEqual(planner.notePreview(note()),{title:'無題のメモ',excerpt:''});
+});
+
+test('notes start in a readable list and opening and returning retain the same plain text editor',async()=>{
+  const raw=encode({notes:[note({title:'旅の記録',body:'行きたい場所\n神戸と京都'})]});
+  const h=controller({raw});await settle();
+  const library=h.page.querySelector('.mp-note-library'),editor=h.page.querySelector('.mp-note-editor'),body=h.memo;
+  assert.equal(library.hidden,false);assert.equal(editor.hidden,true);
+  assert.equal(h.page.querySelector('.mp-note-name').textContent,'旅の記録');
+  assert.equal(h.page.querySelector('.mp-note-excerpt').textContent,'行きたい場所 神戸と京都');
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
+  h.page.querySelector('.mp-note-pick').click();
+  assert.equal(library.hidden,true);assert.equal(editor.hidden,false);
+  assert.equal(h.focused,editor,'opening is accessible without forcing a phone keyboard');
+  h.type(body,'行きたい場所\n神戸と京都\n奈良');
+  const saved=JSON.parse(h.raw),stageCount=h.stages.length;
+  h.lookup('メモ一覧').click();
+  assert.equal(library.hidden,false);assert.equal(editor.hidden,true);
+  assert.equal(h.stages.length,stageCount,'returning is view-only');
+  h.page.querySelector('.mp-note-pick').click();
+  assert.equal(h.memo,body);assert.equal(body.value,saved.notes[0].body);
+});
+
+test('literal search filters title and body without saving or clearing another note',async()=>{
+  const raw=encode({notes:[note({id:'a',title:'投資',body:'NISAを学ぶ'}),note({id:'b',title:'旅行',body:'京都での予定'})]});
+  const h=controller({raw});await settle();
+  const find=h.page.querySelector('.mp-note-search');
+  h.type(find,' 京都 ');
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
+  assert.equal(h.page.querySelector('.mp-note-name').textContent,'旅行');
+  assert.equal(h.page.querySelector('.mp-note-count').textContent,'1件のメモ');
+  h.type(find,'<img src=x onerror=alert(1)>');
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,0);
+  assert.match(h.page.querySelector('.mp-note-empty').textContent,/見つかりません/);
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
+});
+
+test('new notes clear both search state and input and keep the chosen existing folder',async()=>{
+  const h=controller({raw:encode({groups:[{id:'g',name:'旅のフォルダ'}],notes:[note({groupId:'g',body:'既存の本文'})]})});await settle();
+  h.lookup('旅のフォルダ').click();
+  h.type(h.page.querySelector('.mp-note-search'),'見つからない言葉');
+  h.lookup('メモを追加').click();
+  const saved=JSON.parse(h.raw);
+  assert.equal(saved.notes.length,2);assert.equal(saved.notes[0].body,'既存の本文');
+  assert.equal(saved.notes[1].groupId,'g');
+  assert.equal(h.page.querySelector('.mp-note-search').value,'');
+  assert.equal(h.page.querySelector('.mp-note-editor').hidden,false);
+  assert.equal(h.memo.value,'');assert.equal(h.focused,h.memo);
+  h.type(h.memo,'新しい本文');
+  h.lookup('メモ一覧').click();
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,2);
+});
+
+test('Japanese note typing preserves the live input node and does not assign its value again',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'前の行\n続き'})]})});await settle();
+  h.page.querySelector('.mp-note-pick').click();
+  const input=h.memo;let value=input.value,writes=0;
+  Object.defineProperty(input,'value',{get:()=>value,set:v=>{writes++;value=v;}});
+  input.selectionStart=2;input.selectionEnd=2;
+  h.type(input,'前の行\nにほんご入力途中');
+  assert.equal(writes,1,'the input event must not rewrite textarea.value while composing');
+  assert.equal(h.memo,input);assert.equal(input.selectionStart,2);assert.equal(input.selectionEnd,2);
+  assert.equal(JSON.parse(h.raw).notes[0].body,'前の行\nにほんご入力途中');
+});
+
+test('confirmed notes remain readable after a failed newer restore without enabling any save',async()=>{
+  const raw=encode({notes:[note({id:'a',title:'一つ目',body:'確認済み本文A'}),note({id:'b',title:'二つ目',body:'確認済み本文B'})]});
+  const h=controller({raw});await settle();
+  h.bridge.load=async()=>{throw Error('fixture_unavailable');};
+  h.auth({id:'owner-A'});await settle();
+  const picks=h.page.querySelectorAll('.mp-note-pick');
+  assert.equal(picks[1].disabled,false);
+  picks[1].click();
+  assert.equal(h.page.querySelector('.mp-note-editor').hidden,false);assert.equal(h.memo.value,'確認済み本文B');
+  assert.equal(h.memo.disabled,true);assert.equal(h.lookup('このメモを削除').disabled,true);
+  assert.equal(h.lookup('メモを追加').disabled,true);
+  assert.equal(h.lookup('メモ一覧').disabled,false);h.lookup('メモ一覧').click();
+  assert.equal(h.page.querySelector('.mp-note-library').hidden,false);
+  assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.raw,raw);
+});
+
+test('note deletion still requires confirmation and returns to a list without touching other notes',async()=>{
+  const h=controller({raw:encode({notes:[note({id:'a',body:'残す本文'}),note({id:'b',body:'対象本文'})]})});await settle();
+  h.page.querySelectorAll('.mp-note-pick')[1].click();
+  h.w.confirm=()=>false;const staged=h.raw;
+  h.lookup('このメモを削除').click();assert.equal(h.raw,staged);
+  h.w.confirm=()=>true;h.lookup('このメモを削除').click();
+  assert.deepEqual(JSON.parse(h.raw).notes.map(n=>n.body),['残す本文']);
+  assert.equal(h.page.querySelector('.mp-note-editor').hidden,true);
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
+});
+
+test('signout clears private note excerpts, folder heading, search and editor view as well as form values',async()=>{
+  const h=controller({raw:encode({groups:[{id:'g',name:'private-owner-folder'}],notes:[note({title:'private-owner-title',body:'private-owner-body',groupId:'g'})]})});await settle();
+  h.lookup('private-owner-folder').click();
+  h.type(h.page.querySelector('.mp-note-search'),'private-owner');
+  h.page.querySelector('.mp-note-pick').click();
+  h.auth(null);await settle();
+  assert.doesNotMatch(h.page.textContent,/private-owner/);
+  assert.equal(h.page.querySelector('.mp-note-search').value,'');
+  assert.equal(h.page.querySelector('.mp-note-editor').hidden,true);
+  assert.equal(h.page.querySelector('.mp-note-library').hidden,false);
+  assert.equal(h.page.querySelector('.mp-note-count').textContent,'0件のメモ');
+  assert.equal(h.memo.value,'');
+});
+
+test('readonly recovery can clear earlier search and folder filters while folder mutation stays disabled',async()=>{
+  const raw=encode({groups:[{id:'g',name:'選んだフォルダ'}],notes:[note({id:'a',title:'一つ目',body:'確認済み本文A',groupId:'g'}),note({id:'b',title:'二つ目',body:'確認済み本文B'})]});
+  const h=controller({raw});await settle();
+  h.lookup('選んだフォルダ').click();h.type(h.page.querySelector('.mp-note-search'),'一つ目');
+  h.bridge.load=async()=>{throw Error('fixture_unavailable');};h.auth({id:'owner-A'});await settle();
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
+  assert.equal(h.page.querySelector('.mp-note-search').disabled,false);
+  h.type(h.page.querySelector('.mp-note-search'),'');
+  h.lookup('すべてのメモ').click();
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,2);
+  h.page.querySelectorAll('.mp-note-pick')[1].click();
+  assert.equal(h.memo.value,'確認済み本文B');assert.equal(h.memo.disabled,true);
+  assert.equal(h.lookup('名前を変更').disabled,true);assert.equal(h.lookup('まとめを解除').disabled,true);
+  assert.equal(h.lookup('まとめを作る').disabled,true);
+  h.lookup('メモ一覧').click();assert.equal(h.lookup('選んだフォルダ').disabled,false);
+  h.lookup('選んだフォルダ').click();assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
+  assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.raw,raw);
+});
