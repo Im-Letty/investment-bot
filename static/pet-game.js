@@ -152,8 +152,22 @@
     var engine = w.PetLilacMotion;
     if (engine && typeof engine.appearanceProfile === 'function') return engine.appearanceProfile(key);
     var eggs = ['egg', 'egg_cracked', 'hatching'], babies = ['newborn', 'baby', 'toddler', 'child', 'juvenile'];
-    return eggs.indexOf(key) >= 0 ? { family: 'egg', stillAsset: 'pet_lilac_egg_stages_v1.png', stillCell: eggs.indexOf(key), stillRect: eggStillRect(eggs.indexOf(key)), overallScale: [.64, .64, .67][eggs.indexOf(key)] } :
-      babies.indexOf(key) >= 0 ? { family: 'baby', stillAsset: 'pet_lilac_newborn_v1.png', stillCell: null, overallScale: [.62, .72, .81, .90, .96][babies.indexOf(key)] } : { family: 'mature', stillCell: null };
+    return eggs.indexOf(key) >= 0 ? { family: 'egg', stillAsset: 'pet_lilac_tooth_egg_stages_v1.png', stillCell: eggs.indexOf(key), stillRect: eggStillRect(eggs.indexOf(key)), overallScale: [.64, .64, .67][eggs.indexOf(key)] } :
+      babies.indexOf(key) >= 0 ? { family: 'baby', stillAsset: 'pet_lilac_tooth_newborn_v1.png', stillCell: null, overallScale: [.62, .72, .81, .90, .96][babies.indexOf(key)] } : { family: 'mature', stillAsset: 'pet_lilac_tooth_original_v1.png', stillCell: null };
+  }
+  function stillMouthPatch(profile) {
+    if (profile.family === 'egg' && profile.stillCell !== 2) return null;
+    var defaults = profile.family === 'egg' ? [.295, .705, .045, .030, .697] :
+      profile.family === 'baby' ? [.58051, .54, .085, .057, .505] : [.628, .511, .100, .067, .455];
+    var mask = profile.stillMouthMask;
+    if (!mask || ![mask.x, mask.y, mask.rx, mask.ry, mask.floor].every(Number.isFinite)) mask = { x: defaults[0], y: defaults[1], rx: defaults[2], ry: defaults[3], floor: defaults[4] };
+    var patch = node('img', 'ipg-lilac-mouth-patch');
+    patch.src = imageRoot + (profile.stillAsset || (profile.family === 'egg' ? 'pet_lilac_tooth_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_tooth_newborn_v1.png' : 'pet_lilac_tooth_original_v1.png'));
+    patch.alt = ''; patch.draggable = false; patch.setAttribute('aria-hidden', 'true');
+    var gradient = 'radial-gradient(ellipse ' + mask.rx * 100 + '% ' + mask.ry * 100 + '% at ' + mask.x * 100 + '% ' + mask.y * 100 + '%,#000 62%,transparent 100%)';
+    patch.style.maskImage = gradient; patch.style.webkitMaskImage = gradient;
+    if (Number.isFinite(mask.floor)) patch.style.clipPath = 'inset(' + mask.floor * 100 + '% 0 0 0)';
+    return patch;
   }
   function petVisual(s, extraClass, preview, fittingOverride, evolutionOverride) {
     if (displaySpecies(s) !== 'lilac') {
@@ -169,9 +183,10 @@
     var dressItem = item(dress); dress = dressItem && dressItem.type === 'clothing' ? dressItem.id : null;
     var wrap = node('div', 'ipg-lilac-visual ipg-lilac-stage-' + growthStage + (extraClass ? ' ' + extraClass : ''));
     wrap.dataset.cuePhase = 'idle'; wrap.dataset.growthStage = growthStage; wrap.dataset.appearanceKey = appearance.key; wrap.dataset.evolutionPath = path; wrap.dataset.outfit = dress || 'none';
-    var still = node(profile.family === 'egg' ? 'div' : 'img', 'ipg-lilac-still' + (profile.family === 'egg' ? ' ipg-egg-still' : ''));
-    var stillAsset = profile.family === 'mature' ? 'pet_lilac_cutout.webp' : profile.stillAsset;
+    var still = node('div', 'ipg-lilac-still' + (profile.family === 'egg' ? ' ipg-egg-still' : ' ipg-tooth-still'));
+    var stillAsset = profile.stillBaseAsset || (profile.family === 'egg' ? 'pet_lilac_egg_stages_v1.png' : profile.family === 'baby' ? 'pet_lilac_newborn_v1.png' : 'pet_lilac_cutout.webp');
     still.alt = (s.pet.name || '薄紫のこ') + '（' + appearance.label + '）';
+    still.setAttribute('role', 'img'); still.setAttribute('aria-label', still.alt);
     if (profile.family === 'egg') {
       still.setAttribute('role', 'img'); still.setAttribute('aria-label', still.alt); still.dataset.eggCell = String(profile.stillCell);
       var rect = profile.stillRect;
@@ -183,8 +198,19 @@
       var sheet = node('img', 'ipg-egg-sheet'); sheet.src = imageRoot + stillAsset; sheet.alt = ''; sheet.draggable = false;
       sheet.setAttribute('aria-hidden', 'true'); sheet.style.width = String(100 / cropWidth) + '%'; sheet.style.height = String(100 / cropHeight) + '%';
       sheet.style.left = String(-rect[0] / cropWidth * 100) + '%'; sheet.style.top = String(-rect[1] / cropHeight * 100) + '%';
-      crop.appendChild(sheet); still.appendChild(crop);
-    } else still.src = imageRoot + stillAsset;
+      crop.appendChild(sheet);
+      var eggPatch = stillMouthPatch(profile);
+      if (eggPatch) {
+        eggPatch.className += ' ipg-egg-sheet';
+        ['width', 'height', 'left', 'top'].forEach(function (key) { eggPatch.style[key] = sheet.style[key]; });
+        crop.appendChild(eggPatch);
+      }
+      still.appendChild(crop);
+    } else {
+      var base = node('img', 'ipg-lilac-still-base'); base.src = imageRoot + stillAsset;
+      base.alt = ''; base.draggable = false; base.setAttribute('aria-hidden', 'true');
+      still.appendChild(base); still.appendChild(stillMouthPatch(profile));
+    }
     if (Number.isFinite(profile.overallScale)) { still.style.transform = 'scale(' + profile.overallScale + ')'; still.style.transformOrigin = '50% 92%'; }
     still.width = still.height = 300; still.draggable = false;
     var canvas = node('canvas', 'ipg-lilac-canvas');

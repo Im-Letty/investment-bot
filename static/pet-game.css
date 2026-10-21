@@ -80,6 +80,7 @@
 .ipg-preserved-list{padding-left:1.4em;margin:12px 0}.ipg-preserved-list li{margin:8px 0}.ipg-preserved-list .ipg-button{margin-left:6px}
 .ipg-lilac-visual{position:relative;width:260px;height:260px;flex:0 0 auto;transform-origin:50% 93%;filter:drop-shadow(0 8px 6px rgba(40,45,35,.12))}
 .ipg-lilac-visual>img,.ipg-lilac-visual>canvas{display:block;width:100%;height:100%;object-fit:contain}
+.ipg-tooth-still{position:relative;width:100%;height:100%}.ipg-tooth-still>img{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain}.ipg-lilac-mouth-patch{pointer-events:none}
 .ipg-lilac-visual>.ipg-egg-still{position:relative;width:100%;height:100%;overflow:hidden}.ipg-egg-crop{position:absolute;overflow:hidden}.ipg-egg-crop>.ipg-egg-sheet{position:absolute;max-width:none;object-fit:fill}
 .ipg-nursery-note{max-width:580px;margin:8px auto 14px;padding:10px 12px;border-radius:10px;background:var(--ipg-bg);line-height:1.6}
 .ipg-growth-motions{grid-column:1/-1;width:100%;margin:10px auto 0;text-align:left}.ipg-growth-motions>summary{cursor:pointer;padding:9px 4px;font-size:.9em;font-weight:600}.ipg-growth-motions>.ipg-emotion-panel{margin:8px auto 0}

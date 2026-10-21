@@ -109,6 +109,7 @@ async function fixture(config = {}) {
     setTimeout(fn, ms) { const id = ++sequence; timers.set(id, { fn, at: clock + Math.max(0, ms || 0) }); return id; },
     clearTimeout(id) { timers.delete(id); }, URL: { createObjectURL: () => 'blob:synthetic', revokeObjectURL() {} }
   });
+  if (config.rendererUnavailable) delete window.PetLilacMotion;
   class Clock extends Date { constructor(...args) { super(...(args.length ? args : [clock])); } static now() { return clock; } }
   const math = Object.create(Math); math.random = () => .5;
   const context = vm.createContext({ window, document, Date: Clock, Math: math, Promise, Blob });
@@ -175,9 +176,44 @@ test('choosing B waits for persistence, preserves the economy and reveals canvas
   assert.equal(f.mounts.length, 1); assert.equal(f.actionCues.length, 1);
   assert.equal(f.actionCues[0].cue.situation, 'greeting');
   const still = f.host.querySelector('.ipg-lilac-still'), canvas = f.host.querySelector('canvas');
-  assert.match(still.src, /pet_lilac_newborn_v1\.png$/); assert.equal(still.hidden, false); assert.equal(canvas.hidden, true);
+  assert.match(still.querySelector('.ipg-lilac-still-base').src, /pet_lilac_newborn_v1\.png$/); assert.equal(still.hidden, false); assert.equal(canvas.hidden, true);
   f.mounts[0].options.onReady(); assert.equal(still.hidden, true); assert.equal(canvas.hidden, false);
   assert.ok(f.host.textContent.includes('もとの子'));
+});
+
+test('all eleven fallback appearances keep the original silhouette with the selected mouth patch', async () => {
+  for (const exp of [0, 5, 10, 15, 30, 45, 75, 110, 200, 400, 800]) {
+    const f = await fixture({ species: 'lilac', rendererMode: 'error', seed: { pg_exp: String(exp) } });
+    const state = f.saved(), writes = f.writes.length;
+    const appearance = Core.getLilacAppearance(exp), profile = Motion.appearanceProfile(appearance.key);
+    const still = f.host.querySelector('.ipg-lilac-still'), patch = still.querySelector('.ipg-lilac-mouth-patch');
+    assert.equal(still.hidden, false, appearance.key);
+    assert.equal(f.host.querySelector('canvas').hidden, true);
+    assert.equal(still.getAttribute('role'), 'img');
+    const base = still.querySelector(profile.family === 'egg' ? '.ipg-egg-sheet' : '.ipg-lilac-still-base');
+    assert.equal(base.src, '/static/' + profile.stillBaseAsset, appearance.key);
+    if (exp < 10) assert.equal(patch, null, 'unhatched eggs must not have a mouth');
+    else {
+      assert.equal(patch.src, '/static/' + profile.stillAsset, appearance.key);
+      assert.match(patch.style.maskImage, /^radial-gradient\(ellipse /);
+      assert.match(patch.style.clipPath, /^inset\(/);
+      assert.equal(patch.getAttribute('aria-hidden'), 'true');
+      assert.equal(patch.alt, '');
+    }
+    assert.deepEqual(f.saved(), state); assert.equal(f.writes.length, writes);
+  }
+});
+
+test('a missing motion module still renders the chosen mouth below the protected nose', async () => {
+  for (const [exp, family] of [[10, 'egg'], [30, 'baby'], [386, 'mature']]) {
+    const f = await fixture({ species: 'lilac', rendererUnavailable: true, seed: { pg_exp: String(exp) } });
+    const still = f.host.querySelector('.ipg-lilac-still'), patch = still.querySelector('.ipg-lilac-mouth-patch');
+    assert.equal(still.hidden, false); assert.equal(f.mounts.length, 0);
+    assert.match(patch.src, /pet_lilac_tooth_/);
+    const floor = Number(/^inset\(([\d.]+)%/.exec(patch.style.clipPath)?.[1]) / 100;
+    assert.ok(floor > (family === 'mature' ? .453 : family === 'baby' ? .49 : .69));
+    assert.ok(floor < (family === 'mature' ? .464 : family === 'baby' ? .52 : .71));
+  }
 });
 
 test('pending and rejected care saves never emit a successful reaction or change progress', async () => {
@@ -256,7 +292,7 @@ test('B begins as a real hatching egg and the confirmed 15 EXP boundary reveals 
   assert.equal(f.saved().pet.exp, 22); assert.equal(f.mounts.length, 2); assert.equal(f.activeMotions().length, 1);
   assert.equal(f.mounts.at(-1).options.situation, 'feeding'); assert.equal(f.actionCues.length, 1);
   assert.equal(f.mounts.at(-1).options.appearanceKey, 'newborn'); assert.equal(f.mounts.at(-1).options.growthStage, 'baby');
-  assert.match(f.host.querySelector('.ipg-lilac-still').src, /pet_lilac_newborn_v1\.png$/);
+  assert.match(f.host.querySelector('.ipg-lilac-still-base').src, /pet_lilac_newborn_v1\.png$/);
   assert.equal(f.host.querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'anticipation');
 });
 
@@ -337,7 +373,7 @@ test('a saved 386 EXP pet retains the original grown B, outfit, canonical histor
     await store.dispatch({ type: 'buyItem', itemId: 'cloth_cream_vest' }); await store.dispatch({ type: 'equipClothing', itemId: 'cloth_cream_vest' });
   } }), before = f.saved(), writes = f.writes.length;
   assert.equal(before.pet.exp, 386); assert.equal(before.coins, 355); assert.equal(f.mounts[0].options.appearanceKey, 'grown'); assert.equal(f.mounts[0].options.growthStage, 'final');
-  assert.equal(f.mounts[0].options.outfit, 'cloth_cream_vest'); assert.match(f.host.querySelector('.ipg-lilac-still').src, /pet_lilac_cutout\.webp$/);
+  assert.equal(f.mounts[0].options.outfit, 'cloth_cream_vest'); assert.match(f.host.querySelector('.ipg-lilac-still-base').src, /pet_lilac_cutout\.webp$/);
   assert.equal(f.host.querySelector('.ipg-stage').textContent, '育った姿 · 386 EXP'); assert.ok(f.host.textContent.includes('あと14 EXP'));
   await f.click(f.focusButton('growth-album-toggle'));
   assert.equal(f.host.querySelector('.ipg-growth-choices').getAttribute('aria-label'), '成長のすがた・11段階');

@@ -50,7 +50,7 @@ function fixture(config = {}) {
   gl.shaderSource = (_, text) => shaders.push(text);
   gl.getShaderParameter = () => !config.compileFailure;
   gl.getProgramParameter = () => !config.linkFailure;
-  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : name === 'a_coverage'?3:name==='a_part'?4:name==='a_sourceRect'?5:-1;
+  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : name === 'a_coverage'?3:name==='a_part'?4:name==='a_sourceRect'?5:name==='a_mouthMode'?6:-1;
   gl.bindAttribLocation = (_,index,name) => { bindings.push([index,name]); };
   gl.disableVertexAttribArray = index => { disabledAttributes.push(index); };
   gl.vertexAttrib4f = (index,...values) => { constants[index]=values; };
@@ -79,7 +79,7 @@ function fixture(config = {}) {
     packedNames[key]?.forEach((name, index) => { uniforms['u_' + name] = values[index]; });
   };
   gl.texImage2D = (...args) => { if (config.textureFailure) throw new Error('raw private driver detail'); uploads.push(args.at(-1)); };
-  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],sourceRect:constants[5]?.slice(),texture4:boundTextures[4],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
+  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],sourceRect:constants[5]?.slice(),mouthMode:constants[6],texture4:boundTextures[4],texture5:boundTextures[5],texture6:boundTextures[6],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
   const canvas = events({ ownerDocument: doc, hidden: true, isConnected: true, width: 240, height: 240,
     clientWidth: config.cssWidth || 320,
     getBoundingClientRect: () => ({ width: config.cssWidth || 320 }),
@@ -138,12 +138,18 @@ test('eleven read-only appearances separate real egg/baby sources from the uncha
 test('each family loads only its own required textures and never samples an adult asset in the nursery',()=>{
   for(const key of Motion.appearanceCatalogue.map(row=>row.key)){
     const family=Motion.appearanceProfile(key).family,f=fixture({options:{appearanceKey:key}});f.complete();assert.deepEqual(f.errors,[],key);assert.equal(f.ready,1,key);
-    const count=family==='egg'?1:family==='baby'?3:10;assert.equal(f.images.length,count);assert.equal(f.uploads.length,count);assert.equal(f.created.filter(row=>row.type==='Texture').length,count);
+    const count=family==='egg'?2:family==='baby'?6:15;assert.equal(f.images.length,count);assert.equal(f.uploads.length,count);assert.equal(f.created.filter(row=>row.type==='Texture').length,count);
     assert.deepEqual(f.images.map(row=>row.url),Motion.appearanceAssets(key).map(name=>'/static/'+name));assert.equal(f.draws,family==='egg'?1:9);assert.equal(f.maxActiveUnit,7);
     assert.equal(Object.keys(f.samplers).length,8);assert.equal(Object.keys(f.uniforms).filter(key=>/^u_(motion[A-C]|body|gesture|face|effect|detail)$/.test(key)).length,family==='egg'?1:8);
-    if(family==='baby')assert.equal(f.bindings.at(-1)[0],5);
+    if(family!=='egg')assert.deepEqual(f.bindings.at(-1),[6,'a_mouthMode']);
     f.api.destroy();assert.equal(f.created.length,f.deleted.length,key);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
   }
+});
+
+test('all nine versioned mouth donors exist as aligned square PNG materials, including the separate closed sleep smile',()=>{
+  const files=[...new Set(['grown','newborn','hatching'].flatMap(key=>Motion.appearanceAssets(key)).filter(name=>name.startsWith('pet_lilac_tooth_')))];
+  assert.equal(files.length,9);assert.ok(files.includes('pet_lilac_tooth_sleep_v1.png'));
+  for(const name of files){const bytes=fs.readFileSync(require.resolve('../static/'+name));assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a',name);assert.equal(bytes.readUInt32BE(16),1254,name);assert.equal(bytes.readUInt32BE(20),1254,name);}
 });
 
 test('nursery facial registration maps the actual new eyes and nose into each independent expression cell',()=>{
@@ -153,6 +159,108 @@ test('nursery facial registration maps the actual new eyes and nose into each in
   for(const [key,points]of Object.entries(expected)){const cell=Number(key);for(let i=0;i<3;i++){const input=i<2?sourceEyes[i]:nose,p=Motion.nurseryFaceUV(cell,...input);assert.ok(Math.abs(p.x-(cell%3+points[i][0])/3)<.00002);assert.ok(Math.abs(p.y-(Math.floor(cell/3)+points[i][1])/3)<.00002);}}
   for(const row of Motion.nurseryFaceMaps){assert.equal(Object.isFrozen(row.matrix),true);assert.equal(Object.isFrozen(row.sourceRect),true);for(const [x,y]of[[0,0],[.5,.5],[1,1]]){const p=Motion.nurseryFaceUV(row.cell,x,y);assert.ok(p.x>=row.sourceRect[0]&&p.x<=row.sourceRect[2]&&p.y>=row.sourceRect[1]&&p.y<=row.sourceRect[3]);}}
   assert.ok(Motion.nurseryFaceUV(7,.55,.67).y>2/3+.65/3,'cleanplate samples below its own chin');
+});
+
+test('D mouth fallback descriptors retain old alpha bases and cannot repaint eyes, nose, paws or mouthless eggs',()=>{
+  for(const key of Motion.appearanceCatalogue.map(row=>row.key).concat(null)){
+    const p=Motion.appearanceProfile(key),m=p.stillMouthMask;
+    assert.ok(p.stillBaseAsset&&!p.stillBaseAsset.includes('tooth'));
+    assert.match(p.stillAsset,/^pet_lilac_tooth_/);
+    if(key==='egg'||key==='egg_cracked'){assert.equal(m,null);assert.equal(Motion.toothMouthRegion(key),null);assert.equal(Motion.toothMouthCoverage(key,.295,.712),0);continue;}
+    assert.equal(Object.isFrozen(m),true);assert.ok(Motion.toothMouthCoverage(key,m.x,m.y)>.99);
+    const points=p.family==='baby'?[[.44318,.43534],[.68435,.40677],[.57697,.48134],[.376,.75],[.73,.75],[.5,.85]]:
+      p.family==='egg'?[[.238,.661],[.339,.653],[.293,.683],[.25,.75],[.41,.88]]:[[.4665,.429],[.7281,.3405],[.621,.453],[.527,.743],[.718,.729],[.56,.82]];
+    for(const point of points)assert.equal(Motion.toothMouthCoverage(key,...point),0,key+point);
+    for(const bad of [NaN,Infinity,undefined,'0.6'])assert.equal(Motion.toothMouthCoverage(key,bad,m.y),0);
+    const mutable=Motion.toothMouthRegion(key);mutable.center[0]=99;assert.equal(Motion.toothMouthRegion(key).center[0],m.x);
+  }
+  for(const [x,y]of [[.625,.465],[.636,.476],[.635,.493]])assert.ok(Motion.toothMouthCoverage('grown',x,y)>.99,'actual delighted, surprise and default front teeth remain fully inside the patch');
+  assert.ok(Motion.toothMouthCoverage('newborn',.58,.56)>.99,'baby opening bottom is retained');
+});
+
+test('D donor selection follows the actual dominant face, keeps closed sadness and anger, and leaves sleep teeth hidden',()=>{
+  for(const key of ['newborn','grown']){
+    const baby=key==='newborn';
+    for(let winner=0;winner<=4;winner++){
+      const p={faceSad:0,faceAngry:0,faceSurprise:0,faceDelighted:0};if(winner)p[['faceSad','faceAngry','faceSurprise','faceDelighted'][winner-1]]=1;
+      const binding=Motion.toothFaceBinding(p,'idle',key);assert.equal(binding.winner,winner);assert.equal(binding.closed,false);
+      assert.equal(binding.oldFaceAsset,baby?(winner?1:0):(winner?winner+3:0));assert.equal(binding.defaultMouthAsset,baby?3:10);
+      assert.equal(binding.expressionMouthAsset,baby?(winner>=3?4:1):[0,4,5,11,12][winner]);
+    }
+    assert.equal(Motion.toothFaceBinding({faceSad:.6,faceAngry:.6,faceDelighted:.5},'idle',key).winner,1,'strict tie order agrees with the GPU');
+    for(const cue of ['resting','sleepy','deep_sleep']){const binding=Motion.toothFaceBinding({},cue,key);assert.equal(binding.closed,true);assert.equal(binding.expressionMouthAsset,baby?1:14);}
+    for(const cue of ['idle','sad','angry','surprise','feeding'])assert.equal(Motion.toothFaceBinding({},cue,key).closed,false);
+  }
+});
+
+test('all 100 real face draws select registered old expressions and only borrow new mouth samplers on the head',()=>{
+  for(const key of ['newborn','grown']){
+    const baby=key==='newborn',f=fixture({options:{appearanceKey:key,outfit:'cloth_cream_vest'}});f.complete();const textures=f.created.filter(row=>row.type==='Texture');
+    for(const cue of Motion.situations){
+      const before=f.drawCalls.length;f.api.setSituation(cue,{elapsedMs:cue==='idle'?0:Math.min(1600,Motion.durations[cue]/2)});const calls=f.drawCalls.slice(before),head=calls.find(row=>row.part===6);
+      assert.equal(calls.length,9);const scores=head.uniforms.u_face;let winner=0,max=0;scores.forEach((n,i)=>{if(n>max){max=n;winner=i+1;}});
+      assert.strictEqual(head.texture4,textures[baby?(winner?1:0):(winner?winner+3:0)],cue+' old complete face');
+      assert.strictEqual(head.texture5,textures[baby?3:10],cue+' default teeth');
+      assert.strictEqual(head.texture6,textures[['resting','sleepy','deep_sleep'].includes(cue)?(baby?1:14):baby?(winner>=3?4:1):[0,4,5,11,12][winner]],cue+' selected expression mouth');
+      assert.equal(head.mouthMode,['resting','sleepy','deep_sleep'].includes(cue)?1:0);
+      for(const call of calls.filter(row=>row.part!==6)){
+        assert.strictEqual(call.texture5,textures[baby?1:5]);assert.strictEqual(call.texture6,textures[baby?1:6]);assert.equal(call.mouthMode,0);
+      }
+      assert.strictEqual(f.boundTextures[4],textures[baby?1:4]);assert.strictEqual(f.boundTextures[5],textures[baby?1:5]);assert.strictEqual(f.boundTextures[6],textures[baby?1:6]);assert.equal(f.constants[6],0);assert.equal(f.raf.size,1);
+    }
+    assert.equal(f.maxActiveUnit,7);f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+  }
+});
+
+test('mouth shaders keep old silhouette alpha, registered nursery cells and original RGB beyond the local patch',()=>{
+  for(const key of ['newborn','grown']){
+    const f=fixture({options:{appearanceKey:key}});f.complete();const shader=f.shaders[1];
+    assert.match(shader,/if\(headPart>\.5\)\{vec3 toothBase=/);assert.match(shader,/rgb=mix\(rgb,tooth,toothPatch\(uv\)\)/);
+    assert.match(shader,/float a=texture2D\(u_alpha,uv\)\.a\*v_coverage/);assert.doesNotMatch(shader,/texture2D\(u_(angry|surprise),[^;]+\)\.a/);
+    assert.match(shader,/vec3 tooth=mix\(toothBase,toothExpression,v_mouthMode>\.5\?u_presence:weight\)/);assert.doesNotMatch(shader,/toothClosedUV|\(p.y-\.5(?:07|41)\)\*4/);
+    assert.match(shader,/v_mouthMode>\.5\?u_presence:weight/,'sleep mouth eases through the same finite cue envelope');
+    assert.equal(shader.match(/uniform sampler2D [^;]+;/g).length,1);assert.equal(shader.match(/uniform vec4 [^;]+;/g).length,1);
+    assert.equal(f.maxActiveUnit,7);assert.ok(f.bindings.every(row=>row[0]<8));
+    if(key==='newborn'){
+      for(const cell of [3,4,5,6])assert.match(shader,new RegExp('expression=nurserySample\\(u_sad,uv,'+cell+'\\.\\)\\.rgb'));
+      assert.match(shader,/toothExpression=nurserySample\(u_surprise,uv,v_mouthMode>\.5\?2\.:toothCell\)\.rgb/);
+      assert.match(shader,/tooth=texture2D\(u_angry,mix\(v_sourceRect.xy,v_sourceRect.zw,safe\)\)\.rgb/);
+    }else assert.match(shader,/toothExpression=texture2D\(u_surprise,uv\)\.rgb/);
+    f.api.destroy();
+  }
+});
+
+test('side and back D mouths use each own atlas while front return and sleep restore all original sampler lanes',()=>{
+  for(const key of ['newborn','grown']){
+    const baby=key==='newborn',f=fixture({options:{appearanceKey:key}});f.complete();const textures=f.created.filter(row=>row.type==='Texture');
+    for(const cue of Motion.directionCatalogue){f.api.setSituation(cue.id,{elapsedMs:2800});const call=f.drawCalls.at(-1);assert.ok(call.part>=10);assert.strictEqual(call.texture4,textures[baby?2:9]);assert.strictEqual(call.texture5,textures[baby?5:13]);assert.equal(call.mouthMode,0);assert.strictEqual(f.boundTextures[5],textures[baby?1:5]);}
+    for(const cue of ['deep_sleep','cry','body_flap','idle']){f.api.setSituation(cue,{elapsedMs:cue==='idle'?0:1500});assert.equal(f.drawCalls.at(-1).part,8);assert.strictEqual(f.boundTextures[5],textures[baby?1:5]);assert.strictEqual(f.boundTextures[6],textures[baby?1:6]);}
+    assert.match(f.shaders[1],/step\(-1\.,u_motionC.x\)/,'mouthless back sentinels cannot receive a new mouth');
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+test('hatching alone samples the new mouth sheet and keeps every egg silhouette and shell on the old source',()=>{
+  for(const key of ['egg','egg_cracked','hatching']){
+    const f=fixture({options:{appearanceKey:key}});f.complete();const textures=f.created.filter(row=>row.type==='Texture'),call=f.drawCalls[0];
+    assert.strictEqual(call.texture4,textures[0]);assert.strictEqual(call.texture5,textures[1]);assert.strictEqual(f.boundTextures[5],textures[0]);
+    assert.match(f.shaders[1],/float mask=0\.;if\(u_motionA.x>1.5\)/);assert.match(f.shaders[1],/source.rgb=mix\(source.rgb,texture2D\(u_angry,p\)\.rgb,mask\);float a=source.a\*v_coverage/);
+    assert.equal(call.uniforms.u_motionA[0],Motion.appearanceProfile(key).stillCell);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+test('every added D material is required before ready and failure releases all family resources without animation',()=>{
+  for(const [key,start]of [['grown',10],['newborn',3],['hatching',1]]){
+    const count=Motion.appearanceAssets(key).length;
+    for(let missing=start;missing<count;missing++){
+      const f=fixture({options:{appearanceKey:key}});
+      f.images.forEach((im,index)=>{if(index===missing)return;im.complete=true;im.naturalWidth=im.naturalHeight=index<8?1000:1254;im.onload();});
+      assert.equal(f.ready,0);assert.equal(f.draws,0);assert.equal(f.canvas.hidden,true);
+      f.images[missing].onerror(new Error('unrecorded private source detail'));
+      assert.deepEqual(f.errors,['image_failed']);assert.equal(f.deleted.length,f.created.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
+    }
+  }
+  for(const key of ['grown','newborn']){const f=fixture({reduced:true,options:{appearanceKey:key,situation:'deep_sleep'}});f.complete();assert.equal(f.drawCalls.find(call=>call.part===6).mouthMode,0,'reduced motion keeps its established neutral pose');assert.equal(f.raf.size,0);f.api.destroy();}
 });
 
 test('every baby appearance has its own finite, unfolded geometry and follows the same 100 acts and body rig',()=>{
@@ -173,7 +281,7 @@ test('every baby appearance has its own finite, unfolded geometry and follows th
 test('baby meals share the actual new mouth anchor while egg cues never draw food or a garment',()=>{
   for(const key of babyAppearances)for(const path of Motion.evolutionCatalogue){const frames=[],f=fixture({options:{appearanceKey:key,evolutionPath:path.key,onPose:p=>frames.push(p),outfit:'cloth_rose_cape'}});f.complete();f.api.setSituation('feeding',{elapsedMs:2200});assert.deepEqual(f.errors,[]);assert.equal(frames.length,1);
     const rig=Motion.rigPose(0,'feeding',2.2,'child',path.key,1,key);assert.ok(Math.abs(frames[0].mouthX-rig.mouth.x)<1e-12&&Math.abs(frames[0].mouthY-rig.mouth.y)<1e-12);assert.equal(frames[0].foodTop,frames[0].mouthY+.005);assert.equal(Math.floor(f.uniforms.u_anger/2),2);f.api.destroy();}
-  for(const key of['egg','egg_cracked','hatching']){const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p),outfit:'cloth_flower_dress'}});f.complete();for(const name of['feeding','cry','angry','body_hands','body_flap','direction_back']){const before=f.draws;f.api.setSituation(name,{elapsedMs:1800});assert.equal(f.draws-before,1);assert.equal(f.drawCalls.at(-1).part,0);}assert.equal(frames.length,0);assert.equal(f.created.filter(row=>row.type==='Texture').length,1);f.api.destroy();}
+  for(const key of['egg','egg_cracked','hatching']){const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p),outfit:'cloth_flower_dress'}});f.complete();for(const name of['feeding','cry','angry','body_hands','body_flap','direction_back']){const before=f.draws;f.api.setSituation(name,{elapsedMs:1800});assert.equal(f.draws-before,1);assert.equal(f.drawCalls.at(-1).part,0);}assert.equal(frames.length,0);assert.equal(f.created.filter(row=>row.type==='Texture').length,2);f.api.destroy();}
 });
 
 test('all sixteen baby directions use measured expanded rectangles and retain their source ground at every appearance',()=>{
@@ -230,7 +338,7 @@ function inspectRigMesh(f,stage,path='balanced') {
   const rest=f.buffers[0].data,live=f.liveVertices,frame=Motion.rigPose(0,'idle',0,stage,path);
   assert.ok(rest.length>0&&rest.length/5<20000);assert.equal(rest.length%15,0);
   assert.deepEqual(f.attributes.map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
-  assert.equal(f.drawCalls.length,9);assert.equal(f.uploads.length,10);
+  assert.equal(f.drawCalls.length,9);assert.equal(f.uploads.length,15);
   let total=0;
   for(const call of f.drawCalls){
     const part=Motion.rigParts[call.part];assert.equal(call.first,total);total+=call.count;
@@ -380,7 +488,7 @@ test('turn drawing borrows unit four for at most two cells then restores the fro
   }
   assert.equal(f.buffers.length,2);assert.deepEqual(f.blend.at(-1),[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]);assert.equal(f.maxActiveUnit,7);
   const before=f.draws;f.api.setSituation('angry',{elapsedMs:1500});const calls=f.drawCalls.slice(before);assert.equal(calls.length,9);assert.strictEqual(calls[0].buffer,frontBuffer);assert.ok(f.uniforms.u_faceAngry>.9);
-  for(const call of calls)assert.strictEqual(call.texture4,call.part===1?textures[8]:textures[4]);
+  for(const call of calls)assert.strictEqual(call.texture4,call.part===1?textures[8]:call.part===6?textures[5]:textures[4]);
   assert.deepEqual(f.attributes.slice(-3).map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
   f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);
 });
@@ -581,7 +689,7 @@ test('transparent clear, premultiplied compositing and temporary cleanplate bind
   assert.deepEqual(f.blend,[[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]]);assert.ok(f.enabled.includes(f.gl.BLEND));
   assert.equal(f.canvas.contextOptions.premultipliedAlpha,true);assert.equal(f.maxActiveUnit,7);
   assert.deepEqual(Object.values(f.samplers),[0,1,2,3,4,5,6,7]);
-  for(const call of f.drawCalls)assert.strictEqual(call.texture4,call.part===1?textures[8]:textures[4]);
+  for(const call of f.drawCalls)assert.strictEqual(call.texture4,call.part===1?textures[8]:call.part===6?textures[0]:textures[4]);
   assert.strictEqual(f.boundTextures[4],textures[4]);assert.equal(f.clears,1);assert.equal(f.updates,1);
   f.api.setSituation('body_hands',{elapsedMs:1200});assert.equal(f.drawCalls.length,18);assert.equal(f.clears,2);assert.equal(f.updates,2);
   assert.deepEqual(f.drawCalls.slice(9).map(call=>call.part),Motion.rigParts.map(row=>row.index));f.api.destroy();
@@ -687,8 +795,8 @@ test('balanced and unknown paths preserve the previous geometry, motion, food an
 test('all evolution and growth combinations retain body rigs, food fallback, uniforms and every cue',()=>{
   for(const stage of growthKeys)for(const path of Motion.evolutionCatalogue){
     const outfit=Motion.outfitCatalogue[path.index],f=fixture({options:{growthStage:stage,evolutionPath:path.key,outfit:outfit.id}});f.complete();
-    assert.deepEqual(f.bindings,[[0,'a_position'],[1,'a_uv'],[2,'a_evolution'],[3,'a_coverage'],[4,'a_part']]);
-    assert.deepEqual(f.disabledAttributes,[4,2]);assert.deepEqual(f.constants[2],[...path.rgb,path.index]);
+    assert.deepEqual(f.bindings,[[0,'a_position'],[1,'a_uv'],[2,'a_evolution'],[3,'a_coverage'],[4,'a_part'],[6,'a_mouthMode']]);
+    assert.deepEqual(f.disabledAttributes,[4,2,6]);assert.deepEqual(f.constants[2],[...path.rgb,path.index]);
     inspectRigMesh(f,stage,path.key);assert.equal(Object.values(f.uniforms).filter(x=>Array.isArray(x)&&x.length===4).length,8);
     const anchor=Motion.feedingAnchor(stage,path.key);assert.equal(anchor.foodTop,anchor.y+.005);assert.equal(anchor.foodLeft,anchor.x-.11);
     for(const name of [...Motion.situations,...Motion.bodyCatalogue.map(row=>row.id)]){
@@ -765,7 +873,7 @@ test('evolution paths keep fallbacks and resource cleanup intact without extra i
   const image=fixture({options:{evolutionPath:'calm'}});image.images[7].onerror();assert.deepEqual(image.errors,['image_failed']);assert.equal(image.canvas.hidden,true);
   const f=fixture({options:{evolutionPath:'fruit',releaseContextOnDestroy:true}});f.complete();
   f.api.setSituation('feeding',{elapsedMs:2200});f.hide(true);const draws=f.draws;f.advance(30000);assert.equal(f.draws,draws);
-  f.hide(false);assert.equal(f.uniforms.u_chew,0);assert.equal(f.images.length,10);f.api.destroy();assert.equal(f.released,1);assert.equal(f.raf.size,0);
+  f.hide(false);assert.equal(f.uniforms.u_chew,0);assert.equal(f.images.length,15);f.api.destroy();assert.equal(f.released,1);assert.equal(f.raf.size,0);
 });
 
 test('clothing allowlist is frozen, has six real garment styles and never accepts arbitrary outfit values', () => {
@@ -833,7 +941,7 @@ test('no outfit, null and unknown outfits keep identical textures, geometry and 
 test('every outfit works through all six growth meshes and 100 cues without extra textures, vectors or loops', () => {
   for(const stage of growthKeys)for(const outfit of Motion.outfitCatalogue) {
     const f=fixture({options:{growthStage:stage,outfit:outfit.id}}); f.complete();
-    assert.equal(f.uploads.length,10); assert.equal(f.created.filter(x=>x.type==='Texture').length,10);
+    assert.equal(f.uploads.length,15); assert.equal(f.created.filter(x=>x.type==='Texture').length,15);
     assert.equal(Object.values(f.uniforms).filter(x=>Array.isArray(x)&&x.length===4).length,8);
     for(const name of Motion.situations) {
       f.api.setSituation(name,{elapsedMs:Math.min(1000,Motion.durations[name]/2)});
@@ -1081,18 +1189,18 @@ test('feeding anticipates, chews with original eyes, celebrates visibly and sett
   }
 });
 
-test('ten-image load draws original cutout layers with eight sampler units and fires ready once', () => {
+test('fifteen-image load retains original cutout alpha with eight sampler units and fires ready once', () => {
   const f = fixture(); assert.equal(f.ready, 0); assert.equal(f.draws, 0);
-  assert.deepEqual(f.images.map(im => im.url), ['/static/pet_lilac_original.webp', '/static/pet_lilac_half.webp', '/static/pet_lilac_closed.webp', '/static/pet_lilac_cutout.webp', '/static/pet_lilac_sad.webp', '/static/pet_lilac_angry.webp', '/static/pet_lilac_surprise.webp', '/static/pet_lilac_delighted.webp', '/static/pet_lilac_torso_cleanplate_v1.png', '/static/pet_lilac_turnaround_v1.png']);
+  assert.deepEqual(f.images.map(im => im.url), ['/static/pet_lilac_original.webp', '/static/pet_lilac_half.webp', '/static/pet_lilac_closed.webp', '/static/pet_lilac_cutout.webp', '/static/pet_lilac_sad.webp', '/static/pet_lilac_angry.webp', '/static/pet_lilac_surprise.webp', '/static/pet_lilac_delighted.webp', '/static/pet_lilac_torso_cleanplate_v1.png', '/static/pet_lilac_turnaround_v1.png', '/static/pet_lilac_tooth_original_v1.png', '/static/pet_lilac_tooth_surprise_v1.png', '/static/pet_lilac_tooth_delighted_v1.png', '/static/pet_lilac_tooth_turnaround_v1.png', '/static/pet_lilac_tooth_sleep_v1.png']);
   f.complete(); assert.equal(f.ready, 1); assert.equal(f.draws, 9); assert.equal(f.canvas.hidden, false);
-  assert.equal(f.uploads.length, 10); assert.equal(f.canvas.contextOptions.alpha, true); assert.equal(f.canvas.contextOptions.premultipliedAlpha, true);
+  assert.equal(f.uploads.length, 15); assert.equal(f.canvas.contextOptions.alpha, true); assert.equal(f.canvas.contextOptions.premultipliedAlpha, true);
   assert.match(f.shaders[1], /texture2D\(u_alpha,uv\)\.a/);
   assert.match(f.shaders[1], /texture2D\(u_half,uv\)\.rgb/);
   assert.match(f.shaders[1], /GL_FRAGMENT_PRECISION_HIGH/);
-  for (const name of ['sad', 'angry', 'surprise', 'delighted']) assert.match(f.shaders[1], new RegExp('texture2D\\(u_' + name + ',uv\\)\\.rgb'));
+  for (const name of ['sad', 'angry', 'surprise']) assert.match(f.shaders[1], new RegExp('texture2D\\(u_' + name + ',uv\\)\\.rgb'));
   assert.match(f.shaders[1], /face\*weight/);
   assert.match(f.shaders[1], /uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail/);
-  f.images[0].onload(); f.advance(); assert.equal(f.ready, 1); assert.equal(f.uploads.length, 10);
+  f.images[0].onload(); f.advance(); assert.equal(f.ready, 1); assert.equal(f.uploads.length, 15);
   f.api.destroy();
 });
 
