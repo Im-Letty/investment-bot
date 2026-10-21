@@ -32,8 +32,8 @@ function postingHarness(options={}){
       bottomNav.appendChild(choice);navButtons.push(choice);
     }
   }else h.document.body.appendChild(shortsButton);
-  let session=options.session||null,serial=0,playerClosed=0;
-  h.window.sb={auth:{getSession:async()=>({data:{session}}),signInAnonymously(){assert.fail('No anonymous account creation');}}};
+  let session=options.session||null,serial=0,playerClosed=0,sessionCalls=0;
+  h.window.sb={auth:{getSession:async()=>{sessionCalls++;return options.getSession?options.getSession():({data:{session}});},signInAnonymously(){assert.fail('No anonymous account creation');}}};
   h.window.crypto={randomUUID:()=>`00000000-0000-4000-8000-${String(++serial).padStart(12,'0')}`};
   h.window.FormData=FormData;
   h.window.KNShortsEditor=h.editor;
@@ -43,10 +43,10 @@ function postingHarness(options={}){
   h.window.fetch=async(url,init)=>{requests.push({url,init});if(options.fetch)return options.fetch(url,init);return {ok:true,json:async()=>({ok:true,posts:[],post:{id:1,provider:'upload'}})};};
   vm.runInNewContext(fs.readFileSync(path.join(__dirname,'../static/shorts-posting.js'),'utf8'),{window:h.window,Number,Array,Object,Promise,Error},{filename:'shorts-posting.js'});
   if(options.autoOpen!==false)h.window.KNShortsPosting.open();
-  return Object.assign(h,{requests,sheet,top,feed,shortsButton,bottomNav,navButtons,navClicks,navListeners,playback,setSession(value){session=value;},posts:()=>requests.filter(r=>r.init?.method==='POST'),postingNode(sel){const n=h.document.querySelector(sel);assert.ok(n,'Missing posting control '+sel);return n;},playerClosed:()=>playerClosed});
+  return Object.assign(h,{requests,sheet,top,feed,shortsButton,bottomNav,navButtons,navClicks,navListeners,playback,setSession(value){session=value;},posts:()=>requests.filter(r=>r.init?.method==='POST'),postingNode(sel){const n=h.document.querySelector(sel);assert.ok(n,'Missing posting control '+sel);return n;},playerClosed:()=>playerClosed,sessionCalls:()=>sessionCalls});
 }
 const realSession=()=>({user:{id:'00000000-0000-4000-8000-000000000001',is_anonymous:false},access_token:'offline-fixture-token'});
-async function choose(h){h.postingNode('.ks-post-edit').click();const original=h.select();h.metadata();h.node('.ks-edit-next').click();await settle();return original;}
+async function choose(h){if(!h.document.querySelector('#knShortsEditor'))h.postingNode('.ks-post-edit').click();const original=h.select();h.metadata();h.node('.ks-edit-next').click();await settle();return original;}
 
  test('guest can edit locally while metadata and posting remain disabled, with no URL author choice',async()=>{
   const h=postingHarness();await settle();
@@ -62,7 +62,7 @@ async function choose(h){h.postingNode('.ks-post-edit').click();const original=h
   h.postingNode('.ks-post-close').click();assert.equal(h.urls.size,0);assert.equal(h.postingNode('#knShortsPublish').hidden,true);
 });
 
-test('one direct nav post entry opens the existing guest editor flow without becoming a routed tab',async()=>{
+test('one direct nav post entry opens capture first without becoming a routed tab',async()=>{
   const h=postingHarness({withBottomNav:true,autoOpen:false});await settle();
   const posting=h.window.KNShortsPosting,publish=h.postingNode('#ksPublishBtn');
   assert.strictEqual(publish.parentElement,h.bottomNav);assert.equal(publish.tagName,'BUTTON');assert.equal(publish.type,'button');
@@ -82,11 +82,12 @@ test('one direct nav post entry opens the existing guest editor flow without bec
 
   publish.click();await settle();
   const modal=h.postingNode('#knShortsPublish'),close=h.postingNode('.ks-post-close'),form=h.postingNode('form');
-  assert.equal(modal.hidden,false);assert.strictEqual(h.document.activeElement,close);assert.equal(h.playerClosed(),1,'one click opens the existing controller once');
+  assert.equal(modal.hidden,true);assert.ok(h.document.querySelector('#knShortsEditor'));assert.strictEqual(h.document.activeElement,h.node('.ks-edit-close'));assert.equal(h.playerClosed(),1,'one click opens the existing controller once');
   assert.equal(h.document.querySelectorAll('#knShortsPublish').length,1);assert.equal(h.postingNode('.ks-post-edit').disabled,false);
   for(const name of ['title','caption','topic'])assert.equal(form.elements[name].disabled,true);
-  assert.equal(h.postingNode('.ks-post-submit').disabled,true);assert.match(h.postingNode('.ks-post-status').textContent,/ログイン/);
+  assert.equal(h.postingNode('.ks-post-submit').disabled,true);assert.equal(h.requests.length,0);assert.equal(h.sessionCalls(),0,'capture entry does not initialize author metadata');
   const original=await choose(h);assert.equal(h.urls.get(h.postingNode('.ks-post-preview').src),original,'the nav entry uses the actual existing editor confirmation');
+  assert.equal(modal.hidden,false);assert.match(h.postingNode('.ks-post-status').textContent,/ログイン/);
   for(const name of ['title','caption','topic'])assert.equal(form.elements[name].disabled,true);
   form.emit('submit');await settle();assert.equal(h.posts().length,0);assert.equal(h.deviceCalls.length,0);
   close.click();await settle();
@@ -100,7 +101,7 @@ test('one direct nav post entry opens the existing guest editor flow without bec
 });
 
 test('an actual edited File reaches multipart posting instead of the unedited original or JSON URL',async()=>{
-  const h=postingHarness({session:realSession()});await settle();h.postingNode('.ks-post-edit').click();const original=h.select();h.metadata();
+  const h=postingHarness({session:realSession()});await settle();const original=h.select();h.metadata();
   h.node('.ks-edit-trim-end').value='5';h.node('.ks-edit-text').value='edited';h.node('.ks-edit-text').emit('input');h.node('.ks-edit-muted').checked=true;h.node('.ks-edit-muted').emit('change');h.node('.ks-edit-next').click();await settle();
   assert.equal(h.recorders.length,1);h.node('video.ks-edit-scratch').currentTime=5;const frames=[...h.frames.values()];h.frames.clear();frames.forEach(fn=>fn());await settle();
   const edited=h.urls.get(h.postingNode('.ks-post-preview').src);assert.ok(edited instanceof File);assert.notEqual(edited,original);assert.ok(edited.size>0);
@@ -124,13 +125,13 @@ for(const event of ['pagehide','popstate'])test(event+' during editing closes bo
 });
 
 test('hiding the document while camera permission is pending releases late tracks and both dialogs',async()=>{
-  const permission=deferred(),h=postingHarness({session:realSession(),getUserMedia:()=>permission.promise});await settle();h.postingNode('.ks-post-edit').click();h.node('.ks-edit-camera').click();h.hidden();
+  const permission=deferred(),h=postingHarness({session:realSession(),getUserMedia:()=>permission.promise});await settle();h.node('.ks-edit-camera').click();h.hidden();
   const stream=new h.Stream();permission.resolve(stream);await settle();assert.ok(stream.getTracks().every(t=>t.readyState==='ended'));
   assert.equal(h.document.querySelector('#knShortsEditor'),null);assert.equal(h.postingNode('#knShortsPublish').hidden,true);assert.equal(h.urls.size,0);assert.equal(h.posts().length,0);
 });
 
 test('auth change cancels in-flight edited export and stale completion cannot restore its selected File',async()=>{
-  const h=postingHarness({session:realSession()});await settle();h.postingNode('.ks-post-edit').click();h.select();h.metadata();h.node('.ks-edit-muted').checked=true;h.node('.ks-edit-next').click();await settle();
+  const h=postingHarness({session:realSession()});await settle();h.select();h.metadata();h.node('.ks-edit-muted').checked=true;h.node('.ks-edit-next').click();await settle();
   assert.equal(h.recorders.length,1);h.setSession(null);h.document.emit('knAuthChange');await settle();
   assert.equal(h.document.querySelector('#knShortsEditor'),null);assert.equal(h.postingNode('#knShortsPublish').hidden,false);assert.equal(h.urls.size,0);assert.equal(h.timers.size,0);assert.equal(h.frames.size,0);
   assert.equal(h.postingNode('.ks-post-preview').hidden,true);assert.equal(h.postingNode('.ks-post-submit').disabled,true);assert.equal(h.posts().length,0);assert.ok(h.recorders[0].stream.getTracks().every(t=>t.readyState==='ended'));
@@ -141,7 +142,7 @@ test('the actual player cannot restart background YouTube or native playback whi
   const h=postingHarness({actualPlayback:true});await settle();
   const current=h.document.createElement('div');current.className='ks-slide';current.setAttribute('data-vid','AAAAAAAAAAA');h.feed.appendChild(current);
   const next=h.document.createElement('div');next.className='ks-slide';next.setAttribute('data-media-type','upload');next.setAttribute('data-media-src','/api/shorts/posts/2/media');h.feed.appendChild(next);
-  assert.equal(h.playback.activate(current),false);h.postingNode('.ks-post-edit').click();
+  assert.equal(h.playback.activate(current),false);assert.ok(h.document.querySelector('#knShortsEditor'));
   assert.equal(h.playback.activate(current),false);assert.equal(h.playback.prepare(next),false);assert.equal(h.feed.querySelectorAll('iframe,video').length,0);
   h.window.emit('popstate');await settle();assert.equal(h.document.querySelector('#knShortsEditor'),null);assert.equal(h.playback.activate(current),true);assert.equal(h.feed.querySelectorAll('iframe,video').length,2);
   h.playback.close();assert.equal(h.feed.querySelectorAll('iframe,video').length,0);
@@ -159,4 +160,28 @@ test('closing posting during a pending response keeps resources closed when that
   const pending=deferred(),h=postingHarness({session:realSession(),fetch:async(_url,init)=>init?.method==='POST'?pending.promise:({ok:true,json:async()=>({ok:true,posts:[]})})});await settle();await choose(h);
   h.postingNode('form').emit('submit');await settle();assert.equal(h.posts().length,1);h.postingNode('.ks-post-close').click();assert.equal(h.urls.size,0);
   pending.resolve({ok:true,json:async()=>({ok:true,post:{id:1,provider:'upload'}})});await settle();assert.equal(h.postingNode('#knShortsPublish').hidden,true);assert.equal(h.urls.size,0);assert.equal(h.postingNode('.ks-post-preview').hidden,true);
+});
+
+
+test('cancelling initial capture returns directly to the same plus without opening metadata or requesting auth',async()=>{
+  const h=postingHarness({withBottomNav:true,session:realSession()});await settle();
+  const plus=h.postingNode('#ksPublishBtn');assert.ok(h.document.querySelector('#knShortsEditor'));assert.equal(h.postingNode('#knShortsPublish').hidden,true);
+  h.window.KNShortsPosting.open();assert.equal(h.document.querySelectorAll('#knShortsEditor').length,1);assert.equal(h.playerClosed(),1);
+  assert.equal(h.sessionCalls(),0);assert.equal(h.requests.length,0);assert.equal(h.deviceCalls.length,0);
+  h.node('.ks-edit-close').click();await settle();assert.equal(h.document.querySelector('#knShortsEditor'),null);assert.equal(h.postingNode('#knShortsPublish').hidden,true);
+  assert.strictEqual(h.document.activeElement,plus);assert.equal(h.urls.size,0);assert.equal(h.timers.size,0);assert.equal(h.frames.size,0);assert.equal(h.sessionCalls(),0);
+});
+
+test('direct capture confirmation refreshes the current session before enabling final metadata and posting',async()=>{
+  const h=postingHarness({session:realSession()});await settle();assert.equal(h.sessionCalls(),0);assert.equal(h.requests.length,0);
+  const original=await choose(h),form=h.postingNode('form');assert.equal(h.postingNode('#knShortsPublish').hidden,false);assert.equal(h.document.querySelector('#knShortsEditor'),null);
+  assert.ok(h.sessionCalls()>=1);for(const name of ['title','caption','topic'])assert.equal(form.elements[name].disabled,false);
+  assert.equal(h.postingNode('.ks-post-submit').disabled,false);assert.equal(h.urls.get(h.postingNode('.ks-post-preview').src),original);assert.equal(h.posts().length,0);assert.equal(h.deviceCalls.length,0);
+});
+
+test('a late author session after final form close cannot reopen metadata or retain its selected file',async()=>{
+  const auth=deferred(),h=postingHarness({getSession:()=>auth.promise});await settle();assert.equal(h.sessionCalls(),0);
+  await choose(h);assert.equal(h.sessionCalls(),1);assert.equal(h.postingNode('#knShortsPublish').hidden,false);assert.equal(h.postingNode('.ks-post-submit').disabled,true);assert.equal(h.urls.size,1);
+  h.postingNode('.ks-post-close').click();auth.resolve({data:{session:realSession()}});await settle();
+  assert.equal(h.postingNode('#knShortsPublish').hidden,true);assert.equal(h.urls.size,0);assert.equal(h.requests.length,0);assert.equal(h.posts().length,0);assert.strictEqual(h.document.activeElement,h.postingNode('#ksPublishBtn'));
 });

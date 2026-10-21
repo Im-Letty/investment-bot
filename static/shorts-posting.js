@@ -5,7 +5,7 @@
 })(typeof window==='undefined'?null:window,function(w){
   'use strict';
   var topics=['#経済入門','#投資','#マーケット','#企業','#家計・節約','#税金','#副業・お金','#年金・老後','#不動産','#暗号資産','#経済ニュース','#世界経済','#経済史','#行動経済学','#テクノロジーと経済','#用語解説'];
-  var maxFile=20000000,modal=null,form=null,status=null,ownerList=null,submit=null,owner=null,requestId=null,busy=false,generation=0,feedGeneration=0,mineCursor=null,selectedFile=null,selectedURL=null,videoPreview=null,fileSummary=null,editButton=null,editorHandle=null;
+  var maxFile=20000000,modal=null,form=null,status=null,ownerList=null,submit=null,owner=null,requestId=null,busy=false,generation=0,feedGeneration=0,mineCursor=null,selectedFile=null,selectedURL=null,videoPreview=null,fileSummary=null,editButton=null,editorHandle=null,workflowOpen=false;
   function validId(value){return Number.isSafeInteger(value)&&value>0;}
   function feedRows(posts){
     if(!Array.isArray(posts)||posts.length>20)return [];
@@ -40,13 +40,13 @@
     if(!form.elements.title.value)form.elements.title.value=file.name.replace(/\.(mp4|mov)$/i,'').slice(0,120);
     say(owner?'動画を確認して、タイトルを付けて投稿できます。':message('login_required'));setBusy(false);
   }
-  function editVideo(){
-    if(busy||editorHandle)return;
-    if(!w.KNShortsEditor||typeof w.KNShortsEditor.open!=='function'){say('動画編集を読み込めませんでした。ページを開き直してください。');return;}
-    var serial=generation;videoPreview.pause();modal.hidden=true;
-    function returnToForm(){if(serial!==generation)return false;editorHandle=null;modal.hidden=false;setBusy(false);editButton.focus();return true;}
-    try{editorHandle=w.KNShortsEditor.open({initialFile:selectedFile,onConfirm:function(file,meta){if(returnToForm())selectVideo(file,meta);},onCancel:function(){returnToForm();}});}
-    catch(_){editorHandle=null;modal.hidden=false;say('動画編集を開けませんでした。もう一度お試しください。');setBusy(false);}
+  function editVideo(fromEntry){
+    fromEntry=fromEntry===true;if(busy||editorHandle)return;
+    if(!w.KNShortsEditor||typeof w.KNShortsEditor.open!=='function'){modal.hidden=false;session();say('動画編集を読み込めませんでした。ページを開き直してください。');return;}
+    var serial=++generation;videoPreview.pause();modal.hidden=true;
+    function returnToForm(){if(serial!==generation||!workflowOpen)return false;editorHandle=null;modal.hidden=false;session();editButton.focus();return true;}
+    try{editorHandle=w.KNShortsEditor.open({initialFile:selectedFile,onConfirm:function(file,meta){if(returnToForm())selectVideo(file,meta);},onCancel:function(){if(fromEntry){if(serial===generation&&workflowOpen){editorHandle=null;exit();}}else returnToForm();}});}
+    catch(_){editorHandle=null;modal.hidden=false;session();say('動画編集を開けませんでした。もう一度お試しください。');setBusy(false);}
   }
   function create(){
     if(modal)return;
@@ -74,9 +74,9 @@
   }
   function player(){var feed=w.document.getElementById('ksFeed'),sheet=w.document.getElementById('knShorts');return w.KNShortsPlayback&&feed&&sheet?w.KNShortsPlayback.get(feed,sheet):null;}
   function resumePlayback(){var sheet=w.document.getElementById('knShorts'),feed=w.document.getElementById('ksFeed'),managed=player();if(!managed||!sheet||!sheet.classList.contains('open')||w.document.hidden||!feed)return;var rect=feed.getBoundingClientRect(),selected=null,best=0;Array.from(feed.querySelectorAll('.ks-slide')).forEach(function(s){var r=s.getBoundingClientRect(),overlap=Math.max(0,Math.min(r.bottom,rect.bottom)-Math.max(r.top,rect.top));if(overlap>best){best=overlap;selected=s;}});if(selected)managed.activate(selected);}
-  function open(){create();var managed=player();if(managed)managed.close();modal.hidden=false;session();var close=modal.querySelector('.ks-post-close');if(close&&close.focus)close.focus();}
+  function open(){create();if(workflowOpen)return;workflowOpen=true;generation++;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');setBusy(false);var managed=player();if(managed)managed.close();modal.hidden=true;editVideo(true);}
   function resetForm(){form.reset();clearVideo();}
-  function exit(resume){if(!modal||(modal.hidden&&!editorHandle))return;generation++;var activeEditor=editorHandle;editorHandle=null;if(activeEditor&&typeof activeEditor.close==='function')activeEditor.close();modal.hidden=true;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');var sheet=w.document.getElementById('knShorts'),btn=w.document.getElementById('ksPublishBtn');if(resume!==false)resumePlayback();if(!w.document.hidden&&sheet&&sheet.classList.contains('open')&&btn&&btn.getClientRects().length&&btn.focus)btn.focus();}
+  function exit(resume){if(!modal||!workflowOpen)return;generation++;workflowOpen=false;var activeEditor=editorHandle;editorHandle=null;if(activeEditor&&typeof activeEditor.close==='function')activeEditor.close();modal.hidden=true;owner=null;requestId=null;busy=false;resetForm();ownerList.textContent='';say('');var sheet=w.document.getElementById('knShorts'),btn=w.document.getElementById('ksPublishBtn');if(resume!==false)resumePlayback();if(!w.document.hidden&&sheet&&sheet.classList.contains('open')&&btn&&btn.getClientRects().length&&btn.focus)btn.focus();}
   async function api(path,options,authenticated){
     options=options||{};options.credentials='same-origin';options.cache='no-store';
     if(authenticated){var current=await getLoggedInSession(w.sb);if(current.user.id!==owner)throw new Error('login_required');options.headers=Object.assign({},options.headers,{Authorization:'Bearer '+current.access_token});}
@@ -133,7 +133,7 @@
       if(typeof w.MutationObserver==='function'){var visibility=new w.MutationObserver(function(){if(!sheet.classList.contains('open'))exit(false);});visibility.observe(sheet,{attributes:true,attributeFilter:['class']});}
       w.document.addEventListener('visibilitychange',function(){if(w.document.hidden)exit(false);});
       w.addEventListener('pagehide',function(){exit(false);});w.addEventListener('popstate',function(){exit(false);});
-      w.document.addEventListener('knAuthChange',function(){var visible=modal&&(!modal.hidden||editorHandle);if(editorHandle){generation++;var active=editorHandle;editorHandle=null;active.close();modal.hidden=false;}generation++;owner=null;requestId=null;if(ownerList)ownerList.textContent='';if(visible){resetForm();session();}});
+      w.document.addEventListener('knAuthChange',function(){var visible=modal&&workflowOpen;if(editorHandle){generation++;var active=editorHandle;editorHandle=null;active.close();modal.hidden=false;}generation++;owner=null;requestId=null;if(ownerList)ownerList.textContent='';if(visible){resetForm();session();}});
     }install();
   }
   return {feedRows:feedRows,getLoggedInSession:getLoggedInSession,loadPublished:loadPublished,open:open,mount:mount};

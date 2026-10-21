@@ -14,7 +14,7 @@ test('opening the editor does not request a camera or microphone',()=>{
 test('a permission denial leaves the selected valid file available for confirmation',async()=>{
   const h=harness({getUserMedia:async()=>{throw Object.assign(new Error('Denied'),{name:'NotAllowedError'});}});h.open();
   const selected=h.select();h.metadata();h.node('.ks-edit-camera').click();await settle();
-  assert.equal(h.deviceCalls.length,1);assert.ok(h.node('.ks-edit-status').textContent);
+  assert.equal(h.deviceCalls.length,1);assert.ok(h.node('.ks-edit-status').textContent);assert.equal(h.node('.ks-edit-dialog').getAttribute('data-view'),'edit','A denied retake restores visible editing and Next controls');
   h.node('.ks-edit-next').click();await settle();
   assert.equal(h.confirmed.length,1);assert.equal(h.confirmed[0].file,selected);assert.equal(h.confirmed[0].details.edited,false);
 });
@@ -145,4 +145,40 @@ test('an encoder error restores the original clip and settings without confirmat
   assert.equal(h.confirmed.length,0);assert.equal(h.node('.ks-edit-text').value,'元の音声を残す');assert.equal(h.node('.ks-edit-next').disabled,false);assert.equal(h.urls.size,1);
   assert.equal(h.recorders[0].state,'inactive');assert.ok(h.recorders[0].stream.getTracks().every(track=>track.readyState==='ended'));assert.equal(audioTrack.readyState,'ended');assert.equal(audioClosed,1);
   h.node('.ks-edit-reset').click();h.node('.ks-edit-next').click();await settle();assert.equal(h.confirmed.length,1);assert.equal(h.confirmed[0].file,original);handle.close();
+});
+
+test('capture opens with album choices and starts camera only from the central button',async()=>{
+ const h=harness();h.open();assert.equal(h.node('.ks-edit-dialog').getAttribute('data-view'),'capture');
+ assert.equal(h.node('.ks-edit-record').getAttribute('aria-label'),'カメラを開く');assert.equal(h.deviceCalls.length,0);
+ h.node('.ks-edit-album').click();assert.equal(h.node('.ks-edit-album-panel').hidden,false);assert.ok(h.node('.ks-edit-choose-video'));assert.ok(h.node('.ks-edit-choose-photos'));assert.equal(h.deviceCalls.length,0);
+ h.node('.ks-edit-album-close').click();assert.equal(h.node('.ks-edit-album-panel').hidden,true);assert.equal(h.node('.ks-edit-album').getAttribute('aria-expanded'),'false');assert.equal(h.node('.ks-edit-file').tabIndex,-1);assert.equal(h.node('.ks-edit-photo-file').hidden,true);
+ h.node('.ks-edit-record').click();await settle();assert.equal(h.deviceCalls.length,1);assert.equal(h.recorders.length,0);assert.equal(h.node('.ks-edit-record').getAttribute('aria-label'),'録画を開始');h.editor.close();
+});
+
+test('selected capture duration stops recording at that limit and remains locked during recording',async()=>{
+ const h=harness();h.open();h.node('.ks-edit-duration[data-seconds="15"]').click();h.node('.ks-edit-record').click();await settle();h.node('.ks-edit-record').click();
+ assert.equal(h.recorders[0].state,'recording');assert.equal(h.node('.ks-edit-duration[data-seconds="60"]').disabled,true);
+ const stop=[...h.timers.values()].find(t=>t.delay===14500);assert.ok(stop,'15 second recording has a matching bounded stop timer');stop.fn();await settle();assert.equal(h.recorders[0].state,'inactive');h.editor.close();assert.equal(h.timers.size,0);
+});
+
+test('album video moves from capture into editing without device access',async()=>{
+ const h=harness();h.open();const file=h.select();h.metadata();assert.equal(h.node('.ks-edit-dialog').getAttribute('data-view'),'edit');assert.equal(h.deviceCalls.length,0);
+ h.node('.ks-edit-next').click();await settle();assert.equal(h.confirmed[0].file,file);assert.equal(h.confirmed[0].details.edited,false);
+});
+
+function photosEngine(h,pending){let current,options,cancelled=0;h.window.KNShortsPhotoMovie={validateFiles(files){if(files.length<1||files.length>12)throw new Error('invalid_photo_count');},render(files,config){current=files.slice();options=config;return{promise:pending.promise,cancel(){cancelled++;pending.reject(new Error('cancelled'));}};}};return{files:()=>current,options:()=>options,cancelled:()=>cancelled};}
+function selectPhotos(h){const files=[new File(['first'],'first.png',{type:'image/png'}),new File(['second'],'second.png',{type:'image/png'})];h.node('.ks-edit-photo-file').files=files;h.node('.ks-edit-photo-file').emit('change');return files;}
+
+test('photo order and selected timing reach the movie engine and its MP4 joins the existing editor',async()=>{
+ const h=harness(),pending=deferred(),engine=photosEngine(h,pending);h.open();const photos=selectPhotos(h);assert.equal(h.node('.ks-edit-dialog').getAttribute('data-view'),'photos');
+ h.node('.ks-edit-photo-action[aria-label="写真2を前へ"]').click();h.node('.ks-edit-photo-duration').value='2';h.node('.ks-edit-photo-duration').emit('change');h.node('.ks-edit-photos-build').click();assert.deepEqual(engine.files(),[photos[1],photos[0]]);assert.equal(engine.options().secondsPerPhoto,2);engine.options().onProgress({percent:50});assert.match(h.node('.ks-edit-status').textContent,/50%/);
+ const movie=h.file('photos.mp4');pending.resolve({file:movie,duration:4,width:720,height:1280,count:2});await settle();h.metadata(4);await settle();assert.equal(h.node('.ks-edit-dialog').getAttribute('data-view'),'edit');h.node('.ks-edit-next').click();await settle();assert.equal(h.confirmed[0].file,movie);assert.equal(h.deviceCalls.length,0);assert.equal(h.urls.size,0);
+});
+
+test('closing a pending photo movie cancels it and a late completion cannot reopen the editor',async()=>{
+ const h=harness(),pending=deferred(),engine=photosEngine(h,pending);h.open();selectPhotos(h);h.node('.ks-edit-photos-build').click();h.editor.close();await settle();assert.equal(engine.cancelled(),1);assert.equal(h.urls.size,0);assert.equal(h.document.body.children.length,0);assert.equal(h.confirmed.length,0);
+});
+
+test('hiding or cancelling photo export retains photos for deliberate retry without confirming',async()=>{
+ const h=harness(),pending=deferred(),engine=photosEngine(h,pending);h.open();selectPhotos(h);h.node('.ks-edit-photos-build').click();h.hidden();await settle();assert.equal(engine.cancelled(),1);assert.equal(h.node('.ks-edit-photos-list').children.length,2);assert.equal(h.node('.ks-edit-photos-build').disabled,false);assert.equal(h.confirmed.length,0);h.editor.close();assert.equal(h.urls.size,0);
 });
