@@ -215,3 +215,12 @@ test('a stalled profile request times out, aborts, preserves the committed name 
   pending.resolve({ok:true,user_id:'a',profile:profile('保存待ち')});await new Promise(setImmediate);
   assert.equal(h.api.username(),'再試行','late response cannot replace the completed newer save');
 });
+
+test('completed profile reads clear the loading notice without erasing a later save receipt',async()=>{
+ for(const user of [null,account()]){
+  const h=fixture({user});h.api.mount(h.container);const status=h.nodes.find(n=>n.getAttribute('role')==='status');
+  assert.match(status.textContent,/確認しています/);await h.api.ready();assert.equal(status.textContent,'');
+  await h.api.saveUsername('保存した名前');assert.match(status.textContent,/保存しました/);assert.equal(h.api.username(),'保存した名前');
+  await h.api.refresh();assert.equal(status.textContent,'');assert.equal(h.api.username(),'保存した名前');
+ }
+});

@@ -59,6 +59,7 @@
       section.setAttribute('aria-busy',String(saving||loading));
       if(error)announce(fixedError(error),true);
       else if(loading)announce('プロフィールを確認しています…',false);
+      else if(status&&status.textContent==='プロフィールを確認しています…')announce('',false);
     }
     function guestRead(){
       var next=empty(),raw;
