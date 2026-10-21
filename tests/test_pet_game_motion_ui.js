@@ -2162,7 +2162,7 @@ test('new visitors choose and review one of three eggs without drawing or changi
     assert.deepEqual(after.care, before.care); assert.equal(f.writes.length, writes + 1);
     assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); assert.ok(f.host.querySelector('.ipg-care-room'));
     assert.equal(f.mounts.at(-1).options.eggOrigin, row.key); assert.equal(f.mounts.at(-1).options.appearanceKey, 'egg');
-    assert.ok(f.focusButton('care-feed').textContent.includes('あたためる'));
+    assert.ok(f.focusButton('care-feed').getAttribute('aria-label').includes('あたためる'));
     assert.ok(f.host.querySelector('.ipg-egg-origin').textContent.includes(row.eggLabel));
     assert.equal(f.buttons().some(button => button.textContent === 'うさぎ'), false, 'the confirmed origin cannot be changed by a species selector');
     const reloaded = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready', seed: { [Core.KEY]: JSON.stringify(after) } });

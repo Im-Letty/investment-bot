@@ -1013,17 +1013,23 @@
       if (displaySpecies(s) === 'lilac') { renderEvolutionStatus(s, pet); renderWornOutfit(s, pet); }
       renderGrowthAlbum(s, pet);
     }
-    var care = node('div', 'ipg-care-buttons');
-    [['feed', 'ごはん', '🍎', 8], ['play', 'なでる', '♡', 5], ['rest', '休む', '☾', 4]].forEach(function (x) {
+    var care = node('div', 'ipg-care-buttons' + (!developerPreview() ? ' ipg-room-care' : ''));
+    care.setAttribute('role', 'group'); care.setAttribute('aria-label', 'お世話');
+    [['feed', 'ごはん', '🍎', 8], ['play', 'なでる', '✋', 5], ['rest', '休む', '☾', 4]].forEach(function (x) {
       var used = s.care.day === currentDay() ? s.care.counts[x[0]] || 0 : 0, cap = (limits().care || {})[x[0]] || 3;
       var b = button('', function () { run({ type: 'care', kind: x[0] }, 'お世話の記録を保存しました。'); }, false, used >= cap);
       b.dataset.focusKey = 'care-' + x[0];
-      append(b, node('span', 'ipg-care-icon', x[2]), node('span', '', egg && x[0] === 'feed' ? 'あたためる' : x[1]),
-        node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
+      var label = egg && x[0] === 'feed' ? 'あたためる' : x[1];
+      var detail = label + ' · 今日' + number(used) + '/' + cap + '回 · +' + x[3] + 'EXP' + (used >= cap ? ' · 今日はお世話済み' : '');
+      b.setAttribute('aria-label', detail); b.title = detail;
+      var icon = node('span', 'ipg-care-icon', egg && x[0] === 'feed' ? '☀️' : x[2]); icon.setAttribute('aria-hidden', 'true');
+      b.appendChild(icon);
+      if (developerPreview()) append(b, node('span', '', label), node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
     });
     if (developerPreview() && displaySpecies(s) === 'lilac' && !careRequest) pet.appendChild(emotionPalette(null, false));
-    append(pet, care, text(s.care.dailyRewardDay === currentDay() ?
+    if (developerPreview()) pet.appendChild(care); else scene.appendChild(care);
+    append(pet, text(s.care.dailyRewardDay === currentDay() ?
       '今日の育成報酬10コインは受け取り済み。お世話は残りの回数まで続けられます。' :
       'その日最初のお世話で、育成報酬10コイン。お世話だけでも成長できます。'));
     if (displaySpecies(s) === 'lilac' && evolution(s)) pet.appendChild(text('いつものごはんは、りんご。食べものの種類や、なでる・休む、日を分けて続けるお世話で育ち方が変わります。同じ日にたくさん繰り返しても、進化の傾向への反映には上限があります。', 'ipg-evolution-explanation ipg-small'));
