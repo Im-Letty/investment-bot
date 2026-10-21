@@ -1134,7 +1134,7 @@
     var appearance=appearanceProfile(appearanceKey);
     if(appearance.family==='egg')return {x:.5,y:.5,foodLeft:.39,foodTop:.505,foodVisible:false};
     if(appearance.family==='baby'){
-      var baby=appearancePoint(appearance.key,nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1],evolutionPath),amount=appearance.overallScale*.88;
+      var baby=appearancePoint(appearance.key,nurseryLandmarks.mouth[0],nurseryLandmarks.mouth[1],evolutionPath),amount=appearance.overallScale*.88*nurseryPresentationScale(stage,evolutionPath,appearance.key,appearance.overallScale);
       var bx=.5+(baby.x-.5)*amount,by=.92+(baby.y-.92)*amount;return {x:bx,y:by,foodLeft:bx-.11,foodTop:by+.005};
     }
     var profile = growthProfile(stage);
@@ -1257,7 +1257,7 @@
     if(view.sourceRect){var r=view.sourceRect;return {x:r[0]+clamp(finite(x,.5),.0001,.9999)*(r[2]-r[0]),y:r[1]+clamp(finite(y,.5),.0001,.9999)*(r[3]-r[1])};}
     return {x:(i%4+clamp(finite(x,.5),2/w,1-2/w))/4,y:(Math.floor(i/4)+clamp(finite(y,.5),2/h,1-2/h))/4};
   }
-  function directionPoint(index,inputX,inputY,stage,path,appearanceKey) {
+  function rawDirectionPoint(index,inputX,inputY,stage,path,appearanceKey) {
     var view=directionView(index,appearanceKey),x=finite(inputX,.5),y=finite(inputY,.5),profile=growthProfile(stage),branch=evolutionProfile(path),appearance=appearanceProfile(appearanceKey);
     if(!view.index)return appearance.family==='baby'?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);
     if(appearance.family==='baby'){var age=appearance.visualAge;profile={headWidth:1.035-.055*age,headHeight:1,bodyWidth:.89+.14*age,bodyHeight:.85+.18*age,earScale:.86+.16*age,tailScale:.76+.25*age};}
@@ -1278,6 +1278,27 @@
     // Atlas views have different silhouettes. A gentler local shape field keeps
     // tiny ears and narrow side profiles unfolded at every growth/path pairing.
     return {x:.4875+(x+dx*.55-(view.bounds[0]+view.bounds[2])*.5)*normal*(view.aspect||1),y:.92+(y+dy*.55*ground-view.groundY)*normal};
+  }
+  // Align each measured source silhouette to the same front-pose height once
+  // per appearance/path. Camera direction changes width, never character size.
+  var directionHeightCache={};
+  function directionHeight(index,stage,path,appearanceKey) {
+    var view=directionView(index,appearanceKey),key=[view.index,stage,path,appearanceKey].join(':');
+    if(directionHeightCache[key])return directionHeightCache[key];
+    var min=Infinity,max=-Infinity;
+    for(var row=0;row<=24;row++)for(var col=0;col<=24;col++){
+      var b=view.bounds,p=rawDirectionPoint(index,b[0]+(b[2]-b[0])*col/24,b[1]+(b[3]-b[1])*row/24,stage,path,appearanceKey);
+      min=Math.min(min,p.y);max=Math.max(max,p.y);
+    }
+    return directionHeightCache[key]=max-min;
+  }
+  function directionPoint(index,inputX,inputY,stage,path,appearanceKey) {
+    var point=rawDirectionPoint(index,inputX,inputY,stage,path,appearanceKey),view=directionView(index,appearanceKey);
+    if(view.index&&appearanceProfile(appearanceKey).family==='baby'){
+      var factor=directionHeight(0,stage,path,appearanceKey)/directionHeight(index,stage,path,appearanceKey);
+      point={x:.4875+(point.x-.4875)*factor,y:.92+(point.y-.92)*factor};
+    }
+    return point;
   }
   function roomWalkDeform(index,x,y,point,frame,appearanceKey) {
     if(!frame||!frame.walking||appearanceProfile(appearanceKey).family==='egg')return {x:point.x,y:point.y};
@@ -1319,6 +1340,22 @@
     });
     return {matrix:fit<1?multiply(bone({x:.5,y:.92},0,0,0,fit,fit),matrix):matrix.slice(),fitScale:fit,bounds:bounds};
   }
+  // A single camera fit includes every view and the room gait allowance.
+  // Apply it to the frontal rig too, so changing source cannot refit the pet.
+  var nurseryPresentationBounds={};
+  function nurseryPresentationScale(stage,path,appearanceKey,amount) {
+    var key=[stage,path,appearanceKey].join(':'),bounds=nurseryPresentationBounds[key];
+    if(!bounds){
+      bounds={minX:Infinity,minY:Infinity,maxX:-Infinity,maxY:-Infinity};
+      function include(p){bounds.minX=Math.min(bounds.minX,p.x);bounds.minY=Math.min(bounds.minY,p.y);bounds.maxX=Math.max(bounds.maxX,p.x);bounds.maxY=Math.max(bounds.maxY,p.y);}
+      for(var index=0;index<16;index++){var b=directionBounds(index,stage,path,appearanceKey);include({x:b.minX,y:b.minY});include({x:b.maxX,y:b.maxY});}
+      nurseryRigParts.forEach(function(part){part.polygon.forEach(function(p){include(appearancePoint(appearanceKey,p[0],p[1],path));});});
+      // Reserve gentle idle motion as well as the largest side-view foot stride.
+      bounds={minX:bounds.minX-.034,minY:bounds.minY-.019,maxX:bounds.maxX+.034,maxY:bounds.maxY+.012};
+      nurseryPresentationBounds[key]=bounds;
+    }
+    return fitDirectionMatrix(bone({x:.5,y:.92},0,0,0,amount,amount),bounds).fitScale;
+  }
   function directionProjection(index,stage,path,matrix,appearanceKey,roomFrame) {return fitDirectionMatrix(matrix||identity(),roomWalkBounds(directionBounds(index,stage,path,appearanceKey),roomFrame));}
   function directionClothingCoverage(index,outfit,x,y,appearanceKey) {
     var view=directionView(index,appearanceKey),b=view.torso,shear=Math.sin(view.index*TAU/16)*.12;
@@ -1328,8 +1365,20 @@
     var tail=view.tail[0]>=0?clothEllipse(x,y,view.tail[0],view.tail[1],view.tail[2],view.tail[3]):0;
     return mask*(1-Math.max(paws,tail));
   }
+  // Measured crown-fur chroma relative to the selected front image. Preserve
+  // each view's luminance/shading and protect cream, eyes, mouth and clothing.
+  var nurseryDirectionChroma=Object.freeze([[1,0],[0.82789,-0.05293],[0.76408,-0.08909],[0.6651,-0.14194],[0.70036,-0.13036],[0.72892,-0.12053],[0.68422,-0.14557],[0.6373,-0.15703],[0.65081,-0.16322],[0.66765,-0.15746],[0.66286,-0.15498],[0.65458,-0.15962],[0.70653,-0.13467],[0.73282,-0.11512],[0.78737,-0.07004],[0.85198,-0.041]].map(function(row){return Object.freeze(row);}));
+  function directionMaterialColor(index,x,y,source,appearanceKey) {
+    var view=directionView(index,appearanceKey),color=source.slice(0,3);
+    if(!view.index||appearanceProfile(appearanceKey).family!=='baby')return color;
+    var features=Math.max(clothEllipse(x,y,view.eyes[0],view.eyes[1],view.eyeRadii[0],view.eyeRadii[1]),clothEllipse(x,y,view.eyes[2],view.eyes[3],view.eyeRadii[2],view.eyeRadii[3]),clothEllipse(x,y,view.mouth[0],view.mouth[1],view.mouth[2],view.mouth[3]));
+    var amount=furChroma(color)*(1-features),c=nurseryDirectionChroma[view.index],lum=color[0]*.299+color[1]*.587+color[2]*.114;
+    var red=c[0]*(color[0]-lum)-c[1]*(color[2]-lum),blue=c[1]*(color[0]-lum)+c[0]*(color[2]-lum);
+    var target=[lum+red,lum-(.299*red+.114*blue)/.587,lum+blue];
+    return color.map(function(value,i){return value+(clamp(target[i],0,1)-value)*amount;});
+  }
   function directionFurColor(index,path,x,y,source,appearanceKey) {
-    var view=directionView(index,appearanceKey),profile=evolutionProfile(path),color=source.slice(0,3);
+    var view=directionView(index,appearanceKey),profile=evolutionProfile(path),color=directionMaterialColor(index,x,y,source,appearanceKey);
     if(!profile.index)return color;
     var eyes=Math.max(clothEllipse(x,y,view.eyes[0],view.eyes[1],view.eyeRadii[0],view.eyeRadii[1]),clothEllipse(x,y,view.eyes[2],view.eyes[3],view.eyeRadii[2],view.eyeRadii[3]));
     var mouth=clothEllipse(x,y,view.mouth[0],view.mouth[1],view.mouth[2],view.mouth[3]),amount=furChroma(color)*(1-Math.max(eyes,mouth))*.92;
@@ -1826,7 +1875,10 @@
     var appearance=appearanceProfile(appearanceKey),nursery=appearance.family==='baby',parts=nursery?nurseryRigParts:rigParts;
     function point(x,y){return nursery?appearancePoint(appearance.key,x,y,path):growthPoint(stage,x,y,path);}
     var profile=growthProfile(stage),name=p.situation,e=p.presence,a=Math.max(0,age),s=Math.max(0,seconds);
-    var amount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15)*(1-.12*e);
+    var turning=directionFrame(name,0).id;
+    var baseAmount=(nursery?appearance.overallScale:profile.overallScale)*clamp(finite(scale,1),.35,1.15);
+    if(nursery)baseAmount*=nurseryPresentationScale(stage,path,appearance.key,baseAmount);
+    var amount=baseAmount*(1-.12*(turning?0:e));
     // Reserve the widest flap up front; the figure must not resize on each beat.
     if(name==='body_flap')amount*=1-(.035+(nursery?Math.max(0,appearance.overallScale-1)*.7:0))*e;
     var root=bone({x:.5,y:.92},-p.bodyAngle,p.shiftX,p.shiftY-p.bounce*.055+p.crouch*.012,
@@ -2197,6 +2249,10 @@
     result=result.replace(handUpperShader('mature'),handUpperShader('baby'));
     var maps=nurseryFaceMaps.map(function(row){var m=row.matrix,r=row.sourceRect;return 'if(cell>'+((row.cell-.5).toFixed(1))+'&&cell<'+((row.cell+.5).toFixed(1))+'){q=vec2(dot(vec3(p,1.),vec3('+m.slice(0,3).join(',')+')),dot(vec3(p,1.),vec3('+m.slice(3).join(',')+')));rect=vec4('+r.join(',')+');}';}).join('\n');
     var helper='varying vec4 v_sourceRect;\nvec4 nurserySample(sampler2D im,vec2 p,float cell){vec2 q=p;vec4 rect=vec4(0.,0.,1.,1.);'+maps+'vec2 tile=vec2(mod(cell,3.),floor(cell/3.));return texture2D(im,clamp((tile+q)/3.,rect.xy,rect.zw));}\n';
+    var chromaCases=nurseryDirectionChroma.map(function(c,index){return 'if(index>'+((index-.5).toFixed(1))+'&&index<'+((index+.5).toFixed(1))+')c=vec2('+c.map(function(v){return v.toFixed(5);}).join(',')+');';}).join('');
+    var chromaHelper='vec3 nurseryDirectionColor(float index,vec3 color,float featureMask){if(index<.5)return color;vec2 c=vec2(1.,0.);'+chromaCases+'float lum=dot(color,vec3(.299,.587,.114));vec2 d=color.rb-vec2(lum);vec2 q=vec2(c.x*d.x-c.y*d.y,c.y*d.x+c.x*d.y);vec3 target=clamp(vec3(lum+q.x,lum-(.299*q.x+.114*q.y)/.587,lum+q.y),vec3(0.),vec3(1.));return mix(color,target,furSelect(color)*featureMask); }\n';
+    result=result.replace('vec4 turnImage(vec2 p){',chromaHelper+'vec4 turnImage(vec2 p){');
+    result=result.replace('float mouth=ce(p,u_motionC.xy,u_motionC.zw);','float mouth=ce(p,u_motionC.xy,u_motionC.zw);color=nurseryDirectionColor(index,color,1.-max(eyes,mouth));');
     // Unit four is the expression sheet for the front and the separate 16-view
     // sheet only while turning. Expanded view rectangles preserve overhanging fur.
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');

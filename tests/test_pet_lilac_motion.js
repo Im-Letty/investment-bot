@@ -143,6 +143,96 @@ test('UMD exposes browser API and CommonJS pure helpers without loading assets',
 const growthKeys = ['egg', 'baby', 'child', 'final', 'adult', 'companion'];
 const bornAppearances=['newborn','baby','toddler','child','juvenile','grown','adult','companion'];
 
+// Independently measured source crown chroma, in 8-bit RGB units. The source
+// pixels have alpha > 240, local x .28-.73/y .08-.30, purple fur, and Y 185-205.
+// Compare equal-luminance material samples instead of requiring a particular
+// renderer coefficient table or confusing the front's cream area with fur.
+const measuredFacingCrownChroma=[
+  [17.855,25.263],[19.536,31.764],[19.251,35.308],[17.923,41.809],
+  [18.151,39.450],[18.265,37.678],[17.450,40.635],[17.205,43.880],
+  [16.652,42.994],[16.880,41.820],[17.091,42.108],[16.863,42.706],
+  [17.809,39.151],[18.493,37.379],[19.667,33.835],[19.485,30.590]
+];
+function facingMaterial(chroma,luma){
+  const [red,blue]=chroma.map(n=>n/255);
+  return [luma+red,luma-(.299*red+.114*blue)/.587,luma+blue];
+}
+function facingProjectedBounds(matrix,bounds){
+  const points=[[bounds.minX,bounds.minY],[bounds.minX,bounds.maxY],[bounds.maxX,bounds.minY],[bounds.maxX,bounds.maxY]]
+    .map(([x,y])=>({x:matrix[0]*x+matrix[2]*y+matrix[4],y:matrix[1]*x+matrix[3]*y+matrix[5]}));
+  return {height:Math.max(...points.map(p=>p.y))-Math.min(...points.map(p=>p.y)),points};
+}
+
+test('all born directions match the reference fur chroma without flattening its light and shade',()=>{
+  for(const key of bornAppearances)for(let index=0;index<16;index++)for(const luma of [.40,.60,.76]){
+    const material=facingMaterial(measuredFacingCrownChroma[index],luma);
+    const reference=facingMaterial(measuredFacingCrownChroma[0],luma);
+    const color=Motion.directionFurColor(index,'balanced',.5,.15,material,key);
+    assert.ok(color.every((n,i)=>Number.isFinite(n)&&n>=0&&n<=1&&Math.abs(n-reference[i])<.0006),key+index+': the measured fur material matches the canonical front');
+    assert.ok(Math.abs(.299*color[0]+.587*color[1]+.114*color[2]-luma)<1e-10,key+index+': baked luminance is retained');
+    if(index===0)assert.deepEqual(color,material,'the selected canonical front remains exact');
+  }
+});
+
+test('facing fur calibration protects cream, each real eye and mouth, legacy material, and all six evolution palettes',()=>{
+  const purple=[.72,.53,.83],cream=[.96,.89,.78];
+  for(const key of bornAppearances)for(const view of Motion.nurseryDirectionViews){
+    const palettes=new Set();
+    for(const path of Motion.evolutionCatalogue){
+      const color=Motion.directionFurColor(view.index,path.key,.5,.15,purple,key);
+      assert.ok(color.every(n=>Number.isFinite(n)&&n>=0&&n<=1));palettes.add(color.map(n=>n.toFixed(4)).join(','));
+      assert.deepEqual(Motion.directionFurColor(view.index,path.key,.5,.75,cream,key),cream,key+view.index+': cream is unchanged');
+      for(let eye=0;eye<4;eye+=2)if(view.eyes[eye]>=0)
+        assert.deepEqual(Motion.directionFurColor(view.index,path.key,view.eyes[eye],view.eyes[eye+1],purple,key),purple,key+view.index+': eye material is protected');
+      if(view.mouth[0]>=0)assert.deepEqual(Motion.directionFurColor(view.index,path.key,view.mouth[0],view.mouth[1],purple,key),purple,key+view.index+': mouth material is protected');
+    }
+    assert.equal(palettes.size,6,key+view.index+': all evolution colors still differ');
+  }
+  for(let index=0;index<16;index++)for(const luma of [.40,.60,.76]){
+    const material=facingMaterial(measuredFacingCrownChroma[index],luma);
+    assert.deepEqual(Motion.directionFurColor(index,'balanced',.5,.15,material),material,'the retained legacy family is not recalibrated');
+  }
+});
+
+test('all 8x6x16 born silhouettes share the frontal height and stay grounded at the normal room size',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const idle=Motion.rigPose(0,'idle',0,'child',path.key,1,key);
+    const front=Motion.directionProjection(0,'child',path.key,idle.matrices.torso,key);
+    const frontHeight=facingProjectedBounds(idle.matrices.torso,front.bounds).height;
+    const walk=Motion.roomWalkFrame('room_walk_right',1500);
+    for(let index=0;index<16;index++){
+      const projection=Motion.directionProjection(index,'child',path.key,idle.matrices.torso,key);
+      const roomProjection=Motion.directionProjection(index,'child',path.key,idle.matrices.torso,key,walk);
+      const expectedHeight=front.bounds.maxY-front.bounds.minY;
+      assert.ok(Math.abs(projection.bounds.maxY-projection.bounds.minY-expectedHeight)<1e-10,key+path.key+index+': no source-direction height jump');
+      for(const fit of [projection,roomProjection]){
+        assert.ok(Math.abs(fit.fitScale-1)<1e-10,key+path.key+index+': neutral views share the same pre-reserved camera fit');
+        assert.ok(Math.abs(facingProjectedBounds(fit.matrix,projection.bounds).height-frontHeight)<1e-10,key+path.key+index+': room and turning keep the frontal size');
+        for(const p of facingProjectedBounds(fit.matrix,fit.bounds).points)
+          assert.ok(p.x>=.012-1e-9&&p.x<=.988+1e-9&&p.y>=.018-1e-9&&p.y<=.96+1e-9,key+path.key+index+': shared fit retains its clip margin');
+        assert.ok(Math.abs(fit.matrix[3]*.92+fit.matrix[5]-.92)<1e-10,'the shared camera remains anchored at the floor');
+      }
+    }
+  }
+});
+
+test('direction anticipation and room walking never shrink the neutral frontal body before yaw starts',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const idle=Motion.rigPose(0,'idle',0,'child',path.key,1,key);
+    for(const cue of Motion.directionCatalogue){
+      assert.equal(Motion.directionFrame(cue.id,600).front,true);
+      for(const age of [.45,.60,2.8]){
+        const turn=Motion.rigPose(0,cue.id,age,'child',path.key,1,key);
+        turn.matrices.torso.forEach((n,i)=>assert.ok(Math.abs(n-idle.matrices.torso[i])<1e-10,key+path.key+cue.id+': yaw is not a body-scale animation'));
+      }
+    }
+    for(const cue of ['room_walk_left','room_walk_right']){
+      const room=Motion.rigPose(0,cue,1.5,'child',path.key,1,key);
+      room.matrices.torso.forEach((n,i)=>assert.ok(Math.abs(n-idle.matrices.torso[i])<1e-10,key+path.key+cue+': room travel shares the frontal presentation scale'));
+    }
+  }
+});
+
 test('eleven read-only appearances separate real eggs and the selected reference family from the unchanged canonical six milestones',()=>{
   assert.deepEqual(Motion.appearanceCatalogue.map(row=>[row.key,row.min]),[['egg',0],['egg_cracked',5],['hatching',10],['newborn',15],['baby',30],['toddler',45],['child',75],['juvenile',110],['grown',200],['adult',400],['companion',800]]);
   for(const row of Motion.appearanceCatalogue){assert.equal(Object.isFrozen(row),true);assert.equal(Motion.appearanceProfile(row.key),row);assert.ok(row.stillAsset);assert.equal(Object.isFrozen(Motion.appearanceAssets(row.key)),true);}
