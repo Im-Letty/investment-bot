@@ -899,21 +899,9 @@
     parent.appendChild(section);
   }
   function renderGrowthAlbum(s, parent) {
+    if (!developerPreview()) return;
     var stages = core().lilacAppearanceStages || core().lilacGrowthStages;
     if (displaySpecies(s) !== 'lilac' || !Array.isArray(stages) || !stages.length) return;
-    if (!developerPreview()) {
-      var record = node('details', 'ipg-growth-album ipg-growth-record');
-      record.appendChild(node('summary', '', '成長のあゆみ'));
-      var milestones = node('ol', 'ipg-growth-milestones'), current = stage(s);
-      stages.forEach(function (entry) {
-        var reached = entry.min <= s.pet.exp, row = node('li', reached ? 'is-reached' : 'is-future');
-        if (entry.key === current.key) row.setAttribute('aria-current', 'step');
-        append(row, node('span', '', reached ? entry.label : 'これから'), node('small', '', number(entry.min) + ' EXP' + (entry.key === current.key ? ' · いまここ' : reached ? ' · 到達済み' : '')));
-        milestones.appendChild(row);
-      });
-      append(record, text('ごはんやふれあいを重ねて、少しずつ育っていきます。', 'ipg-small'), milestones);
-      parent.appendChild(record); return;
-    }
     var album = node('section', 'ipg-growth-album');
     var toggle = button(growthAlbumOpen ? '成長のすがたを閉じる' : '成長のすがたを見る', function () {
       growthAlbumOpen = !growthAlbumOpen; growthPreviewStage = growthAlbumOpen ? stage(state()).key : null; growthPreviewPath = growthAlbumOpen ? evolutionPath(state()) : null; if (!growthAlbumOpen) growthEmotionOpen = false; render();

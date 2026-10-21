@@ -1794,7 +1794,10 @@ test('normal care room has no motion inspector, settings preview or future appea
   assert.equal(f.host.querySelector('.ipg-growth-gallery'), null);
   assert.equal(f.host.querySelector('[data-focus-key="lilac-preview"]'), null);
   assert.equal(f.host.querySelector('[data-focus-key="growth-stage-companion"]'), null);
-  assert.ok(f.host.querySelector('.ipg-growth-milestones'));
+  assert.equal(f.host.querySelector('.ipg-growth-album'), null);
+  assert.equal(f.host.querySelector('.ipg-growth-record'), null);
+  assert.equal(f.host.querySelector('.ipg-growth-milestones'), null);
+  assert.ok(!f.host.textContent.includes('成長のあゆみ'));
   assert.ok(!f.host.textContent.includes('100種類'));
   assert.ok(!f.host.textContent.includes('好きに選べます'));
   const before = f.saved(), writes = f.writes.length;
@@ -1802,8 +1805,29 @@ test('normal care room has no motion inspector, settings preview or future appea
     await f.click(f.focusButton('tab-' + tab));
     assert.equal(f.host.querySelector('.ipg-emotion-panel'), null);
     assert.equal(f.host.querySelector('.ipg-growth-gallery'), null);
+    assert.equal(f.host.querySelector('.ipg-growth-album'), null);
+    assert.equal(f.host.querySelector('.ipg-growth-milestones'), null);
+    assert.ok(!f.host.textContent.includes('成長のあゆみ'));
   }
+  f.ui.render();
+  assert.equal(f.host.querySelector('.ipg-growth-album'), null);
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('normal players have no growth roadmap at any appearance stage and viewing does not change their progress', async () => {
+  for (const stage of Core.lilacAppearanceStages) {
+    const f = await fixture({ developerPreview: false, rendererMode: 'ready', seed: { pg_exp: String(stage.min) } });
+    const before = f.saved(), writes = f.writes.length;
+    assert.equal(f.host.querySelector('.ipg-growth-album'), null, stage.key);
+    assert.equal(f.host.querySelector('.ipg-growth-milestones'), null, stage.key);
+    assert.ok(!f.host.textContent.includes('成長のあゆみ'), stage.key);
+    assert.ok(f.host.querySelector('.ipg-progress'), 'current growth progress remains visible');
+    f.ui.render();
+    assert.equal(f.host.querySelector('.ipg-growth-gallery'), null, stage.key);
+    assert.deepEqual(f.saved(), before, stage.key);
+    assert.equal(f.writes.length, writes, stage.key);
+    await f.ui.close();
+  }
 });
 
 test('newborn and baby show autonomous body emotion without changing saved growth, wallet or care counts', async () => {
