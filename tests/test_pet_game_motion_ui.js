@@ -19,6 +19,7 @@ function events(target) {
   const listeners = new Map();
   target.addEventListener = (name, fn) => { if (!listeners.has(name)) listeners.set(name, new Set()); listeners.get(name).add(fn); };
   target.removeEventListener = (name, fn) => listeners.get(name)?.delete(fn);
+  target.listenerCount = name => listeners.get(name)?.size || 0;
   target.emit = (name, values = {}) => {
     const event = { target, cancelable: true, preventDefault() {}, ...values };
     [...(listeners.get(name) || [])].forEach(fn => fn(event));
@@ -82,8 +83,8 @@ async function fixture(config = {}) {
   const pane = document.createElement('section'), host = document.createElement('div');
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
   document.getElementById = id => id === 'sect-pet' ? pane : id === 'pet-game-root' ? host : null;
-  const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [];
-  const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false };
+  const raf = new Map(), intervals = new Map(), timers = new Map(), mounts = [], actionCues = [], anchorCalls = [], hitTests = [];
+  const rendererControl = { mode: config.rendererMode || 'pending', mappingThrows: false, hit: null, hitThrows: false };
   const renderer = {
     durations: Motion.durations, catalogue: Motion.catalogue, bodyCatalogue: Motion.bodyCatalogue, directionCatalogue: Motion.directionCatalogue, appearanceProfile: Motion.appearanceProfile, roomWalkFrame: Motion.roomWalkFrame, feedingPhase: Motion.feedingPhase, feedingAnchor(stage, path, appearanceKey) { anchorCalls.push({ stage, path, appearanceKey }); return Motion.feedingAnchor(stage, path, appearanceKey); }, growthProfile: Motion.growthProfile, growthPoint: Motion.growthPoint,
     situationForAction(action, before, after, result) {
@@ -94,6 +95,12 @@ async function fixture(config = {}) {
     },
     mount(canvas, options) {
       const controller = { canvas, options, destroyed: false, changes: [], destroy() { this.destroyed = true; },
+        hitTest(x, y) {
+          hitTests.push({ x, y, controller: this });
+          if (rendererControl.hitThrows) throw new Error('private hit-test failure');
+          if (this.destroyed || !canvas.isConnected || canvas.hidden || !Number.isFinite(x) || !Number.isFinite(y) || x < 0 || x > 1 || y < 0 || y > 1) return null;
+          return typeof rendererControl.hit === 'function' ? rendererControl.hit(x, y) : rendererControl.hit;
+        },
         setSituation(name, detail) { this.changes.push({ name, ...(detail == null ? {} : copy(detail)) }); } };
       mounts.push(controller);
       if (rendererControl.mode === 'throw') throw new Error('private GPU failure');
@@ -117,7 +124,7 @@ async function fixture(config = {}) {
   vm.runInContext(source, context);
   const ui = window.IndependentPetGame;
   const opening = ui.mount(host, coreOptions); assert.equal(await opening, true); await flush();
-  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, raf, timers,
+  return { ui, host, pane, document, window, data, storage, writes, control, rendererControl, mounts, actionCues, anchorCalls, hitTests, raf, timers,
     get store() { return store; },
     saved() { return JSON.parse(data.get(Core.KEY)); },
     buttons() { return host.querySelectorAll('button'); },
@@ -1904,4 +1911,197 @@ test('room directions keep side and back headings isolated from food and hidden 
   assert.equal(v.dataset.facing, 'front');
   assert.equal(v.style.transform, 'translateX(calc(-50% + 0.000px))');
   f.ui.close();
+});
+
+async function touchRoom(config = {}) {
+  const f = await fixture({ developerPreview: false, rendererMode: 'ready', ...config });
+  f.advance(3000); await f.fireTimers(); // Let the initial saved greeting finish.
+  return f;
+}
+function roomPointer(canvas, type, detail = {}) {
+  canvas.emit(type, { pointerId: 7, isPrimary: true, button: 0, clientX: 150, clientY: 150, ...detail });
+}
+async function roomTap(f, detail = {}, canvas = f.host.querySelector('.ipg-lilac-canvas')) {
+  roomPointer(canvas, 'pointerdown', detail); roomPointer(canvas, 'pointerup', detail); await flush();
+}
+async function finishTouch(f, cue) {
+  f.advance(Motion.durations[cue]); await f.fireTimers();
+  assert.equal(f.host.querySelector('.ipg-room-pet').dataset.situation, 'idle');
+}
+
+test('room taps use live canvas-relative coordinates and the renderer part contract without saving or exposing inspectors', async () => {
+  for (const [part, side, cue, message] of [
+    ['head', null, 'petted', 'なでなで、うれしいな。'],
+    ['cheek', 'right', 'laugh', 'くすぐったいよ、えへへ！'],
+    ['hand', 'left', 'body_flap', 'おてて、ぎゅっ。うれしくて、ぱたぱた！']
+  ]) {
+    const f = await touchRoom(), canvas = f.host.querySelector('.ipg-lilac-canvas'), motion = f.activeMotions()[0];
+    const saved = f.saved(), writes = f.writes.length, mapped = f.actionCues.length, scrolled = f.scrolls().length;
+    canvas.getBoundingClientRect = () => ({ left: 87, top: 143, width: 240, height: 160 });
+    f.rendererControl.hit = { part, side };
+    await roomTap(f, { clientX: 147, clientY: 263 });
+    assert.equal(f.hitTests.length, 1); assert.strictEqual(f.hitTests[0].controller, motion);
+    assert.equal(f.hitTests[0].x, .25); assert.equal(f.hitTests[0].y, .75);
+    assert.deepEqual(motion.changes.at(-1), { name: cue, durationMs: Motion.durations[cue] });
+    const visual = f.host.querySelector('.ipg-room-pet'), room = f.host.querySelector('.ipg-care-room');
+    assert.equal(visual.dataset.touchPart, part); assert.equal(visual.dataset.touchSide, side || '');
+    assert.equal(room.dataset.activity, 'affection'); assert.equal(f.host.querySelector('.ipg-room-bubble').textContent, message);
+    assert.equal(f.host.querySelector('.ipg-room-status').textContent, message);
+    assert.ok(canvas.getAttribute('aria-label').includes(message));
+    assert.equal(f.host.querySelector('.ipg-emotion-panel'), null); assert.equal(f.host.querySelector('.ipg-body-motion'), null);
+    assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true);
+    assert.ok(f.timers.size <= 2, 'one UI phase deadline and one room hold own the finite response'); assert.equal(f.raf.size, 0);
+    assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes); assert.equal(f.actionCues.length, mapped); assert.equal(f.scrolls().length, scrolled);
+    await finishTouch(f, cue); assert.equal(visual.dataset.touchPart, ''); assert.equal(visual.dataset.touchSide, '');
+    f.ui.close(); assert.equal(f.timers.size, 0);
+  }
+});
+
+test('room gestures reject drags, canceled or mismatched pointers, long presses, secondary buttons and empty or invalid hits', async () => {
+  const cases = [
+    ['drag returns to start', (f, c) => { roomPointer(c, 'pointerdown'); roomPointer(c, 'pointermove', { clientX: 180 }); roomPointer(c, 'pointerup'); }],
+    ['large pointerup displacement', (f, c) => { roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup', { clientY: 180 }); }],
+    ['cancel', (f, c) => { roomPointer(c, 'pointerdown'); roomPointer(c, 'pointercancel'); roomPointer(c, 'pointerup'); }],
+    ['leave', (f, c) => { roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerleave'); roomPointer(c, 'pointerup'); }],
+    ['mismatched pointer', (f, c) => { roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup', { pointerId: 9 }); roomPointer(c, 'pointerup'); }],
+    ['long press', (f, c) => { roomPointer(c, 'pointerdown'); f.advance(651); roomPointer(c, 'pointerup'); }],
+    ['nonprimary', (f, c) => { roomPointer(c, 'pointerdown', { isPrimary: false }); roomPointer(c, 'pointerup', { isPrimary: false }); }],
+    ['right button', (f, c) => { roomPointer(c, 'pointerdown', { button: 2 }); roomPointer(c, 'pointerup', { button: 2 }); }],
+    ['no pointerdown', (f, c) => { roomPointer(c, 'pointerup'); }],
+    ['outside canvas', (f, c) => { roomPointer(c, 'pointerdown', { clientX: -5 }); roomPointer(c, 'pointerup', { clientX: -5 }); }],
+    ['nonfinite position', (f, c) => { roomPointer(c, 'pointerdown', { clientX: NaN }); roomPointer(c, 'pointerup', { clientX: NaN }); }],
+    ['zero canvas size', (f, c) => { c.getBoundingClientRect = () => ({ left: 0, top: 0, width: 0, height: 0 }); roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup'); }],
+    ['renderer misses transparent space', (f, c) => { f.rendererControl.hit = null; roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup'); }],
+    ['unsupported part', (f, c) => { f.rendererControl.hit = { part: 'tail', side: 'left' }; roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup'); }],
+    ['hit-test throws', (f, c) => { f.rendererControl.hitThrows = true; roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup'); }],
+    ['hit-test API unavailable', (f, c) => { delete f.activeMotions()[0].hitTest; roomPointer(c, 'pointerdown'); roomPointer(c, 'pointerup'); }]
+  ];
+  for (const [label, gesture] of cases) {
+    const f = await touchRoom(), c = f.host.querySelector('.ipg-lilac-canvas'), motion = f.activeMotions()[0];
+    f.rendererControl.hit = { part: 'head', side: null };
+    const saved = f.saved(), writes = f.writes.length, count = motion.changes.length;
+    gesture(f, c); await flush();
+    assert.equal(motion.changes.length, count, label); assert.equal(f.host.querySelector('.ipg-room-pet').dataset.situation, 'idle', label);
+    assert.deepEqual(f.saved(), saved, label); assert.equal(f.writes.length, writes, label);
+    f.ui.close(); assert.equal(f.timers.size, 0, label);
+  }
+});
+
+test('three native touch buttons give keyboard-equivalent actions and cycle variants only after each finite reaction', async () => {
+  const f = await touchRoom(), saved = f.saved(), writes = f.writes.length, motion = f.activeMotions()[0];
+  const group = f.host.querySelector('.ipg-touch-actions'), status = f.host.querySelector('.ipg-room-status');
+  assert.equal(group.getAttribute('role'), 'group'); assert.equal(group.getAttribute('aria-label'), 'ふれあう');
+  assert.equal(status.getAttribute('role'), 'status'); assert.equal(status.getAttribute('aria-live'), 'polite');
+  for (const [part, label, variants] of [['head', '頭をなでる', ['petted', 'love', 'petted']], ['cheek', 'ほっぺをつつく', ['laugh', 'shy', 'laugh']], ['hand', '手をにぎる', ['body_flap', 'cheer', 'body_flap']]]) {
+    const choice = f.focusButton('touch-' + part);
+    assert.equal(choice.tagName, 'BUTTON'); assert.equal(choice.type, 'button'); assert.equal(choice.textContent, label);
+    choice.focus(); assert.strictEqual(f.document.activeElement, choice);
+    for (const cue of variants) {
+      assert.equal(choice.disabled, false); await f.click(choice);
+      assert.equal(motion.changes.at(-1).name, cue); assert.equal(f.host.querySelector('.ipg-room-pet').dataset.touchPart, part);
+      assert.ok(group.querySelectorAll('button').every(button => button.disabled));
+      const count = motion.changes.length; group.querySelectorAll('button').forEach(button => button.emit('click'));
+      f.rendererControl.hit = { part: 'head' }; await roomTap(f); f.host.querySelector('.ipg-lilac-canvas').emit('click');
+      assert.equal(motion.changes.length, count, 'neither repeated touch nor a synthetic click restarts the active cue');
+      f.advance(Motion.durations[cue] - 1); await f.fireTimers(); assert.equal(choice.disabled, true); assert.equal(f.host.querySelector('.ipg-room-pet').dataset.situation, cue);
+      f.advance(1); await f.fireTimers(); assert.equal(f.host.querySelector('.ipg-room-pet').dataset.situation, 'idle'); assert.equal(choice.disabled, false);
+    }
+  }
+  assert.equal(f.hitTests.length, 0, 'native activation does not invent pointer coordinates');
+  assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
+  f.ui.close(); assert.equal(f.timers.size, 0);
+});
+
+test('saved care and pending persistence take priority over touch without manufacturing rewards or interrupting a meal', async () => {
+  const f = await touchRoom(), saved = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('touch-cheek')); const beforeCare = f.activeMotions()[0], oldCanvas = beforeCare.canvas;
+  const gate = deferred(); f.control.pending = gate;
+  await f.click(f.focusButton('care-feed')); assert.equal(f.host.getAttribute('aria-busy'), 'true');
+  const count = beforeCare.changes.length, hitCount = f.hitTests.length;
+  f.rendererControl.hit = { part: 'hand', side: 'right' }; await roomTap(f, {}, oldCanvas); f.focusButton('touch-head').emit('click'); await flush();
+  assert.equal(beforeCare.changes.length, count); assert.equal(f.hitTests.length, hitCount); assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
+  gate.resolve(); f.control.pending = null; await flush();
+  const afterCare = f.saved(), meal = f.activeMotions()[0];
+  assert.equal(afterCare.pet.exp, saved.pet.exp + 8); assert.equal(meal.options.situation, 'feeding'); assert.equal(beforeCare.destroyed, true);
+  const mealChanges = meal.changes.length, mealWrites = f.writes.length; let previousElapsed = 0;
+  for (const elapsed of [0, 1200, 4400, 7200]) {
+    f.advance(elapsed - previousElapsed); await f.fireTimers(); previousElapsed = elapsed;
+    await roomTap(f); f.focusButton('touch-hand').emit('click'); await flush();
+    assert.equal(meal.changes.length, mealChanges); assert.equal(f.host.querySelector('.ipg-room-pet').dataset.situation, 'feeding');
+    assert.deepEqual(f.saved(), afterCare); assert.equal(f.writes.length, mealWrites);
+  }
+  f.advance(Motion.durations.feeding - 7200); await f.fireTimers(); assert.equal(f.focusButton('touch-head').disabled, false);
+  await f.click(f.focusButton('touch-head')); assert.equal(meal.changes.at(-1).name, 'petted'); assert.deepEqual(f.saved(), afterCare); assert.equal(f.writes.length, mealWrites);
+  f.ui.close(); assert.equal(f.timers.size, 0);
+});
+
+test('touch interrupts an autonomous room walk, returns to idle and never resurrects its old pose or deadline', async () => {
+  const f = await touchRoom(), motion = f.activeMotions()[0], saved = f.saved(), writes = f.writes.length;
+  for (let i = 0; i < 30 && !motion.changes.some(cue => /^room_walk_/.test(cue.name)); i++) { f.advance(10000); await f.fireTimers(); }
+  const walk = motion.changes.filter(cue => /^room_walk_/.test(cue.name)).at(-1); assert.ok(walk);
+  const oldReturn = [...f.timers.values()].sort((a, b) => b.at - a.at)[0].fn;
+  motion.options.onPose({ situation: walk.name, roomX: .7, yawDeg: 90, phase: 'outbound' });
+  const visual = f.host.querySelector('.ipg-room-pet'); assert.ok(!visual.style.transform.includes('+ 0.000px'));
+  await f.click(f.focusButton('touch-head')); assert.equal(motion.changes.at(-1).name, 'petted');
+  assert.equal(visual.dataset.facing, 'front'); assert.equal(visual.dataset.roomWalkPhase, ''); assert.equal(visual.style.transform, 'translateX(calc(-50% + 0.000px))');
+  oldReturn(); motion.options.onPose({ situation: walk.name, roomX: 1, yawDeg: 90, phase: 'outbound' });
+  assert.equal(visual.dataset.situation, 'petted'); assert.equal(visual.style.transform, 'translateX(calc(-50% + 0.000px))');
+  await finishTouch(f, 'petted'); assert.equal(motion.changes.at(-1).name, 'idle');
+  f.advance(8499); await f.fireTimers(); assert.equal(visual.dataset.situation, 'idle');
+  f.advance(1); await f.fireTimers(); assert.equal(motion.changes.at(-1).name, 'direction_left');
+  assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
+  f.ui.close(); assert.equal(f.timers.size, 0);
+});
+
+test('touch listeners and pending gestures stop on tab changes, hiding, disconnection, fallback and close', async () => {
+  for (const mode of ['tab', 'hidden', 'disconnected', 'fallback', 'close']) for (const active of [false, true]) {
+    const f = await touchRoom(), motion = f.activeMotions()[0], canvas = motion.canvas, oldButton = f.focusButton('touch-head');
+    const saved = f.saved(), writes = f.writes.length;
+    if (active) { await f.click(oldButton); assert.equal(motion.changes.at(-1).name, 'petted'); }
+    const before = motion.changes.length;
+    f.rendererControl.hit = { part: 'head' }; roomPointer(canvas, 'pointerdown');
+    if (mode === 'tab') await f.click(f.focusButton('tab-shop'));
+    else if (mode === 'hidden') { f.document.hidden = true; f.document.emit('visibilitychange'); await flush(); }
+    else if (mode === 'disconnected') canvas.remove();
+    else if (mode === 'fallback') motion.options.onError('context_lost');
+    else f.ui.close();
+    roomPointer(canvas, 'pointerup'); oldButton.emit('click'); await flush();
+    assert.equal(motion.changes.length, before, mode); assert.equal(f.hitTests.length, 0, mode);
+    if (mode !== 'disconnected') assert.equal(f.timers.size, 0, mode + ': active touch and room deadlines are canceled');
+    if (mode !== 'disconnected') for (const event of ['pointerdown','pointermove','pointercancel','pointerleave','pointerup']) assert.equal(canvas.listenerCount(event), 0, mode+event);
+    if (mode === 'fallback') { assert.equal(f.host.querySelector('.ipg-touch-actions').hidden, true); assert.equal(f.host.querySelector('.ipg-lilac-still').hidden, false); }
+    assert.deepEqual(f.saved(), saved, mode); assert.equal(f.writes.length, writes, mode);
+    f.ui.close(); assert.equal(f.timers.size, 0, mode); assert.equal(f.raf.size, 0, mode);
+  }
+});
+
+test('only born ready B exposes touch actions; delayed or unavailable drawing and every egg keep them inactive', async () => {
+  for (const exp of [0, 5, 10]) {
+    const f = await touchRoom({ seed: { pg_exp: String(exp) } });
+    assert.equal(f.host.querySelector('.ipg-touch-actions'), null); assert.equal(f.host.querySelector('.ipg-touch-hint'), null);
+    f.rendererControl.hit = { part: 'head' }; await roomTap(f); assert.equal(f.hitTests.length, 0); f.ui.close();
+  }
+  for (const exp of [15, 400]) {
+    const f = await touchRoom({ seed: { pg_exp: String(exp) } }); const saved = f.saved(), writes = f.writes.length;
+    assert.equal(f.host.querySelector('.ipg-touch-actions').hidden, false); assert.equal(f.focusButton('touch-head').disabled, false);
+    await f.click(f.focusButton('touch-head')); assert.equal(f.activeMotions()[0].changes.at(-1).name, 'petted');
+    assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes); f.ui.close();
+  }
+  for (const config of [{ rendererMode: 'pending' }, { rendererMode: 'error' }, { rendererUnavailable: true }]) {
+    const f = await touchRoom(config), saved = f.saved(), writes = f.writes.length;
+    assert.equal(f.host.querySelector('.ipg-touch-actions').hidden, true);
+    f.rendererControl.hit = { part: 'head' }; await roomTap(f); f.focusButton('touch-head').emit('click'); await flush();
+    assert.equal(f.hitTests.length, 0); assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes); f.ui.close(); assert.equal(f.timers.size, 0);
+  }
+});
+
+test('reduced-motion touch keeps readable finite responses without autonomous movement or saved changes', async () => {
+  const f = await touchRoom({ reducedMotion: true }), saved = f.saved(), writes = f.writes.length;
+  f.rendererControl.hit = { part: 'cheek', side: 'left' }; await roomTap(f);
+  assert.equal(f.host.querySelector('.ipg-room-bubble').textContent, 'くすぐったいよ、えへへ！');
+  assert.equal(f.host.querySelector('.ipg-room-status').getAttribute('aria-live'), 'polite');
+  assert.equal(f.activeMotions()[0].changes.at(-1).name, 'laugh'); assert.equal(f.raf.size, 0); assert.ok(f.timers.size <= 1);
+  await finishTouch(f, 'laugh'); assert.equal(f.focusButton('touch-hand').disabled, false);
+  assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
+  f.ui.close(); assert.equal(f.timers.size, 0); assert.equal(f.raf.size, 0);
 });

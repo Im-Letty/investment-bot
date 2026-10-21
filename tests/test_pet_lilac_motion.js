@@ -32,10 +32,20 @@ function events(target = {}) {
 }
 function fixture(config = {}) {
   let clock = 0, id = 0, draws = 0, ready = 0, released = 0, clears=0, updates=0, liveVertices=null, activeUnit=0, maxActiveUnit=0, activeBuffer=null;
-  const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [], bindings = [], constants = {}, disabledAttributes = [];
+  const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [], bindings = [], constants = {}, disabledAttributes = [],hitReads=[];
   const boundTextures={},samplers={},enabled=[],blend=[],enabledAttributes=new Set(),vertexData=new Map();
   const media = events({ matches: !!config.reduced });
   const doc = events({ hidden: !!config.hidden });
+  doc.createElement = name => {
+    assert.equal(name,'canvas');let image;
+    return {width:0,height:0,getContext(kind){assert.equal(kind,'2d');return {
+      drawImage(im){image=im;},getImageData(){
+        const file=image.url.split('/').at(-1);hitReads.push(file);
+        if(config.hitPixels!=='png')throw new Error('unrecorded inaccessible source pixels');
+        pngPixel(file,0,0);return {data:pngCache.get(file).pixels};
+      }
+    };}};
+  };
   const win = events({ document: doc, devicePixelRatio: config.dpr || 3,
     performance: { now: () => clock }, matchMedia: () => media,
     requestAnimationFrame(fn) { const key = ++id; raf.set(key, fn); return key; },
@@ -103,10 +113,10 @@ function fixture(config = {}) {
     getContext: (_, options) => { canvas.contextOptions = options; return config.noWebGL ? null : gl; }
   });
   const api = Motion.mount(canvas, { onError: code => errors.push(code), onReady: () => ready++, ...config.options });
-  return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders, buffers, attributes, drawCalls, bindings, constants, disabledAttributes, samplers,boundTextures,blend,enabled,
+  return { api, canvas, win, doc, media, gl, raf, timers, images, errors, created, deleted, uploads, uniforms, shaders, buffers, attributes, drawCalls, bindings, constants, disabledAttributes, samplers,boundTextures,blend,enabled,hitReads,
     get draws() { return draws; }, get ready() { return ready; }, get released() { return released; },
     get clears(){return clears;},get updates(){return updates;},get liveVertices(){return liveVertices;},get maxActiveUnit(){return maxActiveUnit;},
-    complete() { images.forEach((im,i) => { im.complete = true; im.naturalWidth = im.naturalHeight = i>=8?1254:1000; im.onload?.(); }); },
+    complete() { images.forEach((im,i) => { im.complete = true; im.naturalWidth = im.naturalHeight = config.hitPixels||i>=8?1254:1000; im.onload?.(); }); },
     advance(ms = 40) { clock += ms; const callbacks = [...raf.values()]; raf.clear(); callbacks.forEach(fn => fn(clock)); },
     hide(value) { doc.hidden = value; doc.emit('visibilitychange'); },
     reduce(value) { media.matches = value; media.emit('change'); },
@@ -168,6 +178,108 @@ function nurseryActualSoles(frame,path='balanced'){
     return Motion.rigPoint(frame,i?'foot_r':'foot_l',foot.x,foot.soleY,'child',path);
   });
 }
+function touchRigPoint(key,part,x,y,cue='idle',age=0,path='balanced'){
+  return Motion.rigPoint(Motion.rigPose(0,cue,age,'child',path,1,key),part,x,y,'child',path);
+}
+function touchPalmPoint(key,id,cue='idle',age=0,path='balanced'){
+  const frame=Motion.handVolumeFrame(0,cue,age,'child',path,1,key),mesh=Motion.handVolumeMesh(frame,id),profile=Motion.handVolumeProfiles[frame.family][id];let best=null;
+  for(let at=0;at<mesh.length;at+=27){
+    if(mesh[at+8]<.5||Math.min(mesh[at+4],mesh[at+13],mesh[at+22])<.99)continue;
+    const u=(mesh[at+2]+mesh[at+11]+mesh[at+20])/3,v=(mesh[at+3]+mesh[at+12]+mesh[at+21])/3,score=Math.hypot(u-profile.center[0],v-profile.center[1]);
+    if(!best||score<best.score)best={x:((mesh[at]+mesh[at+9]+mesh[at+18])/3+1)/2,y:(1-(mesh[at+1]+mesh[at+10]+mesh[at+19])/3)/2,score};
+  }
+  assert.ok(best,'an opaque visible distal palm triangle exists');return best;
+}
+function touchDirectionAge(index){
+  const yaw=index*22.5+.01;let lo=650,hi=6150;
+  for(let i=0;i<50;i++){const mid=(lo+hi)/2;if(Motion.directionFrame('direction_spin',mid).yawDeg<yaw)lo=mid;else hi=mid;}
+  return (lo+hi)/2;
+}
+function touchDirectionPoint(key,index,x,y,age,path='balanced'){
+  const rig=Motion.rigPose(0,'direction_spin',age/1000,'child',path,1,key),p=Motion.directionPoint(index,x,y,'child',path,key),m=Motion.directionProjection(index,'child',path,rig.matrices.torso,key).matrix;
+  return{x:m[0]*p.x+m[2]*p.y+m[4],y:m[1]*p.x+m[3]*p.y+m[5]};
+}
+
+test('touch picking tracks the rendered reference face through all born ages and evolution shapes with lazy source alpha',()=>{
+  for(const key of bornAppearances)for(const path of Motion.evolutionCatalogue){
+    const f=fixture({hitPixels:'png',options:{appearanceKey:key,evolutionPath:path.key}});assert.equal(f.api.hitTest(.5,.5),null);f.complete();assert.equal(f.hitReads.length,0);
+    for(const [part,side,x,y]of[['head',null,.55,.24],['cheek','left',.342,.553],['cheek','right',.775,.521]]){
+      const p=touchRigPoint(key,'head',x,y,'idle',0,path.key);assert.deepEqual(f.api.hitTest(p.x,p.y),{part,side},key+path.key+': source-local face follows its real rig');
+      assert.deepEqual(f.api.hitTest(p.x,p.y),{part,side});
+    }
+    assert.equal(f.hitReads.length,1,'the already-loaded alpha image is decoded only once per renderer');assert.deepEqual(f.errors,[]);
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+test('touch picking follows opaque animated distal palms, gives foreground hands precedence, and does not use their old canvas positions',()=>{
+  const up=.9+1.25/1.85;
+  for(const key of bornAppearances.concat(null)){
+    const f=fixture({hitPixels:key?'png':undefined,options:{appearanceKey:key}});f.complete();const resources=f.created.length;
+    const old={};for(const id of['arm_l','arm_r'])old[id]=touchPalmPoint(key,id);
+    f.api.setSituation('body_flap',{elapsedMs:up*1000});
+    for(const [id,side]of[['arm_l','left'],['arm_r','right']]){
+      const p=touchPalmPoint(key,id,'body_flap',up);
+      assert.ok(Math.hypot(p.x-old[id].x,p.y-old[id].y)>.055,'the chosen visible palm has actually moved');
+      assert.deepEqual(f.api.hitTest(p.x,p.y),{part:'hand',side},key+id+': the raised palm is picked before the face behind it');
+      assert.notEqual(f.api.hitTest(old[id].x,old[id].y)?.part,'hand','the previous resting hand position does not remain clickable');
+    }
+    assert.equal(f.created.length,resources);assert.equal(f.raf.size,1);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+test('touch picking uses each rendered direction mesh and its visible face and paw landmarks, without cheeks on the back',()=>{
+  for(const key of['newborn','adult'])for(const path of Motion.evolutionCatalogue){
+    const f=fixture({hitPixels:'png',options:{appearanceKey:key,evolutionPath:path.key}});f.complete();let cheeks=0,hands=0;
+    for(let index=0;index<16;index++){
+      const age=touchDirectionAge(index),view=Motion.nurseryDirectionViews[index];f.api.setSituation('direction_spin',{elapsedMs:age});
+      assert.equal(Motion.directionFrame('direction_spin',age).currentIndex,index);assert.equal(Motion.directionFrame('direction_spin',age).blend,0);
+      const crown=touchDirectionPoint(key,index,view.headX,.25,age,path.key);assert.deepEqual(f.api.hitTest(crown.x,crown.y),{part:'head',side:null},key+path.key+index+': visible rear and side heads follow the painted atlas');
+      if(index>=6&&index<=11){const back=touchDirectionPoint(key,index,view.headX,.55,age,path.key);assert.notEqual(f.api.hitTest(back.x,back.y)?.part,'cheek','hidden cheeks are not recreated on the back');}
+      for(let eye=0;eye<4;eye+=2)if(view.eyes[eye]>=0&&index){
+        const sign=view.eyes[eye]<view.headX?-1:1,x=view.eyes[eye]+sign*Math.min(.10,view.eyeRadii[eye]*.7),y=view.eyes[eye+1]+view.eyeRadii[eye+1]*.96,uv=Motion.directionCellUV(index,x,y,1254,1254,key);
+        if(pngPixel('pet_lilac_baby_turnaround_v1.png',uv.x,uv.y)[3]<=128)continue;
+        const p=touchDirectionPoint(key,index,x,y,age,path.key);assert.deepEqual(f.api.hitTest(p.x,p.y),{part:'cheek',side:sign<0?'left':'right'},key+index+': visible cheek');cheeks++;
+      }
+      for(let hand=0;hand<4;hand+=2)if(view.paws[hand]>=0){
+        const x=view.paws[hand],y=view.paws[hand+1],uv=index?Motion.directionCellUV(index,x,y,1254,1254,key):{x,y};
+        if(pngPixel(index?'pet_lilac_baby_turnaround_v1.png':'pet_lilac_reference_v2.png',uv.x,uv.y)[3]<=128)continue;
+        const p=touchDirectionPoint(key,index,x,y,age,path.key);assert.deepEqual(f.api.hitTest(p.x,p.y),{part:'hand',side:hand?'right':'left'},key+index+': only a visible source paw reacts');hands++;
+      }
+    }
+    assert.ok(cheeks>=5&&hands>=8);assert.equal(f.hitReads.filter(n=>n==='pet_lilac_baby_turnaround_v1.png').length,1);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+test('touch picking rejects transparent cutout pixels and noninteractive body rather than accepting a head bounding box',()=>{
+  const key='grown',f=fixture({hitPixels:'png',options:{appearanceKey:key}});f.complete();const head=f.drawCalls.find(c=>c.part===6),data=f.liveVertices;let transparent;
+  for(let v=head.first;v<head.first+head.count;v+=3){
+    const at=v*5,u=(data[at+2]+data[at+7]+data[at+12])/3,y=(data[at+3]+data[at+8]+data[at+13])/3;
+    if(y>.30||pngPixel('pet_lilac_reference_v2.png',u,y)[3]>8)continue;
+    transparent={x:((data[at]+data[at+5]+data[at+10])/3+1)/2,y:(1-(data[at+1]+data[at+6]+data[at+11])/3)/2};break;
+  }
+  assert.ok(transparent,'a real transparent crown pixel lies inside the drawn source polygon');assert.equal(f.api.hitTest(transparent.x,transparent.y),null);
+  const belly=touchRigPoint(key,'torso',.55,.81);assert.equal(f.api.hitTest(belly.x,belly.y),null);
+  for(const [x,y]of[[0,0],[1,1],[-.01,.5],[.5,1.01],[NaN,.5],[.5,Infinity]])assert.equal(f.api.hitTest(x,y),null);
+  f.api.destroy();
+});
+
+test('touch picking stays tied to the last successful paint, with unloaded, hidden, detached, failed and destroyed guards',()=>{
+  let now=0;const key='adult',f=fixture({hitPixels:'png',options:{appearanceKey:key,now:()=>now}});assert.equal(f.api.hitTest(.5,.5),null);f.complete();const up=.9+1.25/1.85;
+  f.api.setSituation('body_flap',{elapsedMs:up*1000});const palm=touchPalmPoint(key,'arm_r','body_flap',up);assert.equal(f.api.hitTest(palm.x,palm.y)?.part,'hand');
+  now=30000;assert.equal(f.api.hitTest(palm.x,palm.y)?.part,'hand','an event between frames uses the visible hand, not a future pose');f.advance(0);assert.notEqual(f.api.hitTest(palm.x,palm.y)?.part,'hand');
+  const p=touchRigPoint(key,'head',.55,.24);assert.equal(f.api.hitTest(p.x,p.y)?.part,'head');
+  f.canvas.hidden=true;assert.equal(f.api.hitTest(p.x,p.y),null);f.canvas.hidden=false;f.canvas.isConnected=false;assert.equal(f.api.hitTest(p.x,p.y),null);f.canvas.isConnected=true;
+  f.hide(true);assert.equal(f.api.hitTest(p.x,p.y),null);f.hide(false);f.win.emit('pagehide');assert.equal(f.api.hitTest(p.x,p.y),null);f.win.emit('pageshow');assert.equal(f.api.hitTest(p.x,p.y)?.part,'head');
+  f.api.destroy();assert.equal(f.api.hitTest(p.x,p.y),null);assert.equal(f.created.length,f.deleted.length);
+  const blocked=fixture({hitPixels:'blocked',options:{appearanceKey:key}});blocked.complete();assert.equal(blocked.api.hitTest(p.x,p.y),null);assert.equal(blocked.api.hitTest(p.x,p.y),null);assert.equal(blocked.hitReads.length,1);assert.deepEqual(blocked.errors,[]);blocked.api.destroy();
+});
+
+test('reduced visible poses retain touch picking while egg shells never gain a head or hand reaction',()=>{
+  const f=fixture({hitPixels:'png',reduced:true,options:{appearanceKey:'adult'}});f.complete();const p=touchRigPoint('adult','head',.342,.553);assert.deepEqual(f.api.hitTest(p.x,p.y),{part:'cheek',side:'left'});assert.equal(f.raf.size,0);
+  f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  for(const key of['egg','egg_cracked','hatching']){const egg=fixture({hitPixels:'png',options:{appearanceKey:key}});egg.complete();for(const [x,y]of[[.5,.5],[.45,.8],[.7,.85]])assert.equal(egg.api.hitTest(x,y),null);assert.equal(egg.hitReads.length,0);egg.api.destroy();assert.equal(egg.created.length,egg.deleted.length);}
+});
 
 test('nursery lower-body anchors identify actual opaque toe lobes in every measured source view',()=>{
   assert.equal(Motion.nurseryFootLandmarks.length,16);assert.equal(Object.isFrozen(Motion.nurseryFootLandmarks),true);

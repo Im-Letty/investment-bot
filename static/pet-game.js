@@ -112,9 +112,13 @@
     host.querySelectorAll('button,input,select,textarea').forEach(function (n) {
       n.disabled = value || n.dataset.ipgDisabled === '1';
     });
+    motionRequests.forEach(refreshRoomTouch);
   }
   function stopMotions() {
     motionRequests.forEach(function (request) {
+      (request.touchRemovers || []).forEach(function (remove) { remove(); });
+      request.touchRemovers = []; request.touchCue = null; request.touchPointer = null;
+      request.wrap.dataset.touchPart = ''; request.wrap.dataset.touchSide = '';
       if (request.roomBehavior) request.roomBehavior.destroy();
       request.roomBehavior = null; request.roomCue = null;
       if (request.cueTimer != null) w.clearTimeout(request.cueTimer);
@@ -238,6 +242,8 @@
     if (request.preview) return previewCue();
     var savedCue = currentReaction();
     if (savedCue) return savedCue;
+    if (request.touchCue && Date.now() - request.touchCue.startedAt >= request.touchCue.durationMs) request.touchCue = null;
+    if (request.touchCue) return request.touchCue;
     if (request.roomCue && Date.now() - request.roomCue.startedAt >= request.roomCue.durationMs) request.roomCue = null;
     return request.roomCue || null;
   }
@@ -266,6 +272,92 @@
       request.wrap.dataset.roomWalkPhase = typeof frame.phase === 'string' ? frame.phase : '';
     }
   }
+  // Touch is a moment together, not a saved care action or a source of rewards.
+  var touchReactions = {
+    head: [
+      ['petted', 'なでなで、うれしいな。'],
+      ['love', 'だいすき。もっと、なでて。']
+    ],
+    cheek: [
+      ['laugh', 'くすぐったいよ、えへへ！'],
+      ['shy', 'ほっぺをつん。ちょっと、てれちゃう。']
+    ],
+    hand: [
+      ['body_flap', 'おてて、ぎゅっ。うれしくて、ぱたぱた！'],
+      ['cheer', 'いっしょに、ばんざい！']
+    ]
+  };
+  function canTouch(request) {
+    return !!request && !!request.room && !request.preview && request.appearanceFamily !== 'egg' &&
+      request.ready && !request.failed && !!request.controller && !request.canvas.hidden &&
+      request.canvas.isConnected && motionsVisible() && !busy && !currentReaction() &&
+      !(request.touchCue && Date.now() - request.touchCue.startedAt < request.touchCue.durationMs);
+  }
+  function refreshRoomTouch(request) {
+    if (!request.touchActions) return;
+    var available = request.ready && !request.failed;
+    request.touchActions.hidden = !available;
+    request.touchHint.hidden = !available;
+    request.touchActions.querySelectorAll('button').forEach(function (choice) {
+      choice.disabled = !canTouch(request); choice.dataset.ipgDisabled = choice.disabled ? '1' : '';
+    });
+  }
+  function touchPet(request, hit) {
+    if (!canTouch(request) || !hit || !Object.prototype.hasOwnProperty.call(touchReactions, hit.part)) return;
+    var entries = touchReactions[hit.part], counts = request.touchCounts || (request.touchCounts = {});
+    var entry = entries[(counts[hit.part] || 0) % entries.length];
+    var duration = w.PetLilacMotion && w.PetLilacMotion.durations[entry[0]];
+    if (!Number.isFinite(duration) || duration <= 0) return;
+    counts[hit.part] = (counts[hit.part] || 0) + 1;
+    var cue = { situation: entry[0], durationMs: duration, startedAt: Date.now(), message: entry[1], activity: 'affection' };
+    request.roomCue = null; request.touchCue = cue;
+    request.wrap.dataset.touchPart = hit.part;
+    request.wrap.dataset.touchSide = hit.side === 'left' || hit.side === 'right' ? hit.side : '';
+    if (request.roomBehavior) request.roomBehavior.suspendFor(duration);
+    try { request.controller.setSituation(cue.situation, { durationMs: duration }); updateMotionPresentation(request, cue); }
+    catch (_) { motionFallback(request); }
+  }
+  function bindRoomTouch(request, parent) {
+    if (!request || request.appearanceFamily === 'egg') return;
+    var canvas = request.canvas, removers = request.touchRemovers = [];
+    function listen(target, type, fn) { target.addEventListener(type, fn); removers.push(function () { target.removeEventListener(type, fn); }); }
+    function coordinates(event) {
+      var box = canvas.getBoundingClientRect();
+      if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY) || !(box.width > 0 && box.height > 0)) return null;
+      return { x: (event.clientX - box.left) / box.width, y: (event.clientY - box.top) / box.height };
+    }
+    listen(canvas, 'pointerdown', function (event) {
+      request.touchPointer = null;
+      if (!canTouch(request) || event.isPrimary === false || event.button !== 0 || !coordinates(event)) return;
+      request.touchPointer = { id: event.pointerId, x: event.clientX, y: event.clientY, at: Date.now(), moved: false };
+    });
+    listen(canvas, 'pointermove', function (event) {
+      var pointer = request.touchPointer;
+      if (pointer && pointer.id === event.pointerId && Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 12) pointer.moved = true;
+    });
+    listen(canvas, 'pointercancel', function () { request.touchPointer = null; });
+    listen(canvas, 'pointerleave', function () { request.touchPointer = null; });
+    listen(canvas, 'pointerup', function (event) {
+      var pointer = request.touchPointer; request.touchPointer = null;
+      if (!pointer || pointer.id !== event.pointerId || pointer.moved || event.isPrimary === false || event.button !== 0 ||
+        Date.now() - pointer.at > 650 || Math.hypot(event.clientX - pointer.x, event.clientY - pointer.y) > 12 ||
+        !canTouch(request) || typeof request.controller.hitTest !== 'function') return;
+      var point = coordinates(event); if (!point) return;
+      try { touchPet(request, request.controller.hitTest(point.x, point.y)); } catch (_) { /* A missed touch is harmless. */ }
+    });
+    var actions = node('div', 'ipg-touch-actions'); actions.setAttribute('role', 'group'); actions.setAttribute('aria-label', 'ふれあう');
+    [['head', '頭をなでる'], ['cheek', 'ほっぺをつつく'], ['hand', '手をにぎる']].forEach(function (entry) {
+      var choice = button(entry[1], function () { touchPet(request, { part: entry[0], side: null }); }, true);
+      choice.dataset.focusKey = 'touch-' + entry[0]; choice.dataset.touch = entry[0];
+      actions.appendChild(choice);
+    });
+    request.touchActions = actions;
+    request.touchHint = text('頭・ほっぺ・手に、そっとタッチしてみてね。', 'ipg-touch-hint ipg-small');
+    append(parent, request.touchHint, actions);
+    refreshRoomTouch(request);
+    canvas.className += ' ipg-touchable';
+    request.roomStatus.setAttribute('role', 'status'); request.roomStatus.setAttribute('aria-live', 'polite');
+  }
   function startRoomBehavior(request) {
     if (!request.room || request.roomBehavior || !request.ready || !request.controller || !motionsVisible() ||
       !w.PetRoomBehavior || typeof w.PetRoomBehavior.create !== 'function') return;
@@ -276,7 +368,8 @@
         visible: function () { return request.ready && request.canvas.isConnected && motionsVisible() && !busy; },
         reducedMotion: function () { return !!(w.matchMedia && w.matchMedia('(prefers-reduced-motion: reduce)').matches); },
         onCue: function (entry) {
-          if (!request.ready || !request.canvas.isConnected || !motionsVisible() || currentReaction() || busy) return;
+          if (!request.ready || !request.canvas.isConnected || !motionsVisible() || currentReaction() ||
+            (request.touchCue && Date.now() - request.touchCue.startedAt < request.touchCue.durationMs) || busy) return;
           var cue = entry.situation === 'idle' ? null : { situation: entry.situation, durationMs: entry.durationMs,
             message: entry.message, activity: entry.activity, startedAt: Date.now() };
           request.roomCue = cue;
@@ -332,6 +425,11 @@
     });
   }
   function motionFallback(request) {
+    (request.touchRemovers || []).forEach(function (remove) { remove(); }); request.touchRemovers = [];
+    request.touchCue = null; request.touchPointer = null;
+    request.wrap.dataset.touchPart = ''; request.wrap.dataset.touchSide = '';
+    if (request.touchActions) request.touchActions.hidden = true;
+    if (request.touchHint) request.touchHint.hidden = true;
     if (request.roomBehavior) request.roomBehavior.destroy();
     request.roomBehavior = null; request.roomCue = null;
     request.ready = false; request.failed = true; request.canvas.hidden = true; request.still.hidden = false;
@@ -424,6 +522,7 @@
       (entry ? entry.label : 'ふだん') + (request.preview || fullReference ? 'の見本' : 'のしぐさ');
     request.canvas.setAttribute('aria-label', (request.visualAlt || request.still.alt) + '・' + (meal ? mealLabel : cue && cue.message || (entry ? entry.label : 'ふだん')));
     request.wrap.dataset.situation = name;
+    if (name === 'idle') { request.wrap.dataset.touchPart = ''; request.wrap.dataset.touchSide = ''; }
     request.wrap.dataset.feedingPhase = meal ? meal.phase : '';
     if (request.room) {
       if (roomWalk(name)) {
@@ -444,6 +543,7 @@
     }
     var entryEnd = Math.min(450, duration * .22), releaseStart = duration - Math.min(800, duration * .28);
     request.wrap.dataset.cuePhase = name === 'idle' ? 'idle' : meal ? meal.phase : age < entryEnd ? 'enter' : age >= releaseStart ? 'settling' : 'acting';
+    refreshRoomTouch(request);
     if (request.food) {
       request.food.hidden = !(meal && !egg && meal.foodVisible && request.ready && motionsVisible());
       var anchor = w.PetLilacMotion && typeof w.PetLilacMotion.feedingAnchor === 'function' ? w.PetLilacMotion.feedingAnchor(request.growthStage, request.evolutionPath, request.appearanceKey) : null;
@@ -476,6 +576,7 @@
       if (!request.canvas.isConnected || !motionsVisible()) return;
       if (Date.now() - cue.startedAt < duration) { updateMotionPresentation(request, cue); return; }
       if (request.roomCue && request.roomCue.startedAt === cue.startedAt) request.roomCue = null;
+      if (request.touchCue && request.touchCue.startedAt === cue.startedAt) request.touchCue = null;
       if (request.growthPreview) request.localCue = null;
       else if (request.preview) previewSituation = 'idle';
       else if (reaction && reaction.startedAt === cue.startedAt) reaction = null;
@@ -832,6 +933,7 @@
       var heading = append(node('div', 'ipg-room-heading'), node('p', 'ipg-eyebrow', 'いっしょのおへや'), node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'), text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'));
       append(pet, heading, scene, roomStatus);
       if (careRequest) { careRequest.room = scene; careRequest.roomBubble = bubble; careRequest.roomStatus = roomStatus; careRequest.roomWalkDistance = 27; careRequest.wrap.dataset.facing = 'front'; careRequest.wrap.dataset.roomWalkPhase = ''; placeInRoom(careRequest, roomCarryX, false); }
+      if (careRequest) bindRoomTouch(careRequest, pet);
     } else {
       append(scene, node('span', 'ipg-sky', '✧'), img, decoration);
       var emotionStage = careRequest ? append(node('div', 'ipg-emotion-stage'), scene, emotionPalette(careRequest, false)) : scene;

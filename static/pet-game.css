@@ -226,6 +226,11 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-room-bubble{position:absolute;top:24px;left:50%;transform:translateX(-10%);max-width:55%;padding:7px 13px;border-radius:14px 14px 14px 3px;color:#74627e;background:#fffdf4eb;box-shadow:0 2px 5px #ad98ac12;font-size:.85em;line-height:1.5;z-index:4;pointer-events:none}
 .ipg-room-status{max-width:720px;margin:10px auto 0!important;min-height:1.6em;font-size:.86em;color:var(--ipg-muted)}
 .ipg-room-status:before{content:'';display:inline-block;width:6px;height:6px;border-radius:50%;background:#abb89a;margin:0 7px 2px 0}
+.ipg-touch-hint{margin:12px auto 5px!important;text-align:center;color:var(--ipg-muted)}
+.ipg-touch-actions{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:0 auto 12px}
+.ipg-touch-actions .ipg-button{padding:7px 12px;min-height:40px;border-radius:20px;font-size:.82em;font-weight:500}
+.ipg-touch-actions[hidden],.ipg-touch-hint[hidden]{display:none!important}
+.ipg-touchable{cursor:pointer;touch-action:pan-y pinch-zoom}
 .ipg-care-room~.ipg-care-buttons{margin-top:12px}
 .ipg-pet-card:has(.ipg-care-room) .ipg-care-buttons{max-width:720px;margin:14px auto}
 .ipg-pet-card:has(.ipg-care-room) .ipg-care-buttons .ipg-button{border-radius:15px;background:#f5f0e8;border-color:#e2d8ca}

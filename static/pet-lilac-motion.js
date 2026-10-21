@@ -2034,6 +2034,38 @@
     if(partId==='torso')point=lowerBodyTorsoPoint(frame&&frame.lowerBody,x,y,point);
     return transform(matrix||identity(),point);
   }
+  // Picking follows the triangles that were painted, then classifies their
+  // source UV. It does not divide the canvas into fixed touch zones.
+  function touchMesh(vertices,stride,start,count,x,y,accept) {
+    for(var at=(start+count-3)*stride;at>=start*stride;at-=stride*3){
+      var a=at,b=at+stride,c=at+stride*2,abx=vertices[b]-vertices[a],aby=vertices[b+1]-vertices[a+1],acx=vertices[c]-vertices[a],acy=vertices[c+1]-vertices[a+1];
+      var det=abx*acy-aby*acx;if(Math.abs(det)<1e-12)continue;
+      var dx=x-vertices[a],dy=y-vertices[a+1],wb=(dx*acy-dy*acx)/det,wc=(abx*dy-aby*dx)/det,wa=1-wb-wc;
+      if(wa<-.000001||wb<-.000001||wc<-.000001)continue;
+      var hit=accept({x:vertices[a+2]*wa+vertices[b+2]*wb+vertices[c+2]*wc,y:vertices[a+3]*wa+vertices[b+3]*wb+vertices[c+3]*wc,
+        coverage:vertices[a+4]*wa+vertices[b+4]*wb+vertices[c+4]*wc,volume:stride===9?vertices[a+8]*wa+vertices[b+8]*wb+vertices[c+8]*wc:0});
+      if(hit)return hit;
+    }
+    return null;
+  }
+  function touchFace(family,x,y) {
+    var cheeks=family==='baby'?[[.342,.553,.105,.075],[.775,.521,.105,.075]]:[[.405,.55,.10,.075],[.80,.445,.085,.07]];
+    for(var i=0;i<cheeks.length;i++){var c=cheeks[i];if(clothEllipse(x,y,c[0],c[1],c[2],c[3])>.5)return {part:'cheek',side:i?'right':'left'};}
+    return {part:'head',side:null};
+  }
+  function touchDirection(index,x,y,appearanceKey) {
+    var view=directionView(index,appearanceKey),family=appearanceProfile(appearanceKey).family;
+    for(var i=0;i<4;i+=2)if(view.paws[i]>=0&&clothEllipse(x,y,view.paws[i],view.paws[i+1],Math.max(.035,view.torso[2]*.28),Math.max(.035,view.torso[3]*.40))>.5)
+      return {part:'hand',side:i?'right':'left'};
+    if(y>view.neckY+.012)return null;
+    if(!view.index)return touchFace(family,x,y);
+    for(var eye=0;eye<4;eye+=2)if(view.eyes[eye]>=0){
+      var sign=view.eyes[eye]<view.headX?-1:1,rx=view.eyeRadii[eye],ry=view.eyeRadii[eye+1];
+      if(clothEllipse(x,y,view.eyes[eye]+sign*Math.min(.10,rx*.7),view.eyes[eye+1]+ry*.96,rx*.80,ry*.65)>.5)
+        return {part:'cheek',side:sign<0?'left':'right'};
+    }
+    return {part:'head',side:null};
+  }
   function torsoMaterialPoint(x,y) { return {x:clamp(finite(x,.5),0,1),y:clamp(finite(y,.7),.7,1)}; }
   // A small local 3D surface replaces the distal frontal paws. The original
   // proximal arms and body stay drawn; no second hand image is layered on.
@@ -2355,6 +2387,7 @@
     var rigGeometry=[],restVertices=null,drawVertices=null,partAttribute=null,buffer=null,textures=[];
     var turnBuffer=null,turnVertices=null,turnMeshes={},turnBounds={},boundVertexBuffer=null,position=null,uv=null,coverage=null;
     var handBuffer=null,handVertices=null,handScratch=null,handSourceMeshes={},handSourceStarts={};
+    var lastHitFrame=null,hitAlpha=[];
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
     function listen(target, type, callback) {
       if (!target || typeof target.addEventListener !== 'function') return;
@@ -2364,7 +2397,7 @@
     function cancel() { if (frame !== null) { win.cancelAnimationFrame(frame); frame = null; } last = null; }
     function destroy() {
       if (dead) return;
-      dead = true; cancel();
+      dead = true;lastHitFrame=null;hitAlpha=[];cancel();
       if (timer !== null) { win.clearTimeout(timer); timer = null; }
       if(cueTimer!==null){win.clearTimeout(cueTimer);cueTimer=null;}
       images.forEach(function (image) {
@@ -2397,7 +2430,69 @@
       if (loaded && !doc.hidden) paint();
       armCueExpiry();schedule();
     }
-    var controller = { setSituation: setSituation, destroy: destroy };
+    function sourceAlpha(index,x,y) {
+      if(x<0||x>1||y<0||y>1)return 0;
+      var cached=hitAlpha[index];
+      if(cached===undefined){
+        hitAlpha[index]=false;
+        try{
+          var im=images[index],surface=doc.createElement('canvas'),w=im.naturalWidth,h=im.naturalHeight;
+          surface.width=w;surface.height=h;var context=surface.getContext('2d',{willReadFrequently:true});
+          if(!context)return 0;
+          context.drawImage(im,0,0,w,h);var rgba=context.getImageData(0,0,w,h).data,alpha=new Uint8Array(w*h);
+          for(var pixel=0;pixel<alpha.length;pixel++)alpha[pixel]=rgba[pixel*4+3];
+          cached=hitAlpha[index]={width:w,height:h,alpha:alpha};surface.width=surface.height=0;
+        }catch(_){return 0;}
+      }
+      if(!cached)return 0;
+      var px=clamp(x*cached.width-.5,0,cached.width-1),py=clamp(y*cached.height-.5,0,cached.height-1),left=Math.floor(px),top=Math.floor(py),right=Math.min(left+1,cached.width-1),bottom=Math.min(top+1,cached.height-1),fx=px-left,fy=py-top;
+      return ((cached.alpha[top*cached.width+left]*(1-fx)+cached.alpha[top*cached.width+right]*fx)*(1-fy)+(cached.alpha[bottom*cached.width+left]*(1-fx)+cached.alpha[bottom*cached.width+right]*fx)*fy)/255;
+    }
+    function hitTest(x,y) {
+      if(dead||!loaded||!lastHitFrame||family==='egg'||!pageVisible||doc.hidden||canvas.hidden||canvas.isConnected===false||!Number.isFinite(x)||!Number.isFinite(y)||x<0||x>1||y<0||y>1)return null;
+      var painted=lastHitFrame,px=x*2-1,py=1-y*2;
+      if(painted.turn){
+        var entries=[[painted.turn.currentIndex,1-painted.turn.blend],[painted.turn.nextIndex,painted.turn.blend]];
+        if(entries[1][1]>entries[0][1])entries.reverse();
+        for(var entry=0;entry<entries.length;entry++){
+          var index=entries[entry][0],weight=entries[entry][1];if(weight<.2)continue;
+          var mesh=turnMeshes[index],bounds=turnBounds[index];if(!mesh||!bounds)continue;
+          var matrix=fitDirectionMatrix(painted.rig.matrices.torso,roomWalkBounds(bounds,painted.turn.roomWalk)).matrix;
+          turnVertices.set(mesh);
+          for(var offset=0;offset<mesh.length;offset+=5){
+            var rest={x:mesh[offset],y:mesh[offset+1]};if(painted.turn.roomWalk)rest=roomWalkDeform(index,mesh[offset+2],mesh[offset+3],rest,painted.turn.roomWalk,appearance.key);
+            var point=transform(matrix,rest);turnVertices[offset]=point.x*2-1;turnVertices[offset+1]=1-point.y*2;
+          }
+          var hit=touchMesh(turnVertices,5,0,mesh.length/5,px,py,function(sample){
+            var region=touchDirection(index,sample.x,sample.y,appearance.key);if(!region)return null;
+            var uv=index?directionCellUV(index,sample.x,sample.y,textureImages[9].naturalWidth,textureImages[9].naturalHeight,appearance.key):sample;
+            return sourceAlpha(index?sourceSlots[9]:sourceSlots[3],uv.x,uv.y)*sample.coverage*weight>=.25?region:null;
+          });
+          if(hit)return hit;
+        }
+        return null;
+      }
+      var hands=handVolumeState(painted.rig,painted.seconds,painted.elapsed,stageProfile.key,branchProfile.key,appearance.key);
+      hands.sourceMeshes=handSourceMeshes;hands.projected=drawVertices;hands.starts=handSourceStarts;hands.scratch=handScratch;
+      for(var side=1;side>=0;side--){
+        var id=side?'arm_r':'arm_l',hand=handVolumeMesh(hands,id,handVertices),profile=handVolumeProfiles[family][id];
+        var selected=touchMesh(hand,9,0,hand.length/9,px,py,function(sample){
+          var alpha=sample.volume>.5?1:sourceAlpha(sourceSlots[3],sample.x,sample.y)*handProximalCoverage(profile,sample.x,sample.y);
+          return alpha*sample.coverage>=.25?{part:'hand',side:side?'right':'left'}:null;
+        });
+        if(selected)return selected;
+      }
+      for(var part=rigGeometry.length-1;part>=0;part--){
+        var geometry=rigGeometry[part];if(geometry.id!=='head'&&geometry.id!=='ear_l'&&geometry.id!=='ear_r')continue;
+        var face=touchMesh(drawVertices,5,geometry.start,geometry.count,px,py,function(sample){
+          if(sourceAlpha(sourceSlots[3],sample.x,sample.y)*sample.coverage<.25)return null;
+          return geometry.id==='head'?touchFace(family,sample.x,sample.y):{part:'head',side:null};
+        });
+        if(face)return face;
+      }
+      return null;
+    }
+    var controller = { setSituation: setSituation, destroy: destroy, hitTest:hitTest };
     if (!canvas || !win || !doc || typeof win.Image !== 'function' || !win.requestAnimationFrame || !win.cancelAnimationFrame) { fail('environment_unavailable'); return controller; }
     if (mounted) mounted.set(canvas, controller);
     var assetRoot = options.assetRoot == null ? '/static/' : options.assetRoot;
@@ -2544,6 +2639,7 @@
           }
         });
         }
+        lastHitFrame={rig:rig,turn:family!=='egg'&&turn.id&&!turn.front&&!turn.done?turn:null,seconds:reduced?0:phaseMs/1000,elapsed:elapsed};
         if (!readyNotified) {
           readyNotified = true;
           if (typeof options.onReady === 'function') { try { options.onReady(); } catch (_) {} }
