@@ -288,3 +288,75 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-scene-room.ipg-care-room .ipg-room-curtain{background:repeating-linear-gradient(90deg,#bfc6ad,#d5dcc4 6px,#bfc6ad 12px)}
 
 .ipg-view-care .ipg-header{margin-bottom:8px}.ipg-view-care .ipg-header .ipg-eyebrow{display:none}.ipg-view-care .ipg-header h2{font-size:1.5em}.ipg-notice:empty{display:none}.ipg-view-care .ipg-tabs{margin-bottom:0;padding-bottom:12px}
+
+
+/* Shared item cutouts: fixed boxes keep menus stable while each local image loads.
+   The old emoji, or the original CSS apple, remains until a real image succeeds. */
+.ipg-item-art{position:relative;display:inline-block;flex:0 0 auto;width:88px;height:88px;line-height:1;vertical-align:middle;isolation:isolate}
+.ipg-item-art-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.ipg-item-art-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px;line-height:1;pointer-events:none}
+.ipg-item-art-image[hidden],.ipg-item-art-fallback[hidden]{display:none!important}
+.ipg-shop-item .ipg-item-art{margin:0 auto 8px;filter:drop-shadow(0 5px 5px #75624c18)}
+.ipg-shop-item{background:radial-gradient(ellipse at 50% 0,#fff9,transparent 62%),var(--ipg-surface,var(--ipg-bg))}
+.ipg-care-item-art{width:34px;height:34px}
+.ipg-care-item-art .ipg-item-art-fallback{font-size:28px}
+.ipg-room-care .ipg-care-item-art{width:30px;height:30px}
+.ipg-room-care .ipg-care-item-art .ipg-item-art-fallback{font-size:26px}
+.ipg-decoration-art{width:76px;height:76px;filter:drop-shadow(0 4px 3px #78624d24)}
+.ipg-decoration-art .ipg-item-art-fallback{font-size:42px}
+.ipg-drop-art{width:32px;height:32px}
+.ipg-drop-art .ipg-item-art-fallback{font-size:26px}
+.ipg-feeding-food .ipg-food-art{position:absolute;inset:0;width:100%;height:100%}
+.ipg-food-art .ipg-item-art-fallback{font-size:32px;filter:drop-shadow(0 2px 2px #70515c26)}
+.ipg-lilac-compact .ipg-food-art .ipg-item-art-fallback{font-size:14px}
+.ipg-feeding-food[data-art-ready=true],.ipg-feeding-food[data-food-id]:not([data-food-id=""]):not([data-food-id=apple]){background:none;box-shadow:none;border-radius:0}
+.ipg-feeding-food[data-art-ready=true]:before,.ipg-feeding-food[data-art-ready=true]:after,
+.ipg-feeding-food[data-food-id]:not([data-food-id=""]):not([data-food-id=apple]):before,
+.ipg-feeding-food[data-food-id]:not([data-food-id=""]):not([data-food-id=apple]):after{display:none}
+.ipg-background-swatch{position:relative;display:block;flex:0 0 auto;width:100%;height:88px;margin:0 auto 8px;overflow:hidden;border:1px solid #d4d0bd;border-radius:12px;box-shadow:inset 0 1px 2px #fff9,inset 0 -3px 7px #87734d14}
+.ipg-background-fallback{display:none}
+.ipg-background-swatch:before,.ipg-background-swatch:after{content:'';position:absolute;pointer-events:none}
+.ipg-swatch-meadow{background:linear-gradient(#cde4e5 0 60%,#9fba82 61%,#bdcc94)}
+.ipg-swatch-meadow:before{left:16%;top:13px;width:22px;height:22px;border-radius:50%;background:#fff2bf;box-shadow:0 0 12px #fff4c999,40px 9px 0 1px #ffffff85,50px 7px 0 4px #ffffff85}
+.ipg-swatch-meadow:after{left:-20%;right:-20%;bottom:-32px;height:70px;border-radius:50%;background:linear-gradient(20deg,#77925e,#b5c894);transform:rotate(-9deg);box-shadow:35px -8px 0 -3px #97b27c}
+.ipg-swatch-beach{background:linear-gradient(#c7e4e9 0 42%,#8cbfc4 43% 64%,#d0e2d6 65% 69%,#eddbb6 70%)}
+.ipg-swatch-beach:before{right:14%;top:10px;width:20px;height:20px;border-radius:50%;background:#fff0be;box-shadow:0 0 12px #fff9}
+.ipg-swatch-beach:after{left:-10%;right:-10%;bottom:16px;height:10px;border-radius:50%;border-top:2px solid #fff9;transform:rotate(-6deg)}
+.ipg-swatch-snow{background:linear-gradient(#c4d9e6,#e7edf0 66%,#f5f1e9 67%)}
+.ipg-swatch-snow:before{left:-6%;bottom:17px;width:80%;height:60px;clip-path:polygon(0 100%,48% 0,100% 100%);background:linear-gradient(130deg,#fdfcf5 0 50%,#bbcbd5 51% 66%,#e5eaeb 67%)}
+.ipg-swatch-snow:after{right:-4%;bottom:12px;width:65%;height:47px;clip-path:polygon(0 100%,55% 0,100% 100%);background:linear-gradient(115deg,#fffdf7 0 54%,#cad6dd 55%)}
+.ipg-swatch-room{background:repeating-linear-gradient(90deg,transparent 0 21px,#cbb99116 22px 23px),linear-gradient(#eee1ca 0 68%,#c6a780 69% 71%,#dec6a1 72%)}
+.ipg-swatch-room:before{left:17%;top:12px;width:34px;height:40px;border:4px solid #fffaf0;border-radius:16px 16px 3px 3px;background:linear-gradient(90deg,transparent 46%,#fff8 47% 53%,transparent 54%),linear-gradient(#badde2,#e1ecd3);box-shadow:1px 2px 0 2px #bbaa8a42}
+.ipg-swatch-room:after{right:12%;bottom:12px;width:36px;height:19px;border:3px solid #bda180;border-radius:8px;background:linear-gradient(135deg,#dcd0e4,#b8aac6);box-shadow:0 3px 0 #a98d6c}
+
+/* Cloth samples retain the six existing garments and their in-game colours. */
+.ipg-clothing-swatch{width:86px;height:82px;background:linear-gradient(115deg,#ffffff7a,transparent 34%,#ffffff0a 65%,#61492926),repeating-linear-gradient(90deg,transparent 0 3px,#ffffff15 3px 4px),var(--cloth);box-shadow:inset 2px 0 3px #fff6,inset -5px -5px 8px #69574230;filter:drop-shadow(0 4px 3px #75624c20)}
+.ipg-clothing-swatch:before{content:'';position:absolute;inset:8px 12px;border:1px dashed #fff9;border-radius:5px;opacity:.65}
+.ipg-clothing-swatch:after{content:'';position:absolute;top:37%;left:47%;width:5px;height:5px;border:1px solid #92765955;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff9,#bfa77e);box-shadow:0 13px 0 -1px #b29b79,0 26px 0 -1px #b29b79}
+.ipg-cloth-vest{background:linear-gradient(90deg,transparent 45%,#9f875657 46% 48%,#fff8 49% 51%,#bfa477 52% 54%,transparent 55%),linear-gradient(115deg,#fff5,transparent 36%,#78633f24),repeating-linear-gradient(0deg,transparent 0 3px,#fff2 3px 4px),var(--cloth)}
+.ipg-cloth-cape{background:radial-gradient(ellipse at 50% 6%,#f7d4de,transparent 44%),linear-gradient(98deg,#ae778a33,transparent 28% 46%,#9f62782b 50%,transparent 56% 75%,#9f627832),var(--cloth);box-shadow:inset 0 -7px 4px #8e536b24}
+.ipg-cloth-cape:before{inset:8px 8px 5px;border-radius:30% 30% 45% 45%;border-color:#f9e2ea}
+.ipg-cloth-cape:after{top:17%;left:46%;width:7px;height:7px;background:radial-gradient(circle at 35% 25%,#fff4cc,#c6a45e);box-shadow:none}
+.ipg-cloth-overalls{background:linear-gradient(90deg,transparent 46%,#5a7f9d40 47% 53%,transparent 54%),repeating-linear-gradient(120deg,transparent 0 2px,#ffffff17 2px 3px),linear-gradient(110deg,#c6dbea,#99bad1 43%,#7396b2);box-shadow:inset -4px -5px 7px #466b8a26}
+.ipg-cloth-overalls:before{inset:28% 30% 44%;border:1px solid #dfebf3aa;border-radius:2px 2px 8px 8px}
+.ipg-cloth-overalls:after{top:21%;left:26%;background:#e4cf8b;box-shadow:35px 0 0 -1px #e4cf8b}
+.ipg-cloth-knit{background:repeating-linear-gradient(55deg,transparent 0 5px,#ffffff25 5px 7px,transparent 7px 10px),repeating-linear-gradient(-55deg,transparent 0 5px,#638f771c 5px 7px,transparent 7px 10px),linear-gradient(110deg,#c7dfd0,#a9c8b6 52%,#8ab49d);box-shadow:inset -4px -5px 7px #507b6326}
+.ipg-cloth-knit:before{inset:6px 12px 9px;border-width:0 0 4px;border-style:double;border-color:#d4e8dcaa}
+.ipg-cloth-knit:after{display:none}
+.ipg-cloth-pajamas{background:radial-gradient(circle at 30% 35%,#f4e9b6 0 3px,transparent 4px),radial-gradient(circle at 70% 65%,#f4e9b6 0 3px,transparent 4px),linear-gradient(90deg,transparent 46%,#6377a44a 47% 49%,#d2d9ed99 50% 52%,transparent 53%),linear-gradient(115deg,#c7cfea,#a7b1d6 48%,#8394c0);box-shadow:inset -4px -5px 7px #53658d25}
+.ipg-cloth-pajamas:after{background:#e6e7e7;border-color:#7586ac;box-shadow:0 13px 0 -1px #dfe2e7,0 26px 0 -1px #dfe2e7}
+.ipg-cloth-dress{background:radial-gradient(circle at 70% 70%,#fcf0d5 0 4px,transparent 5px),radial-gradient(circle at 30% 48%,#fcf0d5 0 4px,transparent 5px),linear-gradient(100deg,#fff4,transparent 26% 44%,#a5637420 48%,transparent 54% 73%,#a563742b),var(--cloth);box-shadow:inset 0 -6px 3px #b77a8b20}
+.ipg-cloth-dress:before{inset:42% 4px 7px;border-width:2px 0 1px;border-color:#fce7e7bb;border-style:solid}
+.ipg-cloth-dress:after{top:33%;left:46%;width:8px;height:5px;border-radius:1px 5px;background:#f8e7d8;box-shadow:none}
+
+/* Surface detail only: room layout and its reserved 64px care strip stay intact. */
+.ipg-room-bed{background:repeating-linear-gradient(90deg,transparent 0 5px,#ffffff18 6px 7px),linear-gradient(120deg,#ded4e4,#bdb4d1 55%,#a99bc0);border-color:#c6ac91 #b3977c #ad9074 #d0b89e;box-shadow:inset 0 2px 4px #fff7,inset 0 -3px 4px #75638720,0 5px 0 #a8927c,0 7px 6px #7b665823}
+.ipg-room-pillow{background:linear-gradient(145deg,#fffbeb,#fff4df 48%,#e1d5bf);box-shadow:inset 1px 2px 2px #fff9,inset -2px -2px 3px #ae9c7e30,0 2px 3px #8c787622}
+.ipg-room-pillow:after{content:'';position:absolute;inset:3px;border:1px dashed #c5b69d88;border-radius:8px}
+.ipg-room-bowl{background:radial-gradient(ellipse at 30% 20%,#fff9,transparent 48%),linear-gradient(115deg,#a6bf9a,#d6e0c8 45%,#9ab28d);box-shadow:inset 2px 0 3px #f5fff199,inset -3px -3px 4px #73906966,0 4px 2px #aa90782b}
+.ipg-room-bowl:before{content:'';position:absolute;left:-2px;right:-2px;top:-7px;height:9px;border:2px solid #a0b68f;border-radius:50%;background:linear-gradient(#6d8f6c,#a5bd97);box-shadow:inset 0 2px 2px #4c6b4e44}
+.ipg-room-bowl:after{content:'';position:absolute;left:18%;top:3px;width:19%;height:45%;border-radius:50%;background:#fff7;filter:blur(1px)}
+.ipg-care-room[data-activity=feeding] .ipg-room-bowl{background:radial-gradient(ellipse at 30% 20%,#fff9,transparent 48%),linear-gradient(115deg,#d0b181,#eed9af 45%,#c9a97e);border-color:#bea47f}
+.ipg-room-toy{background:radial-gradient(circle at 27% 21%,#fff9,transparent 38%),linear-gradient(45deg,#d6a88b 40%,#f8e9bc 42% 57%,#e3bca5 59%);box-shadow:inset -3px -3px 4px #a97c5844,inset 1px 1px 2px #fff6,0 3px 3px #aa907830}
+@media(max-width:540px){.ipg-decoration-art{width:62px;height:62px}}
+@media(prefers-color-scheme:dark){.ipg-shop-item{background:radial-gradient(ellipse at 50% 0,#ffffff0c,transparent 62%),var(--ipg-bg)}.ipg-background-swatch{border-color:#867967;box-shadow:inset 0 1px 2px #ffffff30,inset 0 -3px 7px #1f1c1944}}

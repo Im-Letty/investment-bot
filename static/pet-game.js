@@ -90,6 +90,45 @@
   function items() { return core().items || core().catalogue || core().ITEMS || []; }
   function item(id) { return items().filter(function (x) { return x.id === id; })[0]; }
   function itemName(id) { var x = item(id); return x ? x.name : 'アイテム'; }
+  // Artwork is a fixed presentation map, never a saved inventory field or an arbitrary URL.
+  var itemArtworkIds = { apple: true, cake: true, berry: true, rice: true, feast: true, house: true, tree: true, flower: true, fountain: true, sunflower: true, mushroom: true, lantern: true };
+  function hasItemArtwork(id) { return typeof id === 'string' && Object.prototype.hasOwnProperty.call(itemArtworkIds, id); }
+  function foodArtworkId(id) { var entry = item(id); return entry && entry.type === 'food' && hasItemArtwork(id) ? id : null; }
+  function itemArtwork(id, fallback, extra, onState) {
+    var shell = node('span', 'ipg-item-art' + (extra ? ' ' + extra : ''));
+    shell.setAttribute('aria-hidden', 'true'); shell.dataset.itemArt = hasItemArtwork(id) ? id : ''; shell.dataset.artReady = 'false';
+    var old = node('span', 'ipg-item-art-fallback', fallback == null ? '🌿' : fallback); shell.appendChild(old);
+    if (!hasItemArtwork(id)) return shell;
+    var image = node('img', 'ipg-item-art-image'); image.width = image.height = 384;
+    image.alt = ''; image.draggable = false; image.decoding = 'async'; image.hidden = true; image.setAttribute('aria-hidden', 'true');
+    function ready(value) {
+      shell.dataset.artReady = String(value); image.hidden = !value; old.hidden = value;
+      if (onState) onState(value);
+    }
+    image.addEventListener('load', function () { ready(true); });
+    image.addEventListener('error', function () { ready(false); });
+    shell.appendChild(image); image.src = imageRoot + 'pet-items-v1/' + id + '.webp';
+    return shell;
+  }
+  function shopItemArtwork(entry) {
+    var scenes = { bg_meadow: 'meadow', bg_beach: 'beach', bg_snow: 'snow', bg_room: 'room' };
+    if (Object.prototype.hasOwnProperty.call(scenes, entry.id)) {
+      var scene = node('span', 'ipg-background-swatch ipg-swatch-' + scenes[entry.id]); scene.setAttribute('aria-hidden', 'true');
+      scene.appendChild(node('span', 'ipg-background-fallback', entry.emoji || '🌿')); return scene;
+    }
+    return itemArtwork(entry.id, entry.emoji || '🌿', 'ipg-item-icon');
+  }
+  function setMealArtwork(food, id) {
+    id = foodArtworkId(id) || '';
+    if (food.dataset.foodId === id) return;
+    food.dataset.foodId = id; food.dataset.artReady = 'false'; food.replaceChildren();
+    if (id) {
+      var art = itemArtwork(id, id === 'apple' ? '' : item(id).emoji, 'ipg-food-art', function (ready) {
+        if (food.dataset.foodId === id && art && art.parentNode === food) food.dataset.artReady = String(ready);
+      });
+      food.appendChild(art);
+    }
+  }
   function clothingItems() { return items().filter(function (x) { return x.type === 'clothing'; }); }
   function wardrobe(s) { return s.wardrobe || { owned: {}, equipped: null }; }
   function outfit(s) {
@@ -204,7 +243,10 @@
     var engine = w.PetLilacMotion, cue = null;
     try { if (engine && typeof engine.situationForAction === 'function') cue = engine.situationForAction(action, before, after, result); } catch (_) {}
     if (grew(before, after) && (!cue || cue.situation !== 'feeding')) cue = { situation: 'joy', durationMs: 3500 };
-    if (cue) reaction = { situation: cue.situation, durationMs: cue.durationMs, startedAt: Date.now() };
+    if (cue) {
+      reaction = { situation: cue.situation, durationMs: cue.durationMs, startedAt: Date.now() };
+      if (cue.situation === 'feeding') reaction.foodId = action.type === 'useItem' ? foodArtworkId(action.itemId) || 'apple' : 'apple';
+    }
   }
   function currentReaction() {
     if (reaction && Date.now() - reaction.startedAt >= reaction.durationMs) reaction = null;
@@ -619,6 +661,7 @@
     request.wrap.dataset.cuePhase = name === 'idle' ? 'idle' : meal ? meal.phase : age < entryEnd ? 'enter' : age >= releaseStart ? 'settling' : 'acting';
     refreshRoomTouch(request);
     if (request.food) {
+      setMealArtwork(request.food, meal && !egg ? cue && foodArtworkId(cue.foodId) || 'apple' : null);
       request.food.hidden = !(meal && !egg && meal.foodVisible && request.ready && motionsVisible());
       var anchor = w.PetLilacMotion && typeof w.PetLilacMotion.feedingAnchor === 'function' ? w.PetLilacMotion.feedingAnchor(request.growthStage, request.evolutionPath, request.appearanceKey, request.eggOrigin) : null;
       if (anchor && Number.isFinite(anchor.foodLeft) && Number.isFinite(anchor.foodTop)) {
@@ -981,7 +1024,12 @@
     var careRequest = displaySpecies(s) === 'lilac' ? motionRequests[motionRequests.length - 1] : null;
     var equipped = s.decorations.equipped, decor = item(equipped);
     var decorText = decor ? decor.emoji || '🌿' : equipped ? String(equipped).slice(0, 40) : '';
-    var decoration = decorText ? node('span', 'ipg-pet-decoration', decorText) : null;
+    var decoration = decorText ? node('span', 'ipg-pet-decoration') : null;
+    if (decoration) {
+      decoration.setAttribute('role', 'img');
+      if (decor && hasItemArtwork(decor.id)) decoration.appendChild(itemArtwork(decor.id, decorText, 'ipg-decoration-art'));
+      else decoration.textContent = decorText;
+    }
     if (decoration) decoration.setAttribute('aria-label', '身につけているかざり：' + (decor ? decor.name : String(equipped).slice(0, 100)));
     if (!developerPreview()) {
       scene.setAttribute('role', 'group'); scene.setAttribute('aria-label', (s.pet.name || 'このこ') + 'のおへや'); scene.dataset.activity = 'idle';
@@ -1022,7 +1070,8 @@
       var label = egg && x[0] === 'feed' ? 'あたためる' : x[1];
       var detail = label + ' · 今日' + number(used) + '/' + cap + '回 · +' + x[3] + 'EXP' + (used >= cap ? ' · 今日はお世話済み' : '');
       b.setAttribute('aria-label', detail); b.title = detail;
-      var icon = node('span', 'ipg-care-icon', egg && x[0] === 'feed' ? '☀️' : x[2]); icon.setAttribute('aria-hidden', 'true');
+      var icon = node('span', 'ipg-care-icon', egg && x[0] === 'feed' ? '☀️' : x[0] === 'feed' ? '' : x[2]); icon.setAttribute('aria-hidden', 'true');
+      if (!egg && x[0] === 'feed') icon.appendChild(itemArtwork('apple', '🍎', 'ipg-care-item-art'));
       b.appendChild(icon);
       if (developerPreview()) append(b, node('span', '', label), node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
@@ -1178,7 +1227,8 @@
         finishPending(); return;
       }
       if (g.elapsed >= g.nextSpawn) {
-        var drop = { x: 8 + Math.random() * 84, at: g.elapsed, el: node('span', 'ipg-drop', '🍙') };
+        var drop = { x: 8 + Math.random() * 84, at: g.elapsed, el: node('span', 'ipg-drop') };
+        drop.el.appendChild(itemArtwork('rice', '🍙', 'ipg-drop-art'));
         drop.el.setAttribute('aria-hidden', 'true'); drop.el.style.left = drop.x + '%';
         board.appendChild(drop.el); g.drops.push(drop); g.nextSpawn = g.elapsed + 620;
       }
@@ -1290,7 +1340,8 @@
     var grid = node('div', 'ipg-shop-grid');
     items().filter(function (x) { return x.type !== 'clothing'; }).forEach(function (x) {
       var count = owned(s, x), row = node('article', 'ipg-shop-item');
-      append(row, node('span', 'ipg-item-icon', x.emoji || '🌿'), node('h4', '', x.name),
+      row.dataset.itemId = x.id;
+      append(row, shopItemArtwork(x), node('h4', '', x.name),
         text(x.type === 'food' ? '+' + number(x.exp) + 'EXP · 所持' + number(count) + '個' : count ? '持っています' : '未所持'),
         text(number(x.price) + 'コイン', 'ipg-stage'));
       var foodHint = x.type === 'food' && displaySpecies(s) === 'lilac' && evolution(s) ? foodEvolutionHint(x.id) : '';

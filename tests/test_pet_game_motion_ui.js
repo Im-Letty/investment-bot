@@ -2237,3 +2237,74 @@ test('an unavailable chosen mint or apricot appears as its egg placeholder inste
     assert.equal(f.mounts.at(-1).options.eggOrigin, key); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
   }
 });
+
+
+test('each consumed food keeps its own temporary artwork through navigation and meal phases without entering saved data', async () => {
+  for (const id of ['apple', 'cake', 'berry', 'rice', 'feast']) {
+    const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '30', pg_items: JSON.stringify({ [id]: 2 }) } });
+    f.advance(10000); f.ui.render(); await f.click(f.focusButton('tab-shop'));
+    const entry = Core.items.find(row => row.id === id), before = f.saved();
+    const row = f.host.querySelectorAll('.ipg-shop-item').find(row => row.dataset.itemId === id);
+    await f.click(row.querySelectorAll('button').find(button => button.textContent === '使う'));
+    const after = f.saved();
+    assert.equal(after.inventory[id], before.inventory[id] - 1); assert.equal(after.pet.exp, before.pet.exp + entry.exp);
+    assert.equal(JSON.stringify(after).includes('foodId'), false, 'artwork identity is never saved');
+    assert.equal(f.host.querySelector('.ipg-feeding-food').dataset.foodId, id);
+    await f.click(f.focusButton('tab-care'));
+    const food = f.host.querySelector('.ipg-feeding-food'), image = food.querySelector('img');
+    assert.equal(food.dataset.foodId, id); assert.equal(image.src, '/static/pet-items-v1/' + id + '.webp');
+    assert.equal(food.hidden, false); image.emit('load'); assert.equal(food.dataset.artReady, 'true');
+    f.advance(1200); await f.fireTimers();
+    assert.equal(food.querySelector('img'), image, 'phase updates reuse the same loaded image');
+    assert.equal(food.dataset.foodId, id);
+    f.advance(Motion.durations.feeding); await f.fireTimers();
+    assert.equal(food.hidden, true); assert.equal(food.dataset.foodId, ''); assert.equal(food.querySelector('img'), null);
+    assert.deepEqual(f.saved(), after, 'artwork and phase changes add no writes or rewards');
+  }
+});
+
+test('failed food consumption stays invisible and stale image callbacks cannot overwrite a replacement meal', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', seed: { pg_exp: '30', pg_items: '{"cake":2}' } });
+  f.advance(10000); f.ui.render(); await f.click(f.focusButton('tab-shop'));
+  function useCake() {
+    const row = f.host.querySelectorAll('.ipg-shop-item').find(row => row.dataset.itemId === 'cake');
+    return row.querySelectorAll('button').find(button => button.textContent === '使う');
+  }
+  const before = f.saved(), gate = deferred(); f.control.pending = gate; f.control.outcome = 'false';
+  await f.click(useCake());
+  assert.deepEqual(f.saved(), before); assert.equal(f.host.querySelector('.ipg-feeding-food').hidden, true);
+  assert.equal(f.host.querySelector('.ipg-feeding-food').dataset.foodId, '');
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.deepEqual(f.saved(), before); assert.equal(f.host.querySelector('.ipg-feeding-food').dataset.foodId, '');
+  f.control.outcome = 'ok'; await f.click(useCake()); await f.click(f.focusButton('tab-care'));
+  const saved = f.saved(), food = f.host.querySelector('.ipg-feeding-food'), cakeImage = food.querySelector('img');
+  assert.equal(food.dataset.foodId, 'cake');
+  await f.click(await f.revealEmotion('feeding'));
+  assert.equal(f.host.querySelector('.ipg-feeding-food'), food); assert.equal(food.dataset.foodId, 'apple');
+  const appleImage = food.querySelector('img'); assert.notEqual(appleImage, cakeImage);
+  appleImage.emit('load'); cakeImage.emit('error'); assert.equal(food.dataset.artReady, 'true');
+  appleImage.emit('error'); cakeImage.emit('load'); assert.equal(food.dataset.artReady, 'false');
+  await f.click(await f.revealEmotion('love'));
+  assert.equal(food.hidden, true); assert.equal(food.dataset.foodId, ''); assert.equal(food.querySelector('img'), null);
+  cakeImage.emit('load'); appleImage.emit('load'); assert.equal(food.dataset.artReady, 'false');
+  assert.deepEqual(f.saved(), saved);
+});
+
+test('shared item cutouts retain visible emoji fallbacks after image failures without changing purchases or saved state', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
+  await f.click(f.focusButton('tab-shop'));
+  const before = f.saved(), writes = f.writes.length;
+  const rows = f.host.querySelectorAll('.ipg-shop-item').filter(row => row.querySelector('.ipg-item-art'));
+  assert.equal(rows.length, 12);
+  for (const row of rows) {
+    const art = row.querySelector('.ipg-item-art'), fallback = art.querySelector('.ipg-item-art-fallback'), image = art.querySelector('img');
+    assert.equal(art.getAttribute('aria-hidden'), 'true'); assert.equal(image.alt, ''); assert.equal(image.getAttribute('aria-hidden'), 'true');
+    assert.equal(image.width, 384); assert.equal(image.height, 384); assert.equal(image.hidden, true); assert.equal(fallback.hidden, false);
+    assert.equal(image.src, '/static/pet-items-v1/' + row.dataset.itemId + '.webp');
+    assert.ok(fallback.textContent); image.emit('load'); assert.equal(image.hidden, false); assert.equal(fallback.hidden, true);
+    image.emit('error'); assert.equal(image.hidden, true); assert.equal(fallback.hidden, false); assert.equal(art.dataset.artReady, 'false');
+  }
+  assert.equal(f.host.querySelectorAll('.ipg-background-swatch').length, 4);
+  assert.equal(f.host.querySelectorAll('.ipg-clothing-swatch').length, 6);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
