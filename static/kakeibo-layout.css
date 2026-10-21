@@ -23,6 +23,8 @@ body.kn-ledger-letter.kn-ledger-paper[data-kk-mypage-view="ledger"] {
 body.kn-ledger-paper {overflow-wrap:break-word}
 body.kn-ledger-paper [hidden] {display:none!important}
 body.kn-ledger-letter.kn-ledger-paper .kk-layout-header {border-bottom:0;padding-block:18px!important}
+/* Keep the menu's 44px target while reducing the embedded ledger's top gap. */
+body.kn-ledger-letter.kn-ledger-paper.kn-ledger-embedded .kk-layout-header {padding-block:8px!important}
 body.kn-ledger-paper .header-top {position:relative;gap:12px;min-height:44px}
 body.kn-ledger-letter.kn-ledger-paper .header-title {
   flex:1;min-width:0;display:flex;align-items:center;gap:10px;margin:0;

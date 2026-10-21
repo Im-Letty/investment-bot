@@ -273,6 +273,10 @@ body.kn-home-a #myPageOv .kb-frame {
   background: var(--kn-sh-paper, #fdfcf6) !important;
 }
 
+/* The ledger owns Home/Calendar tabs; its inactive personal tabs need no spacer. */
+body.kn-home-a #myPageOv[data-mp-view="ledger"] > .mo-tabs { display: none !important; }
+body.kn-home-a #myPageOv[data-mp-view="ledger"] .mo-body { padding-top: 0; }
+
 body.kn-home-a #myPageOv[data-mp-view="ledger"] .kb-frame {
   border: 0;
   border-radius: 0;
