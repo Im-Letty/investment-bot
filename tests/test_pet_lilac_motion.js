@@ -17,7 +17,7 @@ function events(target = {}) {
 function fixture(config = {}) {
   let clock = 0, id = 0, draws = 0, ready = 0, released = 0, clears=0, updates=0, liveVertices=null, activeUnit=0, maxActiveUnit=0, activeBuffer=null;
   const raf = new Map(), timers = new Map(), images = [], created = [], deleted = [], uploads = [], errors = [], uniforms = {}, shaders = [], buffers = [], attributes = [], drawCalls = [], bindings = [], constants = {}, disabledAttributes = [];
-  const boundTextures={},samplers={},enabled=[],blend=[];
+  const boundTextures={},samplers={},enabled=[],blend=[],enabledAttributes=new Set(),vertexData=new Map();
   const media = events({ matches: !!config.reduced });
   const doc = events({ hidden: !!config.hidden });
   const win = events({ document: doc, devicePixelRatio: config.dpr || 3,
@@ -50,9 +50,10 @@ function fixture(config = {}) {
   gl.shaderSource = (_, text) => shaders.push(text);
   gl.getShaderParameter = () => !config.compileFailure;
   gl.getProgramParameter = () => !config.linkFailure;
-  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : name === 'a_coverage'?3:name==='a_part'?4:name==='a_sourceRect'?5:name==='a_mouthMode'?6:-1;
+  gl.getAttribLocation = (_, name) => name === 'a_position' ? 0 : name === 'a_uv' ? 1 : name === 'a_evolution' ? 2 : name === 'a_coverage'?3:name==='a_part'?4:name==='a_sourceRect'?5:name==='a_mouthMode'?6:name==='a_handVolume'?7:-1;
   gl.bindAttribLocation = (_,index,name) => { bindings.push([index,name]); };
-  gl.disableVertexAttribArray = index => { disabledAttributes.push(index); };
+  gl.disableVertexAttribArray = index => { disabledAttributes.push(index);enabledAttributes.delete(index); };
+  gl.enableVertexAttribArray = index => { enabledAttributes.add(index); };
   gl.vertexAttrib4f = (index,...values) => { constants[index]=values; };
   gl.vertexAttrib1f = (index,value) => { constants[index]=value; };
   gl.enable = flag => enabled.push(flag);gl.blendFunc = (...values) => blend.push(values);
@@ -63,7 +64,7 @@ function fixture(config = {}) {
   gl.uniform1i = (key,value) => { samplers[key]=value; };
   gl.bindBuffer = (_,value) => { activeBuffer=value; };
   gl.bufferData = (target, data, usage) => { buffers.push({ target, buffer:activeBuffer, data: new Float32Array(data), usage }); };
-  gl.bufferSubData = (_,offset,data) => { assert.equal(offset,0);if(!liveVertices||liveVertices.length!==data.length)liveVertices=new Float32Array(data.length);liveVertices.set(data);updates++; };
+  gl.bufferSubData = (_,offset,data) => { assert.equal(offset,0);vertexData.set(activeBuffer,new Float32Array(data));if(!enabledAttributes.has(7)){if(!liveVertices||liveVertices.length!==data.length)liveVertices=new Float32Array(data.length);liveVertices.set(data);}updates++; };
   gl.vertexAttribPointer = (index, size, type, normalized, stride, offset) => { attributes.push({ index, size, type, normalized, stride, offset }); };
   gl.getUniformLocation = (_, key) => key;
   gl.uniform1f = (key, value) => { uniforms[key] = value; };
@@ -79,7 +80,7 @@ function fixture(config = {}) {
     packedNames[key]?.forEach((name, index) => { uniforms['u_' + name] = values[index]; });
   };
   gl.texImage2D = (...args) => { if (config.textureFailure) throw new Error('raw private driver detail'); uploads.push(args.at(-1)); };
-  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],sourceRect:constants[5]?.slice(),mouthMode:constants[6],texture4:boundTextures[4],texture5:boundTextures[5],texture6:boundTextures[6],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
+  gl.drawArrays = (mode, first, count) => { if (config.drawFailure) throw new Error('raw private driver detail'); drawCalls.push({ mode, first, count,part:constants[4],sourceRect:constants[5]?.slice(),mouthMode:constants[6],volume:enabledAttributes.has(7),volumeData:config.captureVolumes&&enabledAttributes.has(7)?new Float32Array(vertexData.get(activeBuffer)):null,texture4:boundTextures[4],texture5:boundTextures[5],texture6:boundTextures[6],buffer:activeBuffer,uniforms:structuredClone(uniforms),frame:clears }); draws++; };
   const canvas = events({ ownerDocument: doc, hidden: true, isConnected: true, width: 240, height: 240,
     clientWidth: config.cssWidth || 320,
     getBoundingClientRect: () => ({ width: config.cssWidth || 320 }),
@@ -141,7 +142,7 @@ test('each family loads only its own required textures and never samples an adul
     const count=family==='egg'?2:family==='baby'?6:15;assert.equal(f.images.length,count);assert.equal(f.uploads.length,count);assert.equal(f.created.filter(row=>row.type==='Texture').length,count);
     assert.deepEqual(f.images.map(row=>row.url),Motion.appearanceAssets(key).map(name=>'/static/'+name));assert.equal(f.draws,family==='egg'?1:9);assert.equal(f.maxActiveUnit,7);
     assert.equal(Object.keys(f.samplers).length,8);assert.equal(Object.keys(f.uniforms).filter(key=>/^u_(motion[A-C]|body|gesture|face|effect|detail)$/.test(key)).length,family==='egg'?1:8);
-    if(family!=='egg')assert.deepEqual(f.bindings.at(-1),[6,'a_mouthMode']);
+    if(family!=='egg')assert.deepEqual(f.bindings.at(-1),[7,'a_handVolume']);
     f.api.destroy();assert.equal(f.created.length,f.deleted.length,key);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
   }
 });
@@ -337,10 +338,11 @@ test('six growth profiles are deterministic, physically sized and keep the origi
 function inspectRigMesh(f,stage,path='balanced') {
   const rest=f.buffers[0].data,live=f.liveVertices,frame=Motion.rigPose(0,'idle',0,stage,path);
   assert.ok(rest.length>0&&rest.length/5<20000);assert.equal(rest.length%15,0);
-  assert.deepEqual(f.attributes.map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
+  assert.deepEqual(f.attributes.slice(0,3).map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
   assert.equal(f.drawCalls.length,9);assert.equal(f.uploads.length,15);
   let total=0;
   for(const call of f.drawCalls){
+    if(call.part===7||call.part===8){assert.equal(call.volume,true);assert.equal(call.first,0);assert.ok(call.count>100);assert.notStrictEqual(call.buffer,f.buffers[0].buffer);continue;}
     const part=Motion.rigParts[call.part];assert.equal(call.first,total);total+=call.count;
     for(let i=call.first*5;i<(call.first+call.count)*5;i+=5){
       const [x,y,u,v,coverage]=rest.subarray(i,i+5),grown=Motion.growthPoint(stage,u,v,path),target=Motion.rigPoint(frame,part.id,u,v,stage,path);
@@ -349,7 +351,7 @@ function inspectRigMesh(f,stage,path='balanced') {
       assert.ok(Math.abs((live[i]+1)/2-target.x)<.000001&&Math.abs((1-live[i+1])/2-target.y)<.000001,part.id);
     }
   }
-  assert.equal(total,rest.length/5);
+  assert.ok(total<rest.length/5,'the original flat arm vertices are no longer drawn');
   for(let i=0;i<rest.length;i+=15){
     const [ax,ay,,,,bx,by,,,,cx,cy]=rest.subarray(i,i+15);
     assert.ok((bx-ax)*(cy-ay)-(by-ay)*(cx-ax)<0,stage+path+': source winding');
@@ -361,7 +363,7 @@ function inspectRigMesh(f,stage,path='balanced') {
 test('cropped part meshes keep source UVs and one-pixel feathering with positive rendered winding',()=>{
   for(const stage of growthKeys){
     const f=fixture({options:{growthStage:stage}});f.complete();inspectRigMesh(f,stage);
-    assert.equal(f.clears,1);assert.equal(f.updates,1);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+    assert.equal(f.clears,1);assert.equal(f.updates,3);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
   }
 });
 
@@ -544,7 +546,7 @@ test('all six garments have bounded per-view torso coverage without painting paw
 
 test('turn drawing borrows unit four for at most two cells then restores the frontal VBO and materials',()=>{
   const f=fixture();f.complete();const textures=f.created.filter(row=>row.type==='Texture'),frontBuffer=f.drawCalls[0].buffer;
-  assert.equal(f.buffers.length,1);assert.equal(f.updates,1);f.advance();assert.equal(f.buffers.length,1);assert.equal(f.updates,2);
+  assert.equal(f.buffers.length,2);assert.equal(f.updates,3);f.advance();assert.equal(f.buffers.length,2);assert.equal(f.updates,6);
   for(const [id,index]of[['direction_left',12],['direction_right',4],['direction_back',8]]){
     const before=f.draws;f.api.setSituation(id,{elapsedMs:2800});const calls=f.drawCalls.slice(before);
     assert.equal(calls.length,1);assert.equal(calls[0].part,index+10);assert.equal(calls[0].first,0);assert.equal(calls[0].count,3456);assert.strictEqual(calls[0].texture4,textures[9]);
@@ -552,7 +554,7 @@ test('turn drawing borrows unit four for at most two cells then restores the fro
     assert.equal(calls[0].uniforms.u_motionA[2],index>4&&index<12?1:0);
     assert.notStrictEqual(calls[0].buffer,frontBuffer);assert.strictEqual(f.boundTextures[4],textures[4]);assert.equal(f.raf.size,1);
   }
-  assert.equal(f.buffers.length,2);assert.deepEqual(f.blend.at(-1),[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]);assert.equal(f.maxActiveUnit,7);
+  assert.equal(f.buffers.length,3);assert.deepEqual(f.blend.at(-1),[f.gl.ONE,f.gl.ONE_MINUS_SRC_ALPHA]);assert.equal(f.maxActiveUnit,7);
   const before=f.draws;f.api.setSituation('angry',{elapsedMs:1500});const calls=f.drawCalls.slice(before);assert.equal(calls.length,9);assert.strictEqual(calls[0].buffer,frontBuffer);assert.ok(f.uniforms.u_faceAngry>.9);
   for(const call of calls)assert.strictEqual(call.texture4,call.part===1?textures[8]:call.part===6?textures[5]:textures[4]);
   assert.deepEqual(f.attributes.slice(-3).map(a=>[a.index,a.size,a.stride,a.offset]),[[0,2,20,0],[1,2,20,8],[3,1,20,16]]);
@@ -688,29 +690,128 @@ test('flapping keeps one rig, real clothes and reduced-motion idle without extra
   }
 });
 
-test('only the mature flap rounds its broad source palm while preserving shoulder coverage, UVs and all other cues',()=>{
-  assert.equal(Motion.armFlapCoverage(.374,.705),1,'opaque shoulder overlap');
-  assert.equal(Motion.armFlapCoverage(.55,.75),1,'the actual palm stays opaque');
-  assert.ok(Motion.armFlapCoverage(.606,.741)>.95,'the measured fingertip remains visible');
-  assert.equal(Motion.armFlapCoverage(.64,.70),0,'the exposed straight upper crop is rounded away');
+test('frontal palms replace the old flat distal hand while original proximal fur and shoulder coverage remain',()=>{
+  assert.equal(Motion.armFlapCoverage(.374,.705),1);assert.equal(Motion.armFlapCoverage(.55,.75),1);
   for(const key of['newborn','grown','companion']){
-    const f=fixture({options:{appearanceKey:key,outfit:'cloth_cream_vest'}});f.complete();
-    const rest=f.buffers[0].data,resources=f.created.length;f.api.setSituation('body_flap',{elapsedMs:1600});
-    const hand=f.drawCalls.slice(-9).find(row=>row.part===7);let trimmed=0;
-    for(let i=0;i<rest.length;i+=5){
-      assert.equal(f.liveVertices[i+2],rest[i+2]);assert.equal(f.liveVertices[i+3],rest[i+3]);
-      const inside=i>=hand.first*5&&i<(hand.first+hand.count)*5;
-      if(key!=='newborn'&&inside){
-        assert.ok(Math.abs(f.liveVertices[i+4]-rest[i+4]*Motion.armFlapCoverage(rest[i+2],rest[i+3]))<1e-7);
-        if(rest[i+4]>.99&&f.liveVertices[i+4]<.5)trimmed++;
-      }else assert.equal(f.liveVertices[i+4],rest[i+4]);
-    }
-    if(key!=='newborn')assert.ok(trimmed>20,'rounded coverage reaches the actual GPU vertex data');
-    for(const cue of['body_hands','feeding','idle']){
-      f.api.setSituation(cue,{elapsedMs:1600});
-      for(let i=4;i<rest.length;i+=5)assert.equal(f.liveVertices[i],rest[i],'old cue coverage restored exactly');
+    const f=fixture({captureVolumes:true,options:{appearanceKey:key,outfit:'cloth_cream_vest'}});f.complete();const resources=f.created.length;
+    for(const cue of['body_flap','body_hands','feeding','idle']){
+      f.api.setSituation(cue,{elapsedMs:1600});const calls=f.drawCalls.slice(-9),hands=calls.filter(row=>row.part===7||row.part===8);
+      assert.equal(hands.length,2);assert.equal(calls.filter(row=>row.volume).length,2);
+      for(const hand of hands){assert.equal(hand.first,0);assert.notStrictEqual(hand.buffer,f.buffers[0].buffer);const data=hand.volumeData;let proximal=0,palm=0;
+        for(let i=0;i<data.length;i+=9){if(data[i+8]===0)proximal++;else palm++;}
+        assert.ok(proximal>30,'the original upper arm remains attached');assert.ok(palm>300,'one rounded 3D palm replaces its distal cutout');
+      }
     }
     assert.equal(f.created.length,resources);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+function palmSummary(vertices){
+  let area=0,material=0,weight=0,minX=Infinity,maxX=-Infinity,minY=Infinity,maxY=-Infinity;
+  for(let i=0;i<vertices.length;i+=27)if(vertices[i+8]>.5){
+    const a=Math.abs((vertices[i+9]-vertices[i])*(vertices[i+19]-vertices[i+1])-(vertices[i+10]-vertices[i+1])*(vertices[i+18]-vertices[i]))/2;area+=a;
+    for(let k=0;k<3;k++){const at=i+k*9,w=a*vertices[at+4];weight+=w;material+=vertices[at+8]*w;minX=Math.min(minX,vertices[at]);maxX=Math.max(maxX,vertices[at]);minY=Math.min(minY,vertices[at+1]);maxY=Math.max(maxY,vertices[at+1]);}
+  }
+  return{area,material:material/weight,minX,maxX,minY,maxY};
+}
+function palmAlphaAt(vertices,x,y){
+  let alpha=0;
+  for(let i=0;i<vertices.length;i+=27)if(vertices[i+8]>.5){
+    const ax=vertices[i],ay=vertices[i+1],bx=vertices[i+9],by=vertices[i+10],cx=vertices[i+18],cy=vertices[i+19],det=(by-cy)*(ax-cx)+(cx-bx)*(ay-cy);
+    if(Math.abs(det)<1e-14)continue;
+    const a=((by-cy)*(x-cx)+(cx-bx)*(y-cy))/det,b=((cy-ay)*(x-cx)+(ax-cx)*(y-cy))/det,c=1-a-b;
+    if(a>=-1e-8&&b>=-1e-8&&c>=-1e-8)alpha=Math.max(alpha,a*vertices[i+4]+b*vertices[i+13]+c*vertices[i+22]);
+  }
+  return alpha;
+}
+
+test('baby and mature palms have real thickness and distinguish front, side and back without stretching their shoulders',()=>{
+  assert.equal(Object.isFrozen(Motion.handVolumeProfiles),true);
+  for(const family of Object.values(Motion.handVolumeProfiles))for(const profile of Object.values(family)){
+    assert.equal(Object.isFrozen(profile),true);assert.equal(Object.isFrozen(profile.center),true);assert.equal(Object.isFrozen(profile.shoulder),true);
+    assert.ok(profile.depth>profile.minor*.6&&profile.depth<profile.minor,'a shallow solid mitten, not a paper plane or round ball');
+  }
+  assert.ok(Motion.handVolumeProfiles.baby.arm_l.major<Motion.handVolumeProfiles.mature.arm_l.major*.4,'newborn hands remain short');
+  for(const key of['newborn','grown'])for(const side of['arm_l','arm_r']){
+    const frame=Motion.handVolumeFrame(1,'idle',1,'final','balanced',1,key),summaries=[],proximal=[];
+    for(const twist of[0,Math.PI/2,Math.PI]){
+      frame.twists[side]=twist;const mesh=Motion.handVolumeMesh(frame,side);summaries.push(palmSummary(mesh));
+      proximal.push(Array.from(mesh).filter((_,i)=>mesh[Math.floor(i/9)*9+8]===0));
+    }
+    assert.deepEqual(proximal[0],proximal[1],'wrist rotation leaves the original shoulder drawing fixed');assert.deepEqual(proximal[0],proximal[2]);
+    assert.ok(summaries[1].area/summaries[0].area>.6&&summaries[1].area/summaries[0].area<.94,'side view retains visible thickness while becoming narrower');
+    assert.ok(Math.abs(summaries[2].area/summaries[0].area-1)<.001,'turning the palm over preserves its mitten size');
+    assert.ok(summaries[0].material<1.02&&summaries[1].material>1.4&&summaries[1].material<1.6&&summaries[2].material>1.98,'the visible surface changes from palm through side to back');
+  }
+});
+
+test('convex palm meshes have opaque interiors with feathered edges and no twisted white stripe',()=>{
+  for(const key of['newborn','grown'])for(const side of['arm_l','arm_r'])for(const twist of[0,1.05,2.08,Math.PI]){
+    const frame=Motion.handVolumeFrame(3.8,'body_flap',3.8,'final','balanced',1,key);frame.twists[side]=twist;
+    const mesh=Motion.handVolumeMesh(frame,side),box=palmSummary(mesh),profile=Motion.handVolumeProfiles[frame.family][side];
+    const center=Motion.rigPoint(frame.rig,side,...profile.center,'final','balanced'),cx=center.x*2-1,cy=1-center.y*2;
+    for(const dx of[-.3,0,.3])for(const dy of[-.3,0,.3]){
+      const x=cx+dx*(box.maxX-box.minX)/2,y=cy+dy*(box.maxY-box.minY)/2;
+      assert.ok(palmAlphaAt(mesh,x,y)>.97,key+side+twist+': no hole through the central palm');
+    }
+    let solid=0,feather=0;
+    for(let i=0;i<mesh.length;i+=9)if(mesh[i+8]>.5){
+      assert.ok(Math.abs(Math.hypot(mesh[i+5],mesh[i+6],mesh[i+7])-1)<1e-6,'unit soft-light normal');
+      if(mesh[i+4]===1)solid++;else if(mesh[i+4]>0&&mesh[i+4]<1)feather++;
+      if(mesh[i+7]>.1)assert.equal(mesh[i+4],1,'front-facing interior never becomes translucent');
+    }
+    assert.ok(solid>600&&feather>0,'soft silhouette retains an opaque palm');
+    for(let i=0;i<mesh.length;i+=27)if(mesh[i+8]>.5){
+      const cross=(mesh[i+9]-mesh[i])*(mesh[i+19]-mesh[i+1])-(mesh[i+10]-mesh[i+1])*(mesh[i+18]-mesh[i]);assert.ok(cross<0,'one consistently visible convex surface');
+    }
+  }
+});
+
+test('rounded hands stay finite and inside the canvas across born appearances, fur paths and strong cue extremes',()=>{
+  const f=fixture();f.complete();const capacity=f.buffers[1].data.length;f.api.destroy();
+  const target=new Float32Array(capacity),scratch=new Float64Array(21*24*10);
+  for(const appearance of Motion.appearanceCatalogue.filter(row=>row.family!=='egg'))for(const path of Motion.evolutionCatalogue){
+    const stage=appearance.family==='baby'?'child':appearance.key==='grown'?'final':appearance.key;
+    for(const [cue,age]of[['idle',0],['body_flap',1.2],['body_flap',2.4],['body_flap',3.8],['body_hands',1.2],['body_hands',3.8],['feeding',2],['feeding',5.4],['body_joy',1.8]]){
+      const frame=Motion.handVolumeFrame(age,cue,age,stage,path.key,1.15,appearance.key);frame.scratch=scratch;
+      for(const side of['arm_l','arm_r']){
+        const mesh=Motion.handVolumeMesh(frame,side,target);assert.strictEqual(mesh.buffer,target.buffer);assert.ok(mesh.length>0&&mesh.length<=capacity);assert.equal(mesh.length%27,0,'whole triangles fit the allocated shared VBO');
+        for(let i=0;i<mesh.length;i+=9){
+          for(let j=0;j<9;j++)assert.ok(Number.isFinite(mesh[i+j]),appearance.key+cue+': finite vertex attribute');
+          assert.ok(mesh[i]>=-1&&mesh[i]<=1&&mesh[i+1]>=-1&&mesh[i+1]<=1,appearance.key+cue+': no palm clipping at maximum size');
+          assert.ok(mesh[i+2]>=0&&mesh[i+2]<=1&&mesh[i+3]>=0&&mesh[i+3]<=1,'fur UV remains on the original source');
+          assert.ok(mesh[i+4]>=0&&mesh[i+4]<=1);assert.ok(mesh[i+8]===0||(mesh[i+8]>=1&&mesh[i+8]<=2));
+        }
+      }
+    }
+  }
+  assert.throws(()=>Motion.handVolumeMesh(Motion.handVolumeFrame(1,'idle',1,'final','balanced',1,'grown'),'arm_l',new Float32Array(27)),/hand_mesh_capacity/,'undersized external scratch fails rather than returning truncated triangles');
+  for(const key of['egg','egg_cracked','hatching'])assert.equal(Motion.handVolumeMesh(Motion.handVolumeFrame(1,'body_flap',1,'egg','balanced',1,key),'arm_l').length,0,'eggs do not acquire arms');
+});
+
+test('hand waves, paired flaps, joy and meals turn the wrists and release to the same underlying idle',()=>{
+  for(const key of['newborn','grown'])for(const cue of['body_hands','body_flap','body_joy','feeding']){
+    const duration=Motion.durations[cue]/1000,values=[];
+    for(const age of[.8,1.2,1.8,2.4,3.8,5.2])values.push(Motion.handVolumeFrame(age,cue,age,'final','balanced',1,key).twists.arm_l);
+    assert.ok(Math.max(...values)-Math.min(...values)>.8,cue+': visible wrist turn rather than a uniformly rotating flat drawing');
+    assert.deepEqual(Motion.handVolumeFrame(9,cue,duration,'final','balanced',1,key).twists,Motion.handVolumeFrame(9,'idle',duration,'final','balanced',1,key).twists,'finite acts leave no wrist pose behind');
+  }
+});
+
+test('hand materials preserve upper-arm fur, cap the exposed wrist spike and restore the eighth attribute on all other passes',()=>{
+  for(const key of['newborn','grown']){
+    const f=fixture({captureVolumes:true,options:{appearanceKey:key,outfit:'cloth_cream_vest'}});f.complete();const resources=f.created.length,fragment=f.shaders[1];
+    assert.match(fragment,/handUpperMask\(vec2 p\)/);assert.match(fragment,/smoothstep\(-\.025,-\.012,along\)/,'old crop behind the shoulder cannot form an extra triangular finger');
+    assert.match(fragment,/if\(volume>\.5\)a=v_coverage/,'the solid mitten cannot reveal cream torso through source alpha');
+    assert.match(fragment,/rgb\*=\.90\+\.12\*diffuse/);assert.doesNotMatch(fragment,/specular|shininess|reflect\(/,'no hard plastic highlight');
+    assert.equal([...fragment.matchAll(/uniform vec4 ([^;]+);/g)].reduce((n,row)=>n+row[1].split(',').length,0),8);assert.equal(Object.keys(f.samplers).length,8);assert.equal(f.maxActiveUnit,7);
+    f.api.setSituation('body_flap',{elapsedMs:3800});const arms=f.drawCalls.slice(-9).filter(row=>row.volume);
+    for(const arm of arms){assert.equal(arm.count*9,arm.volumeData.length);assert.equal(arm.volumeData.length%27,0);assert.ok(arm.volumeData.length<=f.buffers[1].data.length);}
+    for(const cue of['direction_back','room_walk_right']){f.api.setSituation(cue,{elapsedMs:2200});assert.equal(f.drawCalls.at(-1).volume,false,'atlas pass cannot inherit a palm normal or fur mask');}
+    f.api.setSituation('feeding',{elapsedMs:1800});assert.equal(f.drawCalls.at(-1).volume,true);assert.deepEqual(f.constants[7],[0,0,1,0],'all hand draws restore the ordinary material before the next part');
+    assert.equal(f.created.length,resources+1,'only the pre-existing turn VBO is added');assert.equal(f.raf.size,1);
+    f.reduce(true);const idle=Array.from(f.drawCalls.at(-1).volumeData);f.api.setSituation('body_flap',{elapsedMs:1800});assert.deepEqual(Array.from(f.drawCalls.at(-1).volumeData),idle,'reduced motion holds neutral hands');
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);assert.equal(f.timers.size,0);
   }
 });
 
@@ -756,8 +857,8 @@ test('transparent clear, premultiplied compositing and temporary cleanplate bind
   assert.equal(f.canvas.contextOptions.premultipliedAlpha,true);assert.equal(f.maxActiveUnit,7);
   assert.deepEqual(Object.values(f.samplers),[0,1,2,3,4,5,6,7]);
   for(const call of f.drawCalls)assert.strictEqual(call.texture4,call.part===1?textures[8]:call.part===6?textures[0]:textures[4]);
-  assert.strictEqual(f.boundTextures[4],textures[4]);assert.equal(f.clears,1);assert.equal(f.updates,1);
-  f.api.setSituation('body_hands',{elapsedMs:1200});assert.equal(f.drawCalls.length,18);assert.equal(f.clears,2);assert.equal(f.updates,2);
+  assert.strictEqual(f.boundTextures[4],textures[4]);assert.equal(f.clears,1);assert.equal(f.updates,3);
+  f.api.setSituation('body_hands',{elapsedMs:1200});assert.equal(f.drawCalls.length,18);assert.equal(f.clears,2);assert.equal(f.updates,6);
   assert.deepEqual(f.drawCalls.slice(9).map(call=>call.part),Motion.rigParts.map(row=>row.index));f.api.destroy();
 });
 
@@ -861,8 +962,8 @@ test('balanced and unknown paths preserve the previous geometry, motion, food an
 test('all evolution and growth combinations retain body rigs, food fallback, uniforms and every cue',()=>{
   for(const stage of growthKeys)for(const path of Motion.evolutionCatalogue){
     const outfit=Motion.outfitCatalogue[path.index],f=fixture({options:{growthStage:stage,evolutionPath:path.key,outfit:outfit.id}});f.complete();
-    assert.deepEqual(f.bindings,[[0,'a_position'],[1,'a_uv'],[2,'a_evolution'],[3,'a_coverage'],[4,'a_part'],[6,'a_mouthMode']]);
-    assert.deepEqual(f.disabledAttributes,[4,2,6]);assert.deepEqual(f.constants[2],[...path.rgb,path.index]);
+    assert.deepEqual(f.bindings,[[0,'a_position'],[1,'a_uv'],[2,'a_evolution'],[3,'a_coverage'],[4,'a_part'],[6,'a_mouthMode'],[7,'a_handVolume']]);
+    assert.deepEqual(f.disabledAttributes.slice(0,4),[4,2,6,7]);assert.deepEqual(f.constants[2],[...path.rgb,path.index]);
     inspectRigMesh(f,stage,path.key);assert.equal(Object.values(f.uniforms).filter(x=>Array.isArray(x)&&x.length===4).length,8);
     const anchor=Motion.feedingAnchor(stage,path.key);assert.equal(anchor.foodTop,anchor.y+.005);assert.equal(anchor.foodLeft,anchor.x-.11);
     for(const name of [...Motion.situations,...Motion.bodyCatalogue.map(row=>row.id)]){

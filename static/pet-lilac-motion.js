@@ -1916,8 +1916,70 @@
     return transform(matrix||identity(),frame&&frame.appearanceKey?appearancePoint(frame.appearanceKey,x,y,path):growthPoint(stage,finite(x,.5),finite(y,.5),path));
   }
   function torsoMaterialPoint(x,y) { return {x:clamp(finite(x,.5),0,1),y:clamp(finite(y,.7),.7,1)}; }
-  // Ear clipping plus a one-pixel feather ring makes cropped meshes without
-  // fragment polygon loops. Subdivision retains the existing growth curvature.
+  // A small local 3D surface replaces the distal frontal paws. The original
+  // proximal arms and body stay drawn; no second hand image is layered on.
+  var handVolumeProfiles=Object.freeze({
+    mature:Object.freeze({
+      arm_l:Object.freeze({center:Object.freeze([.533,.748]),major:.117,minor:.070,depth:.058,angle:-.28,shoulder:Object.freeze([.374,.705]),proximal:.104}),
+      arm_r:Object.freeze({center:Object.freeze([.748,.737]),major:.078,minor:.055,depth:.046,angle:.65,shoulder:Object.freeze([.794,.650]),proximal:.090})
+    }),
+    baby:Object.freeze({
+      arm_l:Object.freeze({center:Object.freeze([.372,.773]),major:.040,minor:.034,depth:.029,angle:1.93,shoulder:Object.freeze([.411,.666]),proximal:.093}),
+      arm_r:Object.freeze({center:Object.freeze([.752,.780]),major:.040,minor:.033,depth:.029,angle:1.02,shoulder:Object.freeze([.675,.659]),proximal:.112})
+    })
+  });
+  function handWristTwist(rig,seconds,age,side) {
+    var p=rig.pose,name=p.situation,e=p.presence,sign=side==='arm_l'?1:-1;
+    var yaw=.075*Math.sin(seconds*1.1+(sign>0?0:1.8))+.35*p.pawSpread+.20*p.wiggle;
+    if(name==='body_hands')yaw=sign*(.35+1.85*Math.sin(age*TAU*.7))*pulse(age,sign>0?.45:2.55,sign>0?2.25:2.5)*e;
+    else if(name==='body_flap'){var flap=armFlapPhase(age);yaw=sign*(.45+1.65*Math.sin((age-.9)*TAU*.925))*flap.open*e;}
+    else if(name==='body_joy'||name==='joy'||name==='celebrate'||name==='dance')yaw+=sign*1.45*Math.sin(age*TAU*.65)*e;
+    else if(name==='feeding')yaw=sign*(age<4.4?.72+.20*p.chew:1.35*Math.sin((age-4.4)*TAU*.65))*e;
+    return clamp(yaw,-2.25,2.25);
+  }
+  function handVolumeState(rig,seconds,age,stage,path,appearanceKey) {
+    return {rig:rig,seconds:seconds,age:age,stage:stage,path:path,appearanceKey:appearanceKey,
+      family:appearanceProfile(appearanceKey).family,twists:{arm_l:handWristTwist(rig,seconds,age,'arm_l'),arm_r:handWristTwist(rig,seconds,age,'arm_r')}};
+  }
+  function handVolumeFrame(seconds,situation,elapsedSeconds,stage,path,scale,appearanceKey) {
+    var s=Math.max(0,finite(seconds,0)),age=Math.max(0,finite(elapsedSeconds,s));
+    return handVolumeState(rigPose(s,situation,age,stage,path,scale,appearanceKey),s,age,stage,path,appearanceKey);
+  }
+  var handVolumeRows=20,handVolumeColumns=24,handVolumeMaxFloats=(handVolumeRows*handVolumeColumns*6+12000)*9;
+  var handSphereTemplate=(function(){var data=new Float64Array((handVolumeRows+1)*handVolumeColumns*4),i=0;for(var row=0;row<=handVolumeRows;row++){var along=2*row/handVolumeRows-1,radius=Math.sqrt(Math.max(0,1-along*along));for(var col=0;col<handVolumeColumns;col++){var theta=col/handVolumeColumns*TAU;data[i++]=along;data[i++]=radius;data[i++]=Math.cos(theta);data[i++]=Math.sin(theta);}}return data;}());
+  function handProximalCoverage(profile,x,y){var dx=profile.center[0]-profile.shoulder[0],dy=profile.center[1]-profile.shoulder[1],length=Math.hypot(dx,dy),along=((x-profile.shoulder[0])*dx+(y-profile.shoulder[1])*dy)/length;return (1-smooth((Math.hypot(x-profile.shoulder[0],y-profile.shoulder[1])-profile.proximal+.012)/.022))*smooth((along+.025)/.013);}
+  function handUpperShader(family){var left=handVolumeProfiles[family].arm_l,right=handVolumeProfiles[family].arm_r;return 'float handUpperMask(vec2 p){vec2 shoulder=v_part<7.5?vec2('+left.shoulder.join(',')+'):vec2('+right.shoulder.join(',')+');vec2 center=v_part<7.5?vec2('+left.center.join(',')+'):vec2('+right.center.join(',')+');float radius=v_part<7.5?'+left.proximal+':'+right.proximal+';float along=dot(p-shoulder,normalize(center-shoulder));return (1.-smoothstep(radius-.012,radius+.010,length(p-shoulder)))*smoothstep(-.025,-.012,along);}';}
+  function handVolumeMesh(frame,side,target) {
+    if(!frame||!frame.rig||frame.family==='egg'||(side!=='arm_l'&&side!=='arm_r'))return new Float32Array(0);
+    var profile=handVolumeProfiles[frame.family==='baby'?'baby':'mature'][side],m=frame.rig.matrices[side],twist=frame.twists[side];
+    var rows=handVolumeRows,columns=handVolumeColumns,grid=frame.scratch||new Float64Array((rows+1)*columns*10),out=target||new Float32Array(handVolumeMaxFloats),cursor=0;
+    var source=frame.sourceMeshes&&frame.sourceMeshes[side];
+    if(!source){var parts=frame.family==='baby'?nurseryRigParts:rigParts;source=rigMesh(parts[side==='arm_l'?7:8],frame.stage,frame.path,frame.appearanceKey);}
+    // Keep the shoulder/elbow drawing, then overlap it with one convex palm.
+    // There is no distal copy of the old flat hand beneath the new surface.
+    for(var i=0;i<source.length;i+=15){
+      var w0=source[i+4]*handProximalCoverage(profile,source[i+2],source[i+3]),w1=source[i+9]*handProximalCoverage(profile,source[i+7],source[i+8]),w2=source[i+14]*handProximalCoverage(profile,source[i+12],source[i+13]);
+      if(Math.max(w0,w1,w2)<=0)continue;
+      for(var k=0;k<3;k++){var at=i+k*5,x,y;if(frame.projected){var base=frame.starts[side]+at;x=frame.projected[base];y=frame.projected[base+1];}else{x=(m[0]*source[at]+m[2]*source[at+1]+m[4])*2-1;y=1-(m[1]*source[at]+m[3]*source[at+1]+m[5])*2;}
+        out[cursor++]=x;out[cursor++]=y;out[cursor++]=source[at+2];out[cursor++]=source[at+3];out[cursor++]=k===0?w0:k===1?w1:w2;out[cursor++]=0;out[cursor++]=0;out[cursor++]=1;out[cursor++]=0;}
+    }
+    var ax=Math.cos(profile.angle),ay=Math.sin(profile.angle),nx=-ay,ny=ax,co=Math.cos(twist),si=Math.sin(twist),det=m[0]*m[3]-m[1]*m[2],depthScale=Math.sqrt(Math.abs(det));
+    for(var n=0;n<handSphereTemplate.length/4;n++){
+      var offset=n*4,g=n*10,along=handSphereTemplate[offset],radius=handSphereTemplate[offset+1],cos=handSphereTemplate[offset+2],sin=handSphereTemplate[offset+3];
+      var a=profile.minor*radius*cos,b=profile.depth*radius*sin,cross=a*co-b*si,x=profile.center[0]+ax*profile.major*along+nx*cross,y=profile.center[1]+ay*profile.major*along+ny*cross;
+      var point=frame.family==='baby'?appearancePoint(frame.appearanceKey,x,y,frame.path):growthPoint(frame.stage,x,y,frame.path);
+      grid[g]=m[0]*point.x+m[2]*point.y+m[4];grid[g+1]=m[1]*point.x+m[3]*point.y+m[5];grid[g+2]=(a*si+b*co)*depthScale;
+      grid[g+3]=profile.center[0]+ax*profile.major*along+nx*a;grid[g+4]=profile.center[1]+ay*profile.major*along+ny*a;grid[g+5]=1-smooth((sin+.15)/.3);
+      var na=along/profile.major,nn=radius*cos/profile.minor,nz=radius*sin/profile.depth,nCross=nn*co-nz*si,localX=ax*na+nx*nCross,localY=ay*na+ny*nCross;
+      var wx=(m[3]*localX-m[1]*localY)/det,wy=(-m[2]*localX+m[0]*localY)/det,wz=(nn*si+nz*co)/depthScale,length=Math.hypot(wx,wy,wz);
+      grid[g+6]=wx/length;grid[g+7]=wy/length;grid[g+8]=Math.abs(wz/length);grid[g+9]=smooth(wz/length/.09);
+    }
+    function vertex(g){out[cursor++]=grid[g]*2-1;out[cursor++]=1-grid[g+1]*2;out[cursor++]=grid[g+3];out[cursor++]=grid[g+4];out[cursor++]=grid[g+9];out[cursor++]=grid[g+6];out[cursor++]=grid[g+7];out[cursor++]=grid[g+8];out[cursor++]=1+grid[g+5];}
+    function triangle(a,b,c){var face=(grid[b]-grid[a])*(grid[c+1]-grid[a+1])-(grid[b+1]-grid[a+1])*(grid[c]-grid[a]);if(face<=1e-12)return;vertex(a);vertex(b);vertex(c);}
+    for(var rr=0;rr<rows;rr++)for(var cc=0;cc<columns;cc++){var a=(rr*columns+cc)*10,b=((rr+1)*columns+cc)*10,c=(rr*columns+(cc+1)%columns)*10,d=((rr+1)*columns+(cc+1)%columns)*10;triangle(a,c,b);triangle(c,d,b);}
+    if(cursor>out.length)throw new RangeError('hand_mesh_capacity');
+    return out.subarray(0,cursor);
+  }
   function rigMesh(part,stage,path,appearanceKey) {
     function point(x,y){return appearanceProfile(appearanceKey).family==='baby'?appearancePoint(appearanceKey,x,y,path):growthPoint(stage,x,y,path);}
     var poly=part.polygon.map(function(v){return {x:v[0],y:v[1]};}),area=0,cx=0,cy=0;
@@ -2042,10 +2104,10 @@
     'float tail=u_effect.x>=0.?ce(p,u_effect.xy,u_effect.zw):0.;color=mix(color,garment.rgb,garment.a*(1.-max(paws,tail)));}',
     'float a=source.a*u_motionA.x*v_coverage;return vec4(color*a,a);}'
   ].join('\n');
-  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; attribute vec4 a_evolution; attribute float a_coverage; attribute float a_part; attribute float a_mouthMode; varying vec2 v_uv; varying vec4 v_evolution; varying float v_coverage; varying float v_part; varying float v_mouthMode; void main(){v_uv=a_uv;v_evolution=a_evolution;v_coverage=a_coverage;v_part=a_part;v_mouthMode=a_mouthMode;gl_Position=vec4(a_position,0.,1.);}';
+  var vertexSource = 'attribute vec2 a_position; attribute vec2 a_uv; attribute vec4 a_evolution; attribute float a_coverage; attribute float a_part; attribute float a_mouthMode; attribute vec4 a_handVolume; varying vec2 v_uv; varying vec4 v_evolution; varying float v_coverage; varying float v_part; varying float v_mouthMode; varying vec4 v_handVolume; void main(){v_uv=a_uv;v_evolution=a_evolution;v_coverage=a_coverage;v_part=a_part;v_mouthMode=a_mouthMode;v_handVolume=a_handVolume;gl_Position=vec4(a_position,0.,1.);}';
   var fragmentSource = [
     '#ifdef GL_FRAGMENT_PRECISION_HIGH', 'precision highp float;', '#else', 'precision mediump float;', '#endif',
-    'varying vec2 v_uv; varying vec4 v_evolution; varying float v_coverage; varying float v_part; varying float v_mouthMode; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
+    'varying vec2 v_uv; varying vec4 v_evolution; varying float v_coverage; varying float v_part; varying float v_mouthMode; varying vec4 v_handVolume; uniform sampler2D u_original,u_half,u_closed,u_alpha,u_sad,u_angry,u_surprise,u_delighted;',
     'uniform vec4 u_motionA,u_motionB,u_motionC,u_body,u_gesture,u_face,u_effect,u_detail;',
     '#define u_breath u_motionA.x', '#define u_tilt u_motionA.y', '#define u_ear u_motionA.z', '#define u_tail u_motionA.w',
     '#define u_wave u_motionB.x', '#define u_wiggle u_motionB.y', '#define u_blink u_motionB.z', '#define u_chew u_motionB.w',
@@ -2058,10 +2120,11 @@
     'mat2 rotation(float a){return mat2(cos(a),-sin(a),sin(a),cos(a));}',
     'float eyeMask(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.85,1.1,length(rotation(.28)*(p-c)/r));}',
     'float droplet(vec2 p,vec2 c,vec2 r){vec2 q=(p-c)/r;return 1.-smoothstep(.75,1.05,dot(q,q));}',
-    clothingShader, evolutionShader,
+    clothingShader, evolutionShader,handUpperShader('mature'),
+    'vec3 handMaterial(vec2 p,vec3 source){vec2 seed=v_part<7.5?vec2(.530,.750):vec2(.760,.735);vec3 back=texture2D(u_original,seed+(p-seed)*.14).rgb;vec3 front=mix(back,source,furSelect(source));return mix(front,back,clamp(v_handVolume.w-1.,0.,1.)*.8);}',
     'float toothPatch(vec2 p){return ce(p,vec2(.628,.511),vec2(.10,.067))*smoothstep(.455,.463,p.y);}',
     turnShader,
-    'void main(){if(v_part>9.5){gl_FragColor=turnImage(v_uv);return;}vec2 p=v_uv;float headPart=1.-step(.1,abs(v_part-6.));float torsoPart=1.-step(.1,abs(v_part-1.));',
+    'void main(){if(v_part>9.5){gl_FragColor=turnImage(v_uv);return;}vec2 p=v_uv;float headPart=1.-step(.1,abs(v_part-6.));float torsoPart=1.-step(.1,abs(v_part-1.));float volume=step(.5,v_handVolume.w);vec3 handNormal=v_handVolume.xyz/max(.001,length(v_handVolume.xyz));',
     'float mouth=region(p,vec2(.628,.499),vec2(.080,.055))*headPart;p.y+=u_chew*.010*mouth;',
     'p.y+=(p.y-.499)*u_mouthOpen*.22*mouth;',
     // Negative narrowing is a one-eye glance with a crooked mouth, rather than
@@ -2077,6 +2140,7 @@
     'p-=u_look*iris*(1.-u_blink);vec2 uv=clamp(p,vec2(.0001),vec2(.9999));',
     'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)))*headPart;',
     'vec3 original=texture2D(u_original,uv).rgb;',
+    'if(volume>.5)original=handMaterial(uv,original);',
     // Only the area hidden by the old arms uses generated material. The original
     // head, fur outside that patch and all source cutout alpha remain unchanged.
     'if(torsoPart>.5){float patch=max(ce(p,vec2(.518,.742),vec2(.215,.137)),ce(p,vec2(.742,.716),vec2(.14,.136)));patch=max(patch,1.-smoothstep(.695,.708,p.y));vec2 plateUV=vec2(uv.x,max(.7,uv.y));original=mix(original,texture2D(u_sad,plateUV).rgb,patch);',
@@ -2097,6 +2161,7 @@
     'rgb=mix(rgb,texture2D(u_closed,uv).rgb,eye*smoothstep(.5,1.,blink));',
     'if(headPart>.5){vec3 toothBase=texture2D(u_angry,uv).rgb;vec3 toothExpression=texture2D(u_surprise,uv).rgb;vec3 tooth=mix(toothBase,toothExpression,v_mouthMode>.5?u_presence:weight);rgb=mix(rgb,tooth,toothPatch(uv));}',
     'rgb=evolvedFur(p,original,rgb);',
+    'if(volume>.5){float diffuse=max(0.,dot(handNormal,normalize(vec3(-.35,-.60,.72))));rgb*=.90+.12*diffuse;rgb+=vec3(.012,.0108,.0084)*max(0.,handNormal.y);}',
     'float blush=region(p,vec2(.405,.55),vec2(.062,.04))+region(p,vec2(.80,.445),vec2(.047,.037));',
     'rgb=mix(rgb,vec3(.99,.48,.67),clamp(blush*u_blush*.25,0.,.3));',
     'float fall=fract(u_phase*.85);float tears=max(droplet(p,vec2(.414,.51+.085*fall),vec2(.009,.018)),droplet(p,vec2(.78,.415+.07*fall),vec2(.008,.016)));',
@@ -2106,13 +2171,14 @@
     'redMark=max(redMark,(1.-smoothstep(.003,.006,abs(abs(mark.y)-.012)))*(1.-smoothstep(.014,.02,abs(mark.x))));',
     'rgb=mix(rgb,vec3(.76,.13,.35),redMark*u_anger*.8*headPart);',
     'if(torsoPart>.5&&u_outfit>.5){vec4 garment=clothing(p,original,u_outfit);rgb=mix(rgb,garment.rgb,garment.a);}',
-    'float a=texture2D(u_alpha,uv).a*v_coverage;if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb*a,a);}'
+    'float a=texture2D(u_alpha,uv).a*v_coverage;if(volume>.5)a=v_coverage;else if(v_part>6.5&&v_part<8.5)a*=handUpperMask(uv);if(p.x<0.||p.y<0.||p.x>1.||p.y>1.)a=0.;gl_FragColor=vec4(rgb*a,a);}'
   ].join('\n');
 
   function nurseryFragmentSource(){
     // These substitutions are source-family landmarks, not another drawing of
     // the adult face. Each sampler below points only at nursery assets.
     var replacements=[
+      ['vec2(.530,.750):vec2(.760,.735)','vec2(.375,.758):vec2(.742,.767)'],
       ['vec2(.4665,.429)','vec2(.44318,.43534)'],['vec2(.7281,.3405)','vec2(.68435,.40677)'],
       ['vec2(.628,.499)','vec2(.58051,.52638)'],['vec2(.625,.48)','vec2(.58051,.51638)'],
       ['vec2(.628,.511),vec2(.10,.067)','vec2(.58051,.54),vec2(.085,.057)'],['smoothstep(.455,.463,p.y)','smoothstep(.505,.513,p.y)'],
@@ -2126,6 +2192,7 @@
       ['vec2(.414,.907),vec2(.09,.035)','vec2(.452,.914),vec2(.062,.03)'],['vec2(.692,.897),vec2(.065,.035)','vec2(.628,.912),vec2(.058,.03)']
     ];
     var result=fragmentSource;replacements.forEach(function(row){result=result.split(row[0]).join(row[1]);});
+    result=result.replace(handUpperShader('mature'),handUpperShader('baby'));
     var maps=nurseryFaceMaps.map(function(row){var m=row.matrix,r=row.sourceRect;return 'if(cell>'+((row.cell-.5).toFixed(1))+'&&cell<'+((row.cell+.5).toFixed(1))+'){q=vec2(dot(vec3(p,1.),vec3('+m.slice(0,3).join(',')+')),dot(vec3(p,1.),vec3('+m.slice(3).join(',')+')));rect=vec4('+r.join(',')+');}';}).join('\n');
     var helper='varying vec4 v_sourceRect;\nvec4 nurserySample(sampler2D im,vec2 p,float cell){vec2 q=p;vec4 rect=vec4(0.,0.,1.,1.);'+maps+'vec2 tile=vec2(mod(cell,3.),floor(cell/3.));return texture2D(im,clamp((tile+q)/3.,rect.xy,rect.zw));}\n';
     // Unit four is the expression sheet for the front and the separate 16-view
@@ -2161,9 +2228,10 @@
     var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit);
     var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey);
     var sourceSlots=family==='baby'?[0,1,1,0,1,1,1,1,1,2]:family==='egg'?[0,0,0,0,0,0,0,0,0,0]:[0,1,2,3,4,5,6,7,8,9];
-    var assetTextures=[],textureImages=[],sourceRectAttribute=null,mouthAttribute=null;
+    var assetTextures=[],textureImages=[],sourceRectAttribute=null,mouthAttribute=null,volumeAttribute=null;
     var rigGeometry=[],restVertices=null,drawVertices=null,partAttribute=null,buffer=null,textures=[];
     var turnBuffer=null,turnVertices=null,turnMeshes={},turnBounds={},boundVertexBuffer=null,position=null,uv=null,coverage=null;
+    var handBuffer=null,handVertices=null,handScratch=null,handSourceMeshes={},handSourceStarts={};
     var clock = typeof options.now === 'function' ? options.now : function () { return win.performance && win.performance.now ? win.performance.now() : Date.now(); };
     function listen(target, type, callback) {
       if (!target || typeof target.addEventListener !== 'function') return;
@@ -2245,9 +2313,18 @@
     }
     function bindVertices(value) {
       gl.bindBuffer(gl.ARRAY_BUFFER,value);
+      if(volumeAttribute!==null){gl.disableVertexAttribArray(volumeAttribute);gl.vertexAttrib4f(volumeAttribute,0,0,1,0);}
       if(boundVertexBuffer===value)return;
       gl.vertexAttribPointer(position,2,gl.FLOAT,false,20,0);gl.vertexAttribPointer(uv,2,gl.FLOAT,false,20,8);gl.vertexAttribPointer(coverage,1,gl.FLOAT,false,20,16);
       boundVertexBuffer=value;
+    }
+    function paintHand(frame,part){
+      if(!handBuffer){handBuffer=own('createBuffer');handVertices=new Float32Array(handVolumeMaxFloats);handScratch=new Float64Array((handVolumeRows+1)*handVolumeColumns*10);gl.bindBuffer(gl.ARRAY_BUFFER,handBuffer);gl.bufferData(gl.ARRAY_BUFFER,handVertices,gl.DYNAMIC_DRAW);}
+      frame.scratch=handScratch;
+      var vertices=handVolumeMesh(frame,part.id,handVertices);
+      gl.bindBuffer(gl.ARRAY_BUFFER,handBuffer);gl.vertexAttribPointer(position,2,gl.FLOAT,false,36,0);gl.vertexAttribPointer(uv,2,gl.FLOAT,false,36,8);gl.vertexAttribPointer(coverage,1,gl.FLOAT,false,36,16);
+      gl.enableVertexAttribArray(volumeAttribute);gl.vertexAttribPointer(volumeAttribute,4,gl.FLOAT,false,36,20);boundVertexBuffer=handBuffer;
+      gl.bufferSubData(gl.ARRAY_BUFFER,0,vertices);gl.vertexAttrib1f(partAttribute,part.index);gl.drawArrays(gl.TRIANGLES,0,vertices.length/9);bindVertices(buffer);
     }
     function paintTurn(frame,rig) {
       // Only the at-most-two visible views have working vertices. Ordinary
@@ -2310,11 +2387,10 @@
         else {
         rigGeometry.forEach(function(part){
           var matrix=rig.matrices[part.id];
-          var roundPalm=family==='mature'&&p.situation==='body_flap'&&part.id==='arm_l'?armFlapPhase(elapsed).open*p.presence:0;
           for(var offset=part.start*5;offset<(part.start+part.count)*5;offset+=5){
             var point=transform(matrix,{x:restVertices[offset],y:restVertices[offset+1]});
             drawVertices[offset]=point.x*2-1;drawVertices[offset+1]=1-point.y*2;
-            drawVertices[offset+4]=roundPalm?restVertices[offset+4]*(1-roundPalm+roundPalm*armFlapCoverage(restVertices[offset+2],restVertices[offset+3])):restVertices[offset+4];
+            drawVertices[offset+4]=restVertices[offset+4];
           }
         });
         bindVertices(buffer);gl.bufferSubData(gl.ARRAY_BUFFER,0,drawVertices);
@@ -2323,7 +2399,10 @@
           var fields = packedUniforms[key];
           gl.uniform4f(locations[key], p[fields[0]], p[fields[1]], p[fields[2]], p[fields[3]]);
         });
+        var hands=handVolumeState(rig,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,appearance.key);
+        hands.sourceMeshes=handSourceMeshes;hands.projected=drawVertices;hands.starts=handSourceStarts;
         rigGeometry.forEach(function(part){
+          if(part.id==='arm_l'||part.id==='arm_r'){paintHand(hands,part);return;}
           // Local mouth donors and the clean torso reuse existing sampler units;
           // every other part retains the exact original material and alpha.
           if(part.id==='torso'){gl.activeTexture(gl.TEXTURE0+4);gl.bindTexture(gl.TEXTURE_2D,textures[8]);}
@@ -2390,6 +2469,7 @@
       gl.bindAttribLocation(program, 4, 'a_part');
       if(family==='baby')gl.bindAttribLocation(program,5,'a_sourceRect');
       if(family!=='egg')gl.bindAttribLocation(program,6,'a_mouthMode');
+      if(family!=='egg')gl.bindAttribLocation(program,7,'a_handVolume');
       gl.linkProgram(program);
       if (!gl.getProgramParameter(program, gl.LINK_STATUS)) throw new Error('link');
       gl.useProgram(program);
@@ -2397,7 +2477,7 @@
       var selectedParts=family==='baby'?nurseryRigParts:rigParts;
       var parts=family==='egg'?[new Float32Array([0,0,0,0,1,0,1,0,1,1,1,0,1,0,1,1,0,1,0,1,0,1,0,1,1,1,1,1,1,1])]:selectedParts.map(function(part){return rigMesh(part,stageProfile.key,branchProfile.key,appearance.key);}),floatCount=parts.reduce(function(n,array){return n+array.length;},0),cursor=0;
       restVertices=new Float32Array(floatCount);
-      parts.forEach(function(values,index){rigGeometry.push({id:family==='egg'?'egg':selectedParts[index].id,index:index,start:cursor/5,count:values.length/5});restVertices.set(values,cursor);cursor+=values.length;});
+      parts.forEach(function(values,index){var id=family==='egg'?'egg':selectedParts[index].id;rigGeometry.push({id:id,index:index,start:cursor/5,count:values.length/5});if(id==='arm_l'||id==='arm_r'){handSourceMeshes[id]=values;handSourceStarts[id]=cursor;}restVertices.set(values,cursor);cursor+=values.length;});
       drawVertices=new Float32Array(restVertices);gl.bufferData(gl.ARRAY_BUFFER,drawVertices,gl.DYNAMIC_DRAW);
       position = gl.getAttribLocation(program, 'a_position'); uv = gl.getAttribLocation(program, 'a_uv');
       gl.enableVertexAttribArray(position); gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 20, 0);
@@ -2409,6 +2489,7 @@
       gl.vertexAttrib4f(branchAttribute, branchProfile.rgb[0], branchProfile.rgb[1], branchProfile.rgb[2], branchProfile.index);
       if(family==='baby'){sourceRectAttribute=gl.getAttribLocation(program,'a_sourceRect');gl.disableVertexAttribArray(sourceRectAttribute);gl.vertexAttrib4f(sourceRectAttribute,0,0,1,1);}
       if(family!=='egg'){mouthAttribute=gl.getAttribLocation(program,'a_mouthMode');if(mouthAttribute>=0){gl.disableVertexAttribArray(mouthAttribute);gl.vertexAttrib1f(mouthAttribute,0);}else mouthAttribute=null;}
+      if(family!=='egg'){volumeAttribute=gl.getAttribLocation(program,'a_handVolume');if(volumeAttribute<0)throw new Error('volume_attribute');gl.disableVertexAttribArray(volumeAttribute);gl.vertexAttrib4f(volumeAttribute,0,0,1,0);}
       Object.keys(packedUniforms).forEach(function (key) { locations[key] = gl.getUniformLocation(program, 'u_' + key); });
       var samplerNames = ['u_original', 'u_half', 'u_closed', 'u_alpha', 'u_sad', 'u_angry', 'u_surprise', 'u_delighted'];
       samplerNames.forEach(function(name,i){gl.uniform1i(gl.getUniformLocation(program,name),i);});
@@ -2453,7 +2534,7 @@
     return controller;
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
-    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,nurseryLandmarks:nurseryLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
+    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,
     catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
