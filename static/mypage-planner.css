@@ -1,4 +1,5 @@
 /* Adopted planner, using the existing MyPage palette and type settings. */
+#myPageOv [data-retired-todo]{display:none!important}
 #myPageOv .mo-pane:not([data-planner-ready]):has(#mpGoal),
 #myPageOv .mo-pane:not([data-planner-ready]):has(#mpMemo),
 #myPageOv .mo-pane:not([data-planner-ready]):has(#mpTodoList){visibility:hidden}

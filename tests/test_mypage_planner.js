@@ -278,10 +278,10 @@ test('interactive startup builds a later MyPage at DOMContentLoaded without wait
   h.showPage();h.domReady();await settle();
   assert.equal(h.elapsed,0);assert.equal(h.loads,1);assert.equal(h.memo.value,'DOM準備後に復元する架空の本文');
   const bar=h.page.querySelector('.mp-planner-bar');
-  assert.equal(h.page.querySelectorAll('.mp-planner').length,3);assert.equal(h.intervals.length,1);
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,2);assert.equal(h.intervals.length,1);
   h.flushTimers(200);await settle();
   assert.equal(h.page.querySelector('.mp-planner-bar'),bar);assert.equal(h.page.querySelectorAll('.mp-planner-bar').length,1);
-  assert.equal(h.page.querySelectorAll('.mp-planner').length,3);assert.equal(h.loads,1);assert.equal(h.intervals.length,1);
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,2);assert.equal(h.loads,1);assert.equal(h.intervals.length,1);
   assert.equal(h.frame,frame);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
 });
 
@@ -292,7 +292,7 @@ test('interactive startup mounts an existing MyPage immediately and DOMContentLo
   assert.equal(h.documentOptions.DOMContentLoaded.once,true);
   h.domReady();await settle();h.flushTimers(200);await settle();
   assert.equal(h.page.querySelector('.mp-planner-bar'),bar);assert.equal(h.page.querySelectorAll('.mp-planner-bar').length,1);
-  assert.equal(h.page.querySelectorAll('.mp-planner').length,3);assert.equal(h.loads,1);assert.equal(h.intervals.length,1);
+  assert.equal(h.page.querySelectorAll('.mp-planner').length,2);assert.equal(h.loads,1);assert.equal(h.intervals.length,1);
   assert.equal(h.frame,frame);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
 });
 
@@ -436,23 +436,6 @@ test('signout cancels a not-yet-started owner cloud save while keeping staged by
   assert.equal(h.raw,staged);assert.equal(h.saves.length,0);assert.equal(h.memo.value,'');
 });
 
-test('existing todo edit drafts survive another task checkbox and a fresh controller', async () => {
-  const raw=encode({todos:[
-    {id:'first',text:'保存済みの本文',done:false,goalId:''},
-    {id:'second',text:'別のやること',done:false,goalId:''}
-  ]});
-  const h=controller({raw});await settle();
-  const firstEditor=h.page.querySelector('.mp-tasks').children[0].querySelector('.mp-task-edit input');
-  h.type(firstEditor,'編集途中の本文\n');
-  const secondCheck=h.page.querySelector('.mp-tasks').children[1].querySelector('input');
-  secondCheck.checked=true;secondCheck.dispatch('change');
-  assert.equal(h.page.querySelector('.mp-tasks').children[0].querySelector('.mp-task-edit input').value,'編集途中の本文\n');
-  const staged=JSON.parse(h.raw);
-  assert.equal(staged.todos[0].text,'保存済みの本文');
-  assert.equal(staged.todoEdits.first.text,'編集途中の本文\n');
-  const restored=controller({raw:h.raw});await settle();
-  assert.equal(restored.page.querySelector('.mp-tasks').children[0].querySelector('.mp-task-edit input').value,'編集途中の本文\n');
-});
 
 test('signout removes private goal drafts and names from every remaining form control', async () => {
   const raw=encode({
@@ -487,17 +470,6 @@ test('a later unsupported restore cannot be overwritten through an older valid e
   assert.equal(h.memo.disabled,false,'successful explicit restore allows editing again');
 });
 
-test('an identical owner refresh keeps existing todo handlers connected to the saved document', async () => {
-  const raw=encode({todos:[{id:'todo-1',text:'更新後に完了する',done:false,goalId:''}]});
-  const h=controller({raw,autoSave:true});await settle();
-  const originalCheck=h.page.querySelector('.mp-tasks').children[0].querySelector('input');
-  h.auth({id:'owner-A'});await settle();
-  assert.equal(h.page.querySelector('.mp-tasks').children[0].querySelector('input'),originalCheck,'same data retains the mounted row');
-  originalCheck.checked=true;originalCheck.dispatch('change');await settle();
-  h.flushTimers();await settle();
-  assert.equal(JSON.parse(h.raw).todos[0].done,true,'the handler must update the live document, not a detached clone');
-  assert.equal(h.page.querySelector('.mp-completed-tasks').children[0].querySelector('input').checked,true);
-});
 
 test('an identical tab restore keeps existing group rename handlers connected to the saved document', async () => {
   const raw=encode({groups:[{id:'group-1',name:'元のまとめ'}],notes:[note({body:'本文はそのまま\n',groupId:'group-1'})]});
@@ -524,21 +496,16 @@ test('planned deposits use decimal addition without binary multiplication artifa
 });
 
 const reminder=(id,extra={})=>({id,text:id,done:false,goalId:'',...extra});
-function reminderEditor(row){
-  const edit=row.querySelector('.mp-task-edit'),inputs=edit.querySelectorAll('input');
-  return {edit,title:edit.querySelector('summary'),text:inputs.find(n=>n.type==='text'),due:inputs.find(n=>n.type==='date'),flag:inputs.find(n=>n.type==='checkbox'),goal:edit.querySelector('select'),save:edit.querySelectorAll('button').find(n=>n.textContent==='変更を保存')};
-}
-const reminderInput=(h,id)=>h.page.querySelectorAll('input').find(n=>n.id===id);
-const taskRows=(h,completed=false)=>h.page.querySelector(completed?'.mp-completed-tasks':'.mp-tasks').children.filter(n=>n.classList.contains('mp-task'));
-
 test('legacy reminder rows and additive fields remain byte-for-byte unchanged when merely restored',async()=>{
   const raw=encode({todos:[reminder('old',{extension:{preserve:'row'}})],todoDraft:{text:'書きかけ',goalId:'',extension:{preserve:'composer'}},todoEdits:{old:{text:'編集途中',goalId:'',extension:{preserve:'editor'}}}});
   const decoded=planner.decode(raw);assert.equal(JSON.stringify(decoded),raw);
   assert.equal(Object.hasOwn(decoded.todos[0],'dueDate'),false);assert.equal(Object.hasOwn(decoded.todoDraft,'flagged'),false);
   const h=controller({raw});await settle();
   assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.focused,null);
-  assert.equal(reminderInput(h,'mpTodoInput').value,'書きかけ');
-  assert.equal(reminderEditor(taskRows(h)[0]).text.value,'編集途中');
+  assert.equal(h.page.querySelector('.mp-reminders'),null);
+  assert.equal(h.page.querySelectorAll('input').some(input=>input.id==='mpTodoInput'),false);
+  const reserved=h.body.querySelectorAll('.mo-pane:not(.kb-pane)')[2];
+  assert.equal(reserved.hidden,true);assert.equal(reserved.inert,true);assert.equal(reserved.children.length,0);
 });
 
 test('optional reminder dates and flags reject invalid saved rows and both kinds of draft atomically',()=>{
@@ -578,110 +545,6 @@ test('smart reminder filters preserve order, combine literal search and exclude 
   assert.equal(JSON.stringify(rows),before);assert.equal(planner.filterTodos(rows,'today','',today)[0],rows[2]);
   assert.throws(()=>planner.filterTodos(rows,'unknown','',today));assert.throws(()=>planner.filterTodos(rows,'all','','2026-02-30'));
 });
-
-test('reminder row titles open native editing independently from completion and completed items start folded',async()=>{
-  const raw=encode({todos:[reminder('first',{text:'  <b>文字のまま</b>  '}),reminder('done',{done:true}),reminder('last')]});
-  const h=controller({raw});await settle();const rows=taskRows(h),row=rows[0],editor=reminderEditor(row),check=row.querySelector('.mp-task-check input');
-  assert.equal(rows.length,2);assert.equal(taskRows(h,true).length,1);
-  assert.equal(h.page.querySelector('.mp-completed').open,false);assert.equal(h.page.querySelector('.mp-completed').hidden,false);
-  assert.equal(h.page.querySelector('.mp-reminders-count').textContent,'2');
-  assert.equal(editor.edit.tagName,'DETAILS');assert.equal(editor.title.tagName,'SUMMARY');assert.equal(check.type,'checkbox');
-  assert.equal(row.querySelector('.mp-task-circle').getAttribute('aria-hidden'),'true');
-  assert.equal(editor.title.querySelector('.mp-task-text').textContent,'  <b>文字のまま</b>  ');
-  editor.title.click();assert.equal(editor.edit.open,true);assert.equal(h.focused,editor.text);
-  assert.equal(check.checked,false);assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
-});
-
-test('completing and restoring a reminder keeps its identity, original order and goal progress',async()=>{
-  const raw=encode({goals:[goal()],todos:[reminder('first',{goalId:'goal-1'}),reminder('already-done',{done:true,goalId:'goal-1'}),reminder('last')]});
-  const h=controller({raw,autoSave:true});await settle();
-  const firstCheck=taskRows(h)[0].querySelector('.mp-task-check input');firstCheck.checked=true;firstCheck.dispatch('change');
-  let saved=JSON.parse(h.raw);assert.deepEqual(saved.todos.map(t=>t.id),['first','already-done','last']);
-  assert.equal(saved.todos[0].done,true);assert.equal(taskRows(h).length,1);assert.equal(taskRows(h,true).length,2);
-  assert.equal(planner.progress(saved.goals[0],null,saved.todos).done,2);
-  const completed=h.page.querySelector('.mp-completed');completed.open=true;completed.dispatch('toggle');
-  const restore=taskRows(h,true)[0].querySelector('.mp-task-check input');restore.checked=false;restore.dispatch('change');
-  saved=JSON.parse(h.raw);assert.equal(saved.todos[0].done,false);assert.equal(saved.todos[0].goalId,'goal-1');
-  assert.equal(taskRows(h)[0].querySelector('.mp-task-text').textContent,'first');assert.equal(completed.open,true);
-  assert.equal(planner.progress(saved.goals[0],null,saved.todos).done,1);
-});
-
-test('reminder edit metadata and unknown draft fields survive another completion and a fresh controller',async()=>{
-  const raw=encode({goals:[goal(),goal({id:'goal-2',title:'別の目標'})],todos:[reminder('first',{text:'確定本文',goalId:'goal-1',dueDate:'2027-01-01',extension:{retain:'row'}}),reminder('second')],todoEdits:{first:{text:'編集中',goalId:'goal-1',dueDate:'2027-01-02',flagged:false,extension:{retain:'draft'}}}});
-  const h=controller({raw});await settle();let fields=reminderEditor(taskRows(h)[0]);assert.equal(h.focused,null);
-  h.type(fields.text,'途中の本文\n末尾  ');fields.goal.value='goal-2';fields.goal.dispatch('change');fields.due.value='2027-03-05';fields.due.dispatch('input');fields.flag.checked=true;fields.flag.dispatch('change');
-  const other=taskRows(h)[1].querySelector('.mp-task-check input');other.checked=true;other.dispatch('change');
-  fields=reminderEditor(taskRows(h)[0]);assert.equal(fields.edit.open,true);assert.equal(fields.text.value,'途中の本文\n末尾  ');
-  assert.equal(fields.goal.value,'goal-2');assert.equal(fields.due.value,'2027-03-05');assert.equal(fields.flag.checked,true);
-  const staged=JSON.parse(h.raw);assert.equal(staged.todos[0].text,'確定本文');assert.deepEqual(staged.todos[0].extension,{retain:'row'});assert.deepEqual(staged.todoEdits.first.extension,{retain:'draft'});
-  const restored=controller({raw:h.raw});await settle();const fresh=reminderEditor(taskRows(restored)[0]);
-  assert.equal(fresh.text.value,fields.text.value);assert.equal(fresh.due.value,'2027-03-05');assert.equal(fresh.flag.checked,true);assert.equal(restored.focused,null);
-  fresh.save.click();const saved=JSON.parse(restored.raw);
-  assert.equal(saved.todos[0].text,'途中の本文\n末尾  ');assert.equal(saved.todos[0].goalId,'goal-2');assert.equal(saved.todos[0].dueDate,'2027-03-05');assert.equal(saved.todos[0].flagged,true);assert.deepEqual(saved.todos[0].extension,{retain:'row'});assert.equal(saved.todoEdits.first,undefined);
-  restored.flushTimers();assert.equal(restored.saves.length,1);restored.saves[0].resolve(false);await settle();
-  assert.equal(JSON.parse(restored.raw).todos[0].dueDate,'2027-03-05');assert.equal(JSON.parse(restored.raw).todos[0].flagged,true);assert.doesNotMatch(restored.status,/保存しました/);
-});
-
-test('a completed reminder edit draft is discoverable on restore without moving focus into its editor',async()=>{
-  const h=controller({raw:encode({todos:[reminder('done',{done:true})],todoEdits:{done:{text:'完了後の編集途中',goalId:'',dueDate:'2027-03-05',flagged:true}}})});await settle();
-  assert.equal(h.page.querySelector('.mp-completed').open,true);const edit=reminderEditor(taskRows(h,true)[0]);
-  assert.equal(edit.edit.open,true);assert.equal(edit.text.value,'完了後の編集途中');assert.equal(edit.flag.checked,true);assert.equal(h.focused,null);
-});
-
-test('the new reminder line retains its draft fields and adds the exact text with goal, optional date and flag',async()=>{
-  const raw=encode({goals:[goal()],todoDraft:{text:'初期草稿',goalId:'goal-1',dueDate:'2027-01-02',flagged:true,extension:{retain:'composer'}}});
-  const h=controller({raw});await settle();const input=reminderInput(h,'mpTodoInput'),due=reminderInput(h,'mpTodoDueDate'),flag=reminderInput(h,'mpTodoFlagged');
-  assert.equal(input.value,'初期草稿');assert.equal(due.value,'2027-01-02');assert.equal(flag.checked,true);
-  h.type(input,'  追加する本文\n末尾  ');due.value='2027-05-06';due.dispatch('input');flag.checked=false;flag.dispatch('change');
-  assert.deepEqual(JSON.parse(h.raw).todoDraft.extension,{retain:'composer'});
-  const fresh=controller({raw:h.raw});await settle();assert.equal(reminderInput(fresh,'mpTodoInput').value,'  追加する本文\n末尾  ');assert.equal(reminderInput(fresh,'mpTodoDueDate').value,'2027-05-06');
-  fresh.page.querySelector('.mp-reminder-add').dispatch('submit');const saved=JSON.parse(fresh.raw),added=saved.todos[0];
-  assert.ok(added.id);assert.equal(added.text,'  追加する本文\n末尾  ');assert.equal(added.goalId,'goal-1');assert.equal(added.dueDate,'2027-05-06');assert.equal(added.flagged,false);assert.equal(added.done,false);
-  assert.equal(saved.todoDraft.text,'');assert.equal(saved.todoDraft.dueDate,'');assert.equal(saved.todoDraft.flagged,false);assert.deepEqual(saved.todoDraft.extension,{retain:'composer'});assert.equal(fresh.focused,reminderInput(fresh,'mpTodoInput'));
-});
-
-test('smart filters and search change only the view while an unrelated new reminder is always revealed',async()=>{
-  const today=planner.localDateKey(),raw=encode({todos:[reminder('today',{text:'今日の税金',dueDate:today}),reminder('future',{text:'Tax plan',dueDate:'2099-01-01',flagged:true}),reminder('undated')]});
-  const h=controller({raw});await settle();h.lookup('今日').click();assert.equal(taskRows(h).length,1);assert.equal(h.lookup('今日').getAttribute('aria-pressed'),'true');
-  h.lookup('予定あり').click();const search=h.page.querySelector('.mp-reminder-search');h.type(search,' TAX ');assert.equal(taskRows(h).length,1);assert.equal(taskRows(h)[0].querySelector('.mp-task-text').textContent,'Tax plan');
-  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
-  h.type(reminderInput(h,'mpTodoInput'),'期限を決めない新規');h.page.querySelector('.mp-reminder-add').dispatch('submit');
-  assert.equal(h.lookup('すべて').getAttribute('aria-pressed'),'true');assert.equal(search.value,'');
-  const added=JSON.parse(h.raw).todos.at(-1);assert.equal(added.dueDate,'');assert.equal(added.flagged,false);assert.ok(taskRows(h).some(row=>row.querySelector('.mp-task-text').textContent==='期限を決めない新規'));
-});
-
-test('overdue dates are named in text and invalid composer or edit dates cannot alter saved records',async()=>{
-  const raw=encode({todos:[reminder('old',{dueDate:'2001-01-01'})]});const h=controller({raw});await settle();
-  assert.match(taskRows(h)[0].querySelector('.mp-task-overdue').textContent,/期限切れ/);
-  const input=reminderInput(h,'mpTodoInput'),due=reminderInput(h,'mpTodoDueDate');input.value='無効な期限';due.value='2026-02-30';due.dispatch('input');h.page.querySelector('.mp-reminder-add').dispatch('submit');
-  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.match(h.status,/期限の日付/);
-  const fields=reminderEditor(taskRows(h)[0]);fields.due.value='2026-02-30';fields.due.dispatch('input');fields.save.click();
-  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
-});
-
-test('new reminder controls stay read-only after restore failure and clear private drafts, filters and completed counts on signout',async()=>{
-  const raw=encode({todos:[reminder('private',{text:'owner-A の予定',done:true})],todoDraft:{text:'owner-A の草稿',goalId:'',dueDate:'2027-01-01',flagged:true}});
-  const failed=controller({raw,restoreOK:false});await settle();
-  for(const input of failed.page.querySelectorAll('.mp-reminders input'))assert.equal(input.disabled,true);
-  failed.page.querySelector('.mp-reminder-add').dispatch('submit');assert.equal(failed.raw,raw);assert.equal(failed.stages.length,0);
-  const h=controller({raw});await settle();h.lookup('フラグ').click();h.type(h.page.querySelector('.mp-reminder-search'),'owner-A');h.auth(null);await settle();
-  assert.equal(reminderInput(h,'mpTodoInput').value,'');assert.equal(reminderInput(h,'mpTodoDueDate').value,'');assert.equal(reminderInput(h,'mpTodoFlagged').checked,false);
-  assert.equal(h.page.querySelector('.mp-reminder-search').value,'');assert.equal(h.lookup('すべて').getAttribute('aria-pressed'),'true');
-  assert.equal(h.page.querySelector('.mp-reminders-count').textContent,'0');assert.equal(h.page.querySelector('.mp-completed').hidden,true);assert.equal(h.page.querySelector('.mp-completed').open,false);
-  assert.equal(taskRows(h).length,0);assert.equal(taskRows(h,true).length,0);assert.doesNotMatch(h.page.textContent,/owner-A/);assert.equal(h.raw,raw);
-});
-
-test('a queued reminder search or filter event cannot re-enable rows after a later restore failure',async()=>{
-  const raw=encode({todos:[reminder('retained',{text:'確認済みの本文',dueDate:'2027-01-01',flagged:true})]});
-  const h=controller({raw});await settle();const row=taskRows(h)[0];
-  h.bridge.load=async()=>{throw Error('fixture_restore_failed');};h.auth({id:'owner-A'});await settle();
-  assert.equal(h.lookup('今日').disabled,true);assert.equal(reminderEditor(row).due.disabled,true);
-  h.type(h.page.querySelector('.mp-reminder-search'),'該当しない検索');h.lookup('今日').dispatch('click');
-  assert.equal(taskRows(h)[0],row,'read-only events cannot rebuild fresh enabled controls');
-  assert.equal(reminderEditor(row).due.disabled,true);assert.equal(row.querySelector('.mp-task-check input').disabled,true);
-  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
-});
-
 
 test('note excerpts are display-only and never normalise the saved text or additive fields',()=>{
   const original=note({title:'  ',body:'\n  最初の行  \n\n二行目\n 三行目  ',extension:{keep:'yes'}});
@@ -862,47 +725,45 @@ test('switching between notes uses fresh native hosts while retaining saved rich
   const h=controller({raw:encode({notes:[note({body:'一番目'}),note({id:'second',body:'二番目'})]}),richEditor:true});await settle();const first=h.page.querySelector('.mp-note-rich');format(h,'太字').click();const pick=h.page.querySelectorAll('.mp-note-pick').find(n=>n.textContent.includes('二番目'));pick.click();const second=h.page.querySelector('.mp-note-rich');assert.notEqual(first,second);assert.equal(second.textContent,'二番目');assert.equal(format(h,'元に戻す').disabled,true);const saved=h.raw;first.dispatch('beforeinput',{inputType:'historyUndo'});first.dispatch('input',{inputType:'insertText'});assert.equal(h.raw,saved);assert.equal(second.textContent,'二番目');assert.equal(first.textContent,'');
 });
 
+test('retired todo slots stay empty while goal and memo edits preserve historical tasks drafts links and additive data',async()=>{
+  const old={
+    todos:[reminder('kept',{text:'  保存済みTASK\n末尾  ',goalId:'goal-1',dueDate:'2027-05-06',flagged:true,notificationScheduled:true,extension:{keep:['row',1]}})],
+    todoDraft:{text:'  新規途中\n',goalId:'goal-1',dueDate:'2027-05-07',flagged:false,extension:{keep:'draft'}},
+    todoEdits:{kept:{text:'編集途中  ',goalId:'goal-1',dueDate:'2027-05-08',flagged:true,extension:{keep:'edit'}}},
+    futureOptional:{keep:{nested:true}}
+  };
+  const raw=encode({...old,goals:[goal({target:1000})],notes:[note({title:'残すメモ',body:'[ ] 本文のチェックリストはそのまま\n'})]});
+  let notificationCalls=0;
+  const notifications={attachPlanner(){notificationCalls++;},refreshTodos(){notificationCalls++;},cancelTodo(){notificationCalls++;}};
+  const h=controller({raw,autoSave:true,notifications});await settle();
+  const panes=h.body.querySelectorAll('.mo-pane:not(.kb-pane)'),tabs=h.page.querySelectorAll('.mo-tab');
+  assert.equal(panes.length,4);assert.equal(tabs.length,4);
+  for(const slot of [panes[2],tabs[2]]){
+    assert.equal(slot.hidden,true);assert.equal(slot.inert,true);assert.equal(slot.tabIndex,-1);
+    assert.equal(slot.getAttribute('aria-hidden'),'true');assert.equal(slot.children.length,0);
+  }
+  assert.equal(panes[3].querySelector('.mp-note-body'),h.memo,'memo keeps its original slot');
+  assert.equal(h.page.querySelector('.mp-reminders'),null);assert.equal(h.page.querySelector('.mp-tasks'),null);
+  assert.doesNotMatch(h.page.textContent,/やること|次の一歩|保存済みTASK/);
+  assert.ok(h.page.querySelector('.mp-asset-progress'));assert.match(h.page.textContent,/資産目標の進捗/);
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+  function historical(value){const doc=JSON.parse(value);return JSON.stringify(Object.fromEntries(Object.keys(old).map(key=>[key,doc[key]])));}
+  const exact=JSON.stringify(old);
+  h.lookup('編集').click();const form=h.page.querySelector('.mp-form');h.type(form.querySelector('input'),'目標名を変更');form.dispatch('submit');
+  assert.equal(JSON.parse(h.raw).goals[0].title,'目標名を変更');assert.equal(historical(h.raw),exact);
+  h.page.querySelector('.mp-note-pick').click();h.type(h.memo,'[ ] メモの本文を編集\n末尾  ');
+  assert.equal(JSON.parse(h.raw).notes[0].body,'[ ] メモの本文を編集\n末尾  ');assert.equal(historical(h.raw),exact);
+  h.lookup('編集').click();h.lookup('目標を削除').click();
+  assert.deepEqual(JSON.parse(h.raw).goals,[]);assert.equal(historical(h.raw),exact,'retired task links are not rewritten when a goal is deleted');
+  h.flushTimers();await settle();assert.equal(h.saves.length,1);assert.equal(historical(h.saves[0].raw),exact);
+  assert.ok(h.stages.every(stage=>historical(stage.raw)===exact));assert.equal(notificationCalls,0);
+  const reloaded=controller({raw:h.raw,notifications});await settle();
+  assert.equal(historical(reloaded.raw),exact);assert.equal(reloaded.page.querySelector('.mp-tasks'),null);
+  assert.equal(reloaded.stages.length,0);assert.equal(reloaded.saves.length,0);assert.equal(notificationCalls,0);
+});
+
 test('a UTF-8-sized rich snapshot rejected by remote storage stays staged and never claims sync success',async()=>{
   const body='記'.repeat(400000),raw=encode({notes:[note({body})]});const h=controller({raw,richEditor:true});await settle();format(h,'太字').click();const staged=h.raw;
   assert.ok(staged.length<1000000);assert.ok(Buffer.byteLength(JSON.stringify({mypage:staged}),'utf8')>2000000);const saves=[];h.bridge.save=async(owner,value)=>{saves.push({owner,raw:value});return false;};h.flushTimers(1500);await settle();
   assert.equal(saves.length,1);assert.equal(saves[0].raw,staged);assert.equal(h.raw,staged);assert.equal(h.memo.value,body);assert.match(h.status,/同期できません/);assert.match(h.status,/書きかけを保持/);assert.ok(h.page.querySelector('.mp-note-rich').querySelector('strong'));h.recordsReady();await settle();assert.equal(h.raw,staged);assert.match(h.status,/同期できません/);
-});
-
-test('notification marker is additive and completing waits for durable cancellation',async()=>{
-  let resolve,calls=0,context;
-  const notifications={attachPlanner:value=>context=value,refreshTodos(){},cancelTodo:()=>{calls++;return new Promise(r=>resolve=r);}};
-  const h=controller({raw:encode({todos:[reminder('scheduled',{notificationScheduled:true})]}),notifications});await settle();
-  const check=taskRows(h)[0].querySelector('input');check.checked=true;check.dispatch('change');
-  assert.equal(calls,1);assert.equal(JSON.parse(h.raw).todos[0].done,false);assert.equal(check.disabled,true);
-  resolve(true);await settle();
-  assert.equal(JSON.parse(h.raw).todos[0].done,true);assert.equal(JSON.parse(h.raw).todos[0].notificationScheduled,false);
-  assert.ok(context);
-});
-
-test('notification cancellation failure preserves pending task and deletion',async()=>{
-  const notifications={attachPlanner(){},refreshTodos(){},cancelTodo:async()=>{throw Error('fixture-private-error');}};
-  const raw=encode({todos:[reminder('scheduled',{notificationScheduled:true})]});
-  const h=controller({raw,notifications});await settle();
-  const check=taskRows(h)[0].querySelector('input');check.checked=true;check.dispatch('change');await settle();
-  assert.equal(h.raw,raw);assert.equal(check.checked,false);assert.match(h.status,/完了への変更は保留/);
-  taskRows(h)[0].querySelectorAll('button').find(n=>n.textContent==='削除').click();await settle();
-  assert.equal(h.raw,raw);assert.match(h.status,/削除せず残して/);assert.equal(h.status.includes('fixture-private-error'),false);
-});
-
-test('late notification cancellation cannot mutate a different owner after signout',async()=>{
-  let resolve;
-  const notifications={attachPlanner(){},refreshTodos(){},cancelTodo:()=>new Promise(r=>resolve=r)};
-  const h=controller({raw:encode({todos:[reminder('scheduled',{notificationScheduled:true})]}),notifications});await settle();
-  const check=taskRows(h)[0].querySelector('input');check.checked=true;check.dispatch('change');
-  h.auth(null);resolve(true);await settle();
-  assert.equal(h.stages.length,0);assert.equal(h.page.querySelectorAll('.mp-task').length,0);
-});
-
-test('a notification schedule callback only marks a live pending task of its current owner',async()=>{
-  let context;const notifications={attachPlanner:value=>context=value,refreshTodos(){},cancelTodo:async()=>true};
-  const h=controller({raw:encode({todos:[reminder('pending'),reminder('done',{done:true})]}),notifications});await settle();
-  context.markScheduled('pending',true);
-  assert.equal(JSON.parse(h.raw).todos[0].notificationScheduled,true);
-  context.markScheduled('done',true);assert.equal(JSON.parse(h.raw).todos[1].notificationScheduled,undefined);
-  h.auth(null);const count=h.stages.length;context.markScheduled('pending',false);assert.equal(h.stages.length,count);
 });

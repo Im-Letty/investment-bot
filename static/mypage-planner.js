@@ -111,8 +111,7 @@
   function mount(w){
     var document=w.document;if(!document)return;
     var page,panes,status,doc=null,stock=null,owner='',bridge=null,loading=false,revision=0,saving=false,savedRevision=0,timer,notesFilter='',search='',boundFrame=null,epoch=0,editable=false;
-    var retryButton,goalList,goalForm,todoList,todoText,todoGoal,todoDue,todoFlag,todoFind,todoCount,todoCompleted,todoCompletedSummary,todoCompletedList,todoAddDetails,noteList,noteTitle,noteBody,groupList,legacyButton,formFields={},goalSummary;
-    var todoFilter='all',todoSearch='',completedOpen=false,todoFilterButtons=[];
+    var retryButton,goalList,goalForm,noteList,noteTitle,noteBody,groupList,legacyButton,formFields={},goalSummary;
     var notesEditing=false,viewNoteId='',noteLibrary,noteEditor,noteFind,noteHeading,noteCount,noteFolders,noteDelete,noteRich=null,noteRichSlot=null,noteRichKey='';
     var claimKey='kn_mypage_legacy_owner_v1';
     function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
@@ -156,7 +155,6 @@
     function dateLabel(s){return w.KNDateDisplay?w.KNDateDisplay.date(s):s.replace(/-/g,'/');}
     function selectedNote(){return doc.notes.find(function(n){return n.id===(viewNoteId||doc.selectedNoteId);})||doc.notes[0]||null;}
     function pickGoal(g){doc.selectedGoalId=g.id;renderGoals();changed();}
-    function goTab(i){var t=page.querySelectorAll('.mo-tab')[i];if(t)t.click();}
     function renderGoals(){
       goalList.replaceChildren();goalSummary.replaceChildren();
       if(!doc)return;
@@ -164,12 +162,8 @@
       doc.goals.forEach(function(g){
         var card=el('article','mp-card'),head=el('div','mp-row');head.appendChild(button(g.title,function(){pickGoal(g);},'mp-goal-title'));head.appendChild(button('編集',function(){openGoal(g);},'mp-link'));card.appendChild(head);
         if(g.details)card.appendChild(el('p','mp-preserve',g.details));
-        var p=progress(g,stock,doc.todos);
+        var p=progress(g,stock,[]);
         if(g.deadline)card.appendChild(el('p','mp-muted',dateLabel(g.deadline)+' 目標の期限'));
-        card.appendChild(el('p','mp-muted','やること '+p.done+' / '+p.tasks+' 件完了'));
-        if(p.tasks){var taskMeter=el('progress');taskMeter.max=p.tasks;taskMeter.value=p.done;taskMeter.setAttribute('aria-label',g.title+'のやること完了');card.appendChild(taskMeter);}
-        card.appendChild(el('p','mp-next',p.next?'次の一歩：'+p.next.text:p.tasks?'すべてのやることが完了しています。':'最初のやることを追加しましょう。'));
-        card.appendChild(button('この目標にやることを追加',function(){doc.selectedGoalId=g.id;todoGoal.value=g.id;doc.todoDraft.goalId=g.id;goTab(2);changed();},'mp-link'));
         if(g.target!==null){
           var asset=el('section','mp-asset-progress');asset.appendChild(el('h3',null,'資産目標の進捗'));
           asset.appendChild(el('p',null,'目標額 '+money(g.target)));
@@ -204,61 +198,8 @@
         var draft=doc.goalDraft;if(!draft.title.trim())throw Error('目標の名前を入力してください。');if(!dateOK(draft.deadline))throw Error('期限の日付を確認してください。');
         var g={id:draft.id||id(),title:draft.title,details:draft.details,target:amount(draft.target,true),deadline:draft.deadline,monthly:amount(draft.monthly,false)};
         var i=doc.goals.findIndex(function(x){return x.id===g.id;});if(i<0)doc.goals.push(g);else doc.goals[i]=g;
-        doc.selectedGoalId=g.id;doc.goalDraft=null;fillGoal();renderGoals();renderTodos();changed();
+        doc.selectedGoalId=g.id;doc.goalDraft=null;fillGoal();renderGoals();changed();
       }catch(e){message(e.message,true);}
-    }
-    function options(select,rows,blank){var value=select.value;select.replaceChildren();var o=el('option',null,blank);o.value='';select.appendChild(o);rows.forEach(function(x){var n=el('option',null,x.title===undefined?x.name:x.title);n.value=x.id;select.appendChild(n);});select.value=value;}
-    function todoEditable(todo){return !!doc&&validOwner()&&editable&&(!todo||doc.todos.indexOf(todo)!==-1);}
-    function renderTodos(){
-      todoList.replaceChildren();todoCompletedList.replaceChildren();if(!doc)return;
-      options(todoGoal,doc.goals,'目標未指定');todoGoal.value=doc.todoDraft.goalId||'';todoText.value=doc.todoDraft.text||'';
-      todoDue.value=doc.todoDraft.dueDate||'';todoFlag.checked=doc.todoDraft.flagged===true;
-      if(todoFind.value!==todoSearch)todoFind.value=todoSearch;
-      todoFilterButtons.forEach(function(item){var active=item.filter===todoFilter;item.button.classList.toggle('on',active);item.button.setAttribute('aria-pressed',String(active));});
-      var today=localDateKey(),shown=filterTodos(doc.todos,todoFilter,todoSearch,today),pending=shown.filter(function(t){return !t.done;}),completed=shown.filter(function(t){return t.done;});
-      todoCount.textContent=String(pending.length);todoCount.setAttribute('aria-label','表示中の未完了 '+pending.length+'件');
-      if(!pending.length)todoList.appendChild(el('li','mp-reminder-empty mp-muted',todoSearch?'条件に一致するやることはありません。':todoFilter==='today'?'今日が期限のやることはありません。':todoFilter==='scheduled'?'期限を設定した未完了のやることはありません。':todoFilter==='flagged'?'フラグ付きの未完了のやることはありません。':doc.todos.length?'未完了のやることはありません。':'やることはまだありません。下の行から追加できます。'));
-      function row(t){
-        var item=el('li','mp-task'),label=el('label','mp-task-check'),check=el('input');check.type='checkbox';check.checked=t.done;check.setAttribute('aria-label',t.text+'の完了');
-        var circle=el('span','mp-task-circle');circle.setAttribute('aria-hidden','true');label.appendChild(check);label.appendChild(circle);item.appendChild(label);
-        check.addEventListener('change',async function(){if(!todoEditable(t))return;var done=check.checked,who=owner,generation=epoch;
-          if(done&&(t.notificationScheduled||w.KNNotifications&&w.KNNotifications.cancelForTodo)){
-            check.disabled=true;
-            try{if(!w.KNNotifications)throw Error();if(w.KNNotifications.cancelForTodo)await w.KNNotifications.cancelForTodo(t.id,t.notificationScheduled===true);else await w.KNNotifications.cancelTodo(t.id);}
-            catch(ignore){if(who===owner&&generation===epoch&&todoEditable(t)){check.checked=t.done;check.disabled=false;message('通知を取り消せませんでした。完了への変更は保留しています。もう一度お試しください。',true);}return;}
-            if(who!==owner||generation!==epoch||!todoEditable(t))return;
-            t.notificationScheduled=false;
-          }
-          t.done=done;renderTodos();renderGoals();changed();if(t.done&&!todoCompleted.hidden&&!todoCompleted.open)todoCompletedSummary.focus();
-        });
-        var edit=el('details','mp-task-edit'),summary=el('summary','mp-task-title');summary.appendChild(el('span',t.done?'mp-task-text mp-done':'mp-task-text',t.text));
-        var meta=el('span','mp-task-meta'),goal=doc.goals.find(function(g){return g.id===t.goalId;});
-        if(t.dueDate){var overdue=!t.done&&t.dueDate<today;meta.appendChild(el('span','mp-task-date'+(overdue?' mp-task-overdue':''),(overdue?'期限切れ · ':t.dueDate===today?'今日 · ':'')+dateLabel(t.dueDate)));}
-        if(t.flagged){var flagged=el('span','mp-task-flag','⚑');flagged.setAttribute('aria-label','フラグ付き');meta.appendChild(flagged);}
-        if(goal)meta.appendChild(el('span','mp-task-goal',goal.title));
-        if(meta.children.length)summary.appendChild(meta);edit.appendChild(summary);
-        var draft=doc.todoEdits[t.id],text=field('やること','text',edit);text.value=draft?draft.text:t.text;
-        var sel=el('select');sel.setAttribute('aria-label','関連する目標');options(sel,doc.goals,'目標未指定');sel.value=draft?draft.goalId:t.goalId;edit.appendChild(sel);
-        var due=field('期限（任意）','date',edit),flag=field('フラグを付ける','checkbox',edit);flag.parentNode.classList.add('mp-flag-field');
-        due.value=draft&&draft.dueDate!==undefined?draft.dueDate:t.dueDate||'';flag.checked=draft&&draft.flagged!==undefined?draft.flagged:t.flagged===true;edit.open=!!draft;
-        summary.addEventListener('click',function(event){if(!edit.open&&todoEditable(t)){event.preventDefault();edit.open=true;text.focus();}});
-        function keepEdit(){
-          if(!todoEditable(t))return;
-          if(!dateOK(due.value)){message('期限の日付を確認してください。',true);return;}
-          doc.todoEdits[t.id]=Object.assign({},doc.todoEdits[t.id]||{},{text:text.value,goalId:sel.value,dueDate:due.value,flagged:flag.checked});changed();
-        }
-        text.addEventListener('input',keepEdit);sel.addEventListener('change',keepEdit);due.addEventListener('input',keepEdit);flag.addEventListener('change',keepEdit);
-        edit.appendChild(button('変更を保存',function(){if(!todoEditable(t))return;if(!text.value.trim()){message('やることを入力してください。',true);return;}if(!dateOK(due.value)){message('期限の日付を確認してください。',true);return;}t.text=text.value;t.goalId=sel.value;t.dueDate=due.value;t.flagged=flag.checked;delete doc.todoEdits[t.id];renderTodos();renderGoals();changed();}));
-        edit.appendChild(button('削除',async function(){if(!todoEditable(t)||!w.confirm('このやることを削除しますか？'))return;var who=owner,generation=epoch;
-          if(t.notificationScheduled||w.KNNotifications&&w.KNNotifications.cancelForTodo){try{if(!w.KNNotifications)throw Error();if(w.KNNotifications.cancelForTodo)await w.KNNotifications.cancelForTodo(t.id,t.notificationScheduled===true);else await w.KNNotifications.cancelTodo(t.id);}catch(ignore){if(who===owner&&generation===epoch&&todoEditable(t))message('通知を取り消せませんでした。やることは削除せず残しています。',true);return;}}
-          if(who!==owner||generation!==epoch||!todoEditable(t))return;doc.todos=doc.todos.filter(function(x){return x.id!==t.id;});delete doc.todoEdits[t.id];renderTodos();renderGoals();changed();
-        },'mp-link mp-danger'));item.appendChild(edit);return item;
-      }
-      pending.forEach(function(t){todoList.appendChild(row(t));});completed.forEach(function(t){todoCompletedList.appendChild(row(t));});
-      todoCompletedSummary.textContent='完了済み '+completed.length+'件';todoCompleted.hidden=!completed.length;
-      if(completed.some(function(t){return !!doc.todoEdits[t.id];}))completedOpen=true;
-      todoCompleted.open=completedOpen;
-      if(w.KNNotifications)w.KNNotifications.refreshTodos();
     }
     function notesReadable(){return !!doc&&validOwner();}
     function notesEditable(){return !!doc&&validOwner()&&editable;}
@@ -330,7 +271,7 @@
     }
     async function importOld(){
       if(!doc||!validOwner())return;var who=owner;
-      if(!w.confirm('この端末の以前の目標・やること・自由メモを、現在のアカウントへ取り込みますか？元の記録は残ります。'))return;
+      if(!w.confirm('この端末の以前の記録を、現在のアカウントへ取り込みますか？元の記録は残ります。'))return;
       try{
         await w.__knGateReady;if(who!==current()||who!==owner)return;
         var claim=w.localStorage.getItem(claimKey);if(claim&&claim!==who)throw Error('legacy_owner');
@@ -339,13 +280,11 @@
         doc=next;renderAll();changed();
       }catch(ignore){message('以前の記録を取り込めませんでした。元の記録は保持しています。',true);}
     }
-    function renderAll(){renderGoals();fillGoal();renderTodos();renderNotes();legacyButton.hidden=!legacyAvailable();}
+    function renderAll(){renderGoals();fillGoal();renderNotes();legacyButton.hidden=!legacyAvailable();}
     function reset(){
       w.clearTimeout(timer);epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();notesFilter='';search='';notesEditing=false;viewNoteId='';
       clearRichNote();
-      if(!page)return;goalList.replaceChildren();todoList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';todoText.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});todoGoal.replaceChildren();todoGoal.value='';noteFind.value='';noteHeading.textContent='メモ';noteCount.textContent='0件のメモ';noteFolders.open=false;showNotesView();goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
-      todoFilter='all';todoSearch='';completedOpen=false;todoDue.value='';todoFlag.checked=false;todoFind.value='';todoCompletedList.replaceChildren();todoCompleted.open=false;todoCompleted.hidden=true;todoCompletedSummary.textContent='完了済み 0件';todoCount.textContent='0';todoCount.setAttribute('aria-label','表示中の未完了 0件');todoAddDetails.open=false;
-      todoFilterButtons.forEach(function(item){var active=item.filter==='all';item.button.classList.toggle('on',active);item.button.setAttribute('aria-pressed',String(active));});
+      if(!page)return;goalList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});noteFind.value='';noteHeading.textContent='メモ';noteCount.textContent='0件のメモ';noteFolders.open=false;showNotesView();goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
       message(owner?'保存した記録を読み込んでいます…':'ログイン後に記録を表示します。');
     }
     async function load(){
@@ -368,31 +307,24 @@
     }
     function build(){
       page=document.getElementById('myPageOv');if(!page){w.setTimeout(build,200);return;}
-      if(page.querySelector('.mp-planner'))return;
       panes=page.querySelectorAll('.mo-pane:not(.kb-pane)');if(panes.length<4){w.setTimeout(build,200);return;}
-      [1,2,3].forEach(function(i){panes[i].replaceChildren();panes[i].classList.add('mp-planner');panes[i].setAttribute('data-planner-ready','true');});
+      // Keep the old index reserved so the surviving memo remains slot three.
+      // No retired controls or notification context are mounted in this slot.
+      [page.querySelectorAll('.mo-tab')[2],panes[2]].forEach(function(slot){
+        if(!slot)return;slot.replaceChildren();slot.hidden=true;slot.inert=true;slot.tabIndex=-1;
+        slot.classList.add('mp-todo-retired');slot.classList.remove('on');
+        slot.setAttribute('aria-hidden','true');slot.setAttribute('data-retired-todo','true');
+      });
+      if(page.querySelector('.mp-planner'))return;
+      [1,3].forEach(function(i){panes[i].replaceChildren();panes[i].classList.add('mp-planner');panes[i].setAttribute('data-planner-ready','true');});
       var bar=el('div','mp-planner-bar');status=el('p','mp-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');bar.appendChild(status);retryButton=button('再試行',function(){if(doc&&revision>savedRevision)persist();else load();},'mp-link');retryButton.hidden=true;bar.appendChild(retryButton);page.querySelector('.mo-body').prepend(bar);
-      panes[1].appendChild(el('h2','mp-heading','目標と次の一歩'));goalSummary=el('div');panes[1].appendChild(goalSummary);panes[1].appendChild(button('目標を追加',function(){openGoal();}));goalForm=el('form','mp-card mp-form');goalForm.hidden=true;
+      panes[1].appendChild(el('h2','mp-heading','目標'));goalSummary=el('div');panes[1].appendChild(goalSummary);panes[1].appendChild(button('目標を追加',function(){openGoal();}));goalForm=el('form','mp-card mp-form');goalForm.hidden=true;
       formFields.title=field('目標の名前','text',goalForm);formFields.details=field('内容・メモ（任意）','textarea',goalForm);formFields.target=field('目標資産額・円（任意）','text',goalForm);formFields.target.inputMode='decimal';formFields.deadline=field('期限（任意）','date',goalForm);formFields.monthly=field('毎月の積立予定・円（任意）','text',goalForm);formFields.monthly.inputMode='decimal';
       Object.keys(formFields).forEach(function(k){formFields[k].addEventListener('input',function(){if(doc&&doc.goalDraft){doc.goalDraft[k]=formFields[k].value;changed();}});});
       var save=el('button','mp-button','目標を保存');save.type='submit';goalForm.appendChild(save);goalForm.addEventListener('submit',saveGoal);
       goalForm.appendChild(button('閉じる',function(){doc.goalDraft=null;fillGoal();changed();},'mp-link'));
-      var del=button('目標を削除',function(){var g=doc.goalDraft;if(!g||!g.id||!w.confirm('目標を削除しますか？関連するやることは目標未指定として残ります。'))return;doc.goals=doc.goals.filter(function(x){return x.id!==g.id;});doc.todos.forEach(function(t){if(t.goalId===g.id)t.goalId='';});doc.goalDraft=null;renderAll();changed();},'mp-link mp-danger');del.setAttribute('data-delete-goal','');goalForm.appendChild(del);panes[1].appendChild(goalForm);goalList=el('div','mp-cards');panes[1].appendChild(goalList);
+      var del=button('目標を削除',function(){var g=doc.goalDraft;if(!g||!g.id||!w.confirm('目標を削除しますか？'))return;doc.goals=doc.goals.filter(function(x){return x.id!==g.id;});doc.goalDraft=null;renderAll();changed();},'mp-link mp-danger');del.setAttribute('data-delete-goal','');goalForm.appendChild(del);panes[1].appendChild(goalForm);goalList=el('div','mp-cards');panes[1].appendChild(goalList);
       legacyButton=button('この端末の以前の記録を取り込む',importOld,'mp-link');legacyButton.hidden=true;panes[1].appendChild(legacyButton);
-      panes[2].classList.add('mp-reminders');var remindersHead=el('div','mp-reminders-head');remindersHead.appendChild(el('h2','mp-heading','やることリスト'));todoCount=el('strong','mp-reminders-count','0');remindersHead.appendChild(todoCount);panes[2].appendChild(remindersHead);
-      var filters=el('div','mp-reminder-filters');filters.setAttribute('role','group');filters.setAttribute('aria-label','やることの絞り込み');
-      [['all','すべて'],['today','今日'],['scheduled','予定あり'],['flagged','フラグ']].forEach(function(item){var control=button(item[1],function(){if(!todoEditable())return;todoFilter=item[0];renderTodos();},'mp-reminder-filter');control.setAttribute('aria-pressed',String(item[0]==='all'));filters.appendChild(control);todoFilterButtons.push({filter:item[0],button:control});});panes[2].appendChild(filters);
-      todoFind=el('input','mp-reminder-search');todoFind.type='search';todoFind.placeholder='検索';todoFind.setAttribute('aria-label','リマインダーを検索');todoFind.addEventListener('input',function(){if(!todoEditable())return;todoSearch=todoFind.value;renderTodos();});panes[2].appendChild(todoFind);
-      todoList=el('ul','mp-tasks');panes[2].appendChild(todoList);todoCompleted=el('details','mp-completed');todoCompletedSummary=el('summary',null,'完了済み 0件');todoCompleted.appendChild(todoCompletedSummary);todoCompletedList=el('ul','mp-completed-tasks');todoCompleted.appendChild(todoCompletedList);todoCompleted.addEventListener('toggle',function(){completedOpen=todoCompleted.open;});panes[2].appendChild(todoCompleted);
-      var add=el('form','mp-reminder-add'),addLine=el('div','mp-add-line'),addButton=el('button','mp-reminder-add-button','＋');addButton.type='submit';addButton.setAttribute('aria-label','新しいリマインダーを追加');addLine.appendChild(addButton);
-      todoText=el('input','mp-reminder-new-input');todoText.type='text';todoText.id='mpTodoInput';todoText.placeholder='新しいリマインダー';todoText.setAttribute('aria-label','新しいリマインダー');addLine.appendChild(todoText);add.appendChild(addLine);
-      todoAddDetails=el('details','mp-add-details');todoAddDetails.appendChild(el('summary',null,'詳細'));var goalField=el('label','mp-field');goalField.appendChild(el('span',null,'関連する目標'));todoGoal=el('select');todoGoal.setAttribute('aria-label','関連する目標');goalField.appendChild(todoGoal);todoAddDetails.appendChild(goalField);
-      todoDue=field('期限（任意）','date',todoAddDetails);todoDue.id='mpTodoDueDate';todoFlag=field('フラグを付ける','checkbox',todoAddDetails);todoFlag.id='mpTodoFlagged';todoFlag.parentNode.classList.add('mp-flag-field');add.appendChild(todoAddDetails);panes[2].appendChild(add);
-      if(w.KNNotifications)w.KNNotifications.attachPlanner({root:panes[2],getTodos:function(){return doc&&validOwner()?doc.todos:[];},canEdit:function(){return todoEditable();},markScheduled:function(id,value){if(!todoEditable())return;var t=doc.todos.find(function(t){return t.id===id;});if(t&&!t.done){t.notificationScheduled=value;changed();}}});
-
-      function keepNewTodo(){if(!todoEditable())return;if(!dateOK(todoDue.value)){message('期限の日付を確認してください。',true);return;}doc.todoDraft=Object.assign({},doc.todoDraft,{text:todoText.value,goalId:todoGoal.value,dueDate:todoDue.value,flagged:todoFlag.checked});changed();}
-      todoText.addEventListener('input',keepNewTodo);todoGoal.addEventListener('change',keepNewTodo);todoDue.addEventListener('input',keepNewTodo);todoFlag.addEventListener('change',keepNewTodo);
-      add.addEventListener('submit',function(e){e.preventDefault();if(!todoEditable()||!todoText.value.trim())return;if(!dateOK(todoDue.value)){message('期限の日付を確認してください。',true);return;}doc.todos.push({id:id(),text:todoText.value,done:false,goalId:todoGoal.value,dueDate:todoDue.value,flagged:todoFlag.checked});doc.todoDraft=Object.assign({},doc.todoDraft,{text:'',dueDate:'',flagged:false});todoFilter='all';todoSearch='';renderTodos();renderGoals();changed();todoText.focus();});
       panes[3].classList.add('mp-notebook');
       noteLibrary=el('section','mp-note-library');panes[3].appendChild(noteLibrary);
       var notesHead=el('div','mp-note-head');noteHeading=el('h2','mp-heading','メモ');noteHeading.tabIndex=-1;notesHead.appendChild(noteHeading);
@@ -418,7 +350,6 @@
       }
       function editNote(key,value){var n=doc&&selectedNote();if(!notesEditable()||!n||key==='body'&&(noteRich||n.richText!==undefined))return;n[key]=value;renderNotes(true);changed();}
       noteTitle.addEventListener('input',function(){editNote('title',noteTitle.value);});noteBody.addEventListener('input',function(){editNote('body',noteBody.value);});panes[3].appendChild(noteEditor);
-      if(w.location&&w.location.hash==='#todo-reminders'){page.classList.add('open');goTab(2);if(w.knPrepareLedger)w.knPrepareLedger();}
       document.addEventListener('knAuthChange',function(){if(owner!==current())reset();load();});
       page.querySelectorAll('.mo-tab,.mp-toptab').forEach(function(t){t.addEventListener('click',load);});
       new w.MutationObserver(function(){if(page.classList.contains('open'))load();}).observe(page,{attributes:true,attributeFilter:['class']});
