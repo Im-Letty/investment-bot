@@ -1829,19 +1829,6 @@
       body.appendChild(reserve);
     }
   }
-  function renderLegacy(s, body) {
-    var legacy = s.legacyReserve;
-    if (!legacy || !legacy.available || legacy.transferred) return;
-    var c = card('旧ゲームの記録を引き継ぐ');
-    if (legacy.name) c.appendChild(text('旧ゲームのなまえ：' + legacy.name));
-    append(c, text('旧ゲームのコイン・EXP・アイテム・かざり・保有株を、一度だけこのゲームへ移せます。旧ゲームの保存記録はそのまま残ります。'),
-      text('旧価格はゲーム内の整数コイン価格へ変換します。原額はバックアップに保持します。'),
-      text('引継ぎ候補：' + number(legacy.coins) + 'コイン / ' + number(legacy.exp) + 'EXP。旧積立分は別の記録として保持します。'),
-      button('旧ゲームの記録を一度だけ引き継ぐ', function () {
-        run({ type: 'transferLegacy' }, '旧ゲームの引継ぎを保存しました。');
-      }, true));
-    body.appendChild(c);
-  }
   function render() {
     if (!host || !store || game && (host.querySelector('.ipg-catch-board') || host.querySelector('.ipg-cafe-activity'))) return;
     var priorRoom = motionRequests.filter(function (request) { return !!request.room; })[0];
@@ -1886,7 +1873,6 @@
     else if (tab === 'play') renderPlay(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
-    if (!game && !roomEdit && !villageEdit) { renderLegacy(s, body); }
     root.appendChild(body);
     host.replaceChildren(root);
     if (!roomEdit && !villageEdit) startMotions();
