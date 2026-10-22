@@ -37,9 +37,10 @@ body .info-item {
 }
 
 body .tabs {
-  background: var(--sim-chip) !important;
+  background: var(--sim-paper) !important;
+  background: color-mix(in srgb, var(--sim-button) 5%, var(--sim-paper)) !important;
   color: var(--sim-ink) !important;
-  box-shadow: inset 0 1px 4px color-mix(in srgb, var(--sim-ink) 5%, transparent) !important;
+  box-shadow: 0 2px 5px color-mix(in srgb, var(--sim-button) 8%, transparent) !important;
 }
 
 body .tab {
