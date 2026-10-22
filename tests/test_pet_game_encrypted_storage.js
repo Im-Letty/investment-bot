@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const vm = require('node:vm');
 const {webcrypto} = require('node:crypto');
+const Core = require('../static/pet-game-core.js');
 
 function gate(seed = {}, failWrites = false) {
   const values = new Map(Object.entries(seed));
@@ -59,4 +60,33 @@ test('game storage reads cannot expose unrelated local account or household reco
   assert.equal(await context.__knReadGameStorage('pg_exp'), '42');
   await assert.rejects(async () => await context.__knReadGameStorage('private_account'));
   await assert.rejects(async () => await context.__knReadGameStorage('knVaultKeyV1'));
+});
+
+function gameAdapter(window){return {getItem:key=>window.__knReadGameStorage(key),setItem:(key,value)=>window.__knPersistLocalSetting(key,value)};}
+
+test('custom room furniture round-trips the real encrypted game boundary without plaintext or extra keys',async()=>{
+  const first=gate();await first.context.__knGateReady;
+  const now=()=>new Date(2026,9,22,12).getTime(),app=Core.create({storage:gameAdapter(first.context),now});assert.equal((await app.ready).ok,true);
+  await app.dispatch({type:'chooseEgg',eggOrigin:'mint'});
+  const before=app.getState(),layout={version:1,items:[{id:'room_bed',x:82,y:84,flip:true},{id:'room_window',x:20,y:35,flip:false}]};
+  assert.equal((await app.dispatch({type:'saveRoomLayout',layout,expectedRevision:before.revision})).ok,true);
+  assert.equal(first.values.has(Core.KEY),false);const ciphertext=first.values.get('knenc:'+Core.KEY);assert.match(ciphertext,/^knv1:/);assert.equal(ciphertext.includes('room_bed'),false);
+  const restored=gate(Object.fromEntries(first.values));await restored.context.__knGateReady;
+  const reopened=Core.create({storage:gameAdapter(restored.context),now});assert.equal((await reopened.ready).ok,true);
+  assert.deepEqual(Core.getRoomLayout(reopened.getState()),layout);assert.equal(restored.values.get('knenc:'+Core.KEY),ciphertext,'read-only hydration does not rewrite ciphertext');
+  for(const key of ['pet','coins','inventory','wardrobe','decorations','care','market','achievements'])assert.deepEqual(reopened.getState()[key],before[key],key);
+  assert.equal((await reopened.dispatch({type:'saveRoomLayout',layout:{version:1,items:[]},expectedRevision:reopened.getState().revision})).ok,true);
+  const empty=gate(Object.fromEntries(restored.values));await empty.context.__knGateReady;const emptyGame=Core.create({storage:gameAdapter(empty.context),now});await emptyGame.ready;
+  assert.deepEqual(Core.getRoomLayout(emptyGame.getState()),{version:1,items:[]});
+});
+
+test('failed encrypted layout save retains previous ciphertext and confirmed furniture',async()=>{
+  const first=gate();await first.context.__knGateReady;
+  const now=()=>new Date(2026,9,22,12).getTime(),app=Core.create({storage:gameAdapter(first.context),now});await app.ready;await app.dispatch({type:'chooseEgg',eggOrigin:'lilac'});
+  const layout={version:1,items:[{id:'room_toy',x:40,y:90,flip:false}]};await app.dispatch({type:'saveRoomLayout',layout,expectedRevision:app.getState().revision});
+  const denied=gate(Object.fromEntries(first.values),true);await denied.context.__knGateReady;
+  const reopened=Core.create({storage:gameAdapter(denied.context),now});assert.equal((await reopened.ready).ok,true);const before=reopened.getState(),ciphertext=denied.values.get('knenc:'+Core.KEY);
+  const result=await reopened.dispatch({type:'saveRoomLayout',layout:{version:1,items:[]},expectedRevision:before.revision});assert.equal(result.ok,false);assert.equal(result.error.code,'storage_failed');
+  assert.equal(denied.values.get('knenc:'+Core.KEY),ciphertext);assert.deepEqual(Core.getRoomLayout(reopened.getState()),layout);
+  for(const key of ['pet','coins','inventory','wardrobe','decorations','care','market','achievements','revision'])assert.deepEqual(reopened.getState()[key],before[key],key);
 });

@@ -14,6 +14,7 @@
   var growthAlbumOpen = false, growthPreviewStage = null, growthPreviewPath = null, growthEmotionOpen = false;
   var fittingOpen = false, fittingOutfit = null;
   var eggDraft = null, eggConfirm = false;
+  var roomEdit = null, roomSurfaceCleanup = null, roomSurfaceGeneration = 0, roomSaveAttempt = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
   var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
@@ -866,7 +867,7 @@
     }
   }
   async function run(action, message) {
-    if (!store || busy) return { ok: false, error: { code: 'ui_busy' } };
+    if (!store || busy || roomEdit) return { ok: false, error: { code: 'ui_busy' } };
     var before = state();
     setBusy(true);
     var result;
@@ -1027,13 +1028,213 @@
     }
     parent.appendChild(album);
   }
+  function cloneRoomLayout(layout) {
+    return { version: 1, items: layout.items.map(function (row) { return { id: row.id, x: row.x, y: row.y, flip: row.flip }; }) };
+  }
+  function customRoom(s) { return Object.prototype.hasOwnProperty.call(s, 'roomLayout'); }
+  function roomBuiltins() { return Array.isArray(core().roomFurniture) ? core().roomFurniture : []; }
+  function roomPropName(id) {
+    var builtin = roomBuiltins().filter(function (row) { return row.id === id; })[0];
+    return builtin ? builtin.name : itemName(id);
+  }
+  function roomPropVisual(id) {
+    var part = id.replace(/^room_/, ''), prop;
+    if (/^room_(window|shelf|rug|bed|bowl|toy)$/.test(id)) {
+      prop = node('span', 'ipg-room-' + part);
+      if (part === 'window') append(prop, node('span', 'ipg-room-sun'), node('span', 'ipg-room-curtain'));
+      if (part === 'shelf') append(prop, node('span', 'ipg-room-book'), node('span', 'ipg-room-book'), node('span', 'ipg-room-book'), node('span', 'ipg-room-plant'));
+      if (part === 'bed') prop.appendChild(node('span', 'ipg-room-pillow'));
+    } else prop = itemArtwork(id, 'ipg-room-layout-art');
+    prop.setAttribute('aria-hidden', 'true'); return prop;
+  }
+  function clearRoomSurface() {
+    roomSurfaceGeneration++;
+    if (roomSurfaceCleanup) roomSurfaceCleanup();
+    roomSurfaceCleanup = null;
+  }
+  function discardRoomEdit() {
+    clearRoomSurface(); roomEdit = null;
+    // A save may finish in its original store after the view closes. It cannot
+    // resurrect the editor or unlock a newer operation in another mount.
+    if (roomSaveAttempt) { roomSaveAttempt = null; setBusy(false); }
+  }
+  function beginRoomEdit() {
+    if (!store || busy || game || roomEdit || developerPreview() || !motionsVisible()) return;
+    var s = state();
+    if (s.readOnly || needsEggChoice(s) || typeof core().getRoomLayout !== 'function' || typeof core().defaultRoomLayout !== 'function') return;
+    roomEdit = { draft: cloneRoomLayout(core().getRoomLayout(s)), defaults: cloneRoomLayout(core().defaultRoomLayout(s)),
+      revision: s.revision, selected: null, error: '', saving: false };
+    tab = 'care'; failure = ''; notice = ''; reaction = null; render();
+    var surface = host.querySelector('.ipg-room-layout-surface'); if (surface) surface.focus({ preventScroll: true });
+  }
+  async function saveRoomEdit(session) {
+    if (roomEdit !== session || busy || !store || suspended) return;
+    var target = host, owner = store, epoch = lifecycleEpoch, attempt = {};
+    roomSaveAttempt = attempt; session.error = ''; session.saving = true; render(); setBusy(true);
+    var result;
+    try { result = await owner.dispatch({ type: 'saveRoomLayout', layout: cloneRoomLayout(session.draft), expectedRevision: session.revision }); }
+    catch (_) { result = { ok: false, error: { code: 'save_failed' } }; }
+    if (roomSaveAttempt !== attempt) return;
+    roomSaveAttempt = null; setBusy(false);
+    if (roomEdit !== session || host !== target || store !== owner || lifecycleEpoch !== epoch || suspended) return;
+    session.saving = false;
+    if (result && result.ok) { roomEdit = null; failure = ''; notice = 'おへやの配置を保存しました。'; }
+    else {
+      session.error = result && result.error && result.error.code === 'stale_state' ?
+        'ほかの操作で記録が変わったため保存できませんでした。下書きは残っています。やめるで下書きを破棄し、ページを再読み込みしてから、もう一度お試しください。' :
+        '配置を保存できませんでした。下書きは残っています。もう一度保存するか、やめるを選べます。';
+    }
+    render();
+    var focus = host.querySelector('[data-focus-key="' + (roomEdit ? 'room-save' : 'room-edit') + '"]');
+    if (focus) focus.focus({ preventScroll: true });
+  }
+  function renderRoomProps(scene, layout, session, tools) {
+    var surface = node('div', 'ipg-room-layout-surface' + (session ? ' is-editing' : ''));
+    surface.dataset.reservedFloor = '64';
+    if (session) { surface.tabIndex = 0; surface.setAttribute('role', 'group'); surface.setAttribute('aria-label', '家具の配置。家具を選んでから、おへやをタップすると移動できます'); }
+    else surface.setAttribute('aria-hidden', 'true');
+    var generation = roomSurfaceGeneration, pointer = null, removers = [], props = Object.create(null), choiceButtons = [];
+    function alive() { return !!session && roomEdit === session && generation === roomSurfaceGeneration && motionsVisible() && surface.isConnected; }
+    function editable() { return alive() && !busy && !session.saving; }
+    function find(id) { return layout.items.filter(function (row) { return row.id === id; })[0]; }
+    function selected() { return session && find(session.selected); }
+    function listen(target, name, fn) { target.addEventListener(name, fn); removers.push(function () { target.removeEventListener(name, fn); }); }
+    function endPointer() {
+      var ended = pointer; pointer = null;
+      if (ended && typeof ended.element.releasePointerCapture === 'function') { try { ended.element.releasePointerCapture(ended.id); } catch (_) {} }
+    }
+    function update() {
+      layout.items.forEach(function (row) {
+        var el = props[row.id]; if (!el) return;
+        el.style.left = row.x + '%'; el.style.top = row.y + '%'; el.style.transform = 'translate(-' + row.x + '%,-' + row.y + '%)';
+        el.children[0].style.transform = row.flip ? 'scaleX(-1)' : 'none';
+        el.dataset.x = String(row.x); el.dataset.y = String(row.y); el.dataset.flip = String(row.flip);
+        if (session) { el.setAttribute('aria-pressed', String(session.selected === row.id)); el.setAttribute('aria-label', roomPropName(row.id) + '、横' + row.x + '、縦' + row.y + (row.flip ? '、左右反転' : '')); }
+      });
+      if (!session || !tools) return;
+      var row = selected();
+      tools.selection.textContent = row ? roomPropName(row.id) + ' · 横' + row.x + ' / 縦' + row.y : '動かす家具を選んでね';
+      tools.actions.forEach(function (control) { control.disabled = busy || !row; control.dataset.ipgDisabled = row ? '' : '1'; });
+      choiceButtons.forEach(function (control) { var placed = !!find(control.dataset.roomChoice); control.disabled = busy || placed; control.dataset.ipgDisabled = placed ? '1' : ''; });
+    }
+    function move(dx, dy) {
+      var row = selected(); if (!editable() || !row) return;
+      row.x = Math.max(0, Math.min(100, row.x + dx)); row.y = Math.max(0, Math.min(100, row.y + dy)); session.error = ''; update();
+    }
+    layout.items.forEach(function (row) {
+      var builtin = row.id.indexOf('room_') === 0;
+      var el = node(session ? 'button' : 'span', 'ipg-room-layout-prop ipg-room-prop-' + (builtin ? row.id.slice(5) : 'decoration'));
+      if (session) { el.type = 'button'; el.dataset.focusKey = 'room-prop-' + row.id; }
+      el.dataset.roomItem = row.id;
+      el.appendChild(append(node('span', 'ipg-room-layout-content'), roomPropVisual(row.id)));
+      props[row.id] = el; surface.appendChild(el);
+      if (!session) return;
+      listen(el, 'click', function () { if (!editable()) return; session.selected = row.id; update(); });
+      listen(el, 'lostpointercapture', function (event) { if (pointer && pointer.element === el && pointer.id === event.pointerId) endPointer(); });
+      listen(el, 'pointerdown', function (event) {
+        if (!editable() || event.isPrimary === false || event.button != null && event.button !== 0 || pointer) return;
+        session.selected = row.id; update(); el.focus({ preventScroll: true });
+        if (!Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return;
+        var bounds = surface.getBoundingClientRect(), box = el.getBoundingClientRect();
+        pointer = { id: event.pointerId, element: el, row: row, x: event.clientX, y: event.clientY, startX: row.x, startY: row.y,
+          travelX: Math.max(0, bounds.width - box.width), travelY: Math.max(0, bounds.height - box.height) };
+        if (typeof el.setPointerCapture === 'function') { try { el.setPointerCapture(event.pointerId); } catch (_) {} }
+        if (event.cancelable) event.preventDefault();
+      });
+    });
+    if (session) {
+      listen(w, 'pointermove', function (event) {
+        if (!editable() || !pointer || event.pointerId !== pointer.id || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return;
+        pointer.row.x = Math.max(0, Math.min(100, Math.round(pointer.startX + (pointer.travelX ? (event.clientX - pointer.x) / pointer.travelX * 100 : 0))));
+        pointer.row.y = Math.max(0, Math.min(100, Math.round(pointer.startY + (pointer.travelY ? (event.clientY - pointer.y) / pointer.travelY * 100 : 0))));
+        session.error = ''; update(); if (event.cancelable) event.preventDefault();
+      });
+      ['pointerup', 'pointercancel'].forEach(function (name) { listen(w, name, function (event) { if (pointer && event.pointerId === pointer.id) endPointer(); }); });
+      listen(w, 'blur', endPointer);
+      listen(surface, 'click', function (event) {
+        if (!editable() || event.target !== surface || !selected() || !Number.isFinite(event.clientX) || !Number.isFinite(event.clientY)) return;
+        var row = selected(), bounds = surface.getBoundingClientRect(), box = props[row.id].getBoundingClientRect();
+        row.x = Math.max(0, Math.min(100, Math.round(bounds.width > box.width ? (event.clientX - bounds.left - box.width / 2) / (bounds.width - box.width) * 100 : 0)));
+        row.y = Math.max(0, Math.min(100, Math.round(bounds.height > box.height ? (event.clientY - bounds.top - box.height / 2) / (bounds.height - box.height) * 100 : 0)));
+        session.error = ''; update();
+      });
+      listen(d, 'keydown', function (event) {
+        if (!editable()) return;
+        var target = event.target, tag = target && target.tagName, inEditor = false, ancestor = target;
+        while (ancestor) { if (ancestor === host) { inEditor = true; break; } ancestor = ancestor.parentNode; }
+        if (!inEditor) return;
+        if (tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || target && target.isContentEditable) return;
+        if (event.key === 'Escape') {
+          if (selected()) { session.selected = null; endPointer(); update(); surface.focus({ preventScroll: true }); }
+          else { discardRoomEdit(); notice = '配置の変更をやめました。'; render(); }
+          if (event.cancelable) event.preventDefault(); return;
+        }
+        var directions = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }, step = event.shiftKey ? 10 : 1;
+        if (directions[event.key] && selected()) { move(directions[event.key][0] * step, directions[event.key][1] * step); if (event.cancelable) event.preventDefault(); }
+      });
+      tools.move = move; tools.update = update; tools.selected = selected; tools.editable = editable;
+      tools.addChoices = function (buttons) { choiceButtons = buttons; update(); };
+      roomSurfaceCleanup = function () { endPointer(); removers.forEach(function (remove) { remove(); }); };
+    }
+    update(); scene.appendChild(surface); return surface;
+  }
+  function renderRoomEditor(s, body) {
+    var session = roomEdit, generation = roomSurfaceGeneration, pet = card('おへやの模様替え', 'ipg-pet-card ipg-room-editor');
+    function editorActive() { return roomEdit === session && generation === roomSurfaceGeneration && pet.isConnected && !busy && motionsVisible(); }
+    append(pet, text('家具を選んで、指で動かそう。おへやの空いた場所をタップして移動することもできます。保存で反映されます。画面を離れると、保存前の変更は取り消されます。', 'ipg-small'));
+    var scene = node('div', 'ipg-scene ipg-care-room ipg-room-editing ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
+    var img = petVisual(s); img.className += ' ipg-room-pet'; img.setAttribute('aria-hidden', 'true'); scene.appendChild(img);
+    var selection = text('', 'ipg-room-selection'); selection.setAttribute('role', 'status'); selection.setAttribute('aria-live', 'polite');
+    var controls = node('div', 'ipg-room-layout-tools'); controls.setAttribute('role', 'group'); controls.setAttribute('aria-label', '選んだ家具を動かす');
+    var tools = { selection: selection, actions: [] };
+    [['←', '左へ', -5, 0], ['↑', '上へ', 0, -5], ['↓', '下へ', 0, 5], ['→', '右へ', 5, 0]].forEach(function (direction) {
+      var control = button(direction[0], function () { if (tools.move) tools.move(direction[2], direction[3]); }, true);
+      control.setAttribute('aria-label', direction[1]); control.dataset.focusKey = 'room-move-' + direction[1];
+      tools.actions.push(control); controls.appendChild(control);
+    });
+    var flip = button('左右反転', function () { var row = tools.selected(); if (!tools.editable() || !row) return; row.flip = !row.flip; session.error = ''; tools.update(); }, true);
+    flip.dataset.focusKey = 'room-flip';
+    var remove = button('片づける', function () { var row = tools.selected(); if (!tools.editable() || !row) return; session.draft.items = session.draft.items.filter(function (entry) { return entry.id !== row.id; }); session.selected = null; session.error = ''; render(); }, true);
+    remove.dataset.focusKey = 'room-remove'; tools.actions.push(flip, remove); append(controls, flip, remove);
+    renderRoomProps(scene, session.draft, session, tools);
+    append(pet, scene, selection, controls, text('矢印キーで1ずつ、Shift＋矢印キーで10ずつ移動。Escで選択を外し、もう一度Escで模様替えをやめられます。', 'ipg-small'));
+    var picker = node('details', 'ipg-room-layout-picker'); picker.open = true;
+    picker.appendChild(node('summary', '', '家具・もちものを置く'));
+    var choices = node('div', 'ipg-room-layout-choices'), choiceButtons = [];
+    var catalogue = roomBuiltins().concat(items().filter(function (entry) { return entry.type === 'decoration' && owned(s, entry); }));
+    catalogue.forEach(function (entry) {
+      var placed = session.draft.items.some(function (row) { return row.id === entry.id; });
+      var choice = button('', function () {
+        if (!editorActive() || session.draft.items.length >= 13 || session.draft.items.some(function (row) { return row.id === entry.id; })) return;
+        session.draft.items.push({ id: entry.id, x: entry.x == null ? 74 : entry.x, y: entry.y == null ? 94 : entry.y, flip: false });
+        session.selected = entry.id; session.error = ''; render();
+        var added = host.querySelector('[data-focus-key="room-prop-' + entry.id + '"]'); if (added) added.focus({ preventScroll: true });
+      }, true, placed);
+      choice.dataset.roomChoice = entry.id; choice.dataset.focusKey = 'room-add-' + entry.id;
+      var thumb = append(node('span', 'ipg-room-choice-art'), roomPropVisual(entry.id));
+      append(choice, thumb, node('span', '', entry.name), node('small', '', placed ? '配置中' : '置く'));
+      choices.appendChild(choice); choiceButtons.push(choice);
+    });
+    tools.addChoices(choiceButtons); picker.appendChild(choices); pet.appendChild(picker);
+    if (session.error) { var error = text(session.error, 'ipg-error'); error.setAttribute('role', 'alert'); pet.appendChild(error); }
+    var actions = node('div', 'ipg-room-editor-actions');
+    var reset = button('基本の配置に戻す', function () { if (!editorActive()) return; session.draft = cloneRoomLayout(session.defaults); session.selected = null; session.error = ''; render(); }, true);
+    reset.dataset.focusKey = 'room-reset';
+    var cancel = button('やめる', function () { if (!editorActive()) return; discardRoomEdit(); notice = '配置の変更をやめました。'; render(); var entrance = host.querySelector('[data-focus-key="room-edit"]'); if (entrance) entrance.focus({ preventScroll: true }); }, true);
+    cancel.dataset.focusKey = 'room-cancel';
+    var save = button(session.saving ? '保存しています…' : '配置を保存', function () { if (editorActive()) saveRoomEdit(session); }); save.dataset.focusKey = 'room-save';
+    append(actions, reset, cancel, save); pet.appendChild(actions);
+    pet.appendChild(text('模様替え中は、お世話やほかのゲーム操作をお休みします。保存するか、やめるで終了できます。', 'ipg-small'));
+    body.appendChild(pet);
+  }
   function renderCare(s, body) {
+    if (roomEdit) { renderRoomEditor(s, body); return; }
     var info = stage(s), pet = card('', 'ipg-pet-card');
     var scene = node('div', 'ipg-scene' + (!developerPreview() ? ' ipg-care-room' : '') + ' ipg-scene-' + (s.decorations.background || 'meadow').replace(/^bg_/, ''));
     var img = petVisual(s);
     var careRequest = displaySpecies(s) === 'lilac' ? motionRequests[motionRequests.length - 1] : null;
     var equipped = s.decorations.equipped, decor = item(equipped);
-    var decoration = equipped ? node('span', 'ipg-pet-decoration') : null;
+    var decoration = equipped && (developerPreview() || !customRoom(s) || !decor || decor.type !== 'decoration') ? node('span', 'ipg-pet-decoration') : null;
     if (decoration) {
       decoration.setAttribute('role', 'img');
       if (decor && hasItemArtwork(decor.id)) decoration.appendChild(itemArtwork(decor.id, 'ipg-decoration-art'));
@@ -1042,15 +1243,15 @@
     if (decoration) decoration.setAttribute('aria-label', '身につけているかざり：' + (decor ? decor.name : String(equipped).slice(0, 100)));
     if (!developerPreview()) {
       scene.setAttribute('role', 'group'); scene.setAttribute('aria-label', (s.pet.name || 'このこ') + 'のおへや'); scene.dataset.activity = 'idle';
-      var window = append(node('span', 'ipg-room-window'), node('span', 'ipg-room-sun'), node('span', 'ipg-room-curtain'));
-      var shelf = append(node('span', 'ipg-room-shelf'), node('span', 'ipg-room-book'), node('span', 'ipg-room-book'), node('span', 'ipg-room-book'), node('span', 'ipg-room-plant'));
-      [window, shelf].forEach(function (n) { n.setAttribute('aria-hidden', 'true'); scene.appendChild(n); });
-      ['rug', 'bed', 'bowl', 'toy'].forEach(function (part) { var prop = node('span', 'ipg-room-' + part); prop.setAttribute('aria-hidden', 'true'); if (part === 'bed') prop.appendChild(node('span', 'ipg-room-pillow')); scene.appendChild(prop); });
+      if (customRoom(s) && typeof core().getRoomLayout === 'function') renderRoomProps(scene, core().getRoomLayout(s));
+      else ['window', 'shelf', 'rug', 'bed', 'bowl', 'toy'].forEach(function (part) { scene.appendChild(roomPropVisual('room_' + part)); });
       img.className += ' ipg-room-pet';
       var bubble = node('span', 'ipg-room-bubble', 'ここで、いっしょに過ごそう。');
       var roomStatus = node('p', 'ipg-room-status', 'のんびり過ごしています。お世話をすると反応するよ。');
       append(scene, img, decoration, bubble);
       var heading = append(node('div', 'ipg-room-heading'), node('p', 'ipg-eyebrow', 'いっしょのおへや'), node('h3', 'ipg-pet-name', s.pet.name || 'なまえをつけよう'), text(info.label + ' · ' + number(s.pet.exp) + ' EXP', 'ipg-stage'));
+      var edit = button('模様替え', beginRoomEdit, true, s.readOnly || typeof core().getRoomLayout !== 'function');
+      edit.className += ' ipg-room-edit-entry'; edit.dataset.focusKey = 'room-edit'; heading.appendChild(edit);
       append(pet, heading, scene, roomStatus);
       if (careRequest) { careRequest.room = scene; careRequest.roomBubble = bubble; careRequest.roomStatus = roomStatus; careRequest.roomWalkDistance = 27; careRequest.wrap.dataset.facing = 'front'; careRequest.wrap.dataset.roomWalkPhase = ''; placeInRoom(careRequest, roomCarryX, false); }
       if (careRequest) bindRoomTouch(careRequest, pet);
@@ -1358,13 +1559,16 @@
       if (x.type === 'food' || !count) row.appendChild(button('買う', function () {
         run({ type: 'buyItem', itemId: x.id }, x.name + 'を購入しました。');
       }, false, s.coins < x.price));
-      if (count) row.appendChild(button(x.type === 'food' ? '使う' : 'かざる', function () {
+      var roomDecoration = customRoom(s) && x.type === 'decoration';
+      var placed = roomDecoration && s.roomLayout.items.some(function (entry) { return entry.id === x.id; });
+      if (count) row.appendChild(button(x.type === 'food' ? '使う' : roomDecoration ? placed ? '配置済み' : 'お部屋に置く' : 'かざる', function () {
         run({ type: x.type === 'food' ? 'useItem' : 'equip', itemId: x.id }, x.type === 'food' ? 'アイテムを使いました。' : 'かざりを保存しました。');
-      }, true));
+      }, true, placed));
       grid.appendChild(row);
     });
     c.appendChild(grid);
-    if (s.decorations.equipped) c.appendChild(button('身につけているかざりを外す', function () {
+    if (customRoom(s)) c.appendChild(button('配置を変える・片づける', beginRoomEdit, true, s.readOnly));
+    else if (s.decorations.equipped) c.appendChild(button('身につけているかざりを外す', function () {
       run({ type: 'equip', itemId: null }, 'かざりを外しました。');
     }, true));
     body.appendChild(c);
@@ -1478,6 +1682,7 @@
     append(details, text('この端末のゲームをバックアップできます。復元すると、現在の独立ゲームの記録がバックアップの内容に置き換わります。'));
     var out = node('div');
     function showBackup() {
+      if (roomEdit || busy) return;
       try {
         var result = store.exportBackup();
         backupText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
@@ -1498,17 +1703,17 @@
     var area = node('textarea'); area.rows = 4; area.value = importText;
     area.addEventListener('input', function () { importText = area.value; });
     file.addEventListener('change', async function () {
-      var f = file.files && file.files[0];
-      if (!f) return;
+      var f = file.files && file.files[0], epoch = lifecycleEpoch, owner = store;
+      if (!f || roomEdit || busy) return;
       if (f.size > 1000000) { failure = 'バックアップは1MB以下のファイルを選んでください。'; render(); return; }
-      try { importText = await f.text(); area.value = importText; }
-      catch (_) { failure = 'ファイルを読み込めませんでした。'; render(); }
+      try { var raw = await f.text(); if (roomEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; importText = raw; area.value = importText; }
+      catch (_) { if (roomEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; failure = 'ファイルを読み込めませんでした。'; render(); }
     });
     var submit = node('button', 'ipg-button ipg-secondary', 'バックアップから復元');
     submit.type = 'submit';
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      if (busy || !area.value.trim()) return;
+      if (busy || roomEdit || !area.value.trim()) return;
       if (!w.confirm('現在のゲームを、このバックアップの内容で復元しますか？')) return;
       setBusy(true);
       try {
@@ -1525,6 +1730,7 @@
     if (!host || !store || game && host.querySelector('.ipg-catch-board')) return;
     var priorRoom = motionRequests.filter(function (request) { return !!request.room; })[0];
     roomCarryX = tab === 'care' && priorRoom && Number.isFinite(priorRoom.roomPixelX) ? priorRoom.roomPixelX : 0;
+    clearRoomSurface();
     stopMotions();
     var focused = d.activeElement && d.activeElement.dataset && d.activeElement.dataset.focusKey;
     var s = state(), choosing = !developerPreview() && needsEggChoice(s), root = node('div', 'ipg ipg-view-' + tab);
@@ -1548,10 +1754,10 @@
     var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
     Object.keys(tabLabels).forEach(function (key) {
       var b = button(tabLabels[key], async function () {
-        if (busy) return;
+        if (busy || roomEdit) return;
         if (game) await cancelGame('ゲームを中止しました。この回の報酬はありません。');
         tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
-      }, true);
+      }, true, !!roomEdit);
       b.className += tab === key ? ' is-active' : '';
       b.setAttribute('aria-current', tab === key ? 'page' : 'false');
       b.dataset.focusKey = 'tab-' + key;
@@ -1563,10 +1769,10 @@
     else if (tab === 'play') renderPlay(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
-    if (!game) { renderLegacy(s, body); renderPreserved(s, body); renderBackup(body); }
+    if (!game && !roomEdit) { renderLegacy(s, body); renderPreserved(s, body); renderBackup(body); }
     root.appendChild(body);
     host.replaceChildren(root);
-    startMotions();
+    if (!roomEdit) startMotions();
     setBusy(busy);
     if (game) { var board = host.querySelector('.ipg-catch-board'); if (board) board.focus({ preventScroll: true }); }
     if (focused && !game) {
@@ -1588,6 +1794,7 @@
     suspended = false;
     if (host === target && store) { render(); return true; }
     if (mounting) return mounting;
+    discardRoomEdit(); lifecycleEpoch++;
     if (game) await cancelGame();
     host = target; options = opts || options || {};
     loading('ゲームの記録を読み込んでいます…');
@@ -1606,7 +1813,8 @@
         if (readyResult && readyResult.ok === false) throw new Error('storage_read_failed');
         store = candidate;
         if (unsubscribe) unsubscribe();
-        unsubscribe = store.subscribe(function () { if (!busy && !game) render(); });
+        var subscribedStore = store, subscribedTarget = host;
+        unsubscribe = store.subscribe(function () { if (store === subscribedStore && host === subscribedTarget && !busy && !game) render(); });
         failure = ''; render(); return true;
       } catch (_) {
         store = null; loading('ゲームの記録を読み込めませんでした。保存先を確認して、もう一度お試しください。', true);
@@ -1616,7 +1824,7 @@
     return mounting;
   }
   function suspend() {
-    suspended = true; lifecycleEpoch++;
+    suspended = true; lifecycleEpoch++; discardRoomEdit();
     stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = bodyDrawerOpen.growth = false; directionDrawerOpen.pet = directionDrawerOpen.preview = directionDrawerOpen.growth = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; growthEmotionOpen = false; fittingOpen = false; fittingOutfit = null;
     return cancelGame('画面を離れたためゲームを中止しました。');
   }

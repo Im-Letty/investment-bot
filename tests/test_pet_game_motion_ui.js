@@ -2372,3 +2372,347 @@ test('illustration styles use fixed neutral boxes and never apply old garment cl
   assert.match(css, /\.ipg-clothing-art\{[^}]*max-width:100%/);
   assert.match(css, /\.ipg-feeding-food\[data-food-id\]:not\(\[data-food-id=""\]\)\{background:none/);
 });
+
+function roomProps(f) { return f.host.querySelectorAll('.ipg-room-layout-prop'); }
+function roomProp(f, id) { const found = roomProps(f).find(el => el.dataset.roomItem === id); assert.ok(found, id); return found; }
+function roomPosition(f, id) { const el = roomProp(f, id); return { x: Number(el.dataset.x), y: Number(el.dataset.y), flip: el.dataset.flip === 'true' }; }
+function roomGeometry(f, id, width = 300, height = 280, itemWidth = 60, itemHeight = 60) {
+  const surface = f.host.querySelector('.ipg-room-layout-surface'), prop = roomProp(f, id);
+  surface.getBoundingClientRect = () => ({ left: 10, top: 20, width, height });
+  prop.getBoundingClientRect = () => ({ left: 10, top: 20, width: itemWidth, height: itemHeight });
+  return { surface, prop };
+}
+
+test('room layout is opt-in: old rooms keep six fixed fixtures and equipped artwork without a startup write', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false, setup: async s => {
+    assert.equal((await s.dispatch({ type: 'buyItem', itemId: 'flower' })).ok, true);
+    assert.equal((await s.dispatch({ type: 'equip', itemId: 'flower' })).ok, true);
+  } });
+  const before = f.saved(), writes = f.writes.length;
+  assert.equal(Object.hasOwn(before, 'roomLayout'), false);
+  for (const part of ['window', 'shelf', 'rug', 'bed', 'bowl', 'toy']) assert.equal(f.host.querySelectorAll('.ipg-room-' + part).length, 1, part);
+  assert.equal(f.host.querySelectorAll('.ipg-pet-decoration').length, 1);
+  assert.equal(roomProps(f).length, 0); assert.ok(f.focusButton('room-edit'));
+  f.ui.render(); f.window.emit('focus'); await flush();
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  delete f.window.PetGameCore.getRoomLayout; delete f.window.PetGameCore.roomFurniture;
+  f.ui.render(); assert.equal(f.host.querySelectorAll('.ipg-room-window').length, 1);
+  assert.equal(f.focusButton('room-edit').disabled, true, 'an older optional Core retains its room but cannot start unsupported editing');
+});
+
+test('editing stops room drawing and touch, suppresses stale care/navigation/backup handlers and keeps every draft action local', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false, rendererMode: 'ready' });
+  const before = f.saved(), writes = f.writes.length, care = f.focusButton('care-feed'), nav = f.focusButton('tab-shop');
+  const backup = f.button('バックアップを表示'), form = f.host.querySelector('.ipg-backup').querySelector('form');
+  await f.click(f.focusButton('room-edit'));
+  assert.equal(roomProps(f).length, 6); assert.equal(f.activeMotions().length, 0);
+  assert.equal(f.host.querySelector('.ipg-touch-actions'), null); assert.equal(f.host.querySelector('.ipg-room-care'), null);
+  assert.equal(f.host.querySelector('.ipg-backup'), null); assert.equal(f.host.querySelector('.ipg-pet-settings'), null);
+  for (const key of ['care', 'play', 'shop', 'market']) assert.equal(f.focusButton('tab-' + key).disabled, true);
+  care.emit('click'); nav.emit('click'); backup.emit('click'); form.emit('submit'); await flush();
+  assert.ok(f.host.querySelector('.ipg-room-editor')); assert.equal(f.host.querySelector('.ipg-shop-grid'), null);
+  await f.click(roomProp(f, 'room_window')); await f.click(f.focusButton('room-flip')); await f.click(f.focusButton('room-move-右へ'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.raf.size, 0);
+  assert.ok(f.host.textContent.includes('画面を離れると、保存前の変更は取り消されます'));
+  await f.click(f.focusButton('room-cancel'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.activeMotions().length, 1);
+});
+
+test('all six fixtures and seven owned decorations can be placed once, flipped and put away without purchases or saves', async () => {
+  const decorations = Core.items.filter(row => row.type === 'decoration');
+  assert.equal(decorations.length, 7);
+  const f = await fixture({ species: 'lilac', developerPreview: false, seed: { pg_coins: '100000' }, setup: async s => {
+    for (const entry of decorations) assert.equal((await s.dispatch({ type: 'buyItem', itemId: entry.id })).ok, true);
+  } });
+  const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-edit'));
+  const choices = f.host.querySelectorAll('.ipg-room-layout-choices')[0].querySelectorAll('button');
+  assert.equal(choices.length, 13); assert.ok(choices.every(el => !['apple', 'rice', 'cloth_cream_vest'].includes(el.dataset.roomChoice)));
+  for (const entry of decorations) {
+    await f.click(f.focusButton('room-add-' + entry.id));
+    assert.equal(f.focusButton('room-add-' + entry.id).disabled, true);
+    assert.equal(f.document.activeElement, roomProp(f, entry.id));
+  }
+  assert.equal(roomProps(f).length, 13); assert.equal(new Set(roomProps(f).map(el => el.dataset.roomItem)).size, 13);
+  const latest = decorations.at(-1).id;
+  await f.click(f.focusButton('room-flip')); assert.equal(roomPosition(f, latest).flip, true);
+  await f.click(f.focusButton('room-remove')); assert.equal(roomProps(f).length, 12);
+  assert.equal(f.focusButton('room-add-' + latest).disabled, false);
+  await f.click(f.focusButton('room-reset')); assert.equal(roomProps(f).length, 6);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('mouse/touch drag, room tap and keyboard move the same local integer coordinates with edge clamping', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false });
+  const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-edit'));
+  const { surface, prop } = roomGeometry(f, 'room_window');
+  const captures = [], releases = []; prop.setPointerCapture = id => captures.push(id); prop.releasePointerCapture = id => releases.push(id);
+  prop.emit('pointerdown', { pointerId: 4, button: 0, isPrimary: true, clientX: 80, clientY: 90 });
+  f.window.emit('pointermove', { pointerId: 4, clientX: 2000, clientY: -1000 });
+  assert.deepEqual(roomPosition(f, 'room_window'), { x: 100, y: 0, flip: false });
+  f.window.emit('pointerup', { pointerId: 4 }); assert.deepEqual(captures, [4]); assert.deepEqual(releases, [4]);
+  surface.emit('click', { clientX: 160, clientY: 160 });
+  assert.deepEqual(roomPosition(f, 'room_window'), { x: 50, y: 50, flip: false });
+  f.document.emit('keydown', { target: prop, key: 'ArrowLeft' });
+  f.document.emit('keydown', { target: prop, key: 'ArrowDown', shiftKey: true });
+  assert.deepEqual(roomPosition(f, 'room_window'), { x: 49, y: 60, flip: false });
+  await f.click(f.focusButton('room-move-上へ')); assert.equal(roomPosition(f, 'room_window').y, 55);
+  f.document.emit('keydown', { target: f.document.body, key: 'ArrowRight' });
+  assert.equal(roomPosition(f, 'room_window').x, 49, 'keyboard events outside the editor do not move furniture');
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('secondary and mismatched pointers, canceled drags, blur and detached handlers cannot move a draft', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false }); await f.click(f.focusButton('room-edit'));
+  let { prop } = roomGeometry(f, 'room_bed'), initial = roomPosition(f, 'room_bed');
+  for (const bad of [{ button: 2 }, { isPrimary: false }]) {
+    prop.emit('pointerdown', { pointerId: 1, button: 0, isPrimary: true, clientX: 10, clientY: 10, ...bad });
+    f.window.emit('pointermove', { pointerId: 1, clientX: 200, clientY: 200 }); assert.deepEqual(roomPosition(f, 'room_bed'), initial);
+  }
+  prop.emit('pointerdown', { pointerId: 2, button: 0, clientX: 10, clientY: 10 });
+  f.window.emit('pointermove', { pointerId: 8, clientX: 200, clientY: 200 }); assert.deepEqual(roomPosition(f, 'room_bed'), initial);
+  f.window.emit('pointercancel', { pointerId: 2 }); f.window.emit('pointermove', { pointerId: 2, clientX: 200, clientY: 200 });
+  assert.deepEqual(roomPosition(f, 'room_bed'), initial);
+  prop.emit('pointerdown', { pointerId: 3, button: 0, clientX: 10, clientY: 10 }); f.window.emit('blur');
+  f.window.emit('pointermove', { pointerId: 3, clientX: 200, clientY: 200 }); assert.deepEqual(roomPosition(f, 'room_bed'), initial);
+  prop.emit('pointerdown', { pointerId: 4, button: 0, clientX: 10, clientY: 10 }); prop.emit('lostpointercapture', { pointerId: 4 });
+  f.window.emit('pointermove', { pointerId: 4, clientX: 200, clientY: 200 }); assert.deepEqual(roomPosition(f, 'room_bed'), initial);
+  prop.emit('pointerdown', { pointerId: 5, button: 0, clientX: 10, clientY: 10 });
+  f.window.emit('pointermove', { pointerId: 5, clientX: -999, clientY: -999 }); assert.deepEqual(roomPosition(f, 'room_bed'), { x: 0, y: 0, flip: false }, 'capture loss permits a new drag');
+  f.window.emit('pointerup', { pointerId: 5 }); initial = roomPosition(f, 'room_bed');
+  const oldFlip = f.focusButton('room-flip'), oldSave = f.focusButton('room-save'); f.ui.render();
+  prop.emit('pointerdown', { pointerId: 9, button: 0, clientX: 10, clientY: 10 }); oldFlip.emit('click'); oldSave.emit('click');
+  f.window.emit('pointermove', { pointerId: 9, clientX: 200, clientY: 200 }); await flush();
+  assert.deepEqual(roomPosition(f, 'room_bed'), initial); assert.ok(f.host.querySelector('.ipg-room-editor'));
+});
+
+test('saving dispatches exactly once and changes only layout plus revision after asynchronous persistence confirms', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false });
+  const before = f.saved(), writes = f.writes.length, actions = [], dispatch = f.store.dispatch;
+  f.store.dispatch = action => { actions.push(copy(action)); return dispatch(action); };
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_window')); await f.click(f.focusButton('room-flip'));
+  await f.click(f.focusButton('room-move-右へ'));
+  const expected = Core.getRoomLayout(before); expected.items[0].x += 5; expected.items[0].flip = true;
+  const gate = deferred(); f.control.pending = gate;
+  const save = f.focusButton('room-save'); await f.click(save); save.emit('click'); await flush();
+  assert.equal(actions.length, 1); assert.deepEqual(actions[0], { type: 'saveRoomLayout', layout: expected, expectedRevision: before.revision });
+  assert.deepEqual(f.saved(), before); assert.deepEqual(JSON.parse(f.store.exportBackup()).state, before);
+  assert.equal(f.focusButton('room-save').disabled, true); assert.equal(f.focusButton('room-cancel').disabled, true);
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.deepEqual(f.saved(), { ...before, roomLayout: expected, revision: before.revision + 1 }); assert.equal(f.writes.length, writes + 1);
+  assert.equal(f.host.querySelector('.ipg-room-editor'), null); assert.equal(roomProps(f).length, 6);
+  assert.equal(f.host.querySelector('.ipg-pet-decoration'), null); assert.equal(f.focusButton('room-edit'), f.document.activeElement);
+  assert.ok(f.host.textContent.includes('おへやの配置を保存しました'));
+});
+
+for (const outcome of ['false', 'throw']) test('a ' + outcome + ' room save preserves the complete draft and old durable state until an explicit retry', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false }); const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_window')); await f.click(f.focusButton('room-flip'));
+  const draft = roomPosition(f, 'room_window'); f.control.outcome = outcome; await f.click(f.focusButton('room-save'));
+  assert.deepEqual(f.saved(), before); assert.deepEqual(JSON.parse(f.store.exportBackup()).state, before); assert.equal(f.writes.length, writes);
+  assert.ok(f.host.textContent.includes('配置を保存できませんでした')); assert.ok(!f.host.textContent.includes('配置を保存しました'));
+  assert.deepEqual(roomPosition(f, 'room_window'), draft); assert.equal(f.focusButton('room-cancel').disabled, false);
+  f.control.outcome = 'ok'; await f.click(f.focusButton('room-save'));
+  assert.equal(f.saved().roomLayout.items[0].flip, true); assert.equal(f.writes.length, writes + 1);
+});
+
+test('a revision conflict retains the draft and current saved state without rebasing or overwriting another action', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false });
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_bed')); await f.click(f.focusButton('room-flip'));
+  assert.equal((await f.store.dispatch({ type: 'rename', name: 'ほかの変更' })).ok, true); await flush();
+  const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-save'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(roomPosition(f, 'room_bed').flip, true);
+  assert.ok(f.host.textContent.includes('ほかの操作で記録が変わった'));
+  assert.ok(f.host.textContent.includes('下書きは残っています'));
+  await f.click(f.focusButton('room-cancel')); assert.equal(f.saved().pet.name, 'ほかの変更');
+});
+
+test('focus, daily refresh and a same-target mount retain the local draft but replace all obsolete surface listeners', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false }); await f.click(f.focusButton('room-edit'));
+  await f.click(roomProp(f, 'room_toy')); await f.click(f.focusButton('room-move-左へ'));
+  const expected = roomPosition(f, 'room_toy'), before = f.saved(), writes = f.writes.length;
+  const old = roomGeometry(f, 'room_toy'); old.prop.emit('pointerdown', { pointerId: 6, clientX: 10, clientY: 10, button: 0 });
+  f.window.emit('focus'); await flush(); assert.deepEqual(roomPosition(f, 'room_toy'), expected);
+  f.window.emit('pointermove', { pointerId: 6, clientX: 999, clientY: 999 }); assert.deepEqual(roomPosition(f, 'room_toy'), expected);
+  f.advance(86400000); f.ui.render(); assert.deepEqual(roomPosition(f, 'room_toy'), expected);
+  assert.equal(await f.ui.mount(f.host), true); assert.deepEqual(roomPosition(f, 'room_toy'), expected);
+  assert.equal(f.window.listenerCount('pointermove'), 1); assert.equal(f.document.listenerCount('keydown'), 1);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+for (const interrupt of ['close', 'pagehide', 'visibility']) test(interrupt + ' discards only the room draft and prevents old pointers from changing a reopened editor', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false }); const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-edit')); const old = roomGeometry(f, 'room_window');
+  old.prop.emit('pointerdown', { pointerId: 5, clientX: 0, clientY: 0, button: 0 });
+  f.window.emit('pointermove', { pointerId: 5, clientX: 900, clientY: 900 });
+  if (interrupt === 'close') await f.ui.close();
+  if (interrupt === 'pagehide') f.window.emit('pagehide');
+  if (interrupt === 'visibility') { f.document.hidden = true; f.document.emit('visibilitychange'); }
+  assert.equal(f.window.listenerCount('pointermove'), 0); assert.equal(f.document.listenerCount('keydown'), 0);
+  f.document.hidden = false; await f.ui.open(); await f.click(f.focusButton('room-edit'));
+  const expected = roomPosition(f, 'room_window');
+  old.prop.emit('pointerdown', { pointerId: 5, clientX: 0, clientY: 0, button: 0 });
+  f.window.emit('pointermove', { pointerId: 5, clientX: 900, clientY: 900 }); f.window.emit('pointerup', { pointerId: 5 });
+  assert.deepEqual(roomPosition(f, 'room_window'), expected); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('a late successful save after close cannot close, change or announce success in a newer editor session', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false });
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_bed')); await f.click(f.focusButton('room-flip'));
+  const gate = deferred(); f.control.pending = gate; await f.click(f.focusButton('room-save'));
+  await f.ui.close(); await f.ui.open(); await f.click(f.focusButton('room-edit'));
+  await f.click(roomProp(f, 'room_toy')); await f.click(f.focusButton('room-move-左へ'));
+  const expected = roomPosition(f, 'room_toy');
+  gate.resolve(); await flush(); f.control.pending = null;
+  assert.equal(f.saved().roomLayout.items.find(row => row.id === 'room_bed').flip, true, 'the authorized old save still finishes in its store');
+  assert.ok(f.host.querySelector('.ipg-room-editor')); assert.deepEqual(roomPosition(f, 'room_toy'), expected);
+  assert.equal(f.focusButton('room-save').disabled, false); assert.ok(!f.host.textContent.includes('配置を保存しました'));
+});
+
+test('mounting another host destroys the editor and isolates old pending save callbacks from that mount', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false });
+  await f.click(f.focusButton('room-edit')); const oldProp = roomGeometry(f, 'room_bed').prop;
+  await f.click(oldProp); await f.click(f.focusButton('room-flip'));
+  const gate = deferred(); f.control.pending = gate; await f.click(f.focusButton('room-save'));
+  const target = f.document.createElement('div'); f.pane.appendChild(target);
+  const renders = [], replace = target.replaceChildren.bind(target); target.replaceChildren = (...children) => { replace(...children); renders.push(target.textContent); };
+  const opening = f.ui.mount(target); await flush();
+  assert.equal(target.querySelector('.ipg-room-editor'), null); assert.equal(f.window.listenerCount('pointermove'), 0);
+  gate.resolve(); await flush(); f.control.pending = null; assert.equal(await opening, true);
+  const current = target.textContent;
+  assert.equal(renders.length, 2, 'the new host renders loading and its own ready state, never an early old-store notification');
+  assert.equal(target.textContent, current); assert.equal(target.querySelector('.ipg-room-editor'), null);
+  oldProp.emit('pointerdown', { pointerId: 8, clientX: 0, clientY: 0 }); f.window.emit('pointermove', { pointerId: 8, clientX: 900, clientY: 900 });
+  assert.equal(target.textContent, current);
+});
+
+test('Escape first deselects and then cancels without changing saved furniture or granting a reward', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false }); const before = f.saved(), writes = f.writes.length;
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_rug'));
+  const prop = roomProp(f, 'room_rug'); f.document.emit('keydown', { target: prop, key: 'Escape' });
+  assert.ok(f.host.querySelector('.ipg-room-editor')); assert.equal(prop.getAttribute('aria-pressed'), 'false');
+  assert.equal(f.focusButton('room-flip').disabled, true);
+  f.document.emit('keydown', { target: f.host.querySelector('.ipg-room-layout-surface'), key: 'Escape' });
+  assert.equal(f.host.querySelector('.ipg-room-editor'), null); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('a saved empty room stays empty through render, reopen and edit instead of restoring furniture or equipped artwork', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false, setup: async s => {
+    await s.dispatch({ type: 'buyItem', itemId: 'flower' }); await s.dispatch({ type: 'equip', itemId: 'flower' });
+    assert.equal((await s.dispatch({ type: 'saveRoomLayout', layout: { version: 1, items: [] }, expectedRevision: s.getState().revision })).ok, true);
+  } });
+  const before = f.saved(), writes = f.writes.length;
+  for (const part of ['window', 'shelf', 'rug', 'bed', 'bowl', 'toy']) assert.equal(f.host.querySelector('.ipg-room-' + part), null);
+  assert.equal(roomProps(f).length, 0); assert.equal(f.host.querySelector('.ipg-pet-decoration'), null);
+  f.ui.render(); await f.ui.close(); await f.ui.open(); assert.equal(roomProps(f).length, 0);
+  await f.click(f.focusButton('room-edit')); assert.equal(roomProps(f).length, 0);
+  await f.click(f.focusButton('room-cancel')); assert.equal(roomProps(f).length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+});
+
+test('custom room shop places owned decorations without replacing others and routes removal into the local editor', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false, seed: { pg_coins: '10000' }, setup: async s => {
+    for (const id of ['flower', 'tree']) await s.dispatch({ type: 'buyItem', itemId: id });
+    await s.dispatch({ type: 'saveRoomLayout', layout: { version: 1, items: [{ id: 'flower', x: 0, y: 100, flip: true }] }, expectedRevision: s.getState().revision });
+  } });
+  await f.click(f.focusButton('tab-shop'));
+  const row = id => f.host.querySelectorAll('.ipg-shop-item').find(el => el.dataset.itemId === id);
+  assert.equal(row('flower').querySelector('button').textContent, '配置済み'); assert.equal(row('flower').querySelector('button').disabled, true);
+  const tree = row('tree').querySelector('button'); assert.equal(tree.textContent, 'お部屋に置く'); await f.click(tree);
+  assert.deepEqual(f.saved().roomLayout.items, [{ id: 'flower', x: 0, y: 100, flip: true }, { id: 'tree', x: 74, y: 94, flip: false }]);
+  assert.ok(!f.host.textContent.includes('身につけているかざりを外す'));
+  const before = f.saved(), writes = f.writes.length;
+  await f.click(f.button('配置を変える・片づける')); assert.ok(f.host.querySelector('.ipg-room-editor'));
+  await f.click(roomProp(f, 'flower')); await f.click(f.focusButton('room-remove'));
+  assert.equal(roomProps(f).length, 1); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.click(f.focusButton('room-cancel')); assert.deepEqual(f.saved(), before);
+});
+
+test('safe travel coordinates keep every padded prop inside representative 320px and 720px rooms and above the 64px care strip', async () => {
+  const css = fs.readFileSync(require.resolve('../static/pet-game.css'), 'utf8');
+  assert.match(css, /\.ipg-room-layout-surface\{position:absolute;inset:12px 12px 64px;/);
+  assert.match(css, /\.ipg \.ipg-room-layout-prop\{[^}]*max-width:100%;max-height:100%[^}]*overflow:hidden/);
+  assert.match(css, /\.ipg-room-layout-content\{position:absolute;inset:8px;/);
+  // Evaluate the applicable simple class rules by CSS specificity then source
+  // order. A later one-class rug rule must not falsely beat the two-class base.
+  const zRules = [...css.matchAll(/(\.ipg(?: \.ipg-room-layout-prop| \.ipg-room-prop-rug)|\.ipg-room-prop-rug)\{([^}]+)\}/g)]
+    .filter(match => /(?:^|;)z-index:/.test(match[2]))
+    .map(match => ({ selector: match[1], specificity: (match[1].match(/\./g) || []).length, order: match.index,
+      z: Number(/(?:^|;)z-index:(\d+)/.exec(match[2])[1]), declarations: match[2] }));
+  const winner = zRules.sort((a,b) => a.specificity - b.specificity || a.order - b.order).at(-1);
+  assert.equal(winner.selector, '.ipg .ipg-room-prop-rug'); assert.equal(winner.z, 0, 'rug remains below general z-index:1 even when appended last');
+  assert.equal(winner.declarations, 'z-index:0', 'the stronger rule only changes stacking and cannot override compact rug dimensions');
+  assert.match(css, /\.ipg-room-prop-rug\{width:min\(70%,416px\);height:106px\}/);
+  assert.match(css, /@media\(max-width:540px\)\{[^\n]*\.ipg-room-prop-rug\{width:82%;height:85px\}/);
+  assert.match(css, /\.ipg-room-layout-tools[^}]*flex-wrap:wrap/);
+  assert.match(css, /\.ipg \.ipg-room-layout-tools>\.ipg-button\{min-width:44px;min-height:44px/);
+  assert.match(css, /@media\(prefers-color-scheme:dark\)\{\.ipg-room-layout-surface\.is-editing/);
+  for (const roomWidth of [320, 720]) {
+    const compact = roomWidth <= 540, roomHeight = compact ? 354 : 414, insetX = compact ? 8 : 12, insetTop = compact ? 10 : 12;
+    const surfaceWidth = roomWidth - insetX * 2, surfaceHeight = roomHeight - insetTop - 64;
+    const sizes = compact ? [[94,113],[100,64],[surfaceWidth*.82,85],[94,75],[56,39],[38,38],[80,80]] : [[114,132],[126,64],[Math.min(416,surfaceWidth*.7),106],[122,87],[68,42],[44,44],[96,96]];
+    for (const [width,height] of sizes) for (const x of [0,50,100]) for (const y of [0,50,100]) {
+      const left = insetX + x / 100 * (surfaceWidth - width), top = insetTop + y / 100 * (surfaceHeight - height);
+      assert.ok(left >= insetX && left + width <= roomWidth - insetX + 1e-8);
+      assert.ok(top >= insetTop && top + height <= roomHeight - 64 + 1e-8);
+    }
+    const f = await fixture({ species: 'lilac', developerPreview: false }); await f.click(f.focusButton('room-edit'));
+    const { prop } = roomGeometry(f, 'room_bed', surfaceWidth, surfaceHeight, sizes[3][0], sizes[3][1]);
+    prop.emit('pointerdown', { pointerId: 1, button: 0, clientX: 0, clientY: 0 });
+    f.window.emit('pointermove', { pointerId: 1, clientX: -9999, clientY: 9999 });
+    assert.deepEqual(roomPosition(f, 'room_bed'), { x: 0, y: 100, flip: false });
+    assert.equal(prop.style.left, '0%'); assert.equal(prop.style.top, '100%'); assert.equal(prop.style.transform, 'translate(-0%,-100%)');
+  }
+});
+
+
+test('a disk-level conflict cannot overwrite another store and explicitly asks for a reload while keeping the local draft', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false });
+  const other = Core.create({ storage: f.storage, now: () => new Date(2026, 9, 21, 12).getTime(), random: () => .5 });
+  assert.equal((await other.ready).ok, true);
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_toy')); await f.click(f.focusButton('room-flip'));
+  assert.equal((await other.dispatch({ type: 'rename', name: '別のタブの子' })).ok, true);
+  const before = f.saved(), writes = f.writes.length; await f.click(f.focusButton('room-save'));
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(roomPosition(f, 'room_toy').flip, true);
+  assert.ok(f.host.textContent.includes('ページを再読み込みしてから')); assert.ok(!f.host.textContent.includes('配置を保存しました'));
+});
+
+test('an obsolete failed save cannot replace a newer draft error or leave the new session busy', async () => {
+  const f = await fixture({ species: 'lilac', developerPreview: false }); const before = f.saved();
+  await f.click(f.focusButton('room-edit')); const gate = deferred(); f.control.pending = gate;
+  f.control.outcome = 'throw'; await f.click(f.focusButton('room-save')); await f.ui.close(); await f.ui.open();
+  await f.click(f.focusButton('room-edit')); await f.click(roomProp(f, 'room_bowl')); await f.click(f.focusButton('room-flip'));
+  gate.resolve(); await flush(); f.control.pending = null; f.control.outcome = 'ok';
+  assert.deepEqual(f.saved(), before); assert.equal(roomPosition(f, 'room_bowl').flip, true); assert.equal(f.focusButton('room-save').disabled, false);
+  assert.ok(!f.host.textContent.includes('配置を保存できませんでした')); await f.click(f.focusButton('room-cancel'));
+});
+
+test('room arrangement is available for eggs and bunnies, stays free, and does not expose motion inspection', async () => {
+  for (const sample of [{ species: 'lilac', exp: 0 }, { species: 'bunny', exp: 30 }]) {
+    const f = await fixture({ species: sample.species, seed: { pg_exp: String(sample.exp) }, developerPreview: false });
+    const before = f.saved(); await f.click(f.focusButton('room-edit'));
+    assert.equal(roomProps(f).length, 6); assert.equal(f.host.querySelector('.ipg-emotion-panel'), null); assert.equal(f.activeMotions().length, 0);
+    await f.click(f.focusButton('room-save'));
+    assert.deepEqual(f.saved(), { ...before, roomLayout: Core.getRoomLayout(before), revision: before.revision + 1 });
+  }
+});
+
+
+test('an old backup-file rejection cannot post a failure into a room editor or a different mount', async () => {
+  for (const destination of ['editor', 'mount']) {
+    const f = await fixture({ species: 'lilac', developerPreview: false });
+    let reject;
+    const reading = new Promise((yes, no) => { reject = no; });
+    const file = f.host.querySelector('.ipg-backup').querySelectorAll('input').find(el => el.type === 'file');
+    file.files = [{ size: 20, text: () => reading }]; file.emit('change'); await flush();
+    let target = f.host;
+    if (destination === 'editor') await f.click(f.focusButton('room-edit'));
+    else { target = f.document.createElement('div'); f.pane.appendChild(target); assert.equal(await f.ui.mount(target), true); }
+    const before = target.textContent, saved = f.saved(), writes = f.writes.length;
+    reject(new Error('private file read failure')); await flush();
+    assert.equal(target.textContent, before); assert.ok(!target.textContent.includes('ファイルを読み込めませんでした'));
+    assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
+  }
+});

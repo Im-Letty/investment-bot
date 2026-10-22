@@ -40,6 +40,7 @@ class Element {
 
 function loaderFixture(options = {}) {
   const pane = new Element('section'); pane.hidden = true;
+  pane.roomEditing = false; pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing ? {} : null;
   const host = new Element(), focus = new Element('button');
   const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
   let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, received;
@@ -461,4 +462,15 @@ test('v3 replacement during decrypt is rejected; unexpected plaintext is not tru
   f.map.delete('pet_game_v3');
   assert.equal(await f.window.__knReadGameStorage('pet_game_v3'), null);
   assert.equal(f.storage.getItem('pet_game_v3'), null);
+});
+
+
+test('the outer loader leaves Escape to room editing and resumes normal closing after the editor ends', async () => {
+  const f = loaderFixture({ preloaded: true });
+  await f.window.openPetTab(); f.pane.roomEditing = true;
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, false); assert.equal(f.closes, 0); assert.equal(f.mounts, 1);
+  f.pane.roomEditing = false;
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1); assert.equal(f.mounts, 1);
 });

@@ -81,6 +81,16 @@
     {id:'cloth_star_pajamas',name:'星のおやすみ服',emoji:'🌙',type:'clothing',price:55},
     {id:'cloth_flower_dress',name:'お花のワンピース',emoji:'🌼',type:'clothing',price:65}
   ];
+  // Optional, additive room layout shares the existing durable v3 record.
+  // The six built-ins are free room fixtures; decoration ownership stays separate.
+  var ROOM_FURNITURE = Object.freeze([
+    {id:'room_window',name:'まど',x:11,y:2,flip:false},
+    {id:'room_shelf',name:'ほんだな',x:88,y:10,flip:false},
+    {id:'room_rug',name:'ラグ',x:50,y:93,flip:false},
+    {id:'room_bed',name:'ベッド',x:94,y:86,flip:false},
+    {id:'room_bowl',name:'ごはんのうつわ',x:10,y:91,flip:false},
+    {id:'room_toy',name:'おもちゃ',x:25,y:94,flip:false}
+  ].map(function(row){return Object.freeze(row);}));
   var LEGACY_KEYS = ['pg_exp','pg_coins','pg_name','pg_species','pg_deco','pg_bg','pg_bgs',
     'pg_ach','pg_day','pg_feed','pg_pet','pg_play','pg_cnt_feed','pg_cnt_pet','pg_mg_best',
     'pg_path','pg_px','pg_kakeibo_day','pg_kakeibo_rwd','pg_login_day','pg_morning_day',
@@ -99,6 +109,7 @@
     invalid_egg:'たまごを選んでください。',egg_required:'最初にいっしょに育つたまごを選んでください。',
     egg_already_chosen:'このこのたまごは選択済みです。',egg_species_locked:'選んだたまごから生まれた子を育ててください。',
     appearance_locked:'さいしゅうしんかすると姿を選べます。',invalid_appearance:'姿と表示方法を確認してください。',
+    invalid_room_layout:'家具の配置を確認してください。保存済みのお部屋は変更していません。',
     insufficient_coins:'コインが足りません。',already_owned:'すでに持っています。',not_owned:'このアイテムを持っていません。',
     game_active:'進行中のミニゲームを終えてから開始してください。',invalid_session:'このミニゲームは終了済み、または確認できません。',
     invalid_score:'ミニゲームの結果を確認してください。',game_too_short:'ミニゲームを遊んでから結果を保存してください。',
@@ -258,6 +269,7 @@
     Object.keys(d.owned).forEach(function(k){check(text(k,100)&&plain(d.owned[k]),'corrupt_data');});
     check(d.equipped===null || text(d.equipped,100)&&own(d.owned,d.equipped),'corrupt_data');
     d.backgrounds.forEach(function(x){check(text(x,100),'corrupt_data');});check(d.backgrounds.indexOf(d.background)>=0,'corrupt_data');
+    if(own(s,'roomLayout'))validateRoomLayout(s.roomLayout,s,'corrupt_data');
     check(Array.isArray(s.achievements)&&s.achievements.length<=300,'corrupt_data');s.achievements.forEach(function(x){check(text(x,100),'corrupt_data');});
     var c=s.care;check(plain(c)&&validDay(c.day,false)&&validDay(c.dailyRewardDay,true)&&plain(c.counts)&&plain(c.total),'corrupt_data');
     ['feed','play','rest'].forEach(function(k){check(integer(c.counts[k])&&c.counts[k]<=LIMITS.care[k]&&integer(c.total[k]),'corrupt_data');});
@@ -330,6 +342,35 @@
   }
   function stock(id) {return STOCKS.find(function(x){return x.id===id;});}
   function item(id) {return ITEMS.find(function(x){return x.id===id;});}
+  function exactKeys(value,keys) {
+    return plain(value)&&Reflect.ownKeys(value).length===keys.length&&keys.every(function(key){return own(value,key);});
+  }
+  function roomDecoration(id) {var entry=item(id);return !!entry&&entry.type==='decoration';}
+  function validateRoomLayout(layout,s,code) {
+    code=code||'invalid_room_layout';
+    check(exactKeys(layout,['version','items'])&&layout.version===1&&Array.isArray(layout.items)&&layout.items.length<=13,code);
+    var seen=Object.create(null);
+    for(var i=0;i<layout.items.length;i++) {
+      var placed=layout.items[i];
+      check(own(layout.items,i)&&exactKeys(placed,['id','x','y','flip'])&&typeof placed.id==='string'&&
+        integer(placed.x)&&placed.x<=100&&integer(placed.y)&&placed.y<=100&&typeof placed.flip==='boolean',code);
+      check(!own(seen,placed.id),code);seen[placed.id]=true;
+      var builtin=ROOM_FURNITURE.some(function(entry){return entry.id===placed.id;});
+      check(builtin||roomDecoration(placed.id),code);
+      check(builtin||plain(s.decorations)&&plain(s.decorations.owned)&&own(s.decorations.owned,placed.id),code==='corrupt_data'?code:'not_owned');
+    }
+    return layout;
+  }
+  function defaultRoomLayout(s) {
+    var placed=ROOM_FURNITURE.map(function(entry){return {id:entry.id,x:entry.x,y:entry.y,flip:entry.flip};});
+    var decor=s&&s.decorations,equipped=decor&&decor.equipped;
+    if(roomDecoration(equipped)&&plain(decor.owned)&&own(decor.owned,equipped))placed.push({id:equipped,x:74,y:94,flip:false});
+    return {version:1,items:placed};
+  }
+  function getRoomLayout(s) {
+    if(s&&own(s,'roomLayout'))return clone(validateRoomLayout(s.roomLayout,s,'corrupt_data'));
+    return defaultRoomLayout(s);
+  }
   function achievement(s,id) {if(s.achievements.indexOf(id)<0)s.achievements.push(id);}
   function history(m,event) {m.history.push(event);if(m.history.length>100)m.history.shift();}
   function summary(s) {
@@ -385,6 +426,12 @@
         return reward;
       }
       check(!needsEggChoice(next),'egg_required');
+      if(a.type==='saveRoomLayout') {
+        check(integer(a.expectedRevision)&&a.expectedRevision===next.revision,'stale_state');
+        validateRoomLayout(a.layout,next);next.roomLayout=clone(a.layout);
+        // Moving or removing furniture never charges, rewards or backfills achievements.
+        return reward;
+      }
       if(a.type==='care') {
         check(own(LIMITS.care,a.kind),'invalid_action');var c=next.care;
         if(day!==c.day){check(day>c.day,'clock_moved_back');c.day=day;c.counts={feed:0,play:0,rest:0};}
@@ -417,9 +464,16 @@
         var food=item(a.itemId);check(food&&food.type==='food','invalid_item');check(next.inventory[a.itemId]>0,'not_owned');next.inventory[a.itemId]--;next.pet.exp+=food.exp;next.care.lastCareAt=ms;reward.exp=food.exp;
         evolutionKind=food.id==='apple'||food.id==='berry'?'fruit':food.id==='cake'?'sweet':'hearty';
       } else if(a.type==='equip') {
-        if(a.itemId===null)next.decorations.equipped=null;
+        var previousEquipped=next.decorations.equipped;
+        if(a.itemId===null) {
+          next.decorations.equipped=null;
+          if(own(next,'roomLayout')&&roomDecoration(previousEquipped))next.roomLayout.items=next.roomLayout.items.filter(function(entry){return entry.id!==previousEquipped;});
+        }
         else if(typeof a.itemId==='string'&&a.itemId.indexOf('bg_')===0){var bgid=a.itemId.slice(3);check(next.decorations.backgrounds.indexOf(bgid)>=0,'not_owned');next.decorations.background=bgid;}
-        else {check(typeof a.itemId==='string'&&own(next.decorations.owned,a.itemId),'not_owned');next.decorations.equipped=a.itemId;}
+        else {
+          check(typeof a.itemId==='string'&&own(next.decorations.owned,a.itemId),'not_owned');next.decorations.equipped=a.itemId;
+          if(own(next,'roomLayout')&&roomDecoration(a.itemId)&&!next.roomLayout.items.some(function(entry){return entry.id===a.itemId;}))next.roomLayout.items.push({id:a.itemId,x:74,y:94,flip:false});
+        }
       } else if(a.type==='equipClothing') {
         if(a.itemId===null) {if(next.wardrobe)next.wardrobe.equipped=null;}
         else {
@@ -501,6 +555,7 @@
       importBackup:importBackup};return api;
   }
   return {create:create,getStage:getStage,getLilacGrowth:getLilacGrowth,lilacGrowthStages:lilacGrowthStages,getLilacAppearance:getLilacAppearance,lilacAppearanceStages:lilacAppearanceStages,getLilacEvolution:getLilacEvolution,lilacEvolutionPaths:lilacEvolutionPaths,getMarketSummary:summary,eggCatalogue:eggCatalogue,eggProfile:eggProfile,getEggOrigin:getEggOrigin,needsEggChoice:needsEggChoice,KEY:KEY,STORAGE_KEY:KEY,
+    roomFurniture:clone(ROOM_FURNITURE),defaultRoomLayout:defaultRoomLayout,getRoomLayout:getRoomLayout,
     STOCKS:clone(STOCKS),stocks:clone(STOCKS),ITEMS:clone(ITEMS),items:clone(ITEMS),catalogue:clone(ITEMS),
     LIMITS:clone(LIMITS),limits:clone(LIMITS),LEGACY_KEYS:LEGACY_KEYS.slice()};
 }));

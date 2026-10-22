@@ -988,3 +988,181 @@ test('two simultaneous loads convert a retired dragon once and CAS rejects an in
   assert.equal(result.ok,false);assert.equal(result.error.code,'stale_state');assert.equal(g.storage.data.get(Core.KEY),newRaw);
   assert.equal(stale.getState().readOnly,true);assert.deepEqual(stale.getState().pet,old.pet);
 });
+
+const roomBuiltins = [
+  {id:'room_window',x:11,y:2,flip:false},{id:'room_shelf',x:88,y:10,flip:false},
+  {id:'room_rug',x:50,y:93,flip:false},{id:'room_bed',x:94,y:86,flip:false},
+  {id:'room_bowl',x:10,y:91,flip:false},{id:'room_toy',x:25,y:94,flip:false}
+];
+const roomLayout = items => ({version:1,items});
+const roomItem = (id, values={}) => ({id,x:25,y:75,flip:false,...values});
+async function saveRoom(g,layout,revision=g.app.getState().revision) {
+  return command(g,'saveRoomLayout',{layout,expectedRevision:revision});
+}
+
+test('room furniture and effective default layouts are detached views without initialization writes',async()=>{
+  const g=await game({},()=>.5,false),before=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+  assert.equal(Object.hasOwn(persisted(g.storage),'roomLayout'),false);
+  assert.deepEqual(Core.roomFurniture.map(({id,x,y,flip})=>({id,x,y,flip})),roomBuiltins);
+  assert.ok(Core.roomFurniture.every(entry=>typeof entry.name==='string'&&entry.name));
+  assert.deepEqual(Core.defaultRoomLayout(g.app.getState()),roomLayout(roomBuiltins));
+  assert.deepEqual(Core.getRoomLayout(g.app.getState()),roomLayout(roomBuiltins));
+  const defaults=Core.defaultRoomLayout(g.app.getState()),effective=Core.getRoomLayout(g.app.getState());
+  defaults.items[0].x=100;effective.items.splice(0);assert.deepEqual(Core.defaultRoomLayout(g.app.getState()),roomLayout(roomBuiltins));
+  const exported=structuredClone(Core.roomFurniture);
+  try{Core.roomFurniture[0].x=99;Core.roomFurniture[0].name='changed';Core.roomFurniture.push({id:'invented'});assert.deepEqual(Core.defaultRoomLayout(g.app.getState()),roomLayout(roomBuiltins));}
+  finally{Core.roomFurniture.splice(0,Core.roomFurniture.length,...exported);}
+  assert.equal(g.storage.data.get(Core.KEY),before);assert.equal(g.storage.writes.length,writes);
+  const blocked=await saveRoom(g,roomLayout([]));assert.equal(blocked.error.code,'egg_required');assert.equal(g.storage.data.get(Core.KEY),before);
+});
+
+test('old v3 room defaults include only the owned known equipped decoration and never rewrite records',async()=>{
+  const first=await game({pg_exp:'686',pg_coins:'574',pg_deco:'{"house":{},"legacy-prop":{"x":12}}'});
+  await command(first,'equip',{itemId:'house'});const old=persisted(first.storage);delete old.roomLayout;
+  const raw=JSON.stringify(old),g=await game({[Core.KEY]:raw});
+  const expected=roomLayout([...roomBuiltins,{id:'house',x:74,y:94,flip:false}]);
+  assert.deepEqual(Core.getRoomLayout(g.app.getState()),expected);
+  assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);
+  for(const state of [
+    {...old,decorations:{...old.decorations,equipped:'legacy-prop'}},
+    {...old,decorations:{...old.decorations,equipped:'flower'}},
+    {...old,decorations:{owned:{apple:{}},equipped:'apple'}}
+  ])assert.deepEqual(Core.defaultRoomLayout(state),roomLayout(roomBuiltins),'unknown, unowned and non-decoration equipment cannot become a furniture placement');
+  const reopened=Core.create(g.options);await reopened.ready;
+  assert.equal(g.storage.writes.length,0);assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(reopened.getState().pet.exp,686);assert.equal(reopened.getState().coins,574);
+  assert.deepEqual(reopened.getState().decorations.owned,old.decorations.owned);
+});
+
+test('saving one room layout changes only layout revision and update time without backfilling rewards',async()=>{
+  const g=await game({pg_exp:'686',pg_coins:'574',pg_items:'{"rice":2}',pg_deco:'{"house":{},"legacy-prop":{}}'});
+  await command(g,'equip',{itemId:'house'});
+  const clean=persisted(g.storage);clean.achievements=[];const loaded=await game({[Core.KEY]:JSON.stringify(clean)});
+  const before=persisted(loaded.storage),layout=roomLayout([roomItem('room_bed',{x:100,y:0,flip:true}),roomItem('house',{x:0,y:100})]);loaded.tick(17);
+  const r=await saveRoom(loaded,layout);assert.equal(r.ok,true);assert.deepEqual(r.reward,{});
+  assert.deepEqual(persisted(loaded.storage),{...before,roomLayout:layout,revision:before.revision+1,updatedAt:loaded.options.now()});
+  assert.deepEqual(r.state.achievements,[]);assert.deepEqual(r.state.decorations,before.decorations);assert.equal(r.state.pet.exp,686);assert.equal(r.state.coins,574);
+  const view=Core.getRoomLayout(r.state);view.items[0].x=4;assert.deepEqual(Core.getRoomLayout(loaded.app.getState()),layout);
+  assert.equal(loaded.storage.writes.length,1);
+});
+
+test('all thirteen unique built-in and owned decorations can be positioned with boundary values',async()=>{
+  const decorations=Core.items.filter(row=>row.type==='decoration'),owned=Object.fromEntries(decorations.map(row=>[row.id,{}]));
+  const g=await game({pg_exp:'45',pg_coins:'355',pg_deco:JSON.stringify({...owned,'unknown-kept':{count:2}})}),before=persisted(g.storage);
+  const layout=roomLayout([...roomBuiltins,...decorations.map((entry,i)=>roomItem(entry.id,{x:i%2?0:100,y:i*10,flip:!!(i%2)}))]);
+  assert.equal(layout.items.length,13);assert.equal((await saveRoom(g,layout)).ok,true);assert.deepEqual(Core.getRoomLayout(g.app.getState()),layout);
+  assert.deepEqual(g.app.getState().decorations.owned,before.decorations.owned);assert.equal(g.app.getState().coins,355);
+});
+
+test('explicit empty room layouts survive reload and backup without resurrecting default or equipped objects',async()=>{
+  const g=await game({pg_deco:'{"house":{}}'});await command(g,'equip',{itemId:'house'});
+  const before=persisted(g.storage);assert.equal((await saveRoom(g,roomLayout([]))).ok,true);
+  assert.deepEqual(Core.getRoomLayout(g.app.getState()),roomLayout([]));assert.equal(g.app.getState().decorations.equipped,'house');
+  const raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length,reopened=Core.create(g.options);assert.equal((await reopened.ready).ok,true);
+  assert.deepEqual(Core.getRoomLayout(reopened.getState()),roomLayout([]));assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
+  const target=await game();assert.equal((await target.app.importBackup(reopened.exportBackup())).ok,true);assert.deepEqual(Core.getRoomLayout(target.app.getState()),roomLayout([]));
+  for(const key of ['pet','coins','inventory','decorations','wardrobe','care','market','legacyReserve'])assert.deepEqual(target.app.getState()[key],before[key],key);
+});
+
+test('invalid room structure coordinates types duplicates and extras cannot write or alter progress',async()=>{
+  const g=await game({pg_exp:'45',pg_deco:'{"house":{}}'}),raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),writes=g.storage.writes.length;
+  const hiddenExtra=roomItem('room_bed');Object.defineProperty(hiddenExtra,'hidden',{value:1});
+  const symbolExtra=roomLayout([]);symbolExtra[Symbol('extra')]=1;
+  const badLayouts=[undefined,null,[],{}, {version:1}, {version:2,items:[]}, {version:'1',items:[]},{version:1,items:{}},{version:1,items:[],extra:1},symbolExtra,
+    roomLayout([null]),roomLayout([{}]),roomLayout(new Array(1)),roomLayout([roomItem('room_bed'),roomItem('room_bed')]),
+    roomLayout(Array.from({length:14},()=>roomItem('room_bed'))),roomLayout([{id:'room_bed',x:1,y:2}]),roomLayout([roomItem('room_bed',{extra:true})]),roomLayout([hiddenExtra]),
+    roomLayout([roomItem('__proto__')]),roomLayout([roomItem('constructor')]),roomLayout([roomItem('missing')])];
+  for(const key of ['x','y'])for(const value of [-1,101,.5,NaN,Infinity,-Infinity,'25',null,undefined,{},[]])badLayouts.push(roomLayout([roomItem('room_bed',{[key]:value})]));
+  for(const value of [0,1,'false',null,undefined,{}])badLayouts.push(roomLayout([roomItem('room_bed',{flip:value})]));
+  for(const layout of badLayouts){const r=await saveRoom(g,layout);assert.equal(r.ok,false);assert.equal(r.error.code,'invalid_room_layout');assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);for(const key of Object.keys(before))assert.deepEqual(r.state[key],before[key]);}
+});
+
+test('room placements cannot invent ownership or use foods clothes backgrounds or unknown legacy props',async()=>{
+  const g=await game({pg_deco:'{"unknown-kept":{},"apple":{},"cloth_cream_vest":{}}'}),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+  const unowned=await saveRoom(g,roomLayout([roomItem('house')]));assert.equal(unowned.error.code,'not_owned');
+  for(const id of ['apple','cloth_cream_vest','bg_meadow','unknown-kept'])assert.equal((await saveRoom(g,roomLayout([roomItem(id)]))).error.code,'invalid_room_layout');
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);assert.deepEqual(persisted(g.storage).decorations.owned,{'unknown-kept':{},apple:{},cloth_cream_vest:{}});
+});
+
+test('layout expected revision is mandatory and a stale same-store editor cannot replace a newer state',async()=>{
+  const g=await game(),layout=roomLayout([roomItem('room_bed')]),revision=g.app.getState().revision;
+  for(const expectedRevision of [null,String(revision),revision+.5,-1,NaN,Infinity,revision+1])assert.equal((await saveRoom(g,layout,expectedRevision)).error.code,'stale_state');
+  // saveRoom defaults undefined: exercise the genuinely omitted field separately.
+  const omitted=await command(g,'saveRoomLayout',{layout});assert.equal(omitted.error.code,'stale_state');
+  assert.equal((await command(g,'rename',{name:'新しい名前'})).ok,true);const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage);
+  assert.equal((await saveRoom(g,layout,revision)).error.code,'stale_state');assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(Object.hasOwn(before,'roomLayout'),false);
+  assert.equal((await saveRoom(g,layout)).ok,true);assert.equal(g.app.getState().pet.name,'新しい名前');
+});
+
+test('a pending layout write publishes no candidate and detaches caller input before durable adoption',async()=>{
+  const g=await game(),layout=roomLayout([roomItem('room_bed',{flip:true})]),before=persisted(g.storage),raw=g.storage.data.get(Core.KEY),notified=[];
+  g.app.subscribe(s=>notified.push(s));const set=g.storage.setItem.bind(g.storage);let release;
+  g.storage.setItem=(key,value)=>new Promise(resolve=>{release=()=>{set(key,value);resolve();};});
+  const pending=saveRoom(g,layout);while(!release)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(Object.hasOwn(g.app.getState(),'roomLayout'),false);assert.equal(notified.length,0);
+  layout.items[0].x=99;layout.items.push(roomItem('room_window'));
+  release();assert.equal((await pending).ok,true);const expected=roomLayout([roomItem('room_bed',{flip:true})]);
+  assert.deepEqual(g.app.getState().roomLayout,expected);assert.deepEqual(persisted(g.storage).roomLayout,expected);assert.equal(notified.length,1);
+  for(const key of ['pet','coins','inventory','wardrobe','decorations','care','market','achievements'])assert.deepEqual(g.app.getState()[key],before[key],key);
+});
+
+test('throw false and explicit rejected writes retain both old and absent layouts and allow exact retry',async()=>{
+  for(const previous of [undefined,roomLayout([]),roomLayout([roomItem('room_toy')])])for(const mode of ['throw','false','object_false']){
+    const g=await game();if(previous)assert.equal((await saveRoom(g,previous)).ok,true);
+    const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),write=g.storage.setItem.bind(g.storage);
+    g.storage.setItem=async()=>{if(mode==='throw')throw new Error('private key=https://hidden.invalid');return mode==='false'?false:{ok:false};};
+    const layout=roomLayout([roomItem('room_window')]),r=await saveRoom(g,layout);assert.equal(r.ok,false);assert.equal(r.error.code,'storage_failed');assert.equal(g.storage.data.get(Core.KEY),raw);
+    for(const key of Object.keys(before))assert.deepEqual(r.state[key],before[key]);assert.equal(Object.hasOwn(r.state,'roomLayout'),Object.hasOwn(before,'roomLayout'));assert.doesNotMatch(JSON.stringify(r.error),/private|https:|key=/);
+    g.storage.setItem=write;assert.equal((await saveRoom(g,layout,before.revision)).ok,true);assert.deepEqual(g.app.getState().roomLayout,layout);
+  }
+});
+
+test('concurrent layout saves accept once and external CAS keeps the newer wallet and room untouched',async()=>{
+  const g=await game(),revision=g.app.getState().revision,layouts=[roomLayout([roomItem('room_window')]),roomLayout([roomItem('room_bed')])];
+  const results=await Promise.all(layouts.map(layout=>saveRoom(g,layout,revision)));assert.equal(results.filter(r=>r.ok).length,1);assert.equal(results[1].error.code,'stale_state');
+  assert.deepEqual(g.app.getState().roomLayout,layouts[0]);
+  const other=Core.create(g.options);assert.equal((await other.ready).ok,true);const otherRevision=other.getState().revision;
+  assert.equal((await command(g,'care',{kind:'feed'})).ok,true);const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage);
+  const stale=await other.dispatch({type:'saveRoomLayout',layout:layouts[1],expectedRevision:otherRevision});assert.equal(stale.error.code,'stale_state');assert.equal(g.storage.data.get(Core.KEY),raw);
+  assert.deepEqual(persisted(g.storage),before);assert.deepEqual(other.getState().roomLayout,layouts[0]);assert.equal(other.getState().coins,100);
+});
+
+test('invalid saved layouts fail closed and malformed backups preserve the current room and economy',async()=>{
+  const base=await game(),valid=persisted(base.storage),badLayouts=[null,{},roomLayout([roomItem('house')]),roomLayout([roomItem('room_bed',{x:101})]),roomLayout([roomItem('room_bed'),roomItem('room_bed')])];
+  for(const room of badLayouts){const record={...valid,roomLayout:room},raw=JSON.stringify(record),storage=memory({[Core.KEY]:raw}),app=Core.create({storage,now:base.options.now});
+    const r=await app.ready;assert.equal(r.ok,false);assert.equal(r.error.code,'corrupt_data');assert.equal(r.state.readOnly,true);assert.equal(storage.data.get(Core.KEY),raw);assert.equal(storage.writes.length,0);
+    assert.equal((await app.dispatch({type:'care',kind:'feed'})).error.code,'read_only');
+  }
+  assert.equal((await saveRoom(base,roomLayout([roomItem('room_toy')]))).ok,true);const raw=base.storage.data.get(Core.KEY);
+  for(const layout of badLayouts){const backup={format:'PetGameBackup',version:3,state:{...valid,roomLayout:layout}};assert.equal((await base.app.importBackup(JSON.stringify(backup))).ok,false);assert.equal(base.storage.data.get(Core.KEY),raw);}
+});
+
+test('older layout-free backups remain byte-stable on subsequent reads while custom rooms round-trip',async()=>{
+  const old=await game({pg_exp:'686',pg_coins:'574',pg_deco:'{"house":{},"old-prop":{}}'}),legacyBackup=old.app.exportBackup();
+  assert.equal((await saveRoom(old,roomLayout([roomItem('room_bed',{flip:true}),roomItem('house')]))).ok,true);
+  const copy=await game();assert.equal((await copy.app.importBackup(old.app.exportBackup())).ok,true);assert.deepEqual(copy.app.getState().roomLayout,old.app.getState().roomLayout);assert.equal(copy.app.getState().pet.exp,686);assert.equal(copy.app.getState().coins,574);
+  assert.equal((await copy.app.importBackup(legacyBackup)).ok,true);assert.equal(Object.hasOwn(copy.app.getState(),'roomLayout'),false);
+  const raw=copy.storage.data.get(Core.KEY),writes=copy.storage.writes.length,reopened=Core.create(copy.options);await reopened.ready;
+  Core.getRoomLayout(reopened.getState());assert.equal(copy.storage.data.get(Core.KEY),raw);assert.equal(copy.storage.writes.length,writes);assert.equal(reopened.getState().decorations.owned['old-prop']!==undefined,true);
+});
+
+test('old equipment stays layout-free until custom save then appends preserves or removes only its own known decoration',async()=>{
+  const g=await game({pg_exp:'45',pg_coins:'1000',pg_deco:'{"house":{},"flower":{},"tree":{},"old-prop":{}}'});
+  await command(g,'equip',{itemId:'house'});assert.equal(Object.hasOwn(persisted(g.storage),'roomLayout'),false);
+  const initial=roomLayout([roomItem('room_window'),roomItem('house',{x:9,y:81,flip:true}),roomItem('tree',{x:32,y:86})]);assert.equal((await saveRoom(g,initial)).ok,true);
+  await command(g,'equip',{itemId:'house'});assert.deepEqual(g.app.getState().roomLayout,initial,'already placed equipment keeps its exact position and flip');
+  await command(g,'equip',{itemId:'flower'});assert.deepEqual(g.app.getState().roomLayout,roomLayout([...initial.items,{id:'flower',x:74,y:94,flip:false}]));
+  await command(g,'equip',{itemId:null});assert.equal(g.app.getState().decorations.equipped,null);assert.deepEqual(g.app.getState().roomLayout,initial,'only the previous flower is removed; prior house/tree stay');
+  await command(g,'buyItem',{itemId:'bg_beach'});const before=persisted(g.storage);await command(g,'equip',{itemId:'bg_beach'});assert.deepEqual(g.app.getState().roomLayout,before.roomLayout);
+  await command(g,'equip',{itemId:'old-prop'});assert.equal(g.app.getState().decorations.equipped,'old-prop');assert.deepEqual(g.app.getState().roomLayout,initial);
+  await command(g,'equip',{itemId:null});assert.deepEqual(g.app.getState().roomLayout,initial,'removing unknown legacy equipment cannot remove unrelated placed objects');
+  assert.deepEqual(g.app.getState().decorations.owned,before.decorations.owned);
+});
+
+test('failed equipment synchronization cannot adopt a layout append or removal',async()=>{
+  const g=await game({pg_deco:'{"house":{},"flower":{}}'});await saveRoom(g,roomLayout([]));
+  for(const action of [{type:'equip',itemId:'house'},{type:'equip',itemId:null}]){
+    if(action.itemId===null)await command(g,'equip',{itemId:'house'});
+    const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),set=g.storage.setItem.bind(g.storage);g.storage.setItem=async()=>false;
+    const r=await g.app.dispatch(action);assert.equal(r.ok,false);assert.equal(g.storage.data.get(Core.KEY),raw);assert.deepEqual(r.state.roomLayout,before.roomLayout);assert.deepEqual(r.state.decorations,before.decorations);g.storage.setItem=set;
+  }
+});

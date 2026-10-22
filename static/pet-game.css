@@ -329,3 +329,51 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-room-toy{background:radial-gradient(circle at 27% 21%,#fff9,transparent 38%),linear-gradient(45deg,#d6a88b 40%,#f8e9bc 42% 57%,#e3bca5 59%);box-shadow:inset -3px -3px 4px #a97c5844,inset 1px 1px 2px #fff6,0 3px 3px #aa907830}
 @media(max-width:540px){.ipg-decoration-art{width:62px;height:62px}}
 @media(prefers-color-scheme:dark){.ipg-shop-item{background:radial-gradient(ellipse at 50% 0,#ffffff0c,transparent 62%),var(--ipg-bg)}.ipg-background-swatch{border-color:#867967;box-shadow:inset 0 1px 2px #ffffff30,inset 0 -3px 7px #1f1c1944}}
+
+/* Layout coordinates describe each padded object's safe travel, including its
+   outline, pillow, leaves and shadows. The care strip is never a drop target. */
+.ipg-room-heading{position:relative}
+.ipg .ipg-room-edit-entry{min-height:36px;padding:5px 12px;margin:8px 0 12px;font-size:.82em;border-radius:999px}
+.ipg-room-layout-surface{position:absolute;inset:12px 12px 64px;z-index:2;pointer-events:none}
+.ipg-room-layout-surface.is-editing{z-index:5;pointer-events:auto;touch-action:pan-y pinch-zoom;border:1px dashed color-mix(in srgb,var(--ipg-ink) 35%,transparent);border-radius:12px}
+.ipg .ipg-room-layout-prop{appearance:none;display:block;position:absolute;z-index:1;min-width:0;min-height:0;max-width:100%;max-height:100%;margin:0;padding:0;border:0;border-radius:8px;background:none;color:inherit;font:inherit;line-height:1;box-shadow:none;overflow:hidden;pointer-events:none;user-select:none;-webkit-user-select:none}
+.ipg-room-layout-content{position:absolute;inset:8px;display:block;pointer-events:none;transform-origin:center}
+.ipg-room-layout-content>.ipg-room-window,.ipg-room-layout-content>.ipg-room-shelf,.ipg-room-layout-content>.ipg-room-rug,.ipg-room-layout-content>.ipg-room-bed,.ipg-room-layout-content>.ipg-room-bowl,.ipg-room-layout-content>.ipg-room-toy{position:absolute;inset:0;width:100%;height:100%;max-width:none;margin:0;transform:none}
+.ipg-room-layout-content>.ipg-room-shelf{top:auto;bottom:0;height:8px}
+.ipg-room-layout-content>.ipg-room-bed{top:17px;bottom:5px;height:calc(100% - 22px)}
+.ipg-room-layout-content>.ipg-room-bowl{bottom:4px;height:calc(100% - 4px)}
+.ipg-room-prop-window{width:114px;height:132px}
+.ipg-room-prop-shelf{width:126px;height:64px}
+.ipg-room-prop-rug{width:min(70%,416px);height:106px}
+.ipg .ipg-room-prop-rug{z-index:0}
+.ipg-room-prop-bed{width:122px;height:87px}
+.ipg-room-prop-bowl{width:68px;height:42px}
+.ipg-room-prop-toy{width:44px;height:44px}
+.ipg-room-prop-decoration{width:96px;height:96px}
+.ipg-room-layout-art{width:100%;height:100%;filter:none}
+.ipg-room-layout-art .ipg-item-art-placeholder{border-radius:12px}
+.ipg .is-editing .ipg-room-layout-prop{pointer-events:auto;touch-action:none;cursor:grab}
+.ipg .is-editing .ipg-room-layout-prop[aria-pressed=true]{background:color-mix(in srgb,var(--ipg-paper) 32%,transparent);box-shadow:inset 0 0 0 2px var(--ipg-green)}
+.ipg .is-editing .ipg-room-layout-prop:focus-visible{outline:3px solid var(--ipg-green);outline-offset:2px}
+.ipg-room-editing .ipg-room-pet{pointer-events:none;opacity:.65;animation:none!important}
+.ipg-room-selection{min-height:1.7em;margin:12px 0 8px!important;font-weight:600}
+.ipg-room-layout-tools,.ipg-room-editor-actions{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin:10px 0 14px}
+.ipg .ipg-room-layout-tools>.ipg-button{min-width:44px;min-height:44px;padding:8px 12px}
+.ipg-room-layout-picker{margin-top:14px;text-align:left}
+.ipg-room-layout-choices{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,112px),1fr));gap:8px}
+.ipg .ipg-room-layout-choices>.ipg-button{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:5px;min-width:0;padding:8px;font-size:.9em}
+.ipg-room-layout-choices small{font-size:.8em;color:var(--ipg-muted)}
+.ipg-room-choice-art{position:relative;display:block;flex:0 0 auto;width:74px;max-width:100%;height:64px;overflow:hidden;pointer-events:none}
+.ipg-room-choice-art>.ipg-room-window,.ipg-room-choice-art>.ipg-room-shelf,.ipg-room-choice-art>.ipg-room-rug,.ipg-room-choice-art>.ipg-room-bed,.ipg-room-choice-art>.ipg-room-bowl,.ipg-room-choice-art>.ipg-room-toy{inset:8px;width:calc(100% - 16px);height:calc(100% - 16px);max-width:none;transform:none}
+.ipg-room-choice-art>.ipg-room-window{width:44px;left:15px;border-width:4px}
+.ipg-room-choice-art>.ipg-room-shelf{top:auto;bottom:9px;height:8px;padding-left:4px;padding-right:4px;gap:2px}
+.ipg-room-choice-art .ipg-room-book{flex-basis:6px}
+.ipg-room-choice-art .ipg-room-plant{flex-basis:13px;margin-left:0}
+.ipg-room-choice-art>.ipg-room-rug{height:27px;top:28px;border-width:4px}
+.ipg-room-choice-art>.ipg-room-bed{height:30px;top:25px;border-width:4px}
+.ipg-room-choice-art .ipg-room-pillow{width:26px;height:14px;top:-11px;right:3px}
+.ipg-room-choice-art>.ipg-room-bowl{width:40px;height:22px;left:17px;top:30px}
+.ipg-room-choice-art>.ipg-room-toy{width:26px;height:26px;left:24px;top:24px}
+.ipg-room-choice-art>.ipg-room-layout-art{width:100%;height:100%}
+@media(max-width:540px){.ipg-room-layout-surface{inset:10px 8px 64px}.ipg-room-prop-window{width:94px;height:113px}.ipg-room-prop-shelf{width:100px;height:64px}.ipg-room-prop-rug{width:82%;height:85px}.ipg-room-prop-bed{width:94px;height:75px}.ipg-room-prop-bowl{width:56px;height:39px}.ipg-room-prop-toy{width:38px;height:38px}.ipg-room-prop-decoration{width:80px;height:80px}.ipg-room-layout-tools,.ipg-room-editor-actions{gap:6px}.ipg .ipg-room-editor-actions>.ipg-button{flex:1 1 auto}.ipg-room-layout-choices{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(prefers-color-scheme:dark){.ipg-room-layout-surface.is-editing{border-color:#e4d4e280}.ipg .is-editing .ipg-room-layout-prop[aria-pressed=true]{background:#fff1;box-shadow:inset 0 0 0 2px #e2d0d9}.ipg .is-editing .ipg-room-layout-prop:focus-visible{outline-color:#e2d0d9}}
