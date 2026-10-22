@@ -1,0 +1,84 @@
+Device notifications: deployable code, disabled until configured
+
+Scope
+- UI-107: one-off ToDo reminders delivered by Web Push even with the tab closed,
+  provided the independent sender continues to run. No browser timer schedules delivery.
+- ALERT-01: authenticated favorite-price rule DRAFTS only. enabled is always false.
+  There is no price collector, source request, quote-trigger evaluation or price push.
+  Existing Yahoo/yfinance reads do not establish permission for background monitoring.
+  Legacy ON preferences never opt a user into this system.
+- Existing LINE/Claude/15-second collectors, news jobs and other automations are unchanged.
+
+Storage and activation prerequisites
+1. Review/apply migrations/20261022_device_notifications.sql to the existing project.
+   It creates four private tables and one service-role-only RPC, with RLS enabled.
+   No auth provider/account/billing/extension or scheduling setting is changed.
+2. Keep the same existing SUPABASE_URL and service-role SUPABASE_KEY on the server.
+   Do not copy their contents into a chat, browser, repository, logs or evidence files.
+3. Configure a dedicated P-256 VAPID private scalar as unpadded base64url 32 bytes:
+   WEB_PUSH_VAPID_PRIVATE_KEY. It must stay in the trusted server secret store.
+   WEB_PUSH_VAPID_SUBJECT is a valid contact HTTPS URL or mailto address.
+   Only the derived public key is returned to the browser.
+   Existing values were not inspected; new signing keys were not generated here.
+4. After migration/private-API readiness is verified, set WEB_PUSH_ENABLED=1.
+   The default is OFF. Invalid/missing VAPID configuration keeps registration OFF.
+5. Deploy one dedicated background process from this same source revision:
+   Build: pip install -r requirements.txt
+   Start: python scripts/run_device_notification_worker.py
+   Environment: existing SUPABASE_URL/SUPABASE_KEY, the two VAPID names above,
+   WEB_PUSH_ENABLED=1, optional WEB_PUSH_POLL_SECONDS=60 (allowed60..900).
+   The runnable loop schedules one batch of at most20 without overlap, then waits
+   at least60 seconds. SIGTERM/SIGINT interrupt its wait and stop further sends
+   after a current bounded HTTP call; unfinished claims remain unconfirmed.
+   No production worker, new service or scheduler was started here.
+   Running Flask/Gunicorn alone does not run the dedicated worker.
+   For a single diagnostic batch use python scripts/send_device_notifications.py.
+   A sleeping free web service is not a reliable clock; a worker hosting plan
+   that actually runs without the site open must be confirmed before activation.
+   The Web Push protocol itself requires no paid push-provider API key. This is
+   not a guarantee that hosting/storage/scheduler usage is unlimited or free.
+
+User flow
+- Use an authenticated, non-anonymous account.
+- In ToDo, press "this device's notifications" to request permission explicitly.
+- On iPhone/iPad use the installed Home Screen web app and allow its notifications.
+- Choose an incomplete ToDo and a notification date/time. Device time zone and an
+  absolute UTC instant are saved separately. The ToDo deadline is unchanged.
+- Task text, note content, assets and prices are never sent to the notification API
+  or lock screen. The notification says only to check the ToDo list.
+- Completion/deletion cancels the server reminder first. If cancellation fails,
+  the original task stays pending/present and the UI says so.
+- Other-tab reminder settings are canceled even before their planner marker syncs.
+- The device can unsubscribe; individual reminders can be canceled/rescheduled.
+- A push already handed to a provider cannot be recalled.
+- Tapping a notification opens a fixed local ToDo destination, never a supplied URL.
+
+Safety and delivery semantics
+- Caller Auth determines owner; request bodies cannot select another user.
+- Up to five active subscriptions and 100 reminder records per user.
+- Schedule revisions reject stale tabs; replacement creates a new occurrence.
+- SQL transaction/unique occurrence-device pairs and SKIP LOCKED claims prevent
+  duplicate worker claims. Claims are consumed before transmission.
+- An uncertain response or worker crash after claiming is NOT automatically retried.
+  This favors avoiding duplicate notifications over guaranteed delivery.
+- Jobs over one hour late expire instead of delivering a stale backlog.
+- Provider acceptance is not proof of phone display. Offline/OS/network delays remain.
+- Subscription endpoints are allowlisted HTTPS push providers, not arbitrary URLs.
+  Redirects are not followed, request budgets are bounded, response bodies ignored.
+- Push uses a separate /notifications/ worker scope with no fetch/cache behavior.
+  Legacy cache workers are still removed, cache data is still cleared, and the
+  old root worker is not re-registered. Other registrations are not indiscriminately removed.
+- Worker owner binding is persisted before acknowledgment, preserved on same-account
+  refresh, cleared across accounts/signout, and checked before showing a push.
+  Persisted delivery IDs suppress duplicate push events.
+- Subscription endpoints/keys, VAPID signing key, tokens and remote error bodies
+  must never be copied into general logs or public status responses.
+
+Verified locally only
+- RFC8291 published encryption vector, independent recipient decryption, VAPID
+  signature/claims, mock-only bounded provider delivery.
+- API identity/input/UTC/timezone/ownership/CAS cancellation/disabled behavior.
+- Frontend late Auth/response guards, explicit permission, worker owner/dedup.
+- Existing planner restore/save/read-only behavior and startup-asset integration.
+- This is not a live PostgreSQL migration, public deployment, real subscription,
+  iPhone permission or closed-site phone-delivery verification.

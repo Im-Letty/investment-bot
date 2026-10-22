@@ -11,6 +11,7 @@
   function str(x){return typeof x==='string';}
   function dateOK(s){if(!s)return true;if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;var d=new Date(s+'T00:00:00Z');return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===s;}
   function todoOptions(value){
+    if(value.notificationScheduled!==undefined&&typeof value.notificationScheduled!=='boolean')throw Error('planner_format');
     if(value.dueDate!==undefined&&(!str(value.dueDate)||!dateOK(value.dueDate))||value.flagged!==undefined&&typeof value.flagged!=='boolean')throw Error('planner_format');
   }
   function localDateKey(now){
@@ -220,7 +221,16 @@
       function row(t){
         var item=el('li','mp-task'),label=el('label','mp-task-check'),check=el('input');check.type='checkbox';check.checked=t.done;check.setAttribute('aria-label',t.text+'の完了');
         var circle=el('span','mp-task-circle');circle.setAttribute('aria-hidden','true');label.appendChild(check);label.appendChild(circle);item.appendChild(label);
-        check.addEventListener('change',function(){if(!todoEditable(t))return;t.done=check.checked;renderTodos();renderGoals();changed();if(t.done&&!todoCompleted.hidden&&!todoCompleted.open)todoCompletedSummary.focus();});
+        check.addEventListener('change',async function(){if(!todoEditable(t))return;var done=check.checked,who=owner,generation=epoch;
+          if(done&&(t.notificationScheduled||w.KNNotifications&&w.KNNotifications.cancelForTodo)){
+            check.disabled=true;
+            try{if(!w.KNNotifications)throw Error();if(w.KNNotifications.cancelForTodo)await w.KNNotifications.cancelForTodo(t.id,t.notificationScheduled===true);else await w.KNNotifications.cancelTodo(t.id);}
+            catch(ignore){if(who===owner&&generation===epoch&&todoEditable(t)){check.checked=t.done;check.disabled=false;message('通知を取り消せませんでした。完了への変更は保留しています。もう一度お試しください。',true);}return;}
+            if(who!==owner||generation!==epoch||!todoEditable(t))return;
+            t.notificationScheduled=false;
+          }
+          t.done=done;renderTodos();renderGoals();changed();if(t.done&&!todoCompleted.hidden&&!todoCompleted.open)todoCompletedSummary.focus();
+        });
         var edit=el('details','mp-task-edit'),summary=el('summary','mp-task-title');summary.appendChild(el('span',t.done?'mp-task-text mp-done':'mp-task-text',t.text));
         var meta=el('span','mp-task-meta'),goal=doc.goals.find(function(g){return g.id===t.goalId;});
         if(t.dueDate){var overdue=!t.done&&t.dueDate<today;meta.appendChild(el('span','mp-task-date'+(overdue?' mp-task-overdue':''),(overdue?'期限切れ · ':t.dueDate===today?'今日 · ':'')+dateLabel(t.dueDate)));}
@@ -239,12 +249,16 @@
         }
         text.addEventListener('input',keepEdit);sel.addEventListener('change',keepEdit);due.addEventListener('input',keepEdit);flag.addEventListener('change',keepEdit);
         edit.appendChild(button('変更を保存',function(){if(!todoEditable(t))return;if(!text.value.trim()){message('やることを入力してください。',true);return;}if(!dateOK(due.value)){message('期限の日付を確認してください。',true);return;}t.text=text.value;t.goalId=sel.value;t.dueDate=due.value;t.flagged=flag.checked;delete doc.todoEdits[t.id];renderTodos();renderGoals();changed();}));
-        edit.appendChild(button('削除',function(){if(!todoEditable(t)||!w.confirm('このやることを削除しますか？'))return;doc.todos=doc.todos.filter(function(x){return x.id!==t.id;});delete doc.todoEdits[t.id];renderTodos();renderGoals();changed();},'mp-link mp-danger'));item.appendChild(edit);return item;
+        edit.appendChild(button('削除',async function(){if(!todoEditable(t)||!w.confirm('このやることを削除しますか？'))return;var who=owner,generation=epoch;
+          if(t.notificationScheduled||w.KNNotifications&&w.KNNotifications.cancelForTodo){try{if(!w.KNNotifications)throw Error();if(w.KNNotifications.cancelForTodo)await w.KNNotifications.cancelForTodo(t.id,t.notificationScheduled===true);else await w.KNNotifications.cancelTodo(t.id);}catch(ignore){if(who===owner&&generation===epoch&&todoEditable(t))message('通知を取り消せませんでした。やることは削除せず残しています。',true);return;}}
+          if(who!==owner||generation!==epoch||!todoEditable(t))return;doc.todos=doc.todos.filter(function(x){return x.id!==t.id;});delete doc.todoEdits[t.id];renderTodos();renderGoals();changed();
+        },'mp-link mp-danger'));item.appendChild(edit);return item;
       }
       pending.forEach(function(t){todoList.appendChild(row(t));});completed.forEach(function(t){todoCompletedList.appendChild(row(t));});
       todoCompletedSummary.textContent='完了済み '+completed.length+'件';todoCompleted.hidden=!completed.length;
       if(completed.some(function(t){return !!doc.todoEdits[t.id];}))completedOpen=true;
       todoCompleted.open=completedOpen;
+      if(w.KNNotifications)w.KNNotifications.refreshTodos();
     }
     function notesReadable(){return !!doc&&validOwner();}
     function notesEditable(){return !!doc&&validOwner()&&editable;}
@@ -374,6 +388,8 @@
       todoText=el('input','mp-reminder-new-input');todoText.type='text';todoText.id='mpTodoInput';todoText.placeholder='新しいリマインダー';todoText.setAttribute('aria-label','新しいリマインダー');addLine.appendChild(todoText);add.appendChild(addLine);
       todoAddDetails=el('details','mp-add-details');todoAddDetails.appendChild(el('summary',null,'詳細'));var goalField=el('label','mp-field');goalField.appendChild(el('span',null,'関連する目標'));todoGoal=el('select');todoGoal.setAttribute('aria-label','関連する目標');goalField.appendChild(todoGoal);todoAddDetails.appendChild(goalField);
       todoDue=field('期限（任意）','date',todoAddDetails);todoDue.id='mpTodoDueDate';todoFlag=field('フラグを付ける','checkbox',todoAddDetails);todoFlag.id='mpTodoFlagged';todoFlag.parentNode.classList.add('mp-flag-field');add.appendChild(todoAddDetails);panes[2].appendChild(add);
+      if(w.KNNotifications)w.KNNotifications.attachPlanner({root:panes[2],getTodos:function(){return doc&&validOwner()?doc.todos:[];},canEdit:function(){return todoEditable();},markScheduled:function(id,value){if(!todoEditable())return;var t=doc.todos.find(function(t){return t.id===id;});if(t&&!t.done){t.notificationScheduled=value;changed();}}});
+
       function keepNewTodo(){if(!todoEditable())return;if(!dateOK(todoDue.value)){message('期限の日付を確認してください。',true);return;}doc.todoDraft=Object.assign({},doc.todoDraft,{text:todoText.value,goalId:todoGoal.value,dueDate:todoDue.value,flagged:todoFlag.checked});changed();}
       todoText.addEventListener('input',keepNewTodo);todoGoal.addEventListener('change',keepNewTodo);todoDue.addEventListener('input',keepNewTodo);todoFlag.addEventListener('change',keepNewTodo);
       add.addEventListener('submit',function(e){e.preventDefault();if(!todoEditable()||!todoText.value.trim())return;if(!dateOK(todoDue.value)){message('期限の日付を確認してください。',true);return;}doc.todos.push({id:id(),text:todoText.value,done:false,goalId:todoGoal.value,dueDate:todoDue.value,flagged:todoFlag.checked});doc.todoDraft=Object.assign({},doc.todoDraft,{text:'',dueDate:'',flagged:false});todoFilter='all';todoSearch='';renderTodos();renderGoals();changed();todoText.focus();});
@@ -402,6 +418,7 @@
       }
       function editNote(key,value){var n=doc&&selectedNote();if(!notesEditable()||!n||key==='body'&&(noteRich||n.richText!==undefined))return;n[key]=value;renderNotes(true);changed();}
       noteTitle.addEventListener('input',function(){editNote('title',noteTitle.value);});noteBody.addEventListener('input',function(){editNote('body',noteBody.value);});panes[3].appendChild(noteEditor);
+      if(w.location&&w.location.hash==='#todo-reminders'){page.classList.add('open');goTab(2);if(w.knPrepareLedger)w.knPrepareLedger();}
       document.addEventListener('knAuthChange',function(){if(owner!==current())reset();load();});
       page.querySelectorAll('.mo-tab,.mp-toptab').forEach(function(t){t.addEventListener('click',load);});
       new w.MutationObserver(function(){if(page.classList.contains('open'))load();}).observe(page,{attributes:true,attributeFilter:['class']});

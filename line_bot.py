@@ -1875,6 +1875,14 @@ def api_user_data():
 
 from ledger_api import create_ledger_blueprint
 app.register_blueprint(create_ledger_blueprint(SUPABASE_URL, SUPABASE_KEY))
+from device_notifications import create_notifications_blueprint
+from web_push_transport import WebPushSender
+_device_push_sender = WebPushSender(os.environ.get("WEB_PUSH_VAPID_PRIVATE_KEY", ""),
+                                   os.environ.get("WEB_PUSH_VAPID_SUBJECT", ""))
+app.register_blueprint(create_notifications_blueprint(
+    SUPABASE_URL, SUPABASE_KEY, sender=_device_push_sender,
+    enabled=os.environ.get("WEB_PUSH_ENABLED", "0") == "1"))
+
 
 from portfolio_advice import create_portfolio_advice_blueprint
 app.register_blueprint(create_portfolio_advice_blueprint(SUPABASE_URL, SUPABASE_KEY))

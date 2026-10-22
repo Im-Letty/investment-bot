@@ -183,7 +183,7 @@ test('missing optional planning fields and current or past deadlines do not inve
 
 // A small controller fixture exercises actual mount handlers and save promises.
 // Geometry and real browser input behavior are checked separately by the parent.
-function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=true,readyState='complete',pagePresent=true,richEditor=false}={}) {
+function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=true,readyState='complete',pagePresent=true,richEditor=false,notifications=null}={}) {
   const documentEvents = {}, documentOptions = {}, childEvents = {}, windowEvents = {}, saves = [], stages = [];
   const timers=new Map(),intervals=[];let clock=0,timerId=0,stored = raw,loads=0,focused=null;
   function flushTimers(ms=1500) {
@@ -245,6 +245,7 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     setTimeout(fn,ms=0){timers.set(++timerId,{fn,at:clock+ms});return timerId;},
     clearTimeout(id){timers.delete(id);},
   };
+  if(notifications)w.KNNotifications=notifications;
   if(richEditor){
     w.KNMyPageNoteEditor=require('../static/mypage-note-editor.js');
     const selection={anchorNode:null,focusNode:null,anchorOffset:0,focusOffset:0,removeAllRanges(){this.anchorNode=this.focusNode=null;},addRange(r){this.anchorNode=r.startContainer;this.anchorOffset=r.startOffset;this.focusNode=r.endContainer;this.focusOffset=r.endOffset;}};
@@ -865,4 +866,43 @@ test('a UTF-8-sized rich snapshot rejected by remote storage stays staged and ne
   const body='記'.repeat(400000),raw=encode({notes:[note({body})]});const h=controller({raw,richEditor:true});await settle();format(h,'太字').click();const staged=h.raw;
   assert.ok(staged.length<1000000);assert.ok(Buffer.byteLength(JSON.stringify({mypage:staged}),'utf8')>2000000);const saves=[];h.bridge.save=async(owner,value)=>{saves.push({owner,raw:value});return false;};h.flushTimers(1500);await settle();
   assert.equal(saves.length,1);assert.equal(saves[0].raw,staged);assert.equal(h.raw,staged);assert.equal(h.memo.value,body);assert.match(h.status,/同期できません/);assert.match(h.status,/書きかけを保持/);assert.ok(h.page.querySelector('.mp-note-rich').querySelector('strong'));h.recordsReady();await settle();assert.equal(h.raw,staged);assert.match(h.status,/同期できません/);
+});
+
+test('notification marker is additive and completing waits for durable cancellation',async()=>{
+  let resolve,calls=0,context;
+  const notifications={attachPlanner:value=>context=value,refreshTodos(){},cancelTodo:()=>{calls++;return new Promise(r=>resolve=r);}};
+  const h=controller({raw:encode({todos:[reminder('scheduled',{notificationScheduled:true})]}),notifications});await settle();
+  const check=taskRows(h)[0].querySelector('input');check.checked=true;check.dispatch('change');
+  assert.equal(calls,1);assert.equal(JSON.parse(h.raw).todos[0].done,false);assert.equal(check.disabled,true);
+  resolve(true);await settle();
+  assert.equal(JSON.parse(h.raw).todos[0].done,true);assert.equal(JSON.parse(h.raw).todos[0].notificationScheduled,false);
+  assert.ok(context);
+});
+
+test('notification cancellation failure preserves pending task and deletion',async()=>{
+  const notifications={attachPlanner(){},refreshTodos(){},cancelTodo:async()=>{throw Error('fixture-private-error');}};
+  const raw=encode({todos:[reminder('scheduled',{notificationScheduled:true})]});
+  const h=controller({raw,notifications});await settle();
+  const check=taskRows(h)[0].querySelector('input');check.checked=true;check.dispatch('change');await settle();
+  assert.equal(h.raw,raw);assert.equal(check.checked,false);assert.match(h.status,/完了への変更は保留/);
+  taskRows(h)[0].querySelectorAll('button').find(n=>n.textContent==='削除').click();await settle();
+  assert.equal(h.raw,raw);assert.match(h.status,/削除せず残して/);assert.equal(h.status.includes('fixture-private-error'),false);
+});
+
+test('late notification cancellation cannot mutate a different owner after signout',async()=>{
+  let resolve;
+  const notifications={attachPlanner(){},refreshTodos(){},cancelTodo:()=>new Promise(r=>resolve=r)};
+  const h=controller({raw:encode({todos:[reminder('scheduled',{notificationScheduled:true})]}),notifications});await settle();
+  const check=taskRows(h)[0].querySelector('input');check.checked=true;check.dispatch('change');
+  h.auth(null);resolve(true);await settle();
+  assert.equal(h.stages.length,0);assert.equal(h.page.querySelectorAll('.mp-task').length,0);
+});
+
+test('a notification schedule callback only marks a live pending task of its current owner',async()=>{
+  let context;const notifications={attachPlanner:value=>context=value,refreshTodos(){},cancelTodo:async()=>true};
+  const h=controller({raw:encode({todos:[reminder('pending'),reminder('done',{done:true})]}),notifications});await settle();
+  context.markScheduled('pending',true);
+  assert.equal(JSON.parse(h.raw).todos[0].notificationScheduled,true);
+  context.markScheduled('done',true);assert.equal(JSON.parse(h.raw).todos[1].notificationScheduled,undefined);
+  h.auth(null);const count=h.stages.length;context.markScheduled('pending',false);assert.equal(h.stages.length,count);
 });
