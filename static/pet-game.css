@@ -187,20 +187,13 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg .ipg-growth-choices [aria-pressed=true]{background:var(--ipg-green);border-color:var(--ipg-green);color:var(--kn-sh-on-button,#fffdf6)}
 @media(max-width:540px){.ipg-growth-gallery{grid-template-columns:minmax(0,1fr);gap:8px;padding:10px}.ipg-growth-preview>.ipg-lilac-visual{width:180px;height:180px}.ipg-growth-caption{min-height:1.4em}.ipg-growth-choices{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.ipg .ipg-growth-choices .ipg-button{font-size:.84em;padding:7px 3px}.ipg-growth-choices small{font-size:.71em}}
 
-/* Clothing cards are lightweight swatches; only the chosen fitting gets a canvas. */
+/* Clothing cards share local illustrations; only the chosen fitting gets a canvas. */
 .ipg-worn-outfit{display:flex;justify-content:center;align-items:center;gap:10px;flex-wrap:wrap;margin:12px auto}
 .ipg-worn-outfit>.ipg-small{margin:0!important}.ipg-worn-outfit>.ipg-button{padding:7px 12px;font-size:.86em}
 .ipg-clothing-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
 .ipg-clothing-item{display:flex;flex-direction:column;align-items:stretch;min-width:0;padding:15px 12px;border:1px solid var(--ipg-line);border-radius:13px;text-align:center;background:var(--ipg-bg)}
 .ipg-clothing-item h4{margin:5px 0 8px!important;min-height:2.8em;line-height:1.4}.ipg-clothing-item p{margin-bottom:8px}
 .ipg-clothing-item>.ipg-button{margin-top:6px}.ipg-clothing-item>.ipg-button:last-child{margin-top:7px}
-.ipg-clothing-swatch{--cloth:#e5d8b7;position:relative;display:block;width:65px;height:62px;margin:0 auto 8px;background:var(--cloth);border-radius:12px 12px 8px 8px;clip-path:polygon(17% 4%,38% 0,42% 14%,58% 14%,62% 0,83% 4%,98% 32%,81% 43%,75% 26%,78% 100%,22% 100%,25% 26%,19% 43%,2% 32%);box-shadow:inset 0 -7px 0 #0000000c}
-.ipg-cloth-vest{background:linear-gradient(90deg,transparent 47%,#c3ae85 48% 52%,transparent 53%),var(--cloth);clip-path:polygon(21% 0,39% 0,50% 25%,61% 0,79% 0,84% 100%,16% 100%)}
-.ipg-cloth-cape{--cloth:#dca7bb;border-radius:12px 12px 45% 45%;clip-path:polygon(33% 0,67% 0,100% 88%,77% 100%,50% 90%,23% 100%,0 88%)}
-.ipg-cloth-overalls{--cloth:#9abbd4;background:linear-gradient(90deg,transparent 44%,#769bb9 45% 54%,transparent 55%),var(--cloth);clip-path:polygon(20% 0,35% 0,35% 24%,65% 24%,65% 0,80% 0,80% 100%,53% 100%,50% 78%,47% 100%,20% 100%)}
-.ipg-cloth-knit{--cloth:#a9c8b6;background:repeating-linear-gradient(0deg,transparent 0 7px,#ffffff30 8px 9px),var(--cloth)}
-.ipg-cloth-pajamas{--cloth:#a7b1d6;background:radial-gradient(circle at 30% 35%,#efe5a5 0 3px,transparent 4px),radial-gradient(circle at 70% 65%,#efe5a5 0 3px,transparent 4px),linear-gradient(90deg,transparent 47%,#7d89b1 48% 52%,transparent 53%),var(--cloth)}
-.ipg-cloth-dress{--cloth:#e6b9bf;background:radial-gradient(circle at 70% 70%,#fcf0d5 0 4px,transparent 5px),radial-gradient(circle at 30% 48%,#fcf0d5 0 4px,transparent 5px),var(--cloth);clip-path:polygon(28% 0,40% 0,50% 12%,60% 0,72% 0,66% 35%,100% 100%,0 100%,34% 35%)}
 .ipg-outfit-fitting{display:grid;grid-template-columns:240px minmax(0,1fr);align-items:center;gap:16px;margin:12px 0 18px;padding:14px;border:1px solid var(--ipg-line);border-radius:15px;background:var(--ipg-bg)}
 .ipg-outfit-fitting>.ipg-lilac-visual{width:240px;height:240px;margin:auto}.ipg-fitting-caption{font-weight:600}.ipg-fitting-info{min-width:0}
 @media(max-width:640px){.ipg-clothing-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.ipg-clothing-item{padding:12px 8px}.ipg-outfit-fitting{grid-template-columns:minmax(0,1fr);gap:7px;padding:10px;text-align:center}.ipg-outfit-fitting>.ipg-lilac-visual{width:200px;height:200px}.ipg-clothing-item h4{font-size:.92em}}
@@ -290,31 +283,26 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-view-care .ipg-header{margin-bottom:8px}.ipg-view-care .ipg-header .ipg-eyebrow{display:none}.ipg-view-care .ipg-header h2{font-size:1.5em}.ipg-notice:empty{display:none}.ipg-view-care .ipg-tabs{margin-bottom:0;padding-bottom:12px}
 
 
-/* Shared item cutouts: fixed boxes keep menus stable while each local image loads.
-   The old emoji, or the original CSS apple, remains until a real image succeeds. */
+/* Shared local illustrations: loading and error states keep a quiet fixed box. */
 .ipg-item-art{position:relative;display:inline-block;flex:0 0 auto;width:88px;height:88px;line-height:1;vertical-align:middle;isolation:isolate}
 .ipg-item-art-image{position:absolute;inset:0;display:block;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none;-webkit-user-drag:none}
-.ipg-item-art-fallback{display:flex;align-items:center;justify-content:center;width:100%;height:100%;font-size:48px;line-height:1;pointer-events:none}
-.ipg-item-art-image[hidden],.ipg-item-art-fallback[hidden]{display:none!important}
+.ipg-item-art-placeholder{display:flex;align-items:center;justify-content:center;width:100%;height:100%;border:1px solid var(--ipg-line);border-radius:14px;background:color-mix(in srgb,var(--ipg-line) 15%,transparent);pointer-events:none}
+.ipg-item-art-placeholder:before{content:"";width:34%;height:28%;border:1px solid var(--ipg-line);border-radius:4px;opacity:.6}
+.ipg-item-art-image[hidden],.ipg-item-art-placeholder[hidden]{display:none!important}
 .ipg-shop-item .ipg-item-art{margin:0 auto 8px;filter:drop-shadow(0 5px 5px #75624c18)}
 .ipg-shop-item{background:radial-gradient(ellipse at 50% 0,#fff9,transparent 62%),var(--ipg-surface,var(--ipg-bg))}
 .ipg-care-item-art{width:34px;height:34px}
-.ipg-care-item-art .ipg-item-art-fallback{font-size:28px}
 .ipg-room-care .ipg-care-item-art{width:30px;height:30px}
-.ipg-room-care .ipg-care-item-art .ipg-item-art-fallback{font-size:26px}
 .ipg-decoration-art{width:76px;height:76px;filter:drop-shadow(0 4px 3px #78624d24)}
-.ipg-decoration-art .ipg-item-art-fallback{font-size:42px}
 .ipg-drop-art{width:32px;height:32px}
-.ipg-drop-art .ipg-item-art-fallback{font-size:26px}
 .ipg-feeding-food .ipg-food-art{position:absolute;inset:0;width:100%;height:100%}
-.ipg-food-art .ipg-item-art-fallback{font-size:32px;filter:drop-shadow(0 2px 2px #70515c26)}
-.ipg-lilac-compact .ipg-food-art .ipg-item-art-fallback{font-size:14px}
-.ipg-feeding-food[data-art-ready=true],.ipg-feeding-food[data-food-id]:not([data-food-id=""]):not([data-food-id=apple]){background:none;box-shadow:none;border-radius:0}
-.ipg-feeding-food[data-art-ready=true]:before,.ipg-feeding-food[data-art-ready=true]:after,
-.ipg-feeding-food[data-food-id]:not([data-food-id=""]):not([data-food-id=apple]):before,
-.ipg-feeding-food[data-food-id]:not([data-food-id=""]):not([data-food-id=apple]):after{display:none}
+.ipg-feeding-food[data-food-id]:not([data-food-id=""]){background:none;box-shadow:none;border-radius:0}
+.ipg-feeding-food[data-food-id]:not([data-food-id=""]):before,
+.ipg-feeding-food[data-food-id]:not([data-food-id=""]):after{display:none}
+.ipg-clothing-art{width:106px;height:106px;max-width:100%;margin:0 auto 8px;filter:drop-shadow(0 5px 5px #75624c18)}
+.ipg-fitting-item-art{width:104px;height:104px;max-width:100%;margin:0 auto 8px}
+.ipg-worn-item-art{width:42px;height:42px;margin:0}
 .ipg-background-swatch{position:relative;display:block;flex:0 0 auto;width:100%;height:88px;margin:0 auto 8px;overflow:hidden;border:1px solid #d4d0bd;border-radius:12px;box-shadow:inset 0 1px 2px #fff9,inset 0 -3px 7px #87734d14}
-.ipg-background-fallback{display:none}
 .ipg-background-swatch:before,.ipg-background-swatch:after{content:'';position:absolute;pointer-events:none}
 .ipg-swatch-meadow{background:linear-gradient(#cde4e5 0 60%,#9fba82 61%,#bdcc94)}
 .ipg-swatch-meadow:before{left:16%;top:13px;width:22px;height:22px;border-radius:50%;background:#fff2bf;box-shadow:0 0 12px #fff4c999,40px 9px 0 1px #ffffff85,50px 7px 0 4px #ffffff85}
@@ -329,25 +317,6 @@ img.ipg-lilac-compact{width:80px;height:80px;animation:none}
 .ipg-swatch-room:before{left:17%;top:12px;width:34px;height:40px;border:4px solid #fffaf0;border-radius:16px 16px 3px 3px;background:linear-gradient(90deg,transparent 46%,#fff8 47% 53%,transparent 54%),linear-gradient(#badde2,#e1ecd3);box-shadow:1px 2px 0 2px #bbaa8a42}
 .ipg-swatch-room:after{right:12%;bottom:12px;width:36px;height:19px;border:3px solid #bda180;border-radius:8px;background:linear-gradient(135deg,#dcd0e4,#b8aac6);box-shadow:0 3px 0 #a98d6c}
 
-/* Cloth samples retain the six existing garments and their in-game colours. */
-.ipg-clothing-swatch{width:86px;height:82px;background:linear-gradient(115deg,#ffffff7a,transparent 34%,#ffffff0a 65%,#61492926),repeating-linear-gradient(90deg,transparent 0 3px,#ffffff15 3px 4px),var(--cloth);box-shadow:inset 2px 0 3px #fff6,inset -5px -5px 8px #69574230;filter:drop-shadow(0 4px 3px #75624c20)}
-.ipg-clothing-swatch:before{content:'';position:absolute;inset:8px 12px;border:1px dashed #fff9;border-radius:5px;opacity:.65}
-.ipg-clothing-swatch:after{content:'';position:absolute;top:37%;left:47%;width:5px;height:5px;border:1px solid #92765955;border-radius:50%;background:radial-gradient(circle at 35% 25%,#fff9,#bfa77e);box-shadow:0 13px 0 -1px #b29b79,0 26px 0 -1px #b29b79}
-.ipg-cloth-vest{background:linear-gradient(90deg,transparent 45%,#9f875657 46% 48%,#fff8 49% 51%,#bfa477 52% 54%,transparent 55%),linear-gradient(115deg,#fff5,transparent 36%,#78633f24),repeating-linear-gradient(0deg,transparent 0 3px,#fff2 3px 4px),var(--cloth)}
-.ipg-cloth-cape{background:radial-gradient(ellipse at 50% 6%,#f7d4de,transparent 44%),linear-gradient(98deg,#ae778a33,transparent 28% 46%,#9f62782b 50%,transparent 56% 75%,#9f627832),var(--cloth);box-shadow:inset 0 -7px 4px #8e536b24}
-.ipg-cloth-cape:before{inset:8px 8px 5px;border-radius:30% 30% 45% 45%;border-color:#f9e2ea}
-.ipg-cloth-cape:after{top:17%;left:46%;width:7px;height:7px;background:radial-gradient(circle at 35% 25%,#fff4cc,#c6a45e);box-shadow:none}
-.ipg-cloth-overalls{background:linear-gradient(90deg,transparent 46%,#5a7f9d40 47% 53%,transparent 54%),repeating-linear-gradient(120deg,transparent 0 2px,#ffffff17 2px 3px),linear-gradient(110deg,#c6dbea,#99bad1 43%,#7396b2);box-shadow:inset -4px -5px 7px #466b8a26}
-.ipg-cloth-overalls:before{inset:28% 30% 44%;border:1px solid #dfebf3aa;border-radius:2px 2px 8px 8px}
-.ipg-cloth-overalls:after{top:21%;left:26%;background:#e4cf8b;box-shadow:35px 0 0 -1px #e4cf8b}
-.ipg-cloth-knit{background:repeating-linear-gradient(55deg,transparent 0 5px,#ffffff25 5px 7px,transparent 7px 10px),repeating-linear-gradient(-55deg,transparent 0 5px,#638f771c 5px 7px,transparent 7px 10px),linear-gradient(110deg,#c7dfd0,#a9c8b6 52%,#8ab49d);box-shadow:inset -4px -5px 7px #507b6326}
-.ipg-cloth-knit:before{inset:6px 12px 9px;border-width:0 0 4px;border-style:double;border-color:#d4e8dcaa}
-.ipg-cloth-knit:after{display:none}
-.ipg-cloth-pajamas{background:radial-gradient(circle at 30% 35%,#f4e9b6 0 3px,transparent 4px),radial-gradient(circle at 70% 65%,#f4e9b6 0 3px,transparent 4px),linear-gradient(90deg,transparent 46%,#6377a44a 47% 49%,#d2d9ed99 50% 52%,transparent 53%),linear-gradient(115deg,#c7cfea,#a7b1d6 48%,#8394c0);box-shadow:inset -4px -5px 7px #53658d25}
-.ipg-cloth-pajamas:after{background:#e6e7e7;border-color:#7586ac;box-shadow:0 13px 0 -1px #dfe2e7,0 26px 0 -1px #dfe2e7}
-.ipg-cloth-dress{background:radial-gradient(circle at 70% 70%,#fcf0d5 0 4px,transparent 5px),radial-gradient(circle at 30% 48%,#fcf0d5 0 4px,transparent 5px),linear-gradient(100deg,#fff4,transparent 26% 44%,#a5637420 48%,transparent 54% 73%,#a563742b),var(--cloth);box-shadow:inset 0 -6px 3px #b77a8b20}
-.ipg-cloth-dress:before{inset:42% 4px 7px;border-width:2px 0 1px;border-color:#fce7e7bb;border-style:solid}
-.ipg-cloth-dress:after{top:33%;left:46%;width:8px;height:5px;border-radius:1px 5px;background:#f8e7d8;box-shadow:none}
 
 /* Surface detail only: room layout and its reserved 64px care strip stay intact. */
 .ipg-room-bed{background:repeating-linear-gradient(90deg,transparent 0 5px,#ffffff18 6px 7px),linear-gradient(120deg,#ded4e4,#bdb4d1 55%,#a99bc0);border-color:#c6ac91 #b3977c #ad9074 #d0b89e;box-shadow:inset 0 2px 4px #fff7,inset 0 -3px 4px #75638720,0 5px 0 #a8927c,0 7px 6px #7b665823}

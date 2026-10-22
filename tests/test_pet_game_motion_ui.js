@@ -2290,21 +2290,85 @@ test('failed food consumption stays invisible and stale image callbacks cannot o
   assert.deepEqual(f.saved(), saved);
 });
 
-test('shared item cutouts retain visible emoji fallbacks after image failures without changing purchases or saved state', async () => {
+const illustratedItemIds = ['apple', 'cake', 'berry', 'rice', 'feast', 'house', 'tree', 'flower', 'fountain', 'sunflower', 'mushroom', 'lantern'];
+const illustratedClothingIds = ['cloth_cream_vest', 'cloth_rose_cape', 'cloth_sky_overalls', 'cloth_mint_knit', 'cloth_star_pajamas', 'cloth_flower_dress'];
+function illustrationPath(id) { return '/static/' + (illustratedClothingIds.includes(id) ? 'pet-clothes-v1/' : 'pet-items-v1/') + id + '.webp'; }
+
+test('all eighteen illustrated products keep neutral loading and error states without emoji or inventory writes', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
   await f.click(f.focusButton('tab-shop'));
   const before = f.saved(), writes = f.writes.length;
-  const rows = f.host.querySelectorAll('.ipg-shop-item').filter(row => row.querySelector('.ipg-item-art'));
-  assert.equal(rows.length, 12);
+  const rows = f.host.querySelectorAll('.ipg-shop-item').filter(row => row.querySelector('.ipg-item-art'))
+    .concat(f.host.querySelectorAll('.ipg-clothing-item'));
+  assert.equal(rows.length, 18);
+  assert.deepEqual(rows.map(row => row.dataset.itemId || row.dataset.clothing).sort(), illustratedItemIds.concat(illustratedClothingIds).sort());
   for (const row of rows) {
-    const art = row.querySelector('.ipg-item-art'), fallback = art.querySelector('.ipg-item-art-fallback'), image = art.querySelector('img');
-    assert.equal(art.getAttribute('aria-hidden'), 'true'); assert.equal(image.alt, ''); assert.equal(image.getAttribute('aria-hidden'), 'true');
-    assert.equal(image.width, 384); assert.equal(image.height, 384); assert.equal(image.hidden, true); assert.equal(fallback.hidden, false);
-    assert.equal(image.src, '/static/pet-items-v1/' + row.dataset.itemId + '.webp');
-    assert.ok(fallback.textContent); image.emit('load'); assert.equal(image.hidden, false); assert.equal(fallback.hidden, true);
-    image.emit('error'); assert.equal(image.hidden, true); assert.equal(fallback.hidden, false); assert.equal(art.dataset.artReady, 'false');
+    const id = row.dataset.itemId || row.dataset.clothing, entry = Core.items.find(item => item.id === id);
+    const art = row.querySelector('.ipg-item-art'), placeholder = art.querySelector('.ipg-item-art-placeholder'), image = art.querySelector('img');
+    assert.equal(art.dataset.itemArt, id); assert.equal(art.getAttribute('aria-hidden'), 'true');
+    assert.equal(image.alt, ''); assert.equal(image.getAttribute('aria-hidden'), 'true'); assert.equal(image.width, 384); assert.equal(image.height, 384);
+    assert.equal(image.src, illustrationPath(id)); assert.equal(image.hidden, true); assert.equal(placeholder.hidden, false);
+    assert.equal(art.dataset.artState, 'loading'); assert.equal(art.textContent, '', 'Loading cannot substitute platform emoji');
+    assert.equal(row.querySelector('h4').textContent, entry.name); assert.ok(row.textContent.includes(entry.price + 'コイン'));
+    image.emit('load'); assert.equal(image.hidden, false); assert.equal(placeholder.hidden, true); assert.equal(art.dataset.artReady, 'true'); assert.equal(art.dataset.artState, 'ready');
+    image.emit('error'); assert.equal(image.hidden, true); assert.equal(placeholder.hidden, false); assert.equal(art.dataset.artReady, 'false'); assert.equal(art.dataset.artState, 'error');
+    assert.equal(art.textContent, '', 'A failed image cannot return to platform emoji');
+    image.emit('load'); assert.equal(image.hidden, false); assert.equal(placeholder.hidden, true);
   }
   assert.equal(f.host.querySelectorAll('.ipg-background-swatch').length, 4);
-  assert.equal(f.host.querySelectorAll('.ipg-clothing-swatch').length, 6);
+  assert.equal(f.host.querySelectorAll('.ipg-clothing-art').length, 6);
+  assert.equal(f.host.querySelectorAll('.ipg-clothing-swatch').length, 0, 'Generated clothing illustrations do not inherit clipped CSS garments');
+  assert.equal(f.host.querySelectorAll('.ipg-item-art-fallback').length, 0);
+  assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
+});
+
+test('every garment shares its product illustration with free fitting and saved wearing while preserving the economy', async () => {
+  for (const id of illustratedClothingIds) {
+    const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
+    await f.click(f.focusButton('tab-shop'));
+    const before = f.saved(), writes = f.writes.length, entry = Core.items.find(item => item.id === id);
+    await f.click(f.focusButton('outfit-try-' + id));
+    const fitting = f.host.querySelector('.ipg-outfit-fitting');
+    assert.equal(fitting.querySelector('.ipg-fitting-item-art').dataset.itemArt, id);
+    assert.equal(fitting.querySelector('.ipg-fitting-item-art').querySelector('img').src, illustrationPath(id));
+    assert.equal(f.mounts.at(-1).options.outfit, id, 'The actual animated fitting still uses the selected garment');
+    assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes, 'Trying an unowned garment never purchases or saves');
+    await f.click(f.focusButton('outfit-buy-' + id));
+    const bought = f.saved(); assert.equal(bought.coins, before.coins - entry.price); assert.equal(bought.wardrobe.owned[id], true); assert.equal(bought.wardrobe.equipped, null);
+    await f.click(f.focusButton('outfit-wear-' + id));
+    const worn = f.saved(), thumbnail = f.host.querySelector('.ipg-worn-item-art');
+    assert.equal(worn.wardrobe.equipped, id); assert.equal(worn.coins, bought.coins); assert.equal(worn.pet.exp, before.pet.exp);
+    assert.equal(thumbnail.dataset.itemArt, id); assert.equal(thumbnail.querySelector('img').src, illustrationPath(id));
+    assert.ok(f.host.querySelector('.ipg-worn-outfit').textContent.includes(entry.name));
+    assert.deepEqual(worn.inventory, before.inventory); assert.deepEqual(worn.decorations, before.decorations); assert.deepEqual(worn.market, before.market);
+    const persistedWrites = f.writes.length; thumbnail.querySelector('img').emit('error'); assert.equal(thumbnail.textContent, '');
+    assert.deepEqual(f.saved(), worn); assert.equal(f.writes.length, persistedWrites, 'Drawing success/failure cannot change saved clothes or balances');
+    assert.doesNotMatch(JSON.stringify(worn), /pet-clothes-v1|itemArt|artReady|artState/);
+    await f.click(f.focusButton('outfit-remove')); assert.equal(f.saved().wardrobe.equipped, null); assert.equal(f.saved().wardrobe.owned[id], true);
+    assert.equal(f.host.querySelector('.ipg-worn-item-art'), null); assert.equal(f.saved().coins, worn.coins); f.ui.close();
+  }
+});
+
+test('room decorations, ordinary care and catch drops reuse local illustrations without emoji fallbacks', async () => {
+  const f = await fixture({ species: 'lilac', rendererMode: 'ready', setup: async app => {
+    assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'house' })).ok, true);
+    assert.equal((await app.dispatch({ type: 'equip', itemId: 'house' })).ok, true);
+  } });
+  const before = f.saved(), writes = f.writes.length;
+  const decoration = f.host.querySelector('.ipg-decoration-art'); assert.equal(decoration.dataset.itemArt, 'house');
+  assert.equal(decoration.querySelector('img').src, illustrationPath('house')); decoration.querySelector('img').emit('error'); assert.equal(decoration.textContent, '');
+  const care = f.focusButton('care-feed').querySelector('.ipg-care-item-art'); assert.equal(care.querySelector('img').src, illustrationPath('apple')); assert.equal(care.textContent, '');
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
+  await f.click(f.focusButton('tab-play')); await f.click(f.button('25秒のゲームをはじめる')); await f.frame();
+  const drop = f.host.querySelector('.ipg-drop-art'); assert.ok(drop); assert.equal(drop.dataset.itemArt, 'rice'); assert.equal(drop.querySelector('img').src, illustrationPath('rice')); assert.equal(drop.textContent, '');
+  f.ui.close();
+});
+
+test('illustration styles use fixed neutral boxes and never apply old garment clipping or pseudo-garments', () => {
+  const css = fs.readFileSync(require.resolve('../static/pet-game.css'), 'utf8');
+  assert.match(css, /\.ipg-item-art-placeholder\{[^}]*width:100%;height:100%/);
+  assert.match(css, /\.ipg-item-art-image\[hidden\],\.ipg-item-art-placeholder\[hidden\]\{display:none!important\}/);
+  assert.doesNotMatch(css, /\.ipg-clothing-swatch|\.ipg-cloth-(?:vest|cape|overalls|knit|pajamas|dress)/);
+  assert.match(css, /\.ipg-clothing-art\{[^}]*max-width:100%/);
+  assert.match(css, /\.ipg-feeding-food\[data-food-id\]:not\(\[data-food-id=""\]\)\{background:none/);
 });

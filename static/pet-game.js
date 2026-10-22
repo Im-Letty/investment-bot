@@ -91,39 +91,49 @@
   function item(id) { return items().filter(function (x) { return x.id === id; })[0]; }
   function itemName(id) { var x = item(id); return x ? x.name : 'アイテム'; }
   // Artwork is a fixed presentation map, never a saved inventory field or an arbitrary URL.
-  var itemArtworkIds = { apple: true, cake: true, berry: true, rice: true, feast: true, house: true, tree: true, flower: true, fountain: true, sunflower: true, mushroom: true, lantern: true };
-  function hasItemArtwork(id) { return typeof id === 'string' && Object.prototype.hasOwnProperty.call(itemArtworkIds, id); }
+  var itemArtworkSources = Object.freeze({
+    apple: 'pet-items-v1/apple.webp', cake: 'pet-items-v1/cake.webp', berry: 'pet-items-v1/berry.webp',
+    rice: 'pet-items-v1/rice.webp', feast: 'pet-items-v1/feast.webp', house: 'pet-items-v1/house.webp',
+    tree: 'pet-items-v1/tree.webp', flower: 'pet-items-v1/flower.webp', fountain: 'pet-items-v1/fountain.webp',
+    sunflower: 'pet-items-v1/sunflower.webp', mushroom: 'pet-items-v1/mushroom.webp', lantern: 'pet-items-v1/lantern.webp',
+    cloth_cream_vest: 'pet-clothes-v1/cloth_cream_vest.webp', cloth_rose_cape: 'pet-clothes-v1/cloth_rose_cape.webp',
+    cloth_sky_overalls: 'pet-clothes-v1/cloth_sky_overalls.webp', cloth_mint_knit: 'pet-clothes-v1/cloth_mint_knit.webp',
+    cloth_star_pajamas: 'pet-clothes-v1/cloth_star_pajamas.webp', cloth_flower_dress: 'pet-clothes-v1/cloth_flower_dress.webp'
+  });
+  function hasItemArtwork(id) { return typeof id === 'string' && Object.prototype.hasOwnProperty.call(itemArtworkSources, id); }
   function foodArtworkId(id) { var entry = item(id); return entry && entry.type === 'food' && hasItemArtwork(id) ? id : null; }
-  function itemArtwork(id, fallback, extra, onState) {
+  function itemArtwork(id, extra, onState) {
     var shell = node('span', 'ipg-item-art' + (extra ? ' ' + extra : ''));
-    shell.setAttribute('aria-hidden', 'true'); shell.dataset.itemArt = hasItemArtwork(id) ? id : ''; shell.dataset.artReady = 'false';
-    var old = node('span', 'ipg-item-art-fallback', fallback == null ? '🌿' : fallback); shell.appendChild(old);
-    if (!hasItemArtwork(id)) return shell;
+    shell.setAttribute('aria-hidden', 'true'); shell.dataset.itemArt = hasItemArtwork(id) ? id : ''; shell.dataset.artReady = 'false'; shell.dataset.artState = 'loading';
+    // A quiet, fixed-size placeholder never substitutes the platform's emoji.
+    // Product names, prices and ownership remain available beside the artwork.
+    var placeholder = node('span', 'ipg-item-art-placeholder'); shell.appendChild(placeholder);
+    if (!hasItemArtwork(id)) { shell.dataset.artState = 'unavailable'; return shell; }
     var image = node('img', 'ipg-item-art-image'); image.width = image.height = 384;
     image.alt = ''; image.draggable = false; image.decoding = 'async'; image.hidden = true; image.setAttribute('aria-hidden', 'true');
     function ready(value) {
-      shell.dataset.artReady = String(value); image.hidden = !value; old.hidden = value;
+      shell.dataset.artReady = String(value); shell.dataset.artState = value ? 'ready' : 'error'; image.hidden = !value; placeholder.hidden = value;
       if (onState) onState(value);
     }
     image.addEventListener('load', function () { ready(true); });
     image.addEventListener('error', function () { ready(false); });
-    shell.appendChild(image); image.src = imageRoot + 'pet-items-v1/' + id + '.webp';
+    shell.appendChild(image); image.src = imageRoot + itemArtworkSources[id];
     return shell;
   }
   function shopItemArtwork(entry) {
     var scenes = { bg_meadow: 'meadow', bg_beach: 'beach', bg_snow: 'snow', bg_room: 'room' };
     if (Object.prototype.hasOwnProperty.call(scenes, entry.id)) {
       var scene = node('span', 'ipg-background-swatch ipg-swatch-' + scenes[entry.id]); scene.setAttribute('aria-hidden', 'true');
-      scene.appendChild(node('span', 'ipg-background-fallback', entry.emoji || '🌿')); return scene;
+      return scene;
     }
-    return itemArtwork(entry.id, entry.emoji || '🌿', 'ipg-item-icon');
+    return itemArtwork(entry.id, 'ipg-item-icon');
   }
   function setMealArtwork(food, id) {
     id = foodArtworkId(id) || '';
     if (food.dataset.foodId === id) return;
     food.dataset.foodId = id; food.dataset.artReady = 'false'; food.replaceChildren();
     if (id) {
-      var art = itemArtwork(id, id === 'apple' ? '' : item(id).emoji, 'ipg-food-art', function (ready) {
+      var art = itemArtwork(id, 'ipg-food-art', function (ready) {
         if (food.dataset.foodId === id && art && art.parentNode === food) food.dataset.artReady = String(ready);
       });
       food.appendChild(art);
@@ -1023,12 +1033,11 @@
     var img = petVisual(s);
     var careRequest = displaySpecies(s) === 'lilac' ? motionRequests[motionRequests.length - 1] : null;
     var equipped = s.decorations.equipped, decor = item(equipped);
-    var decorText = decor ? decor.emoji || '🌿' : equipped ? String(equipped).slice(0, 40) : '';
-    var decoration = decorText ? node('span', 'ipg-pet-decoration') : null;
+    var decoration = equipped ? node('span', 'ipg-pet-decoration') : null;
     if (decoration) {
       decoration.setAttribute('role', 'img');
-      if (decor && hasItemArtwork(decor.id)) decoration.appendChild(itemArtwork(decor.id, decorText, 'ipg-decoration-art'));
-      else decoration.textContent = decorText;
+      if (decor && hasItemArtwork(decor.id)) decoration.appendChild(itemArtwork(decor.id, 'ipg-decoration-art'));
+      else decoration.textContent = decor ? decor.name : String(equipped).slice(0, 40);
     }
     if (decoration) decoration.setAttribute('aria-label', '身につけているかざり：' + (decor ? decor.name : String(equipped).slice(0, 100)));
     if (!developerPreview()) {
@@ -1071,7 +1080,7 @@
       var detail = label + ' · 今日' + number(used) + '/' + cap + '回 · +' + x[3] + 'EXP' + (used >= cap ? ' · 今日はお世話済み' : '');
       b.setAttribute('aria-label', detail); b.title = detail;
       var icon = node('span', 'ipg-care-icon', egg && x[0] === 'feed' ? '☀️' : x[0] === 'feed' ? '' : x[2]); icon.setAttribute('aria-hidden', 'true');
-      if (!egg && x[0] === 'feed') icon.appendChild(itemArtwork('apple', '🍎', 'ipg-care-item-art'));
+      if (!egg && x[0] === 'feed') icon.appendChild(itemArtwork('apple', 'ipg-care-item-art'));
       b.appendChild(icon);
       if (developerPreview()) append(b, node('span', '', label), node('small', '', number(used) + '/' + cap + '回 · +' + x[3] + 'EXP'));
       care.appendChild(b);
@@ -1228,7 +1237,7 @@
       }
       if (g.elapsed >= g.nextSpawn) {
         var drop = { x: 8 + Math.random() * 84, at: g.elapsed, el: node('span', 'ipg-drop') };
-        drop.el.appendChild(itemArtwork('rice', '🍙', 'ipg-drop-art'));
+        drop.el.appendChild(itemArtwork('rice', 'ipg-drop-art'));
         drop.el.setAttribute('aria-hidden', 'true'); drop.el.style.left = drop.x + '%';
         board.appendChild(drop.el); g.drops.push(drop); g.nextSpawn = g.elapsed + 620;
       }
@@ -1268,6 +1277,7 @@
   }
   function renderWornOutfit(s, parent) {
     var worn = outfit(s), row = node('div', 'ipg-worn-outfit'), egg = displaySpecies(s) === 'lilac' && appearanceProfile(stage(s).key).family === 'egg';
+    if (worn) row.appendChild(itemArtwork(worn, 'ipg-worn-item-art'));
     row.appendChild(text(worn ? (egg ? '孵化後のお洋服：' : displaySpecies(s) === 'lilac' ? '着用中：' : '薄紫のこの着用設定：') + itemName(worn) : 'お洋服：まだ着ていません。', 'ipg-small'));
     if (egg) row.appendChild(text('お洋服は、孵化すると着られます。購入や着用の設定は、そのまま残ります。', 'ipg-small'));
     if (worn) {
@@ -1299,18 +1309,17 @@
         var caption = text(selected.name + ' · ' + (s.pet.exp < 15 ? '孵化後の姿・' : '') + (owned(s, selected) ? '購入済み・試着の見本' : '未購入・試着の見本'), 'ipg-fitting-caption');
         caption.setAttribute('aria-live', 'polite'); caption.tabIndex = -1; request.fittingCaption = caption;
         if (!w.PetLilacMotion || typeof w.PetLilacMotion.mount !== 'function') caption.textContent = 'この画面では試着の動きを表示できないため、服を描かない基準の絵を表示しています。' + (request.evolutionPath !== 'balanced' ? '育ち方の色・姿は表示できません。' : '');
-        append(fittingInfo, caption, text('試着ではコインを使いません。', 'ipg-small'), button('試着を閉じる', function () {
+        append(fittingInfo, itemArtwork(selected.id, 'ipg-fitting-item-art'), caption, text('試着ではコインを使いません。', 'ipg-small'), button('試着を閉じる', function () {
           fittingOpen = false; fittingOutfit = null; render();
         }, true));
         append(fitting, visual, fittingInfo); section.appendChild(fitting);
       }
     }
     var grid = node('div', 'ipg-clothing-grid');
-    var styles = { cloth_cream_vest: 'vest', cloth_rose_cape: 'cape', cloth_sky_overalls: 'overalls', cloth_mint_knit: 'knit', cloth_star_pajamas: 'pajamas', cloth_flower_dress: 'dress' };
     clothes.forEach(function (entry) {
       var has = !!owned(s, entry), wearing = outfit(s) === entry.id;
       var row = node('article', 'ipg-clothing-item'); row.dataset.clothing = entry.id;
-      var icon = node('span', 'ipg-clothing-swatch ipg-cloth-' + (styles[entry.id] || 'vest')); icon.setAttribute('aria-hidden', 'true');
+      var icon = itemArtwork(entry.id, 'ipg-clothing-art');
       append(row, icon, node('h4', '', entry.name), text(number(entry.price) + 'コイン', 'ipg-stage'),
         text(wearing ? '着用中' : has ? '購入済み' : '未購入', 'ipg-small'));
       var tryOn = button('試着', function () {
