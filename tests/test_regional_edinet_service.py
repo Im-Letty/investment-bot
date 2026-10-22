@@ -252,6 +252,108 @@ class ServiceTests(unittest.TestCase):
         second.get(COMPANY)
         self.assertTrue(second.wait_idle())
         self.assertEqual(second.provider.calls, [('day', '2026-10-10'), ('day', '2026-10-09')])
+    def test_one_operation_fills_an_old_400_day_hole_before_refreshing_stale_dates(self):
+        provider = FixtureProvider()
+        service = RegionalEdinetDividends(self.path, identities=(IDENTITY,), provider=provider,
+                    clock=lambda: NOW, window_days=400, max_warm_operations=1)
+        self.services.append(service)
+        service.filing_hints = {}
+        days = service._days()
+        service._snapshots = {day: snapshot(day) for day in days[:-1]}
+        stale_day = days[1]
+        service._snapshots[stale_day]['fetched_at'] = NOW - 86401
+        before = deepcopy(service._snapshots)
+        self.assertEqual(service._coverage()['missing_days'], 1)
+        self.assertEqual(service._coverage()['stale_days'], 1)
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls, [('day', days[-1])])
+        result = service.get(COMPANY)
+        self.assertEqual(result['coverage']['indexed_days'], 400)
+        self.assertEqual(result['coverage']['missing_days'], 0)
+        self.assertTrue(result['coverage']['complete'])
+        self.assertEqual(result['coverage']['stale_days'], 1)
+        self.assertEqual(result['warm_progress']['operations'], 1)
+        self.assertEqual(result['warm_progress']['status'], 'complete')
+        self.assertEqual(service._snapshots[stale_day], before[stale_day])
+        self.assertTrue(all(service._snapshots[day] == row for day, row in before.items()))
+        self.assertEqual(result['data'], {})
+        self.assertEqual(result['persistence']['local_status'], 'saved')
+
+    def test_missing_dates_keep_newest_to_oldest_order_before_the_stale_pass(self):
+        service = self.service(FixtureProvider())
+        service.filing_hints = {}
+        service._records['6147'] = {'company': COMPANY, 'status': 'pending', 'invalidated': False}
+        service._snapshots = {'2026-10-11': snapshot('2026-10-11')}
+        job = {'started_at': NOW, 'visited': set()}
+        self.assertEqual(service._action('6147', job), ('day', '2026-10-10'))
+        job['visited'].add('2026-10-10')
+        self.assertEqual(service._action('6147', job), ('day', '2026-10-09'))
+        job['visited'].add('2026-10-09')
+        self.assertIsNone(service._action('6147', job))
+
+    def test_today_observation_still_precedes_an_older_missing_day(self):
+        provider = FixtureProvider()
+        service = self.service(provider, max_warm_operations=1)
+        service.filing_hints = {}
+        service._snapshots = {day: snapshot(day) for day in ('2026-10-11', '2026-10-10')}
+        service._snapshots['2026-10-11']['fetched_at'] = NOW - 3601
+        service._snapshots['2026-10-10']['fetched_at'] = NOW - 86401
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls, [('day', '2026-10-11')])
+        coverage = service.get(COMPANY)['coverage']
+        self.assertEqual(coverage['missing_days'], 1)
+        self.assertEqual(coverage['stale_days'], 1)
+        self.assertFalse(coverage['complete'])
+
+    def test_exact_filing_hint_still_precedes_an_unrelated_missing_date(self):
+        provider = FixtureProvider()
+        service = self.service(provider, filing_hint_path=self.filing_hint(), max_warm_operations=1)
+        service._snapshots = {day: snapshot(day) for day in ('2026-10-11', '2026-10-09')}
+        service._snapshots['2026-10-09']['fetched_at'] = NOW - 86401
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls, [('day', '2026-10-09')])
+        self.assertNotIn('2026-10-10', service._snapshots)
+        self.assertEqual(service.get(COMPANY)['coverage']['missing_days'], 1)
+
+    def test_journal_restore_today_and_exact_source_dates_keep_priority_over_general_holes(self):
+        class PendingJournalStore:
+            def load_facts(self, *args, **kwargs):
+                raise AssertionError('This selection-only fixture must not read storage')
+        service = self.service(FixtureProvider(), checkpoint_store=PendingJournalStore(),
+                               filing_hint_path=self.filing_hint())
+        service._records['6147'] = {'company': COMPANY, 'status': 'pending', 'invalidated': False}
+        service._journal_pending_dates['6147'] = ['2026-10-10']
+        service._snapshots = {day: snapshot(day) for day in ('2026-10-11', '2026-10-10')}
+        for row in service._snapshots.values(): row['fetched_at'] = NOW - 1
+        job = {'started_at': NOW, 'visited': set()}
+        self.assertEqual(service._action('6147', job), ('day', '2026-10-11'))
+        job['visited'].add('2026-10-11')
+        service._snapshots['2026-10-11']['fetched_at'] = NOW
+        self.assertEqual(service._action('6147', job), ('day', '2026-10-10'))
+        job['visited'].add('2026-10-10')
+        self.assertEqual(service._action('6147', job), ('day', '2026-10-09'))
+        self.assertEqual(service.provider.calls, [])
+
+    def test_failed_hole_is_not_repeated_in_the_same_job_and_stale_refresh_can_continue(self):
+        provider = FixtureProvider(fail_day='2026-10-09')
+        service = self.service(provider, max_warm_operations=3)
+        service.filing_hints = {}
+        service._snapshots = {day: snapshot(day) for day in ('2026-10-11', '2026-10-10')}
+        service._snapshots['2026-10-10']['fetched_at'] = NOW - 86401
+        service.get(COMPANY); self.assertTrue(service.wait_idle())
+        self.assertEqual(provider.calls, [('day', '2026-10-09'), ('day', '2026-10-10')])
+        result = service.get(COMPANY)
+        self.assertEqual(result['coverage']['missing_days'], 1)
+        self.assertEqual(result['coverage']['stale_days'], 0)
+        self.assertEqual(result['warm_progress']['operations'], 2)
+        self.assertEqual(result['warm_progress']['status'], 'interrupted')
+        self.assertEqual(result['status'], 'fetch_error')
+        self.assertNotIn('2026-10-09', service._snapshots)
+        self.assertFalse(result['coverage']['complete'])
+        self.assertFalse(result['refreshing'])
+        self.assertEqual(provider.calls.count(('day', '2026-10-09')), 1)
+        self.assertEqual(len(provider.calls), 2, 'ordinary polling keeps the existing resume wait')
+
     def test_identity_mismatch_is_invalidated_and_never_queued(self):
         provider = FixtureProvider()
         service = self.service(provider)

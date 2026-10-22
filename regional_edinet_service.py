@@ -636,10 +636,15 @@ class RegionalEdinetDividends:
             if ((not fact or fact['doc_id'] != descriptor['docID'] or self.clock() - fact['fetched_at'] >= 7 * 86400 or needs_hash)
                     and not attempted):
                 return ('filing', descriptor)
+        # Complete missing dates before revisiting older observations. Otherwise
+        # stale early dates can repeatedly consume a bounded job before its holes.
+        for day in days:
+            if day not in job['visited'] and day not in self._snapshots:
+                return ('day', day)
         for day in days:
             snapshot = self._snapshots.get(day)
             threshold = job['started_at'] - (3600 if day == today else 86400)
-            if day not in job['visited'] and (not snapshot or snapshot['fetched_at'] < threshold):
+            if day not in job['visited'] and snapshot and snapshot['fetched_at'] < threshold:
                 return ('day', day)
         if not record.get('fact') and not record.get('invalidated'):
             if self._coverage()['complete']:
