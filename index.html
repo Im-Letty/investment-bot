@@ -4262,7 +4262,7 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
 <link rel="stylesheet" href="/static/pet-game.css?v=20261022-room-layout1">
-<link rel="stylesheet" href="/static/pet-village.css?v=20261022-cafe-village2">
+<link rel="stylesheet" href="/static/pet-village.css?v=20261023-connected-village1">
 <script defer src="/static/pet-cafe.js?v=20261022-cafe-village1"></script>
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
@@ -4358,7 +4358,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
     var required=loadRequired('/static/pet-game-core.js?v=20261022-cafe-village1',function(){return !!window.PetGameCore;}).then(function(){
-      return loadRequired('/static/pet-game.js?v=20261022-cafe-village3',apiReady);
+      return loadRequired('/static/pet-game.js?v=20261023-connected-village1',apiReady);
     });
     var motion=loadScript('/static/pet-lilac-motion.js?v=20261022-crisp-blink1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     var room=loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});

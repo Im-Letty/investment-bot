@@ -2872,3 +2872,43 @@ test('village facility and flora edges clamp to their distinct safe bands withou
   const expected=Core.defaultVillageLayout();expected.items.forEach(row=>{row.x=85;row.y=bounds(row.id)[1];});
   assert.deepEqual(f.saved(),{...before,villageLayout:expected,revision:before.revision+1});assert.equal(f.writes.length,writes+1);
 });
+
+test('village connected roads stay decorative while all six original entrances and browsing remain free',async()=>{
+  const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
+  const roads=f.host.querySelector('.ipg-village-roads');assert.ok(roads);
+  assert.equal(roads.getAttribute('aria-hidden'),'true');assert.equal(roads.getAttribute('focusable'),'false');
+  assert.deepEqual(roads.querySelectorAll('.ipg-village-lane').map(lane=>lane.dataset.pathFor).sort(),['cafe','flowers','home','playground','shop']);
+  assert.equal(roads.querySelectorAll('button').length,0);
+  const entrances=f.host.querySelectorAll('.ipg-village-place');assert.equal(entrances.length,6);
+  for(const spec of Core.villagePlaces){
+    const entrance=villagePlace(f,spec.id);assert.equal(entrance.tagName,'BUTTON');
+    assert.ok(entrance.getAttribute('aria-label').includes(spec.name));assert.equal(entrance.disabled,false);
+  }
+  await f.click(villagePlace(f,'tree'));await f.click(villagePlace(f,'flowers'));
+  await f.click(villagePlace(f,'home'));await f.click(f.focusButton('tab-village'));
+  assert.ok(f.host.querySelector('.ipg-village-roads'));assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+});
+
+test('village roads follow visible clamped entrances and draft edits without stale controls changing a newer world',async()=>{
+  const f=await villageFixture({setup:async store=>{
+    const layout=Core.defaultVillageLayout();layout.items.forEach((row,i)=>{row.x=i%2?100:0;row.y=i%2?100:0;});
+    assert.equal((await store.dispatch({type:'saveVillageLayout',layout,expectedRevision:store.getState().revision})).ok,true);
+  }}),before=f.saved(),writes=f.writes.length;
+  function lane(id){return f.host.querySelectorAll('.ipg-village-lane').find(path=>path.dataset.pathFor===id);}
+  function endpoint(id){const coordinates=lane(id).getAttribute('d').match(/-?\d+(?:\.\d+)?/g).map(Number);return coordinates.slice(-2);}
+  for(const row of before.villageLayout.items.filter(row=>row.id!=='tree')){
+    const position=villagePositionInView(f,row.id);assert.deepEqual(endpoint(row.id),[position.x*10,(position.y+4)*10]);
+  }
+  await f.click(f.focusButton('village-edit'));await f.click(villagePlace(f,'cafe'));
+  await setVillageAxis(f,'x',63);await setVillageAxis(f,'y',41);assert.deepEqual(endpoint('cafe'),[630,450]);
+  await f.click(villagePlace(f,'flowers'));await setVillageAxis(f,'x',-999);await setVillageAxis(f,'y',999);
+  assert.deepEqual(endpoint('flowers'),[150,880]);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+  const oldSlider=f.focusButton('village-x');await f.ui.close();await f.ui.open();
+  await f.click(f.focusButton('village-edit'));await setVillageAxis(f,'x',56);await setVillageAxis(f,'y',64);
+  const currentRoads=f.host.querySelectorAll('.ipg-village-lane').map(path=>path.getAttribute('d'));
+  oldSlider.value='85';oldSlider.emit('input');await flush();
+  assert.deepEqual(f.host.querySelectorAll('.ipg-village-lane').map(path=>path.getAttribute('d')),currentRoads);
+  assert.deepEqual(endpoint('home'),[560,680]);await f.click(f.button('やめる'));
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+  assert.deepEqual(endpoint('home'),[150,260]);
+});

@@ -5,35 +5,41 @@
 .ipg-village-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:14px}
 .ipg-village-heading h3{margin-bottom:4px}
 .ipg-village-heading p{margin:0}
+.ipg-village-viewport{max-width:100%;margin:16px 0 10px;border-radius:26px;overflow:auto;overscroll-behavior-x:contain;scrollbar-width:thin;scrollbar-color:var(--ipg-line) transparent;-webkit-overflow-scrolling:touch}
+.ipg-village-viewport:focus-visible{outline:2px solid var(--ipg-green);outline-offset:4px}
 .ipg-village-map{
-  --village-grass:color-mix(in srgb,var(--ipg-green) 15%,var(--ipg-paper));
-  --village-shrub:color-mix(in srgb,var(--ipg-green) 24%,var(--ipg-paper));
-  --village-path:color-mix(in srgb,var(--ipg-line) 38%,var(--ipg-paper));
-  position:relative;isolation:isolate;width:100%;height:calc(380px * var(--kn-type-scale,1));min-height:360px;margin:16px 0 20px;
-  border:1px solid var(--ipg-line);border-radius:36px;overflow:hidden;
-  background:radial-gradient(ellipse at 14% 92%,var(--village-shrub) 0 9%,transparent 9.5%),radial-gradient(ellipse at 94% 6%,var(--village-shrub) 0 12%,transparent 12.5%),radial-gradient(ellipse at 47% 39%,var(--ipg-paper) 0 12%,transparent 36%),var(--village-grass);
+  position:relative;isolation:isolate;width:100%;min-width:760px;aspect-ratio:3/2;
+  overflow:hidden;border-radius:26px;background:#a6b56e url('/static/pet-village-art/terrain-v2.webp') center/100% 100% no-repeat;
 }
-.ipg-village-map:before,.ipg-village-map:after{content:'';position:absolute;pointer-events:none;z-index:-1}
-.ipg-village-map:before{inset:12px;border:1px dashed color-mix(in srgb,var(--ipg-green) 16%,transparent);border-radius:28px}
-.ipg-village-map:after{left:8%;bottom:9%;width:18%;height:24px;border-radius:50%;background:color-mix(in srgb,var(--ipg-green) 13%,transparent);box-shadow:430px -230px 0 color-mix(in srgb,var(--ipg-green) 9%,transparent)}
-.ipg-village-path{position:absolute;left:22%;top:23%;width:50%;height:42%;border:24px solid var(--village-path);border-radius:48%;pointer-events:none;z-index:-1}
-.ipg-village-path:before{content:'';position:absolute;left:46%;top:75%;width:22px;height:125%;transform:rotate(-7deg);border-radius:50%;background:var(--village-path)}
+.ipg-village-roads,.ipg-village-scenery{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.ipg-village-roads{z-index:0;overflow:visible}
+.ipg-village-roads path{fill:none;stroke-linecap:round;stroke-linejoin:round;filter:url(#ipg-village-path-texture)}
+.ipg-village-lane-edge{stroke:#b59f70;stroke-width:48;opacity:.64}
+.ipg-village-lane{stroke:#e4cfa6;stroke-width:40}
+.ipg-village-square{position:absolute;left:48%;top:52%;width:24%;height:22%;transform:translate(-50%,-50%);border:8px solid #c1b28a;border-radius:50%;background:radial-gradient(ellipse,#e2d7bb 0 56%,transparent 57%),repeating-conic-gradient(#d6c9a8 0 12deg,#c4b894 12deg 14deg);box-shadow:0 2px 1px #68773c25;z-index:1;pointer-events:none}
+.ipg-village-scenery{z-index:2}
+.ipg-village-scenery img{position:absolute;object-fit:contain;transform:translate(-50%,-75%);pointer-events:none;filter:drop-shadow(1px 3px 2px #384c3025)}
+.ipg-village-lantern{width:4.5%;height:10%}
+.ipg-village-garden{width:11%;height:12%}
 .ipg .ipg-village-place{
-  position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px;
-  width:140px;max-width:28%;min-height:44px;margin:0;padding:4px 3px;border:0;border-radius:20px;
-  transform:translate(-50%,-50%);background:transparent;color:var(--ipg-ink);font:inherit;line-height:1.45;
-  cursor:pointer;touch-action:manipulation;z-index:1;
+  position:absolute;display:block;width:17%;min-width:44px;min-height:44px;aspect-ratio:1;margin:0;padding:0;border:0;border-radius:22%;
+  transform:translate(-50%,-75%);background:transparent;color:#34442f;font:inherit;line-height:1.4;
+  cursor:pointer;touch-action:manipulation;
 }
-.ipg .ipg-village-place:hover{background:color-mix(in srgb,var(--ipg-paper) 38%,transparent)}
-.ipg .ipg-village-place[aria-pressed="true"]{background:color-mix(in srgb,var(--ipg-paper) 78%,transparent);outline:2px solid var(--ipg-green);outline-offset:2px}
+.ipg .ipg-village-place:hover{background:#fffdf01c}
+.ipg .ipg-village-place:focus-visible,.ipg .ipg-village-place[aria-pressed="true"]{background:#fffdf03d;outline:2px solid #fdf8df;outline-offset:3px;box-shadow:0 0 0 5px #607765}
 .ipg .ipg-village-place:disabled{cursor:default;opacity:1}
-.ipg-village-art{display:block;width:90px;max-width:100%;height:90px;background-repeat:no-repeat;background-size:contain;background-position:center bottom;pointer-events:none;filter:drop-shadow(0 6px 3px #28382312)}
+.ipg-village-art{display:block;position:relative;width:100%;height:100%;pointer-events:none;filter:drop-shadow(2px 5px 2px #384c302b)}
 .ipg-village-art img{display:block;width:100%;height:100%;object-fit:contain;pointer-events:none}
 .ipg-village-art[data-unavailable="true"]:before{content:'';display:block;position:absolute;inset:20%;border-radius:22px 22px 9px 9px;background:var(--ipg-line);opacity:.5}
-.ipg-village-place>strong{max-width:100%;padding:3px 12px;border:1px solid color-mix(in srgb,var(--ipg-line) 65%,transparent);border-radius:999px;background:var(--ipg-paper);font-size:.9em;font-weight:500;overflow-wrap:anywhere}
-.ipg-village-place>.ipg-small{max-width:100%;color:var(--ipg-ink);font-size:.78em;line-height:1.4;background:var(--ipg-paper);padding:2px 7px;border-radius:6px}
-.ipg-village-place[data-place="tree"],.ipg-village-place[data-place="flowers"]{width:100px;max-width:24%}
-.ipg-village-place[data-place="tree"] .ipg-village-art,.ipg-village-place[data-place="flowers"] .ipg-village-art{width:78px;height:78px}
+.ipg-village-place>strong{position:absolute;left:50%;top:92%;transform:translateX(-50%);width:max-content;max-width:135%;padding:4px 12px;border:0;border-radius:999px;background:#fffceded;color:#34442f;box-shadow:0 2px 3px #4f5f3025;font-size:14px;font-weight:500;overflow-wrap:anywhere}
+.ipg-village-place>.ipg-small{position:absolute;left:50%;top:calc(92% + 32px);transform:translateX(-50%);width:max-content;max-width:150%;color:#34442f;font-size:12px;line-height:1.4;background:#fffceded;padding:3px 8px;border-radius:6px;opacity:0;pointer-events:none}
+.ipg-village-place:hover>.ipg-small,.ipg-village-place:focus-visible>.ipg-small{opacity:1}
+.ipg-village-place[data-place="tree"]{width:14%}
+.ipg-village-place[data-place="flowers"]{width:13%}
+.ipg-village-place[data-place="tree"]>strong,.ipg-village-place[data-place="flowers"]>strong{opacity:0}
+.ipg-village-place[data-place="tree"]:is(:hover,:focus-visible,[aria-pressed="true"])>strong,.ipg-village-place[data-place="flowers"]:is(:hover,:focus-visible,[aria-pressed="true"])>strong{opacity:1}
+.ipg-village-hint{margin:0 0 16px!important}
 .ipg-village-editor{display:grid;gap:14px;padding:18px;border:1px solid var(--ipg-line);border-radius:16px;background:var(--ipg-paper)}
 .ipg-village-editor h4,.ipg-village-editor p{margin:0}
 .ipg-village-editor select{max-width:360px}
@@ -68,20 +74,10 @@
 .ipg-cafe-feedback{min-height:3.4em;margin-top:14px}
 .ipg-cafe-cancel{margin-top:6px}
 @media(max-width:640px){
-  .ipg-village-map{height:calc(520px * var(--kn-type-scale,1));border-radius:26px}
-  .ipg .ipg-village-place{width:112px;max-width:30%}
-  .ipg-village-art{width:96px;height:96px}
-  .ipg-village-place[data-place="tree"],.ipg-village-place[data-place="flowers"]{width:76px;max-width:25%}
-  .ipg-village-place[data-place="tree"] .ipg-village-art,.ipg-village-place[data-place="flowers"] .ipg-village-art{width:64px;height:64px}
+  .ipg-village-viewport,.ipg-village-map{border-radius:20px}
 }
 @media(max-width:480px){
-  .ipg-village-map{height:calc(620px * var(--kn-type-scale,1));margin-top:12px;border-radius:22px}
-  .ipg .ipg-village-place{width:94px;max-width:30%;gap:3px;padding:3px 1px}
-  .ipg-village-art{width:76px;height:80px}
-  .ipg-village-place>strong{font-size:.83em;padding:3px 8px}
-  .ipg-village-place>.ipg-small{font-size:max(11px,.76em);padding:2px 5px}
-  .ipg-village-place[data-place="tree"],.ipg-village-place[data-place="flowers"]{width:70px;max-width:26%}
-  .ipg-village-place[data-place="tree"] .ipg-village-art,.ipg-village-place[data-place="flowers"] .ipg-village-art{width:40px;height:40px}
+  .ipg-village-viewport{margin-top:12px}
   .ipg-village-editor{padding:14px;gap:12px}
   .ipg-village-controls{align-items:stretch;flex-direction:column}
   .ipg-village-controls .ipg-row{justify-content:flex-start}

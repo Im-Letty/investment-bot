@@ -1361,6 +1361,38 @@
   }
   function villagePosition(value, low, high) { return Math.max(low, Math.min(high, Number(value) || low)); }
   function villageVerticalBounds(id) { return id === 'tree' || id === 'flowers' ? [16, 84] : [22, 78]; }
+  function villageScenePosition(placed) {
+    var bounds = villageVerticalBounds(placed.id);
+    return { x: villagePosition(placed.x, 15, 85), y: villagePosition(placed.y, bounds[0], bounds[1]) };
+  }
+  function villageSvg(tag, cls) {
+    var element = d.createElementNS ? d.createElementNS('http://www.w3.org/2000/svg', tag) : node(tag, cls);
+    if (cls) element.setAttribute('class', cls);
+    return element;
+  }
+  function drawVillageRoads(map, layout) {
+    var roads = map.querySelector('.ipg-village-roads');
+    if (!roads) {
+      roads = villageSvg('svg', 'ipg-village-roads');
+      roads.setAttribute('viewBox', '0 0 1000 1000'); roads.setAttribute('preserveAspectRatio', 'none');
+      roads.setAttribute('aria-hidden', 'true'); roads.setAttribute('focusable', 'false');
+      var defs = villageSvg('defs'), filter = villageSvg('filter'); filter.setAttribute('id', 'ipg-village-path-texture');
+      var grain = villageSvg('feTurbulence'); grain.setAttribute('type', 'fractalNoise'); grain.setAttribute('baseFrequency', '.035'); grain.setAttribute('numOctaves', '3'); grain.setAttribute('seed', '9'); grain.setAttribute('result', 'grain');
+      var roughen = villageSvg('feDisplacementMap'); roughen.setAttribute('in', 'SourceGraphic'); roughen.setAttribute('in2', 'grain'); roughen.setAttribute('scale', '4');
+      append(filter, grain, roughen); defs.appendChild(filter); roads.appendChild(defs); map.appendChild(roads);
+    }
+    layout.items.forEach(function (placed) {
+      if (placed.id === 'tree') return;
+      var point = villageScenePosition(placed), x = point.x * 10, y = (point.y + 4) * 10;
+      // All entrances share the square; doors keep their own short, curved lane.
+      var curve = 'M 480 540 C ' + x + ' 540 ' + x + ' ' + ((540 + y) / 2) + ' ' + x + ' ' + y;
+      ['ipg-village-lane-edge', 'ipg-village-lane'].forEach(function (cls) {
+        var path = Array.prototype.find.call(roads.querySelectorAll('.' + cls), function (row) { return row.dataset.pathFor === placed.id; });
+        if (!path) { path = villageSvg('path', cls); path.dataset.pathFor = placed.id; roads.appendChild(path); }
+        path.setAttribute('d', curve);
+      });
+    });
+  }
   function villageDestination(id) {
     if (busy || suspended || villageEdit || roomEdit || game) return;
     if (id === 'home') tab = 'care';
@@ -1394,10 +1426,23 @@
     var editing = villageEdit, layout = editing ? editing.draft : core().getVillageLayout(s);
     var village = card('', 'ipg-village' + (editing ? ' ipg-village-editor' : ''));
     function editorActive() { return !!editing && villageEdit === editing && !busy && !suspended && village.isConnected; }
-    append(village, node('h3', '', editing ? '村の配置を変える' : '今日は、どこへ行こう？'));
+    append(village, node('h3', '', editing ? '村の配置を変える' : 'カフェとお店の村'));
+    var viewport = node('div', 'ipg-village-viewport'); viewport.tabIndex = 0;
+    viewport.setAttribute('role', 'region'); viewport.setAttribute('aria-label', '村の地図。小さい画面では横に動かして見渡せます');
     var map = node('div', 'ipg-village-map'); map.setAttribute('role', 'group'); map.setAttribute('aria-label', 'カフェとお店の村');
-    map.appendChild(node('span', 'ipg-village-path'));
-    var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-items-v1/tree.webp', flowers: 'pet-items-v1/flower.webp' };
+    var square = node('span', 'ipg-village-square'); square.setAttribute('aria-hidden', 'true'); map.appendChild(square);
+    drawVillageRoads(map, layout);
+    var scenery = node('div', 'ipg-village-scenery'); scenery.setAttribute('aria-hidden', 'true');
+    [[29, 35], [65, 35], [32, 74], [65, 78]].forEach(function (point) {
+      var lamp = node('img', 'ipg-village-lantern'); lamp.src = imageRoot + 'pet-items-v1/lantern.webp'; lamp.alt = ''; lamp.draggable = false;
+      lamp.style.left = point[0] + '%'; lamp.style.top = point[1] + '%'; scenery.appendChild(lamp);
+    });
+    [[32, 25], [62, 29], [33, 67]].forEach(function (point) {
+      var garden = node('img', 'ipg-village-garden'); garden.src = imageRoot + 'pet-village-art/flowerbed-v2.webp'; garden.alt = ''; garden.draggable = false;
+      garden.style.left = point[0] + '%'; garden.style.top = point[1] + '%'; scenery.appendChild(garden);
+    });
+    map.appendChild(scenery);
+    var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-village-art/tree-v2.webp', flowers: 'pet-village-art/flowerbed-v2.webp' };
     var captions = { home: 'お世話・おへや', cafe: 'おやつづくり', shop: 'お店・もちもの', playground: 'おにぎりキャッチ', tree: '木かげ', flowers: '花だん' };
     layout.items.forEach(function (placed) {
       var spec = core().villagePlaces.filter(function (row) { return row.id === placed.id; })[0];
@@ -1407,8 +1452,8 @@
       }, true, s.readOnly && !!editing);
       place.className = 'ipg-village-place' + (editing && editing.selected === placed.id ? ' is-selected' : '');
       place.dataset.place = placed.id; place.dataset.focusKey = 'village-place-' + placed.id;
-      var verticalBounds = villageVerticalBounds(placed.id);
-      place.style.left = villagePosition(placed.x, 15, 85) + '%'; place.style.top = villagePosition(placed.y, verticalBounds[0], verticalBounds[1]) + '%';
+      var point = villageScenePosition(placed);
+      place.style.left = point.x + '%'; place.style.top = point.y + '%'; place.style.zIndex = String(Math.round(point.y));
       if (editing) place.setAttribute('aria-pressed', String(editing.selected === placed.id));
       place.setAttribute('aria-label', spec.name + (editing ? 'を配置する' : ' · ' + captions[placed.id]));
       var art = node('span', 'ipg-village-art'); art.setAttribute('aria-hidden', 'true');
@@ -1418,7 +1463,8 @@
       if (placed.id !== 'tree' && placed.id !== 'flowers') place.appendChild(node('span', 'ipg-small', captions[placed.id]));
       map.appendChild(place);
     });
-    village.appendChild(map);
+    viewport.appendChild(map); village.appendChild(viewport);
+    village.appendChild(text('建物をタップして入れます。小さい画面では、指で横に動かして村を見渡せます。', 'ipg-small ipg-village-hint'));
     if (editing) {
       var controls = node('div', 'ipg-village-controls'), selected = layout.items.filter(function (row) { return row.id === editing.selected; })[0];
       controls.appendChild(text('動かす建物や木を選び、位置を調節してください。配置の変更にコインは使いません。', 'ipg-small'));
@@ -1433,6 +1479,8 @@
             if (!editorActive()) return;
             selected[axis[0]] = villagePosition(slider.value, axis[2], axis[3]); caption.textContent = axis[1] + ' ' + selected[axis[0]] + '%';
             map.querySelectorAll('.ipg-village-place').forEach(function (place) { if (place.dataset.place === selected.id) place.style[axis[0] === 'x' ? 'left' : 'top'] = selected[axis[0]] + '%'; });
+            map.querySelectorAll('.ipg-village-place').forEach(function (place) { if (place.dataset.place === selected.id) place.style.zIndex = String(Math.round(villageScenePosition(selected).y)); });
+            drawVillageRoads(map, layout);
           });
           append(fields, append(node('label', 'ipg-field'), caption, slider));
         });
