@@ -31,6 +31,8 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261018-advice1">
   <script defer src="/static/portfolio-advice.js?v=20261018-advice1"></script>
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261022-portfolio1">
+  <script defer src="/static/portfolio-overview.js?v=20261022-portfolio1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -334,22 +336,41 @@ body{padding-bottom:24px;}
 </section>
 
 </div>
-<div class="tab-content" id="tab-assets">
+<div class="tab-content po-overview" id="tab-assets" data-po-ready="false">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
-  <section class="kk-asset-summary" aria-labelledby="kkAssetTotalLabel">
-    <p id="kkAssetTotalLabel" class="kk-layout-note" data-i18n="kk_total_asset">総資産</p>
-    <p id="totalAssetVal" class="kk-asset-total">¥0</p>
-    <details class="kk-asset-info" id="kkAssetInfo">
-      <summary aria-label="資産額の説明" data-kk-layout-label="kk_assets_info"><span class="kk-asset-info-symbol" aria-hidden="true">i</span></summary>
-      <div class="kk-asset-info-content">
-        <p id="totalAssetChange" class="kk-layout-note"></p>
-        <p class="kk-layout-note" data-i18n="kk_assets_manual_note">登録した評価額の合計です。価格の自動更新は行いません。</p>
-      </div>
-    </details>
+  <p id="poStatus" class="po-status" role="status" aria-live="polite">資産の非公開接続を確認しています…</p>
+  <button type="button" class="po-button" id="poRetry">再読み込み</button>
+  <section class="kk-asset-summary po-hero" aria-labelledby="kkAssetTotalLabel">
+    <div class="po-hero-head"><div class="po-label-row">
+      <p id="kkAssetTotalLabel" class="kk-layout-note" data-i18n="kk_total_asset">総資産</p>
+      <details class="kk-asset-info" id="kkAssetInfo">
+        <summary aria-label="資産額の説明" data-kk-layout-label="kk_assets_info"><span class="kk-asset-info-symbol" aria-hidden="true">i</span></summary>
+        <div class="kk-asset-info-content"><p id="totalAssetChange" class="kk-layout-note"></p><p class="kk-layout-note" data-i18n="kk_assets_manual_note">登録した評価額の合計です。価格の自動更新は行いません。</p></div>
+      </details>
+    </div><button type="button" class="po-button po-button-primary" data-po-add disabled>＋ 資産を追加</button></div>
+    <p id="totalAssetVal" class="kk-asset-total">—</p>
+    <p id="poAsOf" class="po-asof"></p>
+    <div class="po-profit"><span class="po-profit-label">投資分の評価損益</span><strong id="poProfitValue" class="po-profit-value">—</strong><p id="poProfitNote" class="po-profit-note"></p></div>
   </section>
-  <div class="card"><div class="card-title" data-i18n="kk_card_register_asset">🏦 資産を登録</div><input class="inp" id="ast-name" type="text" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"><select class="inp" id="ast-cat"><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select><input class="inp" id="ast-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"><button class="submit-btn ast" onclick="addRecord('ast')" data-i18n="kk_btn_register_asset">＋ 資産を登録</button></div>
-  <div class="card"><div class="card-title" data-i18n="kk_card_asset_pie">🥧 資産配分グラフ</div><div style="display:flex;gap:16px;align-items:center"><div style="flex:1;max-width:160px"><canvas id="assetPieChart"></canvas></div><div id="asset-legend" style="flex:1;font-size:12px"></div></div></div>
-  <div class="card"><div class="card-title" data-i18n="kk_card_asset_list">📋 資産一覧</div><div id="asset-list-el"></div></div>
+  <form class="po-panel" id="poEditor" hidden novalidate>
+    <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
+    <fieldset class="po-fieldset" id="poFieldset" disabled><div class="po-fields">
+      <label class="po-field po-field-wide" for="ast-name"><span>資産の名前</span><input class="inp" id="ast-name" type="text" maxlength="80" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"></label>
+      <label class="po-field" for="ast-cat"><span>資産の種類</span><select class="inp" id="ast-cat"><option value="">未分類</option><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select></label>
+      <label class="po-field" for="ast-amount"><span>評価額（円）</span><input class="inp" id="ast-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"></label>
+      <label class="po-field" for="ast-cost"><span>取得額（円・任意）</span><input class="inp" id="ast-cost" type="text" inputmode="decimal" placeholder="未入力なら損益は —"></label>
+      <label class="po-field" for="ast-date"><span>評価額の基準日（任意）</span><input class="inp" id="ast-date" type="date"></label>
+      <label class="po-field" for="ast-account"><span>口座区分（任意）</span><select class="inp" id="ast-account"><option value="">未指定</option><option value="NISA">NISA</option><option value="特定口座">特定口座</option><option value="一般口座">一般口座</option></select></label>
+      <label class="po-field" for="ast-institution"><span>金融機関（任意）</span><input class="inp" id="ast-institution" type="text" maxlength="80"></label>
+    </div><p class="po-muted" style="margin-top:12px">NISAは口座区分です。現金・預金は投資分の評価損益に含めません。</p>
+    <p id="poEditorError" class="po-error" role="alert"></p>
+    <div class="po-actions"><button type="button" class="po-button" id="poCancelButton">キャンセル</button><button type="submit" class="po-button po-button-primary" id="poSaveButton">追加する</button></div></fieldset>
+  </form>
+  <div class="po-columns">
+    <section class="po-panel"><div class="po-heading"><h3>資産の内訳</h3></div><p id="poAllocationNote" class="po-muted"></p><div id="poAllocationStack" class="po-stack" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
+    <section class="po-panel"><div class="po-heading"><h3>資産目標</h3><button type="button" id="poGoalEdit" class="po-button">目標を編集</button></div><div id="poGoalBody"></div></section>
+  </div>
+  <section class="po-panel po-holdings"><div class="po-heading"><h3>保有資産</h3><button type="button" class="po-button" data-po-add disabled>＋ 追加</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">各資産を押すと、評価額や口座区分を編集できます。</p></section>
 </div>
 <div class="tab-content" id="tab-records">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">記録一覧</h2>
@@ -1644,6 +1665,7 @@ function kkRecordDateControl(row,index){
   return '<label class="kk-record-date" for="kkRecordDate-'+index+'"><span>'+kkT('kk_entry_date')+'</span><input id="kkRecordDate-'+index+'" type="date" value="'+date+'" min="'+month+'-01" max="'+month+'-'+String(kkTrendMonthDays(_year,_month)).padStart(2,'0')+'" data-kk-record-date="'+index+'" data-kk-record-ref="'+kkHtmlText(row._kkRef)+'" oninput="kkClearEntryError(this)" onchange="kkRecordDateEdited(this)"></label>';
 }
 function addRecord(type){
+  if(type==='ast'&&typeof kkPortfolioSaveAsset==='function')return kkPortfolioSaveAsset();
   if(['inc','exp','inv','ast'].indexOf(type)===-1)return;
   var entry=kkReadEntry(type);if(!entry)return;
   var cat=document.getElementById(type+'-cat').value;
@@ -1714,7 +1736,7 @@ function kkTrendRender(){
 function renderAll(){
   kkEntryDateSync();
   kkTrendRender();
-  var data=getData(),assets=getAssets();kkLedgerShowNotice(data._kkUnreadable);
+  var data=getData(),assets=[];try{assets=getAssets();if(!Array.isArray(assets)||assets.some(function(a){return !a||typeof a.amount!=='number'||!Number.isFinite(a.amount);}))assets=[];}catch(ignore){}kkLedgerShowNotice(data._kkUnreadable);
   var lbl=_year+kkT("kk_js_year")+_month+kkT("kk_js_month");
   ['monthLabel2','monthLabel3','monthLabel4','monthLabelGraph'].forEach(function(id){var el=document.getElementById(id);if(el)el.textContent=lbl;});
   var totalInc=0,totalExp=0,totalInv=0;
@@ -1725,8 +1747,8 @@ function renderAll(){
   var db=document.getElementById('d-balance');if(db){db.textContent=data._kkUnreadable?'—':fmt(balance);db.className='sum-num '+(balance>=0?'teal':'red');}
   var dv=document.getElementById('d-invest');if(dv)dv.textContent=data._kkUnreadable?'—':fmt(totalInv);
   var totalAst=assets.reduce(function(s,e){return s+e.amount;},0);
-  var tv=document.getElementById('totalAssetVal');if(tv)tv.textContent=fmt(totalAst);
-  var tc=document.getElementById('totalAssetChange');if(tc)tc.textContent=assets.length?kkT("kk_asset_count").replace("{count}",String(assets.length)):kkT("kk_pls_register_asset");
+  var tv=document.getElementById('totalAssetVal');if(tv&&typeof KNPortfolioOverview==='undefined'&&!document.getElementById('poStatus'))tv.textContent=fmt(totalAst);
+  var tc=document.getElementById('totalAssetChange');if(tc&&typeof KNPortfolioOverview==='undefined'&&!document.getElementById('poStatus'))tc.textContent=assets.length?kkT("kk_asset_count").replace("{count}",String(assets.length)):kkT("kk_pls_register_asset");
   var months=[],incArr=[],expArr=[],invArr=[];
   for(var i=5;i>=0;i--){var m=_month-i,y=_year;if(m<1){m+=12;y--;}months.push((m<10?'0'+m:m)+kkT("kk_js_month"));var d=getData(y,m);var a=0,b=0,c=0;d.forEach(function(e){if(e.type==='inc')a+=e.amount;else if(e.type==='exp')b+=e.amount;else if(e.type==='inv')c+=e.amount;});incArr.push(d._kkUnreadable?null:a);expArr.push(d._kkUnreadable?null:b);invArr.push(d._kkUnreadable?null:c);}
   var bc=document.getElementById('barChart');
@@ -1735,13 +1757,14 @@ function renderAll(){
   var astCatMap=Object.create(null);assets.forEach(function(a){var c=a.cat||'その他';astCatMap[c]=(astCatMap[c]||0)+a.amount;});
   var aLabels=Object.keys(astCatMap),aVals=aLabels.map(function(c){return astCatMap[c];}),aColors=aLabels.map(function(c){return CAT_COLORS[c]||'#CED4DA';});
   var pc=document.getElementById('assetPieChart');
-  if(pc){
+  if(pc&&typeof KNPortfolioOverview==='undefined'&&!document.getElementById('poStatus')){
     _renderChart('assetPieChart','pie',pc,aVals.length?{type:'doughnut',data:{labels:aLabels.map(kkCat),datasets:[{data:aVals,backgroundColor:aColors,borderWidth:3,borderColor:'#fff'}]},options:{responsive:true,plugins:{legend:{display:false}},cutout:'60%'}}:null);
     var al=document.getElementById('asset-legend');
     if(al){var total2=aVals.reduce(function(a,b){return a+b;},0);al.innerHTML=aVals.length===0?'<div class="empty-state">'+kkT("kk_js_register_asset_to_chart")+'</div>':aLabels.map(function(c,i){return '<div style="display:flex;align-items:center;gap:5px;margin-bottom:7px"><span style="width:8px;height:8px;border-radius:50%;background:'+aColors[i]+';display:inline-block;flex-shrink:0"></span><span style="flex:1;color:#4a7c5f">'+kkHtmlText(kkCat(c))+'</span><span style="font-weight:700;color:#1a3325">'+(total2>0?Math.round(aVals[i]/total2*100)+'%':'—')+'</span></div>';}).join('');}
   }
   var astEl=document.getElementById('asset-list-el');
-  if(astEl){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+kkHtmlText(a.name)+'<br><span style="font-size:11px;color:#9ab5a5">'+kkHtmlText(a.cat)+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+Number(a.id)+')">✕</button></div>';}).join('');}
+  if(astEl&&typeof KNPortfolioOverview==='undefined'&&!document.getElementById('poStatus')){var total3=assets.reduce(function(s,e){return s+e.amount;},0);astEl.innerHTML=assets.length===0?'':assets.map(function(a){var pct=total3>0?Math.round(a.amount/total3*100):0;var col=CAT_COLORS[a.cat]||'var(--brand-pale)';return '<div class="asset-item"><span class="asset-dot" style="background:'+col+'"></span><span class="asset-name">'+kkHtmlText(a.name)+'<br><span style="font-size:11px;color:#9ab5a5">'+kkHtmlText(a.cat)+'</span></span><div style="text-align:right"><div class="asset-val">'+fmt(a.amount)+'</div><div class="asset-pct">'+pct+'%</div></div><button class="rec-del" onclick="deleteAsset('+Number(a.id)+')">✕</button></div>';}).join('');}
+  if(typeof kkPortfolioRender==='function')kkPortfolioRender();
   var recEl=document.getElementById('rec-list-el');
   if(recEl){var sorted=data.slice().reverse();var icons={inc:'💰',exp:'💸',inv:'📈'};recEl.innerHTML=sorted.length===0?'<div class="empty-state">'+kkT("kk_js_no_records_this_month")+'</div>':sorted.map(function(e,index){return '<div class="rec-item"><div class="rec-icon '+e.type+'">'+(icons[e.type]||'📦')+'</div><div class="rec-body"><div class="rec-name">'+kkHtmlText(e.name)+'</div><div class="rec-meta">'+kkHtmlText(kkRecordCategory(e))+'</div>'+kkRecordDateControl(e,data.length-1-index)+'</div><div class="rec-amt '+e.type+'">'+kkHtmlText(kkRecordAmount(e))+'</div><button class="rec-del" onclick="deleteRecord(\''+e._kkRef+'\')">✕</button></div>';}).join('');}
   renderCalendar();if(_modalDate)renderDayModal();

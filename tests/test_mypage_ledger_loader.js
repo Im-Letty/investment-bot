@@ -96,11 +96,11 @@ test('readiness accepts only the owned same-origin household-ledger frame',()=>{
   h.ready({origin:'https://other.test'});h.ready({source:{}});assert.equal(h.frame.getAttribute('aria-busy'),'true');
   h.frame.contentDocument.documentElement.getAttribute=()=> 'true';h.ready();assert.equal(h.frame.getAttribute('aria-busy'),null);
 });
-test('home navigation does not remove the ledger source and drawer opens it without a timer',()=>{
+test('home navigation retains the existing MyPage entry and never removes the private ledger source',()=>{
   const html=read('index.html');
   assert.match(html,/mypage-ledger-loader\.js\?v=20261017-assets1/);
   assert.doesNotMatch(html,/__kf2.*removeAttribute\('src'\)/);
-  assert.match(html,/var kakeibo=mkItem\("📒 家計簿",function\(\)\{CD\(\);if\(window\.knOpenLedger\)window\.knOpenLedger\(\);\}\)/);
+  assert.match(html,/card\.id="myPageCard"/);assert.match(html,/card\.onclick=openMy/);assert.match(html,/data-act="mypage"/);
 });
 test('owned ledger return invokes the existing close button and reopening retains the document and draft',()=>{
   const h=fixture();h.context.knOpenLedger();const frame=h.frame;
@@ -244,4 +244,14 @@ test('loading startup waits for DOM ready without starting a private iframe requ
   assert.equal(h.frame,null);assert.equal(h.fallbacks.length,0);assert.deepEqual(h.navigations,[]);
   h.domReady();assert.ok(h.frame);assert.equal(h.frame.getAttribute('src'),null);assert.equal(h.mutations.length,1);
   assert.equal(h.registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded').settings.once,true);
+});
+
+test('portfolio goal edit selects the existing goals tab while preserving the same private ledger document',()=>{
+  const h=fixture();h.context.knOpenAssets();const frame=h.frame;frame.draft='unfinished asset';
+  assert.equal(h.context.knOpenGoals(),true);assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[1].classList.contains('on'),true);
+  assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.equal(h.frame,frame);assert.equal(frame.draft,'unfinished asset');assert.deepEqual(h.navigations,['/kakeibo']);
+});
+test('standalone goal deep links wait for normal authorization and then select the existing goals tab',()=>{
+  const h=fixture(null,{allowAnonymous:true,search:'?mypage=goals'});assert.equal(h.page.classList.contains('open'),false);assert.deepEqual(h.navigations,[]);
+  h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[1].classList.contains('on'),true);assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.deepEqual(h.navigations,['/kakeibo']);
 });

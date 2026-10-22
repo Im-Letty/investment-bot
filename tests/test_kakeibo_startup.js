@@ -173,19 +173,18 @@ test('month navigation switches a six-month chart to the selected month and reta
   assert.notEqual(h.active.get('lineChart'),nextLine);assert.notEqual(h.active.get('donutChart'),nextPie,'locale also invalidates callbacks omitted by JSON.stringify');
   assert.ok(h.active.get('lineChart').data.datasets[1].data.every(value=>value===0));assert.equal(h.context.kkTrendData().undated.expense,2300);
 });
-test('asset allocation is created on its first tab visit and a revealed legacy bar retains its original monthly calculation',()=>{
+test('the adopted portfolio avoids the retired pie while a revealed legacy bar retains its original monthly calculation',()=>{
   const assets=[{id:9,name:'架空の現金',cat:'現金',amount:8000}];
   const h=chartFixture({[monthKey]:JSON.stringify([...records,{id:3,type:'inv',name:'架空の投資',amount:300}]),kb2_assets:JSON.stringify(assets)});
   assert.equal(h.active.has('assetPieChart'),false);assert.equal(h.active.has('barChart'),false);
-  h.context.switchTab('assets');const pie=h.active.get('assetPieChart');
-  assert.deepEqual(Array.from(pie.data.datasets[0].data),[8000]);
-  h.context.switchTab('home');h.context.switchTab('assets');assert.equal(h.active.get('assetPieChart'),pie);
+  const saved=h.context.localStorage.getItem('kb2_assets');h.context.switchTab('assets');assert.equal(h.active.has('assetPieChart'),false);
+  h.context.switchTab('home');h.context.switchTab('assets');assert.equal(h.active.has('assetPieChart'),false);assert.equal(h.context.localStorage.getItem('kb2_assets'),saved);
   h.context.switchTab('home');const canvas=h.nodes.get('barChart'),card=canvas.parentElement.parentElement;
   assert.ok(card.classList.contains('card'));assert.equal(card.style.display,'none');card.style.display='';h.context.renderAll();
   const bar=h.active.get('barChart');assert.ok(bar);
   assert.deepEqual(Array.from(bar.data.datasets,d=>d.data.at(-1)),[50000,1200,300]);
   h.context.localStorage.setItem('kb2_assets','[]');h.context.renderAll();
-  assert.ok(h.destroyed.includes(pie));assert.equal(h.active.has('assetPieChart'),false,'empty assets invalidate a retained chart even when its tab is inactive');
+  assert.equal(h.active.has('assetPieChart'),false,'the new allocation stack never mounts a second hidden legacy chart');
 });
 test('hidden category history adds no reads while the revealed history aggregates both entry sources and literal categories',()=>{
   const dayKey='kbday_'+now.getFullYear()+'_'+String(now.getMonth()+1).padStart(2,'0')+'_01';

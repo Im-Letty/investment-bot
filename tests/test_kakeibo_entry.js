@@ -369,3 +369,9 @@ test('mixed-source edits and unreadable sources fail before any partial write an
   h.values.set('kbday_2026_10_15','{');h.fill('exp','１２．５','unused','交通');h.nodes.get('kkEntryDate').value='2026-10-15';h.context.addRecord('exp');
   assert.equal(h.values.get('kb2_2026_10'),monthRaw);assert.equal(h.values.get('kbday_2026_10_15'),'{');assert.equal(h.writes.length,0);assert.equal(h.nodes.get('exp-amount').value,'１２．５');assert.equal(h.nodes.get('exp-cat').value,'交通');assert.equal(h.nodes.get('kkEntryDate').value,'2026-10-15');
 });
+
+test('unreadable asset storage does not crash the ledger boot or replace saved values with an empty array',()=>{
+  for(const raw of ['bad','{}','[null]','[{"amount":"bad"}]']){
+    const h=fixture({kb2_assets:raw});assert.equal(h.document.documentElement.getAttribute('data-kn-ledger-ready'),'true');assert.equal(h.values.get('kb2_assets'),raw);assert.equal(h.writes.length,0);
+  }
+});

@@ -57,7 +57,7 @@ test('the household assets link delegates to the same-origin parent and standalo
   }
 });
 test('the assets surface keeps the existing form, chart and list and excludes household chrome',()=>{
-  const assetPane=html.slice(html.indexOf('<div class="tab-content" id="tab-assets">'),html.indexOf('<div class="tab-content" id="tab-records">'));
+  const assetPane=html.slice(html.indexOf('<div class="tab-content po-overview" id="tab-assets"'),html.indexOf('<div class="tab-content" id="tab-records">'));
   for(const id of ['totalAssetVal','totalAssetChange','ast-name','ast-cat','ast-amount','assetPieChart','asset-legend','asset-list-el'])
     assert.match(assetPane,new RegExp('id="'+id+'"'));
   assert.equal((html.match(/id="totalAssetVal"/g)||[]).length,1);
@@ -71,7 +71,7 @@ test('the actual moved asset renderer escapes saved names and categories without
   const assets=[{id:42,name:'<img src=x onerror=evil()>',cat:'<svg onload=evil()>',amount:123.45},{id:'1);evil();//',name:'架空',cat:'現金',amount:-23.45}];
   const original=JSON.stringify(assets),node={innerHTML:''};
   const helper=html.slice(html.indexOf('function kkHtmlText('),html.indexOf('\n',html.indexOf('function kkHtmlText(')));
-  vm.runInNewContext(helper+'\n'+html.slice(start,end),{document:{getElementById:()=>node},assets,CAT_COLORS:{現金:'#fff'},fmt:String,kkT:String});
+  vm.runInNewContext(helper+'\n'+html.slice(start,end),{document:{getElementById:id=>id==='poStatus'?null:node},assets,CAT_COLORS:{現金:'#fff'},fmt:String,kkT:String});
   assert.doesNotMatch(node.innerHTML,/<img|<svg|deleteAsset\(1\);evil/);
   assert.match(node.innerHTML,/&lt;img src=x onerror=evil\(\)&gt;/);
   assert.match(node.innerHTML,/&lt;svg onload=evil\(\)&gt;/);

@@ -1,7 +1,7 @@
 (function () {
   'use strict';
   var page, body, tabs, pane, frame, personal, ledger, owner='', ready=false, loaded=false, personalScroll=0;
-  var group=0, pendingAssets=false;
+  var group=0, pendingAssets=false, pendingGoals=false;
   function account() {
     var user=window.knUser;
     return user&&user.id?String(user.id):'';
@@ -113,6 +113,13 @@
     show(0);
     return true;
   }
+  function openGoals() {
+    pendingGoals=true;
+    var card=document.getElementById('myPageCard');if(card)card.click();
+    if(!page.classList.contains('open')||!account())return false;
+    var goal=tabs.querySelectorAll('.mo-tab')[1];if(!goal)return false;
+    pendingGoals=false;goal.click();show(0);return true;
+  }
   function preparePortfolioNote() {
     var portfolio=body.querySelector('.mo-pane:not(.kb-pane)');
     var field=portfolio&&portfolio.querySelector('textarea');
@@ -152,18 +159,19 @@
     document.addEventListener('knAuthChange',function(){
       if(owner&&owner!==account()){unload();show(0);}
       if(!account())page.classList.remove('open');
-      else {show(group);prepare();if(pendingAssets)openAssets();}
+      else {show(group);prepare();if(pendingAssets)openAssets();else if(pendingGoals)openGoals();}
     });
     new MutationObserver(prepare).observe(page,{attributes:true,attributeFilter:['class']});
     window.knPrepareLedger=prepare;
     window.knReturnFromLedger=returnFromLedger;
     window.knOpenAssets=openAssets;
+    window.knOpenGoals=openGoals;
     window.knOpenLedger=function(){
       var card=document.getElementById('myPageCard');if(card)card.click();
       if(page.classList.contains('open')&&account())show(1);
     };
     show(0);
-    if(typeof URLSearchParams==='function'&&new URLSearchParams(location.search||'').get('mypage')==='assets')openAssets();
+    if(typeof URLSearchParams==='function'){var entry=new URLSearchParams(location.search||'').get('mypage');if(entry==='assets')openAssets();else if(entry==='goals')openGoals();}
   }
   if(document.readyState!=='complete')document.addEventListener('DOMContentLoaded',setup,{once:true});
   if(document.readyState!=='loading')setup();
