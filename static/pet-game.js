@@ -1749,6 +1749,19 @@
       grid.appendChild(row);
     });
     c.appendChild(grid);
+    var carriedDecorations = Object.keys(s.decorations.owned).filter(function (id) { return !item(id); });
+    if (carriedDecorations.length) {
+      var carried = node('div', 'ipg-carried-decorations');
+      carried.appendChild(node('h4', '', '引き継いだかざり'));
+      carriedDecorations.forEach(function (id) {
+        var row = node('div');
+        append(row, text('旧かざり ' + String(id).slice(0, 60)), button('身につける', function () {
+          run({ type: 'equip', itemId: id }, '旧かざりを身につけました。');
+        }, true));
+        carried.appendChild(row);
+      });
+      c.appendChild(carried);
+    }
     if (customRoom(s)) c.appendChild(button('配置を変える・片づける', beginRoomEdit, true, s.readOnly));
     else if (s.decorations.equipped) c.appendChild(button('身につけているかざりを外す', function () {
       run({ type: 'equip', itemId: null }, 'かざりを外しました。');
@@ -1828,38 +1841,6 @@
         run({ type: 'transferLegacy' }, '旧ゲームの引継ぎを保存しました。');
       }, true));
     body.appendChild(c);
-  }
-  function renderPreserved(s, body) {
-    var names = {pet50:'なでなでマスター',feed20:'まんぷくしょくどう',mg15:'おにぎりハンター',deco3:'おにわデビュー',
-      deco7:'まちづくりめいじん',final:'でんせつのきずな',rich:'こつこつちょきん',letter:'朝レター（旧実績）',
-      first_trade:'はじめての売買',first_profit:'はじめての売買益',dividend:'配当を受け取った',all_six:'6社の株を保有'};
-    var details = node('details', 'ipg-card ipg-preserved');
-    details.appendChild(node('summary', '', '実績と引き継いだもちもの'));
-    var achievements = node('ul', 'ipg-preserved-list');
-    (s.achievements || []).forEach(function (id) {
-      achievements.appendChild(node('li', '', names[id] || '旧実績：' + String(id).slice(0, 60)));
-    });
-    if (achievements.children.length) append(details, node('h4', '', '獲得済み実績'), achievements);
-    else details.appendChild(text('実績は、これからのお世話やゲームで少しずつ集まります。'));
-    var extras = node('ul', 'ipg-preserved-list');
-    Object.keys(s.inventory).forEach(function (id) {
-      if (!item(id)) extras.appendChild(node('li', '', '旧アイテム ' + String(id).slice(0, 60) + ' ×' + number(s.inventory[id])));
-    });
-    Object.keys(s.decorations.owned).forEach(function (id) {
-      if (item(id)) return;
-      var row = node('li', '', '旧かざり ' + String(id).slice(0, 60) + ' ');
-      row.appendChild(button('身につける', function () {
-        run({ type: 'equip', itemId: id }, '旧かざりを身につけました。');
-      }, true));
-      extras.appendChild(row);
-    });
-    if (extras.children.length) append(details,
-      text('今のお店にない旧アイテムも、記録として保持しています。'), extras);
-    if (s.legacyReserve && s.legacyReserve.transferred) details.appendChild(text(
-      '別の旧ゲームから引継ぎ済み：' + number(s.legacyReserve.coins) + 'コイン / ' + number(s.legacyReserve.exp) + 'EXP。'));
-    if (s.legacyReserve && s.legacyReserve.name) details.appendChild(text('別の旧ゲームのなまえ：' + s.legacyReserve.name));
-    if (s.pet.pixel) details.appendChild(text('以前のドット絵の設定も記録に保持しています。'));
-    body.appendChild(details);
   }
   function renderBackup(body) {
     var details = node('details', 'ipg-card ipg-backup');
@@ -1955,7 +1936,7 @@
     else if (tab === 'play') renderPlay(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
-    if (!game && !roomEdit && !villageEdit) { renderLegacy(s, body); renderPreserved(s, body); renderBackup(body); }
+    if (!game && !roomEdit && !villageEdit) { renderLegacy(s, body); renderBackup(body); }
     root.appendChild(body);
     host.replaceChildren(root);
     if (!roomEdit && !villageEdit) startMotions();
