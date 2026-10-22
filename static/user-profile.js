@@ -40,9 +40,10 @@
     }
     function apply(next){var old=JSON.stringify(copy());state=storedProfile(next);emit(old);}
     function closeIconChoices(focus){if(!iconChoices)return;iconChoices.hidden=true;iconButton.setAttribute('aria-expanded','false');if(focus)iconButton.focus();}
+    function syncProfileVisibility(){if(!section||!form)return;form.hidden=!section.open;if(form.hidden)closeIconChoices(false);}
     function resetIdentity(){
       var key=owner();if(identity===key)return false;
-      serial++;closeIconChoices(false);identity=key;loaded=false;loading=false;readPromise=null;error='';email='';dirty=false;apply(empty());paint(true);return true;
+      serial++;if(section)section.open=false;syncProfileVisibility();closeIconChoices(false);identity=key;loaded=false;loading=false;readPromise=null;error='';email='';dirty=false;apply(empty());paint(true);return true;
     }
     function fixedError(reason){
       return ({invalid_name:'ユーザー名は20文字以内で入力してください。',invalid_bio:'自己紹介は160文字以内で入力してください。',invalid_avatar:'アイコンを選んでください。',busy:'保存中です。少しお待ちください。',account_changed:'アカウントが切り替わりました。内容を確認して保存し直してください。',auth_unavailable:'アカウントを確認できませんでした。もう一度お試しください。',storage_unavailable:'保存できませんでした。入力内容は残しています。もう一度お試しください。'})[reason]||'プロフィールを読み込めませんでした。もう一度お試しください。';
@@ -50,7 +51,7 @@
     function announce(message,bad){if(status){status.textContent=message||'';status.classList.toggle('kn-profile-error',!!bad);}}
     function paint(force){
       if(!section)return;
-      summaryName.textContent=state.username||'プロフィール';summaryIcon.textContent=avatars[state.avatar]||avatars.leaf;
+      syncProfileVisibility();summaryName.textContent=state.username;summaryName.hidden=!state.username;summaryIcon.textContent=avatars[state.avatar]||avatars.leaf;
       scope.hidden=identity!=='guest';
       scope.textContent=identity==='guest'?'ユーザー名はチャットで共通に使います。このブラウザに保存します。動画の投稿にはログインが必要です。':'';
       emailWrap.hidden=identity==='guest'||!email;emailInput.value=email;
@@ -180,9 +181,9 @@
     function mount(container){
       if(!doc||!container)return null;
       if(section){if(section.parentNode!==container)container.insertBefore(section,container.firstChild);return section;}
-      section=make('details','kn-profile');section.id='knProfile';var summary=make('summary','kn-profile-summary');
-      summaryIcon=make('span','kn-profile-avatar',avatars.leaf);summaryIcon.setAttribute('aria-hidden','true');summaryName=make('span','kn-profile-name','プロフィール');summary.appendChild(summaryIcon);summary.appendChild(summaryName);section.appendChild(summary);
-      form=make('form','kn-profile-form');form.setAttribute('aria-label','プロフィールを編集');form.noValidate=true;section.appendChild(form);
+      section=make('details','kn-profile');section.id='knProfile';section.open=false;var summary=make('summary','kn-profile-summary');
+      summaryIcon=make('span','kn-profile-avatar',avatars.leaf);summaryIcon.setAttribute('aria-hidden','true');summaryName=make('span','kn-profile-name');summaryName.hidden=true;var summaryHeading=make('span','kn-profile-heading');summaryHeading.appendChild(make('span','kn-profile-label','プロフィール'));summaryHeading.appendChild(summaryName);summary.appendChild(summaryIcon);summary.appendChild(summaryHeading);section.appendChild(summary);
+      form=make('form','kn-profile-form');form.setAttribute('aria-label','プロフィールを編集');form.hidden=true;form.noValidate=true;section.appendChild(form);
       scope=make('p','kn-profile-scope');form.appendChild(scope);
       var name=field('ユーザー名（公開・20文字まで）','username');name.type='text';name.maxLength=40;name.autocomplete='nickname';name.placeholder='みんなに表示する名前';
       var iconEditor=make('div','kn-profile-icon-editor');iconEditor.appendChild(make('span','kn-profile-icon-label','アイコン'));
@@ -202,16 +203,17 @@
       form.addEventListener('keydown',function(event){if(event.key==='Escape'&&!iconChoices.hidden){event.preventDefault();if(typeof event.stopPropagation==='function')event.stopPropagation();closeIconChoices(true);}});
       form.addEventListener('submit',async function(event){event.preventDefault();if(saving)return;try{await save({username:name.value,bio:bio.value,avatar:avatar.value});}catch(e){announce(fixedError(e.message),true);}});
       cancel.addEventListener('click',function(){dirty=false;closeIconChoices(false);paint(true);announce('',false);name.focus();});
-      section.addEventListener('toggle',function(){if(section.open&&!loaded&&!loading)refresh();});
+      section.addEventListener('toggle',function(){syncProfileVisibility();if(section.open&&!loaded&&!loading)refresh();});
       container.insertBefore(section,container.firstChild);resetIdentity();paint(true);refresh();return section;
     }
     function open(){
       if(!section){var target=doc&&doc.querySelector('#drawerNav .kn-menu-content');if(target)mount(target);}
       if(!section)return false;
+      resetIdentity();if(!loaded&&!loading)refresh();var key=identity;
       if(typeof w.openDrawer==='function')w.openDrawer();
       else{var trigger=doc.getElementById('knHomeAMenu');if(trigger)trigger.click();}
-      section.open=true;
-      if(typeof w.setTimeout==='function')w.setTimeout(function(){if(section&&section.isConnected){section.scrollIntoView({block:'nearest'});fields.username.focus({preventScroll:true});}},350);
+      section.open=true;syncProfileVisibility();
+      if(typeof w.setTimeout==='function')w.setTimeout(function(){if(same(key)&&section&&section.isConnected&&section.open&&!form.hidden){section.scrollIntoView({block:'nearest'});fields.username.focus({preventScroll:true});}},350);
       return true;
     }
     function authChanged(){
