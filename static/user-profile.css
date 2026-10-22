@@ -3,6 +3,17 @@
 #sideDrawer.kn-menu-a .kn-profile-summary{justify-content:flex-start;gap:10px;color:var(--kn-a-ink);font-size:calc(16px * var(--kn-a-scale,1));min-height:62px}
 #sideDrawer.kn-menu-a .kn-profile-summary:after{margin-left:auto}
 #sideDrawer.kn-menu-a .kn-profile-avatar{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--kn-a-chip);font-size:22px;flex:none}
+#sideDrawer.kn-menu-a .kn-profile-icon-editor{display:grid;justify-items:start;gap:8px;min-width:0}
+#sideDrawer.kn-menu-a .kn-profile-icon-label{font-size:calc(13px * var(--kn-a-scale,1));color:var(--kn-a-muted)}
+#sideDrawer.kn-menu-a :is(.kn-profile-icon-button,.kn-profile-icon-choice){display:grid;place-items:center;box-sizing:border-box;padding:0;border:1px solid var(--kn-a-line);border-radius:50%;background:var(--kn-a-chip);color:var(--kn-a-ink);cursor:pointer;font-family:var(--kn-a-sans)}
+#sideDrawer.kn-menu-a .kn-profile-icon-button{width:76px;height:76px;font-size:38px}
+#sideDrawer.kn-menu-a .kn-profile-icon-hint{font-size:calc(12px * var(--kn-a-scale,1));color:var(--kn-a-muted)}
+#sideDrawer.kn-menu-a .kn-profile-icon-choices{display:flex;flex-wrap:wrap;gap:8px;max-width:100%;padding:4px 0}
+#sideDrawer.kn-menu-a .kn-profile-icon-choices[hidden]{display:none}
+#sideDrawer.kn-menu-a .kn-profile-icon-choice{width:44px;min-width:44px;height:44px;font-size:24px;background:var(--kn-a-paper)}
+#sideDrawer.kn-menu-a .kn-profile-icon-choice[aria-pressed=true]{border:2px solid var(--kn-a-button);background:var(--kn-a-chip)}
+#sideDrawer.kn-menu-a :is(.kn-profile-icon-button,.kn-profile-icon-choice):focus-visible{outline:2px solid var(--kn-a-button);outline-offset:3px}
+#sideDrawer.kn-menu-a :is(.kn-profile-icon-button,.kn-profile-icon-choice):disabled{opacity:.6;cursor:wait}
 #sideDrawer.kn-menu-a .kn-profile-name{min-width:0;overflow-wrap:anywhere}
 #sideDrawer.kn-menu-a .kn-profile-form{display:grid;gap:14px;padding:4px 0 15px;margin:0;color:var(--kn-a-ink);font:400 calc(14px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-field{display:grid;gap:6px;margin:0;font-size:calc(13px * var(--kn-a-scale,1));color:var(--kn-a-muted)}

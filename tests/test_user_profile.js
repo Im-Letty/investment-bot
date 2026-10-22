@@ -15,7 +15,7 @@ function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,p
     get firstChild(){return this.children[0]||null;}get isConnected(){return this===body||!!this.parentNode?.isConnected;}
     setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]||null;}
     addEventListener(k,fn){(this.listeners[k]||(this.listeners[k]=[])).push(fn);}
-    async fire(k){const e={target:this,preventDefault(){}};for(const fn of this.listeners[k]||[])await fn(e);}
+    async fire(k,init={}){const e={target:this,defaultPrevented:false,propagationStopped:false,preventDefault(){this.defaultPrevented=true;},stopPropagation(){this.propagationStopped=true;},...init};for(const fn of this.listeners[k]||[])await fn(e);return e;}
     focus(){focus=this;}scrollIntoView(){}
   }
   const body=new Node('body'),container=new Node('div');body.appendChild(container);
@@ -223,4 +223,39 @@ test('completed profile reads clear the loading notice without erasing a later s
   await h.api.saveUsername('保存した名前');assert.match(status.textContent,/保存しました/);assert.equal(h.api.username(),'保存した名前');
   await h.api.refresh();assert.equal(status.textContent,'');assert.equal(h.api.username(),'保存した名前');
  }
+});
+
+test('the editor uses one tappable native icon button and no dropdown or separate photo field',async()=>{
+  const h=fixture();h.api.mount(h.container);await h.api.ready();
+  const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices'),avatar=h.document.getElementById('knProfileAvatar');
+  assert.equal(button.tagName,'BUTTON');assert.equal(button.type,'button');assert.equal(button.getAttribute('aria-controls'),choices.id);assert.match(button.getAttribute('aria-label'),/アイコンを変更/);assert.equal(button.getAttribute('aria-expanded'),'false');assert.equal(choices.hidden,true);assert.equal(choices.getAttribute('role'),'group');
+  assert.equal(avatar.type,'hidden');assert.equal(avatar.value,'leaf');assert.equal(h.nodes.filter(n=>n.tagName==='SELECT'||n.type==='file').length,0);
+  for(let node=button.parentNode;node;node=node.parentNode)assert.notEqual(node.tagName,'SUMMARY','button never nests in the details summary');
+  const options=choices.children;assert.equal(options.length,5);assert.equal(new Set(options.map(n=>n.getAttribute('data-avatar'))).size,5);for(const option of options){assert.equal(option.tagName,'BUTTON');assert.equal(option.type,'button');assert.match(option.getAttribute('aria-label'),/のアイコン$/);}
+});
+test('tapping an icon opens the choices and selection changes only the draft until Save',async()=>{
+  const h=fixture({legacy:'名前',extra:{version:1,bio:'',avatar:'moon'}});h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices'),summary=h.nodes.find(n=>n.className==='kn-profile-avatar');
+  await button.fire('click');assert.equal(choices.hidden,false);assert.equal(button.getAttribute('aria-expanded'),'true');assert.equal(h.focus().getAttribute('data-avatar'),'moon');
+  const option=choices.children.find(n=>n.getAttribute('data-avatar')==='flower');await option.fire('click');assert.equal(choices.hidden,true);assert.equal(button.textContent,'🌼');assert.equal(h.document.getElementById('knProfileAvatar').value,'flower');assert.equal(option.getAttribute('aria-pressed'),'true');assert.equal(h.focus(),button);assert.equal(summary.textContent,'🌙');assert.equal(h.api.snapshot().avatar,'moon');assert.equal(h.updates().length,0);assert.equal(JSON.parse(h.storage.get('kn_profile_guest_v1')).avatar,'moon');
+  await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.equal(h.api.snapshot().avatar,'flower');assert.equal(summary.textContent,'🌼');assert.equal(JSON.parse(h.storage.get('kn_profile_guest_v1')).avatar,'flower');assert.equal(choices.hidden,true);
+});
+test('Escape closes just the icon choices, keeps the draft and returns focus to the icon',async()=>{
+  const h=fixture();h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices'),form=h.nodes.find(n=>n.tagName==='FORM');
+  await button.fire('click');const escape=await form.fire('keydown',{key:'Escape'});assert.equal(choices.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');assert.equal(h.focus(),button);assert.equal(escape.defaultPrevented,true);assert.equal(escape.propagationStopped,true);assert.equal(h.api.snapshot().avatar,'leaf');assert.equal(h.storage.size,0);
+  const closed=await form.fire('keydown',{key:'Escape'});assert.equal(closed.defaultPrevented,false);assert.equal(closed.propagationStopped,false,'drawer may handle Escape when the chooser is already closed');
+});
+test('cancel restores the committed icon and a member Save sends only its existing profile schema',async()=>{
+  const h=fixture({user:account('a',profile('名前','自己紹介','sun'))});h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices');
+  await button.fire('click');await choices.children[1].fire('click');await button.fire('click');await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');assert.equal(choices.hidden,true);assert.equal(button.textContent,'☀️');assert.equal(h.document.getElementById('knProfileAvatar').value,'sun');assert.equal(h.updates().length,0);
+  await button.fire('click');await choices.children.find(n=>n.getAttribute('data-avatar')==='star').fire('click');await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.deepEqual(h.updates(),[profile('名前','自己紹介','star')]);assert.equal(button.textContent,'⭐');assert.equal(choices.hidden,true);
+});
+test('loading and saving disable both the icon trigger and all choices',async()=>{
+  const loading=deferred(),h=fixture({user:account(),getUser:()=>loading.promise});h.api.mount(h.container);const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices');assert.equal(button.disabled,true);assert.ok(choices.children.every(n=>n.disabled));await button.fire('click');assert.equal(choices.hidden,true);loading.resolve({data:{user:account()}});await h.api.ready();assert.equal(button.disabled,false);
+  const saving=deferred(),s=fixture({user:account(),putProfile:()=>saving.promise});s.api.mount(s.container);await s.api.ready();const trigger=s.document.getElementById('knProfileIconButton'),options=s.document.getElementById('knProfileIconChoices');await trigger.fire('click');const pending=s.api.saveUsername('変更');await new Promise(setImmediate);assert.equal(trigger.disabled,true);assert.ok(options.children.every(n=>n.disabled));await options.children[2].fire('click');assert.equal(s.document.getElementById('knProfileAvatar').value,'leaf');saving.resolve({ok:true,user_id:'a',profile:profile('変更')});await pending;assert.equal(options.hidden,true);assert.equal(trigger.disabled,false);
+});
+test('account switching closes the chooser and removes the old icon draft immediately',async()=>{
+  const h=fixture({user:account('a',profile('A','','star'))});h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices');await button.fire('click');await choices.children.find(n=>n.getAttribute('data-avatar')==='sun').fire('click');await button.fire('click');h.auth(account('b',profile('B','','moon')));assert.equal(choices.hidden,true);assert.equal(button.getAttribute('aria-expanded'),'false');assert.equal(button.textContent,'🌿');await h.flush();await h.api.ready();assert.equal(button.textContent,'🌙');assert.equal(h.document.getElementById('knProfileAvatar').value,'moon');assert.equal(h.updates().length,0);
+});
+test('failed saves keep the selected icon draft available for retry and cancel',async()=>{
+  const h=fixture({user:account(),putProfile:async()=>({ok:false})});h.api.mount(h.container);await h.api.ready();const button=h.document.getElementById('knProfileIconButton'),choices=h.document.getElementById('knProfileIconChoices');await button.fire('click');await choices.children.find(n=>n.getAttribute('data-avatar')==='moon').fire('click');await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.equal(button.textContent,'🌙');assert.equal(h.api.snapshot().avatar,'leaf');await button.fire('click');assert.equal(h.focus().getAttribute('data-avatar'),'moon');assert.equal(h.focus().getAttribute('aria-pressed'),'true');await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');assert.equal(button.textContent,'🌿');assert.equal(choices.hidden,true);
 });
