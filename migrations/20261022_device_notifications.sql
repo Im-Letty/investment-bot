@@ -55,11 +55,13 @@ declare
  sub public.device_push_subscriptions%rowtype;
  reminder public.device_reminders%rowtype;
  version bigint;
+ expected_version bigint;
+ finished_subscription_id uuid;
  rows jsonb;
  job record;
 begin
- if p_action not in ('status','subscribe','unsubscribe','schedule','cancel','price_draft','claim','check_claim','finish')
- or jsonb_typeof(p_data)<>'object' then
+ if p_action is null or p_action not in ('status','subscribe','unsubscribe','schedule','cancel','price_draft','claim','check_claim','finish')
+ or p_data is null or jsonb_typeof(p_data) is distinct from 'object' then
   return jsonb_build_object('ok',false,'reason','invalid_request');
  end if;
  if p_action not in ('claim','check_claim','finish') then
@@ -91,14 +93,23 @@ begin
   delete from public.device_push_subscriptions where owner_id=p_actor and endpoint_hash=p_data->>'endpoint_hash';
   return jsonb_build_object('ok',true);
  elsif p_action='schedule' then
+  -- JSON null/missing revisions must never bypass CAS via SQL's NULL comparison.
+  if jsonb_typeof(p_data->'expected_revision') is distinct from 'number'
+   or (p_data->>'expected_revision') !~ '^(0|[1-9][0-9]*)$' then
+   return jsonb_build_object('ok',false,'reason','invalid_request'); end if;
+  if (p_data->>'expected_revision')::numeric>9007199254740991 then
+   return jsonb_build_object('ok',false,'reason','invalid_request'); end if;
+  expected_version=(p_data->>'expected_revision')::bigint;
   if p_data->>'task_id' !~ '^[A-Za-z0-9_-]{1,80}$'
    or (p_data->>'due_at')::timestamptz<=now()
    or (p_data->>'due_at')::timestamptz>now()+interval '367 days'
    or not exists(select 1 from public.device_push_subscriptions where owner_id=p_actor and active)
    then return jsonb_build_object('ok',false,'reason','invalid_request'); end if;
   select * into reminder from public.device_reminders where owner_id=p_actor and task_id=p_data->>'task_id' for update;
-  if coalesce(reminder.revision,0)<>(p_data->>'expected_revision')::bigint then
+  if coalesce(reminder.revision,0) is distinct from expected_version then
    return jsonb_build_object('ok',false,'reason','conflict'); end if;
+  if expected_version=9007199254740991 then
+   return jsonb_build_object('ok',false,'reason','limit_reached'); end if;
   if reminder.revision is null and (select count(*) from public.device_reminders where owner_id=p_actor)>=100 then
    return jsonb_build_object('ok',false,'reason','limit_reached'); end if;
   version=coalesce(reminder.revision,0)+1;
@@ -158,16 +169,22 @@ begin
    join public.device_push_subscriptions s on s.id=j.subscription_id and s.active
    where j.id=(p_data->>'id')::uuid and j.state='claimed'
     and r.state='dispatched' and r.due_at>=now()-interval '1 hour'));
- else
-  if p_data->>'outcome' not in ('sent','expired','unavailable') then
+ elsif p_action='finish' then
+  if jsonb_typeof(p_data->'outcome') is distinct from 'string'
+   or p_data->>'outcome' not in ('sent','expired','unavailable')
+   or jsonb_typeof(p_data->'id') is distinct from 'string' then
    return jsonb_build_object('ok',false,'reason','invalid_request'); end if;
   update public.device_push_jobs set state=p_data->>'outcome',finished_at=now()
-   where id=(p_data->>'id')::uuid and state='claimed';
-  if p_data->>'outcome'='expired' then
+   where id=(p_data->>'id')::uuid and state='claimed'
+   returning subscription_id into finished_subscription_id;
+  -- A replay against a terminal/deleted job must not disable a subscription.
+  if found and p_data->>'outcome'='expired' then
    update public.device_push_subscriptions set active=false,updated_at=now()
-    where id=(select subscription_id from public.device_push_jobs where id=(p_data->>'id')::uuid);
+    where id=finished_subscription_id;
   end if;
   return jsonb_build_object('ok',true);
+ else
+  return jsonb_build_object('ok',false,'reason','invalid_request');
  end if;
 exception when others then
  -- No provider URL, token, original SQL error or personal content leaves this RPC.
