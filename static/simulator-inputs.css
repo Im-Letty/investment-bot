@@ -73,7 +73,7 @@ body .sim-step-button:active:not(:disabled) {
 }
 
 body .sim-step-button:disabled {
-  opacity: .4;
+  opacity: 1;
   cursor: default;
 }
 
