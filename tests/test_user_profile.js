@@ -285,3 +285,14 @@ test('changing identity closes and clears drafts and invalidates delayed focus b
 test('an intentional API open for a newly changed owner remains open while that profile refreshes',async()=>{
   let pending=null;const h=fixture({user:account('a',profile('A')),getUser:async w=>pending?pending.promise:{data:{user:w.knUser}}});h.api.mount(h.container);await h.api.ready();pending=deferred();h.w.knUser=account('b',profile('B'));assert.equal(h.api.open(),true);const section=h.document.getElementById('knProfile'),form=h.nodes.find(n=>n.tagName==='FORM');assert.equal(section.open,true);assert.equal(form.hidden,false);assert.equal(h.document.getElementById('knProfileUsername').value,'');pending.resolve({data:{user:account('b',profile('B'))}});await h.api.ready();assert.equal(section.open,true);assert.equal(form.hidden,false);assert.equal(h.document.getElementById('knProfileUsername').value,'B');
 });
+
+test('external profile opening restores the sheet main view before exposing the editor',async()=>{
+  const h=fixture(),calls=[];h.w.KNMenuSheet={showMain(){calls.push('main');}};h.w.openDrawer=()=>calls.push('open');
+  h.api.mount(h.container);await h.api.ready();assert.equal(h.api.open(),true);
+  assert.deepEqual(calls,['open','main']);assert.equal(h.document.getElementById('knProfile').open,true);assert.equal(h.nodes.find(n=>n.tagName==='FORM').hidden,false);assert.equal(h.updates().length,0);
+});
+test('profile fallback opens a closed menu but never toggles an already-open sheet closed',async()=>{
+  const h=fixture();delete h.w.openDrawer;let opened=false,clicks=0;const drawer=h.document.createElement('aside');drawer.id='sideDrawer';drawer.classList={contains:()=>opened};
+  const trigger=h.document.createElement('button');trigger.id='knHomeAMenu';trigger.click=()=>{clicks++;opened=!opened;};
+  h.w.KNMenuSheet={showMain(){}};h.api.mount(h.container);await h.api.ready();h.api.open();assert.equal(clicks,1);assert.equal(opened,true);h.api.open();assert.equal(clicks,1);assert.equal(opened,true);assert.equal(h.updates().length,0);
+});

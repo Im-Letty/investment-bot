@@ -211,7 +211,8 @@
       if(!section)return false;
       resetIdentity();if(!loaded&&!loading)refresh();var key=identity;
       if(typeof w.openDrawer==='function')w.openDrawer();
-      else{var trigger=doc.getElementById('knHomeAMenu');if(trigger)trigger.click();}
+      else{var drawer=doc.getElementById('sideDrawer'),trigger=doc.getElementById('knHomeAMenu');if(trigger&&(!drawer||!drawer.classList.contains('open')))trigger.click();}
+      if(w.KNMenuSheet&&typeof w.KNMenuSheet.showMain==='function')w.KNMenuSheet.showMain();
       section.open=true;syncProfileVisibility();
       if(typeof w.setTimeout==='function')w.setTimeout(function(){if(same(key)&&section&&section.isConnected&&section.open&&!form.hidden){section.scrollIntoView({block:'nearest'});fields.username.focus({preventScroll:true});}},350);
       return true;
