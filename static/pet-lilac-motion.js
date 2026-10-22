@@ -1150,10 +1150,37 @@
       return Math.max(mask,weight);
     },0);
   }
-  function nurserySmilePhase(presence,active){
-    var amount=clamp(finite(presence,0),0,1),weight=active&&amount>=.5?1:0;
-    return {weight:weight,blink:active&&!weight?1-Math.abs(amount*2-1):0};
+  // Material changes select one image at the blink's closed midpoint. These
+  // thresholds are shared by the pure QA helpers and both born-face shaders.
+  var faceMaterialThresholds=Object.freeze({half:.25,closed:.75,handover:.5,donorOpaqueAlphaByte:252});
+  var eyePaintRegions=Object.freeze({
+    mature:Object.freeze([[.4665,.429,.135,.125],[.7281,.3405,.115,.12]].map(function(row){return Object.freeze(row);})),
+    baby:Object.freeze([[.44318,.43534,.120,.124],[.68435,.40677,.111,.119]].map(function(row){return Object.freeze(row);}))
+  });
+  function eyePaintCoverage(appearanceKey,x,y){
+    if(!Number.isFinite(x)||!Number.isFinite(y)||appearanceProfile(appearanceKey).family==='egg')return 0;
+    var family=appearanceProfile(appearanceKey).family==='baby'?'baby':'mature',c=Math.cos(.28),s=Math.sin(.28);
+    return eyePaintRegions[family].reduce(function(mask,r){var dx=x-r[0],dy=y-r[1];return Math.max(mask,1-ramp(.85,1.1,Math.hypot((c*dx+s*dy)/r[2],(-s*dx+c*dy)/r[3])));},0);
   }
+  function faceDonorOpacity(alpha){return ramp(.90,faceMaterialThresholds.donorOpaqueAlphaByte/255,clamp(finite(alpha,0),0,1));}
+  function faceMaterialPhase(presence,active,delighted,blink,sleep){
+    var amount=clamp(finite(presence,0),0,1),weight=active&&amount>=faceMaterialThresholds.handover?1:0;
+    var handover=active||sleep?1-Math.abs(amount*2-1):0;
+    var closedBlink=Math.max(clamp(finite(blink,0),0,1),handover)*(delighted&&weight?0:1);
+    return {weight:weight,handover:handover,blink:closedBlink,frame:closedBlink>=faceMaterialThresholds.closed?2:closedBlink>=faceMaterialThresholds.half?1:0,
+      mouthWeight:sleep?(amount>=faceMaterialThresholds.handover?1:0):weight};
+  }
+  function nurserySmilePhase(presence,active){
+    var phase=faceMaterialPhase(presence,active,true,0,false);
+    return {weight:phase.weight,blink:phase.blink};
+  }
+  function eyePaintShader(family){return 'float eyePaintMask=max('+eyePaintRegions[family].map(function(r){return 'eyeMask(uv,vec2('+r.slice(0,2).join(',')+'),vec2('+r.slice(2).join(',')+'))';}).join(',')+')*headPart;';}
+  var faceMaterialShader=[
+    'float faceWeight(float presence){return step('+faceMaterialThresholds.handover+',presence);}',
+    'float faceHandover(float presence){return 1.-abs(presence*2.-1.);}',
+    'float blinkFrame(float amount){return amount>='+faceMaterialThresholds.closed+'?2.:amount>='+faceMaterialThresholds.half+'?1.:0.;}',
+    'float faceDonorOpacity(float alpha){return smoothstep(.90,'+faceMaterialThresholds.donorOpaqueAlphaByte+'./255.,alpha);}'
+  ].join('\n');
   function regionWeight(x, y, cx, cy, rx, ry) { var dx = (x - cx) / rx, dy = (y - cy) / ry; return Math.exp(-2 * (dx * dx + dy * dy)); }
   // Forward normalized coordinates. Boundary taper fixes all four frame edges, and
   // the foot line remains grounded. The exact same map positions the food prop.
@@ -2336,7 +2363,7 @@
     'mat2 rotation(float a){return mat2(cos(a),-sin(a),sin(a),cos(a));}',
     'float eyeMask(vec2 p,vec2 c,vec2 r){return 1.-smoothstep(.85,1.1,length(rotation(.28)*(p-c)/r));}',
     'float droplet(vec2 p,vec2 c,vec2 r){vec2 q=(p-c)/r;return 1.-smoothstep(.75,1.05,dot(q,q));}',
-    clothingShader, evolutionShader,handUpperShader('mature'),
+    clothingShader, evolutionShader,faceMaterialShader,handUpperShader('mature'),
     'vec3 handMaterial(vec2 p,vec3 source){vec2 seed=v_part<7.5?vec2(.530,.750):vec2(.760,.735);vec3 back=texture2D(u_original,seed+(p-seed)*.14).rgb;vec3 front=mix(back,source,furSelect(source));return mix(front,back,clamp(v_handVolume.w-1.,0.,1.)*.8);}',
     'float toothPatch(vec2 p){return ce(p,vec2(.628,.511),vec2(.10,.067))*smoothstep(.455,.463,p.y);}',
     turnShader,
@@ -2350,10 +2377,11 @@
     // Values above the original squint range add a small nose/mouth scrunch.
     'float scrunch=max(0.,squint-1.);float nose=region(p,vec2(.621,.453),vec2(.07,.045));',
     'p.x+=(p.x-.621)*scrunch*.24*nose;p.y+=scrunch*.008*nose;',
-    'float eyeL=eyeMask(p,vec2(.4665,.429),vec2(.135,.125));float eyeR=eyeMask(p,vec2(.7281,.3405),vec2(.115,.12));eyeL*=headPart;eyeR*=headPart;float eye=max(eyeL,eyeR);',
+    'float eyeL=eyeMask(p,vec2(.4665,.429),vec2(.135,.125));float eyeR=eyeMask(p,vec2(.7281,.3405),vec2(.115,.12));eyeL*=headPart;eyeR*=headPart;',
     'p.y+=.35*((p.y-.429)*(squint+oneEye)*eyeL+(p.y-.3405)*squint*eyeR);',
     'float iris=region(p,vec2(.4665,.429),vec2(.052,.059))+region(p,vec2(.7281,.3405),vec2(.045,.065));',
     'p-=u_look*iris*(1.-u_blink);vec2 uv=clamp(p,vec2(.0001),vec2(.9999));',
+    eyePaintShader('mature'),
     'float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.60,.415))/vec2(.255,.215)))*headPart;',
     'vec3 original=texture2D(u_original,uv).rgb;',
     'if(volume>.5)original=handMaterial(uv,original);',
@@ -2363,19 +2391,18 @@
     'float toes=smoothstep(.874,.89,p.y)*max(ce(p,vec2(.414,.907),vec2(.09,.035)),ce(p,vec2(.692,.897),vec2(.065,.035)));vec3 under=texture2D(u_original,vec2(uv.x,min(uv.y,.872))).rgb;original=mix(original,under,toes);}',
     'vec3 rgb=original;',
     // Pose scores select one face, not a permanent opacity. A held expression must
-    // replace the old eyes completely; only the cue envelope fades between faces.
+    // replace the old eyes completely at a closed blink; body easing is separate.
     'vec3 expression=rgb;float strongest=0.;float delighted=0.;float toothCell=0.;',
     'if(headPart>.5&&u_face.x>strongest){strongest=u_face.x;expression=texture2D(u_sad,uv).rgb;toothCell=3.;}',
     'if(headPart>.5&&u_face.y>strongest){strongest=u_face.y;expression=texture2D(u_sad,uv).rgb;toothCell=4.;}',
     'if(headPart>.5&&u_face.z>strongest){strongest=u_face.z;expression=texture2D(u_sad,uv).rgb;toothCell=5.;}',
     'if(headPart>.5&&u_face.w>strongest){strongest=u_face.w;expression=texture2D(u_sad,uv).rgb;toothCell=6.;delighted=1.;}',
-    'float weight=strongest>0.?u_presence:0.;rgb=mix(rgb,expression,face*weight);',
+    'float weight=strongest>0.?faceWeight(u_presence):0.;rgb=mix(rgb,expression,face*weight);',
     // Delighted already has closed eyes. Neutral half-open blink frames would
     // paint the old pupils over that expression and create ghost eyes.
-    'float blink=u_blink*(1.-delighted*u_presence);',
-    'rgb=mix(rgb,texture2D(u_half,uv).rgb,eye*smoothstep(0.,.5,blink));',
-    'rgb=mix(rgb,texture2D(u_closed,uv).rgb,eye*smoothstep(.5,1.,blink));',
-    'if(headPart>.5){vec3 toothBase=texture2D(u_angry,uv).rgb;vec3 toothExpression=texture2D(u_surprise,uv).rgb;vec3 tooth=mix(toothBase,toothExpression,v_mouthMode>.5?u_presence:weight);rgb=mix(rgb,tooth,toothPatch(uv));}',
+    'float handover=strongest>0.||v_mouthMode>.5?faceHandover(u_presence):0.;float blink=max(u_blink,handover)*(1.-delighted*weight);',
+    'float lid=blinkFrame(blink);if(lid>.5){vec4 blinkDonor;if(lid>1.5)blinkDonor=texture2D(u_closed,uv);else blinkDonor=texture2D(u_half,uv);rgb=mix(rgb,blinkDonor.rgb,eyePaintMask*faceDonorOpacity(blinkDonor.a));}',
+    'if(headPart>.5){vec3 toothBase=texture2D(u_angry,uv).rgb;vec3 toothExpression=texture2D(u_surprise,uv).rgb;vec3 tooth=mix(toothBase,toothExpression,v_mouthMode>.5?faceWeight(u_presence):weight);rgb=mix(rgb,tooth,toothPatch(uv));}',
     'rgb=evolvedFur(p,original,rgb);',
     'if(volume>.5){float diffuse=max(0.,dot(handNormal,normalize(vec3(-.35,-.60,.72))));rgb*=.90+.12*diffuse;rgb+=vec3(.012,.0108,.0084)*max(0.,handNormal.y);}',
     'float blush=region(p,vec2(.405,.55),vec2(.062,.04))+region(p,vec2(.80,.445),vec2(.047,.037));',
@@ -2407,19 +2434,15 @@
       ['smoothstep(.695,.708,p.y)','smoothstep(.65,.666,p.y)'],['max(.7,uv.y)','max(.67,uv.y)'],
       ['vec2(.414,.907),vec2(.09,.035)','vec2(.452,.914),vec2(.062,.03)'],['vec2(.692,.897),vec2(.065,.035)','vec2(.628,.912),vec2(.058,.03)']
     ];
-    var result=fragmentSource;replacements.forEach(function(row){result=result.split(row[0]).join(row[1]);});
+    var result=fragmentSource.replace(eyePaintShader('mature'),'__EYE_PAINT_MASK__');
+    replacements.forEach(function(row){result=result.split(row[0]).join(row[1]);});
     var featureMask=nurserySmileRegions.map(function(r){return 'eyeMask(p,vec2('+r[0]+','+r[1]+'),vec2('+r[2]+','+r[3]+'))';});
     featureMask[0]+='*smoothstep(.325,.340,p.y)';featureMask[1]+='*smoothstep(.295,.310,p.y)';
     // eyeMask uses a .28-radian registration; the mouth keeps unrotated UVs.
     featureMask[2]='1.-smoothstep(.85,1.1,length((p-vec2(.58051,.523))/vec2(.093,.077)))';
     var oldFace='float face=1.-smoothstep(.82,1.08,length(rotation(.28)*(p-vec2(.555,.435))/vec2(.315,.265)))*headPart;';
     result=result.replace(oldFace,oldFace+'if(u_face.w>max(max(u_face.x,u_face.y),u_face.z))face=max(max('+featureMask[0]+','+featureMask[1]+'),'+featureMask[2]+')*headPart;');
-    // Hand over one opaque set of eyes at a closed blink, rather than fading
-    // open pupils through the smile. Body motion keeps its smooth cue envelope.
-    result=result.replace('float weight=strongest>0.?u_presence:0.;',
-      'float weight=strongest>0.?(delighted>.5?step(.5,u_presence):u_presence):0.;');
-    result=result.replace('float blink=u_blink*(1.-delighted*u_presence);',
-      'float handover=delighted>.5?(1.-abs(u_presence*2.-1.))*(1.-weight):0.;float blink=max(u_blink*(1.-delighted*weight),handover);');
+    result=result.replace('__EYE_PAINT_MASK__',eyePaintShader('baby'));
     result=result.replace(handUpperShader('mature'),handUpperShader('baby'));
     var maps=nurseryFaceMaps.map(function(row){var m=row.matrix,r=row.sourceRect;return 'if(cell>'+((row.cell-.5).toFixed(1))+'&&cell<'+((row.cell+.5).toFixed(1))+'){q=vec2(dot(vec3(p,1.),vec3('+m.slice(0,3).join(',')+')),dot(vec3(p,1.),vec3('+m.slice(3).join(',')+')));rect=vec4('+r.join(',')+');}';}).join('\n');
     var helper='varying vec4 v_sourceRect;\nvec4 nurserySample(sampler2D im,vec2 p,float cell){vec2 q=p;vec4 rect=vec4(0.,0.,1.,1.);'+maps+'vec2 tile=vec2(mod(cell,3.),floor(cell/3.));return texture2D(im,clamp((tile+q)/3.,rect.xy,rect.zw));}\n';
@@ -2431,10 +2454,10 @@
     // sheet only while turning. Expanded view rectangles preserve overhanging fur.
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));tooth=texture2D(u_angry,(tile+safe)/4.).rgb;','tooth=texture2D(u_angry,mix(v_sourceRect.xy,v_sourceRect.zw,safe)).rgb;');
-    [['half',1],['closed',2]].forEach(function(row){result=result.split('texture2D(u_'+row[0]+',uv).rgb').join('nurserySample(u_'+row[0]+',uv,'+row[1]+'.).rgb');});
+    [['half',1],['closed',2]].forEach(function(row){result=result.split('texture2D(u_'+row[0]+',uv)').join('nurserySample(u_'+row[0]+',uv,'+row[1]+'.)');});
     [3,4,5,6].forEach(function(cell){
-      var guard=cell===6?'float donorEye=max(eyeMask(uv,vec2(.44318,.43534),vec2(.120,.124)),eyeMask(uv,vec2(.68435,.40677),vec2(.111,.119)));float donorFur=max(furSelect(expressionDonor.rgb)*smoothstep(.25,.50,dot(expressionDonor.rgb,vec3(.299,.587,.114))),furSelect(original)*smoothstep(.50,.65,dot(original,vec3(.299,.587,.114))))*(1.-donorEye);':'';
-      result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','vec4 expressionDonor=nurserySample(u_sad,uv,'+cell+'.);'+guard+'expression=mix(rgb,expressionDonor.rgb,smoothstep(.90,.99,expressionDonor.a)'+(cell===6?'*(1.-donorFur)':'')+');toothCell='+cell+'.;');
+      var guard=cell===6?'float donorEye=eyePaintMask;float donorFur=max(furSelect(expressionDonor.rgb)*smoothstep(.25,.50,dot(expressionDonor.rgb,vec3(.299,.587,.114))),furSelect(original)*smoothstep(.50,.65,dot(original,vec3(.299,.587,.114))))*(1.-donorEye);':'';
+      result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','vec4 expressionDonor=nurserySample(u_sad,uv,'+cell+'.);'+guard+'expression=mix(rgb,expressionDonor.rgb,faceDonorOpacity(expressionDonor.a)'+(cell===6?'*(1.-donorFur)':'')+');toothCell='+cell+'.;');
     });
     result=result.replace('vec3 toothExpression=texture2D(u_surprise,uv).rgb;','vec3 toothExpression=nurserySample(u_surprise,uv,v_mouthMode>.5?2.:toothCell).rgb;');
     result=result.replace('texture2D(u_sad,plateUV).rgb','nurserySample(u_sad,plateUV,7.).rgb');
@@ -2835,7 +2858,7 @@
     return controller;
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, eggOrigins:eggOrigins,eggOriginProfile:eggOriginProfile,eggVisualProfile:eggVisualProfile,eggOriginColor:eggOriginColor,evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
-    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,nurserySmileCoverage:nurserySmileCoverage,nurserySmilePhase:nurserySmilePhase,
+    appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,nurserySmileCoverage:nurserySmileCoverage,nurserySmilePhase:nurserySmilePhase,eyePaintRegions:eyePaintRegions,eyePaintCoverage:eyePaintCoverage,faceMaterialThresholds:faceMaterialThresholds,faceMaterialPhase:faceMaterialPhase,faceDonorOpacity:faceDonorOpacity,
     catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });

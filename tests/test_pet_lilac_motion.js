@@ -563,7 +563,7 @@ test('registered smile material fully covers real old pupils and the outer lash 
     assert.ok(donor[3]>=252,'replacement comes from the opaque registered smile');
   }
   const f=fixture({options:{appearanceKey:'adult'}});f.complete();
-  assert.match(f.shaders[1],/donorEye=max\(eyeMask\(uv,vec2\(\.44318,\.43534\),vec2\(\.120,\.124\)\),eyeMask\(uv,vec2\(\.68435,\.40677\),vec2\(\.111,\.119\)\)\)/,'fur rejection must exempt the entire real eye, including its old outer lash');
+  assert.match(f.shaders[1],/float donorEye=eyePaintMask/,'fur rejection uses the same final-UV paint mask that owns the entire real eye and outer lash');
   f.api.destroy();
 });
 
@@ -638,15 +638,15 @@ test('mouth shaders keep old silhouette alpha, registered nursery cells and orig
     const f=fixture({options:{appearanceKey:key}});f.complete();const shader=f.shaders[1];
     assert.match(shader,/if\(headPart>\.5\)\{vec3 toothBase=/);assert.match(shader,/rgb=mix\(rgb,tooth,toothPatch\(uv\)\)/);
     assert.match(shader,/float a=texture2D\(u_alpha,uv\)\.a\*v_coverage/);assert.doesNotMatch(shader,/texture2D\(u_(angry|surprise),[^;]+\)\.a/);
-    assert.match(shader,/vec3 tooth=mix\(toothBase,toothExpression,v_mouthMode>\.5\?u_presence:weight\)/);assert.doesNotMatch(shader,/toothClosedUV|\(p.y-\.5(?:07|41)\)\*4/);
-    assert.match(shader,/v_mouthMode>\.5\?u_presence:weight/,'sleep mouth eases through the same finite cue envelope');
+    assert.match(shader,/vec3 tooth=mix\(toothBase,toothExpression,v_mouthMode>\.5\?faceWeight\(u_presence\):weight\)/);assert.doesNotMatch(shader,/toothClosedUV|\(p.y-\.5(?:07|41)\)\*4/);
+    assert.match(shader,/float faceWeight\(float presence\)\{return step\(0\.5,presence\);\}/,'sleep mouth selects one opaque source while body easing remains separate');
     assert.equal(shader.match(/uniform sampler2D [^;]+;/g).length,1);assert.equal(shader.match(/uniform vec4 [^;]+;/g).length,1);
     assert.equal(f.maxActiveUnit,7);assert.ok(f.bindings.every(row=>row[0]<8));
     if(Motion.appearanceProfile(key).family==='baby'){
       for(const cell of [3,4,5,6])assert.match(shader,new RegExp('vec4 expressionDonor=nurserySample\\(u_sad,uv,'+cell+'\\.\\)'));
-      assert.match(shader,/expression=mix\(rgb,expressionDonor.rgb,smoothstep\(\.90,\.99,expressionDonor.a\)\)/);
+      assert.match(shader,/expression=mix\(rgb,expressionDonor.rgb,faceDonorOpacity\(expressionDonor.a\)\)/);
       assert.match(shader,/if\(u_face.w>max\(max\(u_face.x,u_face.y\),u_face.z\)\)face=max/,'only the smiling donor gets the local feature mask');
-      assert.match(shader,/delighted>\.5\?step\(\.5,u_presence\):u_presence/,'other facial cues retain their existing easing');
+      assert.match(shader,/float weight=strongest>0\.\?faceWeight\(u_presence\):0\./,'all facial cues select an opaque donor without altering body easing');
       assert.match(shader,/toothExpression=nurserySample\(u_surprise,uv,v_mouthMode>\.5\?2\.:toothCell\)\.rgb/);
       assert.match(shader,/tooth=texture2D\(u_angry,mix\(v_sourceRect.xy,v_sourceRect.zw,safe\)\)\.rgb/);
     }else assert.match(shader,/toothExpression=texture2D\(u_surprise,uv\)\.rgb/);
@@ -1927,7 +1927,7 @@ test('fifteen-image load retains original cutout alpha with eight sampler units 
   f.complete(); assert.equal(f.ready, 1); assert.equal(f.draws, 9); assert.equal(f.canvas.hidden, false);
   assert.equal(f.uploads.length, 15); assert.equal(f.canvas.contextOptions.alpha, true); assert.equal(f.canvas.contextOptions.premultipliedAlpha, true);
   assert.match(f.shaders[1], /texture2D\(u_alpha,uv\)\.a/);
-  assert.match(f.shaders[1], /texture2D\(u_half,uv\)\.rgb/);
+  assert.match(f.shaders[1], /else blinkDonor=texture2D\(u_half,uv\)/);
   assert.match(f.shaders[1], /GL_FRAGMENT_PRECISION_HIGH/);
   for (const name of ['sad', 'angry', 'surprise']) assert.match(f.shaders[1], new RegExp('texture2D\\(u_' + name + ',uv\\)\\.rgb'));
   assert.match(f.shaders[1], /face\*weight/);
@@ -2172,5 +2172,84 @@ test('birth-specific 3D arms stay continuous finite and inside the fixed camera 
         assert.ok(palmAlphaAt(mesh,p.x*2-1,1-p.y*2)>.97,'birth shape keeps an opaque continuous forearm');
       }
     }
+  }
+});
+
+
+test('blink frame thresholds select exactly one eye image and all face/sleep handovers are opaque',()=>{
+  for(const [blink,frame]of [[-1,0],[0,0],[.249999,0],[.25,1],[.5,1],[.749999,1],[.75,2],[1,2],[2,2]]){
+    const phase=Motion.faceMaterialPhase(0,false,false,blink,false);assert.equal(phase.frame,frame);assert.equal(phase.weight,0);assert.equal(phase.mouthWeight,0);
+  }
+  for(const presence of [0,.001,.25,.499,.5,.501,.75,.999,1]){
+    for(const delighted of [false,true]){
+      const phase=Motion.faceMaterialPhase(presence,true,delighted,0,false);
+      assert.equal(phase.weight,presence>=.5?1:0);assert.equal(phase.mouthWeight,phase.weight);
+      assert.ok([0,1,2].includes(phase.frame));
+      if(presence>=.499&&presence<=.501)assert.equal(delighted&&phase.weight?phase.blink:phase.frame,delighted&&phase.weight?0:2,'both sides hand over closed eyes; an adopted smile keeps its own closed eyes');
+    }
+    const sleep=Motion.faceMaterialPhase(presence,false,false,0,true);assert.equal(sleep.mouthWeight,presence>=.5?1:0);
+    if(presence>=.499&&presence<=.501)assert.equal(sleep.frame,2,'the sleep mouth changes behind closed eyelids');
+    const neutral=Motion.faceMaterialPhase(presence,false,false,0,false);assert.equal(neutral.handover,0);assert.equal(neutral.frame,0);
+  }
+  assert.equal(Motion.faceDonorOpacity(252/255),1);assert.equal(Motion.faceDonorOpacity(253/255),1);assert.equal(Motion.faceDonorOpacity(1),1);
+  assert.equal(Motion.faceDonorOpacity(.90),0);assert.ok(Motion.faceDonorOpacity(.95)>0&&Motion.faceDonorOpacity(.95)<1,'only transparent skin boundaries feather');
+});
+
+function largestOldEyeComponent(box){
+  pngPixel('pet_lilac_reference_v2.png',0,0);const png=pngCache.get('pet_lilac_reference_v2.png'),[x0,y0,x1,y1]=box,width=x1-x0,height=y1-y0;
+  const dark=new Uint8Array(width*height),seen=new Uint8Array(width*height);let largest=[];
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const at=(y*png.width+x)*4;dark[(y-y0)*width+x-x0]=png.pixels[at+3]>240&&Math.max(png.pixels[at],png.pixels[at+1],png.pixels[at+2])<180?1:0;}
+  for(let seed=0;seed<dark.length;seed++)if(dark[seed]&&!seen[seed]){
+    const component=[],stack=[seed];seen[seed]=1;
+    while(stack.length){const at=stack.pop(),x=at%width,y=Math.floor(at/width);component.push([x+x0,y+y0]);
+      for(const next of [x?at-1:-1,x+1<width?at+1:-1,y?at-width:-1,y+1<height?at+width:-1])if(next>=0&&dark[next]&&!seen[next]){seen[next]=1;stack.push(next);}
+    }
+    if(component.length>largest.length)largest=component;
+  }
+  return largest;
+}
+function registeredDonorAlpha(cell,x,y){
+  const uv=Motion.nurseryFaceUV(cell,x,y);pngPixel('pet_lilac_baby_expressions_v1.png',0,0);const png=pngCache.get('pet_lilac_baby_expressions_v1.png');
+  const sx=uv.x*png.width-.5,sy=uv.y*png.height-.5,x0=Math.floor(sx),y0=Math.floor(sy),tx=sx-x0,ty=sy-y0;
+  function alpha(px,py){return png.pixels[(Math.max(0,Math.min(png.height-1,py))*png.width+Math.max(0,Math.min(png.width-1,px)))*4+3];}
+  return (alpha(x0,y0)*(1-tx)+alpha(x0+1,y0)*tx)*(1-ty)+(alpha(x0,y0+1)*(1-tx)+alpha(x0+1,y0+1)*tx)*ty;
+}
+test('the immutable PNG largest eye components including eyelashes are fully owned by every registered blink/expression donor',()=>{
+  // Independent fixed pixel ROIs and dark connected components, never selected by the new mask.
+  const components=[largestOldEyeComponent([413,426,702,664]),largestOldEyeComponent([714,376,1003,639])];
+  assert.deepEqual(components.map(points=>points.length),[17536,15078]);
+  for(const points of components)for(const [px,py]of points){const x=(px+.5)/1254,y=(py+.5)/1254;
+    assert.equal(Motion.eyePaintCoverage('adult',x,y),1,'every original pupil/lash pixel is fully replaced, not feathered');
+    for(const cell of [1,2,3,4,5,6]){const alpha=registeredDonorAlpha(cell,x,y)/255;assert.ok(alpha>=252/255-1e-12,'registered eye donor remains opaque');assert.ok(Motion.faceDonorOpacity(alpha)>=1-1e-12,'no original dark eye survives the donor alpha');}
+  }
+  for(const [x,y]of [[.417,.302],[.682,.274],[.32,.60],[.79,.58],[.57697,.48134]])assert.equal(Motion.eyePaintCoverage('adult',x,y),0,'brows, cheeks and nose stay outside eye painting');
+  for(const key of ['egg','egg_cracked','hatching'])assert.equal(Motion.eyePaintCoverage(key,.44318,.43534),0,'mouthless eggs cannot acquire old or new eyes from this material');
+});
+
+test('actual mature and nursery shaders paint eyes only at final warped UV and use one blink donor with the shared opaque thresholds',()=>{
+  for(const key of [null,...bornAppearances]){
+    const f=fixture({options:{appearanceKey:key}});f.complete();const shader=f.shaders[1],baby=Motion.appearanceProfile(key).family==='baby';
+    const paint=shader.match(/float eyePaintMask=max\(eyeMask\(uv,vec2\(([^)]+)\),vec2\(([^)]+)\)\),eyeMask\(uv,vec2\(([^)]+)\),vec2\(([^)]+)\)\)\)\*headPart;/);assert.ok(paint);
+    assert.deepEqual(paint.slice(1).map(v=>v.split(',').map(Number)),baby?[[.44318,.43534],[.120,.124],[.68435,.40677],[.111,.119]]:[[.4665,.429],[.135,.125],[.7281,.3405],[.115,.12]]);
+    assert.ok(shader.indexOf(paint[0])>shader.indexOf('vec2 uv=clamp(p,'),'paint mask follows squint/look warps');
+    assert.match(shader,baby?/float eyeL=eyeMask\(p,vec2\(\.44318,\.43534\),vec2\(\.112,\.115\)\)/:/float eyeL=eyeMask\(p,vec2\(\.4665,\.429\),vec2\(\.135,\.125\)\)/,'warp control keeps its original mask');
+    assert.match(shader,/float blinkFrame\(float amount\)\{return amount>=0\.75\?2\.:amount>=0\.25\?1\.:0\.;\}/);
+    assert.match(shader,/if\(lid>1\.5\)blinkDonor=/);assert.match(shader,/else blinkDonor=/);
+    assert.match(shader,/eyePaintMask\*faceDonorOpacity\(blinkDonor.a\)/);assert.match(shader,/max\(u_blink,handover\)\*\(1\.-delighted\*weight\)/);
+    assert.match(shader,/strongest>0\.\|\|v_mouthMode>\.5\?faceHandover\(u_presence\)/);assert.doesNotMatch(shader,/eye\*smoothstep|v_mouthMode>\.5\?u_presence|__EYE_PAINT_MASK__/);
+    if(baby){assert.match(shader,/blinkDonor=nurserySample\(u_closed,uv,2\.\)/);assert.match(shader,/blinkDonor=nurserySample\(u_half,uv,1\.\)/);}
+    assert.equal(f.maxActiveUnit,7);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+});
+
+test('all cue entry and release phases use discrete facial materials without mutating body pose',()=>{
+  for(const row of Motion.catalogue){const sleep=['resting','sleepy','deep_sleep'].includes(row.id);let sawEnvelope=false;
+    for(let ms=0;ms<=row.durationMs;ms+=20){const p=Motion.pose(0,row.id,ms/1000,'adult'),before=JSON.stringify(p),winner=faceWinner(p);
+      const phase=Motion.faceMaterialPhase(p.presence,winner!=='original',winner==='faceDelighted',p.blink,sleep);
+      assert.ok(phase.weight===0||phase.weight===1);assert.ok(phase.mouthWeight===0||phase.mouthWeight===1);assert.ok([0,1,2].includes(phase.frame));assert.equal(JSON.stringify(p),before);
+      if(p.presence>0&&p.presence<1)sawEnvelope=true;if(p.presence>.49&&p.presence<.51&&(winner!=='original'||sleep))assert.equal(winner==='faceDelighted'&&phase.weight?phase.blink:phase.frame,winner==='faceDelighted'&&phase.weight?0:2);
+    }
+    if(row.id==='idle')assert.equal(sawEnvelope,false,'idle has no finite cue envelope');
+    else assert.ok(sawEnvelope,row.id+' retains its continuous finite body envelope');
   }
 });
