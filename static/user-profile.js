@@ -50,7 +50,8 @@
     function paint(force){
       if(!section)return;
       summaryName.textContent=state.username||'プロフィール';summaryIcon.textContent=avatars[state.avatar]||avatars.leaf;
-      scope.textContent=identity==='guest'?'ユーザー名はチャットで共通に使います。このブラウザに保存します。動画の投稿にはログインが必要です。':'ユーザー名はチャットと動画投稿で共通に使います。このアカウントに保存します。';
+      scope.hidden=identity!=='guest';
+      scope.textContent=identity==='guest'?'ユーザー名はチャットで共通に使います。このブラウザに保存します。動画の投稿にはログインが必要です。':'';
       emailWrap.hidden=identity==='guest'||!email;emailInput.value=email;
       if(force||!dirty){fields.username.value=state.username;fields.bio.value=state.bio;fields.avatar.value=state.avatar;}
       var disabled=saving||loading||(!loaded&&identity!=='guest');
