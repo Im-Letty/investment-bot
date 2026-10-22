@@ -12,7 +12,7 @@ import struct
 import unittest
 
 from flask import Flask
-from shorts_api import create_shorts_blueprint, ShortsError, SupabaseShortsRepository
+from shorts_api import create_shorts_blueprint, ShortsError, SupabaseShortsRepository, MAX_ID
 from shorts_contract import SubmissionError, verified_login_owner, youtube_video_id
 from shorts_media import inspect_mp4, MediaError, MAX_FILE_BYTES
 
@@ -199,6 +199,136 @@ class ShortsAPITests(unittest.TestCase):
                 self.assertEqual('login_required', response.json['reason'])
         self.assertEqual([], self.repo.calls)
         self.assertEqual([], self.repo.uploads)
+
+    def test_public_single_post_reuses_visible_list_and_public_projection_without_auth(self):
+        self.repo.profile_names[ALICE] = 'はる'
+        self.upload()
+        self.repo.calls.clear()
+        self.repo.auth_calls.clear()
+        result = self.client.get('/api/shorts/posts/1', headers=self.auth('offline'))
+        self.assertEqual(200, result.status_code)
+        post = result.json['post']
+        self.assertEqual(1, post['id'])
+        self.assertEqual('はる', post['author_name'])
+        self.assertEqual('/api/shorts/posts/1/media', post['media_url'])
+        self.assertFalse(post['is_mine'])
+        self.assertEqual([('list', None, {'topic': 'all', 'limit': 1, 'before': 2})], self.repo.calls)
+        self.assertEqual([], self.repo.auth_calls)
+        for private in ['object_path', 'owner_id', 'token', 'email', 'state', 'sha256', 'request_id']:
+            self.assertNotIn(private, post)
+        self.assertEqual('no-store', result.headers['Cache-Control'])
+
+    def test_public_single_never_substitutes_nearest_post_or_returns_nonpublic_post(self):
+        self.upload()
+        for path in ['/api/shorts/posts/2', '/shorts/2']:
+            self.assertEqual(404, self.client.get(path).status_code)
+        for state in ['pending', 'hidden', 'deleted']:
+            with self.subTest(state=state):
+                row = self.repo.rows[1]
+                row.update(published_at=None if state == 'pending' else STAMP,
+                           hidden=state == 'hidden', deleted=state == 'deleted')
+                for path in ['/api/shorts/posts/1', '/shorts/1']:
+                    response = self.client.get(path)
+                    self.assertEqual(404, response.status_code)
+                    self.assertNotIn('/api/shorts/posts/1/media', response.get_data(as_text=True))
+                    self.assertEqual('no-store', response.headers['Cache-Control'])
+
+    def test_public_single_invalid_ids_fail_before_any_repository_or_auth_call(self):
+        for post_id in ['0', '-1', '01', '1.0', 'NaN', 'true', str(MAX_ID + 1), '9' * 100]:
+            with self.subTest(post_id=post_id):
+                for prefix in ['/api/shorts/posts/', '/shorts/']:
+                    self.assertEqual(400, self.client.get(prefix + post_id).status_code)
+        self.assertEqual([], self.repo.calls)
+        self.assertEqual([], self.repo.auth_calls)
+
+    def test_public_single_max_safe_id_uses_exact_internal_bigint_cursor(self):
+        self.upload()
+        row = self.repo.rows.pop(1)
+        row['id'] = MAX_ID
+        self.repo.rows[MAX_ID] = row
+        result = self.client.get('/api/shorts/posts/' + str(MAX_ID))
+        self.assertEqual(200, result.status_code)
+        self.assertEqual(MAX_ID, result.json['post']['id'])
+        self.assertEqual(MAX_ID + 1, self.repo.calls[-1][2]['before'])
+
+    def test_public_single_malformed_repository_responses_fail_closed(self):
+        self.upload()
+        row = self.repo.public(self.repo.rows[1], None)
+        cases = [
+            {'ok': True, 'posts': [], 'has_more': True, 'next_cursor': None},
+            {'ok': True, 'posts': [row, row], 'has_more': False, 'next_cursor': None},
+            {'ok': True, 'posts': [row], 'has_more': 1, 'next_cursor': None},
+            {'ok': True, 'posts': [row], 'has_more': True, 'next_cursor': 2},
+            {'ok': True, 'posts': [row], 'has_more': False, 'next_cursor': 1},
+            {'ok': True, 'posts': [dict(row, id=True)], 'has_more': False, 'next_cursor': None},
+            {'ok': True, 'posts': [dict(row, id=2)], 'has_more': False, 'next_cursor': None},
+            {'ok': True, 'posts': [dict(row, published_at=None)], 'has_more': False, 'next_cursor': None},
+            {'ok': True, 'posts': [dict(row, provider='https://evil.invalid')], 'has_more': False, 'next_cursor': None},
+        ]
+        for value in cases:
+            with self.subTest(value=value):
+                self.repo.override = value
+                for prefix in ['/api/shorts/posts/', '/shorts/']:
+                    response = self.client.get(prefix + '1')
+                    self.assertEqual(503, response.status_code)
+                    self.assertNotIn('private-fixture', response.get_data(as_text=True))
+                    self.assertNotIn('evil.invalid', response.get_data(as_text=True))
+
+    def test_public_viewer_escapes_metadata_and_never_serializes_request_or_storage_secrets(self):
+        self.repo.profile_names[ALICE] = '<b>なまえ</b>'
+        self.upload(title='</title><script>alert(1)</script>"', caption='<img src=x onerror=alert(1)>')
+        self.repo.sign_fail = True
+        self.repo.calls.clear()
+        response = self.client.get('/shorts/1?token=private-query-token#private-fragment',
+                                   headers={'Host': 'untrusted-host.invalid'})
+        self.assertEqual(200, response.status_code)
+        body = response.get_data(as_text=True)
+        self.assertIn('&lt;/title&gt;&lt;script&gt;alert(1)&lt;/script&gt;&#34;', body)
+        self.assertNotIn('<script>alert', body)
+        self.assertNotIn('<img src=x', body)
+        self.assertNotIn('<b>なまえ</b>', body)
+        self.assertIn('<video controls playsinline preload="metadata" src="/api/shorts/posts/1/media"', body)
+        self.assertIn('data-share-provider="post" data-post-id="1"', body)
+        self.assertIn('/static/shorts-sharing.js?v=20261022-hybrid1', body)
+        for private in ['private-query-token', 'private-fragment', 'untrusted-host.invalid',
+                        'private-fixture', 'private@example.invalid', ALICE, 'object_path', 'signed-media']:
+            self.assertNotIn(private, body)
+        self.assertEqual([('list', None, {'topic': 'all', 'limit': 1, 'before': 2})], self.repo.calls)
+        self.assertEqual('origin', response.headers['Referrer-Policy'])
+        self.assertIn("script-src 'self'", response.headers['Content-Security-Policy'])
+        self.assertIn("frame-src https://www.youtube-nocookie.com", response.headers['Content-Security-Policy'])
+        self.assertEqual('nosniff', response.headers['X-Content-Type-Options'])
+
+    def test_public_viewer_legacy_youtube_is_fixed_nocookie_embed_with_validated_id(self):
+        values = payload()
+        values.pop('url')
+        values['video_id'] = 'AAAAAAAAAAA'
+        self.repo.call('create_youtube', ALICE, values)
+        response = self.client.get('/shorts/1')
+        self.assertEqual(200, response.status_code)
+        body = response.get_data(as_text=True)
+        self.assertIn('https://www.youtube-nocookie.com/embed/AAAAAAAAAAA?playsinline=1', body)
+        self.assertIn('referrerpolicy="origin"', body)
+        self.assertNotIn('<video', body)
+        self.assertNotIn('autoplay', body)
+        row = self.repo.public(self.repo.rows[1], None)
+        self.repo.override = dict(ok=True, posts=[dict(row, video_id='../../evil')],
+                                  has_more=False, next_cursor=None)
+        self.assertEqual(503, self.client.get('/shorts/1').status_code)
+
+    def test_public_viewer_errors_are_honest_html_while_api_errors_remain_json(self):
+        response = self.client.get('/shorts/1')
+        self.assertEqual(404, response.status_code)
+        self.assertEqual('text/html', response.mimetype)
+        self.assertIn('公開されていません', response.get_data(as_text=True))
+        self.repo.fail = RuntimeError('private-storage-url-token')
+        response = self.client.get('/shorts/1')
+        self.assertEqual(503, response.status_code)
+        self.assertIn('少し後に', response.get_data(as_text=True))
+        self.assertNotIn('private-storage', response.get_data(as_text=True))
+        response = self.client.get('/api/shorts/posts/1')
+        self.assertEqual(503, response.status_code)
+        self.assertEqual({'ok': False, 'reason': 'storage_unavailable'}, response.json)
 
     def test_file_uploads_default_closed_until_existing_capacity_review(self):
         app = Flask('default-closed')

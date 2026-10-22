@@ -12,7 +12,7 @@ import re
 import uuid
 import unicodedata
 
-from flask import Blueprint, jsonify, redirect, request
+from flask import Blueprint, jsonify, make_response, redirect, render_template_string, request
 import requests
 
 from shorts_contract import (
@@ -27,6 +27,25 @@ MAX_JSON_BYTES = 8192
 MAX_MULTIPART_BYTES = MAX_FILE_BYTES + 16_384
 MAX_ID = 9_007_199_254_740_991
 OBJECT_PATH = re.compile(r'[0-9a-f-]{36}/[0-9a-f-]{36}\.(?:mp4|mov)')
+VIEWER_TEMPLATE = '''<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="referrer" content="origin"><title>{{ post.title if post else '動画を開けません' }} | ショート</title>
+<link rel="stylesheet" href="/static/shorts-sharing.css?v=20261022-hybrid1">
+<script defer src="/static/shorts-sharing.js?v=20261022-hybrid1"></script></head>
+<body class="ks-share-page"><main class="ks-share-viewer">
+<header class="ks-share-viewer-head"><a href="/">サイトへ戻る</a><span>ショート</span></header>
+{% if post %}
+<div class="ks-share-viewer-media">
+{% if post.provider == 'upload' %}<video controls playsinline preload="metadata" src="/api/shorts/posts/{{ post.id }}/media" aria-label="{{ post.title }}">このブラウザでは動画を再生できません。</video>
+{% else %}<iframe src="https://www.youtube-nocookie.com/embed/{{ post.video_id }}?playsinline=1" title="{{ post.title }}" allow="fullscreen; picture-in-picture" allowfullscreen referrerpolicy="origin"></iframe>{% endif %}
+</div><section class="ks-share-viewer-info"><h1>{{ post.title }}</h1>
+{% if post.author_name %}<p class="ks-share-viewer-author">{{ post.author_name }}</p>{% endif %}
+{% if post.caption %}<p class="ks-share-viewer-caption">{{ post.caption }}</p>{% endif %}
+<p class="ks-share-viewer-topic">{{ post.topic }}</p>
+<button type="button" class="ks-share-button" data-share-provider="post" data-post-id="{{ post.id }}" data-share-title="{{ post.title }}">共有</button>
+</section>
+{% else %}<section class="ks-share-viewer-info"><h1>動画を開けません</h1><p role="status">{{ error_message }}</p></section>{% endif %}
+</main></body></html>'''
 STATUSES = {
     'login_required': 401, 'auth_unavailable': 503, 'storage_unavailable': 503,
     'invalid_request': 400, 'invalid_metadata': 400, 'invalid_request_id': 400,
@@ -249,10 +268,50 @@ def create_shorts_blueprint(supabase_url, supabase_key, *, repository=None, chec
             raise ShortsError('storage_unavailable')
         return path
 
+    def viewer_response(post=None, *, error_message=None, status=200):
+        response = make_response(render_template_string(VIEWER_TEMPLATE,
+            post=post, error_message=error_message), status)
+        response.headers['Content-Security-Policy'] = (
+            "default-src 'self'; script-src 'self'; style-src 'self'; "
+            "media-src 'self' https:; frame-src https://www.youtube-nocookie.com; "
+            "object-src 'none'; base-uri 'none'; frame-ancestors 'none'; form-action 'none'")
+        # Identify the embedding origin for YouTube without sending query/hash
+        # data (or the individual video's path) in subresource referrers.
+        response.headers['Referrer-Policy'] = 'origin'
+        return response
+
+    def public_post(post_id):
+        target = _integer(post_id)
+        # Reuse the deployed public-list predicate: visible, complete rows only.
+        # The next greater integer is an internal bigint cursor, never a browser
+        # number or public identifier. Even MAX_ID + 1 fits PostgreSQL bigint.
+        value = operation('list', None, dict(topic='all', limit=1, before=target + 1))
+        rows = value.get('posts')
+        if not isinstance(rows, list) or len(rows) > 1 or not isinstance(value.get('has_more'), bool):
+            raise ShortsError('storage_unavailable')
+        cursor = _integer(value.get('next_cursor'), 'storage_unavailable', optional=True)
+        if value['has_more'] and (not rows or not isinstance(rows[0], dict) or cursor != rows[0].get('id')):
+            raise ShortsError('storage_unavailable')
+        if not value['has_more'] and cursor is not None:
+            raise ShortsError('storage_unavailable')
+        if not rows:
+            raise ShortsError('not_found')
+        row = rows[0]
+        row_id = _integer(row.get('id') if isinstance(row, dict) else None, 'storage_unavailable')
+        if row_id > target:
+            raise ShortsError('storage_unavailable')
+        if row_id != target:
+            raise ShortsError('not_found')
+        return _post(row)
+
     @bp.errorhandler(SubmissionError)
     @bp.errorhandler(ShortsError)
     def failed(error):
         reason = error.reason if error.reason in STATUSES else 'storage_unavailable'
+        if request.path.startswith('/shorts/'):
+            return viewer_response(error_message=(
+                'この動画は見つからないか、公開されていません。' if reason == 'not_found'
+                else '今は動画を開けません。少し後にもう一度お試しください。'), status=STATUSES[reason])
         payload = dict(ok=False, reason=reason)
         retry = getattr(error, 'retry_after', None)
         if reason == 'rate_limited' and isinstance(retry, int) and not isinstance(retry, bool):
@@ -351,6 +410,14 @@ def create_shorts_blueprint(supabase_url, supabase_key, *, repository=None, chec
         if limit > 20:
             raise ShortsError('invalid_request')
         return feed(operation('mine', owner, dict(limit=limit, before=before)), owner, limit, private=True)
+
+    @bp.route('/api/shorts/posts/<post_id>', methods=['GET'])
+    def public_single(post_id):
+        return jsonify(ok=True, post=public_post(post_id))
+
+    @bp.route('/shorts/<post_id>', methods=['GET'])
+    def public_viewer(post_id):
+        return viewer_response(public_post(post_id))
 
     @bp.route('/api/shorts/posts/<post_id>', methods=['DELETE'])
     def delete(post_id):
