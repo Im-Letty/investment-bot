@@ -32,8 +32,7 @@ function fixture(user={id:'account-A'},options={}) {
   const el=cls=>{const n=new Element();n.className=cls;return n;};
   const page=el(''),tabs=page.appendChild(el('mo-tabs')),body=page.appendChild(el('mo-body'));
   const close=page.appendChild(el('mo-x'));
-  tabs.appendChild(el('mo-tab on'));tabs.appendChild(el('mo-tab'));
-  body.appendChild(el('mo-pane on'));body.appendChild(el('mo-pane'));
+  for(let index=0;index<4;index++){tabs.appendChild(el('mo-tab'+(index===0?' on':'')));body.appendChild(el('mo-pane'+(index===0?' on':'')));}
   tabs.children.forEach((tab,index)=>{tab.onclick=()=>{
     tabs.children.forEach((item,i)=>item.classList.toggle('on',i===index));
     body.querySelectorAll('.mo-pane:not(.kb-pane)').forEach((item,i)=>item.classList.toggle('on',i===index));
@@ -98,7 +97,7 @@ test('readiness accepts only the owned same-origin household-ledger frame',()=>{
 });
 test('home navigation retains the existing MyPage entry and never removes the private ledger source',()=>{
   const html=read('index.html');
-  assert.match(html,/mypage-ledger-loader\.js\?v=20261017-assets1/);
+  assert.match(html,/mypage-ledger-loader\.js\?v=[^"'&<\s]+/);
   assert.doesNotMatch(html,/__kf2.*removeAttribute\('src'\)/);
   assert.match(html,/card\.id="myPageCard"/);assert.match(html,/card\.onclick=openMy/);assert.match(html,/data-act="mypage"/);
 });
@@ -181,7 +180,7 @@ test('portfolio opens assets in the same private document and other personal tab
   const frame=h.frame;frame.draft='unfinished asset';h.ready();
   assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.views.at(-1),'assets');
   assert.equal(frame.parentNode.classList.contains('on'),true);
-  h.tabs.children[1].click();
+  h.tabs.children[3].click();
   assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.equal(frame.parentNode.classList.contains('on'),false);
   h.tabs.children[0].click();
   assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.views.at(-1),'assets');
@@ -190,7 +189,7 @@ test('portfolio opens assets in the same private document and other personal tab
 });
 test('household assets navigation reports acceptance and selects portfolio without a top-level reload',()=>{
   const h=fixture();h.context.knOpenLedger();const frame=h.frame;frame.draft='unfinished household entry';
-  h.tabs.children[1].click();h.ledger.click();
+  h.tabs.children[3].click();h.ledger.click();
   assert.equal(h.context.knOpenAssets(),true);
   assert.equal(h.personal.classList.contains('on'),true);assert.equal(h.tabs.children[0].classList.contains('on'),true);
   assert.equal(h.views.at(-1),'assets');assert.equal(h.frame,frame);assert.equal(frame.draft,'unfinished household entry');assert.deepEqual(h.navigations,['/kakeibo']);
@@ -246,17 +245,17 @@ test('loading startup waits for DOM ready without starting a private iframe requ
   assert.equal(h.registrations.find(item=>item.target==='document'&&item.name==='DOMContentLoaded').settings.once,true);
 });
 
-test('portfolio goal edit selects the existing goals tab while preserving the same private ledger document',()=>{
+test('the compatibility goal entry returns to portfolio while preserving the same private ledger document',()=>{
   const h=fixture();h.context.knOpenAssets();const frame=h.frame;frame.draft='unfinished asset';
-  assert.equal(h.context.knOpenGoals(),true);assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[1].classList.contains('on'),true);
-  assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.equal(h.frame,frame);assert.equal(frame.draft,'unfinished asset');assert.deepEqual(h.navigations,['/kakeibo']);
+  assert.equal(h.context.knOpenGoals(),true);assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[0].classList.contains('on'),true);assert.equal(h.tabs.children[1].classList.contains('on'),false);
+  assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.frame,frame);assert.equal(frame.draft,'unfinished asset');assert.deepEqual(h.navigations,['/kakeibo']);
 });
-test('standalone goal deep links wait for normal authorization and then select the existing goals tab',()=>{
+test('old standalone goal deep links wait for normal authorization and then open portfolio',()=>{
   const h=fixture(null,{allowAnonymous:true,search:'?mypage=goals'});assert.equal(h.page.classList.contains('open'),false);assert.deepEqual(h.navigations,[]);
-  h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[1].classList.contains('on'),true);assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.deepEqual(h.navigations,['/kakeibo']);
+  h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[0].classList.contains('on'),true);assert.equal(h.tabs.children[1].classList.contains('on'),false);assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.deepEqual(h.navigations,['/kakeibo']);
 });
 
-test('the latest authorized pending portfolio or goal entry wins after sign-in',()=>{
- const goals=fixture(null);assert.equal(goals.context.knOpenAssets(),false);assert.equal(goals.context.knOpenGoals(),false);goals.auth({id:'account-A'});assert.equal(goals.tabs.children[1].classList.contains('on'),true);assert.equal(goals.page.getAttribute('data-mp-view'),'personal');
+test('pending portfolio and compatibility goal entries both open portfolio after normal sign-in',()=>{
+ const goals=fixture(null);assert.equal(goals.context.knOpenAssets(),false);assert.equal(goals.context.knOpenGoals(),false);goals.auth({id:'account-A'});assert.equal(goals.tabs.children[0].classList.contains('on'),true);assert.equal(goals.tabs.children[1].classList.contains('on'),false);assert.equal(goals.page.getAttribute('data-mp-view'),'assets');
  const assets=fixture(null);assert.equal(assets.context.knOpenGoals(),false);assert.equal(assets.context.knOpenAssets(),false);assets.auth({id:'account-A'});assert.equal(assets.tabs.children[0].classList.contains('on'),true);assert.equal(assets.page.getAttribute('data-mp-view'),'assets');
 });

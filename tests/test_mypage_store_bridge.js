@@ -344,3 +344,36 @@ test('invalid flags never weaken the existing required reminder fields or permit
   }
   assert.equal(h.requests.length,1);assert.equal(h.ls.getItem(KEY),null);
 });
+
+test('an optional portfolio target survives pending replay and full-snapshot save while all historical and additive data remain exact',async()=>{
+  const historical={...reminderDocument(),goals:[{id:'g',title:'旧目標',details:'保持する詳細',target:2500,monthly:100,deadline:'2027-12-31'}],
+    goalDraft:{id:'g',title:'旧編集途中',details:'  詳細\n',target:'3000',monthly:'125',deadline:'2027-12-31',futureDraft:{keep:true}},
+    notes:[{id:'n',title:'メモ',body:'保持する本文\n',groupId:'',pinned:true,futureNote:{keep:true}}],futureTop:{keep:true}};
+  const old=JSON.stringify(historical);
+  for(const assetTarget of [undefined,null,0.01,Number.MAX_SAFE_INTEGER]){
+    const doc=assetTarget===undefined?historical:{...historical,assetTarget},pending=JSON.stringify(doc);
+    const h=fixture({[KEY]:old,[JOURNAL+'alice']:pending}),reading=h.bridge.load('alice');
+    await h.restore({[KEY]:old});assert.equal((await reading).raw,pending);assert.equal(h.ls.getItem(KEY),pending);
+    assert.equal(h.bridge.stage('alice',pending),true);
+    const saving=h.bridge.save('alice',pending);await settle();
+    if(h.requests.at(-1).url.endsWith('/save'))h.respondSave();
+    assert.equal(await saving,true);assert.equal((await h.bridge.load('alice')).raw,pending);
+    assert.equal(Object.hasOwn(JSON.parse(pending),'assetTarget'),assetTarget!==undefined);
+    const saved=JSON.parse(h.ls.getItem(KEY));delete saved.assetTarget;assert.deepEqual(saved,historical);
+  }
+});
+
+test('invalid optional portfolio targets cannot be staged or replayed over valid records',async()=>{
+  const valid=raw('confirmed older bytes'),badValues=[0,-1,'100',false,true,[],{},Number.MAX_SAFE_INTEGER+1];
+  const broken=badValues.map(assetTarget=>JSON.stringify({...planner.empty(),assetTarget}));
+  broken.push(JSON.stringify({...planner.empty(),assetTarget:null}).replace('"assetTarget":null','"assetTarget":1e309'));
+  for(const pending of broken){
+    const h=fixture({[KEY]:valid,[JOURNAL+'alice']:pending});
+    await assert.rejects(h.bridge.load('alice'),/mypage_restore_unavailable/);
+    assert.equal(h.requests.length,0);assert.equal(h.messages.length,0);assert.equal(h.ls.getItem(KEY),valid);assert.equal(h.ls.getItem(JOURNAL+'alice'),pending);
+    assert.equal(h.bridge.stage('alice',pending),false);assert.equal(await h.bridge.save('alice',valid),false);
+  }
+  const h=fixture({[KEY]:valid});await h.restore({[KEY]:valid});
+  for(const pending of broken){assert.equal(h.bridge.stage('alice',pending),false);assert.equal(await h.bridge.save('alice',pending),false);}
+  assert.equal(h.ls.getItem(KEY),valid);assert.equal(h.ls.getItem(JOURNAL+'alice'),null);assert.equal(h.requests.length,1);
+});

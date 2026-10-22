@@ -114,11 +114,7 @@
     return true;
   }
   function openGoals() {
-    pendingAssets=false;pendingGoals=true;
-    var card=document.getElementById('myPageCard');if(card)card.click();
-    if(!page.classList.contains('open')||!account())return false;
-    var goal=tabs.querySelectorAll('.mo-tab')[1];if(!goal)return false;
-    pendingGoals=false;goal.click();show(0);return true;
+    return openAssets();
   }
   function preparePortfolioNote() {
     var portfolio=body.querySelector('.mo-pane:not(.kb-pane)');

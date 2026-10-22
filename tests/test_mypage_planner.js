@@ -48,6 +48,18 @@ test('note pins are optional strict booleans and do not migrate older saved reco
   assert.equal(JSON.stringify(decoded),raw);
 });
 
+test('the portfolio target is optional, finite and positive without rewriting older documents', () => {
+  const old=encode({goals:[goal({target:2500})],futureOptional:{keep:true}}),decoded=planner.decode(old);
+  assert.equal(Object.hasOwn(decoded,'assetTarget'),false);assert.equal(JSON.stringify(decoded),old);
+  for(const assetTarget of [null,0.01,12345.67,Number.MAX_SAFE_INTEGER]){
+    const raw=encode({assetTarget,notes:[note({pinned:true})],futureOptional:{keep:true}});
+    assert.equal(planner.decode(raw).assetTarget,assetTarget);assert.equal(JSON.stringify(planner.decode(raw)),raw);
+  }
+  for(const assetTarget of [0,-0,-1,'100',false,true,[],{},Number.MAX_SAFE_INTEGER+1])
+    assert.throws(()=>planner.decode(encode({assetTarget})),undefined,JSON.stringify(assetTarget));
+  assert.throws(()=>planner.decode(encode({assetTarget:null}).replace('"assetTarget":null','"assetTarget":1e309')));
+});
+
 test('corrupt persisted drafts cannot enter an editable document', () => {
   for (const extra of [
     {todoDraft:null}, {todoDraft:{text:null,goalId:''}},
@@ -281,6 +293,107 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
 const settle = async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
 const pinFor=(h,id)=>h.page.querySelectorAll('.mp-note-pin').find(control=>control.getAttribute('data-note-pin-id')===id);
 const listedNotes=h=>h.page.querySelectorAll('.mp-note-name').map(control=>control.textContent);
+
+test('the framed portfolio target updates the live document and preserves dirty notes plus every historical and additive field',async()=>{
+  const raw=encode({goals:[goal({target:2500,futureGoal:{keep:true}})],selectedGoalId:'goal-1',
+    goalDraft:{id:'goal-1',title:'旧編集途中',details:'  詳細\n',target:'3000',monthly:'125',deadline:'2027-12-31',futureDraft:{keep:true}},
+    todos:[{id:'t',text:'旧TODO',done:false,goalId:'goal-1',futureTask:{keep:true}}],
+    todoDraft:{text:'追加途中',goalId:'goal-1',futureDraft:{keep:true}},todoEdits:{t:{text:'編集途中',goalId:'goal-1',futureEdit:{keep:true}}},
+    notes:[note({body:'以前の本文',pinned:true,futureNote:{keep:true}})],futureTop:{keep:true}});
+  const h=controller({raw,autoSave:true});await settle();const frame=h.frame,body=h.memo;
+  h.type(body,'まだ同期していない最後の文字\n');const authoritative=JSON.parse(h.raw),loads=h.loads;
+  const saved=await h.w.knSetPortfolioAssetTarget(frame.contentWindow,'owner-A',12345.67);
+  assert.equal(saved.ok,true);assert.equal(saved.synced,true);assert.equal(h.saves.length,1);
+  assert.deepEqual(JSON.parse(h.raw),{...authoritative,assetTarget:12345.67});assert.equal(h.saves[0].raw,h.raw);
+  assert.equal(h.frame,frame);assert.equal(h.memo,body);assert.equal(body.value,authoritative.notes[0].body);assert.equal(h.loads,loads,'target editing must use the existing live document');
+  const cleared=await h.w.knSetPortfolioAssetTarget(frame.contentWindow,'owner-A',null);
+  assert.equal(cleared.ok,true);assert.equal(cleared.synced,true);assert.deepEqual(JSON.parse(h.raw),{...authoritative,assetTarget:null});
+  assert.equal(h.saves.length,2);h.flushTimers(3000);await settle();assert.equal(h.saves.length,2,'the immediate exact save cancels its redundant idle timer');
+});
+
+test('portfolio target submissions reject invalid numbers before staging or changing saved records',async()=>{
+  const raw=encode({notes:[note({body:'保持する本文'})]}),h=controller({raw,autoSave:true});await settle();
+  for(const target of [undefined,0,-0,-1,NaN,Infinity,-Infinity,Number.MAX_SAFE_INTEGER+1,'100',false,true,[],{}]){
+    const result=await h.w.knSetPortfolioAssetTarget(h.frame.contentWindow,'owner-A',target);
+    assert.equal(result.ok,false);assert.equal(typeof result.error,'string');assert.ok(result.error);
+    assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+  }
+});
+
+test('portfolio target writes require the current iframe, both child identities and the live bound bridge',async()=>{
+  for(const scenario of ['foreign-source','missing-source','wrong-owner','stale-frame','unannounced-owner','child-owner','local-owner','replaced-bridge']){
+    const raw=encode({notes:[note({body:'保存した架空の本文'})]}),h=controller({raw,autoSave:true});await settle();
+    let source=h.frame.contentWindow,expected='owner-A';
+    if(scenario==='foreign-source')source={};
+    if(scenario==='missing-source')source=null;
+    if(scenario==='wrong-owner')expected='owner-B';
+    if(scenario==='stale-frame')h.replaceFrame();
+    if(scenario==='unannounced-owner')h.w.knUser={id:'owner-B'};
+    if(scenario==='child-owner')source.knLedgerSession={user:{id:'owner-B'}};
+    if(scenario==='local-owner')source.localStorage={getItem:()=> 'owner-B'};
+    if(scenario==='replaced-bridge')source.kkMyPageStore={...h.bridge};
+    const result=await h.w.knSetPortfolioAssetTarget(source,expected,5000);
+    assert.equal(result.ok,false,scenario);assert.equal(typeof result.error,'string',scenario);
+    assert.equal(h.raw,raw,scenario);assert.equal(h.stages.length,0,scenario);assert.equal(h.saves.length,0,scenario);
+  }
+  for(const options of [{ready:false},{restoreOK:false},{raw:'{"version":2}'}]){
+    const h=controller(options);await settle();const before=h.raw;
+    const result=await h.w.knSetPortfolioAssetTarget(h.frame.contentWindow,'owner-A',5000);
+    assert.equal(result.ok,false);assert.equal(h.raw,before);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+  }
+});
+
+test('a failed local portfolio target stage cannot start cloud synchronization or replace the saved note document',async()=>{
+  const raw=encode({notes:[note({body:'保護する本文'})]}),h=controller({raw,stageOK:false});await settle();
+  const result=await h.w.knSetPortfolioAssetTarget(h.frame.contentWindow,'owner-A',5000);
+  assert.equal(result.ok,false);assert.equal(typeof result.error,'string');assert.equal(h.raw,raw);assert.equal(h.memo.value,'保護する本文');
+  assert.equal(h.stages.length,1);assert.equal(h.saves.length,0);h.flushTimers(3000);await settle();assert.equal(h.saves.length,0);
+  assert.match(h.status,/保存できません/);assert.doesNotMatch(h.status,/保存しました/);
+});
+
+test('a remote portfolio target failure truthfully reports unsynced while retaining the local full document',async()=>{
+  const raw=encode({notes:[note({body:'保持する本文'})]}),h=controller({raw});await settle();
+  const pending=h.w.knSetPortfolioAssetTarget(h.frame.contentWindow,'owner-A',5000);await settle();
+  assert.equal(h.saves.length,1);assert.deepEqual(JSON.parse(h.raw),{...JSON.parse(raw),assetTarget:5000});
+  h.saves[0].resolve(false);const result=await pending;
+  assert.equal(result.ok,true);assert.equal(result.synced,false);assert.equal(h.memo.value,'保持する本文');
+  assert.match(h.status,/同期できません/);assert.doesNotMatch(h.status,/保存しました/);
+});
+
+test('a target staged during an old note save is not acknowledged by that old save and the normal queue saves the latest combined snapshot',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'以前の本文'})]})});await settle();
+  h.type(h.memo,'最初の編集');h.flushTimers();assert.equal(h.saves.length,1);const older=h.saves[0].raw;
+  h.type(h.memo,'古い保存の待機中に書いた最後の文字');
+  const result=await h.w.knSetPortfolioAssetTarget(h.frame.contentWindow,'owner-A',5000);
+  assert.equal(result.ok,true);assert.equal(result.synced,false);assert.equal(h.saves.length,1);
+  const latest=h.raw;assert.equal(JSON.parse(latest).assetTarget,5000);assert.equal(JSON.parse(latest).notes[0].body,'古い保存の待機中に書いた最後の文字');
+  assert.equal(Object.hasOwn(JSON.parse(older),'assetTarget'),false);
+  h.saves[0].resolve(true);await settle();assert.equal(h.raw,latest);h.flushTimers();await settle();
+  assert.equal(h.saves.length,2);assert.equal(h.saves[1].raw,latest);h.saves[1].resolve(true);await settle();
+  assert.equal(h.memo.value,JSON.parse(latest).notes[0].body);assert.match(h.status,/保存しました/);
+});
+
+test('a portfolio target save completed after signout cannot claim success or reveal the old owner document',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'owner-Aだけの架空本文'})]})});await settle();
+  const source=h.frame.contentWindow,pending=h.w.knSetPortfolioAssetTarget(source,'owner-A',5000);await settle();
+  assert.equal(h.saves.length,1);h.auth(null);await settle();h.saves[0].resolve(true);
+  const result=await pending;assert.equal(result.ok,false);assert.equal(typeof result.error,'string');
+  assert.equal(h.memo.value,'');assert.doesNotMatch(h.page.textContent,/owner-Aだけ/);assert.doesNotMatch(h.status,/保存しました/);
+  h.flushTimers(3000);await settle();assert.equal(h.saves.length,1);
+});
+
+test('the retired goal entry keeps its original slot and saved controls hidden while legacy import remains available from notes',async()=>{
+  const raw=encode({goals:[goal({target:2500})],notes:[note({body:'メモ'})]}),h=controller({raw});await settle();
+  const panes=h.body.querySelectorAll('.mo-pane:not(.kb-pane)'),tabs=h.page.querySelectorAll('.mo-tab');
+  for(const slot of [panes[1],tabs[1]]){
+    assert.equal(slot.hidden,true);assert.equal(slot.inert,true);assert.equal(slot.tabIndex,-1);assert.equal(slot.getAttribute('aria-hidden'),'true');assert.equal(slot.getAttribute('data-retired-goal'),'true');
+    assert.equal(slot.classList.contains('on'),false);
+  }
+  assert.equal(tabs[1].children.length,0);assert.ok(panes[1].querySelector('.mp-form'));
+  assert.equal(panes[3].querySelector('.mp-note-body'),h.memo);
+  assert.equal(h.lookup('この端末の以前の記録を取り込む').parentNode,h.page.querySelector('.mp-note-library'));
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+});
 
 test('interactive startup builds a later MyPage at DOMContentLoaded without waiting for the 200ms fallback',async()=>{
   const raw=encode({notes:[note({body:'DOM準備後に復元する架空の本文'})]});

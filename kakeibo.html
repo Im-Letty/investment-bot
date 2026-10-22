@@ -31,8 +31,8 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261018-advice1">
   <script defer src="/static/portfolio-advice.js?v=20261018-advice1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261022-portfolio2">
-  <script defer src="/static/portfolio-overview.js?v=20261022-portfolio2"></script>
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261023-asset-goal1">
+  <script defer src="/static/portfolio-overview.js?v=20261023-asset-goal1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -371,7 +371,13 @@ body{padding-bottom:24px;}
   </form>
   <div class="po-columns">
     <section class="po-panel"><div class="po-heading"><h3>資産の内訳</h3></div><p id="poAllocationNote" class="po-muted"></p><div id="poAllocationStack" class="po-stack" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
-    <section class="po-panel"><div class="po-heading"><h3>資産目標</h3><button type="button" id="poGoalEdit" class="po-button">目標を編集</button></div><div id="poGoalBody"></div></section>
+    <section class="po-panel"><div class="po-heading"><h3>資産目標</h3></div>
+      <form id="poGoalForm" class="po-goal-form" novalidate>
+        <label class="po-field" for="poGoalAmount"><span>目標資産額（円）</span><input class="inp" id="poGoalAmount" type="text" inputmode="decimal" autocomplete="off" maxlength="128"></label>
+        <button class="po-button po-button-primary" id="poGoalSave" type="submit" disabled>保存</button>
+        <p class="po-error" id="poGoalError" role="alert"></p>
+      </form><p class="po-muted" id="poGoalStatus" role="status" aria-live="polite"></p><div id="poGoalBody"></div>
+    </section>
   </div>
   <section class="po-panel po-holdings"><div class="po-heading"><h3>保有資産</h3><button type="button" class="po-button" data-po-add disabled>＋ 追加</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">各資産を押すと、評価額や口座区分を編集できます。</p></section>
 </div>
@@ -2205,6 +2211,7 @@ function kkNavGo(tab, el){
       function dateOK(s){if(!s)return true;if(!/^\d{4}-\d{2}-\d{2}$/.test(s))return false;var date=new Date(s+'T00:00:00Z');return Number.isFinite(date.getTime())&&date.toISOString().slice(0,10)===s;}
       function reminderFields(x){return (x.dueDate===undefined||str(x.dueDate)&&dateOK(x.dueDate))&&(x.flagged===undefined||typeof x.flagged==='boolean');}
       if(!d||d.version!==1||!['goals','todos','notes','groups'].every(function(k){return Array.isArray(d[k]);}))return false;
+      if(d.assetTarget!==undefined&&d.assetTarget!==null&&!(typeof d.assetTarget==='number'&&Number.isFinite(d.assetTarget)&&d.assetTarget>0&&d.assetTarget<=Number.MAX_SAFE_INTEGER))return false;
       ['goals','todos','notes','groups'].forEach(function(k){d[k].forEach(function(x){
         if(!x||!str(x.id)||!x.id||used[k+':'+x.id])throw Error();used[k+':'+x.id]=true;
         if(k==='goals'&&(!str(x.title)||!str(x.details)||!str(x.deadline)||!dateOK(x.deadline)||![x.target,x.monthly].every(function(n){return n===null||typeof n==='number'&&Number.isFinite(n)&&n>=0;})||x.target===0))throw Error();

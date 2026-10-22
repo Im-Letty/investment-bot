@@ -35,6 +35,7 @@
     if(raw===null)return empty();
     var d=JSON.parse(raw);
     if(!d||d.version!==1||!['goals','todos','notes','groups'].every(function(k){return Array.isArray(d[k]);}))throw Error('planner_format');
+    if(d.assetTarget!==undefined&&d.assetTarget!==null&&!(typeof d.assetTarget==='number'&&Number.isFinite(d.assetTarget)&&d.assetTarget>0&&d.assetTarget<=Number.MAX_SAFE_INTEGER))throw Error('planner_format');
     var used=Object.create(null);
     ['goals','todos','notes','groups'].forEach(function(k){d[k].forEach(function(x){
       if(!x||!str(x.id)||!x.id||used[k+':'+x.id])throw Error('planner_format');used[k+':'+x.id]=true;
@@ -124,6 +125,21 @@
       try{c=f&&f.contentWindow;if(c&&c.kkMyPageStore&&c.knLedgerSession&&c.knLedgerSession.user.id===current()&&c.localStorage.getItem('kn_ledger_owner')===current())return c;}catch(ignore){}
       return null;
     }
+    // The framed portfolio changes the same live document as notes. A second
+    // whole-document writer here could replace a note that is still syncing.
+    w.knSetPortfolioAssetTarget=async function(source,expected,target){
+      var frame=page&&page.querySelector('.kb-frame');
+      if(!frame||source!==frame.contentWindow||expected!==owner||!validOwner()||!doc||!editable||child()!==source||source.kkMyPageStore!==bridge)
+        return {ok:false,error:'記録の読み込みを確認してから、もう一度お試しください。'};
+      if(target!==null&&!(typeof target==='number'&&Number.isFinite(target)&&target>0&&target<=Number.MAX_SAFE_INTEGER))
+        return {ok:false,error:'目標資産額を確認してください。'};
+      doc.assetTarget=target;
+      if(!changed())return {ok:false,error:'この端末に保存できませんでした。入力内容は残しています。'};
+      var who=owner,generation=epoch,token=revision;
+      if(!saving){w.clearTimeout(timer);await persist();}
+      if(generation!==epoch||who!==owner||!validOwner()||child()!==source||source.kkMyPageStore!==bridge)return {ok:false,error:'アカウントが切り替わりました。'};
+      return {ok:true,synced:savedRevision>=token};
+    };
     function setEnabled(ok){
       editable=ok;page.querySelectorAll('.mp-planner input,.mp-planner textarea,.mp-planner select,.mp-planner button').forEach(function(n){n.disabled=!ok;});
       // Previously confirmed notes remain readable after a later restore failure.
@@ -131,13 +147,14 @@
       if(noteRich)noteRich.setEditable(!!ok&&!!(doc&&selectedNote()));
     }
     function changed(){
-      if(!doc||!validOwner()||!editable)return;
+      if(!doc||!validOwner()||!editable)return false;
       revision++;message('この端末に保存中…');
       // Keep every keystroke locally, even while an earlier cloud save is pending.
       try{if(!bridge||!bridge.stage(owner,JSON.stringify(doc)))throw Error('stage_failed');}
-      catch(ignore){w.clearTimeout(timer);message('この端末に保存できませんでした。画面の書きかけを保持しています。',true);return;}
+      catch(ignore){w.clearTimeout(timer);message('この端末に保存できませんでした。画面の書きかけを保持しています。',true);return false;}
       message('この端末に保存しました。同期を待っています…');
       queuePersist();
+      return true;
     }
     function queuePersist(){w.clearTimeout(timer);timer=w.setTimeout(persist,1500);}
     async function persist(){
@@ -322,6 +339,12 @@
         slot.classList.add('mp-todo-retired');slot.classList.remove('on');
         slot.setAttribute('aria-hidden','true');slot.setAttribute('data-retired-todo','true');
       });
+      // Preserve slot one and historical goal data, while its entry moves into
+      // the portfolio. The memo keeps its existing slot three.
+      [page.querySelectorAll('.mo-tab')[1],panes[1]].forEach(function(slot){
+        if(!slot)return;if(slot!==panes[1])slot.replaceChildren();slot.hidden=true;slot.inert=true;slot.tabIndex=-1;
+        slot.classList.remove('on');slot.setAttribute('aria-hidden','true');slot.setAttribute('data-retired-goal','true');
+      });
       if(page.querySelector('.mp-planner'))return;
       [1,3].forEach(function(i){panes[i].replaceChildren();panes[i].classList.add('mp-planner');panes[i].setAttribute('data-planner-ready','true');});
       var bar=el('div','mp-planner-bar');status=el('p','mp-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');bar.appendChild(status);retryButton=button('再試行',function(){if(doc&&revision>savedRevision)persist();else load();},'mp-link');retryButton.hidden=true;bar.appendChild(retryButton);page.querySelector('.mo-body').prepend(bar);
@@ -331,7 +354,7 @@
       var save=el('button','mp-button','目標を保存');save.type='submit';goalForm.appendChild(save);goalForm.addEventListener('submit',saveGoal);
       goalForm.appendChild(button('閉じる',function(){doc.goalDraft=null;fillGoal();changed();},'mp-link'));
       var del=button('目標を削除',function(){var g=doc.goalDraft;if(!g||!g.id||!w.confirm('目標を削除しますか？'))return;doc.goals=doc.goals.filter(function(x){return x.id!==g.id;});doc.goalDraft=null;renderAll();changed();},'mp-link mp-danger');del.setAttribute('data-delete-goal','');goalForm.appendChild(del);panes[1].appendChild(goalForm);goalList=el('div','mp-cards');panes[1].appendChild(goalList);
-      legacyButton=button('この端末の以前の記録を取り込む',importOld,'mp-link');legacyButton.hidden=true;panes[1].appendChild(legacyButton);
+      legacyButton=button('この端末の以前の記録を取り込む',importOld,'mp-link');legacyButton.hidden=true;
       panes[3].classList.add('mp-notebook');
       noteLibrary=el('section','mp-note-library');panes[3].appendChild(noteLibrary);
       var notesHead=el('div','mp-note-head');noteHeading=el('h2','mp-heading','メモ');noteHeading.tabIndex=-1;notesHead.appendChild(noteHeading);
@@ -342,6 +365,7 @@
       noteFind.addEventListener('input',function(){if(!notesReadable())return;search=noteFind.value;renderNotes(true);});noteLibrary.appendChild(noteFind);
       noteList=el('nav','mp-notes');noteList.setAttribute('aria-label','メモ一覧');noteLibrary.appendChild(noteList);
       noteCount=el('p','mp-note-count','0件のメモ');noteLibrary.appendChild(noteCount);
+      noteLibrary.appendChild(legacyButton);
       noteEditor=el('section','mp-note-editor');noteEditor.setAttribute('aria-label','メモを編集');noteEditor.tabIndex=-1;noteEditor.hidden=true;
       var noteToolbar=el('div','mp-note-toolbar');
       noteToolbar.appendChild(button('メモ一覧',function(){notesEditing=false;showNotesView();noteHeading.focus();},'mp-note-back'));

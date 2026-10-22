@@ -2,9 +2,9 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const api=require('../static/portfolio-overview.js');
 const raw=rows=>JSON.stringify(rows);
-function fixture(rows=[]){let owner='A',assetsRaw=raw(rows),plannerRaw=null,readHook=null,writeHook=null;const writes=[],states=[];
- const session=api.createSession({owner:()=>owner,read:async who=>{if(readHook)return readHook(who);return {assetsRaw,raw:plannerRaw};},write(who,rows){if(writeHook)return writeHook(who,rows);assert.equal(who,owner);assetsRaw=raw(rows);writes.push(assetsRaw);},onChange:s=>states.push(s)});
- return {session,writes,states,setOwner:v=>owner=v,setRaw:v=>assetsRaw=v,setPlanner:v=>plannerRaw=v,setRead:v=>readHook=v,setWrite:v=>writeHook=v,getRaw:()=>assetsRaw};
+function fixture(rows=[]){let owner='A',assetsRaw=raw(rows),plannerRaw=null,readHook=null,writeHook=null,targetHook=null;const writes=[],states=[],targetWrites=[];
+ const session=api.createSession({owner:()=>owner,read:async who=>{if(readHook)return readHook(who);return {assetsRaw,raw:plannerRaw};},write(who,rows){if(writeHook)return writeHook(who,rows);assert.equal(who,owner);assetsRaw=raw(rows);writes.push(assetsRaw);},writeTarget:async(who,value)=>{if(targetHook)return targetHook(who,value);assert.equal(who,owner);plannerRaw=api.targetDocument(plannerRaw,value);targetWrites.push(plannerRaw);return {ok:true,synced:true};},onChange:s=>states.push(s)});
+ return {session,writes,states,targetWrites,setOwner:v=>owner=v,setRaw:v=>assetsRaw=v,setPlanner:v=>plannerRaw=v,setRead:v=>readHook=v,setWrite:v=>writeHook=v,setTargetWrite:v=>targetHook=v,getRaw:()=>assetsRaw,getPlanner:()=>plannerRaw};
 }
 test('overview sums saved signed fractional values exactly without mutating or seeding data',()=>{
  const rows=[{id:1,name:'預金',cat:'現金',amount:.1,custom:{untouched:true}},{id:2,name:'株',cat:'国内株',amount:.2},{id:3,amount:-.1}];
@@ -88,8 +88,43 @@ test('deleted stale rows cannot be removed from a newer asset snapshot',async()=
 test('goal percentages never announce completion before the exact remaining amount is zero',()=>{
  assert.equal(api.percent(999999,1000000,'1'),'99.9%');assert.equal(api.percent(9007199254740992,9007199254740992,'1'),'99.9%');assert.equal(api.percent(1000000,1000000,'0'),'100%');assert.equal(api.percent(.01,1000000,'999999.99'),'0.1%未満');
 });
+test('the single asset target overrides legacy selection and explicit clearing never revives an old goal',()=>{
+ const before={version:1,goals:[{id:'old',title:'以前の目標名',target:100,deadline:'2030-01-01'}],selectedGoalId:'old'};
+ assert.equal(api.goal(raw(before)).target,100);
+ assert.deepEqual(api.goal(raw({...before,assetTarget:250})),{target:250});
+ assert.equal(api.goal(raw({...before,assetTarget:null})),null);
+ for(const assetTarget of [0,-1,'250',false,{},Number.MAX_SAFE_INTEGER+1])assert.throws(()=>api.goal(raw({...before,assetTarget})));
+});
+test('target amount accepts empty clearing and valid money while refusing zero negative unsafe and incomplete values',()=>{
+ assert.equal(api.targetAmount('　 '),null);assert.equal(api.targetAmount('￥１，０００．５円'),1000.5);
+ assert.equal(api.targetAmount('9007199254740991'),Number.MAX_SAFE_INTEGER);
+ for(const text of ['0','-1','1,00','1e','Infinity','1e309','1e-400','9007199254740992'])assert.throws(()=>api.targetAmount(text),text);
+});
+test('a target update preserves every legacy goal note pin unknown field and unfinished draft',()=>{
+ const planner=require('../static/mypage-planner.js'),d=planner.empty();
+ d.goals=[{id:'old',title:'名前と期限を保持',details:'原文\n',target:100,monthly:10,deadline:'2030-01-01',extra:{old:true}}];d.selectedGoalId='old';
+ d.notes=[{id:'memo',title:'ピン留め',body:'本文\n',groupId:'folder',pinned:true,richText:{version:99,future:true}}];d.groups=[{id:'folder',name:'元の分類'}];
+ d.todos=[{id:'todo',text:'保存済み',done:false,goalId:'old'}];d.todoDraft={text:'追加途中',goalId:'old'};d.goalDraft={id:'old',title:'編集中',details:'保持',target:'123.',deadline:'',monthly:''};d.future={preserved:true};
+ const before=raw(d),next=JSON.parse(api.targetDocument(before,1000.5,planner.decode));
+ assert.equal(next.assetTarget,1000.5);delete next.assetTarget;assert.deepEqual(next,d);assert.equal(raw(d),before);
+ const cleared=api.targetDocument(api.targetDocument(before,1000.5,planner.decode),null,planner.decode);assert.equal(api.goal(cleared,planner.decode),null);
+ assert.equal(JSON.parse(api.targetDocument(null,1000,planner.decode)).assetTarget,1000);
+ assert.throws(()=>api.targetDocument('{broken',1000));
+});
+test('target session writes once through its target writer and refreshes the same asset model',async()=>{
+ const h=fixture([{amount:.1},{amount:.2}]);await h.session.refresh();const assets=h.getRaw();
+ assert.deepEqual(await h.session.setTarget(1),{ok:true,synced:true});assert.equal(h.targetWrites.length,1);assert.equal(h.session.state().goal.target,1);assert.equal(h.session.state().model.totalText,'0.3');assert.equal(h.getRaw(),assets);assert.equal(h.writes.length,0);
+ await h.session.setTarget(null);assert.equal(h.session.state().goal,null);assert.equal(JSON.parse(h.getPlanner()).assetTarget,null);
+});
+test('target writes stay blocked after restoration or goal-format failure',async()=>{
+ const failed=fixture();failed.setRead(async()=>{throw Error('unavailable');});await failed.session.refresh();await assert.rejects(failed.session.setTarget(10));assert.equal(failed.targetWrites.length,0);
+ const malformed=fixture([{amount:10}]);malformed.setPlanner('{bad');await malformed.session.refresh();assert.equal(malformed.session.state().model.total,10);await assert.rejects(malformed.session.setTarget(10),/読み込めません/);assert.equal(malformed.targetWrites.length,0);
+});
+test('an owner change or round trip invalidates a pending target acknowledgement',async()=>{
+ for(const roundTrip of [false,true]){const h=fixture([{amount:10}]);await h.session.refresh();let resolve;h.setTargetWrite(()=>new Promise(r=>resolve=r));const pending=h.session.setTarget(20);h.setOwner('B');h.session.reset();if(roundTrip){h.setOwner('A');h.session.reset();}resolve({ok:true,synced:true});await assert.rejects(pending,/アカウント/);assert.equal(h.session.state().goal,null);}
+});
 function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amount:.1},{id:2,name:'架空の別資産',cat:'現金',amount:.2}]){
- const nodes=new Map(),all=[],listeners={},values=new Map([['kn_ledger_owner','A']]),writes=[];let assetRaw=raw(seed),planner=null;
+ const nodes=new Map(),all=[],listeners={},values=new Map([['kn_ledger_owner','A']]),writes=[],targetWrites=[];let assetRaw=raw(seed),planner=null;
  function element(tag='div',id=''){
   const attrs=new Map(),classes=new Set(),events={};const n={tagName:tag.toUpperCase(),id,value:'',textContent:'',hidden:false,disabled:false,children:[],style:{},events,options:[],
    classList:{toggle(k,on){on?classes.add(k):classes.delete(k);},add:k=>classes.add(k),remove:k=>classes.delete(k),contains:k=>classes.has(k)},setAttribute:(k,v)=>attrs.set(k,String(v)),getAttribute:k=>attrs.get(k)??null,
@@ -98,17 +133,17 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
    addEventListener:(name,fn)=>events[name]=fn,focus(){n.focused=true;},scrollIntoView(){},remove(){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(c=>c!==n);attrs.delete('data-po-custom');},click(){if(events.click)return events.click({target:n});}};
   all.push(n);if(id)nodes.set(id,n);return n;
  }
- const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalEdit','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
+ const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
  for(const key of ['name','cat','amount','cost','account','institution','date'])element(['cat','account'].includes(key)?'select':'input','ast-'+key);
  for(const id of ['ast-cat','ast-account'])for(const value of ['',...(id==='ast-cat'?['現金','国内株','投資信託']:['NISA','特定口座'])]){const o=element('option');o.value=value;nodes.get(id).appendChild(o);}
  const add=element('button');add.setAttribute('data-po-add','');
  const document={readyState:'complete',getElementById:id=>nodes.get(id)||null,createElement:tag=>element(tag)};
  const w={document,location:{origin:'https://portfolio.test',href:'https://portfolio.test/kakeibo'},knLedgerSession:{user:{id:'A'},access_token:'synthetic-token'},localStorage:{getItem:k=>values.get(k)??null},
-  kkMyPageStore:{load:async()=>({assetsRaw:assetRaw,raw:planner})},saveAssets(rows){assetRaw=raw(rows);writes.push(assetRaw);},confirm:()=>true,addEventListener:(name,fn)=>listeners[name]=fn};w.parent=w;
+  kkMyPageStore:{load:async()=>({assetsRaw:assetRaw,raw:planner}),stage(who,next){assert.equal(who,w.knLedgerSession.user.id);planner=next;targetWrites.push(next);if(listeners.knMyPageStoreChange)listeners.knMyPageStoreChange();return true;},save:async()=>true},saveAssets(rows){assetRaw=raw(rows);writes.push(assetRaw);},confirm:()=>true,addEventListener:(name,fn)=>listeners[name]=fn};w.parent=w;
  api.mount(w);
- return {w,nodes,all,add,listeners,writes,getRaw:()=>assetRaw,setPlanner:r=>planner=r,async flush(){for(let i=0;i<12;i++)await Promise.resolve();},
+ return {w,nodes,all,add,listeners,writes,targetWrites,getRaw:()=>assetRaw,getPlanner:()=>planner,setPlanner:r=>planner=r,async flush(){for(let i=0;i<20;i++)await Promise.resolve();},
   owner(id){values.set('kn_ledger_owner',id);w.knLedgerSession={user:{id},access_token:'synthetic-'+id};},
-  input(key,value){const n=nodes.get('ast-'+key);n.value=value;nodes.get('poEditor').events.input({target:n});},
+  input(key,value){const n=nodes.get('ast-'+key);n.value=value;nodes.get('poEditor').events.input({target:n});},target(value){const n=nodes.get('poGoalAmount');n.value=value;n.events.input({target:n});},saveTarget(){return nodes.get('poGoalForm').events.submit({preventDefault(){}});},
   dispatch(name,event={}){return listeners[name]&&listeners[name](event);}};
 }
 test('actual DOM handlers show the exact model, submit once, preserve untouched metadata and retain empty optional fields',async()=>{
@@ -139,4 +174,37 @@ test('DOM save errors keep the draft and show fixed Japanese copy while known fi
  assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-name').value,'保存前の下書き');assert.equal(h.nodes.get('ast-amount').value,'１．５');assert.equal(h.getRaw(),before);
  assert.equal(h.nodes.get('poEditorError').textContent,'保存できませんでした。入力内容は残しています。もう一度お試しください。');assert.doesNotMatch(h.nodes.get('poEditorError').textContent,/Quota|internal|storage/);
  h.input('name','');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.nodes.get('poEditorError').textContent,'資産名と種類を入力してください。');assert.equal(h.getRaw(),before);
+});
+test('DOM target shows the same exact current total as the hero plus percentage and remaining amount without legacy metadata',async()=>{
+ const h=domFixture([{amount:1.5},{amount:2.5}]);await h.flush();h.setPlanner(raw({version:1,goals:[{id:'old',title:'表示しない旧目標名',target:10,deadline:'2030-01-01'}],selectedGoalId:'old'}));await h.w.kkPortfolioRender();
+ const body=h.nodes.get('poGoalBody'),text=body.children.map(n=>n.textContent).join('|');
+ assert.equal(h.nodes.get('totalAssetVal').textContent,'4円');assert.match(text,/現在 4円/);assert.match(text,/40%/);assert.match(text,/目標 10円/);assert.match(text,/目標まであと 6円/);assert.doesNotMatch(text,/旧目標名|2030/);assert.equal(h.nodes.get('poGoalAmount').value,'10');
+ const track=body.children.find(n=>n.getAttribute('role')==='progressbar');assert.equal(track.getAttribute('aria-valuenow'),'40');assert.equal(track.getAttribute('aria-valuetext'),'40%');
+ h.setPlanner(raw({version:1,goals:[],assetTarget:2}));await h.w.kkPortfolioRender();assert.match(body.children.map(n=>n.textContent).join('|'),/200%.*目標を上回った金額 2円/);assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
+});
+test('an empty restored asset list is zero progress and an exact target match announces achievement',async()=>{
+ const empty=domFixture([]);await empty.flush();empty.setPlanner(raw({version:1,goals:[],assetTarget:10}));await empty.w.kkPortfolioRender();const body=empty.nodes.get('poGoalBody');
+ assert.equal(empty.nodes.get('totalAssetVal').textContent,'0円');assert.match(body.children.map(n=>n.textContent).join('|'),/0%.*現在 0円.*目標 10円.*目標まであと 10円/);
+ const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();assert.match(exact.nodes.get('poGoalBody').children.map(n=>n.textContent).join('|'),/100%.*現在 0.3円.*目標額に到達/);
+});
+test('DOM target saves only on submit through the existing bridge and blank clears legacy fallback',async()=>{
+ const h=domFixture();await h.flush();const planner=require('../static/mypage-planner.js'),d=planner.empty();d.notes=[{id:'p',title:'保持',body:'本文',groupId:'',pinned:true}];d.goals=[{id:'old',title:'保持',details:'詳細',target:100,monthly:null,deadline:''}];d.selectedGoalId='old';d.extra={keep:true};h.setPlanner(raw(d));await h.w.kkPortfolioRender();
+ h.target('１，０００．５');assert.equal(h.targetWrites.length,0);await h.saveTarget();await h.flush();assert.equal(h.targetWrites.length,1);const next=JSON.parse(h.getPlanner());assert.equal(next.assetTarget,1000.5);delete next.assetTarget;assert.deepEqual(next,d);assert.equal(h.writes.length,0);assert.equal(h.nodes.get('poGoalStatus').textContent,'保存しました。');
+ h.target('');await h.saveTarget();await h.flush();assert.equal(JSON.parse(h.getPlanner()).assetTarget,null);assert.equal(h.nodes.get('poGoalAmount').value,'');assert.doesNotMatch(h.nodes.get('poGoalBody').children.map(n=>n.textContent).join('|'),/100円/);
+});
+test('same-owner refresh keeps an unfinished target while account change clears the input errors and prior acknowledgement',async()=>{
+ const h=domFixture();await h.flush();h.target('１２３．');h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poGoalAmount').value,'１２３．');assert.equal(h.targetWrites.length,0);
+ h.setPlanner(null);h.owner('B');h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poGoalAmount').value,'');assert.equal(h.nodes.get('poGoalError').textContent,'');assert.equal(h.nodes.get('poGoalStatus').textContent,'');assert.equal(h.targetWrites.length,0);
+});
+test('target validation storage failure and unavailable restore retain the typed amount without leaking internal errors',async()=>{
+ const h=domFixture();await h.flush();h.target('0');await h.saveTarget();assert.match(h.nodes.get('poGoalError').textContent,/0円より大きい/);assert.equal(h.targetWrites.length,0);
+ h.target('１２３．５');h.w.kkMyPageStore.stage=()=>{throw Error('synthetic secret storage URL');};await h.saveTarget();await h.flush();assert.equal(h.nodes.get('poGoalAmount').value,'１２３．５');assert.equal(h.nodes.get('poGoalError').textContent,'保存できませんでした。入力内容は残しています。もう一度お試しください。');assert.equal(h.targetWrites.length,0);
+ h.w.kkMyPageStore.load=async()=>{throw Error('restore');};h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poGoalAmount').value,'１２３．５');assert.equal(h.nodes.get('poGoalAmount').disabled,true);assert.equal(h.nodes.get('poGoalSave').disabled,true);assert.equal(await h.saveTarget(),false);assert.equal(h.targetWrites.length,0);
+});
+test('embedded target submit delegates to the current parent controller and preserves input after rejected save',async()=>{
+ const h=domFixture();await h.flush();const calls=[];h.w.parent={location:h.w.location,knUser:{id:'A'},KNMyPagePlanner:require('../static/mypage-planner.js'),async knSetPortfolioAssetTarget(source,who,value){calls.push({source,who,value});return {ok:false,error:'目標を保存できませんでした。入力内容は残しています。もう一度お試しください。'};}};
+ h.target('250');await h.saveTarget();assert.equal(calls.length,1);assert.equal(calls[0].source,h.w);assert.equal(calls[0].who,'A');assert.equal(calls[0].value,250);assert.equal(h.targetWrites.length,0);assert.equal(h.nodes.get('poGoalAmount').value,'250');assert.match(h.nodes.get('poGoalError').textContent,/目標を保存できません/);
+});
+test('a staged local target awaiting sync is described honestly and repeated submit cannot start duplicate saves',async()=>{
+ const h=domFixture();await h.flush();let resolve;h.w.kkMyPageStore.save=()=>new Promise(r=>resolve=r);h.target('250');const saving=h.saveTarget();await h.flush();assert.equal(h.targetWrites.length,1);assert.equal(h.nodes.get('poGoalSave').disabled,true);assert.equal(await h.saveTarget(),false);resolve(false);await saving;await h.flush();assert.equal(h.targetWrites.length,1);assert.equal(h.nodes.get('poGoalStatus').textContent,'この端末に保存しました。同期を待っています…');assert.equal(h.nodes.get('poGoalAmount').value,'250');
 });

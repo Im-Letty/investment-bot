@@ -31,6 +31,14 @@
 #tab-assets .po-legend-value small{display:inline-block;margin-left:7px;font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
 #tab-assets .po-goal-name{font-size:calc(13px * var(--kn-ledger-scale,1));overflow-wrap:anywhere;color:var(--kn-ledger-muted,#72785b)}
 #tab-assets .po-goal-rate{font-size:calc(31px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:500;margin:7px 0 10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets #poGoalForm{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:end;margin-bottom:18px}
+#tab-assets #poGoalForm .po-field{min-width:0}
+#tab-assets #poGoalSave{grid-column:2;grid-row:1}
+#tab-assets #poGoalForm .inp{width:100%;box-sizing:border-box;min-width:0;margin:0;min-height:44px;font-size:max(16px,calc(15px * var(--kn-ledger-scale,1)))}
+#tab-assets #poGoalError{grid-column:1/-1;margin:0}
+#tab-assets #poGoalError:empty,#tab-assets #poGoalStatus:empty{display:none}
+#tab-assets #poGoalStatus{margin:12px 0 0}
+#tab-assets .po-goal-current{font-size:calc(16px * var(--kn-ledger-scale,1));font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin:10px 0}
 #tab-assets .po-track{height:7px;background:var(--kn-ledger-chip,#f4f2e7);border-radius:4px;overflow:hidden;margin-bottom:12px}
 #tab-assets .po-fill{height:100%;background:var(--kn-ledger-button,#74784b);border-radius:4px}
 #tab-assets .po-goal-gap{margin-top:15px;font-size:calc(14px * var(--kn-ledger-scale,1));overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
