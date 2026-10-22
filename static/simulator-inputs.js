@@ -67,12 +67,46 @@
     sync(control);
   }
 
+  // Only dragging the three yen amount sliders uses broad, round stops.
+  // Numeric input, step buttons, keyboard movement and saved values stay exact.
+  function snapDraggedMoney(control) {
+    var range = control.range;
+    if (control.pointerId === null || window.currentLang !== 'ja' ||
+        ['d-amount', 'm-amount', 'lp-amount'].indexOf(range.id) === -1) return;
+    var value = Number(range.value), min = Number(range.min), max = Number(range.max);
+    var step = Number(range.step) || 1;
+    if (![value, min, max, step].every(Number.isFinite) || min < 0 || max <= min || step <= 0) return;
+    var nearest = min, distance = Math.abs(value - min);
+    function consider(candidate) {
+      if (candidate < min || candidate > max) return;
+      // Keep the native range's min-based step lattice, without shifting round
+      // yen amounts to 10,500 / 20,500 when the lower bound is 500.
+      var steps = (candidate - min) / step;
+      if (Math.abs(steps - Math.round(steps)) > 1e-7) return;
+      var delta = Math.abs(value - candidate);
+      if (delta < distance || (delta === distance && candidate > nearest)) {
+        nearest = candidate; distance = delta;
+      }
+    }
+    consider(min + Math.floor((max - min) / step + 1e-9) * step);
+    for (var unit = 1000; unit <= max; unit *= 10) {
+      for (var multiple = 1; multiple < 10; multiple++) consider(unit * multiple);
+    }
+    range.value = String(nearest);
+  }
+
+  function stopDragging(event) {
+    controls.forEach(function (control) {
+      if (!event || control.pointerId === event.pointerId) control.pointerId = null;
+    });
+  }
+
   function init() {
     document.querySelectorAll('.row input[type="range"]').forEach(function (range) {
       var row = range.closest('.row'), input = document.getElementById(range.id + '-n');
       var label = row.querySelector('label'), right = row.querySelector('.right');
       if (!input || !label || !right || row.classList.contains('sim-adjust-row')) return;
-      var control = {row: row, range: range, input: input, label: label, money: input.type === 'text'};
+      var control = {row: row, range: range, input: input, label: label, money: input.type === 'text', pointerId: null};
       var value = document.createElement('div');
       value.className = 'sim-step-value';
       while (right.firstChild) value.appendChild(right.firstChild);
@@ -91,6 +125,16 @@
       input.setAttribute('aria-labelledby', label.id);
       range.setAttribute('aria-labelledby', label.id);
       if (control.money) input.setAttribute('inputmode', 'decimal');
+      // Capture runs before the range's existing inline input/calculation
+      // handler, so displayed amount, calculation, fill and aria agree.
+      if (control.money) {
+        range.addEventListener('pointerdown', function (event) {
+          if (event.isPrimary !== false && (event.button === undefined || event.button === 0)) control.pointerId = event.pointerId;
+        }, true);
+        range.addEventListener('input', function () { snapDraggedMoney(control); }, true);
+        range.addEventListener('keydown', function () { control.pointerId = null; });
+        range.addEventListener('blur', function () { control.pointerId = null; });
+      }
       [input, range].forEach(function (field) {
         field.addEventListener('input', function () { sync(control); });
         field.addEventListener('change', function () { sync(control); });
@@ -99,6 +143,9 @@
       controls.push(control);
       sync(control);
     });
+    document.addEventListener('pointerup', stopDragging, true);
+    document.addEventListener('pointercancel', stopDragging, true);
+    window.addEventListener('blur', function () { stopDragging(); });
     // Saved settings and URL prefill update values without input events. Keep
     // buttons in sync after their existing calculation, including later graph
     // loading and the existing detailed-analysis calculation wrappers.
