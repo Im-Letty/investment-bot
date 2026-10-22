@@ -2877,6 +2877,11 @@ test('village connected roads stay decorative while all six original entrances a
   const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
   const roads=f.host.querySelector('.ipg-village-roads');assert.ok(roads);
   assert.equal(roads.getAttribute('aria-hidden'),'true');assert.equal(roads.getAttribute('focusable'),'false');
+  // A vertical lane has a zero-width object bounding box, so its texture needs
+  // a nonzero filter region in the shared map's coordinate system.
+  const texture=roads.querySelector('filter');assert.ok(texture);
+  assert.equal(texture.getAttribute('filterUnits'),'userSpaceOnUse');
+  for(const [attribute,value] of [['x','0'],['y','0'],['width','1000'],['height','1000']])assert.equal(texture.getAttribute(attribute),value);
   assert.deepEqual(roads.querySelectorAll('.ipg-village-lane').map(lane=>lane.dataset.pathFor).sort(),['cafe','flowers','home','playground','shop']);
   assert.equal(roads.querySelectorAll('button').length,0);
   const entrances=f.host.querySelectorAll('.ipg-village-place');assert.equal(entrances.length,6);

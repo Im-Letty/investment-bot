@@ -1377,6 +1377,7 @@
       roads.setAttribute('viewBox', '0 0 1000 1000'); roads.setAttribute('preserveAspectRatio', 'none');
       roads.setAttribute('aria-hidden', 'true'); roads.setAttribute('focusable', 'false');
       var defs = villageSvg('defs'), filter = villageSvg('filter'); filter.setAttribute('id', 'ipg-village-path-texture');
+      filter.setAttribute('filterUnits', 'userSpaceOnUse'); filter.setAttribute('x', '0'); filter.setAttribute('y', '0'); filter.setAttribute('width', '1000'); filter.setAttribute('height', '1000');
       var grain = villageSvg('feTurbulence'); grain.setAttribute('type', 'fractalNoise'); grain.setAttribute('baseFrequency', '.035'); grain.setAttribute('numOctaves', '3'); grain.setAttribute('seed', '9'); grain.setAttribute('result', 'grain');
       var roughen = villageSvg('feDisplacementMap'); roughen.setAttribute('in', 'SourceGraphic'); roughen.setAttribute('in2', 'grain'); roughen.setAttribute('scale', '4');
       append(filter, grain, roughen); defs.appendChild(filter); roads.appendChild(defs); map.appendChild(roads);
