@@ -296,7 +296,6 @@
       var photoHelp=make('p','kn-profile-note','写真の中央を正方形にしてアイコンにします（10MBまで）。選んだ後に「保存する」を押してください。');photoHelp.id='knProfilePhotoHelp';form.appendChild(photoHelp);
       var avatar=field('標準アイコン','avatar','select');Object.keys(avatars).forEach(function(key){var option=make('option','',avatars[key]+' '+avatarLabels[key]);option.value=key;avatar.appendChild(option);});
       var bio=field('自己紹介（160文字まで）','bio','textarea');bio.maxLength=320;bio.rows=3;bio.placeholder='好きなことや興味のあること';
-      var note=make('p','kn-profile-note','ユーザー名は投稿者名として公開されます。写真はこのプロフィールに表示します。');form.appendChild(note);
       emailWrap=make('div','kn-profile-private');var emailLabel=make('label','kn-profile-field'),emailTitle=make('span','','ログイン用メールアドレス（非公開）');emailInput=make('input');emailInput.type='email';emailInput.readOnly=true;emailInput.tabIndex=0;emailLabel.appendChild(emailTitle);emailLabel.appendChild(emailInput);emailWrap.appendChild(emailLabel);form.appendChild(emailWrap);
       var actions=make('div','kn-profile-actions');submit=make('button','kn-profile-save','保存する');submit.type='submit';cancel=make('button','kn-profile-cancel','変更を戻す');cancel.type='button';actions.appendChild(submit);actions.appendChild(cancel);form.appendChild(actions);
       status=make('p','kn-profile-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');form.appendChild(status);
