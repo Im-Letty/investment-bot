@@ -41,14 +41,16 @@ body.kn-ledger-letter.kn-ledger-paper .back-btn {
 body.kn-ledger-paper .kk-more {position:relative;flex:none;margin-inline-start:auto}
 body.kn-ledger-paper .kk-more>summary {
   list-style:none;display:flex;align-items:center;justify-content:center;
-  width:44px;min-height:44px;cursor:pointer;border:1px solid var(--kn-ledger-line);
-  border-radius:10px;color:var(--kn-ledger-ink);background:var(--kn-ledger-paper);font-size:24px;line-height:1;
+  width:44px;min-height:44px;cursor:pointer;border:0;
+  border-radius:50%;color:var(--kn-ledger-muted);background:transparent;font-size:20px;line-height:1;
 }
+body.kn-ledger-paper .kk-more>summary:hover,
+body.kn-ledger-paper .kk-more[open]>summary {background:var(--kn-ledger-chip);color:var(--kn-ledger-ink)}
 body.kn-ledger-paper .kk-more>summary::-webkit-details-marker {display:none}
 body.kn-ledger-paper .kk-more>summary:focus-visible {outline:2px solid var(--kn-ledger-button);outline-offset:3px}
 body.kn-ledger-paper .kk-more-panel {
   position:absolute;right:0;top:calc(100% + 8px);z-index:100;
-  width:min(310px,calc(100vw - 36px));max-height:70vh;overflow:auto;
+  width:min(310px,calc(100vw - 80px));max-height:70vh;overflow:auto;
   padding:10px;border:1px solid var(--kn-ledger-line);border-radius:10px;
   background:var(--kn-ledger-paper);box-shadow:0 8px 24px #0000000a;
 }
@@ -78,6 +80,11 @@ body.kn-ledger-letter.kn-ledger-paper #tab-home {max-width:720px}
 body.kn-ledger-paper .kk-paper-overview {
   padding:4px 20px 20px;border:1px solid var(--kn-ledger-line);border-radius:10px;
   background:var(--kn-ledger-paper);margin-bottom:26px;
+}
+body.kn-ledger-paper .kk-summary-heading {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  min-width:0;min-height:44px;color:var(--kn-ledger-muted);
+  font:400 calc(12px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans);
 }
 body.kn-ledger-paper .kk-paper-overview .month-nav {margin:0;padding:12px 0}
 body.kn-ledger-letter.kn-ledger-paper .kk-paper-overview .mnav-lbl {font:500 calc(16px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-serif)}
