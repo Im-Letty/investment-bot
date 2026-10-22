@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="/static/market-carousel.css?v=20261011-six1">
 <link rel="stylesheet" href="/static/news-orbit.css?v=20261014-initial-trio1">
 <link rel="stylesheet" href="/static/news-digest.css?v=20261011-source-info1">
-<link rel="stylesheet" href="/static/stock-focus.css?v=20261023-flat-selection1">
+<link rel="stylesheet" href="/static/stock-focus.css?v=20261023-watch-heart-sort1">
 <link rel="stylesheet" href="/static/stock-watch.css?v=20261013-current-per1">
 <link rel="preload" as="image" href="/static/news-orbit/earth.webp" fetchpriority="low">
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
@@ -54,7 +54,8 @@
 <script defer src="/static/device-notifications.js?v=20261022-push1"></script>
 <script defer src="/static/mypage-planner.js?v=20261023-asset-goal1"></script>
 <script defer src="/static/mypage-ledger-loader.js?v=20261023-asset-goal1"></script>
-<link rel="stylesheet" href="/static/stock-unified.css?v=20261023-flat-selection1">
+<link rel="stylesheet" href="/static/stock-unified.css?v=20261023-watch-heart-sort1">
+<link rel="stylesheet" href="/static/watchlist-interactions.css?v=20261023-watch-heart-sort1">
 <link rel="stylesheet" href="/static/site-typography.css?v=20261012-section-mincho1">
 <link rel="stylesheet" href="/static/community.css?v=20261023-flat-selection1">
 <link rel="stylesheet" href="/static/user-profile.css?v=20261023-profile-album1">
@@ -92,8 +93,9 @@
 <script defer src="/static/stock-search-common.js?v=20261011-shared-search1"></script>
 <script defer src="/static/market-carousel.js?v=20261011-six1"></script>
 <script defer src="/static/home-a.js?v=20261014-talk-tabs1"></script>
-<script defer id="alertSectionScript" src="/static/stock-watch.js?v=20261022-ranking-heart1"></script>
-<script defer src="/static/stock-focus.js?v=20261022-ranking-heart1"></script>
+<script defer id="alertSectionScript" src="/static/stock-watch.js?v=20261023-watch-heart-sort1"></script>
+<script defer src="/static/stock-focus.js?v=20261023-watch-heart-sort1"></script>
+<script defer src="/static/watchlist-interactions.js?v=20261023-watch-heart-sort1"></script>
 <script>/* KN_MO_THROTTLE: 見張り役(MutationObserver)の反応を各自0.3秒に1回までに制限し、連鎖による画面フリーズを防ぐ */
 (function(){try{var N=window.MutationObserver;if(!N||N.__knT)return;function T(cb){var timer=0,inst=new N(function(){if(timer)return;timer=setTimeout(function(){timer=0;try{cb.call(inst,[],inst);}catch(e){}},300);});return inst;}T.prototype=N.prototype;T.__knT=true;window.MutationObserver=T;}catch(e){}})();
 /* KN_TICKER_WARMSTART: 前回の価格帯を即表示して待ち時間をなくす(新データ到着時に自動更新) */
@@ -4073,6 +4075,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     rowPending[sym]=result;return result;
   }
   function build(force){
+    if(window.KNWatchInteractions&&window.KNWatchInteractions.isBusy()){window.KNWatchInteractions.deferRefresh();return;}
     var grid=document.getElementById("morning-idx-grid");
     if(!grid) return;
     var sec=document.getElementById('knWatchSec');
@@ -4090,7 +4093,7 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
     if(changed){
       sec.innerHTML='<div id="knWatchList"><p class="sf-state">株価を確認しています…</p></div>';sec.dataset.knSelection=key;
       var status=document.createElement('p');status.id='knWatchStatus';status.className='sf-watch-status';status.setAttribute('role','status');status.setAttribute('aria-live','polite');status.textContent='';sec.appendChild(status);
-      var manage=document.createElement('button');manage.type='button';manage.className='sf-retry';manage.textContent='お気に入りを管理';manage.onclick=function(){window.openStockWatchManager();};sec.appendChild(manage);
+      if(window.KNWatchInteractions)window.KNWatchInteractions.decorate();
     }
     place();
     observeVisibility();
@@ -4107,7 +4110,9 @@ if(!root.closest('#knWelcomeOv,#news-entry-flow'))resume();
       if(JSON.stringify(selection())!==key)return build(true);
       // A hidden-before-send request is postponed, not an empty/error result.
       if(rows.some(function(row){return row.deferred;})){request.resume=true;return;}
+      if(window.KNWatchInteractions&&window.KNWatchInteractions.isBusy()){window.KNWatchInteractions.deferRefresh();return;}
       var html=rows.map(function(row){return row.html;}).join('');if(box&&box.innerHTML!==html)box.innerHTML=html;
+      if(window.KNWatchInteractions)window.KNWatchInteractions.decorate();
       var message=rows.some(function(row){return row.failed;})?'更新を確認できませんでした':'';
       if(status&&status.textContent!==message)status.textContent=message;
       if(window.KNWatchDividends)window.KNWatchDividends.refresh();

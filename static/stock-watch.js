@@ -37,7 +37,22 @@
         try{const metadata=names();metadata[key]=item.name.slice(0,160);await write(NAMES,JSON.stringify(metadata));}catch(e){}
         return {status:'added',symbol:key};
       });},
-      remove(value){return mutate(async()=>{const key=symbol(value);await write(KEY,JSON.stringify(list().filter(x=>x!==key)));return {status:'removed',symbol:key};});}
+      remove(value){return mutate(async()=>{const key=symbol(value);await write(KEY,JSON.stringify(list().filter(x=>x!==key)));return {status:'removed',symbol:key};});},
+      move(value,beforeSymbol){return mutate(async()=>{
+        const key=symbol(value),before=beforeSymbol===null?null:symbol(beforeSymbol);
+        if(!key||beforeSymbol!==null&&!before)return {status:'invalid'};
+        // Read after earlier additions/removals and decryption have completed. A stale
+        // dragged row or destination must never restore a removed favorite.
+        const current=list(),result={symbol:key,beforeSymbol:before};
+        if(!current.includes(key)||before!==null&&!current.includes(before))return {status:'missing',...result};
+        if(key===before)return {status:'unchanged',...result};
+        const next=current.filter(item=>item!==key);
+        next.splice(before===null?next.length:next.indexOf(before),0,key);
+        if(next.every((item,index)=>item===current[index]))return {status:'unchanged',...result};
+        // Order changes only the selection list; display names stay untouched.
+        await write(KEY,JSON.stringify(next));
+        return {status:'moved',...result};
+      });}
     };
   }
   function createSearch(w,onState){

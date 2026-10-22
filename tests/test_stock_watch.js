@@ -56,6 +56,53 @@ test('20-company limit matches the home favorites display and deletion makes spa
  const list=Array.from({length:20},(_,i)=>(1000+i)+'.T');const store=watch.createStore(storage({[KEY]:JSON.stringify(list)}));
  assert.equal((await store.add(toyota)).status,'limit');await store.remove(list[0]);assert.equal((await store.add(toyota)).status,'added');assert.equal(store.list().length,20);
 });
+test('moving favorites inserts before a row or at the end and preserves company names and regional identities',async()=>{
+ const namesKey='stock_watch_names_v1',names=JSON.stringify({'7203.T':'トヨタ自動車','8301.JP':'地域企業',AAPL:'Apple'});
+ const saved=storage({[KEY]:'["7203.T","8301.JP","AAPL"]',[namesKey]:names}),writes=[];
+ const store=watch.createStore(saved,(key,value)=>{writes.push(key);saved.setItem(key,value);});
+ assert.deepEqual(await store.move(' aapl ','７２０３'),{status:'moved',symbol:'AAPL',beforeSymbol:'7203.T'});
+ assert.deepEqual(store.list(),['AAPL','7203.T','8301.JP']);
+ assert.deepEqual(await store.move('AAPL',null),{status:'moved',symbol:'AAPL',beforeSymbol:null});
+ assert.deepEqual(store.list(),['7203.T','8301.JP','AAPL']);assert.equal(saved.getItem(namesKey),names);
+ assert.equal(store.name('8301.JP'),'地域企業');assert.deepEqual(writes,[KEY,KEY]);
+ const restored=watch.createStore(saved);assert.deepEqual(restored.list(),store.list());assert.equal(restored.name('7203.T'),'トヨタ自動車');
+});
+test('unchanged positions, missing rows and invalid destinations never write or invent a favorite',async()=>{
+ const saved=storage({[KEY]:'["7203.T","9432.T","AAPL"]'}),writes=[];
+ const store=watch.createStore(saved,(key,value)=>{writes.push(key);saved.setItem(key,value);});
+ for(const [from,to] of [['7203.T','9432.T'],['9432.T','9432.T'],['AAPL',null]])assert.equal((await store.move(from,to)).status,'unchanged');
+ for(const [from,to] of [['8301.JP','7203.T'],['7203.T','8301.JP'],['8301.JP',null]])assert.equal((await store.move(from,to)).status,'missing');
+ for(const [from,to] of [['<bad>','7203.T'],['7203.T','<bad>'],['7203.T',''],['7203.T',undefined],['',null]])assert.equal((await store.move(from,to)).status,'invalid');
+ assert.deepEqual(writes,[]);assert.deepEqual(store.list(),['7203.T','9432.T','AAPL']);
+});
+test('queued moves use the decrypted current list and retain intervening additions without reviving removals',async()=>{
+ const saved=storage();let unlock;const ready=new Promise(resolve=>unlock=resolve),w={localStorage:saved,__knGateReady:ready};
+ const first=watch.storeFor(w),second=watch.storeFor(w);
+ const operations=[first.add({symbol:'AAPL',name:'Apple',verified:true}),second.remove('7203.T'),first.move('7203.T','9432.T'),second.move('AAPL','9432.T')];
+ await flush();assert.deepEqual(first.list(),[]);
+ saved.setItem(KEY,'["7203.T","9432.T","8301.JP"]');unlock();
+ assert.deepEqual((await Promise.all(operations)).map(result=>result.status),['added','removed','missing','moved']);
+ assert.deepEqual(first.list(),['AAPL','9432.T','8301.JP']);assert.equal(first.name('AAPL'),'Apple');
+ const removedDestination=first.remove('9432.T'),staleMove=second.move('8301.JP','9432.T');await removedDestination;
+ assert.equal((await staleMove).status,'missing');assert.deepEqual(first.list(),['AAPL','8301.JP']);
+});
+test('an unresolved durable move serializes later removals, additions and moves against the newest order',async()=>{
+ const saved=storage({[KEY]:'["7203.T","9432.T","AAPL"]'}),writes=[];let release;
+ const barrier=new Promise(resolve=>release=resolve);let first=true;
+ const store=watch.createStore(saved,async(key,value)=>{writes.push({key,value});if(first){first=false;await barrier;}saved.setItem(key,value);});
+ const moving=store.move('AAPL','7203.T'),removing=store.remove('9432.T'),adding=store.add({symbol:'8301.JP',name:'地域企業',verified:true}),movingNew=store.move('8301.JP','AAPL');
+ await flush();assert.equal(writes.length,1);assert.deepEqual(store.list(),['7203.T','9432.T','AAPL'],'Pending persistence cannot acknowledge or expose a changed order');
+ release();assert.deepEqual((await Promise.all([moving,removing,adding,movingNew])).map(result=>result.status),['moved','removed','added','moved']);
+ assert.deepEqual(store.list(),['8301.JP','AAPL','7203.T']);assert.equal(store.name('8301.JP'),'地域企業');
+ assert.deepEqual(writes.filter(write=>write.key===KEY).map(write=>JSON.parse(write.value)),[['AAPL','7203.T','9432.T'],['AAPL','7203.T'],['AAPL','7203.T','8301.JP'],['8301.JP','AAPL','7203.T']]);
+});
+test('a rejected durable reorder preserves the existing order and the shared queue accepts a later retry',async()=>{
+ const saved=storage({[KEY]:'["7203.T","9432.T","AAPL"]','stock_watch_names_v1':'{"AAPL":"Apple"}'});let fail=true;
+ const store=watch.createStore(saved,async(key,value)=>{if(fail)throw new Error('quota');saved.setItem(key,value);});
+ await assert.rejects(store.move('AAPL','7203.T'),/quota/);assert.deepEqual(store.list(),['7203.T','9432.T','AAPL']);
+ fail=false;assert.equal((await store.move('AAPL','7203.T')).status,'moved');
+ const restored=watch.createStore(saved);assert.deepEqual(restored.list(),['AAPL','7203.T','9432.T']);assert.equal(restored.name('AAPL'),'Apple');
+});
 function searchHarness(){
  const requests=[],states=[],timers=new Map();let next=0;
  const w={AbortController,fetch(url,options){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,options,resolve,reject});return promise;},setTimeout(fn,ms){timers.set(++next,{fn,ms});return next;},clearTimeout(id){timers.delete(id);}};
@@ -85,10 +132,12 @@ test('encrypted favorites persistence survives a new page and rejects failed dur
  function gate(){const localStorage={getItem:k=>disk.get(k)??null,setItem(k,v){if(fail&&k==='knenc:'+KEY)throw new Error('quota');disk.set(k,v);},removeItem:k=>disk.delete(k)};const window={};vm.runInNewContext(code,{window,localStorage,crypto:require('node:crypto').webcrypto,TextEncoder,TextDecoder,Uint8Array,btoa,atob});return {window,localStorage};}
  const first=gate();await first.window.__knGateReady;
  const store=watch.createStore(first.localStorage,first.window.__knPersistLocalSetting,first.window.__knGateReady);await store.add(toyota);
+ await store.add({symbol:'8301.JP',name:'地域企業',verified:true});await store.add({symbol:'AAPL',name:'Apple',verified:true});
+ assert.equal((await store.move('AAPL','7203.T')).status,'moved');
  assert.equal(disk.has(KEY),false);assert.ok(disk.get('knenc:'+KEY).startsWith('knv1:'));assert.ok(!disk.get('knenc:'+KEY).includes('7203'));
  const second=gate();await second.window.__knGateReady;const restored=watch.createStore(second.localStorage,second.window.__knPersistLocalSetting,second.window.__knGateReady);
- assert.deepEqual(restored.list(),['7203.T']);assert.equal(restored.name('7203.T'),'トヨタ自動車');
- fail=true;await assert.rejects(restored.remove('7203.T'),/quota/);assert.deepEqual(restored.list(),['7203.T']);
+ assert.deepEqual(restored.list(),['AAPL','7203.T','8301.JP']);assert.equal(restored.name('7203.T'),'トヨタ自動車');assert.equal(restored.name('8301.JP'),'地域企業');
+ fail=true;await assert.rejects(restored.move('AAPL',null),/quota/);await assert.rejects(restored.remove('7203.T'),/quota/);assert.deepEqual(restored.list(),['AAPL','7203.T','8301.JP']);
 });
 class Element{
  constructor(tag='div'){this.tagName=tag;this.children=[];this.dataset={};this.style={overflow:'',paddingRight:'',setProperty(k,v){this[k]=v;}};this.listeners={};this.attrs={};this.value='';this.textContent='';this.isConnected=true;this.scrollTop=0;this.inert=false;this.classes=new Set();this.classList={add:v=>this.classes.add(v),remove:v=>this.classes.delete(v),contains:v=>this.classes.has(v)};}

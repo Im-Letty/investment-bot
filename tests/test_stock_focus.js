@@ -65,6 +65,38 @@ test('favorite quotes preserve currency and absolute changes without inventing m
  assert.match(stock.watchRow({price:.0014,currency:'USD'},'LOW',format),/0\.0014<small>米ドル/);
  const regional=stock.watchRow({name:'地方会社',price:999,currency:'JPY'},'1738.JP',format);assert.match(regional,/data-company-profile="1738\.JP"/);assert.match(regional,/取得元未対応/);assert.doesNotMatch(regional,/sf-price|999|data-watch-dividend/);
 });
+test('saved favorites have the ranking heart action even when quotes are missing or unsupported',()=>{
+ const cases=[
+  [{name:'通常会社',price:100,currency:'JPY'},'7203.T','通常会社'],
+  [{savedName:'保存した会社'},'9432.T','保存した会社'],
+  [{name:'地方会社',price:999},'1738.JP','地方会社'],
+  [null,'AAPL','AAPL']
+ ];
+ const rankingHeart=stock.rankingMarkup(payload([item('7203.T')])).match(/<svg[^>]*>.*?<\/svg>/)[0];
+ for(const [raw,symbol,name] of cases){
+  const html=stock.watchRow(raw,symbol),buttons=[...html.matchAll(/<button[^>]*data-watch-remove="([^"]+)"[^>]*>.*?<\/button>/g)];
+  assert.equal(buttons.length,1);assert.equal(buttons[0][1],symbol);
+  assert.match(buttons[0][0],/aria-pressed="true"/);assert.match(buttons[0][0],/aria-busy="false"/);assert.ok(buttons[0][0].includes('aria-label="'+name+'をお気に入りから外す"'));
+  assert.ok(buttons[0][0].includes(rankingHeart),'favorites and rankings use the same SVG');
+  assert.match(html,new RegExp('data-watch-symbol="'+symbol.replaceAll('.','\\.')+'"'));
+  assert.match(html,/role="listitem" tabindex="0" aria-describedby="knWatchReorderHint"/);
+  assert.doesNotMatch(buttons[0][0],/data-rank-favorite|<span|<small|<img| disabled/);
+ }
+});
+test('saved favorite names remain escaped in the label and company link when the quote is unavailable',()=>{
+ const html=stock.watchRow({savedName:'<会社 "保存">'},'7203.T');
+ assert.match(html,/aria-label="&lt;会社 &quot;保存&quot;&gt;をお気に入りから外す"/);
+ assert.match(html,/data-company-name="&lt;会社 &quot;保存&quot;&gt;"/);
+ assert.match(html,/<span>&lt;会社 &quot;保存&quot;&gt;<\/span>/);
+ assert.doesNotMatch(html,/<会社/);
+});
+test('favorite removal cannot be repeated while the same symbol is pending or the store is unavailable',()=>{
+ const pending=stock.watchRow(item('7203.T'),'7203.T',null,null,{favoritePending:['7203.T']});
+ assert.match(pending,/data-watch-remove="7203\.T"[^>]*aria-busy="true" disabled/);
+ const other=stock.watchRow(item('9432.T'),'9432.T',null,null,{favoritePending:['7203.T']});
+ assert.match(other,/data-watch-remove="9432\.T"[^>]*aria-busy="false"/);assert.doesNotMatch(other,/ disabled/);
+ assert.match(stock.watchRow(null,'AAPL',null,null,{favoritesAvailable:false}),/data-watch-remove="AAPL"[^>]* disabled/);
+});
 test('browser cache rejects expired/future payloads and expired per-row quotes without changing trade dates',()=>{
  const base={updated_at:now/1000,items:[item('7203.T')]};
  assert.equal(stock.normalizePayload({...base,updated_at:now/1000-8*86400},now),null);

@@ -9,6 +9,27 @@ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
 const source=html.match(/<script>\s*(\/\* knWatchSection v2[\s\S]*?)<\/script>/)[1];
 const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve();};
 
+test('a held favorite defers new quote work until the interaction releases it',async()=>{
+  const h=harness();await h.advance(2000);let held=true,deferred=0;
+  h.w.KNWatchInteractions={isBusy:()=>held,deferRefresh(){deferred++;},decorate(){}};
+  h.view(true);await flush();assert.equal(h.requests.length,0);assert.ok(deferred>0);
+  held=false;h.w.__knRefreshWatch();await flush();assert.equal(h.requests.length,1);
+});
+
+test('an in-flight quote cannot replace the held row and the next refresh paints normally',async()=>{
+  const h=harness();await h.advance(2000);h.view(true);await flush();
+  let held=true,deferred=0;
+  h.w.KNWatchInteractions={isBusy:()=>held,deferRefresh(){deferred++;},decorate(){}};
+  const box=h.document.getElementById('knWatchList'),before=box.innerHTML;
+  await h.respond(h.requests[0],{name:'Toyota',price:100,currency:'JPY'});
+  assert.equal(box.innerHTML,before);assert.ok(deferred>0);
+  held=false;h.w.__knRefreshWatch();await flush();
+  assert.equal(h.requests.length,2);
+  await h.respond(h.requests[1],{name:'Toyota',price:101,currency:'JPY'});
+  assert.match(box.innerHTML,/101/);assert.match(box.innerHTML,/data-watch-remove="7203.T"/);
+  assert.doesNotMatch(source,/textContent='お気に入りを管理'/);
+});
+
 function harness(symbols=['7203.T'],{shown=false,wrapperReady=true}={}){
   let now=100000,timerId=0,screenShown=true;
   const requests=[],timers=new Map(),listeners=new Map(),windowListeners=new Map(),observers=[];
