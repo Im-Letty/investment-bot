@@ -1360,6 +1360,7 @@
     if (villageSaveAttempt) { villageSaveAttempt = null; setBusy(false); }
   }
   function villagePosition(value, low, high) { return Math.max(low, Math.min(high, Number(value) || low)); }
+  function villageVerticalBounds(id) { return id === 'tree' || id === 'flowers' ? [16, 84] : [22, 78]; }
   function villageDestination(id) {
     if (busy || suspended || villageEdit || roomEdit || game) return;
     if (id === 'home') tab = 'care';
@@ -1406,7 +1407,8 @@
       }, true, s.readOnly && !!editing);
       place.className = 'ipg-village-place' + (editing && editing.selected === placed.id ? ' is-selected' : '');
       place.dataset.place = placed.id; place.dataset.focusKey = 'village-place-' + placed.id;
-      place.style.left = villagePosition(placed.x, 15, 85) + '%'; place.style.top = villagePosition(placed.y, 16, 84) + '%';
+      var verticalBounds = villageVerticalBounds(placed.id);
+      place.style.left = villagePosition(placed.x, 15, 85) + '%'; place.style.top = villagePosition(placed.y, verticalBounds[0], verticalBounds[1]) + '%';
       if (editing) place.setAttribute('aria-pressed', String(editing.selected === placed.id));
       place.setAttribute('aria-label', spec.name + (editing ? 'を配置する' : ' · ' + captions[placed.id]));
       var art = node('span', 'ipg-village-art'); art.setAttribute('aria-hidden', 'true');
@@ -1422,7 +1424,8 @@
       controls.appendChild(text('動かす建物や木を選び、位置を調節してください。配置の変更にコインは使いません。', 'ipg-small'));
       if (selected) {
         var fields = node('div', 'ipg-village-coordinate-fields');
-        [['x', '横の位置', 15, 85], ['y', '縦の位置', 16, 84]].forEach(function (axis) {
+        var selectedBounds = villageVerticalBounds(selected.id);
+        [['x', '横の位置', 15, 85], ['y', '縦の位置', selectedBounds[0], selectedBounds[1]]].forEach(function (axis) {
           var slider = node('input'); slider.type = 'range'; slider.min = axis[2]; slider.max = axis[3]; slider.step = 1;
           slider.value = villagePosition(selected[axis[0]], axis[2], axis[3]); slider.dataset.focusKey = 'village-' + axis[0];
           var caption = node('span', '', axis[1] + ' ' + slider.value + '%');

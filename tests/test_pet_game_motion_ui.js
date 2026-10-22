@@ -2765,7 +2765,7 @@ test('village editor keeps all six entrances free, blocks navigation and updates
   assert.ok(f.host.querySelector('.ipg-tabs').querySelectorAll('button').every(x=>x.disabled));oldRoomTab.emit('click');oldShop.emit('click');await flush();
   assert.ok(f.host.querySelector('.ipg-village-editor'));
   await f.click(villagePlace(f,'cafe'));await setVillageAxis(f,'x',81);await setVillageAxis(f,'y',79);
-  assert.deepEqual(villagePositionInView(f,'cafe'),{x:81,y:79});assert.equal(villagePlace(f,'cafe').getAttribute('aria-pressed'),'true');
+  assert.deepEqual(villagePositionInView(f,'cafe'),{x:81,y:78});assert.equal(villagePlace(f,'cafe').getAttribute('aria-pressed'),'true');
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
   await f.click(f.button('はじめの配置'));assert.deepEqual(villagePositionInView(f,'cafe'),{x:72,y:23});
   await f.click(f.button('やめる'));assert.equal(f.host.querySelector('.ipg-village-editor'),null);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
@@ -2827,7 +2827,7 @@ test('mounting a different host isolates a pending village save and all detached
   gate.resolve();await flush();f.control.pending=null;assert.equal(await opening,true);assert.equal(renders.length,2);
   assert.ok(target.querySelector('.ipg-village'));assert.equal(target.querySelector('.ipg-village-editor'),null);const text=target.textContent,saved=f.saved(),writes=f.writes.length;
   oldSlider.value='16';oldSlider.emit('input');oldSave.emit('click');oldCancel.emit('click');await flush();
-  assert.equal(target.textContent,text);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);assert.equal(saved.villageLayout.items.find(x=>x.id==='home').y,79);
+  assert.equal(target.textContent,text);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);assert.equal(saved.villageLayout.items.find(x=>x.id==='home').y,78);
 });
 
 test('cafe starts explicit snack sessions and settles the real shared wallet only after its full timer',async()=>{
@@ -2850,4 +2850,25 @@ test('cafe cancellation cleans old ingredient and timer callbacks without granti
 test('missing cafe code is an honest read error and does not consume a daily game attempt',async()=>{
   const f=await villageFixture({cafeUnavailable:true}),before=f.saved();await f.click(villagePlace(f,'cafe'));await f.click(f.button('25秒のゲームをはじめる'));
   assert.ok(f.host.textContent.includes('カフェを読み込めませんでした'));assert.deepEqual(f.saved(),before);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
+});
+
+test('village facility and flora edges clamp to their distinct safe bands without rewriting saved coordinates on view or edit',async()=>{
+  const f=await villageFixture({setup:async store=>{
+    const layout=Core.defaultVillageLayout();layout.items.forEach((row,i)=>{row.x=i%2?100:0;row.y=i%2?100:0;});
+    assert.equal((await store.dispatch({type:'saveVillageLayout',layout,expectedRevision:store.getState().revision})).ok,true);
+  }}),before=f.saved(),writes=f.writes.length;
+  const bounds=id=>['tree','flowers'].includes(id)?[16,84]:[22,78];
+  before.villageLayout.items.forEach((row,i)=>assert.deepEqual(villagePositionInView(f,row.id),{x:i%2?85:15,y:bounds(row.id)[i%2]}));
+  assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,writes);
+  await f.click(f.focusButton('village-edit'));
+  for(const {id} of Core.villagePlaces){
+    await f.click(villagePlace(f,id));const [low,high]=bounds(id),vertical=f.focusButton('village-y');
+    assert.equal(Number(vertical.min),low);assert.equal(Number(vertical.max),high);
+    await setVillageAxis(f,'y',-999);await setVillageAxis(f,'x',-999);assert.deepEqual(villagePositionInView(f,id),{x:15,y:low});
+    await setVillageAxis(f,'y',999);await setVillageAxis(f,'x',999);assert.deepEqual(villagePositionInView(f,id),{x:85,y:high});
+    assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+  }
+  await f.click(f.focusButton('village-save'));
+  const expected=Core.defaultVillageLayout();expected.items.forEach(row=>{row.x=85;row.y=bounds(row.id)[1];});
+  assert.deepEqual(f.saved(),{...before,villageLayout:expected,revision:before.revision+1});assert.equal(f.writes.length,writes+1);
 });
