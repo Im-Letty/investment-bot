@@ -51,8 +51,7 @@ body .tab {
 body .tab.active {
   background: var(--sim-paper) !important;
   color: var(--sim-ink) !important;
-  box-shadow: 0 1px 5px color-mix(in srgb, var(--sim-ink) 10%, transparent),
-    inset 0 -2px 0 var(--sim-button) !important;
+  box-shadow: 0 1px 5px color-mix(in srgb, var(--sim-ink) 10%, transparent) !important;
 }
 
 body :is(.row label, .unit, .metric .mlabel, .info-label, .reg-label, .form-label,
