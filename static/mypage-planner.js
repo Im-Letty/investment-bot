@@ -252,10 +252,10 @@
         pick.setAttribute('aria-label',preview.title+'を開く');noteList.appendChild(pick);
       });
       noteCount.textContent=shown.length+'件のメモ';
-      if(!shown.length){
+      if(!shown.length&&query){
         var blank=el('div','mp-note-empty');
-        blank.appendChild(el('strong',null,query?'メモが見つかりません':notesFilter?'このフォルダにメモはありません':'メモをはじめましょう'));
-        blank.appendChild(el('p',null,query?'別の言葉で検索してみてください。':'右上のボタンから、新しいメモを書けます。'));noteList.appendChild(blank);
+        blank.appendChild(el('strong',null,'メモが見つかりません'));
+        blank.appendChild(el('p',null,'別の言葉で検索してみてください。'));noteList.appendChild(blank);
       }
       var n=selectedNote();[noteTitle,noteBody,noteDelete].forEach(function(x){x.disabled=!n||!editable;});
       if(!keepEditor){
