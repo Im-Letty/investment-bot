@@ -40,7 +40,8 @@ class Element {
 
 function loaderFixture(options = {}) {
   const pane = new Element('section'); pane.hidden = true;
-  pane.roomEditing = false; pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing ? {} : null;
+  pane.roomEditing = false; pane.villageEditing = false;
+  pane.querySelector = selector => selector === '.ipg-room-editor' && pane.roomEditing || selector === '.ipg-village-editor' && pane.villageEditing ? {} : null;
   const host = new Element(), focus = new Element('button');
   const scripts = [], listeners = { document: {}, window: {} }, timers = new Map();
   let timerId = 0, mounts = 0, closes = 0, reloads = 0, recordCloses = 0, received;
@@ -471,6 +472,16 @@ test('the outer loader leaves Escape to room editing and resumes normal closing 
   for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
   assert.equal(f.pane.hidden, false); assert.equal(f.closes, 0); assert.equal(f.mounts, 1);
   f.pane.roomEditing = false;
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1); assert.equal(f.mounts, 1);
+});
+
+test('the outer loader also protects village arrangement from Escape until the editor ends', async () => {
+  const f = loaderFixture({ preloaded: true });
+  await f.window.openPetTab(); f.pane.villageEditing = true;
+  for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
+  assert.equal(f.pane.hidden, false); assert.equal(f.closes, 0); assert.equal(f.mounts, 1);
+  f.pane.villageEditing = false;
   for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
   assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1); assert.equal(f.mounts, 1);
 });

@@ -15,9 +15,10 @@
   var fittingOpen = false, fittingOutfit = null;
   var eggDraft = null, eggConfirm = false;
   var roomEdit = null, roomSurfaceCleanup = null, roomSurfaceGeneration = 0, roomSaveAttempt = null;
+  var villageEdit = null, villageSaveAttempt = null, playKind = 'catch';
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
-  var tabLabels = { care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
+  var tabLabels = { village: '村', care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
 
   function node(tag, cls, text) {
     var n = d.createElement(tag);
@@ -867,7 +868,7 @@
     }
   }
   async function run(action, message) {
-    if (!store || busy || roomEdit) return { ok: false, error: { code: 'ui_busy' } };
+    if (!store || busy || roomEdit || villageEdit) return { ok: false, error: { code: 'ui_busy' } };
     var before = state();
     setBusy(true);
     var result;
@@ -1353,14 +1354,118 @@
     if (displaySpecies(s) !== 'lilac') append(settings, text(unlocked ? '最終形のすがた' : '最終形のすがたは、110EXPで選べます。'), appearance);
     body.appendChild(settings);
   }
+  function copyVillage(layout) { return JSON.parse(JSON.stringify(layout)); }
+  function discardVillageEdit() {
+    villageEdit = null;
+    if (villageSaveAttempt) { villageSaveAttempt = null; setBusy(false); }
+  }
+  function villagePosition(value, low, high) { return Math.max(low, Math.min(high, Number(value) || low)); }
+  function villageDestination(id) {
+    if (busy || suspended || villageEdit || roomEdit || game) return;
+    if (id === 'home') tab = 'care';
+    else if (id === 'shop') tab = 'shop';
+    else if (id === 'cafe' || id === 'playground') { playKind = id === 'cafe' ? 'snack' : 'catch'; tab = 'play'; }
+    else { notice = id === 'tree' ? '木かげで、ひとやすみ。' : 'お花が村を彩っています。'; }
+    render();
+    var target = host.querySelector('.ipg-body h3');
+    if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); }
+  }
+  async function saveVillageEdit(session) {
+    if (villageEdit !== session || busy || !store || suspended) return;
+    var owner = store, target = host, epoch = lifecycleEpoch, attempt = {};
+    villageSaveAttempt = attempt; session.error = ''; session.saving = true; setBusy(true);
+    var result;
+    try { result = await owner.dispatch({ type: 'saveVillageLayout', layout: copyVillage(session.draft), expectedRevision: session.revision }); }
+    catch (_) { result = { ok: false }; }
+    if (villageSaveAttempt !== attempt) return;
+    villageSaveAttempt = null; setBusy(false);
+    if (villageEdit !== session || owner !== store || target !== host || epoch !== lifecycleEpoch || suspended) return;
+    session.saving = false;
+    if (result && result.ok) { villageEdit = null; failure = ''; notice = '村の配置を保存しました。'; }
+    else session.error = result && result.error && result.error.code === 'stale_state' ?
+      'ほかの操作で記録が変わりました。下書きは残っています。やめるで戻り、読み直してから配置してください。' :
+      '配置を保存できませんでした。下書きは残っています。もう一度保存するか、やめるを選べます。';
+    render();
+    var focus = host.querySelector('[data-focus-key="' + (villageEdit ? 'village-save' : 'village-edit') + '"]');
+    if (focus) focus.focus({ preventScroll: true });
+  }
+  function renderVillage(s, body) {
+    var editing = villageEdit, layout = editing ? editing.draft : core().getVillageLayout(s);
+    var village = card('', 'ipg-village' + (editing ? ' ipg-village-editor' : ''));
+    function editorActive() { return !!editing && villageEdit === editing && !busy && !suspended && village.isConnected; }
+    append(village, node('p', 'ipg-eyebrow', 'カフェとお店の村'), node('h3', '', editing ? '村の配置を変える' : '今日は、どこへ行こう？'));
+    var map = node('div', 'ipg-village-map'); map.setAttribute('role', 'group'); map.setAttribute('aria-label', 'カフェとお店の村');
+    map.appendChild(node('span', 'ipg-village-path'));
+    var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-items-v1/tree.webp', flowers: 'pet-items-v1/flower.webp' };
+    var captions = { home: 'お世話・おへや', cafe: 'おやつづくり', shop: 'お店・もちもの', playground: 'おにぎりキャッチ', tree: '木かげ', flowers: '花だん' };
+    layout.items.forEach(function (placed) {
+      var spec = core().villagePlaces.filter(function (row) { return row.id === placed.id; })[0];
+      var place = button('', function () {
+        if (editing) { if (!editorActive()) return; editing.selected = placed.id; render(); }
+        else if (village.isConnected && !suspended) villageDestination(placed.id);
+      }, true, s.readOnly && !!editing);
+      place.className = 'ipg-village-place' + (editing && editing.selected === placed.id ? ' is-selected' : '');
+      place.dataset.place = placed.id; place.dataset.focusKey = 'village-place-' + placed.id;
+      place.style.left = villagePosition(placed.x, 15, 85) + '%'; place.style.top = villagePosition(placed.y, 16, 84) + '%';
+      if (editing) place.setAttribute('aria-pressed', String(editing.selected === placed.id));
+      place.setAttribute('aria-label', spec.name + (editing ? 'を配置する' : ' · ' + captions[placed.id]));
+      var art = node('span', 'ipg-village-art'); art.setAttribute('aria-hidden', 'true');
+      var image = node('img'); image.alt = ''; image.draggable = false; image.decoding = 'async'; image.src = imageRoot + images[placed.id];
+      image.addEventListener('error', function () { image.hidden = true; art.dataset.unavailable = 'true'; });
+      append(art, image); append(place, art, node('strong', '', spec.name));
+      if (placed.id !== 'tree' && placed.id !== 'flowers') place.appendChild(node('span', 'ipg-small', captions[placed.id]));
+      map.appendChild(place);
+    });
+    village.appendChild(map);
+    if (editing) {
+      var controls = node('div', 'ipg-village-controls'), selected = layout.items.filter(function (row) { return row.id === editing.selected; })[0];
+      controls.appendChild(text('動かす建物や木を選び、位置を調節してください。配置の変更にコインは使いません。', 'ipg-small'));
+      if (selected) {
+        var fields = node('div', 'ipg-village-coordinate-fields');
+        [['x', '横の位置', 15, 85], ['y', '縦の位置', 16, 84]].forEach(function (axis) {
+          var slider = node('input'); slider.type = 'range'; slider.min = axis[2]; slider.max = axis[3]; slider.step = 1;
+          slider.value = villagePosition(selected[axis[0]], axis[2], axis[3]); slider.dataset.focusKey = 'village-' + axis[0];
+          var caption = node('span', '', axis[1] + ' ' + slider.value + '%');
+          slider.addEventListener('input', function () {
+            if (!editorActive()) return;
+            selected[axis[0]] = villagePosition(slider.value, axis[2], axis[3]); caption.textContent = axis[1] + ' ' + selected[axis[0]] + '%';
+            map.querySelectorAll('.ipg-village-place').forEach(function (place) { if (place.dataset.place === selected.id) place.style[axis[0] === 'x' ? 'left' : 'top'] = selected[axis[0]] + '%'; });
+          });
+          append(fields, append(node('label', 'ipg-field'), caption, slider));
+        });
+        controls.appendChild(fields);
+      }
+      if (editing.error) { var error = text(editing.error, 'ipg-error'); error.setAttribute('role', 'alert'); controls.appendChild(error); }
+      var actions = node('div', 'ipg-row');
+      var save = button('配置を保存', function () { if (editorActive()) saveVillageEdit(editing); }); save.dataset.focusKey = 'village-save';
+      var cancel = button('やめる', function () { if (!editorActive()) return; discardVillageEdit(); notice = '配置の変更をやめました。'; render(); }, true);
+      var reset = button('はじめの配置', function () { if (!editorActive()) return; editing.draft = copyVillage(core().defaultVillageLayout()); render(); }, true);
+      append(actions, save, cancel, reset); append(controls, actions); village.appendChild(controls);
+    } else {
+      var edit = button('村の配置を変える', function () {
+        if (busy || suspended || !village.isConnected || game || roomEdit || villageEdit || s.readOnly) return;
+        villageEdit = { draft: copyVillage(core().getVillageLayout(state())), revision: state().revision, selected: 'home', error: '', saving: false };
+        failure = ''; notice = ''; render();
+      }, true, s.readOnly); edit.dataset.focusKey = 'village-edit'; village.appendChild(edit);
+    }
+    body.appendChild(village);
+  }
   function renderPlay(s, body) {
-    var c = card('おにぎりキャッチ');
-    append(c, text('25秒で、おにぎりをキャッチ。左右に動かすか、← → キーでペットを動かせます。'),
-      text('1日3回まで。中止した回も1回に数えます。報酬は終了後、保存できたときに受け取れます。'));
+    var kind = game ? game.kind : s.minigames.active ? s.minigames.active.kind : playKind;
+    var c = card(kind === 'snack' ? 'カフェのおやつづくり' : '広場のおにぎりキャッチ');
+    if (!game && !pendingFinish && !s.minigames.active) {
+      var choices = node('div', 'ipg-row');
+      ['catch', 'snack'].forEach(function (choice) {
+        var choose = button(choice === 'snack' ? 'おやつづくり' : 'おにぎりキャッチ', function () { playKind = choice; render(); }, true);
+        choose.setAttribute('aria-pressed', String(kind === choice)); choices.appendChild(choose);
+      }); c.appendChild(choices);
+    }
+    append(c, text(kind === 'snack' ? '25秒で、注文どおりのおやつをつくろう。材料を順番に選んでね。' : '25秒で、おにぎりをキャッチ。左右に動かすか、← → キーでペットを動かせます。'),
+      text('広場とカフェで合わせて1日3回まで。中止した回も1回に数えます。報酬は終了後、保存できたときに受け取れます。'));
     var used = s.minigames.day === currentDay() ? s.minigames.started || 0 : 0, cap = limits().minigamesPerDay || 3;
-    append(c, text('今日 ' + number(used) + '/' + cap + '回 · 最高 ' + number(s.minigames.bestScore) + '個', 'ipg-stage'));
+    append(c, text('今日 ' + number(used) + '/' + cap + '回 · 最高 ' + number(s.minigames.bestScore) + 'ポイント', 'ipg-stage'));
     if (game) {
-      buildBoard(c);
+      if (game.kind === 'snack') buildCafeBoard(c); else buildBoard(c);
     } else if (pendingFinish) {
       append(c, text('結果の保存を確認できていません。再試行しても同じ回の報酬が重複することはありません。'),
         button('結果の保存を再試行', finishPending));
@@ -1371,15 +1476,17 @@
           run({ type: 'cancelMinigame', sessionId: interrupted }, '中断した回を終了しました。');
         }, true));
     } else {
-      append(c, button('25秒のゲームをはじめる', startGame, false, used >= cap),
+      append(c, button('25秒のゲームをはじめる', function () { startGame(kind); }, false, used >= cap),
         text('獲得コインやアイテムは、お店やお世話に使えます。'));
     }
     body.appendChild(c);
   }
-  async function startGame() {
+  async function startGame(kind) {
     if (game || pendingFinish || busy) return;
+    kind = kind === 'snack' ? 'snack' : 'catch';
+    if (kind === 'snack' && (!w.PetCafe || typeof w.PetCafe.mount !== 'function')) { failure = 'カフェを読み込めませんでした。ページを読み直して、もう一度お試しください。'; render(); return; }
     var epoch = lifecycleEpoch;
-    var result = await run({ type: 'beginMinigame', kind: 'catch' }, 'ゲームを開始しました。');
+    var result = await run({ type: 'beginMinigame', kind: kind }, 'ゲームを開始しました。');
     if (!result.ok) return;
     var active = state().minigames.active;
     var id = result.reward && result.reward.sessionId || active && active.id;
@@ -1388,7 +1495,7 @@
       await run({ type: 'cancelMinigame', sessionId: id }, '画面を離れたためゲームを中止しました。');
       return;
     }
-    game = { id: id, score: 0, x: 50, drops: [], elapsed: 0, nextSpawn: 0, started: null, frame: null, events: [], finished: false };
+    game = { id: id, kind: kind, score: 0, x: 50, drops: [], elapsed: 0, nextSpawn: 0, started: null, frame: null, events: [], finished: false };
     tab = 'play'; notice = ''; render();
   }
   function onGame(target, type, fn, opts) {
@@ -1398,8 +1505,22 @@
   function cleanGame(g) {
     if (!g) return;
     if (g.frame != null) w.cancelAnimationFrame(g.frame);
+    if (g.cafe) g.cafe.dispose();
     g.events.forEach(function (remove) { remove(); });
     g.events = []; g.finished = true;
+  }
+  function buildCafeBoard(parent) {
+    var g = game;
+    g.cafe = w.PetCafe.mount(parent, {
+      durationMs: 25000,
+      now: options && options.now || Date.now,
+      onComplete: function (score) {
+        if (game !== g || g.finished) return;
+        cleanGame(g); game = null; pendingFinish = { sessionId: g.id, score: score };
+        finishPending();
+      },
+      onCancel: function () { if (game === g) cancelGame('中止しました。この回の報酬はありません。'); }
+    });
   }
   function buildBoard(parent) {
     var g = game;
@@ -1682,7 +1803,7 @@
     append(details, text('この端末のゲームをバックアップできます。復元すると、現在の独立ゲームの記録がバックアップの内容に置き換わります。'));
     var out = node('div');
     function showBackup() {
-      if (roomEdit || busy) return;
+      if (roomEdit || villageEdit || busy) return;
       try {
         var result = store.exportBackup();
         backupText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
@@ -1704,16 +1825,16 @@
     area.addEventListener('input', function () { importText = area.value; });
     file.addEventListener('change', async function () {
       var f = file.files && file.files[0], epoch = lifecycleEpoch, owner = store;
-      if (!f || roomEdit || busy) return;
+      if (!f || roomEdit || villageEdit || busy) return;
       if (f.size > 1000000) { failure = 'バックアップは1MB以下のファイルを選んでください。'; render(); return; }
-      try { var raw = await f.text(); if (roomEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; importText = raw; area.value = importText; }
-      catch (_) { if (roomEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; failure = 'ファイルを読み込めませんでした。'; render(); }
+      try { var raw = await f.text(); if (roomEdit || villageEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; importText = raw; area.value = importText; }
+      catch (_) { if (roomEdit || villageEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; failure = 'ファイルを読み込めませんでした。'; render(); }
     });
     var submit = node('button', 'ipg-button ipg-secondary', 'バックアップから復元');
     submit.type = 'submit';
     form.addEventListener('submit', async function (e) {
       e.preventDefault();
-      if (busy || roomEdit || !area.value.trim()) return;
+      if (busy || roomEdit || villageEdit || !area.value.trim()) return;
       if (!w.confirm('現在のゲームを、このバックアップの内容で復元しますか？')) return;
       setBusy(true);
       try {
@@ -1727,7 +1848,7 @@
     details.appendChild(form); body.appendChild(details);
   }
   function render() {
-    if (!host || !store || game && host.querySelector('.ipg-catch-board')) return;
+    if (!host || !store || game && (host.querySelector('.ipg-catch-board') || host.querySelector('.ipg-cafe-activity'))) return;
     var priorRoom = motionRequests.filter(function (request) { return !!request.room; })[0];
     roomCarryX = tab === 'care' && priorRoom && Number.isFinite(priorRoom.roomPixelX) ? priorRoom.roomPixelX : 0;
     clearRoomSurface();
@@ -1738,7 +1859,7 @@
     renderedDay = currentDay();
     var head = node('header', 'ipg-header');
     if (!choosing && tab !== 'care' && !game && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
-    append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', 'そだてる')),
+    append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', tab === 'village' ? 'カフェとお店の村' : 'そだてる')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);
     var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
@@ -1754,10 +1875,10 @@
     var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
     Object.keys(tabLabels).forEach(function (key) {
       var b = button(tabLabels[key], async function () {
-        if (busy || roomEdit) return;
+        if (busy || roomEdit || villageEdit) return;
         if (game) await cancelGame('ゲームを中止しました。この回の報酬はありません。');
         tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
-      }, true, !!roomEdit);
+      }, true, !!roomEdit || !!villageEdit);
       b.className += tab === key ? ' is-active' : '';
       b.setAttribute('aria-current', tab === key ? 'page' : 'false');
       b.dataset.focusKey = 'tab-' + key;
@@ -1765,14 +1886,15 @@
     });
     root.appendChild(nav);
     var body = node('div', 'ipg-body');
-    if (tab === 'care') renderCare(s, body);
+    if (tab === 'village') renderVillage(s, body);
+    else if (tab === 'care') renderCare(s, body);
     else if (tab === 'play') renderPlay(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
-    if (!game && !roomEdit) { renderLegacy(s, body); renderPreserved(s, body); renderBackup(body); }
+    if (!game && !roomEdit && !villageEdit) { renderLegacy(s, body); renderPreserved(s, body); renderBackup(body); }
     root.appendChild(body);
     host.replaceChildren(root);
-    if (!roomEdit) startMotions();
+    if (!roomEdit && !villageEdit) startMotions();
     setBusy(busy);
     if (game) { var board = host.querySelector('.ipg-catch-board'); if (board) board.focus({ preventScroll: true }); }
     if (focused && !game) {
@@ -1794,9 +1916,10 @@
     suspended = false;
     if (host === target && store) { render(); return true; }
     if (mounting) return mounting;
-    discardRoomEdit(); lifecycleEpoch++;
+    discardRoomEdit(); discardVillageEdit(); lifecycleEpoch++;
     if (game) await cancelGame();
     host = target; options = opts || options || {};
+    tab = developerPreview() ? 'care' : 'village';
     loading('ゲームの記録を読み込んでいます…');
     mounting = (async function () {
       await Promise.resolve();
@@ -1824,7 +1947,7 @@
     return mounting;
   }
   function suspend() {
-    suspended = true; lifecycleEpoch++; discardRoomEdit();
+    suspended = true; lifecycleEpoch++; discardRoomEdit(); discardVillageEdit();
     stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = bodyDrawerOpen.growth = false; directionDrawerOpen.pet = directionDrawerOpen.preview = directionDrawerOpen.growth = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; growthEmotionOpen = false; fittingOpen = false; fittingOutfit = null;
     return cancelGame('画面を離れたためゲームを中止しました。');
   }
