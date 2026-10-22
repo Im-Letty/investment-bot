@@ -46,8 +46,20 @@
     const content='<span>'+escape(name||symbol)+'</span>'+stockCode(symbol);
     return /^[0-9][A-Z0-9]{3}\.(?:T|JP)$/.test(symbol||'')?'<button type="button" class="cp-company-link" data-company-profile="'+escape(symbol)+'" data-company-name="'+escape(name||symbol)+'" aria-label="'+escape(name||symbol)+'の会社情報を開く">'+content+'</button>':content;
   }
-  function row(item,index,showDate=true){
-    return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'">'+companyName(item.symbol,item.name)+'</div>'+quote(item,showDate)+'</li>';
+  function favoriteItem(item){
+    if(!item||typeof item.symbol!=='string'||typeof item.name!=='string'||!item.name.trim())return null;
+    let symbol=item.symbol.normalize('NFKC').trim().toUpperCase();
+    if(/^[0-9][0-9A-Z]{3}$/.test(symbol))symbol+='.T';
+    return /^[A-Z0-9][A-Z0-9.^=-]{0,24}$/.test(symbol)?{symbol,name:item.name.trim().slice(0,160),verified:true}:null;
+  }
+  function favoriteMarkup(item,options={}){
+    const candidate=favoriteItem(item);if(!candidate)return '';
+    const selected=Array.isArray(options.favoriteSymbols)&&options.favoriteSymbols.includes(candidate.symbol);
+    const pending=Array.isArray(options.favoritePending)&&options.favoritePending.includes(candidate.symbol);
+    return '<button type="button" class="sf-rank-favorite" data-rank-favorite="'+escape(candidate.symbol)+'" aria-pressed="'+selected+'" aria-label="'+escape(candidate.name)+'をお気に入り'+(selected?'から外す':'に追加')+'" aria-busy="'+pending+'"'+(pending||options.favoritesAvailable===false?' disabled':'')+'><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20.8 4.9a5.4 5.4 0 0 0-7.6 0L12 6.1l-1.2-1.2a5.4 5.4 0 0 0-7.6 7.6L12 21l8.8-8.5a5.4 5.4 0 0 0 0-7.6Z"/></svg></button>';
+  }
+  function row(item,index,showDate=true,options={}){
+    return '<li class="sf-row" data-stock-symbol="'+escape(item.symbol)+'"><span class="sf-rank" aria-label="'+(index+1)+'位">'+(index+1)+'</span><div class="sf-stock-name" title="'+escape(item.symbol)+'">'+companyName(item.symbol,item.name)+'</div>'+quote(item,showDate)+favoriteMarkup(item,options)+'</li>';
   }
   function watchRow(raw,symbol,formatChange,dividendState){
     const item=raw||{},name=escape(item.name||symbol);
@@ -69,7 +81,7 @@
     }).slice(0,20);
   }
   function ranking(data,direction,active,status,options={}){
-    const items=ranked(data,direction,options),market=MARKETS[options.market]?options.market:'all',quoteDates=tradeDates((data?data.items:[]).filter(item=>market==='all'||item.market===market)),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,quoteDates.showDate(item)).replace('</li>',(options.metric==='volume'?'<span class="sf-volume">売買された株数 '+amount(item.volume)+'株</span>':'')+'</li>')).join('');
+    const items=ranked(data,direction,options),market=MARKETS[options.market]?options.market:'all',quoteDates=tradeDates((data?data.items:[]).filter(item=>market==='all'||item.market===market)),rows=(list,offset=0)=>list.map((item,index)=>row(item,index+offset,quoteDates.showDate(item),options).replace('</li>',(options.metric==='volume'?'<span class="sf-volume">売買された株数 '+amount(item.volume)+'株</span>':'')+'</li>')).join('');
     const empty=data?'条件に当てはまる銘柄はありません。':status==='error'?'株価を確認できませんでした。':'株価を確認しています…';
     const more=items.length>5?'<details class="sf-more" data-stock-detail="rank-'+direction+'"><summary><span>もっと見る<span class="sf-sr-only">、残り'+(items.length-5)+'社</span></span></summary><ol class="sf-rows" start="6">'+rows(items.slice(5),5)+'</ol></details>':'';
     return '<section class="sf-ranking" id="sf-rank-panel-'+direction+'" role="tabpanel" aria-labelledby="sf-rank-tab-'+direction+'" tabindex="0"'+(active!==direction?' hidden':'')+'>'+(items.length?'<ol class="sf-rows">'+rows(items.slice(0,5))+'</ol>':'<p class="sf-state">'+empty+(!data&&status==='error'?'<button class="sf-retry" type="button" data-stock-retry>再読み込み</button>':'')+'</p>')+more+'</section>';
@@ -92,7 +104,8 @@
 
     const pool=(data?data.items:[]).filter(x=>market==='all'||x.market===market),total=data&&(market==='all'?data.universe_size:(data.universe_by_market||{})[market]);
     const meta=data?'<footer class="sf-meta"><span class="sf-meta-date">'+escape(tradeDates(pool).text)+'</span><span>取得済み '+pool.length+'社'+(finite(total)?' / 対象 '+total+'社':'')+(status==='error'?' · 保存済みの価格':data.stale?' · 更新を確認中':'')+'</span><span>順次取得した銘柄内の順位です。全銘柄の同時刻ランキングではありません。</span></footer>':'';
-    return '<div class="sf-content"><section class="sf-market" aria-label="株価ランキング"><div class="sf-rank-toolbar" hidden>'+tabs+'<span class="sf-column-hint">株価 / 前日比</span></div>'+controls+'<div class="sf-rankings">'+ranking(data,'up',active,status,{metric,market})+(metric==='volume'?'':ranking(data,'down',active,status,{metric,market}))+'</div>'+meta+'</section></div>';
+    const rankingOptions={...options,metric,market};
+    return '<div class="sf-content"><section class="sf-market" aria-label="株価ランキング"><div class="sf-rank-toolbar" hidden>'+tabs+'<span class="sf-column-hint">株価 / 前日比</span></div>'+controls+'<div class="sf-rankings">'+ranking(data,'up',active,status,rankingOptions)+(metric==='volume'?'':ranking(data,'down',active,status,rankingOptions))+'</div><p class="sf-favorite-status" role="status" aria-live="polite">'+escape(options.favoriteMessage||'')+'</p>'+meta+'</section></div>';
   }
   function storyDate(value){
     if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
@@ -151,6 +164,33 @@
     const scope=()=>{try{return w.localStorage.getItem('ui_style')==='pro'?'pro':'jp';}catch(_){return 'jp';}};
     let conditions={metric:'pct',market:'all'};try{const saved=JSON.parse(w.localStorage.getItem('kn_rank_conditions')||'null');if(saved&&METRICS[saved.metric]&&MARKETS[saved.market])conditions=saved;if(['up','down'].includes(conditions.direction))active=conditions.direction;}catch(_){}
     let currentScope=scope();const cacheKey=()=> 'kn_stock_focus_v1_'+currentScope;
+    const favoritePending=new Set();let favoriteMessage='',favoritesReady=false;
+    function watchStore(){return w.StockWatch&&typeof w.StockWatch.storeFor==='function'?w.StockWatch.storeFor(w):null;}
+    function favoriteState(){
+      try{const store=watchStore();return {favoriteSymbols:store&&favoritesReady?store.list():[],favoritesAvailable:!!store&&favoritesReady,favoritePending:[...favoritePending],favoriteMessage};}
+      catch(_){return {favoriteSymbols:[],favoritesAvailable:false,favoriteMessage:'お気に入りを読み込めませんでした。ページを開き直してください。'};}
+    }
+    async function toggleFavorite(button){
+      const symbol=button.dataset.rankFavorite,container=doc.getElementById('homeMoversList');
+      if(!container||!container.contains(button)||favoritePending.has(symbol))return;
+      const candidate=data&&data.items.map(favoriteItem).find(item=>item&&item.symbol===symbol);
+      let store;try{store=watchStore();}catch(_){favoriteMessage='お気に入りを読み込めませんでした。ページを開き直してください。';render();return;}
+      if(!candidate||!store||!favoritesReady)return;
+      favoritePending.add(symbol);favoriteMessage='';render();
+      try{
+        await store.ready;
+        const result=store.list().includes(symbol)?await store.remove(symbol):await store.add(candidate);
+        if(result.status==='added'||result.status==='duplicate'||result.status==='removed'){
+          favoriteMessage=result.status==='removed'?'お気に入りから外しました。':'お気に入りに追加しました。';
+          if(typeof w.__knRefreshWatch==='function'){try{w.__knRefreshWatch();}catch(_){/* The saved favorite still succeeded. */}}
+        }else favoriteMessage=result.status==='limit'?'お気に入りは20件まで登録できます。':'この銘柄を保存できませんでした。';
+      }catch(_){favoriteMessage='保存できませんでした。もう一度お試しください。';}
+      finally{
+        favoritePending.delete(symbol);render();
+        const target=Array.from(container.querySelectorAll('[data-rank-favorite]')).find(item=>item.dataset.rankFavorite===symbol);
+        if(target&&!target.disabled&&(!doc.activeElement||doc.activeElement===button||doc.activeElement===doc.body))target.focus({preventScroll:true});
+      }
+    }
     function setMenu(key,focus=false,returnKey=openMenu){
       openMenu=key;
       for(const kind of ['order','market']){
@@ -181,17 +221,25 @@
       const next=doc.createElement('div');next.innerHTML=html;
       const before=Array.from(el.querySelectorAll('.sf-row')),after=Array.from(next.querySelectorAll('.sf-row'));
       if(!before.length||before.length!==after.length||before.some((row,i)=>row.dataset.stockSymbol!==after[i].dataset.stockSymbol||row.closest('.sf-ranking').id!==after[i].closest('.sf-ranking').id))return false;
-      const cells=['.sf-rank','.sf-stock-name','.sf-quote',...(conditions.metric==='volume'?['.sf-volume']:[])];
+      const cells=['.sf-rank','.sf-stock-name','.sf-quote','.sf-rank-favorite',...(conditions.metric==='volume'?['.sf-volume']:[])];
       const patches=[];
       for(let i=0;i<before.length;i++)for(const selector of cells){
         const target=before[i].querySelector(selector),source=after[i].querySelector(selector);
         if(!target||!source)return false;
-        patches.push([target,source]);
+        patches.push([target,source,selector]);
       }
       const footer=el.querySelector('.sf-meta'),nextFooter=next.querySelector('.sf-meta');
       if(!footer||!nextFooter)return false;
       patches.push([footer,nextFooter]);
-      for(const [target,source]of patches){if(target.innerHTML!==source.innerHTML)target.innerHTML=source.innerHTML;}
+      for(const [target,source,selector]of patches){
+        if(target.innerHTML!==source.innerHTML)target.innerHTML=source.innerHTML;
+        if(selector==='.sf-rank-favorite'){
+          for(const attr of ['aria-pressed','aria-label','aria-busy'])target.setAttribute(attr,source.getAttribute(attr));
+          target.disabled=source.hasAttribute('disabled');
+        }
+      }
+      const message=el.querySelector('.sf-favorite-status'),nextMessage=next.querySelector('.sf-favorite-status');
+      if(message&&nextMessage&&message.innerHTML!==nextMessage.innerHTML)message.innerHTML=nextMessage.innerHTML;
       selectRanking(el,active);
       return true;
     }
@@ -200,6 +248,7 @@
       if(id==='homeMoversList'&&updateRankingValues(el,html)){el.__stockHTML=html;return;}
       const open=new Set(Array.from(el.querySelectorAll('details[open][data-stock-detail]')).map(x=>x.dataset.stockDetail));
       const focused=doc.activeElement,ownsFocus=focused&&el.contains(focused),settingKey=ownsFocus&&focused.getAttribute('data-rank-setting'),focusKey=ownsFocus&&focused.getAttribute('data-sf-rank'),choiceKey=ownsFocus&&focused.getAttribute('data-rank-choice'),choiceValue=choiceKey&&focused.getAttribute('data-rank-'+choiceKey),closeKey=ownsFocus&&focused.getAttribute('data-rank-close');
+      const favoriteFocus=id==='homeMoversList'&&ownsFocus&&focused.getAttribute('data-rank-favorite');
       const focusedStory=id==='knCompanyFocus'&&ownsFocus&&focused.closest&&focused.closest('details[data-stock-detail]');
       const storyFocus=focusedStory?{key:focusedStory.dataset.stockDetail,source:focused.matches('.sf-source')}:null;
       const focusedCompany=id==='knCompanyFocus'&&ownsFocus&&focused.closest&&focused.closest('[data-company-profile]'),companyFocus=focusedCompany&&focusedCompany.dataset.companyProfile;
@@ -212,6 +261,7 @@
       if(moreFocus){const last=Array.from(el.querySelectorAll('.sf-company')).at(-1),target=el.querySelector('[data-company-more]')||(last&&last.querySelector('summary'));if(target)target.focus({preventScroll:true});}
       if(collapseFocus){const target=el.querySelector('[data-company-close]')||el.querySelector('[data-company-more]')||el.querySelector('.sf-company summary');if(target)target.focus({preventScroll:true});}
       if(id==='homeMoversList')setMenu(openMenu);
+      if(favoriteFocus){const target=Array.from(el.querySelectorAll('[data-rank-favorite]')).find(button=>button.dataset.rankFavorite===favoriteFocus);if(target&&!target.disabled)target.focus({preventScroll:true});}
       if(settingKey){const select=el.querySelector('[data-rank-setting="'+settingKey+'"]');if(select)select.focus({preventScroll:true});}
       if(focusKey){const button=el.querySelector('[data-sf-rank="'+focusKey+'"]');if(button)button.focus({preventScroll:true});}
       if(choiceKey||closeKey){
@@ -244,7 +294,7 @@
       if(w.ResizeObserver){const observer=new w.ResizeObserver(entries=>{for(const entry of entries)if(entry.target===section)updateStoryLayout(entry.contentRect.width);});observer.observe(section);}
       else if(w.addEventListener)w.addEventListener('resize',()=>updateStoryLayout(section.clientWidth));
     }
-    function render(){paint('homeMoversList',rankingMarkup(data,active,status,conditions));renderStories();}
+    function render(){paint('homeMoversList',rankingMarkup(data,active,status,{...conditions,...favoriteState()}));renderStories();}
     function restore(){try{data=normalizePayload(JSON.parse(w.localStorage.getItem(cacheKey())));if(data)data.stale=true;}catch(_){data=null;}}
     async function getJSON(url){const controller=new w.AbortController(),timeout=w.setTimeout(()=>controller.abort(),12000);try{const response=await w.fetch(url,{signal:controller.signal,cache:'no-store'});if(!response.ok)throw new Error('HTTP '+response.status);return await response.json();}finally{w.clearTimeout(timeout);}}
     function schedule(delay=REFRESH_MS){
@@ -302,10 +352,11 @@
         const observer=new w.MutationObserver(updateStoryVisibility);
         for(const id of ['morning-section','knCompanyNewsSection']){const target=doc.getElementById(id);if(target)observer.observe(target,{attributes:true,attributeFilter:['style','hidden','class']});}
       }
-      w.closeStockWatchManager=function(){const manager=doc.getElementById('alert-section');if(manager)manager.style.display='none';const home=doc.getElementById('morning-section'),news=doc.getElementById('morning-news-section');if(home)home.style.display='block';if(news)news.style.display='';if(w.__knRefreshWatch)w.__knRefreshWatch();if(w.__knSetSub)w.__knSetSub('watch');};
+      if(typeof w.closeStockWatchManager!=="function")w.closeStockWatchManager=function(){const manager=doc.getElementById('alert-section');if(manager)manager.style.display='none';const home=doc.getElementById('morning-section'),news=doc.getElementById('morning-news-section');if(home)home.style.display='block';if(news)news.style.display='';if(w.__knRefreshWatch)w.__knRefreshWatch();if(w.__knSetSub)w.__knSetSub('watch');};
       doc.addEventListener('change',e=>{const key=e.target.getAttribute&&e.target.getAttribute('data-rank-setting');if(key)changeSetting(key,e.target.value);});
       doc.addEventListener('click',e=>{
         const closest=selector=>e.target.closest&&e.target.closest(selector);
+        const favorite=closest('[data-rank-favorite]');if(favorite){toggleFavorite(favorite);return;}
         if(closest('[data-company-retry]')){storyStatus='loading';renderStories();loadStories(true);return;}
         if(closest('[data-company-more]')){const before=storyVisible;storyExpanded=true;storyVisible=STORY_LIMIT;renderStories();const list=doc.getElementById('sf-company-list'),detail=list&&list.querySelectorAll('details')[before],target=detail&&detail.querySelector('summary');if(target)target.focus({preventScroll:true});return;}
         if(closest('[data-company-close]')){storyExpanded=false;storyVisible=storyPageSize;renderStories();const box=doc.getElementById('knCompanyFocus'),target=box&&(box.querySelector('[data-company-more]')||box.querySelector('.sf-company summary'));if(target){target.focus({preventScroll:true});if(target.scrollIntoView)target.scrollIntoView({block:'nearest',inline:'nearest',behavior:'instant'});}return;}
@@ -338,6 +389,12 @@
         refresh();if(storiesVisible()){storyFrameVisible=true;loadStories();}
       });
       if(w.addEventListener)w.addEventListener('online',()=>{refresh();if(storiesVisible())loadStories();});
+      if(w.addEventListener){
+        w.addEventListener('kn:watchlist-change',render);
+        w.addEventListener('storage',event=>{if(event.key==='alert_watchlist_v1'||event.key===null)render();});
+      }
+      try{const favorites=watchStore();if(favorites)favorites.ready.then(()=>{favoritesReady=true;render();}).catch(()=>{favoriteMessage='お気に入りを読み込めませんでした。ページを開き直してください。';render();});}
+      catch(_){favoriteMessage='お気に入りを読み込めませんでした。ページを開き直してください。';render();}
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init,{once:true});else init();
   }

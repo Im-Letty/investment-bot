@@ -4,6 +4,10 @@ const stock=require('../static/stock-focus.js');
 const now=Date.parse('2026-09-23T09:00:00Z');
 const item=(symbol,n=0)=>({symbol,name:'企業 '+symbol,price:110+n,prev:100,currency:'JPY',trade_date:'2026-09-18',fetched_at:now/1000});
 const payload=items=>stock.normalizePayload({updated_at:now/1000,items,scope:'selected_jp',total_scanned:items.length},now);
+test('a bare Japanese code uses the same canonical favorite identity as the shared store',()=>{
+ const html=stock.rankingMarkup(payload([item('7203')]),'up','ready',{favoriteSymbols:['7203.T']});
+ assert.match(html,/data-rank-favorite="7203\.T" aria-pressed="true"/);
+});
 test('ranking sorts independently, caps at20 and initially displays only5',()=>{
  const data=payload(Array.from({length:25},(_,i)=>item((1000+i)+'.T',i)).concat(Array.from({length:25},(_,i)=>({...item((2000+i)+'.T'),price:90-i}))));
  for(const direction of ['up','down']){const list=stock.ranked(data,direction);assert.equal(list.length,20);assert.equal(list[0].symbol,(direction==='up'?'1024':'2024')+'.T');}
@@ -137,12 +141,12 @@ test('all executable inline scripts remain syntactically valid after integration
  assert.ok(count>20);
 });
 async function flush(){for(let i=0;i<20;i++)await Promise.resolve();}
-function browserHarness(saved,hidden=false,prepare){
+function browserHarness(saved,hidden=false,prepare,startModule=true){
  const elements=new Map(['homeMoversList','knCompanyFocus'].map(id=>[id,{innerHTML:'',querySelectorAll(){return [];},contains(){return false;}}]));
  const listeners={},requests=[],timers=new Map(),storage=new Map(Object.entries(saved||{}));let timerId=0;
  const w={AbortController,addEventListener:(key,fn)=>{listeners[key]=fn;},document:{readyState:'complete',hidden,activeElement:null,getElementById:id=>elements.get(id)||null,addEventListener:(key,fn)=>{listeners[key]=fn;}},localStorage:{getItem:key=>storage.get(key)||null,setItem:(key,value)=>storage.set(key,value)},setTimeout:(fn,ms)=>{timers.set(++timerId,{fn,ms});return timerId;},clearTimeout:id=>timers.delete(id),fetch(url){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});requests.push({url,resolve,reject});return promise;}};
  if(prepare)prepare(w,elements,listeners);
- stock.start(w);
+ if(startModule)stock.start(w);
  return {w,elements,listeners,requests,timers,async respond(request,data){request.resolve({ok:true,json:async()=>data});await flush();}};
 }
 test('cold provider waiting ends with a retry action rather than an endless spinner',async()=>{
@@ -207,6 +211,8 @@ test('recurring ranking price changes preserve rows and disclosures when their o
          const name=selector.slice(1),match=content.match(new RegExp('<(span|div) class="'+name+'"[^>]*>(.*?)<\\/\\1>'));
          assert.ok(match,selector);values[selector]={innerHTML:match[2]};
        }
+       const favorite=content.match(/<button[^>]*class="sf-rank-favorite"([^>]*)>(.*?)<\/button>/);
+       if(favorite){const attrs=Object.fromEntries([...favorite[1].matchAll(/([\w-]+)(?:="([^"]*)")?/g)].map(([,key,value])=>[key,value??'']));values['.sf-rank-favorite']={innerHTML:favorite[2],getAttribute:key=>attrs[key]??null,hasAttribute:key=>Object.hasOwn(attrs,key),setAttribute:(key,value)=>attrs[key]=value};}
        this.rows.push({dataset:{stockSymbol:symbol},querySelector:selector=>values[selector],closest:()=>({id})});
      }
      const footer=value.match(/<footer class="sf-meta">(.*?)<\/footer>/);this.footer=footer?{innerHTML:footer[1]}:null;
@@ -218,6 +224,17 @@ test('recurring ranking price changes preserve rows and disclosures when their o
  assert.equal(box.writes,writes);assert.equal(box.rows[0],row);assert.equal(row.querySelector('.sf-quote'),quote);assert.match(quote.innerHTML,/>115<small>/);assert.equal(h.w.document.activeElement,row);
  // Crossing from up to down must rebuild the ranking groups, rather than leaving the company in the old group.
  fireRankingTimer(h,60000);await h.respond(h.requests.at(-1),scannerPayload(90));assert.equal(box.writes,writes+1);assert.equal(box.rows[0].closest().id,'sf-rank-panel-down');
+});
+
+test('ranking-only hearts have no visible label and expose selected and unselected actions accessibly',()=>{
+ const data=payload([{...item('7203.T'),name:'<会社>'},item('9432.T')]);
+ const html=stock.rankingMarkup(data,'up','ready',{favoriteSymbols:['7203.T']});
+ const buttons=[...html.matchAll(/<button[^>]+class="sf-rank-favorite"[^>]*>.*?<\/button>/g)].map(match=>match[0]);
+ assert.equal(buttons.length,2);assert.match(buttons[0],/aria-pressed="true"/);assert.match(buttons[0],/aria-label="&lt;会社&gt;をお気に入りから外す"/);
+ assert.match(buttons[1],/aria-pressed="false"/);assert.match(buttons[1],/お気に入りに追加/);
+ for(const button of buttons){assert.match(button,/<svg[^>]+aria-hidden="true"/);assert.doesNotMatch(button,/<span|<small|<img|★|☆/);}
+ assert.doesNotMatch(stock.watchRow(item('7203.T'),'7203.T'),/data-rank-favorite/);
+ assert.doesNotMatch(stock.companyMarkup(null,null,'ready'),/data-rank-favorite/);
 });
 test('legacy alerts stay outside new home rankings and favorite management has working targets',()=>{
  const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');assert.doesNotMatch(html,/_knSyncAlert|Move 急騰・急落アラート/);
@@ -365,7 +382,7 @@ test('compact bar combines direction and metric and preserves the selected order
 
 // Parse the production markup and simulate DOM mechanics only. The actual
 // rendering, event delegation, storage and refresh handlers remain unchanged.
-function rankingMenuHarness(saved,prepare){
+function rankingMenuHarness(saved,prepare,startModule=true){
  const h=browserHarness(saved,false,(w,elements,listeners)=>{
   const doc=w.document;
   class Element{
@@ -375,6 +392,7 @@ function rankingMenuHarness(saved,prepare){
    hasAttribute(key){return Object.hasOwn(this.attrs,key);}
    get id(){return this.getAttribute('id')||'';}
    get hidden(){return this.hasAttribute('hidden');}set hidden(value){if(value)this.setAttribute('hidden','');else delete this.attrs.hidden;}
+   get disabled(){return this.hasAttribute('disabled');}set disabled(value){if(value)this.setAttribute('disabled','');else delete this.attrs.disabled;}
    get open(){return this.hasAttribute('open');}set open(value){if(value)this.setAttribute('open','');else delete this.attrs.open;}
    get tabIndex(){return Number(this.getAttribute('tabindex')??0);}set tabIndex(value){this.setAttribute('tabindex',value);}
    appendChild(child){if(typeof child!=='string'){if(child.parentElement)child.parentElement.children.splice(child.parentElement.children.indexOf(child),1);child.parentElement=this;}this.children.push(child);return child;}
@@ -415,15 +433,74 @@ function rankingMenuHarness(saved,prepare){
   doc.createElement=tag=>new Element(tag);doc.getElementById=id=>doc.body.querySelector('#'+id);
   for(const id of elements.keys()){const el=new Element('div');el.setAttribute('id',id);doc.body.appendChild(el);elements.set(id,el);}
   if(prepare)prepare(w,elements,listeners);
- });
+ },startModule);
  h.node=id=>h.w.document.getElementById(id);
  h.option=(value,key='order')=>h.node('sf-'+key+'-options').querySelector('[data-rank-'+key+'="'+value+'"]');
- h.click=target=>{(target.closest('button')||target).focus();h.listeners.click({target});};
+ h.click=target=>{const control=target.closest('button')||target;if(control.disabled)return;control.focus();h.listeners.click({target});};
  h.key=(target,key)=>{const event={target,key,defaultPrevented:false,preventDefault(){this.defaultPrevented=true;}};h.listeners.keydown(event);if(!event.defaultPrevented&&['Enter',' '].includes(key)&&target.tagName==='BUTTON')h.click(target);return event;};
  h.changeMarket=value=>{h.click(h.node('sf-market-trigger'));h.click(h.option(value,'market'));};
  h.saved=()=>JSON.parse(h.w.localStorage.getItem('kn_rank_conditions'));
  return h;
 }
+
+test('production defer order initializes ranking hearts at interactive readiness without replacing the real watch close handler',async()=>{
+ const close=()=>{};
+ const h=rankingMenuHarness(undefined,w=>{w.document.readyState='interactive';w.KNDateDisplay=require('../static/date-display.js');w.KNWatchDividends=require('../static/watch-dividends.js');w.closeStockWatchManager=close;},false);
+ const html=fs.readFileSync(path.join(__dirname,'../index.html'),'utf8');
+ const assets=[...html.matchAll(/<script\b[^>]*\bdefer\b[^>]*\bsrc="(\/static\/(?:stock-watch|stock-focus)\.js)\?[^\"]+"[^>]*>/g)].map(match=>match[1]);
+ assert.deepEqual(assets,['/static/stock-watch.js','/static/stock-focus.js']);
+ for(const asset of assets)vm.runInNewContext(fs.readFileSync(path.join(__dirname,'..',asset),'utf8'),{window:h.w});
+ assert.equal(h.w.closeStockWatchManager,close);
+ await h.respond(h.requests.find(r=>r.url.includes('/api/scanner')),scannerPayload());
+ const heart=h.elements.get('homeMoversList').querySelector('[data-rank-favorite]');assert.ok(heart);assert.equal(heart.disabled,false);
+ h.click(heart);await flush();assert.equal(heart.getAttribute('aria-pressed'),'true');
+ assert.deepEqual(JSON.parse(h.w.localStorage.getItem('alert_watchlist_v1')),['7203.T']);
+});
+
+test('ranking hearts wait for restored favorites then keyboard toggle the existing shared saved list',async()=>{
+ const watch=require('../static/stock-watch.js');let unlock;const gate=new Promise(resolve=>unlock=resolve);let refreshes=0;
+ const h=rankingMenuHarness({'alert_watchlist_v1':'["7203.T"]'},w=>{w.StockWatch=watch;w.__knGateReady=gate;w.__knRefreshWatch=()=>refreshes++;});
+ await h.respond(h.requests.find(r=>r.url.includes('/api/scanner')),scannerPayload());
+ let heart=h.elements.get('homeMoversList').querySelector('[data-rank-favorite]');assert.ok(heart.disabled);
+ h.click(heart);await flush();assert.equal(refreshes,0);assert.equal(h.w.localStorage.getItem('alert_watchlist_v1'),'["7203.T"]');
+ unlock();await flush();assert.equal(heart.disabled,false);assert.equal(heart.getAttribute('aria-pressed'),'true');
+ h.key(heart,'Enter');await flush();assert.equal(heart.getAttribute('aria-pressed'),'false');assert.equal(heart.getAttribute('aria-label'),'企業 7203.Tをお気に入りに追加');assert.equal(refreshes,1);
+ assert.deepEqual(JSON.parse(h.w.localStorage.getItem('alert_watchlist_v1')),[]);
+ h.key(heart,' ');await flush();assert.equal(heart.getAttribute('aria-pressed'),'true');assert.equal(refreshes,2);
+ assert.deepEqual(watch.storeFor(h.w).list(),['7203.T']);assert.equal(watch.storeFor(h.w).name('7203.T'),'企業 7203.T');
+ assert.equal(heart.textContent,'');assert.equal(h.w.document.activeElement,heart);
+});
+test('pending ranking saves stay unselected and failed persistence retains the prior list and usable heart',async()=>{
+ const watch=require('../static/stock-watch.js');let rejectWrite;const writes=[];
+ const h=rankingMenuHarness({'alert_watchlist_v1':'["9432.T"]'},w=>{w.StockWatch=watch;w.__knPersistLocalSetting=(key,value)=>{writes.push({key,value});return new Promise((resolve,reject)=>rejectWrite=reject);};});
+ await h.respond(h.requests.find(r=>r.url.includes('/api/scanner')),scannerPayload());
+ const heart=h.elements.get('homeMoversList').querySelector('[data-rank-favorite]');h.click(heart);await flush();
+ assert.equal(heart.disabled,true);assert.equal(heart.getAttribute('aria-busy'),'true');assert.equal(heart.getAttribute('aria-pressed'),'false');
+ h.click(heart);await flush();assert.equal(writes.length,1);
+ rejectWrite(new Error('failed persistence'));await flush();
+ assert.equal(heart.disabled,false);assert.equal(heart.getAttribute('aria-pressed'),'false');assert.equal(heart.getAttribute('aria-busy'),'false');
+ assert.equal(h.w.localStorage.getItem('alert_watchlist_v1'),'["9432.T"]');
+ assert.match(h.elements.get('homeMoversList').textContent,/保存できませんでした/);assert.doesNotMatch(h.elements.get('homeMoversList').textContent,/failed persistence/);
+});
+test('failed favorites restoration keeps hearts disabled and leaves prices and company actions available',async()=>{
+ const watch=require('../static/stock-watch.js');let rejectRestore;const ready=new Promise((resolve,reject)=>rejectRestore=reject);
+ const h=rankingMenuHarness(undefined,w=>{w.StockWatch=watch;w.__knGateReady=ready;});
+ await h.respond(h.requests.find(r=>r.url.includes('/api/scanner')),scannerPayload());
+ const box=h.elements.get('homeMoversList'),heart=box.querySelector('[data-rank-favorite]'),quote=box.querySelector('.sf-quote'),company=box.querySelector('.cp-company-link');
+ rejectRestore(new Error('private raw restore reason'));await flush();
+ assert.equal(heart.disabled,true);assert.equal(box.querySelector('.sf-quote'),quote);assert.equal(box.querySelector('.cp-company-link'),company);
+ assert.match(box.textContent,/お気に入りを読み込めませんでした/);assert.doesNotMatch(box.textContent,/private raw restore reason/);
+});
+test('ranking limit failure and external saved-list changes repaint only the heart without quote or company replacement',async()=>{
+ const watch=require('../static/stock-watch.js'),saved=Array.from({length:20},(_,i)=>(1000+i)+'.T');
+ const h=rankingMenuHarness({'alert_watchlist_v1':JSON.stringify(saved)},w=>{w.StockWatch=watch;});
+ await h.respond(h.requests.find(r=>r.url.includes('/api/scanner')),scannerPayload());
+ const box=h.elements.get('homeMoversList'),heart=box.querySelector('[data-rank-favorite]'),quote=box.querySelector('.sf-quote'),company=box.querySelector('.cp-company-link');
+ h.click(heart);await flush();assert.equal(heart.getAttribute('aria-pressed'),'false');assert.equal(watch.storeFor(h.w).list().length,20);assert.match(box.textContent,/20件まで/);
+ h.w.localStorage.setItem('alert_watchlist_v1','["7203.T"]');h.listeners.storage({key:'alert_watchlist_v1'});
+ assert.equal(heart.getAttribute('aria-pressed'),'true');assert.equal(box.querySelector('.sf-quote'),quote);assert.equal(box.querySelector('.cp-company-link'),company);
+ h.w.localStorage.setItem('alert_watchlist_v1','[]');h.listeners['kn:watchlist-change']();assert.equal(heart.getAttribute('aria-pressed'),'false');
+});
 
 test('all five order options save and restore their metric and direction without changing the market',()=>{
  const cases=[['pct','pct','up','値上がり率（％）'],['down','pct','down','値下がり率（％）'],['amount','amount','up','値上がり額'],['dropAmount','amount','down','値下がり額'],['volume','volume','up','売買が多い株']];

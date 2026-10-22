@@ -6,6 +6,7 @@
 })(typeof window==='undefined'?null:window,function(){
   'use strict';
   const KEY='alert_watchlist_v1', NAMES='stock_watch_names_v1', LIMIT=20;
+  const windowStores=new WeakMap();
   function symbol(value){
     const text=String(value||'').normalize('NFKC').trim().toUpperCase();
     if(/^[0-9][0-9A-Z]{3}$/.test(text))return text+'.T';
@@ -64,6 +65,11 @@
     }
     return {run,cancel,schedule(query){cancel();onState({status:'idle',items:[]});debounce=w.setTimeout(()=>run(query),300);}};
   }
+  // Ranking hearts and the watch manager must share the same mutation queue.
+  function storeFor(w){
+    if(!windowStores.has(w))windowStores.set(w,createStore(w.localStorage,w.__knPersistLocalSetting,w.__knGateReady));
+    return windowStores.get(w);
+  }
   function start(w){
     const doc=w.document;
     function init(){
@@ -75,7 +81,7 @@
       if(!panel||!closeButton)return;
       // Keep the dialog outside any home-view stacking context or inert ancestor.
       doc.body.appendChild(manager);
-      const store=createStore(w.localStorage,w.__knPersistLocalSetting,w.__knGateReady);
+      const store=storeFor(w);
       let state={status:'idle',items:[]},composing=false,opened=false,returnFocus=null,returnY=0,homeScroll=0,closeTimer=null,background=[],bodyOverflow='',bodyPadding='',homeOverflow='',backgroundScroll=null;
       function el(tag,className,text){const node=doc.createElement(tag);if(className)node.className=className;if(text!==undefined)node.textContent=text;return node;}
       function feedback(text,error){message.textContent=text;message.className='sw-feedback';message.dataset.error=error?'true':'false';}
@@ -235,5 +241,5 @@
     }
     if(doc.readyState==='loading')doc.addEventListener('DOMContentLoaded',init);else init();
   }
-  return {symbol,currentPerLine,createStore,createSearch,start,LIMIT};
+  return {symbol,currentPerLine,createStore,storeFor,createSearch,start,LIMIT};
 });

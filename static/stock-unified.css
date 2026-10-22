@@ -132,8 +132,9 @@ body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-agenda-panel 
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-grid {min-height:calc(264px * var(--kn-a-scale,1) + 15px)}
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-day {max-width:calc(44px * var(--kn-a-scale,1))}
 /* Company names stay above their figures, as in the mobile lists. */
-body.kn-home-a #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr);gap:4px 10px}
+body.kn-home-a #morning-section #knTabWrap .sf-row {grid-template-columns:20px minmax(0,1fr) 44px;gap:4px 10px}
 body.kn-home-a #morning-section #knTabWrap .sf-row .sf-quote {grid-column:2;grid-row:2}
+body.kn-home-a #morning-section #knTabWrap .sf-row .sf-rank-favorite {grid-column:3;grid-row:1/3;align-self:center}
 body.kn-home-a #morning-section #knTabWrap .sf-watch-row {grid-template-columns:minmax(0,1fr);gap:6px}
 body.kn-home-a #morning-section #knTabWrap .sf-watch-row .sf-quote {align-items:flex-start;text-align:left}
 body.kn-home-a #morning-section #knTabWrap .dividend-list .div-item {grid-template-columns:20px minmax(0,1fr);gap:6px 10px}

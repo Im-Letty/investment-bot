@@ -26,6 +26,19 @@ test('unknown input cannot create a favorite; concurrent saves retain both selec
  await Promise.all([store.add(toyota),store.add({symbol:'AAPL',name:'Apple',verified:true}),store.add(toyota)]);
  assert.deepEqual(store.list(),['7203.T','AAPL']);
 });
+test('ranking and manager share one gated queue so simultaneous additions cannot exceed20',async()=>{
+ const initial=Array.from({length:19},(_,i)=>(1000+i)+'.T');
+ const saved=storage();let unlock;const ready=new Promise(resolve=>unlock=resolve);
+ const w={localStorage:saved,__knGateReady:ready};
+ const ranking=watch.storeFor(w),manager=watch.storeFor(w);
+ assert.equal(ranking,manager);
+ const a=ranking.add(toyota),b=manager.add({symbol:'9432.T',name:'NTT',verified:true});
+ await flush();assert.deepEqual(ranking.list(),[]);
+ saved.setItem(KEY,JSON.stringify(initial));unlock();
+ assert.equal((await a).status,'added');assert.equal((await b).status,'limit');
+ assert.equal(ranking.list().length,20);assert.ok(ranking.list().includes('7203.T'));assert.ok(!ranking.list().includes('9432.T'));
+ assert.equal(watch.storeFor({localStorage:storage()} )===ranking,false);
+});
 test('verified regional identities persist as regional favorites without being converted to Tokyo codes',async()=>{
  const store=watch.createStore(storage()),regional={symbol:'8301.JP',name:'地域企業',verified:true,provider_symbol:null};
  assert.equal((await store.add(regional)).status,'added');assert.deepEqual(store.list(),['8301.JP']);assert.equal(store.name('8301.JP'),'地域企業');
