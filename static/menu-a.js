@@ -77,7 +77,6 @@
     nav.replaceChildren();
     var panel=document.createElement('div');panel.className='knAccPanel kn-menu-content';nav.appendChild(panel);
     if(window.KNUserProfile&&typeof window.KNUserProfile.mount==='function')window.KNUserProfile.mount(panel);
-    panel.appendChild(group(['account','kakeibo','memo']));
     panel.appendChild(group(['guide']));
     var colors=drawer.querySelector('.drawer-color-wrap:has(.drawer-color-presets)');
     if(colors){var palette=document.createElement('section');palette.className='kn-menu-palette';palette.innerHTML='<h3 data-menu-copy="color">'+text('color')+'</h3>';palette.appendChild(colors);panel.appendChild(palette);colors.querySelectorAll('.drawer-color-preset').forEach(function(b){b.type='button';b.setAttribute('aria-label',b.title);b.style.setProperty('--menu-swatch',b.getAttribute('data-color'));});var reset=colors.querySelector('#drawerColorReset');if(reset){reset.removeAttribute('data-i18n');reset.dataset.menuCopy='resetColor';reset.textContent=text('resetColor');}}

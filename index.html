@@ -425,7 +425,6 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
     <button class="drawer-item" onclick="closeDrawer();openSimulatorSection()"><span class="drawer-item-icon">📊</span> <span data-i18n="drawer_simulator">シミュレーター</span></button>
     
     <button class="drawer-item" onclick="closeDrawer();openMorningSection()"><span class="drawer-item-icon">☀️</span> <span data-i18n="drawer_morning">朝の相場レター</span></button>
-    <a class="drawer-item" href="/kakeibo" target="_blank"><span class="drawer-item-icon">💼</span> <span data-i18n="drawer_assets">家計簿・資産管理</span></a>
     <button class="drawer-item" onclick="closeDrawer();openDividendSection()"><span class="drawer-item-icon">💴</span> <span data-i18n="drawer_dividend">配当金・銘柄さがし</span></button><button class="drawer-item" onclick="closeDrawer();openBeginnerGuide()"><span class="drawer-item-icon">🧭</span> <span>はじめてガイド</span></button><button class="drawer-item" onclick="closeDrawer();openDisplaySettings()"><span class="drawer-item-icon">⚙️</span> <span>表示設定</span></button><button class="drawer-item" onclick="closeDrawer();openContact()"><span class="drawer-item-icon">&#128233;</span> <span>お問い合わせ</span></button><button class="drawer-item" onclick="closeDrawer();openSafe()"><span class="drawer-item-icon">🛡️</span><span>当アプリの安心ポイント</span></button><button class="drawer-item" onclick="closeDrawer();openCommunity()"><span class="drawer-item-icon">&#128172;</span> <span>コミュニティ</span></button>
   </nav>
   <div class="drawer-section-label" data-i18n="sidebar_color_custom">カラーカスタム</div><div class="drawer-color-wrap"><div class="drawer-color-presets"><button class="drawer-color-preset" data-color="#3da060" style="background:#3da060" title="グリーン"></button><button class="drawer-color-preset" data-color="#e91e63" style="background:#e91e63" title="ピンク"></button><button class="drawer-color-preset" data-color="#b2923a" style="background:#b2923a" title="イエロー"></button><button class="drawer-color-preset" data-color="#2196f3" style="background:#2196f3" title="ブルー"></button></div><div class="drawer-color-custom"><label class="drawer-color-label" data-i18n="sidebar_color_picker">自由に選ぶ</label><input type="color" id="drawerColorInput" class="drawer-color-input" value="#3da060"></div><button class="drawer-color-reset" id="drawerColorReset" data-i18n="sidebar_color_reset">リセット</button></div><div style="padding:8px 16px"><button id="drawerSettingsBtn" onclick="if(window._closeDrawer)window._closeDrawer();if(window._openSettings)window._openSettings();" style="display:flex;align-items:center;gap:12px;padding:12px 24px;cursor:pointer;color:rgba(255,255,255,0.88);border:none;background:transparent;width:100%;text-align:left;font-weight:500;"><span style="font-size:18px">&#x2699;&#xfe0f;</span><span data-i18n="setting_open">Settings</span></button></div><div class="drawer-section-label" data-i18n="sect_language">言語 / Language</div><div class="drawer-color-wrap"><div class="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:0 4px;"><button class="lang-btn" data-lang="ja" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇯🇵 日本語</button><button class="lang-btn" data-lang="en" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇬🇧 English</button><button class="lang-btn" data-lang="ko" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇰🇷 한국어</button><button class="lang-btn" data-lang="zh" style="padding:8px;border-radius:8px;border:1px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);color:#fff;cursor:pointer;font-size:13px;">🇨🇳 中文</button></div></div><div class="drawer-footer">© 2026 Investment Bot</div>
@@ -4848,8 +4847,6 @@ setInterval(apply,500);
     var assetsDup=nav.querySelector('[data-i18n="drawer_assets"]');[home,disp,safe,contact].forEach(function(x){if(x&&x.parentNode)x.parentNode.removeChild(x);});
     function CD(){try{if(window.closeDrawer)window.closeDrawer();}catch(e){}}
     function mkItem(html,handler){var b=sample.cloneNode(false);b.removeAttribute("onclick");b.removeAttribute("data-i18n");b.innerHTML=html;b.addEventListener("click",function(){handler();});return b;}
-    var kakeibo=mkItem("📒 家計簿",function(){CD();if(window.knOpenLedger)window.knOpenLedger();});
-    var assets=mkItem("📈 資産管理",function(){CD();if(window.openMy)window.openMy();});
     var news=mkItem("📰 経済ニュース配信",function(){CD();setTimeout(function(){var n=document.getElementById("news-section");if(n)n.scrollIntoView({behavior:"smooth"});},180);});
     var pet=mkItem("🐣 育成ゲーム",function(){CD();var b=document.querySelector('.bn-item[data-act="pet"]');if(b)b.click();});
     var shorts=mkItem("🎬 ショート",function(){CD();var b=document.querySelector('.bn-item[data-act="shorts"]');if(b)b.click();});
@@ -4858,7 +4855,6 @@ setInterval(apply,500);
     var groups=[
       {t:"情報・ニュース",items:[morning,news,alertI,guide]},
       {t:"ためる・ふやす",items:[sim,dividend]},
-      {t:"わたしの記録",items:[kakeibo,assets]},
       {t:"たのしむ・つながる",items:[pet,shorts,talk,community]}
     ];
     var anchor=funcLabel;
@@ -4880,7 +4876,7 @@ setInterval(apply,500);
 
 </script>
 
-<script src="/static/menu-a.js?v=20261022-shared-profile1" defer></script>
+<script src="/static/menu-a.js?v=20261022-personal-links2" defer></script>
 
 </script>
 
