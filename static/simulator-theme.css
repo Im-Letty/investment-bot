@@ -51,7 +51,7 @@ body .tab {
 body .tab.active {
   background: var(--sim-paper) !important;
   color: var(--sim-ink) !important;
-  box-shadow: 0 1px 5px color-mix(in srgb, var(--sim-ink) 10%, transparent) !important;
+  box-shadow: none !important;
 }
 
 body :is(.row label, .unit, .metric .mlabel, .info-label, .reg-label, .form-label,
@@ -212,16 +212,16 @@ body :is(.tab, .btn, .btn-apply, .btn-add, .row input[type="range"]):focus-visib
   outline-offset: 2px;
 }
 
-/* Keep numbers open on the page; an underline marks the field being edited. */
+/* A complete focus ring identifies the field being edited without a bottom accent. */
 body .val-input:focus {
-  outline: none;
-  box-shadow: inset 0 -2px 0 var(--sim-button);
+  outline: 2px solid var(--sim-button);
+  outline-offset: 2px;
+  box-shadow: none;
   caret-color: var(--sim-button);
 }
 
 @media (forced-colors: active) {
   body .val-input:focus {
-    box-shadow: none;
-    border-bottom: 2px solid Highlight;
+    outline-color: Highlight;
   }
 }

@@ -98,7 +98,8 @@ body.kn-home-a #knTabWrap #knSubRow button {
 body.kn-home-a #knTabWrap #knSubRow button>span {display:none!important}
 body.kn-home-a #knTabWrap #knSubRow button[aria-pressed="true"] {
   color:var(--sf-ink)!important;
-  border-bottom-color:var(--sf-accent)!important;
+  border-bottom-color:transparent!important;
+  background:var(--sf-selected)!important;
   font-weight:500!important;
 }
 body.kn-home-a #knTabWrap #knDivSubRow {
@@ -120,7 +121,8 @@ body.kn-home-a #knTabWrap #knDivSubRow button {
 }
 body.kn-home-a #knTabWrap #knDivSubRow button[aria-pressed="true"] {
   color:var(--sf-ink)!important;
-  border-bottom-color:var(--sf-accent)!important;
+  border-bottom-color:transparent!important;
+  background:var(--sf-selected)!important;
 }
 body.kn-home-a #knTabWrap #homeMoversList>.sf-content {padding:0!important}
 :is(#knTabWrap,#knCompanyNewsSection) .sf-content {

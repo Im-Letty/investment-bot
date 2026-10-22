@@ -73,7 +73,7 @@ body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item {
 }
 body.kn-ledger-paper #kkBottomNav .kk-nav-item svg {display:none}
 body.kn-ledger-letter.kn-ledger-paper #kkBottomNav .kk-nav-item.active {
-  background:transparent;box-shadow:inset 0 -2px 0 var(--kn-ledger-button);color:var(--kn-ledger-ink);
+  background:var(--kn-ledger-chip);box-shadow:none;color:var(--kn-ledger-ink);
 }
 body.kn-ledger-letter.kn-ledger-paper .tab-content {padding-top:18px}
 body.kn-ledger-letter.kn-ledger-paper #tab-home {max-width:720px}
@@ -157,7 +157,7 @@ body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .ftab {
   color:var(--kn-ledger-muted);font-size:calc(14px * var(--kn-ledger-scale,1));font-weight:400;
 }
 body.kn-ledger-letter.kn-ledger-paper .kk-monthly-form .ftab[aria-pressed="true"] {
-  color:var(--kn-ledger-ink);background:transparent;box-shadow:inset 0 -2px 0 var(--kn-ledger-button);font-weight:500;
+  color:var(--kn-ledger-ink);background:var(--kn-ledger-chip);box-shadow:none;font-weight:500;
 }
 body.kn-ledger-paper .kk-entry-label {
   display:block;margin:14px 0 4px;color:var(--kn-ledger-muted);

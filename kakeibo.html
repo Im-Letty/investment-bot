@@ -20,10 +20,10 @@
   <style>html:not([data-ledger-private-ready="true"]) body > :not(#ledger-session-notice){visibility:hidden}#ledger-session-notice{padding:24px;font:16px sans-serif}</style>
   <title>資産分析・家計簿</title>
   <script defer src="/static/ledger-session.js?v=20261012-private1"></script>
-  <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261011-type1">
+  <link rel="stylesheet" href="/static/mypage-kakeibo-theme.css?v=20261023-flat-selection1">
   <link rel="stylesheet" href="/static/site-typography.css?v=20261011-type1">
   <script defer src="/static/mypage-kakeibo-theme.js?v=20261015-homegraphs1"></script>
-  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261022-summary-menu1">
+  <link rel="stylesheet" href="/static/kakeibo-layout.css?v=20261023-flat-selection1">
   <script defer src="/static/kakeibo-layout.js?v=20261017-assets1"></script>
   <script defer src="/static/kakeibo-investment-categories.js?v=20261016-investmentcats1"></script>
   <script defer src="/static/kakeibo-income-categories.js?v=20261016-incomecats1"></script>
@@ -64,7 +64,7 @@
     .tab-nav{display:flex;background:#fff;border-bottom:1px solid var(--brand-mist);overflow-x:auto;}
     .tab-nav::-webkit-scrollbar{display:none;}
     .tn-item{flex:none;padding:14px 20px;font-size:13px;font-weight:600;color:#8aaa95;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;}
-    .tn-item.active{color:var(--brand-color);border-bottom-color:var(--brand-color);}
+    .tn-item.active{color:var(--brand-color);border-bottom-color:transparent;background:var(--kn-ledger-chip,#eeeddf);}
     .tab-content{display:none;padding:16px;}
     .tab-content.active{display:block;}
     .card{background:#fff;border-radius:20px;padding:16px;box-shadow:0 2px 16px rgba(61,160,96,0.08);margin-bottom:14px;border:1px solid rgba(61,160,96,0.07);}

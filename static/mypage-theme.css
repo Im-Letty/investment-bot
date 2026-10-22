@@ -86,7 +86,7 @@ body.kn-home-a #myPageOv .mp-toptab.on {
   background: var(--kn-sh-chip, #eeeddf) !important;
   color: var(--kn-sh-ink, #3d4b3c) !important;
   border-color: var(--kn-sh-button, #607765);
-  box-shadow: inset 0 -2px 0 var(--kn-sh-button, #607765);
+  box-shadow: none;
 }
 
 body.kn-home-a #myPageOv .mo-tabs {
@@ -120,9 +120,9 @@ body.kn-home-a #myPageOv .mo-tab {
 }
 
 body.kn-home-a #myPageOv .mo-tab.on {
-  background: transparent !important;
+  background: var(--kn-sh-chip, #eeeddf) !important;
   color: var(--kn-sh-ink, #3d4b3c) !important;
-  box-shadow: inset 0 -2px 0 var(--kn-sh-button, #607765);
+  box-shadow: none;
   font-weight: 500 !important;
 }
 

@@ -92,7 +92,7 @@ body.kn-home-a #talkOv .tk-sym {
 body.kn-home-a #talkOv .tk-sym.on {
   background: var(--kn-sh-chip, #eeeddf) !important;
   border-color: var(--kn-sh-button, #607765);
-  box-shadow: inset 0 -2px 0 var(--kn-sh-button, #607765);
+  box-shadow: none;
 }
 
 body.kn-home-a :is(#talkOv .tk-body, #cmOv .cm-list, #teachOv .to-body) {

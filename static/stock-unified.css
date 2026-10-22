@@ -43,7 +43,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"
   border-color:var(--kn-a-button)!important;
   background:var(--kn-a-chip)!important;
   color:var(--kn-a-ink)!important;
-  box-shadow:inset 0 -2px 0 var(--kn-a-button)!important;
+  box-shadow:none!important;
   font-weight:500!important;
 }
 body.kn-home-a #morning-section #knTabWrap :is(.sf-compact-controls,.sf-order-popover,.kn-stock-search-form) {
@@ -60,7 +60,7 @@ body.kn-home-a #morning-section #knTabWrap #knDivSubRow button {
 }
 body.kn-home-a #morning-section #knTabWrap #knDivSubRow [aria-pressed="true"] {
   background:var(--kn-a-chip)!important;
-  box-shadow:inset 0 -2px 0 var(--kn-a-button);
+  box-shadow:none;
   font-weight:500!important;
 }
 body.kn-home-a #morning-section #knTabWrap :is(.sf-row,.sf-watch-row,.dividend-list .div-item) {
@@ -85,7 +85,7 @@ body.kn-home-a #knTabWrap #knDividendCalendar .dc-filter {
 }
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-filter[aria-pressed="true"] {
   border-color:var(--kn-a-button);background:var(--kn-a-chip);color:var(--kn-a-ink);
-  box-shadow:inset 0 -2px 0 var(--kn-a-button);font-weight:500;
+  box-shadow:none;font-weight:500;
 }
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-day {border-radius:var(--kn-stock-radius)}
 body.kn-home-a #knTabWrap #knDividendCalendar .dc-day[aria-pressed="true"] {border-color:var(--kn-a-button)}
@@ -115,7 +115,7 @@ body.kn-home-a #morning-section #knTabWrap #knDivSubRow button[aria-pressed="tru
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-filter[aria-pressed="true"] {
   border-color:var(--kn-a-button)!important;
   background:var(--kn-a-chip)!important;color:var(--kn-a-ink)!important;
-  box-shadow:inset 0 -2px 0 var(--kn-a-button)!important;font-weight:500!important;
+  box-shadow:none!important;font-weight:500!important;
 }
 body.kn-home-a #morning-section #knTabWrap #knDividendCalendar .dc-manage {
   grid-column:1/-1;margin:0!important;padding:4px 0!important;

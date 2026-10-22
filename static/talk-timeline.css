@@ -38,13 +38,11 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab {
   font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"] {
-  background:transparent;
+  background:var(--kn-sh-chip);
   color:var(--kn-sh-ink);
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tab[aria-pressed="true"]::after {
-  left:20%;right:20%;height:3px;
-  border-radius:3px 3px 0 0;
-  background:var(--kn-sh-button);
+  content:none;
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-content {
   max-width:700px;

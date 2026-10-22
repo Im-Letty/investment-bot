@@ -191,7 +191,7 @@ body.kn-home-a #knTabWrap .kn-a-stock-tabs [data-kn-tab] {
   background:transparent!important;
 }
 body.kn-home-a #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
-  border-bottom-color:var(--kn-a-button)!important;
+  border-bottom-color:transparent!important;
   color:var(--kn-a-ink)!important;font-weight:600!important;
 }
 @media(min-width:1000px) {
@@ -292,7 +292,7 @@ body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [data-kn-tab="favori
   font:400 calc(17px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans,sans-serif)!important;
 }
 body.kn-home-a #morning-section #knTabWrap .kn-a-stock-tabs [aria-pressed="true"] {
-  border-bottom-color:var(--kn-a-button)!important;
+  border-bottom-color:transparent!important;
   color:var(--kn-a-ink)!important;
   font-weight:600!important;
 }
