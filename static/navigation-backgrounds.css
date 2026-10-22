@@ -4,7 +4,7 @@ body.kn-home-a:not([data-theme="dark"]) {
   --kn-nav-simulator-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 85%, #fff);
   --kn-nav-shorts-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 70%, #fff);
   --kn-nav-pet-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 55%, #fff);
-  --kn-nav-mypage-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 40%, #fff);
+  --kn-nav-mypage-bg: color-mix(in srgb, var(--kn-sh-bg, var(--kn-a-bg)) 25%, #fff);
 }
 
 body.kn-home-a:not([data-theme="dark"]) #knSimEmbedOv {
