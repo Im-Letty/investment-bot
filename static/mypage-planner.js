@@ -40,7 +40,7 @@
       if(!x||!str(x.id)||!x.id||used[k+':'+x.id])throw Error('planner_format');used[k+':'+x.id]=true;
       if(k==='goals'&&(!str(x.title)||!str(x.details)||(!str(x.deadline)||!dateOK(x.deadline))||![x.target,x.monthly].every(function(n){return n===null||typeof n==='number'&&Number.isFinite(n)&&n>=0;})||x.target===0))throw Error('planner_format');
       if(k==='todos'){if(!str(x.text)||typeof x.done!=='boolean'||!str(x.goalId))throw Error('planner_format');todoOptions(x);}
-      if(k==='notes'&&(!str(x.title)||!str(x.body)||!str(x.groupId)))throw Error('planner_format');
+      if(k==='notes'&&(!str(x.title)||!str(x.body)||!str(x.groupId)||x.pinned!==undefined&&typeof x.pinned!=='boolean'))throw Error('planner_format');
       if(k==='groups'&&!str(x.name))throw Error('planner_format');
     });});
     var merged=Object.assign(empty(),d);
@@ -110,9 +110,9 @@
   }
   function mount(w){
     var document=w.document;if(!document)return;
-    var page,panes,status,doc=null,stock=null,owner='',bridge=null,loading=false,revision=0,saving=false,savedRevision=0,timer,notesFilter='',search='',boundFrame=null,epoch=0,editable=false;
-    var retryButton,goalList,goalForm,noteList,noteTitle,noteBody,groupList,legacyButton,formFields={},goalSummary;
-    var notesEditing=false,viewNoteId='',noteLibrary,noteEditor,noteFind,noteHeading,noteCount,noteFolders,noteDelete,noteRich=null,noteRichSlot=null,noteRichKey='';
+    var page,panes,status,doc=null,stock=null,owner='',bridge=null,loading=false,revision=0,saving=false,savedRevision=0,timer,search='',boundFrame=null,epoch=0,editable=false;
+    var retryButton,goalList,goalForm,noteList,noteTitle,noteBody,legacyButton,formFields={},goalSummary;
+    var notesEditing=false,viewNoteId='',noteLibrary,noteEditor,noteFind,noteHeading,noteCount,noteDelete,notePin,noteRich=null,noteRichSlot=null,noteRichKey='';
     var claimKey='kn_mypage_legacy_owner_v1';
     function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
     function button(text,fn,cls){var n=el('button',cls||'mp-button',text);n.type='button';n.addEventListener('click',fn);return n;}
@@ -127,7 +127,7 @@
     function setEnabled(ok){
       editable=ok;page.querySelectorAll('.mp-planner input,.mp-planner textarea,.mp-planner select,.mp-planner button').forEach(function(n){n.disabled=!ok;});
       // Previously confirmed notes remain readable after a later restore failure.
-      page.querySelectorAll('.mp-note-pick,.mp-note-back,.mp-note-search,.mp-note-all,.mp-note-folder-pick').forEach(function(n){n.disabled=!notesReadable();});
+      page.querySelectorAll('.mp-note-pick,.mp-note-back,.mp-note-search').forEach(function(n){n.disabled=!notesReadable();});
       if(noteRich)noteRich.setEditable(!!ok&&!!(doc&&selectedNote()));
     }
     function changed(){
@@ -227,29 +227,35 @@
       var editing=notesEditing&&!!(doc&&selectedNote());
       noteLibrary.hidden=editing;noteEditor.hidden=!editing;
     }
+    function updateNotePin(control,n){
+      var pinned=!!n&&n.pinned===true,label=pinned?'ピン留めを解除':'ピン留め';
+      control.setAttribute('aria-pressed',String(pinned));
+      control.setAttribute('aria-label',n?notePreview(n).title+'の'+label:label);
+      control.title=label;control.disabled=!n||!notesEditable();
+      if(control===notePin)control.textContent=label;
+    }
+    function toggleNotePin(n,fromList){
+      // Detached controls from a removed note or an earlier owner cannot save.
+      if(!notesEditable()||doc.notes.indexOf(n)<0)return;
+      n.pinned=n.pinned!==true;renderNotes(true);changed();
+      var control=fromList?Array.from(noteList.querySelectorAll('.mp-note-pin')).find(function(x){return x.getAttribute('data-note-pin-id')===n.id;}):notePin;
+      if(control)control.focus();
+    }
     function renderNotes(keepEditor){
-      noteList.replaceChildren();groupList.replaceChildren();if(!doc)return;
-      var group=doc.groups.find(function(g){return g.id===notesFilter;});
-      noteHeading.textContent=group?group.name:'メモ';
-      doc.groups.forEach(function(g){
-        var row=el('div','mp-note-folder');
-        var pick=button(g.name,function(){if(!notesReadable())return;notesFilter=g.id;notesEditing=false;renderNotes(true);noteHeading.focus();},'mp-note-folder-pick');
-        pick.setAttribute('aria-pressed',String(notesFilter===g.id));row.appendChild(pick);
-        row.appendChild(el('span','mp-note-folder-count',String(doc.notes.filter(function(n){return n.groupId===g.id;}).length)));
-        var options=el('details','mp-note-folder-options');options.appendChild(el('summary',null,'操作'));
-        options.appendChild(button('名前を変更',function(){if(!notesEditable())return;var name=w.prompt('まとめの名前',g.name);if(name===null||!name.trim())return;g.name=name;renderNotes(true);changed();},'mp-link'));
-        options.appendChild(button('まとめを解除',function(){if(!notesEditable()||!w.confirm('まとめを解除しますか？メモは残ります。'))return;doc.notes.forEach(function(n){if(n.groupId===g.id)n.groupId='';});doc.groups=doc.groups.filter(function(x){return x.id!==g.id;});notesFilter='';renderNotes(true);changed();},'mp-link'));row.appendChild(options);groupList.appendChild(row);
-      });
-      groupList.querySelectorAll('button').forEach(function(control){control.disabled=!editable;});
-      groupList.querySelectorAll('.mp-note-folder-pick').forEach(function(control){control.disabled=!notesReadable();});
+      noteList.replaceChildren();if(!doc)return;
       var query=search.trim().toLocaleLowerCase();
-      var shown=doc.notes.filter(function(n){return (!notesFilter||n.groupId===notesFilter)&&(!query||(n.title+'\n'+n.body).toLocaleLowerCase().includes(query));});
+      // Folder membership remains in storage; the single list includes every note.
+      // Sort a derived array only, keeping the original order within both groups.
+      var shown=doc.notes.filter(function(n){return !query||(n.title+'\n'+n.body).toLocaleLowerCase().includes(query);}).sort(function(a,b){return Number(b.pinned===true)-Number(a.pinned===true);});
       shown.forEach(function(n){
+        var row=el('div','mp-note-entry');
         var preview=notePreview(n),pick=button('',function(){if(!notesReadable())return;viewNoteId=n.id;if(editable)doc.selectedNoteId=n.id;notesEditing=true;renderNotes();if(editable)changed();noteEditor.focus();},'mp-note-pick');
         pick.disabled=!notesReadable();
         pick.appendChild(el('strong','mp-note-name',preview.title));
         pick.appendChild(el('span','mp-note-excerpt',preview.excerpt||'メモを開く'));
-        pick.setAttribute('aria-label',preview.title+'を開く');noteList.appendChild(pick);
+        pick.setAttribute('aria-label',preview.title+'を開く');row.appendChild(pick);
+        var pin=button('',function(){toggleNotePin(n,true);},'mp-note-pin');
+        pin.setAttribute('data-note-pin-id',n.id);updateNotePin(pin,n);row.appendChild(pin);noteList.appendChild(row);
       });
       noteCount.textContent=shown.length+'件のメモ';
       if(!shown.length&&query){
@@ -258,6 +264,7 @@
         blank.appendChild(el('p',null,'別の言葉で検索してみてください。'));noteList.appendChild(blank);
       }
       var n=selectedNote();[noteTitle,noteBody,noteDelete].forEach(function(x){x.disabled=!n||!editable;});
+      updateNotePin(notePin,n);
       if(!keepEditor){
         noteTitle.value=n?n.title:'';noteBody.value=n?n.body:'';
         loadRichNote(n);
@@ -282,9 +289,9 @@
     }
     function renderAll(){renderGoals();fillGoal();renderNotes();legacyButton.hidden=!legacyAvailable();}
     function reset(){
-      w.clearTimeout(timer);epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();notesFilter='';search='';notesEditing=false;viewNoteId='';
+      w.clearTimeout(timer);epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();search='';notesEditing=false;viewNoteId='';
       clearRichNote();
-      if(!page)return;goalList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});noteFind.value='';noteHeading.textContent='メモ';noteCount.textContent='0件のメモ';noteFolders.open=false;showNotesView();goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
+      if(!page)return;goalList.replaceChildren();noteList.replaceChildren();noteTitle.value='';noteBody.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});noteFind.value='';noteHeading.textContent='メモ';noteCount.textContent='0件のメモ';updateNotePin(notePin,null);showNotesView();goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
       message(owner?'保存した記録を読み込んでいます…':'ログイン後に記録を表示します。');
     }
     async function load(){
@@ -329,19 +336,16 @@
       noteLibrary=el('section','mp-note-library');panes[3].appendChild(noteLibrary);
       var notesHead=el('div','mp-note-head');noteHeading=el('h2','mp-heading','メモ');noteHeading.tabIndex=-1;notesHead.appendChild(noteHeading);
       var compose=button('メモを追加',function(){
-        if(!notesEditable())return;var n={id:id(),title:'',body:'',groupId:notesFilter};doc.notes.push(n);doc.selectedNoteId=n.id;viewNoteId=n.id;search='';noteFind.value='';notesEditing=true;renderNotes();changed();if(noteRich)noteRich.focus();else noteBody.focus();
+        if(!notesEditable())return;var n={id:id(),title:'',body:'',groupId:''};doc.notes.push(n);doc.selectedNoteId=n.id;viewNoteId=n.id;search='';noteFind.value='';notesEditing=true;renderNotes();changed();if(noteRich)noteRich.focus();else noteBody.focus();
       },'mp-note-compose');compose.setAttribute('aria-label','新しいメモを書く');notesHead.appendChild(compose);noteLibrary.appendChild(notesHead);
       noteFind=el('input','mp-note-search');noteFind.type='search';noteFind.placeholder='検索';noteFind.setAttribute('aria-label','メモを検索');
       noteFind.addEventListener('input',function(){if(!notesReadable())return;search=noteFind.value;renderNotes(true);});noteLibrary.appendChild(noteFind);
-      noteFolders=el('details','mp-note-folders');noteFolders.appendChild(el('summary',null,'フォルダ'));
-      noteFolders.appendChild(button('すべてのメモ',function(){if(!notesReadable())return;notesFilter='';renderNotes(true);},'mp-link mp-note-all'));
-      groupList=el('div','mp-groups');noteFolders.appendChild(groupList);
-      noteFolders.appendChild(button('まとめを作る',function(){if(!notesEditable())return;var name=w.prompt('まとめの名前');if(name===null||!name.trim())return;doc.groups.push({id:id(),name:name});renderNotes(true);changed();},'mp-link'));noteLibrary.appendChild(noteFolders);
       noteList=el('nav','mp-notes');noteList.setAttribute('aria-label','メモ一覧');noteLibrary.appendChild(noteList);
       noteCount=el('p','mp-note-count','0件のメモ');noteLibrary.appendChild(noteCount);
       noteEditor=el('section','mp-note-editor');noteEditor.setAttribute('aria-label','メモを編集');noteEditor.tabIndex=-1;noteEditor.hidden=true;
       var noteToolbar=el('div','mp-note-toolbar');
       noteToolbar.appendChild(button('メモ一覧',function(){notesEditing=false;showNotesView();noteHeading.focus();},'mp-note-back'));
+      notePin=button('ピン留め',function(){toggleNotePin(doc&&selectedNote(),false);},'mp-note-pin mp-note-pin-editor');noteToolbar.appendChild(notePin);
       noteDelete=button('このメモを削除',function(){var n=doc&&selectedNote();if(!notesEditable()||!n||!w.confirm('このメモを削除しますか？'))return;doc.notes=doc.notes.filter(function(x){return x.id!==n.id;});doc.selectedNoteId='';viewNoteId='';notesEditing=false;renderNotes();changed();noteHeading.focus();},'mp-link mp-danger');noteToolbar.appendChild(noteDelete);noteEditor.appendChild(noteToolbar);
       noteTitle=el('input','mp-note-title');noteTitle.type='text';noteTitle.placeholder='タイトル';noteTitle.setAttribute('aria-label','タイトル（任意）');noteEditor.appendChild(noteTitle);
       noteBody=el('textarea','mp-note-body');noteBody.id='mpMemo';noteBody.rows=14;noteBody.placeholder='ここから書きはじめる';noteBody.setAttribute('aria-label','自由メモ');noteEditor.appendChild(noteBody);

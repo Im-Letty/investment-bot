@@ -38,6 +38,16 @@ test('decode preserves literal saved text and additive data in the current schem
   assert.equal(JSON.stringify(decoded), raw);
 });
 
+test('note pins are optional strict booleans and do not migrate older saved records on read', () => {
+  for(const pinned of [null,0,1,'true',[],{}])
+    assert.throws(()=>planner.decode(encode({notes:[note({pinned})]})),undefined,JSON.stringify(pinned));
+  const raw=encode({notes:[note({id:'old'}),note({id:'on',pinned:true}),note({id:'off',pinned:false})]});
+  const decoded=planner.decode(raw);
+  assert.equal(Object.hasOwn(decoded.notes[0],'pinned'),false);
+  assert.equal(decoded.notes[1].pinned,true);assert.equal(decoded.notes[2].pinned,false);
+  assert.equal(JSON.stringify(decoded),raw);
+});
+
 test('corrupt persisted drafts cannot enter an editable document', () => {
   for (const extra of [
     {todoDraft:null}, {todoDraft:{text:null,goalId:''}},
@@ -269,6 +279,8 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     auth(user){w.knUser=user;documentEvents.knAuthChange();}};
 }
 const settle = async()=>{for(let i=0;i<6;i++)await Promise.resolve();};
+const pinFor=(h,id)=>h.page.querySelectorAll('.mp-note-pin').find(control=>control.getAttribute('data-note-pin-id')===id);
+const listedNotes=h=>h.page.querySelectorAll('.mp-note-name').map(control=>control.textContent);
 
 test('interactive startup builds a later MyPage at DOMContentLoaded without waiting for the 200ms fallback',async()=>{
   const raw=encode({notes:[note({body:'DOM準備後に復元する架空の本文'})]});
@@ -471,19 +483,20 @@ test('a later unsupported restore cannot be overwritten through an older valid e
 });
 
 
-test('an identical tab restore keeps existing group rename handlers connected to the saved document', async () => {
+test('an identical tab restore keeps an existing note pin handler connected to the saved document', async () => {
   const raw=encode({groups:[{id:'group-1',name:'元のまとめ'}],notes:[note({body:'本文はそのまま\n',groupId:'group-1'})]});
   const h=controller({raw,autoSave:true});await settle();
-  const rename=h.lookup('名前を変更');
+  const pin=h.page.querySelector('.mp-note-pin');
   h.page.querySelectorAll('.mo-tab')[3].click();await settle();
-  assert.equal(h.lookup('名前を変更'),rename,'same data retains the mounted group controls');
-  h.w.prompt=()=> '名前を変えたまとめ';rename.click();await settle();
+  assert.equal(h.page.querySelector('.mp-note-pin'),pin,'an identical restore retains the mounted control');
+  pin.click();await settle();
   h.flushTimers();await settle();
   const saved=JSON.parse(h.raw);
-  assert.equal(saved.groups[0].name,'名前を変えたまとめ','the retained handler must update the live group');
+  assert.equal(saved.notes[0].pinned,true,'the retained handler updates the live note');
+  assert.deepEqual(saved.groups,[{id:'group-1',name:'元のまとめ'}]);
   assert.equal(saved.notes[0].body,'本文はそのまま\n');
   assert.equal(saved.notes[0].groupId,'group-1');
-  assert.ok(h.lookup('名前を変えたまとめ'));
+  assert.equal(h.saves.length,1);assert.equal(JSON.parse(h.saves[0].raw).notes[0].pinned,true);
 });
 
 test('large valid fractional yen are retained without a 15-digit rounding rule',()=>{
@@ -589,14 +602,112 @@ test('literal search filters title and body without saving or clearing another n
   assert.equal(h.raw,raw);assert.equal(h.stages.length,0);
 });
 
-test('new notes clear both search state and input and keep the chosen existing folder',async()=>{
+test('the folder-free list includes grouped, ungrouped and orphaned notes without rewriting saved data',async()=>{
+  const raw=encode({groups:[{id:'g1',name:'保管したまとめ',futureGroup:{keep:true}},{id:'g2',name:'別のまとめ'}],notes:[
+    note({id:'a',title:'所属メモ',body:'本文A',groupId:'g1'}),
+    note({id:'b',title:'別所属メモ',body:'本文B',groupId:'g2'}),
+    note({id:'c',title:'未分類メモ',body:'本文C'}),
+    note({id:'d',title:'孤立メモ',body:'本文D',groupId:'missing-group'})
+  ]});
+  const h=controller({raw});await settle();
+  assert.deepEqual(listedNotes(h),['所属メモ','別所属メモ','未分類メモ','孤立メモ']);
+  assert.equal(h.page.querySelector('.mp-note-count').textContent,'4件のメモ');
+  for(const selector of ['.mp-note-folders','.mp-groups','.mp-note-folder-pick','.mp-note-all'])assert.equal(h.page.querySelector(selector),null);
+  for(const name of ['保管したまとめ','別のまとめ','まとめを作る','名前を変更','まとめを解除'])assert.equal(h.lookup(name),undefined);
+  h.type(h.page.querySelector('.mp-note-search'),'本文D');
+  assert.deepEqual(listedNotes(h),['孤立メモ']);assert.equal(h.page.querySelector('.mp-note-count').textContent,'1件のメモ');
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+});
+
+test('multiple pins sort the displayed list stably, survive search and restore, and unpin back to original order',async()=>{
+  const rows=['A','B','C','D'].map(letter=>note({id:letter,title:'共通'+letter,body:'本文'+letter}));
+  const h=controller({raw:encode({notes:rows}),autoSave:true});await settle();
+  pinFor(h,'D').click();pinFor(h,'B').click();
+  assert.deepEqual(listedNotes(h),['共通B','共通D','共通A','共通C'],'pin order follows the original note order');
+  assert.equal(h.page.querySelector('.mp-note-editor').hidden,true,'pinning does not open the editor');
+  assert.equal(h.focused,pinFor(h,'B'),'focus follows the refreshed pin control');
+  for(const id of ['B','D'])assert.equal(pinFor(h,id).getAttribute('aria-pressed'),'true');
+  assert.equal(pinFor(h,'B').getAttribute('aria-label'),'共通Bのピン留めを解除');
+  const staged=h.raw,count=h.stages.length;
+  h.type(h.page.querySelector('.mp-note-search'),'本文D');
+  assert.deepEqual(listedNotes(h),['共通D']);assert.equal(pinFor(h,'D').getAttribute('aria-pressed'),'true');
+  h.type(h.page.querySelector('.mp-note-search'),'共通');
+  assert.deepEqual(listedNotes(h),['共通B','共通D','共通A','共通C']);
+  assert.equal(h.raw,staged);assert.equal(h.stages.length,count,'search does not save');
+  h.flushTimers(1500);await settle();
+  const restored=controller({raw:h.raw});await settle();
+  assert.deepEqual(listedNotes(restored),['共通B','共通D','共通A','共通C']);assert.equal(restored.stages.length,0);
+  pinFor(restored,'B').click();assert.deepEqual(listedNotes(restored),['共通D','共通A','共通B','共通C']);
+  pinFor(restored,'D').click();assert.deepEqual(listedNotes(restored),['共通A','共通B','共通C','共通D']);
+  assert.deepEqual(JSON.parse(restored.raw).notes.map(row=>row.id),['A','B','C','D'],'sorting never reorders saved notes');
+  const saved=JSON.parse(restored.raw);assert.equal(saved.notes[1].pinned,false);assert.equal(saved.notes[3].pinned,false);
+});
+
+test('list pins use immediate staging and the existing save debounce while retaining rich text and historical fields',async()=>{
+  const E=require('../static/mypage-note-editor.js'),body='  保持する本文\r\n\t末尾  ';
+  const original=planner.empty();
+  original.groups=[{id:'g',name:'元のまとめ',futureGroup:{keep:1}}];
+  original.notes=[note({id:'a',title:'A',body,groupId:'g',richText:E.plain(body),futureNote:{keep:true}}),note({id:'b',title:'B',body:'別の本文'})];
+  original.todos=[{id:'t',text:'廃止UIの保存記録',done:true,goalId:''}];
+  original.futureDocument={keep:['unknown']};original.todoDraft={text:'旧下書き',goalId:'',flagged:true};
+  const h=controller({raw:JSON.stringify(original),autoSave:true});await settle();
+  const firstPin=pinFor(h,'a'),firstPick=h.page.querySelector('.mp-note-pick');
+  assert.equal(firstPin.parentNode,firstPick.parentNode);assert.notEqual(firstPin.parentNode,firstPick,'pin and open controls are siblings');
+  firstPin.click();assert.equal(h.stages.length,1);assert.equal(h.saves.length,0);
+  assert.equal(JSON.parse(h.stages[0].raw).notes[0].pinned,true);assert.equal(h.stages[0].owner,'owner-A');
+  h.flushTimers(1000);pinFor(h,'b').click();assert.equal(h.stages.length,2);
+  h.flushTimers(1499);await settle();assert.equal(h.saves.length,0);
+  h.flushTimers(1);await settle();assert.equal(h.saves.length,1);assert.equal(h.saves[0].raw,h.raw);
+  const saved=JSON.parse(h.raw);saved.notes.forEach(row=>delete row.pinned);
+  assert.deepEqual(saved,original,'only the two selected pin flags are added');
+});
+
+test('the editor pin changes only the current note and preserves its live writing context',async()=>{
+  const h=controller({raw:encode({notes:[note({id:'a',title:'A',body:'保持A'}),note({id:'b',title:'B',body:'保持B'})]})});await settle();
+  h.page.querySelectorAll('.mp-note-pick')[1].click();
+  const body=h.memo,title=h.page.querySelector('.mp-note-title'),before=JSON.parse(h.raw),pin=h.page.querySelector('.mp-note-pin-editor');
+  assert.equal(pin.textContent,'ピン留め');assert.equal(pin.getAttribute('aria-label'),'Bのピン留め');
+  pin.click();
+  const saved=JSON.parse(h.raw);assert.equal(saved.notes[1].pinned,true);delete saved.notes[1].pinned;
+  assert.deepEqual(saved,before);assert.equal(h.memo,body);assert.equal(h.page.querySelector('.mp-note-title'),title);
+  assert.equal(body.value,'保持B');assert.equal(h.page.querySelector('.mp-note-editor').hidden,false);
+  assert.equal(pin.textContent,'ピン留めを解除');assert.equal(pin.getAttribute('aria-pressed'),'true');assert.equal(h.focused,pin);
+  pin.click();assert.equal(JSON.parse(h.raw).notes[1].pinned,false);assert.equal(pin.getAttribute('aria-pressed'),'false');
+});
+
+test('a detached pin cannot mutate a newer same-owner restore or a removed note',async()=>{
+  const h=controller({raw:encode({notes:[note({id:'same',title:'古い版',body:'前の本文'})]})});await settle();
+  const oldPin=pinFor(h,'same'),newRaw=encode({notes:[note({id:'same',title:'新しい版',body:'新しい本文'})]});
+  h.bridge.load=async()=>({raw:newRaw,assetsRaw:null});h.auth({id:'owner-A'});await settle();
+  assert.equal(pinFor(h,'same').getAttribute('aria-label'),'新しい版のピン留め');
+  oldPin.dispatch('click');assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+  const removedPin=pinFor(h,'same');h.page.querySelector('.mp-note-pick').click();h.lookup('このメモを削除').click();
+  const raw=h.raw,count=h.stages.length;removedPin.dispatch('click');
+  assert.equal(h.raw,raw);assert.equal(h.stages.length,count);assert.deepEqual(JSON.parse(h.raw).notes,[]);
+});
+
+test('an old owner pin cannot stage or save after the next owner restores the same note id',async()=>{
+  const h=controller({raw:encode({notes:[note({id:'shared-id',title:'owner-Aの記録',body:'Aだけの本文'})]})});await settle();
+  const oldPin=pinFor(h,'shared-id');
+  h.frame.contentWindow.knLedgerSession={user:{id:'owner-B'}};h.frame.contentWindow.localStorage.getItem=()=> 'owner-B';
+  const nextRaw=encode({notes:[note({id:'shared-id',title:'owner-Bの記録',body:'Bだけの本文'})]});
+  h.bridge.load=async()=>({raw:nextRaw,assetsRaw:null});h.auth({id:'owner-B'});await settle();
+  assert.equal(pinFor(h,'shared-id').disabled,false);assert.doesNotMatch(h.page.textContent,/owner-A|Aだけ/);
+  oldPin.dispatch('click');h.flushTimers(3000);await settle();
+  assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
+  assert.equal(pinFor(h,'shared-id').getAttribute('aria-pressed'),'false');
+  pinFor(h,'shared-id').click();assert.equal(h.stages.length,1);assert.equal(h.stages[0].owner,'owner-B');
+  assert.equal(JSON.parse(h.stages[0].raw).notes[0].body,'Bだけの本文');
+});
+
+test('new notes clear search and start ungrouped while historical folders and member notes remain saved',async()=>{
   const h=controller({raw:encode({groups:[{id:'g',name:'旅のフォルダ'}],notes:[note({groupId:'g',body:'既存の本文'})]})});await settle();
-  h.lookup('旅のフォルダ').click();
   h.type(h.page.querySelector('.mp-note-search'),'見つからない言葉');
   h.lookup('メモを追加').click();
   const saved=JSON.parse(h.raw);
   assert.equal(saved.notes.length,2);assert.equal(saved.notes[0].body,'既存の本文');
-  assert.equal(saved.notes[1].groupId,'g');
+  assert.equal(saved.notes[0].groupId,'g');assert.equal(saved.notes[1].groupId,'');
+  assert.deepEqual(saved.groups,[{id:'g',name:'旅のフォルダ'}]);
   assert.equal(h.page.querySelector('.mp-note-search').value,'');
   assert.equal(h.page.querySelector('.mp-note-editor').hidden,false);
   assert.equal(h.memo.value,'');assert.equal(h.focused,h.memo);
@@ -644,9 +755,8 @@ test('note deletion still requires confirmation and returns to a list without to
   assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
 });
 
-test('signout clears private note excerpts, folder heading, search and editor view as well as form values',async()=>{
+test('signout clears private note excerpts, pin labels, search and editor view as well as form values',async()=>{
   const h=controller({raw:encode({groups:[{id:'g',name:'private-owner-folder'}],notes:[note({title:'private-owner-title',body:'private-owner-body',groupId:'g'})]})});await settle();
-  h.lookup('private-owner-folder').click();
   h.type(h.page.querySelector('.mp-note-search'),'private-owner');
   h.page.querySelector('.mp-note-pick').click();
   h.auth(null);await settle();
@@ -655,25 +765,29 @@ test('signout clears private note excerpts, folder heading, search and editor vi
   assert.equal(h.page.querySelector('.mp-note-editor').hidden,true);
   assert.equal(h.page.querySelector('.mp-note-library').hidden,false);
   assert.equal(h.page.querySelector('.mp-note-count').textContent,'0件のメモ');
+  assert.equal(h.page.querySelectorAll('.mp-note-entry').length,0);
+  assert.equal(h.page.querySelector('.mp-note-pin-editor').getAttribute('aria-label'),'ピン留め');
+  assert.equal(h.page.querySelector('.mp-note-pin-editor').getAttribute('aria-pressed'),'false');
+  assert.equal(h.page.querySelector('.mp-note-pin-editor').disabled,true);
   assert.equal(h.memo.value,'');
 });
 
-test('readonly recovery can clear earlier search and folder filters while folder mutation stays disabled',async()=>{
+test('readonly recovery can search every historical folder while list and editor pin mutations stay disabled',async()=>{
   const raw=encode({groups:[{id:'g',name:'選んだフォルダ'}],notes:[note({id:'a',title:'一つ目',body:'確認済み本文A',groupId:'g'}),note({id:'b',title:'二つ目',body:'確認済み本文B'})]});
   const h=controller({raw});await settle();
-  h.lookup('選んだフォルダ').click();h.type(h.page.querySelector('.mp-note-search'),'一つ目');
+  h.type(h.page.querySelector('.mp-note-search'),'一つ目');
   h.bridge.load=async()=>{throw Error('fixture_unavailable');};h.auth({id:'owner-A'});await settle();
   assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
   assert.equal(h.page.querySelector('.mp-note-search').disabled,false);
   h.type(h.page.querySelector('.mp-note-search'),'');
-  h.lookup('すべてのメモ').click();
   assert.equal(h.page.querySelectorAll('.mp-note-pick').length,2);
+  for(const pin of h.page.querySelectorAll('.mp-note-pin')){assert.equal(pin.disabled,true);pin.dispatch('click');}
   h.page.querySelectorAll('.mp-note-pick')[1].click();
   assert.equal(h.memo.value,'確認済み本文B');assert.equal(h.memo.disabled,true);
-  assert.equal(h.lookup('名前を変更').disabled,true);assert.equal(h.lookup('まとめを解除').disabled,true);
-  assert.equal(h.lookup('まとめを作る').disabled,true);
-  h.lookup('メモ一覧').click();assert.equal(h.lookup('選んだフォルダ').disabled,false);
-  h.lookup('選んだフォルダ').click();assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
+  const editorPin=h.page.querySelector('.mp-note-pin-editor');assert.equal(editorPin.disabled,true);editorPin.dispatch('click');
+  h.lookup('メモ一覧').click();h.type(h.page.querySelector('.mp-note-search'),'二つ目');
+  assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
+  assert.equal(h.page.querySelector('.mp-note-pin').disabled,true);
   assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.raw,raw);
 });
 
