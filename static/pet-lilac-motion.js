@@ -1216,7 +1216,8 @@
     'pet_lilac_sad.webp', 'pet_lilac_angry.webp', 'pet_lilac_surprise.webp', 'pet_lilac_delighted.webp', 'pet_lilac_torso_cleanplate_v1.png', 'pet_lilac_turnaround_v1.png',
     'pet_lilac_tooth_original_v1.png','pet_lilac_tooth_surprise_v1.png','pet_lilac_tooth_delighted_v1.png','pet_lilac_tooth_turnaround_v1.png','pet_lilac_tooth_sleep_v1.png'];
   var babyAssets=Object.freeze([referenceAsset,'pet_lilac_baby_expressions_v1.png','pet_lilac_baby_turnaround_v1.png',
-    referenceAsset,'pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png']);
+    referenceAsset,'pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png',
+    'pet_lilac_reference_half_v1.png','pet_lilac_reference_closed_v1.png']);
   var eggAssets=Object.freeze(['pet_lilac_egg_stages_v1.png','pet_lilac_tooth_egg_stages_v1.png']);
   function appearanceAssets(key){var family=appearanceProfile(key).family;return family==='baby'?babyAssets:family==='egg'?eggAssets:Object.freeze(assets.slice());}
   function toothFaceBinding(p,situation,appearanceKey){
@@ -2465,7 +2466,9 @@
     // sheet only while turning. Expanded view rectangles preserve overhanging fur.
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));source=texture2D(u_sad,(tile+safe)/4.);','source=texture2D(u_sad,mix(v_sourceRect.xy,v_sourceRect.zw,safe));');
     result=result.replace('vec2 tile=vec2(mod(index,4.),floor(index/4.));tooth=texture2D(u_angry,(tile+safe)/4.).rgb;','tooth=texture2D(u_angry,mix(v_sourceRect.xy,v_sourceRect.zw,safe)).rgb;');
-    [['half',1],['closed',2]].forEach(function(row){result=result.split('texture2D(u_'+row[0]+',uv)').join('nurserySample(u_'+row[0]+',uv,'+row[1]+'.)');});
+    // Blink materials share the full-resolution reference UVs. Enlarging a
+    // 3x3 expression cell here used to blur the lids and surrounding cream fur.
+    // The existing eye-only paint mask keeps the reference face/body intact.
     [3,4,5,6].forEach(function(cell){
       var guard=cell===6?'float donorEye=eyePaintMask;float donorFur=max(furSelect(expressionDonor.rgb)*smoothstep(.25,.50,dot(expressionDonor.rgb,vec3(.299,.587,.114))),furSelect(original)*smoothstep(.50,.65,dot(original,vec3(.299,.587,.114))))*(1.-donorEye);':'';
       result=result.replace('expression=texture2D(u_sad,uv).rgb;toothCell='+cell+'.;','vec4 expressionDonor=nurserySample(u_sad,uv,'+cell+'.);'+guard+'expression=mix(rgb,expressionDonor.rgb,faceDonorOpacity(expressionDonor.a)'+(cell===6?'*(1.-donorFur)':'')+');toothCell='+cell+'.;');
@@ -2500,7 +2503,7 @@
     var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey),eggOrigin=eggOriginProfile(options.eggOrigin).key;
     var materialProfile=eggVisualProfile(branchProfile.key,eggOrigin),originProfile=eggOriginProfile(eggOrigin);
     if(family==='egg'&&originProfile.index)materialProfile=originProfile;
-    var sourceSlots=family==='baby'?[0,1,1,0,1,1,1,1,1,2]:family==='egg'?[0,0,0,0,0,0,0,0,0,0]:[0,1,2,3,4,5,6,7,8,9];
+    var sourceSlots=family==='baby'?[0,6,7,0,1,1,1,1,1,2]:family==='egg'?[0,0,0,0,0,0,0,0,0,0]:[0,1,2,3,4,5,6,7,8,9];
     var assetTextures=[],textureImages=[],sourceRectAttribute=null,mouthAttribute=null,volumeAttribute=null;
     var rigGeometry=[],restVertices=null,drawVertices=null,partAttribute=null,buffer=null,textures=[];
     var turnBuffer=null,turnVertices=null,turnMeshes={},turnBounds={},boundVertexBuffer=null,position=null,uv=null,coverage=null;

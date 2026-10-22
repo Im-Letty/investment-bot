@@ -4360,7 +4360,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     var required=loadRequired('/static/pet-game-core.js?v=20261022-cafe-village1',function(){return !!window.PetGameCore;}).then(function(){
       return loadRequired('/static/pet-game.js?v=20261023-market-art1',apiReady);
     });
-    var motion=loadScript('/static/pet-lilac-motion.js?v=20261022-crisp-blink1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
+    var motion=loadScript('/static/pet-lilac-motion.js?v=20261023-reference-blink1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     var room=loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});
     // Optional visuals never block the required UI download.
     moduleLoading=Promise.all([required,motion,room]).catch(function(error){moduleLoading=null;throw error;});

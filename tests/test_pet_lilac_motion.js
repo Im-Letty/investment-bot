@@ -493,9 +493,9 @@ test('eleven read-only appearances separate real eggs and the selected reference
   for(const key of bornAppearances){
     const profile=Motion.appearanceProfile(key),files=Motion.appearanceAssets(key);
     assert.equal(profile.family,'baby');assert.equal(profile.stillBaseAsset,'pet_lilac_reference_v2.png');assert.equal(profile.stillAsset,profile.stillBaseAsset);
-    assert.equal(files.length,6);assert.equal(files[0],profile.stillBaseAsset);assert.equal(files[3],profile.stillAsset);
+    assert.equal(files.length,8);assert.equal(files[0],profile.stillBaseAsset);assert.equal(files[3],profile.stillAsset);
     assert.deepEqual(files.slice(1,3),['pet_lilac_baby_expressions_v1.png','pet_lilac_baby_turnaround_v1.png']);
-    assert.deepEqual(files.slice(4),['pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png']);
+    assert.deepEqual(files.slice(4,6),['pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png']);
   }
   assert.deepEqual(bornAppearances.map(key=>Motion.appearanceProfile(key).overallScale),[.62,.72,.81,.90,.96,1,1.04,1.07]);
   assert.deepEqual(bornAppearances.map(key=>Motion.appearanceProfile(key).visualAge),[0,.2,.4,.6,.8,1,1.08,1.16]);
@@ -521,7 +521,7 @@ test('selected reference is a square PNG and every born age grows gradually with
 test('each family loads only its own required textures and never samples an adult asset in the nursery',()=>{
   for(const key of Motion.appearanceCatalogue.map(row=>row.key)){
     const family=Motion.appearanceProfile(key).family,f=fixture({options:{appearanceKey:key}});f.complete();assert.deepEqual(f.errors,[],key);assert.equal(f.ready,1,key);
-    const count=family==='egg'?2:family==='baby'?6:15;assert.equal(f.images.length,count);assert.equal(f.uploads.length,count);assert.equal(f.created.filter(row=>row.type==='Texture').length,count);
+    const count=family==='egg'?2:family==='baby'?8:15;assert.equal(f.images.length,count);assert.equal(f.uploads.length,count);assert.equal(f.created.filter(row=>row.type==='Texture').length,count);
     assert.deepEqual(f.images.map(row=>row.url),Motion.appearanceAssets(key).map(name=>'/static/'+name));assert.equal(f.draws,family==='egg'?1:9);assert.equal(f.maxActiveUnit,7);
     assert.equal(Object.keys(f.samplers).length,8);assert.equal(Object.keys(f.uniforms).filter(key=>/^u_(motion[A-C]|body|gesture|face|effect|detail)$/.test(key)).length,family==='egg'?1:8);
     if(family!=='egg')assert.deepEqual(f.bindings.at(-1),[7,'a_handVolume']);
@@ -2141,7 +2141,7 @@ test('birth fur colors protect face features and shell cream while hatching keep
 test('origin-correct rendering and touch picking share one 3D arm and mouth frame without more textures',()=>{
   for(const origin of Motion.eggOrigins)for(const key of ['newborn','adult','companion'])for(const care of ['balanced','fruit','active']){
     const f=fixture({hitPixels:'png',captureVolumes:true,options:{growthStage:'adult',appearanceKey:key,evolutionPath:care,eggOrigin:origin.key,outfit:'cloth_cream_vest'}});f.complete();
-    assert.equal(f.ready,1);assert.deepEqual(f.errors,[]);assert.equal(f.maxActiveUnit,7);assert.equal(Object.keys(f.samplers).length,8);assert.equal(f.images.length,6);
+    assert.equal(f.ready,1);assert.deepEqual(f.errors,[]);assert.equal(f.maxActiveUnit,7);assert.equal(Object.keys(f.samplers).length,8);assert.equal(f.images.length,8);
     const rig=Motion.rigPose(0,'idle',0,'adult',care,1,key,origin.key),crown=Motion.rigPoint(rig,'head',.55,.24,'adult',care);assert.deepEqual(f.api.hitTest(crown.x,crown.y),{part:'head',side:null});
     for(const id of ['arm_l','arm_r']){const profile=Motion.handVolumeProfiles.baby[id],p=Motion.rigPoint(rig,id,...profile.center,'adult',care);assert.equal(f.api.hitTest(p.x,p.y)?.part,'hand','visible origin-specific hand reacts');}
     const anchor=Motion.feedingAnchor('adult',care,key,origin.key);assert.equal(anchor.x,rig.mouth.x);assert.equal(anchor.y,rig.mouth.y);
@@ -2237,7 +2237,7 @@ test('actual mature and nursery shaders paint eyes only at final warped UV and u
     assert.match(shader,/if\(lid>1\.5\)blinkDonor=/);assert.match(shader,/else blinkDonor=/);
     assert.match(shader,/eyePaintMask\*faceDonorOpacity\(blinkDonor.a\)/);assert.match(shader,/max\(u_blink,handover\)\*\(1\.-delighted\*weight\)/);
     assert.match(shader,/strongest>0\.\|\|v_mouthMode>\.5\?faceHandover\(u_presence\)/);assert.doesNotMatch(shader,/eye\*smoothstep|v_mouthMode>\.5\?u_presence|__EYE_PAINT_MASK__/);
-    if(baby){assert.match(shader,/blinkDonor=nurserySample\(u_closed,uv,2\.\)/);assert.match(shader,/blinkDonor=nurserySample\(u_half,uv,1\.\)/);}
+    if(baby){assert.match(shader,/blinkDonor=texture2D\(u_closed,uv\)/);assert.match(shader,/blinkDonor=texture2D\(u_half,uv\)/);assert.doesNotMatch(shader,/nurserySample\(u_(?:half|closed),/);}
     assert.equal(f.maxActiveUnit,7);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
   }
 });
@@ -2251,6 +2251,56 @@ test('all cue entry and release phases use discrete facial materials without mut
     }
     if(row.id==='idle')assert.equal(sawEnvelope,false,'idle has no finite cue envelope');
     else assert.ok(sawEnvelope,row.id+' retains its continuous finite body envelope');
+  }
+});
+
+test('reference-resolution blink PNGs fully replace old pupils while the original face remains the owner of protected fur',()=>{
+  const reference='pet_lilac_reference_v2.png',donors=['pet_lilac_reference_half_v1.png','pet_lilac_reference_closed_v1.png'];
+  const referenceBytes=fs.readFileSync(require.resolve('../static/'+reference));
+  assert.equal(require('node:crypto').createHash('sha256').update(referenceBytes).digest('hex'),'2d2cc24745bc74dadeb6dd861c8f85c16e8f36c3cdfbec956e118b0d469e3de6','the original high-detail face is immutable');
+  pngPixel(reference,0,0);const original=pngCache.get(reference);
+  function alphaAt(name,x,y){
+    const png=pngCache.get(name),sx=x*png.width-.5,sy=y*png.height-.5,x0=Math.floor(sx),y0=Math.floor(sy),tx=sx-x0,ty=sy-y0;
+    const alpha=(px,py)=>png.pixels[(Math.max(0,Math.min(png.height-1,py))*png.width+Math.max(0,Math.min(png.width-1,px)))*4+3];
+    return (alpha(x0,y0)*(1-tx)+alpha(x0+1,y0)*tx)*(1-ty)+(alpha(x0,y0+1)*(1-tx)+alpha(x0+1,y0+1)*tx)*ty;
+  }
+  for(const name of donors){
+    pngPixel(name,0,0);const png=pngCache.get(name);
+    assert.ok(png.width>=original.width&&png.height>=original.height,'the blink cannot return to a 418px expression tile');
+    assert.equal(png.width,png.height,'direct original UV requires the same square aspect');
+  }
+  const components=[largestOldEyeComponent([413,426,702,664]),largestOldEyeComponent([714,376,1003,639])];
+  for(const points of components)for(const [px,py]of points){
+    const x=(px+.5)/original.width,y=(py+.5)/original.height;
+    assert.equal(Motion.eyePaintCoverage('adult',x,y),1);
+    for(const name of donors)assert.ok(alphaAt(name,x,y)>=252-1e-9,name+' must fully remove the original pupil/lash under LINEAR sampling');
+  }
+  // Anatomical ROIs are independent of donor colors: brows, nose, cheeks and
+  // chin must retain the original texture even if a generated donor differs.
+  for(const [x0,y0,x1,y1]of [[.40,.26,.43,.28],[.67,.22,.70,.25],[.576,.480,.579,.482],[.30,.59,.34,.62],[.77,.57,.80,.60],[.49,.64,.55,.66]]){
+    for(let y=y0;y<=y1;y+=.005)for(let x=x0;x<=x1;x+=.005)assert.equal(Motion.eyePaintCoverage('adult',x,y),0);
+  }
+  const f=fixture({options:{appearanceKey:'adult'}});f.complete();
+  assert.match(f.shaders[1],/rgb=mix\(rgb,blinkDonor.rgb,eyePaintMask\*faceDonorOpacity\(blinkDonor.a\)\)/,'a full donor image may paint only the registered eye region');
+  assert.match(f.shaders[1],/float a=texture2D\(u_alpha,uv\).a\*v_coverage/,'head silhouette remains the original alpha');f.api.destroy();
+});
+
+test('all eight born growth appearances bind high-resolution direct-UV blink textures without displacing expression teeth or turns',()=>{
+  const oldAssets=['pet_lilac_reference_v2.png','pet_lilac_baby_expressions_v1.png','pet_lilac_baby_turnaround_v1.png','pet_lilac_reference_v2.png','pet_lilac_tooth_baby_expressions_v1.png','pet_lilac_tooth_baby_turnaround_v1.png'];
+  for(const key of bornAppearances){
+    assert.equal(Motion.appearanceProfile(key).family,'baby');
+    const assets=Motion.appearanceAssets(key);assert.deepEqual(assets.slice(0,6),oldAssets);
+    assert.deepEqual(assets.slice(6),['pet_lilac_reference_half_v1.png','pet_lilac_reference_closed_v1.png']);
+    const f=fixture({options:{appearanceKey:key}});f.complete();const textures=f.created.filter(resource=>resource.type==='Texture');
+    assert.deepEqual(f.uploads.slice(6).map(image=>image.url),assets.slice(6).map(name=>'/static/'+name));
+    assert.equal(f.samplers.u_half,1);assert.equal(f.samplers.u_closed,2);
+    assert.strictEqual(f.boundTextures[1],textures[6]);assert.strictEqual(f.boundTextures[2],textures[7]);
+    assert.match(f.shaders[1],/blinkDonor=texture2D\(u_half,uv\)/);assert.match(f.shaders[1],/blinkDonor=texture2D\(u_closed,uv\)/);
+    assert.doesNotMatch(f.shaders[1],/nurserySample\(u_(?:half|closed),/);
+    for(const cue of ['idle','laugh','deep_sleep','cry']){
+      f.api.setSituation(cue,{elapsedMs:1500});assert.strictEqual(f.boundTextures[1],textures[6]);assert.strictEqual(f.boundTextures[2],textures[7]);
+    }
+    assert.equal(Object.keys(f.samplers).length,8);assert.equal(f.maxActiveUnit,7);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
   }
 });
 
