@@ -1,11 +1,12 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const {create,validate}=require('../static/user-profile.js');
+const JPEG='data:image/jpeg;base64,'+Buffer.from([255,216,255,224,0,4,17,23,255,217]).toString('base64'),PHOTO_REF='a'.repeat(64),OTHER_REF='b'.repeat(64);
 function deferred(){let resolve,reject;const promise=new Promise((a,b)=>{resolve=a;reject=b;});return {promise,resolve,reject};}
 const profile=(username='みどり',bio='経済を勉強中',avatar='leaf')=>({username,bio,avatar});
-function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,persist}={}){
+function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,persist,decode,encode,getAvatar}={}){
   const events=[],storage=new Map(legacy?[['cm_nick',legacy]]:[]),listeners=new Map(),timers=[],nodes=[];
-  let userReads=0,updates=[],requests=[],focus=null;
+  let userReads=0,updates=[],requests=[],focus=null,objectSerial=0;const objectURLs=[],revoked=[],draws=[],closed=[];
   class Node{
     constructor(tag){this.tagName=tag.toUpperCase();this.children=[];this.parentNode=null;this.attrs={};this.listeners={};this._text='';this.value='';this.hidden=false;this.className='';nodes.push(this);this.classList={toggle:(value,on)=>{const classes=new Set(this.className.split(/\s+/).filter(Boolean));if(on)classes.add(value);else classes.delete(value);this.className=[...classes].join(' ');}};}
     set textContent(value){this._text=String(value);this.children=[];}get textContent(){return this._text+this.children.map(n=>n.textContent).join('');}
@@ -15,6 +16,8 @@ function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,p
     get firstChild(){return this.children[0]||null;}get isConnected(){return this===body||!!this.parentNode?.isConnected;}
     setAttribute(k,v){this.attrs[k]=String(v);}getAttribute(k){return this.attrs[k]||null;}
     addEventListener(k,fn){(this.listeners[k]||(this.listeners[k]=[])).push(fn);}
+    getContext(){assert.equal(this.tagName,'CANVAS');return {fillStyle:'',fillRect(...args){draws.push({fill:args});},drawImage(...args){draws.push({draw:args});}};}
+    toDataURL(type,quality){assert.equal(type,'image/jpeg');assert.equal(this.width,192);assert.equal(this.height,192);return encode?encode(quality):JPEG;}
     async fire(k){const e={target:this,preventDefault(){}};for(const fn of this.listeners[k]||[])await fn(e);}
     focus(){focus=this;}scrollIntoView(){}
   }
@@ -24,14 +27,19 @@ function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,p
     async getUser(){userReads++;if(getUser)return getUser(w);return {data:{user:w.knUser},error:null};},
     async getSession(){if(getSession)return getSession(w);return {data:{session:{user:w.knUser,access_token:'fixture-token-'+w.knUser.id}},error:null};},
     async updateUser(){assert.fail('SDK updateUser must never choose the write account');}
-  }},AbortController,async fetch(url,options){
+  }},AbortController,URL:{createObjectURL(blob){const url='blob:fixture-'+(++objectSerial);objectURLs.push({url,blob});return url;},revokeObjectURL(url){revoked.push(url);}},async createImageBitmap(file,options){assert.equal(options.imageOrientation,'from-image');return decode?decode(file):{width:960,height:640,close(){closed.push(file);}};},async fetch(url,options){
+    if(url==='/api/user-profile/avatar'){
+      requests.push({url,options});if(getAvatar)return getAvatar(w,options);
+      const ref=w.knUser.user_metadata.kn_profile_v1.avatar_image;return avatarResponse(ref);
+    }
     assert.equal(url,'/api/user-profile');const value=JSON.parse(options.body);updates.push(value);requests.push({url,options});
     let result;
     if(putProfile)result=await putProfile(value,w,options);
     else{
       const actor=options.headers.Authorization.slice('Bearer fixture-token-'.length);
-      if(w.knUser.id===actor)w.knUser={...w.knUser,user_metadata:{...w.knUser.user_metadata,kn_profile_v1:value}};
-      result={ok:true,profile:value,user_id:actor};
+      const stored={...value};if(stored.avatar_image?.startsWith('data:'))stored.avatar_image=PHOTO_REF;
+      if(w.knUser.id===actor)w.knUser={...w.knUser,user_metadata:{...w.knUser.user_metadata,kn_profile_v1:stored}};
+      result={ok:true,profile:stored,user_id:actor};
     }
     if(result&&typeof result.text==='function')return result;
     return {ok:result&&result.ok===true,text:async()=>JSON.stringify(result)};
@@ -39,8 +47,13 @@ function fixture({user=null,legacy='',extra=null,getUser,getSession,putProfile,p
   if(extra)storage.set('kn_profile_guest_v1',JSON.stringify(extra));
   if(persist)w.__knPersistLocalSetting=persist;
   const api=create(w);
-  return {w,api,storage,events,container,document,nodes,reads:()=>userReads,updates:()=>updates,requests:()=>requests,timers:()=>timers,focus:()=>focus,async flush(){for(let i=0;i<timers.length;i++){const timer=timers[i];if(timer.active&&timer.delay===0){timer.active=false;await timer.fn();}}await Promise.resolve();},auth(next){w.knUser=next;document.dispatchEvent(new w.Event('knAuthChange'));}};
+  return {w,api,storage,events,container,document,nodes,objectURLs,revoked,draws,closed,reads:()=>userReads,updates:()=>updates,requests:()=>requests,timers:()=>timers,focus:()=>focus,async flush(){for(let i=0;i<timers.length;i++){const timer=timers[i];if(timer.active&&timer.delay===0){timer.active=false;await timer.fn();}}await Promise.resolve();},auth(next){w.knUser=next;document.dispatchEvent(new w.Event('knAuthChange'));}};
 }
+function avatarResponse(ref,{size=128,type='image/jpeg',ok=true}={}){return {ok,headers:{get:k=>({'x-avatar-image':ref,'content-type':type,'content-length':String(size)})[k.toLowerCase()]??null},blob:async()=>({size,type})};}
+function photoProfile(name='みどり',image=PHOTO_REF){return {...profile(name),avatar_image:image};}
+function imageSource(h,selector='kn-profile-photo-preview'){return h.nodes.find(n=>n.className===selector)?.children[0]?.src||'';}
+async function selectPhoto(h,file={size:4096,type:'image/jpeg',name:'local.jpg'}){const input=h.document.getElementById('knProfilePhoto');input.files=[file];input.value='fakepath';await input.fire('change');return input;}
+const settle=()=>new Promise(setImmediate);
 function account(id='a',saved=profile(),email='private@example.invalid'){return {id,is_anonymous:false,email,user_metadata:{name:'Provider Legal Name',kn_profile_v1:saved}};}
 test('profile validation counts Unicode characters and returns only the public schema',()=>{
   assert.deepEqual(validate({...profile('  🌿'.repeat(1)+'  '),email:'private',role:'admin'}),profile('🌿'));
@@ -223,4 +236,91 @@ test('completed profile reads clear the loading notice without erasing a later s
   await h.api.saveUsername('保存した名前');assert.match(status.textContent,/保存しました/);assert.equal(h.api.username(),'保存した名前');
   await h.api.refresh();assert.equal(status.textContent,'');assert.equal(h.api.username(),'保存した名前');
  }
+});
+
+test('optional photos accept only bounded JPEG data or a private content reference',()=>{
+  assert.equal(validate(photoProfile('名前',JPEG)).avatar_image,JPEG);assert.equal(validate(photoProfile()).avatar_image,PHOTO_REF);
+  assert.equal(validate(photoProfile('名前','')).avatar_image,'');
+  for(const value of [null,17,'https://example.invalid/photo.jpg','data:image/svg+xml;base64,PHN2Zz4=',PHOTO_REF.toUpperCase(),'b'.repeat(63),'data:image/jpeg;base64,'+Buffer.concat([Buffer.from([255,216,255]),Buffer.alloc(49152)]).toString('base64')])assert.throws(()=>validate(photoProfile('名前',value)),/invalid_avatar_image/);
+});
+test('album selection crops locally to a square preview and writes nothing until Save',async()=>{
+  const h=fixture({legacy:'名前'});h.api.mount(h.container);await h.api.ready();
+  const input=await selectPhoto(h);assert.equal(input.type,'file');assert.equal(input.value,'');assert.match(input.accept,/heic/);assert.equal(input.capture,undefined);assert.equal(input.getAttribute('capture'),null);
+  assert.equal(imageSource(h),JPEG);assert.equal(imageSource(h,'kn-profile-avatar'),'');assert.equal(h.storage.has('kn_profile_guest_v1'),false);assert.equal(h.updates().length,0);
+  const crop=h.draws.find(v=>v.draw).draw;assert.deepEqual(crop.slice(1),[160,0,640,640,0,0,192,192]);assert.equal(h.closed.length,1);
+  await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.equal(imageSource(h,'kn-profile-avatar'),JPEG);
+  const saved=JSON.parse(h.storage.get('kn_profile_guest_v1'));assert.equal(saved.avatar_image,JPEG);assert.doesNotMatch(JSON.stringify(saved),/local\.jpg|fakepath/);
+  const reload=fixture({legacy:h.storage.get('cm_nick'),extra:saved});reload.api.mount(reload.container);await reload.api.ready();assert.equal(imageSource(reload),JPEG);
+  assert.ok(h.events.every(e=>!e.detail||!('avatar_image'in e.detail)),'private image never enters shared profile events');
+});
+test('cancel restores the committed photo, and a preset or standard reset clears only on Save',async()=>{
+  const old='data:image/jpeg;base64,'+Buffer.from([255,216,255,224,2,3,255,217]).toString('base64');
+  const h=fixture({legacy:'名前',extra:{version:1,bio:'',avatar:'star',avatar_image:old}});h.api.mount(h.container);await h.api.ready();
+  await selectPhoto(h);assert.equal(imageSource(h),JPEG);await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');assert.equal(imageSource(h),old);
+  await selectPhoto(h);const preset=h.document.getElementById('knProfileAvatar');preset.value='moon';await preset.fire('change');assert.equal(imageSource(h),'');assert.equal(imageSource(h,'kn-profile-avatar'),old);
+  await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.equal(h.api.snapshot().avatar_image,'');assert.equal(h.api.snapshot().avatar,'moon');assert.equal(imageSource(h,'kn-profile-avatar'),'');
+  await selectPhoto(h);await h.nodes.find(n=>n.className==='kn-profile-photo-reset').fire('click');await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.equal(h.api.snapshot().avatar_image,'');
+});
+test('empty picker cancellation and repeated selection preserve drafts and permit the same file again',async()=>{
+  let decodes=0;const h=fixture({decode:async()=>{decodes++;return {width:100,height:100,close(){}};}});h.api.mount(h.container);await h.api.ready();
+  const input=await selectPhoto(h);input.files=[];await input.fire('change');assert.equal(imageSource(h),JPEG);await selectPhoto(h);assert.equal(decodes,2);assert.equal(input.value,'');
+});
+test('invalid, oversized, undecodable and excessive-pixel files leave the previous photo intact',async()=>{
+  const cases=[{file:{size:10*1024*1024+1,type:'image/jpeg'},message:/10MB/},{file:{size:32,type:'text/html'},message:/JPEG・PNG/},{decode:async()=>{throw Error('raw private decoder error');},message:/JPEGかPNG/},{decode:async()=>({width:10000,height:10000,close(){}}),message:/縦横/},{encode:()=> 'data:image/png;base64,AAAA',message:/別の写真/}];
+  for(const entry of cases){const h=fixture({extra:{version:1,bio:'',avatar:'leaf',avatar_image:JPEG},decode:entry.decode,encode:entry.encode});h.api.mount(h.container);await h.api.ready();await selectPhoto(h,entry.file);assert.equal(imageSource(h),JPEG);assert.equal(h.api.snapshot().avatar_image,JPEG);const status=h.nodes.find(n=>n.getAttribute('role')==='status');assert.match(status.textContent,entry.message);assert.doesNotMatch(status.textContent,/raw private/);assert.equal(h.nodes.find(n=>n.type==='submit').disabled,false);}
+});
+test('slow photo preparation disables Save and cannot complete after cancel or account switch',async()=>{
+  for(const action of ['cancel','switch']){
+    const waiting=deferred(),closed=[];const h=fixture({decode:()=>waiting.promise});h.api.mount(h.container);await h.api.ready();const selecting=selectPhoto(h);await settle();assert.equal(h.nodes.find(n=>n.type==='submit').disabled,true);await assert.rejects(h.api.saveUsername('途中'),/photo_busy/);
+    if(action==='cancel')await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');else{h.auth(account('b',profile('二人目')));await h.flush();await h.api.ready();}
+    waiting.resolve({width:100,height:100,close(){closed.push(true);}});await selecting;assert.equal(imageSource(h),'');assert.equal(closed.length,1);assert.equal(h.updates().length,0);assert.equal(h.storage.has('kn_profile_guest_v1'),false);
+  }
+});
+test('a later photo selection wins when earlier native decoding resolves last',async()=>{
+  const first=deferred();let count=0;const closed=[];const h=fixture({decode:()=>++count===1?first.promise:Promise.resolve({width:100,height:100,close(){closed.push('second');}})});h.api.mount(h.container);await h.api.ready();const pending=selectPhoto(h);await settle();await selectPhoto(h,{size:1024,type:'image/heic',name:'photo.heic'});assert.equal(imageSource(h),JPEG);first.resolve({width:100,height:100,close(){closed.push('first');}});await pending;assert.equal(imageSource(h),JPEG);assert.deepEqual(closed,['second','first']);
+});
+test('a stalled decoder times out, keeps the saved photo and closes a late bitmap',async()=>{
+  const pending=deferred(),closed=[];const h=fixture({decode:()=>pending.promise,extra:{version:1,bio:'',avatar:'leaf',avatar_image:JPEG}});h.api.mount(h.container);await h.api.ready();const selecting=selectPhoto(h);await settle();h.timers().find(t=>t.delay===15000&&t.active).fn();await selecting;assert.equal(imageSource(h),JPEG);assert.equal(h.nodes.find(n=>n.type==='submit').disabled,false);pending.resolve({width:100,height:100,close(){closed.push(true);}});await settle();assert.equal(closed.length,1);
+});
+test('guest quota failure rolls back name and photo extras and retains the editable photo',async()=>{
+  const old={version:1,bio:'元',avatar:'sun',avatar_image:JPEG};const h=fixture({legacy:'元の名前',extra:old});h.api.mount(h.container);await h.api.ready();h.w.localStorage.setItem=(key,value)=>{if(key==='kn_profile_guest_v1'&&JSON.parse(value).bio!=='元')throw Error('QuotaExceededError');h.storage.set(key,String(value));};
+  await assert.rejects(h.api.save({...profile('新','変更','moon'),avatar_image:JPEG}),/storage_unavailable/);assert.deepEqual(JSON.parse(h.storage.get('kn_profile_guest_v1')),old);assert.equal(h.storage.get('cm_nick'),'元の名前');assert.equal(h.api.snapshot().avatar_image,JPEG);
+  const partial=fixture({legacy:'元',extra:old,persist:async(k,v)=>{partial.storage.set(k,v);throw Error('helper write then reject');}});await partial.api.ready();await assert.rejects(partial.api.saveUsername('変更'),/storage_unavailable/);assert.equal(partial.storage.get('cm_nick'),'元');assert.deepEqual(JSON.parse(partial.storage.get('kn_profile_guest_v1')),old);
+});
+test('a member photo Save accepts only the canonical reference and loads its private bytes',async()=>{
+  const h=fixture({user:account()});h.api.mount(h.container);await h.api.ready();await selectPhoto(h);assert.equal(h.requests().length,0);await h.nodes.find(n=>n.tagName==='FORM').fire('submit');await settle();
+  assert.equal(h.api.snapshot().avatar_image,PHOTO_REF);assert.equal(h.updates()[0].avatar_image,JPEG);assert.equal(h.w.knUser.user_metadata.kn_profile_v1.avatar_image,PHOTO_REF);assert.match(imageSource(h),/^blob:/);assert.equal(h.storage.size,0);
+  const read=h.requests().find(r=>r.options.method==='GET');assert.equal(read.url,'/api/user-profile/avatar');assert.deepEqual(read.options.headers,{'Authorization':'Bearer fixture-token-a'});assert.equal(read.options.cache,'no-store');assert.equal(read.options.redirect,'error');assert.equal(read.options.credentials,'same-origin');
+  assert.ok(h.events.every(e=>!e.detail||!('avatar_image'in e.detail)));assert.doesNotMatch(JSON.stringify(h.events),/data:image|blob:/);
+});
+test('name saves and legacy three-field edits preserve existing member and guest photos',async()=>{
+  for(const member of [false,true]){const h=fixture(member?{user:account('a',photoProfile())}:{legacy:'みどり',extra:{version:1,bio:'経済を勉強中',avatar:'leaf',avatar_image:JPEG}});await h.api.ready();await h.api.saveUsername('新名');assert.equal(h.api.snapshot().avatar_image,member?PHOTO_REF:JPEG);await h.api.save(profile('もう一度'));assert.equal(h.api.snapshot().avatar_image,member?PHOTO_REF:JPEG);if(member)assert.equal(h.updates()[0].avatar_image,PHOTO_REF);}
+});
+test('a photo response with raw image data, an omitted photo or a changed text profile is rejected',async()=>{
+  for(const mutate of [v=>v,v=>{const {avatar_image,...rest}=v;return rest;},v=>({...v,username:'別の名前',avatar_image:PHOTO_REF})]){
+    const h=fixture({user:account(),putProfile:async value=>({ok:true,user_id:'a',profile:mutate(value)})});h.api.mount(h.container);await h.api.ready();await selectPhoto(h);await h.nodes.find(n=>n.tagName==='FORM').fire('submit');assert.equal(h.api.snapshot().avatar_image,undefined);assert.equal(imageSource(h),JPEG);assert.equal(imageSource(h,'kn-profile-avatar'),'');assert.match(h.nodes.find(n=>n.getAttribute('role')==='status').textContent,/保存できません/);
+  }
+});
+test('member image fetches reject mismatched refs, MIME and oversized responses and retry on reopen',async()=>{
+  for(const bad of [avatarResponse(OTHER_REF),avatarResponse(PHOTO_REF,{type:'text/html'}),avatarResponse(PHOTO_REF,{size:49153}),{...avatarResponse(PHOTO_REF),blob:async()=>({size:49153})}]){
+    let fail=true;const h=fixture({user:account('a',photoProfile()),getAvatar:async()=>fail?bad:avatarResponse(PHOTO_REF)});const details=h.api.mount(h.container);await h.api.ready();await settle();assert.equal(imageSource(h),'');assert.equal(h.objectURLs.length,0);assert.equal(h.api.snapshot().avatar_image,PHOTO_REF);fail=false;details.open=true;await details.fire('toggle');await settle();assert.match(imageSource(h),/^blob:/);assert.equal(h.requests().filter(r=>r.options.method==='GET').length,2);
+  }
+});
+test('an old-account image blob finishing after a switch is discarded and existing blob URLs are revoked',async()=>{
+  const bytes=deferred();const h=fixture({user:account('a',photoProfile('A')),getAvatar:async()=>({...avatarResponse(PHOTO_REF),blob:()=>bytes.promise})});h.api.mount(h.container);await h.api.ready();await settle();h.auth(account('b',profile('B')));assert.equal(imageSource(h),'');await h.flush();await h.api.ready();bytes.resolve({size:128,type:'image/jpeg'});await settle();assert.equal(imageSource(h),'');assert.equal(h.objectURLs.length,0);assert.equal(h.requests()[0].options.headers.Authorization,'Bearer fixture-token-a');
+  const loaded=fixture({user:account('a',photoProfile())});loaded.api.mount(loaded.container);await loaded.api.ready();await settle();const previous=imageSource(loaded);assert.match(previous,/blob:/);loaded.auth(null);assert.equal(imageSource(loaded),'');assert.ok(loaded.revoked.includes(previous));
+});
+test('a stale image GET cannot display a different ref after the same owner changes their photo',async()=>{
+  const response=deferred();let first=true;const h=fixture({user:account('a',photoProfile()),getAvatar:async()=>first?(first=false,response.promise):avatarResponse(OTHER_REF)});h.api.mount(h.container);await h.api.ready();await settle();h.w.knUser=account('a',photoProfile('新しい写真',OTHER_REF));await h.api.refresh();await settle();const current=imageSource(h);response.resolve(avatarResponse(PHOTO_REF));await settle();assert.equal(imageSource(h),current);assert.equal(h.api.snapshot().avatar_image,OTHER_REF);assert.equal(h.objectURLs.length,1);
+});
+test('an image element error falls back safely without erasing a newer preview',async()=>{
+  const h=fixture({user:account('a',photoProfile())});h.api.mount(h.container);await h.api.ready();await settle();const target=h.nodes.find(n=>n.className==='kn-profile-photo-preview'),old=target.children[0];await selectPhoto(h);old.onerror();assert.equal(imageSource(h),JPEG);const active=target.children[0];active.onerror();assert.equal(imageSource(h),'');assert.match(target.textContent,/🌿/);
+});
+test('the native Image fallback revokes source URLs after decoding and on cancellation',async()=>{
+  const images=[];class NativeImage{constructor(){images.push(this);this.naturalWidth=400;this.naturalHeight=600;}set src(value){this.source=value;}get src(){return this.source;}}
+  const h=fixture();h.w.createImageBitmap=undefined;h.w.Image=NativeImage;h.api.mount(h.container);await h.api.ready();const first=selectPhoto(h);await settle();assert.equal(images.length,1);const source=images[0].src;images[0].onload();await first;assert.equal(imageSource(h),JPEG);assert.ok(h.revoked.includes(source));assert.deepEqual(h.draws.find(v=>v.draw).draw.slice(1),[0,100,400,400,0,0,192,192]);
+  const second=selectPhoto(h);await settle();const nextSource=images[1].src;await h.nodes.find(n=>n.className==='kn-profile-cancel').fire('click');await second;assert.equal(images[1].src,'');assert.ok(h.revoked.includes(nextSource));assert.equal(imageSource(h),'');
+});
+test('a bitmap rejection after timeout cannot start an unexpected native fallback',async()=>{
+  const pending=deferred();let fallback=0;const h=fixture({decode:()=>pending.promise});h.w.Image=class{constructor(){fallback++;}};h.api.mount(h.container);await h.api.ready();const selecting=selectPhoto(h);await settle();h.timers().find(t=>t.delay===15000&&t.active).fn();await selecting;pending.reject(Error('late unsupported image'));await settle();assert.equal(fallback,0);assert.equal(h.objectURLs.length,0);
 });

@@ -3,6 +3,15 @@
 #sideDrawer.kn-menu-a .kn-profile-summary{justify-content:flex-start;gap:10px;color:var(--kn-a-ink);font-size:calc(16px * var(--kn-a-scale,1));min-height:62px}
 #sideDrawer.kn-menu-a .kn-profile-summary:after{margin-left:auto}
 #sideDrawer.kn-menu-a .kn-profile-avatar{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--kn-a-chip);font-size:22px;flex:none}
+#sideDrawer.kn-menu-a :is(.kn-profile-avatar,.kn-profile-photo-preview){overflow:hidden}
+#sideDrawer.kn-menu-a :is(.kn-profile-avatar,.kn-profile-photo-preview) img{display:block;width:100%;height:100%;object-fit:cover;border-radius:50%}
+#sideDrawer.kn-menu-a .kn-profile-photo-row{display:flex;align-items:center;gap:16px}
+#sideDrawer.kn-menu-a .kn-profile-photo-preview{display:grid;place-items:center;width:88px;height:88px;flex:none;border-radius:50%;background:var(--kn-a-chip);font-size:42px;box-shadow:0 0 0 1px var(--kn-a-line)}
+#sideDrawer.kn-menu-a .kn-profile-photo-reset{min-height:44px;padding:10px 14px;border:1px solid var(--kn-a-line);border-radius:8px;background:transparent;color:var(--kn-a-ink);font:400 calc(14px * var(--kn-a-scale,1))/1.5 var(--kn-a-sans);cursor:pointer}
+#sideDrawer.kn-menu-a .kn-profile-photo-reset:focus-visible{outline:2px solid var(--kn-a-button);outline-offset:2px}
+#sideDrawer.kn-menu-a .kn-profile-photo-reset:disabled{opacity:.6;cursor:wait}
+#sideDrawer.kn-menu-a .kn-profile-photo-field input[type=file]{font-size:14px;overflow:hidden;padding:8px}
+#sideDrawer.kn-menu-a .kn-profile-photo-field input::file-selector-button{min-height:36px;margin-right:8px;padding:5px 10px;border:1px solid var(--kn-a-line);border-radius:6px;background:var(--kn-a-chip);color:var(--kn-a-ink);font:inherit;cursor:pointer}
 #sideDrawer.kn-menu-a .kn-profile-name{min-width:0;overflow-wrap:anywhere}
 #sideDrawer.kn-menu-a .kn-profile-form{display:grid;gap:14px;padding:4px 0 15px;margin:0;color:var(--kn-a-ink);font:400 calc(14px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-field{display:grid;gap:6px;margin:0;font-size:calc(13px * var(--kn-a-scale,1));color:var(--kn-a-muted)}
