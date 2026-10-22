@@ -5,7 +5,7 @@
   if(root){var api=factory(root);root.KNShortsSharing=api;if(root.document.readyState==='complete')api.mount();else root.document.addEventListener('DOMContentLoaded',api.mount);}
 })(typeof window==='undefined'?null:window,function(w){
   'use strict';
-  var doc=w&&w.document,bound=new WeakSet(),observer=null,discovery=null,mounted=false,busy=false,generation=0,dialog=null,status=null,timer=null,lastOpen=null;
+  var doc=w&&w.document,bound=new WeakSet(),observer=null,discovery=null,mounted=false,generation=0,dialog=null,lastOpen=null;
   function postId(value){if(typeof value!=='string'||!/^[1-9][0-9]{0,15}$/.test(value))return null;var id=Number(value);return Number.isSafeInteger(id)?id:null;}
   function shareURL(provider,id){
     if(provider==='youtube')return typeof id==='string'&&/^[A-Za-z0-9_-]{11}$/.test(id)?'https://www.youtube.com/shorts/'+id:null;
@@ -21,44 +21,50 @@
     return within(button,doc.querySelector('.ks-share-viewer'));
   }
   function alive(button,serial){return serial===generation&&available(button);}
-  function invalidate(){generation++;if(busy){busy.button.disabled=false;busy=false;}closeDialog(false);if(status)announce('');}
+  function invalidate(){generation++;closeDialog(false);}
   function syncSheetState(){var sheet=doc.getElementById('knShorts'),open=!!(sheet&&sheet.classList.contains('open'));if(lastOpen===true&&!open)invalidate();lastOpen=open;if(dialog&&!available(dialog.button))closeDialog(false);}
-  function announce(message){
-    if(timer){w.clearTimeout(timer);timer=null;}
-    if(!status){status=node('p','ks-share-status');status.setAttribute('role','status');status.setAttribute('aria-live','polite');doc.body.appendChild(status);}
-    status.hidden=!message;status.textContent=message;
-    if(message)timer=w.setTimeout(function(){status.hidden=true;status.textContent='';timer=null;},5000);
-  }
   function closeDialog(returnFocus){
     if(!dialog)return;var current=dialog;dialog=null;current.overlay.remove();
     if(returnFocus!==false&&available(current.button))current.button.focus();
   }
-  function manualCopy(url,button,failed){
+  function openShare(url,button,shareTitle){
     closeDialog(false);var overlay=node('div','ks-share-copy-overlay'),panel=node('section','ks-share-copy-dialog');
     panel.setAttribute('role','dialog');panel.setAttribute('aria-modal','true');panel.setAttribute('aria-labelledby','ksShareCopyTitle');
     var title=node('h2','','リンクを共有');title.id='ksShareCopyTitle';panel.appendChild(title);
-    var hint=node('p','',failed?'リンクをコピーできませんでした。下のURLを選択してコピーしてください。':'下のURLをコピーして共有できます。');hint.id='ksShareCopyHint';panel.appendChild(hint);
+    var hint=node('p','ks-share-copy-status','下のURLをコピーして共有できます。');hint.id='ksShareCopyHint';hint.setAttribute('role','status');hint.setAttribute('aria-live','polite');panel.appendChild(hint);
     var input=node('input','ks-share-copy-url');input.type='text';input.value=url;input.readOnly=true;input.setAttribute('aria-label','共有するリンク');input.setAttribute('aria-describedby','ksShareCopyHint');panel.appendChild(input);
+    input.addEventListener('click',function(){input.select();});
+    var current={overlay:overlay,button:button,serial:generation};
+    function active(){return dialog===current&&alive(button,current.serial);}
+    function selectLink(message){if(!active())return;hint.textContent=message;input.focus();input.select();}
+    var actions=node('div','ks-share-copy-actions'),copy=node('button','ks-share-copy-action','リンクをコピー');copy.type='button';actions.appendChild(copy);panel.appendChild(actions);
+    copy.addEventListener('click',async function(){
+      if(!active()||copy.disabled)return;
+      if(!w.navigator||!w.navigator.clipboard||typeof w.navigator.clipboard.writeText!=='function'){selectLink('下のURLを選択してコピーしてください。');return;}
+      copy.disabled=true;copy.textContent='コピーしています…';
+      try{await w.navigator.clipboard.writeText(url);if(active())hint.textContent='リンクをコピーしました。';}
+      catch(_){selectLink('リンクをコピーできませんでした。下のURLを選択してコピーしてください。');}
+      finally{if(active()){copy.disabled=false;copy.textContent='リンクをコピー';}}
+    });
+    if(w.navigator&&typeof w.navigator.share==='function'){
+      var app=node('button','ks-share-app-action','ほかのアプリに共有');app.type='button';actions.appendChild(app);
+      app.addEventListener('click',async function(){
+        if(!active()||app.disabled)return;app.disabled=true;app.textContent='共有先を開いています…';
+        try{await w.navigator.share({title:shareTitle,url:url});if(active())hint.textContent='共有画面での操作が完了しました。';}
+        catch(error){if(!error||error.name!=='AbortError'){if(active())hint.textContent='共有先を開けませんでした。リンクをコピーして共有できます。';}}
+        finally{if(active()){app.disabled=false;app.textContent='ほかのアプリに共有';}}
+      });
+    }
     var close=node('button','ks-share-copy-close','閉じる');close.type='button';close.addEventListener('click',function(){closeDialog(true);});panel.appendChild(close);overlay.appendChild(panel);
     overlay.addEventListener('click',function(event){if(event.target===overlay)closeDialog(true);});
     overlay.addEventListener('keydown',function(event){if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeDialog(true);}else if(event.key==='Tab'){if(event.shiftKey&&doc.activeElement===input){event.preventDefault();event.stopPropagation();close.focus();}else if(!event.shiftKey&&doc.activeElement===close){event.preventDefault();event.stopPropagation();input.focus();}}});
-    dialog={overlay:overlay,button:button};doc.body.appendChild(overlay);input.focus();input.select();
+    dialog=current;doc.body.appendChild(overlay);input.focus();input.select();
   }
-  async function share(button){
-    syncSheetState();if(busy||!available(button))return;
+  function share(button){
+    syncSheetState();if(!available(button))return;
     var provider=button.getAttribute('data-share-provider'),id=provider==='post'?button.getAttribute('data-post-id'):button.getAttribute('data-video-id'),url=shareURL(provider,id);
-    if(!url)return;var serial=generation,title=button.getAttribute('data-share-title')||'経済ショート';title=Array.from(title).slice(0,120).join('');
-    var job={button:button};busy=job;button.disabled=true;announce('');
-    try{
-      if(w.navigator&&typeof w.navigator.share==='function'){
-        try{await w.navigator.share({title:title,url:url});return;}catch(error){if(error&&error.name==='AbortError')return;}
-        if(alive(button,serial))manualCopy(url,button,false);return;
-      }
-      if(w.navigator&&w.navigator.clipboard&&typeof w.navigator.clipboard.writeText==='function'){
-        try{await w.navigator.clipboard.writeText(url);if(alive(button,serial))announce('リンクをコピーしました。');return;}catch(_){if(alive(button,serial))manualCopy(url,button,true);return;}
-      }
-      if(alive(button,serial))manualCopy(url,button,false);
-    }finally{if(busy===job){busy=false;if(button.isConnected!==false)button.disabled=false;}}
+    if(!url)return;var title=button.getAttribute('data-share-title')||'経済ショート';title=Array.from(title).slice(0,120).join('');
+    openShare(url,button,title);
   }
   function bind(button){if(bound.has(button))return;bound.add(button);button.addEventListener('click',function(event){event.preventDefault();event.stopPropagation();share(button);});}
   function decorate(){
@@ -84,7 +90,7 @@
     decorate();syncSheetState();
     // The site's observer throttle supplies an empty record list. Decoration is
     // idempotent, so always scan after a notification rather than reading records.
-    if(feed&&typeof w.MutationObserver==='function'){observer=new w.MutationObserver(decorate);observer.observe(feed,{childList:true,subtree:true});}
+    if(feed&&typeof w.MutationObserver==='function'){observer=new w.MutationObserver(function(){decorate();syncSheetState();});observer.observe(feed,{childList:true,subtree:true});}
     if(typeof w.MutationObserver==='function'){var visibility=new w.MutationObserver(syncSheetState);visibility.observe(sheet,{attributes:true,attributeFilter:['class']});}
     return true;
   }
@@ -98,6 +104,7 @@
     // Invalidate before other navigation closes/reopens the pane; the site's
     // throttled observer can otherwise miss a brief closed state.
     doc.addEventListener('click',function(event){var target=event.target,nav=doc.getElementById('knBottomNav');while(target&&target!==doc.body){var action=target.getAttribute&&target.getAttribute('data-act');if(action&&within(target,nav)){if(action!=='shorts')invalidate();return;}target=target.parentNode;}},true);
+    doc.addEventListener('visibilitychange',function(){if(doc.hidden)invalidate();});
     w.addEventListener('pagehide',invalidate);
   }
   return {mount:mount,shareURL:shareURL};

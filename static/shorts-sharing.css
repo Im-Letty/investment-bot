@@ -7,18 +7,14 @@
 .ks-share-symbol {display:block;width:24px;height:24px;font:400 24px/1 system-ui,sans-serif}
 .ks-share-button:focus-visible,.ks-share-copy-dialog :is(button,input):focus-visible {outline:2px solid currentColor;outline-offset:3px}
 .ks-share-button:disabled {opacity:.6;cursor:wait}
-.ks-share-status[hidden] {display:none!important}
-.ks-share-status {
-  position:fixed;z-index:200010;bottom:calc(76px + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);
-  box-sizing:border-box;width:max-content;max-width:calc(100% - 32px);margin:0;padding:12px 18px;
-  border:1px solid rgba(255,255,255,.3);border-radius:14px;background:#1e2521;color:#fff;
-  font:400 14px/1.6 system-ui,sans-serif;
-}
 .ks-share-copy-overlay {position:fixed;inset:0;z-index:200011;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.62)}
 .ks-share-copy-dialog {box-sizing:border-box;width:min(100%,480px);max-height:calc(100dvh - 40px);overflow:auto;padding:24px;border:1px solid #d9d9ca;border-radius:22px;background:#faf9f3;color:#343e36;font:400 15px/1.7 system-ui,sans-serif}
 .ks-share-copy-dialog h2 {margin:0 0 12px;font-size:20px}
 .ks-share-copy-dialog p {margin:0 0 16px}
 .ks-share-copy-url {box-sizing:border-box;display:block;width:100%;min-height:48px;padding:10px 12px;border:1px solid #aeb6a8;border-radius:10px;background:#fff;color:#273b2c;font:400 14px/1.5 system-ui,sans-serif}
+.ks-share-copy-actions {display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.ks-share-copy-actions button {flex:1 1 170px;min-height:44px;padding:10px 14px;border:1px solid #aeb6a8;border-radius:12px;background:#fff;color:#343e36;font:inherit;cursor:pointer}
+.ks-share-copy-actions button:disabled {opacity:.6;cursor:wait}
 .ks-share-copy-close {display:block;min-height:44px;margin:20px 0 0 auto;padding:8px 20px;border:1px solid #647568;border-radius:999px;background:#647568;color:#fff;font:inherit;cursor:pointer}
 body:has(.ks-share-viewer) {margin:0;background:#101411;color:#fff;font:400 16px/1.7 system-ui,sans-serif}
 .ks-share-viewer {box-sizing:border-box;width:min(100%,820px);margin:0 auto;padding:24px 18px calc(32px + env(safe-area-inset-bottom,0px))}

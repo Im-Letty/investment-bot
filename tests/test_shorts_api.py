@@ -289,7 +289,7 @@ class ShortsAPITests(unittest.TestCase):
         self.assertNotIn('<b>なまえ</b>', body)
         self.assertIn('<video controls playsinline preload="metadata" src="/api/shorts/posts/1/media"', body)
         self.assertIn('data-share-provider="post" data-post-id="1"', body)
-        self.assertIn('/static/shorts-sharing.js?v=20261022-hybrid1', body)
+        self.assertIn('/static/shorts-sharing.js?v=20261022-hybrid2', body)
         for private in ['private-query-token', 'private-fragment', 'untrusted-host.invalid',
                         'private-fixture', 'private@example.invalid', ALICE, 'object_path', 'signed-media']:
             self.assertNotIn(private, body)

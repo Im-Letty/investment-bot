@@ -30,8 +30,8 @@ OBJECT_PATH = re.compile(r'[0-9a-f-]{36}/[0-9a-f-]{36}\.(?:mp4|mov)')
 VIEWER_TEMPLATE = '''<!doctype html>
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="origin"><title>{{ post.title if post else '動画を開けません' }} | ショート</title>
-<link rel="stylesheet" href="/static/shorts-sharing.css?v=20261022-hybrid1">
-<script defer src="/static/shorts-sharing.js?v=20261022-hybrid1"></script></head>
+<link rel="stylesheet" href="/static/shorts-sharing.css?v=20261022-hybrid2">
+<script defer src="/static/shorts-sharing.js?v=20261022-hybrid2"></script></head>
 <body class="ks-share-page"><main class="ks-share-viewer">
 <header class="ks-share-viewer-head"><a href="/">サイトへ戻る</a><span>ショート</span></header>
 {% if post %}
