@@ -2158,7 +2158,8 @@ test('new visitors choose and review one of three eggs without drawing or changi
     assert.equal(Core.needsEggChoice(before), true); assert.equal(before.pet.exp, 0); assert.equal(before.coins, 100);
     assert.equal(f.host.querySelectorAll('.ipg-egg-choice').length, 3);
     assert.equal(f.host.querySelector('.ipg-tabs'), null); assert.equal(f.host.querySelector('.ipg-care-room'), null);
-    assert.equal(f.host.querySelector('.ipg-backup') !== null, true); assert.equal(f.mounts.length, 0); assert.equal(f.timers.size, 0);
+    assert.equal(f.host.querySelector('.ipg-backup'), null); assert.equal(f.mounts.length, 0); assert.equal(f.timers.size, 0);
+    assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);
     assert.equal(f.focusButton('egg-review').disabled, true);
     await f.click(f.focusButton('egg-choice-' + row.key));
     assert.equal(f.focusButton('egg-choice-' + row.key).getAttribute('aria-pressed'), 'true');
@@ -2213,13 +2214,13 @@ test('old zero-EXP and grown saves bypass new selection while the explicit local
   await f.click(f.focusButton('pet-emotion-joy')); assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); f.ui.close();
 });
 
-test('the pending egg welcome retains backup restore and an old restored pet never becomes a new selection', async () => {
+test('a previously restored old pet bypasses new selection without backup controls or mount-time storage writes', async () => {
   const old = await fixture({ developerPreview: false, seed: { pg_exp: '678' } }), preserved = old.saved(), backup = old.store.exportBackup(); old.ui.close();
-  const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready' });
-  await f.click(f.focusButton('egg-choice-apricot')); await f.click(f.focusButton('egg-review'));
-  const form = f.host.querySelector('.ipg-backup').querySelector('form'), area = form.querySelector('textarea');
-  area.value = backup; area.emit('input'); form.emit('submit'); await flush();
+  const f = await fixture({ fresh: true, developerPreview: false, rendererMode: 'ready',setup:async store=>{
+    assert.equal((await store.importBackup(backup)).ok,true);
+  } });
   assert.equal(f.host.querySelector('.ipg-egg-welcome'), null); assert.equal(f.store.getState().pet.exp, 678);
+  assert.equal(f.host.querySelector('.ipg-backup'),null);assert.equal(f.data.get(Core.KEY),f.beforeMountRaw);assert.equal(f.writes.length,f.writesBeforeMount);
   assert.equal(f.store.getState().coins, preserved.coins); assert.equal(Object.hasOwn(f.saved().pet, 'eggOrigin'), false);
   assert.equal(f.mounts.at(-1).options.eggOrigin, 'lilac'); f.ui.close();
 });
@@ -2416,16 +2417,15 @@ test('room layout is opt-in: old rooms keep six fixed fixtures and equipped artw
   assert.equal(f.focusButton('room-edit').disabled, true, 'an older optional Core retains its room but cannot start unsupported editing');
 });
 
-test('editing stops room drawing and touch, suppresses stale care/navigation/backup handlers and keeps every draft action local', async () => {
+test('editing stops room drawing and touch, suppresses stale care/navigation handlers and keeps every draft action local', async () => {
   const f = await fixture({ species: 'lilac', developerPreview: false, rendererMode: 'ready' });
   const before = f.saved(), writes = f.writes.length, care = f.focusButton('care-feed'), nav = f.focusButton('tab-shop');
-  const backup = f.button('バックアップを表示'), form = f.host.querySelector('.ipg-backup').querySelector('form');
   await f.click(f.focusButton('room-edit'));
   assert.equal(roomProps(f).length, 6); assert.equal(f.activeMotions().length, 0);
   assert.equal(f.host.querySelector('.ipg-touch-actions'), null); assert.equal(f.host.querySelector('.ipg-room-care'), null);
   assert.equal(f.host.querySelector('.ipg-backup'), null); assert.equal(f.host.querySelector('.ipg-pet-settings'), null);
   for (const key of ['care', 'play', 'shop', 'market']) assert.equal(f.focusButton('tab-' + key).disabled, true);
-  care.emit('click'); nav.emit('click'); backup.emit('click'); form.emit('submit'); await flush();
+  care.emit('click'); nav.emit('click'); await flush();
   assert.ok(f.host.querySelector('.ipg-room-editor')); assert.equal(f.host.querySelector('.ipg-shop-grid'), null);
   await f.click(roomProp(f, 'room_window')); await f.click(f.focusButton('room-flip')); await f.click(f.focusButton('room-move-右へ'));
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes); assert.equal(f.raf.size, 0);
@@ -2715,23 +2715,6 @@ test('room arrangement is available for eggs and bunnies, stays free, and does n
   }
 });
 
-
-test('an old backup-file rejection cannot post a failure into a room editor or a different mount', async () => {
-  for (const destination of ['editor', 'mount']) {
-    const f = await fixture({ species: 'lilac', developerPreview: false });
-    let reject;
-    const reading = new Promise((yes, no) => { reject = no; });
-    const file = f.host.querySelector('.ipg-backup').querySelectorAll('input').find(el => el.type === 'file');
-    file.files = [{ size: 20, text: () => reading }]; file.emit('change'); await flush();
-    let target = f.host;
-    if (destination === 'editor') await f.click(f.focusButton('room-edit'));
-    else { target = f.document.createElement('div'); f.pane.appendChild(target); assert.equal(await f.ui.mount(target), true); }
-    const before = target.textContent, saved = f.saved(), writes = f.writes.length;
-    reject(new Error('private file read failure')); await flush();
-    assert.equal(target.textContent, before); assert.ok(!target.textContent.includes('ファイルを読み込めませんでした'));
-    assert.deepEqual(f.saved(), saved); assert.equal(f.writes.length, writes);
-  }
-});
 
 async function villageFixture(config={}) { return fixture({species:'lilac',developerPreview:false,startAtVillage:true,...config}); }
 function villagePlace(f,id) { return f.focusButton('village-place-'+id); }

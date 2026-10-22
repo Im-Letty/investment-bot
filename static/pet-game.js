@@ -3,7 +3,7 @@
   'use strict';
   var host = null, store = null, options = null, mounting = null, unsubscribe = null;
   var tab = 'care', busy = false, game = null, pendingFinish = null;
-  var notice = '', failure = '', nameDraft = null, quantities = {}, backupText = '', importText = '';
+  var notice = '', failure = '', nameDraft = null, quantities = {};
   var lifecycleEpoch = 0, suspended = false, renderedDay = '', roomCarryX = 0;
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
   var appearancePreview = false, previewSituation = 'idle', previewStartedAt = 0;
@@ -1842,56 +1842,6 @@
       }, true));
     body.appendChild(c);
   }
-  function renderBackup(body) {
-    var details = node('details', 'ipg-card ipg-backup');
-    details.appendChild(node('summary', '', 'ゲームのバックアップ'));
-    append(details, text('この端末のゲームをバックアップできます。復元すると、現在の独立ゲームの記録がバックアップの内容に置き換わります。'));
-    var out = node('div');
-    function showBackup() {
-      if (roomEdit || villageEdit || busy) return;
-      try {
-        var result = store.exportBackup();
-        backupText = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
-        out.replaceChildren();
-        var area = node('textarea'); area.readOnly = true; area.value = backupText; area.rows = 5;
-        area.setAttribute('aria-label', 'バックアップの内容');
-        append(out, area, button('ファイルとして保存', function () {
-          var url = w.URL.createObjectURL(new Blob([backupText], { type: 'application/json' }));
-          var a = node('a'); a.href = url; a.download = 'pet-game-backup.json';
-          d.body.appendChild(a); a.click(); a.remove(); w.setTimeout(function () { w.URL.revokeObjectURL(url); }, 1000);
-        }, true));
-      } catch (_) { failure = 'バックアップを作成できませんでした。'; render(); }
-    }
-    details.appendChild(button('バックアップを表示', showBackup, true));
-    details.appendChild(out);
-    var form = node('form', 'ipg-form');
-    var file = node('input'); file.type = 'file'; file.accept = '.json,application/json';
-    var area = node('textarea'); area.rows = 4; area.value = importText;
-    area.addEventListener('input', function () { importText = area.value; });
-    file.addEventListener('change', async function () {
-      var f = file.files && file.files[0], epoch = lifecycleEpoch, owner = store;
-      if (!f || roomEdit || villageEdit || busy) return;
-      if (f.size > 1000000) { failure = 'バックアップは1MB以下のファイルを選んでください。'; render(); return; }
-      try { var raw = await f.text(); if (roomEdit || villageEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; importText = raw; area.value = importText; }
-      catch (_) { if (roomEdit || villageEdit || epoch !== lifecycleEpoch || owner !== store || !area.isConnected) return; failure = 'ファイルを読み込めませんでした。'; render(); }
-    });
-    var submit = node('button', 'ipg-button ipg-secondary', 'バックアップから復元');
-    submit.type = 'submit';
-    form.addEventListener('submit', async function (e) {
-      e.preventDefault();
-      if (busy || roomEdit || villageEdit || !area.value.trim()) return;
-      if (!w.confirm('現在のゲームを、このバックアップの内容で復元しますか？')) return;
-      setBusy(true);
-      try {
-        var result = await store.importBackup(area.value);
-        if (result && result.ok) { importText = ''; nameDraft = null; pendingFinish = null; eggDraft = null; eggConfirm = false; tab = 'care'; notice = 'バックアップから復元しました。'; failure = ''; }
-        else { failure = safeError(result); notice = ''; }
-      } catch (_) { failure = '復元を確認できませんでした。現在の記録を保持しています。'; notice = ''; }
-      finally { setBusy(false); render(); }
-    });
-    append(form, label('バックアップファイル', file), label('またはバックアップの内容を貼り付ける', area), submit);
-    details.appendChild(form); body.appendChild(details);
-  }
   function render() {
     if (!host || !store || game && (host.querySelector('.ipg-catch-board') || host.querySelector('.ipg-cafe-activity'))) return;
     var priorRoom = motionRequests.filter(function (request) { return !!request.room; })[0];
@@ -1912,7 +1862,7 @@
     root.appendChild(status);
     if (s.error && !failure) root.appendChild(text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error'));
     if (choosing) {
-      var welcome = node('div', 'ipg-body'); renderEggChoice(s, welcome); renderBackup(welcome); root.appendChild(welcome);
+      var welcome = node('div', 'ipg-body'); renderEggChoice(s, welcome); root.appendChild(welcome);
       host.replaceChildren(root); setBusy(busy);
       if (focused) { var choiceFocus = host.querySelector('[data-focus-key="' + focused + '"]'); if (choiceFocus && !choiceFocus.disabled) choiceFocus.focus({ preventScroll: true }); }
       return;
@@ -1936,7 +1886,7 @@
     else if (tab === 'play') renderPlay(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
-    if (!game && !roomEdit && !villageEdit) { renderLegacy(s, body); renderBackup(body); }
+    if (!game && !roomEdit && !villageEdit) { renderLegacy(s, body); }
     root.appendChild(body);
     host.replaceChildren(root);
     if (!roomEdit && !villageEdit) startMotions();
