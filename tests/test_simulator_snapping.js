@@ -5,7 +5,7 @@ const root = path.join(__dirname, '..');
 const script = fs.readFileSync(path.join(root, 'static/simulator-inputs.js'), 'utf8');
 const html = fs.readFileSync(path.join(root, 'simulator.html'), 'utf8');
 const currencies = vm.runInNewContext(html.match(/const CUR=(\{[\s\S]*?\n\});/)[0] + '\nCUR');
-const moneyHandlers = html.slice(html.indexOf('function moneyFocus('), html.indexOf('function countUp('));
+const moneyHandlers = html.slice(html.indexOf('function parseMoneyEdit('), html.indexOf('function countUp('));
 
 function harness(lang = 'ja') {
   class Element {

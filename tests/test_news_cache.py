@@ -913,7 +913,7 @@ class RouteCompatibilityTests(unittest.TestCase):
             again.close()
         finally:
             first.close()
-        for name in ('simulator-embed-9438e6695a.html', 'pet-features-855cb201bd.js',
+        for name in ('simulator-embed-a13fb258db.html', 'pet-features-855cb201bd.js',
                      'vendor/chart.umd-4.4.1.js'):
             response = client.get('/static/' + name)
             self.assertEqual(response.cache_control.max_age, 31536000)

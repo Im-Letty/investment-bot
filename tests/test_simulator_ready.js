@@ -1,7 +1,7 @@
 'use strict';
 const test=require('node:test'),assert=require('node:assert/strict');
 const fs=require('node:fs'),path=require('node:path'),vm=require('node:vm');
-const files=['static/simulator-embed-9438e6695a.html','simulator.html'];
+const files=['static/simulator-embed-a13fb258db.html','simulator.html'];
 function read(file){return fs.readFileSync(path.join(__dirname,'..',file),'utf8');}
 function calculator(file,{uid='',embedded=true}={}){
   const html=read(file),nodes=new Map(),events=new Map(),timers=new Map(),frames=new Map(),messages=[],requests=[];
@@ -58,11 +58,12 @@ for(const file of files){
     h.money('g-target-n',1200000);h.number('g-rate-n',0);h.number('g-years-n',2);h.context.calcG();
     assert.equal(results['g-monthly'],50000);assert.equal(results['g-total'],1200000);assert.equal(results['g-gain'],0);
     h.number('d-rate-n',5);h.context.calcD();
-    const dailyRate=.05/365;assert.equal(results['d-final'],Math.round(1000*((Math.pow(1+dailyRate,730)-1)/dailyRate)*(1+dailyRate)));
+    // Independent75-digit Decimal period-by-period oracle, effective annual5%.
+    assert.equal(results['d-final'],766855);
     h.number('m-rate-n',5);h.context.calcM();
-    const monthlyRate=.05/12;assert.equal(results['m-final'],Math.round(30000*((Math.pow(1+monthlyRate,24)-1)/monthlyRate)*(1+monthlyRate)));
+    assert.equal(results['m-final'],757839);
     h.number('lp-rate-n',5);h.context.calcL();assert.equal(results['lp-final'],1102500);
-    h.number('g-rate-n',5);h.context.calcG();assert.equal(results['g-monthly'],Math.ceil(1200000*monthlyRate/((Math.pow(1+monthlyRate,24)-1)*(1+monthlyRate))));
+    h.number('g-rate-n',5);h.context.calcG();assert.equal(results['g-monthly'],47504);
   });
   test(`${file}: late graph loading draws current values without resetting edited inputs`,()=>{
     const h=calculator(file),charts=[];

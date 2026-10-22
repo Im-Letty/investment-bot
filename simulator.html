@@ -175,7 +175,7 @@ function updateFill(el){
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-total-d">積立総額</div><div class="mval" id="d-total"></div></div>
       <div class="metric"><div class="mlabel" id="l-gain-d">運用益</div><div class="mval" id="d-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-d">総資産</div><div class="mval" id="d-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-d">総資産（税引前）</div><div class="mval" id="d-final"></div></div>
     </div>
     <div class="card">
       <div id="g2sim-note" style="margin:8px 0 16px;padding:12px 14px;background:#f1f8f1;border:1px solid #d7ebd7;border-radius:12px;color:#2f5d33;font-size:13px;line-height:1.7;">💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。</div>
@@ -196,7 +196,7 @@ function updateFill(el){
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-total-m">積立総額</div><div class="mval" id="m-total"></div></div>
       <div class="metric"><div class="mlabel" id="l-gain-m">運用益</div><div class="mval" id="m-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-m">総資産</div><div class="mval" id="m-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-m">総資産（税引前）</div><div class="mval" id="m-final"></div></div>
     </div>
     <div class="card">
       <p class="section-title" id="l-chart-m">資産推移グラフ</p>
@@ -216,7 +216,7 @@ function updateFill(el){
     <div class="result-grid">
       <div class="metric"><div class="mlabel" id="l-principal">積立総額</div><div class="mval" id="lp-principal"></div></div>
       <div class="metric"><div class="mlabel" id="l-gain-l">運用益</div><div class="mval" id="lp-gain"></div></div>
-      <div class="metric"><div class="mlabel" id="l-final-l">総資産</div><div class="mval" id="lp-final"></div></div>
+      <div class="metric"><div class="mlabel" id="l-final-l">総資産（税引前）</div><div class="mval" id="lp-final"></div></div>
     </div>
     <div class="card">
       <p class="section-title" id="l-chart-l">資産推移グラフ</p>
@@ -421,13 +421,14 @@ const CUR={
 };
 
 const T={
-  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'積立総額',gain:'運用益',final:'総資産',principal:'積立総額',need:'必要月額',chart:'資産推移グラフ',longnote:'💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。',yr:'年',yr_suffix:'目',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する',edit_btn:'更新する',edit_btn_loading:'更新中...',edit_err:'エラー：',no_data_title:'',mypage_loading:'読み込み中...',mp_name:'お名前',mp_target:'目標資産',mp_savings:'毎月投資額',mp_income:'年収',mp_stocks:'保有株',mp_traded:'トレード銘柄',mp_lastupdate:'最終更新：',nodata:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊'},
+  ja:{currency_unit:'円',title:'投資シミュレーター',tab1:'毎日積立',tab2:'毎月積立',tab3:'初期投資',tab4:'目標資産',tab5:'マイページ',daily:'毎日の積立額',monthly:'毎月の積立額',lump:'初期投資額',goal:'目標資産',rate:'年利回り',yearsD:'積立期間',yearsM:'積立期間',yearsL:'運用期間',yearsG:'達成期間',total:'積立総額',gain:'運用益',final:'総資産（税引前）',principal:'積立総額',need:'必要月額',chart:'資産推移グラフ',longnote:'💡 毎日コツコツの積立でも、長い年月で見ればこんなに差が出ます。あせらず、長く続けるのがいちばんの近道。',yr:'年',yr_suffix:'目',p_label:'元本',t_label:'総資産',apply:'シミュレーターに反映する',edit_btn:'更新する',edit_btn_loading:'更新中...',edit_err:'エラー：',no_data_title:'',mypage_loading:'読み込み中...',mp_name:'お名前',mp_target:'目標資産',mp_savings:'毎月投資額',mp_income:'年収',mp_stocks:'保有株',mp_traded:'トレード銘柄',mp_lastupdate:'最終更新：',nodata:'まだ情報が登録されていません。<br>LINEで「登録」と送って情報を登録してください😊'},
   en:{currency_unit:'$',title:'Investment Simulator',tab1:'Daily',tab2:'Monthly',tab3:'Lump Sum',tab4:'Goal',tab5:'My Page',daily:'Daily Amount',monthly:'Monthly Amount',lump:'Initial Amount',goal:'Target Amount',rate:'Annual Return',yearsD:'Period',yearsM:'Period',yearsL:'Period',yearsG:'Target Period',total:'Total Invested',gain:'Profit',final:'Total Assets',principal:'Principal',need:'Monthly Need',chart:'Asset Growth Chart',longnote:'💡 Even small daily contributions add up to a big difference over many years. Take your time — staying the course for the long run is the surest path.',yr:'y',yr_suffix:'',p_label:'Principal',t_label:'Total Assets',apply:'Apply to Simulator',edit_btn:'Update',edit_btn_loading:'Updating...',edit_err:'Error: ',no_data_title:'',mypage_loading:'Loading...',mp_name:'Name',mp_target:'Target',mp_savings:'Monthly Inv.',mp_income:'Annual Inc.',mp_stocks:'Holdings',mp_traded:'Trading',mp_lastupdate:'Last Update: ',nodata:'No information registered yet.<br>Send "register" on LINE to get started😊'},
   ko:{currency_unit:'₩',title:'투자 시뮬레이터',tab1:'매일 적립',tab2:'매월 적립',tab3:'일괄투자',tab4:'목표 자산',tab5:'마이페이지',daily:'매일 적립액',monthly:'월 적립액',lump:'초기 투자액',goal:'목표 자산',rate:'연 수익률',yearsD:'적립 기간',yearsM:'적립 기간',yearsL:'운용 기간',yearsG:'달성 기간',total:'총 적립액',gain:'수익',final:'총자산',principal:'원금',need:'필요 월액',chart:'자산 추이 차트',longnote:'💡 매일 조금씩 적립해도 긴 세월로 보면 이만큼 차이가 납니다. 서두르지 말고 길게 이어가는 것이 가장 빠른 길입니다.',yr:'년',yr_suffix:'년차',p_label:'원금',t_label:'총자산',apply:'시뮬레이터에 반영',edit_btn:'업데이트',edit_btn_loading:'업데이트 중...',edit_err:'오류: ',no_data_title:'',mypage_loading:'불러오는 중...',mp_name:'이름',mp_target:'목표 자산',mp_savings:'월 투자액',mp_income:'연수입',mp_stocks:'보유 주식',mp_traded:'트레이드 종목',mp_lastupdate:'최종 업데이트: ',nodata:'아직 정보가 등록되어 있지 않습니다.<br>LINE에서 "등록"을 보내 정보를 등록해주세요😊'},
   zh:{currency_unit:'元',title:'投资模拟器',tab1:'每日定投',tab2:'每月定投',tab3:'一次性投资',tab4:'目标资产',tab5:'我的页面',daily:'每日金额',monthly:'每月金额',lump:'初始投资额',goal:'目标金额',rate:'年收益率',yearsD:'投资期限',yearsM:'投资期限',yearsL:'投资期限',yearsG:'达成期限',total:'累计投资额',gain:'收益',final:'总资产',principal:'本金',need:'每月所需',chart:'资产走势图',longnote:'💡 即使每天小额定投，放眼长远也会有这么大的差距。不必着急，长期坚持才是最稳妥的捷径。',yr:'年',yr_suffix:'年',p_label:'本金',t_label:'总资产',apply:'应用到模拟器',edit_btn:'更新',edit_btn_loading:'更新中...',edit_err:'错误: ',no_data_title:'',mypage_loading:'加载中...',mp_name:'姓名',mp_target:'目标资产',mp_savings:'每月投资额',mp_income:'年收入',mp_stocks:'持有股票',mp_traded:'交易股票',mp_lastupdate:'最终更新: ',nodata:'尚未注册信息。<br>请在LINE上发送「注册」来登录信息😊'}
 };
 
 function fmtInput(n){
+  if(window.currentLang==='ja')return fmtYen(n);
   n=Math.round(n);const L=window.currentLang;
   if(L==='ja'){if(n>=1e8){const o=Math.floor(n/1e8),m=Math.floor((n%1e8)/1e4),y=n%1e4;let s=o+'億';if(m)s+=m+'万';if(y)s+=y+'円';if(!m&&!y)s+='円';return s;}if(n>=1e4){const m=Math.floor(n/1e4),y=n%1e4;return y?m+'万'+y+'円':m+'万円';}return n.toLocaleString()+'円';}
   if(L==='en'){if(n>=1e9)return '$'+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';if(n>=1e6)return '$'+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';if(n>=1e3)return '$'+(n/1e3).toFixed(1).replace(/\.0$/,'')+'K';return '$'+n.toLocaleString();}
@@ -468,21 +469,44 @@ function fmtChartTick(n){
 }
 function fmtYr(y){return y+T[window.currentLang].yr;}
 
-function moneyFocus(el){el.value=el.dataset.raw||'';el.select();}
-function moneyBlur(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,'')),r=(!isNaN(v)&&v>0)?v:parseFloat(el.dataset.raw||0);el.dataset.raw=r;el.value=fmtInput(r);const s=document.getElementById(sId);s.value=Math.min(Math.max(r,+s.min),+s.max);fn();}
-function moneyType(el,sId,fn){const v=parseFloat(el.value.replace(/[^0-9.]/g,''));if(!isNaN(v)&&v>0){el.dataset.raw=v;const s=document.getElementById(sId);s.value=Math.min(Math.max(Math.min(v,1e10),+s.min),+s.max);fn();}}
-function sliderToMoney(sId,nId){const v=+document.getElementById(sId).value,el=document.getElementById(nId);el.dataset.raw=v;el.value=fmtInput(v);}
+function parseMoneyEdit(value){
+  const text=String(value).trim().replace(/,/g,'');
+  return /^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(text)?Number(text):NaN;
+}
+function moneyFocus(el){
+  if(Number.isFinite(Number(el.dataset.raw)))el.value=el.dataset.raw;
+  el.select();
+}
+function moneyType(el,sId,fn){
+  const value=parseMoneyEdit(el.value),valid=Number.isFinite(value)&&value>0;
+  el.dataset.raw=String(value);
+  el.setAttribute('aria-invalid',valid?'false':'true');
+  if(valid){const range=document.getElementById(sId);range.value=Math.min(Math.max(value,+range.min),+range.max);}
+  fn();
+}
+function moneyBlur(el,sId,fn){
+  const value=parseMoneyEdit(el.value),valid=Number.isFinite(value)&&value>0;
+  el.dataset.raw=String(value);
+  el.setAttribute('aria-invalid',valid?'false':'true');
+  if(valid){
+    el.value=fmtInput(value);
+    const range=document.getElementById(sId);range.value=Math.min(Math.max(value,+range.min),+range.max);
+  }
+  fn();
+}
+function sliderToMoney(sId,nId){
+  const value=+document.getElementById(sId).value,el=document.getElementById(nId);
+  el.dataset.raw=String(value);el.value=fmtInput(value);el.setAttribute('aria-invalid','false');
+}
 function onSlider(sId,nId){document.getElementById(nId).value=+document.getElementById(sId).value;}
 function onInput(nId,sId){const s=document.getElementById(sId),v=+document.getElementById(nId).value;if(!isNaN(v)&&v>0)s.value=Math.min(Math.max(v,+s.min),+s.max);}
-function getMoney(id){const el=document.getElementById(id),r=parseFloat(el.dataset.raw||el.value.replace(/[^0-9.]/g,''));return(isNaN(r)||r<=0)?0:Math.min(r,1e10);}
+function getMoney(id){const el=document.getElementById(id),r=parseFloat(el.dataset.raw||el.value.replace(/[^0-9.]/g,''));return Number.isFinite(r)&&r>0?r:NaN;}
 function getV(id){const v=+document.getElementById(id).value;return(isNaN(v)||v<=0)?0:v;}
 
 function countUp(id,to,pre='',dur=600){
   const el=document.getElementById(id);if(!el)return;
   if(timers[id])cancelAnimationFrame(timers[id]);
-  const t0=performance.now();
-  function tick(now){const p=Math.min((now-t0)/dur,1),e=1-Math.pow(1-p,3);el.textContent=pre+fmt(Math.round(to*e));if(p<1)timers[id]=requestAnimationFrame(tick);else el.textContent=pre+fmt(to);}
-  timers[id]=requestAnimationFrame(tick);
+  el.textContent=pre+formatProjectionMoney(to);
 }
 
 function setSlider(id,min,max,step,def,nId){
@@ -675,37 +699,108 @@ function makeChart(id,labels,p,tot){
   return chart;
 }
 
+// One calculation model supplies the summary, graph and detailed analysis.
+function projectInvestment(options) {
+  if(!options||typeof options!=='object')return {valid:false,error:'invalid_input'};
+  const mode=options.mode, amount=options.amount, annualRate=options.annualRate, years=options.years;
+  const invalid={valid:false,mode,error:'invalid_input'};
+  if(!['daily','monthly','lump','goal'].includes(mode) ||
+     ![amount,annualRate,years].every(Number.isFinite) || amount<=0 ||
+     annualRate<=-100 || !Number.isInteger(years) || years<1 || years>100) return invalid;
+  const parts=String(amount).toLowerCase().split('e');
+  const precision=Math.max(0,(parts[0].split('.')[1]||'').length-Number(parts[1]||0));
+  if(precision>12)return invalid;
+  const scale=Math.pow(10,precision);
+  function money(value){
+    if(!Number.isFinite(value)||Math.abs(value*scale)>Number.MAX_SAFE_INTEGER)return NaN;
+    const uncertainty=Number.EPSILON*Math.abs(value*scale)*Math.max(16,16*years*Math.abs(annualLog));
+    if(uncertainty>0.125)return NaN;
+    const scaled=Math.abs(value*scale),floor=Math.floor(scaled);
+    const halfTolerance=Math.min(1e-7,Number.EPSILON*Math.max(1,scaled)*4);
+    // Correct only binary floating-point noise at a half unit. Never add an
+    // epsilon unconditionally: that would move large, already-integer values.
+    const rounded=Number.isInteger(scaled)?scaled:
+      Math.abs(scaled-floor-0.5)<=halfTolerance?floor+1:Math.round(scaled);
+    return (value<0?-1:1)*rounded/scale;
+  }
+  const frequency=mode==='daily'?365:mode==='lump'?1:12;
+  const annualLog=Math.log1p(annualRate/100),periodLog=annualLog/frequency;
+  const periodRate=Math.expm1(periodLog);
+  function annuity(periods){
+    return periodRate===0?periods:Math.expm1(periods*periodLog)/periodRate*Math.exp(periodLog);
+  }
+  let contribution=amount,targetAmount=null;
+  if(mode==='goal'){
+    targetAmount=amount;
+    let required=amount/annuity(years*frequency);
+    const whole=Math.round(required),tolerance=Math.min(1e-7,Number.EPSILON*Math.max(1,Math.abs(required))*16);
+    if(whole>=1&&Math.abs(required-whole)<=tolerance)required=whole;
+    contribution=Math.ceil(required);
+  }
+  if(!Number.isFinite(contribution)||contribution<=0)return invalid;
+  const labels=[],principalSeries=[],totalSeries=[];
+  for(let year=1;year<=years;year++){
+    const principal=money(mode==='lump'?contribution:contribution*frequency*year);
+    const future=money(mode==='lump'?contribution*Math.exp(annualLog*year):contribution*annuity(frequency*year));
+    if(!Number.isFinite(principal)||!Number.isFinite(future))return invalid;
+    labels.push(year);principalSeries.push(principal);totalSeries.push(future);
+  }
+  const principal=principalSeries[principalSeries.length-1],finalAmount=totalSeries[totalSeries.length-1];
+  const gain=money(finalAmount-principal),annualContribution=money(mode==='lump'?contribution:contribution*frequency);
+  const estimatedTax=money(Math.max(0,gain)*0.20315),afterTaxEstimate=money(finalAmount-estimatedTax);
+  if(![gain,annualContribution,estimatedTax,afterTaxEstimate].every(Number.isFinite))return invalid;
+  return {valid:true,mode,amount,annualRate,years,precision,frequency,contribution,
+    principal,finalAmount,gain,annualContribution,estimatedTax,afterTaxEstimate,monthlyContribution:frequency===12?contribution:null,
+    targetAmount,labels,principalSeries,totalSeries};
+}
+function getProjectionInput(mode){
+  const prefix={daily:'d',monthly:'m',lump:'lp',goal:'g'}[mode];
+  const amountId=mode==='goal'?'g-target-n':prefix+'-amount-n';
+  function number(id){const value=String(document.getElementById(id).value).trim();return value===''?NaN:Number(value);}
+  return projectInvestment({mode,amount:getMoney(amountId),annualRate:number(prefix+'-rate-n'),years:number(prefix+'-years-n')});
+}
+function formatProjectionMoney(value){
+  if(!Number.isFinite(value))return '—';
+  const lang=window.currentLang;
+  if(lang==='ja')return fmtYen(value);
+  const number=value.toLocaleString(lang==='ko'?'ko-KR':lang==='zh'?'zh-CN':'en-US',{maximumFractionDigits:12});
+  return lang==='en'?'$'+number:lang==='ko'?number+'원':lang==='zh'?number+'元':number;
+}
+const simulatorResults=Object.create(null);
+window.__KN_SIMULATOR_RESULTS=simulatorResults;
+function presentProjection(mode){
+  const result=getProjectionInput(mode),prefix={daily:'d',monthly:'m',lump:'lp',goal:'g'}[mode];
+  simulatorResults[mode]=result;
+  const principalId=mode==='lump'?'lp-principal':prefix+'-total';
+  countUp(principalId,result.valid?result.principal:NaN);
+  countUp(prefix+'-gain',result.valid?result.gain:NaN,result.valid&&result.gain>0?'+':'');
+  if(mode==='goal')countUp('g-monthly',result.valid?result.monthlyContribution:NaN);
+  else countUp(prefix+'-final',result.valid?result.finalAmount:NaN);
+  if(typeof window.__knSimulatorAnalysis==='function')window.__knSimulatorAnalysis(mode,result);
+  return result;
+}
+function projectionChart(id,result){
+  return result.valid?makeChart(id,result.labels.map(fmtYr),result.principalSeries,result.totalSeries):null;
+}
 function calcD(){
-  const daily=getMoney('d-amount-n'),rate=getV('d-rate-n')/100/365,years=Math.round(getV('d-years-n'));
-  let labels=[],p=[],tot=[];
-  for(let y=1;y<=years;y++){const d=y*365,total=rate===0?daily*d:daily*((Math.pow(1+rate,d)-1)/rate)*(1+rate);labels.push(fmtYr(y));p.push(Math.round(daily*d));tot.push(Math.round(total));}
-  const ft=tot[tot.length-1]||0,ti=daily*years*365;
-  countUp('d-total',ti);countUp('d-gain',ft-ti,'+');countUp('d-final',ft);
-  if(chartD)chartD.destroy();chartD=makeChart('chart-d',labels,p,tot);
+  const result=presentProjection('daily');
+  if(chartD)chartD.destroy();chartD=projectionChart('chart-d',result);
+  return result;
 }
 function calcM(){
-  const monthly=getMoney('m-amount-n'),rate=getV('m-rate-n')/100/12,years=Math.round(getV('m-years-n')),months=years*12;
-  let labels=[],p=[],tot=[];
-  for(let y=1;y<=years;y++){const m=y*12,total=rate===0?monthly*m:monthly*((Math.pow(1+rate,m)-1)/rate)*(1+rate);labels.push(fmtYr(y));p.push(Math.round(monthly*m));tot.push(Math.round(total));}
-  const ft=tot[tot.length-1]||0,ti=monthly*months;
-  countUp('m-total',ti);countUp('m-gain',ft-ti,'+');countUp('m-final',ft);
-  if(chartM)chartM.destroy();chartM=makeChart('chart-m',labels,p,tot);
+  const result=presentProjection('monthly');
+  if(chartM)chartM.destroy();chartM=projectionChart('chart-m',result);
+  return result;
 }
 function calcL(){
-  const init=getMoney('lp-amount-n'),rate=getV('lp-rate-n')/100,years=Math.round(getV('lp-years-n'));
-  let labels=[],p=[],tot=[];
-  for(let y=1;y<=years;y++){labels.push(fmtYr(y));p.push(Math.round(init));tot.push(Math.round(init*Math.pow(1+rate,y)));}
-  const final=tot[tot.length-1]||0;
-  countUp('lp-principal',init);countUp('lp-gain',final-init,'+');countUp('lp-final',final);
-  if(chartL)chartL.destroy();chartL=makeChart('chart-l',labels,p,tot);
+  const result=presentProjection('lump');
+  if(chartL)chartL.destroy();chartL=projectionChart('chart-l',result);
+  return result;
 }
 function calcG(){
-  const target=getMoney('g-target-n'),ar=getV('g-rate-n')/100,years=Math.round(getV('g-years-n')),months=years*12,r=ar/12;
-  const monthly=r===0?target/months:target*r/((Math.pow(1+r,months)-1)*(1+r)),ti=monthly*months;
-  countUp('g-monthly',Math.ceil(monthly));countUp('g-total',ti);countUp('g-gain',target-ti,'+');
-  let labels=[],p=[],tot=[];
-  for(let y=1;y<=years;y++){const m=y*12,t=r===0?monthly*m:monthly*((Math.pow(1+r,m)-1)/r)*(1+r);labels.push(fmtYr(y));p.push(Math.round(monthly*m));tot.push(Math.round(t));}
-  if(chartG)chartG.destroy();chartG=makeChart('chart-g',labels,p,tot);
+  const result=presentProjection('goal');
+  if(chartG)chartG.destroy();chartG=projectionChart('chart-g',result);
+  return result;
 }
 
 // The async graph library may arrive before or after input initialization.
@@ -802,74 +897,62 @@ setTimeout(function(){document.querySelectorAll('input[type=range]').forEach(fun
     /* removed: unused kakeibo label init */
 </script>
 <script id="simulator-pro-enhance">(function(){
-  var TAX_RATE=0.20315;
-  var NISA_YEARLY_LIMIT=3600000;
-  var NISA_LIFETIME_LIMIT=18000000;
-  function fmtJPY(n){return window.currentLang==='ja'?fmtYen(Math.round(n)):'¥'+Math.round(n).toLocaleString();}
-  function getLang(){try{return localStorage.getItem('kk_lang')||localStorage.getItem('lang')||document.documentElement.lang||'ja';}catch(e){return 'ja';}}
-  var L={
-    ja:{title:'📈 詳細分析',gain:'運用益',taxed:'税引き後（特定口座 20.315%）',nisa:'NISA口座（非課税）',advantage:'NISAメリット',yearly_limit:'新NISA年間上限（360万円）',lifetime_limit:'生涯上限（1800万円）',within:'内で収まる',exceeds:'を超える',monthly_eq:'月積立換算'},
-    en:{title:'📈 Detailed analysis',gain:'Investment gain',taxed:'After-tax (taxable account 20.315%)',nisa:'NISA account (tax-free)',advantage:'NISA advantage',yearly_limit:'New NISA yearly limit (¥3.6M)',lifetime_limit:'Lifetime limit (¥18M)',within:'Within',exceeds:'Exceeds',monthly_eq:'Monthly equivalent'},
-    ko:{title:'📈 세부 분석',gain:'수익',taxed:'세후(과세계좌 20.315%)',nisa:'NISA 계좌(비과세)',advantage:'NISA 메릿',yearly_limit:'신NISA 연간 한도(¥360만)',lifetime_limit:'생애 한도(¥1800만)',within:'내 수용',exceeds:'초과',monthly_eq:'월 적립 환산'},
-    zh:{title:'📈 详细分析',gain:'收益',taxed:'税后（课税帐户 20.315%）',nisa:'NISA账户（免税）',advantage:'NISA优势',yearly_limit:'新NISA年度上限（¥360万）',lifetime_limit:'终身上限（¥1800万）',within:'以内',exceeds:'超过',monthly_eq:'月定投换算'}
+  'use strict';
+  var words={
+    ja:{title:'詳細分析',total:'総資産（税引前）',taxed:'税引後の目安',gain:'運用益',
+      conditions:'計算条件・税金とNISAの参考',invalid:'入力を確認してください。金額は正の数、年利は−100％より大きい値、期間は1〜100年の整数で指定してください。精度を保てない大きさや細かさの金額は計算しません。',
+      daily:'毎日の初めに積立・1年365回。',monthly:'毎月の初めに積立・1年12回。',lump:'初めに一括投資し、入力期間の終わりに評価。',goal:'毎月初めの積立。必要月額は1通貨単位で切り上げ、その月額を実際に積み立てた結果です。',
+      model:'年利は1年間の実効利回りです。日利・月利へ換算して複利計算し、手数料・インフレは含めません。金額は入力額と同じ小数桁で四捨五入します。一定利回りの試算で、将来の結果を保証しません。',
+      tax:'税引後は、正の運用益だけに20.315％を課し、最後に全額売却する概算です。税率を一定と仮定し、分配金の途中課税・損益通算・将来の制度変更は反映していません。',
+      firstYear:'1年目の購入額',annual:'成人NISAの年間総枠360万円と比較',purchases:'売却しない場合の期間購入額',holding:'成人NISAの非課税保有限度総額1800万円と比較',within:'総枠以内の参考値',over:'総枠を超える参考値',
+      nisa:'NISAは利用可否の判定ではありません。つみたて投資枠120万円／年・成長投資枠240万円／年と、成長投資枠の保有限度1200万円などは別条件です。未使用枠から始め、売却・枠の再利用なしで比較しています。',
+      source:'制度の出典',target:'入力した目標額'},
+    en:{title:'Detailed analysis',total:'Total assets before tax',taxed:'Estimated assets after tax',gain:'Investment gain',conditions:'Calculation assumptions',
+      invalid:'Check the inputs: a positive amount, annual return above −100%, and a whole number of years from 1 to 100. Amounts outside reliable numeric precision are not calculated.',
+      daily:'Contributions at the start of each day; 365 per year.',monthly:'Contributions at the start of each month; 12 per year.',lump:'Invest once at the start and value it at the end.',goal:'Start-of-month contributions. The required amount is rounded up to a whole currency unit; results use that actual amount.',
+      model:'The annual rate is an effective annual return, converted to daily or monthly compounding. Fees and inflation are excluded. Money is rounded to the input amount’s decimal precision. Constant-return projections are not guarantees.',target:'Entered target'},
+    ko:{title:'세부 분석',total:'세전 총자산',gain:'운용 수익',conditions:'계산 조건',invalid:'입력값을 확인하세요. 금액은 양수, 연 수익률은 −100% 초과, 기간은 1~100년의 정수여야 합니다. 정확도를 유지할 수 없는 금액은 계산하지 않습니다.',
+      daily:'매일 초 적립, 연 365회.',monthly:'매월 초 적립, 연 12회.',lump:'처음에 일시 투자하고 기간 말에 평가합니다.',goal:'매월 초 적립합니다. 필요 월액을 통화 1단위로 올림하여 실제 적립 결과를 계산합니다.',
+      model:'연 수익률은 유효 연 수익률이며 일별·월별 복리로 환산합니다. 수수료·물가상승은 제외하며 입력 금액과 같은 소수 자릿수로 반올림합니다. 일정 수익률의 가정이며 미래 성과를 보장하지 않습니다.',target:'입력 목표액'},
+    zh:{title:'详细分析',total:'税前总资产',gain:'投资收益',conditions:'计算条件',invalid:'请检查输入：金额为正数，年收益率大于−100%，期限为1至100年的整数。超出可靠精度的金额不予计算。',
+      daily:'每天期初定投，每年365次。',monthly:'每月期初定投，每年12次。',lump:'期初一次投入，期末估值。',goal:'每月期初定投，所需月额向上取整至1货币单位，并按此实际金额计算。',
+      model:'年利率为有效年收益率，换算为日或月复利。不含费用和通胀，按输入金额的小数位数四舍五入。恒定收益率假设并非未来收益保证。',target:'输入目标额'}
   };
-  function tt(k){var d=L[getLang()]||L.ja;return d[k]||L.ja[k]||k;}
-  function buildAnalysisBox(principal,finalAmount,years){
-    var gain=Math.max(0,finalAmount-principal);
-    var tax=gain*TAX_RATE;
-    var afterTax=finalAmount-tax;
-    var nisaAdvantage=tax;
-    var withinYearly=principal<=NISA_YEARLY_LIMIT;
-    var withinLifetime=principal<=NISA_LIFETIME_LIMIT;
-    var monthlyEq=years>0?(principal/(years*12)):0;
-    return '<div class="sim-analysis" style="margin-top:14px;padding:14px;background:linear-gradient(135deg,rgba(61,160,96,.08),rgba(52,152,219,.08));border-radius:12px;border:1px solid rgba(61,160,96,.25);font-size:13px;line-height:1.7;">'+
-      '<div class="sim-analysis-title" style="font-weight:700;color:#2d4a2d;margin-bottom:8px;font-size:14px;">'+tt('title')+'</div>'+
-      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+
-      '<div>💰 '+tt('gain')+':<br><b class="sim-analysis-value" style="color:#3da060;">'+fmtJPY(gain)+'</b></div>'+
-      '<div>🏦 '+tt('taxed')+':<br><b class="sim-analysis-value" style="color:#e67e22;">'+fmtJPY(afterTax)+'</b></div>'+
-      '<div>🌸 '+tt('nisa')+':<br><b class="sim-analysis-value" style="color:#3498db;">'+fmtJPY(finalAmount)+'</b></div>'+
-      '<div>✨ '+tt('advantage')+':<br><b class="sim-analysis-value" style="color:#9b59b6;">+'+fmtJPY(nisaAdvantage)+'</b></div>'+
-      '</div>'+
-      '<div class="sim-analysis-checks" style="margin-top:10px;padding-top:10px;border-top:1px dashed rgba(0,0,0,.1);font-size:12px;color:#555;">'+
-      '<div>'+tt('yearly_limit')+': '+(withinYearly?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
-      '<div>'+tt('lifetime_limit')+': '+(withinLifetime?'✅ '+tt('within'):'⚠️ '+tt('exceeds'))+'</div>'+
-      (monthlyEq>0?'<div>'+tt('monthly_eq')+': <span class="sim-analysis-value">'+fmtJPY(monthlyEq)+'/m</span></div>':'')+
-      '</div></div>';
+  function language(){return words[window.currentLang]||words.ja;}
+  function value(label,amount,key){
+    return '<div>'+label+'<br><b class="sim-analysis-value" data-sim-analysis-value="'+key+'" style="color:#1b5e20;">'+formatProjectionMoney(amount)+'</b></div>';
   }
-  function getTabValues(tabId){var tab=document.getElementById(tabId);if(!tab)return null;var ranges=tab.querySelectorAll('input[type="range"]');var vals=[];ranges.forEach(function(r){vals.push(parseFloat(r.value)||0);});return vals;}
-  function injectAnalysis(){
-    try{
-      var charts=[{k:'d',tab:'tab-daily',mode:'daily'},{k:'m',tab:'tab-monthly',mode:'monthly'},{k:'l',tab:'tab-lump',mode:'lump'},{k:'g',tab:'tab-goal',mode:'goal'}];
-      charts.forEach(function(item){var k=item.k;
-        var canvas=document.getElementById('chart-'+k);
-        if(!canvas)return;
-        var chart=canvas.parentElement;
-        var existingBox=chart.parentElement.querySelector('.sim-pro-box-'+k);
-        var inputs=[];
-        var values=getTabValues(item.tab)||[];
-        if(values.length<2)return;
-        var principal=values[0]||0;
-        var rate=(values[1]||0)/100;
-        var years=values[2]||1;
-        if(principal<=0||years<=0)return;
-        var finalAmt=principal*Math.pow(1+rate,years);
-        if(k==='m'||k==='d'){var monthly=values[0]||0;var periods=(k==='m'?years*12:years*365);var rp=(k==='m'?rate/12:rate/365);finalAmt=monthly*((Math.pow(1+rp,periods)-1)/rp);principal=monthly*periods;}
-        var html=buildAnalysisBox(principal,finalAmt,years);
-        if(existingBox){existingBox.innerHTML=html;}else{var box=document.createElement('div');box.className='sim-pro-box-'+k;box.innerHTML=html;chart.parentElement.appendChild(box);}
-      });
-    }catch(e){console.warn('sim-pro err',e);}
+  function markup(result){
+    var text=language(),title='<div class="sim-analysis-title" style="font-weight:700;margin-bottom:8px;">'+text.title+'</div>';
+    if(!result.valid)return '<div class="sim-analysis" role="status">'+title+'<p>'+text.invalid+'</p></div>';
+    var japanese=window.currentLang==='ja';
+    var afterTax=japanese?result.afterTaxEstimate:null;
+    var body=value(text.total,result.finalAmount,'final')+(japanese?value(text.taxed,afterTax,'after-tax'):value(text.gain,result.gain,'gain'));
+    var note='<p>'+text[result.mode]+' '+text.model+'</p>';
+    if(result.mode==='goal')note+='<p>'+text.target+': '+formatProjectionMoney(result.targetAmount)+'</p>';
+    if(japanese){
+      note+='<p>'+text.tax+'</p>';
+      note+='<p>'+text.firstYear+': '+formatProjectionMoney(result.annualContribution)+' — '+text.annual+'（'+(result.annualContribution<=3600000?text.within:text.over)+'）</p>';
+      note+='<p>'+text.purchases+': '+formatProjectionMoney(result.principal)+' — '+text.holding+'（'+(result.principal<=18000000?text.within:text.over)+'）</p>';
+      note+='<p>'+text.nisa+'</p><p>'+text.source+': <a href="https://www.fsa.go.jp/policy/nisa2/know/index.html" target="_blank" rel="noopener noreferrer">金融庁 NISA</a> / <a href="https://www.nta.go.jp/taxes/shiraberu/taxanswer/shotoku/1463.htm" target="_blank" rel="noopener noreferrer">国税庁 株式等の譲渡所得</a></p>';
+    }
+    return '<div class="sim-analysis" style="margin-top:14px;padding:14px;border-radius:12px;border:1px solid var(--sim-line);font-size:13px;line-height:1.7;">'+title+
+      '<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">'+body+'</div>'+
+      '<details class="sim-analysis-checks" style="margin-top:10px;padding-top:10px;border-top:1px dashed var(--sim-line);"><summary>'+text.conditions+'</summary>'+note+'</details></div>';
   }
-  function hookCalc(){
-    ['calcD','calcM','calcL','calcG'].forEach(function(fn){
-      if(typeof window[fn]==='function' && !window['_orig_'+fn]){
-        window['_orig_'+fn]=window[fn];
-        window[fn]=function(){try{window['_orig_'+fn].apply(this,arguments);}catch(e){}setTimeout(injectAnalysis,200);};
-      }
-    });
-    setTimeout(injectAnalysis,500);
-  }
-  function init(){if(typeof window.calcD==='function'){hookCalc();}else{setTimeout(init,500);}}
-  if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{setTimeout(init,300);}
+  window.__knSimulatorAnalysis=function(mode,result){
+    var key={daily:'d',monthly:'m',lump:'l',goal:'g'}[mode];
+    var canvas=document.getElementById('chart-'+key);
+    if(!canvas||!canvas.parentElement||!canvas.parentElement.parentElement)return;
+    var parent=canvas.parentElement.parentElement;
+    var box=parent.querySelector('.sim-pro-box-'+key);
+    if(!box){box=document.createElement('div');box.className='sim-pro-box-'+key;parent.appendChild(box);}
+    box.innerHTML=markup(result);
+  };
+  ['daily','monthly','lump','goal'].forEach(function(mode){
+    if(window.__KN_SIMULATOR_RESULTS&&window.__KN_SIMULATOR_RESULTS[mode])
+      window.__knSimulatorAnalysis(mode,window.__KN_SIMULATOR_RESULTS[mode]);
+  });
 })();</script>
     
 <script id="simLangSync">
