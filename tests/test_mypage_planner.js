@@ -263,7 +263,7 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     w.document.createTextNode=text=>{const n=new Element('#text');n.nodeType=3;n.textContent=text;Object.defineProperty(n,'nodeValue',{get(){return n.textContent;},set(value){n.textContent=value;}});return n;};
     w.document.createRange=()=>({setStart(n,i){this.startContainer=n;this.startOffset=i;},setEnd(n,i){this.endContainer=n;this.endOffset=i;}});
   }
-  const lookup=text=>page.querySelectorAll('button').find(n=>n.textContent===text);
+  const lookup=text=>page.querySelectorAll('button').find(n=>n.textContent===text||n.getAttribute('aria-label')===text);
   planner.mount(w);
   return {w,page,body,bridge,saves,stages,documentEvents,documentOptions,childEvents,lookup,flushTimers,intervals,
     showPage(){pagePresent=true;},
@@ -322,13 +322,13 @@ test('loading documents still wait for one DOMContentLoaded while complete docum
 test('a successful private restore notification enables a cold planner before its 1500ms fallback',async()=>{
   const raw=encode({notes:[note({body:'復元された架空のメモ'})]});
   const h=controller({raw,ready:false});await settle();const frame=h.frame;
-  assert.equal(h.loads,0);assert.equal(h.lookup('メモを追加').disabled,true);
+  assert.equal(h.loads,0);assert.equal(h.lookup('新しいメモを書く').disabled,true);
   assert.deepEqual(h.intervals.map(timer=>timer.ms),[1500]);
   assert.equal(Object.keys(h.childEvents).length,0,'the cold child has not been subscribed yet');
   h.frame.contentWindow.knLedgerSession={user:{id:'owner-A'}};
   h.recordsReady();await settle();
   assert.equal(h.elapsed,0,'no polling timer has advanced');assert.equal(h.loads,1);
-  assert.equal(h.status,'');assert.equal(h.lookup('メモを追加').disabled,false);
+  assert.equal(h.status,'');assert.equal(h.lookup('新しいメモを書く').disabled,false);
   assert.equal(h.memo.value,'復元された架空のメモ');assert.equal(h.frame,frame);
   assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
 });
@@ -338,20 +338,20 @@ test('private restore notifications reject foreign origins, unrelated or replace
   const oldFrame=h.frame,oldSource=oldFrame.contentWindow;
   oldSource.knLedgerSession={user:{id:'owner-A'}};
   for(const event of [{origin:'https://foreign.fixture.test'},{source:{}},{data:{type:'kn-kakeibo-ready'}},{data:null}])h.recordsReady(event);
-  await settle();assert.equal(h.loads,0);assert.equal(h.lookup('メモを追加').disabled,true);
+  await settle();assert.equal(h.loads,0);assert.equal(h.lookup('新しいメモを書く').disabled,true);
   const frame=h.replaceFrame();assert.notEqual(frame,oldFrame);assert.equal(oldFrame.parentNode,null);
   h.recordsReady({source:oldSource});await settle();
   assert.equal(h.loads,0,'a detached frame cannot trigger a read for the replacement');
-  h.recordsReady();await settle();assert.equal(h.loads,1);assert.equal(h.lookup('メモを追加').disabled,false);
+  h.recordsReady();await settle();assert.equal(h.loads,1);assert.equal(h.lookup('新しいメモを書く').disabled,false);
 });
 
 test('a restore notification cannot bypass missing identity or turn a failed restore into editable empty records',async()=>{
   const raw=encode({notes:[note({body:'失敗時にも保持する架空の記録'})]});
   const h=controller({raw,ready:false,restoreOK:false});await settle();
-  h.recordsReady();await settle();assert.equal(h.loads,0);assert.equal(h.lookup('メモを追加').disabled,true);
+  h.recordsReady();await settle();assert.equal(h.loads,0);assert.equal(h.lookup('新しいメモを書く').disabled,true);
   h.frame.contentWindow.knLedgerSession={user:{id:'owner-A'}};
   h.recordsReady();await settle();
-  assert.equal(h.loads,1);assert.equal(h.lookup('メモを追加').disabled,true);assert.equal(h.lookup('目標を追加').disabled,true);
+  assert.equal(h.loads,1);assert.equal(h.lookup('新しいメモを書く').disabled,true);assert.equal(h.lookup('目標を追加').disabled,true);
   assert.match(h.status,/空の記録では上書きしません/);assert.equal(h.raw,raw);
   assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
 });
@@ -363,7 +363,7 @@ test('a restore notification from a previous owner cannot reveal that owner afte
   assert.equal(h.loads,loads);assert.equal(h.memo.value,'');assert.equal(h.memo.disabled,true);
   assert.doesNotMatch(h.page.textContent,/owner-A だけ/);
   h.auth(null);await settle();h.recordsReady();await settle();
-  assert.equal(h.loads,loads);assert.equal(h.memo.value,'');assert.equal(h.lookup('メモを追加').disabled,true);
+  assert.equal(h.loads,loads);assert.equal(h.memo.value,'');assert.equal(h.lookup('新しいメモを書く').disabled,true);
 });
 
 test('restore notifications preserve a pending local draft, its save and the same private frame',async()=>{
@@ -381,7 +381,7 @@ test('restore notifications preserve a pending local draft, its save and the sam
 
 test('every keystroke is staged while an earlier cloud save is pending', async () => {
   const h=controller();await settle();
-  h.lookup('メモを追加').click();
+  h.lookup('新しいメモを書く').click();
   h.type(h.memo,'最初\n');
   assert.equal(h.saves.length,0,'local staging does not immediately start a cloud save');
   h.flushTimers();
@@ -399,7 +399,7 @@ test('every keystroke is staged while an earlier cloud save is pending', async (
 });
 
 test('many keystrokes stage every latest character but share one cloud save after 1500 idle milliseconds', async () => {
-  const h=controller({autoSave:true});await settle();h.lookup('メモを追加').click();
+  const h=controller({autoSave:true});await settle();h.lookup('新しいメモを書く').click();
   const before=h.stages.length,values=[];
   for(let i=1;i<=10;i++){
     const value='自由なメモ'.repeat(i);values.push(value);h.type(h.memo,value);
@@ -416,7 +416,7 @@ test('many keystrokes stage every latest character but share one cloud save afte
 
 test('same-owner token refresh retains a locally failed draft and never claims success', async () => {
   const h=controller({stageOK:false});await settle();
-  h.lookup('メモを追加').click();h.type(h.memo,'ローカル保存失敗でも保持する本文');
+  h.lookup('新しいメモを書く').click();h.type(h.memo,'ローカル保存失敗でも保持する本文');
   h.auth({id:'owner-A'});await settle();
   assert.equal(h.memo.value,'ローカル保存失敗でも保持する本文');
   assert.equal(h.saves.length,0);
@@ -425,15 +425,15 @@ test('same-owner token refresh retains a locally failed draft and never claims s
 
 test('an invalid stored document stays read-only and cannot be overwritten by an empty planner', async () => {
   const h=controller({raw:'{"version":2,"notes":[]}'});await settle();
-  assert.equal(h.lookup('メモを追加').disabled,true);
-  h.lookup('メモを追加').click();
+  assert.equal(h.lookup('新しいメモを書く').disabled,true);
+  h.lookup('新しいメモを書く').click();
   assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);
   assert.equal(h.raw,'{"version":2,"notes":[]}');
   assert.match(h.status,/空の記録では上書きしません/);
 });
 
 test('signing out clears the editor and an older save completion cannot reveal private text', async () => {
-  const h=controller();await settle();h.lookup('メモを追加').click();h.type(h.memo,'owner-A の架空本文');
+  const h=controller();await settle();h.lookup('新しいメモを書く').click();h.type(h.memo,'owner-A の架空本文');
   h.flushTimers();
   h.auth(null);await settle();
   assert.equal(h.memo.value,'');assert.equal(h.memo.disabled,true);
@@ -443,7 +443,7 @@ test('signing out clears the editor and an older save completion cannot reveal p
 });
 
 test('signout cancels a not-yet-started owner cloud save while keeping staged bytes', async () => {
-  const h=controller();await settle();h.lookup('メモを追加').click();h.type(h.memo,'owner-A の端末保存途中');
+  const h=controller();await settle();h.lookup('新しいメモを書く').click();h.type(h.memo,'owner-A の端末保存途中');
   const staged=h.raw;h.auth(null);await settle();h.flushTimers(3000);await settle();
   assert.equal(h.raw,staged);assert.equal(h.saves.length,0);assert.equal(h.memo.value,'');
 });
@@ -473,10 +473,10 @@ test('a later unsupported restore cannot be overwritten through an older valid e
   h.auth({id:'owner-A'});await settle();
   assert.equal(h.memo.value,'最後に確認できた本文','keep the last confirmed text visible');
   assert.equal(h.memo.disabled,true,'failed newer restore must make the old document read-only');
-  assert.equal(h.lookup('メモを追加').disabled,true);
+  assert.equal(h.lookup('新しいメモを書く').disabled,true);
   assert.equal(h.lookup('目標を追加').disabled,true,'goal actions must also respect the failed restore');
   h.lookup('目標を追加').click();
-  h.lookup('メモを追加').click();
+  h.lookup('新しいメモを書く').click();
   assert.equal(h.stages.length,0);
   h.bridge.load=async()=>({raw:original,assetsRaw:null});h.lookup('再試行').click();await settle();
   assert.equal(h.memo.disabled,false,'successful explicit restore allows editing again');
@@ -703,7 +703,7 @@ test('an old owner pin cannot stage or save after the next owner restores the sa
 test('new notes clear search and start ungrouped while historical folders and member notes remain saved',async()=>{
   const h=controller({raw:encode({groups:[{id:'g',name:'旅のフォルダ'}],notes:[note({groupId:'g',body:'既存の本文'})]})});await settle();
   h.type(h.page.querySelector('.mp-note-search'),'見つからない言葉');
-  h.lookup('メモを追加').click();
+  h.lookup('新しいメモを書く').click();
   const saved=JSON.parse(h.raw);
   assert.equal(saved.notes.length,2);assert.equal(saved.notes[0].body,'既存の本文');
   assert.equal(saved.notes[0].groupId,'g');assert.equal(saved.notes[1].groupId,'');
@@ -738,7 +738,7 @@ test('confirmed notes remain readable after a failed newer restore without enabl
   picks[1].click();
   assert.equal(h.page.querySelector('.mp-note-editor').hidden,false);assert.equal(h.memo.value,'確認済み本文B');
   assert.equal(h.memo.disabled,true);assert.equal(h.lookup('このメモを削除').disabled,true);
-  assert.equal(h.lookup('メモを追加').disabled,true);
+  assert.equal(h.lookup('新しいメモを書く').disabled,true);
   assert.equal(h.lookup('メモ一覧').disabled,false);h.lookup('メモ一覧').click();
   assert.equal(h.page.querySelector('.mp-note-library').hidden,false);
   assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.raw,raw);

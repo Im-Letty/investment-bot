@@ -335,9 +335,9 @@
       panes[3].classList.add('mp-notebook');
       noteLibrary=el('section','mp-note-library');panes[3].appendChild(noteLibrary);
       var notesHead=el('div','mp-note-head');noteHeading=el('h2','mp-heading','メモ');noteHeading.tabIndex=-1;notesHead.appendChild(noteHeading);
-      var compose=button('メモを追加',function(){
+      var compose=button('',function(){
         if(!notesEditable())return;var n={id:id(),title:'',body:'',groupId:''};doc.notes.push(n);doc.selectedNoteId=n.id;viewNoteId=n.id;search='';noteFind.value='';notesEditing=true;renderNotes();changed();if(noteRich)noteRich.focus();else noteBody.focus();
-      },'mp-note-compose');compose.setAttribute('aria-label','新しいメモを書く');notesHead.appendChild(compose);noteLibrary.appendChild(notesHead);
+      },'mp-note-compose');compose.setAttribute('aria-label','新しいメモを書く');compose.title='新しいメモを書く';notesHead.appendChild(compose);noteLibrary.appendChild(notesHead);
       noteFind=el('input','mp-note-search');noteFind.type='search';noteFind.placeholder='検索';noteFind.setAttribute('aria-label','メモを検索');
       noteFind.addEventListener('input',function(){if(!notesReadable())return;search=noteFind.value;renderNotes(true);});noteLibrary.appendChild(noteFind);
       noteList=el('nav','mp-notes');noteList.setAttribute('aria-label','メモ一覧');noteLibrary.appendChild(noteList);
