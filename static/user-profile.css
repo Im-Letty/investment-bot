@@ -22,8 +22,12 @@
 #sideDrawer.kn-menu-a :is(.kn-profile-album-button,.kn-profile-photo-reset):focus-visible{outline:2px solid var(--kn-a-button);outline-offset:2px}
 #sideDrawer.kn-menu-a :is(.kn-profile-album-button,.kn-profile-photo-reset):disabled{opacity:.6;cursor:wait}
 #sideDrawer.kn-menu-a .kn-profile-photo-input[hidden]{display:none}
-#sideDrawer.kn-menu-a .kn-profile-name{min-width:0;overflow-wrap:anywhere}
+#sideDrawer.kn-menu-a .kn-profile-heading{display:grid;gap:2px;min-width:0}
+#sideDrawer.kn-menu-a .kn-profile-label{font-weight:600}
+#sideDrawer.kn-menu-a .kn-profile-name{min-width:0;overflow-wrap:anywhere;color:var(--kn-a-muted);font-size:calc(13px * var(--kn-a-scale,1))}
+#sideDrawer.kn-menu-a .kn-profile-name[hidden]{display:none}
 #sideDrawer.kn-menu-a .kn-profile-form{display:grid;gap:14px;padding:4px 0 15px;margin:0;color:var(--kn-a-ink);font:400 calc(14px * var(--kn-a-scale,1))/1.6 var(--kn-a-sans)}
+#sideDrawer.kn-menu-a .kn-profile-form[hidden],#sideDrawer.kn-menu-a .kn-profile:not([open])>.kn-profile-form{display:none}
 #sideDrawer.kn-menu-a .kn-profile-field{display:grid;gap:6px;margin:0;font-size:calc(13px * var(--kn-a-scale,1));color:var(--kn-a-muted)}
 #sideDrawer.kn-menu-a .kn-profile-field :is(input,textarea,select){box-sizing:border-box;width:100%;min-width:0;min-height:44px;padding:10px 11px;border:1px solid var(--kn-a-line);border-radius:8px;background:var(--kn-a-paper);color:var(--kn-a-ink);font:400 max(16px,calc(15px * var(--kn-a-scale,1)))/1.5 var(--kn-a-sans)}
 #sideDrawer.kn-menu-a .kn-profile-field textarea{resize:vertical;max-height:240px}
