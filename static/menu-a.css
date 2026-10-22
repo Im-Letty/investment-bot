@@ -1,7 +1,7 @@
 /* Selected compact bottom menu, using the current reading theme. */
 #sideDrawer #knSavedMenu{display:none!important;}
-body.kn-home-a #sideDrawer.kn-menu-a{box-sizing:border-box;width:min(440px,100vw);left:50%;right:auto;top:auto;bottom:0;transform:translate(-50%,calc(100% + 20px));height:auto;max-height:calc(100vh - 16px);max-height:calc(100dvh - max(16px,env(safe-area-inset-top)));display:flex;flex-direction:column;padding:0;overflow:hidden;border:1px solid var(--kn-a-line);border-bottom:0;border-radius:28px 28px 0 0;transition:transform .25s ease;box-shadow:0 -10px 36px #24352d20;font-family:var(--kn-a-sans);}
-body.kn-home-a #sideDrawer.kn-menu-a.open{left:50%;transform:translate(-50%,0)}
+body.kn-home-a #sideDrawer.kn-menu-a{box-sizing:border-box;width:min(440px,100vw);left:0;right:auto;top:auto;bottom:0;transform:translateX(-105%);height:auto;max-height:calc(100vh - 16px);max-height:calc(100dvh - max(16px,env(safe-area-inset-top)));display:flex;flex-direction:column;padding:0;overflow:hidden;border:1px solid var(--kn-a-line);border-bottom:0;border-radius:28px 28px 0 0;transition:transform .25s ease;box-shadow:0 -10px 36px #24352d20;font-family:var(--kn-a-sans);}
+body.kn-home-a #sideDrawer.kn-menu-a.open{left:0;transform:translateX(0)}
 #sideDrawer.kn-menu-a [hidden]{display:none!important}
 #sideDrawer.kn-menu-a .kn-menu-header{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:12px;flex:none;min-height:56px;padding:12px 15px 0;color:var(--kn-a-ink);}
 #sideDrawer.kn-menu-a .kn-menu-header:before{content:"";position:absolute;top:10px;left:calc(50% - 18px);width:36px;height:4px;border-radius:4px;background:var(--kn-a-line);}
