@@ -1393,7 +1393,7 @@
     var editing = villageEdit, layout = editing ? editing.draft : core().getVillageLayout(s);
     var village = card('', 'ipg-village' + (editing ? ' ipg-village-editor' : ''));
     function editorActive() { return !!editing && villageEdit === editing && !busy && !suspended && village.isConnected; }
-    append(village, node('p', 'ipg-eyebrow', 'カフェとお店の村'), node('h3', '', editing ? '村の配置を変える' : '今日は、どこへ行こう？'));
+    append(village, node('h3', '', editing ? '村の配置を変える' : '今日は、どこへ行こう？'));
     var map = node('div', 'ipg-village-map'); map.setAttribute('role', 'group'); map.setAttribute('aria-label', 'カフェとお店の村');
     map.appendChild(node('span', 'ipg-village-path'));
     var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-items-v1/tree.webp', flowers: 'pet-items-v1/flower.webp' };
@@ -1862,7 +1862,7 @@
     append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', tab === 'village' ? 'カフェとお店の村' : 'そだてる')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);
-    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
+    var status = node('p', 'ipg-notice' + (failure ? ' ipg-error' : ''), failure || notice || (tab === 'care' || tab === 'village' ? '' : 'おかえりなさい。今日は何をして過ごそう？'));
     status.setAttribute('role', failure ? 'alert' : 'status'); status.setAttribute('aria-live', failure ? 'assertive' : 'polite');
     root.appendChild(status);
     if (s.error && !failure) root.appendChild(text(s.error.message || '記録の読み込みに確認が必要です。', 'ipg-error'));
