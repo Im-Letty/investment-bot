@@ -105,7 +105,7 @@
     // inputs when switching tabs. Authentication changes destroy it below.
   }
   function openAssets() {
-    pendingAssets=true;
+    pendingGoals=false;pendingAssets=true;
     var card=document.getElementById('myPageCard');if(card)card.click();
     if(!page.classList.contains('open')||!account())return false;
     pendingAssets=false;
@@ -114,7 +114,7 @@
     return true;
   }
   function openGoals() {
-    pendingGoals=true;
+    pendingAssets=false;pendingGoals=true;
     var card=document.getElementById('myPageCard');if(card)card.click();
     if(!page.classList.contains('open')||!account())return false;
     var goal=tabs.querySelectorAll('.mo-tab')[1];if(!goal)return false;

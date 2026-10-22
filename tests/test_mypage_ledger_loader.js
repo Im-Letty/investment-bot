@@ -255,3 +255,8 @@ test('standalone goal deep links wait for normal authorization and then select t
   const h=fixture(null,{allowAnonymous:true,search:'?mypage=goals'});assert.equal(h.page.classList.contains('open'),false);assert.deepEqual(h.navigations,[]);
   h.auth({id:'guest-A',is_anonymous:true});assert.equal(h.page.classList.contains('open'),true);assert.equal(h.tabs.children[1].classList.contains('on'),true);assert.equal(h.page.getAttribute('data-mp-view'),'personal');assert.deepEqual(h.navigations,['/kakeibo']);
 });
+
+test('the latest authorized pending portfolio or goal entry wins after sign-in',()=>{
+ const goals=fixture(null);assert.equal(goals.context.knOpenAssets(),false);assert.equal(goals.context.knOpenGoals(),false);goals.auth({id:'account-A'});assert.equal(goals.tabs.children[1].classList.contains('on'),true);assert.equal(goals.page.getAttribute('data-mp-view'),'personal');
+ const assets=fixture(null);assert.equal(assets.context.knOpenGoals(),false);assert.equal(assets.context.knOpenAssets(),false);assets.auth({id:'account-A'});assert.equal(assets.tabs.children[0].classList.contains('on'),true);assert.equal(assets.page.getAttribute('data-mp-view'),'assets');
+});

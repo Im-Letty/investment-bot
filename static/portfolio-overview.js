@@ -65,6 +65,13 @@
     if(under&&ratio>99.9)return '99.9%';
     return ratio.toLocaleString('ja-JP',{maximumFractionDigits:1})+'%';
   }
+  function errorMessage(error){
+    var text=error&&error.message;
+    var known=['金額を数字で入力してください。','金額を確認してください。','資産名と種類を入力してください。','基準日を確認してください。','入力は80文字以内にしてください。','非公開接続を確認してから、もう一度お試しください。','アカウントが切り替わりました。','資産の内容が更新されています。入力内容は残しています。閉じて開き直して確認してください。','非公開接続を確認してください。','資産の内容が更新されています。再読み込みしてください。','資産が見つかりません。'];
+    if(known.indexOf(text)>=0)return text;
+    if(text==='assets_invalid'||text==='asset_changed')return '資産の内容を確認してください。入力内容は残しています。';
+    return '保存できませんでした。入力内容は残しています。もう一度お試しください。';
+  }
   function createSession(options){
     var owner='',serial=0,generation=0,raw,model=null,ready=false,goalValue=null,goalError=false,error='';
     function current(){return !!owner&&owner===options.owner();}
@@ -134,7 +141,7 @@
       m.rows.forEach(function(a,index){var row=node('div','po-holding'),edit=node('button','po-asset');edit.type='button';edit.setAttribute('aria-label',(a.name||'名称未設定')+'の詳細を編集');
         var left=node('span','po-asset-main');left.appendChild(node('span','po-asset-name',typeof a.name==='string'?a.name:'名称未設定'));left.appendChild(node('span','po-asset-meta',(typeof a.cat==='string'&&a.cat?a.cat:'未分類')+(!cash(a)&&typeof a.account==='string'&&a.account?' · '+a.account:'')));edit.appendChild(left);
         var right=node('span','po-asset-values');right.appendChild(node('strong','',money(a.amount)));if(!cash(a)){var pnl=knownCost(a)?decimalText([a.amount,-a.cost]):null,pnlSign=pnl===null||pnl==='0'?0:pnl[0]==='-'?-1:1;right.appendChild(node('small',pnlSign>0?'po-up':pnlSign<0?'po-down':'po-muted',pnl===null?'損益 —':(pnlSign>0?'＋':pnlSign<0?'−':'')+money(pnlSign<0?pnl.slice(1):pnl)));}edit.appendChild(right);edit.addEventListener('click',function(){open(index);});row.appendChild(edit);
-        var del=node('button','po-delete','削除');del.type='button';del.setAttribute('aria-label',(a.name||'名称未設定')+'を削除');del.addEventListener('click',async function(){if(busy||!w.confirm('この資産を削除しますか？'))return;var who=owner();busy=true;try{await session.remove(index,s.raw);if(who===owner()){close();status('この端末から削除しました。',false);}}catch(e){if(who===owner())status(e.message,true);}finally{busy=false;doc.getElementById('poFieldset').disabled=!session.state().ready;}});row.appendChild(del);list.appendChild(row);
+        var del=node('button','po-delete','削除');del.type='button';del.setAttribute('aria-label',(a.name||'名称未設定')+'を削除');del.addEventListener('click',async function(){if(busy||!w.confirm('この資産を削除しますか？'))return;var who=owner();busy=true;try{await session.remove(index,s.raw);if(who===owner()){close();status('この端末から削除しました。',false);}}catch(e){if(who===owner())status(errorMessage(e),true);}finally{busy=false;doc.getElementById('poFieldset').disabled=!session.state().ready;}});row.appendChild(del);list.appendChild(row);
       });
       paintGoal(s);
     }
@@ -155,7 +162,7 @@
       doc.getElementById('poEditorTitle').textContent=index===null?'資産を追加':'資産の詳細';doc.getElementById('poSaveButton').textContent=index===null?'追加する':'変更を保存';doc.getElementById('poEditorError').textContent='';dirty=false;editedFields=Object.create(null);form.hidden=false;fields.name.focus();form.scrollIntoView({block:'nearest',behavior:'auto'});
     }
     async function save(){if(busy)return false;var s=session.state();if(form.hidden){open(null);return false;}if(editorOwner!==owner()||!s.ready)return false;
-      var who=editorOwner,base=editorRaw;busy=true;doc.getElementById('poFieldset').disabled=true;try{var draft=fieldValues();await session.save(editorIndex,draft,editorRaw);if(who!==owner()||editorOwner!==who||editorRaw!==base)return false;close();status('この端末に保存しました。',false);return true;}catch(e){if(who===owner()&&editorOwner===who)doc.getElementById('poEditorError').textContent=e.message;return false;}finally{busy=false;doc.getElementById('poFieldset').disabled=!session.state().ready;}
+      var who=editorOwner,base=editorRaw;busy=true;doc.getElementById('poFieldset').disabled=true;try{var draft=fieldValues();await session.save(editorIndex,draft,editorRaw);if(who!==owner()||editorOwner!==who||editorRaw!==base)return false;close();status('この端末に保存しました。',false);return true;}catch(e){if(who===owner()&&editorOwner===who)doc.getElementById('poEditorError').textContent=errorMessage(e);return false;}finally{busy=false;doc.getElementById('poFieldset').disabled=!session.state().ready;}
     }
     function openGoals(){try{if(w.parent!==w&&owner()&&w.parent.location.origin===w.location.origin){var frame=w.parent.document.querySelector('#myPageOv .kb-frame');if(frame&&frame.contentWindow===w){var tabs=w.parent.document.querySelectorAll('#myPageOv .mo-tabs .mo-tab');if(tabs[1]){tabs[1].click();return;}}}}catch(ignore){}w.location.href='/?mypage=goals';}
     function build(){pane=doc.getElementById('tab-assets');form=doc.getElementById('poEditor');if(!pane||!form)return;

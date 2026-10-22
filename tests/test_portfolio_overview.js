@@ -132,3 +132,11 @@ test('DOM fieldset stays disabled and no saved values are fabricated if restorat
 test('deleting an offsetting valuation rejects a nonfinite planned total before touching storage',async()=>{
  const h=fixture([{id:1,amount:1e308},{id:2,amount:1e308},{id:3,amount:-1e308}]);await h.session.refresh();const before=h.getRaw();assert.equal(h.session.state().ready,true);await assert.rejects(h.session.remove(2,before));assert.equal(h.getRaw(),before);assert.equal(h.writes.length,0);assert.equal(h.session.state().ready,true);
 });
+
+test('DOM save errors keep the draft and show fixed Japanese copy while known field validation stays specific',async()=>{
+ const h=domFixture();await h.flush();const before=h.getRaw();h.add.click();h.input('name','保存前の下書き');h.input('amount','１．５');h.nodes.get('ast-cat').value='現金';
+ h.w.saveAssets=()=>{throw Error('QuotaExceededError internal storage detail');};h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();
+ assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-name').value,'保存前の下書き');assert.equal(h.nodes.get('ast-amount').value,'１．５');assert.equal(h.getRaw(),before);
+ assert.equal(h.nodes.get('poEditorError').textContent,'保存できませんでした。入力内容は残しています。もう一度お試しください。');assert.doesNotMatch(h.nodes.get('poEditorError').textContent,/Quota|internal|storage/);
+ h.input('name','');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.nodes.get('poEditorError').textContent,'資産名と種類を入力してください。');assert.equal(h.getRaw(),before);
+});
