@@ -280,7 +280,37 @@ class StartupAssetsTests(unittest.TestCase):
         app = Flask('actual_startup_assets', static_folder=None)
         assets.register(app)
         bundles = {url.rsplit('.', 1)[1]: app.test_client().get(url).data for url in self.urls(transformed)}
-        self.assertEqual(bundles['js'].count(b'catch (error) { setTimeout(function () { throw error; }, 0); }'), 30)
+        # Every ordinary deferred head script must be preserved and wrapped.
+        # The count follows the checked-in entry point as modules are added.
+        head = html.split('</head>', 1)[0]
+        from html.parser import HTMLParser
+
+        class References(HTMLParser):
+            def __init__(self):
+                super().__init__()
+                self.scripts = []
+
+            def handle_starttag(self, tag, attrs):
+                values = dict(attrs)
+                if tag == 'script' and len(values) == len(attrs) and set(values) == {'defer', 'src'}:
+                    match = re.fullmatch(r'/static/([a-zA-Z0-9_.-]+\.js)(?:\?v=[a-zA-Z0-9_.-]+)?', values['src'])
+                    if match:
+                        self.scripts.append(match[1])
+
+        references = References()
+        references.feed(head)
+        scripts = references.scripts
+        self.assertGreaterEqual(len(scripts), 30)
+        self.assertEqual(bundles['js'].count(b'catch (error) { setTimeout(function () { throw error; }, 0); }'), len(scripts))
+        offsets = []
+        for name in scripts:
+            source = (ROOT / 'static' / name).read_bytes()
+            wrapped = b'/* ' + name.encode() + b' */\ntry {\n' + source
+            self.assertIn(wrapped, bundles['js'])
+            offsets.append(bundles['js'].index(wrapped))
+        self.assertEqual(offsets, sorted(offsets))
+        self.assertIn('mypage-note-editor.js', scripts)
+        self.assertLess(scripts.index('mypage-note-editor.js'), scripts.index('mypage-planner.js'))
         self.assertIn(b'KNShortsPosting', bundles['js'])
         self.assertIn(b'.ks-post-overlay', bundles['css'])
         self.assertNotIn('/static/shorts-posting.js?', transformed)

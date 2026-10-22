@@ -183,7 +183,7 @@ test('missing optional planning fields and current or past deadlines do not inve
 
 // A small controller fixture exercises actual mount handlers and save promises.
 // Geometry and real browser input behavior are checked separately by the parent.
-function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=true,readyState='complete',pagePresent=true}={}) {
+function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=true,readyState='complete',pagePresent=true,richEditor=false}={}) {
   const documentEvents = {}, documentOptions = {}, childEvents = {}, windowEvents = {}, saves = [], stages = [];
   const timers=new Map(),intervals=[];let clock=0,timerId=0,stored = raw,loads=0,focused=null;
   function flushTimers(ms=1500) {
@@ -196,7 +196,8 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     clock=through;
   }
   class Element {
-    constructor(tag='div') {this.tagName=tag.toUpperCase();this.children=[];this.parentNode=null;this.attributes={};this.listeners={};this.classes=new Set();this.value='';this.disabled=false;this.hidden=false;this._text='';}
+    constructor(tag='div') {this.nodeType=1;this.tagName=tag.toUpperCase();this.children=[];this.parentNode=null;this.attributes={};this.listeners={};this.classes=new Set();this.value='';this.disabled=false;this.hidden=false;this._text='';}
+    get childNodes() {return this.children;}
     set className(value) {this.classes=new Set(String(value).split(/\s+/).filter(Boolean));}
     get className() {return [...this.classes].join(' ');}
     get classList() {return {contains:k=>this.classes.has(k),add:k=>this.classes.add(k),remove:k=>this.classes.delete(k),toggle:(k,on)=>{if(on===undefined)on=!this.classes.has(k);on?this.classes.add(k):this.classes.delete(k);return on;}};}
@@ -210,7 +211,7 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     setAttribute(k,v) {this.attributes[k]=String(v);}
     getAttribute(k) {return Object.hasOwn(this.attributes,k)?this.attributes[k]:null;}
     addEventListener(type,fn) {(this.listeners[type]??=[]).push(fn);}
-    dispatch(type) {for(const fn of this.listeners[type]||[])fn({target:this,preventDefault(){}});}
+    dispatch(type,extra={}) {const event={target:this,preventDefault(){this.defaultPrevented=true;},...extra};for(const fn of this.listeners[type]||[])fn(event);return event;}
     click() {if(!this.disabled)this.dispatch('click');}
     focus() {focused=this;}
     matches(selector) {
@@ -244,6 +245,13 @@ function controller({raw=null,stageOK=true,autoSave=false,ready=true,restoreOK=t
     setTimeout(fn,ms=0){timers.set(++timerId,{fn,at:clock+ms});return timerId;},
     clearTimeout(id){timers.delete(id);},
   };
+  if(richEditor){
+    w.KNMyPageNoteEditor=require('../static/mypage-note-editor.js');
+    const selection={anchorNode:null,focusNode:null,anchorOffset:0,focusOffset:0,removeAllRanges(){this.anchorNode=this.focusNode=null;},addRange(r){this.anchorNode=r.startContainer;this.anchorOffset=r.startOffset;this.focusNode=r.endContainer;this.focusOffset=r.endOffset;}};
+    w.getSelection=()=>selection;
+    w.document.createTextNode=text=>{const n=new Element('#text');n.nodeType=3;n.textContent=text;Object.defineProperty(n,'nodeValue',{get(){return n.textContent;},set(value){n.textContent=value;}});return n;};
+    w.document.createRange=()=>({setStart(n,i){this.startContainer=n;this.startOffset=i;},setEnd(n,i){this.endContainer=n;this.endOffset=i;}});
+  }
   const lookup=text=>page.querySelectorAll('button').find(n=>n.textContent===text);
   planner.mount(w);
   return {w,page,body,bridge,saves,stages,documentEvents,documentOptions,childEvents,lookup,flushTimers,intervals,
@@ -803,4 +811,58 @@ test('readonly recovery can clear earlier search and folder filters while folder
   h.lookup('メモ一覧').click();assert.equal(h.lookup('選んだフォルダ').disabled,false);
   h.lookup('選んだフォルダ').click();assert.equal(h.page.querySelectorAll('.mp-note-pick').length,1);
   assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(h.raw,raw);
+});
+
+const format=(h,label)=>h.page.querySelectorAll('button').find(n=>n.getAttribute('aria-label')===label);
+test('the formatted editor restores plain bytes without migrating or writing rich metadata',async()=>{
+  const body='  本文\r\n\r\n<script>文字</script> 😀\t  ',raw=encode({notes:[note({body})]});
+  const h=controller({raw,richEditor:true});await settle();const host=h.page.querySelector('.mp-note-rich');
+  assert.ok(host);assert.equal(h.memo.hidden,true);assert.equal(h.memo.value,body);assert.equal(h.raw,raw);assert.equal(h.stages.length,0);assert.equal(h.saves.length,0);assert.equal(host.querySelectorAll('script').length,0);
+  const live=host.children[0].children[0].children[0];format(h,'太字').click();const data=planner.decode(h.stages.at(-1).raw);assert.equal(data.notes[0].body,body);assert.equal(data.notes[0].richText.blocks[0].runs[0].bold,true);assert.equal(data.notes[0].title,'');assert.equal(h.frame.contentWindow.kkMyPageStore,h.bridge);assert.notEqual(host.children[0].children[0].children[0],live,'explicit formatting may rebuild; ordinary input must not');
+});
+test('formatted typing stages each keystroke, mirrors exact text and shares the existing debounce',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'もと'})]}),richEditor:true});await settle();const host=h.page.querySelector('.mp-note-rich'),node=host.children[0].children[0].children[0];
+  for(const value of ['もとあ','もとあい','もとあいう']){node.nodeValue=value;host.dispatch('input',{inputType:'insertText'});assert.equal(host.children[0].children[0].children[0],node);assert.equal(h.memo.value,value);assert.equal(planner.decode(h.stages.at(-1).raw).notes[0].body,value);}
+  assert.equal(h.stages.length,3);assert.equal(h.saves.length,0);h.flushTimers(1499);assert.equal(h.saves.length,0);h.flushTimers(1);assert.equal(h.saves.length,1);assert.equal(planner.decode(h.saves[0].raw).notes[0].body,'もとあいう');
+});
+test('a failed newer restore makes rich text read-only while keeping known formatted content',async()=>{
+  const E=require('../static/mypage-note-editor.js'),rich=E.blockType(E.plain('既知のチェック'),{start:0,end:0},'check');
+  const h=controller({raw:encode({notes:[note({body:E.project(rich),richText:rich})]}),richEditor:true});await settle();const host=h.page.querySelector('.mp-note-rich');
+  h.bridge.load=async()=>{throw Error('fixture_restore_failed');};h.childEvents.knMyPageStoreChange();await settle();assert.equal(host.contentEditable,'false');assert.equal(host.querySelector('input').disabled,true);assert.equal(format(h,'太字').disabled,true);assert.match(host.textContent,/既知のチェック/);host.dispatch('beforeinput',{inputType:'formatBold'});assert.equal(h.stages.length,0);assert.match(h.status,/読み込めません/);
+});
+test('switching owners clears rich DOM, composition and undo history before another restore',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'所有者Aの内容'})]}),richEditor:true});await settle();const host=h.page.querySelector('.mp-note-rich');format(h,'太字').click();host.dispatch('compositionstart');const count=h.stages.length;
+  h.auth({id:'owner-B'});await settle();assert.equal(host.textContent,'');assert.equal(h.memo.value,'');assert.equal(host.contentEditable,'false');host.dispatch('compositionend');host.dispatch('keydown',{key:'z',metaKey:true});assert.equal(h.stages.length,count);assert.equal(host.textContent,'');assert.equal(h.page.textContent.includes('所有者Aの内容'),false);
+});
+test('unknown rich versions remain readable and cannot be replaced by plaintext fallback events',async()=>{
+  const raw=encode({notes:[note({body:'保持する本文',richText:{version:99,blocks:[]}})]});
+  const h=controller({raw,richEditor:true});await settle();const host=h.page.querySelector('.mp-note-rich');assert.equal(host.contentEditable,'false');assert.equal(host.textContent,'保持する本文');assert.equal(h.page.querySelector('.mp-note-editor-notice').hidden,false);h.type(h.memo,'上書き');format(h,'太字').click();assert.equal(h.stages.length,0);assert.equal(h.raw,raw);
+});
+test('rich data preserves notes, exact body bytes and unknown additive fields through a fresh restore',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'a\r\nb',futureField:{kept:true}}),note({id:'other',body:'別の本文'})]}),richEditor:true});await settle();format(h,'チェックリスト').click();let data=planner.decode(h.raw);const first=data.notes[0],checks=h.page.querySelector('.mp-note-rich').querySelectorAll('input');checks[0].checked=true;checks[0].dispatch('change');data=planner.decode(h.raw);assert.equal(data.notes[0].body,'a\r\nb');assert.equal(data.notes[0].richText.blocks[0].checked,true);assert.deepEqual(data.notes[0].futureField,{kept:true});assert.equal(data.notes[1].body,'別の本文');
+  const next=controller({raw:h.raw,richEditor:true});await settle();assert.deepEqual(planner.decode(next.raw).notes,data.notes);assert.equal(next.page.querySelector('.mp-note-rich').querySelector('input').checked,true);assert.equal(next.stages.length,0);assert.equal(first.body,'a\r\nb');
+});
+test('a long note crossing the unchanged one-million-character store limit keeps the saved bytes and visibly unsaved draft',async()=>{
+  const body='長'.repeat(600000),raw=encode({notes:[note({body})]});assert.ok(raw.length<1000000);
+  const h=controller({raw,richEditor:true});await settle();const stage=h.bridge.stage;h.bridge.stage=(owner,value)=>value.length<=1000000&&stage(owner,value);
+  const title=h.page.querySelector('.mp-note-title');h.type(title,'保存できる小さな変更');const saved=h.raw;assert.match(h.status,/この端末に保存しました/);
+  format(h,'太字').click();assert.equal(h.raw,saved);assert.match(h.status,/保存できません/);assert.match(h.status,/書きかけを保持/);assert.equal(h.memo.value,body);assert.ok(h.page.querySelector('.mp-note-rich').querySelector('strong'));
+  h.flushTimers(1500);await settle();assert.equal(h.saves.length,0,'the previous debounce cannot send a draft rejected by local staging');assert.equal(h.raw,saved);h.recordsReady();await settle();assert.ok(h.page.querySelector('.mp-note-rich').querySelector('strong'),'a same-owner refresh cannot replace the unsaved draft');assert.match(h.status,/保存できません/);
+});
+
+test('late native IME events on a retired owner host cannot enter a newly restored owner document',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'Aのみの本文'})]}),richEditor:true});await settle();const old=h.page.querySelector('.mp-note-rich');old.dispatch('compositionstart');
+  h.auth({id:'owner-B'});h.frame.contentWindow.knLedgerSession={user:{id:'owner-B'}};h.frame.contentWindow.localStorage.getItem=()=> 'owner-B';h.bridge.load=async()=>({raw:encode({notes:[note({body:'Bのみの本文'})]}),assetsRaw:null});h.recordsReady();await settle();
+  const current=h.page.querySelector('.mp-note-rich');assert.notEqual(current,old);assert.equal(current.textContent,'Bのみの本文');const count=h.stages.length;
+  const staleText=old.children[0].children[0].children[0];staleText.nodeValue='遅れて来たAの秘密';old.dispatch('input',{inputType:'insertCompositionText',isComposing:true});old.dispatch('compositionend');old.dispatch('keydown',{key:'z',metaKey:true});
+  assert.equal(current.textContent,'Bのみの本文');assert.equal(h.memo.value,'Bのみの本文');assert.equal(h.stages.length,count);assert.equal(old.textContent,'');
+});
+test('switching between notes uses fresh native hosts while retaining saved rich data and isolating undo',async()=>{
+  const h=controller({raw:encode({notes:[note({body:'一番目'}),note({id:'second',body:'二番目'})]}),richEditor:true});await settle();const first=h.page.querySelector('.mp-note-rich');format(h,'太字').click();const pick=h.page.querySelectorAll('.mp-note-pick').find(n=>n.textContent.includes('二番目'));pick.click();const second=h.page.querySelector('.mp-note-rich');assert.notEqual(first,second);assert.equal(second.textContent,'二番目');assert.equal(format(h,'元に戻す').disabled,true);const saved=h.raw;first.dispatch('beforeinput',{inputType:'historyUndo'});first.dispatch('input',{inputType:'insertText'});assert.equal(h.raw,saved);assert.equal(second.textContent,'二番目');assert.equal(first.textContent,'');
+});
+
+test('a UTF-8-sized rich snapshot rejected by remote storage stays staged and never claims sync success',async()=>{
+  const body='記'.repeat(400000),raw=encode({notes:[note({body})]});const h=controller({raw,richEditor:true});await settle();format(h,'太字').click();const staged=h.raw;
+  assert.ok(staged.length<1000000);assert.ok(Buffer.byteLength(JSON.stringify({mypage:staged}),'utf8')>2000000);const saves=[];h.bridge.save=async(owner,value)=>{saves.push({owner,raw:value});return false;};h.flushTimers(1500);await settle();
+  assert.equal(saves.length,1);assert.equal(saves[0].raw,staged);assert.equal(h.raw,staged);assert.equal(h.memo.value,body);assert.match(h.status,/同期できません/);assert.match(h.status,/書きかけを保持/);assert.ok(h.page.querySelector('.mp-note-rich').querySelector('strong'));h.recordsReady();await settle();assert.equal(h.raw,staged);assert.match(h.status,/同期できません/);
 });

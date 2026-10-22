@@ -112,7 +112,7 @@
     var page,panes,status,doc=null,stock=null,owner='',bridge=null,loading=false,revision=0,saving=false,savedRevision=0,timer,notesFilter='',search='',boundFrame=null,epoch=0,editable=false;
     var retryButton,goalList,goalForm,todoList,todoText,todoGoal,todoDue,todoFlag,todoFind,todoCount,todoCompleted,todoCompletedSummary,todoCompletedList,todoAddDetails,noteList,noteTitle,noteBody,groupList,legacyButton,formFields={},goalSummary;
     var todoFilter='all',todoSearch='',completedOpen=false,todoFilterButtons=[];
-    var notesEditing=false,viewNoteId='',noteLibrary,noteEditor,noteFind,noteHeading,noteCount,noteFolders,noteDelete;
+    var notesEditing=false,viewNoteId='',noteLibrary,noteEditor,noteFind,noteHeading,noteCount,noteFolders,noteDelete,noteRich=null,noteRichSlot=null,noteRichKey='';
     var claimKey='kn_mypage_legacy_owner_v1';
     function el(tag,cls,text){var n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n;}
     function button(text,fn,cls){var n=el('button',cls||'mp-button',text);n.type='button';n.addEventListener('click',fn);return n;}
@@ -128,13 +128,14 @@
       editable=ok;page.querySelectorAll('.mp-planner input,.mp-planner textarea,.mp-planner select,.mp-planner button').forEach(function(n){n.disabled=!ok;});
       // Previously confirmed notes remain readable after a later restore failure.
       page.querySelectorAll('.mp-note-pick,.mp-note-back,.mp-note-search,.mp-note-all,.mp-note-folder-pick').forEach(function(n){n.disabled=!notesReadable();});
+      if(noteRich)noteRich.setEditable(!!ok&&!!(doc&&selectedNote()));
     }
     function changed(){
       if(!doc||!validOwner()||!editable)return;
       revision++;message('この端末に保存中…');
       // Keep every keystroke locally, even while an earlier cloud save is pending.
       try{if(!bridge||!bridge.stage(owner,JSON.stringify(doc)))throw Error('stage_failed');}
-      catch(ignore){message('この端末に保存できませんでした。画面の書きかけを保持しています。',true);return;}
+      catch(ignore){w.clearTimeout(timer);message('この端末に保存できませんでした。画面の書きかけを保持しています。',true);return;}
       message('この端末に保存しました。同期を待っています…');
       queuePersist();
     }
@@ -247,6 +248,26 @@
     }
     function notesReadable(){return !!doc&&validOwner();}
     function notesEditable(){return !!doc&&validOwner()&&editable;}
+    function noteEditorKey(){var n=doc&&selectedNote();return n?JSON.stringify([owner,epoch,n.id]):'';}
+    function richNoteReadable(key){return notesReadable()&&key===noteEditorKey();}
+    function clearRichNote(){
+      if(noteRich){noteRich.destroy();noteRich=null;}noteRichKey='';if(noteRichSlot)noteRichSlot.replaceChildren();
+    }
+    function loadRichNote(n){
+      if(!noteRichSlot)return;if(!n){clearRichNote();return;}
+      var key=noteEditorKey();
+      // A native IME or undo event may arrive after a note/account switch. Keep
+      // each editing context on its own DOM node and retire the old closure.
+      if(!noteRich||noteRichKey!==key){
+        clearRichNote();noteRichKey=key;var host=el('div');
+        noteRich=w.KNMyPageNoteEditor.create(w,{host:host,canRead:richNoteReadable,canEdit:function(k){return notesEditable()&&k===noteEditorKey();},onChange:function(model,body,k){
+          if(!notesEditable()||k!==noteEditorKey())return false;
+          var selected=selectedNote();selected.body=body;selected.richText=model;noteBody.value=body;renderNotes(true);changed();return true;
+        }});
+        noteRichSlot.appendChild(noteRich.toolbar);noteRichSlot.appendChild(noteRich.notice);noteRichSlot.appendChild(host);
+      }
+      noteRich.load(n,key,editable);
+    }
     function showNotesView(){
       var editing=notesEditing&&!!(doc&&selectedNote());
       noteLibrary.hidden=editing;noteEditor.hidden=!editing;
@@ -282,7 +303,12 @@
         blank.appendChild(el('p',null,query?'別の言葉で検索してみてください。':'右上のボタンから、新しいメモを書けます。'));noteList.appendChild(blank);
       }
       var n=selectedNote();[noteTitle,noteBody,noteDelete].forEach(function(x){x.disabled=!n||!editable;});
-      if(!keepEditor){noteTitle.value=n?n.title:'';noteBody.value=n?n.body:'';}
+      if(!keepEditor){
+        noteTitle.value=n?n.title:'';noteBody.value=n?n.body:'';
+        loadRichNote(n);
+      }
+      if(noteRich)noteRich.setEditable(!!n&&editable);
+      else if(n&&n.richText!==undefined)noteBody.disabled=true;
       showNotesView();
     }
     function legacyAvailable(){
@@ -302,6 +328,7 @@
     function renderAll(){renderGoals();fillGoal();renderTodos();renderNotes();legacyButton.hidden=!legacyAvailable();}
     function reset(){
       w.clearTimeout(timer);epoch++;revision=0;savedRevision=0;saving=false;loading=false;doc=null;stock=null;bridge=null;owner=current();notesFilter='';search='';notesEditing=false;viewNoteId='';
+      clearRichNote();
       if(!page)return;goalList.replaceChildren();todoList.replaceChildren();noteList.replaceChildren();groupList.replaceChildren();noteTitle.value='';noteBody.value='';todoText.value='';Object.keys(formFields).forEach(function(k){formFields[k].value='';});todoGoal.replaceChildren();todoGoal.value='';noteFind.value='';noteHeading.textContent='メモ';noteCount.textContent='0件のメモ';noteFolders.open=false;showNotesView();goalForm.hidden=true;legacyButton.hidden=true;setEnabled(false);
       todoFilter='all';todoSearch='';completedOpen=false;todoDue.value='';todoFlag.checked=false;todoFind.value='';todoCompletedList.replaceChildren();todoCompleted.open=false;todoCompleted.hidden=true;todoCompletedSummary.textContent='完了済み 0件';todoCount.textContent='0';todoCount.setAttribute('aria-label','表示中の未完了 0件');todoAddDetails.open=false;
       todoFilterButtons.forEach(function(item){var active=item.filter==='all';item.button.classList.toggle('on',active);item.button.setAttribute('aria-pressed',String(active));});
@@ -354,7 +381,7 @@
       noteLibrary=el('section','mp-note-library');panes[3].appendChild(noteLibrary);
       var notesHead=el('div','mp-note-head');noteHeading=el('h2','mp-heading','メモ');noteHeading.tabIndex=-1;notesHead.appendChild(noteHeading);
       var compose=button('メモを追加',function(){
-        if(!notesEditable())return;var n={id:id(),title:'',body:'',groupId:notesFilter};doc.notes.push(n);doc.selectedNoteId=n.id;viewNoteId=n.id;search='';noteFind.value='';notesEditing=true;renderNotes();changed();noteBody.focus();
+        if(!notesEditable())return;var n={id:id(),title:'',body:'',groupId:notesFilter};doc.notes.push(n);doc.selectedNoteId=n.id;viewNoteId=n.id;search='';noteFind.value='';notesEditing=true;renderNotes();changed();if(noteRich)noteRich.focus();else noteBody.focus();
       },'mp-note-compose');compose.setAttribute('aria-label','新しいメモを書く');notesHead.appendChild(compose);noteLibrary.appendChild(notesHead);
       noteFind=el('input','mp-note-search');noteFind.type='search';noteFind.placeholder='検索';noteFind.setAttribute('aria-label','メモを検索');
       noteFind.addEventListener('input',function(){if(!notesReadable())return;search=noteFind.value;renderNotes(true);});noteLibrary.appendChild(noteFind);
@@ -370,7 +397,10 @@
       noteDelete=button('このメモを削除',function(){var n=doc&&selectedNote();if(!notesEditable()||!n||!w.confirm('このメモを削除しますか？'))return;doc.notes=doc.notes.filter(function(x){return x.id!==n.id;});doc.selectedNoteId='';viewNoteId='';notesEditing=false;renderNotes();changed();noteHeading.focus();},'mp-link mp-danger');noteToolbar.appendChild(noteDelete);noteEditor.appendChild(noteToolbar);
       noteTitle=el('input','mp-note-title');noteTitle.type='text';noteTitle.placeholder='タイトル';noteTitle.setAttribute('aria-label','タイトル（任意）');noteEditor.appendChild(noteTitle);
       noteBody=el('textarea','mp-note-body');noteBody.id='mpMemo';noteBody.rows=14;noteBody.placeholder='ここから書きはじめる';noteBody.setAttribute('aria-label','自由メモ');noteEditor.appendChild(noteBody);
-      function editNote(key,value){var n=doc&&selectedNote();if(!notesEditable()||!n)return;n[key]=value;renderNotes(true);changed();}
+      if(w.KNMyPageNoteEditor&&w.KNMyPageNoteEditor.canMount(w)){
+        noteBody.hidden=true;noteBody.tabIndex=-1;noteRichSlot=el('div','mp-note-writing');noteEditor.appendChild(noteRichSlot);
+      }
+      function editNote(key,value){var n=doc&&selectedNote();if(!notesEditable()||!n||key==='body'&&(noteRich||n.richText!==undefined))return;n[key]=value;renderNotes(true);changed();}
       noteTitle.addEventListener('input',function(){editNote('title',noteTitle.value);});noteBody.addEventListener('input',function(){editNote('body',noteBody.value);});panes[3].appendChild(noteEditor);
       document.addEventListener('knAuthChange',function(){if(owner!==current())reset();load();});
       page.querySelectorAll('.mo-tab,.mp-toptab').forEach(function(t){t.addEventListener('click',load);});
