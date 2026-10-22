@@ -2917,3 +2917,46 @@ test('village roads follow visible clamped entrances and draft edits without sta
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
   assert.deepEqual(endpoint('home'),[150,260]);
 });
+
+test('market illustrations use six fixed decorative images and recover from loading failures without state writes',async()=>{
+  const f=await fixture({species:'lilac',developerPreview:false});await f.click(f.focusButton('tab-market'));
+  const before=f.saved(),writes=f.writes.length;
+  const sources={apl:'/static/pet-items-v1/apple.webp',rkt:'/static/pet-market-v1/rocket.webp',grn:'/static/pet-items-v1/tree.webp',gam:'/static/pet-market-v1/controller.webp',bnk:'/static/pet-market-v1/bank.webp',fud:'/static/pet-items-v1/feast.webp'};
+  const rows=f.host.querySelectorAll('.ipg-stock');assert.equal(rows.length,6);
+  for(const stock of Core.stocks){
+    const row=rows.find(card=>card.querySelector('.ipg-stock-art')?.dataset.stockArt===stock.id);assert.ok(row,stock.id);
+    const heading=row.querySelector('.ipg-stock-heading'),art=heading.querySelector('.ipg-stock-art');
+    const image=art.querySelector('img'),placeholder=art.querySelector('.ipg-item-art-placeholder');
+    assert.equal(heading.querySelector('h3').textContent,stock.name);assert.equal(art.getAttribute('aria-hidden'),'true');
+    assert.equal(image.src,sources[stock.id]);assert.equal(image.alt,'');assert.equal(image.getAttribute('aria-hidden'),'true');assert.equal(image.draggable,false);
+    assert.equal(art.dataset.artState,'loading');assert.equal(image.hidden,true);assert.equal(placeholder.hidden,false);
+    assert.equal(art.textContent,'');assert.ok(row.textContent.includes(before.market.prices[stock.id]+' コイン / 株'));
+    image.emit('load');assert.equal(art.dataset.artState,'ready');assert.equal(image.hidden,false);assert.equal(placeholder.hidden,true);
+    image.emit('error');assert.equal(art.dataset.artState,'error');assert.equal(image.hidden,true);assert.equal(placeholder.hidden,false);assert.equal(art.textContent,'');
+    image.emit('load');assert.equal(art.dataset.artState,'ready');assert.equal(image.hidden,false);assert.equal(placeholder.hidden,true);
+  }
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+});
+
+test('market illustration failures leave real quantity purchases partial sales fees and saved holdings unchanged in behavior',async()=>{
+  const f=await fixture({species:'lilac',developerPreview:false});await f.click(f.focusButton('tab-market'));
+  const before=f.saved(),writes=f.writes.length;assert.equal(before.coins,500);assert.equal(before.market.prices.apl,40);
+  function appleRow(){const row=f.host.querySelectorAll('.ipg-stock').find(card=>card.querySelector('.ipg-stock-art')?.dataset.stockArt==='apl');assert.ok(row);return row;}
+  function stockButton(row,caption){const button=row.querySelectorAll('button').find(control=>control.textContent===caption);assert.ok(button);return button;}
+  let row=appleRow();assert.equal(stockButton(row,'売る').disabled,true);
+  row.querySelector('img').emit('error');let quantity=row.querySelector('input');quantity.value='2';quantity.emit('input');
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);await f.click(stockButton(row,'買う'));
+  const bought=f.saved();assert.equal(bought.coins,419);assert.deepEqual(bought.market.holdings.apl,{quantity:2,costBasis:81});
+  assert.equal(bought.market.feesPaid,before.market.feesPaid+1);assert.equal(bought.revision,before.revision+1);assert.equal(f.writes.length,writes+1);
+  row=appleRow();assert.equal(row.querySelector('input').value,'2');assert.equal(stockButton(row,'売る').disabled,false);
+  row.querySelector('img').emit('error');quantity=row.querySelector('input');quantity.value='1';quantity.emit('input');await f.click(stockButton(row,'売る'));
+  const sold=f.saved();assert.equal(sold.coins,458);assert.deepEqual(sold.market.holdings.apl,{quantity:1,costBasis:40.5});
+  assert.equal(sold.market.feesPaid,before.market.feesPaid+2);assert.equal(sold.market.realizedProfit,before.market.realizedProfit-1.5);
+  assert.equal(sold.revision,before.revision+2);assert.equal(f.writes.length,writes+2);
+  for(const field of ['pet','inventory','decorations','wardrobe','care','minigames','legacyReserve'])assert.deepEqual(sold[field],before[field]);
+  for(const stock of Core.stocks.filter(stock=>stock.id!=='apl'))assert.deepEqual(sold.market.holdings[stock.id],before.market.holdings[stock.id]);
+  for(const field of ['day','prices','previous','dividends'])assert.deepEqual(sold.market[field],before.market[field]);
+  await f.click(f.focusButton('tab-care'));await f.click(f.focusButton('tab-market'));
+  row=appleRow();row.querySelector('img').emit('load');assert.equal(row.querySelector('input').value,'1');
+  assert.deepEqual(f.saved(),sold);assert.equal(f.writes.length,writes+2);
+});

@@ -102,15 +102,24 @@
     cloth_sky_overalls: 'pet-clothes-v1/cloth_sky_overalls.webp', cloth_mint_knit: 'pet-clothes-v1/cloth_mint_knit.webp',
     cloth_star_pajamas: 'pet-clothes-v1/cloth_star_pajamas.webp', cloth_flower_dress: 'pet-clothes-v1/cloth_flower_dress.webp'
   });
+  var stockArtworkSources = Object.freeze({
+    apl: 'pet-items-v1/apple.webp', rkt: 'pet-market-v1/rocket.webp', grn: 'pet-items-v1/tree.webp',
+    gam: 'pet-market-v1/controller.webp', bnk: 'pet-market-v1/bank.webp', fud: 'pet-items-v1/feast.webp'
+  });
   function hasItemArtwork(id) { return typeof id === 'string' && Object.prototype.hasOwnProperty.call(itemArtworkSources, id); }
   function foodArtworkId(id) { var entry = item(id); return entry && entry.type === 'food' && hasItemArtwork(id) ? id : null; }
   function itemArtwork(id, extra, onState) {
+    return catalogueArtwork(id, itemArtworkSources, 'itemArt', extra, onState);
+  }
+  function stockArtwork(id) { return catalogueArtwork(id, stockArtworkSources, 'stockArt', 'ipg-stock-art'); }
+  function catalogueArtwork(id, sources, dataKey, extra, onState) {
+    var available = typeof id === 'string' && Object.prototype.hasOwnProperty.call(sources, id);
     var shell = node('span', 'ipg-item-art' + (extra ? ' ' + extra : ''));
-    shell.setAttribute('aria-hidden', 'true'); shell.dataset.itemArt = hasItemArtwork(id) ? id : ''; shell.dataset.artReady = 'false'; shell.dataset.artState = 'loading';
+    shell.setAttribute('aria-hidden', 'true'); shell.dataset[dataKey] = available ? id : ''; shell.dataset.artReady = 'false'; shell.dataset.artState = 'loading';
     // A quiet, fixed-size placeholder never substitutes the platform's emoji.
     // Product names, prices and ownership remain available beside the artwork.
     var placeholder = node('span', 'ipg-item-art-placeholder'); shell.appendChild(placeholder);
-    if (!hasItemArtwork(id)) { shell.dataset.artState = 'unavailable'; return shell; }
+    if (!available) { shell.dataset.artState = 'unavailable'; return shell; }
     var image = node('img', 'ipg-item-art-image'); image.width = image.height = 384;
     image.alt = ''; image.draggable = false; image.decoding = 'async'; image.hidden = true; image.setAttribute('aria-hidden', 'true');
     function ready(value) {
@@ -119,7 +128,7 @@
     }
     image.addEventListener('load', function () { ready(true); });
     image.addEventListener('error', function () { ready(false); });
-    shell.appendChild(image); image.src = imageRoot + itemArtworkSources[id];
+    shell.appendChild(image); image.src = imageRoot + sources[id];
     return shell;
   }
   function shopItemArtwork(entry) {
@@ -1769,7 +1778,10 @@
       var h = market.holdings[x.id] || { quantity: 0, costBasis: 0 };
       var price = market.prices[x.id], previous = market.previous[x.id];
       var c = card('', 'ipg-stock');
-      append(c, node('h3', '', (x.emoji || '🌱') + ' ' + x.name), text('架空の会社', 'ipg-small'),
+      var heading = node('div', 'ipg-stock-heading'), company = node('div', 'ipg-stock-company');
+      append(company, node('h3', '', x.name), text('架空の会社', 'ipg-small'));
+      append(heading, stockArtwork(x.id), company);
+      append(c, heading,
         node('div', 'ipg-stock-price', number(price) + ' コイン / 株'),
         text('前回比 ' + signed(price - (previous == null ? price : previous)) + 'コイン'),
         text('保有 ' + number(h.quantity) + '株 · 原価 ' + number(h.costBasis) +
