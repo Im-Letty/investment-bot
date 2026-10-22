@@ -2503,6 +2503,21 @@ def api_chat():
 
         if data.get("mode") == "teacher":
             system_prompt = TEACHER_PROMPT
+        # Shared by ordinary and teacher replies; display cleanup is only a fallback.
+        # Conditions verified against FSA on 2026-10-22; do not mix the pre-2024 schemes.
+        system_prompt += (
+            "回答は通常の文章と改行で書いてください。"
+            "Markdownの見出し記号、太字のアスタリスク、装飾用の※は使わないでください。"
+            "注意事項は記号だけで省略せず、短い文章で伝えてください。"
+            "NISAは適用年と年齢条件を区別してください。"
+            "2024年以降の18歳以上向けNISAは、つみたて投資枠が年120万円、"
+            "成長投資枠が年240万円、併用で年360万円です。双方の非課税保有期間は無期限です。"
+            "取得額ベースの非課税保有限度額は合計1800万円、うち成長投資枠は1200万円です。"
+            "2023年までの旧つみたてNISAの20年間、旧一般NISAの5年間を現行枠へ混ぜないでください。"
+            "利用者が選ぶ運用期間と制度の非課税保有期間も区別してください。"
+            "会話中に古い制度との混同があれば訂正し、未成年や将来の制度を成人の条件で推測しないでください。"
+            "現行NISAの制度説明には金融庁の出典 https://www.fsa.go.jp/policy/nisa2/know/index.html を添えてください。"
+        )
         client = get_anthropic_client()
         msg = client.messages.create(
             model="claude-haiku-4-5-20251001",

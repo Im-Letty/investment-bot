@@ -59,3 +59,56 @@ test('optional focus and close before the delayed callback never move focus to h
 test('existing storage keys and last twenty saved history entries are preserved',async()=>{
  const history=Array.from({length:20},(_,i)=>({role:i%2?'assistant':'user',content:'以前'+i})),storage=new Map([['knChatHist_v1',JSON.stringify(history)],['private-fixture','unchanged']]);const h=harness({storage});h.chat.open({focusInput:false});h.nodes.knChatInput.value='続き';h.nodes.knChatSend.click();await h.reply({reply:'続きの回答'});const saved=JSON.parse(storage.get('knChatHist_v1'));assert.equal(saved.length,20);assert.deepEqual(saved.slice(-2),[{role:'user',content:'続き'},{role:'assistant',content:'続きの回答'}]);assert.equal(storage.get('private-fixture'),'unchanged');assert.deepEqual([...storage.keys()],['knChatHist_v1','private-fixture']);
 });
+
+test('assistant answers show readable headings, emphasis, lists and note text without raw markers',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='NISAって何？';h.nodes.knChatSend.click();
+ const raw='# NISAについて\n\n**大事な説明**です。\n## 基本的な特徴 ##\n- **利益**の説明\n* __注意事項__\n※ 元本割れの可能性があります。';
+ await h.reply({reply:raw});
+ const bubble=h.nodes.knChatBody.children.at(-1).children[0];
+ assert.equal(bubble.textContent,'NISAについて\n\n大事な説明です。\n基本的な特徴\n- 利益の説明\n・注意事項\n元本割れの可能性があります。');
+ assert.equal(bubble.innerHTML,'');assert.equal(bubble.children.length,0);
+});
+test('formatting affects display only; stored history and the next request retain the exact answer',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='最初の質問';h.nodes.knChatSend.click();
+ const raw='## 見出し\r\n**答え**\r\n※ 注意の本文';await h.reply({reply:raw});
+ assert.equal(JSON.parse(h.storage.get('knChatHist_v1'))[1].content,raw);
+ h.nodes.knChatInput.value='続き';h.nodes.knChatSend.click();await h.settle();
+ assert.equal(JSON.parse(h.calls[1].options.body).messages[1].content,raw);await h.reply({reply:'続きの回答'});
+ assert.equal(h.calls.length,2);
+});
+test('literal financial symbols, hashtags, URL fragments, escaped and unmatched markers survive',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='記号の確認';h.nodes.knChatSend.click();
+ const raw='C# / #NISA / ##タグ\n2*3 = 6、2 ** 3 = 8、5% × 2\nhttps://example.test/#risk\n途中の※参照と **未完了\n\\**そのまま** / account_name / x__y__z\n#️⃣';
+ await h.reply({reply:raw});assert.equal(h.nodes.knChatBody.children.at(-1).children[0].textContent,raw);
+});
+test('assistant HTML and scripts stay literal text and never enter an HTML sink',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='安全な表示';h.nodes.knChatSend.click();
+ const raw='**確認** <img src=x onerror=alert(1)> & <script>alert(2)</script>';
+ await h.reply({reply:raw});const bubble=h.nodes.knChatBody.children.at(-1).children[0];
+ assert.equal(bubble.textContent,'確認 <img src=x onerror=alert(1)> & <script>alert(2)</script>');
+ assert.equal(bubble.innerHTML,'');assert.equal(bubble.children.length,0);assert.equal(h.calls.length,1);
+});
+test('user text and error messages keep their literal markers',async()=>{
+ const h=harness();h.chat.open({focusInput:false});const raw='つみたての考え方は？ #タグ **利用者の記号** <b>文字</b>';
+ h.nodes.knChatInput.value=raw;h.nodes.knChatSend.click();await h.settle();
+ const user=h.nodes.knChatBody.children.find(n=>n.classList.contains('user')).children[0];
+ assert.equal(user.textContent,raw);assert.equal(user.innerHTML,'');assert.equal(h.calls.length,0);
+ h.nodes.knChatInput.value='別の質問';h.nodes.knChatSend.click();await h.reply({error:'# **エラー** ※ <b>詳細</b>'});
+ const error=h.nodes.knChatBody.children.find(n=>n.classList.contains('err')).children[0];
+ assert.ok(error.textContent.endsWith('# **エラー** ※ <b>詳細</b>'));assert.equal(error.innerHTML,'');
+});
+test('local installment answer keeps its warning and paragraph breaks without the note marker or a request',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.chips().find(n=>n.textContent==='つみたての考え方は？').click();await h.settle();
+ const bubble=h.nodes.knChatBody.children.at(-1).children[0];
+ assert.match(bubble.textContent,/一般的な考え方の紹介/);assert.match(bubble.textContent,/元本割れすることもあります/);
+ assert.ok(bubble.textContent.includes('\n\n'));assert.doesNotMatch(bubble.textContent,/^[ \t]*※/m);
+ assert.equal(h.calls.length,0);assert.equal(h.storage.has('knChatHist_v1'),false);
+});
+
+test('financial signs and literal URL or code content are never changed by prose formatting',async()=>{
+ const h=harness();h.chat.open({focusInput:false});h.nodes.knChatInput.value='符号と出典';h.nodes.knChatSend.click();
+ const raw='- 5%\n+ 100円\n- 五パーセント\n* 3\nhttps://example.test/__main__/#risk\n\x60**literal** __name__\x60\n\x60\x60\x60text\n# code heading\n**literal**\n※ code note\n\x60\x60\x60\n\n## 通常の説明\n**注意**\n※ 説明は残す';
+ await h.reply({reply:raw});const bubble=h.nodes.knChatBody.children.at(-1).children[0];
+ assert.equal(bubble.textContent,raw.replace('## 通常の説明','通常の説明').replace('**注意**','注意').replace('※ 説明は残す','説明は残す'));
+ assert.equal(JSON.parse(h.storage.get('knChatHist_v1'))[1].content,raw);
+});
