@@ -1279,29 +1279,40 @@
       foodProgress: clamp((age - 1200) / 3200, 0, 1), phaseProgress: end === null ? 1 : clamp((age - start) / (end - start), 0, 1),
       nextBoundaryMs: end, done: end === null };
   }
-  function roomWalkFrame(name,elapsedMs,reducedMotion) {
+  // Keep the displayed angle continuous across a new direction request. Angle
+  // differences live on a circle; 350 -> 10 is +20, never a -340 degree turn.
+  function shortestYawDelta(from,to) {
+    var a=finite(from,0),b=finite(to,0),raw=b%360-a%360,delta=((raw+180)%360+360)%360-180;
+    return delta===-180&&b>a?180:delta;
+  }
+  function roomWalkFrame(name,elapsedMs,reducedMotion,initialYaw) {
     var valid=Object.prototype.hasOwnProperty.call(roomWalkDurations,name),age=Math.max(0,finite(elapsedMs,0)),direction=name==='room_walk_left'?-1:1;
     var done=!valid||age>=6000,x=0,yaw=0,progress=0,speed=0,footPhase=0,travel=0,phase='idle';
     if(!done&&!reducedMotion){
-      if(age<650){phase='turning_out';yaw=direction*90*smooth(age/650);}
-      else if(age<2400){phase='walking_out';progress=(age-650)/1750;var out=smooth(progress);x=direction*out;yaw=direction*90;speed=4*progress*(1-progress);footPhase=TAU*3.5*out;travel=direction;}
-      else if(age<3150){phase='turning_back';x=direction;yaw=direction*90*(1-2*smooth((age-2400)/750));footPhase=TAU*3.5;}
-      else if(age<4900){phase='walking_back';progress=(age-3150)/1750;var back=smooth(progress);x=direction*(1-back);yaw=-direction*90;speed=4*progress*(1-progress);footPhase=TAU*(3.5+3.5*back);travel=-direction;}
-      else{phase='settling';yaw=-direction*90*(1-smooth((age-4900)/1100));footPhase=TAU*7;}
+      var from=shortestYawDelta(0,initialYaw),outYaw=from+shortestYawDelta(from,direction*90),backYaw=outYaw-direction*180;
+      if(age<650){phase='turning_out';yaw=from+(outYaw-from)*smooth(age/650);}
+      else if(age<2400){phase='walking_out';progress=(age-650)/1750;var out=smooth(progress);x=direction*out;yaw=outYaw;speed=4*progress*(1-progress);footPhase=TAU*3.5*out;travel=direction;}
+      else if(age<3150){phase='turning_back';x=direction;yaw=outYaw-direction*180*smooth((age-2400)/750);footPhase=TAU*3.5;}
+      else if(age<4900){phase='walking_back';progress=(age-3150)/1750;var back=smooth(progress);x=direction*(1-back);yaw=backYaw;speed=4*progress*(1-progress);footPhase=TAU*(3.5+3.5*back);travel=-direction;}
+      else{phase='settling';yaw=backYaw+shortestYawDelta(backYaw,0)*smooth((age-4900)/1100);footPhase=TAU*7;}
     }
     return {id:valid?name:null,durationMs:valid?6000:0,done:done,x:x,walking:speed>0,speed:speed,phase:phase,yawDeg:yaw,footPhase:footPhase,travel:travel};
   }
-  function directionFrame(name,elapsedMs,reducedMotion) {
-    var room=roomWalkFrame(name,elapsedMs,reducedMotion),row=room.id?{id:room.id,durationMs:6000}:directionCatalogue.filter(function(item){return item.id===name;})[0],age=Math.max(0,finite(elapsedMs,0));
+  function directionFrame(name,elapsedMs,reducedMotion,initialYaw) {
+    var room=roomWalkFrame(name,elapsedMs,reducedMotion,initialYaw),row=room.id?{id:room.id,durationMs:6000}:directionCatalogue.filter(function(item){return item.id===name;})[0],age=Math.max(0,finite(elapsedMs,0));
     var done=!row||age>=row.durationMs,yaw=0;
     if(room.id)yaw=room.yawDeg;
     else if(!done){
       var target=name==='direction_left'?-90:name==='direction_right'?90:name==='direction_back'?180:360;
       if(reducedMotion)yaw=name==='direction_spin'?0:target;
-      else if(name==='direction_spin')yaw=360*smooth((age-650)/5500);
       else {
-        var enterEnd=name==='direction_back'?2200:1900,holdEnd=name==='direction_back'?4200:3900,returnEnd=name==='direction_back'?5800:5350;
-        yaw=target*smooth((age-650)/(enterEnd-650))*(1-smooth((age-holdEnd)/(returnEnd-holdEnd)));
+        var from=shortestYawDelta(0,initialYaw);
+        if(name==='direction_spin')yaw=from+(360-from)*smooth((age-650)/5500);
+        else {
+          var enterEnd=name==='direction_back'?2200:1900,holdEnd=name==='direction_back'?4200:3900,returnEnd=name==='direction_back'?5800:5350;
+          var goal=from+shortestYawDelta(from,target);
+          yaw=age>holdEnd?goal+shortestYawDelta(goal,0)*smooth((age-holdEnd)/(returnEnd-holdEnd)):from+(goal-from)*smooth((age-650)/(enterEnd-650));
+        }
       }
     }
     var normalized=((yaw%360)+360)%360,index=normalized/22.5,current=Math.floor(index)%16,fraction=index-Math.floor(index);
@@ -2484,7 +2495,7 @@
     doc = doc || win && win.document;
     var gl, dead = false, loaded = false, readyNotified = false, pageVisible = true, frame = null, timer = null, cueTimer=null, cueTimerVersion=0,observer = null;
     var media = null, removers = [], images = [], resources = [], locations = {};
-    var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, last = null;
+    var phaseMs = 0, cue = 'idle', cueMs = 0, cueAnchor = 0, cueDuration = 0, cueInitialYaw = 0, last = null;
     var scale = clamp(finite(options.scale, 1), .35, 1.15), stageProfile = growthProfile(options.growthStage), branchProfile = evolutionProfile(options.evolutionPath), selectedOutfit = outfitProfile(options.outfit);
     var appearance=appearanceProfile(options.appearanceKey),family=appearance.family,assetFiles=appearanceAssets(options.appearanceKey),eggOrigin=eggOriginProfile(options.eggOrigin).key;
     var materialProfile=eggVisualProfile(branchProfile.key,eggOrigin),originProfile=eggOriginProfile(eggOrigin);
@@ -2529,7 +2540,14 @@
     }
     function setSituation(name, values) {
       if (dead) return;
-      values = values || {}; cue = known(name);
+      values = values || {};
+      // A live replacement starts at the last successfully painted direction.
+      // Explicit elapsedMs is a seek/restore, not a request to blend from the old
+      // view. Hidden, detached, egg and reduced-motion previews stay stateless.
+      var previousYaw=lastHitFrame&&lastHitFrame.turn?lastHitFrame.turn.yawDeg:0;
+      var continueTurn=loaded&&pageVisible&&!doc.hidden&&canvas.isConnected!==false&&family!=='egg'&&!(media&&media.matches)&&!Object.prototype.hasOwnProperty.call(values,'elapsedMs');
+      cue = known(name);
+      cueInitialYaw=continueTurn&&directionFrame(cue,0).id?previousYaw:0;
       if(family==='egg'&&Object.prototype.hasOwnProperty.call(roomWalkDurations,cue))cue='idle';
       cueDuration = cue === 'idle' ? 0 : clamp(finite(values.durationMs, durations[cue]), 0, 30000);
       cueMs = Math.max(0, finite(values.elapsedMs, 0)); cueAnchor = finite(clock(), 0);
@@ -2702,7 +2720,7 @@
         var rig=family==='egg'?null:rigFrame(p,reduced?0:phaseMs/1000,elapsed,stageProfile.key,branchProfile.key,scale,appearance.key,eggOrigin);
         gl.viewport(0, 0, canvas.width, canvas.height);
         gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-        var turn=directionFrame(cue,elapsed*1000,reduced);
+        var turn=directionFrame(cue,elapsed*1000,reduced,cueInitialYaw);
         if(family==='egg')paintEgg(p,elapsed,reduced);
         else if(turn.id&&!turn.front&&!turn.done)paintTurn(turn,rig);
         else {
@@ -2859,7 +2877,7 @@
   }
   return Object.freeze({ mount: mount, pose: pose, rigPose: rigPose, rigPoint: rigPoint, rigParts: rigParts, torsoMaterialPoint: torsoMaterialPoint, eggOrigins:eggOrigins,eggOriginProfile:eggOriginProfile,eggVisualProfile:eggVisualProfile,eggOriginColor:eggOriginColor,evolutionCatalogue: evolutionCatalogue, evolutionProfile: evolutionProfile, evolutionFurColor: evolutionFurColor, growthProfile: growthProfile, growthPoint: growthPoint, appearanceCatalogue:appearanceCatalogue,appearanceProfile:appearanceProfile,feedingAnchor: feedingAnchor, feedingPhase: feedingPhase, outfitCatalogue: outfitCatalogue, outfitProfile: outfitProfile, outfitCoverage: outfitCoverage, situationForAction: situationForAction,
     appearanceAssets:appearanceAssets,appearancePoint:appearancePoint,toothFaceBinding:toothFaceBinding,toothMouthRegion:toothMouthRegion,toothMouthCoverage:toothMouthCoverage,handVolumeFrame:handVolumeFrame,handVolumeMesh:handVolumeMesh,handVolumeProfiles:handVolumeProfiles,nurseryLandmarks:nurseryLandmarks,nurseryFootLandmarks:nurseryFootLandmarks,nurseryRigParts:nurseryRigParts,nurseryFaceMaps:nurseryFaceMaps,nurseryFaceUV:nurseryFaceUV,nurseryDirectionViews:nurseryDirectionViews,nurseryClothingCoverage:nurseryClothingCoverage,nurserySmileCoverage:nurserySmileCoverage,nurserySmilePhase:nurserySmilePhase,eyePaintRegions:eyePaintRegions,eyePaintCoverage:eyePaintCoverage,faceMaterialThresholds:faceMaterialThresholds,faceMaterialPhase:faceMaterialPhase,faceDonorOpacity:faceDonorOpacity,
-    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
+    catalogue: catalogue, bodyCatalogue: bodyCatalogue, armFlapCoverage: armFlapCoverage, directionCatalogue: directionCatalogue, directionFrame: directionFrame,shortestYawDelta:shortestYawDelta,roomWalkFrame:roomWalkFrame,roomWalkPoint:roomWalkPoint,
     directionViews:directionViews,directionPoint:directionPoint,directionCellUV:directionCellUV,directionClothingCoverage:directionClothingCoverage,directionFurColor:directionFurColor,directionProjection:directionProjection,
     durations: durations, situations: Object.freeze(catalogue.map(function(row){return row.id;})), sourceType: '2d_image_motion' });
 });

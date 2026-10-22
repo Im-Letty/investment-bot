@@ -2253,3 +2253,136 @@ test('all cue entry and release phases use discrete facial materials without mut
     else assert.ok(sawEnvelope,row.id+' retains its continuous finite body envelope');
   }
 });
+
+test('circular direction deltas choose the short seam crossing and deterministic half-turns',()=>{
+  for(const [from,to,expected]of [[350,10,20],[10,350,-20],[-90,180,-90],[90,-180,90],[0,180,180],[0,-180,-180],[720+350,-720+10,20],[10,10,0]]){
+    assert.equal(Motion.shortestYawDelta(from,to),expected);
+  }
+  for(const value of [NaN,Infinity,undefined,'350'])assert.equal(Motion.shortestYawDelta(value,10),10);
+  for(const [from,to]of [[-1e308,1e308],[1e308,-1e308]]){const d=Motion.shortestYawDelta(from,to);assert.ok(Number.isFinite(d)&&Math.abs(d)<=180,'normalization before subtraction avoids overflow');}
+});
+
+test('interrupted direction timelines begin at the painted yaw and take the shortest route to each held view',()=>{
+  for(const from of [-179,-90,-10,0,10,90,179,350,710]){
+    for(const [cue,target,end]of [['direction_left',-90,1900],['direction_right',90,1900],['direction_back',180,2200]]){
+      const initial=Motion.shortestYawDelta(0,from),goal=initial+Motion.shortestYawDelta(initial,target);
+      assert.equal(Motion.directionFrame(cue,0,false,from).yawDeg,initial);
+      assert.equal(Motion.directionFrame(cue,650,false,from).yawDeg,initial,'anticipation keeps the current facing');
+      assert.equal(Motion.directionFrame(cue,end,false,from).yawDeg,goal);
+      assert.ok(Math.abs(goal-initial)<=180,'never detours through front or the long circle');
+      let prior=initial;
+      for(let ms=10;ms<=Motion.durations[cue];ms+=10){
+        const frame=Motion.directionFrame(cue,ms,false,from);
+        assert.ok(Math.abs(Motion.shortestYawDelta(prior,frame.yawDeg))<2.2,cue+from+': bounded continuous angular travel');
+        prior=frame.yawDeg;
+      }
+      assert.equal(Motion.directionFrame(cue,Motion.durations[cue],false,from).front,true);
+    }
+  }
+});
+
+test('a continued spin keeps its intended forward turn and settles at the original front',()=>{
+  for(const from of [-179,-90,-10,0,90,179,350]){
+    let prior=Motion.shortestYawDelta(0,from),views=new Set();
+    for(let ms=0;ms<Motion.durations.direction_spin;ms+=10){
+      const frame=Motion.directionFrame('direction_spin',ms,false,from);
+      assert.ok(frame.yawDeg>=prior,'a restarted spin does not briefly rotate backwards toward zero');
+      assert.ok(frame.yawDeg<=360);
+      views.add(frame.blend<.5?frame.currentIndex:frame.nextIndex);prior=frame.yawDeg;
+    }
+    assert.ok(views.size>=9,'the intended spin remains a turn rather than an immediate front reset');
+    assert.equal(Motion.directionFrame('direction_spin',6800,false,from).front,true);
+  }
+});
+
+test('continued room routes preserve travel and gait but turn from the current facing without a front reset',()=>{
+  for(const cue of ['room_walk_left','room_walk_right'])for(const from of [-179,-90,90,179,350]){
+    const initial=Motion.shortestYawDelta(0,from),target=cue==='room_walk_left'?-90:90;
+    assert.equal(Motion.roomWalkFrame(cue,0,false,from).yawDeg,initial);
+    assert.equal(Motion.roomWalkFrame(cue,650,false,from).yawDeg,initial+Motion.shortestYawDelta(initial,target));
+    let previous=initial;
+    for(let age=0;age<=6000;age+=10){
+      const a=Motion.roomWalkFrame(cue,age,false,from),b=Motion.roomWalkFrame(cue,age);
+      for(const key of ['x','speed','phase','footPhase','travel','walking','done'])assert.equal(a[key],b[key],key+': turning does not change room motion or foot timing');
+      assert.ok(Math.abs(Motion.shortestYawDelta(previous,a.yawDeg))<=180*1.5*10/650+1e-9,'maximum authored half-turn speed bounds a 10ms sample');previous=a.yawDeg;
+      const turn=Motion.directionFrame(cue,age,false,from);
+      assert.equal(turn.yawDeg,a.yawDeg);assert.deepEqual(turn.roomWalk,a);
+    }
+  }
+});
+
+test('live direction replacements carry the actually drawn angle while explicit elapsed seeks stay exact',()=>{
+  for(const key of ['newborn','adult',null]){
+    const frames=[],f=fixture({options:{appearanceKey:key,onPose:p=>frames.push(p)}});f.complete();
+    f.api.setSituation('direction_left',{elapsedMs:2800});assert.equal(frames.at(-1).yawDeg,-90);
+    const resources=f.created.length;
+    f.api.setSituation('direction_back');
+    assert.equal(frames.at(-1).yawDeg,-90);assert.equal(f.drawCalls.at(-1).part,22,'the very first replacement draw still owns the prior left source');
+    f.advance(1300);const intermediate=frames.at(-1).yawDeg;
+    assert.ok(intermediate< -90&&intermediate> -180);
+    f.api.setSituation('direction_right');assert.equal(frames.at(-1).yawDeg,intermediate,'reentrant replacement begins where the preceding frame was painted');
+    f.advance(1900);assert.equal(Motion.shortestYawDelta(frames.at(-1).yawDeg,90),0);
+    f.api.setSituation('direction_back',{elapsedMs:2800});assert.equal(frames.at(-1).yawDeg,180,'editor seeks and saved elapsed restores do not inherit the old turn');
+    assert.equal(f.created.length,resources,'continuations allocate neither another view nor another RAF loop');
+    assert.equal(f.raf.size,1);
+    for(const draw of f.drawCalls.filter(d=>d.part>=10))assert.equal(draw.uniforms.u_motionA[0],1,'one opaque source; no translucent second face or hand');
+    f.api.destroy();assert.equal(f.created.length,f.deleted.length);assert.equal(f.raf.size,0);
+  }
+});
+
+test('continued room rendering callbacks use the same yaw as their single source and keep directional alpha ownership',()=>{
+  const frames=[],f=fixture({hitPixels:'png',options:{appearanceKey:'adult',onPose:p=>frames.push(p)}});f.complete();
+  f.api.setSituation('direction_back',{elapsedMs:2800});f.api.setSituation('room_walk_left');
+  assert.equal(frames.at(-1).yawDeg,180);assert.equal(f.drawCalls.at(-1).part,18);
+  f.advance(325);
+  const expected=Motion.directionFrame('room_walk_left',325,false,180),actual=frames.at(-1);
+  assert.equal(actual.yawDeg,expected.yawDeg);assert.equal(actual.roomX,expected.roomWalk.x);
+  assert.equal(f.drawCalls.at(-1).part,10+(expected.blend<.5?expected.currentIndex:expected.nextIndex));
+  f.advance(325);assert.equal(Motion.shortestYawDelta(frames.at(-1).yawDeg,-90),0);
+  f.advance(650);assert.ok(frames.at(-1).roomX<0);assert.equal(frames.at(-1).walking,true);
+  f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});
+
+test('continued turns are based on elapsed time rather than RAF cadence or count',()=>{
+  function sample(steps){
+    const frames=[],f=fixture({options:{appearanceKey:'adult',onPose:p=>frames.push(p)}});f.complete();
+    f.api.setSituation('direction_left',{elapsedMs:2800});f.api.setSituation('direction_back');
+    for(const ms of steps)f.advance(ms);
+    const pose=frames.at(-1),view=f.drawCalls.at(-1).part;f.api.destroy();return {yaw:pose.yawDeg,view};
+  }
+  const fast=sample(Array(78).fill(1000/60)),slow=sample(Array(13).fill(100));
+  assert.ok(Math.abs(fast.yaw-slow.yaw)<1e-10,'only floating clock addition roundoff differs');assert.equal(fast.view,slow.view);
+  assert.deepEqual(sample([1300]),sample([400,400,500]),'a long frame evaluates the same authored angle without stepwise catchup');
+});
+
+test('hidden, detached, reduced and expired replacements never resurrect an old turn',()=>{
+  for(const kind of ['hidden','detached','pagehide']){
+    const frames=[],f=fixture({options:{onPose:p=>frames.push(p)}});f.complete();f.api.setSituation('direction_left',{elapsedMs:2800});
+    if(kind==='hidden')f.hide(true);else if(kind==='detached')f.canvas.isConnected=false;else f.win.emit('pagehide');
+    f.api.setSituation('direction_back');
+    f.advance(7000);
+    if(kind==='hidden')f.hide(false);else if(kind==='detached'){f.canvas.isConnected=true;f.win.emit('resize');}else f.win.emit('pageshow');
+    assert.deepEqual(f.drawCalls.slice(-9).map(d=>d.part),Motion.rigParts.map(p=>p.index));
+    assert.equal(f.raf.size,kind==='detached'?0:1,'existing detached lifecycle requires a fresh cue to resume, never a catchup loop');
+    f.api.setSituation('idle');assert.equal(f.raf.size,1);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+  const f=fixture({reduced:true});f.complete();f.api.setSituation('direction_left');f.api.setSituation('direction_back');
+  assert.equal(f.drawCalls.at(-1).part,18);assert.equal(f.raf.size,0);assert.equal(f.timers.size,1);
+  f.advance(7000);f.timeout();assert.deepEqual(f.drawCalls.slice(-9).map(d=>d.part),Motion.rigParts.map(p=>p.index));
+  assert.equal(f.timers.size,0);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});
+
+test('optional direction origins do not modify reduced previews, eggs, view pixels or independent body articulation',()=>{
+  for(const cue of Motion.directionCatalogue)for(const initial of [-170,90,350]){
+    assert.deepEqual(Motion.directionFrame(cue.id,2000,true,initial),Motion.directionFrame(cue.id,2000,true));
+  }
+  for(const key of ['egg','hatching']){
+    const f=fixture({options:{appearanceKey:key}});f.complete();f.api.setSituation('direction_left');f.advance(2000);f.api.setSituation('direction_back');
+    assert.equal(f.drawCalls.at(-1).part,0);f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+  }
+  const f=fixture({options:{appearanceKey:'adult'}});f.complete();const shader=f.shaders.slice();
+  f.api.setSituation('direction_left',{elapsedMs:2800});f.api.setSituation('direction_back');f.advance(1200);f.api.setSituation('body_flap',{elapsedMs:1800});
+  assert.deepEqual(f.shaders,shader);assert.deepEqual(f.drawCalls.slice(-9).map(d=>d.part),Motion.nurseryRigParts.map(p=>p.index));
+  assert.equal(f.drawCalls.slice(-9).filter(d=>d.volume).length,2,'existing independent volume hands return with the ordinary front rig');
+  f.api.destroy();assert.equal(f.created.length,f.deleted.length);
+});
