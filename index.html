@@ -1,6 +1,66 @@
 <!DOCTYPE html>
 <html lang="ja">
   <head>
+<meta name="theme-color" content="#f8f7ef">
+<style id="knBrowserSurface">html:root,html:root > body{background-color:var(--kn-browser-surface,#f8f7ef)!important}</style>
+<script>/* KN_BROWSER_SURFACE: Match the phone's inset/chrome to the visible entry or home surface. */
+(function(){
+  if(window.knSyncBrowserSurface)return;
+  var root=document.documentElement,Observe=window.MutationObserver,colors={home:'#f0eedf',intro:'#f8f7ef',welcome:'#edf9f1'};
+  function blend(base,color,weight){return '#'+[1,3,5].map(function(i){return Math.round(parseInt(color.slice(i,i+2),16)*weight+parseInt(base.slice(i,i+2),16)*(1-weight)).toString(16).padStart(2,'0');}).join('');}
+  // Resolve a saved color before any external script or stylesheet can delay first paint.
+  try{
+    var hex=localStorage.getItem('userBrandColor')||'',custom=localStorage.getItem('userBrandColorCustom')==='1';
+    if(/^#[0-9a-f]{3}$/i.test(hex))hex='#'+hex.slice(1).split('').map(function(c){return c+c;}).join('');
+    if(/^#[0-9a-f]{6}$/i.test(hex)&&(hex.toLowerCase()!=='#3da060'||custom))colors.home=blend('#f5f2e9',hex,.1);
+    colors.intro=blend(colors.home,'#ffffff',.5);
+  }catch(_){}
+  function browserColor(value){
+    var rgb=value.match(/^rgba?\(([^)]+)\)$/i),srgb=value.match(/^color\(srgb\s+([^)]+)\)$/i),parts;
+    if(rgb||srgb){
+      parts=(rgb?rgb[1]:srgb[1]).trim().split(/[\s,\/]+/).map(Number);
+      if(parts.length===3||(parts.length===4&&parts[3]===1))return '#'+parts.slice(0,3).map(function(n){return Math.max(0,Math.min(255,Math.round(n*(srgb?255:1)))).toString(16).padStart(2,'0');}).join('');
+    }
+    return value;
+  }
+  function refresh(palette){
+    if(palette&&typeof palette.intro==='string')colors.intro=palette.intro;
+    if(palette&&typeof palette.home==='string')colors.home=palette.home;
+    if(palette&&typeof palette.welcome==='string')colors.welcome=palette.welcome;
+    var splash=document.getElementById('spl'),welcome=document.getElementById('knWelcomeOv'),color=colors.intro;
+    if(window.knIntroComplete&&(!splash||splash.classList.contains('done'))){
+      color=colors.home;
+      if(welcome&&welcome.classList.contains('open'))color=colors.welcome;
+      else{
+        var home=document.getElementById('morning-section');
+        if(home){
+          var actual=getComputedStyle(home).backgroundColor;
+          if(actual&&actual!=='transparent'&&actual!=='rgba(0, 0, 0, 0)')color=actual;
+        }
+      }
+    }
+    color=browserColor(color);
+    if(root.style.getPropertyValue('--kn-browser-surface')!==color)root.style.setProperty('--kn-browser-surface',color);
+    var meta=document.querySelector('meta[name="theme-color"]');
+    if(meta&&meta.getAttribute('content')!==color)meta.setAttribute('content',color);
+  }
+  window.knSyncBrowserSurface=refresh;
+  refresh();
+  function observe(){
+    if(Observe){
+      var observer=new Observe(refresh);
+      observer.observe(root,{attributes:true,attributeFilter:['style','data-custom-brand-color']});
+      if(document.body)observer.observe(document.body,{attributes:true,attributeFilter:['class','style','data-theme','data-kn-a-custom-color']});
+      ['spl','knWelcomeOv'].forEach(function(id){var el=document.getElementById(id);if(el)observer.observe(el,{attributes:true,attributeFilter:['class']});});
+    }
+    refresh();
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',observe,{once:true});else observe();
+  document.addEventListener('knIntroComplete',refresh);
+  window.addEventListener('pageshow',refresh);
+  window.addEventListener('load',refresh);
+})();
+</script>
 <script>window.__KN_HOME_A=true;</script>
 <script src="/static/guest-access.js?v=20261012-guest1"></script>
 <link rel="stylesheet" href="/static/home-a.css?v=20261013-news-gothic1">
@@ -172,7 +232,7 @@ document.addEventListener('DOMContentLoaded',function(){if(window.__KN_HOME_A)re
 <style id="knNavEarlyHide">#{display:none!important}body.kn-home-visible #{display:flex!important}</style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>経済NEWS - AIが毎朝の相場を分析してお届け</title><meta name="description" content="AIが毎朝8時に相場を分析しLINEで配信。NISA・投資シミュレーター、急騰急落アラート、家計簿、経済ニュースがすべて無料。"><meta name="keywords" content="投資,NISA,株,相場,シミュレーター,家計簿,経済ニュース,AI,LINE"><meta name="author" content="Investment Bot"><meta name="robots" content="index, follow"><meta name="theme-color" content="#3da060"><link rel="canonical" href="https://investment-bot-ta24.onrender.com/"><meta property="og:type" content="website"><meta property="og:url" content="https://investment-bot-ta24.onrender.com/"><meta property="og:title" content="経済NEWS - AIが毎朝の相場を分析してお届け"><meta property="og:description" content="AIが毎朝8時に相場を分析しLINEで配信。NISA・投資シミュレーター、急騰急落アラート、家計簿、経済ニュースがすべて無料。"><meta property="og:image" content="https://investment-bot-ta24.onrender.com/static/og-image.png"><meta property="og:site_name" content="経済NEWS"><meta property="og:locale" content="ja_JP"><meta property="og:locale:alternate" content="en_US"><meta property="og:locale:alternate" content="ko_KR"><meta property="og:locale:alternate" content="zh_CN"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="経済NEWS"><meta name="twitter:description" content="AIが毎朝の相場を分析してお届け"><meta name="twitter:image" content="https://investment-bot-ta24.onrender.com/static/og-image.png"><link rel="manifest" href="/static/manifest.json"><link rel="icon" type="image/png" href="/static/favicon.png"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"経済NEWS","url":"https://investment-bot-ta24.onrender.com/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"description":"AIが毎朝の相場を分析してお届け。NISA・シミュレーター・アラートを無料で提供。"}</script>
+    <title>経済NEWS - AIが毎朝の相場を分析してお届け</title><meta name="description" content="AIが毎朝8時に相場を分析しLINEで配信。NISA・投資シミュレーター、急騰急落アラート、家計簿、経済ニュースがすべて無料。"><meta name="keywords" content="投資,NISA,株,相場,シミュレーター,家計簿,経済ニュース,AI,LINE"><meta name="author" content="Investment Bot"><meta name="robots" content="index, follow"><link rel="canonical" href="https://investment-bot-ta24.onrender.com/"><meta property="og:type" content="website"><meta property="og:url" content="https://investment-bot-ta24.onrender.com/"><meta property="og:title" content="経済NEWS - AIが毎朝の相場を分析してお届け"><meta property="og:description" content="AIが毎朝8時に相場を分析しLINEで配信。NISA・投資シミュレーター、急騰急落アラート、家計簿、経済ニュースがすべて無料。"><meta property="og:image" content="https://investment-bot-ta24.onrender.com/static/og-image.png"><meta property="og:site_name" content="経済NEWS"><meta property="og:locale" content="ja_JP"><meta property="og:locale:alternate" content="en_US"><meta property="og:locale:alternate" content="ko_KR"><meta property="og:locale:alternate" content="zh_CN"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="経済NEWS"><meta name="twitter:description" content="AIが毎朝の相場を分析してお届け"><meta name="twitter:image" content="https://investment-bot-ta24.onrender.com/static/og-image.png"><link rel="manifest" href="/static/manifest.json"><link rel="icon" type="image/png" href="/static/favicon.png"><link rel="apple-touch-icon" href="/static/apple-touch-icon.png"><link rel="dns-prefetch" href="https://fonts.gstatic.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"経済NEWS","url":"https://investment-bot-ta24.onrender.com/","applicationCategory":"FinanceApplication","operatingSystem":"Any","offers":{"@type":"Offer","price":"0","priceCurrency":"JPY"},"description":"AIが毎朝の相場を分析してお届け。NISA・シミュレーター・アラートを無料で提供。"}</script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800;900&family=Noto+Sans+JP:wght@300;400;500&family=M+PLUS+Rounded+1c:wght@400;700&family=Klee+One:wght@400;600&family=Shippori+Mincho:wght@400;700&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
   <style>
@@ -970,6 +1030,7 @@ window.knApplyEntryColor=function(hex){
   }
   introPalette['--mm-halo']=blend(homeSurface,'#ffffff',.7);
   introPalette['--entry-surface']=`linear-gradient(155deg,${blend(homeSurface,'#ffffff',.5)},${blend(homeSurface,'#ffffff',.22)} 53%,${blend(homeSurface,'#ffffff',.35)})`;
+  window.knSyncBrowserSurface?.({home:homeSurface,intro:blend(homeSurface,'#ffffff',.5),welcome:palette['--entry-surface'].match(/#[0-9a-f]{6}|hsl\([^)]*\)/i)[0]});
   // Give only the thin orbit a little more contrast, preserving the sphere and background.
   introPalette['--intro-ring-start']=blend(introPalette['--mm-bg'],introPalette['--mm-ink'],.16);
   introPalette['--intro-ring-mid']=blend(introPalette['--mm-cool'],introPalette['--mm-muted'],.22);
