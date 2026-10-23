@@ -13,10 +13,10 @@
 <script defer src="/static/market-catalog.js?v=20260913-a1"></script>
 <link rel="stylesheet" href="/static/dividend-view.css?v=20261011-plain-more1">
 <link rel="stylesheet" href="/static/dividend-calendar.css?v=20261011-calendar-unified1">
-<link rel="stylesheet" href="/static/company-profile.css?v=20261013-profile-mobile2">
+<link rel="stylesheet" href="/static/company-profile.css?v=20261024-stock-voice1">
 <script defer src="/static/date-display.js?v=20261011-price-time1"></script>
 <script defer src="/static/dividend-dates.js?v=20260925-dates1"></script>
-<script defer src="/static/company-profile.js?v=20261013-profile-mobile2"></script>
+<script defer src="/static/company-profile.js?v=20261024-stock-voice1"></script>
 <script defer src="/static/watch-dividends.js?v=20261011-watch-dividends1"></script>
 <script defer src="/static/dividend-data.js?v=20260924-dividend2"></script>
 <script defer src="/static/dividend-view.js?v=20261011-price-time1"></script>
@@ -60,7 +60,7 @@
 <link rel="stylesheet" href="/static/community.css?v=20261023-flat-selection1">
 <link rel="stylesheet" href="/static/user-profile.css?v=20261023-profile-album1">
 <script defer src="/static/user-profile.js?v=20261023-profile-album1"></script>
-<script defer src="/static/community.js?v=20261022-shared-profile1"></script>
+<script defer src="/static/community.js?v=20261024-stock-voice1"></script>
 <link rel="stylesheet" href="/static/guide-hub.css?v=20261023-flat-selection1">
 <script defer src="/static/guide-hub.js?v=20261014-guide-hub1"></script>
 <script>/* KN_TALK_TABS: Open the current conversation directly. */
@@ -69,8 +69,7 @@
   window.openTalk=function(){
     if(preparing)return;
     var current=document.querySelector('#cmOv.cw-screen,#stockTalkOv.cw-screen');
-    var route=current&&current.id==='stockTalkOv'&&typeof window.openStockTalk==='function'?window.openStockTalk:
-      typeof window.openCommunity==='function'?window.openCommunity:typeof window.openStockTalk==='function'?window.openStockTalk:null;
+    var route=typeof window.openCommunity==='function'?window.openCommunity:null;
     if(!route)return;
     var morning=document.getElementById('morning-section'),origin=current?undefined:{morningTop:morning?morning.scrollTop:0};
     // Keep the existing video and overlay cleanup without reopening an entrance.
@@ -418,7 +417,7 @@ window.knRetryFetch=function(url,opts,onOk,onWait,tries){
 </style>
 <link rel="stylesheet" href="/static/menu-a.css?v=20261024-tall-left1">
 <link rel="stylesheet" href="/static/navigation-backgrounds.css?v=20261019-steps2">
-<link rel="stylesheet" href="/static/talk-timeline.css?v=20261024-hide-talk-heading1">
+<link rel="stylesheet" href="/static/talk-timeline.css?v=20261024-stock-voice1">
 </head>
   <body>
 
@@ -4509,7 +4508,7 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
 </script>
 
 <style id="kn-flat-cards">.morning-news-section{background:transparent !important;background-color:transparent !important;box-shadow:none !important;border:none !important;border-radius:0 !important;}.morning-extra{background:transparent !important;background-color:transparent !important;box-shadow:none !important;border:none !important;border-radius:0 !important;}#morning-section{background:linear-gradient(180deg, #ffffff 0%, #ffffff 78%, #f3faf6 86%, #e4f2ea 94%, #d3ebde 100%) !important;background-attachment:local !important;}#knWatchSec{text-align:right !important;}#knSubRow,#knDivSubRow{width:calc(100% - 40px) !important;margin-left:20px !important;margin-right:20px !important;}#knFloatHam{filter:none!important;}#dividend-top-list{min-height:420px}.dividend-search-wrap{max-width:520px;margin-left:auto;margin-right:auto}#dividend-search-input{font-size:13px !important;padding:7px !important}.dividend-search-wrap button{font-size:12px !important;padding:7px 14px !important}.dividend-search-wrap{max-width:520px !important;margin-left:auto !important;margin-right:auto !important}.dividend-search-ac-wrap{position:relative;flex:1}.dividend-search-ac-wrap::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat center;background-size:contain;pointer-events:none;z-index:2}#dividend-search-input{width:100% !important;box-sizing:border-box;border:none !important;background:#fff !important;border-radius:18px !important;height:40px !important;padding:0 42px 0 18px !important;font-size:14px !important;color:#333}.dividend-search-wrap > button{display:none !important}.cal-nav-btn{border:none !important;background:transparent !important;box-shadow:none !important}.cal-nav-today{display:none !important}.help-tip{display:none !important}.mystock-header{display:none !important}.mystock-input-row{position:relative !important;display:block !important;max-width:520px;margin-left:auto;margin-right:auto}.mystock-input-row::after{content:"";position:absolute;right:14px;top:50%;width:18px;height:18px;transform:translateY(-50%);background:url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="%23666" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>') no-repeat center;background-size:contain;pointer-events:none;z-index:2}#mystock-input{width:100% !important;box-sizing:border-box;border:none !important;background:#fff !important;border-radius:18px !important;height:40px !important;padding:0 42px 0 18px !important;font-size:14px !important;color:#333}.mystock-input-row > button{display:none !important}#mystock-list > div[style*="9ca3af"]{display:none !important}</style>
-<script id="kn-err-loading">(function(){function knEF(){document.querySelectorAll('div[style*="dc2626"]').forEach(function(d){var x=(d.textContent||'').trim();if(x.indexOf('エラー')===0){d.textContent='読み込み中...';d.style.color='#999';d.style.fontSize='14px';d.style.textAlign='center';d.style.padding='0';d.style.marginTop='8px';}});}knEF();try{var mo=new MutationObserver(knEF);mo.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}})();</script><script src="/static/stock-talk.js?v=talk-reply-20261015"></script></body></html>
+<script id="kn-err-loading">(function(){function knEF(){document.querySelectorAll('div[style*="dc2626"]').forEach(function(d){var x=(d.textContent||'').trim();if(x.indexOf('エラー')===0){d.textContent='読み込み中...';d.style.color='#999';d.style.fontSize='14px';d.style.textAlign='center';d.style.padding='0';d.style.marginTop='8px';}});}knEF();try{var mo=new MutationObserver(knEF);mo.observe(document.body,{childList:true,subtree:true,characterData:true});}catch(e){}})();</script><script src="/static/stock-talk.js?v=20261024-stock-voice1"></script></body></html>
 
 
 <!-- Simulator routes remain independent from the pet game. -->

@@ -80,6 +80,13 @@
 #knCompanyProfile .cp-close {flex:none;padding:7px 0;border:0;border-radius:6px;background:transparent;color:var(--cp-muted);font-size:max(11px,calc(12px * var(--kn-a-scale,1)))}
 #knCompanyProfile button:focus-visible,#knCompanyProfile a:focus-visible,#knCompanyProfile summary:focus-visible {outline:2px solid var(--cp-ink);outline-offset:4px}
 #knCompanyProfile .cp-content {flex:1 1 auto;min-height:0;padding:22px 26px calc(30px + env(safe-area-inset-bottom,0px));overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:var(--cp-line) transparent;scroll-padding-block:18px}
+#knCompanyProfile .cp-voice-entry {margin:0 0 22px}
+#knCompanyProfile .cp-voice {display:flex;align-items:center;gap:12px;width:100%;padding:12px 15px;border:1px solid var(--cp-line);border-radius:10px;background:var(--cp-chip);color:var(--cp-ink);text-align:left}
+#knCompanyProfile .cp-voice-label {flex:none;font-weight:500}
+#knCompanyProfile .cp-voice-caption {flex:1;color:var(--cp-muted);font-size:max(11px,calc(12px * var(--kn-a-scale,1)))}
+#knCompanyProfile .cp-voice-arrow {font-size:22px;line-height:1}
+#knCompanyProfile .cp-voice:disabled {cursor:wait;opacity:.65}
+#knCompanyProfile .cp-voice-status {margin:8px 0 0;color:var(--cp-muted);font-size:max(11px,calc(12px * var(--kn-a-scale,1)));line-height:1.8}
 #knCompanyProfile .cp-feedback {margin:0 0 20px;color:var(--cp-muted);font-size:max(11px,calc(12px * var(--kn-a-scale,1)));line-height:1.8}
 #knCompanyProfile .cp-feedback p {margin:0}
 #knCompanyProfile .cp-retry {margin:6px 0 0;padding:5px 11px;border:1px solid var(--cp-line);border-radius:6px;background:transparent;color:var(--cp-ink);font-size:max(11px,calc(12px * var(--kn-a-scale,1)))}

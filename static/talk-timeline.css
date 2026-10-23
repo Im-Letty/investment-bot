@@ -53,6 +53,20 @@ body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-content {
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-intro {
   margin-bottom:16px;
 }
+body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-context-title {
+  margin:0 0 10px;
+  color:var(--kn-sh-ink);
+  font:500 calc(24px * var(--kn-type-scale,1))/1.5 var(--kn-a-serif,"Hiragino Mincho ProN","Yu Mincho",serif);
+  letter-spacing:.04em;
+}
+body.kn-home-a #stockTalkOv .cw-company-context {
+  margin:0 0 18px;
+  padding-bottom:16px;
+  border-bottom:1px solid var(--kn-sh-line);
+  color:var(--kn-sh-muted);
+  font-size:calc(var(--kn-type-control,14px) * var(--kn-type-scale,1));
+  overflow-wrap:anywhere;
+}
 
 /* The existing stock room picker becomes a small, horizontal bookshelf.
    The general conversation remains a single shared feed without topic tabs. */

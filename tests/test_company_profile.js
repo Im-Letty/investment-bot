@@ -462,6 +462,28 @@ test('delegated company button does not toggle its article, closes cancel reques
   for(const fn of h.events.click)fn({target:h.trigger,preventDefault(){prevented=true;},stopPropagation(){stopped=true;}});await flush();assert.equal(prevented,true);assert.equal(stopped,true);assert.equal(requests.length,1);const overlay=h.doc.body.children.at(-1);assert.equal(overlay.hidden,false);
   api.close();assert.equal(requests[0].options.signal.aborted,true);assert.equal(overlay.hidden,true);requests[0].resolve({ok:true,json:async()=>fixture()});await flush();assert.equal(overlay.hidden,true);assert.equal(h.home.inert,false);
 });
+function voiceHarness(){
+  const h=dialogHarness(),requests=[],calls=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));
+  h.w.KNStockTalk={openForCompany:(symbol,options)=>new Promise(resolve=>calls.push({symbol,options,resolve}))};
+  const api=profile.start(h.w);api.open(KEY,'トヨタ',h.trigger);
+  const overlay=h.doc.body.children.at(-1),button=overlay.querySelector('.cp-voice'),status=overlay.querySelector('.cp-voice-status');
+  return {...h,api,requests,calls,overlay,button,status};
+}
+test('company voice resolves before releasing the modal and its close callback restores company context and focus',async()=>{
+  const h=voiceHarness();await flush();h.button.dispatch('click');assert.equal(h.calls.length,1);assert.equal(h.calls[0].symbol,KEY);assert.equal(h.button.disabled,true);assert.equal(h.overlay.hidden,false);assert.equal(h.home.inert,true);
+  h.button.dispatch('click');assert.equal(h.calls.length,1,'double taps do not resolve twice');
+  const call=h.calls[0];assert.equal(call.options.isCurrent(),true);assert.equal(call.options.beforeOpen(),true);assert.equal(h.overlay.hidden,true);assert.equal(h.home.inert,false);assert.equal(h.requests[0].options.signal.aborted,true);
+  call.resolve(true);await flush();call.options.onReturn();assert.equal(h.overlay.hidden,false);assert.equal(h.overlay.querySelector('.cp-code').textContent,'7203');assert.equal(h.doc.activeElement,h.button);assert.equal(h.home.inert,true);
+  h.api.close();assert.equal(h.doc.activeElement,h.trigger);assert.equal(h.home.inert,false);
+});
+test('failed or unavailable voice keeps company information visible and offers a retry without declaring an empty conversation',async()=>{
+  const h=voiceHarness();h.button.dispatch('click');h.calls[0].resolve(false);await flush();assert.equal(h.overlay.hidden,false);assert.equal(h.button.disabled,false);assert.match(h.status.textContent,/今は開けません/);assert.doesNotMatch(h.status.textContent,/投稿がありません/);
+  h.button.dispatch('click');assert.equal(h.calls.length,2);h.calls[1].resolve(false);await flush();delete h.w.KNStockTalk;h.button.dispatch('click');await flush();assert.equal(h.button.disabled,false);assert.equal(h.overlay.hidden,false);
+});
+test('late company voice resolution cannot open after closing or switching to another company',async()=>{
+  const h=voiceHarness();h.button.dispatch('click');const first=h.calls[0];h.api.close();assert.equal(first.options.isCurrent(),false);assert.equal(first.options.beforeOpen(),false);first.resolve(false);await flush();assert.equal(h.overlay.hidden,true);
+  h.api.open(KEY,'トヨタ',h.trigger);h.button.dispatch('click');const next=h.calls[1];h.api.open('1832.JP','北海電工',h.trigger);assert.equal(next.options.isCurrent(),false);assert.equal(next.options.beforeOpen(),false);next.resolve(false);await flush();assert.equal(h.overlay.querySelector('.cp-code').textContent,'1832');assert.equal(h.status.hidden,true);assert.equal(h.button.disabled,false);
+});
 test('only the selected visible Tokyo company requests minute quotes; previews and regional identities do not',async()=>{
   const h=dialogHarness(),requests=[];h.w.fetch=(url,options)=>new Promise(resolve=>requests.push({url,options,resolve}));const api=profile.start(h.w);
   const reply=async(index,raw=fixture())=>{requests[index].resolve({ok:true,json:async()=>raw});await flush();};

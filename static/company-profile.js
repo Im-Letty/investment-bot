@@ -354,7 +354,7 @@
     }
     return {load,cancel,peek:key=>saved(symbol(key)),getState:()=>last};
   }
-  function createDialog(w,onRetry){
+  function createDialog(w,onRetry,onVoice){
     const doc=w.document,refs={};let opened=false,closing=null,returnFocus=null,returnCompanySymbol='',background=[],scrolls=[],bodyStyle=null,currentSymbol='',selectedName='';
     function el(tag,cls,content){const node=doc.createElement(tag);if(cls)node.className=cls;if(content!==undefined)node.textContent=content;return node;}
     function append(parent,...nodes){nodes.forEach(node=>parent.appendChild(node));return parent;}
@@ -364,6 +364,10 @@
     const head=el('header','cp-head'),identity=el('div','cp-identity');refs.code=el('p','cp-code');refs.name=el('h2','cp-title');refs.name.id='cp-company-title';
     const closeButton=el('button','cp-close','閉じる');closeButton.type='button';
     append(identity,refs.code,refs.name);append(head,identity,closeButton);
+    const voiceEntry=el('div','cp-voice-entry');refs.voice=el('button','cp-voice');refs.voice.type='button';
+    const voiceArrow=el('span','cp-voice-arrow','›');voiceArrow.setAttribute('aria-hidden','true');append(refs.voice,el('span','cp-voice-label','みんなの声'),el('span','cp-voice-caption','この銘柄の投稿・返信'),voiceArrow);
+    refs.voiceStatus=el('p','cp-voice-status');refs.voiceStatus.setAttribute('role','status');refs.voiceStatus.hidden=true;
+    append(voiceEntry,refs.voice,refs.voiceStatus);
     const content=el('div','cp-content'),feedback=el('div','cp-feedback');feedback.setAttribute('role','status');
     refs.status=el('p');refs.retry=el('button','cp-retry','もう一度確認');refs.retry.type='button';refs.retry.hidden=true;append(feedback,refs.status,refs.retry);
     const basic=el('section','cp-basic');basic.hidden=true;
@@ -407,7 +411,7 @@
     const reasonHelp=el('details','cp-reason-help');reasonHelp.hidden=true;
     append(reasonHelp,el('summary','','表示の意味'),el('p','','取得中：読み込み中です。通信エラー：取得先に接続できませんでした。'),el('p','','提供元に情報なし：取得先で確認できません。会社が未公表とは限りません。'),el('p','','内容を確認中・未確認：正確に表示できるか確認できていません。空欄は0円という意味ではありません。'));facts.appendChild(reasonHelp);refs.reasonHelp=reasonHelp;
     const sources=el('footer','cp-sources');append(sources,el('h3','cp-heading','出典'));refs.identityDate=el('p','cp-review-date');refs.reviewed=el('p','cp-review-date');refs.sources=el('ul','cp-source-list');append(sources,refs.businessSource,refs.identityDate,refs.reviewed,refs.sources);
-    append(content,overview,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
+    append(content,voiceEntry,overview,feedback,basic,stories,numbers,sources);append(panel,head,content);append(overlay,backdrop,panel);doc.body.appendChild(overlay);
     let sourcesSignature='',businessSourceSignature='',marketReferenceSignature='',historicalSourceSignature='',issuerForecastSourceSignature='';
     function setMetric(key,value,when,reason){const ref=refs[key];ref.value.textContent=value||'—';ref.unknown.hidden=!!value;ref.unknown.textContent=reason||FIELD_REASONS.unconfirmed;ref.time.textContent=when||'';ref.time.hidden=!when;}
     function render(state){
@@ -523,6 +527,7 @@
       if(!opened)rememberBackground(trigger);
       if(currentSymbol!==key){numbers.open=false;content.scrollTop=0;sourcesSignature='';}
       currentSymbol=key;selectedName=text(name,160)||key;opened=true;refs.code.textContent=key.replace(/\.(?:T|JP)$/,'');refs.name.textContent=selectedName;overlay.hidden=false;sizeViewport();panel.focus({preventScroll:true});
+      voiceState(false);refs.voice.setAttribute('aria-label',selectedName+'のみんなの声を開く');
       background.forEach(item=>item.node.setAttribute('aria-hidden','true'));
     }
     function finishClose(){
@@ -538,6 +543,8 @@
     function close(immediate=false){if(!opened||closing!==null)return;if(immediate||w.matchMedia&&w.matchMedia('(prefers-reduced-motion: reduce)').matches){finishClose();return;}overlay.dataset.closing='true';closing=w.setTimeout(finishClose,180);}
     let onClose=()=>close();
     closeButton.addEventListener('click',()=>onClose());refs.retry.addEventListener('click',()=>onRetry());
+    refs.voice.addEventListener('click',()=>{if(onVoice&&!refs.voice.disabled)onVoice();});
+    function voiceState(busy,message=''){refs.voice.disabled=busy;refs.voice.setAttribute('aria-busy',String(busy));refs.voiceStatus.textContent=message;refs.voiceStatus.hidden=!message;}
     overlay.addEventListener('click',event=>{if(event.target===overlay||event.target===backdrop)onClose();});
     function focusables(){return Array.from(panel.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), summary, [tabindex="0"]')).filter(node=>!node.closest('[hidden]')&&node.getClientRects().length);}
     doc.addEventListener('keydown',event=>{
@@ -551,11 +558,11 @@
     },true);
     doc.addEventListener('focusin',event=>{if(opened&&!panel.contains(event.target))(focusables()[0]||panel).focus({preventScroll:true});},true);
     if(w.visualViewport){w.visualViewport.addEventListener('resize',sizeViewport);w.visualViewport.addEventListener('scroll',sizeViewport);}
-    return {open,close,render,setClose(fn){onClose=fn;},isOpen:()=>opened,elements:{overlay,panel,content,numbers,closeButton,backdrop,...refs}};
+    return {open,close,render,voiceState,setClose(fn){onClose=fn;},isOpen:()=>opened,elements:{overlay,panel,content,numbers,closeButton,backdrop,...refs}};
   }
   function start(w){
     if(w.KNCompanyProfile&&w.KNCompanyProfile.__ready)return w.KNCompanyProfile;
-    let view=null,current='',name='',refreshTimer=null;
+    let view=null,current='',name='',refreshTimer=null,voiceVersion=0,opener=null;
     let storage=null;try{storage=w.localStorage;}catch(e){}
     const env={fetch:w.fetch.bind(w),AbortController:w.AbortController,setTimeout:w.setTimeout.bind(w),clearTimeout:w.clearTimeout.bind(w),now:w.now,storage,purpose:'detail'};
     function stopRefresh(){w.clearTimeout(refreshTimer);refreshTimer=null;}
@@ -569,11 +576,27 @@
         refreshTimer=w.setTimeout(()=>{refreshTimer=null;if(view.isOpen()&&!w.document.hidden)loader.load(current);},delay);
       }
     });
-    function close(){stopRefresh();loader.cancel();if(view)view.close();}
+    function cancelVoice(){voiceVersion++;if(w.KNStockTalk&&typeof w.KNStockTalk.cancelPending==='function')w.KNStockTalk.cancelPending();}
+    function close(immediate=false){cancelVoice();stopRefresh();loader.cancel();if(view)view.close(immediate);}
+    async function openVoice(){
+      if(!view||!view.isOpen()||view.elements.voice.disabled)return;
+      const key=current,label=name,trigger=opener,token=++voiceVersion;
+      const isCurrent=()=>token===voiceVersion&&view.isOpen()&&current===key;
+      view.voiceState(true,'会話を開いています…');
+      let opened=false;
+      try{
+        if(w.KNStockTalk&&typeof w.KNStockTalk.openForCompany==='function')opened=await w.KNStockTalk.openForCompany(key,{
+          isCurrent,
+          beforeOpen(){if(!isCurrent())return false;voiceVersion++;stopRefresh();loader.cancel();view.close(true);return true;},
+          onReturn(){open(key,label,trigger);view.elements.voice.focus({preventScroll:true});}
+        });
+      }catch(e){}
+      if(isCurrent())view.voiceState(false,opened?'':'この銘柄の会話を今は開けませんでした。もう一度お試しください。');
+    }
     function open(value,label,trigger){
       const key=symbol(value);if(!key||!w.document.body)return false;
-      if(!view){view=createDialog(w,()=>loader.load(current));view.setClose(close);}
-      stopRefresh();current=key;name=text(label,160)||key;view.open(key,name,trigger);if(!w.document.hidden)loader.load(key);const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
+      if(!view){view=createDialog(w,()=>loader.load(current),openVoice);view.setClose(()=>close());}
+      cancelVoice();opener=trigger||w.document.activeElement;stopRefresh();current=key;name=text(label,160)||key;view.open(key,name,trigger);if(!w.document.hidden)loader.load(key);const state=loader.getState();if(state&&state.symbol===key)view.render(state);return true;
     }
     w.document.addEventListener('visibilitychange',()=>{if(!view||!view.isOpen())return;stopRefresh();if(w.document.hidden)loader.cancel();else loader.load(current);});
     w.document.addEventListener('click',event=>{const target=event.target&&event.target.closest&&event.target.closest('[data-company-profile]');if(!target||target.disabled||target.getAttribute('aria-disabled')==='true'||!symbol(target.dataset.companyProfile))return;event.preventDefault();event.stopPropagation();open(target.dataset.companyProfile,target.dataset.companyName,target);},true);

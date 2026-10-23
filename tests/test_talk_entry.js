@@ -28,7 +28,7 @@ test('closed Talk entry opens the general feed even when the remembered view is 
 });
 test('re-entering an active conversation avoids legacy navigation and does not overwrite its origin or drafts',()=>{
   for(const active of ['stock','community']){
-    const h=harness({active,last:active==='stock'?'community':'stock'});h.window.openTalk();assert.deepEqual(h.events,['close-saved',active]);assert.equal(h.calls[0].origin,undefined);assert.equal(h.morning.scrollTop,347);
+    const h=harness({active,last:active==='stock'?'community':'stock'});h.window.openTalk();assert.deepEqual(h.events,['close-saved','community']);assert.equal(h.calls[0].origin,undefined);assert.equal(h.morning.scrollTop,347);
   }
 });
 test('unavailable stock view falls back to the ready community route',()=>{
@@ -49,8 +49,8 @@ test('Talk navigation and unrelated clicks do not discard the active conversatio
 test('legacy navigation reentry opens the ready conversation once instead of recursively navigating',()=>{
   const h=harness({reentrant:true});assert.doesNotThrow(()=>h.window.openTalk());assert.deepEqual(h.events,['legacy-cleanup','close-saved','community']);assert.equal(h.calls.length,1);assert.equal(h.calls[0].origin.morningTop,347);
 });
-test('a missing general route falls back to ready stock without discarding its opening origin',()=>{
-  const h=harness({last:'community',community:false,reentrant:true});h.window.openTalk();assert.deepEqual(h.events,['legacy-cleanup','close-saved','stock']);assert.equal(h.calls[0].origin.morningTop,347);
+test('a missing general route leaves the current screen untouched even when stock is ready',()=>{
+  const h=harness({last:'community',community:false,reentrant:true});h.window.openTalk();assert.deepEqual(h.events,[]);assert.equal(h.calls.length,0);assert.equal(h.morning.scrollTop,347);
 });
 test('a thrown ready route does not leave the preparation guard stuck for the next entry',()=>{
   const h=harness({reentrant:true});let attempts=0;h.window.openCommunity=()=>{if(++attempts===1)throw Error('synthetic route failure');};assert.throws(()=>h.window.openTalk(),/synthetic route failure/);assert.doesNotThrow(()=>h.window.openTalk());assert.equal(attempts,2);assert.equal(h.events.filter(event=>event==='legacy-cleanup').length,2);
