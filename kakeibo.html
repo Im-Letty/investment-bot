@@ -31,8 +31,8 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261018-advice1">
   <script defer src="/static/portfolio-advice.js?v=20261018-advice1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261023-asset-goal1">
-  <script defer src="/static/portfolio-overview.js?v=20261023-asset-goal1"></script>
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261023-goal-focus1">
+  <script defer src="/static/portfolio-overview.js?v=20261023-goal-focus1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -343,6 +343,16 @@ body{padding-bottom:24px;}
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_assets">資産管理</h2>
   <p id="poStatus" class="po-status" role="status" aria-live="polite">資産の非公開接続を確認しています…</p>
   <button type="button" class="po-button" id="poRetry">再読み込み</button>
+  <section class="po-panel po-goal-hero" id="poGoalHero" aria-labelledby="poGoalTitle">
+    <div class="po-heading"><h3 id="poGoalTitle">資産目標</h3></div>
+    <div id="poGoalBody"></div>
+    <form id="poGoalForm" class="po-goal-form" novalidate>
+      <label class="po-field" for="poGoalAmount"><span>目標資産額（円）</span><input class="inp" id="poGoalAmount" type="text" inputmode="decimal" autocomplete="off" maxlength="128"></label>
+      <button class="po-button po-button-primary" id="poGoalSave" type="submit" disabled>保存</button>
+      <p class="po-error" id="poGoalError" role="alert"></p>
+    </form><p class="po-muted" id="poGoalStatus" role="status" aria-live="polite"></p>
+  </section>
+  <div class="po-columns">
   <section class="kk-asset-summary po-hero" aria-labelledby="kkAssetTotalLabel">
     <div class="po-hero-head"><div class="po-label-row">
       <p id="kkAssetTotalLabel" class="kk-layout-note" data-i18n="kk_total_asset">総資産</p>
@@ -355,6 +365,8 @@ body{padding-bottom:24px;}
     <p id="poAsOf" class="po-asof"></p>
     <div class="po-profit"><span class="po-profit-label">投資分の評価損益</span><strong id="poProfitValue" class="po-profit-value">—</strong><p id="poProfitNote" class="po-profit-note"></p></div>
   </section>
+  <section class="po-panel"><div class="po-heading"><h3>資産の内訳</h3></div><p id="poAllocationNote" class="po-muted"></p><div id="poAllocationStack" class="po-stack" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
+  </div>
   <form class="po-panel" id="poEditor" hidden novalidate>
     <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
     <fieldset class="po-fieldset" id="poFieldset" disabled><div class="po-fields">
@@ -369,16 +381,6 @@ body{padding-bottom:24px;}
     <p id="poEditorError" class="po-error" role="alert"></p>
     <div class="po-actions"><button type="button" class="po-button" id="poCancelButton">キャンセル</button><button type="submit" class="po-button po-button-primary" id="poSaveButton">追加する</button></div></fieldset>
   </form>
-  <div class="po-columns">
-    <section class="po-panel"><div class="po-heading"><h3>資産の内訳</h3></div><p id="poAllocationNote" class="po-muted"></p><div id="poAllocationStack" class="po-stack" role="img" aria-label="資産の内訳"></div><canvas id="assetPieChart" class="po-legacy-canvas" aria-hidden="true" hidden></canvas><div id="asset-legend"></div></section>
-    <section class="po-panel"><div class="po-heading"><h3>資産目標</h3></div>
-      <form id="poGoalForm" class="po-goal-form" novalidate>
-        <label class="po-field" for="poGoalAmount"><span>目標資産額（円）</span><input class="inp" id="poGoalAmount" type="text" inputmode="decimal" autocomplete="off" maxlength="128"></label>
-        <button class="po-button po-button-primary" id="poGoalSave" type="submit" disabled>保存</button>
-        <p class="po-error" id="poGoalError" role="alert"></p>
-      </form><p class="po-muted" id="poGoalStatus" role="status" aria-live="polite"></p><div id="poGoalBody"></div>
-    </section>
-  </div>
   <section class="po-panel po-holdings"><div class="po-heading"><h3>保有資産</h3><button type="button" class="po-button" data-po-add disabled>＋ 追加</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">各資産を押すと、評価額や口座区分を編集できます。</p></section>
 </div>
 <div class="tab-content" id="tab-records">

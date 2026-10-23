@@ -172,9 +172,13 @@
       if(s.goalError){body.appendChild(node('p','po-muted','目標を読み込めませんでした。再読み込みしてください。'));return;}
       if(!g){body.appendChild(node('p','po-muted','目標を設定すると、達成率を確認できます。'));return;}
       if(!(g.target>0)){body.appendChild(node('p','po-muted','目標額は未入力です。'));return;}
-      var gap=decimalText([g.target].concat(s.model.rows.map(function(row){return -row.amount;}))),ratio=s.model.total/g.target*100,ratioLabel=percent(s.model.total,g.target,gap),pct=Math.max(0,Math.min(gap!=='0'&&gap[0]!=='-'?99.9:100,ratio));body.appendChild(node('p','po-goal-rate',ratioLabel));
+      var gap=decimalText([g.target].concat(s.model.rows.map(function(row){return -row.amount;}))),ratio=s.model.total/g.target*100,ratioLabel=percent(s.model.total,g.target,gap),pct=Math.max(0,Math.min(gap!=='0'&&gap[0]!=='-'?99.9:100,ratio)),above=gap[0]==='-',distance=node('p','po-goal-gap');
+      if(gap==='0'){distance.className+=' po-goal-achieved';distance.textContent='目標額に到達しました。';}
+      else{distance.appendChild(node('span','po-goal-label',above?'目標を上回った金額':'目標まであと'));distance.appendChild(node('strong','po-goal-amount',money(above?gap.slice(1):gap)));}
+      body.appendChild(distance);body.appendChild(node('p','po-goal-rate','達成率 '+ratioLabel));
       var track=node('div','po-track');track.setAttribute('role','progressbar');track.setAttribute('aria-label','資産目標の達成率');track.setAttribute('aria-valuenow',String(pct));track.setAttribute('aria-valuemin','0');track.setAttribute('aria-valuemax','100');track.setAttribute('aria-valuetext',ratioLabel);var fill=node('div','po-fill');fill.style.width=pct+'%';track.appendChild(fill);body.appendChild(track);
-      body.appendChild(node('p','po-goal-current','現在 '+money(s.model.totalText)));body.appendChild(node('p','po-muted','目標 '+money(g.target)));var above=gap[0]==='-';body.appendChild(node('p','po-goal-gap',gap==='0'?'目標額に到達しました。':(above?'目標を上回った金額':'目標まであと')+' '+money(above?gap.slice(1):gap)));
+      var values=node('div','po-goal-current-target'),current=node('p','po-goal-current'),target=node('p','po-goal-target');
+      current.appendChild(node('span','po-goal-label','現在 '));current.appendChild(node('strong','',money(s.model.totalText)));target.appendChild(node('span','po-goal-label','目標 '));target.appendChild(node('strong','',money(g.target)));values.appendChild(current);values.appendChild(target);body.appendChild(values);
     }
     function open(index){if(busy)return;var s=session.state();if(!s.ready||owner()!==s.owner)return;if(!form.hidden&&dirty&&!w.confirm('編集中の内容を閉じますか？'))return;
       editorIndex=index;editorRaw=s.raw;editorOwner=s.owner;var a=index===null?{}:s.model.rows[index];if(!a)return;

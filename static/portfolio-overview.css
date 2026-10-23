@@ -1,4 +1,4 @@
-/* Adopted asset-first portfolio. Values keep the ledger's selected reading theme. */
+/* Adopted goal-first portfolio. Values keep the ledger's selected reading theme. */
 #tab-assets.po-overview{--po-category-0:#aeb58d;--po-category-1:#758454;--po-category-2:#b5a074;--po-category-3:#9b8078;--po-category-4:#8199a0;--po-category-5:#9b88a7;--po-category-6:#9c9e91;max-width:960px}
 #tab-assets.po-overview [hidden]{display:none!important}
 #tab-assets .po-hero{display:block!important}
@@ -30,18 +30,25 @@
 #tab-assets .po-legend-value{text-align:right;font-variant-numeric:tabular-nums;overflow-wrap:anywhere;color:var(--kn-ledger-ink,#505538)}
 #tab-assets .po-legend-value small{display:inline-block;margin-left:7px;font-size:calc(12px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b)}
 #tab-assets .po-goal-name{font-size:calc(13px * var(--kn-ledger-scale,1));overflow-wrap:anywhere;color:var(--kn-ledger-muted,#72785b)}
-#tab-assets .po-goal-rate{font-size:calc(31px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:500;margin:7px 0 10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
-#tab-assets #poGoalForm{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:end;margin-bottom:18px}
+#tab-assets .po-goal-rate{font-size:calc(14px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:500;margin:20px 0 10px;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets #poGoalForm{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 10px;align-items:end;margin-top:22px;padding-top:18px;border-top:1px solid var(--kn-ledger-line,#d9d8c3)}
 #tab-assets #poGoalForm .po-field{min-width:0}
 #tab-assets #poGoalSave{grid-column:2;grid-row:1}
 #tab-assets #poGoalForm .inp{width:100%;box-sizing:border-box;min-width:0;margin:0;min-height:44px;font-size:max(16px,calc(15px * var(--kn-ledger-scale,1)))}
 #tab-assets #poGoalError{grid-column:1/-1;margin:0}
 #tab-assets #poGoalError:empty,#tab-assets #poGoalStatus:empty{display:none}
 #tab-assets #poGoalStatus{margin:12px 0 0}
-#tab-assets .po-goal-current{font-size:calc(16px * var(--kn-ledger-scale,1));font-variant-numeric:tabular-nums;overflow-wrap:anywhere;margin:10px 0}
+#tab-assets .po-goal-current-target{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 24px;margin-top:20px}
+#tab-assets .po-goal-current-target p{margin:0;min-width:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets .po-goal-target{text-align:right}
+#tab-assets .po-goal-label{display:block;font-size:calc(13px * var(--kn-ledger-scale,1));font-weight:400;line-height:1.7;color:var(--kn-ledger-muted,#72785b)}
+#tab-assets .po-goal-current-target strong{display:block;margin-top:5px;font-size:calc(22px * var(--kn-ledger-scale,1));line-height:1.5;font-weight:500}
 #tab-assets .po-track{height:7px;background:var(--kn-ledger-chip,#f4f2e7);border-radius:4px;overflow:hidden;margin-bottom:12px}
+#tab-assets .po-goal-hero .po-track{height:11px;margin:0}
 #tab-assets .po-fill{height:100%;background:var(--kn-ledger-button,#74784b);border-radius:4px}
-#tab-assets .po-goal-gap{margin-top:15px;font-size:calc(14px * var(--kn-ledger-scale,1));overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets .po-goal-gap{margin:0;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+#tab-assets .po-goal-amount{display:block;font:500 calc(42px * var(--kn-ledger-scale,1))/1.45 var(--kn-ledger-sans,sans-serif);letter-spacing:-.03em;margin-top:6px}
+#tab-assets .po-goal-achieved{font:500 calc(29px * var(--kn-ledger-scale,1))/1.6 var(--kn-ledger-sans,sans-serif)}
 #tab-assets .po-list{border-top:1px solid var(--kn-ledger-line,#d9d8c3)}
 #tab-assets .po-holding{display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--kn-ledger-line,#d9d8c3)}
 #tab-assets .po-holding:last-child{border-bottom:0}
@@ -61,11 +68,11 @@
 #tab-assets .po-fieldset{border:0;min-width:0;padding:0}
 #tab-assets .po-status{margin:0 0 18px;font-size:calc(13px * var(--kn-ledger-scale,1));color:var(--kn-ledger-muted,#72785b);overflow-wrap:anywhere}
 #tab-assets .po-error{color:var(--kn-ledger-expense,#a15f54);font-size:calc(13px * var(--kn-ledger-scale,1));overflow-wrap:anywhere}
-#tab-assets[data-po-ready="false"] :is(.po-columns,.po-holdings,.po-profit,.po-asof){visibility:hidden}
+#tab-assets[data-po-ready="false"] :is(#poGoalBody,.po-columns,.po-holdings,.po-profit,.po-asof){visibility:hidden}
 #tab-assets .po-legacy-canvas{display:none!important}
 @media(max-width:620px){#tab-assets .po-columns{grid-template-columns:1fr;gap:0}#tab-assets .po-hero{display:block!important}
-#tab-assets .po-hero,#tab-assets .po-panel{padding:18px}#tab-assets .po-hero #totalAssetVal{font-size:calc(31px * var(--kn-ledger-scale,1))}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr) minmax(75px,.85fr)}}
+#tab-assets .po-hero,#tab-assets .po-panel{padding:18px}#tab-assets .po-hero #totalAssetVal{font-size:calc(31px * var(--kn-ledger-scale,1))}#tab-assets .po-goal-amount{font-size:calc(36px * var(--kn-ledger-scale,1))}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr) minmax(75px,.85fr)}}
 @media(max-width:380px){#tab-assets .po-fields{grid-template-columns:1fr}#tab-assets .po-field-wide{grid-column:auto}#tab-assets .po-legend-value small{display:block;margin-left:0}#tab-assets .po-hero{display:block!important}
-#tab-assets .po-hero,#tab-assets .po-panel{padding:14px}#tab-assets .po-holding{gap:5px}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr);gap:4px}#tab-assets .po-asset-values{text-align:left}#tab-assets .po-asset-values small{display:inline-block;margin-left:10px}}
+#tab-assets .po-hero,#tab-assets .po-panel{padding:14px}#tab-assets .po-goal-current-target{grid-template-columns:1fr;gap:14px}#tab-assets .po-goal-target{text-align:left}#tab-assets .po-goal-amount{font-size:calc(32px * var(--kn-ledger-scale,1))}#tab-assets .po-holding{gap:5px}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr);gap:4px}#tab-assets .po-asset-values{text-align:left}#tab-assets .po-asset-values small{display:inline-block;margin-left:10px}}
 
 #tab-assets #poRetry{margin:0 0 16px}#tab-assets[data-po-ready="true"] #poRetry{display:none}

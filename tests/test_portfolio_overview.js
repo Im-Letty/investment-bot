@@ -2,6 +2,7 @@
 const test=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),path=require('node:path');
 const api=require('../static/portfolio-overview.js');
 const raw=rows=>JSON.stringify(rows);
+const nodeText=n=>[n.textContent,...n.children.map(nodeText)].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
 function fixture(rows=[]){let owner='A',assetsRaw=raw(rows),plannerRaw=null,readHook=null,writeHook=null,targetHook=null;const writes=[],states=[],targetWrites=[];
  const session=api.createSession({owner:()=>owner,read:async who=>{if(readHook)return readHook(who);return {assetsRaw,raw:plannerRaw};},write(who,rows){if(writeHook)return writeHook(who,rows);assert.equal(who,owner);assetsRaw=raw(rows);writes.push(assetsRaw);},writeTarget:async(who,value)=>{if(targetHook)return targetHook(who,value);assert.equal(who,owner);plannerRaw=api.targetDocument(plannerRaw,value);targetWrites.push(plannerRaw);return {ok:true,synced:true};},onChange:s=>states.push(s)});
  return {session,writes,states,targetWrites,setOwner:v=>owner=v,setRaw:v=>assetsRaw=v,setPlanner:v=>plannerRaw=v,setRead:v=>readHook=v,setWrite:v=>writeHook=v,setTargetWrite:v=>targetHook=v,getRaw:()=>assetsRaw,getPlanner:()=>plannerRaw};
@@ -133,7 +134,9 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
    addEventListener:(name,fn)=>events[name]=fn,focus(){n.focused=true;},scrollIntoView(){},remove(){if(n.parentNode)n.parentNode.children=n.parentNode.children.filter(c=>c!==n);attrs.delete('data-po-custom');},click(){if(events.click)return events.click({target:n});}};
   all.push(n);if(id)nodes.set(id,n);return n;
  }
- const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
+ const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
+ nodes.get('tab-assets').appendChild(nodes.get('poGoalHero'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalBody'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalForm'));
+ const advice=element('section','kkPortfolioAdvice'),adviceControl=element('button');advice.appendChild(adviceControl);nodes.get('tab-assets').appendChild(advice);
  for(const key of ['name','cat','amount','cost','account','institution','date'])element(['cat','account'].includes(key)?'select':'input','ast-'+key);
  for(const id of ['ast-cat','ast-account'])for(const value of ['',...(id==='ast-cat'?['現金','国内株','投資信託']:['NISA','特定口座'])]){const o=element('option');o.value=value;nodes.get(id).appendChild(o);}
  const add=element('button');add.setAttribute('data-po-add','');
@@ -141,7 +144,7 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
  const w={document,location:{origin:'https://portfolio.test',href:'https://portfolio.test/kakeibo'},knLedgerSession:{user:{id:'A'},access_token:'synthetic-token'},localStorage:{getItem:k=>values.get(k)??null},
   kkMyPageStore:{load:async()=>({assetsRaw:assetRaw,raw:planner}),stage(who,next){assert.equal(who,w.knLedgerSession.user.id);planner=next;targetWrites.push(next);if(listeners.knMyPageStoreChange)listeners.knMyPageStoreChange();return true;},save:async()=>true},saveAssets(rows){assetRaw=raw(rows);writes.push(assetRaw);},confirm:()=>true,addEventListener:(name,fn)=>listeners[name]=fn};w.parent=w;
  api.mount(w);
- return {w,nodes,all,add,listeners,writes,targetWrites,getRaw:()=>assetRaw,getPlanner:()=>planner,setPlanner:r=>planner=r,async flush(){for(let i=0;i<20;i++)await Promise.resolve();},
+ return {w,nodes,all,add,advice,adviceControl,listeners,writes,targetWrites,getRaw:()=>assetRaw,getPlanner:()=>planner,setPlanner:r=>planner=r,async flush(){for(let i=0;i<20;i++)await Promise.resolve();},
   owner(id){values.set('kn_ledger_owner',id);w.knLedgerSession={user:{id},access_token:'synthetic-'+id};},
   input(key,value){const n=nodes.get('ast-'+key);n.value=value;nodes.get('poEditor').events.input({target:n});},target(value){const n=nodes.get('poGoalAmount');n.value=value;n.events.input({target:n});},saveTarget(){return nodes.get('poGoalForm').events.submit({preventDefault(){}});},
   dispatch(name,event={}){return listeners[name]&&listeners[name](event);}};
@@ -177,15 +180,16 @@ test('DOM save errors keep the draft and show fixed Japanese copy while known fi
 });
 test('DOM target shows the same exact current total as the hero plus percentage and remaining amount without legacy metadata',async()=>{
  const h=domFixture([{amount:1.5},{amount:2.5}]);await h.flush();h.setPlanner(raw({version:1,goals:[{id:'old',title:'表示しない旧目標名',target:10,deadline:'2030-01-01'}],selectedGoalId:'old'}));await h.w.kkPortfolioRender();
- const body=h.nodes.get('poGoalBody'),text=body.children.map(n=>n.textContent).join('|');
+ const body=h.nodes.get('poGoalBody'),text=nodeText(body);
  assert.equal(h.nodes.get('totalAssetVal').textContent,'4円');assert.match(text,/現在 4円/);assert.match(text,/40%/);assert.match(text,/目標 10円/);assert.match(text,/目標まであと 6円/);assert.doesNotMatch(text,/旧目標名|2030/);assert.equal(h.nodes.get('poGoalAmount').value,'10');
  const track=body.children.find(n=>n.getAttribute('role')==='progressbar');assert.equal(track.getAttribute('aria-valuenow'),'40');assert.equal(track.getAttribute('aria-valuetext'),'40%');
- h.setPlanner(raw({version:1,goals:[],assetTarget:2}));await h.w.kkPortfolioRender();assert.match(body.children.map(n=>n.textContent).join('|'),/200%.*目標を上回った金額 2円/);assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
+ assert.match(nodeText(body.children[0]),/^目標まであと 6円$/);assert.equal(body.children[1].textContent,'達成率 40%');
+ h.setPlanner(raw({version:1,goals:[],assetTarget:2}));await h.w.kkPortfolioRender();assert.match(nodeText(body.children[0]),/^目標を上回った金額 2円$/);assert.match(nodeText(body),/200%/);assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'100');
 });
 test('an empty restored asset list is zero progress and an exact target match announces achievement',async()=>{
  const empty=domFixture([]);await empty.flush();empty.setPlanner(raw({version:1,goals:[],assetTarget:10}));await empty.w.kkPortfolioRender();const body=empty.nodes.get('poGoalBody');
- assert.equal(empty.nodes.get('totalAssetVal').textContent,'0円');assert.match(body.children.map(n=>n.textContent).join('|'),/0%.*現在 0円.*目標 10円.*目標まであと 10円/);
- const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();assert.match(exact.nodes.get('poGoalBody').children.map(n=>n.textContent).join('|'),/100%.*現在 0.3円.*目標額に到達/);
+ assert.equal(empty.nodes.get('totalAssetVal').textContent,'0円');assert.match(nodeText(body),/目標まであと 10円.*0%.*現在 0円.*目標 10円/);
+ const exact=domFixture([{amount:.1},{amount:.2}]);await exact.flush();exact.setPlanner(raw({version:1,goals:[],assetTarget:.3}));await exact.w.kkPortfolioRender();assert.match(nodeText(exact.nodes.get('poGoalBody')),/目標額に到達.*100%.*現在 0.3円/);assert.match(exact.nodes.get('poGoalBody').children[0].className,/po-goal-achieved/);
 });
 test('DOM target saves only on submit through the existing bridge and blank clears legacy fallback',async()=>{
  const h=domFixture();await h.flush();const planner=require('../static/mypage-planner.js'),d=planner.empty();d.notes=[{id:'p',title:'保持',body:'本文',groupId:'',pinned:true}];d.goals=[{id:'old',title:'保持',details:'詳細',target:100,monthly:null,deadline:''}];d.selectedGoalId='old';d.extra={keep:true};h.setPlanner(raw(d));await h.w.kkPortfolioRender();
@@ -207,4 +211,41 @@ test('embedded target submit delegates to the current parent controller and pres
 });
 test('a staged local target awaiting sync is described honestly and repeated submit cannot start duplicate saves',async()=>{
  const h=domFixture();await h.flush();let resolve;h.w.kkMyPageStore.save=()=>new Promise(r=>resolve=r);h.target('250');const saving=h.saveTarget();await h.flush();assert.equal(h.targetWrites.length,1);assert.equal(h.nodes.get('poGoalSave').disabled,true);assert.equal(await h.saveTarget(),false);resolve(false);await saving;await h.flush();assert.equal(h.targetWrites.length,1);assert.equal(h.nodes.get('poGoalStatus').textContent,'この端末に保存しました。同期を待っています…');assert.equal(h.nodes.get('poGoalAmount').value,'250');
+});
+test('goal-first markup keeps one editable target and the existing independently mounted advice',()=>{
+ const html=fs.readFileSync(path.join(__dirname,'../kakeibo.html'),'utf8'),pane=html.slice(html.indexOf('id="tab-assets"'),html.indexOf('id="tab-records"'));
+ assert.ok(pane.indexOf('id="poGoalHero"')<pane.indexOf('id="kkAssetTotalLabel"'));
+ assert.ok(pane.indexOf('id="poGoalBody"')<pane.indexOf('id="poGoalForm"'));
+ assert.equal((pane.match(/id="poGoalAmount"/g)||[]).length,1);
+ assert.equal((pane.match(/<input[^>]+>/g)||[]).filter(s=>/id="poGoal/.test(s)).length,1);
+ assert.match(html,/<script defer src="\/static\/portfolio-advice\.js\?v=20261018-advice1"><\/script>/);
+ assert.match(html,/<link rel="stylesheet" href="\/static\/portfolio-advice\.css\?v=20261018-advice1">/);
+});
+test('prominent remaining and excess values keep signed totals and exact fractional differences',async()=>{
+ for(const [rows,target,label,current] of [
+  [[{amount:-1.25}],10,'目標まであと 11.25円','現在 -1.25円'],
+  [[{amount:.1},{amount:.2}],1,'目標まであと 0.7円','現在 0.3円'],
+  [[{amount:.1},{amount:.2}],.1,'目標を上回った金額 0.2円','現在 0.3円'],
+  [[{amount:999999.99}],1000000,'目標まであと 0.01円','現在 999,999.99円']
+ ]){
+  const h=domFixture(rows);await h.flush();h.setPlanner(raw({version:1,goals:[],assetTarget:target}));await h.w.kkPortfolioRender();const body=h.nodes.get('poGoalBody');
+  assert.equal(nodeText(body.children[0]),label);assert.match(nodeText(body),new RegExp(current.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
+  assert.equal(body.children[0].children[1].className,'po-goal-amount');
+  if(rows[0].amount<0)assert.equal(body.children.find(n=>n.getAttribute('role')==='progressbar').getAttribute('aria-valuenow'),'0');
+  if(target===1000000)assert.match(nodeText(body),/達成率 99.9%/);
+  assert.equal(h.writes.length,0);assert.equal(h.targetWrites.length,0);
+ }
+});
+test('readiness and account transitions clear all prominent goal numbers before another owner restores',async()=>{
+ const h=domFixture([{amount:4321.25}]);await h.flush();h.setPlanner(raw({version:1,goals:[],assetTarget:9876.5}));await h.w.kkPortfolioRender();assert.match(nodeText(h.nodes.get('poGoalBody')),/5,555.25円/);
+ let restore;h.w.kkMyPageStore.load=()=>new Promise(resolve=>restore=resolve);h.owner('B');h.dispatch('knLedgerAuth');
+ assert.equal(h.nodes.get('tab-assets').getAttribute('data-po-ready'),'false');assert.equal(nodeText(h.nodes.get('poGoalBody')),'');assert.equal(h.nodes.get('poGoalAmount').value,'');assert.equal(h.nodes.get('poGoalSave').disabled,true);
+ restore({assetsRaw:raw([{amount:7}]),raw:raw({version:1,goals:[],assetTarget:20})});await h.flush();assert.equal(nodeText(h.nodes.get('poGoalBody').children[0]),'目標まであと 13円');assert.doesNotMatch(nodeText(h.nodes.get('poGoalBody')),/4,321|9,876|5,555/);
+ h.w.kkMyPageStore.load=async()=>{throw Error('synthetic restore failure');};h.dispatch('knLedgerAuth');await h.flush();assert.equal(nodeText(h.nodes.get('poGoalBody')),'');assert.equal(h.nodes.get('poGoalSave').disabled,true);
+});
+test('overview redraws and target saves preserve the mounted advice node and its controls without running them',async()=>{
+ const h=domFixture();let clicks=0;h.adviceControl.addEventListener('click',()=>clicks++);await h.flush();
+ h.target('10');await h.saveTarget();h.add.click();h.input('name','保存しない下書き');h.nodes.get('poCancelButton').click();h.dispatch('knMyPageStoreChange');await h.flush();
+ assert.equal(h.nodes.get('tab-assets').children.at(-1),h.advice);assert.equal(h.advice.children[0],h.adviceControl);assert.equal(clicks,0);assert.equal(h.writes.length,0);
+ h.adviceControl.click();assert.equal(clicks,1);
 });
