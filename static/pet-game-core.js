@@ -44,10 +44,10 @@
     {key:'fruit',label:'はなほっぺ',colorName:'桃色',color:'#d99eae',description:'くだもののお世話から育つ、はなやかなほっぺの姿。',hint:'いつものごはんや、りんご・いちごが好き。'},
     {key:'hearty',label:'ぽかぽか',colorName:'はちみつ色',color:'#d2ad70',description:'しっかりしたごはんから育つ、あたたかな姿。',hint:'おにぎりや、ごちそうのお世話をしてみよう。'},
     {key:'sweet',label:'おやつっこ',colorName:'杏色',color:'#dfa88b',description:'おやつのお世話から育つ、やさしい杏色の姿。',hint:'ケーキのお世話をしてみよう。'},
-    {key:'active',label:'そよかぜ',colorName:'空色',color:'#92b4d1',description:'いっしょに遊んで育つ、軽やかな姿。',hint:'なでたり、ミニゲームで遊んでみよう。'},
+    {key:'active',label:'そよかぜ',colorName:'空色',color:'#92b4d1',description:'いっしょに遊んで育つ、軽やかな姿。',hint:'なでたり、いっしょに過ごしてみよう。'},
     {key:'calm',label:'まどろみ',colorName:'ミント色',color:'#9dbfb0',description:'休むお世話から育つ、おだやかな姿。',hint:'ゆっくり休む時間を作ってみよう。'}
   ].map(function(path){return Object.freeze(path);}));
-  var LIMITS = {care:{feed:3,play:3,rest:3},minigamesPerDay:3,maxScore:30,minigameDurationMs:25000,
+  var LIMITS = {care:{feed:3,play:3,rest:3},
     marketAdvancesPerDay:12,feeRate:0.01,minFee:1,dividendEvery:5};
   var STOCKS = [
     {id:'apl',name:'りんご商事',emoji:'🍎',base:40,volatility:0.14,dividendRate:0.03},
@@ -150,8 +150,6 @@
     invalid_cozy_room_layout:'家具や壁紙・床の配置を確認してください。保存済みのお部屋は変更していません。',
     invalid_village_layout:'村の配置を確認してください。保存済みの村は変更していません。',
     insufficient_coins:'コインが足りません。',already_owned:'すでに持っています。',not_owned:'このアイテムを持っていません。',
-    game_active:'進行中のミニゲームを終えてから開始してください。',invalid_session:'このミニゲームは終了済み、または確認できません。',
-    invalid_score:'ミニゲームの結果を確認してください。',game_too_short:'ミニゲームを遊んでから結果を保存してください。',
     invalid_trade:'株数は1以上の整数で入力してください。',amount_overflow:'扱える金額を超えています。',insufficient_shares:'保有株数が足りません。',
     legacy_already_transferred:'移せる旧ゲームの記録はありません。',legacy_pot_empty:'引き出せる旧ポット資産はありません。',invalid_backup:'バックアップの形式を確認してください。'
   };
@@ -286,6 +284,7 @@
     pet:{name:'',species:'lilac',exp:0,path:'cute',pixel:false,eggOrigin:null},coins:100,inventory:{},wardrobe:{owned:{},equipped:null},
     decorations:{owned:{},equipped:null,background:'meadow',backgrounds:['meadow']},achievements:[],
     care:{day:dayKey(ms),counts:{feed:0,play:0,rest:0},lastCareAt:null,dailyRewardDay:'',total:{feed:0,play:0,rest:0}},
+    // Historical minigame data remains readable/exportable; no game commands run it.
     minigames:{day:dayKey(ms),started:0,active:null,completed:[],bestScore:0},market:market(),
     legacyReserve:{available:false,transferred:false,name:'',coins:0,exp:0,inventory:{},decorations:{},equipped:null,market:null,pot:{value:0,basis:0,days:0},sourceRaw:null},
     migration:{version:1,at:ms,source:'new',legacyRaw:{}}}; }
@@ -617,21 +616,6 @@
           check(next.wardrobe&&next.wardrobe.owned[a.itemId]===true,'not_owned');next.wardrobe.equipped=a.itemId;
         }
         return reward;
-      } else if(a.type==='beginMinigame') {
-        var g=next.minigames;check(!g.active,'game_active');check(a.kind===undefined||a.kind==='catch'||a.kind==='snack','invalid_action');
-        if(g.day!==day){check(day>g.day,'clock_moved_back');g.day=day;g.started=0;}
-        check(g.started<LIMITS.minigamesPerDay,'daily_limit');g.started++;
-        var kind=a.kind||'catch',id=kind+'-'+ms+'-'+next.revision+'-'+Math.floor(random()*1000000000);g.active={id:id,kind:kind,startedAt:ms};reward.sessionId=id;
-      } else if(a.type==='finishMinigame'||a.type==='cancelMinigame') {
-        var mg=next.minigames;check(mg.active&&a.sessionId===mg.active.id&&mg.completed.indexOf(a.sessionId)<0,'invalid_session');
-        if(a.type==='finishMinigame') {
-          check(integer(a.score)&&a.score<=LIMITS.maxScore,'invalid_score');check(ms-mg.active.startedAt>=LIMITS.minigameDurationMs,'game_too_short');
-          reward.coins=a.score;reward.exp=Math.min(10,Math.ceil(a.score/2));next.coins+=reward.coins;next.pet.exp+=reward.exp;next.care.lastCareAt=ms;mg.bestScore=Math.max(mg.bestScore,a.score);
-          if(a.score>=15)achievement(next,'mg15');
-          if(a.score>0){var foods=['apple','cake','berry','rice'];var foodId=foods[Math.floor(random()*foods.length)];next.inventory[foodId]=(next.inventory[foodId]||0)+1;reward.items=[{id:foodId,count:1}];}
-          if(a.score>0&&reward.exp>0)evolutionKind='play';
-        }
-        mg.completed.push(mg.active.id);if(mg.completed.length>64)mg.completed.shift();mg.active=null;
       } else if(a.type==='advanceMarketDay') {
         var m=next.market;if(m.advanceDay!==day){check(!m.advanceDay||day>m.advanceDay,'clock_moved_back');m.advanceDay=day;m.advances=0;}
         check(m.advances<LIMITS.marketAdvancesPerDay,'daily_limit');m.advances++;m.day++;

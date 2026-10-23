@@ -8,7 +8,6 @@ const Motion = require('../static/pet-lilac-motion.js');
 const Room = require('../static/pet-room-behavior.js');
 const Town = require('../static/pet-town-walk.js');
 const source = fs.readFileSync(require.resolve('../static/pet-game.js'), 'utf8');
-const cafeSource = fs.readFileSync(require.resolve('../static/pet-cafe.js'), 'utf8');
 
 const copy = value => JSON.parse(JSON.stringify(value));
 async function flush() { for (let i = 0; i < 24; i++) await Promise.resolve(); }
@@ -152,7 +151,6 @@ async function fixture(config = {}) {
   class Clock extends Date { constructor(...args) { super(...(args.length ? args : [clock])); } static now() { return clock; } }
   const math = Object.create(Math); math.random = () => .5;
   const context = vm.createContext({ window, document, Date: Clock, Math: math, Promise, Blob });
-  if (!config.cafeUnavailable) vm.runInContext(cafeSource, context);
   vm.runInContext(source, context);
   const ui = window.IndependentPetGame;
   const opening = ui.mount(host, coreOptions); assert.equal(await opening, true); await flush();
@@ -734,26 +732,17 @@ test('mount failures and renderer errors retain a still while real game saves su
   assert.equal(f.saved().pet.exp, before.pet.exp + 8); assert.equal(f.host.querySelector('.ipg-error'), null);
 });
 
-test('B catcher movement and catches are transient; a failed result grants nothing until one retry saves', async () => {
-  const f = await fixture({ species: 'lilac', rendererMode: 'ready' });
-  await f.click(f.focusButton('tab-play')); await f.click(f.button('25秒のゲームをはじめる'));
-  const before = f.saved(), catcher = f.host.querySelector('.ipg-catcher'), controller = f.activeMotions()[0];
-  assert.ok(catcher.className.includes('ipg-lilac-visual')); assert.equal(f.raf.size, 1);
-  await f.click(f.button('右へ')); assert.equal(catcher.style.left, '62%');
-  assert.equal(controller.changes.at(-1).name, 'moving');
-  await f.click(f.button('← 左へ')); assert.equal(catcher.style.left, '50%');
-  await f.frame(); await f.frame(1600);
-  assert.ok(controller.changes.some(cue => cue.name === 'caught'));
-  assert.deepEqual(f.saved(), before, 'catch feedback is not a reward or storage write');
-  f.control.outcome = 'false'; await f.frame(23400);
-  assert.deepEqual(f.saved(), before); assert.ok(f.button('結果の保存を再試行'));
-  assert.equal(f.actionCues.filter(row => row.action.type === 'finishMinigame').length, 0);
-  f.control.outcome = 'ok'; await f.click(f.button('結果の保存を再試行'));
-  assert.equal(f.saved().coins, before.coins + 1); assert.equal(f.saved().pet.exp, before.pet.exp + 1);
-  assert.equal(f.saved().inventory.berry, (before.inventory.berry || 0) + 1); assert.equal(f.saved().minigames.active, null);
-  assert.equal(f.actionCues.filter(row => row.action.type === 'finishMinigame').length, 1);
-  assert.equal(f.actionCues.at(-1).cue.situation, 'caught'); assert.equal(f.raf.size, 0);
-  assert.equal(f.activeMotions().length, 1);
+test('only the four retained game tabs are reachable and ordinary care play remains available', async () => {
+  const f=await fixture({species:'lilac',rendererMode:'ready'}),before=f.saved();
+  assert.deepEqual(f.host.querySelector('.ipg-tabs').children.map(b=>b.dataset.focusKey),['tab-village','tab-care','tab-shop','tab-market']);
+  assert.equal(f.host.querySelector('[data-focus-key="tab-play"]'),null);
+  for(const key of ['shop','market','care']){
+    await f.click(f.focusButton('tab-'+key));assert.equal(f.host.querySelector('.ipg-catch-board'),null);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
+    assert.doesNotMatch(f.host.textContent,/ミニゲーム|25秒|結果の保存を再試行|前の回を終了/);
+  }
+  assert.deepEqual(f.saved(),before);await f.click(f.focusButton('care-play'));
+  assert.equal(f.saved().pet.exp,before.pet.exp+5);assert.equal(f.saved().care.counts.play,before.care.counts.play+1);
+  assert.deepEqual(f.saved().minigames,before.minigames);await f.ui.close();
 });
 
 test('care offers all 100 expressive choices without saving, awarding or starting an animation loop', async () => {
@@ -1682,7 +1671,7 @@ test('saved clothes survive growth, emotions, feeding, navigation and reload whi
   await f.click(f.focusButton('care-feed')); assert.equal(f.saved().pet.exp, 405);
   assert.equal(f.activeMotions()[0].options.growthStage, 'adult'); assert.equal(f.activeMotions()[0].options.outfit, 'cloth_rose_cape');
   f.advance(4400); await f.fireTimers(); assert.equal(f.host.querySelector('.ipg-emotion-stage').querySelector('.ipg-lilac-visual').dataset.feedingPhase, 'joy');
-  for (const tab of ['play', 'market', 'shop', 'care']) {
+  for (const tab of ['market', 'shop', 'care']) {
     await f.click(f.focusButton('tab-' + tab)); assert.equal(f.activeMotions()[0].options.outfit, 'cloth_rose_cape');
   }
   const after = f.saved(), raw = f.data.get(Core.KEY), reload = await fixture({ rendererMode: 'ready', seed: { [Core.KEY]: raw } });
@@ -1967,7 +1956,7 @@ test('normal care room has no motion inspector, settings preview or future appea
   assert.ok(!f.host.textContent.includes('100種類'));
   assert.ok(!f.host.textContent.includes('好きに選べます'));
   const before = f.saved(), writes = f.writes.length;
-  for (const tab of ['shop', 'play', 'market', 'care']) {
+  for (const tab of ['shop', 'village', 'market', 'care']) {
     await f.click(f.focusButton('tab-' + tab));
     assert.equal(f.host.querySelector('.ipg-emotion-panel'), null);
     assert.equal(f.host.querySelector('.ipg-growth-gallery'), null);
@@ -2516,7 +2505,7 @@ test('every garment shares its product illustration with free fitting and saved 
   }
 });
 
-test('room decorations, ordinary care and catch drops reuse local illustrations without emoji fallbacks', async () => {
+test('room decorations and ordinary care reuse local illustrations without emoji fallbacks', async () => {
   const f = await fixture({ species: 'lilac', rendererMode: 'ready', setup: async app => {
     assert.equal((await app.dispatch({ type: 'buyItem', itemId: 'house' })).ok, true);
     assert.equal((await app.dispatch({ type: 'equip', itemId: 'house' })).ok, true);
@@ -2526,8 +2515,6 @@ test('room decorations, ordinary care and catch drops reuse local illustrations 
   assert.equal(decoration.querySelector('img').src, illustrationPath('house')); decoration.querySelector('img').emit('error'); assert.equal(decoration.textContent, '');
   const care = f.focusButton('care-feed').querySelector('.ipg-care-item-art'); assert.equal(care.querySelector('img').src, illustrationPath('apple')); assert.equal(care.textContent, '');
   assert.deepEqual(f.saved(), before); assert.equal(f.writes.length, writes);
-  await f.click(f.focusButton('tab-play')); await f.click(f.button('25秒のゲームをはじめる')); await f.frame();
-  const drop = f.host.querySelector('.ipg-drop-art'); assert.ok(drop); assert.equal(drop.dataset.itemArt, 'rice'); assert.equal(drop.querySelector('img').src, illustrationPath('rice')); assert.equal(drop.textContent, '');
   f.ui.close();
 });
 
@@ -2574,7 +2561,7 @@ test('editing stops room drawing and touch, suppresses stale care/navigation han
   assert.equal(roomProps(f).length, 6); assert.equal(f.activeMotions().length, 0);
   assert.equal(f.host.querySelector('.ipg-touch-actions'), null); assert.equal(f.host.querySelector('.ipg-room-care'), null);
   assert.equal(f.host.querySelector('.ipg-backup'), null); assert.equal(f.host.querySelector('.ipg-pet-settings'), null);
-  for (const key of ['care', 'play', 'shop', 'market']) assert.equal(f.focusButton('tab-' + key).disabled, true);
+  for (const key of ['care', 'village', 'shop', 'market']) assert.equal(f.focusButton('tab-' + key).disabled, true);
   care.emit('click'); nav.emit('click'); await flush();
   assert.ok(f.host.querySelector('.ipg-room-editor')); assert.equal(f.host.querySelector('.ipg-shop-grid'), null);
   await f.click(roomProp(f, 'room_window')); await f.click(f.focusButton('room-flip')); await f.click(f.focusButton('room-move-右へ'));
@@ -2878,7 +2865,7 @@ async function walkToVillagePlace(f,id,enter=true) {
     const pos={x:parseFloat(avatar.style.left),y:parseFloat(avatar.style.top)},place=world.places.find(row=>row.id===id);
     if(Math.hypot(pos.x-place.entrance.x,pos.y-place.entrance.y)<1)break;
   }
-  if(enter&&['home','shop','cafe','playground'].includes(id)) {
+  if(enter&&['home','shop'].includes(id)) {
     const button=f.focusButton('town-enter');assert.equal(button.hidden,false,id+' is in reach');
     assert.ok(button.textContent.startsWith(Town.createWorld().places.find(p=>p.id===id).label));await f.click(button);
   }
@@ -2899,8 +2886,8 @@ test('walking to nearby entrances opens the existing facilities only after expli
   await f.click(villagePlace(f,'home'));assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.host.querySelector('.ipg-town-avatar').style.left,start,'tap cannot teleport or enter');
   await walkToVillagePlace(f,'home');assert.ok(f.host.querySelector('.ipg-care-room'));assert.equal(f.focusButton('tab-care').getAttribute('aria-current'),'page');
   await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'shop');assert.ok(f.host.querySelector('.ipg-shop-grid'));
-  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'cafe');assert.ok(f.host.textContent.includes('カフェのおやつづくり'));assert.equal(f.host.querySelector('.ipg-cafe-activity'),null,'opening a cafe cannot silently begin a paid daily attempt');
-  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'playground');assert.ok(f.host.textContent.includes('広場のおにぎりキャッチ'));
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'cafe');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.focusButton('town-enter').hidden,true);
+  await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'playground');assert.ok(f.host.querySelector('.ipg-town'));assert.equal(f.focusButton('town-enter').hidden,true);
   await f.click(f.focusButton('tab-village'));await walkToVillagePlace(f,'tree',false);assert.ok(f.host.querySelector('.ipg-town'));
   await walkToVillagePlace(f,'flowers',false);assert.equal(f.focusButton('town-enter').hidden,true);
   assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
@@ -3021,26 +3008,42 @@ test('mounting a different host isolates a pending village save and all detached
   assert.equal(target.textContent,text);assert.deepEqual(f.saved(),saved);assert.equal(f.writes.length,writes);assert.equal(saved.villageLayout.items.find(x=>x.id==='home').y,78);
 });
 
-test('cafe starts explicit snack sessions and settles the real shared wallet only after its full timer',async()=>{
-  const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'cafe');await f.click(f.button('25秒のゲームをはじめる'));
-  assert.equal(f.saved().minigames.active.kind,'snack');assert.equal(f.saved().minigames.started,1);assert.ok(f.host.querySelector('.ipg-cafe-activity'));assert.equal(f.saved().coins,before.coins);
-  const ingredient=id=>f.host.querySelectorAll('.ipg-cafe-ingredient').find(x=>x.dataset.ingredient===id);
-  for(const id of ['sponge','cream','berry'])await f.click(ingredient(id));assert.ok(f.host.querySelector('.ipg-cafe-status').textContent.includes('3点'));
-  assert.equal(f.saved().coins,before.coins);await f.frame(24999);assert.equal(f.saved().coins,before.coins);await f.frame(1);
-  assert.equal(f.saved().minigames.active,null);assert.equal(f.saved().coins,before.coins+3);assert.equal(f.saved().pet.exp,before.pet.exp+2);assert.equal(f.saved().minigames.started,1);
-  const after=f.saved();await f.frame(10000);f.ui.render();assert.deepEqual(f.saved(),after);
+test('cafe and playground remain walkable scenery with no minigame entry, timers or rewards',async()=>{
+  const f=await villageFixture(),before=f.saved(),writes=f.writes.length;
+  f.window.PetCafe={mount(){assert.fail('removed cafe runtime must never mount');}};
+  for(const id of ['cafe','playground']){
+    await walkToVillagePlace(f,id);assert.ok(f.host.querySelector('.ipg-town'));
+    assert.equal(f.focusButton('town-enter').hidden,true);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);assert.equal(f.host.querySelector('.ipg-catch-board'),null);
+    assert.equal(f.raf.size,0);assert.doesNotMatch(f.host.textContent,/おやつづくり|おにぎりキャッチ|25秒|ミニゲーム|準備中/);
+    await f.frame(30000);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);
+  }
+  await f.ui.close();assert.equal(f.raf.size,0);
 });
 
-test('cafe cancellation cleans old ingredient and timer callbacks without granting rewards or a second daily attempt',async()=>{
-  const f=await villageFixture(),before=f.saved();await walkToVillagePlace(f,'cafe');await f.click(f.button('25秒のゲームをはじめる'));
-  const old=f.host.querySelectorAll('.ipg-cafe-ingredient'),staleFrames=[...f.raf.values()];await f.click(f.button('中止する（報酬なし）'));
-  assert.equal(f.saved().minigames.active,null);assert.equal(f.saved().minigames.started,1);assert.equal(f.saved().coins,before.coins);assert.equal(f.saved().pet.exp,before.pet.exp);
-  const after=f.saved();old.forEach(b=>b.emit('click'));staleFrames.forEach(fn=>fn(100000));await f.frame(30000);await flush();assert.deepEqual(f.saved(),after);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
+async function archivedMinigame(kind){
+  return fixture({species:'lilac',developerPreview:false,startAtVillage:true,rendererMode:'ready',setup:async store=>{
+    const backup=JSON.parse(store.exportBackup());backup.state.minigames={day:backup.state.minigames.day,started:2,active:{id:'archived-'+kind,kind,startedAt:backup.exportedAt-30000},completed:['historic-result'],bestScore:17};
+    assert.equal((await store.importBackup(JSON.stringify(backup))).ok,true);
+  }});
+}
+test('old active catch and snack records survive mount, idle, visibility, close and reopen byte for byte',async()=>{
+  for(const kind of ['catch','snack']){
+    const f=await archivedMinigame(kind),before=f.saved(),raw=f.data.get(Core.KEY),writes=f.writes.length;
+    assert.equal(raw,f.beforeMountRaw);assert.equal(writes,f.writesBeforeMount);assert.equal(before.minigames.active.kind,kind);
+    assert.doesNotMatch(f.host.textContent,/ミニゲーム|前の回|結果の保存|25秒/);assert.equal(f.raf.size,0);
+    f.ui.render();await f.frame(30000);f.document.hidden=true;f.document.emit('visibilitychange');await flush();
+    f.document.hidden=false;f.document.emit('visibilitychange');f.window.emit('pageshow');f.window.emit('focus');await flush();
+    await f.ui.close();await f.ui.open();await f.frame(30000);
+    assert.equal(f.data.get(Core.KEY),raw);assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);assert.equal(f.raf.size,0);assert.equal(f.actionCues.length,0);
+    const exported=JSON.parse(f.store.exportBackup()).state;assert.deepEqual(exported.minigames,before.minigames);await f.ui.close();
+  }
 });
-
-test('missing cafe code is an honest read error and does not consume a daily game attempt',async()=>{
-  const f=await villageFixture({cafeUnavailable:true}),before=f.saved();await walkToVillagePlace(f,'cafe');await f.click(f.button('25秒のゲームをはじめる'));
-  assert.ok(f.host.textContent.includes('カフェを読み込めませんでした'));assert.deepEqual(f.saved(),before);assert.equal(f.host.querySelector('.ipg-cafe-activity'),null);
+test('ordinary care play can save while an archived minigame active and all prior game history remain intact',async()=>{
+  const f=await archivedMinigame('snack'),before=f.saved();await f.click(f.focusButton('tab-care'));await f.click(f.focusButton('care-play'));
+  const after=f.saved();assert.equal(after.pet.exp,before.pet.exp+5);assert.equal(after.care.counts.play,before.care.counts.play+1);
+  assert.deepEqual(after.minigames,before.minigames);assert.deepEqual(after.inventory,before.inventory);assert.deepEqual(after.wardrobe,before.wardrobe);
+  await f.click(f.focusButton('tab-shop'));await f.click(f.focusButton('tab-market'));await f.click(f.focusButton('tab-village'));
+  assert.deepEqual(f.saved(),after);await f.ui.close();assert.deepEqual(f.saved(),after);
 });
 
 test('village facility and flora edges clamp to their distinct safe bands without rewriting saved coordinates on view or edit',async()=>{

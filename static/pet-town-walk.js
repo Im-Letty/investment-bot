@@ -85,11 +85,11 @@
     }
     return next;
   }
-  function nearestFacility(world, position) {
+  function nearestFacility(world, position, allowedIds) {
     if (!point(position)) return null;
     var nearest = null, distance = 110;
     world.places.forEach(function (place) {
-      if (!facility(place.id)) return;
+      if (!facility(place.id) || allowedIds && allowedIds.indexOf(place.id) < 0) return;
       var d = Math.hypot(position.x - place.entrance.x, position.y - place.entrance.y);
       if (d <= distance) { nearest = place; distance = d; }
     });
@@ -150,7 +150,7 @@
     var world = options.world || createWorld(), position = spawn(world, options.position);
     var dead = false, raf = null, last = null, keys = {}, pointers = {}, destination = null, waypoints = [], ground = null;
     var removers = [], observer = null, lastMotion = '', view = null;
-    var enter = options.enterButton, controls = options.controls || [];
+    var enter = options.enterButton, controls = options.controls || [], enterableIds = Array.isArray(options.enterableIds) ? options.enterableIds.slice() : null;
     function active() {
       if (dead || !viewport || !surface || !avatar || !doc || doc.hidden || viewport.isConnected === false || surface.isConnected === false || avatar.isConnected === false) return false;
       try { return typeof options.canRun !== 'function' || !!options.canRun(); } catch (_) { return false; }
@@ -175,7 +175,7 @@
       avatar.style.left = position.x.toFixed(3) + 'px'; avatar.style.top = position.y.toFixed(3) + 'px';
       avatar.style.zIndex = String(Math.round(position.y));
       if (enter) {
-        var nearby = nearestFacility(world, position);
+        var nearby = nearestFacility(world, position, enterableIds);
         enter.disabled = !nearby; enter.hidden = !nearby;
         if (nearby) { enter.textContent = nearby.label + 'に入る'; enter.setAttribute('aria-label', nearby.label + 'に入る'); }
       }
@@ -303,7 +303,7 @@
     listen(doc, 'visibilitychange', function () { if (doc.hidden) stop(); else draw(); });
     listen(enter, 'click', function () {
       if (!active() || enter.isConnected === false || enter.disabled || enter.hidden) return;
-      var nearby = nearestFacility(world, position);
+      var nearby = nearestFacility(world, position, enterableIds);
       if (!nearby) return;
       stop(); callback('onEnter', nearby.id);
     });

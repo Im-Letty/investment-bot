@@ -4345,12 +4345,11 @@ body:has(.side-drawer.open) #knBottomNav{display:none !important;}</style>
 })();
 </script>
 <!-- Independent pet game: legacy records are migrated once; household and study remain separate. -->
-<link rel="stylesheet" href="/static/pet-game.css?v=20261024-cozy-room1">
+<link rel="stylesheet" href="/static/pet-game.css?v=20261024-no-minigames1">
 <link rel="stylesheet" href="/static/pet-cozy-room.css?v=20261024-cozy-room1">
-<link rel="stylesheet" href="/static/pet-village.css?v=20261023-connected-village1">
+<link rel="stylesheet" href="/static/pet-village.css?v=20261024-no-minigames1">
 <link rel="stylesheet" href="/static/pet-town-walk.css?v=20261024-town-walk1">
-<script defer src="/static/pet-town-walk.js?v=20261024-town-walk1"></script>
-<script defer src="/static/pet-cafe.js?v=20261022-cafe-village1"></script>
+<script defer src="/static/pet-town-walk.js?v=20261024-no-minigames1"></script>
 <style id="independent-pet-shell">
 #sect-pet{position:fixed;inset:0;z-index:9996;display:flex;flex-direction:column;background:var(--kn-a-bg,#f4f7f5);color:var(--kn-a-text,#223b31);overflow:hidden}
 #sect-pet[hidden]{display:none}
@@ -4445,10 +4444,10 @@ body:has(#sect-pet:not([hidden])) #mrOv{z-index:100002}
     if(apiReady())return Promise.resolve();
     if(moduleLoading)return moduleLoading;
     var required=Promise.all([
-      loadRequired('/static/pet-game-core.js?v=20261024-cozy-room1',function(){return !!window.PetGameCore;}),
+      loadRequired('/static/pet-game-core.js?v=20261024-no-minigames1',function(){return !!window.PetGameCore;}),
       loadRequired('/static/pet-cozy-room.js?v=20261024-cozy-room1',function(){return !!window.PetCozyRoom&&typeof window.PetCozyRoom.mount==='function';})
     ]).then(function(){
-      return loadRequired('/static/pet-game.js?v=20261024-cozy-room1',apiReady);
+      return loadRequired('/static/pet-game.js?v=20261024-no-minigames1',apiReady);
     });
     var motion=loadScript('/static/pet-lilac-motion.js?v=20261023-reference-blink1',function(){return !!window.PetLilacMotion;},5000).catch(function(){});
     var room=loadScript('/static/pet-room-behavior.js?v=4306c88f116b',function(){return !!window.PetRoomBehavior;},5000).catch(function(){});

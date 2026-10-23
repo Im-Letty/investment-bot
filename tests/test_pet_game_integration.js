@@ -212,7 +212,7 @@ test('UI downloads after core without waiting for optional visuals; concurrent o
   assert.equal(f.mounts, 1); assert.equal(f.received.target, f.host);
   assert.equal(f.pane.hidden, false); assert.equal(f.petButton.getAttribute('aria-busy'), null);
   assert.equal(await f.window.openPetTab(), true);
-  assert.equal(f.mounts, 1, 'already-visible game is not rebuilt during an active minigame');
+  assert.equal(f.mounts, 1, 'already-visible game is not rebuilt during normal use');
   f.window.closePetTab(); assert.equal(f.pane.hidden, true); assert.equal(f.focus.focused, true);
   assert.equal(await f.window.openPetTab(), true);
   assert.equal(f.scripts.length, 4); assert.equal(f.mounts, 2, 'UI owns idempotent store reuse');
@@ -508,4 +508,13 @@ test('the outer loader also protects village arrangement from Escape until the e
   f.pane.villageEditing = false;
   for (const listener of f.listeners.document.keydown) listener({ key: 'Escape' });
   assert.equal(f.pane.hidden, true); assert.equal(f.closes, 1); assert.equal(f.mounts, 1);
+});
+
+test('main game does not load a removed minigame runtime and updates only changed game asset revisions',()=>{
+  assert.doesNotMatch(html,/<script\b[^>]*src=["'][^"']*pet-cafe\.js/);
+  assert.equal(fs.existsSync(path.join(root,'static/pet-cafe.js')),false);
+  for(const asset of ['pet-game-core.js','pet-game.js','pet-game.css','pet-village.css','pet-town-walk.js']){
+    assert.ok(html.includes('/static/'+asset+'?v=20261024-no-minigames1'),asset);
+  }
+  assert.ok(html.includes('/static/pet-cozy-room.css?v=20261024-cozy-room1'),'unchanged room asset pin is preserved');
 });

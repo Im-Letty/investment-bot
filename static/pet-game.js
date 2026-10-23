@@ -2,7 +2,7 @@
 (function (w, d) {
   'use strict';
   var host = null, store = null, options = null, mounting = null, unsubscribe = null;
-  var tab = 'care', busy = false, game = null, pendingFinish = null;
+  var tab = 'care', busy = false;
   var notice = '', failure = '', nameDraft = null, quantities = {};
   var lifecycleEpoch = 0, suspended = false, renderedDay = '', roomCarryX = 0;
   var motionControllers = [], motionRequests = [], reaction = null, greeted = false;
@@ -16,13 +16,13 @@
   var eggDraft = null, eggConfirm = false;
   var roomEdit = null, roomSurfaceCleanup = null, roomSurfaceGeneration = 0, roomSaveAttempt = null;
   var cozyPending = null;
-  var villageEdit = null, villageSaveAttempt = null, playKind = 'catch';
+  var villageEdit = null, villageSaveAttempt = null;
   // Walking is a view of the existing pet, not a second pet or a save action.
   // Retain the spot when visiting a facility; never write a frame into the store.
   var townController = null, townPending = null, townPosition = null;
   var imageRoot = '/static/';
   var stageLabels = { egg: 'たまご', baby: 'あかちゃん', child: 'こども', final: 'さいしゅうしんか' };
-  var tabLabels = { village: '村', care: 'そだてる', play: 'ミニゲーム', shop: 'お店・もちもの', market: '仮想マーケット' };
+  var tabLabels = { village: '村', care: 'そだてる', shop: 'お店・もちもの', market: '仮想マーケット' };
 
   function node(tag, cls, text) {
     var n = d.createElement(tag);
@@ -559,7 +559,6 @@
         request.controller = controller;
         motionControllers.push(controller);
         startRoomBehavior(request);
-        if (game && request.wrap.className.indexOf('ipg-catcher') >= 0) game.motion = controller;
       } catch (_) { motionFallback(request); }
     });
   }
@@ -876,7 +875,7 @@
   }
   function showSavedCareReaction(action, result) {
     if (!result || !result.ok || !action || action.type !== 'care' || ['feed', 'play', 'rest'].indexOf(action.kind) < 0 ||
-      !host || !store || tab !== 'care' || game || !motionsVisible()) return;
+      !host || !store || tab !== 'care' || !motionsVisible()) return;
     var saved = state(); if (saved.readOnly || displaySpecies(saved) !== 'lilac' || !currentReaction()) return;
     var scene = host.querySelector('.ipg-scene');
     if (scene && typeof scene.scrollIntoView === 'function') {
@@ -903,7 +902,7 @@
       notice = '';
     } finally {
       setBusy(false);
-      if (!game) { render(); showSavedCareReaction(action, result); }
+      render(); showSavedCareReaction(action, result);
     }
     return result;
   }
@@ -1077,7 +1076,7 @@
     if (roomSaveAttempt) { roomSaveAttempt = null; setBusy(false); }
   }
   function beginRoomEdit() {
-    if (!store || busy || game || roomEdit || developerPreview() || !motionsVisible()) return;
+    if (!store || busy || roomEdit || developerPreview() || !motionsVisible()) return;
     var s = state();
     if (s.readOnly || needsEggChoice(s) || typeof core().getRoomLayout !== 'function' || typeof core().defaultRoomLayout !== 'function') return;
     var cozy = !!w.PetCozyRoom && typeof core().getCozyRoomLayout === 'function';
@@ -1476,10 +1475,10 @@
     });
   }
   function villageDestination(id) {
-    if (busy || suspended || villageEdit || roomEdit || game) return;
+    if (busy || suspended || villageEdit || roomEdit) return;
     if (id === 'home') tab = 'care';
     else if (id === 'shop') tab = 'shop';
-    else if (id === 'cafe' || id === 'playground') { playKind = id === 'cafe' ? 'snack' : 'catch'; tab = 'play'; }
+    else if (id === 'cafe' || id === 'playground') { notice = id === 'cafe' ? 'カフェの前で、ひとやすみ。' : '広場を、のんびりおさんぽ。'; }
     else { notice = id === 'tree' ? '木かげで、ひとやすみ。' : 'お花が村を彩っています。'; }
     render();
     var target = host.querySelector('.ipg-body h3');
@@ -1516,13 +1515,13 @@
     var world = engine.createWorld(core().getVillageLayout(s));
     var viewport = node('div', 'ipg-town-viewport'); viewport.tabIndex = 0;
     viewport.dataset.focusKey = 'town-walk'; viewport.setAttribute('role', 'region');
-    viewport.setAttribute('aria-label', '街をおさんぽ。方向ボタン、矢印キー、WASDで歩きます。建物の近くで入れます。');
+    viewport.setAttribute('aria-label', '街をおさんぽ。方向ボタン、矢印キー、WASDで歩きます。おうちやお店の近くで入れます。');
     var scene = node('div', 'ipg-town-world'); scene.style.width = world.width + 'px'; scene.style.height = world.height + 'px';
     var layout = { items: world.places.map(function (p) { return { id: p.id, x: p.x / world.width * 100, y: p.y / world.height * 100 }; }) };
     drawVillageRoads(scene, layout);
     var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-village-art/tree-v2.webp', flowers: 'pet-village-art/flowerbed-v2.webp' };
     var mountedStore = store, epoch = lifecycleEpoch;
-    function active() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && motionsVisible() && !busy && !game && !villageEdit && !roomEdit; }
+    function active() { return village.isConnected && store === mountedStore && epoch === lifecycleEpoch && tab === 'village' && motionsVisible() && !busy && !villageEdit && !roomEdit; }
     world.places.forEach(function (p) {
       var place = button('', function () { if (active() && townController) townController.approach(p.id); }, true);
       place.className = 'ipg-town-place'; place.dataset.place = p.id; place.dataset.focusKey = 'village-place-' + p.id;
@@ -1572,7 +1571,7 @@
     townPending = function () {
       if (!active()) return;
       townController = engine.mount({ viewport: viewport, worldElement: scene, avatar: avatar, controls: inputs, enterButton: enter,
-        world: world, position: townPosition, canRun: active,
+        world: world, position: townPosition, canRun: active, enterableIds: ['home', 'shop'],
         onPosition: function (point) { if (active()) townPosition = { x: point.x, y: point.y }; },
         onEnter: function (id) { if (active()) villageDestination(id); },
         onMotion: function (motion) {
@@ -1616,7 +1615,7 @@
     });
     map.appendChild(scenery);
     var images = { home: 'pet-items-v1/house.webp', cafe: 'pet-village-art/cafe.webp', shop: 'pet-village-art/shop.webp', playground: 'pet-items-v1/fountain.webp', tree: 'pet-village-art/tree-v2.webp', flowers: 'pet-village-art/flowerbed-v2.webp' };
-    var captions = { home: 'お世話・おへや', cafe: 'おやつづくり', shop: 'お店・もちもの', playground: 'おにぎりキャッチ', tree: '木かげ', flowers: '花だん' };
+    var captions = { home: 'お世話・おへや', cafe: 'カフェの風景', shop: 'お店・もちもの', playground: 'おさんぽの広場', tree: '木かげ', flowers: '花だん' };
     layout.items.forEach(function (placed) {
       var spec = core().villagePlaces.filter(function (row) { return row.id === placed.id; })[0];
       var place = button('', function () {
@@ -1637,7 +1636,7 @@
       map.appendChild(place);
     });
     viewport.appendChild(map); village.appendChild(viewport);
-    village.appendChild(text('建物をタップして入れます。指や矢印キーで動かして村を見渡せます。', 'ipg-small ipg-village-hint'));
+    village.appendChild(text('おうちやお店から、それぞれの画面を開けます。指や矢印キーで動かして村を見渡せます。', 'ipg-small ipg-village-hint'));
     if (editing) {
       var controls = node('div', 'ipg-village-controls'), selected = layout.items.filter(function (row) { return row.id === editing.selected; })[0];
       controls.appendChild(text('動かす建物や木を選び、位置を調節してください。配置の変更にコインは使いません。', 'ipg-small'));
@@ -1667,152 +1666,12 @@
       append(actions, save, cancel, reset); append(controls, actions); village.appendChild(controls);
     } else {
       var edit = button('村の配置を変える', function () {
-        if (busy || suspended || !village.isConnected || game || roomEdit || villageEdit || s.readOnly) return;
+        if (busy || suspended || !village.isConnected || roomEdit || villageEdit || s.readOnly) return;
         villageEdit = { draft: copyVillage(core().getVillageLayout(state())), revision: state().revision, selected: 'home', error: '', saving: false };
         failure = ''; notice = ''; render();
       }, true, s.readOnly); edit.dataset.focusKey = 'village-edit'; village.appendChild(edit);
     }
     body.appendChild(village);
-  }
-  function renderPlay(s, body) {
-    var kind = game ? game.kind : s.minigames.active ? s.minigames.active.kind : playKind;
-    var c = card(kind === 'snack' ? 'カフェのおやつづくり' : '広場のおにぎりキャッチ');
-    if (!game && !pendingFinish && !s.minigames.active) {
-      var choices = node('div', 'ipg-row');
-      ['catch', 'snack'].forEach(function (choice) {
-        var choose = button(choice === 'snack' ? 'おやつづくり' : 'おにぎりキャッチ', function () { playKind = choice; render(); }, true);
-        choose.setAttribute('aria-pressed', String(kind === choice)); choices.appendChild(choose);
-      }); c.appendChild(choices);
-    }
-    append(c, text(kind === 'snack' ? '25秒で、注文どおりのおやつをつくろう。材料を順番に選んでね。' : '25秒で、おにぎりをキャッチ。左右に動かすか、← → キーでペットを動かせます。'),
-      text('広場とカフェで合わせて1日3回まで。中止した回も1回に数えます。報酬は終了後、保存できたときに受け取れます。'));
-    var used = s.minigames.day === currentDay() ? s.minigames.started || 0 : 0, cap = limits().minigamesPerDay || 3;
-    append(c, text('今日 ' + number(used) + '/' + cap + '回 · 最高 ' + number(s.minigames.bestScore) + 'ポイント', 'ipg-stage'));
-    if (game) {
-      if (game.kind === 'snack') buildCafeBoard(c); else buildBoard(c);
-    } else if (pendingFinish) {
-      append(c, text('結果の保存を確認できていません。再試行しても同じ回の報酬が重複することはありません。'),
-        button('結果の保存を再試行', finishPending));
-    } else if (s.minigames.active) {
-      var interrupted = s.minigames.active.id;
-      append(c, text('前の回の中断記録が残っています。報酬を付けずに終了してから、新しいゲームを始められます。'),
-        button('前の回を終了する（報酬なし）', function () {
-          run({ type: 'cancelMinigame', sessionId: interrupted }, '中断した回を終了しました。');
-        }, true));
-    } else {
-      append(c, button('25秒のゲームをはじめる', function () { startGame(kind); }, false, used >= cap),
-        text('獲得コインやアイテムは、お店やお世話に使えます。'));
-    }
-    body.appendChild(c);
-  }
-  async function startGame(kind) {
-    if (game || pendingFinish || busy) return;
-    kind = kind === 'snack' ? 'snack' : 'catch';
-    if (kind === 'snack' && (!w.PetCafe || typeof w.PetCafe.mount !== 'function')) { failure = 'カフェを読み込めませんでした。ページを読み直して、もう一度お試しください。'; render(); return; }
-    var epoch = lifecycleEpoch;
-    var result = await run({ type: 'beginMinigame', kind: kind }, 'ゲームを開始しました。');
-    if (!result.ok) return;
-    var active = state().minigames.active;
-    var id = result.reward && result.reward.sessionId || active && active.id;
-    if (!id) { failure = 'ゲームの開始記録を確認できませんでした。'; render(); return; }
-    if (suspended || epoch !== lifecycleEpoch || d.hidden) {
-      await run({ type: 'cancelMinigame', sessionId: id }, '画面を離れたためゲームを中止しました。');
-      return;
-    }
-    game = { id: id, kind: kind, score: 0, x: 50, drops: [], elapsed: 0, nextSpawn: 0, started: null, frame: null, events: [], finished: false };
-    tab = 'play'; notice = ''; render();
-  }
-  function onGame(target, type, fn, opts) {
-    target.addEventListener(type, fn, opts);
-    game.events.push(function () { target.removeEventListener(type, fn, opts); });
-  }
-  function cleanGame(g) {
-    if (!g) return;
-    if (g.frame != null) w.cancelAnimationFrame(g.frame);
-    if (g.cafe) g.cafe.dispose();
-    g.events.forEach(function (remove) { remove(); });
-    g.events = []; g.finished = true;
-  }
-  function buildCafeBoard(parent) {
-    var g = game;
-    g.cafe = w.PetCafe.mount(parent, {
-      durationMs: 25000,
-      now: options && options.now || Date.now,
-      onComplete: function (score) {
-        if (game !== g || g.finished) return;
-        cleanGame(g); game = null; pendingFinish = { sessionId: g.id, score: score };
-        finishPending();
-      },
-      onCancel: function () { if (game === g) cancelGame('中止しました。この回の報酬はありません。'); }
-    });
-  }
-  function buildBoard(parent) {
-    var g = game;
-    var status = node('p', 'ipg-game-status', '残り25秒 · 0個');
-    status.setAttribute('aria-live', 'polite'); status.setAttribute('aria-atomic', 'true');
-    var board = node('div', 'ipg-catch-board');
-    board.tabIndex = 0; board.setAttribute('role', 'group');
-    board.setAttribute('aria-label', 'おにぎりキャッチ。左右に動かすか矢印キーで操作。');
-    var catcher = petVisual(state(), 'ipg-catcher'); catcher.alt = '';
-    catcher.draggable = false; catcher.setAttribute('aria-hidden', 'true');
-    board.appendChild(catcher);
-    var controls = node('div', 'ipg-game-controls');
-    function move(delta) { if (game === g) { g.x = Math.max(8, Math.min(92, g.x + delta)); catcher.style.left = g.x + '%'; if (g.motion) g.motion.setSituation('moving', { durationMs: 800 }); } }
-    append(controls, button('← 左へ', function () { move(-12); }, true),
-      button('右へ →', function () { move(12); }, true));
-    append(parent, status, board, controls, button('中止する（報酬なし）', function () { cancelGame('中止しました。この回の報酬はありません。'); }, true));
-    function pointer(e) {
-      if (game !== g) return;
-      var r = board.getBoundingClientRect();
-      if (r.width) { g.x = Math.max(8, Math.min(92, (e.clientX - r.left) / r.width * 100)); catcher.style.left = g.x + '%'; if (g.motion) g.motion.setSituation('moving', { durationMs: 800 }); }
-      if (e.cancelable) e.preventDefault();
-    }
-    onGame(board, 'pointerdown', pointer);
-    onGame(board, 'pointermove', pointer);
-    onGame(board, 'keydown', function (e) {
-      if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') { e.preventDefault(); move(e.key === 'ArrowLeft' ? -8 : 8); }
-    });
-    var announced = -1;
-    function tick(t) {
-      if (game !== g || g.finished) return;
-      if (g.started === null) g.started = t;
-      g.elapsed = t - g.started;
-      if (g.elapsed >= 25000) {
-        cleanGame(g); game = null; pendingFinish = { sessionId: g.id, score: Math.min(30, g.score) };
-        finishPending(); return;
-      }
-      if (g.elapsed >= g.nextSpawn) {
-        var drop = { x: 8 + Math.random() * 84, at: g.elapsed, el: node('span', 'ipg-drop') };
-        drop.el.appendChild(itemArtwork('rice', 'ipg-drop-art'));
-        drop.el.setAttribute('aria-hidden', 'true'); drop.el.style.left = drop.x + '%';
-        board.appendChild(drop.el); g.drops.push(drop); g.nextSpawn = g.elapsed + 620;
-      }
-      g.drops = g.drops.filter(function (drop) {
-        var y = (g.elapsed - drop.at) / 1900 * 100;
-        if (y >= 79 && y <= 95 && Math.abs(drop.x - g.x) <= 12) {
-          if (g.motion) g.motion.setSituation('caught', { durationMs: 800 });
-          g.score = Math.min(30, g.score + 1); drop.el.remove(); return false;
-        }
-        if (y > 103) { drop.el.remove(); return false; }
-        drop.el.style.top = y + '%'; return true;
-      });
-      var seconds = Math.ceil((25000 - g.elapsed) / 1000);
-      if (seconds !== announced) { status.textContent = '残り' + seconds + '秒 · ' + g.score + '個'; announced = seconds; }
-      g.frame = w.requestAnimationFrame(tick);
-    }
-    g.frame = w.requestAnimationFrame(tick);
-  }
-  async function finishPending() {
-    if (!pendingFinish || busy) return;
-    var p = pendingFinish;
-    var result = await run({ type: 'finishMinigame', sessionId: p.sessionId, score: p.score }, 'ゲームの結果を保存しました。');
-    if (result.ok || !(state().minigames.active && state().minigames.active.id === p.sessionId)) pendingFinish = null;
-    render();
-  }
-  async function cancelGame(message) {
-    if (!game) return;
-    var g = game; cleanGame(g); game = null;
-    await run({ type: 'cancelMinigame', sessionId: g.id }, message || 'ゲームを中止しました。');
   }
   function owned(s, x) {
     if (x.type === 'food') return s.inventory[x.id] || 0;
@@ -1891,7 +1750,7 @@
   function renderShop(s, body) {
     renderClothesShop(s, body);
     var c = card('お店ともちもの');
-    append(c, text('おにぎりキャッチや毎日の育成で集めたコインを使えます。食べものは、もちものから使うとEXPになります。'));
+    append(c, text('毎日の育成で集めたコインを使えます。食べものは、もちものから使うとEXPになります。'));
     var grid = node('div', 'ipg-shop-grid');
     items().filter(function (x) { return x.type !== 'clothing'; }).forEach(function (x) {
       var count = owned(s, x), row = node('article', 'ipg-shop-item');
@@ -2096,7 +1955,7 @@
     }
   }
   function render() {
-    if (!host || !store || game && (host.querySelector('.ipg-catch-board') || host.querySelector('.ipg-cafe-activity'))) return;
+    if (!host || !store) return;
     var priorRoom = motionRequests.filter(function (request) { return !!request.room; })[0];
     roomCarryX = tab === 'care' && priorRoom && Number.isFinite(priorRoom.roomPixelX) ? priorRoom.roomPixelX : 0;
     clearRoomSurface();
@@ -2106,7 +1965,7 @@
     if (!needsEggChoice(s)) { eggDraft = null; eggConfirm = false; }
     renderedDay = currentDay();
     var head = node('header', 'ipg-header');
-    if (!choosing && tab !== 'care' && tab !== 'village' && !game && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
+    if (!choosing && tab !== 'care' && tab !== 'village' && displaySpecies(s) === 'lilac') head.appendChild(petVisual(s, 'ipg-lilac-compact'));
     append(head, append(node('div'), node('p', 'ipg-eyebrow', '小さな毎日を、いっしょに。'), node('h2', '', tab === 'village' ? 'カフェとお店の村' : 'そだてる')),
       node('div', 'ipg-wallet', number(s.coins) + ' コイン'));
     root.appendChild(head);
@@ -2122,9 +1981,8 @@
     }
     var nav = node('nav', 'ipg-tabs'); nav.setAttribute('aria-label', '育成ゲーム');
     Object.keys(tabLabels).forEach(function (key) {
-      var b = button(tabLabels[key], async function () {
+      var b = button(tabLabels[key], function () {
         if (busy || roomEdit || villageEdit) return;
-        if (game) await cancelGame('ゲームを中止しました。この回の報酬はありません。');
         tab = key; if (key !== 'shop') { fittingOpen = false; fittingOutfit = null; } render();
       }, true, !!roomEdit || !!villageEdit);
       b.className += tab === key ? ' is-active' : '';
@@ -2136,7 +1994,6 @@
     var body = node('div', 'ipg-body');
     if (tab === 'village') renderVillage(s, body);
     else if (tab === 'care') renderCare(s, body);
-    else if (tab === 'play') renderPlay(s, body);
     else if (tab === 'shop') renderShop(s, body);
     else renderMarket(s, body);
     root.appendChild(body);
@@ -2145,8 +2002,7 @@
     if (townPending) { var startTown = townPending; townPending = null; startTown(); }
     if (cozyPending) { var startCozy = cozyPending; cozyPending = null; startCozy(); }
     setBusy(busy);
-    if (game) { var board = host.querySelector('.ipg-catch-board'); if (board) board.focus({ preventScroll: true }); }
-    if (focused && !game) {
+    if (focused) {
       var n = host.querySelector('[data-focus-key="' + focused + '"]');
       if (n && !n.disabled) n.focus({ preventScroll: true });
     }
@@ -2166,7 +2022,6 @@
     if (host === target && store) { render(); return true; }
     if (mounting) return mounting;
     discardRoomEdit(); discardVillageEdit(); lifecycleEpoch++;
-    if (game) await cancelGame();
     host = target; townPosition = null; options = opts || options || {};
     tab = developerPreview() ? 'care' : 'village';
     loading('ゲームの記録を読み込んでいます…');
@@ -2186,7 +2041,7 @@
         store = candidate;
         if (unsubscribe) unsubscribe();
         var subscribedStore = store, subscribedTarget = host;
-        unsubscribe = store.subscribe(function () { if (store === subscribedStore && host === subscribedTarget && !busy && !game) render(); });
+        unsubscribe = store.subscribe(function () { if (store === subscribedStore && host === subscribedTarget && !busy) render(); });
         failure = ''; render(); return true;
       } catch (_) {
         store = null; loading('ゲームの記録を読み込めませんでした。保存先を確認して、もう一度お試しください。', true);
@@ -2198,16 +2053,15 @@
   function suspend() {
     suspended = true; lifecycleEpoch++; discardRoomEdit(); discardVillageEdit();
     stopMotions(); reaction = null; greeted = false; appearancePreview = false; bodyDrawerOpen.pet = bodyDrawerOpen.preview = bodyDrawerOpen.growth = false; directionDrawerOpen.pet = directionDrawerOpen.preview = directionDrawerOpen.growth = false; growthAlbumOpen = false; growthPreviewStage = null; growthPreviewPath = null; growthEmotionOpen = false; fittingOpen = false; fittingOutfit = null;
-    return cancelGame('画面を離れたためゲームを中止しました。');
   }
   d.addEventListener('visibilitychange', function () {
     if (d.hidden) suspend();
-    else { suspended = false; if (store && !game && !busy) render(); }
+    else { suspended = false; if (store && !busy) render(); }
   });
   w.addEventListener('pagehide', suspend);
-  w.addEventListener('pageshow', function () { suspended = false; if (store && !game && !busy) render(); });
-  w.addEventListener('focus', function () { if (store && !game && !busy && !(roomEdit && roomEdit.cozy)) render(); });
-  w.setInterval(function () { if (store && !game && !busy && renderedDay !== currentDay()) render(); }, 60000);
+  w.addEventListener('pageshow', function () { suspended = false; if (store && !busy) render(); });
+  w.addEventListener('focus', function () { if (store && !busy && !(roomEdit && roomEdit.cozy)) render(); });
+  w.setInterval(function () { if (store && !busy && renderedDay !== currentDay()) render(); }, 60000);
   w.IndependentPetGame = {
     mount: mount,
     open: function () { return mount(host || d.getElementById('pet-game-root'), options); },

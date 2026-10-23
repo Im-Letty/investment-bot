@@ -44,7 +44,7 @@ function fixture(options = {}) {
   doc.activeElement = viewport;
   const world = options.world || Town.createWorld();
   const controller = Town.mount({ viewport, worldElement: surface, avatar, enterButton: enter, world,
-    position: options.position || { x: 1100, y: 1100 }, controls, canRun: () => allowed,
+    position: options.position || { x: 1100, y: 1100 }, controls, canRun: () => allowed, enterableIds: options.enterableIds,
     onPosition: p => positions.push(p), onMotion: m => motions.push(m), onEnter: id => entries.push(id) });
   function frame(ms = 50) { stamp += ms; const calls = [...raf.values()]; raf.clear(); calls.forEach(fn => fn(stamp)); }
   function advance(count, ms = 50) { for (let i = 0; i < count; i++) frame(ms); }
@@ -233,4 +233,12 @@ test('the resize-event fallback also cleans up, and a lost canRun lease stops it
   const f = fixture({ noObserver: true }); f.key('ArrowRight'); f.frame(); f.frame(); const position = f.controller.position();
   f.allow(false); f.frame(); assert.equal(f.raf.size, 0); assert.deepEqual(f.controller.position(), position); assert.equal(f.motions.at(-1).walking, false);
   f.controller.destroy(); assert.equal(f.win.count(), 0);
+});
+
+test('main UI can limit entry to home and shop while former minigame places remain scenery',()=>{
+  const world=Town.createWorld(),cafe=world.places.find(p=>p.id==='cafe'),allowed=['home','shop'];
+  const f=fixture({world,position:cafe.entrance,enterableIds:allowed});assert.equal(f.enter.hidden,true);
+  allowed.push('cafe');f.observed[0].fn();assert.equal(f.enter.hidden,true,'a later caller mutation cannot restore a removed entrance');
+  f.enter.hidden=false;f.enter.disabled=false;f.enter.emit('click');assert.deepEqual(f.entries,[],'stale/forged former entry is inert');
+  assert.equal(f.controller.approach('shop'),true);f.settle();assert.equal(f.enter.hidden,false);f.enter.emit('click');assert.deepEqual(f.entries,['shop']);f.controller.destroy();
 });

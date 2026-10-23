@@ -21,9 +21,15 @@ async function game(seed={},random=()=>0.5,selectEgg=true) {
 }
 function persisted(storage) {return JSON.parse(storage.data.get(Core.KEY));}
 async function command(g,type,values={}) {return g.app.dispatch({type,...values});}
-async function play(g,score=20) {
-  const begin=await command(g,'beginMinigame',{kind:'catch'});assert.equal(begin.ok,true);g.tick();
-  const end=await command(g,'finishMinigame',{sessionId:begin.reward.sessionId,score});return {begin,end};
+async function restoreHistoricalMinigames(g,kind='catch',active=true) {
+  // Explicit historical schema fixture; never execute a removed command to create it.
+  const record=persisted(g.storage);
+  record.minigames={day:record.minigames.day,started:2,bestScore:22,completed:[kind+'-historical-completed'],
+    active:active?{id:kind+'-historical-active',kind,startedAt:g.options.now()-60000}:null};
+  if(!record.achievements.includes('mg15'))record.achievements.push('mg15');
+  g.storage.data.set(Core.KEY,JSON.stringify(record));
+  g.app=Core.create(g.options);assert.equal((await g.app.ready).ok,true);
+  return record;
 }
 
 test('three frozen birth origins are separate from the six care-driven evolution paths',()=>{
@@ -45,7 +51,8 @@ test('a true first run persists an unchosen egg and cannot mutate the game befor
   assert.equal(g.app.getEggOrigin(s),null);assert.equal(g.app.needsEggChoice(s),true);assert.equal(s.readOnly,false);
   for(const action of[{type:'care',kind:'feed'},{type:'rename',name:'まだ選べない'},{type:'chooseSpecies',species:'bunny'},
     {type:'chooseAppearance',path:'cool',pixel:false},{type:'buyItem',itemId:'cloth_cream_vest'},{type:'equip',itemId:'house'},
-    {type:'beginMinigame'},{type:'buyStock',stockId:'grn',quantity:1},{type:'advanceMarketDay'},{type:'transferLegacy'},{type:'withdrawLegacyPot'}]){
+    {type:'beginMinigame'},{type:'finishMinigame',sessionId:'retired',score:30},{type:'cancelMinigame',sessionId:'retired'},
+    {type:'buyStock',stockId:'grn',quantity:1},{type:'advanceMarketDay'},{type:'transferLegacy'},{type:'withdrawLegacyPot'}]){
     const r=await g.app.dispatch(action);assert.equal(r.ok,false,action.type);assert.equal(r.error.code,'egg_required',action.type);
     assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(r.state.pet.exp,0);assert.equal(r.state.coins,100);
   }
@@ -303,10 +310,10 @@ test('daily meal and play caps survive interval resets without limiting existing
   await command(g,'useItem',{itemId:'cake'});assert.ok(Object.values(evolution(g).scores).every(n=>n===0));
   for(let i=0;i<3;i++)assert.equal((await command(g,'care',{kind:'play'})).ok,true);
   assert.equal(evolution(g).scores.active,9);
-  const plays=evolution(g).care.play,played=await play(g,8);assert.equal(played.end.ok,true);
+  const plays=evolution(g).care.play,meal=await command(g,'useItem',{itemId:'rice'});assert.equal(meal.ok,true);
   assert.equal(evolution(g).care.play,plays);assert.equal(evolution(g).scores.active,0,'45 EXP commits the interval without resetting its daily cap');
   assert.equal(evolution(g).current.key,'active');
-  assert.equal(played.end.reward.exp,4,'mini-game economy is unchanged when evolution play credits are capped');
+  assert.equal(meal.reward.exp,4,'food EXP is unchanged when daily evolution credits are capped');
   assert.equal(evolution(g).scores.balanced,0);await command(g,'care',{kind:'rest'});
   assert.equal(evolution(g).scores.balanced,4);await command(g,'care',{kind:'rest'});
   assert.equal(evolution(g).scores.balanced,4,'the three kinds bonus is once per day');
@@ -319,8 +326,8 @@ test('the same actions on consecutive days can evolve differently and an unvisit
   for(const spaced of [false,true]){
     const g=await evolutionGame();
     for(let i=0;i<3;i++){if(spaced&&i)g.day();await command(g,'care',{kind:'feed'});}
-    assert.equal(g.app.getState().pet.exp,397);const finish=await play(g,6);assert.equal(finish.end.ok,true);
-    assert.equal(g.app.getState().pet.exp,400);results.push(evolution(g));
+    assert.equal(g.app.getState().pet.exp,397);const finish=await command(g,'useItem',{itemId:'rice'});assert.equal(finish.ok,true);
+    assert.equal(g.app.getState().pet.exp,401);results.push(evolution(g));
   }
   assert.equal(results[0].current.key,'fruit');assert.equal(results[0].activeDays,1);assert.equal(results[0].routineDays,0);
   assert.equal(results[1].current.key,'balanced');assert.equal(results[1].activeDays,3);assert.equal(results[1].routineDays,2);
@@ -369,19 +376,20 @@ test('companion growth continues in 800 EXP intervals and the twelve-entry histo
   assert.equal(evolution(end).history.at(-1).min,9000000000000);assert.equal(evolution(end).nextAt,null);
 });
 
-test('unrelated actions, no-score mini-games and other species never initialize or backfill B evolution',async()=>{
+test('unrelated actions, retired minigame commands and other species never initialize or backfill B evolution',async()=>{
   const g=await evolutionGame(373,{pg_species:'bunny',pet_game:'{"exp":500}'});
-  await command(g,'care',{kind:'feed'});await command(g,'useItem',{itemId:'apple'});await play(g,8);
+  await command(g,'care',{kind:'feed'});await command(g,'useItem',{itemId:'apple'});
+  assert.equal((await command(g,'finishMinigame',{sessionId:'retired',score:8})).error.code,'invalid_action');
   assert.equal(Object.hasOwn(persisted(g.storage),'evolution'),false);
   await command(g,'chooseSpecies',{species:'lilac'});await command(g,'rename',{name:'かわらない'});
   await command(g,'buyItem',{itemId:'cloth_cream_vest'});await command(g,'equipClothing',{itemId:'cloth_cream_vest'});
-  await command(g,'transferLegacy');await play(g,0);
+  await command(g,'transferLegacy');assert.equal((await command(g,'finishMinigame',{sessionId:'retired',score:0})).error.code,'invalid_action');
   assert.equal(Object.hasOwn(persisted(g.storage),'evolution'),false);
   const before=g.app.getState().pet.exp;await command(g,'care',{kind:'rest'});
   assert.equal(evolution(g).baselineExp,before);assert.deepEqual(evolution(g).history,[]);
   assert.equal(evolution(g).care.feed,0);assert.equal(evolution(g).care.play,0);assert.equal(evolution(g).care.rest,1);
-  const mini=await evolutionGame(390);const result=await play(mini,20);assert.equal(result.end.ok,true);
-  assert.equal(evolution(mini).baselineExp,390);assert.equal(evolution(mini).current.key,'active');assert.equal(evolution(mini).care.play,1);
+  const cared=await evolutionGame(395);const result=await command(cared,'care',{kind:'play'});assert.equal(result.ok,true);
+  assert.equal(evolution(cared).baselineExp,395);assert.equal(evolution(cared).current.key,'active');assert.equal(evolution(cared).care.play,1);
 });
 
 test('evolution starts and changes only after awaited persistence and rejected writes or stale stores keep the old record',async()=>{
@@ -503,10 +511,9 @@ test('lilac selection, reload and backup preserve the full grown pet and active 
     ['equip',{itemId:'house'}],['buyItem',{itemId:'bg_room'}],['equip',{itemId:'bg_room'}],['buyStock',{stockId:'grn',quantity:5}]]){
     assert.equal((await command(g,type,values)).ok,true);
   }
-  assert.equal((await play(g,20)).end.ok,true);
   for(let i=0;i<4;i++)assert.equal((await command(g,'advanceMarketDay')).ok,true);
   assert.equal((await command(g,'sellStock',{stockId:'grn',quantity:1})).ok,true);
-  assert.equal((await command(g,'beginMinigame')).ok,true);
+  await restoreHistoricalMinigames(g);
   const before=persisted(g.storage);
   assert.ok(before.market.dividends>0);assert.ok(before.market.feesPaid>0);
   assert.ok(before.minigames.active);assert.ok(before.minigames.completed.length);
@@ -570,7 +577,8 @@ test('legacy decoration arrays and old current-day game limits are preserved',as
   const g=await game({pg_deco:'["house","flower"]',pg_day:k,pg_feed:'3',pg_pet:'8',pg_play:'3'});
   assert.deepEqual(g.app.getState().decorations.owned,{house:{},flower:{}});
   assert.equal((await command(g,'care',{kind:'feed'})).error.code,'daily_limit');
-  assert.equal((await command(g,'beginMinigame')).error.code,'daily_limit');
+  assert.equal(g.app.getState().minigames.started,3);
+  assert.equal((await command(g,'beginMinigame')).error.code,'invalid_action');
 });
 
 test('separate legacy wallet, EXP, food, decoration, pot and market stay reserved until explicit transfer',async()=>{
@@ -641,32 +649,40 @@ test('care is bounded each day; daily coins depend on actual care, not opening t
   g.tick(-86400000);assert.equal((await reloaded.dispatch({type:'care',kind:'feed'})).error.code,'clock_moved_back');
 });
 
-test('minigame session survives reload and a valid result grants coins, bounded EXP and one item only once',async()=>{
-  const g=await game();const b=await command(g,'beginMinigame');assert.equal(b.ok,true);
-  assert.equal((await command(g,'finishMinigame',{sessionId:b.reward.sessionId,score:15})).error.code,'game_too_short');
-  const reloaded=Core.create(g.options);await reloaded.ready;assert.equal(reloaded.getState().minigames.active.id,b.reward.sessionId);
-  g.tick();const r=await reloaded.dispatch({type:'finishMinigame',sessionId:b.reward.sessionId,score:30});
-  assert.equal(r.ok,true);assert.equal(r.reward.coins,30);assert.equal(r.reward.exp,10);assert.deepEqual(r.reward.items,[{id:'berry',count:1}]);
-  assert.equal(r.state.coins,130);assert.equal(r.state.inventory.berry,1);assert.equal(r.state.minigames.active,null);
-  const prior=g.storage.data.get(Core.KEY);assert.equal((await reloaded.dispatch({type:'finishMinigame',sessionId:b.reward.sessionId,score:30})).ok,false);
-  assert.equal(g.storage.data.get(Core.KEY),prior);assert.equal(reloaded.getState().coins,130);
+test('historical catch and snack active sessions, completion history and rewards remain readable without automatic writes',async()=>{
+  for(const kind of ['catch','snack']){
+    const g=await game({pg_exp:'167',pg_coins:'373',pg_items:'{"apple":2}'});
+    const before=await restoreHistoricalMinigames(g,kind),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+    g.day();const reloaded=Core.create(g.options);assert.equal((await reloaded.ready).ok,true);
+    assert.deepEqual(reloaded.getState().minigames,before.minigames);
+    assert.equal(reloaded.getState().pet.exp,167);assert.equal(reloaded.getState().coins,373);
+    assert.deepEqual(reloaded.getState().inventory,before.inventory);assert.ok(reloaded.getState().achievements.includes('mg15'));
+    assert.deepEqual(JSON.parse(reloaded.exportBackup()).state,before);
+    assert.equal(g.storage.writes.length,writes);assert.equal(g.storage.data.get(Core.KEY),raw);
+  }
 });
 
-test('abandoned and cancelled minigame starts still consume the daily budget',async()=>{
-  const g=await game();for(let i=0;i<3;i++) {const b=await command(g,'beginMinigame');assert.equal(b.ok,true);
-    assert.equal((await command(g,'beginMinigame')).error.code,'game_active');
-    assert.equal((await command(g,'cancelMinigame',{sessionId:b.reward.sessionId})).ok,true);}
-  assert.equal((await command(g,'beginMinigame')).error.code,'daily_limit');
-  assert.equal(g.app.getState().coins,100);g.day();assert.equal((await command(g,'beginMinigame')).ok,true);
+test('all three retired minigame commands reject active and inactive records with no save or economy effects',async()=>{
+  for(const active of [false,true])for(const kind of ['catch','snack']){
+    const g=await game();const before=await restoreHistoricalMinigames(g,kind,active),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+    for(const action of [{type:'beginMinigame',kind},{type:'finishMinigame',sessionId:kind+'-historical-active',score:30},
+      {type:'finishMinigame',sessionId:kind+'-historical-active',score:0},{type:'cancelMinigame',sessionId:kind+'-historical-active'}]){
+      const result=await g.app.dispatch(action);assert.equal(result.ok,false);assert.equal(result.error.code,'invalid_action');
+      assert.equal(g.storage.data.get(Core.KEY),raw);assert.equal(g.storage.writes.length,writes);
+      assert.deepEqual(persisted(g.storage),before);assert.deepEqual(result.state.minigames,before.minigames);
+    }
+  }
 });
 
-test('invalid minigame scores and sessions do not alter durable progress',async()=>{
-  const g=await game();const b=await command(g,'beginMinigame');g.tick();
-  for(const score of [-1,31,1.5,NaN,Infinity,'3']) {const before=g.storage.data.get(Core.KEY);
-    assert.equal((await command(g,'finishMinigame',{sessionId:b.reward.sessionId,score})).ok,false);assert.equal(g.storage.data.get(Core.KEY),before);}
-  assert.equal((await command(g,'finishMinigame',{sessionId:'wrong',score:3})).ok,false);
-  assert.equal((await command(g,'finishMinigame',{sessionId:b.reward.sessionId,score:0})).ok,true);
-  assert.equal(g.app.getState().coins,100);assert.deepEqual(g.app.getState().inventory,{});
+test('historical minigame schema is still validated instead of discarded or silently repaired',async()=>{
+  const g=await game();const valid=await restoreHistoricalMinigames(g);
+  for(const change of [s=>{s.minigames.active.kind='unknown';},s=>{s.minigames.started=4;},
+    s=>{s.minigames.bestScore=-1;},s=>{s.minigames.completed=Array(65).fill('old');}]){
+    const record=JSON.parse(JSON.stringify(valid));change(record);const raw=JSON.stringify(record),storage=memory({[Core.KEY]:raw});
+    const app=Core.create({...g.options,storage});const ready=await app.ready;
+    assert.equal(ready.ok,false);assert.equal(ready.error.code,'corrupt_data');
+    assert.equal(storage.data.get(Core.KEY),raw);assert.equal(storage.writes.length,0);assert.equal(app.getState().readOnly,true);
+  }
 });
 
 test('shop, food and equipment all use the same persisted wallet',async()=>{
@@ -880,7 +896,7 @@ test('concurrent commands serialize and a second store cannot overwrite a newer 
 });
 
 test('backups round-trip the full economy and preserve additive fields but reject corrupt inputs',async()=>{
-  const g=await game();await command(g,'buyStock',{stockId:'apl',quantity:1});await play(g,20);const saved=g.app.exportBackup();
+  const g=await game();await command(g,'buyStock',{stockId:'apl',quantity:1});await restoreHistoricalMinigames(g);const saved=g.app.exportBackup();
   const backup=JSON.parse(saved);backup.state.futureField={retained:true};assert.equal((await g.app.importBackup(JSON.stringify(backup))).ok,true);
   const other=await game();assert.equal((await other.app.importBackup(g.app.exportBackup())).ok,true);
   assert.deepEqual(other.app.getState().market,g.app.getState().market);assert.deepEqual(other.app.getState().inventory,g.app.getState().inventory);
@@ -902,8 +918,9 @@ async function retiredDragonRecord() {
   const g=await game({pg_exp:'167',pg_name:'もとのりゅう',pg_species:'dragon',pg_path:'cool',pg_px:'1',pg_coins:'2000',
     pg_items:'{"rice":3}',pg_deco:'{"house":{"x":13}}',pg_bg:'beach',pg_bgs:'["meadow","beach"]',pg_ach:'["old-ach"]',
     pet_game:'{"name":"保管している子","coins":70,"exp":11,"foods":{"🍎":2},"pot":55,"potBasis":50,"potDays":3}'},()=>.99);
-  for(const [type,a] of [['care',{kind:'play'}],['buyStock',{stockId:'grn',quantity:5}],['advanceMarketDay',{}],['buyItem',{itemId:'cake'}],['beginMinigame',{}]])
+  for(const [type,a] of [['care',{kind:'play'}],['buyStock',{stockId:'grn',quantity:5}],['advanceMarketDay',{}],['buyItem',{itemId:'cake'}]])
     assert.equal((await command(g,type,a)).ok,true);
+  await restoreHistoricalMinigames(g);
   const old=persisted(g.storage);old.pet.species='dragon';old.futureField={history:['leave','unchanged']};
   const raw=JSON.stringify(old);g.storage.data.set(Core.KEY,raw);g.tick(1234);
   return {g,old,raw};
@@ -1269,41 +1286,45 @@ test('custom village and room survive backup reload while older village-free bac
   assert.equal(target.storage.data.get(Core.KEY),oldRaw);assert.equal(target.storage.writes.length,oldWrites);
 });
 
-test('cafe snack and catch share exactly one three-start daily budget including cancellation and active-session exclusion',async()=>{
-  const g=await game(),raw=g.storage.data.get(Core.KEY);
-  for(const kind of ['unknown','__proto__',null,{},[]])assert.equal((await command(g,'beginMinigame',{kind})).error.code,'invalid_action');
-  assert.equal(g.storage.data.get(Core.KEY),raw);
-  for(const kind of ['snack','catch','snack']){
-    const r=await command(g,'beginMinigame',{kind});assert.equal(r.ok,true);assert.equal(r.state.minigames.active.kind,kind);assert.ok(r.reward.sessionId.startsWith(kind+'-'));
-    assert.equal((await command(g,'beginMinigame',{kind:kind==='snack'?'catch':'snack'})).error.code,'game_active');
-    assert.equal((await command(g,'cancelMinigame',{sessionId:r.reward.sessionId})).ok,true);
+test('ordinary care remains available beside historical active minigames without clearing or settling them',async()=>{
+  for(const kind of ['snack','catch']){
+    const g=await game();const before=await restoreHistoricalMinigames(g,kind);
+    const result=await command(g,'care',{kind:'play'});assert.equal(result.ok,true);
+    assert.equal(result.reward.exp,5);assert.equal(result.reward.coins,10);
+    assert.equal(result.state.pet.exp,before.pet.exp+5);assert.equal(result.state.coins,before.coins+10);
+    assert.deepEqual(result.state.minigames,before.minigames);assert.deepEqual(result.state.inventory,before.inventory);
+    assert.ok(result.state.achievements.includes('mg15'));assert.equal(result.state.care.total.play,1);
+    g.day();const next=await command(g,'care',{kind:'rest'});assert.equal(next.ok,true);
+    assert.deepEqual(next.state.minigames,before.minigames);assert.equal(next.state.care.total.rest,1);
   }
-  for(const kind of ['catch','snack'])assert.equal((await command(g,'beginMinigame',{kind})).error.code,'daily_limit');
-  assert.equal(g.app.getState().coins,100);assert.equal(g.app.getState().pet.exp,0);g.day();
-  assert.equal((await command(g,'beginMinigame',{kind:'snack'})).ok,true);
 });
 
-test('snack settlement survives reload and backup with unchanged elapsed score reward and replay safeguards',async()=>{
-  const g=await game(),start=await command(g,'beginMinigame',{kind:'snack'}),id=start.reward.sessionId;
-  assert.equal((await command(g,'finishMinigame',{sessionId:id,score:30})).error.code,'game_too_short');
+test('backups preserve historical snack session and completed history without reopening its commands',async()=>{
+  const g=await game({pg_exp:'168',pg_coins:'582',pg_items:'{"rice":3}'}),before=await restoreHistoricalMinigames(g,'snack');
   const restored=await game();assert.equal((await restored.app.importBackup(g.app.exportBackup())).ok,true);
-  assert.equal(restored.app.getState().minigames.active.kind,'snack');assert.equal(restored.app.getState().minigames.active.id,id);
-  const reload=Core.create(g.options);assert.equal((await reload.ready).ok,true);g.tick();
-  for(const score of [-1,31,.5,NaN,Infinity,'3']){const raw=g.storage.data.get(Core.KEY);assert.equal((await reload.dispatch({type:'finishMinigame',sessionId:id,score})).error.code,'invalid_score');assert.equal(g.storage.data.get(Core.KEY),raw);}
-  const result=await reload.dispatch({type:'finishMinigame',sessionId:id,score:30});assert.equal(result.ok,true);assert.equal(result.reward.coins,30);assert.equal(result.reward.exp,10);assert.deepEqual(result.reward.items,[{id:'berry',count:1}]);
-  assert.equal(result.state.coins,130);assert.equal(result.state.pet.exp,10);assert.equal(result.state.inventory.berry,1);assert.equal(result.state.minigames.active,null);
-  const raw=g.storage.data.get(Core.KEY);for(const type of ['finishMinigame','cancelMinigame'])assert.equal((await reload.dispatch({type,sessionId:id,score:30})).error.code,'invalid_session');
-  assert.equal(g.storage.data.get(Core.KEY),raw);
+  for(const key of ['minigames','pet','coins','inventory','achievements','care'])assert.deepEqual(restored.app.getState()[key],before[key]);
+  const raw=restored.storage.data.get(Core.KEY),writes=restored.storage.writes.length;
+  const reload=Core.create(restored.options);assert.equal((await reload.ready).ok,true);g.tick(60000);
+  for(const type of ['beginMinigame','finishMinigame','cancelMinigame']){
+    const result=await reload.dispatch({type,kind:'snack',sessionId:before.minigames.active.id,score:30});
+    assert.equal(result.error.code,'invalid_action');assert.equal(restored.storage.data.get(Core.KEY),raw);
+    assert.equal(restored.storage.writes.length,writes);assert.deepEqual(result.state.minigames,before.minigames);
+  }
 });
 
-test('failed snack settlement retains the active session and grants one result only after durable retry',async()=>{
+test('retired commands never attempt a durable write even when storage rejects writes, while other saves still work',async()=>{
   const g=await game(),layout=villageLayout();assert.equal((await saveVillage(g,layout)).ok,true);
-  const started=await command(g,'beginMinigame',{kind:'snack'}),id=started.reward.sessionId;g.tick();
-  const raw=g.storage.data.get(Core.KEY),before=persisted(g.storage),write=g.storage.setItem.bind(g.storage);g.storage.setItem=()=>false;
-  const failed=await command(g,'finishMinigame',{sessionId:id,score:12});assert.equal(failed.error.code,'storage_failed');assert.equal(g.storage.data.get(Core.KEY),raw);
-  assert.equal(failed.state.minigames.active.id,id);assert.equal(failed.state.coins,before.coins);assert.deepEqual(failed.state.villageLayout,layout);
-  g.storage.setItem=write;const retry=await command(g,'finishMinigame',{sessionId:id,score:12});assert.equal(retry.ok,true);assert.equal(retry.reward.coins,12);assert.equal(retry.reward.exp,6);assert.deepEqual(retry.state.villageLayout,layout);
-  assert.equal((await command(g,'finishMinigame',{sessionId:id,score:12})).error.code,'invalid_session');assert.equal(g.app.getState().coins,before.coins+12);
+  const before=await restoreHistoricalMinigames(g,'snack'),raw=g.storage.data.get(Core.KEY),writes=g.storage.writes.length;
+  g.storage.fail=true;
+  for(const type of ['beginMinigame','finishMinigame','cancelMinigame']){
+    const failed=await command(g,type,{kind:'snack',sessionId:before.minigames.active.id,score:12});
+    assert.equal(failed.error.code,'invalid_action');assert.equal(g.storage.data.get(Core.KEY),raw);
+    assert.equal(g.storage.writes.length,writes);assert.deepEqual(failed.state.minigames,before.minigames);
+  }
+  const rejected=await command(g,'care',{kind:'play'});assert.equal(rejected.error.code,'storage_failed');assert.equal(g.storage.data.get(Core.KEY),raw);
+  g.storage.fail=false;const retry=await command(g,'care',{kind:'play'});assert.equal(retry.ok,true);
+  assert.equal(retry.reward.exp,5);assert.equal(retry.reward.coins,10);assert.deepEqual(retry.state.minigames,before.minigames);
+  assert.deepEqual(retry.state.villageLayout,layout);
 });
 
 test('failed equipment synchronization cannot adopt a layout append or removal',async()=>{
