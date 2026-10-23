@@ -1768,6 +1768,108 @@
     }, true));
     body.appendChild(c);
   }
+  function marketPricePoints(market, spec) {
+    function own(value, key) { return !!value && Object.prototype.hasOwnProperty.call(value, key); }
+    function object(value) { return !!value && typeof value === 'object' && !Array.isArray(value); }
+    function day(value) { return Number.isSafeInteger(value) && value >= 1 && value <= market.day; }
+    function price(value) { return Number.isSafeInteger(value) && value >= 1 && value <= 99999; }
+    var current = own(market.prices, spec.id) ? market.prices[spec.id] : null;
+    if (!day(market.day) || !price(current)) return { points: [], connect: false };
+    var buckets = Object.create(null), valid = Array.isArray(market.history) && market.history.length <= 100, lastDay = 0;
+    var stocks = core().STOCKS || core().stocks || [];
+    if (valid) market.history.forEach(function (row) {
+      if (!valid) return;
+      if (!object(row) || !day(row.day) || row.day < lastDay) { valid = false; return; }
+      lastDay = row.day;
+      var observed = null;
+      if (row.type === 'day') {
+        if (!object(row.prices) || !own(row.prices, spec.id) || !price(row.prices[spec.id])) { valid = false; return; }
+        observed = row.prices[spec.id];
+      } else if (row.type === 'buyStock' || row.type === 'sellStock') {
+        if (!stocks.some(function (entry) { return entry.id === row.stockId; }) || !price(row.price) ||
+          !Number.isSafeInteger(row.quantity) || row.quantity < 1 || !Number.isSafeInteger(row.fee) || row.fee < 1) { valid = false; return; }
+        if (row.stockId === spec.id) observed = row.price;
+      } else { valid = false; return; }
+      if (observed === null) return;
+      var bucket = buckets[row.day];
+      if (!bucket) buckets[row.day] = { day: row.day, price: observed, conflict: false };
+      else if (bucket.price !== observed) bucket.conflict = true;
+    });
+    if (!valid) buckets = Object.create(null);
+    var today = buckets[market.day], currentConflict = !!today && (today.conflict || today.price !== current);
+    buckets[market.day] = { day: market.day, price: current, conflict: false, breakBefore: currentConflict };
+    var points = Object.keys(buckets).map(function (key) { return buckets[key]; }).filter(function (entry) { return !entry.conflict; });
+    points.sort(function (a, b) { return a.day - b.day; });
+    // A legacy conversion can reset a quote within one game day without recording
+    // its date. Keep observed dots, but do not depict that reset as a market move.
+    var legacy = own(market.legacyPriceSnapshot, spec.id) || Array.isArray(market.legacyConversion) && market.legacyConversion.some(function (entry) {
+      return object(entry) && entry.stockId === spec.id;
+    });
+    return { points: points, connect: !legacy };
+  }
+  function marketPriceChart(market, spec) {
+    var series = marketPricePoints(market, spec), points = series.points;
+    var figure = node('figure', 'ipg-price-chart'); figure.dataset.stockId = spec.id; figure.dataset.pointCount = String(points.length);
+    var caption = node('figcaption', 'ipg-price-chart-caption');
+    append(caption, node('span', '', '株価のうごき'), node('small', '', 'コイン / 株')); figure.appendChild(caption);
+    if (!points.length) { figure.appendChild(text('価格を確認できません。', 'ipg-small')); return figure; }
+    function svgNode(tag, cls, attributes) {
+      var element = d.createElementNS('http://www.w3.org/2000/svg', tag);
+      if (cls) element.setAttribute('class', cls);
+      Object.keys(attributes || {}).forEach(function (key) { element.setAttribute(key, String(attributes[key])); });
+      return element;
+    }
+    var svg = svgNode('svg', 'ipg-price-chart-svg', { viewBox: '0 0 320 112', role: 'img', tabindex: '0', 'aria-label': spec.name + 'の株価グラフ。左右キーで記録を確認できます。' });
+    var values = points.map(function (point) { return point.price; }), low = Math.min.apply(null, values), high = Math.max.apply(null, values);
+    var first = points[0].day, last = points[points.length - 1].day, span = high - low;
+    function x(point) { return first === last ? 174 : 40 + (point.day - first) / (last - first) * 268; }
+    function y(point) { return span === 0 ? 56 : 100 - (point.price - low) / span * 88; }
+    [12, 56, 100].forEach(function (at) { svg.appendChild(svgNode('line', 'ipg-price-chart-grid', { x1: 40, y1: at, x2: 308, y2: at })); });
+    function priceLabel(value, at) { var label = svgNode('text', 'ipg-price-chart-value', { x: 2, y: at }); label.textContent = number(value); svg.appendChild(label); }
+    if (span === 0) priceLabel(high, 60); else { priceLabel(high, 16); priceLabel(low, 104); }
+    var runs = [], run = [];
+    points.forEach(function (point, index) {
+      var previous = points[index - 1];
+      if (previous && (!series.connect || point.breakBefore || point.day !== previous.day + 1)) { if (run.length > 1) runs.push(run); run = []; }
+      run.push(point);
+    });
+    if (run.length > 1) runs.push(run);
+    runs.forEach(function (segment) { svg.appendChild(svgNode('polyline', 'ipg-price-chart-line', { points: segment.map(function (point) { return x(point).toFixed(2) + ',' + y(point).toFixed(2); }).join(' ') })); });
+    points.forEach(function (point) {
+      var dot = svgNode('circle', 'ipg-price-chart-dot', { cx: x(point), cy: y(point), r: points.length === 1 ? 4 : 2.5 });
+      dot.dataset.day = String(point.day); dot.dataset.price = String(point.price);
+      var title = svgNode('title'); title.textContent = number(point.day) + '日目 · ' + number(point.price) + 'コイン'; dot.appendChild(title); svg.appendChild(dot);
+    });
+    var cursor = svgNode('circle', 'ipg-price-chart-cursor', { r: 5 }), selected = points.length - 1;
+    svg.appendChild(cursor); figure.appendChild(svg);
+    var axis = node('div', 'ipg-price-chart-axis' + (first === last ? ' is-single' : ''));
+    axis.appendChild(node('span', '', number(first) + '日目'));
+    if (first !== last) axis.appendChild(node('span', '', number(last) + '日目'));
+    var readout = node('output', 'ipg-price-chart-readout'); readout.setAttribute('aria-live', 'polite');
+    function select(index) {
+      var next = Math.max(0, Math.min(points.length - 1, index));
+      if (readout.textContent && next === selected) return;
+      selected = next; var point = points[selected];
+      cursor.setAttribute('cx', String(x(point))); cursor.setAttribute('cy', String(y(point)));
+      readout.textContent = number(point.day) + '日目 · ' + number(point.price) + 'コイン';
+    }
+    function pointAt(event) {
+      var rect = svg.getBoundingClientRect();
+      if (!Number.isFinite(event.clientX) || !rect.width) return;
+      var at = (event.clientX - rect.left) / rect.width * 320, nearest = 0;
+      points.forEach(function (point, index) { if (Math.abs(x(point) - at) < Math.abs(x(points[nearest]) - at)) nearest = index; });
+      select(nearest);
+    }
+    svg.addEventListener('pointerdown', pointAt);
+    svg.addEventListener('pointermove', function (event) { if (event.pointerType === 'mouse' || event.buttons) pointAt(event); });
+    svg.addEventListener('keydown', function (event) {
+      var index = event.key === 'ArrowLeft' ? selected - 1 : event.key === 'ArrowRight' ? selected + 1 : event.key === 'Home' ? 0 : event.key === 'End' ? points.length - 1 : null;
+      if (index !== null) { if (event.cancelable) event.preventDefault(); select(index); }
+    });
+    select(selected); append(figure, axis, readout);
+    if (points.length === 1) figure.appendChild(text('これから値動きがたまります。', 'ipg-price-chart-hint'));
+    return figure;
+  }
   function renderMarket(s, body) {
     var market = s.market, stocks = core().STOCKS || core().stocks || [], invested = 0, cost = 0;
     stocks.forEach(function (x) { var h = market.holdings[x.id] || {}; invested += (h.quantity || 0) * market.prices[x.id]; cost += h.costBasis || 0; });
@@ -1780,6 +1882,7 @@
       metric('評価損益', signed(invested - cost)), metric('確定した売買損益', signed(market.realizedProfit)),
       metric('受取配当 累計', number(market.dividends)), metric('支払手数料 累計', number(market.feesPaid)));
     intro.appendChild(stats);
+    intro.appendChild(text('グラフは記録のあるゲーム日を表示します。', 'ipg-small'));
     var cap = limits().marketAdvancesPerDay || 12, interval = limits().dividendEvery || 5;
     append(intro, button('ゲーム内の時間を1日進める', function () {
       run({ type: 'advanceMarketDay' }, 'ゲーム内の1日を進めました。');
@@ -1796,7 +1899,7 @@
       append(heading, stockArtwork(x.id), company);
       append(c, heading,
         node('div', 'ipg-stock-price', number(price) + ' コイン / 株'),
-        text('前回比 ' + signed(price - (previous == null ? price : previous)) + 'コイン'),
+        text('前回比 ' + signed(price - (previous == null ? price : previous)) + 'コイン'), marketPriceChart(market, x),
         text('保有 ' + number(h.quantity) + '株 · 原価 ' + number(h.costBasis) +
           ' · 評価 ' + number(h.quantity * price) + ' · 評価損益 ' + signed(h.quantity * price - h.costBasis)));
       var qty = node('input'); qty.type = 'number'; qty.min = '1'; qty.max = '1000000'; qty.step = '1';

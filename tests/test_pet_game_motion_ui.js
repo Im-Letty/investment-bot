@@ -87,6 +87,12 @@ async function fixture(config = {}) {
   const beforeMountRaw = data.get(Core.KEY), writesBeforeMount = writes.length;
   const document = events({ hidden: !!config.hidden, activeElement: null });
   document.createElement = tag => new Element(tag, document);
+  document.createElementNS = (namespace, tag) => {
+    const element = new Element(tag, document); element.namespaceURI = namespace;
+    const setAttribute = element.setAttribute.bind(element);
+    element.setAttribute = (name, value) => { setAttribute(name, value); if (name === 'class') element.className = String(value); };
+    return element;
+  };
   document.body = new Element('body', document);
   const pane = document.createElement('section'), host = document.createElement('div');
   pane.hidden = !!config.paneHidden; document.body.appendChild(pane); pane.appendChild(host);
@@ -2942,4 +2948,147 @@ test('market illustration failures leave real quantity purchases partial sales f
   await f.click(f.focusButton('tab-care'));await f.click(f.focusButton('tab-market'));
   row=appleRow();row.querySelector('img').emit('load');assert.equal(row.querySelector('input').value,'1');
   assert.deepEqual(f.saved(),sold);assert.equal(f.writes.length,writes+2);
+});
+
+function priceChart(f,id){
+  const chart=f.host.querySelectorAll('.ipg-price-chart').find(row=>row.dataset.stockId===id);assert.ok(chart,'price chart: '+id);return chart;
+}
+function plottedPrices(chart){
+  return chart.querySelectorAll('.ipg-price-chart-dot').map(dot=>({day:Number(dot.dataset.day),price:Number(dot.dataset.price)}));
+}
+function plottedSegments(chart){
+  return chart.querySelectorAll('.ipg-price-chart-line').map(line=>line.getAttribute('points').trim().split(/\s+/).map(pair=>pair.split(',').map(Number)));
+}
+function plottedPosition(chart,day){
+  const dot=chart.querySelectorAll('.ipg-price-chart-dot').find(row=>Number(row.dataset.day)===day);assert.ok(dot,'plotted day '+day);
+  return [Number(Number(dot.getAttribute('cx')).toFixed(2)),Number(Number(dot.getAttribute('cy')).toFixed(2))];
+}
+function pricesAt(offset=0){return Object.fromEntries(Core.stocks.map(stock=>[stock.id,stock.base+offset]));}
+async function historicalMarketFixture(history,day=6,extra={}){
+  return fixture({species:'lilac',developerPreview:false,setup:async store=>{
+    const backup=JSON.parse(store.exportBackup());Object.assign(backup.state.market,{day,prices:pricesAt(day),previous:pricesAt(999),history,...extra});
+    assert.equal((await store.importBackup(JSON.stringify(backup))).ok,true);
+  }});
+}
+
+test('each fresh market product has an accessible native SVG chart showing only its observed current price without saving',async()=>{
+  const f=await fixture({species:'lilac',developerPreview:false}),before=f.saved(),writes=f.writes.length;
+  await f.click(f.focusButton('tab-market'));
+  assert.equal(f.host.querySelectorAll('.ipg-price-chart').length,6);
+  for(const stock of Core.stocks){
+    const chart=priceChart(f,stock.id),svg=chart.querySelector('.ipg-price-chart-svg');
+    assert.equal(chart.tagName,'FIGURE');assert.equal(Number(chart.dataset.pointCount),1);
+    assert.ok(svg);assert.equal(svg.namespaceURI,'http://www.w3.org/2000/svg');assert.ok(svg.getAttribute('viewBox'));
+    assert.deepEqual(plottedPrices(chart),[{day:1,price:before.market.prices[stock.id]}]);
+    assert.equal(plottedSegments(chart).length,0,'a starting price is a point, not an invented past');
+    assert.ok(svg.getAttribute('aria-label').includes(stock.name));assert.ok(chart.querySelector('.ipg-price-chart-hint').textContent.trim());
+    const dot=chart.querySelector('.ipg-price-chart-dot');assert.equal(dot.namespaceURI,'http://www.w3.org/2000/svg');
+  }
+  f.ui.render();await flush();await f.click(f.focusButton('tab-care'));await f.click(f.focusButton('tab-market'));
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('advancing the real market twice plots recorded prices for every product and never invents day one from previous prices',async()=>{
+  const f=await fixture({species:'lilac',developerPreview:false});await f.click(f.focusButton('tab-market'));
+  await f.click(f.button('ゲーム内の時間を1日進める'));await f.click(f.button('ゲーム内の時間を1日進める'));
+  const after=f.saved(),writes=f.writes.length;assert.equal(after.market.day,3);
+  for(const stock of Core.stocks){
+    const chart=priceChart(f,stock.id);
+    assert.deepEqual(plottedPrices(chart),[{day:2,price:stock.base+1},{day:3,price:after.market.prices[stock.id]}]);
+    assert.equal(Number(chart.dataset.pointCount),2);assert.deepEqual(plottedSegments(chart),[[plottedPosition(chart,2),plottedPosition(chart,3)]]);
+  }
+  f.ui.render();await flush();assert.deepEqual(f.saved(),after);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('real buy and partial sell events add one observed daily price while preserving the existing trade economy',async()=>{
+  const f=await fixture({species:'lilac',developerPreview:false});await f.click(f.focusButton('tab-market'));
+  const before=f.saved(),writes=f.writes.length;
+  function apple(){return f.host.querySelectorAll('.ipg-stock').find(row=>row.querySelector('.ipg-stock-art')?.dataset.stockArt==='apl');}
+  function tradeButton(row,caption){return row.querySelectorAll('button').find(button=>button.textContent===caption);}
+  let row=apple(),quantity=row.querySelector('input');quantity.value='2';quantity.emit('input');await f.click(tradeButton(row,'買う'));
+  row=apple();quantity=row.querySelector('input');quantity.value='1';quantity.emit('input');await f.click(tradeButton(row,'売る'));
+  const after=f.saved();assert.equal(after.coins,before.coins-42);assert.deepEqual(after.market.holdings.apl,{quantity:1,costBasis:40.5});
+  assert.equal(after.market.feesPaid,before.market.feesPaid+2);assert.equal(f.writes.length,writes+2);
+  assert.equal(after.market.history.length,2);assert.deepEqual(plottedPrices(priceChart(f,'apl')),[{day:1,price:40}]);
+  await f.click(f.button('ゲーム内の時間を1日進める'));
+  assert.deepEqual(plottedPrices(priceChart(f,'apl')),[{day:1,price:40},{day:2,price:41}]);
+  assert.deepEqual(plottedSegments(priceChart(f,'apl')),[[plottedPosition(priceChart(f,'apl'),1),plottedPosition(priceChart(f,'apl'),2)]]);f.ui.close();
+});
+
+test('sparse saved observations preserve missing days and join only adjacent game days',async()=>{
+  const f=await historicalMarketFixture([{type:'day',day:2,prices:pricesAt(2)},{type:'day',day:5,prices:pricesAt(5)},{type:'day',day:6,prices:pricesAt(6)}]);
+  const before=f.saved(),writes=f.writes.length;await f.click(f.focusButton('tab-market'));
+  for(const stock of Core.stocks){
+    const chart=priceChart(f,stock.id);
+    assert.deepEqual(plottedPrices(chart),[{day:2,price:stock.base+2},{day:5,price:stock.base+5},{day:6,price:stock.base+6}]);
+    assert.deepEqual(plottedSegments(chart),[[plottedPosition(chart,5),plottedPosition(chart,6)]],'the gap from day two to five has no connecting line');
+  }
+  const chart=priceChart(f,'apl'),svg=chart.querySelector('.ipg-price-chart-svg'),readout=chart.querySelector('.ipg-price-chart-readout');
+  assert.equal(readout.textContent,'6日目 · 46コイン');svg.emit('keydown',{key:'Home'});assert.equal(readout.textContent,'2日目 · 42コイン');
+  svg.emit('keydown',{key:'ArrowRight'});assert.equal(readout.textContent,'5日目 · 45コイン');
+  svg.emit('keydown',{key:'ArrowLeft'});assert.equal(readout.textContent,'2日目 · 42コイン');
+  svg.emit('keydown',{key:'End'});assert.equal(readout.textContent,'6日目 · 46コイン');
+  svg.emit('pointerdown',{clientX:12/320*300,pointerType:'touch'});assert.equal(readout.textContent,'2日目 · 42コイン');
+  assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+});
+
+test('conflicting old-day prices are omitted and a conflicting current-day observation cannot draw a misleading connection',async()=>{
+  const f=await historicalMarketFixture([
+    {type:'day',day:2,prices:pricesAt(2)},{type:'buyStock',day:2,stockId:'apl',quantity:1,price:99,fee:1},
+    {type:'day',day:3,prices:pricesAt(3)},{type:'day',day:4,prices:pricesAt(4)},
+    {type:'day',day:6,prices:pricesAt(40)}
+  ]);await f.click(f.focusButton('tab-market'));
+  const apple=priceChart(f,'apl');assert.deepEqual(plottedPrices(apple),[{day:3,price:43},{day:4,price:44},{day:6,price:46}]);
+  assert.deepEqual(plottedSegments(apple),[[plottedPosition(apple,3),plottedPosition(apple,4)]]);
+  f.ui.close();
+  const consecutive=await historicalMarketFixture([{type:'day',day:5,prices:pricesAt(5)},{type:'day',day:6,prices:pricesAt(40)}]);
+  await consecutive.click(consecutive.focusButton('tab-market'));
+  assert.deepEqual(plottedPrices(priceChart(consecutive,'apl')),[{day:5,price:45},{day:6,price:46}]);
+  assert.equal(plottedSegments(priceChart(consecutive,'apl')).length,0,'current truth wins without joining across its conflicting recorded value');consecutive.ui.close();
+});
+
+test('invalid saved history falls back to actual current prices without crashing or making storage writes',async()=>{
+  const malformed=[
+    [{type:'day',day:2,prices:pricesAt(2)},null],
+    [{type:'day',day:2,prices:pricesAt(2)},{type:'unexpected',day:3,prices:pricesAt(3)}],
+    [{type:'day',day:7,prices:pricesAt(7)}],
+    [{type:'day',day:3,prices:pricesAt(3)},{type:'day',day:2,prices:pricesAt(2)}],
+    [{type:'day',day:0,prices:pricesAt(0)}],
+    [{type:'day',prices:pricesAt(2)}],
+    [{type:'day',day:2,prices:{}}],
+    [{type:'day',day:2,prices:Object.fromEntries(Core.stocks.map(stock=>[stock.id,'NaN']))}],
+    [{type:'day',day:2,prices:Object.fromEntries(Core.stocks.map(stock=>[stock.id,0]))}],
+    [{type:'day',day:2,prices:Object.fromEntries(Core.stocks.map(stock=>[stock.id,100000]))}],
+    [{type:'day',day:2,prices:pricesAt(2)},{type:'buyStock',day:3,stockId:'unknown',quantity:1,price:40,fee:1}],
+    [{type:'day',day:2,prices:pricesAt(2)},{type:'sellStock',day:3,stockId:'apl',quantity:0,price:40,fee:1}],
+    [{type:'day',day:2,prices:pricesAt(2)},{type:'buyStock',day:3,stockId:'apl',quantity:1,price:40,fee:0}]
+  ];
+  for(const history of malformed){
+    const f=await historicalMarketFixture(history),before=f.saved(),writes=f.writes.length;await f.click(f.focusButton('tab-market'));
+    for(const stock of Core.stocks){
+      const chart=priceChart(f,stock.id);assert.deepEqual(plottedPrices(chart),[{day:6,price:before.market.prices[stock.id]}],JSON.stringify(history));
+      assert.equal(plottedSegments(chart).length,0);
+    }
+    assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+  }
+});
+
+test('legacy price resets retain observed points but never imply continuous prices across an unrecorded conversion',async()=>{
+  for(const extra of [{legacyConversion:[{stockId:'apl'}]},{legacyPriceSnapshot:pricesAt(500)}]){
+    const f=await historicalMarketFixture([{type:'day',day:5,prices:pricesAt(5)},{type:'day',day:6,prices:pricesAt(500)}],6,extra),before=f.saved(),writes=f.writes.length;
+    await f.click(f.focusButton('tab-market'));
+    const apple=priceChart(f,'apl');assert.deepEqual(plottedPrices(apple),[{day:5,price:45},{day:6,price:46}]);assert.equal(plottedSegments(apple).length,0);
+    assert.deepEqual(f.saved(),before);assert.equal(f.writes.length,writes);f.ui.close();
+  }
+});
+
+test('reopening and restoring a different market rebuilds charts from that save without retaining an old series',async()=>{
+  const first=await historicalMarketFixture([{type:'day',day:2,prices:pricesAt(2)},{type:'day',day:5,prices:pricesAt(5)}]);
+  await first.click(first.focusButton('tab-market'));assert.equal(plottedPrices(priceChart(first,'apl')).length,3);
+  const backup=first.store.exportBackup();first.ui.close();
+  const restored=await fixture({species:'lilac',developerPreview:false,setup:async store=>assert.equal((await store.importBackup(backup)).ok,true)});
+  await restored.click(restored.focusButton('tab-market'));assert.deepEqual(plottedPrices(priceChart(restored,'apl')),[{day:2,price:42},{day:5,price:45},{day:6,price:46}]);restored.ui.close();
+  const fresh=await fixture({species:'lilac',developerPreview:false}),before=fresh.saved(),writes=fresh.writes.length;
+  await fresh.click(fresh.focusButton('tab-market'));assert.deepEqual(plottedPrices(priceChart(fresh,'apl')),[{day:1,price:40}]);
+  assert.equal(plottedSegments(priceChart(fresh,'apl')).length,0);assert.deepEqual(fresh.saved(),before);assert.equal(fresh.writes.length,writes);fresh.ui.close();
 });

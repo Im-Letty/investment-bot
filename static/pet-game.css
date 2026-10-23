@@ -97,6 +97,20 @@
 .ipg-stock-company h3{margin:0 0 4px}
 .ipg-stock-company .ipg-small{margin:0}
 .ipg-stock-price{font-size:1.5em;font-weight:600;font-variant-numeric:tabular-nums;margin-bottom:4px}
+.ipg-price-chart{margin:18px 0 14px;min-width:0}
+.ipg-price-chart-caption,.ipg-price-chart-axis{display:flex;align-items:center;justify-content:space-between;gap:8px;color:var(--ipg-muted);font-size:.8em}
+.ipg-price-chart-caption small{font-size:.9em}
+.ipg-price-chart-svg{display:block;width:100%;height:auto;aspect-ratio:20/7;margin:8px 0 4px;overflow:visible;touch-action:pan-y;cursor:crosshair}
+.ipg-price-chart-svg:focus-visible{outline:2px solid var(--ipg-green);outline-offset:4px;border-radius:8px}
+.ipg-price-chart-grid{stroke:var(--ipg-line);stroke-width:1;stroke-dasharray:3 5;opacity:.65}
+.ipg-price-chart-value{fill:var(--ipg-muted);font-size:10px;font-variant-numeric:tabular-nums}
+.ipg-price-chart-line{fill:none;stroke:#778c78;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
+.ipg-price-chart-dot{fill:#778c78}
+.ipg-price-chart-cursor{fill:var(--ipg-paper);stroke:#778c78;stroke-width:2.5;pointer-events:none}
+.ipg-price-chart-axis.is-single{justify-content:center}
+.ipg-price-chart-readout{display:block;text-align:right;color:var(--ipg-ink);font-size:.83em;font-variant-numeric:tabular-nums;margin-top:7px;min-height:1.5em}
+.ipg-price-chart-hint{font-size:.8em;color:var(--ipg-muted);margin:4px 0 0!important}
+@media(prefers-color-scheme:dark){.ipg-price-chart-line,.ipg-price-chart-cursor{stroke:#b2c6ad}.ipg-price-chart-dot{fill:#b2c6ad}}
 .ipg-trade{display:grid;grid-template-columns:minmax(65px,1fr) 1fr 1fr;align-items:end;gap:8px;margin:18px 0 12px}
 .ipg-trade input{padding:8px}
 .ipg-game-status{text-align:center;font-size:1.15em;font-weight:600;font-variant-numeric:tabular-nums}
