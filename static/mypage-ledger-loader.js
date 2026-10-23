@@ -116,17 +116,16 @@
   function openGoals() {
     return openAssets();
   }
-  function preparePortfolioNote() {
+  function hidePortfolioNote() {
     var portfolio=body.querySelector('.mo-pane:not(.kb-pane)');
     var field=portfolio&&portfolio.querySelector('textarea');
     if(!field)return;
+    // Keep the original field and its saved content for the existing storage
+    // lifecycle, while removing this obsolete note from the portfolio view.
     portfolio.classList.add('mp-portfolio-note');
-    var details=document.createElement('details'),summary=document.createElement('summary');
-    summary.textContent='ポートフォリオのメモ';details.appendChild(summary);
-    while(portfolio.firstChild)details.appendChild(portfolio.firstChild);
-    portfolio.appendChild(details);field.rows=4;
-    var lead=details.querySelector('.mo-lead');
-    if(lead)lead.textContent='資産の計画や補足をメモできます。';
+    portfolio.hidden=true;
+    portfolio.setAttribute('inert','');
+    portfolio.setAttribute('aria-hidden','true');
   }
   function setup() {
     page=document.getElementById('myPageOv');
@@ -137,7 +136,7 @@
     if(!pane){pane=document.createElement('div');pane.className='mo-pane kb-pane';body.appendChild(pane);}
     frame=pane.querySelector('.kb-frame');
     if(!frame)frame=createFrame();
-    preparePortfolioNote();
+    hidePortfolioNote();
     var old=tabs.querySelector('.kb-tab');if(old)old.parentNode.removeChild(old);
     var top=document.createElement('div');top.className='mp-toptabs';
     personal=document.createElement('div');personal.className='mp-toptab on';personal.textContent='マイページ';
