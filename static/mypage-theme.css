@@ -396,4 +396,5 @@ body.kn-home-a #myPageOv[data-mp-view="assets"] .mo-body {gap:0}
 /* Notes have their own menu entry while keeping the same private editor/store. */
 body.kn-home-a #myPageOv[data-mp-view="memo"] > :is(.mp-toptabs,.mo-tabs) {display:none!important}
 body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-body {padding-top:max(76px,calc(var(--kn-a-menu-top,18px) + 48px))}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .kb-pane.mp-memo-warming {display:block!important;position:fixed;left:-10000px;top:0;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none}
 #myPageOv .mp-portfolio-note {display:none!important}

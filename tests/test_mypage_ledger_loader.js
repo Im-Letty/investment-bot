@@ -270,11 +270,23 @@ test('pending portfolio and compatibility goal entries both open portfolio after
 
 test('the dedicated memo entry warms the same private connection while exposing only the original note pane',()=>{
   const h=fixture(),frame=h.frame,panes=h.body.querySelectorAll('.mo-pane:not(.kb-pane)');
+  let isReady=false;frame.contentDocument.documentElement.getAttribute=()=>isReady?'true':null;
   const editor=h.context.document.createElement('section');editor.className='mp-note-editor';editor.hidden=true;panes[3].appendChild(editor);
   assert.equal(h.context.knOpenMemo(),true);assert.equal(h.page.classList.contains('open'),true);
   assert.equal(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(panes.map(p=>p.classList.contains('on')),[false,false,false,true]);
   assert.equal(h.frame,frame);assert.equal(frame.parentNode.classList.contains('on'),false);assert.deepEqual(h.navigations,['/kakeibo']);
   assert.equal(frame.getAttribute('loading'),'eager');assert.equal(h.page.querySelectorAll('.kb-frame').length,1);
+  const privatePane=frame.parentNode;
+  assert.equal(privatePane.classList.contains('mp-memo-warming'),true);assert.equal(privatePane.inert,true);assert.equal(privatePane.getAttribute('aria-hidden'),'true');assert.equal(frame.getAttribute('aria-busy'),'true');
+  h.ready({origin:'https://other.test'});h.ready({source:{}});h.ready();
+  assert.equal(privatePane.classList.contains('mp-memo-warming'),true,'untrusted messages or a frame without its readiness marker must not finish warming');
+  h.context.knOpenAssets();assert.equal(privatePane.classList.contains('mp-memo-warming'),false);assert.equal(privatePane.inert,false);assert.equal(privatePane.getAttribute('aria-hidden'),null);
+  h.context.knOpenMemo();assert.equal(privatePane.classList.contains('mp-memo-warming'),true);
+  h.ledger.click();assert.equal(privatePane.classList.contains('mp-memo-warming'),false);assert.equal(privatePane.inert,false);assert.equal(privatePane.getAttribute('aria-hidden'),null);
+  h.context.knOpenMemo();assert.equal(privatePane.classList.contains('mp-memo-warming'),true);
+  isReady=true;h.ready();
+  assert.equal(privatePane.classList.contains('mp-memo-warming'),false);assert.equal(privatePane.inert,true);assert.equal(privatePane.getAttribute('aria-hidden'),'true');assert.equal(privatePane.classList.contains('on'),false);assert.equal(frame.getAttribute('aria-busy'),null);
+  assert.equal(h.frame,frame);assert.equal(h.page.querySelectorAll('.kb-frame').length,1);assert.deepEqual(h.navigations,['/kakeibo']);
   const top=h.page.querySelector('.mp-toptabs');
   for(const row of [top,h.tabs]){assert.equal(row.hidden,true);assert.equal(row.inert,true);assert.equal(row.getAttribute('aria-hidden'),'true');}
   assert.equal(h.tabs.style.display,'none');assert.equal(h.context.document.activeElement,h.noteHeading);
@@ -293,8 +305,11 @@ test('memo, assets and household navigation retain one browsing context, its sta
   for(let i=0;i<3;i++){
     assert.equal(h.context.knOpenAssets(),true);assert.equal(h.page.getAttribute('data-mp-view'),'assets');
     assert.equal(h.frame.parentNode.classList.contains('on'),true);assert.equal(h.tabs.hidden,false);
+    assert.equal(frame.parentNode.classList.contains('mp-memo-warming'),false);assert.equal(frame.parentNode.inert,false);assert.equal(frame.parentNode.getAttribute('aria-hidden'),null);
     h.ledger.click();assert.equal(h.page.getAttribute('data-mp-view'),'ledger');
+    assert.equal(frame.parentNode.classList.contains('mp-memo-warming'),false);assert.equal(frame.parentNode.inert,false);assert.equal(frame.parentNode.getAttribute('aria-hidden'),null);
     assert.equal(h.context.knOpenMemo(),true);assert.equal(h.page.getAttribute('data-mp-view'),'memo');
+    assert.equal(frame.parentNode.classList.contains('mp-memo-warming'),false);assert.equal(frame.parentNode.inert,true);assert.equal(frame.parentNode.getAttribute('aria-hidden'),'true');
     assert.equal(h.frame,frame);assert.equal(frame.contentDocument,doc);assert.equal(frame.contentWindow,child);assert.equal(child.kkMyPageStore,store);
     assert.deepEqual(JSON.parse(store.staged),staged);assert.equal(store.pending.body,JSON.stringify(staged));
     assert.deepEqual(doc.draft,{assetKind:'入力途中',amount:'１２３．',memo:'日本語の書きかけ'});assert.equal(doc.documentElement.scrollTop,415);
@@ -332,11 +347,13 @@ test('memo mode survives a same-owner refresh but signout destroys its private f
 });
 
 test('changing owners from memo mode detaches the old save context and returns the new owner to ordinary MyPage',()=>{
-  const h=fixture();h.context.knOpenMemo();const previous=h.frame,oldChild=previous.contentWindow;
+  const h=fixture();h.frame.contentDocument.documentElement.getAttribute=()=>null;h.context.knOpenMemo();const previous=h.frame,oldChild=previous.contentWindow;
+  assert.equal(previous.parentNode.classList.contains('mp-memo-warming'),true);assert.equal(previous.parentNode.inert,true);
   previous.contentDocument.noteDraft='所有者Aだけの未保存本文';oldChild.kkMyPageStore={pending:'Aの保存待ち'};
   h.auth({id:'account-B'});assert.notEqual(h.frame,previous);assert.equal(previous.parentNode,null);assert.notEqual(h.frame.contentWindow,oldChild);
   assert.equal(h.page.getAttribute('data-mp-view'),'assets');assert.equal(h.personal.classList.contains('on'),true);assert.equal(h.tabs.children[0].classList.contains('on'),true);
   assert.equal(h.page.querySelector('.mp-toptabs').hidden,false);assert.equal(h.tabs.inert,false);assert.equal(h.tabs.hidden,false);
+  assert.equal(h.frame.parentNode.classList.contains('mp-memo-warming'),false);assert.equal(h.frame.parentNode.inert,false);assert.equal(h.frame.parentNode.getAttribute('aria-hidden'),null);
   assert.equal(h.frame.contentDocument.noteDraft,undefined);assert.equal(h.frame.contentWindow.kkMyPageStore,undefined);assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);
   const current=h.frame;h.ready({source:oldChild});assert.equal(h.frame,current);assert.equal(h.page.getAttribute('data-mp-view'),'assets');
   assert.equal(h.context.knOpenMemo(),true);assert.equal(h.frame,current);assert.equal(h.page.getAttribute('data-mp-view'),'memo');assert.deepEqual(h.navigations,['/kakeibo','/kakeibo']);

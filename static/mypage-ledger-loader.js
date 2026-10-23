@@ -28,7 +28,7 @@
     try {
       var doc=frame.contentDocument;
       if(!doc||doc.documentElement.getAttribute('data-kn-ledger-ready')!=='true')return;
-      ready=true;applyFrameView();frame.removeAttribute('aria-busy');
+      ready=true;pane.classList.remove('mp-memo-warming');applyFrameView();frame.removeAttribute('aria-busy');
     } catch(ignore) {}
   }
   function portfolioSelected() {
@@ -100,6 +100,12 @@
     if(group!==0){tabs.setAttribute('inert','');tabs.setAttribute('aria-hidden','true');}
     else {tabs.removeAttribute('inert');tabs.removeAttribute('aria-hidden');}
     pane.classList.toggle('on',group===1||assets);
+    // The first direct note visit must also start the private document. Some
+    // mobile browsers defer its navigation while its ancestor is display:none.
+    // Lay it out offscreen only until readiness, without exposing its controls.
+    pane.classList.toggle('mp-memo-warming',group===2&&!ready&&!!owner);
+    if(group===2){pane.setAttribute('inert','');pane.setAttribute('aria-hidden','true');}
+    else{pane.removeAttribute('inert');pane.removeAttribute('aria-hidden');}
     var inner=body.querySelectorAll('.mo-pane:not(.kb-pane)'), ti=tabs.querySelectorAll('.mo-tab');
     for(var i=0;i<inner.length;i++)
       inner[i].classList.toggle('on',group===2?i===3:group===0&&!!(ti[i]&&ti[i].classList.contains('on')));
