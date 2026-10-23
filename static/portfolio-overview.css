@@ -70,7 +70,7 @@
 #tab-assets .po-error{color:var(--kn-ledger-expense,#a15f54);font-size:calc(13px * var(--kn-ledger-scale,1));overflow-wrap:anywhere}
 #tab-assets[data-po-ready="false"] :is(#poGoalBody,.po-columns,.po-holdings,.po-profit,.po-asof){visibility:hidden}
 #tab-assets .po-legacy-canvas{display:none!important}
-@media(max-width:620px){#tab-assets .po-columns{grid-template-columns:1fr;gap:0}#tab-assets .po-hero{display:block!important}
+@media(max-width:620px){#tab-assets .po-fields{grid-template-columns:1fr}#tab-assets .po-columns{grid-template-columns:1fr;gap:0}#tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{padding:18px}#tab-assets .po-hero #totalAssetVal{font-size:calc(31px * var(--kn-ledger-scale,1))}#tab-assets .po-goal-amount{font-size:calc(36px * var(--kn-ledger-scale,1))}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr) minmax(75px,.85fr)}}
 @media(max-width:380px){#tab-assets .po-fields{grid-template-columns:1fr}#tab-assets .po-field-wide{grid-column:auto}#tab-assets .po-legend-value small{display:block;margin-left:0}#tab-assets .po-hero{display:block!important}
 #tab-assets .po-hero,#tab-assets .po-panel{padding:14px}#tab-assets .po-goal-current-target{grid-template-columns:1fr;gap:14px}#tab-assets .po-goal-target{text-align:left}#tab-assets .po-goal-amount{font-size:calc(32px * var(--kn-ledger-scale,1))}#tab-assets .po-holding{gap:5px}#tab-assets .po-asset{grid-template-columns:minmax(0,1fr);gap:4px}#tab-assets .po-asset-values{text-align:left}#tab-assets .po-asset-values small{display:inline-block;margin-left:10px}}

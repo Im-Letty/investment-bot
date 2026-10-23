@@ -58,8 +58,11 @@ test('the household assets link delegates to the same-origin parent and standalo
 });
 test('the assets surface keeps the existing form, chart and list and excludes household chrome',()=>{
   const assetPane=html.slice(html.indexOf('<div class="tab-content po-overview" id="tab-assets"'),html.indexOf('<div class="tab-content" id="tab-records">'));
-  for(const id of ['totalAssetVal','totalAssetChange','ast-name','ast-cat','ast-amount','assetPieChart','asset-legend','asset-list-el'])
+  for(const id of ['totalAssetVal','totalAssetChange','ast-cat','ast-amount','assetPieChart','asset-legend','asset-list-el'])
     assert.match(assetPane,new RegExp('id="'+id+'"'));
+  const editor=assetPane.slice(assetPane.indexOf('<form class="po-panel" id="poEditor"'),assetPane.indexOf('</form>',assetPane.indexOf('<form class="po-panel" id="poEditor"')));
+  assert.deepEqual([...editor.matchAll(/<input\b[^>]*id="([^"]+)"/g)].map(match=>match[1]),['ast-cat','ast-amount']);
+  assert.doesNotMatch(editor,/<select\b|ast-name|ast-cost|ast-date|ast-account|ast-institution/);
   assert.equal((html.match(/id="totalAssetVal"/g)||[]).length,1);
   assert.match(html,/data-kk-open-assets data-i18n="kk_layout_mypage_assets"/);assert.doesNotMatch(html,/data-kk-layout-go="assets"/);
   assert.match(css,/\[data-kk-mypage-view="assets"\] > :not\(#tab-assets\):not\(#ledger-session-notice\)/);

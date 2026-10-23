@@ -404,7 +404,7 @@ test('invalid home dates block a monthly save without clearing drafts while asse
     const h=allFixture(seedMonth(2026,10,rows(10,2))),before=h.values.get('kb2_2026_10');h.writes.length=0;
     h.nodes.get('kkEntryDate').value=value;h.nodes.get('m-inv-name').value='架空の未保存投資';h.nodes.get('exp-amount').value='１００';h.nodes.get('exp-cat').value='食費';h.context.addRecord('exp');
     assert.equal(h.values.get('kb2_2026_10'),before);assert.deepEqual(h.writes,[]);assert.equal(h.nodes.get('m-inv-name').value,'架空の未保存投資');assert.equal(h.nodes.get('exp-amount').value,'１００');assert.equal(h.nodes.get('kkEntryDate').value,value);assert.equal(h.nodes.get('kkEntryDate').getAttribute('aria-invalid'),'true');
-    h.nodes.get('ast-name').value='架空の資産';h.nodes.get('ast-amount').value='２００';h.nodes.get('ast-cat').value='現金';h.context.addRecord('ast');
+    h.nodes.get('ast-cat').value='現金';h.nodes.get('ast-amount').value='２００';h.context.addRecord('ast');
     const asset=JSON.parse(h.values.get('kb2_assets'))[0];assert.equal(asset.amount,200);assert.equal(Object.hasOwn(asset,'date'),false);assert.equal(h.values.get('kb2_2026_10'),before);
   }
 });

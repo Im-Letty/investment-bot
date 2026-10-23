@@ -33,6 +33,47 @@ test('asset edits preserve ids, unknown fields and every other saved row',()=>{
  assert.deepEqual(next[0],{id:4,name:'新',cat:'国内株',amount:.2,custom:{same:true},cost:null,account:'NISA'});assert.deepEqual(next[1],rows[1]);assert.equal(raw(rows),before);
  const added=api.updateRows(before,null,{name:'追加',cat:'現金',amount:'0'}).at(-1);assert.deepEqual(Object.keys(added).sort(),['amount','cat','id','name']);
 });
+test('two-field additions use the entered kind as name and category without invented optional facts',()=>{
+ for(const [kind,text,value]of [['現金・預金','０',0],['自分で入力した種類','−１２３．４５',-123.45],['NISA','１．２５',1.25]]){
+  const rows=api.updateRows('[]',null,{cat:'  '+kind+'  ',amount:text});
+  assert.equal(typeof rows[0].id,'number');assert.deepEqual(Object.keys(rows[0]).sort(),['amount','cat','id','name']);
+  assert.equal(rows[0].name,kind);assert.equal(rows[0].cat,kind);assert.equal(rows[0].amount,value);
+ }
+});
+test('simple amount edits preserve sparse legacy names/categories and every optional or unknown field',()=>{
+ const rows=[{id:1,name:'個別の資産名',cat:'国内株',amount:-1.25,cost:0,account:'昔の独自口座',institution:'金融機関',date:'unknown-basis',memo:'保存メモ\n',future:{keep:[1,2]}},
+  {id:2,name:'',cat:'',amount:.1,cost:null,date:''},{id:3,amount:.2},{id:4,name:{future:true},cat:'  '+('長'.repeat(90))+'  ',amount:1e16}];
+ const before=raw(rows);
+ for(let index=0;index<rows.length;index++){
+  const value=index===3?rows[index].amount:rows[index].amount+.5,next=api.updateRows(before,index,{amount:String(value)});
+  assert.deepEqual(next[index],{...rows[index],amount:value});
+  next.forEach((row,i)=>{if(i!==index)assert.deepEqual(row,rows[i]);});assert.equal(raw(rows),before);
+ }
+ const unchanged=api.updateRows(before,3,{cat:rows[3].cat,amount:'10000000000000000'});assert.deepEqual(unchanged,rows);
+});
+test('a changed simple kind never replaces the stored asset name or reclassifies account metadata',()=>{
+ const row={id:'old-id',name:'元の銘柄名',cat:'国内株',amount:120.25,cost:100.25,account:'NISA',institution:'元の金融機関',date:'2020-01-01',extra:{untouched:true}};
+ const next=api.updateRows(raw([row]),0,{cat:'  ETF  ',amount:'120.25'});
+ assert.deepEqual(next,[{...row,cat:'ETF'}]);assert.equal(api.analyse(raw(next)).profit,20);
+});
+test('simple kind validation accepts unchanged legacy blank/long values but rejects new empty or oversized kinds',()=>{
+ for(const kind of ['', ' ', '新'.repeat(81)])assert.throws(()=>api.updateRows('[]',null,{cat:kind,amount:'1'}),/種類/);
+ const row={name:'既存',cat:'元の分類',amount:1};for(const kind of ['', ' ', '新'.repeat(81)])assert.throws(()=>api.updateRows(raw([row]),0,{cat:kind,amount:'1'}),/種類/);
+ assert.deepEqual(api.updateRows(raw([{amount:1,cat:''}]),0,{amount:'2'}),[{amount:2,cat:''}]);
+});
+test('simple numeric edits reject invalid or unsafe inputs without converting them into zero',()=>{
+ const row={id:1,name:'旧',cat:'国内株',amount:1,cost:0},before=raw([row]);
+ for(const amount of ['', 'NaN', 'Infinity', '-Infinity', '1e309', '1e-9999', '9007199254740992']){
+  assert.throws(()=>api.updateRows(before,0,{amount}));assert.equal(before,raw([row]));
+ }
+ assert.equal(api.updateRows(before,0,{amount:'−０．２５'})[0].amount,-.25);
+});
+test('simple session edits retain snapshot conflict and owner guards without writing another row or account',async()=>{
+ const h=fixture([{id:1,name:'旧名',cat:'',amount:1,other:true}]);await h.session.refresh();const before=h.getRaw();
+ h.setRaw(raw([{id:1,name:'別タブの変更',cat:'',amount:5,other:true}]));await assert.rejects(h.session.save(0,{amount:'2'},before),/更新/);assert.equal(h.writes.length,0);
+ await h.session.refresh();const current=h.getRaw();let resolve;h.setRead(()=>new Promise(r=>resolve=r));const pending=h.session.save(0,{amount:'3'},current);
+ h.setOwner('B');resolve({assetsRaw:current,raw:null});await assert.rejects(pending,/アカウント/);assert.equal(h.writes.length,0);assert.equal(h.session.state().model,null);
+});
 test('amount editing supports the prior whole-input decimal grammar and refuses malformed grouping',()=>{
  for(const [text,value] of [['.5',.5],['1.',1],['１．',1],['－．５',-.5],['￥１，０００．５',1000.5],['1e-3',.001],['０',0]])assert.equal(api.amount(text,true),value,text);
  for(const text of ['','1,00','1.2.3','1x','1e','Infinity','1e309','1e-400','9007199254740992'])assert.throws(()=>api.amount(text,true),text);
@@ -137,8 +178,7 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
  const ids=['tab-assets','poEditor','poStatus','poFieldset','totalAssetVal','poProfitValue','poProfitNote','poAsOf','poGoalHero','poGoalBody','totalAssetChange','asset-legend','poAllocationStack','asset-list-el','poAllocationNote','poEditorError','poEditorTitle','poSaveButton','poCancelButton','poGoalForm','poGoalAmount','poGoalError','poGoalSave','poGoalStatus','poRetry'];ids.forEach(id=>element('div',id));nodes.get('poEditor').hidden=true;
  nodes.get('tab-assets').appendChild(nodes.get('poGoalHero'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalBody'));nodes.get('poGoalHero').appendChild(nodes.get('poGoalForm'));
  const advice=element('section','kkPortfolioAdvice'),adviceControl=element('button');advice.appendChild(adviceControl);nodes.get('tab-assets').appendChild(advice);
- for(const key of ['name','cat','amount','cost','account','institution','date'])element(['cat','account'].includes(key)?'select':'input','ast-'+key);
- for(const id of ['ast-cat','ast-account'])for(const value of ['',...(id==='ast-cat'?['現金','国内株','投資信託']:['NISA','特定口座'])]){const o=element('option');o.value=value;nodes.get(id).appendChild(o);}
+ for(const key of ['cat','amount']){const input=element('input','ast-'+key);delete input.options;}
  const add=element('button');add.setAttribute('data-po-add','');
  const document={readyState:'complete',getElementById:id=>nodes.get(id)||null,createElement:tag=>element(tag)};
  const w={document,location:{origin:'https://portfolio.test',href:'https://portfolio.test/kakeibo'},knLedgerSession:{user:{id:'A'},access_token:'synthetic-token'},localStorage:{getItem:k=>values.get(k)??null},
@@ -150,18 +190,29 @@ function domFixture(seed=[{id:1,name:'架空の保存資産',cat:'国内株',amo
   dispatch(name,event={}){return listeners[name]&&listeners[name](event);}};
 }
 test('actual DOM handlers show the exact model, submit once, preserve untouched metadata and retain empty optional fields',async()=>{
- const h=domFixture();await h.flush();assert.equal(h.nodes.get('totalAssetVal').textContent,'0.3円');assert.equal(h.nodes.get('poAllocationStack').children.length,2);assert.equal(h.nodes.get('asset-legend').children[0].children[1].textContent,'0.1円');h.add.click();h.input('name','追加の架空資産');h.input('amount','１．５');h.nodes.get('ast-cat').value='現金';let prevented=false;
+ const h=domFixture();await h.flush();assert.equal(h.nodes.get('totalAssetVal').textContent,'0.3円');assert.equal(h.nodes.get('poAllocationStack').children.length,2);assert.equal(h.nodes.get('asset-legend').children[0].children[1].textContent,'0.1円');h.add.click();assert.equal(h.nodes.get('ast-cat').value,'');h.input('cat','現金・預金');h.input('amount','１．５');let prevented=false;
  h.nodes.get('poEditor').events.submit({preventDefault(){prevented=true;}});await h.flush();assert.equal(prevented,true);assert.equal(h.writes.length,1);assert.equal(h.nodes.get('poEditor').hidden,true);assert.equal(h.nodes.get('totalAssetVal').textContent,'1.8円');
- const saved=JSON.parse(h.getRaw()).at(-1);assert.deepEqual(Object.keys(saved).sort(),['amount','cat','id','name']);assert.equal(saved.amount,1.5);
+ const saved=JSON.parse(h.getRaw()).at(-1);assert.deepEqual(Object.keys(saved).sort(),['amount','cat','id','name']);assert.equal(saved.amount,1.5);assert.equal(saved.name,'現金・預金');assert.equal(saved.cat,'現金・預金');
 });
 test('same-owner token refresh and ordinary rerender keep unfinished editor fields; a confirmed account change scrubs them',async()=>{
- const h=domFixture();await h.flush();h.add.click();h.input('name','未保存の私的な下書き');h.input('amount','１２３．４５');
- h.dispatch('storage',{key:'sb-auth-token'});h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-name').value,'未保存の私的な下書き');assert.equal(h.nodes.get('ast-amount').value,'１２３．４５');assert.equal(h.writes.length,0);
- h.owner('B');h.dispatch('knLedgerAuth');assert.equal(h.nodes.get('poEditor').hidden,true);for(const k of ['name','amount','cost','account','institution','date'])assert.equal(h.nodes.get('ast-'+k).value,'');assert.equal(h.nodes.get('totalAssetChange').textContent,'');
+ const h=domFixture();await h.flush();h.add.click();h.input('cat','未保存の私的な下書き');h.input('amount','１２３．４５');
+ h.dispatch('storage',{key:'sb-auth-token'});h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-cat').value,'未保存の私的な下書き');assert.equal(h.nodes.get('ast-amount').value,'１２３．４５');assert.equal(h.writes.length,0);
+ h.owner('B');h.dispatch('knLedgerAuth');assert.equal(h.nodes.get('poEditor').hidden,true);for(const k of ['cat','amount'])assert.equal(h.nodes.get('ast-'+k).value,'');assert.equal(h.nodes.get('totalAssetChange').textContent,'');
 });
 test('DOM asset edit and cancel keep stored signed valuations and unknown properties intact',async()=>{
- const h=domFixture([{id:1,name:'架空',cat:'国内株',amount:-1.25,extra:{keep:true},date:'unknown-basis'}]);await h.flush();const before=h.getRaw(),edit=h.nodes.get('asset-list-el').children[0].children[0];edit.click();h.input('name','編集下書き');h.nodes.get('poCancelButton').click();assert.equal(h.getRaw(),before);assert.equal(h.writes.length,0);
- edit.click();h.input('name','名称だけ編集');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.writes.length,1);assert.deepEqual(JSON.parse(h.getRaw())[0],{id:1,name:'名称だけ編集',cat:'国内株',amount:-1.25,extra:{keep:true},date:'unknown-basis'});
+ const h=domFixture([{id:1,name:'架空',cat:'国内株',amount:-1.25,extra:{keep:true},date:'unknown-basis'}]);await h.flush();const before=h.getRaw(),edit=h.nodes.get('asset-list-el').children[0].children[0];edit.click();h.input('cat','編集下書き');h.nodes.get('poCancelButton').click();assert.equal(h.getRaw(),before);assert.equal(h.writes.length,0);
+ edit.click();h.input('cat','その他');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.writes.length,1);assert.deepEqual(JSON.parse(h.getRaw())[0],{id:1,name:'架空',cat:'その他',amount:-1.25,extra:{keep:true},date:'unknown-basis'});
+});
+test('the two actual input handlers edit legacy amounts without supplying removed metadata or names',async()=>{
+ const rows=[{id:1,name:'元の名称',cat:'',amount:1.25,cost:0,account:'独自口座',institution:'旧機関',date:'無効な旧日付',note:'本文',unknown:[1,2]},
+  {id:2,cat:'旧'.repeat(90),amount:1e16,cost:null},{id:3,amount:-.25,extra:{keep:true}}];
+ for(let index=0;index<rows.length;index++){
+  const h=domFixture(rows);await h.flush();const edit=h.nodes.get('asset-list-el').children[index].children[0];edit.click();
+  assert.equal(h.nodes.get('ast-cat').tagName,'INPUT');assert.equal(h.nodes.get('ast-name'),undefined);assert.equal(h.nodes.get('ast-cost'),undefined);
+  const amount=index===1?'10000000000000000':index===0?'−２．５':'０';h.input('amount',amount);await h.w.kkPortfolioSaveAsset();await h.flush();
+  const next=JSON.parse(h.getRaw()),expected=index===1?1e16:index===0?-2.5:0;assert.equal(h.writes.length,1);
+  assert.deepEqual(next[index],{...rows[index],amount:expected});next.forEach((row,i)=>{if(i!==index)assert.deepEqual(row,rows[i]);});
+ }
 });
 test('DOM fieldset stays disabled and no saved values are fabricated if restoration fails',async()=>{
  const h=domFixture();h.w.kkMyPageStore.load=async()=>{throw Error('restore');};h.dispatch('knLedgerAuth');await h.flush();assert.equal(h.nodes.get('poFieldset').disabled,true);assert.equal(h.nodes.get('totalAssetVal').textContent,'—');assert.equal(h.add.disabled,true);assert.equal(h.writes.length,0);
@@ -172,11 +223,11 @@ test('deleting an offsetting valuation rejects a nonfinite planned total before 
 });
 
 test('DOM save errors keep the draft and show fixed Japanese copy while known field validation stays specific',async()=>{
- const h=domFixture();await h.flush();const before=h.getRaw();h.add.click();h.input('name','保存前の下書き');h.input('amount','１．５');h.nodes.get('ast-cat').value='現金';
+ const h=domFixture();await h.flush();const before=h.getRaw();h.add.click();h.input('cat','保存前の下書き');h.input('amount','１．５');
  h.w.saveAssets=()=>{throw Error('QuotaExceededError internal storage detail');};h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();
- assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-name').value,'保存前の下書き');assert.equal(h.nodes.get('ast-amount').value,'１．５');assert.equal(h.getRaw(),before);
+ assert.equal(h.nodes.get('poEditor').hidden,false);assert.equal(h.nodes.get('ast-cat').value,'保存前の下書き');assert.equal(h.nodes.get('ast-amount').value,'１．５');assert.equal(h.getRaw(),before);
  assert.equal(h.nodes.get('poEditorError').textContent,'保存できませんでした。入力内容は残しています。もう一度お試しください。');assert.doesNotMatch(h.nodes.get('poEditorError').textContent,/Quota|internal|storage/);
- h.input('name','');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.nodes.get('poEditorError').textContent,'資産名と種類を入力してください。');assert.equal(h.getRaw(),before);
+ h.input('cat','');h.nodes.get('poEditor').events.submit({preventDefault(){}});await h.flush();assert.equal(h.nodes.get('poEditorError').textContent,'資産の種類を80文字以内で入力してください。');assert.equal(h.getRaw(),before);
 });
 test('DOM target shows the same exact current total as the hero plus percentage and remaining amount without legacy metadata',async()=>{
  const h=domFixture([{amount:1.5},{amount:2.5}]);await h.flush();h.setPlanner(raw({version:1,goals:[{id:'old',title:'表示しない旧目標名',target:10,deadline:'2030-01-01'}],selectedGoalId:'old'}));await h.w.kkPortfolioRender();
@@ -245,7 +296,7 @@ test('readiness and account transitions clear all prominent goal numbers before 
 });
 test('overview redraws and target saves preserve the mounted advice node and its controls without running them',async()=>{
  const h=domFixture();let clicks=0;h.adviceControl.addEventListener('click',()=>clicks++);await h.flush();
- h.target('10');await h.saveTarget();h.add.click();h.input('name','保存しない下書き');h.nodes.get('poCancelButton').click();h.dispatch('knMyPageStoreChange');await h.flush();
+ h.target('10');await h.saveTarget();h.add.click();h.input('cat','保存しない下書き');h.nodes.get('poCancelButton').click();h.dispatch('knMyPageStoreChange');await h.flush();
  assert.equal(h.nodes.get('tab-assets').children.at(-1),h.advice);assert.equal(h.advice.children[0],h.adviceControl);assert.equal(clicks,0);assert.equal(h.writes.length,0);
  h.adviceControl.click();assert.equal(clicks,1);
 });

@@ -86,10 +86,10 @@ function fixture({missingSelect=false,missingLabel=false,investment=false,owner=
   }
   const label=new Element('label');label.htmlFor='exp-cat';label.textContent='カテゴリ';label.setAttribute('data-i18n','kk_layout_category');
   const select=makeSelect('exp-cat');if(!missingLabel)form.appendChild(label);if(!missingSelect)form.appendChild(select);
-  const other={};for(const id of ['inv-cat','ast-cat','m-exp-cat']){other[id]=makeSelect(id);form.appendChild(other[id]);}
+  const other={};for(const id of ['inv-cat','m-exp-cat']){other[id]=makeSelect(id);form.appendChild(other[id]);}
   const invSelect=other['inv-cat'],invLabel=new Element('label');
   if(investment){invLabel.htmlFor='inv-cat';invLabel.textContent='カテゴリ';invLabel.setAttribute('data-i18n','kk_layout_category');form.insertBefore(invLabel,invSelect);}
-  for(const id of ['exp-amount','kkEntryDate','ast-name','m-exp-name']){assert.match(html,new RegExp('\\bid="'+id+'"'));other[id]=new Element('input');other[id].id=id;other[id].value='synthetic draft '+id;form.appendChild(other[id]);}
+  for(const id of ['exp-amount','kkEntryDate','ast-cat','m-exp-name']){assert.match(html,new RegExp('\\bid="'+id+'"'));other[id]=new Element('input');other[id].id=id;other[id].value='synthetic draft '+id;form.appendChild(other[id]);}
   const windowEvents=new Map();
   const context={document,console,Event,localStorage:{getItem(key){reads.push(key);return storage.get(key)??null;},setItem(key,value){storage.set(key,String(value));writes.push({key,value:String(value)});},removeItem(key){storage.delete(key);}},
     MutationObserver:class{constructor(callback){this.callback=callback;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},

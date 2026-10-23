@@ -54,9 +54,22 @@
   }
   function updateRows(raw,index,draft){
     var rows=decode(raw);if(index!==null&&(!Number.isInteger(index)||index<0||index>=rows.length))throw Error('asset_changed');
-    var name=String(draft.name||'').trim(),cat=String(draft.cat||'').trim();if(!name||name.length>80||index===null&&!cat||cat.length>80&&(index===null||cat!==rows[index].cat))throw Error('資産名と種類を入力してください。');
+    var simple=!own.call(draft,'name'),next=Object.assign({},index===null?{id:Date.now()}:rows[index]);
+    if(simple){
+      // The two-field editor never rewrites a historical name or omitted
+      // metadata. Preserve even unusual legacy categories when left untouched.
+      if(index===null||own.call(draft,'cat')&&draft.cat!==rows[index].cat){
+        var kind=String(draft.cat||'').trim();if(!kind||kind.length>80)throw Error('資産の種類を80文字以内で入力してください。');
+        next.cat=kind;
+      }
+      if(index===null)next.name=next.cat;
+    }else{
+      // Keep compatibility with callers that explicitly supply a full draft.
+      var name=String(draft.name||'').trim(),cat=String(draft.cat||'').trim();if(!name||name.length>80||index===null&&!cat||cat.length>80&&(index===null||cat!==rows[index].cat))throw Error('資産名と種類を入力してください。');
+      next.name=name;if(cat)next.cat=cat;
+    }
     var unchanged=index!==null&&String(draft.amount).trim()===String(rows[index].amount);
-    var next=Object.assign({},index===null?{id:Date.now()}:rows[index],{name:name,amount:unchanged?rows[index].amount:amount(draft.amount,true)});if(cat)next.cat=cat;
+    next.amount=unchanged?rows[index].amount:amount(draft.amount,true);
     ['cost','account','institution','date'].forEach(function(key){
       if(!own.call(draft,key))return;var text=String(draft[key]===null?'':draft[key]).trim();
       if(key==='cost')next.cost=text===''?null:amount(text,false);
@@ -76,7 +89,7 @@
   }
   function errorMessage(error){
     var text=error&&error.message;
-    var known=['金額を数字で入力してください。','金額を確認してください。','目標資産額は0円より大きい金額を入力してください。','目標資産額を確認してください。','記録の読み込みを確認してから、もう一度お試しください。','この端末に保存できませんでした。入力内容は残しています。','目標を読み込めませんでした。再読み込みしてください。','目標を保存できませんでした。入力内容は残しています。もう一度お試しください。','資産名と種類を入力してください。','基準日を確認してください。','入力は80文字以内にしてください。','非公開接続を確認してから、もう一度お試しください。','アカウントが切り替わりました。','資産の内容が更新されています。入力内容は残しています。閉じて開き直して確認してください。','非公開接続を確認してください。','資産の内容が更新されています。再読み込みしてください。','資産が見つかりません。'];
+    var known=['金額を数字で入力してください。','金額を確認してください。','目標資産額は0円より大きい金額を入力してください。','目標資産額を確認してください。','記録の読み込みを確認してから、もう一度お試しください。','この端末に保存できませんでした。入力内容は残しています。','目標を読み込めませんでした。再読み込みしてください。','目標を保存できませんでした。入力内容は残しています。もう一度お試しください。','資産名と種類を入力してください。','資産の種類を80文字以内で入力してください。','基準日を確認してください。','入力は80文字以内にしてください。','非公開接続を確認してから、もう一度お試しください。','アカウントが切り替わりました。','資産の内容が更新されています。入力内容は残しています。閉じて開き直して確認してください。','非公開接続を確認してください。','資産の内容が更新されています。再読み込みしてください。','資産が見つかりません。'];
     if(known.indexOf(text)>=0)return text;
     if(text==='assets_invalid'||text==='asset_changed')return '資産の内容を確認してください。入力内容は残しています。';
     return '保存できませんでした。入力内容は残しています。もう一度お試しください。';
@@ -132,8 +145,8 @@
     function status(text,error){var el=doc.getElementById('poStatus');el.textContent=text||'';el.hidden=!text;el.classList.toggle('po-error',!!error);}
     function close(){form.hidden=true;editorIndex=null;editorRaw=undefined;editorOwner='';dirty=false;doc.getElementById('poEditorError').textContent='';}
     function scrub(){close();Object.keys(fields).forEach(function(k){fields[k].value='';});pane.querySelectorAll('[data-po-custom]').forEach(function(n){n.remove();});targetEpoch++;targetOwner='';targetDirty=false;targetBusy=false;if(targetInput)targetInput.value='';if(targetForm){doc.getElementById('poGoalError').textContent='';doc.getElementById('poGoalStatus').textContent='';}}
-    function fieldValues(){var draft={name:fields.name.value,cat:fields.cat.value,amount:fields.amount.value};
-      ['cost','account','institution','date'].forEach(function(k){if(editedFields[k]||editorIndex===null&&fields[k].value.trim()!=='')draft[k]=fields[k].value;});return draft;
+    function fieldValues(){var draft={amount:fields.amount.value};
+      if(editorIndex===null||editedFields.cat)draft.cat=fields.cat.value;return draft;
     }
     function paint(s){
       var same=owner()&&s.owner===owner();if(!same){scrub();s={ready:false,model:null,error:''};}
@@ -153,7 +166,7 @@
       var profitSign=m.profitText===null||m.profitText==='0'?0:m.profitText[0]==='-'?-1:1;
       doc.getElementById('poProfitValue').textContent=m.profitText===null?'—':(profitSign>0?'＋':profitSign<0?'−':'')+money(profitSign<0?m.profitText.slice(1):m.profitText);
       doc.getElementById('poProfitValue').className='po-profit-value '+(profitSign>0?'po-up':profitSign<0?'po-down':'');
-      doc.getElementById('poProfitNote').textContent=(m.knownCount?'取得額のある投資資産 '+m.knownCount+'件分':'取得額を入力すると表示')+(m.unknownCount?' · 取得額未入力 '+m.unknownCount+'件':'');
+      doc.getElementById('poProfitNote').textContent=(m.knownCount?'取得額のある記録 '+m.knownCount+'件を集計':'取得額のある記録はありません')+(m.unknownCount?' · 取得額不明 '+m.unknownCount+'件':'');
       stack.hidden=!m.canAllocate;stack.setAttribute('aria-label',m.groups.map(function(g){return g.name+' '+money(g.amountText);}).join('、'));
       doc.getElementById('poAllocationNote').textContent=m.rows.length?m.canAllocate?'評価額ベース':'マイナスまたは合計0円のため、配分率の代わりに金額を表示しています。':'資産を追加すると内訳が表示されます。';
       m.groups.forEach(function(g,i){var color='var(--po-category-'+(i%7)+')';if(m.canAllocate&&g.amount>0){var segment=node('span','po-segment');segment.style.width=g.amount/m.total*100+'%';segment.style.background=color;stack.appendChild(segment);}
@@ -182,11 +195,8 @@
     }
     function open(index){if(busy)return;var s=session.state();if(!s.ready||owner()!==s.owner)return;if(!form.hidden&&dirty&&!w.confirm('編集中の内容を閉じますか？'))return;
       editorIndex=index;editorRaw=s.raw;editorOwner=s.owner;var a=index===null?{}:s.model.rows[index];if(!a)return;
-      fields.name.value=typeof a.name==='string'?a.name:'';fields.amount.value=index===null?'':String(a.amount);fields.cat.value=index===null?'現金':typeof a.cat==='string'?a.cat:'';
-      if(a.cat&&!Array.from(fields.cat.options).some(function(o){return o.value===a.cat;})){var op=node('option','',a.cat);op.value=a.cat;op.setAttribute('data-po-custom','true');fields.cat.appendChild(op);fields.cat.value=a.cat;}
-      ['cost','account','institution','date'].forEach(function(k){fields[k].value=a[k]===undefined||a[k]===null?'':String(a[k]);});
-      if(a.account&&!Array.from(fields.account.options).some(function(o){return o.value===a.account;})){var op=node('option','',a.account);op.value=a.account;op.setAttribute('data-po-custom','true');fields.account.appendChild(op);fields.account.value=a.account;}
-      doc.getElementById('poEditorTitle').textContent=index===null?'資産を追加':'資産の詳細';doc.getElementById('poSaveButton').textContent=index===null?'追加する':'変更を保存';doc.getElementById('poEditorError').textContent='';dirty=false;editedFields=Object.create(null);form.hidden=false;fields.name.focus();form.scrollIntoView({block:'nearest',behavior:'auto'});
+      fields.amount.value=index===null?'':String(a.amount);fields.cat.value=typeof a.cat==='string'?a.cat:'';
+      doc.getElementById('poEditorTitle').textContent=index===null?'資産を追加':'資産の詳細';doc.getElementById('poSaveButton').textContent=index===null?'追加する':'変更を保存';doc.getElementById('poEditorError').textContent='';dirty=false;editedFields=Object.create(null);form.hidden=false;fields.cat.focus();form.scrollIntoView({block:'nearest',behavior:'auto'});
     }
     async function save(){if(busy)return false;var s=session.state();if(form.hidden){open(null);return false;}if(editorOwner!==owner()||!s.ready)return false;
       var who=editorOwner,base=editorRaw;busy=true;doc.getElementById('poFieldset').disabled=true;try{var draft=fieldValues();await session.save(editorIndex,draft,editorRaw);if(who!==owner()||editorOwner!==who||editorRaw!==base)return false;close();status('この端末に保存しました。',false);return true;}catch(e){if(who===owner()&&editorOwner===who)doc.getElementById('poEditorError').textContent=errorMessage(e);return false;}finally{busy=false;doc.getElementById('poFieldset').disabled=!session.state().ready;}
@@ -220,7 +230,7 @@
     }
     function build(){pane=doc.getElementById('tab-assets');form=doc.getElementById('poEditor');if(!pane||!form)return;
       targetForm=doc.getElementById('poGoalForm');targetInput=doc.getElementById('poGoalAmount');if(!targetForm||!targetInput)return;
-      ['name','cat','amount','cost','account','institution','date'].forEach(function(k){fields[k]=doc.getElementById('ast-'+k);});
+      ['cat','amount'].forEach(function(k){fields[k]=doc.getElementById('ast-'+k);});
       session=createSession({owner:owner,read:function(who){if(!w.kkMyPageStore)throw Error('restore_unavailable');return w.kkMyPageStore.load(who);},decodeGoal:decodePlanner,write:function(who,rows){if(who!==owner())throw Error('アカウントが切り替わりました。');w.saveAssets(rows);},writeTarget:writeTarget,onChange:paint});
       pane.querySelectorAll('[data-po-add]').forEach(function(b){b.addEventListener('click',function(){open(null);});});doc.getElementById('poCancelButton').addEventListener('click',close);doc.getElementById('poRetry').addEventListener('click',function(){session.refresh();});
       targetInput.addEventListener('input',function(){if(targetBusy||targetInput.disabled)return;targetDirty=true;doc.getElementById('poGoalError').textContent='';doc.getElementById('poGoalStatus').textContent='';});targetForm.addEventListener('submit',function(e){e.preventDefault();return saveTarget();});

@@ -31,8 +31,8 @@
   <script defer src="/static/kakeibo-receipt-sources.js?v=20261016-receipts1"></script>
   <link rel="stylesheet" href="/static/portfolio-advice.css?v=20261018-advice1">
   <script defer src="/static/portfolio-advice.js?v=20261018-advice1"></script>
-  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261023-goal-focus1">
-  <script defer src="/static/portfolio-overview.js?v=20261023-goal-focus1"></script>
+  <link rel="stylesheet" href="/static/portfolio-overview.css?v=20261024-simple-assets1">
+  <script defer src="/static/portfolio-overview.js?v=20261024-simple-assets1"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&amp;family=Outfit:wght@400;600;700;800&amp;family=M+PLUS+Rounded+1c:wght@400;700&amp;family=Klee+One:wght@400;600&amp;family=Shippori+Mincho:wght@400;700&amp;display=swap" rel="stylesheet" media="print" onload="this.media='all'">
     <style>
@@ -370,18 +370,14 @@ body{padding-bottom:24px;}
   <form class="po-panel" id="poEditor" hidden novalidate>
     <div class="po-heading"><h3 id="poEditorTitle">資産を追加</h3></div>
     <fieldset class="po-fieldset" id="poFieldset" disabled><div class="po-fields">
-      <label class="po-field po-field-wide" for="ast-name"><span>資産の名前</span><input class="inp" id="ast-name" type="text" maxlength="80" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_asset_name" placeholder="資産名（例：現金、日本株）"></label>
-      <label class="po-field" for="ast-cat"><span>資産の種類</span><select class="inp" id="ast-cat"><option value="">未分類</option><option value="現金" data-i18n="kk_cat_cash">💴 現金・預金</option><option value="国内株" data-i18n="kk_cat_domestic_stock">🇯🇵 国内株</option><option value="米国株" data-i18n="kk_cat_us_stock">🇺🇸 米国株</option><option value="投資信託" data-i18n="kk_cat_mutual_fund">📦 投資信託</option><option value="ETF" data-i18n="kk_cat_etf">📊 ETF</option><option value="債券" data-i18n="kk_cat_bond">📄 債券</option><option value="不動産" data-i18n="kk_cat_realestate">🏠 不動産</option><option value="仮想通貨" data-i18n="kk_cat_crypto">🪙 仮想通貨</option><option value="その他" data-i18n="kk_cat_other_bulb">💡 その他</option></select></label>
-      <label class="po-field" for="ast-amount"><span>評価額（円）</span><input class="inp" id="ast-amount" type="text" inputmode="decimal" oninput="kkClearEntryError(this)" data-i18n-placeholder="kk_ph_eval_amount" placeholder="評価額（円）"></label>
-      <label class="po-field" for="ast-cost"><span>取得額（円・任意）</span><input class="inp" id="ast-cost" type="text" inputmode="decimal" placeholder="未入力なら損益は —"></label>
-      <label class="po-field" for="ast-date"><span>評価額の基準日（任意）</span><input class="inp" id="ast-date" type="date"></label>
-      <label class="po-field" for="ast-account"><span>口座区分（任意）</span><select class="inp" id="ast-account"><option value="">未指定</option><option value="NISA">NISA</option><option value="特定口座">特定口座</option><option value="一般口座">一般口座</option></select></label>
-      <label class="po-field" for="ast-institution"><span>金融機関（任意）</span><input class="inp" id="ast-institution" type="text" maxlength="80"></label>
-    </div><p class="po-muted" style="margin-top:12px">NISAは口座区分です。現金・預金は投資分の評価損益に含めません。</p>
+      <label class="po-field" for="ast-cat"><span>資産の種類</span><input class="inp" id="ast-cat" type="text" list="poAssetKinds" maxlength="80" autocomplete="off" placeholder="例：現金・預金、国内株"></label>
+      <datalist id="poAssetKinds"><option value="現金・預金"></option><option value="国内株"></option><option value="米国株"></option><option value="投資信託"></option><option value="ETF"></option><option value="債券"></option><option value="不動産"></option><option value="仮想通貨"></option><option value="その他"></option></datalist>
+      <label class="po-field" for="ast-amount"><span>金額（円）</span><input class="inp" id="ast-amount" type="text" inputmode="decimal" autocomplete="off" oninput="kkClearEntryError(this)" placeholder="例：100,000"></label>
+    </div>
     <p id="poEditorError" class="po-error" role="alert"></p>
     <div class="po-actions"><button type="button" class="po-button" id="poCancelButton">キャンセル</button><button type="submit" class="po-button po-button-primary" id="poSaveButton">追加する</button></div></fieldset>
   </form>
-  <section class="po-panel po-holdings"><div class="po-heading"><h3>保有資産</h3><button type="button" class="po-button" data-po-add disabled>＋ 追加</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">各資産を押すと、評価額や口座区分を編集できます。</p></section>
+  <section class="po-panel po-holdings"><div class="po-heading"><h3>保有資産</h3><button type="button" class="po-button" data-po-add disabled>＋ 追加</button></div><div id="asset-list-el" class="po-list"></div><p class="po-muted" style="margin-top:10px">資産を押すと、種類と金額を変更できます。</p></section>
 </div>
 <div class="tab-content" id="tab-records">
   <h2 class="kk-pane-title" data-kk-pane-title tabindex="-1" data-i18n="kk_layout_records">記録一覧</h2>
@@ -1276,7 +1272,7 @@ function kkEntryError(input,key){
 }
 function kkHtmlText(value){return String(value==null?'':value).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];});}
 function kkReadEntry(prefix){
-  var nameInput=document.getElementById(prefix+'-name'),amountInput=document.getElementById(prefix+'-amount');
+  var nameInput=document.getElementById(prefix==='ast'?'ast-cat':prefix+'-name'),amountInput=document.getElementById(prefix+'-amount');
   var homeQuick=prefix==='inc'||prefix==='exp'||prefix==='inv',categoryInput=homeQuick?document.getElementById(prefix+'-cat'):null;
   var name=homeQuick?(categoryInput&&categoryInput.value&&categoryInput.value!=='__kkadd__'?categoryInput.value:kkT(prefix==='inc'?'kk_js_income':prefix==='inv'?'kk_js_investment':'kk_js_expense')):nameInput.value.trim();
   var amount=kkParseAmount(amountInput.value),firstInvalid=null;
@@ -1287,7 +1283,7 @@ function kkReadEntry(prefix){
   return {name:name,amount:amount};
 }
 function kkClearEntry(prefix){
-  ['name','amount'].forEach(function(field){var input=document.getElementById(prefix+'-'+field);if(input){input.value='';kkClearEntryError(input);}});
+  (prefix==='ast'?['cat','amount']:['name','amount']).forEach(function(field){var input=document.getElementById(prefix+'-'+field);if(input){input.value='';kkClearEntryError(input);}});
 }
 
 
@@ -1679,7 +1675,7 @@ function addRecord(type){
   if(type==='ast'&&typeof kkPortfolioSaveAsset==='function')return kkPortfolioSaveAsset();
   if(['inc','exp','inv','ast'].indexOf(type)===-1)return;
   var entry=kkReadEntry(type);if(!entry)return;
-  var cat=document.getElementById(type+'-cat').value;
+  var cat=type==='ast'?entry.name:document.getElementById(type+'-cat').value;
   if(type==='ast'){
     var assets=getAssets();assets.push({id:Date.now(),name:entry.name,cat:cat,amount:entry.amount});
     saveAssets(assets);kkClearEntry(type);renderAll();return;
