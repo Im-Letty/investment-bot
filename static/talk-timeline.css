@@ -23,9 +23,10 @@ body.kn-home-a :is(#teachOv,#teachOv .to-head,#teachOv .to-body) {
 /* Existing header geometry reserves the floating menu and bottom navigation. */
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-header {
   background:var(--kn-talk-bg);
+  justify-content:flex-end;
 }
-body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-title {
-  overflow-wrap:anywhere;
+body.kn-home-a :is(#cmOv,#stockTalkOv) :is(.cw-back,.cw-title) {
+  display:none;
 }
 body.kn-home-a :is(#cmOv,#stockTalkOv) .cw-view-tabs {
   background:var(--kn-talk-bg);
