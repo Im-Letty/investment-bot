@@ -1684,6 +1684,91 @@
           "schedules": []
         }
       ]
+    },
+    {
+      "code": "9914",
+      "symbol": "9914.JP",
+      "name": "植松商会",
+      "category": "選べるギフト",
+      "aliases": "株式会社植松商会",
+      "versions": [
+        {
+          "id": "digital-gift-from-20260320-reviewed-20261023",
+          "status": "active",
+          "effective_from": "2026-03-20",
+          "effective_until": null,
+          "announced_on": "2026-02-13",
+          "verified_on": "2026-10-23",
+          "source": {
+            "kind": "issuer_primary",
+            "url": "https://uematsushokai.jp/cms/wp-content/uploads/2026/02/20260213kabunushiyutaihinmokuhenko.pdf",
+            "title": "植松商会公式 株主優待品目変更のお知らせ",
+            "security_code": "9914",
+            "issuer_name": "植松商会",
+            "official_legal_name": "株式会社植松商会",
+            "evidence_kind": "primary_page_observation_note",
+            "observed_at": "2026-10-23T12:54:36.672634+09:00",
+            "observed_at_kind": "actual_normal_PDF_GET_response_finished_at_jst",
+            "evidence_path": "evidence/reviewed-9914-observation-note-20261023.json",
+            "evidence_sha256": "3a86608c147bb2b68697b5097b8c4811e674447ddd93bf3bae3c88fdcd41956f",
+            "original_pdf_sha256": "9bb7be28a363c98ce34a349ffc85552594ebf0df1533f6f46c8f84332bb5cdbc",
+            "original_pdf_bytes": 138318
+          },
+          "review": {
+            "status": "reviewed",
+            "reviewed_by": "root-PDF-visual-plus-independent-two-page-numeric-and-condition-review",
+            "issuer_identity": true,
+            "programme_status": true,
+            "eligibility": true,
+            "future_changes": true,
+            "scope": "実際に取得した2ページの変更PDFと、既読の現在公式HTMLを照合。表の全3区分、変更時期、年1回、Web受取手続き、QUO別送を別担当がPDF画像で確認。一般利用条件・IR専用免責の所在は未確定。原文の表・画像・長文は転載せず、短い独立した制度事実だけを使用。全改廃や未来の制度不変を保証しない。発表時点の東京併記を現在市場に転記しない。",
+            "all_future_amendments_verified_absent": false,
+            "general_reuse_licence_claimed": false,
+            "IR_specific_disclaimer_read": false,
+            "PDF_numeric_tables_visually_verified": true,
+            "primary_original_SHA_separate_from_note_SHA": true,
+            "independent_review_evidence": {
+              "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-125120/independent-source-review.json",
+              "sha256": "668b2baf00acfeefa3f863ae2911a3f8989d9a0ff22b0e2cf0369ada16c184b5"
+            }
+          },
+          "period": "毎年3月20日の株主名簿で対象と区分を判定。2026年3月20日を基準とする優待からデジタルギフトへ変更。次回の対象年・具体的な購入締切日は未確認。",
+          "conditions": "最低100株。売買単元も100株。保有株数による3区分は加算しません。保有期間、同一株主番号・連続名簿回数・過去の各回株数に関する追加条件は、確認資料では未記載です。",
+          "use": "案内に従いWebで希望の品目を選択し、選択期間内に受取手続きを完了する必要があります。期間を過ぎると手続きできません。Amazonギフトカード、PayPay、楽天ポイント、dポイント、au PAYなどの交換先が予定され、変更される場合があります。QUOカードも選択できます。各交換先の金額を重ねて受け取る制度ではありません。具体的な選択期間、分割交換や繰返し受取の条件、ギフトの有効期限は未確認です。",
+          "delivery": "年1回、定時株主総会後の決議通知と一緒に優待案内を6月下旬発送予定。これは案内の予定で、ギフトの実到着日ではありません。QUOカードを選ぶ場合は選択期間終了後に別途郵送予定。具体的な実発送日・到着日は未確認です。",
+          "grant_summary": "6月下旬に優待案内を発送予定。Webで選択・受取手続きが必要。QUOは選択期間後に別送予定。",
+          "tiers": [
+            {
+              "id": "digital-100-999",
+              "shares_min": 100,
+              "shares_max": 999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同一番号・連続名簿に関する追加条件は、確認資料では未記載",
+              "reward": "500円相当のデジタルギフト。QUOカードも選択可能",
+              "conditions": "この株数区分の内容だけを受け取り、他の株数区分や交換先の金額を加算しません。案内を使い、選択期間内にWebで選択と受取手続きを完了する必要があります。具体的な選択期限・ギフト有効期限は未確認。"
+            },
+            {
+              "id": "digital-1000-2999",
+              "shares_min": 1000,
+              "shares_max": 2999,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同一番号・連続名簿に関する追加条件は、確認資料では未記載",
+              "reward": "1,000円相当のデジタルギフト。QUOカードも選択可能",
+              "conditions": "この株数区分の内容だけを受け取り、他の株数区分や交換先の金額を加算しません。案内を使い、選択期間内にWebで選択と受取手続きを完了する必要があります。具体的な選択期限・ギフト有効期限は未確認。"
+            },
+            {
+              "id": "digital-3000plus",
+              "shares_min": 3000,
+              "shares_max": null,
+              "holding_months_min": null,
+              "holding_requirement": "保有期間・同一番号・連続名簿に関する追加条件は、確認資料では未記載",
+              "reward": "3,000円相当のデジタルギフト。QUOカードも選択可能",
+              "conditions": "この株数区分の内容だけを受け取り、他の株数区分や交換先の金額を加算しません。案内を使い、選択期間内にWebで選択と受取手続きを完了する必要があります。具体的な選択期限・ギフト有効期限は未確認。"
+            }
+          ],
+          "schedules": []
+        }
+      ]
     }
   ]
 }

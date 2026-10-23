@@ -1,8 +1,8 @@
 # Shareholder benefits calendar
 
-The catalogue contains 32 companies: the original nine reviewed on 2026-09-25,
+The catalogue contains 33 companies: the original nine reviewed on 2026-09-25,
 fifteen additions reviewed on 2026-10-17, three on 2026-10-18, three on
-2026-10-19 and two on 2026-10-20. The owner chose phased expansion using free
+2026-10-19, two on 2026-10-20 and one on 2026-10-23. The owner chose phased expansion using free
 official sources only. This remains a partial, manually reviewed catalogue, not a
 complete benefit-issuer list or automatic data updater. Missing records never mean
 "no benefit". A build does not refresh the original nine's confirmation dates.
@@ -549,3 +549,32 @@ All previous 31 companies, 22 reviewed additions, nine fixed records and 12
 explicit schedules retain their original values and confirmation dates. This
 addition has no schedule and does not establish all-company coverage. Public
 publication is verified separately from this reviewed repository build.
+
+
+## Additional independently reviewed PDF-backed company on 2026-10-23
+
+- 9914 Uematsu Shokai:
+  https://uematsushokai.jp/cms/wp-content/uploads/2026/02/20260213kabunushiyutaihinmokuhenko.pdf
+  From the March 20, 2026 register, the former QUO benefit becomes a choice-based
+  digital gift: 100–999 shares receive 500 yen equivalent, 1,000–2,999 receive
+  1,000 yen, and 3,000+ receive 3,000 yen. These brackets and exchange choices
+  are not additive. Eligibility uses the annual March 20 register; one lot is
+  100 shares. Holding duration and same-number/continuity tests are unstated.
+  Annual late-June dispatch refers to the guidance enclosed with the post-AGM
+  resolution notice, not actual gift arrival. Web selection and completion of
+  receipt within the selection period are required; the exact dates and gift
+  expiry remain unknown. QUO remains selectable and is separately mailed after
+  the selection period. Exchange destinations are planned examples and may
+  change. The February 13, 2026 announcement date and March 20 tier-effective
+  date are distinct from the unknown original programme start.
+  Both PDF pages and all three brackets received separate visual/fact review.
+  Actual PDF SHA and authored-note SHA are stored separately. The dated Tokyo
+  listing label is not copied into current local Nagoya identity. Earlier
+  current HTML supports the ongoing programme; bounded disclosure review does
+  not guarantee all amendments absent. General terms and an IR-specific
+  disclaimer remain unlocated; no blanket reuse licence is claimed. Only short
+  independent facts are published, without source tables, images or long prose.
+
+All previous 32 companies, 23 reviewed additions, nine fixed records and 12
+explicit schedules retain their values and confirmation dates. No new purchase
+deadline or 2027 schedule is inferred; coverage remains partial.

@@ -1,0 +1,94 @@
+{
+  "schema_version": 1,
+  "company_code": "9914",
+  "issuer_name": "植松商会",
+  "symbol": "9914.JP",
+  "primary_exchange": "Nagoya",
+  "evidence_kind": "authored_primary_PDF_and_prior_HTML_observation_note",
+  "note_SHA_is_original_PDF_or_HTML_SHA": false,
+  "original_PDF": {
+    "source_URL": "https://uematsushokai.jp/cms/wp-content/uploads/2026/02/20260213kabunushiyutaihinmokuhenko.pdf",
+    "sha256": "9bb7be28a363c98ce34a349ffc85552594ebf0df1533f6f46c8f84332bb5cdbc",
+    "bytes": 138318,
+    "fetched_at_jst": "2026-10-23T12:54:36.672634+09:00",
+    "receipt": {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-125120/company-9914/http-1.json",
+      "sha256": "de58c098793db69dcb99df47ddfff78053a3e78a89f6dfcd9bd7e2583d34966a",
+      "bytes": 1148
+    }
+  },
+  "official_legal_name": "株式会社植松商会",
+  "announcement_date": "2026-02-13",
+  "current_tier_effective_from": "2026-03-20",
+  "programme_original_start_date": null,
+  "applies_to": "2026年3月20日を基準とする優待からの変更。以後の年ごとの購入締切や制度不変を保証しない。",
+  "record_rule": "毎年3月20日の名簿に100株以上。売買単元も100株。",
+  "tiers": [
+    {
+      "shares_min": 100,
+      "shares_max": 999,
+      "gift_yen_equivalent": 500
+    },
+    {
+      "shares_min": 1000,
+      "shares_max": 2999,
+      "gift_yen_equivalent": 1000
+    },
+    {
+      "shares_min": 3000,
+      "shares_max": null,
+      "gift_yen_equivalent": 3000
+    }
+  ],
+  "tiers_additive": false,
+  "holding_months_min": null,
+  "holding_same_number_continuity_per_record_requirements": "保有期間、同一株主番号・連続名簿回数・過去各回株数の追加条件は未記載。0か月や条件なしと補わない。",
+  "change": "従来のQUOカードから選択式デジタルギフトへ。QUOカードも選択可能。額面を各選択先へ重ねて付与する内容ではない。",
+  "planned_destinations": [
+    "Amazonギフトカード",
+    "PayPay",
+    "楽天ポイント",
+    "dポイント",
+    "au PAY",
+    "nanakoポイント（発表原文表記）",
+    "その他",
+    "QUOカードも選択可"
+  ],
+  "destinations_are_fixed_or_additive": false,
+  "application": "総会決議通知に同封する案内を使い、Webで品目を選んで選択期間内に受取手続きを完了する。期間後は手続不可。",
+  "selection_window_dates": null,
+  "guide_dispatch": "年1回、定時株主総会後の決議通知と一緒に案内を発送予定。6月下旬の予定は案内であり、ギフトの到着日ではない。",
+  "QUO_dispatch": "QUOカードの選択者には選択期間終了後、別途郵送予定。具体日は未確認。",
+  "actual_dispatch_or_arrival": null,
+  "gift_expiry": null,
+  "multiple_split_combination_or_repeat_claim_rules": null,
+  "purchase_deadline": null,
+  "schedules": [],
+  "2027_entitlement_or_schedule_inferred": false,
+  "PDF_pages_visually_reviewed": [
+    1,
+    2
+  ],
+  "visual_reviewed_at_jst": "2026-10-23T12:58:00.928692+09:00",
+  "visual_render_files": [
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-125120/company-9914/amendment-page-1.png",
+      "sha256": "dc3749cb010796825d426451d1ffadb9a61f27e561a8d21810fafde4e83430e3",
+      "bytes": 282602
+    },
+    {
+      "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-125120/company-9914/amendment-page-2.png",
+      "sha256": "70f11d5179e5821030bf17d64466a26a8f5b7d195bafff298c34033417619b55",
+      "bytes": 135264
+    }
+  ],
+  "prior_HTML_observation_evidence": {
+    "path": "/Users/remi/Documents/Codex/2026-10-12/error-running-remote-compact-task-stream/work/benefits-all-companies-20261017-0315/batch-20261023-115550/company-9914/observation-note.json",
+    "sha256": "541d88aaa5156c765e95d2a7a7d2abcfa27d8bc1750530065cc68ba8afb739bd",
+    "bytes": 4455
+  },
+  "identity": "実PDFの9914と発行体名はStockSearch現行ローカル9914.JP・名古屋メインに一致。PDFの東京併記は2月発表時の情報であり現在市場として採用しない。母集団全体の当日鮮度の確認ではない。",
+  "source_conditions": "既読の公式privacy/copyrightと実在IR一覧を保持。一般利用条件・IR専用免責の所在は未確定。独立した短い制度事実と通常の出典リンクだけを使い、著作物の再利用許諾や全面的な事実利用禁止を推測しない。原文の表・画像・長文は公開しない。",
+  "amendment_review_limit": "2026年変更PDFと現在HTMLを照合。既読一覧で全改廃を網羅したとはしない。",
+  "recorded_at_jst": "2026-10-23T12:58:00.928692+09:00"
+}
