@@ -73,12 +73,16 @@
     } catch(ignore) {return false;}
   }
   function show(nextGroup) {
-    if(nextGroup===1&&!account())return;
+    if(nextGroup!==0&&!account())return;
     var wasLedger=group===1;
     group=nextGroup;
     var assets=group===0&&portfolioSelected()&&!!account();
-    page.setAttribute('data-mp-view',group===1?'ledger':assets?'assets':'personal');
-    if(group===1||assets){
+    page.setAttribute('data-mp-view',group===2?'memo':group===1?'ledger':assets?'assets':'personal');
+    var top=page.querySelector('.mp-toptabs');
+    top.hidden=group===2;
+    if(group===2){top.setAttribute('inert','');top.setAttribute('aria-hidden','true');}
+    else{top.removeAttribute('inert');top.removeAttribute('aria-hidden');}
+    if(group===1||group===2||assets){
       recoverWrongDocument();
       prepare();
       markReady();
@@ -92,13 +96,13 @@
     personal.classList.toggle('on',group===0);ledger.classList.toggle('on',group===1);
     // Reserve the same intrinsic tab-row height in both views, including large
     // type and translated labels. Hidden tabs must not remain keyboard targets.
-    tabs.style.display='';tabs.style.visibility=group===0?'':'hidden';
-    if(group===1){tabs.setAttribute('inert','');tabs.setAttribute('aria-hidden','true');}
+    tabs.hidden=group===2;tabs.style.display=group===2?'none':'';tabs.style.visibility=group===0?'':'hidden';
+    if(group!==0){tabs.setAttribute('inert','');tabs.setAttribute('aria-hidden','true');}
     else {tabs.removeAttribute('inert');tabs.removeAttribute('aria-hidden');}
     pane.classList.toggle('on',group===1||assets);
     var inner=body.querySelectorAll('.mo-pane:not(.kb-pane)'), ti=tabs.querySelectorAll('.mo-tab');
     for(var i=0;i<inner.length;i++)
-      inner[i].classList.toggle('on',group===0&&!!(ti[i]&&ti[i].classList.contains('on')));
+      inner[i].classList.toggle('on',group===2?i===3:group===0&&!!(ti[i]&&ti[i].classList.contains('on')));
     if(group===1)body.scrollTop=0;
     else if(wasLedger)body.scrollTop=personalScroll;
     // Keep the same authenticated document, its scroll position and unfinished
@@ -115,6 +119,19 @@
   }
   function openGoals() {
     return openAssets();
+  }
+  function showMyPage() {
+    var first=tabs.querySelector('.mo-tab');if(first)first.click();
+    show(0);
+  }
+  function openMemo() {
+    var card=document.getElementById('myPageCard');if(card)card.click();
+    if(!page.classList.contains('open')||!account())return false;
+    show(2);
+    var target=page.querySelector('.mp-note-editor');
+    if(!target||target.hidden)target=page.querySelector('.mp-note-library .mp-heading');
+    if(target)target.focus({preventScroll:true});
+    return true;
   }
   function hidePortfolioNote() {
     var portfolio=body.querySelector('.mo-pane:not(.kb-pane)');
@@ -161,6 +178,8 @@
     window.knReturnFromLedger=returnFromLedger;
     window.knOpenAssets=openAssets;
     window.knOpenGoals=openGoals;
+    window.knOpenMemo=openMemo;
+    window.knShowMyPage=showMyPage;
     window.knOpenLedger=function(){
       var card=document.getElementById('myPageCard');if(card)card.click();
       if(page.classList.contains('open')&&account())show(1);

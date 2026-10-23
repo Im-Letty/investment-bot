@@ -4,7 +4,7 @@
   var drawer, nav, lastOpener, mainPanel, backButton, syncDrawerState, currentView='main', wasOpen=false;
   var views=Object.create(null), viewTriggers=Object.create(null);
   var copy = {
-    ja: {menu:'メニュー',back:'戻る',close:'閉じる',frequent:'よく使うもの',news:'経済ニュース',stocks:'今日の銘柄',favorites:'お気に入り',calendar:'カレンダー',color:'カラー',resetColor:'元の色に戻す',original:'これまでの機能',morning:'朝の相場レター',sim:'シミュレーター',shorts:'ショート',saved:'保存した動画',talk:'トーク',kakeibo:'家計簿',memo:'メモ',alert:'急騰アラート',guide:'はじめてガイド',pet:'育成ゲーム',display:'表示設定',size:'文字の大きさ',font:'字体',small:'小',medium:'中',large:'大',largest:'特大',gothic:'ゴシック',round:'丸ゴシック',mincho:'明朝',klee:'かわいい',pop:'かっこいい',reset:'標準に戻す',style:'説明のスタイル',beginner:'かんたん解説',pro:'しっかり解説',account:'マイページ',language:'言語',logout:'ログアウト'},
+    ja: {menu:'メニュー',back:'戻る',close:'閉じる',frequent:'よく使うもの',news:'経済ニュース',stocks:'今日の銘柄',favorites:'お気に入り',calendar:'カレンダー',color:'カラー',resetColor:'元の色に戻す',original:'これまでの機能',morning:'朝の相場レター',sim:'シミュレーター',shorts:'ショート',saved:'保存した動画',talk:'トーク',kakeibo:'家計簿',memo:'自由メモ',alert:'急騰アラート',guide:'はじめてガイド',pet:'育成ゲーム',display:'表示設定',size:'文字の大きさ',font:'字体',small:'小',medium:'中',large:'大',largest:'特大',gothic:'ゴシック',round:'丸ゴシック',mincho:'明朝',klee:'かわいい',pop:'かっこいい',reset:'標準に戻す',style:'説明のスタイル',beginner:'かんたん解説',pro:'しっかり解説',account:'マイページ',language:'言語',logout:'ログアウト'},
     en: {menu:'Menu',back:'Back',close:'Close',frequent:'Quick access',news:'Economic news',stocks:'Stocks today',favorites:'Favorites',calendar:'Calendar',color:'Color',resetColor:'Reset color',original:'All features',morning:'Morning letter',sim:'Simulator',shorts:'Shorts',saved:'Saved videos',talk:'Talk',kakeibo:'Household budget',memo:'Notes',alert:'Price alerts',guide:'Getting started',pet:'Pet game',display:'Display settings',size:'Text size',font:'Font',small:'Small',medium:'Medium',large:'Large',largest:'Extra large',gothic:'Sans serif',round:'Rounded',mincho:'Serif',klee:'Handwritten',pop:'Stylish',reset:'Reset display',style:'Explanation style',beginner:'Simple',pro:'Detailed',account:'My page',language:'Language',logout:'Log out'},
     ko: {menu:'메뉴',back:'뒤로',close:'닫기',frequent:'빠른 이동',news:'경제 뉴스',stocks:'오늘의 종목',favorites:'즐겨찾기',calendar:'캘린더',color:'색상',resetColor:'색상 초기화',original:'모든 기능',morning:'아침 레터',sim:'시뮬레이터',shorts:'쇼츠',saved:'저장한 영상',talk:'대화',kakeibo:'가계부',memo:'메모',alert:'주가 알림',guide:'시작 가이드',pet:'육성 게임',display:'화면 설정',size:'글자 크기',font:'글꼴',small:'작게',medium:'보통',large:'크게',largest:'아주 크게',gothic:'고딕',round:'둥근 글꼴',mincho:'명조',klee:'손글씨',pop:'스타일 글꼴',reset:'기본으로',style:'설명 방식',beginner:'쉬운 설명',pro:'자세한 설명',account:'마이페이지',language:'언어',logout:'로그아웃'},
     zh: {menu:'菜单',back:'返回',close:'关闭',frequent:'快捷入口',news:'经济新闻',stocks:'今日股票',favorites:'收藏',calendar:'日历',color:'颜色',resetColor:'恢复颜色',original:'全部功能',morning:'早间市场',sim:'模拟器',shorts:'短视频',saved:'已保存视频',talk:'聊天',kakeibo:'家庭账本',memo:'备忘录',alert:'股价提醒',guide:'入门指南',pet:'养成游戏',display:'显示设置',size:'文字大小',font:'字体',small:'小',medium:'中',large:'大',largest:'特大',gothic:'黑体',round:'圆体',mincho:'明朝体',klee:'手写体',pop:'个性字体',reset:'恢复默认',style:'说明方式',beginner:'简单说明',pro:'详细说明',account:'我的主页',language:'语言',logout:'退出登录'}
@@ -71,14 +71,16 @@
     else if(key==='saved'&&window.openSaved)window.openSaved();
     else if(key==='alert'&&window.openAlertSection)window.openAlertSection();
     else if(key==='guide'&&window.openBeginnerGuide)window.openBeginnerGuide();
-    else if(key==='account'||key==='kakeibo'||key==='memo'){
+    else if(key==='memo'){
+      if(typeof window.knOpenMemo==='function')window.knOpenMemo();
+    }
+    else if(key==='account'||key==='kakeibo'){
       bn('mypage');
       // The existing opener owns auth and record restoration. Select only an
       // already-open page, without a timer that could outlive another route.
       var ov=document.getElementById('myPageOv');
       if(key==='account'||!ov||!ov.classList.contains('open'))return;
       var tabs=ov.querySelectorAll('.mp-toptab'),tab=tabs[key==='kakeibo'?1:0];if(tab)tab.click();
-      if(key==='memo'){var memo=ov.querySelector('.mo-tab[data-i18n="g2_mp_tab_memo"]');if(memo)memo.click();}
     }
   }
   function syncPreferences() {
@@ -109,7 +111,7 @@
     var panel=document.createElement('div');panel.className='knAccPanel kn-menu-content';mainPanel=panel;nav.appendChild(panel);
     window.KNMenuSheet={showMain:function(){showView('main',false);}};
     if(window.KNUserProfile&&typeof window.KNUserProfile.mount==='function')window.KNUserProfile.mount(panel);
-    panel.appendChild(group(['guide']));
+    panel.appendChild(group(['memo','guide']));
     var colors=drawer.querySelector('.drawer-color-wrap:has(.drawer-color-presets)');
     if(colors){var colorTrigger=row('color');colorTrigger.setAttribute('aria-controls','knMenuView-color');viewTriggers.color=colorTrigger;panel.appendChild(colorTrigger);var palette=view('color');palette.classList.add('kn-menu-palette');palette.appendChild(colors);nav.appendChild(palette);colors.querySelectorAll('.drawer-color-preset').forEach(function(b){b.type='button';b.setAttribute('aria-label',b.title);b.style.setProperty('--menu-swatch',b.getAttribute('data-color'));});var reset=colors.querySelector('#drawerColorReset');if(reset){reset.removeAttribute('data-i18n');reset.dataset.menuCopy='resetColor';reset.textContent=text('resetColor');}}
     var display=view('display');var displayControls=document.createElement('div');displayControls.innerHTML='<p class="kn-menu-label" data-menu-copy="size">'+text('size')+'</p><div class="kn-menu-sizes">'+[['s','small'],['m','medium'],['l','large'],['xl','largest']].map(function(v){return '<button type="button" data-menu-size="'+v[0]+'" data-menu-copy="'+v[1]+'">'+text(v[1])+'</button>';}).join('')+'</div><label class="kn-menu-font"><span data-menu-copy="font">'+text('font')+'</span><select id="knMenuFont" aria-label="'+text('font')+'">'+['gothic','round','mincho','klee','pop'].map(function(key){return '<option value="'+key+'" data-menu-copy="'+key+'">'+text(key)+'</option>';}).join('')+'</select></label>';

@@ -70,6 +70,7 @@ function fixture({user=null,language='ja',logoutFlow=true,mypageAllowed=true}={}
   const mypage=add('div',{id:'myPageOv'});for(let i=0;i<2;i++)add('button',{class:'mp-toptab'},mypage).onclick=()=>calls.push(['mypage-tab',i]);
   add('button',{class:'mo-tab','data-i18n':'g2_mp_tab_memo'},mypage).onclick=()=>calls.push(['memo-tab']);
   const w={knUser:user,KNUserProfile:{mount(panel){const section=add('details',{id:'knProfile'},panel);add('summary',{},section).textContent='プロフィール';mounted.push(panel);return section;}},dsSetSize:value=>{storage.set('ui_fontscale',value);calls.push(['size',value]);},dsSetFont:value=>{storage.set('ui_font',value);calls.push(['font',value]);},dsReset:()=>calls.push(['reset']),closeDrawer:()=>{calls.push(['close']);drawer.classList.remove('open');},__knSetSub:value=>calls.push(['stock-view',value]),matchMedia:()=>({matches:false})};
+  w.knOpenMemo=()=>{calls.push(['open','memo']);if(mypageAllowed)mypage.classList.add('open');return mypageAllowed;};
   for(const [key,name]of Object.entries({openSimulatorSection:'sim',openSaved:'saved',openAlertSection:'alert',openBeginnerGuide:'guide'}))w[key]=()=>calls.push(['open',name]);
   if(logoutFlow)w.knLogoutFlow=()=>calls.push(['logout-flow']);
   const context={window:w,document,localStorage:{getItem:key=>storage.get(key)||null},setTimeout:(fn,delay=0)=>{timers.push({fn,at:clock+delay,delay});return timers.length;},MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(target,options){this.target=target;this.options=options;}},console};
@@ -93,7 +94,7 @@ test('logout exists once at the end of the hamburger menu and the old personal-p
   const h=fixture({user:{id:'synthetic-member',is_anonymous:false}}),group=h.group();
   assert.ok(group);assert.equal(group.parentElement.className,'knAccPanel kn-menu-content');assert.equal(group.parentElement.children.at(-1),group);
   assert.equal(h.nav.querySelectorAll('[data-menu-page="logout"]').length,1);assert.equal(h.button('logout').textContent,'ログアウト');assert.equal(group.hidden,false);
-  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261024-fast-nav1/);
+  const html=read('index.html');assert.doesNotMatch(html,/ensureLogout|knLogoutBtn/);assert.match(html,/menu-a\.js\?v=20261024-memo-menu1/);
 });
 test('signed-out and guest users cannot invoke logout even through a programmatic menu click',()=>{
   for(const user of [null,undefined,{id:'synthetic-guest',is_anonymous:true}]){
@@ -140,7 +141,7 @@ const destinations={
   calendar:[['bottom','morning'],['tab','div_cal'],['scroll','knTabWrap','smooth','start']],
   morning:[['bottom','morning']],shorts:[['bottom','shorts']],talk:[['bottom','talk']],pet:[['bottom','pet']],
   sim:[['open','sim']],saved:[['open','saved']],alert:[['open','alert']],guide:[['open','guide']],account:[['bottom','mypage']],
-  kakeibo:[['bottom','mypage'],['mypage-tab',1]],memo:[['bottom','mypage'],['mypage-tab',0],['memo-tab']]
+  kakeibo:[['bottom','mypage'],['mypage-tab',1]],memo:[['open','memo']]
 };
 for(const [key,expected]of Object.entries(destinations))test('existing '+key+' navigation retains its destination and arguments',()=>{
   const h=fixture({user:{id:'synthetic-member'}});h.navigate(key);assert.deepEqual(h.calls,[['close'],...expected]);
@@ -154,7 +155,7 @@ test('every route runs in the activation event after closing the drawer, without
     h.advance(1000);assert.deepEqual(h.calls,[['close'],...expected],key+' must not replay a route after animation');
   }
 });
-test('household and memo select their prepared panel immediately while storage restoration stays on its own path',()=>{
+test('household and memo use their own opener immediately while storage restoration stays on its own path',()=>{
   for(const key of ['kakeibo','memo']){
     const h=fixture({user:{id:'synthetic-member'}}),settings=[...h.storage];
     Object.defineProperty(h.w,'__knGateReady',{get(){throw new Error('The existing personal-page route owns protected restoration');}});
@@ -164,12 +165,50 @@ test('household and memo select their prepared panel immediately while storage r
     assert.deepEqual(h.pendingTimers(),[]);
   }
 });
-test('a rejected personal-page opener never selects hidden panels or applies an intent after later authentication',()=>{
+test('a rejected household or memo opener never selects hidden panels or applies an intent after later authentication',()=>{
   for(const key of ['kakeibo','memo']){
     const h=fixture({mypageAllowed:false});h.route(key);
-    assert.deepEqual(h.calls,[['close'],['bottom','mypage']]);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
-    h.setMypageAllowed(true);h.advance(1000);assert.deepEqual(h.calls,[['close'],['bottom','mypage']]);
+    const expected=[['close'],key==='memo'?['open','memo']:['bottom','mypage']];
+    assert.deepEqual(h.calls,expected);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
+    h.setMypageAllowed(true);h.document.dispatch('knAuthChange');h.advance(1000);assert.deepEqual(h.calls,expected);
+    assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
     assert.deepEqual(h.pendingTimers(),[],'No delayed protected panel selection may survive denied auth');
+  }
+});
+
+test('the one memo row closes the drawer and invokes its dedicated opener once without selecting My Page tabs',()=>{
+  const h=fixture({user:{id:'synthetic-member'}}),storage=[...h.storage];
+  const legacy=h.document.querySelector('.mo-tab[data-i18n="g2_mp_tab_memo"]');
+  legacy.onclick=()=>assert.fail('Dedicated notes must not click the old My Page memo tab');
+  h.document.querySelector('.bn-item[data-act="mypage"]').onclick=()=>assert.fail('The notes opener owns auth and panel selection');
+  assert.equal(h.nav.querySelectorAll('[data-menu-page="memo"]').length,1);
+  h.activate('memo',{nested:true});
+  assert.deepEqual(h.calls,[['close'],['open','memo']]);
+  assert.equal(h.drawer.classList.contains('open'),false);assert.equal(h.drawer.inert,true);assert.equal(h.drawer.getAttribute('aria-hidden'),'true');
+  assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),true);
+  assert.deepEqual([...h.storage],storage);assert.deepEqual(h.pendingTimers(),[]);
+  h.notifyDrawerState();h.advance(2000);assert.deepEqual(h.calls,[['close'],['open','memo']]);
+});
+
+test('an unavailable memo opener cannot fall back to the retired My Page memo route',()=>{
+  const h=fixture();delete h.w.knOpenMemo;
+  assert.doesNotThrow(()=>h.activate('memo'));
+  assert.deepEqual(h.calls,[['close']]);assert.equal(h.document.getElementById('myPageOv').classList.contains('open'),false);
+  assert.deepEqual(h.pendingTimers(),[]);
+});
+
+test('the memo row keeps one translated node across all four initial and live language selections',()=>{
+  const labels=[['ja','自由メモ'],['en','Notes'],['ko','메모'],['zh','备忘录']];
+  for(const [initial,label]of labels){
+    const h=fixture({language:initial}),row=h.button('memo');assert.ok(row);assert.equal(row.textContent,label);
+    h.activate('language');
+    for(const [language,translated]of labels){
+      h.storage.set('app_lang',language);h.document.dispatch('langChanged');
+      assert.equal(h.button('memo'),row);assert.equal(row.textContent,translated);
+      assert.equal(h.nav.querySelectorAll('[data-menu-page="memo"]').length,1);
+      assert.equal(h.drawer.dataset.menuView,'language');assert.deepEqual(h.calls,[],'Translation must not navigate or open notes');
+    }
+    h.drawer.querySelector('.kn-menu-back').click();assert.equal(h.mounted[0].hidden,false);assert.equal(h.button('memo'),row);
   }
 });
 test('switching routes after household selection cannot be pulled back by a delayed memo or ledger callback',()=>{
@@ -200,10 +239,10 @@ test('an explicit close without navigation still restores the existing opener on
 test('compact menu has only the selected primary rows and hides preference panels until requested',()=>{
   const h=fixture({user:{id:'synthetic-member'}}),panel=h.mounted[0];
   assert.equal(panel.className,'knAccPanel kn-menu-content');assert.equal(h.document.getElementById('knProfile').parentElement,panel);
-  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['guide','color','display','language','logout']);
+  assert.deepEqual(panel.querySelectorAll('[data-menu-page]').map(n=>n.dataset.menuPage),['memo','guide','color','display','language','logout']);
   for(const key of ['color','display','language'])assert.equal(h.document.getElementById('knMenuView-'+key).hidden,true);
   assert.equal(h.drawer.getAttribute('role'),'dialog');assert.equal(h.drawer.getAttribute('aria-modal'),'true');
-  for(const key of ['account','kakeibo','memo','saved','alert'])assert.equal(h.button(key),null);
+  for(const key of ['account','kakeibo','saved','alert'])assert.equal(h.button(key),null);
   assert.equal(h.drawer.querySelector('[data-menu-style]'),null);
 });
 test('each preference page opens in place and Back restores the selected row focus',()=>{

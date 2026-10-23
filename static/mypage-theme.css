@@ -393,4 +393,7 @@ body.kn-home-a #knLogoutDlg button:focus-visible {
 
 /* One private ledger document serves the portfolio and household views. */
 body.kn-home-a #myPageOv[data-mp-view="assets"] .mo-body {gap:0}
+/* Notes have their own menu entry while keeping the same private editor/store. */
+body.kn-home-a #myPageOv[data-mp-view="memo"] > :is(.mp-toptabs,.mo-tabs) {display:none!important}
+body.kn-home-a #myPageOv[data-mp-view="memo"] .mo-body {padding-top:max(76px,calc(var(--kn-a-menu-top,18px) + 48px))}
 #myPageOv .mp-portfolio-note {display:none!important}

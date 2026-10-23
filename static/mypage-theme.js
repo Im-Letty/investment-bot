@@ -76,7 +76,7 @@
     page.querySelectorAll('.td-del').forEach(function(button){attribute(button,'aria-label','やることを削除');});
     var title=page.querySelector('.mo-head > span');
     if(title&&/^📋\s*/.test(title.textContent))title.textContent=title.textContent.replace(/^📋\s*/,'');
-    attribute(page.querySelector('.mo-x'),'aria-label','マイページを閉じる');
+    attribute(page.querySelector('.mo-x'),'aria-label',page.getAttribute('data-mp-view')==='memo'?'自由メモを閉じる':'マイページを閉じる');
     [['mpPortfolio','ポートフォリオ'],['mpGoal','目標'],['mpMemo','自由メモ'],['mpTodoInput','やることを追加']].forEach(function(item){
       attribute(document.getElementById(item[0]),'aria-label',item[1]);
     });
